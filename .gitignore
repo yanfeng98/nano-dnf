@@ -1,0 +1,3 @@
+# LoopX project-local private state (registry, active goal state, run overlays).
+.loopx/
+.codex/goals/
