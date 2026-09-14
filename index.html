@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>nano-dnf - Dungeon Fighter demo</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: "Segoe UI", system-ui, -apple-system, "PingFang SC", sans-serif;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        background: radial-gradient(circle at 50% 0%, #1b2340, #05070f 70%);
+        color: #eaf1ff;
+      }
+      h1 {
+        margin: 0;
+        font-size: 20px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        opacity: 0.86;
+      }
+      #stage {
+        width: min(96vw, 960px);
+        height: auto;
+        border-radius: 12px;
+        border: 1px solid rgba(140, 180, 255, 0.28);
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+        background: #0b1020;
+        touch-action: none;
+      }
+      .hint {
+        margin: 0;
+        font-size: 13px;
+        opacity: 0.72;
+        text-align: center;
+        line-height: 1.6;
+      }
+      kbd {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        border-radius: 4px;
+        padding: 1px 6px;
+        font-size: 12px;
+      }
+      #status {
+        font-variant-numeric: tabular-nums;
+        opacity: 0.62;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>nano-dnf</h1>
+    <canvas id="stage" width="960" height="540"></canvas>
+    <p class="hint">
+      <kbd>A</kbd>/<kbd>D</kbd> 移动 · <kbd>W</kbd>/<kbd>Space</kbd> 跳跃 ·
+      <kbd>J</kbd> 连击 · <kbd>K</kbd> 旋风斩 · <kbd>P</kbd> 暂停 ·
+      <kbd>R</kbd> 重开 · <kbd>H</kbd> 帮助
+    </p>
+    <p class="hint">清空房间后走到右侧传送门进入下一层，最后一层击败 Boss 即通关。</p>
+    <p class="hint" id="status"></p>
+    <script src="./src/core.js"></script>
+    <script src="./src/render.js"></script>
+    <script src="./src/main.js"></script>
+  </body>
+</html>
