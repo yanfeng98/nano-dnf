@@ -24,7 +24,7 @@
 ## 运行
 
 ```bash
-npm test          # 31 个核心逻辑、技能、成长系统与渲染冒烟测试
+npm test          # 31 个核心逻辑、技能、成长系统与渲染冒烟测试（角色与图标为 DNF 素材导入）
 npm run serve     # 起本地静态服务，然后打开 http://localhost:8080
 python3 assets/make_slayer_sprites.py   # 可选：重新生成原创精灵图与技能图标
 ```
@@ -89,17 +89,30 @@ HUD 左下角是技能栏，显示按键、技能名、MP 消耗与冷却读秒�
 | `src/core.js` | 纯逻辑内核：物理、连击、伤害、敌人 AI、房间推进。无 DOM 依赖，Node 与浏览器共用 |
 | `src/render.js` | Canvas 2D 渲染层：精灵动画、HUD、技能栏、背景与特效，只读状态、不做修改 |
 | `src/main.js` | 浏览器入口：DNF 键位映射、精灵图加载、固定步长循环、暂停与重开 |
-| `assets/make_slayer_sprites.py` | 原创美术生成脚本（Pillow），产出 `slayer.png` 与 `skills.png` |
-| `assets/slayer.png` | 6×5 张 96×96 精灵帧：待机 / 跑动 / 攻击 / 技能 / 其它 |
+| `assets/import_dnf_art.py` | 从 DNF 原始 IMG 导入鬼剑士 SD 动画与技能图标，烘焙出下面两张图集 |
+| `assets/make_slayer_sprites.py` | 备用：纯原创像素美术生成脚本（不依赖任何外部素材） |
+| `assets/slayer.png` | 6×5 张 96×96 精灵帧：待机 / 跑动 / 攻击 / 技能 / 受击·倒地·跳跃·下落 |
 | `assets/skills.png` | 四个 32×32 技能图标，顺序与技能栏一致 |
 | `index.html` | 页面外壳：标题、画布边框、键位说明与状态栏 |
 | `tests/core.test.js` | `node:test` 验证内核行为、成长与掉落、确定性、900 帧稳定性、可通关性、精灵帧选择与渲染冒烟 |
 
 ## 美术
 
-角色与图标都是**原创像素美术**，由 `assets/make_slayer_sprites.py` 用几何图元绘制并导出，仓库里不含
-DNF（地下城与勇士）官方素材——官方立绘属于 Neople/Nexon 版权，放进公开仓库会有授权风险。
-如果你只在本机自用，可以把自己的图片放到 `assets/` 并让渲染层加载；公开分发时请使用原创或明确授权的素材。
+角色是 **DNF（地下城与勇士）官方 SD 鬼剑士**动画帧，技能图标取自 DNF 鬼剑士技能图标集，
+由 `assets/import_dnf_art.py` 从原始 `.img` 里解码并按游戏的图集规格烘焙：
+
+```bash
+pip install pydnfex pillow          # 解析 DNF IMG 需要
+python3 assets/import_dnf_art.py    # 输出 assets/slayer.png 与 assets/skills.png
+```
+
+脚本会把 `c_swordman.img`（43 帧：站立 / 行走 / 攻击）里的关键帧重排成待机 4 帧、跑动 6 帧、攻击 3 帧、
+技能 4 帧，并用受击帧合成出受击、倒地、跳跃、下落；技能图标按上挑 / 崩山击 / 十字斩 / 鬼斩的顺序取 4 张。
+对应的原始素材缓存在 `assets/dnf_src/`（已 gitignore）。
+
+需要注意的是：**DNF 美术版权属于 Neople/Nexon**，这里按项目所有者的要求直接使用，仓库的 MIT 许可
+只覆盖代码，不覆盖这些图像；如果要公开分发，请自行确认授权，或改用 `assets/make_slayer_sprites.py`
+生成的原创像素美术。
 
 ## 设计约定
 

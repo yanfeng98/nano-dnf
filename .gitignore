@@ -1,3 +1,6 @@
 # LoopX project-local private state (registry, active goal state, run overlays).
 .loopx/
 .codex/goals/
+
+# Cached DNF source files imported by assets/import_dnf_art.py
+assets/dnf_src/
