@@ -4,7 +4,8 @@
 
 ## 在线试玩
 
-打开 <https://yanfeng98.github.io/nano-dnf/> 直接在浏览器里玩，无需本地安装：
+打开 <https://luyf-lemon-love.space/nano-dnf/>（备用 <https://yanfeng98.github.io/nano-dnf/>）
+直接在浏览器里玩，无需本地安装：
 清空房间后走到右侧传送门进入下一层，第 4 层击败 Boss 即通关。
 
 该页面由 `.github/workflows/pages.yml` 在 `main` 分支更新时自动测试并部署。
