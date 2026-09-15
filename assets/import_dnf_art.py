@@ -51,10 +51,10 @@ FRAMES = {
 }
 
 # Skill icons inside skillicon.img, in SKILL_ORDER (上挑 / 崩山击 / 十字斩 / 鬼斩).
-# The atlas carries no name table, so these four need a human eye:
+# Picked by the project owner from the labelled atlas (the file has no name table):
 #   python3 assets/import_dnf_art.py --atlas          # labelled contact sheet
 #   python3 assets/import_dnf_art.py --icons 3,5,7,9  # re-bake with chosen frames
-ICON_FRAMES = [70, 52, 44, 78]
+ICON_FRAMES = [94, 154, 132, 10]  # 上挑 / 崩山击 / 十字斩 / 鬼斩
 
 # Where the character's feet sit inside the source canvas.
 SRC_CANVAS = (180, 176)
