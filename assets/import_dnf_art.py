@@ -180,9 +180,47 @@ def build_icons() -> None:
     print(f"wrote {ROOT / 'skills.png'} ({sheet.width}x{sheet.height})")
 
 
+def build_favicon() -> None:
+    sheet = Image.open(ROOT / "slayer.png")
+    head = sheet.crop((28, 16, 72, 60)).resize((32, 32), Image.LANCZOS)
+    canvas = Image.new("RGBA", (32, 32), (18, 22, 36, 255))
+    canvas.alpha_composite(head)
+    canvas.save(ROOT / "favicon.png")
+    print(f"wrote {ROOT / 'favicon.png'} (32x32)")
+
+
 def main() -> None:
+    if "--atlas" in sys.argv:
+        build_atlas()
+        return
     build_sheet()
     build_icons()
+    build_favicon()
+
+
+def build_atlas() -> None:
+    """Write a labelled contact sheet of every icon so a human can pick indices."""
+    _, image_util, convertor = load_img_tools()
+    icons = open_img(fetch("skillicon.img", SOURCES["skillicon.img"]))
+    cols, cell = 16, 52
+    rows = (len(icons.images) + cols - 1) // cols
+    sheet = Image.new("RGBA", (cols * cell, rows * cell), (18, 22, 34, 255))
+    draw = ImageDraw.Draw(sheet)
+    for index, item in enumerate(icons.images):
+        if type(item).__name__ == "ImageLink":
+            continue
+        raw = item.data
+        try:
+            raw = convertor.to_raw(raw, item.format)
+        except Exception:
+            pass
+        icon = image_util.load_raw(raw, item.w, item.h).convert("RGBA")
+        x = (index % cols) * cell
+        y = (index // cols) * cell
+        sheet.alpha_composite(icon.resize((cell - 18, cell - 18), Image.LANCZOS), (x + 9, y + 15))
+        draw.text((x + 4, y + 3), str(index), fill=(255, 215, 120, 255))
+    sheet.save(ROOT / "dnf_skillicon_atlas.png")
+    print(f"wrote {ROOT / 'dnf_skillicon_atlas.png'} ({sheet.width}x{sheet.height})")
 
 
 if __name__ == "__main__":

@@ -25,6 +25,7 @@
 
 ```bash
 npm test          # 31 个核心逻辑、技能、成长系统与渲染冒烟测试（角色与图标为 DNF 素材导入）
+npm run test:browser # 无头 Chromium 跑真实页面：驱动通关整座地牢并检查控制台与资源
 npm run serve     # 起本地静态服务，然后打开 http://localhost:8080
 python3 assets/make_slayer_sprites.py   # 可选：重新生成原创精灵图与技能图标
 ```
@@ -113,6 +114,28 @@ python3 assets/import_dnf_art.py    # 输出 assets/slayer.png 与 assets/skills
 需要注意的是：**DNF 美术版权属于 Neople/Nexon**，这里按项目所有者的要求直接使用，仓库的 MIT 许可
 只覆盖代码，不覆盖这些图像；如果要公开分发，请自行确认授权，或改用 `assets/make_slayer_sprites.py`
 生成的原创像素美术。
+
+技能图标的索引写在 `assets/import_dnf_art.py` 的 `ICON_FRAMES` 里（当前是 `[70, 52, 44, 78]`）。
+图标库本身没有名字映射，所以脚本支持导出带编号的对照图供人工挑选：
+
+```bash
+python3 assets/import_dnf_art.py --atlas   # 生成 assets/dnf_skillicon_atlas.png（已 gitignore）
+```
+
+## 验证
+
+除了单元测试，还有一条**浏览器级可玩性证明**（`npm run test:browser`）：起本地静态服务，用无头 Chromium
+打开真实页面，用和单元测试同一套策略按真实键盘事件驱动机器人通关整座地牢，并同时校验控制台无报错、
+页面无异常、资源全部 200。最近一次结果：
+
+```
+victory=true kills=11 damageTaken=7 seconds=62.2 level=4
+consoleErrors=[] pageErrors=[] failedRequests=[]
+assets: index.html / main.js / render.js / core.js / slayer.png / skills.png / favicon.png 全部 200
+```
+
+截图证据：`tests/browser/artifacts/playability-title.png`（标题页）、`playability-fight.png`（战斗中）、
+`playability-clear.png`（通关）。
 
 ## 设计约定
 
