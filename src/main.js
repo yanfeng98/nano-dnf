@@ -7,6 +7,7 @@
 
   var Core = window.DNFCore;
   var Render = window.DNFRender;
+  var Loadout = window.DNFLoadout;
   var canvas = document.getElementById("stage");
   var ctx = canvas.getContext("2d");
 
@@ -24,7 +25,7 @@
     };
   });
 
-  /* DNF Slayer layout: arrows move, X attacks, C jumps, A/S/D/F cast skills. */
+  /* DNF Slayer layout: arrows move, X attacks, C jumps, A/S/D/F/G/H are slots. */
   var KEY_MAP = {
     ArrowLeft: "left",
     ArrowRight: "right",
@@ -33,27 +34,47 @@
     Space: "jump",
     KeyC: "jump",
     KeyX: "attack",
-    KeyA: "upSlash",
-    KeyS: "mountainBreaker",
-    KeyD: "crossSlash",
-    KeyF: "ghostSlash"
+    KeyA: "slot0",
+    KeyS: "slot1",
+    KeyD: "slot2",
+    KeyF: "slot3",
+    KeyG: "slot4",
+    KeyH: "slot5"
   };
 
   var ONE_SHOT_ACTIONS = {
     jump: true,
-    attack: true,
-    upSlash: true,
-    mountainBreaker: true,
-    crossSlash: true,
-    ghostSlash: true
+    attack: true
   };
 
   var held = { left: false, right: false, down: false, jump: false, attack: false };
   var pressed = { jump: false, attack: false };
-  Core.SKILL_ORDER.forEach(function (skillId) {
-    held[skillId] = false;
-    pressed[skillId] = false;
+  Loadout.SLOT_KEYS.forEach(function (key, index) {
+    var action = "slot" + index;
+    held[action] = false;
+    pressed[action] = false;
+    ONE_SHOT_ACTIONS[action] = true;
   });
+
+  /* ---------------------------------------------------------- skill bar */
+  var LOADOUT_KEY = "nano-dnf-loadout";
+  var loadout = Loadout.create(Core.SKILL_ORDER);
+  var loadoutOpen = false;
+  var drag = null;
+  try {
+    var savedLoadout = window.localStorage.getItem(LOADOUT_KEY);
+    if (savedLoadout) loadout = Loadout.deserialize(savedLoadout, Core.SKILL_ORDER);
+  } catch (error) {
+    loadout = Loadout.create(Core.SKILL_ORDER);
+  }
+
+  function saveLoadout() {
+    try {
+      window.localStorage.setItem(LOADOUT_KEY, Loadout.serialize(loadout));
+    } catch (error) {
+      /* private mode: keep the in-memory loadout */
+    }
+  }
 
   var touchMode =
     location.search.indexOf("touch=1") !== -1 ||
@@ -237,13 +258,35 @@
   }
 
   function touchDown(event) {
-    if (!touchMode) return;
     if (showHelp) {
       showHelp = false;
       event.preventDefault();
       return;
     }
     var point = canvasPoint(event);
+
+    /* Skill bar: tap to cast, or start a drag while arranging the loadout. */
+    var bar = Render.hitTestLoadout(point.x, point.y, loadoutOpen);
+    if (bar) {
+      event.preventDefault();
+      ensureAudio();
+      if (loadoutOpen) {
+        var dragged = bar.kind === "slot" ? loadout[bar.index] : bar.skillId;
+        if (dragged) drag = { skillId: dragged, x: point.x, y: point.y, pointerId: event.pointerId };
+        return;
+      }
+      if (bar.kind === "slot" && loadout[bar.index]) {
+        var slotAction = "slot" + bar.index;
+        activePointers[event.pointerId] = slotAction;
+        held[slotAction] = true;
+        pressed[slotAction] = true;
+        if (touchActions.indexOf(slotAction) === -1) touchActions.push(slotAction);
+      }
+      return;
+    }
+
+    /* Movement / jump / attack buttons only exist on touch surfaces. */
+    if (!touchMode) return;
     var action = Render.hitTestTouch(point.x, point.y);
     if (!action) return;
     event.preventDefault();
@@ -252,13 +295,37 @@
       toggleMute();
       return;
     }
+    if (action === "loadout") {
+      loadoutOpen = !loadoutOpen;
+      drag = null;
+      return;
+    }
     activePointers[event.pointerId] = action;
     held[action] = true;
     if (ONE_SHOT_ACTIONS[action]) pressed[action] = true;
     if (touchActions.indexOf(action) === -1) touchActions.push(action);
   }
 
+  function touchMove(event) {
+    if (!drag) return;
+    var point = canvasPoint(event);
+    drag.x = point.x;
+    drag.y = point.y;
+    event.preventDefault();
+  }
+
   function touchUp(event) {
+    if (drag && drag.pointerId === event.pointerId) {
+      var point = canvasPoint(event);
+      var target = Render.hitTestLoadout(point.x, point.y, loadoutOpen);
+      if (target && target.kind === "slot") {
+        loadout = Loadout.assign(loadout, target.index, drag.skillId);
+        saveLoadout();
+      }
+      drag = null;
+      event.preventDefault();
+      return;
+    }
     var action = activePointers[event.pointerId];
     if (!action) return;
     delete activePointers[event.pointerId];
@@ -290,13 +357,19 @@
       event.preventDefault();
       return;
     }
-    if (event.code === "KeyH") {
+    if (event.code === "F1") {
       showHelp = !showHelp;
       event.preventDefault();
       return;
     }
     if (event.code === "KeyM") {
       toggleMute();
+      event.preventDefault();
+      return;
+    }
+    if (event.code === "KeyB") {
+      loadoutOpen = !loadoutOpen;
+      drag = null;
       event.preventDefault();
       return;
     }
@@ -316,6 +389,7 @@
   });
 
   canvas.addEventListener("pointerdown", touchDown);
+  canvas.addEventListener("pointermove", touchMove);
   canvas.addEventListener("pointerup", touchUp);
   canvas.addEventListener("pointercancel", touchUp);
   canvas.addEventListener("pointerleave", touchUp);
@@ -355,7 +429,12 @@
       skills: {}
     };
     Core.SKILL_ORDER.forEach(function (skillId) {
-      input.skills[skillId] = held[skillId] || pressed[skillId];
+      input.skills[skillId] = false;
+    });
+    loadout.forEach(function (skillId, index) {
+      if (!skillId) return;
+      var action = "slot" + index;
+      if (held[action] || pressed[action]) input.skills[skillId] = true;
     });
     return input;
   }
@@ -388,7 +467,10 @@
       paused: paused,
       showHelp: showHelp,
       sprites: sprites,
-      touch: { enabled: touchMode, pressed: touchActions, muted: audio.muted }
+      touch: { enabled: touchMode, pressed: touchActions, muted: audio.muted },
+      loadout: loadout,
+      loadoutOpen: loadoutOpen,
+      drag: drag
     });
 
     var status = document.getElementById("status");
@@ -434,6 +516,27 @@
       };
     },
     toggleMute: toggleMute,
+    getLoadout: function () {
+      return loadout.slice();
+    },
+    setLoadout: function (slots) {
+      loadout = Loadout.deserialize(Loadout.serialize(slots || []), Core.SKILL_ORDER);
+      saveLoadout();
+      return loadout.slice();
+    },
+    resetLoadout: function () {
+      loadout = Loadout.create(Core.SKILL_ORDER);
+      saveLoadout();
+      return loadout.slice();
+    },
+    isArranging: function () {
+      return loadoutOpen;
+    },
+    setArranging: function (open) {
+      loadoutOpen = !!open;
+      drag = null;
+      return loadoutOpen;
+    },
     setTouchMode: function (enabled) {
       touchMode = !!enabled;
       return touchMode;

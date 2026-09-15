@@ -29,16 +29,19 @@ const MIME = {
 const MAX_SECONDS = 150;
 const TOTAL_ENEMIES = 11;
 
+const SLOT_KEYS = ["KeyA", "KeyS", "KeyD", "KeyF", "KeyG", "KeyH"];
 const KEY_FOR_ACTION = {
   left: "ArrowLeft",
   right: "ArrowRight",
   jump: "ArrowUp",
-  attack: "KeyX",
-  upSlash: "KeyA",
-  mountainBreaker: "KeyS",
-  crossSlash: "KeyD",
-  ghostSlash: "KeyF"
+  attack: "KeyX"
 };
+
+/** Skill id -> the key/slot that currently holds it. */
+function keyForSkill(skillId, loadout) {
+  const index = loadout.indexOf(skillId);
+  return index === -1 ? null : SLOT_KEYS[index];
+}
 
 function startServer() {
   const server = http.createServer((request, response) => {
@@ -118,6 +121,7 @@ function decide(state, constants) {
   const castable = constants.skillOrder.filter((skillId) => {
     const skill = constants.skills[skillId];
     return (
+      (constants.equipped || constants.skillOrder).indexOf(skillId) !== -1 &&
       player.mp >= skill.mp &&
       player.skillCooldowns[skillId] <= 0 &&
       distance <= skill.reach &&
@@ -155,12 +159,53 @@ async function readState(page) {
   return page.evaluate(() => JSON.parse(JSON.stringify(window.nanoDnf.getState())));
 }
 
+/** Drag a skill tile from the arrange panel onto a hotbar slot. */
+async function dragSkillToSlot(page, skillId, slotIndex) {
+  return page.evaluate(
+    ({ skillId, slotIndex }) => {
+      const canvas = document.getElementById("stage");
+      const rect = canvas.getBoundingClientRect();
+      const toClient = (x, y) => ({
+        clientX: rect.left + (x / canvas.width) * rect.width,
+        clientY: rect.top + (y / canvas.height) * rect.height
+      });
+      const tile = window.DNFRender.loadoutPanelButtons().find((entry) => entry.skillId === skillId);
+      const slot = window.DNFRender.skillBarButtons()[slotIndex];
+      const send = (type, box, buttons) =>
+        canvas.dispatchEvent(
+          new PointerEvent(type, {
+            pointerId: 7,
+            bubbles: true,
+            cancelable: true,
+            pointerType: "mouse",
+            isPrimary: true,
+            buttons: buttons,
+            ...toClient(box.x + box.w / 2, box.y + box.h / 2)
+          })
+        );
+      send("pointerdown", tile, 1);
+      send("pointermove", slot, 1);
+      send("pointerup", slot, 0);
+      return {
+        loadout: window.nanoDnf.getLoadout(),
+        stored: window.localStorage.getItem("nano-dnf-loadout"),
+        arranging: window.nanoDnf.isArranging()
+      };
+    },
+    { skillId, slotIndex }
+  );
+}
+
 /** Hold or release an on-screen control through real pointer events. */
 async function touchAction(page, action, down) {
   await page.evaluate(
     ({ action, down }) => {
       const canvas = document.getElementById("stage");
-      const button = window.DNFRender.touchButtons().find((entry) => entry.action === action);
+      const slotIndex = action.startsWith("slot") ? Number(action.slice(4)) : -1;
+      const button =
+        slotIndex >= 0
+          ? window.DNFRender.skillBarButtons()[slotIndex]
+          : window.DNFRender.touchButtons().find((entry) => entry.action === action);
       const rect = canvas.getBoundingClientRect();
       const clientX = rect.left + ((button.x + button.w / 2) / canvas.width) * rect.width;
       const clientY = rect.top + ((button.y + button.h / 2) / canvas.height) * rect.height;
@@ -200,8 +245,10 @@ async function runPass(browser, baseUrl, options) {
   const constants = await page.evaluate(() => ({
     skills: JSON.parse(JSON.stringify(window.DNFCore.SKILLS)),
     skillOrder: window.DNFCore.SKILL_ORDER,
-    arena: JSON.parse(JSON.stringify(window.DNFCore.ARENA))
+    arena: JSON.parse(JSON.stringify(window.DNFCore.ARENA)),
+    equipped: window.nanoDnf.getLoadout()
   }));
+  let loadout = constants.equipped.slice();
   const touchMode = await page.evaluate(() => window.nanoDnf.isTouchMode());
   if (options.mode === "touch") {
     await page.screenshot({ path: path.join(ARTIFACTS, "playability-touch-start.png") });
@@ -214,6 +261,7 @@ async function runPass(browser, baseUrl, options) {
   let state = await readState(page);
   let midShot = false;
   const trace = [];
+  let loadoutChecks = null;
 
   while (!state.victory && !state.defeat) {
     if ((Date.now() - started) / 1000 > MAX_SECONDS) {
@@ -221,17 +269,22 @@ async function runPass(browser, baseUrl, options) {
       throw new Error(`${options.mode} pass did not finish within ${MAX_SECONDS}s`);
     }
     const want = decide(state, constants);
+    const keyOf = (action) => keyForSkill(action, loadout) || KEY_FOR_ACTION[action];
+    const touchTarget = (action) => {
+      const index = loadout.indexOf(action);
+      return index === -1 ? action : `slot${index}`;
+    };
     for (const action of [...held]) {
       if (!want.has(action)) {
-        if (options.mode === "touch") await touchAction(page, action, false);
-        else await page.keyboard.up(KEY_FOR_ACTION[action]);
+        if (options.mode === "touch") await touchAction(page, touchTarget(action), false);
+        else await page.keyboard.up(keyOf(action));
         held.delete(action);
       }
     }
     for (const action of want) {
       if (!held.has(action)) {
-        if (options.mode === "touch") await touchAction(page, action, true);
-        else await page.keyboard.down(KEY_FOR_ACTION[action]);
+        if (options.mode === "touch") await touchAction(page, touchTarget(action), true);
+        else await page.keyboard.down(keyOf(action));
         held.add(action);
       }
     }
@@ -276,6 +329,21 @@ async function runPass(browser, baseUrl, options) {
 
   const audio = await page.evaluate(() => window.nanoDnf.getAudioState());
   if (options.mode === "keyboard") {
+    /* Arrange the bar with the keyboard toggle plus a real pointer drag. */
+    await page.keyboard.press("KeyB");
+    const arranging = await page.evaluate(() => window.nanoDnf.isArranging());
+    await page.screenshot({ path: path.join(ARTIFACTS, "loadout-panel.png") });
+    const dragged = await dragSkillToSlot(page, "moonlightSlash", 0);
+    await page.keyboard.press("KeyB");
+    await page.screenshot({ path: path.join(ARTIFACTS, "loadout-applied.png") });
+    const restored = await page.evaluate(() => window.nanoDnf.resetLoadout());
+    loadoutChecks = {
+      arranging,
+      dragged,
+      restored,
+      storedAfterReset: await page.evaluate(() => window.localStorage.getItem("nano-dnf-loadout"))
+    };
+
     /* Freeze one frame per skill so the DNF slash art can be eyeballed. */
     const skills = await page.evaluate(() => window.DNFCore.SKILL_ORDER);
     for (const skillId of skills) {
@@ -298,7 +366,17 @@ async function runPass(browser, baseUrl, options) {
   });
   await context.close();
 
-  return { mode: options.mode, url, touchMode, state, audio, muteRoundTrip, diagnostics, trace };
+  return {
+    mode: options.mode,
+    url,
+    touchMode,
+    state,
+    audio,
+    muteRoundTrip,
+    loadoutChecks,
+    diagnostics,
+    trace
+  };
 }
 
 function problemsFor(pass) {
@@ -334,6 +412,20 @@ function problemsFor(pass) {
       problems.push("touch: mute button did not toggle back");
     }
   }
+  if (pass.mode === "keyboard") {
+    const checks = pass.loadoutChecks;
+    const defaults = "upSlash,mountainBreaker,crossSlash,ghostSlash,tripleSlash,rageBurst";
+    if (!checks || !checks.arranging) problems.push("keyboard: B did not open the arrange panel");
+    if (!checks || checks.dragged.loadout[0] !== "moonlightSlash") {
+      problems.push("keyboard: dragging 月光斩 into slot A did not apply");
+    }
+    if (!checks || checks.dragged.stored !== checks.dragged.loadout.join(",")) {
+      problems.push("keyboard: the arranged loadout was not persisted");
+    }
+    if (!checks || checks.restored.join(",") !== defaults) {
+      problems.push("keyboard: resetLoadout did not restore the default bar");
+    }
+  }
   return problems;
 }
 
@@ -364,6 +456,7 @@ async function main() {
     touchMode: pass.touchMode,
     audio: pass.audio,
     muteRoundTrip: pass.muteRoundTrip,
+    loadoutChecks: pass.loadoutChecks,
     consoleErrors: pass.diagnostics.consoleErrors,
     pageErrors: pass.diagnostics.pageErrors,
     failedRequests: pass.diagnostics.failedRequests,

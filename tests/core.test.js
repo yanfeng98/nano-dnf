@@ -807,26 +807,110 @@ test("the shipped DNF effect sheet matches the renderer grid", () => {
   const buffer = fs.readFileSync(path.join(__dirname, "..", "assets", "effects.png"));
   assert.equal(buffer.subarray(1, 4).toString("ascii"), "PNG");
   assert.equal(buffer.readUInt32BE(16), Render.EFFECT.cell * Render.EFFECT.frames);
-  assert.equal(buffer.readUInt32BE(20), Render.EFFECT.cell * Core.SKILL_ORDER.length);
+  assert.equal(buffer.readUInt32BE(20), Render.EFFECT.cell * 4, "four baked effect rows");
   assert.equal(Render.EFFECT.frames, 4);
+  Core.SKILL_ORDER.forEach((skillId) => {
+    assert.ok(Render.EFFECT.draw[skillId], `${skillId} needs an effect mapping`);
+  });
   assert.deepEqual(
-    Core.SKILL_ORDER.map((skillId) => Render.EFFECT.draw[skillId].row),
+    ["upSlash", "mountainBreaker", "crossSlash", "ghostSlash"].map(
+      (skillId) => Render.EFFECT.draw[skillId].row
+    ),
     [0, 1, 2, 3]
   );
 });
 
-test("each skill picks its own DNF effect row across the cast", () => {
-  Core.SKILL_ORDER.forEach((skillId, row) => {
+test("each skill picks a DNF effect row across the cast", () => {
+  const rows = new Set();
+  Core.SKILL_ORDER.forEach((skillId) => {
     const spec = Core.SKILLS[skillId];
     const mid = (spec.activeFrom + spec.activeTo) / 2 / spec.duration;
     const frame = Render.skillEffectFrame(skillId, mid);
     assert.ok(frame, `${skillId} should draw an effect mid-cast`);
-    assert.equal(frame.row, row);
+    assert.equal(frame.row, Render.EFFECT.draw[skillId].row);
+    assert.ok(frame.row >= 0 && frame.row < 4, `${skillId} maps onto the four baked rows`);
+    rows.add(frame.row);
     assert.ok(frame.col >= 0 && frame.col < Render.EFFECT.frames);
     assert.equal(Render.skillEffectFrame(skillId, 0), null, `${skillId} draws nothing on frame 0`);
     assert.equal(Render.skillEffectFrame(skillId, 1), null, `${skillId} stops after the cast`);
   });
+  assert.equal(rows.size, 4, "all four baked effect rows are used");
   assert.equal(Render.skillEffectFrame("grunt", 0.5), null, "unknown skills have no effect");
+});
+
+test("the three new DNF skills land their hits and statuses", () => {
+  const state = lastRoomState();
+  const near = Core.createEnemy(state, "brute", state.player.x + 60);
+  near.hp = 400;
+  near.maxHp = 400;
+  near.speed = 0;
+  state.enemies = [near];
+  state.player.level = 5;
+  state.player.mp = state.player.maxMp;
+
+  // 三段斩: three hits while stepping forward
+  const xBefore = state.player.x;
+  Core.step(state, { skills: { tripleSlash: true } });
+  Core.runFrames(state, 45, {});
+  assert.equal(
+    400 - near.hp,
+    (Core.SKILLS.tripleSlash.damage + (state.player.level - 1) * Core.SKILLS.tripleSlash.growth) *
+      Core.SKILLS.tripleSlash.hits,
+    "三段斩 lands three hits"
+  );
+  assert.ok(state.player.x > xBefore, "三段斩 advances the character");
+
+  // 裂波斩: launches through its wave
+  state.player.skillCooldowns.waveSlash = 0;
+  state.player.mp = state.player.maxMp;
+  near.hp = 400;
+  Core.step(state, { skills: { waveSlash: true } });
+  Core.runFrames(state, 12, {});
+  assert.ok(near.y < Core.ARENA.groundY || near.vy < 0, "裂波斩 lifts the target");
+  Core.runFrames(state, 28, {});
+
+  // 怒气爆发: hits everything around the player
+  const behind = Core.createEnemy(state, "grunt", state.player.x - 90);
+  behind.hp = 200;
+  behind.maxHp = 200;
+  behind.speed = 0;
+  state.enemies = [near, behind];
+  state.player.skillCooldowns.rageBurst = 0;
+  state.player.mp = state.player.maxMp;
+  const behindHp = behind.hp;
+  Core.step(state, { skills: { rageBurst: true } });
+  Core.runFrames(state, 40, {});
+  assert.ok(behindHp - behind.hp >= Core.SKILLS.rageBurst.damage, "怒气爆发 reaches behind the player");
+  assert.ok(behind.knockdown > 0 || behind.dead, "怒气爆发 knocks the target down");
+});
+
+test("the skill loadout assigns, swaps, clears and round-trips", () => {
+  const Loadout = require("../src/loadout.js");
+  const base = Loadout.create(Core.SKILL_ORDER);
+  assert.equal(base.length, Loadout.SLOT_COUNT);
+  assert.deepEqual(base, Loadout.DEFAULT_SLOTS);
+
+  const moved = Loadout.assign(base, 0, "ghostSlash");
+  assert.equal(moved[0], "ghostSlash");
+  assert.equal(moved[3], "upSlash", "the displaced skill swaps into the old slot");
+
+  const cleared = Loadout.clearSlot(moved, 0);
+  assert.equal(cleared[0], null);
+  assert.equal(moved[0], "ghostSlash", "loadout updates are immutable");
+
+  const swapped = Loadout.swap(base, 0, 2);
+  assert.equal(swapped[0], base[2]);
+  assert.equal(swapped[2], base[0]);
+
+  const text = Loadout.serialize(cleared);
+  assert.deepEqual(Loadout.deserialize(text, Core.SKILL_ORDER), cleared);
+  assert.deepEqual(
+    Loadout.deserialize("bogus,,,", Core.SKILL_ORDER),
+    [null, null, null, null, null, null],
+    "unknown skill ids are rejected"
+  );
+  assert.equal(Loadout.slotForCode("KeyD"), 2);
+  assert.equal(Loadout.slotForCode("ArrowLeft"), -1);
 });
 
 test("the renderer picks the sprite row that matches the player state", () => {
@@ -900,10 +984,8 @@ test("touch controls expose a hit-testable layout for mobile play", () => {
   const actions = buttons.map((button) => button.action);
 
   assert.deepEqual(actions.slice(0, 4), ["left", "right", "jump", "attack"]);
-  Core.SKILL_ORDER.forEach((skillId) => {
-    assert.ok(actions.includes(skillId), `${skillId} needs a touch button`);
-  });
   assert.ok(actions.includes("mute"));
+  assert.ok(actions.includes("loadout"), "touch play needs the arrange button");
 
   buttons.forEach((button) => {
     assert.ok(button.x >= 0 && button.y >= 0, `${button.action} starts inside the arena`);
@@ -927,7 +1009,35 @@ test("touch controls expose a hit-testable layout for mobile play", () => {
   assert.equal(Render.hitTestTouch(Core.ARENA.width / 2, 180), null, "empty space is not a button");
 });
 
-test("touch mode renders on-screen controls without the desktop skill bar", () => {
+test("the hotbar exposes six DNF slots and the panel exposes every skill", () => {
+  const slots = Render.skillBarButtons();
+  assert.equal(slots.length, 6, "A S D F G H");
+  slots.forEach((slot) => {
+    assert.ok(slot.x + slot.w <= Core.ARENA.width);
+    assert.ok(slot.y + slot.h <= Core.ARENA.height);
+    const hit = Render.hitTestLoadout(slot.x + slot.w / 2, slot.y + slot.h / 2, false);
+    assert.deepEqual(hit, { kind: "slot", index: slot.index });
+  });
+
+  const tiles = Render.loadoutPanelButtons();
+  assert.equal(tiles.length, Core.SKILL_ORDER.length, "every skill is draggable");
+  tiles.forEach((tile) => {
+    assert.ok(Core.SKILL_ORDER.includes(tile.skillId));
+    const hit = Render.hitTestLoadout(tile.x + tile.w / 2, tile.y + tile.h / 2, true);
+    assert.equal(hit.kind, "tile");
+    assert.equal(hit.skillId, tile.skillId);
+  });
+
+  /* An open panel takes priority over the bar underneath it. */
+  const topTile = tiles[tiles.length - 1];
+  assert.equal(
+    Render.hitTestLoadout(topTile.x + 4, topTile.y + 4, false),
+    null,
+    "the panel area is inert while the panel is closed"
+  );
+});
+
+test("the renderer draws six hotbar slots and the loadout panel", () => {
   const calls = [];
   const ctx = new Proxy(
     {
@@ -953,27 +1063,28 @@ test("touch mode renders on-screen controls without the desktop skill bar", () =
 
   const state = Core.createState({ seed: 11 });
   const sprites = { slayer: { width: 576, height: 480 }, skills: { width: 128, height: 32 } };
-  /* Touch skill buttons sit at dest y 457, the desktop skill bar icons at 488. */
-  const buttonDraws = (destY) =>
+  const barY = Render.skillBarButtons()[0].y + 5;
+  const tileYs = [...new Set(Render.loadoutPanelButtons().map((tile) => tile.y + 6))];
+  const drawsAt = (destY) =>
     calls.filter(
       (call) => call[0] === "drawImage" && call[1] === sprites.skills && call[7] === destY
     ).length;
+  const tileDraws = () => tileYs.reduce((total, destY) => total + drawsAt(destY), 0);
+  const loadout = Core.SKILL_ORDER.slice(0, 6);
 
   calls.length = 0;
-  Render.render(ctx, state, { sprites });
-  const desktopBar = buttonDraws(488);
-  const desktopTouchRow = buttonDraws(457);
+  Render.render(ctx, state, { sprites, loadout });
+  assert.equal(drawsAt(barY), 6, "six hotbar icons");
+  assert.equal(tileDraws(), 0, "panel is closed");
 
   calls.length = 0;
   Render.render(ctx, state, {
     sprites,
-    touch: { enabled: true, pressed: ["left", "attack"], muted: true }
+    loadout,
+    loadoutOpen: true,
+    drag: { skillId: "waveSlash", x: 400, y: 300 },
+    touch: { enabled: true, pressed: [], muted: false }
   });
-  const touchRow = buttonDraws(457);
-  const touchBar = buttonDraws(488);
-
-  assert.equal(desktopBar, 4, "desktop mode draws the four skill-bar icons");
-  assert.equal(desktopTouchRow, 0, "desktop mode draws no touch buttons");
-  assert.equal(touchRow, 4, "touch mode draws the four skill buttons");
-  assert.equal(touchBar, 0, "touch mode drops the desktop skill bar");
+  assert.equal(drawsAt(barY), 6, "bar stays visible while arranging");
+  assert.equal(tileDraws(), Core.SKILL_ORDER.length, "every skill tile is drawn");
 });

@@ -24,7 +24,7 @@
 ## 运行
 
 ```bash
-npm test          # 41 个核心逻辑、DNF 技能机制、特效图集、触屏布局与渲染冒烟测试
+npm test          # 44 个核心逻辑、DNF 技能机制、技能编成、特效图集、触屏布局与渲染冒烟测试
 npm run test:browser # 无头 Chromium 跑真实页面：键盘 + 触屏两条通路各通关一次
 npm run serve     # 起本地静态服务，然后打开 http://localhost:8080
 python3 assets/make_slayer_sprites.py   # 可选：重新生成原创精灵图与技能图标
@@ -41,15 +41,24 @@ python3 assets/make_slayer_sprites.py   # 可选：重新生成原创精灵图�
 | `←` / `→` | 左右移动 |
 | `C`（也支持 `↑` / `Space`） | 跳跃 |
 | `X` | 普攻（连续按出三段连击，伤害 8 / 10 / 15） |
-| `A` | 上挑 |
-| `S` | 崩山击 |
-| `D` | 十字斩 |
-| `F` | 鬼斩 |
+| `A` ~ `H` | 六个技能槽（默认 上挑 / 崩山击 / 十字斩 / 鬼斩 / 三段斩 / 怒气爆发） |
+| `B` | 打开技能编成面板（拖动图标换槽，Esc 之外再按 B 关闭） |
 | `P` | 暂停 |
 | `R` | 重开 |
-| `H` | 显示/隐藏帮助 |
+| `F1` | 显示/隐藏帮助 |
 | `M` | 静音 / 恢复音效（记住上次选择） |
 | `T` | 手动切换屏幕虚拟按键 |
+
+## 技能编成（可拖动）
+
+技能栏是 **6 个槽位（A S D F G H）**，槽位上的技能可以自由拖动编排，和 DNF 的技能栏编成一样：
+
+- 按 `B`（或点触屏右上角的「编」）打开编成面板：上方 6 个槽位，下方列出全部 8 个技能的图标卡片
+  （带 MP / 冷却 / 效果标签）。
+- 用鼠标或手指把卡片**拖到槽位**即可装上；如果该技能已经在别的槽，会与目标槽**互换**；
+  把槽位上的技能拖到另一个槽也会互换。
+- 编成结果写进 `localStorage`（键名 `nano-dnf-loadout`），刷新后保持。面板关闭时点/按槽位就是正常释放技能。
+- 面板与拖拽逻辑放在 `src/loadout.js`（纯函数：`assign` / `swap` / `clearSlot` / `serialize`），因此可以脱离 DOM 单测。
 
 ## 触屏与音效
 
@@ -71,6 +80,10 @@ python3 assets/make_slayer_sprites.py   # 可选：重新生成原创精灵图�
 | 崩山击 | `S` | 18 | 5.0s | 1 段 + 冲击波 | 22 +4/级（波 10 +2/级） | 前跃砸地，**倒地**；5 级起冲击波范围加宽 |
 | 十字斩 | `D` | 14 | 4.0s | 2 段 | 18 +3/级/段 | 十字判定，2 级起附加**出血**（每秒 4 +1/级，持续 3 秒） |
 | 鬼斩 | `F` | 25 | 8.0s | 3 段 | 14 +2/级/段 | 慢速鬼气三连斩，命中期间**定身 + 硬直**，不产生击退 |
+| 三段斩 | `G` | 12 | 3.0s | 3 段 | 9 +2/级/段 | 边推进边三段斩（每段向前踏一步） |
+| 裂波斩 | `H` | 16 | 4.5s | 1 段 + 上升波 | 16 +3/级（波 8 +2/级） | 上升波把目标**挑飞**，6 级起波的范围更宽 |
+| 怒气爆发 | `T` | 24 | 6.5s | 2 段 | 20 +3/级/段 | 以自身为中心的**范围爆发**，把周围敌人击倒 |
+| 月光斩 | `Y` | 18 | 5.0s | 1 段 | 26 +3/级 | 月光弧形斩击，小幅击倒、范围更长 |
 
 其他 DNF 式规则：
 
@@ -115,6 +128,7 @@ HUD 左下角是技能栏，显示按键、技能名、MP 消耗与冷却读秒�
 | `src/core.js` | 纯逻辑内核：物理、连击、伤害、敌人 AI、房间推进。无 DOM 依赖，Node 与浏览器共用 |
 | `src/render.js` | Canvas 2D 渲染层：精灵动画、HUD、技能栏、背景与特效，只读状态、不做修改 |
 | `src/main.js` | 浏览器入口：DNF 键位映射、精灵图加载、固定步长循环、暂停与重开 |
+| `src/loadout.js` | 技能栏编成模型：槽位分配、互换、序列化（纯函数，可单测） |
 | `assets/import_dnf_art.py` | 从 DNF 原始 IMG 导入鬼剑士 SD 动画与技能图标，烘焙出下面两张图集 |
 | `assets/make_slayer_sprites.py` | 备用：纯原创像素美术生成脚本（不依赖任何外部素材） |
 | `assets/slayer.png` | 6×5 张 96×96 精灵帧：待机 / 跑动 / 攻击 / 技能 / 受击·倒地·跳跃·下落 |
@@ -160,11 +174,15 @@ python3 assets/import_dnf_art.py --icons 3,5,7,9  # 按指定帧重烘焙四个�
 200、WebAudio 已初始化。最近一次结果：
 
 ```
-keyboard victory=true kills=11 damageTaken=7 seconds=66.0 level=4  audio=created/running
-touch    victory=true kills=11 damageTaken=7 seconds=64.9 level=4  touchMode=true audio=created/running muteToggle=ok
+keyboard victory=true kills=11 damageTaken=19 seconds=64.3 level=4  audio=created/running  drag=月光斩→槽A persisted=true
+touch    victory=true kills=11 damageTaken=7  seconds=60.1 level=4  touchMode=true audio=created/running muteToggle=ok
 consoleErrors=[] pageErrors=[] failedRequests=[]
 assets: index.html / main.js / render.js / core.js / slayer.png / skills.png / favicon.png 全部 200
 ```
+
+键盘那条通路还会顺便验证编成：按 `B` 打开面板 → 用指针事件把「月光斩」拖到槽 A → 读回
+`getLoadout()` 与 `localStorage` 确认已生效 → `resetLoadout()` 复位。截图见
+`tests/browser/artifacts/loadout-panel.png` 与 `loadout-applied.png`。
 
 两条通路各自使用独立的浏览器实例（否则两条 rAF 循环会互相抢 CPU，输入时序被拖慢）；
 只跑其中一条可以设 `PASSES=touch npm run test:browser` 或 `PASSES=keyboard`。

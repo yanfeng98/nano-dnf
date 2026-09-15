@@ -144,10 +144,108 @@
       /* DNF shape: slow ghost cut that lands three times and holds the target. */
       stun: 0.35,
       hold: true
+    },
+    tripleSlash: {
+      id: "tripleSlash",
+      name: "三段斩",
+      key: "G",
+      mp: 12,
+      cooldown: 3,
+      damage: 9,
+      growth: 2,
+      duration: 0.6,
+      activeFrom: 0.1,
+      activeTo: 0.46,
+      reach: 88,
+      heightPad: 16,
+      knockbackX: 130,
+      launch: 0,
+      radius: 0,
+      hits: 3,
+      /* DNF shape: three steps forward, one slash each. */
+      leap: 90,
+      advance: true
+    },
+    waveSlash: {
+      id: "waveSlash",
+      name: "裂波斩",
+      key: "H",
+      mp: 16,
+      cooldown: 4.5,
+      damage: 16,
+      growth: 3,
+      duration: 0.5,
+      activeFrom: 0.14,
+      activeTo: 0.3,
+      reach: 104,
+      heightPad: 26,
+      knockbackX: 90,
+      launch: -380,
+      radius: 0,
+      hits: 1,
+      /* DNF shape: a rising wave that lifts whatever it touches. */
+      juggle: true,
+      shockwave: {
+        reach: 170,
+        damage: 8,
+        growth: 2,
+        heightPad: 26,
+        knockbackX: 60,
+        launch: -340,
+        extraWaveFromLevel: 6
+      }
+    },
+    rageBurst: {
+      id: "rageBurst",
+      name: "怒气爆发",
+      key: "T",
+      mp: 24,
+      cooldown: 6.5,
+      damage: 20,
+      growth: 3,
+      duration: 0.66,
+      activeFrom: 0.2,
+      activeTo: 0.42,
+      reach: 0,
+      heightPad: 0,
+      knockbackX: 240,
+      launch: 0,
+      radius: 128,
+      hits: 2,
+      /* DNF shape: roar burst around the character, knocks everything down. */
+      knockdown: 0.9
+    },
+    moonlightSlash: {
+      id: "moonlightSlash",
+      name: "月光斩",
+      key: "Y",
+      mp: 18,
+      cooldown: 5,
+      damage: 26,
+      growth: 3,
+      duration: 0.5,
+      activeFrom: 0.16,
+      activeTo: 0.34,
+      reach: 118,
+      heightPad: 22,
+      knockbackX: 200,
+      launch: 0,
+      radius: 0,
+      hits: 1,
+      knockdown: 0.5
     }
   };
 
-  var SKILL_ORDER = ["upSlash", "mountainBreaker", "crossSlash", "ghostSlash"];
+  var SKILL_ORDER = [
+    "upSlash",
+    "mountainBreaker",
+    "crossSlash",
+    "ghostSlash",
+    "tripleSlash",
+    "waveSlash",
+    "rageBurst",
+    "moonlightSlash"
+  ];
 
   var PROGRESSION = {
     baseXpToNext: 30,
@@ -333,12 +431,10 @@
       skillHitDone: false,
       skillHitsDone: 0,
       airHitTimer: 0,
-      skillCooldowns: {
-        upSlash: 0,
-        mountainBreaker: 0,
-        crossSlash: 0,
-        ghostSlash: 0
-      },
+      skillCooldowns: SKILL_ORDER.reduce(function (map, skillId) {
+        map[skillId] = 0;
+        return map;
+      }, {}),
       invuln: 0,
       hurtTimer: 0,
       dead: false
@@ -413,7 +509,11 @@
         upSlash: !!skills.upSlash,
         mountainBreaker: !!skills.mountainBreaker,
         crossSlash: !!skills.crossSlash,
-        ghostSlash: !!skills.ghostSlash
+        ghostSlash: !!skills.ghostSlash,
+        tripleSlash: !!skills.tripleSlash,
+        waveSlash: !!skills.waveSlash,
+        rageBurst: !!skills.rageBurst,
+        moonlightSlash: !!skills.moonlightSlash
       }
     };
   }
@@ -795,9 +895,13 @@
           state.enemies.slice().forEach(function (enemy) {
             if (enemy.dead || struck.indexOf(enemy.id) !== -1) return;
             if (boxesOverlap(waveBox, bodyBox(enemy))) {
-              damageEnemy(state, enemy, waveDamage, wave.knockbackX, player.x, {
-                knockdown: wave.knockdown
-              });
+              var waveOptions = {};
+              if (wave.knockdown) waveOptions.knockdown = wave.knockdown;
+              if (wave.launch) {
+                waveOptions.launch = wave.launch;
+                waveOptions.juggle = true;
+              }
+              damageEnemy(state, enemy, waveDamage, wave.knockbackX, player.x, waveOptions);
             }
           });
           state.effects.push({

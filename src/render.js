@@ -53,14 +53,67 @@
     { action: "right", x: 120, y: 418, w: 86, h: 86, label: "→" },
     { action: "jump", x: 776, y: 346, w: 76, h: 76, label: "跳" },
     { action: "attack", x: 864, y: 426, w: 88, h: 88, label: "攻" },
-    { action: "upSlash", x: 330, y: 452, w: 62, h: 62, label: "上挑" },
-    { action: "mountainBreaker", x: 400, y: 452, w: 62, h: 62, label: "崩山" },
-    { action: "crossSlash", x: 470, y: 452, w: 62, h: 62, label: "十字" },
-    { action: "ghostSlash", x: 540, y: 452, w: 62, h: 62, label: "鬼斩" },
-    { action: "mute", x: 878, y: 20, w: 62, h: 44, label: "音" }
+    { action: "mute", x: 878, y: 20, w: 62, h: 44, label: "音" },
+    { action: "loadout", x: 806, y: 20, w: 62, h: 44, label: "编" }
   ];
 
-  var SKILL_ACTIONS = ["upSlash", "mountainBreaker", "crossSlash", "ghostSlash"];
+  /* Hotbar: six DNF-style slots (A S D F G H) filled from the loadout. */
+  var BAR = { x: 16, y: ARENA.height - 62, slotW: 110, slotH: 46, gap: 6 };
+
+  function skillBarButtons() {
+    var buttons = [];
+    for (var index = 0; index < 6; index += 1) {
+      buttons.push({
+        action: "slot" + index,
+        index: index,
+        x: BAR.x + index * (BAR.slotW + BAR.gap),
+        y: BAR.y,
+        w: BAR.slotW,
+        h: BAR.slotH
+      });
+    }
+    return buttons;
+  }
+
+  /* Loadout panel: every skill as a draggable tile, shown while arranging. */
+  var PANEL = { x: 16, y: ARENA.height - 236, w: 664, h: 162, tileW: 158, tileH: 62, gap: 8 };
+
+  function loadoutPanelButtons() {
+    var buttons = [];
+    var cols = 4;
+    for (var index = 0; index < Core.SKILL_ORDER.length; index += 1) {
+      buttons.push({
+        action: "tile" + index,
+        index: index,
+        skillId: Core.SKILL_ORDER[index],
+        x: PANEL.x + 12 + (index % cols) * (PANEL.tileW + PANEL.gap),
+        y: PANEL.y + 30 + Math.floor(index / cols) * (PANEL.tileH + PANEL.gap),
+        w: PANEL.tileW,
+        h: PANEL.tileH
+      });
+    }
+    return buttons;
+  }
+
+  function hitTestLoadout(x, y, open) {
+    if (open) {
+      var tiles = loadoutPanelButtons();
+      for (var tile = 0; tile < tiles.length; tile += 1) {
+        var entry = tiles[tile];
+        if (x >= entry.x && x <= entry.x + entry.w && y >= entry.y && y <= entry.y + entry.h) {
+          return { kind: "tile", index: entry.index, skillId: entry.skillId };
+        }
+      }
+    }
+    var slots = skillBarButtons();
+    for (var index = 0; index < slots.length; index += 1) {
+      var slot = slots[index];
+      if (x >= slot.x && x <= slot.x + slot.w && y >= slot.y && y <= slot.y + slot.h) {
+        return { kind: "slot", index: slot.index };
+      }
+    }
+    return null;
+  }
 
   /* assets/effects.png: four rows (SKILL_ORDER) x four 128x128 DNF slash frames. */
   var EFFECT = {
@@ -70,8 +123,25 @@
       upSlash: { row: 0, dx: 34, dy: -56, size: 156, copies: 1, spin: 0 },
       mountainBreaker: { row: 1, dx: 82, dy: -22, size: 196, copies: 1, spin: 0 },
       crossSlash: { row: 2, dx: 58, dy: -38, size: 164, copies: 2, spin: 0.785 },
-      ghostSlash: { row: 3, dx: 30, dy: -32, size: 182, copies: 1, spin: 0 }
+      ghostSlash: { row: 3, dx: 30, dy: -32, size: 182, copies: 1, spin: 0 },
+      /* The four added skills reuse the baked DNF rows, scaled per skill. */
+      tripleSlash: { row: 2, dx: 46, dy: -34, size: 122, copies: 2, spin: 0.785 },
+      waveSlash: { row: 0, dx: 30, dy: -52, size: 152, copies: 1, spin: 0 },
+      rageBurst: { row: 1, dx: 0, dy: -28, size: 236, copies: 1, spin: 0 },
+      moonlightSlash: { row: 2, dx: 54, dy: -42, size: 172, copies: 1, spin: 0.35 }
     }
+  };
+
+  /* Short DNF-style effect tags shown in the loadout panel. */
+  var EFFECT_LABEL = {
+    upSlash: "浮空",
+    mountainBreaker: "跳劈 · 倒地",
+    crossSlash: "十字 · 出血",
+    ghostSlash: "三连 · 定身",
+    tripleSlash: "三段推进",
+    waveSlash: "上升波",
+    rageBurst: "范围爆发",
+    moonlightSlash: "月光斩击"
   };
 
   /** Which effect frame belongs to a skill at a given cast progress (0..1). */
@@ -880,71 +950,164 @@
     }
   }
 
-  function drawSkillBar(ctx, state, sprites) {
+  function drawSkillBar(ctx, state, sprites, loadout) {
     var player = state.player;
-    var slotW = 112;
-    var slotH = 40;
-    var gap = 8;
-    var y0 = ARENA.height - 56;
-
+    var slots = loadout || [];
+    var keys = ["A", "S", "D", "F", "G", "H"];
+    var iconIndex = {};
     Core.SKILL_ORDER.forEach(function (skillId, index) {
-      var skill = Core.SKILLS[skillId];
-      var cooldown = player.skillCooldowns[skillId] || 0;
-      var ready = cooldown <= 0 && player.mp >= skill.mp && !player.dead;
-      var x = 16 + index * (slotW + gap);
+      iconIndex[skillId] = index;
+    });
+
+    skillBarButtons().forEach(function (slot) {
+      var skillId = slots[slot.index] || null;
+      var skill = skillId ? Core.SKILLS[skillId] : null;
+      var cooldown = skill ? player.skillCooldowns[skillId] || 0 : 0;
+      var ready = skill ? cooldown <= 0 && player.mp >= skill.mp && !player.dead : false;
 
       ctx.save();
-      ctx.fillStyle = ready ? "rgba(20, 28, 48, 0.92)" : "rgba(12, 14, 24, 0.92)";
-      roundRect(ctx, x, y0, slotW, slotH, 6);
+      ctx.fillStyle = ready ? "rgba(20, 28, 48, 0.92)" : "rgba(12, 14, 24, 0.9)";
+      roundRect(ctx, slot.x, slot.y, slot.w, slot.h, 6);
       ctx.fill();
-      ctx.strokeStyle = ready ? "rgba(226, 191, 114, 0.85)" : "rgba(96, 106, 136, 0.55)";
+      ctx.strokeStyle = skill
+        ? ready
+          ? "rgba(226, 191, 114, 0.85)"
+          : "rgba(96, 106, 136, 0.6)"
+        : "rgba(96, 106, 136, 0.4)";
       ctx.lineWidth = 1.4;
-      roundRect(ctx, x + 0.7, y0 + 0.7, slotW - 1.4, slotH - 1.4, 6);
+      roundRect(ctx, slot.x + 0.7, slot.y + 0.7, slot.w - 1.4, slot.h - 1.4, 6);
+      if (!skill) ctx.setLineDash([5, 4]);
       ctx.stroke();
+      ctx.setLineDash([]);
 
-      if (sprites && sprites.skills && sprites.skills.width) {
+      if (skill && sprites && sprites.skills && sprites.skills.width) {
         ctx.imageSmoothingEnabled = false;
         ctx.globalAlpha = ready ? 1 : 0.55;
-        ctx.drawImage(sprites.skills, index * 32, 0, 32, 32, x + 5, y0 + 4, 32, 32);
+        ctx.drawImage(
+          sprites.skills,
+          iconIndex[skillId] * 32,
+          0,
+          32,
+          32,
+          slot.x + 5,
+          slot.y + 5,
+          36,
+          36
+        );
         ctx.globalAlpha = 1;
       }
 
       ctx.textAlign = "left";
       ctx.fillStyle = PALETTE.gold;
       ctx.font = "700 13px 'Segoe UI', system-ui, sans-serif";
-      ctx.fillText(skill.key, x + 42, y0 + 17);
-      ctx.fillStyle = ready ? PALETTE.text : "rgba(198, 208, 228, 0.5)";
-      ctx.font = "600 13px 'PingFang SC', 'Segoe UI', sans-serif";
-      ctx.fillText(skill.name, x + 42, y0 + 33);
-
-      ctx.textAlign = "right";
-      if (cooldown > 0) {
-        ctx.fillStyle = "rgba(8, 10, 18, 0.62)";
-        roundRect(ctx, x + 1, y0 + 1, (slotW - 2) * clamp01(cooldown / skill.cooldown), slotH - 2, 5);
-        ctx.fill();
-        ctx.fillStyle = "#9ccbff";
-        ctx.font = "700 12px 'Segoe UI', system-ui, sans-serif";
-        ctx.fillText(cooldown.toFixed(1) + "s", x + slotW - 6, y0 + 25);
+      ctx.fillText(keys[slot.index], slot.x + 46, slot.y + 18);
+      if (skill) {
+        ctx.fillStyle = ready ? PALETTE.text : "rgba(198, 208, 228, 0.55)";
+        ctx.font = "600 13px 'PingFang SC', 'Segoe UI', sans-serif";
+        ctx.fillText(skill.name, slot.x + 46, slot.y + 36);
+        ctx.textAlign = "right";
+        if (cooldown > 0) {
+          ctx.fillStyle = "rgba(8, 10, 18, 0.6)";
+          roundRect(ctx, slot.x + 1, slot.y + 1, (slot.w - 2) * clamp01(cooldown / skill.cooldown), slot.h - 2, 5);
+          ctx.fill();
+          ctx.fillStyle = "#9ccbff";
+          ctx.font = "700 12px 'Segoe UI', system-ui, sans-serif";
+          ctx.fillText(cooldown.toFixed(1) + "s", slot.x + slot.w - 6, slot.y + 27);
+        } else {
+          ctx.fillStyle = "rgba(150, 206, 255, 0.9)";
+          ctx.font = "600 10px 'Segoe UI', system-ui, sans-serif";
+          ctx.fillText("MP " + skill.mp, slot.x + slot.w - 5, slot.y + 36);
+        }
       } else {
-        ctx.fillStyle = "rgba(150, 206, 255, 0.9)";
-        ctx.font = "600 11px 'Segoe UI', system-ui, sans-serif";
-        ctx.fillText("MP " + skill.mp, x + slotW - 6, y0 + 33);
+        ctx.fillStyle = "rgba(150, 160, 190, 0.6)";
+        ctx.font = "600 12px 'PingFang SC', 'Segoe UI', sans-serif";
+        ctx.fillText("空槽 · B 编成", slot.x + 46, slot.y + 32);
       }
       ctx.restore();
     });
   }
 
+  function drawLoadoutPanel(ctx, state, sprites, meta) {
+    var loadout = meta.loadout || [];
+    var drag = meta.drag || null;
+
+    ctx.save();
+    ctx.fillStyle = "rgba(9, 12, 22, 0.94)";
+    roundRect(ctx, PANEL.x, PANEL.y, PANEL.w, PANEL.h, 8);
+    ctx.fill();
+    ctx.strokeStyle = "rgba(226, 191, 114, 0.6)";
+    ctx.lineWidth = 1.4;
+    roundRect(ctx, PANEL.x + 0.7, PANEL.y + 0.7, PANEL.w - 1.4, PANEL.h - 1.4, 8);
+    ctx.stroke();
+
+    ctx.textAlign = "left";
+    ctx.fillStyle = PALETTE.gold;
+    ctx.font = "700 14px 'PingFang SC', 'Segoe UI', sans-serif";
+    ctx.fillText("技能编成 · 拖动图标到下方 A/S/D/F/G/H 槽位（B 关闭）", PANEL.x + 12, PANEL.y + 20);
+
+    var iconIndex = {};
+    Core.SKILL_ORDER.forEach(function (skillId, index) {
+      iconIndex[skillId] = index;
+    });
+
+    loadoutPanelButtons().forEach(function (tile) {
+      var skill = Core.SKILLS[tile.skillId];
+      var equipped = loadout.indexOf(tile.skillId) !== -1;
+      var dragging = drag && drag.skillId === tile.skillId;
+
+      ctx.fillStyle = dragging
+        ? "rgba(226, 191, 114, 0.28)"
+        : equipped
+          ? "rgba(24, 34, 56, 0.95)"
+          : "rgba(16, 20, 32, 0.9)";
+      roundRect(ctx, tile.x, tile.y, tile.w, tile.h, 6);
+      ctx.fill();
+      ctx.strokeStyle = equipped ? "rgba(226, 191, 114, 0.8)" : "rgba(96, 106, 136, 0.5)";
+      ctx.lineWidth = 1.3;
+      roundRect(ctx, tile.x + 0.7, tile.y + 0.7, tile.w - 1.4, tile.h - 1.4, 6);
+      ctx.stroke();
+
+      if (sprites && sprites.skills && sprites.skills.width) {
+        ctx.imageSmoothingEnabled = false;
+        ctx.drawImage(sprites.skills, iconIndex[tile.skillId] * 32, 0, 32, 32, tile.x + 6, tile.y + 6, 34, 34);
+      }
+      ctx.textAlign = "left";
+      ctx.fillStyle = PALETTE.text;
+      ctx.font = "600 13px 'PingFang SC', 'Segoe UI', sans-serif";
+      ctx.fillText(skill.name, tile.x + 46, tile.y + 20);
+      ctx.fillStyle = PALETTE.textDim;
+      ctx.font = "600 11px 'Segoe UI', system-ui, sans-serif";
+      ctx.fillText("MP " + skill.mp + " · CD " + skill.cooldown + "s", tile.x + 46, tile.y + 38);
+      ctx.fillText(EFFECT_LABEL[skill.id] || "", tile.x + 46, tile.y + 54);
+      ctx.restore();
+    });
+    ctx.restore();
+
+    if (drag) {
+      var dragSkill = Core.SKILLS[drag.skillId];
+      ctx.save();
+      ctx.globalAlpha = 0.9;
+      ctx.fillStyle = "rgba(226, 191, 114, 0.22)";
+      roundRect(ctx, drag.x - 22, drag.y - 26, 130, 52, 6);
+      ctx.fill();
+      if (sprites && sprites.skills && sprites.skills.width) {
+        ctx.imageSmoothingEnabled = false;
+        ctx.drawImage(sprites.skills, iconIndex[drag.skillId] * 32, 0, 32, 32, drag.x - 18, drag.y - 18, 36, 36);
+      }
+      ctx.fillStyle = PALETTE.text;
+      ctx.font = "600 13px 'PingFang SC', 'Segoe UI', sans-serif";
+      ctx.textAlign = "left";
+      ctx.fillText(dragSkill.name, drag.x + 24, drag.y + 4);
+      ctx.restore();
+    }
+  }
+
   function drawTouchControls(ctx, state, sprites, meta) {
     var player = state.player;
     var pressed = (meta && meta.pressed) || [];
-    var skillIndex = { upSlash: 0, mountainBreaker: 1, crossSlash: 2, ghostSlash: 3 };
 
     ctx.save();
     TOUCH_LAYOUT.forEach(function (button) {
-      var isSkill = SKILL_ACTIONS.indexOf(button.action) !== -1;
-      var skill = isSkill ? Core.SKILLS[button.action] : null;
-      var cooldown = skill ? player.skillCooldowns[button.action] || 0 : 0;
-      var ready = skill ? cooldown <= 0 && player.mp >= skill.mp && !player.dead : true;
       var isDown = pressed.indexOf(button.action) !== -1;
       var fill = isDown ? "rgba(226, 191, 114, 0.32)" : "rgba(16, 20, 34, 0.55)";
 
@@ -956,46 +1119,14 @@
       roundRect(ctx, button.x + 0.8, button.y + 0.8, button.w - 1.6, button.h - 1.6, 13);
       ctx.stroke();
 
-      if (isSkill && sprites && sprites.skills && sprites.skills.width) {
-        var size = button.w - 22;
-        ctx.imageSmoothingEnabled = false;
-        ctx.globalAlpha = ready ? 1 : 0.5;
-        ctx.drawImage(
-          sprites.skills,
-          skillIndex[button.action] * 32,
-          0,
-          32,
-          32,
-          button.x + (button.w - size) / 2,
-          button.y + 5,
-          size,
-          size
-        );
-        ctx.globalAlpha = 1;
-        if (cooldown > 0) {
-          ctx.fillStyle = "rgba(8, 10, 18, 0.66)";
-          roundRect(ctx, button.x + 1, button.y + 1, button.w - 2, button.h - 2, 13);
-          ctx.fill();
-          ctx.fillStyle = "#9ccbff";
-          ctx.font = "700 15px 'Segoe UI', system-ui, sans-serif";
-          ctx.textAlign = "center";
-          ctx.fillText(cooldown.toFixed(1), button.x + button.w / 2, button.y + button.h / 2 + 5);
-        } else {
-          ctx.fillStyle = "rgba(226, 191, 114, 0.9)";
-          ctx.font = "600 11px 'PingFang SC', 'Segoe UI', sans-serif";
-          ctx.textAlign = "center";
-          ctx.fillText(button.label, button.x + button.w / 2, button.y + button.h - 6);
-        }
-      } else {
-        ctx.fillStyle = isDown ? "#fff3c4" : "rgba(238, 244, 255, 0.88)";
-        ctx.font = "700 " + Math.round(button.h * 0.42) + "px 'PingFang SC', 'Segoe UI', sans-serif";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        var label = button.label;
-        if (button.action === "mute") label = (meta && meta.muted ? "静" : "音");
-        ctx.fillText(label, button.x + button.w / 2, button.y + button.h / 2 + 1);
-        ctx.textBaseline = "alphabetic";
-      }
+      ctx.fillStyle = isDown ? "#fff3c4" : "rgba(238, 244, 255, 0.88)";
+      ctx.font = "700 " + Math.round(button.h * 0.42) + "px 'PingFang SC', 'Segoe UI', sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      var label = button.label;
+      if (button.action === "mute") label = meta && meta.muted ? "静" : "音";
+      ctx.fillText(label, button.x + button.w / 2, button.y + button.h / 2 + 1);
+      ctx.textBaseline = "alphabetic";
     });
     ctx.restore();
   }
@@ -1069,7 +1200,7 @@
         ["S", "崩山击（冲击波）"],
         ["D", "十字斩"],
         ["F", "鬼斩"],
-        ["P / R / H", "暂停 / 重开 / 帮助"]
+        ["P / R / F1", "暂停 / 重开 / 帮助"]
       ];
       ctx.font = "600 15px 'PingFang SC', 'Segoe UI', sans-serif";
       rows.forEach(function (row, index) {
@@ -1121,11 +1252,9 @@
 
     drawVignette(ctx, state);
     drawHud(ctx, state, sprites);
-    if (meta.touch && meta.touch.enabled) {
-      drawTouchControls(ctx, state, sprites, meta.touch);
-    } else {
-      drawSkillBar(ctx, state, sprites);
-    }
+    drawSkillBar(ctx, state, sprites, meta.loadout);
+    if (meta.touch && meta.touch.enabled) drawTouchControls(ctx, state, sprites, meta.touch);
+    if (meta.loadoutOpen) drawLoadoutPanel(ctx, state, sprites, meta);
     drawOverlay(ctx, state, meta, sprites);
   }
 
@@ -1135,6 +1264,9 @@
     SPRITE: SPRITE,
     EFFECT: EFFECT,
     skillEffectFrame: skillEffectFrame,
+    skillBarButtons: skillBarButtons,
+    loadoutPanelButtons: loadoutPanelButtons,
+    hitTestLoadout: hitTestLoadout,
     touchButtons: touchButtons,
     hitTestTouch: hitTestTouch
   };
