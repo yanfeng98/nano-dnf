@@ -50,11 +50,34 @@ FRAMES = {
     "extras": [21, 17, 20],  # hurt, jump, fall (dead is synthesised below)
 }
 
-# Skill icons inside skillicon.img, in SKILL_ORDER (上挑 / 崩山击 / 十字斩 / 鬼斩).
-# Picked by the project owner from the labelled atlas (the file has no name table):
+# One 32x32 icon per skill, in this order (must match SKILL_ORDER in src/core.js).
+SKILL_IDS = [
+    "upSlash",
+    "mountainBreaker",
+    "crossSlash",
+    "ghostSlash",
+    "tripleSlash",
+    "waveSlash",
+    "rageBurst",
+    "moonlightSlash",
+    "graspHead",
+    "ghostStep",
+    "mountainRift",
+]
+
+# Official skill-icon frames the project owner picked from the labelled atlas
+# (the file has no name table):
 #   python3 assets/import_dnf_art.py --atlas          # labelled contact sheet
 #   python3 assets/import_dnf_art.py --icons 3,5,7,9  # re-bake with chosen frames
-ICON_FRAMES = [94, 154, 132, 10]  # 上挑 / 崩山击 / 十字斩 / 鬼斩
+# Skills without an entry fall back to a thumbnail of their own official effect
+# art, so every hotbar slot shows art that belongs to that skill.
+ICON_FRAMES = {
+    "upSlash": 94,
+    "mountainBreaker": 154,
+    "crossSlash": 132,
+    "ghostSlash": 10,
+}
+ICON_FRAME_ORDER = ["upSlash", "mountainBreaker", "crossSlash", "ghostSlash"]
 
 # Where the character's feet sit inside the source canvas.
 SRC_CANVAS = (180, 176)
@@ -159,24 +182,47 @@ def build_sheet() -> None:
     print(f"wrote {ROOT / 'slayer.png'} ({sheet.width}x{sheet.height})")
 
 
-def build_icons() -> None:
-    _, image_util, convertor = load_img_tools()
-    icons = open_img(fetch("skillicon.img", SOURCES["skillicon.img"]))
-    sheet = Image.new("RGBA", (32 * len(ICON_FRAMES), 32), (0, 0, 0, 0))
-
-    for slot, index in enumerate(ICON_FRAMES):
-        item = icons.images[index]
+def skill_icon(skill_id: str, icons, image_util, convertor) -> Image.Image:
+    """Official icon frame when the owner picked one, else that skill's effect art."""
+    if skill_id in ICON_FRAMES:
+        item = icons.images[ICON_FRAMES[skill_id]]
         raw = item.data
         try:
             raw = convertor.to_raw(raw, item.format)
         except Exception:
             pass
-        icon = image_util.load_raw(raw, item.w, item.h).convert("RGBA")
-        icon = icon.resize((32, 32), Image.LANCZOS)
+        return image_util.load_raw(raw, item.w, item.h).convert("RGBA").resize((32, 32), Image.LANCZOS)
+    return effect_thumbnail(skill_id)
+
+
+def effect_thumbnail(skill_id: str) -> Image.Image:
+    """Crop a frame of the skill's own baked DNF effect."""
+    sheet = ROOT / "effects.png"
+    if not sheet.exists():
+        return Image.new("RGBA", (32, 32), (0, 0, 0, 0))
+    effects = Image.open(sheet).convert("RGBA")
+    row = SKILL_IDS.index(skill_id)
+    cell = effects.width // 4
+    frame = effects.crop((cell * 2, row * cell, cell * 3, (row + 1) * cell))
+    box = frame.getbbox()
+    if box is None:
+        return Image.new("RGBA", (32, 32), (0, 0, 0, 0))
+    frame = frame.crop(box)
+    scale = min(28 / frame.width, 28 / frame.height)
+    return frame.resize((max(1, int(frame.width * scale)), max(1, int(frame.height * scale))), Image.LANCZOS)
+
+
+def build_icons() -> None:
+    _, image_util, convertor = load_img_tools()
+    icons = open_img(fetch("skillicon.img", SOURCES["skillicon.img"]))
+    sheet = Image.new("RGBA", (32 * len(SKILL_IDS), 32), (0, 0, 0, 0))
+
+    for slot, skill_id in enumerate(SKILL_IDS):
+        icon = skill_icon(skill_id, icons, image_util, convertor)
         backdrop = Image.new("RGBA", (32, 32), (18, 22, 36, 255))
         draw = ImageDraw.Draw(backdrop)
         draw.rounded_rectangle([0, 0, 31, 31], radius=6, outline=(226, 191, 114, 255), width=1)
-        backdrop.alpha_composite(icon)
+        backdrop.alpha_composite(icon, ((32 - icon.width) // 2, (32 - icon.height) // 2))
         sheet.alpha_composite(backdrop, (slot * 32, 0))
 
     sheet.save(ROOT / "skills.png")
@@ -198,11 +244,16 @@ def main() -> None:
         return
     if "--icons" in sys.argv:
         picks = sys.argv[sys.argv.index("--icons") + 1]
-        global ICON_FRAMES
-        ICON_FRAMES = [int(value) for value in picks.replace(" ", "").split(",") if value != ""]
-        if len(ICON_FRAMES) != 4:
-            print("--icons needs exactly four frame indices", file=sys.stderr)
+        values = [int(value) for value in picks.replace(" ", "").split(",") if value != ""]
+        if len(values) != len(ICON_FRAME_ORDER):
+            print(
+                "--icons needs {0} frame indices ({1})".format(
+                    len(ICON_FRAME_ORDER), ", ".join(ICON_FRAME_ORDER)
+                ),
+                file=sys.stderr,
+            )
             raise SystemExit(2)
+        ICON_FRAMES.update(dict(zip(ICON_FRAME_ORDER, values)))
     build_sheet()
     build_icons()
     build_favicon()

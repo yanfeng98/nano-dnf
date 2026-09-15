@@ -163,15 +163,20 @@ python3 assets/import_dnf_art.py    # 输出 assets/slayer.png 与 assets/skills
 只覆盖代码，不覆盖这些图像；如果要公开分发，请自行确认授权，或改用 `assets/make_slayer_sprites.py`
 生成的原创像素美术。
 
-技能图标的索引写在 `assets/import_dnf_art.py` 的 `ICON_FRAMES` 里（当前是 `[70, 52, 44, 78]`）。
+技能图标（`assets/skills.png`）现在**每个技能一张**：最初四个技能用的是项目所有者从官方图标图集里
+亲自挑的帧（上挑 #94 / 崩山击 #154 / 十字斩 #132 / 鬼斩 #10，写在 `assets/import_dnf_art.py`
+的 `ICON_FRAMES` 里）；其余技能该图集没有名字映射、无法可靠对应，于是用**各自官方特效图的缩略图**
+当图标——每个图标都确定属于它自己的技能，不会再出现错位。
+
 图标库本身没有名字映射，所以脚本支持导出带编号的对照图供人工挑选：
 
 ```bash
 python3 assets/import_dnf_art.py --atlas          # 生成 assets/dnf_skillicon_atlas.png（已 gitignore）
-python3 assets/import_dnf_art.py --icons 3,5,7,9  # 按指定帧重烘焙四个技能图标
+python3 assets/import_dnf_art.py --icons 94,154,132,10  # 指定上挑/崩山击/十字斩/鬼斩 的官方帧
 ```
 
-`--icons` 的四个数字按技能栏顺序对应 上挑 / 崩山击 / 十字斩 / 鬼斩。
+`--icons` 的四个数字依次对应 上挑 / 崩山击 / 十字斩 / 鬼斩。其余技能要么复用官方特效缩略图，
+要么在 `ICON_FRAMES` 里加上它们自己的官方帧号（图集里没有名字表，只能人工对照）。
 
 ## 验证
 

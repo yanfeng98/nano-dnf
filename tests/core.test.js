@@ -806,7 +806,7 @@ test("the shipped sprite sheet matches the frame grid the renderer expects", () 
   assert.deepEqual(Render.SPRITE.rows, { idle: 0, run: 1, attack: 2, skill: 3, extras: 4 });
 
   const icons = fs.readFileSync(path.join(__dirname, "..", "assets", "skills.png"));
-  assert.equal(icons.readUInt32BE(16), 128);
+  assert.equal(icons.readUInt32BE(16), 32 * Core.SKILL_ORDER.length, "one icon per skill");
   assert.equal(icons.readUInt32BE(20), 32);
 });
 
