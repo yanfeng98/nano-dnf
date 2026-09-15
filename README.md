@@ -24,8 +24,8 @@
 ## 运行
 
 ```bash
-npm test          # 31 个核心逻辑、技能、成长系统与渲染冒烟测试（角色与图标为 DNF 素材导入）
-npm run test:browser # 无头 Chromium 跑真实页面：驱动通关整座地牢并检查控制台与资源
+npm test          # 33 个核心逻辑、技能、触屏布局、成长系统与渲染冒烟测试
+npm run test:browser # 无头 Chromium 跑真实页面：键盘 + 触屏两条通路各通关一次
 npm run serve     # 起本地静态服务，然后打开 http://localhost:8080
 python3 assets/make_slayer_sprites.py   # 可选：重新生成原创精灵图与技能图标
 ```
@@ -48,6 +48,17 @@ python3 assets/make_slayer_sprites.py   # 可选：重新生成原创精灵图�
 | `P` | 暂停 |
 | `R` | 重开 |
 | `H` | 显示/隐藏帮助 |
+| `M` | 静音 / 恢复音效（记住上次选择） |
+| `T` | 手动切换屏幕虚拟按键 |
+
+## 触屏与音效
+
+- **虚拟按键**：粗指针设备（手机/平板）会自动开启，画布下方出现 ← → 移动、跳、攻，以及
+  上挑 / 崩山击 / 十字斩 / 鬼斩四个技能键；技能键上显示官方图标与冷却读秒，右上角是静音开关。
+  桌面端按 `T` 或访问 `?touch=1` 也能看到这套按键，且支持多指同时按住（一边按 → 一边按攻击）。
+- **音效**：全部用 WebAudio 合成，不加载任何音频文件——命中是钝击声、技能是扫弦、受击是低频噪音、
+  击杀是下滑音、升级三音上行、通关四音上行、进房间短促铃声。首次按键/触摸时才创建 `AudioContext`
+  （浏览器要求用户手势），`M` 或右上角按钮可静音并记住选择。
 
 ## 技能
 
@@ -128,17 +139,19 @@ python3 assets/import_dnf_art.py --icons 3,5,7,9  # 按指定帧重烘焙四个�
 ## 验证
 
 除了单元测试，还有一条**浏览器级可玩性证明**（`npm run test:browser`）：起本地静态服务，用无头 Chromium
-打开真实页面，用和单元测试同一套策略按真实键盘事件驱动机器人通关整座地牢，并同时校验控制台无报错、
-页面无异常、资源全部 200。最近一次结果：
+打开真实页面，用和单元测试同一套策略驱动机器人通关整座地牢，跑**两条通路**——键盘（真实按键事件）与
+触屏（真实 DOM 指针事件，`hasTouch` 上下文 + `?touch=1`），并校验控制台无报错、页面无异常、资源全部
+200、WebAudio 已初始化。最近一次结果：
 
 ```
-victory=true kills=11 damageTaken=7 seconds=62.2 level=4
+keyboard victory=true kills=11 damageTaken=7 seconds=73.4 level=4  audio=created/running
+touch    victory=true kills=11 damageTaken=7 seconds=72.4 level=4  touchMode=true audio=created/running muteToggle=ok
 consoleErrors=[] pageErrors=[] failedRequests=[]
 assets: index.html / main.js / render.js / core.js / slayer.png / skills.png / favicon.png 全部 200
 ```
 
-截图证据：`tests/browser/artifacts/playability-title.png`（标题页）、`playability-fight.png`（战斗中）、
-`playability-clear.png`（通关）。
+截图证据：`tests/browser/artifacts/` 下的 `playability-title.png`、`playability-keyboard-fight.png`、
+`playability-keyboard-clear.png`、`playability-touch-fight.png`、`playability-touch-clear.png`。
 
 ## 设计约定
 

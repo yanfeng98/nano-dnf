@@ -1,10 +1,13 @@
 /*
  * Browser-level playability proof.
  *
- * Serves the real static build (index.html + src + assets), drives it in
- * headless Chromium with the same kiting policy the unit test uses, and fails
- * on console errors, page errors, failed asset loads, or a run that does not
- * clear the dungeon.
+ * Serves the real static build (index.html + src + assets) and drives it in
+ * headless Chromium twice:
+ *   1. keyboard pass - the DNF key layout, real key events
+ *   2. touch pass    - pointer events on the on-screen controls (?touch=1)
+ *
+ * Both passes must clear the dungeon with no console errors, page errors or
+ * failed asset loads, and must initialise the WebAudio feedback path.
  *
  *   npm run test:browser
  */
@@ -24,6 +27,18 @@ const MIME = {
   ".png": "image/png"
 };
 const MAX_SECONDS = 150;
+const TOTAL_ENEMIES = 11;
+
+const KEY_FOR_ACTION = {
+  left: "ArrowLeft",
+  right: "ArrowRight",
+  jump: "ArrowUp",
+  attack: "KeyX",
+  upSlash: "KeyA",
+  mountainBreaker: "KeyS",
+  crossSlash: "KeyD",
+  ghostSlash: "KeyF"
+};
 
 function startServer() {
   const server = http.createServer((request, response) => {
@@ -42,14 +57,14 @@ function startServer() {
   });
 }
 
-/** The same policy as tests/core.test.js, driven through real key events. */
+/** The same policy as tests/core.test.js, expressed as a set of wanted actions. */
 function decide(state, constants) {
   const player = state.player;
   const alive = state.enemies.filter((enemy) => !enemy.dead);
   const want = new Set();
 
   if (alive.length === 0) {
-    want.add("ArrowRight");
+    want.add("right");
     return want;
   }
 
@@ -58,7 +73,7 @@ function decide(state, constants) {
     return closing && Math.abs(shot.x - player.x) < 200;
   });
   if (inbound && player.onGround) {
-    want.add("ArrowUp");
+    want.add("jump");
     return want;
   }
 
@@ -73,16 +88,23 @@ function decide(state, constants) {
   const threatened = target.attackTimer > 0 && elapsed <= activeUntil + 0.05;
 
   if (threatened) {
-    if (distance < threatRange + 45) want.add(delta > 0 ? "ArrowLeft" : "ArrowRight");
+    const away = delta > 0 ? "left" : "right";
+    const atLeftWall = player.x <= constants.arena.leftWall + player.width;
+    const atRightWall = player.x >= constants.arena.rightWall - player.width;
+    const cornered = (away === "left" && atLeftWall) || (away === "right" && atRightWall);
+    if (distance < threatRange + 45 && !cornered) {
+      want.add(away);
+    } else if (cornered) {
+      want.add("attack");
+    }
     return want;
   }
   if (distance > 60) {
-    want.add(delta > 0 ? "ArrowRight" : "ArrowLeft");
+    want.add(delta > 0 ? "right" : "left");
     return want;
   }
 
-  want.add("KeyX");
-  const skillKeys = { upSlash: "KeyA", mountainBreaker: "KeyS", crossSlash: "KeyD", ghostSlash: "KeyF" };
+  want.add("attack");
   const castable = constants.skillOrder.filter((skillId) => {
     const skill = constants.skills[skillId];
     return (
@@ -96,118 +118,230 @@ function decide(state, constants) {
     const best = castable.reduce((top, skillId) =>
       constants.skills[skillId].damage > constants.skills[top].damage ? skillId : top
     );
-    want.add(skillKeys[best]);
+    want.add(best);
   }
   return want;
+}
+
+function attachDiagnostics(page) {
+  const diagnostics = { consoleErrors: [], pageErrors: [], failedRequests: [], assets: [] };
+  page.on("console", (message) => {
+    if (message.type() === "error") diagnostics.consoleErrors.push(message.text());
+  });
+  page.on("pageerror", (error) => diagnostics.pageErrors.push(String(error)));
+  page.on("requestfailed", (request) =>
+    diagnostics.failedRequests.push(`${request.url()} ${request.failure()?.errorText}`)
+  );
+  page.on("response", (response) => {
+    const url = response.url();
+    if (url.endsWith(".png") || url.endsWith(".js") || url.endsWith(".html")) {
+      diagnostics.assets.push(`${response.status()} ${path.basename(url)}`);
+    }
+  });
+  return diagnostics;
+}
+
+async function readState(page) {
+  return page.evaluate(() => JSON.parse(JSON.stringify(window.nanoDnf.getState())));
+}
+
+/** Hold or release an on-screen control through real pointer events. */
+async function touchAction(page, action, down) {
+  await page.evaluate(
+    ({ action, down }) => {
+      const canvas = document.getElementById("stage");
+      const button = window.DNFRender.touchButtons().find((entry) => entry.action === action);
+      const rect = canvas.getBoundingClientRect();
+      const clientX = rect.left + ((button.x + button.w / 2) / canvas.width) * rect.width;
+      const clientY = rect.top + ((button.y + button.h / 2) / canvas.height) * rect.height;
+      window.__touchIds = window.__touchIds || {};
+      if (!window.__touchIds[action]) {
+        window.__touchIds[action] = Object.keys(window.__touchIds).length + 1;
+      }
+      canvas.dispatchEvent(
+        new PointerEvent(down ? "pointerdown" : "pointerup", {
+          pointerId: window.__touchIds[action],
+          clientX,
+          clientY,
+          bubbles: true,
+          cancelable: true,
+          pointerType: "touch",
+          isPrimary: true,
+          buttons: down ? 1 : 0
+        })
+      );
+    },
+    { action, down }
+  );
+}
+
+async function runPass(browser, baseUrl, options) {
+  const context = await browser.newContext({
+    viewport: { width: 1120, height: 720 },
+    hasTouch: options.mode === "touch"
+  });
+  const page = await context.newPage();
+  const diagnostics = attachDiagnostics(page);
+
+  const url = options.mode === "touch" ? `${baseUrl}?touch=1` : baseUrl;
+  await page.goto(url, { waitUntil: "load" });
+  await page.waitForFunction(() => window.nanoDnf && window.nanoDnf.getState().room);
+
+  const constants = await page.evaluate(() => ({
+    skills: JSON.parse(JSON.stringify(window.DNFCore.SKILLS)),
+    skillOrder: window.DNFCore.SKILL_ORDER,
+    arena: JSON.parse(JSON.stringify(window.DNFCore.ARENA))
+  }));
+  const touchMode = await page.evaluate(() => window.nanoDnf.isTouchMode());
+  if (options.mode === "touch") {
+    await page.screenshot({ path: path.join(ARTIFACTS, "playability-touch-start.png") });
+  } else {
+    await page.screenshot({ path: path.join(ARTIFACTS, "playability-title.png") });
+  }
+
+  const held = new Set();
+  const started = Date.now();
+  let state = await readState(page);
+  let midShot = false;
+
+  while (!state.victory && !state.defeat) {
+    if ((Date.now() - started) / 1000 > MAX_SECONDS) {
+      await page.screenshot({ path: path.join(ARTIFACTS, `playability-timeout-${options.mode}.png`) });
+      throw new Error(`${options.mode} pass did not finish within ${MAX_SECONDS}s`);
+    }
+    const want = decide(state, constants);
+    for (const action of [...held]) {
+      if (!want.has(action)) {
+        if (options.mode === "touch") await touchAction(page, action, false);
+        else await page.keyboard.up(KEY_FOR_ACTION[action]);
+        held.delete(action);
+      }
+    }
+    for (const action of want) {
+      if (!held.has(action)) {
+        if (options.mode === "touch") await touchAction(page, action, true);
+        else await page.keyboard.down(KEY_FOR_ACTION[action]);
+        held.add(action);
+      }
+    }
+    if (!midShot && state.roomIndex === 1) {
+      await page.screenshot({ path: path.join(ARTIFACTS, `playability-${options.mode}-fight.png`) });
+      midShot = true;
+    }
+    await page.waitForTimeout(24);
+    state = await readState(page);
+  }
+
+  for (const action of held) {
+    if (options.mode === "touch") await touchAction(page, action, false);
+    else await page.keyboard.up(KEY_FOR_ACTION[action]);
+  }
+
+  /* Mute toggle must survive a round trip through the on-screen control. */
+  let muteRoundTrip = null;
+  if (options.mode === "touch") {
+    await touchAction(page, "mute", true);
+    await touchAction(page, "mute", false);
+    const mutedOnce = await page.evaluate(() => window.nanoDnf.getAudioState().muted);
+    await touchAction(page, "mute", true);
+    await touchAction(page, "mute", false);
+    const mutedTwice = await page.evaluate(() => window.nanoDnf.getAudioState().muted);
+    muteRoundTrip = { afterFirstTap: mutedOnce, afterSecondTap: mutedTwice };
+  }
+
+  const audio = await page.evaluate(() => window.nanoDnf.getAudioState());
+  await page.screenshot({
+    path: path.join(ARTIFACTS, `playability-${options.mode}-clear.png`)
+  });
+  await context.close();
+
+  return { mode: options.mode, url, touchMode, state, audio, muteRoundTrip, diagnostics };
+}
+
+function problemsFor(pass) {
+  const problems = [];
+  if (!pass.state.victory) problems.push(`${pass.mode}: dungeon was not cleared`);
+  if (pass.state.defeat) problems.push(`${pass.mode}: player died`);
+  if (pass.state.stats.kills !== TOTAL_ENEMIES) {
+    problems.push(`${pass.mode}: kills=${pass.state.stats.kills} (expected ${TOTAL_ENEMIES})`);
+  }
+  if (pass.state.stats.damageTaken > 24) problems.push(`${pass.mode}: damageTaken=${pass.state.stats.damageTaken}`);
+  if (pass.diagnostics.consoleErrors.length) {
+    problems.push(`${pass.mode}: console errors: ${pass.diagnostics.consoleErrors.join(" | ")}`);
+  }
+  if (pass.diagnostics.pageErrors.length) {
+    problems.push(`${pass.mode}: page errors: ${pass.diagnostics.pageErrors.join(" | ")}`);
+  }
+  if (pass.diagnostics.failedRequests.length) {
+    problems.push(`${pass.mode}: failed requests: ${pass.diagnostics.failedRequests.join(" | ")}`);
+  }
+  if (!pass.diagnostics.assets.some((line) => line.includes("slayer.png"))) {
+    problems.push(`${pass.mode}: slayer.png was never loaded`);
+  }
+  if (!pass.diagnostics.assets.some((line) => line.includes("skills.png"))) {
+    problems.push(`${pass.mode}: skills.png was never loaded`);
+  }
+  if (!pass.audio.created) problems.push(`${pass.mode}: WebAudio was never initialised`);
+  if (pass.mode === "touch") {
+    if (!pass.touchMode) problems.push("touch: on-screen controls were not enabled");
+    if (!pass.muteRoundTrip || pass.muteRoundTrip.afterFirstTap !== true) {
+      problems.push("touch: mute button did not toggle");
+    }
+    if (!pass.muteRoundTrip || pass.muteRoundTrip.afterSecondTap !== false) {
+      problems.push("touch: mute button did not toggle back");
+    }
+  }
+  return problems;
 }
 
 async function main() {
   fs.mkdirSync(ARTIFACTS, { recursive: true });
   const { server, port } = await startServer();
-  /* Reuse a locally cached Chromium when the bundled revision is not installed. */
-  const cached = [
-    process.env.CHROMIUM_PATH,
-    process.env.HOME &&
-      path.join(process.env.HOME, ".cache/ms-playwright/chromium-1161/chrome-linux/chrome"),
-    process.env.HOME &&
-      path.join(
-        process.env.HOME,
-        ".cache/ms-playwright/chromium_headless_shell-1161/chrome-linux/headless_shell"
-      )
-  ].find((candidate) => candidate && fs.existsSync(candidate));
-  const browser = await chromium.launch(cached ? { executablePath: cached } : {});
-  const page = await browser.newPage({ viewport: { width: 1120, height: 720 } });
+  const baseUrl = `http://127.0.0.1:${port}/index.html`;
+  const browser = await chromium.launch(chromiumLaunchOptions());
 
-  const consoleErrors = [];
-  const pageErrors = [];
-  const failedRequests = [];
-  const loadedAssets = [];
-  page.on("console", (message) => {
-    if (message.type() === "error") consoleErrors.push(message.text());
-  });
-  page.on("pageerror", (error) => pageErrors.push(String(error)));
-  page.on("requestfailed", (request) => failedRequests.push(`${request.url()} ${request.failure()?.errorText}`));
-  page.on("response", (response) => {
-    const url = response.url();
-    if (url.endsWith(".png") || url.endsWith(".js") || url.endsWith(".html")) {
-      loadedAssets.push(`${response.status()} ${path.basename(url)}`);
-    }
-  });
+  const passes = [];
+  passes.push(await runPass(browser, baseUrl, { mode: "keyboard" }));
+  passes.push(await runPass(browser, baseUrl, { mode: "touch" }));
 
-  const url = `http://127.0.0.1:${port}/index.html`;
-  await page.goto(url, { waitUntil: "load" });
-  await page.waitForFunction(() => window.nanoDnf && window.nanoDnf.getState().room);
-  await page.screenshot({ path: path.join(ARTIFACTS, "playability-title.png") });
-
-  const constants = await page.evaluate(() => ({
-    skills: JSON.parse(JSON.stringify(window.DNFCore.SKILLS)),
-    skillOrder: window.DNFCore.SKILL_ORDER
-  }));
-
-  const held = new Set();
-  const started = Date.now();
-  let state = await page.evaluate(() => JSON.parse(JSON.stringify(window.nanoDnf.getState())));
-  let shotTaken = false;
-
-  while (!state.victory && !state.defeat) {
-    if ((Date.now() - started) / 1000 > MAX_SECONDS) {
-      await page.screenshot({ path: path.join(ARTIFACTS, "playability-timeout.png") });
-      throw new Error(`run did not finish within ${MAX_SECONDS}s (room ${state.roomIndex + 1})`);
-    }
-    const want = decide(state, constants);
-    for (const key of held) {
-      if (!want.has(key)) {
-        await page.keyboard.up(key === "ArrowUp" ? "ArrowUp" : key);
-        held.delete(key);
-      }
-    }
-    for (const key of want) {
-      if (!held.has(key)) {
-        await page.keyboard.down(key);
-        held.add(key);
-      }
-    }
-    if (!shotTaken && state.roomIndex === 1) {
-      await page.screenshot({ path: path.join(ARTIFACTS, "playability-fight.png") });
-      shotTaken = true;
-    }
-    await page.waitForTimeout(24);
-    state = await page.evaluate(() => JSON.parse(JSON.stringify(window.nanoDnf.getState())));
-  }
-  for (const key of held) await page.keyboard.up(key);
-
-  await page.screenshot({ path: path.join(ARTIFACTS, state.victory ? "playability-clear.png" : "playability-defeat.png") });
   await browser.close();
   server.close();
 
-  const summary = {
-    url,
-    victory: state.victory,
-    defeat: state.defeat,
-    kills: state.stats.kills,
-    damageTaken: state.stats.damageTaken,
-    seconds: Number(state.time.toFixed(1)),
-    level: state.player.level,
-    consoleErrors,
-    pageErrors,
-    failedRequests,
-    assets: loadedAssets
-  };
+  const summary = passes.map((pass) => ({
+    mode: pass.mode,
+    victory: pass.state.victory,
+    defeat: pass.state.defeat,
+    kills: pass.state.stats.kills,
+    damageTaken: pass.state.stats.damageTaken,
+    seconds: Number(pass.state.time.toFixed(1)),
+    level: pass.state.player.level,
+    touchMode: pass.touchMode,
+    audio: pass.audio,
+    muteRoundTrip: pass.muteRoundTrip,
+    consoleErrors: pass.diagnostics.consoleErrors,
+    pageErrors: pass.diagnostics.pageErrors,
+    failedRequests: pass.diagnostics.failedRequests,
+    assets: [...new Set(pass.diagnostics.assets)]
+  }));
   console.log(JSON.stringify(summary, null, 2));
 
-  const problems = [];
-  if (!state.victory) problems.push("dungeon was not cleared");
-  if (state.stats.kills !== 11) problems.push(`kills=${state.stats.kills} (expected 11)`);
-  if (state.stats.damageTaken > 24) problems.push(`damageTaken=${state.stats.damageTaken}`);
-  if (consoleErrors.length) problems.push(`console errors: ${consoleErrors.join(" | ")}`);
-  if (pageErrors.length) problems.push(`page errors: ${pageErrors.join(" | ")}`);
-  if (failedRequests.length) problems.push(`failed requests: ${failedRequests.join(" | ")}`);
-  if (!loadedAssets.some((line) => line.includes("slayer.png"))) problems.push("slayer.png was never loaded");
+  const problems = passes.flatMap(problemsFor);
   if (problems.length) {
     console.error(`browser playability FAILED: ${problems.join("; ")}`);
     process.exit(1);
   }
-  console.log("browser playability OK");
+  console.log("browser playability OK (keyboard + touch)");
+}
+
+/** Reuse a locally cached Chromium when the bundled revision is not installed. */
+function chromiumLaunchOptions() {
+  const cached = [
+    process.env.CHROMIUM_PATH,
+    process.env.HOME && path.join(process.env.HOME, ".cache/ms-playwright/chromium-1161/chrome-linux/chrome"),
+    process.env.HOME &&
+      path.join(process.env.HOME, ".cache/ms-playwright/chromium_headless_shell-1161/chrome-linux/headless_shell")
+  ].find((candidate) => candidate && fs.existsSync(candidate));
+  return cached ? { executablePath: cached } : {};
 }
 
 main().catch((error) => {

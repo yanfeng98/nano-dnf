@@ -570,8 +570,15 @@ function kitingBot(state) {
 
   if (threatened) {
     if (distance < threatRange + 45) {
-      if (delta > 0) input.left = true;
-      else input.right = true;
+      const away = delta > 0 ? "left" : "right";
+      const atLeftWall = player.x <= Core.ARENA.leftWall + player.width;
+      const atRightWall = player.x >= Core.ARENA.rightWall - player.width;
+      const cornered = (away === "left" && atLeftWall) || (away === "right" && atRightWall);
+      if (!cornered) {
+        input[away] = true;
+        return input;
+      }
+      /* Cornered: fighting back beats eating the whole wind-up for free. */
     }
     return input;
   }
@@ -737,4 +744,87 @@ test("the renderer picks the sprite row that matches the player state", () => {
   const hurt = renderIdle();
   assert.equal(hurt[3], 384);
   assert.equal(hurt[2], 0, "hurt uses the hurt column");
+});
+
+test("touch controls expose a hit-testable layout for mobile play", () => {
+  const buttons = Render.touchButtons();
+  const actions = buttons.map((button) => button.action);
+
+  assert.deepEqual(actions.slice(0, 4), ["left", "right", "jump", "attack"]);
+  Core.SKILL_ORDER.forEach((skillId) => {
+    assert.ok(actions.includes(skillId), `${skillId} needs a touch button`);
+  });
+  assert.ok(actions.includes("mute"));
+
+  buttons.forEach((button) => {
+    assert.ok(button.x >= 0 && button.y >= 0, `${button.action} starts inside the arena`);
+    assert.ok(button.x + button.w <= Core.ARENA.width, `${button.action} fits horizontally`);
+    assert.ok(button.y + button.h <= Core.ARENA.height, `${button.action} fits vertically`);
+    assert.equal(
+      Render.hitTestTouch(button.x + button.w / 2, button.y + button.h / 2),
+      button.action
+    );
+  });
+
+  for (let i = 0; i < buttons.length; i += 1) {
+    for (let j = i + 1; j < buttons.length; j += 1) {
+      const a = buttons[i];
+      const b = buttons[j];
+      const overlaps = a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+      assert.equal(overlaps, false, `${a.action} overlaps ${b.action}`);
+    }
+  }
+
+  assert.equal(Render.hitTestTouch(Core.ARENA.width / 2, 180), null, "empty space is not a button");
+});
+
+test("touch mode renders on-screen controls without the desktop skill bar", () => {
+  const calls = [];
+  const ctx = new Proxy(
+    {
+      createLinearGradient() {
+        return { addColorStop() {} };
+      },
+      createRadialGradient() {
+        return { addColorStop() {} };
+      }
+    },
+    {
+      get(target, prop) {
+        if (prop in target) return target[prop];
+        target[prop] = (...args) => calls.push([prop, ...args]);
+        return target[prop];
+      },
+      set(target, prop, value) {
+        target[prop] = value;
+        return true;
+      }
+    }
+  );
+
+  const state = Core.createState({ seed: 11 });
+  const sprites = { slayer: { width: 576, height: 480 }, skills: { width: 128, height: 32 } };
+  /* Touch skill buttons sit at dest y 457, the desktop skill bar icons at 488. */
+  const buttonDraws = (destY) =>
+    calls.filter(
+      (call) => call[0] === "drawImage" && call[1] === sprites.skills && call[7] === destY
+    ).length;
+
+  calls.length = 0;
+  Render.render(ctx, state, { sprites });
+  const desktopBar = buttonDraws(488);
+  const desktopTouchRow = buttonDraws(457);
+
+  calls.length = 0;
+  Render.render(ctx, state, {
+    sprites,
+    touch: { enabled: true, pressed: ["left", "attack"], muted: true }
+  });
+  const touchRow = buttonDraws(457);
+  const touchBar = buttonDraws(488);
+
+  assert.equal(desktopBar, 4, "desktop mode draws the four skill-bar icons");
+  assert.equal(desktopTouchRow, 0, "desktop mode draws no touch buttons");
+  assert.equal(touchRow, 4, "touch mode draws the four skill buttons");
+  assert.equal(touchBar, 0, "touch mode drops the desktop skill bar");
 });

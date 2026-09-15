@@ -47,6 +47,44 @@
     extras: { hurt: 0, dead: 1, jump: 2, fall: 3 }
   };
 
+  /* On-screen controls for touch play, laid out in arena coordinates. */
+  var TOUCH_LAYOUT = [
+    { action: "left", x: 22, y: 418, w: 86, h: 86, label: "←" },
+    { action: "right", x: 120, y: 418, w: 86, h: 86, label: "→" },
+    { action: "jump", x: 776, y: 346, w: 76, h: 76, label: "跳" },
+    { action: "attack", x: 864, y: 426, w: 88, h: 88, label: "攻" },
+    { action: "upSlash", x: 330, y: 452, w: 62, h: 62, label: "上挑" },
+    { action: "mountainBreaker", x: 400, y: 452, w: 62, h: 62, label: "崩山" },
+    { action: "crossSlash", x: 470, y: 452, w: 62, h: 62, label: "十字" },
+    { action: "ghostSlash", x: 540, y: 452, w: 62, h: 62, label: "鬼斩" },
+    { action: "mute", x: 878, y: 20, w: 62, h: 44, label: "音" }
+  ];
+
+  var SKILL_ACTIONS = ["upSlash", "mountainBreaker", "crossSlash", "ghostSlash"];
+
+  function touchButtons() {
+    return TOUCH_LAYOUT.map(function (entry) {
+      return {
+        action: entry.action,
+        x: entry.x,
+        y: entry.y,
+        w: entry.w,
+        h: entry.h,
+        label: entry.label
+      };
+    });
+  }
+
+  function hitTestTouch(x, y) {
+    for (var i = 0; i < TOUCH_LAYOUT.length; i += 1) {
+      var entry = TOUCH_LAYOUT[i];
+      if (x >= entry.x && x <= entry.x + entry.w && y >= entry.y && y <= entry.y + entry.h) {
+        return entry.action;
+      }
+    }
+    return null;
+  }
+
   function clamp01(value) {
     return Math.max(0, Math.min(1, value));
   }
@@ -780,6 +818,72 @@
     });
   }
 
+  function drawTouchControls(ctx, state, sprites, meta) {
+    var player = state.player;
+    var pressed = (meta && meta.pressed) || [];
+    var skillIndex = { upSlash: 0, mountainBreaker: 1, crossSlash: 2, ghostSlash: 3 };
+
+    ctx.save();
+    TOUCH_LAYOUT.forEach(function (button) {
+      var isSkill = SKILL_ACTIONS.indexOf(button.action) !== -1;
+      var skill = isSkill ? Core.SKILLS[button.action] : null;
+      var cooldown = skill ? player.skillCooldowns[button.action] || 0 : 0;
+      var ready = skill ? cooldown <= 0 && player.mp >= skill.mp && !player.dead : true;
+      var isDown = pressed.indexOf(button.action) !== -1;
+      var fill = isDown ? "rgba(226, 191, 114, 0.32)" : "rgba(16, 20, 34, 0.55)";
+
+      ctx.fillStyle = fill;
+      roundRect(ctx, button.x, button.y, button.w, button.h, 14);
+      ctx.fill();
+      ctx.strokeStyle = isDown ? "rgba(255, 232, 170, 0.95)" : "rgba(226, 191, 114, 0.6)";
+      ctx.lineWidth = isDown ? 2.4 : 1.6;
+      roundRect(ctx, button.x + 0.8, button.y + 0.8, button.w - 1.6, button.h - 1.6, 13);
+      ctx.stroke();
+
+      if (isSkill && sprites && sprites.skills && sprites.skills.width) {
+        var size = button.w - 22;
+        ctx.imageSmoothingEnabled = false;
+        ctx.globalAlpha = ready ? 1 : 0.5;
+        ctx.drawImage(
+          sprites.skills,
+          skillIndex[button.action] * 32,
+          0,
+          32,
+          32,
+          button.x + (button.w - size) / 2,
+          button.y + 5,
+          size,
+          size
+        );
+        ctx.globalAlpha = 1;
+        if (cooldown > 0) {
+          ctx.fillStyle = "rgba(8, 10, 18, 0.66)";
+          roundRect(ctx, button.x + 1, button.y + 1, button.w - 2, button.h - 2, 13);
+          ctx.fill();
+          ctx.fillStyle = "#9ccbff";
+          ctx.font = "700 15px 'Segoe UI', system-ui, sans-serif";
+          ctx.textAlign = "center";
+          ctx.fillText(cooldown.toFixed(1), button.x + button.w / 2, button.y + button.h / 2 + 5);
+        } else {
+          ctx.fillStyle = "rgba(226, 191, 114, 0.9)";
+          ctx.font = "600 11px 'PingFang SC', 'Segoe UI', sans-serif";
+          ctx.textAlign = "center";
+          ctx.fillText(button.label, button.x + button.w / 2, button.y + button.h - 6);
+        }
+      } else {
+        ctx.fillStyle = isDown ? "#fff3c4" : "rgba(238, 244, 255, 0.88)";
+        ctx.font = "700 " + Math.round(button.h * 0.42) + "px 'PingFang SC', 'Segoe UI', sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        var label = button.label;
+        if (button.action === "mute") label = (meta && meta.muted ? "静" : "音");
+        ctx.fillText(label, button.x + button.w / 2, button.y + button.h / 2 + 1);
+        ctx.textBaseline = "alphabetic";
+      }
+    });
+    ctx.restore();
+  }
+
   function drawOverlay(ctx, state, meta, sprites) {
     if (state.defeat || state.victory) {
       ctx.save();
@@ -900,9 +1004,19 @@
 
     drawVignette(ctx, state);
     drawHud(ctx, state, sprites);
-    drawSkillBar(ctx, state, sprites);
+    if (meta.touch && meta.touch.enabled) {
+      drawTouchControls(ctx, state, sprites, meta.touch);
+    } else {
+      drawSkillBar(ctx, state, sprites);
+    }
     drawOverlay(ctx, state, meta, sprites);
   }
 
-  return { render: render, PALETTE: PALETTE, SPRITE: SPRITE };
+  return {
+    render: render,
+    PALETTE: PALETTE,
+    SPRITE: SPRITE,
+    touchButtons: touchButtons,
+    hitTestTouch: hitTestTouch
+  };
 });
