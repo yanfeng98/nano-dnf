@@ -49,16 +49,89 @@
     mpRegenPerSecond: 7
   };
 
-  var SKILL = {
-    name: "Whirlwind Slash",
-    cost: 30,
-    damage: 26,
-    duration: 0.5,
-    activeFrom: 0.12,
-    activeTo: 0.34,
-    radius: 120,
-    knockbackX: 260
+  /*
+   * Slayer (鬼剑士) skill kit, kept in the DNF shape: every skill has an MP cost,
+   * a cooldown, and damage that grows with the skill level (here: character level).
+   */
+  var SKILLS = {
+    upSlash: {
+      id: "upSlash",
+      name: "上挑",
+      key: "A",
+      mp: 8,
+      cooldown: 1.2,
+      damage: 12,
+      growth: 3,
+      duration: 0.28,
+      activeFrom: 0.05,
+      activeTo: 0.17,
+      reach: 62,
+      heightPad: 14,
+      knockbackX: 70,
+      launch: -430,
+      radius: 0
+    },
+    mountainBreaker: {
+      id: "mountainBreaker",
+      name: "崩山击",
+      key: "S",
+      mp: 18,
+      cooldown: 3.5,
+      damage: 22,
+      growth: 4,
+      duration: 0.5,
+      activeFrom: 0.16,
+      activeTo: 0.3,
+      reach: 96,
+      heightPad: 18,
+      knockbackX: 240,
+      launch: 0,
+      radius: 0,
+      shockwave: {
+        reach: 150,
+        damage: 10,
+        growth: 2,
+        heightPad: 10,
+        knockbackX: 200
+      }
+    },
+    crossSlash: {
+      id: "crossSlash",
+      name: "十字斩",
+      key: "D",
+      mp: 14,
+      cooldown: 2.5,
+      damage: 18,
+      growth: 3,
+      duration: 0.42,
+      activeFrom: 0.1,
+      activeTo: 0.26,
+      reach: 84,
+      heightPad: 30,
+      knockbackX: 180,
+      launch: 0,
+      radius: 0
+    },
+    ghostSlash: {
+      id: "ghostSlash",
+      name: "鬼斩",
+      key: "F",
+      mp: 25,
+      cooldown: 5,
+      damage: 34,
+      growth: 5,
+      duration: 0.62,
+      activeFrom: 0.2,
+      activeTo: 0.4,
+      reach: 120,
+      heightPad: 20,
+      knockbackX: 280,
+      launch: 0,
+      radius: 0
+    }
   };
+
+  var SKILL_ORDER = ["upSlash", "mountainBreaker", "crossSlash", "ghostSlash"];
 
   var PROGRESSION = {
     baseXpToNext: 30,
@@ -239,8 +312,15 @@
       attackHitDone: false,
       comboIndex: 0,
       comboTimer: 0,
+      skillId: null,
       skillTimer: 0,
       skillHitDone: false,
+      skillCooldowns: {
+        upSlash: 0,
+        mountainBreaker: 0,
+        crossSlash: 0,
+        ghostSlash: 0
+      },
       invuln: 0,
       hurtTimer: 0,
       dead: false
@@ -301,12 +381,18 @@
 
   function normalizeInput(input) {
     input = input || {};
+    var skills = input.skills || {};
     return {
       left: !!input.left,
       right: !!input.right,
       jump: !!input.jump,
       attack: !!input.attack,
-      skill: !!input.skill
+      skills: {
+        upSlash: !!skills.upSlash,
+        mountainBreaker: !!skills.mountainBreaker,
+        crossSlash: !!skills.crossSlash,
+        ghostSlash: !!skills.ghostSlash
+      }
     };
   }
 
@@ -349,6 +435,7 @@
     state.player.vy = 0;
     state.player.onGround = true;
     state.player.attackTimer = 0;
+    state.player.skillId = null;
     state.player.skillTimer = 0;
     state.player.attackHitDone = false;
     state.player.skillHitDone = false;
@@ -485,6 +572,7 @@
     player.hurtTimer = PLAYER.hurtStun;
     player.vx = (player.x >= sourceX ? 1 : -1) * PLAYER.knockbackX;
     player.attackTimer = 0;
+    player.skillId = null;
     player.skillTimer = 0;
     player.comboTimer = 0;
     if (player.hp <= 0) {
@@ -539,10 +627,30 @@
     if (player.comboTimer === 0) player.comboIndex = 0;
     player.mp = Math.min(player.maxMp, player.mp + PLAYER.mpRegenPerSecond * dt);
 
-    if (input.skill && player.skillTimer <= 0 && player.attackTimer <= 0 && player.mp >= SKILL.cost) {
-      player.mp -= SKILL.cost;
-      player.skillTimer = SKILL.duration;
+    SKILL_ORDER.forEach(function (skillId) {
+      player.skillCooldowns[skillId] = Math.max(0, player.skillCooldowns[skillId] - dt);
+    });
+
+    var castSkill = SKILL_ORDER.filter(function (skillId) {
+      var spec = SKILLS[skillId];
+      return (
+        input.skills[skillId] &&
+        player.skillTimer <= 0 &&
+        player.attackTimer <= 0 &&
+        player.skillCooldowns[skillId] <= 0 &&
+        player.mp >= spec.mp
+      );
+    })[0];
+
+    if (castSkill) {
+      var skillSpec = SKILLS[castSkill];
+      player.mp -= skillSpec.mp;
+      player.skillId = castSkill;
+      player.skillTimer = skillSpec.duration;
       player.skillHitDone = false;
+      player.skillCooldowns[castSkill] = skillSpec.cooldown;
+      player.comboTimer = 0;
+      player.comboIndex = 0;
     } else if (
       input.attack &&
       player.attackTimer <= 0 &&
@@ -574,18 +682,64 @@
     }
 
     if (player.skillTimer > 0) {
-      var skillElapsed = SKILL.duration - player.skillTimer;
-      if (!player.skillHitDone && skillElapsed >= SKILL.activeFrom && skillElapsed <= SKILL.activeTo) {
+      var active = SKILLS[player.skillId];
+      var skillElapsed = active.duration - player.skillTimer;
+      if (!player.skillHitDone && skillElapsed >= active.activeFrom && skillElapsed <= active.activeTo) {
         player.skillHitDone = true;
+        var skillBox = attackBox(player, active.reach, active.heightPad);
+        var skillDamage = active.damage + (player.level - 1) * active.growth + player.attackBonus;
+        var struck = [];
         state.enemies.slice().forEach(function (enemy) {
           if (enemy.dead) return;
-          if (Math.abs(enemy.x - player.x) <= SKILL.radius) {
-            damageEnemy(state, enemy, SKILL.damage + player.attackBonus, SKILL.knockbackX, player.x);
+          if (active.radius > 0 && Math.abs(enemy.x - player.x) <= active.radius) {
+            applySkillHit(state, enemy, skillDamage, active);
+            struck.push(enemy.id);
+          } else if (active.radius <= 0 && boxesOverlap(skillBox, bodyBox(enemy))) {
+            applySkillHit(state, enemy, skillDamage, active);
+            struck.push(enemy.id);
           }
         });
+        if (active.shockwave) {
+          var wave = active.shockwave;
+          var waveBox = attackBox(player, wave.reach, wave.heightPad);
+          var waveDamage = wave.damage + (player.level - 1) * wave.growth + player.attackBonus;
+          state.enemies.slice().forEach(function (enemy) {
+            if (enemy.dead || struck.indexOf(enemy.id) !== -1) return;
+            if (boxesOverlap(waveBox, bodyBox(enemy))) {
+              damageEnemy(state, enemy, waveDamage, wave.knockbackX, player.x);
+            }
+          });
+          state.effects.push({
+            kind: "shockwave",
+            x: player.x + player.facing * wave.reach * 0.4,
+            y: ARENA.groundY,
+            radius: wave.reach * 0.8,
+            life: 0.4,
+            maxLife: 0.4
+          });
+        }
+        if (active.id === "ghostSlash") {
+          state.effects.push({
+            kind: "ghost",
+            x: player.x + player.facing * active.reach * 0.5,
+            y: player.y - player.height * 0.55,
+            radius: active.reach * 0.6,
+            life: 0.4,
+            maxLife: 0.4
+          });
+        }
       }
       player.skillTimer = Math.max(0, player.skillTimer - dt);
+      if (player.skillTimer === 0) player.skillId = null;
     }
+  }
+
+  function applySkillHit(state, enemy, damage, skill) {
+    damageEnemy(state, enemy, damage, skill.knockbackX, state.player.x);
+    if (enemy.dead || !skill.launch) return;
+    enemy.vy = skill.launch;
+    enemy.onGround = false;
+    enemy.attackTimer = 0;
   }
 
   function pushTelegraph(state, enemy, label, radius, life, dir) {
@@ -725,7 +879,7 @@
     }
 
     var slam = enemy.slam;
-    if (slam && enemy.slamCooldown <= 0 && distance <= slam.radius * 0.8) {
+    if (slam && enemy.slamCooldown <= 0 && enemy.attackCooldown <= 0 && distance <= slam.radius * 0.8) {
       enemy.vx = 0;
       beginEnemyAttack(enemy, "slam", slam.windup, slam.windup + slam.recovery);
       pushTelegraph(state, enemy, "SLAM", slam.radius, slam.windup, 0);
@@ -797,6 +951,8 @@
         enemy.vx *= 0.86;
       } else if (enemy.attackTimer > 0) {
         enemy.vx *= 0.5;
+      } else if (!enemy.onGround) {
+        enemy.vx *= 0.98;
       } else {
         chooseEnemyAction(state, enemy, player);
       }
@@ -942,7 +1098,8 @@
     ARENA: ARENA,
     PHYSICS: PHYSICS,
     PLAYER: PLAYER,
-    SKILL: SKILL,
+    SKILLS: SKILLS,
+    SKILL_ORDER: SKILL_ORDER,
     PROGRESSION: PROGRESSION,
     DROPS: DROPS,
     ENEMY_TYPES: ENEMY_TYPES,

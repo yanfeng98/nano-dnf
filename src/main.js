@@ -10,20 +10,36 @@
   var canvas = document.getElementById("stage");
   var ctx = canvas.getContext("2d");
 
+  /* DNF Slayer layout: arrows move, X attacks, C jumps, A/S/D/F cast skills. */
   var KEY_MAP = {
     ArrowLeft: "left",
-    KeyA: "left",
     ArrowRight: "right",
-    KeyD: "right",
     ArrowUp: "jump",
-    KeyW: "jump",
+    ArrowDown: "down",
     Space: "jump",
-    KeyJ: "attack",
-    KeyK: "skill"
+    KeyC: "jump",
+    KeyX: "attack",
+    KeyA: "upSlash",
+    KeyS: "mountainBreaker",
+    KeyD: "crossSlash",
+    KeyF: "ghostSlash"
   };
 
-  var held = { left: false, right: false, jump: false, attack: false, skill: false };
-  var pressed = { jump: false, attack: false, skill: false };
+  var ONE_SHOT_ACTIONS = {
+    jump: true,
+    attack: true,
+    upSlash: true,
+    mountainBreaker: true,
+    crossSlash: true,
+    ghostSlash: true
+  };
+
+  var held = { left: false, right: false, down: false, jump: false, attack: false };
+  var pressed = { jump: false, attack: false };
+  Core.SKILL_ORDER.forEach(function (skillId) {
+    held[skillId] = false;
+    pressed[skillId] = false;
+  });
   var state = Core.createState({ seed: Core.DEFAULT_SEED });
   var paused = false;
   var showHelp = true;
@@ -33,7 +49,7 @@
   function setKey(code, isDown, event) {
     var action = KEY_MAP[code];
     if (!action) return false;
-    if (isDown && !held[action] && (action === "jump" || action === "attack" || action === "skill")) {
+    if (isDown && !held[action] && ONE_SHOT_ACTIONS[action]) {
       pressed[action] = true;
     }
     held[action] = isDown;
@@ -72,8 +88,12 @@
   });
 
   window.addEventListener("blur", function () {
-    held.left = held.right = held.jump = held.attack = held.skill = false;
-    pressed.jump = pressed.attack = pressed.skill = false;
+    Object.keys(held).forEach(function (key) {
+      held[key] = false;
+    });
+    Object.keys(pressed).forEach(function (key) {
+      pressed[key] = false;
+    });
   });
 
   function restart() {
@@ -83,19 +103,23 @@
   }
 
   function currentInput() {
-    return {
+    var input = {
       left: held.left,
       right: held.right,
       jump: held.jump || pressed.jump,
       attack: held.attack || pressed.attack,
-      skill: held.skill || pressed.skill
+      skills: {}
     };
+    Core.SKILL_ORDER.forEach(function (skillId) {
+      input.skills[skillId] = held[skillId] || pressed[skillId];
+    });
+    return input;
   }
 
   function consumePressed() {
-    pressed.jump = false;
-    pressed.attack = false;
-    pressed.skill = false;
+    Object.keys(pressed).forEach(function (key) {
+      pressed[key] = false;
+    });
   }
 
   function frame(timestamp) {
@@ -126,6 +150,8 @@
         Core.ROOMS.length +
         " | hp " +
         Math.round(state.player.hp) +
+        " | mp " +
+        Math.round(state.player.mp) +
         " | lv " +
         state.player.level +
         " (" +

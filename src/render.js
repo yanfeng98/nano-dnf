@@ -140,11 +140,14 @@
     }
 
     if (player.skillTimer > 0) {
-      var skillProgress = 1 - player.skillTimer / Core.SKILL.duration;
-      ctx.strokeStyle = "rgba(120, 230, 255, 0.8)";
+      var active = Core.SKILLS[player.skillId] || null;
+      var skillProgress = active ? 1 - player.skillTimer / active.duration : 0;
+      var sweep = active ? Math.max(active.reach, active.radius) : Core.PLAYER.attackReach;
+      ctx.strokeStyle =
+        player.skillId === "ghostSlash" ? "rgba(186, 140, 255, 0.85)" : "rgba(120, 230, 255, 0.8)";
       ctx.lineWidth = 5;
       ctx.beginPath();
-      ctx.arc(0, -bodyH * 0.5, Core.SKILL.radius * (0.5 + skillProgress * 0.7), 0, Math.PI * 2);
+      ctx.arc(0, -bodyH * 0.5, sweep * (0.5 + skillProgress * 0.7), 0, Math.PI * 2);
       ctx.stroke();
     }
 
@@ -300,8 +303,60 @@
         );
         ctx.stroke();
         ctx.restore();
+      } else if (effect.kind === "ghost") {
+        ctx.save();
+        ctx.globalAlpha = alpha * 0.8;
+        ctx.strokeStyle = "#b98cff";
+        ctx.lineWidth = 8;
+        ctx.beginPath();
+        ctx.arc(effect.x, effect.y, effect.radius, -0.95, 0.95);
+        ctx.stroke();
+        ctx.restore();
       }
     });
+  }
+
+  function drawSkillBar(ctx, state) {
+    var player = state.player;
+    var slotW = 104;
+    var slotH = 34;
+    var gap = 8;
+    var y0 = ARENA.height - 52;
+
+    ctx.save();
+    Core.SKILL_ORDER.forEach(function (skillId, index) {
+      var skill = Core.SKILLS[skillId];
+      var cooldown = player.skillCooldowns[skillId] || 0;
+      var ready = cooldown <= 0 && player.mp >= skill.mp && !player.dead;
+      var x = 16 + index * (slotW + gap);
+
+      ctx.fillStyle = ready ? "rgba(26, 36, 58, 0.9)" : "rgba(16, 18, 28, 0.9)";
+      ctx.fillRect(x, y0, slotW, slotH);
+      ctx.strokeStyle = ready ? "rgba(140, 200, 255, 0.78)" : "rgba(96, 106, 136, 0.6)";
+      ctx.lineWidth = 1;
+      ctx.strokeRect(x + 0.5, y0 + 0.5, slotW - 1, slotH - 1);
+
+      if (cooldown > 0) {
+        var ratio = Math.min(1, cooldown / skill.cooldown);
+        ctx.fillStyle = "rgba(8, 10, 18, 0.7)";
+        ctx.fillRect(x + 1, y0 + 1, (slotW - 2) * ratio, slotH - 2);
+      }
+
+      ctx.textAlign = "left";
+      ctx.fillStyle = "#ffd66b";
+      ctx.font = "700 15px 'Segoe UI', system-ui, sans-serif";
+      ctx.fillText(skill.key, x + 8, y0 + 22);
+
+      ctx.fillStyle = ready ? "#eaf1ff" : "rgba(198, 208, 228, 0.55)";
+      ctx.font = "600 14px 'PingFang SC', 'Segoe UI', sans-serif";
+      ctx.fillText(skill.name, x + 26, y0 + 22);
+
+      ctx.textAlign = "right";
+      ctx.fillStyle = cooldown > 0 ? "#8fb6ff" : "rgba(150, 220, 255, 0.9)";
+      ctx.font = "600 11px 'Segoe UI', system-ui, sans-serif";
+      ctx.fillText(cooldown > 0 ? cooldown.toFixed(1) + "s" : "MP " + skill.mp, x + slotW - 7, y0 + 22);
+    });
+    ctx.restore();
   }
 
   function drawBar(ctx, x, y, width, height, ratio, color, backColor) {
@@ -367,8 +422,9 @@
       title = "PAUSED";
       subtitle = "Press P or Space to resume";
     } else if (meta && meta.showHelp) {
-      title = "MOVE / ATTACK";
-      subtitle = "A-D or arrows to move, W/Space to jump, J to attack, K for skill, P pause, R restart";
+      title = "SLAYER CONTROLS";
+      subtitle =
+        "Arrows move · X attack · C jump · A 上挑 · S 崩山击 · D 十字斩 · F 鬼斩 · P pause · R restart";
     }
     if (!title) return;
 
@@ -399,6 +455,7 @@
     drawPlayer(ctx, state);
     drawEffects(ctx, state);
     drawHud(ctx, state);
+    drawSkillBar(ctx, state);
     drawOverlay(ctx, state, meta);
   }
 

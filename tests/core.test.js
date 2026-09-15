@@ -160,36 +160,108 @@ test("player death flips the run into defeat", () => {
   assert.equal(state.defeat, true);
 });
 
-test("skill spends MP and only hits enemies inside the whirlwind radius", () => {
+test("鬼斩 spends MP, hits inside reach, then stays on cooldown", () => {
   const state = lastRoomState();
-  const near = Core.createEnemy(state, "grunt", state.player.x + 60);
-  const far = Core.createEnemy(state, "grunt", state.player.x + 400);
+  const near = Core.createEnemy(state, "grunt", state.player.x + 70);
+  const far = Core.createEnemy(state, "grunt", state.player.x + 420);
+  [near, far].forEach((enemy) => {
+    enemy.hp = 300;
+    enemy.maxHp = 300;
+  });
   state.enemies = [near, far];
-  state.player.mp = 80;
+  state.player.mp = 100;
+  const mpBefore = state.player.mp;
+  const skill = Core.SKILLS.ghostSlash;
   const nearHp = near.hp;
   const farHp = far.hp;
 
-  Core.step(state, { skill: true });
-  Core.runFrames(state, 20, {});
+  Core.step(state, { skills: { ghostSlash: true } });
+  Core.runFrames(state, 26, {});
 
-  assert.equal(nearHp - near.hp, Core.SKILL.damage);
+  assert.equal(nearHp - near.hp, skill.damage);
   assert.equal(far.hp, farHp);
-  assert.ok(state.player.mp < 80 - Core.SKILL.cost + 4, `mp=${state.player.mp}`);
-  assert.ok(state.player.mp > 80 - Core.SKILL.cost - 1, `mp=${state.player.mp}`);
+  assert.ok(state.player.mp < mpBefore - skill.mp + 5, `mp=${state.player.mp}`);
+  assert.ok(state.player.skillCooldowns.ghostSlash > 0, "鬼斩 should start its cooldown");
+
+  const hpBefore = near.hp;
+  Core.step(state, { skills: { ghostSlash: true } });
+  Core.runFrames(state, 20, {});
+  assert.equal(near.hp, hpBefore, "cooldown should block an immediate recast");
 });
 
-test("skill is refused while MP is below cost", () => {
+test("skills are refused while MP is below their cost", () => {
   const state = lastRoomState();
   const enemy = Core.createEnemy(state, "grunt", state.player.x + 60);
+  enemy.hp = 300;
+  enemy.maxHp = 300;
   state.enemies = [enemy];
-  state.player.mp = Core.SKILL.cost - 1;
+  state.player.mp = Core.SKILLS.crossSlash.mp - 1;
   const hpBefore = enemy.hp;
 
-  Core.step(state, { skill: true });
+  Core.step(state, { skills: { crossSlash: true } });
   Core.runFrames(state, 10, {});
 
   assert.equal(enemy.hp, hpBefore);
   assert.equal(state.player.skillTimer, 0);
+});
+
+test("上挑 launches an enemy and keeps it from acting while airborne", () => {
+  const state = lastRoomState();
+  const enemy = Core.createEnemy(state, "grunt", state.player.x + 50);
+  enemy.hp = 300;
+  enemy.maxHp = 300;
+  state.enemies = [enemy];
+
+  Core.step(state, { skills: { upSlash: true } });
+  Core.runFrames(state, 6, {});
+
+  assert.equal(enemy.hp, 300 - Core.SKILLS.upSlash.damage);
+  assert.ok(enemy.y < Core.ARENA.groundY, `launched enemy should leave the ground, y=${enemy.y}`);
+  assert.equal(enemy.attackTimer, 0);
+  assert.equal(enemy.onGround, false);
+
+  Core.runFrames(state, 10, {});
+  assert.equal(enemy.attackTimer, 0, "airborne enemies cannot start an attack");
+});
+
+test("崩山击 adds a ground shockwave that reaches past the blade", () => {
+  const state = lastRoomState();
+  const near = Core.createEnemy(state, "grunt", state.player.x + 60);
+  const far = Core.createEnemy(state, "grunt", state.player.x + 125);
+  [near, far].forEach((enemy) => {
+    enemy.hp = 300;
+    enemy.maxHp = 300;
+    enemy.speed = 0;
+  });
+  state.enemies = [near, far];
+  const skill = Core.SKILLS.mountainBreaker;
+  const nearHp = near.hp;
+  const farHp = far.hp;
+
+  Core.step(state, { skills: { mountainBreaker: true } });
+  Core.runFrames(state, 24, {});
+
+  assert.equal(nearHp - near.hp, skill.damage, "blade hit lands once");
+  assert.equal(farHp - far.hp, skill.shockwave.damage, "shockwave reaches the second target");
+  assert.ok(state.effects.some((effect) => effect.kind === "shockwave"));
+});
+
+test("skill damage grows with the character level", () => {
+  const state = lastRoomState();
+  const enemy = Core.createEnemy(state, "brute", state.player.x + 60);
+  enemy.hp = 500;
+  enemy.maxHp = 500;
+  enemy.speed = 0;
+  state.enemies = [enemy];
+  state.player.level = 4;
+  state.player.attackBonus = 0;
+  const skill = Core.SKILLS.crossSlash;
+  const hpBefore = enemy.hp;
+
+  Core.step(state, { skills: { crossSlash: true } });
+  Core.runFrames(state, 20, {});
+
+  assert.equal(hpBefore - enemy.hp, skill.damage + (4 - 1) * skill.growth);
 });
 
 test("same seed and same inputs produce identical runs", () => {
@@ -222,7 +294,7 @@ test("a 900-frame scripted run keeps the world inside its invariants", () => {
     left: frame % 200 >= 150,
     jump: frame % 47 === 0,
     attack: frame % 17 === 0,
-    skill: frame % 211 === 0
+    skills: { ghostSlash: frame % 211 === 0, mountainBreaker: frame % 173 === 0 }
   }));
 
   assert.ok(state.time > 14);
@@ -466,7 +538,10 @@ test("the same seed still yields identical progression and drops", () => {
 function kitingBot(state) {
   const player = state.player;
   const alive = state.enemies.filter((enemy) => !enemy.dead);
-  const input = { left: false, right: false, jump: false, attack: false, skill: false };
+  const input = { left: false, right: false, jump: false, attack: false, skills: {} };
+  Core.SKILL_ORDER.forEach((skillId) => {
+    input.skills[skillId] = false;
+  });
   if (alive.length === 0) {
     input.right = true;
     return input;
@@ -474,7 +549,7 @@ function kitingBot(state) {
 
   const inbound = state.projectiles.find((shot) => {
     const closing = shot.vx > 0 ? shot.x <= player.x : shot.x >= player.x;
-    return closing && Math.abs(shot.x - player.x) < 170;
+    return closing && Math.abs(shot.x - player.x) < 200;
   });
   if (inbound && player.onGround) {
     input.jump = true;
@@ -489,11 +564,13 @@ function kitingBot(state) {
   const threatRange =
     target.attackKind === "slam" && target.slam ? target.slam.radius : target.attackRange;
   const activeUntil = target.attackKind === "charge" ? target.chargeTo : target.attackWindup;
-  const threatened = target.attackTimer > 0 && elapsed <= activeUntil;
+  const threatened = target.attackTimer > 0 && elapsed <= activeUntil + 0.05;
 
-  if (threatened && distance < threatRange + 45) {
-    if (delta > 0) input.left = true;
-    else input.right = true;
+  if (threatened) {
+    if (distance < threatRange + 45) {
+      if (delta > 0) input.left = true;
+      else input.right = true;
+    }
     return input;
   }
   if (distance > 60) {
@@ -502,7 +579,22 @@ function kitingBot(state) {
     return input;
   }
   input.attack = true;
-  if (player.mp >= Core.SKILL.cost && distance <= Core.SKILL.radius) input.skill = true;
+  /* Skills root the player, so only cast when the target cannot punish the animation. */
+  const castable = Core.SKILL_ORDER.filter((skillId) => {
+    const skill = Core.SKILLS[skillId];
+    return (
+      player.mp >= skill.mp &&
+      player.skillCooldowns[skillId] <= 0 &&
+      distance <= skill.reach &&
+      target.attackCooldown > skill.duration + 0.3
+    );
+  });
+  if (castable.length > 0) {
+    const best = castable.reduce((top, skillId) =>
+      Core.SKILLS[skillId].damage > Core.SKILLS[top].damage ? skillId : top
+    );
+    input.skills[best] = true;
+  }
   return input;
 }
 
