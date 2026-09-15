@@ -32,9 +32,10 @@ jobs:
 
       - name: Stage the static site
         run: |
-          mkdir -p _site/src
+          mkdir -p _site/src _site/assets
           cp index.html _site/index.html
           cp src/core.js src/render.js src/main.js _site/src/
+          cp assets/slayer.png assets/skills.png _site/assets/
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v6

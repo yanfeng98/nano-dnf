@@ -1,5 +1,7 @@
 "use strict";
 
+const fs = require("node:fs");
+const path = require("node:path");
 const test = require("node:test");
 const assert = require("node:assert/strict");
 
@@ -623,6 +625,9 @@ test("renderer draws a live frame and both end-state overlays without throwing",
     {
       createLinearGradient() {
         return { addColorStop() {} };
+      },
+      createRadialGradient() {
+        return { addColorStop() {} };
       }
     },
     {
@@ -652,4 +657,84 @@ test("renderer draws a live frame and both end-state overlays without throwing",
   const texts = calls.filter((call) => call[0] === "fillText").map((call) => call[1]);
   assert.ok(texts.includes("DUNGEON CLEARED"));
   assert.ok(texts.includes("YOU DIED"));
+});
+
+test("the shipped sprite sheet matches the frame grid the renderer expects", () => {
+  const file = path.join(__dirname, "..", "assets", "slayer.png");
+  const buffer = fs.readFileSync(file);
+
+  assert.equal(buffer.subarray(1, 4).toString("ascii"), "PNG");
+  assert.equal(buffer.readUInt32BE(16), Render.SPRITE.frameW * 6);
+  assert.equal(buffer.readUInt32BE(20), Render.SPRITE.frameH * 5);
+  assert.deepEqual(Render.SPRITE.rows, { idle: 0, run: 1, attack: 2, skill: 3, extras: 4 });
+
+  const icons = fs.readFileSync(path.join(__dirname, "..", "assets", "skills.png"));
+  assert.equal(icons.readUInt32BE(16), 128);
+  assert.equal(icons.readUInt32BE(20), 32);
+});
+
+test("the renderer picks the sprite row that matches the player state", () => {
+  const calls = [];
+  const ctx = new Proxy(
+    {
+      createLinearGradient() {
+        return { addColorStop() {} };
+      },
+      createRadialGradient() {
+        return { addColorStop() {} };
+      }
+    },
+    {
+      get(target, prop) {
+        if (prop in target) return target[prop];
+        target[prop] = (...args) => calls.push([prop, ...args]);
+        return target[prop];
+      },
+      set(target, prop, value) {
+        target[prop] = value;
+        return true;
+      }
+    }
+  );
+
+  const sheet = { width: 576, height: 480 };
+  const sprites = { slayer: sheet, skills: { width: 128, height: 32 } };
+  const playerDraw = () =>
+    calls.filter((call) => call[0] === "drawImage" && call[1] === sheet && call[6] === -46).pop();
+
+  const state = Core.createState({ seed: 3 });
+  const renderIdle = () => {
+    calls.length = 0;
+    Render.render(ctx, state, { sprites });
+    return playerDraw();
+  };
+
+  assert.equal(renderIdle()[3], 0, "idle uses the first sprite row");
+
+  state.player.vx = 220;
+  assert.equal(renderIdle()[3], 96, "running uses the run row");
+
+  state.player.vx = 0;
+  state.player.attackTimer = Core.PLAYER.attackDuration;
+  assert.equal(renderIdle()[3], 192, "attacks use the attack row");
+
+  state.player.attackTimer = 0;
+  state.player.skillId = "ghostSlash";
+  state.player.skillTimer = Core.SKILLS.ghostSlash.duration;
+  assert.equal(renderIdle()[3], 288, "skills use the skill row");
+
+  state.player.skillTimer = 0;
+  state.player.skillId = null;
+  state.player.onGround = false;
+  state.player.vy = -200;
+  const airborne = renderIdle();
+  assert.equal(airborne[3], 384, "jumping uses the extras row");
+  assert.equal(airborne[2], 192, "rising uses the jump column");
+
+  state.player.onGround = true;
+  state.player.vy = 0;
+  state.player.hurtTimer = 0.1;
+  const hurt = renderIdle();
+  assert.equal(hurt[3], 384);
+  assert.equal(hurt[2], 0, "hurt uses the hurt column");
 });

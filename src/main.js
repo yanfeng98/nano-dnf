@@ -10,6 +10,16 @@
   var canvas = document.getElementById("stage");
   var ctx = canvas.getContext("2d");
 
+  /* Original art shipped in assets/: a 6x5 frame sheet and four skill icons. */
+  var sprites = { slayer: null, skills: null };
+  [["slayer", "./assets/slayer.png"], ["skills", "./assets/skills.png"]].forEach(function (entry) {
+    var image = new Image();
+    image.src = entry[1];
+    image.onload = function () {
+      sprites[entry[0]] = image;
+    };
+  });
+
   /* DNF Slayer layout: arrows move, X attacks, C jumps, A/S/D/F cast skills. */
   var KEY_MAP = {
     ArrowLeft: "left",
@@ -139,7 +149,7 @@
       if (guard >= 5) accumulator = 0;
     }
 
-    Render.render(ctx, state, { paused: paused, showHelp: showHelp });
+    Render.render(ctx, state, { paused: paused, showHelp: showHelp, sprites: sprites });
 
     var status = document.getElementById("status");
     if (status) {

@@ -3,11 +3,16 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>nano-dnf - Dungeon Fighter demo</title>
+    <title>nano-dnf · 鬼剑士的地下城</title>
     <style>
       :root {
         color-scheme: dark;
-        font-family: "Segoe UI", system-ui, -apple-system, "PingFang SC", sans-serif;
+        font-family: "PingFang SC", "Segoe UI", system-ui, -apple-system, sans-serif;
+        --gold: #e3bf72;
+        --ink: #eaf1ff;
+      }
+      * {
+        box-sizing: border-box;
       }
       body {
         margin: 0;
@@ -16,56 +21,90 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
+        gap: 14px;
+        padding: 22px 16px 34px;
+        background:
+          radial-gradient(circle at 50% -10%, rgba(90, 130, 220, 0.22), transparent 60%),
+          linear-gradient(#080b14, #05070f 70%);
+        color: var(--ink);
+      }
+      .frame {
+        position: relative;
+        padding: 10px;
+        border-radius: 16px;
+        background: linear-gradient(160deg, rgba(226, 191, 114, 0.5), rgba(30, 40, 70, 0.6) 45%, rgba(226, 191, 114, 0.34));
+        box-shadow: 0 30px 70px rgba(0, 0, 0, 0.65);
+      }
+      #stage {
+        display: block;
+        width: min(94vw, 960px);
+        height: auto;
+        border-radius: 9px;
+        background: #05070f;
+        image-rendering: pixelated;
+        touch-action: none;
+      }
+      header {
+        display: flex;
+        align-items: baseline;
         gap: 12px;
-        background: radial-gradient(circle at 50% 0%, #1b2340, #05070f 70%);
-        color: #eaf1ff;
       }
       h1 {
         margin: 0;
-        font-size: 20px;
-        letter-spacing: 0.14em;
+        font-size: 21px;
+        letter-spacing: 0.22em;
         text-transform: uppercase;
-        opacity: 0.86;
+        background: linear-gradient(#fff3c4, #d9a743);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
       }
-      #stage {
-        width: min(96vw, 960px);
-        height: auto;
-        border-radius: 12px;
-        border: 1px solid rgba(140, 180, 255, 0.28);
-        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
-        background: #0b1020;
-        touch-action: none;
+      .tagline {
+        font-size: 13px;
+        color: rgba(226, 236, 255, 0.6);
       }
       .hint {
         margin: 0;
+        max-width: min(94vw, 960px);
         font-size: 13px;
-        opacity: 0.72;
+        line-height: 1.7;
         text-align: center;
-        line-height: 1.6;
+        color: rgba(226, 236, 255, 0.72);
       }
       kbd {
-        background: rgba(255, 255, 255, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.18);
-        border-radius: 4px;
+        display: inline-block;
+        min-width: 22px;
         padding: 1px 6px;
+        border-radius: 5px;
+        border: 1px solid rgba(226, 191, 114, 0.45);
+        background: rgba(226, 191, 114, 0.12);
+        color: var(--gold);
         font-size: 12px;
+        font-family: inherit;
       }
       #status {
+        margin: 0;
+        font-size: 12px;
         font-variant-numeric: tabular-nums;
-        opacity: 0.62;
+        color: rgba(226, 236, 255, 0.5);
       }
     </style>
   </head>
   <body>
-    <h1>nano-dnf</h1>
-    <canvas id="stage" width="960" height="540"></canvas>
+    <header>
+      <h1>nano-dnf</h1>
+      <span class="tagline">鬼剑士 · 地下城试炼</span>
+    </header>
+    <div class="frame">
+      <canvas id="stage" width="960" height="540"></canvas>
+    </div>
     <p class="hint">
-      <kbd>←</kbd>/<kbd>→</kbd> 移动 · <kbd>C</kbd> 跳跃 · <kbd>X</kbd> 普攻 ·
+      <kbd>←</kbd><kbd>→</kbd> 移动 · <kbd>C</kbd> 跳跃 · <kbd>X</kbd> 普攻 ·
       <kbd>A</kbd> 上挑 · <kbd>S</kbd> 崩山击 · <kbd>D</kbd> 十字斩 · <kbd>F</kbd> 鬼斩 ·
       <kbd>P</kbd> 暂停 · <kbd>R</kbd> 重开 · <kbd>H</kbd> 帮助
     </p>
-    <p class="hint">清空房间后走到右侧传送门进入下一层，最后一层击败 Boss 即通关。</p>
-    <p class="hint" id="status"></p>
+    <p class="hint">清空房间后走到最右侧传送门进入下一层，第 4 层击败 Boss 即通关。</p>
+    <p id="status"></p>
     <script src="./src/core.js"></script>
     <script src="./src/render.js"></script>
     <script src="./src/main.js"></script>
