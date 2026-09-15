@@ -233,6 +233,81 @@
       radius: 0,
       hits: 1,
       knockdown: 0.5
+    },
+    graspHead: {
+      id: "graspHead",
+      name: "抓头",
+      key: "U",
+      mp: 20,
+      cooldown: 7,
+      damage: 24,
+      growth: 3,
+      duration: 0.9,
+      activeFrom: 0.1,
+      activeTo: 0.6,
+      reach: 52,
+      heightPad: 12,
+      knockbackX: 0,
+      launch: 0,
+      radius: 0,
+      hits: 2,
+      /* DNF shape: grab the target, hold it, slam it down and drain some HP. */
+      grab: { hold: 0.45, slamKnockdown: 1.1 },
+      drain: 0.25,
+      ignoresSuperArmor: true
+    },
+    ghostStep: {
+      id: "ghostStep",
+      name: "鬼影闪",
+      key: "I",
+      mp: 22,
+      cooldown: 6,
+      damage: 18,
+      growth: 2.5,
+      duration: 0.5,
+      activeFrom: 0.06,
+      activeTo: 0.34,
+      reach: 96,
+      heightPad: 20,
+      knockbackX: 160,
+      launch: 0,
+      radius: 0,
+      hits: 2,
+      /* DNF shape: flash forward through the target with invincibility frames. */
+      dash: 560,
+      invuln: 0.45,
+      stun: 0.2
+    },
+    mountainRift: {
+      id: "mountainRift",
+      name: "崩山裂地斩",
+      key: "O",
+      mp: 40,
+      cooldown: 12,
+      damage: 30,
+      growth: 4,
+      duration: 1.05,
+      activeFrom: 0.28,
+      activeTo: 0.72,
+      reach: 120,
+      heightPad: 22,
+      knockbackX: 260,
+      launch: 0,
+      radius: 0,
+      hits: 2,
+      /* DNF shape: leap up, then split the ground with a huge shockwave. */
+      leap: 240,
+      leapUp: -420,
+      knockdown: 1.4,
+      shockwave: {
+        reach: 240,
+        damage: 18,
+        growth: 3,
+        heightPad: 20,
+        knockbackX: 300,
+        knockdown: 1.4,
+        extraWaveFromLevel: 4
+      }
     }
   };
 
@@ -244,7 +319,10 @@
     "tripleSlash",
     "waveSlash",
     "rageBurst",
-    "moonlightSlash"
+    "moonlightSlash",
+    "graspHead",
+    "ghostStep",
+    "mountainRift"
   ];
 
   var PROGRESSION = {
@@ -483,6 +561,7 @@
       slamCooldown: spec.slam ? spec.slam.cooldown * 0.5 : 0,
       knockdown: 0,
       stun: 0,
+      grabbed: 0,
       bleed: null,
       superArmor: false,
       knockbackX: spec.knockbackX,
@@ -513,7 +592,10 @@
         tripleSlash: !!skills.tripleSlash,
         waveSlash: !!skills.waveSlash,
         rageBurst: !!skills.rageBurst,
-        moonlightSlash: !!skills.moonlightSlash
+        moonlightSlash: !!skills.moonlightSlash,
+        graspHead: !!skills.graspHead,
+        ghostStep: !!skills.ghostStep,
+        mountainRift: !!skills.mountainRift
       }
     };
   }
@@ -673,7 +755,7 @@
     pushDamageEffect(state, enemy.x, enemy.y - enemy.height - 6, applied);
 
     /* Super armour keeps bosses swinging through light hits, DNF style. */
-    if (enemy.superArmor) {
+    if (enemy.superArmor && !opts.ignoreSuperArmor) {
       enemy.vx *= 0.6;
     } else {
       var direction = enemy.x >= sourceX ? 1 : -1;
@@ -707,6 +789,13 @@
         remaining: opts.bleed.duration,
         timer: opts.bleed.interval
       };
+    }
+    if (opts.grabbed) {
+      enemy.grabbed = opts.grabbed;
+      enemy.knockdown = 0;
+      enemy.stun = 0;
+      enemy.attackTimer = 0;
+      enemy.superArmor = false;
     }
 
     if (enemy.hp <= 0) {
@@ -748,11 +837,13 @@
 
     var direction = (input.right ? 1 : 0) - (input.left ? 1 : 0);
     var rooted = player.attackTimer > 0 || player.skillTimer > 0 || player.hurtTimer > 0;
+    var dashing =
+      player.skillTimer > 0 && SKILLS[player.skillId] && SKILLS[player.skillId].dash > 0;
 
     if (direction !== 0) player.facing = direction;
-    if (rooted) {
+    if (rooted && !dashing) {
       player.vx *= 0.25;
-    } else {
+    } else if (!rooted) {
       player.vx = direction * PHYSICS.moveSpeed;
     }
 
@@ -882,7 +973,7 @@
           }
         });
 
-        if (active.shockwave) {
+        if (active.shockwave && hitIndex === hitCount - 1) {
           var wave = active.shockwave;
           var extraWave =
             wave.extraWaveFromLevel && player.level >= wave.extraWaveFromLevel ? 1 : 0;
@@ -916,8 +1007,16 @@
 
         if (active.leap && hitIndex === 0) {
           player.vx = player.facing * active.leap;
-          player.vy = Math.min(player.vy, -160);
+          player.vy = Math.min(player.vy, active.leapUp || -160);
           player.onGround = false;
+        }
+        if (active.dash && hitIndex === 0) {
+          /* 鬼影闪: flash forward and shrug off hits while doing it. */
+          player.vx = player.facing * active.dash;
+          player.invuln = Math.max(player.invuln, active.invuln || 0.3);
+        }
+        if (active.invuln && hitIndex === 0) {
+          player.invuln = Math.max(player.invuln, active.invuln);
         }
 
         if (active.id === "ghostSlash") {
@@ -940,7 +1039,13 @@
     var options = {};
     var lastHit = hitIndex === (skill.hits || 1) - 1;
 
-    if (skill.juggle && skill.launch) {
+    if (skill.grab && hitIndex === 0) {
+      options.grabbed = skill.grab.hold;
+      options.ignoreSuperArmor = true;
+    } else if (skill.grab && lastHit) {
+      options.knockdown = skill.grab.slamKnockdown;
+      options.ignoreSuperArmor = true;
+    } else if (skill.juggle && skill.launch) {
       options.launch = skill.launch;
       options.juggle = true;
     } else if (skill.knockdown && lastHit) {
@@ -957,6 +1062,20 @@
 
     var wasAirborne = !enemy.onGround;
     damageEnemy(state, enemy, damage, skill.knockbackX, state.player.x, options);
+    if (skill.drain && damage > 0) {
+      var healed = Math.round(damage * skill.drain);
+      state.player.hp = Math.min(state.player.maxHp, state.player.hp + healed);
+      if (healed > 0) {
+        state.effects.push({
+          kind: "heal",
+          text: "+" + healed + " HP",
+          x: state.player.x,
+          y: state.player.y - state.player.height - 10,
+          life: 0.8,
+          maxLife: 0.8
+        });
+      }
+    }
     if (!enemy.dead && wasAirborne) {
       state.stats.airHits += 1;
       state.player.airHitTimer = 0.6;
@@ -1172,6 +1291,19 @@
       if (enemy.slam) enemy.slamCooldown = Math.max(0, enemy.slamCooldown - dt);
       enemy.knockdown = Math.max(0, enemy.knockdown - dt);
       enemy.stun = Math.max(0, enemy.stun - dt);
+      if (enemy.grabbed > 0) {
+        /* Held in front of the Slayer: no acting, no sliding. */
+        enemy.grabbed = Math.max(0, enemy.grabbed - dt);
+        enemy.x = clamp(
+          player.x + player.facing * 30,
+          ARENA.leftWall + enemy.width / 2,
+          ARENA.rightWall - enemy.width / 2
+        );
+        enemy.y = ARENA.groundY;
+        enemy.vx = 0;
+        enemy.vy = 0;
+        enemy.attackTimer = 0;
+      }
       if (enemy.bleed) {
         enemy.bleed.remaining -= dt;
         enemy.bleed.timer -= dt;
@@ -1187,7 +1319,12 @@
         enemy.vx *= 0.86;
       } else if (enemy.attackTimer > 0) {
         enemy.vx *= 0.5;
-      } else if (!enemy.onGround || enemy.knockdown > 0 || enemy.stun > 0) {
+      } else if (
+        !enemy.onGround ||
+        enemy.knockdown > 0 ||
+        enemy.stun > 0 ||
+        enemy.grabbed > 0
+      ) {
         /* Launched, knocked down or stunned enemies cannot act. */
         enemy.vx *= 0.98;
       } else {

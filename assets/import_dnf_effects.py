@@ -27,11 +27,24 @@ ROOT = Path(__file__).resolve().parent
 SRC = ROOT / "dnf_src"
 CDN = "https://cdn.jsdelivr.net/gh"
 
+SLASH = f"{CDN}/LoveOyy/sprite_character_swordman_effect.NPK@master"
+GORE = f"{CDN}/LoveOyy/sprite_character_swordman_effect_atgorecross.NPK@master"
+STEP = f"{CDN}/LoveOyy/sprite_character_swordman_effect_ghoststep.NPK@master"
+
+# One row per skill, in SKILL_ORDER. Skills that share a slash family reuse the
+# same official source; the three new skills get their own art.
 EFFECTS = [
-    ("upSlash", f"{CDN}/LoveOyy/sprite_character_swordman_effect.NPK@master/upperslash.img.js"),
-    ("mountainBreaker", f"{CDN}/LoveOyy/sprite_character_swordman_effect.NPK@master/blast-front.img.js"),
-    ("crossSlash", f"{CDN}/LoveOyy/sprite_character_swordman_effect_atgorecross.NPK@master/cross.img.js"),
-    ("ghostSlash", f"{CDN}/LoveOyy/sprite_character_swordman_effect.NPK@master/atghost.img.js")
+    ("upSlash", f"{SLASH}/upperslash.img.js"),
+    ("mountainBreaker", f"{SLASH}/blast-front.img.js"),
+    ("crossSlash", f"{GORE}/cross.img.js"),
+    ("ghostSlash", f"{SLASH}/atghost.img.js"),
+    ("tripleSlash", f"{GORE}/cross.img.js"),
+    ("waveSlash", f"{SLASH}/upperslash.img.js"),
+    ("rageBurst", f"{SLASH}/blast-front.img.js"),
+    ("moonlightSlash", f"{GORE}/cross.img.js"),
+    ("graspHead", f"{SLASH}/pinchhpregen.img.js"),
+    ("ghostStep", f"{STEP}/01_sword_dodge.img.js"),
+    ("mountainRift", f"{SLASH}/grandwavefullcharge_light.img.js")
 ]
 
 FRAMES = 4
@@ -136,7 +149,7 @@ def main() -> None:
     sheet = Image.new("RGBA", (CELL * FRAMES, CELL * len(EFFECTS)), (0, 0, 0, 0))
     for row, (skill, url) in enumerate(EFFECTS):
         print(f"{skill}:")
-        img = load_img(fetch(f"effect_{skill}.img", url))
+        img = load_img(fetch(f"effect_{url.rsplit('/', 1)[-1].replace('.img.js', '')}.img", url))
         bake_row(img, row, sheet)
     sheet.save(ROOT / "effects.png")
     print(f"wrote {ROOT / 'effects.png'} ({sheet.width}x{sheet.height})")

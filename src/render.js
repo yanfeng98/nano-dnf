@@ -76,18 +76,18 @@
   }
 
   /* Loadout panel: every skill as a draggable tile, shown while arranging. */
-  var PANEL = { x: 16, y: ARENA.height - 236, w: 664, h: 162, tileW: 158, tileH: 62, gap: 8 };
+  var PANEL = { x: 16, y: ARENA.height - 236, w: 696, h: 160, tileW: 104, tileH: 56, gap: 8 };
 
   function loadoutPanelButtons() {
     var buttons = [];
-    var cols = 4;
+    var cols = 6;
     for (var index = 0; index < Core.SKILL_ORDER.length; index += 1) {
       buttons.push({
         action: "tile" + index,
         index: index,
         skillId: Core.SKILL_ORDER[index],
         x: PANEL.x + 12 + (index % cols) * (PANEL.tileW + PANEL.gap),
-        y: PANEL.y + 30 + Math.floor(index / cols) * (PANEL.tileH + PANEL.gap),
+        y: PANEL.y + 34 + Math.floor(index / cols) * (PANEL.tileH + PANEL.gap),
         w: PANEL.tileW,
         h: PANEL.tileH
       });
@@ -115,20 +115,22 @@
     return null;
   }
 
-  /* assets/effects.png: four rows (SKILL_ORDER) x four 128x128 DNF slash frames. */
+  /* assets/effects.png: one row per skill (SKILL_ORDER) x four 128x128 frames. */
   var EFFECT = {
     cell: 128,
     frames: 4,
     draw: {
-      upSlash: { row: 0, dx: 34, dy: -56, size: 156, copies: 1, spin: 0 },
-      mountainBreaker: { row: 1, dx: 82, dy: -22, size: 196, copies: 1, spin: 0 },
-      crossSlash: { row: 2, dx: 58, dy: -38, size: 164, copies: 2, spin: 0.785 },
-      ghostSlash: { row: 3, dx: 30, dy: -32, size: 182, copies: 1, spin: 0 },
-      /* The four added skills reuse the baked DNF rows, scaled per skill. */
-      tripleSlash: { row: 2, dx: 46, dy: -34, size: 122, copies: 2, spin: 0.785 },
-      waveSlash: { row: 0, dx: 30, dy: -52, size: 152, copies: 1, spin: 0 },
-      rageBurst: { row: 1, dx: 0, dy: -28, size: 236, copies: 1, spin: 0 },
-      moonlightSlash: { row: 2, dx: 54, dy: -42, size: 172, copies: 1, spin: 0.35 }
+      upSlash: { dx: 34, dy: -56, size: 156, copies: 1, spin: 0 },
+      mountainBreaker: { dx: 82, dy: -22, size: 196, copies: 1, spin: 0 },
+      crossSlash: { dx: 58, dy: -38, size: 164, copies: 2, spin: 0.785 },
+      ghostSlash: { dx: 30, dy: -32, size: 182, copies: 1, spin: 0 },
+      tripleSlash: { dx: 46, dy: -34, size: 122, copies: 2, spin: 0.785 },
+      waveSlash: { dx: 30, dy: -52, size: 152, copies: 1, spin: 0 },
+      rageBurst: { dx: 0, dy: -28, size: 236, copies: 1, spin: 0 },
+      moonlightSlash: { dx: 54, dy: -42, size: 172, copies: 1, spin: 0.35 },
+      graspHead: { dx: 30, dy: -36, size: 128, copies: 1, spin: 0 },
+      ghostStep: { dx: 44, dy: -30, size: 178, copies: 1, spin: 0 },
+      mountainRift: { dx: 66, dy: -46, size: 286, copies: 1, spin: 0 }
     }
   };
 
@@ -141,7 +143,10 @@
     tripleSlash: "三段推进",
     waveSlash: "上升波",
     rageBurst: "范围爆发",
-    moonlightSlash: "月光斩击"
+    moonlightSlash: "月光斩击",
+    graspHead: "抓取 · 吸血",
+    ghostStep: "瞬移 · 无敌",
+    mountainRift: "跃斩 · 裂地"
   };
 
   /** Which effect frame belongs to a skill at a given cast progress (0..1). */
@@ -149,12 +154,14 @@
     var spec = Core.SKILLS[skillId];
     var draw = EFFECT.draw[skillId];
     if (!spec || !draw) return null;
+    var row = Core.SKILL_ORDER.indexOf(skillId);
+    if (row === -1) return null;
     var from = (spec.activeFrom / spec.duration) * 0.8;
     var to = Math.min(0.98, (spec.activeTo + 0.12) / spec.duration);
     if (progress < from || progress > to) return null;
     var local = Math.min(1, (progress - from) / Math.max(0.0001, to - from));
     return {
-      row: draw.row,
+      row: row,
       col: Math.min(EFFECT.frames - 1, Math.floor(local * EFFECT.frames)),
       alpha: 1 - Math.max(0, (local - 0.75) / 0.25) * 0.7
     };
@@ -1069,16 +1076,16 @@
 
       if (sprites && sprites.skills && sprites.skills.width) {
         ctx.imageSmoothingEnabled = false;
-        ctx.drawImage(sprites.skills, iconIndex[tile.skillId] * 32, 0, 32, 32, tile.x + 6, tile.y + 6, 34, 34);
+        ctx.drawImage(sprites.skills, iconIndex[tile.skillId] * 32, 0, 32, 32, tile.x + 4, tile.y + 4, 30, 30);
       }
       ctx.textAlign = "left";
       ctx.fillStyle = PALETTE.text;
-      ctx.font = "600 13px 'PingFang SC', 'Segoe UI', sans-serif";
-      ctx.fillText(skill.name, tile.x + 46, tile.y + 20);
+      ctx.font = "600 12px 'PingFang SC', 'Segoe UI', sans-serif";
+      ctx.fillText(skill.name, tile.x + 38, tile.y + 18);
       ctx.fillStyle = PALETTE.textDim;
-      ctx.font = "600 11px 'Segoe UI', system-ui, sans-serif";
-      ctx.fillText("MP " + skill.mp + " · CD " + skill.cooldown + "s", tile.x + 46, tile.y + 38);
-      ctx.fillText(EFFECT_LABEL[skill.id] || "", tile.x + 46, tile.y + 54);
+      ctx.font = "600 10px 'Segoe UI', system-ui, sans-serif";
+      ctx.fillText("MP " + skill.mp + " · CD " + skill.cooldown + "s", tile.x + 38, tile.y + 34);
+      ctx.fillText(EFFECT_LABEL[skill.id] || "", tile.x + 38, tile.y + 49);
       ctx.restore();
     });
     ctx.restore();

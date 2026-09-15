@@ -117,6 +117,13 @@ function decide(state, constants) {
     return want;
   }
 
+  /* Attacks only reach where the Slayer looks, so turn around first. */
+  const facingTarget = delta >= 0 ? player.facing >= 0 : player.facing < 0;
+  if (!facingTarget) {
+    want.add(delta > 0 ? "right" : "left");
+    return want;
+  }
+
   want.add("attack");
   const castable = constants.skillOrder.filter((skillId) => {
     const skill = constants.skills[skillId];
@@ -414,7 +421,7 @@ function problemsFor(pass) {
   }
   if (pass.mode === "keyboard") {
     const checks = pass.loadoutChecks;
-    const defaults = "upSlash,mountainBreaker,crossSlash,ghostSlash,tripleSlash,rageBurst";
+    const defaults = "upSlash,mountainBreaker,crossSlash,ghostSlash,graspHead,mountainRift";
     if (!checks || !checks.arranging) problems.push("keyboard: B did not open the arrange panel");
     if (!checks || checks.dragged.loadout[0] !== "moonlightSlash") {
       problems.push("keyboard: dragging 月光斩 into slot A did not apply");

@@ -21,8 +21,8 @@
     "mountainBreaker",
     "crossSlash",
     "ghostSlash",
-    "tripleSlash",
-    "rageBurst"
+    "graspHead",
+    "mountainRift"
   ];
 
   function create(skillIds) {

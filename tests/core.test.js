@@ -710,6 +710,13 @@ function kitingBot(state) {
     else input.left = true;
     return input;
   }
+  /* Attacks only reach where the Slayer looks, so turn around first. */
+  const facingTarget = delta >= 0 ? player.facing >= 0 : player.facing < 0;
+  if (!facingTarget) {
+    if (delta > 0) input.right = true;
+    else input.left = true;
+    return input;
+  }
   input.attack = true;
   /* Skills root the player, so only cast when the target cannot punish the animation. */
   const castable = Core.SKILL_ORDER.filter((skillId) => {
@@ -807,34 +814,28 @@ test("the shipped DNF effect sheet matches the renderer grid", () => {
   const buffer = fs.readFileSync(path.join(__dirname, "..", "assets", "effects.png"));
   assert.equal(buffer.subarray(1, 4).toString("ascii"), "PNG");
   assert.equal(buffer.readUInt32BE(16), Render.EFFECT.cell * Render.EFFECT.frames);
-  assert.equal(buffer.readUInt32BE(20), Render.EFFECT.cell * 4, "four baked effect rows");
+  assert.equal(
+    buffer.readUInt32BE(20),
+    Render.EFFECT.cell * Core.SKILL_ORDER.length,
+    "one baked effect row per skill"
+  );
   assert.equal(Render.EFFECT.frames, 4);
   Core.SKILL_ORDER.forEach((skillId) => {
     assert.ok(Render.EFFECT.draw[skillId], `${skillId} needs an effect mapping`);
   });
-  assert.deepEqual(
-    ["upSlash", "mountainBreaker", "crossSlash", "ghostSlash"].map(
-      (skillId) => Render.EFFECT.draw[skillId].row
-    ),
-    [0, 1, 2, 3]
-  );
 });
 
 test("each skill picks a DNF effect row across the cast", () => {
-  const rows = new Set();
-  Core.SKILL_ORDER.forEach((skillId) => {
+  Core.SKILL_ORDER.forEach((skillId, row) => {
     const spec = Core.SKILLS[skillId];
     const mid = (spec.activeFrom + spec.activeTo) / 2 / spec.duration;
     const frame = Render.skillEffectFrame(skillId, mid);
     assert.ok(frame, `${skillId} should draw an effect mid-cast`);
-    assert.equal(frame.row, Render.EFFECT.draw[skillId].row);
-    assert.ok(frame.row >= 0 && frame.row < 4, `${skillId} maps onto the four baked rows`);
-    rows.add(frame.row);
+    assert.equal(frame.row, row, `${skillId} owns its atlas row`);
     assert.ok(frame.col >= 0 && frame.col < Render.EFFECT.frames);
     assert.equal(Render.skillEffectFrame(skillId, 0), null, `${skillId} draws nothing on frame 0`);
     assert.equal(Render.skillEffectFrame(skillId, 1), null, `${skillId} stops after the cast`);
   });
-  assert.equal(rows.size, 4, "all four baked effect rows are used");
   assert.equal(Render.skillEffectFrame("grunt", 0.5), null, "unknown skills have no effect");
 });
 
@@ -882,6 +883,87 @@ test("the three new DNF skills land their hits and statuses", () => {
   Core.runFrames(state, 40, {});
   assert.ok(behindHp - behind.hp >= Core.SKILLS.rageBurst.damage, "怒气爆发 reaches behind the player");
   assert.ok(behind.knockdown > 0 || behind.dead, "怒气爆发 knocks the target down");
+});
+
+test("抓头 grabs a target, holds it, slams it down and drains HP", () => {
+  const state = lastRoomState();
+  const enemy = Core.createEnemy(state, "brute", state.player.x + 40);
+  enemy.hp = 600;
+  enemy.maxHp = 600;
+  enemy.attackCooldown = 0;
+  state.enemies = [enemy];
+  state.player.hp = 60;
+  const hpBefore = state.player.hp;
+
+  Core.step(state, { skills: { graspHead: true } });
+  Core.runFrames(state, 12, {});
+  assert.ok(enemy.grabbed > 0, "the target is held");
+  assert.equal(enemy.attackTimer, 0, "a grabbed enemy cannot wind up");
+  const lockedX = Math.abs(enemy.x - (state.player.x + state.player.facing * 30));
+  assert.ok(lockedX < 6, `a grabbed target is pulled in front of the player, dx=${lockedX}`);
+
+  Core.runFrames(state, 60, {});
+  assert.ok(enemy.knockdown > 0 || enemy.dead, "the slam knocks it down");
+  assert.equal(enemy.grabbed, 0, "the hold ends with the slam");
+  assert.ok(state.player.hp > hpBefore, `抓头 drains HP, hp=${state.player.hp}`);
+});
+
+test("鬼影闪 dashes through the target with invincibility frames", () => {
+  const state = lastRoomState();
+  const enemy = Core.createEnemy(state, "grunt", state.player.x + 70);
+  enemy.hp = 400;
+  enemy.maxHp = 400;
+  state.enemies = [enemy];
+  const xBefore = state.player.x;
+
+  Core.step(state, { skills: { ghostStep: true } });
+  Core.runFrames(state, 8, {});
+  assert.ok(state.player.invuln > 0, "the dash grants invincibility frames");
+  Core.runFrames(state, 40, {});
+
+  assert.ok(state.player.x > xBefore + 60, `the dash covers ground, x=${state.player.x}`);
+  assert.ok(
+    400 - enemy.hp >= Core.SKILLS.ghostStep.damage,
+    "the dash cuts the target on the way through"
+  );
+  assert.ok(state.player.x > enemy.x, "the Slayer ends up past the target");
+});
+
+test("崩山裂地斩 is a leaping ultimate with a wide rift", () => {
+  const state = lastRoomState();
+  const near = Core.createEnemy(state, "brute", state.player.x + 70);
+  const far = Core.createEnemy(state, "brute", state.player.x + 260);
+  [near, far].forEach((enemy) => {
+    enemy.hp = 600;
+    enemy.maxHp = 600;
+    enemy.speed = 0;
+  });
+  state.enemies = [near, far];
+  state.player.mp = state.player.maxMp;
+  const skill = Core.SKILLS.mountainRift;
+
+  Core.step(state, { skills: { mountainRift: true } });
+  Core.runFrames(state, 20, {});
+  assert.equal(state.player.onGround, false, "the ultimate leaps first");
+
+  Core.runFrames(state, 12, {});
+  assert.ok(
+    state.effects.some((effect) => effect.kind === "shockwave"),
+    "the landing splits the ground"
+  );
+
+  Core.runFrames(state, 48, {});
+  assert.ok(
+    state.player.mp <= state.player.maxMp - skill.mp + 12,
+    `the ultimate costs ${skill.mp} MP (plus regen), mp=${state.player.mp}`
+  );
+  assert.ok(
+    state.player.skillCooldowns.mountainRift > 0 &&
+      state.player.skillCooldowns.mountainRift < skill.cooldown,
+    "the long cooldown runs down after the cast"
+  );
+  assert.ok(far.hp < 600, "the rift reaches far targets");
+  assert.ok(far.knockdown > 0 || far.dead, "the rift knocks them down");
 });
 
 test("the skill loadout assigns, swaps, clears and round-trips", () => {
@@ -1064,7 +1146,7 @@ test("the renderer draws six hotbar slots and the loadout panel", () => {
   const state = Core.createState({ seed: 11 });
   const sprites = { slayer: { width: 576, height: 480 }, skills: { width: 128, height: 32 } };
   const barY = Render.skillBarButtons()[0].y + 5;
-  const tileYs = [...new Set(Render.loadoutPanelButtons().map((tile) => tile.y + 6))];
+  const tileYs = [...new Set(Render.loadoutPanelButtons().map((tile) => tile.y + 4))];
   const drawsAt = (destY) =>
     calls.filter(
       (call) => call[0] === "drawImage" && call[1] === sprites.skills && call[7] === destY

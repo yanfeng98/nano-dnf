@@ -24,7 +24,7 @@
 ## 运行
 
 ```bash
-npm test          # 44 个核心逻辑、DNF 技能机制、技能编成、特效图集、触屏布局与渲染冒烟测试
+npm test          # 47 个核心逻辑、DNF 技能机制、技能编成、特效图集、触屏布局与渲染冒烟测试
 npm run test:browser # 无头 Chromium 跑真实页面：键盘 + 触屏两条通路各通关一次
 npm run serve     # 起本地静态服务，然后打开 http://localhost:8080
 python3 assets/make_slayer_sprites.py   # 可选：重新生成原创精灵图与技能图标
@@ -41,7 +41,7 @@ python3 assets/make_slayer_sprites.py   # 可选：重新生成原创精灵图�
 | `←` / `→` | 左右移动 |
 | `C`（也支持 `↑` / `Space`） | 跳跃 |
 | `X` | 普攻（连续按出三段连击，伤害 8 / 10 / 15） |
-| `A` ~ `H` | 六个技能槽（默认 上挑 / 崩山击 / 十字斩 / 鬼斩 / 三段斩 / 怒气爆发） |
+| `A` ~ `H` | 六个技能槽（默认 上挑 / 崩山击 / 十字斩 / 鬼斩 / 抓头 / 崩山裂地斩） |
 | `B` | 打开技能编成面板（拖动图标换槽，Esc 之外再按 B 关闭） |
 | `P` | 暂停 |
 | `R` | 重开 |
@@ -84,6 +84,9 @@ python3 assets/make_slayer_sprites.py   # 可选：重新生成原创精灵图�
 | 裂波斩 | `H` | 16 | 4.5s | 1 段 + 上升波 | 16 +3/级（波 8 +2/级） | 上升波把目标**挑飞**，6 级起波的范围更宽 |
 | 怒气爆发 | `T` | 24 | 6.5s | 2 段 | 20 +3/级/段 | 以自身为中心的**范围爆发**，把周围敌人击倒 |
 | 月光斩 | `Y` | 18 | 5.0s | 1 段 | 26 +3/级 | 月光弧形斩击，小幅击倒、范围更长 |
+| 抓头 | `U` | 20 | 7.0s | 2 段 | 24 +3/级 | **抓取**：把目标拎到身前定住，砸地**击倒**并**吸取生命**（回复 25% 伤害） |
+| 鬼影闪 | `I` | 22 | 6.0s | 2 段 | 18 +2.5/级 | **位移**：向前瞬闪穿过目标，期间**无敌**，穿过时造成伤害与硬直 |
+| 崩山裂地斩 | `O` | 40 | 12.0s | 2 段 + 裂地波 | 30 +4/级（波 18 +3/级） | **大招**：先跃起再砸地，240px 裂地波把范围内敌人**击倒** |
 
 其他 DNF 式规则：
 
@@ -98,6 +101,10 @@ HUD 左下角是技能栏，显示按键、技能名、MP 消耗与冷却读秒�
 上挑用 `upperslash` 的蓝色上挑弧、崩山击用 `blast-front` 的火焰爆裂、十字斩用 `atgorecross/cross`
 的红色斜刀光镜像成十字、鬼斩用 `atghost` 升起的鬼神。部分特效导出时没有 alpha 通道（DNF 靠调色板与
 叠加混合），脚本会把纯黑底键出成透明，再统一对齐、缩放成 4×4 的 128×128 图集。
+
+新增的位移/抓取/大招也各配了官方素材：鬼影闪用 `ghoststep/01_sword_dodge`（紫色瞬闪残影）、
+抓头用 `pinchhpregen`（官方抓取吸血光点）、崩山裂地斩用 `grandwavefullcharge_light`（雷电巨浪）。
+图集因此改成**每个技能一行**（11 行 × 4 帧的 128×128），没有专属素材的技能复用同一家族的官方刀光。
 
 清空当前房间后右侧传送门点亮，走到最右侧进入下一层；第 4 层击败 Boss 即通关。
 
@@ -174,8 +181,8 @@ python3 assets/import_dnf_art.py --icons 3,5,7,9  # 按指定帧重烘焙四个�
 200、WebAudio 已初始化。最近一次结果：
 
 ```
-keyboard victory=true kills=11 damageTaken=19 seconds=64.3 level=4  audio=created/running  drag=月光斩→槽A persisted=true
-touch    victory=true kills=11 damageTaken=7  seconds=60.1 level=4  touchMode=true audio=created/running muteToggle=ok
+keyboard victory=true kills=11 damageTaken=7 seconds=62.8 level=4  audio=created/running  drag=月光斩→槽A persisted=true
+touch    victory=true kills=11 damageTaken=7 seconds=64.5 level=4  touchMode=true audio=created/running muteToggle=ok
 consoleErrors=[] pageErrors=[] failedRequests=[]
 assets: index.html / main.js / render.js / core.js / slayer.png / skills.png / favicon.png 全部 200
 ```
