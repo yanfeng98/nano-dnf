@@ -57,26 +57,39 @@
     { action: "loadout", x: 806, y: 20, w: 62, h: 44, label: "编" }
   ];
 
-  /* Hotbar: six DNF-style slots (A S D F G H) filled from the loadout. */
-  var BAR = { x: 16, y: ARENA.height - 62, slotW: 110, slotH: 46, gap: 6 };
+  /* Hotbar: DNF's two rows of six (A S D F G H / Q W E R T Y). */
+  var SLOT_COUNT = 12;
+  var SLOT_COLS = 6;
+  var BAR = { x: 16, y: ARENA.height - 96, slotW: 104, slotH: 40, gap: 6, rowGap: 6 };
+  var TOUCH_BAR = { x: 250, y: ARENA.height - 118, slotW: 56, slotH: 56, gap: 2, rowGap: 2 };
 
-  function skillBarButtons() {
+  function slotButtons(layout) {
     var buttons = [];
-    for (var index = 0; index < 6; index += 1) {
+    for (var index = 0; index < SLOT_COUNT; index += 1) {
+      var column = index % SLOT_COLS;
+      var row = Math.floor(index / SLOT_COLS);
       buttons.push({
         action: "slot" + index,
         index: index,
-        x: BAR.x + index * (BAR.slotW + BAR.gap),
-        y: BAR.y,
-        w: BAR.slotW,
-        h: BAR.slotH
+        x: layout.x + column * (layout.slotW + layout.gap),
+        y: layout.y + row * (layout.slotH + layout.rowGap),
+        w: layout.slotW,
+        h: layout.slotH
       });
     }
     return buttons;
   }
 
+  function skillBarButtons() {
+    return slotButtons(BAR);
+  }
+
+  function touchBarButtons() {
+    return slotButtons(TOUCH_BAR);
+  }
+
   /* Loadout panel: every skill as a draggable tile, shown while arranging. */
-  var PANEL = { x: 16, y: ARENA.height - 236, w: 696, h: 160, tileW: 104, tileH: 56, gap: 8 };
+  var PANEL = { x: 16, y: ARENA.height - 330, w: 696, h: 160, tileW: 104, tileH: 56, gap: 8 };
 
   function loadoutPanelButtons() {
     var buttons = [];
@@ -95,7 +108,7 @@
     return buttons;
   }
 
-  function hitTestLoadout(x, y, open) {
+  function hitTestLoadout(x, y, open, compact) {
     if (open) {
       var tiles = loadoutPanelButtons();
       for (var tile = 0; tile < tiles.length; tile += 1) {
@@ -105,7 +118,7 @@
         }
       }
     }
-    var slots = skillBarButtons();
+    var slots = compact ? touchBarButtons() : skillBarButtons();
     for (var index = 0; index < slots.length; index += 1) {
       var slot = slots[index];
       if (x >= slot.x && x <= slot.x + slot.w && y >= slot.y && y <= slot.y + slot.h) {
@@ -957,16 +970,17 @@
     }
   }
 
-  function drawSkillBar(ctx, state, sprites, loadout) {
+  function drawSkillBar(ctx, state, sprites, loadout, compact) {
     var player = state.player;
     var slots = loadout || [];
-    var keys = ["A", "S", "D", "F", "G", "H"];
+    var keys = ["A", "S", "D", "F", "G", "H", "Q", "W", "E", "R", "T", "Y"];
+    var buttons = compact ? touchBarButtons() : skillBarButtons();
     var iconIndex = {};
     Core.SKILL_ORDER.forEach(function (skillId, index) {
       iconIndex[skillId] = index;
     });
 
-    skillBarButtons().forEach(function (slot) {
+    buttons.forEach(function (slot) {
       var skillId = slots[slot.index] || null;
       var skill = skillId ? Core.SKILLS[skillId] : null;
       var cooldown = skill ? player.skillCooldowns[skillId] || 0 : 0;
@@ -988,6 +1002,7 @@
       ctx.setLineDash([]);
 
       if (skill && sprites && sprites.skills && sprites.skills.width) {
+        var iconSize = compact ? slot.w - 8 : 36;
         ctx.imageSmoothingEnabled = false;
         ctx.globalAlpha = ready ? 1 : 0.55;
         ctx.drawImage(
@@ -996,12 +1011,34 @@
           0,
           32,
           32,
-          slot.x + 5,
-          slot.y + 5,
-          36,
-          36
+          compact ? slot.x + 4 : slot.x + 5,
+          compact ? slot.y + 4 : slot.y + 2,
+          iconSize,
+          iconSize
         );
         ctx.globalAlpha = 1;
+      }
+
+      if (compact) {
+        /* Touch bar: icon-only slots with the key in the corner and a cooldown sweep. */
+        ctx.textAlign = "left";
+        ctx.fillStyle = "rgba(10, 12, 20, 0.75)";
+        roundRect(ctx, slot.x + 2, slot.y + 2, 15, 13, 3);
+        ctx.fill();
+        ctx.fillStyle = PALETTE.gold;
+        ctx.font = "700 10px 'Segoe UI', system-ui, sans-serif";
+        ctx.fillText(keys[slot.index], slot.x + 5, slot.y + 12);
+        if (cooldown > 0) {
+          ctx.fillStyle = "rgba(8, 10, 18, 0.62)";
+          roundRect(ctx, slot.x + 1, slot.y + 1, slot.w - 2, (slot.h - 2) * clamp01(cooldown / skill.cooldown), 5);
+          ctx.fill();
+          ctx.fillStyle = "#9ccbff";
+          ctx.font = "700 11px 'Segoe UI', system-ui, sans-serif";
+          ctx.textAlign = "center";
+          ctx.fillText(cooldown.toFixed(1), slot.x + slot.w / 2, slot.y + slot.h / 2 + 4);
+        }
+        ctx.restore();
+        return;
       }
 
       ctx.textAlign = "left";
@@ -1154,7 +1191,7 @@
       ctx.fillStyle = "rgba(230, 240, 255, 0.85)";
       ctx.font = "18px 'PingFang SC', 'Segoe UI', sans-serif";
       ctx.fillText(
-        state.defeat ? "按 R 重新开始" : "按 R 再来一次",
+        state.defeat ? "按 F3 重新开始" : "按 F3 再来一次",
         ARENA.width / 2,
         ARENA.height / 2 + 34
       );
@@ -1207,7 +1244,7 @@
         ["S", "崩山击（冲击波）"],
         ["D", "十字斩"],
         ["F", "鬼斩"],
-        ["P / R / F1", "暂停 / 重开 / 帮助"]
+        ["P / F3 / F1", "暂停 / 重开 / 帮助"]
       ];
       ctx.font = "600 15px 'PingFang SC', 'Segoe UI', sans-serif";
       rows.forEach(function (row, index) {
@@ -1259,7 +1296,7 @@
 
     drawVignette(ctx, state);
     drawHud(ctx, state, sprites);
-    drawSkillBar(ctx, state, sprites, meta.loadout);
+    drawSkillBar(ctx, state, sprites, meta.loadout, !!(meta.touch && meta.touch.enabled));
     if (meta.touch && meta.touch.enabled) drawTouchControls(ctx, state, sprites, meta.touch);
     if (meta.loadoutOpen) drawLoadoutPanel(ctx, state, sprites, meta);
     drawOverlay(ctx, state, meta, sprites);
@@ -1272,6 +1309,8 @@
     EFFECT: EFFECT,
     skillEffectFrame: skillEffectFrame,
     skillBarButtons: skillBarButtons,
+    touchBarButtons: touchBarButtons,
+    SLOT_COUNT: SLOT_COUNT,
     loadoutPanelButtons: loadoutPanelButtons,
     hitTestLoadout: hitTestLoadout,
     touchButtons: touchButtons,

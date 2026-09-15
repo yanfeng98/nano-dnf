@@ -29,7 +29,20 @@ const MIME = {
 const MAX_SECONDS = 150;
 const TOTAL_ENEMIES = 11;
 
-const SLOT_KEYS = ["KeyA", "KeyS", "KeyD", "KeyF", "KeyG", "KeyH"];
+const SLOT_KEYS = [
+  "KeyA",
+  "KeyS",
+  "KeyD",
+  "KeyF",
+  "KeyG",
+  "KeyH",
+  "KeyQ",
+  "KeyW",
+  "KeyE",
+  "KeyR",
+  "KeyT",
+  "KeyY"
+];
 const KEY_FOR_ACTION = {
   left: "ArrowLeft",
   right: "ArrowRight",
@@ -211,7 +224,7 @@ async function touchAction(page, action, down) {
       const slotIndex = action.startsWith("slot") ? Number(action.slice(4)) : -1;
       const button =
         slotIndex >= 0
-          ? window.DNFRender.skillBarButtons()[slotIndex]
+          ? window.DNFRender.touchBarButtons()[slotIndex]
           : window.DNFRender.touchButtons().find((entry) => entry.action === action);
       const rect = canvas.getBoundingClientRect();
       const clientX = rect.left + ((button.x + button.w / 2) / canvas.width) * rect.width;
@@ -273,6 +286,12 @@ async function runPass(browser, baseUrl, options) {
   while (!state.victory && !state.defeat) {
     if ((Date.now() - started) / 1000 > MAX_SECONDS) {
       await page.screenshot({ path: path.join(ARTIFACTS, `playability-timeout-${options.mode}.png`) });
+      console.error(`--- ${options.mode} pass timed out; last samples ---`);
+      trace.slice(-24).forEach((sample) => {
+        console.error(
+          `${sample.t}s room=${sample.room} hp=${sample.hp} px=${sample.px} want=${sample.want} | ${sample.enemies.join(" ; ")}`
+        );
+      });
       throw new Error(`${options.mode} pass did not finish within ${MAX_SECONDS}s`);
     }
     const want = decide(state, constants);
@@ -421,7 +440,9 @@ function problemsFor(pass) {
   }
   if (pass.mode === "keyboard") {
     const checks = pass.loadoutChecks;
-    const defaults = "upSlash,mountainBreaker,crossSlash,ghostSlash,graspHead,mountainRift";
+    const defaults =
+      "upSlash,mountainBreaker,crossSlash,ghostSlash,graspHead,mountainRift," +
+      "tripleSlash,waveSlash,rageBurst,moonlightSlash,ghostStep,";
     if (!checks || !checks.arranging) problems.push("keyboard: B did not open the arrange panel");
     if (!checks || checks.dragged.loadout[0] !== "moonlightSlash") {
       problems.push("keyboard: dragging 月光斩 into slot A did not apply");

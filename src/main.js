@@ -39,7 +39,13 @@
     KeyD: "slot2",
     KeyF: "slot3",
     KeyG: "slot4",
-    KeyH: "slot5"
+    KeyH: "slot5",
+    KeyQ: "slot6",
+    KeyW: "slot7",
+    KeyE: "slot8",
+    KeyR: "slot9",
+    KeyT: "slot10",
+    KeyY: "slot11"
   };
 
   var ONE_SHOT_ACTIONS = {
@@ -266,7 +272,7 @@
     var point = canvasPoint(event);
 
     /* Skill bar: tap to cast, or start a drag while arranging the loadout. */
-    var bar = Render.hitTestLoadout(point.x, point.y, loadoutOpen);
+    var bar = Render.hitTestLoadout(point.x, point.y, loadoutOpen, touchMode);
     if (bar) {
       event.preventDefault();
       ensureAudio();
@@ -317,7 +323,7 @@
   function touchUp(event) {
     if (drag && drag.pointerId === event.pointerId) {
       var point = canvasPoint(event);
-      var target = Render.hitTestLoadout(point.x, point.y, loadoutOpen);
+      var target = Render.hitTestLoadout(point.x, point.y, loadoutOpen, touchMode);
       if (target && target.kind === "slot") {
         loadout = Loadout.assign(loadout, target.index, drag.skillId);
         saveLoadout();
@@ -352,7 +358,7 @@
       event.preventDefault();
       return;
     }
-    if (event.code === "KeyR") {
+    if (event.code === "F3") {
       restart();
       event.preventDefault();
       return;
@@ -373,7 +379,7 @@
       event.preventDefault();
       return;
     }
-    if (event.code === "KeyT") {
+    if (event.code === "F2") {
       touchMode = !touchMode;
       event.preventDefault();
       return;

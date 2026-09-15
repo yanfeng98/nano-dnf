@@ -14,15 +14,23 @@
 })(typeof self !== "undefined" ? self : this, function () {
   "use strict";
 
-  var SLOT_COUNT = 6;
-  var SLOT_KEYS = ["A", "S", "D", "F", "G", "H"];
+  /* DNF-style two-row quickbar: six slots per row. */
+  var SLOT_COUNT = 12;
+  var SLOT_ROW_SIZE = 6;
+  var SLOT_KEYS = ["A", "S", "D", "F", "G", "H", "Q", "W", "E", "R", "T", "Y"];
   var DEFAULT_SLOTS = [
     "upSlash",
     "mountainBreaker",
     "crossSlash",
     "ghostSlash",
     "graspHead",
-    "mountainRift"
+    "mountainRift",
+    "tripleSlash",
+    "waveSlash",
+    "rageBurst",
+    "moonlightSlash",
+    "ghostStep",
+    null
   ];
 
   function create(skillIds) {
@@ -95,6 +103,7 @@
 
   return {
     SLOT_COUNT: SLOT_COUNT,
+    SLOT_ROW_SIZE: SLOT_ROW_SIZE,
     SLOT_KEYS: SLOT_KEYS,
     DEFAULT_SLOTS: DEFAULT_SLOTS,
     create: create,

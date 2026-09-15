@@ -970,6 +970,7 @@ test("the skill loadout assigns, swaps, clears and round-trips", () => {
   const Loadout = require("../src/loadout.js");
   const base = Loadout.create(Core.SKILL_ORDER);
   assert.equal(base.length, Loadout.SLOT_COUNT);
+  assert.equal(Loadout.SLOT_COUNT, 12, "DNF two-row quickbar");
   assert.deepEqual(base, Loadout.DEFAULT_SLOTS);
 
   const moved = Loadout.assign(base, 0, "ghostSlash");
@@ -987,11 +988,12 @@ test("the skill loadout assigns, swaps, clears and round-trips", () => {
   const text = Loadout.serialize(cleared);
   assert.deepEqual(Loadout.deserialize(text, Core.SKILL_ORDER), cleared);
   assert.deepEqual(
-    Loadout.deserialize("bogus,,,", Core.SKILL_ORDER),
-    [null, null, null, null, null, null],
+    Loadout.deserialize("bogus", Core.SKILL_ORDER),
+    new Array(12).fill(null),
     "unknown skill ids are rejected"
   );
   assert.equal(Loadout.slotForCode("KeyD"), 2);
+  assert.equal(Loadout.slotForCode("KeyT"), 10);
   assert.equal(Loadout.slotForCode("ArrowLeft"), -1);
 });
 
@@ -1091,15 +1093,26 @@ test("touch controls expose a hit-testable layout for mobile play", () => {
   assert.equal(Render.hitTestTouch(Core.ARENA.width / 2, 180), null, "empty space is not a button");
 });
 
-test("the hotbar exposes six DNF slots and the panel exposes every skill", () => {
+test("the hotbar exposes two rows of DNF slots and the panel exposes every skill", () => {
+  const Loadout = require("../src/loadout.js");
   const slots = Render.skillBarButtons();
-  assert.equal(slots.length, 6, "A S D F G H");
+  assert.equal(slots.length, Loadout.SLOT_COUNT, "A S D F G H / Q W E R T Y");
+  assert.equal(Render.touchBarButtons().length, Loadout.SLOT_COUNT, "touch keeps both rows");
+  assert.equal(slots[0].y, slots[5].y, "row one shares a baseline");
+  assert.ok(slots[6].y > slots[0].y, "row two sits below row one");
   slots.forEach((slot) => {
     assert.ok(slot.x + slot.w <= Core.ARENA.width);
     assert.ok(slot.y + slot.h <= Core.ARENA.height);
-    const hit = Render.hitTestLoadout(slot.x + slot.w / 2, slot.y + slot.h / 2, false);
+    const hit = Render.hitTestLoadout(slot.x + slot.w / 2, slot.y + slot.h / 2, false, false);
     assert.deepEqual(hit, { kind: "slot", index: slot.index });
   });
+
+  /* Touch mode uses the compact bar, and hit-testing follows it. */
+  const touchSlot = Render.touchBarButtons()[7];
+  assert.deepEqual(
+    Render.hitTestLoadout(touchSlot.x + 4, touchSlot.y + 4, false, true),
+    { kind: "slot", index: 7 }
+  );
 
   const tiles = Render.loadoutPanelButtons();
   assert.equal(tiles.length, Core.SKILL_ORDER.length, "every skill is draggable");
@@ -1119,7 +1132,7 @@ test("the hotbar exposes six DNF slots and the panel exposes every skill", () =>
   );
 });
 
-test("the renderer draws six hotbar slots and the loadout panel", () => {
+test("the renderer draws both hotbar rows and the loadout panel", () => {
   const calls = [];
   const ctx = new Proxy(
     {
@@ -1145,18 +1158,21 @@ test("the renderer draws six hotbar slots and the loadout panel", () => {
 
   const state = Core.createState({ seed: 11 });
   const sprites = { slayer: { width: 576, height: 480 }, skills: { width: 128, height: 32 } };
-  const barY = Render.skillBarButtons()[0].y + 5;
+  const barY = Render.skillBarButtons()[0].y + 2;
+  const barY2 = Render.skillBarButtons()[6].y + 2;
   const tileYs = [...new Set(Render.loadoutPanelButtons().map((tile) => tile.y + 4))];
   const drawsAt = (destY) =>
     calls.filter(
       (call) => call[0] === "drawImage" && call[1] === sprites.skills && call[7] === destY
     ).length;
   const tileDraws = () => tileYs.reduce((total, destY) => total + drawsAt(destY), 0);
-  const loadout = Core.SKILL_ORDER.slice(0, 6);
+  /* Eleven skills fill the two rows, leaving one empty slot on the second row. */
+  const loadout = Core.SKILL_ORDER.slice(0, 11).concat([null]);
 
   calls.length = 0;
   Render.render(ctx, state, { sprites, loadout });
-  assert.equal(drawsAt(barY), 6, "six hotbar icons");
+  assert.equal(drawsAt(barY), 6, "six icons on the first row");
+  assert.equal(drawsAt(barY2), 5, "the empty slot draws no icon");
   assert.equal(tileDraws(), 0, "panel is closed");
 
   calls.length = 0;
@@ -1167,6 +1183,10 @@ test("the renderer draws six hotbar slots and the loadout panel", () => {
     drag: { skillId: "waveSlash", x: 400, y: 300 },
     touch: { enabled: true, pressed: [], muted: false }
   });
-  assert.equal(drawsAt(barY), 6, "bar stays visible while arranging");
+  const touchY = Render.touchBarButtons()[0].y + 4;
+  const touchY2 = Render.touchBarButtons()[6].y + 4;
+  assert.equal(drawsAt(barY), 0, "touch mode uses the compact bar");
+  assert.equal(drawsAt(touchY), 6, "compact bar keeps the first row while arranging");
+  assert.equal(drawsAt(touchY2), 5, "compact bar keeps the second row while arranging");
   assert.equal(tileDraws(), Core.SKILL_ORDER.length, "every skill tile is drawn");
 });
