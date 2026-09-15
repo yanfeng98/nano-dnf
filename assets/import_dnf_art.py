@@ -71,13 +71,22 @@ SKILL_IDS = [
 #   python3 assets/import_dnf_art.py --icons 3,5,7,9  # re-bake with chosen frames
 # Skills without an entry fall back to a thumbnail of their own official effect
 # art, so every hotbar slot shows art that belongs to that skill.
+# All eleven frames were picked by the project owner from that sheet, so every
+# hotbar slot shows the real DNF icon for its skill.
 ICON_FRAMES = {
     "upSlash": 94,
     "mountainBreaker": 154,
     "crossSlash": 132,
     "ghostSlash": 10,
+    "tripleSlash": 18,
+    "waveSlash": 6,
+    "rageBurst": 48,
+    "moonlightSlash": 160,
+    "graspHead": 98,
+    "ghostStep": 138,
+    "mountainRift": 172,
 }
-ICON_FRAME_ORDER = ["upSlash", "mountainBreaker", "crossSlash", "ghostSlash"]
+ICON_FRAME_ORDER = SKILL_IDS
 
 # Where the character's feet sit inside the source canvas.
 SRC_CANVAS = (180, 176)
