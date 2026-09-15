@@ -27,6 +27,8 @@
     blade: "rgba(226, 250, 255, 0.85)",
     grunt: "#8ad36c",
     brute: "#e0a44d",
+    caster: "#79a6ff",
+    charger: "#b07cff",
     boss: "#e0556d",
     enemyTrim: "#22160f",
     hp: "#54e07a",
@@ -37,7 +39,13 @@
     danger: "#ff5f6d"
   };
 
-  var ENEMY_COLORS = { grunt: PALETTE.grunt, brute: PALETTE.brute, boss: PALETTE.boss };
+  var ENEMY_COLORS = {
+    grunt: PALETTE.grunt,
+    brute: PALETTE.brute,
+    caster: PALETTE.caster,
+    charger: PALETTE.charger,
+    boss: PALETTE.boss
+  };
 
   function drawBackground(ctx) {
     var gradient = ctx.createLinearGradient(0, 0, 0, ARENA.groundY);
@@ -164,10 +172,12 @@
 
     if (enemy.attackTimer > 0) {
       var windup = 1 - Math.max(0, enemy.attackTimer / enemy.attackDuration);
+      var warnRadius =
+        enemy.attackKind === "slam" && enemy.slam ? enemy.slam.radius : enemy.attackRange;
       ctx.strokeStyle = "rgba(255, 120, 120, 0.75)";
       ctx.lineWidth = 3;
       ctx.beginPath();
-      ctx.arc(0, -enemy.height * 0.55, enemy.attackRange * (0.4 + windup * 0.5), 0, Math.PI * 2);
+      ctx.arc(0, -enemy.height * 0.55, warnRadius * (0.4 + windup * 0.5), 0, Math.PI * 2);
       ctx.stroke();
     }
 
@@ -207,6 +217,21 @@
     });
   }
 
+  function drawProjectiles(ctx, state) {
+    (state.projectiles || []).forEach(function (shot) {
+      ctx.save();
+      ctx.fillStyle = "rgba(255, 168, 96, 0.28)";
+      ctx.beginPath();
+      ctx.arc(shot.x, shot.y, shot.radius * 2, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "#ffb066";
+      ctx.beginPath();
+      ctx.arc(shot.x, shot.y, shot.radius, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    });
+  }
+
   function drawEffects(ctx, state) {
     state.effects.forEach(function (effect) {
       var alpha = Math.max(0, effect.life / effect.maxLife);
@@ -233,6 +258,47 @@
         ctx.font = "600 22px 'Segoe UI', system-ui, sans-serif";
         ctx.textAlign = "center";
         ctx.fillText(effect.text, ARENA.width / 2, 96);
+        ctx.restore();
+      } else if (effect.kind === "telegraph") {
+        ctx.save();
+        ctx.globalAlpha = 0.25 + 0.35 * (1 - alpha);
+        ctx.strokeStyle = "#ff8f6b";
+        ctx.lineWidth = 2;
+        if (effect.radius > 0) {
+          ctx.beginPath();
+          ctx.ellipse(effect.x, effect.y, effect.radius, effect.radius * 0.22, 0, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+        if (effect.dir) {
+          ctx.beginPath();
+          ctx.moveTo(effect.x, effect.y);
+          ctx.lineTo(effect.x + effect.dir * effect.radius, effect.y);
+          ctx.stroke();
+        }
+        if (effect.text) {
+          ctx.globalAlpha = 0.5 + 0.4 * (1 - alpha);
+          ctx.fillStyle = "#ffd2c4";
+          ctx.font = "600 13px 'Segoe UI', system-ui, sans-serif";
+          ctx.textAlign = "center";
+          ctx.fillText(effect.text, effect.x, effect.y - 8);
+        }
+        ctx.restore();
+      } else if (effect.kind === "shockwave") {
+        ctx.save();
+        ctx.globalAlpha = alpha * 0.8;
+        ctx.strokeStyle = "#ffb066";
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.ellipse(
+          effect.x,
+          effect.y,
+          effect.radius * (1.15 - alpha * 0.35),
+          effect.radius * 0.22 * (1.15 - alpha * 0.35),
+          0,
+          0,
+          Math.PI * 2
+        );
+        ctx.stroke();
         ctx.restore();
       }
     });
@@ -328,6 +394,7 @@
     state.enemies.forEach(function (enemy) {
       drawEnemy(ctx, state, enemy);
     });
+    drawProjectiles(ctx, state);
     drawPickups(ctx, state);
     drawPlayer(ctx, state);
     drawEffects(ctx, state);

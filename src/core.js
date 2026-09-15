@@ -82,6 +82,7 @@
 
   var ENEMY_TYPES = {
     grunt: {
+      behavior: "melee",
       maxHp: 32,
       xp: 10,
       width: 30,
@@ -95,6 +96,7 @@
       knockbackX: 150
     },
     brute: {
+      behavior: "melee",
       maxHp: 68,
       xp: 22,
       width: 40,
@@ -107,7 +109,47 @@
       attackCooldown: 1.5,
       knockbackX: 200
     },
+    caster: {
+      behavior: "ranged",
+      maxHp: 26,
+      xp: 14,
+      width: 30,
+      height: 56,
+      speed: 76,
+      damage: 7,
+      attackRange: 210,
+      keepRange: 150,
+      attackWindup: 0.5,
+      attackDuration: 0.8,
+      attackCooldown: 1.9,
+      knockbackX: 130,
+      projectile: {
+        speed: 330,
+        radius: 9,
+        life: 1.4,
+        maxDistance: 300,
+        height: 34
+      }
+    },
+    charger: {
+      behavior: "charger",
+      maxHp: 46,
+      xp: 18,
+      width: 36,
+      height: 62,
+      speed: 64,
+      damage: 15,
+      attackRange: 170,
+      attackWindup: 0.5,
+      attackDuration: 1.5,
+      attackCooldown: 2.2,
+      knockbackX: 210,
+      chargeSpeed: 520,
+      chargeFrom: 0.5,
+      chargeTo: 0.86
+    },
     boss: {
+      behavior: "boss",
       maxHp: 260,
       xp: 80,
       width: 56,
@@ -118,7 +160,14 @@
       attackWindup: 0.36,
       attackDuration: 0.66,
       attackCooldown: 1.15,
-      knockbackX: 260
+      knockbackX: 260,
+      slam: {
+        radius: 150,
+        damage: 20,
+        windup: 0.7,
+        recovery: 0.5,
+        cooldown: 3.6
+      }
     }
   };
 
@@ -134,6 +183,7 @@
       name: "Bloody Culvert",
       enemies: [
         { type: "grunt", x: 540 },
+        { type: "caster", x: 700 },
         { type: "brute", x: 760 },
         { type: "grunt", x: 890 }
       ]
@@ -141,7 +191,8 @@
     {
       name: "Ossuary Gate",
       enemies: [
-        { type: "brute", x: 600 },
+        { type: "charger", x: 600 },
+        { type: "brute", x: 760 },
         { type: "brute", x: 870 }
       ]
     },
@@ -215,14 +266,27 @@
       maxHp: spec.maxHp,
       damage: spec.damage,
       xp: spec.xp,
+      behavior: spec.behavior || "melee",
       speed: spec.speed,
       attackRange: spec.attackRange,
+      keepRange: spec.keepRange || 0,
       attackWindup: spec.attackWindup,
       attackDuration: spec.attackDuration,
+      baseAttackWindup: spec.attackWindup,
+      baseAttackDuration: spec.attackDuration,
       attackCooldownMax: spec.attackCooldown,
       attackCooldown: 0.5,
       attackTimer: 0,
+      attackKind: "melee",
       attackHitDone: false,
+      attackRecovered: false,
+      projectile: spec.projectile || null,
+      chargeSpeed: spec.chargeSpeed || 0,
+      chargeFrom: spec.chargeFrom || 0,
+      chargeTo: spec.chargeTo || 0,
+      chargeDir: -1,
+      slam: spec.slam || null,
+      slamCooldown: spec.slam ? spec.slam.cooldown * 0.5 : 0,
       knockbackX: spec.knockbackX,
       hurtTimer: 0,
       dead: false
@@ -256,9 +320,11 @@
       room: null,
       player: null,
       enemies: [],
+      projectiles: [],
       pickups: [],
       effects: [],
       nextEnemyId: 1,
+      nextProjectileId: 1,
       stats: { hits: 0, kills: 0, damageDealt: 0, damageTaken: 0 },
       victory: false,
       defeat: false
@@ -288,6 +354,7 @@
     state.player.skillHitDone = false;
     state.player.comboTimer = 0;
     state.pickups = [];
+    state.projectiles = [];
     state.effects.push({
       kind: "banner",
       text: "Room " + (roomIndex + 1) + " - " + spec.name,
@@ -521,6 +588,202 @@
     }
   }
 
+  function pushTelegraph(state, enemy, label, radius, life, dir) {
+    state.effects.push({
+      kind: "telegraph",
+      text: label,
+      x: enemy.x,
+      y: ARENA.groundY,
+      radius: radius || 0,
+      dir: dir || 0,
+      life: life,
+      maxLife: life
+    });
+  }
+
+  function pushShockwave(state, enemy) {
+    state.effects.push({
+      kind: "shockwave",
+      x: enemy.x,
+      y: ARENA.groundY,
+      radius: enemy.slam.radius,
+      life: 0.45,
+      maxLife: 0.45
+    });
+  }
+
+  function spawnProjectile(state, enemy) {
+    var spec = enemy.projectile;
+    if (!spec) return null;
+    var target = state.player;
+    var originX = enemy.x + enemy.facing * (enemy.width / 2 + 2);
+    var originY = enemy.y - spec.height;
+    var dx = target.x - originX;
+    var dy = target.y - target.height / 2 - originY;
+    var length = Math.sqrt(dx * dx + dy * dy) || 1;
+    var shot = {
+      kind: "enemy_projectile",
+      id: state.nextProjectileId++,
+      x: originX,
+      y: originY,
+      vx: (dx / length) * spec.speed,
+      vy: (dy / length) * spec.speed,
+      radius: spec.radius,
+      damage: enemy.damage,
+      life: spec.life,
+      maxLife: spec.life,
+      traveled: 0,
+      maxDistance: spec.maxDistance
+    };
+    state.projectiles.push(shot);
+    return shot;
+  }
+
+  function updateProjectiles(state, dt) {
+    var player = state.player;
+    var remaining = [];
+
+    state.projectiles.forEach(function (shot) {
+      shot.life -= dt;
+      var stepX = shot.vx * dt;
+      var stepY = shot.vy * dt;
+      shot.x += stepX;
+      shot.y += stepY;
+      shot.traveled += Math.sqrt(stepX * stepX + stepY * stepY);
+
+      var spent =
+        shot.life <= 0 ||
+        shot.traveled >= shot.maxDistance ||
+        shot.x <= ARENA.leftWall ||
+        shot.x >= ARENA.rightWall ||
+        shot.y >= ARENA.groundY;
+      if (spent) return;
+
+      var nearPlayer =
+        Math.abs(shot.x - player.x) <= player.width / 2 + shot.radius &&
+        Math.abs(shot.y - (player.y - player.height / 2)) <= player.height / 2 + shot.radius;
+      if (!player.dead && nearPlayer) {
+        damagePlayer(state, shot.damage, shot.x);
+        return;
+      }
+      remaining.push(shot);
+    });
+
+    state.projectiles = remaining;
+  }
+
+  function beginEnemyAttack(enemy, kind, windup, duration) {
+    enemy.attackKind = kind;
+    enemy.attackWindup = windup;
+    enemy.attackDuration = duration;
+    enemy.attackTimer = duration;
+    enemy.attackHitDone = false;
+    enemy.attackRecovered = false;
+  }
+
+  function enemyHitsPlayer(enemy, player) {
+    return boxesOverlap(bodyBox(enemy), bodyBox(player));
+  }
+
+  function chooseEnemyAction(state, enemy, player) {
+    var delta = player.x - enemy.x;
+    var distance = Math.abs(delta);
+    if (!player.dead) enemy.facing = delta >= 0 ? 1 : -1;
+    if (player.dead) {
+      enemy.vx = 0;
+      return;
+    }
+
+    if (enemy.behavior === "ranged") {
+      var keep = enemy.keepRange || enemy.attackRange * 0.6;
+      if (distance < keep) {
+        enemy.vx = -enemy.facing * enemy.speed;
+      } else if (distance > enemy.attackRange) {
+        enemy.vx = enemy.facing * enemy.speed;
+      } else {
+        enemy.vx = 0;
+        if (enemy.attackCooldown <= 0) {
+          beginEnemyAttack(enemy, "shoot", enemy.baseAttackWindup, enemy.baseAttackDuration);
+          pushTelegraph(state, enemy, "AIM", enemy.attackRange * 0.25, enemy.attackWindup, enemy.facing);
+        }
+      }
+      return;
+    }
+
+    if (enemy.behavior === "charger") {
+      if (distance > enemy.attackRange * 0.8) {
+        enemy.vx = enemy.facing * enemy.speed;
+      } else {
+        enemy.vx = 0;
+        if (enemy.attackCooldown <= 0) {
+          beginEnemyAttack(enemy, "charge", enemy.baseAttackWindup, enemy.baseAttackDuration);
+          enemy.chargeDir = enemy.facing;
+          pushTelegraph(state, enemy, "CHARGE", enemy.attackRange, enemy.attackWindup, enemy.facing);
+        }
+      }
+      return;
+    }
+
+    var slam = enemy.slam;
+    if (slam && enemy.slamCooldown <= 0 && distance <= slam.radius * 0.8) {
+      enemy.vx = 0;
+      beginEnemyAttack(enemy, "slam", slam.windup, slam.windup + slam.recovery);
+      pushTelegraph(state, enemy, "SLAM", slam.radius, slam.windup, 0);
+      return;
+    }
+
+    if (distance > enemy.attackRange * 0.8) {
+      enemy.vx = enemy.facing * enemy.speed;
+    } else {
+      enemy.vx = 0;
+      if (enemy.attackCooldown <= 0) {
+        beginEnemyAttack(enemy, "melee", enemy.baseAttackWindup, enemy.baseAttackDuration);
+      }
+    }
+  }
+
+  function advanceEnemyAttack(state, enemy, player, dt) {
+    var elapsed = enemy.attackDuration - enemy.attackTimer;
+
+    if (enemy.attackKind === "charge") {
+      if (enemy.attackTimer > 0 && elapsed >= enemy.chargeFrom && elapsed <= enemy.chargeTo) {
+        enemy.vx = enemy.chargeDir * enemy.chargeSpeed;
+        if (!enemy.attackHitDone && enemyHitsPlayer(enemy, player)) {
+          enemy.attackHitDone = true;
+          damagePlayer(state, enemy.damage, enemy.x);
+        }
+      } else if (elapsed > enemy.chargeTo) {
+        enemy.vx *= 0.4;
+        if (!enemy.attackRecovered) {
+          enemy.attackRecovered = true;
+          enemy.attackCooldown = enemy.attackCooldownMax;
+        }
+      }
+      enemy.attackTimer = Math.max(0, enemy.attackTimer - dt);
+      return;
+    }
+
+    if (!enemy.attackHitDone && elapsed >= enemy.attackWindup) {
+      enemy.attackHitDone = true;
+      if (enemy.attackKind === "shoot") {
+        spawnProjectile(state, enemy);
+        enemy.attackCooldown = enemy.attackCooldownMax;
+      } else if (enemy.attackKind === "slam" && enemy.slam) {
+        pushShockwave(state, enemy);
+        var onGround = player.y >= ARENA.groundY - 26;
+        if (!player.dead && onGround && Math.abs(player.x - enemy.x) <= enemy.slam.radius) {
+          damagePlayer(state, enemy.slam.damage, enemy.x);
+        }
+        enemy.slamCooldown = enemy.slam.cooldown;
+        enemy.attackCooldown = enemy.attackCooldownMax;
+      } else if (Math.abs(player.x - enemy.x) <= enemy.attackRange) {
+        damagePlayer(state, enemy.damage, enemy.x);
+        enemy.attackCooldown = enemy.attackCooldownMax;
+      }
+    }
+    enemy.attackTimer = Math.max(0, enemy.attackTimer - dt);
+  }
+
   function updateEnemies(state, dt) {
     var player = state.player;
     state.enemies.forEach(function (enemy) {
@@ -528,36 +791,18 @@
 
       enemy.hurtTimer = Math.max(0, enemy.hurtTimer - dt);
       enemy.attackCooldown = Math.max(0, enemy.attackCooldown - dt);
+      if (enemy.slam) enemy.slamCooldown = Math.max(0, enemy.slamCooldown - dt);
 
       if (enemy.hurtTimer > 0) {
         enemy.vx *= 0.86;
       } else if (enemy.attackTimer > 0) {
         enemy.vx *= 0.5;
       } else {
-        var delta = player.x - enemy.x;
-        var distance = Math.abs(delta);
-        enemy.facing = delta >= 0 ? 1 : -1;
-        if (distance > enemy.attackRange * 0.8 && !player.dead) {
-          enemy.vx = enemy.facing * enemy.speed;
-        } else {
-          enemy.vx = 0;
-          if (enemy.attackCooldown <= 0 && !player.dead) {
-            enemy.attackTimer = enemy.attackDuration;
-            enemy.attackHitDone = false;
-          }
-        }
+        chooseEnemyAction(state, enemy, player);
       }
 
       if (enemy.attackTimer > 0) {
-        var elapsed = enemy.attackDuration - enemy.attackTimer;
-        if (!enemy.attackHitDone && elapsed >= enemy.attackWindup) {
-          enemy.attackHitDone = true;
-          if (Math.abs(player.x - enemy.x) <= enemy.attackRange) {
-            damagePlayer(state, enemy.damage, enemy.x);
-          }
-          enemy.attackCooldown = enemy.attackCooldownMax;
-        }
-        enemy.attackTimer = Math.max(0, enemy.attackTimer - dt);
+        advanceEnemyAttack(state, enemy, player, dt);
       }
 
       enemy.vy = Math.min(enemy.vy + PHYSICS.gravity * dt, PHYSICS.maxFallSpeed);
@@ -575,6 +820,7 @@
       );
     });
 
+    updateProjectiles(state, dt);
     separateEnemies(state.enemies);
   }
 
@@ -714,6 +960,8 @@
     damagePlayer: damagePlayer,
     grantXp: grantXp,
     spawnDrop: spawnDrop,
+    spawnProjectile: spawnProjectile,
+    updateProjectiles: updateProjectiles,
     updatePickups: updatePickups,
     nextRandom: nextRandom,
     step: step,

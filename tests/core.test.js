@@ -310,6 +310,137 @@ test("dropped orbs expire instead of accumulating forever", () => {
   assert.equal(state.pickups.length, 0);
 });
 
+test("casters keep their firing range and telegraph a shot", () => {
+  const state = lastRoomState();
+  const caster = Core.createEnemy(state, "caster", state.player.x + 60);
+  state.enemies = [caster];
+  const startGap = caster.x - state.player.x;
+
+  Core.runFrames(state, 30, {});
+  assert.ok(caster.x - state.player.x > startGap, "caster should retreat while too close");
+
+  let aimed = false;
+  for (let frame = 0; frame < 60 * 5 && state.stats.damageTaken === 0; frame += 1) {
+    Core.step(state, {});
+    if (state.effects.some((effect) => effect.kind === "telegraph")) aimed = true;
+  }
+
+  assert.ok(aimed, "ranged attacks must telegraph before they fire");
+  assert.equal(state.stats.damageTaken, Core.ENEMY_TYPES.caster.damage);
+  assert.ok(
+    Math.abs(caster.x - state.player.x) >= Core.ENEMY_TYPES.caster.keepRange - 20,
+    "caster should settle outside its keep range"
+  );
+});
+
+test("enemy projectiles expire after their fixed travel budget", () => {
+  const state = lastRoomState();
+  state.player.x = 500;
+  const caster = Core.createEnemy(state, "caster", 200);
+  state.enemies = [caster];
+
+  const shot = Core.spawnProjectile(state, caster);
+  assert.equal(state.projectiles.length, 1);
+  state.player.x = Core.ARENA.leftWall + state.player.width / 2;
+
+  for (let frame = 0; frame < 300 && state.projectiles.length > 0; frame += 1) {
+    Core.updateProjectiles(state, Core.DT);
+  }
+
+  assert.equal(state.projectiles.length, 0);
+  assert.ok(shot.traveled >= shot.maxDistance, `traveled=${shot.traveled}`);
+  assert.equal(state.stats.damageTaken, 0);
+});
+
+test("chargers telegraph, dash at charge speed, then recover", () => {
+  const state = lastRoomState();
+  const charger = Core.createEnemy(state, "charger", state.player.x + 120);
+  state.enemies = [charger];
+
+  let telegraphed = false;
+  let topSpeed = 0;
+  let cooldownAfterDash = null;
+  for (let frame = 0; frame < 60 * 6 && cooldownAfterDash === null; frame += 1) {
+    Core.step(state, {});
+    if (state.effects.some((effect) => effect.kind === "telegraph")) telegraphed = true;
+    topSpeed = Math.max(topSpeed, Math.abs(charger.vx));
+    if (charger.attackKind === "charge" && charger.attackRecovered) {
+      cooldownAfterDash = charger.attackCooldown;
+    }
+  }
+
+  assert.ok(telegraphed, "charges must telegraph before the dash");
+  assert.ok(topSpeed >= Core.ENEMY_TYPES.charger.chargeSpeed * 0.8, `topSpeed=${topSpeed}`);
+  assert.ok(cooldownAfterDash !== null && cooldownAfterDash > 0, "charge needs a recovery cooldown");
+  assert.equal(state.stats.damageTaken, Core.ENEMY_TYPES.charger.damage);
+});
+
+test("the boss slam hits a grounded player and misses a jumping one", () => {
+  const grounded = lastRoomState();
+  const groundedBoss = Core.createEnemy(grounded, "boss", grounded.player.x + 90);
+  groundedBoss.attackRange = 0;
+  grounded.enemies = [groundedBoss];
+
+  let telegraphed = false;
+  for (let frame = 0; frame < 60 * 6 && grounded.stats.damageTaken === 0; frame += 1) {
+    Core.step(grounded, {});
+    if (grounded.effects.some((effect) => effect.kind === "telegraph" && effect.text === "SLAM")) {
+      telegraphed = true;
+    }
+  }
+
+  assert.ok(telegraphed, "slam must telegraph before it lands");
+  assert.equal(grounded.stats.damageTaken, Core.ENEMY_TYPES.boss.slam.damage);
+
+  const airborne = lastRoomState();
+  const airborneBoss = Core.createEnemy(airborne, "boss", airborne.player.x + 90);
+  airborneBoss.attackRange = 0;
+  airborne.enemies = [airborneBoss];
+
+  let slamResolved = false;
+  for (let frame = 0; frame < 60 * 8 && !slamResolved; frame += 1) {
+    const elapsed = airborneBoss.attackDuration - airborneBoss.attackTimer;
+    const slamming = airborneBoss.attackKind === "slam" && airborneBoss.attackTimer > 0;
+    const timeToImpact = airborneBoss.slam.windup - elapsed;
+    const jumpNow =
+      slamming && airborne.player.onGround && timeToImpact <= 0.3 && timeToImpact > 0;
+    Core.step(airborne, jumpNow ? { jump: true } : {});
+    if (airborneBoss.attackKind === "slam" && airborneBoss.attackTimer === 0) slamResolved = true;
+  }
+
+  assert.ok(slamResolved, "the slam should resolve within the window");
+  assert.equal(airborne.stats.damageTaken, 0);
+});
+
+test("projectile combat stays deterministic for a fixed seed and input pattern", () => {
+  const pattern = (frame) => ({ right: frame % 100 < 20, attack: frame % 23 === 0 });
+  const a = Core.createState({ seed: 5, roomIndex: 1 });
+  const b = Core.createState({ seed: 5, roomIndex: 1 });
+
+  Core.runFrames(a, 60 * 20, pattern);
+  Core.runFrames(b, 60 * 20, pattern);
+
+  const snapshot = (state) => ({
+    enemies: state.enemies.map((enemy) => [
+      enemy.type,
+      Number(enemy.x.toFixed(4)),
+      enemy.hp,
+      enemy.attackKind,
+      Number(enemy.attackTimer.toFixed(4))
+    ]),
+    projectiles: state.projectiles.map((shot) => [
+      Number(shot.x.toFixed(4)),
+      Number(shot.y.toFixed(4)),
+      shot.damage
+    ]),
+    damageTaken: state.stats.damageTaken,
+    playerHp: state.player.hp
+  });
+
+  assert.deepEqual(snapshot(a), snapshot(b));
+  assert.ok(a.nextProjectileId > 1, "the caster should have fired at least one shot");
+});
+
 test("the same seed still yields identical progression and drops", () => {
   const a = Core.createState({ seed: 99 });
   const b = Core.createState({ seed: 99 });
@@ -328,8 +459,9 @@ test("the same seed still yields identical progression and drops", () => {
 });
 
 /**
- * Policy that plays the way a person would: respect the enemy wind-up, close in on
- * recovery frames, and spend MP on the AoE skill. Used to prove the dungeon is beatable.
+ * Policy that plays the way a person would: respect each telegraph, stay out of the
+ * dash lane and the slam ring, jump over aimed bolts, close in on recovery frames, and
+ * spend MP on the AoE skill. Used to prove the dungeon is beatable.
  */
 function kitingBot(state) {
   const player = state.player;
@@ -339,13 +471,27 @@ function kitingBot(state) {
     input.right = true;
     return input;
   }
+
+  const inbound = state.projectiles.find((shot) => {
+    const closing = shot.vx > 0 ? shot.x <= player.x : shot.x >= player.x;
+    return closing && Math.abs(shot.x - player.x) < 170;
+  });
+  if (inbound && player.onGround) {
+    input.jump = true;
+    return input;
+  }
+
   alive.sort((a, b) => Math.abs(a.x - player.x) - Math.abs(b.x - player.x));
   const target = alive[0];
   const delta = target.x - player.x;
   const distance = Math.abs(delta);
-  const windingUp = target.attackTimer > 0 && target.attackDuration - target.attackTimer < target.attackWindup;
+  const elapsed = target.attackDuration - target.attackTimer;
+  const threatRange =
+    target.attackKind === "slam" && target.slam ? target.slam.radius : target.attackRange;
+  const activeUntil = target.attackKind === "charge" ? target.chargeTo : target.attackWindup;
+  const threatened = target.attackTimer > 0 && elapsed <= activeUntil;
 
-  if (windingUp && distance < target.attackRange + 45) {
+  if (threatened && distance < threatRange + 45) {
     if (delta > 0) input.left = true;
     else input.right = true;
     return input;
@@ -361,6 +507,7 @@ function kitingBot(state) {
 }
 
 test("a timing-aware policy can clear the whole dungeon without losing health", () => {
+  const totalEnemies = Core.ROOMS.reduce((total, room) => total + room.enemies.length, 0);
   const results = [1, 7, 42, 20260915].map((seed) => {
     const state = Core.createState({ seed });
     for (let frame = 0; frame < 60 * 240 && !state.victory && !state.defeat; frame += 1) {
@@ -372,7 +519,7 @@ test("a timing-aware policy can clear the whole dungeon without losing health", 
   results.forEach((state) => {
     assert.equal(state.victory, true, `seed run ended defeated=${state.defeat} room=${state.roomIndex + 1}`);
     assert.equal(state.defeat, false);
-    assert.equal(state.stats.kills, 9);
+    assert.equal(state.stats.kills, totalEnemies);
     assert.ok(state.stats.damageTaken <= 12, `damageTaken=${state.stats.damageTaken}`);
     assert.ok(state.time < 90, `clear took ${state.time}s`);
   });
