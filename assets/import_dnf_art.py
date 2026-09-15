@@ -48,9 +48,10 @@ FRAMES = {
     "extras": [21, 17, 20],  # hurt, jump, fall (dead is synthesised below)
 }
 
-# Skill icons inside skillicon.img, chosen by their artwork:
-# 70 = upward slash (上挑), 52 = shockwave (崩山击),
-# 44 = cross (十字斩), 78 = heavy slash (鬼斩).
+# Skill icons inside skillicon.img, in SKILL_ORDER (上挑 / 崩山击 / 十字斩 / 鬼斩).
+# The atlas carries no name table, so these four need a human eye:
+#   python3 assets/import_dnf_art.py --atlas          # labelled contact sheet
+#   python3 assets/import_dnf_art.py --icons 3,5,7,9  # re-bake with chosen frames
 ICON_FRAMES = [70, 52, 44, 78]
 
 # Where the character's feet sit inside the source canvas.
@@ -193,6 +194,13 @@ def main() -> None:
     if "--atlas" in sys.argv:
         build_atlas()
         return
+    if "--icons" in sys.argv:
+        picks = sys.argv[sys.argv.index("--icons") + 1]
+        global ICON_FRAMES
+        ICON_FRAMES = [int(value) for value in picks.replace(" ", "").split(",") if value != ""]
+        if len(ICON_FRAMES) != 4:
+            print("--icons needs exactly four frame indices", file=sys.stderr)
+            raise SystemExit(2)
     build_sheet()
     build_icons()
     build_favicon()

@@ -119,8 +119,11 @@ python3 assets/import_dnf_art.py    # 输出 assets/slayer.png 与 assets/skills
 图标库本身没有名字映射，所以脚本支持导出带编号的对照图供人工挑选：
 
 ```bash
-python3 assets/import_dnf_art.py --atlas   # 生成 assets/dnf_skillicon_atlas.png（已 gitignore）
+python3 assets/import_dnf_art.py --atlas          # 生成 assets/dnf_skillicon_atlas.png（已 gitignore）
+python3 assets/import_dnf_art.py --icons 3,5,7,9  # 按指定帧重烘焙四个技能图标
 ```
+
+`--icons` 的四个数字按技能栏顺序对应 上挑 / 崩山击 / 十字斩 / 鬼斩。
 
 ## 验证
 
