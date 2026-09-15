@@ -95,7 +95,17 @@ function decide(state, constants) {
     if (distance < threatRange + 45 && !cornered) {
       want.add(away);
     } else if (cornered) {
-      want.add("attack");
+      /* Cornered in DNF means launch: 上挑 cancels the wind-up and buys space. */
+      const upSlash = constants.skills.upSlash;
+      if (
+        distance <= upSlash.reach &&
+        player.mp >= upSlash.mp &&
+        player.skillCooldowns.upSlash <= 0
+      ) {
+        want.add("upSlash");
+      } else {
+        want.add("attack");
+      }
     }
     return want;
   }
@@ -203,6 +213,7 @@ async function runPass(browser, baseUrl, options) {
   const started = Date.now();
   let state = await readState(page);
   let midShot = false;
+  const trace = [];
 
   while (!state.victory && !state.defeat) {
     if ((Date.now() - started) / 1000 > MAX_SECONDS) {
@@ -228,8 +239,22 @@ async function runPass(browser, baseUrl, options) {
       await page.screenshot({ path: path.join(ARTIFACTS, `playability-${options.mode}-fight.png`) });
       midShot = true;
     }
-    await page.waitForTimeout(24);
+    await page.waitForTimeout(options.mode === "touch" ? 16 : 20);
     state = await readState(page);
+    trace.push({
+      t: Number(state.time.toFixed(2)),
+      room: state.roomIndex + 1,
+      hp: Math.round(state.player.hp),
+      px: Math.round(state.player.x),
+      want: [...want].join("+"),
+      enemies: state.enemies.map(
+        (enemy) =>
+          `${enemy.type}@${Math.round(enemy.x)} hp${enemy.hp} ${
+            enemy.onGround ? "ground" : "air"
+          } kd${enemy.knockdown.toFixed(1)} st${enemy.stun.toFixed(1)} ${enemy.attackKind}`
+      )
+    });
+    if (trace.length > 80) trace.shift();
   }
 
   for (const action of held) {
@@ -255,7 +280,7 @@ async function runPass(browser, baseUrl, options) {
   });
   await context.close();
 
-  return { mode: options.mode, url, touchMode, state, audio, muteRoundTrip, diagnostics };
+  return { mode: options.mode, url, touchMode, state, audio, muteRoundTrip, diagnostics, trace };
 }
 
 function problemsFor(pass) {
@@ -298,13 +323,16 @@ async function main() {
   fs.mkdirSync(ARTIFACTS, { recursive: true });
   const { server, port } = await startServer();
   const baseUrl = `http://127.0.0.1:${port}/index.html`;
-  const browser = await chromium.launch(chromiumLaunchOptions());
-
   const passes = [];
-  passes.push(await runPass(browser, baseUrl, { mode: "keyboard" }));
-  passes.push(await runPass(browser, baseUrl, { mode: "touch" }));
+  const only = process.env.PASSES;
+  const modes = ["keyboard", "touch"].filter((mode) => !only || only === mode);
+  for (const mode of modes) {
+    /* A fresh browser per pass keeps the two runs from starving each other. */
+    const browser = await chromium.launch(chromiumLaunchOptions());
+    passes.push(await runPass(browser, baseUrl, { mode }));
+    await browser.close();
+  }
 
-  await browser.close();
   server.close();
 
   const summary = passes.map((pass) => ({
@@ -327,6 +355,15 @@ async function main() {
 
   const problems = passes.flatMap(problemsFor);
   if (problems.length) {
+    const failed = passes.find((pass) => problemsFor(pass).length);
+    if (failed) {
+      console.error(`--- ${failed.mode} pass trace (last ${Math.min(30, failed.trace.length)} samples) ---`);
+      failed.trace.slice(-30).forEach((sample) => {
+        console.error(
+          `${sample.t}s room=${sample.room} hp=${sample.hp} px=${sample.px} want=${sample.want} | ${sample.enemies.join(" ; ")}`
+        );
+      });
+    }
     console.error(`browser playability FAILED: ${problems.join("; ")}`);
     process.exit(1);
   }

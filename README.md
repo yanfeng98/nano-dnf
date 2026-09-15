@@ -24,7 +24,7 @@
 ## 运行
 
 ```bash
-npm test          # 33 个核心逻辑、技能、触屏布局、成长系统与渲染冒烟测试
+npm test          # 39 个核心逻辑、DNF 技能机制、触屏布局、成长系统与渲染冒烟测试
 npm run test:browser # 无头 Chromium 跑真实页面：键盘 + 触屏两条通路各通关一次
 npm run serve     # 起本地静态服务，然后打开 http://localhost:8080
 python3 assets/make_slayer_sprites.py   # 可选：重新生成原创精灵图与技能图标
@@ -62,15 +62,24 @@ python3 assets/make_slayer_sprites.py   # 可选：重新生成原创精灵图�
 
 ## 技能
 
-技能沿用 DNF 的形态：每个技能都有 MP 消耗、独立冷却，并随技能等级（这里等同于角色等级）提升伤害。
-HUD 左下角是技能栏，显示按键、技能名、MP 消耗与冷却读秒。
+技能按 DNF 的**行为**复刻：每个技能都有 MP 消耗、独立冷却、多段判定与状态效果，随技能等级
+（这里等同于角色等级）提升伤害。倍率是本项目的近似值，形态与判定逻辑对齐 DNF。
 
-| 技能 | 按键 | MP | 冷却 | 基础伤害 | 每级成长 | 效果 |
-| --- | --- | ---: | ---: | ---: | ---: | --- |
-| 上挑 | `A` | 8 | 1.2s | 12 | +3 | 命中把敌人挑飞，浮空期间敌人无法出手 |
-| 崩山击 | `S` | 18 | 3.5s | 22 | +4 | 向前跃斩，并沿地面追加冲击波（额外 10 +2/级） |
-| 十字斩 | `D` | 14 | 2.5s | 18 | +3 | 十字判定，纵向范围更大 |
-| 鬼斩 | `F` | 25 | 5.0s | 34 | +5 | 鬼气重斩，前方最远的单段高伤 |
+| 技能 | 按键 | MP | 冷却 | 判定 | 伤害 | DNF 式效果 |
+| --- | --- | ---: | ---: | --- | --- | --- |
+| 上挑 | `A` | 8 | 1.5s | 1 段 | 12 +3/级 | **浮空**：把敌人挑飞，浮空中敌人无法出手，可继续空中连击 |
+| 崩山击 | `S` | 18 | 5.0s | 1 段 + 冲击波 | 22 +4/级（波 10 +2/级） | 前跃砸地，**倒地**；5 级起冲击波范围加宽 |
+| 十字斩 | `D` | 14 | 4.0s | 2 段 | 18 +3/级/段 | 十字判定，2 级起附加**出血**（每秒 4 +1/级，持续 3 秒） |
+| 鬼斩 | `F` | 25 | 8.0s | 3 段 | 14 +2/级/段 | 慢速鬼气三连斩，命中期间**定身 + 硬直**，不产生击退 |
+
+其他 DNF 式规则：
+
+- **技能取消**：普攻的收招阶段可以直接取消接技能（DNF 的取消连段）。
+- **浮空连击**：命中空中敌人会把它重新托起，HUD 连击数会显示 `AIR COMBO`。
+- **倒地 / 硬直**：倒地的敌人在起身前无法行动；被硬直（鬼斩）时同样不能还手。
+- **霸体**：Boss 在重踏前摇期间进入霸体，轻攻击不能打断它（但伤害照常结算）。
+
+HUD 左下角是技能栏，显示按键、技能名、MP 消耗与冷却读秒；敌人头顶会出现出血滴、倒地弧线与硬直星环等状态提示。
 
 清空当前房间后右侧传送门点亮，走到最右侧进入下一层；第 4 层击败 Boss 即通关。
 
@@ -144,11 +153,14 @@ python3 assets/import_dnf_art.py --icons 3,5,7,9  # 按指定帧重烘焙四个�
 200、WebAudio 已初始化。最近一次结果：
 
 ```
-keyboard victory=true kills=11 damageTaken=7 seconds=73.4 level=4  audio=created/running
-touch    victory=true kills=11 damageTaken=7 seconds=72.4 level=4  touchMode=true audio=created/running muteToggle=ok
+keyboard victory=true kills=11 damageTaken=7 seconds=66.0 level=4  audio=created/running
+touch    victory=true kills=11 damageTaken=7 seconds=64.9 level=4  touchMode=true audio=created/running muteToggle=ok
 consoleErrors=[] pageErrors=[] failedRequests=[]
 assets: index.html / main.js / render.js / core.js / slayer.png / skills.png / favicon.png 全部 200
 ```
+
+两条通路各自使用独立的浏览器实例（否则两条 rAF 循环会互相抢 CPU，输入时序被拖慢）；
+只跑其中一条可以设 `PASSES=touch npm run test:browser` 或 `PASSES=keyboard`。
 
 截图证据：`tests/browser/artifacts/` 下的 `playability-title.png`、`playability-keyboard-fight.png`、
 `playability-keyboard-clear.png`、`playability-touch-fight.png`、`playability-touch-clear.png`。

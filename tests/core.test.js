@@ -180,7 +180,7 @@ test("鬼斩 spends MP, hits inside reach, then stays on cooldown", () => {
   Core.step(state, { skills: { ghostSlash: true } });
   Core.runFrames(state, 26, {});
 
-  assert.equal(nearHp - near.hp, skill.damage);
+  assert.equal(nearHp - near.hp, skill.damage * skill.hits);
   assert.equal(far.hp, farHp);
   assert.ok(state.player.mp < mpBefore - skill.mp + 5, `mp=${state.player.mp}`);
   assert.ok(state.player.skillCooldowns.ghostSlash > 0, "鬼斩 should start its cooldown");
@@ -263,7 +263,130 @@ test("skill damage grows with the character level", () => {
   Core.step(state, { skills: { crossSlash: true } });
   Core.runFrames(state, 20, {});
 
-  assert.equal(hpBefore - enemy.hp, skill.damage + (4 - 1) * skill.growth);
+  assert.equal(hpBefore - enemy.hp, (skill.damage + (4 - 1) * skill.growth) * skill.hits);
+});
+
+test("上挑 lifts the target and airborne hits keep it juggled", () => {
+  const state = lastRoomState();
+  const enemy = Core.createEnemy(state, "grunt", state.player.x + 46);
+  enemy.hp = 400;
+  enemy.maxHp = 400;
+  enemy.speed = 0;
+  state.enemies = [enemy];
+
+  Core.step(state, { skills: { upSlash: true } });
+  Core.runFrames(state, 6, {});
+  assert.equal(enemy.onGround, false, "上挑 should launch the target");
+
+  Core.runFrames(state, 24, { attack: true });
+  assert.ok(state.stats.airHits >= 1, `airborne hits should be counted, got ${state.stats.airHits}`);
+  assert.equal(enemy.onGround, false, "the juggle keeps the target in the air");
+  assert.ok(state.player.hp === state.player.maxHp, "the juggled enemy never gets to hit back");
+});
+
+test("崩山击 knocks the target down and its shockwave does too", () => {
+  const state = lastRoomState();
+  const near = Core.createEnemy(state, "grunt", state.player.x + 60);
+  const far = Core.createEnemy(state, "grunt", state.player.x + 130);
+  [near, far].forEach((enemy) => {
+    enemy.hp = 400;
+    enemy.maxHp = 400;
+    enemy.speed = 0;
+  });
+  state.enemies = [near, far];
+
+  Core.step(state, { skills: { mountainBreaker: true } });
+  Core.runFrames(state, 22, {});
+
+  assert.ok(near.knockdown > 0, "the smash should knock the target down");
+  assert.ok(far.knockdown > 0, "the ground shockwave should knock the far target down");
+  assert.ok(state.effects.some((effect) => effect.kind === "shockwave"));
+});
+
+test("十字斩 makes the target bleed from skill level 2", () => {
+  const state = lastRoomState();
+  const enemy = Core.createEnemy(state, "brute", state.player.x + 60);
+  enemy.hp = 500;
+  enemy.maxHp = 500;
+  enemy.speed = 0;
+  state.enemies = [enemy];
+
+  Core.step(state, { skills: { crossSlash: true } });
+  Core.runFrames(state, 30, {});
+  assert.equal(enemy.bleed, null, "no bleed at level 1");
+
+  state.player.level = 3;
+  state.player.skillCooldowns.crossSlash = 0;
+  state.player.mp = state.player.maxMp;
+  const hpBefore = enemy.hp;
+  Core.step(state, { skills: { crossSlash: true } });
+  Core.runFrames(state, 30, {});
+  assert.ok(enemy.bleed, "十字斩 should apply bleed from level 2");
+
+  const damage = hpBefore - enemy.hp;
+  Core.runFrames(state, 200, {});
+  assert.ok(enemy.hp < hpBefore - damage, "bleed should keep ticking after the cast");
+  assert.equal(enemy.bleed, null, "bleed expires");
+});
+
+test("鬼斩 lands three hits and stuns the target while it is held", () => {
+  const state = lastRoomState();
+  const enemy = Core.createEnemy(state, "brute", state.player.x + 70);
+  enemy.hp = 600;
+  enemy.maxHp = 600;
+  enemy.speed = 0;
+  state.enemies = [enemy];
+  const skill = Core.SKILLS.ghostSlash;
+
+  Core.step(state, { skills: { ghostSlash: true } });
+  let stunned = 0;
+  for (let frame = 0; frame < 50; frame += 1) {
+    Core.step(state, {});
+    if (enemy.stun > 0) stunned += 1;
+  }
+
+  assert.equal(600 - enemy.hp, skill.damage * skill.hits, "three separate hits land");
+  assert.ok(stunned > 8, `target should stay stunned through the ghosts, frames=${stunned}`);
+  assert.ok(enemy.vx === 0, "鬼斩 holds the target in place");
+});
+
+test("normal attacks can be cancelled into a skill during recovery", () => {
+  const state = lastRoomState();
+  const enemy = Core.createEnemy(state, "brute", state.player.x + 55);
+  enemy.hp = 600;
+  enemy.maxHp = 600;
+  enemy.speed = 0;
+  state.enemies = [enemy];
+
+  Core.step(state, { attack: true });
+  Core.runFrames(state, 12, {});
+  assert.ok(state.player.attackTimer > 0, "attack is still in recovery");
+
+  Core.step(state, { skills: { crossSlash: true } });
+  assert.equal(state.player.skillId, "crossSlash", "recovery can be cancelled into a skill");
+  assert.equal(state.player.attackTimer, 0);
+});
+
+test("the boss keeps super armour while its slam is winding up", () => {
+  const state = lastRoomState();
+  const boss = Core.createEnemy(state, "boss", state.player.x + 40);
+  boss.hp = 900;
+  boss.maxHp = 900;
+  boss.speed = 0;
+  boss.attackCooldown = 0;
+  boss.slamCooldown = 0;
+  state.enemies = [boss];
+
+  let sawSuperArmor = false;
+  for (let frame = 0; frame < 120; frame += 1) {
+    Core.step(state, { attack: true });
+    if (boss.superArmor) {
+      sawSuperArmor = true;
+      assert.equal(boss.hurtTimer, 0, "super armour never takes hit-stun");
+    }
+  }
+  assert.ok(sawSuperArmor, "the boss should gain super armour for the slam");
+  assert.ok(boss.hp < 900, "hits still land through super armour");
 });
 
 test("same seed and same inputs produce identical runs", () => {

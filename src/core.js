@@ -59,7 +59,7 @@
       name: "上挑",
       key: "A",
       mp: 8,
-      cooldown: 1.2,
+      cooldown: 1.5,
       damage: 12,
       growth: 3,
       duration: 0.28,
@@ -69,14 +69,17 @@
       heightPad: 14,
       knockbackX: 70,
       launch: -430,
-      radius: 0
+      radius: 0,
+      hits: 1,
+      /* DNF shape: low damage, lifts the target so a juggle can start. */
+      juggle: true
     },
     mountainBreaker: {
       id: "mountainBreaker",
       name: "崩山击",
       key: "S",
       mp: 18,
-      cooldown: 3.5,
+      cooldown: 5,
       damage: 22,
       growth: 4,
       duration: 0.5,
@@ -87,12 +90,18 @@
       knockbackX: 240,
       launch: 0,
       radius: 0,
+      hits: 1,
+      /* DNF shape: leap smash that knocks the target down. */
+      knockdown: 1.1,
+      leap: 210,
       shockwave: {
         reach: 150,
         damage: 10,
         growth: 2,
         heightPad: 10,
-        knockbackX: 200
+        knockbackX: 200,
+        knockdown: 0.7,
+        extraWaveFromLevel: 5
       }
     },
     crossSlash: {
@@ -100,7 +109,7 @@
       name: "十字斩",
       key: "D",
       mp: 14,
-      cooldown: 2.5,
+      cooldown: 4,
       damage: 18,
       growth: 3,
       duration: 0.42,
@@ -110,24 +119,31 @@
       heightPad: 30,
       knockbackX: 180,
       launch: 0,
-      radius: 0
+      radius: 0,
+      hits: 2,
+      /* DNF shape: cross cut that leaves the target bleeding. */
+      bleed: { damage: 4, growth: 1, duration: 3, interval: 1, fromLevel: 2 }
     },
     ghostSlash: {
       id: "ghostSlash",
       name: "鬼斩",
       key: "F",
       mp: 25,
-      cooldown: 5,
-      damage: 34,
-      growth: 5,
-      duration: 0.62,
-      activeFrom: 0.2,
-      activeTo: 0.4,
+      cooldown: 8,
+      damage: 14,
+      growth: 2,
+      duration: 0.72,
+      activeFrom: 0.16,
+      activeTo: 0.56,
       reach: 120,
       heightPad: 20,
-      knockbackX: 280,
+      knockbackX: 0,
       launch: 0,
-      radius: 0
+      radius: 0,
+      hits: 3,
+      /* DNF shape: slow ghost cut that lands three times and holds the target. */
+      stun: 0.35,
+      hold: true
     }
   };
 
@@ -315,6 +331,8 @@
       skillId: null,
       skillTimer: 0,
       skillHitDone: false,
+      skillHitsDone: 0,
+      airHitTimer: 0,
       skillCooldowns: {
         upSlash: 0,
         mountainBreaker: 0,
@@ -367,6 +385,10 @@
       chargeDir: -1,
       slam: spec.slam || null,
       slamCooldown: spec.slam ? spec.slam.cooldown * 0.5 : 0,
+      knockdown: 0,
+      stun: 0,
+      bleed: null,
+      superArmor: false,
       knockbackX: spec.knockbackX,
       hurtTimer: 0,
       dead: false
@@ -411,7 +433,7 @@
       effects: [],
       nextEnemyId: 1,
       nextProjectileId: 1,
-      stats: { hits: 0, kills: 0, damageDealt: 0, damageTaken: 0 },
+      stats: { hits: 0, kills: 0, damageDealt: 0, damageTaken: 0, airHits: 0 },
       victory: false,
       defeat: false
     };
@@ -439,6 +461,7 @@
     state.player.skillTimer = 0;
     state.player.attackHitDone = false;
     state.player.skillHitDone = false;
+    state.player.skillHitsDone = 0;
     state.player.comboTimer = 0;
     state.pickups = [];
     state.projectiles = [];
@@ -540,16 +563,52 @@
     return drop;
   }
 
-  function damageEnemy(state, enemy, amount, knockbackX, sourceX) {
+  function damageEnemy(state, enemy, amount, knockbackX, sourceX, options) {
     if (enemy.dead) return 0;
+    var opts = options || {};
     var applied = Math.max(0, Math.round(amount));
     enemy.hp -= applied;
     state.stats.hits += 1;
     state.stats.damageDealt += applied;
     pushDamageEffect(state, enemy.x, enemy.y - enemy.height - 6, applied);
-    var direction = enemy.x >= sourceX ? 1 : -1;
-    enemy.vx = direction * knockbackX;
-    enemy.hurtTimer = 0.18;
+
+    /* Super armour keeps bosses swinging through light hits, DNF style. */
+    if (enemy.superArmor) {
+      enemy.vx *= 0.6;
+    } else {
+      var direction = enemy.x >= sourceX ? 1 : -1;
+      enemy.vx = direction * knockbackX;
+      enemy.hurtTimer = 0.18;
+    }
+
+    if (opts.launch) {
+      enemy.vy = opts.launch;
+      enemy.onGround = false;
+      enemy.attackTimer = 0;
+      enemy.knockdown = 0;
+    } else if (opts.juggle && !enemy.onGround) {
+      /* Keep an airborne target in the air: this is the DNF juggle. */
+      enemy.vy = Math.min(enemy.vy, -150);
+    }
+
+    if (opts.knockdown) {
+      enemy.knockdown = Math.max(enemy.knockdown, opts.knockdown);
+      enemy.vy = Math.min(enemy.vy, -170);
+      enemy.onGround = false;
+      enemy.attackTimer = 0;
+    }
+    if (opts.stun) {
+      enemy.stun = Math.max(enemy.stun, opts.stun);
+      enemy.attackTimer = 0;
+    }
+    if (opts.bleed) {
+      enemy.bleed = {
+        damage: opts.bleed.damage,
+        remaining: opts.bleed.duration,
+        timer: opts.bleed.interval
+      };
+    }
+
     if (enemy.hp <= 0) {
       enemy.hp = 0;
       enemy.dead = true;
@@ -624,6 +683,7 @@
     player.invuln = Math.max(0, player.invuln - dt);
     player.hurtTimer = Math.max(0, player.hurtTimer - dt);
     player.comboTimer = Math.max(0, player.comboTimer - dt);
+    player.airHitTimer = Math.max(0, player.airHitTimer - dt);
     if (player.comboTimer === 0) player.comboIndex = 0;
     player.mp = Math.min(player.maxMp, player.mp + PLAYER.mpRegenPerSecond * dt);
 
@@ -631,12 +691,17 @@
       player.skillCooldowns[skillId] = Math.max(0, player.skillCooldowns[skillId] - dt);
     });
 
+    /* DNF combo flow: normal attacks can be cancelled into a skill during recovery. */
+    var attackRecovering =
+      player.attackTimer > 0 &&
+      PLAYER.attackDuration - player.attackTimer >= PLAYER.attackActiveTo;
+
     var castSkill = SKILL_ORDER.filter(function (skillId) {
       var spec = SKILLS[skillId];
       return (
         input.skills[skillId] &&
         player.skillTimer <= 0 &&
-        player.attackTimer <= 0 &&
+        (player.attackTimer <= 0 || attackRecovering) &&
         player.skillCooldowns[skillId] <= 0 &&
         player.mp >= spec.mp
       );
@@ -648,7 +713,10 @@
       player.skillId = castSkill;
       player.skillTimer = skillSpec.duration;
       player.skillHitDone = false;
+      player.skillHitsDone = 0;
       player.skillCooldowns[castSkill] = skillSpec.cooldown;
+      player.attackTimer = 0;
+      player.attackHitDone = false;
       player.comboTimer = 0;
       player.comboIndex = 0;
     } else if (
@@ -674,7 +742,12 @@
         state.enemies.slice().forEach(function (enemy) {
           if (enemy.dead) return;
           if (boxesOverlap(box, bodyBox(enemy))) {
-            damageEnemy(state, enemy, damage, 140, player.x);
+            var wasAirborne = !enemy.onGround;
+            damageEnemy(state, enemy, damage, 140, player.x, { juggle: true });
+            if (!enemy.dead && wasAirborne) {
+              state.stats.airHits += 1;
+              player.airHitTimer = 0.6;
+            }
           }
         });
       }
@@ -684,48 +757,73 @@
     if (player.skillTimer > 0) {
       var active = SKILLS[player.skillId];
       var skillElapsed = active.duration - player.skillTimer;
-      if (!player.skillHitDone && skillElapsed >= active.activeFrom && skillElapsed <= active.activeTo) {
-        player.skillHitDone = true;
+      var hitCount = active.hits || 1;
+      var hitSpan = (active.activeTo - active.activeFrom) / hitCount;
+
+      while (
+        player.skillHitsDone < hitCount &&
+        skillElapsed >= active.activeFrom + player.skillHitsDone * hitSpan
+      ) {
+        var hitIndex = player.skillHitsDone;
+        player.skillHitsDone += 1;
+        player.skillHitDone = player.skillHitsDone >= hitCount;
+
         var skillBox = attackBox(player, active.reach, active.heightPad);
         var skillDamage = active.damage + (player.level - 1) * active.growth + player.attackBonus;
         var struck = [];
         state.enemies.slice().forEach(function (enemy) {
           if (enemy.dead) return;
           if (active.radius > 0 && Math.abs(enemy.x - player.x) <= active.radius) {
-            applySkillHit(state, enemy, skillDamage, active);
+            applySkillHit(state, enemy, skillDamage, active, hitIndex);
             struck.push(enemy.id);
           } else if (active.radius <= 0 && boxesOverlap(skillBox, bodyBox(enemy))) {
-            applySkillHit(state, enemy, skillDamage, active);
+            applySkillHit(state, enemy, skillDamage, active, hitIndex);
             struck.push(enemy.id);
           }
         });
+
         if (active.shockwave) {
           var wave = active.shockwave;
-          var waveBox = attackBox(player, wave.reach, wave.heightPad);
+          var extraWave =
+            wave.extraWaveFromLevel && player.level >= wave.extraWaveFromLevel ? 1 : 0;
+          var waveBox = attackBox(
+            player,
+            wave.reach + extraWave * 80,
+            wave.heightPad + extraWave * 6
+          );
           var waveDamage = wave.damage + (player.level - 1) * wave.growth + player.attackBonus;
           state.enemies.slice().forEach(function (enemy) {
             if (enemy.dead || struck.indexOf(enemy.id) !== -1) return;
             if (boxesOverlap(waveBox, bodyBox(enemy))) {
-              damageEnemy(state, enemy, waveDamage, wave.knockbackX, player.x);
+              damageEnemy(state, enemy, waveDamage, wave.knockbackX, player.x, {
+                knockdown: wave.knockdown
+              });
             }
           });
           state.effects.push({
             kind: "shockwave",
             x: player.x + player.facing * wave.reach * 0.4,
             y: ARENA.groundY,
-            radius: wave.reach * 0.8,
+            radius: (wave.reach + extraWave * 80) * 0.8,
             life: 0.4,
             maxLife: 0.4
           });
         }
+
+        if (active.leap && hitIndex === 0) {
+          player.vx = player.facing * active.leap;
+          player.vy = Math.min(player.vy, -160);
+          player.onGround = false;
+        }
+
         if (active.id === "ghostSlash") {
           state.effects.push({
             kind: "ghost",
-            x: player.x + player.facing * active.reach * 0.5,
+            x: player.x + player.facing * active.reach * (0.4 + hitIndex * 0.2),
             y: player.y - player.height * 0.55,
-            radius: active.reach * 0.6,
-            life: 0.4,
-            maxLife: 0.4
+            radius: active.reach * 0.55,
+            life: 0.35,
+            maxLife: 0.35
           });
         }
       }
@@ -734,12 +832,31 @@
     }
   }
 
-  function applySkillHit(state, enemy, damage, skill) {
-    damageEnemy(state, enemy, damage, skill.knockbackX, state.player.x);
-    if (enemy.dead || !skill.launch) return;
-    enemy.vy = skill.launch;
-    enemy.onGround = false;
-    enemy.attackTimer = 0;
+  function applySkillHit(state, enemy, damage, skill, hitIndex) {
+    var options = {};
+    var lastHit = hitIndex === (skill.hits || 1) - 1;
+
+    if (skill.juggle && skill.launch) {
+      options.launch = skill.launch;
+      options.juggle = true;
+    } else if (skill.knockdown && lastHit) {
+      options.knockdown = skill.knockdown;
+    }
+    if (skill.stun) options.stun = skill.stun;
+    if (skill.bleed && hitIndex === 0 && state.player.level >= (skill.bleed.fromLevel || 1)) {
+      options.bleed = {
+        damage: skill.bleed.damage + (state.player.level - 1) * skill.bleed.growth,
+        duration: skill.bleed.duration,
+        interval: skill.bleed.interval
+      };
+    }
+
+    var wasAirborne = !enemy.onGround;
+    damageEnemy(state, enemy, damage, skill.knockbackX, state.player.x, options);
+    if (!enemy.dead && wasAirborne) {
+      state.stats.airHits += 1;
+      state.player.airHitTimer = 0.6;
+    }
   }
 
   function pushTelegraph(state, enemy, label, radius, life, dir) {
@@ -828,6 +945,8 @@
 
   function beginEnemyAttack(enemy, kind, windup, duration) {
     enemy.attackKind = kind;
+    /* DNF bosses swing through light hits while winding up a heavy skill. */
+    enemy.superArmor = kind === "slam";
     enemy.attackWindup = windup;
     enemy.attackDuration = duration;
     enemy.attackTimer = duration;
@@ -936,6 +1055,7 @@
       }
     }
     enemy.attackTimer = Math.max(0, enemy.attackTimer - dt);
+    if (enemy.attackTimer === 0) enemy.superArmor = false;
   }
 
   function updateEnemies(state, dt) {
@@ -946,12 +1066,25 @@
       enemy.hurtTimer = Math.max(0, enemy.hurtTimer - dt);
       enemy.attackCooldown = Math.max(0, enemy.attackCooldown - dt);
       if (enemy.slam) enemy.slamCooldown = Math.max(0, enemy.slamCooldown - dt);
+      enemy.knockdown = Math.max(0, enemy.knockdown - dt);
+      enemy.stun = Math.max(0, enemy.stun - dt);
+      if (enemy.bleed) {
+        enemy.bleed.remaining -= dt;
+        enemy.bleed.timer -= dt;
+        if (enemy.bleed.timer <= 0) {
+          enemy.bleed.timer += enemy.bleed.interval;
+          damageEnemy(state, enemy, enemy.bleed.damage, 0, enemy.x);
+          if (enemy.dead) return;
+        }
+        if (enemy.bleed.remaining <= 0) enemy.bleed = null;
+      }
 
       if (enemy.hurtTimer > 0) {
         enemy.vx *= 0.86;
       } else if (enemy.attackTimer > 0) {
         enemy.vx *= 0.5;
-      } else if (!enemy.onGround) {
+      } else if (!enemy.onGround || enemy.knockdown > 0 || enemy.stun > 0) {
+        /* Launched, knocked down or stunned enemies cannot act. */
         enemy.vx *= 0.98;
       } else {
         chooseEnemyAction(state, enemy, player);

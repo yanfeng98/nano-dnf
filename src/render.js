@@ -489,6 +489,56 @@
       ctx.fill();
       ctx.restore();
     }
+
+    /* DNF-style status tells: bleeding ticks, grounded knockdowns, stunned targets. */
+    if (enemy.bleed) {
+      ctx.save();
+      ctx.fillStyle = "rgba(198, 92, 255, 0.9)";
+      for (var drop = 0; drop < 3; drop += 1) {
+        var wobble = Math.sin(state.time * 10 + drop) * 3;
+        ctx.beginPath();
+        ctx.ellipse(
+          enemy.x - 10 + drop * 10,
+          enemy.y - enemy.height - 26 + wobble,
+          2.6,
+          4,
+          0,
+          0,
+          Math.PI * 2
+        );
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+    if (enemy.knockdown > 0) {
+      ctx.save();
+      ctx.globalAlpha = Math.min(1, enemy.knockdown * 2);
+      ctx.strokeStyle = "rgba(255, 226, 160, 0.9)";
+      ctx.lineWidth = 2.4;
+      ctx.beginPath();
+      ctx.arc(enemy.x, enemy.y - 6, enemy.width * 0.9, 0.15 * Math.PI, 0.85 * Math.PI);
+      ctx.stroke();
+      ctx.restore();
+    }
+    if (enemy.stun > 0) {
+      ctx.save();
+      ctx.globalAlpha = Math.min(1, enemy.stun * 3);
+      ctx.strokeStyle = "#ffe9a8";
+      ctx.lineWidth = 2;
+      for (var star = 0; star < 3; star += 1) {
+        var angle = state.time * 6 + (star * Math.PI * 2) / 3;
+        ctx.beginPath();
+        ctx.arc(
+          enemy.x + Math.cos(angle) * 12,
+          enemy.y - enemy.height - 22 + Math.sin(angle) * 5,
+          3,
+          0,
+          Math.PI * 2
+        );
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
   }
 
   function drawProjectiles(ctx, state) {
@@ -731,9 +781,11 @@
       ctx.font = "800 26px 'Segoe UI', system-ui, sans-serif";
       ctx.lineWidth = 4;
       ctx.strokeStyle = "rgba(12, 14, 24, 0.85)";
-      ctx.strokeText((player.comboIndex + 1) + " COMBO", roomX + roomW - 14, 104);
+      var comboLabel =
+        (player.comboIndex + 1) + (player.airHitTimer > 0 ? " AIR COMBO" : " COMBO");
+      ctx.strokeText(comboLabel, roomX + roomW - 14, 104);
       ctx.fillStyle = "#ffd66b";
-      ctx.fillText((player.comboIndex + 1) + " COMBO", roomX + roomW - 14, 104);
+      ctx.fillText(comboLabel, roomX + roomW - 14, 104);
       ctx.restore();
     }
 
