@@ -5,8 +5,9 @@
 # Cached DNF source files imported by assets/import_dnf_art.py
 assets/dnf_src/
 
-# Slayer skill-icon atlas (regenerate with: python3 assets/import_dnf_art.py --atlas)
+# Slayer skill-icon atlases (regenerate with: python3 assets/import_dnf_art.py --atlas)
 assets/dnf_skillicon_atlas.png
+assets/dnf_atskillicon_atlas.png
 
 # Node dependencies and failed-run screenshots from the browser check
 node_modules/

@@ -33,6 +33,8 @@ SOURCES = {
     "c_swordman.img": "https://raw.githubusercontent.com/LoveOyy/sprite_creature_sdcharacter_swordman.NPK/master/c_swordman.img.js",
     # Slayer skill icon atlas (28x28 icons).
     "skillicon.img": "https://raw.githubusercontent.com/LoveOyy/sprite_character_swordman_effect.NPK/master/skillicon.img.js",
+    # Second Slayer icon atlas (423 frames, 2nd-awakening / EX skills).
+    "atskillicon.img": "https://raw.githubusercontent.com/LoveOyy/sprite_character_swordman_effect.NPK/master/atskillicon.img.js",
 }
 
 FRAME = 96
@@ -207,9 +209,14 @@ def main() -> None:
 
 
 def build_atlas() -> None:
-    """Write a labelled contact sheet of every icon so a human can pick indices."""
+    """Write labelled contact sheets of both icon atlases so a human can pick."""
+    for name, out_name in (("skillicon.img", "dnf_skillicon_atlas.png"), ("atskillicon.img", "dnf_atskillicon_atlas.png")):
+        build_atlas_for(name, out_name)
+
+
+def build_atlas_for(source_name: str, out_name: str) -> None:
     _, image_util, convertor = load_img_tools()
-    icons = open_img(fetch("skillicon.img", SOURCES["skillicon.img"]))
+    icons = open_img(fetch(source_name, SOURCES[source_name]))
     cols, cell = 16, 52
     rows = (len(icons.images) + cols - 1) // cols
     sheet = Image.new("RGBA", (cols * cell, rows * cell), (18, 22, 34, 255))
@@ -227,8 +234,8 @@ def build_atlas() -> None:
         y = (index // cols) * cell
         sheet.alpha_composite(icon.resize((cell - 18, cell - 18), Image.LANCZOS), (x + 9, y + 15))
         draw.text((x + 4, y + 3), str(index), fill=(255, 215, 120, 255))
-    sheet.save(ROOT / "dnf_skillicon_atlas.png")
-    print(f"wrote {ROOT / 'dnf_skillicon_atlas.png'} ({sheet.width}x{sheet.height})")
+    sheet.save(ROOT / out_name)
+    print(f"wrote {ROOT / out_name} ({sheet.width}x{sheet.height})")
 
 
 if __name__ == "__main__":
