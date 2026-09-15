@@ -16,3 +16,7 @@ tests/browser/artifacts/playability-defeat.png
 
 # npm lockfile resolved through a local mirror; keep the public boundary clean
 package-lock.json
+
+# Generated effect references for manual review
+assets/dnf_effect_candidates.png
+assets/dnf_effect_preview.png

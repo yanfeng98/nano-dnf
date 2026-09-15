@@ -121,16 +121,16 @@
     frames: 4,
     draw: {
       upSlash: { dx: 34, dy: -56, size: 156, copies: 1, spin: 0 },
-      mountainBreaker: { dx: 82, dy: -22, size: 196, copies: 1, spin: 0 },
+      mountainBreaker: { dx: 72, dy: -30, size: 190, copies: 1, spin: 0 },
       crossSlash: { dx: 58, dy: -38, size: 164, copies: 2, spin: 0.785 },
       ghostSlash: { dx: 30, dy: -32, size: 182, copies: 1, spin: 0 },
-      tripleSlash: { dx: 46, dy: -34, size: 122, copies: 2, spin: 0.785 },
-      waveSlash: { dx: 30, dy: -52, size: 152, copies: 1, spin: 0 },
-      rageBurst: { dx: 0, dy: -28, size: 236, copies: 1, spin: 0 },
-      moonlightSlash: { dx: 54, dy: -42, size: 172, copies: 1, spin: 0.35 },
+      tripleSlash: { dx: 52, dy: -40, size: 150, copies: 1, spin: 0 },
+      waveSlash: { dx: 52, dy: -46, size: 170, copies: 1, spin: 0 },
+      rageBurst: { dx: 0, dy: -30, size: 230, copies: 1, spin: 0 },
+      moonlightSlash: { dx: 56, dy: -46, size: 190, copies: 1, spin: 0 },
       graspHead: { dx: 30, dy: -36, size: 128, copies: 1, spin: 0 },
       ghostStep: { dx: 44, dy: -30, size: 178, copies: 1, spin: 0 },
-      mountainRift: { dx: 66, dy: -46, size: 286, copies: 1, spin: 0 }
+      mountainRift: { dx: 74, dy: -34, size: 250, copies: 1, spin: 0 }
     }
   };
 

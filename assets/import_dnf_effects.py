@@ -31,20 +31,32 @@ SLASH = f"{CDN}/LoveOyy/sprite_character_swordman_effect.NPK@master"
 GORE = f"{CDN}/LoveOyy/sprite_character_swordman_effect_atgorecross.NPK@master"
 STEP = f"{CDN}/LoveOyy/sprite_character_swordman_effect_ghoststep.NPK@master"
 
-# One row per skill, in SKILL_ORDER. Skills that share a slash family reuse the
-# same official source; the three new skills get their own art.
+# One row per skill, in SKILL_ORDER. Each entry is the official DNF effect that
+# matches how that skill reads on screen (see assets/dnf_effect_candidates.png
+# for the full candidate menu):
+#   上挑      an upward slash arc                       (upperslash)
+#   崩山击    a ground shockwave in front               (normalwave1)
+#   十字斩    a slash mirrored into a cross             (atgorecross/cross)
+#   鬼斩      the ghost that rises out of the cut       (atghost)
+#   三段斩    quick successive cuts                     (momentaryslashblade)
+#   裂波斩    the wide rising wave                      (grandwaveblade)
+#   怒气爆发  the red ring that bursts around you       (blast-back)
+#   月光斩    the moon crescent                         (fullmoon)
+#   抓头      the grab-drain sparkles                   (pinchhpregen)
+#   鬼影闪    the dash after-image                      (ghoststep/01_sword_dodge)
+#   崩山裂地斩 the lava rift along the ground           (fire-front)
 EFFECTS = [
     ("upSlash", f"{SLASH}/upperslash.img.js"),
-    ("mountainBreaker", f"{SLASH}/blast-front.img.js"),
+    ("mountainBreaker", f"{SLASH}/normalwave1.img.js"),
     ("crossSlash", f"{GORE}/cross.img.js"),
     ("ghostSlash", f"{SLASH}/atghost.img.js"),
-    ("tripleSlash", f"{GORE}/cross.img.js"),
-    ("waveSlash", f"{SLASH}/upperslash.img.js"),
-    ("rageBurst", f"{SLASH}/blast-front.img.js"),
-    ("moonlightSlash", f"{GORE}/cross.img.js"),
+    ("tripleSlash", f"{SLASH}/momentaryslashblade.img.js"),
+    ("waveSlash", f"{SLASH}/grandwaveblade.img.js"),
+    ("rageBurst", f"{SLASH}/blast-back.img.js"),
+    ("moonlightSlash", f"{SLASH}/fullmoon.img.js"),
     ("graspHead", f"{SLASH}/pinchhpregen.img.js"),
     ("ghostStep", f"{STEP}/01_sword_dodge.img.js"),
-    ("mountainRift", f"{SLASH}/grandwavefullcharge_light.img.js")
+    ("mountainRift", f"{SLASH}/fire-front.img.js")
 ]
 
 FRAMES = 4
