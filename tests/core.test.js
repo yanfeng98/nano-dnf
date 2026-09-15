@@ -803,6 +803,32 @@ test("the shipped sprite sheet matches the frame grid the renderer expects", () 
   assert.equal(icons.readUInt32BE(20), 32);
 });
 
+test("the shipped DNF effect sheet matches the renderer grid", () => {
+  const buffer = fs.readFileSync(path.join(__dirname, "..", "assets", "effects.png"));
+  assert.equal(buffer.subarray(1, 4).toString("ascii"), "PNG");
+  assert.equal(buffer.readUInt32BE(16), Render.EFFECT.cell * Render.EFFECT.frames);
+  assert.equal(buffer.readUInt32BE(20), Render.EFFECT.cell * Core.SKILL_ORDER.length);
+  assert.equal(Render.EFFECT.frames, 4);
+  assert.deepEqual(
+    Core.SKILL_ORDER.map((skillId) => Render.EFFECT.draw[skillId].row),
+    [0, 1, 2, 3]
+  );
+});
+
+test("each skill picks its own DNF effect row across the cast", () => {
+  Core.SKILL_ORDER.forEach((skillId, row) => {
+    const spec = Core.SKILLS[skillId];
+    const mid = (spec.activeFrom + spec.activeTo) / 2 / spec.duration;
+    const frame = Render.skillEffectFrame(skillId, mid);
+    assert.ok(frame, `${skillId} should draw an effect mid-cast`);
+    assert.equal(frame.row, row);
+    assert.ok(frame.col >= 0 && frame.col < Render.EFFECT.frames);
+    assert.equal(Render.skillEffectFrame(skillId, 0), null, `${skillId} draws nothing on frame 0`);
+    assert.equal(Render.skillEffectFrame(skillId, 1), null, `${skillId} stops after the cast`);
+  });
+  assert.equal(Render.skillEffectFrame("grunt", 0.5), null, "unknown skills have no effect");
+});
+
 test("the renderer picks the sprite row that matches the player state", () => {
   const calls = [];
   const ctx = new Proxy(

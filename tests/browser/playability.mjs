@@ -275,6 +275,24 @@ async function runPass(browser, baseUrl, options) {
   }
 
   const audio = await page.evaluate(() => window.nanoDnf.getAudioState());
+  if (options.mode === "keyboard") {
+    /* Freeze one frame per skill so the DNF slash art can be eyeballed. */
+    const skills = await page.evaluate(() => window.DNFCore.SKILL_ORDER);
+    for (const skillId of skills) {
+      await page.evaluate((skillId) => {
+        const state = window.nanoDnf.getState();
+        const skill = window.DNFCore.SKILLS[skillId];
+        state.player.skillId = skillId;
+        state.player.skillTimer = skill.duration * 0.55;
+        state.player.skillHitsDone = 1;
+        state.player.dead = false;
+        state.defeat = false;
+        state.victory = false;
+      }, skillId);
+      await page.waitForTimeout(70);
+      await page.screenshot({ path: path.join(ARTIFACTS, `skill-${skillId}.png`) });
+    }
+  }
   await page.screenshot({
     path: path.join(ARTIFACTS, `playability-${options.mode}-clear.png`)
   });

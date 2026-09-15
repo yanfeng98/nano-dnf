@@ -35,7 +35,7 @@ jobs:
           mkdir -p _site/src _site/assets
           cp index.html _site/index.html
           cp src/core.js src/render.js src/main.js _site/src/
-          cp assets/slayer.png assets/skills.png assets/favicon.png _site/assets/
+          cp assets/slayer.png assets/skills.png assets/effects.png assets/favicon.png _site/assets/
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v6

@@ -24,7 +24,7 @@
 ## 运行
 
 ```bash
-npm test          # 39 个核心逻辑、DNF 技能机制、触屏布局、成长系统与渲染冒烟测试
+npm test          # 41 个核心逻辑、DNF 技能机制、特效图集、触屏布局与渲染冒烟测试
 npm run test:browser # 无头 Chromium 跑真实页面：键盘 + 触屏两条通路各通关一次
 npm run serve     # 起本地静态服务，然后打开 http://localhost:8080
 python3 assets/make_slayer_sprites.py   # 可选：重新生成原创精灵图与技能图标
@@ -81,6 +81,11 @@ python3 assets/make_slayer_sprites.py   # 可选：重新生成原创精灵图�
 
 HUD 左下角是技能栏，显示按键、技能名、MP 消耗与冷却读秒；敌人头顶会出现出血滴、倒地弧线与硬直星环等状态提示。
 
+每个技能释放时还会播放**官方 DNF 刀光**（`assets/effects.png`，由 `assets/import_dnf_effects.py` 从原始 IMG 烘焙）：
+上挑用 `upperslash` 的蓝色上挑弧、崩山击用 `blast-front` 的火焰爆裂、十字斩用 `atgorecross/cross`
+的红色斜刀光镜像成十字、鬼斩用 `atghost` 升起的鬼神。部分特效导出时没有 alpha 通道（DNF 靠调色板与
+叠加混合），脚本会把纯黑底键出成透明，再统一对齐、缩放成 4×4 的 128×128 图集。
+
 清空当前房间后右侧传送门点亮，走到最右侧进入下一层；第 4 层击败 Boss 即通关。
 
 ## 敌人
@@ -114,6 +119,8 @@ HUD 左下角是技能栏，显示按键、技能名、MP 消耗与冷却读秒�
 | `assets/make_slayer_sprites.py` | 备用：纯原创像素美术生成脚本（不依赖任何外部素材） |
 | `assets/slayer.png` | 6×5 张 96×96 精灵帧：待机 / 跑动 / 攻击 / 技能 / 受击·倒地·跳跃·下落 |
 | `assets/skills.png` | 四个 32×32 技能图标，顺序与技能栏一致 |
+| `assets/effects.png` | 4×4 张 128×128 官方刀光帧，顺序与技能栏一致 |
+| `assets/import_dnf_effects.py` | 解码 DNF 技能特效 IMG，烘焙出 `effects.png` |
 | `index.html` | 页面外壳：标题、画布边框、键位说明与状态栏 |
 | `tests/core.test.js` | `node:test` 验证内核行为、成长与掉落、确定性、900 帧稳定性、可通关性、精灵帧选择与渲染冒烟 |
 

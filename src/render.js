@@ -62,6 +62,34 @@
 
   var SKILL_ACTIONS = ["upSlash", "mountainBreaker", "crossSlash", "ghostSlash"];
 
+  /* assets/effects.png: four rows (SKILL_ORDER) x four 128x128 DNF slash frames. */
+  var EFFECT = {
+    cell: 128,
+    frames: 4,
+    draw: {
+      upSlash: { row: 0, dx: 34, dy: -56, size: 156, copies: 1, spin: 0 },
+      mountainBreaker: { row: 1, dx: 82, dy: -22, size: 196, copies: 1, spin: 0 },
+      crossSlash: { row: 2, dx: 58, dy: -38, size: 164, copies: 2, spin: 0.785 },
+      ghostSlash: { row: 3, dx: 30, dy: -32, size: 182, copies: 1, spin: 0 }
+    }
+  };
+
+  /** Which effect frame belongs to a skill at a given cast progress (0..1). */
+  function skillEffectFrame(skillId, progress) {
+    var spec = Core.SKILLS[skillId];
+    var draw = EFFECT.draw[skillId];
+    if (!spec || !draw) return null;
+    var from = (spec.activeFrom / spec.duration) * 0.8;
+    var to = Math.min(0.98, (spec.activeTo + 0.12) / spec.duration);
+    if (progress < from || progress > to) return null;
+    var local = Math.min(1, (progress - from) / Math.max(0.0001, to - from));
+    return {
+      row: draw.row,
+      col: Math.min(EFFECT.frames - 1, Math.floor(local * EFFECT.frames)),
+      alpha: 1 - Math.max(0, (local - 0.75) / 0.25) * 0.7
+    };
+  }
+
   function touchButtons() {
     return TOUCH_LAYOUT.map(function (entry) {
       return {
@@ -560,6 +588,42 @@
     });
   }
 
+  function drawSkillEffect(ctx, state, sprites) {
+    var player = state.player;
+    if (!player.skillId || player.skillTimer <= 0) return;
+    if (!sprites || !sprites.effects || !sprites.effects.width) return;
+    var spec = Core.SKILLS[player.skillId];
+    var draw = EFFECT.draw[player.skillId];
+    if (!spec || !draw) return;
+
+    var frame = skillEffectFrame(player.skillId, 1 - player.skillTimer / spec.duration);
+    if (!frame) return;
+
+    ctx.save();
+    ctx.translate(player.x + player.facing * draw.dx, player.y + draw.dy);
+    ctx.scale(player.facing, 1);
+    ctx.globalAlpha = frame.alpha;
+    ctx.imageSmoothingEnabled = true;
+    for (var copy = 0; copy < draw.copies; copy += 1) {
+      ctx.save();
+      /* 十字斩 is the same DNF slash mirrored into a cross. */
+      ctx.rotate(draw.spin * (copy === 0 ? 1 : -1));
+      ctx.drawImage(
+        sprites.effects,
+        frame.col * EFFECT.cell,
+        frame.row * EFFECT.cell,
+        EFFECT.cell,
+        EFFECT.cell,
+        -draw.size / 2,
+        -draw.size / 2,
+        draw.size,
+        draw.size
+      );
+      ctx.restore();
+    }
+    ctx.restore();
+  }
+
   function drawPickups(ctx, state) {
     state.pickups.forEach(function (drop) {
       var pulse = 0.8 + 0.2 * Math.sin(state.time * 8 + drop.x);
@@ -1048,6 +1112,7 @@
     });
     drawProjectiles(ctx, state);
     drawPickups(ctx, state);
+    drawSkillEffect(ctx, state, sprites);
     drawPlayer(ctx, state, sprites);
     state.effects.forEach(function (effect) {
       drawEffect(ctx, state, effect);
@@ -1068,6 +1133,8 @@
     render: render,
     PALETTE: PALETTE,
     SPRITE: SPRITE,
+    EFFECT: EFFECT,
+    skillEffectFrame: skillEffectFrame,
     touchButtons: touchButtons,
     hitTestTouch: hitTestTouch
   };

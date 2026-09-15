@@ -11,8 +11,12 @@
   var ctx = canvas.getContext("2d");
 
   /* Original art shipped in assets/: a 6x5 frame sheet and four skill icons. */
-  var sprites = { slayer: null, skills: null };
-  [["slayer", "./assets/slayer.png"], ["skills", "./assets/skills.png"]].forEach(function (entry) {
+  var sprites = { slayer: null, skills: null, effects: null };
+  [
+    ["slayer", "./assets/slayer.png"],
+    ["skills", "./assets/skills.png"],
+    ["effects", "./assets/effects.png"]
+  ].forEach(function (entry) {
     var image = new Image();
     image.src = entry[1];
     image.onload = function () {
