@@ -48,7 +48,7 @@ function refsIn(file) {
   return [...new Set([...html.matchAll(/(?:src|href)="\.\/([^"]+)"/g)].map((m) => m[1]))];
 }
 
-test("the workflow stages every asset index.html asks the browser for", () => {
+test("the workflow stages every asset index.html asks the browser for", async () => {
   const stage = workflowStepScript("Stage the static site");
   const site = fs.mkdtempSync(path.join(os.tmpdir(), "nano-dnf-stage-"));
   const script = stage.replaceAll("_site", site);
@@ -66,6 +66,17 @@ test("the workflow stages every asset index.html asks the browser for", () => {
   assert.ok(
     fs.existsSync(path.join(site, "index.html")),
     "the staged site must contain the page itself"
+  );
+
+  /* Absolute crawler URLs are not `src="./..."`, so check them separately. */
+  const { shareCardPath } = await import("./deploy/deploy-contract.mjs");
+  const html = fs.readFileSync(path.join(site, "index.html"), "utf8");
+  const cardPath = shareCardPath(html);
+  assert.ok(cardPath, "the page needs an og:image for link previews");
+  assert.equal(cardPath, "assets/share-card.png");
+  assert.ok(
+    fs.existsSync(path.join(site, cardPath)),
+    `the staged site is missing ${cardPath} - the preview card would 404`
   );
 });
 
@@ -102,6 +113,53 @@ test("the workflow verifies the staged site before uploading it", () => {
   assert.ok(
     verifyAt < uploadAt,
     "the guard has to run before the artifact is uploaded, not after"
+  );
+});
+
+test("the share card is a real 1200x630 PNG that the page points at", async () => {
+  const { shareCardProblems } = await import("./deploy/deploy-contract.mjs");
+  const html = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
+  const share = shareCardProblems(html);
+
+  assert.deepEqual(share.problems, [], `meta problems: ${share.problems.join("; ")}`);
+  assert.equal(share.width, 1200);
+  assert.equal(share.height, 630);
+
+  const card = fs.readFileSync(path.join(ROOT, "assets", "share-card.png"));
+  assert.equal(card.subarray(1, 4).toString("ascii"), "PNG");
+  assert.equal(card.readUInt32BE(16), 1200, "the card must be 1200 wide");
+  assert.equal(card.readUInt32BE(20), 630, "the card must be 630 tall");
+});
+
+test("the share card generator ships with the art it composes", () => {
+  const source = fs.readFileSync(path.join(ROOT, "assets", "make_share_card.py"), "utf8");
+  ["slayer.png", "skills.png"].forEach((art) => {
+    assert.ok(source.includes(art), `the generator should compose ${art}`);
+  });
+  ["assets/slayer.png", "assets/skills.png"].forEach((art) => {
+    assert.ok(fs.existsSync(path.join(ROOT, art)), `${art} must be present to regenerate the card`);
+  });
+  assert.ok(
+    source.includes("share-card.png"),
+    "the generator must write the file the meta tags point at"
+  );
+});
+
+test("a missing share card is a deploy problem, not a silent 404", async () => {
+  const { shareCardProblems } = await import("./deploy/deploy-contract.mjs");
+
+  const withoutCard = '<meta property="og:title" content="x" /><meta name="twitter:card" content="summary_large_image" />';
+  assert.ok(
+    shareCardProblems(withoutCard).problems.some((problem) => problem.includes("og:image")),
+    "a page without a preview image must be reported"
+  );
+
+  const relative = shareCardProblems(
+    '<meta property="og:image" content="./assets/share-card.png" />'
+  );
+  assert.ok(
+    relative.problems.some((problem) => problem.includes("absolute URL")),
+    "a relative crawler URL is a problem"
   );
 });
 

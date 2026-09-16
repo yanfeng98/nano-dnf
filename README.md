@@ -56,11 +56,15 @@ Pages workflow 的 deploy 之后，让静默落后或报错的部署直接把流
 第十六切片补上开局引导：`src/hints.js` 是纯提示选择器，按紧迫度排序、每次只显示一条、
 每条一局只出现一次（陷阱优先于强化卡，强化卡优先于连击提示）。浏览器证明会断言
 提示确实出现过、覆盖了强化卡这一刻、并且**会自己消失**（实测两条通路各出现 4 条、清除 4 次）。
+第十七切片让链接可分享：补齐 OG/Twitter 卡片标签与页面简介，卡片图由
+`assets/make_share_card.py` 用仓库自带美术程序化合成（1200×630）。发布冒烟现在会真的去抓
+线上卡片图，校验 200 / PNG / 尺寸与标签一致；离线暂存检查也会断言 `og:image` 指向的文件
+确实被打包——和当初漏发 `records.js` 是同一类事故，这次提前堵住。
 
 ## 运行
 
 ```bash
-npm test          # 113 个核心逻辑、Boss/小 Boss 机制、强化与通关记录、配乐调度、发布暂存契约与渲染冒烟测试
+npm test          # 116 个核心逻辑、Boss/小 Boss 机制、强化与通关记录、配乐调度、发布暂存契约与渲染冒烟测试
 npm run test:browser # 无头 Chromium 跑真实页面：键盘 + 触屏两条通路各通关一次
 npm run test:live # 线上产物冒烟：核对线上字节是否与本地一致，并在无头浏览器里跑一次真实页面
 npm run serve     # 起本地静态服务，然后打开 http://localhost:8080
@@ -248,6 +252,17 @@ HUD 左下角是技能栏，显示按键、技能名、MP 消耗与冷却读秒�
 
 ## 发布验证
 
+## 分享预览
+
+页面带完整的 Open Graph / Twitter 卡片标签（标题、描述、绝对 URL、1200×630 卡片图与尺寸），
+所以把线上链接贴到聊天工具或社交平台时能渲染出真正的预览卡，而不是一条裸链接。
+
+卡片图 `assets/share-card.png` 由仓库自己生成：`python3 assets/make_share_card.py` 用**本仓库已有的美术**
+（Slayer 精灵图 + 技能图标带）在程序化地牢背景上合成，不引入外部素材，重跑脚本结果一致。
+`index.html` 里的 `og:image` 指向线上绝对地址，因此发布冒烟会**真的去抓这张卡**，校验
+HTTP 200、是 PNG、且实际尺寸与标签声明的 1200×630 一致——部署忘发这张图会直接报错。
+离线侧也有一条同源检查：跑一遍 workflow 的暂存脚本，断言 `og:image` 指向的文件确实被暂存了。
+
 只用本地测试还不够——有两个故障是**只有线上才看得出来**的：Pages workflow 曾经写死文件清单，
 漏发 `src/records.js`，线上直接 404 白屏；地牢也曾经在标题界面背后继续跑，放着不动就是 0 血。
 
@@ -324,8 +339,8 @@ python3 assets/import_dnf_art.py --icons 94,154,132,10,18,6,48,160,98,138,172
 200、WebAudio 已初始化。最近一次结果：
 
 ```
-keyboard victory=true kills=14 damageTaken=7 seconds=50.6 level=5  upgrades=锐锋×3+鬼气  record=0:50.6 Lv5  music=started(298 notes, bus 0.5)  audio=created/running  drag=月光斩→槽A persisted=true
-touch    victory=true kills=14 damageTaken=22 seconds=52.9 level=5  upgrades=锐锋×3+鬼气  record=0:52.9 Lv5  music=started(263 notes, bus 0.5)  touchMode=true audio=created/running muteToggle=ok
+keyboard victory=true kills=14 damageTaken=7 seconds=47.4 level=5  upgrades=锐锋×3+鬼气  record=0:47.4 Lv5  music=started(272 notes, bus 0.5)  audio=created/running  drag=月光斩→槽A persisted=true
+touch    victory=true kills=14 damageTaken=0 seconds=45.8 level=5  upgrades=锐锋×3+鬼气  record=0:45.8 Lv5  music=started(266 notes, bus 0.5)  touchMode=true audio=created/running muteToggle=ok
 consoleErrors=[] pageErrors=[] failedRequests=[]
 assets: index.html / loadout.js / main.js / render.js / core.js / slayer.png / skills.png / effects.png / favicon.png 全部 200
 ```

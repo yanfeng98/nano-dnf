@@ -4,6 +4,29 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>nano-dnf · 鬼剑士的地下城</title>
+    <meta
+      name="description"
+      content="DNF 风格的 2D 横版地下城：种子化布局、强化三选一、Boss 多阶段，单页 HTML5，打开就能玩。"
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="nano-dnf" />
+    <meta property="og:title" content="nano-dnf · 鬼剑士的地下城" />
+    <meta
+      property="og:description"
+      content="DNF 风格的 2D 横版地下城：种子化布局、强化三选一、Boss 多阶段，单页 HTML5，打开就能玩。"
+    />
+    <meta property="og:url" content="https://luyf-lemon-love.space/nano-dnf/" />
+    <meta property="og:image" content="https://luyf-lemon-love.space/nano-dnf/assets/share-card.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content="zh_CN" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="nano-dnf · 鬼剑士的地下城" />
+    <meta
+      name="twitter:description"
+      content="DNF 风格的 2D 横版地下城：种子化布局、强化三选一、Boss 多阶段，单页 HTML5，打开就能玩。"
+    />
+    <meta name="twitter:image" content="https://luyf-lemon-love.space/nano-dnf/assets/share-card.png" />
     <link rel="icon" type="image/png" href="./assets/favicon.png" />
     <style>
       :root {
@@ -72,6 +95,14 @@
         text-align: center;
         color: rgba(226, 236, 255, 0.72);
       }
+      .blurb {
+        margin: 0;
+        max-width: min(94vw, 760px);
+        font-size: 14px;
+        line-height: 1.8;
+        text-align: center;
+        color: rgba(226, 236, 255, 0.82);
+      }
       kbd {
         display: inline-block;
         min-width: 22px;
@@ -99,6 +130,11 @@
     <div class="frame">
       <canvas id="stage" width="960" height="540"></canvas>
     </div>
+    <p class="blurb">
+      一个用 DNF（地下城与勇士）手感做的 2D 横版动作 demo：每局的房间顺序按种子抽取，
+      清房后从三张强化卡里选一张，最后打一个会狂暴的 Boss。全部用原生 Canvas 与 WebAudio
+      实现，不依赖任何第三方库，也不需要资源加载——打开页面就能开打。
+    </p>
     <p class="hint">
       <kbd>←</kbd><kbd>→</kbd> 移动 · <kbd>C</kbd> 跳跃 · <kbd>X</kbd> 普攻 ·
       <kbd>A</kbd>~<kbd>H</kbd>/<kbd>Q</kbd>~<kbd>Y</kbd> 双排技能槽 · <kbd>1</kbd>~<kbd>3</kbd> 选强化 · <kbd>N</kbd> 换种子 · <kbd>B</kbd> 技能编成（拖动图标换槽） ·
