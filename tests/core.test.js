@@ -1190,3 +1190,246 @@ test("the renderer draws both hotbar rows and the loadout panel", () => {
   assert.equal(drawsAt(touchY2), 5, "compact bar keeps the second row while arranging");
   assert.equal(tileDraws(), Core.SKILL_ORDER.length, "every skill tile is drawn");
 });
+
+/** A canvas context double that records every draw call it receives. */
+function recordingContext(calls) {
+  return new Proxy(
+    {
+      createLinearGradient() {
+        return { addColorStop() {} };
+      },
+      createRadialGradient() {
+        return { addColorStop() {} };
+      }
+    },
+    {
+      get(target, prop) {
+        if (prop in target) return target[prop];
+        target[prop] = (...args) => calls.push([prop, ...args]);
+        return target[prop];
+      },
+      set(target, prop, value) {
+        target[prop] = value;
+        return true;
+      }
+    }
+  );
+}
+
+test("the boss enrages at half health without mutating the shared type spec", () => {
+  const state = lastRoomState();
+  const boss = Core.createEnemy(state, "boss", state.player.x + 120);
+  state.enemies = [boss];
+  const spec = Core.ENEMY_TYPES.boss;
+
+  assert.equal(boss.phase, 1);
+  /* One point above the ratio leaves it calm; the next point flips it. */
+  Core.damageEnemy(state, boss, boss.maxHp * (1 - spec.phase2.hpRatio) - 1, 0, state.player.x);
+  assert.equal(boss.phase, 1, "the boss must stay in phase one above the threshold");
+  assert.equal(boss.speed, spec.speed);
+
+  Core.damageEnemy(state, boss, 2, 0, state.player.x);
+  assert.equal(boss.phase, 2, "crossing half health starts phase two");
+  assert.equal(
+    state.effects.some((effect) => effect.kind === "banner" && effect.text === spec.phase2.banner),
+    true,
+    "the phase change must announce itself"
+  );
+  assert.ok(boss.speed > spec.speed, `phase two is faster: ${boss.speed}`);
+  assert.ok(boss.damage > spec.damage, `phase two hits harder: ${boss.damage}`);
+  assert.ok(boss.attackCooldownMax < spec.attackCooldown, "phase two attacks sooner");
+  assert.ok(boss.slam.radius > spec.slam.radius, "phase two slams further");
+
+  /* Every other boss in every other run reads from this one table. */
+  assert.equal(spec.slam.radius, 150, "the shared slam radius must not change");
+  assert.equal(spec.slam.cooldown, 3.6, "the shared slam cooldown must not change");
+  assert.equal(spec.speed, 88, "the shared speed must not change");
+  assert.equal(spec.damage, 18, "the shared damage must not change");
+
+  const fresh = Core.createEnemy(Core.createState({ seed: 3 }), "boss", 500);
+  assert.equal(fresh.phase, 1);
+  assert.equal(fresh.slam.radius, 150, "a new boss starts from the pristine spec");
+  assert.equal(fresh.speed, 88);
+
+  /* The enrage is a deterministic state, so a twin boss lands on the same numbers. */
+  const twin = Core.createEnemy(Core.createState({ seed: 3 }), "boss", 500);
+  Core.enterPhase2(Core.createState({ seed: 3 }), twin);
+  assert.equal(twin.phase, 2);
+  assert.equal(twin.speed, boss.speed);
+  assert.equal(twin.damage, boss.damage);
+  assert.equal(twin.slam.radius, boss.slam.radius);
+});
+
+test("only the enraged boss lunges, and the lunge carries super armour", () => {
+  const run = (enraged) => {
+    const state = lastRoomState();
+    const boss = Core.createEnemy(state, "boss", state.player.x + 160);
+    /* Isolate the lunge: the slam would otherwise preempt a mid-range attack. */
+    boss.slam = null;
+    boss.attackRange = 0;
+    boss.attackCooldown = 0;
+    boss.slamCooldown = 0;
+    state.enemies = [boss];
+    if (enraged) {
+      Core.enterPhase2(state, boss);
+      boss.lungeCooldown = 0;
+    }
+
+    let telegraphed = false;
+    let sawSuperArmor = false;
+    let sawCharge = false;
+    for (let frame = 0; frame < 60 * 4; frame += 1) {
+      Core.step(state, {});
+      if (state.effects.some((effect) => effect.kind === "telegraph" && effect.text === "LUNGE")) {
+        telegraphed = true;
+      }
+      if (boss.attackKind === "charge") {
+        sawCharge = true;
+        if (boss.superArmor) sawSuperArmor = true;
+      }
+    }
+    return { telegraphed, sawCharge, sawSuperArmor, restingSuperArmor: boss.superArmor };
+  };
+
+  const enraged = run(true);
+  assert.ok(enraged.sawCharge, "the enraged boss must lunge from mid range");
+  assert.ok(enraged.telegraphed, "the lunge must telegraph before it commits");
+  assert.ok(enraged.sawSuperArmor, "the lunge must carry boss super armour");
+  assert.equal(enraged.restingSuperArmor, false, "super armour must end with the lunge");
+
+  const calm = run(false);
+  assert.equal(calm.sawCharge, false, "phase one has no lunge");
+  assert.equal(calm.telegraphed, false, "phase one must not telegraph a lunge");
+});
+
+test("super armour never sticks when a wind-up is interrupted", () => {
+  const state = lastRoomState();
+  const boss = Core.createEnemy(state, "boss", state.player.x + 160);
+  boss.slam = null;
+  boss.attackRange = 0;
+  state.enemies = [boss];
+  Core.enterPhase2(state, boss);
+  boss.attackCooldown = 0;
+  boss.lungeCooldown = 0;
+
+  /* Run into the lunge, then knock the boss down through its super armour. */
+  let caught = false;
+  for (let frame = 0; frame < 120 && !caught; frame += 1) {
+    Core.step(state, {});
+    caught = boss.attackKind === "charge" && boss.attackTimer > 0 && boss.superArmor;
+  }
+  assert.ok(caught, "the boss must be mid-lunge with super armour for this test to mean anything");
+
+  Core.damageEnemy(state, boss, 8, 0, state.player.x, { knockdown: 0.8, ignoreSuperArmor: true });
+  Core.runFrames(state, 6, {});
+  assert.equal(boss.superArmor, false, "an interrupted wind-up must drop super armour");
+
+  /* It has to stay knockback-able afterwards, not just report the flag. */
+  boss.knockdown = 0;
+  boss.stun = 0;
+  boss.hurtTimer = 0;
+  boss.vx = 0;
+  Core.damageEnemy(state, boss, 6, 240, state.player.x);
+  assert.ok(Math.abs(boss.vx) > 0, "the boss must take knockback again");
+});
+
+test("the dungeon gained a caster/charger room directly ahead of the boss", () => {
+  assert.equal(Core.ROOMS.length, 5, "the dungeon now runs five rooms");
+
+  const bossRoom = Core.ROOMS[Core.ROOMS.length - 1];
+  assert.ok(
+    bossRoom.enemies.some((enemy) => enemy.type === "boss"),
+    "the boss must still close the dungeon"
+  );
+  assert.equal(bossRoom.enemies.length, 2, "the boss room stays a bodyguard fight");
+
+  const mix = Core.ROOMS[Core.ROOMS.length - 2];
+  const types = mix.enemies.map((enemy) => enemy.type);
+  assert.ok(types.includes("caster"), `caster pressure missing from ${mix.name}`);
+  assert.ok(types.includes("charger"), `charger pressure missing from ${mix.name}`);
+  assert.equal(types.includes("boss"), false, "the mix room is not the boss room");
+  assert.ok(
+    types.includes("grunt") || types.includes("brute"),
+    "the lane needs a body, not just two specials"
+  );
+});
+
+test("the renderer gives the enraged boss its own palette, aura and bar label", () => {
+  const calls = [];
+  const ctx = recordingContext(calls);
+
+  const state = Core.createState({ seed: Core.DEFAULT_SEED, roomIndex: Core.ROOMS.length - 1 });
+  const boss = state.enemies.find((enemy) => enemy.type === "boss");
+  boss.hp = boss.maxHp * 0.8;
+  state.enemies = [boss];
+
+  calls.length = 0;
+  Render.render(ctx, state, {});
+  const calmArcs = calls.filter((call) => call[0] === "arc").length;
+  const calmTexts = calls.filter((call) => call[0] === "fillText").map((call) => call[1]);
+  assert.ok(calmTexts.includes("GOBLIN KING"), "phase one keeps the plain bar label");
+  assert.equal(
+    calmTexts.some((text) => String(text).includes("狂暴")),
+    false,
+    "phase one must not claim to be enraged"
+  );
+
+  Core.enterPhase2(state, boss);
+  calls.length = 0;
+  Render.render(ctx, state, {});
+  const enragedArcs = calls.filter((call) => call[0] === "arc").length;
+  const enragedTexts = calls.filter((call) => call[0] === "fillText").map((call) => call[1]);
+  assert.ok(
+    enragedTexts.some((text) => String(text).includes("狂暴")),
+    "the bar must read as enraged in phase two"
+  );
+  assert.ok(
+    enragedArcs > calmArcs,
+    `the enrage aura must add draw calls: ${calmArcs} -> ${enragedArcs}`
+  );
+});
+
+test("the room banner moves clear of the boss bar and the help quotes the real room count", () => {
+  const bannerY = (roomIndex) => {
+    const calls = [];
+    const state = Core.createState({ seed: Core.DEFAULT_SEED, roomIndex });
+    /* Drop the state's own room banner so ours is the first in the stack. */
+    state.effects = state.effects.filter((effect) => effect.kind !== "banner");
+    state.effects.push({ kind: "banner", text: "ROOM BANNER", life: 1, maxLife: 1 });
+    Render.render(recordingContext(calls), state, {});
+    const call = calls.find((entry) => entry[0] === "fillText" && entry[1] === "ROOM BANNER");
+    assert.ok(call, "the banner must be drawn");
+    return call[3];
+  };
+
+  const plain = bannerY(0);
+  const withBoss = bannerY(Core.ROOMS.length - 1);
+  assert.equal(plain, 104, "a normal room keeps the established banner placement");
+  assert.ok(
+    withBoss > plain,
+    `the banner must clear the boss bar: plain=${plain} bossRoom=${withBoss}`
+  );
+  assert.ok(
+    withBoss >= 200,
+    `the boss-room banner must drop below the HUD and bar band, got y=${withBoss}`
+  );
+
+  const calls = [];
+  const help = Core.createState({ seed: Core.DEFAULT_SEED });
+  Render.render(recordingContext(calls), help, { showHelp: true });
+  const texts = calls.filter((call) => call[0] === "fillText").map((call) => String(call[1]));
+  assert.ok(
+    texts.some((text) => text.includes(`第 ${Core.ROOMS.length} 层`)),
+    `the help overlay must quote ${Core.ROOMS.length} rooms: ${texts.join(" / ")}`
+  );
+
+  /* Killing the boss stacks "Boss down!" and "Dungeon cleared!" in the same frame. */
+  const stacked = [];
+  const cleared = Core.createState({ seed: Core.DEFAULT_SEED, roomIndex: Core.ROOMS.length - 1 });
+  cleared.effects.push({ kind: "banner", text: "Boss down!", life: 1, maxLife: 1 });
+  cleared.effects.push({ kind: "banner", text: "Dungeon cleared!", life: 1, maxLife: 1 });
+  Render.render(recordingContext(stacked), cleared, {});
+  const first = stacked.find((call) => call[0] === "fillText" && call[1] === "Boss down!")[3];
+  const second = stacked.find((call) => call[0] === "fillText" && call[1] === "Dungeon cleared!")[3];
+  assert.notEqual(first, second, "stacked banners must not overprint each other");
+});

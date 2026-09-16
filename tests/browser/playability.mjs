@@ -27,7 +27,6 @@ const MIME = {
   ".png": "image/png"
 };
 const MAX_SECONDS = 150;
-const TOTAL_ENEMIES = 11;
 
 const SLOT_KEYS = [
   "KeyA",
@@ -266,8 +265,11 @@ async function runPass(browser, baseUrl, options) {
     skills: JSON.parse(JSON.stringify(window.DNFCore.SKILLS)),
     skillOrder: window.DNFCore.SKILL_ORDER,
     arena: JSON.parse(JSON.stringify(window.DNFCore.ARENA)),
+    rooms: JSON.parse(JSON.stringify(window.DNFCore.ROOMS)),
     equipped: window.nanoDnf.getLoadout()
   }));
+  /* Read the required kill count from the shipped core so it cannot drift. */
+  const expectedKills = constants.rooms.reduce((total, room) => total + room.enemies.length, 0);
   let loadout = constants.equipped.slice();
   const touchMode = await page.evaluate(() => window.nanoDnf.isTouchMode());
   if (options.mode === "touch") {
@@ -390,11 +392,37 @@ async function runPass(browser, baseUrl, options) {
   await page.screenshot({
     path: path.join(ARTIFACTS, `playability-${options.mode}-clear.png`)
   });
+
+  /*
+   * Extra content evidence: the caster/charger mix room and the enraged boss.
+   * Captured after the clear shot so the run-progress artifacts keep their meaning.
+   */
+  if (options.mode === "keyboard") {
+    await page.evaluate(() => {
+      const state = window.nanoDnf.getState();
+      window.DNFCore.startRoom(state, window.DNFCore.ROOMS.length - 2);
+    });
+    await page.waitForTimeout(90);
+    await page.screenshot({ path: path.join(ARTIFACTS, "room-mix.png") });
+
+    await page.evaluate(() => {
+      const state = window.nanoDnf.getState();
+      window.DNFCore.startRoom(state, window.DNFCore.ROOMS.length - 1);
+      /* Drop the room-entry banner so the enrage announcement is what we capture. */
+      state.effects = state.effects.filter((effect) => effect.kind !== "banner");
+      const boss = state.enemies.find((enemy) => enemy.type === "boss");
+      window.DNFCore.enterPhase2(state, boss);
+      state.player.x = boss.x - 165;
+    });
+    await page.waitForTimeout(90);
+    await page.screenshot({ path: path.join(ARTIFACTS, "boss-phase2.png") });
+  }
   await context.close();
 
   return {
     mode: options.mode,
     url,
+    expectedKills,
     touchMode,
     state,
     audio,
@@ -409,8 +437,8 @@ function problemsFor(pass) {
   const problems = [];
   if (!pass.state.victory) problems.push(`${pass.mode}: dungeon was not cleared`);
   if (pass.state.defeat) problems.push(`${pass.mode}: player died`);
-  if (pass.state.stats.kills !== TOTAL_ENEMIES) {
-    problems.push(`${pass.mode}: kills=${pass.state.stats.kills} (expected ${TOTAL_ENEMIES})`);
+  if (pass.state.stats.kills !== pass.expectedKills) {
+    problems.push(`${pass.mode}: kills=${pass.state.stats.kills} (expected ${pass.expectedKills})`);
   }
   if (pass.state.stats.damageTaken > 24) problems.push(`${pass.mode}: damageTaken=${pass.state.stats.damageTaken}`);
   if (pass.diagnostics.consoleErrors.length) {

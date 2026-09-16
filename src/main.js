@@ -509,6 +509,17 @@
   }
 
   window.requestAnimationFrame(frame);
+
+  /* Keep the static page hint honest when the dungeon gains or loses rooms. */
+  (function describeDungeon() {
+    var hint = document.getElementById("dungeon-hint");
+    if (!hint) return;
+    hint.textContent =
+      "清空房间后走到最右侧传送门进入下一层，第 " +
+      Core.ROOMS.length +
+      " 层击败 Boss 即通关。触屏设备会自动显示虚拟按键（也可在地址后加 ?touch=1 强制开启）。";
+  })();
+
   window.nanoDnf = {
     getState: function () {
       return state;

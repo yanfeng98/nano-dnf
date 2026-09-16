@@ -508,11 +508,15 @@
     brute: { body: "#e0a44d", dark: "#8a5a1f", accent: "#ffe0a8", eye: "#ff8a4d" },
     caster: { body: "#79a6ff", dark: "#33518f", accent: "#cfe2ff", eye: "#9ef0ff" },
     charger: { body: "#b07cff", dark: "#5a2f96", accent: "#e8d6ff", eye: "#ffd166" },
-    boss: { body: "#e0556d", dark: "#7d1f31", accent: "#ffd0d6", eye: "#ffe066" }
+    boss: { body: "#e0556d", dark: "#7d1f31", accent: "#ffd0d6", eye: "#ffe066" },
+    bossPhase2: { body: "#ff4d6d", dark: "#8c0f26", accent: "#ffe9a8", eye: "#ff3b3b" }
   };
 
   function drawEnemy(ctx, state, enemy) {
-    var style = ENEMY_STYLE[enemy.type] || ENEMY_STYLE.grunt;
+    var enraged = enemy.type === "boss" && enemy.phase >= 2;
+    var style = enraged
+      ? ENEMY_STYLE.bossPhase2
+      : ENEMY_STYLE[enemy.type] || ENEMY_STYLE.grunt;
     var w = enemy.width;
     var h = enemy.height;
 
@@ -521,6 +525,18 @@
     ctx.beginPath();
     ctx.ellipse(enemy.x, enemy.y + 3, w * 0.62, 6, 0, 0, Math.PI * 2);
     ctx.fill();
+
+    /* Second-phase tell: a pulsing blood ring so the enrage reads at a glance. */
+    if (enraged) {
+      ctx.save();
+      ctx.globalAlpha = 0.3 + 0.18 * Math.sin(state.time * 6.5);
+      ctx.strokeStyle = "rgba(255, 82, 108, 0.95)";
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.arc(enemy.x, enemy.y - h * 0.5, w * 0.95, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+    }
 
     ctx.translate(enemy.x, enemy.y);
     if (enemy.facing > 0) ctx.scale(-1, 1);
@@ -738,7 +754,7 @@
     });
   }
 
-  function drawEffect(ctx, state, effect) {
+  function drawEffect(ctx, state, effect, bannerOrdinal) {
     var alpha = clamp01(effect.life / effect.maxLife);
     if (effect.kind === "damage") {
       var rise = (1 - alpha) * 28;
@@ -764,18 +780,28 @@
       ctx.fillText(effect.text, effect.x, effect.y - (1 - alpha) * 26);
       ctx.restore();
     } else if (effect.kind === "banner") {
+      /*
+       * The room banner and the boss health bar both live at the top centre, so
+       * drop the transient banner into the empty band under the HUD while a
+       * boss is on screen instead of letting the two draw over each other.
+       */
+      var bossOnScreen = state.enemies.some(function (enemy) {
+        return !enemy.dead && enemy.type === "boss";
+      });
+      /* Simultaneous banners stack instead of overprinting each other. */
+      var bannerY = (bossOnScreen ? 230 : 104) + (bannerOrdinal || 0) * 34;
       ctx.save();
       ctx.globalAlpha = Math.min(1, alpha * 1.5);
       ctx.textAlign = "center";
       ctx.font = "700 26px 'PingFang SC', 'Segoe UI', system-ui, sans-serif";
       ctx.lineWidth = 5;
       ctx.strokeStyle = "rgba(10, 12, 22, 0.85)";
-      ctx.strokeText(effect.text, ARENA.width / 2, 104);
-      var grad = ctx.createLinearGradient(0, 84, 0, 112);
+      ctx.strokeText(effect.text, ARENA.width / 2, bannerY);
+      var grad = ctx.createLinearGradient(0, bannerY - 20, 0, bannerY + 8);
       grad.addColorStop(0, "#fff3c4");
       grad.addColorStop(1, "#e3bf72");
       ctx.fillStyle = grad;
-      ctx.fillText(effect.text, ARENA.width / 2, 104);
+      ctx.fillText(effect.text, ARENA.width / 2, bannerY);
       ctx.restore();
     } else if (effect.kind === "telegraph") {
       ctx.save();
@@ -954,7 +980,7 @@
       ctx.textAlign = "center";
       ctx.fillStyle = PALETTE.text;
       ctx.font = "700 13px 'PingFang SC', 'Segoe UI', sans-serif";
-      ctx.fillText("GOBLIN KING", ARENA.width / 2, 101);
+      ctx.fillText(boss.phase >= 2 ? "GOBLIN KING · 狂暴" : "GOBLIN KING", ARENA.width / 2, 101);
       ctx.restore();
       bar(
         ctx,
@@ -967,6 +993,11 @@
         "#a8203a",
         "rgba(40, 10, 18, 0.9)"
       );
+      /* Half-health tick: the exact point that flips the boss into phase two. */
+      ctx.save();
+      ctx.fillStyle = boss.phase >= 2 ? "rgba(255, 226, 160, 0.95)" : "rgba(255, 226, 160, 0.5)";
+      ctx.fillRect(ARENA.width / 2 - 1, 105, 2, 10);
+      ctx.restore();
     }
   }
 
@@ -1257,7 +1288,11 @@
 
       ctx.fillStyle = PALETTE.textDim;
       ctx.font = "600 14px 'PingFang SC', 'Segoe UI', sans-serif";
-      ctx.fillText("清空房间后走到最右侧传送门，第 4 层击败 Boss 即通关", 344, 462);
+      ctx.fillText(
+        "清空房间后走到最右侧传送门，第 " + Core.ROOMS.length + " 层击败 Boss 即通关",
+        344,
+        462
+      );
       ctx.fillStyle = "#ffd66b";
       ctx.font = "700 16px 'PingFang SC', 'Segoe UI', sans-serif";
       ctx.fillText("按任意键开始", 344, 496);
@@ -1289,8 +1324,9 @@
     drawPickups(ctx, state);
     drawSkillEffect(ctx, state, sprites);
     drawPlayer(ctx, state, sprites);
+    var bannerOrdinal = 0;
     state.effects.forEach(function (effect) {
-      drawEffect(ctx, state, effect);
+      drawEffect(ctx, state, effect, effect.kind === "banner" ? bannerOrdinal++ : 0);
     });
     ctx.restore();
 

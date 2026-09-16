@@ -6,7 +6,7 @@
 
 打开 <https://luyf-lemon-love.space/nano-dnf/>（备用 <https://yanfeng98.github.io/nano-dnf/>）
 直接在浏览器里玩，无需本地安装：
-清空房间后走到右侧传送门进入下一层，第 4 层击败 Boss 即通关。
+清空房间后走到右侧传送门进入下一层，第 5 层击败 Boss 即通关。
 
 该页面由 `.github/workflows/pages.yml` 在 `main` 分支更新时自动测试并部署。
 
@@ -16,6 +16,9 @@
 带前摇的敌人 AI、房间清怪与传送门推进，以及 Boss 房间通关判定。
 第二切片补上了清怪回报：击杀掉落回血球，击杀累积经验并升级，升级提升攻击、生命与魔法上限。
 第三切片补上了敌人威胁层次：远程术士、直线冲锋兵，以及 Boss 带预警的地面重踏（可跑出范围或跳起躲开）。
+第五切片加深了内容：Boss 房间前新增「断桥」混合房（术士远程压制 + 冲锋兵突进），
+Boss 血量掉到一半后进入**狂暴第二阶段**——移动更快、出手更密、重踏范围更大，并解锁带预警的
+超甲突进（`LUNGE`），HUD 的 Boss 血条会标出半血分界线并改读「GOBLIN KING · 狂暴」。
 第四切片把技能改成 DNF 鬼剑士那一套：上挑 / 崩山击 / 十字斩 / 鬼斩，各带 MP 消耗、独立冷却与随等级成长的伤害，
 按键也换成 DNF 布局（方向键移动、`X` 普攻、`C` 跳跃、`A`/`S`/`D`/`F` 技能），HUD 左下角新增技能栏。
 第五切片重做了画面：原创鬼剑士像素精灵（待机 / 跑动 / 攻击 / 技能 / 受击 / 跳跃 / 倒地）、金币边框 HUD 与角色头像、
@@ -107,7 +110,7 @@ HUD 左下角是技能栏，显示按键、技能名、MP 消耗与冷却读秒�
 抓头用 `pinchhpregen`（官方抓取吸血光点）、崩山裂地斩用 `grandwavefullcharge_light`（雷电巨浪）。
 图集因此改成**每个技能一行**（11 行 × 4 帧的 128×128），没有专属素材的技能复用同一家族的官方刀光。
 
-清空当前房间后右侧传送门点亮，走到最右侧进入下一层；第 4 层击败 Boss 即通关。
+清空当前房间后右侧传送门点亮，走到最右侧进入下一层；第 5 层击败 Boss 即通关。
 
 ## 敌人
 
@@ -117,7 +120,7 @@ HUD 左下角是技能栏，显示按键、技能名、MP 消耗与冷却读秒�
 | 精英 | 高血量近战，前摇长 | 前摇后撤，收招期反击 |
 | 术士 | 保持距离，蓄力后射出有限射程的法术弹 | 蓄力时撤出射程，或跳起躲弹 |
 | 冲锋兵 | 下蹲预警后高速直线冲锋 | 预警与冲锋期间横向拉开，收招期反击 |
-| Boss | 近战，并会施放带预警的地面重踏（圆形范围） | 重踏预警时跑出范围，或跳起躲避 |
+| Boss | 近战，并会施放带预警的地面重踏（圆形范围）；血量掉到一半后**狂暴**：更快、更痛、重踏范围更大，并会用带预警的**超甲突进**（`LUNGE`）拉近距离 | 重踏预警时跑出范围或跳起躲避；突进前摇时横向拉开，等它收招再反击 |
 
 ## 成长与掉落
 
@@ -188,15 +191,16 @@ python3 assets/import_dnf_art.py --icons 94,154,132,10,18,6,48,160,98,138,172
 200、WebAudio 已初始化。最近一次结果：
 
 ```
-keyboard victory=true kills=11 damageTaken=7 seconds=62.8 level=4  audio=created/running  drag=月光斩→槽A persisted=true
-touch    victory=true kills=11 damageTaken=7 seconds=64.5 level=4  touchMode=true audio=created/running muteToggle=ok
+keyboard victory=true kills=14 damageTaken=7 seconds=55.5 level=4  audio=created/running  drag=月光斩→槽A persisted=true
+touch    victory=true kills=14 damageTaken=7 seconds=69.8 level=4  touchMode=true audio=created/running muteToggle=ok
 consoleErrors=[] pageErrors=[] failedRequests=[]
-assets: index.html / main.js / render.js / core.js / slayer.png / skills.png / favicon.png 全部 200
+assets: index.html / loadout.js / main.js / render.js / core.js / slayer.png / skills.png / effects.png / favicon.png 全部 200
 ```
 
 键盘那条通路还会顺便验证编成：按 `B` 打开面板 → 用指针事件把「月光斩」拖到槽 A → 读回
 `getLoadout()` 与 `localStorage` 确认已生效 → `resetLoadout()` 复位。截图见
-`tests/browser/artifacts/loadout-panel.png` 与 `loadout-applied.png`。
+`tests/browser/artifacts/loadout-panel.png` 与 `loadout-applied.png`；本切片新增的「断桥」混合房与
+Boss 狂暴第二阶段分别见 `room-mix.png` 与 `boss-phase2.png`（都由同一次浏览器跑动产出）。
 
 两条通路各自使用独立的浏览器实例（否则两条 rAF 循环会互相抢 CPU，输入时序被拖慢）；
 只跑其中一条可以设 `PASSES=touch npm run test:browser` 或 `PASSES=keyboard`。

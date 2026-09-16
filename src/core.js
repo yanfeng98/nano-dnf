@@ -426,12 +426,33 @@
       attackDuration: 0.66,
       attackCooldown: 1.15,
       knockbackX: 260,
+      chargeSpeed: 430,
+      chargeFrom: 0.22,
+      chargeTo: 0.62,
       slam: {
         radius: 150,
         damage: 20,
         windup: 0.7,
         recovery: 0.5,
         cooldown: 3.6
+      },
+      phase2: {
+        banner: "Goblin King enraged!",
+        hpRatio: 0.5,
+        speedScale: 1.28,
+        damageScale: 1.2,
+        cooldownScale: 0.7,
+        windupScale: 0.82,
+        slamRadiusScale: 1.18,
+        slamCooldownScale: 0.55,
+        lunge: {
+          range: 210,
+          minRange: 96,
+          speed: 430,
+          windup: 0.34,
+          recovery: 0.5,
+          cooldown: 4.2
+        }
       }
     }
   };
@@ -459,6 +480,19 @@
         { type: "charger", x: 600 },
         { type: "brute", x: 760 },
         { type: "brute", x: 870 }
+      ]
+    },
+    {
+      /*
+       * The caster/charger mix: a caster applies ranged pressure while a charger
+       * commits down the lane. Spacing is deliberate - the charger starts far
+       * enough that its wind-up reads before it can reach a mid-air Slayer.
+       */
+      name: "Broken Span",
+      enemies: [
+        { type: "caster", x: 600 },
+        { type: "charger", x: 860 },
+        { type: "grunt", x: 950 }
       ]
     },
     {
@@ -547,6 +581,9 @@
       baseAttackWindup: spec.attackWindup,
       baseAttackDuration: spec.attackDuration,
       attackCooldownMax: spec.attackCooldown,
+      baseSpeed: spec.speed,
+      baseDamage: spec.damage,
+      baseAttackCooldownMax: spec.attackCooldown,
       attackCooldown: 0.5,
       attackTimer: 0,
       attackKind: "melee",
@@ -557,8 +594,13 @@
       chargeFrom: spec.chargeFrom || 0,
       chargeTo: spec.chargeTo || 0,
       chargeDir: -1,
-      slam: spec.slam || null,
+      /* Per-enemy copies: a phase change must never mutate the shared type spec. */
+      slam: spec.slam ? Object.assign({}, spec.slam) : null,
+      baseSlam: spec.slam ? Object.assign({}, spec.slam) : null,
       slamCooldown: spec.slam ? spec.slam.cooldown * 0.5 : 0,
+      lungeCooldown: 0,
+      phase: 1,
+      phase2: spec.phase2 || null,
       knockdown: 0,
       stun: 0,
       grabbed: 0,
@@ -745,6 +787,43 @@
     return drop;
   }
 
+  /**
+   * DNF bosses change gear once they are cornered. Crossing the phase-two health
+   * ratio raises speed, damage and slam reach and unlocks the mid-range lunge.
+   * Every number comes from the enemy's own base snapshot, so a phase change is
+   * repeatable and never leaks into the shared ENEMY_TYPES spec.
+   */
+  function enterPhase2(state, enemy) {
+    var phase2 = enemy.phase2;
+    if (!phase2 || enemy.phase >= 2 || enemy.dead) return false;
+
+    enemy.phase = 2;
+    enemy.speed = enemy.baseSpeed * phase2.speedScale;
+    enemy.damage = Math.round(enemy.baseDamage * phase2.damageScale);
+    enemy.attackCooldownMax = enemy.baseAttackCooldownMax * phase2.cooldownScale;
+    enemy.attackCooldown = Math.min(enemy.attackCooldown, enemy.attackCooldownMax);
+    enemy.baseAttackWindup = enemy.baseAttackWindup * phase2.windupScale;
+
+    if (enemy.slam && enemy.baseSlam) {
+      enemy.slam.radius = enemy.baseSlam.radius * phase2.slamRadiusScale;
+      enemy.slam.cooldown = enemy.baseSlam.cooldown * phase2.slamCooldownScale;
+      enemy.slamCooldown = Math.min(enemy.slamCooldown, 0.6);
+    }
+    enemy.lungeCooldown = phase2.lunge.cooldown * 0.35;
+
+    /* The transition telegraphs itself: a non-damaging ring plus a banner. */
+    state.effects.push({
+      kind: "shockwave",
+      x: enemy.x,
+      y: ARENA.groundY,
+      radius: enemy.slam ? enemy.slam.radius : enemy.attackRange,
+      life: 0.45,
+      maxLife: 0.45
+    });
+    pushBanner(state, phase2.banner, 1.8);
+    return true;
+  }
+
   function damageEnemy(state, enemy, amount, knockbackX, sourceX, options) {
     if (enemy.dead) return 0;
     var opts = options || {};
@@ -805,6 +884,8 @@
       pushBanner(state, enemy.type === "boss" ? "Boss down!" : "Enemy down", 0.9);
       spawnDrop(state, enemy);
       grantXp(state, enemy.xp);
+    } else if (enemy.phase2 && enemy.phase < 2 && enemy.hp <= enemy.maxHp * enemy.phase2.hpRatio) {
+      enterPhase2(state, enemy);
     }
     return applied;
   }
@@ -1228,6 +1309,28 @@
       return;
     }
 
+    /* Phase-two bosses close the gap with a super-armoured lunge. */
+    var lunge = enemy.phase2 && enemy.phase2.lunge;
+    if (
+      enemy.phase >= 2 &&
+      lunge &&
+      enemy.attackCooldown <= 0 &&
+      enemy.lungeCooldown <= 0 &&
+      distance >= lunge.minRange &&
+      distance <= lunge.range
+    ) {
+      enemy.vx = 0;
+      enemy.chargeSpeed = lunge.speed;
+      enemy.chargeFrom = lunge.windup * 0.6;
+      enemy.chargeTo = lunge.windup + lunge.recovery * 0.75;
+      enemy.chargeDir = enemy.facing;
+      beginEnemyAttack(enemy, "charge", lunge.windup, lunge.windup + lunge.recovery);
+      enemy.superArmor = true;
+      enemy.lungeCooldown = lunge.cooldown;
+      pushTelegraph(state, enemy, "LUNGE", lunge.range, lunge.windup, enemy.facing);
+      return;
+    }
+
     if (distance > enemy.attackRange * 0.8) {
       enemy.vx = enemy.facing * enemy.speed;
     } else {
@@ -1253,6 +1356,7 @@
         if (!enemy.attackRecovered) {
           enemy.attackRecovered = true;
           enemy.attackCooldown = enemy.attackCooldownMax;
+          enemy.superArmor = false;
         }
       }
       enemy.attackTimer = Math.max(0, enemy.attackTimer - dt);
@@ -1289,6 +1393,7 @@
       enemy.hurtTimer = Math.max(0, enemy.hurtTimer - dt);
       enemy.attackCooldown = Math.max(0, enemy.attackCooldown - dt);
       if (enemy.slam) enemy.slamCooldown = Math.max(0, enemy.slamCooldown - dt);
+      enemy.lungeCooldown = Math.max(0, enemy.lungeCooldown - dt);
       enemy.knockdown = Math.max(0, enemy.knockdown - dt);
       enemy.stun = Math.max(0, enemy.stun - dt);
       if (enemy.grabbed > 0) {
@@ -1314,6 +1419,13 @@
         }
         if (enemy.bleed.remaining <= 0) enemy.bleed = null;
       }
+
+      /*
+       * Super armour belongs to a live wind-up only. A knockdown, stun or grab
+       * zeroes attackTimer mid-attack, so clear it here rather than leaving the
+       * boss permanently unstoppable.
+       */
+      if (enemy.attackTimer <= 0) enemy.superArmor = false;
 
       if (enemy.hurtTimer > 0) {
         enemy.vx *= 0.86;
@@ -1489,6 +1601,7 @@
     boxesOverlap: boxesOverlap,
     damageEnemy: damageEnemy,
     damagePlayer: damagePlayer,
+    enterPhase2: enterPhase2,
     grantXp: grantXp,
     spawnDrop: spawnDrop,
     spawnProjectile: spawnProjectile,
