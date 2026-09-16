@@ -8,9 +8,33 @@ const assert = require("node:assert/strict");
 const Core = require("../src/core.js");
 const Render = require("../src/render.js");
 
+/** Rooms in one run for a seed, so tests never assume the pool is the run. */
+function runRooms(seed) {
+  const layout = Core.layoutForSeed(seed === undefined ? Core.DEFAULT_SEED : seed);
+  return layout.map((index) => Core.ROOMS[index]);
+}
+
+function lastRoomIndex(seed) {
+  return Core.layoutForSeed(seed === undefined ? Core.DEFAULT_SEED : seed).length - 1;
+}
+
+function enemiesInRun(seed) {
+  return runRooms(seed).reduce((total, room) => total + room.enemies.length, 0);
+}
+
+/** First room of this seed's run that fields a caster, or -1. */
+function roomIndexWithCaster(seed) {
+  return Core.layoutForSeed(seed).findIndex((index) =>
+    Core.ROOMS[index].enemies.some((enemy) => enemy.type === "caster")
+  );
+}
+
 /** Last room never advances, so movement tests can run without a room transition. */
 function lastRoomState(seed) {
-  const state = Core.createState({ seed: seed || Core.DEFAULT_SEED, roomIndex: Core.ROOMS.length - 1 });
+  const state = Core.createState({
+    seed: seed || Core.DEFAULT_SEED,
+    roomIndex: lastRoomIndex(seed)
+  });
   state.enemies = [];
   state.room.cleared = true;
   return state;
@@ -118,7 +142,7 @@ test("combo chain escalates damage 8 / 10 / 15", () => {
 });
 
 test("dead enemies leave the room and clearing the last room wins", () => {
-  const state = Core.createState({ seed: Core.DEFAULT_SEED, roomIndex: Core.ROOMS.length - 1 });
+  const state = Core.createState({ seed: Core.DEFAULT_SEED, roomIndex: lastRoomIndex() });
   const total = state.enemies.length;
 
   killAll(state);
@@ -148,9 +172,9 @@ test("cleared room advances to the next room at the right wall", () => {
   Core.step(state, {});
 
   assert.equal(state.roomIndex, 1);
-  assert.equal(state.room.name, Core.ROOMS[1].name);
+  assert.equal(state.room.name, runRooms()[1].name);
   assert.equal(state.room.cleared, false);
-  assert.equal(state.enemies.length, Core.ROOMS[1].enemies.length);
+  assert.equal(state.enemies.length, runRooms()[1].enemies.length);
   assert.equal(state.player.x, 110);
 });
 
@@ -445,7 +469,7 @@ test("a 900-frame scripted run keeps the world inside its invariants", () => {
   assert.ok(state.player.x <= Core.ARENA.rightWall);
   assert.ok(state.player.hp >= 0 && state.player.hp <= state.player.maxHp);
   assert.ok(state.player.mp >= 0 && state.player.mp <= state.player.maxMp);
-  assert.ok(state.roomIndex >= 0 && state.roomIndex < Core.ROOMS.length);
+  assert.ok(state.roomIndex >= 0 && state.roomIndex < state.layout.length);
   assert.ok(state.enemies.every((enemy) => enemy.hp > 0));
   assert.equal(state.victory && state.defeat, false);
 });
@@ -628,8 +652,11 @@ test("the boss slam hits a grounded player and misses a jumping one", () => {
 
 test("projectile combat stays deterministic for a fixed seed and input pattern", () => {
   const pattern = (frame) => ({ right: frame % 100 < 20, attack: frame % 23 === 0 });
-  const a = Core.createState({ seed: 5, roomIndex: 1 });
-  const b = Core.createState({ seed: 5, roomIndex: 1 });
+  /* Pick the room from this seed's run: the layout decides what is in slot 1. */
+  const casterRoom = roomIndexWithCaster(5);
+  assert.notEqual(casterRoom, -1, "seed 5 should run a room with a caster");
+  const a = Core.createState({ seed: 5, roomIndex: casterRoom });
+  const b = Core.createState({ seed: 5, roomIndex: casterRoom });
 
   Core.runFrames(a, 60 * 20, pattern);
   Core.runFrames(b, 60 * 20, pattern);
@@ -788,7 +815,6 @@ function kitingBot(state) {
 }
 
 test("a timing-aware policy can clear the whole dungeon without losing health", () => {
-  const totalEnemies = Core.ROOMS.reduce((total, room) => total + room.enemies.length, 0);
   const results = [1, 7, 42, 20260915].map((seed) => {
     const state = Core.createState({ seed });
     for (let frame = 0; frame < 60 * 240 && !state.victory && !state.defeat; frame += 1) {
@@ -800,7 +826,8 @@ test("a timing-aware policy can clear the whole dungeon without losing health", 
   results.forEach((state) => {
     assert.equal(state.victory, true, `seed run ended defeated=${state.defeat} room=${state.roomIndex + 1}`);
     assert.equal(state.defeat, false);
-    assert.equal(state.stats.kills, totalEnemies);
+    /* Each seed draws its own rooms, so the kill count has to come from its run. */
+    assert.equal(state.stats.kills, enemiesInRun(state.seed));
     assert.ok(state.stats.damageTaken <= 12, `damageTaken=${state.stats.damageTaken}`);
     assert.ok(state.time < 90, `clear took ${state.time}s`);
   });
@@ -1383,10 +1410,109 @@ test("super armour never sticks when a wind-up is interrupted", () => {
   assert.ok(Math.abs(boss.vx) > 0, "the boss must take knockback again");
 });
 
-test("the gauntlet ahead of the boss mixes caster pressure with the elite mini-boss", () => {
-  assert.equal(Core.ROOMS.length, 5, "the dungeon now runs five rooms");
+test("a seed draws its own room order and replays exactly", () => {
+  const layout = Core.layoutForSeed(7);
+  assert.deepEqual(Core.layoutForSeed(7), layout, "the same seed must draw the same run");
 
-  const bossRoom = Core.ROOMS[Core.ROOMS.length - 1];
+  const drawn = [1, 7, 42, Core.DEFAULT_SEED, 5, 99, 1234, 31337].map((seed) =>
+    Core.layoutForSeed(seed).join(",")
+  );
+  assert.ok(new Set(drawn).size > 1, `seeds must differ: ${drawn.join(" | ")}`);
+
+  /* Drawing a run must not reorder the authored pool. */
+  const pool = Core.ROOMS.map((room) => room.name).join(",");
+  Core.layoutForSeed(999);
+  assert.equal(Core.ROOMS.map((room) => room.name).join(","), pool);
+});
+
+test("every run is four combat rooms plus the throne, with the gauntlet last", () => {
+  for (let seed = 1; seed <= 64; seed += 1) {
+    const layout = Core.layoutForSeed(seed);
+    assert.equal(layout.length, Core.RUN_COMBAT_ROOMS + 1, `seed ${seed}`);
+    assert.equal(layout[layout.length - 1], Core.BOSS_ROOM_INDEX, `seed ${seed} must end at the boss`);
+    assert.equal(
+      layout[layout.length - 2],
+      Core.GAUNTLET_ROOM_INDEX,
+      `seed ${seed} must run the gauntlet before the throne`
+    );
+    assert.equal(new Set(layout).size, layout.length, `seed ${seed} repeats a room`);
+    layout.slice(0, -1).forEach((index) => {
+      assert.ok(
+        index >= 0 && index < Core.BOSS_ROOM_INDEX,
+        `seed ${seed} drew ${index} outside the combat pool`
+      );
+    });
+  }
+});
+
+test("the alternate room is a real possibility, not scenery", () => {
+  let included = 0;
+  const skippable = new Set();
+  for (let seed = 1; seed <= 200; seed += 1) {
+    const layout = Core.layoutForSeed(seed);
+    if (layout.includes(Core.ALTERNATE_ROOM_INDEX)) included += 1;
+    for (let index = 0; index < Core.BOSS_ROOM_INDEX; index += 1) {
+      if (index !== Core.GAUNTLET_ROOM_INDEX && !layout.includes(index)) skippable.add(index);
+    }
+  }
+  assert.ok(included > 40, `the alternate should appear often, saw ${included}/200`);
+  assert.ok(included < 200, "and it must sometimes be skipped");
+  assert.equal(skippable.size, 4, "every non-gauntlet combat room can be skipped");
+});
+
+test("the layout changes what you fight, not only the order", () => {
+  const rosters = new Set();
+  const enemyCounts = new Set();
+  for (let seed = 1; seed <= 200; seed += 1) {
+    const layout = Core.layoutForSeed(seed);
+    rosters.add(layout.slice(0, -1).sort().join(","));
+    enemyCounts.add(enemiesInRun(seed));
+  }
+  assert.ok(rosters.size > 1, "different seeds field different rooms");
+  assert.ok(
+    enemyCounts.size > 1,
+    `different seeds field different enemy counts, got ${[...enemyCounts].join(", ")}`
+  );
+});
+
+test("startRoom follows the seed's layout", () => {
+  const seed = 42;
+  const layout = Core.layoutForSeed(seed);
+  const state = Core.createState({ seed });
+
+  assert.deepEqual(state.layout, layout);
+  assert.equal(state.room.name, Core.ROOMS[layout[0]].name);
+  assert.equal(state.enemies.length, Core.ROOMS[layout[0]].enemies.length);
+
+  killAll(state);
+  Core.step(state, {});
+  Core.chooseUpgrade(state, preferredUpgrade(state.upgradeChoice.options));
+  state.player.x = Core.ARENA.rightWall - state.player.width / 2;
+  Core.step(state, {});
+
+  assert.equal(state.roomIndex, 1);
+  assert.equal(state.room.name, Core.ROOMS[layout[1]].name);
+  assert.equal(state.enemies.length, Core.ROOMS[layout[1]].enemies.length);
+});
+
+test("the gauntlet ahead of the boss mixes caster pressure with the elite mini-boss", () => {
+  assert.equal(Core.ROOMS.length, 6, "the pool holds five combat rooms plus the throne");
+  assert.equal(Core.BOSS_ROOM_INDEX, Core.ROOMS.length - 1);
+
+  /* Every seed runs the same number of rooms, ending with the gauntlet and boss. */
+  [1, 7, 42, Core.DEFAULT_SEED].forEach((seed) => {
+    const layout = Core.layoutForSeed(seed);
+    assert.equal(layout.length, Core.RUN_COMBAT_ROOMS + 1, `seed ${seed} run length`);
+    assert.equal(layout[layout.length - 1], Core.BOSS_ROOM_INDEX, "the boss closes every run");
+    assert.equal(
+      layout[layout.length - 2],
+      Core.GAUNTLET_ROOM_INDEX,
+      "the gauntlet always sits directly before the throne"
+    );
+    assert.equal(new Set(layout).size, layout.length, "a run never repeats a room");
+  });
+
+  const bossRoom = Core.ROOMS[Core.BOSS_ROOM_INDEX];
   assert.ok(
     bossRoom.enemies.some((enemy) => enemy.type === "boss"),
     "the boss must still close the dungeon"
@@ -1398,7 +1524,7 @@ test("the gauntlet ahead of the boss mixes caster pressure with the elite mini-b
     "the mini-boss belongs to the gauntlet, not the throne room"
   );
 
-  const gauntlet = Core.ROOMS[Core.ROOMS.length - 2];
+  const gauntlet = Core.ROOMS[Core.GAUNTLET_ROOM_INDEX];
   const types = gauntlet.enemies.map((enemy) => enemy.type);
   assert.ok(types.includes("caster"), `caster pressure missing from ${gauntlet.name}`);
   assert.ok(types.includes("charger"), `charger pressure missing from ${gauntlet.name}`);
@@ -1515,14 +1641,15 @@ test("every upgrade in the pool changes the player's numbers", () => {
 test("upgrades stack across the run", () => {
   const state = Core.createState({ seed: Core.DEFAULT_SEED });
   const taken = [];
-  for (let room = 0; room < Core.ROOMS.length - 1; room += 1) {
+  const roomsThisRun = state.layout.length;
+  for (let room = 0; room < roomsThisRun - 1; room += 1) {
     killAll(state);
     Core.step(state, {});
     assert.ok(state.upgradeChoice, `room ${room + 1} must offer an upgrade`);
     const pick = preferredUpgrade(state.upgradeChoice.options);
     taken.push(pick);
     Core.chooseUpgrade(state, pick);
-    if (room < Core.ROOMS.length - 2) {
+    if (room < roomsThisRun - 2) {
       state.player.x = Core.ARENA.rightWall - state.player.width / 2;
       Core.step(state, {});
     }
@@ -1530,14 +1657,14 @@ test("upgrades stack across the run", () => {
 
   assert.equal(
     state.player.upgradesTaken.length,
-    Core.ROOMS.length - 1,
+    roomsThisRun - 1,
     "every cleared room but the last pays out exactly one upgrade"
   );
   assert.deepEqual(state.player.upgradesTaken, taken);
 });
 
 test("the last room still ends the run instead of offering a reward", () => {
-  const state = Core.createState({ seed: Core.DEFAULT_SEED, roomIndex: Core.ROOMS.length - 1 });
+  const state = Core.createState({ seed: Core.DEFAULT_SEED, roomIndex: lastRoomIndex() });
   killAll(state);
   Core.step(state, {});
 
@@ -1681,7 +1808,7 @@ test("the renderer gives the enraged boss its own palette, aura and bar label", 
   const calls = [];
   const ctx = recordingContext(calls);
 
-  const state = Core.createState({ seed: Core.DEFAULT_SEED, roomIndex: Core.ROOMS.length - 1 });
+  const state = Core.createState({ seed: Core.DEFAULT_SEED, roomIndex: lastRoomIndex() });
   const boss = state.enemies.find((enemy) => enemy.type === "boss");
   boss.hp = boss.maxHp * 0.8;
   state.enemies = [boss];
@@ -1736,7 +1863,7 @@ test("the title screen shows the seed record and a clear shows the result", () =
   );
   assert.ok(titleTexts.includes("按 N 换一个种子"), "title must offer a fresh seed");
 
-  const cleared = Core.createState({ seed: 7, roomIndex: Core.ROOMS.length - 1 });
+  const cleared = Core.createState({ seed: 7, roomIndex: lastRoomIndex() });
   cleared.victory = true;
   const clearCalls = [];
   Render.render(recordingContext(clearCalls), cleared, {
@@ -1848,7 +1975,7 @@ test("the room banner moves clear of the boss bar and the help quotes the real r
   };
 
   const plain = bannerY(0);
-  const withBoss = bannerY(Core.ROOMS.length - 1);
+  const withBoss = bannerY(lastRoomIndex());
   assert.equal(plain, 104, "a normal room keeps the established banner placement");
   assert.ok(
     withBoss > plain,
@@ -1864,13 +1991,13 @@ test("the room banner moves clear of the boss bar and the help quotes the real r
   Render.render(recordingContext(calls), help, { showHelp: true });
   const texts = calls.filter((call) => call[0] === "fillText").map((call) => String(call[1]));
   assert.ok(
-    texts.some((text) => text.includes(`第 ${Core.ROOMS.length} 层`)),
-    `the help overlay must quote ${Core.ROOMS.length} rooms: ${texts.join(" / ")}`
+    texts.some((text) => text.includes(`第 ${help.layout.length} 层`)),
+    `the help overlay must quote the run length (${help.layout.length}): ${texts.join(" / ")}`
   );
 
   /* Killing the boss stacks "Boss down!" and "Dungeon cleared!" in the same frame. */
   const stacked = [];
-  const cleared = Core.createState({ seed: Core.DEFAULT_SEED, roomIndex: Core.ROOMS.length - 1 });
+  const cleared = Core.createState({ seed: Core.DEFAULT_SEED, roomIndex: lastRoomIndex() });
   cleared.effects.push({ kind: "banner", text: "Boss down!", life: 1, maxLife: 1 });
   cleared.effects.push({ kind: "banner", text: "Dungeon cleared!", life: 1, maxLife: 1 });
   Render.render(recordingContext(stacked), cleared, {});

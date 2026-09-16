@@ -992,7 +992,7 @@
     ctx.fillStyle = PALETTE.textDim;
     ctx.font = "600 12px 'PingFang SC', 'Segoe UI', sans-serif";
     ctx.fillText(
-      "房间 " + (state.roomIndex + 1) + "/" + Core.ROOMS.length + " · 剩余敌人 " + enemiesLeft,
+      "房间 " + (state.roomIndex + 1) + "/" + state.layout.length + " · 剩余敌人 " + enemiesLeft,
       roomX + 14,
       58
     );
@@ -1416,7 +1416,7 @@
       ctx.fillStyle = PALETTE.textDim;
       ctx.font = "600 14px 'PingFang SC', 'Segoe UI', sans-serif";
       ctx.fillText(
-        "清空房间后走到最右侧传送门，第 " + Core.ROOMS.length + " 层击败 Boss 即通关",
+        "清空房间后走到最右侧传送门，第 " + state.layout.length + " 层击败 Boss 即通关",
         344,
         462
       );

@@ -327,12 +327,19 @@ async function runPass(browser, baseUrl, options) {
     skillOrder: window.DNFCore.SKILL_ORDER,
     arena: JSON.parse(JSON.stringify(window.DNFCore.ARENA)),
     rooms: JSON.parse(JSON.stringify(window.DNFCore.ROOMS)),
+    layout: window.nanoDnf.getState().layout.slice(),
     equipped: window.nanoDnf.getLoadout()
   }));
-  /* Read the required kill count from the shipped core so it cannot drift. */
-  const expectedKills = constants.rooms.reduce((total, room) => total + room.enemies.length, 0);
+  /*
+   * Read the required kill count from the run this seed actually drew, so a
+   * seeded layout cannot make the expectation drift.
+   */
+  const expectedKills = constants.layout.reduce(
+    (total, index) => total + constants.rooms[index].enemies.length,
+    0
+  );
   /* Every room but the last one pays out exactly one upgrade. */
-  const expectedUpgrades = constants.rooms.length - 1;
+  const expectedUpgrades = constants.layout.length - 1;
   let loadout = constants.equipped.slice();
   const touchMode = await page.evaluate(() => window.nanoDnf.isTouchMode());
   if (options.mode === "touch") {
@@ -536,14 +543,14 @@ async function runPass(browser, baseUrl, options) {
   if (options.mode === "keyboard") {
     await page.evaluate(() => {
       const state = window.nanoDnf.getState();
-      window.DNFCore.startRoom(state, window.DNFCore.ROOMS.length - 2);
+      window.DNFCore.startRoom(state, state.layout.length - 2);
     });
     await page.waitForTimeout(90);
     await page.screenshot({ path: path.join(ARTIFACTS, "room-mix.png") });
 
     await page.evaluate(() => {
       const state = window.nanoDnf.getState();
-      window.DNFCore.startRoom(state, window.DNFCore.ROOMS.length - 1);
+      window.DNFCore.startRoom(state, state.layout.length - 1);
       /* Drop the room-entry banner so the enrage announcement is what we capture. */
       state.effects = state.effects.filter((effect) => effect.kind !== "banner");
       const boss = state.enemies.find((enemy) => enemy.type === "boss");
@@ -556,7 +563,7 @@ async function runPass(browser, baseUrl, options) {
     /* Freeze the elite mid-spin so the whirl and its swept lane read on screen. */
     await page.evaluate(() => {
       const state = window.nanoDnf.getState();
-      window.DNFCore.startRoom(state, window.DNFCore.ROOMS.length - 2);
+      window.DNFCore.startRoom(state, state.layout.length - 2);
       state.effects = state.effects.filter((effect) => effect.kind !== "banner");
       const elite = state.enemies.find((enemy) => enemy.type === "elite");
       const spin = elite.spinDash;

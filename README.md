@@ -42,11 +42,15 @@ Pages workflow 的 deploy 之后，让静默落后或报错的部署直接把流
 琶音旋律 / 噪声踩镲），`main.js` 用预读调度器把它排进音频时钟，并走一条独立音乐总线——
 所以静音就是把总线增益归零，而不是让每个音符各自判断。浏览器证明现在会断言
 「首次输入前不出声、之后音符在持续调度、静音把总线归零、取消静音恢复」。
+第十三切片让**种子真正决定地牢**：房间池扩到 6 间（5 间战斗房 + 王座），每次跑图从中抽
+4 间战斗房并打乱顺序，最后固定接「断桥」小 Boss 房与王座。抽签用独立的小随机器，
+不消耗放置敌人的随机流，所以同一种子完全可复现；不同种子在顺序与**跳过哪一间**上都不同
+（400 个种子里 24 种开场顺序全都出现过，新增的「沉没礼拜堂」约 3/4 的种子会遇到）。
 
 ## 运行
 
 ```bash
-npm test          # 93 个核心逻辑、Boss/小 Boss 机制、强化与通关记录、配乐调度、发布暂存契约与渲染冒烟测试
+npm test          # 98 个核心逻辑、Boss/小 Boss 机制、强化与通关记录、配乐调度、发布暂存契约与渲染冒烟测试
 npm run test:browser # 无头 Chromium 跑真实页面：键盘 + 触屏两条通路各通关一次
 npm run test:live # 线上产物冒烟：核对线上字节是否与本地一致，并在无头浏览器里跑一次真实页面
 npm run serve     # 起本地静态服务，然后打开 http://localhost:8080
@@ -141,6 +145,9 @@ HUD 左下角是技能栏，显示按键、技能名、MP 消耗与冷却读秒�
 
 ## 敌人
 
+> 房间池共 6 间：下面这张表里的敌种分布在 5 间战斗房里，第 6 间是王座。
+> 每次跑图按种子抽 4 间战斗房 + 王座，所以同一个种子每次遇到的东西完全一样。
+
 | 敌人 | 行为 | 应对 |
 | --- | --- | --- |
 | 小兵 | 近身挥击，前摇短 | 三段连击硬拼或绕后 |
@@ -171,6 +178,21 @@ HUD 左下角是技能栏，显示按键、技能名、MP 消耗与冷却读秒�
 | 体魄 | 生命上限 +20，并立即回复 20 |
 | 灵息 | 每秒回蓝 +3 |
 | 鬼气 | 技能伤害 +15%（可叠加） |
+
+## 地牢布局
+
+房间池有 6 间：**遗弃小巷**（小兵）、**血色涵洞**（术士+重甲+小兵）、**骨龛之门**（冲锋兵+重甲）、
+**断桥**（术士+小 Boss 剑卫+冲锋兵，永远排在王座之前）、**沉没礼拜堂**（术士+重甲+小兵，替补），
+以及最后的**哥布林王座**。每次跑图按种子从 5 间战斗房里抽 4 间、打乱顺序，再接上断桥与王座：
+
+| 例子种子 | 这一局的房间顺序 |
+| --- | --- |
+| `1` | 沉没礼拜堂 → 血色涵洞 → 遗弃小巷 → 断桥 → 王座 |
+| `7` | 骨龛之门 → 血色涵洞 → 沉没礼拜堂 → 断桥 → 王座 |
+| `42` | 遗弃小巷 → 沉没礼拜堂 → 血色涵洞 → 断桥 → 王座 |
+
+抽签用的是独立的小随机器（不消耗放置敌人的随机流），所以同一个种子连敌人站位都完全复现；
+不同种子除了顺序不同，**跳过的房间**也不同，总敌人数因此会变。
 
 ## 通关记录
 
@@ -257,8 +279,8 @@ python3 assets/import_dnf_art.py --icons 94,154,132,10,18,6,48,160,98,138,172
 200、WebAudio 已初始化。最近一次结果：
 
 ```
-keyboard victory=true kills=14 damageTaken=7 seconds=51.7 level=5  upgrades=锐锋×3+鬼气  record=0:51.7 Lv5  music=started(293 notes, bus 0.5)  audio=created/running  drag=月光斩→槽A persisted=true
-touch    victory=true kills=14 damageTaken=7 seconds=55.9 level=5  upgrades=锐锋×3+鬼气  record=0:55.9 Lv5  music=started(290 notes, bus 0.5)  touchMode=true audio=created/running muteToggle=ok
+keyboard victory=true kills=14 damageTaken=0 seconds=56.2 level=5  upgrades=锐锋×3+鬼气  record=0:56.2 Lv5  music=started(318 notes, bus 0.5)  audio=created/running  drag=月光斩→槽A persisted=true
+touch    victory=true kills=14 damageTaken=15 seconds=55.8 level=5  upgrades=锐锋×3+鬼气  record=0:55.8 Lv5  music=started(284 notes, bus 0.5)  touchMode=true audio=created/running muteToggle=ok
 consoleErrors=[] pageErrors=[] failedRequests=[]
 assets: index.html / loadout.js / main.js / render.js / core.js / slayer.png / skills.png / effects.png / favicon.png 全部 200
 ```

@@ -527,6 +527,16 @@
       ]
     },
     {
+      /* The alternate: a wider, slower room that trades the charger for bodies. */
+      name: "Sunken Chapel",
+      enemies: [
+        { type: "caster", x: 560 },
+        { type: "brute", x: 720 },
+        { type: "grunt", x: 860 },
+        { type: "grunt", x: 960 }
+      ]
+    },
+    {
       name: "Goblin King's Hall",
       enemies: [
         { type: "grunt", x: 520 },
@@ -534,6 +544,46 @@
       ]
     }
   ];
+
+  /*
+   * A run is not the whole pool. The gauntlet always sits directly before the
+   * throne; the three rooms ahead of it are drawn from the rest of the pool, so
+   * two seeds differ in both order and which room they skip.
+   */
+  var BOSS_ROOM_INDEX = ROOMS.length - 1;
+  var GAUNTLET_ROOM_INDEX = 3;
+  var ALTERNATE_ROOM_INDEX = 4;
+  var RUN_COMBAT_ROOMS = 4;
+
+  /* Same generator as the state RNG, but local: a layout must not consume the
+   * draws that place enemies, so the two stay independent. */
+  function layoutRandom(seed) {
+    var state = (seed >>> 0) || 1;
+    return function next() {
+      var t = (state = (state + 0x6d2b79f5) >>> 0);
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  /** The room order for one seed: three seeded rooms, the gauntlet, then the boss. */
+  function layoutForSeed(seed) {
+    var next = layoutRandom(seed);
+    var pool = [];
+    for (var index = 0; index < BOSS_ROOM_INDEX; index += 1) {
+      if (index !== GAUNTLET_ROOM_INDEX) pool.push(index);
+    }
+    /* Fisher-Yates on a copy, so the pool itself is never reordered. */
+    for (var cursor = pool.length - 1; cursor > 0; cursor -= 1) {
+      var swap = Math.floor(next() * (cursor + 1));
+      if (swap > cursor) swap = cursor;
+      var held = pool[cursor];
+      pool[cursor] = pool[swap];
+      pool[swap] = held;
+    }
+    return pool.slice(0, RUN_COMBAT_ROOMS - 1).concat([GAUNTLET_ROOM_INDEX, BOSS_ROOM_INDEX]);
+  }
 
   var DEFAULT_SEED = 20260915;
 
@@ -740,18 +790,22 @@
       nextProjectileId: 1,
       stats: { hits: 0, kills: 0, damageDealt: 0, damageTaken: 0, airHits: 0 },
       upgradeChoice: null,
+      layout: null,
       victory: false,
       defeat: false
     };
     state.rngState = state.seed >>> 0;
+    state.layout = layoutForSeed(state.seed);
     state.player = createPlayer(options.startX || 110);
     startRoom(state, options.roomIndex || 0);
     return state;
   }
 
   function startRoom(state, index) {
-    var roomIndex = clamp(index, 0, ROOMS.length - 1);
-    var spec = ROOMS[roomIndex];
+    var layout = state.layout || layoutForSeed(state.seed);
+    state.layout = layout;
+    var roomIndex = clamp(index, 0, layout.length - 1);
+    var spec = ROOMS[layout[roomIndex]];
     state.roomIndex = roomIndex;
     state.room = { index: roomIndex, name: spec.name, total: spec.enemies.length, cleared: false };
     state.enemies = spec.enemies.map(function (entry) {
@@ -1697,7 +1751,7 @@
 
     if (alive.length === 0 && !state.room.cleared && !state.defeat) {
       state.room.cleared = true;
-      var isLast = state.roomIndex >= ROOMS.length - 1;
+      var isLast = state.roomIndex >= state.layout.length - 1;
       if (isLast) {
         state.victory = true;
         pushBanner(state, "Dungeon cleared!", 2.4);
@@ -1713,7 +1767,7 @@
       state.room.cleared &&
       nearExit &&
       !state.upgradeChoice &&
-      state.roomIndex < ROOMS.length - 1
+      state.roomIndex < state.layout.length - 1
     ) {
       startRoom(state, state.roomIndex + 1);
     }
@@ -1798,6 +1852,11 @@
     DROPS: DROPS,
     ENEMY_TYPES: ENEMY_TYPES,
     ROOMS: ROOMS,
+    BOSS_ROOM_INDEX: BOSS_ROOM_INDEX,
+    GAUNTLET_ROOM_INDEX: GAUNTLET_ROOM_INDEX,
+    ALTERNATE_ROOM_INDEX: ALTERNATE_ROOM_INDEX,
+    RUN_COMBAT_ROOMS: RUN_COMBAT_ROOMS,
+    layoutForSeed: layoutForSeed,
     UPGRADES: UPGRADES,
     UPGRADE_ORDER: UPGRADE_ORDER,
     UPGRADES_PER_ROOM: UPGRADES_PER_ROOM,

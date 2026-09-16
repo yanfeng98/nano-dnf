@@ -706,7 +706,7 @@
         "room " +
         (state.roomIndex + 1) +
         "/" +
-        Core.ROOMS.length +
+        state.layout.length +
         " | hp " +
         Math.round(state.player.hp) +
         " | mp " +
@@ -737,7 +737,7 @@
     if (!hint) return;
     hint.textContent =
       "清空房间后走到最右侧传送门进入下一层，第 " +
-      Core.ROOMS.length +
+      state.layout.length +
       " 层击败 Boss 即通关。触屏设备会自动显示虚拟按键（也可在地址后加 ?touch=1 强制开启）。";
   })();
 
