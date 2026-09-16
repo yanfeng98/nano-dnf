@@ -11,6 +11,7 @@
   var Loadout = window.DNFLoadout;
   var Records = window.DNFRecords;
   var Music = window.DNFMusic;
+  var Hints = window.DNFHints;
   var canvas = document.getElementById("stage");
   var ctx = canvas.getContext("2d");
 
@@ -367,6 +368,25 @@
    */
   var runBanked = false;
 
+  /* ---------------------------------------------------------------- hints */
+  var hintSeen = {};
+  var activeHint = null;
+
+  /** One hint at a time, each landing once per run so it teaches instead of nags. */
+  function syncHints() {
+    if (activeHint) return;
+    var pick = Hints.select(state, hintSeen);
+    if (!pick) return;
+    hintSeen[pick.id] = true;
+    activeHint = { id: pick.id, text: pick.text, life: pick.life, maxLife: pick.life };
+  }
+
+  function ageHint(dt) {
+    if (!activeHint) return;
+    activeHint.life -= dt;
+    if (activeHint.life <= 0) activeHint = null;
+  }
+
   function syncRecords() {
     if (!state.victory || runBanked) return;
     runBanked = true;
@@ -641,6 +661,8 @@
     accumulator = 0;
     lastRun = null;
     runBanked = false;
+    hintSeen = {};
+    activeHint = null;
     watch.hits = 0;
     watch.kills = 0;
     watch.hp = state.player.hp;
@@ -691,6 +713,8 @@
       while (accumulator >= Core.DT && guard < 5) {
         Core.step(state, currentInput());
         syncSounds();
+        syncHints();
+        ageHint(Core.DT);
         syncRecords();
         consumePressed();
         accumulator -= Core.DT;
@@ -707,7 +731,8 @@
       loadout: loadout,
       loadoutOpen: loadoutOpen,
       drag: drag,
-      run: runSummary()
+      run: runSummary(),
+      hint: activeHint
     });
 
     var status = document.getElementById("status");
@@ -811,6 +836,22 @@
         stepSeconds: typeof Music === "undefined" ? null : Music.STEP_SECONDS,
         contextState: audio.ctx ? audio.ctx.state : "none"
       };
+    },
+    getHintState: function () {
+      return {
+        active: activeHint ? { id: activeHint.id, text: activeHint.text, life: activeHint.life } : null,
+        seen: Object.keys(hintSeen),
+        available: typeof Hints === "undefined" ? 0 : Hints.HINTS.length
+      };
+    },
+    /* Manual QA: show one hint again without waiting for its trigger. */
+    previewHint: function (id) {
+      var spec = Hints.HINTS.filter(function (hint) {
+        return hint.id === id;
+      })[0];
+      if (!spec) return null;
+      activeHint = { id: spec.id, text: spec.text, life: spec.life, maxLife: spec.life };
+      return { id: spec.id, text: spec.text };
     }
   };
 })();

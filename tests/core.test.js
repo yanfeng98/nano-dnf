@@ -2128,6 +2128,33 @@ test("the title screen shows the seed record and a clear shows the result", () =
   );
 });
 
+test("the renderer shows a hint in play and hides it behind overlays", () => {
+  const hint = {
+    id: "upgrade",
+    text: "选一张强化卡：按 1 / 2 / 3，或直接点卡片",
+    life: 5,
+    maxLife: 5
+  };
+  const textsFor = (meta) => {
+    const calls = [];
+    Render.render(recordingContext(calls), Core.createState({ seed: Core.DEFAULT_SEED }), meta);
+    return calls.filter((call) => call[0] === "fillText").map((call) => String(call[1]));
+  };
+
+  assert.ok(textsFor({ hint }).includes(hint.text), "live play shows the coaching line");
+  assert.equal(
+    textsFor({ showHelp: true, hint }).includes(hint.text),
+    false,
+    "the title screen must not show coaching over the art"
+  );
+  assert.equal(
+    textsFor({ paused: true, hint }).includes(hint.text),
+    false,
+    "a paused frame must not show coaching either"
+  );
+  assert.equal(textsFor({}).includes(hint.text), false, "no active hint means no line");
+});
+
 test("the reward chooser never shows through a full-screen overlay", () => {
   const state = clearedRoomState(Core.DEFAULT_SEED, 0);
   assert.ok(state.upgradeChoice, "precondition: a reward choice is pending");

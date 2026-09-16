@@ -53,11 +53,14 @@ Pages workflow 的 deploy 之后，让静默落后或报错的部署直接把流
 第十五切片把塌陷做成看得见听得见的反馈：专属的尘土/碎石效果、比地面重踏更重的屏幕震动，
 以及一段低频崩塌音；`stats.collapses` 驱动音效，浏览器证明从外部盯着每块石板，
 断言**每次塌陷之前都必须先观测到裂缝**（实测两条通路各 4 次塌陷、0 次无预警）。
+第十六切片补上开局引导：`src/hints.js` 是纯提示选择器，按紧迫度排序、每次只显示一条、
+每条一局只出现一次（陷阱优先于强化卡，强化卡优先于连击提示）。浏览器证明会断言
+提示确实出现过、覆盖了强化卡这一刻、并且**会自己消失**（实测两条通路各出现 4 条、清除 4 次）。
 
 ## 运行
 
 ```bash
-npm test          # 104 个核心逻辑、Boss/小 Boss 机制、强化与通关记录、配乐调度、发布暂存契约与渲染冒烟测试
+npm test          # 113 个核心逻辑、Boss/小 Boss 机制、强化与通关记录、配乐调度、发布暂存契约与渲染冒烟测试
 npm run test:browser # 无头 Chromium 跑真实页面：键盘 + 触屏两条通路各通关一次
 npm run test:live # 线上产物冒烟：核对线上字节是否与本地一致，并在无头浏览器里跑一次真实页面
 npm run serve     # 起本地静态服务，然后打开 http://localhost:8080
@@ -205,7 +208,28 @@ HUD 左下角是技能栏，显示按键、技能名、MP 消耗与冷却读秒�
 早期版本允许种子把「骨龛之门」（冲锋兵+双重甲，全池第二硬）排在第一间，1 级、0 强化就撞上它，
 触屏通路连吃 28 点伤害；限制开局房之后，同一条通路降到 0–7。
 
+## 开局引导
+
+第一次玩的人不必先读帮助页：`src/hints.js` 是一个纯提示选择器（无 DOM），按**紧迫度**排序，
+每次只显示一条、每条一局只出现一次，几秒后自动淡出：
+
+| 提示 | 触发 | 文案 |
+| --- | --- | --- |
+| 陷阱 | 石板开始裂开（窗口只有 1.35 秒，所以优先级最高） | 地面裂开时离开那块石板 |
+| 强化 | 清房后翻开强化卡（不选就过不去） | 选一张强化卡：按 1 / 2 / 3，或直接点卡片 |
+| 低血 | 生命低于上限 35% | 血量偏低：捡回血球，或先拉开距离 |
+| 首次击杀 | 第一次击杀之后 | 三段连击：X 连按三下，第三下有加成 |
+| 开场 | 开局 1.5 秒且尚无击杀 | ← → 移动 · C 跳跃 · X 普攻 |
+
+提示写在 HUD 下方居中的胶囊里，和奖励卡一样**不会**透过标题/暂停/通关界面显示。
+想手动看一眼某条提示，可以在控制台调 `window.nanoDnf.previewHint("hazard")`。
+
 ## 通关记录
+
+每次通关会按种子记一笔成绩，存在浏览器 `localStorage`（键 `nano-dnf-records`）：
+该种子的**最快时间**与**当时的等级**，以及这个种子通关过几次。标题界面右上角显示当前种子与记录，
+通关界面如果是新纪录会标出「新纪录！」。记录模块（`src/records.js`）是纯函数，不依赖 DOM 或
+存储，所以合并规则可以单独跑测试；最多保留 40 个种子的历史，超出的按最久未更新淘汰。
 
 ## 沉没礼拜堂：塌陷地板
 
@@ -221,11 +245,6 @@ HUD 左下角是技能栏，显示按键、技能名、MP 消耗与冷却读秒�
 以及一段专属的低频崩塌音（锯齿低音下滑 + 两层噪声，听感与任何打击音都不同）。
 `stats.collapses` 记录塌陷次数，主循环用它触发音效；浏览器证明则从外部盯着每块石板，
 断言**每一次塌陷之前都先被观测到裂缝阶段**——预警一旦丢失就会直接报错。
-
-每次通关会按种子记一笔成绩，存在浏览器 `localStorage`（键 `nano-dnf-records`）：
-该种子的**最快时间**与**当时的等级**，以及这个种子通关过几次。标题界面右上角显示当前种子与记录，
-通关界面如果是新纪录会标出「新纪录！」。记录模块（`src/records.js`）是纯函数，不依赖 DOM 或
-存储，所以合并规则可以单独跑测试；最多保留 40 个种子的历史，超出的按最久未更新淘汰。
 
 ## 发布验证
 
@@ -305,8 +324,8 @@ python3 assets/import_dnf_art.py --icons 94,154,132,10,18,6,48,160,98,138,172
 200、WebAudio 已初始化。最近一次结果：
 
 ```
-keyboard victory=true kills=14 damageTaken=22 seconds=48.2 level=5  upgrades=锐锋×3+鬼气  record=0:48.2 Lv5  music=started(272 notes, bus 0.5)  audio=created/running  drag=月光斩→槽A persisted=true
-touch    victory=true kills=14 damageTaken=13 seconds=51.8 level=5  upgrades=锐锋×3+鬼气  record=0:51.8 Lv5  music=started(266 notes, bus 0.5)  touchMode=true audio=created/running muteToggle=ok
+keyboard victory=true kills=14 damageTaken=7 seconds=50.6 level=5  upgrades=锐锋×3+鬼气  record=0:50.6 Lv5  music=started(298 notes, bus 0.5)  audio=created/running  drag=月光斩→槽A persisted=true
+touch    victory=true kills=14 damageTaken=22 seconds=52.9 level=5  upgrades=锐锋×3+鬼气  record=0:52.9 Lv5  music=started(263 notes, bus 0.5)  touchMode=true audio=created/running muteToggle=ok
 consoleErrors=[] pageErrors=[] failedRequests=[]
 assets: index.html / loadout.js / main.js / render.js / core.js / slayer.png / skills.png / effects.png / favicon.png 全部 200
 ```

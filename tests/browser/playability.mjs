@@ -410,6 +410,8 @@ async function runPass(browser, baseUrl, options) {
    */
   const slabWatch = new Map();
   const unwarnedBreaks = [];
+  /* Coaching: which hints showed, and whether any of them cleared again. */
+  const hints = { seen: new Set(), cleared: 0, lastId: null };
   const keyOf = (action) => keyForSkill(action, loadout) || KEY_FOR_ACTION[action];
   const touchTarget = (action) => {
     const index = loadout.indexOf(action);
@@ -471,6 +473,14 @@ async function runPass(browser, baseUrl, options) {
       if (hazard.stage === "dormant") entry.warned = false;
       slabWatch.set(key, entry);
     });
+    const hintNow = await page.evaluate(() => window.nanoDnf.getHintState().active);
+    if (hintNow && hintNow.id) {
+      hints.seen.add(hintNow.id);
+      hints.lastId = hintNow.id;
+    } else if (hints.lastId) {
+      hints.cleared += 1;
+      hints.lastId = null;
+    }
     if (state.stats.damageTaken > previousDamage) {
       damageLog.push({
         t: Number(state.time.toFixed(1)),
@@ -632,6 +642,16 @@ async function runPass(browser, baseUrl, options) {
     await page.waitForTimeout(90);
     await page.screenshot({ path: path.join(ARTIFACTS, "upgrade-choice.png") });
 
+    /* Freeze a coaching line: hints are transient, so ask for one on purpose. */
+    await page.evaluate(() => {
+      const state = window.nanoDnf.getState();
+      window.DNFCore.startRoom(state, 0);
+      state.effects = state.effects.filter((effect) => effect.kind !== "banner");
+      window.nanoDnf.previewHint("hazard");
+    });
+    await page.waitForTimeout(90);
+    await page.screenshot({ path: path.join(ARTIFACTS, "hint-preview.png") });
+
     /* Freeze a breaking slab so the chapel's own mechanic is visible. */
     await page.evaluate(() => {
       const state = window.nanoDnf.getState();
@@ -668,6 +688,7 @@ async function runPass(browser, baseUrl, options) {
     titleIdle,
     music: { beforeInput: musicBeforeInput, afterRun: musicAfterRun, mute: musicMuteProbe },
     slabWatch: { unwarnedBreaks, slabs: slabWatch.size },
+    hints: { seen: [...hints.seen], cleared: hints.cleared },
     expectedKills,
     expectedUpgrades,
     touchMode,
@@ -710,6 +731,20 @@ function problemsFor(pass) {
   }
   if (slabs.slabs > 0 && (slabs.unwarnedBreaks || []).length) {
     problems.push(`${pass.mode}: ${slabs.unwarnedBreaks.join("; ")}`);
+  }
+  /* Coaching: it has to show up, cover the key moments, and clear again. */
+  const coaching = pass.hints || {};
+  const shownHints = coaching.seen || [];
+  if (!shownHints.includes("upgrade")) {
+    problems.push(
+      `${pass.mode}: the upgrade hint never appeared (saw ${shownHints.join(", ") || "none"})`
+    );
+  }
+  if (shownHints.length < 2) {
+    problems.push(`${pass.mode}: expected several hints during a run, saw ${shownHints.length}`);
+  }
+  if (!(coaching.cleared > 0)) {
+    problems.push(`${pass.mode}: no hint ever cleared`);
   }
   if (!music.beforeInput || music.beforeInput.started !== false) {
     problems.push(`${pass.mode}: music must not start before the first input`);
@@ -842,6 +877,7 @@ async function main() {
     titleIdle: pass.titleIdle,
     slabWatch: pass.slabWatch,
     collapses: pass.state.stats.collapses,
+    hints: pass.hints,
     music: pass.music,
     damageLog: pass.damageLog,
     seed: pass.records.seed,

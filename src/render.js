@@ -1101,6 +1101,23 @@
     }
   }
 
+  /** A short line of coaching, centred above the action but below the HUD. */
+  function drawHint(ctx, hint) {
+    if (!hint) return;
+    var fade = Math.min(1, hint.life / 0.4) * Math.min(1, (hint.maxLife - hint.life) / 0.2 + 0.2);
+    ctx.save();
+    ctx.globalAlpha = Math.max(0, Math.min(1, fade));
+    ctx.font = "600 17px 'PingFang SC', 'Segoe UI', system-ui, sans-serif";
+    ctx.textAlign = "center";
+    var measured = ctx.measureText ? ctx.measureText(hint.text) : null;
+    var textWidth = measured && measured.width ? measured.width : hint.text.length * 10;
+    var width = textWidth + 36;
+    panel(ctx, ARENA.width / 2 - width / 2, 196, width, 38, 19);
+    ctx.fillStyle = PALETTE.gold;
+    ctx.fillText(hint.text, ARENA.width / 2, 221);
+    ctx.restore();
+  }
+
   var UPGRADE_CARD = { w: 220, h: 120, gap: 24, y: 206 };
 
   /** Fixed geometry: the chooser slots stay put so a tap always hits one. */
@@ -1544,6 +1561,8 @@
     if (meta.loadoutOpen) drawLoadoutPanel(ctx, state, sprites, meta);
     /* The reward prompt belongs to live play too. */
     if (!overlayOpen) drawUpgradeChoice(ctx, state);
+    /* Coaching belongs to live play as well. */
+    if (!overlayOpen) drawHint(ctx, meta.hint);
     drawOverlay(ctx, state, meta, sprites);
   }
 
