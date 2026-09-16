@@ -1443,6 +1443,12 @@
   function render(ctx, state, meta) {
     meta = meta || {};
     var sprites = meta.sprites || null;
+    /*
+     * A full-screen overlay owns the frame. The sim is frozen behind it, so the
+     * room banner would otherwise sit half-faded under the title forever; hold
+     * it back and let it announce the room once play actually starts.
+     */
+    var overlayOpen = !!(meta.paused || meta.showHelp || state.victory || state.defeat);
     ctx.clearRect(0, 0, ARENA.width, ARENA.height);
 
     var shake = 0;
@@ -1466,6 +1472,7 @@
     drawPlayer(ctx, state, sprites);
     var bannerOrdinal = 0;
     state.effects.forEach(function (effect) {
+      if (effect.kind === "banner" && overlayOpen) return;
       drawEffect(ctx, state, effect, effect.kind === "banner" ? bannerOrdinal++ : 0);
     });
     ctx.restore();
@@ -1475,8 +1482,7 @@
     drawSkillBar(ctx, state, sprites, meta.loadout, !!(meta.touch && meta.touch.enabled));
     if (meta.touch && meta.touch.enabled) drawTouchControls(ctx, state, sprites, meta.touch);
     if (meta.loadoutOpen) drawLoadoutPanel(ctx, state, sprites, meta);
-    /* The reward prompt belongs to live play: never let it bleed through an overlay. */
-    var overlayOpen = !!(meta.paused || meta.showHelp || state.victory || state.defeat);
+    /* The reward prompt belongs to live play too. */
     if (!overlayOpen) drawUpgradeChoice(ctx, state);
     drawOverlay(ctx, state, meta, sprites);
   }

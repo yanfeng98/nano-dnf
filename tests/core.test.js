@@ -1788,6 +1788,37 @@ test("the reward chooser never shows through a full-screen overlay", () => {
   );
 });
 
+test("the room banner waits for live play instead of freezing behind an overlay", () => {
+  const state = Core.createState({ seed: Core.DEFAULT_SEED });
+  const banner = state.effects.find((effect) => effect.kind === "banner");
+  assert.ok(banner, "a fresh run starts with a room banner queued");
+
+  const textsFor = (meta) => {
+    const calls = [];
+    Render.render(recordingContext(calls), state, meta);
+    return calls.filter((call) => call[0] === "fillText").map((call) => String(call[1]));
+  };
+
+  assert.ok(textsFor({}).includes(banner.text), "live play announces the room");
+  assert.equal(
+    textsFor({ showHelp: true }).includes(banner.text),
+    false,
+    "the title overlay must not show a half-faded room banner"
+  );
+  assert.equal(
+    textsFor({ paused: true }).includes(banner.text),
+    false,
+    "a paused frame must not show the banner either"
+  );
+
+  /* Held back, not consumed: it still announces the room once play resumes. */
+  assert.ok(
+    state.effects.some((effect) => effect.kind === "banner"),
+    "the queued banner is left alone"
+  );
+  assert.ok(textsFor({}).includes(banner.text), "and it appears when play resumes");
+});
+
 test("a run without a record yet says so instead of inventing one", () => {
   const calls = [];
   Render.render(recordingContext(calls), Core.createState({ seed: 7 }), {
