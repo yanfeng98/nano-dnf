@@ -106,7 +106,8 @@ test("the workflow verifies the staged site before uploading it", () => {
 });
 
 test("a deploy that lags the checkout is treated as a failure", async () => {
-  const { sha256, referencedAssets } = await import("./deploy/live-smoke.mjs");
+  /* The contract module stays dependency-free so this runs without node_modules. */
+  const { sha256, referencedAssets } = await import("./deploy/deploy-contract.mjs");
 
   const html = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
   const refs = referencedAssets(html);
@@ -116,4 +117,62 @@ test("a deploy that lags the checkout is treated as a failure", async () => {
   const local = fs.readFileSync(path.join(ROOT, "src", "main.js"));
   assert.equal(sha256(local), sha256(local));
   assert.notEqual(sha256(local), sha256(Buffer.from("a different build")));
+});
+
+test("the browser half is kept out of the dependency-free contract module", async () => {
+  const contract = await import("./deploy/deploy-contract.mjs");
+  assert.ok(contract.inspectPublished, "the contract module owns the published-page check");
+  assert.ok(contract.waitForPublished, "and the bounded lag wait");
+
+  const source = fs.readFileSync(
+    path.join(ROOT, "tests", "deploy", "deploy-contract.mjs"),
+    "utf8"
+  );
+  assert.equal(
+    /from\s+["']playwright["']/.test(source),
+    false,
+    "importing playwright here would break `npm test` in CI, which installs no dependencies"
+  );
+});
+
+test("a network blip is retried, while a real HTTP status is reported as-is", async () => {
+  const { fetchBody } = await import("./deploy/deploy-contract.mjs");
+  const realFetch = globalThis.fetch;
+
+  try {
+    /* Two transport failures, then success: the check must survive this. */
+    let calls = 0;
+    globalThis.fetch = async () => {
+      calls += 1;
+      if (calls < 3) throw new TypeError("fetch failed");
+      return new Response("hello", { status: 200 });
+    };
+    const recovered = await fetchBody("https://example.test/");
+    assert.equal(calls, 3, "the flaky fetch should have been retried");
+    assert.equal(recovered.status, 200);
+    assert.equal(recovered.body.toString("utf8"), "hello");
+
+    /* A 404 is a real answer: no retry, and the status is preserved. */
+    calls = 0;
+    globalThis.fetch = async () => {
+      calls += 1;
+      return new Response("missing", { status: 404 });
+    };
+    const missing = await fetchBody("https://example.test/gone.js");
+    assert.equal(calls, 1, "an HTTP status must not be retried");
+    assert.equal(missing.status, 404);
+
+    /* A persistent outage still fails after the attempt budget. */
+    calls = 0;
+    globalThis.fetch = async () => {
+      calls += 1;
+      throw new TypeError("fetch failed");
+    };
+    const dead = await fetchBody("https://example.test/", 2);
+    assert.equal(calls, 2);
+    assert.equal(dead.status, 0);
+    assert.match(dead.error, /fetch failed/);
+  } finally {
+    globalThis.fetch = realFetch;
+  }
 });

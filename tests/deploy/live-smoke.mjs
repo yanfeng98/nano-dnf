@@ -8,35 +8,24 @@
  *   - an idle page was mobbed to 0 HP because the dungeon ran behind the title.
  * Both were only visible on the deployed build.
  *
- * This script closes that gap: it fetches the live page, proves every asset the
- * page references really exists, proves the published bytes still match the
- * checkout (a lagging deploy fails loudly), and then loads the live URL in
- * headless Chromium to prove the game boots, stays inert behind the title and
- * reports no console, page or request errors.
+ * The contract half (assets exist, bytes still match the checkout) lives in
+ * deploy-contract.mjs so the dependency-free `npm test` job can check it. This
+ * script adds the browser half: load the live URL, wait for the game to boot,
+ * idle on the title, and fail on any console, page or request error.
  *
  *   npm run test:live
  *   LIVE_URL=https://example.test/nano-dnf/ npm run test:live
  */
 
 import { chromium } from "playwright";
-import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-
-const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
-const DEFAULT_URL = "https://luyf-lemon-love.space/nano-dnf/";
-const DEFAULT_WAIT_SECONDS = 300;
-const REF_PATTERN = /(?:src|href)="\.\/([^"]+)"/g;
-
-/** Every asset the page asks the browser to load, in document order. */
-export function referencedAssets(html) {
-  return [...new Set([...html.matchAll(REF_PATTERN)].map((match) => match[1]))];
-}
-
-export function sha256(buffer) {
-  return crypto.createHash("sha256").update(buffer).digest("hex");
-}
+import {
+  DEFAULT_URL,
+  DEFAULT_WAIT_SECONDS,
+  waitForPublished
+} from "./deploy-contract.mjs";
 
 function flag(name, fallback) {
   const prefix = `--${name}=`;
@@ -45,77 +34,10 @@ function flag(name, fallback) {
 }
 
 const baseUrl = flag("url", process.env.LIVE_URL || DEFAULT_URL);
-const waitSeconds = Number(flag("wait-seconds", process.env.LIVE_WAIT_SECONDS || DEFAULT_WAIT_SECONDS));
-
-const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
-async function fetchBody(target) {
-  try {
-    const response = await fetch(target, { redirect: "follow" });
-    return { status: response.status, body: Buffer.from(await response.arrayBuffer()) };
-  } catch (error) {
-    return { status: 0, body: Buffer.alloc(0), error: String(error) };
-  }
-}
-
-/** Compare the published bytes with the checkout for one relative path. */
-function checkoutMatches(relPath, published) {
-  const local = path.join(ROOT, relPath);
-  if (!fs.existsSync(local)) return { checked: false };
-  return {
-    checked: true,
-    matches: sha256(fs.readFileSync(local)) === sha256(published),
-    localHash: sha256(fs.readFileSync(local)),
-    publishedHash: sha256(published)
-  };
-}
-
-async function inspectPublished() {
-  const problems = [];
-  const index = await fetchBody(baseUrl);
-  if (index.status !== 200) {
-    return {
-      problems: [`${baseUrl} returned HTTP ${index.status}${index.error ? ` (${index.error})` : ""}`],
-      refs: [],
-      lagging: []
-    };
-  }
-
-  const unique = referencedAssets(index.body.toString("utf8"));
-  if (!unique.length) problems.push("the live index.html references no local assets");
-
-  const lagging = [];
-  for (const relPath of unique) {
-    const asset = await fetchBody(new URL(relPath, baseUrl).toString());
-    if (asset.status !== 200) {
-      problems.push(`${relPath} returned HTTP ${asset.status} - the deploy is missing a referenced asset`);
-      continue;
-    }
-    const comparison = checkoutMatches(relPath, asset.body);
-    if (comparison.checked && !comparison.matches) {
-      lagging.push(`${relPath} (live ${comparison.publishedHash.slice(0, 12)} vs checkout ${comparison.localHash.slice(0, 12)})`);
-    }
-  }
-
-  const indexComparison = checkoutMatches("index.html", index.body);
-  if (indexComparison.checked && !indexComparison.matches) {
-    lagging.push(`index.html (live ${indexComparison.publishedHash.slice(0, 12)} vs checkout ${indexComparison.localHash.slice(0, 12)})`);
-  }
-
-  return { problems, refs: unique, lagging };
-}
-
-/** Wait out CDN propagation before calling a deploy lagging. */
-async function waitForPublished() {
-  const deadline = Date.now() + waitSeconds * 1000;
-  let last = await inspectPublished();
-  while (last.lagging.length && Date.now() < deadline) {
-    console.log(`waiting for the deploy to catch up: ${last.lagging.join(", ")}`);
-    await sleep(15000);
-    last = await inspectPublished();
-  }
-  return last;
-}
+const waitSeconds = Number(
+  flag("wait-seconds", process.env.LIVE_WAIT_SECONDS || DEFAULT_WAIT_SECONDS)
+);
+const IDLE_SECONDS = 5;
 
 function chromiumLaunchOptions() {
   const cached = [
@@ -153,8 +75,7 @@ async function smokeTheBuild() {
     });
 
     /* Idle on the title: the dungeon must not be running behind it. */
-    const idleSeconds = 5;
-    await page.waitForTimeout(idleSeconds * 1000);
+    await page.waitForTimeout(IDLE_SECONDS * 1000);
     idle = await page.evaluate(() => {
       const state = window.nanoDnf.getState();
       return {
@@ -169,7 +90,7 @@ async function smokeTheBuild() {
     });
     if (idle.hp !== idle.maxHp || idle.damageTaken !== 0 || idle.time !== 0 || idle.defeat) {
       problems.push(
-        `the dungeon ran behind the title for ${idleSeconds}s: ` +
+        `the dungeon ran behind the title for ${IDLE_SECONDS}s: ` +
           `hp=${idle.hp}/${idle.maxHp} damageTaken=${idle.damageTaken} time=${idle.time} defeat=${idle.defeat}`
       );
     }
@@ -185,7 +106,8 @@ async function smokeTheBuild() {
 
 async function main() {
   console.log(`live smoke against ${baseUrl} (deploy lag budget ${waitSeconds}s)`);
-  const published = await waitForPublished();
+
+  const published = await waitForPublished(baseUrl, waitSeconds, (message) => console.log(message));
   published.lagging.forEach((entry) => {
     published.problems.push(`the deployed build lags the checkout: ${entry}`);
   });
@@ -213,7 +135,7 @@ async function main() {
   console.log("live smoke OK: the deployed build matches the checkout and boots cleanly");
 }
 
-/* Only run when invoked as a script, so the helpers stay unit testable. */
+/* Only run when invoked as a script, so importing it stays side-effect free. */
 const invokedDirectly =
   process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 
