@@ -10,6 +10,7 @@
   var Render = window.DNFRender;
   var Loadout = window.DNFLoadout;
   var Records = window.DNFRecords;
+  var Music = window.DNFMusic;
   var canvas = document.getElementById("stage");
   var ctx = canvas.getContext("2d");
 
@@ -204,6 +205,89 @@
     source.start(context.currentTime + (delay || 0));
   }
 
+  /*
+   * Music bus: the procedural dungeon loop runs through its own gain node so
+   * mute is a single, observable place rather than something every note checks.
+   */
+  var MUSIC_LEVEL = 0.5;
+  var MUSIC_LOOKAHEAD_SECONDS = 0.25;
+  var music = { bus: null, timer: null, step: 0, nextNoteTime: 0, scheduled: 0, playing: false };
+
+  function ensureMusicBus() {
+    var context = ensureAudio();
+    if (!context) return null;
+    if (music.bus) return music.bus;
+    music.bus = context.createGain();
+    music.bus.gain.value = audio.muted ? 0 : MUSIC_LEVEL;
+    music.bus.connect(audio.master);
+    return music.bus;
+  }
+
+  /** One scheduled note. Percussion is filtered noise, everything else a tone. */
+  function scheduleMusicNote(context, note, at) {
+    if (note.freq === null) {
+      var frames = Math.max(1, Math.floor(context.sampleRate * note.duration));
+      var buffer = context.createBuffer(1, frames, context.sampleRate);
+      var data = buffer.getChannelData(0);
+      for (var frame = 0; frame < frames; frame += 1) {
+        data[frame] = (Math.random() * 2 - 1) * (1 - frame / frames);
+      }
+      var source = context.createBufferSource();
+      source.buffer = buffer;
+      var filter = context.createBiquadFilter();
+      filter.type = "bandpass";
+      filter.frequency.value = note.filterFreq || 2000;
+      var hat = context.createGain();
+      hat.gain.value = note.gain;
+      source.connect(filter);
+      filter.connect(hat);
+      hat.connect(music.bus);
+      source.start(at);
+      return;
+    }
+
+    var osc = context.createOscillator();
+    var envelope = context.createGain();
+    osc.type = note.type || "square";
+    osc.frequency.setValueAtTime(note.freq, at);
+    envelope.gain.setValueAtTime(0.0001, at);
+    envelope.gain.exponentialRampToValueAtTime(note.gain, at + 0.02);
+    envelope.gain.exponentialRampToValueAtTime(0.0001, at + note.duration);
+    osc.connect(envelope);
+    envelope.connect(music.bus);
+    osc.start(at);
+    osc.stop(at + note.duration + 0.02);
+  }
+
+  /** Lookahead scheduler: keep the next fraction of a second queued on the clock. */
+  function pumpMusic() {
+    var context = audio.ctx;
+    if (!context || !music.playing) return;
+    while (music.nextNoteTime < context.currentTime + MUSIC_LOOKAHEAD_SECONDS) {
+      var notes = Music.notesForStep(music.step);
+      for (var index = 0; index < notes.length; index += 1) {
+        scheduleMusicNote(context, notes[index], music.nextNoteTime);
+        music.scheduled += 1;
+      }
+      music.step += 1;
+      music.nextNoteTime += Music.STEP_SECONDS;
+    }
+  }
+
+  /** Browsers only allow audio after a gesture, so the loop starts on first input. */
+  function startMusic() {
+    if (music.playing) return true;
+    /* ensureMusicBus returns the gain node; the clock comes from the context. */
+    if (!ensureMusicBus()) return false;
+    var context = audio.ctx;
+    if (context.state === "suspended" && context.resume) context.resume();
+    music.playing = true;
+    music.nextNoteTime = context.currentTime + 0.05;
+    pumpMusic();
+    music.timer = window.setInterval(pumpMusic, 60);
+    return true;
+  }
+
   var SOUNDS = {
     swing: function () {
       noise(0.07, 0.12, 0, 1800);
@@ -250,6 +334,8 @@
   function toggleMute() {
     audio.muted = !audio.muted;
     if (audio.master) audio.master.gain.value = audio.muted ? 0 : 0.32;
+    /* Keep the music bus in step with the mute flag, not just the master. */
+    if (music.bus) music.bus.gain.value = audio.muted ? 0 : MUSIC_LEVEL;
     if (!audio.muted) play("gate");
     try {
       window.localStorage.setItem("nano-dnf-muted", audio.muted ? "1" : "0");
@@ -345,7 +431,10 @@
       pressed[action] = true;
     }
     held[action] = isDown;
-    if (isDown) ensureAudio();
+    if (isDown) {
+      ensureAudio();
+      startMusic();
+    }
     if (event) event.preventDefault();
     return true;
   }
@@ -403,6 +492,8 @@
     if (!action) return;
     event.preventDefault();
     ensureAudio();
+    /* A tap is a gesture too: the soundtrack has to start on the touch path. */
+    if (action !== "mute") startMusic();
     if (action === "mute") {
       toggleMute();
       return;
@@ -699,6 +790,17 @@
     },
     getRunSummary: function () {
       return runSummary();
+    },
+    getMusicState: function () {
+      return {
+        started: music.playing,
+        step: music.step,
+        scheduledNotes: music.scheduled,
+        busGain: music.bus ? music.bus.gain.value : null,
+        nextNoteTime: music.nextNoteTime,
+        stepSeconds: typeof Music === "undefined" ? null : Music.STEP_SECONDS,
+        contextState: audio.ctx ? audio.ctx.state : "none"
+      };
     }
   };
 })();

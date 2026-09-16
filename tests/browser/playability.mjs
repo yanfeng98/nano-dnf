@@ -359,6 +359,8 @@ async function runPass(browser, baseUrl, options) {
     };
   });
   const titleIdle = { seconds: titleIdleSeconds, ...idleState };
+  /* Nothing may have started audio yet: browsers only allow it after a gesture. */
+  const musicBeforeInput = await page.evaluate(() => window.nanoDnf.getMusicState());
 
   const held = new Set();
   const started = Date.now();
@@ -455,16 +457,31 @@ async function runPass(browser, baseUrl, options) {
     }
   }
 
+  /* The soundtrack must be running by now, and must react to mute. */
+  const musicAfterRun = await page.evaluate(() => window.nanoDnf.getMusicState());
+  let musicMuteProbe = null;
+
   /* Mute toggle must survive a round trip through the on-screen control. */
   let muteRoundTrip = null;
   if (options.mode === "touch") {
     await touchAction(page, "mute", true);
     await touchAction(page, "mute", false);
     const mutedOnce = await page.evaluate(() => window.nanoDnf.getAudioState().muted);
+    const busMuted = await page.evaluate(() => window.nanoDnf.getMusicState().busGain);
     await touchAction(page, "mute", true);
     await touchAction(page, "mute", false);
     const mutedTwice = await page.evaluate(() => window.nanoDnf.getAudioState().muted);
     muteRoundTrip = { afterFirstTap: mutedOnce, afterSecondTap: mutedTwice };
+    musicMuteProbe = {
+      mutedGain: busMuted,
+      restoredGain: await page.evaluate(() => window.nanoDnf.getMusicState().busGain)
+    };
+  } else {
+    await page.keyboard.press("KeyM");
+    const busMuted = await page.evaluate(() => window.nanoDnf.getMusicState().busGain);
+    await page.keyboard.press("KeyM");
+    const busRestored = await page.evaluate(() => window.nanoDnf.getMusicState().busGain);
+    musicMuteProbe = { mutedGain: busMuted, restoredGain: busRestored };
   }
 
   const audio = await page.evaluate(() => window.nanoDnf.getAudioState());
@@ -582,6 +599,7 @@ async function runPass(browser, baseUrl, options) {
     mode: options.mode,
     url,
     titleIdle,
+    music: { beforeInput: musicBeforeInput, afterRun: musicAfterRun, mute: musicMuteProbe },
     expectedKills,
     expectedUpgrades,
     touchMode,
@@ -613,6 +631,27 @@ function problemsFor(pass) {
       `${pass.mode}: the dungeon ran behind the title screen for ${idle ? idle.seconds : 0}s ` +
         `(hp=${idle && idle.hp}/${idle && idle.maxHp} damageTaken=${idle && idle.damageTaken} ` +
         `time=${idle && idle.time} defeat=${idle && idle.defeat})`
+    );
+  }
+  /* Soundtrack: silent until the first gesture, then running and mute-aware. */
+  const music = pass.music || {};
+  if (!music.beforeInput || music.beforeInput.started !== false) {
+    problems.push(`${pass.mode}: music must not start before the first input`);
+  }
+  if (!music.afterRun || music.afterRun.started !== true) {
+    problems.push(`${pass.mode}: the soundtrack never started`);
+  } else {
+    if (!(music.afterRun.scheduledNotes > 0)) {
+      problems.push(`${pass.mode}: the soundtrack scheduled no notes`);
+    }
+    if (!(music.afterRun.busGain > 0)) {
+      problems.push(`${pass.mode}: the music bus is silent while unmuted (${music.afterRun.busGain})`);
+    }
+  }
+  if (!music.mute || music.mute.mutedGain !== 0 || !(music.mute.restoredGain > 0)) {
+    problems.push(
+      `${pass.mode}: the music bus ignored mute (muted=${music.mute && music.mute.mutedGain} ` +
+        `restored=${music.mute && music.mute.restoredGain})`
     );
   }
   const banked = pass.records && pass.records.store && pass.records.store.seeds
@@ -725,6 +764,7 @@ async function main() {
     level: pass.state.player.level,
     upgradesTaken: pass.state.player.upgradesTaken,
     titleIdle: pass.titleIdle,
+    music: pass.music,
     damageLog: pass.damageLog,
     seed: pass.records.seed,
     record: (pass.records.store.seeds || {})[String(pass.records.seed)] || null,

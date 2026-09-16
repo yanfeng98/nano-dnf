@@ -147,7 +147,7 @@ test("a network blip is retried, while a real HTTP status is reported as-is", as
       if (calls < 3) throw new TypeError("fetch failed");
       return new Response("hello", { status: 200 });
     };
-    const recovered = await fetchBody("https://example.test/");
+    const recovered = await fetchBody("https://example.test/", { backoffMs: 0 });
     assert.equal(calls, 3, "the flaky fetch should have been retried");
     assert.equal(recovered.status, 200);
     assert.equal(recovered.body.toString("utf8"), "hello");
@@ -158,7 +158,7 @@ test("a network blip is retried, while a real HTTP status is reported as-is", as
       calls += 1;
       return new Response("missing", { status: 404 });
     };
-    const missing = await fetchBody("https://example.test/gone.js");
+    const missing = await fetchBody("https://example.test/gone.js", { backoffMs: 0 });
     assert.equal(calls, 1, "an HTTP status must not be retried");
     assert.equal(missing.status, 404);
 
@@ -168,7 +168,7 @@ test("a network blip is retried, while a real HTTP status is reported as-is", as
       calls += 1;
       throw new TypeError("fetch failed");
     };
-    const dead = await fetchBody("https://example.test/", 2);
+    const dead = await fetchBody("https://example.test/", { attempts: 2, backoffMs: 0 });
     assert.equal(calls, 2);
     assert.equal(dead.status, 0);
     assert.match(dead.error, /fetch failed/);

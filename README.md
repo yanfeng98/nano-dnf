@@ -38,11 +38,15 @@ Boss 血量掉到一半后进入**狂暴第二阶段**——移动更快、出�
 第十一切片补上发布验证：把「暂存契约」做成离线测试（暂存脚本实际跑一遍，断言页面引用的资源一个都不少），
 再加一个线上冒烟 `npm run test:live`（核对线上字节 + 无头浏览器跑真实页面），并把线上冒烟挂进
 Pages workflow 的 deploy 之后，让静默落后或报错的部署直接把流程变红。
+第十二切片补上配乐：`src/music.js` 是一个纯音符调度器（A 小调四小节循环、96 BPM、低音打拍 /
+琶音旋律 / 噪声踩镲），`main.js` 用预读调度器把它排进音频时钟，并走一条独立音乐总线——
+所以静音就是把总线增益归零，而不是让每个音符各自判断。浏览器证明现在会断言
+「首次输入前不出声、之后音符在持续调度、静音把总线归零、取消静音恢复」。
 
 ## 运行
 
 ```bash
-npm test          # 83 个核心逻辑、Boss/小 Boss 机制、强化与通关记录、发布暂存契约与渲染冒烟测试
+npm test          # 93 个核心逻辑、Boss/小 Boss 机制、强化与通关记录、配乐调度、发布暂存契约与渲染冒烟测试
 npm run test:browser # 无头 Chromium 跑真实页面：键盘 + 触屏两条通路各通关一次
 npm run test:live # 线上产物冒烟：核对线上字节是否与本地一致，并在无头浏览器里跑一次真实页面
 npm run serve     # 起本地静态服务，然后打开 http://localhost:8080
@@ -90,6 +94,11 @@ python3 assets/make_slayer_sprites.py   # 可选：重新生成原创精灵图�
 - **音效**：全部用 WebAudio 合成，不加载任何音频文件——命中是钝击声、技能是扫弦、受击是低频噪音、
   击杀是下滑音、升级三音上行、通关四音上行、进房间短促铃声。首次按键/触摸时才创建 `AudioContext`
   （浏览器要求用户手势），`M` 或右上角按钮可静音并记住选择。
+- **背景音乐**：也是程序化合成，同样不加载音频文件。`src/music.js` 是纯音符调度器
+  （A 小调 i–VI–III–VII 四小节循环，96 BPM：低音三角波打拍、方波琶音走旋律、每拍一记带通噪声当踩镲），
+  可以脱离 AudioContext 单测；`main.js` 用 0.25s 预读的调度器把音符排到音频时钟上，
+  并且走一条**独立的音乐总线**——所以 `M` 静音是把总线增益归零，而不是让每个音符自己判断。
+  和音效一样在首次输入后才启动。
 
 ## 技能
 
@@ -248,8 +257,8 @@ python3 assets/import_dnf_art.py --icons 94,154,132,10,18,6,48,160,98,138,172
 200、WebAudio 已初始化。最近一次结果：
 
 ```
-keyboard victory=true kills=14 damageTaken=7 seconds=47.4 level=5  upgrades=锐锋×3+鬼气  record=0:47.4 Lv5  audio=created/running  drag=月光斩→槽A persisted=true
-touch    victory=true kills=14 damageTaken=7 seconds=53.1 level=5  upgrades=锐锋×3+鬼气  record=0:53.1 Lv5  touchMode=true audio=created/running muteToggle=ok
+keyboard victory=true kills=14 damageTaken=7 seconds=51.7 level=5  upgrades=锐锋×3+鬼气  record=0:51.7 Lv5  music=started(293 notes, bus 0.5)  audio=created/running  drag=月光斩→槽A persisted=true
+touch    victory=true kills=14 damageTaken=7 seconds=55.9 level=5  upgrades=锐锋×3+鬼气  record=0:55.9 Lv5  music=started(290 notes, bus 0.5)  touchMode=true audio=created/running muteToggle=ok
 consoleErrors=[] pageErrors=[] failedRequests=[]
 assets: index.html / loadout.js / main.js / render.js / core.js / slayer.png / skills.png / effects.png / favicon.png 全部 200
 ```

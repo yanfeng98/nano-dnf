@@ -31,7 +31,7 @@ export function sha256(buffer) {
  * A DNS or TLS blip must not fail a deploy check, while a real HTTP status -
  * including 404 - is returned as-is so a broken asset still fails loudly.
  */
-export async function fetchBody(target, attempts = 3) {
+export async function fetchBody(target, { attempts = 3, backoffMs = 2000 } = {}) {
   let last = { status: 0, body: Buffer.alloc(0), error: "not attempted" };
   for (let attempt = 1; attempt <= attempts; attempt += 1) {
     try {
@@ -39,8 +39,8 @@ export async function fetchBody(target, attempts = 3) {
       return { status: response.status, body: Buffer.from(await response.arrayBuffer()) };
     } catch (error) {
       last = { status: 0, body: Buffer.alloc(0), error: String(error) };
-      if (attempt < attempts) {
-        await new Promise((resolve) => setTimeout(resolve, attempt * 2000));
+      if (attempt < attempts && backoffMs > 0) {
+        await new Promise((resolve) => setTimeout(resolve, attempt * backoffMs));
       }
     }
   }
