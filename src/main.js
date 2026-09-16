@@ -579,7 +579,12 @@
     var delta = Math.min(0.1, (timestamp - lastTime) / 1000);
     lastTime = timestamp;
 
-    if (!paused) {
+    /*
+     * The dungeon only runs during live play. The title screen is a full-screen
+     * overlay, so leaving it up used to let the room-1 enemies beat an idle
+     * Slayer to 0 HP before the player pressed anything.
+     */
+    if (!paused && !showHelp) {
       accumulator += delta;
       var guard = 0;
       while (accumulator >= Core.DT && guard < 5) {

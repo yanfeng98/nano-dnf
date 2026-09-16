@@ -341,6 +341,25 @@ async function runPass(browser, baseUrl, options) {
     await page.screenshot({ path: path.join(ARTIFACTS, "playability-title.png") });
   }
 
+  /*
+   * The title screen is a full-screen overlay: the dungeon must not run behind
+   * it. Idle here for a few seconds and prove the Slayer is untouched, which is
+   * what an idle player sees before they press anything.
+   */
+  const titleIdleSeconds = 3;
+  await page.waitForTimeout(titleIdleSeconds * 1000);
+  const idleState = await page.evaluate(() => {
+    const snapshot = window.nanoDnf.getState();
+    return {
+      hp: snapshot.player.hp,
+      maxHp: snapshot.player.maxHp,
+      damageTaken: snapshot.stats.damageTaken,
+      time: snapshot.time,
+      defeat: snapshot.defeat
+    };
+  });
+  const titleIdle = { seconds: titleIdleSeconds, ...idleState };
+
   const held = new Set();
   const started = Date.now();
   let state = await readState(page);
@@ -562,6 +581,7 @@ async function runPass(browser, baseUrl, options) {
   return {
     mode: options.mode,
     url,
+    titleIdle,
     expectedKills,
     expectedUpgrades,
     touchMode,
@@ -580,6 +600,21 @@ function problemsFor(pass) {
   const problems = [];
   if (!pass.state.victory) problems.push(`${pass.mode}: dungeon was not cleared`);
   if (pass.state.defeat) problems.push(`${pass.mode}: player died`);
+  /* The title screen must be inert: an idle player is not being attacked. */
+  const idle = pass.titleIdle;
+  if (
+    !idle ||
+    idle.hp !== idle.maxHp ||
+    idle.damageTaken !== 0 ||
+    idle.time !== 0 ||
+    idle.defeat
+  ) {
+    problems.push(
+      `${pass.mode}: the dungeon ran behind the title screen for ${idle ? idle.seconds : 0}s ` +
+        `(hp=${idle && idle.hp}/${idle && idle.maxHp} damageTaken=${idle && idle.damageTaken} ` +
+        `time=${idle && idle.time} defeat=${idle && idle.defeat})`
+    );
+  }
   const banked = pass.records && pass.records.store && pass.records.store.seeds
     ? pass.records.store.seeds[String(pass.records.seed)]
     : null;
@@ -689,6 +724,7 @@ async function main() {
     seconds: Number(pass.state.time.toFixed(1)),
     level: pass.state.player.level,
     upgradesTaken: pass.state.player.upgradesTaken,
+    titleIdle: pass.titleIdle,
     damageLog: pass.damageLog,
     seed: pass.records.seed,
     record: (pass.records.store.seeds || {})[String(pass.records.seed)] || null,

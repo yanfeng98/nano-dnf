@@ -32,6 +32,9 @@ Boss 血量掉到一半后进入**狂暴第二阶段**——移动更快、出�
 第九切片给跑图一个重玩理由：地址栏可以用 `?seed=123` 固定种子，或按 `N` 换一个新种子；
 通关记录按 seed 存进 `localStorage`（最好成绩的时间与等级、通关次数），标题界面直接显示
 「本种子最佳 0:52.1 · Lv 5 · 已通关 n 次」，通关时会标出「新纪录！」。
+第十切片修掉一个线上才能看见的缺陷：**地牢原先在标题界面背后就已经在跑**，打开页面不按键，
+回来就是 0 血 `YOU DIED`。现在只要有任何全屏界面（标题 / 帮助 / 暂停 / 通关）盖在上面，
+模拟就完全停下——标题期间 `state.time` 保持 0，一滴血都不会掉。
 
 ## 运行
 
@@ -59,7 +62,7 @@ python3 assets/make_slayer_sprites.py   # 可选：重新生成原创精灵图�
 | `N` | 换一个新种子并重开（想固定种子就用 `?seed=123`） |
 | `P` | 暂停 |
 | `F3` | 重开 |
-| `F1` | 显示/隐藏帮助 |
+| `F1` | 显示/隐藏帮助（帮助盖住画面时战斗会暂停，收起后继续） |
 | `M` | 静音 / 恢复音效（记住上次选择） |
 | `F2` | 手动切换屏幕虚拟按键 |
 
@@ -222,8 +225,8 @@ python3 assets/import_dnf_art.py --icons 94,154,132,10,18,6,48,160,98,138,172
 200、WebAudio 已初始化。最近一次结果：
 
 ```
-keyboard victory=true kills=14 damageTaken=7 seconds=56.3 level=5  upgrades=锐锋×3+鬼气  record=0:56.3 Lv5  audio=created/running  drag=月光斩→槽A persisted=true
-touch    victory=true kills=14 damageTaken=7 seconds=53.2 level=5  upgrades=锐锋×3+鬼气  record=0:53.2 Lv5  touchMode=true audio=created/running muteToggle=ok
+keyboard victory=true kills=14 damageTaken=7 seconds=47.4 level=5  upgrades=锐锋×3+鬼气  record=0:47.4 Lv5  audio=created/running  drag=月光斩→槽A persisted=true
+touch    victory=true kills=14 damageTaken=7 seconds=53.1 level=5  upgrades=锐锋×3+鬼气  record=0:53.1 Lv5  touchMode=true audio=created/running muteToggle=ok
 consoleErrors=[] pageErrors=[] failedRequests=[]
 assets: index.html / loadout.js / main.js / render.js / core.js / slayer.png / skills.png / effects.png / favicon.png 全部 200
 ```
@@ -234,7 +237,8 @@ assets: index.html / loadout.js / main.js / render.js / core.js / slayer.png / s
 Boss 狂暴第二阶段、精英剑卫的旋风分别见 `room-mix.png`、`boss-phase2.png` 与 `elite-spin.png`
 ，清房后的强化卡界面见 `upgrade-choice.png`（都由同一次浏览器跑动产出）。每次跑动的日志还会按
 房间记录承伤来源，并校验「每个非 Boss 房间恰好拿到 1 张强化」「通关成绩确实写进了 localStorage」，
-方便判断新机制是否真的生效。带记录标题界面见 `title-record.png`。
+以及「标题界面停留 3 秒期间 `state.time` 仍为 0、未掉血」，方便判断新机制是否真的生效、
+老缺陷是否真的修好。带记录标题界面见 `title-record.png`。
 
 两条通路各自使用独立的浏览器实例（否则两条 rAF 循环会互相抢 CPU，输入时序被拖慢）；
 只跑其中一条可以设 `PASSES=touch npm run test:browser` 或 `PASSES=keyboard`。
