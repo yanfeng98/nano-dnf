@@ -98,11 +98,36 @@ function decide(state, constants) {
   const distance = Math.abs(delta);
   const elapsed = target.attackDuration - target.attackTimer;
   const threatRange =
-    target.attackKind === "slam" && target.slam ? target.slam.radius : target.attackRange;
-  const activeUntil = target.attackKind === "charge" ? target.chargeTo : target.attackWindup;
+    target.attackKind === "slam" && target.slam
+      ? target.slam.radius
+      : target.attackKind === "spin" && target.spinDash
+        ? target.spinDash.radius * 1.6
+        : target.attackRange;
+  /* A charge and a spin both stay live past the wind-up; the sweep keeps moving. */
+  const activeUntil =
+    target.attackKind === "charge"
+      ? target.chargeTo
+      : target.attackKind === "spin" && target.spinDash
+        ? target.spinDash.windup + target.spinDash.duration
+        : target.attackWindup;
   const threatened = target.attackTimer > 0 && elapsed <= activeUntil + 0.05;
 
   if (threatened) {
+    /*
+     * A spinning sweep outruns a retreat once it is on top of you, so the read
+     * is to back off through the wind-up and jump the sweep itself.
+     */
+    if (target.attackKind === "spin" && target.spinDash) {
+      const closing = delta > 0 ? "left" : "right";
+      if (distance < threatRange + 45) {
+        if (player.onGround && elapsed >= target.spinDash.windup - 0.25) {
+          want.add("jump");
+        } else {
+          want.add(closing);
+        }
+      }
+      return want;
+    }
     const away = delta > 0 ? "left" : "right";
     const atLeftWall = player.x <= constants.arena.leftWall + player.width;
     const atRightWall = player.x >= constants.arena.rightWall - player.width;
@@ -284,6 +309,8 @@ async function runPass(browser, baseUrl, options) {
   let midShot = false;
   const trace = [];
   let loadoutChecks = null;
+  const damageLog = [];
+  let previousDamage = state.stats.damageTaken;
 
   while (!state.victory && !state.defeat) {
     if ((Date.now() - started) / 1000 > MAX_SECONDS) {
@@ -322,6 +349,18 @@ async function runPass(browser, baseUrl, options) {
     }
     await page.waitForTimeout(options.mode === "touch" ? 16 : 20);
     state = await readState(page);
+    if (state.stats.damageTaken > previousDamage) {
+      damageLog.push({
+        t: Number(state.time.toFixed(1)),
+        room: state.roomIndex + 1,
+        amount: state.stats.damageTaken - previousDamage,
+        attacker: state.enemies
+          .filter((enemy) => !enemy.dead && enemy.attackTimer > 0)
+          .map((enemy) => `${enemy.type}:${enemy.attackKind}`)
+          .join("+") || "unknown"
+      });
+      previousDamage = state.stats.damageTaken;
+    }
     trace.push({
       t: Number(state.time.toFixed(2)),
       room: state.roomIndex + 1,
@@ -416,6 +455,23 @@ async function runPass(browser, baseUrl, options) {
     });
     await page.waitForTimeout(90);
     await page.screenshot({ path: path.join(ARTIFACTS, "boss-phase2.png") });
+
+    /* Freeze the elite mid-spin so the whirl and its swept lane read on screen. */
+    await page.evaluate(() => {
+      const state = window.nanoDnf.getState();
+      window.DNFCore.startRoom(state, window.DNFCore.ROOMS.length - 2);
+      state.effects = state.effects.filter((effect) => effect.kind !== "banner");
+      const elite = state.enemies.find((enemy) => enemy.type === "elite");
+      const spin = elite.spinDash;
+      elite.attackKind = "spin";
+      elite.attackDuration = spin.windup + spin.duration + spin.recovery;
+      elite.attackTimer = elite.attackDuration - spin.windup - spin.duration * 0.4;
+      elite.attackHitDone = true;
+      elite.superArmor = true;
+      state.player.x = elite.x - 150;
+    });
+    await page.waitForTimeout(90);
+    await page.screenshot({ path: path.join(ARTIFACTS, "elite-spin.png") });
   }
   await context.close();
 
@@ -425,6 +481,7 @@ async function runPass(browser, baseUrl, options) {
     expectedKills,
     touchMode,
     state,
+    damageLog,
     audio,
     muteRoundTrip,
     loadoutChecks,
@@ -509,6 +566,7 @@ async function main() {
     damageTaken: pass.state.stats.damageTaken,
     seconds: Number(pass.state.time.toFixed(1)),
     level: pass.state.player.level,
+    damageLog: pass.damageLog,
     touchMode: pass.touchMode,
     audio: pass.audio,
     muteRoundTrip: pass.muteRoundTrip,

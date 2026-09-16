@@ -508,6 +508,7 @@
     brute: { body: "#e0a44d", dark: "#8a5a1f", accent: "#ffe0a8", eye: "#ff8a4d" },
     caster: { body: "#79a6ff", dark: "#33518f", accent: "#cfe2ff", eye: "#9ef0ff" },
     charger: { body: "#b07cff", dark: "#5a2f96", accent: "#e8d6ff", eye: "#ffd166" },
+    elite: { body: "#cdd6e6", dark: "#465071", accent: "#ffd166", eye: "#7ff0ff" },
     boss: { body: "#e0556d", dark: "#7d1f31", accent: "#ffd0d6", eye: "#ffe066" },
     bossPhase2: { body: "#ff4d6d", dark: "#8c0f26", accent: "#ffe9a8", eye: "#ff3b3b" }
   };
@@ -595,12 +596,54 @@
       ctx.closePath();
       ctx.fill();
     }
+    if (enemy.type === "elite") {
+      /* Pauldrons, a crest and a lit visor: rank above the rank and file. */
+      ctx.fillStyle = style.accent;
+      ctx.beginPath();
+      ctx.moveTo(-w * 0.3, -h * 0.98);
+      ctx.lineTo(-w * 0.46, -h * 1.2);
+      ctx.lineTo(-w * 0.08, -h * 1.02);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillStyle = style.dark;
+      ctx.fillRect(-w * 0.64, -h * 0.7, 10, h * 0.24);
+      ctx.fillRect(w * 0.64 - 10, -h * 0.7, 10, h * 0.24);
+      ctx.fillStyle = style.eye;
+      ctx.fillRect(-w * 0.2, -h * 0.82, w * 0.4, 3);
+    }
     ctx.restore();
+
+    /* The whirl itself: two rotating blades so the sweep reads as a spin. */
+    if (enemy.attackKind === "spin" && enemy.spinDash && enemy.attackTimer > 0) {
+      var spinArc = state.time * 22;
+      var spinRadius = enemy.spinDash.radius * 0.7;
+      ctx.save();
+      ctx.globalAlpha = 0.55;
+      ctx.strokeStyle = "rgba(255, 226, 160, 0.92)";
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.arc(enemy.x, enemy.y - h * 0.45, spinRadius, spinArc, spinArc + Math.PI * 1.2);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(
+        enemy.x,
+        enemy.y - h * 0.45,
+        spinRadius,
+        spinArc + Math.PI,
+        spinArc + Math.PI * 2.2
+      );
+      ctx.stroke();
+      ctx.restore();
+    }
 
     if (enemy.attackTimer > 0) {
       var windup = 1 - Math.max(0, enemy.attackTimer / enemy.attackDuration);
       var radius =
-        enemy.attackKind === "slam" && enemy.slam ? enemy.slam.radius : enemy.attackRange;
+        enemy.attackKind === "slam" && enemy.slam
+          ? enemy.slam.radius
+          : enemy.attackKind === "spin" && enemy.spinDash
+            ? enemy.spinDash.radius
+            : enemy.attackRange;
       ctx.save();
       ctx.globalAlpha = 0.35 + 0.4 * windup;
       ctx.strokeStyle = "rgba(255, 120, 120, 0.85)";

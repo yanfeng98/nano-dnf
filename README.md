@@ -16,18 +16,21 @@
 带前摇的敌人 AI、房间清怪与传送门推进，以及 Boss 房间通关判定。
 第二切片补上了清怪回报：击杀掉落回血球，击杀累积经验并升级，升级提升攻击、生命与魔法上限。
 第三切片补上了敌人威胁层次：远程术士、直线冲锋兵，以及 Boss 带预警的地面重踏（可跑出范围或跳起躲开）。
-第五切片加深了内容：Boss 房间前新增「断桥」混合房（术士远程压制 + 冲锋兵突进），
-Boss 血量掉到一半后进入**狂暴第二阶段**——移动更快、出手更密、重踏范围更大，并解锁带预警的
-超甲突进（`LUNGE`），HUD 的 Boss 血条会标出半血分界线并改读「GOBLIN KING · 狂暴」。
 第四切片把技能改成 DNF 鬼剑士那一套：上挑 / 崩山击 / 十字斩 / 鬼斩，各带 MP 消耗、独立冷却与随等级成长的伤害，
 按键也换成 DNF 布局（方向键移动、`X` 普攻、`C` 跳跃、`A`/`S`/`D`/`F` 技能），HUD 左下角新增技能栏。
 第五切片重做了画面：原创鬼剑士像素精灵（待机 / 跑动 / 攻击 / 技能 / 受击 / 跳跃 / 倒地）、金币边框 HUD 与角色头像、
 带冷却遮罩的技能图标栏、视差地下城背景（远近拱门、火把、雾气、暗角）、Boss 血条与打击特效。
+第六切片加深了内容：Boss 房间前新增「断桥」混合房（术士远程压制 + 冲锋兵突进），
+Boss 血量掉到一半后进入**狂暴第二阶段**——移动更快、出手更密、重踏范围更大，并解锁带预警的
+超甲突进（`LUNGE`），HUD 的 Boss 血条会标出半血分界线并改读「GOBLIN KING · 狂暴」。
+第七切片往这条关卡段里放进了**小 Boss**：断桥房的剑卫自带一个长前摇的**旋风横推**
+（`SPIN`：超甲、带旋刃、命中判定比身体宽得多，而且会边转边向前推进），
+贴脸硬吃会被扫中，正确解法是在前摇内退出横扫轨道或起跳越过；击倒它必定掉落更大的回血球。
 
 ## 运行
 
 ```bash
-npm test          # 47 个核心逻辑、DNF 技能机制、技能编成、特效图集、触屏布局与渲染冒烟测试
+npm test          # 58 个核心逻辑、DNF 技能机制、Boss 阶段、小 Boss 机制、技能编成与渲染冒烟测试
 npm run test:browser # 无头 Chromium 跑真实页面：键盘 + 触屏两条通路各通关一次
 npm run serve     # 起本地静态服务，然后打开 http://localhost:8080
 python3 assets/make_slayer_sprites.py   # 可选：重新生成原创精灵图与技能图标
@@ -120,16 +123,17 @@ HUD 左下角是技能栏，显示按键、技能名、MP 消耗与冷却读秒�
 | 精英 | 高血量近战，前摇长 | 前摇后撤，收招期反击 |
 | 术士 | 保持距离，蓄力后射出有限射程的法术弹 | 蓄力时撤出射程，或跳起躲弹 |
 | 冲锋兵 | 下蹲预警后高速直线冲锋 | 预警与冲锋期间横向拉开，收招期反击 |
+| 剑卫（小 Boss） | 高血量近战，并会施放长前摇的**旋风横推**（`SPIN`）：超甲、带旋刃、判定比身体宽，且边转边向前推进 | 前摇期间退出横扫轨道，或在其扫到时起跳越过；收招期是最长的反击窗口 |
 | Boss | 近战，并会施放带预警的地面重踏（圆形范围）；血量掉到一半后**狂暴**：更快、更痛、重踏范围更大，并会用带预警的**超甲突进**（`LUNGE`）拉近距离 | 重踏预警时跑出范围或跳起躲避；突进前摇时横向拉开，等它收招再反击 |
 
 ## 成长与掉落
 
 | 机制 | 数值 |
 | --- | --- |
-| 经验 | 小兵 10 / 精英 22 / Boss 80 |
+| 经验 | 小兵 10 / 精英 22 / 剑卫 45 / Boss 80 |
 | 升级门槛 | 初始 30 点，之后每级 ×1.6（上限 12 级） |
 | 升级收益 | 生命上限 +12、魔法上限 +5、攻击 +2，并立即回复 12 点生命 |
-| 掉落 | 精英必掉回血球（+18 HP），小兵 50% 掉落，Boss 掉落 +42 HP |
+| 掉落 | 精英必掉回血球（+18 HP），小兵 50% 掉落，剑卫必掉更大的 +30 HP，Boss 掉落 +42 HP |
 | 拾取 | 走进回血球即可自动拾取，14 秒未拾取会消失 |
 
 ## 结构
@@ -191,8 +195,8 @@ python3 assets/import_dnf_art.py --icons 94,154,132,10,18,6,48,160,98,138,172
 200、WebAudio 已初始化。最近一次结果：
 
 ```
-keyboard victory=true kills=14 damageTaken=7 seconds=55.5 level=4  audio=created/running  drag=月光斩→槽A persisted=true
-touch    victory=true kills=14 damageTaken=7 seconds=69.8 level=4  touchMode=true audio=created/running muteToggle=ok
+keyboard victory=true kills=14 damageTaken=13 seconds=71.0 level=5  audio=created/running  drag=月光斩→槽A persisted=true
+touch    victory=true kills=14 damageTaken=7 seconds=73.0 level=5  touchMode=true audio=created/running muteToggle=ok
 consoleErrors=[] pageErrors=[] failedRequests=[]
 assets: index.html / loadout.js / main.js / render.js / core.js / slayer.png / skills.png / effects.png / favicon.png 全部 200
 ```
@@ -200,7 +204,8 @@ assets: index.html / loadout.js / main.js / render.js / core.js / slayer.png / s
 键盘那条通路还会顺便验证编成：按 `B` 打开面板 → 用指针事件把「月光斩」拖到槽 A → 读回
 `getLoadout()` 与 `localStorage` 确认已生效 → `resetLoadout()` 复位。截图见
 `tests/browser/artifacts/loadout-panel.png` 与 `loadout-applied.png`；本切片新增的「断桥」混合房与
-Boss 狂暴第二阶段分别见 `room-mix.png` 与 `boss-phase2.png`（都由同一次浏览器跑动产出）。
+Boss 狂暴第二阶段、精英剑卫的旋风分别见 `room-mix.png`、`boss-phase2.png` 与 `elite-spin.png`
+（都由同一次浏览器跑动产出）。每次跑动的日志还会按房间记录承伤来源，方便判断新敌种是否公平。
 
 两条通路各自使用独立的浏览器实例（否则两条 rAF 循环会互相抢 CPU，输入时序被拖慢）；
 只跑其中一条可以设 `PASSES=touch npm run test:browser` 或 `PASSES=keyboard`。

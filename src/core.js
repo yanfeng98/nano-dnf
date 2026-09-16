@@ -339,6 +339,7 @@
     orbRadius: 13,
     pickupRadius: 32,
     playerHeal: 18,
+    eliteHeal: 30,
     bossHeal: 42,
     gruntDropChance: 0.5,
     lifetimeSeconds: 14,
@@ -413,6 +414,36 @@
       chargeFrom: 0.5,
       chargeTo: 0.86
     },
+    /*
+     * Elite mini-boss: the gauntlet's skill check. Slower and tankier than the
+     * rank and file, and it owns one long-telegraphed move - a super-armoured
+     * spinning sweep that carries a wide hitbox forward instead of a single
+     * stationary slam. Clearing the spin means leaving the lane, not stepping
+     * one body-width aside.
+     */
+    elite: {
+      behavior: "elite",
+      maxHp: 150,
+      xp: 45,
+      width: 46,
+      height: 78,
+      speed: 72,
+      damage: 16,
+      attackRange: 64,
+      attackWindup: 0.38,
+      attackDuration: 0.72,
+      attackCooldown: 1.7,
+      knockbackX: 220,
+      spinDash: {
+        speed: 300,
+        windup: 0.75,
+        duration: 0.45,
+        recovery: 0.5,
+        cooldown: 5,
+        radius: 84,
+        damage: 14
+      }
+    },
     boss: {
       behavior: "boss",
       maxHp: 260,
@@ -484,15 +515,15 @@
     },
     {
       /*
-       * The caster/charger mix: a caster applies ranged pressure while a charger
-       * commits down the lane. Spacing is deliberate - the charger starts far
-       * enough that its wind-up reads before it can reach a mid-air Slayer.
+       * The gauntlet before the throne: caster pressure, the elite mini-boss and
+       * a charger that punishes a Slayer caught mid-air. Spacing is deliberate -
+       * each threat needs room to telegraph before the next one commits.
        */
       name: "Broken Span",
       enemies: [
         { type: "caster", x: 600 },
-        { type: "charger", x: 860 },
-        { type: "grunt", x: 950 }
+        { type: "elite", x: 780 },
+        { type: "charger", x: 920 }
       ]
     },
     {
@@ -598,6 +629,9 @@
       slam: spec.slam ? Object.assign({}, spec.slam) : null,
       baseSlam: spec.slam ? Object.assign({}, spec.slam) : null,
       slamCooldown: spec.slam ? spec.slam.cooldown * 0.5 : 0,
+      spinDash: spec.spinDash || null,
+      spinDir: -1,
+      spinCooldown: spec.spinDash ? spec.spinDash.cooldown * 0.4 : 0,
       lungeCooldown: 0,
       phase: 1,
       phase2: spec.phase2 || null,
@@ -770,6 +804,9 @@
     var value = 0;
     if (enemy.type === "boss") {
       value = DROPS.bossHeal;
+    } else if (enemy.type === "elite") {
+      /* A mini-boss always pays out: the gauntlet should leave you able to fight. */
+      value = DROPS.eliteHeal;
     } else if (enemy.type === "brute" || nextRandom(state) < DROPS.gruntDropChance) {
       value = DROPS.playerHeal;
     }
@@ -1262,6 +1299,15 @@
     return boxesOverlap(bodyBox(enemy), bodyBox(player));
   }
 
+  /* A spin sweeps a wider hitbox than the body, so stepping one body-width
+   * aside is not enough - the whole lane has to be cleared. */
+  function spinHitsPlayer(enemy, player, radius) {
+    var swept = bodyBox(enemy);
+    swept.left -= radius * 0.5;
+    swept.right += radius * 0.5;
+    return boxesOverlap(swept, bodyBox(player));
+  }
+
   function chooseEnemyAction(state, enemy, player) {
     var delta = player.x - enemy.x;
     var distance = Math.abs(delta);
@@ -1296,6 +1342,38 @@
           beginEnemyAttack(enemy, "charge", enemy.baseAttackWindup, enemy.baseAttackDuration);
           enemy.chargeDir = enemy.facing;
           pushTelegraph(state, enemy, "CHARGE", enemy.attackRange, enemy.attackWindup, enemy.facing);
+        }
+      }
+      return;
+    }
+
+    if (enemy.behavior === "elite") {
+      var spinDash = enemy.spinDash;
+      if (
+        spinDash &&
+        enemy.spinCooldown <= 0 &&
+        enemy.attackCooldown <= 0 &&
+        /* Commits when the Slayer is close: the sweep punishes a hug, not a retreat. */
+        distance <= spinDash.radius * 1.35
+      ) {
+        enemy.vx = 0;
+        enemy.spinDir = enemy.facing;
+        beginEnemyAttack(
+          enemy,
+          "spin",
+          spinDash.windup,
+          spinDash.windup + spinDash.duration + spinDash.recovery
+        );
+        enemy.superArmor = true;
+        pushTelegraph(state, enemy, "SPIN", spinDash.radius, spinDash.windup, enemy.facing);
+        return;
+      }
+      if (distance > enemy.attackRange * 0.8) {
+        enemy.vx = enemy.facing * enemy.speed;
+      } else {
+        enemy.vx = 0;
+        if (enemy.attackCooldown <= 0) {
+          beginEnemyAttack(enemy, "melee", enemy.baseAttackWindup, enemy.baseAttackDuration);
         }
       }
       return;
@@ -1343,6 +1421,32 @@
 
   function advanceEnemyAttack(state, enemy, player, dt) {
     var elapsed = enemy.attackDuration - enemy.attackTimer;
+
+    if (enemy.attackKind === "spin") {
+      var spin = enemy.spinDash;
+      if (!spin) {
+        enemy.attackTimer = 0;
+        return;
+      }
+      var spinEnds = spin.windup + spin.duration;
+      if (elapsed >= spin.windup && elapsed <= spinEnds) {
+        enemy.vx = enemy.spinDir * spin.speed;
+        if (!enemy.attackHitDone && spinHitsPlayer(enemy, player, spin.radius)) {
+          enemy.attackHitDone = true;
+          damagePlayer(state, spin.damage, enemy.x);
+        }
+      } else if (elapsed > spinEnds) {
+        enemy.vx *= 0.35;
+        if (!enemy.attackRecovered) {
+          enemy.attackRecovered = true;
+          enemy.attackCooldown = enemy.attackCooldownMax;
+          enemy.spinCooldown = spin.cooldown;
+          enemy.superArmor = false;
+        }
+      }
+      enemy.attackTimer = Math.max(0, enemy.attackTimer - dt);
+      return;
+    }
 
     if (enemy.attackKind === "charge") {
       if (enemy.attackTimer > 0 && elapsed >= enemy.chargeFrom && elapsed <= enemy.chargeTo) {
@@ -1393,6 +1497,7 @@
       enemy.hurtTimer = Math.max(0, enemy.hurtTimer - dt);
       enemy.attackCooldown = Math.max(0, enemy.attackCooldown - dt);
       if (enemy.slam) enemy.slamCooldown = Math.max(0, enemy.slamCooldown - dt);
+      enemy.spinCooldown = Math.max(0, enemy.spinCooldown - dt);
       enemy.lungeCooldown = Math.max(0, enemy.lungeCooldown - dt);
       enemy.knockdown = Math.max(0, enemy.knockdown - dt);
       enemy.stun = Math.max(0, enemy.stun - dt);

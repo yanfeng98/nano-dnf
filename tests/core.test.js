@@ -687,11 +687,34 @@ function kitingBot(state) {
   const distance = Math.abs(delta);
   const elapsed = target.attackDuration - target.attackTimer;
   const threatRange =
-    target.attackKind === "slam" && target.slam ? target.slam.radius : target.attackRange;
+    target.attackKind === "slam" && target.slam
+      ? target.slam.radius
+      : target.attackKind === "spin" && target.spinDash
+        ? target.spinDash.radius * 1.6
+        : target.attackRange;
   const activeUntil = target.attackKind === "charge" ? target.chargeTo : target.attackWindup;
-  const threatened = target.attackTimer > 0 && elapsed <= activeUntil + 0.05;
+  const spinWindow =
+    target.attackKind === "spin" && target.spinDash
+      ? target.spinDash.windup + target.spinDash.duration
+      : activeUntil;
+  const threatened = target.attackTimer > 0 && elapsed <= spinWindow + 0.05;
 
   if (threatened) {
+    /*
+     * A spinning sweep outruns a retreat once it is on top of you, so the read
+     * is to back off through the wind-up and jump the sweep itself.
+     */
+    if (target.attackKind === "spin" && target.spinDash) {
+      const closing = delta > 0 ? "left" : "right";
+      if (distance < threatRange + 45) {
+        if (player.onGround && elapsed >= target.spinDash.windup - 0.25) {
+          input.jump = true;
+        } else {
+          input[closing] = true;
+        }
+      }
+      return input;
+    }
     if (distance < threatRange + 45) {
       const away = delta > 0 ? "left" : "right";
       const atLeftWall = player.x <= Core.ARENA.leftWall + player.width;
@@ -1333,7 +1356,7 @@ test("super armour never sticks when a wind-up is interrupted", () => {
   assert.ok(Math.abs(boss.vx) > 0, "the boss must take knockback again");
 });
 
-test("the dungeon gained a caster/charger room directly ahead of the boss", () => {
+test("the gauntlet ahead of the boss mixes caster pressure with the elite mini-boss", () => {
   assert.equal(Core.ROOMS.length, 5, "the dungeon now runs five rooms");
 
   const bossRoom = Core.ROOMS[Core.ROOMS.length - 1];
@@ -1342,15 +1365,134 @@ test("the dungeon gained a caster/charger room directly ahead of the boss", () =
     "the boss must still close the dungeon"
   );
   assert.equal(bossRoom.enemies.length, 2, "the boss room stays a bodyguard fight");
+  assert.equal(
+    bossRoom.enemies.filter((enemy) => enemy.type === "elite").length,
+    0,
+    "the mini-boss belongs to the gauntlet, not the throne room"
+  );
 
-  const mix = Core.ROOMS[Core.ROOMS.length - 2];
-  const types = mix.enemies.map((enemy) => enemy.type);
-  assert.ok(types.includes("caster"), `caster pressure missing from ${mix.name}`);
-  assert.ok(types.includes("charger"), `charger pressure missing from ${mix.name}`);
-  assert.equal(types.includes("boss"), false, "the mix room is not the boss room");
+  const gauntlet = Core.ROOMS[Core.ROOMS.length - 2];
+  const types = gauntlet.enemies.map((enemy) => enemy.type);
+  assert.ok(types.includes("caster"), `caster pressure missing from ${gauntlet.name}`);
+  assert.ok(types.includes("charger"), `charger pressure missing from ${gauntlet.name}`);
+  assert.equal(
+    types.filter((type) => type === "elite").length,
+    1,
+    "the gauntlet holds exactly one elite mini-boss"
+  );
+  assert.equal(types.includes("boss"), false, "the gauntlet is not the throne room");
   assert.ok(
-    types.includes("grunt") || types.includes("brute"),
-    "the lane needs a body, not just two specials"
+    gauntlet.enemies.length <= 3,
+    "the gauntlet stays readable: three threats, one of them the mini-boss"
+  );
+});
+
+test("the elite mini-boss telegraphs a spin that sweeps a wide lane", () => {
+  const state = lastRoomState();
+  const elite = Core.createEnemy(state, "elite", state.player.x + 120);
+  state.enemies = [elite];
+  /* Pin it down so the sweep itself, not a chase, is what threatens the player. */
+  elite.speed = 0;
+  elite.attackRange = 0;
+  const startX = elite.x;
+
+  let telegraphed = false;
+  let sawSuperArmor = false;
+  let sweptForward = false;
+  for (let frame = 0; frame < 60 * 6 && state.stats.damageTaken === 0; frame += 1) {
+    Core.step(state, {});
+    if (state.effects.some((effect) => effect.kind === "telegraph" && effect.text === "SPIN")) {
+      telegraphed = true;
+    }
+    if (elite.attackKind === "spin" && elite.attackTimer > 0 && elite.superArmor) {
+      sawSuperArmor = true;
+    }
+    if (Math.abs(elite.x - startX) > 20) sweptForward = true;
+  }
+
+  assert.ok(telegraphed, "the spin must telegraph before it lands");
+  assert.ok(sawSuperArmor, "the spin must carry super armour");
+  assert.ok(sweptForward, "the sweep must carry the elite forward, not just spin in place");
+  assert.equal(state.stats.damageTaken, Core.ENEMY_TYPES.elite.spinDash.damage);
+
+  /* Let the recovery play out: super armour belongs to the sweep alone. */
+  Core.runFrames(state, 60, {});
+  assert.equal(elite.superArmor, false, "super armour must end with the sweep");
+});
+
+test("the spin is answerable: backing out of the lane avoids it", () => {
+  const run = (retreat) => {
+    const state = lastRoomState();
+    const elite = Core.createEnemy(state, "elite", state.player.x + 120);
+    state.enemies = [elite];
+    elite.speed = 0;
+    elite.attackRange = 0;
+    for (let frame = 0; frame < 60 * 5; frame += 1) {
+      Core.step(state, retreat ? { left: true } : {});
+    }
+    return state.stats.damageTaken;
+  };
+
+  assert.equal(
+    run(false),
+    Core.ENEMY_TYPES.elite.spinDash.damage,
+    "standing in the lane gets clipped"
+  );
+  assert.equal(run(true), 0, "leaving the lane avoids the sweep");
+});
+
+test("the elite mini-boss always pays out a bigger heal orb", () => {
+  const state = lastRoomState();
+  const elite = Core.createEnemy(state, "elite", state.player.x + 60);
+  state.enemies = [elite];
+
+  Core.damageEnemy(state, elite, 9999, 0, state.player.x);
+
+  assert.equal(state.pickups.length, 1, "the elite must always drop");
+  assert.equal(state.pickups[0].value, Core.DROPS.eliteHeal);
+  assert.ok(
+    Core.DROPS.eliteHeal > Core.DROPS.playerHeal &&
+      Core.DROPS.eliteHeal < Core.DROPS.bossHeal,
+    "the mini-boss pays out between a grunt and the boss"
+  );
+});
+
+test("the elite is a mini-boss, not a second boss: no phase two, no boss drop", () => {
+  const state = lastRoomState();
+  const elite = Core.createEnemy(state, "elite", state.player.x + 90);
+  state.enemies = [elite];
+
+  assert.equal(elite.phase2, null, "only the Goblin King enrages");
+  assert.equal(elite.phase, 1);
+  Core.damageEnemy(state, elite, elite.maxHp * 0.6, 0, state.player.x);
+  assert.equal(elite.phase, 1, "the elite never enters a second phase");
+  assert.equal(
+    Core.enterPhase2(state, elite),
+    false,
+    "the elite must refuse a phase change"
+  );
+});
+
+test("the renderer draws the elite's whirl while it spins", () => {
+  /* The elite has to read as a separate rank on screen, not recoloured chaff. */
+  const eliteState = lastRoomState();
+  const elite = Core.createEnemy(eliteState, "elite", eliteState.player.x + 120);
+  eliteState.enemies = [elite];
+  elite.attackKind = "melee";
+  elite.attackTimer = 0;
+  const calm = [];
+  Render.render(recordingContext(calm), eliteState, {});
+  const calmArcs = calm.filter((call) => call[0] === "arc").length;
+
+  elite.attackKind = "spin";
+  elite.attackDuration = 1.7;
+  elite.attackTimer = 1;
+  const whirling = [];
+  Render.render(recordingContext(whirling), eliteState, {});
+  const whirlArcs = whirling.filter((call) => call[0] === "arc").length;
+  assert.ok(
+    whirlArcs >= calmArcs + 2,
+    `the whirl must draw its blades while spinning: ${calmArcs} -> ${whirlArcs}`
   );
 });
 
