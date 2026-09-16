@@ -1508,6 +1508,92 @@ test("a breaking slab hits whoever is standing on it, both sides included", () =
   assert.equal(bruteHp - brute.hp, Core.HAZARD.enemyDamage);
 });
 
+test("each break is counted once and carries its own effect, not a slam", () => {
+  const index = chapelRoomIndex(1);
+  const state = Core.createState({ seed: 1, roomIndex: index });
+  const hazard = state.hazards[0];
+  state.enemies = [];
+  state.player.x = Core.ARENA.leftWall + state.player.width;
+
+  const breaks = [];
+  let previous = 0;
+  for (let frame = 0; frame < Core.FPS * 9; frame += 1) {
+    Core.step(state, {});
+    if (state.stats.collapses > previous) {
+      previous = state.stats.collapses;
+      breaks.push(
+        state.effects.filter((effect) => effect.kind === "collapse").map((effect) => effect.x)
+      );
+    }
+  }
+
+  /* Two slabs, two cycles each in nine seconds. */
+  assert.ok(state.stats.collapses >= 4, `expected several breaks, saw ${state.stats.collapses}`);
+  assert.equal(
+    breaks.length,
+    state.stats.collapses,
+    "the counter and the emitted effects must agree"
+  );
+  breaks.forEach((xPositions, entry) => {
+    assert.equal(xPositions.length, 1, `break ${entry} must emit exactly one effect`);
+    assert.ok(
+      state.hazards.some((slab) => slab.x === xPositions[0]),
+      `break ${entry} points at a real slab`
+    );
+  });
+
+  /* The floor's jolt is not the boss slam: no shockwave is involved. */
+  assert.equal(
+    state.effects.filter((effect) => effect.kind === "shockwave").length,
+    0,
+    "a collapse should not masquerade as a shockwave"
+  );
+});
+
+test("the renderer gives the break its own shake and dust", () => {
+  const firstTranslate = (effects, time) => {
+    const state = lastRoomState();
+    state.time = time;
+    state.effects = effects;
+    const calls = [];
+    Render.render(recordingContext(calls), state, {});
+    const call = calls.find((entry) => entry[0] === "translate");
+    return call ? Math.abs(call[1]) : null;
+  };
+
+  const quiet = firstTranslate([], 0.01);
+  const collapse = firstTranslate(
+    [{ kind: "collapse", x: 600, y: Core.ARENA.groundY, radius: 70, life: 0.6, maxLife: 0.6 }],
+    0.01
+  );
+  assert.ok(quiet !== null && quiet > 50, `no effect means no leading shake, got ${quiet}`);
+  assert.ok(
+    collapse !== null && collapse < 12,
+    `a collapse should shake the frame a little, got ${collapse}`
+  );
+  /* Its own weight: the floor dropping is a harder jolt than a slam wave. */
+  const slam = firstTranslate(
+    [{ kind: "shockwave", x: 600, y: Core.ARENA.groundY, radius: 70, life: 0.6, maxLife: 0.6 }],
+    0.01
+  );
+  assert.ok(
+    collapse > slam,
+    `the collapse should hit harder than a shockwave: ${collapse} vs ${slam}`
+  );
+
+  /* And the dust reads as debris, not just another ring. */
+  const calls = [];
+  const state = lastRoomState();
+  state.effects = [
+    { kind: "collapse", x: 600, y: Core.ARENA.groundY, radius: 70, life: 0.4, maxLife: 0.6 }
+  ];
+  Render.render(recordingContext(calls), state, {});
+  assert.ok(
+    calls.filter((call) => call[0] === "fillRect").length >= 6,
+    "the break should throw grit"
+  );
+});
+
 test("the policy will not walk onto a slab that is about to break", () => {
   const index = chapelRoomIndex(1);
   const state = Core.createState({ seed: 1, roomIndex: index });

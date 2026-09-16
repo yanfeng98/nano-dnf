@@ -836,7 +836,7 @@
       effects: [],
       nextEnemyId: 1,
       nextProjectileId: 1,
-      stats: { hits: 0, kills: 0, damageDealt: 0, damageTaken: 0, airHits: 0 },
+      stats: { hits: 0, kills: 0, damageDealt: 0, damageTaken: 0, airHits: 0, collapses: 0 },
       upgradeChoice: null,
       layout: null,
       victory: false,
@@ -1882,13 +1882,15 @@
         });
       });
 
+      /* Its own effect kind, so the shell can give the floor a distinct cue. */
+      state.stats.collapses += 1;
       state.effects.push({
-        kind: "shockwave",
+        kind: "collapse",
         x: hazard.x,
         y: ARENA.groundY,
         radius: hazard.radius,
-        life: 0.45,
-        maxLife: 0.45
+        life: 0.6,
+        maxLife: 0.6
       });
     });
   }

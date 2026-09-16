@@ -323,6 +323,12 @@
     gate: function () {
       tone(880, 0.2, "sine", 0.16, 0);
       tone(1174, 0.24, "sine", 0.14, 0.1);
+    },
+    /* The floor giving way: a low rumble with grit on top, unlike any hit. */
+    collapse: function () {
+      tone(96, 0.42, "sawtooth", 0.26, 0, 48);
+      noise(0.34, 0.2, 0, 420);
+      noise(0.2, 0.12, 0.06, 1600);
     }
   };
 
@@ -351,6 +357,7 @@
     hp: state.player.hp,
     level: state.player.level,
     roomIndex: 0,
+    collapses: 0,
     victory: false
   };
 
@@ -414,12 +421,14 @@
     if (player.hp < watch.hp) play("hurt");
     if (player.level > watch.level) play("levelup");
     if (state.roomIndex > watch.roomIndex) play("gate");
+    if (state.stats.collapses > watch.collapses) play("collapse");
     if (state.victory && !watch.victory) play("clear");
     watch.hits = state.stats.hits;
     watch.kills = state.stats.kills;
     watch.hp = player.hp;
     watch.level = player.level;
     watch.roomIndex = state.roomIndex;
+    watch.collapses = state.stats.collapses;
     watch.victory = state.victory;
   }
 
@@ -637,6 +646,7 @@
     watch.hp = state.player.hp;
     watch.level = state.player.level;
     watch.roomIndex = 0;
+    watch.collapses = 0;
     watch.victory = false;
   }
 

@@ -924,6 +924,35 @@
       ctx.arc(effect.x, effect.y, effect.radius, -0.95, 0.95);
       ctx.stroke();
       ctx.restore();
+    } else if (effect.kind === "collapse") {
+      /* Dust, and grit thrown up out of the hole. */
+      var fall = 1 - alpha;
+      ctx.save();
+      ctx.globalAlpha = Math.min(1, alpha * 1.2);
+      ctx.fillStyle = "rgba(38, 30, 34, 0.72)";
+      ctx.beginPath();
+      ctx.ellipse(effect.x, effect.y, effect.radius * 0.96, effect.radius * 0.22, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = "rgba(255, 168, 120, 0.75)";
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.ellipse(
+        effect.x,
+        effect.y,
+        effect.radius * (0.9 + fall * 0.5),
+        effect.radius * 0.2 * (0.9 + fall * 0.5),
+        0,
+        0,
+        Math.PI * 2
+      );
+      ctx.stroke();
+      ctx.fillStyle = "rgba(196, 176, 156, 0.9)";
+      for (var grit = 0; grit < 6; grit += 1) {
+        var spread = (grit / 5 - 0.5) * effect.radius * 1.4;
+        var lift = fall * (26 + (grit % 3) * 12);
+        ctx.fillRect(effect.x + spread, effect.y - lift, 3, 5);
+      }
+      ctx.restore();
     }
 
     if (effect.kind === "damage") {
@@ -1482,6 +1511,8 @@
     var shake = 0;
     state.effects.forEach(function (effect) {
       if (effect.kind === "shockwave") shake = Math.max(shake, effect.life / effect.maxLife);
+      /* The floor dropping is its own jolt, not a copy of a slam. */
+      if (effect.kind === "collapse") shake = Math.max(shake, (effect.life / effect.maxLife) * 1.3);
     });
 
     ctx.save();

@@ -403,6 +403,13 @@ async function runPass(browser, baseUrl, options) {
   let loadoutChecks = null;
   const damageLog = [];
   let previousDamage = state.stats.damageTaken;
+  /*
+   * Watch every slab from the outside: a break that was never seen cracking
+   * first would mean the trap fired without warning, which the design forbids
+   * and a player could not dodge.
+   */
+  const slabWatch = new Map();
+  const unwarnedBreaks = [];
   const keyOf = (action) => keyForSkill(action, loadout) || KEY_FOR_ACTION[action];
   const touchTarget = (action) => {
     const index = loadout.indexOf(action);
@@ -454,6 +461,16 @@ async function runPass(browser, baseUrl, options) {
     }
     await page.waitForTimeout(options.mode === "touch" ? 16 : 20);
     state = await readState(page);
+    (state.hazards || []).forEach((hazard, index) => {
+      const key = `${state.roomIndex}:${index}:${hazard.x}`;
+      const entry = slabWatch.get(key) || { warned: false };
+      if (hazard.stage === "cracking") entry.warned = true;
+      if (hazard.stage === "collapsing" && !entry.warned) {
+        unwarnedBreaks.push(`${key} broke without a warning`);
+      }
+      if (hazard.stage === "dormant") entry.warned = false;
+      slabWatch.set(key, entry);
+    });
     if (state.stats.damageTaken > previousDamage) {
       damageLog.push({
         t: Number(state.time.toFixed(1)),
@@ -650,6 +667,7 @@ async function runPass(browser, baseUrl, options) {
     url,
     titleIdle,
     music: { beforeInput: musicBeforeInput, afterRun: musicAfterRun, mute: musicMuteProbe },
+    slabWatch: { unwarnedBreaks, slabs: slabWatch.size },
     expectedKills,
     expectedUpgrades,
     touchMode,
@@ -685,6 +703,14 @@ function problemsFor(pass) {
   }
   /* Soundtrack: silent until the first gesture, then running and mute-aware. */
   const music = pass.music || {};
+  /* The collapsing floor: it must have fired, and never without its warning. */
+  const slabs = pass.slabWatch || {};
+  if (!(pass.state.stats.collapses > 0)) {
+    problems.push(`${pass.mode}: the chapel's floor never broke during the run`);
+  }
+  if (slabs.slabs > 0 && (slabs.unwarnedBreaks || []).length) {
+    problems.push(`${pass.mode}: ${slabs.unwarnedBreaks.join("; ")}`);
+  }
   if (!music.beforeInput || music.beforeInput.started !== false) {
     problems.push(`${pass.mode}: music must not start before the first input`);
   }
@@ -814,6 +840,8 @@ async function main() {
     level: pass.state.player.level,
     upgradesTaken: pass.state.player.upgradesTaken,
     titleIdle: pass.titleIdle,
+    slabWatch: pass.slabWatch,
+    collapses: pass.state.stats.collapses,
     music: pass.music,
     damageLog: pass.damageLog,
     seed: pass.records.seed,
