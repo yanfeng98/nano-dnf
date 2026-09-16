@@ -99,6 +99,25 @@ function decide(state, constants) {
     return want;
   }
 
+  /* A cracked slab is a telegraphed threat: step off it before it drops. */
+  const slabAt = (x) =>
+    (state.hazards || []).find(
+      (hazard) =>
+        hazard.stage &&
+        hazard.stage !== "dormant" &&
+        Math.abs(hazard.x - x) <= hazard.radius + 12
+    );
+  const underfoot = slabAt(player.x);
+  if (underfoot && player.y >= constants.arena.groundY - 26) {
+    const away = underfoot.x >= player.x ? "left" : "right";
+    const atWall =
+      away === "left"
+        ? player.x <= constants.arena.leftWall + player.width
+        : player.x >= constants.arena.rightWall - player.width;
+    want.add(atWall ? (away === "left" ? "right" : "left") : away);
+    return want;
+  }
+
   if (alive.length === 0) {
     want.add("right");
     return want;
@@ -171,7 +190,14 @@ function decide(state, constants) {
     return want;
   }
   if (distance > 60) {
-    want.add(delta > 0 ? "right" : "left");
+    const direction = delta > 0 ? "right" : "left";
+    const ahead = player.x + (direction === "right" ? 60 : -60);
+    if (!slabAt(ahead)) {
+      want.add(direction);
+    } else if (distance <= constants.skills.upSlash.reach) {
+      /* Out of reach and blocked by a breaking slab: hold ground. */
+      want.add("attack");
+    }
     return want;
   }
 
@@ -588,6 +614,23 @@ async function runPass(browser, baseUrl, options) {
     });
     await page.waitForTimeout(90);
     await page.screenshot({ path: path.join(ARTIFACTS, "upgrade-choice.png") });
+
+    /* Freeze a breaking slab so the chapel's own mechanic is visible. */
+    await page.evaluate(() => {
+      const state = window.nanoDnf.getState();
+      const chapel = state.layout.findIndex((index) => {
+        const spec = window.DNFCore.ROOMS[index];
+        return spec.hazards && spec.hazards.length;
+      });
+      if (chapel === -1) return;
+      window.DNFCore.startRoom(state, chapel);
+      state.effects = state.effects.filter((effect) => effect.kind !== "banner");
+      /* Park the room clock at the moment the first slab gives way. */
+      state.roomTime = window.DNFCore.HAZARD.warn + 0.1;
+      state.player.x = state.hazards[0].x + 130;
+    });
+    await page.waitForTimeout(90);
+    await page.screenshot({ path: path.join(ARTIFACTS, "chapel-hazard.png") });
 
     /* Back to the title after a clear: the seed now carries a record. */
     await page.evaluate(() => {

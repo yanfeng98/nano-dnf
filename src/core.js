@@ -532,8 +532,12 @@
       enemies: [
         { type: "caster", x: 560 },
         { type: "brute", x: 720 },
-        { type: "grunt", x: 860 },
-        { type: "grunt", x: 960 }
+        { type: "grunt", x: 860 }
+      ],
+      /* Two slabs give way on offset cycles, so the safe ground keeps moving. */
+      hazards: [
+        { x: 640 },
+        { x: 850 }
       ]
     },
     {
@@ -567,22 +571,51 @@
     };
   }
 
-  /** The room order for one seed: three seeded rooms, the gauntlet, then the boss. */
-  function layoutForSeed(seed) {
-    var next = layoutRandom(seed);
+  /** How much punishment a room's roster carries, by base health. */
+  function roomThreat(index) {
+    return ROOMS[index].enemies.reduce(function (total, entry) {
+      var spec = ENEMY_TYPES[entry.type] || ENEMY_TYPES.grunt;
+      return total + spec.maxHp;
+    }, 0);
+  }
+
+  /**
+   * The gentlest half of the pool. A run opens on one of these: seeding the
+   * order used to be able to put the hardest room first, at level one with no
+   * upgrades, which is a spike rather than a ramp.
+   */
+  function rampRooms() {
     var pool = [];
     for (var index = 0; index < BOSS_ROOM_INDEX; index += 1) {
       if (index !== GAUNTLET_ROOM_INDEX) pool.push(index);
     }
+    pool.sort(function (a, b) {
+      return roomThreat(a) - roomThreat(b) || a - b;
+    });
+    return pool.slice(0, Math.max(1, Math.ceil(pool.length / 2)));
+  }
+
+  /** The room order for one seed: a ramp room, two more, the gauntlet, the boss. */
+  function layoutForSeed(seed) {
+    var next = layoutRandom(seed);
+    var ramps = rampRooms();
+    var opening = ramps[Math.min(ramps.length - 1, Math.floor(next() * ramps.length))];
+
+    var rest = [];
+    for (var index = 0; index < BOSS_ROOM_INDEX; index += 1) {
+      if (index !== GAUNTLET_ROOM_INDEX && index !== opening) rest.push(index);
+    }
     /* Fisher-Yates on a copy, so the pool itself is never reordered. */
-    for (var cursor = pool.length - 1; cursor > 0; cursor -= 1) {
+    for (var cursor = rest.length - 1; cursor > 0; cursor -= 1) {
       var swap = Math.floor(next() * (cursor + 1));
       if (swap > cursor) swap = cursor;
-      var held = pool[cursor];
-      pool[cursor] = pool[swap];
-      pool[swap] = held;
+      var held = rest[cursor];
+      rest[cursor] = rest[swap];
+      rest[swap] = held;
     }
-    return pool.slice(0, RUN_COMBAT_ROOMS - 1).concat([GAUNTLET_ROOM_INDEX, BOSS_ROOM_INDEX]);
+    return [opening]
+      .concat(rest.slice(0, RUN_COMBAT_ROOMS - 2))
+      .concat([GAUNTLET_ROOM_INDEX, BOSS_ROOM_INDEX]);
   }
 
   var DEFAULT_SEED = 20260915;
@@ -630,6 +663,21 @@
 
   var UPGRADE_ORDER = ["attack", "maxHp", "mpRegen", "skillPower"];
   var UPGRADES_PER_ROOM = 3;
+
+  /*
+   * Collapsing floor. A hazard warns for long enough to walk out, then breaks
+   * under anything still standing on it - mobs included, which is what makes the
+   * chapel play differently rather than just longer.
+   */
+  var HAZARD = {
+    radius: 72,
+    period: 4.2,
+    warn: 1.35,
+    collapse: 0.45,
+    playerDamage: 12,
+    enemyDamage: 24,
+    enemyKnockdown: 0.7
+  };
 
   function nextRandom(state) {
     var t = (state.rngState = (state.rngState + 0x6d2b79f5) >>> 0);
@@ -826,6 +874,18 @@
     state.pickups = [];
     state.projectiles = [];
     state.upgradeChoice = null;
+    state.roomTime = 0;
+    state.hazards = (spec.hazards || []).map(function (hazard, index) {
+      return {
+        x: hazard.x,
+        radius: hazard.radius || HAZARD.radius,
+        /* Offset the cycles so the whole room never breaks at once. */
+        phase: (hazard.phase === undefined ? index * (HAZARD.period / 2) : hazard.phase) % HAZARD.period,
+        stage: "dormant",
+        warnedCycle: -1,
+        resolvedCycle: -1
+      };
+    });
     state.effects.push({
       kind: "banner",
       text: "Room " + (roomIndex + 1) + " - " + spec.name,
@@ -1773,6 +1833,66 @@
     }
   }
 
+  /**
+   * Run the collapsing-floor cycle for the current room.
+   *
+   * Each hazard is dormant, then cracked (warned, escapable), then briefly
+   * broken. Anything grounded inside the slab when it goes takes the hit, so the
+   * player can also lure a brute onto one.
+   */
+  function updateHazards(state, dt) {
+    var hazards = state.hazards;
+    if (!hazards || hazards.length === 0) return;
+    state.roomTime = (state.roomTime || 0) + dt;
+
+    hazards.forEach(function (hazard) {
+      var offset = state.roomTime + hazard.phase;
+      var local = offset % HAZARD.period;
+      var cycle = Math.floor(offset / HAZARD.period);
+      var cracking = local < HAZARD.warn;
+      var collapsing = !cracking && local < HAZARD.warn + HAZARD.collapse;
+      hazard.stage = cracking ? "cracking" : collapsing ? "collapsing" : "dormant";
+
+      if (cracking && hazard.warnedCycle !== cycle) {
+        hazard.warnedCycle = cycle;
+        state.effects.push({
+          kind: "telegraph",
+          text: "CRACK",
+          x: hazard.x,
+          y: ARENA.groundY,
+          radius: hazard.radius,
+          dir: 0,
+          life: HAZARD.warn,
+          maxLife: HAZARD.warn
+        });
+      }
+      if (!collapsing || hazard.resolvedCycle === cycle) return;
+      hazard.resolvedCycle = cycle;
+
+      var player = state.player;
+      var groundedPlayer =
+        !player.dead && player.y >= ARENA.groundY - 26 && Math.abs(player.x - hazard.x) <= hazard.radius;
+      if (groundedPlayer) damagePlayer(state, HAZARD.playerDamage, hazard.x);
+
+      state.enemies.slice().forEach(function (enemy) {
+        if (enemy.dead || !enemy.onGround) return;
+        if (Math.abs(enemy.x - hazard.x) > hazard.radius) return;
+        damageEnemy(state, enemy, HAZARD.enemyDamage, 0, hazard.x, {
+          knockdown: HAZARD.enemyKnockdown
+        });
+      });
+
+      state.effects.push({
+        kind: "shockwave",
+        x: hazard.x,
+        y: ARENA.groundY,
+        radius: hazard.radius,
+        life: 0.45,
+        maxLife: 0.45
+      });
+    });
+  }
+
   function updatePickups(state, dt) {
     var player = state.player;
     var remaining = [];
@@ -1827,6 +1947,7 @@
 
     updatePlayer(state, input, dt);
     updateEnemies(state, dt);
+    updateHazards(state, dt);
     updatePickups(state, dt);
     resolveRoom(state);
     return state;
@@ -1857,9 +1978,12 @@
     ALTERNATE_ROOM_INDEX: ALTERNATE_ROOM_INDEX,
     RUN_COMBAT_ROOMS: RUN_COMBAT_ROOMS,
     layoutForSeed: layoutForSeed,
+    roomThreat: roomThreat,
+    rampRooms: rampRooms,
     UPGRADES: UPGRADES,
     UPGRADE_ORDER: UPGRADE_ORDER,
     UPGRADES_PER_ROOM: UPGRADES_PER_ROOM,
+    HAZARD: HAZARD,
     DEFAULT_SEED: DEFAULT_SEED,
     clamp: clamp,
     createState: createState,

@@ -45,12 +45,16 @@ Pages workflow 的 deploy 之后，让静默落后或报错的部署直接把流
 第十三切片让**种子真正决定地牢**：房间池扩到 6 间（5 间战斗房 + 王座），每次跑图从中抽
 4 间战斗房并打乱顺序，最后固定接「断桥」小 Boss 房与王座。抽签用独立的小随机器，
 不消耗放置敌人的随机流，所以同一种子完全可复现；不同种子在顺序与**跳过哪一间**上都不同
-（400 个种子里 24 种开场顺序全都出现过，新增的「沉没礼拜堂」约 3/4 的种子会遇到）。
+（400 个种子里 12 种开场顺序都出现过，新增的「沉没礼拜堂」约 3/4 的种子会遇到）。
+第十四切片给替补房装了机制：沉没礼拜堂的地板会**裂开再塌陷**，站在上面的谁都吃伤害——
+敌人也算，所以可以把重甲兵引到裂缝上。同期发现并修掉一个真实的手感问题：种子能把全池第二硬的
+「骨龛之门」排在第一间，1 级、0 强化硬撞；改成**开局房只从最温和的一半里抽**之后，
+同一条触屏通路从 28 点承伤降到 0–7，四位种子的确定性成绩也从 7/7/6/0 变成**全 0**。
 
 ## 运行
 
 ```bash
-npm test          # 98 个核心逻辑、Boss/小 Boss 机制、强化与通关记录、配乐调度、发布暂存契约与渲染冒烟测试
+npm test          # 102 个核心逻辑、Boss/小 Boss 机制、强化与通关记录、配乐调度、发布暂存契约与渲染冒烟测试
 npm run test:browser # 无头 Chromium 跑真实页面：键盘 + 触屏两条通路各通关一次
 npm run test:live # 线上产物冒烟：核对线上字节是否与本地一致，并在无头浏览器里跑一次真实页面
 npm run serve     # 起本地静态服务，然后打开 http://localhost:8080
@@ -187,14 +191,28 @@ HUD 左下角是技能栏，显示按键、技能名、MP 消耗与冷却读秒�
 
 | 例子种子 | 这一局的房间顺序 |
 | --- | --- |
-| `1` | 沉没礼拜堂 → 血色涵洞 → 遗弃小巷 → 断桥 → 王座 |
-| `7` | 骨龛之门 → 血色涵洞 → 沉没礼拜堂 → 断桥 → 王座 |
-| `42` | 遗弃小巷 → 沉没礼拜堂 → 血色涵洞 → 断桥 → 王座 |
+| `1` | 沉没礼拜堂 → 骨龛之门 → 血色涵洞 → 断桥 → 王座 |
+| `7` | 遗弃小巷 → 沉没礼拜堂 → 骨龛之门 → 断桥 → 王座 |
+| `42` | 沉没礼拜堂 → 遗弃小巷 → 骨龛之门 → 断桥 → 王座 |
 
 抽签用的是独立的小随机器（不消耗放置敌人的随机流），所以同一个种子连敌人站位都完全复现；
 不同种子除了顺序不同，**跳过的房间**也不同，总敌人数因此会变。
 
+**开局房按威胁度抽**：房间按名单总血量分档，第一间只会从最温和的一半里出。这条是实测逼出来的——
+早期版本允许种子把「骨龛之门」（冲锋兵+双重甲，全池第二硬）排在第一间，1 级、0 强化就撞上它，
+触屏通路连吃 28 点伤害；限制开局房之后，同一条通路降到 0–7。
+
 ## 通关记录
+
+## 沉没礼拜堂：塌陷地板
+
+替补房「沉没礼拜堂」有自己的机制：地面上有两块**会塌的石板**（`src/core.js` 的 `HAZARD`）。
+每 4.2 秒一个循环——先裂开 1.35 秒（地上出现 `CRACK` 预警圈、裂缝变红），然后塌陷 0.45 秒，
+之后休息。两块石板**相位错开**，所以安全区会来回移动。
+
+塌陷时**站在板上的任何东西**都会吃伤害：玩家 12 点，敌人 24 点并被击倒。也就是说这块地板
+不分敌我——把重甲兵引到裂缝上，它会替你挨一下。地板是常驻可见的，预警也给足 1.35 秒，
+所以这是"要动起来"的压力，不是阴招。
 
 每次通关会按种子记一笔成绩，存在浏览器 `localStorage`（键 `nano-dnf-records`）：
 该种子的**最快时间**与**当时的等级**，以及这个种子通关过几次。标题界面右上角显示当前种子与记录，
@@ -279,8 +297,8 @@ python3 assets/import_dnf_art.py --icons 94,154,132,10,18,6,48,160,98,138,172
 200、WebAudio 已初始化。最近一次结果：
 
 ```
-keyboard victory=true kills=14 damageTaken=0 seconds=56.2 level=5  upgrades=锐锋×3+鬼气  record=0:56.2 Lv5  music=started(318 notes, bus 0.5)  audio=created/running  drag=月光斩→槽A persisted=true
-touch    victory=true kills=14 damageTaken=15 seconds=55.8 level=5  upgrades=锐锋×3+鬼气  record=0:55.8 Lv5  music=started(284 notes, bus 0.5)  touchMode=true audio=created/running muteToggle=ok
+keyboard victory=true kills=14 damageTaken=7 seconds=46.6 level=5  upgrades=锐锋×3+鬼气  record=0:46.6 Lv5  music=started(263 notes, bus 0.5)  audio=created/running  drag=月光斩→槽A persisted=true
+touch    victory=true kills=14 damageTaken=0 seconds=49.8 level=5  upgrades=锐锋×3+鬼气  record=0:49.8 Lv5  music=started(256 notes, bus 0.5)  touchMode=true audio=created/running muteToggle=ok
 consoleErrors=[] pageErrors=[] failedRequests=[]
 assets: index.html / loadout.js / main.js / render.js / core.js / slayer.png / skills.png / effects.png / favicon.png 全部 200
 ```

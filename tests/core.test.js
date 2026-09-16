@@ -29,6 +29,13 @@ function roomIndexWithCaster(seed) {
   );
 }
 
+/** Where this seed's run fights the collapsing-floor room, or -1. */
+function chapelRoomIndex(seed) {
+  return Core.layoutForSeed(seed === undefined ? Core.DEFAULT_SEED : seed).indexOf(
+    Core.ALTERNATE_ROOM_INDEX
+  );
+}
+
 /** Last room never advances, so movement tests can run without a room transition. */
 function lastRoomState(seed) {
   const state = Core.createState({
@@ -717,6 +724,35 @@ function kitingBot(state) {
     if (pick) Core.chooseUpgrade(state, pick);
     return { left: false, right: false, jump: false, attack: false, skills: {} };
   }
+  /* A cracked slab is a telegraphed threat: step off it before it drops. */
+  const slab = (state.hazards || []).find(
+    (hazard) =>
+      hazard.stage &&
+      hazard.stage !== "dormant" &&
+      Math.abs(hazard.x - player.x) <= hazard.radius + 12
+  );
+  if (slab && player.y >= Core.ARENA.groundY - 26) {
+    const away = slab.x >= player.x ? "left" : "right";
+    const atWall =
+      away === "left"
+        ? player.x <= Core.ARENA.leftWall + player.width
+        : player.x >= Core.ARENA.rightWall - player.width;
+    return {
+      left: atWall ? away !== "left" : away === "left",
+      right: atWall ? away !== "right" : away === "right",
+      jump: false,
+      attack: false,
+      skills: {}
+    };
+  }
+  /* And it should not walk back onto one while it is still breaking. */
+  const activeSlabAt = (x) =>
+    (state.hazards || []).some(
+      (hazard) =>
+        hazard.stage &&
+        hazard.stage !== "dormant" &&
+        Math.abs(hazard.x - x) <= hazard.radius + 12
+    );
   const input = { left: false, right: false, jump: false, attack: false, skills: {} };
   Core.SKILL_ORDER.forEach((skillId) => {
     input.skills[skillId] = false;
@@ -783,8 +819,14 @@ function kitingBot(state) {
     return input;
   }
   if (distance > 60) {
-    if (delta > 0) input.right = true;
-    else input.left = true;
+    const direction = delta > 0 ? "right" : "left";
+    const ahead = player.x + (direction === "right" ? 60 : -60);
+    if (!activeSlabAt(ahead)) {
+      input[direction] = true;
+    } else if (distance <= Core.PLAYER.attackReach) {
+      /* Out of reach of the mob and blocked by a breaking slab: hold ground. */
+      input.attack = true;
+    }
     return input;
   }
   /* Attacks only reach where the Slayer looks, so turn around first. */
@@ -1410,6 +1452,92 @@ test("super armour never sticks when a wind-up is interrupted", () => {
   assert.ok(Math.abs(boss.vx) > 0, "the boss must take knockback again");
 });
 
+test("the chapel's floor cracks, breaks, and then settles again", () => {
+  const index = chapelRoomIndex(1);
+  assert.notEqual(index, -1, "seed 1 should draw the chapel");
+  const state = Core.createState({ seed: 1, roomIndex: index });
+  assert.equal(state.hazards.length, 2, "the chapel has two slabs");
+
+  const seen = new Set();
+  const stages = [];
+  for (let frame = 0; frame < Core.FPS * 9; frame += 1) {
+    Core.step(state, {});
+    const stage = state.hazards[0].stage;
+    seen.add(stage);
+    if (stages[stages.length - 1] !== stage) stages.push(stage);
+  }
+
+  assert.deepEqual([...seen].sort(), ["collapsing", "cracking", "dormant"]);
+  assert.ok(stages.includes("cracking"), "the slab must warn before it breaks");
+  assert.ok(
+    stages.indexOf("cracking") < stages.indexOf("collapsing"),
+    `warning comes first: ${stages.join(" -> ")}`
+  );
+  /* The two slabs are offset, so the whole floor never goes at once. */
+  const offset = state.hazards[1].phase - state.hazards[0].phase;
+  assert.ok(Math.abs(offset) > 0.5, `slabs need different phases, got ${offset}`);
+});
+
+test("a breaking slab hits whoever is standing on it, both sides included", () => {
+  const index = chapelRoomIndex(1);
+  const state = Core.createState({ seed: 1, roomIndex: index });
+  state.enemies = [];
+  const hazard = state.hazards[0];
+  state.player.x = hazard.x;
+
+  let broke = false;
+  for (let frame = 0; frame < Core.FPS * 6 && !broke; frame += 1) {
+    Core.step(state, {});
+    broke = state.stats.damageTaken > 0;
+  }
+  assert.ok(broke, "standing on the slab must cost health");
+  assert.equal(state.stats.damageTaken, Core.HAZARD.playerDamage);
+
+  /* A mob parked on a slab takes the same floor, with a knockdown. */
+  const trap = Core.createState({ seed: 1, roomIndex: index });
+  const slab = trap.hazards[0];
+  const brute = Core.createEnemy(trap, "brute", slab.x);
+  brute.speed = 0;
+  trap.enemies = [brute];
+  trap.player.x = Core.ARENA.leftWall + trap.player.width;
+  const bruteHp = brute.hp;
+  for (let frame = 0; frame < Core.FPS * 6 && brute.hp === bruteHp; frame += 1) {
+    Core.step(trap, {});
+  }
+  assert.ok(brute.hp < bruteHp, "the floor does not care whose side you are on");
+  assert.equal(bruteHp - brute.hp, Core.HAZARD.enemyDamage);
+});
+
+test("the policy will not walk onto a slab that is about to break", () => {
+  const index = chapelRoomIndex(1);
+  const state = Core.createState({ seed: 1, roomIndex: index });
+  const hazard = state.hazards[0];
+  /* Stand left of the slab with the only enemy beyond it: walking right crosses
+   * the slab, so the policy has to wait instead. */
+  state.player.x = hazard.x - hazard.radius - 90;
+  const far = Core.createEnemy(state, "grunt", hazard.x + hazard.radius + 120);
+  far.speed = 0;
+  /* A sponge, so the room cannot clear and the slab stays under test. */
+  far.maxHp = 100000;
+  far.hp = 100000;
+  state.enemies = [far];
+
+  let waited = false;
+  for (let frame = 0; frame < Core.FPS * 6 && state.hazards.length; frame += 1) {
+    Core.step(state, kitingBot(state));
+    if (
+      state.hazards.length &&
+      state.hazards[0].stage !== "dormant" &&
+      state.player.x < hazard.x - hazard.radius
+    ) {
+      waited = true;
+    }
+  }
+
+  assert.equal(state.stats.damageTaken, 0, "the policy should not be caught by the floor");
+  assert.ok(waited, "and it should hold ground while the slab is unsafe");
+});
+
 test("a seed draws its own room order and replays exactly", () => {
   const layout = Core.layoutForSeed(7);
   assert.deepEqual(Core.layoutForSeed(7), layout, "the same seed must draw the same run");
@@ -1423,6 +1551,39 @@ test("a seed draws its own room order and replays exactly", () => {
   const pool = Core.ROOMS.map((room) => room.name).join(",");
   Core.layoutForSeed(999);
   assert.equal(Core.ROOMS.map((room) => room.name).join(","), pool);
+});
+
+test("a run opens on a ramp room, never on the hardest fight", () => {
+  const ramps = Core.rampRooms();
+  assert.ok(ramps.length >= 2, "there has to be a choice of opening rooms");
+  ramps.forEach((index) => {
+    const hardest = Math.max(...Core.rampRooms().map((room) => Core.roomThreat(room)));
+    assert.ok(
+      Core.roomThreat(index) <= hardest,
+      `${Core.ROOMS[index].name} is meant to be one of the gentler rooms`
+    );
+  });
+
+  for (let seed = 1; seed <= 200; seed += 1) {
+    const opening = Core.layoutForSeed(seed)[0];
+    assert.ok(
+      ramps.includes(opening),
+      `seed ${seed} opened on ${Core.ROOMS[opening].name}, which is not a ramp room`
+    );
+  }
+
+  /* The hard rooms still show up, just not first. */
+  const hard = [];
+  for (let index = 0; index < Core.BOSS_ROOM_INDEX; index += 1) {
+    if (index !== Core.GAUNTLET_ROOM_INDEX && !ramps.includes(index)) hard.push(index);
+  }
+  assert.ok(hard.length >= 1, "the pool needs rooms harder than the ramp set");
+  hard.forEach((index) => {
+    const appearsLater = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].some((seed) =>
+      Core.layoutForSeed(seed).slice(1).includes(index)
+    );
+    assert.ok(appearsLater, `${Core.ROOMS[index].name} should still be reachable later in a run`);
+  });
 });
 
 test("every run is four combat rooms plus the throne, with the gauntlet last", () => {

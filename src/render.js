@@ -354,6 +354,34 @@
     ctx.fillRect(0, 0, ARENA.width, ARENA.height);
   }
 
+  /** Cracked slabs are always visible, so a trap is never a surprise. */
+  function drawHazards(ctx, state) {
+    (state.hazards || []).forEach(function (hazard) {
+      var stage = hazard.stage || "dormant";
+      ctx.save();
+      ctx.translate(hazard.x, ARENA.groundY);
+      ctx.strokeStyle =
+        stage === "dormant" ? "rgba(120, 150, 190, 0.34)" : "rgba(255, 152, 110, 0.9)";
+      ctx.lineWidth = stage === "collapsing" ? 3.5 : 2;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, hazard.radius, hazard.radius * 0.22, 0, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(-hazard.radius * 0.62, -2);
+      ctx.lineTo(-hazard.radius * 0.12, -9);
+      ctx.lineTo(hazard.radius * 0.24, -3);
+      ctx.lineTo(hazard.radius * 0.68, -10);
+      ctx.stroke();
+      if (stage !== "dormant") {
+        ctx.fillStyle = "rgba(24, 14, 12, 0.5)";
+        ctx.beginPath();
+        ctx.ellipse(0, 0, hazard.radius * 0.88, hazard.radius * 0.19, 0, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+    });
+  }
+
   function drawGate(ctx, state) {
     var x = ARENA.rightWall + 6;
     var open = state.room && state.room.cleared;
@@ -1462,6 +1490,7 @@
     }
     drawBackdrop(ctx, state);
     drawGate(ctx, state);
+    drawHazards(ctx, state);
 
     state.enemies.forEach(function (enemy) {
       drawEnemy(ctx, state, enemy);
