@@ -1712,6 +1712,97 @@ test("the renderer gives the enraged boss its own palette, aura and bar label", 
   );
 });
 
+test("the title screen shows the seed record and a clear shows the result", () => {
+  const textsFrom = (calls) =>
+    calls.filter((call) => call[0] === "fillText").map((call) => String(call[1]));
+  const run = {
+    seed: 7,
+    improved: false,
+    seedText: "种子 7",
+    recordText: "本种子最佳 0:44.4 · Lv 4 · 已通关 2 次（累计 3 次）",
+    resultText: "本次 0:52.0 · Lv 5"
+  };
+
+  const titleCalls = [];
+  Render.render(recordingContext(titleCalls), Core.createState({ seed: 7 }), {
+    showHelp: true,
+    run: run
+  });
+  const titleTexts = textsFrom(titleCalls);
+  assert.ok(titleTexts.includes("种子 7"), `title must show the seed: ${titleTexts.join(" / ")}`);
+  assert.ok(
+    titleTexts.some((text) => text.includes("本种子最佳 0:44.4")),
+    "title must show this seed's best"
+  );
+  assert.ok(titleTexts.includes("按 N 换一个种子"), "title must offer a fresh seed");
+
+  const cleared = Core.createState({ seed: 7, roomIndex: Core.ROOMS.length - 1 });
+  cleared.victory = true;
+  const clearCalls = [];
+  Render.render(recordingContext(clearCalls), cleared, {
+    run: { seed: 7, improved: true, resultText: "新纪录！ 0:44.4 · Lv 4", recordText: run.recordText }
+  });
+  const clearTexts = textsFrom(clearCalls);
+  assert.ok(clearTexts.includes("DUNGEON CLEARED"));
+  assert.ok(
+    clearTexts.some((text) => text.includes("新纪录！")),
+    `a record run must say so: ${clearTexts.join(" / ")}`
+  );
+  assert.ok(
+    clearTexts.some((text) => text.includes("本种子最佳")),
+    "the clear screen must repeat the standing record"
+  );
+});
+
+test("the reward chooser never shows through a full-screen overlay", () => {
+  const state = clearedRoomState(Core.DEFAULT_SEED, 0);
+  assert.ok(state.upgradeChoice, "precondition: a reward choice is pending");
+
+  const textsFor = (meta) => {
+    const calls = [];
+    Render.render(recordingContext(calls), state, meta);
+    return calls.filter((call) => call[0] === "fillText").map((call) => String(call[1]));
+  };
+
+  assert.ok(
+    textsFor({}).some((text) => text.includes("选一个强化")),
+    "live play must show the chooser"
+  );
+
+  [
+    ["pause", { paused: true }],
+    ["title", { showHelp: true }]
+  ].forEach(([label, meta]) => {
+    assert.equal(
+      textsFor(meta).some((text) => text.includes("选一个强化")),
+      false,
+      `the chooser must stay hidden behind the ${label} overlay`
+    );
+  });
+
+  state.victory = true;
+  assert.equal(
+    textsFor({}).some((text) => text.includes("选一个强化")),
+    false,
+    "the victory overlay hides the chooser too"
+  );
+});
+
+test("a run without a record yet says so instead of inventing one", () => {
+  const calls = [];
+  Render.render(recordingContext(calls), Core.createState({ seed: 7 }), {
+    showHelp: true,
+    run: { seed: 7, seedText: "种子 7", recordText: "本种子还没有通关记录", improved: false }
+  });
+  const texts = calls.filter((call) => call[0] === "fillText").map((call) => String(call[1]));
+  assert.ok(texts.some((text) => text.includes("还没有通关记录")));
+  assert.equal(
+    texts.some((text) => text.includes("新纪录")),
+    false,
+    "an unfinished run cannot claim a record"
+  );
+});
+
 test("the room banner moves clear of the boss bar and the help quotes the real room count", () => {
   const bannerY = (roomIndex) => {
     const calls = [];

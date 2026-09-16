@@ -262,10 +262,20 @@ async function dragSkillToSlot(page, skillId, slotIndex) {
 }
 
 /** Hold or release an on-screen control through real pointer events. */
-async function touchAction(page, action, down) {
-  await page.evaluate(
-    ({ action, down }) => {
-      const canvas = document.getElementById("stage");
+/**
+ * Press/release a batch of on-screen controls in one round trip.
+ *
+ * The touch path used to pay one page.evaluate per changed action, which made
+ * the bot's reaction time a function of harness latency rather than of the
+ * policy. Batching keeps the pass a fair proxy for a competent touch player.
+ */
+async function touchActions(page, changes) {
+  if (!changes.length) return;
+  await page.evaluate((list) => {
+    const canvas = document.getElementById("stage");
+    const rect = canvas.getBoundingClientRect();
+    window.__touchIds = window.__touchIds || {};
+    for (const { action, down } of list) {
       const slotIndex = action.startsWith("slot") ? Number(action.slice(4)) : -1;
       const choiceIndex = action.startsWith("choice") ? Number(action.slice(6)) : -1;
       const button =
@@ -274,10 +284,9 @@ async function touchAction(page, action, down) {
           : slotIndex >= 0
             ? window.DNFRender.touchBarButtons()[slotIndex]
             : window.DNFRender.touchButtons().find((entry) => entry.action === action);
-      const rect = canvas.getBoundingClientRect();
+      if (!button) continue;
       const clientX = rect.left + ((button.x + button.w / 2) / canvas.width) * rect.width;
       const clientY = rect.top + ((button.y + button.h / 2) / canvas.height) * rect.height;
-      window.__touchIds = window.__touchIds || {};
       if (!window.__touchIds[action]) {
         window.__touchIds[action] = Object.keys(window.__touchIds).length + 1;
       }
@@ -293,9 +302,12 @@ async function touchAction(page, action, down) {
           buttons: down ? 1 : 0
         })
       );
-    },
-    { action, down }
-  );
+    }
+  }, changes);
+}
+
+async function touchAction(page, action, down) {
+  await touchActions(page, [{ action, down }]);
 }
 
 async function runPass(browser, baseUrl, options) {
@@ -337,6 +349,11 @@ async function runPass(browser, baseUrl, options) {
   let loadoutChecks = null;
   const damageLog = [];
   let previousDamage = state.stats.damageTaken;
+  const keyOf = (action) => keyForSkill(action, loadout) || KEY_FOR_ACTION[action];
+  const touchTarget = (action) => {
+    const index = loadout.indexOf(action);
+    return index === -1 ? action : `slot${index}`;
+  };
 
   while (!state.victory && !state.defeat) {
     if ((Date.now() - started) / 1000 > MAX_SECONDS) {
@@ -350,23 +367,31 @@ async function runPass(browser, baseUrl, options) {
       throw new Error(`${options.mode} pass did not finish within ${MAX_SECONDS}s`);
     }
     const want = decide(state, constants);
-    const keyOf = (action) => keyForSkill(action, loadout) || KEY_FOR_ACTION[action];
-    const touchTarget = (action) => {
-      const index = loadout.indexOf(action);
-      return index === -1 ? action : `slot${index}`;
-    };
+    const changes = [];
     for (const action of [...held]) {
       if (!want.has(action)) {
-        if (options.mode === "touch") await touchAction(page, touchTarget(action), false);
-        else await page.keyboard.up(keyOf(action));
+        changes.push({ action: action, down: false });
         held.delete(action);
       }
     }
     for (const action of want) {
       if (!held.has(action)) {
-        if (options.mode === "touch") await touchAction(page, touchTarget(action), true);
-        else await page.keyboard.down(keyOf(action));
+        changes.push({ action: action, down: true });
         held.add(action);
+      }
+    }
+    if (options.mode === "touch") {
+      await touchActions(
+        page,
+        changes.map((change) => ({
+          action: touchTarget(change.action),
+          down: change.down
+        }))
+      );
+    } else {
+      for (const change of changes) {
+        if (change.down) await page.keyboard.down(keyOf(change.action));
+        else await page.keyboard.up(keyOf(change.action));
       }
     }
     if (!midShot && state.roomIndex === 1) {
@@ -404,8 +429,11 @@ async function runPass(browser, baseUrl, options) {
   }
 
   for (const action of held) {
-    if (options.mode === "touch") await touchAction(page, action, false);
-    else await page.keyboard.up(KEY_FOR_ACTION[action]);
+    if (options.mode === "touch") {
+      await touchActions(page, [{ action: touchTarget(action), down: false }]);
+    } else {
+      await page.keyboard.up(keyOf(action));
+    }
   }
 
   /* Mute toggle must survive a round trip through the on-screen control. */
@@ -421,6 +449,13 @@ async function runPass(browser, baseUrl, options) {
   }
 
   const audio = await page.evaluate(() => window.nanoDnf.getAudioState());
+  /* The cleared run must have been banked, and banked in storage. */
+  const records = await page.evaluate(() => ({
+    seed: window.nanoDnf.getSeed(),
+    store: window.nanoDnf.getRecords(),
+    summary: window.nanoDnf.getRunSummary(),
+    stored: window.localStorage.getItem("nano-dnf-records")
+  }));
   if (options.mode === "keyboard") {
     /* Arrange the bar with the keyboard toggle plus a real pointer drag. */
     await page.keyboard.press("KeyB");
@@ -510,6 +545,17 @@ async function runPass(browser, baseUrl, options) {
     });
     await page.waitForTimeout(90);
     await page.screenshot({ path: path.join(ARTIFACTS, "upgrade-choice.png") });
+
+    /* Back to the title after a clear: the seed now carries a record. */
+    await page.evaluate(() => {
+      const state = window.nanoDnf.getState();
+      state.victory = false;
+      state.defeat = false;
+    });
+    await page.keyboard.press("F1");
+    await page.waitForTimeout(90);
+    await page.screenshot({ path: path.join(ARTIFACTS, "title-record.png") });
+    await page.keyboard.press("F1");
   }
   await context.close();
 
@@ -522,6 +568,7 @@ async function runPass(browser, baseUrl, options) {
     state,
     damageLog,
     audio,
+    records,
     muteRoundTrip,
     loadoutChecks,
     diagnostics,
@@ -533,6 +580,36 @@ function problemsFor(pass) {
   const problems = [];
   if (!pass.state.victory) problems.push(`${pass.mode}: dungeon was not cleared`);
   if (pass.state.defeat) problems.push(`${pass.mode}: player died`);
+  const banked = pass.records && pass.records.store && pass.records.store.seeds
+    ? pass.records.store.seeds[String(pass.records.seed)]
+    : null;
+  if (!banked) {
+    problems.push(`${pass.mode}: the cleared run was not recorded for seed ${pass.records.seed}`);
+  } else {
+    if (banked.clears !== 1) {
+      problems.push(`${pass.mode}: expected 1 clear on the fresh store, got ${banked.clears}`);
+    }
+    /*
+     * The record is banked on the victory frame, while `state.time` keeps
+     * ticking afterwards so the closing banners can fade. A one-second window
+     * proves the recorded time is the clear time without pinning a frame.
+     */
+    const drift = pass.state.time - banked.seconds;
+    if (drift < 0 || drift > 1) {
+      problems.push(
+        `${pass.mode}: recorded ${banked.seconds}s but the run took ${pass.state.time}s`
+      );
+    }
+    if (banked.level !== pass.state.player.level) {
+      problems.push(`${pass.mode}: recorded Lv ${banked.level}, run ended at Lv ${pass.state.player.level}`);
+    }
+    if (!pass.records.summary || !pass.records.summary.recordText) {
+      problems.push(`${pass.mode}: the title screen has no record line to show`);
+    }
+    if (!pass.records.stored) {
+      problems.push(`${pass.mode}: the record never reached localStorage`);
+    }
+  }
   if (pass.state.stats.kills !== pass.expectedKills) {
     problems.push(`${pass.mode}: kills=${pass.state.stats.kills} (expected ${pass.expectedKills})`);
   }
@@ -613,6 +690,10 @@ async function main() {
     level: pass.state.player.level,
     upgradesTaken: pass.state.player.upgradesTaken,
     damageLog: pass.damageLog,
+    seed: pass.records.seed,
+    record: (pass.records.store.seeds || {})[String(pass.records.seed)] || null,
+    recordText: (pass.records.summary || {}).recordText || null,
+    storedRecord: !!pass.records.stored,
     touchMode: pass.touchMode,
     audio: pass.audio,
     muteRoundTrip: pass.muteRoundTrip,

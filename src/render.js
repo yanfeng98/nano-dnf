@@ -1339,6 +1339,20 @@
         ARENA.width / 2,
         ARENA.height / 2 + 34
       );
+      if (meta && meta.run && meta.run.resultText && state.victory) {
+        ctx.font = "700 20px 'PingFang SC', 'Segoe UI', sans-serif";
+        ctx.fillStyle = meta.run.improved ? PALETTE.gold : PALETTE.textDim;
+        ctx.fillText(
+          meta.run.resultText,
+          ARENA.width / 2,
+          ARENA.height / 2 + 70
+        );
+      }
+      if (meta && meta.run && meta.run.recordText) {
+        ctx.font = "600 16px 'PingFang SC', 'Segoe UI', sans-serif";
+        ctx.fillStyle = PALETTE.textDim;
+        ctx.fillText(meta.run.recordText, ARENA.width / 2, ARENA.height / 2 + 98);
+      }
       ctx.restore();
       return;
     }
@@ -1409,6 +1423,19 @@
       ctx.fillStyle = "#ffd66b";
       ctx.font = "700 16px 'PingFang SC', 'Segoe UI', sans-serif";
       ctx.fillText("按任意键开始", 344, 496);
+
+      /* The replay hook: which seed this run uses and how the best one went. */
+      if (meta && meta.run) {
+        ctx.textAlign = "right";
+        ctx.font = "700 18px 'PingFang SC', 'Segoe UI', system-ui, sans-serif";
+        ctx.fillStyle = PALETTE.gold;
+        ctx.fillText(meta.run.seedText || "", ARENA.width - 60, 132);
+        ctx.font = "600 15px 'PingFang SC', 'Segoe UI', system-ui, sans-serif";
+        ctx.fillStyle = PALETTE.textDim;
+        ctx.fillText(meta.run.recordText || "", ARENA.width - 60, 160);
+        ctx.fillStyle = PALETTE.text;
+        ctx.fillText("按 N 换一个种子", ARENA.width - 60, 186);
+      }
       ctx.restore();
     }
   }
@@ -1448,7 +1475,9 @@
     drawSkillBar(ctx, state, sprites, meta.loadout, !!(meta.touch && meta.touch.enabled));
     if (meta.touch && meta.touch.enabled) drawTouchControls(ctx, state, sprites, meta.touch);
     if (meta.loadoutOpen) drawLoadoutPanel(ctx, state, sprites, meta);
-    drawUpgradeChoice(ctx, state);
+    /* The reward prompt belongs to live play: never let it bleed through an overlay. */
+    var overlayOpen = !!(meta.paused || meta.showHelp || state.victory || state.defeat);
+    if (!overlayOpen) drawUpgradeChoice(ctx, state);
     drawOverlay(ctx, state, meta, sprites);
   }
 

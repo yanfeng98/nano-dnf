@@ -1,6 +1,7 @@
 /*
  * Browser entry point: keyboard + touch input, WebAudio feedback, fixed-step loop.
- * Depends on window.DNFCore and window.DNFRender.
+ * Depends on window.DNFCore, window.DNFRender, window.DNFLoadout and
+ * window.DNFRecords.
  */
 (function () {
   "use strict";
@@ -8,6 +9,7 @@
   var Core = window.DNFCore;
   var Render = window.DNFRender;
   var Loadout = window.DNFLoadout;
+  var Records = window.DNFRecords;
   var canvas = document.getElementById("stage");
   var ctx = canvas.getContext("2d");
 
@@ -98,7 +100,39 @@
   var activePointers = {};
   var touchActions = [];
 
-  var state = Core.createState({ seed: Core.DEFAULT_SEED });
+  /* --------------------------------------------------------------- runs */
+  var RECORDS_KEY = "nano-dnf-records";
+  var records = Records.emptyStore();
+  try {
+    var savedRecords = window.localStorage.getItem(RECORDS_KEY);
+    if (savedRecords) records = Records.deserialize(savedRecords);
+  } catch (error) {
+    records = Records.emptyStore();
+  }
+
+  function saveRecords() {
+    try {
+      window.localStorage.setItem(RECORDS_KEY, Records.serialize(records));
+    } catch (error) {
+      /* private mode: keep the in-memory record */
+    }
+  }
+
+  /* `?seed=123` pins a run; otherwise the shipped seed is the default. */
+  function seedFromUrl() {
+    var match = /[?&]seed=(\d{1,10})/.exec(location.search);
+    return match ? Number(match[1]) >>> 0 : null;
+  }
+
+  function rollSeed() {
+    return ((Math.floor(Math.random() * 0xffffffff) >>> 0) || 1) >>> 0;
+  }
+
+  var pinnedSeed = seedFromUrl();
+  var currentSeed = pinnedSeed === null ? Core.DEFAULT_SEED : pinnedSeed;
+  var lastRun = null;
+
+  var state = Core.createState({ seed: currentSeed });
   var paused = false;
   var showHelp = true;
   var accumulator = 0;
@@ -233,6 +267,57 @@
     roomIndex: 0,
     victory: false
   };
+
+  /**
+   * Bank a cleared run once. A defeat is not a record, and the write happens on
+   * the victory edge only, so a finished run is never counted twice.
+   */
+  var runBanked = false;
+
+  function syncRecords() {
+    if (!state.victory || runBanked) return;
+    runBanked = true;
+    var outcome = Records.record(records, {
+      seed: currentSeed,
+      seconds: state.time,
+      level: state.player.level,
+      updatedAt: Date.now()
+    });
+    records = outcome.store;
+    lastRun = { improved: outcome.improved, entry: outcome.entry };
+    if (outcome.entry) saveRecords();
+  }
+
+  /* What the title and victory screens need, without leaking storage details. */
+  function runSummary() {
+    var record = Records.best(records, currentSeed);
+    return {
+      seed: currentSeed,
+      record: record,
+      runs: records.runs,
+      lastRun: lastRun,
+      improved: !!(lastRun && lastRun.improved),
+      seedText: "种子 " + currentSeed,
+      recordText: record
+        ? "本种子最佳 " +
+          Records.formatSeconds(record.seconds) +
+          " · Lv " +
+          record.level +
+          " · 已通关 " +
+          record.clears +
+          " 次（累计 " +
+          records.runs +
+          " 次）"
+        : "本种子还没有通关记录",
+      resultText:
+        lastRun && lastRun.entry
+          ? (lastRun.improved ? "新纪录！ " : "本次 ") +
+            Records.formatSeconds(lastRun.entry.seconds) +
+            " · Lv " +
+            lastRun.entry.level
+          : null
+    };
+  }
 
   function syncSounds() {
     var player = state.player;
@@ -384,6 +469,14 @@
       event.preventDefault();
       return;
     }
+    if (event.code === "KeyN") {
+      /* A fresh seed is the reason a run is worth repeating. */
+      currentSeed = rollSeed();
+      restart();
+      showHelp = false;
+      event.preventDefault();
+      return;
+    }
     if (event.code === "F1") {
       showHelp = !showHelp;
       event.preventDefault();
@@ -443,9 +536,11 @@
   });
 
   function restart() {
-    state = Core.createState({ seed: Core.DEFAULT_SEED });
+    state = Core.createState({ seed: currentSeed });
     paused = false;
     accumulator = 0;
+    lastRun = null;
+    runBanked = false;
     watch.hits = 0;
     watch.kills = 0;
     watch.hp = state.player.hp;
@@ -490,6 +585,7 @@
       while (accumulator >= Core.DT && guard < 5) {
         Core.step(state, currentInput());
         syncSounds();
+        syncRecords();
         consumePressed();
         accumulator -= Core.DT;
         guard += 1;
@@ -504,7 +600,8 @@
       touch: { enabled: touchMode, pressed: touchActions, muted: audio.muted },
       loadout: loadout,
       loadoutOpen: loadoutOpen,
-      drag: drag
+      drag: drag,
+      run: runSummary()
     });
 
     var status = document.getElementById("status");
@@ -588,6 +685,15 @@
     },
     isTouchMode: function () {
       return touchMode;
+    },
+    getSeed: function () {
+      return currentSeed;
+    },
+    getRecords: function () {
+      return JSON.parse(JSON.stringify(records));
+    },
+    getRunSummary: function () {
+      return runSummary();
     }
   };
 })();
