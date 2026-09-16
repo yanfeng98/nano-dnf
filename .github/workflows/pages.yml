@@ -71,3 +71,28 @@ jobs:
       - name: Deploy the artifact
         id: deployment
         uses: actions/deploy-pages@v5
+
+  verify:
+    name: Verify the deployed build
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+
+      - name: Install the smoke-test browser
+        run: |
+          npm install --no-save --no-package-lock playwright@1.63.0
+          npx playwright install --with-deps chromium
+
+      # Runs against the URL this repo publishes in its README, so a deploy that
+      # silently lags main or 404s a referenced asset turns the workflow red.
+      - name: Smoke-test the live build
+        env:
+          LIVE_URL: https://luyf-lemon-love.space/nano-dnf/
+        run: npm run test:live
