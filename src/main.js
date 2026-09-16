@@ -53,6 +53,16 @@
     attack: true
   };
 
+  /* Digit/Numpad 1-3 pick the between-room upgrade card with the same index. */
+  var CHOICE_KEYS = {
+    Digit1: 0,
+    Digit2: 1,
+    Digit3: 2,
+    Numpad1: 0,
+    Numpad2: 1,
+    Numpad3: 2
+  };
+
   var held = { left: false, right: false, down: false, jump: false, attack: false };
   var pressed = { jump: false, attack: false };
   Loadout.SLOT_KEYS.forEach(function (key, index) {
@@ -271,6 +281,17 @@
     }
     var point = canvasPoint(event);
 
+    /* The reward chooser owns the pointer while it is open. */
+    if (state.upgradeChoice) {
+      var cardIndex = Render.hitTestUpgrade(point.x, point.y);
+      if (cardIndex !== null) {
+        event.preventDefault();
+        ensureAudio();
+        Core.chooseUpgrade(state, state.upgradeChoice.options[cardIndex]);
+        return;
+      }
+    }
+
     /* Skill bar: tap to cast, or start a drag while arranging the loadout. */
     var bar = Render.hitTestLoadout(point.x, point.y, loadoutOpen, touchMode);
     if (bar) {
@@ -381,6 +402,13 @@
     }
     if (event.code === "F2") {
       touchMode = !touchMode;
+      event.preventDefault();
+      return;
+    }
+    /* The between-room reward is picked with 1/2/3 so it works on any layout. */
+    var pick = CHOICE_KEYS[event.code];
+    if (pick !== undefined && state.upgradeChoice) {
+      Core.chooseUpgrade(state, state.upgradeChoice.options[pick]);
       event.preventDefault();
       return;
     }

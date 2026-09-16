@@ -1044,6 +1044,76 @@
     }
   }
 
+  var UPGRADE_CARD = { w: 220, h: 120, gap: 24, y: 206 };
+
+  /** Fixed geometry: the chooser slots stay put so a tap always hits one. */
+  function upgradeCards() {
+    var count = Core.UPGRADES_PER_ROOM;
+    var total = count * UPGRADE_CARD.w + (count - 1) * UPGRADE_CARD.gap;
+    var startX = (ARENA.width - total) / 2;
+    var cards = [];
+    for (var index = 0; index < count; index += 1) {
+      cards.push({
+        action: "choice" + index,
+        index: index,
+        x: startX + index * (UPGRADE_CARD.w + UPGRADE_CARD.gap),
+        y: UPGRADE_CARD.y,
+        w: UPGRADE_CARD.w,
+        h: UPGRADE_CARD.h
+      });
+    }
+    return cards;
+  }
+
+  function hitTestUpgrade(x, y) {
+    var cards = upgradeCards();
+    for (var index = 0; index < cards.length; index += 1) {
+      var card = cards[index];
+      if (x >= card.x && x <= card.x + card.w && y >= card.y && y <= card.y + card.h) {
+        return index;
+      }
+    }
+    return null;
+  }
+
+  function drawUpgradeChoice(ctx, state) {
+    var choice = state.upgradeChoice;
+    if (!choice) return;
+
+    ctx.save();
+    ctx.fillStyle = "rgba(6, 8, 16, 0.66)";
+    ctx.fillRect(0, 0, ARENA.width, ARENA.height);
+
+    ctx.textAlign = "center";
+    ctx.fillStyle = PALETTE.gold;
+    ctx.font = "700 24px 'PingFang SC', 'Segoe UI', system-ui, sans-serif";
+    ctx.fillText("房间已清空 · 选一个强化", ARENA.width / 2, 160);
+    ctx.fillStyle = PALETTE.textDim;
+    ctx.font = "600 14px 'PingFang SC', 'Segoe UI', system-ui, sans-serif";
+    ctx.fillText("按 1 / 2 / 3 选择，触屏直接点卡片", ARENA.width / 2, 184);
+
+    upgradeCards().forEach(function (card, index) {
+      panel(ctx, card.x, card.y, card.w, card.h, 8);
+      var id = choice.options[index];
+      var spec = id ? Core.UPGRADES[id] : null;
+      if (!spec) return;
+
+      ctx.textAlign = "center";
+      ctx.fillStyle = PALETTE.gold;
+      ctx.font = "700 18px 'PingFang SC', 'Segoe UI', system-ui, sans-serif";
+      ctx.fillText(String(index + 1), card.x + card.w / 2, card.y + 28);
+
+      ctx.fillStyle = PALETTE.text;
+      ctx.font = "700 21px 'PingFang SC', 'Segoe UI', system-ui, sans-serif";
+      ctx.fillText(spec.name, card.x + card.w / 2, card.y + 62);
+
+      ctx.fillStyle = PALETTE.textDim;
+      ctx.font = "600 13px 'PingFang SC', 'Segoe UI', system-ui, sans-serif";
+      ctx.fillText(spec.detail, card.x + card.w / 2, card.y + 92);
+    });
+    ctx.restore();
+  }
+
   function drawSkillBar(ctx, state, sprites, loadout, compact) {
     var player = state.player;
     var slots = loadout || [];
@@ -1378,6 +1448,7 @@
     drawSkillBar(ctx, state, sprites, meta.loadout, !!(meta.touch && meta.touch.enabled));
     if (meta.touch && meta.touch.enabled) drawTouchControls(ctx, state, sprites, meta.touch);
     if (meta.loadoutOpen) drawLoadoutPanel(ctx, state, sprites, meta);
+    drawUpgradeChoice(ctx, state);
     drawOverlay(ctx, state, meta, sprites);
   }
 
@@ -1392,6 +1463,8 @@
     SLOT_COUNT: SLOT_COUNT,
     loadoutPanelButtons: loadoutPanelButtons,
     hitTestLoadout: hitTestLoadout,
+    upgradeCards: upgradeCards,
+    hitTestUpgrade: hitTestUpgrade,
     touchButtons: touchButtons,
     hitTestTouch: hitTestTouch
   };

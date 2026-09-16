@@ -46,8 +46,14 @@ const KEY_FOR_ACTION = {
   left: "ArrowLeft",
   right: "ArrowRight",
   jump: "ArrowUp",
-  attack: "KeyX"
+  attack: "KeyX",
+  choice0: "Digit1",
+  choice1: "Digit2",
+  choice2: "Digit3"
 };
+
+/** A damage-first player: take the sharpest upgrade on offer. */
+const UPGRADE_PREFERENCE = ["attack", "skillPower", "maxHp", "mpRegen"];
 
 /** Skill id -> the key/slot that currently holds it. */
 function keyForSkill(skillId, loadout) {
@@ -77,6 +83,21 @@ function decide(state, constants) {
   const player = state.player;
   const alive = state.enemies.filter((enemy) => !enemy.dead);
   const want = new Set();
+
+  /* Clearing a room opens the reward chooser; pick the sharpest card on offer. */
+  if (state.upgradeChoice) {
+    const options = state.upgradeChoice.options || [];
+    let index = 0;
+    for (const id of UPGRADE_PREFERENCE) {
+      const found = options.indexOf(id);
+      if (found !== -1) {
+        index = found;
+        break;
+      }
+    }
+    want.add("choice" + index);
+    return want;
+  }
 
   if (alive.length === 0) {
     want.add("right");
@@ -246,10 +267,13 @@ async function touchAction(page, action, down) {
     ({ action, down }) => {
       const canvas = document.getElementById("stage");
       const slotIndex = action.startsWith("slot") ? Number(action.slice(4)) : -1;
+      const choiceIndex = action.startsWith("choice") ? Number(action.slice(6)) : -1;
       const button =
-        slotIndex >= 0
-          ? window.DNFRender.touchBarButtons()[slotIndex]
-          : window.DNFRender.touchButtons().find((entry) => entry.action === action);
+        choiceIndex >= 0
+          ? window.DNFRender.upgradeCards()[choiceIndex]
+          : slotIndex >= 0
+            ? window.DNFRender.touchBarButtons()[slotIndex]
+            : window.DNFRender.touchButtons().find((entry) => entry.action === action);
       const rect = canvas.getBoundingClientRect();
       const clientX = rect.left + ((button.x + button.w / 2) / canvas.width) * rect.width;
       const clientY = rect.top + ((button.y + button.h / 2) / canvas.height) * rect.height;
@@ -295,6 +319,8 @@ async function runPass(browser, baseUrl, options) {
   }));
   /* Read the required kill count from the shipped core so it cannot drift. */
   const expectedKills = constants.rooms.reduce((total, room) => total + room.enemies.length, 0);
+  /* Every room but the last one pays out exactly one upgrade. */
+  const expectedUpgrades = constants.rooms.length - 1;
   let loadout = constants.equipped.slice();
   const touchMode = await page.evaluate(() => window.nanoDnf.isTouchMode());
   if (options.mode === "touch") {
@@ -472,6 +498,18 @@ async function runPass(browser, baseUrl, options) {
     });
     await page.waitForTimeout(90);
     await page.screenshot({ path: path.join(ARTIFACTS, "elite-spin.png") });
+
+    /* Freeze the reward chooser so the between-room decision reads on screen. */
+    await page.evaluate(() => {
+      const state = window.nanoDnf.getState();
+      window.DNFCore.startRoom(state, 0);
+      state.enemies = [];
+      state.room.cleared = true;
+      window.DNFCore.offerUpgrade(state);
+      state.effects = state.effects.filter((effect) => effect.kind !== "banner");
+    });
+    await page.waitForTimeout(90);
+    await page.screenshot({ path: path.join(ARTIFACTS, "upgrade-choice.png") });
   }
   await context.close();
 
@@ -479,6 +517,7 @@ async function runPass(browser, baseUrl, options) {
     mode: options.mode,
     url,
     expectedKills,
+    expectedUpgrades,
     touchMode,
     state,
     damageLog,
@@ -496,6 +535,12 @@ function problemsFor(pass) {
   if (pass.state.defeat) problems.push(`${pass.mode}: player died`);
   if (pass.state.stats.kills !== pass.expectedKills) {
     problems.push(`${pass.mode}: kills=${pass.state.stats.kills} (expected ${pass.expectedKills})`);
+  }
+  const upgrades = (pass.state.player.upgradesTaken || []).length;
+  if (upgrades !== pass.expectedUpgrades) {
+    problems.push(
+      `${pass.mode}: upgradesTaken=${upgrades} (expected ${pass.expectedUpgrades})`
+    );
   }
   if (pass.state.stats.damageTaken > 24) problems.push(`${pass.mode}: damageTaken=${pass.state.stats.damageTaken}`);
   if (pass.diagnostics.consoleErrors.length) {
@@ -566,6 +611,7 @@ async function main() {
     damageTaken: pass.state.stats.damageTaken,
     seconds: Number(pass.state.time.toFixed(1)),
     level: pass.state.player.level,
+    upgradesTaken: pass.state.player.upgradesTaken,
     damageLog: pass.damageLog,
     touchMode: pass.touchMode,
     audio: pass.audio,

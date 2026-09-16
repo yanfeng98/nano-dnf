@@ -537,6 +537,50 @@
 
   var DEFAULT_SEED = 20260915;
 
+  /*
+   * Between-room rewards. Clearing a room offers three of these, so two runs on
+   * different seeds stop looking alike. Every option is a plain stat change on
+   * the player, which keeps the core deterministic and easy to reason about.
+   */
+  var UPGRADES = {
+    attack: {
+      id: "attack",
+      name: "锐锋",
+      detail: "普攻与技能伤害 +3",
+      apply: function (player) {
+        player.attackBonus += 3;
+      }
+    },
+    maxHp: {
+      id: "maxHp",
+      name: "体魄",
+      detail: "生命上限 +20 并立即回复 20",
+      apply: function (player) {
+        player.maxHp += 20;
+        player.hp = Math.min(player.maxHp, player.hp + 20);
+      }
+    },
+    mpRegen: {
+      id: "mpRegen",
+      name: "灵息",
+      detail: "每秒回蓝 +3",
+      apply: function (player) {
+        player.mpRegen += 3;
+      }
+    },
+    skillPower: {
+      id: "skillPower",
+      name: "鬼气",
+      detail: "技能伤害 +15%",
+      apply: function (player) {
+        player.skillPower += 0.15;
+      }
+    }
+  };
+
+  var UPGRADE_ORDER = ["attack", "maxHp", "mpRegen", "skillPower"];
+  var UPGRADES_PER_ROOM = 3;
+
   function nextRandom(state) {
     var t = (state.rngState = (state.rngState + 0x6d2b79f5) >>> 0);
     t = Math.imul(t ^ (t >>> 15), t | 1);
@@ -563,6 +607,9 @@
       xp: 0,
       xpToNext: PROGRESSION.baseXpToNext,
       attackBonus: 0,
+      mpRegen: PLAYER.mpRegenPerSecond,
+      skillPower: 1,
+      upgradesTaken: [],
       attackTimer: 0,
       attackCooldown: 0,
       attackDir: 1,
@@ -692,6 +739,7 @@
       nextEnemyId: 1,
       nextProjectileId: 1,
       stats: { hits: 0, kills: 0, damageDealt: 0, damageTaken: 0, airHits: 0 },
+      upgradeChoice: null,
       victory: false,
       defeat: false
     };
@@ -723,6 +771,7 @@
     state.player.comboTimer = 0;
     state.pickups = [];
     state.projectiles = [];
+    state.upgradeChoice = null;
     state.effects.push({
       kind: "banner",
       text: "Room " + (roomIndex + 1) + " - " + spec.name,
@@ -798,6 +847,48 @@
       pushBanner(state, "LEVEL UP - Lv " + player.level, 1.4);
     }
     return levels;
+  }
+
+  /** Three distinct upgrades, drawn from the seeded RNG so a seed replays exactly. */
+  function rollUpgradeOptions(state) {
+    var pool = UPGRADE_ORDER.slice();
+    var options = [];
+    while (options.length < UPGRADES_PER_ROOM && pool.length > 0) {
+      var index = Math.floor(nextRandom(state) * pool.length);
+      if (index >= pool.length) index = pool.length - 1;
+      options.push(pool.splice(index, 1)[0]);
+    }
+    return options;
+  }
+
+  function offerUpgrade(state) {
+    state.upgradeChoice = {
+      roomIndex: state.roomIndex,
+      options: rollUpgradeOptions(state),
+      picked: null
+    };
+    return state.upgradeChoice;
+  }
+
+  /**
+   * Take one offered upgrade. The gate to the next room only opens once a pick
+   * is recorded, so a run cannot skip its reward by walking past it.
+   */
+  function chooseUpgrade(state, upgradeId) {
+    var choice = state.upgradeChoice;
+    if (!choice || choice.picked) return false;
+    var id = String(upgradeId || "");
+    if (choice.options.indexOf(id) === -1) return false;
+    var spec = UPGRADES[id];
+    if (!spec) return false;
+
+    spec.apply(state.player);
+    state.player.upgradesTaken.push(id);
+    choice.picked = id;
+    state.upgradeChoice = null;
+    pushBanner(state, spec.name + " - " + spec.detail, 1.8);
+    pushBanner(state, "Gate open - head right", 1.4);
+    return true;
   }
 
   function spawnDrop(state, enemy) {
@@ -994,7 +1085,7 @@
     player.comboTimer = Math.max(0, player.comboTimer - dt);
     player.airHitTimer = Math.max(0, player.airHitTimer - dt);
     if (player.comboTimer === 0) player.comboIndex = 0;
-    player.mp = Math.min(player.maxMp, player.mp + PLAYER.mpRegenPerSecond * dt);
+    player.mp = Math.min(player.maxMp, player.mp + player.mpRegen * dt);
 
     SKILL_ORDER.forEach(function (skillId) {
       player.skillCooldowns[skillId] = Math.max(0, player.skillCooldowns[skillId] - dt);
@@ -1078,7 +1169,10 @@
         player.skillHitDone = player.skillHitsDone >= hitCount;
 
         var skillBox = attackBox(player, active.reach, active.heightPad);
-        var skillDamage = active.damage + (player.level - 1) * active.growth + player.attackBonus;
+        var skillDamage = Math.round(
+          (active.damage + (player.level - 1) * active.growth + player.attackBonus) *
+            player.skillPower
+        );
         var struck = [];
         state.enemies.slice().forEach(function (enemy) {
           if (enemy.dead) return;
@@ -1100,7 +1194,10 @@
             wave.reach + extraWave * 80,
             wave.heightPad + extraWave * 6
           );
-          var waveDamage = wave.damage + (player.level - 1) * wave.growth + player.attackBonus;
+          var waveDamage = Math.round(
+            (wave.damage + (player.level - 1) * wave.growth + player.attackBonus) *
+              player.skillPower
+          );
           state.enemies.slice().forEach(function (enemy) {
             if (enemy.dead || struck.indexOf(enemy.id) !== -1) return;
             if (boxesOverlap(waveBox, bodyBox(enemy))) {
@@ -1605,13 +1702,19 @@
         state.victory = true;
         pushBanner(state, "Dungeon cleared!", 2.4);
       } else {
-        pushBanner(state, "Gate open - head right", 1.6);
+        offerUpgrade(state);
+        pushBanner(state, "Room cleared - choose an upgrade", 1.8);
       }
       return;
     }
 
     var nearExit = state.player.x >= ARENA.rightWall - 60;
-    if (state.room.cleared && nearExit && state.roomIndex < ROOMS.length - 1) {
+    if (
+      state.room.cleared &&
+      nearExit &&
+      !state.upgradeChoice &&
+      state.roomIndex < ROOMS.length - 1
+    ) {
       startRoom(state, state.roomIndex + 1);
     }
   }
@@ -1695,6 +1798,9 @@
     DROPS: DROPS,
     ENEMY_TYPES: ENEMY_TYPES,
     ROOMS: ROOMS,
+    UPGRADES: UPGRADES,
+    UPGRADE_ORDER: UPGRADE_ORDER,
+    UPGRADES_PER_ROOM: UPGRADES_PER_ROOM,
     DEFAULT_SEED: DEFAULT_SEED,
     clamp: clamp,
     createState: createState,
@@ -1707,6 +1813,9 @@
     damageEnemy: damageEnemy,
     damagePlayer: damagePlayer,
     enterPhase2: enterPhase2,
+    rollUpgradeOptions: rollUpgradeOptions,
+    offerUpgrade: offerUpgrade,
+    chooseUpgrade: chooseUpgrade,
     grantXp: grantXp,
     spawnDrop: spawnDrop,
     spawnProjectile: spawnProjectile,

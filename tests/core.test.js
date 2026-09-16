@@ -16,6 +16,17 @@ function lastRoomState(seed) {
   return state;
 }
 
+/** A damage-first player: take the sharpest upgrade on offer. */
+const UPGRADE_PREFERENCE = ["attack", "skillPower", "maxHp", "mpRegen"];
+
+function preferredUpgrade(options) {
+  const offered = options || [];
+  for (const id of UPGRADE_PREFERENCE) {
+    if (offered.includes(id)) return id;
+  }
+  return offered[0] || null;
+}
+
 function killAll(state) {
   state.enemies.slice().forEach((enemy) => {
     Core.damageEnemy(state, enemy, 99999, 0, state.player.x);
@@ -126,8 +137,14 @@ test("cleared room advances to the next room at the right wall", () => {
 
   assert.equal(state.room.cleared, true);
   assert.equal(state.roomIndex, 0);
+  /* The reward gates the exit: walking past it must not skip the choice. */
+  assert.ok(state.upgradeChoice, "clearing a room must offer an upgrade");
 
   state.player.x = Core.ARENA.rightWall - state.player.width / 2;
+  Core.step(state, {});
+  assert.equal(state.roomIndex, 0, "the gate stays shut until an upgrade is taken");
+
+  Core.chooseUpgrade(state, preferredUpgrade(state.upgradeChoice.options));
   Core.step(state, {});
 
   assert.equal(state.roomIndex, 1);
@@ -663,6 +680,16 @@ test("the same seed still yields identical progression and drops", () => {
 function kitingBot(state) {
   const player = state.player;
   const alive = state.enemies.filter((enemy) => !enemy.dead);
+  /*
+   * Clearing a room opens the reward chooser. Taking a card is the same call the
+   * key handler makes, so the policy "presses a key" rather than steering around
+   * it: a run that skips its reward is not the behaviour under test.
+   */
+  if (state.upgradeChoice) {
+    const pick = preferredUpgrade(state.upgradeChoice.options);
+    if (pick) Core.chooseUpgrade(state, pick);
+    return { left: false, right: false, jump: false, attack: false, skills: {} };
+  }
   const input = { left: false, right: false, jump: false, attack: false, skills: {} };
   Core.SKILL_ORDER.forEach((skillId) => {
     input.skills[skillId] = false;
@@ -1384,6 +1411,160 @@ test("the gauntlet ahead of the boss mixes caster pressure with the elite mini-b
   assert.ok(
     gauntlet.enemies.length <= 3,
     "the gauntlet stays readable: three threats, one of them the mini-boss"
+  );
+});
+
+function clearedRoomState(seed, roomIndex) {
+  const state = Core.createState({ seed: seed, roomIndex: roomIndex });
+  killAll(state);
+  Core.step(state, {});
+  return state;
+}
+
+test("clearing a room offers three distinct upgrades from the pool", () => {
+  const state = clearedRoomState(Core.DEFAULT_SEED, 0);
+
+  assert.ok(state.upgradeChoice, "a cleared room must open the chooser");
+  assert.equal(state.upgradeChoice.options.length, Core.UPGRADES_PER_ROOM);
+  assert.equal(
+    new Set(state.upgradeChoice.options).size,
+    Core.UPGRADES_PER_ROOM,
+    "the three cards must be three different upgrades"
+  );
+  state.upgradeChoice.options.forEach((id) => {
+    assert.ok(Core.UPGRADE_ORDER.includes(id), `${id} must come from the upgrade pool`);
+    assert.ok(Core.UPGRADES[id], `${id} needs a spec`);
+  });
+});
+
+test("a room's upgrade offer is seeded, and different seeds offer different sets", () => {
+  const offered = [1, 7, 42, 20260915, 5, 99].map((seed) => {
+    const state = clearedRoomState(seed, 0);
+    return state.upgradeChoice.options.join(",");
+  });
+
+  /* Same seed twice: the offer replays exactly. */
+  assert.equal(offered[0], clearedRoomState(1, 0).upgradeChoice.options.join(","));
+  assert.ok(new Set(offered).size > 1, `runs must diverge, got ${offered.join(" | ")}`);
+});
+
+test("taking a card applies it once and records the pick", () => {
+  const state = clearedRoomState(Core.DEFAULT_SEED, 0);
+  const options = state.upgradeChoice.options.slice();
+  const player = state.player;
+
+  assert.equal(Core.chooseUpgrade(state, "not-offered"), false, "only offered cards count");
+  assert.ok(state.upgradeChoice, "a rejected pick leaves the chooser open");
+
+  assert.equal(Core.chooseUpgrade(state, options[0]), true);
+  assert.equal(state.upgradeChoice, null, "the chooser closes after a pick");
+  assert.deepEqual(player.upgradesTaken, [options[0]]);
+  assert.equal(
+    Core.chooseUpgrade(state, options[1]),
+    false,
+    "the same room cannot pay out twice"
+  );
+});
+
+test("every upgrade in the pool changes the player's numbers", () => {
+  const cases = [
+    ["attack", (p) => p.attackBonus],
+    ["maxHp", (p) => p.maxHp],
+    ["mpRegen", (p) => p.mpRegen],
+    ["skillPower", (p) => p.skillPower]
+  ];
+
+  cases.forEach(([id, read]) => {
+    const state = lastRoomState();
+    const before = read(state.player);
+    Core.UPGRADES[id].apply(state.player);
+    assert.ok(
+      read(state.player) > before,
+      `${id} must raise its stat: ${before} -> ${read(state.player)}`
+    );
+  });
+
+  /* The two stat upgrades have to matter to the simulation, not just the numbers. */
+  const regen = lastRoomState();
+  regen.player.mp = 0;
+  Core.UPGRADES.mpRegen.apply(regen.player);
+  Core.runFrames(regen, Core.FPS, {});
+  assert.ok(
+    regen.player.mp > Core.PLAYER.mpRegenPerSecond,
+    `extra regen must refill MP faster, got ${regen.player.mp}`
+  );
+
+  const power = lastRoomState();
+  const plain = lastRoomState();
+  power.player.skillPower = 2;
+  [power, plain].forEach((state) => {
+    const dummy = Core.createEnemy(state, "brute", state.player.x + 40);
+    dummy.maxHp = 100000;
+    dummy.hp = 100000;
+    dummy.speed = 0;
+    state.enemies = [dummy];
+    Core.step(state, { skills: { upSlash: true } });
+    Core.runFrames(state, 40, {});
+  });
+  assert.ok(
+    power.stats.damageDealt > plain.stats.damageDealt,
+    `skill power must scale skill damage: ${plain.stats.damageDealt} -> ${power.stats.damageDealt}`
+  );
+});
+
+test("upgrades stack across the run", () => {
+  const state = Core.createState({ seed: Core.DEFAULT_SEED });
+  const taken = [];
+  for (let room = 0; room < Core.ROOMS.length - 1; room += 1) {
+    killAll(state);
+    Core.step(state, {});
+    assert.ok(state.upgradeChoice, `room ${room + 1} must offer an upgrade`);
+    const pick = preferredUpgrade(state.upgradeChoice.options);
+    taken.push(pick);
+    Core.chooseUpgrade(state, pick);
+    if (room < Core.ROOMS.length - 2) {
+      state.player.x = Core.ARENA.rightWall - state.player.width / 2;
+      Core.step(state, {});
+    }
+  }
+
+  assert.equal(
+    state.player.upgradesTaken.length,
+    Core.ROOMS.length - 1,
+    "every cleared room but the last pays out exactly one upgrade"
+  );
+  assert.deepEqual(state.player.upgradesTaken, taken);
+});
+
+test("the last room still ends the run instead of offering a reward", () => {
+  const state = Core.createState({ seed: Core.DEFAULT_SEED, roomIndex: Core.ROOMS.length - 1 });
+  killAll(state);
+  Core.step(state, {});
+
+  assert.equal(state.victory, true);
+  assert.equal(state.upgradeChoice, null, "the throne room pays out with victory, not a card");
+});
+
+test("the renderer lays out three tap targets and hit-tests them", () => {
+  const cards = Render.upgradeCards();
+  assert.equal(cards.length, Core.UPGRADES_PER_ROOM);
+  cards.forEach((card, index) => {
+    assert.equal(Render.hitTestUpgrade(card.x + card.w / 2, card.y + card.h / 2), index);
+    assert.equal(card.action, "choice" + index);
+  });
+  assert.equal(Render.hitTestUpgrade(2, 2), null, "dead space is not a card");
+
+  const state = clearedRoomState(Core.DEFAULT_SEED, 0);
+  const names = state.upgradeChoice.options.map((id) => Core.UPGRADES[id].name);
+  const calls = [];
+  Render.render(recordingContext(calls), state, {});
+  const texts = calls.filter((call) => call[0] === "fillText").map((call) => String(call[1]));
+  names.forEach((name) => {
+    assert.ok(texts.includes(name), `the chooser must label ${name}`);
+  });
+  assert.ok(
+    texts.some((text) => text.includes("选一个强化")),
+    "the chooser must say what it is"
   );
 });
 

@@ -26,6 +26,9 @@ Boss 血量掉到一半后进入**狂暴第二阶段**——移动更快、出�
 第七切片往这条关卡段里放进了**小 Boss**：断桥房的剑卫自带一个长前摇的**旋风横推**
 （`SPIN`：超甲、带旋刃、命中判定比身体宽得多，而且会边转边向前推进），
 贴脸硬吃会被扫中，正确解法是在前摇内退出横扫轨道或起跳越过；击倒它必定掉落更大的回血球。
+第八切片让每次跑图不一样：每清空一间房就翻开 **3 张强化卡**，从中选 1 张（锐锋 +3 伤害 /
+体魄 +20 生命上限并立即回复 / 灵息 +3 每秒回蓝 / 鬼气 +15% 技能伤害）。三张卡由种子决定，
+同一 seed 完全可复现，不同 seed 会抽到不同组合；不选就不开传送门，所以奖励不会被顺手漏掉。
 
 ## 运行
 
@@ -49,6 +52,7 @@ python3 assets/make_slayer_sprites.py   # 可选：重新生成原创精灵图�
 | `X` | 普攻（连续按出三段连击，伤害 8 / 10 / 15） |
 | `A`~`H` / `Q`~`Y` | **双排 12 个技能槽**（上排 A~H，下排 Q~Y；默认填 11 个技能，留 1 空槽） |
 | `B` | 打开技能编成面板（拖动图标换槽，再按 B 关闭） |
+| `1` / `2` / `3` | 选择清房后翻开的强化卡（触屏直接点卡片） |
 | `P` | 暂停 |
 | `F3` | 重开 |
 | `F1` | 显示/隐藏帮助 |
@@ -136,6 +140,18 @@ HUD 左下角是技能栏，显示按键、技能名、MP 消耗与冷却读秒�
 | 掉落 | 精英必掉回血球（+18 HP），小兵 50% 掉落，剑卫必掉更大的 +30 HP，Boss 掉落 +42 HP |
 | 拾取 | 走进回血球即可自动拾取，14 秒未拾取会消失 |
 
+## 房间强化
+
+清空一间房（Boss 房除外）后会翻开 3 张卡，按 `1`/`2`/`3` 或直接点卡片选 1 张；
+没选之前右侧传送门不会开。抽卡用的是内核的种子随机，所以同一个 seed 的跑法完全可复现。
+
+| 强化 | 效果 |
+| --- | --- |
+| 锐锋 | 普攻与技能伤害 +3（可叠加） |
+| 体魄 | 生命上限 +20，并立即回复 20 |
+| 灵息 | 每秒回蓝 +3 |
+| 鬼气 | 技能伤害 +15%（可叠加） |
+
 ## 结构
 
 | 路径 | 作用 |
@@ -195,8 +211,8 @@ python3 assets/import_dnf_art.py --icons 94,154,132,10,18,6,48,160,98,138,172
 200、WebAudio 已初始化。最近一次结果：
 
 ```
-keyboard victory=true kills=14 damageTaken=13 seconds=71.0 level=5  audio=created/running  drag=月光斩→槽A persisted=true
-touch    victory=true kills=14 damageTaken=7 seconds=73.0 level=5  touchMode=true audio=created/running muteToggle=ok
+keyboard victory=true kills=14 damageTaken=7 seconds=54.1 level=5  upgrades=锐锋×3+鬼气  audio=created/running  drag=月光斩→槽A persisted=true
+touch    victory=true kills=14 damageTaken=7 seconds=56.0 level=5  upgrades=锐锋×3+鬼气  touchMode=true audio=created/running muteToggle=ok
 consoleErrors=[] pageErrors=[] failedRequests=[]
 assets: index.html / loadout.js / main.js / render.js / core.js / slayer.png / skills.png / effects.png / favicon.png 全部 200
 ```
@@ -205,7 +221,8 @@ assets: index.html / loadout.js / main.js / render.js / core.js / slayer.png / s
 `getLoadout()` 与 `localStorage` 确认已生效 → `resetLoadout()` 复位。截图见
 `tests/browser/artifacts/loadout-panel.png` 与 `loadout-applied.png`；本切片新增的「断桥」混合房与
 Boss 狂暴第二阶段、精英剑卫的旋风分别见 `room-mix.png`、`boss-phase2.png` 与 `elite-spin.png`
-（都由同一次浏览器跑动产出）。每次跑动的日志还会按房间记录承伤来源，方便判断新敌种是否公平。
+，清房后的强化卡界面见 `upgrade-choice.png`（都由同一次浏览器跑动产出）。每次跑动的日志还会按
+房间记录承伤来源，并校验「每个非 Boss 房间恰好拿到 1 张强化」，方便判断新机制是否真的生效。
 
 两条通路各自使用独立的浏览器实例（否则两条 rAF 循环会互相抢 CPU，输入时序被拖慢）；
 只跑其中一条可以设 `PASSES=touch npm run test:browser` 或 `PASSES=keyboard`。
