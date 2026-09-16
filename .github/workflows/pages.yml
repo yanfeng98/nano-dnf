@@ -34,8 +34,21 @@ jobs:
         run: |
           mkdir -p _site/src _site/assets
           cp index.html _site/index.html
-          cp src/core.js src/loadout.js src/render.js src/main.js _site/src/
+          # Every browser module, so adding a new src/*.js cannot ship a broken site.
+          cp src/*.js _site/src/
           cp assets/slayer.png assets/skills.png assets/effects.png assets/favicon.png _site/assets/
+
+      - name: Verify every referenced asset was staged
+        run: |
+          # A missing script only shows up as a blank page in production, so fail here.
+          status=0
+          for ref in $(grep -o 'src="\./[^"]*"' _site/index.html | sed 's/^src="\.\///; s/"$//'); do
+            if [ ! -f "_site/$ref" ]; then
+              echo "::error::staged site is missing $ref"
+              status=1
+            fi
+          done
+          exit $status
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v6
