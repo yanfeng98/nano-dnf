@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Bake the player sprite sheet (assets/slayer.png) from a local DNF client.
 
-The sheet keeps the layout the renderer expects (6 columns x 5 rows of
+The sheet keeps the layout the renderer expects (COLS columns x 5 rows of
 SPRITE.frameW x SPRITE.frameH cells, rows idle/run/attack/skill/extras) and
 replaces the hand-drawn Slayer with the client's swordman art: skin + shoes +
 pants + coat + face + hair (the "default look"), the katana he actually
@@ -35,11 +35,12 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 CACHE = ROOT / "assets" / "dnf_src" / "swordman"
 DEFAULT_CLIENT = pathlib.Path("/mnt/c/dnf/地下城与勇士")
 
-# Renderer contract (mirrors src/render.js SPRITE). Twelve columns so an action
-# can carry a real DNF cycle instead of five frames and a padding cell.
+# Renderer contract (mirrors src/render.js SPRITE). The sheet is as wide as its
+# widest row: the normal attack is the client's whole 61-frame chain, so the
+# shorter rows just leave the rest of the row blank.
 FRAME_W = 96
 FRAME_H = 96
-COLS = 12
+COLS = 61
 ANCHOR_X = 46
 ANCHOR_Y = 88
 ROWS = ["idle", "run", "attack", "skill", "extras"]
@@ -80,10 +81,10 @@ OVERLAYS = [("eye", 2, 24, 20), ("blood", 0, 32, 24)]
 
 # Which DNF frames feed each cell of the sheet. The body img runs its animations
 # back to back, so these come off the segment boundaries of the body layer. The
-# owner picked the two that matter most straight off the full-frame contact
-# sheets (assets/dnf_src/full-frames):
-#   still stand (the "静止" frames) 176-179   - feet planted, only the breath moves
-#   basic attack, first hit          1-6      - guard, raise, cut, impact, settle
+# owner picked the segments straight off the full-frame contact sheets
+# (assets/dnf_src/full-frames):
+#   still stand (the "静止" frames)  176-179  - feet planted, only the breath moves
+#   basic attack, the whole chain    0-60     - guard, every cut, recovery
 #   run cycle                        105-116  - the trailing repeats dropped
 #   crescent slam and recovery       194-200
 #   knockdown / airborne             100,102,232,236
@@ -92,8 +93,9 @@ OVERLAYS = [("eye", 2, 24, 20), ("blood", 0, 32, 24)]
 CELLS = {
     "idle": [176, 177, 178, 179] * 3,
     "run": list(range(105, 117)),
-    # first two hits of the basic combo; the renderer plays the first six
-    "attack": [1, 2, 3, 4, 5, 6, 11, 12, 13, 14, 15, 16],
+    # The Slayer's complete normal attack. The renderer walks it one combo hit
+    # at a time, so a full three-hit chain plays every frame exactly once.
+    "attack": list(range(0, 61)),
     "skill": [194, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206],
     "extras": [100, 102, 232, 236, 240, 241, 101, 103, 233, 237, 238, 239],
 }

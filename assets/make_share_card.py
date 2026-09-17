@@ -26,6 +26,9 @@ OUT = ASSETS / "share-card.png"
 
 WIDTH, HEIGHT = 1200, 630
 GROUND = 470
+# Mirrors SPRITE.cols in src/render.js: the sheet is as wide as its widest row
+# (the 61-frame normal attack), so one cell is width / SHEET_COLS.
+SHEET_COLS = 61
 
 GOLD = (227, 191, 114)
 INK = (234, 241, 255)
@@ -106,8 +109,7 @@ def draw_backdrop() -> Image.Image:
 
 def paste_sprite(image: Image.Image) -> None:
     sheet = Image.open(ASSETS / "slayer.png").convert("RGBA")
-    # The sheet carries twelve columns of 96x96 frames.
-    cell_w, cell_h = sheet.width // 12, sheet.height // 5
+    cell_w, cell_h = sheet.width // SHEET_COLS, sheet.height // 5
     idle = sheet.crop((0, 0, cell_w, cell_h))
     scale = 5
     idle = idle.resize((cell_w * scale, cell_h * scale), Image.NEAREST)

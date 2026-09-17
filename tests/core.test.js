@@ -941,6 +941,39 @@ test("the shipped sprite sheet matches the frame grid the renderer expects", () 
   assert.equal(icons.readUInt32BE(20), 32);
 });
 
+test("the normal attack plays the client's whole chain across the combo", () => {
+  const clip = Render.SPRITE.attackClip;
+  assert.equal(Render.SPRITE.frames.attack, clip.count, "the attack row carries the whole clip");
+  assert.equal(clip.first, 0, "the clip starts on the client's first attack frame");
+  assert.equal(clip.hits, Core.PLAYER.maxCombo, "one slice per combo hit");
+
+  /*
+   * The old bake kept six frames — the client's first cut — so the rest of the
+   * chain never reached the screen. Each hit now owns a slice and the slices
+   * tile the clip, so a three-hit chain plays every frame exactly once.
+   */
+  const firstColumns = [];
+  for (let hit = 0; hit < clip.hits; hit += 1) {
+    const first = Render.attackColumn(0, hit);
+    const last = Render.attackColumn(1, hit);
+    firstColumns.push(first);
+    assert.ok(first >= clip.first, `hit ${hit} starts inside the row`);
+    assert.ok(last < clip.first + clip.count, `hit ${hit} stays inside the clip`);
+    assert.ok(last > first, `hit ${hit} advances through its slice`);
+  }
+  assert.deepEqual(
+    firstColumns,
+    [0, 20, 41],
+    "the combo walks the clip from the guard to the finisher"
+  );
+  assert.equal(
+    Render.attackColumn(1, clip.hits - 1),
+    clip.count - 1,
+    "the last hit lands on the client's final attack frame"
+  );
+  assert.equal(Render.attackColumn(0, clip.hits), 0, "the chain wraps back to the guard");
+});
+
 test("the swordman bake caches each source layer, so a new katana actually ships", () => {
   const source = fs.readFileSync(
     path.join(__dirname, "..", "assets", "import_dnf_swordman.py"),

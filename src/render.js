@@ -37,18 +37,22 @@
     ghost: "#b98cff"
   };
 
-  /* assets/slayer.png: 12 columns x 5 rows of 96x96 frames. */
+  /* assets/slayer.png: SPRITE.cols columns x 5 rows of 96x96 frames. */
   var SPRITE = {
     frameW: 96,
     frameH: 96,
-    cols: 12,
+    cols: 61,
     anchorX: 46,
     anchorY: 88,
     rows: { idle: 0, run: 1, attack: 2, skill: 3, extras: 4 },
     /* Frames the renderer actually plays per row; the rest of the row is spare art.
-       The stand is a four-frame breath off the client's "still" frames, the cut is
-       the first hit of the basic combo (guard, raise, slash, impact, settle). */
-    frames: { idle: 4, run: 12, attack: 6, skill: 6, extras: 6 },
+       The stand is a four-frame breath off the client's "still" frames, the attack
+       is the whole normal-attack chain (see attackClip). */
+    frames: { idle: 4, run: 12, attack: 61, skill: 6, extras: 6 },
+    /* The Slayer's normal attack is one long client animation: guard, every cut
+       in the chain, recovery. The combo is the clock that walks through it, so
+       hit k plays its own slice and a full three-hit chain shows the whole clip. */
+    attackClip: { first: 0, count: 61, hits: 3 },
     extras: { hurt: 0, dead: 1, jump: 2, fall: 3 }
   };
 
@@ -415,6 +419,19 @@
     ctx.restore();
   }
 
+  /* Which column of the attack row a swing shows. The clip is the client's whole
+     normal attack, so the combo index picks the slice and the swing picks the
+     frame inside it; the slices tile the clip so nothing is skipped. */
+  function attackColumn(swing, comboIndex) {
+    var clip = SPRITE.attackClip;
+    var index = Math.trunc(Number(comboIndex)) || 0;
+    var hit = ((index % clip.hits) + clip.hits) % clip.hits;
+    var first = clip.first + Math.round((clip.count * hit) / clip.hits);
+    var last = clip.first + Math.round((clip.count * (hit + 1)) / clip.hits);
+    var span = Math.max(1, last - first);
+    return Math.min(last - 1, first + Math.floor(clamp01(swing) * span));
+  }
+
   function playerFrame(state, player) {
     var rows = SPRITE.rows;
     if (player.dead) return { row: rows.extras, col: SPRITE.extras.dead };
@@ -432,12 +449,8 @@
       };
     }
     if (player.attackTimer > 0) {
-      var swing = 1 - player.attackTimer / Core.PLAYER.attackDuration;
-      var attackFrames = SPRITE.frames.attack;
-      return {
-        row: rows.attack,
-        col: Math.min(attackFrames - 1, Math.floor(clamp01(swing) * attackFrames))
-      };
+      var swing = clamp01(1 - player.attackTimer / Core.PLAYER.attackDuration);
+      return { row: rows.attack, col: attackColumn(swing, player.comboIndex) };
     }
     if (Math.abs(player.vx) > 8) {
       return { row: rows.run, col: Math.floor(state.time * 14) % SPRITE.frames.run };
@@ -1585,6 +1598,7 @@
     PALETTE: PALETTE,
     SPRITE: SPRITE,
     EFFECT: EFFECT,
+    attackColumn: attackColumn,
     skillEffectFrame: skillEffectFrame,
     skillBarButtons: skillBarButtons,
     touchBarButtons: touchBarButtons,
