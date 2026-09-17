@@ -48,7 +48,12 @@
     /* Frames the renderer actually plays per row; the rest of the row is spare art.
        The stand is a four-frame breath off the client's "still" frames, the attack
        is the whole normal-attack chain (see Core.ATTACK_STAGES). */
-    frames: { idle: 4, run: 12, attack: 61, skill: 6, extras: 6 },
+    frames: { idle: 4, run: 12, attack: 42, skill: 6, extras: 6 },
+    /* Skill body art: every skill plays the top of the skill row, except the
+       up-slash, whose own raise-and-lift is baked right after those. The bake
+       (assets/import_dnf_swordman.py CELLS.skill) has to keep the same order,
+       and a test pins the clip to the end of the generic frames. */
+    skillClips: { upSlash: { first: 6, frames: 11 } },
     extras: { hurt: 0, dead: 1, jump: 2, fall: 3 }
   };
 
@@ -436,10 +441,13 @@
     if (player.skillTimer > 0) {
       var skill = Core.SKILLS[player.skillId];
       var progress = skill ? 1 - player.skillTimer / skill.duration : 0;
-      var skillFrames = SPRITE.frames.skill;
+      var clip = SPRITE.skillClips[player.skillId];
+      var skillFrames = clip ? clip.frames : SPRITE.frames.skill;
       return {
         row: rows.skill,
-        col: Math.min(skillFrames - 1, Math.floor(clamp01(progress) * skillFrames))
+        col:
+          (clip ? clip.first : 0) +
+          Math.min(skillFrames - 1, Math.floor(clamp01(progress) * skillFrames))
       };
     }
     if (player.attackTimer > 0) {
@@ -1494,7 +1502,7 @@
       var rows = [
         ["← →", "移动"],
         ["C / ↑ / Space", "跳跃"],
-        ["X", "普攻（连按 X 打完六段连击）"],
+        ["X", "普攻（连按 X 打完四段连击）"],
         ["A", "上挑（挑飞）"],
         ["S", "崩山击（冲击波）"],
         ["D", "十字斩"],

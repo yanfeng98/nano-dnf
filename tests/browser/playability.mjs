@@ -400,13 +400,15 @@ async function runPass(browser, baseUrl, options) {
    */
   const attackChain = await page.evaluate(() => {
     const stages = window.DNFCore.ATTACK_STAGES;
+    const upSlash = window.DNFRender.SPRITE.skillClips.upSlash;
     return {
       stages: stages.length,
       maxCombo: window.DNFCore.PLAYER.maxCombo,
       coverage: stages[stages.length - 1].first + stages[stages.length - 1].frames,
       firstColumn: window.DNFRender.attackColumn(0, 0),
       secondColumn: window.DNFRender.attackColumn(0, 1),
-      lastColumn: window.DNFRender.attackColumn(1, stages.length - 1)
+      lastColumn: window.DNFRender.attackColumn(1, stages.length - 1),
+      upSlashColumns: upSlash ? upSlash.frames : 0
     };
   });
 
@@ -722,17 +724,20 @@ async function runPass(browser, baseUrl, options) {
 function problemsFor(pass) {
   const problems = [];
   const chain = pass.attackChain;
-  if (!chain || chain.stages !== 6 || chain.maxCombo !== 6) {
-    problems.push(`${pass.mode}: the shipped normal attack is not the six-stage chain`);
+  if (!chain || chain.stages !== 4 || chain.maxCombo !== 4) {
+    problems.push(`${pass.mode}: the shipped normal attack is not the four-cut chain`);
   } else {
-    if (chain.coverage !== 61) {
-      problems.push(`${pass.mode}: the stages cover ${chain.coverage} frames, not the whole 61`);
+    if (chain.coverage !== 42) {
+      problems.push(`${pass.mode}: the cuts cover ${chain.coverage} frames, not the real 42`);
     }
     if (chain.firstColumn !== 0 || chain.secondColumn <= chain.firstColumn) {
       problems.push(`${pass.mode}: pressing X does not walk to the next stage`);
     }
-    if (chain.lastColumn !== 60) {
-      problems.push(`${pass.mode}: the last press ends on frame ${chain.lastColumn}, not 60`);
+    if (chain.lastColumn !== 41) {
+      problems.push(`${pass.mode}: the last press ends on frame ${chain.lastColumn}, not 41`);
+    }
+    if (chain.upSlashColumns !== 11) {
+      problems.push(`${pass.mode}: the up-slash skill ships no body animation`);
     }
   }
   if (!pass.state.victory) problems.push(`${pass.mode}: dungeon was not cleared`);

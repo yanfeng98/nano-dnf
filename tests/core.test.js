@@ -127,7 +127,7 @@ test("attack does not reach an enemy far outside the hitbox", () => {
   assert.equal(state.stats.hits, 0);
 });
 
-test("the combo chain walks the six stages of the normal attack", () => {
+test("the combo chain walks the four cuts of the normal attack", () => {
   const state = lastRoomState();
   const enemy = Core.createEnemy(state, "brute", state.player.x + 48);
   enemy.hp = 500;
@@ -136,7 +136,7 @@ test("the combo chain walks the six stages of the normal attack", () => {
   state.enemies = [enemy];
 
   const stages = Core.ATTACK_STAGES;
-  assert.equal(stages.length, 6, "the client's normal attack is six swings");
+  assert.equal(stages.length, 4, "the client's normal attack is four cuts");
 
   const hits = [];
   for (let swing = 0; swing < stages.length; swing += 1) {
@@ -948,12 +948,12 @@ test("the shipped sprite sheet matches the frame grid the renderer expects", () 
 test("one press plays one stage of the normal attack, and attack speed sets the pace", () => {
   const stages = Core.ATTACK_STAGES;
   assert.equal(Core.PLAYER.maxCombo, stages.length, "the chain is as long as the animation");
-  assert.equal(Render.SPRITE.frames.attack, 61, "the attack row carries the whole clip");
+  assert.equal(Render.SPRITE.frames.attack, 42, "the attack row carries the four cuts (0-41)");
 
   /*
    * The stages tile the clip: no frame is skipped and none plays twice, so
-   * mashing X runs the client's whole normal attack in order. The old bake kept
-   * six frames (the first cut), which is why the rest never reached the screen.
+   * mashing X runs the client's normal attack in order. Frames 40-50 belong to
+   * the up-slash skill and 51-60 repeat that cycle, so the row stops at 41.
    */
   let next = 0;
   stages.forEach((stage, index) => {
@@ -962,7 +962,8 @@ test("one press plays one stage of the normal attack, and attack speed sets the 
     assert.equal(stage.damage, Core.PLAYER.comboDamage[index]);
     next = stage.first + stage.frames;
   });
-  assert.equal(next, Render.SPRITE.frames.attack, "the stages cover the whole animation");
+  assert.equal(next, Render.SPRITE.frames.attack, "the stages cover the whole attack");
+  assert.equal(next, 42, "the four cuts end where the up-slash animation starts");
 
   /* A press shows its own stage, from that stage's first frame to its last. */
   assert.equal(Render.attackColumn(0, 0), 0, "the first press starts on the guard");
@@ -970,10 +971,19 @@ test("one press plays one stage of the normal attack, and attack speed sets the 
   assert.equal(Render.attackColumn(0, 1), stages[1].first, "the second press is its own swing");
   assert.equal(
     Render.attackColumn(1, stages.length - 1),
-    Render.SPRITE.frames.attack - 1,
-    "the last press reaches the client's final frame"
+    41,
+    "the last press ends on the last real attack frame"
   );
   assert.equal(Render.attackColumn(0, stages.length), 0, "the chain wraps back to the guard");
+
+  /*
+   * The up-slash skill gets its own body animation from the same region the
+   * owner pointed at (body frames 40-50), baked into the skill row after the
+   * generic skill frames.
+   */
+  const upSlash = Render.SPRITE.skillClips.upSlash;
+  assert.equal(upSlash.first, Render.SPRITE.frames.skill, "it starts after the generic frames");
+  assert.equal(upSlash.frames, 11, "the client's up-slash clip is 11 frames");
 
   /* Attack speed divides the swing, and with it the wait before the next press. */
   const state = lastRoomState();

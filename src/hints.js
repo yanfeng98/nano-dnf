@@ -50,7 +50,7 @@
     },
     {
       id: "firstBlood",
-      text: "三段连击：X 连按三下，第三下有加成",
+      text: "四段连击：X 连按四下，第四下是收招重击",
       life: 4,
       when: function (state) {
         return state.stats.kills >= 1;

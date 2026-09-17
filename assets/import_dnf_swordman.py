@@ -84,19 +84,22 @@ OVERLAYS = [("eye", 2, 24, 20), ("blood", 0, 32, 24)]
 # owner picked the segments straight off the full-frame contact sheets
 # (assets/dnf_src/full-frames):
 #   still stand (the "静止" frames)  176-179  - feet planted, only the breath moves
-#   basic attack, the whole chain    0-60     - guard, every cut, recovery
+#   basic attack, four cuts          0-41     - guard then the chain's four swings
+#   up-slash (上挑)                  40-50    - the skill's own raise-and-lift
 #   run cycle                        105-116  - the trailing repeats dropped
 #   crescent slam and recovery       194-200
 #   knockdown / airborne             100,102,232,236
-# Cells past a row's frame count are spare art the renderer never reaches, so
-# the still stand repeats to fill its row instead of leaving eight blanks.
+# Frames 51-60 repeat the raise-and-cut cycle that 40-50 already covers, so they
+# are left out. Cells past a row's frame count are spare art the renderer never
+# reaches, so the still stand repeats to fill its row instead of leaving blanks.
 CELLS = {
     "idle": [176, 177, 178, 179] * 3,
     "run": list(range(105, 117)),
-    # The Slayer's complete normal attack. The renderer walks it one combo hit
-    # at a time, so a full three-hit chain plays every frame exactly once.
-    "attack": list(range(0, 61)),
-    "skill": [194, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206],
+    # The Slayer's real normal attack: four cuts, one per press.
+    "attack": list(range(0, 42)),
+    # Generic skill art first (the six frames the renderer plays), then the
+    # up-slash clip that skill alone uses (columns 6-16 are body frames 40-50).
+    "skill": [194, 196, 197, 198, 199, 200] + list(range(40, 51)),
     "extras": [100, 102, 232, 236, 240, 241, 101, 103, 233, 237, 238, 239],
 }
 

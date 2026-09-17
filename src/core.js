@@ -30,19 +30,18 @@
   };
 
   /*
-   * The Slayer's normal attack is one long client animation (frames 0-60 of the
-   * body img): the guard, the six swings it is built from, then the recovery.
-   * One press plays one swing, so the whole animation only plays out when the
-   * player keeps pressing X, and attack speed decides how fast each swing runs
-   * and how soon the next one can start.
+   * The Slayer's real normal attack is frames 0-41 of the body img: the guard,
+   * then the four cuts it is built from (the white arcs land on 4, 13, 24 and
+   * 34). One press plays one cut, so the whole chain only plays out when the
+   * player keeps pressing X, and attack speed decides how fast each cut runs
+   * and how soon the next one can start. Frames 40-50 are the up-slash skill's
+   * own animation and 51-60 simply repeat that cycle, so neither belongs here.
    */
   var ATTACK_STAGES = [
-    { first: 0, frames: 10, damage: 9 },
-    { first: 10, frames: 10, damage: 11 },
+    { first: 0, frames: 10, damage: 8 },
+    { first: 10, frames: 10, damage: 10 },
     { first: 20, frames: 10, damage: 11 },
-    { first: 30, frames: 10, damage: 11 },
-    { first: 40, frames: 10, damage: 12 },
-    { first: 50, frames: 11, damage: 12 }
+    { first: 30, frames: 12, damage: 15 }
   ];
 
   var PLAYER = {
