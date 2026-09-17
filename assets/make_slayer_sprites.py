@@ -8,6 +8,10 @@ the public repository stays free of copyrighted material. Run:
 
 Outputs: assets/slayer.png (6 x 5 grid of 96x96 frames) and assets/skills.png
 (four 32x32 skill icons).
+
+Note: a working copy may ship assets/slayer.png baked from a local DNF client
+instead (see assets/import_dnf_swordman.py). Running this script restores the
+licence-clean art.
 """
 
 from __future__ import annotations

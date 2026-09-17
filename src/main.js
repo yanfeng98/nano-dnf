@@ -15,7 +15,12 @@
   var canvas = document.getElementById("stage");
   var ctx = canvas.getContext("2d");
 
-  /* Original art shipped in assets/: a 6x5 frame sheet and four skill icons. */
+  /*
+   * Art shipped in assets/: a 6x5 player frame sheet plus four skill icons.
+   * The sheet in this working copy is baked from the local DNF client by
+   * assets/import_dnf_swordman.py; assets/make_slayer_sprites.py regenerates
+   * the original licence-clean Slayer art.
+   */
   var sprites = { slayer: null, skills: null, effects: null };
   [
     ["slayer", "./assets/slayer.png"],
