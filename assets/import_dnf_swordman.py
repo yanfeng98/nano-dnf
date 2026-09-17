@@ -4,7 +4,8 @@
 The sheet keeps the layout the renderer expects (6 columns x 5 rows of
 SPRITE.frameW x SPRITE.frameH cells, rows idle/run/attack/skill/extras) and
 replaces the hand-drawn Slayer with the client's swordman art: skin + shoes +
-pants + coat + face + hair (the "default look") plus the Berserker red-eye and
+pants + coat + face + hair (the "default look"), the greatsword he actually
+holds (DNF keeps the weapon out of the body img), and the Berserker red-eye and
 blood-aura overlays.
 
 Local-only tool: it reads copyrighted game files from the client install
@@ -49,6 +50,7 @@ SCALE = 0.68
 
 AVATAR = "sprite/character/swordman/equipment/avatar"
 GROWTYPE = "sprite/character/swordman/equipment/growtype"
+WEAPON = "sprite/character/swordman/equipment/weapon/lgswd"
 PACKS = {
     "body": ("sprite_character_swordman_equipment_avatar_skin.NPK", f"{AVATAR}/skin/sm_body0000.img"),
     "shoes": ("sprite_character_swordman_equipment_avatar_shoes.NPK", f"{AVATAR}/shoes/sm_shoes0000a.img"),
@@ -58,9 +60,14 @@ PACKS = {
     "hair": ("sprite_character_swordman_equipment_avatar_hair.NPK", f"{AVATAR}/hair/sm_hair0000a.img"),
     "eye": ("sprite_character_swordman_equipment_growtype.NPK", f"{GROWTYPE}/berserker_eye.img"),
     "blood": ("sprite_character_swordman_equipment_growtype.NPK", f"{GROWTYPE}/berserker.img"),
+    # The sword the Slayer actually holds; DNF keeps it out of the body img.
+    # The pack splits one weapon across two complementary imgs (blade + slash),
+    # so both go in: whichever one is drawn on a frame supplies the sword.
+    "weapon_b": ("sprite_character_swordman_equipment_weapon_lgswd.NPK", f"{WEAPON}/lgswd0000b.img"),
+    "weapon_c": ("sprite_character_swordman_equipment_weapon_lgswd.NPK", f"{WEAPON}/lgswd0000c.img"),
 }
 # bottom-to-top layer order for the character itself
-LAYERS = ["body", "shoes", "pants", "coat", "face", "hair"]
+LAYERS = ["body", "shoes", "pants", "coat", "face", "hair", "weapon_b", "weapon_c"]
 # The Berserker red-eye and blood-aura overlays are indexed by their own
 # animation list, which drifts out of step with the body animations, so they are
 # pinned to the head: (layer, reference frame that is known to line up, max size).
@@ -156,15 +163,24 @@ def is_stub(image: Image.Image) -> bool:
 
 def composed_frame(layer_frames, overlay_frames, index: int) -> tuple[Image.Image, int, int]:
     parts = []
-    for frames in layer_frames:
-        image, x, y = frames[index % len(frames)]
+    for key, frames in layer_frames:
+        if index < len(frames):
+            image, x, y = frames[index]
+        else:
+            # Shorter layer lists (the weapon imgs hold 210 frames, the body 242).
+            near = nearest_frame(frames, parts[-1] if parts else None)
+            if near is None:
+                continue
+            image, x, y = frames[near]
         if is_stub(image):
             continue
         parts.append((image, x, y))
     # head anchor for the overlays: the hair sprite of this frame
-    hair = layer_frames[LAYERS.index("hair")][index % len(layer_frames[LAYERS.index("hair")])]
+    hair_frames = dict(layer_frames)["hair"]
+    hair = hair_frames[index % len(hair_frames)]
     if is_stub(hair[0]):
-        hair = layer_frames[LAYERS.index("face")][index % len(layer_frames[LAYERS.index("face")])]
+        face_frames = dict(layer_frames)["face"]
+        hair = face_frames[index % len(face_frames)]
     for frames, ref, max_w, max_h in overlay_frames:
         image, x, y = frames[index % len(frames)]
         if is_stub(image) or image.width > max_w or image.height > max_h:
@@ -182,7 +198,7 @@ def composed_frame(layer_frames, overlay_frames, index: int) -> tuple[Image.Imag
         ref_image, ref_x, ref_y = frames[ref % len(frames)]
         if is_stub(ref_image):
             continue
-        ref_hair = layer_frames[LAYERS.index("hair")][ref % len(layer_frames[LAYERS.index("hair")])]
+        ref_hair = hair_frames[ref % len(hair_frames)]
         parts.append((image, hair[1] + (ref_x - ref_hair[1]), hair[2] + (ref_y - ref_hair[2])))
     if not parts:
         raise SystemExit(f"frame {index} is empty")
@@ -194,6 +210,32 @@ def composed_frame(layer_frames, overlay_frames, index: int) -> tuple[Image.Imag
     for im, x, y in parts:
         out.alpha_composite(im, (x - x0, y - y0))
     return out, x0, y0
+
+
+def nearest_frame(frames, reference, radius: float = 40.0):
+    """Index of the closest drawn frame to the body, or None when nothing is near.
+
+    The weapon imgs hold 210 frames where the body has 242, so the last few body
+    poses have no weapon counterpart. Guessing far away lands a sword in mid air,
+    so anything outside the radius is dropped instead.
+    """
+    if reference is None:
+        return None
+    ref_image, ref_x, ref_y = reference
+    ref_cx = ref_x + ref_image.width / 2
+    ref_cy = ref_y + ref_image.height / 2
+    best, best_d = None, None
+    for index, (image, x, y) in enumerate(frames):
+        if is_stub(image):
+            continue
+        dx = x + image.width / 2 - ref_cx
+        dy = y + image.height / 2 - ref_cy
+        distance = dx * dx + dy * dy
+        if best_d is None or distance < best_d:
+            best, best_d = index, distance
+    if best is None or best_d > radius * radius:
+        return None
+    return best
 
 
 def foot_centre(frame: Image.Image) -> float:
@@ -228,7 +270,7 @@ def place(cell: Image.Image, frame: Image.Image, x: int, y: int) -> None:
 
 def build(client: pathlib.Path, force: bool) -> Image.Image:
     decoder = Decoder(client, force)
-    layer_frames = [decoder.frames(key) for key in LAYERS]
+    layer_frames = [(key, decoder.frames(key)) for key in LAYERS]
     overlay_frames = [(decoder.frames(key), ref, max_w, max_h) for key, ref, max_w, max_h in OVERLAYS]
     sheet = Image.new("RGBA", (FRAME_W * COLS, FRAME_H * len(ROWS)), (0, 0, 0, 0))
     for row, name in enumerate(ROWS):
