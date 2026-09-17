@@ -50,7 +50,9 @@ SCALE = 0.68
 
 AVATAR = "sprite/character/swordman/equipment/avatar"
 GROWTYPE = "sprite/character/swordman/equipment/growtype"
-WEAPON = "sprite/character/swordman/equipment/weapon/lgswd"
+WEAPON = "sprite/character/swordman/equipment/weapon/katana"
+# The owner's pick out of the sword menus (katana 5601, the serrated silver blade).
+WEAPON_INDEX = "5601"
 PACKS = {
     "body": ("sprite_character_swordman_equipment_avatar_skin.NPK", f"{AVATAR}/skin/sm_body0000.img"),
     "shoes": ("sprite_character_swordman_equipment_avatar_shoes.NPK", f"{AVATAR}/shoes/sm_shoes0000a.img"),
@@ -63,8 +65,8 @@ PACKS = {
     # The sword the Slayer actually holds; DNF keeps it out of the body img.
     # The pack splits one weapon across two complementary imgs (blade + slash),
     # so both go in: whichever one is drawn on a frame supplies the sword.
-    "weapon_b": ("sprite_character_swordman_equipment_weapon_lgswd.NPK", f"{WEAPON}/lgswd0000b.img"),
-    "weapon_c": ("sprite_character_swordman_equipment_weapon_lgswd.NPK", f"{WEAPON}/lgswd0000c.img"),
+    "weapon_b": ("sprite_character_swordman_equipment_weapon_katana.NPK", f"{WEAPON}/katana{WEAPON_INDEX}b.img"),
+    "weapon_c": ("sprite_character_swordman_equipment_weapon_katana.NPK", f"{WEAPON}/katana{WEAPON_INDEX}c.img"),
 }
 # bottom-to-top layer order for the character itself
 LAYERS = ["body", "shoes", "pants", "coat", "face", "hair", "weapon_b", "weapon_c"]
@@ -75,12 +77,16 @@ LAYERS = ["body", "shoes", "pants", "coat", "face", "hair", "weapon_b", "weapon_
 # detached once the indices drift, so it is skipped.
 OVERLAYS = [("eye", 2, 24, 20), ("blood", 0, 32, 24)]
 
-# Which DNF frames feed each cell of the sheet.
+# Which DNF frames feed each cell of the sheet. The body img runs its
+# animations back to back, so these are read off the segment boundaries of the
+# body layer rather than guessed: stand is only frames 0-2, attack starts at 3,
+# the run cycle is 105-122, the big crescent slam is 196-199 and the knockdown
+# sits at 100-104.
 CELLS = {
-    "idle": [0, 3, 6, 9, 13, 17],
+    "idle": [0, 1, 2, 1, 124, 127],
     "run": [105, 106, 108, 109, 111, 112],
-    "attack": [62, 66, 70, 74, 78, 82],
-    "skill": [199, 203, 207, 210, 224, 228],
+    "attack": [2, 3, 4, 5, 6, 12],
+    "skill": [196, 197, 198, 199, 201, 205],
     "extras": [100, 102, 232, 236, 240, 241],  # hurt, dead, jump, fall, +2 spares
 }
 
