@@ -22,14 +22,14 @@
     "upSlash",
     "mountainBreaker",
     "crossSlash",
-    "ghostSlash",
+    "bloodSword",
     "graspHead",
     "mountainRift",
-    "tripleSlash",
-    "waveSlash",
+    "frenzy",
+    "bloodyRave",
     "rageBurst",
-    "moonlightSlash",
-    "ghostStep",
+    "bloodSnatch",
+    "bloodEvil",
     null
   ];
 

@@ -124,9 +124,9 @@
       /* DNF shape: cross cut that leaves the target bleeding. */
       bleed: { damage: 4, growth: 1, duration: 3, interval: 1, fromLevel: 2 }
     },
-    ghostSlash: {
-      id: "ghostSlash",
-      name: "鬼斩",
+    bloodSword: {
+      id: "bloodSword",
+      name: "血气之刃",
       key: "F",
       mp: 25,
       cooldown: 8,
@@ -141,13 +141,13 @@
       launch: 0,
       radius: 0,
       hits: 3,
-      /* DNF shape: slow ghost cut that lands three times and holds the target. */
+      /* DNF shape: the blood blade cuts three times and holds the target. */
       stun: 0.35,
       hold: true
     },
-    tripleSlash: {
-      id: "tripleSlash",
-      name: "三段斩",
+    frenzy: {
+      id: "frenzy",
+      name: "暴走",
       key: "G",
       mp: 12,
       cooldown: 3,
@@ -162,13 +162,13 @@
       launch: 0,
       radius: 0,
       hits: 3,
-      /* DNF shape: three steps forward, one slash each. */
+      /* DNF shape: 暴走 lurches forward, one bloody slash per step. */
       leap: 90,
       advance: true
     },
-    waveSlash: {
-      id: "waveSlash",
-      name: "裂波斩",
+    bloodyRave: {
+      id: "bloodyRave",
+      name: "血气爆发",
       key: "H",
       mp: 16,
       cooldown: 4.5,
@@ -215,9 +215,9 @@
       /* DNF shape: roar burst around the character, knocks everything down. */
       knockdown: 0.9
     },
-    moonlightSlash: {
-      id: "moonlightSlash",
-      name: "月光斩",
+    bloodSnatch: {
+      id: "bloodSnatch",
+      name: "嗜血",
       key: "Y",
       mp: 18,
       cooldown: 5,
@@ -256,9 +256,9 @@
       drain: 0.25,
       ignoresSuperArmor: true
     },
-    ghostStep: {
-      id: "ghostStep",
-      name: "鬼影闪",
+    bloodEvil: {
+      id: "bloodEvil",
+      name: "血魔",
       key: "I",
       mp: 22,
       cooldown: 6,
@@ -315,13 +315,13 @@
     "upSlash",
     "mountainBreaker",
     "crossSlash",
-    "ghostSlash",
-    "tripleSlash",
-    "waveSlash",
+    "bloodSword",
+    "frenzy",
+    "bloodyRave",
     "rageBurst",
-    "moonlightSlash",
+    "bloodSnatch",
     "graspHead",
-    "ghostStep",
+    "bloodEvil",
     "mountainRift"
   ];
 
@@ -809,13 +809,13 @@
         upSlash: !!skills.upSlash,
         mountainBreaker: !!skills.mountainBreaker,
         crossSlash: !!skills.crossSlash,
-        ghostSlash: !!skills.ghostSlash,
-        tripleSlash: !!skills.tripleSlash,
-        waveSlash: !!skills.waveSlash,
+        bloodSword: !!skills.bloodSword,
+        frenzy: !!skills.frenzy,
+        bloodyRave: !!skills.bloodyRave,
         rageBurst: !!skills.rageBurst,
-        moonlightSlash: !!skills.moonlightSlash,
+        bloodSnatch: !!skills.bloodSnatch,
         graspHead: !!skills.graspHead,
-        ghostStep: !!skills.ghostStep,
+        bloodEvil: !!skills.bloodEvil,
         mountainRift: !!skills.mountainRift
       }
     };
@@ -1340,7 +1340,7 @@
           player.onGround = false;
         }
         if (active.dash && hitIndex === 0) {
-          /* 鬼影闪: flash forward and shrug off hits while doing it. */
+          /* 血魔: flash forward and shrug off hits while doing it. */
           player.vx = player.facing * active.dash;
           player.invuln = Math.max(player.invuln, active.invuln || 0.3);
         }
@@ -1348,7 +1348,7 @@
           player.invuln = Math.max(player.invuln, active.invuln);
         }
 
-        if (active.id === "ghostSlash") {
+        if (active.id === "bloodSword") {
           state.effects.push({
             kind: "ghost",
             x: player.x + player.facing * active.reach * (0.4 + hitIndex * 0.2),

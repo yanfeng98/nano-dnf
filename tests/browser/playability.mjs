@@ -557,7 +557,7 @@ async function runPass(browser, baseUrl, options) {
     await page.keyboard.press("KeyB");
     const arranging = await page.evaluate(() => window.nanoDnf.isArranging());
     await page.screenshot({ path: path.join(ARTIFACTS, "loadout-panel.png") });
-    const dragged = await dragSkillToSlot(page, "moonlightSlash", 0);
+    const dragged = await dragSkillToSlot(page, "bloodSnatch", 0);
     await page.keyboard.press("KeyB");
     await page.screenshot({ path: path.join(ARTIFACTS, "loadout-applied.png") });
     const restored = await page.evaluate(() => window.nanoDnf.resetLoadout());
@@ -833,11 +833,11 @@ function problemsFor(pass) {
   if (pass.mode === "keyboard") {
     const checks = pass.loadoutChecks;
     const defaults =
-      "upSlash,mountainBreaker,crossSlash,ghostSlash,graspHead,mountainRift," +
-      "tripleSlash,waveSlash,rageBurst,moonlightSlash,ghostStep,";
+      "upSlash,mountainBreaker,crossSlash,bloodSword,graspHead,mountainRift," +
+      "frenzy,bloodyRave,rageBurst,bloodSnatch,bloodEvil,";
     if (!checks || !checks.arranging) problems.push("keyboard: B did not open the arrange panel");
-    if (!checks || checks.dragged.loadout[0] !== "moonlightSlash") {
-      problems.push("keyboard: dragging 月光斩 into slot A did not apply");
+    if (!checks || checks.dragged.loadout[0] !== "bloodSnatch") {
+      problems.push("keyboard: dragging 嗜血 into slot A did not apply");
     }
     if (!checks || checks.dragged.stored !== checks.dragged.loadout.join(",")) {
       problems.push("keyboard: the arranged loadout was not persisted");

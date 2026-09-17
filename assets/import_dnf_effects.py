@@ -8,14 +8,17 @@ the GitHub mirror otherwise:
   上挑        effect/upperslash.img
   崩山击      effect/normalwave1.img
   十字斩      effect/gorecross/gorecross_cross.img
-  鬼斩        effect/ghost.img
-  三段斩      effect/momentaryslashblade.img
-  裂波斩      effect/grandwaveblade.img
+  血气之刃    effect/bloodsword/sword_normal.img
+  暴走        effect/frenzy/sword_blood_upper.img
+  血气爆发    effect/bloodyrave/lslash-normal.img
   怒气爆发    effect/blast-back.img
-  月光斩      effect/fullmoon.img
+  嗜血        effect/bloodsnatch/bloodwave.img
   抓头        effect/pinchhpregen.img
-  鬼影闪      effect/ghostsidewind/01_sword_dodge.img
+  血魔        effect/bloodevil/bloodevil_stand_dungeon_effect.img
   崩山裂地斩  effect/fire-front.img
+
+The hotbar is the Berserker kit: every move above is one the red-eyed Slayer
+actually learns, rather than the mixed 鬼泣/剑魂 skills it used to carry.
 
 Two things make the baked rows read like the real move instead of a stray
 spark: the four frames are taken from the densest window of the animation
@@ -55,13 +58,13 @@ EFFECTS = [
     ("upSlash", "sprite_character_swordman_effect.NPK", "upperslash.img", f"{SLASH}/upperslash.img.js"),
     ("mountainBreaker", "sprite_character_swordman_effect.NPK", "normalwave1.img", f"{SLASH}/normalwave1.img.js"),
     ("crossSlash", "sprite_character_swordman_effect_gorecross.NPK", "gorecross_cross.img", f"{GORE}/cross.img.js"),
-    ("ghostSlash", "sprite_character_swordman_effect.NPK", "ghost.img", f"{SLASH}/atghost.img.js"),
-    ("tripleSlash", "sprite_character_swordman_effect.NPK", "momentaryslashblade.img", f"{SLASH}/momentaryslashblade.img.js"),
-    ("waveSlash", "sprite_character_swordman_effect.NPK", "grandwaveblade.img", f"{SLASH}/grandwaveblade.img.js"),
+    ("bloodSword", "sprite_character_swordman_effect_bloodsword.NPK", "sword_normal.img", f"{SLASH}/atghost.img.js"),
+    ("frenzy", "sprite_character_swordman_effect_frenzy.NPK", "sword_blood_upper.img", f"{SLASH}/momentaryslashblade.img.js"),
+    ("bloodyRave", "sprite_character_swordman_effect_bloodyrave.NPK", "lslash-normal.img", f"{SLASH}/grandwaveblade.img.js"),
     ("rageBurst", "sprite_character_swordman_effect.NPK", "blast-back.img", f"{SLASH}/blast-back.img.js"),
-    ("moonlightSlash", "sprite_character_swordman_effect.NPK", "fullmoon.img", f"{SLASH}/fullmoon.img.js"),
+    ("bloodSnatch", "sprite_character_swordman_effect_bloodsnatch.NPK", "bloodwave.img", f"{SLASH}/fullmoon.img.js"),
     ("graspHead", "sprite_character_swordman_effect.NPK", "pinchhpregen.img", f"{SLASH}/pinchhpregen.img.js"),
-    ("ghostStep", "sprite_character_swordman_effect_ghostsidewind.NPK", "01_sword_dodge.img", f"{STEP}/01_sword_dodge.img.js"),
+    ("bloodEvil", "sprite_character_swordman_effect_bloodevil.NPK", "bloodevil_stand_dungeon_effect.img", f"{STEP}/01_sword_dodge.img.js"),
     ("mountainRift", "sprite_character_swordman_effect.NPK", "fire-front.img", f"{SLASH}/fire-front.img.js")
 ]
 

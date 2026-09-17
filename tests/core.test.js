@@ -210,7 +210,7 @@ test("player death flips the run into defeat", () => {
   assert.equal(state.defeat, true);
 });
 
-test("鬼斩 spends MP, hits inside reach, then stays on cooldown", () => {
+test("血气之刃 spends MP, hits inside reach, then stays on cooldown", () => {
   const state = lastRoomState();
   const near = Core.createEnemy(state, "grunt", state.player.x + 70);
   const far = Core.createEnemy(state, "grunt", state.player.x + 420);
@@ -221,20 +221,20 @@ test("鬼斩 spends MP, hits inside reach, then stays on cooldown", () => {
   state.enemies = [near, far];
   state.player.mp = 100;
   const mpBefore = state.player.mp;
-  const skill = Core.SKILLS.ghostSlash;
+  const skill = Core.SKILLS.bloodSword;
   const nearHp = near.hp;
   const farHp = far.hp;
 
-  Core.step(state, { skills: { ghostSlash: true } });
+  Core.step(state, { skills: { bloodSword: true } });
   Core.runFrames(state, 26, {});
 
   assert.equal(nearHp - near.hp, skill.damage * skill.hits);
   assert.equal(far.hp, farHp);
   assert.ok(state.player.mp < mpBefore - skill.mp + 5, `mp=${state.player.mp}`);
-  assert.ok(state.player.skillCooldowns.ghostSlash > 0, "鬼斩 should start its cooldown");
+  assert.ok(state.player.skillCooldowns.bloodSword > 0, "血气之刃 should start its cooldown");
 
   const hpBefore = near.hp;
-  Core.step(state, { skills: { ghostSlash: true } });
+  Core.step(state, { skills: { bloodSword: true } });
   Core.runFrames(state, 20, {});
   assert.equal(near.hp, hpBefore, "cooldown should block an immediate recast");
 });
@@ -377,16 +377,16 @@ test("十字斩 makes the target bleed from skill level 2", () => {
   assert.equal(enemy.bleed, null, "bleed expires");
 });
 
-test("鬼斩 lands three hits and stuns the target while it is held", () => {
+test("血气之刃 lands three hits and stuns the target while it is held", () => {
   const state = lastRoomState();
   const enemy = Core.createEnemy(state, "brute", state.player.x + 70);
   enemy.hp = 600;
   enemy.maxHp = 600;
   enemy.speed = 0;
   state.enemies = [enemy];
-  const skill = Core.SKILLS.ghostSlash;
+  const skill = Core.SKILLS.bloodSword;
 
-  Core.step(state, { skills: { ghostSlash: true } });
+  Core.step(state, { skills: { bloodSword: true } });
   let stunned = 0;
   for (let frame = 0; frame < 50; frame += 1) {
     Core.step(state, {});
@@ -395,7 +395,7 @@ test("鬼斩 lands three hits and stuns the target while it is held", () => {
 
   assert.equal(600 - enemy.hp, skill.damage * skill.hits, "three separate hits land");
   assert.ok(stunned > 8, `target should stay stunned through the ghosts, frames=${stunned}`);
-  assert.ok(enemy.vx === 0, "鬼斩 holds the target in place");
+  assert.ok(enemy.vx === 0, "血气之刃 holds the target in place");
 });
 
 test("normal attacks can be cancelled into a skill during recovery", () => {
@@ -467,7 +467,7 @@ test("a 900-frame scripted run keeps the world inside its invariants", () => {
     left: frame % 200 >= 150,
     jump: frame % 47 === 0,
     attack: frame % 17 === 0,
-    skills: { ghostSlash: frame % 211 === 0, mountainBreaker: frame % 173 === 0 }
+    skills: { bloodSword: frame % 211 === 0, mountainBreaker: frame % 173 === 0 }
   }));
 
   assert.ok(state.time > 14);
@@ -968,25 +968,25 @@ test("the three new DNF skills land their hits and statuses", () => {
   state.player.level = 5;
   state.player.mp = state.player.maxMp;
 
-  // 三段斩: three hits while stepping forward
+  // 暴走: three hits while stepping forward
   const xBefore = state.player.x;
-  Core.step(state, { skills: { tripleSlash: true } });
+  Core.step(state, { skills: { frenzy: true } });
   Core.runFrames(state, 45, {});
   assert.equal(
     400 - near.hp,
-    (Core.SKILLS.tripleSlash.damage + (state.player.level - 1) * Core.SKILLS.tripleSlash.growth) *
-      Core.SKILLS.tripleSlash.hits,
-    "三段斩 lands three hits"
+    (Core.SKILLS.frenzy.damage + (state.player.level - 1) * Core.SKILLS.frenzy.growth) *
+      Core.SKILLS.frenzy.hits,
+    "暴走 lands three hits"
   );
-  assert.ok(state.player.x > xBefore, "三段斩 advances the character");
+  assert.ok(state.player.x > xBefore, "暴走 advances the character");
 
-  // 裂波斩: launches through its wave
-  state.player.skillCooldowns.waveSlash = 0;
+  // 血气爆发: launches through its wave
+  state.player.skillCooldowns.bloodyRave = 0;
   state.player.mp = state.player.maxMp;
   near.hp = 400;
-  Core.step(state, { skills: { waveSlash: true } });
+  Core.step(state, { skills: { bloodyRave: true } });
   Core.runFrames(state, 12, {});
-  assert.ok(near.y < Core.ARENA.groundY || near.vy < 0, "裂波斩 lifts the target");
+  assert.ok(near.y < Core.ARENA.groundY || near.vy < 0, "血气爆发 lifts the target");
   Core.runFrames(state, 28, {});
 
   // 怒气爆发: hits everything around the player
@@ -1027,7 +1027,7 @@ test("抓头 grabs a target, holds it, slams it down and drains HP", () => {
   assert.ok(state.player.hp > hpBefore, `抓头 drains HP, hp=${state.player.hp}`);
 });
 
-test("鬼影闪 dashes through the target with invincibility frames", () => {
+test("血魔 dashes through the target with invincibility frames", () => {
   const state = lastRoomState();
   const enemy = Core.createEnemy(state, "grunt", state.player.x + 70);
   enemy.hp = 400;
@@ -1035,14 +1035,14 @@ test("鬼影闪 dashes through the target with invincibility frames", () => {
   state.enemies = [enemy];
   const xBefore = state.player.x;
 
-  Core.step(state, { skills: { ghostStep: true } });
+  Core.step(state, { skills: { bloodEvil: true } });
   Core.runFrames(state, 8, {});
   assert.ok(state.player.invuln > 0, "the dash grants invincibility frames");
   Core.runFrames(state, 40, {});
 
   assert.ok(state.player.x > xBefore + 60, `the dash covers ground, x=${state.player.x}`);
   assert.ok(
-    400 - enemy.hp >= Core.SKILLS.ghostStep.damage,
+    400 - enemy.hp >= Core.SKILLS.bloodEvil.damage,
     "the dash cuts the target on the way through"
   );
   assert.ok(state.player.x > enemy.x, "the Slayer ends up past the target");
@@ -1092,13 +1092,13 @@ test("the skill loadout assigns, swaps, clears and round-trips", () => {
   assert.equal(Loadout.SLOT_COUNT, 12, "DNF two-row quickbar");
   assert.deepEqual(base, Loadout.DEFAULT_SLOTS);
 
-  const moved = Loadout.assign(base, 0, "ghostSlash");
-  assert.equal(moved[0], "ghostSlash");
+  const moved = Loadout.assign(base, 0, "bloodSword");
+  assert.equal(moved[0], "bloodSword");
   assert.equal(moved[3], "upSlash", "the displaced skill swaps into the old slot");
 
   const cleared = Loadout.clearSlot(moved, 0);
   assert.equal(cleared[0], null);
-  assert.equal(moved[0], "ghostSlash", "loadout updates are immutable");
+  assert.equal(moved[0], "bloodSword", "loadout updates are immutable");
 
   const swapped = Loadout.swap(base, 0, 2);
   assert.equal(swapped[0], base[2]);
@@ -1162,8 +1162,8 @@ test("the renderer picks the sprite row that matches the player state", () => {
   assert.equal(renderIdle()[3], 192, "attacks use the attack row");
 
   state.player.attackTimer = 0;
-  state.player.skillId = "ghostSlash";
-  state.player.skillTimer = Core.SKILLS.ghostSlash.duration;
+  state.player.skillId = "bloodSword";
+  state.player.skillTimer = Core.SKILLS.bloodSword.duration;
   assert.equal(renderIdle()[3], 288, "skills use the skill row");
 
   state.player.skillTimer = 0;
@@ -1299,7 +1299,7 @@ test("the renderer draws both hotbar rows and the loadout panel", () => {
     sprites,
     loadout,
     loadoutOpen: true,
-    drag: { skillId: "waveSlash", x: 400, y: 300 },
+    drag: { skillId: "bloodyRave", x: 400, y: 300 },
     touch: { enabled: true, pressed: [], muted: false }
   });
   const touchY = Render.touchBarButtons()[0].y + 4;

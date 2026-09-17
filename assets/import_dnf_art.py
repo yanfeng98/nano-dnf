@@ -55,13 +55,13 @@ SKILL_IDS = [
     "upSlash",
     "mountainBreaker",
     "crossSlash",
-    "ghostSlash",
-    "tripleSlash",
-    "waveSlash",
+    "bloodSword",
+    "frenzy",
+    "bloodyRave",
     "rageBurst",
-    "moonlightSlash",
+    "bloodSnatch",
     "graspHead",
-    "ghostStep",
+    "bloodEvil",
     "mountainRift",
 ]
 
@@ -77,15 +77,14 @@ ICON_FRAMES = {
     "upSlash": 94,
     "mountainBreaker": 154,
     "crossSlash": 132,
-    "ghostSlash": 10,
-    "tripleSlash": 18,
-    "waveSlash": 6,
     "rageBurst": 48,
-    "moonlightSlash": 160,
     "graspHead": 98,
-    "ghostStep": 138,
     "mountainRift": 172,
 }
+# 血气之刃 / 暴走 / 血气爆发 / 嗜血 / 血魔 are Berserker moves the owner picked no
+# atlas frame for, and the frames that used to sit in those slots belonged to the
+# 鬼泣/剑魂 skills they replaced. They keep the effect-thumbnail fallback below
+# until the owner picks frames off dnf_skillicon_atlas.png with --icons.
 ICON_FRAME_ORDER = SKILL_IDS
 
 # Where the character's feet sit inside the source canvas.
@@ -205,18 +204,29 @@ def skill_icon(skill_id: str, icons, image_util, convertor) -> Image.Image:
 
 
 def effect_thumbnail(skill_id: str) -> Image.Image:
-    """Crop a frame of the skill's own baked DNF effect."""
+    """Crop the fullest frame of the skill's own baked DNF effect.
+
+    Sampling one fixed column made thin blood slashes read as smudges; the
+    widest-drawn frame of the four is the one that looks like the move.
+    """
     sheet = ROOT / "effects.png"
     if not sheet.exists():
         return Image.new("RGBA", (32, 32), (0, 0, 0, 0))
     effects = Image.open(sheet).convert("RGBA")
     row = SKILL_IDS.index(skill_id)
     cell = effects.width // 4
-    frame = effects.crop((cell * 2, row * cell, cell * 3, (row + 1) * cell))
-    box = frame.getbbox()
-    if box is None:
+    best, best_area = None, 0
+    for column in range(4):
+        frame = effects.crop((cell * column, row * cell, cell * (column + 1), (row + 1) * cell))
+        box = frame.getbbox()
+        if box is None:
+            continue
+        area = (box[2] - box[0]) * (box[3] - box[1])
+        if area > best_area:
+            best, best_area = frame.crop(box), area
+    if best is None:
         return Image.new("RGBA", (32, 32), (0, 0, 0, 0))
-    frame = frame.crop(box)
+    frame = best
     scale = min(28 / frame.width, 28 / frame.height)
     return frame.resize((max(1, int(frame.width * scale)), max(1, int(frame.height * scale))), Image.LANCZOS)
 

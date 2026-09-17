@@ -136,13 +136,13 @@
       upSlash: { dx: 34, dy: -56, size: 156, copies: 1, spin: 0 },
       mountainBreaker: { dx: 72, dy: -30, size: 190, copies: 1, spin: 0 },
       crossSlash: { dx: 58, dy: -38, size: 164, copies: 2, spin: 0.785 },
-      ghostSlash: { dx: 30, dy: -32, size: 182, copies: 1, spin: 0 },
-      tripleSlash: { dx: 52, dy: -40, size: 150, copies: 1, spin: 0 },
-      waveSlash: { dx: 52, dy: -46, size: 170, copies: 1, spin: 0 },
+      bloodSword: { dx: 30, dy: -32, size: 182, copies: 1, spin: 0 },
+      frenzy: { dx: 52, dy: -40, size: 150, copies: 1, spin: 0 },
+      bloodyRave: { dx: 52, dy: -46, size: 170, copies: 1, spin: 0 },
       rageBurst: { dx: 0, dy: -30, size: 230, copies: 1, spin: 0 },
-      moonlightSlash: { dx: 56, dy: -46, size: 190, copies: 1, spin: 0 },
+      bloodSnatch: { dx: 56, dy: -46, size: 190, copies: 1, spin: 0 },
       graspHead: { dx: 30, dy: -36, size: 128, copies: 1, spin: 0 },
-      ghostStep: { dx: 44, dy: -30, size: 178, copies: 1, spin: 0 },
+      bloodEvil: { dx: 44, dy: -30, size: 178, copies: 1, spin: 0 },
       mountainRift: { dx: 74, dy: -34, size: 250, copies: 1, spin: 0 }
     }
   };
@@ -152,13 +152,13 @@
     upSlash: "浮空",
     mountainBreaker: "跳劈 · 倒地",
     crossSlash: "十字 · 出血",
-    ghostSlash: "三连 · 定身",
-    tripleSlash: "三段推进",
-    waveSlash: "上升波",
+    bloodSword: "血气 · 三连",
+    frenzy: "暴走 · 突进",
+    bloodyRave: "血气爆发",
     rageBurst: "范围爆发",
-    moonlightSlash: "月光斩击",
+    bloodSnatch: "嗜血 · 血波",
     graspHead: "抓取 · 吸血",
-    ghostStep: "瞬移 · 无敌",
+    bloodEvil: "血魔 · 突进",
     mountainRift: "跃斩 · 裂地"
   };
 
@@ -1475,7 +1475,7 @@
         ["A", "上挑（挑飞）"],
         ["S", "崩山击（冲击波）"],
         ["D", "十字斩"],
-        ["F", "鬼斩"],
+        ["F", "血气之刃"],
         ["P / F3 / F1", "暂停 / 重开 / 帮助"]
       ];
       ctx.font = "600 15px 'PingFang SC', 'Segoe UI', sans-serif";
