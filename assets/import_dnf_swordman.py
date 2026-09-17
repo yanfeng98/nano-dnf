@@ -79,17 +79,21 @@ LAYERS = ["body", "shoes", "pants", "coat", "face", "hair", "weapon_b", "weapon_
 OVERLAYS = [("eye", 2, 24, 20), ("blood", 0, 32, 24)]
 
 # Which DNF frames feed each cell of the sheet. The body img runs its animations
-# back to back, so these come off the segment boundaries of the body layer:
-#   stand (the long breathing loop) 123-134   - twelve frames, real motion
-#   run cycle                       105-116   - the trailing repeats dropped
-#   cut, follow-through, settle     2-5       - the swing starts from the guard
-#   crescent slam and recovery      194-200
-#   knockdown / airborne            100,102,232,236
-# Cells past a row's frame count are spare art the renderer never reaches.
+# back to back, so these come off the segment boundaries of the body layer. The
+# owner picked the two that matter most straight off the full-frame contact
+# sheets (assets/dnf_src/full-frames):
+#   still stand (the "静止" frames) 176-179   - feet planted, only the breath moves
+#   basic attack, first hit          1-6      - guard, raise, cut, impact, settle
+#   run cycle                        105-116  - the trailing repeats dropped
+#   crescent slam and recovery       194-200
+#   knockdown / airborne             100,102,232,236
+# Cells past a row's frame count are spare art the renderer never reaches, so
+# the still stand repeats to fill its row instead of leaving eight blanks.
 CELLS = {
-    "idle": list(range(123, 135)),
+    "idle": [176, 177, 178, 179] * 3,
     "run": list(range(105, 117)),
-    "attack": [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13],
+    # first two hits of the basic combo; the renderer plays the first six
+    "attack": [1, 2, 3, 4, 5, 6, 11, 12, 13, 14, 15, 16],
     "skill": [194, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206],
     "extras": [100, 102, 232, 236, 240, 241, 101, 103, 233, 237, 238, 239],
 }

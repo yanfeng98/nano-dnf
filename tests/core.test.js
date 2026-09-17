@@ -924,15 +924,17 @@ test("the shipped sprite sheet matches the frame grid the renderer expects", () 
   assert.equal(buffer.readUInt32BE(20), Render.SPRITE.frameH * 5);
   assert.deepEqual(Render.SPRITE.rows, { idle: 0, run: 1, attack: 2, skill: 3, extras: 4 });
   /*
-   * Long actions need room: the sheet carries twelve columns so a full DNF idle
-   * loop and run cycle fit, and every played frame has to exist inside the row.
+   * Long actions need room: the sheet carries twelve columns so a full DNF run
+   * cycle fits and every played frame has to exist inside the row. The stand is
+   * the client's four "still" frames (176-179), so it only asks for four.
    */
   Object.keys(Render.SPRITE.frames).forEach((row) => {
     const count = Render.SPRITE.frames[row];
     assert.ok(count > 0 && count <= Render.SPRITE.cols, `${row} frames must fit the row`);
   });
-  assert.ok(Render.SPRITE.frames.idle >= 8, "the idle loop needs real frames");
+  assert.ok(Render.SPRITE.frames.idle >= 4, "the idle loop needs real frames");
   assert.ok(Render.SPRITE.frames.run >= 8, "the run cycle needs real frames");
+  assert.ok(Render.SPRITE.frames.attack >= 4, "a cut needs wind-up, slash and recovery");
 
   const icons = fs.readFileSync(path.join(__dirname, "..", "assets", "skills.png"));
   assert.equal(icons.readUInt32BE(16), 32 * Core.SKILL_ORDER.length, "one icon per skill");

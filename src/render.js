@@ -45,8 +45,10 @@
     anchorX: 46,
     anchorY: 88,
     rows: { idle: 0, run: 1, attack: 2, skill: 3, extras: 4 },
-    /* Frames the renderer actually plays per row; the rest of the row is spare art. */
-    frames: { idle: 12, run: 12, attack: 4, skill: 6, extras: 6 },
+    /* Frames the renderer actually plays per row; the rest of the row is spare art.
+       The stand is a four-frame breath off the client's "still" frames, the cut is
+       the first hit of the basic combo (guard, raise, slash, impact, settle). */
+    frames: { idle: 4, run: 12, attack: 6, skill: 6, extras: 6 },
     extras: { hurt: 0, dead: 1, jump: 2, fall: 3 }
   };
 
@@ -440,7 +442,8 @@
     if (Math.abs(player.vx) > 8) {
       return { row: rows.run, col: Math.floor(state.time * 14) % SPRITE.frames.run };
     }
-    return { row: rows.idle, col: Math.floor(state.time * 8) % SPRITE.frames.idle };
+    /* Four frames, so keep the breath under two cycles a second. */
+    return { row: rows.idle, col: Math.floor(state.time * 5) % SPRITE.frames.idle };
   }
 
   function drawSpriteFrame(ctx, image, col, row, x, y, flip, scale) {
