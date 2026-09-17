@@ -394,6 +394,21 @@ async function runPass(browser, baseUrl, options) {
   const titleIdle = { seconds: titleIdleSeconds, ...idleState };
   /* Nothing may have started audio yet: browsers only allow it after a gesture. */
   const musicBeforeInput = await page.evaluate(() => window.nanoDnf.getMusicState());
+  /*
+   * The shipped page, not just the unit tests: the normal attack has to carry
+   * the client's whole chain and walk it one press at a time.
+   */
+  const attackChain = await page.evaluate(() => {
+    const stages = window.DNFCore.ATTACK_STAGES;
+    return {
+      stages: stages.length,
+      maxCombo: window.DNFCore.PLAYER.maxCombo,
+      coverage: stages[stages.length - 1].first + stages[stages.length - 1].frames,
+      firstColumn: window.DNFRender.attackColumn(0, 0),
+      secondColumn: window.DNFRender.attackColumn(0, 1),
+      lastColumn: window.DNFRender.attackColumn(1, stages.length - 1)
+    };
+  });
 
   const held = new Set();
   const started = Date.now();
@@ -686,6 +701,7 @@ async function runPass(browser, baseUrl, options) {
     mode: options.mode,
     url,
     titleIdle,
+    attackChain,
     music: { beforeInput: musicBeforeInput, afterRun: musicAfterRun, mute: musicMuteProbe },
     slabWatch: { unwarnedBreaks, slabs: slabWatch.size },
     hints: { seen: [...hints.seen], cleared: hints.cleared },
@@ -705,6 +721,20 @@ async function runPass(browser, baseUrl, options) {
 
 function problemsFor(pass) {
   const problems = [];
+  const chain = pass.attackChain;
+  if (!chain || chain.stages !== 6 || chain.maxCombo !== 6) {
+    problems.push(`${pass.mode}: the shipped normal attack is not the six-stage chain`);
+  } else {
+    if (chain.coverage !== 61) {
+      problems.push(`${pass.mode}: the stages cover ${chain.coverage} frames, not the whole 61`);
+    }
+    if (chain.firstColumn !== 0 || chain.secondColumn <= chain.firstColumn) {
+      problems.push(`${pass.mode}: pressing X does not walk to the next stage`);
+    }
+    if (chain.lastColumn !== 60) {
+      problems.push(`${pass.mode}: the last press ends on frame ${chain.lastColumn}, not 60`);
+    }
+  }
   if (!pass.state.victory) problems.push(`${pass.mode}: dungeon was not cleared`);
   if (pass.state.defeat) problems.push(`${pass.mode}: player died`);
   /* The title screen must be inert: an idle player is not being attacked. */
@@ -875,6 +905,7 @@ async function main() {
     level: pass.state.player.level,
     upgradesTaken: pass.state.player.upgradesTaken,
     titleIdle: pass.titleIdle,
+    attackChain: pass.attackChain,
     slabWatch: pass.slabWatch,
     collapses: pass.state.stats.collapses,
     hints: pass.hints,

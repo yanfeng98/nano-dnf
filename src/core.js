@@ -29,25 +29,63 @@
     maxFallSpeed: 1400
   };
 
+  /*
+   * The Slayer's normal attack is one long client animation (frames 0-60 of the
+   * body img): the guard, the six swings it is built from, then the recovery.
+   * One press plays one swing, so the whole animation only plays out when the
+   * player keeps pressing X, and attack speed decides how fast each swing runs
+   * and how soon the next one can start.
+   */
+  var ATTACK_STAGES = [
+    { first: 0, frames: 10, damage: 9 },
+    { first: 10, frames: 10, damage: 11 },
+    { first: 20, frames: 10, damage: 11 },
+    { first: 30, frames: 10, damage: 11 },
+    { first: 40, frames: 10, damage: 12 },
+    { first: 50, frames: 11, damage: 12 }
+  ];
+
   var PLAYER = {
     maxHp: 120,
     maxMp: 100,
     width: 34,
     height: 64,
+    /* One swing at attack speed 1. Attack speed divides it, which is what makes
+       the chain play faster and lets the next press start sooner. */
     attackDuration: 0.22,
     attackCooldown: 0.16,
-    attackActiveFrom: 0.05,
-    attackActiveTo: 0.14,
+    attackSpeed: 1,
+    /* Hit window as a fraction of the swing, so it lands on the same animation
+       frames however fast the swing runs. */
+    attackActiveFrom: 0.23,
+    attackActiveTo: 0.64,
     attackReach: 68,
     attackHeightPad: 10,
-    comboDamage: [8, 10, 15],
+    comboDamage: ATTACK_STAGES.map(function (stage) {
+      return stage.damage;
+    }),
     comboWindow: 0.45,
-    maxCombo: 3,
+    maxCombo: ATTACK_STAGES.length,
     invulnAfterHit: 0.9,
     hurtStun: 0.22,
     knockbackX: 190,
     mpRegenPerSecond: 7
   };
+
+  /* How long one swing takes at the player's attack speed. Kept in a band so a
+     stack of speed upgrades still leaves readable animation and a live hitbox. */
+  var MIN_ATTACK_SPEED = 0.5;
+  var MAX_ATTACK_SPEED = 3;
+
+  function swingDuration(player) {
+    return PLAYER.attackDuration / attackSpeedOf(player);
+  }
+
+  function attackSpeedOf(player) {
+    var speed = Number(player && player.attackSpeed);
+    if (!isFinite(speed) || speed <= 0) return PLAYER.attackSpeed;
+    return Math.min(MAX_ATTACK_SPEED, Math.max(MIN_ATTACK_SPEED, speed));
+  }
 
   /*
    * Slayer (鬼剑士) skill kit, kept in the DNF shape: every skill has an MP cost,
@@ -658,10 +696,18 @@
       apply: function (player) {
         player.skillPower += 0.15;
       }
+    },
+    attackSpeed: {
+      id: "attackSpeed",
+      name: "迅捷",
+      detail: "攻速 +15%",
+      apply: function (player) {
+        player.attackSpeed = Math.min(MAX_ATTACK_SPEED, attackSpeedOf(player) * 1.15);
+      }
     }
   };
 
-  var UPGRADE_ORDER = ["attack", "maxHp", "mpRegen", "skillPower"];
+  var UPGRADE_ORDER = ["attack", "attackSpeed", "maxHp", "mpRegen", "skillPower"];
   var UPGRADES_PER_ROOM = 3;
 
   /*
@@ -707,8 +753,10 @@
       attackBonus: 0,
       mpRegen: PLAYER.mpRegenPerSecond,
       skillPower: 1,
+      attackSpeed: PLAYER.attackSpeed,
       upgradesTaken: [],
       attackTimer: 0,
+      attackDuration: PLAYER.attackDuration,
       attackCooldown: 0,
       attackDir: 1,
       attackHitDone: false,
@@ -1208,7 +1256,8 @@
     /* DNF combo flow: normal attacks can be cancelled into a skill during recovery. */
     var attackRecovering =
       player.attackTimer > 0 &&
-      PLAYER.attackDuration - player.attackTimer >= PLAYER.attackActiveTo;
+      player.attackDuration - player.attackTimer >=
+        PLAYER.attackActiveTo * player.attackDuration;
 
     var castSkill = SKILL_ORDER.filter(function (skillId) {
       var spec = SKILLS[skillId];
@@ -1239,8 +1288,14 @@
       player.skillTimer <= 0 &&
       player.attackCooldown <= 0
     ) {
-      player.attackTimer = PLAYER.attackDuration;
-      player.attackCooldown = PLAYER.attackDuration + PLAYER.attackCooldown;
+      /*
+       * Attack speed is the whole point of the chain: it shortens the swing, and
+       * with it the recovery before the next press is accepted, so a faster
+       * Slayer both plays the animation faster and gets through it sooner.
+       */
+      player.attackDuration = swingDuration(player);
+      player.attackTimer = player.attackDuration;
+      player.attackCooldown = player.attackDuration + PLAYER.attackCooldown / player.attackSpeed;
       player.attackDir = player.facing;
       player.comboIndex = player.comboTimer > 0 ? (player.comboIndex + 1) % PLAYER.maxCombo : 0;
       player.comboTimer = PLAYER.comboWindow;
@@ -1248,8 +1303,12 @@
     }
 
     if (player.attackTimer > 0) {
-      var elapsed = PLAYER.attackDuration - player.attackTimer;
-      if (!player.attackHitDone && elapsed >= PLAYER.attackActiveFrom && elapsed <= PLAYER.attackActiveTo) {
+      var elapsed = player.attackDuration - player.attackTimer;
+      if (
+        !player.attackHitDone &&
+        elapsed >= PLAYER.attackActiveFrom * player.attackDuration &&
+        elapsed <= PLAYER.attackActiveTo * player.attackDuration
+      ) {
         player.attackHitDone = true;
         var box = attackBox(player, PLAYER.attackReach, PLAYER.attackHeightPad);
         var damage = PLAYER.comboDamage[player.comboIndex] + player.attackBonus;
@@ -1969,6 +2028,9 @@
     ARENA: ARENA,
     PHYSICS: PHYSICS,
     PLAYER: PLAYER,
+    ATTACK_STAGES: ATTACK_STAGES,
+    swingDuration: swingDuration,
+    attackSpeedOf: attackSpeedOf,
     SKILLS: SKILLS,
     SKILL_ORDER: SKILL_ORDER,
     PROGRESSION: PROGRESSION,

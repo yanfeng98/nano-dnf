@@ -47,12 +47,8 @@
     rows: { idle: 0, run: 1, attack: 2, skill: 3, extras: 4 },
     /* Frames the renderer actually plays per row; the rest of the row is spare art.
        The stand is a four-frame breath off the client's "still" frames, the attack
-       is the whole normal-attack chain (see attackClip). */
+       is the whole normal-attack chain (see Core.ATTACK_STAGES). */
     frames: { idle: 4, run: 12, attack: 61, skill: 6, extras: 6 },
-    /* The Slayer's normal attack is one long client animation: guard, every cut
-       in the chain, recovery. The combo is the clock that walks through it, so
-       hit k plays its own slice and a full three-hit chain shows the whole clip. */
-    attackClip: { first: 0, count: 61, hits: 3 },
     extras: { hurt: 0, dead: 1, jump: 2, fall: 3 }
   };
 
@@ -419,17 +415,15 @@
     ctx.restore();
   }
 
-  /* Which column of the attack row a swing shows. The clip is the client's whole
-     normal attack, so the combo index picks the slice and the swing picks the
-     frame inside it; the slices tile the clip so nothing is skipped. */
-  function attackColumn(swing, comboIndex) {
-    var clip = SPRITE.attackClip;
-    var index = Math.trunc(Number(comboIndex)) || 0;
-    var hit = ((index % clip.hits) + clip.hits) % clip.hits;
-    var first = clip.first + Math.round((clip.count * hit) / clip.hits);
-    var last = clip.first + Math.round((clip.count * (hit + 1)) / clip.hits);
-    var span = Math.max(1, last - first);
-    return Math.min(last - 1, first + Math.floor(clamp01(swing) * span));
+  /* Which column of the attack row a swing shows. One press plays one stage of
+     the client's normal attack, and the swing progress walks that stage's
+     frames; the stages tile the clip, so mashing X plays all of it in order. */
+  function attackColumn(swing, stageIndex) {
+    var stages = Core.ATTACK_STAGES;
+    var index = Math.trunc(Number(stageIndex)) || 0;
+    var stage = stages[((index % stages.length) + stages.length) % stages.length];
+    var offset = Math.min(stage.frames - 1, Math.floor(clamp01(swing) * stage.frames));
+    return stage.first + offset;
   }
 
   function playerFrame(state, player) {
@@ -449,7 +443,8 @@
       };
     }
     if (player.attackTimer > 0) {
-      var swing = clamp01(1 - player.attackTimer / Core.PLAYER.attackDuration);
+      var swingDuration = player.attackDuration || Core.PLAYER.attackDuration;
+      var swing = clamp01(1 - player.attackTimer / swingDuration);
       return { row: rows.attack, col: attackColumn(swing, player.comboIndex) };
     }
     if (Math.abs(player.vx) > 8) {
@@ -487,7 +482,8 @@
     ctx.save();
     ctx.translate(player.x, player.y);
     if (player.facing < 0) ctx.scale(-1, 1);
-    var swing = player.attackTimer > 0 ? 1 - player.attackTimer / Core.PLAYER.attackDuration : 0;
+    var fallbackSwing = player.attackDuration || Core.PLAYER.attackDuration;
+    var swing = player.attackTimer > 0 ? 1 - player.attackTimer / fallbackSwing : 0;
 
     ctx.fillStyle = "#6a1020";
     ctx.beginPath();
@@ -1498,7 +1494,7 @@
       var rows = [
         ["← →", "移动"],
         ["C / ↑ / Space", "跳跃"],
-        ["X", "普攻（三段连击）"],
+        ["X", "普攻（连按 X 打完六段连击）"],
         ["A", "上挑（挑飞）"],
         ["S", "崩山击（冲击波）"],
         ["D", "十字斩"],

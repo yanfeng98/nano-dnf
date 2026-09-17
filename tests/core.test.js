@@ -127,7 +127,7 @@ test("attack does not reach an enemy far outside the hitbox", () => {
   assert.equal(state.stats.hits, 0);
 });
 
-test("combo chain escalates damage 8 / 10 / 15", () => {
+test("the combo chain walks the six stages of the normal attack", () => {
   const state = lastRoomState();
   const enemy = Core.createEnemy(state, "brute", state.player.x + 48);
   enemy.hp = 500;
@@ -135,17 +135,21 @@ test("combo chain escalates damage 8 / 10 / 15", () => {
   enemy.speed = 0;
   state.enemies = [enemy];
 
+  const stages = Core.ATTACK_STAGES;
+  assert.equal(stages.length, 6, "the client's normal attack is six swings");
+
   const hits = [];
-  for (let swing = 0; swing < 3; swing += 1) {
+  for (let swing = 0; swing < stages.length; swing += 1) {
     enemy.x = state.player.x + 48;
     const hpBefore = enemy.hp;
     Core.step(state, { attack: true });
+    assert.equal(state.player.comboIndex, swing, `press ${swing + 1} plays stage ${swing}`);
     Core.runFrames(state, 22, {});
     hits.push(hpBefore - enemy.hp);
   }
 
   assert.deepEqual(hits, Core.PLAYER.comboDamage);
-  assert.equal(state.player.comboIndex, 2);
+  assert.equal(state.player.comboIndex, stages.length - 1);
 });
 
 test("dead enemies leave the room and clearing the last room wins", () => {
@@ -941,37 +945,84 @@ test("the shipped sprite sheet matches the frame grid the renderer expects", () 
   assert.equal(icons.readUInt32BE(20), 32);
 });
 
-test("the normal attack plays the client's whole chain across the combo", () => {
-  const clip = Render.SPRITE.attackClip;
-  assert.equal(Render.SPRITE.frames.attack, clip.count, "the attack row carries the whole clip");
-  assert.equal(clip.first, 0, "the clip starts on the client's first attack frame");
-  assert.equal(clip.hits, Core.PLAYER.maxCombo, "one slice per combo hit");
+test("one press plays one stage of the normal attack, and attack speed sets the pace", () => {
+  const stages = Core.ATTACK_STAGES;
+  assert.equal(Core.PLAYER.maxCombo, stages.length, "the chain is as long as the animation");
+  assert.equal(Render.SPRITE.frames.attack, 61, "the attack row carries the whole clip");
 
   /*
-   * The old bake kept six frames — the client's first cut — so the rest of the
-   * chain never reached the screen. Each hit now owns a slice and the slices
-   * tile the clip, so a three-hit chain plays every frame exactly once.
+   * The stages tile the clip: no frame is skipped and none plays twice, so
+   * mashing X runs the client's whole normal attack in order. The old bake kept
+   * six frames (the first cut), which is why the rest never reached the screen.
    */
-  const firstColumns = [];
-  for (let hit = 0; hit < clip.hits; hit += 1) {
-    const first = Render.attackColumn(0, hit);
-    const last = Render.attackColumn(1, hit);
-    firstColumns.push(first);
-    assert.ok(first >= clip.first, `hit ${hit} starts inside the row`);
-    assert.ok(last < clip.first + clip.count, `hit ${hit} stays inside the clip`);
-    assert.ok(last > first, `hit ${hit} advances through its slice`);
-  }
-  assert.deepEqual(
-    firstColumns,
-    [0, 20, 41],
-    "the combo walks the clip from the guard to the finisher"
-  );
+  let next = 0;
+  stages.forEach((stage, index) => {
+    assert.equal(stage.first, next, `stage ${index} starts where the last one ended`);
+    assert.ok(stage.frames > 0, `stage ${index} has frames`);
+    assert.equal(stage.damage, Core.PLAYER.comboDamage[index]);
+    next = stage.first + stage.frames;
+  });
+  assert.equal(next, Render.SPRITE.frames.attack, "the stages cover the whole animation");
+
+  /* A press shows its own stage, from that stage's first frame to its last. */
+  assert.equal(Render.attackColumn(0, 0), 0, "the first press starts on the guard");
+  assert.equal(Render.attackColumn(1, 0), stages[0].frames - 1);
+  assert.equal(Render.attackColumn(0, 1), stages[1].first, "the second press is its own swing");
   assert.equal(
-    Render.attackColumn(1, clip.hits - 1),
-    clip.count - 1,
-    "the last hit lands on the client's final attack frame"
+    Render.attackColumn(1, stages.length - 1),
+    Render.SPRITE.frames.attack - 1,
+    "the last press reaches the client's final frame"
   );
-  assert.equal(Render.attackColumn(0, clip.hits), 0, "the chain wraps back to the guard");
+  assert.equal(Render.attackColumn(0, stages.length), 0, "the chain wraps back to the guard");
+
+  /* Attack speed divides the swing, and with it the wait before the next press. */
+  const state = lastRoomState();
+  assert.equal(Core.swingDuration(state.player), Core.PLAYER.attackDuration);
+  Core.step(state, { attack: true });
+  assert.equal(state.player.comboIndex, 0, "a fresh chain opens on stage one");
+  const slowCooldown = state.player.attackCooldown;
+
+  const fast = lastRoomState();
+  fast.player.attackSpeed = 2;
+  const enemy = Core.createEnemy(fast, "brute", fast.player.x + 48);
+  enemy.hp = 500;
+  enemy.maxHp = 500;
+  enemy.speed = 0;
+  fast.enemies = [enemy];
+  Core.step(fast, { attack: true });
+  assert.equal(fast.player.attackDuration, Core.PLAYER.attackDuration / 2);
+  assert.ok(
+    fast.player.attackCooldown < slowCooldown,
+    "a faster Slayer can start the next swing sooner"
+  );
+  Core.runFrames(fast, 8, {});
+  assert.equal(
+    enemy.maxHp - enemy.hp,
+    Core.PLAYER.comboDamage[0],
+    "the hit window scales with the swing, so a fast cut still connects"
+  );
+
+  /*
+   * And the reverse: at half speed the cut has to wait for its own arc instead
+   * of landing on the old absolute 0.05s. Frame 5 is 0.083s, inside the old
+   * window and before the scaled one (0.23 x 0.44s = 0.10s).
+   */
+  const half = lastRoomState();
+  half.player.attackSpeed = 0.5;
+  const laggingEnemy = Core.createEnemy(half, "brute", half.player.x + 48);
+  laggingEnemy.hp = 500;
+  laggingEnemy.maxHp = 500;
+  laggingEnemy.speed = 0;
+  half.enemies = [laggingEnemy];
+  Core.step(half, { attack: true });
+  Core.runFrames(half, 5, {});
+  assert.equal(laggingEnemy.hp, laggingEnemy.maxHp, "a slow swing has not connected yet");
+  Core.runFrames(half, 15, {});
+  assert.equal(
+    laggingEnemy.maxHp - laggingEnemy.hp,
+    Core.PLAYER.comboDamage[0],
+    "it connects when the slow swing reaches the arc"
+  );
 });
 
 test("the swordman bake caches each source layer, so a new katana actually ships", () => {
@@ -1918,6 +1969,7 @@ test("taking a card applies it once and records the pick", () => {
 test("every upgrade in the pool changes the player's numbers", () => {
   const cases = [
     ["attack", (p) => p.attackBonus],
+    ["attackSpeed", (p) => p.attackSpeed],
     ["maxHp", (p) => p.maxHp],
     ["mpRegen", (p) => p.mpRegen],
     ["skillPower", (p) => p.skillPower]
