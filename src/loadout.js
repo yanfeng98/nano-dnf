@@ -18,6 +18,13 @@
   var SLOT_COUNT = 12;
   var SLOT_ROW_SIZE = 6;
   var SLOT_KEYS = ["A", "S", "D", "F", "G", "H", "Q", "W", "E", "R", "T", "Y"];
+  /*
+   * DNF's own default: the up-slash sits on Z, next to whichever quickbar slot
+   * also holds it. Keyed by keyboard code for the input layer, with a printable
+   * label the bar can draw.
+   */
+  var SKILL_KEYS = { KeyZ: "upSlash" };
+  var SKILL_SHORTCUTS = { upSlash: "Z" };
   var DEFAULT_SLOTS = [
     "upSlash",
     "mountainBreaker",
@@ -105,6 +112,8 @@
     SLOT_COUNT: SLOT_COUNT,
     SLOT_ROW_SIZE: SLOT_ROW_SIZE,
     SLOT_KEYS: SLOT_KEYS,
+    SKILL_KEYS: SKILL_KEYS,
+    SKILL_SHORTCUTS: SKILL_SHORTCUTS,
     DEFAULT_SLOTS: DEFAULT_SLOTS,
     create: create,
     slotOf: slotOf,

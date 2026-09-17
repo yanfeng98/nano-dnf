@@ -395,6 +395,27 @@ async function runPass(browser, baseUrl, options) {
   /* Nothing may have started audio yet: browsers only allow it after a gesture. */
   const musicBeforeInput = await page.evaluate(() => window.nanoDnf.getMusicState());
   /*
+   * DNF's default key for the up-slash is Z. Press it on the shipped page, read
+   * the skill back, then put the run back to its starting state so the pass
+   * itself is measured from a clean run.
+   */
+  await page.keyboard.press("Enter");
+  await page.waitForTimeout(80);
+  await page.keyboard.down("KeyZ");
+  await page.waitForTimeout(80);
+  const upSlashKey = await page.evaluate(() => {
+    const state = window.nanoDnf.getState();
+    return {
+      skillId: state.player.skillId,
+      cooldown: Number((state.player.skillCooldowns.upSlash || 0).toFixed(2)),
+      equipped: window.nanoDnf.getLoadout().indexOf("upSlash") !== -1,
+      shortcut: window.DNFLoadout.SKILL_SHORTCUTS.upSlash
+    };
+  });
+  await page.keyboard.up("KeyZ");
+  await page.evaluate(() => window.nanoDnf.restart());
+
+  /*
    * The shipped page, not just the unit tests: the normal attack has to carry
    * the client's whole chain and walk it one press at a time.
    */
@@ -704,6 +725,7 @@ async function runPass(browser, baseUrl, options) {
     url,
     titleIdle,
     attackChain,
+    upSlashKey,
     music: { beforeInput: musicBeforeInput, afterRun: musicAfterRun, mute: musicMuteProbe },
     slabWatch: { unwarnedBreaks, slabs: slabWatch.size },
     hints: { seen: [...hints.seen], cleared: hints.cleared },
@@ -723,6 +745,10 @@ async function runPass(browser, baseUrl, options) {
 
 function problemsFor(pass) {
   const problems = [];
+  const upSlash = pass.upSlashKey;
+  if (!upSlash || upSlash.shortcut !== "Z" || !upSlash.equipped || upSlash.cooldown <= 0) {
+    problems.push(`${pass.mode}: Z does not cast the up-slash (${JSON.stringify(upSlash)})`);
+  }
   const chain = pass.attackChain;
   if (!chain || chain.stages !== 4 || chain.maxCombo !== 4) {
     problems.push(`${pass.mode}: the shipped normal attack is not the four-cut chain`);
@@ -911,6 +937,7 @@ async function main() {
     upgradesTaken: pass.state.player.upgradesTaken,
     titleIdle: pass.titleIdle,
     attackChain: pass.attackChain,
+    upSlashKey: pass.upSlashKey,
     slabWatch: pass.slabWatch,
     collapses: pass.state.stats.collapses,
     hints: pass.hints,

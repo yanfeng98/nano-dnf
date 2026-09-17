@@ -4,11 +4,11 @@
  */
 (function (root, factory) {
   if (typeof module === "object" && module.exports) {
-    module.exports = factory(require("./core.js"));
+    module.exports = factory(require("./core.js"), require("./loadout.js"));
   } else {
-    root.DNFRender = factory(root.DNFCore);
+    root.DNFRender = factory(root.DNFCore, root.DNFLoadout);
   }
-})(typeof self !== "undefined" ? self : this, function (Core) {
+})(typeof self !== "undefined" ? self : this, function (Core, Loadout) {
   "use strict";
 
   var ARENA = Core.ARENA;
@@ -450,10 +450,16 @@
           Math.min(skillFrames - 1, Math.floor(clamp01(progress) * skillFrames))
       };
     }
-    if (player.attackTimer > 0) {
-      var swingDuration = player.attackDuration || Core.PLAYER.attackDuration;
-      var swing = clamp01(1 - player.attackTimer / swingDuration);
-      return { row: rows.attack, col: attackColumn(swing, player.comboIndex) };
+    /*
+     * One press, one cut of the client's chain, and the cut's frames are spread
+     * over the whole press cycle - swing plus the recovery the player can move
+     * through. The animation used to stop at the end of the swing, so every cut
+     * dropped back to the idle pose and the chain looked chopped up.
+     */
+    if (player.attackCooldown > 0 && player.comboTimer > 0) {
+      var attackCycle = player.attackCycle || player.attackDuration || Core.PLAYER.attackDuration;
+      var progress = clamp01(1 - player.attackCooldown / attackCycle);
+      return { row: rows.attack, col: attackColumn(progress, player.comboIndex) };
     }
     if (Math.abs(player.vx) > 8) {
       return { row: rows.run, col: Math.floor(state.time * 14) % SPRITE.frames.run };
@@ -1293,7 +1299,13 @@
       ctx.textAlign = "left";
       ctx.fillStyle = PALETTE.gold;
       ctx.font = "700 13px 'Segoe UI', system-ui, sans-serif";
-      ctx.fillText(keys[slot.index], slot.x + 46, slot.y + 18);
+      /* A skill with its own key (DNF's Z for 上挑) shows both ways to cast it. */
+      var shortcut = skillId ? Loadout.SKILL_SHORTCUTS[skillId] : null;
+      ctx.fillText(
+        shortcut ? keys[slot.index] + "/" + shortcut : keys[slot.index],
+        slot.x + 46,
+        slot.y + 18
+      );
       if (skill) {
         ctx.fillStyle = ready ? PALETTE.text : "rgba(198, 208, 228, 0.55)";
         ctx.font = "600 13px 'PingFang SC', 'Segoe UI', sans-serif";
@@ -1503,7 +1515,7 @@
         ["← →", "移动"],
         ["C / ↑ / Space", "跳跃"],
         ["X", "普攻（连按 X 打完四段连击）"],
-        ["A", "上挑（挑飞）"],
+        ["Z / A", "上挑（挑飞，DNF 默认 Z）"],
         ["S", "崩山击（冲击波）"],
         ["D", "十字斩"],
         ["F", "血气之刃"],

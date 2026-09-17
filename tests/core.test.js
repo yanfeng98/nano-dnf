@@ -144,7 +144,7 @@ test("the combo chain walks the four cuts of the normal attack", () => {
     const hpBefore = enemy.hp;
     Core.step(state, { attack: true });
     assert.equal(state.player.comboIndex, swing, `press ${swing + 1} plays stage ${swing}`);
-    Core.runFrames(state, 22, {});
+    Core.runFrames(state, 24, {});
     hits.push(hpBefore - enemy.hp);
   }
 
@@ -411,7 +411,9 @@ test("normal attacks can be cancelled into a skill during recovery", () => {
   state.enemies = [enemy];
 
   Core.step(state, { attack: true });
-  Core.runFrames(state, 12, {});
+  /* The cut is 0.22s and its recovery starts at 0.64 of it: 11 frames since the
+     press (12 with the press frame) is inside the swing. */
+  Core.runFrames(state, 11, {});
   assert.ok(state.player.attackTimer > 0, "attack is still in recovery");
 
   Core.step(state, { skills: { crossSlash: true } });
@@ -1253,6 +1255,21 @@ test("the skill loadout assigns, swaps, clears and round-trips", () => {
   assert.equal(Loadout.slotForCode("ArrowLeft"), -1);
 });
 
+test("the up-slash keeps DNF's default Z key next to its quickbar slot", () => {
+  const Loadout = require("../src/loadout.js");
+
+  assert.equal(Loadout.SKILL_KEYS.KeyZ, "upSlash", "Z is the up-slash");
+  assert.equal(Loadout.SKILL_SHORTCUTS.upSlash, "Z", "and the bar can print it");
+  assert.ok(Core.SKILL_ORDER.includes(Loadout.SKILL_KEYS.KeyZ), "the shortcut names a real skill");
+  assert.ok(
+    Loadout.DEFAULT_SLOTS.includes("upSlash"),
+    "the default bar still ships the up-slash, so Z has something to cast"
+  );
+  /* Z is a skill key, not a thirteenth slot: the two-row bar is untouched. */
+  assert.equal(Loadout.SLOT_KEYS.includes("Z"), false);
+  assert.equal(Loadout.slotForCode("KeyZ"), -1);
+});
+
 test("the renderer picks the sprite row that matches the player state", () => {
   const calls = [];
   const ctx = new Proxy(
@@ -1296,7 +1313,31 @@ test("the renderer picks the sprite row that matches the player state", () => {
 
   state.player.vx = 0;
   state.player.attackTimer = Core.PLAYER.attackDuration;
+  state.player.attackCycle = Core.PLAYER.attackDuration + Core.PLAYER.attackCooldown;
+  state.player.attackCooldown = state.player.attackCycle;
+  state.player.comboTimer = Core.PLAYER.comboWindow;
+  state.player.comboIndex = 0;
   assert.equal(renderIdle()[3], 192, "attacks use the attack row");
+
+  /*
+   * The cut's frames span the whole press cycle, so its recovery keeps the
+   * follow-through playing instead of snapping back to the idle pose between
+   * cuts, which is what made the chain look chopped up.
+   */
+  state.player.attackTimer = 0;
+  state.player.attackCooldown = 0.02;
+  const stage = Core.ATTACK_STAGES[state.player.comboIndex];
+  const recovering = renderIdle();
+  assert.equal(recovering[3], 192, "a cut's recovery still shows that cut");
+  assert.equal(
+    recovering[2],
+    (stage.first + stage.frames - 1) * Render.SPRITE.frameW,
+    "by the end of the recovery the cut has played its last frame"
+  );
+
+  state.player.comboTimer = 0;
+  state.player.attackCooldown = 0;
+  assert.equal(renderIdle()[3], 0, "with the combo over the Slayer goes back to idle");
 
   state.player.attackTimer = 0;
   state.player.skillId = "bloodSword";

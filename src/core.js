@@ -49,8 +49,13 @@
     maxMp: 100,
     width: 34,
     height: 64,
-    /* One swing at attack speed 1. Attack speed divides it, which is what makes
-       the chain play faster and lets the next press start sooner. */
+    /*
+     * One cut at attack speed 1: the swing itself, then a recovery the player is
+     * free to move through. The cut's animation plays across both (see
+     * attackCycle), so the ten frames read as one motion instead of a snap.
+     * Attack speed divides the pair, which is what lets a faster Slayer play the
+     * chain sooner.
+     */
     attackDuration: 0.22,
     attackCooldown: 0.16,
     attackSpeed: 1,
@@ -756,6 +761,7 @@
       upgradesTaken: [],
       attackTimer: 0,
       attackDuration: PLAYER.attackDuration,
+      attackCycle: PLAYER.attackDuration + PLAYER.attackCooldown,
       attackCooldown: 0,
       attackDir: 1,
       attackHitDone: false,
@@ -1287,16 +1293,20 @@
       player.skillTimer <= 0 &&
       player.attackCooldown <= 0
     ) {
-      /*
-       * Attack speed is the whole point of the chain: it shortens the swing, and
-       * with it the recovery before the next press is accepted, so a faster
-       * Slayer both plays the animation faster and gets through it sooner.
-       */
+      var nextStage = player.comboTimer > 0 ? (player.comboIndex + 1) % PLAYER.maxCombo : 0;
       player.attackDuration = swingDuration(player);
       player.attackTimer = player.attackDuration;
-      player.attackCooldown = player.attackDuration + PLAYER.attackCooldown / player.attackSpeed;
+      /*
+       * The animation owns the whole cycle, not just the swing: the renderer
+       * spreads the cut's frames over swing + recovery, so a cut stays one
+       * continuous motion while the player is still free to move through the
+       * recovery. Ending the animation at the swing and dropping back to idle
+       * there is what made the chain look chopped into pieces.
+       */
+      player.attackCycle = player.attackDuration + PLAYER.attackCooldown / attackSpeedOf(player);
+      player.attackCooldown = player.attackCycle;
       player.attackDir = player.facing;
-      player.comboIndex = player.comboTimer > 0 ? (player.comboIndex + 1) % PLAYER.maxCombo : 0;
+      player.comboIndex = nextStage;
       player.comboTimer = PLAYER.comboWindow;
       player.attackHitDone = false;
     }

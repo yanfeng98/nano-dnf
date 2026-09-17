@@ -57,6 +57,11 @@
     KeyY: "slot11"
   };
 
+  /* DNF's own default: Z fires the up-slash wherever it sits in the quickbar. */
+  Object.keys(Loadout.SKILL_KEYS).forEach(function (code) {
+    KEY_MAP[code] = "skill:" + Loadout.SKILL_KEYS[code];
+  });
+
   var ONE_SHOT_ACTIONS = {
     jump: true,
     attack: true
@@ -692,6 +697,12 @@
       if (!skillId) return;
       var action = "slot" + index;
       if (held[action] || pressed[action]) input.skills[skillId] = true;
+    });
+    /* A skill's own key works next to its slot, not instead of it. */
+    loadout.forEach(function (skillId) {
+      if (!skillId) return;
+      var shortcut = "skill:" + skillId;
+      if (held[shortcut] || pressed[shortcut]) input.skills[skillId] = true;
     });
     return input;
   }
