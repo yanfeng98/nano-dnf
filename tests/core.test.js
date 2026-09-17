@@ -941,6 +941,37 @@ test("the shipped sprite sheet matches the frame grid the renderer expects", () 
   assert.equal(icons.readUInt32BE(20), 32);
 });
 
+test("the swordman bake caches each source layer, so a new katana actually ships", () => {
+  const source = fs.readFileSync(
+    path.join(__dirname, "..", "assets", "import_dnf_swordman.py"),
+    "utf8"
+  );
+  /*
+   * One weapon pack holds hundreds of katana, and the layer key is just
+   * "weapon_b" whoever is picked. Caching on that key kept serving the previous
+   * sword after WEAPON_INDEX changed, so the sheet looked right but the client
+   * art never moved. The cache name has to come from the source entry.
+   */
+  assert.ok(
+    source.includes('entry.rsplit("/", 1)[-1]'),
+    "the .img cache must be keyed by the pack entry it came from"
+  );
+  assert.ok(
+    !source.includes('CACHE / (key + ".img")'),
+    "caching on the layer key alone would re-use the previous weapon"
+  );
+  assert.match(
+    source,
+    /WEAPON_INDEX = "\d+"/,
+    "the bake must pin the weapon it draws"
+  );
+  assert.ok(
+    source.includes("f\"{WEAPON}/katana{WEAPON_INDEX}b.img\"") &&
+      source.includes("f\"{WEAPON}/katana{WEAPON_INDEX}c.img\""),
+    "both halves of the picked katana must come from WEAPON_INDEX"
+  );
+});
+
 test("the shipped DNF effect sheet matches the renderer grid", () => {
   const buffer = fs.readFileSync(path.join(__dirname, "..", "assets", "effects.png"));
   assert.equal(buffer.subarray(1, 4).toString("ascii"), "PNG");

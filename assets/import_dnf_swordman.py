@@ -4,7 +4,7 @@
 The sheet keeps the layout the renderer expects (6 columns x 5 rows of
 SPRITE.frameW x SPRITE.frameH cells, rows idle/run/attack/skill/extras) and
 replaces the hand-drawn Slayer with the client's swordman art: skin + shoes +
-pants + coat + face + hair (the "default look"), the greatsword he actually
+pants + coat + face + hair (the "default look"), the katana he actually
 holds (DNF keeps the weapon out of the body img), and the Berserker red-eye and
 blood-aura overlays.
 
@@ -118,7 +118,10 @@ class Decoder:
 
     def raw(self, key: str) -> bytes:
         pack, entry = PACKS[key]
-        path = CACHE / (key + ".img")
+        # Cache per source entry, not per layer key: one weapon pack holds
+        # hundreds of katana, so a cache named after the layer ("weapon_b.img")
+        # would keep serving the previous pick after WEAPON_INDEX changes.
+        path = CACHE / entry.rsplit("/", 1)[-1]
         if path.exists() and not self.force:
             return path.read_bytes()
         npk = self._pack(pack)
