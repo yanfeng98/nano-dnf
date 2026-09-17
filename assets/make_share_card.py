@@ -106,7 +106,8 @@ def draw_backdrop() -> Image.Image:
 
 def paste_sprite(image: Image.Image) -> None:
     sheet = Image.open(ASSETS / "slayer.png").convert("RGBA")
-    cell_w, cell_h = sheet.width // 6, sheet.height // 5
+    # The sheet carries twelve columns of 96x96 frames.
+    cell_w, cell_h = sheet.width // 12, sheet.height // 5
     idle = sheet.crop((0, 0, cell_w, cell_h))
     scale = 5
     idle = idle.resize((cell_w * scale, cell_h * scale), Image.NEAREST)

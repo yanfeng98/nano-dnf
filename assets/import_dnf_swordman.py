@@ -35,12 +35,13 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 CACHE = ROOT / "assets" / "dnf_src" / "swordman"
 DEFAULT_CLIENT = pathlib.Path("/mnt/c/dnf/地下城与勇士")
 
-# Renderer contract (mirrors src/render.js SPRITE).
+# Renderer contract (mirrors src/render.js SPRITE). Twelve columns so an action
+# can carry a real DNF cycle instead of five frames and a padding cell.
 FRAME_W = 96
 FRAME_H = 96
+COLS = 12
 ANCHOR_X = 46
 ANCHOR_Y = 88
-COLS = 6
 ROWS = ["idle", "run", "attack", "skill", "extras"]
 
 # DNF frame coordinate space of the swordman body: idle frames put the feet at
@@ -77,17 +78,20 @@ LAYERS = ["body", "shoes", "pants", "coat", "face", "hair", "weapon_b", "weapon_
 # detached once the indices drift, so it is skipped.
 OVERLAYS = [("eye", 2, 24, 20), ("blood", 0, 32, 24)]
 
-# Which DNF frames feed each cell of the sheet. The body img runs its
-# animations back to back, so these are read off the segment boundaries of the
-# body layer rather than guessed: stand is only frames 0-2, attack starts at 3,
-# the run cycle is 105-122, the big crescent slam is 196-199 and the knockdown
-# sits at 100-104.
+# Which DNF frames feed each cell of the sheet. The body img runs its animations
+# back to back, so these come off the segment boundaries of the body layer:
+#   stand (the long breathing loop) 123-134   - twelve frames, real motion
+#   run cycle                       105-116   - the trailing repeats dropped
+#   cut, follow-through, settle     2-5       - the swing starts from the guard
+#   crescent slam and recovery      194-200
+#   knockdown / airborne            100,102,232,236
+# Cells past a row's frame count are spare art the renderer never reaches.
 CELLS = {
-    "idle": [0, 1, 2, 1, 124, 127],
-    "run": [105, 106, 108, 109, 111, 112],
-    "attack": [2, 3, 4, 5, 6, 12],
-    "skill": [196, 197, 198, 199, 201, 205],
-    "extras": [100, 102, 232, 236, 240, 241],  # hurt, dead, jump, fall, +2 spares
+    "idle": list(range(123, 135)),
+    "run": list(range(105, 117)),
+    "attack": [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13],
+    "skill": [194, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206],
+    "extras": [100, 102, 232, 236, 240, 241, 101, 103, 233, 237, 238, 239],
 }
 
 

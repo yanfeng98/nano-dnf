@@ -37,13 +37,16 @@
     ghost: "#b98cff"
   };
 
-  /* assets/slayer.png: 6 columns x 5 rows of 96x96 frames. */
+  /* assets/slayer.png: 12 columns x 5 rows of 96x96 frames. */
   var SPRITE = {
     frameW: 96,
     frameH: 96,
+    cols: 12,
     anchorX: 46,
     anchorY: 88,
     rows: { idle: 0, run: 1, attack: 2, skill: 3, extras: 4 },
+    /* Frames the renderer actually plays per row; the rest of the row is spare art. */
+    frames: { idle: 12, run: 12, attack: 4, skill: 6, extras: 6 },
     extras: { hurt: 0, dead: 1, jump: 2, fall: 3 }
   };
 
@@ -420,16 +423,24 @@
     if (player.skillTimer > 0) {
       var skill = Core.SKILLS[player.skillId];
       var progress = skill ? 1 - player.skillTimer / skill.duration : 0;
-      return { row: rows.skill, col: Math.min(3, Math.floor(clamp01(progress) * 4)) };
+      var skillFrames = SPRITE.frames.skill;
+      return {
+        row: rows.skill,
+        col: Math.min(skillFrames - 1, Math.floor(clamp01(progress) * skillFrames))
+      };
     }
     if (player.attackTimer > 0) {
       var swing = 1 - player.attackTimer / Core.PLAYER.attackDuration;
-      return { row: rows.attack, col: Math.min(2, Math.floor(clamp01(swing) * 3)) };
+      var attackFrames = SPRITE.frames.attack;
+      return {
+        row: rows.attack,
+        col: Math.min(attackFrames - 1, Math.floor(clamp01(swing) * attackFrames))
+      };
     }
     if (Math.abs(player.vx) > 8) {
-      return { row: rows.run, col: Math.floor(state.time * 12) % 6 };
+      return { row: rows.run, col: Math.floor(state.time * 14) % SPRITE.frames.run };
     }
-    return { row: rows.idle, col: Math.floor(state.time * 4) % 4 };
+    return { row: rows.idle, col: Math.floor(state.time * 8) % SPRITE.frames.idle };
   }
 
   function drawSpriteFrame(ctx, image, col, row, x, y, flip, scale) {
