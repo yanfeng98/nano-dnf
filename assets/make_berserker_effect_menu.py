@@ -38,22 +38,18 @@ DEFAULT_CLIENT = pathlib.Path("/mnt/c/dnf/地下城与勇士")
 PACK_PREFIX = "sprite_character_swordman_effect"
 
 # One family per move the Berserker kit actually learns, in the order the hotbar
-# teaches them; the pack names are the client's own move names.
+# teaches them; the pack names are the client's own move names. The packs come
+# from the client's per-skill preview videos (Video/Swordman/<SkillName>.avi,
+# whose file names are the internal skill names), not from guessing at keywords:
+# chargecrash is not 崩山击, hopsmash is.
 GROUPS = [
-    ("崩山击 mountain-breaker", "mountain-breaker", ["_chargecrash", "_chagecrashex", "_atmountaincrash"]),
-    ("十字斩 gore-cross", "gore-cross", ["_gorecross", "_atgorecross"]),
-    ("血气之刃 blood-sword", "blood-sword", ["_bloodsword", "_atgreed"]),
-    ("暴走 frenzy", "frenzy", ["_frenzy"]),
-    ("抓头 / 噬魂之手 grab-head", "grab-head", ["_grabblastblood", "_grabblastbloodex"]),
-    ("怒气爆发 rage-burst", "rage-burst", ["_rage", "_outragebreak"]),
-    ("血气爆发 bloody-rave", "bloody-rave", ["_bloodyrave", "_blastblood", "_blastbloodex", "_bloodboom"]),
-    ("血之狂暴血魔 blood-evil", "blood-evil", ["_bloodevil"]),
-    ("狱血魔神 hell-benter", "hell-benter", ["_hellbenter"]),
-    ("血之挽歌 blood-riven", "blood-riven", ["_bloodriven", "_atblooddance", "_bloodmarble"]),
-    ("致命血殒 fatal-blood", "fatal-blood", ["_fatalblood", "_atbloodseal"]),
-    ("献祭 give-blood", "give-blood", ["_giveblood", "_atimmolation"]),
-    ("崩山裂地斩 hellfire", "hellfire", ["_athellfire", "_slashofhell", "_slashofboom"]),
-    ("非血系同期特效 (剑/雷系, 供对照)", "other-weapon", ["_atblastsword", "_atmadness"]),
+    ("崩山击 hop-smash", "hop-smash", ["_hopsmash"]),
+    ("十字斩 gore-cross ✓已定", "gore-cross", ["_gorecross", "_atgorecross"]),
+    ("血气之刃 blood-sword（主方案 + 对照）", "blood-sword", ["_bloodsword", "_atblastsword", "_bloodboom"]),
+    ("暴走 frenzy（buffer：只做头顶图标）", "frenzy", ["_frenzy"]),
+    ("抓头 / 噬魂之手 grab-head ✓已定", "grab-head", ["_grabblastblood", "_grabblastbloodex"]),
+    ("怒气爆发 outrage-break（主方案 + 对照）", "outrage-break", ["_outragebreak", "_rage", "_shockwavearea"]),
+    ("血之狂暴 blood-rage（buffer，候选 hellbenter 包）", "blood-rage", ["_hellbenter"]),
 ]
 
 # The client keeps its Chinese glyphs in these; the default PIL bitmap font has
@@ -74,6 +70,14 @@ CURRENT = {
     "bloodyrave": "lslash-normal.img",
     "bloodsnatch": "bloodwave.img",
     "bloodevil": "bloodevil_stand_dungeon_effect.img",
+}
+
+# The owner's confirmed picks (assets/dnf_effect_picks.md); these win the note
+# line over the game's current pick.
+CONFIRMED = {
+    "gorecross": "gorecross_cross.img",
+    "grabblastblood": "blood.img",
+    "grabblastbloodex": "exp_blood_normal.img",
 }
 
 # Everything that draws anything gets a filmstrip row; only the overview is cut
@@ -199,17 +203,24 @@ def collect(client: pathlib.Path):
 
 def draw_row(sheet: Image.Image, draw, y: int, font, row, frames, cell: int) -> None:
     in_use = CURRENT.get(row["pack"]) == row["name"]
+    settled = CONFIRMED.get(row["pack"]) == row["name"]
+    colour = (150, 255, 170, 255) if (in_use or settled) else (255, 215, 120, 255)
     draw.text(
         (8, y + 6),
         f"{row['number']} {row['pack']}/{row['name']}",
-        fill=(150, 255, 170, 255) if in_use else (255, 215, 120, 255),
+        fill=colour,
         font=font,
     )
-    note = "当前使用 / in use" if in_use else f"{row['total']} frames · densest {row['dense']}"
+    if settled:
+        note = "✓ 业主已定 / confirmed"
+    elif in_use:
+        note = "当前使用 / in use"
+    else:
+        note = f"{row['total']} frames · densest {row['dense']}"
     draw.text(
         (8, y + 24),
         note,
-        fill=(150, 255, 170, 255) if in_use else (150, 168, 200, 255),
+        fill=(150, 255, 170, 255) if (in_use or settled) else (150, 168, 200, 255),
         font=font,
     )
     for column, frame in enumerate(frames):
@@ -308,7 +319,12 @@ def build_manifest(families, out: pathlib.Path) -> None:
     for family in families:
         lines.append(f"## {family['label']}")
         for row in family["rows"]:
-            flag = "  <- 当前使用" if CURRENT.get(row["pack"]) == row["name"] else ""
+            if CONFIRMED.get(row["pack"]) == row["name"]:
+                flag = "  <- 业主已定"
+            elif CURRENT.get(row["pack"]) == row["name"]:
+                flag = "  <- 当前使用"
+            else:
+                flag = ""
             lines.append(
                 f"{row['number']:>4}  {row['pack']}/{row['name']}"
                 f"  frames={row['total']} densest={row['dense']}{flag}"
