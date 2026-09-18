@@ -12,6 +12,10 @@
 | 十字斩 | 27 | 13 | `gorecross/gorecross_cross.img` | 11 | 与游戏当前选型一致 |
 | 抓头 / 噬魂之手（不蓄力） | 51 | 46 | `grabblastblood/blood.img` | 6 | 业主指定 |
 | 抓头 / 噬魂之手（蓄力） | 52 | 47 | `grabblastbloodex/exp_blood_normal.img` | 10 | 业主指定，对应 EX 包 |
+| 血气之刃 | 22 → 19 | 22 → 19 | `bloodsword/sword_normal.img`（先） → `bloodsword/exp_dodge.img`（后） | 19 / 8 | 业主指定「22 先出然后 19」：血剑先出，再爆 |
+| 血之狂暴（双刀 + 吸血球） | 25 + 28 | 25 + 28 | `frenzy/blood-energy.img`（双刀） + `frenzy/blood-stone-0.img`（怪物身上吸的血球） | 20 / 6 | 两段一起用 |
+
+**暴走：业主明确「你就别画了」——不做特效。**
 
 两个抓头条目正好分属 `grabblastblood`（不蓄力）与 `grabblastbloodex`（蓄力）
 两个客户端包，互相印证。
@@ -20,10 +24,8 @@
 
 | 技能 | 这一版用的包 | 业主说明 |
 | --- | --- | --- |
-| 血气之刃 | `bloodsword` / `atgreed` | 不对 |
-| 暴走 | `frenzy` | **buffer 技能：只在头顶显示一个图标**，不是大特效 |
-| 怒气爆发 | `rage` / `outragebreak` | 不对 |
-| 血之狂暴 | `bloodevil` | **buffer 技能（开双刀）**，不是这套特效 |
+| 怒气爆发 | `rage` / `outragebreak` | 不对：应是**先是地上圆圈，然后喷血** |
+| 崩山裂地斩 | 未找 | 业主新点名要找（大蹦：血气巨剑砸地 + 冲击波浮空 + 岩浆喷发） |
 
 业主给的技能描述（供后续比对，原文摘录）：
 

@@ -48,11 +48,11 @@ PACK_PREFIX = "sprite_character_swordman_effect"
 GROUPS = [
     ("崩山击 hop-smash", "hop-smash", ["_hopsmash"]),
     ("十字斩 gore-cross ✓已定", "gore-cross", ["_gorecross", "_atgorecross"]),
-    ("血气之刃 blood-sword", "blood-sword", ["_bloodsword"]),
-    ("暴走 frenzy（buffer）", "frenzy", ["_frenzy"]),
+    ("血气之刃 blood-sword ✓已定", "blood-sword", ["_bloodsword"]),
+    ("血之狂暴 blood-rage ✓已定（取自 frenzy 包）", "blood-rage", ["_frenzy"]),
     ("抓头 / 噬魂之手 grab-head ✓已定", "grab-head", ["_grabblastblood", "_grabblastbloodex"]),
-    ("怒气爆发 outrage-break", "outrage-break", ["_outragebreak"]),
-    ("血之狂暴 blood-rage（buffer 双刀）", "blood-rage", ["_atblooddance"]),
+    ("怒气爆发 outrage-break（地上圆圈 → 喷血）", "outrage-break", ["_outragebreak"]),
+    ("崩山裂地斩 mountain-crash（候选三包）", "mountain-crash", ["_chargecrash", "_chagecrashex", "_atmountaincrash"]),
 ]
 
 # The client keeps its Chinese glyphs in these; the default PIL bitmap font has
@@ -75,13 +75,15 @@ CURRENT = {
     "bloodevil": "bloodevil_stand_dungeon_effect.img",
 }
 
-# The owner's confirmed picks (assets/dnf_effect_picks.md); these win the note
-# line over the game's current pick.
+# The owner's confirmed picks (assets/dnf_effect_picks.md), as pack -> entry
+# names; these win the note line over the game's current pick.
 CONFIRMED = {
-    "hopsmash": "b_bottom_01_d.img",
-    "gorecross": "gorecross_cross.img",
-    "grabblastblood": "blood.img",
-    "grabblastbloodex": "exp_blood_normal.img",
+    "hopsmash": {"b_bottom_01_d.img"},
+    "gorecross": {"gorecross_cross.img"},
+    "grabblastblood": {"blood.img"},
+    "grabblastbloodex": {"exp_blood_normal.img"},
+    "bloodsword": {"sword_normal.img", "exp_dodge.img"},
+    "frenzy": {"blood-energy.img", "blood-stone-0.img"},
 }
 
 # Everything that draws anything gets a filmstrip row; only the overview is cut
@@ -207,7 +209,7 @@ def collect(client: pathlib.Path):
 
 def draw_row(sheet: Image.Image, draw, y: int, font, row, frames, cell: int) -> None:
     in_use = CURRENT.get(row["pack"]) == row["name"]
-    settled = CONFIRMED.get(row["pack"]) == row["name"]
+    settled = row["name"] in CONFIRMED.get(row["pack"], ())
     colour = (150, 255, 170, 255) if (in_use or settled) else (255, 215, 120, 255)
     draw.text(
         (8, y + 6),
@@ -323,7 +325,7 @@ def build_manifest(families, out: pathlib.Path) -> None:
     for family in families:
         lines.append(f"## {family['label']}")
         for row in family["rows"]:
-            if CONFIRMED.get(row["pack"]) == row["name"]:
+            if row["name"] in CONFIRMED.get(row["pack"], ()):
                 flag = "  <- 业主已定"
             elif CURRENT.get(row["pack"]) == row["name"]:
                 flag = "  <- 当前使用"
