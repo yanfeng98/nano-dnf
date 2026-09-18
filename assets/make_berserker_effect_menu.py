@@ -15,6 +15,9 @@ to review the art by eye:
   assets/dnf_effect_berserker_candidates.gif - the brightest entry of every
       family animated side by side, because a still cannot show how a hit reads
   assets/dnf_effect_berserker_candidates.txt - number -> pack/entry manifest
+  assets/dnf_effect_catalog_<n>.png - with --catalog: every swordman effect pack
+      on one name-labelled contact sheet, four frames each, for picking a pack by
+      name when the move's own pack is not known yet
 
 Numbers are stable: they are assigned once, in family order, and the same number
 appears on the overview and on the family filmstrip. The owner reads a number and
@@ -45,11 +48,11 @@ PACK_PREFIX = "sprite_character_swordman_effect"
 GROUPS = [
     ("崩山击 hop-smash", "hop-smash", ["_hopsmash"]),
     ("十字斩 gore-cross ✓已定", "gore-cross", ["_gorecross", "_atgorecross"]),
-    ("血气之刃 blood-sword（主方案 + 对照）", "blood-sword", ["_bloodsword", "_atblastsword", "_bloodboom"]),
-    ("暴走 frenzy（buffer：只做头顶图标）", "frenzy", ["_frenzy"]),
+    ("血气之刃 blood-sword", "blood-sword", ["_bloodsword"]),
+    ("暴走 frenzy（buffer）", "frenzy", ["_frenzy"]),
     ("抓头 / 噬魂之手 grab-head ✓已定", "grab-head", ["_grabblastblood", "_grabblastbloodex"]),
-    ("怒气爆发 outrage-break（主方案 + 对照）", "outrage-break", ["_outragebreak", "_rage", "_shockwavearea"]),
-    ("血之狂暴 blood-rage（buffer，候选 hellbenter 包）", "blood-rage", ["_hellbenter"]),
+    ("怒气爆发 outrage-break", "outrage-break", ["_outragebreak"]),
+    ("血之狂暴 blood-rage（buffer 双刀）", "blood-rage", ["_atblooddance"]),
 ]
 
 # The client keeps its Chinese glyphs in these; the default PIL bitmap font has
@@ -75,6 +78,7 @@ CURRENT = {
 # The owner's confirmed picks (assets/dnf_effect_picks.md); these win the note
 # line over the game's current pick.
 CONFIRMED = {
+    "hopsmash": "b_bottom_01_d.img",
     "gorecross": "gorecross_cross.img",
     "grabblastblood": "blood.img",
     "grabblastbloodex": "exp_blood_normal.img",
@@ -388,12 +392,77 @@ def build_motion(families, client: pathlib.Path, out: pathlib.Path) -> None:
     print(f"wrote {out} ({len(out_frames)} frames, {canvas.width}x{canvas.height})")
 
 
+def build_catalog(client: pathlib.Path, per_sheet: int = 36) -> None:
+    """Every swordman effect pack, named, so a move's pack can be pointed at.
+
+    The per-move sheets only work once the move -> pack mapping is known, and
+    guessing it from keywords is what produced the wrong families in the first
+    place. This is the fallback: one labelled row per pack, brightest entry, so
+    the owner can name the pack their skill actually uses.
+    """
+    packs = sorted(
+        path.stem[len(PACK_PREFIX):]
+        for path in (client / "ImagePacks2").glob(f"{PACK_PREFIX}*.NPK")
+    )
+    font = load_font(14)
+    cell = 80
+    width = 300 + 4 * cell
+    sheet_index = 0
+    row = 0
+    sheet = None
+    draw = None
+
+    def new_sheet() -> None:
+        nonlocal sheet, draw, row, sheet_index
+        sheet_index += 1
+        height = cell * min(per_sheet, len(packs) - (sheet_index - 1) * per_sheet)
+        sheet = Image.new("RGBA", (width, height), (20, 24, 38, 255))
+        draw = ImageDraw.Draw(sheet)
+        row = 0
+
+    new_sheet()
+    for pack in packs:
+        entries = pack_rows(client, pack)
+        if entries:
+            best = entries[0]
+            img = entry_image(client, best)
+            frames = frames_of(img, sample_indices(len(img.images), 4)) if img else []
+            draw.text((8, row * cell + 22), pack.lstrip("_"), fill=(255, 215, 120, 255), font=font)
+            draw.text(
+                (8, row * cell + 42),
+                f"{best['name']} · {best['total']}f · d={best['dense']}",
+                fill=(150, 168, 200, 255),
+                font=font,
+            )
+            for column, frame in enumerate(frames):
+                scale = min((cell - 6) / frame.width, (cell - 6) / frame.height, 1.0)
+                size = (max(1, int(frame.width * scale)), max(1, int(frame.height * scale)))
+                sheet.alpha_composite(
+                    frame.resize(size, Image.LANCZOS),
+                    (300 + column * cell + (cell - size[0]) // 2, row * cell + (cell - size[1]) // 2),
+                )
+        row += 1
+        if row >= per_sheet and pack != packs[-1]:
+            path = ROOT / f"dnf_effect_catalog_{sheet_index}.png"
+            sheet.save(path)
+            print(f"wrote {path.name} ({sheet.width}x{sheet.height})")
+            new_sheet()
+    path = ROOT / f"dnf_effect_catalog_{sheet_index}.png"
+    sheet.save(path)
+    print(f"wrote {path.name} ({sheet.width}x{sheet.height}) — {len(packs)} packs total")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--client", type=pathlib.Path, default=DEFAULT_CLIENT)
+    parser.add_argument("--catalog", action="store_true", help="also write the all-packs catalog sheets")
     args = parser.parse_args()
     if not (args.client / "ImagePacks2").exists():
         raise SystemExit(f"no ImagePacks2 under {args.client}")
+
+    if args.catalog:
+        build_catalog(args.client)
+        return 0
 
     families = collect(args.client)
     build_overview(families, args.client, ROOT / "dnf_effect_berserker_candidates.png")

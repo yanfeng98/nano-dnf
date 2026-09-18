@@ -24,3 +24,5 @@ assets/dnf_effect_preview.png
 assets/dnf_effect_berserker_*.png
 assets/dnf_effect_berserker_*.gif
 assets/dnf_effect_berserker_*.txt
+#   (the all-packs catalog sheets, --catalog)
+assets/dnf_effect_catalog_*.png

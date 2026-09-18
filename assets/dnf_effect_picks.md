@@ -8,6 +8,7 @@
 
 | 技能 | 旧编号 | 新编号 | 包/条目 | 帧数 | 备注 |
 | --- | --- | --- | --- | --- | --- |
+| 崩山击 | 0 | 0 | `hopsmash/b_bottom_01_d.img` | 6 | 业主指定「选择 0」 |
 | 十字斩 | 27 | 13 | `gorecross/gorecross_cross.img` | 11 | 与游戏当前选型一致 |
 | 抓头 / 噬魂之手（不蓄力） | 51 | 46 | `grabblastblood/blood.img` | 6 | 业主指定 |
 | 抓头 / 噬魂之手（蓄力） | 52 | 47 | `grabblastbloodex/exp_blood_normal.img` | 10 | 业主指定，对应 EX 包 |
@@ -19,11 +20,19 @@
 
 | 技能 | 这一版用的包 | 业主说明 |
 | --- | --- | --- |
-| 崩山击 | `chargecrash` / `chagecrashex` / `atmountaincrash` | 不对 |
 | 血气之刃 | `bloodsword` / `atgreed` | 不对 |
 | 暴走 | `frenzy` | **buffer 技能：只在头顶显示一个图标**，不是大特效 |
 | 怒气爆发 | `rage` / `outragebreak` | 不对 |
 | 血之狂暴 | `bloodevil` | **buffer 技能（开双刀）**，不是这套特效 |
+
+业主给的技能描述（供后续比对，原文摘录）：
+
+- 崩山击：低跃砸地，多段+冲击波+倒地；落地瞬间霸体/无敌，地面裂开血色冲击圈。
+- 血气之刃（血剑·40 级）：前方生成巨型血剑→刺入敌人→爆炸；血剑穿刺、血花四溅。
+- 怒气爆发：周身爆发红色怒气圈，多段浮空；地面炸开血气波纹，敌人被掀飞。
+- 暴走：力量/攻速/移速暴涨；全身暴走红光，头发/武器冒血气，屏幕边缘泛红。
+- 血之狂暴（双刀）：普攻变二刀流；角色双手燃起血色双刀光效。
+- 嗜魂之手（大吸）：抓取单体→吸血气→喷发爆炸。
 
 ## 业主判为无关，已删除
 
@@ -58,15 +67,20 @@
 
 编号 0-137，`assets/dnf_effect_berserker_<family>.png` 每族一张全帧条带：
 
-| 技能 | 新编号 | 文件 |
-| --- | --- | --- |
-| 崩山击（hop-smash） | 0-6 | `dnf_effect_berserker_hop-smash.png` |
-| 十字斩（gore-cross，已定） | 7-18 | `dnf_effect_berserker_gore-cross.png` |
-| 血气之刃（blood-sword + 对照） | 19-35 | `dnf_effect_berserker_blood-sword.png` |
-| 暴走（frenzy，buffer 参考） | 36-43 | `dnf_effect_berserker_frenzy.png` |
-| 抓头（grab-head，已定） | 44-65 | `dnf_effect_berserker_grab-head.png` |
-| 怒气爆发（outrage-break + 对照） | 66-86 | `dnf_effect_berserker_outrage-break.png` |
-| 血之狂暴（blood-rage，候选） | 87-137 | `dnf_effect_berserker_blood-rage.png` |
+| 技能 | 新编号 | 文件 | 包 |
+| --- | --- | --- | --- |
+| 崩山击（已定） | 0-6 | `dnf_effect_berserker_hop-smash.png` | `hopsmash` |
+| 十字斩（已定） | 7-18 | `dnf_effect_berserker_gore-cross.png` | `gorecross` |
+| 血气之刃（待确认） | 19-32 | `dnf_effect_berserker_blood-sword.png` | 只放 `bloodsword`（血剑本体 + 血爆），去掉了上一版混进来的蓝色 `atblastsword` |
+| 暴走（待确认，buffer） | 33-40 | `dnf_effect_berserker_frenzy.png` | 只放 `frenzy`（武器/身上血气） |
+| 抓头（已定） | 41-62 | `dnf_effect_berserker_grab-head.png` | `grabblastblood` + `grabblastbloodex` |
+| 怒气爆发（待确认） | 63-79 | `dnf_effect_berserker_outrage-break.png` | 只放 `outragebreak`（地面血环 + 血爆） |
+| 血之狂暴（待确认，buffer 双刀） | 80-101 | `dnf_effect_berserker_blood-rage.png` | `atblooddance`（`blooddance_hand` / `whipsword` 对应"双手血色双刀"） |
+
+### 全包目录（找不到就按包名指）
+
+175 个鬼剑士特效包，每包一行（包名 + 最亮条目 + 4 帧）：
+`dnf_effect_catalog_1.png` … `dnf_effect_catalog_5.png`。
 
 ### 待业主确认
 
