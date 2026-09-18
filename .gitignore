@@ -20,6 +20,7 @@ package-lock.json
 # Generated effect references for manual review
 assets/dnf_effect_candidates.png
 assets/dnf_effect_preview.png
-assets/dnf_effect_berserker_candidates.png
-assets/dnf_effect_berserker_candidates.gif
-assets/dnf_effect_berserker_candidates.txt
+#   (the overview sheet, the per-family filmstrips, the animated grid, the manifest)
+assets/dnf_effect_berserker_*.png
+assets/dnf_effect_berserker_*.gif
+assets/dnf_effect_berserker_*.txt
