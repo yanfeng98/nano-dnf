@@ -84,6 +84,41 @@
 175 个鬼剑士特效包，每包一行（包名 + 最亮条目 + 4 帧）：
 `dnf_effect_catalog_1.png` … `dnf_effect_catalog_5.png`。
 
+### 2026-09-19 第三轮：两张窄清单
+
+`dnf_effect_berserker_mountain-rift.png`（崩山裂地斩，与崩山击对照，行号从 0 起）：
+
+| 行 | 包/条目 | 说明 |
+| --- | --- | --- |
+| 0 | `hopsmash/b_bottom_01_d.img` | 崩山击，业主已定 |
+| 1 | `hopsmash/b_bottom_02_d.img` | 同包兄弟条目，画面上最像崩山击 |
+| 2 | `hopsmash/b_bottom_01_n.img` | 01 的 n 版 |
+| 3 | `hopsmash/b_bottom_02_n.img` | 02 的 n 版 |
+| 4 | `hopsmash/d-end.img` | 火 + 蓝收尾 |
+| 5 | `chagecrashex/upper.img` | 金色大回旋 |
+| 6 | `chargecrash/down-slash.img` | 火焰下劈 |
+| 7 | `chargecrash/damage-front.img` | 火焰爆炸 |
+| 8 | `chargecrash/dash.img` | 红焰拖尾 |
+| 9 | `atmountaincrash/groundcrash_force.img` | 砸地冲击圈 |
+
+`dnf_effect_berserker_rage-burst.png`（怒气爆发，先地上圆圈后喷血）：
+
+| 行 | 包/条目 | 说明 |
+| --- | --- | --- |
+| 0 | `bloodriven/riven_circle.img` | 红圈 + 斩击 |
+| 1 | `bloodriven/riven_circle_dodge.img` | 同上 dodge 版 |
+| 2 | `bloodmarble/08boom_floor.img` | 地面血爆 |
+| 3 | `outragebreak/outragebreak_floor.img` | 地面血环（业主否过） |
+| 4 | `outragebreak/outragebreak_bloodsexp_1_none.img` | 血爆 1 |
+| 5 | `outragebreak/outragebreak_bloodsexp_2_none.img` | 血爆 2 |
+| 6 | `blastblood/blood_floor.img` | 血红地面 |
+| 7 | `bloodboom/bloodboom_finish2.img` | 血爆收尾 |
+
+工具也新增了两种查法（`assets/make_berserker_effect_menu.py`）：
+
+- `--find "<regex>"`：按包名/条目名在**全库**里扫（先用名字过滤再解码，几十秒出图）
+- `--similar <pack>/<entry>.img`：拿一条现成特效做 32×32 彩色签名，全库按 MSE 找最像的
+
 ### 待业主确认
 
 - 崩山击 → 按客户端技能名应为 `hopsmash`（HopSmash = 跳劈）。

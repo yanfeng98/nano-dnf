@@ -32,6 +32,7 @@ from __future__ import annotations
 import argparse
 import io
 import pathlib
+import re
 import sys
 
 from PIL import Image, ImageDraw, ImageFont
@@ -289,6 +290,226 @@ def entry_image(client: pathlib.Path, row):
     return None
 
 
+def dhash(frame: Image.Image, size: int = 8) -> int:
+    """Difference hash of the drawn pixels: "find art that looks like this"."""
+    box = frame.getbbox()
+    flat = Image.new("RGB", frame.size, (0, 0, 0))
+    flat.paste(frame.convert("RGB"), (0, 0), frame)
+    if box:
+        flat = flat.crop(box)
+    small = flat.convert("L").resize((size + 1, size), Image.LANCZOS)
+    pixels = list(small.getdata())
+    bits = 0
+    for y in range(size):
+        row = y * (size + 1)
+        for x in range(size):
+            bits = (bits << 1) | (1 if pixels[row + x] > pixels[row + x + 1] else 0)
+    return bits
+
+
+def hash_distance(a: int, b: int) -> int:
+    return bin(a ^ b).count("1")
+
+
+SIGNATURE = 32
+SIGNATURE_CACHE = pathlib.Path("/tmp/nano-dnf-effect-signatures.json")
+
+
+def signature(frame: Image.Image) -> bytes:
+    """A 32x32 colour+alpha thumbnail: cheap to compare, keeps palette and shape."""
+    box = frame.getbbox()
+    flat = Image.new("RGBA", frame.size, (0, 0, 0, 0))
+    flat.paste(frame, (0, 0), frame)
+    if box:
+        flat = flat.crop(box)
+    return flat.resize((SIGNATURE, SIGNATURE), Image.LANCZOS).tobytes()
+
+
+def signature_distance(a: bytes, b: bytes) -> float:
+    total = 0
+    for index in range(0, len(a), 4):
+        for channel in range(3):
+            total += (a[index + channel] - b[index + channel]) ** 2
+    return total / (SIGNATURE * SIGNATURE * 3)
+
+
+def load_signatures(client: pathlib.Path) -> dict:
+    """Signature of every entry's brightest frame, cached between searches.
+
+    Building this means decoding a few frames of every effect the class ships
+    (a couple of minutes); the cache keeps repeat searches instant.
+    """
+    import json
+
+    stamp = f"{client}"
+    cache = {}
+    if SIGNATURE_CACHE.exists():
+        try:
+            raw = json.loads(SIGNATURE_CACHE.read_text())
+            if raw.get("client") == stamp and raw.get("schema") == 2 and raw.get("entries"):
+                return {
+                    key: (
+                        value[0],
+                        value[1] if len(value) > 2 else None,
+                        bytes.fromhex(value[-1]),
+                    )
+                    for key, value in raw["entries"].items()
+                }
+        except Exception:
+            cache = {}
+    entries = {}
+    for pack_name, name, img in all_entries(client):
+        found = brightest(img)
+        if not found:
+            continue
+        dense, frame = found
+        entries[f"{pack_name}/{name}"] = [dense, len(img.images), signature(frame).hex()]
+        if len(entries) % 200 == 0:
+            print(f"  hashed {len(entries)} entries…", file=sys.stderr)
+    SIGNATURE_CACHE.write_text(json.dumps({"client": stamp, "schema": 2, "entries": entries}))
+    return {
+        key: (value[0], value[1], bytes.fromhex(value[2]))
+        for key, value in entries.items()
+    }
+
+
+def all_entries(client: pathlib.Path):
+    """Every (pack, entry, image) the swordman effect packs ship."""
+    for path in sorted((client / "ImagePacks2").glob(f"{PACK_PREFIX}*.NPK")):
+        pack = path.stem[len(PACK_PREFIX):].lstrip("_")
+        for name, img in load_pack(client, f"_{pack}") or []:
+            yield pack, name, img
+
+
+def brightest(img):
+    """The drawn frame with the most opaque pixels, plus that count."""
+    best = None
+    for frame in frames_of(img):
+        dense = density(frame)
+        if best is None or dense > best[0]:
+            best = (dense, frame)
+    return best
+
+
+def paste_strip(sheet, img, cell: int, y: int, columns: int = 6) -> None:
+    frames = frames_of(img, sample_indices(len(img.images), columns))
+    for column, frame in enumerate(frames):
+        scale = min((cell - 6) / frame.width, (cell - 6) / frame.height, 1.0)
+        size = (max(1, int(frame.width * scale)), max(1, int(frame.height * scale)))
+        sheet.alpha_composite(
+            frame.resize(size, Image.LANCZOS),
+            (340 + column * cell + (cell - size[0]) // 2, y + (cell - size[1]) // 2),
+        )
+
+
+def build_similar(client: pathlib.Path, reference: str, out: pathlib.Path, top: int = 20) -> None:
+    """Rank every effect entry by how much it looks like one reference frame."""
+    pack, _, entry = reference.partition("/")
+    target = dict((n, i) for n, i in load_pack(client, f"_{pack}") or []).get(entry)
+    if target is None:
+        raise SystemExit(f"reference not found: {reference}")
+    target_dense, target_frame = brightest(target)
+    target_signature = signature(target_frame)
+
+    ranked = []
+    signatures = load_signatures(client)
+    for pack_name, name, img in all_entries(client):
+        if pack_name == pack and name == entry:
+            continue
+        cached = signatures.get(f"{pack_name}/{name}")
+        if cached is None:
+            continue
+        dense, total, payload = cached
+        ranked.append((signature_distance(target_signature, payload), pack_name, name, dense, total))
+    ranked.sort()
+
+    rows = ranked[:top]
+    font = load_font(14)
+    cell = 72
+    sheet = Image.new("RGBA", (340 + 6 * cell, cell * (len(rows) + 1)), (20, 24, 38, 255))
+    draw = ImageDraw.Draw(sheet)
+    draw.rectangle([0, 0, sheet.width, cell - 1], fill=(34, 20, 30, 255))
+    draw.text(
+        (8, cell // 2 - 10),
+        f"最像 {reference} 的 {len(rows)} 条（d 越小越像）",
+        fill=(255, 235, 150, 255),
+        font=load_font(16),
+    )
+    draw.text((8, cell + 6), f"参考 {reference}", fill=(150, 255, 170, 255), font=font)
+    draw.text((8, cell + 24), f"{target_dense} px", fill=(150, 168, 200, 255), font=font)
+    paste_strip(sheet, target, cell, cell)
+    for index, (distance, pack_name, name, dense, total) in enumerate(rows):
+        y = cell * (index + 1)
+        if not total:
+            img = entry_image(client, {"pack": pack_name, "name": name})
+            total = len(img.images) if img is not None else 0
+        draw.text((8, y + 6), f"{index + 1}. {pack_name}/{name}", fill=(255, 215, 120, 255), font=font)
+        draw.text((8, y + 24), f"{total} frames · {dense} px · d={distance}", fill=(150, 168, 200, 255), font=font)
+        img = entry_image(client, {"pack": pack_name, "name": name})
+        if img is not None:
+            paste_strip(sheet, img, cell, y)
+    sheet.save(out)
+    print(f"wrote {out} ({sheet.width}x{sheet.height})")
+
+
+def entry_names(client: pathlib.Path):
+    """(pack, entry) for every swordman effect entry, without decoding art."""
+    from pydnfex.npk import NPK
+
+    for path in sorted((client / "ImagePacks2").glob(f"{PACK_PREFIX}*.NPK")):
+        pack = path.stem[len(PACK_PREFIX):].lstrip("_")
+        with open(path, "rb") as handle:
+            npk = NPK.open(handle)
+            for entry in npk.files:
+                name = entry.name.replace("\\", "/").split("/")[-1]
+                yield pack, name
+
+
+def build_found(client: pathlib.Path, pattern: str, out: pathlib.Path) -> None:
+    """Every entry whose pack/entry name matches a regex, from every pack.
+
+    Names are filtered before any art is decoded, so this stays quick even
+    though it walks the whole class's effect archive.
+    """
+    matcher = re.compile(pattern, re.I)
+    rows = []
+    for pack_name, name in entry_names(client):
+        if not matcher.search(f"{pack_name}/{name}"):
+            continue
+        img = entry_image(client, {"pack": pack_name, "name": name})
+        if img is None:
+            continue
+        found = brightest(img)
+        if not found:
+            continue
+        dense, _frame = found
+        rows.append((pack_name, name, dense, len(img.images)))
+    rows.sort(key=lambda row: (-row[2], row[0], row[1]))
+
+    font = load_font(14)
+    cell = 72
+    sheet = Image.new("RGBA", (340 + 6 * cell, cell * (len(rows) + 1)), (20, 24, 38, 255))
+    draw = ImageDraw.Draw(sheet)
+    draw.rectangle([0, 0, sheet.width, cell - 1], fill=(34, 20, 30, 255))
+    draw.text(
+        (8, cell // 2 - 10),
+        f"名字匹配 /{pattern}/ 的 {len(rows)} 条（按覆盖像素排序）",
+        fill=(255, 235, 150, 255),
+        font=load_font(16),
+    )
+    for index, (pack_name, name, dense, total) in enumerate(rows):
+        y = cell * (index + 1)
+        img = entry_image(client, {"pack": pack_name, "name": name})
+        if not total:
+            total = len(img.images) if img is not None else 0
+        draw.text((8, y + 6), f"{index} {pack_name}/{name}", fill=(255, 215, 120, 255), font=font)
+        draw.text((8, y + 24), f"{total} frames · {dense} px", fill=(150, 168, 200, 255), font=font)
+        if img is not None:
+            paste_strip(sheet, img, cell, y)
+    sheet.save(out)
+    print(f"wrote {out} ({sheet.width}x{sheet.height}, {len(rows)} rows)")
+
+
 def build_family_sheets(families, client: pathlib.Path) -> None:
     """One filmstrip sheet per family: every entry, every frame."""
     label_font = load_font(14)
@@ -458,9 +679,22 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--client", type=pathlib.Path, default=DEFAULT_CLIENT)
     parser.add_argument("--catalog", action="store_true", help="also write the all-packs catalog sheets")
+    parser.add_argument("--similar", metavar="PACK/ENTRY", help="rank every effect by looks-like-this-one")
+    parser.add_argument("--find", metavar="REGEX", help="list every entry whose pack/entry name matches")
+    parser.add_argument("--out", type=pathlib.Path, help="output path for --similar / --find")
     args = parser.parse_args()
     if not (args.client / "ImagePacks2").exists():
         raise SystemExit(f"no ImagePacks2 under {args.client}")
+
+    if args.similar:
+        slug = args.similar.replace("/", "-").replace(".img", "")
+        build_similar(args.client, args.similar, args.out or ROOT / f"dnf_effect_similar_{slug}.png")
+        return 0
+
+    if args.find:
+        slug = re.sub(r"[^a-z0-9]+", "-", args.find.lower()).strip("-") or "found"
+        build_found(args.client, args.find, args.out or ROOT / f"dnf_effect_found_{slug}.png")
+        return 0
 
     if args.catalog:
         build_catalog(args.client)
