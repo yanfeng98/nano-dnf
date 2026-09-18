@@ -168,11 +168,15 @@ def candidates(client: pathlib.Path):
             ranked = sorted(best_by_key.values(), key=lambda row: (-row[0], row[1], row[2]))
             # The sheet shows the brightest entries; the rest stay in the manifest.
             kept = set()
-            for dense, _prefixed, name, _frames, _total in ranked:
-                if dense < MIN_DENSE or len(kept) >= MAX_PER_PACK:
-                    break
-                kept.add(name)
             pack = suffix.lstrip("_")
+            for rank, (dense, _prefixed, name, _frames, _total) in enumerate(ranked):
+                # Every family gets a row even when its art is quiet, and the
+                # entry the hotbar already uses is always on the sheet so the
+                # owner can compare against it.
+                if rank == 0 or name == CURRENT.get(pack):
+                    kept.add(name)
+                elif dense >= MIN_DENSE and len(kept) < MAX_PER_PACK:
+                    kept.add(name)
             for dense, _prefixed, name, frames, total in ranked:
                 if name in kept:
                     rows.append((label, pack, name, frames, dense, total))
