@@ -26,3 +26,5 @@ assets/dnf_effect_berserker_*.gif
 assets/dnf_effect_berserker_*.txt
 #   (the all-packs catalog sheets, --catalog)
 assets/dnf_effect_catalog_*.png
+#   (layered effect animations rendered from the client art, --grid browsing)
+assets/dnf_effect_anim/
