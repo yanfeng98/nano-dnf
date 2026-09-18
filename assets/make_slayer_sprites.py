@@ -10,8 +10,9 @@ Outputs: assets/slayer.png (6 x 5 grid of 96x96 frames) and assets/skills.png
 (four 32x32 skill icons).
 
 Note: a working copy may ship assets/slayer.png baked from a local DNF client
-instead (see assets/import_dnf_swordman.py). Running this script restores the
-licence-clean art.
+instead (see assets/import_dnf_swordman.py). Running this script writes the
+licence-clean 6 x 5 grid of 96x96 frames, which is the pre-DNF-art layout: point
+src/render.js SPRITE at (frameW 96, frameH 96, cols 6) if you swap it back in.
 """
 
 from __future__ import annotations

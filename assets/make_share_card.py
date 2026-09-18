@@ -26,9 +26,15 @@ OUT = ASSETS / "share-card.png"
 
 WIDTH, HEIGHT = 1200, 630
 GROUND = 470
-# Mirrors SPRITE.cols in src/render.js: the sheet is as wide as its widest row
-# (the 61-frame normal attack), so one cell is width / SHEET_COLS.
-SHEET_COLS = 61
+# Mirrors SPRITE.cols / SPRITE.anchorX / SPRITE.anchorY in src/render.js: the
+# sheet is as wide as its widest row (the 42-frame normal attack), and the
+# Slayer is placed by the same ground anchor the renderer draws from, so a
+# roomier cell cannot shift him on the card.
+SHEET_COLS = 42
+SPRITE_ANCHOR = (88, 124)
+# Where that anchor lands on the card, and the shadow tuned to the sprite.
+SPRITE_AT = (1090, GROUND - 11)
+SHADOW = (480, 70)
 
 GOLD = (227, 191, 114)
 INK = (234, 241, 255)
@@ -113,12 +119,12 @@ def paste_sprite(image: Image.Image) -> None:
     idle = sheet.crop((0, 0, cell_w, cell_h))
     scale = 5
     idle = idle.resize((cell_w * scale, cell_h * scale), Image.NEAREST)
-    # Keep the boots on the floor line rather than sinking into it.
-    top = GROUND - round(idle.height * 0.94)
-    image.paste(idle, (860, top), idle)
+    left = SPRITE_AT[0] - SPRITE_ANCHOR[0] * scale
+    top = SPRITE_AT[1] - SPRITE_ANCHOR[1] * scale
+    image.paste(idle, (left, top), idle)
     # A soft elliptical shadow so the sprite is not floating.
-    shadow = Image.new("L", (idle.width, 70), 0)
-    ImageDraw.Draw(shadow).ellipse((30, 18, idle.width - 30, 62), fill=150)
+    shadow = Image.new("L", SHADOW, 0)
+    ImageDraw.Draw(shadow).ellipse((30, 18, SHADOW[0] - 30, 62), fill=150)
     shadow = shadow.filter(ImageFilter.GaussianBlur(16))
     image.paste(Image.new("RGB", shadow.size, (0, 0, 0)), (860, GROUND - 42), shadow)
 

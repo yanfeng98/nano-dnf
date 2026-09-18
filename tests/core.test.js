@@ -2,11 +2,104 @@
 
 const fs = require("node:fs");
 const path = require("node:path");
+const zlib = require("node:zlib");
 const test = require("node:test");
 const assert = require("node:assert/strict");
 
 const Core = require("../src/core.js");
 const Render = require("../src/render.js");
+
+/*
+ * Frames to run after pressing X before the cut lands. The blade connects on
+ * the arc frame, which sits 0.70 of the way through the swing (see
+ * PLAYER.attackActiveFrom), and the swing advances one step per frame.
+ */
+const ATTACK_HIT_FRAMES =
+  Math.ceil((Core.PLAYER.attackActiveFrom * Core.PLAYER.attackDuration) / Core.DT);
+
+/**
+ * Decode the shipped 8-bit RGBA sprite sheet.
+ *
+ * The sheet is a plain non-interlaced PNG, so Node's zlib plus the five PNG
+ * row filters is enough to read the pixels back and prove what the bake
+ * actually wrote, without adding an image dependency to the test suite.
+ */
+function decodeRgbaPng(file) {
+  const buffer = fs.readFileSync(file);
+  const idat = [];
+  let width = 0;
+  let height = 0;
+  for (let offset = 8; offset < buffer.length; ) {
+    const length = buffer.readUInt32BE(offset);
+    const type = buffer.subarray(offset + 4, offset + 8).toString("ascii");
+    const data = buffer.subarray(offset + 8, offset + 8 + length);
+    if (type === "IHDR") {
+      width = data.readUInt32BE(0);
+      height = data.readUInt32BE(4);
+      assert.equal(data[8], 8, "the sheet is an 8-bit PNG");
+      assert.equal(data[9], 6, "the sheet is RGBA");
+      assert.equal(data[12], 0, "the sheet is not interlaced");
+    } else if (type === "IDAT") {
+      idat.push(data);
+    } else if (type === "IEND") {
+      break;
+    }
+    offset += 12 + length;
+  }
+  const raw = zlib.inflateSync(Buffer.concat(idat));
+  const stride = width * 4;
+  const pixels = Buffer.alloc(height * stride);
+  let cursor = 0;
+  for (let y = 0; y < height; y += 1) {
+    const filter = raw[cursor];
+    cursor += 1;
+    const line = raw.subarray(cursor, cursor + stride);
+    cursor += stride;
+    const row = pixels.subarray(y * stride, (y + 1) * stride);
+    const up = y === 0 ? null : pixels.subarray((y - 1) * stride, y * stride);
+    for (let x = 0; x < stride; x += 1) {
+      const left = x >= 4 ? row[x - 4] : 0;
+      const above = up ? up[x] : 0;
+      const corner = up && x >= 4 ? up[x - 4] : 0;
+      let value = line[x];
+      if (filter === 1) value = (value + left) & 0xff;
+      else if (filter === 2) value = (value + above) & 0xff;
+      else if (filter === 3) value = (value + ((left + above) >> 1)) & 0xff;
+      else if (filter === 4) {
+        const p = left + above - corner;
+        const pa = Math.abs(p - left);
+        const pb = Math.abs(p - above);
+        const pc = Math.abs(p - corner);
+        const predictor = pa <= pb && pa <= pc ? left : pb <= pc ? above : corner;
+        value = (value + predictor) & 0xff;
+      } else {
+        assert.equal(filter, 0, `unsupported PNG filter ${filter}`);
+      }
+      row[x] = value;
+    }
+  }
+  return { width, height, pixels };
+}
+
+/** Alpha bounding box of one cell, or null when the cell is empty. */
+function cellAlphaBox(sheet, col, row) {
+  const { frameW, frameH } = Render.SPRITE;
+  let x0 = frameW;
+  let y0 = frameH;
+  let x1 = -1;
+  let y1 = -1;
+  for (let y = 0; y < frameH; y += 1) {
+    for (let x = 0; x < frameW; x += 1) {
+      const alpha = sheet.pixels[((row * frameH + y) * sheet.width + col * frameW + x) * 4 + 3];
+      if (alpha === 0) continue;
+      if (x < x0) x0 = x;
+      if (y < y0) y0 = y;
+      if (x > x1) x1 = x;
+      if (y > y1) y1 = y;
+    }
+  }
+  return x1 < 0 ? null : { x0, y0, x1, y1 };
+}
 
 /** Rooms in one run for a seed, so tests never assume the pool is the run. */
 function runRooms(seed) {
@@ -109,10 +202,49 @@ test("basic attack damages an enemy inside reach exactly once", () => {
   const hpBefore = enemy.hp;
 
   Core.step(state, { attack: true });
-  Core.runFrames(state, 8, {});
+  Core.runFrames(state, ATTACK_HIT_FRAMES, {});
 
   assert.equal(hpBefore - enemy.hp, Core.PLAYER.comboDamage[0]);
   assert.equal(state.stats.hits, 1);
+});
+
+test("each cut connects on the frame the katana sweeps through", () => {
+  /*
+   * The damage used to land during the wind-up, about five frames before the
+   * white slash arc was even on screen, which reads as the enemy reacting to a
+   * swing that has not happened yet. The arcs sit on source frames 4, 13, 24 and
+   * 34 - offsets 4, 3, 4 and 4 inside their stage - so the cut has to connect
+   * within a frame of its arc: on the last wind-up frame at the earliest, never
+   * back in the frozen guard pose.
+   */
+  const arcOffset = [4, 3, 4, 4];
+  Core.ATTACK_STAGES.forEach((stage, press) => {
+    const state = lastRoomState();
+    const enemy = Core.createEnemy(state, "boss", state.player.x + 50);
+    enemy.hp = 999;
+    enemy.maxHp = 999;
+    state.enemies = [enemy];
+    const hpBefore = enemy.hp;
+    /* A live combo window is what makes the next press play the next stage. */
+    state.player.comboIndex = (press + Core.ATTACK_STAGES.length - 1) % Core.ATTACK_STAGES.length;
+    state.player.comboTimer = Core.PLAYER.comboWindow;
+
+    Core.step(state, { attack: true });
+    let frames = 0;
+    while (enemy.hp === hpBefore && frames < 40) {
+      Core.runFrames(state, 1, {});
+      frames += 1;
+    }
+
+    assert.ok(enemy.hp < hpBefore, `press ${press + 1} connects`);
+    const frame = Render.playerFrame(state, state.player);
+    assert.equal(frame.row, Render.SPRITE.rows.attack, `press ${press + 1} shows the attack row`);
+    const offset = frame.col - stage.first;
+    assert.ok(
+      offset >= arcOffset[press] - 1 && offset <= arcOffset[press] + 1,
+      `press ${press + 1} lands on the sweep, not the wind-up: frame ${stage.first + offset}`
+    );
+  });
 });
 
 test("attack does not reach an enemy far outside the hitbox", () => {
@@ -523,7 +655,7 @@ test("level up heals the player and raises combo damage", () => {
   const hpBefore = enemy.hp;
 
   Core.step(state, { attack: true });
-  Core.runFrames(state, 8, {});
+  Core.runFrames(state, ATTACK_HIT_FRAMES, {});
 
   assert.equal(hpBefore - enemy.hp, Core.PLAYER.comboDamage[0] + state.player.attackBonus);
 });
@@ -947,6 +1079,47 @@ test("the shipped sprite sheet matches the frame grid the renderer expects", () 
   assert.equal(icons.readUInt32BE(20), 32);
 });
 
+test("every frame the renderer plays fits inside its sprite cell", () => {
+  const sheet = decodeRgbaPng(path.join(__dirname, "..", "assets", "slayer.png"));
+  assert.equal(sheet.width, Render.SPRITE.frameW * Render.SPRITE.cols);
+  assert.equal(sheet.height, Render.SPRITE.frameH * 5);
+
+  /*
+   * The bake composites each DNF frame into a fixed cell, and compositing is
+   * silent about art that runs past the edge: the katana and the white slash
+   * arcs were coming out sliced mid-blade because the cell only fitted the
+   * body. Every frame the renderer can reach therefore has to sit strictly
+   * inside its cell, with the widest frame - a swing that reaches past the
+   * feet - sized for on purpose.
+   */
+  const upSlash = Render.SPRITE.skillClips.upSlash;
+  const plays = [];
+  ["idle", "run", "attack", "skill", "extras"].forEach((name) => {
+    const row = Render.SPRITE.rows[name];
+    if (name === "skill") {
+      for (let col = 0; col < Render.SPRITE.frames.skill; col += 1) plays.push([row, col, `${name} ${col}`]);
+      for (let col = upSlash.first; col < upSlash.first + upSlash.frames; col += 1) {
+        plays.push([row, col, `up-slash ${col - upSlash.first}`]);
+      }
+      return;
+    }
+    if (name === "extras") {
+      Object.entries(Render.SPRITE.extras).forEach(([key, col]) => plays.push([row, col, `extras ${key}`]));
+      return;
+    }
+    for (let col = 0; col < Render.SPRITE.frames[name]; col += 1) plays.push([row, col, `${name} ${col}`]);
+  });
+
+  plays.forEach(([row, col, label]) => {
+    const box = cellAlphaBox(sheet, col, row);
+    assert.ok(box, `${label} has art to draw`);
+    assert.ok(
+      box.x0 > 0 && box.y0 > 0 && box.x1 < Render.SPRITE.frameW - 1 && box.y1 < Render.SPRITE.frameH - 1,
+      `${label} must not touch its cell border: ${JSON.stringify(box)}`
+    );
+  });
+});
+
 test("one press plays one stage of the normal attack, and attack speed sets the pace", () => {
   const stages = Core.ATTACK_STAGES;
   assert.equal(Core.PLAYER.maxCombo, stages.length, "the chain is as long as the animation");
@@ -985,7 +1158,11 @@ test("one press plays one stage of the normal attack, and attack speed sets the 
    */
   const upSlash = Render.SPRITE.skillClips.upSlash;
   assert.equal(upSlash.first, Render.SPRITE.frames.skill, "it starts after the generic frames");
-  assert.equal(upSlash.frames, 11, "the client's up-slash clip is 11 frames");
+  assert.equal(
+    upSlash.frames,
+    10,
+    "the client's up-slash clip is body frames 41-50, opening on the settled chain pose"
+  );
 
   /* Attack speed divides the swing, and with it the wait before the next press. */
   const state = lastRoomState();
@@ -1297,7 +1474,14 @@ test("the renderer picks the sprite row that matches the player state", () => {
   const sheet = { width: 576, height: 480 };
   const sprites = { slayer: sheet, skills: { width: 128, height: 32 } };
   const playerDraw = () =>
-    calls.filter((call) => call[0] === "drawImage" && call[1] === sheet && call[6] === -46).pop();
+    calls
+      .filter(
+        (call) =>
+          call[0] === "drawImage" &&
+          call[1] === sheet &&
+          call[6] === -Render.SPRITE.anchorX
+      )
+      .pop();
 
   const state = Core.createState({ seed: 3 });
   const renderIdle = () => {
@@ -1309,7 +1493,7 @@ test("the renderer picks the sprite row that matches the player state", () => {
   assert.equal(renderIdle()[3], 0, "idle uses the first sprite row");
 
   state.player.vx = 220;
-  assert.equal(renderIdle()[3], 96, "running uses the run row");
+  assert.equal(renderIdle()[3], Render.SPRITE.frameH * 1, "running uses the run row");
 
   state.player.vx = 0;
   state.player.attackTimer = Core.PLAYER.attackDuration;
@@ -1317,7 +1501,7 @@ test("the renderer picks the sprite row that matches the player state", () => {
   state.player.attackCooldown = state.player.attackCycle;
   state.player.comboTimer = Core.PLAYER.comboWindow;
   state.player.comboIndex = 0;
-  assert.equal(renderIdle()[3], 192, "attacks use the attack row");
+  assert.equal(renderIdle()[3], Render.SPRITE.frameH * 2, "attacks use the attack row");
 
   /*
    * The cut's frames span the whole press cycle, so its recovery keeps the
@@ -1328,7 +1512,7 @@ test("the renderer picks the sprite row that matches the player state", () => {
   state.player.attackCooldown = 0.02;
   const stage = Core.ATTACK_STAGES[state.player.comboIndex];
   const recovering = renderIdle();
-  assert.equal(recovering[3], 192, "a cut's recovery still shows that cut");
+  assert.equal(recovering[3], Render.SPRITE.frameH * 2, "a cut's recovery still shows that cut");
   assert.equal(
     recovering[2],
     (stage.first + stage.frames - 1) * Render.SPRITE.frameW,
@@ -1342,21 +1526,21 @@ test("the renderer picks the sprite row that matches the player state", () => {
   state.player.attackTimer = 0;
   state.player.skillId = "bloodSword";
   state.player.skillTimer = Core.SKILLS.bloodSword.duration;
-  assert.equal(renderIdle()[3], 288, "skills use the skill row");
+  assert.equal(renderIdle()[3], Render.SPRITE.frameH * 3, "skills use the skill row");
 
   state.player.skillTimer = 0;
   state.player.skillId = null;
   state.player.onGround = false;
   state.player.vy = -200;
   const airborne = renderIdle();
-  assert.equal(airborne[3], 384, "jumping uses the extras row");
-  assert.equal(airborne[2], 192, "rising uses the jump column");
+  assert.equal(airborne[3], Render.SPRITE.frameH * 4, "jumping uses the extras row");
+  assert.equal(airborne[2], Render.SPRITE.frameW * 2, "rising uses the jump column");
 
   state.player.onGround = true;
   state.player.vy = 0;
   state.player.hurtTimer = 0.1;
   const hurt = renderIdle();
-  assert.equal(hurt[3], 384);
+  assert.equal(hurt[3], Render.SPRITE.frameH * 4);
   assert.equal(hurt[2], 0, "hurt uses the hurt column");
 });
 

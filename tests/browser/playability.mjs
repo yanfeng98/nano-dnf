@@ -762,8 +762,10 @@ function problemsFor(pass) {
     if (chain.lastColumn !== 41) {
       problems.push(`${pass.mode}: the last press ends on frame ${chain.lastColumn}, not 41`);
     }
-    if (chain.upSlashColumns !== 11) {
-      problems.push(`${pass.mode}: the up-slash skill ships no body animation`);
+    if (chain.upSlashColumns !== 10) {
+      problems.push(
+        `${pass.mode}: the up-slash skill ships ${chain.upSlashColumns} body frames, not the client's 10`
+      );
     }
   }
   if (!pass.state.victory) problems.push(`${pass.mode}: dungeon was not cleared`);

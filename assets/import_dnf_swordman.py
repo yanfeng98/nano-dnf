@@ -35,14 +35,17 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 CACHE = ROOT / "assets" / "dnf_src" / "swordman"
 DEFAULT_CLIENT = pathlib.Path("/mnt/c/dnf/地下城与勇士")
 
-# Renderer contract (mirrors src/render.js SPRITE). The sheet is as wide as its
-# widest row: the normal attack is the client's whole 61-frame chain, so the
-# shorter rows just leave the rest of the row blank.
-FRAME_W = 96
-FRAME_H = 96
-COLS = 61
-ANCHOR_X = 46
-ANCHOR_Y = 88
+# Renderer contract (mirrors src/render.js SPRITE). The cell has to hold the
+# whole DNF frame, sword and slash arc included: the attack's swings reach 115px
+# right and 120px above the feet, the run and knockdown art 82px left of it, so
+# the old 96x96 cell silently cropped blades and cut the white arcs in half.
+# The anchor stays the character's ground point, which is what keeps every row,
+# and both facings, lined up on the same spot.
+FRAME_W = 208
+FRAME_H = 144
+COLS = 42
+ANCHOR_X = 88
+ANCHOR_Y = 124
 ROWS = ["idle", "run", "attack", "skill", "extras"]
 
 # DNF frame coordinate space of the swordman body: idle frames put the feet at
@@ -98,8 +101,11 @@ CELLS = {
     # The Slayer's real normal attack: four cuts, one per press.
     "attack": list(range(0, 42)),
     # Generic skill art first (the six frames the renderer plays), then the
-    # up-slash clip that skill alone uses (columns 6-16 are body frames 40-50).
-    "skill": [194, 196, 197, 198, 199, 200] + list(range(40, 51)),
+    # up-slash clip that skill alone uses (columns 6-15 are body frames 41-50).
+    # The clip opens on 41, the settled pose the chain already ends on, so the
+    # skill flows out of a normal attack instead of replaying frame 40 - the same
+    # hold frame - as a dead first step.
+    "skill": [194, 196, 197, 198, 199, 200] + list(range(41, 51)),
     "extras": [100, 102, 232, 236, 240, 241, 101, 103, 233, 237, 238, 239],
 }
 
@@ -279,15 +285,28 @@ def foot_centre(frame: Image.Image) -> float:
     return sum(cols) / len(cols)
 
 
-def place(cell: Image.Image, frame: Image.Image, x: int, y: int) -> None:
-    """Put a DNF frame into a sheet cell: feet centred, ground on the anchor."""
+def place(cell: Image.Image, frame: Image.Image, x: int, y: int) -> tuple[int, int, int, int]:
+    """Put a DNF frame into a sheet cell: feet centred, ground on the anchor.
+
+    A frame that reaches past its cell is a bug, not a crop: `alpha_composite`
+    would quietly slice the blade or the slash arc off and the renderer has no
+    way to tell. Report the exact overflow instead so the next bake fails loudly.
+    """
     scaled = frame.resize(
         (max(1, round(frame.width * SCALE)), max(1, round(frame.height * SCALE))),
         Image.LANCZOS,
     )
     px = round(ANCHOR_X - foot_centre(frame) * SCALE)
     py = round(ANCHOR_Y + (y - ORIGIN[1]) * SCALE)
+    left, top = px, py
+    right, bottom = px + scaled.width, py + scaled.height
+    if left < 0 or top < 0 or right > cell.width or bottom > cell.height:
+        raise SystemExit(
+            f"frame {frame.width}x{frame.height} does not fit its cell: "
+            f"needs [{left},{top},{right},{bottom}] inside {cell.width}x{cell.height}"
+        )
     cell.alpha_composite(scaled, (px, py))
+    return left, top, right, bottom
 
 
 def build(client: pathlib.Path, force: bool) -> Image.Image:

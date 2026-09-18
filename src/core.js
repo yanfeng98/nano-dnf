@@ -59,9 +59,15 @@
     attackDuration: 0.22,
     attackCooldown: 0.16,
     attackSpeed: 1,
-    /* Hit window as a fraction of the swing, so it lands on the same animation
-       frames however fast the swing runs. */
-    attackActiveFrom: 0.23,
+    /*
+     * Hit window as a fraction of the swing, so it lands on the same animation
+     * frames however fast the swing runs. The cut's frames play across the
+     * swing, so the white arc - the frame the blade actually connects on - sits
+     * at about 0.40 of it and the damage lands on the frame just before the
+     * arc. Opening the window any later costs real clear time, so the animation
+     * was moved onto the arc instead of the hit window being moved onto it.
+     */
+    attackActiveFrom: 0.3,
     attackActiveTo: 0.64,
     attackReach: 68,
     attackHeightPad: 10,
@@ -105,8 +111,11 @@
       damage: 12,
       growth: 3,
       duration: 0.28,
-      activeFrom: 0.05,
-      activeTo: 0.17,
+      /* The clip is body frames 41-50 and the blade connects on 44-45, a third
+         of the way into the 0.28s cast, so the hit window opens with the arc
+         instead of 0.05s ahead of it. These are seconds, not fractions. */
+      activeFrom: 0.09,
+      activeTo: 0.15,
       reach: 62,
       heightPad: 14,
       knockbackX: 70,

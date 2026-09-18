@@ -291,7 +291,7 @@ Pages workflow 在 deploy 之后还有一个 `verify` job 跑同一套线上冒�
 | `src/loadout.js` | 技能栏编成模型：槽位分配、互换、序列化（纯函数，可单测） |
 | `assets/import_dnf_art.py` | 从 DNF 原始 IMG 导入鬼剑士 SD 动画与技能图标，烘焙出下面两张图集 |
 | `assets/make_slayer_sprites.py` | 备用：纯原创像素美术生成脚本（不依赖任何外部素材） |
-| `assets/slayer.png` | 6×5 张 96×96 精灵帧：待机 / 跑动 / 攻击 / 技能 / 受击·倒地·跳跃·下落 |
+| `assets/slayer.png` | 42×5 张 208×144 精灵帧：待机 / 跑动 / 攻击（四刀 0-41）/ 技能（含上挑专属 41-50）/ 受击·倒地·跳跃·下落 |
 | `assets/skills.png` | 四个 32×32 技能图标，顺序与技能栏一致 |
 | `assets/effects.png` | 4×4 张 128×128 官方刀光帧，顺序与技能栏一致 |
 | `assets/import_dnf_effects.py` | 解码 DNF 技能特效 IMG，烘焙出 `effects.png` |

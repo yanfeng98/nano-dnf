@@ -37,13 +37,18 @@
     ghost: "#b98cff"
   };
 
-  /* assets/slayer.png: SPRITE.cols columns x 5 rows of 96x96 frames. */
+  /*
+   * assets/slayer.png: SPRITE.cols columns x 5 rows of SPRITE.frameW x
+   * SPRITE.frameH cells. The cell is sized for the widest DNF frame (a swing
+   * that reaches 115px right of the feet and 120px above them), because a cell
+   * that only fits the body crops the katana and the slash arc mid-blade.
+   */
   var SPRITE = {
-    frameW: 96,
-    frameH: 96,
-    cols: 61,
-    anchorX: 46,
-    anchorY: 88,
+    frameW: 208,
+    frameH: 144,
+    cols: 42,
+    anchorX: 88,
+    anchorY: 124,
     rows: { idle: 0, run: 1, attack: 2, skill: 3, extras: 4 },
     /* Frames the renderer actually plays per row; the rest of the row is spare art.
        The stand is a four-frame breath off the client's "still" frames, the attack
@@ -52,8 +57,10 @@
     /* Skill body art: every skill plays the top of the skill row, except the
        up-slash, whose own raise-and-lift is baked right after those. The bake
        (assets/import_dnf_swordman.py CELLS.skill) has to keep the same order,
-       and a test pins the clip to the end of the generic frames. */
-    skillClips: { upSlash: { first: 6, frames: 11 } },
+       and a test pins the clip to the end of the generic frames. The clip is
+       the client's body frames 41-50: it opens on the settled pose the normal
+       attack already ends on and cuts on 44-45. */
+    skillClips: { upSlash: { first: 6, frames: 10 } },
     extras: { hurt: 0, dead: 1, jump: 2, fall: 3 }
   };
 
@@ -450,15 +457,17 @@
           Math.min(skillFrames - 1, Math.floor(clamp01(progress) * skillFrames))
       };
     }
-    /*
-     * One press, one cut of the client's chain, and the cut's frames are spread
-     * over the whole press cycle - swing plus the recovery the player can move
-     * through. The animation used to stop at the end of the swing, so every cut
-     * dropped back to the idle pose and the chain looked chopped up.
-     */
     if (player.attackCooldown > 0 && player.comboTimer > 0) {
-      var attackCycle = player.attackCycle || player.attackDuration || Core.PLAYER.attackDuration;
-      var progress = clamp01(1 - player.attackCooldown / attackCycle);
+      /*
+       * One press, one cut of the client's chain: the cut plays its frames
+       * across the swing and then holds its last - follow-through - frame
+       * through the recovery the player can move in. Stretching them over the
+       * whole press cycle instead put the white arc frame 0.17s after the
+       * press, long after the hit had landed; stopping at the swing and
+       * dropping to the idle pose is what made the chain look chopped up.
+       */
+      var swing = player.attackDuration || Core.PLAYER.attackDuration;
+      var progress = clamp01((swing - Math.max(0, player.attackTimer)) / swing);
       return { row: rows.attack, col: attackColumn(progress, player.comboIndex) };
     }
     if (Math.abs(player.vx) > 8) {
@@ -1037,7 +1046,23 @@
       roundRect(ctx, px + 2, py + 2, portraitSize - 4, portraitSize - 4, 5);
       ctx.clip();
       ctx.imageSmoothingEnabled = false;
-      ctx.drawImage(sprites.slayer, 0, 0, SPRITE.frameW, SPRITE.frameH, px - 16, py - 20, 92, 92);
+      /*
+       * Head-and-torso crop of the idle cell, drawn at roughly game scale and
+       * placed by the same ground anchor the arena uses, so the face stays in
+       * the box however much room the cell leaves around the body.
+       */
+      var portraitScale = 0.96;
+      ctx.drawImage(
+        sprites.slayer,
+        0,
+        0,
+        SPRITE.frameW,
+        SPRITE.frameH,
+        px + 28 - SPRITE.anchorX * portraitScale,
+        py + 64 - SPRITE.anchorY * portraitScale,
+        SPRITE.frameW * portraitScale,
+        SPRITE.frameH * portraitScale
+      );
       ctx.restore();
     }
     ctx.restore();
@@ -1615,6 +1640,7 @@
     SPRITE: SPRITE,
     EFFECT: EFFECT,
     attackColumn: attackColumn,
+    playerFrame: playerFrame,
     skillEffectFrame: skillEffectFrame,
     skillBarButtons: skillBarButtons,
     touchBarButtons: touchBarButtons,
