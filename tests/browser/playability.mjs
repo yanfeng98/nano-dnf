@@ -451,6 +451,38 @@ async function runPass(browser, baseUrl, options) {
     await page.waitForTimeout(250);
   }
   await page.screenshot({ path: path.join(ARTIFACTS, "attract-play.png") });
+  /*
+   * The demo's whole arc has to be reachable, not just the opening room: drive
+   * the same session forward in small steps until the boss rages and the run is
+   * cleared, screenshotting the rage and re-checking the real run on every step.
+   */
+  const attractArc = {
+    steps: 0,
+    seconds: 0,
+    phase2: false,
+    cleared: false,
+    bossShot: false,
+    inert: true
+  };
+  for (let step = 0; step < 140; step += 1) {
+    const shot = await page.evaluate(() => window.nanoDnf.fastForwardAttract(0.5));
+    if (!shot) {
+      attractArc.missing = true;
+      break;
+    }
+    attractArc.steps += 1;
+    attractArc.seconds = shot.seconds;
+    if (shot.phase2Runs >= 1) attractArc.phase2 = true;
+    if (shot.clears >= 1) attractArc.cleared = true;
+    if (shot.bossPhase >= 2 && !attractArc.bossShot) {
+      attractArc.bossShot = true;
+      await page.screenshot({ path: path.join(ARTIFACTS, "attract-boss-rage.png") });
+    }
+    if (JSON.stringify(await realSnapshot()) !== JSON.stringify(inertBefore)) {
+      attractArc.inert = false;
+    }
+    if (attractArc.phase2 && attractArc.cleared && attractArc.bossShot) break;
+  }
   /* Nothing may have started audio yet: browsers only allow it after a gesture. */
   const musicBeforeInput = await page.evaluate(() => window.nanoDnf.getMusicState());
   /*
@@ -787,6 +819,7 @@ async function runPass(browser, baseUrl, options) {
     titleIdle,
     attractStart,
     attractDemo,
+    attractArc,
     attractAfterInput,
     attackChain,
     upSlashKey,
@@ -831,6 +864,23 @@ function problemsFor(pass) {
   }
   if (!pass.attractAfterInput || pass.attractAfterInput.retired !== true) {
     problems.push(`${pass.mode}: the attract demo kept running after the player took over`);
+  }
+  const arc = pass.attractArc;
+  if (!arc || arc.missing) {
+    problems.push(`${pass.mode}: the attract demo cannot be driven forward`);
+  } else {
+    if (!arc.phase2) {
+      problems.push(`${pass.mode}: the attract demo never carried the run into the boss rage`);
+    }
+    if (!arc.cleared) {
+      problems.push(`${pass.mode}: the attract demo never cleared the throne room`);
+    }
+    if (!arc.inert) {
+      problems.push(`${pass.mode}: driving the attract demo forward wrote into the real run`);
+    }
+    if (!arc.bossShot) {
+      problems.push(`${pass.mode}: the rage frame was never on screen to capture`);
+    }
   }
   const upSlash = pass.upSlashKey;
   if (!upSlash || upSlash.shortcut !== "Z" || !upSlash.equipped || upSlash.cooldown <= 0) {
@@ -1026,6 +1076,7 @@ async function main() {
     upgradesTaken: pass.state.player.upgradesTaken,
     titleIdle: pass.titleIdle,
     attract: { ...pass.attractDemo, retiredOnTakeover: !!(pass.attractAfterInput || {}).retired },
+    attractArc: pass.attractArc,
     attackChain: pass.attackChain,
     upSlashKey: pass.upSlashKey,
     slabWatch: pass.slabWatch,

@@ -25,6 +25,8 @@
   var LEAP_GAP = 120;
   /* Long demos stop being demos, so a stalled run is restarted. */
   var MAX_SECONDS = 45;
+  /* A finished run holds its last frame for a beat, so the end reads on screen. */
+  var HOLD_SECONDS = 2.5;
 
   function create(options) {
     options = options || {};
@@ -34,9 +36,16 @@
       seconds: 0,
       loops: 0,
       upgradePicks: 0,
+      /* Sticky across loops: what the visitor has been shown so far. */
+      phase2Runs: 0,
+      clears: 0,
       skillWait: 0,
       pickArmed: false,
-      pickWait: 0
+      pickWait: 0,
+      finished: false,
+      holdWait: 0,
+      countedPhase2: false,
+      countedClear: false
     };
     reset(session);
     return session;
@@ -52,6 +61,10 @@
     session.skillWait = 0;
     session.pickArmed = false;
     session.pickWait = 0;
+    session.finished = false;
+    session.holdWait = 0;
+    session.countedPhase2 = false;
+    session.countedClear = false;
     return session.state;
   }
 
@@ -72,6 +85,13 @@
       }
     });
     return best;
+  }
+
+  function bossEnemy(state) {
+    for (var index = 0; index < state.enemies.length; index += 1) {
+      if (state.enemies[index].type === "boss") return state.enemies[index];
+    }
+    return null;
   }
 
   function emptyInput() {
@@ -138,10 +158,23 @@
   function step(session, dt) {
     dt = typeof dt === "number" && dt > 0 ? dt : Core.DT;
     var state = session.state;
-    if (state.victory || state.defeat || session.seconds >= MAX_SECONDS) {
-      session.loops += 1;
-      reset(session);
-      state = session.state;
+
+    /*
+     * A finished run (cleared, lost or timed out) holds its last frame before it
+     * loops: otherwise the boss's phase-two rage and the clear banner would pass
+     * by in a single frame on the title screen.
+     */
+    if (session.finished || state.victory || state.defeat || session.seconds >= MAX_SECONDS) {
+      if (!session.finished) {
+        session.finished = true;
+        session.holdWait = HOLD_SECONDS;
+      }
+      session.holdWait = Math.max(0, session.holdWait - dt);
+      if (session.holdWait === 0) {
+        session.loops += 1;
+        reset(session);
+      }
+      return session;
     }
 
     if (state.upgradeChoice) {
@@ -162,6 +195,20 @@
     session.skillWait = Math.max(0, session.skillWait - dt);
     Core.step(state, decide(session), dt);
     session.seconds += dt;
+
+    var boss = bossEnemy(state);
+    if (boss && boss.phase >= 2 && !session.countedPhase2) {
+      session.countedPhase2 = true;
+      session.phase2Runs += 1;
+    }
+    if (state.victory && !session.countedClear) {
+      session.countedClear = true;
+      session.clears += 1;
+    }
+    if (state.victory || state.defeat || session.seconds >= MAX_SECONDS) {
+      session.finished = true;
+      session.holdWait = HOLD_SECONDS;
+    }
     return session;
   }
 
@@ -173,17 +220,25 @@
   function snapshot(session) {
     if (!session) return null;
     var state = session.state;
+    var boss = bossEnemy(state);
     return {
       seed: session.seed,
       seconds: round(session.seconds),
       loops: session.loops,
       upgradePicks: session.upgradePicks,
+      /* Sticky across loops: what the visitor has been shown. */
+      phase2Runs: session.phase2Runs,
+      clears: session.clears,
+      finished: session.finished,
       roomIndex: state.roomIndex,
       rooms: state.layout.length,
       kills: state.stats.kills,
       hp: state.player.hp,
       alive: livingEnemies(state).length,
       upgradeOpen: !!state.upgradeChoice,
+      bossPhase: boss ? boss.phase : null,
+      bossHp: boss ? boss.hp : null,
+      bossMaxHp: boss ? boss.maxHp : null,
       victory: state.victory,
       defeat: state.defeat
     };
@@ -193,6 +248,7 @@
     PICK_DELAY: PICK_DELAY,
     SKILL_GAP: SKILL_GAP,
     MAX_SECONDS: MAX_SECONDS,
+    HOLD_SECONDS: HOLD_SECONDS,
     create: create,
     reset: reset,
     decide: decide,

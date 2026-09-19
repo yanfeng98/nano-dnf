@@ -911,6 +911,19 @@
         demo: Attract && attract ? Attract.snapshot(attract) : null
       };
     },
+    /*
+     * Manual QA: drive the title demo forward in one go. The browser proof uses
+     * it to reach the boss without waiting out the whole dungeon in real time.
+     */
+    fastForwardAttract: function (seconds) {
+      if (!attract || !Attract) return null;
+      var budget = Math.max(0, Math.min(300, Number(seconds) || 0));
+      var frames = Math.round(budget / Core.DT);
+      for (var frame = 0; frame < frames; frame += 1) {
+        Attract.step(attract, Core.DT);
+      }
+      return Attract.snapshot(attract);
+    },
     /* Manual QA: show one hint again without waiting for its trigger. */
     previewHint: function (id) {
       var spec = Hints.HINTS.filter(function (hint) {

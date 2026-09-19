@@ -63,11 +63,16 @@ Pages workflow 的 deploy 之后，让静默落后或报错的部署直接把流
 第十八切片让标题页自己演一遍：`src/attract.js` 是一个无 DOM 的自演脚本，打开页面就能看到
 鬼剑士打空第一间房、翻开强化卡、选一张、再走进传送门——它跑在**自己的 Core 状态**上，
 所以标题背后那一局真实游戏依旧一动不动（`state.time` 保持 0）。
+第十九切片让这段演示演到打完：整条链路（清房 → 选卡 → 小 Boss 房 → 王座）都会走完，
+Boss 掉到半血进入**狂暴**时会看到 `Goblin King enraged!`，击破后画面停在
+`Boss down! / LEVEL UP / Dungeon cleared!` 上 2.5 秒再从头重演——不再是一闪而过。
+演示自己的横幅现在画在标题横幅之上（房间名、狂暴、通关），而浏览器证明除了开头那 6 秒，
+还会把同一条演示快进到狂暴并打通，全程继续断言真实那局一个字节都没变。
 
 ## 运行
 
 ```bash
-npm test          # 128 个核心逻辑、Boss/小 Boss 机制、强化与通关记录、配乐调度、标题演示、发布暂存契约与渲染冒烟测试
+npm test          # 130 个核心逻辑、Boss/小 Boss 机制、强化与通关记录、配乐调度、标题演示、发布暂存契约与渲染冒烟测试
 npm run test:browser # 无头 Chromium 跑真实页面：键盘 + 触屏两条通路各通关一次
 npm run test:live # 线上产物冒烟：核对线上字节是否与本地一致，并在无头浏览器里跑一次真实页面
 npm run serve     # 起本地静态服务，然后打开 http://localhost:8080
@@ -240,6 +245,12 @@ HUD 左下角是技能栏，显示按键、技能名、MP 消耗与冷却读秒�
 就从第一间重来。脚本只用 `Core.step(state, input)`，不碰 DOM、不调 `Math.random`，
 所以同一个种子每次演出来的一模一样。
 
+整条链路是走完的：清房、选卡、小 Boss 房、王座。Boss 掉到半血进入狂暴时会打出一条
+`Goblin King enraged!` 横幅（这条以前被标题横幅盖住，等于没有），击破后画面保持
+`Boss down! / LEVEL UP / Dungeon cleared!` 2.5 秒再重演；房间名、狂暴与通关这类演示横幅
+统一画在标题横幅**之上**，所以标题页真的在“转播”这一局。想手动看某一段，可以在控制台调
+`window.nanoDnf.fastForwardAttract(30)` 把演示一次性推进 30 秒（上限 300 秒）。
+
 关键是**它和真实那局没关系**：演示有自己的 state，主循环只在标题期间用 `meta.attract` 把
 演示渲染出来，真实状态既不推进也不受伤（第十切片那条「标题期间 `state.time` 保持 0」至今成立）。
 第一次按键或触摸就结束演示，之后按 `F1` 仍然是原来那张冻结的帮助页，而不是回放。
@@ -248,9 +259,11 @@ HUD 左下角是技能栏，显示按键、技能名、MP 消耗与冷却读秒�
 当前种子与记录）加一个闪烁的「按任意键开始」，演示在横幅下面看得见。键位表还在页面下方，
 `F1` 也还在。
 
-浏览器证明同时盯两头：演示必须在 6 秒内**打完第一间房、亮出强化卡、选牌并走进第二间房**，
-而真实状态的 `hp / xp / kills / roomIndex / time / playerX` 在整段观察里逐次对比**完全没动**，
-并且第一次输入之后 `window.nanoDnf.getAttract().retired` 必须为 `true`。
+浏览器证明同时盯两头。真实时间内：演示必须在 6 秒内**打完第一间房、亮出强化卡、选牌并走进
+第二间房**。然后同一条演示被 0.5 秒一步地快进到**狂暴并通关**（第 34.5 秒进入狂暴、同一秒
+击破），期间每一步都重新比对真实状态的 `hp / xp / kills / roomIndex / time / playerX`，
+必须**完全没动**；狂暴那一帧会被截图存成 `attract-boss-rage.png`。最后，第一次输入之后
+`window.nanoDnf.getAttract().retired` 必须为 `true`。
 
 ## 通关记录
 
@@ -311,7 +324,7 @@ Pages workflow 在 deploy 之后还有一个 `verify` job 跑同一套线上冒�
 | `src/core.js` | 纯逻辑内核：物理、连击、伤害、敌人 AI、房间推进。无 DOM 依赖，Node 与浏览器共用 |
 | `src/render.js` | Canvas 2D 渲染层：精灵动画、HUD、技能栏、背景与特效，只读状态、不做修改 |
 | `src/main.js` | 浏览器入口：DNF 键位映射、精灵图加载、固定步长循环、暂停与重开 |
-| `src/attract.js` | 标题页的自演脚本：自带 state 的脚本化输入策略（无 DOM，可单测，确定性） |
+| `src/attract.js` | 标题页的自演脚本：自带 state 的脚本化输入策略，整条链路演到通关并定格 2.5 秒（无 DOM、可单测、确定性） |
 | `src/loadout.js` | 技能栏编成模型：槽位分配、互换、序列化（纯函数，可单测） |
 | `assets/import_dnf_art.py` | 从 DNF 原始 IMG 导入鬼剑士 SD 动画与技能图标，烘焙出下面两张图集 |
 | `assets/make_slayer_sprites.py` | 备用：纯原创像素美术生成脚本（不依赖任何外部素材） |
@@ -321,7 +334,7 @@ Pages workflow 在 deploy 之后还有一个 `verify` job 跑同一套线上冒�
 | `assets/import_dnf_effects.py` | 解码 DNF 技能特效 IMG，烘焙出 `effects.png` |
 | `index.html` | 页面外壳：标题、画布边框、键位说明与状态栏 |
 | `tests/core.test.js` | `node:test` 验证内核行为、成长与掉落、确定性、900 帧稳定性、可通关性、精灵帧选择与渲染冒烟 |
-| `tests/attract.test.js` | 验证标题演示：不碰真实那局、同种子可复现、不用 `Math.random`、卡住也能自己重来 |
+| `tests/attract.test.js` | 验证标题演示：不碰真实那局、同种子可复现、不用 `Math.random`、打到狂暴并通关、卡住也能自己重来 |
 
 ## 美术
 

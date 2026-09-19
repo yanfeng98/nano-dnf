@@ -1739,6 +1739,34 @@
     ctx.font = "700 21px 'PingFang SC', 'Segoe UI', sans-serif";
     ctx.fillStyle = "rgba(255, 214, 107, " + pulse.toFixed(3) + ")";
     ctx.fillText("按任意键开始", ARENA.width / 2, 206);
+
+    /*
+     * The demo's own banners are the page's running commentary — "Room 2 -
+     * Bloody Culvert", "Goblin King enraged!", "Dungeon cleared!" — so they are
+     * drawn on top of the plate rather than buried under it. The card chooser
+     * speaks for itself while it is open.
+     */
+    if (!state.upgradeChoice) {
+      var bannerY = 260;
+      state.effects.forEach(function (effect) {
+        if (effect.kind !== "banner") return;
+        var alpha = Math.min(1, (effect.life / effect.maxLife) * 1.5);
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        ctx.textAlign = "center";
+        ctx.font = "700 26px 'PingFang SC', 'Segoe UI', system-ui, sans-serif";
+        ctx.lineWidth = 5;
+        ctx.strokeStyle = "rgba(10, 12, 22, 0.85)";
+        ctx.strokeText(effect.text, ARENA.width / 2, bannerY);
+        var bannerGrad = ctx.createLinearGradient(0, bannerY - 20, 0, bannerY + 8);
+        bannerGrad.addColorStop(0, "#fff3c4");
+        bannerGrad.addColorStop(1, "#e3bf72");
+        ctx.fillStyle = bannerGrad;
+        ctx.fillText(effect.text, ARENA.width / 2, bannerY);
+        ctx.restore();
+        bannerY += 32;
+      });
+    }
     ctx.restore();
   }
 

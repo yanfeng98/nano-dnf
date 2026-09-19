@@ -68,6 +68,50 @@ test("the same seed replays the same demo", () => {
   }
 });
 
+test("the demo carries the run into the boss rage and past it", () => {
+  const live = realRun();
+  const before = JSON.stringify(live);
+
+  [Core.DEFAULT_SEED, 1234, 999999].forEach((seed) => {
+    const session = demo(seed);
+    let phase2At = null;
+    let clearAt = null;
+    for (let frame = 0; frame < Math.round(90 / Core.DT); frame += 1) {
+      Attract.step(session, Core.DT);
+      const shot = Attract.snapshot(session);
+      if (phase2At === null && shot.phase2Runs >= 1) phase2At = shot.seconds;
+      if (clearAt === null && shot.clears >= 1) clearAt = shot.seconds;
+      if (phase2At !== null && clearAt !== null) break;
+    }
+    assert.notEqual(phase2At, null, `seed ${seed}: the demo never showed the phase-two boss`);
+    assert.notEqual(clearAt, null, `seed ${seed}: the demo never finished the throne room`);
+    assert.ok(
+      clearAt >= phase2At,
+      `seed ${seed}: the clear came before the rage (${phase2At} -> ${clearAt})`
+    );
+    /* The whole arc still happens in the demo's own state. */
+    assert.equal(JSON.stringify(live), before, `seed ${seed}: the demo wrote into the real run`);
+  });
+});
+
+test("a finished demo holds its last frame before looping", () => {
+  const session = demo();
+  while (!Attract.snapshot(session).victory && session.seconds < 60) {
+    Attract.step(session, Core.DT);
+  }
+  assert.ok(Attract.snapshot(session).victory, "the shipped seed should be winnable by the script");
+
+  const loops = session.loops;
+  run(session, Attract.HOLD_SECONDS / 2);
+  assert.ok(Attract.snapshot(session).victory, "the clear has to stay on screen for a beat");
+  assert.equal(session.loops, loops, "the demo restarted before the hold was over");
+
+  run(session, Attract.HOLD_SECONDS);
+  assert.equal(session.loops, loops + 1, "the demo has to restart once the hold is over");
+  assert.equal(session.state.roomIndex, 0);
+  assert.equal(session.state.victory, false);
+});
+
 test("the demo does not lean on the ambient random generator", () => {
   const session = demo();
   const realRandom = Math.random;
