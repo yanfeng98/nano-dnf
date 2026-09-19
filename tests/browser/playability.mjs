@@ -648,6 +648,47 @@ async function runPass(browser, baseUrl, options) {
     }
   }
 
+  /*
+   * A clear has to show this run's own numbers. Read the table the renderer
+   * draws and compare it with the run that was just played - the banked record
+   * for the clock, the live state for everything that cannot change after the
+   * last hit.
+   */
+  const victorySummary = await page.evaluate(() => {
+    const state = window.nanoDnf.getState();
+    const summary = window.nanoDnf.getRunSummary();
+    const shown = {};
+    (summary.rows || []).forEach((row) => {
+      shown[row.id] = row.value;
+    });
+    const upgrades = state.player.upgradesTaken;
+    const expected = {
+      seed: String(window.nanoDnf.getSeed()),
+      time: window.DNFRecords.formatSeconds(
+        summary.lastRun && summary.lastRun.entry ? summary.lastRun.entry.seconds : state.time
+      ),
+      level: "Lv " + state.player.level,
+      upgrades: upgrades.length
+        ? upgrades
+            .map((id) => (window.DNFCore.UPGRADES[id] || { name: id }).name)
+            .join(" · ")
+        : "无",
+      kills: String(state.stats.kills),
+      damage: String(state.stats.damageTaken)
+    };
+    return {
+      victory: state.victory,
+      shown,
+      expected,
+      mismatches: Object.keys(expected)
+        .filter((id) => shown[id] !== expected[id])
+        .map((id) => ({ id, shown: shown[id], expected: expected[id] }))
+    };
+  });
+  await page.screenshot({
+    path: path.join(ARTIFACTS, `victory-summary-${options.mode}.png`)
+  });
+
   /* The soundtrack must be running by now, and must react to mute. */
   const musicAfterRun = await page.evaluate(() => window.nanoDnf.getMusicState());
   let musicMuteProbe = null;
@@ -821,6 +862,7 @@ async function runPass(browser, baseUrl, options) {
     attractDemo,
     attractArc,
     attractAfterInput,
+    victorySummary,
     attackChain,
     upSlashKey,
     music: { beforeInput: musicBeforeInput, afterRun: musicAfterRun, mute: musicMuteProbe },
@@ -883,6 +925,24 @@ function problemsFor(pass) {
     }
   }
   const upSlash = pass.upSlashKey;
+  const summary = pass.victorySummary;
+  if (!summary || !summary.victory) {
+    problems.push(`${pass.mode}: the clear screen was never reached to read its summary`);
+  } else {
+    const rowIds = ["seed", "time", "level", "upgrades", "kills", "damage"];
+    rowIds.forEach((id) => {
+      if (summary.shown[id] === undefined) {
+        problems.push(`${pass.mode}: the clear screen has no ${id} row`);
+      }
+    });
+    if (summary.mismatches.length) {
+      problems.push(
+        `${pass.mode}: the clear screen disagrees with the run it just played (${summary.mismatches
+          .map((entry) => `${entry.id}: shown ${entry.shown} vs played ${entry.expected}`)
+          .join("; ")})`
+      );
+    }
+  }
   if (!upSlash || upSlash.shortcut !== "Z" || !upSlash.equipped || upSlash.cooldown <= 0) {
     problems.push(`${pass.mode}: Z does not cast the up-slash (${JSON.stringify(upSlash)})`);
   }
@@ -1077,6 +1137,10 @@ async function main() {
     titleIdle: pass.titleIdle,
     attract: { ...pass.attractDemo, retiredOnTakeover: !!(pass.attractAfterInput || {}).retired },
     attractArc: pass.attractArc,
+    victorySummary: pass.victorySummary && {
+      shown: pass.victorySummary.shown,
+      expected: pass.victorySummary.expected
+    },
     attackChain: pass.attackChain,
     upSlashKey: pass.upSlashKey,
     slabWatch: pass.slabWatch,

@@ -13,6 +13,7 @@
   var Music = window.DNFMusic;
   var Hints = window.DNFHints;
   var Attract = window.DNFAttract || null;
+  var Summary = window.DNFSummary || null;
   var canvas = document.getElementById("stage");
   var ctx = canvas.getContext("2d");
 
@@ -144,6 +145,8 @@
   var pinnedSeed = seedFromUrl();
   var currentSeed = pinnedSeed === null ? Core.DEFAULT_SEED : pinnedSeed;
   var lastRun = null;
+  /* The numbers of the run that just ended, frozen at the clear. */
+  var finishedRun = null;
 
   var state = Core.createState({ seed: currentSeed });
   var paused = false;
@@ -409,6 +412,18 @@
   function syncRecords() {
     if (!state.victory || runBanked) return;
     runBanked = true;
+    /*
+     * The clock keeps ticking behind the clear screen, so the finish screen
+     * reads this snapshot instead of a still-moving state.
+     */
+    finishedRun = {
+      seed: currentSeed,
+      seconds: state.time,
+      level: state.player.level,
+      upgrades: state.player.upgradesTaken.slice(),
+      kills: state.stats.kills,
+      damageTaken: state.stats.damageTaken
+    };
     var outcome = Records.record(records, {
       seed: currentSeed,
       seconds: state.time,
@@ -423,12 +438,31 @@
   /* What the title and victory screens need, without leaking storage details. */
   function runSummary() {
     var record = Records.best(records, currentSeed);
+    var run = finishedRun || {
+      seed: currentSeed,
+      seconds: state.time,
+      level: state.player.level,
+      upgrades: state.player.upgradesTaken,
+      kills: state.stats.kills,
+      damageTaken: state.stats.damageTaken
+    };
+    var table = Summary
+      ? Summary.describe({
+          seed: run.seed,
+          seconds: run.seconds,
+          level: run.level,
+          upgrades: run.upgrades,
+          kills: run.kills,
+          damageTaken: run.damageTaken
+        })
+      : { rows: [] };
     return {
       seed: currentSeed,
       record: record,
       runs: records.runs,
       lastRun: lastRun,
       improved: !!(lastRun && lastRun.improved),
+      rows: table.rows,
       seedText: "种子 " + currentSeed,
       recordText: record
         ? "本种子最佳 " +
@@ -688,6 +722,7 @@
     /* The demo previews the seed the player is about to get. */
     if (attractActive && Attract) attract = Attract.create({ seed: currentSeed });
     lastRun = null;
+    finishedRun = null;
     runBanked = false;
     hintSeen = {};
     activeHint = null;
