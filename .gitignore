@@ -30,3 +30,5 @@ assets/dnf_effect_catalog_*.png
 assets/dnf_effect_anim/
 #   (the body sheet cut into individual actions, make_body_action_sheets.py)
 assets/dnf_body_actions.*
+#   (every body variant animating, make_body_variant_grids.py)
+assets/dnf_body_variants/
