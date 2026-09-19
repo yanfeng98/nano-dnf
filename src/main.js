@@ -12,6 +12,7 @@
   var Records = window.DNFRecords;
   var Music = window.DNFMusic;
   var Hints = window.DNFHints;
+  var Attract = window.DNFAttract || null;
   var canvas = document.getElementById("stage");
   var ctx = canvas.getContext("2d");
 
@@ -149,6 +150,14 @@
   var showHelp = true;
   var accumulator = 0;
   var lastTime = 0;
+  /*
+   * The title screen is also the demo. It owns its own Core state, so the run
+   * waiting behind the overlay is never touched by the fight playing in front
+   * of it.
+   */
+  var attractActive = !!Attract;
+  var attract = Attract ? Attract.create({ seed: currentSeed }) : null;
+  var attractAccumulator = 0;
 
   /* ---------------------------------------------------------------- audio */
   var audio = { ctx: null, master: null, muted: false };
@@ -489,6 +498,7 @@
   function touchDown(event) {
     if (showHelp) {
       showHelp = false;
+      leaveTitle();
       event.preventDefault();
       return;
     }
@@ -604,11 +614,13 @@
       currentSeed = rollSeed();
       restart();
       showHelp = false;
+      leaveTitle();
       event.preventDefault();
       return;
     }
     if (event.code === "F1") {
       showHelp = !showHelp;
+      if (!showHelp) leaveTitle();
       event.preventDefault();
       return;
     }
@@ -635,7 +647,10 @@
       event.preventDefault();
       return;
     }
-    if (showHelp) showHelp = false;
+    if (showHelp) {
+      showHelp = false;
+      leaveTitle();
+    }
     setKey(event.code, true, event);
   });
 
@@ -669,6 +684,9 @@
     state = Core.createState({ seed: currentSeed });
     paused = false;
     accumulator = 0;
+    attractAccumulator = 0;
+    /* The demo previews the seed the player is about to get. */
+    if (attractActive && Attract) attract = Attract.create({ seed: currentSeed });
     lastRun = null;
     runBanked = false;
     hintSeen = {};
@@ -680,6 +698,14 @@
     watch.roomIndex = 0;
     watch.collapses = 0;
     watch.victory = false;
+  }
+
+  /*
+   * The demo belongs to the title screen alone. Retiring it on the first
+   * dismissal keeps F1 mid-run showing the frozen real run instead of a replay.
+   */
+  function leaveTitle() {
+    attractActive = false;
   }
 
   function currentInput() {
@@ -739,16 +765,33 @@
       if (guard >= 5) accumulator = 0;
     }
 
-    Render.render(ctx, state, {
-      paused: paused,
+    /*
+     * The demo runs on the same fixed step as the game, but against its own
+     * state and with no input, sound or record side effects.
+     */
+    var titleUp = attractActive && showHelp && !!attract;
+    if (titleUp) {
+      attractAccumulator += delta;
+      var demoGuard = 0;
+      while (attractAccumulator >= Core.DT && demoGuard < 5) {
+        Attract.step(attract, Core.DT);
+        attractAccumulator -= Core.DT;
+        demoGuard += 1;
+      }
+      if (demoGuard >= 5) attractAccumulator = 0;
+    }
+
+    Render.render(ctx, titleUp ? attract.state : state, {
+      paused: titleUp ? false : paused,
       showHelp: showHelp,
+      attract: titleUp,
       sprites: sprites,
       touch: { enabled: touchMode, pressed: touchActions, muted: audio.muted },
       loadout: loadout,
       loadoutOpen: loadoutOpen,
       drag: drag,
       run: runSummary(),
-      hint: activeHint
+      hint: titleUp ? null : activeHint
     });
 
     var status = document.getElementById("status");
@@ -858,6 +901,14 @@
         active: activeHint ? { id: activeHint.id, text: activeHint.text, life: activeHint.life } : null,
         seen: Object.keys(hintSeen),
         available: typeof Hints === "undefined" ? 0 : Hints.HINTS.length
+      };
+    },
+    /* The self-playing title demo, and whether it still owns the screen. */
+    getAttract: function () {
+      return {
+        active: attractActive && showHelp && !!attract,
+        retired: !attractActive,
+        demo: Attract && attract ? Attract.snapshot(attract) : null
       };
     },
     /* Manual QA: show one hint again without waiting for its trigger. */

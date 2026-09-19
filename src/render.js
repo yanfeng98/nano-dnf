@@ -1547,6 +1547,10 @@
   }
 
   function drawOverlay(ctx, state, meta, sprites) {
+    if (meta && meta.attract) {
+      drawAttractTitle(ctx, state, meta);
+      return;
+    }
     if (state.defeat || state.victory) {
       ctx.save();
       ctx.fillStyle = "rgba(6, 8, 16, 0.74)";
@@ -1667,6 +1671,77 @@
     }
   }
 
+  /*
+   * The attract title: the demo run plays under a slim banner instead of behind
+   * the full help sheet, so the first ten seconds show the game moving rather
+   * than a still frame. The controls stay on the page, and F1 still opens the
+   * full sheet once the run has started.
+   */
+  function drawAttractTitle(ctx, state, meta) {
+    ctx.save();
+    /* A light scrim keeps the text readable without hiding the fight. */
+    ctx.fillStyle = "rgba(5, 7, 14, 0.32)";
+    ctx.fillRect(0, 0, ARENA.width, ARENA.height);
+
+    /*
+     * The plate is solid across the demo's own HUD strip, then fades: the title
+     * stays readable without turning the fight below it into a smear.
+     */
+    var band = ctx.createLinearGradient(0, 0, 0, 200);
+    band.addColorStop(0, "rgba(4, 6, 12, 1)");
+    band.addColorStop(0.65, "rgba(4, 6, 12, 1)");
+    band.addColorStop(1, "rgba(4, 6, 12, 0)");
+    ctx.fillStyle = band;
+    ctx.fillRect(0, 0, ARENA.width, 200);
+
+    ctx.textAlign = "left";
+    var grad = ctx.createLinearGradient(0, 36, 0, 78);
+    grad.addColorStop(0, "#fff4cc");
+    grad.addColorStop(1, "#d9a743");
+    ctx.font = "800 44px 'Segoe UI', system-ui, sans-serif";
+    ctx.fillStyle = grad;
+    ctx.fillText("NANO DNF", 40, 78);
+    ctx.font = "600 16px 'PingFang SC', 'Segoe UI', sans-serif";
+    ctx.fillStyle = PALETTE.text;
+    ctx.fillText("鬼剑士 · 地下城试炼", 42, 106);
+
+    /* The badge says the fight on screen is the page showing off, not the run. */
+    roundRect(ctx, 42, 120, 112, 26, 13);
+    ctx.fillStyle = "rgba(226, 191, 114, 0.18)";
+    ctx.fill();
+    ctx.font = "700 13px 'PingFang SC', 'Segoe UI', sans-serif";
+    ctx.fillStyle = PALETTE.gold;
+    ctx.fillText("演示 DEMO", 56, 138);
+
+    /* The replay hook stays on the right, clear of the demo's own HUD. */
+    if (meta && meta.run) {
+      ctx.textAlign = "right";
+      ctx.font = "700 18px 'PingFang SC', 'Segoe UI', system-ui, sans-serif";
+      ctx.fillStyle = PALETTE.gold;
+      ctx.fillText(meta.run.seedText || "", ARENA.width - 40, 58);
+      ctx.font = "600 15px 'PingFang SC', 'Segoe UI', sans-serif";
+      ctx.fillStyle = PALETTE.textDim;
+      ctx.fillText(meta.run.recordText || "", ARENA.width - 40, 86);
+      ctx.fillStyle = PALETTE.text;
+      ctx.fillText("按 N 换一个种子", ARENA.width - 40, 112);
+    }
+
+    /* A blinking prompt, so an untouched page still asks to be played. */
+    var pulse = 0.5 + 0.5 * Math.sin(state.time * 4);
+    ctx.textAlign = "center";
+    roundRect(ctx, ARENA.width / 2 - 150, 176, 300, 44, 22);
+    ctx.fillStyle = "rgba(6, 8, 16, 0.72)";
+    ctx.fill();
+    ctx.strokeStyle = "rgba(226, 191, 114, 0.45)";
+    ctx.lineWidth = 1.5;
+    roundRect(ctx, ARENA.width / 2 - 149, 177, 298, 42, 21);
+    ctx.stroke();
+    ctx.font = "700 21px 'PingFang SC', 'Segoe UI', sans-serif";
+    ctx.fillStyle = "rgba(255, 214, 107, " + pulse.toFixed(3) + ")";
+    ctx.fillText("按任意键开始", ARENA.width / 2, 206);
+    ctx.restore();
+  }
+
   function render(ctx, state, meta) {
     meta = meta || {};
     var sprites = meta.sprites || null;
@@ -1712,8 +1787,8 @@
     drawSkillBar(ctx, state, sprites, meta.loadout, !!(meta.touch && meta.touch.enabled));
     if (meta.touch && meta.touch.enabled) drawTouchControls(ctx, state, sprites, meta.touch);
     if (meta.loadoutOpen) drawLoadoutPanel(ctx, state, sprites, meta);
-    /* The reward prompt belongs to live play too. */
-    if (!overlayOpen) drawUpgradeChoice(ctx, state);
+    /* The reward prompt belongs to live play too, and to the demo's own card pick. */
+    if (!overlayOpen || meta.attract) drawUpgradeChoice(ctx, state);
     /* Coaching belongs to live play as well. */
     if (!overlayOpen) drawHint(ctx, meta.hint);
     drawOverlay(ctx, state, meta, sprites);

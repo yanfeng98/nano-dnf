@@ -60,11 +60,14 @@ Pages workflow 的 deploy 之后，让静默落后或报错的部署直接把流
 `assets/make_share_card.py` 用仓库自带美术程序化合成（1200×630）。发布冒烟现在会真的去抓
 线上卡片图，校验 200 / PNG / 尺寸与标签一致；离线暂存检查也会断言 `og:image` 指向的文件
 确实被打包——和当初漏发 `records.js` 是同一类事故，这次提前堵住。
+第十八切片让标题页自己演一遍：`src/attract.js` 是一个无 DOM 的自演脚本，打开页面就能看到
+鬼剑士打空第一间房、翻开强化卡、选一张、再走进传送门——它跑在**自己的 Core 状态**上，
+所以标题背后那一局真实游戏依旧一动不动（`state.time` 保持 0）。
 
 ## 运行
 
 ```bash
-npm test          # 116 个核心逻辑、Boss/小 Boss 机制、强化与通关记录、配乐调度、发布暂存契约与渲染冒烟测试
+npm test          # 128 个核心逻辑、Boss/小 Boss 机制、强化与通关记录、配乐调度、标题演示、发布暂存契约与渲染冒烟测试
 npm run test:browser # 无头 Chromium 跑真实页面：键盘 + 触屏两条通路各通关一次
 npm run test:live # 线上产物冒烟：核对线上字节是否与本地一致，并在无头浏览器里跑一次真实页面
 npm run serve     # 起本地静态服务，然后打开 http://localhost:8080
@@ -229,6 +232,26 @@ HUD 左下角是技能栏，显示按键、技能名、MP 消耗与冷却读秒�
 提示写在 HUD 下方居中的胶囊里，和奖励卡一样**不会**透过标题/暂停/通关界面显示。
 想手动看一眼某条提示，可以在控制台调 `window.nanoDnf.previewHint("hazard")`。
 
+## 标题演示
+
+打开页面的前十秒不该是一张静止的说明图。`src/attract.js` 是一段**自演脚本**，跑在自己的
+`Core` 状态上：走到最近的敌人、进入攻击距离后连砍、技能冷却好了就放一个、清空房间后停 0.9 秒
+让三张强化卡亮一会儿再选第一张，然后走到最右侧的传送门进入下一间房，一条命打完或超过 45 秒
+就从第一间重来。脚本只用 `Core.step(state, input)`，不碰 DOM、不调 `Math.random`，
+所以同一个种子每次演出来的一模一样。
+
+关键是**它和真实那局没关系**：演示有自己的 state，主循环只在标题期间用 `meta.attract` 把
+演示渲染出来，真实状态既不推进也不受伤（第十切片那条「标题期间 `state.time` 保持 0」至今成立）。
+第一次按键或触摸就结束演示，之后按 `F1` 仍然是原来那张冻结的帮助页，而不是回放。
+
+标题期间的画面也换了：不再是整屏盖死的帮助页，而是顶部一条窄横幅（LOGO、`演示 DEMO` 徽标、
+当前种子与记录）加一个闪烁的「按任意键开始」，演示在横幅下面看得见。键位表还在页面下方，
+`F1` 也还在。
+
+浏览器证明同时盯两头：演示必须在 6 秒内**打完第一间房、亮出强化卡、选牌并走进第二间房**，
+而真实状态的 `hp / xp / kills / roomIndex / time / playerX` 在整段观察里逐次对比**完全没动**，
+并且第一次输入之后 `window.nanoDnf.getAttract().retired` 必须为 `true`。
+
 ## 通关记录
 
 每次通关会按种子记一笔成绩，存在浏览器 `localStorage`（键 `nano-dnf-records`）：
@@ -288,6 +311,7 @@ Pages workflow 在 deploy 之后还有一个 `verify` job 跑同一套线上冒�
 | `src/core.js` | 纯逻辑内核：物理、连击、伤害、敌人 AI、房间推进。无 DOM 依赖，Node 与浏览器共用 |
 | `src/render.js` | Canvas 2D 渲染层：精灵动画、HUD、技能栏、背景与特效，只读状态、不做修改 |
 | `src/main.js` | 浏览器入口：DNF 键位映射、精灵图加载、固定步长循环、暂停与重开 |
+| `src/attract.js` | 标题页的自演脚本：自带 state 的脚本化输入策略（无 DOM，可单测，确定性） |
 | `src/loadout.js` | 技能栏编成模型：槽位分配、互换、序列化（纯函数，可单测） |
 | `assets/import_dnf_art.py` | 从 DNF 原始 IMG 导入鬼剑士 SD 动画与技能图标，烘焙出下面两张图集 |
 | `assets/make_slayer_sprites.py` | 备用：纯原创像素美术生成脚本（不依赖任何外部素材） |
@@ -297,6 +321,7 @@ Pages workflow 在 deploy 之后还有一个 `verify` job 跑同一套线上冒�
 | `assets/import_dnf_effects.py` | 解码 DNF 技能特效 IMG，烘焙出 `effects.png` |
 | `index.html` | 页面外壳：标题、画布边框、键位说明与状态栏 |
 | `tests/core.test.js` | `node:test` 验证内核行为、成长与掉落、确定性、900 帧稳定性、可通关性、精灵帧选择与渲染冒烟 |
+| `tests/attract.test.js` | 验证标题演示：不碰真实那局、同种子可复现、不用 `Math.random`、卡住也能自己重来 |
 
 ## 美术
 

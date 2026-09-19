@@ -392,6 +392,65 @@ async function runPass(browser, baseUrl, options) {
     };
   });
   const titleIdle = { seconds: titleIdleSeconds, ...idleState };
+
+  /*
+   * The title screen is also the demo. The page has to look alive before anyone
+   * presses a key, so watch it clear the opening room and take an upgrade card
+   * while re-checking that the run waiting behind the overlay never moves.
+   */
+  const realSnapshot = () =>
+    page.evaluate(() => {
+      const state = window.nanoDnf.getState();
+      return {
+        hp: state.player.hp,
+        xp: state.player.xp,
+        level: state.player.level,
+        roomIndex: state.roomIndex,
+        kills: state.stats.kills,
+        damageTaken: state.stats.damageTaken,
+        time: Number(state.time.toFixed(4)),
+        playerX: Number(state.player.x.toFixed(4)),
+        cleared: state.room.cleared,
+        enemies: state.enemies.length
+      };
+    });
+  const inertBefore = await realSnapshot();
+  const attractStart = await page.evaluate(() => window.nanoDnf.getAttract());
+  const attractDemo = {
+    polls: 0,
+    seconds: 0,
+    kills: 0,
+    upgradePicks: 0,
+    upgradeShown: false,
+    roomsReached: 0,
+    loops: 0,
+    inert: true,
+    missing: false
+  };
+  const demoDeadline = Date.now() + 30 * 1000;
+  while (Date.now() < demoDeadline) {
+    const demo = await page.evaluate(() => window.nanoDnf.getAttract());
+    attractDemo.polls += 1;
+    if (!demo || !demo.demo) {
+      attractDemo.missing = true;
+      break;
+    }
+    attractDemo.seconds = Math.max(attractDemo.seconds, demo.demo.seconds);
+    attractDemo.kills = Math.max(attractDemo.kills, demo.demo.kills);
+    attractDemo.upgradePicks = Math.max(attractDemo.upgradePicks, demo.demo.upgradePicks);
+    attractDemo.loops = Math.max(attractDemo.loops, demo.demo.loops);
+    attractDemo.roomsReached = Math.max(attractDemo.roomsReached, demo.demo.roomIndex + 1);
+    if (demo.demo.upgradeOpen && !attractDemo.upgradeShown) {
+      attractDemo.upgradeShown = true;
+      await page.screenshot({ path: path.join(ARTIFACTS, "attract-upgrade.png") });
+    }
+    if (JSON.stringify(await realSnapshot()) !== JSON.stringify(inertBefore)) {
+      attractDemo.inert = false;
+    }
+    if (attractDemo.upgradePicks >= 1 && attractDemo.roomsReached >= 2) break;
+    await page.waitForTimeout(250);
+  }
+  await page.screenshot({ path: path.join(ARTIFACTS, "attract-play.png") });
   /* Nothing may have started audio yet: browsers only allow it after a gesture. */
   const musicBeforeInput = await page.evaluate(() => window.nanoDnf.getMusicState());
   /*
@@ -401,6 +460,8 @@ async function runPass(browser, baseUrl, options) {
    */
   await page.keyboard.press("Enter");
   await page.waitForTimeout(80);
+  /* Taking over retires the demo: F1 mid-run must not replay it. */
+  const attractAfterInput = await page.evaluate(() => window.nanoDnf.getAttract());
   await page.keyboard.down("KeyZ");
   await page.waitForTimeout(80);
   const upSlashKey = await page.evaluate(() => {
@@ -724,6 +785,9 @@ async function runPass(browser, baseUrl, options) {
     mode: options.mode,
     url,
     titleIdle,
+    attractStart,
+    attractDemo,
+    attractAfterInput,
     attackChain,
     upSlashKey,
     music: { beforeInput: musicBeforeInput, afterRun: musicAfterRun, mute: musicMuteProbe },
@@ -745,6 +809,29 @@ async function runPass(browser, baseUrl, options) {
 
 function problemsFor(pass) {
   const problems = [];
+  const demo = pass.attractDemo;
+  if (!demo || demo.missing) {
+    problems.push(`${pass.mode}: the title screen has no attract demo`);
+  } else {
+    if (!demo.inert) {
+      problems.push(`${pass.mode}: the attract demo wrote into the real run`);
+    }
+    if (demo.kills < 1) {
+      problems.push(`${pass.mode}: the attract demo never fought`);
+    }
+    if (demo.upgradePicks < 1) {
+      problems.push(`${pass.mode}: the attract demo never took an upgrade card`);
+    }
+    if (demo.roomsReached < 2) {
+      problems.push(`${pass.mode}: the attract demo never walked through the gate it opened`);
+    }
+    if (!demo.upgradeShown) {
+      problems.push(`${pass.mode}: the demo never showed the upgrade cards`);
+    }
+  }
+  if (!pass.attractAfterInput || pass.attractAfterInput.retired !== true) {
+    problems.push(`${pass.mode}: the attract demo kept running after the player took over`);
+  }
   const upSlash = pass.upSlashKey;
   if (!upSlash || upSlash.shortcut !== "Z" || !upSlash.equipped || upSlash.cooldown <= 0) {
     problems.push(`${pass.mode}: Z does not cast the up-slash (${JSON.stringify(upSlash)})`);
@@ -938,6 +1025,7 @@ async function main() {
     level: pass.state.player.level,
     upgradesTaken: pass.state.player.upgradesTaken,
     titleIdle: pass.titleIdle,
+    attract: { ...pass.attractDemo, retiredOnTakeover: !!(pass.attractAfterInput || {}).retired },
     attackChain: pass.attackChain,
     upSlashKey: pass.upSlashKey,
     slabWatch: pass.slabWatch,
