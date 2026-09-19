@@ -67,6 +67,117 @@ def compose(module, client: pathlib.Path, indices):
     return out
 
 
+def decode_frame(img, index):
+    """(picture, x, y) for one frame of a DNF img, links and colour boards resolved."""
+    from pydnfex.img.image.format import FormatConvertor
+    from pydnfex.util import image as image_util
+
+    if index >= len(img.images):
+        return None
+    item = img.images[index]
+    while type(item).__name__ == "ImageLink":
+        item = img.images[item.index]
+    if getattr(item, "data", None) is None and hasattr(item, "load"):
+        item.load()
+    data = getattr(item, "data", None)
+    boards = getattr(img, "color_boards", None)
+    colors = boards[0].colors if boards else getattr(getattr(img, "color_board", None), "colors", None)
+    for attempt in (
+        lambda: FormatConvertor.to_raw_indexes(data, colors) if colors else None,
+        lambda: FormatConvertor.to_raw(data, item.format),
+    ):
+        try:
+            pixels = attempt()
+            if not pixels:
+                continue
+            picture = image_util.load_raw(pixels, item.w, item.h).convert("RGBA")
+            return (picture, getattr(item, "x", 0), getattr(item, "y", 0))
+        except Exception:
+            continue
+    return None
+
+
+def render_skin(module, client: pathlib.Path, skin: str, per_sheet: int, columns: int, cell: int) -> int:
+    """One body img (a whole costume look) as numbered frame sheets."""
+    import io
+    from pydnfex.npk import NPK
+    from pydnfex.img.version import IMGFactory
+
+    pack = client / "ImagePacks2" / "sprite_character_swordman_equipment_avatar_skin.NPK"
+    with open(pack, "rb") as handle:
+        npk = NPK.open(handle)
+        entry = next((item for item in npk.files if item.name.endswith(f"{skin}.img")), None)
+        if entry is None:
+            raise SystemExit(f"{skin}.img not found")
+        body = IMGFactory.open(io.BytesIO(entry.data))
+    total = len(body.images)
+
+    # The katana is what the look actually holds; its 210-frame set lines up with
+    # the 210-frame body looks.
+    decoder = module.Decoder(client, force=False)
+    weapon = []
+    for key in ("weapon_b", "weapon_c"):
+        try:
+            weapon.append(decoder.frames(key))
+        except Exception:
+            pass
+
+    # One transform for every frame: a per-frame crop makes quiet frames blow up
+    # and busy ones shrink, which makes the sheet useless for reading motion.
+    placed = []
+    for index in range(total):
+        if index % 200 == 0:
+            print(f"  decoding {index}/{total}…", file=sys.stderr)
+        layers = []
+        body_frame = decode_frame(body, index)
+        if body_frame is not None and body_frame[0].getbbox():
+            layers.append(body_frame)
+        for frames in weapon:
+            if index < len(frames):
+                picture, x, y = frames[index]
+                if picture is not None and picture.getbbox():
+                    layers.append((picture, x, y))
+        placed.append(layers)
+    left = min(x for layers in placed for _p, x, _y in layers)
+    top = min(y for layers in placed for _p, _x, y in layers)
+    right = max(x + p.width for layers in placed for p, x, _y in layers)
+    bottom = max(y + p.height for layers in placed for p, _x, y in layers)
+
+    font = load_font(12)
+    head = load_font(16)
+    out_dir = ROOT / "dnf_src" / f"full-frames-{skin}"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    sheets = 0
+    for start in range(0, total, per_sheet):
+        indices = list(range(start, min(total, start + per_sheet)))
+        rows = -(-len(indices) // columns)
+        sheet = Image.new("RGB", (columns * cell, rows * cell + 26), (18, 18, 26))
+        draw = ImageDraw.Draw(sheet)
+        draw.text((6, 5), f"{skin}.img 帧 {start}-{indices[-1]}（带太刀 5601）",
+                  fill=(255, 235, 150), font=head)
+        for slot, index in enumerate(indices):
+            layers = placed[index]
+            if not layers:
+                continue
+            canvas = Image.new("RGBA", (right - left, bottom - top), (0, 0, 0, 0))
+            for picture, x, y in layers:
+                canvas.alpha_composite(picture, (x - left, y - top))
+            scale = min((cell - 8) / canvas.width, (cell - 8) / canvas.height, 1.0)
+            size = (max(1, int(canvas.width * scale)), max(1, int(canvas.height * scale)))
+            column, row = slot % columns, slot // columns
+            sheet.paste(
+                canvas.convert("RGB").resize(size, Image.LANCZOS),
+                (column * cell + (cell - size[0]) // 2, 26 + row * cell + (cell - size[1]) // 2),
+            )
+            draw.text((column * cell + 3, 26 + row * cell + 2), str(index), fill=(150, 200, 255), font=font)
+        path = out_dir / f"frames-{start:03d}-{indices[-1]:03d}.png"
+        sheet.save(path)
+        sheets += 1
+        print(f"wrote {path} ({sheet.width}x{sheet.height})")
+    print(f"{skin}: {total} frames in {sheets} sheet(s)")
+    return 0
+
+
 def signature(frame: Image.Image) -> bytes:
     box = frame.getbbox()
     flat = Image.new("RGB", frame.size, (0, 0, 0))
@@ -112,9 +223,16 @@ def split_actions(frames, hold: int = 80, minimum: int = 3):
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--client", type=pathlib.Path, default=DEFAULT_CLIENT)
+    parser.add_argument("--skin", help="render one body img as numbered frame sheets (e.g. sm_body0048)")
+    parser.add_argument("--per-sheet", type=int, default=60)
+    parser.add_argument("--columns", type=int, default=10)
+    parser.add_argument("--cell", type=int, default=132)
     args = parser.parse_args()
 
     module = baker()
+    if args.skin:
+        return render_skin(module, args.client, args.skin, args.per_sheet, args.columns, args.cell)
+
     drawn = compose(module, args.client, range(0, 242))
     frames = {index: frame for index, frame, _x, _y in drawn}
     actions = split_actions(frames)
