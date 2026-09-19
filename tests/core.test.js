@@ -1234,9 +1234,9 @@ test("one press plays one stage of the normal attack, and attack speed sets the 
   const smash = Render.SPRITE.skillClips.mountainBreaker;
   assert.equal(smash.row, Render.SPRITE.rows.clips);
   assert.equal(smash.first, 0, "崩山击 opens the first clip row");
-  assert.equal(smash.frames, 6, "the stand, the jump's two frames and three smash frames");
+  assert.equal(smash.frames, 9, "the client's six-frame jump and three smash frames");
   const beats = smash.beats.map((beat) => beat.frames);
-  assert.deepEqual(beats, [1, 2, 3], "stand, hop and smash are paced separately");
+  assert.deepEqual(beats, [6, 3], "the jump and the smash are paced separately");
   assert.equal(
     beats.reduce((total, count) => total + count, 0),
     smash.frames,
@@ -1249,11 +1249,11 @@ test("one press plays one stage of the normal attack, and attack speed sets the 
    */
   const rift = Render.SPRITE.skillClips.mountainRift;
   assert.ok(rift, "大蹦 gets a body animation of its own");
-  assert.equal(rift.frames, 6, "the same jump-then-slam shape as 崩山击");
+  assert.equal(rift.frames, 9, "the same jump-then-slam shape as 崩山击");
   assert.deepEqual(
     rift.beats.map((beat) => beat.frames),
-    [1, 2, 3],
-    "stand, jump and slam are paced the same way"
+    [6, 3],
+    "the jump and the slam are paced the same way"
   );
   assert.notEqual(rift.row, smash.row, "and it is not the row 崩山击 uses");
   const riftSkill = Core.SKILLS.mountainRift;
@@ -1281,8 +1281,8 @@ test("one press plays one stage of the normal attack, and attack speed sets the 
   assert.equal(upSlash.first, Render.SPRITE.frames.skill, "it starts after the generic frames");
   assert.equal(
     upSlash.frames,
-    10,
-    "the client's up-slash clip is body frames 41-50, opening on the settled chain pose"
+    9,
+    "上挑 is the client's own 42-50 on the sm_body0048 sheet, i.e. body frames 43-51 here"
   );
 
   /*

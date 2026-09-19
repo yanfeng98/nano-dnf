@@ -1476,9 +1476,9 @@ function problemsFor(pass) {
     if (chain.lastColumn !== 22) {
       problems.push(`${pass.mode}: the last press ends on frame ${chain.lastColumn}, not 22`);
     }
-    if (chain.upSlashColumns !== 10) {
+    if (chain.upSlashColumns !== 9) {
       problems.push(
-        `${pass.mode}: the up-slash skill ships ${chain.upSlashColumns} body frames, not the client's 10`
+        `${pass.mode}: the up-slash skill ships ${chain.upSlashColumns} body frames, not 上挑's 9`
       );
     }
   }

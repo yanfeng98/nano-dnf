@@ -68,7 +68,8 @@
      * them into the clips row in this order.
      */
     skillClips: {
-      upSlash: { row: 3, first: 6, frames: 10 },
+      /* 上挑 is the client's own 42-50 on the sm_body0048 sheet = 43-51 here. */
+      upSlash: { row: 3, first: 6, frames: 9 },
       /* the raise holds until the smash lands at 40% of the cast */
       /*
        * Seven frames, paced per beat: the four raise frames run through the wind
@@ -79,18 +80,16 @@
       mountainBreaker: {
         row: 5,
         first: 0,
-        frames: 6,
+        frames: 9,
         beats: [
-          /* The stand is held until he leaves the ground ... */
-          { frames: 1, from: 0, until: 0.2 },
-          /* ... then the jump itself: the client's rise frame, then its fall. */
-          { frames: 2, from: 0.22, until: 0.62 },
+          /* the client's own jump animation runs through the hop ... */
+          { frames: 6, from: 0, until: 0.68 },
           /* The smash frames have to land with the hit at 1.05s of the 1.5s cast. */
-          { frames: 3, from: 0.66, until: 0.78 }
+          { frames: 3, from: 0.7, until: 0.8 }
         ]
       },
-      rageBurst: { row: 5, first: 6, frames: 8 },
-      crossSlash: { row: 5, first: 14, frames: 20 },
+      rageBurst: { row: 5, first: 9, frames: 8 },
+      crossSlash: { row: 5, first: 17, frames: 20 },
       /* 血之狂暴: body action 22, the stand that flings both arms out. */
       frenzy: { row: 6, first: 0, frames: 9 },
       /*
@@ -100,10 +99,9 @@
       mountainRift: {
         row: 6,
         first: 9,
-        frames: 6,
+        frames: 9,
         beats: [
-          { frames: 1, from: 0, until: 0.1 },
-          { frames: 2, from: 0.12, until: 0.6 },
+          { frames: 6, from: 0, until: 0.6 },
           { frames: 3, from: 0.66, until: 0.92 }
         ]
       }

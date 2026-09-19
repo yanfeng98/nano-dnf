@@ -52,25 +52,28 @@ ROWS = ["idle", "run", "attack", "skill", "extras", "clips", "clips2"]
 # skill's own client clip. Only the picked frames go in: widening them to their
 # neighbours made the move look like it was doing extra swings it never had.
 # The renderer paces the frames per beat instead (see src/render.js skillClips).
-#   崩山击     jump, then smash: the whole jump animation is baked in - 176 (the
-#              still stand, held until he leaves the ground), then the client's
-#              own rise (232) and fall (236) frames, then 206-208 (the smash) on
-#              landing. Holding one pose for the whole hop read as "the jump
-#              looks wrong"; the raise on 203-205 was the extra motion.
+#   崩山击     jump, then smash. The owner pointed at the client's own jump on the
+#              sm_body0048 sheet (its 126-131: "press C and that is the jump"),
+#              and body frames there run exactly one behind this sheet, so the
+#              jump is 127-132 here. 232/236 - what a plain hop uses - are not
+#              that animation, which is why the hop looked wrong.
 #   怒气爆发   action 10 (8 frames)
 #   十字斩     action 1 (14 frames) + action 25 (6 frames)
 #   血之狂暴   action 22 (9 frames) - the stand that flings both arms out
-#   崩山裂地斩 the same shape, one size up: the same hop pose and a heavier slam
-#              (229-231, the crouch that drives the sword into the ground) under
-#              the ultimate's giant blood sword and rift.
+#   崩山裂地斩 the same shape, one size up: the same jump (127-132) and a heavier
+#              slam (229-231, the crouch that drives the sword into the ground)
+#              under the ultimate's giant blood sword and rift.
+#
+# The same owner note fixes the up-slash: 上挑 is sm_body0048 frames 42-50, which
+# is 43-51 here (the old bake started at 41, two frames early, and dropped 51).
 # The game used to draw one generic skill animation for every move, which is why
 # the character never seemed to perform the skill being cast.
 CLIPS = [
-    ("mountainBreaker", [176, 232, 236, 206, 207, 208]),
+    ("mountainBreaker", list(range(127, 133)) + [206, 207, 208]),
     ("rageBurst", list(range(76, 84))),
     ("crossSlash", list(range(5, 19)) + list(range(198, 204))),
     ("frenzy", list(range(161, 170))),
-    ("mountainRift", [176, 232, 236, 229, 230, 231]),
+    ("mountainRift", list(range(127, 133)) + [229, 230, 231]),
 ]
 CLIP_ROWS = ("clips", "clips2")
 
@@ -145,10 +148,9 @@ CELLS = {
     # (55-65, the same shape as the first) is skipped, as are the stands.
     "attack": [2, 2, 2, 4, 5, 6, 7] + list(range(10, 19)) + list(range(33, 40)),
     # Generic skill art first (the six frames the renderer plays), then the
-    # up-slash clip that skill alone uses (columns 6-15 are body frames 41-50).
-    # 41 is the settled pose the normal attack's first cut opens on, so the skill
-    # flows out of a press instead of starting on a dead hold frame.
-    "skill": [194, 196, 197, 198, 199, 200] + list(range(41, 51)),
+    # up-slash clip that skill alone uses (columns 6-14 are body frames 43-51:
+    # 上挑 is sm_body0048's 42-50, one frame earlier on that sheet).
+    "skill": [194, 196, 197, 198, 199, 200] + list(range(43, 52)),
     "extras": [100, 102, 232, 236, 240, 241, 101, 103, 233, 237, 238, 239],
 }
 
