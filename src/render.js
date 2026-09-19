@@ -154,19 +154,19 @@
   var EFFECT = {
     cell: 128,
     rowFrames: {
-      upSlash: 4,
+      upSlash: 9,
       mountainBreaker: 6,
       crossSlash: 11,
-      bloodSword: 4,
-      frenzy: 4,
-      bloodyRave: 4,
-      rageBurst: 4,
-      bloodSnatch: 4,
-      graspHead: 4,
-      bloodEvil: 4,
-      mountainRift: 4
+      bloodSword: 27,
+      frenzy: 20,
+      bloodyRave: 17,
+      rageBurst: 13,
+      bloodSnatch: 19,
+      graspHead: 18,
+      bloodEvil: 15,
+      mountainRift: 20
     },
-    maxFrames: 11,
+    maxFrames: 27,
     draw: {
       upSlash: { dx: 34, dy: -56, size: 156, copies: 1, spin: 0 },
       /* 崩山击 lands on a shockwave that covers half the arena. */

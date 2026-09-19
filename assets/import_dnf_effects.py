@@ -75,13 +75,27 @@ FRAMES = 4
 CELL = 128
 PADDING = 6
 
-# Moves the owner picked pack by pack (see assets/dnf_effect_picks.md) ship
-# their whole frame sequence instead of the four-frame sample: a six or eleven
-# frame slash reads as the move, four evenly spaced stills do not. Everything
-# else keeps the sampled row.
+# Moves the owner picked pack by pack (see assets/dnf_effect_picks.md) ship the
+# move's real frames instead of a four-frame sample. A row is built from one or
+# more client entries:
+#   "stack"    - the layers play together (a whole pack, or the two layers of one
+#                buff), which is what the owner watched and recognised
+#   "sequence" - the layers play one after another (a sword that is then spent)
+# "*" means every entry of that pack, in file order, as the game draws them.
 PICKS = {
-    "mountainBreaker": ("sprite_character_swordman_effect_hopsmash.NPK", "b_bottom_01_d.img"),
-    "crossSlash": ("sprite_character_swordman_effect_gorecross.NPK", "gorecross_cross.img"),
+    "upSlash": {"stack": [("", "upperslash.img")]},
+    "mountainBreaker": {"stack": [("_hopsmash", "b_bottom_01_d.img")]},
+    "crossSlash": {"stack": [("_gorecross", "gorecross_cross.img")]},
+    # 血气之刃: the blood sword is thrust, then it bursts.
+    "bloodSword": {"sequence": [("_bloodsword", "sword_normal.img"), ("_bloodsword", "exp_dodge.img")]},
+    # 血之狂暴: the dual-blade glow plus the orbs drained out of a monster.
+    "frenzy": {"stack": [("_frenzy", "blood-energy.img"), ("_frenzy", "blood-stone-0.img")]},
+    "bloodyRave": {"stack": [("_bloodyrave", "*")]},
+    "rageBurst": {"stack": [("_blastblood", "*")]},
+    "bloodSnatch": {"stack": [("_bloodsnatch", "*")]},
+    "graspHead": {"stack": [("_grabblastblood", "*")]},
+    "bloodEvil": {"stack": [("_bloodriven", "*")]},
+    "mountainRift": {"stack": [("_outragebreak", "*")]},
 }
 
 
@@ -196,45 +210,32 @@ def densest_run(frames: list[Image.Image], visible: list[int], count: int) -> li
     return best
 
 
-def bake_row(img, row: int, sheet: Image.Image, every_frame: bool = False) -> int:
-    """Draw one skill row; returns how many frames it carries."""
-    built = [
-        key_black_background(img.build(image).convert("RGBA"))
-        for image in img.images
-    ]
-    # Never bake a fully blank frame: an empty cell costs a quarter of a sample
-    # row and renders as a flicker.
-    visible = [index for index, frame in enumerate(built) if frame.getbbox()]
-    if every_frame:
-        indices = visible
-    else:
-        indices = visible if len(visible) <= FRAMES else densest_run(built, visible, FRAMES)
-    frames = [(index, built[index]) for index in indices]
-
-    # Crop to the pixels that exist instead of the img's empty canvas, so a
-    # 40px spark does not end up floating in the middle of a 128px cell.
-    union = None
-    for index, frame in frames:
-        box = frame.getbbox()
-        if box is None:
-            continue
-        entry = img.images[index]
-        placed = (entry.x + box[0], entry.y + box[1], entry.x + box[2], entry.y + box[3])
-        union = placed if union is None else (
-            min(union[0], placed[0]),
-            min(union[1], placed[1]),
-            max(union[2], placed[2]),
-            max(union[3], placed[3])
-        )
-    if union is None:
+def bake_frames(frames, row: int, sheet: Image.Image) -> int:
+    """Draw one skill row from already-composited frames."""
+    while frames and not frames[0].getbbox():
+        frames.pop(0)
+    while frames and not frames[-1].getbbox():
+        frames.pop()
+    if not frames:
         print(f"  row {row}: nothing drawn, skipping")
         return 0
 
+    union = None
+    for frame in frames:
+        box = frame.getbbox()
+        if box is None:
+            continue
+        union = box if union is None else (
+            min(union[0], box[0]),
+            min(union[1], box[1]),
+            max(union[2], box[2]),
+            max(union[3], box[3]),
+        )
     window = (
         union[0] - PADDING,
         union[1] - PADDING,
         union[2] + PADDING,
-        union[3] + PADDING
+        union[3] + PADDING,
     )
     span_w = window[2] - window[0]
     span_h = window[3] - window[1]
@@ -244,14 +245,91 @@ def bake_row(img, row: int, sheet: Image.Image, every_frame: bool = False) -> in
     offset_x = (CELL - placed_w) // 2
     offset_y = (CELL - placed_h) // 2
 
-    for column, (index, frame) in enumerate(frames):
+    for column, frame in enumerate(frames):
         layer = Image.new("RGBA", (span_w, span_h), (0, 0, 0, 0))
-        layer.alpha_composite(frame, (img.images[index].x - window[0], img.images[index].y - window[1]))
+        layer.alpha_composite(frame, (-window[0], -window[1]))
         layer = layer.resize((placed_w, placed_h), Image.LANCZOS)
         sheet.alpha_composite(layer, (column * CELL + offset_x, row * CELL + offset_y))
 
-    print(f"  row {row}: {len(frames)} frames of {len(img.images)} (indices {indices})")
     return len(frames)
+
+
+def decode_frames(img):
+    """[(picture, x, y)] for one img, with the black backdrop keyed out."""
+    out = []
+    for index, image in enumerate(img.images):
+        try:
+            picture = key_black_background(img.build(image).convert("RGBA"))
+        except Exception:
+            continue
+        out.append((picture, getattr(image, "x", 0), getattr(image, "y", 0)))
+    return out
+
+
+def pack_entries(client: Path, pack: str):
+    """[(name, img)] for every entry of one effect pack ('' = the base pack)."""
+    from pydnfex.npk import NPK
+    from pydnfex.img.version import IMGFactory
+
+    path = client / "ImagePacks2" / f"sprite_character_swordman_effect{pack}.NPK"
+    if not path.exists():
+        return
+    with open(path, "rb") as handle:
+        npk = NPK.open(handle)
+        for entry in npk.files:
+            name = entry.name.replace("\\", "/").split("/")[-1]
+            try:
+                yield name, IMGFactory.open(io.BytesIO(entry.data))
+            except Exception:
+                continue
+
+
+def pick_frames(client: Path, mode: str, entries) -> list:
+    """Composite/concatenate the client entries a row is made of."""
+    layers = []
+    for pack, entry in entries:
+        if entry == "*":
+            for _name, img in pack_entries(client, pack):
+                decoded = decode_frames(img)
+                if decoded:
+                    layers.append(decoded)
+            continue
+        found = dict(pack_entries(client, pack)).get(entry)
+        if found is None:
+            print(f"  missing {pack}/{entry}", file=sys.stderr)
+            continue
+        decoded = decode_frames(found)
+        if decoded:
+            layers.append(decoded)
+    if not layers:
+        return []
+    if mode == "sequence":
+        frames = []
+        for layer in layers:
+            frames.extend(picture for picture, _x, _y in layer)
+        return frames
+    length = max(len(layer) for layer in layers)
+    frames = []
+    for index in range(length):
+        parts = [layer[min(index, len(layer) - 1)] for layer in layers]
+        left = min(x for _p, x, _y in parts)
+        top = min(y for _p, _x, y in parts)
+        right = max(x + p.width for p, x, _y in parts)
+        bottom = max(y + p.height for p, _x, y in parts)
+        canvas = Image.new("RGBA", (right - left, bottom - top), (0, 0, 0, 0))
+        for picture, x, y in parts:
+            canvas.alpha_composite(picture, (x - left, y - top))
+        frames.append(canvas)
+    return frames
+
+
+def sampled_row(frames, count: int = FRAMES) -> list:
+    """Four evenly spaced frames of an ordinary effect, skipping blank ones."""
+    visible = [frame for frame in frames if frame.getbbox()]
+    if len(visible) <= count:
+        return visible
+    step = (len(visible) - 1) / (count - 1)
+    return [visible[round(index * step)] for index in range(count)]
 
 
 def main() -> None:
@@ -260,25 +338,27 @@ def main() -> None:
                         help="installed DNF client (ImagePacks2 lives inside it)")
     args = parser.parse_args()
 
-    # Rows can be different lengths now, so the sheet is as wide as its longest
-    # row and the shorter ones simply leave the rest of the row blank.
-    columns = FRAMES
-    for skill, npk_name, entry, url in EFFECTS:
-        if skill not in PICKS:
-            continue
-        picked = PICKS[skill]
-        path = source(args, picked[0], picked[1], url, f"pick_{picked[1]}")
-        columns = max(columns, len(load_img(path).images))
-
-    sheet = Image.new("RGBA", (CELL * columns, CELL * len(EFFECTS)), (0, 0, 0, 0))
-    counts = {}
+    # Build every row first: the picked moves are composited from their client
+    # entries, the rest keep the four-frame sample. Rows can differ in length, so
+    # the sheet ends up as wide as its longest one.
+    rows = {}
     for row, (skill, npk_name, entry, url) in enumerate(EFFECTS):
         print(f"{skill}:")
         if skill in PICKS:
-            npk_name, entry = PICKS[skill]
-        path = source(args, npk_name, entry, url, f"effect_{entry}")
-        img = load_img(path)
-        counts[skill] = bake_row(img, row, sheet, every_frame=skill in PICKS)
+            entries = list(PICKS[skill].get("stack") or PICKS[skill].get("sequence") or [])
+            mode = "sequence" if PICKS[skill].get("sequence") else "stack"
+            frames = pick_frames(args.client, mode, entries)
+            print(f"  picked {mode} of {len(entries)} entrie(s): {len(frames)} frames")
+        else:
+            path = source(args, npk_name, entry, url, f"effect_{entry}")
+            frames = sampled_row(decode_frames(load_img(path)))
+        rows[skill] = frames
+
+    columns = max(FRAMES, max(len(frames) for frames in rows.values()))
+    sheet = Image.new("RGBA", (CELL * columns, CELL * len(EFFECTS)), (0, 0, 0, 0))
+    counts = {}
+    for row, (skill, _npk, _entry, _url) in enumerate(EFFECTS):
+        counts[skill] = bake_frames(rows[skill], row, sheet)
     sheet.save(ROOT / "effects.png")
     print(f"wrote {ROOT / 'effects.png'} ({sheet.width}x{sheet.height})")
     print("row frames: " + ", ".join(f"{skill}={count}" for skill, count in counts.items()))
