@@ -435,9 +435,9 @@ test("崩山击 adds a ground shockwave that reaches past the blade", () => {
    * on the smash at 1.2s. The wave effect only lives 0.4s, so it is checked as
    * it lands rather than at the end of the recovery.
    */
-  Core.runFrames(state, Math.ceil(1.35 * Core.FPS), {});
+  Core.runFrames(state, Math.ceil(1.0 * Core.FPS), {});
   assert.ok(state.effects.some((effect) => effect.kind === "shockwave"));
-  Core.runFrames(state, Math.ceil(1.7 * Core.FPS), {});
+  Core.runFrames(state, Math.ceil(0.6 * Core.FPS), {});
 
   assert.equal(nearHp - near.hp, skill.damage, "blade hit lands once");
   assert.equal(farHp - far.hp, skill.shockwave.damage, "shockwave reaches the second target");
@@ -491,7 +491,7 @@ test("崩山击 knocks the target down and its shockwave does too", () => {
   state.enemies = [near, far];
 
   Core.step(state, { skills: { mountainBreaker: true } });
-  Core.runFrames(state, Math.ceil(1.35 * Core.FPS), {});
+  Core.runFrames(state, Math.ceil(1.0 * Core.FPS), {});
 
   assert.ok(near.knockdown > 0, "the smash should knock the target down");
   assert.ok(far.knockdown > 0, "the ground shockwave should knock the far target down");

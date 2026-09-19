@@ -70,7 +70,7 @@
     skillClips: {
       upSlash: { row: 3, first: 6, frames: 10 },
       /* the raise holds until the smash lands at 40% of the cast */
-      mountainBreaker: { row: 5, first: 0, frames: 33, smashAt: 0.4, smashFrames: 15 },
+      mountainBreaker: { row: 5, first: 0, frames: 33, smashAt: 0.6, smashFrames: 15 },
       rageBurst: { row: 5, first: 33, frames: 8 },
       crossSlash: { row: 6, first: 0, frames: 20 }
     },
@@ -173,7 +173,7 @@
       bloodSword: 27,
       frenzy: 20,
       bloodyRave: 17,
-      rageBurst: 13,
+      rageBurst: 12,
       bloodSnatch: 19,
       graspHead: 18,
       bloodEvil: 15,

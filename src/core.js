@@ -137,15 +137,16 @@
       damage: 22,
       growth: 4,
       /*
-       * 崩山击 is a slow, committed move: DNF's own clip runs the raise, the
-       * forward hop and the landing shockwave over roughly three seconds, so the
-       * whole cast (raise -> leap -> smash -> wave -> recovery) is 3s and the
-       * blade only connects on the landing.
+       * 崩山击 is a committed move - raise, forward hop, landing shockwave,
+       * recovery - but a whole three seconds read as sluggish, so the cast is
+       * 1.5s and the blade connects on the landing at 0.6s.
        */
-      duration: 3,
-      /* seconds: the blade and its ground wave land on the smash at 1.2s */
-      activeFrom: 1.2,
-      activeTo: 1.4,
+      duration: 1.5,
+      /* seconds: the hop starts at 0.375s and lands at ~0.85s, so the blade and
+         its ground wave connect at 0.9s - while he is still in the air the box
+         sits above the enemies and nothing lands. */
+      activeFrom: 0.9,
+      activeTo: 1.0,
       reach: 96,
       heightPad: 18,
       knockbackX: 240,

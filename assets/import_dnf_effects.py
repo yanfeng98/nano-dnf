@@ -91,7 +91,17 @@ PICKS = {
     # 血之狂暴: the dual-blade glow plus the orbs drained out of a monster.
     "frenzy": {"stack": [("_frenzy", "blood-energy.img"), ("_frenzy", "blood-stone-0.img")]},
     "bloodyRave": {"stack": [("_bloodyrave", "*")]},
-    "rageBurst": {"stack": [("_blastblood", "*")]},
+    # 怒气爆发: the pack's ground ring, the blood pillar and the hit flash.
+    # Stacking the whole pack shrank everything - one layer is 355x387, so the
+    # composite had to scale down to fit and the blood read as a smudge.
+    "rageBurst": {"stack": [
+        ("_blastblood", "blood_floor_front.img"),
+        ("_blastblood", "blood_floor_back.img"),
+        ("_blastblood", "bloodred.img"),
+        ("_blastblood", "blood.img"),
+        ("_blastblood", "blastbloodhit.img"),
+        ("_blastblood", "blood-front.img"),
+    ]},
     "bloodSnatch": {"stack": [("_bloodsnatch", "*")]},
     "graspHead": {"stack": [("_grabblastblood", "*")]},
     "bloodEvil": {"stack": [("_bloodriven", "*")]},
@@ -311,7 +321,10 @@ def pick_frames(client: Path, mode: str, entries) -> list:
     length = max(len(layer) for layer in layers)
     frames = []
     for index in range(length):
-        parts = [layer[min(index, len(layer) - 1)] for layer in layers]
+        # Loop the shorter layers instead of freezing them on their last pose:
+        # a six-frame layer inside a thirteen-frame composite otherwise sat still
+        # for more than half the effect.
+        parts = [layer[index % len(layer)] for layer in layers]
         left = min(x for _p, x, _y in parts)
         top = min(y for _p, _x, y in parts)
         right = max(x + p.width for p, x, _y in parts)
