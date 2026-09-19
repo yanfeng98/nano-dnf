@@ -29,8 +29,11 @@ actually drawn before it is scaled into its cell.
     pip install pydnfex pillow
     python3 assets/import_dnf_effects.py [--client /mnt/c/dnf/地下城与勇士]
 
-Writes assets/effects.png: one row per SKILL_ORDER entry, four 128x128 frames.
-As with the sprite sheet, DNF artwork belongs to Neople/Nexon.
+Writes assets/effects.png: one row per SKILL_ORDER entry of 128x128 frames. A
+row is four frames by default; the moves in PICKS (the owner's per-pack picks,
+see assets/dnf_effect_picks.md) ship every frame their effect has, and the sheet
+is as wide as its longest row. As with the sprite sheet, DNF artwork belongs to
+Neople/Nexon.
 """
 
 from __future__ import annotations
@@ -71,6 +74,15 @@ EFFECTS = [
 FRAMES = 4
 CELL = 128
 PADDING = 6
+
+# Moves the owner picked pack by pack (see assets/dnf_effect_picks.md) ship
+# their whole frame sequence instead of the four-frame sample: a six or eleven
+# frame slash reads as the move, four evenly spaced stills do not. Everything
+# else keeps the sampled row.
+PICKS = {
+    "mountainBreaker": ("sprite_character_swordman_effect_hopsmash.NPK", "b_bottom_01_d.img"),
+    "crossSlash": ("sprite_character_swordman_effect_gorecross.NPK", "gorecross_cross.img"),
+}
 
 
 def key_black_background(image: Image.Image, low: int = 26, soft: int = 48) -> Image.Image:
@@ -172,12 +184,31 @@ def active_window(frames: list[Image.Image], count: int) -> list[int]:
     return list(range(best, best + count))
 
 
-def bake_row(img, row: int, sheet: Image.Image) -> None:
+def densest_run(frames: list[Image.Image], visible: list[int], count: int) -> list[int]:
+    """The densest `count` frames that all have something to draw."""
+    areas = {index: drawn_area(frames[index]) for index in visible}
+    best, best_score = visible[:count], None
+    for start in range(len(visible) - count + 1):
+        run = visible[start:start + count]
+        score = sum(areas[index] for index in run)
+        if best_score is None or score > best_score:
+            best, best_score = run, score
+    return best
+
+
+def bake_row(img, row: int, sheet: Image.Image, every_frame: bool = False) -> int:
+    """Draw one skill row; returns how many frames it carries."""
     built = [
         key_black_background(img.build(image).convert("RGBA"))
         for image in img.images
     ]
-    indices = active_window(built, FRAMES)
+    # Never bake a fully blank frame: an empty cell costs a quarter of a sample
+    # row and renders as a flicker.
+    visible = [index for index, frame in enumerate(built) if frame.getbbox()]
+    if every_frame:
+        indices = visible
+    else:
+        indices = visible if len(visible) <= FRAMES else densest_run(built, visible, FRAMES)
     frames = [(index, built[index]) for index in indices]
 
     # Crop to the pixels that exist instead of the img's empty canvas, so a
@@ -197,7 +228,7 @@ def bake_row(img, row: int, sheet: Image.Image) -> None:
         )
     if union is None:
         print(f"  row {row}: nothing drawn, skipping")
-        return
+        return 0
 
     window = (
         union[0] - PADDING,
@@ -220,6 +251,7 @@ def bake_row(img, row: int, sheet: Image.Image) -> None:
         sheet.alpha_composite(layer, (column * CELL + offset_x, row * CELL + offset_y))
 
     print(f"  row {row}: {len(frames)} frames of {len(img.images)} (indices {indices})")
+    return len(frames)
 
 
 def main() -> None:
@@ -228,18 +260,38 @@ def main() -> None:
                         help="installed DNF client (ImagePacks2 lives inside it)")
     args = parser.parse_args()
 
-    sheet = Image.new("RGBA", (CELL * FRAMES, CELL * len(EFFECTS)), (0, 0, 0, 0))
+    # Rows can be different lengths now, so the sheet is as wide as its longest
+    # row and the shorter ones simply leave the rest of the row blank.
+    columns = FRAMES
+    for skill, npk_name, entry, url in EFFECTS:
+        if skill not in PICKS:
+            continue
+        picked = PICKS[skill]
+        path = source(args, picked[0], picked[1], url, f"pick_{picked[1]}")
+        columns = max(columns, len(load_img(path).images))
+
+    sheet = Image.new("RGBA", (CELL * columns, CELL * len(EFFECTS)), (0, 0, 0, 0))
+    counts = {}
     for row, (skill, npk_name, entry, url) in enumerate(EFFECTS):
         print(f"{skill}:")
-        path = None
-        if args.client.exists():
-            path = from_client(args.client, npk_name, entry, f"effect_{entry}")
-        if path is None:
-            path = fetch(f"effect_{entry}", url)
+        if skill in PICKS:
+            npk_name, entry = PICKS[skill]
+        path = source(args, npk_name, entry, url, f"effect_{entry}")
         img = load_img(path)
-        bake_row(img, row, sheet)
+        counts[skill] = bake_row(img, row, sheet, every_frame=skill in PICKS)
     sheet.save(ROOT / "effects.png")
     print(f"wrote {ROOT / 'effects.png'} ({sheet.width}x{sheet.height})")
+    print("row frames: " + ", ".join(f"{skill}={count}" for skill, count in counts.items()))
+
+
+def source(args, npk_name: str, entry: str, url: str, cache_name: str) -> Path:
+    """Read one entry out of the installed client, falling back to the mirror."""
+    path = None
+    if args.client.exists():
+        path = from_client(args.client, npk_name, entry, cache_name)
+    if path is None:
+        path = fetch(cache_name, url)
+    return path
 
 
 if __name__ == "__main__":

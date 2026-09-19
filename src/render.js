@@ -145,14 +145,34 @@
     return null;
   }
 
-  /* assets/effects.png: one row per skill (SKILL_ORDER) x four 128x128 frames. */
+  /*
+   * assets/effects.png: one row per skill (SKILL_ORDER) of EFFECT.cell square
+   * frames. A row is as long as the move's own effect: the picks the owner made
+   * ship their whole sequence (崩山击 six frames, 十字斩 eleven), the rest keep
+   * the four-frame sample, and the sheet is as wide as its longest row.
+   */
   var EFFECT = {
     cell: 128,
-    frames: 4,
+    rowFrames: {
+      upSlash: 4,
+      mountainBreaker: 6,
+      crossSlash: 11,
+      bloodSword: 4,
+      frenzy: 4,
+      bloodyRave: 4,
+      rageBurst: 4,
+      bloodSnatch: 4,
+      graspHead: 4,
+      bloodEvil: 4,
+      mountainRift: 4
+    },
+    maxFrames: 11,
     draw: {
       upSlash: { dx: 34, dy: -56, size: 156, copies: 1, spin: 0 },
       mountainBreaker: { dx: 72, dy: -30, size: 190, copies: 1, spin: 0 },
-      crossSlash: { dx: 58, dy: -38, size: 164, copies: 2, spin: 0.785 },
+      /* 十字斩's own art draws the cross (a horizontal stroke, then the
+         vertical one landing on it), so it is no longer mirrored into one. */
+      crossSlash: { dx: 58, dy: -38, size: 176, copies: 1, spin: 0 },
       bloodSword: { dx: 30, dy: -32, size: 182, copies: 1, spin: 0 },
       frenzy: { dx: 52, dy: -40, size: 150, copies: 1, spin: 0 },
       bloodyRave: { dx: 52, dy: -46, size: 170, copies: 1, spin: 0 },
@@ -190,9 +210,10 @@
     var to = Math.min(0.98, (spec.activeTo + 0.12) / spec.duration);
     if (progress < from || progress > to) return null;
     var local = Math.min(1, (progress - from) / Math.max(0.0001, to - from));
+    var frames = EFFECT.rowFrames[skillId] || 4;
     return {
       row: row,
-      col: Math.min(EFFECT.frames - 1, Math.floor(local * EFFECT.frames)),
+      col: Math.min(frames - 1, Math.floor(local * frames)),
       alpha: 1 - Math.max(0, (local - 0.75) / 0.25) * 0.7
     };
   }

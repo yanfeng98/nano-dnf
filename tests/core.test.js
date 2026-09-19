@@ -82,8 +82,9 @@ function decodeRgbaPng(file) {
 }
 
 /** Alpha bounding box of one cell, or null when the cell is empty. */
-function cellAlphaBox(sheet, col, row) {
-  const { frameW, frameH } = Render.SPRITE;
+function cellAlphaBox(sheet, col, row, cellW, cellH) {
+  const frameW = cellW || Render.SPRITE.frameW;
+  const frameH = cellH || Render.SPRITE.frameH;
   let x0 = frameW;
   let y0 = frameH;
   let x1 = -1;
@@ -1248,13 +1249,34 @@ test("the swordman bake caches each source layer, so a new katana actually ships
 test("the shipped DNF effect sheet matches the renderer grid", () => {
   const buffer = fs.readFileSync(path.join(__dirname, "..", "assets", "effects.png"));
   assert.equal(buffer.subarray(1, 4).toString("ascii"), "PNG");
-  assert.equal(buffer.readUInt32BE(16), Render.EFFECT.cell * Render.EFFECT.frames);
+  assert.equal(buffer.readUInt32BE(16), Render.EFFECT.cell * Render.EFFECT.maxFrames);
   assert.equal(
     buffer.readUInt32BE(20),
     Render.EFFECT.cell * Core.SKILL_ORDER.length,
     "one baked effect row per skill"
   );
-  assert.equal(Render.EFFECT.frames, 4);
+  /*
+   * Each row carries its own frame count: the picked moves ship their whole
+   * sequence, everything else the four-frame sample. Read the sheet back and
+   * count the drawn columns per row, so a stale atlas cannot pass.
+   */
+  const sheet = decodeRgbaPng(path.join(__dirname, "..", "assets", "effects.png"));
+  Core.SKILL_ORDER.forEach((skillId, row) => {
+    const declared = Render.EFFECT.rowFrames[skillId];
+    assert.ok(declared > 0, `${skillId} needs a row length`);
+    const drawn = [];
+    for (let column = 0; column < Render.EFFECT.maxFrames; column += 1) {
+      if (cellAlphaBox(sheet, column, row, Render.EFFECT.cell, Render.EFFECT.cell)) drawn.push(column);
+    }
+    assert.equal(
+      drawn.length,
+      declared,
+      `${skillId} should bake ${declared} frame(s), found ${drawn.length}`
+    );
+    assert.deepEqual(drawn, drawn.map((_, index) => index), `${skillId} frames must be packed from column 0`);
+  });
+  assert.equal(Render.EFFECT.rowFrames.mountainBreaker, 6, "崩山击 ships its six-frame ground slash");
+  assert.equal(Render.EFFECT.rowFrames.crossSlash, 11, "十字斩 ships its eleven-frame cross");
   Core.SKILL_ORDER.forEach((skillId) => {
     assert.ok(Render.EFFECT.draw[skillId], `${skillId} needs an effect mapping`);
   });
@@ -1267,7 +1289,7 @@ test("each skill picks a DNF effect row across the cast", () => {
     const frame = Render.skillEffectFrame(skillId, mid);
     assert.ok(frame, `${skillId} should draw an effect mid-cast`);
     assert.equal(frame.row, row, `${skillId} owns its atlas row`);
-    assert.ok(frame.col >= 0 && frame.col < Render.EFFECT.frames);
+    assert.ok(frame.col >= 0 && frame.col < Render.EFFECT.rowFrames[skillId]);
     assert.equal(Render.skillEffectFrame(skillId, 0), null, `${skillId} draws nothing on frame 0`);
     assert.equal(Render.skillEffectFrame(skillId, 1), null, `${skillId} stops after the cast`);
   });
