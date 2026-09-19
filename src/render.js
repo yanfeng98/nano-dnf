@@ -88,7 +88,13 @@
       rageBurst: { row: 5, first: 7, frames: 8 },
       crossSlash: { row: 5, first: 15, frames: 20 },
       /* 血之狂暴: body action 22, the stand that flings both arms out. */
-      frenzy: { row: 6, first: 0, frames: 9 }
+      frenzy: { row: 6, first: 0, frames: 9 },
+      /*
+       * 大蹦: body action 29 - sword overhead, the sweep down, the low finish.
+       * It used to draw the generic skill row, and that crescent slam reads as
+       * 崩山击's smash, which is what the owner saw.
+       */
+      mountainRift: { row: 6, first: 9, frames: 11 }
     },
     extras: { hurt: 0, dead: 1, jump: 2, fall: 3 }
   };

@@ -52,17 +52,23 @@ ROWS = ["idle", "run", "attack", "skill", "extras", "clips", "clips2"]
 # skill's own client clip. Only the picked frames go in: widening them to their
 # neighbours made the move look like it was doing extra swings it never had.
 # The renderer paces the frames per beat instead (see src/render.js skillClips).
-#   崩山击   action 17 (4 frames) + the last three frames of action 26
-#   怒气爆发 action 10 (8 frames)
-#   十字斩   action 1 (14 frames) + action 25 (6 frames)
-#   血之狂暴 action 22 (9 frames) - the stand that flings both arms out
+#   崩山击     the crouch out of action 17 + action 26's raise (203-205) and
+#              smash (206-208). Action 17's other three frames are him standing
+#              back up, which read as a second wind-up before the smash.
+#   怒气爆发   action 10 (8 frames)
+#   十字斩     action 1 (14 frames) + action 25 (6 frames)
+#   血之狂暴   action 22 (9 frames) - the stand that flings both arms out
+#   崩山裂地斩 action 29 (11 frames) - sword overhead, the sweep down, the low
+#              finish. 大蹦 used to fall back on the generic skill row, which is
+#              a crescent slam, so it looked like 崩山击's smash.
 # The game used to draw one generic skill animation for every move, which is why
 # the character never seemed to perform the skill being cast.
 CLIPS = [
-    ("mountainBreaker", [128, 129, 130, 131, 206, 207, 208]),
+    ("mountainBreaker", [128, 203, 204, 205, 206, 207, 208]),
     ("rageBurst", list(range(76, 84))),
     ("crossSlash", list(range(5, 19)) + list(range(198, 204))),
     ("frenzy", list(range(161, 170))),
+    ("mountainRift", list(range(227, 238))),
 ]
 CLIP_ROWS = ("clips", "clips2")
 

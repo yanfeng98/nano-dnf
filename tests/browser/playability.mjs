@@ -537,13 +537,26 @@ async function runPass(browser, baseUrl, options) {
   const attackChain = await page.evaluate(() => {
     const stages = window.DNFCore.ATTACK_STAGES;
     const upSlash = window.DNFRender.SPRITE.skillClips.upSlash;
+    /*
+     * The four presses are the client's own actions, so they do not tile the
+     * row: the stands the client leaves between hits (16-17, 27-28) are never
+     * played. Walk every press at its start and its end and report the columns
+     * the renderer can actually reach.
+     */
+    const played = [];
+    stages.forEach((stage, press) => {
+      [0, 1].forEach((step) => {
+        played.push(window.DNFRender.attackColumn(step, press));
+      });
+    });
     return {
       stages: stages.length,
       maxCombo: window.DNFCore.PLAYER.maxCombo,
-      coverage: stages[stages.length - 1].first + stages[stages.length - 1].frames,
-      firstColumn: window.DNFRender.attackColumn(0, 0),
-      secondColumn: window.DNFRender.attackColumn(0, 1),
-      lastColumn: window.DNFRender.attackColumn(1, stages.length - 1),
+      played,
+      skippedStands: [16, 17, 27, 28].filter((column) => played.includes(column)).length,
+      firstColumn: played[0],
+      secondColumn: played[2],
+      lastColumn: played[played.length - 1],
       upSlashColumns: upSlash ? upSlash.frames : 0
     };
   });
@@ -1381,14 +1394,21 @@ function problemsFor(pass) {
   if (!chain || chain.stages !== 4 || chain.maxCombo !== 4) {
     problems.push(`${pass.mode}: the shipped normal attack is not the four-cut chain`);
   } else {
-    if (chain.coverage !== 42) {
-      problems.push(`${pass.mode}: the cuts cover ${chain.coverage} frames, not the real 42`);
+    if (chain.firstColumn !== 1) {
+      problems.push(
+        `${pass.mode}: the chain opens on frame ${chain.firstColumn}, not the cut's own first frame`
+      );
     }
-    if (chain.firstColumn !== 0 || chain.secondColumn <= chain.firstColumn) {
+    if (chain.secondColumn <= chain.firstColumn) {
       problems.push(`${pass.mode}: pressing X does not walk to the next stage`);
     }
-    if (chain.lastColumn !== 41) {
-      problems.push(`${pass.mode}: the last press ends on frame ${chain.lastColumn}, not 41`);
+    if (chain.skippedStands !== 0) {
+      problems.push(
+        `${pass.mode}: the cuts play ${chain.skippedStands} of the client's standing frames`
+      );
+    }
+    if (chain.lastColumn !== 39) {
+      problems.push(`${pass.mode}: the last press ends on frame ${chain.lastColumn}, not 39`);
     }
     if (chain.upSlashColumns !== 10) {
       problems.push(

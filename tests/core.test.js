@@ -1148,30 +1148,114 @@ test("one press plays one stage of the normal attack, and attack speed sets the 
   assert.equal(Render.SPRITE.frames.attack, 42, "the attack row carries the four cuts (0-41)");
 
   /*
-   * The stages tile the clip: no frame is skipped and none plays twice, so
-   * mashing X runs the client's normal attack in order. Frames 40-50 belong to
-   * the up-slash skill and 51-60 repeat that cycle, so the row stops at 41.
+   * One press is one of the client's own actions, and the chain skips the
+   * stands between them. The bodies of the four cuts are actions 0, 1, 3 and 5
+   * of the body sheet (1-8, 8-15, 18-26, 29-39); actions 2 (15-18) and 4
+   * (26-29) are the stands the client puts between hits. Reading the chain as
+   * four even windows instead spliced every press across two actions - press
+   * one ended on the second cut's wind-up and press two began with it - so the
+   * sword visibly swept back twice in a row.
    */
-  let next = 0;
+  const actions = [
+    { first: 1, frames: 8 },
+    { first: 8, frames: 8 },
+    { first: 18, frames: 9 },
+    { first: 29, frames: 11 }
+  ];
   stages.forEach((stage, index) => {
-    assert.equal(stage.first, next, `stage ${index} starts where the last one ended`);
-    assert.ok(stage.frames > 0, `stage ${index} has frames`);
+    assert.deepEqual(
+      { first: stage.first, frames: stage.frames },
+      actions[index],
+      `stage ${index} must be the client's own action`
+    );
     assert.equal(stage.damage, Core.PLAYER.comboDamage[index]);
-    next = stage.first + stage.frames;
   });
-  assert.equal(next, Render.SPRITE.frames.attack, "the stages cover the whole attack");
-  assert.equal(next, 42, "the four cuts end where the up-slash animation starts");
+  assert.equal(stages.length, actions.length, "one stage per cut");
 
-  /* A press shows its own stage, from that stage's first frame to its last. */
-  assert.equal(Render.attackColumn(0, 0), 0, "the first press starts on the guard");
-  assert.equal(Render.attackColumn(1, 0), stages[0].frames - 1);
+  /*
+   * Nothing the renderer can reach may land in a filler stand, and no press may
+   * cross from one action into the next: both are what made a single press read
+   * as two sword flicks.
+   */
+  /* The client's stands sit between the actions and share their edge frames. */
+  const filler = [[16, 17], [27, 28]];
+  for (let press = 0; press < stages.length; press += 1) {
+    const stage = stages[press];
+    for (let step = 0; step <= 40; step += 1) {
+      const column = Render.attackColumn(step / 40, press);
+      assert.ok(
+        column >= stage.first && column < stage.first + stage.frames,
+        `press ${press} stays inside its action (column ${column})`
+      );
+      filler.forEach(([from, to]) => {
+        assert.ok(
+          column < from || column >= to,
+          `press ${press} never plays the stand at ${from}-${to} (column ${column})`
+        );
+      });
+    }
+  }
+
+  /* A press shows its own action, from that action's first frame to its last. */
+  assert.equal(Render.attackColumn(0, 0), 1, "the first press starts on the cut's wind-up");
+  assert.equal(Render.attackColumn(1, 0), stages[0].first + stages[0].frames - 1);
   assert.equal(Render.attackColumn(0, 1), stages[1].first, "the second press is its own swing");
   assert.equal(
     Render.attackColumn(1, stages.length - 1),
-    41,
+    39,
     "the last press ends on the last real attack frame"
   );
-  assert.equal(Render.attackColumn(0, stages.length), 0, "the chain wraps back to the guard");
+  assert.equal(
+    Render.attackColumn(0, stages.length),
+    1,
+    "the chain wraps back to the first cut"
+  );
+
+  /*
+   * 崩山击 has to read as one wind-up and one smash. The clip is the crouch out
+   * of action 17 plus action 26's raise and smash; action 17's other three
+   * frames are the Slayer standing back up, and playing them put a second
+   * wind-up in front of the smash (the owner's "多余动作").
+   */
+  const smash = Render.SPRITE.skillClips.mountainBreaker;
+  assert.equal(smash.row, Render.SPRITE.rows.clips);
+  assert.equal(smash.first, 0, "崩山击 opens the first clip row");
+  assert.equal(smash.frames, 7, "four raise frames and three smash frames");
+  const beats = smash.beats.map((beat) => beat.frames);
+  assert.deepEqual(beats, [4, 3], "the raise and the smash are paced separately");
+  assert.equal(
+    beats.reduce((total, count) => total + count, 0),
+    smash.frames,
+    "every baked frame belongs to a beat"
+  );
+
+  /*
+   * 大蹦 is its own move: the owner saw it playing 崩山击's smash. It has its own
+   * action now, and its range is the ultimate's rather than the leap smash's.
+   */
+  const rift = Render.SPRITE.skillClips.mountainRift;
+  assert.ok(rift, "崩山裂地斩 gets a body animation of its own");
+  assert.equal(rift.frames, 11, "body action 29 is eleven frames");
+  assert.notEqual(rift.row, smash.row, "and it is not the row 崩山击 uses");
+  assert.ok(
+    rift.first >= smash.first + smash.frames,
+    "the two clips must not share baked frames"
+  );
+  const riftSkill = Core.SKILLS.mountainRift;
+  const smashSkill = Core.SKILLS.mountainBreaker;
+  assert.ok(
+    riftSkill.reach > smashSkill.reach,
+    `大蹦 reaches further than 崩山击 (${riftSkill.reach} vs ${smashSkill.reach})`
+  );
+  assert.ok(
+    riftSkill.shockwave.reach > smashSkill.shockwave.reach,
+    `and its rift is wider (${riftSkill.shockwave.reach} vs ${smashSkill.shockwave.reach})`
+  );
+  assert.equal(riftSkill.shockwave.reach, 360, "the rift covers a third of the arena");
+  assert.ok(
+    riftSkill.heightPad > smashSkill.heightPad,
+    "the ultimate also hits higher, so a juggled target is caught"
+  );
 
   /*
    * The up-slash skill gets its own body animation from the same region the

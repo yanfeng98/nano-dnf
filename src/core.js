@@ -37,11 +37,23 @@
    * and how soon the next one can start. Frames 40-50 are the up-slash skill's
    * own animation and 51-60 simply repeat that cycle, so neither belongs here.
    */
+  /*
+   * The four cuts of the normal attack, one client action each.
+   *
+   * The body sheet's normal-attack chain is not evenly spaced: the client cuts
+   * it into whole actions and puts filler stands between them (the action sheet
+   * reads 0: 1-8, 1: 8-15, 2: 15-18 stand, 3: 18-26, 4: 26-29 stand,
+   * 5: 29-39). Reading the chain as four even 10-frame windows spliced each press
+   * across two of those actions - press one ended on the second cut's wind-up and
+   * press two started on it - so a press showed the sword sweep back, then sweep
+   * back again, and the stands played as extra motion. The stages are the actions
+   * now; the stands in between are the frames the chain deliberately skips.
+   */
   var ATTACK_STAGES = [
-    { first: 0, frames: 10, damage: 8 },
-    { first: 10, frames: 10, damage: 10 },
-    { first: 20, frames: 10, damage: 11 },
-    { first: 30, frames: 12, damage: 15 }
+    { first: 1, frames: 8, damage: 8 },
+    { first: 8, frames: 8, damage: 10 },
+    { first: 18, frames: 9, damage: 11 },
+    { first: 29, frames: 11, damage: 15 }
   ];
 
   var PLAYER = {
@@ -381,9 +393,15 @@
       duration: 1.05,
       activeFrom: 0.28,
       activeTo: 0.72,
-      reach: 120,
-      heightPad: 22,
-      knockbackX: 260,
+      /*
+       * 大蹦 is the 45-level ultimate: one giant blood sword plus the rift it
+       * opens. The owner's read is that its range has to dwarf 崩山击's single
+       * smash, so both the sword and the ground wave reach much further than
+       * the leap smash does.
+       */
+      reach: 200,
+      heightPad: 36,
+      knockbackX: 300,
       launch: 0,
       radius: 0,
       hits: 2,
@@ -392,11 +410,11 @@
       leapUp: -420,
       knockdown: 1.4,
       shockwave: {
-        reach: 240,
+        reach: 360,
         damage: 18,
         growth: 3,
-        heightPad: 20,
-        knockbackX: 300,
+        heightPad: 30,
+        knockbackX: 340,
         knockdown: 1.4,
         extraWaveFromLevel: 4
       }
