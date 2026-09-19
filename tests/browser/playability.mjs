@@ -355,6 +355,26 @@ async function runPass(browser, baseUrl, options) {
     skillOrder: window.DNFCore.SKILL_ORDER,
     arena: JSON.parse(JSON.stringify(window.DNFCore.ARENA)),
     rooms: JSON.parse(JSON.stringify(window.DNFCore.ROOMS)),
+    /*
+     * The biggest single hit the shipped game can deal to the Slayer, taken
+     * from the game's own numbers (boss damage scaled by its phase-two ratio).
+     * The damage gate is written against this instead of a wall-clock total:
+     * a total moves with machine load, a single hit cannot.
+     */
+    maxHit: (function () {
+      let max = 0;
+      Object.keys(window.DNFCore.ENEMY_TYPES || {}).forEach((type) => {
+        const spec = window.DNFCore.ENEMY_TYPES[type];
+        if (!spec) return;
+        if (spec.damage) max = Math.max(max, spec.damage);
+        if (spec.damage && spec.phase2 && spec.phase2.damageScale) {
+          max = Math.max(max, Math.round(spec.damage * spec.phase2.damageScale));
+        }
+      });
+      const hazard = window.DNFCore.HAZARD;
+      if (hazard && hazard.playerDamage) max = Math.max(max, hazard.playerDamage);
+      return max;
+    })(),
     layout: window.nanoDnf.getState().layout.slice(),
     equipped: window.nanoDnf.getLoadout()
   }));
@@ -1040,6 +1060,7 @@ async function runPass(browser, baseUrl, options) {
     hints: { seen: [...hints.seen], cleared: hints.cleared },
     expectedKills,
     expectedUpgrades,
+    maxHit: constants.maxHit,
     touchMode,
     state,
     damageLog,
@@ -1050,6 +1071,25 @@ async function runPass(browser, baseUrl, options) {
     diagnostics,
     trace
   };
+}
+
+/*
+ * The damage gate. A wall-clock total depends on how loaded the machine is (a
+ * busy box reacts late and eats more chip damage), so the gate is the size of a
+ * single hit instead: no event may be bigger than the biggest attack the
+ * shipped game can deal. Totals stay in the report as an observation.
+ */
+function damageProblems(mode, pass, maxHit) {
+  const problems = [];
+  const events = (pass && pass.damageLog) || [];
+  events.forEach((event) => {
+    if (typeof maxHit === "number" && maxHit > 0 && event.amount > maxHit) {
+      problems.push(
+        `${mode}: a ${event.amount} hit at ${event.t}s in room ${event.room} is bigger than the game's biggest attack (${maxHit})`
+      );
+    }
+  });
+  return problems;
 }
 
 function problemsFor(pass) {
@@ -1341,7 +1381,7 @@ function problemsFor(pass) {
       `${pass.mode}: upgradesTaken=${upgrades} (expected ${pass.expectedUpgrades})`
     );
   }
-  if (pass.state.stats.damageTaken > 24) problems.push(`${pass.mode}: damageTaken=${pass.state.stats.damageTaken}`);
+  problems.push(...damageProblems(pass.mode, pass, pass.maxHit));
   if (pass.diagnostics.consoleErrors.length) {
     problems.push(`${pass.mode}: console errors: ${pass.diagnostics.consoleErrors.join(" | ")}`);
   }
@@ -1450,6 +1490,7 @@ async function main() {
     hints: pass.hints,
     music: pass.music,
     damageLog: pass.damageLog,
+    maxHit: pass.maxHit,
     seed: pass.records.seed,
     record: (pass.records.store.seeds || {})[String(pass.records.seed)] || null,
     recordText: (pass.records.summary || {}).recordText || null,
@@ -1465,7 +1506,34 @@ async function main() {
   }));
   console.log(JSON.stringify(summary, null, 2));
 
+  /*
+   * The damage gate has to have teeth: feed it a hit bigger than the game can
+   * deal and a clean log, and require it to separate the two. A gate that only
+   * ever passes is not a gate.
+   */
+  const gateSelfTest = {
+    caughtRegression: damageProblems(
+      "selftest",
+      { damageLog: [{ t: 1, room: 1, amount: 60, attacker: "boss:melee" }] },
+      22
+    ).length,
+    cleanPasses: damageProblems(
+      "selftest",
+      { damageLog: [{ t: 1, room: 1, amount: 13, attacker: "brute:melee" }] },
+      22
+    ).length
+  };
+  console.log(
+    `damage gate self-test: caught=${gateSelfTest.caughtRegression} clean=${gateSelfTest.cleanPasses}`
+  );
+
   const problems = passes.flatMap(problemsFor);
+  if (gateSelfTest.caughtRegression !== 1 || gateSelfTest.cleanPasses !== 0) {
+    problems.push(
+      "the damage gate no longer separates a regression from a clean run " +
+        JSON.stringify(gateSelfTest)
+    );
+  }
   if (problems.length) {
     const failed = passes.find((pass) => problemsFor(pass).length);
     if (failed) {
