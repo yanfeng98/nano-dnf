@@ -45,11 +45,11 @@
    */
   var SPRITE = {
     frameW: 208,
-    frameH: 144,
+    frameH: 176,
     cols: 42,
     anchorX: 88,
-    anchorY: 124,
-    rows: { idle: 0, run: 1, attack: 2, skill: 3, extras: 4 },
+    anchorY: 156,
+    rows: { idle: 0, run: 1, attack: 2, skill: 3, extras: 4, clips: 5 },
     /* Frames the renderer actually plays per row; the rest of the row is spare art.
        The stand is a four-frame breath off the client's "still" frames, the attack
        is the whole normal-attack chain (see Core.ATTACK_STAGES). */
@@ -60,7 +60,19 @@
        and a test pins the clip to the end of the generic frames. The clip is
        the client's body frames 41-50: it opens on the settled pose the normal
        attack already ends on and cuts on 44-45. */
-    skillClips: { upSlash: { first: 6, frames: 10 } },
+    /*
+     * Per-move body animations. Every skill used to draw the generic skill row,
+     * which is why the Slayer never looked like he was performing the move; the
+     * owner picked these off the body sheet beside each skill's own client clip
+     * (assets/dnf_effect_picks.md), and assets/import_dnf_swordman.py CLIPS bakes
+     * them into the clips row in this order.
+     */
+    skillClips: {
+      upSlash: { row: 3, first: 6, frames: 10 },
+      mountainBreaker: { row: 5, first: 0, frames: 7 },
+      crossSlash: { row: 5, first: 7, frames: 20 },
+      rageBurst: { row: 5, first: 27, frames: 8 }
+    },
     extras: { hurt: 0, dead: 1, jump: 2, fall: 3 }
   };
 
@@ -472,11 +484,18 @@
       var skill = Core.SKILLS[player.skillId];
       var progress = skill ? 1 - player.skillTimer / skill.duration : 0;
       var clip = SPRITE.skillClips[player.skillId];
-      var skillFrames = clip ? clip.frames : SPRITE.frames.skill;
+      if (clip && clip.row !== undefined) {
+        return {
+          row: clip.row,
+          col:
+            clip.first +
+            Math.min(clip.frames - 1, Math.floor(clamp01(progress) * clip.frames))
+        };
+      }
+      var skillFrames = SPRITE.frames.skill;
       return {
         row: rows.skill,
         col:
-          (clip ? clip.first : 0) +
           Math.min(skillFrames - 1, Math.floor(clamp01(progress) * skillFrames))
       };
     }

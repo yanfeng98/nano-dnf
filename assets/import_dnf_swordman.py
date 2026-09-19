@@ -42,11 +42,24 @@ DEFAULT_CLIENT = pathlib.Path("/mnt/c/dnf/地下城与勇士")
 # The anchor stays the character's ground point, which is what keeps every row,
 # and both facings, lined up on the same spot.
 FRAME_W = 208
-FRAME_H = 144
+FRAME_H = 176
 COLS = 42
 ANCHOR_X = 88
-ANCHOR_Y = 124
-ROWS = ["idle", "run", "attack", "skill", "extras"]
+ANCHOR_Y = 156
+ROWS = ["idle", "run", "attack", "skill", "extras", "clips"]
+
+# Per-move body animations, picked by the owner off the body sheet next to each
+# skill's own client clip:
+#   崩山击   action 17 (4 frames) + the last three frames of action 26
+#   十字斩   action 1 (14 frames) + action 25 (6 frames)
+#   怒气爆发 action 10 (8 frames)
+# The game used to draw one generic skill animation for every move, which is why
+# the character never seemed to perform the skill being cast.
+CLIPS = [
+    ("mountainBreaker", [128, 129, 130, 131, 206, 207, 208]),
+    ("crossSlash", list(range(5, 19)) + list(range(198, 204))),
+    ("rageBurst", list(range(76, 84))),
+]
 
 # DNF frame coordinate space of the swordman body: idle frames put the feet at
 # y=341 and the body centre at x=242. Everything maps through this point.
@@ -315,6 +328,19 @@ def build(client: pathlib.Path, force: bool) -> Image.Image:
     overlay_frames = [(decoder.frames(key), ref, max_w, max_h) for key, ref, max_w, max_h in OVERLAYS]
     sheet = Image.new("RGBA", (FRAME_W * COLS, FRAME_H * len(ROWS)), (0, 0, 0, 0))
     for row, name in enumerate(ROWS):
+        if name == "clips":
+            column = 0
+            for _skill, indices in CLIPS:
+                for index in indices:
+                    if column >= COLS:
+                        break
+                    frame, x, y = composed_frame(layer_frames, overlay_frames, index)
+                    cell = Image.new("RGBA", (FRAME_W, FRAME_H), (0, 0, 0, 0))
+                    place(cell, frame, x, y)
+                    sheet.alpha_composite(cell, (column * FRAME_W, row * FRAME_H))
+                    column += 1
+                print(f"  clips: {_skill} ends at column {column - 1}")
+            continue
         for col, index in enumerate(CELLS[name][:COLS]):
             frame, x, y = composed_frame(layer_frames, overlay_frames, index)
             cell = Image.new("RGBA", (FRAME_W, FRAME_H), (0, 0, 0, 0))

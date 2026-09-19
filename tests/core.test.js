@@ -1060,8 +1060,15 @@ test("the shipped sprite sheet matches the frame grid the renderer expects", () 
 
   assert.equal(buffer.subarray(1, 4).toString("ascii"), "PNG");
   assert.equal(buffer.readUInt32BE(16), Render.SPRITE.frameW * Render.SPRITE.cols);
-  assert.equal(buffer.readUInt32BE(20), Render.SPRITE.frameH * 5);
-  assert.deepEqual(Render.SPRITE.rows, { idle: 0, run: 1, attack: 2, skill: 3, extras: 4 });
+  assert.equal(buffer.readUInt32BE(20), Render.SPRITE.frameH * 6);
+  assert.deepEqual(Render.SPRITE.rows, {
+    idle: 0,
+    run: 1,
+    attack: 2,
+    skill: 3,
+    extras: 4,
+    clips: 5
+  });
   /*
    * Long actions need room: the sheet carries twelve columns so a full DNF run
    * cycle fits and every played frame has to exist inside the row. The stand is
@@ -1083,7 +1090,7 @@ test("the shipped sprite sheet matches the frame grid the renderer expects", () 
 test("every frame the renderer plays fits inside its sprite cell", () => {
   const sheet = decodeRgbaPng(path.join(__dirname, "..", "assets", "slayer.png"));
   assert.equal(sheet.width, Render.SPRITE.frameW * Render.SPRITE.cols);
-  assert.equal(sheet.height, Render.SPRITE.frameH * 5);
+  assert.equal(sheet.height, Render.SPRITE.frameH * 6);
 
   /*
    * The bake composites each DNF frame into a fixed cell, and compositing is
@@ -1093,15 +1100,11 @@ test("every frame the renderer plays fits inside its sprite cell", () => {
    * inside its cell, with the widest frame - a swing that reaches past the
    * feet - sized for on purpose.
    */
-  const upSlash = Render.SPRITE.skillClips.upSlash;
   const plays = [];
   ["idle", "run", "attack", "skill", "extras"].forEach((name) => {
     const row = Render.SPRITE.rows[name];
     if (name === "skill") {
       for (let col = 0; col < Render.SPRITE.frames.skill; col += 1) plays.push([row, col, `${name} ${col}`]);
-      for (let col = upSlash.first; col < upSlash.first + upSlash.frames; col += 1) {
-        plays.push([row, col, `up-slash ${col - upSlash.first}`]);
-      }
       return;
     }
     if (name === "extras") {
@@ -1109,6 +1112,13 @@ test("every frame the renderer plays fits inside its sprite cell", () => {
       return;
     }
     for (let col = 0; col < Render.SPRITE.frames[name]; col += 1) plays.push([row, col, `${name} ${col}`]);
+  });
+
+  /* Every per-move clip the renderer can draw must fit its cell too. */
+  Object.entries(Render.SPRITE.skillClips).forEach(([skillId, clip]) => {
+    for (let step = 0; step < clip.frames; step += 1) {
+      plays.push([clip.row, clip.first + step, `${skillId} clip ${step}`]);
+    }
   });
 
   plays.forEach(([row, col, label]) => {
