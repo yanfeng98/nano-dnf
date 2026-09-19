@@ -1457,8 +1457,8 @@ function problemsFor(pass) {
     problems.push(`${pass.mode}: Z does not cast the up-slash (${JSON.stringify(upSlash)})`);
   }
   const chain = pass.attackChain;
-  if (!chain || chain.stages !== 4 || chain.maxCombo !== 4) {
-    problems.push(`${pass.mode}: the shipped normal attack is not the four-cut chain`);
+  if (!chain || chain.stages !== 3 || chain.maxCombo !== 3) {
+    problems.push(`${pass.mode}: the shipped normal attack is not the owner's three-cut chain`);
   } else {
     if (chain.firstColumn !== 0) {
       problems.push(
@@ -1468,13 +1468,13 @@ function problemsFor(pass) {
     if (chain.secondColumn <= chain.firstColumn) {
       problems.push(`${pass.mode}: pressing X does not walk to the next stage`);
     }
-    if (chain.coverage !== 30) {
+    if (chain.coverage !== 23) {
       problems.push(
-        `${pass.mode}: the four cuts cover ${chain.coverage} frames, not the baked 30`
+        `${pass.mode}: the three cuts cover ${chain.coverage} frames, not the baked 23`
       );
     }
-    if (chain.lastColumn !== 29) {
-      problems.push(`${pass.mode}: the last press ends on frame ${chain.lastColumn}, not 29`);
+    if (chain.lastColumn !== 22) {
+      problems.push(`${pass.mode}: the last press ends on frame ${chain.lastColumn}, not 22`);
     }
     if (chain.upSlashColumns !== 10) {
       problems.push(

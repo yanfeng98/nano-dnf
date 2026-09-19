@@ -38,23 +38,22 @@
    * own animation and 51-60 simply repeat that cycle, so neither belongs here.
    */
   /*
-   * The four cuts of the normal attack: four *different* swings, one per press.
+   * The cuts of the normal attack: three *different* swings, one per press.
    *
    * The body sheet carries six slash peaks but only three directions - its hits
    * two and three are the same backward-low sweep (pixel-identical frames) and
    * its fourth is repeated three times, so playing the sheet in order gave the
    * owner "two backward flicks, then two upward ones". The attack row is baked
-   * from four distinct swings instead (see assets/import_dnf_swordman.py
-   * CELLS.attack): the opening down cut, then the backward low sweep, the
-   * overhead sweep and the forward low sweep. Each stage carries its own
-   * wind-up and settle with the slash on its fourth frame, so the blade connects
-   * on the arc for every press.
+   * from distinct swings instead (see assets/import_dnf_swordman.py CELLS.attack):
+   * the opening down cut, the backward low sweep and the overhead sweep. Each
+   * stage carries its own wind-up and settle with the slash on its fourth frame,
+   * so the blade connects on the arc for every press. The owner cut the chain
+   * from four presses to three - the overhead down slash is gone.
    */
   var ATTACK_STAGES = [
     { first: 0, frames: 7, damage: 8 },
     { first: 7, frames: 9, damage: 10 },
-    { first: 16, frames: 7, damage: 11 },
-    { first: 23, frames: 7, damage: 15 }
+    { first: 16, frames: 7, damage: 11 }
   ];
 
   var PLAYER = {

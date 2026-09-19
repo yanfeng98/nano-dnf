@@ -53,7 +53,7 @@
     /* Frames the renderer actually plays per row; the rest of the row is spare art.
        The stand is a four-frame breath off the client's "still" frames, the attack
        is the whole normal-attack chain (see Core.ATTACK_STAGES). */
-    frames: { idle: 4, run: 12, attack: 30, skill: 6, extras: 6 },
+    frames: { idle: 4, run: 12, attack: 23, skill: 6, extras: 6 },
     /* Skill body art: every skill plays the top of the skill row, except the
        up-slash, whose own raise-and-lift is baked right after those. The bake
        (assets/import_dnf_swordman.py CELLS.skill) has to keep the same order,
@@ -79,30 +79,29 @@
       mountainBreaker: {
         row: 5,
         first: 0,
-        frames: 6,
+        frames: 5,
         beats: [
-          { frames: 3, from: 0, until: 0.3 },
+          /* The client's airborne pose holds for the hop, the smash lands with the hit. */
+          { frames: 2, from: 0, until: 0.6 },
           /* The smash frames have to land with the hit at 1.05s of the 1.5s cast. */
           { frames: 3, from: 0.66, until: 0.78 }
         ]
       },
-      rageBurst: { row: 5, first: 6, frames: 8 },
-      crossSlash: { row: 5, first: 14, frames: 20 },
+      rageBurst: { row: 5, first: 5, frames: 8 },
+      crossSlash: { row: 5, first: 13, frames: 20 },
       /* 血之狂暴: body action 22, the stand that flings both arms out. */
-      frenzy: { row: 6, first: 0, frames: 9 },
+      frenzy: { row: 5, first: 33, frames: 9 },
       /*
-       * 大蹦: body action 27's whirl - the sword pulled low and swept around in
-       * one continuous circle. The generic skill row and action 29 both read as
-       * 崩山击's overhead smash, which is what the owner kept seeing.
+       * 大蹦: the same shape as 崩山击 one size up - the hop, then a heavier slam
+       * - under the ultimate's own giant blood sword and rift effect.
        */
       mountainRift: {
         row: 6,
-        first: 9,
-        frames: 7,
-        /* The wind-up holds through the leap, the whirl lands with the hits. */
+        first: 0,
+        frames: 5,
         beats: [
-          { frames: 3, from: 0, until: 0.5 },
-          { frames: 4, from: 0.66, until: 0.92 }
+          { frames: 2, from: 0, until: 0.5 },
+          { frames: 3, from: 0.66, until: 0.92 }
         ]
       }
     },

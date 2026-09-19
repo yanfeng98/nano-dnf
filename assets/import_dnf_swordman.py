@@ -52,28 +52,24 @@ ROWS = ["idle", "run", "attack", "skill", "extras", "clips", "clips2"]
 # skill's own client clip. Only the picked frames go in: widening them to their
 # neighbours made the move look like it was doing extra swings it never had.
 # The renderer paces the frames per beat instead (see src/render.js skillClips).
-#   崩山击     action 26's raise (203-205) and smash (206-208) alone. Frames
-#              128-131 are a crouch that swings the sword back down and then
-#              stands up again - a whole extra wind-up in front of the raise -
-#              and 129-131 are him standing, which is what made the move look
-#              like it did two things before the smash.
+#   崩山击     jump, then smash: body 232 (the client's own airborne pose) for the
+#              hop and 206-208 (the smash) for the landing. The owner's read is
+#              that the move is "jump up, then bring the sword down" - the raise
+#              on 203-205 in front of it is the extra motion he kept seeing.
 #   怒气爆发   action 10 (8 frames)
 #   十字斩     action 1 (14 frames) + action 25 (6 frames)
 #   血之狂暴   action 22 (9 frames) - the stand that flings both arms out
-#   崩山裂地斩 action 27's whirl (211-217): the sword is pulled low and swept
-#              around in one continuous circle. 大蹦 used to fall back on the
-#              generic skill row (a crescent slam) and then on action 29 (raise,
-#              sweep, low finish), and both read as 崩山击's smash again - the
-#              owner's "it is messier and looks the same". This one is a spin,
-#              not an overhead slam.
+#   崩山裂地斩 the same shape, one size up: the same hop pose and a heavier slam
+#              (229-231, the crouch that drives the sword into the ground) under
+#              the ultimate's giant blood sword and rift.
 # The game used to draw one generic skill animation for every move, which is why
 # the character never seemed to perform the skill being cast.
 CLIPS = [
-    ("mountainBreaker", [203, 204, 205, 206, 207, 208]),
+    ("mountainBreaker", [232, 232, 206, 207, 208]),
     ("rageBurst", list(range(76, 84))),
     ("crossSlash", list(range(5, 19)) + list(range(198, 204))),
     ("frenzy", list(range(161, 170))),
-    ("mountainRift", list(range(211, 218))),
+    ("mountainRift", [232, 232, 229, 230, 231]),
 ]
 CLIP_ROWS = ("clips", "clips2")
 
@@ -135,19 +131,18 @@ CELLS = {
     # ones" - which is what it looked like, because presses two and three really
     # were the same frame.
     #
-    # So the row is built from four *different* swings, one per press, each with
+    # So the row is built from three *different* swings, one per press, each with
     # its own wind-up and settle and its slash on the fourth frame:
     #   0-6   the opening down cut      body 2,2,2,4,5,6,7 - the up-sweep on 3 is
     #                                   the wind-up of this very cut, and playing
     #                                   it read as a second flick, so it is skipped
     #   7-15  the backward low sweep    body 10-18 (slash 13)
     #   16-22 the overhead sweep        body 33-39 (slash 36)
-    #   23-29 the overhead down slash   body 132-138 (slash 135)
-    # The duplicate sweeps the sheet repeats (19-28, 40-54) and the second forward
-    # cut (55-65, which is the same shape as the first one) are skipped, as are
-    # the stands between actions. The four swings also have to *look* different -
-    # the test compares the four slash frames and demands they differ.
-    "attack": [2, 2, 2, 4, 5, 6, 7] + list(range(10, 19)) + list(range(33, 40)) + list(range(132, 139)),
+    # The owner cut the chain to three: the overhead down slash on 132-138 was the
+    # fourth press and he wants it gone, so the row stops after the up sweep.
+    # Everything the sheet repeats (19-28, 40-54) and the second forward cut
+    # (55-65, the same shape as the first) is skipped, as are the stands.
+    "attack": [2, 2, 2, 4, 5, 6, 7] + list(range(10, 19)) + list(range(33, 40)),
     # Generic skill art first (the six frames the renderer plays), then the
     # up-slash clip that skill alone uses (columns 6-15 are body frames 41-50).
     # 41 is the settled pose the normal attack's first cut opens on, so the skill

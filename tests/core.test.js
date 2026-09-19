@@ -261,7 +261,7 @@ test("attack does not reach an enemy far outside the hitbox", () => {
   assert.equal(state.stats.hits, 0);
 });
 
-test("the combo chain walks the four cuts of the normal attack", () => {
+test("the combo chain walks the three cuts of the normal attack", () => {
   const state = lastRoomState();
   const enemy = Core.createEnemy(state, "brute", state.player.x + 48);
   enemy.hp = 500;
@@ -270,7 +270,7 @@ test("the combo chain walks the four cuts of the normal attack", () => {
   state.enemies = [enemy];
 
   const stages = Core.ATTACK_STAGES;
-  assert.equal(stages.length, 4, "the client's normal attack is four cuts");
+  assert.equal(stages.length, 3, "the owner's chain is three cuts");
 
   const hits = [];
   for (let swing = 0; swing < stages.length; swing += 1) {
@@ -1173,21 +1173,20 @@ test("every frame the renderer plays fits inside its sprite cell", () => {
 test("one press plays one stage of the normal attack, and attack speed sets the pace", () => {
   const stages = Core.ATTACK_STAGES;
   assert.equal(Core.PLAYER.maxCombo, stages.length, "the chain is as long as the animation");
-  assert.equal(Render.SPRITE.frames.attack, 30, "the attack row carries the four cuts");
+  assert.equal(Render.SPRITE.frames.attack, 23, "the attack row carries the three cuts");
 
   /*
    * One press is one of the client's own actions. The sheet repeats itself (its
    * hits two and three are the same backward sweep, pixel for pixel, and its
-   * overhead sweep comes round three times), so the row is baked from four
-   * *different* swings: the opening down cut, the backward low sweep, the
-   * overhead sweep and the forward low sweep. Every stage carries its own
-   * wind-up and settle with the slash on its fourth frame.
+   * overhead sweep comes round three times), so the row is baked from three
+   * *different* swings: the opening down cut, the backward low sweep and the
+   * overhead sweep. Every stage carries its own wind-up and settle with the slash
+   * on its fourth frame. The owner cut the fourth press (the overhead down slash).
    */
   const actions = [
     { first: 0, frames: 7 },
     { first: 7, frames: 9 },
-    { first: 16, frames: 7 },
-    { first: 23, frames: 7 }
+    { first: 16, frames: 7 }
   ];
   stages.forEach((stage, index) => {
     assert.deepEqual(
@@ -1217,7 +1216,7 @@ test("one press plays one stage of the normal attack, and attack speed sets the 
   assert.equal(Render.attackColumn(0, 1), stages[1].first, "the second press is its own swing");
   assert.equal(
     Render.attackColumn(1, stages.length - 1),
-    29,
+    22,
     "the last press ends on the last real attack frame"
   );
   assert.equal(
@@ -1227,17 +1226,17 @@ test("one press plays one stage of the normal attack, and attack speed sets the 
   );
 
   /*
-   * 崩山击 has to read as one wind-up and one smash. The clip is action 26's
-   * raise and smash alone; frames 128-131 are a crouch that swings the sword back
-   * down and then stands up again, and playing them put a whole extra wind-up in
-   * front of the smash (the owner's "多余动作").
+   * 崩山击 has to read as "jump, then bring the sword down": the clip is the
+   * client's own airborne pose (232) held through the hop and the smash (206-208)
+   * for the landing. The raise frames in front of it (203-205) were the extra
+   * motion the owner kept seeing.
    */
   const smash = Render.SPRITE.skillClips.mountainBreaker;
   assert.equal(smash.row, Render.SPRITE.rows.clips);
   assert.equal(smash.first, 0, "崩山击 opens the first clip row");
-  assert.equal(smash.frames, 6, "three raise frames and three smash frames");
+  assert.equal(smash.frames, 5, "two airborne frames and three smash frames");
   const beats = smash.beats.map((beat) => beat.frames);
-  assert.deepEqual(beats, [3, 3], "the raise and the smash are paced separately");
+  assert.deepEqual(beats, [2, 3], "the hop and the smash are paced separately");
   assert.equal(
     beats.reduce((total, count) => total + count, 0),
     smash.frames,
@@ -1249,13 +1248,14 @@ test("one press plays one stage of the normal attack, and attack speed sets the 
    * action now, and its range is the ultimate's rather than the leap smash's.
    */
   const rift = Render.SPRITE.skillClips.mountainRift;
-  assert.ok(rift, "崩山裂地斩 gets a body animation of its own");
-  assert.equal(rift.frames, 7, "the whirl is seven frames");
-  assert.notEqual(rift.row, smash.row, "and it is not the row 崩山击 uses");
-  assert.ok(
-    rift.first >= smash.first + smash.frames,
-    "the two clips must not share baked frames"
+  assert.ok(rift, "大蹦 gets a body animation of its own");
+  assert.equal(rift.frames, 5, "the same hop-then-slam shape as 崩山击");
+  assert.deepEqual(
+    rift.beats.map((beat) => beat.frames),
+    [2, 3],
+    "the hop and the slam are paced the same way"
   );
+  assert.notEqual(rift.row, smash.row, "and it is not the row 崩山击 uses");
   const riftSkill = Core.SKILLS.mountainRift;
   const smashSkill = Core.SKILLS.mountainBreaker;
   assert.ok(
