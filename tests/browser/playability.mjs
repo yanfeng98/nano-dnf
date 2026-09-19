@@ -538,10 +538,9 @@ async function runPass(browser, baseUrl, options) {
     const stages = window.DNFCore.ATTACK_STAGES;
     const upSlash = window.DNFRender.SPRITE.skillClips.upSlash;
     /*
-     * The four presses are the client's own actions, so they do not tile the
-     * row: the stands the client leaves between hits (16-17, 27-28) are never
-     * played. Walk every press at its start and its end and report the columns
-     * the renderer can actually reach.
+     * The four presses are four different swings the bake put back to back, so
+     * the row is contiguous: walk every press at its start and its end and report
+     * the columns the renderer can actually reach.
      */
     const played = [];
     stages.forEach((stage, press) => {
@@ -553,7 +552,8 @@ async function runPass(browser, baseUrl, options) {
       stages: stages.length,
       maxCombo: window.DNFCore.PLAYER.maxCombo,
       played,
-      skippedStands: [8, 9, 19, 20].filter((column) => played.includes(column)).length,
+      coverage:
+        stages[stages.length - 1].first + stages[stages.length - 1].frames,
       firstColumn: played[0],
       secondColumn: played[2],
       lastColumn: played[played.length - 1],
@@ -1468,13 +1468,13 @@ function problemsFor(pass) {
     if (chain.secondColumn <= chain.firstColumn) {
       problems.push(`${pass.mode}: pressing X does not walk to the next stage`);
     }
-    if (chain.skippedStands !== 0) {
+    if (chain.coverage !== 30) {
       problems.push(
-        `${pass.mode}: the cuts play ${chain.skippedStands} of the client's standing frames`
+        `${pass.mode}: the four cuts cover ${chain.coverage} frames, not the baked 30`
       );
     }
-    if (chain.lastColumn !== 40) {
-      problems.push(`${pass.mode}: the last press ends on frame ${chain.lastColumn}, not 40`);
+    if (chain.lastColumn !== 29) {
+      problems.push(`${pass.mode}: the last press ends on frame ${chain.lastColumn}, not 29`);
     }
     if (chain.upSlashColumns !== 10) {
       problems.push(

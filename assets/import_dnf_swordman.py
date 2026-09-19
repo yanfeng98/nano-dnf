@@ -52,23 +52,28 @@ ROWS = ["idle", "run", "attack", "skill", "extras", "clips", "clips2"]
 # skill's own client clip. Only the picked frames go in: widening them to their
 # neighbours made the move look like it was doing extra swings it never had.
 # The renderer paces the frames per beat instead (see src/render.js skillClips).
-#   崩山击     the crouch out of action 17 + action 26's raise (203-205) and
-#              smash (206-208). Action 17's other three frames are him standing
-#              back up, which read as a second wind-up before the smash.
+#   崩山击     action 26's raise (203-205) and smash (206-208) alone. Frames
+#              128-131 are a crouch that swings the sword back down and then
+#              stands up again - a whole extra wind-up in front of the raise -
+#              and 129-131 are him standing, which is what made the move look
+#              like it did two things before the smash.
 #   怒气爆发   action 10 (8 frames)
 #   十字斩     action 1 (14 frames) + action 25 (6 frames)
 #   血之狂暴   action 22 (9 frames) - the stand that flings both arms out
-#   崩山裂地斩 action 29 (11 frames) - sword overhead, the sweep down, the low
-#              finish. 大蹦 used to fall back on the generic skill row, which is
-#              a crescent slam, so it looked like 崩山击's smash.
+#   崩山裂地斩 action 27's whirl (211-217): the sword is pulled low and swept
+#              around in one continuous circle. 大蹦 used to fall back on the
+#              generic skill row (a crescent slam) and then on action 29 (raise,
+#              sweep, low finish), and both read as 崩山击's smash again - the
+#              owner's "it is messier and looks the same". This one is a spin,
+#              not an overhead slam.
 # The game used to draw one generic skill animation for every move, which is why
 # the character never seemed to perform the skill being cast.
 CLIPS = [
-    ("mountainBreaker", [128, 203, 204, 205, 206, 207, 208]),
+    ("mountainBreaker", [203, 204, 205, 206, 207, 208]),
     ("rageBurst", list(range(76, 84))),
     ("crossSlash", list(range(5, 19)) + list(range(198, 204))),
     ("frenzy", list(range(161, 170))),
-    ("mountainRift", list(range(227, 238))),
+    ("mountainRift", list(range(211, 218))),
 ]
 CLIP_ROWS = ("clips", "clips2")
 
@@ -123,13 +128,26 @@ CELLS = {
     "idle": [176, 177, 178, 179] * 3,
     "run": list(range(105, 117)),
     # The Slayer's real normal attack: four cuts, one per press. The client's
-    # chain is cut at its own actions, and the body sheet opens
-    # mid-cycle: frames 0-4 are the *tail* of the previous hit's slash (its peak
-    # sits at frame 2, and 3-4 are the decaying swoosh), so the four hits a press
-    # plays are the ones that peak at 13, 24, 36 and 45. Baking from 0 put that
-    # leftover slash in front of the first cut, which is the second sword flick
-    # the owner kept seeing.
-    "attack": list(range(8, 50)),
+    # sheet holds six slash peaks (3, 13, 24, 36, 45, 54) but only *three*
+    # directions: 13 and 24 are the same backward-low sweep (pixel-identical),
+    # 36/45/54 are the same overhead sweep, and 3-4 are one circular cut. Playing
+    # them in sheet order gave the owner "two backward flicks, then two upward
+    # ones" - which is what it looked like, because presses two and three really
+    # were the same frame.
+    #
+    # So the row is built from four *different* swings, one per press, each with
+    # its own wind-up and settle and its slash on the fourth frame:
+    #   0-6   the opening down cut      body 2,2,2,4,5,6,7 - the up-sweep on 3 is
+    #                                   the wind-up of this very cut, and playing
+    #                                   it read as a second flick, so it is skipped
+    #   7-15  the backward low sweep    body 10-18 (slash 13)
+    #   16-22 the overhead sweep        body 33-39 (slash 36)
+    #   23-29 the overhead down slash   body 132-138 (slash 135)
+    # The duplicate sweeps the sheet repeats (19-28, 40-54) and the second forward
+    # cut (55-65, which is the same shape as the first one) are skipped, as are
+    # the stands between actions. The four swings also have to *look* different -
+    # the test compares the four slash frames and demands they differ.
+    "attack": [2, 2, 2, 4, 5, 6, 7] + list(range(10, 19)) + list(range(33, 40)) + list(range(132, 139)),
     # Generic skill art first (the six frames the renderer plays), then the
     # up-slash clip that skill alone uses (columns 6-15 are body frames 41-50).
     # 41 is the settled pose the normal attack's first cut opens on, so the skill

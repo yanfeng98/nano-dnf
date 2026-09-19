@@ -53,7 +53,7 @@
     /* Frames the renderer actually plays per row; the rest of the row is spare art.
        The stand is a four-frame breath off the client's "still" frames, the attack
        is the whole normal-attack chain (see Core.ATTACK_STAGES). */
-    frames: { idle: 4, run: 12, attack: 42, skill: 6, extras: 6 },
+    frames: { idle: 4, run: 12, attack: 30, skill: 6, extras: 6 },
     /* Skill body art: every skill plays the top of the skill row, except the
        up-slash, whose own raise-and-lift is baked right after those. The bake
        (assets/import_dnf_swordman.py CELLS.skill) has to keep the same order,
@@ -79,22 +79,32 @@
       mountainBreaker: {
         row: 5,
         first: 0,
-        frames: 7,
+        frames: 6,
         beats: [
-          { frames: 4, from: 0, until: 0.25 },
-          { frames: 3, from: 0.4, until: 0.6 }
+          { frames: 3, from: 0, until: 0.3 },
+          /* The smash frames have to land with the hit at 1.05s of the 1.5s cast. */
+          { frames: 3, from: 0.66, until: 0.78 }
         ]
       },
-      rageBurst: { row: 5, first: 7, frames: 8 },
-      crossSlash: { row: 5, first: 15, frames: 20 },
+      rageBurst: { row: 5, first: 6, frames: 8 },
+      crossSlash: { row: 5, first: 14, frames: 20 },
       /* 血之狂暴: body action 22, the stand that flings both arms out. */
       frenzy: { row: 6, first: 0, frames: 9 },
       /*
-       * 大蹦: body action 29 - sword overhead, the sweep down, the low finish.
-       * It used to draw the generic skill row, and that crescent slam reads as
-       * 崩山击's smash, which is what the owner saw.
+       * 大蹦: body action 27's whirl - the sword pulled low and swept around in
+       * one continuous circle. The generic skill row and action 29 both read as
+       * 崩山击's overhead smash, which is what the owner kept seeing.
        */
-      mountainRift: { row: 6, first: 9, frames: 11 }
+      mountainRift: {
+        row: 6,
+        first: 9,
+        frames: 7,
+        /* The wind-up holds through the leap, the whirl lands with the hits. */
+        beats: [
+          { frames: 3, from: 0, until: 0.5 },
+          { frames: 4, from: 0.66, until: 0.92 }
+        ]
+      }
     },
     extras: { hurt: 0, dead: 1, jump: 2, fall: 3 }
   };

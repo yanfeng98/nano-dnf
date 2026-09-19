@@ -38,22 +38,23 @@
    * own animation and 51-60 simply repeat that cycle, so neither belongs here.
    */
   /*
-   * The four cuts of the normal attack, one client action each.
+   * The four cuts of the normal attack: four *different* swings, one per press.
    *
-   * The body sheet holds the chain as whole actions with stands between them, and
-   * it starts *mid-cycle*: frames 0-4 of the raw sheet are the tail of the
-   * previous hit's slash (its swoosh peaks at frame 2 and decays through 3-4).
-   * Baking the row from 0 therefore put a leftover swing in front of the first
-   * cut, which read as an extra flick; the row starts at frame 8 now, the moment
-   * the first cut's own action begins, and the four hits peak at 13, 24, 36 and
-   * 45. Row columns are body frames - 8, so the stands at 16-17 and 27-28 fall in
-   * the gaps the chain deliberately skips.
+   * The body sheet carries six slash peaks but only three directions - its hits
+   * two and three are the same backward-low sweep (pixel-identical frames) and
+   * its fourth is repeated three times, so playing the sheet in order gave the
+   * owner "two backward flicks, then two upward ones". The attack row is baked
+   * from four distinct swings instead (see assets/import_dnf_swordman.py
+   * CELLS.attack): the opening down cut, then the backward low sweep, the
+   * overhead sweep and the forward low sweep. Each stage carries its own
+   * wind-up and settle with the slash on its fourth frame, so the blade connects
+   * on the arc for every press.
    */
   var ATTACK_STAGES = [
-    { first: 0, frames: 8, damage: 8 },
-    { first: 10, frames: 9, damage: 10 },
-    { first: 21, frames: 11, damage: 11 },
-    { first: 31, frames: 10, damage: 15 }
+    { first: 0, frames: 7, damage: 8 },
+    { first: 7, frames: 9, damage: 10 },
+    { first: 16, frames: 7, damage: 11 },
+    { first: 23, frames: 7, damage: 15 }
   ];
 
   var PLAYER = {
@@ -151,14 +152,14 @@
       /*
        * 崩山击 is a committed move - raise, forward hop, landing shockwave,
        * recovery - but a whole three seconds read as sluggish, so the cast is
-       * 1.5s and the blade connects on the landing at 0.6s.
+       * 1.5s and the blade connects on the landing.
        */
       duration: 1.5,
-      /* seconds: the hop starts at 0.375s and lands at ~0.85s, so the blade and
-         its ground wave connect at 0.9s - while he is still in the air the box
+      /* seconds: the hop starts at 0.33s and lands at ~1.04s, so the blade and
+         its ground wave connect at 1.05s - while he is still in the air the box
          sits above the enemies and nothing lands. */
-      activeFrom: 0.9,
-      activeTo: 1.0,
+      activeFrom: 1.05,
+      activeTo: 1.15,
       reach: 96,
       heightPad: 18,
       knockbackX: 240,
@@ -168,18 +169,19 @@
       /* DNF shape: leap smash that knocks the target down. */
       knockdown: 1.1,
       /*
-       * The hop is slow and carries him forward: -520 peaks 57px up, giving
-       * ~0.47s in the air, and the 210px/s push covers about 100px before he
-       * lands on the smash. It starts a quarter of the way in, after the raise.
+       * The hop carries him forward and, per the owner, has to look like a real
+       * jump: -780 peaks about 138px up (gravity is 2200) for ~0.71s in the air,
+       * and the 150px/s push covers about 105px before he lands on the smash. It
+       * starts just after the raise.
        */
-      leap: 210,
-      leapUp: -520,
-      leapFrom: 0.25,
+      leap: 150,
+      leapUp: -780,
+      leapFrom: 0.22,
       /* The leap's landing frames are invulnerable, DNF style: the Slayer is
          committed to the smash and cannot be knocked out of the air - the window
          has to cover the whole hop plus the landing hit, or a grunt standing
          where he comes down cancels the move before the blade connects. */
-      leapInvuln: 0.8,
+      leapInvuln: 0.95,
       shockwave: {
         reach: 150,
         damage: 10,
@@ -391,8 +393,14 @@
       damage: 30,
       growth: 4,
       duration: 1.05,
-      activeFrom: 0.28,
-      activeTo: 0.72,
+      /*
+       * The two hits are the two halves of one whirl, and they land as he comes
+       * down: the leap starts at 0.13s and lands at ~0.72s (leapUp -640 at
+       * gravity 2200), so the blade sweeps on the way down and the rift opens on
+       * the landing.
+       */
+      activeFrom: 0.72,
+      activeTo: 0.95,
       /*
        * 大蹦 is the 45-level ultimate: one giant blood sword plus the rift it
        * opens. The owner's read is that its range has to dwarf 崩山击's single
@@ -403,11 +411,17 @@
       heightPad: 36,
       knockbackX: 300,
       launch: 0,
-      radius: 0,
+      /*
+       * The rift opens around the impact rather than only in front of it: the
+       * leap already carries him past whatever he jumped over, and a forward-only
+       * box left the ultimate missing the target it landed on.
+       */
+      radius: 190,
       hits: 2,
       /* DNF shape: leap up, then split the ground with a huge shockwave. */
-      leap: 240,
-      leapUp: -420,
+      leap: 150,
+      leapUp: -640,
+      leapFrom: 0.12,
       knockdown: 1.4,
       shockwave: {
         reach: 360,

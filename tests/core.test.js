@@ -218,7 +218,8 @@ test("each cut connects on the frame the katana sweeps through", () => {
    * within a frame of its arc: on the last wind-up frame at the earliest, never
    * back in the frozen guard pose.
    */
-  const arcOffset = [4, 3, 4, 4];
+  /* Every stage puts its slash on its fourth frame. */
+  const arcOffset = [3, 3, 3, 3];
   Core.ATTACK_STAGES.forEach((stage, press) => {
     const state = lastRoomState();
     const enemy = Core.createEnemy(state, "boss", state.player.x + 50);
@@ -411,14 +412,41 @@ test("上挑 launches an enemy and keeps it from acting while airborne", () => {
   assert.equal(enemy.attackTimer, 0, "airborne enemies cannot start an attack");
 });
 
+test("崩山击 jumps properly and lands the smash on the ground", () => {
+  const state = lastRoomState();
+  const skill = Core.SKILLS.mountainBreaker;
+  /*
+   * The owner's read: the hop has to look like a jump, and the blade has to land
+   * on the ground rather than in the air. Record the actual arc the sim produces.
+   */
+  state.enemies = [];
+  const takeoff = state.player.y;
+  let apex = 0;
+  let landedAt = null;
+  Core.step(state, { skills: { mountainBreaker: true } });
+  for (let frame = 1; frame <= Math.ceil(skill.duration * Core.FPS); frame += 1) {
+    Core.runFrames(state, 1, {});
+    apex = Math.max(apex, takeoff - state.player.y);
+    if (landedAt === null && frame > 6 && state.player.onGround) {
+      landedAt = frame * Core.DT;
+    }
+  }
+  assert.ok(apex >= 120, `崩山击 has to jump properly (apex ${Math.round(apex)}px)`);
+  assert.ok(
+    landedAt !== null && landedAt < skill.activeFrom,
+    `the smash has to land on the ground (touched down at ${landedAt}, hit at ${skill.activeFrom})`
+  );
+});
+
 test("崩山击 adds a ground shockwave that reaches past the blade", () => {
   const state = lastRoomState();
   /*
-   * The move hops him ~100px forward before the blade lands, so the pair sits
-   * ahead of the landing point: one inside the blade's 96px reach, one past it.
+   * The move hops him ~105px forward before the blade lands, so the pair sits
+   * ahead of the landing point: one inside the blade's 96px reach, one past it
+   * but inside the 150px ground wave.
    */
-  const near = Core.createEnemy(state, "grunt", state.player.x + 150);
-  const far = Core.createEnemy(state, "grunt", state.player.x + 215);
+  const near = Core.createEnemy(state, "grunt", state.player.x + 180);
+  const far = Core.createEnemy(state, "grunt", state.player.x + 240);
   [near, far].forEach((enemy) => {
     enemy.hp = 300;
     enemy.maxHp = 300;
@@ -431,13 +459,13 @@ test("崩山击 adds a ground shockwave that reaches past the blade", () => {
 
   Core.step(state, { skills: { mountainBreaker: true } });
   /*
-   * 崩山击 is a three-second cast: the raise, then the hop, and the blade lands
-   * on the smash at 1.2s. The wave effect only lives 0.4s, so it is checked as
-   * it lands rather than at the end of the recovery.
+   * 崩山击 raises, hops high (0.71s in the air) and lands the smash at ~1.1s.
+   * The wave effect only lives 0.4s, so it is checked as it lands rather than at
+   * the end of the recovery.
    */
-  Core.runFrames(state, Math.ceil(1.0 * Core.FPS), {});
+  Core.runFrames(state, Math.ceil(1.15 * Core.FPS), {});
   assert.ok(state.effects.some((effect) => effect.kind === "shockwave"));
-  Core.runFrames(state, Math.ceil(0.6 * Core.FPS), {});
+  Core.runFrames(state, Math.ceil(0.5 * Core.FPS), {});
 
   assert.equal(nearHp - near.hp, skill.damage, "blade hit lands once");
   assert.equal(farHp - far.hp, skill.shockwave.damage, "shockwave reaches the second target");
@@ -481,8 +509,8 @@ test("上挑 lifts the target and airborne hits keep it juggled", () => {
 
 test("崩山击 knocks the target down and its shockwave does too", () => {
   const state = lastRoomState();
-  const near = Core.createEnemy(state, "grunt", state.player.x + 150);
-  const far = Core.createEnemy(state, "grunt", state.player.x + 220);
+  const near = Core.createEnemy(state, "grunt", state.player.x + 180);
+  const far = Core.createEnemy(state, "grunt", state.player.x + 240);
   [near, far].forEach((enemy) => {
     enemy.hp = 400;
     enemy.maxHp = 400;
@@ -491,7 +519,7 @@ test("崩山击 knocks the target down and its shockwave does too", () => {
   state.enemies = [near, far];
 
   Core.step(state, { skills: { mountainBreaker: true } });
-  Core.runFrames(state, Math.ceil(1.0 * Core.FPS), {});
+  Core.runFrames(state, Math.ceil(1.15 * Core.FPS), {});
 
   assert.ok(near.knockdown > 0, "the smash should knock the target down");
   assert.ok(far.knockdown > 0, "the ground shockwave should knock the far target down");
@@ -1145,20 +1173,21 @@ test("every frame the renderer plays fits inside its sprite cell", () => {
 test("one press plays one stage of the normal attack, and attack speed sets the pace", () => {
   const stages = Core.ATTACK_STAGES;
   assert.equal(Core.PLAYER.maxCombo, stages.length, "the chain is as long as the animation");
-  assert.equal(Render.SPRITE.frames.attack, 42, "the attack row carries the four cuts");
+  assert.equal(Render.SPRITE.frames.attack, 30, "the attack row carries the four cuts");
 
   /*
-   * One press is one of the client's own actions, and the chain skips the stands
-   * between them. The body sheet opens mid-cycle - frames 0-4 are the tail of the
-   * previous hit's slash - so the row is baked from frame 8 and the four cuts are
-   * the actions at 8-15, 18-26, 29-39 and 39-48. Row columns are body frames - 8;
-   * the stands at body frames 16-17 and 27-28 land in the gaps between stages.
+   * One press is one of the client's own actions. The sheet repeats itself (its
+   * hits two and three are the same backward sweep, pixel for pixel, and its
+   * overhead sweep comes round three times), so the row is baked from four
+   * *different* swings: the opening down cut, the backward low sweep, the
+   * overhead sweep and the forward low sweep. Every stage carries its own
+   * wind-up and settle with the slash on its fourth frame.
    */
   const actions = [
-    { first: 0, frames: 8 },
-    { first: 10, frames: 9 },
-    { first: 21, frames: 11 },
-    { first: 31, frames: 10 }
+    { first: 0, frames: 7 },
+    { first: 7, frames: 9 },
+    { first: 16, frames: 7 },
+    { first: 23, frames: 7 }
   ];
   stages.forEach((stage, index) => {
     assert.deepEqual(
@@ -1170,13 +1199,7 @@ test("one press plays one stage of the normal attack, and attack speed sets the 
   });
   assert.equal(stages.length, actions.length, "one stage per cut");
 
-  /*
-   * Nothing the renderer can reach may land in a filler stand, and no press may
-   * cross from one action into the next: both are what made a single press read
-   * as two sword flicks.
-   */
-  /* The client's stands, as columns of the baked row. */
-  const filler = [[8, 9], [19, 20]];
+  /* No press may cross out of its own swing. */
   for (let press = 0; press < stages.length; press += 1) {
     const stage = stages[press];
     for (let step = 0; step <= 40; step += 1) {
@@ -1185,12 +1208,6 @@ test("one press plays one stage of the normal attack, and attack speed sets the 
         column >= stage.first && column < stage.first + stage.frames,
         `press ${press} stays inside its action (column ${column})`
       );
-      filler.forEach(([from, to]) => {
-        assert.ok(
-          column < from || column >= to,
-          `press ${press} never plays the stand at ${from}-${to} (column ${column})`
-        );
-      });
     }
   }
 
@@ -1200,7 +1217,7 @@ test("one press plays one stage of the normal attack, and attack speed sets the 
   assert.equal(Render.attackColumn(0, 1), stages[1].first, "the second press is its own swing");
   assert.equal(
     Render.attackColumn(1, stages.length - 1),
-    40,
+    29,
     "the last press ends on the last real attack frame"
   );
   assert.equal(
@@ -1210,17 +1227,17 @@ test("one press plays one stage of the normal attack, and attack speed sets the 
   );
 
   /*
-   * 崩山击 has to read as one wind-up and one smash. The clip is the crouch out
-   * of action 17 plus action 26's raise and smash; action 17's other three
-   * frames are the Slayer standing back up, and playing them put a second
-   * wind-up in front of the smash (the owner's "多余动作").
+   * 崩山击 has to read as one wind-up and one smash. The clip is action 26's
+   * raise and smash alone; frames 128-131 are a crouch that swings the sword back
+   * down and then stands up again, and playing them put a whole extra wind-up in
+   * front of the smash (the owner's "多余动作").
    */
   const smash = Render.SPRITE.skillClips.mountainBreaker;
   assert.equal(smash.row, Render.SPRITE.rows.clips);
   assert.equal(smash.first, 0, "崩山击 opens the first clip row");
-  assert.equal(smash.frames, 7, "four raise frames and three smash frames");
+  assert.equal(smash.frames, 6, "three raise frames and three smash frames");
   const beats = smash.beats.map((beat) => beat.frames);
-  assert.deepEqual(beats, [4, 3], "the raise and the smash are paced separately");
+  assert.deepEqual(beats, [3, 3], "the raise and the smash are paced separately");
   assert.equal(
     beats.reduce((total, count) => total + count, 0),
     smash.frames,
@@ -1233,7 +1250,7 @@ test("one press plays one stage of the normal attack, and attack speed sets the 
    */
   const rift = Render.SPRITE.skillClips.mountainRift;
   assert.ok(rift, "崩山裂地斩 gets a body animation of its own");
-  assert.equal(rift.frames, 11, "body action 29 is eleven frames");
+  assert.equal(rift.frames, 7, "the whirl is seven frames");
   assert.notEqual(rift.row, smash.row, "and it is not the row 崩山击 uses");
   assert.ok(
     rift.first >= smash.first + smash.frames,
@@ -1269,10 +1286,10 @@ test("one press plays one stage of the normal attack, and attack speed sets the 
   );
 
   /*
-   * The baked row must hold exactly one swoosh per press. The old bake started
-   * at body frame 0, where the previous hit's slash is still decaying, so the
-   * first press lit up twice - once from that leftover and once from its own
-   * swing.
+   * The baked row must hold one swoosh per press, on the swing frame, and the
+   * four presses must not be the same art twice: the sheet's own hits two and
+   * three are pixel-identical, and playing them in sheet order is what gave the
+   * owner "two backward flicks, then two upward ones".
    */
   const sheet = decodeRgbaPng(path.join(__dirname, "..", "assets", "slayer.png"));
   const fw = Render.SPRITE.frameW;
@@ -1295,34 +1312,58 @@ test("one press plays one stage of the normal attack, and attack speed sets the 
   };
   const trails = [];
   for (let col = 0; col < Render.SPRITE.frames.attack; col += 1) trails.push(trail(col));
-  const sorted = [...trails].sort((a, b) => a - b);
-  const median = sorted[Math.floor(sorted.length / 2)];
-  const clusters = [];
-  trails.forEach((value, col) => {
-    if (value <= median * 2.5) return;
-    const last = clusters[clusters.length - 1];
-    if (last && last[last.length - 1] === col - 1) last.push(col);
-    else clusters.push([col]);
-  });
-  /*
-   * The client's four strikes peak on body frames 13, 24, 36 and 45; the row is
-   * baked from frame 8, so they have to land on columns 5, 16, 28 and 37. Baking
-   * from 0 shifts every one of them by eight and drags the previous hit's decaying
-   * swoosh (body frames 2-4) into the first press.
-   */
-  assert.equal(
-    JSON.stringify(clusters.map((cluster) => cluster[0])),
-    JSON.stringify([5, 16, 28, 37]),
-    `one swoosh per press, on the client's own strike frames: ${JSON.stringify(clusters)}`
-  );
-  Core.ATTACK_STAGES.forEach((stage, press) => {
-    const inside = clusters.filter(
-      ([first]) => first >= stage.first && first < stage.first + stage.frames
+
+  /* Every stage swings on its fourth frame - that is where the blade lands. */
+  const strikeColumns = Core.ATTACK_STAGES.map((stage, press) => {
+    let best = -1;
+    let bestValue = -1;
+    for (let col = stage.first; col < stage.first + stage.frames; col += 1) {
+      if (trails[col] > bestValue) {
+        bestValue = trails[col];
+        best = col;
+      }
+    }
+    assert.equal(
+      best,
+      stage.first + 3,
+      `press ${press} swings on its fourth frame (loudest column ${best})`
     );
-    assert.equal(inside.length, 1, `press ${press} plays exactly one swoosh`);
+    return best;
+  });
+
+  /* And no two presses may show the same art: that is the "same move twice". */
+  const cellDiff = (a, b) => {
+    let changed = 0;
+    for (let y = 0; y < fh; y += 1) {
+      for (let x = 0; x < fw; x += 1) {
+        const one = ((row * fh + y) * sheet.width + a * fw + x) * 4;
+        const two = ((row * fh + y) * sheet.width + b * fw + x) * 4;
+        for (let channel = 0; channel < 4; channel += 1) {
+          if (sheet.pixels[one + channel] !== sheet.pixels[two + channel]) {
+            changed += 1;
+            break;
+          }
+        }
+      }
+    }
+    return changed;
+  };
+  for (let a = 0; a < strikeColumns.length; a += 1) {
+    for (let b = a + 1; b < strikeColumns.length; b += 1) {
+      assert.ok(
+        cellDiff(strikeColumns[a], strikeColumns[b]) > 1000,
+        `presses ${a + 1} and ${b + 1} must not play the same frame (${cellDiff(
+          strikeColumns[a],
+          strikeColumns[b]
+        )} pixels differ)`
+      );
+    }
+  }
+
+  Core.ATTACK_STAGES.forEach((stage, press) => {
     assert.ok(
-      inside[0][0] >= stage.first + 2,
-      `press ${press} winds up before it swings (swoosh ${inside[0][0]} in ${stage.first}+${stage.frames})`
+      trails[stage.first] < trails[stage.first + 3],
+      `press ${press} winds up before it swings (start ${trails[stage.first]} vs swing ${trails[stage.first + 3]})`
     );
   });
 
@@ -1803,7 +1844,8 @@ test("崩山裂地斩 is a leaping ultimate with a wide rift", () => {
   Core.runFrames(state, 20, {});
   assert.equal(state.player.onGround, false, "the ultimate leaps first");
 
-  Core.runFrames(state, 12, {});
+  /* The leap lasts ~0.58s and the whirl's hits land as he comes down. */
+  Core.runFrames(state, 42, {});
   assert.ok(
     state.effects.some((effect) => effect.kind === "shockwave"),
     "the landing splits the ground"
@@ -1811,7 +1853,7 @@ test("崩山裂地斩 is a leaping ultimate with a wide rift", () => {
 
   Core.runFrames(state, 48, {});
   assert.ok(
-    state.player.mp <= state.player.maxMp - skill.mp + 12,
+    state.player.mp <= state.player.maxMp - skill.mp + 16,
     `the ultimate costs ${skill.mp} MP (plus regen), mp=${state.player.mp}`
   );
   assert.ok(
