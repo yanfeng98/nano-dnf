@@ -188,6 +188,58 @@ def build_grid(client: pathlib.Path, packs, out_path: pathlib.Path, columns: int
     write_mp4(out, out_path)
 
 
+def build_entry_grid(client: pathlib.Path, pack: str, out_dir: pathlib.Path, per_sheet: int = 20) -> int:
+    """One animation per *entry* of a pack, so a single layer can be named."""
+    layers = decode_layers(client, pack)
+    if not layers:
+        return 0
+    # (18)/(tn) entries are re-release twins of the plain one; keep the plain.
+    deduped = {}
+    for name, frames in layers:
+        key = name
+        for prefix in ("(18)", "(tn)"):
+            if key.startswith(prefix):
+                key = key[len(prefix):]
+        existing = deduped.get(key)
+        # keep whichever spelling is the plain one
+        if existing is None or (name == key and existing[0] != key):
+            deduped[key] = (name, frames)
+    layers = [deduped[key] for key in sorted(deduped)]
+    columns, cell = 5, 190
+    font = load_font(13)
+    sheets = 0
+    for start in range(0, len(layers), per_sheet):
+        chunk = layers[start:start + per_sheet]
+        staged = []
+        for name, frames in chunk:
+            staged.append((name, stage_frames([(name, frames)], min_frames=6)))
+        total = min(40, max(len(frames) for _n, frames in staged))
+        rows = -(-len(staged) // columns)
+        out = []
+        for index in range(total):
+            sheet = Image.new("RGB", (columns * cell, rows * cell), (16, 18, 28))
+            draw = ImageDraw.Draw(sheet)
+            for slot, (name, frames) in enumerate(staged):
+                column, row = slot % columns, slot // columns
+                picture = frames[min(index, len(frames) - 1)]
+                scale = min((cell - 10) / picture.width, (cell - 34) / picture.height, 1.0)
+                size = (max(1, int(picture.width * scale)), max(1, int(picture.height * scale)))
+                sheet.paste(
+                    picture.resize(size, Image.LANCZOS),
+                    (column * cell + (cell - size[0]) // 2, row * cell + 30),
+                )
+                label = name.replace(".img", "")
+                draw.text((column * cell + 4, row * cell + 3), label[:26], fill=(255, 220, 120), font=font)
+                if len(label) > 26:
+                    draw.text((column * cell + 4, row * cell + 16), label[26:52], fill=(255, 220, 120), font=font)
+            out.append(sheet)
+        sheets += 1
+        path = out_dir / f"entries_{pack}_{sheets}.mp4"
+        write_mp4(out, path)
+        print(f"  {path.name}: {len(staged)} entries")
+    return sheets
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--client", type=pathlib.Path, default=DEFAULT_CLIENT)
@@ -196,7 +248,18 @@ def main() -> int:
     parser.add_argument("--gif", action="store_true", help="also write a looping gif")
     parser.add_argument("--grid", action="store_true", help="write browsable grid sheets instead of one file per pack")
     parser.add_argument("--per-sheet", type=int, default=24)
+    parser.add_argument("--entries", metavar="PACK", help="one animation per entry of one pack")
     args = parser.parse_args()
+
+    out_dir = ROOT / "dnf_effect_anim"
+    out_dir.mkdir(exist_ok=True)
+    font = load_font(14)
+
+    if args.entries:
+        for pack in args.entries.split(","):
+            sheets = build_entry_grid(args.client, pack.strip().lstrip("_"), out_dir)
+            print(f"  {pack}: {sheets} sheet(s)")
+        return 0
 
     if args.all:
         packs = sorted(
@@ -207,10 +270,6 @@ def main() -> int:
         packs = [name.strip().lstrip("_") for name in args.packs.split(",") if name.strip()]
     else:
         raise SystemExit("pass --packs a,b,c or --all")
-
-    out_dir = ROOT / "dnf_effect_anim"
-    out_dir.mkdir(exist_ok=True)
-    font = load_font(14)
 
     if args.grid:
         sheets = 0

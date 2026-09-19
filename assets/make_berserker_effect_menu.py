@@ -47,13 +47,19 @@ PACK_PREFIX = "sprite_character_swordman_effect"
 # whose file names are the internal skill names), not from guessing at keywords:
 # chargecrash is not 崩山击, hopsmash is.
 GROUPS = [
-    ("崩山击 hop-smash", "hop-smash", ["_hopsmash"]),
-    ("十字斩 gore-cross ✓已定", "gore-cross", ["_gorecross", "_atgorecross"]),
+    # Pack -> move mapping is the owner's, read off the composited animations;
+    # these are the client's own move names, not keyword guesses.
+    ("崩山击 hop-smash ✓已定", "hop-smash", ["_hopsmash"]),
+    ("十字斩 gore-cross ✓已定", "gore-cross", ["_gorecross"]),
+    ("噬魂之手（小抓头）grab-blast-blood ✓已定", "grab-head", ["_grabblastblood"]),
+    ("灭魂之手（大抓头）grab-blast-blood-ex ✓已定", "grab-head-ex", ["_grabblastbloodex"]),
     ("血气之刃 blood-sword ✓已定", "blood-sword", ["_bloodsword"]),
-    ("血之狂暴 blood-rage ✓已定（取自 frenzy 包）", "blood-rage", ["_frenzy"]),
-    ("抓头 / 噬魂之手 grab-head ✓已定", "grab-head", ["_grabblastblood", "_grabblastbloodex"]),
-    ("怒气爆发 outrage-break（地上圆圈 → 喷血）", "outrage-break", ["_outragebreak"]),
-    ("崩山裂地斩 mountain-crash（候选三包）", "mountain-crash", ["_chargecrash", "_chagecrashex", "_atmountaincrash"]),
+    ("血之狂暴（双刀）blood-rage ✓已定（取自 frenzy 包）", "blood-rage", ["_frenzy"]),
+    ("怒气爆发 blast-blood（待挑层）", "rage-burst", ["_blastblood"]),
+    ("崩山裂地斩（大蹦）outrage-break（待挑层）", "mountain-rift", ["_outragebreak"]),
+    ("浴血之怒 blood-boom", "blood-boom", ["_bloodboom"]),
+    ("魔煞血陨 blood-marble", "blood-marble", ["_bloodmarble"]),
+    ("血魔·弑天（二觉）blood-riven", "blood-riven", ["_bloodriven"]),
 ]
 
 # The client keeps its Chinese glyphs in these; the default PIL bitmap font has
