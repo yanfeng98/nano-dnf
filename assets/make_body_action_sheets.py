@@ -178,6 +178,130 @@ def render_skin(module, client: pathlib.Path, skin: str, per_sheet: int, columns
     return 0
 
 
+def render_skin_actions(module, client: pathlib.Path, skin: str) -> int:
+    """Cut one body img into actions: a numbered sheet and an animating grid.
+
+    Pointing at a frame range in a 210-frame sheet is hard; pointing at "action
+    12" in a row that carries its own frame numbers is not.
+    """
+    import io
+    from pydnfex.npk import NPK
+    from pydnfex.img.version import IMGFactory
+
+    pack = client / "ImagePacks2" / "sprite_character_swordman_equipment_avatar_skin.NPK"
+    with open(pack, "rb") as handle:
+        npk = NPK.open(handle)
+        entry = next((item for item in npk.files if item.name.endswith(f"{skin}.img")), None)
+        if entry is None:
+            raise SystemExit(f"{skin}.img not found")
+        body = IMGFactory.open(io.BytesIO(entry.data))
+    total = len(body.images)
+
+    decoder = module.Decoder(client, force=False)
+    weapon = []
+    for key in ("weapon_b", "weapon_c"):
+        try:
+            weapon.append(decoder.frames(key))
+        except Exception:
+            pass
+
+    composed = {}
+    for index in range(total):
+        layers = []
+        body_frame = decode_frame(body, index)
+        if body_frame is not None and body_frame[0].getbbox():
+            layers.append(body_frame)
+        for frames in weapon:
+            if index < len(frames):
+                picture, x, y = frames[index]
+                if picture is not None and picture.getbbox():
+                    layers.append((picture, x, y))
+        if not layers:
+            continue
+        left = min(x for _p, x, _y in layers)
+        top = min(y for _p, _x, y in layers)
+        right = max(x + p.width for p, x, _y in layers)
+        bottom = max(y + p.height for p, _x, y in layers)
+        canvas = Image.new("RGBA", (right - left, bottom - top), (0, 0, 0, 0))
+        for picture, x, y in layers:
+            canvas.alpha_composite(picture, (x - left, y - top))
+        composed[index] = canvas
+
+    actions = split_actions(composed)
+    print(f"{skin}: {len(actions)} actions")
+    print(", ".join(f"{row}:{a}-{b}" for row, (a, b) in enumerate(actions)))
+
+    font = load_font(13)
+    head = load_font(17)
+    out_dir = ROOT / "dnf_src"
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    cell = 110
+    width = 250 + max(b - a + 1 for a, b in actions) * cell
+    sheet = Image.new("RGB", (width, 60 + cell * len(actions)), (18, 18, 26))
+    draw = ImageDraw.Draw(sheet)
+    draw.text((8, 8), f"{skin}.img 切出的动作（帧号是身体图里的帧号）", fill=(255, 235, 150), font=head)
+    widest = max(canvas.width for canvas in composed.values())
+    tallest = max(canvas.height for canvas in composed.values())
+    scale = min((cell - 8) / widest, (cell - 8) / tallest, 1.0)
+    for row, (first, last) in enumerate(actions):
+        y = 60 + row * cell
+        draw.text((8, y + 14), f"{row}: {first}-{last} ({last - first + 1}帧)",
+                  fill=(255, 220, 120), font=font)
+        for column, index in enumerate(range(first, last + 1)):
+            canvas = composed.get(index)
+            if canvas is None:
+                continue
+            size = (max(1, int(canvas.width * scale)), max(1, int(canvas.height * scale)))
+            sheet.paste(
+                canvas.convert("RGB").resize(size, Image.LANCZOS),
+                (250 + column * cell + (cell - size[0]) // 2, y + (cell - size[1]) // 2),
+            )
+            draw.text((250 + column * cell + 2, y + 2), str(index), fill=(150, 200, 255), font=font)
+    sheet.save(out_dir / f"{skin}-actions.png")
+    print(f"wrote {out_dir / f'{skin}-actions.png'} ({sheet.width}x{sheet.height})")
+
+    lines = [f"{skin}.img 切出的动作：", ""]
+    for row, (first, last) in enumerate(actions):
+        lines.append(f"{row:>3}  帧 {first}-{last}  ({last - first + 1} 帧)")
+    (out_dir / f"{skin}-actions.txt").write_text("\n".join(lines) + "\n")
+
+    import av
+    columns, big = 4, 220
+    rows = -(-len(actions) // columns)
+    longest = min(48, max(b - a + 1 for a, b in actions))
+    canvases = []
+    for step in range(longest):
+        canvas = Image.new("RGB", (columns * big, rows * big), (16, 18, 28))
+        cdraw = ImageDraw.Draw(canvas)
+        for slot, (first, last) in enumerate(actions):
+            picture = composed.get(min(first + step, last))
+            if picture is None:
+                continue
+            fit = min((big - 12) / picture.width, (big - 40) / picture.height, 1.0)
+            size = (max(1, int(picture.width * fit)), max(1, int(picture.height * fit)))
+            column, row = slot % columns, slot // columns
+            canvas.paste(
+                picture.convert("RGB").resize(size, Image.LANCZOS),
+                (column * big + (big - size[0]) // 2, row * big + 36),
+            )
+            cdraw.text((column * big + 4, row * big + 6), f"{slot}: {first}-{last}",
+                       fill=(255, 220, 120), font=head)
+        canvases.append(canvas)
+    container = av.open(str(out_dir / f"{skin}-actions.mp4"), mode="w")
+    stream = container.add_stream("mpeg4", rate=10)
+    stream.width, stream.height = canvases[0].size
+    stream.pix_fmt = "yuv420p"
+    for canvas in canvases:
+        for packet in stream.encode(av.VideoFrame.from_image(canvas)):
+            container.mux(packet)
+    for packet in stream.encode():
+        container.mux(packet)
+    container.close()
+    print(f"wrote {out_dir / f'{skin}-actions.mp4'} ({len(canvases)} frames)")
+    return 0
+
+
 def signature(frame: Image.Image) -> bytes:
     box = frame.getbbox()
     flat = Image.new("RGB", frame.size, (0, 0, 0))
@@ -224,12 +348,15 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--client", type=pathlib.Path, default=DEFAULT_CLIENT)
     parser.add_argument("--skin", help="render one body img as numbered frame sheets (e.g. sm_body0048)")
+    parser.add_argument("--skin-actions", help="cut one body img into actions (sheet + animated grid)")
     parser.add_argument("--per-sheet", type=int, default=60)
     parser.add_argument("--columns", type=int, default=10)
     parser.add_argument("--cell", type=int, default=132)
     args = parser.parse_args()
 
     module = baker()
+    if args.skin_actions:
+        return render_skin_actions(module, args.client, args.skin_actions)
     if args.skin:
         return render_skin(module, args.client, args.skin, args.per_sheet, args.columns, args.cell)
 
