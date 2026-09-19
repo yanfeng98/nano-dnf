@@ -44,6 +44,43 @@
   }
 
   /*
+   * The link that reopens one exact run. Pure string work so it can be tested
+   * without a DOM: keep whatever else the URL carries (the touch switch, a hash)
+   * and replace the seed in place rather than dropping the reader's context.
+   */
+  function seedUrl(href, seed) {
+    var seedValue = Number(seed);
+    if (!isFinite(seedValue) || seedValue <= 0 || Math.floor(seedValue) !== seedValue) return null;
+    var text = String(href === undefined || href === null ? "" : href);
+    if (!text) return null;
+
+    var hash = "";
+    var hashAt = text.indexOf("#");
+    if (hashAt !== -1) {
+      hash = text.slice(hashAt);
+      text = text.slice(0, hashAt);
+    }
+    var query = "";
+    var queryAt = text.indexOf("?");
+    if (queryAt !== -1) {
+      query = text.slice(queryAt + 1);
+      text = text.slice(0, queryAt);
+    }
+
+    var kept = query
+      .split("&")
+      .filter(function (pair) {
+        return pair && pair.split("=")[0] !== "seed";
+      });
+    kept.push("seed=" + whatInteger(seedValue));
+    return text + "?" + kept.join("&") + hash;
+  }
+
+  function whatInteger(value) {
+    return String(Math.floor(value) >>> 0);
+  }
+
+  /*
    * The rows the victory screen draws. `id` is stable so tests and the browser
    * proof can address a row without matching on translated labels.
    */
@@ -81,6 +118,7 @@
   return {
     formatSeconds: formatSeconds,
     upgradeNames: upgradeNames,
-    describe: describe
+    describe: describe,
+    seedUrl: seedUrl
   };
 });

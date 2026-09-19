@@ -339,7 +339,9 @@ async function touchAction(page, action, down) {
 async function runPass(browser, baseUrl, options) {
   const context = await browser.newContext({
     viewport: { width: 1120, height: 720 },
-    hasTouch: options.mode === "touch"
+    hasTouch: options.mode === "touch",
+    /* The page owns a copy control, so the proof can read the clipboard back. */
+    permissions: ["clipboard-read", "clipboard-write"]
   });
   const page = await context.newPage();
   const diagnostics = attachDiagnostics(page);
@@ -680,6 +682,7 @@ async function runPass(browser, baseUrl, options) {
     };
     return {
       victory: state.victory,
+      link: summary.link || null,
       shown,
       expected,
       mismatches: Object.keys(expected)
@@ -690,6 +693,43 @@ async function runPass(browser, baseUrl, options) {
   await page.screenshot({
     path: path.join(ARTIFACTS, `victory-summary-${options.mode}.png`)
   });
+
+  /*
+   * A shared link has to reopen the same run, and the page's copy control has
+   * to hand back exactly that link.
+   */
+  const shareOrigin = await page.evaluate(() => ({
+    seed: window.nanoDnf.getSeed(),
+    layout: window.nanoDnf.getState().layout.slice()
+  }));
+  const shareLink = await page.evaluate(() => window.nanoDnf.getShareLink());
+  const shareRoundTrip = {
+    link: shareLink,
+    seedOk: false,
+    layoutOk: false,
+    copied: null
+  };
+  if (shareLink) {
+    const sharePage = await context.newPage();
+    await sharePage.goto(shareLink, { waitUntil: "load" });
+    await sharePage.waitForFunction(() => window.nanoDnf && window.nanoDnf.getState().room);
+    const reopened = await sharePage.evaluate(() => ({
+      seed: window.nanoDnf.getSeed(),
+      layout: window.nanoDnf.getState().layout.slice()
+    }));
+    shareRoundTrip.seedOk = reopened.seed === shareOrigin.seed;
+    shareRoundTrip.layoutOk =
+      JSON.stringify(reopened.layout) === JSON.stringify(shareOrigin.layout);
+    await sharePage.close();
+  }
+  await page.click("#copy-seed");
+  await page.waitForTimeout(200);
+  shareRoundTrip.copied = await page.evaluate(() =>
+    navigator.clipboard
+      .readText()
+      .then((text) => text)
+      .catch(() => null)
+  );
 
   /*
    * The other ending has to report itself the same way. Restart, let the Slayer
@@ -920,6 +960,7 @@ async function runPass(browser, baseUrl, options) {
     attractArc,
     attractAfterInput,
     victorySummary,
+    shareRoundTrip,
     defeatSummary,
     attackChain,
     upSlashKey,
@@ -998,6 +1039,22 @@ function problemsFor(pass) {
         `${pass.mode}: the clear screen disagrees with the run it just played (${summary.mismatches
           .map((entry) => `${entry.id}: shown ${entry.shown} vs played ${entry.expected}`)
           .join("; ")})`
+      );
+    }
+  }
+  const share = pass.shareRoundTrip;
+  if (!share || !share.link || share.link.indexOf("seed=") === -1) {
+    problems.push(`${pass.mode}: the clear screen offers no shareable seed link`);
+  } else {
+    if (!share.seedOk) {
+      problems.push(`${pass.mode}: the shared link did not reopen the same seed`);
+    }
+    if (!share.layoutOk) {
+      problems.push(`${pass.mode}: the shared link did not reopen the same room layout`);
+    }
+    if (share.copied !== share.link) {
+      problems.push(
+        `${pass.mode}: the copy control returned ${JSON.stringify(share.copied)} instead of ${share.link}`
       );
     }
   }
@@ -1228,6 +1285,12 @@ async function main() {
     victorySummary: pass.victorySummary && {
       shown: pass.victorySummary.shown,
       expected: pass.victorySummary.expected
+    },
+    share: pass.shareRoundTrip && {
+      link: pass.shareRoundTrip.link,
+      seedOk: pass.shareRoundTrip.seedOk,
+      layoutOk: pass.shareRoundTrip.layoutOk,
+      copied: pass.shareRoundTrip.copied
     },
     defeatSummary: pass.defeatSummary && {
       shown: pass.defeatSummary.shown,

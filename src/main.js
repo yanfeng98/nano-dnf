@@ -446,6 +446,7 @@
   /* What the title and victory screens need, without leaking storage details. */
   function runSummary() {
     var record = Records.best(records, currentSeed);
+    var link = shareLink();
     var run = finishedRun || {
       seed: currentSeed,
       seconds: state.time,
@@ -475,6 +476,8 @@
       lastRun: lastRun,
       improved: !!(lastRun && lastRun.improved),
       rows: table.rows,
+      link: link,
+      linkText: link ? "本局链接 " + link : null,
       seedText: "种子 " + currentSeed,
       recordText: record
         ? "本种子最佳 " +
@@ -747,6 +750,28 @@
     watch.victory = false;
   }
 
+  /* The link that reopens this exact run. */
+  function shareLink() {
+    if (!Summary || typeof Summary.seedUrl !== "function") return null;
+    return Summary.seedUrl(window.location ? window.location.href : "", currentSeed);
+  }
+
+  function copyShareLink() {
+    var link = shareLink();
+    var clipboard = navigator && navigator.clipboard;
+    if (!link || !clipboard || typeof clipboard.writeText !== "function") {
+      return Promise.resolve(false);
+    }
+    return clipboard
+      .writeText(link)
+      .then(function () {
+        return true;
+      })
+      .catch(function () {
+        return false;
+      });
+  }
+
   /*
    * The demo belongs to the title screen alone. Retiring it on the first
    * dismissal keeps F1 mid-run showing the frozen real run instead of a replay.
@@ -959,6 +984,9 @@
         demo: Attract && attract ? Attract.snapshot(attract) : null
       };
     },
+    /* The link that reopens this exact run, and the page's copy control. */
+    getShareLink: shareLink,
+    copyShareLink: copyShareLink,
     /*
      * Manual QA: drive the title demo forward in one go. The browser proof uses
      * it to reach the boss without waiting out the whole dungeon in real time.
@@ -982,4 +1010,16 @@
       return { id: spec.id, text: spec.text };
     }
   };
+
+  /* The copy control lives in the page, so the shell wires it up. */
+  (function wireShareButton() {
+    var button = document.getElementById("copy-seed");
+    var label = document.getElementById("copy-seed-status");
+    if (!button) return;
+    button.addEventListener("click", function () {
+      copyShareLink().then(function (copied) {
+        if (label) label.textContent = copied ? "已复制" : "复制失败";
+      });
+    });
+  })();
 })();

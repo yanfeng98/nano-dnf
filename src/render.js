@@ -1585,6 +1585,19 @@
         ctx.fillText(meta.run.recordText, ARENA.width / 2, ARENA.height / 2 + 98);
       }
       drawRunTable(ctx, meta && meta.run && meta.run.rows);
+      /* The link that reopens this exact run, so a good seed can be passed on. */
+      if (meta && meta.run && meta.run.linkText) {
+        ctx.font = "600 13px 'PingFang SC', 'Segoe UI', sans-serif";
+        var linkY = ARENA.height / 2 + 216;
+        var linkWidth = ctx.measureText(meta.run.linkText).width + 26;
+        /* A backing pill keeps the link readable over the skill bar behind it. */
+        roundRect(ctx, ARENA.width / 2 - linkWidth / 2, linkY - 16, linkWidth, 23, 11);
+        ctx.fillStyle = "rgba(6, 8, 16, 0.8)";
+        ctx.fill();
+        ctx.textAlign = "center";
+        ctx.fillStyle = PALETTE.textDim;
+        ctx.fillText(meta.run.linkText, ARENA.width / 2, linkY);
+      }
       ctx.restore();
       return;
     }

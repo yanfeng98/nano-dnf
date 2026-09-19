@@ -84,6 +84,28 @@ test("the clock format matches the records module exactly", () => {
   });
 });
 
+test("the share link reopens one exact seed", () => {
+  assert.equal(Summary.seedUrl("https://x.dev/nano-dnf/", 123), "https://x.dev/nano-dnf/?seed=123");
+  assert.equal(
+    Summary.seedUrl("https://x.dev/nano-dnf/?touch=1", 7),
+    "https://x.dev/nano-dnf/?touch=1&seed=7"
+  );
+  /* An existing seed is replaced, not appended twice. */
+  assert.equal(Summary.seedUrl("https://x.dev/p/?seed=5", 9), "https://x.dev/p/?seed=9");
+  assert.equal(
+    Summary.seedUrl("https://x.dev/p/?seed=5&touch=1", 9),
+    "https://x.dev/p/?touch=1&seed=9"
+  );
+  assert.equal(Summary.seedUrl("https://x.dev/p/#top", 9), "https://x.dev/p/?seed=9#top");
+  assert.equal(Summary.seedUrl("index.html", 9), "index.html?seed=9");
+
+  /* A seed that cannot be trusted never becomes a link. */
+  [0, -1, 1.5, NaN, "abc", undefined, null].forEach((bad) => {
+    assert.equal(Summary.seedUrl("https://x.dev/", bad), null, `${bad} should not build a link`);
+  });
+  assert.equal(Summary.seedUrl("", 5), null);
+});
+
 test("a real cleared run produces a table the victory screen can print", () => {
   const state = Core.createState({ seed: 1234 });
   Core.runFrames(state, 60, { right: true, attack: true });
