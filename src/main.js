@@ -412,18 +412,6 @@
   function syncRecords() {
     if (!state.victory || runBanked) return;
     runBanked = true;
-    /*
-     * The clock keeps ticking behind the clear screen, so the finish screen
-     * reads this snapshot instead of a still-moving state.
-     */
-    finishedRun = {
-      seed: currentSeed,
-      seconds: state.time,
-      level: state.player.level,
-      upgrades: state.player.upgradesTaken.slice(),
-      kills: state.stats.kills,
-      damageTaken: state.stats.damageTaken
-    };
     var outcome = Records.record(records, {
       seed: currentSeed,
       seconds: state.time,
@@ -435,6 +423,26 @@
     if (outcome.entry) saveRecords();
   }
 
+  /*
+   * Freeze the run the moment it ends - cleared or lost. The clock and the HUD
+   * keep moving behind the finish screen, so the table it draws has to read this
+   * snapshot instead of a still-moving state.
+   */
+  function syncFinishedRun() {
+    if (finishedRun || (!state.victory && !state.defeat)) return;
+    finishedRun = {
+      seed: currentSeed,
+      seconds: state.time,
+      level: state.player.level,
+      upgrades: state.player.upgradesTaken.slice(),
+      kills: state.stats.kills,
+      damageTaken: state.stats.damageTaken,
+      room: state.roomIndex,
+      rooms: state.layout.length,
+      victory: state.victory
+    };
+  }
+
   /* What the title and victory screens need, without leaking storage details. */
   function runSummary() {
     var record = Records.best(records, currentSeed);
@@ -444,7 +452,9 @@
       level: state.player.level,
       upgrades: state.player.upgradesTaken,
       kills: state.stats.kills,
-      damageTaken: state.stats.damageTaken
+      damageTaken: state.stats.damageTaken,
+      room: state.roomIndex,
+      rooms: state.layout.length
     };
     var table = Summary
       ? Summary.describe({
@@ -453,7 +463,9 @@
           level: run.level,
           upgrades: run.upgrades,
           kills: run.kills,
-          damageTaken: run.damageTaken
+          damageTaken: run.damageTaken,
+          room: run.room,
+          rooms: run.rooms
         })
       : { rows: [] };
     return {
@@ -792,6 +804,7 @@
         syncSounds();
         syncHints();
         ageHint(Core.DT);
+        syncFinishedRun();
         syncRecords();
         consumePressed();
         accumulator -= Core.DT;

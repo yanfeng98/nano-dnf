@@ -42,6 +42,23 @@ test("a run with nothing picked says so instead of printing nothing", () => {
   assert.equal(table.upgradeNames.length, 0);
 });
 
+test("the table says how far the run got", () => {
+  const reached = Summary.describe({ seed: 1, room: 2, rooms: 5 });
+  assert.equal(rowOf(reached, "reached").value, "第 3/5 层", "roomIndex 2 is the third room");
+  assert.equal(Summary.describe({ seed: 1, room: 0, rooms: 5 }).rows.length, 7);
+
+  /* A run that never left the first room, and one that cannot be trusted. */
+  assert.equal(rowOf(Summary.describe({ room: 0, rooms: 5 }), "reached").value, "第 1/5 层");
+  assert.equal(rowOf(Summary.describe({ room: -4, rooms: 5 }), "reached").value, "第 1/5 层");
+  assert.equal(rowOf(Summary.describe({ room: 99, rooms: 5 }), "reached").value, "第 5/5 层");
+
+  /* Without a room count there is nothing honest to say, so the row is absent. */
+  assert.ok(
+    Summary.describe({ seed: 1 }).rows.every((row) => row.id !== "reached"),
+    "no room total means no reached row"
+  );
+});
+
 test("an unknown upgrade id still shows something readable", () => {
   const table = Summary.describe({ upgrades: ["attack", "mystery"] });
   assert.deepEqual(table.upgradeNames, ["锐锋", "mystery"]);

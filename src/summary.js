@@ -51,15 +51,29 @@
     run = run || {};
     var names = upgradeNames(run.upgrades);
     var level = whole(run.level, 1);
+    var rows = [
+      { id: "seed", label: "种子", value: String(whole(run.seed, 0)) },
+      { id: "time", label: "用时", value: formatSeconds(run.seconds) },
+      { id: "level", label: "等级", value: "Lv " + (level < 1 ? 1 : level) },
+      { id: "upgrades", label: "强化", value: names.length ? names.join(" · ") : "无" },
+      { id: "kills", label: "击杀", value: String(whole(run.kills, 0)) },
+      { id: "damage", label: "承伤", value: String(whole(run.damageTaken, 0)) }
+    ];
+    /*
+     * How far the run got. A lost run needs this more than a won one, but the
+     * clear screen shows it too so both endings read the same way.
+     */
+    var rooms = whole(run.rooms, 0);
+    if (rooms > 0) {
+      var reached = Math.min(rooms, whole(run.room, 0) + 1);
+      rows.push({
+        id: "reached",
+        label: "到达",
+        value: "第 " + (reached < 1 ? 1 : reached) + "/" + rooms + " 层"
+      });
+    }
     return {
-      rows: [
-        { id: "seed", label: "种子", value: String(whole(run.seed, 0)) },
-        { id: "time", label: "用时", value: formatSeconds(run.seconds) },
-        { id: "level", label: "等级", value: "Lv " + (level < 1 ? 1 : level) },
-        { id: "upgrades", label: "强化", value: names.length ? names.join(" · ") : "无" },
-        { id: "kills", label: "击杀", value: String(whole(run.kills, 0)) },
-        { id: "damage", label: "承伤", value: String(whole(run.damageTaken, 0)) }
-      ],
+      rows: rows,
       upgradeNames: names
     };
   }

@@ -674,7 +674,9 @@ async function runPass(browser, baseUrl, options) {
             .join(" · ")
         : "无",
       kills: String(state.stats.kills),
-      damage: String(state.stats.damageTaken)
+      damage: String(state.stats.damageTaken),
+      reached:
+        "第 " + Math.min(state.layout.length, state.roomIndex + 1) + "/" + state.layout.length + " 层"
     };
     return {
       victory: state.victory,
@@ -687,6 +689,61 @@ async function runPass(browser, baseUrl, options) {
   });
   await page.screenshot({
     path: path.join(ARTIFACTS, `victory-summary-${options.mode}.png`)
+  });
+
+  /*
+   * The other ending has to report itself the same way. Restart, let the Slayer
+   * fight for a moment so the table has real numbers, then take a lethal hit
+   * through the game's own damage path and read the YOU DIED screen.
+   */
+  await page.keyboard.press("F3");
+  await page.keyboard.down("ArrowRight");
+  await page.keyboard.down("KeyX");
+  await page.waitForTimeout(5000);
+  await page.keyboard.up("KeyX");
+  await page.keyboard.up("ArrowRight");
+  const defeatDeath = await page.evaluate(() => {
+    const state = window.nanoDnf.getState();
+    const deathTime = state.time;
+    window.DNFCore.damagePlayer(state, state.player.hp + 50, state.player.x + 40);
+    return { deathTime: deathTime, defeated: state.defeat };
+  });
+  await page.waitForTimeout(250);
+  const defeatSummary = await page.evaluate((deathTime) => {
+    const state = window.nanoDnf.getState();
+    const summary = window.nanoDnf.getRunSummary();
+    const shown = {};
+    (summary.rows || []).forEach((row) => {
+      shown[row.id] = row.value;
+    });
+    const upgrades = state.player.upgradesTaken;
+    const clock = /^(\d+):(\d\d)\.(\d)$/.exec(shown.time || "");
+    return {
+      defeat: state.defeat,
+      rooms: state.layout.length,
+      roomIndex: state.roomIndex,
+      shown,
+      expected: {
+        seed: String(window.nanoDnf.getSeed()),
+        level: "Lv " + state.player.level,
+        upgrades: upgrades.length
+          ? upgrades
+              .map((id) => (window.DNFCore.UPGRADES[id] || { name: id }).name)
+              .join(" · ")
+          : "无",
+        kills: String(state.stats.kills),
+        damage: String(state.stats.damageTaken),
+        reached:
+          "第 " + Math.min(state.layout.length, state.roomIndex + 1) + "/" + state.layout.length + " 层"
+      },
+      shownSeconds: clock
+        ? Number(clock[1]) * 60 + Number(clock[2]) + Number(clock[3]) / 10
+        : null,
+      deathTime
+    };
+  }, defeatDeath.deathTime);
+  await page.screenshot({
+    path: path.join(ARTIFACTS, `defeat-summary-${options.mode}.png`)
   });
 
   /* The soundtrack must be running by now, and must react to mute. */
@@ -863,6 +920,7 @@ async function runPass(browser, baseUrl, options) {
     attractArc,
     attractAfterInput,
     victorySummary,
+    defeatSummary,
     attackChain,
     upSlashKey,
     music: { beforeInput: musicBeforeInput, afterRun: musicAfterRun, mute: musicMuteProbe },
@@ -940,6 +998,36 @@ function problemsFor(pass) {
         `${pass.mode}: the clear screen disagrees with the run it just played (${summary.mismatches
           .map((entry) => `${entry.id}: shown ${entry.shown} vs played ${entry.expected}`)
           .join("; ")})`
+      );
+    }
+  }
+  const defeat = pass.defeatSummary;
+  if (!defeat || !defeat.defeat) {
+    problems.push(`${pass.mode}: the defeat screen was never reached to read its summary`);
+  } else {
+    const defeatRowIds = ["seed", "time", "level", "upgrades", "kills", "damage", "reached"];
+    defeatRowIds.forEach((id) => {
+      if (defeat.shown[id] === undefined) {
+        problems.push(`${pass.mode}: the defeat screen has no ${id} row`);
+      }
+    });
+    const wrong = Object.keys(defeat.expected).filter(
+      (id) => defeat.shown[id] !== defeat.expected[id]
+    );
+    if (wrong.length) {
+      problems.push(
+        `${pass.mode}: the defeat screen disagrees with the run that died (${wrong
+          .map((id) => `${id}: shown ${defeat.shown[id]} vs played ${defeat.expected[id]}`)
+          .join("; ")})`
+      );
+    }
+    /* The clock freezes a frame after the last hit, so allow one frame of slack. */
+    if (
+      typeof defeat.shownSeconds !== "number" ||
+      Math.abs(defeat.shownSeconds - defeat.deathTime) > 0.3
+    ) {
+      problems.push(
+        `${pass.mode}: the defeat screen clock (${defeat.shown && defeat.shown.time}) is not the death time (${defeat.deathTime})`
       );
     }
   }
@@ -1140,6 +1228,11 @@ async function main() {
     victorySummary: pass.victorySummary && {
       shown: pass.victorySummary.shown,
       expected: pass.victorySummary.expected
+    },
+    defeatSummary: pass.defeatSummary && {
+      shown: pass.defeatSummary.shown,
+      expected: pass.defeatSummary.expected,
+      deathTime: Number((pass.defeatSummary.deathTime || 0).toFixed(2))
     },
     attackChain: pass.attackChain,
     upSlashKey: pass.upSlashKey,

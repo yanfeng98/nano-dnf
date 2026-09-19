@@ -1584,29 +1584,7 @@
         ctx.fillStyle = PALETTE.textDim;
         ctx.fillText(meta.run.recordText, ARENA.width / 2, ARENA.height / 2 + 98);
       }
-      /*
-       * The run's own numbers, so a clear is worth reading (and worth sharing):
-       * seed, time, level, the upgrades taken, kills and damage taken.
-       */
-      if (meta && meta.run && meta.run.rows && meta.run.rows.length) {
-        /* Two short columns keep the table clear of the skill bar underneath. */
-        var rows = meta.run.rows;
-        var perColumn = Math.ceil(rows.length / 2);
-        var columnWidth = 360;
-        var firstColumnX = ARENA.width / 2 - columnWidth / 2;
-        var firstRowY = ARENA.height / 2 + 126;
-        rows.forEach(function (row, index) {
-          var x = firstColumnX + Math.floor(index / perColumn) * columnWidth;
-          var y = firstRowY + (index % perColumn) * 24;
-          ctx.font = "600 15px 'PingFang SC', 'Segoe UI', sans-serif";
-          ctx.textAlign = "right";
-          ctx.fillStyle = PALETTE.gold;
-          ctx.fillText(row.label, x - 10, y);
-          ctx.textAlign = "left";
-          ctx.fillStyle = PALETTE.text;
-          ctx.fillText(row.value, x + 10, y);
-        });
-      }
+      drawRunTable(ctx, meta && meta.run && meta.run.rows);
       ctx.restore();
       return;
     }
@@ -1692,6 +1670,30 @@
       }
       ctx.restore();
     }
+  }
+
+  /*
+   * The run's own numbers, shared by the clear and defeat screens: seed, time,
+   * level, the upgrades taken, kills, damage taken and how far the run got. Two
+   * short columns keep the table clear of the skill bar underneath.
+   */
+  function drawRunTable(ctx, rows) {
+    if (!rows || !rows.length) return;
+    var perColumn = Math.ceil(rows.length / 2);
+    var columnWidth = 360;
+    var firstColumnX = ARENA.width / 2 - columnWidth / 2;
+    var firstRowY = ARENA.height / 2 + 120;
+    rows.forEach(function (row, index) {
+      var x = firstColumnX + Math.floor(index / perColumn) * columnWidth;
+      var y = firstRowY + (index % perColumn) * 21;
+      ctx.font = "600 15px 'PingFang SC', 'Segoe UI', sans-serif";
+      ctx.textAlign = "right";
+      ctx.fillStyle = PALETTE.gold;
+      ctx.fillText(row.label, x - 10, y);
+      ctx.textAlign = "left";
+      ctx.fillStyle = PALETTE.text;
+      ctx.fillText(row.value, x + 10, y);
+    });
   }
 
   /*
