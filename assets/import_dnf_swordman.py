@@ -122,13 +122,18 @@ OVERLAYS = [("eye", 2, 24, 20), ("blood", 0, 32, 24)]
 CELLS = {
     "idle": [176, 177, 178, 179] * 3,
     "run": list(range(105, 117)),
-    # The Slayer's real normal attack: four cuts, one per press.
-    "attack": list(range(0, 42)),
+    # The Slayer's real normal attack: four cuts, one per press. The client's
+    # chain is cut at its own actions, and the body sheet opens
+    # mid-cycle: frames 0-4 are the *tail* of the previous hit's slash (its peak
+    # sits at frame 2, and 3-4 are the decaying swoosh), so the four hits a press
+    # plays are the ones that peak at 13, 24, 36 and 45. Baking from 0 put that
+    # leftover slash in front of the first cut, which is the second sword flick
+    # the owner kept seeing.
+    "attack": list(range(8, 50)),
     # Generic skill art first (the six frames the renderer plays), then the
     # up-slash clip that skill alone uses (columns 6-15 are body frames 41-50).
-    # The clip opens on 41, the settled pose the chain already ends on, so the
-    # skill flows out of a normal attack instead of replaying frame 40 - the same
-    # hold frame - as a dead first step.
+    # 41 is the settled pose the normal attack's first cut opens on, so the skill
+    # flows out of a press instead of starting on a dead hold frame.
     "skill": [194, 196, 197, 198, 199, 200] + list(range(41, 51)),
     "extras": [100, 102, 232, 236, 240, 241, 101, 103, 233, 237, 238, 239],
 }

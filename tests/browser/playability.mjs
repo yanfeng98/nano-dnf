@@ -553,7 +553,7 @@ async function runPass(browser, baseUrl, options) {
       stages: stages.length,
       maxCombo: window.DNFCore.PLAYER.maxCombo,
       played,
-      skippedStands: [16, 17, 27, 28].filter((column) => played.includes(column)).length,
+      skippedStands: [8, 9, 19, 20].filter((column) => played.includes(column)).length,
       firstColumn: played[0],
       secondColumn: played[2],
       lastColumn: played[played.length - 1],
@@ -567,6 +567,7 @@ async function runPass(browser, baseUrl, options) {
   let midShot = false;
   let pauseReadout = null;
   let stanceReadout = null;
+  let airReadout = null;
   let overallBefore = null;
   let paceEarly = null;
   const trace = [];
@@ -773,6 +774,55 @@ async function runPass(browser, baseUrl, options) {
         flying: blood.flying,
         hits: blood.hits,
         off: !(await page.evaluate(() => window.nanoDnf.isRaging()))
+      };
+
+      /*
+       * 崩山击 and 大蹦 leave the ground part way through. The sprite has to keep
+       * playing the skill's own action up there instead of dropping to the
+       * generic jump art, which is what the owner saw as an extra attack in the
+       * air. Freeze one mid-leap frame, read back which row the renderer picks,
+       * then let the game have the frame back.
+       */
+      const air = await page.evaluate(() => {
+        const state = window.nanoDnf.getState();
+        const player = state.player;
+        const before = {
+          onGround: player.onGround,
+          vy: player.vy,
+          skillId: player.skillId,
+          skillTimer: player.skillTimer
+        };
+        player.skillId = "mountainBreaker";
+        player.skillTimer = window.DNFCore.SKILLS.mountainBreaker.duration * 0.6;
+        player.onGround = false;
+        player.vy = -220;
+        const frame = window.DNFRender.playerFrame(state, player);
+        const clip = window.DNFRender.SPRITE.skillClips.mountainBreaker;
+        return {
+          row: frame.row,
+          col: frame.col,
+          clipRow: clip.row,
+          clipFirst: clip.first,
+          clipFrames: clip.frames,
+          extrasRow: window.DNFRender.SPRITE.rows.extras,
+          before
+        };
+      });
+      await page.waitForTimeout(60);
+      await page.screenshot({ path: path.join(ARTIFACTS, "smash-air.png") });
+      await page.evaluate((before) => {
+        const player = window.nanoDnf.getState().player;
+        player.onGround = before.onGround;
+        player.vy = before.vy;
+        player.skillId = before.skillId;
+        player.skillTimer = before.skillTimer;
+      }, air.before);
+      airReadout = {
+        row: air.row,
+        clipRow: air.clipRow,
+        extrasRow: air.extrasRow,
+        col: air.col,
+        inClip: air.col >= air.clipFirst && air.col < air.clipFirst + air.clipFrames
       };
     }
     await page.waitForTimeout(options.mode === "touch" ? 16 : 20);
@@ -1154,6 +1204,7 @@ async function runPass(browser, baseUrl, options) {
     attractAfterInput,
     pauseReadout,
     stanceReadout,
+    airReadout,
     overallBefore,
     paceEarly,
     pace: { before: paceBefore, after: paceAfter, record: paceFlip.best },
@@ -1333,6 +1384,21 @@ function problemsFor(pass) {
       problems.push(`${pass.mode}: casting 血之狂暴 again did not take the stance down`);
     }
   }
+  const air = pass.airReadout;
+  if (!air) {
+    problems.push(`${pass.mode}: the mid-leap animation check never ran`);
+  } else {
+    if (air.row === air.extrasRow) {
+      problems.push(
+        `${pass.mode}: the leap fell back to the generic air art (row ${air.row}) instead of the skill's own action`
+      );
+    }
+    if (air.row !== air.clipRow || !air.inClip) {
+      problems.push(
+        `${pass.mode}: the mid-leap frame is ${air.row}:${air.col}, not the 崩山击 clip ${air.clipRow}`
+      );
+    }
+  }
   if (!pass.paceEarly || pass.paceEarly.state !== "none") {
     problems.push(
       `${pass.mode}: the first run should report no record yet, got ${JSON.stringify(pass.paceEarly)}`
@@ -1394,9 +1460,9 @@ function problemsFor(pass) {
   if (!chain || chain.stages !== 4 || chain.maxCombo !== 4) {
     problems.push(`${pass.mode}: the shipped normal attack is not the four-cut chain`);
   } else {
-    if (chain.firstColumn !== 1) {
+    if (chain.firstColumn !== 0) {
       problems.push(
-        `${pass.mode}: the chain opens on frame ${chain.firstColumn}, not the cut's own first frame`
+        `${pass.mode}: the chain opens on frame ${chain.firstColumn}, not the first cut's wind-up`
       );
     }
     if (chain.secondColumn <= chain.firstColumn) {
@@ -1407,8 +1473,8 @@ function problemsFor(pass) {
         `${pass.mode}: the cuts play ${chain.skippedStands} of the client's standing frames`
       );
     }
-    if (chain.lastColumn !== 39) {
-      problems.push(`${pass.mode}: the last press ends on frame ${chain.lastColumn}, not 39`);
+    if (chain.lastColumn !== 40) {
+      problems.push(`${pass.mode}: the last press ends on frame ${chain.lastColumn}, not 40`);
     }
     if (chain.upSlashColumns !== 10) {
       problems.push(
@@ -1606,6 +1672,7 @@ async function main() {
       resumed: pass.pauseReadout.resumed
     },
     stanceReadout: pass.stanceReadout,
+    airReadout: pass.airReadout,
     pace: {
       firstRun: pass.paceEarly && pass.paceEarly.state,
       before: pass.pace.before && pass.pace.before.state,

@@ -58,8 +58,8 @@
        up-slash, whose own raise-and-lift is baked right after those. The bake
        (assets/import_dnf_swordman.py CELLS.skill) has to keep the same order,
        and a test pins the clip to the end of the generic frames. The clip is
-       the client's body frames 41-50: it opens on the settled pose the normal
-       attack already ends on and cuts on 44-45. */
+       the client's body frames 41-50: 41 is the settled pose a normal attack
+       opens on, so the skill flows out of a press instead of a dead hold. */
     /*
      * Per-move body animations. Every skill used to draw the generic skill row,
      * which is why the Slayer never looked like he was performing the move; the
@@ -515,13 +515,20 @@
     var rows = SPRITE.rows;
     if (player.dead) return { row: rows.extras, col: SPRITE.extras.dead };
     if (player.hurtTimer > 0) return { row: rows.extras, col: SPRITE.extras.hurt };
-    if (!player.onGround) {
+    /*
+     * A clip owns its whole cast, air time included. 崩山击 and 大蹦 are leaping
+     * moves: they leave the ground part way through, and the airborne branch used
+     * to take the sprite away from the skill's own action and draw the generic
+     * jump/fall art instead - the owner saw that as an extra attack in the air.
+     * Only a move without a clip falls back to the jump/fall frames.
+     */
+    var clip = player.skillTimer > 0 ? SPRITE.skillClips[player.skillId] : null;
+    if (!player.onGround && !(clip && clip.row !== undefined)) {
       return { row: rows.extras, col: player.vy < 0 ? SPRITE.extras.jump : SPRITE.extras.fall };
     }
     if (player.skillTimer > 0) {
       var skill = Core.SKILLS[player.skillId];
       var progress = skill ? 1 - player.skillTimer / skill.duration : 0;
-      var clip = SPRITE.skillClips[player.skillId];
       if (clip && clip.row !== undefined) {
         /*
          * A clip can pace its frames in beats: 崩山击's four raise frames run

@@ -1145,22 +1145,20 @@ test("every frame the renderer plays fits inside its sprite cell", () => {
 test("one press plays one stage of the normal attack, and attack speed sets the pace", () => {
   const stages = Core.ATTACK_STAGES;
   assert.equal(Core.PLAYER.maxCombo, stages.length, "the chain is as long as the animation");
-  assert.equal(Render.SPRITE.frames.attack, 42, "the attack row carries the four cuts (0-41)");
+  assert.equal(Render.SPRITE.frames.attack, 42, "the attack row carries the four cuts");
 
   /*
-   * One press is one of the client's own actions, and the chain skips the
-   * stands between them. The bodies of the four cuts are actions 0, 1, 3 and 5
-   * of the body sheet (1-8, 8-15, 18-26, 29-39); actions 2 (15-18) and 4
-   * (26-29) are the stands the client puts between hits. Reading the chain as
-   * four even windows instead spliced every press across two actions - press
-   * one ended on the second cut's wind-up and press two began with it - so the
-   * sword visibly swept back twice in a row.
+   * One press is one of the client's own actions, and the chain skips the stands
+   * between them. The body sheet opens mid-cycle - frames 0-4 are the tail of the
+   * previous hit's slash - so the row is baked from frame 8 and the four cuts are
+   * the actions at 8-15, 18-26, 29-39 and 39-48. Row columns are body frames - 8;
+   * the stands at body frames 16-17 and 27-28 land in the gaps between stages.
    */
   const actions = [
-    { first: 1, frames: 8 },
-    { first: 8, frames: 8 },
-    { first: 18, frames: 9 },
-    { first: 29, frames: 11 }
+    { first: 0, frames: 8 },
+    { first: 10, frames: 9 },
+    { first: 21, frames: 11 },
+    { first: 31, frames: 10 }
   ];
   stages.forEach((stage, index) => {
     assert.deepEqual(
@@ -1177,8 +1175,8 @@ test("one press plays one stage of the normal attack, and attack speed sets the 
    * cross from one action into the next: both are what made a single press read
    * as two sword flicks.
    */
-  /* The client's stands sit between the actions and share their edge frames. */
-  const filler = [[16, 17], [27, 28]];
+  /* The client's stands, as columns of the baked row. */
+  const filler = [[8, 9], [19, 20]];
   for (let press = 0; press < stages.length; press += 1) {
     const stage = stages[press];
     for (let step = 0; step <= 40; step += 1) {
@@ -1197,17 +1195,17 @@ test("one press plays one stage of the normal attack, and attack speed sets the 
   }
 
   /* A press shows its own action, from that action's first frame to its last. */
-  assert.equal(Render.attackColumn(0, 0), 1, "the first press starts on the cut's wind-up");
+  assert.equal(Render.attackColumn(0, 0), 0, "the first press starts on the cut's wind-up");
   assert.equal(Render.attackColumn(1, 0), stages[0].first + stages[0].frames - 1);
   assert.equal(Render.attackColumn(0, 1), stages[1].first, "the second press is its own swing");
   assert.equal(
     Render.attackColumn(1, stages.length - 1),
-    39,
+    40,
     "the last press ends on the last real attack frame"
   );
   assert.equal(
     Render.attackColumn(0, stages.length),
-    1,
+    0,
     "the chain wraps back to the first cut"
   );
 
@@ -1269,6 +1267,64 @@ test("one press plays one stage of the normal attack, and attack speed sets the 
     10,
     "the client's up-slash clip is body frames 41-50, opening on the settled chain pose"
   );
+
+  /*
+   * The baked row must hold exactly one swoosh per press. The old bake started
+   * at body frame 0, where the previous hit's slash is still decaying, so the
+   * first press lit up twice - once from that leftover and once from its own
+   * swing.
+   */
+  const sheet = decodeRgbaPng(path.join(__dirname, "..", "assets", "slayer.png"));
+  const fw = Render.SPRITE.frameW;
+  const fh = Render.SPRITE.frameH;
+  const row = Render.SPRITE.rows.attack;
+  const trail = (col) => {
+    let count = 0;
+    for (let y = 0; y < fh; y += 1) {
+      for (let x = 0; x < fw; x += 1) {
+        const offset = ((row * fh + y) * sheet.width + col * fw + x) * 4;
+        if (sheet.pixels[offset + 3] < 40) continue;
+        const r = sheet.pixels[offset];
+        const g = sheet.pixels[offset + 1];
+        const b = sheet.pixels[offset + 2];
+        const high = Math.max(r, g, b);
+        if (high > 150 && high - Math.min(r, g, b) < 40) count += 1;
+      }
+    }
+    return count;
+  };
+  const trails = [];
+  for (let col = 0; col < Render.SPRITE.frames.attack; col += 1) trails.push(trail(col));
+  const sorted = [...trails].sort((a, b) => a - b);
+  const median = sorted[Math.floor(sorted.length / 2)];
+  const clusters = [];
+  trails.forEach((value, col) => {
+    if (value <= median * 2.5) return;
+    const last = clusters[clusters.length - 1];
+    if (last && last[last.length - 1] === col - 1) last.push(col);
+    else clusters.push([col]);
+  });
+  /*
+   * The client's four strikes peak on body frames 13, 24, 36 and 45; the row is
+   * baked from frame 8, so they have to land on columns 5, 16, 28 and 37. Baking
+   * from 0 shifts every one of them by eight and drags the previous hit's decaying
+   * swoosh (body frames 2-4) into the first press.
+   */
+  assert.equal(
+    JSON.stringify(clusters.map((cluster) => cluster[0])),
+    JSON.stringify([5, 16, 28, 37]),
+    `one swoosh per press, on the client's own strike frames: ${JSON.stringify(clusters)}`
+  );
+  Core.ATTACK_STAGES.forEach((stage, press) => {
+    const inside = clusters.filter(
+      ([first]) => first >= stage.first && first < stage.first + stage.frames
+    );
+    assert.equal(inside.length, 1, `press ${press} plays exactly one swoosh`);
+    assert.ok(
+      inside[0][0] >= stage.first + 2,
+      `press ${press} winds up before it swings (swoosh ${inside[0][0]} in ${stage.first}+${stage.frames})`
+    );
+  });
 
   /* Attack speed divides the swing, and with it the wait before the next press. */
   const state = lastRoomState();
@@ -1348,6 +1404,40 @@ test("the swordman bake caches each source layer, so a new katana actually ships
     source.includes("f\"{WEAPON}/katana{WEAPON_INDEX}b.img\"") &&
       source.includes("f\"{WEAPON}/katana{WEAPON_INDEX}c.img\""),
     "both halves of the picked katana must come from WEAPON_INDEX"
+  );
+});
+
+test("a leaping skill keeps its own animation while it is in the air", () => {
+  const state = Core.createState({ seed: 5 });
+  const player = state.player;
+  player.onGround = false;
+  player.vy = -260;
+  player.skillId = "mountainBreaker";
+  player.skillTimer = Core.SKILLS.mountainBreaker.duration * 0.5;
+
+  const clip = Render.SPRITE.skillClips.mountainBreaker;
+  const leaping = Render.playerFrame(state, player);
+  assert.equal(
+    leaping.row,
+    clip.row,
+    "崩山击's leap must keep playing its own action, not the generic jump art"
+  );
+  assert.ok(leaping.col >= clip.first && leaping.col < clip.first + clip.frames);
+
+  /* The same mid-leap frame for 大蹦. */
+  player.skillId = "mountainRift";
+  player.skillTimer = Core.SKILLS.mountainRift.duration * 0.5;
+  const rift = Render.SPRITE.skillClips.mountainRift;
+  const leapRift = Render.playerFrame(state, player);
+  assert.equal(leapRift.row, rift.row, "大蹦 keeps its action in the air too");
+
+  /* A move with no clip of its own still falls back to the jump/fall frames. */
+  player.skillId = "bloodSword";
+  player.skillTimer = Core.SKILLS.bloodSword.duration * 0.5;
+  assert.equal(
+    Render.playerFrame(state, player).row,
+    Render.SPRITE.rows.extras,
+    "a move without a clip keeps the generic air pose"
   );
 });
 

@@ -40,20 +40,20 @@
   /*
    * The four cuts of the normal attack, one client action each.
    *
-   * The body sheet's normal-attack chain is not evenly spaced: the client cuts
-   * it into whole actions and puts filler stands between them (the action sheet
-   * reads 0: 1-8, 1: 8-15, 2: 15-18 stand, 3: 18-26, 4: 26-29 stand,
-   * 5: 29-39). Reading the chain as four even 10-frame windows spliced each press
-   * across two of those actions - press one ended on the second cut's wind-up and
-   * press two started on it - so a press showed the sword sweep back, then sweep
-   * back again, and the stands played as extra motion. The stages are the actions
-   * now; the stands in between are the frames the chain deliberately skips.
+   * The body sheet holds the chain as whole actions with stands between them, and
+   * it starts *mid-cycle*: frames 0-4 of the raw sheet are the tail of the
+   * previous hit's slash (its swoosh peaks at frame 2 and decays through 3-4).
+   * Baking the row from 0 therefore put a leftover swing in front of the first
+   * cut, which read as an extra flick; the row starts at frame 8 now, the moment
+   * the first cut's own action begins, and the four hits peak at 13, 24, 36 and
+   * 45. Row columns are body frames - 8, so the stands at 16-17 and 27-28 fall in
+   * the gaps the chain deliberately skips.
    */
   var ATTACK_STAGES = [
-    { first: 1, frames: 8, damage: 8 },
-    { first: 8, frames: 8, damage: 10 },
-    { first: 18, frames: 9, damage: 11 },
-    { first: 29, frames: 11, damage: 15 }
+    { first: 0, frames: 8, damage: 8 },
+    { first: 10, frames: 9, damage: 10 },
+    { first: 21, frames: 11, damage: 11 },
+    { first: 31, frames: 10, damage: 15 }
   ];
 
   var PLAYER = {
