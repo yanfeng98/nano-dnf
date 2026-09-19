@@ -28,3 +28,5 @@ assets/dnf_effect_berserker_*.txt
 assets/dnf_effect_catalog_*.png
 #   (layered effect animations rendered from the client art, --grid browsing)
 assets/dnf_effect_anim/
+#   (the body sheet cut into individual actions, make_body_action_sheets.py)
+assets/dnf_body_actions.*
