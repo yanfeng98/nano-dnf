@@ -63,6 +63,9 @@ ROWS = ["idle", "run", "attack", "skill", "extras", "clips", "clips2"]
 #   崩山裂地斩 the same shape, one size up: the same jump (127-132) and a heavier
 #              slam (229-231, the crouch that drives the sword into the ground)
 #              under the ultimate's giant blood sword and rift.
+#   银光落刃   the dive the client turns Z into while airborne: the air slash plus
+#              the landing (134-141). The owner did not give this one a frame
+#              range, so these are picked from the same action as the jump attack.
 #
 # The same owner note fixes the up-slash: 上挑 is sm_body0048 frames 42-50, which
 # is 43-51 here (the old bake started at 41, two frames early, and dropped 51).
@@ -74,6 +77,7 @@ CLIPS = [
     ("crossSlash", list(range(5, 19)) + list(range(198, 204))),
     ("frenzy", list(range(161, 170))),
     ("mountainRift", list(range(127, 133)) + [229, 230, 231]),
+    ("silverFall", list(range(134, 142))),
 ]
 CLIP_ROWS = ("clips", "clips2")
 
@@ -146,7 +150,10 @@ CELLS = {
     # fourth press and he wants it gone, so the row stops after the up sweep.
     # Everything the sheet repeats (19-28, 40-54) and the second forward cut
     # (55-65, the same shape as the first) is skipped, as are the stands.
-    "attack": [2, 2, 2, 4, 5, 6, 7] + list(range(10, 19)) + list(range(33, 40)),
+    "attack": [2, 2, 2, 4, 5, 6, 7] + list(range(10, 19)) + list(range(33, 40))
+    # ... and the air slash the same key does off the ground: the client's jump
+    # attack (0048:133-136 = 134-137 here), parked after the three ground cuts.
+    + list(range(134, 138)),
     # Generic skill art first (the six frames the renderer plays), then the
     # up-slash clip that skill alone uses (columns 6-14 are body frames 43-51:
     # 上挑 is sm_body0048's 42-50, one frame earlier on that sheet).

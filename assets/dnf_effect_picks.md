@@ -281,6 +281,15 @@
 `Z` 键本来就是 `upSlash`（`SKILL_KEYS = { KeyZ: "upSlash" }`），实测按住 `Z` → `cast=upSlash`；
 业主说"不是上挑"是因为**动画**播错了段，不是绑定错了。
 
+2026-09-19 业主第七轮：上挑不该因为离开技能栏就失效，另外把 C→Z / C→X 两招做出来
+
+| 项目 | 处理 |
+| --- | --- |
+| 上挑离开技能栏就按不出来 | `currentInput()` 原来只对**栏里已有的技能**认自己的快捷键；改成按 `Loadout.SKILL_KEYS` 遍历，`Z` 永远放上挑。浏览器证明会先把上挑移出技能栏再按 `Z` |
+| `C` → `X` 跳跃攻击 | 客户端 0048:133-136 → 这里 **134-137**，烘在攻击行尾部（第 23-26 列）；离地按 `X` 播这套（`SPRITE.airAttack`） |
+| `C` → `Z` 银光落刃 | 新招式 `silverFall`：**只在空中**由 `Z` 触发（地上仍是上挑），`dive 980` 俯冲、落地命中 + 冲击环 reach 150 + **60% 几率倒地**（走状态 RNG）；动作 134-141（**我挑的帧**，业主未给参考）；特效 = 上挑弧线转 90°，放 `EFFECT.diveRow`（特效表第 13 行，`EXTRA_ROWS` 里的 `diveSlash`） |
+| 不进技能栏 | `CASTABLE_SKILLS = SKILL_ORDER + silverFall`：冷却表与倒计时带上它，槽位/图标/特效行（都由 `SKILL_ORDER` 驱动）不受影响 |
+
 这个客户端里**没有 `BloodSnatch.avi`**（84 段官方预览视频里就没有它，只有特效包
 `sprite_character_swordman_effect_bloodsnatch.NPK`），所以嗜血那张图上半是空的，
 图里也直接写了这句；嗜血的段号只能按「大吸 / 血波」的描述挑。

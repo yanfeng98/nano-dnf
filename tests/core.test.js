@@ -1173,7 +1173,11 @@ test("every frame the renderer plays fits inside its sprite cell", () => {
 test("one press plays one stage of the normal attack, and attack speed sets the pace", () => {
   const stages = Core.ATTACK_STAGES;
   assert.equal(Core.PLAYER.maxCombo, stages.length, "the chain is as long as the animation");
-  assert.equal(Render.SPRITE.frames.attack, 23, "the attack row carries the three cuts");
+  assert.equal(
+    Render.SPRITE.frames.attack,
+    27,
+    "the attack row carries the three cuts and the air slash"
+  );
 
   /*
    * One press is one of the client's own actions. The sheet repeats itself (its
@@ -1448,6 +1452,70 @@ test("the swordman bake caches each source layer, so a new katana actually ships
   );
 });
 
+test("银光落刃 is what Z does in the air, and only in the air", () => {
+  const state = lastRoomState();
+  const enemy = Core.createEnemy(state, "grunt", state.player.x + 40);
+  enemy.hp = 400;
+  enemy.maxHp = 400;
+  enemy.speed = 0;
+  state.enemies = [enemy];
+  state.player.mp = state.player.maxMp;
+
+  /* On the ground the same key is still 上挑. */
+  Core.step(state, { skills: { upSlash: true } });
+  assert.equal(state.player.skillId, "upSlash", "on the ground Z is the up-slash");
+  Core.runFrames(state, Math.ceil(Core.SKILLS.upSlash.duration * Core.FPS) + 4, {});
+
+  /* In the air it turns into the dive. */
+  state.player.onGround = false;
+  state.player.y = Core.ARENA.groundY - 130;
+  state.player.vy = -80;
+  state.player.skillCooldowns.silverFall = 0;
+  state.player.mp = state.player.maxMp;
+  Core.step(state, { skills: { upSlash: true } });
+  assert.equal(state.player.skillId, "silverFall", "in the air Z is 银光落刃");
+  assert.ok(
+    state.player.vy >= Core.SKILLS.silverFall.dive - 1,
+    `the dive drives him down (vy ${state.player.vy})`
+  );
+  const hpBefore = enemy.hp;
+  Core.runFrames(state, 45, {});
+  assert.equal(state.player.onGround, true, "and it puts him on the floor");
+  assert.ok(enemy.hp < hpBefore, "the blade lands on whatever is under it");
+  assert.ok(
+    state.effects.some((effect) => effect.kind === "shockwave") ||
+      state.effects.some((effect) => effect.kind === "banner"),
+    "the landing is answered by the floor"
+  );
+});
+
+test("银光落刃 only sometimes floors what it lands on", () => {
+  /*
+   * DNF's own skill has a chance of knocking the target down rather than a rule,
+   * so the roll has to come off the RNG: over a spread of seeds some land on
+   * their feet and some do not.
+   */
+  let floored = 0;
+  const seeds = 40;
+  for (let seed = 1; seed <= seeds; seed += 1) {
+    const state = Core.createState({ seed: seed });
+    const enemy = Core.createEnemy(state, "brute", state.player.x + 40);
+    enemy.hp = 400;
+    enemy.maxHp = 400;
+    enemy.speed = 0;
+    state.enemies = [enemy];
+    state.player.onGround = false;
+    state.player.y = Core.ARENA.groundY - 120;
+    state.player.vy = -40;
+    state.player.mp = state.player.maxMp;
+    Core.step(state, { skills: { upSlash: true } });
+    Core.runFrames(state, 45, {});
+    if (enemy.knockdown > 0) floored += 1;
+  }
+  assert.ok(floored > 0, `some dives floor the target (${floored}/${seeds})`);
+  assert.ok(floored < seeds, `and some do not - it is a chance (${floored}/${seeds})`);
+});
+
 test("a leaping skill keeps its own animation while it is in the air", () => {
   const state = Core.createState({ seed: 5 });
   const player = state.player;
@@ -1480,6 +1548,68 @@ test("a leaping skill keeps its own animation while it is in the air", () => {
     Render.SPRITE.rows.extras,
     "a move without a clip keeps the generic air pose"
   );
+
+  /*
+   * 银光落刃 has a clip of its own, so the dive plays the client's blade instead
+   * of the hop art even though it happens entirely in the air.
+   */
+  player.skillId = "silverFall";
+  player.skillTimer = Core.SKILLS.silverFall.duration * 0.5;
+  const dive = Render.SPRITE.skillClips.silverFall;
+  const diving = Render.playerFrame(state, player);
+  assert.equal(diving.row, dive.row, "the dive keeps its own action");
+  assert.ok(diving.col >= dive.first && diving.col < dive.first + dive.frames);
+
+  /*
+   * And a press of X in the air is the client's jump attack: the attack row's
+   * tail, not the three ground cuts and not the hop frames.
+   */
+  player.skillId = null;
+  player.skillTimer = 0;
+  player.attackTimer = player.attackDuration * 0.5;
+  const air = Render.SPRITE.airAttack;
+  const slash = Render.playerFrame(state, player);
+  assert.equal(slash.row, air.row, "the air slash lives on the attack row");
+  assert.ok(
+    slash.col >= air.first && slash.col < air.first + air.frames,
+    `the air press plays the jump attack (column ${slash.col})`
+  );
+  player.attackTimer = 0;
+  assert.equal(
+    Render.playerFrame(state, player).row,
+    Render.SPRITE.rows.extras,
+    "a hop with no attack still shows the hop"
+  );
+});
+
+test("the dive draws the blade from its own effect row", () => {
+  const state = Core.createState({ seed: 5 });
+  const sprites = {
+    slayer: { width: 8736, height: 1232 },
+    skills: { width: 352, height: 64 },
+    effects: { width: 3456, height: 1664 }
+  };
+  const diveRow = Render.EFFECT.diveRow;
+  const drawnFrom = (calls) =>
+    calls.filter(
+      (call) =>
+        call[0] === "drawImage" &&
+        call[1] === sprites.effects &&
+        call[3] === diveRow * Render.EFFECT.cell
+    ).length;
+
+  state.player.skillId = "silverFall";
+  state.player.skillTimer = Core.SKILLS.silverFall.duration * 0.6;
+  const diving = [];
+  Render.render(recordingContext(diving), state, { sprites });
+  assert.ok(drawnFrom(diving) >= 1, "银光落刃 draws its arc from the dive row");
+
+  /* 上挑 has its own row; nothing else may reach into the dive's. */
+  state.player.skillId = "upSlash";
+  state.player.skillTimer = Core.SKILLS.upSlash.duration * 0.5;
+  const cutting = [];
+  Render.render(recordingContext(cutting), state, { sprites });
+  assert.equal(drawnFrom(cutting), 0, "and only the dive draws it");
 });
 
 test("the shipped DNF effect sheet matches the renderer grid", () => {
@@ -1488,8 +1618,8 @@ test("the shipped DNF effect sheet matches the renderer grid", () => {
   assert.equal(buffer.readUInt32BE(16), Render.EFFECT.cell * Render.EFFECT.maxFrames);
   assert.equal(
     buffer.readUInt32BE(20),
-    Render.EFFECT.cell * (Core.SKILL_ORDER.length + 1),
-    "one baked effect row per skill, plus the blood-orb row"
+    Render.EFFECT.cell * (Core.SKILL_ORDER.length + 2),
+    "one baked effect row per skill, plus the blood-orb and dive rows"
   );
   /*
    * Each row carries its own frame count: the picked moves ship their whole

@@ -812,9 +812,15 @@
       var action = "slot" + index;
       if (held[action] || pressed[action]) input.skills[skillId] = true;
     });
-    /* A skill's own key works next to its slot, not instead of it. */
-    loadout.forEach(function (skillId) {
-      if (!skillId) return;
+    /*
+     * A skill's own key works next to its slot, not instead of it - and it keeps
+     * working when the skill is not in the bar at all. 上挑 is on Z whatever the
+     * arrangement says; the client does the same, and a loadout that happens to
+     * leave it out (or a bar restored from an older save) must not be able to
+     * take the key away.
+     */
+    Object.keys(Loadout.SKILL_KEYS).forEach(function (code) {
+      var skillId = Loadout.SKILL_KEYS[code];
       var shortcut = "skill:" + skillId;
       if (held[shortcut] || pressed[shortcut]) input.skills[skillId] = true;
     });

@@ -53,7 +53,13 @@
     /* Frames the renderer actually plays per row; the rest of the row is spare art.
        The stand is a four-frame breath off the client's "still" frames, the attack
        is the whole normal-attack chain (see Core.ATTACK_STAGES). */
-    frames: { idle: 4, run: 12, attack: 23, skill: 6, extras: 6 },
+    frames: { idle: 4, run: 12, attack: 27, skill: 6, extras: 6 },
+    /*
+     * The air slash, parked at the end of the attack row: the client's own jump
+     * attack (sm_body0048 133-136, = 134-137 here). A press of X off the ground
+     * plays this instead of the three ground cuts.
+     */
+    airAttack: { row: 2, first: 23, frames: 4 },
     /* Skill body art: every skill plays the top of the skill row, except the
        up-slash, whose own raise-and-lift is baked right after those. The bake
        (assets/import_dnf_swordman.py CELLS.skill) has to keep the same order,
@@ -104,7 +110,13 @@
           { frames: 6, from: 0, until: 0.6 },
           { frames: 3, from: 0.66, until: 0.92 }
         ]
-      }
+      },
+      /*
+       * 银光落刃: the dive Z becomes in the air. The frames are the air slash plus
+       * the landing; the owner gave no range for this one, so the pick is mine
+       * and is written down in assets/dnf_effect_picks.md.
+       */
+      silverFall: { row: 6, first: 18, frames: 8 }
     },
     extras: { hurt: 0, dead: 1, jump: 2, fall: 3 }
   };
@@ -226,6 +238,9 @@
      */
     orbRow: Core.SKILL_ORDER.length,
     orbFrames: 6,
+    /* 银光落刃's arc, on the extra row after the orbs. */
+    diveRow: Core.SKILL_ORDER.length + 1,
+    diveFrames: 9,
     draw: {
       upSlash: { dx: 34, dy: -56, size: 156, copies: 1, spin: 0 },
       /* 崩山击 lands on a shockwave that covers half the arena. */
@@ -539,6 +554,20 @@
      * Only a move without a clip falls back to the jump/fall frames.
      */
     var clip = player.skillTimer > 0 ? SPRITE.skillClips[player.skillId] : null;
+    /*
+     * X off the ground is the client's jump attack, not the ground chain: a press
+     * that starts in the air plays the air slash from the attack row's tail.
+     */
+    if (!player.onGround && player.attackTimer > 0 && !(clip && clip.row !== undefined)) {
+      var air = SPRITE.airAttack;
+      var airProgress = clamp01(
+        (player.attackDuration - player.attackTimer) / Math.max(0.0001, player.attackDuration)
+      );
+      return {
+        row: air.row,
+        col: air.first + Math.min(air.frames - 1, Math.floor(airProgress * air.frames))
+      };
+    }
     if (!player.onGround && !(clip && clip.row !== undefined)) {
       return { row: rows.extras, col: player.vy < 0 ? SPRITE.extras.jump : SPRITE.extras.fall };
     }
@@ -1094,6 +1123,44 @@
       sprites.effects,
       column * EFFECT.cell,
       row * EFFECT.cell,
+      EFFECT.cell,
+      EFFECT.cell,
+      -size / 2,
+      -size / 2,
+      size,
+      size
+    );
+    ctx.restore();
+  }
+
+  /**
+   * 银光落刃's blade: the same arc the up-slash uses, turned a quarter turn so it
+   * reads as the sword coming down with the dive instead of rising with a cut.
+   */
+  function drawDiveSlash(ctx, state, sprites) {
+    var player = state.player;
+    if (!player || player.dead) return;
+    if (player.skillTimer <= 0 || player.skillId !== "silverFall") return;
+    if (!sprites || !sprites.effects || !sprites.effects.width) return;
+    var spec = Core.SKILLS.silverFall;
+    var frames = EFFECT.diveFrames;
+    var progress = clamp01(1 - player.skillTimer / spec.duration);
+    var from = spec.activeFrom / spec.duration;
+    var to = Math.min(1, (spec.activeTo + 0.16) / spec.duration);
+    if (progress < from || progress > to) return;
+    var local = clamp01((progress - from) / Math.max(0.0001, to - from));
+    var column = Math.min(frames - 1, Math.floor(local * frames));
+    var size = 150;
+    ctx.save();
+    ctx.translate(player.x + player.facing * 26, player.y - player.height * 0.35);
+    ctx.scale(player.facing, 1);
+    ctx.rotate(Math.PI * 0.5);
+    ctx.globalAlpha = 1 - Math.max(0, (local - 0.7) / 0.3) * 0.7;
+    ctx.imageSmoothingEnabled = true;
+    ctx.drawImage(
+      sprites.effects,
+      column * EFFECT.cell,
+      EFFECT.diveRow * EFFECT.cell,
       EFFECT.cell,
       EFFECT.cell,
       -size / 2,
@@ -2094,6 +2161,7 @@
     /* The stance puts its own arc on the normal attack, under the skill art. */
     drawRageSlash(ctx, state, sprites);
     drawSkillEffect(ctx, state, sprites);
+    drawDiveSlash(ctx, state, sprites);
     drawPlayer(ctx, state, sprites);
     var bannerOrdinal = 0;
     state.effects.forEach(function (effect) {

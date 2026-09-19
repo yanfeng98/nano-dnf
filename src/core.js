@@ -431,6 +431,47 @@
         knockdown: 1.4,
         extraWaveFromLevel: 4
       }
+    },
+    /*
+     * 银光落刃: the move the client puts on Z while the Slayer is in the air.
+     * It is a dive - he drops straight down with the sword point first, lands on
+     * the blade and the floor answers with a ring. DNF also gives it a chance to
+     * put whatever it lands on the floor, which is what knockdownChance is for.
+     *
+     * It is not a hotbar skill: no slot, no icon, no effect row of its own. Z is
+     * its only way in, and only off the ground.
+     */
+    silverFall: {
+      id: "silverFall",
+      name: "银光落刃",
+      key: "Z",
+      mp: 10,
+      cooldown: 3,
+      damage: 20,
+      growth: 3,
+      duration: 0.5,
+      activeFrom: 0.08,
+      activeTo: 0.34,
+      reach: 70,
+      heightPad: 20,
+      knockbackX: 120,
+      launch: 0,
+      radius: 0,
+      hits: 1,
+      knockdown: 1.0,
+      knockdownChance: 0.6,
+      airOnly: true,
+      /* The dive drives him into the ground instead of waiting for gravity. */
+      dive: 980,
+      shockwave: {
+        reach: 150,
+        damage: 8,
+        growth: 2,
+        heightPad: 12,
+        knockbackX: 160,
+        knockdown: 0.7,
+        extraWaveFromLevel: 3
+      }
     }
   };
 
@@ -447,6 +488,13 @@
     "bloodEvil",
     "mountainRift"
   ];
+  /*
+   * Every skill the Slayer can end up casting, in the order the cooldown table
+   * and its countdown walk. 银光落刃 is in here but not in SKILL_ORDER: it has no
+   * hotbar slot, no icon and no effect row of its own (SKILL_ORDER drives all
+   * three), so it stays a Z-in-the-air move only.
+   */
+  var CASTABLE_SKILLS = SKILL_ORDER.concat(["silverFall"]);
 
   var PROGRESSION = {
     baseXpToNext: 30,
@@ -868,7 +916,7 @@
       airHitTimer: 0,
       /* Timed self-buffs (血之狂暴 is the only one so far). */
       buffs: {},
-      skillCooldowns: SKILL_ORDER.reduce(function (map, skillId) {
+      skillCooldowns: CASTABLE_SKILLS.reduce(function (map, skillId) {
         map[skillId] = 0;
         return map;
       }, {}),
@@ -1359,6 +1407,16 @@
 
     if (!player.onGround) {
       player.vy = Math.min(player.vy + PHYSICS.gravity * dt, PHYSICS.maxFallSpeed);
+      /*
+       * 银光落刃 drops straight down rather than arcing: once it is cast the
+       * dive speed overrides gravity, so the blade lands where the player let
+       * go instead of drifting forward with the rest of the hop.
+       */
+      var diving = player.skillTimer > 0 && SKILLS[player.skillId] && SKILLS[player.skillId].dive;
+      if (diving) {
+        player.vy = Math.max(player.vy, SKILLS[player.skillId].dive);
+        player.vx *= 0.5;
+      }
     }
 
     player.x += player.vx * dt;
@@ -1388,7 +1446,7 @@
 
     /* 血之狂暴 shortens every skill's cooldown while it is up. */
     var cooldownScale = player.buffs.bloodRage > 0 ? 1.4 : 1;
-    SKILL_ORDER.forEach(function (skillId) {
+    CASTABLE_SKILLS.forEach(function (skillId) {
       player.skillCooldowns[skillId] = Math.max(
         0,
         player.skillCooldowns[skillId] - dt * cooldownScale
@@ -1401,7 +1459,20 @@
       player.attackDuration - player.attackTimer >=
         PLAYER.attackActiveTo * player.attackDuration;
 
-    var castSkill = SKILL_ORDER.filter(function (skillId) {
+    /*
+     * Z is 上挑 on the ground and 银光落刃 in the air, so the air case is decided
+     * before the bar is consulted: off the ground that key never reaches the
+     * up-slash (nor is it held back by the up-slash's own cooldown - they are
+     * different moves with different timers).
+     */
+    var wantsAirDive =
+      !!input.skills.upSlash &&
+      !player.onGround &&
+      player.skillTimer <= 0 &&
+      (player.attackTimer <= 0 || attackRecovering) &&
+      player.skillCooldowns.silverFall <= 0 &&
+      player.mp >= SKILLS.silverFall.mp;
+    var castSkill = wantsAirDive ? "silverFall" : SKILL_ORDER.filter(function (skillId) {
       var spec = SKILLS[skillId];
       return (
         input.skills[skillId] &&
@@ -1425,6 +1496,8 @@
       player.comboTimer = 0;
       player.comboIndex = 0;
       player.leapDone = false;
+      /* A dive starts falling the moment it is cast, not a frame later. */
+      if (skillSpec.dive && !player.onGround) player.vy = Math.max(player.vy, skillSpec.dive);
     } else if (
       input.attack &&
       player.attackTimer <= 0 &&
@@ -1636,7 +1709,14 @@
       options.launch = skill.launch;
       options.juggle = true;
     } else if (skill.knockdown && lastHit) {
-      options.knockdown = skill.knockdown;
+      /*
+       * 银光落刃 only has a *chance* of flooring what it lands on, the way the
+       * client's own skill does. The roll comes off the state RNG, so a seed
+       * still replays exactly.
+       */
+      if (!skill.knockdownChance || nextRandom(state) < skill.knockdownChance) {
+        options.knockdown = skill.knockdown;
+      }
     }
     if (skill.stun) options.stun = skill.stun;
     if (skill.bleed && hitIndex === 0 && state.player.level >= (skill.bleed.fromLevel || 1)) {
@@ -2253,6 +2333,7 @@
     attackSpeedOf: attackSpeedOf,
     SKILLS: SKILLS,
     SKILL_ORDER: SKILL_ORDER,
+    CASTABLE_SKILLS: CASTABLE_SKILLS,
     PROGRESSION: PROGRESSION,
     DROPS: DROPS,
     BLOOD_ORB: BLOOD_ORB,

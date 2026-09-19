@@ -118,6 +118,9 @@ PICKS = {
 # put a slash arc on every drop of blood that flew into the character.
 EXTRA_ROWS = [
     ("bloodOrb", {"stack": [("_frenzy", "blood-stone-0.img")]}),
+    # 银光落刃: the up-slash arc, drawn rotated in the game so it reads as the
+    # blade coming down with the dive.
+    ("diveSlash", {"stack": [("", "upperslash.img")]}),
 ]
 
 

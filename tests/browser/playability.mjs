@@ -568,6 +568,7 @@ async function runPass(browser, baseUrl, options) {
   let pauseReadout = null;
   let stanceReadout = null;
   let airReadout = null;
+  let keyChecks = null;
   let overallBefore = null;
   let paceEarly = null;
   const trace = [];
@@ -612,6 +613,78 @@ async function runPass(browser, baseUrl, options) {
     const index = loadout.indexOf(action);
     return index === -1 ? action : `slot${index}`;
   };
+
+      /*
+       * The owner's read of the keys: 上挑 sits on Z and has to keep working even
+       * when it is not in the bar, and Z in the air is 银光落刃 - a dive with a
+       * landing shockwave - while X in the air is the client's jump attack.
+       */
+      keyChecks = await page.evaluate(async () => {
+        const nextFrame = () => new Promise((resolve) => requestAnimationFrame(resolve));
+        const down = (code) => window.dispatchEvent(new KeyboardEvent("keydown", { code: code, bubbles: true }));
+        const up = (code) => window.dispatchEvent(new KeyboardEvent("keyup", { code: code, bubbles: true }));
+        const player = () => window.nanoDnf.getState().player;
+        const out = {};
+
+        const original = window.nanoDnf.getLoadout();
+        window.nanoDnf.setLoadout(
+          original.map((skillId) => (skillId === "upSlash" ? null : skillId))
+        );
+        out.hasUpSlashInBar = window.nanoDnf.getLoadout().includes("upSlash");
+
+        player().mp = player().maxMp;
+        player().skillCooldowns.upSlash = 0;
+        down("KeyZ");
+        await nextFrame();
+        await nextFrame();
+        out.groundZ = player().skillId;
+        up("KeyZ");
+        await nextFrame();
+        await nextFrame();
+
+        player().mp = player().maxMp;
+        player().skillCooldowns.silverFall = 0;
+        player().skillTimer = 0;
+        player().skillId = null;
+        player().onGround = false;
+        player().y = window.DNFCore.ARENA.groundY - 130;
+        player().vy = -60;
+        down("KeyZ");
+        await nextFrame();
+        await nextFrame();
+        out.airZ = player().skillId;
+        out.diveRow = window.DNFRender.SPRITE.skillClips.silverFall.row;
+        out.airZRow = window.DNFRender.playerFrame(window.nanoDnf.getState(), player()).row;
+        up("KeyZ");
+        await nextFrame();
+
+        player().skillTimer = 0;
+        player().skillId = null;
+        player().attackCooldown = 0;
+        player().attackTimer = 0;
+        player().onGround = false;
+        player().y = window.DNFCore.ARENA.groundY - 110;
+        player().vy = -170;
+        down("KeyX");
+        await nextFrame();
+        await nextFrame();
+        const frame = window.DNFRender.playerFrame(window.nanoDnf.getState(), player());
+        out.airX = { row: frame.row, col: frame.col };
+        const air = window.DNFRender.SPRITE.airAttack;
+        out.airAttack = { row: air.row, first: air.first, frames: air.frames };
+        up("KeyX");
+        await nextFrame();
+
+        window.nanoDnf.setLoadout(original);
+        out.restored = window.nanoDnf.getLoadout().includes("upSlash");
+        player().onGround = true;
+        player().y = window.DNFCore.ARENA.groundY;
+        player().vy = 0;
+        player().attackTimer = 0;
+        player().skillTimer = 0;
+        player().skillId = null;
+        return out;
+      });
 
   while (!state.victory && !state.defeat) {
     if ((Date.now() - started) / 1000 > MAX_SECONDS) {
@@ -824,6 +897,7 @@ async function runPass(browser, baseUrl, options) {
         col: air.col,
         inClip: air.col >= air.clipFirst && air.col < air.clipFirst + air.clipFrames
       };
+
     }
     await page.waitForTimeout(options.mode === "touch" ? 16 : 20);
     state = await readState(page);
@@ -1205,6 +1279,7 @@ async function runPass(browser, baseUrl, options) {
     pauseReadout,
     stanceReadout,
     airReadout,
+    keyChecks,
     overallBefore,
     paceEarly,
     pace: { before: paceBefore, after: paceAfter, record: paceFlip.best },
@@ -1397,6 +1472,40 @@ function problemsFor(pass) {
       problems.push(
         `${pass.mode}: the mid-leap frame is ${air.row}:${air.col}, not the 崩山击 clip ${air.clipRow}`
       );
+    }
+  }
+  const keys = pass.keyChecks;
+  if (!keys) {
+    problems.push(`${pass.mode}: the key checks never ran`);
+  } else {
+    if (keys.hasUpSlashInBar !== false) {
+      problems.push(`${pass.mode}: the check could not take 上挑 out of the bar`);
+    }
+    if (keys.groundZ !== "upSlash") {
+      problems.push(
+        `${pass.mode}: Z stopped casting 上挑 once it left the bar (cast ${keys.groundZ})`
+      );
+    }
+    if (keys.airZ !== "silverFall") {
+      problems.push(`${pass.mode}: Z in the air is ${keys.airZ}, not 银光落刃`);
+    }
+    if (keys.airZRow !== keys.diveRow) {
+      problems.push(
+        `${pass.mode}: the dive draws row ${keys.airZRow}, not its own clip ${keys.diveRow}`
+      );
+    }
+    if (
+      !keys.airX ||
+      keys.airX.row !== keys.airAttack.row ||
+      keys.airX.col < keys.airAttack.first ||
+      keys.airX.col >= keys.airAttack.first + keys.airAttack.frames
+    ) {
+      problems.push(
+        `${pass.mode}: a press of X in the air is not the jump attack (${JSON.stringify(keys.airX)})`
+      );
+    }
+    if (keys.restored !== true) {
+      problems.push(`${pass.mode}: the bar was not put back after the key checks`);
     }
   }
   if (!pass.paceEarly || pass.paceEarly.state !== "none") {
@@ -1673,6 +1782,7 @@ async function main() {
     },
     stanceReadout: pass.stanceReadout,
     airReadout: pass.airReadout,
+    keyChecks: pass.keyChecks,
     pace: {
       firstRun: pass.paceEarly && pass.paceEarly.state,
       before: pass.pace.before && pass.pace.before.state,
