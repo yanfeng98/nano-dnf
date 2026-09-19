@@ -2235,8 +2235,17 @@ test("the hotbar exposes two rows of DNF slots and the panel exposes every skill
   const slots = Render.skillBarButtons();
   assert.equal(slots.length, Loadout.SLOT_COUNT, "A S D F G H / Q W E R T Y");
   assert.equal(Render.touchBarButtons().length, Loadout.SLOT_COUNT, "touch keeps both rows");
-  assert.equal(slots[0].y, slots[5].y, "row one shares a baseline");
-  assert.ok(slots[6].y > slots[0].y, "row two sits below row one");
+  assert.equal(slots[0].y, slots[5].y, "the A row shares a baseline");
+  assert.equal(slots[6].y, slots[11].y, "and so does the Q row");
+  /*
+   * The bar mirrors the keyboard above it: the Q row is on top, the A row under
+   * it. It used to be the other way round, which the owner spotted.
+   */
+  assert.ok(slots[6].y < slots[0].y, "Q W E R T Y sits above A S D F G H");
+  const topRow = slots.filter((slot) => slot.y === slots[6].y).map((slot) => slot.index);
+  const bottomRow = slots.filter((slot) => slot.y === slots[0].y).map((slot) => slot.index);
+  assert.deepEqual(topRow, [6, 7, 8, 9, 10, 11], "Q W E R T Y is the top row");
+  assert.deepEqual(bottomRow, [0, 1, 2, 3, 4, 5], "A S D F G H is the bottom row");
   slots.forEach((slot) => {
     assert.ok(slot.x + slot.w <= Core.ARENA.width);
     assert.ok(slot.y + slot.h <= Core.ARENA.height);

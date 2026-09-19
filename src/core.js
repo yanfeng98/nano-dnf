@@ -17,7 +17,12 @@
   var ARENA = {
     width: 960,
     height: 540,
-    groundY: 460,
+    /*
+     * The floor sits above the hotbar's band rather than under it: at 460 the
+     * bar (which starts at height - 96) covered the ground the Slayer stands on,
+     * and the owner asked for the floor to stay visible.
+     */
+    groundY: 430,
     leftWall: 24,
     rightWall: 936
   };
@@ -1398,9 +1403,13 @@
       SKILLS[player.skillId] &&
       SKILLS[player.skillId].leap > 0 &&
       !player.onGround;
-    /* A dive carries its own forward speed down, for the same reason. */
+    /* A dive carries its own forward speed down, but only while it is off the
+       ground: once it lands the carry is gone (see the touchdown handling). */
     var divingDown =
-      player.skillTimer > 0 && SKILLS[player.skillId] && SKILLS[player.skillId].dive > 0;
+      player.skillTimer > 0 &&
+      SKILLS[player.skillId] &&
+      SKILLS[player.skillId].dive > 0 &&
+      !player.onGround;
     if (direction !== 0) player.facing = direction;
     if (rooted && !dashing && !leaping && !divingDown) {
       player.vx *= 0.25;
@@ -1435,6 +1444,14 @@
       player.y = ARENA.groundY;
       player.vy = 0;
       player.onGround = true;
+      /*
+       * 银光落刃 stops dead on touchdown: the dive carries him forward through
+       * the air, but the owner's read is that he must not keep rushing along the
+       * floor once the blade is in it.
+       */
+      var landedDive =
+        player.skillTimer > 0 && SKILLS[player.skillId] && SKILLS[player.skillId].dive;
+      if (landedDive) player.vx = 0;
     }
     player.x = clamp(
       player.x,

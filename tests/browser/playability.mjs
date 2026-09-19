@@ -289,6 +289,46 @@ async function dragSkillToSlot(page, skillId, slotIndex) {
 
 /** Hold or release an on-screen control through real pointer events. */
 /**
+ * Drag a hotbar slot's skill out of the bar and let it go on nothing, which is
+ * how a player empties a slot - the bar ships more slots than the kit has skills.
+ */
+async function dragSlotOut(page, slotIndex) {
+  return page.evaluate(
+    (index) => {
+      const canvas = document.getElementById("stage");
+      const rect = canvas.getBoundingClientRect();
+      const toClient = (x, y) => ({
+        clientX: rect.left + (x / canvas.width) * rect.width,
+        clientY: rect.top + (y / canvas.height) * rect.height
+      });
+      const slot = window.DNFRender.skillBarButtons()[index];
+      const send = (type, x, y, buttons) =>
+        canvas.dispatchEvent(
+          new PointerEvent(type, {
+            pointerId: 11,
+            bubbles: true,
+            cancelable: true,
+            pointerType: "mouse",
+            isPrimary: true,
+            buttons: buttons,
+            ...toClient(x, y)
+          })
+        );
+      send("pointerdown", slot.x + slot.w / 2, slot.y + slot.h / 2, 1);
+      /* An empty patch of arena, well away from the bar and the panel. */
+      send("pointermove", 480, 200, 1);
+      send("pointerup", 480, 200, 0);
+      return {
+        loadout: window.nanoDnf.getLoadout(),
+        stored: window.localStorage.getItem("nano-dnf-loadout"),
+        arranging: window.nanoDnf.isArranging()
+      };
+    },
+    slotIndex
+  );
+}
+
+/**
  * Press/release a batch of on-screen controls in one round trip.
  *
  * The touch path used to pay one page.evaluate per changed action, which made
@@ -1144,12 +1184,15 @@ async function runPass(browser, baseUrl, options) {
     const arranging = await page.evaluate(() => window.nanoDnf.isArranging());
     await page.screenshot({ path: path.join(ARTIFACTS, "loadout-panel.png") });
     const dragged = await dragSkillToSlot(page, "bloodSnatch", 0);
+    /* And the slot it landed in can be emptied again by dragging it out. */
+    const cleared = await dragSlotOut(page, 0);
     await page.keyboard.press("KeyB");
     await page.screenshot({ path: path.join(ARTIFACTS, "loadout-applied.png") });
     const restored = await page.evaluate(() => window.nanoDnf.resetLoadout());
     loadoutChecks = {
       arranging,
       dragged,
+      cleared,
       restored,
       storedAfterReset: await page.evaluate(() => window.localStorage.getItem("nano-dnf-loadout"))
     };
@@ -1727,6 +1770,21 @@ function problemsFor(pass) {
     }
     if (!checks || checks.dragged.stored !== checks.dragged.loadout.join(",")) {
       problems.push("keyboard: the arranged loadout was not persisted");
+    }
+    if (!checks || !checks.cleared) {
+      problems.push("keyboard: dragging a skill out of the bar was never tried");
+    } else {
+      if (checks.cleared.loadout[0] !== null) {
+        problems.push(
+          `keyboard: dragging a skill out of the bar left ${checks.cleared.loadout[0]} in slot A`
+        );
+      }
+      if (checks.cleared.stored !== checks.cleared.loadout.join(",")) {
+        problems.push("keyboard: the emptied slot was not persisted");
+      }
+      if (checks.cleared.arranging !== true) {
+        problems.push("keyboard: the emptied slot was not emptied while arranging");
+      }
     }
     if (!checks || checks.restored.join(",") !== defaults) {
       problems.push("keyboard: resetLoadout did not restore the default bar");

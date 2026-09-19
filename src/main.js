@@ -582,7 +582,16 @@
       ensureAudio();
       if (loadoutOpen) {
         var dragged = bar.kind === "slot" ? loadout[bar.index] : bar.skillId;
-        if (dragged) drag = { skillId: dragged, x: point.x, y: point.y, pointerId: event.pointerId };
+        if (dragged) {
+          drag = {
+            skillId: dragged,
+            /* Which slot it came out of, so dropping it on nothing can clear it. */
+            from: bar.kind === "slot" ? bar.index : null,
+            x: point.x,
+            y: point.y,
+            pointerId: event.pointerId
+          };
+        }
         return;
       }
       if (bar.kind === "slot" && loadout[bar.index]) {
@@ -637,6 +646,20 @@
       var target = Render.hitTestLoadout(point.x, point.y, loadoutOpen, touchMode);
       if (target && target.kind === "slot") {
         loadout = Loadout.assign(loadout, target.index, drag.skillId);
+        saveLoadout();
+      } else if (target && target.kind === "tile") {
+        /* Dropping a bar slot back on its own tile is the other way to empty it. */
+        if (drag.from !== null && drag.from !== undefined && loadout[drag.from] === target.skillId) {
+          loadout = Loadout.clearSlot(loadout, drag.from);
+          saveLoadout();
+        }
+      } else if (drag.from !== null && drag.from !== undefined) {
+        /*
+         * Dragged off the bar and let go on nothing: that is how a skill comes
+         * out. The bar has more slots than skills, so the owner wants to be able
+         * to empty one (上挑 used to be stuck in its slot).
+         */
+        loadout = Loadout.clearSlot(loadout, drag.from);
         saveLoadout();
       }
       drag = null;

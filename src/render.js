@@ -153,7 +153,13 @@
     var buttons = [];
     for (var index = 0; index < SLOT_COUNT; index += 1) {
       var column = index % SLOT_COLS;
-      var row = Math.floor(index / SLOT_COLS);
+      /*
+       * The bar is laid out like the keyboard above it: the Q row (slots 6-11)
+       * sits on top and the A row (slots 0-5) underneath. The slot index still
+       * decides the key, so only the drawing flips - and hit testing uses this
+       * same table, so drag and drop follows the picture.
+       */
+      var row = index < SLOT_COLS ? 1 : 0;
       buttons.push({
         action: "slot" + index,
         index: index,
@@ -1441,21 +1447,21 @@
       ctx.clip();
       ctx.imageSmoothingEnabled = false;
       /*
-       * Head-and-torso crop of the idle cell, drawn at roughly game scale and
-       * placed by the same ground anchor the arena uses, so the face stays in
-       * the box however much room the cell leaves around the body.
+       * Head only: the owner asked for the face rather than the whole figure, so
+       * the draw takes a square around the head - the idle art puts it at the top
+       * of the cell, a little left of the anchor.
        */
-      var portraitScale = 0.96;
+      var headSize = 44;
       ctx.drawImage(
         sprites.slayer,
-        0,
-        0,
-        SPRITE.frameW,
-        SPRITE.frameH,
-        px + 28 - SPRITE.anchorX * portraitScale,
-        py + 64 - SPRITE.anchorY * portraitScale,
-        SPRITE.frameW * portraitScale,
-        SPRITE.frameH * portraitScale
+        SPRITE.anchorX - 12,
+        70,
+        headSize,
+        headSize,
+        px + 3,
+        py + 3,
+        portraitSize - 6,
+        portraitSize - 6
       );
       ctx.restore();
     }
