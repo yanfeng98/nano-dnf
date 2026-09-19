@@ -36,3 +36,5 @@ assets/dnf_body_variants/
 assets/dnf_src/skill-motion-candidates.png
 #   (decrypted per-skill preview clips from the client)
 assets/dnf_src/skill-videos/
+#   (skill clip vs body action, for picking each move's animation)
+assets/dnf_src/skill-body-match/
