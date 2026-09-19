@@ -77,15 +77,27 @@ ICON_FRAMES = {
     "upSlash": 94,
     "mountainBreaker": 154,
     "crossSlash": 132,
+    "frenzy": 134,
     "rageBurst": 48,
     "graspHead": 98,
     "mountainRift": 172,
 }
-# 血气之刃 / 暴走 / 血气爆发 / 嗜血 / 血魔 are Berserker moves the owner picked no
+# 血气之刃 / 血气爆发 / 嗜血 / 血魔 are Berserker moves the owner picked no
 # atlas frame for, and the frames that used to sit in those slots belonged to the
 # 鬼泣/剑魂 skills they replaced. They keep the effect-thumbnail fallback below
 # until the owner picks frames off dnf_skillicon_atlas.png with --icons.
 ICON_FRAME_ORDER = SKILL_IDS
+
+# Buff badges, drawn on their own row of assets/skills.png under the skill icon.
+# 血之狂暴's icon is the atlas pair 134/135: 134 is the skill the hotbar shows,
+# and 135 is the same art without the colour, which is the state the icon is in
+# while the stance is up - so it doubles as the badge over the character's head.
+BUFF_ICON_FRAMES = {
+    "frenzy": 135,
+}
+ICON_ROWS = 2
+# Cell size of assets/effects.png, which the thumbnail fallback crops out of.
+EFFECT_CELL = 128
 
 # Where the character's feet sit inside the source canvas.
 SRC_CANVAS = (180, 176)
@@ -192,31 +204,39 @@ def build_sheet() -> None:
 
 def skill_icon(skill_id: str, icons, image_util, convertor) -> Image.Image:
     """Official icon frame when the owner picked one, else that skill's effect art."""
-    if skill_id in ICON_FRAMES:
-        item = icons.images[ICON_FRAMES[skill_id]]
-        raw = item.data
-        try:
-            raw = convertor.to_raw(raw, item.format)
-        except Exception:
-            pass
-        return image_util.load_raw(raw, item.w, item.h).convert("RGBA").resize((32, 32), Image.LANCZOS)
-    return effect_thumbnail(skill_id)
+    return atlas_icon(icons, ICON_FRAMES.get(skill_id), image_util, convertor) or effect_thumbnail(skill_id)
+
+
+def atlas_icon(icons, frame, image_util, convertor):
+    """One frame of skillicon.img, or None when there is no pick for it."""
+    if frame is None:
+        return None
+    item = icons.images[frame]
+    raw = item.data
+    try:
+        raw = convertor.to_raw(raw, item.format)
+    except Exception:
+        pass
+    return image_util.load_raw(raw, item.w, item.h).convert("RGBA").resize((32, 32), Image.LANCZOS)
 
 
 def effect_thumbnail(skill_id: str) -> Image.Image:
     """Crop the fullest frame of the skill's own baked DNF effect.
 
     Sampling one fixed column made thin blood slashes read as smudges; the
-    widest-drawn frame of the four is the one that looks like the move.
+    widest-drawn frame of the row is the one that looks like the move. The cell
+    is the effect atlas's own 128px cell - reading it as a quarter of the sheet
+    width only worked while a row was four frames wide.
     """
     sheet = ROOT / "effects.png"
     if not sheet.exists():
         return Image.new("RGBA", (32, 32), (0, 0, 0, 0))
     effects = Image.open(sheet).convert("RGBA")
     row = SKILL_IDS.index(skill_id)
-    cell = effects.width // 4
+    cell = EFFECT_CELL
+    columns = effects.width // cell
     best, best_area = None, 0
-    for column in range(4):
+    for column in range(columns):
         frame = effects.crop((cell * column, row * cell, cell * (column + 1), (row + 1) * cell))
         box = frame.getbbox()
         if box is None:
@@ -234,7 +254,7 @@ def effect_thumbnail(skill_id: str) -> Image.Image:
 def build_icons() -> None:
     _, image_util, convertor = load_img_tools()
     icons = open_img(fetch("skillicon.img", SOURCES["skillicon.img"]))
-    sheet = Image.new("RGBA", (32 * len(SKILL_IDS), 32), (0, 0, 0, 0))
+    sheet = Image.new("RGBA", (32 * len(SKILL_IDS), 32 * ICON_ROWS), (0, 0, 0, 0))
 
     for slot, skill_id in enumerate(SKILL_IDS):
         icon = skill_icon(skill_id, icons, image_util, convertor)
@@ -243,6 +263,17 @@ def build_icons() -> None:
         draw.rounded_rectangle([0, 0, 31, 31], radius=6, outline=(226, 191, 114, 255), width=1)
         backdrop.alpha_composite(icon, ((32 - icon.width) // 2, (32 - icon.height) // 2))
         sheet.alpha_composite(backdrop, (slot * 32, 0))
+
+        # The buff badge keeps the state's own frame on the second row.
+        frame = BUFF_ICON_FRAMES.get(skill_id)
+        if frame is None:
+            continue
+        badge = atlas_icon(icons, frame, image_util, convertor)
+        if badge is None:
+            continue
+        plate = Image.new("RGBA", (32, 32), (18, 22, 36, 255))
+        plate.alpha_composite(badge, ((32 - badge.width) // 2, (32 - badge.height) // 2))
+        sheet.alpha_composite(plate, (slot * 32, 32))
 
     sheet.save(ROOT / "skills.png")
     print(f"wrote {ROOT / 'skills.png'} ({sheet.width}x{sheet.height})")

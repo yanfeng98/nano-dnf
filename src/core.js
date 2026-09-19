@@ -240,10 +240,18 @@
        * DNF shape: 血之狂暴 is the dual-blade stance, not a damage move. It
        * costs HP to keep up and buys attack speed and shorter skill cooldowns
        * while it lasts.
+       *
+       * It is a buffer in the DNF sense: the state has no timer at all (the
+       * owner's read of the client is "cast it again to take it down"), so the
+       * duration is Infinity and the toggle flag is what turns the second cast
+       * into a cancel. Nothing else in the buff machinery changes - the stance
+       * is still a number in player.buffs, so attack speed and cooldowns keep
+       * reading it the way they always did.
        */
       buff: {
         id: "bloodRage",
-        duration: 8,
+        duration: Infinity,
+        toggle: true,
         attackSpeed: 1.25,
         cooldownScale: 1.4,
         hpCost: 6
@@ -428,6 +436,19 @@
     gruntDropChance: 0.5,
     lifetimeSeconds: 14,
     gravity: 1500
+  };
+
+  /*
+   * 血之狂暴 pulls blood out of whatever the Slayer hits: a landed hit has a
+   * chance to draw an orb that flies into him and heals on arrival. The orb
+   * ignores gravity on purpose - it is being pulled towards him, not dropped.
+   */
+  var BLOOD_ORB = {
+    chance: 0.34,
+    heal: 4,
+    radius: 9,
+    speed: 620,
+    lifetimeSeconds: 1.6
   };
 
   var ENEMY_TYPES = {
@@ -933,7 +954,7 @@
       effects: [],
       nextEnemyId: 1,
       nextProjectileId: 1,
-      stats: { hits: 0, kills: 0, damageDealt: 0, damageTaken: 0, airHits: 0, collapses: 0 },
+      stats: { hits: 0, kills: 0, damageDealt: 0, damageTaken: 0, airHits: 0, collapses: 0, bloodOrbs: 0 },
       upgradeChoice: null,
       layout: null,
       victory: false,
@@ -1126,6 +1147,23 @@
     return drop;
   }
 
+  /** The blood 血之狂暴 pulls out of a monster it just hit. */
+  function spawnBloodOrb(state, enemy) {
+    var orb = {
+      kind: "blood_orb",
+      x: enemy.x,
+      y: enemy.y - enemy.height * 0.55,
+      vy: 0,
+      radius: BLOOD_ORB.radius,
+      value: BLOOD_ORB.heal,
+      life: BLOOD_ORB.lifetimeSeconds,
+      speed: BLOOD_ORB.speed
+    };
+    state.pickups.push(orb);
+    state.stats.bloodOrbs += 1;
+    return orb;
+  }
+
   /**
    * DNF bosses change gear once they are cornered. Crossing the phase-two health
    * ratio raises speed, damage and slam reach and unlocks the mid-range lunge.
@@ -1171,6 +1209,14 @@
     state.stats.hits += 1;
     state.stats.damageDealt += applied;
     pushDamageEffect(state, enemy.x, enemy.y - enemy.height - 6, applied);
+    /*
+     * 血之狂暴: while the stance is up, a landed hit can draw blood out of the
+     * monster. Bleed ticks and the chapel floor hit monsters too, but they are
+     * not the Slayer's own swings, so those calls opt out with noBloodOrbs.
+     */
+    if (applied > 0 && !opts.noBloodOrbs && state.player.buffs.bloodRage > 0) {
+      if (nextRandom(state) < BLOOD_ORB.chance) spawnBloodOrb(state, enemy);
+    }
 
     /* Super armour keeps bosses swinging through light hits, DNF style. */
     if (enemy.superArmor && !opts.ignoreSuperArmor) {
@@ -1432,11 +1478,42 @@
 
         var skillBox = attackBox(player, active.reach, active.heightPad);
         if (active.buff) {
-          /* A buff skill pays its HP cost and goes up; it does not swing. */
-          if (active.buff.hpCost) {
-            player.hp = Math.max(1, player.hp - active.buff.hpCost);
+          /*
+           * A buff skill pays its HP cost and goes up; it does not swing.
+           *
+           * 血之狂暴 is a stance rather than a timer (duration: Infinity): it
+           * stays up until the skill is cast again, and casting it again takes
+           * it down and costs nothing. Everything else keeps the old shape.
+           */
+          var stanceUp = player.buffs[active.buff.id] > 0;
+          if (active.buff.toggle && stanceUp) {
+            player.buffs[active.buff.id] = 0;
+            state.effects.push({
+              kind: "stance",
+              up: false,
+              x: player.x,
+              y: player.y - player.height * 0.5,
+              life: 0.5,
+              maxLife: 0.5
+            });
+            pushBanner(state, active.name + " 解除", 1.1);
+          } else {
+            if (active.buff.hpCost) {
+              player.hp = Math.max(1, player.hp - active.buff.hpCost);
+            }
+            player.buffs[active.buff.id] = active.buff.duration;
+            if (active.buff.toggle) {
+              state.effects.push({
+                kind: "stance",
+                up: true,
+                x: player.x,
+                y: player.y - player.height * 0.5,
+                life: 0.5,
+                maxLife: 0.5
+              });
+              pushBanner(state, active.name, 1.1);
+            }
           }
-          player.buffs[active.buff.id] = active.buff.duration;
         }
         var skillDamage = Math.round(
           (active.damage + (player.level - 1) * active.growth + player.attackBonus) *
@@ -1880,7 +1957,8 @@
         enemy.bleed.timer -= dt;
         if (enemy.bleed.timer <= 0) {
           enemy.bleed.timer += enemy.bleed.interval;
-          damageEnemy(state, enemy, enemy.bleed.damage, 0, enemy.x);
+          /* The bleed is the wound's own damage, so it draws no blood orbs. */
+          damageEnemy(state, enemy, enemy.bleed.damage, 0, enemy.x, { noBloodOrbs: true });
           if (enemy.dead) return;
         }
         if (enemy.bleed.remaining <= 0) enemy.bleed = null;
@@ -2028,7 +2106,8 @@
         if (enemy.dead || !enemy.onGround) return;
         if (Math.abs(enemy.x - hazard.x) > hazard.radius) return;
         damageEnemy(state, enemy, HAZARD.enemyDamage, 0, hazard.x, {
-          knockdown: HAZARD.enemyKnockdown
+          knockdown: HAZARD.enemyKnockdown,
+          noBloodOrbs: true
         });
       });
 
@@ -2053,15 +2132,34 @@
       drop.life -= dt;
       if (drop.life <= 0) return;
 
-      drop.vy += DROPS.gravity * dt;
-      drop.y += drop.vy * dt;
-      if (drop.y >= ARENA.groundY - drop.radius) {
-        drop.y = ARENA.groundY - drop.radius;
-        drop.vy = 0;
+      var sameLevel;
+      var closeEnough;
+      if (drop.kind === "blood_orb") {
+        /*
+         * 血球 is pulled into the Slayer: it homes at his chest instead of
+         * falling, so it cannot be lost to gravity or to a jump he is in the
+         * middle of. The level check that ordinary drops need would drop it
+         * the moment he leaves the ground.
+         */
+        var toX = player.x - drop.x;
+        var toY = player.y - player.height * 0.55 - drop.y;
+        var distance = Math.sqrt(toX * toX + toY * toY) || 1;
+        var step = Math.min(distance, drop.speed * dt);
+        drop.x += (toX / distance) * step;
+        drop.y += (toY / distance) * step;
+        sameLevel = true;
+        closeEnough = distance <= DROPS.pickupRadius + player.width / 2;
+      } else {
+        drop.vy += DROPS.gravity * dt;
+        drop.y += drop.vy * dt;
+        if (drop.y >= ARENA.groundY - drop.radius) {
+          drop.y = ARENA.groundY - drop.radius;
+          drop.vy = 0;
+        }
+        sameLevel =
+          Math.abs(drop.y - (player.y - player.height / 2)) <= player.height * 0.9 + drop.radius;
+        closeEnough = Math.abs(drop.x - player.x) <= DROPS.pickupRadius + player.width / 2;
       }
-
-      var sameLevel = Math.abs(drop.y - (player.y - player.height / 2)) <= player.height * 0.9 + drop.radius;
-      var closeEnough = Math.abs(drop.x - player.x) <= DROPS.pickupRadius + player.width / 2;
       if (!player.dead && closeEnough && sameLevel) {
         var healed = Math.min(player.maxHp - player.hp, drop.value);
         player.hp += healed;
@@ -2126,6 +2224,7 @@
     SKILL_ORDER: SKILL_ORDER,
     PROGRESSION: PROGRESSION,
     DROPS: DROPS,
+    BLOOD_ORB: BLOOD_ORB,
     ENEMY_TYPES: ENEMY_TYPES,
     ROOMS: ROOMS,
     BOSS_ROOM_INDEX: BOSS_ROOM_INDEX,

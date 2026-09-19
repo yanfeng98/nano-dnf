@@ -1016,6 +1016,10 @@
     isPaused: function () {
       return paused;
     },
+    /* 血之狂暴 is a stance: on until it is cast again. */
+    isRaging: function () {
+      return !!(state.player && state.player.buffs && state.player.buffs.bloodRage > 0);
+    },
     /*
      * Manual QA: drive the title demo forward in one go. The browser proof uses
      * it to reach the boss without waiting out the whole dungeon in real time.

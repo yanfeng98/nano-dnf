@@ -553,6 +553,7 @@ async function runPass(browser, baseUrl, options) {
   let state = await readState(page);
   let midShot = false;
   let pauseReadout = null;
+  let stanceReadout = null;
   let overallBefore = null;
   let paceEarly = null;
   const trace = [];
@@ -566,6 +567,30 @@ async function runPass(browser, baseUrl, options) {
    */
   const slabWatch = new Map();
   const unwarnedBreaks = [];
+  /*
+   * The trap watch only sees what the pass samples, so a deliberate wait has to
+   * keep sampling: the pause and stance checks hold the loop for seconds at a
+   * time, which is longer than a slab needs to crack and break.
+   */
+  const sampleHazards = (sample) => {
+    (sample.hazards || []).forEach((hazard, index) => {
+      const key = `${sample.roomIndex}:${index}:${hazard.x}`;
+      const entry = slabWatch.get(key) || { warned: false };
+      if (hazard.stage === "cracking") entry.warned = true;
+      if (hazard.stage === "collapsing" && !entry.warned) {
+        unwarnedBreaks.push(`${key} broke without a warning`);
+      }
+      if (hazard.stage === "dormant") entry.warned = false;
+      slabWatch.set(key, entry);
+    });
+  };
+  const waitWatching = async (ms) => {
+    const until = Date.now() + ms;
+    while (Date.now() < until) {
+      await page.waitForTimeout(Math.max(1, Math.min(100, until - Date.now())));
+      sampleHazards(await readState(page));
+    }
+  };
   /* Coaching: which hints showed, and whether any of them cleared again. */
   const hints = { seen: new Set(), cleared: 0, lastId: null };
   const keyOf = (action) => keyForSkill(action, loadout) || KEY_FOR_ACTION[action];
@@ -636,7 +661,7 @@ async function runPass(browser, baseUrl, options) {
         }
       };
       await togglePause();
-      await page.waitForTimeout(180);
+      await waitWatching(180);
       overallBefore = await page.evaluate(() => window.nanoDnf.getRunSummary().overallText);
       pauseReadout = await page.evaluate(() => {
         const state = window.nanoDnf.getState();
@@ -670,21 +695,76 @@ async function runPass(browser, baseUrl, options) {
       });
       await page.screenshot({ path: path.join(ARTIFACTS, `pause-readout-${options.mode}.png`) });
       await togglePause();
-      await page.waitForTimeout(140);
+      await waitWatching(140);
       pauseReadout.resumed = !(await page.evaluate(() => window.nanoDnf.isPaused()));
+
+      /*
+       * 血之狂暴 is the kit's one buffer, and the owner's read of the client is
+       * that it is a stance rather than a buff timer: it goes up, it stays up,
+       * and the same skill cast again is what takes it down. Drive it through
+       * the pass's own input path (the slot key on the keyboard, the slot itself
+       * on touch), give the fight a moment to draw blood, then take it down.
+       */
+      const stance = await page.evaluate(() => {
+        const slot = window.nanoDnf.getLoadout().indexOf("frenzy");
+        return { slot, code: "Key" + window.DNFLoadout.SLOT_KEYS[slot] };
+      });
+      const castStance = async () => {
+        if (options.mode === "touch") {
+          await touchAction(page, "slot" + stance.slot, true);
+          await touchAction(page, "slot" + stance.slot, false);
+        } else {
+          await page.keyboard.press(stance.code);
+        }
+      };
+      const hpBeforeStance = await page.evaluate(() => window.nanoDnf.getState().player.hp);
+      await castStance();
+      await waitWatching(300);
+      const raised = await page.evaluate(() => ({
+        raging: window.nanoDnf.isRaging(),
+        hp: window.nanoDnf.getState().player.hp
+      }));
+      /* Nothing but a second cast shortens it, so waiting must not end it. */
+      await waitWatching(2200);
+      const stillUp = await page.evaluate(() => window.nanoDnf.isRaging());
+      const blood = await page.evaluate(() => {
+        const state = window.nanoDnf.getState();
+        let hits = 0;
+        while (state.stats.bloodOrbs === 0 && hits < 60) {
+          const target = state.enemies.find((enemy) => !enemy.dead);
+          if (!target) break;
+          /* The same hit the game's own attacks call. */
+          window.DNFCore.damageEnemy(state, target, 1, 0, state.player.x);
+          hits += 1;
+        }
+        /* Freeze mid-swing so the dual-blade arc is in the shot. */
+        state.player.invuln = 0;
+        state.player.hurtTimer = 0;
+        state.player.attackTimer = state.player.attackDuration * 0.5;
+        return {
+          orbs: state.stats.bloodOrbs,
+          flying: state.pickups.filter((drop) => drop.kind === "blood_orb").length,
+          hits
+        };
+      });
+      await page.waitForTimeout(60);
+      await page.screenshot({ path: path.join(ARTIFACTS, "rage-stance.png") });
+      await castStance();
+      await waitWatching(240);
+      stanceReadout = {
+        hpBefore: hpBeforeStance,
+        raging: raised.raging,
+        hpCost: hpBeforeStance - raised.hp,
+        stillUp,
+        orbs: blood.orbs,
+        flying: blood.flying,
+        hits: blood.hits,
+        off: !(await page.evaluate(() => window.nanoDnf.isRaging()))
+      };
     }
     await page.waitForTimeout(options.mode === "touch" ? 16 : 20);
     state = await readState(page);
-    (state.hazards || []).forEach((hazard, index) => {
-      const key = `${state.roomIndex}:${index}:${hazard.x}`;
-      const entry = slabWatch.get(key) || { warned: false };
-      if (hazard.stage === "cracking") entry.warned = true;
-      if (hazard.stage === "collapsing" && !entry.warned) {
-        unwarnedBreaks.push(`${key} broke without a warning`);
-      }
-      if (hazard.stage === "dormant") entry.warned = false;
-      slabWatch.set(key, entry);
-    });
+    sampleHazards(state);
     const hintNow = await page.evaluate(() => window.nanoDnf.getHintState().active);
     if (hintNow && hintNow.id) {
       hints.seen.add(hintNow.id);
@@ -1060,6 +1140,7 @@ async function runPass(browser, baseUrl, options) {
     attractArc,
     attractAfterInput,
     pauseReadout,
+    stanceReadout,
     overallBefore,
     paceEarly,
     pace: { before: paceBefore, after: paceAfter, record: paceFlip.best },
@@ -1217,6 +1298,26 @@ function problemsFor(pass) {
     }
     if (paused.resumed !== true) {
       problems.push(`${pass.mode}: the pass never resumed after the pause check`);
+    }
+  }
+  const stance = pass.stanceReadout;
+  if (!stance) {
+    problems.push(`${pass.mode}: the 血之狂暴 stance check never ran`);
+  } else {
+    if (stance.raging !== true) {
+      problems.push(`${pass.mode}: casting 血之狂暴 did not raise the stance`);
+    }
+    if (!(stance.hpCost > 0)) {
+      problems.push(`${pass.mode}: 血之狂暴 did not pay its HP cost (${stance.hpCost})`);
+    }
+    if (stance.stillUp !== true) {
+      problems.push(`${pass.mode}: the stance ran out on its own - it is a toggle, not a timer`);
+    }
+    if (!(stance.orbs > 0)) {
+      problems.push(`${pass.mode}: no blood orb was drawn in ${stance.hits} hits with the stance up`);
+    }
+    if (stance.off !== true) {
+      problems.push(`${pass.mode}: casting 血之狂暴 again did not take the stance down`);
     }
   }
   if (!pass.paceEarly || pass.paceEarly.state !== "none") {
@@ -1484,6 +1585,7 @@ async function main() {
       expected: pass.pauseReadout.expected,
       resumed: pass.pauseReadout.resumed
     },
+    stanceReadout: pass.stanceReadout,
     pace: {
       firstRun: pass.paceEarly && pass.paceEarly.state,
       before: pass.pace.before && pass.pace.before.state,

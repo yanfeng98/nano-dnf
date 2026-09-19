@@ -88,8 +88,8 @@ PICKS = {
     "crossSlash": {"stack": [("_gorecross", "gorecross_cross.img")]},
     # 血气之刃: the blood sword is thrust, then it bursts.
     "bloodSword": {"sequence": [("_bloodsword", "sword_normal.img"), ("_bloodsword", "exp_dodge.img")]},
-    # 血之狂暴: the dual-blade glow plus the orbs drained out of a monster.
-    "frenzy": {"stack": [("_frenzy", "blood-energy.img"), ("_frenzy", "blood-stone-0.img")]},
+    # 血之狂暴: the dual-blade glow that rides the normal attack.
+    "frenzy": {"stack": [("_frenzy", "blood-energy.img")]},
     "bloodyRave": {"stack": [("_bloodyrave", "*")]},
     # 怒气爆发: the pack's ground ring, the blood pillar and the hit flash.
     # Stacking the whole pack shrank everything - one layer is 355x387, so the
@@ -111,6 +111,14 @@ PICKS = {
     "bloodEvil": {"stack": [("_bloodriven", "*")]},
     "mountainRift": {"stack": [("_outragebreak", "*")]},
 }
+
+# Rows after the skill rows, for art a move needs away from its own cast: the
+# owner picked these two entries out of the same 血之狂暴 pack and gave them
+# different jobs. The orbs used to ride along inside the dual-blade row, which
+# put a slash arc on every drop of blood that flew into the character.
+EXTRA_ROWS = [
+    ("bloodOrb", {"stack": [("_frenzy", "blood-stone-0.img")]}),
+]
 
 
 def key_black_background(image: Image.Image, low: int = 26, soft: int = 48) -> Image.Image:
@@ -370,12 +378,19 @@ def main() -> None:
             path = source(args, npk_name, entry, url, f"effect_{entry}")
             frames = sampled_row(decode_frames(load_img(path)))
         rows[skill] = frames
+    for name, pick in EXTRA_ROWS:
+        entries = list(pick.get("stack") or pick.get("sequence") or [])
+        mode = "sequence" if pick.get("sequence") else "stack"
+        rows[name] = pick_frames(args.client, mode, entries)
+        print(f"{name}: picked {mode} of {len(entries)} entrie(s): {len(rows[name])} frames")
 
     columns = max(FRAMES, max(len(frames) for frames in rows.values()))
-    sheet = Image.new("RGBA", (CELL * columns, CELL * len(EFFECTS)), (0, 0, 0, 0))
+    sheet = Image.new("RGBA", (CELL * columns, CELL * (len(EFFECTS) + len(EXTRA_ROWS))), (0, 0, 0, 0))
     counts = {}
     for row, (skill, _npk, _entry, _url) in enumerate(EFFECTS):
         counts[skill] = bake_frames(rows[skill], row, sheet)
+    for offset, (name, _pick) in enumerate(EXTRA_ROWS):
+        counts[name] = bake_frames(rows[name], len(EFFECTS) + offset, sheet)
     sheet.save(ROOT / "effects.png")
     print(f"wrote {ROOT / 'effects.png'} ({sheet.width}x{sheet.height})")
     print("row frames: " + ", ".join(f"{skill}={count}" for skill, count in counts.items()))

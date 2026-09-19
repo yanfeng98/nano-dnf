@@ -1095,7 +1095,7 @@ test("the shipped sprite sheet matches the frame grid the renderer expects", () 
 
   const icons = fs.readFileSync(path.join(__dirname, "..", "assets", "skills.png"));
   assert.equal(icons.readUInt32BE(16), 32 * Core.SKILL_ORDER.length, "one icon per skill");
-  assert.equal(icons.readUInt32BE(20), 32);
+  assert.equal(icons.readUInt32BE(20), 32 * 2, "a skill row and a buff-badge row");
 });
 
 test("every frame the renderer plays fits inside its sprite cell", () => {
@@ -1273,8 +1273,8 @@ test("the shipped DNF effect sheet matches the renderer grid", () => {
   assert.equal(buffer.readUInt32BE(16), Render.EFFECT.cell * Render.EFFECT.maxFrames);
   assert.equal(
     buffer.readUInt32BE(20),
-    Render.EFFECT.cell * Core.SKILL_ORDER.length,
-    "one baked effect row per skill"
+    Render.EFFECT.cell * (Core.SKILL_ORDER.length + 1),
+    "one baked effect row per skill, plus the blood-orb row"
   );
   /*
    * Each row carries its own frame count: the picked moves ship their whole
@@ -1298,6 +1298,19 @@ test("the shipped DNF effect sheet matches the renderer grid", () => {
   });
   assert.equal(Render.EFFECT.rowFrames.mountainBreaker, 6, "崩山击 ships its six-frame ground slash");
   assert.equal(Render.EFFECT.rowFrames.crossSlash, 11, "十字斩 ships its eleven-frame cross");
+  /*
+   * 血之狂暴 splits the owner's pick in two: the dual-blade energy stays on the
+   * skill's own row and the orbs that fly into the Slayer get a row of their
+   * own, so a drop of blood does not arrive carrying a slash arc.
+   */
+  assert.equal(Render.EFFECT.orbRow, Core.SKILL_ORDER.length, "the orb row follows the skill rows");
+  const orbs = [];
+  for (let column = 0; column < Render.EFFECT.maxFrames; column += 1) {
+    if (cellAlphaBox(sheet, column, Render.EFFECT.orbRow, Render.EFFECT.cell, Render.EFFECT.cell)) {
+      orbs.push(column);
+    }
+  }
+  assert.equal(orbs.length, Render.EFFECT.orbFrames, "the orb row carries its own frames");
   Core.SKILL_ORDER.forEach((skillId) => {
     assert.ok(Render.EFFECT.draw[skillId], `${skillId} needs an effect mapping`);
   });
@@ -1315,6 +1328,189 @@ test("each skill picks a DNF effect row across the cast", () => {
     assert.equal(Render.skillEffectFrame(skillId, 1), null, `${skillId} stops after the cast`);
   });
   assert.equal(Render.skillEffectFrame("grunt", 0.5), null, "unknown skills have no effect");
+});
+
+test("血之狂暴 is a stance with no timer, and casting it again takes it down", () => {
+  const state = lastRoomState();
+  state.enemies = [];
+  state.player.mp = state.player.maxMp;
+
+  const baseSpeed = Core.attackSpeedOf(state.player);
+  const hpBefore = state.player.hp;
+  Core.step(state, { skills: { frenzy: true } });
+  Core.runFrames(state, 60, {});
+
+  const hpAfterCast = state.player.hp;
+  assert.ok(state.player.buffs.bloodRage > 0, "the stance goes up");
+  assert.ok(hpAfterCast < hpBefore, "going up costs HP");
+  assert.ok(Core.attackSpeedOf(state.player) > baseSpeed, "the stance buys attack speed");
+
+  /*
+   * A buffer in the DNF sense: the client's own read is "cast it again to take
+   * it down", so an hour of game time must not tick it away - and it must not
+   * keep draining HP either.
+   */
+  Core.runFrames(state, 3600, {});
+  assert.equal(state.player.buffs.bloodRage, Infinity, "the stance has no timer");
+  assert.equal(state.player.hp, hpAfterCast, "and it stops charging HP after the cast");
+  assert.ok(Core.attackSpeedOf(state.player) > baseSpeed, "it is still up a minute later");
+
+  /* Cooldowns run fast while it is up ... */
+  state.player.skillCooldowns.upSlash = 4;
+  Core.runFrames(state, 60, {});
+  const ragingCooldown = state.player.skillCooldowns.upSlash;
+
+  /* ... and the second cast is the cancel, which costs nothing. */
+  state.player.mp = state.player.maxMp;
+  state.player.skillCooldowns.frenzy = 0;
+  Core.step(state, { skills: { frenzy: true } });
+  Core.runFrames(state, 60, {});
+  assert.equal(state.player.buffs.bloodRage, 0, "casting it again takes it down");
+  assert.equal(state.player.hp, hpAfterCast, "taking it down is free");
+  assert.equal(Core.attackSpeedOf(state.player), baseSpeed, "the attack speed goes with it");
+
+  state.player.skillCooldowns.upSlash = 4;
+  Core.runFrames(state, 60, {});
+  assert.ok(
+    state.player.skillCooldowns.upSlash > ragingCooldown,
+    "cooldowns run at the normal rate once the stance is down"
+  );
+});
+
+test("血之狂暴 draws blood orbs out of what it hits and they fly back as healing", () => {
+  const state = lastRoomState();
+  const target = Core.createEnemy(state, "brute", state.player.x + 160);
+  target.hp = 100000;
+  target.maxHp = 100000;
+  target.speed = 0;
+  state.enemies = [target];
+
+  /* Without the stance, the same hits draw nothing (the control). */
+  for (let hit = 0; hit < 40; hit += 1) {
+    Core.damageEnemy(state, target, 1, 0, state.player.x);
+  }
+  assert.equal(state.stats.bloodOrbs, 0, "no stance, no blood");
+  assert.equal(state.pickups.length, 0, "and nothing is left on the floor");
+
+  state.player.buffs.bloodRage = Infinity;
+  let hits = 0;
+  while (state.stats.bloodOrbs === 0 && hits < 40) {
+    Core.damageEnemy(state, target, 1, 0, state.player.x);
+    hits += 1;
+  }
+  assert.ok(state.stats.bloodOrbs > 0, `a landed hit has to draw blood (${hits} hits)`);
+  assert.equal(state.pickups.length, 1, "the orb is a pickup");
+  const orb = state.pickups[0];
+  assert.equal(orb.kind, "blood_orb");
+  assert.equal(orb.value, Core.BLOOD_ORB.heal, "the orb carries its heal");
+
+  /*
+   * It is pulled towards him rather than dropped: a Slayer standing in the air
+   * over a jump still catches it, which the falling heal orbs cannot do.
+   */
+  state.player.onGround = false;
+  state.player.vy = -320;
+  state.player.y = Core.ARENA.groundY - 90;
+  const wounded = state.player.maxHp - Core.BLOOD_ORB.heal - 5;
+  state.player.hp = wounded;
+  Core.runFrames(state, 60, {});
+  assert.equal(state.player.hp, wounded + Core.BLOOD_ORB.heal, "arriving blood heals him");
+  assert.equal(state.pickups.length, 0, "and the orb is spent");
+
+  /* Blood that cannot reach him does not sit there forever. */
+  state.player.invuln = 0;
+  state.player.buffs.bloodRage = Infinity;
+  Core.damageEnemy(state, target, 1, 0, state.player.x);
+  if (!state.pickups.length) {
+    for (let hit = 0; hit < 40 && !state.pickups.length; hit += 1) {
+      Core.damageEnemy(state, target, 1, 0, state.player.x);
+    }
+  }
+  assert.ok(state.pickups.length > 0, "precondition: a fresh orb");
+  state.player.hp = state.player.maxHp;
+  Core.runFrames(state, 200, {});
+  assert.equal(state.pickups.length, 0, "orbs do not pile up");
+});
+
+test("the stance paints him red, badges its icon and rides the normal attack", () => {
+  const state = Core.createState({ seed: 9 });
+  const sprites = {
+    slayer: { width: 8736, height: 1232 },
+    skills: { width: 32 * Core.SKILL_ORDER.length, height: 64 },
+    effects: { width: 3456, height: 1536 }
+  };
+  const slot = Core.SKILL_ORDER.indexOf("frenzy");
+  const rowOf = (calls, image, row) =>
+    calls.filter(
+      (call) => call[0] === "drawImage" && call[1] === image && call[3] === row * Render.EFFECT.cell
+    );
+  /*
+   * The shared context double stubs the gradient factories out, so this test
+   * counts them itself: the aura is a radial gradient behind the character.
+   */
+  const renderWith = (calls) => {
+    const ctx = recordingContext(calls);
+    const gradients = [];
+    ctx.createRadialGradient = (...args) => {
+      gradients.push(args);
+      return { addColorStop() {} };
+    };
+    Render.render(ctx, state, { sprites });
+    return gradients;
+  };
+
+  const calm = [];
+  const calmGradients = renderWith(calm);
+  const calmBadge = calm.filter(
+    (call) => call[0] === "drawImage" && call[1] === sprites.skills && call[3] === 32
+  );
+  assert.equal(calmBadge.length, 0, "no stance, no badge");
+  assert.equal(rowOf(calm, sprites.effects, Render.EFFECT.orbRow).length, 0, "and no blood orbs");
+
+  /* Mid-swing with the stance up: the whole look is on screen at once. */
+  state.player.buffs.bloodRage = Infinity;
+  state.player.attackTimer = state.player.attackDuration * 0.5;
+  state.pickups.push({
+    kind: "blood_orb",
+    x: state.player.x + 60,
+    y: state.player.y - 40,
+    radius: 9,
+    value: Core.BLOOD_ORB.heal,
+    life: 1.2,
+    speed: Core.BLOOD_ORB.speed
+  });
+  const raging = [];
+  const ragingGradients = renderWith(raging);
+
+  /*
+   * The badge is atlas frame 135, which lives on the icon sheet's second row:
+   * a source y of 32 is the only place that art can come from.
+   */
+  const badge = raging.filter(
+    (call) => call[0] === "drawImage" && call[1] === sprites.skills && call[3] === 32
+  );
+  assert.equal(badge.length, 1, "the stance shows its buff icon");
+  assert.equal(badge[0][2], slot * 32, "the badge belongs to the stance's own slot");
+
+  /* The dual-blade arc rides the normal attack, timed off the swing. */
+  const frenzyRow = Core.SKILL_ORDER.indexOf("frenzy");
+  const slash = rowOf(raging, sprites.effects, frenzyRow);
+  assert.ok(slash.length >= 1, "the swing carries the stance's own arc");
+
+  /* Non-vacuous: the same mid-swing frame without the stance draws no arc. */
+  state.player.buffs.bloodRage = 0;
+  const swing = [];
+  Render.render(recordingContext(swing), state, { sprites });
+  state.player.buffs.bloodRage = Infinity;
+  assert.equal(rowOf(swing, sprites.effects, frenzyRow).length, 0, "no stance, no arc");
+
+  /* And the blood drawn out of a monster is drawn from its own row. */
+  const orbs = rowOf(raging, sprites.effects, Render.EFFECT.orbRow);
+  assert.ok(orbs.length >= 1, "the orb art comes off the orb row");
+  assert.ok(
+    ragingGradients.length > calmGradients.length,
+    "the stance adds its own glow behind him"
+  );
 });
 
 test("the three new DNF skills land their hits and statuses", () => {

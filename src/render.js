@@ -86,7 +86,9 @@
         ]
       },
       rageBurst: { row: 5, first: 7, frames: 8 },
-      crossSlash: { row: 5, first: 15, frames: 20 }
+      crossSlash: { row: 5, first: 15, frames: 20 },
+      /* 血之狂暴: body action 22, the stand that flings both arms out. */
+      frenzy: { row: 6, first: 0, frames: 9 }
     },
     extras: { hurt: 0, dead: 1, jump: 2, fall: 3 }
   };
@@ -200,6 +202,14 @@
       mountainRift: 20
     },
     maxFrames: 27,
+    /*
+     * assets/effects.png carries one row per skill and then, past them, the art
+     * a move needs away from its own cast: 血之狂暴's blood orb lives on the row
+     * after the last skill, because the orbs that fly into the Slayer must not
+     * carry the dual-blade slash the pack draws around them.
+     */
+    orbRow: Core.SKILL_ORDER.length,
+    orbFrames: 6,
     draw: {
       upSlash: { dx: 34, dy: -56, size: 156, copies: 1, spin: 0 },
       /* 崩山击 lands on a shockwave that covers half the arena. */
@@ -648,15 +658,97 @@
     ctx.fill();
     ctx.restore();
 
+    var raging = !!(player.buffs && player.buffs.bloodRage > 0);
+    if (raging) drawRage(ctx, state, player);
+
     var image = sprites && sprites.slayer;
     if (!image || !image.width) {
       drawFallbackPlayer(ctx, state, player);
+      if (raging) drawStanceBadge(ctx, state, sprites);
       return;
     }
     var frame = playerFrame(state, player);
     ctx.save();
     if (player.hurtTimer > 0 && "filter" in ctx) ctx.filter = "brightness(1.7) saturate(0.6)";
-    drawSpriteFrame(ctx, image, frame.col, frame.row, player.x, player.y, player.facing < 0);
+    /*
+     * 血之狂暴 turns him red all over. The tint is baked off-screen: source-atop
+     * composites against whatever already sits on the target canvas, so filling
+     * the live frame would wash the arena red instead of the character.
+     */
+    var body = raging && ragingSheet(image) ? ragingSheet(image) : image;
+    /* A hurt flash outranks the stance's own lift. */
+    if (raging && player.hurtTimer <= 0 && "filter" in ctx) ctx.filter = "saturate(1.2)";
+    drawSpriteFrame(ctx, body, frame.col, frame.row, player.x, player.y, player.facing < 0);
+    ctx.restore();
+    if (raging) drawStanceBadge(ctx, state, sprites);
+  }
+
+  /*
+   * The red sheet, built once per sprite image. A run keeps the same Image for
+   * its whole life, so the cache never grows past one entry.
+   */
+  var rageTint = null;
+  function ragingSheet(image) {
+    if (typeof document === "undefined" || !document.createElement) return null;
+    if (rageTint && rageTint.source === image) return rageTint.sheet;
+    var canvas = document.createElement("canvas");
+    canvas.width = image.width;
+    canvas.height = image.height;
+    var brush = canvas.getContext("2d");
+    if (!brush) return null;
+    brush.drawImage(image, 0, 0);
+    brush.globalCompositeOperation = "source-atop";
+    brush.fillStyle = "rgba(214, 28, 44, 0.58)";
+    brush.fillRect(0, 0, canvas.width, canvas.height);
+    rageTint = { source: image, sheet: canvas };
+    return canvas;
+  }
+
+  /** The blood aura that reads as "the stance is up" even at a glance. */
+  function drawRage(ctx, state, player) {
+    var pulse = 0.86 + 0.14 * Math.sin(state.time * 9);
+    var cx = player.x;
+    var cy = player.y - player.height * 0.5;
+    var radius = player.height * 0.95 * pulse;
+    ctx.save();
+    var glow = ctx.createRadialGradient(cx, cy, 2, cx, cy, radius);
+    glow.addColorStop(0, "rgba(255, 60, 78, 0.5)");
+    glow.addColorStop(0.6, "rgba(196, 18, 40, 0.25)");
+    glow.addColorStop(1, "rgba(150, 10, 28, 0)");
+    ctx.fillStyle = glow;
+    ctx.beginPath();
+    ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+    ctx.fill();
+    /* Drops that run off him, so the state is not just a colour change. */
+    ctx.globalAlpha = 0.5 + 0.3 * Math.sin(state.time * 7);
+    ctx.fillStyle = "rgba(226, 32, 48, 0.9)";
+    for (var drop = 0; drop < 3; drop += 1) {
+      var t = (state.time * 0.9 + drop / 3) % 1;
+      var dx = Math.sin((state.time + drop) * 4) * 10;
+      ctx.beginPath();
+      ctx.arc(cx + dx, player.y - player.height * (1 - t) - 6, 2.6 - 1.4 * t, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  /** The buff icon over his head: atlas frame 135, the stance's own art. */
+  function drawStanceBadge(ctx, state, sprites) {
+    if (!sprites || !sprites.skills || !sprites.skills.width) return;
+    var slot = Core.SKILL_ORDER.indexOf("frenzy");
+    if (slot === -1) return;
+    var player = state.player;
+    var size = 22;
+    var x = player.x - size / 2;
+    var y = player.y - player.height - 42;
+    ctx.save();
+    roundRect(ctx, x - 3, y - 3, size + 6, size + 6, 6);
+    ctx.fillStyle = "rgba(10, 12, 22, 0.72)";
+    ctx.fill();
+    ctx.strokeStyle = "rgba(226, 60, 78, 0.9)";
+    ctx.lineWidth = 1.4;
+    ctx.stroke();
+    ctx.drawImage(sprites.skills, slot * 32, 32, 32, 32, x, y, size, size);
     ctx.restore();
   }
 
@@ -938,8 +1030,57 @@
     ctx.restore();
   }
 
-  function drawPickups(ctx, state) {
+  /**
+   * The dual-blade flourish 血之狂暴 puts on every normal attack.
+   *
+   * The stance's own art rides the swing instead of the cast: the row is the
+   * layered blood energy the client draws around both blades, and it is timed
+   * off the normal attack's active window rather than a skill's.
+   */
+  function drawRageSlash(ctx, state, sprites) {
+    var player = state.player;
+    if (!player || player.dead) return;
+    if (!(player.buffs && player.buffs.bloodRage > 0)) return;
+    if (player.attackTimer <= 0) return;
+    if (!sprites || !sprites.effects || !sprites.effects.width) return;
+    var draw = EFFECT.draw.frenzy;
+    var row = Core.SKILL_ORDER.indexOf("frenzy");
+    if (!draw || row === -1) return;
+
+    var progress = clamp01(1 - player.attackTimer / player.attackDuration);
+    var from = Math.max(0, Core.PLAYER.attackActiveFrom - 0.18);
+    var to = Math.min(1, Core.PLAYER.attackActiveTo + 0.4);
+    if (progress < from || progress > to) return;
+    var local = clamp01((progress - from) / Math.max(0.0001, to - from));
+    var frames = EFFECT.rowFrames.frenzy || 4;
+    var column = Math.min(frames - 1, Math.floor(local * frames));
+    var size = draw.size * 0.9;
+
+    ctx.save();
+    ctx.translate(player.x + player.facing * draw.dx * 0.55, player.y + draw.dy * 0.55);
+    ctx.scale(player.facing, 1);
+    ctx.globalAlpha = 1 - Math.max(0, (local - 0.7) / 0.3) * 0.6;
+    ctx.imageSmoothingEnabled = true;
+    ctx.drawImage(
+      sprites.effects,
+      column * EFFECT.cell,
+      row * EFFECT.cell,
+      EFFECT.cell,
+      EFFECT.cell,
+      -size / 2,
+      -size / 2,
+      size,
+      size
+    );
+    ctx.restore();
+  }
+
+  function drawPickups(ctx, state, sprites) {
     state.pickups.forEach(function (drop) {
+      if (drop.kind === "blood_orb") {
+        drawBloodOrb(ctx, state, drop, sprites);
+        return;
+      }
       var pulse = 0.8 + 0.2 * Math.sin(state.time * 8 + drop.x);
       ctx.save();
       ctx.globalAlpha = drop.life < 2 ? Math.max(0.25, drop.life / 2) : 1;
@@ -960,6 +1101,50 @@
       ctx.fill();
       ctx.restore();
     });
+  }
+
+  /*
+   * 血球: the drop 血之狂暴 pulls out of a monster. It is drawn from its own row
+   * of assets/effects.png - the owner picked that art out of the same 血之狂暴
+   * pack as the dual-blade slash, and it is the only part of the row that is a
+   * ball rather than an arc.
+   */
+  function drawBloodOrb(ctx, state, drop, sprites) {
+    var pulse = 0.85 + 0.15 * Math.sin(state.time * 14 + drop.x * 0.05);
+    ctx.save();
+    ctx.globalAlpha = drop.life < 0.35 ? Math.max(0.2, drop.life / 0.35) : 1;
+    var radius = drop.radius * 3.2 * pulse;
+    var glow = ctx.createRadialGradient(drop.x, drop.y, 1, drop.x, drop.y, radius);
+    glow.addColorStop(0, "rgba(255, 74, 96, 0.8)");
+    glow.addColorStop(0.55, "rgba(206, 22, 46, 0.45)");
+    glow.addColorStop(1, "rgba(150, 8, 26, 0)");
+    ctx.fillStyle = glow;
+    ctx.beginPath();
+    ctx.arc(drop.x, drop.y, radius, 0, Math.PI * 2);
+    ctx.fill();
+    if (sprites && sprites.effects && sprites.effects.width) {
+      var frames = EFFECT.orbFrames;
+      var col = Math.floor(state.time * 14 + drop.x * 0.05) % frames;
+      var size = drop.radius * 4.6 * pulse;
+      ctx.imageSmoothingEnabled = true;
+      ctx.drawImage(
+        sprites.effects,
+        col * EFFECT.cell,
+        EFFECT.orbRow * EFFECT.cell,
+        EFFECT.cell,
+        EFFECT.cell,
+        drop.x - size / 2,
+        drop.y - size / 2,
+        size,
+        size
+      );
+    } else {
+      ctx.fillStyle = "#e5233c";
+      ctx.beginPath();
+      ctx.arc(drop.x, drop.y, drop.radius, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
   }
 
   function drawEffect(ctx, state, effect, bannerOrdinal) {
@@ -1876,7 +2061,9 @@
       drawEnemy(ctx, state, enemy);
     });
     drawProjectiles(ctx, state);
-    drawPickups(ctx, state);
+    drawPickups(ctx, state, sprites);
+    /* The stance puts its own arc on the normal attack, under the skill art. */
+    drawRageSlash(ctx, state, sprites);
     drawSkillEffect(ctx, state, sprites);
     drawPlayer(ctx, state, sprites);
     var bannerOrdinal = 0;

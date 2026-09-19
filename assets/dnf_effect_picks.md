@@ -208,12 +208,21 @@
 | 十字斩 | `crossSlash` | `GoreCross` | 段 1（5-18）+ 段 25（198-203） |
 | 怒气爆发 | `rageBurst` | `BloodBlast` | 段 10（76-83） |
 | 血气之刃 | `bloodSword` | `BloodSword` | 待点段 |
-| 血之狂暴 | `frenzy` | `Frenzy` | 待点段（双刀姿态，视频里没有挥砍） |
+| 血之狂暴 | `frenzy` | `Frenzy` | **段 22（161-169）**（业主指定；双刀姿态，视频里没有挥砍） |
 | 血气爆发 | `bloodyRave` | `BloodyRave` | 待点段 |
 | 嗜血 | `bloodSnatch` | `BloodSnatch` | 待点段 |
 | 抓头 | `graspHead` | `GrabBlastBlood` | 待点段（抓取，2 段） |
 | 血魔 | `bloodEvil` | `BloodRiven` | 待点段（前冲穿刺） |
 | 崩山裂地斩 | `mountainRift` | `OutRageBreak` | 待点段（大蹦，跳劈落地） |
+
+2026-09-19 业主后续补的两条（已落地）：
+
+- **血之狂暴 = Buffer**：开一次一直在，**再按一次才取消**，没有时限；开着的时候全身变红、
+  普攻变双刀、打怪有几率出**血球**，血球飞进身体里回血。
+- 角色动作 = **第 22 段**（帧 161-169）；图标 = 图集 **134 + 135**（134 技能图标 / 135 灰版状态）；
+  普攻双刀与血球的特效 = `effects.png` **第 5 行**。那行原先把 `frenzy/blood-energy.img`（双刀）
+  与 `frenzy/blood-stone-0.img`（血球）叠在一起，现在拆成两行：技能行只放双刀，血球放到
+  `EFFECT.orbRow` 那一行（`assets/import_dnf_effects.py` 的 `EXTRA_ROWS`）。
 
 这个客户端里**没有 `BloodSnatch.avi`**（84 段官方预览视频里就没有它，只有特效包
 `sprite_character_swordman_effect_bloodsnatch.NPK`），所以嗜血那张图上半是空的，

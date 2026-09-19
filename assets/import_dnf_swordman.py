@@ -55,12 +55,14 @@ ROWS = ["idle", "run", "attack", "skill", "extras", "clips", "clips2"]
 #   崩山击   action 17 (4 frames) + the last three frames of action 26
 #   怒气爆发 action 10 (8 frames)
 #   十字斩   action 1 (14 frames) + action 25 (6 frames)
+#   血之狂暴 action 22 (9 frames) - the stand that flings both arms out
 # The game used to draw one generic skill animation for every move, which is why
 # the character never seemed to perform the skill being cast.
 CLIPS = [
     ("mountainBreaker", [128, 129, 130, 131, 206, 207, 208]),
     ("rageBurst", list(range(76, 84))),
     ("crossSlash", list(range(5, 19)) + list(range(198, 204))),
+    ("frenzy", list(range(161, 170))),
 ]
 CLIP_ROWS = ("clips", "clips2")
 
