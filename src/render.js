@@ -79,28 +79,31 @@
       mountainBreaker: {
         row: 5,
         first: 0,
-        frames: 5,
+        frames: 6,
         beats: [
-          /* The client's airborne pose holds for the hop, the smash lands with the hit. */
-          { frames: 2, from: 0, until: 0.6 },
+          /* The stand is held until he leaves the ground ... */
+          { frames: 1, from: 0, until: 0.2 },
+          /* ... then the jump itself: the client's rise frame, then its fall. */
+          { frames: 2, from: 0.22, until: 0.62 },
           /* The smash frames have to land with the hit at 1.05s of the 1.5s cast. */
           { frames: 3, from: 0.66, until: 0.78 }
         ]
       },
-      rageBurst: { row: 5, first: 5, frames: 8 },
-      crossSlash: { row: 5, first: 13, frames: 20 },
+      rageBurst: { row: 5, first: 6, frames: 8 },
+      crossSlash: { row: 5, first: 14, frames: 20 },
       /* 血之狂暴: body action 22, the stand that flings both arms out. */
-      frenzy: { row: 5, first: 33, frames: 9 },
+      frenzy: { row: 6, first: 0, frames: 9 },
       /*
        * 大蹦: the same shape as 崩山击 one size up - the hop, then a heavier slam
        * - under the ultimate's own giant blood sword and rift effect.
        */
       mountainRift: {
         row: 6,
-        first: 0,
-        frames: 5,
+        first: 9,
+        frames: 6,
         beats: [
-          { frames: 2, from: 0, until: 0.5 },
+          { frames: 1, from: 0, until: 0.1 },
+          { frames: 2, from: 0.12, until: 0.6 },
           { frames: 3, from: 0.66, until: 0.92 }
         ]
       }
@@ -241,7 +244,13 @@
       bloodSnatch: { dx: 56, dy: -46, size: 190, copies: 1, spin: 0 },
       graspHead: { dx: 30, dy: -36, size: 128, copies: 1, spin: 0 },
       bloodEvil: { dx: 44, dy: -30, size: 178, copies: 1, spin: 0 },
-      mountainRift: { dx: 74, dy: -34, size: 250, copies: 1, spin: 0 }
+      /*
+       * 大蹦 is the ultimate, and the owner's read is that the whole effect is
+       * one size up - not just the ground wave. The giant sword and the blast it
+       * drives into the floor are drawn at nearly the whole arena height, so the
+       * draw sits higher and further out than 崩山击's 236px smash.
+       */
+      mountainRift: { dx: 60, dy: -110, size: 430, copies: 1, spin: 0 }
     }
   };
 
