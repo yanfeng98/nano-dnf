@@ -66,6 +66,10 @@ ROWS = ["idle", "run", "attack", "skill", "extras", "clips", "clips2"]
 #   银光落刃   the dive the client turns Z into while airborne: the air slash plus
 #              the landing (134-141). The owner did not give this one a frame
 #              range, so these are picked from the same action as the jump attack.
+#   跳跃       the plain hop (just C) is the client's own jump animation, 0048:126-131
+#              = 127-132 here. Our hop used to draw 232/236, which are the *air
+#              slash* frames - that white arc is the sword swing the owner says a
+#              jump must not have.
 #
 # The same owner note fixes the up-slash: 上挑 is sm_body0048 frames 42-50, which
 # is 43-51 here (the old bake started at 41, two frames early, and dropped 51).
@@ -78,6 +82,7 @@ CLIPS = [
     ("frenzy", list(range(161, 170))),
     ("mountainRift", list(range(127, 133)) + [229, 230, 231]),
     ("silverFall", list(range(134, 142))),
+    ("jump", list(range(127, 133))),
 ]
 CLIP_ROWS = ("clips", "clips2")
 

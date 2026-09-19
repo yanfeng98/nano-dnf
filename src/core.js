@@ -461,8 +461,13 @@
       knockdown: 1.0,
       knockdownChance: 0.6,
       airOnly: true,
-      /* The dive drives him into the ground instead of waiting for gravity. */
+      /*
+       * The dive drives him into the ground instead of waiting for gravity, and
+       * it carries him forward: the owner's read is that the landing point is
+       * ahead of where he let go, not straight down.
+       */
       dive: 980,
+      diveForward: 300,
       shockwave: {
         reach: 150,
         damage: 8,
@@ -1393,8 +1398,11 @@
       SKILLS[player.skillId] &&
       SKILLS[player.skillId].leap > 0 &&
       !player.onGround;
+    /* A dive carries its own forward speed down, for the same reason. */
+    var divingDown =
+      player.skillTimer > 0 && SKILLS[player.skillId] && SKILLS[player.skillId].dive > 0;
     if (direction !== 0) player.facing = direction;
-    if (rooted && !dashing && !leaping) {
+    if (rooted && !dashing && !leaping && !divingDown) {
       player.vx *= 0.25;
     } else if (!rooted) {
       player.vx = direction * PHYSICS.moveSpeed;
@@ -1415,7 +1423,8 @@
       var diving = player.skillTimer > 0 && SKILLS[player.skillId] && SKILLS[player.skillId].dive;
       if (diving) {
         player.vy = Math.max(player.vy, SKILLS[player.skillId].dive);
-        player.vx *= 0.5;
+        /* Keep the dive's own forward carry rather than damping it away. */
+        if (player.vx === 0) player.vx = player.facing * (SKILLS[player.skillId].diveForward || 0);
       }
     }
 
@@ -1497,7 +1506,11 @@
       player.comboIndex = 0;
       player.leapDone = false;
       /* A dive starts falling the moment it is cast, not a frame later. */
-      if (skillSpec.dive && !player.onGround) player.vy = Math.max(player.vy, skillSpec.dive);
+      if (skillSpec.dive && !player.onGround) {
+        player.vy = Math.max(player.vy, skillSpec.dive);
+        /* ... and it lands ahead of the take-off, not under it. */
+        if (skillSpec.diveForward) player.vx = player.facing * skillSpec.diveForward;
+      }
     } else if (
       input.attack &&
       player.attackTimer <= 0 &&

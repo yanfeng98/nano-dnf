@@ -1472,6 +1472,7 @@ test("银光落刃 is what Z does in the air, and only in the air", () => {
   state.player.vy = -80;
   state.player.skillCooldowns.silverFall = 0;
   state.player.mp = state.player.maxMp;
+  const takeOffX = state.player.x;
   Core.step(state, { skills: { upSlash: true } });
   assert.equal(state.player.skillId, "silverFall", "in the air Z is 银光落刃");
   assert.ok(
@@ -1481,6 +1482,10 @@ test("银光落刃 is what Z does in the air, and only in the air", () => {
   const hpBefore = enemy.hp;
   Core.runFrames(state, 45, {});
   assert.equal(state.player.onGround, true, "and it puts him on the floor");
+  assert.ok(
+    state.player.x > takeOffX + 20,
+    `the dive lands ahead of the take-off (${Math.round(takeOffX)} -> ${Math.round(state.player.x)})`
+  );
   assert.ok(enemy.hp < hpBefore, "the blade lands on whatever is under it");
   assert.ok(
     state.effects.some((effect) => effect.kind === "shockwave") ||
@@ -1577,8 +1582,8 @@ test("a leaping skill keeps its own animation while it is in the air", () => {
   player.attackTimer = 0;
   assert.equal(
     Render.playerFrame(state, player).row,
-    Render.SPRITE.rows.extras,
-    "a hop with no attack still shows the hop"
+    Render.SPRITE.jump.row,
+    "a hop with no attack plays the client's jump animation"
   );
 });
 
@@ -2126,9 +2131,23 @@ test("the renderer picks the sprite row that matches the player state", () => {
   state.player.skillId = null;
   state.player.onGround = false;
   state.player.vy = -200;
+  /*
+   * The hop is the client's own jump animation (sm_body0048 126-131), not the
+   * old extras pair: that art carries the air slash's white arc, which is the
+   * sword swing a jump is not supposed to have.
+   */
   const airborne = renderIdle();
-  assert.equal(airborne[3], Render.SPRITE.frameH * 4, "jumping uses the extras row");
-  assert.equal(airborne[2], Render.SPRITE.frameW * 2, "rising uses the jump column");
+  assert.equal(airborne[3], Render.SPRITE.frameH * 6, "jumping uses the jump row");
+
+  state.player.vy = -900;
+  const launching = renderIdle();
+  state.player.vy = 400;
+  const falling = renderIdle();
+  assert.ok(
+    falling[2] > launching[2],
+    `the jump animation walks forward as the hop falls (${launching[2]} -> ${falling[2]})`
+  );
+  state.player.vy = -200;
 
   state.player.onGround = true;
   state.player.vy = 0;

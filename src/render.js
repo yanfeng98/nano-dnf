@@ -118,6 +118,12 @@
        */
       silverFall: { row: 6, first: 18, frames: 8 }
     },
+    /*
+     * The plain hop: the client's own jump animation (sm_body0048 126-131). It is
+     * driven by how far the hop has fallen, so the crouch, the launch, the apex
+     * and the landing walk in order however high the jump was.
+     */
+    jump: { row: 6, first: 26, frames: 6 },
     extras: { hurt: 0, dead: 1, jump: 2, fall: 3 }
   };
 
@@ -569,6 +575,22 @@
       };
     }
     if (!player.onGround && !(clip && clip.row !== undefined)) {
+      /*
+       * A hop with nothing else going on plays the client's jump animation: its
+       * frames are walked by how far the fall has come, so the crouch, the launch,
+       * the apex and the landing come in order whatever the jump's height. Only a
+       * move with no clip of its own (a mid-air cast) keeps the generic air pose.
+       */
+      if (player.skillTimer <= 0) {
+        var jump = SPRITE.jump;
+        var from = Core.PHYSICS.jumpVelocity;
+        var to = Core.PHYSICS.maxFallSpeed;
+        var fall = clamp01((player.vy - from) / Math.max(1, to - from));
+        return {
+          row: jump.row,
+          col: jump.first + Math.min(jump.frames - 1, Math.floor(fall * jump.frames))
+        };
+      }
       return { row: rows.extras, col: player.vy < 0 ? SPRITE.extras.jump : SPRITE.extras.fall };
     }
     if (player.skillTimer > 0) {
