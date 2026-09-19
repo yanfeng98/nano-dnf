@@ -70,9 +70,23 @@
     skillClips: {
       upSlash: { row: 3, first: 6, frames: 10 },
       /* the raise holds until the smash lands at 40% of the cast */
-      mountainBreaker: { row: 5, first: 0, frames: 33, smashAt: 0.6, smashFrames: 15 },
-      rageBurst: { row: 5, first: 33, frames: 8 },
-      crossSlash: { row: 6, first: 0, frames: 20 }
+      /*
+       * Seven frames, paced per beat: the four raise frames run through the wind
+       * up, then the three smash frames land with the hit and hold. Spreading
+       * them evenly held each pose for a quarter of a second; playing every
+       * neighbouring frame instead made the move do swings of its own.
+       */
+      mountainBreaker: {
+        row: 5,
+        first: 0,
+        frames: 7,
+        beats: [
+          { frames: 4, from: 0, until: 0.25 },
+          { frames: 3, from: 0.4, until: 0.6 }
+        ]
+      },
+      rageBurst: { row: 5, first: 7, frames: 8 },
+      crossSlash: { row: 5, first: 15, frames: 20 }
     },
     extras: { hurt: 0, dead: 1, jump: 2, fall: 3 }
   };
@@ -173,7 +187,7 @@
       bloodSword: 27,
       frenzy: 20,
       bloodyRave: 17,
-      rageBurst: 12,
+      rageBurst: 13,
       bloodSnatch: 19,
       graspHead: 18,
       bloodEvil: 15,
@@ -191,7 +205,8 @@
       bloodSword: { dx: 30, dy: -32, size: 182, copies: 1, spin: 0 },
       frenzy: { dx: 52, dy: -40, size: 150, copies: 1, spin: 0 },
       bloodyRave: { dx: 52, dy: -46, size: 170, copies: 1, spin: 0 },
-      rageBurst: { dx: 0, dy: -30, size: 230, copies: 1, spin: 0 },
+      /* 怒气爆发 erupts around him: it is the widest effect in the kit. */
+      rageBurst: { dx: 0, dy: -30, size: 300, copies: 1, spin: 0 },
       bloodSnatch: { dx: 56, dy: -46, size: 190, copies: 1, spin: 0 },
       graspHead: { dx: 30, dy: -36, size: 128, copies: 1, spin: 0 },
       bloodEvil: { dx: 44, dy: -30, size: 178, copies: 1, spin: 0 },
@@ -487,26 +502,22 @@
       var clip = SPRITE.skillClips[player.skillId];
       if (clip && clip.row !== undefined) {
         /*
-         * A clip can name the beat its second half belongs to (崩山击 reaches the
-         * smash 40% into a three-second cast). Spreading its frames evenly would
-         * put the smash on screen half a second after the blade lands.
+         * A clip can pace its frames in beats: 崩山击's four raise frames run
+         * through the wind-up, its three smash frames land with the hit and then
+         * hold. Spreading them evenly put each pose on screen for a quarter of a
+         * second, which is what read as stutter.
          */
-        var step;
-        if (clip.smashAt !== undefined) {
-          var earlyFrames = clip.frames - (clip.smashFrames || 0);
-          if (progress > clip.smashAt) {
-            var late = (progress - clip.smashAt) / Math.max(0.0001, 1 - clip.smashAt);
-            step =
-              earlyFrames +
-              Math.min(
-                (clip.smashFrames || 1) - 1,
-                Math.floor(clamp01(late) * (clip.smashFrames || 1))
-              );
-          } else {
-            step = Math.min(
-              earlyFrames - 1,
-              Math.floor(clamp01(progress / Math.max(0.0001, clip.smashAt)) * earlyFrames)
+        var step = clip.frames - 1;
+        if (clip.beats) {
+          var consumed = 0;
+          for (var beatIndex = 0; beatIndex < clip.beats.length; beatIndex += 1) {
+            var beat = clip.beats[beatIndex];
+            var local = clamp01(
+              (progress - beat.from) / Math.max(0.0001, beat.until - beat.from)
             );
+            step = consumed + Math.min(beat.frames - 1, Math.floor(local * beat.frames));
+            consumed += beat.frames;
+            if (progress <= beat.until) break;
           }
         } else {
           step = Math.min(clip.frames - 1, Math.floor(clamp01(progress) * clip.frames));

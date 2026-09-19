@@ -97,6 +97,10 @@ PICKS = {
     "rageBurst": {"stack": [
         ("_blastblood", "blood_floor_front.img"),
         ("_blastblood", "blood_floor_back.img"),
+        ("_blastblood", "blood_floor.img"),
+        ("_blastblood", "blood-back.img"),
+        ("_blastblood", "b-01.img"),
+        ("_blastblood", "blood-b.img"),
         ("_blastblood", "bloodred.img"),
         ("_blastblood", "blood.img"),
         ("_blastblood", "blastbloodhit.img"),

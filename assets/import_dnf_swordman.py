@@ -49,17 +49,16 @@ ANCHOR_Y = 156
 ROWS = ["idle", "run", "attack", "skill", "extras", "clips", "clips2"]
 
 # Per-move body animations, picked by the owner off the body sheet next to each
-# skill's own client clip. The picked actions are the core of each move, but they
-# are only a handful of frames: spread over a three-second cast they read as a
-# slideshow (崩山击 held each frame for 0.4s). The runs below add the neighbouring
-# frames of the same motion so the animation actually flows:
-#   崩山击   raise 114-131 + smash and recovery 203-217 (33 frames)
+# skill's own client clip. Only the picked frames go in: widening them to their
+# neighbours made the move look like it was doing extra swings it never had.
+# The renderer paces the frames per beat instead (see src/render.js skillClips).
+#   崩山击   action 17 (4 frames) + the last three frames of action 26
 #   怒气爆发 action 10 (8 frames)
 #   十字斩   action 1 (14 frames) + action 25 (6 frames)
 # The game used to draw one generic skill animation for every move, which is why
 # the character never seemed to perform the skill being cast.
 CLIPS = [
-    ("mountainBreaker", list(range(114, 132)) + list(range(203, 218))),
+    ("mountainBreaker", [128, 129, 130, 131, 206, 207, 208]),
     ("rageBurst", list(range(76, 84))),
     ("crossSlash", list(range(5, 19)) + list(range(198, 204))),
 ]
