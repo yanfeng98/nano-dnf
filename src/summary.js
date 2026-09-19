@@ -81,6 +81,32 @@
   }
 
   /*
+   * How the run is doing against this seed's best. Pure: the clock and the
+   * record go in, the one line the HUD prints comes out.
+   */
+  function pace(seconds, record) {
+    var clock = Number(seconds);
+    var best = record && Number(record.seconds);
+    if (!isFinite(clock) || clock <= 0) return { state: "none", delta: null, text: null };
+    if (!record || !isFinite(best) || best <= 0) {
+      return { state: "none", delta: null, text: "本种子还没有记录" };
+    }
+    var delta = Math.round((clock - best) * 10) / 10;
+    if (delta <= 0) {
+      return {
+        state: "ahead",
+        delta: delta,
+        text: "领先最佳 " + Math.abs(delta).toFixed(1) + "s（最佳 " + formatSeconds(best) + "）"
+      };
+    }
+    return {
+      state: "behind",
+      delta: delta,
+      text: "落后最佳 " + delta.toFixed(1) + "s（最佳 " + formatSeconds(best) + "）"
+    };
+  }
+
+  /*
    * The same table for a run that is still going: pull the live numbers out of a
    * Core state, so the pause screen reports the run on screen rather than the
    * one that ended.
@@ -141,6 +167,7 @@
     upgradeNames: upgradeNames,
     describe: describe,
     liveRun: liveRun,
+    pace: pace,
     seedUrl: seedUrl
   };
 });

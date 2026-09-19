@@ -469,6 +469,9 @@
           rooms: run.rooms
         })
       : { rows: [] };
+    /* The pace line reads the live clock while the run is still going. */
+    var clock = finishedRun ? finishedRun.seconds : state.time;
+    var paceLine = Summary ? Summary.pace(clock, record) : { state: "none", text: null };
     return {
       seed: currentSeed,
       record: record,
@@ -478,6 +481,7 @@
       rows: table.rows,
       link: link,
       linkText: link ? "本局链接 " + link : null,
+      pace: paceLine,
       seedText: "种子 " + currentSeed,
       recordText: record
         ? "本种子最佳 " +
@@ -993,6 +997,9 @@
     /* The pause overlay's live readout, and whether the run is paused right now. */
     getLiveRows: function () {
       return Summary ? Summary.liveRun(state, currentSeed).rows : [];
+    },
+    getPace: function () {
+      return runSummary().pace;
     },
     isPaused: function () {
       return paused;

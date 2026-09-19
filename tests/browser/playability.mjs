@@ -533,6 +533,7 @@ async function runPass(browser, baseUrl, options) {
   let state = await readState(page);
   let midShot = false;
   let pauseReadout = null;
+  let paceEarly = null;
   const trace = [];
   let loadoutChecks = null;
   const damageLog = [];
@@ -594,6 +595,8 @@ async function runPass(browser, baseUrl, options) {
     if (!midShot && state.roomIndex === 1) {
       await page.screenshot({ path: path.join(ARTIFACTS, `playability-${options.mode}-fight.png`) });
       midShot = true;
+      /* With no record banked yet, the pace line has to say exactly that. */
+      paceEarly = await page.evaluate(() => window.nanoDnf.getPace());
       /*
        * A paused run has to report the run on screen: read the live table, then
        * unpause so the pass keeps playing.
@@ -783,6 +786,19 @@ async function runPass(browser, baseUrl, options) {
   await page.waitForTimeout(5000);
   await page.keyboard.up("KeyX");
   await page.keyboard.up("ArrowRight");
+  /*
+   * A banked record gives the pace line something to race: it has to be ahead
+   * while the clock is under the best, and flip the moment the clock passes it.
+   */
+  const paceBefore = await page.evaluate(() => window.nanoDnf.getPace());
+  const paceFlip = await page.evaluate(() => {
+    const state = window.nanoDnf.getState();
+    const record = window.nanoDnf.getRunSummary().record;
+    if (record) state.time = record.seconds + 12;
+    return { best: record ? record.seconds : null, clock: state.time };
+  });
+  await page.waitForTimeout(220);
+  const paceAfter = await page.evaluate(() => window.nanoDnf.getPace());
   const defeatDeath = await page.evaluate(() => {
     const state = window.nanoDnf.getState();
     const deathTime = state.time;
@@ -1001,6 +1017,8 @@ async function runPass(browser, baseUrl, options) {
     attractArc,
     attractAfterInput,
     pauseReadout,
+    paceEarly,
+    pace: { before: paceBefore, after: paceAfter, record: paceFlip.best },
     victorySummary,
     shareRoundTrip,
     defeatSummary,
@@ -1122,6 +1140,30 @@ function problemsFor(pass) {
     }
     if (paused.resumed !== true) {
       problems.push(`${pass.mode}: the pass never resumed after the pause check`);
+    }
+  }
+  if (!pass.paceEarly || pass.paceEarly.state !== "none") {
+    problems.push(
+      `${pass.mode}: the first run should report no record yet, got ${JSON.stringify(pass.paceEarly)}`
+    );
+  }
+  if (!pass.pace || typeof pass.pace.record !== "number") {
+    problems.push(`${pass.mode}: the clear never banked a record to race`);
+  } else {
+    if (!pass.pace.before || pass.pace.before.state !== "ahead") {
+      problems.push(
+        `${pass.mode}: the fresh run is not ahead of its record (${JSON.stringify(pass.pace.before)})`
+      );
+    }
+    if (!pass.pace.after || pass.pace.after.state !== "behind") {
+      problems.push(
+        `${pass.mode}: the pace line did not flip behind past the record (${JSON.stringify(pass.pace.after)})`
+      );
+    } else if (
+      typeof pass.pace.after.delta !== "number" ||
+      Math.abs(pass.pace.after.delta - 12) > 0.5
+    ) {
+      problems.push(`${pass.mode}: the behind delta is ${pass.pace.after.delta}, not 12s`);
     }
   }
   const defeat = pass.defeatSummary;
@@ -1362,6 +1404,13 @@ async function main() {
       shown: pass.pauseReadout.shown,
       expected: pass.pauseReadout.expected,
       resumed: pass.pauseReadout.resumed
+    },
+    pace: {
+      firstRun: pass.paceEarly && pass.paceEarly.state,
+      before: pass.pace.before && pass.pace.before.state,
+      after: pass.pace.after && pass.pace.after.state,
+      delta: pass.pace.after && pass.pace.after.delta,
+      record: pass.pace.record
     },
     defeatSummary: pass.defeatSummary && {
       shown: pass.defeatSummary.shown,

@@ -1688,6 +1688,22 @@
   }
 
   /*
+   * One line under the HUD: this seed's best time and which side of it the run
+   * is on right now, so a replay has something to race.
+   */
+  function drawPace(ctx, pace) {
+    ctx.save();
+    ctx.textAlign = "left";
+    ctx.font = "600 14px 'PingFang SC', 'Segoe UI', sans-serif";
+    ctx.fillStyle = pace.state === "behind" ? PALETTE.danger : PALETTE.gold;
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = "rgba(10, 12, 22, 0.85)";
+    ctx.strokeText(pace.text, 22, 128);
+    ctx.fillText(pace.text, 22, 128);
+    ctx.restore();
+  }
+
+  /*
    * The run's own numbers, shared by the clear and defeat screens: seed, time,
    * level, the upgrades taken, kills, damage taken and how far the run got. Two
    * short columns keep the table clear of the skill bar underneath.
@@ -1852,6 +1868,10 @@
 
     drawVignette(ctx, state);
     drawHud(ctx, state, sprites);
+    /* The pace line belongs to live play, not to a full-screen overlay. */
+    if (!overlayOpen && meta.run && meta.run.pace && meta.run.pace.text) {
+      drawPace(ctx, meta.run.pace);
+    }
     drawSkillBar(ctx, state, sprites, meta.loadout, !!(meta.touch && meta.touch.enabled));
     if (meta.touch && meta.touch.enabled) drawTouchControls(ctx, state, sprites, meta.touch);
     if (meta.loadoutOpen) drawLoadoutPanel(ctx, state, sprites, meta);

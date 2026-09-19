@@ -128,6 +128,34 @@ test("the live variant reads the run that is still going", () => {
   assert.equal(Summary.liveRun({}, 9).rows.length, 6, "no layout means no reached row");
 });
 
+test("the pace line knows which side of the record the run is on", () => {
+  const record = { seconds: 50, level: 5, clears: 1 };
+
+  const noRecord = Summary.pace(12, null);
+  assert.equal(noRecord.state, "none");
+  assert.equal(noRecord.text, "本种子还没有记录");
+
+  const ahead = Summary.pace(41.4, record);
+  assert.equal(ahead.state, "ahead");
+  assert.equal(ahead.delta, -8.6);
+  assert.equal(ahead.text, "领先最佳 8.6s（最佳 0:50.0）");
+
+  /* Crossing the record flips it, and a tie is still the good side. */
+  const tie = Summary.pace(50, record);
+  assert.equal(tie.state, "ahead");
+  assert.equal(tie.delta, 0);
+
+  const behind = Summary.pace(63.25, record);
+  assert.equal(behind.state, "behind");
+  assert.equal(behind.delta, 13.3, "the clock is reported in tenths");
+  assert.equal(behind.text, "落后最佳 13.3s（最佳 0:50.0）");
+
+  /* A clock or a record that cannot be trusted prints nothing rather than a lie. */
+  assert.equal(Summary.pace(0, record).state, "none");
+  assert.equal(Summary.pace(NaN, record).state, "none");
+  assert.equal(Summary.pace(10, { seconds: 0 }).state, "none");
+});
+
 test("a real cleared run produces a table the victory screen can print", () => {
   const state = Core.createState({ seed: 1234 });
   Core.runFrames(state, 60, { right: true, attack: true });
