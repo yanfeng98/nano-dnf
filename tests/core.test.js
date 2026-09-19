@@ -1306,17 +1306,23 @@ test("the three new DNF skills land their hits and statuses", () => {
   state.player.level = 5;
   state.player.mp = state.player.maxMp;
 
-  // 暴走: three hits while stepping forward
-  const xBefore = state.player.x;
+  /*
+   * 血之狂暴: the dual-blade stance. DNF's own clip shows no swing here, so the
+   * skill costs HP and buys attack speed instead of landing hits.
+   */
+  const hpBeforeBuff = state.player.hp;
+  const speedBeforeBuff = Core.attackSpeedOf(state.player);
   Core.step(state, { skills: { frenzy: true } });
-  Core.runFrames(state, 45, {});
-  assert.equal(
-    400 - near.hp,
-    (Core.SKILLS.frenzy.damage + (state.player.level - 1) * Core.SKILLS.frenzy.growth) *
-      Core.SKILLS.frenzy.hits,
-    "暴走 lands three hits"
+  Core.runFrames(state, 20, {});
+  assert.ok(state.player.buffs.bloodRage > 0, "血之狂暴 goes up");
+  assert.ok(state.player.hp < hpBeforeBuff, "血之狂暴 costs HP to keep");
+  assert.ok(
+    Core.attackSpeedOf(state.player) > speedBeforeBuff,
+    "血之狂暴 speeds the Slayer up"
   );
-  assert.ok(state.player.x > xBefore, "暴走 advances the character");
+  assert.equal(near.hp, 400, "血之狂暴 is a stance, not a damage move");
+  /* let the stance finish casting before the next skill */
+  Core.runFrames(state, 30, {});
 
   // 血气爆发: launches through its wave
   state.player.skillCooldowns.bloodyRave = 0;
@@ -1339,7 +1345,10 @@ test("the three new DNF skills land their hits and statuses", () => {
   Core.step(state, { skills: { rageBurst: true } });
   Core.runFrames(state, 40, {});
   assert.ok(behindHp - behind.hp >= Core.SKILLS.rageBurst.damage, "怒气爆发 reaches behind the player");
-  assert.ok(behind.knockdown > 0 || behind.dead, "怒气爆发 knocks the target down");
+  assert.ok(
+    behind.dead || behind.y < Core.ARENA.groundY || behind.vy < 0,
+    "怒气爆发 lifts the target off the ground"
+  );
 });
 
 test("抓头 grabs a target, holds it, slams it down and drains HP", () => {

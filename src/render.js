@@ -192,7 +192,7 @@
     mountainBreaker: "跳劈 · 倒地",
     crossSlash: "十字 · 出血",
     bloodSword: "血气 · 三连",
-    frenzy: "暴走 · 突进",
+    frenzy: "双刀 · 攻速",
     bloodyRave: "血气爆发",
     rageBurst: "范围爆发",
     bloodSnatch: "嗜血 · 血波",

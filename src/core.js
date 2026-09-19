@@ -94,7 +94,10 @@
   function attackSpeedOf(player) {
     var speed = Number(player && player.attackSpeed);
     if (!isFinite(speed) || speed <= 0) return PLAYER.attackSpeed;
-    return Math.min(MAX_ATTACK_SPEED, Math.max(MIN_ATTACK_SPEED, speed));
+    var base = Math.min(MAX_ATTACK_SPEED, Math.max(MIN_ATTACK_SPEED, speed));
+    /* 血之狂暴 is the dual-blade stance: it reads as the Slayer swinging faster. */
+    var raging = player && player.buffs && player.buffs.bloodRage > 0;
+    return Math.min(MAX_ATTACK_SPEED, raging ? base * 1.25 : base);
   }
 
   /*
@@ -201,24 +204,33 @@
     },
     frenzy: {
       id: "frenzy",
-      name: "暴走",
+      name: "血之狂暴",
       key: "G",
       mp: 12,
       cooldown: 3,
-      damage: 9,
-      growth: 2,
+      damage: 0,
+      growth: 0,
       duration: 0.6,
-      activeFrom: 0.1,
-      activeTo: 0.46,
-      reach: 88,
-      heightPad: 16,
-      knockbackX: 130,
+      activeFrom: 0.12,
+      activeTo: 0.2,
+      reach: 0,
+      heightPad: 0,
+      knockbackX: 0,
       launch: 0,
       radius: 0,
-      hits: 3,
-      /* DNF shape: 暴走 lurches forward, one bloody slash per step. */
-      leap: 90,
-      advance: true
+      hits: 1,
+      /*
+       * DNF shape: 血之狂暴 is the dual-blade stance, not a damage move. It
+       * costs HP to keep up and buys attack speed and shorter skill cooldowns
+       * while it lasts.
+       */
+      buff: {
+        id: "bloodRage",
+        duration: 8,
+        attackSpeed: 1.25,
+        cooldownScale: 1.4,
+        hpCost: 6
+      }
     },
     bloodyRave: {
       id: "bloodyRave",
@@ -255,19 +267,20 @@
       key: "T",
       mp: 24,
       cooldown: 6.5,
-      damage: 20,
+      damage: 15,
       growth: 3,
       duration: 0.66,
-      activeFrom: 0.2,
-      activeTo: 0.42,
+      activeFrom: 0.18,
+      activeTo: 0.52,
       reach: 0,
       heightPad: 0,
-      knockbackX: 240,
-      launch: 0,
-      radius: 128,
-      hits: 2,
-      /* DNF shape: roar burst around the character, knocks everything down. */
-      knockdown: 0.9
+      knockbackX: 180,
+      launch: -430,
+      radius: 152,
+      hits: 3,
+      /* DNF shape: 怒气爆发 erupts around the Slayer - blood pillars out of the
+         ground, three hits, and everything caught is lifted into the air. */
+      juggle: true
     },
     bloodSnatch: {
       id: "bloodSnatch",
@@ -784,6 +797,8 @@
       skillHitDone: false,
       skillHitsDone: 0,
       airHitTimer: 0,
+      /* Timed self-buffs (血之狂暴 is the only one so far). */
+      buffs: {},
       skillCooldowns: SKILL_ORDER.reduce(function (map, skillId) {
         map[skillId] = 0;
         return map;
@@ -1263,11 +1278,19 @@
     player.hurtTimer = Math.max(0, player.hurtTimer - dt);
     player.comboTimer = Math.max(0, player.comboTimer - dt);
     player.airHitTimer = Math.max(0, player.airHitTimer - dt);
+    Object.keys(player.buffs).forEach(function (id) {
+      player.buffs[id] = Math.max(0, player.buffs[id] - dt);
+    });
     if (player.comboTimer === 0) player.comboIndex = 0;
     player.mp = Math.min(player.maxMp, player.mp + player.mpRegen * dt);
 
+    /* 血之狂暴 shortens every skill's cooldown while it is up. */
+    var cooldownScale = player.buffs.bloodRage > 0 ? 1.4 : 1;
     SKILL_ORDER.forEach(function (skillId) {
-      player.skillCooldowns[skillId] = Math.max(0, player.skillCooldowns[skillId] - dt);
+      player.skillCooldowns[skillId] = Math.max(
+        0,
+        player.skillCooldowns[skillId] - dt * cooldownScale
+      );
     });
 
     /* DNF combo flow: normal attacks can be cancelled into a skill during recovery. */
@@ -1363,6 +1386,13 @@
         player.skillHitDone = player.skillHitsDone >= hitCount;
 
         var skillBox = attackBox(player, active.reach, active.heightPad);
+        if (active.buff) {
+          /* A buff skill pays its HP cost and goes up; it does not swing. */
+          if (active.buff.hpCost) {
+            player.hp = Math.max(1, player.hp - active.buff.hpCost);
+          }
+          player.buffs[active.buff.id] = active.buff.duration;
+        }
         var skillDamage = Math.round(
           (active.damage + (player.level - 1) * active.growth + player.attackBonus) *
             player.skillPower
