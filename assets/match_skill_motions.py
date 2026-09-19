@@ -180,6 +180,13 @@ def main() -> int:
             sheet.paste(big, (6 + index * (big.width + 4), y))
         if frames:
             y += frames[0].height * 2 + 8
+        else:
+            # A skill the client ships no preview clip for (嗜血 in this build):
+            # say so on the sheet instead of leaving a silent gap above the body
+            # actions, which reads like the picture forgot the video.
+            draw.text((6, y + 2), f"（这个客户端没有 {clip}.avi，只有下面的身体动作可以挑）",
+                      fill=(255, 150, 150), font=head)
+            y += 28
         draw.text((6, y), f"{args.skin} 的 {len(actions)} 段动作（点段号）", fill=(255, 235, 150), font=head)
         y += 24
         for index, (first, last, pics) in enumerate(actions):

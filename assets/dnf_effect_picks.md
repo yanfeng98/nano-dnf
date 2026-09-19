@@ -215,6 +215,10 @@
 | 血魔 | `bloodEvil` | `BloodRiven` | 待点段（前冲穿刺） |
 | 崩山裂地斩 | `mountainRift` | `OutRageBreak` | 待点段（大蹦，跳劈落地） |
 
+这个客户端里**没有 `BloodSnatch.avi`**（84 段官方预览视频里就没有它，只有特效包
+`sprite_character_swordman_effect_bloodsnatch.NPK`），所以嗜血那张图上半是空的，
+图里也直接写了这句；嗜血的段号只能按「大吸 / 血波」的描述挑。
+
 `sm_body0000` 的 31 段动作（段号: 帧区间，来自 `--skin sm_body0000` 的切分）：
 
 | 段 | 帧 | 段 | 帧 | 段 | 帧 |
