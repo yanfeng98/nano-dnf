@@ -621,8 +621,21 @@ async function runPass(browser, baseUrl, options) {
       /*
        * A paused run has to report the run on screen: read the live table, then
        * unpause so the pass keeps playing.
+       *
+       * Each pass uses its own way in. The touch pass taps the on-screen pause
+       * button through real pointer events, because that is the only way a touch
+       * player can reach this screen at all - going through KeyP here would have
+       * passed while the button was missing.
        */
-      await page.keyboard.press("KeyP");
+      const togglePause = async () => {
+        if (options.mode === "touch") {
+          await touchAction(page, "pause", true);
+          await touchAction(page, "pause", false);
+        } else {
+          await page.keyboard.press("KeyP");
+        }
+      };
+      await togglePause();
       await page.waitForTimeout(180);
       overallBefore = await page.evaluate(() => window.nanoDnf.getRunSummary().overallText);
       pauseReadout = await page.evaluate(() => {
@@ -656,7 +669,7 @@ async function runPass(browser, baseUrl, options) {
         };
       });
       await page.screenshot({ path: path.join(ARTIFACTS, `pause-readout-${options.mode}.png`) });
-      await page.keyboard.press("KeyP");
+      await togglePause();
       await page.waitForTimeout(140);
       pauseReadout.resumed = !(await page.evaluate(() => window.nanoDnf.isPaused()));
     }

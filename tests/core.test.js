@@ -1626,6 +1626,49 @@ test("touch controls expose a hit-testable layout for mobile play", () => {
   assert.equal(Render.hitTestTouch(Core.ARENA.width / 2, 180), null, "empty space is not a button");
 });
 
+test("a touch player can pause and get out of it without a keyboard", () => {
+  const pause = Render.touchButtons().find((button) => button.action === "pause");
+  assert.ok(pause, "the touch layout needs a pause button");
+  assert.equal(pause.label, "停");
+  assert.equal(Render.hitTestTouch(pause.x + pause.w / 2, pause.y + pause.h / 2), "pause");
+
+  const state = Core.createState({ seed: 5 });
+  const liveCalls = [];
+  Render.render(recordingContext(liveCalls), state, {
+    touch: { enabled: true, pressed: [], muted: false }
+  });
+  const liveTexts = liveCalls.filter((call) => call[0] === "fillText").map((call) => String(call[1]));
+  assert.ok(liveTexts.includes("停"), `live play draws the pause button: ${liveTexts.join(" / ")}`);
+  assert.equal(liveTexts.includes("续"), false, "an unpaused run does not offer to resume");
+
+  const pausedCalls = [];
+  Render.render(recordingContext(pausedCalls), state, {
+    paused: true,
+    liveRows: [{ id: "seed", label: "种子", value: "5" }],
+    touch: { enabled: true, pressed: [], muted: false, paused: true }
+  });
+  const pausedTexts = pausedCalls
+    .filter((call) => call[0] === "fillText")
+    .map((call) => String(call[1]));
+  assert.ok(pausedTexts.includes("PAUSED"));
+  assert.ok(pausedTexts.includes("续"), "the paused frame offers the way out");
+  assert.ok(
+    pausedTexts.some((text) => text.includes("点右上角")),
+    "the pause overlay tells a touch player how to leave it"
+  );
+
+  /*
+   * Order matters: the overlay is painted over the controls, so a resume button
+   * drawn before it would be sitting under a dark wash with no way to tap out.
+   * It is drawn a second time after the overlay for exactly that reason, and the
+   * last copy is the one that has to land on top.
+   */
+  const overlayAt = pausedTexts.indexOf("PAUSED");
+  const resumeAt = pausedTexts.lastIndexOf("续");
+  assert.ok(overlayAt !== -1, "the paused frame announces itself");
+  assert.ok(resumeAt > overlayAt, "the resume button is drawn on top of the pause overlay");
+});
+
 test("the hotbar exposes two rows of DNF slots and the panel exposes every skill", () => {
   const Loadout = require("../src/loadout.js");
   const slots = Render.skillBarButtons();

@@ -612,6 +612,11 @@
       drag = null;
       return;
     }
+    /* Same toggle as the P key: a touch surface has no keyboard. */
+    if (action === "pause") {
+      paused = !paused;
+      return;
+    }
     activePointers[event.pointerId] = action;
     held[action] = true;
     if (ONE_SHOT_ACTIONS[action]) pressed[action] = true;
@@ -870,7 +875,7 @@
       showHelp: showHelp,
       attract: titleUp,
       sprites: sprites,
-      touch: { enabled: touchMode, pressed: touchActions, muted: audio.muted },
+      touch: { enabled: touchMode, pressed: touchActions, muted: audio.muted, paused: paused },
       loadout: loadout,
       loadoutOpen: loadoutOpen,
       drag: drag,

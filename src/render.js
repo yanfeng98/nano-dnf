@@ -98,7 +98,13 @@
     { action: "jump", x: 776, y: 346, w: 76, h: 76, label: "跳" },
     { action: "attack", x: 864, y: 426, w: 88, h: 88, label: "攻" },
     { action: "mute", x: 878, y: 20, w: 62, h: 44, label: "音" },
-    { action: "loadout", x: 806, y: 20, w: 62, h: 44, label: "编" }
+    { action: "loadout", x: 806, y: 20, w: 62, h: 44, label: "编" },
+    /*
+     * Pause sits next to mute and the loadout toggle: a touch surface has no P
+     * key, so without its own button the pause screen - and the live readout on
+     * it - is unreachable for anyone playing with fingers.
+     */
+    { action: "pause", x: 734, y: 20, w: 62, h: 44, label: "停" }
   ];
 
   /* Hotbar: DNF's two rows of six (A S D F G H / Q W E R T Y). */
@@ -1517,12 +1523,15 @@
     }
   }
 
-  function drawTouchControls(ctx, state, sprites, meta) {
+  /* `only` redraws a subset of the controls; the pause overlay uses it to put
+     the one button that still does something back on top of itself. */
+  function drawTouchControls(ctx, state, sprites, meta, only) {
     var player = state.player;
     var pressed = (meta && meta.pressed) || [];
 
     ctx.save();
     TOUCH_LAYOUT.forEach(function (button) {
+      if (only && only.indexOf(button.action) === -1) return;
       var isDown = pressed.indexOf(button.action) !== -1;
       var fill = isDown ? "rgba(226, 191, 114, 0.32)" : "rgba(16, 20, 34, 0.55)";
 
@@ -1540,6 +1549,7 @@
       ctx.textBaseline = "middle";
       var label = button.label;
       if (button.action === "mute") label = meta && meta.muted ? "静" : "音";
+      if (button.action === "pause") label = meta && meta.paused ? "续" : "停";
       ctx.fillText(label, button.x + button.w / 2, button.y + button.h / 2 + 1);
       ctx.textBaseline = "alphabetic";
     });
@@ -1611,7 +1621,11 @@
       ctx.fillText("PAUSED", ARENA.width / 2, ARENA.height / 2);
       ctx.font = "18px 'PingFang SC', 'Segoe UI', sans-serif";
       ctx.fillStyle = PALETTE.textDim;
-      ctx.fillText("按 P 继续", ARENA.width / 2, ARENA.height / 2 + 34);
+      ctx.fillText(
+        meta.touch && meta.touch.enabled ? "按 P 或点右上角 续 继续" : "按 P 继续",
+        ARENA.width / 2,
+        ARENA.height / 2 + 34
+      );
       /* A paused player still wants to know which run they are standing in. */
       drawRunTable(ctx, (meta && meta.liveRows) || (meta && meta.run && meta.run.rows));
       ctx.restore();
@@ -1886,6 +1900,14 @@
     /* Coaching belongs to live play as well. */
     if (!overlayOpen) drawHint(ctx, meta.hint);
     drawOverlay(ctx, state, meta, sprites);
+    /*
+     * The pause overlay is drawn over the controls and says "按 P 继续", which a
+     * touch player has no way to press. Put the pause button back on top of that
+     * overlay - and flip it to 续 - so the way out of the pause is visible.
+     */
+    if (meta.paused && meta.touch && meta.touch.enabled) {
+      drawTouchControls(ctx, state, sprites, meta.touch, ["pause"]);
+    }
   }
 
   return {
