@@ -48,6 +48,21 @@ SKILLS = {
     "bloodEvil": "BloodRiven",
     "mountainRift": "OutRageBreak",
 }
+# The picture is the only thing the owner reads the mapping off, and the file
+# name is two internal ids, so the title carries the hotbar name as well.
+SKILL_NAMES = {
+    "upSlash": "上挑",
+    "mountainBreaker": "崩山击",
+    "crossSlash": "十字斩",
+    "bloodSword": "血气之刃",
+    "frenzy": "血之狂暴",
+    "bloodyRave": "血气爆发",
+    "rageBurst": "怒气爆发",
+    "bloodSnatch": "嗜血",
+    "graspHead": "抓头",
+    "bloodEvil": "血魔",
+    "mountainRift": "崩山裂地斩",
+}
 HEADER, CLEAR = 32, 1024
 MAGIC = b"Neople Video Fil"
 
@@ -157,7 +172,8 @@ def main() -> int:
         sheet = Image.new("RGB", (width, height), (18, 18, 26))
         draw = ImageDraw.Draw(sheet)
         y = 6
-        draw.text((6, y), f"{skill}  ← 官方视频 {clip}（上）／身体动作（下）", fill=(255, 235, 150), font=head)
+        draw.text((6, y), f"{SKILL_NAMES.get(skill, skill)}（{skill}）← 官方视频 {clip}（上）／身体动作（下）",
+                  fill=(255, 235, 150), font=head)
         y += 26
         for index, frame in enumerate(frames):
             big = frame.resize((frame.width * 2, frame.height * 2), Image.NEAREST)
@@ -180,6 +196,17 @@ def main() -> int:
         path = out_dir / f"{skill}-{clip}.png"
         sheet.save(path)
         print(f"wrote {path.name} ({sheet.width}x{sheet.height})")
+
+    # The same mapping as a text file, so the folder can be read without opening
+    # eleven pictures: one line per skill, then the body sheet's action cut.
+    lines = [f"{args.skin}: 技能 ← 官方视频（上）／身体动作（下）", ""]
+    lines += [f"{SKILL_NAMES.get(skill, skill)}  {skill} ← {clip}  图 {skill}-{clip}.png"
+              for skill, clip in SKILLS.items()]
+    lines += ["", f"{args.skin} 的 {len(actions)} 段动作（点段号）", ""]
+    lines += [f"{index}: {first}-{last} ({last - first + 1}帧)"
+              for index, (first, last, _) in enumerate(actions)]
+    (out_dir / "INDEX.txt").write_text("\n".join(lines) + "\n", encoding="utf-8")
+    print(f"wrote INDEX.txt ({len(SKILLS)} skills, {len(actions)} actions)")
     return 0
 
 
