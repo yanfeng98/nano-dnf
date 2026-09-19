@@ -532,6 +532,7 @@ async function runPass(browser, baseUrl, options) {
   const started = Date.now();
   let state = await readState(page);
   let midShot = false;
+  let pauseReadout = null;
   const trace = [];
   let loadoutChecks = null;
   const damageLog = [];
@@ -593,6 +594,46 @@ async function runPass(browser, baseUrl, options) {
     if (!midShot && state.roomIndex === 1) {
       await page.screenshot({ path: path.join(ARTIFACTS, `playability-${options.mode}-fight.png`) });
       midShot = true;
+      /*
+       * A paused run has to report the run on screen: read the live table, then
+       * unpause so the pass keeps playing.
+       */
+      await page.keyboard.press("KeyP");
+      await page.waitForTimeout(180);
+      pauseReadout = await page.evaluate(() => {
+        const state = window.nanoDnf.getState();
+        const shown = {};
+        window.nanoDnf.getLiveRows().forEach((row) => {
+          shown[row.id] = row.value;
+        });
+        const upgrades = state.player.upgradesTaken;
+        return {
+          paused: window.nanoDnf.isPaused(),
+          shown,
+          expected: {
+            seed: String(window.nanoDnf.getSeed()),
+            time: window.DNFRecords.formatSeconds(state.time),
+            level: "Lv " + state.player.level,
+            upgrades: upgrades.length
+              ? upgrades
+                  .map((id) => (window.DNFCore.UPGRADES[id] || { name: id }).name)
+                  .join(" · ")
+              : "无",
+            kills: String(state.stats.kills),
+            damage: String(state.stats.damageTaken),
+            reached:
+              "第 " +
+              Math.min(state.layout.length, state.roomIndex + 1) +
+              "/" +
+              state.layout.length +
+              " 层"
+          }
+        };
+      });
+      await page.screenshot({ path: path.join(ARTIFACTS, `pause-readout-${options.mode}.png`) });
+      await page.keyboard.press("KeyP");
+      await page.waitForTimeout(140);
+      pauseReadout.resumed = !(await page.evaluate(() => window.nanoDnf.isPaused()));
     }
     await page.waitForTimeout(options.mode === "touch" ? 16 : 20);
     state = await readState(page);
@@ -959,6 +1000,7 @@ async function runPass(browser, baseUrl, options) {
     attractDemo,
     attractArc,
     attractAfterInput,
+    pauseReadout,
     victorySummary,
     shareRoundTrip,
     defeatSummary,
@@ -1056,6 +1098,30 @@ function problemsFor(pass) {
       problems.push(
         `${pass.mode}: the copy control returned ${JSON.stringify(share.copied)} instead of ${share.link}`
       );
+    }
+  }
+  const paused = pass.pauseReadout;
+  if (!paused || !paused.paused) {
+    problems.push(`${pass.mode}: the pause screen was never reached to read its live table`);
+  } else {
+    const pauseRowIds = ["seed", "time", "level", "upgrades", "kills", "damage", "reached"];
+    pauseRowIds.forEach((id) => {
+      if (paused.shown[id] === undefined) {
+        problems.push(`${pass.mode}: the pause screen has no ${id} row`);
+      }
+    });
+    const pauseWrong = Object.keys(paused.expected).filter(
+      (id) => paused.shown[id] !== paused.expected[id]
+    );
+    if (pauseWrong.length) {
+      problems.push(
+        `${pass.mode}: the pause screen disagrees with the live run (${pauseWrong
+          .map((id) => `${id}: shown ${paused.shown[id]} vs live ${paused.expected[id]}`)
+          .join("; ")})`
+      );
+    }
+    if (paused.resumed !== true) {
+      problems.push(`${pass.mode}: the pass never resumed after the pause check`);
     }
   }
   const defeat = pass.defeatSummary;
@@ -1291,6 +1357,11 @@ async function main() {
       seedOk: pass.shareRoundTrip.seedOk,
       layoutOk: pass.shareRoundTrip.layoutOk,
       copied: pass.shareRoundTrip.copied
+    },
+    pauseReadout: pass.pauseReadout && {
+      shown: pass.pauseReadout.shown,
+      expected: pass.pauseReadout.expected,
+      resumed: pass.pauseReadout.resumed
     },
     defeatSummary: pass.defeatSummary && {
       shown: pass.defeatSummary.shown,

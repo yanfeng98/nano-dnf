@@ -106,6 +106,28 @@ test("the share link reopens one exact seed", () => {
   assert.equal(Summary.seedUrl("", 5), null);
 });
 
+test("the live variant reads the run that is still going", () => {
+  const state = Core.createState({ seed: 4242 });
+  Core.runFrames(state, 300, { right: true, attack: true });
+  state.player.upgradesTaken.push("attack");
+
+  const table = Summary.liveRun(state, 4242);
+  const rows = table.rows;
+  const value = (id) => rows.filter((row) => row.id === id)[0].value;
+
+  assert.equal(value("seed"), "4242");
+  assert.equal(value("time"), Summary.formatSeconds(state.time));
+  assert.equal(value("level"), "Lv " + state.player.level);
+  assert.equal(value("upgrades"), "锐锋");
+  assert.equal(value("kills"), String(state.stats.kills));
+  assert.equal(value("damage"), String(state.stats.damageTaken));
+  assert.equal(value("reached"), "第 1/" + state.layout.length + " 层");
+
+  /* A half-built state must not throw or invent numbers. */
+  assert.doesNotThrow(() => Summary.liveRun(null, 9));
+  assert.equal(Summary.liveRun({}, 9).rows.length, 6, "no layout means no reached row");
+});
+
 test("a real cleared run produces a table the victory screen can print", () => {
   const state = Core.createState({ seed: 1234 });
   Core.runFrames(state, 60, { right: true, attack: true });

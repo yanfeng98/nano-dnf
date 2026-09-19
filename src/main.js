@@ -854,7 +854,7 @@
       if (demoGuard >= 5) attractAccumulator = 0;
     }
 
-    Render.render(ctx, titleUp ? attract.state : state, {
+    var meta = {
       paused: titleUp ? false : paused,
       showHelp: showHelp,
       attract: titleUp,
@@ -865,7 +865,10 @@
       drag: drag,
       run: runSummary(),
       hint: titleUp ? null : activeHint
-    });
+    };
+    /* A paused run reports itself from the live state, never from a finished one. */
+    if (meta.paused && Summary) meta.liveRows = Summary.liveRun(state, currentSeed).rows;
+    Render.render(ctx, titleUp ? attract.state : state, meta);
 
     var status = document.getElementById("status");
     if (status) {
@@ -987,6 +990,13 @@
     /* The link that reopens this exact run, and the page's copy control. */
     getShareLink: shareLink,
     copyShareLink: copyShareLink,
+    /* The pause overlay's live readout, and whether the run is paused right now. */
+    getLiveRows: function () {
+      return Summary ? Summary.liveRun(state, currentSeed).rows : [];
+    },
+    isPaused: function () {
+      return paused;
+    },
     /*
      * Manual QA: drive the title demo forward in one go. The browser proof uses
      * it to reach the boss without waiting out the whole dungeon in real time.

@@ -81,6 +81,27 @@
   }
 
   /*
+   * The same table for a run that is still going: pull the live numbers out of a
+   * Core state, so the pause screen reports the run on screen rather than the
+   * one that ended.
+   */
+  function liveRun(state, seed) {
+    state = state || {};
+    var player = state.player || {};
+    var stats = state.stats || {};
+    return describe({
+      seed: seed === undefined ? state.seed : seed,
+      seconds: state.time,
+      level: player.level,
+      upgrades: player.upgradesTaken || [],
+      kills: stats.kills,
+      damageTaken: stats.damageTaken,
+      room: state.roomIndex,
+      rooms: state.layout ? state.layout.length : 0
+    });
+  }
+
+  /*
    * The rows the victory screen draws. `id` is stable so tests and the browser
    * proof can address a row without matching on translated labels.
    */
@@ -119,6 +140,7 @@
     formatSeconds: formatSeconds,
     upgradeNames: upgradeNames,
     describe: describe,
+    liveRun: liveRun,
     seedUrl: seedUrl
   };
 });

@@ -1612,6 +1612,8 @@
       ctx.font = "18px 'PingFang SC', 'Segoe UI', sans-serif";
       ctx.fillStyle = PALETTE.textDim;
       ctx.fillText("按 P 继续", ARENA.width / 2, ARENA.height / 2 + 34);
+      /* A paused player still wants to know which run they are standing in. */
+      drawRunTable(ctx, (meta && meta.liveRows) || (meta && meta.run && meta.run.rows));
       ctx.restore();
       return;
     }
