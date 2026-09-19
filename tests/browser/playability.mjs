@@ -533,6 +533,7 @@ async function runPass(browser, baseUrl, options) {
   let state = await readState(page);
   let midShot = false;
   let pauseReadout = null;
+  let overallBefore = null;
   let paceEarly = null;
   const trace = [];
   let loadoutChecks = null;
@@ -603,6 +604,7 @@ async function runPass(browser, baseUrl, options) {
        */
       await page.keyboard.press("KeyP");
       await page.waitForTimeout(180);
+      overallBefore = await page.evaluate(() => window.nanoDnf.getRunSummary().overallText);
       pauseReadout = await page.evaluate(() => {
         const state = window.nanoDnf.getState();
         const shown = {};
@@ -708,6 +710,7 @@ async function runPass(browser, baseUrl, options) {
       shown[row.id] = row.value;
     });
     const upgrades = state.player.upgradesTaken;
+    const overall = window.DNFRecords.bestOverall(window.nanoDnf.getRecords());
     const expected = {
       seed: String(window.nanoDnf.getSeed()),
       time: window.DNFRecords.formatSeconds(
@@ -727,6 +730,13 @@ async function runPass(browser, baseUrl, options) {
     return {
       victory: state.victory,
       link: summary.link || null,
+      overallText: summary.overallText || null,
+      overallExpected: overall
+        ? "历史最佳 " +
+          window.DNFRecords.formatSeconds(overall.seconds) +
+          " · 种子 " +
+          overall.seed
+        : null,
       shown,
       expected,
       mismatches: Object.keys(expected)
@@ -1017,6 +1027,7 @@ async function runPass(browser, baseUrl, options) {
     attractArc,
     attractAfterInput,
     pauseReadout,
+    overallBefore,
     paceEarly,
     pace: { before: paceBefore, after: paceAfter, record: paceFlip.best },
     victorySummary,
@@ -1103,6 +1114,19 @@ function problemsFor(pass) {
     }
   }
   const share = pass.shareRoundTrip;
+  if (pass.overallBefore !== null) {
+    problems.push(
+      `${pass.mode}: the title claimed a lifetime best before any run was banked (${pass.overallBefore})`
+    );
+  }
+  const overall = pass.victorySummary && pass.victorySummary.overallText;
+  if (!overall) {
+    problems.push(`${pass.mode}: the page never reports a lifetime best after a clear`);
+  } else if (overall !== pass.victorySummary.overallExpected) {
+    problems.push(
+      `${pass.mode}: the lifetime best line ${JSON.stringify(overall)} disagrees with the stored records (${pass.victorySummary.overallExpected})`
+    );
+  }
   if (!share || !share.link || share.link.indexOf("seed=") === -1) {
     problems.push(`${pass.mode}: the clear screen offers no shareable seed link`);
   } else {
@@ -1392,7 +1416,9 @@ async function main() {
     attractArc: pass.attractArc,
     victorySummary: pass.victorySummary && {
       shown: pass.victorySummary.shown,
-      expected: pass.victorySummary.expected
+      expected: pass.victorySummary.expected,
+      overallText: pass.victorySummary.overallText,
+      overallExpected: pass.victorySummary.overallExpected
     },
     share: pass.shareRoundTrip && {
       link: pass.shareRoundTrip.link,

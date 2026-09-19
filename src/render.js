@@ -1680,8 +1680,11 @@
         ctx.font = "600 15px 'PingFang SC', 'Segoe UI', system-ui, sans-serif";
         ctx.fillStyle = PALETTE.textDim;
         ctx.fillText(meta.run.recordText || "", ARENA.width - 60, 160);
+        if (meta.run.overallText) {
+          ctx.fillText(meta.run.overallText, ARENA.width - 60, 186);
+        }
         ctx.fillStyle = PALETTE.text;
-        ctx.fillText("按 N 换一个种子", ARENA.width - 60, 186);
+        ctx.fillText("按 N 换一个种子", ARENA.width - 60, meta.run.overallText ? 212 : 186);
       }
       ctx.restore();
     }
@@ -1778,8 +1781,11 @@
       ctx.font = "600 15px 'PingFang SC', 'Segoe UI', sans-serif";
       ctx.fillStyle = PALETTE.textDim;
       ctx.fillText(meta.run.recordText || "", ARENA.width - 40, 86);
+      if (meta.run.overallText) {
+        ctx.fillText(meta.run.overallText, ARENA.width - 40, 112);
+      }
       ctx.fillStyle = PALETTE.text;
-      ctx.fillText("按 N 换一个种子", ARENA.width - 40, 112);
+      ctx.fillText("按 N 换一个种子", ARENA.width - 40, meta.run.overallText ? 138 : 112);
     }
 
     /* A blinking prompt, so an untouched page still asks to be played. */

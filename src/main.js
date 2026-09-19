@@ -446,6 +446,7 @@
   /* What the title and victory screens need, without leaking storage details. */
   function runSummary() {
     var record = Records.best(records, currentSeed);
+    var overall = Records.bestOverall(records);
     var link = shareLink();
     var run = finishedRun || {
       seed: currentSeed,
@@ -482,6 +483,12 @@
       link: link,
       linkText: link ? "本局链接 " + link : null,
       pace: paceLine,
+      overallText: overall
+        ? "历史最佳 " +
+          Records.formatSeconds(overall.seconds) +
+          " · 种子 " +
+          overall.seed
+        : null,
       seedText: "种子 " + currentSeed,
       recordText: record
         ? "本种子最佳 " +

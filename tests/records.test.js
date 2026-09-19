@@ -131,3 +131,30 @@ test("times are formatted as minutes and tenths", () => {
   assert.equal(Records.formatSeconds(-4), "--");
   assert.equal(Records.formatSeconds("nope"), "--");
 });
+
+test("the best overall looks across every seed the store remembers", () => {
+  const store = Records.emptyStore();
+  assert.equal(Records.bestOverall(store), null, "an empty store has no best");
+  assert.equal(Records.bestOverall(null), null);
+
+  store.seeds["777"] = { seconds: 61.2, level: 4, clears: 1 };
+  store.seeds["1234"] = { seconds: 47.6, level: 5, clears: 2 };
+  store.seeds["20260915"] = { seconds: 52.1, level: 5, clears: 1 };
+
+  const best = Records.bestOverall(store);
+  assert.equal(best.seed, 1234);
+  assert.equal(best.seconds, 47.6);
+  assert.equal(best.level, 5);
+  assert.equal(best.clears, 2);
+
+  /* A tie belongs to the smaller seed, whatever the key order is. */
+  store.seeds["1234"] = { seconds: 50, level: 5, clears: 2 };
+  store.seeds["777"] = { seconds: 50, level: 3, clears: 1 };
+  assert.equal(Records.bestOverall(store).seed, 777);
+
+  /* Entries that cannot be read are skipped instead of trusted. */
+  const dirty = Records.emptyStore();
+  dirty.seeds["not-a-seed"] = { seconds: 10, level: 2, clears: 1 };
+  dirty.seeds["9"] = { seconds: 0, level: 2, clears: 1 };
+  assert.equal(Records.bestOverall(dirty), null);
+});

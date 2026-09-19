@@ -80,6 +80,34 @@
     return store.seeds[String(normalized)] || null;
   }
 
+  /*
+   * The fastest clear across every seed the store remembers, with the seed it
+   * belongs to. Ties go to the smaller seed so the answer never depends on key
+   * order, and entries that cannot be read are skipped instead of trusted.
+   */
+  function bestOverall(store) {
+    if (!store || !store.seeds) return null;
+    var winner = null;
+    Object.keys(store.seeds).forEach(function (key) {
+      var seed = normalizeSeed(key);
+      var entry = normalizeEntry(store.seeds[key]);
+      if (seed === null || !entry) return;
+      if (
+        !winner ||
+        entry.seconds < winner.seconds ||
+        (entry.seconds === winner.seconds && seed < winner.seed)
+      ) {
+        winner = {
+          seed: seed,
+          seconds: entry.seconds,
+          level: entry.level,
+          clears: entry.clears
+        };
+      }
+    });
+    return winner;
+  }
+
   function prune(seeds) {
     var keys = Object.keys(seeds);
     if (keys.length <= MAX_SEEDS) return seeds;
@@ -171,6 +199,7 @@
     deserialize: deserialize,
     serialize: serialize,
     best: best,
+    bestOverall: bestOverall,
     record: record,
     formatSeconds: formatSeconds
   };
