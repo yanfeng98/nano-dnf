@@ -147,7 +147,14 @@
       hits: 1,
       /* DNF shape: leap smash that knocks the target down. */
       knockdown: 1.1,
-      leap: 210,
+      /*
+       * The leap has to be visible: the default -160 launch only lifts the
+       * Slayer 6px under 2200 gravity, which looked like a stumble rather than
+       * the low forward hop the move is known for. -520 peaks 61px up and,
+       * with the 260px/s push, covers about 120px before he lands on the smash.
+       */
+      leap: 260,
+      leapUp: -520,
       /* The leap's landing frames are invulnerable, DNF style: the Slayer is
          committed to the smash and cannot be interrupted out of the air. */
       leapInvuln: 0.22,
@@ -1242,7 +1249,6 @@
     var rooted = player.attackTimer > 0 || player.skillTimer > 0 || player.hurtTimer > 0;
     var dashing =
       player.skillTimer > 0 && SKILLS[player.skillId] && SKILLS[player.skillId].dash > 0;
-
     if (direction !== 0) player.facing = direction;
     if (rooted && !dashing) {
       player.vx *= 0.25;
