@@ -1070,14 +1070,15 @@ test("the shipped sprite sheet matches the frame grid the renderer expects", () 
 
   assert.equal(buffer.subarray(1, 4).toString("ascii"), "PNG");
   assert.equal(buffer.readUInt32BE(16), Render.SPRITE.frameW * Render.SPRITE.cols);
-  assert.equal(buffer.readUInt32BE(20), Render.SPRITE.frameH * 6);
+  assert.equal(buffer.readUInt32BE(20), Render.SPRITE.frameH * 7);
   assert.deepEqual(Render.SPRITE.rows, {
     idle: 0,
     run: 1,
     attack: 2,
     skill: 3,
     extras: 4,
-    clips: 5
+    clips: 5,
+    clips2: 6
   });
   /*
    * Long actions need room: the sheet carries twelve columns so a full DNF run
@@ -1100,7 +1101,7 @@ test("the shipped sprite sheet matches the frame grid the renderer expects", () 
 test("every frame the renderer plays fits inside its sprite cell", () => {
   const sheet = decodeRgbaPng(path.join(__dirname, "..", "assets", "slayer.png"));
   assert.equal(sheet.width, Render.SPRITE.frameW * Render.SPRITE.cols);
-  assert.equal(sheet.height, Render.SPRITE.frameH * 6);
+  assert.equal(sheet.height, Render.SPRITE.frameH * 7);
 
   /*
    * The bake composites each DNF frame into a fixed cell, and compositing is

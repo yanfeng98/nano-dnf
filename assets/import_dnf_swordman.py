@@ -46,20 +46,24 @@ FRAME_H = 176
 COLS = 42
 ANCHOR_X = 88
 ANCHOR_Y = 156
-ROWS = ["idle", "run", "attack", "skill", "extras", "clips"]
+ROWS = ["idle", "run", "attack", "skill", "extras", "clips", "clips2"]
 
 # Per-move body animations, picked by the owner off the body sheet next to each
-# skill's own client clip:
-#   崩山击   action 17 (4 frames) + the last three frames of action 26
-#   十字斩   action 1 (14 frames) + action 25 (6 frames)
+# skill's own client clip. The picked actions are the core of each move, but they
+# are only a handful of frames: spread over a three-second cast they read as a
+# slideshow (崩山击 held each frame for 0.4s). The runs below add the neighbouring
+# frames of the same motion so the animation actually flows:
+#   崩山击   raise 114-131 + smash and recovery 203-217 (33 frames)
 #   怒气爆发 action 10 (8 frames)
+#   十字斩   action 1 (14 frames) + action 25 (6 frames)
 # The game used to draw one generic skill animation for every move, which is why
 # the character never seemed to perform the skill being cast.
 CLIPS = [
-    ("mountainBreaker", [128, 129, 130, 131, 206, 207, 208]),
-    ("crossSlash", list(range(5, 19)) + list(range(198, 204))),
+    ("mountainBreaker", list(range(114, 132)) + list(range(203, 218))),
     ("rageBurst", list(range(76, 84))),
+    ("crossSlash", list(range(5, 19)) + list(range(198, 204))),
 ]
+CLIP_ROWS = ("clips", "clips2")
 
 # DNF frame coordinate space of the swordman body: idle frames put the feet at
 # y=341 and the body centre at x=242. Everything maps through this point.
@@ -327,19 +331,33 @@ def build(client: pathlib.Path, force: bool) -> Image.Image:
     layer_frames = [(key, decoder.frames(key)) for key in LAYERS]
     overlay_frames = [(decoder.frames(key), ref, max_w, max_h) for key, ref, max_w, max_h in OVERLAYS]
     sheet = Image.new("RGBA", (FRAME_W * COLS, FRAME_H * len(ROWS)), (0, 0, 0, 0))
+    clip_row = 0
+    clip_column = 0
     for row, name in enumerate(ROWS):
-        if name == "clips":
-            column = 0
-            for _skill, indices in CLIPS:
+        if name in CLIP_ROWS:
+            if clip_row >= len(CLIPS):
+                continue
+            while clip_row < len(CLIPS):
+                skill, indices = CLIPS[clip_row]
+                first = clip_column
                 for index in indices:
-                    if column >= COLS:
+                    if clip_column >= COLS:
                         break
                     frame, x, y = composed_frame(layer_frames, overlay_frames, index)
                     cell = Image.new("RGBA", (FRAME_W, FRAME_H), (0, 0, 0, 0))
                     place(cell, frame, x, y)
-                    sheet.alpha_composite(cell, (column * FRAME_W, row * FRAME_H))
-                    column += 1
-                print(f"  clips: {_skill} ends at column {column - 1}")
+                    sheet.alpha_composite(cell, (clip_column * FRAME_W, row * FRAME_H))
+                    clip_column += 1
+                if clip_column >= COLS:
+                    print(f"  {name}: {skill} cols {first}-{clip_column - 1}")
+                    clip_row += 1
+                    clip_column = 0
+                    break
+                print(f"  {name}: {skill} cols {first}-{clip_column - 1} ({len(indices)} frames)")
+                clip_row += 1
+                if clip_column + (len(CLIPS[clip_row][1]) if clip_row < len(CLIPS) else 0) > COLS:
+                    clip_column = 0
+                    break
             continue
         for col, index in enumerate(CELLS[name][:COLS]):
             frame, x, y = composed_frame(layer_frames, overlay_frames, index)

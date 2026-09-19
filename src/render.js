@@ -49,7 +49,7 @@
     cols: 42,
     anchorX: 88,
     anchorY: 156,
-    rows: { idle: 0, run: 1, attack: 2, skill: 3, extras: 4, clips: 5 },
+    rows: { idle: 0, run: 1, attack: 2, skill: 3, extras: 4, clips: 5, clips2: 6 },
     /* Frames the renderer actually plays per row; the rest of the row is spare art.
        The stand is a four-frame breath off the client's "still" frames, the attack
        is the whole normal-attack chain (see Core.ATTACK_STAGES). */
@@ -70,9 +70,9 @@
     skillClips: {
       upSlash: { row: 3, first: 6, frames: 10 },
       /* the raise holds until the smash lands at 40% of the cast */
-      mountainBreaker: { row: 5, first: 0, frames: 7, smashAt: 0.4, smashFrames: 3 },
-      crossSlash: { row: 5, first: 7, frames: 20 },
-      rageBurst: { row: 5, first: 27, frames: 8 }
+      mountainBreaker: { row: 5, first: 0, frames: 33, smashAt: 0.4, smashFrames: 15 },
+      rageBurst: { row: 5, first: 33, frames: 8 },
+      crossSlash: { row: 6, first: 0, frames: 20 }
     },
     extras: { hurt: 0, dead: 1, jump: 2, fall: 3 }
   };
