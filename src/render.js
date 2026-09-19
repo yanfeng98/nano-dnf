@@ -169,10 +169,12 @@
     maxFrames: 11,
     draw: {
       upSlash: { dx: 34, dy: -56, size: 156, copies: 1, spin: 0 },
-      mountainBreaker: { dx: 72, dy: -30, size: 190, copies: 1, spin: 0 },
+      /* 崩山击 lands on a shockwave that covers half the arena. */
+      mountainBreaker: { dx: 72, dy: -30, size: 236, copies: 1, spin: 0 },
       /* 十字斩's own art draws the cross (a horizontal stroke, then the
-         vertical one landing on it), so it is no longer mirrored into one. */
-      crossSlash: { dx: 58, dy: -38, size: 176, copies: 1, spin: 0 },
+         vertical one landing on it), so it is no longer mirrored into one.
+         DNF draws the cross and then pushes it forward, so it also travels. */
+      crossSlash: { dx: 46, dy: -38, size: 168, copies: 1, spin: 0, travel: 108 },
       bloodSword: { dx: 30, dy: -32, size: 182, copies: 1, spin: 0 },
       frenzy: { dx: 52, dy: -40, size: 150, copies: 1, spin: 0 },
       bloodyRave: { dx: 52, dy: -46, size: 170, copies: 1, spin: 0 },
@@ -843,8 +845,16 @@
     var frame = skillEffectFrame(player.skillId, 1 - player.skillTimer / spec.duration);
     if (!frame) return;
 
+    /*
+     * 十字斩 draws the cross and then pushes it out, so an effect can travel
+     * forward over its cast instead of sitting on the caster.
+     */
+    var progress = Math.min(1, Math.max(0, 1 - player.skillTimer / spec.duration));
+    var reach = draw.dx + (draw.travel || 0) * progress;
+    var size = draw.size * (1 + (draw.grow || 0) * progress);
+
     ctx.save();
-    ctx.translate(player.x + player.facing * draw.dx, player.y + draw.dy);
+    ctx.translate(player.x + player.facing * reach, player.y + draw.dy);
     ctx.scale(player.facing, 1);
     ctx.globalAlpha = frame.alpha;
     ctx.imageSmoothingEnabled = true;
@@ -858,10 +868,10 @@
         frame.row * EFFECT.cell,
         EFFECT.cell,
         EFFECT.cell,
-        -draw.size / 2,
-        -draw.size / 2,
-        draw.size,
-        draw.size
+        -size / 2,
+        -size / 2,
+        size,
+        size
       );
       ctx.restore();
     }

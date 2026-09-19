@@ -145,6 +145,9 @@
       /* DNF shape: leap smash that knocks the target down. */
       knockdown: 1.1,
       leap: 210,
+      /* The leap's landing frames are invulnerable, DNF style: the Slayer is
+         committed to the smash and cannot be interrupted out of the air. */
+      leapInvuln: 0.22,
       shockwave: {
         reach: 150,
         damage: 10,
@@ -1415,6 +1418,8 @@
           player.vx = player.facing * active.leap;
           player.vy = Math.min(player.vy, active.leapUp || -160);
           player.onGround = false;
+          /* DNF's 崩山击 is invulnerable once it is committed to the leap. */
+          player.invuln = Math.max(player.invuln, active.leapInvuln || 0.3);
         }
         if (active.dash && hitIndex === 0) {
           /* 血魔: flash forward and shrug off hits while doing it. */
