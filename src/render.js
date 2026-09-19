@@ -69,7 +69,8 @@
      */
     skillClips: {
       upSlash: { row: 3, first: 6, frames: 10 },
-      mountainBreaker: { row: 5, first: 0, frames: 7 },
+      /* the raise holds until the smash lands at 40% of the cast */
+      mountainBreaker: { row: 5, first: 0, frames: 7, smashAt: 0.4, smashFrames: 3 },
       crossSlash: { row: 5, first: 7, frames: 20 },
       rageBurst: { row: 5, first: 27, frames: 8 }
     },
@@ -485,11 +486,34 @@
       var progress = skill ? 1 - player.skillTimer / skill.duration : 0;
       var clip = SPRITE.skillClips[player.skillId];
       if (clip && clip.row !== undefined) {
+        /*
+         * A clip can name the beat its second half belongs to (崩山击 reaches the
+         * smash 40% into a three-second cast). Spreading its frames evenly would
+         * put the smash on screen half a second after the blade lands.
+         */
+        var step;
+        if (clip.smashAt !== undefined) {
+          var earlyFrames = clip.frames - (clip.smashFrames || 0);
+          if (progress > clip.smashAt) {
+            var late = (progress - clip.smashAt) / Math.max(0.0001, 1 - clip.smashAt);
+            step =
+              earlyFrames +
+              Math.min(
+                (clip.smashFrames || 1) - 1,
+                Math.floor(clamp01(late) * (clip.smashFrames || 1))
+              );
+          } else {
+            step = Math.min(
+              earlyFrames - 1,
+              Math.floor(clamp01(progress / Math.max(0.0001, clip.smashAt)) * earlyFrames)
+            );
+          }
+        } else {
+          step = Math.min(clip.frames - 1, Math.floor(clamp01(progress) * clip.frames));
+        }
         return {
           row: clip.row,
-          col:
-            clip.first +
-            Math.min(clip.frames - 1, Math.floor(clamp01(progress) * clip.frames))
+          col: clip.first + step
         };
       }
       var skillFrames = SPRITE.frames.skill;

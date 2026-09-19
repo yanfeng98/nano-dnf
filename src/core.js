@@ -136,9 +136,16 @@
       cooldown: 5,
       damage: 22,
       growth: 4,
-      duration: 0.5,
-      activeFrom: 0.16,
-      activeTo: 0.3,
+      /*
+       * 崩山击 is a slow, committed move: DNF's own clip runs the raise, the
+       * forward hop and the landing shockwave over roughly three seconds, so the
+       * whole cast (raise -> leap -> smash -> wave -> recovery) is 3s and the
+       * blade only connects on the landing.
+       */
+      duration: 3,
+      /* seconds: the blade and its ground wave land on the smash at 1.2s */
+      activeFrom: 1.2,
+      activeTo: 1.4,
       reach: 96,
       heightPad: 18,
       knockbackX: 240,
@@ -148,16 +155,18 @@
       /* DNF shape: leap smash that knocks the target down. */
       knockdown: 1.1,
       /*
-       * The leap has to be visible: the default -160 launch only lifts the
-       * Slayer 6px under 2200 gravity, which looked like a stumble rather than
-       * the low forward hop the move is known for. -520 peaks 61px up and,
-       * with the 260px/s push, covers about 120px before he lands on the smash.
+       * The hop is slow and carries him forward: -520 peaks 57px up, giving
+       * ~0.47s in the air, and the 210px/s push covers about 100px before he
+       * lands on the smash. It starts a quarter of the way in, after the raise.
        */
-      leap: 260,
+      leap: 210,
       leapUp: -520,
+      leapFrom: 0.25,
       /* The leap's landing frames are invulnerable, DNF style: the Slayer is
-         committed to the smash and cannot be interrupted out of the air. */
-      leapInvuln: 0.22,
+         committed to the smash and cannot be knocked out of the air - the window
+         has to cover the whole hop plus the landing hit, or a grunt standing
+         where he comes down cancels the move before the blade connects. */
+      leapInvuln: 0.8,
       shockwave: {
         reach: 150,
         damage: 10,
@@ -1249,8 +1258,17 @@
     var rooted = player.attackTimer > 0 || player.skillTimer > 0 || player.hurtTimer > 0;
     var dashing =
       player.skillTimer > 0 && SKILLS[player.skillId] && SKILLS[player.skillId].dash > 0;
+    /*
+     * A leap keeps its forward speed for the whole hop: the rooted-skill damping
+     * otherwise ate the push within four frames and he landed on the spot.
+     */
+    var leaping =
+      player.skillTimer > 0 &&
+      SKILLS[player.skillId] &&
+      SKILLS[player.skillId].leap > 0 &&
+      !player.onGround;
     if (direction !== 0) player.facing = direction;
-    if (rooted && !dashing) {
+    if (rooted && !dashing && !leaping) {
       player.vx *= 0.25;
     } else if (!rooted) {
       player.vx = direction * PHYSICS.moveSpeed;
@@ -1328,6 +1346,7 @@
       player.attackHitDone = false;
       player.comboTimer = 0;
       player.comboIndex = 0;
+      player.leapDone = false;
     } else if (
       input.attack &&
       player.attackTimer <= 0 &&
@@ -1382,6 +1401,25 @@
       var skillElapsed = active.duration - player.skillTimer;
       var hitCount = active.hits || 1;
       var hitSpan = (active.activeTo - active.activeFrom) / hitCount;
+
+      /*
+       * The hop is its own beat, not a side effect of the hit: it fires once the
+       * raise is done and the blade only connects when he comes down. It has to
+       * run outside the hit loop, which only wakes up on the active window.
+       */
+      if (
+        active.leap &&
+        !player.leapDone &&
+        player.onGround &&
+        skillElapsed >= active.duration * (active.leapFrom || 0)
+      ) {
+        player.leapDone = true;
+        player.vx = player.facing * active.leap;
+        player.vy = Math.min(player.vy, active.leapUp || -160);
+        player.onGround = false;
+        /* DNF's 崩山击 is invulnerable once it is committed to the leap. */
+        player.invuln = Math.max(player.invuln, active.leapInvuln || 0.3);
+      }
 
       while (
         player.skillHitsDone < hitCount &&
@@ -1450,13 +1488,6 @@
           });
         }
 
-        if (active.leap && hitIndex === 0) {
-          player.vx = player.facing * active.leap;
-          player.vy = Math.min(player.vy, active.leapUp || -160);
-          player.onGround = false;
-          /* DNF's 崩山击 is invulnerable once it is committed to the leap. */
-          player.invuln = Math.max(player.invuln, active.leapInvuln || 0.3);
-        }
         if (active.dash && hitIndex === 0) {
           /* 血魔: flash forward and shrug off hits while doing it. */
           player.vx = player.facing * active.dash;

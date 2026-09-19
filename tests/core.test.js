@@ -413,8 +413,12 @@ test("上挑 launches an enemy and keeps it from acting while airborne", () => {
 
 test("崩山击 adds a ground shockwave that reaches past the blade", () => {
   const state = lastRoomState();
-  const near = Core.createEnemy(state, "grunt", state.player.x + 60);
-  const far = Core.createEnemy(state, "grunt", state.player.x + 125);
+  /*
+   * The move hops him ~100px forward before the blade lands, so the pair sits
+   * ahead of the landing point: one inside the blade's 96px reach, one past it.
+   */
+  const near = Core.createEnemy(state, "grunt", state.player.x + 150);
+  const far = Core.createEnemy(state, "grunt", state.player.x + 215);
   [near, far].forEach((enemy) => {
     enemy.hp = 300;
     enemy.maxHp = 300;
@@ -426,11 +430,17 @@ test("崩山击 adds a ground shockwave that reaches past the blade", () => {
   const farHp = far.hp;
 
   Core.step(state, { skills: { mountainBreaker: true } });
-  Core.runFrames(state, 24, {});
+  /*
+   * 崩山击 is a three-second cast: the raise, then the hop, and the blade lands
+   * on the smash at 1.2s. The wave effect only lives 0.4s, so it is checked as
+   * it lands rather than at the end of the recovery.
+   */
+  Core.runFrames(state, Math.ceil(1.35 * Core.FPS), {});
+  assert.ok(state.effects.some((effect) => effect.kind === "shockwave"));
+  Core.runFrames(state, Math.ceil(1.7 * Core.FPS), {});
 
   assert.equal(nearHp - near.hp, skill.damage, "blade hit lands once");
   assert.equal(farHp - far.hp, skill.shockwave.damage, "shockwave reaches the second target");
-  assert.ok(state.effects.some((effect) => effect.kind === "shockwave"));
 });
 
 test("skill damage grows with the character level", () => {
@@ -471,8 +481,8 @@ test("上挑 lifts the target and airborne hits keep it juggled", () => {
 
 test("崩山击 knocks the target down and its shockwave does too", () => {
   const state = lastRoomState();
-  const near = Core.createEnemy(state, "grunt", state.player.x + 60);
-  const far = Core.createEnemy(state, "grunt", state.player.x + 130);
+  const near = Core.createEnemy(state, "grunt", state.player.x + 150);
+  const far = Core.createEnemy(state, "grunt", state.player.x + 220);
   [near, far].forEach((enemy) => {
     enemy.hp = 400;
     enemy.maxHp = 400;
@@ -481,7 +491,7 @@ test("崩山击 knocks the target down and its shockwave does too", () => {
   state.enemies = [near, far];
 
   Core.step(state, { skills: { mountainBreaker: true } });
-  Core.runFrames(state, 22, {});
+  Core.runFrames(state, Math.ceil(1.35 * Core.FPS), {});
 
   assert.ok(near.knockdown > 0, "the smash should knock the target down");
   assert.ok(far.knockdown > 0, "the ground shockwave should knock the far target down");
