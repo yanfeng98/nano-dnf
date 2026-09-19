@@ -32,3 +32,5 @@ assets/dnf_effect_anim/
 assets/dnf_body_actions.*
 #   (every body variant animating, make_body_variant_grids.py)
 assets/dnf_body_variants/
+#   (proposed body-motion frame ranges for the 红眼 skills)
+assets/dnf_src/skill-motion-candidates.png
