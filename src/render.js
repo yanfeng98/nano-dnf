@@ -239,7 +239,7 @@
       bloodSnatch: 19,
       graspHead: 18,
       bloodEvil: 15,
-      mountainRift: 20
+      mountainRift: 7
     },
     maxFrames: 27,
     /*
@@ -264,8 +264,12 @@
       bloodSword: { dx: 30, dy: -32, size: 182, copies: 1, spin: 0 },
       frenzy: { dx: 52, dy: -40, size: 150, copies: 1, spin: 0 },
       bloodyRave: { dx: 52, dy: -46, size: 170, copies: 1, spin: 0 },
-      /* 怒气爆发 erupts around him: it is the widest effect in the kit. */
-      rageBurst: { dx: 0, dy: -30, size: 300, copies: 1, spin: 0 },
+      /*
+       * 怒气爆发 erupts around him: it is the widest effect in the kit, and its
+       * row is baked with the caster's ground point on the cell's ground line
+       * (75% down), so the ring has to meet his feet rather than his knees.
+       */
+      rageBurst: { dx: 0, dy: -75, size: 300, copies: 1, spin: 0 },
       bloodSnatch: { dx: 56, dy: -46, size: 190, copies: 1, spin: 0 },
       graspHead: { dx: 30, dy: -36, size: 128, copies: 1, spin: 0 },
       bloodEvil: { dx: 44, dy: -30, size: 178, copies: 1, spin: 0 },
@@ -273,9 +277,13 @@
        * 大蹦 is the ultimate, and the owner's read is that the whole effect is
        * one size up - not just the ground wave. The giant sword and the blast it
        * drives into the floor are drawn at nearly the whole arena height, so the
-       * draw sits higher and further out than 崩山击's 236px smash.
+       * draw sits higher and further out than 崩山击's 236px smash. The row is the
+       * client's own fire pair (the burning ground and the blade of flame that
+       * comes down with the slam), centred like every other picked row, and it is
+       * drawn a little higher so the fire clears the hotbar band the way 崩山击's
+       * shockwave does.
        */
-      mountainRift: { dx: 60, dy: -110, size: 430, copies: 1, spin: 0 }
+      mountainRift: { dx: 40, dy: -90, size: 360, copies: 1, spin: 0 }
     }
   };
 

@@ -1666,6 +1666,132 @@ test("the shipped DNF effect sheet matches the renderer grid", () => {
   });
 });
 
+/*
+ * 怒气爆发 and 崩山裂地斩 were the only two rows built by stacking a whole pack,
+ * and a pack ships every shape once per colour board: the plain entry plus
+ * "(tn)" and "(18)" copies of the same art at the same coordinates. Pulling all
+ * three in drew every ring and pillar two or three times over in different
+ * colours, which is what the owner saw as "特效不对".
+ */
+test("the effect bake draws each shape in exactly one colour board", () => {
+  const source = fs.readFileSync(
+    path.join(__dirname, "..", "assets", "import_dnf_effects.py"),
+    "utf8"
+  );
+  const start = source.indexOf("PICKS = {");
+  assert.ok(start > 0, "the bake declares its per-move picks");
+  const picks = source.slice(start, source.indexOf("\n}\n", start));
+  const blocks = [];
+  const key = /^ {4}"(\w+)":\s*\{/gm;
+  for (let match = key.exec(picks); match; match = key.exec(picks)) {
+    blocks.push({ skill: match[1], from: match.index });
+  }
+  assert.ok(blocks.length >= Core.SKILL_ORDER.length, "every skill is picked");
+  blocks.forEach((block, index) => {
+    const text = picks.slice(block.from, index + 1 < blocks.length ? blocks[index + 1].from : picks.length);
+    const seen = new Map();
+    for (const [, entry] of text.matchAll(/"([^"]+\.img)"/g)) {
+      const shape = entry.replace(/^\((?:tn|18)\)/, "");
+      assert.ok(
+        !seen.has(shape),
+        `${block.skill} stacks ${shape} twice (${seen.get(shape)} and ${entry})`
+      );
+      seen.set(shape, entry);
+    }
+  });
+  /*
+   * 怒气爆发 is rooted at the caster: the bake places a declared anchor (the
+   * middle of the pack's own ground ring) on the cell's ground line, so the
+   * effect no longer floats wherever its bounding box sits. It also bakes from
+   * the colour board the client plays - the official BloodBlast preview erupts
+   * white-gold out of the ring - while the plain board of the same shapes is
+   * blood red.
+   */
+  const rageBurst = blocks.find((entry) => entry.skill === "rageBurst");
+  const rageText = picks.slice(rageBurst.from, picks.indexOf("\n}", rageBurst.from));
+  assert.match(rageText, /"anchor":\s*\(\s*-?\d+,\s*-?\d+\s*\)/, "rageBurst needs a ground anchor");
+  assert.match(rageText, /"palette":\s*"\(tn\)"/, "rageBurst needs the client's white-gold board");
+  /*
+   * 崩山裂地斩 is the client's own fire pair, not the dark red pack the skill
+   * shares a name with: the preview shows a blade of flame coming down on
+   * burning ground, and fire-front is exactly that art.
+   */
+  const rift = blocks.find((entry) => entry.skill === "mountainRift");
+  const riftText = picks.slice(rift.from, picks.indexOf("\n}", rift.from));
+  assert.match(riftText, /"fire-front\.img"/, "崩山裂地斩 uses the client's flame blade");
+  assert.match(riftText, /"fire-back\.img"/, "崩山裂地斩 uses the client's burning ground");
+  assert.ok(
+    !/outragebreak_/.test(riftText.replace(/^ *#.*$/gm, "")),
+    "and not the blood-red outragebreak layers the owner rejected"
+  );
+});
+
+test("the two blood eruptions are their own art, not one effect twice", () => {
+  const sheet = decodeRgbaPng(path.join(__dirname, "..", "assets", "effects.png"));
+  const cell = Render.EFFECT.cell;
+  const cellPixels = (row, column) => {
+    const out = [];
+    for (let y = 0; y < cell; y += 1) {
+      for (let x = 0; x < cell; x += 1) {
+        const at = ((row * cell + y) * sheet.width + column * cell + x) * 4;
+        out.push(...sheet.pixels.subarray(at, at + 4));
+      }
+    }
+    return out;
+  };
+  const difference = (a, b) => {
+    let ink = 0;
+    let apart = 0;
+    for (let index = 0; index < a.length; index += 4) {
+      if (a[index + 3] === 0 && b[index + 3] === 0) continue;
+      ink += 1;
+      if (
+        Math.abs(a[index] - b[index]) > 40 ||
+        Math.abs(a[index + 1] - b[index + 1]) > 40 ||
+        Math.abs(a[index + 2] - b[index + 2]) > 40
+      ) {
+        apart += 1;
+      }
+    }
+    return ink === 0 ? 0 : apart / ink;
+  };
+  const rage = Core.SKILL_ORDER.indexOf("rageBurst");
+  const rift = Core.SKILL_ORDER.indexOf("mountainRift");
+  const smash = Core.SKILL_ORDER.indexOf("mountainBreaker");
+  /*
+   * The colour is part of the art: 怒气爆发 erupts white-gold out of a pool of
+   * blood, not red. The plain board of the same shapes measures [141,9,2] there,
+   * so this is the assertion that would have caught shipping the wrong board.
+   */
+  const meanInk = (row) => {
+    let red = 0;
+    let green = 0;
+    let blue = 0;
+    let count = 0;
+    for (let column = 0; column < Render.EFFECT.rowFrames.rageBurst; column += 1) {
+      const pixels = cellPixels(row, column);
+      for (let at = 0; at < pixels.length; at += 4) {
+        if (pixels[at + 3] === 0) continue;
+        red += pixels[at];
+        green += pixels[at + 1];
+        blue += pixels[at + 2];
+        count += 1;
+      }
+    }
+    return count === 0 ? [0, 0, 0] : [red / count, green / count, blue / count];
+  };
+  const burst = meanInk(rage);
+  assert.ok(burst[1] > 150, `怒气爆发 erupts white-gold, not red (green ${burst[1].toFixed(0)})`);
+  assert.ok(burst[2] > 100, `怒气爆发 keeps its gold tail (blue ${burst[2].toFixed(0)})`);
+  for (let column = 0; column < 6; column += 1) {
+    const a = cellPixels(rage, column);
+    const b = cellPixels(rift, column);
+    const c = cellPixels(smash, column);
+    assert.ok(difference(a, b) > 0.4, `frame ${column}: 怒气爆发 and 大蹦 are different art`);
+    assert.ok(difference(b, c) > 0.4, `frame ${column}: 大蹦 is not 崩山击's smash again`);
+  }
+});
+
 test("each skill picks a DNF effect row across the cast", () => {
   Core.SKILL_ORDER.forEach((skillId, row) => {
     const spec = Core.SKILLS[skillId];

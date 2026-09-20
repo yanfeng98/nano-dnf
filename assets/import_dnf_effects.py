@@ -74,6 +74,12 @@ EFFECTS = [
 FRAMES = 4
 CELL = 128
 PADDING = 6
+# Where an anchored row's ground line sits in the cell (0 = top, 1 = bottom).
+GROUND_LINE = 0.75
+
+
+def clamp01(value: float) -> float:
+    return max(0.0, min(1.0, value))
 
 # Moves the owner picked pack by pack (see assets/dnf_effect_picks.md) ship the
 # move's real frames instead of a four-frame sample. A row is built from one or
@@ -81,7 +87,21 @@ PADDING = 6
 #   "stack"    - the layers play together (a whole pack, or the two layers of one
 #                buff), which is what the owner watched and recognised
 #   "sequence" - the layers play one after another (a sword that is then spent)
-# "*" means every entry of that pack, in file order, as the game draws them.
+#   "palette"  - which of the pack's colour boards to draw by default. The client
+#                ships every shape several times - plain, "(tn)" and "(18)" - and
+#                plays whichever board the skill names. 怒气爆发 erupts in
+#                white-gold and 崩山裂地斩 in orange, so those two rows bake from
+#                the "(tn)" board; a single layer can override it with its own
+#                palette in the tuple.
+#   "anchor"   - the point in the client's own coordinates that the caster stands
+#                on, so the row can be baked with the effect rooted at his feet
+#                instead of floating wherever the bounding box happens to sit
+#   "*"        - every entry of that pack in the selected colour board
+#
+# Every DNF effect pack ships the same shapes several times: the plain entry plus
+# "(tn)" and "(18)" copies drawn from a different colour board. They are the same
+# art at the same coordinates, not extra layers, so a wildcard pick must take one
+# board - stacking all three drew every ring and pillar two or three times over.
 PICKS = {
     "upSlash": {"stack": [("", "upperslash.img")]},
     "mountainBreaker": {"stack": [("_hopsmash", "b_bottom_01_d.img")]},
@@ -93,23 +113,49 @@ PICKS = {
     "bloodyRave": {"stack": [("_bloodyrave", "*")]},
     # 怒气爆发: the pack's ground ring, the blood pillar and the hit flash.
     # Stacking the whole pack shrank everything - one layer is 355x387, so the
-    # composite had to scale down to fit and the blood read as a smudge.
-    "rageBurst": {"stack": [
+    # composite had to scale down to fit and the blood read as a smudge. The
+    # dark streak fields (blood-d2, bloodreddodge) stay out for the same reason:
+    # the client draws them additively, this sheet cannot.
+    #
+    # The eruption is the "(tn)" board: the client's own preview shows a
+    # white-gold column coming out of a ring, and that board is exactly that art
+    # (plain "blood-front" measures [204,28,0], "(tn)" [249,236,200]).
+    #
+    # The pack holds two clusters of layers, and only one of them is the caster:
+    # blood / blood_floor_front / blood_floor_back / blood_back / bloodred all
+    # sit within +-90px of the ring's middle, while b-01, blood-b, blood-front and
+    # blastbloodhit sit 160-270px off to the left. Stacking both clusters made the
+    # move look like two effects at once, so the left cluster stays out.
+    #
+    # The anchor is the middle of the pack's own floor ring (blood_floor.img, 251
+    # wide at x=219, y=328): that is where the caster stands and where the ring
+    # has to meet his feet. Without it the row was centred on its bounding box,
+    # which put the eruption column a third of a screen to his left.
+    "rageBurst": {"palette": "(tn)", "anchor": (344, 365), "stack": [
         ("_blastblood", "blood_floor_front.img"),
         ("_blastblood", "blood_floor_back.img"),
-        ("_blastblood", "blood_floor.img"),
         ("_blastblood", "blood-back.img"),
-        ("_blastblood", "b-01.img"),
-        ("_blastblood", "blood-b.img"),
         ("_blastblood", "bloodred.img"),
         ("_blastblood", "blood.img"),
-        ("_blastblood", "blastbloodhit.img"),
-        ("_blastblood", "blood-front.img"),
+        ("_blastblood", "blood-d1.img"),
     ]},
     "bloodSnatch": {"stack": [("_bloodsnatch", "*")]},
     "graspHead": {"stack": [("_grabblastblood", "*")]},
     "bloodEvil": {"stack": [("_bloodriven", "*")]},
-    "mountainRift": {"stack": [("_outragebreak", "*")]},
+    # 崩山裂地斩: the 45-level ultimate's own pack - the blood sword it summons,
+    # the rift it opens and the blood it throws. The wildcard used to pull all
+    # three colour boards plus both the plain and the dodge sword, so the row was
+    # 29 layers drawing nine shapes three times over in red, orange and orange.
+    # The anchor is the middle of outragebreak_floor.img (445x166 at x=160,
+    # y=198), the rift the sword lands in.
+    # 崩山裂地斩: the client's own fire pair out of the base effect pack - the
+    # burning ground (fire-back) and the blade of flame that comes down with the
+    # slam (fire-front). This is what the skill's own preview shows: orange fire,
+    # not the dark red blood the outragebreak pack is drawn in.
+    "mountainRift": {"stack": [
+        ("", "fire-back.img"),
+        ("", "fire-front.img"),
+    ]},
 }
 
 # Rows after the skill rows, for art a move needs away from its own cast: the
@@ -235,8 +281,18 @@ def densest_run(frames: list[Image.Image], visible: list[int], count: int) -> li
     return best
 
 
-def bake_frames(frames, row: int, sheet: Image.Image) -> int:
-    """Draw one skill row from already-composited frames."""
+def bake_frames(frames, row: int, sheet: Image.Image, anchor=None, origin=(0, 0)) -> int:
+    """Draw one skill row from already-composited frames.
+
+    `anchor` is the client-space point the move is rooted at (the caster's feet).
+    `origin` is where the row's canvas sits in that same client space, so the
+    anchor can be translated onto the frames before they are placed.
+    Given one, the row is placed so that point sits at the bottom of the cell's
+    middle, whatever shape the bounding box has; without one the row is centred
+    as before.
+    """
+    if anchor is not None:
+        anchor = (anchor[0] - origin[0], anchor[1] - origin[1])
     while frames and not frames[0].getbbox():
         frames.pop(0)
     while frames and not frames[-1].getbbox():
@@ -267,14 +323,28 @@ def bake_frames(frames, row: int, sheet: Image.Image) -> int:
     scale = min((CELL - 8) / span_w, (CELL - 8) / span_h)
     placed_w = max(1, int(span_w * scale))
     placed_h = max(1, int(span_h * scale))
-    offset_x = (CELL - placed_w) // 2
-    offset_y = (CELL - placed_h) // 2
+    if anchor is None:
+        offset_x = (CELL - placed_w) // 2
+        offset_y = (CELL - placed_h) // 2
+    else:
+        across = clamp01((anchor[0] - window[0]) / max(1, span_w))
+        down = clamp01((anchor[1] - window[1]) / max(1, span_h))
+        offset_x = round(CELL / 2 - across * placed_w)
+        offset_y = round(CELL * GROUND_LINE - down * placed_h)
+        # No clamping: the point of the anchor is that it lands where it belongs.
+        # The slice of the effect that hangs below the ground line is dropped by
+        # the cell, which is the part that would be under the floor anyway.
 
     for column, frame in enumerate(frames):
         layer = Image.new("RGBA", (span_w, span_h), (0, 0, 0, 0))
         layer.alpha_composite(frame, (-window[0], -window[1]))
         layer = layer.resize((placed_w, placed_h), Image.LANCZOS)
-        sheet.alpha_composite(layer, (column * CELL + offset_x, row * CELL + offset_y))
+        # Into its own cell first: an anchored row is placed by its ground line,
+        # so its frames can sit above or below the middle of the cell. Compositing
+        # straight into the sheet let that spill into the row above or below.
+        cell_image = Image.new("RGBA", (CELL, CELL), (0, 0, 0, 0))
+        cell_image.alpha_composite(layer, (offset_x, offset_y))
+        sheet.alpha_composite(cell_image, (column * CELL, row * CELL))
 
     return len(frames)
 
@@ -291,8 +361,21 @@ def decode_frames(img):
     return out
 
 
-def pack_entries(client: Path, pack: str):
-    """[(name, img)] for every entry of one effect pack ('' = the base pack)."""
+def palette_name(name: str, palette: str) -> str:
+    """The entry's name in one colour board.
+
+    The client stores the same art once per colour board: "blood-front.img" is
+    the plain one, "(tn)blood-front.img" and "(18)blood-front.img" are the same
+    shape drawn with a different palette. Entries that already carry a board
+    (the packs name some of them that way) are left alone.
+    """
+    if name.startswith("(") or not palette:
+        return name
+    return palette + name
+
+
+def pack_entries(client: Path, pack: str, palette: str = ""):
+    """[(name, img)] for one colour board of one effect pack ('' = base pack)."""
     from pydnfex.npk import NPK
     from pydnfex.img.version import IMGFactory
 
@@ -303,52 +386,97 @@ def pack_entries(client: Path, pack: str):
         npk = NPK.open(handle)
         for entry in npk.files:
             name = entry.name.replace("\\", "/").split("/")[-1]
+            if name != palette_name(name, palette):
+                continue
             try:
                 yield name, IMGFactory.open(io.BytesIO(entry.data))
             except Exception:
                 continue
 
 
-def pick_frames(client: Path, mode: str, entries) -> list:
-    """Composite/concatenate the client entries a row is made of."""
+# One client layer, ready to composite: its frames, the offset of the first
+# one, and the size of the largest.
+def rescale(decoded, scale: float):
+    """Grow one layer about the point it lands on (its bottom centre).
+
+    The client sizes some effect layers from the skill's animation data rather
+    than from the .img, so an export can hand back a blade that is a tenth of the
+    size the game draws it at. Scaling about the bottom centre keeps whatever the
+    layer touches - the floor, usually - where the pack put it.
+    """
+    if scale == 1.0:
+        return decoded
+    grown = []
+    for picture, x, y in decoded:
+        width = max(1, int(round(picture.width * scale)))
+        height = max(1, int(round(picture.height * scale)))
+        grown.append((
+            picture.resize((width, height), Image.LANCZOS),
+            int(round(x + (picture.width - width) / 2)),
+            int(round(y + picture.height - height)),
+        ))
+    return grown
+
+
+def pick_frames(client: Path, mode: str, entries, palette: str = ""):
+    """Composite/concatenate the client entries a row is made of.
+
+    Returns (frames, origin): the frames share one canvas, and `origin` is where
+    that canvas' top-left sits in the client's own coordinates, so a pick's
+    `anchor` can be translated onto it.
+    """
     layers = []
-    for pack, entry in entries:
+    for pick in entries:
+        pack, entry = pick[0], pick[1]
+        scale = float(pick[2]) if len(pick) > 2 and pick[2] is not None else 1.0
+        # A layer can name its own board: the client draws 怒气爆发's pool of
+        # blood in the plain (red) art and the eruption above it in white-gold.
+        board = pick[3] if len(pick) > 3 and pick[3] is not None else palette
         if entry == "*":
-            for _name, img in pack_entries(client, pack):
+            for _name, img in pack_entries(client, pack, board):
                 decoded = decode_frames(img)
                 if decoded:
-                    layers.append(decoded)
+                    layers.append(rescale(decoded, scale))
             continue
-        found = dict(pack_entries(client, pack)).get(entry)
+        wanted = palette_name(entry, board)
+        found = dict(pack_entries(client, pack, board)).get(wanted)
         if found is None:
-            print(f"  missing {pack}/{entry}", file=sys.stderr)
+            print(f"  missing {pack}/{wanted}", file=sys.stderr)
             continue
         decoded = decode_frames(found)
         if decoded:
-            layers.append(decoded)
+            layers.append(rescale(decoded, scale))
     if not layers:
-        return []
+        return [], (0, 0)
+    # Every frame is composited onto one canvas covering the whole group, in the
+    # client's own coordinates. Cropping each frame to what happens to be visible
+    # at that instant (what this used to do) threw the coordinates away: a row
+    # could not be anchored on the caster, and the effect jittered as layers came
+    # and went.
+    parts = [part for layer in layers for part in layer]
+    left = min(x for _p, x, _y in parts)
+    top = min(y for _p, _x, y in parts)
+    width = max(x + p.width for p, x, _y in parts) - left
+    height = max(y + p.height for p, _x, y in parts) - top
+
+    def frame_of(chosen):
+        canvas = Image.new("RGBA", (width, height), (0, 0, 0, 0))
+        for picture, x, y in chosen:
+            canvas.alpha_composite(picture, (x - left, y - top))
+        return canvas
+
     if mode == "sequence":
-        frames = []
-        for layer in layers:
-            frames.extend(picture for picture, _x, _y in layer)
-        return frames
+        return [frame_of([part]) for part in parts], (left, top)
     length = max(len(layer) for layer in layers)
     frames = []
     for index in range(length):
-        # Loop the shorter layers instead of freezing them on their last pose:
-        # a six-frame layer inside a thirteen-frame composite otherwise sat still
-        # for more than half the effect.
-        parts = [layer[index % len(layer)] for layer in layers]
-        left = min(x for _p, x, _y in parts)
-        top = min(y for _p, _x, y in parts)
-        right = max(x + p.width for p, x, _y in parts)
-        bottom = max(y + p.height for p, _x, y in parts)
-        canvas = Image.new("RGBA", (right - left, bottom - top), (0, 0, 0, 0))
-        for picture, x, y in parts:
-            canvas.alpha_composite(picture, (x - left, y - top))
-        frames.append(canvas)
-    return frames
+        # Every layer is sampled at the same point of its own timeline. Wrapping
+        # the shorter ones (what this used to do) restarted a six-frame ring two
+        # or three times inside one cast, so the composited frame was a moment no
+        # version of the move ever shows.
+        at = index / max(1, length - 1)
+        frames.append(frame_of([layer[round(at * (len(layer) - 1))] for layer in layers]))
+    return frames, (left, top)
 
 
 def sampled_row(frames, count: int = FRAMES) -> list:
@@ -370,28 +498,37 @@ def main() -> None:
     # entries, the rest keep the four-frame sample. Rows can differ in length, so
     # the sheet ends up as wide as its longest one.
     rows = {}
+    anchors = {}
+    origins = {}
     for row, (skill, npk_name, entry, url) in enumerate(EFFECTS):
         print(f"{skill}:")
         if skill in PICKS:
-            entries = list(PICKS[skill].get("stack") or PICKS[skill].get("sequence") or [])
-            mode = "sequence" if PICKS[skill].get("sequence") else "stack"
-            frames = pick_frames(args.client, mode, entries)
-            print(f"  picked {mode} of {len(entries)} entrie(s): {len(frames)} frames")
+            pick = PICKS[skill]
+            entries = list(pick.get("stack") or pick.get("sequence") or [])
+            mode = "sequence" if pick.get("sequence") else "stack"
+            frames, origin = pick_frames(args.client, mode, entries, pick.get("palette", ""))
+            print(
+                f"  picked {mode} of {len(entries)} entrie(s)"
+                f"{' ' + pick['palette'] if pick.get('palette') else ''}: {len(frames)} frames"
+            )
         else:
             path = source(args, npk_name, entry, url, f"effect_{entry}")
             frames = sampled_row(decode_frames(load_img(path)))
+            origin = (0, 0)
         rows[skill] = frames
+        origins[skill] = origin
+        anchors[skill] = PICKS.get(skill, {}).get("anchor")
     for name, pick in EXTRA_ROWS:
         entries = list(pick.get("stack") or pick.get("sequence") or [])
         mode = "sequence" if pick.get("sequence") else "stack"
-        rows[name] = pick_frames(args.client, mode, entries)
+        rows[name], origins[name] = pick_frames(args.client, mode, entries, pick.get("palette", ""))
         print(f"{name}: picked {mode} of {len(entries)} entrie(s): {len(rows[name])} frames")
 
     columns = max(FRAMES, max(len(frames) for frames in rows.values()))
     sheet = Image.new("RGBA", (CELL * columns, CELL * (len(EFFECTS) + len(EXTRA_ROWS))), (0, 0, 0, 0))
     counts = {}
     for row, (skill, _npk, _entry, _url) in enumerate(EFFECTS):
-        counts[skill] = bake_frames(rows[skill], row, sheet)
+        counts[skill] = bake_frames(rows[skill], row, sheet, anchors[skill], origins[skill])
     for offset, (name, _pick) in enumerate(EXTRA_ROWS):
         counts[name] = bake_frames(rows[name], len(EFFECTS) + offset, sheet)
     sheet.save(ROOT / "effects.png")
