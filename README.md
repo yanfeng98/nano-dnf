@@ -249,6 +249,31 @@ Boss 掉到半血进入**狂暴**时会看到 `Goblin King enraged!`，击破后
 测试盯着这两条不变量：`PICKS` 里同一个形状不许出现在两个色板，两个爆发技能必须声明锚点，
 且怒气爆发 / 大蹦 / 崩山击三行**互为不同的图形**（业主之前抱怨过"大蹦跟崩山击一样"），
 怒气爆发的墨色必须是**白金**（`green > 150 && blue > 100`；素色板那版是 `[141,9,2]`，会红）。
+第四十切片把大蹦的选型重新交回业主（业主：「目前崩山裂地斩技能特效不对，请你找所有鬼剑士跟
+崩山裂地斩相似的技能，注意技能要包含所有帧，我自己审核」）：
+
+1. **先把"所有鬼剑士"钉成一份可核对的清单**：客户端 `Video/Swordman/` 里就是 84 个
+   鬼剑士技能预览（`assets/dnf_src/skill-videos/`，第十九切片解出来的）。我给每个片段算了
+   一个**地面喷发分**（画面下半部的血气/火焰像素数，取最旺的连续 5 帧平均），
+   84 个全列进 `assets/dnf_effect_anim/rift-candidates.txt` 末尾，所以哪一条没进候选都能查。
+2. **候选按"砸地 + 裂地/喷发"这一型收的，一共 15 条**（`rift-candidates.png` 是编号菜单）：
+   同型的 `HopSmash`（崩山击，已在用）/ `OutRageBreak` / `ATMountainCrash` / `ATEarthPressure` /
+   `ChargeCrash` / `ChargeCrashEx` / `MeteorSword` / `Hellbenter` / `FireWave` /
+   `ATFistOfHellfire` / `Flame` / `NormalWave`，加三条**对照**：`BloodBlast`（怒气爆发）、
+   `BloodBoom`（浴血之怒）、`TombStoneRain`（墓碑雨）。分数高但形状不对的十条
+   （魔煞血陨、波动剑、卡赞红圈……）也逐条写了不入选的原因。
+3. **每条候选都给到"所有帧"**：`assets/dnf_effect_anim/rift-<slug>.png` 一张图里是
+   **该技能自己的预览条 + 它那个特效包每一条图层的全部帧**。色板按行分开
+   （素色 / `(tn)` / `(18)`），只有跟上一层像素完全相同的板才折起来收起——
+   上一轮"暗红还是橙火"的判断就栽在色板上，这次让它一眼可见。
+4. **最像的是 `OutRageBreak`**（`rift-outrage-break.png`）：客户端自己的预览就是
+   跳起蓄力 → 地面喷出橙火岩浆；包里同时有 `outragebreak_bloodsword_none.img`（血气巨剑压下，
+   20 帧）、`outragebreak_floor.img`（地面裂开，11 帧）、`bloodsexp_1/2`（火舌）与
+   `drops_*`（火星），并且 `(tn)`/`(18)` 板正是预览里的橙黄，素色板是暗红。
+   结论等业主点头，**这一片只出候选，不动游戏里的那一行**。
+
+工具：`assets/make_slayer_rift_candidates.py`（`--check` 会核对 15 张细图、色板折叠与
+"清单覆盖全部 84 个预览"这几条）。
 
 ## 运行
 
@@ -258,6 +283,7 @@ npm run test:browser # 无头 Chromium 跑真实页面：键盘 + 触屏两条�
 npm run test:live # 线上产物冒烟：核对线上字节是否与本地一致，并在无头浏览器里跑一次真实页面
 npm run serve     # 起本地静态服务，然后打开 http://localhost:8080
 python3 assets/make_slayer_sprites.py   # 可选：重新生成原创精灵图与技能图标
+python3 assets/make_slayer_rift_candidates.py   # 可选：重出「跟崩山裂地斩同型」的候选图（预览 + 全部帧）
 ```
 
 直接在浏览器里打开 `index.html` 也可以玩。

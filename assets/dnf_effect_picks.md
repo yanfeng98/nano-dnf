@@ -409,3 +409,58 @@ size: 360 }`。`outragebreak` 那套血系图层全部不再使用——测试�
 颜色要以客户端自己的视频为准。
 
 工具：`assets/import_dnf_effects.py`（烘图）、`tests/core.test.js` 的两条不变量测试。
+
+## 2026-09-20 业主重新点名：找所有鬼剑士跟 崩山裂地斩 相似的技能（附全部帧）
+
+业主原话：「我发现目前崩山裂地斩技能特效不对，请你找所有鬼剑士跟崩山裂地斩相似的技能，
+注意技能要包含所有帧，我自己审核」。业主给的描述：
+
+> 崩山裂地斩 — 召唤血气之剑猛击地面，喷出炙热岩浆攻击周围敌人；
+> 跳起后猛砸地面，地面裂开并喷出红色的血气岩浆。
+
+**这一轮只出候选，游戏里 `mountainRift` 那一行先不动**，等业主点名。
+
+### 怎么审
+
+1. `assets/dnf_effect_anim/rift-candidates.png`：编号菜单，一行一个技能，每行 8 格是
+   **客户端自己的预览**（`Video/Swordman/<名>.avi`），认准哪一行是这一招。
+2. `assets/dnf_effect_anim/rift-<slug>.png`：那一条的细图——预览条在上，下面是**它那个特效包
+   每一条图层的全部帧**（不抽样、不裁帧），色板分行（素色 / `(tn)` / `(18)`）。
+3. `assets/dnf_effect_anim/rift-candidates.txt`：清单 + 收入原因 + 全部 84 个预览的地面喷发分
+   （核对有没有漏）+ 分数高但没入选的十条及原因。
+
+回复编号即可（例如「大蹦 = #01，橙色板，巨剑 + 地面 + 火舌三层一起」）。
+
+### 候选（15 条）
+
+| 编号 | 技能（内部名） | 包 | 行 / 帧 | 预览 |
+| --- | --- | --- | --- | --- |
+| #00 | 崩山击 HopSmash（已在用） | `_hopsmash` | 11 / 58 | 58 帧 |
+| #01 | **大蹦候选 OutRageBreak** | `_outragebreak` | 17 / 148 | 100 帧 |
+| #02 | 崩山撞击 ATMountainCrash | `_atmountaincrash` | 1 / 4 | 无 |
+| #03 | 地压 ATEarthPressure | `_atearthpressure` | 7 / 33 | 无 |
+| #04 | 崩山突刺 ChargeCrash | `_chargecrash` | 10 / 47 | 115 帧 |
+| #05 | 崩山突刺 EX ChargeCrashEx | `_chagecrashex` | 10 / 35 | 90 帧 |
+| #06 | 流星落 MeteorSword | `_meteorsword` | 19 / 112 | 215 帧 |
+| #07 | 地狱火 Hellbenter | `_hellbenter` | 53 / 456 | 253 帧 |
+| #08 | 火焰波动 FireWave / FireWaveEx | `_firewave` | 18 / 104 | 134 / 89 帧 |
+| #09 | 地狱火拳 ATFistOfHellfire | `_atfistofhellfire` | 5 / 52 | 无 |
+| #10 | 火焰斩 Flame | `_flame` | 4 / 25 | 无 |
+| #11 | 通用波动 NormalWave | `(base)` `normalwave1/2` | 2 / 10 | 48 帧 |
+| #12 | 怒气爆发 BloodBlast（对照） | `_blastblood` | 25 / 170 | 82 帧 |
+| #13 | 浴血之怒 BloodBoom（对照） | `_bloodboom` | 8 / 66 | 105 帧 |
+| #14 | 墓碑雨 TombStoneRain（对照） | `_tombstone` | 3 / 12 | 145 帧 |
+
+`#02/#03/#09/#10` 这几套属于没有独立预览片段的鬼剑士技能（客户端 `Video/Swordman` 里没有它们），
+所以菜单里标了「无预览」，形状只能看特效包本身。
+
+### 这一轮查出来的两条新证据
+
+- **`outragebreak` 包里就有「血气巨剑」**：`outragebreak_bloodsword_none.img` 20 帧，
+  画的是巨剑从上方压下、扎进地面；`outragebreak_floor.img` 11 帧是地面裂开的那一圈；
+  `bloodsexp_1/2_none.img` 是火舌，`drops_1/2.img` 是火星，`part.img` 是碎岩。
+  也就是说，业主描述的「召唤血气之剑猛击地面 + 地面裂开 + 喷岩浆」在这一个包里**是齐的**，
+  之前两轮的问题只在于：先叠了整套（三层色板混在一起），后来又整个换成基础包的 `fire-*`。
+- **客户端的预览是橙色**：`OutRageBreak.avi` 100 帧里，第 25-60 帧地面喷橙火、60-99 帧火柱更高；
+  包里 `(tn)` 与 `(18)` 两块板**像素完全相同**（都是橙黄），素色板才是暗红——三个板的关系
+  在细图里按行摊开，`rift-candidates.txt` 里也标了「与 (tn)/(18) 同图」的折叠。
