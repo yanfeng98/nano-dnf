@@ -239,7 +239,7 @@
       bloodSnatch: 19,
       graspHead: 18,
       bloodEvil: 15,
-      mountainRift: 7
+      mountainRift: 20
     },
     maxFrames: 27,
     /*
@@ -275,15 +275,22 @@
       bloodEvil: { dx: 44, dy: -30, size: 178, copies: 1, spin: 0 },
       /*
        * 大蹦 is the ultimate, and the owner's read is that the whole effect is
-       * one size up - not just the ground wave. The giant sword and the blast it
-       * drives into the floor are drawn at nearly the whole arena height, so the
-       * draw sits higher and further out than 崩山击's 236px smash. The row is the
-       * client's own fire pair (the burning ground and the blade of flame that
-       * comes down with the slam), centred like every other picked row, and it is
-       * drawn a little higher so the fire clears the hotbar band the way 崩山击's
-       * shockwave does.
+       * one size up - not just the ground wave. The row is the client's own pack
+       * (the blood sword coming down, the rift it opens and the flames that come
+       * out of it), baked with the caster's ground point on the cell's ground
+       * line, so dy is a quarter of the size: that puts the rift under his feet
+       * rather than at his knees the way a centred row would.
        */
-      mountainRift: { dx: 40, dy: -90, size: 360, copies: 1, spin: 0 }
+      mountainRift: { dx: 20, dy: -120, size: 480, copies: 1, spin: 0 }
+    },
+    /*
+     * When a row is drawn, for the moves whose own art says it: 崩山裂地斩 is a
+     * leap, so the pack (sword, then the eruption it drives into the floor)
+     * starts on touchdown rather than 0.2s before it, which is where the
+     * active-window default would put it.
+     */
+    timing: {
+      mountainRift: { from: 0.655, to: 0.98 }
     }
   };
 
@@ -311,6 +318,12 @@
     if (row === -1) return null;
     var from = (spec.activeFrom / spec.duration) * 0.8;
     var to = Math.min(0.98, (spec.activeTo + 0.12) / spec.duration);
+    /* A move can pin its own window: 大蹦's art starts on the landing. */
+    var timing = EFFECT.timing && EFFECT.timing[skillId];
+    if (timing) {
+      from = timing.from;
+      to = timing.to;
+    }
     if (progress < from || progress > to) return null;
     var local = Math.min(1, (progress - from) / Math.max(0.0001, to - from));
     var frames = EFFECT.rowFrames[skillId] || 4;

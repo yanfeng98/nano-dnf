@@ -1712,17 +1712,24 @@ test("the effect bake draws each shape in exactly one colour board", () => {
   assert.match(rageText, /"anchor":\s*\(\s*-?\d+,\s*-?\d+\s*\)/, "rageBurst needs a ground anchor");
   assert.match(rageText, /"palette":\s*"\(tn\)"/, "rageBurst needs the client's white-gold board");
   /*
-   * 崩山裂地斩 is the client's own fire pair, not the dark red pack the skill
-   * shares a name with: the preview shows a blade of flame coming down on
-   * burning ground, and fire-front is exactly that art.
+   * 崩山裂地斩 is the 45-level ultimate's own pack, layer by layer: the blood
+   * sword it summons comes down, the ground splits under it and the flames come
+   * out of the split, on the "(tn)" board the client's own preview erupts in.
+   * The owner signed that set off on assets/dnf_effect_anim/rift-outrage-break.png
+   * after two misses - the whole pack stacked at once (every shape drawn once
+   * per colour board) and then the base pack's fire pair, which is not this
+   * move's art at all - so the layers and the board are both pinned here.
    */
   const rift = blocks.find((entry) => entry.skill === "mountainRift");
   const riftText = picks.slice(rift.from, picks.indexOf("\n}", rift.from));
-  assert.match(riftText, /"fire-front\.img"/, "崩山裂地斩 uses the client's flame blade");
-  assert.match(riftText, /"fire-back\.img"/, "崩山裂地斩 uses the client's burning ground");
+  assert.match(riftText, /outragebreak_bloodsword_none\.img/, "大蹦 summons the blood sword");
+  assert.match(riftText, /outragebreak_floor\.img/, "and splits the ground under it");
+  assert.match(riftText, /outragebreak_bloodsexp_1_none\.img/, "and erupts out of the split");
+  assert.match(riftText, /"palette":\s*"\(tn\)"/, "大蹦 erupts in the client's orange board");
+  assert.match(riftText, /"anchor":\s*\(\s*-?\d+,\s*-?\d+\s*\)/, "大蹦 is rooted at his feet");
   assert.ok(
-    !/outragebreak_/.test(riftText.replace(/^ *#.*$/gm, "")),
-    "and not the blood-red outragebreak layers the owner rejected"
+    !/fire-(front|back)\.img/.test(riftText.replace(/^ *#.*$/gm, "")),
+    "and not the fire pair the owner rejected"
   );
 });
 

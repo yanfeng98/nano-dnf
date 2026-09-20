@@ -96,6 +96,10 @@ def clamp01(value: float) -> float:
 #   "anchor"   - the point in the client's own coordinates that the caster stands
 #                on, so the row can be baked with the effect rooted at his feet
 #                instead of floating wherever the bounding box happens to sit
+#   one layer  - a stack entry may carry, after its name, a scale factor, a
+#                colour board of its own, and an (dx, dy) offset: the client
+#                sizes and scatters some layers from the skill's animation data,
+#                which the export does not carry
 #   "*"        - every entry of that pack in the selected colour board
 #
 # Every DNF effect pack ships the same shapes several times: the plain entry plus
@@ -142,19 +146,42 @@ PICKS = {
     "bloodSnatch": {"stack": [("_bloodsnatch", "*")]},
     "graspHead": {"stack": [("_grabblastblood", "*")]},
     "bloodEvil": {"stack": [("_bloodriven", "*")]},
-    # 崩山裂地斩: the 45-level ultimate's own pack - the blood sword it summons,
-    # the rift it opens and the blood it throws. The wildcard used to pull all
-    # three colour boards plus both the plain and the dodge sword, so the row was
-    # 29 layers drawing nine shapes three times over in red, orange and orange.
-    # The anchor is the middle of outragebreak_floor.img (445x166 at x=160,
-    # y=198), the rift the sword lands in.
-    # 崩山裂地斩: the client's own fire pair out of the base effect pack - the
-    # burning ground (fire-back) and the blade of flame that comes down with the
-    # slam (fire-front). This is what the skill's own preview shows: orange fire,
-    # not the dark red blood the outragebreak pack is drawn in.
-    "mountainRift": {"stack": [
-        ("", "fire-back.img"),
-        ("", "fire-front.img"),
+    # 崩山裂地斩: the 45-level ultimate's own pack, layer by layer - the blood
+    # sword it summons comes down (bloodsword_none, 20 frames), the ground splits
+    # under it (floor, 11), the flames come out of the split (bloodsexp_1/2), the
+    # glow behind them, the sparks (drops_1/2) and the debris (part).
+    #
+    # The owner signed this set off on assets/dnf_effect_anim/rift-outrage-break.png
+    # after two earlier attempts missed it: stacking the whole pack pulled all
+    # three colour boards at once (nine shapes drawn three times over), and the
+    # next attempt threw the pack away for the base pack's fire pair. The board
+    # here is "(tn)", the orange one the client's own preview erupts in; the
+    # plain board of the same shapes is dark blood red.
+    #
+    # Sizes: the client scales these layers from the skill's animation data,
+    # which is not part of the export, so each layer carries the factor that
+    # makes it read like the preview (the flames tower over the caster, the
+    # sword is a blade taller than the rift is wide).
+    #
+    # Two layers carry an offset. The sword is nudged forward (240px) because
+    # this game draws skill art behind the caster: at the pack's own coordinates
+    # its point lands on his feet and the blade simply disappears behind him,
+    # and its trailing sweep then crossed back over him.
+    # The rock debris (part) has no "(tn)" twin and its own frames sit at the
+    # pack's origin - the game scatters it as a particle - so it keeps the plain
+    # board and is offset onto the impact point.
+    #
+    # The anchor is the middle of outragebreak_floor.img (444x166 at x=160,
+    # y=198): the rift the caster stands in and the sword lands in.
+    "mountainRift": {"palette": "(tn)", "anchor": (382, 281), "stack": [
+        ("_outragebreak", "outragebreak_bloodsword_none.img", 1.4, None, (240, 0)),
+        ("_outragebreak", "outragebreak_floor.img"),
+        ("_outragebreak", "outragebreak_bloodsexp_1_none.img", 2.5),
+        ("_outragebreak", "outragebreak_bloodsexp_2_none.img", 2.5),
+        ("_outragebreak", "outragebreak_bloodsexp_glow.img", 1.6),
+        ("_outragebreak", "outragebreak_drops_1.img", 2.0),
+        ("_outragebreak", "outragebreak_drops_2.img", 2.0),
+        ("_outragebreak", "outragebreak_part.img", 1.5, "", (300, 210)),
     ]},
 }
 
@@ -418,6 +445,18 @@ def rescale(decoded, scale: float):
     return grown
 
 
+def shift(decoded, offset):
+    """Move one layer by (dx, dy) in the client's own coordinates.
+
+    The game positions particle layers (the debris a slam kicks up) from the
+    skill's animation data rather than from the .img, so an export leaves them
+    stacked at the pack's origin; a pick can put them where the move throws them.
+    """
+    if not offset or offset == (0, 0):
+        return decoded
+    return [(picture, x + offset[0], y + offset[1]) for picture, x, y in decoded]
+
+
 def pick_frames(client: Path, mode: str, entries, palette: str = ""):
     """Composite/concatenate the client entries a row is made of.
 
@@ -432,11 +471,12 @@ def pick_frames(client: Path, mode: str, entries, palette: str = ""):
         # A layer can name its own board: the client draws 怒气爆发's pool of
         # blood in the plain (red) art and the eruption above it in white-gold.
         board = pick[3] if len(pick) > 3 and pick[3] is not None else palette
+        offset = pick[4] if len(pick) > 4 and pick[4] is not None else (0, 0)
         if entry == "*":
             for _name, img in pack_entries(client, pack, board):
                 decoded = decode_frames(img)
                 if decoded:
-                    layers.append(rescale(decoded, scale))
+                    layers.append(shift(rescale(decoded, scale), offset))
             continue
         wanted = palette_name(entry, board)
         found = dict(pack_entries(client, pack, board)).get(wanted)
@@ -445,7 +485,7 @@ def pick_frames(client: Path, mode: str, entries, palette: str = ""):
             continue
         decoded = decode_frames(found)
         if decoded:
-            layers.append(rescale(decoded, scale))
+            layers.append(shift(rescale(decoded, scale), offset))
     if not layers:
         return [], (0, 0)
     # Every frame is composited onto one canvas covering the whole group, in the

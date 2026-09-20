@@ -464,3 +464,34 @@ size: 360 }`。`outragebreak` 那套血系图层全部不再使用——测试�
 - **客户端的预览是橙色**：`OutRageBreak.avi` 100 帧里，第 25-60 帧地面喷橙火、60-99 帧火柱更高；
   包里 `(tn)` 与 `(18)` 两块板**像素完全相同**（都是橙黄），素色板才是暗红——三个板的关系
   在细图里按行摊开，`rift-candidates.txt` 里也标了「与 (tn)/(18) 同图」的折叠。
+
+## 2026-09-21 大蹦定稿：`outragebreak` 整套（业主：「这张是对，实现呀」）
+
+业主看过 `assets/dnf_effect_anim/rift-outrage-break.png` 后点名这一张，于是照它实现：
+
+| 图层 | 帧数 | 缩放 | 色板 | 偏移 | 作用 |
+| --- | --- | --- | --- | --- | --- |
+| `outragebreak_bloodsword_none.img` | 20 | ×1.4 | `(tn)` | +240 x | 召唤的血气巨剑压下 |
+| `outragebreak_floor.img` | 11 | ×1 | `(tn)` | — | 地面裂开（锚点就在它中心） |
+| `outragebreak_bloodsexp_1_none.img` | 7 | ×2.5 | `(tn)` | — | 裂口喷出的火舌 |
+| `outragebreak_bloodsexp_2_none.img` | 7 | ×2.5 | `(tn)` | — | 同上（更高的一道） |
+| `outragebreak_bloodsexp_glow.img` | 2 | ×1.6 | `(tn)` | — | 火背后的光 |
+| `outragebreak_drops_1.img` | 6 | ×2.0 | `(tn)` | — | 火星 |
+| `outragebreak_drops_2.img` | 7 | ×2.0 | `(tn)` | — | 火星 |
+| `outragebreak_part.img` | 5 | ×1.5 | 素色（该板没有 `(tn)`） | 挪到落点 | 碎岩 |
+
+- **锚点** `(382, 281)` = `outragebreak_floor.img` 中心（444×166 在 x=160,y=198），
+  也就是"人站的那道裂缝"。画的时候 `dy = -size/4`，裂缝在他脚下而不是膝盖上。
+- **巨剑往前推 240px**：本作技能特效画在角色**之后**，按包里原坐标剑尖正好落在脚上，
+  整把剑藏在人背后，收招那一甩还会扫回来；推前之后是"剑落在身前的地裂上"。
+- **碎岩挪到落点**：`part` 是粒子层，包里坐标在原点（游戏自己撒），不挪就会有一堆碎石飘在天上。
+- **起手**：这一行 20 帧，`EFFECT.timing.mountainRift = { from: 0.655, to: 0.98 }`，
+  触地才开播（默认的"活动窗口"会在落地前 0.2s 就喷火）；`size` 360 → **480**、
+  `dx` 40 → 20、`dy` -90 → -120。
+- **不再使用**：基础包的 `fire-front.img` / `fire-back.img`（上一轮的方案，业主否掉），
+  以及同一包里 `(18)` 板与 `*_ldodge` 那些重复形（`(18)` 与 `(tn)` 像素相同）。
+
+测试：`tests/core.test.js` 的烘焙不变量现在要求这一行引用
+`outragebreak_bloodsword_none` / `outragebreak_floor` / `outragebreak_bloodsexp_1_none`、
+声明 `(tn)` 与锚点，并且不得再出现 `fire-front` / `fire-back`。
+实机逐帧：`tests/browser/capture-effect.mjs`（页面时钟放慢 8% 后逐帧截图）对上客户端 `OutRageBreak.avi`。
