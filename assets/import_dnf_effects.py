@@ -204,12 +204,20 @@ PICKS = {
         # The floor: one frame of the ground coming apart, then the molten ring
         # blooming out of it with rocks thrown up, then the cracks that keep
         # glowing on the floor for the rest of the move.
-        {"entry": "outragebreak_floor.img", "frames": (0, 1), "from": 0.12, "until": 0.18},
-        {"entry": "outragebreak_floor.img", "frames": (2, 7), "from": 0.13, "until": 0.30},
+        #
+        # The whole ground is blown up 1.8x. The pack draws the rift at its own
+        # scale - the biggest ring is 239px of client art - which came out at
+        # 232px on screen, smaller than the 380px the move's own radius (190)
+        # reaches and much smaller than the client's rift, which covers about
+        # 60% of its screen. Everything else in the row keeps the size the owner
+        # already signed off, because the draw size scales with the window (see
+        # EFFECT.draw.mountainRift).
+        {"entry": "outragebreak_floor.img", "scale": 1.8, "frames": (0, 1), "from": 0.12, "until": 0.18},
+        {"entry": "outragebreak_floor.img", "scale": 1.8, "frames": (2, 7), "from": 0.13, "until": 0.30},
         # The ring itself stays on the floor while the cracks crawl out of it -
         # the client's preview (frames 32-59) has the ring lit the whole lull.
-        {"entry": "outragebreak_floor.img", "frames": (5, 5), "from": 0.30, "until": 1.00},
-        {"entry": "outragebreak_floor.img", "frames": (8, 10), "from": 0.22, "until": 1.00},
+        {"entry": "outragebreak_floor.img", "scale": 1.8, "frames": (5, 5), "from": 0.30, "until": 1.00},
+        {"entry": "outragebreak_floor.img", "scale": 1.8, "frames": (8, 10), "from": 0.22, "until": 1.00},
     ]},
 }
 
@@ -237,19 +245,33 @@ FRONT_ROWS = [
     ("mountainRiftFire", {"palette": "(tn)", "pack": "_outragebreak",
                           "match": "mountainRift", "length": 45, "stages": [
         # The flash and the first wave, right on the landing.
-        {"entry": "outragebreak_bloodsexp_glow.img", "scale": 1.6, "from": 0.11, "until": 0.19},
-        {"entry": "outragebreak_bloodsexp_1_none.img", "scale": 2.5, "from": 0.13, "until": 0.34},
+        {"entry": "outragebreak_bloodsexp_glow.img", "scale": 2.0, "from": 0.11, "until": 0.19},
+        # The first wave stands to his right, the way the client's own preview
+        # shows it: the fire is drawn over the Slayer, and centred on him it
+        # swallowed him whole - all that showed was the tip of his sword. Pushed
+        # out it still rises out of the rift (the ring is 400px across) and he
+        # reads against it.
+        {"entry": "outragebreak_bloodsexp_1_none.img", "scale": 3.2, "offset": (150, 0),
+         "from": 0.13, "until": 0.34},
         # Molten drops land on the ring and spread, and the slam throws debris.
-        {"entry": "outragebreak_drops_1.img", "scale": 2.0, "from": 0.20, "until": 0.46},
-        {"entry": "outragebreak_part.img", "scale": 1.5, "offset": (300, 210), "from": 0.14, "until": 0.36},
+        {"entry": "outragebreak_drops_1.img", "scale": 2.6, "from": 0.20, "until": 0.46},
+        # The debris has no "(tn)" twin of its own - it is plain art, and asking
+        # for the orange board of it finds nothing and draws no rocks at all.
+        {"entry": "outragebreak_part.img", "board": "", "scale": 1.5, "offset": (300, 210), "from": 0.14, "until": 0.36},
         # Then the second wave: the tall column the client's preview erupts at
         # frame 60, with the wide bush again beside it, and the embers it leaves.
-        {"entry": "outragebreak_drops_2.img", "scale": 2.0, "from": 0.36, "until": 0.62},
-        {"entry": "outragebreak_part.img", "scale": 1.5, "offset": (300, 210), "from": 0.58, "until": 0.86},
-        {"entry": "outragebreak_bloodsexp_1_none.img", "scale": 2.5, "from": 0.58, "until": 0.80},
-        {"entry": "outragebreak_bloodsexp_2_none.img", "scale": 2.5, "from": 0.60, "until": 0.84},
-        {"entry": "outragebreak_bloodsexp_glow.img", "scale": 2.2, "from": 0.60, "until": 0.66},
-        {"entry": "outragebreak_bloodsexp_2_none.img", "frames": (4, 6), "scale": 2.5, "from": 0.85, "until": 1.00},
+        # The column is drawn a little to the left of the bush so the pair reads
+        # as one wall of magma rather than a single spout, which is what the
+        # client's second eruption is (its fire fills half the frame).
+        {"entry": "outragebreak_drops_2.img", "scale": 2.6, "from": 0.36, "until": 0.62},
+        {"entry": "outragebreak_part.img", "board": "", "scale": 1.5, "offset": (300, 210), "from": 0.58, "until": 0.86},
+        {"entry": "outragebreak_bloodsexp_1_none.img", "scale": 3.2, "offset": (120, 0),
+         "from": 0.58, "until": 0.80},
+        {"entry": "outragebreak_bloodsexp_2_none.img", "scale": 3.2, "offset": (-60, 0),
+         "from": 0.60, "until": 0.84},
+        {"entry": "outragebreak_bloodsexp_glow.img", "scale": 2.6, "from": 0.60, "until": 0.66},
+        {"entry": "outragebreak_bloodsexp_2_none.img", "frames": (4, 6), "scale": 3.2,
+         "offset": (-60, 0), "from": 0.85, "until": 1.00},
     ]}),
 ]
 

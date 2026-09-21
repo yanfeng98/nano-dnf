@@ -294,13 +294,21 @@
       bloodEvil: { dx: 44, dy: -30, size: 178, copies: 1, spin: 0 },
       /*
        * 大蹦 is the ultimate, and the owner's read is that the whole effect is
-       * one size up - not just the ground wave. The row is the client's own pack
-       * (the blood sword coming down, the rift it opens and the flames that come
-       * out of it), baked with the caster's ground point on the cell's ground
-       * line, so dy is a quarter of the size: that puts the rift under his feet
-       * rather than at his knees the way a centred row would.
+       * one size up - not just the ground wave. The rows are the client's own
+       * pack (the blood sword coming down, the rift it opens, the flames that
+       * come out of it), baked with the caster's ground point on the cell's
+       * ground line, so dy is a quarter of the size: that puts the rift under
+       * his feet rather than at his knees the way a centred row would.
+       *
+       * The size is what puts the rift's ring on screen where its own reach is.
+       * The bake blows the ground up 1.8x (the pack draws the ring at 239px of
+       * client art, which came out smaller than the 380px the move's radius of
+       * 190 reaches), and the cell scales whatever is widest to fit: 840 draws
+       * the held ring at ~400px, the cracks it crawls into at ~520 and the
+       * shattered ground of the impact at ~745, while the sword keeps the size
+       * the owner already signed off.
        */
-      mountainRift: { dx: 20, dy: -120, size: 480, copies: 1, spin: 0 }
+      mountainRift: { dx: 20, dy: -210, size: 840, copies: 1, spin: 0 }
     },
     /*
      * When a row is drawn, for the moves whose own art says it: 崩山裂地斩 is a

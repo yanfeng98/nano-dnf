@@ -1738,7 +1738,7 @@ test("the effect bake draws each shape in exactly one colour board", () => {
      */
     const stages = [];
     for (const [, entry, middle, from, until] of text.matchAll(
-      /"entry":\s*"([^"]+\.img)"([^\n}]*)"from":\s*([\d.]+),\s*"until":\s*([\d.]+)/g
+      /"entry":\s*"([^"]+\.img)"([^}]*)"from":\s*([\d.]+),\s*"until":\s*([\d.]+)/g
     )) {
       const range = /"frames":\s*\((\d+),\s*(\d+)\)/.exec(middle);
       stages.push({
@@ -1839,7 +1839,7 @@ function bakedStages(source, startMarker, endMarker) {
   const text = source.slice(start, end < 0 ? source.length : end);
   const stages = [];
   for (const [, entry, middle, from, until] of text.matchAll(
-    /"entry":\s*"([^"]+\.img)"([^\n}]*)"from":\s*([\d.]+),\s*"until":\s*([\d.]+)/g
+    /"entry":\s*"([^"]+\.img)"([^}]*)"from":\s*([\d.]+),\s*"until":\s*([\d.]+)/g
   )) {
     const range = /"frames":\s*\((\d+),\s*(\d+)\)/.exec(middle);
     stages.push({
@@ -1850,6 +1850,16 @@ function bakedStages(source, startMarker, endMarker) {
       last: range ? Number(range[2]) : Infinity
     });
   }
+  /*
+   * Every stage carries a window, and the reader above has to see all of them:
+   * a stage written across two lines once slipped past it, which silently
+   * halved what this test was checking.
+   */
+  assert.equal(
+    stages.length,
+    (text.match(/"entry":/g) || []).length,
+    `${startMarker} has a stage the window reader cannot see`
+  );
   return stages;
 }
 
