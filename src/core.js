@@ -447,7 +447,14 @@
         heightPad: 30,
         knockbackX: 340,
         knockdown: 1.4,
-        extraWaveFromLevel: 4
+        extraWaveFromLevel: 4,
+        /*
+         * The ring the engine draws for this wave is 660px across, and the
+         * rift's own art is 400: side by side they read as one big circle and
+         * one small one. `visual` shrinks only the drawn arc - the damage box
+         * is unchanged - so it lands at roughly the rift's own width.
+         */
+        visual: 0.7
       },
       /*
        * The ground wave belongs to the sword coming down, not to the last tick:
@@ -1720,7 +1727,9 @@
             kind: "shockwave",
             x: player.x + player.facing * wave.reach * 0.4,
             y: ARENA.groundY,
-            radius: (wave.reach + extraWave * 80) * 0.8,
+            /* `visual` is how wide the arc is drawn, not how far the wave hits. */
+            radius:
+              (wave.reach + extraWave * 80) * 0.8 * (wave.visual === undefined ? 1 : wave.visual),
             life: 0.4,
             maxLife: 0.4
           });
