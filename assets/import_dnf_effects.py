@@ -87,6 +87,15 @@ def clamp01(value: float) -> float:
 #   "stack"    - the layers play together (a whole pack, or the two layers of one
 #                buff), which is what the owner watched and recognised
 #   "sequence" - the layers play one after another (a sword that is then spent)
+#   "stages"   - the layers play in windows of one shared timeline (大蹦: the
+#                blade falls, the floor splits under it, the rift glows on, the
+#                fire comes out in two waves). Each stage names the slice of the
+#                row it owns, so a shape can come back later in the move and two
+#                shapes can overlap without either one restarting. A stage entry
+#                is {"pack", "entry", "from", "until"} plus optional "frames"
+#                (which frames of the entry to use), "scale", "board" and
+#                "offset", all of which the other modes also accept.
+#                A pick may set "length" (how many cells the row bakes to).
 #   "palette"  - which of the pack's colour boards to draw by default. The client
 #                ships every shape several times - plain, "(tn)" and "(18)" - and
 #                plays whichever board the skill names. 怒气爆发 erupts in
@@ -173,15 +182,34 @@ PICKS = {
     #
     # The anchor is the middle of outragebreak_floor.img (444x166 at x=160,
     # y=198): the rift the caster stands in and the sword lands in.
-    "mountainRift": {"palette": "(tn)", "anchor": (382, 281), "stack": [
-        ("_outragebreak", "outragebreak_bloodsword_none.img", 1.4, None, (240, 0)),
-        ("_outragebreak", "outragebreak_floor.img"),
-        ("_outragebreak", "outragebreak_bloodsexp_1_none.img", 2.5),
-        ("_outragebreak", "outragebreak_bloodsexp_2_none.img", 2.5),
-        ("_outragebreak", "outragebreak_bloodsexp_glow.img", 1.6),
-        ("_outragebreak", "outragebreak_drops_1.img", 2.0),
-        ("_outragebreak", "outragebreak_drops_2.img", 2.0),
-        ("_outragebreak", "outragebreak_part.img", 1.5, "", (300, 210)),
+    #
+    # Staged, not stacked: the owner's second look at the client (「这个技能应该
+    # 是多个技能特效组合的」) is that the pack is one move in four acts - the
+    # blade comes down, the floor breaks open, the rift keeps glowing and the
+    # magma erupts twice - and stacking all eight layers at once put every act on
+    # screen in the same 0.34s. The windows below are that reading off the
+    # client's own 100-frame preview (rift-outrage-break-layers.txt): the preview
+    # lands at frame 23, erupts wide over 24-31, holds the ring over 32-59 and
+    # erupts tall over 60-93.
+    #
+    # This row is what is drawn behind the Slayer (the ground and the blade); the
+    # fire he throws is FRONT_ROWS below, baked to this same window so the two
+    # halves land on the same pixels.
+    "mountainRift": {"palette": "(tn)", "pack": "_outragebreak", "anchor": (382, 281),
+                     "length": 45, "stages": [
+        # The blade falls through the end of the leap and lands on touchdown;
+        # the row starts 0.2s before he does, which is why the effect window
+        # starts before activeFrom (see EFFECT.timing.mountainRift).
+        {"entry": "outragebreak_bloodsword_none.img", "scale": 1.4, "offset": (240, 0), "from": 0.00, "until": 0.14},
+        # The floor: one frame of the ground coming apart, then the molten ring
+        # blooming out of it with rocks thrown up, then the cracks that keep
+        # glowing on the floor for the rest of the move.
+        {"entry": "outragebreak_floor.img", "frames": (0, 1), "from": 0.12, "until": 0.18},
+        {"entry": "outragebreak_floor.img", "frames": (2, 7), "from": 0.13, "until": 0.30},
+        # The ring itself stays on the floor while the cracks crawl out of it -
+        # the client's preview (frames 32-59) has the ring lit the whole lull.
+        {"entry": "outragebreak_floor.img", "frames": (5, 5), "from": 0.30, "until": 1.00},
+        {"entry": "outragebreak_floor.img", "frames": (8, 10), "from": 0.22, "until": 1.00},
     ]},
 }
 
@@ -194,6 +222,35 @@ EXTRA_ROWS = [
     # 银光落刃: the up-slash arc, drawn rotated in the game so it reads as the
     # blade coming down with the dive.
     ("diveSlash", {"stack": [("", "upperslash.img")]}),
+]
+
+# Rows for art a move draws *over* the Slayer. DNF orders the layers of one
+# effect around the character - the dim copies of a shape go behind him, the
+# bright copies in front - and 大蹦's fire is the bright half: the rift and the
+# blade are the ground he stands in (they stay behind him, on the skill's own
+# row), the flames and the debris he throws pass over him.
+#
+# The row is baked to the same window as EFFECTS' row for the same skill, so the
+# two halves share one anchor line and one scale: split them and the fire would
+# sit somewhere else in the cell than the rift it comes out of.
+FRONT_ROWS = [
+    ("mountainRiftFire", {"palette": "(tn)", "pack": "_outragebreak",
+                          "match": "mountainRift", "length": 45, "stages": [
+        # The flash and the first wave, right on the landing.
+        {"entry": "outragebreak_bloodsexp_glow.img", "scale": 1.6, "from": 0.11, "until": 0.19},
+        {"entry": "outragebreak_bloodsexp_1_none.img", "scale": 2.5, "from": 0.13, "until": 0.34},
+        # Molten drops land on the ring and spread, and the slam throws debris.
+        {"entry": "outragebreak_drops_1.img", "scale": 2.0, "from": 0.20, "until": 0.46},
+        {"entry": "outragebreak_part.img", "scale": 1.5, "offset": (300, 210), "from": 0.14, "until": 0.36},
+        # Then the second wave: the tall column the client's preview erupts at
+        # frame 60, with the wide bush again beside it, and the embers it leaves.
+        {"entry": "outragebreak_drops_2.img", "scale": 2.0, "from": 0.36, "until": 0.62},
+        {"entry": "outragebreak_part.img", "scale": 1.5, "offset": (300, 210), "from": 0.58, "until": 0.86},
+        {"entry": "outragebreak_bloodsexp_1_none.img", "scale": 2.5, "from": 0.58, "until": 0.80},
+        {"entry": "outragebreak_bloodsexp_2_none.img", "scale": 2.5, "from": 0.60, "until": 0.84},
+        {"entry": "outragebreak_bloodsexp_glow.img", "scale": 2.2, "from": 0.60, "until": 0.66},
+        {"entry": "outragebreak_bloodsexp_2_none.img", "frames": (4, 6), "scale": 2.5, "from": 0.85, "until": 1.00},
+    ]}),
 ]
 
 
@@ -308,26 +365,8 @@ def densest_run(frames: list[Image.Image], visible: list[int], count: int) -> li
     return best
 
 
-def bake_frames(frames, row: int, sheet: Image.Image, anchor=None, origin=(0, 0)) -> int:
-    """Draw one skill row from already-composited frames.
-
-    `anchor` is the client-space point the move is rooted at (the caster's feet).
-    `origin` is where the row's canvas sits in that same client space, so the
-    anchor can be translated onto the frames before they are placed.
-    Given one, the row is placed so that point sits at the bottom of the cell's
-    middle, whatever shape the bounding box has; without one the row is centred
-    as before.
-    """
-    if anchor is not None:
-        anchor = (anchor[0] - origin[0], anchor[1] - origin[1])
-    while frames and not frames[0].getbbox():
-        frames.pop(0)
-    while frames and not frames[-1].getbbox():
-        frames.pop()
-    if not frames:
-        print(f"  row {row}: nothing drawn, skipping")
-        return 0
-
+def ink_window(frames, origin=(0, 0), padding: int = PADDING):
+    """The slice of the client's own coordinates a row's drawn pixels cover."""
     union = None
     for frame in frames:
         box = frame.getbbox()
@@ -339,12 +378,60 @@ def bake_frames(frames, row: int, sheet: Image.Image, anchor=None, origin=(0, 0)
             max(union[2], box[2]),
             max(union[3], box[3]),
         )
-    window = (
-        union[0] - PADDING,
-        union[1] - PADDING,
-        union[2] + PADDING,
-        union[3] + PADDING,
+    if union is None:
+        return None
+    return (
+        union[0] + origin[0] - padding,
+        union[1] + origin[1] - padding,
+        union[2] + origin[0] + padding,
+        union[3] + origin[1] + padding,
     )
+
+
+def union_window(*windows):
+    """One window covering all of them, or None when there is nothing to cover."""
+    live = [window for window in windows if window is not None]
+    if not live:
+        return None
+    return (
+        min(window[0] for window in live),
+        min(window[1] for window in live),
+        max(window[2] for window in live),
+        max(window[3] for window in live),
+    )
+
+
+def bake_frames(frames, row: int, sheet: Image.Image, anchor=None, origin=(0, 0), window=None) -> int:
+    """Draw one skill row from already-composited frames.
+
+    `anchor` is the client-space point the move is rooted at (the caster's feet).
+    `origin` is where the row's canvas sits in that same client space, so the
+    anchor can be translated onto the frames before they are placed.
+    Given one, the row is placed so that point sits at the bottom of the cell's
+    middle, whatever shape the bounding box has; without one the row is centred
+    as before.
+
+    `window` is a slice of the client's own coordinates to draw from - the same
+    thing the union of the frames would give, but chosen from outside so two rows
+    that belong to one picture (大蹦's rift behind the Slayer and its fire in
+    front) can share one window, one scale and one anchor line. A row drawn to an
+    outside window keeps the columns it was given: nothing is trimmed off the
+    front, because its timeline is another row's timeline.
+    """
+    if window is None:
+        while frames and not frames[0].getbbox():
+            frames.pop(0)
+        while frames and not frames[-1].getbbox():
+            frames.pop()
+    if not frames:
+        print(f"  row {row}: nothing drawn, skipping")
+        return 0
+
+    if window is None:
+        window = ink_window(frames, origin)
+        if window is None:
+            print(f"  row {row}: nothing drawn, skipping")
+            return 0
     span_w = window[2] - window[0]
     span_h = window[3] - window[1]
     scale = min((CELL - 8) / span_w, (CELL - 8) / span_h)
@@ -364,7 +451,7 @@ def bake_frames(frames, row: int, sheet: Image.Image, anchor=None, origin=(0, 0)
 
     for column, frame in enumerate(frames):
         layer = Image.new("RGBA", (span_w, span_h), (0, 0, 0, 0))
-        layer.alpha_composite(frame, (-window[0], -window[1]))
+        layer.alpha_composite(frame, (origin[0] - window[0], origin[1] - window[1]))
         layer = layer.resize((placed_w, placed_h), Image.LANCZOS)
         # Into its own cell first: an anchored row is placed by its ground line,
         # so its frames can sit above or below the middle of the cell. Compositing
@@ -457,13 +544,61 @@ def shift(decoded, offset):
     return [(picture, x + offset[0], y + offset[1]) for picture, x, y in decoded]
 
 
-def pick_frames(client: Path, mode: str, entries, palette: str = ""):
+def stage_layers(client: Path, pick: dict):
+    """Every stage of a staged pick, as (frames, from, until) in row progress."""
+    out = []
+    default_pack = pick.get("pack", "")
+    default_board = pick.get("palette", "")
+    for stage in pick.get("stages", []):
+        pack = stage.get("pack", default_pack)
+        board = stage.get("board", default_board)
+        wanted = palette_name(stage["entry"], board)
+        found = dict(pack_entries(client, pack, board)).get(wanted)
+        if found is None:
+            print(f"  missing {pack}/{wanted}", file=sys.stderr)
+            continue
+        decoded = decode_frames(found)
+        if not decoded:
+            continue
+        scale = float(stage.get("scale", 1.0))
+        offset = tuple(stage.get("offset", (0, 0)))
+        decoded = shift(rescale(decoded, scale), offset)
+        first, last = stage.get("frames", (0, len(decoded) - 1))
+        part = decoded[first:last + 1]
+        if not part:
+            print(f"  empty stage {pack}/{wanted} frames {first}-{last}", file=sys.stderr)
+            continue
+        out.append((part, float(stage["from"]), float(stage["until"])))
+    return out
+
+
+def pick_frames(client: Path, mode: str, entries, palette: str = "", spec: dict | None = None):
     """Composite/concatenate the client entries a row is made of.
 
     Returns (frames, origin): the frames share one canvas, and `origin` is where
     that canvas' top-left sits in the client's own coordinates, so a pick's
     `anchor` can be translated onto it.
     """
+    if mode == "stages":
+        layers = stage_layers(client, spec or {})
+        if not layers:
+            return [], (0, 0)
+        parts = [part for layer, _from, _until in layers for part in layer]
+        left = min(x for _p, x, _y in parts)
+        top = min(y for _p, _x, y in parts)
+        width = max(x + p.width for p, x, _y in parts) - left
+        height = max(y + p.height for p, _x, y in parts) - top
+        length = max(2, int((spec or {}).get("length", 45)))
+        frames = [Image.new("RGBA", (width, height), (0, 0, 0, 0)) for _ in range(length)]
+        for layer, start, until in layers:
+            first = round(clamp01(start) * (length - 1))
+            last = max(first, round(clamp01(until) * (length - 1)))
+            for index in range(first, last + 1):
+                at = (index - first) / max(1, last - first)
+                picture, x, y = layer[round(at * (len(layer) - 1))]
+                frames[index].alpha_composite(picture, (x - left, y - top))
+        return frames, (left, top)
+
     layers = []
     for pick in entries:
         pack, entry = pick[0], pick[1]
@@ -540,15 +675,21 @@ def main() -> None:
     rows = {}
     anchors = {}
     origins = {}
+    modes = {}
     for row, (skill, npk_name, entry, url) in enumerate(EFFECTS):
         print(f"{skill}:")
         if skill in PICKS:
             pick = PICKS[skill]
             entries = list(pick.get("stack") or pick.get("sequence") or [])
-            mode = "sequence" if pick.get("sequence") else "stack"
-            frames, origin = pick_frames(args.client, mode, entries, pick.get("palette", ""))
+            mode = "stages" if pick.get("stages") else ("sequence" if pick.get("sequence") else "stack")
+            frames, origin = pick_frames(args.client, mode, entries, pick.get("palette", ""), pick)
+            modes[skill] = mode
+            described = (
+                f"{len(pick['stages'])} stage(s) over {pick.get('length')} frames"
+                if mode == "stages" else f"{len(entries)} entrie(s)"
+            )
             print(
-                f"  picked {mode} of {len(entries)} entrie(s)"
+                f"  picked {mode} of {described}"
                 f"{' ' + pick['palette'] if pick.get('palette') else ''}: {len(frames)} frames"
             )
         else:
@@ -563,14 +704,50 @@ def main() -> None:
         mode = "sequence" if pick.get("sequence") else "stack"
         rows[name], origins[name] = pick_frames(args.client, mode, entries, pick.get("palette", ""))
         print(f"{name}: picked {mode} of {len(entries)} entrie(s): {len(rows[name])} frames")
+    for name, pick in FRONT_ROWS:
+        rows[name], origins[name] = pick_frames(args.client, "stages", [], pick.get("palette", ""), pick)
+        print(f"{name}: picked stages of {len(pick['stages'])} stages: {len(rows[name])} frames")
+
+    # A front row is the other half of a skill's own picture, so it is baked to
+    # that skill's window: same slice of the client's coordinates, same scale,
+    # same anchor line. Otherwise the two halves land in different places in
+    # their cells and the fire comes out of the wrong part of the ground.
+    shared = {}
+    matched = {}
+    for name, pick in FRONT_ROWS:
+        base = pick.get("match")
+        if not base or base not in rows:
+            continue
+        matched[name] = base
+        shared[name] = union_window(
+            ink_window(rows[base], origins[base]),
+            ink_window(rows[name], origins[name]),
+        )
 
     columns = max(FRAMES, max(len(frames) for frames in rows.values()))
-    sheet = Image.new("RGBA", (CELL * columns, CELL * (len(EFFECTS) + len(EXTRA_ROWS))), (0, 0, 0, 0))
+    sheet = Image.new(
+        "RGBA",
+        (CELL * columns, CELL * (len(EFFECTS) + len(EXTRA_ROWS) + len(FRONT_ROWS))),
+        (0, 0, 0, 0),
+    )
     counts = {}
     for row, (skill, _npk, _entry, _url) in enumerate(EFFECTS):
-        counts[skill] = bake_frames(rows[skill], row, sheet, anchors[skill], origins[skill])
+        window = None
+        for name, base in matched.items():
+            if base == skill:
+                window = shared[name]
+        counts[skill] = bake_frames(rows[skill], row, sheet, anchors[skill], origins[skill], window)
     for offset, (name, _pick) in enumerate(EXTRA_ROWS):
         counts[name] = bake_frames(rows[name], len(EFFECTS) + offset, sheet)
+    for offset, (name, _pick) in enumerate(FRONT_ROWS):
+        counts[name] = bake_frames(
+            rows[name],
+            len(EFFECTS) + len(EXTRA_ROWS) + offset,
+            sheet,
+            PICKS.get(matched.get(name), {}).get("anchor"),
+            origins[name],
+            window=shared.get(name),
+        )
     sheet.save(ROOT / "effects.png")
     print(f"wrote {ROOT / 'effects.png'} ({sheet.width}x{sheet.height})")
     print("row frames: " + ", ".join(f"{skill}={count}" for skill, count in counts.items()))

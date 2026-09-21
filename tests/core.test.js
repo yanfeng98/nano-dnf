@@ -1623,8 +1623,8 @@ test("the shipped DNF effect sheet matches the renderer grid", () => {
   assert.equal(buffer.readUInt32BE(16), Render.EFFECT.cell * Render.EFFECT.maxFrames);
   assert.equal(
     buffer.readUInt32BE(20),
-    Render.EFFECT.cell * (Core.SKILL_ORDER.length + 2),
-    "one baked effect row per skill, plus the blood-orb and dive rows"
+    Render.EFFECT.cell * (Core.SKILL_ORDER.length + 3),
+    "one baked effect row per skill, plus the blood-orb, dive and 大蹦-fire rows"
   );
   /*
    * Each row carries its own frame count: the picked moves ship their whole
@@ -1648,6 +1648,44 @@ test("the shipped DNF effect sheet matches the renderer grid", () => {
   });
   assert.equal(Render.EFFECT.rowFrames.mountainBreaker, 6, "崩山击 ships its six-frame ground slash");
   assert.equal(Render.EFFECT.rowFrames.crossSlash, 11, "十字斩 ships its eleven-frame cross");
+  /*
+   * 大蹦 ships a second row: the fire it throws is drawn over the Slayer while
+   * the rift stays behind him. Both rows are baked to one window, so they are
+   * drawn at one size and one anchor - the fire has to come out of the rift.
+   */
+  assert.equal(
+    Render.EFFECT.frontRows.mountainRift,
+    Core.SKILL_ORDER.length + 2,
+    "the fire row follows the orb and dive rows"
+  );
+  const fire = [];
+  for (let column = 0; column < Render.EFFECT.maxFrames; column += 1) {
+    if (
+      cellAlphaBox(
+        sheet,
+        column,
+        Render.EFFECT.frontRows.mountainRift,
+        Render.EFFECT.cell,
+        Render.EFFECT.cell
+      )
+    ) {
+      fire.push(column);
+    }
+  }
+  assert.equal(
+    Render.EFFECT.frontFrames.mountainRift,
+    Render.EFFECT.rowFrames.mountainRift,
+    "the fire row runs on the rift row's timeline, or the two halves drift apart"
+  );
+  assert.ok(
+    fire[0] > 0,
+    "and it starts after the blade: the fire is not on screen before it lands"
+  );
+  assert.equal(
+    fire[fire.length - 1],
+    Render.EFFECT.maxFrames - 1,
+    "and it runs to the end of the cast, the way the client's rift keeps burning"
+  );
   /*
    * 血之狂暴 splits the owner's pick in two: the dual-blade energy stays on the
    * skill's own row and the orbs that fly into the Slayer get a row of their
@@ -1689,14 +1727,56 @@ test("the effect bake draws each shape in exactly one colour board", () => {
   assert.ok(blocks.length >= Core.SKILL_ORDER.length, "every skill is picked");
   blocks.forEach((block, index) => {
     const text = picks.slice(block.from, index + 1 < blocks.length ? blocks[index + 1].from : picks.length);
+    /*
+     * Two entries of one pack are only ever stacked by mistake when they are
+     * the *same shape*: the packs ship every shape once per colour board, and
+     * pulling in "(tn)" and "(18)" of one shape draws it two or three times
+     * over. A staged pick names a window per instance, so the same shape may
+     * come back later in the move (大蹦 erupts twice, holds its ring while the
+     * cracks crawl out of it); what must never happen is the same shape - or
+     * the same frames of it - drawn twice at once.
+     */
+    const stages = [];
+    for (const [, entry, middle, from, until] of text.matchAll(
+      /"entry":\s*"([^"]+\.img)"([^\n}]*)"from":\s*([\d.]+),\s*"until":\s*([\d.]+)/g
+    )) {
+      const range = /"frames":\s*\((\d+),\s*(\d+)\)/.exec(middle);
+      stages.push({
+        shape: entry.replace(/^\((?:tn|18)\)/, ""),
+        from: Number(from),
+        until: Number(until),
+        first: range ? Number(range[1]) : 0,
+        last: range ? Number(range[2]) : Infinity
+      });
+    }
     const seen = new Map();
     for (const [, entry] of text.matchAll(/"([^"]+\.img)"/g)) {
       const shape = entry.replace(/^\((?:tn|18)\)/, "");
+      if (!seen.has(shape)) seen.set(shape, 1);
+      else seen.set(shape, seen.get(shape) + 1);
+    }
+    for (const [shape, count] of seen) {
+      if (count === 1) continue;
       assert.ok(
-        !seen.has(shape),
-        `${block.skill} stacks ${shape} twice (${seen.get(shape)} and ${entry})`
+        stages.some((stage) => stage.shape === shape),
+        `${block.skill} stacks ${shape} twice without a window to tell them apart`
       );
-      seen.set(shape, entry);
+    }
+    for (let a = 0; a < stages.length; a += 1) {
+      for (let b = a + 1; b < stages.length; b += 1) {
+        const one = stages[a];
+        const two = stages[b];
+        if (one.shape !== two.shape) continue;
+        const overlap = Math.min(one.until, two.until) - Math.max(one.from, two.from);
+        if (overlap <= 0) continue;
+        const sameFrames = one.first <= two.last && two.first <= one.last;
+        assert.ok(
+          !sameFrames,
+          `${block.skill} draws ${one.shape} frames ${one.first}-${one.last} over ` +
+            `${one.from}-${one.until} and ${two.first}-${two.last} over ${two.from}-${two.until} ` +
+            "at the same time"
+        );
+      }
     }
   });
   /*
@@ -1724,12 +1804,129 @@ test("the effect bake draws each shape in exactly one colour board", () => {
   const riftText = picks.slice(rift.from, picks.indexOf("\n}", rift.from));
   assert.match(riftText, /outragebreak_bloodsword_none\.img/, "大蹦 summons the blood sword");
   assert.match(riftText, /outragebreak_floor\.img/, "and splits the ground under it");
-  assert.match(riftText, /outragebreak_bloodsexp_1_none\.img/, "and erupts out of the split");
   assert.match(riftText, /"palette":\s*"\(tn\)"/, "大蹦 erupts in the client's orange board");
   assert.match(riftText, /"anchor":\s*\(\s*-?\d+,\s*-?\d+\s*\)/, "大蹦 is rooted at his feet");
   assert.ok(
     !/fire-(front|back)\.img/.test(riftText.replace(/^ *#.*$/gm, "")),
     "and not the fire pair the owner rejected"
+  );
+  /*
+   * The fire is the other half of the same pack, and it is drawn over the
+   * Slayer: the rift and the blade stay behind him on the skill's own row, the
+   * flames come out of the split on a front row baked to the same window.
+   */
+  const frontStart = source.indexOf("FRONT_ROWS = [");
+  assert.ok(frontStart > 0, "the bake declares the rows drawn in front of the Slayer");
+  const frontText = source.slice(frontStart, source.indexOf("\n]\n", frontStart));
+  assert.match(frontText, /outragebreak_bloodsexp_1_none\.img/, "and erupts out of the split");
+  assert.match(frontText, /outragebreak_bloodsexp_2_none\.img/, "twice, the way the client does");
+  assert.match(frontText, /"match":\s*"mountainRift"/, "on the rift's own window");
+});
+
+/*
+ * The owner's second look at the client was 「这个技能应该是多个技能特效组合的」:
+ * the pack is one move in four acts - the blade comes down, the floor splits
+ * under it, the ring glows on and the magma erupts twice - and the row used to
+ * stack all eight layers at once, so every act was on screen in the same third
+ * of a second. The bake now names a window per act; this pins the reading of
+ * the client's own preview (assets/dnf_effect_anim/rift-outrage-break-layers.txt)
+ * and the wiring that plays it.
+ */
+function bakedStages(source, startMarker, endMarker) {
+  const start = source.indexOf(startMarker);
+  assert.ok(start > 0, `${startMarker} is in the bake`);
+  const end = source.indexOf(endMarker, start);
+  const text = source.slice(start, end < 0 ? source.length : end);
+  const stages = [];
+  for (const [, entry, middle, from, until] of text.matchAll(
+    /"entry":\s*"([^"]+\.img)"([^\n}]*)"from":\s*([\d.]+),\s*"until":\s*([\d.]+)/g
+  )) {
+    const range = /"frames":\s*\((\d+),\s*(\d+)\)/.exec(middle);
+    stages.push({
+      entry,
+      from: Number(from),
+      until: Number(until),
+      first: range ? Number(range[1]) : 0,
+      last: range ? Number(range[2]) : Infinity
+    });
+  }
+  return stages;
+}
+
+test("大蹦 plays in stages, not all at once", () => {
+  const source = fs.readFileSync(
+    path.join(__dirname, "..", "assets", "import_dnf_effects.py"),
+    "utf8"
+  );
+  const back = bakedStages(source, '"mountainRift": {"palette"', "\n}\n");
+  const front = bakedStages(source, '("mountainRiftFire", {', "\n]");
+  assert.ok(back.length >= 4 && front.length >= 8, "both halves of the move are staged");
+
+  /* Every window is a slice of one row, in order. */
+  [...back, ...front].forEach((stage) => {
+    assert.ok(stage.from >= 0 && stage.until <= 1, `${stage.entry} stays in the row`);
+    assert.ok(stage.until > stage.from, `${stage.entry} needs a window with a length`);
+    assert.ok(stage.last >= stage.first, `${stage.entry} needs frames in order`);
+  });
+  /* And no shape is drawn twice over the same part of the row. */
+  [back, front].forEach((row) => {
+    for (let a = 0; a < row.length; a += 1) {
+      for (let b = a + 1; b < row.length; b += 1) {
+        if (row[a].entry !== row[b].entry) continue;
+        const overlap = Math.min(row[a].until, row[b].until) - Math.max(row[a].from, row[b].from);
+        if (overlap <= 0) continue;
+        assert.ok(
+          row[a].last < row[b].first || row[b].last < row[a].first,
+          `${row[a].entry} is drawn over itself at the same time`
+        );
+      }
+    }
+  });
+
+  const spec = Core.SKILLS.mountainRift;
+  const timing = Render.EFFECT.timing.mountainRift;
+  const toCast = (at) => (timing.from + at * (timing.to - timing.from)) * spec.duration;
+
+  /*
+   * The staged row starts before the landing, because its first act is the blade
+   * still coming down: the sword's window has to close on activeFrom, which is
+   * where the leap puts him - leapFrom of the cast plus the leap's own air time.
+   */
+  const sword = back.find((stage) => stage.entry.includes("bloodsword"));
+  assert.ok(sword, "the row starts with the blade");
+  assert.ok(
+    Math.abs(toCast(sword.until) - spec.activeFrom) < 0.06,
+    `the blade lands with the hit (${toCast(sword.until).toFixed(2)}s vs ${spec.activeFrom}s)`
+  );
+  const airTime = 2 * Math.abs(spec.leapUp) / Core.PHYSICS.gravity;
+  assert.ok(
+    Math.abs(spec.leapFrom * spec.duration + airTime - spec.activeFrom) < 0.02,
+    "and the leap is timed to land on it"
+  );
+
+  /* Three hits: the sword, the rift grinding, then the second eruption. */
+  assert.equal(spec.hits, 3, "the rift ticks, it is not one blow");
+  assert.equal(spec.shockwaveHit, 0, "the ground wave belongs to the sword, not the last tick");
+  const hitSpan = (spec.activeTo - spec.activeFrom) / spec.hits;
+  const second = front.filter((stage) => stage.entry.includes("bloodsexp_2"));
+  assert.equal(second.length, 2, "the tall column is the second wave, and it comes back to fade");
+  const thirdHit = spec.activeFrom + 2 * hitSpan;
+  assert.ok(
+    thirdHit >= toCast(second[0].from) && thirdHit <= toCast(second[0].until),
+    `the third hit lands in the second eruption (${thirdHit.toFixed(2)}s vs ` +
+      `${toCast(second[0].from).toFixed(2)}-${toCast(second[0].until).toFixed(2)}s)`
+  );
+  /*
+   * The gap between the waves is not empty: the client holds the ring on the
+   * floor (its own preview frames 32-59), so the rift frame is drawn from the
+   * landing to the end of the cast.
+   */
+  const ring = back.filter((stage) => stage.entry.includes("floor") && stage.first === stage.last);
+  assert.equal(ring.length, 1, "one held ring frame");
+  assert.ok(ring[0].from <= 0.35 && ring[0].until >= 0.99, "held through the whole lull");
+  assert.ok(
+    !front.some((stage) => toCast(stage.from) < spec.activeFrom - 0.05),
+    "and nothing burns before he lands"
   );
 });
 
@@ -2098,7 +2295,13 @@ test("血魔 dashes through the target with invincibility frames", () => {
 test("崩山裂地斩 is a leaping ultimate with a wide rift", () => {
   const state = lastRoomState();
   const near = Core.createEnemy(state, "brute", state.player.x + 70);
-  const far = Core.createEnemy(state, "brute", state.player.x + 260);
+  /*
+   * Far enough out that the sword and the rift's own radius cannot reach it:
+   * what is being tested is the ground wave, which is what makes this move the
+   * wide one - the leap carries him ~86px forward, so this sits past the 200px
+   * box and the 190px rift but inside the wave's 360.
+   */
+  const far = Core.createEnemy(state, "brute", state.player.x + 320);
   [near, far].forEach((enemy) => {
     enemy.hp = 600;
     enemy.maxHp = 600;
@@ -2112,7 +2315,7 @@ test("崩山裂地斩 is a leaping ultimate with a wide rift", () => {
   Core.runFrames(state, 20, {});
   assert.equal(state.player.onGround, false, "the ultimate leaps first");
 
-  /* The leap lasts ~0.58s and the whirl's hits land as he comes down. */
+  /* The leap lasts ~0.58s and it lands on the hit at 0.72s of the cast. */
   Core.runFrames(state, 42, {});
   assert.ok(
     state.effects.some((effect) => effect.kind === "shockwave"),

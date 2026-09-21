@@ -396,15 +396,24 @@
       cooldown: 12,
       damage: 30,
       growth: 4,
-      duration: 1.05,
       /*
-       * The two hits are the two halves of one whirl, and they land as he comes
-       * down: the leap starts at 0.13s and lands at ~0.72s (leapUp -640 at
-       * gravity 2200), so the blade sweeps on the way down and the rift opens on
-       * the landing.
+       * A long cast, because the move is a long event: the client's own preview
+       * (OutRageBreak.avi, 100 frames at 30fps) lands at frame 23 and keeps
+       * erupting to frame 93 - two and a third seconds of ground answering the
+       * sword. He comes down at 0.72s either way; the rest is recovery while the
+       * rift keeps erupting under him, which is where the other two hits live.
+       */
+      duration: 2.0,
+      /*
+       * Three hits, one per thing the pack does: the sword on the landing, the
+       * rift grinding while he stands in it, then the second eruption. They are
+       * spread evenly over the active window, so the first lands at 0.72s (his
+       * touchdown: the leap starts at 0.14s and is airborne for 0.58s at
+       * leapUp -640 / gravity 2200), the second at 1.13s and the third at 1.54s,
+       * which is inside the second wave the effect row bakes.
        */
       activeFrom: 0.72,
-      activeTo: 0.95,
+      activeTo: 1.95,
       /*
        * 大蹦 is the 45-level ultimate: one giant blood sword plus the rift it
        * opens. The owner's read is that its range has to dwarf 崩山击's single
@@ -421,11 +430,15 @@
        * box left the ultimate missing the target it landed on.
        */
       radius: 190,
-      hits: 2,
-      /* DNF shape: leap up, then split the ground with a huge shockwave. */
+      hits: 3,
+      /*
+       * DNF shape: leap up, then split the ground with a huge shockwave. The
+       * leaps of both smashes are the same size; this one only has to start
+       * earlier in a longer cast so it still lands on the same 0.72s.
+       */
       leap: 150,
       leapUp: -640,
-      leapFrom: 0.12,
+      leapFrom: 0.07,
       knockdown: 1.4,
       shockwave: {
         reach: 360,
@@ -435,7 +448,13 @@
         knockbackX: 340,
         knockdown: 1.4,
         extraWaveFromLevel: 4
-      }
+      },
+      /*
+       * The ground wave belongs to the sword coming down, not to the last tick:
+       * the other two hits are the rift grinding and the second eruption, and
+       * they happen a second after he has already landed.
+       */
+      shockwaveHit: 0
     },
     /*
      * 银光落刃: the move the client puts on Z while the Slayer is in the air.
@@ -1665,7 +1684,14 @@
           }
         });
 
-        if (active.shockwave && hitIndex === hitCount - 1) {
+        /*
+         * Which hit carries the ground wave: the last one by default (the usual
+         * shape - the move ends on its heaviest blow), but 崩山裂地斩 splits its
+         * hits across the landing and the two eruptions, and its wave belongs to
+         * the sword, not to the last tick.
+         */
+        var waveHit = active.shockwaveHit === undefined ? hitCount - 1 : active.shockwaveHit;
+        if (active.shockwave && hitIndex === waveHit) {
           var wave = active.shockwave;
           var extraWave =
             wave.extraWaveFromLevel && player.level >= wave.extraWaveFromLevel ? 1 : 0;

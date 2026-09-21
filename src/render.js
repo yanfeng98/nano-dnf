@@ -100,15 +100,17 @@
       frenzy: { row: 6, first: 0, frames: 9 },
       /*
        * 大蹦: the same shape as 崩山击 one size up - the hop, then a heavier slam
-       * - under the ultimate's own giant blood sword and rift effect.
+       * - under the ultimate's own giant blood sword and rift effect. The leap is
+       * short and the recovery is long: he comes down at 0.72s of the 2s cast and
+       * the rift keeps erupting around him while he stands in it.
        */
       mountainRift: {
         row: 6,
         first: 9,
         frames: 9,
         beats: [
-          { frames: 6, from: 0, until: 0.6 },
-          { frames: 3, from: 0.66, until: 0.92 }
+          { frames: 6, from: 0.05, until: 0.36 },
+          { frames: 3, from: 0.36, until: 0.5 }
         ]
       },
       /*
@@ -239,9 +241,16 @@
       bloodSnatch: 19,
       graspHead: 18,
       bloodEvil: 15,
-      mountainRift: 20
+      /*
+       * 大蹦 bakes a staged row now: the pack is one move in four acts (the blade
+       * falls, the floor splits, the ring glows on, the magma erupts twice), and
+       * stacking all eight layers at once put every act on screen in the same
+       * third of a second. The row is as long as the windows in
+       * assets/import_dnf_effects.py add up to.
+       */
+      mountainRift: 45
     },
-    maxFrames: 27,
+    maxFrames: 45,
     /*
      * assets/effects.png carries one row per skill and then, past them, the art
      * a move needs away from its own cast: 血之狂暴's blood orb lives on the row
@@ -253,6 +262,16 @@
     /* 银光落刃's arc, on the extra row after the orbs. */
     diveRow: Core.SKILL_ORDER.length + 1,
     diveFrames: 9,
+    /*
+     * The row after that is 大蹦's fire. DNF orders an effect's layers around
+     * the character - the dim copy of a shape goes behind him, the bright copy
+     * in front - and this pack ships both halves: the rift, the blade and the
+     * ground stay on the skill's own row behind the Slayer, the flames, the
+     * flash and the debris are drawn over him from this row. Both were baked to
+     * one window off one anchor, so the fire still comes out of the rift.
+     */
+    frontRows: { mountainRift: Core.SKILL_ORDER.length + 2 },
+    frontFrames: { mountainRift: 45 },
     draw: {
       upSlash: { dx: 34, dy: -56, size: 156, copies: 1, spin: 0 },
       /* 崩山击 lands on a shockwave that covers half the arena. */
@@ -286,11 +305,13 @@
     /*
      * When a row is drawn, for the moves whose own art says it: 崩山裂地斩 is a
      * leap, so the pack (sword, then the eruption it drives into the floor)
-     * starts on touchdown rather than 0.2s before it, which is where the
-     * active-window default would put it.
+     * starts 0.2s before touchdown - the blade of the staged row is the last
+     * thing that happens in the air, and it lands on the hit - and runs to the
+     * end of the cast, so the second eruption and the rift still glowing under
+     * the Slayer are drawn while he is standing in them.
      */
     timing: {
-      mountainRift: { from: 0.655, to: 0.98 }
+      mountainRift: { from: 0.26, to: 0.99 }
     }
   };
 
@@ -309,12 +330,17 @@
     mountainRift: "跃斩 · 裂地"
   };
 
-  /** Which effect frame belongs to a skill at a given cast progress (0..1). */
-  function skillEffectFrame(skillId, progress) {
+  /**
+   * Which effect frame belongs to a skill at a given cast progress (0..1).
+   *
+   * `row` and `frames` override where the art is read from, for the moves that
+   * ship a second row; left out, the skill's own row and its own length are used.
+   */
+  function skillEffectFrame(skillId, progress, row, frames) {
     var spec = Core.SKILLS[skillId];
     var draw = EFFECT.draw[skillId];
     if (!spec || !draw) return null;
-    var row = Core.SKILL_ORDER.indexOf(skillId);
+    if (row === undefined || row === null) row = Core.SKILL_ORDER.indexOf(skillId);
     if (row === -1) return null;
     var from = (spec.activeFrom / spec.duration) * 0.8;
     var to = Math.min(0.98, (spec.activeTo + 0.12) / spec.duration);
@@ -326,7 +352,7 @@
     }
     if (progress < from || progress > to) return null;
     var local = Math.min(1, (progress - from) / Math.max(0.0001, to - from));
-    var frames = EFFECT.rowFrames[skillId] || 4;
+    if (frames === undefined || frames === null) frames = EFFECT.rowFrames[skillId] || 4;
     return {
       row: row,
       col: Math.min(frames - 1, Math.floor(local * frames)),
@@ -1093,7 +1119,15 @@
     });
   }
 
-  function drawSkillEffect(ctx, state, sprites) {
+  /**
+   * One pass of a skill's own effect art.
+   *
+   * The row is normally the skill's own (one row per SKILL_ORDER entry), but a
+   * move can ship a second row drawn on the other side of the Slayer: 大蹦's
+   * rift and blade stay behind him and the fire it throws goes in front, the way
+   * the client orders the layers of that pack.
+   */
+  function drawEffectRow(ctx, state, sprites, row, frames) {
     var player = state.player;
     if (!player.skillId || player.skillTimer <= 0) return;
     if (!sprites || !sprites.effects || !sprites.effects.width) return;
@@ -1101,7 +1135,12 @@
     var draw = EFFECT.draw[player.skillId];
     if (!spec || !draw) return;
 
-    var frame = skillEffectFrame(player.skillId, 1 - player.skillTimer / spec.duration);
+    var frame = skillEffectFrame(
+      player.skillId,
+      1 - player.skillTimer / spec.duration,
+      row,
+      frames
+    );
     if (!frame) return;
 
     /*
@@ -1135,6 +1174,19 @@
       ctx.restore();
     }
     ctx.restore();
+  }
+
+  function drawSkillEffect(ctx, state, sprites) {
+    drawEffectRow(ctx, state, sprites);
+  }
+
+  /** The half of a move's art that belongs in front of the Slayer, if it has one. */
+  function drawSkillEffectFront(ctx, state, sprites) {
+    var player = state.player;
+    if (!player.skillId) return;
+    var row = EFFECT.frontRows[player.skillId];
+    if (row === undefined || row === null) return;
+    drawEffectRow(ctx, state, sprites, row, EFFECT.frontFrames[player.skillId]);
   }
 
   /**
@@ -2212,6 +2264,8 @@
     drawSkillEffect(ctx, state, sprites);
     drawDiveSlash(ctx, state, sprites);
     drawPlayer(ctx, state, sprites);
+    /* 大蹦's fire passes in front of him, the rift and the blade behind. */
+    drawSkillEffectFront(ctx, state, sprites);
     var bannerOrdinal = 0;
     state.effects.forEach(function (effect) {
       if (effect.kind === "banner" && overlayOpen) return;
