@@ -100,24 +100,31 @@
       frenzy: { row: 6, first: 0, frames: 9 },
       /*
        * 大蹦 opens on the 举剑 the owner asked for (body frames 123-124: both
-       * hands over the head, the blade down in front of him), then the same hop
-       * 崩山击 uses, then a heavier slam - under the ultimate's own giant blood
-       * sword and rift effect. The raise owns the cast before the leap starts
-       * (leapFrom 0.07), the leap owns the air, and the slam lands with the
-       * touchdown at 0.36 of the 2s cast; after that he holds the slam while the
-       * rift keeps erupting around him.
+       * hands over the head, the blade down in front of him) and drives it into
+       * the floor in front of him (125-128) - under the ultimate's own giant
+       * blood sword and rift effect. It is a grounded move: the client's own
+       * preview keeps the caster planted, so the hop 崩山击 uses is gone (the
+       * owner read it as 「多余动作」) and the two beats fill the same 0.72s the
+       * hits are timed to, with the drive-through landing on activeFrom at 0.36
+       * of the 2s cast.
+       *
+       * The last frame then holds for the rest of the cast, the way a heavy move
+       * settles: he stays in the drive, low over the sword, while the rift keeps
+       * erupting around him. What it must not hold is a pose the move never
+       * reaches - the clip used to end on 133, a leaning balance on one raised
+       * leg with the blade up in front, which left him standing in his own fire
+       * doing it for over a second (owner: 「放完技能多了一个不正确的动作，歪着
+       * 身体举剑那个动作」). 128 is the bottom of the drive itself.
        */
       mountainRift: {
         row: 6,
         first: 9,
-        frames: 11,
+        frames: 6,
         beats: [
-          /* the raise, on the ground, before the leap leaves it */
-          { frames: 2, from: 0.0, until: 0.1 },
-          /* the client's own jump, through the air the leap physics owns */
-          { frames: 6, from: 0.1, until: 0.36 },
-          /* the slam, landing on the touchdown the hits are timed to */
-          { frames: 3, from: 0.36, until: 0.55 }
+          /* the raise, held long enough to read as 举剑 */
+          { frames: 2, from: 0.0, until: 0.18 },
+          /* the blade comes down in front of him and stays down, on the hit */
+          { frames: 4, from: 0.18, until: 0.36 }
         ]
       },
       /*
@@ -126,18 +133,18 @@
        * and is written down in assets/dnf_effect_picks.md.
        */
       /*
-       * The dive sits after 大蹦's clip in the same row; 大蹦 gained the two
-       * raise frames, so everything behind it in the bake moved up by two (see
-       * assets/import_dnf_swordman.py CLIPS, which prints the layout it bakes).
+       * The dive sits after 大蹦's clip in the same row, so its first column
+       * moves whenever that clip's length does (see assets/import_dnf_swordman.py
+       * CLIPS, which prints the layout it bakes).
        */
-      silverFall: { row: 6, first: 20, frames: 8 }
+      silverFall: { row: 6, first: 15, frames: 8 }
     },
     /*
      * The plain hop: the client's own jump animation (sm_body0048 126-131). It is
      * driven by how far the hop has fallen, so the crouch, the launch, the apex
      * and the landing walk in order however high the jump was.
      */
-    jump: { row: 6, first: 28, frames: 6 },
+    jump: { row: 6, first: 23, frames: 6 },
     extras: { hurt: 0, dead: 1, jump: 2, fall: 3 }
   };
 
@@ -321,6 +328,25 @@
        * the owner already signed off.
        */
       mountainRift: { dx: 20, dy: -210, size: 840, copies: 1, spin: 0 }
+    },
+    /*
+     * The half of a move's art that is drawn over the Slayer can be baked to its
+     * own zoom, because a window is a zoom: the rift is 811px of client art and
+     * needs the whole cell, and holding the fire to that same zoom drew a 240px
+     * flame out of 35 cell pixels. So the fire row gets its own window (553px of
+     * client art) and this row says what to draw it at.
+     *
+     * The two halves still land on top of each other, and here is why: both rows
+     * are baked with the caster's own ground point on the same spot of their cell
+     * (64, 96 of 128), and both are drawn with that spot on his feet. A cell is
+     * drawn so that cell (64, 96) lands at the caster + (dx, dy + 0.25 * size),
+     * so the front row's dy is the skill's dy plus the quarter-of-the-size
+     * difference: -210 + 0.25 * (840 - 572) = -143. `size` is what keeps one
+     * client pixel the same size on screen in both rows: (840 / 811) ==
+     * (572 / 553), both 1.035.
+     */
+    frontDraw: {
+      mountainRift: { dx: 20, dy: -143, size: 572 }
     },
     /*
      * When a row is drawn, for the moves whose own art says it: 崩山裂地斩 is a
@@ -1155,6 +1181,16 @@
     var spec = Core.SKILLS[player.skillId];
     var draw = EFFECT.draw[player.skillId];
     if (!spec || !draw) return;
+    /*
+     * A move's front half carries its own zoom when it has one (see
+     * EFFECT.frontDraw): the two rows are baked to different windows, so the
+     * same client pixel needs a different draw size in each to come out the same
+     * size on screen.
+     */
+    var front = EFFECT.frontDraw && EFFECT.frontDraw[player.skillId];
+    if (row !== undefined && row !== null && front) {
+      draw = { dx: front.dx, dy: front.dy, size: front.size, copies: draw.copies, spin: draw.spin };
+    }
 
     var frame = skillEffectFrame(
       player.skillId,

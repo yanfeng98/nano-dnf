@@ -60,14 +60,24 @@ ROWS = ["idle", "run", "attack", "skill", "extras", "clips", "clips2"]
 #   怒气爆发   action 10 (8 frames)
 #   十字斩     action 1 (14 frames) + action 25 (6 frames)
 #   血之狂暴   action 22 (9 frames) - the stand that flings both arms out
-#   崩山裂地斩 举剑 first, then the leap, then the slam: the owner's note is
-#              「崩山裂地斩是先举剑，参考 123-124」, and 123-124 on this sheet is
-#              exactly the raise - both hands over the head, the blade down in
-#              front of him. The leap (127-132, the same jump a plain C plays)
-#              and the slam (229-231, the crouch that drives the sword into the
-#              ground) sit after it, under the ultimate's giant blood sword and
-#              rift. Without the raise the move opened straight on the leap, so
-#              the one thing the owner asked for was the one thing missing.
+#   崩山裂地斩 举剑 first, then the blade comes down, then the slam: the owner's
+#              note is 「崩山裂地斩是先举剑，参考 123-124」, and 123-124 on this
+#              sheet is exactly the raise - both hands over the head, the blade
+#              down in front of him. 125-128 are the blade coming down in front
+#              of him, step by step - 127-128 being the crouched lunge the sword
+#              is driven in on, which is where the hits are timed and which he
+#              then holds while the rift erupts. The move used to run the raise
+#              into 崩山击's leap (127-132) and then 229-231, a guard stance that
+#              is not this move's slam; the client's own preview has the caster
+#              planted the whole way (see src/core.js), and the owner read the
+#              hop as 「多余动作」, so the leap and the guard are both out and the
+#              drive-through fills the same beat.
+#
+#              The frame he holds is 128, not 133: 133 is a leaning balance - the
+#              body tipped over one raised leg with the blade up in front - and
+#              holding it for the rest of the cast (the owner: 「放完技能多了一个
+#              不正确的动作，歪着身体举剑那个动作」) left the Slayer standing in the
+#              fire doing a pose the move never does.
 #   银光落刃   the dive the client turns Z into while airborne: the air slash plus
 #              the landing (134-141). The owner did not give this one a frame
 #              range, so these are picked from the same action as the jump attack.
@@ -85,7 +95,7 @@ CLIPS = [
     ("rageBurst", list(range(76, 84))),
     ("crossSlash", list(range(5, 19)) + list(range(198, 204))),
     ("frenzy", list(range(161, 170))),
-    ("mountainRift", [123, 124] + list(range(127, 133)) + [229, 230, 231]),
+    ("mountainRift", [123, 124] + list(range(125, 129))),
     ("silverFall", list(range(134, 142))),
     ("jump", list(range(127, 133))),
 ]

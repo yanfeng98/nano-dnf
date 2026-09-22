@@ -199,29 +199,10 @@ PICKS = {
     # halves land on the same pixels.
     "mountainRift": {"palette": "(tn)", "pack": "_outragebreak", "anchor": (382, 281),
                      "length": 45, "stages": [
-        # 举剑 carries the blood sword. The owner reads the move as
-        # 崩山裂地斩是先举剑 and points at the client's own body frames 123-124 -
-        # the two-handed raise the body clip opens on - and the sword that goes
-        # up with those hands is this one, so the blade is on screen from the
-        # first frame of the cast rather than only on the landing.
-        #
-        # The pack's sword entry is one gesture: the fire blade gathers over the
-        # caster's head (f0-f10), sweeps (f11-f12), then strikes into the ground
-        # and opens the rift (f13-f19). It plays in two windows - the gathering
-        # and the sweep run through the raise and the leap he makes under it, and
-        # the frames that hit the floor land with the touchdown the hits are
-        # timed to (activeFrom). Windows are row progress over the whole cast,
-        # see EFFECT.timing.mountainRift.
-        #
-        # Pushed 320px forward: this game draws skill art behind the Slayer, and
-        # at the pack's own coordinates the blade's point lands on his feet and
-        # the whole swing disappears behind him. 240 was not enough - the strike
-        # still read as landing on the left of the rift - so it now lands in the
-        # middle of it, where the fire comes up.
-        {"entry": "outragebreak_bloodsword_none.img", "scale": 1.4, "offset": (320, 0),
-         "frames": (0, 12), "from": 0.00, "until": 0.36},
-        {"entry": "outragebreak_bloodsword_none.img", "scale": 1.4, "offset": (320, 0),
-         "frames": (13, 19), "from": 0.36, "until": 0.46},
+        # The blood sword 举剑 carries is not here: this is the half of the move
+        # that stays *behind* the Slayer (the blade lands on his feet and is
+        # swallowed by his own body), so it is baked onto the front row, which is
+        # drawn over him - see FRONT_ROWS.
         # The floor: one frame of the ground coming apart, then the molten ring
         # blooming out of it with rocks thrown up, then the cracks that keep
         # glowing on the floor for the rest of the move.
@@ -261,11 +242,11 @@ PICKS = {
         # (place - the shape's own bottom centre): the wide bush (bloodsexp_1)
         # is centred on x=419 with its foot at y=324, the spire (bloodsexp_2) on
         # x=474 with its foot at 282.
-        {"entry": "outragebreak_bloodsexp_1_none.img", "scale": 0.70, "offset": (-28, -167),
+        {"entry": "outragebreak_bloodsexp_1_none.img", "scale": 1.40, "offset": (-28, -167),
          "from": 0.40, "until": 0.48},
-        {"entry": "outragebreak_bloodsexp_2_none.img", "scale": 0.62, "offset": (15, -113),
+        {"entry": "outragebreak_bloodsexp_2_none.img", "scale": 1.25, "offset": (15, -113),
          "from": 0.71, "until": 0.90},
-        {"entry": "outragebreak_bloodsexp_2_none.img", "scale": 0.62, "offset": (-180, -113),
+        {"entry": "outragebreak_bloodsexp_2_none.img", "scale": 1.25, "offset": (-180, -113),
          "from": 0.71, "until": 0.90},
     ]},
 }
@@ -287,17 +268,43 @@ EXTRA_ROWS = [
 # blade are the ground he stands in (they stay behind him, on the skill's own
 # row), the flames and the debris he throws pass over him.
 #
-# The row is baked to the same window as EFFECTS' row for the same skill, so the
-# two halves share one anchor line and one scale: split them and the fire would
-# sit somewhere else in the cell than the rift it comes out of.
+# The row names the skill it belongs to ("match"), which pins it to that skill's
+# anchor: both halves are baked with the caster's own ground point on the same
+# spot of their cell, so they land on top of each other however each one is
+# zoomed. The zoom is per row - the renderer draws this one at its own size, see
+# EFFECT.frontDraw - because the rift needs the whole cell and the fire does not.
 FRONT_ROWS = [
     ("mountainRiftFire", {"palette": "(tn)", "pack": "_outragebreak",
                           "match": "mountainRift", "length": 45, "stages": [
+        # The blood sword the raise carries. The owner reads the move as
+        # 崩山裂地斩是先举剑 and points at the client's own body frames 123-124 - the
+        # two-handed raise the body clip opens on - and the blade that goes up
+        # with those hands is the pack's own sword entry. It belongs to this row
+        # rather than the skill's own one because this is the half of the picture
+        # that passes *in front* of the Slayer: on the row behind him the blade
+        # lands on his feet and his own body swallows it.
+        #
+        # The entry is one gesture: the fire blade gathers (f0-f10), sweeps
+        # (f11-f12) and then strikes into the floor and opens the rift (f13-f19).
+        # It plays in two windows - the gathering and the sweep run with the
+        # raise and the drive, and the frames that hit the floor land on the
+        # impact the hits are timed to (activeFrom).
+        #
+        # The pack draws the blade 160-370px to the caster's left, which this
+        # row - drawn on him - would carry clean off the side of the screen. The
+        # offset brings it back onto him: over his head for the raise, then down
+        # in front of him for the strike. (It used to be pushed 320px forward on
+        # the row *behind* him, which drew it as a comet crossing the screen
+        # through the whole raise - the owner read that as 「多余动作」.)
+        {"entry": "outragebreak_bloodsword_none.img", "scale": 1.0, "offset": (200, -20),
+         "frames": (0, 12), "from": 0.00, "until": 0.33},
+        {"entry": "outragebreak_bloodsword_none.img", "scale": 1.2, "offset": (200, -20),
+         "frames": (13, 19), "from": 0.33, "until": 0.47},
         # The strike's own flash, on the landing. It is the pack's soft disc and
         # its starburst, not a flame, so it stays a light rather than a fire -
         # and it stays small, because over a low fire a big soft disc does not
         # read as a flash, it washes the flames out.
-        {"entry": "outragebreak_bloodsexp_glow.img", "scale": 0.9, "offset": (-38, 0),
+        {"entry": "outragebreak_bloodsexp_glow.img", "scale": 1.35, "offset": (-38, 0),
          "from": 0.34, "until": 0.40},
         # The fire is *a ring of pillars standing on the rift's ring*, not a row
         # of them. The owner's notes on the client's own preview are
@@ -332,55 +339,58 @@ FRONT_ROWS = [
         # row). Equal flames on an equal beat read as a fence, not as ground
         # breaking open, and the near one also starts first.
         #
-        # Height: the bush's tallest frame is 127px of client art and the
-        # spire's 179. Drawn at 0.70-0.95 that is 89-121px for the bush and
-        # 107-143px for the spire - roughly waist to chest on the ~120px Slayer,
-        # "several low flames" rather than the one 4.5-Slayer column that used to
-        # run off the top of the arena. The first pass at the ring drew them at
-        # 0.55-0.80 (60-108px) and read as candles next to a rift this wide, so
-        # every place went up about a quarter - the ring stayed the size it was,
-        # because the row's window is the blade's and the rift's, not the fire's.
-        {"entry": "outragebreak_bloodsexp_1_none.img", "scale": 0.95, "offset": (-28, 2),
+        # Height: the bush's tallest frame is 127px of client art and the spire's
+        # 179. This game draws a client pixel at 0.97x on screen, so the bush
+        # comes out 127 x scale x 0.97 and the spire 179 x scale x 0.97
+        # on screen, against a ~120px Slayer. The ring now bakes at 1.40-1.90 for
+        # the bush (172-234px) and 1.25-1.60 for the spire (217-278px) - about
+        # two Slayers of fire, which is what the client's own preview shows: its
+        # first wave covers 2.1 caster heights and its second, taller one over
+        # 2.5, while the owner sent the two earlier passes back as 「火焰有点小」
+        # and then 「火焰还是小」 (they drew 60-108px, then 89-143px). The ceiling
+        # is the arena: the tallest spire tops out around y=150 of a 540px
+        # screen, clear of the HUD band at the top.
+        {"entry": "outragebreak_bloodsexp_1_none.img", "scale": 1.90, "offset": (-28, 2),
          "from": 0.35, "until": 0.52},
-        {"entry": "outragebreak_bloodsexp_1_none.img", "scale": 0.88, "offset": (-196, -41),
+        {"entry": "outragebreak_bloodsexp_1_none.img", "scale": 1.75, "offset": (-196, -41),
          "from": 0.37, "until": 0.51},
-        {"entry": "outragebreak_bloodsexp_1_none.img", "scale": 0.88, "offset": (141, -41),
+        {"entry": "outragebreak_bloodsexp_1_none.img", "scale": 1.75, "offset": (141, -41),
          "from": 0.37, "until": 0.51},
-        {"entry": "outragebreak_bloodsexp_1_none.img", "scale": 0.78, "offset": (-196, -125),
+        {"entry": "outragebreak_bloodsexp_1_none.img", "scale": 1.55, "offset": (-196, -125),
          "from": 0.38, "until": 0.50},
-        {"entry": "outragebreak_bloodsexp_1_none.img", "scale": 0.78, "offset": (141, -125),
+        {"entry": "outragebreak_bloodsexp_1_none.img", "scale": 1.55, "offset": (141, -125),
          "from": 0.38, "until": 0.50},
         # Molten drops land on the ring and spread, and the slam throws debris.
-        {"entry": "outragebreak_drops_1.img", "scale": 1.3, "from": 0.43, "until": 0.60},
+        {"entry": "outragebreak_drops_1.img", "scale": 1.6, "from": 0.43, "until": 0.60},
         # The debris has no "(tn)" twin of its own - it is plain art, and asking
         # for the orange board of it finds nothing and draws no rocks at all.
-        {"entry": "outragebreak_part.img", "board": "", "scale": 1.0, "offset": (250, 190),
+        {"entry": "outragebreak_part.img", "board": "", "scale": 1.15, "offset": (250, 190),
          "from": 0.37, "until": 0.53},
         # Then the second wave: the client's own second eruption (its preview
         # erupts at frame 60 and runs to the end of the clip) is where the pack
         # switches to bloodsexp_2, the narrow spire, on the ring's second set of
         # six places - the ones the first wave did not use.
-        {"entry": "outragebreak_drops_2.img", "scale": 1.3, "from": 0.51, "until": 0.72},
-        {"entry": "outragebreak_part.img", "board": "", "scale": 1.0, "offset": (250, 190),
+        {"entry": "outragebreak_drops_2.img", "scale": 1.6, "from": 0.51, "until": 0.72},
+        {"entry": "outragebreak_part.img", "board": "", "scale": 1.15, "offset": (250, 190),
          "from": 0.68, "until": 0.90},
-        {"entry": "outragebreak_bloodsexp_2_none.img", "scale": 0.80, "offset": (-180, 32),
+        {"entry": "outragebreak_bloodsexp_2_none.img", "scale": 1.60, "offset": (-180, 32),
          "from": 0.66, "until": 0.91},
-        {"entry": "outragebreak_bloodsexp_2_none.img", "scale": 0.80, "offset": (15, 32),
+        {"entry": "outragebreak_bloodsexp_2_none.img", "scale": 1.60, "offset": (15, 32),
          "from": 0.66, "until": 0.91},
-        {"entry": "outragebreak_bloodsexp_2_none.img", "scale": 0.70, "offset": (-278, -41),
+        {"entry": "outragebreak_bloodsexp_2_none.img", "scale": 1.40, "offset": (-278, -41),
          "from": 0.68, "until": 0.90},
-        {"entry": "outragebreak_bloodsexp_2_none.img", "scale": 0.70, "offset": (113, -41),
+        {"entry": "outragebreak_bloodsexp_2_none.img", "scale": 1.40, "offset": (113, -41),
          "from": 0.68, "until": 0.90},
-        {"entry": "outragebreak_bloodsexp_glow.img", "scale": 0.9, "offset": (-38, 0),
+        {"entry": "outragebreak_bloodsexp_glow.img", "scale": 1.35, "offset": (-38, 0),
          "from": 0.69, "until": 0.75},
         # The flames die back onto the ring: the bush's own last frames, which
         # are embers rather than fire, so the row ends on the lit rift the way
         # the client's preview does.
-        {"entry": "outragebreak_bloodsexp_1_none.img", "frames": (5, 6), "scale": 0.95,
+        {"entry": "outragebreak_bloodsexp_1_none.img", "frames": (5, 6), "scale": 1.90,
          "offset": (-28, 2), "from": 0.91, "until": 1.00},
-        {"entry": "outragebreak_bloodsexp_1_none.img", "frames": (5, 6), "scale": 0.82,
+        {"entry": "outragebreak_bloodsexp_1_none.img", "frames": (5, 6), "scale": 1.65,
          "offset": (-196, -41), "from": 0.93, "until": 1.00},
-        {"entry": "outragebreak_bloodsexp_1_none.img", "frames": (5, 6), "scale": 0.82,
+        {"entry": "outragebreak_bloodsexp_1_none.img", "frames": (5, 6), "scale": 1.65,
          "offset": (141, -41), "from": 0.93, "until": 1.00},
     ]}),
 ]
@@ -520,19 +530,6 @@ def ink_window(frames, origin=(0, 0), padding: int = PADDING):
     )
 
 
-def union_window(*windows):
-    """One window covering all of them, or None when there is nothing to cover."""
-    live = [window for window in windows if window is not None]
-    if not live:
-        return None
-    return (
-        min(window[0] for window in live),
-        min(window[1] for window in live),
-        max(window[2] for window in live),
-        max(window[3] for window in live),
-    )
-
-
 def bake_frames(frames, row: int, sheet: Image.Image, anchor=None, origin=(0, 0), window=None) -> int:
     """Draw one skill row from already-composited frames.
 
@@ -543,12 +540,12 @@ def bake_frames(frames, row: int, sheet: Image.Image, anchor=None, origin=(0, 0)
     middle, whatever shape the bounding box has; without one the row is centred
     as before.
 
-    `window` is a slice of the client's own coordinates to draw from - the same
-    thing the union of the frames would give, but chosen from outside so two rows
-    that belong to one picture (大蹦's rift behind the Slayer and its fire in
-    front) can share one window, one scale and one anchor line. A row drawn to an
-    outside window keeps the columns it was given: nothing is trimmed off the
-    front, because its timeline is another row's timeline.
+    `window` is a slice of the client's own coordinates to draw from, and it is
+    also the zoom: the slice is what gets fitted into the cell. It is passed in
+    rather than left to the frames so that a row keeps the columns it was given -
+    a timeline that starts later than its first shape (大蹦's own row opens on the
+    landing, because the blade it raises is baked onto the fire row) must not
+    have its leading empty columns trimmed off and its timing shifted.
     """
     if window is None:
         while frames and not frames[0].getbbox():
@@ -859,21 +856,30 @@ def main() -> None:
         rows[name], origins[name] = pick_frames(args.client, "stages", [], pick.get("palette", ""), pick)
         print(f"{name}: picked stages of {len(pick['stages'])} stages: {len(rows[name])} frames")
 
-    # A front row is the other half of a skill's own picture, so it is baked to
-    # that skill's window: same slice of the client's coordinates, same scale,
-    # same anchor line. Otherwise the two halves land in different places in
-    # their cells and the fire comes out of the wrong part of the ground.
-    shared = {}
+    # A front row is the other half of a skill's own picture, so it names the
+    # skill it belongs to: both halves are anchored on the same client point, at
+    # the same spot of their own cell, and the renderer is told what to draw each
+    # one at (EFFECT.draw / EFFECT.frontDraw). Otherwise the two halves land in
+    # different places and the fire comes out of the wrong part of the ground.
     matched = {}
+    windows = {}
     for name, pick in FRONT_ROWS:
         base = pick.get("match")
         if not base or base not in rows:
             continue
         matched[name] = base
-        shared[name] = union_window(
-            ink_window(rows[base], origins[base]),
-            ink_window(rows[name], origins[name]),
-        )
+        # Each half of the picture gets its own window, and the renderer is told
+        # what to draw each one at (EFFECT.draw / EFFECT.frontDraw). Two rows
+        # sharing one window sounds tidier, but a window is a zoom: 大蹦's rift
+        # is 800px of client art that needs the whole cell, and holding the fire
+        # to that same zoom drew a 240px flame out of 35 cell pixels - which the
+        # screen then blew up into mush. Anchoring both rows to the same client
+        # point is what keeps them on top of each other; the window only decides
+        # how much of the cell each one is allowed to use.
+        for row_name in (base, name):
+            windows[row_name] = ink_window(rows[row_name], origins[row_name])
+        print(f"  {base}: window {windows[base]}")
+        print(f"  {name}: window {windows[name]} (anchor {PICKS[base]['anchor']})")
 
     columns = max(FRAMES, max(len(frames) for frames in rows.values()))
     sheet = Image.new(
@@ -883,11 +889,9 @@ def main() -> None:
     )
     counts = {}
     for row, (skill, _npk, _entry, _url) in enumerate(EFFECTS):
-        window = None
-        for name, base in matched.items():
-            if base == skill:
-                window = shared[name]
-        counts[skill] = bake_frames(rows[skill], row, sheet, anchors[skill], origins[skill], window)
+        counts[skill] = bake_frames(
+            rows[skill], row, sheet, anchors[skill], origins[skill], window=windows.get(skill)
+        )
     for offset, (name, _pick) in enumerate(EXTRA_ROWS):
         counts[name] = bake_frames(rows[name], len(EFFECTS) + offset, sheet)
     for offset, (name, _pick) in enumerate(FRONT_ROWS):
@@ -897,7 +901,7 @@ def main() -> None:
             sheet,
             PICKS.get(matched.get(name), {}).get("anchor"),
             origins[name],
-            window=shared.get(name),
+            window=windows.get(name),
         )
     sheet.save(ROOT / "effects.png")
     print(f"wrote {ROOT / 'effects.png'} ({sheet.width}x{sheet.height})")

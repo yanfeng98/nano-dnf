@@ -1250,21 +1250,31 @@ test("one press plays one stage of the normal attack, and attack speed sets the 
   /*
    * 大蹦 is its own move: the owner saw it playing 崩山击's smash, and then saw it
    * leap without the 举剑 in front of it (「崩山裂地斩是先举剑，参考 123-124」).
-   * It has its own action now - the raise, the same leap 崩山击 uses, then the
-   * slam - and its range is the ultimate's rather than the leap smash's.
+   * It has its own action now - the raise, the blade driven down in front of
+   * him, then the plant - and its range is the ultimate's rather than 崩山击's.
+   *
+   * Every frame of it is grounded work. The move used to borrow 崩山击's hop in
+   * the middle, which put him in the air off a raise and read as 「多余动作」;
+   * the client's own preview keeps the caster planted through the whole start-up,
+   * so there are no jump frames left in it and no leap in the skill spec.
    */
   const rift = Render.SPRITE.skillClips.mountainRift;
   assert.ok(rift, "大蹦 gets a body animation of its own");
-  assert.equal(rift.frames, 11, "the raise, the leap and the slam");
+  assert.equal(rift.frames, 6, "the raise and the drive");
   assert.deepEqual(
     rift.beats.map((beat) => beat.frames),
-    [2, 6, 3],
-    "the raise, the leap and the slam are paced separately"
+    [2, 4],
+    "the raise and the drive are paced separately"
   );
   /*
-   * The raise is the frames the owner pointed at, and it has to be on the
-   * ground: the leap physics leave the floor at leapFrom of the cast, so the
-   * beat that draws it has to end there.
+   * The raise is the frames the owner pointed at (123-124) and the drive is the
+   * blade coming down in front of him (125-128), the crouched lunge at the end
+   * of which is where the hits land and where he stays while the rift erupts.
+   *
+   * 133 must not be in there: it is a leaning balance on one raised leg with the
+   * blade up in front, and holding it for the rest of the cast left him in his
+   * own fire doing a pose the move never reaches (owner: 「放完技能多了一个不正确
+   * 的动作，歪着身体举剑那个动作」).
    */
   const riftBake = fs.readFileSync(
     path.join(__dirname, "..", "assets", "import_dnf_swordman.py"),
@@ -1272,17 +1282,40 @@ test("one press plays one stage of the normal attack, and attack speed sets the 
   );
   assert.match(
     riftBake,
-    /"mountainRift", \[123, 124\] \+ list\(range\(127, 133\)\) \+ \[229, 230, 231\]\)/,
+    /"mountainRift", \[123, 124\] \+ list\(range\(125, 129\)\)\)/,
     "the clip opens on the owner's 举剑 frames (123-124)"
   );
   assert.ok(
-    rift.beats[0].until <= Core.SKILLS.mountainRift.leapFrom + 0.04,
-    `the raise has to happen before the leap leaves the ground (${rift.beats[0].until} vs ${Core.SKILLS.mountainRift.leapFrom})`
+    !/"mountainRift"[^\n]*133/.test(riftBake),
+    "and it does not end on 133, the balance the owner read as a wrong pose"
+  );
+  assert.ok(
+    !/mountainRift[^\n]*127, 133/.test(riftBake),
+    "and it no longer runs into 崩山击's hop (127-132)"
   );
   assert.equal(
-    rift.beats[1].until,
+    Core.SKILLS.mountainRift.leap,
+    undefined,
+    "the ultimate is planted: no leap physics at all"
+  );
+  assert.equal(
+    Core.SKILLS.mountainBreaker.leap > 0,
+    true,
+    "while 崩山击 keeps the hop it is built around"
+  );
+  assert.ok(
+    rift.beats[0].until < Core.SKILLS.mountainRift.activeFrom / Core.SKILLS.mountainRift.duration,
+    "the raise happens before the hit, not on it"
+  );
+  assert.equal(
+    rift.beats[rift.beats.length - 1].until,
     Core.SKILLS.mountainRift.activeFrom / Core.SKILLS.mountainRift.duration,
-    "and the slam has to start on touchdown, where the hits are timed"
+    "and the drive lands on the hit, where the rift opens"
+  );
+  assert.equal(
+    rift.beats.reduce((total, beat) => total + beat.frames, 0),
+    rift.frames,
+    "every frame of the clip belongs to a beat, so the drive is what it holds"
   );
   assert.notEqual(rift.row, smash.row, "and it is not the row 崩山击 uses");
   const riftSkill = Core.SKILLS.mountainRift;
@@ -1676,12 +1709,26 @@ test("the shipped DNF effect sheet matches the renderer grid", () => {
     for (let column = 0; column < Render.EFFECT.maxFrames; column += 1) {
       if (cellAlphaBox(sheet, column, row, Render.EFFECT.cell, Render.EFFECT.cell)) drawn.push(column);
     }
+    /*
+     * A row is one timeline over one cast, and it is declared as long as the
+     * cast is: 大蹦's own row is the one whose head is empty, because its first
+     * act is the landing (the blade it raises lives on the fire row, drawn in
+     * front of him), so its three acts fill the last 30 of its 45 columns.
+     * Everything else fills its row from column 0, and no row may have a hole:
+     * a gap would draw the wrong frame of the shape at that moment.
+     */
+    assert.ok(
+      drawn.every((column, index) => column === drawn[0] + index),
+      `${skillId} frames must be packed with no hole in the row`
+    );
     assert.equal(
-      drawn.length,
+      drawn[0] + drawn.length,
       declared,
       `${skillId} should bake ${declared} frame(s), found ${drawn.length}`
     );
-    assert.deepEqual(drawn, drawn.map((_, index) => index), `${skillId} frames must be packed from column 0`);
+    if (skillId !== "mountainRift") {
+      assert.equal(drawn[0], 0, `${skillId} frames must be packed from column 0`);
+    }
   });
   assert.equal(Render.EFFECT.rowFrames.mountainBreaker, 6, "崩山击 ships its six-frame ground slash");
   assert.equal(Render.EFFECT.rowFrames.crossSlash, 11, "十字斩 ships its eleven-frame cross");
@@ -1714,10 +1761,12 @@ test("the shipped DNF effect sheet matches the renderer grid", () => {
     Render.EFFECT.rowFrames.mountainRift,
     "the fire row runs on the rift row's timeline, or the two halves drift apart"
   );
-  assert.ok(
-    fire[0] > 0,
-    "and it starts after the blade: the fire is not on screen before it lands"
-  );
+  /*
+   * The row opens on the blade the raise carries (the owner: 「应该是血剑」) and
+   * the fire itself does not start until he drives it in - the stage windows are
+   * what pin that, in 大蹦 plays in stages below.
+   */
+  assert.equal(fire[0], 0, "and it opens on the blade the raise carries");
   assert.equal(
     fire[fire.length - 1],
     Render.EFFECT.maxFrames - 1,
@@ -1849,7 +1898,6 @@ test("the effect bake draws each shape in exactly one colour board", () => {
    */
   const rift = blocks.find((entry) => entry.skill === "mountainRift");
   const riftText = picks.slice(rift.from, picks.indexOf("\n}", rift.from));
-  assert.match(riftText, /outragebreak_bloodsword_none\.img/, "大蹦 summons the blood sword");
   assert.match(riftText, /outragebreak_floor\.img/, "and splits the ground under it");
   assert.match(riftText, /"palette":\s*"\(tn\)"/, "大蹦 erupts in the client's orange board");
   assert.match(riftText, /"anchor":\s*\(\s*-?\d+,\s*-?\d+\s*\)/, "大蹦 is rooted at his feet");
@@ -1859,12 +1907,15 @@ test("the effect bake draws each shape in exactly one colour board", () => {
   );
   /*
    * The fire is the other half of the same pack, and it is drawn over the
-   * Slayer: the rift and the blade stay behind him on the skill's own row, the
-   * flames come out of the split on a front row baked to the same window.
+   * Slayer: the rift stays behind him on the skill's own row, and the blade the
+   * raise carries plus the flames that come out of the split are on a front row
+   * baked to the same window. The blade has to be here rather than behind him -
+   * on his own row it lands on his feet and his body swallows it.
    */
   const frontStart = source.indexOf("FRONT_ROWS = [");
   assert.ok(frontStart > 0, "the bake declares the rows drawn in front of the Slayer");
   const frontText = source.slice(frontStart, source.indexOf("\n]\n", frontStart));
+  assert.match(frontText, /outragebreak_bloodsword_none\.img/, "大蹦 summons the blood sword");
   assert.match(frontText, /outragebreak_bloodsexp_1_none\.img/, "and erupts out of the split");
   assert.match(frontText, /outragebreak_bloodsexp_2_none\.img/, "twice, the way the client does");
   assert.match(frontText, /"match":\s*"mountainRift"/, "on the rift's own window");
@@ -1961,33 +2012,56 @@ test("大蹦 plays in stages, not all at once", () => {
    * The row starts on the first frame of the cast, because its first act is
    * 举剑: 崩山裂地斩是先举剑, and the owner points at the client's own body frames
    * 123-124 for the raise - so the blood sword is on screen while he raises it
-   * rather than appearing out of the sky on the landing. Its last window still
-   * has to close on activeFrom, which is where the leap puts him - leapFrom of
-   * the cast plus the leap's own air time - so the strike lands with the hit.
+   * (「应该是血剑」) rather than appearing out of the sky on the landing. It lives
+   * on the front row, drawn over him, because on his own row his body swallows
+   * it. Its first window has to hand over to the strike on activeFrom - the beat
+   * the slam lands on - so the blade goes into the ground with the hit.
    */
-  const sword = back.filter((stage) => stage.entry.includes("bloodsword"));
-  assert.ok(sword.length >= 1, "the row starts with the blade");
+  const sword = front.filter((stage) => stage.entry.includes("bloodsword"));
+  assert.equal(sword.length, 2, "the blade is drawn in front of him, in two windows");
+  assert.ok(
+    !back.some((stage) => stage.entry.includes("bloodsword")),
+    "and not on the row behind him, where his own body covers it"
+  );
   assert.ok(
     toCast(sword[0].from) < 0.02,
     `the blood sword is up with the raise (${toCast(sword[0].from).toFixed(2)}s in)`
   );
   const strike = sword[sword.length - 1];
   assert.ok(
-    Math.abs(toCast(sword[0].until) - spec.activeFrom) < 0.06,
-    `the blade is still coming down when he lands (${toCast(sword[0].until).toFixed(2)}s vs ` +
+    Math.abs(toCast(sword[0].until) - spec.activeFrom) < 0.08,
+    `the blade is still coming down as he drives it in (${toCast(sword[0].until).toFixed(2)}s vs ` +
       `${spec.activeFrom}s)`
   );
   assert.ok(
-    Math.abs(toCast(strike.from) - spec.activeFrom) < 0.06,
-    `and the strike into the ground opens on the hit (${toCast(strike.from).toFixed(2)}s vs ` +
+    Math.abs(toCast(strike.from) - spec.activeFrom) < 0.08,
+    `and the strike into the ground opens just before the hit (${toCast(strike.from).toFixed(2)}s vs ` +
       `${spec.activeFrom}s)`
   );
   const swordFrames = sword.map((stage) => stage.first);
   assert.deepEqual(swordFrames, [0, 13], "the gathering runs up to the strike frames");
-  const airTime = 2 * Math.abs(spec.leapUp) / Core.PHYSICS.gravity;
-  assert.ok(
-    Math.abs(spec.leapFrom * spec.duration + airTime - spec.activeFrom) < 0.02,
-    "and the leap is timed to land on it"
+  /*
+   * And he is on the floor for all of it: the beats the body plays have to land
+   * the drive exactly on activeFrom, with no leap to carry him off it - and the
+   * clip ends there, so what he holds under the rift is the bottom of the drive.
+   */
+  const clip = Render.SPRITE.skillClips.mountainRift;
+  assert.equal(
+    clip.beats[clip.beats.length - 1].until,
+    spec.activeFrom / spec.duration,
+    "the body drives the blade in on the beat the rift opens"
+  );
+  /*
+   * And what he holds while the rift burns is that last frame - the bottom of
+   * the drive - for the rest of the cast.
+   */
+  const held = lastRoomState();
+  held.player.skillId = "mountainRift";
+  held.player.skillTimer = spec.duration * 0.1;
+  assert.equal(
+    Render.playerFrame(held, held.player).col,
+    clip.first + clip.frames - 1,
+    "so the pose held under the rift is the last frame of the clip"
   );
 
   /* Three hits: the sword, the rift grinding, then the second eruption. */
@@ -2076,17 +2150,21 @@ test("大蹦 plays in stages, not all at once", () => {
     );
   });
   /*
-   * And they are pillars, not a wall: at the old ×3.2 one spire stood 4.5
-   * Slayers tall and ran off the top of the arena, and the first ring baked at
-   * 0.55-0.80 (60-108px) drew as candles next to a rift this wide - the owner
-   * sent that back with 「火焰有点小」. The wide bush is 127px of client art at
-   * its tallest and the spire 179, drawn here at 0.62-0.95, so a flame reads
-   * waist-to-chest on a ~120px Slayer; the near places are the biggest, the far
+   * And the fire is the client's size, not a fence and not a match: the first
+   * ring baked at 0.55-0.80 (60-108px) drew as candles next to a rift this wide
+   * and came back as 「火焰有点小」, and the pass after it (0.62-0.95, ~one
+   * Slayer of fire) came back as 「火焰还是小」 against the client's own preview,
+   * whose first wave is 2.1 caster heights of fire and whose second is over 2.5.
+   * The wide bush is 127px of client art at its tallest and the spire 179, and
+   * this game draws a client pixel at 0.97x, so the ring now bakes at
+   * 1.40-1.90 for the bush (172-234px) and 1.25-1.60 for the spire
+   * (217-278px), on a ~120px Slayer. That is still under the 4.5-Slayer column
+   * that ran off the top of the arena. The near places are the biggest, the far
    * places the smallest, and the near one also erupts first.
    */
   assert.ok(
-    everyFlame.every((stage) => stage.scale >= 0.45 && stage.scale <= 1),
-    "every flame is a pillar of its own, neither a fence post nor a wall of fire"
+    everyFlame.every((stage) => stage.scale >= 1.2 && stage.scale <= 2),
+    "every flame is a pillar of its own, neither a candle nor a column off the screen"
   );
   const largest = first.reduce((best, stage) => (stage.scale > best.scale ? stage : best));
   assert.ok(
@@ -2108,8 +2186,8 @@ test("大蹦 plays in stages, not all at once", () => {
   assert.equal(ring.length, 1, "one held ring frame");
   assert.ok(ring[0].from <= 0.5 && ring[0].until >= 0.99, "held through the whole lull");
   assert.ok(
-    !front.some((stage) => toCast(stage.from) < spec.activeFrom - 0.05),
-    "and nothing burns before he lands"
+    !front.filter(isFlame).some((stage) => toCast(stage.from) < spec.activeFrom - 0.05),
+    "and no flame burns before he drives the blade in"
   );
 });
 
@@ -2487,14 +2565,14 @@ test("血魔 dashes through the target with invincibility frames", () => {
   assert.ok(state.player.x > enemy.x, "the Slayer ends up past the target");
 });
 
-test("崩山裂地斩 is a leaping ultimate with a wide rift", () => {
+test("崩山裂地斩 is a planted ultimate with a wide rift", () => {
   const state = lastRoomState();
   const near = Core.createEnemy(state, "brute", state.player.x + 70);
   /*
    * Far enough out that the sword and the rift's own radius cannot reach it:
    * what is being tested is the ground wave, which is what makes this move the
-   * wide one - the leap carries him ~86px forward, so this sits past the 200px
-   * box and the 190px rift but inside the wave's 360.
+   * wide one - 320 is past the 200px box and the 190px rift but inside the
+   * wave's 360.
    */
   const far = Core.createEnemy(state, "brute", state.player.x + 320);
   [near, far].forEach((enemy) => {
@@ -2508,10 +2586,21 @@ test("崩山裂地斩 is a leaping ultimate with a wide rift", () => {
 
   Core.step(state, { skills: { mountainRift: true } });
   Core.runFrames(state, 20, {});
-  assert.equal(state.player.onGround, false, "the ultimate leaps first");
+  /*
+   * He is planted for the whole start-up: the move used to open on 崩山击's hop,
+   * which the owner read as 「多余动作」, and the client's own preview keeps the
+   * caster on the floor from the raise to the impact.
+   */
+  assert.equal(state.player.onGround, true, "the ultimate is cast from the floor");
+  const xAtCast = state.player.x;
 
-  /* The leap lasts ~0.58s and it lands on the hit at 0.72s of the cast. */
+  /* The drive takes 0.72s of the cast and the hit lands with the plant. */
   Core.runFrames(state, 42, {});
+  assert.equal(state.player.onGround, true, "and he never leaves it");
+  assert.ok(
+    Math.abs(state.player.x - xAtCast) < 4,
+    `the planted cast does not walk him forward (${(state.player.x - xAtCast).toFixed(1)}px)`
+  );
   assert.ok(
     state.effects.some((effect) => effect.kind === "shockwave"),
     "the landing splits the ground"

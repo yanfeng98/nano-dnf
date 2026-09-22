@@ -400,17 +400,23 @@
        * A long cast, because the move is a long event: the client's own preview
        * (OutRageBreak.avi, 100 frames at 30fps) lands at frame 23 and keeps
        * erupting to frame 93 - two and a third seconds of ground answering the
-       * sword. He comes down at 0.72s either way; the rest is recovery while the
+       * sword. He drives the blade in at 0.72s; the rest is recovery while the
        * rift keeps erupting under him, which is where the other two hits live.
+       *
+       * And he does it from a standstill. The move used to borrow 崩山击's hop,
+       * so it opened in the air with a flame streak crossing the screen, while
+       * the client's own preview shows the caster planted: he raises the sword,
+       * drives it into the floor where he stands, and the fire answers around
+       * him. The owner read the hop as 「多余动作」, so there is no leap here any
+       * more - the raise, the drive and the slam fill the same 0.72s.
        */
       duration: 2.0,
       /*
        * Three hits, one per thing the pack does: the sword on the landing, the
        * rift grinding while he stands in it, then the second eruption. They are
-       * spread evenly over the active window, so the first lands at 0.72s (his
-       * touchdown: the leap starts at 0.14s and is airborne for 0.58s at
-       * leapUp -640 / gravity 2200), the second at 1.13s and the third at 1.54s,
-       * which is inside the second wave the effect row bakes.
+       * spread evenly over the active window, so the first lands at 0.72s (the
+       * beat the slam does), the second at 1.13s and the third at 1.54s, which is
+       * inside the second wave the effect row bakes.
        */
       activeFrom: 0.72,
       activeTo: 1.95,
@@ -418,27 +424,19 @@
        * 大蹦 is the 45-level ultimate: one giant blood sword plus the rift it
        * opens. The owner's read is that its range has to dwarf 崩山击's single
        * smash, so both the sword and the ground wave reach much further than
-       * the leap smash does.
+       * that smash does.
        */
       reach: 200,
       heightPad: 36,
       knockbackX: 300,
       launch: 0,
       /*
-       * The rift opens around the impact rather than only in front of it: the
-       * leap already carries him past whatever he jumped over, and a forward-only
-       * box left the ultimate missing the target it landed on.
+       * The rift opens around the impact rather than only in front of it: this
+       * is the ultimate, and a forward-only box would leave the half of the
+       * circle he is not facing unpunished.
        */
       radius: 190,
       hits: 3,
-      /*
-       * DNF shape: leap up, then split the ground with a huge shockwave. The
-       * leaps of both smashes are the same size; this one only has to start
-       * earlier in a longer cast so it still lands on the same 0.72s.
-       */
-      leap: 150,
-      leapUp: -640,
-      leapFrom: 0.07,
       knockdown: 1.4,
       shockwave: {
         reach: 360,
