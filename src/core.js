@@ -452,9 +452,13 @@
          * The ring the engine draws for this wave is 660px across, and the
          * rift's own art is 400: side by side they read as one big circle and
          * one small one. `visual` shrinks only the drawn arc - the damage box
-         * is unchanged - so it lands at roughly the rift's own width.
+         * is unchanged - so it lands at roughly the rift's own width, and
+         * `arcOffset` pins that arc on the caster rather than 144px in front of
+         * him, so the ring the wave draws is the ring the fire erupts from
+         * instead of a second circle lying next to it.
          */
-        visual: 0.7
+        visual: 0.7,
+        arcOffset: 0
       },
       /*
        * The ground wave belongs to the sword coming down, not to the last tick:
@@ -1725,7 +1729,16 @@
           });
           state.effects.push({
             kind: "shockwave",
-            x: player.x + player.facing * wave.reach * 0.4,
+            /*
+             * Where the drawn arc sits: a fraction of the wave's reach out in
+             * front of the caster. 崩山击's wave travels forward, so its arc is
+             * drawn a little ahead of him; 大蹦's rift opens *around* him, and
+             * its arc has to be the same circle as the fire that comes out of
+             * it - 144px out in front it read as a second ring lying beside the
+             * flames (owner: 「圈和火焰没合在一起」).
+             */
+            x: player.x + player.facing * wave.reach *
+              (wave.arcOffset === undefined ? 0.4 : wave.arcOffset),
             y: ARENA.groundY,
             /* `visual` is how wide the arc is drawn, not how far the wave hits. */
             radius:

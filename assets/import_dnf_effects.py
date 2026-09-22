@@ -256,36 +256,94 @@ EXTRA_ROWS = [
 FRONT_ROWS = [
     ("mountainRiftFire", {"palette": "(tn)", "pack": "_outragebreak",
                           "match": "mountainRift", "length": 45, "stages": [
-        # The flash and the first wave, right on the landing.
-        {"entry": "outragebreak_bloodsexp_glow.img", "scale": 2.0, "from": 0.11, "until": 0.19},
-        # The first wave erupts around him, the way the client's does: the bush's
-        # flames are drawn with a hollow in the middle, and the caster stands in
-        # that hollow (the bush's middle sits ~35px right of the impact, so this
-        # brings it back onto him). Pushing the whole wave aside instead left the
-        # hollow showing as a missing chunk of flame beside him.
-        {"entry": "outragebreak_bloodsexp_1_none.img", "scale": 3.2, "offset": (-30, 0),
-         "from": 0.13, "until": 0.34},
+        # The strike's own flash, on the landing. It is the pack's soft disc and
+        # its starburst, not a flame, so it stays a light rather than a fire -
+        # and it stays small, because over a low fire a big soft disc does not
+        # read as a flash, it washes the flames out.
+        {"entry": "outragebreak_bloodsexp_glow.img", "scale": 0.9, "offset": (-38, 0),
+         "from": 0.11, "until": 0.19},
+        # The fire is a *rank of pillars standing on the rift's ring*, not one
+        # column beside it. The owner's note on the client's own preview is
+        # 「它是多个火焰柱子，喷发」 - several pillars erupting - and the way the
+        # game gets them is to stamp the pack's two flame shapes (bloodsexp_1,
+        # the wide bush of tongues, and bloodsexp_2, the narrow spire) several
+        # times along the ground. One copy read as a single spout.
+        #
+        # So both waves are ranks of five, and the rank is laid out along the
+        # ring the rift itself draws (a place every 130px of client art, the
+        # outermost at 260 - the pack's floor ring is 283x112 blown up 1.8x, so
+        # it reaches ~254 either side of the caster). A place is measured from
+        # the middle of the rift: the art's own centre is x=420 for the bush
+        # (474 for the spire), the caster stands on x=382, so a place's offset
+        # is (place + 382 - centre).
+        #
+        # The rank is not a picket fence: the middle pillar is the tallest, the
+        # ones either side of it a size smaller and the outer pair smaller
+        # again, and each pair erupts a little after the one inside it. Equal
+        # flames on an equal beat read as a fence, not as ground breaking open.
+        #
+        # Height is deliberately kept inside the window the rift and the blade
+        # already need (client y 26-373): the two halves share one window and
+        # one scale, so a pillar that pokes out of it would shrink the ring the
+        # fire is supposed to be growing out of. The bush's tallest frame is
+        # 127px of client art and the spire's 179, drawn 1:1, so these read
+        # 1.05-1.55 Slayers tall, which is what the client's own preview erupts
+        # (its fire stands about one and a half casters high) and stays on the
+        # low side of the height the owner has already sent back twice - the
+        # old ×3.2 single column ran off the top of the arena, and this is not
+        # that column made plural.
+        #
+        # They are also raised: 大蹦's ring lies on the floor as an ellipse, so
+        # a fire rooted *under* the far edge of that ellipse is the one that
+        # reads as coming out of it. -45px for the bush (its own art already
+        # hangs ~37px below the anchor) and -15px for the spire (rooted on the
+        # anchor) both put the base of a flame on the same band, ~10px above the
+        # ground line.
+        {"entry": "outragebreak_bloodsexp_1_none.img", "scale": 0.85, "offset": (-38, -45),
+         "from": 0.12, "until": 0.35},
+        {"entry": "outragebreak_bloodsexp_1_none.img", "scale": 0.75, "offset": (-168, -45),
+         "from": 0.14, "until": 0.34},
+        {"entry": "outragebreak_bloodsexp_1_none.img", "scale": 0.75, "offset": (92, -45),
+         "from": 0.14, "until": 0.34},
+        {"entry": "outragebreak_bloodsexp_1_none.img", "scale": 0.65, "offset": (-298, -45),
+         "from": 0.16, "until": 0.32},
+        {"entry": "outragebreak_bloodsexp_1_none.img", "scale": 0.65, "offset": (222, -45),
+         "from": 0.16, "until": 0.32},
         # Molten drops land on the ring and spread, and the slam throws debris.
-        {"entry": "outragebreak_drops_1.img", "scale": 2.6, "from": 0.20, "until": 0.46},
+        {"entry": "outragebreak_drops_1.img", "scale": 1.3, "from": 0.20, "until": 0.46},
         # The debris has no "(tn)" twin of its own - it is plain art, and asking
         # for the orange board of it finds nothing and draws no rocks at all.
-        {"entry": "outragebreak_part.img", "board": "", "scale": 1.5, "offset": (300, 210), "from": 0.14, "until": 0.36},
-        # Then the second wave: the tall column the client's preview erupts at
-        # frame 60, with the wide bush again beside it, and the embers it leaves.
-        # The column is drawn a little to the left of the bush so the pair reads
-        # as one wall of magma rather than a single spout, which is what the
-        # client's second eruption is (its fire fills half the frame).
-        {"entry": "outragebreak_drops_2.img", "scale": 2.6, "from": 0.36, "until": 0.62},
-        {"entry": "outragebreak_part.img", "board": "", "scale": 1.5, "offset": (300, 210), "from": 0.58, "until": 0.86},
-        {"entry": "outragebreak_bloodsexp_1_none.img", "scale": 3.2, "offset": (-30, 0),
-         "from": 0.58, "until": 0.80},
-        # The tall column fills the bush's hollow: leaving it to one side read as
-        # a column with a bite taken out of it.
-        {"entry": "outragebreak_bloodsexp_2_none.img", "scale": 3.2, "offset": (-85, 0),
-         "from": 0.60, "until": 0.84},
-        {"entry": "outragebreak_bloodsexp_glow.img", "scale": 2.6, "from": 0.60, "until": 0.66},
-        {"entry": "outragebreak_bloodsexp_2_none.img", "frames": (4, 6), "scale": 3.2,
-         "offset": (-85, 0), "from": 0.85, "until": 1.00},
+        {"entry": "outragebreak_part.img", "board": "", "scale": 1.0, "offset": (250, 190),
+         "from": 0.14, "until": 0.36},
+        # Then the second wave: the client's own second eruption (its preview
+        # erupts at frame 60 and runs to the end of the clip) is where the pack
+        # switches to bloodsexp_2, the narrow spire. The same rank of five, the
+        # middle ones first, a size taller than the first wave and rooted a
+        # little further out of the ring.
+        {"entry": "outragebreak_drops_2.img", "scale": 1.3, "from": 0.36, "until": 0.62},
+        {"entry": "outragebreak_part.img", "board": "", "scale": 1.0, "offset": (250, 190),
+         "from": 0.58, "until": 0.86},
+        {"entry": "outragebreak_bloodsexp_2_none.img", "scale": 0.70, "offset": (-91, -15),
+         "from": 0.54, "until": 0.88},
+        {"entry": "outragebreak_bloodsexp_2_none.img", "scale": 0.60, "offset": (-221, -15),
+         "from": 0.56, "until": 0.87},
+        {"entry": "outragebreak_bloodsexp_2_none.img", "scale": 0.60, "offset": (39, -15),
+         "from": 0.56, "until": 0.87},
+        {"entry": "outragebreak_bloodsexp_2_none.img", "scale": 0.50, "offset": (-351, -15),
+         "from": 0.58, "until": 0.85},
+        {"entry": "outragebreak_bloodsexp_2_none.img", "scale": 0.50, "offset": (169, -15),
+         "from": 0.58, "until": 0.85},
+        {"entry": "outragebreak_bloodsexp_glow.img", "scale": 0.9, "offset": (-38, 0),
+         "from": 0.58, "until": 0.66},
+        # The flames die back onto the ring: the bush's own last frames, which
+        # are embers rather than fire, so the row ends on the lit rift the way
+        # the client's preview does.
+        {"entry": "outragebreak_bloodsexp_1_none.img", "frames": (5, 6), "scale": 0.75,
+         "offset": (-38, -45), "from": 0.88, "until": 1.00},
+        {"entry": "outragebreak_bloodsexp_1_none.img", "frames": (5, 6), "scale": 0.65,
+         "offset": (-168, -45), "from": 0.90, "until": 1.00},
+        {"entry": "outragebreak_bloodsexp_1_none.img", "frames": (5, 6), "scale": 0.65,
+         "offset": (92, -45), "from": 0.90, "until": 1.00},
     ]}),
 ]
 

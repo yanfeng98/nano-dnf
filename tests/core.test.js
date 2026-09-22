@@ -1248,16 +1248,41 @@ test("one press plays one stage of the normal attack, and attack speed sets the 
   );
 
   /*
-   * 大蹦 is its own move: the owner saw it playing 崩山击's smash. It has its own
-   * action now, and its range is the ultimate's rather than the leap smash's.
+   * 大蹦 is its own move: the owner saw it playing 崩山击's smash, and then saw it
+   * leap without the 举剑 in front of it (「崩山裂地斩是先举剑，参考 123-124」).
+   * It has its own action now - the raise, the same leap 崩山击 uses, then the
+   * slam - and its range is the ultimate's rather than the leap smash's.
    */
   const rift = Render.SPRITE.skillClips.mountainRift;
   assert.ok(rift, "大蹦 gets a body animation of its own");
-  assert.equal(rift.frames, 9, "the same jump-then-slam shape as 崩山击");
+  assert.equal(rift.frames, 11, "the raise, the leap and the slam");
   assert.deepEqual(
     rift.beats.map((beat) => beat.frames),
-    [6, 3],
-    "the jump and the slam are paced the same way"
+    [2, 6, 3],
+    "the raise, the leap and the slam are paced separately"
+  );
+  /*
+   * The raise is the frames the owner pointed at, and it has to be on the
+   * ground: the leap physics leave the floor at leapFrom of the cast, so the
+   * beat that draws it has to end there.
+   */
+  const riftBake = fs.readFileSync(
+    path.join(__dirname, "..", "assets", "import_dnf_swordman.py"),
+    "utf8"
+  );
+  assert.match(
+    riftBake,
+    /"mountainRift", \[123, 124\] \+ list\(range\(127, 133\)\) \+ \[229, 230, 231\]\)/,
+    "the clip opens on the owner's 举剑 frames (123-124)"
+  );
+  assert.ok(
+    rift.beats[0].until <= Core.SKILLS.mountainRift.leapFrom + 0.04,
+    `the raise has to happen before the leap leaves the ground (${rift.beats[0].until} vs ${Core.SKILLS.mountainRift.leapFrom})`
+  );
+  assert.equal(
+    rift.beats[1].until,
+    Core.SKILLS.mountainRift.activeFrom / Core.SKILLS.mountainRift.duration,
+    "and the slam has to start on touchdown, where the hits are timed"
   );
   assert.notEqual(rift.row, smash.row, "and it is not the row 崩山击 uses");
   const riftSkill = Core.SKILLS.mountainRift;
@@ -1271,6 +1296,18 @@ test("one press plays one stage of the normal attack, and attack speed sets the 
     `and its rift is wider (${riftSkill.shockwave.reach} vs ${smashSkill.shockwave.reach})`
   );
   assert.equal(riftSkill.shockwave.reach, 360, "the rift covers a third of the arena");
+  /*
+   * And its drawn arc sits on the caster, not out in front of him: 崩山击's
+   * wave travels forward, but 大蹦's rift opens around him, and an arc 144px
+   * ahead of the flames read as a second ring lying beside them (owner:
+   * 「圈和火焰没合在一起」).
+   */
+  assert.equal(riftSkill.shockwave.arcOffset, 0, "the ring is drawn on the fire, not beside it");
+  assert.equal(
+    smashSkill.shockwave.arcOffset,
+    undefined,
+    "崩山击 keeps the arc a little ahead of him, where its wave travels"
+  );
   assert.ok(
     riftSkill.heightPad > smashSkill.heightPad,
     "the ultimate also hits higher, so a juggled target is caught"
@@ -1842,12 +1879,16 @@ function bakedStages(source, startMarker, endMarker) {
     /"entry":\s*"([^"]+\.img)"([^}]*)"from":\s*([\d.]+),\s*"until":\s*([\d.]+)/g
   )) {
     const range = /"frames":\s*\((\d+),\s*(\d+)\)/.exec(middle);
+    const offset = /"offset":\s*\(\s*(-?\d+)\s*,\s*(-?\d+)\s*\)/.exec(middle);
+    const scale = /"scale":\s*([\d.]+)/.exec(middle);
     stages.push({
       entry,
       from: Number(from),
       until: Number(until),
       first: range ? Number(range[1]) : 0,
-      last: range ? Number(range[2]) : Infinity
+      last: range ? Number(range[2]) : Infinity,
+      at: offset ? `${offset[1]},${offset[2]}` : "0,0",
+      scale: scale ? Number(scale[1]) : 1
     });
   }
   /*
@@ -1878,13 +1919,22 @@ test("大蹦 plays in stages, not all at once", () => {
     assert.ok(stage.until > stage.from, `${stage.entry} needs a window with a length`);
     assert.ok(stage.last >= stage.first, `${stage.entry} needs frames in order`);
   });
-  /* And no shape is drawn twice over the same part of the row. */
+  /*
+   * And no shape is drawn twice over itself: two stages of one entry that run
+   * at the same time have to be two different things. Either they are the same
+   * art carrying different frames (the rift's cracks over the ring it holds),
+   * or the same art standing in two places (大蹦's rank of pillars, each of
+   * which names its own offset). What this catches is the bug that put every
+   * shape on screen two or three times over - the whole pack stacked once per
+   * colour board, at one spot, at one time.
+   */
   [back, front].forEach((row) => {
     for (let a = 0; a < row.length; a += 1) {
       for (let b = a + 1; b < row.length; b += 1) {
         if (row[a].entry !== row[b].entry) continue;
         const overlap = Math.min(row[a].until, row[b].until) - Math.max(row[a].from, row[b].from);
         if (overlap <= 0) continue;
+        if (row[a].at !== row[b].at) continue;
         assert.ok(
           row[a].last < row[b].first || row[b].last < row[a].first,
           `${row[a].entry} is drawn over itself at the same time`
@@ -1918,8 +1968,44 @@ test("大蹦 plays in stages, not all at once", () => {
   assert.equal(spec.hits, 3, "the rift ticks, it is not one blow");
   assert.equal(spec.shockwaveHit, 0, "the ground wave belongs to the sword, not the last tick");
   const hitSpan = (spec.activeTo - spec.activeFrom) / spec.hits;
-  const second = front.filter((stage) => stage.entry.includes("bloodsexp_2"));
-  assert.equal(second.length, 2, "the tall column is the second wave, and it comes back to fade");
+  /*
+   * 大蹦 erupts in a rank, not in one fire (「它是多个火焰柱子，喷发」): the
+   * landing answers with the pack's own wide fire in five places, and the second
+   * eruption with five of its spires. A rank of pillars, not one column and not
+   * a continuous wall of flame.
+   */
+  const flames = front.filter(
+    (stage) => stage.entry.includes("bloodsexp_1") || stage.entry.includes("bloodsexp_2")
+  );
+  const first = flames.filter(
+    (stage) => stage.entry.includes("bloodsexp_1") && stage.from < 0.4
+  );
+  const second = flames.filter(
+    (stage) => stage.entry.includes("bloodsexp_2") && stage.from >= 0.4
+  );
+  assert.ok(first.length >= 3, "the landing answers in several places");
+  assert.ok(second.length >= 3, "and the second eruption comes up in several places");
+  [first, second].forEach((rank) => {
+    assert.equal(
+      new Set(rank.map((stage) => stage.at)).size,
+      rank.length,
+      "and no two flames stand in the same spot"
+    );
+  });
+  /*
+   * The other half of the note is that they are pillars and not a wall: at the
+   * old ×3.2 one spire stood 4.5 Slayers tall and ran off the top of the arena,
+   * and at 0.5-0.7 on a 110px beat the five copies ran together into one
+   * knee-high band. The row now erupts in pillars of ~1.05-1.55 Slayers - the
+   * bush's tallest frame is 127px of client art and the spire's 179, both drawn
+   * 1:1 - on a 130px beat, which is the size the client's own preview erupts
+   * at; and the bases sit on the band the rift's own lit ring draws rather than
+   * under the far edge of it.
+   */
+  assert.ok(
+    flames.every((stage) => stage.scale >= 0.45 && stage.scale <= 0.9),
+    "every flame is a pillar of its own, neither a fence post nor a wall of fire"
+  );
   const thirdHit = spec.activeFrom + 2 * hitSpan;
   assert.ok(
     thirdHit >= toCast(second[0].from) && thirdHit <= toCast(second[0].until),

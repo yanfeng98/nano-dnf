@@ -60,9 +60,14 @@ ROWS = ["idle", "run", "attack", "skill", "extras", "clips", "clips2"]
 #   怒气爆发   action 10 (8 frames)
 #   十字斩     action 1 (14 frames) + action 25 (6 frames)
 #   血之狂暴   action 22 (9 frames) - the stand that flings both arms out
-#   崩山裂地斩 the same shape, one size up: the same jump (127-132) and a heavier
-#              slam (229-231, the crouch that drives the sword into the ground)
-#              under the ultimate's giant blood sword and rift.
+#   崩山裂地斩 举剑 first, then the leap, then the slam: the owner's note is
+#              「崩山裂地斩是先举剑，参考 123-124」, and 123-124 on this sheet is
+#              exactly the raise - both hands over the head, the blade down in
+#              front of him. The leap (127-132, the same jump a plain C plays)
+#              and the slam (229-231, the crouch that drives the sword into the
+#              ground) sit after it, under the ultimate's giant blood sword and
+#              rift. Without the raise the move opened straight on the leap, so
+#              the one thing the owner asked for was the one thing missing.
 #   银光落刃   the dive the client turns Z into while airborne: the air slash plus
 #              the landing (134-141). The owner did not give this one a frame
 #              range, so these are picked from the same action as the jump attack.
@@ -80,7 +85,7 @@ CLIPS = [
     ("rageBurst", list(range(76, 84))),
     ("crossSlash", list(range(5, 19)) + list(range(198, 204))),
     ("frenzy", list(range(161, 170))),
-    ("mountainRift", list(range(127, 133)) + [229, 230, 231]),
+    ("mountainRift", [123, 124] + list(range(127, 133)) + [229, 230, 231]),
     ("silverFall", list(range(134, 142))),
     ("jump", list(range(127, 133))),
 ]

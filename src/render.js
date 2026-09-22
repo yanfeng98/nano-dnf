@@ -99,18 +99,25 @@
       /* 血之狂暴: body action 22, the stand that flings both arms out. */
       frenzy: { row: 6, first: 0, frames: 9 },
       /*
-       * 大蹦: the same shape as 崩山击 one size up - the hop, then a heavier slam
-       * - under the ultimate's own giant blood sword and rift effect. The leap is
-       * short and the recovery is long: he comes down at 0.72s of the 2s cast and
-       * the rift keeps erupting around him while he stands in it.
+       * 大蹦 opens on the 举剑 the owner asked for (body frames 123-124: both
+       * hands over the head, the blade down in front of him), then the same hop
+       * 崩山击 uses, then a heavier slam - under the ultimate's own giant blood
+       * sword and rift effect. The raise owns the cast before the leap starts
+       * (leapFrom 0.07), the leap owns the air, and the slam lands with the
+       * touchdown at 0.36 of the 2s cast; after that he holds the slam while the
+       * rift keeps erupting around him.
        */
       mountainRift: {
         row: 6,
         first: 9,
-        frames: 9,
+        frames: 11,
         beats: [
-          { frames: 6, from: 0.05, until: 0.36 },
-          { frames: 3, from: 0.36, until: 0.5 }
+          /* the raise, on the ground, before the leap leaves it */
+          { frames: 2, from: 0.0, until: 0.1 },
+          /* the client's own jump, through the air the leap physics owns */
+          { frames: 6, from: 0.1, until: 0.36 },
+          /* the slam, landing on the touchdown the hits are timed to */
+          { frames: 3, from: 0.36, until: 0.55 }
         ]
       },
       /*
@@ -118,14 +125,19 @@
        * the landing; the owner gave no range for this one, so the pick is mine
        * and is written down in assets/dnf_effect_picks.md.
        */
-      silverFall: { row: 6, first: 18, frames: 8 }
+      /*
+       * The dive sits after 大蹦's clip in the same row; 大蹦 gained the two
+       * raise frames, so everything behind it in the bake moved up by two (see
+       * assets/import_dnf_swordman.py CLIPS, which prints the layout it bakes).
+       */
+      silverFall: { row: 6, first: 20, frames: 8 }
     },
     /*
      * The plain hop: the client's own jump animation (sm_body0048 126-131). It is
      * driven by how far the hop has fallen, so the crouch, the launch, the apex
      * and the landing walk in order however high the jump was.
      */
-    jump: { row: 6, first: 26, frames: 6 },
+    jump: { row: 6, first: 28, frames: 6 },
     extras: { hurt: 0, dead: 1, jump: 2, fall: 3 }
   };
 
