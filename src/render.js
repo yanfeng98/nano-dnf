@@ -324,14 +324,15 @@
     },
     /*
      * When a row is drawn, for the moves whose own art says it: 崩山裂地斩 is a
-     * leap, so the pack (sword, then the eruption it drives into the floor)
-     * starts 0.2s before touchdown - the blade of the staged row is the last
-     * thing that happens in the air, and it lands on the hit - and runs to the
-     * end of the cast, so the second eruption and the rift still glowing under
-     * the Slayer are drawn while he is standing in them.
+     * leap, and the move is 先举剑 - the owner points at the client's own body
+     * frames 123-124 for it - so the row starts on the first frame of the cast
+     * and the blood sword it summons is on screen while he raises it, through
+     * the leap (the blade's own gathering frames) and into the strike that lands
+     * on the hit. It runs to the end of the cast, so the second eruption and the
+     * rift still glowing under the Slayer are drawn while he stands in them.
      */
     timing: {
-      mountainRift: { from: 0.26, to: 0.99 }
+      mountainRift: { from: 0, to: 0.99 }
     }
   };
 

@@ -1778,12 +1778,14 @@ test("the effect bake draws each shape in exactly one colour board", () => {
       /"entry":\s*"([^"]+\.img)"([^}]*)"from":\s*([\d.]+),\s*"until":\s*([\d.]+)/g
     )) {
       const range = /"frames":\s*\((\d+),\s*(\d+)\)/.exec(middle);
+      const offset = /"offset":\s*\(\s*(-?\d+)\s*,\s*(-?\d+)\s*\)/.exec(middle);
       stages.push({
         shape: entry.replace(/^\((?:tn|18)\)/, ""),
         from: Number(from),
         until: Number(until),
         first: range ? Number(range[1]) : 0,
-        last: range ? Number(range[2]) : Infinity
+        last: range ? Number(range[2]) : Infinity,
+        at: offset ? `${offset[1]},${offset[2]}` : "0,0"
       });
     }
     const seen = new Map();
@@ -1807,11 +1809,19 @@ test("the effect bake draws each shape in exactly one colour board", () => {
         const overlap = Math.min(one.until, two.until) - Math.max(one.from, two.from);
         if (overlap <= 0) continue;
         const sameFrames = one.first <= two.last && two.first <= one.last;
+        /*
+         * The same art at the same time is only a mistake in the same *place*:
+         * 大蹦's fire is a ring, so one flame shape is stamped round the rift
+         * several times and those copies overlap in time on purpose. What this
+         * catches is the pack stacked once per colour board - one shape, one
+         * spot, two or three times over.
+         */
+        if (one.at !== two.at) continue;
         assert.ok(
           !sameFrames,
           `${block.skill} draws ${one.shape} frames ${one.first}-${one.last} over ` +
             `${one.from}-${one.until} and ${two.first}-${two.last} over ${two.from}-${two.until} ` +
-            "at the same time"
+            `at the same time, both at ${one.at}`
         );
       }
     }
@@ -1948,16 +1958,32 @@ test("大蹦 plays in stages, not all at once", () => {
   const toCast = (at) => (timing.from + at * (timing.to - timing.from)) * spec.duration;
 
   /*
-   * The staged row starts before the landing, because its first act is the blade
-   * still coming down: the sword's window has to close on activeFrom, which is
-   * where the leap puts him - leapFrom of the cast plus the leap's own air time.
+   * The row starts on the first frame of the cast, because its first act is
+   * 举剑: 崩山裂地斩是先举剑, and the owner points at the client's own body frames
+   * 123-124 for the raise - so the blood sword is on screen while he raises it
+   * rather than appearing out of the sky on the landing. Its last window still
+   * has to close on activeFrom, which is where the leap puts him - leapFrom of
+   * the cast plus the leap's own air time - so the strike lands with the hit.
    */
-  const sword = back.find((stage) => stage.entry.includes("bloodsword"));
-  assert.ok(sword, "the row starts with the blade");
+  const sword = back.filter((stage) => stage.entry.includes("bloodsword"));
+  assert.ok(sword.length >= 1, "the row starts with the blade");
   assert.ok(
-    Math.abs(toCast(sword.until) - spec.activeFrom) < 0.06,
-    `the blade lands with the hit (${toCast(sword.until).toFixed(2)}s vs ${spec.activeFrom}s)`
+    toCast(sword[0].from) < 0.02,
+    `the blood sword is up with the raise (${toCast(sword[0].from).toFixed(2)}s in)`
   );
+  const strike = sword[sword.length - 1];
+  assert.ok(
+    Math.abs(toCast(sword[0].until) - spec.activeFrom) < 0.06,
+    `the blade is still coming down when he lands (${toCast(sword[0].until).toFixed(2)}s vs ` +
+      `${spec.activeFrom}s)`
+  );
+  assert.ok(
+    Math.abs(toCast(strike.from) - spec.activeFrom) < 0.06,
+    `and the strike into the ground opens on the hit (${toCast(strike.from).toFixed(2)}s vs ` +
+      `${spec.activeFrom}s)`
+  );
+  const swordFrames = sword.map((stage) => stage.first);
+  assert.deepEqual(swordFrames, [0, 13], "the gathering runs up to the strike frames");
   const airTime = 2 * Math.abs(spec.leapUp) / Core.PHYSICS.gravity;
   assert.ok(
     Math.abs(spec.leapFrom * spec.duration + airTime - spec.activeFrom) < 0.02,
@@ -1969,14 +1995,40 @@ test("大蹦 plays in stages, not all at once", () => {
   assert.equal(spec.shockwaveHit, 0, "the ground wave belongs to the sword, not the last tick");
   const hitSpan = (spec.activeTo - spec.activeFrom) / spec.hits;
   /*
-   * 大蹦 erupts in a rank, not in one fire (「它是多个火焰柱子，喷发」): the
-   * landing answers with the pack's own wide fire in five places, and the second
-   * eruption with five of its spires. A rank of pillars, not one column and not
-   * a continuous wall of flame.
+   * 大蹦 erupts in a ring, not in one fire and not in a rank of them
+   * (「它是多个火焰柱子，喷发」、「不是一排柱子，应该是一个圈」): the landing
+   * answers all the way round the rift with the pack's own wide fire, and the
+   * second eruption comes up round it again with its spires, on the places the
+   * first wave did not use.
+   *
+   * The ring the fire stands on is the one the pack draws: its floor ring is
+   * 445x166 with the caster's ground point (382, 281) in the middle, and the
+   * skill row blows that up 1.8x about its own bottom centre (see the bake), so
+   * the lit ring on the floor is the ellipse centred on (391.5, 241.5) with
+   * semi-axes 195x84. Each flame shape is stamped with its own *bottom centre*
+   * on a place on that ellipse - the bush (bloodsexp_1) is centred on x=419
+   * with its foot at y=324, the spire (bloodsexp_2) on x=474 with its foot at
+   * 282 - so a place's offset can be checked back against the ring.
    */
-  const flames = front.filter(
-    (stage) => stage.entry.includes("bloodsexp_1") || stage.entry.includes("bloodsexp_2")
-  );
+  const RING = { x: 391.5, y: 241.5, rx: 195, ry: 84 };
+  const SHAPES = {
+    bloodsexp_1: { centre: 419, foot: 324 },
+    bloodsexp_2: { centre: 474, foot: 282 }
+  };
+  const shapeOf = (stage) =>
+    stage.entry.includes("bloodsexp_1") ? "bloodsexp_1" : "bloodsexp_2";
+  /* the two eruptions, not the flash the pack calls bloodsexp_glow */
+  const isFlame = (stage) =>
+    stage.entry.includes("bloodsexp_1") || stage.entry.includes("bloodsexp_2");
+  const placeOf = (stage) => stage.at.split(",").map(Number);
+  const onRing = (stage) => {
+    const shape = SHAPES[shapeOf(stage)];
+    const [dx, dy] = placeOf(stage);
+    const across = (shape.centre + dx - RING.x) / RING.rx;
+    const down = (shape.foot + dy - RING.y) / RING.ry;
+    return Math.hypot(across, down);
+  };
+  const flames = front.filter(isFlame);
   const first = flames.filter(
     (stage) => stage.entry.includes("bloodsexp_1") && stage.from < 0.4
   );
@@ -1985,26 +2037,61 @@ test("大蹦 plays in stages, not all at once", () => {
   );
   assert.ok(first.length >= 3, "the landing answers in several places");
   assert.ok(second.length >= 3, "and the second eruption comes up in several places");
-  [first, second].forEach((rank) => {
+  [first, second].forEach((wave) => {
     assert.equal(
-      new Set(rank.map((stage) => stage.at)).size,
-      rank.length,
+      new Set(wave.map((stage) => stage.at)).size,
+      wave.length,
       "and no two flames stand in the same spot"
     );
   });
   /*
-   * The other half of the note is that they are pillars and not a wall: at the
-   * old ×3.2 one spire stood 4.5 Slayers tall and ran off the top of the arena,
-   * and at 0.5-0.7 on a 110px beat the five copies ran together into one
-   * knee-high band. The row now erupts in pillars of ~1.05-1.55 Slayers - the
-   * bush's tallest frame is 127px of client art and the spire's 179, both drawn
-   * 1:1 - on a 130px beat, which is the size the client's own preview erupts
-   * at; and the bases sit on the band the rift's own lit ring draws rather than
-   * under the far edge of it.
+   * Every flame of the move stands on that ring - the row is a circle round the
+   * caster, so a place is not free to sit anywhere on the floor. This is the
+   * assertion that would have caught the rank: five places in a line all read
+   * as off the ellipse at once.
+   */
+  const everyFlame = [...back, ...front].filter(isFlame);
+  assert.ok(everyFlame.length >= 12, "the ring erupts in many places, in both halves");
+  everyFlame.forEach((stage) => {
+    assert.ok(
+      Math.abs(onRing(stage) - 1) <= 0.05,
+      `${shapeOf(stage)} at ${stage.at} stands on the rift's ring`
+    );
+  });
+  const places = everyFlame.map(placeOf);
+  const spansAcross = Math.max(...places.map(([dx]) => dx)) - Math.min(...places.map(([dx]) => dx));
+  const spansDown = Math.max(...places.map(([, dy]) => dy)) - Math.min(...places.map(([, dy]) => dy));
+  assert.ok(spansAcross > 300, `the fire stands round him, not in a line (${spansAcross}px across)`);
+  assert.ok(spansDown > 120, `and has a near side and a far side (${spansDown}px deep)`);
+  const behind = back.filter(isFlame);
+  assert.ok(
+    behind.length >= 3,
+    "the far side of the ring is drawn behind the Slayer, the near side in front"
+  );
+  behind.forEach((stage) => {
+    const shape = SHAPES[shapeOf(stage)];
+    assert.ok(
+      shape.foot + placeOf(stage)[1] < RING.y,
+      `${shapeOf(stage)} at ${stage.at} is a far-side flame`
+    );
+  });
+  /*
+   * And they are pillars, not a wall: at the old ×3.2 one spire stood 4.5
+   * Slayers tall and ran off the top of the arena, and the first ring baked at
+   * 0.55-0.80 (60-108px) drew as candles next to a rift this wide - the owner
+   * sent that back with 「火焰有点小」. The wide bush is 127px of client art at
+   * its tallest and the spire 179, drawn here at 0.62-0.95, so a flame reads
+   * waist-to-chest on a ~120px Slayer; the near places are the biggest, the far
+   * places the smallest, and the near one also erupts first.
    */
   assert.ok(
-    flames.every((stage) => stage.scale >= 0.45 && stage.scale <= 0.9),
+    everyFlame.every((stage) => stage.scale >= 0.45 && stage.scale <= 1),
     "every flame is a pillar of its own, neither a fence post nor a wall of fire"
+  );
+  const largest = first.reduce((best, stage) => (stage.scale > best.scale ? stage : best));
+  assert.ok(
+    placeOf(largest)[1] > 0 && largest.from <= Math.min(...first.map((stage) => stage.from)),
+    "the flame nearest the camera is the biggest and erupts first"
   );
   const thirdHit = spec.activeFrom + 2 * hitSpan;
   assert.ok(
@@ -2019,7 +2106,7 @@ test("大蹦 plays in stages, not all at once", () => {
    */
   const ring = back.filter((stage) => stage.entry.includes("floor") && stage.first === stage.last);
   assert.equal(ring.length, 1, "one held ring frame");
-  assert.ok(ring[0].from <= 0.35 && ring[0].until >= 0.99, "held through the whole lull");
+  assert.ok(ring[0].from <= 0.5 && ring[0].until >= 0.99, "held through the whole lull");
   assert.ok(
     !front.some((stage) => toCast(stage.from) < spec.activeFrom - 0.05),
     "and nothing burns before he lands"
@@ -2100,7 +2187,19 @@ test("each skill picks a DNF effect row across the cast", () => {
     assert.ok(frame, `${skillId} should draw an effect mid-cast`);
     assert.equal(frame.row, row, `${skillId} owns its atlas row`);
     assert.ok(frame.col >= 0 && frame.col < Render.EFFECT.rowFrames[skillId]);
-    assert.equal(Render.skillEffectFrame(skillId, 0), null, `${skillId} draws nothing on frame 0`);
+    /*
+     * A move's art starts on its own active window, so most of them draw
+     * nothing at cast progress 0. 大蹦 is the exception: 崩山裂地斩是先举剑,
+     * the blade it summons goes up with that raise, so its window opens on the
+     * first frame of the cast (see EFFECT.timing.mountainRift) and the frame it
+     * draws there is the head of the sword row, not the fire.
+     */
+    const opens = (Render.EFFECT.timing && Render.EFFECT.timing[skillId]) || null;
+    if (opens && opens.from === 0) {
+      assert.ok(Render.skillEffectFrame(skillId, 0), `${skillId} opens on its own first frame`);
+    } else {
+      assert.equal(Render.skillEffectFrame(skillId, 0), null, `${skillId} draws nothing on frame 0`);
+    }
     assert.equal(Render.skillEffectFrame(skillId, 1), null, `${skillId} stops after the cast`);
   });
   assert.equal(Render.skillEffectFrame("grunt", 0.5), null, "unknown skills have no effect");

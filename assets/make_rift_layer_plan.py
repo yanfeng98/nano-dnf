@@ -93,20 +93,22 @@ GROUPS = [
 ]
 
 # The staging the game now plays, in seconds of its 2s cast: every window is the
-# one written into assets/import_dnf_effects.py (the effect row covers cast
-# 0.52-1.98 - the last 0.2s of the leap plus the recovery). The order and the
-# overlaps are the client's; only the length is compressed, because the client's
-# own event runs 2.33s from its landing (preview frames 23-93) and this cast is 2s.
+# one written into assets/import_dnf_effects.py (the effect rows cover the whole
+# cast, 0.00-1.98, because the move opens on 举剑 and the blood sword goes up with
+# it). The order and the overlaps are the client's; only the length is
+# compressed, because the client's own event runs 2.33s from its landing
+# (preview frames 23-93) and this cast is 2s.
 TIMELINE = [
-    ("血剑 bloodsword", 0.52, 0.72, "f0-f19：火刃扫下来，砸在落地那一下"),
-    ("冲击光 glow", 0.68, 0.80, "f0-f1"),
-    ("地裂 floor", 0.70, 0.96, "f0-f7：碎裂 + 熔岩环铺开 + 碎石飞起"),
-    ("第一波 bloodsexp_1", 0.71, 1.02, "矮宽火丛（客户端 f24-31）"),
-    ("岩浆滴 drops_1/2", 0.81, 1.43, "两滴，错开落"),
-    ("碎岩 part", 0.72, 1.78, "砸地那下与第二波各撒一次"),
-    ("熔岩环留在地上 floor", 0.96, 1.98, "f5 撑住：空档期只剩环与裂纹（客户端 f32-59）"),
-    ("第二波 bloodsexp_2 + glow", 1.40, 1.75, "细高岩浆柱（客户端 f60-93）"),
-    ("收尾 bloodsexp_2 火星", 1.76, 1.98, "火散成火星，环还亮着"),
+    ("血剑 bloodsword 聚起", 0.00, 0.71, "f0-f12：举剑时火刃在头顶聚形，随跳跃压下来"),
+    ("血剑 bloodsword 砸地", 0.71, 0.91, "f13-f19：砸进地面炸开，落在触地那一下"),
+    ("冲击光 glow", 0.67, 0.79, "f0-f1"),
+    ("地裂 floor", 0.69, 0.95, "f0-f7：碎裂 + 熔岩环铺开 + 碎石飞起"),
+    ("第一波 bloodsexp_1（圈）", 0.69, 1.03, "矮宽火丛，六处绕环（客户端 f24-31）"),
+    ("岩浆滴 drops_1/2", 0.85, 1.43, "两滴，错开落"),
+    ("碎岩 part", 0.73, 1.78, "砸地那下与第二波各撒一次"),
+    ("熔岩环留在地上 floor", 0.95, 1.98, "f5 撑住：空档期只剩环与裂纹（客户端 f32-59）"),
+    ("第二波 bloodsexp_2（圈）+ glow", 1.31, 1.80, "细高岩浆柱，另六处绕环（客户端 f60-93）"),
+    ("收尾 bloodsexp_2 火星", 1.80, 1.98, "火散成火星，环还亮着"),
 ]
 
 # Cross-checks against the client preview on the same axis: where its landing
@@ -338,12 +340,15 @@ def main() -> None:
         "",
         "## 一套坐标，站人点在环心",
         "- floor 是 445x166 的环，环心 (382, 281) = 人站的地方 = 出口里的 anchor",
+        "- 那圈光环放大 1.8 倍后是中心 (391.5, 241.5)、半轴 195x84 的椭圆（人站在椭圆中心下方 40px，",
+        "  就是透视里「站在圈里」的位置）——出口里两波火柱的落点全部取在这条椭圆上",
         "- 血剑落在环心左边 x204-343，岩浆从环心右边喷出 x371-518（客户端里火往身后窜）",
         "- part 的帧坐标在包原点，客户端当粒子撒，需要在出口里给落点",
         "",
         "## 播放顺序（现在游戏里放的，0 = 施法开始；客户端预览 OutRageBreak.avi 100 帧 @30fps）",
-        "客户端自己那一段从落地起算有 2.33s（预览 f23 落点 → f93 收尾），这里压到 1.26s 塞进",
-        "2.0s 的施法；每组图的先后与重叠照客户端，只有长度是压过的。",
+        "客户端自己那一段从落地起算有 2.33s（预览 f23 落点 → f93 收尾），这里压到 1.31s 塞进",
+        "2.0s 的施法；血剑的起手（举剑那一段）接在本作自己的起手式上，其余每组图的先后与重叠",
+        "照客户端，只有长度是压过的。",
     ]
     for label, start, until, note in TIMELINE:
         lines.append(f"- {start:.2f}-{until:.2f}s  {label}  ({note})")
@@ -358,6 +363,12 @@ def main() -> None:
         "实现拆成两条各 45 帧的 row：技能行（血剑 + 地裂）画在角色身后，FRONT_ROWS 的火焰行",
         "（补光、两波火、岩浆滴、碎岩）在 drawPlayer 之后画；两行共用同一个窗口、缩放与锚点",
         "（烘焙器的 match 字段把技能行的窗口传过去），所以火还是从裂口里出来。",
+        "血剑从施法第一帧就在场上（业主：「崩山裂地斩是先举剑，参考 123-124」），所以两行覆盖",
+        "整个施法 0.00-1.98s，而不是只覆盖落地之后。",
+        "火是围着人一圈的柱子（业主：「不是一排柱子，应该是一个圈」）：包里每次喷发只有一张图，",
+        "出口把它按包自己的环摆在椭圆上的六处（第二波转 30°，两波合起来整圈都喷一遍）。",
+        "近侧与两侧的柱子画在人前面（FRONT_ROWS），远侧的柱子画在人身后（技能行）——",
+        "圈才有近边和远边，画在同一边就不是圈了。",
         "施法 1.05s → 2.0s，伤害 2 段 → 3 段（剑落 / 地裂研磨 / 第二波），冲击波跟着第一下。",
         "",
         f"生成：python3 assets/{pathlib.Path(__file__).name}",
