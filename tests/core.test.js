@@ -2004,33 +2004,54 @@ test("the effect bake draws each shape in exactly one colour board", () => {
   assert.match(rageText, /"anchor":\s*\(\s*-?\d+,\s*-?\d+\s*\)/, "rageBurst needs a ground anchor");
   assert.match(rageText, /"palette":\s*"\(tn\)"/, "rageBurst needs the client's white-gold board");
   /*
-   * 崩山击's landing is the client preview's, and the pack splits it in two:
-   * d-end is the orange fire column with the white flash through it, and
-   * b_bottom_01_d is the red spikes spreading under it. The row used to be the
-   * spikes alone, which is why the smash landed on a ground tick with no impact.
+   * 崩山击's landing is the client preview's, in three parts: d-end is the
+   * orange fire column and the white-blue flash that crosses it, and
+   * b_bottom_01 is the red spikes spreading around the impact. The row used to
+   * be the spikes alone, which is why the smash landed on a ground tick with no
+   * impact.
    *
-   * The two entries disagree on the ground line - the spikes' own last frame
-   * stops 78px above the column's foot and the two are 79px apart across the
-   * floor - so they are offset onto each other. Without that the spikes floated
-   * in the air over the fire (the first cut of this row did exactly that).
+   * The spikes are the "_n" entry, not the "_d" one: the pack ships the same
+   * shape on two boards, "_d" dark red (mean 149,1,0 over its opaque pixels)
+   * and "_n" bright red-orange (232,40,0). The clip's spikes measure 229,59,14,
+   * so the "_d" copy is what made the landing run maroon (owner: 「技能特效
+   * 颜色不对」).
+   *
+   * And they are a fan, not a floor plate: every wedge points back at one
+   * point, about (214, 102) in their own frames, and that is the impact - so
+   * that point is what goes on the column's foot. Dropping the fan's *bottom
+   * edge* there instead (the older -79, 78) stood the whole fan a body height
+   * too high (owner: 「技能特效好像位置有点高」).
    */
   const smash = blocks.find((entry) => entry.skill === "mountainBreaker");
   const smashText = picks.slice(smash.from, picks.indexOf("\n}", smash.from));
   assert.match(smashText, /"d-end\.img"/, "崩山击 lands on the fire column and the flash");
-  assert.match(smashText, /"b_bottom_01_d\.img"/, "with the ground spikes under it");
+  assert.match(smashText, /"b_bottom_01_n\.img"/, "with the bright spikes around it");
+  assert.ok(
+    !/"b_bottom_01_d\.img"/.test(smashText),
+    "and not the dark board, which is the maroon copy of the same shape"
+  );
   assert.match(smashText, /"anchor":\s*\(\s*-?\d+,\s*-?\d+\s*\)/, "rooted on the column's foot");
-  assert.match(smashText, /\(\s*-79,\s*78\s*\)/, "and the spikes moved onto that foot");
+  assert.match(smashText, /"offset":\s*\(\s*-86,\s*142\s*\)/, "with the fan's own centre on it");
   /*
-   * The column is grown in the bake. Fitted as the pack ships it, the 322px
-   * spike fan sets the row's scale and the 140px column comes out about one
-   * body height tall; the reference erupts a wall of fire nearly twice that
-   * (owner: 「仔细实现」, off the same clip). Growing the layer about its own
-   * base makes the cell width-limited instead, so the spikes keep their size.
+   * The three parts are staged rather than stacked, and carry their own scales.
+   * Measured off the clip (÷2.67) the fan is ~230x107, the column ~150 tall and
+   * the flash only ~100 wide; in the pack they arrive at 306, 140 and 169, so
+   * the column and the fan are grown and the flash is not. One scale for the
+   * lot blew the flash up to twice the clip's when the column was grown.
    */
   assert.match(
     smashText,
-    /"d-end\.img",\s*1\.[0-9]/,
+    /"entry":\s*"d-end\.img",\s*"frames":\s*\(0,\s*1\),\s*"scale":\s*1\.[0-9]/,
     "and the fire column scaled up off its own base"
+  );
+  assert.match(
+    smashText,
+    /"b_bottom_01_n\.img",\s*"scale":\s*1\.[0-9]/,
+    "the spike fan grown with it"
+  );
+  assert.ok(
+    !/"entry":\s*"d-end\.img",\s*"frames":\s*\(2,\s*5\)[^}]*"scale"/.test(smashText),
+    "and the flash left at the size the pack draws it"
   );
   /*
    * 崩山裂地斩 is the 45-level ultimate's own pack, layer by layer: the blood

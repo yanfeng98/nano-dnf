@@ -122,29 +122,44 @@ PICKS = {
     # 崩山击: the client preview lands the smash on an orange fire column with a
     # blue-white flash through it and the ground spitting red spikes, and the
     # pack splits exactly that way - d-end is the column and the flash, and
-    # b_bottom_01_d is the spikes spreading under it. The row used to be the
-    # spikes alone, which is why the landing read as a ground tick with no
+    # b_bottom_01 is the spikes spreading around the impact. The row used to be
+    # the spikes alone, which is why the landing read as a ground tick with no
     # impact; both entries are 6 frames, so the row stays 6.
     #
-    # The two entries do not share a ground line in the pack: the column stands
-    # on y=242 and the spikes' own last frame bottoms out at y=164, 78px above
-    # it, and the two are 79px apart across the floor. Stacked as they come, the
-    # spikes floated in the air over the fire (that is what the first cut of this
-    # row looked like in game), so the spikes are offset onto the column's base.
-    # The anchor is that shared point - the middle of the column's foot - so the
-    # impact lands on the caster's feet rather than wherever the bounding box
-    # happens to sit.
+    # The spikes are the "_n" entry, not the "_d" one. The pack ships both under
+    # the same name with a different board: "_d" is a dark red (mean 149,1,0
+    # over its opaque pixels) and "_n" a bright red-orange (232,40,0). The
+    # training-room clip's spikes measure 229,59,14 - the "_n" board - so the
+    # row was landing on the dark copy and reading as maroon (owner: 「技能特效
+    # 颜色不对」).
     #
-    # The column is drawn at 1.5x. The pack bakes it at 107x140 next to a spike
-    # fan that is 322 wide, so when the two are fitted into one cell the column
-    # came out half the height the reference shows it at: the training-room clip
-    # erupts a wall of fire ~1.7 body heights tall, and the fitted row drew it at
-    # about one. Growing the layer about its own base keeps the foot on the
-    # anchor and makes the cell width-limited instead, so the spikes do not
-    # shrink to pay for it.
-    "mountainBreaker": {"anchor": (86, 242), "stack": [
-        ("_hopsmash", "d-end.img", 1.5),
-        ("_hopsmash", "b_bottom_01_d.img", None, None, (-79, 78)),
+    # The two entries do not share a coordinate space in the pack - the game
+    # places each one from the skill's animation data, which an export does not
+    # carry - and the spikes are not a floor plate but a fan: every wedge points
+    # back at one point, about (214, 102) in their own frames. That is the
+    # impact, so it is what goes on the column's foot (dx -135, dy +140); the
+    # older offset dropped the fan's *bottom edge* on the column's base instead,
+    # which stood the whole fan a body height too high (owner: 「技能特效好像
+    # 位置有点高」). The anchor is the column's own foot centre, so the impact
+    # lands on the caster's feet rather than wherever the bounding box sits.
+    #
+    # The three parts are staged, not stacked, because they are not the same
+    # size in the reference. Measured off 01 崩山击 (clip px / 2.67 = arena px):
+    # the spike fan is ~230x107, the fire column ~150 tall, and the white-blue
+    # flash that crosses it only ~100 wide. In the pack they arrive at 306, 140
+    # and 169 wide respectively, so the column is grown 1.4x, the spikes 1.2x
+    # and the flash left alone; stacked with one scale for the lot, growing the
+    # column to its own height blew the flash up to nearly twice the clip's.
+    #
+    # Each stage also has its own window, which is the reference's order rather
+    # than one flat row: the column is up before he lands (#34-41, touchdown is
+    # #41), the flash crosses it on the way down, and the spikes open with the
+    # landing and stay to the end.
+    "mountainBreaker": {"length": 6, "pack": "_hopsmash", "anchor": (79, 242), "stages": [
+        {"entry": "d-end.img", "frames": (0, 1), "scale": 1.4, "from": 0.0, "until": 0.30},
+        {"entry": "d-end.img", "frames": (2, 5), "from": 0.22, "until": 0.80},
+        {"entry": "b_bottom_01_n.img", "scale": 1.2, "offset": (-86, 142),
+         "from": 0.20, "until": 1.0},
     ]},
     "crossSlash": {"stack": [("_gorecross", "gorecross_cross.img")]},
     # 血气之刃: the blood sword is thrust, then it bursts.
