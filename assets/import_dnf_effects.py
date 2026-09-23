@@ -134,8 +134,16 @@ PICKS = {
     # The anchor is that shared point - the middle of the column's foot - so the
     # impact lands on the caster's feet rather than wherever the bounding box
     # happens to sit.
+    #
+    # The column is drawn at 1.5x. The pack bakes it at 107x140 next to a spike
+    # fan that is 322 wide, so when the two are fitted into one cell the column
+    # came out half the height the reference shows it at: the training-room clip
+    # erupts a wall of fire ~1.7 body heights tall, and the fitted row drew it at
+    # about one. Growing the layer about its own base keeps the foot on the
+    # anchor and makes the cell width-limited instead, so the spikes do not
+    # shrink to pay for it.
     "mountainBreaker": {"anchor": (86, 242), "stack": [
-        ("_hopsmash", "d-end.img"),
+        ("_hopsmash", "d-end.img", 1.5),
         ("_hopsmash", "b_bottom_01_d.img", None, None, (-79, 78)),
     ]},
     "crossSlash": {"stack": [("_gorecross", "gorecross_cross.img")]},

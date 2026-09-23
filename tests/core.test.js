@@ -580,6 +580,60 @@ test("崩山击 knocks the target down and its shockwave does too", () => {
   assert.ok(state.effects.some((effect) => effect.kind === "shockwave"));
 });
 
+test("崩山击's wave hits and shakes without drawing a targeting ring", () => {
+  /*
+   * The reference draws no ring under this move - the landing is the fire
+   * column and the spikes and nothing else (owner: 「参考视频没有范围圈」).
+   * The wave keeps its hitbox, so the second target above still takes its
+   * damage; what is dropped is the ellipse the engine draws for every other
+   * wave (大蹦 keeps its own - that one is the circle the fire erupts from).
+   */
+  assert.equal(
+    Core.SKILLS.mountainBreaker.shockwave.arc,
+    false,
+    "崩山击's wave draws no arc"
+  );
+  assert.equal(
+    Core.SKILLS.mountainRift.shockwave.arc,
+    undefined,
+    "and 大蹦 keeps the engine's own ring"
+  );
+
+  const state = lastRoomState();
+  state.enemies.forEach((enemy) => {
+    enemy.dead = true;
+  });
+  Core.step(state, { skills: { mountainBreaker: true } });
+  Core.runFrames(state, Math.ceil(0.78 * Core.FPS), {});
+  const wave = state.effects.find((effect) => effect.kind === "shockwave");
+  assert.ok(wave, "the wave is still pushed, so it still shakes the screen");
+  assert.equal(wave.arc, false, "carrying the flag render reads to skip the ring");
+
+  /*
+   * And the ring is skipped in the one place that draws it. A plain wave has to
+   * keep drawing, so this pins the flag, not the absence of the branch.
+   */
+  const renderSource = fs.readFileSync(
+    path.join(__dirname, "..", "src", "render.js"),
+    "utf8"
+  );
+  assert.match(
+    renderSource,
+    /effect\.kind === "shockwave" && effect\.arc !== false/,
+    "drawPlayer's wave branch skips the ring when the skill says so"
+  );
+  assert.equal(
+    Render.EFFECT.draw.mountainBreaker.ground,
+    true,
+    "and the landing art is rooted on the floor, not on his airborne feet"
+  );
+  assert.equal(
+    Render.EFFECT.timing.mountainBreaker.from,
+    0.45,
+    "the column is up before touchdown, the way the reference erupts it"
+  );
+});
+
 test("十字斩 makes the target bleed from skill level 2", () => {
   const state = lastRoomState();
   const enemy = Core.createEnemy(state, "brute", state.player.x + 60);
@@ -1966,6 +2020,18 @@ test("the effect bake draws each shape in exactly one colour board", () => {
   assert.match(smashText, /"b_bottom_01_d\.img"/, "with the ground spikes under it");
   assert.match(smashText, /"anchor":\s*\(\s*-?\d+,\s*-?\d+\s*\)/, "rooted on the column's foot");
   assert.match(smashText, /\(\s*-79,\s*78\s*\)/, "and the spikes moved onto that foot");
+  /*
+   * The column is grown in the bake. Fitted as the pack ships it, the 322px
+   * spike fan sets the row's scale and the 140px column comes out about one
+   * body height tall; the reference erupts a wall of fire nearly twice that
+   * (owner: 「仔细实现」, off the same clip). Growing the layer about its own
+   * base makes the cell width-limited instead, so the spikes keep their size.
+   */
+  assert.match(
+    smashText,
+    /"d-end\.img",\s*1\.[0-9]/,
+    "and the fire column scaled up off its own base"
+  );
   /*
    * 崩山裂地斩 is the 45-level ultimate's own pack, layer by layer: the blood
    * sword it summons comes down, the ground splits under it and the flames come

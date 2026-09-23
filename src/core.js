@@ -202,7 +202,15 @@
         heightPad: 10,
         knockbackX: 200,
         knockdown: 0.7,
-        extraWaveFromLevel: 5
+        extraWaveFromLevel: 5,
+        /*
+         * The wave still hits and still shakes the screen, but it draws no ring:
+         * the reference (01 崩山击) lands the smash on the fire column and the
+         * spikes alone, and the drawn ellipse read as a targeting circle the
+         * move does not have (owner: 「参考视频没有范围圈」). 大蹦 keeps its own
+         * ring - that one is the fire's own circle (arcOffset 0).
+         */
+        arc: false
       }
     },
     crossSlash: {
@@ -1756,6 +1764,13 @@
           });
           state.effects.push({
             kind: "shockwave",
+            /*
+             * Most waves draw the ring the engine gives them; a skill can set
+             * `arc: false` to keep the hitbox and the screen shake but drop the
+             * ellipse. 崩山击 does (see its spec): the reference shows the fire
+             * column and the spikes, never a ring.
+             */
+            arc: wave.arc === undefined ? true : wave.arc,
             /*
              * Where the drawn arc sits: a fraction of the wave's reach out in
              * front of the caster. 崩山击's wave travels forward, so its arc is

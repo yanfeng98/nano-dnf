@@ -80,8 +80,8 @@
        * The client's own 崩山击, straight off its preview clip: 187 (the blade
        * still down and forward) and 194/203 (both hands up, the blade over the
        * head, the client's own 举剑) are the lift, 204-205 is the coil at the top
-       * of the hop, the smash's crescent (206-207) lands with the hit, and the
-       * low lunge it ends in (208-209) holds through the recovery. Nine frames,
+        * of the hop, the smash's crescent (206-207) cuts through the descent and
+        * the low lunge it lands in (208-209) holds through the recovery. Nine frames,
        * paced per beat: spreading them evenly put each pose on screen for a
        * fifth of a second, which is what read as stutter, and playing the
        * client's own hop frames (127-132) in front of all this gave the move two
@@ -97,10 +97,17 @@
           { frames: 3, from: 0.0, until: 0.32 },
           /* ... the coil at the top of the hop ... */
           { frames: 2, from: 0.32, until: 0.45 },
-          /* ... the crescent, landing on the hit at 0.75s of the 1.3s cast ... */
-          { frames: 2, from: 0.45, until: 0.75 },
-          /* ... and the lunge it lands in, held to the end of the cast. */
-          { frames: 2, from: 0.75, until: 1.0 }
+          /*
+           * ... the crescent. It is brief, the way the reference holds it - two
+           * frames around the apex and the descent (#33 of 01 崩山击) - and the
+           * hit lands a frame into it, at 0.75s of the 1.3s cast. Holding it
+           * for a third of the move (what this used to do) left him swinging
+           * mid-air for most of the cast, where the clip is already on the
+           * ground with the spikes out.
+           */
+          { frames: 2, from: 0.45, until: 0.62 },
+          /* ... and the lunge it lands in, held through the recovery. */
+          { frames: 2, from: 0.62, until: 1.0 }
         ]
       },
       rageBurst: { row: 5, first: 9, frames: 8 },
@@ -307,9 +314,11 @@
        * with an anchor now (the foot of the fire column, which is also where the
        * spikes were moved to), so dy is a quarter of the size like 大蹦's rows:
        * that puts the impact on his feet instead of a fixed few pixels under
-       * them, which is what the un-anchored row used to need.
+       * them, which is what the un-anchored row used to need. `ground` keeps it
+       * there while he is still in the air (see drawEffectRow): the fire comes
+       * out of the floor he is falling toward, not out of his boots.
        */
-      mountainBreaker: { dx: 0, dy: -59, size: 236, copies: 1, spin: 0 },
+      mountainBreaker: { dx: 0, dy: -59, size: 236, copies: 1, spin: 0, ground: true },
       /* 十字斩's own art draws the cross (a horizontal stroke, then the
          vertical one landing on it), so it is no longer mirrored into one.
          DNF draws the cross and then pushes it forward, so it also travels. */
@@ -375,13 +384,16 @@
     timing: {
       mountainRift: { from: 0, to: 0.99 },
       /*
-       * 崩山击's landing art starts on the hit, not on the press: the fire
-       * column, the flash and the ground spikes are one impact, and the default
-       * window (a fraction of activeFrom) opened it while he was still in the
-       * air. 0.58 is the hit at 0.75s of the 1.3s cast; the row then runs out
-       * over the recovery, the way the clip's spikes do.
+       * 崩山击's landing art opens as he comes down, not on the press. The
+       * reference erupts the fire column while he is still in the air (#34 of
+       * 01 崩山击, well before touchdown at #41) and the spikes spread as he
+       * lands; the default window (a fraction of activeFrom) opened it while
+       * the hop was still climbing, and 0.58 opened it on the hit alone. 0.45
+       * is a tenth of a second before touchdown at 0.75s of the 1.3s cast, so
+       * the column is up when he arrives and the row runs out over the
+       * recovery, the way the clip's spikes do.
        */
-      mountainBreaker: { from: 0.58, to: 0.95 }
+      mountainBreaker: { from: 0.45, to: 0.95 }
     }
   };
 
@@ -1237,9 +1249,18 @@
     var progress = Math.min(1, Math.max(0, 1 - player.skillTimer / spec.duration));
     var reach = draw.dx + (draw.travel || 0) * progress;
     var size = draw.size * (1 + (draw.grow || 0) * progress);
+    /*
+     * Where the row is rooted. Normally it rides the caster, which is what a
+     * slash drawn around the blade wants. 崩山击's landing art is not that: the
+     * reference erupts it out of the floor while he is still coming down, so
+     * `ground` pins the row to the floor line instead of to his feet - which are
+     * in the air for the first half of the window. On the ground the two are the
+     * same point, so this only changes the airborne half.
+     */
+    var baseY = draw.ground ? Core.ARENA.groundY : player.y;
 
     ctx.save();
-    ctx.translate(player.x + player.facing * reach, player.y + draw.dy);
+    ctx.translate(player.x + player.facing * reach, baseY + draw.dy);
     ctx.scale(player.facing, 1);
     ctx.globalAlpha = frame.alpha;
     ctx.imageSmoothingEnabled = true;
@@ -1504,7 +1525,7 @@
         ctx.fillText(effect.text, effect.x, effect.y - 10);
       }
       ctx.restore();
-    } else if (effect.kind === "shockwave") {
+    } else if (effect.kind === "shockwave" && effect.arc !== false) {
       ctx.save();
       ctx.globalAlpha = alpha * 0.85;
       ctx.strokeStyle = "#ffb066";
