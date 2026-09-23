@@ -117,30 +117,36 @@
       /*
        * 大蹦 opens on the 举剑 the owner asked for (body frames 123-124: both
        * hands over the head, the blade down in front of him) and drives it into
-       * the floor in front of him (125-128) - under the ultimate's own giant
-       * blood sword and rift effect. It is a grounded move: the client's own
-       * preview keeps the caster planted, so the hop 崩山击 uses is gone (the
-       * owner read it as 「多余动作」) and the two beats fill the same 0.72s the
-       * hits are timed to, with the drive-through landing on activeFrom at 0.36
-       * of the 2s cast.
+       * the floor under the ultimate's own giant blood sword and rift effect.
        *
-       * The last frame then holds for the rest of the cast, the way a heavy move
-       * settles: he stays in the drive, low over the sword, while the rift keeps
-       * erupting around him. What it must not hold is a pose the move never
-       * reaches - the clip used to end on 133, a leaning balance on one raised
-       * leg with the blade up in front, which left him standing in his own fire
-       * doing it for over a second (owner: 「放完技能多了一个不正确的动作，歪着
-       * 身体举剑那个动作」). 128 is the bottom of the drive itself.
+       * The beats are the training-room reference's, measured frame by frame
+       * (10_崩山裂地斩): he raises the sword and holds it for half a second
+       * (#16-32 = 0.00-0.135 of the cast), leaps with the blade over his head and
+       * his legs tucked (#33-50 = 0.135-0.285, apex at 0.867s), lands prone with
+       * the sword driven in and stays there while the rift burns under him
+       * (#51-88 = 0.285-0.60), then gets up as the second eruption rises
+       * (#88-135 = 0.60-1.00).
+       *
+       * What it must not hold is a pose the move never reaches - the clip used to
+       * end on 133, a leaning balance on one raised leg with the blade up in
+       * front, which left him standing in his own fire doing it for over a second
+       * (owner: 「放完技能多了一个不正确的动作，歪着身体举剑那个动作」). 208-209 are
+       * the prone landing itself and the last beat is 132, the plain stand he is
+       * left in.
        */
       mountainRift: {
         row: 6,
         first: 9,
-        frames: 6,
+        frames: 7,
         beats: [
           /* the raise, held long enough to read as 举剑 */
-          { frames: 2, from: 0.0, until: 0.18 },
-          /* the blade comes down in front of him and stays down, on the hit */
-          { frames: 4, from: 0.18, until: 0.36 }
+          { frames: 2, from: 0.0, until: 0.135 },
+          /* the leap, blade overhead (the reference's #33-50) */
+          { frames: 2, from: 0.135, until: 0.285 },
+          /* the landing he holds under the rift, sword in the floor */
+          { frames: 2, from: 0.285, until: 0.6 },
+          /* and the stand he comes back to for the second eruption */
+          { frames: 1, from: 0.6, until: 1.0 }
         ]
       },
       /*
@@ -153,14 +159,14 @@
        * moves whenever that clip's length does (see assets/import_dnf_swordman.py
        * CLIPS, which prints the layout it bakes).
        */
-      silverFall: { row: 6, first: 15, frames: 8 }
+      silverFall: { row: 6, first: 16, frames: 8 }
     },
     /*
      * The plain hop: the client's own jump animation (sm_body0048 126-131). It is
      * driven by how far the hop has fallen, so the crouch, the launch, the apex
      * and the landing walk in order however high the jump was.
      */
-    jump: { row: 6, first: 23, frames: 6 },
+    jump: { row: 6, first: 24, frames: 6 },
     extras: { hurt: 0, dead: 1, jump: 2, fall: 3 }
   };
 
@@ -277,11 +283,12 @@
       graspHead: 18,
       bloodEvil: 15,
       /*
-       * 大蹦 bakes a staged row now: the pack is one move in four acts (the blade
-       * falls, the floor splits, the ring glows on, the magma erupts twice), and
-       * stacking all eight layers at once put every act on screen in the same
-       * third of a second. The row is as long as the windows in
-       * assets/import_dnf_effects.py add up to.
+       * 大蹦 bakes a staged row: the pack is one move in several acts (the floor
+       * splits, the crack field glows under the held ring, the first wave comes
+       * up, the second eruption rises and dies back), and stacking every layer at
+       * once put all of it on screen in the same fraction of a second. The row is
+       * as long as the windows in assets/import_dnf_effects.py add up to - and at
+       * 45 columns over a 4s cast it is a column every 89ms.
        */
       mountainRift: 45
     },
@@ -336,41 +343,43 @@
       graspHead: { dx: 30, dy: -36, size: 128, copies: 1, spin: 0 },
       bloodEvil: { dx: 44, dy: -30, size: 178, copies: 1, spin: 0 },
       /*
-       * 大蹦 is the ultimate, and the owner's read is that the whole effect is
-       * one size up - not just the ground wave. The rows are the client's own
-       * pack (the blood sword coming down, the rift it opens, the flames that
-       * come out of it), baked with the caster's ground point on the cell's
-       * ground line, so dy is a quarter of the size: that puts the rift under
-       * his feet rather than at his knees the way a centred row would.
+       * 大蹦 is the ultimate, and its rift is the training-room reference's: the
+       * cracked ground there is 720x285 ref px = 265x107 here, with its middle
+       * 95px *in front* of the caster - it is a gash running forward, not a ring
+       * round him. So the row is drawn forward (dx) and the bake no longer blows
+       * the floor up 1.8x (which had put a 745px shatter on screen where the
+       * reference shows 265).
        *
-       * The size is what puts the rift's ring on screen where its own reach is.
-       * The bake blows the ground up 1.8x (the pack draws the ring at 239px of
-       * client art, which came out smaller than the 380px the move's radius of
-       * 190 reaches), and the cell scales whatever is widest to fit: 840 draws
-       * the held ring at ~400px, the cracks it crawls into at ~520 and the
-       * shattered ground of the impact at ~745, while the sword keeps the size
-       * the owner already signed off.
+       * The rows are baked with the caster's ground point on the cell's ground
+       * line, so dy is a quarter of the size: that puts the rift under his feet
+       * rather than at his knees the way a centred row would. `size` is the row's
+       * zoom - one client pixel of the pack lands on 0.596 of a screen pixel,
+       * which is what draws the pack's 444px floor at the reference's 265 - and
+       * `ground` pins it to the floor line while he is still leaping (the gash
+       * opens on the ground he is coming down to, not on his boots).
        */
-      mountainRift: { dx: 20, dy: -210, size: 840, copies: 1, spin: 0 }
+      mountainRift: { dx: 95, dy: -73, size: 290, copies: 1, spin: 0, ground: true }
     },
     /*
      * The half of a move's art that is drawn over the Slayer can be baked to its
-     * own zoom, because a window is a zoom: the rift is 811px of client art and
-     * needs the whole cell, and holding the fire to that same zoom drew a 240px
-     * flame out of 35 cell pixels. So the fire row gets its own window (553px of
-     * client art) and this row says what to draw it at.
+     * own zoom, because a window is a zoom: 大蹦's ground row is 456px of client
+     * art wide and 435 tall (the floor plus the two rear spires), and holding the
+     * fire to that same zoom would draw a 223px flame out of 20 cell pixels. So
+     * the fire row gets its own window, and this row says what to draw it at.
      *
      * The two halves still land on top of each other, and here is why: both rows
      * are baked with the caster's own ground point on the same spot of their cell
      * (64, 96 of 128), and both are drawn with that spot on his feet. A cell is
      * drawn so that cell (64, 96) lands at the caster + (dx, dy + 0.25 * size),
      * so the front row's dy is the skill's dy plus the quarter-of-the-size
-     * difference: -210 + 0.25 * (840 - 572) = -143. `size` is what keeps one
-     * client pixel the same size on screen in both rows: (840 / 811) ==
-     * (572 / 553), both 1.035.
+     * difference: -73 + 0.25 * (290 - 469) = -117. `size` is what keeps one
+     * client pixel the same size on screen in both rows: the row's `size` over
+     * the span the cell had to fit is the same number for both of them
+     * (290 / 456 == 469 / 738 == 0.636), and that ratio is all a client pixel
+     * is worth on screen (0.596 of a screen pixel here).
      */
     frontDraw: {
-      mountainRift: { dx: 20, dy: -143, size: 572 }
+      mountainRift: { dx: 95, dy: -117, size: 469 }
     },
     /*
      * When a row is drawn, for the moves whose own art says it: 崩山裂地斩 is a
@@ -394,6 +403,16 @@
        * recovery, the way the clip's spikes do.
        */
       mountainBreaker: { from: 0.45, to: 0.95 }
+    },
+    /*
+     * How a row dies down, per skill. The default (0.75 -> 1, down to 0.3 of
+     * full strength) is right for a move whose last act is its quietest; 大蹦
+     * ends on its second eruption, which is its tallest, so its row holds full
+     * strength until the fire is actually going out (the reference's last three
+     * frames) and only then drops.
+     */
+    fade: {
+      mountainRift: { from: 0.92, to: 1, floor: 0.45 }
     }
   };
 
@@ -435,10 +454,21 @@
     if (progress < from || progress > to) return null;
     var local = Math.min(1, (progress - from) / Math.max(0.0001, to - from));
     if (frames === undefined || frames === null) frames = EFFECT.rowFrames[skillId] || 4;
+    /*
+     * A row's tail fades out, because those rows are a move dying down. A move
+     * whose own last act is its biggest one says so instead: 大蹦's second
+     * eruption is at 0.70-0.92 of a 4s cast, so the default fade (from 0.75)
+     * would draw the tallest fire it has at a third strength. `floor` is what
+     * the alpha has fallen to at the end of the window.
+     */
+    var fade = (EFFECT.fade && EFFECT.fade[skillId]) || { from: 0.75, to: 1, floor: 0.3 };
     return {
       row: row,
       col: Math.min(frames - 1, Math.floor(local * frames)),
-      alpha: 1 - Math.max(0, (local - 0.75) / 0.25) * 0.7
+      alpha:
+        1 -
+        Math.min(1, Math.max(0, (local - fade.from) / Math.max(0.0001, fade.to - fade.from))) *
+          (1 - fade.floor)
     };
   }
 

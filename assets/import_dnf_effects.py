@@ -15,7 +15,8 @@ the GitHub mirror otherwise:
   嗜血        effect/bloodsnatch/bloodwave.img
   抓头        effect/pinchhpregen.img
   血魔        effect/bloodevil/bloodevil_stand_dungeon_effect.img
-  崩山裂地斩  effect/fire-front.img
+  崩山裂地斩  effect/outragebreak/*.img  (the move's own pack; the fire-front pair
+              this used to name was rejected by the owner)
 
 The hotbar is the Berserker kit: every move above is one the red-eyed Slayer
 actually learns, rather than the mixed 鬼泣/剑魂 skills it used to carry.
@@ -44,7 +45,7 @@ import sys
 import urllib.request
 from pathlib import Path
 
-from PIL import Image
+from PIL import Image, ImageChops
 
 ROOT = Path(__file__).resolve().parent
 SRC = ROOT / "dnf_src"
@@ -94,9 +95,12 @@ def clamp01(value: float) -> float:
 #                shapes can overlap without either one restarting. A stage entry
 #                is {"pack", "entry", "from", "until"} plus optional "frames"
 #                (which frames of the entry to use), "scale", "board", "offset"
-#                and "alpha" (draw this stage at part strength - the rift's
+#                "alpha" (draw this stage at part strength - the rift's
 #                cracks are dimmed under the lit ring so the quiet part of the
 #                move reads as a ring, not as a lake of lava).
+#                and "ramp" (recolour the layer through the reference's own
+#                measured colour, which is how 大蹦's fire comes out red when
+#                every board the pack ships is red-orange or orange).
 #                A pick may set "length" (how many cells the row bakes to).
 #   "palette"  - which of the pack's colour boards to draw by default. The client
 #                ships every shape several times - plain, "(tn)" and "(18)" - and
@@ -117,6 +121,29 @@ def clamp01(value: float) -> float:
 # "(tn)" and "(18)" copies drawn from a different colour board. They are the same
 # art at the same coordinates, not extra layers, so a wildcard pick must take one
 # board - stacking all three drew every ring and pillar two or three times over.
+#
+# 崩山裂地斩 is the one row whose colour is not on any of those boards. The
+# training-room clip the owner points at (10_崩山裂地斩) draws its fire in deep
+# blood red - the flame body measures (183,25,7) with a few white-hot cores, and
+# the lava lines in the cracked floor (184,70,52) - while the pack only ships
+# (140,2,1) plain red and (255,129,3) orange, and the client's own preview video
+# is orange too. So a stage can hand its layer the colour the reference itself
+# measures, by ramping the layer's own brightness through these stops: the art's
+# shading survives (dull parts stay dark, the hot core still reads white-hot) and
+# the mean lands where the reference's does.
+FIRE_RAMP = [
+    (0.00, (30, 0, 0)),
+    (0.35, (150, 10, 3)),
+    (0.70, (200, 35, 12)),
+    (1.00, (250, 120, 80)),
+]
+FLOOR_RAMP = [
+    (0.00, (18, 4, 3)),
+    (0.30, (110, 40, 28)),
+    (0.65, (190, 80, 60)),
+    (1.00, (240, 150, 120)),
+]
+
 PICKS = {
     "upSlash": {"stack": [("", "upperslash.img")]},
     # 崩山击: the client preview lands the smash on an orange fire column with a
@@ -235,10 +262,22 @@ PICKS = {
     # lands at frame 23, erupts wide over 24-31, holds the ring over 32-59 and
     # erupts tall over 60-93.
     #
-    # This row is what is drawn behind the Slayer (the ground and the blade); the
-    # fire he throws is FRONT_ROWS below, baked to this same window so the two
-    # halves land on the same pixels.
-    "mountainRift": {"palette": "(tn)", "pack": "_outragebreak", "anchor": (382, 281),
+    # What the training-room clip changed, measured frame by frame off
+    # 10_崩山裂地斩 (see assets/dnf_effect_picks.md for the table): the rift is
+    # 720x285 ref px = 265x107 here and its middle sits 80-106px *in front* of the
+    # caster, so the row is drawn 95px forward (EFFECT.draw.dx) and the whole
+    # floor is no longer blown up - 1.8x made a 745px shatter where the reference
+    # shows 265. The window that fixes the row's scale is the floor's own 444px,
+    # which the renderer draws at 265 (EFFECT.draw.mountainRift.size).
+    #
+    # The fire is red in the reference (flame body (183,25,7)) and orange on every
+    # board the pack ships, so the layers carry FIRE_RAMP / FLOOR_RAMP instead of
+    # a board - see the ramps above PICKS.
+    #
+    # This row is what is drawn behind the Slayer (the ground and the two rear
+    # spires); the rest of the fire and the blood sword are FRONT_ROWS below,
+    # baked to this same window so the two halves land on the same pixels.
+    "mountainRift": {"palette": "", "pack": "_outragebreak", "anchor": (382, 281),
                      "length": 45, "stages": [
         # The blood sword 举剑 carries is not here: this is the half of the move
         # that stays *behind* the Slayer (the blade lands on his feet and is
@@ -246,49 +285,35 @@ PICKS = {
         # drawn over him - see FRONT_ROWS.
         # The floor: one frame of the ground coming apart, then the molten ring
         # blooming out of it with rocks thrown up, then the cracks that keep
-        # glowing on the floor for the rest of the move.
-        #
-        # The whole ground is blown up 1.8x. The pack draws the rift at its own
-        # scale - the biggest ring is 239px of client art - which came out at
-        # 232px on screen, smaller than the 380px the move's own radius (190)
-        # reaches and much smaller than the client's rift, which covers about
-        # 60% of its screen. Everything else in the row keeps the size the owner
-        # already signed off, because the draw size scales with the window (see
-        # EFFECT.draw.mountainRift).
-        {"entry": "outragebreak_floor.img", "scale": 1.8, "frames": (0, 1), "from": 0.35, "until": 0.40},
-        {"entry": "outragebreak_floor.img", "scale": 1.8, "frames": (2, 7), "from": 0.36, "until": 0.48},
-        # The crack field is drawn at half strength. Blown up 1.8x it covered the
-        # floor as a lake of bright lava for the whole quiet stretch, where the
-        # client shows a dark rift with a lit ring.
-        {"entry": "outragebreak_floor.img", "scale": 1.8, "alpha": 0.5, "frames": (8, 10), "from": 0.42, "until": 1.00},
+        # glowing on the floor for the rest of the move. The windows open on the
+        # landing (activeFrom 0.285 of the 4s cast) rather than on the old 0.72s.
+        {"entry": "outragebreak_floor.img", "ramp": FLOOR_RAMP, "frames": (0, 1), "from": 0.24, "until": 0.27},
+        {"entry": "outragebreak_floor.img", "ramp": FLOOR_RAMP, "frames": (2, 7), "from": 0.26, "until": 0.34},
+        # The crack field is drawn at half strength: at full strength it covered
+        # the floor as a lake of bright lava for the whole quiet stretch, where
+        # the reference shows a dark rift with lit lines running through it.
+        {"entry": "outragebreak_floor.img", "ramp": FLOOR_RAMP, "alpha": 0.5, "frames": (8, 10), "from": 0.30, "until": 1.00},
         # The ring itself stays on the floor while the cracks crawl out of it -
-        # the client's preview (frames 32-59) has the ring lit the whole lull. It
-        # is painted last, over the dimmed cracks, so it is the one thing on the
-        # ground that stays bright.
-        {"entry": "outragebreak_floor.img", "scale": 1.8, "frames": (5, 5), "from": 0.48, "until": 1.00},
-        # The places of the fire ring that stand *behind* the Slayer. The ring
-        # the fire stands on is the ellipse the rift itself draws - the pack's
-        # floor ring is 445x166 round the caster, blown up 1.8x - and a ring has
-        # a near side and a far side. The ones on the far centre line sit a
-        # hundred-odd px above his feet on screen, right where his body is, so
-        # drawing them on the front row (the rest of the fire) would lay flames
-        # across him; they belong to this row, which is composited before he is.
-        # The places beside him and in front of him are the front row
-        # (FRONT_ROWS below), so the fire ends up around him, not over him.
+        # the reference holds it lit the whole lull (its #60-83). It is painted
+        # last, over the dimmed cracks, so it is the one thing on the ground that
+        # stays bright.
+        {"entry": "outragebreak_floor.img", "ramp": FLOOR_RAMP, "frames": (5, 5), "from": 0.34, "until": 1.00},
+        # The two places of the second eruption that land on the Slayer himself.
+        # The gash runs forward from under him, so the end of it nearest the
+        # camera is where his own body is: a spire there drawn on the front row
+        # would lie across him, so the rearmost two stand on this row, composited
+        # before he is.
         #
-        # The places are the ellipse's own geometry: centre (391.5, 241.5) - the
-        # pack puts the caster's ground point (382, 281) below the middle of the
-        # ring, because the ring is drawn in perspective - with semi-axes
-        # 195x84, and the six places sit 60 degrees apart on it. Offsets are
-        # (place - the shape's own bottom centre): the wide bush (bloodsexp_1)
-        # is centred on x=419 with its foot at y=324, the spire (bloodsexp_2) on
-        # x=474 with its foot at 282.
-        {"entry": "outragebreak_bloodsexp_1_none.img", "scale": 1.40, "offset": (-28, -167),
-         "from": 0.40, "until": 0.48},
-        {"entry": "outragebreak_bloodsexp_2_none.img", "scale": 1.25, "offset": (15, -113),
-         "from": 0.71, "until": 0.90},
-        {"entry": "outragebreak_bloodsexp_2_none.img", "scale": 1.25, "offset": (-180, -113),
-         "from": 0.71, "until": 0.90},
+        # A place is named in client coordinates: 382 + u across, where u is how
+        # far *forward* of the caster it stands (the rows are mirrored by facing,
+        # so forward is +x), and 249 up, which is his own ground line (281) pulled
+        # 32px into the gash where the reference's flames stand. The offset is
+        # (place - the shape's own foot): the spire (bloodsexp_2) is centred on
+        # x=474 with its foot at y=278.
+        {"entry": "outragebreak_bloodsexp_2_none.img", "ramp": FIRE_RAMP, "scale": 1.70,
+         "offset": (-126, -35), "from": 0.72, "until": 0.90},
+        {"entry": "outragebreak_bloodsexp_2_none.img", "ramp": FIRE_RAMP, "scale": 1.70,
+         "offset": (-50, -29), "from": 0.71, "until": 0.91},
     ]},
 }
 
@@ -315,7 +340,7 @@ EXTRA_ROWS = [
 # zoomed. The zoom is per row - the renderer draws this one at its own size, see
 # EFFECT.frontDraw - because the rift needs the whole cell and the fire does not.
 FRONT_ROWS = [
-    ("mountainRiftFire", {"palette": "(tn)", "pack": "_outragebreak",
+    ("mountainRiftFire", {"palette": "", "pack": "_outragebreak",
                           "match": "mountainRift", "length": 45, "stages": [
         # The blood sword the raise carries. The owner reads the move as
         # 崩山裂地斩是先举剑 and points at the client's own body frames 123-124 - the
@@ -337,102 +362,93 @@ FRONT_ROWS = [
         # in front of him for the strike. (It used to be pushed 320px forward on
         # the row *behind* him, which drew it as a comet crossing the screen
         # through the whole raise - the owner read that as 「多余动作」.)
-        {"entry": "outragebreak_bloodsword_none.img", "scale": 1.0, "offset": (200, -20),
-         "frames": (0, 12), "from": 0.00, "until": 0.33},
-        {"entry": "outragebreak_bloodsword_none.img", "scale": 1.2, "offset": (200, -20),
-         "frames": (13, 19), "from": 0.33, "until": 0.47},
+        # The scales and offsets are the ones the owner signed off, carried over
+        # to the new row zoom: the window the row is baked to is four fifths
+        # wider than it was (1 client px used to be 0.97 of a screen px and is
+        # 0.596 now), so a layer keeps the size and the place it had by taking
+        # both its scale and its offset x1.63.
+        {"entry": "outragebreak_bloodsword_none.img", "ramp": FIRE_RAMP, "scale": 1.63,
+         "offset": (189, -75), "frames": (0, 12), "from": 0.00, "until": 0.28},
+        {"entry": "outragebreak_bloodsword_none.img", "ramp": FIRE_RAMP, "scale": 1.96,
+         "offset": (273, -31), "frames": (13, 19), "from": 0.28, "until": 0.35},
         # The strike's own flash, on the landing. It is the pack's soft disc and
         # its starburst, not a flame, so it stays a light rather than a fire -
         # and it stays small, because over a low fire a big soft disc does not
-        # read as a flash, it washes the flames out.
-        {"entry": "outragebreak_bloodsexp_glow.img", "scale": 1.35, "offset": (-38, 0),
-         "from": 0.34, "until": 0.40},
-        # The fire is *a ring of pillars standing on the rift's ring*, not a row
-        # of them. The owner's notes on the client's own preview are
-        # 「它是多个火焰柱子，喷发」 and then 「不是一排柱子，应该是一个圈」: several
-        # pillars erupting, and they erupt all the way round him.
+        # read as a flash, it washes the flames out. The reference's own burst
+        # sits at the far end of the gash (its #52-59), not on the caster.
+        {"entry": "outragebreak_bloodsexp_glow.img", "ramp": FIRE_RAMP, "scale": 0.30,
+         "offset": (277, -104), "from": 0.27, "until": 0.33},
+        # The fire is *a rank of pillars standing along the gash*, not a ring
+        # round the caster. That is what the reference does: 10_崩山裂地斩 shows
+        # one-sided fire in front of him - 660 ref px wide, 321 tall for the first
+        # wave and 596 for the second, all of it ahead of his feet - while the
+        # client's own 100-frame preview, which the two earlier passes were built
+        # from, is a circle round him. The reference wins (see
+        # assets/dnf_effect_picks.md), so the ring the owner asked for in the
+        # sixth pass (「不是一排柱子，应该是一个圈」) is gone.
         #
-        # The pack ships one shape per eruption, so the ring is made by stamping
-        # that shape at several places on the ellipse the rift itself draws -
-        # and the ellipse is the thing that decides where they go. The pack's
-        # floor ring is 445x166 with the caster's ground point (382, 281) at its
-        # middle; blown up 1.8x (see the skill row) it comes out 800x300 at
-        # (-18, 68), so the lit ring the player sees is the ellipse centred on
-        # (391.5, 241.5) with semi-axes 195x84, and the caster stands 40px below
-        # its middle, the way perspective puts him.
+        # A place is named in client coordinates: 382 + u across, where u is how
+        # far *forward* of the caster it stands - the rows are mirrored by facing,
+        # so forward is +x, and the reference's fire is all ahead of him - and 249
+        # up, which is his own ground line (281) pulled 32px into the gash, the
+        # line the reference's flames stand on. A few px of jitter either way keep
+        # five flames on one beat from reading as a picket fence. The offset is
+        # (place - the shape's own foot): the wide bush (bloodsexp_1) is centred
+        # on x=419 with its foot at y=318, the narrow spire (bloodsexp_2) on
+        # x=474 with its foot at y=278.
         #
-        # The two waves stand on two sets of six places 60 degrees apart, the
-        # second set turned 30 degrees from the first, so between them the whole
-        # ring erupts instead of one side of it twice. A place's offset is
-        # (place - the shape's own bottom centre): the wide bush (bloodsexp_1)
-        # is centred on x=419 with its foot at y=324, the narrow spire
-        # (bloodsexp_2) on x=474 with its foot at 282.
-        #
-        # The places on the far centre line are not here: they stand above his
-        # feet on screen and this row is drawn over him, so a flame there would
-        # be laid across his body instead of behind it - those are baked into
-        # the skill's own row (see the pick above). This row carries the places
-        # beside him and in front of him, which is what a ring around the caster
-        # looks like in this game's back-to-front draw order.
-        #
-        # One place is bigger than the next: the near ones are the closest to the
-        # camera, the side ones a step back, the far ones smallest (on the other
-        # row). Equal flames on an equal beat read as a fence, not as ground
-        # breaking open, and the near one also starts first.
-        #
-        # Height: the bush's tallest frame is 127px of client art and the spire's
-        # 179. This game draws a client pixel at 0.97x on screen, so the bush
-        # comes out 127 x scale x 0.97 and the spire 179 x scale x 0.97
-        # on screen, against a ~120px Slayer. The ring now bakes at 1.40-1.90 for
-        # the bush (172-234px) and 1.25-1.60 for the spire (217-278px) - about
-        # two Slayers of fire, which is what the client's own preview shows: its
-        # first wave covers 2.1 caster heights and its second, taller one over
-        # 2.5, while the owner sent the two earlier passes back as 「火焰有点小」
-        # and then 「火焰还是小」 (they drew 60-108px, then 89-143px). The ceiling
-        # is the arena: the tallest spire tops out around y=150 of a 540px
-        # screen, clear of the HUD band at the top.
-        {"entry": "outragebreak_bloodsexp_1_none.img", "scale": 1.90, "offset": (-28, 2),
-         "from": 0.35, "until": 0.52},
-        {"entry": "outragebreak_bloodsexp_1_none.img", "scale": 1.75, "offset": (-196, -41),
-         "from": 0.37, "until": 0.51},
-        {"entry": "outragebreak_bloodsexp_1_none.img", "scale": 1.75, "offset": (141, -41),
-         "from": 0.37, "until": 0.51},
-        {"entry": "outragebreak_bloodsexp_1_none.img", "scale": 1.55, "offset": (-196, -125),
-         "from": 0.38, "until": 0.50},
-        {"entry": "outragebreak_bloodsexp_1_none.img", "scale": 1.55, "offset": (141, -125),
-         "from": 0.38, "until": 0.50},
-        # Molten drops land on the ring and spread, and the slam throws debris.
-        {"entry": "outragebreak_drops_1.img", "scale": 1.6, "from": 0.43, "until": 0.60},
-        # The debris has no "(tn)" twin of its own - it is plain art, and asking
-        # for the orange board of it finds nothing and draws no rocks at all.
-        {"entry": "outragebreak_part.img", "board": "", "scale": 1.15, "offset": (250, 190),
-         "from": 0.37, "until": 0.53},
-        # Then the second wave: the client's own second eruption (its preview
-        # erupts at frame 60 and runs to the end of the clip) is where the pack
-        # switches to bloodsexp_2, the narrow spire, on the ring's second set of
-        # six places - the ones the first wave did not use.
-        {"entry": "outragebreak_drops_2.img", "scale": 1.6, "from": 0.51, "until": 0.72},
-        {"entry": "outragebreak_part.img", "board": "", "scale": 1.15, "offset": (250, 190),
-         "from": 0.68, "until": 0.90},
-        {"entry": "outragebreak_bloodsexp_2_none.img", "scale": 1.60, "offset": (-180, 32),
-         "from": 0.66, "until": 0.91},
-        {"entry": "outragebreak_bloodsexp_2_none.img", "scale": 1.60, "offset": (15, 32),
-         "from": 0.66, "until": 0.91},
-        {"entry": "outragebreak_bloodsexp_2_none.img", "scale": 1.40, "offset": (-278, -41),
-         "from": 0.68, "until": 0.90},
-        {"entry": "outragebreak_bloodsexp_2_none.img", "scale": 1.40, "offset": (113, -41),
-         "from": 0.68, "until": 0.90},
-        {"entry": "outragebreak_bloodsexp_glow.img", "scale": 1.35, "offset": (-38, 0),
-         "from": 0.69, "until": 0.75},
-        # The flames die back onto the ring: the bush's own last frames, which
+        # First wave: five of the wide bushes across u -310..-100, the middle one
+        # biggest and first (the reference's first eruption peaks in the middle
+        # of the gash and dies away at the edges). Height: the bush's tallest
+        # frame is 127px of client art, this row draws a client pixel at 0.596x,
+        # and the reference's first wave is 120px here - so 1.59 for the middle
+        # and a step down for the flanks.
+        {"entry": "outragebreak_bloodsexp_1_none.img", "ramp": FIRE_RAMP, "scale": 1.35,
+         "offset": (67, -63), "from": 0.31, "until": 0.47},
+        {"entry": "outragebreak_bloodsexp_1_none.img", "ramp": FIRE_RAMP, "scale": 1.45,
+         "offset": (117, -69), "from": 0.30, "until": 0.48},
+        {"entry": "outragebreak_bloodsexp_1_none.img", "ramp": FIRE_RAMP, "scale": 1.59,
+         "offset": (166, -69), "from": 0.29, "until": 0.48},
+        {"entry": "outragebreak_bloodsexp_1_none.img", "ramp": FIRE_RAMP, "scale": 1.45,
+         "offset": (215, -69), "from": 0.30, "until": 0.48},
+        {"entry": "outragebreak_bloodsexp_1_none.img", "ramp": FIRE_RAMP, "scale": 1.35,
+         "offset": (265, -75), "from": 0.31, "until": 0.47},
+        # Molten drops land along the gash and spread, and the slam throws debris.
+        {"entry": "outragebreak_drops_1.img", "ramp": FIRE_RAMP, "scale": 2.6,
+         "offset": (202, -41), "from": 0.32, "until": 0.48},
+        # The debris is the pack's plain art - it has no board of its own at all,
+        # so asking for one finds nothing and draws no rocks.
+        {"entry": "outragebreak_part.img", "board": "", "scale": 1.87, "offset": (563, 219),
+         "from": 0.28, "until": 0.45},
+        {"entry": "outragebreak_drops_2.img", "ramp": FIRE_RAMP, "scale": 2.6,
+         "offset": (135, -41), "from": 0.52, "until": 0.68},
+        {"entry": "outragebreak_part.img", "board": "", "scale": 1.87, "offset": (664, 219),
+         "from": 0.55, "until": 0.70},
+        # Then the second wave: the reference erupts tall over its #84-110, and
+        # where the first used the wide bush this one uses the narrow spire, four
+        # places from u 25 to u 344 (the two rearmost are on the skill's own row,
+        # behind the Slayer - see the pick above). The spire is 179px of client
+        # art and the reference's second wave is 223px here, so 2.09 down the
+        # middle of the gash and a step down at the ends.
+        {"entry": "outragebreak_bloodsexp_2_none.img", "ramp": FIRE_RAMP, "scale": 1.70,
+         "offset": (252, -29), "from": 0.73, "until": 0.90},
+        {"entry": "outragebreak_bloodsexp_2_none.img", "ramp": FIRE_RAMP, "scale": 1.90,
+         "offset": (25, -23), "from": 0.72, "until": 0.91},
+        {"entry": "outragebreak_bloodsexp_2_none.img", "ramp": FIRE_RAMP, "scale": 2.09,
+         "offset": (101, -29), "from": 0.70, "until": 0.92},
+        {"entry": "outragebreak_bloodsexp_2_none.img", "ramp": FIRE_RAMP, "scale": 2.09,
+         "offset": (176, -35), "from": 0.70, "until": 0.92},
+        {"entry": "outragebreak_bloodsexp_glow.img", "ramp": FIRE_RAMP, "scale": 0.30,
+         "offset": (277, -104), "from": 0.71, "until": 0.76},
+        # The flames die back onto the gash: the bush's own last frames, which
         # are embers rather than fire, so the row ends on the lit rift the way
-        # the client's preview does.
-        {"entry": "outragebreak_bloodsexp_1_none.img", "frames": (5, 6), "scale": 1.90,
-         "offset": (-28, 2), "from": 0.91, "until": 1.00},
-        {"entry": "outragebreak_bloodsexp_1_none.img", "frames": (5, 6), "scale": 1.65,
-         "offset": (-196, -41), "from": 0.93, "until": 1.00},
-        {"entry": "outragebreak_bloodsexp_1_none.img", "frames": (5, 6), "scale": 1.65,
-         "offset": (141, -41), "from": 0.93, "until": 1.00},
+        # the reference does (its last thirty frames are cracks and glow).
+        {"entry": "outragebreak_bloodsexp_1_none.img", "ramp": FIRE_RAMP, "frames": (5, 6),
+         "scale": 1.59, "offset": (166, -69), "from": 0.92, "until": 1.00},
+        {"entry": "outragebreak_bloodsexp_1_none.img", "ramp": FIRE_RAMP, "frames": (5, 6),
+         "scale": 1.45, "offset": (117, -69), "from": 0.94, "until": 1.00},
+        {"entry": "outragebreak_bloodsexp_1_none.img", "ramp": FIRE_RAMP, "frames": (5, 6),
+         "scale": 1.35, "offset": (67, -63), "from": 0.95, "until": 1.00},
     ]}),
 ]
 
@@ -568,6 +584,26 @@ def ink_window(frames, origin=(0, 0), padding: int = PADDING):
         union[1] + origin[1] - padding,
         union[2] + origin[0] + padding,
         union[3] + origin[1] + padding,
+    )
+
+
+def anchored_window(window, anchor):
+    """A window that contains the point the row is anchored on.
+
+    `bake_frames` places the anchor at a fixed spot in the cell, and it clamps
+    that placement into the window - so a row whose ink stops short of its own
+    anchor (大蹦's fire is drawn above the caster's ground line, and its row's
+    lowest pixel is 16px short of it) would land up to that gap too high.
+    Widening the window to take the anchor in is what keeps a front row and the
+    ground row behind it on the same pixel.
+    """
+    if window is None or anchor is None:
+        return window
+    return (
+        min(window[0], anchor[0]),
+        min(window[1], anchor[1]),
+        max(window[2], anchor[0]),
+        max(window[3], anchor[1]),
     )
 
 
@@ -733,6 +769,59 @@ def dim(decoded, factor):
     return out
 
 
+def ramp_tables(stops):
+    """Per-channel 256-entry lookup tables for a (level, (r, g, b)) ramp."""
+    levels = [stop[0] for stop in stops]
+    tables = []
+    for index in range(3):
+        colours = [stop[1][index] for stop in stops]
+        table = []
+        for value in range(256):
+            level = value / 255.0
+            if level <= levels[0]:
+                table.append(int(round(colours[0])))
+                continue
+            if level >= levels[-1]:
+                table.append(int(round(colours[-1])))
+                continue
+            for step in range(1, len(levels)):
+                if level > levels[step]:
+                    continue
+                span = levels[step] - levels[step - 1]
+                at = (level - levels[step - 1]) / span if span else 0.0
+                table.append(int(round(colours[step - 1] + at * (colours[step] - colours[step - 1]))))
+                break
+        tables.append(table)
+    return tables
+
+
+def tint(decoded, stops):
+    """Recolour one layer through a ramp of (level, (r, g, b)) stops.
+
+    The pack's own colour boards are all or nothing - 大蹦's fire is deep blood
+    red on one and orange on the other, and the training-room reference is
+    neither - so a pick can name the ramp the reference measures instead (see
+    FIRE_RAMP). A pixel's level is its own brightest channel, so the shape of the
+    art is what drives the colour and every pixel's channel comes off the same
+    stop; that is what keeps a flame's dull body dark and its core white-hot
+    rather than tinting each channel on its own.
+    """
+    if not stops:
+        return decoded
+    tables = ramp_tables(stops)
+    out = []
+    for picture, x, y in decoded:
+        red, green, blue = picture.convert("RGBA").split()[:3]
+        level = ImageChops.lighter(ImageChops.lighter(red, green), blue)
+        recoloured = Image.merge(
+            "RGB",
+            (level.point(tables[0]), level.point(tables[1]), level.point(tables[2])),
+        ).convert("RGBA")
+        recoloured.putalpha(picture.convert("RGBA").getchannel("A"))
+        out.append((recoloured, x, y))
+    return out
+
+
 def stage_layers(client: Path, pick: dict):
     """Every stage of a staged pick, as (frames, from, until) in row progress."""
     out = []
@@ -751,6 +840,7 @@ def stage_layers(client: Path, pick: dict):
             continue
         scale = float(stage.get("scale", 1.0))
         offset = tuple(stage.get("offset", (0, 0)))
+        decoded = tint(decoded, stage.get("ramp"))
         decoded = dim(shift(rescale(decoded, scale), offset), stage.get("alpha", 1.0))
         first, last = stage.get("frames", (0, len(decoded) - 1))
         part = decoded[first:last + 1]
@@ -918,7 +1008,9 @@ def main() -> None:
         # point is what keeps them on top of each other; the window only decides
         # how much of the cell each one is allowed to use.
         for row_name in (base, name):
-            windows[row_name] = ink_window(rows[row_name], origins[row_name])
+            windows[row_name] = anchored_window(
+                ink_window(rows[row_name], origins[row_name]), PICKS[base].get("anchor")
+            )
         print(f"  {base}: window {windows[base]}")
         print(f"  {name}: window {windows[name]} (anchor {PICKS[base]['anchor']})")
 

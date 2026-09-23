@@ -68,24 +68,23 @@ ROWS = ["idle", "run", "attack", "skill", "extras", "clips", "clips2"]
 #   怒气爆发   action 10 (8 frames)
 #   十字斩     action 1 (14 frames) + action 25 (6 frames)
 #   血之狂暴   action 22 (9 frames) - the stand that flings both arms out
-#   崩山裂地斩 举剑 first, then the blade comes down, then the slam: the owner's
-#              note is 「崩山裂地斩是先举剑，参考 123-124」, and 123-124 on this
-#              sheet is exactly the raise - both hands over the head, the blade
-#              down in front of him. 125-128 are the blade coming down in front
-#              of him, step by step - 127-128 being the crouched lunge the sword
-#              is driven in on, which is where the hits are timed and which he
-#              then holds while the rift erupts. The move used to run the raise
-#              into 崩山击's leap (127-132) and then 229-231, a guard stance that
-#              is not this move's slam; the client's own preview has the caster
-#              planted the whole way (see src/core.js), and the owner read the
-#              hop as 「多余动作」, so the leap and the guard are both out and the
-#              drive-through fills the same beat.
+#   崩山裂地斩 举剑, leap, land prone, get up. The owner's note is 「崩山裂地斩是
+#              先举剑，参考 123-124」, and 123-124 on this sheet is the raise - both
+#              hands up, the blade standing in front of him. The training-room
+#              clip it is rebuilt against (10_崩山裂地斩) then does what the
+#              client's own 100-frame preview does not: he holds that raise for
+#              half a second, leaps 101px up and 47px forward (204-205 are the
+#              airborne pair - the blade over his head, legs tucked), lands and
+#              settles prone with the sword driven into the floor (208-209), and
+#              only gets up a second later while the second eruption burns
+#              (132, the stand he is left in). The move used to borrow 崩山击's
+#              hop and a guard stance; the hop is back because the reference
+#              jumps, but as this move's own beats.
 #
-#              The frame he holds is 128, not 133: 133 is a leaning balance - the
-#              body tipped over one raised leg with the blade up in front - and
-#              holding it for the rest of the cast (the owner: 「放完技能多了一个
-#              不正确的动作，歪着身体举剑那个动作」) left the Slayer standing in the
-#              fire doing a pose the move never does.
+#              What must not come back is 133: a leaning balance - the body tipped
+#              over one raised leg with the blade up in front - which the older
+#              cut held for over a second (owner: 「放完技能多了一个不正确的动作，
+#              歪着身体举剑那个动作」). The clip ends on 132, a plain stand.
 #   银光落刃   the dive the client turns Z into while airborne: the air slash plus
 #              the landing (134-141). The owner did not give this one a frame
 #              range, so these are picked from the same action as the jump attack.
@@ -103,7 +102,7 @@ CLIPS = [
     ("rageBurst", list(range(76, 84))),
     ("crossSlash", list(range(5, 19)) + list(range(198, 204))),
     ("frenzy", list(range(161, 170))),
-    ("mountainRift", [123, 124] + list(range(125, 129))),
+    ("mountainRift", [123, 124, 204, 205, 208, 209, 132]),
     ("silverFall", list(range(134, 142))),
     ("jump", list(range(127, 133))),
 ]

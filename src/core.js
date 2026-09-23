@@ -414,49 +414,69 @@
       damage: 30,
       growth: 4,
       /*
-       * A long cast, because the move is a long event: the client's own preview
-       * (OutRageBreak.avi, 100 frames at 30fps) lands at frame 23 and keeps
-       * erupting to frame 93 - two and a third seconds of ground answering the
-       * sword. He drives the blade in at 0.72s; the rest is recovery while the
-       * rift keeps erupting under him, which is where the other two hits live.
+       * The whole event is in the training-room clip the owner pointed at
+       * (assets/dnf_src/bilibili/skill-clips/10_崩山裂地斩.mp4, 136 frames at
+       * 30fps, 42.000-46.533s). Measured off it frame by frame, with the
+       * caster's name plate as the marker for his own ground point:
        *
-       * And he does it from a standstill. The move used to borrow 崩山击's hop,
-       * so it opened in the air with a flame streak crossing the screen, while
-       * the client's own preview shows the caster planted: he raises the sword,
-       * drives it into the floor where he stands, and the fire answers around
-       * him. The owner read the hop as 「多余动作」, so there is no leap here any
-       * more - the raise, the drive and the slam fill the same 0.72s.
+       *   #16  0.00s  the press: the sword comes up overhead (举剑)
+       *   #17-32      he holds the raise while the blood sword gathers
+       *   #33  0.57s  he leaps
+       *   #42  0.87s  apex, 269 ref px up = 101px here
+       *   #50  1.14s  lands 47px forward and drives the blade into the floor
+       *   #51  1.17s  settles prone and the rift opens under the sword
+       *   #51-59      the first wave: low fire out of the gash
+       *   #60-83      only the cracks and their lava lines stay lit
+       *   #84-110     the second wave: the tall eruption, 2.80-3.67s
+       *   #88-96      he gets up while it burns
+       *   #135 3.97s  he is back on his feet, the cracks still glowing
+       *
+       * So the cast is 4.0s, and the leap this move used to borrow from 崩山击
+       * is *not* the 多余动作 the owner read off the client's own preview - the
+       * training-room clip jumps 101px up and 47px forward. The clip's own arc
+       * needs no bespoke gravity: -666 under the default 2200 peaks at 101px and
+       * touches down 0.605s later, which is the reference to a pixel either way.
        */
-      duration: 2.0,
+      duration: 4.0,
       /*
-       * Three hits, one per thing the pack does: the sword on the landing, the
-       * rift grinding while he stands in it, then the second eruption. They are
-       * spread evenly over the active window, so the first lands at 0.72s (the
-       * beat the slam does), the second at 1.13s and the third at 1.54s, which is
-       * inside the second wave the effect row bakes.
+       * Three hits, on the three things the reference does: the sword on the
+       * landing (#50, 1.14s), the first eruption (#51-59, whose peak is 1.70s)
+       * and the second (#84-110, erupting at 2.80s). The engine spreads them
+       * evenly, so the window is pinned to the first and the third - the middle
+       * hit then lands 0.26s after the first wave's peak, which is the price of
+       * the even spread and is written down in assets/dnf_effect_picks.md.
        */
-      activeFrom: 0.72,
-      activeTo: 1.95,
+      activeFrom: 1.14,
+      activeTo: 3.63,
       /*
-       * 大蹦 is the 45-level ultimate: one giant blood sword plus the rift it
-       * opens. The owner's read is that its range has to dwarf 崩山击's single
-       * smash, so both the sword and the ground wave reach much further than
-       * that smash does.
+       * 大蹦 is the 45-level ultimate, and the reference makes it a *forward*
+       * move: the gash it opens is one-sided, roughly 265px wide with its middle
+       * 95px in front of the caster (measured: 720x285 ref px of cracked ground,
+       * centred 80-106px ahead of him). A circle round the caster would punish
+       * the half of the floor the move never touches, so this is the forward box
+       * - and it is still the longest reach in the kit.
        */
-      reach: 200,
-      heightPad: 36,
+      reach: 245,
+      heightPad: 48,
       knockbackX: 300,
       launch: 0,
-      /*
-       * The rift opens around the impact rather than only in front of it: this
-       * is the ultimate, and a forward-only box would leave the half of the
-       * circle he is not facing unpunished.
-       */
-      radius: 190,
+      radius: 0,
       hits: 3,
       knockdown: 1.4,
+      /*
+       * The leap the reference does: a committed hop that is the raise plus the
+       * drop. It fires as the body clip leaves the raise and touches down on the
+       * beat the hits are timed to (leapFrom 0.135 + 2 * 666 / 2200 = 0.74 of the
+       * 4s cast), and he is invulnerable and unblinking for all of it - the
+       * reference holds a solid gold outline through the airborne frames rather
+       * than a flicker (see the solidInvuln handling in updatePlayer).
+       */
+      leap: 78,
+      leapUp: -666,
+      leapFrom: 0.135,
+      leapInvuln: 0.6,
       shockwave: {
-        reach: 360,
+        reach: 250,
         damage: 18,
         growth: 3,
         heightPad: 30,
@@ -464,16 +484,15 @@
         knockdown: 1.4,
         extraWaveFromLevel: 4,
         /*
-         * The ring the engine draws for this wave is 660px across, and the
-         * rift's own art is 400: side by side they read as one big circle and
-         * one small one. `visual` shrinks only the drawn arc - the damage box
-         * is unchanged - so it lands at roughly the rift's own width, and
-         * `arcOffset` pins that arc on the caster rather than 144px in front of
-         * him, so the ring the wave draws is the ring the fire erupts from
-         * instead of a second circle lying next to it.
+         * The engine's ellipse is not the rift's shape. It used to be kept and
+         * shrunk onto the fire's own circle (the old `arcOffset: 0`); now that
+         * the fire is a one-sided gash there is no circle for it to agree with,
+         * and the reference has no ring anywhere in it - the ground answers with
+         * cracked floor and fire, nothing else (owner, on the same shape in
+         * 崩山击: 「参考视频没有范围圈」). The hitbox, the knockback and the
+         * screen shake all stay; only the drawn arc goes.
          */
-        visual: 0.7,
-        arcOffset: 0
+        arc: false
       },
       /*
        * The ground wave belongs to the sword coming down, not to the last tick:

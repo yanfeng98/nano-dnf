@@ -586,7 +586,10 @@ test("崩山击's wave hits and shakes without drawing a targeting ring", () => 
    * column and the spikes and nothing else (owner: 「参考视频没有范围圈」).
    * The wave keeps its hitbox, so the second target above still takes its
    * damage; what is dropped is the ellipse the engine draws for every other
-   * wave (大蹦 keeps its own - that one is the circle the fire erupts from).
+   * wave. 大蹦 dropped it too once the training-room reference showed what its
+   * ground actually does: a one-sided gash with fire standing in it, and no
+   * circle anywhere, so there is nothing left for the engine's ellipse to agree
+   * with (see 崩山裂地斩's own test).
    */
   assert.equal(
     Core.SKILLS.mountainBreaker.shockwave.arc,
@@ -595,8 +598,8 @@ test("崩山击's wave hits and shakes without drawing a targeting ring", () => 
   );
   assert.equal(
     Core.SKILLS.mountainRift.shockwave.arc,
-    undefined,
-    "and 大蹦 keeps the engine's own ring"
+    false,
+    "and 大蹦's gash draws none either"
   );
 
   const state = lastRoomState();
@@ -1366,31 +1369,31 @@ test("one press plays one stage of the normal attack, and attack speed sets the 
   /*
    * 大蹦 is its own move: the owner saw it playing 崩山击's smash, and then saw it
    * leap without the 举剑 in front of it (「崩山裂地斩是先举剑，参考 123-124」).
-   * It has its own action now - the raise, the blade driven down in front of
-   * him, then the plant - and its range is the ultimate's rather than 崩山击's.
-   *
-   * Every frame of it is grounded work. The move used to borrow 崩山击's hop in
-   * the middle, which put him in the air off a raise and read as 「多余动作」;
-   * the client's own preview keeps the caster planted through the whole start-up,
-   * so there are no jump frames left in it and no leap in the skill spec.
+   * Its action is the training-room reference's (10_崩山裂地斩), read frame by
+   * frame: the raise he holds, the leap with the blade still overhead, the prone
+   * landing with the sword driven into the floor, and the stand he is back on
+   * while the second eruption burns.
    */
   const rift = Render.SPRITE.skillClips.mountainRift;
   assert.ok(rift, "大蹦 gets a body animation of its own");
-  assert.equal(rift.frames, 6, "the raise and the drive");
+  assert.equal(rift.frames, 7, "the raise, the leap, the landing and the stand");
   assert.deepEqual(
     rift.beats.map((beat) => beat.frames),
-    [2, 4],
-    "the raise and the drive are paced separately"
+    [2, 2, 2, 1],
+    "each act is paced separately"
   );
   /*
-   * The raise is the frames the owner pointed at (123-124) and the drive is the
-   * blade coming down in front of him (125-128), the crouched lunge at the end
-   * of which is where the hits land and where he stays while the rift erupts.
+   * The raise is the frames the owner pointed at (123-124). The leap is 204-205,
+   * the blade over his head with his legs tucked; the landing is 208-209, the
+   * prone settle with the sword in the floor; the last beat is 132, a plain
+   * stand, because the next thing the reference does is get up.
    *
-   * 133 must not be in there: it is a leaning balance on one raised leg with the
-   * blade up in front, and holding it for the rest of the cast left him in his
-   * own fire doing a pose the move never reaches (owner: 「放完技能多了一个不正确
-   * 的动作，歪着身体举剑那个动作」).
+   * 127-132 must not be borrowed as 崩山击's hop - that clip *is* the plain hop,
+   * and its opening frames are the aimless lean the owner sent back - and 133
+   * must not be in there at all: it is a leaning balance on one raised leg with
+   * the blade up in front, and holding it for the rest of the cast left him in
+   * his own fire doing a pose the move never reaches (owner: 「放完技能多了一个不
+   * 正确的动作，歪着身体举剑那个动作」).
    */
   const riftBake = fs.readFileSync(
     path.join(__dirname, "..", "assets", "import_dnf_swordman.py"),
@@ -1398,7 +1401,7 @@ test("one press plays one stage of the normal attack, and attack speed sets the 
   );
   assert.match(
     riftBake,
-    /"mountainRift", \[123, 124\] \+ list\(range\(125, 129\)\)\)/,
+    /"mountainRift", \[123, 124, 204, 205, 208, 209, 132\]\)/,
     "the clip opens on the owner's 举剑 frames (123-124)"
   );
   assert.ok(
@@ -1406,13 +1409,31 @@ test("one press plays one stage of the normal attack, and attack speed sets the 
     "and it does not end on 133, the balance the owner read as a wrong pose"
   );
   assert.ok(
-    !/mountainRift[^\n]*127, 133/.test(riftBake),
-    "and it no longer runs into 崩山击's hop (127-132)"
+    !/mountainRift[^\n]*range\(127/.test(riftBake),
+    "and it does not borrow 崩山击's hop clip (127-132) as a block"
   );
+  /*
+   * The leap is the reference's own: its #33-50 put the caster 269 ref px up at
+   * the apex and 126 ref px forward over 18 frames of a 30fps clip, which is
+   * 101px and 47px here. It needs no bespoke gravity either - -666 under the
+   * world's 2200 peaks at 101px and touches down 0.605s later - and the window
+   * is invulnerable without blinking, the way 崩山击's is, because the reference
+   * holds one solid gold outline through the airborne frames.
+   */
   assert.equal(
-    Core.SKILLS.mountainRift.leap,
-    undefined,
-    "the ultimate is planted: no leap physics at all"
+    Core.SKILLS.mountainRift.leapUp,
+    -666,
+    "the reference's arc needs no gravity of its own"
+  );
+  assert.equal(Core.SKILLS.mountainRift.leapGravity, undefined, "so it brings none");
+  assert.ok(
+    Math.abs((2 * 666) / Core.PHYSICS.gravity - 0.605) < 0.03,
+    "and lands 0.605s after it leaves the floor, the reference's own airtime"
+  );
+  assert.ok(Core.SKILLS.mountainRift.leapInvuln > 0, "the hop is invulnerable");
+  assert.ok(
+    Core.SKILLS.mountainRift.leapFrom >= rift.beats[1].from,
+    "and it fires as the body clip leaves the raise, not on the press"
   );
   assert.equal(
     Core.SKILLS.mountainBreaker.leap > 0,
@@ -1424,9 +1445,9 @@ test("one press plays one stage of the normal attack, and attack speed sets the 
     "the raise happens before the hit, not on it"
   );
   assert.equal(
-    rift.beats[rift.beats.length - 1].until,
+    rift.beats[2].from,
     Core.SKILLS.mountainRift.activeFrom / Core.SKILLS.mountainRift.duration,
-    "and the drive lands on the hit, where the rift opens"
+    "he is on the floor, in the landing pose, on the beat the rift opens"
   );
   assert.equal(
     rift.beats.reduce((total, beat) => total + beat.frames, 0),
@@ -1444,14 +1465,26 @@ test("one press plays one stage of the normal attack, and attack speed sets the 
     riftSkill.shockwave.reach > smashSkill.shockwave.reach,
     `and its rift is wider (${riftSkill.shockwave.reach} vs ${smashSkill.shockwave.reach})`
   );
-  assert.equal(riftSkill.shockwave.reach, 360, "the rift covers a third of the arena");
   /*
-   * And its drawn arc sits on the caster, not out in front of him: 崩山击's
-   * wave travels forward, but 大蹦's rift opens around him, and an arc 144px
-   * ahead of the flames read as a second ring lying beside them (owner:
-   * 「圈和火焰没合在一起」).
+   * The gash is one-sided and as big as the reference's: 720x285 ref px of
+   * cracked floor, 265x107 here, with its middle 80-106px in front of the caster.
+   * So the move casts the forward box it already had the reach for rather than
+   * the circle it used to draw around itself - a circle would punish the half of
+   * the floor the move never touches - and the engine's ellipse is dropped along
+   * with it, because the reference has a gash and no ring at all.
    */
-  assert.equal(riftSkill.shockwave.arcOffset, 0, "the ring is drawn on the fire, not beside it");
+  assert.equal(riftSkill.radius, 0, "the rift is a box, not a circle round him");
+  assert.ok(
+    riftSkill.reach >= 240 && riftSkill.reach <= 250,
+    `and it reaches the reference's 245px front (${riftSkill.reach})`
+  );
+  assert.equal(
+    riftSkill.shockwave.reach,
+    250,
+    "the wave stops where the fire does, not a third of the arena away"
+  );
+  assert.equal(riftSkill.shockwave.arc, false, "and draws no ring");
+  assert.equal(riftSkill.shockwave.arcOffset, undefined, "so it has no arc to place");
   assert.equal(
     smashSkill.shockwave.arcOffset,
     undefined,
@@ -2065,11 +2098,38 @@ test("the effect bake draws each shape in exactly one colour board", () => {
   const rift = blocks.find((entry) => entry.skill === "mountainRift");
   const riftText = picks.slice(rift.from, picks.indexOf("\n}", rift.from));
   assert.match(riftText, /outragebreak_floor\.img/, "and splits the ground under it");
-  assert.match(riftText, /"palette":\s*"\(tn\)"/, "大蹦 erupts in the client's orange board");
   assert.match(riftText, /"anchor":\s*\(\s*-?\d+,\s*-?\d+\s*\)/, "大蹦 is rooted at his feet");
   assert.ok(
     !/fire-(front|back)\.img/.test(riftText.replace(/^ *#.*$/gm, "")),
     "and not the fire pair the owner rejected"
+  );
+  /*
+   * Its colour is the one row that does not come off a colour board. The pack
+   * ships 大蹦's fire as deep blood red (140,2,1) or as orange (255,129,3), and
+   * the reference is neither: 10_崩山裂地斩 draws the flame body at (183,25,7)
+   * with the lava lines in its floor at (184,70,52). (The client's own preview
+   * video is orange - the two disagree, and the reference wins.) So these layers
+   * name a `ramp` built from the reference's own numbers instead of a board, and
+   * neither the plain nor the orange board is named anywhere in the move.
+   */
+  assert.ok(
+    /"palette":\s*""/.test(riftText) && !/"\(tn\)/.test(riftText),
+    "大蹦 no longer draws off a colour board"
+  );
+  assert.match(riftText, /"ramp":\s*FLOOR_RAMP/, "its floor ramps to the reference's lava lines");
+  const fireText = source.slice(
+    source.indexOf('("mountainRiftFire", {'),
+    source.indexOf("\n]", source.indexOf('("mountainRiftFire", {'))
+  );
+  assert.match(fireText, /"ramp":\s*FIRE_RAMP/, "and its fire to the reference's flame");
+  assert.ok(
+    !/"palette":\s*"\(tn\)"/.test(fireText),
+    "with no orange board left on either half of the move"
+  );
+  assert.equal(
+    (fireText.match(/"ramp":\s*FIRE_RAMP/g) || []).length,
+    (fireText.match(/"entry":/g) || []).length - 2,
+    "every layer of the fire is ramped except the two debris stages, which are plain rock"
   );
   /*
    * The fire is the other half of the same pack, and it is drawn over the
@@ -2207,27 +2267,35 @@ test("大蹦 plays in stages, not all at once", () => {
   const swordFrames = sword.map((stage) => stage.first);
   assert.deepEqual(swordFrames, [0, 13], "the gathering runs up to the strike frames");
   /*
-   * And he is on the floor for all of it: the beats the body plays have to land
-   * the drive exactly on activeFrom, with no leap to carry him off it - and the
-   * clip ends there, so what he holds under the rift is the bottom of the drive.
+   * And the body is on the landing by the time the blade goes in: the third beat
+   * of the clip - the prone settle - starts exactly on activeFrom, and the leap
+   * is the beat before it.
    */
   const clip = Render.SPRITE.skillClips.mountainRift;
   assert.equal(
-    clip.beats[clip.beats.length - 1].until,
+    clip.beats[2].from,
     spec.activeFrom / spec.duration,
-    "the body drives the blade in on the beat the rift opens"
+    "the body is on the landing on the beat the rift opens"
   );
   /*
-   * And what he holds while the rift burns is that last frame - the bottom of
-   * the drive - for the rest of the cast.
+   * What he holds while the rift burns is that landing (the reference keeps him
+   * prone for the whole lull, its #51-88), and what he is left in at the end is
+   * the plain stand of the last beat - the reference gets up while the second
+   * eruption is still burning.
    */
   const held = lastRoomState();
   held.player.skillId = "mountainRift";
+  held.player.skillTimer = spec.duration * 0.55;
+  const proneStep = Render.playerFrame(held, held.player).col - clip.first;
+  assert.ok(
+    proneStep >= 4 && proneStep <= 5,
+    `the pose held under the rift is the landing (${clip.first + proneStep})`
+  );
   held.player.skillTimer = spec.duration * 0.1;
   assert.equal(
     Render.playerFrame(held, held.player).col,
     clip.first + clip.frames - 1,
-    "so the pose held under the rift is the last frame of the clip"
+    "and the pose he is left in at the end is the last frame of the clip"
   );
 
   /* Three hits: the sword, the rift grinding, then the second eruption. */
@@ -2235,25 +2303,28 @@ test("大蹦 plays in stages, not all at once", () => {
   assert.equal(spec.shockwaveHit, 0, "the ground wave belongs to the sword, not the last tick");
   const hitSpan = (spec.activeTo - spec.activeFrom) / spec.hits;
   /*
-   * 大蹦 erupts in a ring, not in one fire and not in a rank of them
-   * (「它是多个火焰柱子，喷发」、「不是一排柱子，应该是一个圈」): the landing
-   * answers all the way round the rift with the pack's own wide fire, and the
-   * second eruption comes up round it again with its spires, on the places the
-   * first wave did not use.
+   * 大蹦 erupts along its gash, in a rank, not in a ring round the caster. That
+   * is the one thing the training-room reference overturns: the owner asked for
+   * the circle in the sixth pass (「不是一排柱子，应该是一个圈」) off the client's
+   * own 100-frame preview, which does erupt all round him - but 10_崩山裂地斩,
+   * which is the reference, has every frame of its fire ahead of his feet (660
+   * ref px of it, 321 tall for the first wave and 596 for the second) over a
+   * one-sided gash, and the client's preview is the 旁证.
    *
-   * The ring the fire stands on is the one the pack draws: its floor ring is
-   * 445x166 with the caster's ground point (382, 281) in the middle, and the
-   * skill row blows that up 1.8x about its own bottom centre (see the bake), so
-   * the lit ring on the floor is the ellipse centred on (391.5, 241.5) with
-   * semi-axes 195x84. Each flame shape is stamped with its own *bottom centre*
-   * on a place on that ellipse - the bush (bloodsexp_1) is centred on x=419
-   * with its foot at y=324, the spire (bloodsexp_2) on x=474 with its foot at
-   * 282 - so a place's offset can be checked back against the ring.
+   * A place is named in client coordinates: (382 + u, 249), where u is how far
+   * in front of the caster it stands and 249 is his own ground line (281) pulled
+   * 32px into the gash, which is where the reference's flames stand. The pack's
+   * own bottom centres are what an offset is measured from - the bush
+   * (bloodsexp_1) is centred on x=419 with its foot at y=324, the spire
+   * (bloodsexp_2) on x=474 with its foot at 282 - so a place can be read back out
+   * of the numbers in the bake.
    */
-  const RING = { x: 391.5, y: 241.5, rx: 195, ry: 84 };
+  const ANCHOR = { x: 382, y: 281 };
+  const SPINE = 249;
   const SHAPES = {
-    bloodsexp_1: { centre: 419, foot: 324 },
-    bloodsexp_2: { centre: 474, foot: 282 }
+    /* the pack's own bottom centre per shape: where its art meets the floor */
+    bloodsexp_1: { centre: 419, foot: 318 },
+    bloodsexp_2: { centre: 474, foot: 278 }
   };
   const shapeOf = (stage) =>
     stage.entry.includes("bloodsexp_1") ? "bloodsexp_1" : "bloodsexp_2";
@@ -2261,12 +2332,11 @@ test("大蹦 plays in stages, not all at once", () => {
   const isFlame = (stage) =>
     stage.entry.includes("bloodsexp_1") || stage.entry.includes("bloodsexp_2");
   const placeOf = (stage) => stage.at.split(",").map(Number);
-  const onRing = (stage) => {
+  /* where a stage stands: (u in front of the caster, how far into the gash) */
+  const stands = (stage) => {
     const shape = SHAPES[shapeOf(stage)];
     const [dx, dy] = placeOf(stage);
-    const across = (shape.centre + dx - RING.x) / RING.rx;
-    const down = (shape.foot + dy - RING.y) / RING.ry;
-    return Math.hypot(across, down);
+    return [shape.centre + dx - ANCHOR.x, shape.foot + dy - ANCHOR.y];
   };
   const flames = front.filter(isFlame);
   const first = flames.filter(
@@ -2285,63 +2355,97 @@ test("大蹦 plays in stages, not all at once", () => {
     );
   });
   /*
-   * Every flame of the move stands on that ring - the row is a circle round the
-   * caster, so a place is not free to sit anywhere on the floor. This is the
-   * assertion that would have caught the rank: five places in a line all read
-   * as off the ellipse at once.
+   * Every flame of the move stands on the gash's own spine and inside its
+   * length: the reference's floor is 265px wide and lit end to end, so a flame
+   * is not free to sit anywhere else. This is the assertion that would have
+   * caught a ring - half of its places are behind the caster, where there is no
+   * cracked ground at all.
    */
   const everyFlame = [...back, ...front].filter(isFlame);
-  assert.ok(everyFlame.length >= 12, "the ring erupts in many places, in both halves");
+  assert.ok(everyFlame.length >= 12, "the gash erupts in many places, in both halves");
   everyFlame.forEach((stage) => {
+    const [u, into] = stands(stage);
     assert.ok(
-      Math.abs(onRing(stage) - 1) <= 0.05,
-      `${shapeOf(stage)} at ${stage.at} stands on the rift's ring`
+      Math.abs(into - (SPINE - ANCHOR.y)) <= 8,
+      `${shapeOf(stage)} at ${stage.at} stands on the gash's spine (${into}px up its middle)`
+    );
+    assert.ok(
+      u > -60 && u < 380,
+      `${shapeOf(stage)} at ${stage.at} stands within the gash, not off it (${u}px forward)`
     );
   });
-  const places = everyFlame.map(placeOf);
-  const spansAcross = Math.max(...places.map(([dx]) => dx)) - Math.min(...places.map(([dx]) => dx));
-  const spansDown = Math.max(...places.map(([, dy]) => dy)) - Math.min(...places.map(([, dy]) => dy));
-  assert.ok(spansAcross > 300, `the fire stands round him, not in a line (${spansAcross}px across)`);
-  assert.ok(spansDown > 120, `and has a near side and a far side (${spansDown}px deep)`);
+  const places = everyFlame.map(stands);
+  const spansAcross = Math.max(...places.map(([u]) => u)) - Math.min(...places.map(([u]) => u));
+  assert.ok(
+    spansAcross > 300,
+    `the fire runs the length of the gash (${spansAcross}px of client art)`
+  );
+  /*
+   * And the flame that lands on the Slayer himself is drawn *behind* him: the
+   * near end of the gash is where his own body is, so a spire there belongs to
+   * the row the renderer composites before he is drawn, not the one over him.
+   */
   const behind = back.filter(isFlame);
   assert.ok(
-    behind.length >= 3,
-    "the far side of the ring is drawn behind the Slayer, the near side in front"
+    behind.length >= 2,
+    "the fires that land on the Slayer are drawn behind him, the rest in front"
+  );
+  const inFront = front.filter(isFlame);
+  assert.equal(
+    inFront.length,
+    everyFlame.length - behind.length,
+    "and every flame is on exactly one of the two rows"
   );
   behind.forEach((stage) => {
-    const shape = SHAPES[shapeOf(stage)];
     assert.ok(
-      shape.foot + placeOf(stage)[1] < RING.y,
-      `${shapeOf(stage)} at ${stage.at} is a far-side flame`
+      stands(stage)[0] < 60,
+      `${shapeOf(stage)} at ${stage.at} is one of the near ones, drawn behind him`
+    );
+  });
+  inFront.forEach((stage) => {
+    assert.ok(
+      stands(stage)[0] > 60,
+      `${shapeOf(stage)} at ${stage.at} stands clear of his body`
     );
   });
   /*
-   * And the fire is the client's size, not a fence and not a match: the first
-   * ring baked at 0.55-0.80 (60-108px) drew as candles next to a rift this wide
-   * and came back as 「火焰有点小」, and the pass after it (0.62-0.95, ~one
-   * Slayer of fire) came back as 「火焰还是小」 against the client's own preview,
-   * whose first wave is 2.1 caster heights of fire and whose second is over 2.5.
-   * The wide bush is 127px of client art at its tallest and the spire 179, and
-   * this game draws a client pixel at 0.97x, so the ring now bakes at
-   * 1.40-1.90 for the bush (172-234px) and 1.25-1.60 for the spire
-   * (217-278px), on a ~120px Slayer. That is still under the 4.5-Slayer column
-   * that ran off the top of the arena. The near places are the biggest, the far
-   * places the smallest, and the near one also erupts first.
+   * And the fire is the reference's height, not the preview's: the first wave
+   * there is 321 ref px tall (120px here) and the second 596 (223px), against a
+   * 90px Slayer. The bush is 127px of client art at its tallest and the spire
+   * 179, and this row draws a client pixel at 0.596 of a screen pixel, so the
+   * bushes bake at 1.35-1.59 (102-120px) and the spires at 1.70-2.09 (181-223).
+   * The pass before this one drew both waves at the preview's size (249 and 296),
+   * which is the 「火焰还是小」 the owner sent back twice - and the pass before
+   * *that* drew 60-108px candles.
    */
   assert.ok(
-    everyFlame.every((stage) => stage.scale >= 1.2 && stage.scale <= 2),
+    everyFlame.every((stage) => stage.scale >= 1.3 && stage.scale <= 2.2),
     "every flame is a pillar of its own, neither a candle nor a column off the screen"
+  );
+  assert.ok(
+    second.every((stage) => stage.scale > Math.min(...first.map((one) => one.scale))),
+    "and the second eruption is the taller one, the way the reference rises"
   );
   const largest = first.reduce((best, stage) => (stage.scale > best.scale ? stage : best));
   assert.ok(
-    placeOf(largest)[1] > 0 && largest.from <= Math.min(...first.map((stage) => stage.from)),
-    "the flame nearest the camera is the biggest and erupts first"
+    largest.from <= Math.min(...first.map((stage) => stage.from)),
+    "the tallest flame of the landing erupts first"
+  );
+  const firstPlaces = first.map(stands).map(([u]) => u);
+  assert.ok(
+    Math.abs(
+      stands(largest)[0] -
+        (Math.min(...firstPlaces) + Math.max(...firstPlaces)) / 2
+    ) < 60,
+    "and it stands in the middle of the gash, where the reference's fire is tallest"
   );
   const thirdHit = spec.activeFrom + 2 * hitSpan;
+  const secondOpens = Math.min(...second.map((stage) => toCast(stage.from)));
+  const secondCloses = Math.max(...second.map((stage) => toCast(stage.until)));
   assert.ok(
-    thirdHit >= toCast(second[0].from) && thirdHit <= toCast(second[0].until),
+    thirdHit >= secondOpens && thirdHit <= secondCloses,
     `the third hit lands in the second eruption (${thirdHit.toFixed(2)}s vs ` +
-      `${toCast(second[0].from).toFixed(2)}-${toCast(second[0].until).toFixed(2)}s)`
+      `${secondOpens.toFixed(2)}-${secondCloses.toFixed(2)}s)`
   );
   /*
    * The gap between the waves is not empty: the client holds the ring on the
@@ -2731,59 +2835,75 @@ test("血魔 dashes through the target with invincibility frames", () => {
   assert.ok(state.player.x > enemy.x, "the Slayer ends up past the target");
 });
 
-test("崩山裂地斩 is a planted ultimate with a wide rift", () => {
+test("崩山裂地斩 leaps forward, lands on its gash and stands back up", () => {
   const state = lastRoomState();
-  const near = Core.createEnemy(state, "brute", state.player.x + 70);
-  /*
-   * Far enough out that the sword and the rift's own radius cannot reach it:
-   * what is being tested is the ground wave, which is what makes this move the
-   * wide one - 320 is past the 200px box and the 190px rift but inside the
-   * wave's 360.
-   */
-  const far = Core.createEnemy(state, "brute", state.player.x + 320);
-  [near, far].forEach((enemy) => {
+  const near = Core.createEnemy(state, "brute", state.player.x + 160);
+  /* And one behind him: the reference's gash is one-sided, so it must be spared. */
+  const behind = Core.createEnemy(state, "brute", state.player.x - 160);
+  [near, behind].forEach((enemy) => {
     enemy.hp = 600;
     enemy.maxHp = 600;
     enemy.speed = 0;
   });
-  state.enemies = [near, far];
+  state.enemies = [near, behind];
   state.player.mp = state.player.maxMp;
   const skill = Core.SKILLS.mountainRift;
 
   Core.step(state, { skills: { mountainRift: true } });
-  Core.runFrames(state, 20, {});
+  assert.ok(
+    state.player.mp <= state.player.maxMp - skill.mp + 2,
+    `the ultimate costs ${skill.mp} MP, mp=${state.player.mp}`
+  );
+  Core.runFrames(state, 16, {});
   /*
-   * He is planted for the whole start-up: the move used to open on 崩山击's hop,
-   * which the owner read as 「多余动作」, and the client's own preview keeps the
-   * caster on the floor from the raise to the impact.
+   * The raise is cast from the floor - the reference holds him planted while the
+   * blood sword gathers over his head (its #16-32) - and the leap only starts
+   * when that beat is done.
    */
-  assert.equal(state.player.onGround, true, "the ultimate is cast from the floor");
+  assert.equal(state.player.onGround, true, "the raise is cast from the floor");
   const xAtCast = state.player.x;
 
-  /* The drive takes 0.72s of the cast and the hit lands with the plant. */
-  Core.runFrames(state, 42, {});
-  assert.equal(state.player.onGround, true, "and he never leaves it");
+  /* The leap is the reference's #33-50: nearly a second off the ground. */
+  Core.runFrames(state, 40, {});
+  assert.equal(state.player.onGround, false, "then he leaps");
   assert.ok(
-    Math.abs(state.player.x - xAtCast) < 4,
-    `the planted cast does not walk him forward (${(state.player.x - xAtCast).toFixed(1)}px)`
+    state.player.y < Core.ARENA.groundY - 60,
+    `and gets properly airborne (${(Core.ARENA.groundY - state.player.y).toFixed(0)}px up)`
+  );
+
+  /*
+   * He comes down on activeFrom - the reference lands and drives the blade in on
+   * the same frame - about 47px in front of where he cast it, and that is where
+   * the ground opens.
+   */
+  Core.runFrames(state, 20, {});
+  assert.equal(state.player.onGround, true, "and lands on the beat the rift opens");
+  assert.ok(
+    Math.abs(state.player.x - xAtCast - 47) < 20,
+    `the hop carries him the reference's 47px forward (${(state.player.x - xAtCast).toFixed(1)}px)`
   );
   assert.ok(
     state.effects.some((effect) => effect.kind === "shockwave"),
     "the landing splits the ground"
   );
+  assert.ok(near.hp < 600, "the gash catches what is in front of him");
+  assert.equal(behind.hp, 600, "and spares what is behind him: it is a one-sided rift");
 
   Core.runFrames(state, 48, {});
-  assert.ok(
-    state.player.mp <= state.player.maxMp - skill.mp + 16,
-    `the ultimate costs ${skill.mp} MP (plus regen), mp=${state.player.mp}`
-  );
+  /*
+   * The cast keeps running long after the hit: the second eruption is still
+   * coming, and the reference spends those two seconds prone and then getting
+   * up rather than free. The last tick is what floors what the rift caught.
+   */
+  assert.ok(state.player.skillTimer > 1, "the fire is still to come when the hit lands");
+  Core.runFrames(state, 110, {});
   assert.ok(
     state.player.skillCooldowns.mountainRift > 0 &&
       state.player.skillCooldowns.mountainRift < skill.cooldown,
     "the long cooldown runs down after the cast"
   );
-  assert.ok(far.hp < 600, "the rift reaches far targets");
-  assert.ok(far.knockdown > 0 || far.dead, "the rift knocks them down");
+  assert.ok(near.knockdown > 0 || near.dead, "the rift knocks them down");
+  assert.ok(state.player.skillTimer <= 0.1, "and the cast does end, 4s after the press");
 });
 
 test("the skill loadout assigns, swaps, clears and round-trips", () => {
