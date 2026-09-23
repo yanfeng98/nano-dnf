@@ -871,6 +871,7 @@ Pages workflow 在 deploy 之后还有一个 `verify` job 跑同一套线上冒�
 | `assets/effects.png` | 4×4 张 128×128 官方刀光帧，顺序与技能栏一致 |
 | `assets/import_dnf_effects.py` | 解码 DNF 技能特效 IMG，烘焙出 `effects.png` |
 | `assets/extract_bilibili_skills.py` | 把狂战士技能展示视频（`assets/dnf_src/bilibili/`，已 gitignore）按技能切成单条片段 + 逐帧对照图 |
+| `assets/skill-rework-prompt.md` | 「把某个技能照参考重做到一模一样」的提示词：空白模板（改最上面的填写区）+ 一份填好的示例 |
 | `index.html` | 页面外壳：标题、画布边框、键位说明与状态栏 |
 | `tests/core.test.js` | `node:test` 验证内核行为、成长与掉落、确定性、900 帧稳定性、可通关性、精灵帧选择与渲染冒烟 |
 | `tests/attract.test.js` | 验证标题演示：不碰真实那局、同种子可复现、不用 `Math.random`、打到狂暴并通关、卡住也能自己重来 |
