@@ -155,15 +155,17 @@
       growth: 4,
       /*
        * 崩山击 is a committed move - raise, forward hop, landing shockwave,
-       * recovery - but a whole three seconds read as sluggish, so the cast is
-       * 1.5s and the blade connects on the landing.
+       * recovery - and the cast is cut to the client's own preview
+       * (assets/dnf_src/bilibili/skill-clips/01_崩山击.mp4): the leap is the
+       * raise, the blade connects on the landing, and the whole thing is 1.3s
+       * from the press.
        */
-      duration: 1.5,
-      /* seconds: the hop starts at 0.33s and lands at ~1.04s, so the blade and
-         its ground wave connect at 1.05s - while he is still in the air the box
-         sits above the enemies and nothing lands. */
-      activeFrom: 1.05,
-      activeTo: 1.15,
+      duration: 1.3,
+      /* seconds: the hop starts at 0.065s and touches down at ~0.733s, so the
+         blade and its ground wave connect a frame later - while he is still in
+         the air the box sits above the enemies and nothing lands. */
+      activeFrom: 0.75,
+      activeTo: 0.83,
       reach: 96,
       heightPad: 18,
       knockbackX: 240,
@@ -173,19 +175,26 @@
       /* DNF shape: leap smash that knocks the target down. */
       knockdown: 1.1,
       /*
-       * The hop carries him forward and, per the owner, has to look like a real
-       * jump: -780 peaks about 138px up (gravity is 2200) for ~0.71s in the air,
-       * and the 150px/s push covers about 105px before he lands on the smash. It
-       * starts just after the raise.
+       * The hop is the raise itself, and its arc is the client preview's: he
+       * rises ~250px - about 3.7 body heights, measured off 01 崩山击 - and is
+       * back down inside 0.67s. The global gravity (2200) cannot do both: 250px
+       * at 2200 would hang for 0.95s. DNF's own world is that much heavier, so
+       * the move brings its own fall gravity and the two numbers both land. The
+       * 150px/s push then covers about 100px before he lands on the smash, which
+       * is the drift the same clip shows.
        */
       leap: 150,
-      leapUp: -780,
-      leapFrom: 0.22,
+      leapUp: -1500,
+      /* Only the airborne half of this move: -1500 under 4500 peaks at
+         -1500^2 / (2 * 4500) = 250px and touches down 2 * 1500 / 4500 = 0.67s
+         later, on activeFrom. */
+      leapGravity: 4500,
+      leapFrom: 0.05,
       /* The leap's landing frames are invulnerable, DNF style: the Slayer is
          committed to the smash and cannot be knocked out of the air - the window
          has to cover the whole hop plus the landing hit, or a grunt standing
          where he comes down cancels the move before the blade connects. */
-      leapInvuln: 0.95,
+      leapInvuln: 0.75,
       shockwave: {
         reach: 150,
         damage: 10,
@@ -959,6 +968,8 @@
         return map;
       }, {}),
       invuln: 0,
+      /* Invulnerability that does not blink (see drawPlayer): set by a leap. */
+      solidInvuln: 0,
       hurtTimer: 0,
       dead: false
     };
@@ -1451,7 +1462,17 @@
     }
 
     if (!player.onGround) {
-      player.vy = Math.min(player.vy + PHYSICS.gravity * dt, PHYSICS.maxFallSpeed);
+      /*
+       * A leap may bring its own fall gravity. 崩山击's arc is the client
+       * preview's - ~250px up, back down inside 0.67s - and the global 2200
+       * cannot do both (250px at 2200 hangs for 0.95s). This is the only use of
+       * a per-skill gravity: every other move keeps PHYSICS.gravity.
+       */
+      var leapGravity =
+        leaping && SKILLS[player.skillId].leapGravity
+          ? SKILLS[player.skillId].leapGravity
+          : PHYSICS.gravity;
+      player.vy = Math.min(player.vy + leapGravity * dt, PHYSICS.maxFallSpeed);
       /*
        * 银光落刃 drops straight down rather than arcing: once it is cast the
        * dive speed overrides gravity, so the blade lands where the player let
@@ -1489,6 +1510,7 @@
 
     player.attackCooldown = Math.max(0, player.attackCooldown - dt);
     player.invuln = Math.max(0, player.invuln - dt);
+    player.solidInvuln = Math.max(0, (player.solidInvuln || 0) - dt);
     player.hurtTimer = Math.max(0, player.hurtTimer - dt);
     player.comboTimer = Math.max(0, player.comboTimer - dt);
     player.airHitTimer = Math.max(0, player.airHitTimer - dt);
@@ -1628,6 +1650,13 @@
         player.onGround = false;
         /* DNF's 崩山击 is invulnerable once it is committed to the leap. */
         player.invuln = Math.max(player.invuln, active.leapInvuln || 0.3);
+        /*
+         * ... and that window does not blink. The client's own preview holds him
+         * solid through the hop - the whole move is one pose sequence and the
+         * flicker broke it up - so the leap's window is marked solid. A real hit
+         * that outlasts it still flashes: only `invuln` past this timer blinks.
+         */
+        player.solidInvuln = Math.max(player.solidInvuln || 0, active.leapInvuln || 0.3);
       }
 
       while (

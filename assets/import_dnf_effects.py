@@ -119,7 +119,25 @@ def clamp01(value: float) -> float:
 # board - stacking all three drew every ring and pillar two or three times over.
 PICKS = {
     "upSlash": {"stack": [("", "upperslash.img")]},
-    "mountainBreaker": {"stack": [("_hopsmash", "b_bottom_01_d.img")]},
+    # 崩山击: the client preview lands the smash on an orange fire column with a
+    # blue-white flash through it and the ground spitting red spikes, and the
+    # pack splits exactly that way - d-end is the column and the flash, and
+    # b_bottom_01_d is the spikes spreading under it. The row used to be the
+    # spikes alone, which is why the landing read as a ground tick with no
+    # impact; both entries are 6 frames, so the row stays 6.
+    #
+    # The two entries do not share a ground line in the pack: the column stands
+    # on y=242 and the spikes' own last frame bottoms out at y=164, 78px above
+    # it, and the two are 79px apart across the floor. Stacked as they come, the
+    # spikes floated in the air over the fire (that is what the first cut of this
+    # row looked like in game), so the spikes are offset onto the column's base.
+    # The anchor is that shared point - the middle of the column's foot - so the
+    # impact lands on the caster's feet rather than wherever the bounding box
+    # happens to sit.
+    "mountainBreaker": {"anchor": (86, 242), "stack": [
+        ("_hopsmash", "d-end.img"),
+        ("_hopsmash", "b_bottom_01_d.img", None, None, (-79, 78)),
+    ]},
     "crossSlash": {"stack": [("_gorecross", "gorecross_cross.img")]},
     # 血气之刃: the blood sword is thrust, then it bursts.
     "bloodSword": {"sequence": [("_bloodsword", "sword_normal.img"), ("_bloodsword", "exp_dodge.img")]},

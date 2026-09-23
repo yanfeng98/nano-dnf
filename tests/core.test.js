@@ -418,6 +418,11 @@ test("崩山击 jumps properly and lands the smash on the ground", () => {
   /*
    * The owner's read: the hop has to look like a jump, and the blade has to land
    * on the ground rather than in the air. Record the actual arc the sim produces.
+   *
+   * The arc is the client preview's now (assets/dnf_src/bilibili/skill-clips/
+   * 01_崩山击.mp4): he rises ~240px - the clip's own leap is about 3.7 body
+   * heights - and is back down inside 0.75s, which is what the move's own
+   * leapGravity is for. The global 2200 cannot hit both of those numbers.
    */
   state.enemies = [];
   const takeoff = state.player.y;
@@ -431,11 +436,60 @@ test("崩山击 jumps properly and lands the smash on the ground", () => {
       landedAt = frame * Core.DT;
     }
   }
-  assert.ok(apex >= 120, `崩山击 has to jump properly (apex ${Math.round(apex)}px)`);
+  assert.ok(apex >= 200, `崩山击 has to jump properly (apex ${Math.round(apex)}px)`);
+  assert.ok(apex <= 300, `and not higher than the clip's leap (apex ${Math.round(apex)}px)`);
   assert.ok(
     landedAt !== null && landedAt < skill.activeFrom,
     `the smash has to land on the ground (touched down at ${landedAt}, hit at ${skill.activeFrom})`
   );
+  assert.ok(landedAt < 0.8, `and be back down inside 0.8s (landed at ${landedAt})`);
+});
+
+test("崩山击 brings its own fall gravity, and no other move does", () => {
+  /*
+   * The leap's arc is the client preview's, and the world's gravity cannot make
+   * it: ~240px up would hang for almost a second under 2200. 崩山击 is the one
+   * move that overrides it, so the override is the only thing this test guards -
+   * a plain hop (C) or any other airborne skill still falls at PHYSICS.gravity.
+   */
+  const carrying = Core.CASTABLE_SKILLS.filter((id) => Core.SKILLS[id].leapGravity);
+  assert.deepEqual(carrying, ["mountainBreaker"], "only 崩山击 overrides the fall gravity");
+  assert.ok(
+    Core.SKILLS.mountainBreaker.leapGravity > Core.PHYSICS.gravity,
+    "and its fall is heavier than the world's, which is what makes the leap high and short"
+  );
+  assert.equal(
+    Core.SKILLS.mountainRift.leapGravity,
+    undefined,
+    "the ultimate is planted and has no fall of its own"
+  );
+});
+
+test("崩山击's leap is invulnerable without the hit flash", () => {
+  /*
+   * The window is solid. The client's own preview holds one pose sequence
+   * through the hop, and the i-frame blink chopped the whole move up (owner:
+   * 「一摸一样」), so the leap marks its window solid: drawPlayer() still blinks
+   * for a real hit - `hurtTimer` wins, and so does any `invuln` past the solid
+   * timer - but not for the leap itself.
+   */
+  const state = lastRoomState();
+  state.enemies = [];
+  Core.step(state, { skills: { mountainBreaker: true } });
+  Core.runFrames(state, 6, {});
+  const player = state.player;
+  assert.ok(player.solidInvuln > 0, "the leap marks its window solid");
+  assert.ok(
+    player.invuln >= player.solidInvuln,
+    "and covers that whole window with invulnerability"
+  );
+  assert.equal(player.onGround, false, "the check is taken mid-hop");
+
+  /* A plain hop (C) grants nothing, so there is nothing to blink either. */
+  const hop = Core.createState({ seed: 3 });
+  Core.runFrames(hop, 4, { jump: true });
+  assert.equal(hop.player.invuln, 0, "a normal jump is not invulnerable");
+  assert.equal(hop.player.solidInvuln, 0, "and marks no solid window");
 });
 
 test("崩山击 adds a ground shockwave that reaches past the blade", () => {
@@ -459,11 +513,11 @@ test("崩山击 adds a ground shockwave that reaches past the blade", () => {
 
   Core.step(state, { skills: { mountainBreaker: true } });
   /*
-   * 崩山击 raises, hops high (0.71s in the air) and lands the smash at ~1.1s.
-   * The wave effect only lives 0.4s, so it is checked as it lands rather than at
-   * the end of the recovery.
+   * 崩山击 raises, hops ~240px and lands the smash at 0.75s. The wave effect only
+   * lives 0.4s, so it is checked as it lands rather than at the end of the
+   * recovery.
    */
-  Core.runFrames(state, Math.ceil(1.15 * Core.FPS), {});
+  Core.runFrames(state, Math.ceil(0.8 * Core.FPS), {});
   assert.ok(state.effects.some((effect) => effect.kind === "shockwave"));
   Core.runFrames(state, Math.ceil(0.5 * Core.FPS), {});
 
@@ -519,7 +573,7 @@ test("崩山击 knocks the target down and its shockwave does too", () => {
   state.enemies = [near, far];
 
   Core.step(state, { skills: { mountainBreaker: true } });
-  Core.runFrames(state, Math.ceil(1.15 * Core.FPS), {});
+  Core.runFrames(state, Math.ceil(0.8 * Core.FPS), {});
 
   assert.ok(near.knockdown > 0, "the smash should knock the target down");
   assert.ok(far.knockdown > 0, "the ground shockwave should knock the far target down");
@@ -1230,17 +1284,25 @@ test("one press plays one stage of the normal attack, and attack speed sets the 
   );
 
   /*
-   * 崩山击 has to read as "jump, then bring the sword down": the clip is the
-   * client's own airborne pose (232) held through the hop and the smash (206-208)
-   * for the landing. The raise frames in front of it (203-205) were the extra
-   * motion the owner kept seeing.
+   * 崩山击 has to read as the client's own preview, which opens on the lift: 187
+   * (the blade still down and forward, the pose he is already standing in),
+   * 194/203 (both hands up, the blade over the head - the client's own 举剑),
+   * 204-205 (the coil at the top of the hop), the smash's crescent (206-207)
+   * landing with the hit, and the low lunge it ends in (208-209) through the
+   * recovery. The client's own hop frames (127-132) are out: they carry no sword
+   * motion, so putting them in front of the smash gave the move two wind-ups
+   * (owner: 「举剑过头」is part of the jump).
    */
   const smash = Render.SPRITE.skillClips.mountainBreaker;
   assert.equal(smash.row, Render.SPRITE.rows.clips);
   assert.equal(smash.first, 0, "崩山击 opens the first clip row");
-  assert.equal(smash.frames, 9, "the client's six-frame jump and three smash frames");
+  assert.equal(smash.frames, 9, "the lift, the coil, the crescent and the lunge");
   const beats = smash.beats.map((beat) => beat.frames);
-  assert.deepEqual(beats, [6, 3], "the jump and the smash are paced separately");
+  assert.deepEqual(beats, [3, 2, 2, 2], "each act is paced on its own");
+  assert.ok(
+    smash.beats[0].until <= Core.SKILLS.mountainBreaker.activeFrom / Core.SKILLS.mountainBreaker.duration,
+    "and the blade is up before the hit, not on it"
+  );
   assert.equal(
     beats.reduce((total, count) => total + count, 0),
     smash.frames,
@@ -1887,6 +1949,23 @@ test("the effect bake draws each shape in exactly one colour board", () => {
   const rageText = picks.slice(rageBurst.from, picks.indexOf("\n}", rageBurst.from));
   assert.match(rageText, /"anchor":\s*\(\s*-?\d+,\s*-?\d+\s*\)/, "rageBurst needs a ground anchor");
   assert.match(rageText, /"palette":\s*"\(tn\)"/, "rageBurst needs the client's white-gold board");
+  /*
+   * 崩山击's landing is the client preview's, and the pack splits it in two:
+   * d-end is the orange fire column with the white flash through it, and
+   * b_bottom_01_d is the red spikes spreading under it. The row used to be the
+   * spikes alone, which is why the smash landed on a ground tick with no impact.
+   *
+   * The two entries disagree on the ground line - the spikes' own last frame
+   * stops 78px above the column's foot and the two are 79px apart across the
+   * floor - so they are offset onto each other. Without that the spikes floated
+   * in the air over the fire (the first cut of this row did exactly that).
+   */
+  const smash = blocks.find((entry) => entry.skill === "mountainBreaker");
+  const smashText = picks.slice(smash.from, picks.indexOf("\n}", smash.from));
+  assert.match(smashText, /"d-end\.img"/, "崩山击 lands on the fire column and the flash");
+  assert.match(smashText, /"b_bottom_01_d\.img"/, "with the ground spikes under it");
+  assert.match(smashText, /"anchor":\s*\(\s*-?\d+,\s*-?\d+\s*\)/, "rooted on the column's foot");
+  assert.match(smashText, /\(\s*-79,\s*78\s*\)/, "and the spikes moved onto that foot");
   /*
    * 崩山裂地斩 is the 45-level ultimate's own pack, layer by layer: the blood
    * sword it summons comes down, the ground splits under it and the flames come

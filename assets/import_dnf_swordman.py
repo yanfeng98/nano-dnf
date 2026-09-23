@@ -52,11 +52,19 @@ ROWS = ["idle", "run", "attack", "skill", "extras", "clips", "clips2"]
 # skill's own client clip. Only the picked frames go in: widening them to their
 # neighbours made the move look like it was doing extra swings it never had.
 # The renderer paces the frames per beat instead (see src/render.js skillClips).
-#   崩山击     jump, then smash. The owner pointed at the client's own jump on the
-#              sm_body0048 sheet (its 126-131: "press C and that is the jump"),
-#              and body frames there run exactly one behind this sheet, so the
-#              jump is 127-132 here. 232/236 - what a plain hop uses - are not
-#              that animation, which is why the hop looked wrong.
+#   崩山击     raise the blade, hold it overhead through the hop, then drive it
+#              down. The owner asked for the move to match the client's own
+#              preview (assets/dnf_src/bilibili/skill-clips/01_崩山击.mp4, the
+#              training-room clip) frame for frame, and the clip in that preview
+#              starts on the lift, not on the pose the lift ends in: 187 (the
+#              blade still down and forward, where the character already stands),
+#              194 (both hands up, the blade over the head) and 203 (the same
+#              raise on the client's own 举剑 frame), then the coil 204-205, the
+#              crescent of the smash 206-207, and the low lunge it lands in
+#              208-209. The client's own hop frames (127-132) are out: they carry
+#              no sword motion, which is what made the leap read as a second
+#              wind-up in front of the smash (owner: 「举剑过头」is part of the
+#              jump, so putting the raise back is the point of this cut).
 #   怒气爆发   action 10 (8 frames)
 #   十字斩     action 1 (14 frames) + action 25 (6 frames)
 #   血之狂暴   action 22 (9 frames) - the stand that flings both arms out
@@ -91,7 +99,7 @@ ROWS = ["idle", "run", "attack", "skill", "extras", "clips", "clips2"]
 # The game used to draw one generic skill animation for every move, which is why
 # the character never seemed to perform the skill being cast.
 CLIPS = [
-    ("mountainBreaker", list(range(127, 133)) + [206, 207, 208]),
+    ("mountainBreaker", [187, 194, 203, 204, 205, 206, 207, 208, 209]),
     ("rageBurst", list(range(76, 84))),
     ("crossSlash", list(range(5, 19)) + list(range(198, 204))),
     ("frenzy", list(range(161, 170))),

@@ -870,6 +870,7 @@ Pages workflow 在 deploy 之后还有一个 `verify` job 跑同一套线上冒�
 | `assets/skills.png` | 四个 32×32 技能图标，顺序与技能栏一致 |
 | `assets/effects.png` | 4×4 张 128×128 官方刀光帧，顺序与技能栏一致 |
 | `assets/import_dnf_effects.py` | 解码 DNF 技能特效 IMG，烘焙出 `effects.png` |
+| `assets/extract_bilibili_skills.py` | 把狂战士技能展示视频（`assets/dnf_src/bilibili/`，已 gitignore）按技能切成单条片段 + 逐帧对照图 |
 | `index.html` | 页面外壳：标题、画布边框、键位说明与状态栏 |
 | `tests/core.test.js` | `node:test` 验证内核行为、成长与掉落、确定性、900 帧稳定性、可通关性、精灵帧选择与渲染冒烟 |
 | `tests/attract.test.js` | 验证标题演示：不碰真实那局、同种子可复现、不用 `Math.random`、打到狂暴并通关、卡住也能自己重来 |
@@ -908,6 +909,23 @@ python3 assets/import_dnf_art.py --icons 94,154,132,10,18,6,48,160,98,138,172
 
 `--icons` 按技能顺序给出帧号：上挑 / 崩山击 / 十字斩 / 鬼斩 / 三段斩 / 裂波斩 / 怒气爆发 /
 月光斩 / 抓头 / 鬼影闪 / 崩山裂地斩（顺序与 `src/core.js` 的 `SKILL_ORDER` 一致）。
+
+### 狂战士技能参考
+
+业主给的 B 站演示视频 `BV1oUDLBaEaK`（狂战士学习「魔狱血刹」前后）里有一段训练房巡演：
+黑底、一次一个技能、技能名打在顶部，底部标着「10级技能崩山击」这样的等级。这一段正好是
+一套 1:1 的官方技能动画，`assets/extract_bilibili_skills.py` 就按顶部标题的变化把它切成
+11 条片段，每条再导出一张"所有帧"的对照图：
+
+```bash
+yt-dlp -f "30080+30280" -o assets/dnf_src/bilibili/BV1oUDLBaEaK.mp4 "https://www.bilibili.com/video/BV1oUDLBaEaK/"
+python3 assets/extract_bilibili_skills.py            # 输出到 assets/dnf_src/bilibili/skill-clips/
+python3 assets/extract_bilibili_skills.py --detect   # 只重算切点，和表里的边界对一遍
+```
+
+巡演里的 11 个技能依次是崩山击(10) / 十字斩(15) / 死亡抗拒(20) / 嗜魂之手(25) / 暴走(25) /
+血气分流(30) / 血之狂暴(35) / 怒气爆发(35) / 嗜魂封魔斩(40) / 崩山裂地斩(45) / 魔狱血刹(50·觉醒)。
+每条的片段、逐帧对照图与 `INDEX.txt` 都落在 `assets/dnf_src/bilibili/skill-clips/`（已 gitignore）。
 
 ## 验证
 
