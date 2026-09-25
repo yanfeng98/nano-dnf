@@ -933,6 +933,55 @@ test("a room with a shallower floor stops him sooner", () => {
   }
 });
 
+/*
+ * The other half of the anchor: where the arena keeps the ground a move opened.
+ * `lastRoomState` is the fixture for "a state where nothing happens to me" - the
+ * room is already marked cleared and has no monsters, so no hit cuts the cast
+ * short and no clearing of the last room ends the run mid-test.
+ */
+test("a rift keeps its depth when the arena takes it over at the cast's end", () => {
+  const state = lastRoomState();
+  state.player.mp = state.player.maxMp;
+  state.player.z = 300;
+
+  Core.step(state, { skills: { mountainRift: true } });
+  Core.runFrames(state, Math.ceil(Core.SKILLS.mountainRift.duration * Core.FPS) + 2, {});
+
+  const field = state.fields[0];
+  assert.ok(field, "the end of the cast hands the ground to the arena");
+  assert.equal(field.z, 300, "and the spot it remembers has a depth");
+});
+
+test("a wave's ring lies on the row its caster is standing on", () => {
+  const state = lastRoomState();
+  state.player.mp = state.player.maxMp;
+  state.player.z = 180;
+
+  Core.step(state, { skills: { mountainBreaker: true } });
+  Core.runFrames(state, Math.ceil(0.78 * Core.FPS), {});
+
+  const wave = state.effects.find((effect) => effect.kind === "shockwave");
+  assert.ok(wave, "the wave is still pushed");
+  assert.equal(wave.z, 180, "and it is a circle on his own row of the floor");
+});
+
+test("a monster's floor marks carry the monster's own depth", () => {
+  const state = lastRoomState();
+  /* A caster, because a plain swing telegraphs nothing: only the aimed, charged,
+     spun, slammed and lunged attacks put a mark on the floor. */
+  const caster = Core.createEnemy(state, "caster", state.player.x + 220, 250);
+  state.enemies = [caster];
+
+  let mark = null;
+  for (let frame = 0; frame < 60 * 5 && !mark; frame += 1) {
+    Core.step(state, {});
+    mark = state.effects.find((effect) => effect.kind === "telegraph");
+  }
+
+  assert.ok(mark, "the caster aims before it fires");
+  assert.equal(mark.z, 250, "and the ground it is about to scorch is the ground under it");
+});
+
 test("the depth constant, the lift and the band cannot drift apart", () => {
   /*
    * One constant with two uses: how far a step of z draws up the screen, and
@@ -2172,6 +2221,11 @@ test("大蹦 draws both halves off its own sheet", () => {
  * drawn off `player.skillTimer`, so the whole rift vanished on the frame the
  * cast ended (or on the frame a hit landed), which is also why it followed him
  * around. These two pin the handover.
+ *
+ * The floor has two axes now, so "where he opened it" is three numbers plus a
+ * facing, and the depth is the one the handover used to drop: it kept x, y and
+ * facing, and a rift opened four Slayer-heights into the screen went on burning
+ * at the front edge of the room the moment the arena took it over.
  */
 test("the rift is handed to the floor, not the caster", () => {
   const state = Core.createState({ seed: 5 });
@@ -2191,7 +2245,7 @@ test("the rift is handed to the floor, not the caster", () => {
       if (call[3] !== rift.back * cell && call[3] !== rift.front * cell) return;
       for (let back = index; back >= 0; back -= 1) {
         if (calls[back][0] === "translate") {
-          out.push(calls[back][1]);
+          out.push({ x: calls[back][1], y: calls[back][2] });
           break;
         }
       }
@@ -2200,6 +2254,7 @@ test("the rift is handed to the floor, not the caster", () => {
   };
   state.player.x = 120;
   state.player.y = Core.ARENA.groundY;
+  state.player.z = 300;
   state.player.facing = 1;
   state.player.skillId = "mountainRift";
   state.player.skillTimer = Core.SKILLS.mountainRift.duration * 0.55;
@@ -2209,18 +2264,27 @@ test("the rift is handed to the floor, not the caster", () => {
   assert.equal(state.fields.length, 1, "and the rift is handed over");
   const field = state.fields[0];
   assert.equal(field.x, 120, "at the spot the blade opened it");
+  assert.equal(field.z, 300, "including how far into the screen that spot was");
   /*
    * He is knocked away from it, and the ground stays where it was: the rift is
-   * no longer read off him at all.
+   * no longer read off him at all. He is moved on both floor axes, so a rift
+   * that quietly fell back to the ground line fails on the same assertion.
    */
   state.player.x = 400;
+  state.player.z = 60;
   const calls = [];
   Render.render(recordingContext(calls), state, { sprites });
-  assert.ok(drawnAt(calls).length >= 2, "the rift is still drawn after the cast is over");
+  const rows = drawnAt(calls);
+  assert.ok(rows.length >= 2, "the rift is still drawn after the cast is over");
   assert.deepEqual(
-    [...new Set(drawnAt(calls))],
+    [...new Set(rows.map((row) => row.x))],
     [120],
     "and it is drawn where it was opened, not where he has been knocked to"
+  );
+  assert.deepEqual(
+    [...new Set(rows.map((row) => row.y))],
+    [Core.ARENA.groundY - Core.depthLift(300) + Render.EFFECT.draw.mountainRift.dy],
+    "on the row of the floor it was opened on, not the one he has walked to"
   );
   /*
    * It runs the rest of the move's own tail, then the linger - both counted

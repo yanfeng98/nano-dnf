@@ -1438,6 +1438,8 @@
         fade: at.fade,
         x: field.x,
         y: field.y,
+        /* The spot is four numbers: see Core's spawnField. */
+        z: field.z,
         facing: field.facing
       });
     }

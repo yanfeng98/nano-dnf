@@ -4,6 +4,11 @@
  *
  *   node tests/browser/capture-effect.mjs [skillId] [frames] [slowdown] [stepMs]
  *
+ * `DEPTH=400` walks him into the screen before the cast, which is how the
+ * handover bug was found: the log carries `z` and `fieldZ` for every shot, and
+ * the shots past the end of the cast showed `z=400 fieldZ=undefined` while the
+ * fire in the picture sat on the ground line.
+ *
  * Screenshots alone are too slow to catch a 1.05s cast: the first frame lands
  * after the eruption is already over. So this serves the real static build,
  * slows the clock the page sees (requestAnimationFrame timestamps are scaled,
@@ -35,6 +40,14 @@ const skillId = process.argv[2] || "mountainRift";
 const shots = Number(process.argv[3] || 24);
 const slowdown = Number(process.argv[4] || 0.08);
 const stepMs = Number(process.argv[5] || 550);
+/*
+ * Cast from a depth, for the moves whose art belongs to the floor: `DEPTH=400`
+ * walks him into the screen before the cast. The monsters are parked out of
+ * reach so the cast runs to its end - an interruption hands the ground to the
+ * arena mid-move, which is the other way to the same handover and is pinned by
+ * the unit tests instead.
+ */
+const depth = Number(process.env.DEPTH || 0);
 
 const server = http.createServer((req, res) => {
   const url = new URL(req.url, "http://localhost");
@@ -65,6 +78,19 @@ await page.waitForFunction(() => window.nanoDnf && window.nanoDnf.getState().roo
 await page.keyboard.press("Enter");
 await page.waitForTimeout(200);
 
+if (depth > 0) {
+  await page.evaluate((z) => {
+    const state = window.nanoDnf.getState();
+    state.enemies.forEach((enemy) => {
+      enemy.x = 900;
+      enemy.speed = 0;
+      enemy.chargeSpeed = 0;
+      enemy.attackRange = 0;
+    });
+    state.player.z = z;
+  }, depth);
+}
+
 const slotKey = await page.evaluate((id) => {
   const index = window.nanoDnf.getLoadout().indexOf(id);
   return index === -1 ? null : `Key${window.DNFLoadout.SLOT_KEYS[index]}`;
@@ -85,6 +111,9 @@ for (let shot = 0; shot < shots; shot += 1) {
         progress: casting ? Number((1 - state.player.skillTimer / duration).toFixed(3)) : null,
         x: Number(state.player.x.toFixed(1)),
         y: Number(state.player.y.toFixed(1)),
+        /* The two numbers this harness was given a depth to watch. */
+        z: Number(state.player.z.toFixed(1)),
+        fieldZ: state.fields.length ? state.fields[0].z : null,
         facing: state.player.facing,
         groundY: window.DNFCore.ARENA.groundY
       };

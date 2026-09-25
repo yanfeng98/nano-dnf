@@ -1551,7 +1551,7 @@
    * off and left it. `progress` is the move's own cast progress at the moment of
    * the handover, so the art carries on from the frame it was already on.
    */
-  function spawnField(state, skillId, progress, x, y, facing) {
+  function spawnField(state, skillId, progress, caster) {
     var spec = SKILLS[skillId];
     var field = spec && spec.field;
     if (!field || progress < field.from) return null;
@@ -1559,9 +1559,16 @@
     state.fields.push({
       skillId: skillId,
       from: field.from,
-      x: x,
-      y: y,
-      facing: facing,
+      x: caster.x,
+      y: caster.y,
+      /*
+       * The depth is part of the spot, not a detail of the caster. A rift opened
+       * four Slayer-heights into the screen that starts drawing itself on the
+       * ground line the moment the arena takes it over is a rift in the wrong
+       * place - and it is the handover, not the cast, that used to lose it.
+       */
+      z: caster.z || 0,
+      facing: caster.facing,
       clock: Math.max(0, (progress - field.from) * spec.duration),
       span: span,
       life: span + field.linger
@@ -1604,9 +1611,7 @@
         state,
         player.skillId,
         1 - player.skillTimer / interrupted.duration,
-        player.x,
-        player.y,
-        player.facing
+        player
       );
     }
     player.skillId = null;
@@ -1995,6 +2000,8 @@
             x: player.x + player.facing * wave.reach *
               (wave.arcOffset === undefined ? 0.4 : wave.arcOffset),
             y: ARENA.groundY,
+            /* The ring is a circle on the floor, so it lies where he cast it. */
+            z: player.z || 0,
             /* `visual` is how wide the arc is drawn, not how far the wave hits. */
             radius:
               (wave.reach + extraWave * 80) * 0.8 * (wave.visual === undefined ? 1 : wave.visual),
@@ -2030,7 +2037,7 @@
          * burning where it is, which is how the reference ends - him on his
          * feet at 3.97s with the cracks still lit.
          */
-        spawnField(state, active.id, 1, player.x, player.y, player.facing);
+        spawnField(state, active.id, 1, player);
         player.skillId = null;
       }
     }
@@ -2090,12 +2097,21 @@
     }
   }
 
+  /*
+   * A monster's own floor marks - the ground it is about to slam, and the ring
+   * the slam leaves. Both are on the floor under *it*, so both carry its depth:
+   * a monster standing four Slayer-heights in has to slam four Slayer-heights in,
+   * and the ring has to land around its feet rather than at the front edge of
+   * the room. Nothing places a monster at a depth yet (that is slice 5), which is
+   * why this reads as a no-op today and stops being one the moment something does.
+   */
   function pushTelegraph(state, enemy, label, radius, life, dir) {
     state.effects.push({
       kind: "telegraph",
       text: label,
       x: enemy.x,
       y: ARENA.groundY,
+      z: enemy.z || 0,
       radius: radius || 0,
       dir: dir || 0,
       life: life,
@@ -2108,6 +2124,7 @@
       kind: "shockwave",
       x: enemy.x,
       y: ARENA.groundY,
+      z: enemy.z || 0,
       radius: enemy.slam.radius,
       life: 0.45,
       maxLife: 0.45
