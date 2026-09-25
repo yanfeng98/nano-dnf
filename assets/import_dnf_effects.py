@@ -45,7 +45,7 @@ import sys
 import urllib.request
 from pathlib import Path
 
-from PIL import Image, ImageChops
+from PIL import Image, ImageChops, ImageFilter
 
 ROOT = Path(__file__).resolve().parent
 SRC = ROOT / "dnf_src"
@@ -188,6 +188,17 @@ ROCK_RAMP = [
     (0.40, (126, 116, 104)),
     (1.00, (198, 186, 166)),
 ]
+# The body of the blood the flames stand in - the glow's soft disc, used as
+# light rather than as a flame. It deliberately **never gets bright**: through
+# FIRE_RAMP the disc's own hot centre comes out white-hot and a few of them
+# washed the whole eruption into one pale blob. What the reference has behind its
+# tongues is a large dark-crimson mass, so this ramp stops at (170,32,20) and a
+# filled disc reads as depth rather than as another flame.
+BODY_RAMP = [
+    (0.00, (28, 2, 2)),
+    (0.45, (96, 11, 7)),
+    (1.00, (170, 32, 20)),
+]
 
 PICKS = {
     "upSlash": {"stack": [("", "upperslash.img")]},
@@ -325,7 +336,12 @@ PICKS = {
         # back, and 1.06x still came out 2.85. See the ground numbers in
         # assets/dnf_effect_picks.md.
         {"entry": "outragebreak_floor.img", "ramp": ROCK_RAMP, "frames": (0, 0), "scale": 0.98, "offset": (170, 27), "from": 0.265, "until": 1.00},
-        {"entry": "outragebreak_floor.img", "ramp": ROCK_RAMP, "frames": (1, 1), "scale": 0.98, "offset": (170, 27), "from": 0.275, "until": 1.00},
+        # The seams through the plates are *lit*, on the same ramp the lattice
+        # that spreads along them uses. On ROCK_RAMP they came out grey like the
+        # rock they run through, so the whole ground read as one flat slab with a
+        # red scribble on it; the reference's ground is dark rock with glowing
+        # orange seams, and the seam is the only bright thing in it.
+        {"entry": "outragebreak_floor.img", "ramp": FLOOR_RAMP, "frames": (1, 1), "scale": 0.98, "offset": (170, 27), "from": 0.275, "until": 1.00},
         {"entry": "outragebreak_floor.img", "frames": (2, 6), "scale": 0.98, "offset": (170, 27), "from": 0.265, "until": 0.35},
         # The lattice spreads in the half second after the landing and is then
         # *held* at its full width for the rest of the move: that lit field is
@@ -382,27 +398,12 @@ FRONT_ROWS = [
     ("mountainRiftFire", {"palette": "", "pack": "_outragebreak",
                           "match": "mountainRift", "length": 45,
                           "window": (120, -200, 960, 480), "stages": [
-        # The blood sword 举剑 carries - the owner reads the move as 先举剑 and
-        # points at the client's own body frames 123-124 for it, and the
-        # reference shows a flame blade standing off the raised hands (its
-        # #45-#51). The pack's blade is its own gesture in two parts: a wisp that
-        # gathers where the point will fall (f0-f10), a sweep across (f11-f12),
-        # and then the burst that is the blade going into the ground (f13-f19).
+        # 大蹦 summons no blade of its own. The reference's long red blade is the
+        # sword he is already holding, reddened all over by 血之狂暴 - see
+        # docs/adr/0003. The pack's own blade (outragebreak_bloodsword_none.img)
+        # was baked here in two windows and read as 「凭空多出来一把血剑」, so it
+        # is gone; the art stays in the pack, unused, for a swing-trail later.
         #
-        # Both halves of the move are baked to the same window, so both are drawn
-        # at the same client-px-per-screen-px and this row lands on the rift.
-        # This is the half that passes *in front* of the Slayer: on his own row
-        # the blade lands on his feet and his body swallows it.
-        #
-        # The wisp gathers over his head (u 50, his own head line pulled up) and
-        # the burst goes into the ring the floor row puts down at u 170 - the
-        # beat the slam lands on, `activeFrom`. Offsets are measured from the
-        # entry's own bottom centre: the wisp's is (174, 284) once it has grown,
-        # the burst's (299, 284).
-        {"entry": "outragebreak_bloodsword_none.img", "ramp": FIRE_RAMP, "scale": 1.84,
-         "offset": (248, 12), "frames": (0, 12), "from": 0.00, "until": 0.28},
-        {"entry": "outragebreak_bloodsword_none.img", "ramp": FIRE_RAMP, "scale": 2.00,
-         "offset": (253, 16), "frames": (13, 19), "from": 0.28, "until": 0.37},
         # The pack's soft disc and its starburst, not a flame, so they stay a
         # light: one on the impact, then a bigger one left burning under the
         # first wave. Both are the pack's glow, whose bottom centre is (482, 353)
@@ -457,46 +458,103 @@ FRONT_ROWS = [
         {"entry": "outragebreak_drops_2.img", "ramp": FIRE_RAMP, "scale": 3.0,
          "offset": (150, 40), "from": 0.44, "until": 0.56},
         # Then the second wave - the reference's #84-#115, the shot everyone
-        # remembers: a rank of narrow tongues down the gash, tallest just past
-        # the middle, over a base that has merged into one low sheet of fire.
-        # Two things about its proportions are the reference's and not the
-        # pack's, and both are measured off #105:
+        # remembers. Its proportions are the reference's, and the one that
+        # matters most is not its height: measured off #100/#105, **96% of its
+        # bottom two fifths is lit**, in unbroken runs a Slayer wide, while only
+        # its top fifth is separate tongues (21% lit). It is a slab of blood with
+        # a ragged crest, not a rank of tongues with dark ground showing between
+        # them - and the pass that drew the raggedness all the way to the floor
+        # is what read as 「一排细丝」 however tall it was.
         #
-        #  - it stands 2.22 of the Slayer's heights above his feet. The spire is
-        #    179px of client art at its tallest, so 1.55-1.75 is 2.2 - the
-        #    previous pass drew these at 1.5-2.11, i.e. up to 3.0 tall.
-        #  - each tongue is only 0.2-0.4 of his heights *across* (running a
-        #    ruler along #105 at mid-height finds runs of 0.02-0.33), while the
-        #    spire at any size that also reaches 2.2 tall is twice that wide.
-        #    Hence `stretch`: the same flame, drawn as narrow as the reference
-        #    draws it, which is what turns a rank of bushes into a rank of
-        #    tongues with the reference's thin dark gaps between them.
-        {"entry": "outragebreak_bloodsexp_2_none.img", "ramp": FIRE_RAMP, "scale": 1.75, "stretch": (0.55, 1.0),
-         "offset": (-32, -12), "from": 0.55, "until": 0.84},
-        {"entry": "outragebreak_bloodsexp_2_none.img", "ramp": FIRE_RAMP, "scale": 1.95, "stretch": (0.55, 1.0),
-         "offset": (28, 42), "from": 0.54, "until": 0.84},
-        {"entry": "outragebreak_bloodsexp_2_none.img", "ramp": FIRE_RAMP, "scale": 2.05, "stretch": (0.55, 1.0),
-         "offset": (88, 12), "from": 0.54, "until": 0.84},
-        {"entry": "outragebreak_bloodsexp_2_none.img", "ramp": FIRE_RAMP, "scale": 1.90, "stretch": (0.55, 1.0),
-         "offset": (148, 62), "from": 0.55, "until": 0.84},
-        {"entry": "outragebreak_bloodsexp_2_none.img", "ramp": FIRE_RAMP, "scale": 1.65, "stretch": (0.55, 1.0),
-         "offset": (203, 24), "from": 0.56, "until": 0.84},
-        # The base of the rank: the bush stretched wide and pressed down, so the
-        # three of them overlap into the one lit sheet of fire the reference's
-        # tongues stand in (at 0.18 of a Slayer above his feet that sheet runs
-        # 2.1 of his heights unbroken).
-        {"entry": "outragebreak_bloodsexp_1_none.img", "ramp": FIRE_RAMP, "scale": 1.30, "stretch": (1.60, 0.75),
-         "offset": (53, -34), "from": 0.55, "until": 0.82},
-        {"entry": "outragebreak_bloodsexp_1_none.img", "ramp": FIRE_RAMP, "scale": 1.30, "stretch": (1.60, 0.75),
-         "offset": (163, -11), "from": 0.55, "until": 0.82},
-        {"entry": "outragebreak_bloodsexp_1_none.img", "ramp": FIRE_RAMP, "scale": 1.30, "stretch": (1.60, 0.75),
-         "offset": (263, 12), "from": 0.56, "until": 0.82},
+        # So the wave is built in two parts that add up to that profile:
+        #
+        #  - a base of **four wide bushes, spaced closer than they are wide**, so
+        #    they overlap into a slab. The previous pass had three, 110 client px
+        #    apart and 225 wide, and its bottom scan lines broke every 8-13 *cell*
+        #    px against the reference's body-wide ones - the bush is bushy, and
+        #    the gaps in its own art survive the scaling. Four closer ones do not
+        #    close them either on their own: that is what `fill` is for. What the
+        #    count and the spacing fix is the *shape* - a slab rather than a row
+        #    of three clumps.
+        #  - **four tongues, not five, and wider**: at 0.55 of their own width the
+        #    spires were needles, and five needles read as a comb. 0.72 and one
+        #    fewer is what the reference's crest looks like.
+        #
+        # The tallest is the first of the four, and they die back as they run
+        # forward, so the crest is a slope rather than a dome: the reference's
+        # peaks at +0.17 of a Slayer off centre (#100), and a symmetric rank is
+        # what 「中间高，两边低」 means. The whole rank is the reference's
+        # **1.71 Slayer-heights across and 2.14 tall** - the spire is 168px of
+        # client art, so 1.75 is 2.05, and the slab's own height makes up the
+        # rest. It used to be 2.37 across.
+        #
+        # Under the rank, a soft red fill. This is not decoration: measured off
+        # the reference, 96% of the fire's bottom two fifths is lit, and no
+        # arrangement of the pack's flames gets there on its own - the bush is
+        # bushy and its own gaps survive every scaling. What the reference has
+        # there is the fire's *light* filling in behind it, and the pack ships
+        # exactly that as the glow's f0, a soft disc. Two of them, dimmed and
+        # overlapping, are what turns a rank you can see through into a mass.
+        #
+        # Round, not squashed flat. The obvious next move is to stretch these
+        # wide and flat, since the reference's slab is one unbroken scan line and
+        # a squashed disc is the only smooth thing in the pack. **Tried, and it
+        # fails both ways**: the scan lines barely move (median run 7 -> 6 cell
+        # px, against the reference's 70) and the picture is worse - a squashed
+        # disc's own bottom edge is two round lumps sitting under the fire like
+        # stones, where what the eye wants is fire coming down to the ground.
+        {"entry": "outragebreak_bloodsexp_glow.img", "ramp": BODY_RAMP, "frames": (0, 0), "alpha": 0.55, "base": 16,
+         "scale": 0.90, "offset": (20, -23), "from": 0.54, "until": 0.84},
+        {"entry": "outragebreak_bloodsexp_glow.img", "ramp": BODY_RAMP, "frames": (0, 0), "alpha": 0.55, "base": 16,
+         "scale": 0.90, "offset": (75, -23), "from": 0.55, "until": 0.84},
+        {"entry": "outragebreak_bloodsexp_2_none.img", "ramp": FIRE_RAMP, "scale": 1.75, "stretch": (0.72, 1.0),
+         "offset": (-22, 33), "from": 0.55, "until": 0.84},
+        {"entry": "outragebreak_bloodsexp_2_none.img", "ramp": FIRE_RAMP, "scale": 1.62, "stretch": (0.72, 1.0),
+         "offset": (28, 7), "from": 0.54, "until": 0.84},
+        {"entry": "outragebreak_bloodsexp_2_none.img", "ramp": FIRE_RAMP, "scale": 1.32, "stretch": (0.72, 1.0),
+         "offset": (83, 38), "from": 0.54, "until": 0.84},
+        {"entry": "outragebreak_bloodsexp_2_none.img", "ramp": FIRE_RAMP, "scale": 1.00, "stretch": (0.72, 1.0),
+         "offset": (133, 28), "from": 0.56, "until": 0.84},
+        # The slab they stand out of, and the two things the pack does not ship.
+        #
+        # **All four on one line** (one `dy`, client y 330 - just below the
+        # farthest tongue's foot, which is the lowest thing the rank otherwise
+        # has). That is not a depth choice: `base` straightens each layer's *own*
+        # bottom, so unless the layers agree on where the bottom is, the
+        # composite's lowest row is whichever one hangs lowest and the edge comes
+        # out ragged again. The first attempt at this spread them along the gash
+        # spine as before and the flat foot changed nothing at all.
+        #
+        # **`fill` then `base`**: close the flames' own furry gaps, then cut the
+        # foot straight. Measured row by row against #100, the rank already
+        # matched the reference from 20% of its height upward and diverged *only*
+        # in the bottom 15%, where the reference is 100% lit across its whole
+        # width - a curtain of fire standing on a straight edge, and a shape no
+        # rounded furry foot in this pack reads as at any scale. After the cut:
+        # 10% up goes 39% lit -> 92%, 5% up 13-40% -> 22-87%.
+        #
+        # What is left of that gap is the rank's *outer* tongues being wider than
+        # the slab, so the base cannot fill the whole silhouette: 5% up sits at
+        # 79-88% against the reference's 98%. Widening the slab to cover it was
+        # tried (`stretch` 0.85 -> 0.98, which measures better: 5% up 79 -> 88%)
+        # and **looked worse** - it spreads the rank back out into the wide mound
+        # that 「中间高，两边低」 was about, and the reference's fire is a narrow
+        # wall, not a wide one. The silhouette is what the eye reads; the last
+        # 2-10% of the base is not worth trading it for.
+        {"entry": "outragebreak_bloodsexp_1_none.img", "ramp": FIRE_RAMP, "scale": 1.35, "stretch": (0.85, 0.80),
+         "fill": 6, "base": 16, "offset": (38, 6), "from": 0.55, "until": 0.82},
+        {"entry": "outragebreak_bloodsexp_1_none.img", "ramp": FIRE_RAMP, "scale": 1.45, "stretch": (0.85, 0.80),
+         "fill": 6, "base": 16, "offset": (75, 6), "from": 0.55, "until": 0.82},
+        {"entry": "outragebreak_bloodsexp_1_none.img", "ramp": FIRE_RAMP, "scale": 1.45, "stretch": (0.85, 0.80),
+         "fill": 6, "base": 16, "offset": (112, 6), "from": 0.55, "until": 0.82},
+        {"entry": "outragebreak_bloodsexp_1_none.img", "ramp": FIRE_RAMP, "scale": 1.30, "stretch": (0.85, 0.80),
+         "fill": 6, "base": 16, "offset": (149, 6), "from": 0.56, "until": 0.82},
         # The two hot cores, drawn last so they read through the tongues the way
         # the reference's white-yellow base does.
         {"entry": "outragebreak_bloodsexp_glow.img", "ramp": FIRE_RAMP, "frames": (0, 0),
-         "scale": 0.45, "offset": (40, -47), "from": 0.56, "until": 0.82},
+         "scale": 0.45, "offset": (0, -45), "from": 0.56, "until": 0.82},
         {"entry": "outragebreak_bloodsexp_glow.img", "ramp": FIRE_RAMP, "frames": (0, 0),
-         "scale": 0.45, "offset": (160, -33), "from": 0.57, "until": 0.82},
+         "scale": 0.45, "offset": (110, -25), "from": 0.57, "until": 0.82},
         # The flames die back onto the gash: the bush's own last frames are
         # embers rather than fire, so the row ends on the lit rift the way the
         # reference does (its last thirty frames are cracks and glow).
@@ -850,6 +908,84 @@ def dim(decoded, factor):
     return out
 
 
+def fill_gaps(decoded, radius: int = 5, soften: float = 1.2, floor: int = 96):
+    """Thicken a shape's own gaps shut, so a furry mass reads as one body.
+
+    The pack's flames are furry: a bush is a few dozen little tongues, and the
+    dark notches between them survive every scale and every arrangement. Measured
+    off 10_崩山裂地斩 #100 the reference's fire has a *solid* lower body - its
+    scan lines run a Slayer wide unbroken - and no ordering of the pack's own
+    shapes gets there, because the notches are in the art, not in the layout.
+
+    So close them, on the alpha channel only: a **dilate then erode** (PIL's
+    MaxFilter then MinFilter, which is the morphological closing) merges the
+    tongues wherever they are less than `radius` apart and then pulls the
+    silhouette back to roughly where it was, so the shape grows a body without
+    growing an outline. `soften` blurs the result so the new edges are not the
+    filter's own staircase, and `floor` cuts off the far tail of that blur, which
+    is what would otherwise leave a grey haze over the whole cell.
+
+    Only ever used under the flames, never on them: a tongue's whole job is to
+    have a silhouette.
+    """
+    if radius < 1:
+        return decoded
+    size = radius * 2 + 1
+    out = []
+    for picture, x, y in decoded:
+        image = picture.convert("RGBA")
+        alpha = image.getchannel("A").filter(ImageFilter.MaxFilter(size))
+        alpha = alpha.filter(ImageFilter.MinFilter(size))
+        if soften > 0:
+            alpha = alpha.filter(ImageFilter.GaussianBlur(soften))
+        alpha = alpha.point(lambda value: 0 if value < floor else value)
+        image.putalpha(alpha)
+        out.append((image, x, y))
+    return out
+
+
+def flatten_base(decoded, rows: int):
+    """Give a shape a straight bottom edge, `rows` tall.
+
+    Every shape in this pack ends in a rounded or furry foot, and 大蹦's fire
+    needs one that does not: measured row by row against #100, ours already
+    matches the reference from 20% of its height upward (95% lit, runs over a
+    Slayer long) and diverges *only* in the bottom 15%, where the reference is
+    100% lit across its whole width and ours tapers to a point. That is a curtain
+    of fire standing on a straight base, and no rounded foot from the pack will
+    read as one however it is scaled.
+
+    Taking the union of the lowest `rows` rows and painting it back over them
+    does it: the bottom edge becomes straight and keeps its widest reach, and
+    nothing above it moves. It is a cut, and it is meant to look like one - this
+    is the ground the fire stands on.
+    """
+    if rows < 1:
+        return decoded
+    out = []
+    for picture, x, y in decoded:
+        image = picture.convert("RGBA")
+        alpha = image.getchannel("A")
+        height = alpha.height
+        count = min(rows, height)
+        box = alpha.crop((0, height - count, alpha.width, height))
+        # Per *column*, the tallest reach of the bottom rows - so the edge goes
+        # straight without smearing sideways the way a square max-filter would.
+        source = box.load()
+        flat = Image.new("L", box.size, 0)
+        target = flat.load()
+        for column in range(box.width):
+            reach = 0
+            for row in range(count):
+                reach = max(reach, source[column, row])
+            for row in range(count):
+                target[column, row] = reach
+        alpha.paste(flat, (0, height - count))
+        image.putalpha(alpha)
+        out.append((image, x, y))
+    return out
+
+
 def ramp_tables(stops):
     """Per-channel 256-entry lookup tables for a (level, (r, g, b)) ramp."""
     levels = [stop[0] for stop in stops]
@@ -926,6 +1062,11 @@ def stage_layers(client: Path, pick: dict):
             shift(rescale(decoded, scale, tuple(stage.get("stretch", (1.0, 1.0)))), offset),
             stage.get("alpha", 1.0),
         )
+        # Filling is a *scale* thing, so it runs after the shape has been grown:
+        # the gaps a layer needs closed are the ones it has on screen, not the
+        # ones it had at the pack's own size.
+        decoded = fill_gaps(decoded, int(stage.get("fill", 0)))
+        decoded = flatten_base(decoded, int(stage.get("base", 0)))
         first, last = stage.get("frames", (0, len(decoded) - 1))
         part = decoded[first:last + 1]
         if not part:

@@ -108,6 +108,37 @@ if (depth > 0 || monster) {
   );
 }
 
+/*
+ * `RAGE=1` opens 血之狂暴 before the cast. The reference clip is a Berserker
+ * running his buffs, and the red all over him in 10_崩山裂地斩 is *the stance*,
+ * not the move - so a capture of 大蹦 without it is short a whole layer of
+ * colour that no amount of work on 大蹦 itself would put back. See
+ * docs/adr/0003. Pressing the hotbar key rather than writing the buff, so this
+ * goes through the same path a player does.
+ */
+if (process.env.RAGE === "1") {
+  const rageKey = await page.evaluate(() => {
+    const index = window.nanoDnf.getLoadout().indexOf("frenzy");
+    return index === -1 ? null : `Key${window.DNFLoadout.SLOT_KEYS[index]}`;
+  });
+  if (!rageKey) throw new Error("血之狂暴 is not on the hotbar");
+  await page.keyboard.press(rageKey);
+  /*
+   * And wait for that cast to *finish*, not just for the buff to land: the
+   * stance takes 0.6s, which is six seconds at this harness's slowdown, and the
+   * move pressed during it is swallowed - the capture then logs 100 shots of a
+   * Slayer standing still with the cast never happening.
+   */
+  await page.waitForFunction(
+    () => {
+      const player = window.nanoDnf.getState().player;
+      return player.buffs.bloodRage > 0 && player.skillId !== "frenzy";
+    },
+    null,
+    { timeout: 60000 }
+  );
+}
+
 const slotKey = await page.evaluate((id) => {
   const index = window.nanoDnf.getLoadout().indexOf(id);
   return index === -1 ? null : `Key${window.DNFLoadout.SLOT_KEYS[index]}`;
@@ -132,6 +163,8 @@ for (let shot = 0; shot < shots; shot += 1) {
         z: Number(state.player.z.toFixed(1)),
         fieldZ: state.fields.length ? state.fields[0].z : null,
         facing: state.player.facing,
+        /* Whether 血之狂暴 is up: it is what decides the colours in the shot. */
+        raging: !!(state.player.buffs && state.player.buffs.bloodRage > 0),
         groundY: window.DNFCore.ARENA.groundY
       };
     }, skillId)

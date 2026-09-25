@@ -2754,10 +2754,10 @@ test("the shipped DNF effect sheet matches the renderer grid", () => {
   );
   assert.equal(riftFrames[riftFrames.length - 1], Render.EFFECT.maxFrames - 1, "to the last column");
   /*
-   * The fire row opens on the blade the raise carries (the owner: 「应该是血剑」)
-   * and runs to the end of the cast; the stage windows are what pin that the
-   * fire itself does not start until he drives the blade in, in 大蹦 plays in
-   * stages below.
+   * The fire row opens on its own first act, and that act is the landing: the
+   * raise carries no blood of its own (docs/adr/0003), so the head of the row is
+   * empty until he drives the sword in. The stage windows are what pin that, in
+   * 大蹦 plays in stages below.
    */
   assert.equal(
     Render.EFFECT.frontFrames.mountainRift,
@@ -2765,7 +2765,14 @@ test("the shipped DNF effect sheet matches the renderer grid", () => {
     "the fire row runs on the rift's timeline, or the two halves drift apart"
   );
   const fireFrames = columnsDrawn(rift.front);
-  assert.equal(fireFrames[0], 0, "and it opens on the blade the raise carries");
+  assert.ok(
+    fireFrames[0] > 0,
+    "and it opens on the eruption, not on the raise - nothing burns before the slam"
+  );
+  assert.ok(
+    fireFrames.every((column, index) => column === fireFrames[0] + index),
+    "and runs on with no hole in it"
+  );
   assert.equal(
     fireFrames[fireFrames.length - 1],
     Render.EFFECT.maxFrames - 1,
@@ -2977,21 +2984,28 @@ test("the effect bake draws each shape in exactly one colour board", () => {
     "with no orange board left on either half of the move"
   );
   assert.equal(
-    (fireText.match(/"ramp":\s*FIRE_RAMP/g) || []).length,
+    (fireText.match(/"ramp":\s*(FIRE_RAMP|BODY_RAMP)/g) || []).length,
     (fireText.match(/"entry":/g) || []).length,
     "every layer of the fire is ramped - the debris, which is plain rock, lives on the ground row"
   );
   /*
    * The fire is the other half of the same pack, and it is drawn over the
-   * Slayer: the rift stays behind him on the skill's own row, and the blade the
-   * raise carries plus the flames that come out of the split are on a front row
-   * baked to the same window. The blade has to be here rather than behind him -
-   * on his own row it lands on his feet and his body swallows it.
+   * Slayer: the rift stays behind him on the skill's own row, and the flames
+   * that come out of the split are on a front row baked to the same window.
+   *
+   * What is *not* here any more is a blade of its own. The reference's long red
+   * blade is the sword he is already holding under 血之狂暴, and the two windows
+   * this row used to spend on the pack's own bloodsword read as 「凭空多出来一
+   * 把血剑」 - see docs/adr/0003. That is what this pins: the art is still in the
+   * pack, and it is not drawn.
    */
   const frontStart = source.indexOf("FRONT_ROWS = [");
   assert.ok(frontStart > 0, "the bake declares the rows drawn in front of the Slayer");
   const frontText = source.slice(frontStart, source.indexOf("\n]\n", frontStart));
-  assert.match(frontText, /outragebreak_bloodsword_none\.img/, "大蹦 summons the blood sword");
+  assert.ok(
+    !/bloodsword/.test(frontText.replace(/^\s*#.*$/gm, "")),
+    "大蹦 summons no blade of its own (docs/adr/0003)"
+  );
   assert.match(frontText, /outragebreak_bloodsexp_1_none\.img/, "and erupts out of the split");
   assert.match(frontText, /outragebreak_bloodsexp_2_none\.img/, "twice, the way the client does");
   assert.match(frontText, /"match":\s*"mountainRift"/, "on the rift's own window");
@@ -3025,7 +3039,10 @@ function bakedStages(source, startMarker, endMarker) {
       first: range ? Number(range[1]) : 0,
       last: range ? Number(range[2]) : Infinity,
       at: offset ? `${offset[1]},${offset[2]}` : "0,0",
-      scale: scale ? Number(scale[1]) : 1
+      scale: scale ? Number(scale[1]) : 1,
+      /* The rest of the stage's own text, for the few things a test reads
+       * straight off it - which ramp a layer is on, mostly. */
+      raw: middle
     });
   }
   /*
@@ -3085,37 +3102,28 @@ test("大蹦 plays in stages, not all at once", () => {
   const toCast = (at) => (timing.from + at * (timing.to - timing.from)) * spec.duration;
 
   /*
-   * The row starts on the first frame of the cast, because its first act is
-   * 举剑: 崩山裂地斩是先举剑, and the owner points at the client's own body frames
-   * 123-124 for the raise - so the blood sword is on screen while he raises it
-   * (「应该是血剑」) rather than appearing out of the sky on the landing. It lives
-   * on the front row, drawn over him, because on his own row his body swallows
-   * it. Its first window has to hand over to the strike on activeFrom - the beat
-   * the slam lands on - so the blade goes into the ground with the hit.
+   * And no blade of its own is drawn on either row. The reference's long red
+   * blade is the sword he is already holding under 血之狂暴, and the pack's own
+   * bloodsword - which this row spent two windows on - read as 「凭空多出来一把
+   * 血剑」. See docs/adr/0003.
    */
-  const sword = front.filter((stage) => stage.entry.includes("bloodsword"));
-  assert.equal(sword.length, 2, "the blade is drawn in front of him, in two windows");
   assert.ok(
-    !back.some((stage) => stage.entry.includes("bloodsword")),
-    "and not on the row behind him, where his own body covers it"
+    ![...back, ...front].some((stage) => stage.entry.includes("bloodsword")),
+    "大蹦 draws no blade of its own on either row (docs/adr/0003)"
+  );
+  /*
+   * What the fire does have to answer is the landing: its first flame opens on
+   * the beat the sword goes into the ground, `activeFrom`.
+   */
+  const opensOn = Math.min(
+    ...front
+      .filter((stage) => /bloodsexp_[12]/.test(stage.entry))
+      .map((stage) => toCast(stage.from))
   );
   assert.ok(
-    toCast(sword[0].from) < 0.02,
-    `the blood sword is up with the raise (${toCast(sword[0].from).toFixed(2)}s in)`
+    Math.abs(opensOn - spec.activeFrom) < 0.1,
+    `the first flame opens on the slam (${opensOn.toFixed(2)}s vs ${spec.activeFrom}s)`
   );
-  const strike = sword[sword.length - 1];
-  assert.ok(
-    Math.abs(toCast(sword[0].until) - spec.activeFrom) < 0.08,
-    `the blade is still coming down as he drives it in (${toCast(sword[0].until).toFixed(2)}s vs ` +
-      `${spec.activeFrom}s)`
-  );
-  assert.ok(
-    Math.abs(toCast(strike.from) - spec.activeFrom) < 0.08,
-    `and the strike into the ground opens just before the hit (${toCast(strike.from).toFixed(2)}s vs ` +
-      `${spec.activeFrom}s)`
-  );
-  const swordFrames = sword.map((stage) => stage.first);
-  assert.deepEqual(swordFrames, [0, 13], "the gathering runs up to the strike frames");
   /*
    * And the body is on the landing by the time the blade goes in: the third beat
    * of the clip - the prone settle - starts exactly on activeFrom, and the leap
@@ -3302,13 +3310,82 @@ test("大蹦 plays in stages, not all at once", () => {
     largest.from <= Math.min(...first.map((stage) => stage.from)),
     "the tallest flame of the landing erupts first"
   );
-  const firstPlaces = first.map(stands).map(([u]) => u);
+  /*
+   * But it is **not** a symmetric rank. 「中间高，两边低」 is the shape the owner
+   * pointed at, and the reference's own crest peaks at +0.17 of a Slayer off the
+   * middle of its fire (#100) rather than on it. This used to require the
+   * opposite - the tallest flame pinned within 90px of the gash's midpoint -
+   * which is where the dome came from.
+   */
+  const secondPlaces = second.map(stands).map(([u]) => u);
+  const tallest = second.reduce((best, stage) => (best.scale > stage.scale ? best : stage));
   assert.ok(
-    Math.abs(
-      stands(largest)[0] -
-        (Math.min(...firstPlaces) + Math.max(...firstPlaces)) / 2
-    ) < 90,
-    "and it stands in the middle of the gash, where the reference's fire is tallest"
+    Math.abs(stands(tallest)[0] - (Math.min(...secondPlaces) + Math.max(...secondPlaces)) / 2) >
+      (Math.max(...secondPlaces) - Math.min(...secondPlaces)) * 0.15,
+    "the crest of the second eruption stands off the middle, not on it"
+  );
+  /*
+   * And it is a **mass**, not a rank of tongues with floor showing between them.
+   * Measured off the reference (#100/#105), 96% of its bottom two fifths is lit
+   * - in runs a Slayer wide - while only its top fifth is separate tongues at
+   * 21%. Ours read as 「一排细丝」 at 65% / 33% however tall it was, and the
+   * cause is structural rather than a matter of scale: the pack's flame is
+   * bushy, and its own gaps survive every scaling, so no arrangement of flames
+   * alone closes them. What closes them is the light behind the fire, which is
+   * a layer of its own (`outragebreak_bloodsexp_glow.img` f0, a soft disc, on
+   * BODY_RAMP so it stays dark blood rather than becoming another flame).
+   *
+   * Pinned by construction rather than by a pixel statistic on purpose: the
+   * numbers for the old bake and this one overlap (65% vs 72% of the body lit),
+   * so a threshold on them would either pass both or be flaky.
+   */
+  /* The second wave's own bushes, told apart from the embers it dies back into
+   * (`bloodsexp_1` too, but with no fill and on the gash's own line) by the one
+   * thing only the slab carries. */
+  const slab = second.filter(
+    (stage) => stage.entry.includes("bloodsexp_1") && /"fill":/.test(stage.raw)
+  );
+  assert.ok(
+    slab.length >= 4,
+    `the second eruption stands in a slab, not on bare ground (${slab.length} bushes)`
+  );
+  /*
+   * And the slab's two properties are built, not inherited, because the pack has
+   * neither of them.
+   *
+   * `fill` closes the gaps in the flames' own furry outlines, and `base` cuts the
+   * foot straight. Measured row by row against #100, ours already matched the
+   * reference from 20% of its height upward and diverged *only* in the bottom
+   * 15%, where the reference is 100% lit across its whole width - a curtain of
+   * fire standing on a straight edge. That is a shape no rounded, furry foot in
+   * this pack will ever read as, however it is scaled or arranged.
+   *
+   * The one line is what makes the cut land: `base` straightens each layer's own
+   * bottom, so unless the layers agree on where the bottom *is*, the composite's
+   * lowest row is whichever one hangs lowest and the edge comes out ragged again.
+   * That was the first attempt at this, and it moved nothing.
+   */
+  assert.equal(
+    new Set(slab.map((stage) => stage.at.split(",")[1])).size,
+    1,
+    "the slab stands on one line, so its foot can be cut straight"
+  );
+  slab.forEach((stage) => {
+    assert.match(
+      stage.raw,
+      /"fill":\s*\d+/,
+      `the slab is closed up, or its flames' own gaps show through (${stage.at})`
+    );
+    assert.match(
+      stage.raw,
+      /"base":\s*\d+/,
+      `and given a straight foot to stand on (${stage.at})`
+    );
+  });
+  const bodyLight = front.filter((stage) => /BODY_RAMP/.test(stage.raw) && stage.from >= 0.45);
+  assert.ok(
+    bodyLight.length >= 2,
+    "and the light that fills the gaps between its strands is a layer of its own"
   );
   const thirdHit = spec.activeFrom + 2 * hitSpan;
   const secondOpens = Math.min(...second.map((stage) => toCast(stage.from)));
