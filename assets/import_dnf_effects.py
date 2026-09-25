@@ -349,7 +349,7 @@ PICKS = {
         # A place is (382 + u, 289 + 0.12u) and the spire's own bottom centre is
         # (474, 282), which is what its offset is measured from.
         {"entry": "outragebreak_bloodsexp_2_none.img", "ramp": FIRE_RAMP, "scale": 1.40, "stretch": (0.55, 1.0),
-         "offset": (-67, 10), "from": 0.56, "until": 0.90},
+         "offset": (-67, -4), "from": 0.56, "until": 0.90},
         {"entry": "outragebreak_bloodsexp_2_none.img", "ramp": FIRE_RAMP, "scale": 1.20, "stretch": (0.55, 1.0),
          "offset": (-112, 5), "from": 0.58, "until": 0.88},
     ]},
@@ -471,25 +471,25 @@ FRONT_ROWS = [
         #    draws it, which is what turns a rank of bushes into a rank of
         #    tongues with the reference's thin dark gaps between them.
         {"entry": "outragebreak_bloodsexp_2_none.img", "ramp": FIRE_RAMP, "scale": 1.75, "stretch": (0.55, 1.0),
-         "offset": (-32, 14), "from": 0.55, "until": 0.90},
+         "offset": (-32, -12), "from": 0.55, "until": 0.90},
         {"entry": "outragebreak_bloodsexp_2_none.img", "ramp": FIRE_RAMP, "scale": 1.95, "stretch": (0.55, 1.0),
-         "offset": (28, 21), "from": 0.54, "until": 0.91},
+         "offset": (28, 42), "from": 0.54, "until": 0.91},
         {"entry": "outragebreak_bloodsexp_2_none.img", "ramp": FIRE_RAMP, "scale": 2.05, "stretch": (0.55, 1.0),
-         "offset": (88, 29), "from": 0.54, "until": 0.91},
+         "offset": (88, 12), "from": 0.54, "until": 0.91},
         {"entry": "outragebreak_bloodsexp_2_none.img", "ramp": FIRE_RAMP, "scale": 1.90, "stretch": (0.55, 1.0),
-         "offset": (148, 36), "from": 0.55, "until": 0.90},
+         "offset": (148, 62), "from": 0.55, "until": 0.90},
         {"entry": "outragebreak_bloodsexp_2_none.img", "ramp": FIRE_RAMP, "scale": 1.65, "stretch": (0.55, 1.0),
-         "offset": (203, 42), "from": 0.56, "until": 0.90},
+         "offset": (203, 24), "from": 0.56, "until": 0.90},
         # The base of the rank: the bush stretched wide and pressed down, so the
         # three of them overlap into the one lit sheet of fire the reference's
         # tongues stand in (at 0.18 of a Slayer above his feet that sheet runs
         # 2.1 of his heights unbroken).
         {"entry": "outragebreak_bloodsexp_1_none.img", "ramp": FIRE_RAMP, "scale": 1.30, "stretch": (1.60, 0.75),
-         "offset": (53, -24), "from": 0.55, "until": 0.90},
+         "offset": (53, -34), "from": 0.55, "until": 0.90},
         {"entry": "outragebreak_bloodsexp_1_none.img", "ramp": FIRE_RAMP, "scale": 1.30, "stretch": (1.60, 0.75),
          "offset": (163, -11), "from": 0.55, "until": 0.90},
         {"entry": "outragebreak_bloodsexp_1_none.img", "ramp": FIRE_RAMP, "scale": 1.30, "stretch": (1.60, 0.75),
-         "offset": (263, 1), "from": 0.56, "until": 0.89},
+         "offset": (263, 12), "from": 0.56, "until": 0.89},
         # The two hot cores, drawn last so they read through the tongues the way
         # the reference's white-yellow base does.
         {"entry": "outragebreak_bloodsexp_glow.img", "ramp": FIRE_RAMP, "frames": (0, 0),

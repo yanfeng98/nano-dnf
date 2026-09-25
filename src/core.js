@@ -475,6 +475,20 @@
       leapUp: -666,
       leapFrom: 0.135,
       leapInvuln: 0.6,
+      /*
+       * And what the blade leaves on the floor is the *arena's*, not his
+       * animation's. The reference has him back on his feet at #135 (3.97s) with
+       * the cracks still glowing, and a real DNF carries this move as one a hit
+       * can cut short - either way the fire he already opened goes on burning
+       * where it was opened. So the landing hands the rift to a field record
+       * (see spawnField): the spot, the facing and a clock of its own. The
+       * renderer draws the ground off that record, which is why the rift stays
+       * where it was cast, keeps burning when the cast is interrupted, and dies
+       * down over `linger` after the cast rather than blinking out with it - the
+       * handover itself happens at the end of the cast, or on the hit that ends
+       * it early (see damagePlayer).
+       */
+      field: { from: 0.265, linger: 1.4 },
       shockwave: {
         reach: 250,
         damage: 18,
@@ -1107,6 +1121,8 @@
       projectiles: [],
       pickups: [],
       effects: [],
+      /* Ground a skill opened and left burning: see spawnField. */
+      fields: [],
       nextEnemyId: 1,
       nextProjectileId: 1,
       stats: { hits: 0, kills: 0, damageDealt: 0, damageTaken: 0, airHits: 0, collapses: 0, bloodOrbs: 0 },
@@ -1146,6 +1162,8 @@
     state.player.comboTimer = 0;
     state.pickups = [];
     state.projectiles = [];
+    /* A new room is a new floor: nothing he opened in the last one burns here. */
+    state.fields = [];
     state.upgradeChoice = null;
     state.roomTime = 0;
     state.hazards = (spec.hazards || []).map(function (hazard, index) {
@@ -1430,6 +1448,49 @@
     return applied;
   }
 
+  /*
+   * Hand a skill's ground fire over to the arena.
+   *
+   * A move whose spec carries a `field` hands its effect over to the arena when
+   * the cast ends or a hit cuts it short - anything from `field.from` (the beat
+   * its art lands on the floor) onwards has already been drawn on the ground,
+   * and the ground is not the caster's. From then on what is burning belongs to
+   * the spot it was opened on: the record carries its own clock, so the renderer
+   * draws it while he recovers, after the interruption, and after he has walked
+   * off and left it. `progress` is the move's own cast progress at the moment of
+   * the handover, so the art carries on from the frame it was already on.
+   */
+  function spawnField(state, skillId, progress, x, y, facing) {
+    var spec = SKILLS[skillId];
+    var field = spec && spec.field;
+    if (!field || progress < field.from) return null;
+    var span = (1 - field.from) * spec.duration;
+    state.fields.push({
+      skillId: skillId,
+      from: field.from,
+      x: x,
+      y: y,
+      facing: facing,
+      clock: Math.max(0, (progress - field.from) * spec.duration),
+      span: span,
+      life: span + field.linger
+    });
+    return state.fields[state.fields.length - 1];
+  }
+
+  /** Where a field is in its move's animation, and how far it has faded. */
+  function fieldProgress(field) {
+    var at = field.span > 0 ? Math.min(1, field.clock / field.span) : 1;
+    var tail = field.life - field.span;
+    return {
+      progress: field.from + (1 - field.from) * at,
+      /* The art's own last act is its embers; this is what takes it off screen. */
+      fade: tail > 0 && field.clock > field.span
+        ? Math.max(0, 1 - (field.clock - field.span) / tail)
+        : 1
+    };
+  }
+
   function damagePlayer(state, amount, sourceX) {
     var player = state.player;
     if (player.dead || player.invuln > 0) return 0;
@@ -1441,6 +1502,22 @@
     player.hurtTimer = PLAYER.hurtStun;
     player.vx = (player.x >= sourceX ? 1 : -1) * PLAYER.knockbackX;
     player.attackTimer = 0;
+    /*
+     * A hit cuts the cast short - and the fire he had already opened stays on
+     * the floor where he opened it (see spawnField). The knockback above is a
+     * velocity, so his x is still the spot he was standing on.
+     */
+    var interrupted = player.skillId && SKILLS[player.skillId];
+    if (interrupted) {
+      spawnField(
+        state,
+        player.skillId,
+        1 - player.skillTimer / interrupted.duration,
+        player.x,
+        player.y,
+        player.facing
+      );
+    }
     player.skillId = null;
     player.skillTimer = 0;
     player.comboTimer = 0;
@@ -1830,7 +1907,15 @@
         }
       }
       player.skillTimer = Math.max(0, player.skillTimer - dt);
-      if (player.skillTimer === 0) player.skillId = null;
+      if (player.skillTimer === 0) {
+        /*
+         * The cast is over but the ground is not: whatever it opened goes on
+         * burning where it is, which is how the reference ends - him on his
+         * feet at 3.97s with the cracks still lit.
+         */
+        spawnField(state, active.id, 1, player.x, player.y, player.facing);
+        player.skillId = null;
+      }
     }
   }
 
@@ -2442,6 +2527,19 @@
       .filter(function (effect) {
         return effect.life > 0;
       });
+    /*
+     * The ground the skills left burning runs on its own clock, not the caster's
+     * (see spawnField): it keeps its frames - and its place - while he recovers,
+     * is interrupted or walks away.
+     */
+    state.fields = state.fields
+      .map(function (field) {
+        field.clock += dt;
+        return field;
+      })
+      .filter(function (field) {
+        return field.clock < field.life;
+      });
 
     if (state.victory || state.defeat) return state;
 
@@ -2500,6 +2598,8 @@
     boxesOverlap: boxesOverlap,
     damageEnemy: damageEnemy,
     damagePlayer: damagePlayer,
+    spawnField: spawnField,
+    fieldProgress: fieldProgress,
     enterPhase2: enterPhase2,
     rollUpgradeOptions: rollUpgradeOptions,
     offerUpgrade: offerUpgrade,

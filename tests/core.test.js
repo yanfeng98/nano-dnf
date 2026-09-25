@@ -1877,6 +1877,111 @@ test("大蹦 draws both halves off its own sheet", () => {
   assert.equal(drawnFrom(missing, sprites.effects, 10, Render.EFFECT.cell), 0, "and it fails empty");
 });
 
+/*
+ * What 大蹦 opens belongs to the floor, not to the caster's animation.
+ *
+ * The reference ends with him back on his feet at 3.97s and the cracks still
+ * glowing, and the move in the client is one a hit can cut short - either way
+ * the fire he already opened keeps burning where he opened it. Ours used to be
+ * drawn off `player.skillTimer`, so the whole rift vanished on the frame the
+ * cast ended (or on the frame a hit landed), which is also why it followed him
+ * around. These two pin the handover.
+ */
+test("the rift is handed to the floor, not the caster", () => {
+  const state = Core.createState({ seed: 5 });
+  const sprites = {
+    slayer: { width: 8736, height: 1232 },
+    skills: { width: 352, height: 64 },
+    effects: { width: 5760, height: 1792 },
+    rift: { width: 17280, height: 768 }
+  };
+  const rift = Render.EFFECT.riftRows.mountainRift;
+  const cell = Render.EFFECT.riftCell;
+  const drawnAt = (calls) => {
+    /* The transform in force when the rift's own rows are drawn. */
+    const out = [];
+    calls.forEach((call, index) => {
+      if (call[0] !== "drawImage" || call[1] !== sprites.rift) return;
+      if (call[3] !== rift.back * cell && call[3] !== rift.front * cell) return;
+      for (let back = index; back >= 0; back -= 1) {
+        if (calls[back][0] === "translate") {
+          out.push(calls[back][1]);
+          break;
+        }
+      }
+    });
+    return out;
+  };
+  state.player.x = 120;
+  state.player.y = Core.ARENA.groundY;
+  state.player.facing = 1;
+  state.player.skillId = "mountainRift";
+  state.player.skillTimer = Core.SKILLS.mountainRift.duration * 0.55;
+  /* A hit lands mid-cast and cuts the move short. */
+  Core.damagePlayer(state, 5, state.player.x + 40);
+  assert.equal(state.player.skillId, null, "the hit ends the cast");
+  assert.equal(state.fields.length, 1, "and the rift is handed over");
+  const field = state.fields[0];
+  assert.equal(field.x, 120, "at the spot the blade opened it");
+  /*
+   * He is knocked away from it, and the ground stays where it was: the rift is
+   * no longer read off him at all.
+   */
+  state.player.x = 400;
+  const calls = [];
+  Render.render(recordingContext(calls), state, { sprites });
+  assert.ok(drawnAt(calls).length >= 2, "the rift is still drawn after the cast is over");
+  assert.deepEqual(
+    [...new Set(drawnAt(calls))],
+    [120],
+    "and it is drawn where it was opened, not where he has been knocked to"
+  );
+  /*
+   * It runs the rest of the move's own tail, then the linger - both counted
+   * from the frame it was interrupted on, not from the cast's end.
+   */
+  const tail = field.span - field.clock;
+  assert.ok(tail > 0 && field.life === field.span + Core.SKILLS.mountainRift.field.linger,
+    "the field has the move's tail to play and then its linger");
+  for (let left = tail; left > 0; left -= 1 / 60) Core.step(state, {}, 1 / 60);
+  assert.equal(state.fields.length, 1, "it is still burning when the cast would have ended");
+  for (let left = Core.SKILLS.mountainRift.field.linger * 0.5; left > 0; left -= 1 / 60) {
+    Core.step(state, {}, 1 / 60);
+  }
+  assert.equal(state.fields.length, 1, "and halfway through the linger");
+  const half = Core.fieldProgress(state.fields[0]);
+  assert.ok(half.fade < 1, `into its fade by then (fade ${half.fade.toFixed(2)})`);
+  for (let left = Core.SKILLS.mountainRift.field.linger; left > 0; left -= 1 / 60) {
+    Core.step(state, {}, 1 / 60);
+  }
+  assert.equal(state.fields.length, 0, "and then it is out");
+  const gone = [];
+  Render.render(recordingContext(gone), state, { sprites });
+  assert.equal(drawnAt(gone).length, 0, "with nothing of it left on the floor");
+});
+
+test("大蹦's fire is still burning when he is back on his feet", () => {
+  const state = lastRoomState();
+  const spec = Core.SKILLS.mountainRift;
+  Core.step(state, { skills: { mountainRift: true } });
+  assert.equal(state.player.skillId, "mountainRift", "the move starts");
+  for (let left = spec.duration; left > 0; left -= 1 / 60) {
+    Core.step(state, {}, 1 / 60);
+  }
+  assert.equal(state.player.skillId, null, "and the cast is over");
+  assert.equal(state.fields.length, 1, "but the ground it opened is not");
+  const field = state.fields[0];
+  const at = Core.fieldProgress(field);
+  assert.equal(at.progress, spec.field.from + (1 - spec.field.from) * Math.min(1, field.clock / field.span),
+    "and it is drawn on the move's own last frames");
+  assert.ok(at.fade > 0 && at.fade <= 1, `while it dies down (fade ${at.fade.toFixed(2)})`);
+  /* He is free to walk away from it, and it does not follow him. */
+  const left = field.x;
+  Core.step(state, { right: true }, 0.5);
+  assert.ok(state.player.x > left, "he walks off");
+  assert.equal(state.fields[0].x, left, "and the rift stays put");
+});
+
 test("the rift's draw size is the window the bake declares", () => {
   const source = fs.readFileSync(
     path.join(__dirname, "..", "assets", "import_dnf_effects.py"),
@@ -2492,9 +2597,17 @@ test("大蹦 plays in stages, not all at once", () => {
   assert.ok(everyFlame.length >= 12, "the gash erupts in many places, in both halves");
   everyFlame.forEach((stage) => {
     const [u, into] = stands(stage);
+    /*
+     * On the gash's line, but not all *exactly* on it: 大蹦 covers a patch of the
+     * floor plane, not a line. Running a ruler along the bottom of the
+     * reference's fire finds bases spread over about 0.7 of a Slayer's height of
+     * depth - the near ones well below his feet line, the far ones above it -
+     * where a rank on one line reads as candles. 34px of client art is half of
+     * that band, which is what these stand within.
+     */
     assert.ok(
-      Math.abs(into) <= 8,
-      `${shapeOf(stage)} at ${stage.at} stands on the gash's line (${into}px off it)`
+      Math.abs(into) <= 34,
+      `${shapeOf(stage)} at ${stage.at} stands within the gash's band (${into}px off its spine)`
     );
     assert.ok(
       u > -60 && u < 470,

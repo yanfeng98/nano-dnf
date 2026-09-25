@@ -393,9 +393,16 @@
      * ends on its second eruption, which is its tallest, so its row holds full
      * strength until the fire is actually going out (the reference's last three
      * frames) and only then drops.
+     *
+     * The floor is what the row has come down to by the last frame, and 大蹦's
+     * is high because its ground outlives the cast: the reference's own ground
+     * measures (86,26,18) on its last frames against (117,49,38) at the quiet
+     * stretch - it is still three quarters as bright when he is on his feet -
+     * and the rift is handed to a field at that moment (see Core's spawnField),
+     * so a low floor here is a rift that arrives dim and fades out from there.
      */
     fade: {
-      mountainRift: { from: 0.92, to: 1, floor: 0.45 }
+      mountainRift: { from: 0.92, to: 1, floor: 0.75 }
     }
   };
 
@@ -1229,12 +1236,21 @@
    * rift and blade stay behind him and the fire it throws goes in front, the way
    * the client orders the layers of that pack.
    */
-  function drawEffectRow(ctx, state, sprites, layer) {
+  function drawEffectRow(ctx, state, sprites, layer, source) {
     var player = state.player;
-    if (!player.skillId || player.skillTimer <= 0) return;
+    /*
+     * `source` is where the art is cast from: the caster himself while he is
+     * casting (nothing passed), or a field record - ground he opened and left
+     * burning, which outlives his animation (see Core's spawnField). Either way
+     * the row is drawn the same way; only the spot, the clock and the alpha come
+     * from somewhere else.
+     */
+    var caster = source || player;
+    var skillId = source ? source.skillId : player.skillId;
+    if (!skillId || (!source && player.skillTimer <= 0)) return;
     if (!sprites || !sprites.effects || !sprites.effects.width) return;
-    var spec = Core.SKILLS[player.skillId];
-    var draw = EFFECT.draw[player.skillId];
+    var spec = Core.SKILLS[skillId];
+    var draw = EFFECT.draw[skillId];
     if (!spec || !draw) return;
     /*
      * Which sheet, which cell and which row the half to draw lives on. Almost
@@ -1245,12 +1261,12 @@
      * that holds each half (see riftRows). The front half is the one drawn after
      * the Slayer.
      */
-    var rift = EFFECT.riftRows && EFFECT.riftRows[player.skillId];
+    var rift = EFFECT.riftRows && EFFECT.riftRows[skillId];
     var sheet = sprites.effects;
     var cell = EFFECT.cell;
-    var row = Core.SKILL_ORDER.indexOf(player.skillId);
+    var row = Core.SKILL_ORDER.indexOf(skillId);
     var frames;
-    if (layer === "front") frames = EFFECT.frontFrames[player.skillId];
+    if (layer === "front") frames = EFFECT.frontFrames[skillId];
     if (rift) {
       if (!sprites.rift || !sprites.rift.width) return;
       sheet = sprites.rift;
@@ -1258,19 +1274,17 @@
       row = rift[layer === "front" ? "front" : "back"];
     }
 
-    var frame = skillEffectFrame(
-      player.skillId,
-      1 - player.skillTimer / spec.duration,
-      row,
-      frames
-    );
+    /* A field carries its own clock; a live cast is read off the caster's timer. */
+    var progress = source
+      ? source.progress
+      : Math.min(1, Math.max(0, 1 - player.skillTimer / spec.duration));
+    var frame = skillEffectFrame(skillId, progress, row, frames);
     if (!frame) return;
 
     /*
      * 十字斩 draws the cross and then pushes it out, so an effect can travel
      * forward over its cast instead of sitting on the caster.
      */
-    var progress = Math.min(1, Math.max(0, 1 - player.skillTimer / spec.duration));
     var reach = draw.dx + (draw.travel || 0) * progress;
     var size = draw.size * (1 + (draw.grow || 0) * progress);
     /*
@@ -1281,12 +1295,12 @@
      * in the air for the first half of the window. On the ground the two are the
      * same point, so this only changes the airborne half.
      */
-    var baseY = draw.ground ? Core.ARENA.groundY : player.y;
+    var baseY = draw.ground ? Core.ARENA.groundY : caster.y;
 
     ctx.save();
-    ctx.translate(player.x + player.facing * reach, baseY + draw.dy);
-    ctx.scale(player.facing, 1);
-    ctx.globalAlpha = frame.alpha;
+    ctx.translate(caster.x + caster.facing * reach, baseY + draw.dy);
+    ctx.scale(caster.facing, 1);
+    ctx.globalAlpha = frame.alpha * (source ? source.fade : 1);
     ctx.imageSmoothingEnabled = true;
     for (var copy = 0; copy < draw.copies; copy += 1) {
       ctx.save();
@@ -1318,6 +1332,41 @@
     if (!player.skillId) return;
     if (EFFECT.frontFrames[player.skillId] === undefined) return;
     drawEffectRow(ctx, state, sprites, "front");
+  }
+
+  /**
+   * The ground a move opened and left burning, drawn from its own record.
+   *
+   * It is on the arena's clock rather than the caster's (see Core's spawnField):
+   * the rift stays on the spot it was opened on, so it is drawn while he is
+   * recovering, after a hit has cut the cast short, and for a moment after -
+   * which is how the reference ends, with him on his feet and the cracks still
+   * glowing. The same two rows are drawn as during the cast; only where and when
+   * they come from is different.
+   */
+  function drawFields(ctx, state, sprites, layer) {
+    var fields = state.fields || [];
+    for (var index = 0; index < fields.length; index += 1) {
+      var field = fields[index];
+      var at = Core.fieldProgress(field);
+      /*
+       * The row's own window closes just short of the cast's last frame
+       * (EFFECT.timing closes 大蹦's at 0.99, where its last column lands), and
+       * a field's clock runs to the end of the move: without this clamp the
+       * afterglow would ask for a frame past the row and get nothing back, so
+       * the ground would go on burning with nothing drawn on it. The field's
+       * own fade is what takes it off screen, not the row running out.
+       */
+      var timing = EFFECT.timing && EFFECT.timing[field.skillId];
+      drawEffectRow(ctx, state, sprites, layer, {
+        skillId: field.skillId,
+        progress: timing ? Math.min(timing.to, at.progress) : at.progress,
+        fade: at.fade,
+        x: field.x,
+        y: field.y,
+        facing: field.facing
+      });
+    }
   }
 
   /**
@@ -2393,10 +2442,13 @@
     /* The stance puts its own arc on the normal attack, under the skill art. */
     drawRageSlash(ctx, state, sprites);
     drawSkillEffect(ctx, state, sprites);
+    /* Ground left burning from an earlier cast, behind him like the rift is. */
+    drawFields(ctx, state, sprites);
     drawDiveSlash(ctx, state, sprites);
     drawPlayer(ctx, state, sprites);
     /* 大蹦's fire passes in front of him, the rift and the blade behind. */
     drawSkillEffectFront(ctx, state, sprites);
+    drawFields(ctx, state, sprites, "front");
     var bannerOrdinal = 0;
     state.effects.forEach(function (effect) {
       if (effect.kind === "banner" && overlayOpen) return;
