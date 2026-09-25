@@ -1418,31 +1418,27 @@
    * glowing. The same two rows are drawn as during the cast; only where and when
    * they come from is different.
    */
-  function drawFields(ctx, state, sprites, layer) {
-    var fields = state.fields || [];
-    for (var index = 0; index < fields.length; index += 1) {
-      var field = fields[index];
-      var at = Core.fieldProgress(field);
-      /*
-       * The row's own window closes just short of the cast's last frame
-       * (EFFECT.timing closes 大蹦's at 0.99, where its last column lands), and
-       * a field's clock runs to the end of the move: without this clamp the
-       * afterglow would ask for a frame past the row and get nothing back, so
-       * the ground would go on burning with nothing drawn on it. The field's
-       * own fade is what takes it off screen, not the row running out.
-       */
-      var timing = EFFECT.timing && EFFECT.timing[field.skillId];
-      drawEffectRow(ctx, state, sprites, layer, {
-        skillId: field.skillId,
-        progress: timing ? Math.min(timing.to, at.progress) : at.progress,
-        fade: at.fade,
-        x: field.x,
-        y: field.y,
-        /* The spot is four numbers: see Core's spawnField. */
-        z: field.z,
-        facing: field.facing
-      });
-    }
+  function drawField(ctx, state, sprites, layer, field) {
+    var at = Core.fieldProgress(field);
+    /*
+     * The row's own window closes just short of the cast's last frame
+     * (EFFECT.timing closes 大蹦's at 0.99, where its last column lands), and
+     * a field's clock runs to the end of the move: without this clamp the
+     * afterglow would ask for a frame past the row and get nothing back, so
+     * the ground would go on burning with nothing drawn on it. The field's
+     * own fade is what takes it off screen, not the row running out.
+     */
+    var timing = EFFECT.timing && EFFECT.timing[field.skillId];
+    drawEffectRow(ctx, state, sprites, layer, {
+      skillId: field.skillId,
+      progress: timing ? Math.min(timing.to, at.progress) : at.progress,
+      fade: at.fade,
+      x: field.x,
+      y: field.y,
+      /* The spot is four numbers: see Core's spawnField. */
+      z: field.z,
+      facing: field.facing
+    });
   }
 
   /**
@@ -2490,34 +2486,43 @@
     ctx.restore();
   }
 
-  /**
-   * Everything standing on the floor, in depth order, in two passes.
-   *
-   * The rest of the room is painted back to front by hand, which stops working
-   * the moment two things can stand at different depths: a monster the player
-   * has walked behind has to be painted before him, and one he is standing in
-   * front of has to be painted after. So the bodies are collected with their
-   * depth and sorted, far end first.
-   *
-   * Two passes rather than one because the Slayer's own art sits between them:
-   * the rows he casts are drawn around him, some behind and some in front, and
-   * that art belongs to him rather than to a place on the floor. It stays where
-   * it was and only the bodies around him move. (When slice 3 gives that art a
-   * depth of its own, the two passes collapse into one list.)
-   *
-   * A body level with the player counts as behind him. That is what keeps a
-   * world where every z is zero drawing exactly as it always did - monsters,
-   * then shots, then drops, then the player - and it is also the friendly
-   * reading: a monster you are standing on top of should not hide your sprite.
+  /*
+   * How far apart two things that belong together are pushed in the sort. The
+   * Slayer's own rows ride on him - they are drawn around his blade, not at a
+   * place on the floor - so they need an offset to sit either side of him
+   * instead of exactly on him. One z is a fifth of a screen pixel: far too small
+   * to see, and far larger than any noise in a z.
    */
-  function drawFloorBodies(ctx, state, sprites, layer) {
-    var behind = layer !== "front";
-    var playerZ = (state.player && state.player.z) || 0;
-    var bodies = [];
+  var LAYER_GAP = 1;
 
-    function add(depth, draw) {
-      var z = depth || 0;
-      if (behind ? z >= playerZ : z < playerZ) bodies.push({ z: z, draw: draw });
+  /**
+   * Everything standing in the room, one pass, back to front.
+   *
+   * The frame used to be a hand-written painter's order with the caster's art
+   * pinned between two halves of the bodies. That stops working once two things
+   * can stand at different depths: a monster the player has walked behind has to
+   * be painted before him, one he is standing in front of has to be painted
+   * after, and the rift he left burning on the floor has to be painted under
+   * both of them.
+   *
+   * So everything gets a depth and the list is sorted, far end first. Only two
+   * kinds of thing are not simply "where it stands": the Slayer's own art, which
+   * belongs to him and takes his depth plus or minus the gap (the rows that go
+   * behind him, the rows that go in front), and a field, which belongs to the
+   * spot it was opened on and is drawn either side of *that* - a rift he opened
+   * four Slayer-heights in stays there when he walks back to the camera.
+   *
+   * A body level with the player still counts as behind him: the sort is stable
+   * and the bodies go into the list before he does, which is what keeps a
+   * monster he is standing on top of from hiding his sprite.
+   */
+  function drawWorld(ctx, state, sprites) {
+    var player = state.player;
+    var playerZ = (player && player.z) || 0;
+    var items = [];
+
+    function add(z, draw) {
+      items.push({ z: z || 0, draw: draw });
     }
 
     state.enemies.forEach(function (enemy) {
@@ -2536,12 +2541,40 @@
       });
     });
 
+    var behind = playerZ + LAYER_GAP;
+    var inFront = playerZ - LAYER_GAP;
+    add(behind, function () {
+      drawRageSlash(ctx, state, sprites);
+    });
+    add(behind, function () {
+      drawSkillEffect(ctx, state, sprites);
+    });
+    (state.fields || []).forEach(function (field) {
+      add((field.z || 0) + LAYER_GAP, function () {
+        drawField(ctx, state, sprites, "back", field);
+      });
+    });
+    add(behind, function () {
+      drawDiveSlash(ctx, state, sprites);
+    });
+    add(playerZ, function () {
+      drawPlayer(ctx, state, sprites);
+    });
+    add(inFront, function () {
+      drawSkillEffectFront(ctx, state, sprites);
+    });
+    (state.fields || []).forEach(function (field) {
+      add((field.z || 0) - LAYER_GAP, function () {
+        drawField(ctx, state, sprites, "front", field);
+      });
+    });
+
     /* Far end of the floor first, so the near end paints over it. */
-    bodies.sort(function (a, b) {
+    items.sort(function (a, b) {
       return b.z - a.z;
     });
-    bodies.forEach(function (body) {
-      body.draw();
+    items.forEach(function (item) {
+      item.draw();
     });
   }
 
@@ -2571,20 +2604,11 @@
     drawGate(ctx, state);
     drawHazards(ctx, state);
 
-    /* The far half of the floor: everything standing at or behind the player. */
-    drawFloorBodies(ctx, state, sprites, "back");
-    /* The stance puts its own arc on the normal attack, under the skill art. */
-    drawRageSlash(ctx, state, sprites);
-    drawSkillEffect(ctx, state, sprites);
-    /* Ground left burning from an earlier cast, behind him like the rift is. */
-    drawFields(ctx, state, sprites);
-    drawDiveSlash(ctx, state, sprites);
-    drawPlayer(ctx, state, sprites);
-    /* And the near half, which paints over him because it is nearer the camera. */
-    drawFloorBodies(ctx, state, sprites, "front");
-    /* 大蹦's fire passes in front of him, the rift and the blade behind. */
-    drawSkillEffectFront(ctx, state, sprites);
-    drawFields(ctx, state, sprites, "front");
+    /*
+     * Everything in the room - bodies, the Slayer, the art he casts and the
+     * ground he leaves burning - in one pass, ordered by depth. See drawWorld.
+     */
+    drawWorld(ctx, state, sprites);
     var bannerOrdinal = 0;
     state.effects.forEach(function (effect) {
       if (effect.kind === "banner" && overlayOpen) return;

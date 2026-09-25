@@ -982,6 +982,153 @@ test("a monster's floor marks carry the monster's own depth", () => {
   assert.equal(mark.z, 250, "and the ground it is about to scorch is the ground under it");
 });
 
+/*
+ * Depth is what decides whether a blow lands, not just where it is drawn. The
+ * defender is a point on the floor and the attack is an interval around the
+ * attacker's own row, so stepping aside is a defence - and the same step is what
+ * makes your own swing miss, which is what keeps the standoff a standoff rather
+ * than a place to farm from.
+ */
+test("the Slayer's height is one number, not two", () => {
+  /*
+   * `SLAYER_HEIGHT` is the unit every reach in the game is written in, and the
+   * sheet's ground anchor is the same distance seen from the asset side. Two
+   * copies of it would mean a reach that drifts every time the art is re-baked.
+   */
+  assert.equal(Core.SLAYER_HEIGHT, Render.SPRITE.anchorY);
+});
+
+test("a reach is a band either side of the row you are standing on", () => {
+  const half = Core.DEPTH_REACH.melee * Core.SLAYER_HEIGHT;
+
+  assert.ok(Core.inReachOf(0, 0), "level with him is in reach");
+  assert.ok(Core.inReachOf(half, 0), "and so is exactly one reach away");
+  assert.ok(Core.inReachOf(-half, 0), "in both directions");
+  assert.ok(!Core.inReachOf(half + 1, 0), "a hair past it is not");
+
+  /* The band is where it is drawn, so the reach is worth reading as a share of it. */
+  assert.ok(half * 2 < Core.bandDepth(Core.BAND) / 2, "a melee reach is a small part of the floor");
+
+  /* Floor moves cover more of it: that is the whole difference between them. */
+  const patch = Core.DEPTH_REACH.floor * Core.SLAYER_HEIGHT;
+  assert.ok(patch > half);
+  assert.ok(!Core.inReachOf(patch + 1, 0), "and even a patch stops somewhere");
+});
+
+test("a cut does not cross the floor sideways", () => {
+  const swing = (z) => {
+    const state = lastRoomState();
+    const brute = Core.createEnemy(state, "brute", state.player.x + 40);
+    state.enemies = [brute];
+    /* Standing still, so the only thing that changes between runs is the depth. */
+    brute.speed = 0;
+    state.player.z = z;
+    const before = brute.hp;
+    /* One press, then no input at all: holding the key is a different test. */
+    Core.step(state, { attack: true });
+    Core.runFrames(state, ATTACK_HIT_FRAMES, {});
+    return before - brute.hp;
+  };
+
+  assert.ok(swing(0) > 0, "on his own row the cut lands");
+  assert.equal(
+    swing(Core.DEPTH_REACH.melee * Core.SLAYER_HEIGHT + 20),
+    0,
+    "a step off that row and it is swinging at the floor"
+  );
+});
+
+test("and a monster's does not cross it either", () => {
+  const exchange = (z) => {
+    const state = lastRoomState();
+    const grunt = Core.createEnemy(state, "grunt", state.player.x + 40);
+    state.enemies = [grunt];
+    grunt.speed = 0;
+    state.player.z = z;
+    Core.runFrames(state, 60 * 4, {});
+    return state.stats.damageTaken;
+  };
+
+  assert.ok(exchange(0) > 0, "level with it, it connects");
+  assert.equal(
+    exchange(Core.DEPTH_REACH.melee * Core.SLAYER_HEIGHT + 20),
+    0,
+    "aside from it, it cannot reach him either"
+  );
+});
+
+test("the spin is answerable in depth too, and it reaches wider than a swing", () => {
+  const run = (z) => {
+    const state = lastRoomState();
+    const elite = Core.createEnemy(state, "elite", state.player.x + 120);
+    state.enemies = [elite];
+    elite.speed = 0;
+    elite.attackRange = 0;
+    state.player.z = z;
+    Core.runFrames(state, 60 * 5, {});
+    return state.stats.damageTaken;
+  };
+  const melee = Core.DEPTH_REACH.melee * Core.SLAYER_HEIGHT;
+  const spin = Core.DEPTH_REACH.spin * Core.SLAYER_HEIGHT;
+
+  assert.equal(run(0), Core.ENEMY_TYPES.elite.spinDash.damage, "in its row, the sweep clips");
+  assert.equal(
+    run(melee + 10),
+    Core.ENEMY_TYPES.elite.spinDash.damage,
+    "and a step out of a swing's reach is not out of the sweep's"
+  );
+  assert.equal(run(spin + 20), 0, "but out of its own row entirely is");
+});
+
+test("a floor move covers the patch it draws, and stops where it stops", () => {
+  const caughtBy = (z) => {
+    const state = lastRoomState();
+    const brute = Core.createEnemy(state, "brute", state.player.x + 60);
+    state.enemies = [brute];
+    brute.speed = 0;
+    brute.z = z;
+    state.player.z = 0;
+    state.player.mp = state.player.maxMp;
+    const before = brute.hp;
+    /* 崩山击's wave lands with the smash, 0.78s in. The leap's own forward carry
+       is pinned off, because the leap travels 150px and would land him past the
+       brute - what is under test here is the wave's depth, not the hop's reach. */
+    Core.step(state, { skills: { mountainBreaker: true } });
+    Core.runFrames(state, Math.ceil(0.78 * Core.FPS), (frame, live) => {
+      live.player.vx = 0;
+      return {};
+    });
+    return before - brute.hp;
+  };
+
+  const patch = Core.DEPTH_REACH.floor * Core.SLAYER_HEIGHT;
+  assert.ok(patch > Core.DEPTH_REACH.melee * Core.SLAYER_HEIGHT, "a patch is wider than a swing");
+
+  assert.ok(caughtBy(0) > 0, "level with the smash it is caught");
+  assert.ok(caughtBy(patch - 20) > 0, "and so is a body standing on the patch, off his own row");
+  assert.equal(caughtBy(patch + 40), 0, "past the patch, nothing");
+});
+
+test("a radial move is a disc on the floor, not a line across it", () => {
+  const burst = (dz) => {
+    const state = lastRoomState();
+    const brute = Core.createEnemy(state, "brute", state.player.x);
+    state.enemies = [brute];
+    brute.speed = 0;
+    brute.z = dz;
+    state.player.z = 0;
+    const before = brute.hp;
+    state.player.mp = state.player.maxMp;
+    Core.step(state, { skills: { rageBurst: true } });
+    Core.runFrames(state, Math.ceil(0.9 * Core.FPS), {});
+    return before - brute.hp;
+  };
+
+  assert.ok(burst(0) > 0, "under him is inside the ring");
+  assert.ok(burst(120) > 0, "and so is a body standing 120 into the screen");
+  assert.equal(burst(400), 0, "400 in is outside it");
+});
+
 test("the depth constant, the lift and the band cannot drift apart", () => {
   /*
    * One constant with two uses: how far a step of z draws up the screen, and

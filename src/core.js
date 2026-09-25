@@ -100,6 +100,54 @@
   }
 
   /*
+   * One Slayer, from the soles of his feet to the top of his head, in world
+   * pixels - the unit this project measures things with. The reference clips
+   * were measured in these, and a reach written in pixels would have to be
+   * re-measured every time the sheet is re-baked. Render's SPRITE.anchorY is the
+   * same 156 seen from the asset side; a test pins the two together.
+   */
+  var SLAYER_HEIGHT = 156;
+
+  /*
+   * How deep an attack reaches, in Slayer-heights either side of the row the
+   * attacker is standing on.
+   *
+   * This is what decides whether a blow lands, not just where it is drawn. The
+   * defender is a point - the row a body stands on - and the attack is an
+   * interval around the attacker's own row, so a swing that connects because two
+   * x-ranges overlapped, while the two bodies stood three Slayer-heights apart,
+   * is the thing this axis exists to stop.
+   *
+   * `melee` is 47 z, which is a tenth of the default band - so stepping a body
+   * aside is enough to make a monster miss, and the same step is enough to make
+   * you miss it. Moves that cover floor rather than a line widen it (see the
+   * `depthReach` on SKILLS.mountainBreaker and SKILLS.mountainRift).
+   */
+  var DEPTH_REACH = {
+    melee: 0.3,
+    /* A spin sweeps the lane rather than a body-width (see spinHitsPlayer). */
+    spin: 0.6,
+    /*
+     * A patch of floor rather than a line. 0.75 is the footprint the client's
+     * own fire already pretended to have: slice 54 staggered its 12 tongues by
+     * ±26 client px to read as "a patch on the ground plane", and ±26px of
+     * screen is ±118 z.
+     */
+    floor: 0.75
+  };
+
+  /**
+   * Whether something standing at `z` is within reach of a blow thrown from
+   * `at`. `reach` is in Slayer-heights; left out, it is a melee's.
+   */
+  function inReachOf(z, at, reach) {
+    var half = (reach === undefined ? DEPTH_REACH.melee : reach) * SLAYER_HEIGHT;
+    var from = (at || 0) - half;
+    var point = z || 0;
+    return point >= from && point <= from + half * 2;
+  }
+
+  /*
    * The Slayer's real normal attack is frames 0-41 of the body img: the guard,
    * then the four cuts it is built from (the white arcs land on 4, 13, 24 and
    * 34). One press plays one cut, so the whole chain only plays out when the
@@ -276,7 +324,13 @@
          * ring - that one is the fire's own circle (arcOffset 0).
          */
         arc: false
-      }
+      },
+      /*
+       * The smash covers floor, not a line: it brings a fire column and a ring
+       * of spikes out of the ground around the point he lands on. Anything
+       * standing on that patch is inside it, not just anything on his row.
+       */
+      depthReach: DEPTH_REACH.floor
     },
     crossSlash: {
       id: "crossSlash",
@@ -578,7 +632,13 @@
        * the other two hits are the rift grinding and the second eruption, and
        * they happen a second after he has already landed.
        */
-      shockwaveHit: 0
+      shockwaveHit: 0,
+      /*
+       * And the gash is a patch on the floor. Its art is the same one that was
+       * hand-staggered to read that way (see DEPTH_REACH.floor), so the reach
+       * and the picture finally agree about how much ground it covers.
+       */
+      depthReach: DEPTH_REACH.floor
     },
     /*
      * 银光落刃: the move the client puts on Z while the Slayer is in the air.
@@ -1840,7 +1900,7 @@
         var damage = PLAYER.comboDamage[player.comboIndex] + player.attackBonus;
         state.enemies.slice().forEach(function (enemy) {
           if (enemy.dead) return;
-          if (boxesOverlap(box, bodyBox(enemy))) {
+          if (inReachOf(enemy.z, player.z) && boxesOverlap(box, bodyBox(enemy))) {
             var wasAirborne = !enemy.onGround;
             damageEnemy(state, enemy, damage, 140, player.x, { juggle: true });
             if (!enemy.dead && wasAirborne) {
@@ -1939,10 +1999,20 @@
         var struck = [];
         state.enemies.slice().forEach(function (enemy) {
           if (enemy.dead) return;
-          if (active.radius > 0 && Math.abs(enemy.x - player.x) <= active.radius) {
+          /*
+           * A radial move is a disc lying on the floor, so depth is part of its
+           * distance - and it is the same circle the renderer squashes by
+           * DEPTH.scale, which is why there is only one of that constant. Every
+           * other move is a box plus the depth reach its own spec asks for.
+           */
+          if (active.radius > 0 && floorDistance(enemy, player) <= active.radius) {
             applySkillHit(state, enemy, skillDamage, active, hitIndex);
             struck.push(enemy.id);
-          } else if (active.radius <= 0 && boxesOverlap(skillBox, bodyBox(enemy))) {
+          } else if (
+            active.radius <= 0 &&
+            inReachOf(enemy.z, player.z, active.depthReach) &&
+            boxesOverlap(skillBox, bodyBox(enemy))
+          ) {
             applySkillHit(state, enemy, skillDamage, active, hitIndex);
             struck.push(enemy.id);
           }
@@ -1970,7 +2040,7 @@
           );
           state.enemies.slice().forEach(function (enemy) {
             if (enemy.dead || struck.indexOf(enemy.id) !== -1) return;
-            if (boxesOverlap(waveBox, bodyBox(enemy))) {
+            if (inReachOf(enemy.z, player.z, active.depthReach) && boxesOverlap(waveBox, bodyBox(enemy))) {
               var waveOptions = {};
               if (wave.knockdown) waveOptions.knockdown = wave.knockdown;
               if (wave.launch) {
@@ -2186,7 +2256,14 @@
 
       var nearPlayer =
         Math.abs(shot.x - player.x) <= player.width / 2 + shot.radius &&
-        Math.abs(shot.y - (player.y - player.height / 2)) <= player.height / 2 + shot.radius;
+        Math.abs(shot.y - (player.y - player.height / 2)) <= player.height / 2 + shot.radius &&
+        /*
+         * A shot keeps the depth it was fired from (see spawnProjectile) and
+         * travels no closer to the camera, so depth is one more way to not be
+         * standing where it is going: the same slack the x test uses, because a
+         * body's width is as good a reading of its footprint on the floor as any.
+         */
+        Math.abs((shot.z || 0) - (player.z || 0)) <= player.width / 2 + shot.radius;
       if (!player.dead && nearPlayer) {
         damagePlayer(state, shot.damage, shot.x);
         return;
@@ -2209,16 +2286,26 @@
   }
 
   function enemyHitsPlayer(enemy, player) {
-    return boxesOverlap(bodyBox(enemy), bodyBox(player));
+    return inReachOf(player.z, enemy.z) && boxesOverlap(bodyBox(enemy), bodyBox(player));
   }
 
   /* A spin sweeps a wider hitbox than the body, so stepping one body-width
-   * aside is not enough - the whole lane has to be cleared. */
+   * aside is not enough - the whole lane has to be cleared. Depth works the same
+   * way: it reaches wider than a body there too, so the answer to a spin is to
+   * be well out of its row rather than a step off it. */
   function spinHitsPlayer(enemy, player, radius) {
+    if (!inReachOf(player.z, enemy.z, DEPTH_REACH.spin)) return false;
     var swept = bodyBox(enemy);
     swept.left -= radius * 0.5;
     swept.right += radius * 0.5;
     return boxesOverlap(swept, bodyBox(player));
+  }
+
+  /** How far apart two bodies are on the floor, depth included. */
+  function floorDistance(a, b) {
+    var dx = a.x - b.x;
+    var dz = (a.z || 0) - (b.z || 0);
+    return Math.sqrt(dx * dx + dz * dz);
   }
 
   function chooseEnemyAction(state, enemy, player) {
@@ -2388,12 +2475,17 @@
       } else if (enemy.attackKind === "slam" && enemy.slam) {
         pushShockwave(state, enemy);
         var onGround = player.y >= ARENA.groundY - 26;
-        if (!player.dead && onGround && Math.abs(player.x - enemy.x) <= enemy.slam.radius) {
+        /*
+         * A slam is a disc on the floor, so its radius is measured on the floor:
+         * its x reach and its depth reach are the same number, and jumping is
+         * still the other answer to it (that is the `onGround` clause above).
+         */
+        if (!player.dead && onGround && floorDistance(player, enemy) <= enemy.slam.radius) {
           damagePlayer(state, enemy.slam.damage, enemy.x);
         }
         enemy.slamCooldown = enemy.slam.cooldown;
         enemy.attackCooldown = enemy.attackCooldownMax;
-      } else if (Math.abs(player.x - enemy.x) <= enemy.attackRange) {
+      } else if (inReachOf(player.z, enemy.z) && Math.abs(player.x - enemy.x) <= enemy.attackRange) {
         damagePlayer(state, enemy.damage, enemy.x);
         enemy.attackCooldown = enemy.attackCooldownMax;
       }
@@ -2707,6 +2799,9 @@
     depthLift: depthLift,
     BAND: BAND,
     bandDepth: bandDepth,
+    SLAYER_HEIGHT: SLAYER_HEIGHT,
+    DEPTH_REACH: DEPTH_REACH,
+    inReachOf: inReachOf,
     PHYSICS: PHYSICS,
     PLAYER: PLAYER,
     ATTACK_STAGES: ATTACK_STAGES,

@@ -48,6 +48,14 @@ const stepMs = Number(process.argv[5] || 550);
  * the unit tests instead.
  */
 const depth = Number(process.env.DEPTH || 0);
+/*
+ * `MONSTER=1` leaves one monster standing in the move instead of parking them
+ * all out of reach, which is the only way to see the other half of the depth
+ * work: whether a body standing in the fire is drawn over it or under it. The
+ * body goes on the caster's own x and depth, because a monster 700px away shows
+ * nothing about what is painted first.
+ */
+const monster = process.env.MONSTER === "1";
 
 const server = http.createServer((req, res) => {
   const url = new URL(req.url, "http://localhost");
@@ -78,17 +86,26 @@ await page.waitForFunction(() => window.nanoDnf && window.nanoDnf.getState().roo
 await page.keyboard.press("Enter");
 await page.waitForTimeout(200);
 
-if (depth > 0) {
-  await page.evaluate((z) => {
-    const state = window.nanoDnf.getState();
-    state.enemies.forEach((enemy) => {
-      enemy.x = 900;
-      enemy.speed = 0;
-      enemy.chargeSpeed = 0;
-      enemy.attackRange = 0;
-    });
-    state.player.z = z;
-  }, depth);
+if (depth > 0 || monster) {
+  await page.evaluate(
+    ({ z, keepOne }) => {
+      const state = window.nanoDnf.getState();
+      state.enemies.forEach((enemy, index) => {
+        /* Meek enough not to interrupt the cast, and first in line for the shot. */
+        enemy.speed = 0;
+        enemy.chargeSpeed = 0;
+        enemy.attackRange = 0;
+        if (keepOne && index === 0) {
+          enemy.x = state.player.x + 150;
+          enemy.z = z;
+        } else {
+          enemy.x = 900;
+        }
+      });
+      state.player.z = z;
+    },
+    { z: depth, keepOne: monster }
+  );
 }
 
 const slotKey = await page.evaluate((id) => {

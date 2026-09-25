@@ -171,18 +171,22 @@ function compare(beforePath, afterPath) {
   console.log("first differing frame: " + frame);
 
   /*
-   * Drill into the differing frame if it was kept, and into the nearest one
-   * before it if it was not: a difference that first shows on frame 13 is still
-   * there on frame 12, nine times in ten.
+   * Drill into a frame whose calls were kept AND that actually differs. The
+   * nearest kept frame is not enough: a difference that lasts a few hundred
+   * frames has kept frames either side of its first one that match, and the
+   * first differing frame is often between two of them.
    */
   const kept = Object.keys(before.samples)
     .map(Number)
+    .filter((index) => before.frames[index] !== after.frames[index])
     .sort((x, y) => x - y);
-  const at = kept.includes(frame) ? frame : kept.filter((index) => index < frame).pop();
-  if (at === undefined) {
-    console.log("(no calls recorded that early; nothing to drill into)");
+  if (!kept.length) {
+    console.log("(the frames that differ are past the last kept one; nothing to drill into)");
     return;
   }
+  const at = kept.reduce((best, index) =>
+    Math.abs(index - frame) < Math.abs(best - frame) ? index : best
+  );
   if (at !== frame) console.log("(frame " + frame + " was not kept; drilling into frame " + at + ")");
 
   const a = before.samples[at];
