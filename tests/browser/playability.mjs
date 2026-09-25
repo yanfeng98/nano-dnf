@@ -42,10 +42,17 @@ const SLOT_KEYS = [
   "KeyT",
   "KeyY"
 ];
+/*
+ * All four arrows move now: up walks into the screen and down walks back out.
+ * Jump is C, which is also the only key the on-screen hint teaches - this map
+ * used to send jump through ArrowUp, and that alias is gone.
+ */
 const KEY_FOR_ACTION = {
+  up: "ArrowUp",
+  down: "ArrowDown",
   left: "ArrowLeft",
   right: "ArrowRight",
-  jump: "ArrowUp",
+  jump: "KeyC",
   attack: "KeyX",
   choice0: "Digit1",
   choice1: "Digit2",
@@ -609,6 +616,25 @@ async function runPass(browser, baseUrl, options) {
   let stanceReadout = null;
   let airReadout = null;
   let keyChecks = null;
+  /*
+   * One walk into the screen and back out, per pass. Nothing in the game asks
+   * for depth yet - a monster's attacks are still width-only and the slabs
+   * cover the whole band - so this is the only thing that would notice the
+   * second axis wired to the wrong key, or to a touch button that is not drawn
+   * where it is hit-tested.
+   *
+   * It runs in the opening second of the run, while the monsters are still
+   * crossing the room: a hit roots the player and a rooted player stops walking
+   * in depth, so a probe taken mid-fight measures the fight and not the axis.
+   * That leaves the numbers it reports coarse on purpose - where the band's
+   * edges are is pinned by the unit tests, which can take the measurement in a
+   * room with nothing in it.
+   */
+  const depthProbe = { frames: 0, deepest: 0, returned: null };
+  /* Into the screen for twenty, back out for forty: long enough to cross the
+     band both ways at the speed the game walks it. */
+  const DEPTH_PROBE_FRAMES = 64;
+  const DEPTH_PROBE_TURN = 24;
   let overallBefore = null;
   let paceEarly = null;
   const trace = [];
@@ -738,6 +764,24 @@ async function runPass(browser, baseUrl, options) {
       throw new Error(`${options.mode} pass did not finish within ${MAX_SECONDS}s`);
     }
     const want = decide(state, constants);
+
+    /*
+     * The clock is `frames` alone. An earlier cut stopped the whole block the
+     * moment `returned` was first written, so the walk back out lasted exactly
+     * one frame and the probe accused the game of not walking back at all.
+     */
+    if (depthProbe.frames < DEPTH_PROBE_FRAMES && !state.player.dead) {
+      depthProbe.frames += 1;
+      if (depthProbe.frames > 4 && depthProbe.frames <= DEPTH_PROBE_TURN) want.add("up");
+      if (depthProbe.frames > DEPTH_PROBE_TURN) want.add("down");
+      const z = state.player.z || 0;
+      if (depthProbe.frames <= DEPTH_PROBE_TURN) {
+        depthProbe.deepest = Math.max(depthProbe.deepest, z);
+      } else {
+        depthProbe.returned = depthProbe.returned === null ? z : Math.min(depthProbe.returned, z);
+      }
+    }
+
     const changes = [];
     for (const action of [...held]) {
       if (!want.has(action)) {
@@ -1323,6 +1367,7 @@ async function runPass(browser, baseUrl, options) {
     stanceReadout,
     airReadout,
     keyChecks,
+    depthProbe,
     overallBefore,
     paceEarly,
     pace: { before: paceBefore, after: paceAfter, record: paceFlip.best },
@@ -1726,6 +1771,18 @@ function problemsFor(pass) {
   }
   if (pass.state.stats.kills !== pass.expectedKills) {
     problems.push(`${pass.mode}: kills=${pass.state.stats.kills} (expected ${pass.expectedKills})`);
+  }
+  /*
+   * The floor's second axis, walked through this pass's own input path - real
+   * key events on one side, real pointer events on the other.
+   */
+  const walked = pass.depthProbe || {};
+  if (!(walked.deepest > 0)) {
+    problems.push(`${pass.mode}: walking into the screen never left the ground line`);
+  } else if (!(walked.returned < walked.deepest)) {
+    problems.push(
+      `${pass.mode}: walking back towards the camera did not bring him in (${walked.deepest} -> ${walked.returned})`
+    );
   }
   const upgrades = (pass.state.player.upgradesTaken || []).length;
   if (upgrades !== pass.expectedUpgrades) {

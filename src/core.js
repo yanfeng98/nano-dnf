@@ -31,7 +31,16 @@
     gravity: 2200,
     moveSpeed: 265,
     jumpVelocity: -760,
-    maxFallSpeed: 1400
+    maxFallSpeed: 1400,
+    /*
+     * How fast walking into the screen looks, as a fraction of how fast walking
+     * across it does. Tuned here rather than on the floor because it is the
+     * screen the player is reading: the depth axis is foreshortened by
+     * DEPTH.scale, so a floor speed equal to moveSpeed would crawl up the screen
+     * at 58px/s. Three quarters gives 198px/s, which crosses the whole band in
+     * about six tenths of a second.
+     */
+    depthSpeedRatio: 0.75
   };
 
   /*
@@ -56,6 +65,14 @@
   /** How far up the screen standing `z` deep pushes a point. */
   function depthLift(z) {
     return (z || 0) * DEPTH.scale;
+  }
+
+  /**
+   * Walking in depth, in `z` units per second. The ratio is a screen speed, so
+   * the foreshortening has to be divided out again to get back to the floor.
+   */
+  function depthSpeed() {
+    return (PHYSICS.moveSpeed * PHYSICS.depthSpeedRatio) / DEPTH.scale;
   }
 
   /*
@@ -1023,6 +1040,7 @@
       z: 0,
       vx: 0,
       vy: 0,
+      vz: 0,
       width: PLAYER.width,
       height: PLAYER.height,
       facing: 1,
@@ -1147,6 +1165,9 @@
     return {
       left: !!input.left,
       right: !!input.right,
+      /* Walking into and out of the screen: the second ground axis. */
+      up: !!input.up,
+      down: !!input.down,
       jump: !!input.jump,
       attack: !!input.attack,
       skills: {
@@ -1218,6 +1239,7 @@
     state.player.z = 0;
     state.player.vx = 0;
     state.player.vy = 0;
+    state.player.vz = 0;
     state.player.onGround = true;
     state.player.attackTimer = 0;
     state.player.skillId = null;
@@ -1623,10 +1645,29 @@
       SKILLS[player.skillId].dive > 0 &&
       !player.onGround;
     if (direction !== 0) player.facing = direction;
-    if (rooted && !dashing && !leaping && !divingDown) {
+    /*
+     * Depth moves like width does, out of the same rooted/dashing/leaping state,
+     * with three differences that are all deliberate:
+     *
+     *   - it never touches `facing`. He keeps facing left or right while he
+     *     walks into or out of the screen, which is what the client does, and
+     *     turning is still something only left and right can ask for;
+     *   - it is tuned as a screen speed rather than a floor speed, because the
+     *     depth axis is foreshortened (see PHYSICS.depthSpeedRatio);
+     *   - it stops at the edges of the room's own band, not at a wall.
+     *
+     * A leap keeps its depth the way it keeps its width: the rooted branch damps
+     * rather than clears, so a hop cast while walking into the screen carries
+     * that push, exactly as it carries a run.
+     */
+    var depthDirection = (input.up ? 1 : 0) - (input.down ? 1 : 0);
+    var carrying = rooted && !dashing && !leaping && !divingDown;
+    if (carrying) {
       player.vx *= 0.25;
+      player.vz *= 0.25;
     } else if (!rooted) {
       player.vx = direction * PHYSICS.moveSpeed;
+      player.vz = depthDirection * depthSpeed();
     }
 
     if (input.jump && player.onGround && !rooted) {
@@ -1661,6 +1702,7 @@
 
     player.x += player.vx * dt;
     player.y += player.vy * dt;
+    player.z += player.vz * dt;
 
     if (player.y >= ARENA.groundY) {
       player.y = ARENA.groundY;
@@ -1680,6 +1722,12 @@
       ARENA.leftWall + player.width / 2,
       ARENA.rightWall - player.width / 2
     );
+    /*
+     * And the band's two edges stop him the way the walls do. The front edge is
+     * where the camera is and the back edge is the wall behind the room, so both
+     * are hard limits: he is held against them rather than slid along them.
+     */
+    player.z = clamp(player.z, 0, bandDepth(state.band));
 
     player.attackCooldown = Math.max(0, player.attackCooldown - dt);
     player.invuln = Math.max(0, player.invuln - dt);

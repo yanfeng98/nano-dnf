@@ -99,6 +99,70 @@ await jumpToPoolRoom(await page.evaluate(() => window.DNFCore.BOSS_ROOM_INDEX));
 await page.waitForTimeout(500);
 await shot("06-boss-room");
 
+/*
+ * A normal room again, with the monsters held out of reach. A hit roots the
+ * player and a rooted player does not walk in depth, so the walk below would
+ * stall on the frame it landed - and the room has to stay uncleared, because
+ * emptying the last room of a run is a victory and a won run stops stepping.
+ */
+await page.evaluate(() => {
+  const Core = window.DNFCore;
+  const state = window.nanoDnf.getState();
+  state.layout = Core.layoutForSeed(state.seed);
+  Core.startRoom(state, 0);
+  state.enemies.forEach((enemy) => {
+    enemy.x = 900;
+    enemy.speed = 0;
+    enemy.chargeSpeed = 0;
+    enemy.attackRange = 0;
+  });
+});
+
+/*
+ * Depth: the back half of the band, then the back edge. Driven with the real
+ * key, so these show the shipped input path and the feet land where the
+ * projection says they should.
+ */
+await page.keyboard.down("ArrowUp");
+await page.waitForTimeout(320);
+await shot("07-depth-mid");
+await page.waitForTimeout(700);
+await shot("08-depth-back-edge");
+await page.keyboard.up("ArrowUp");
+
+/*
+ * And the draw order, which is the other half of this slice and the half a still
+ * frame has to carry: a monster with a depth of its own is painted in front of
+ * the player or behind him according to where each of them stands.
+ *
+ * The monsters go on the player's own x, and the two depths stay close - 120
+ * apart is 26px up the screen, so the two bodies actually overlap and the frame
+ * shows which one is painted last. A wide separation shows the projection
+ * instead: two figures on the same x, one above the other, never touching.
+ *
+ * No room places a monster at a depth yet - that is slice 5 - so these depths
+ * are set on the live bodies to put the renderer through the case it was
+ * written for.
+ */
+const sortShot = async (playerZ, enemyZ, name) => {
+  await page.evaluate(
+    ({ pz, ez }) => {
+      const state = window.nanoDnf.getState();
+      state.player.z = pz;
+      state.enemies.forEach((enemy, index) => {
+        enemy.x = index === 0 ? state.player.x : 900;
+        enemy.z = ez;
+      });
+    },
+    { pz: playerZ, ez: enemyZ }
+  );
+  await page.waitForTimeout(120);
+  await shot(name);
+};
+await sortShot(300, 180, "09-sort-monster-in-front");
+await sortShot(180, 300, "10-sort-monster-behind");
+await sortShot(240, 240, "11-sort-level-with-him");
+
 console.log("wrote", OUT);
 await browser.close();
 server.close();

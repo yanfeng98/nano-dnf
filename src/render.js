@@ -186,6 +186,13 @@
 
   /* On-screen controls for touch play, laid out in arena coordinates. */
   var TOUCH_LAYOUT = [
+    /*
+     * The four-way block: width and depth share one thumb, stacked the way the
+     * floor reads - up goes into the screen, down comes back towards the camera -
+     * so the hand learns one shape instead of four separate keys.
+     */
+    { action: "up", x: 22, y: 330, w: 86, h: 86, label: "↑" },
+    { action: "down", x: 120, y: 330, w: 86, h: 86, label: "↓" },
     { action: "left", x: 22, y: 418, w: 86, h: 86, label: "←" },
     { action: "right", x: 120, y: 418, w: 86, h: 86, label: "→" },
     { action: "jump", x: 776, y: 346, w: 76, h: 76, label: "跳" },
@@ -862,7 +869,12 @@
       var progress = clamp01((swing - Math.max(0, player.attackTimer)) / swing);
       return { row: rows.attack, col: attackColumn(progress, player.comboIndex) };
     }
-    if (Math.abs(player.vx) > 8) {
+    /*
+     * Walking in depth counts as running. He is running, just not across the
+     * screen, and the stand would read as a slide - the client plays the same
+     * cycle for it.
+     */
+    if (Math.abs(player.vx) > 8 || Math.abs(player.vz || 0) > 8) {
       return { row: rows.run, col: Math.floor(state.time * 14) % SPRITE.frames.run };
     }
     /* Four frames, so keep the breath under two cycles a second. */
@@ -1273,23 +1285,21 @@
     }
   }
 
-  function drawProjectiles(ctx, state) {
-    (state.projectiles || []).forEach(function (shot) {
-      var pulse = 0.85 + 0.15 * Math.sin(state.time * 24 + shot.x);
-      ctx.save();
-      var glow = ctx.createRadialGradient(shot.x, feetY(shot), 1, shot.x, feetY(shot), shot.radius * 3.2 * pulse);
-      glow.addColorStop(0, "rgba(255, 214, 150, 0.85)");
-      glow.addColorStop(1, "rgba(255, 140, 60, 0)");
-      ctx.fillStyle = glow;
-      ctx.beginPath();
-      ctx.arc(shot.x, feetY(shot), shot.radius * 3.2 * pulse, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = "#fff0cf";
-      ctx.beginPath();
-      ctx.arc(shot.x, feetY(shot), shot.radius * 0.7, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
-    });
+  function drawProjectile(ctx, state, shot) {
+    var pulse = 0.85 + 0.15 * Math.sin(state.time * 24 + shot.x);
+    ctx.save();
+    var glow = ctx.createRadialGradient(shot.x, feetY(shot), 1, shot.x, feetY(shot), shot.radius * 3.2 * pulse);
+    glow.addColorStop(0, "rgba(255, 214, 150, 0.85)");
+    glow.addColorStop(1, "rgba(255, 140, 60, 0)");
+    ctx.fillStyle = glow;
+    ctx.beginPath();
+    ctx.arc(shot.x, feetY(shot), shot.radius * 3.2 * pulse, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "#fff0cf";
+    ctx.beginPath();
+    ctx.arc(shot.x, feetY(shot), shot.radius * 0.7, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
   }
 
   /**
@@ -1516,32 +1526,30 @@
     ctx.restore();
   }
 
-  function drawPickups(ctx, state, sprites) {
-    state.pickups.forEach(function (drop) {
-      if (drop.kind === "blood_orb") {
-        drawBloodOrb(ctx, state, drop, sprites);
-        return;
-      }
-      var pulse = 0.8 + 0.2 * Math.sin(state.time * 8 + drop.x);
-      ctx.save();
-      ctx.globalAlpha = drop.life < 2 ? Math.max(0.25, drop.life / 2) : 1;
-      var glow = ctx.createRadialGradient(drop.x, feetY(drop), 1, drop.x, feetY(drop), drop.radius * 3 * pulse);
-      glow.addColorStop(0, "rgba(150, 255, 180, 0.6)");
-      glow.addColorStop(1, "rgba(90, 220, 140, 0)");
-      ctx.fillStyle = glow;
-      ctx.beginPath();
-      ctx.arc(drop.x, feetY(drop), drop.radius * 3 * pulse, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = "#8dffb0";
-      ctx.beginPath();
-      ctx.arc(drop.x, feetY(drop), drop.radius, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = "rgba(255,255,255,0.85)";
-      ctx.beginPath();
-      ctx.arc(drop.x - drop.radius / 3, feetY(drop) - drop.radius / 3, drop.radius / 3, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
-    });
+  function drawDrop(ctx, state, drop, sprites) {
+    if (drop.kind === "blood_orb") {
+      drawBloodOrb(ctx, state, drop, sprites);
+      return;
+    }
+    var pulse = 0.8 + 0.2 * Math.sin(state.time * 8 + drop.x);
+    ctx.save();
+    ctx.globalAlpha = drop.life < 2 ? Math.max(0.25, drop.life / 2) : 1;
+    var glow = ctx.createRadialGradient(drop.x, feetY(drop), 1, drop.x, feetY(drop), drop.radius * 3 * pulse);
+    glow.addColorStop(0, "rgba(150, 255, 180, 0.6)");
+    glow.addColorStop(1, "rgba(90, 220, 140, 0)");
+    ctx.fillStyle = glow;
+    ctx.beginPath();
+    ctx.arc(drop.x, feetY(drop), drop.radius * 3 * pulse, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "#8dffb0";
+    ctx.beginPath();
+    ctx.arc(drop.x, feetY(drop), drop.radius, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "rgba(255,255,255,0.85)";
+    ctx.beginPath();
+    ctx.arc(drop.x - drop.radius / 3, feetY(drop) - drop.radius / 3, drop.radius / 3, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
   }
 
   /*
@@ -2290,8 +2298,8 @@
       ctx.fillText("鬼剑士 · 地下城试炼", 344, 196);
 
       var rows = [
-        ["← →", "移动"],
-        ["C / ↑ / Space", "跳跃"],
+        ["← → ↑ ↓", "移动（↑ ↓ 走进 / 走出屏幕）"],
+        ["C / Space", "跳跃"],
         ["X", "普攻（连按 X 打完四段连击）"],
         ["Z / A", "上挑（挑飞，DNF 默认 Z）"],
         ["S", "崩山击（冲击波）"],
@@ -2480,6 +2488,61 @@
     ctx.restore();
   }
 
+  /**
+   * Everything standing on the floor, in depth order, in two passes.
+   *
+   * The rest of the room is painted back to front by hand, which stops working
+   * the moment two things can stand at different depths: a monster the player
+   * has walked behind has to be painted before him, and one he is standing in
+   * front of has to be painted after. So the bodies are collected with their
+   * depth and sorted, far end first.
+   *
+   * Two passes rather than one because the Slayer's own art sits between them:
+   * the rows he casts are drawn around him, some behind and some in front, and
+   * that art belongs to him rather than to a place on the floor. It stays where
+   * it was and only the bodies around him move. (When slice 3 gives that art a
+   * depth of its own, the two passes collapse into one list.)
+   *
+   * A body level with the player counts as behind him. That is what keeps a
+   * world where every z is zero drawing exactly as it always did - monsters,
+   * then shots, then drops, then the player - and it is also the friendly
+   * reading: a monster you are standing on top of should not hide your sprite.
+   */
+  function drawFloorBodies(ctx, state, sprites, layer) {
+    var behind = layer !== "front";
+    var playerZ = (state.player && state.player.z) || 0;
+    var bodies = [];
+
+    function add(depth, draw) {
+      var z = depth || 0;
+      if (behind ? z >= playerZ : z < playerZ) bodies.push({ z: z, draw: draw });
+    }
+
+    state.enemies.forEach(function (enemy) {
+      add(enemy.z, function () {
+        drawEnemy(ctx, state, enemy);
+      });
+    });
+    (state.projectiles || []).forEach(function (shot) {
+      add(shot.z, function () {
+        drawProjectile(ctx, state, shot);
+      });
+    });
+    (state.pickups || []).forEach(function (drop) {
+      add(drop.z, function () {
+        drawDrop(ctx, state, drop, sprites);
+      });
+    });
+
+    /* Far end of the floor first, so the near end paints over it. */
+    bodies.sort(function (a, b) {
+      return b.z - a.z;
+    });
+    bodies.forEach(function (body) {
+      body.draw();
+    });
+  }
+
   function render(ctx, state, meta) {
     meta = meta || {};
     var sprites = meta.sprites || null;
@@ -2506,11 +2569,8 @@
     drawGate(ctx, state);
     drawHazards(ctx, state);
 
-    state.enemies.forEach(function (enemy) {
-      drawEnemy(ctx, state, enemy);
-    });
-    drawProjectiles(ctx, state);
-    drawPickups(ctx, state, sprites);
+    /* The far half of the floor: everything standing at or behind the player. */
+    drawFloorBodies(ctx, state, sprites, "back");
     /* The stance puts its own arc on the normal attack, under the skill art. */
     drawRageSlash(ctx, state, sprites);
     drawSkillEffect(ctx, state, sprites);
@@ -2518,6 +2578,8 @@
     drawFields(ctx, state, sprites);
     drawDiveSlash(ctx, state, sprites);
     drawPlayer(ctx, state, sprites);
+    /* And the near half, which paints over him because it is nearer the camera. */
+    drawFloorBodies(ctx, state, sprites, "front");
     /* 大蹦's fire passes in front of him, the rift and the blade behind. */
     drawSkillEffectFront(ctx, state, sprites);
     drawFields(ctx, state, sprites, "front");

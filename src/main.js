@@ -42,11 +42,18 @@
     };
   });
 
-  /* DNF Slayer layout: arrows move, X attacks, C jumps, A/S/D/F/G/H are slots. */
+  /*
+   * DNF Slayer layout: arrows move, X attacks, C jumps, A/S/D/F/G/H are slots.
+   *
+   * All four arrows move, because the ground has two axes now: up walks into
+   * the screen and down walks back towards the camera. That is the client's own
+   * arrangement and it costs the up arrow its old job as a jump alias - jump is
+   * C, or Space. W and S are no substitute: they are hotbar slots 7 and 1.
+   */
   var KEY_MAP = {
     ArrowLeft: "left",
     ArrowRight: "right",
-    ArrowUp: "jump",
+    ArrowUp: "up",
     ArrowDown: "down",
     Space: "jump",
     KeyC: "jump",
@@ -85,7 +92,7 @@
     Numpad3: 2
   };
 
-  var held = { left: false, right: false, down: false, jump: false, attack: false };
+  var held = { left: false, right: false, up: false, down: false, jump: false, attack: false };
   var pressed = { jump: false, attack: false };
   Loadout.SLOT_KEYS.forEach(function (key, index) {
     var action = "slot" + index;
@@ -829,6 +836,8 @@
     var input = {
       left: held.left,
       right: held.right,
+      up: held.up,
+      down: held.down,
       jump: held.jump || pressed.jump,
       attack: held.attack || pressed.attack,
       skills: {}

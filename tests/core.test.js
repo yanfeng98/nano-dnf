@@ -796,12 +796,14 @@ function renderCalls(state, meta) {
 /*
  * Depth (docs/adr/0001-depth-axis.md).
  *
- * The axis is in the model from here on, but nothing has a depth of its own
- * yet: z = 0 is the ground line, and a world with every z at zero has to come
- * out exactly as it did before the axis existed. That is the invariant the
- * whole five-slice plan rests on, so it is asserted rather than assumed.
+ * The player can walk on the second axis from slice 2 on, but nothing else in
+ * the world has a depth of its own yet: no room asks for one and no monster
+ * takes a step in it, so z = 0 is still where every body stands and a run that
+ * never presses up or down has to come out exactly as it did before the axis
+ * existed. That is the invariant the five-slice plan rests on, so it is
+ * asserted rather than assumed.
  */
-test("nothing stands off the ground line until a slice puts it there", () => {
+test("no room and no monster has a depth of its own yet", () => {
   const state = Core.createState({ seed: Core.DEFAULT_SEED });
   assert.equal(state.player.z, 0, "a fresh player walks the ground line");
   assert.ok(state.enemies.every((enemy) => enemy.z === 0), "no room asks for a depth yet");
@@ -815,13 +817,120 @@ test("nothing stands off the ground line until a slice puts it there", () => {
   }));
 
   /*
-   * A tripwire, on purpose: the day a slice gives any of these a depth of its
-   * own, this fails and gets replaced by a real test of whatever it was given.
+   * A tripwire, on purpose: the day a slice gives a room or a monster a depth,
+   * this fails and gets replaced by a real test of whatever it was given.
    */
-  assert.equal(state.player.z, 0, "and still does after a fight");
+  assert.equal(state.player.z, 0, "and staying off the arrow keys keeps him there");
   assert.ok(state.enemies.every((enemy) => enemy.z === 0));
   assert.ok(state.pickups.every((drop) => drop.z === 0));
   assert.ok(state.projectiles.every((shot) => shot.z === 0));
+});
+
+test("the player can walk into the screen and back out", () => {
+  const state = Core.createState({ seed: Core.DEFAULT_SEED });
+  /* Movement, not combat: the room's monsters would only get in the way. */
+  state.enemies = [];
+
+  Core.runFrames(state, 30, { up: true });
+  const walked = state.player.z;
+  assert.ok(walked > 0, "up walks into the screen");
+
+  Core.runFrames(state, 30, { down: true });
+  assert.ok(state.player.z < walked, "and down walks back out");
+});
+
+test("the band's two edges stop him", () => {
+  const state = Core.createState({ seed: Core.DEFAULT_SEED });
+  state.enemies = [];
+
+  /* Four seconds a side, against a floor that takes six tenths to cross. */
+  Core.runFrames(state, 240, { up: true });
+  assert.equal(state.player.z, Core.bandDepth(state.band), "held against the back edge");
+
+  Core.runFrames(state, 240, { down: true });
+  assert.equal(state.player.z, 0, "and against the front edge, which is the ground line");
+});
+
+test("crossing the whole floor takes about six tenths of a second", () => {
+  const state = Core.createState({ seed: Core.DEFAULT_SEED });
+  state.enemies = [];
+  const band = Core.bandDepth(state.band);
+
+  let frames = 0;
+  while (state.player.z < band && frames < 600) {
+    Core.step(state, { up: true });
+    frames += 1;
+  }
+
+  /*
+   * The feel the depth speed was chosen for: the run covers the band in about
+   * the time it takes to cross a third of the screen sideways. It is a screen
+   * speed, so this number moving means PHYSICS.depthSpeedRatio moved.
+   */
+  const seconds = frames * Core.DT;
+  assert.ok(seconds > 0.5 && seconds < 0.7, `crossed the band in ${seconds}s`);
+});
+
+test("walking in depth never turns him around", () => {
+  const state = Core.createState({ seed: Core.DEFAULT_SEED });
+  state.enemies = [];
+
+  Core.runFrames(state, 30, { right: true });
+  assert.equal(state.player.facing, 1);
+
+  Core.runFrames(state, 30, { up: true });
+  assert.equal(state.player.facing, 1, "into the screen keeps facing right");
+  Core.runFrames(state, 30, { down: true });
+  assert.equal(state.player.facing, 1, "and so does back out of it");
+
+  Core.runFrames(state, 30, { left: true });
+  assert.equal(state.player.facing, -1, "only left and right turn him");
+});
+
+test("a swing roots him in depth the way it roots him sideways", () => {
+  const free = Core.createState({ seed: Core.DEFAULT_SEED });
+  free.enemies = [];
+  Core.runFrames(free, 5, { up: true });
+  const walked = free.player.z;
+  assert.ok(walked > 60, `five frames of walking should be worth something, got ${walked}`);
+
+  const swinging = Core.createState({ seed: Core.DEFAULT_SEED });
+  swinging.enemies = [];
+  swinging.player.attackTimer = Core.PLAYER.attackDuration;
+  Core.runFrames(swinging, 5, { up: true });
+
+  assert.ok(
+    swinging.player.z < walked / 4,
+    `a swing let him walk ${swinging.player.z} of the ${walked} he would have walked`
+  );
+});
+
+test("a room with a shallower floor stops him sooner", () => {
+  const state = Core.createState({ seed: Core.DEFAULT_SEED });
+  const room = Core.ROOMS[Core.ALTERNATE_ROOM_INDEX];
+  const was = room.band;
+  try {
+    room.band = { backY: 380 };
+    /*
+     * Two rooms, not one: emptying the last room of a run is a victory, and a
+     * won run stops stepping. The second entry is only there to stop the first
+     * from being last.
+     */
+    state.layout = [Core.ALTERNATE_ROOM_INDEX, Core.ALTERNATE_ROOM_INDEX];
+    Core.startRoom(state, 0);
+    state.enemies = [];
+
+    Core.runFrames(state, 240, { up: true });
+
+    assert.equal(state.player.z, Core.bandDepth({ backY: 380 }));
+    assert.ok(
+      state.player.z < Core.bandDepth(Core.BAND),
+      "which is short of where the default floor would have let him stand"
+    );
+  } finally {
+    if (was === undefined) delete room.band;
+    else room.band = was;
+  }
 });
 
 test("the depth constant, the lift and the band cannot drift apart", () => {
@@ -3535,7 +3644,13 @@ test("touch controls expose a hit-testable layout for mobile play", () => {
   const buttons = Render.touchButtons();
   const actions = buttons.map((button) => button.action);
 
-  assert.deepEqual(actions.slice(0, 4), ["left", "right", "jump", "attack"]);
+  /*
+   * The six a player holds the device with, in the block they are drawn in:
+   * four ways to move on the floor's two axes, then jump and attack. Depth is
+   * not an extra on a touch surface - whether the floor has a second axis is
+   * the same question with a finger as with a keyboard.
+   */
+  assert.deepEqual(actions.slice(0, 6), ["up", "down", "left", "right", "jump", "attack"]);
   assert.ok(actions.includes("mute"));
   assert.ok(actions.includes("loadout"), "touch play needs the arrange button");
 

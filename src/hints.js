@@ -58,7 +58,7 @@
     },
     {
       id: "move",
-      text: "← → 移动 · C 跳跃 · X 普攻",
+      text: "← → ↑ ↓ 移动 · C 跳跃 · X 普攻",
       life: 4.5,
       when: function (state) {
         return state.time > 1.5 && state.stats.kills === 0;
