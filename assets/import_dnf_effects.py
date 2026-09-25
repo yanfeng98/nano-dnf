@@ -348,40 +348,44 @@ PICKS = {
         # in front of him; at 1.30x ours measured 3.5 and reached behind his
         # back, and 1.06x still came out 2.85. See the ground numbers in
         # assets/dnf_effect_picks.md.
-        {"entry": "outragebreak_floor.img", "ramp": ROCK_RAMP, "frames": (0, 0), "scale": 0.98, "offset": (170, 27), "from": 0.265, "until": 1.00},
+        {"entry": "outragebreak_floor.img", "ramp": ROCK_RAMP, "frames": (0, 0), "scale": 1.08, "offset": (170, 27), "from": 0.265, "until": 1.00},
         # The seams through the plates are *lit*, on the same ramp the lattice
         # that spreads along them uses. On ROCK_RAMP they came out grey like the
         # rock they run through, so the whole ground read as one flat slab with a
         # red scribble on it; the reference's ground is dark rock with glowing
         # orange seams, and the seam is the only bright thing in it.
-        {"entry": "outragebreak_floor.img", "ramp": FLOOR_RAMP, "frames": (1, 1), "scale": 0.98, "offset": (170, 27), "from": 0.275, "until": 1.00},
-        {"entry": "outragebreak_floor.img", "frames": (2, 6), "scale": 0.98, "offset": (170, 27), "from": 0.265, "until": 0.35},
+        {"entry": "outragebreak_floor.img", "ramp": FLOOR_RAMP, "frames": (1, 1), "scale": 1.08, "offset": (170, 27), "from": 0.275, "until": 1.00},
+        {"entry": "outragebreak_floor.img", "frames": (2, 6), "scale": 1.08, "offset": (170, 27), "from": 0.265, "until": 0.35},
         # The lattice spreads in the half second after the landing and is then
         # *held* at its full width for the rest of the move: that lit field is
         # what the reference's lull and its whole outro are made of (it is still
         # glowing at #133). Playing f7-f10 across the cast instead - which is
         # what this did - showed the first ninth of the web through the quiet
         # stretch and only reached the finished web on the cast's last frame.
-        {"entry": "outragebreak_floor.img", "ramp": FLOOR_RAMP, "frames": (7, 10), "scale": 0.98, "offset": (170, 27), "from": 0.265, "until": 0.33},
-        {"entry": "outragebreak_floor.img", "ramp": FLOOR_RAMP, "frames": (10, 10), "scale": 0.98, "offset": (170, 27), "from": 0.33, "until": 0.84},
-        {"entry": "outragebreak_floor.img", "ramp": FLOOR_RAMP, "frames": (10, 10), "scale": 1.24, "offset": (170, 27), "from": 0.84, "until": 1.00},
+        {"entry": "outragebreak_floor.img", "ramp": FLOOR_RAMP, "frames": (7, 10), "scale": 1.08, "offset": (170, 27), "from": 0.265, "until": 0.33},
+        {"entry": "outragebreak_floor.img", "ramp": FLOOR_RAMP, "frames": (10, 10), "scale": 1.08, "offset": (170, 27), "from": 0.33, "until": 0.84},
+        {"entry": "outragebreak_floor.img", "ramp": FLOOR_RAMP, "frames": (10, 10), "scale": 1.36, "offset": (170, 27), "from": 0.84, "until": 1.00},
         # Rock thrown up by the slam and by the second eruption. `part` has no
         # colour board of its own and its frames sit at the pack's origin (the
         # client scatters it as a particle), so it keeps the plain art and each
         # scatter names the place it lands.
         {"entry": "outragebreak_part.img", "board": "", "scale": 2.4, "offset": (533, 269), "from": 0.28, "until": 0.46},
         {"entry": "outragebreak_part.img", "board": "", "scale": 2.4, "offset": (330, 291), "from": 0.60, "until": 0.76},
-        # The near end of the gash is where his own body is, so the two tongues
-        # that come up there are composited before he is drawn, not over him.
-        # The reference keeps almost none of its fire behind his back (its
-        # field runs 0.28 of a Slayer past him and no more), so these stand at
-        # u 25 and u -20 rather than the 40-90px of last pass.
-        # A place is (382 + u, 289 + 0.12u) and the spire's own bottom centre is
-        # (474, 282), which is what its offset is measured from.
-        {"entry": "outragebreak_bloodsexp_2_none.img", "ramp": FIRE_RAMP, "scale": 1.40, "stretch": (0.55, 1.0),
-         "offset": (-67, -4), "from": 0.56, "until": 0.90},
-        {"entry": "outragebreak_bloodsexp_2_none.img", "ramp": FIRE_RAMP, "scale": 1.20, "stretch": (0.55, 1.0),
-         "offset": (-112, 5), "from": 0.58, "until": 0.88},
+        # **No tongue stands on him, so this row carries no flame at all.** It
+        # used to: two spires at u 25 and u -20 were composited before he is
+        # drawn, on the reading that "the near end of the gash is where his own
+        # body is". The clip says the opposite for this wave. Masking out his own
+        # red body (x 312-356 of the 720px frame) and cutting the fire off above
+        # the glowing floor (y < 340), the second wave's tongues start at **+0.19
+        # of a Slayer in front of him** and run to +2.65 - he stands clear, in
+        # the open, with the fire burning away from him. The two spires put a
+        # 1.4-Slayer column on his shoulders instead, which is the other half of
+        # what the owner read as 「还是靠近角色」.
+        #
+        # The first wave is the one that hugs him - its tongues reach 0.38 of a
+        # Slayer *behind* his feet - and that fire is a front-row bush whose own
+        # art edge runs back over him, so nothing needs to be drawn behind the
+        # Slayer to get it.
     ]},
 }
 
@@ -493,13 +497,32 @@ FRONT_ROWS = [
         #    spires were needles, and five needles read as a comb. 0.72 and one
         #    fewer is what the reference's crest looks like.
         #
-        # The tallest is the first of the four, and they die back as they run
-        # forward, so the crest is a slope rather than a dome: the reference's
-        # peaks at +0.17 of a Slayer off centre (#100), and a symmetric rank is
-        # what 「中间高，两边低」 means. The whole rank is the reference's
-        # **1.71 Slayer-heights across and 2.14 tall** - the spire is 168px of
-        # client art, so 1.75 is 2.05, and the slab's own height makes up the
-        # rest. It used to be 2.37 across.
+        # Where the rank stands is the clip's own stretch of gash, and it stands
+        # **clear of the caster**: with his own red body masked out and the fire
+        # cut off above the glowing floor, the second wave's tongues begin at
+        # +0.19 of a Slayer in front of him and run to +2.65 (its first wave, by
+        # the same ruler, runs -0.38 to +2.47 - that one hugs him). So the whole
+        # rank sits 42 client px further out than it did, which is the half of
+        # 「还是靠近角色」 that no width change was going to fix.
+        #
+        # **Heights scattered, not a slope.** The old comment here claimed the
+        # tongues "die back as they run forward". The clip's crest, measured per
+        # quarter-Slayer column over #86-#115 (median across frames, and the
+        # tallest each column ever reaches), is 1.0-1.4 Slayers of low fire with
+        # tongues of **2.0-2.6** poking out of it, and those stand all along the
+        # rank - 2.5 near him, 2.4 at the far end, 1.9-2.05 in between - with no
+        # side taller than the other (owner: 「火焰要高一下…没有一侧是显著高的」).
+        # Ours was a monotone fall from 1.75 to 1.00: 2.2 Slayers at one end
+        # against 1.1 at the other, which is the slope he read.
+        #
+        # The scales below are scattered (2.20 / 1.70 / 1.95 / 2.10) so each half
+        # of the rank carries a tall one. **They are also taller than they were**,
+        # and that is measured rather than guessed: the spire is 179px of client
+        # art, the row draws a client px at 0.596 of a screen one, and a flame's
+        # own faint tip costs it about a tenth of its art in the alpha cut - so
+        # 179 x 2.20 x 0.596 lands the tallest tongue at the 2.5 Slayers the clip
+        # shows against the ruler (his drawn height there is 112px, which is what
+        # that 0.596 is calibrated to).
         #
         # Under the rank, a soft red fill. This is not decoration: measured off
         # the reference, 96% of the fire's bottom two fifths is lit, and no
@@ -517,17 +540,17 @@ FRONT_ROWS = [
         # disc's own bottom edge is two round lumps sitting under the fire like
         # stones, where what the eye wants is fire coming down to the ground.
         {"entry": "outragebreak_bloodsexp_glow.img", "ramp": BODY_RAMP, "frames": (0, 0), "alpha": 0.55, "base": 16,
-         "scale": 0.90, "offset": (20, -23), "from": 0.54, "until": 0.84},
+         "scale": 0.90, "offset": (73, -6), "from": 0.54, "until": 0.84},
         {"entry": "outragebreak_bloodsexp_glow.img", "ramp": BODY_RAMP, "frames": (0, 0), "alpha": 0.55, "base": 16,
-         "scale": 0.90, "offset": (75, -23), "from": 0.55, "until": 0.84},
-        {"entry": "outragebreak_bloodsexp_2_none.img", "ramp": FIRE_RAMP, "scale": 1.75, "stretch": (0.72, 1.0),
-         "offset": (-22, 33), "from": 0.55, "until": 0.84},
-        {"entry": "outragebreak_bloodsexp_2_none.img", "ramp": FIRE_RAMP, "scale": 1.62, "stretch": (0.72, 1.0),
-         "offset": (28, 7), "from": 0.54, "until": 0.84},
-        {"entry": "outragebreak_bloodsexp_2_none.img", "ramp": FIRE_RAMP, "scale": 1.32, "stretch": (0.72, 1.0),
-         "offset": (83, 38), "from": 0.54, "until": 0.84},
-        {"entry": "outragebreak_bloodsexp_2_none.img", "ramp": FIRE_RAMP, "scale": 1.00, "stretch": (0.72, 1.0),
-         "offset": (133, 28), "from": 0.56, "until": 0.84},
+         "scale": 0.90, "offset": (218, 5), "from": 0.55, "until": 0.84},
+        {"entry": "outragebreak_bloodsexp_2_none.img", "ramp": FIRE_RAMP, "scale": 2.20, "stretch": (0.72, 1.0),
+         "offset": (25, 39), "from": 0.55, "until": 0.84},
+        {"entry": "outragebreak_bloodsexp_2_none.img", "ramp": FIRE_RAMP, "scale": 1.70, "stretch": (0.72, 1.0),
+         "offset": (90, 14), "from": 0.54, "until": 0.84},
+        {"entry": "outragebreak_bloodsexp_2_none.img", "ramp": FIRE_RAMP, "scale": 1.95, "stretch": (0.72, 1.0),
+         "offset": (205, 53), "from": 0.54, "until": 0.84},
+        {"entry": "outragebreak_bloodsexp_2_none.img", "ramp": FIRE_RAMP, "scale": 2.10, "stretch": (0.72, 1.0),
+         "offset": (265, 44), "from": 0.56, "until": 0.84},
         # The slab they stand out of, and the two things the pack does not ship.
         #
         # **All four on one line** (one `dy`, client y 330 - just below the
@@ -537,6 +560,19 @@ FRONT_ROWS = [
         # composite's lowest row is whichever one hangs lowest and the edge comes
         # out ragged again. The first attempt at this spread them along the gash
         # spine as before and the flat foot changed nothing at all.
+        #
+        # So they stay on that one line even now that the rank runs twice as far
+        # down the band: `dy` does **not** follow the spine here the way the
+        # spires' do, which leaves the near bush's foot 27px below the spine and
+        # the far one's 1px below it. Both are inside the gash's band (the test
+        # pins +/-34), and a straight foot is what the reference's slab has.
+        #
+        # And that bound is what sets how near the slab may start: the spine rises
+        # 0.12px per px forward while the foot stays level, so every station has
+        # to clear the gash's far edge by its own 4.5px of slack. Standing the
+        # rank clear of the caster (see above) is what buys the room - at the old
+        # stations the near bush's foot sat 33px under the spine, right on the
+        # bound, and it could not have gone a pixel nearer.
         #
         # **`fill` then `base`**: close the flames' own furry gaps, then cut the
         # foot straight. Measured row by row against #100, the rank already
@@ -555,28 +591,28 @@ FRONT_ROWS = [
         # wall, not a wide one. The silhouette is what the eye reads; the last
         # 2-10% of the base is not worth trading it for.
         {"entry": "outragebreak_bloodsexp_1_none.img", "ramp": FIRE_RAMP, "scale": 1.35, "stretch": (0.85, 0.80),
-         "fill": 6, "base": 16, "offset": (38, 6), "from": 0.55, "until": 0.82},
-        {"entry": "outragebreak_bloodsexp_1_none.img", "ramp": FIRE_RAMP, "scale": 1.45, "stretch": (0.85, 0.80),
          "fill": 6, "base": 16, "offset": (75, 6), "from": 0.55, "until": 0.82},
         {"entry": "outragebreak_bloodsexp_1_none.img", "ramp": FIRE_RAMP, "scale": 1.45, "stretch": (0.85, 0.80),
-         "fill": 6, "base": 16, "offset": (112, 6), "from": 0.55, "until": 0.82},
+         "fill": 6, "base": 16, "offset": (145, 6), "from": 0.55, "until": 0.82},
+        {"entry": "outragebreak_bloodsexp_1_none.img", "ramp": FIRE_RAMP, "scale": 1.45, "stretch": (0.85, 0.80),
+         "fill": 6, "base": 16, "offset": (215, 6), "from": 0.55, "until": 0.82},
         {"entry": "outragebreak_bloodsexp_1_none.img", "ramp": FIRE_RAMP, "scale": 1.30, "stretch": (0.85, 0.80),
-         "fill": 6, "base": 16, "offset": (149, 6), "from": 0.56, "until": 0.82},
+         "fill": 6, "base": 16, "offset": (285, 6), "from": 0.56, "until": 0.82},
         # The two hot cores, drawn last so they read through the tongues the way
         # the reference's white-yellow base does.
         {"entry": "outragebreak_bloodsexp_glow.img", "ramp": FIRE_RAMP, "frames": (0, 0),
-         "scale": 0.45, "offset": (0, -45), "from": 0.56, "until": 0.82},
+         "scale": 0.45, "offset": (58, -28), "from": 0.56, "until": 0.82},
         {"entry": "outragebreak_bloodsexp_glow.img", "ramp": FIRE_RAMP, "frames": (0, 0),
-         "scale": 0.45, "offset": (110, -25), "from": 0.57, "until": 0.82},
+         "scale": 0.45, "offset": (243, 1), "from": 0.57, "until": 0.82},
         # The flames die back onto the gash: the bush's own last frames are
         # embers rather than fire, so the row ends on the lit rift the way the
         # reference does (its last thirty frames are cracks and glow).
         {"entry": "outragebreak_bloodsexp_1_none.img", "ramp": FIRE_RAMP, "frames": (5, 6),
-         "scale": 0.78, "offset": (48, -28), "from": 0.82, "until": 1.00},
+         "scale": 0.78, "offset": (60, -23), "from": 0.82, "until": 1.00},
         {"entry": "outragebreak_bloodsexp_1_none.img", "ramp": FIRE_RAMP, "frames": (5, 6),
-         "scale": 0.76, "offset": (168, -14), "from": 0.83, "until": 1.00},
+         "scale": 0.76, "offset": (180, -9), "from": 0.83, "until": 1.00},
         {"entry": "outragebreak_bloodsexp_1_none.img", "ramp": FIRE_RAMP, "frames": (5, 6),
-         "scale": 0.75, "offset": (293, 1), "from": 0.84, "until": 1.00},
+         "scale": 0.75, "offset": (305, 6), "from": 0.84, "until": 1.00},
     ]}),
 ]
 

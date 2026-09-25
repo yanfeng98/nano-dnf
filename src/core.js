@@ -1160,7 +1160,6 @@
       attackDuration: PLAYER.attackDuration,
       attackCycle: PLAYER.attackDuration + PLAYER.attackCooldown,
       attackCooldown: 0,
-      attackDir: 1,
       attackHitDone: false,
       comboIndex: 0,
       comboTimer: 0,
@@ -1755,7 +1754,22 @@
       SKILLS[player.skillId] &&
       SKILLS[player.skillId].dive > 0 &&
       !player.onGround;
-    if (direction !== 0) player.facing = direction;
+    /*
+     * Turning is the one thing a cast takes away that left and right can still
+     * ask for, so it needs saying out loud: **a skill locks the facing it was
+     * started with, for the whole cast**. Everything else about the cast was
+     * already gated (movement, jump, attack, a second skill); the facing was the
+     * leak, and it was not only a picture - the renderer mirrors the effect art
+     * off the live facing, the per-hit box is built from it, and the leap reads
+     * it at the beat it fires. So a press of the opposite arrow mid-move turned
+     * the rift, flipped which side it damaged, and could throw the hop backwards.
+     *
+     * Normal attacks are deliberately **not** locked: they are a short chain and
+     * DNF lets him turn between its hits (the same reason `attackDir` used to
+     * exist here - it was written and never read, so it is gone rather than
+     * left to look like a lock).
+     */
+    if (direction !== 0 && player.skillTimer <= 0) player.facing = direction;
     /*
      * Depth moves like width does, out of the same rooted/dashing/leaping state,
      * with three differences that are all deliberate:
@@ -1928,7 +1942,6 @@
        */
       player.attackCycle = player.attackDuration + PLAYER.attackCooldown / attackSpeedOf(player);
       player.attackCooldown = player.attackCycle;
-      player.attackDir = player.facing;
       player.comboIndex = nextStage;
       player.comboTimer = PLAYER.comboWindow;
       player.attackHitDone = false;

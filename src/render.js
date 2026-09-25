@@ -75,7 +75,7 @@
      * that one measures the cell between the feet and the anchor.
      */
     bodyHeight: 84,
-    rows: { idle: 0, run: 1, attack: 2, skill: 3, extras: 4, clips: 5, clips2: 6 },
+    rows: { idle: 0, run: 1, attack: 2, skill: 3, extras: 4, clips: 5, clips2: 6, bloodblade: 7 },
     /* Frames the renderer actually plays per row; the rest of the row is spare art.
        The stand is a four-frame breath off the client's "still" frames, the attack
        is the whole normal-attack chain (see Core.ATTACK_STAGES). */
@@ -165,13 +165,20 @@
         first: 9,
         frames: 7,
         beats: [
-          /* the raise, held long enough to read as 举剑 */
+          /* the raise, held long enough to read as 举剑 - plain katana */
           { frames: 2, from: 0.0, until: 0.135 },
-          /* the leap, blade overhead (the reference's #33-50) */
-          { frames: 2, from: 0.135, until: 0.285 },
-          /* the landing he holds under the rift, sword in the floor */
-          { frames: 2, from: 0.285, until: 0.6 },
-          /* and the stand he comes back to for the second eruption */
+          /*
+           * The leap and the landing carry the **blood blade**: the owner reads
+           * the move's own effect as the sword going blood for the strike, and
+           * the reference has him swinging it from the hop through the slam. The
+           * cells come off the sheet's `bloodblade` row, which is the same
+           * frames with the katana's silver pixels pushed red (see
+           * assets/import_dnf_swordman.py) - so it is his sword changing, not a
+           * second blade drawn beside it.
+           */
+          { frames: 2, from: 0.135, until: 0.285, blood: true },
+          { frames: 2, from: 0.285, until: 0.6, blood: true },
+          /* and the stand he comes back to: 「释放完变成原来的剑」 */
           { frames: 1, from: 0.6, until: 1.0 }
         ]
       },
@@ -859,6 +866,14 @@
             step = consumed + Math.min(beat.frames - 1, Math.floor(local * beat.frames));
             consumed += beat.frames;
             if (progress <= beat.until) break;
+          }
+          /*
+           * A beat can swap in the blood-bladed copy of the same cell - the
+           * columns line up because both rows are baked from the clip's own
+           * frames, so this is a row swap rather than a second thing to aim.
+           */
+          if (clip.beats[beatIndex] && clip.beats[beatIndex].blood) {
+            return { row: SPRITE.rows.bloodblade, col: clip.first + step };
           }
         } else {
           step = Math.min(clip.frames - 1, Math.floor(clamp01(progress) * clip.frames));

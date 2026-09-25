@@ -46,7 +46,7 @@ FRAME_H = 176
 COLS = 42
 ANCHOR_X = 88
 ANCHOR_Y = 156
-ROWS = ["idle", "run", "attack", "skill", "extras", "clips", "clips2"]
+ROWS = ["idle", "run", "attack", "skill", "extras", "clips", "clips2", "bloodblade"]
 
 # Per-move body animations, picked by the owner off the body sheet next to each
 # skill's own client clip. Only the picked frames go in: widening them to their
@@ -388,6 +388,67 @@ def place(cell: Image.Image, frame: Image.Image, x: int, y: int) -> tuple[int, i
     return left, top, right, bottom
 
 
+# 大蹦 turns the sword in his hands into a blood blade while the move is out, and
+# it goes back to the plain katana when the cast ends. The owner's read of
+# 10_崩山裂地斩 is exact about which part of that is the move's: the red *body* is
+# 血之狂暴 and belongs to the stance (ADR 0003), but the **sword** going blood is
+# the skill's own effect - the reference's character carries a red weapon anyway,
+# so the sword changing is not the weapon's colour coming out.
+#
+# It is baked as a second copy of the clip's own cells rather than as a layer
+# drawn over him, and that is the whole point: an overlay has to be aimed, and a
+# copy cannot miss. The same four cells also feed 崩山击 (see CLIPS), so this is
+# a *copy* on its own row - recolouring the shared cells would hand 崩山击 a
+# blood blade it never asked for.
+#
+# The blade is found by the one thing that separates it from the body: the
+# katana is silver, so its pixels are near-neutral and lit, while the Slayer's
+# blue trousers, white coat and red hair are none of those. `BLOOD_BLADE` is the
+# ramp they are pushed through - a deep red that keeps the blade's own shading,
+# so the edge still reads lighter than the flat.
+BLOOD_BLADE_FRAMES = (204, 205, 208, 209)
+BLOOD_BLADE = [
+    (0.00, (96, 8, 10)),
+    (0.45, (176, 20, 20)),
+    (1.00, (240, 74, 62)),
+]
+
+
+def blood_blade(cell: Image.Image) -> Image.Image:
+    """One body cell with the sword's silver pixels pushed to blood red."""
+    out = cell.copy()
+    pixels = out.load()
+    tables = []
+    for channel in range(3):
+        stops = BLOOD_BLADE
+        table = []
+        for value in range(256):
+            level = value / 255.0
+            if level <= stops[0][0]:
+                table.append(stops[0][1][channel])
+                continue
+            for index in range(1, len(stops)):
+                low, high = stops[index - 1], stops[index]
+                if level <= high[0]:
+                    span = max(1e-6, high[0] - low[0])
+                    blend = (level - low[0]) / span
+                    table.append(round(low[1][channel] + (high[1][channel] - low[1][channel]) * blend))
+                    break
+            else:
+                table.append(stops[-1][1][channel])
+        tables.append(table)
+    for y in range(out.height):
+        for x in range(out.width):
+            red, green, blue, alpha = pixels[x, y]
+            if alpha <= 60:
+                continue
+            high, low = max(red, green, blue), min(red, green, blue)
+            if high - low < 30 and high > 110:      # silver: near-neutral and lit
+                level = high
+                pixels[x, y] = (tables[0][level], tables[1][level], tables[2][level], alpha)
+    return out
+
+
 def build(client: pathlib.Path, force: bool) -> Image.Image:
     decoder = Decoder(client, force)
     layer_frames = [(key, decoder.frames(key)) for key in LAYERS]
@@ -395,7 +456,10 @@ def build(client: pathlib.Path, force: bool) -> Image.Image:
     sheet = Image.new("RGBA", (FRAME_W * COLS, FRAME_H * len(ROWS)), (0, 0, 0, 0))
     clip_row = 0
     clip_column = 0
+    placed_mountain_rift = []
     for row, name in enumerate(ROWS):
+        if name == "bloodblade":
+            continue                 # filled from 大蹦's own cells, after the loop
         if name in CLIP_ROWS:
             if clip_row >= len(CLIPS):
                 continue
@@ -409,6 +473,8 @@ def build(client: pathlib.Path, force: bool) -> Image.Image:
                     cell = Image.new("RGBA", (FRAME_W, FRAME_H), (0, 0, 0, 0))
                     place(cell, frame, x, y)
                     sheet.alpha_composite(cell, (clip_column * FRAME_W, row * FRAME_H))
+                    if skill == "mountainRift":
+                        placed_mountain_rift.append((row, clip_column, index))
                     clip_column += 1
                 if clip_column >= COLS:
                     print(f"  {name}: {skill} cols {first}-{clip_column - 1}")
@@ -426,6 +492,19 @@ def build(client: pathlib.Path, force: bool) -> Image.Image:
             cell = Image.new("RGBA", (FRAME_W, FRAME_H), (0, 0, 0, 0))
             place(cell, frame, x, y)
             sheet.alpha_composite(cell, (col * FRAME_W, row * FRAME_H))
+    # 大蹦's blood blade: the same cells again, one row down, with the katana's
+    # own pixels pushed red. Only the frames where the move has the sword out in
+    # its blood form - the raise (123/124) and the stand he ends on (132) keep
+    # the plain katana, which is the owner's 「释放完变成原来的剑」.
+    blade_row = ROWS.index("bloodblade")
+    for row, column, index in placed_mountain_rift:
+        if index not in BLOOD_BLADE_FRAMES:
+            continue
+        cell = Image.new("RGBA", (FRAME_W, FRAME_H), (0, 0, 0, 0))
+        cell.alpha_composite(sheet.crop((column * FRAME_W, row * FRAME_H,
+                                         (column + 1) * FRAME_W, (row + 1) * FRAME_H)))
+        sheet.alpha_composite(blood_blade(cell), (column * FRAME_W, blade_row * FRAME_H))
+        print(f"  bloodblade: col {column} from frame {index}")
     return sheet
 
 

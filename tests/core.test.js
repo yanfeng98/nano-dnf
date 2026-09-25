@@ -887,6 +887,50 @@ test("walking in depth never turns him around", () => {
   assert.equal(state.player.facing, -1, "only left and right turn him");
 });
 
+test("a cast pins the facing it was started with, and a swing does not", () => {
+  /*
+   * The owner read this off the screen: 「按方向键，大蹦的技能特效会转向，这是不对的」.
+   * The facing was the one input a cast did not take away, and it was not only a
+   * picture - the effect art mirrors off the live facing, each hit builds its box
+   * from it, and the leap reads it on the beat it fires. So the opposite arrow
+   * turned the rift, flipped which side it could hit and could throw the hop
+   * backwards.
+   */
+  const casting = Core.createState({ seed: Core.DEFAULT_SEED });
+  casting.enemies = [];
+  Core.runFrames(casting, 10, { right: true });
+  assert.equal(casting.player.facing, 1, "he starts this facing right");
+
+  const before = casting.player.x;
+  Core.step(casting, { skills: { mountainRift: true } });
+  assert.ok(casting.player.skillTimer > 0, "the cast is under way");
+  const midCast = Core.SKILLS.mountainRift.duration * 0.6;
+  Core.runFrames(casting, Math.ceil(midCast * Core.FPS), { left: true });
+  assert.ok(casting.player.skillTimer > 0, "still casting, so this test means something");
+  assert.equal(casting.player.facing, 1, "holding the opposite arrow does not turn him");
+  /*
+   * And he does not walk it off either: the rift is drawn at his own x for the
+   * whole cast, so a step here would drag the fire across the floor. The only
+   * movement allowed is the hop the move owns, which the reference puts 47px
+   * forward - and it is forward, not back along the arrow he is holding.
+   */
+  assert.ok(
+    casting.player.x >= before && casting.player.x <= before + 60,
+    `the cast moved him only by its own hop (${before} -> ${casting.player.x})`
+  );
+
+  const swinging = Core.createState({ seed: Core.DEFAULT_SEED });
+  swinging.enemies = [];
+  Core.runFrames(swinging, 10, { right: true });
+  swinging.player.attackTimer = Core.PLAYER.attackDuration;
+  Core.runFrames(swinging, 6, { left: true });
+  assert.equal(
+    swinging.player.facing,
+    -1,
+    "a normal swing still lets him turn - it is a short chain, not a commitment"
+  );
+});
+
 test("a swing roots him in depth the way it roots him sideways", () => {
   const free = Core.createState({ seed: Core.DEFAULT_SEED });
   free.enemies = [];
@@ -1822,7 +1866,10 @@ test("the shipped sprite sheet matches the frame grid the renderer expects", () 
 
   assert.equal(buffer.subarray(1, 4).toString("ascii"), "PNG");
   assert.equal(buffer.readUInt32BE(16), Render.SPRITE.frameW * Render.SPRITE.cols);
-  assert.equal(buffer.readUInt32BE(20), Render.SPRITE.frameH * 7);
+  assert.equal(
+    buffer.readUInt32BE(20),
+    Render.SPRITE.frameH * Object.keys(Render.SPRITE.rows).length
+  );
   assert.deepEqual(Render.SPRITE.rows, {
     idle: 0,
     run: 1,
@@ -1830,7 +1877,10 @@ test("the shipped sprite sheet matches the frame grid the renderer expects", () 
     skill: 3,
     extras: 4,
     clips: 5,
-    clips2: 6
+    clips2: 6,
+    /* 大蹦's clip again with the katana's own pixels pushed red - see the
+     * blood-blade test below and assets/import_dnf_swordman.py. */
+    bloodblade: 7
   });
   /*
    * Long actions need room: the sheet carries twelve columns so a full DNF run
@@ -1853,7 +1903,7 @@ test("the shipped sprite sheet matches the frame grid the renderer expects", () 
 test("every frame the renderer plays fits inside its sprite cell", () => {
   const sheet = decodeRgbaPng(path.join(__dirname, "..", "assets", "slayer.png"));
   assert.equal(sheet.width, Render.SPRITE.frameW * Render.SPRITE.cols);
-  assert.equal(sheet.height, Render.SPRITE.frameH * 7);
+  assert.equal(sheet.height, Render.SPRITE.frameH * Object.keys(Render.SPRITE.rows).length);
 
   /*
    * The bake composites each DNF frame into a fixed cell, and compositing is
@@ -1892,6 +1942,110 @@ test("every frame the renderer plays fits inside its sprite cell", () => {
       `${label} must not touch its cell border: ${JSON.stringify(box)}`
     );
   });
+});
+
+/*
+ * 大蹦's sword goes blood for the strike and comes back when the cast ends -
+ * the owner: 「释放大蹦后，剑变成血剑，释放完变成原来的剑」. His reads on which
+ * half of that belongs to the move have moved twice, and the split it settles
+ * on is worth stating: the red **body** is 血之狂暴 and belongs to the stance,
+ * but the **sword** going blood is the move's own effect - the reference's
+ * character carries a red weapon anyway, so the sword changing is not the
+ * weapon's colour showing through.
+ *
+ * It is baked as a copy of the clip's own cells on a row of its own, and this
+ * test is about why that is not an implementation detail: a copy cannot miss
+ * the blade it is meant to be. An overlay would have to be aimed at wherever
+ * his sword happens to be in each of the four poses, and the ones that come out
+ * wrong come out wrong silently.
+ */
+test("大蹦's sword turns to blood for the strike, and back after", () => {
+  const sheet = decodeRgbaPng(path.join(__dirname, "..", "assets", "slayer.png"));
+  const clip = Render.SPRITE.skillClips.mountainRift;
+  const clipRow = clip.row;
+  const bloodRow = Render.SPRITE.rows.bloodblade;
+  const at = (row, col, x, y) =>
+    sheet.pixels.subarray(
+      ((row * Render.SPRITE.frameH + y) * sheet.width + col * Render.SPRITE.frameW + x) * 4,
+      ((row * Render.SPRITE.frameH + y) * sheet.width + col * Render.SPRITE.frameW + x) * 4 + 4
+    );
+  const silver = ([r, g, b]) => Math.max(r, g, b) - Math.min(r, g, b) < 30 && Math.max(r, g, b) > 110;
+
+  let blades = 0;
+  for (let step = 0; step < clip.frames; step += 1) {
+    const col = clip.first + step;
+    /* The two middle beats are the ones that carry the blade; `step` is a frame,
+     * so find which beat owns it rather than indexing the beats by it. */
+    let cursor = 0;
+    let owner = null;
+    for (const beat of clip.beats) {
+      if (step < cursor + beat.frames) { owner = beat; break; }
+      cursor += beat.frames;
+    }
+    const carries = !!(owner && owner.blood);
+    let copyInk = 0;
+    let bladeInk = 0;
+    for (let y = 0; y < Render.SPRITE.frameH; y += 1) {
+      for (let x = 0; x < Render.SPRITE.frameW; x += 1) {
+        const plain = at(clipRow, col, x, y);
+        const red = at(bloodRow, col, x, y);
+        if (red[3] === 0) continue;
+        copyInk += 1;
+        /*
+         * The copy is the same picture: where the plain cell has nothing, so
+         * has it - a blade that grew a pixel of its own is a second thing
+         * drawn beside him, which is what this row exists to not be.
+         */
+        assert.equal(red[3], plain[3], `cell ${col} pixel ${x},${y}: the copy keeps his silhouette`);
+        /* The bake leaves the near-invisible edge alone (alpha <= 60); so does
+         * this, or the two disagree about pixels neither can see. */
+        if (plain[3] <= 60) continue;
+        if (silver(plain)) {
+          bladeInk += 1;
+          assert.ok(
+            red[0] > red[1] * 2 && red[0] > red[2] * 2,
+            `cell ${col} pixel ${x},${y}: the katana's silver has to come out blood`
+          );
+        } else {
+          /*
+           * Everything that is not the blade is his body, and his body is the
+           * stance's business: the blood copy leaves it exactly alone, or this
+           * row reddens him a second time on top of 血之狂暴's own sheet.
+           */
+          assert.deepEqual(
+            [...red.subarray(0, 3)],
+            [...plain.subarray(0, 3)],
+            `cell ${col} pixel ${x},${y}: the blood blade must not touch his body`
+          );
+        }
+      }
+    }
+    if (carries) {
+      assert.ok(bladeInk > 50, `cell ${col} carries a blade to see (${bladeInk} red pixels)`);
+    } else {
+      /*
+       * And it is only red where the *move* has the sword out in its blood
+       * form: the raise keeps the plain katana (「使用技能前和跳起来的剑是不
+       * 一样」) and so does the stand he is left in.
+       */
+      assert.equal(copyInk, 0, `cell ${col} keeps the plain katana`);
+    }
+    blades += bladeInk;
+  }
+  assert.ok(blades > 200, `and there are blades to see (${blades} red pixels in all)`);
+
+  /* And the renderer plays it only for as long as the cast is out. */
+  const state = Core.createState({ seed: 5 });
+  const player = state.player;
+  const at2 = (fraction) => {
+    player.skillId = "mountainRift";
+    player.skillTimer = Core.SKILLS.mountainRift.duration * (1 - fraction);
+    return Render.playerFrame(state, player).row;
+  };
+  assert.equal(at2(0.05), clipRow, "the raise is his own sword");
+  assert.equal(at2(0.2), bloodRow, "the leap carries the blood blade");
+  assert.equal(at2(0.45), bloodRow, "and so does the landing");
+  assert.equal(at2(0.8), clipRow, "and it is the plain katana again for the stand");
 });
 
 test("one press plays one stage of the normal attack, and attack speed sets the pace", () => {
@@ -2370,12 +2524,16 @@ test("a leaping skill keeps its own animation while it is in the air", () => {
   );
   assert.ok(leaping.col >= clip.first && leaping.col < clip.first + clip.frames);
 
-  /* The same mid-leap frame for 大蹦. */
+  /* The same mid-leap frame for 大蹦 - whose leap carries the blood blade. */
   player.skillId = "mountainRift";
   player.skillTimer = Core.SKILLS.mountainRift.duration * 0.5;
   const rift = Render.SPRITE.skillClips.mountainRift;
   const leapRift = Render.playerFrame(state, player);
-  assert.equal(leapRift.row, rift.row, "大蹦 keeps its action in the air too");
+  assert.equal(
+    leapRift.row,
+    Render.SPRITE.rows.bloodblade,
+    "大蹦 keeps its action in the air too - on the blood-bladed copy of it"
+  );
 
   /* A move with no clip of its own still falls back to the jump/fall frames. */
   player.skillId = "bloodSword";
@@ -3252,32 +3410,43 @@ test("大蹦 plays in stages, not all at once", () => {
   });
   const places = everyFlame.map(stands);
   const spansAcross = Math.max(...places.map(([u]) => u)) - Math.min(...places.map(([u]) => u));
+  /*
+   * In Slayer-heights now, not client px: until slice 65 the two spires behind
+   * the caster set this span's near end, and with those gone the fire's own ends
+   * do. The clip's fire runs 0.19-2.65 of a Slayer forward of him in the second
+   * wave and 0.38 behind his feet in the first, so "the length of the gash" is
+   * two of his heights for the two waves together.
+   */
+  const slayerPx = Render.SPRITE.bodyHeight / 0.596;
   assert.ok(
-    spansAcross > 300,
-    `the fire runs the length of the gash (${spansAcross}px of client art)`
+    spansAcross > 2 * slayerPx,
+    `the fire runs two Slayer-heights of gash at least (${spansAcross}px of client art)`
   );
   /*
-   * And the flame that lands on the Slayer himself is drawn *behind* him: the
-   * near end of the gash is where his own body is, so a spire there belongs to
-   * the row the renderer composites before he is drawn, not the one over him.
+   * **No tongue stands on him.** The row behind the Slayer carries the ground he
+   * stands in, not fire: two spires used to be baked there at u 25 and u -20, on
+   * the reading that "the near end of the gash is where his own body is", and
+   * they put a 1.4-Slayer column on his shoulders - the other half of what the
+   * owner read as 「还是靠近角色」. Masking his own red body out of the clip's
+   * 720px frames (x 312-356) and cutting the fire off above the glowing floor
+   * (y < 340), the second wave's tongues begin **+0.19 of a Slayer in front of
+   * him** and run to +2.65: he stands clear, in the open. Its first wave is the
+   * one that hugs him (tongues to 0.38 behind his feet), and that fire is a
+   * front-row bush whose own art edge runs back over him - so nothing has to be
+   * drawn behind the Slayer to get it.
    */
   const behind = back.filter(isFlame);
-  assert.ok(
-    behind.length >= 2,
-    "the fires that land on the Slayer are drawn behind him, the rest in front"
+  assert.equal(
+    behind.length,
+    0,
+    "no tongue is composited behind him: the ground is, the fire is not"
   );
   const inFront = front.filter(isFlame);
   assert.equal(
     inFront.length,
-    everyFlame.length - behind.length,
-    "and every flame is on exactly one of the two rows"
+    everyFlame.length,
+    "so every flame of the move is drawn over him"
   );
-  behind.forEach((stage) => {
-    assert.ok(
-      stands(stage)[0] < 40,
-      `${shapeOf(stage)} at ${stage.at} is one of the near ones, drawn behind him`
-    );
-  });
   inFront.forEach((stage) => {
     assert.ok(
       stands(stage)[0] > 40,
@@ -3293,11 +3462,18 @@ test("大蹦 plays in stages, not all at once", () => {
    * screen pixel, and the pack's flame is as wide as it is because it is one
    * shape - so the tongues carry a `stretch` as well, which is a separate pin
    * (see the bake). The scales are what is left after both: 0.80 for the low
-   * fire the lull burns, 1.15 for the landing, 1.75 at the top of the second
-   * wave, where 179px of art comes out 2.2 Slayers tall.
+   * fire the lull burns, 1.15 for the landing, 2.20 at the top of the second
+   * wave, where 179px of art comes out 2.5 Slayers tall.
+   *
+   * The 2.1 ceiling on that scale moved to 2.3 in slice 65. The clip's tallest
+   * tongues reach 2.5 Slayers against the ruler (measured on the outro frame,
+   * where he stands alone: his drawn height in the 720px frame is 112px), which
+   * is 2.2 of the spire's 179px of art once the faint tip is discounted - so
+   * 2.1 put a ceiling *below the reference* and is what 「火焰要高一下」 was
+   * about.
    */
   assert.ok(
-    everyFlame.every((stage) => stage.scale >= 0.75 && stage.scale <= 2.1),
+    everyFlame.every((stage) => stage.scale >= 0.75 && stage.scale <= 2.3),
     "every flame is a pillar of its own, neither a candle nor a column off the screen"
   );
   assert.ok(
@@ -3311,18 +3487,69 @@ test("大蹦 plays in stages, not all at once", () => {
     "the tallest flame of the landing erupts first"
   );
   /*
-   * But it is **not** a symmetric rank. 「中间高，两边低」 is the shape the owner
-   * pointed at, and the reference's own crest peaks at +0.17 of a Slayer off the
-   * middle of its fire (#100) rather than on it. This used to require the
-   * opposite - the tallest flame pinned within 90px of the gash's midpoint -
-   * which is where the dome came from.
+   * And the tall tongues are **scattered along the rank**, not stacked on one
+   * side. The clip's crest, measured per quarter-Slayer column over #86-#115
+   * (median across frames, and the tallest each column ever reaches), is
+   * 1.0-1.4 Slayers of low fire with tongues of 2.0-2.6 poking out of it, and
+   * those stand all along it - 2.6 near him, 2.4 at the far end, 1.9-2.05 in
+   * between. The owner, looking at the clip and then at ours: 「火焰要高一下…
+   * 没有一侧是显著高的」. Ours was a monotone fall from 1.75 to 1.00 - 2.2
+   * Slayers at one end against 1.1 at the other - and no side-scatter check
+   * would have caught it, which is why this one has teeth: each half of the
+   * rank has to carry a tongue within 85% of the tallest.
    */
-  const secondPlaces = second.map(stands).map(([u]) => u);
-  const tallest = second.reduce((best, stage) => (best.scale > stage.scale ? best : stage));
+  const tallPlaces = second
+    .filter((stage) => stage.scale >= 1 && shapeOf(stage) === "bloodsexp_2")
+    .map((stage) => ({ u: stands(stage)[0], scale: stage.scale }));
+  const tallest = Math.max(...tallPlaces.map((p) => p.scale));
+  const rankMid = (Math.min(...tallPlaces.map((p) => p.u)) + Math.max(...tallPlaces.map((p) => p.u))) / 2;
+  [tallPlaces.filter((p) => p.u < rankMid), tallPlaces.filter((p) => p.u >= rankMid)].forEach(
+    (half, index) => {
+      assert.ok(
+        half.some((p) => p.scale >= tallest * 0.85),
+        `the ${index === 0 ? "near" : "far"} half of the second eruption carries a tall tongue, the way the clip's does`
+      );
+    }
+  );
+  /*
+   * The two waves cover **comparable ground** - the second is not a shorter rank
+   * bunched up inside the first one. Measured off 10_崩山裂地斩 with one mask on
+   * both (720px frame, his body centre x=332, drawn height 110px): the landing
+   * wave is 346px wide and the second 371, a ratio of 1.07. Ours came out at
+   * 0.67, which is the owner's 「应该岩浆范围和第一波一样」. Comparing the two
+   * waves to each other rather than to the clip keeps this free of the
+   * Slayer-height conversion: it is the same ruler on both sides.
+   *
+   * Only the `scale >= 1` tongues count, which in each wave is the eruption and
+   * not the low fire around it: the landing wave's lull burns at 0.80-0.85 and
+   * the second wave dies back into embers at 0.75-0.78, so measuring the extremes
+   * of the whole wave would let a far-out ember stand in for a rank that had
+   * bunched up - which is how the old bake passed a span check while measuring
+   * 0.58 by this one.
+   */
+  const spanOf = (wave) => {
+    const places = wave.filter((stage) => stage.scale >= 1).map(stands).map(([u]) => u);
+    return Math.max(...places) - Math.min(...places);
+  };
+  const ratio = spanOf(second) / spanOf(first);
   assert.ok(
-    Math.abs(stands(tallest)[0] - (Math.min(...secondPlaces) + Math.max(...secondPlaces)) / 2) >
-      (Math.max(...secondPlaces) - Math.min(...secondPlaces)) * 0.15,
-    "the crest of the second eruption stands off the middle, not on it"
+    ratio > 0.85 && ratio < 1.35,
+    `the second eruption runs the landing wave's own stretch of gash (${ratio.toFixed(2)}x, clip 1.07x)`
+  );
+  /*
+   * And its near end stands **clear of the caster**, a little past where the
+   * landing wave's fire does. Both ends measured with his own red body masked
+   * out: the clip's landing wave reaches 0.38 of a Slayer behind his feet, its
+   * second wave starts 0.19 in front. In client px that is a 45-130px step
+   * between the two near stations; ours has to be a step, not a coincidence -
+   * the wave that stood on his feet was the other half of 「还是靠近角色」.
+   */
+  const nearOf = (wave) =>
+    Math.min(...wave.filter((stage) => stage.scale >= 1).map(stands).map(([u]) => u));
+  const step = nearOf(second) - nearOf(first);
+  assert.ok(
+    step > 45 && step < 130,
+    `the second eruption starts clear of him, past the landing wave's near fire (step ${step}px)`
   );
   /*
    * And it is a **mass**, not a rank of tongues with floor showing between them.
