@@ -238,8 +238,21 @@ PICKS = {
     # than one flat row: the column is up before he lands (#34-41, touchdown is
     # #41), the flash crosses it on the way down, and the spikes open with the
     # landing and stay to the end.
+    # 崩山击's fire column, measured against its own reference (01_崩山击.mp4,
+    # the frame the column peaks at) after both sides were put in Slayer-heights:
+    # the reference's column is **1.06 x 1.51**, ours was **1.08 x 0.86** - the
+    # right width and two thirds of the height, so the move read as a burst
+    # rather than a column. `stretch` is what the pack cannot say, and finding
+    # the pair took three passes: the row's ink window is derived from the art,
+    # so the drawn size is a *ratio* of the two axes rather than of either one -
+    # widening the column alone shrank it, and the pair has to move together.
+    # (1.36, 1.66) lands at 1.06 x 1.56.
+    #
+    # The later frames are *not* stretched: they are the low ground fire the
+    # column dies back into, which the reference keeps wide and short (measured
+    # 1.11 x 0.79 there), and the test pins that they keep the pack's own size.
     "mountainBreaker": {"length": 6, "pack": "_hopsmash", "anchor": (79, 242), "stages": [
-        {"entry": "d-end.img", "frames": (0, 1), "scale": 1.4, "from": 0.0, "until": 0.30},
+        {"entry": "d-end.img", "frames": (0, 1), "scale": 1.4, "stretch": (1.36, 1.66), "from": 0.0, "until": 0.30},
         {"entry": "d-end.img", "frames": (2, 5), "from": 0.22, "until": 0.80},
         {"entry": "b_bottom_01_n.img", "scale": 1.2, "offset": (-86, 142),
          "from": 0.20, "until": 1.0},
