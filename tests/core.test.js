@@ -2536,16 +2536,19 @@ test("大蹦 plays in stages, not all at once", () => {
     );
   });
   /*
-   * And the fire is the reference's height, not the preview's: measured off
-   * 10_崩山裂地斩 its first eruption is ~120px of screen and its second ~213px -
-   * against an 81px Slayer, the tallest tongue stands 2.6 Slayers up, which is
-   * the shot everyone remembers. The bush is 127px of client art at its tallest
-   * and the spire 181, and this row draws a client pixel at 0.596 of a screen
-   * pixel, so the flames bake at 1.1-2.1 and the far end of the gash tapers by
-   * the emitter frames that are sparks rather than fire.
+   * And the fire is the reference's height, not the preview's, measured in the
+   * Slayer's own heights off 10_崩山裂地斩: its landing tops out 1.0-1.13 and
+   * settles to 0.70 for the quiet stretch, its second wave 2.22, and the far end
+   * of the gash tapers off in embers. The bush is 127px of client art at its
+   * tallest and the spire 179, this row draws a client pixel at 0.596 of a
+   * screen pixel, and the pack's flame is as wide as it is because it is one
+   * shape - so the tongues carry a `stretch` as well, which is a separate pin
+   * (see the bake). The scales are what is left after both: 0.80 for the low
+   * fire the lull burns, 1.15 for the landing, 1.75 at the top of the second
+   * wave, where 179px of art comes out 2.2 Slayers tall.
    */
   assert.ok(
-    everyFlame.every((stage) => stage.scale >= 0.8 && stage.scale <= 2.2),
+    everyFlame.every((stage) => stage.scale >= 0.75 && stage.scale <= 2.1),
     "every flame is a pillar of its own, neither a candle nor a column off the screen"
   );
   assert.ok(
@@ -2575,20 +2578,36 @@ test("大蹦 plays in stages, not all at once", () => {
       `${secondOpens.toFixed(2)}-${secondCloses.toFixed(2)}s)`
   );
   /*
-   * The gap between the waves is not empty: the reference keeps its broken rock
-   * field and the lit seams running through it under him for the whole lull
-   * (its #61-#83), so those two frames are on the floor from the landing to the
-   * end of the cast - and the ring in the middle of them stays lit with it.
+   * The gap between the waves is not empty, and the floor is not a slideshow:
+   * the reference keeps its broken rock field and the lit web running through it
+   * under him from the landing to the very end of the cast (its #61-#133, where
+   * the web is still glowing after he has stood up), so those frames are on the
+   * floor for the whole move, not played once.
+   *
+   * The web itself is held at full width: playing the pack's f7-f10 across the
+   * cast - which is what the bake used to do - showed the first ninth of it
+   * through the quiet stretch and only finished it on the cast's last frame,
+   * which measured as 0.07 of a Slayer-width of lit ground against the
+   * reference's 2.32.
    */
   const floorStages = back.filter((stage) => stage.entry.includes("floor"));
-  const seam = floorStages.find((stage) => stage.first === 8);
-  assert.ok(seam, "the lit seam field is drawn at all");
-  assert.ok(seam.from <= 0.4 && seam.until >= 0.99, "and held from the split to the end");
+  const web = floorStages.find((stage) => stage.first === 10 && stage.first === stage.last);
+  assert.ok(web, "the finished lit web is drawn at all");
+  assert.ok(web.from <= 0.4 && web.until >= 0.99, "and held from the split to the end");
+  assert.ok(
+    floorStages.some((stage) => stage.first === 7 && stage.last > stage.first),
+    "and it spreads in the frames right after the landing, rather than crawling"
+  );
   const heldFloor = floorStages.filter((stage) => stage.first === stage.last);
   assert.ok(heldFloor.length >= 3, "the floor is built from held frames, not a slideshow");
   assert.ok(
     heldFloor.filter((stage) => stage.from <= 0.4 && stage.until >= 0.99).length >= 2,
     "and more than one of them is held through the whole lull"
+  );
+  const lull = front.filter(isFlame).filter((stage) => stage.from >= 0.3 && stage.until <= 0.6);
+  assert.ok(
+    lull.length >= 2,
+    `and the rank is still burning through the quiet stretch (${lull.length} flames)`
   );
   assert.ok(
     !front.filter(isFlame).some((stage) => toCast(stage.from) < spec.activeFrom - 0.05),
