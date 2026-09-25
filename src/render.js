@@ -305,14 +305,18 @@
     diveRow: Core.SKILL_ORDER.length + 1,
     diveFrames: 9,
     /*
-     * The row after that is 大蹦's fire. DNF orders an effect's layers around
-     * the character - the dim copy of a shape goes behind him, the bright copy
-     * in front - and this pack ships both halves: the rift, the blade and the
-     * ground stay on the skill's own row behind the Slayer, the flames, the
-     * flash and the debris are drawn over him from this row. Both were baked to
-     * one window off one anchor, so the fire still comes out of the rift.
+     * 大蹦 is the one move whose art is drawn far bigger than a cell can hold:
+     * its own row on assets/effects.png would be ~120x72 px of art stretched
+     * over ~470 px of screen. So its two halves are baked to assets/rift.png at
+     * its own, larger cell, and `riftRows` says where - `back` is the half drawn
+     * behind the Slayer (the broken floor he stands in, held from the landing to
+     * the end), `front` the half drawn over him (the blood sword and the fire
+     * that comes out of the split). Both are baked to one window off one anchor,
+     * so one draw size places them on top of each other.
      */
-    frontRows: { mountainRift: Core.SKILL_ORDER.length + 2 },
+    riftCell: 384,
+    riftRows: { mountainRift: { back: 0, front: 1 } },
+    /* A move that draws a second row over the Slayer says how long it is. */
     frontFrames: { mountainRift: 45 },
     draw: {
       upSlash: { dx: 34, dy: -56, size: 156, copies: 1, spin: 0 },
@@ -343,43 +347,22 @@
       graspHead: { dx: 30, dy: -36, size: 128, copies: 1, spin: 0 },
       bloodEvil: { dx: 44, dy: -30, size: 178, copies: 1, spin: 0 },
       /*
-       * 大蹦 is the ultimate, and its rift is the training-room reference's: the
-       * cracked ground there is 720x285 ref px = 265x107 here, with its middle
-       * 95px *in front* of the caster - it is a gash running forward, not a ring
-       * round him. So the row is drawn forward (dx) and the bake no longer blows
-       * the floor up 1.8x (which had put a 745px shatter on screen where the
-       * reference shows 265).
+       * 大蹦 is the ultimate, and its art is the training-room reference's: the
+       * broken rock field runs forward from the caster's own feet (its middle
+       * 170px out, where the blade lands) and the fire stands along it, never
+       * behind him.
        *
-       * The rows are baked with the caster's ground point on the cell's ground
-       * line, so dy is a quarter of the size: that puts the rift under his feet
-       * rather than at his knees the way a centred row would. `size` is the row's
-       * zoom - one client pixel of the pack lands on 0.596 of a screen pixel,
-       * which is what draws the pack's 444px floor at the reference's 265 - and
-       * `ground` pins it to the floor line while he is still leaping (the gash
-       * opens on the ground he is coming down to, not on his boots).
+       * Its two rows are baked to one declared window - 840 client px wide - and
+       * both are read off assets/rift.png, so `size` is the whole zoom for the
+       * pair: 840 * 0.596 = 501, i.e. one client pixel of the pack lands on
+       * 0.596 of a screen pixel, which is what draws the pack's 445px floor as
+       * the reference's 265px gash. Both rows carry the caster's ground point on
+       * the cell's ground line, so `dy = -size / 4` puts that point on his feet
+       * and the two halves cannot drift apart. `ground` pins them to the floor
+       * line while he is still leaping: the gash opens on the ground he is
+       * coming down to, not on his boots.
        */
-      mountainRift: { dx: 95, dy: -73, size: 290, copies: 1, spin: 0, ground: true }
-    },
-    /*
-     * The half of a move's art that is drawn over the Slayer can be baked to its
-     * own zoom, because a window is a zoom: 大蹦's ground row is 456px of client
-     * art wide and 435 tall (the floor plus the two rear spires), and holding the
-     * fire to that same zoom would draw a 223px flame out of 20 cell pixels. So
-     * the fire row gets its own window, and this row says what to draw it at.
-     *
-     * The two halves still land on top of each other, and here is why: both rows
-     * are baked with the caster's own ground point on the same spot of their cell
-     * (64, 96 of 128), and both are drawn with that spot on his feet. A cell is
-     * drawn so that cell (64, 96) lands at the caster + (dx, dy + 0.25 * size),
-     * so the front row's dy is the skill's dy plus the quarter-of-the-size
-     * difference: -73 + 0.25 * (290 - 469) = -117. `size` is what keeps one
-     * client pixel the same size on screen in both rows: the row's `size` over
-     * the span the cell had to fit is the same number for both of them
-     * (290 / 456 == 469 / 738 == 0.636), and that ratio is all a client pixel
-     * is worth on screen (0.596 of a screen pixel here).
-     */
-    frontDraw: {
-      mountainRift: { dx: 95, dy: -117, size: 469 }
+      mountainRift: { dx: 0, dy: -125, size: 501, copies: 1, spin: 0, ground: true }
     },
     /*
      * When a row is drawn, for the moves whose own art says it: 崩山裂地斩 is a
@@ -1246,7 +1229,7 @@
    * rift and blade stay behind him and the fire it throws goes in front, the way
    * the client orders the layers of that pack.
    */
-  function drawEffectRow(ctx, state, sprites, row, frames) {
+  function drawEffectRow(ctx, state, sprites, layer) {
     var player = state.player;
     if (!player.skillId || player.skillTimer <= 0) return;
     if (!sprites || !sprites.effects || !sprites.effects.width) return;
@@ -1254,14 +1237,25 @@
     var draw = EFFECT.draw[player.skillId];
     if (!spec || !draw) return;
     /*
-     * A move's front half carries its own zoom when it has one (see
-     * EFFECT.frontDraw): the two rows are baked to different windows, so the
-     * same client pixel needs a different draw size in each to come out the same
-     * size on screen.
+     * Which sheet, which cell and which row the half to draw lives on. Almost
+     * everything reads off assets/effects.png at EFFECT.cell, in the skill's own
+     * row of SKILL_ORDER (the orb and dive rows are past those, see EXTRA_ROWS).
+     * A move whose art is drawn far bigger than a cell can hold - 大蹦 - is
+     * baked to its own sheet at its own cell instead, and names the row of it
+     * that holds each half (see riftRows). The front half is the one drawn after
+     * the Slayer.
      */
-    var front = EFFECT.frontDraw && EFFECT.frontDraw[player.skillId];
-    if (row !== undefined && row !== null && front) {
-      draw = { dx: front.dx, dy: front.dy, size: front.size, copies: draw.copies, spin: draw.spin };
+    var rift = EFFECT.riftRows && EFFECT.riftRows[player.skillId];
+    var sheet = sprites.effects;
+    var cell = EFFECT.cell;
+    var row = Core.SKILL_ORDER.indexOf(player.skillId);
+    var frames;
+    if (layer === "front") frames = EFFECT.frontFrames[player.skillId];
+    if (rift) {
+      if (!sprites.rift || !sprites.rift.width) return;
+      sheet = sprites.rift;
+      cell = EFFECT.riftCell;
+      row = rift[layer === "front" ? "front" : "back"];
     }
 
     var frame = skillEffectFrame(
@@ -1299,11 +1293,11 @@
       /* 十字斩 is the same DNF slash mirrored into a cross. */
       ctx.rotate(draw.spin * (copy === 0 ? 1 : -1));
       ctx.drawImage(
-        sprites.effects,
-        frame.col * EFFECT.cell,
-        frame.row * EFFECT.cell,
-        EFFECT.cell,
-        EFFECT.cell,
+        sheet,
+        frame.col * cell,
+        frame.row * cell,
+        cell,
+        cell,
         -size / 2,
         -size / 2,
         size,
@@ -1322,9 +1316,8 @@
   function drawSkillEffectFront(ctx, state, sprites) {
     var player = state.player;
     if (!player.skillId) return;
-    var row = EFFECT.frontRows[player.skillId];
-    if (row === undefined || row === null) return;
-    drawEffectRow(ctx, state, sprites, row, EFFECT.frontFrames[player.skillId]);
+    if (EFFECT.frontFrames[player.skillId] === undefined) return;
+    drawEffectRow(ctx, state, sprites, "front");
   }
 
   /**

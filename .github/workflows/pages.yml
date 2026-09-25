@@ -37,16 +37,25 @@ jobs:
           # Every browser module, so adding a new src/*.js cannot ship a broken site.
           cp src/*.js _site/src/
           # Explicit list: assets/ also holds gitignored working references.
-          cp assets/slayer.png assets/skills.png assets/effects.png assets/favicon.png _site/assets/
+          cp assets/slayer.png assets/skills.png assets/effects.png assets/rift.png assets/favicon.png _site/assets/
           cp assets/share-card.png _site/assets/
 
       - name: Verify every referenced asset was staged
         run: |
           # A missing script only shows up as a blank page in production, so fail here.
+          # The sheets the game draws are named in src/main.js rather than in the
+          # markup, so read those too - a missing sheet is a skill that draws
+          # nothing, which is just as invisible from a green build.
           status=0
           for ref in $(grep -o 'src="\./[^"]*"' _site/index.html | sed 's/^src="\.\///; s/"$//'); do
             if [ ! -f "_site/$ref" ]; then
               echo "::error::staged site is missing $ref"
+              status=1
+            fi
+          done
+          for ref in $(grep -ho '\./assets/[A-Za-z0-9._-]*' _site/src/*.js | sed 's|^\./||' | sort -u); do
+            if [ ! -f "_site/$ref" ]; then
+              echo "::error::staged site is missing $ref, which the scripts load"
               status=1
             fi
           done

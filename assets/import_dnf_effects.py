@@ -78,6 +78,21 @@ PADDING = 6
 # Where an anchored row's ground line sits in the cell (0 = top, 1 = bottom).
 GROUND_LINE = 0.75
 
+# 大蹦 is the one move whose art is drawn far bigger than a 128px cell can hold:
+# its gash alone runs ~700 client px across and the fire that comes out of it
+# stands three Slayers tall. Baked into the normal grid that was ~120x72 px of
+# art stretched over ~470 px of screen - the owner's 「糊」. So the two rows of
+# that move get a sheet of their own at RIFT_CELL, where a client pixel keeps
+# its detail at the size the screen draws it, and the renderer reads them from
+# there (EFFECT.riftRows / EFFECT.riftCell in src/render.js).
+RIFT_CELL = 384
+RIFT_ROWS = ("mountainRift", "mountainRiftFire")
+RIFT_SHEET = "rift.png"
+# How much of a screen pixel one client pixel of that sheet gets, at the size
+# the renderer draws it: the number that puts the pack's 445px floor on the
+# reference's 265px gash. `size` in src/render.js is `window width * this`.
+RIFT_CLIENT_PX = 0.596
+
 
 def clamp01(value: float) -> float:
     return max(0.0, min(1.0, value))
@@ -131,17 +146,38 @@ def clamp01(value: float) -> float:
 # measures, by ramping the layer's own brightness through these stops: the art's
 # shading survives (dull parts stay dark, the hot core still reads white-hot) and
 # the mean lands where the reference's does.
+# The reference's flame body measures (183,25,7) and its hottest cores are white
+# -hot; the pack's own plain board is a flat deep red (140,2,0 mean) with no
+# highlight to speak of, and its "(tn)" board is orange. So the fire is drawn
+# through this ramp instead: a pixel's own level picks the stop, which keeps the
+# dull body dark red and lets the few brightest pixels (the core of a tongue)
+# come out white-hot the way the reference's do.
 FIRE_RAMP = [
-    (0.00, (30, 0, 0)),
-    (0.35, (150, 10, 3)),
-    (0.70, (200, 35, 12)),
-    (1.00, (250, 120, 80)),
+    (0.00, (45, 2, 1)),
+    (0.32, (150, 12, 5)),
+    (0.62, (198, 32, 12)),
+    (0.86, (250, 88, 48)),
+    (1.00, (255, 225, 195)),
 ]
+# The lit seams that run through the broken floor. The reference draws them
+# (184,70,52) - brighter and pinker than the rock around them - so the seam
+# field is ramped too, while the dark rock field itself keeps the pack's own
+# grey.
 FLOOR_RAMP = [
-    (0.00, (18, 4, 3)),
-    (0.30, (110, 40, 28)),
-    (0.65, (190, 80, 60)),
-    (1.00, (240, 150, 120)),
+    (0.00, (32, 8, 5)),
+    (0.35, (120, 44, 30)),
+    (0.70, (185, 74, 52)),
+    (1.00, (235, 150, 120)),
+]
+# The rock the floor is made of, lifted off the pack's own near-black. The
+# reference's plate field is plainly brighter than the room behind it, and the
+# pack's copy (mean 57,48,44) is not: drawn as exported it disappears into the
+# arena's own dark floor. This is a ramp on the *pack's* art, not new art - it
+# keeps the plates and their speckle and only opens the levels up.
+ROCK_RAMP = [
+    (0.00, (72, 66, 60)),
+    (0.40, (112, 102, 92)),
+    (1.00, (190, 178, 158)),
 ]
 
 PICKS = {
@@ -226,94 +262,72 @@ PICKS = {
     "graspHead": {"stack": [("_grabblastblood", "*")]},
     "bloodEvil": {"stack": [("_bloodriven", "*")]},
     # 崩山裂地斩: the 45-level ultimate's own pack, layer by layer - the blood
-    # sword it summons comes down (bloodsword_none, 20 frames), the ground splits
-    # under it (floor, 11), the flames come out of the split (bloodsexp_1/2), the
+    # sword it summons (bloodsword_none, 20 frames), the ground splitting under
+    # it (floor, 11), the flames that come out of the split (bloodsexp_1/2), the
     # glow behind them, the sparks (drops_1/2) and the debris (part).
     #
-    # The owner signed this set off on assets/dnf_effect_anim/rift-outrage-break.png
-    # after two earlier attempts missed it: stacking the whole pack pulled all
-    # three colour boards at once (nine shapes drawn three times over), and the
-    # next attempt threw the pack away for the base pack's fire pair. The board
-    # here is "(tn)", the orange one the client's own preview erupts in; the
-    # plain board of the same shapes is dark blood red.
+    # The window is declared rather than measured off the art, and both halves of
+    # the move are baked to it, because a window is a zoom: the renderer turns it
+    # into `size` (EFFECT.draw.mountainRift), and the two rows only land on each
+    # other if they are drawn at the same client-px-per-screen-px. With one
+    # window for both, one `size` serves both, and `dy = -size / 4` puts the
+    # anchor - the caster's own ground point, (382, 281) - on his feet.
     #
-    # Sizes: the client scales these layers from the skill's animation data,
-    # which is not part of the export, so each layer carries the factor that
-    # makes it read like the preview (the flames tower over the caster, the
-    # sword is a blade taller than the rift is wide).
+    # Zero margin, and a window wide enough that its width is the binding side,
+    # so the zoom is exactly `size / 840`: 840 client px of window drawn at 501
+    # screen px. One client pixel is 0.596 of a screen pixel, which is what makes
+    # the pack's own 445px floor come out 265px wide - the reference's gash - and
+    # the move's shapes land at the reference's sizes with the factors below.
     #
-    # Two layers carry an offset. The sword is nudged forward (240px) because
-    # this game draws skill art behind the caster: at the pack's own coordinates
-    # its point lands on his feet and the blade simply disappears behind him,
-    # and its trailing sweep then crossed back over him.
-    # The rock debris (part) has no "(tn)" twin and its own frames sit at the
-    # pack's origin - the game scatters it as a particle - so it keeps the plain
-    # board and is offset onto the impact point.
+    # The layout is the reference's, measured frame by frame off 10_崩山裂地斩
+    # (assets/dnf_effect_picks.md has the table). In client coordinates the
+    # caster's ground point is (382, 281) and +x is *forward* (the rows are
+    # mirrored by facing); a place is written as u px in front of him, and the
+    # floor recedes, so a thing standing u px forward stands on y = 289 + 0.12u.
+    # The gash runs from u -100 to u 440 (the reference's rock field measures
+    # ~295px of screen from his feet forward), its ring is 170px out where the
+    # blade lands, and every flame stands along its length.
     #
-    # The anchor is the middle of outragebreak_floor.img (444x166 at x=160,
-    # y=198): the rift the caster stands in and the sword lands in.
-    #
-    # Staged, not stacked: the owner's second look at the client (「这个技能应该
-    # 是多个技能特效组合的」) is that the pack is one move in four acts - the
-    # blade comes down, the floor breaks open, the rift keeps glowing and the
-    # magma erupts twice - and stacking all eight layers at once put every act on
-    # screen in the same 0.34s. The windows below are that reading off the
-    # client's own 100-frame preview (rift-outrage-break-layers.txt): the preview
-    # lands at frame 23, erupts wide over 24-31, holds the ring over 32-59 and
-    # erupts tall over 60-93.
-    #
-    # What the training-room clip changed, measured frame by frame off
-    # 10_崩山裂地斩 (see assets/dnf_effect_picks.md for the table): the rift is
-    # 720x285 ref px = 265x107 here and its middle sits 80-106px *in front* of the
-    # caster, so the row is drawn 95px forward (EFFECT.draw.dx) and the whole
-    # floor is no longer blown up - 1.8x made a 745px shatter where the reference
-    # shows 265. The window that fixes the row's scale is the floor's own 444px,
-    # which the renderer draws at 265 (EFFECT.draw.mountainRift.size).
-    #
-    # The fire is red in the reference (flame body (183,25,7)) and orange on every
-    # board the pack ships, so the layers carry FIRE_RAMP / FLOOR_RAMP instead of
-    # a board - see the ramps above PICKS.
-    #
-    # This row is what is drawn behind the Slayer (the ground and the two rear
-    # spires); the rest of the fire and the blood sword are FRONT_ROWS below,
-    # baked to this same window so the two halves land on the same pixels.
+    # This row is what is drawn *behind* the Slayer: the broken floor he stands
+    # in (held from the landing to the end of the move - the reference keeps it
+    # under him for the whole lull), and the two spires of the second eruption
+    # that come up at his own feet. The rest of the fire and the blood sword are
+    # FRONT_ROWS below, baked to this same window.
     "mountainRift": {"palette": "", "pack": "_outragebreak", "anchor": (382, 281),
-                     "length": 45, "stages": [
-        # The blood sword 举剑 carries is not here: this is the half of the move
-        # that stays *behind* the Slayer (the blade lands on his feet and is
-        # swallowed by his own body), so it is baked onto the front row, which is
-        # drawn over him - see FRONT_ROWS.
-        # The floor: one frame of the ground coming apart, then the molten ring
-        # blooming out of it with rocks thrown up, then the cracks that keep
-        # glowing on the floor for the rest of the move. The windows open on the
-        # landing (activeFrom 0.285 of the 4s cast) rather than on the old 0.72s.
-        {"entry": "outragebreak_floor.img", "ramp": FLOOR_RAMP, "frames": (0, 1), "from": 0.24, "until": 0.27},
-        {"entry": "outragebreak_floor.img", "ramp": FLOOR_RAMP, "frames": (2, 7), "from": 0.26, "until": 0.34},
-        # The crack field is drawn at half strength: at full strength it covered
-        # the floor as a lake of bright lava for the whole quiet stretch, where
-        # the reference shows a dark rift with lit lines running through it.
-        {"entry": "outragebreak_floor.img", "ramp": FLOOR_RAMP, "alpha": 0.5, "frames": (8, 10), "from": 0.30, "until": 1.00},
-        # The ring itself stays on the floor while the cracks crawl out of it -
-        # the reference holds it lit the whole lull (its #60-83). It is painted
-        # last, over the dimmed cracks, so it is the one thing on the ground that
-        # stays bright.
-        {"entry": "outragebreak_floor.img", "ramp": FLOOR_RAMP, "frames": (5, 5), "from": 0.34, "until": 1.00},
-        # The two places of the second eruption that land on the Slayer himself.
-        # The gash runs forward from under him, so the end of it nearest the
-        # camera is where his own body is: a spire there drawn on the front row
-        # would lie across him, so the rearmost two stand on this row, composited
-        # before he is.
+                     "length": 45, "window": (120, -140, 960, 420), "stages": [
+        # The pack ships the broken floor as three things, and the reference
+        # wants all three: f0 is the dark plate field itself (mean 57,48,44 - it
+        # keeps the pack's own grey), f1 is the seams through it, f2-f6 is the
+        # molten ring blooming out of the split, and f8-f10 is the lit lattice
+        # that stays glowing in the seams afterwards. The seams and the lattice
+        # carry the reference's lava-line ramp; the rock does not.
         #
-        # A place is named in client coordinates: 382 + u across, where u is how
-        # far *forward* of the caster it stands (the rows are mirrored by facing,
-        # so forward is +x), and 249 up, which is his own ground line (281) pulled
-        # 32px into the gash where the reference's flames stand. The offset is
-        # (place - the shape's own foot): the spire (bloodsexp_2) is centred on
-        # x=474 with its foot at y=278.
-        {"entry": "outragebreak_bloodsexp_2_none.img", "ramp": FIRE_RAMP, "scale": 1.70,
-         "offset": (-126, -35), "from": 0.72, "until": 0.90},
-        {"entry": "outragebreak_bloodsexp_2_none.img", "ramp": FIRE_RAMP, "scale": 1.70,
-         "offset": (-50, -29), "from": 0.71, "until": 0.91},
+        # The floor is placed by the ring's own middle, (382, 281) before it is
+        # scaled - at 1.30x about its bottom centre that point moves to
+        # (381.9, 256.1) - so (170, 35) puts the ring 170px in front of him,
+        # where the reference's blade lands, and drops it into the gash.
+        {"entry": "outragebreak_floor.img", "ramp": ROCK_RAMP, "frames": (0, 0), "scale": 1.30, "offset": (170, 35), "from": 0.265, "until": 1.00},
+        {"entry": "outragebreak_floor.img", "ramp": ROCK_RAMP, "frames": (1, 1), "scale": 1.30, "offset": (170, 35), "from": 0.275, "until": 1.00},
+        {"entry": "outragebreak_floor.img", "frames": (2, 6), "scale": 1.30, "offset": (170, 35), "from": 0.265, "until": 0.35},
+        # The ring stays lit on the floor through the quiet stretch (the
+        # reference holds it from the landing to the second eruption), painted
+        # last so it is the one thing on the ground that never dims.
+        {"entry": "outragebreak_floor.img", "frames": (5, 5), "scale": 1.30, "offset": (170, 35), "from": 0.35, "until": 1.00},
+        {"entry": "outragebreak_floor.img", "ramp": FLOOR_RAMP, "frames": (8, 10), "scale": 1.30, "offset": (170, 35), "from": 0.34, "until": 1.00},
+        # Rock thrown up by the slam and by the second eruption. `part` has no
+        # colour board of its own and its frames sit at the pack's origin (the
+        # client scatters it as a particle), so it keeps the plain art and each
+        # scatter names the place it lands.
+        {"entry": "outragebreak_part.img", "board": "", "scale": 2.4, "offset": (533, 269), "from": 0.28, "until": 0.46},
+        {"entry": "outragebreak_part.img", "board": "", "scale": 2.4, "offset": (330, 291), "from": 0.60, "until": 0.76},
+        # The near end of the gash is where his own body is, so the two spires
+        # that come up there are composited before he is drawn, not over him.
+        # A place is (382 + u, 289 + 0.12u) and the spire's own bottom centre is
+        # (474, 282), which is what its offset is measured from.
+        {"entry": "outragebreak_bloodsexp_2_none.img", "ramp": FIRE_RAMP, "scale": 1.35,
+         "offset": (-72, 9), "from": 0.56, "until": 0.90},
+        {"entry": "outragebreak_bloodsexp_2_none.img", "ramp": FIRE_RAMP, "scale": 1.20,
+         "offset": (-137, 2), "from": 0.58, "until": 0.88},
     ]},
 }
 
@@ -341,114 +355,111 @@ EXTRA_ROWS = [
 # EFFECT.frontDraw - because the rift needs the whole cell and the fire does not.
 FRONT_ROWS = [
     ("mountainRiftFire", {"palette": "", "pack": "_outragebreak",
-                          "match": "mountainRift", "length": 45, "stages": [
-        # The blood sword the raise carries. The owner reads the move as
-        # 崩山裂地斩是先举剑 and points at the client's own body frames 123-124 - the
-        # two-handed raise the body clip opens on - and the blade that goes up
-        # with those hands is the pack's own sword entry. It belongs to this row
-        # rather than the skill's own one because this is the half of the picture
-        # that passes *in front* of the Slayer: on the row behind him the blade
-        # lands on his feet and his own body swallows it.
+                          "match": "mountainRift", "length": 45,
+                          "window": (120, -140, 960, 420), "stages": [
+        # The blood sword 举剑 carries - the owner reads the move as 先举剑 and
+        # points at the client's own body frames 123-124 for it, and the
+        # reference shows a flame blade standing off the raised hands (its
+        # #45-#51). The pack's blade is its own gesture in two parts: a wisp that
+        # gathers where the point will fall (f0-f10), a sweep across (f11-f12),
+        # and then the burst that is the blade going into the ground (f13-f19).
         #
-        # The entry is one gesture: the fire blade gathers (f0-f10), sweeps
-        # (f11-f12) and then strikes into the floor and opens the rift (f13-f19).
-        # It plays in two windows - the gathering and the sweep run with the
-        # raise and the drive, and the frames that hit the floor land on the
-        # impact the hits are timed to (activeFrom).
+        # Both halves of the move are baked to the same window, so both are drawn
+        # at the same client-px-per-screen-px and this row lands on the rift.
+        # This is the half that passes *in front* of the Slayer: on his own row
+        # the blade lands on his feet and his body swallows it.
         #
-        # The pack draws the blade 160-370px to the caster's left, which this
-        # row - drawn on him - would carry clean off the side of the screen. The
-        # offset brings it back onto him: over his head for the raise, then down
-        # in front of him for the strike. (It used to be pushed 320px forward on
-        # the row *behind* him, which drew it as a comet crossing the screen
-        # through the whole raise - the owner read that as 「多余动作」.)
-        # The scales and offsets are the ones the owner signed off, carried over
-        # to the new row zoom: the window the row is baked to is four fifths
-        # wider than it was (1 client px used to be 0.97 of a screen px and is
-        # 0.596 now), so a layer keeps the size and the place it had by taking
-        # both its scale and its offset x1.63.
-        {"entry": "outragebreak_bloodsword_none.img", "ramp": FIRE_RAMP, "scale": 1.63,
-         "offset": (189, -75), "frames": (0, 12), "from": 0.00, "until": 0.28},
-        {"entry": "outragebreak_bloodsword_none.img", "ramp": FIRE_RAMP, "scale": 1.96,
-         "offset": (273, -31), "frames": (13, 19), "from": 0.28, "until": 0.35},
-        # The strike's own flash, on the landing. It is the pack's soft disc and
-        # its starburst, not a flame, so it stays a light rather than a fire -
-        # and it stays small, because over a low fire a big soft disc does not
-        # read as a flash, it washes the flames out. The reference's own burst
-        # sits at the far end of the gash (its #52-59), not on the caster.
-        {"entry": "outragebreak_bloodsexp_glow.img", "ramp": FIRE_RAMP, "scale": 0.30,
-         "offset": (277, -104), "from": 0.27, "until": 0.33},
+        # The wisp gathers over his head (u 50, his own head line pulled up) and
+        # the burst goes into the ring the floor row puts down at u 170 - the
+        # beat the slam lands on, `activeFrom`. Offsets are measured from the
+        # entry's own bottom centre: the wisp's is (174, 284) once it has grown,
+        # the burst's (299, 284).
+        {"entry": "outragebreak_bloodsword_none.img", "ramp": FIRE_RAMP, "scale": 1.84,
+         "offset": (248, -130), "frames": (0, 12), "from": 0.00, "until": 0.28},
+        {"entry": "outragebreak_bloodsword_none.img", "ramp": FIRE_RAMP, "scale": 2.00,
+         "offset": (253, 16), "frames": (13, 19), "from": 0.28, "until": 0.37},
+        # The pack's soft disc and its starburst, not a flame, so they stay a
+        # light: one on the impact, then a bigger one left burning under the
+        # first wave. Both are the pack's glow, whose bottom centre is (482, 353)
+        # - the same place, so the flash and the core do not jump.
+        {"entry": "outragebreak_bloodsexp_glow.img", "ramp": FIRE_RAMP, "frames": (1, 1),
+         "scale": 0.55, "offset": (70, -44), "from": 0.27, "until": 0.34},
+        {"entry": "outragebreak_bloodsexp_glow.img", "ramp": FIRE_RAMP, "frames": (0, 0),
+         "scale": 0.50, "offset": (70, -44), "from": 0.29, "until": 0.44},
         # The fire is *a rank of pillars standing along the gash*, not a ring
-        # round the caster. That is what the reference does: 10_崩山裂地斩 shows
-        # one-sided fire in front of him - 660 ref px wide, 321 tall for the first
-        # wave and 596 for the second, all of it ahead of his feet - while the
-        # client's own 100-frame preview, which the two earlier passes were built
-        # from, is a circle round him. The reference wins (see
-        # assets/dnf_effect_picks.md), so the ring the owner asked for in the
-        # sixth pass (「不是一排柱子，应该是一个圈」) is gone.
+        # round the caster: the reference has every frame of its fire ahead of
+        # his feet over a one-sided gash, while the client's own 100-frame
+        # preview - which the two earlier passes were built from - erupts all
+        # round him. The reference wins (assets/dnf_effect_picks.md).
         #
-        # A place is named in client coordinates: 382 + u across, where u is how
-        # far *forward* of the caster it stands - the rows are mirrored by facing,
-        # so forward is +x, and the reference's fire is all ahead of him - and 249
-        # up, which is his own ground line (281) pulled 32px into the gash, the
-        # line the reference's flames stand on. A few px of jitter either way keep
-        # five flames on one beat from reading as a picket fence. The offset is
-        # (place - the shape's own foot): the wide bush (bloodsexp_1) is centred
-        # on x=419 with its foot at y=318, the narrow spire (bloodsexp_2) on
-        # x=474 with its foot at y=278.
+        # A place is (382 + u, 289 + 0.12u): u px in front of the caster, on the
+        # line the gash recedes along. Offsets come off each shape's own bottom
+        # centre - the wide bush (bloodsexp_1) is on x 419 with its foot at 324,
+        # the narrow spire (bloodsexp_2) on x 474 with its foot at 282.
         #
-        # First wave: five of the wide bushes across u -310..-100, the middle one
-        # biggest and first (the reference's first eruption peaks in the middle
-        # of the gash and dies away at the edges). Height: the bush's tallest
-        # frame is 127px of client art, this row draws a client pixel at 0.596x,
-        # and the reference's first wave is 120px here - so 1.59 for the middle
-        # and a step down for the flanks.
+        # The first wave is the reference's #54-#60: one eruption out of the
+        # fresh split, tall in the middle of the ring and dying away at the ends.
+        # Sizes are read off the reference - its first wave is ~120px of screen,
+        # a bush's tallest frame is 127px of client art drawn at 0.596, so ~1.55
+        # at the middle and a step down either side.
+        {"entry": "outragebreak_bloodsexp_2_none.img", "ramp": FIRE_RAMP, "scale": 1.85,
+         "offset": (23, 21), "from": 0.29, "until": 0.43},
+        {"entry": "outragebreak_bloodsexp_1_none.img", "ramp": FIRE_RAMP, "scale": 1.57,
+         "offset": (18, -28), "from": 0.30, "until": 0.42},
         {"entry": "outragebreak_bloodsexp_1_none.img", "ramp": FIRE_RAMP, "scale": 1.35,
-         "offset": (67, -63), "from": 0.31, "until": 0.47},
-        {"entry": "outragebreak_bloodsexp_1_none.img", "ramp": FIRE_RAMP, "scale": 1.45,
-         "offset": (117, -69), "from": 0.30, "until": 0.48},
-        {"entry": "outragebreak_bloodsexp_1_none.img", "ramp": FIRE_RAMP, "scale": 1.59,
-         "offset": (166, -69), "from": 0.29, "until": 0.48},
-        {"entry": "outragebreak_bloodsexp_1_none.img", "ramp": FIRE_RAMP, "scale": 1.45,
-         "offset": (215, -69), "from": 0.30, "until": 0.48},
-        {"entry": "outragebreak_bloodsexp_1_none.img", "ramp": FIRE_RAMP, "scale": 1.35,
-         "offset": (265, -75), "from": 0.31, "until": 0.47},
-        # Molten drops land along the gash and spread, and the slam throws debris.
-        {"entry": "outragebreak_drops_1.img", "ramp": FIRE_RAMP, "scale": 2.6,
-         "offset": (202, -41), "from": 0.32, "until": 0.48},
-        # The debris is the pack's plain art - it has no board of its own at all,
-        # so asking for one finds nothing and draws no rocks.
-        {"entry": "outragebreak_part.img", "board": "", "scale": 1.87, "offset": (563, 219),
-         "from": 0.28, "until": 0.45},
-        {"entry": "outragebreak_drops_2.img", "ramp": FIRE_RAMP, "scale": 2.6,
-         "offset": (135, -41), "from": 0.52, "until": 0.68},
-        {"entry": "outragebreak_part.img", "board": "", "scale": 1.87, "offset": (664, 219),
-         "from": 0.55, "until": 0.70},
-        # Then the second wave: the reference erupts tall over its #84-110, and
-        # where the first used the wide bush this one uses the narrow spire, four
-        # places from u 25 to u 344 (the two rearmost are on the skill's own row,
-        # behind the Slayer - see the pick above). The spire is 179px of client
-        # art and the reference's second wave is 223px here, so 2.09 down the
-        # middle of the gash and a step down at the ends.
-        {"entry": "outragebreak_bloodsexp_2_none.img", "ramp": FIRE_RAMP, "scale": 1.70,
-         "offset": (252, -29), "from": 0.73, "until": 0.90},
-        {"entry": "outragebreak_bloodsexp_2_none.img", "ramp": FIRE_RAMP, "scale": 1.90,
-         "offset": (25, -23), "from": 0.72, "until": 0.91},
-        {"entry": "outragebreak_bloodsexp_2_none.img", "ramp": FIRE_RAMP, "scale": 2.09,
-         "offset": (101, -29), "from": 0.70, "until": 0.92},
-        {"entry": "outragebreak_bloodsexp_2_none.img", "ramp": FIRE_RAMP, "scale": 2.09,
-         "offset": (176, -35), "from": 0.70, "until": 0.92},
-        {"entry": "outragebreak_bloodsexp_glow.img", "ramp": FIRE_RAMP, "scale": 0.30,
-         "offset": (277, -104), "from": 0.71, "until": 0.76},
-        # The flames die back onto the gash: the bush's own last frames, which
-        # are embers rather than fire, so the row ends on the lit rift the way
-        # the reference does (its last thirty frames are cracks and glow).
+         "offset": (148, -13), "from": 0.31, "until": 0.42},
+        {"entry": "outragebreak_bloodsexp_2_none.img", "ramp": FIRE_RAMP, "scale": 1.20,
+         "offset": (158, 37), "from": 0.32, "until": 0.41},
+        {"entry": "outragebreak_bloodsexp_1_none.img", "ramp": FIRE_RAMP, "scale": 1.10,
+         "offset": (283, 3), "from": 0.33, "until": 0.40},
+        # Molten drops land along the gash and spread.
+        {"entry": "outragebreak_drops_1.img", "ramp": FIRE_RAMP, "scale": 3.0,
+         "offset": (233, 40), "from": 0.32, "until": 0.44},
+        {"entry": "outragebreak_drops_2.img", "ramp": FIRE_RAMP, "scale": 3.0,
+         "offset": (150, 40), "from": 0.44, "until": 0.56},
+        # Then the second wave - the reference's #84-#115, the shot everyone
+        # remembers: a hedge of tongues running the whole length of the gash,
+        # tallest just past the middle. Nine of them, and three bushes at their
+        # feet so the bases are not separate candles. A spire's tallest frame is
+        # 181px of client art and the reference's second wave is ~213px of
+        # screen, so ~2.1 down the middle and a step down at the ends; the
+        # highest tongue tops out at y -76 and the widest spans x 429-615, both
+        # still inside the declared window.
+        {"entry": "outragebreak_bloodsexp_2_none.img", "ramp": FIRE_RAMP, "scale": 1.62,
+         "offset": (-12, 17), "from": 0.55, "until": 0.90},
+        {"entry": "outragebreak_bloodsexp_2_none.img", "ramp": FIRE_RAMP, "scale": 2.11,
+         "offset": (48, 24), "from": 0.54, "until": 0.91},
+        {"entry": "outragebreak_bloodsexp_2_none.img", "ramp": FIRE_RAMP, "scale": 1.57,
+         "offset": (108, 31), "from": 0.56, "until": 0.90},
+        {"entry": "outragebreak_bloodsexp_2_none.img", "ramp": FIRE_RAMP, "scale": 2.11,
+         "offset": (168, 38), "from": 0.54, "until": 0.91},
+        {"entry": "outragebreak_bloodsexp_2_none.img", "ramp": FIRE_RAMP, "scale": 1.84,
+         "offset": (228, 45), "from": 0.55, "until": 0.90},
+        {"entry": "outragebreak_bloodsexp_2_none.img", "ramp": FIRE_RAMP, "scale": 1.51,
+         "offset": (288, 53), "from": 0.57, "until": 0.89},
+        {"entry": "outragebreak_bloodsexp_2_none.img", "ramp": FIRE_RAMP, "scale": 0.92,
+         "offset": (343, 59), "from": 0.59, "until": 0.88},
+        {"entry": "outragebreak_bloodsexp_1_none.img", "ramp": FIRE_RAMP, "scale": 1.15,
+         "offset": (18, -28), "from": 0.56, "until": 0.89},
+        {"entry": "outragebreak_bloodsexp_1_none.img", "ramp": FIRE_RAMP, "scale": 1.25,
+         "offset": (138, -14), "from": 0.55, "until": 0.90},
+        {"entry": "outragebreak_bloodsexp_1_none.img", "ramp": FIRE_RAMP, "scale": 1.20,
+         "offset": (263, 1), "from": 0.57, "until": 0.89},
+        # The two hot cores, drawn last so they read through the tongues the way
+        # the reference's white-yellow base does.
+        {"entry": "outragebreak_bloodsexp_glow.img", "ramp": FIRE_RAMP, "frames": (0, 0),
+         "scale": 0.45, "offset": (40, -47), "from": 0.56, "until": 0.82},
+        {"entry": "outragebreak_bloodsexp_glow.img", "ramp": FIRE_RAMP, "frames": (0, 0),
+         "scale": 0.45, "offset": (160, -33), "from": 0.57, "until": 0.82},
+        # The flames die back onto the gash: the bush's own last frames are
+        # embers rather than fire, so the row ends on the lit rift the way the
+        # reference does (its last thirty frames are cracks and glow).
         {"entry": "outragebreak_bloodsexp_1_none.img", "ramp": FIRE_RAMP, "frames": (5, 6),
-         "scale": 1.59, "offset": (166, -69), "from": 0.92, "until": 1.00},
+         "scale": 1.30, "offset": (48, -28), "from": 0.88, "until": 1.00},
         {"entry": "outragebreak_bloodsexp_1_none.img", "ramp": FIRE_RAMP, "frames": (5, 6),
-         "scale": 1.45, "offset": (117, -69), "from": 0.94, "until": 1.00},
+         "scale": 1.20, "offset": (168, -14), "from": 0.90, "until": 1.00},
         {"entry": "outragebreak_bloodsexp_1_none.img", "ramp": FIRE_RAMP, "frames": (5, 6),
-         "scale": 1.35, "offset": (67, -63), "from": 0.95, "until": 1.00},
+         "scale": 1.15, "offset": (293, 1), "from": 0.91, "until": 1.00},
     ]}),
 ]
 
@@ -607,7 +618,23 @@ def anchored_window(window, anchor):
     )
 
 
-def bake_frames(frames, row: int, sheet: Image.Image, anchor=None, origin=(0, 0), window=None) -> int:
+def fit_scale(window, cell: int = CELL, margin: int = 8) -> float:
+    """How much one client pixel shrinks when a window is fitted into a cell.
+
+    This is the whole zoom of a row, and the renderer has to agree with it: it
+    draws the cell at `size` px, so a client pixel lands on `fit_scale(window) *
+    size / cell` of the screen. `size` is chosen from this number (see
+    EFFECT.draw in src/render.js), which is why an explicit window - rather than
+    whatever the art happens to cover this week - is what a row that has to line
+    up with another one is baked to.
+    """
+    span_w = window[2] - window[0]
+    span_h = window[3] - window[1]
+    return min((cell - margin) / max(1, span_w), (cell - margin) / max(1, span_h))
+
+
+def bake_frames(frames, row: int, sheet: Image.Image, anchor=None, origin=(0, 0), window=None,
+                cell: int = CELL, margin: int = 8) -> int:
     """Draw one skill row from already-composited frames.
 
     `anchor` is the client-space point the move is rooted at (the caster's feet).
@@ -640,17 +667,17 @@ def bake_frames(frames, row: int, sheet: Image.Image, anchor=None, origin=(0, 0)
             return 0
     span_w = window[2] - window[0]
     span_h = window[3] - window[1]
-    scale = min((CELL - 8) / span_w, (CELL - 8) / span_h)
+    scale = fit_scale(window, cell, margin)
     placed_w = max(1, int(span_w * scale))
     placed_h = max(1, int(span_h * scale))
     if anchor is None:
-        offset_x = (CELL - placed_w) // 2
-        offset_y = (CELL - placed_h) // 2
+        offset_x = (cell - placed_w) // 2
+        offset_y = (cell - placed_h) // 2
     else:
         across = clamp01((anchor[0] - window[0]) / max(1, span_w))
         down = clamp01((anchor[1] - window[1]) / max(1, span_h))
-        offset_x = round(CELL / 2 - across * placed_w)
-        offset_y = round(CELL * GROUND_LINE - down * placed_h)
+        offset_x = round(cell / 2 - across * placed_w)
+        offset_y = round(cell * GROUND_LINE - down * placed_h)
         # No clamping: the point of the anchor is that it lands where it belongs.
         # The slice of the effect that hangs below the ground line is dropped by
         # the cell, which is the part that would be under the floor anyway.
@@ -662,9 +689,9 @@ def bake_frames(frames, row: int, sheet: Image.Image, anchor=None, origin=(0, 0)
         # Into its own cell first: an anchored row is placed by its ground line,
         # so its frames can sit above or below the middle of the cell. Compositing
         # straight into the sheet let that spill into the row above or below.
-        cell_image = Image.new("RGBA", (CELL, CELL), (0, 0, 0, 0))
+        cell_image = Image.new("RGBA", (cell, cell), (0, 0, 0, 0))
         cell_image.alpha_composite(layer, (offset_x, offset_y))
-        sheet.alpha_composite(cell_image, (column * CELL, row * CELL))
+        sheet.alpha_composite(cell_image, (column * cell, row * cell))
 
     return len(frames)
 
@@ -1007,10 +1034,30 @@ def main() -> None:
         # screen then blew up into mush. Anchoring both rows to the same client
         # point is what keeps them on top of each other; the window only decides
         # how much of the cell each one is allowed to use.
+        #
+        # A pick may declare its window instead of leaving it to whatever the
+        # art happens to cover: both halves of 大蹦 are baked to one declared
+        # window so the renderer needs one draw size for the pair, and so the
+        # zoom does not drift when a layer is retuned.
+        declared = pick.get("window") or PICKS[base].get("window")
         for row_name in (base, name):
-            windows[row_name] = anchored_window(
+            windows[row_name] = tuple(declared) if declared else anchored_window(
                 ink_window(rows[row_name], origins[row_name]), PICKS[base].get("anchor")
             )
+            # A declared window is a promise about the art: bake_frames draws
+            # only the slice it names, so art outside it is silently dropped - a
+            # spire with its top cut off, which reads as a bug in the game
+            # rather than in the window. Say so here instead.
+            ink = ink_window(rows[row_name], origins[row_name], padding=0)
+            if ink and (
+                ink[0] < windows[row_name][0] or ink[1] < windows[row_name][1]
+                or ink[2] > windows[row_name][2] or ink[3] > windows[row_name][3]
+            ):
+                print(
+                    f"  WARNING {row_name}: ink {ink} runs outside the declared "
+                    f"window {windows[row_name]} and will be clipped",
+                    file=sys.stderr,
+                )
         print(f"  {base}: window {windows[base]}")
         print(f"  {name}: window {windows[name]} (anchor {PICKS[base]['anchor']})")
 
@@ -1022,12 +1069,19 @@ def main() -> None:
     )
     counts = {}
     for row, (skill, _npk, _entry, _url) in enumerate(EFFECTS):
+        # 大蹦's two rows are big art: they are baked to their own sheet, at
+        # RIFT_CELL, further down. Their place in the grid is kept (and stays
+        # empty here) so every other row keeps the number it is addressed by.
+        if skill in RIFT_ROWS:
+            continue
         counts[skill] = bake_frames(
             rows[skill], row, sheet, anchors[skill], origins[skill], window=windows.get(skill)
         )
     for offset, (name, _pick) in enumerate(EXTRA_ROWS):
         counts[name] = bake_frames(rows[name], len(EFFECTS) + offset, sheet)
     for offset, (name, _pick) in enumerate(FRONT_ROWS):
+        if name in RIFT_ROWS:
+            continue
         counts[name] = bake_frames(
             rows[name],
             len(EFFECTS) + len(EXTRA_ROWS) + offset,
@@ -1038,6 +1092,38 @@ def main() -> None:
         )
     sheet.save(ROOT / "effects.png")
     print(f"wrote {ROOT / 'effects.png'} ({sheet.width}x{sheet.height})")
+
+    # The two 大蹦 rows, on their own sheet at RIFT_CELL. Both are fitted to the
+    # one window they declare, so one draw size in the renderer places both of
+    # them: `size` is `window width * the move's client-px-per-screen-px`, and
+    # the anchor lands on the caster's feet at `dy = -size / 4` (see
+    # EFFECT.draw.mountainRift). This prints the size the windows come to, so a
+    # retuned window can be carried across in one step.
+    if any(name in rows for name in RIFT_ROWS):
+        rift = Image.new(
+            "RGBA", (RIFT_CELL * columns, RIFT_CELL * len(RIFT_ROWS)), (0, 0, 0, 0)
+        )
+        for index, name in enumerate(RIFT_ROWS):
+            counts[name] = bake_frames(
+                rows[name],
+                index,
+                rift,
+                PICKS[matched.get(name, name)]["anchor"],
+                origins[name],
+                window=windows[name],
+                cell=RIFT_CELL,
+                margin=0,
+            )
+        rift.save(ROOT / RIFT_SHEET)
+        print(f"wrote {ROOT / RIFT_SHEET} ({rift.width}x{rift.height})")
+        print(
+            "  draw size for the rift rows: "
+            + ", ".join(
+                f"{name}={RIFT_CLIENT_PX * RIFT_CELL / fit_scale(windows[name], RIFT_CELL, 0):.1f}"
+                for name in RIFT_ROWS
+            )
+            + f" (window {windows[RIFT_ROWS[0]]}, a client px is {RIFT_CLIENT_PX:g} of a screen px)"
+        )
     print("row frames: " + ", ".join(f"{skill}={count}" for skill, count in counts.items()))
 
 

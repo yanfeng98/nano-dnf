@@ -1836,6 +1836,100 @@ test("the dive draws the blade from its own effect row", () => {
   assert.equal(drawnFrom(cutting), 0, "and only the dive draws it");
 });
 
+test("大蹦 draws both halves off its own sheet", () => {
+  const state = Core.createState({ seed: 5 });
+  const sprites = {
+    slayer: { width: 8736, height: 1232 },
+    skills: { width: 352, height: 64 },
+    effects: { width: 5760, height: 1792 },
+    rift: { width: 17280, height: 768 }
+  };
+  const drawnFrom = (calls, sheet, row, cell) =>
+    calls.filter(
+      (call) => call[0] === "drawImage" && call[1] === sheet && call[3] === row * cell
+    ).length;
+  const rift = Render.EFFECT.riftRows.mountainRift;
+  const cell = Render.EFFECT.riftCell;
+  state.player.skillId = "mountainRift";
+  state.player.skillTimer = Core.SKILLS.mountainRift.duration * 0.5;
+  const casting = [];
+  Render.render(recordingContext(casting), state, { sprites });
+  assert.equal(
+    drawnFrom(casting, sprites.rift, rift.back, cell),
+    1,
+    "the broken floor behind him is read off the big sheet"
+  );
+  assert.equal(
+    drawnFrom(casting, sprites.rift, rift.front, cell),
+    1,
+    "and so is the fire drawn over him"
+  );
+  assert.equal(
+    drawnFrom(casting, sprites.effects, Core.SKILL_ORDER.indexOf("mountainRift"), Render.EFFECT.cell),
+    0,
+    "and nothing is read off the small sheet for this move, where the art would be mush"
+  );
+  /* Without the big sheet there is nothing to draw, rather than a cell of mush. */
+  const missing = [];
+  Render.render(recordingContext(missing), state, {
+    sprites: { ...sprites, rift: null }
+  });
+  assert.equal(drawnFrom(missing, sprites.effects, 10, Render.EFFECT.cell), 0, "and it fails empty");
+});
+
+test("the rift's draw size is the window the bake declares", () => {
+  const source = fs.readFileSync(
+    path.join(__dirname, "..", "assets", "import_dnf_effects.py"),
+    "utf8"
+  );
+  /*
+   * 大蹦's two halves are baked to *one declared window*, and the renderer turns
+   * that window into `size`: the cell holds the window fitted into it, and the
+   * cell is then drawn at `size`, so one client pixel of the pack lands on
+   * `fit * size / cell` of a screen pixel. Which makes `size` a hand-off between
+   * two files - the bake knows the window, the renderer knows the number, and the
+   * bake can only *print* what the window comes to (see its "draw size for the
+   * rift rows" line). Nothing read the printed number back, so a retuned window
+   * would have shipped the move at the wrong zoom with every test green - which
+   * is the class of mistake the 「糊」 was: art drawn at a size its own guide
+   * never agreed to. This is that hand-off, pinned from both ends.
+   */
+  const declared = Number(/RIFT_CLIENT_PX = ([\d.]+)/.exec(source)[1]);
+  const windows = [
+    ...source.matchAll(/"window":\s*\((-?\d+),\s*(-?\d+),\s*(\d+),\s*(\d+)\)/g)
+  ].map((match) => match.slice(1).map(Number));
+  assert.equal(windows.length, 2, "both halves of the move declare a window");
+  assert.deepEqual(
+    windows[0],
+    windows[1],
+    "and it is the same window for both, or one draw size cannot place them"
+  );
+  const [left, top, right, bottom] = windows[0];
+  const spanW = right - left;
+  const spanH = bottom - top;
+  const cell = Render.EFFECT.riftCell;
+  const draw = Render.EFFECT.draw.mountainRift;
+  /* The rift rows are baked with no margin - see `margin=0` in the bake's call. */
+  const fit = Math.min(cell / spanW, cell / spanH);
+  const landed = (fit * draw.size) / cell;
+  assert.ok(
+    Math.abs(landed - declared) < 0.005,
+    `the window is drawn at ${landed.toFixed(3)} of a screen pixel per client px, not ${declared}`
+  );
+  /*
+   * And the anchor lands on the caster's feet, which is the other half of the
+   * same hand-off: the bake pins the caster's ground point to GROUND_LINE of the
+   * cell, and a cell drawn centred at the origin puts that point `(GROUND_LINE -
+   * 0.5) * size` below it. So the row's dy is not a taste - it is that line.
+   */
+  const groundLine = Number(/GROUND_LINE = ([\d.]+)/.exec(source)[1]);
+  assert.ok(
+    Math.abs(draw.dy + (groundLine - 0.5) * draw.size) <= 1,
+    `dy ${draw.dy} does not put the pack's ground line on his feet ` +
+      `(${(-(groundLine - 0.5) * draw.size).toFixed(1)})`
+  );
+});
+
 test("the shipped DNF effect sheet matches the renderer grid", () => {
   const buffer = fs.readFileSync(path.join(__dirname, "..", "assets", "effects.png"));
   assert.equal(buffer.subarray(1, 4).toString("ascii"), "PNG");
@@ -1852,6 +1946,8 @@ test("the shipped DNF effect sheet matches the renderer grid", () => {
    */
   const sheet = decodeRgbaPng(path.join(__dirname, "..", "assets", "effects.png"));
   Core.SKILL_ORDER.forEach((skillId, row) => {
+    /* 大蹦's rows are not on this sheet - see the rift sheet below. */
+    if (Render.EFFECT.riftRows[skillId]) return;
     const declared = Render.EFFECT.rowFrames[skillId];
     assert.ok(declared > 0, `${skillId} needs a row length`);
     const drawn = [];
@@ -1860,11 +1956,8 @@ test("the shipped DNF effect sheet matches the renderer grid", () => {
     }
     /*
      * A row is one timeline over one cast, and it is declared as long as the
-     * cast is: 大蹦's own row is the one whose head is empty, because its first
-     * act is the landing (the blade it raises lives on the fire row, drawn in
-     * front of him), so its three acts fill the last 30 of its 45 columns.
-     * Everything else fills its row from column 0, and no row may have a hole:
-     * a gap would draw the wrong frame of the shape at that moment.
+     * cast is. Every row on this sheet fills it from column 0, and no row may
+     * have a hole: a gap would draw the wrong frame of the shape at that moment.
      */
     assert.ok(
       drawn.every((column, index) => column === drawn[0] + index),
@@ -1875,49 +1968,73 @@ test("the shipped DNF effect sheet matches the renderer grid", () => {
       declared,
       `${skillId} should bake ${declared} frame(s), found ${drawn.length}`
     );
-    if (skillId !== "mountainRift") {
-      assert.equal(drawn[0], 0, `${skillId} frames must be packed from column 0`);
-    }
+    assert.equal(drawn[0], 0, `${skillId} frames must be packed from column 0`);
   });
   assert.equal(Render.EFFECT.rowFrames.mountainBreaker, 6, "崩山击 ships its six-frame ground slash");
   assert.equal(Render.EFFECT.rowFrames.crossSlash, 11, "十字斩 ships its eleven-frame cross");
   /*
-   * 大蹦 ships a second row: the fire it throws is drawn over the Slayer while
-   * the rift stays behind him. Both rows are baked to one window, so they are
-   * drawn at one size and one anchor - the fire has to come out of the rift.
+   * 大蹦 is the one move whose art is drawn far bigger than a cell can hold, so
+   * its two rows - the rift behind the Slayer and the fire over him - are baked
+   * to a sheet of their own at a cell of their own. Both are baked to one
+   * declared window, so the renderer needs one draw size for the pair and the
+   * fire cannot drift off the rift it comes out of.
    */
+  const rift = Render.EFFECT.riftRows.mountainRift;
+  assert.ok(rift, "大蹦 declares where its two rows live");
+  assert.equal(rift.back, 0, "the rift is the first row of its sheet");
+  assert.equal(rift.front, 1, "and the fire the second");
+  assert.ok(Render.EFFECT.riftCell > Render.EFFECT.cell, "at a cell a cell-sized grid cannot hold");
+  const riftBuffer = fs.readFileSync(path.join(__dirname, "..", "assets", "rift.png"));
+  assert.equal(riftBuffer.subarray(1, 4).toString("ascii"), "PNG");
   assert.equal(
-    Render.EFFECT.frontRows.mountainRift,
-    Core.SKILL_ORDER.length + 2,
-    "the fire row follows the orb and dive rows"
+    riftBuffer.readUInt32BE(16),
+    Render.EFFECT.riftCell * Render.EFFECT.maxFrames,
+    "the rift sheet is as long as the cast too"
   );
-  const fire = [];
-  for (let column = 0; column < Render.EFFECT.maxFrames; column += 1) {
-    if (
-      cellAlphaBox(
-        sheet,
-        column,
-        Render.EFFECT.frontRows.mountainRift,
-        Render.EFFECT.cell,
-        Render.EFFECT.cell
-      )
-    ) {
-      fire.push(column);
+  assert.equal(riftBuffer.readUInt32BE(20), Render.EFFECT.riftCell * 2, "and holds both halves");
+  const riftSheet = decodeRgbaPng(path.join(__dirname, "..", "assets", "rift.png"));
+  const columnsDrawn = (row) => {
+    const drawn = [];
+    for (let column = 0; column < Render.EFFECT.maxFrames; column += 1) {
+      if (cellAlphaBox(riftSheet, column, row, Render.EFFECT.riftCell, Render.EFFECT.riftCell)) {
+        drawn.push(column);
+      }
     }
-  }
+    return drawn;
+  };
+  const riftFrames = columnsDrawn(rift.back);
   assert.equal(
-    Render.EFFECT.frontFrames.mountainRift,
     Render.EFFECT.rowFrames.mountainRift,
-    "the fire row runs on the rift row's timeline, or the two halves drift apart"
+    Render.EFFECT.maxFrames,
+    "the rift row is as long as the cast"
   );
   /*
-   * The row opens on the blade the raise carries (the owner: 「应该是血剑」) and
-   * the fire itself does not start until he drives it in - the stage windows are
-   * what pin that, in 大蹦 plays in stages below.
+   * 大蹦's own row opens on the landing: its first act is 举剑, and the blade
+   * that carries it lives on the fire row, drawn over him. So this row's head is
+   * empty and its acts fill the rest - but with no hole, or the wrong frame of
+   * the ground would be drawn at that moment.
    */
-  assert.equal(fire[0], 0, "and it opens on the blade the raise carries");
+  assert.ok(riftFrames[0] > 0, "the rift row opens on the landing, not on the press");
+  assert.ok(
+    riftFrames.every((column, index) => column === riftFrames[0] + index),
+    "and runs to the end with no hole in it"
+  );
+  assert.equal(riftFrames[riftFrames.length - 1], Render.EFFECT.maxFrames - 1, "to the last column");
+  /*
+   * The fire row opens on the blade the raise carries (the owner: 「应该是血剑」)
+   * and runs to the end of the cast; the stage windows are what pin that the
+   * fire itself does not start until he drives the blade in, in 大蹦 plays in
+   * stages below.
+   */
   assert.equal(
-    fire[fire.length - 1],
+    Render.EFFECT.frontFrames.mountainRift,
+    Render.EFFECT.maxFrames,
+    "the fire row runs on the rift's timeline, or the two halves drift apart"
+  );
+  const fireFrames = columnsDrawn(rift.front);
+  assert.equal(fireFrames[0], 0, "and it opens on the blade the raise carries");
+  assert.equal(
+    fireFrames[fireFrames.length - 1],
     Render.EFFECT.maxFrames - 1,
     "and it runs to the end of the cast, the way the client's rift keeps burning"
   );
@@ -2128,8 +2245,8 @@ test("the effect bake draws each shape in exactly one colour board", () => {
   );
   assert.equal(
     (fireText.match(/"ramp":\s*FIRE_RAMP/g) || []).length,
-    (fireText.match(/"entry":/g) || []).length - 2,
-    "every layer of the fire is ramped except the two debris stages, which are plain rock"
+    (fireText.match(/"entry":/g) || []).length,
+    "every layer of the fire is ramped - the debris, which is plain rock, lives on the ground row"
   );
   /*
    * The fire is the other half of the same pack, and it is drawn over the
@@ -2320,31 +2437,41 @@ test("大蹦 plays in stages, not all at once", () => {
    * of the numbers in the bake.
    */
   const ANCHOR = { x: 382, y: 281 };
-  const SPINE = 249;
+  /*
+   * The gash runs *forward* from the caster and recedes, so a thing standing u
+   * px in front of him stands on y = 289 + 0.12u. That line is the spine the
+   * floor's own ring is on: (382, 281) is the caster's ground point and the
+   * bake's anchor, and the floor is placed by that point.
+   */
+  const GASH_DIP = 0.12;
+  const SPINE = (u) => 289 + GASH_DIP * u;
+  /* the pack's own bottom centre per shape: where its art meets the floor */
   const SHAPES = {
-    /* the pack's own bottom centre per shape: where its art meets the floor */
-    bloodsexp_1: { centre: 419, foot: 318 },
-    bloodsexp_2: { centre: 474, foot: 278 }
+    bloodsexp_1: { centre: 419, foot: 324 },
+    bloodsexp_2: { centre: 474, foot: 282 }
   };
   const shapeOf = (stage) =>
     stage.entry.includes("bloodsexp_1") ? "bloodsexp_1" : "bloodsexp_2";
-  /* the two eruptions, not the flash the pack calls bloodsexp_glow */
+  /* the two eruptions, not the light the pack calls bloodsexp_glow */
   const isFlame = (stage) =>
     stage.entry.includes("bloodsexp_1") || stage.entry.includes("bloodsexp_2");
   const placeOf = (stage) => stage.at.split(",").map(Number);
-  /* where a stage stands: (u in front of the caster, how far into the gash) */
+  /* where a stage stands: (u in front of the caster, how far off the gash line) */
   const stands = (stage) => {
     const shape = SHAPES[shapeOf(stage)];
     const [dx, dy] = placeOf(stage);
-    return [shape.centre + dx - ANCHOR.x, shape.foot + dy - ANCHOR.y];
+    const u = shape.centre + dx - ANCHOR.x;
+    return [u, shape.foot + dy - SPINE(u)];
   };
   const flames = front.filter(isFlame);
-  const first = flames.filter(
-    (stage) => stage.entry.includes("bloodsexp_1") && stage.from < 0.4
-  );
-  const second = flames.filter(
-    (stage) => stage.entry.includes("bloodsexp_2") && stage.from >= 0.4
-  );
+  /*
+   * The move erupts twice: the landing answers at once (the reference's #54-60)
+   * and then the second wave runs the whole length of the gash (#84-115). The
+   * split is the lull between them, which the reference spends on its lit
+   * cracks alone.
+   */
+  const first = flames.filter((stage) => stage.from < 0.45);
+  const second = flames.filter((stage) => stage.from >= 0.45);
   assert.ok(first.length >= 3, "the landing answers in several places");
   assert.ok(second.length >= 3, "and the second eruption comes up in several places");
   [first, second].forEach((wave) => {
@@ -2355,22 +2482,22 @@ test("大蹦 plays in stages, not all at once", () => {
     );
   });
   /*
-   * Every flame of the move stands on the gash's own spine and inside its
-   * length: the reference's floor is 265px wide and lit end to end, so a flame
-   * is not free to sit anywhere else. This is the assertion that would have
-   * caught a ring - half of its places are behind the caster, where there is no
-   * cracked ground at all.
+   * Every flame of the move stands on the gash's own line and inside its length:
+   * the reference's rock field runs from his feet forward and is lit end to end,
+   * so a flame is not free to sit anywhere else. This is the assertion that
+   * would have caught a ring - half of its places are behind the caster, where
+   * there is no cracked ground at all.
    */
   const everyFlame = [...back, ...front].filter(isFlame);
   assert.ok(everyFlame.length >= 12, "the gash erupts in many places, in both halves");
   everyFlame.forEach((stage) => {
     const [u, into] = stands(stage);
     assert.ok(
-      Math.abs(into - (SPINE - ANCHOR.y)) <= 8,
-      `${shapeOf(stage)} at ${stage.at} stands on the gash's spine (${into}px up its middle)`
+      Math.abs(into) <= 8,
+      `${shapeOf(stage)} at ${stage.at} stands on the gash's line (${into}px off it)`
     );
     assert.ok(
-      u > -60 && u < 380,
+      u > -60 && u < 470,
       `${shapeOf(stage)} at ${stage.at} stands within the gash, not off it (${u}px forward)`
     );
   });
@@ -2398,32 +2525,32 @@ test("大蹦 plays in stages, not all at once", () => {
   );
   behind.forEach((stage) => {
     assert.ok(
-      stands(stage)[0] < 60,
+      stands(stage)[0] < 40,
       `${shapeOf(stage)} at ${stage.at} is one of the near ones, drawn behind him`
     );
   });
   inFront.forEach((stage) => {
     assert.ok(
-      stands(stage)[0] > 60,
+      stands(stage)[0] > 40,
       `${shapeOf(stage)} at ${stage.at} stands clear of his body`
     );
   });
   /*
-   * And the fire is the reference's height, not the preview's: the first wave
-   * there is 321 ref px tall (120px here) and the second 596 (223px), against a
-   * 90px Slayer. The bush is 127px of client art at its tallest and the spire
-   * 179, and this row draws a client pixel at 0.596 of a screen pixel, so the
-   * bushes bake at 1.35-1.59 (102-120px) and the spires at 1.70-2.09 (181-223).
-   * The pass before this one drew both waves at the preview's size (249 and 296),
-   * which is the 「火焰还是小」 the owner sent back twice - and the pass before
-   * *that* drew 60-108px candles.
+   * And the fire is the reference's height, not the preview's: measured off
+   * 10_崩山裂地斩 its first eruption is ~120px of screen and its second ~213px -
+   * against an 81px Slayer, the tallest tongue stands 2.6 Slayers up, which is
+   * the shot everyone remembers. The bush is 127px of client art at its tallest
+   * and the spire 181, and this row draws a client pixel at 0.596 of a screen
+   * pixel, so the flames bake at 1.1-2.1 and the far end of the gash tapers by
+   * the emitter frames that are sparks rather than fire.
    */
   assert.ok(
-    everyFlame.every((stage) => stage.scale >= 1.3 && stage.scale <= 2.2),
+    everyFlame.every((stage) => stage.scale >= 0.8 && stage.scale <= 2.2),
     "every flame is a pillar of its own, neither a candle nor a column off the screen"
   );
   assert.ok(
-    second.every((stage) => stage.scale > Math.min(...first.map((one) => one.scale))),
+    Math.max(...second.map((stage) => stage.scale)) >
+      Math.max(...first.map((stage) => stage.scale)),
     "and the second eruption is the taller one, the way the reference rises"
   );
   const largest = first.reduce((best, stage) => (stage.scale > best.scale ? stage : best));
@@ -2436,7 +2563,7 @@ test("大蹦 plays in stages, not all at once", () => {
     Math.abs(
       stands(largest)[0] -
         (Math.min(...firstPlaces) + Math.max(...firstPlaces)) / 2
-    ) < 60,
+    ) < 90,
     "and it stands in the middle of the gash, where the reference's fire is tallest"
   );
   const thirdHit = spec.activeFrom + 2 * hitSpan;
@@ -2448,13 +2575,21 @@ test("大蹦 plays in stages, not all at once", () => {
       `${secondOpens.toFixed(2)}-${secondCloses.toFixed(2)}s)`
   );
   /*
-   * The gap between the waves is not empty: the client holds the ring on the
-   * floor (its own preview frames 32-59), so the rift frame is drawn from the
-   * landing to the end of the cast.
+   * The gap between the waves is not empty: the reference keeps its broken rock
+   * field and the lit seams running through it under him for the whole lull
+   * (its #61-#83), so those two frames are on the floor from the landing to the
+   * end of the cast - and the ring in the middle of them stays lit with it.
    */
-  const ring = back.filter((stage) => stage.entry.includes("floor") && stage.first === stage.last);
-  assert.equal(ring.length, 1, "one held ring frame");
-  assert.ok(ring[0].from <= 0.5 && ring[0].until >= 0.99, "held through the whole lull");
+  const floorStages = back.filter((stage) => stage.entry.includes("floor"));
+  const seam = floorStages.find((stage) => stage.first === 8);
+  assert.ok(seam, "the lit seam field is drawn at all");
+  assert.ok(seam.from <= 0.4 && seam.until >= 0.99, "and held from the split to the end");
+  const heldFloor = floorStages.filter((stage) => stage.first === stage.last);
+  assert.ok(heldFloor.length >= 3, "the floor is built from held frames, not a slideshow");
+  assert.ok(
+    heldFloor.filter((stage) => stage.from <= 0.4 && stage.until >= 0.99).length >= 2,
+    "and more than one of them is held through the whole lull"
+  );
   assert.ok(
     !front.filter(isFlame).some((stage) => toCast(stage.from) < spec.activeFrom - 0.05),
     "and no flame burns before he drives the blade in"
@@ -2464,12 +2599,25 @@ test("大蹦 plays in stages, not all at once", () => {
 test("the two blood eruptions are their own art, not one effect twice", () => {
   const sheet = decodeRgbaPng(path.join(__dirname, "..", "assets", "effects.png"));
   const cell = Render.EFFECT.cell;
-  const cellPixels = (row, column) => {
+  /*
+   * 大蹦's own row is no longer on this sheet - it is drawn far bigger than a
+   * cell can hold, so it is baked to assets/rift.png at EFFECT.riftCell. That is
+   * still the row this test is about, so read it from where it lives and sample
+   * it down to the same grid, or "大蹦 is not 崩山击 again" would be comparing a
+   * blank row and passing without looking at anything.
+   */
+  const riftSheet = decodeRgbaPng(path.join(__dirname, "..", "assets", "rift.png"));
+  const cellPixels = (row, column, sheetIn = sheet, cellIn = cell) => {
     const out = [];
+    const step = cellIn / cell;
     for (let y = 0; y < cell; y += 1) {
       for (let x = 0; x < cell; x += 1) {
-        const at = ((row * cell + y) * sheet.width + column * cell + x) * 4;
-        out.push(...sheet.pixels.subarray(at, at + 4));
+        const at =
+          ((row * cellIn + Math.floor(y * step)) * sheetIn.width +
+            column * cellIn +
+            Math.floor(x * step)) *
+          4;
+        out.push(...sheetIn.pixels.subarray(at, at + 4));
       }
     }
     return out;
@@ -2518,13 +2666,24 @@ test("the two blood eruptions are their own art, not one effect twice", () => {
   const burst = meanInk(rage);
   assert.ok(burst[1] > 150, `怒气爆发 erupts white-gold, not red (green ${burst[1].toFixed(0)})`);
   assert.ok(burst[2] > 100, `怒气爆发 keeps its gold tail (blue ${burst[2].toFixed(0)})`);
-  for (let column = 0; column < 6; column += 1) {
+  /*
+   * The rift row opens on the landing, so the frames to compare are the ones it
+   * actually draws - the broken floor and the first eruption.
+   */
+  const riftRow = Render.EFFECT.riftRows.mountainRift.back;
+  const riftCell = Render.EFFECT.riftCell;
+  for (let column = 12; column < 18; column += 1) {
     const a = cellPixels(rage, column);
-    const b = cellPixels(rift, column);
-    const c = cellPixels(smash, column);
+    const b = cellPixels(riftRow, column, riftSheet, riftCell);
+    const c = cellPixels(smash, column % Render.EFFECT.rowFrames.mountainBreaker);
     assert.ok(difference(a, b) > 0.4, `frame ${column}: 怒气爆发 and 大蹦 are different art`);
     assert.ok(difference(b, c) > 0.4, `frame ${column}: 大蹦 is not 崩山击's smash again`);
   }
+  /* and the comparison has something to look at, or the two above prove nothing */
+  const riftInk = cellPixels(riftRow, 14, riftSheet, riftCell).filter(
+    (_value, index) => index % 4 === 3
+  ).filter((alpha) => alpha > 0).length;
+  assert.ok(riftInk > 200, `the rift's own row has art on it (${riftInk} opaque samples)`);
 });
 
 test("each skill picks a DNF effect row across the cast", () => {

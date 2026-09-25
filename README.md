@@ -567,10 +567,63 @@ to: 0.99 }`。测试还改了：血剑在前排找（身后那行一根都不许
 （`node tests/browser/capture-effect.mjs mountainRift 30 0.08 480`）：站着举剑 → 刃在身前
 压到最低、裂缝开、火起来，人**一直保持压在剑上的低姿**，不再出现歪身举剑的收尾。
 
+第五十一切片照业主给的**训练房实拍**（`assets/dnf_src/bilibili/skill-clips/10_崩山裂地斩.mp4`，
+136 帧 @30fps）逐帧重量，推翻了第八·九轮按客户端预览 `OutRageBreak.avi` 定的四条基线
+（明细与复算在 `assets/dnf_effect_picks.md`）：
+
+1. **跳回来了**：参考 #33→#50 量到滞空 **0.60s**、升高 **269 参考px = 101 本作px**、前移 47px；
+   反推 v₀=673、g=2244，正好是本作默认重力 2200，所以不加专属重力（`leapUp -666`）。腾空无敌且不闪。
+2. **时长 2.0s → 4.0s**：按键→举剑→跳→落地伏地→第一波→空档→第二波→起身，三段伤落在 **1.14 / 1.97 / 2.80s**。
+3. **火改红**：参考火体 **(183,25,7)**，而同一条片子里 01 崩山击复量是 **橙 (233,69,35)**，
+   所以不是视频偏色。新增逐层 `ramp`（按像素最亮通道在色标间插值），烘出来的火体均值 (179,25,9)。
+4. **落点从「围人一圈」改成「朝前单侧裂谷」**：`radius 190 → 0`、`reach 200 → 245` 的前向盒子，
+   引擎那圈椭圆范围一起关掉（`arc: false`）。
+
+身体动作换成 `123,124 举剑 → 204,205 空中 → 208,209 落地伏地 → 132 起身`，`beats` 2/2/2/1。
+验收：`npm test` 156/156、双通浏览器证明；实机抓帧量到 x 110→157（47px 前移）、最高 335（95px 高）、
+顶点 0.85s、落地 1.15s，对上参考的 47px / 101px / 0.87s / 1.14s。
+
+第五十二切片按业主第四次反馈（「**比参考的差远了，请你修复**」）把**画出来的东西**重做一遍。
+上一版的判定（跳跃、4.0s、红火、单侧裂谷）是对的，但把参考帧摊开一帧一帧对，差的是四件事：
+
+1. **参考里最大的东西我们几乎没有——那块碎岩地**。参考 #61–#88（空档期）画面里人趴在一片
+   **碎岩板**上，板缝里是发光的熔岩线；我们只有 `floor` 后半段的几条细裂纹，还压到 `alpha 0.5`。
+   现在用包里的**整个地板**：`f0` 暗色碎岩板 + `f1` 板缝 + `f8–f10` 熔岩亮缝，从落地**一直挂到收招**；
+   另外加一条 `ROCK_RAMP` 只提亮度——包里那块地板是近黑的（均值 57,48,44），直接画会陷进本作
+   自己的暗地板里，而参考里的岩板是**比背后的黑更亮**的。
+2. **火是一整面贴着地的高火墙**，不是一排矮丛。第二波从 5 根加到 **9 根 + 3 丛打底**，沿裂谷从
+   u 80 排到 u 435，中间的 2.11 倍（0.596 的比例下 **228 本作px**，人 81px = 2.8 身位）；
+   底部两处**白热芯**画在最后，从火舌缝里透出来（参考的火舌之间是看得到白热底的）。
+   `FIRE_RAMP` 顶端也从 (255,120,60) 提到 (255,225,195)，让白热芯真的白。
+3. **举剑那一下手上有刀**：参考 #45–#51 是**一道长火刃**（约 1.6 身位），我们原先只有贴着头顶的一颗
+   火团。血剑聚形段缩到 1.70 倍、贴着抬手的位置。
+4. **糊是结构性的**：上一版两排共用一个 ~700px 的窗口压进 **128px 的 cell**（一朵 216px 的火只分到
+   ~43 个 cell 像素），再被拉到 470px 画出去——所以怎么调都是糊的。现在 `import_dnf_effects.py`
+   给大蹦单开一张**大 cell 的表** `assets/rift.png`（`RIFT_CELL = 384`），两排都烘它：
+   同样一朵火分到 ~228 个 cell 像素，1:1 画出去。两排烘到**同一个声明的窗口**
+   `(120,-140,960,420)`（840×560 客户端px），所以渲染端只要一个
+   `EFFECT.draw.mountainRift = { dx: 0, dy: -125, size: 501, ground: true }`——
+   `size = 840 × 0.596`，`dy = -size/4` 就是把锚点（人脚）放回脚上，原先的 `dx 95` /
+   `EFFECT.frontDraw` 整段删掉。
+
+时候也按参考挪正：第一波 0.29–0.43、空档 0.43–0.54、第二波 0.54–0.91、火尾 0.88–1.00
+（参考是落地炸一下 1.8–2.1s、空档 2.1–2.8s、大火 2.8–4.0s）。
+
+测试跟着改：效果表的两排改从 `assets/rift.png` 读（长度 45、宽度 `riftCell × 45`、前排从第 0 列起、
+后排从落地那一列起且不许有空洞）、渲染器两半都必须从 `sprites.rift` 取（少一张图就什么都不画，
+而不是退回小表画糊的）、每处火的脚落在裂谷那条线 `y = 289 + 0.12u` 上（±8px）、`ramp` 覆盖前排
+**全部**层、地面至少要有一个「从落地挂到收招」的亮缝层。**部署契约也补了一条**：`src/*.js` 里写的
+`./assets/...` 必须真的被暂存——少 `rift.png` 是「技能什么都不画」，和当初少 `records.js` 是同一类
+事故，而这次的暂存列表里确实漏了它（本地测试全绿，线上会静默少一块）。
+
+验收：`npm test` 157/157、`npm run test:browser` 双通（资产表多一行 `rift.png 200`）；
+抓帧 `CAPTURE_OUT=/tmp/mr-new node tests/browser/capture-effect.mjs mountainRift 100 0.1 400`。
+对照图：`assets/dnf_effect_anim/ref10-vs-ingame-new.png`（参考上 / 实机下，按人脚对齐）。
+
 ## 运行
 
 ```bash
-npm test          # 145 个核心逻辑、Boss/小 Boss 机制、强化与通关记录、配乐调度、标题演示、结算与暂停战绩、分享链接、配速线、历史最佳、触屏暂停、血之狂暴姿态与血球、发布暂存契约与渲染冒烟测试
+npm test          # 157 个核心逻辑、Boss/小 Boss 机制、强化与通关记录、配乐调度、标题演示、结算与暂停战绩、分享链接、配速线、历史最佳、触屏暂停、血之狂暴姿态与血球、技能特效烘焙与渲染、发布暂存契约与渲染冒烟测试
 npm run test:browser # 无头 Chromium 跑真实页面：键盘 + 触屏两条通路各通关一次
 npm run test:live # 线上产物冒烟：核对线上字节是否与本地一致，并在无头浏览器里跑一次真实页面
 npm run serve     # 起本地静态服务，然后打开 http://localhost:8080
@@ -939,7 +992,7 @@ python3 assets/extract_bilibili_skills.py --detect   # 只重算切点，和表�
 keyboard victory=true kills=14 damageTaken=7 seconds=47.4 level=5  upgrades=锐锋×3+鬼气  record=0:47.4 Lv5  music=started(272 notes, bus 0.5)  audio=created/running  drag=月光斩→槽A persisted=true
 touch    victory=true kills=14 damageTaken=0 seconds=45.8 level=5  upgrades=锐锋×3+鬼气  record=0:45.8 Lv5  music=started(266 notes, bus 0.5)  touchMode=true audio=created/running muteToggle=ok
 consoleErrors=[] pageErrors=[] failedRequests=[]
-assets: index.html / loadout.js / main.js / render.js / core.js / slayer.png / skills.png / effects.png / favicon.png 全部 200
+assets: index.html / loadout.js / main.js / render.js / core.js / slayer.png / skills.png / effects.png / rift.png / favicon.png 全部 200
 ```
 
 键盘那条通路还会顺便验证编成：按 `B` 打开面板 → 用指针事件把「月光斩」拖到槽 A → 读回

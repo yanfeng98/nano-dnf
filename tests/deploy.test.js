@@ -68,6 +68,34 @@ test("the workflow stages every asset index.html asks the browser for", async ()
     "the staged site must contain the page itself"
   );
 
+  /*
+   * And the sheets the game draws: those are named in src/main.js, not in the
+   * markup, so the check above walks straight past them. A missing one is a
+   * skill that draws nothing in production - which is exactly how 大蹦's second
+   * sheet (assets/rift.png) would have shipped missing.
+   */
+  const { scriptAssetRefs } = await import("./deploy/deploy-contract.mjs");
+  const scripts = fs
+    .readdirSync(path.join(site, "src"))
+    .filter((name) => name.endsWith(".js"));
+  const scriptAssets = [
+    ...new Set(
+      scripts.flatMap((name) =>
+        scriptAssetRefs(fs.readFileSync(path.join(site, "src", name), "utf8"))
+      )
+    )
+  ];
+  assert.ok(
+    scriptAssets.length >= 4,
+    `the scripts should load the art they draw, got ${scriptAssets}`
+  );
+  scriptAssets.forEach((asset) => {
+    assert.ok(
+      fs.existsSync(path.join(site, asset)),
+      `the staged site is missing ${asset} - the game would draw nothing for it`
+    );
+  });
+
   /* Absolute crawler URLs are not `src="./..."`, so check them separately. */
   const { shareCardPath } = await import("./deploy/deploy-contract.mjs");
   const html = fs.readFileSync(path.join(site, "index.html"), "utf8");

@@ -33,6 +33,24 @@ export function referencedAssets(html) {
   return [...new Set([...String(html).matchAll(REF_PATTERN)].map((match) => match[1]))];
 }
 
+/*
+ * A module can name an asset the page's own markup never mentions - every sheet
+ * the game loads is named in `src/main.js`. Those are just as able to 404, and
+ * the failure looks the same from the outside: a skill that draws nothing. So
+ * the scripts are read for `./assets/...` as well, and checked like any other
+ * referenced file.
+ */
+const SCRIPT_ASSET_PATTERN = /["'`]\.\/assets\/([A-Za-z0-9._-]+)["'`]/g;
+
+/** Every file under assets/ that one shipped script names and the browser loads. */
+export function scriptAssetRefs(source) {
+  return [
+    ...new Set(
+      [...String(source).matchAll(SCRIPT_ASSET_PATTERN)].map((match) => `assets/${match[1]}`)
+    )
+  ];
+}
+
 /** Meta tags keyed by their identifying attribute, e.g. `og:image` -> url. */
 export function metaTags(html) {
   const tags = {};
@@ -149,8 +167,23 @@ export async function inspectPublished(baseUrl) {
     };
   }
 
-  const refs = referencedAssets(index.body.toString("utf8"));
-  if (!refs.length) problems.push("the published index.html references no local assets");
+  const pageRefs = referencedAssets(index.body.toString("utf8"));
+  if (!pageRefs.length) problems.push("the published index.html references no local assets");
+  /*
+   * And what the scripts themselves ask for: the sheets the game draws are named
+   * in src/main.js, so a missing one is a 404 the page's markup never mentions.
+   */
+  const refs = [...pageRefs];
+  for (const script of pageRefs.filter((ref) => ref.endsWith(".js"))) {
+    const module = await fetchBody(new URL(script, baseUrl).toString());
+    if (module.status !== 200) {
+      problems.push(`${script} returned HTTP ${module.status} - the deploy is missing a script`);
+      continue;
+    }
+    scriptAssetRefs(module.body.toString("utf8")).forEach((asset) => {
+      if (!refs.includes(asset)) refs.push(asset);
+    });
+  }
 
   /* The share card has to exist and match the size the tags promise. */
   const share = shareCardProblems(index.body.toString("utf8"));

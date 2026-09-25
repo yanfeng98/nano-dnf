@@ -18,16 +18,22 @@
   var ctx = canvas.getContext("2d");
 
   /*
-   * Art shipped in assets/: a 6x5 player frame sheet plus four skill icons.
-   * The sheet in this working copy is baked from the local DNF client by
-   * assets/import_dnf_swordman.py; assets/make_slayer_sprites.py regenerates
-   * the original licence-clean Slayer art.
+   * Art shipped in assets/: the player frame sheet, the skill icons and the
+   * baked skill effects. The sheets in this working copy are baked from the
+   * local DNF client by assets/import_dnf_swordman.py and
+   * assets/import_dnf_effects.py; assets/make_slayer_sprites.py regenerates the
+   * original licence-clean Slayer art.
+   *
+   * rift.png is the same bake's big-cell sheet: 大蹦 is drawn far larger than a
+   * 128px cell can hold, so its two rows live there instead (see EFFECT.riftRows
+   * in render.js).
    */
-  var sprites = { slayer: null, skills: null, effects: null };
+  var sprites = { slayer: null, skills: null, effects: null, rift: null };
   [
     ["slayer", "./assets/slayer.png"],
     ["skills", "./assets/skills.png"],
-    ["effects", "./assets/effects.png"]
+    ["effects", "./assets/effects.png"],
+    ["rift", "./assets/rift.png"]
   ].forEach(function (entry) {
     var image = new Image();
     image.src = entry[1];
