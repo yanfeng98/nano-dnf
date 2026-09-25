@@ -35,6 +35,54 @@
   };
 
   /*
+   * The floor, seen at an angle, in one number.
+   *
+   * `scale` is how the depth axis foreshortens: a step of `z` towards the back
+   * of the room lifts a thing this many pixels up the screen. It is the same
+   * constant that squashes every ground ellipse the renderer draws, and that is
+   * the point - the disc a radial skill hits and the ellipse drawn for it have
+   * to stay the same shape, so there must never be a second copy of this
+   * number. See docs/adr/0001-depth-axis.md.
+   *
+   * `z` is measured along the floor in the same units as `x`, and `z = 0` is
+   * the ground line. Anything that has no depth yet stands at zero, which is
+   * what keeps this axis from moving a single pixel until a slice gives it
+   * something to move.
+   */
+  var DEPTH = {
+    scale: 0.22
+  };
+
+  /** How far up the screen standing `z` deep pushes a point. */
+  function depthLift(z) {
+    return (z || 0) * DEPTH.scale;
+  }
+
+  /*
+   * The floor band: the strip of floor a room's fighters stand on, running back
+   * from the ground line to `backY`.
+   *
+   * 310 is as far back as the frame affords. The ground line is at 430 and the
+   * hotbar starts at height - 96 = 444, so the floor has fourteen pixels in
+   * front of it and has to open upwards, into the room. That makes the band
+   * 120px deep on screen - about three quarters of a Slayer-height - and a
+   * little over three and a half of them measured along the floor itself,
+   * because the depth axis is foreshortened by DEPTH.scale.
+   *
+   * A room may carry its own (`band: {backY}`): a wide hall and a corridor
+   * should not have to share a depth, and the band is what decides how far
+   * apart two things can stand and still be in reach of each other.
+   */
+  var BAND = {
+    backY: 310
+  };
+
+  /** How deep a band is, in the units `z` is measured in. */
+  function bandDepth(band) {
+    return (ARENA.groundY - (band || BAND).backY) / DEPTH.scale;
+  }
+
+  /*
    * The Slayer's real normal attack is frames 0-41 of the body img: the guard,
    * then the four cuts it is built from (the white arcs land on 4, 13, 24 and
    * 34). One press plays one cut, so the whole chain only plays out when the
@@ -971,6 +1019,8 @@
       kind: "player",
       x: x,
       y: ARENA.groundY,
+      /* Depth: 0 is the front edge of the floor, which is the ground line. */
+      z: 0,
       vx: 0,
       vy: 0,
       width: PLAYER.width,
@@ -1016,7 +1066,7 @@
     };
   }
 
-  function createEnemy(state, type, x) {
+  function createEnemy(state, type, x, z) {
     var spec = ENEMY_TYPES[type] || ENEMY_TYPES.grunt;
     var jitter = (nextRandom(state) * 2 - 1) * 14;
     return {
@@ -1025,6 +1075,13 @@
       type: type,
       x: clamp(x + jitter, ARENA.leftWall + spec.width, ARENA.rightWall - spec.width),
       y: ARENA.groundY,
+      /*
+       * A room may place a monster at a depth; without one it stands on the
+       * ground line, where every monster stood before there was a floor plane.
+       * The jitter above is drawn whether or not `z` is passed, so adding
+       * depths to a room cannot shift the deterministic stream.
+       */
+      z: z || 0,
       vx: 0,
       vy: 0,
       width: spec.width,
@@ -1145,11 +1202,20 @@
     var spec = ROOMS[layout[roomIndex]];
     state.roomIndex = roomIndex;
     state.room = { index: roomIndex, name: spec.name, total: spec.enemies.length, cleared: false };
+    /*
+     * The floor this room is fought on; a room without one gets the default
+     * band. Read-only, like the room spec it comes from: `BAND` is a module
+     * constant and one room's band object can back several rooms.
+     */
+    state.band = spec.band || BAND;
+    /* A room entry is {type, x, z?}: z is the depth it stands at. */
     state.enemies = spec.enemies.map(function (entry) {
-      return createEnemy(state, entry.type, entry.x);
+      return createEnemy(state, entry.type, entry.x, entry.z);
     });
     state.player.x = 110;
     state.player.y = ARENA.groundY;
+    /* He walks in through the door at the front of the floor, like every room before. */
+    state.player.z = 0;
     state.player.vx = 0;
     state.player.vy = 0;
     state.player.onGround = true;
@@ -1311,6 +1377,8 @@
       kind: "heal_orb",
       x: enemy.x,
       y: enemy.y - enemy.height - 18,
+      /* It falls where the body was, so it lands on the body's own floor. */
+      z: enemy.z || 0,
       vy: -180,
       radius: DROPS.orbRadius,
       value: value,
@@ -1326,6 +1394,7 @@
       kind: "blood_orb",
       x: enemy.x,
       y: enemy.y - enemy.height * 0.55,
+      z: enemy.z || 0,
       vy: 0,
       radius: BLOOD_ORB.radius,
       value: BLOOD_ORB.heal,
@@ -2011,6 +2080,12 @@
       id: state.nextProjectileId++,
       x: originX,
       y: originY,
+      /*
+       * A shot keeps the depth it was fired from for its whole flight, so the
+       * `y` tests that end it on the floor stay exactly as they were: a body's
+       * height and a body's depth are different questions.
+       */
+      z: enemy.z || 0,
       vx: (dx / length) * spec.speed,
       vy: (dy / length) * spec.speed,
       radius: spec.radius,
@@ -2563,6 +2638,10 @@
     FPS: FPS,
     DT: DT,
     ARENA: ARENA,
+    DEPTH: DEPTH,
+    depthLift: depthLift,
+    BAND: BAND,
+    bandDepth: bandDepth,
     PHYSICS: PHYSICS,
     PLAYER: PLAYER,
     ATTACK_STAGES: ATTACK_STAGES,

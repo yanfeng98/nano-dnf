@@ -769,6 +769,206 @@ test("a 900-frame scripted run keeps the world inside its invariants", () => {
   assert.equal(state.victory && state.defeat, false);
 });
 
+/** Render one frame into a recording context and hand back every call it made. */
+function renderCalls(state, meta) {
+  const calls = [];
+  const ctx = new Proxy(
+    {
+      createLinearGradient: () => ({ addColorStop() {} }),
+      createRadialGradient: () => ({ addColorStop() {} })
+    },
+    {
+      get(target, prop) {
+        if (prop in target) return target[prop];
+        target[prop] = (...args) => calls.push([String(prop), ...args]);
+        return target[prop];
+      },
+      set(target, prop, value) {
+        target[prop] = value;
+        return true;
+      }
+    }
+  );
+  Render.render(ctx, state, meta || {});
+  return calls;
+}
+
+/*
+ * Depth (docs/adr/0001-depth-axis.md).
+ *
+ * The axis is in the model from here on, but nothing has a depth of its own
+ * yet: z = 0 is the ground line, and a world with every z at zero has to come
+ * out exactly as it did before the axis existed. That is the invariant the
+ * whole five-slice plan rests on, so it is asserted rather than assumed.
+ */
+test("nothing stands off the ground line until a slice puts it there", () => {
+  const state = Core.createState({ seed: Core.DEFAULT_SEED });
+  assert.equal(state.player.z, 0, "a fresh player walks the ground line");
+  assert.ok(state.enemies.every((enemy) => enemy.z === 0), "no room asks for a depth yet");
+
+  Core.runFrames(state, 900, (frame) => ({
+    right: frame % 200 < 150,
+    left: frame % 200 >= 150,
+    jump: frame % 47 === 0,
+    attack: frame % 17 === 0,
+    skills: { bloodSword: frame % 211 === 0, mountainBreaker: frame % 173 === 0 }
+  }));
+
+  /*
+   * A tripwire, on purpose: the day a slice gives any of these a depth of its
+   * own, this fails and gets replaced by a real test of whatever it was given.
+   */
+  assert.equal(state.player.z, 0, "and still does after a fight");
+  assert.ok(state.enemies.every((enemy) => enemy.z === 0));
+  assert.ok(state.pickups.every((drop) => drop.z === 0));
+  assert.ok(state.projectiles.every((shot) => shot.z === 0));
+});
+
+test("the depth constant, the lift and the band cannot drift apart", () => {
+  /*
+   * One constant with two uses: how far a step of z draws up the screen, and
+   * how flat the floor lies under a circle. A second copy of it is the mistake
+   * this pair exists to catch - a radial skill's hit disc and the ellipse drawn
+   * for it have to be the same shape (see core.js's note on DEPTH).
+   */
+  assert.equal(Core.DEPTH.scale, 0.22);
+  assert.equal(Core.depthLift(1), Core.DEPTH.scale);
+  assert.equal(Core.depthLift(0), 0);
+  assert.equal(Core.depthLift(undefined), 0, "a body with no depth is on the front edge");
+
+  /*
+   * The band's far edge is what you see, so its depth has to land on it. The
+   * trip out is a divide by the constant and the trip back a multiply by it, so
+   * it comes home a ten-billionth of a pixel off (120.00000000000001): exact to
+   * floating point is the strongest thing a round trip through 0.22 can be, and
+   * anything that actually drifts fails this by a mile.
+   */
+  const band = Core.BAND;
+  const backEdge = Core.ARENA.groundY - band.backY;
+  assert.ok(Math.abs(Core.depthLift(Core.bandDepth(band)) - backEdge) < 1e-9);
+  assert.ok(band.backY < Core.ARENA.groundY, "the band runs back from the ground line");
+  assert.ok(band.backY > 0, "and stays inside the frame");
+
+  /* A deeper band is one two things can stand further apart on. */
+  assert.ok(Core.bandDepth({ backY: 360 }) < Core.bandDepth({ backY: 310 }));
+});
+
+test("a room can bring its own floor, and gets the default without one", () => {
+  const state = Core.createState({ seed: Core.DEFAULT_SEED });
+  state.layout = [Core.ALTERNATE_ROOM_INDEX];
+  Core.startRoom(state, 0);
+  assert.equal(state.band, Core.BAND, "a room with no floor of its own gets the default one");
+
+  const room = Core.ROOMS[Core.ALTERNATE_ROOM_INDEX];
+  const was = room.band;
+  try {
+    room.band = { backY: 350 };
+    Core.startRoom(state, 0);
+    assert.equal(state.band.backY, 350, "a room's own floor is the one it fights on");
+    assert.ok(
+      Core.bandDepth(state.band) < Core.bandDepth(Core.BAND),
+      "and a floor that stops higher up is a shallower one"
+    );
+  } finally {
+    if (was === undefined) delete room.band;
+    else room.band = was;
+  }
+});
+
+test("a room can place a monster at a depth", () => {
+  const state = Core.createState({ seed: Core.DEFAULT_SEED });
+  assert.equal(Core.createEnemy(state, "grunt", 500).z, 0, "without one it stands on the line");
+  assert.equal(Core.createEnemy(state, "grunt", 500, 240).z, 240);
+});
+
+test("a shot flies on the floor its caster stands on", () => {
+  const state = lastRoomState();
+  state.player.x = 500;
+  const caster = Core.createEnemy(state, "caster", 200, 260);
+  state.enemies = [caster];
+
+  let shot = null;
+  for (let frame = 0; frame < 60 * 5 && !shot; frame += 1) {
+    Core.step(state, {});
+    shot = state.projectiles[0] || null;
+  }
+
+  assert.ok(shot, "the caster should have fired");
+  assert.equal(shot.z, 260);
+});
+
+test("a drop lands on the floor the body fell on", () => {
+  const state = lastRoomState();
+  const brute = Core.createEnemy(state, "brute", state.player.x + 60, 300);
+  state.enemies = [brute];
+
+  Core.damageEnemy(state, brute, brute.maxHp + 1, 0, brute.x, {});
+
+  const drop = state.pickups.find((pickup) => pickup.kind === "heal_orb");
+  assert.ok(drop, "a brute always pays out");
+  assert.equal(drop.z, 300);
+});
+
+/*
+ * "Every z is zero" is the invariant, but a world where every z is zero cannot
+ * show that depth is wired up correctly - a site that never applies the lift
+ * looks perfect until the first slice gives something a depth. So this drives
+ * the same frame at two depths and reads the numbers back off the draw calls.
+ */
+test("everything placed on the floor comes up the screen by exactly the lift", () => {
+  const state = Core.createState({ seed: Core.DEFAULT_SEED });
+  const player = state.player;
+  state.enemies = [];
+  state.effects = [];
+  state.pickups = [];
+  state.projectiles = [];
+
+  const call = (calls, name, test) => calls.find((entry) => entry[0] === name && test(entry));
+
+  const flat = renderCalls(state);
+  player.z = 100;
+  const deep = renderCalls(state);
+  player.z = 0;
+
+  const lift = Core.depthLift(100);
+  assert.ok(lift > 0, "a hundred deep is a real distance");
+
+  /* His shadow is pinned to the floor, and the floor moved, not just the body. */
+  const shadow = (calls) =>
+    call(calls, "ellipse", (c) => c[1] === player.x && c[3] === player.width * 0.75)[2];
+  assert.equal(shadow(flat), Core.ARENA.groundY + 3);
+  assert.equal(shadow(deep), Core.ARENA.groundY + 3 - lift);
+
+  /* And the body itself, which is what the feet are attached to. */
+  const body = (calls) => call(calls, "translate", (c) => c[1] === player.x)[2];
+  assert.equal(body(flat), Core.ARENA.groundY);
+  assert.equal(body(deep), Core.ARENA.groundY - lift);
+
+  /* A monster, through its own shadow and its own body. */
+  const brute = Core.createEnemy(state, "brute", 500);
+  state.enemies = [brute];
+  const enemyFlat = renderCalls(state);
+  brute.z = 80;
+  const enemyDeep = renderCalls(state);
+
+  const enemyShadow = (calls) =>
+    call(calls, "ellipse", (c) => c[1] === brute.x && c[3] === brute.width * 0.62)[2];
+  const enemyBody = (calls) => call(calls, "translate", (c) => c[1] === brute.x)[2];
+  assert.equal(enemyBody(enemyFlat), Core.ARENA.groundY);
+  assert.equal(enemyBody(enemyDeep), Core.ARENA.groundY - Core.depthLift(80));
+  assert.equal(enemyShadow(enemyDeep), Core.ARENA.groundY - Core.depthLift(80) + 3);
+
+  /* And a slab, which is not a body at all: no `y`, just a patch of floor. */
+  state.enemies = [];
+  state.hazards = [{ x: 300, z: 0, radius: 60, phase: 0, stage: "dormant" }];
+  const slabFlat = renderCalls(state);
+  state.hazards[0].z = 120;
+  const slabDeep = renderCalls(state);
+  const slab = (calls) => call(calls, "translate", (c) => c[1] === 300)[2];
+  assert.equal(slab(slabFlat), Core.ARENA.groundY, "a slab with no depth lies on the ground line");
+  assert.equal(slab(slabDeep), Core.ARENA.groundY - Core.depthLift(120));
+});
+
 test("defeating enemies grants XP and levels the player up", () => {
   const state = lastRoomState();
   const first = Core.createEnemy(state, "brute", state.player.x + 60);
@@ -1164,41 +1364,18 @@ test("a timing-aware policy can clear the whole dungeon without losing health", 
 });
 
 test("renderer draws a live frame and both end-state overlays without throwing", () => {
-  const calls = [];
-  const ctx = new Proxy(
-    {
-      createLinearGradient() {
-        return { addColorStop() {} };
-      },
-      createRadialGradient() {
-        return { addColorStop() {} };
-      }
-    },
-    {
-      get(target, prop) {
-        if (prop in target) return target[prop];
-        target[prop] = (...args) => calls.push([prop, ...args]);
-        return target[prop];
-      },
-      set(target, prop, value) {
-        target[prop] = value;
-        return true;
-      }
-    }
-  );
-
   const state = Core.createState({ seed: Core.DEFAULT_SEED });
-  Render.render(ctx, state, { paused: false, showHelp: true });
-  const liveCalls = calls.length;
-  assert.ok(liveCalls > 40, `expected the renderer to draw, calls=${liveCalls}`);
+
+  const live = renderCalls(state, { paused: false, showHelp: true });
+  assert.ok(live.length > 40, `expected the renderer to draw, calls=${live.length}`);
 
   state.victory = true;
-  Render.render(ctx, state, {});
+  const won = renderCalls(state);
   state.victory = false;
   state.defeat = true;
-  Render.render(ctx, state, {});
+  const lost = renderCalls(state);
 
-  const texts = calls.filter((call) => call[0] === "fillText").map((call) => call[1]);
+  const texts = live.concat(won, lost).filter((call) => call[0] === "fillText").map((call) => call[1]);
   assert.ok(texts.includes("DUNGEON CLEARED"));
   assert.ok(texts.includes("YOU DIED"));
 });

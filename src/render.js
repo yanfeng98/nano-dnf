@@ -12,6 +12,12 @@
   "use strict";
 
   var ARENA = Core.ARENA;
+  /*
+   * The floor's foreshortening, named once so nothing else invents a second
+   * one. `DEPTH.scale` squashes the ground ellipses; `depthLift` is the same
+   * number applied to placement (see Core.DEPTH).
+   */
+  var DEPTH = Core.DEPTH;
   var PALETTE = {
     night: "#05070f",
     skyTop: "#0a1020",
@@ -23,6 +29,14 @@
     floorTop: "#2c2a44",
     floorBottom: "#120e1e",
     floorLine: "rgba(255, 214, 170, 0.08)",
+    /*
+     * The walkable strip where it meets the wall. The room is lit from the
+     * wall - the torches are on it - and the existing skirt already runs bright
+     * at the ground line down to dark at the viewer, so the band continues that
+     * one direction instead of inventing a second: lit at the wall, going dark
+     * towards the camera, with no seam where the two meet.
+     */
+    bandBack: "#3a3758",
     gold: "#e3bf72",
     goldDim: "#8c7338",
     hp: "#69e08a",
@@ -538,28 +552,52 @@
     ctx.stroke();
   }
 
+  /*
+   * Where a body's feet land on screen. Depth is the only thing that moves a
+   * point off its world `y`: standing further back on the floor draws higher up,
+   * by the one foreshortening constant. Every site that places a body or a
+   * floor effect goes through these two, so `z` stays a property of the world
+   * instead of becoming a second set of coordinates to keep in step.
+   */
+  function feetY(body) {
+    return body.y - Core.depthLift(body.z);
+  }
+
+  /** The same spot, for something that is flat on the floor and has no `y`. */
+  function floorY(z) {
+    return ARENA.groundY - Core.depthLift(z);
+  }
+
   function drawBackdrop(ctx, state) {
-    var sky = ctx.createLinearGradient(0, 0, 0, ARENA.groundY);
+    /*
+     * Built outwards from the floor band, because the band is what everything
+     * in the room is placed against: the wall stops at its far edge, and the
+     * strip in front of the ground line is a skirt nothing ever stands on.
+     */
+    var band = state.band || Core.BAND;
+    var backY = band.backY;
+
+    var sky = ctx.createLinearGradient(0, 0, 0, backY);
     sky.addColorStop(0, PALETTE.skyTop);
     sky.addColorStop(0.55, PALETTE.skyMid);
     sky.addColorStop(1, PALETTE.skyBottom);
     ctx.fillStyle = sky;
-    ctx.fillRect(0, 0, ARENA.width, ARENA.groundY);
+    ctx.fillRect(0, 0, ARENA.width, backY);
 
     /* far arches, slowly drifting */
     var drift = -((state.time * 6) % 240);
     ctx.fillStyle = PALETTE.wallFar;
-    ctx.fillRect(0, 40, ARENA.width, ARENA.groundY - 40);
+    ctx.fillRect(0, 40, ARENA.width, backY - 40);
     ctx.save();
     ctx.globalAlpha = 0.55;
     ctx.fillStyle = "#0b1120";
     for (var i = -1; i < 6; i += 1) {
       var ax = drift + i * 240;
       ctx.beginPath();
-      ctx.moveTo(ax + 30, ARENA.groundY);
+      ctx.moveTo(ax + 30, backY);
       ctx.lineTo(ax + 30, 150);
       ctx.quadraticCurveTo(ax + 90, 90, ax + 150, 150);
-      ctx.lineTo(ax + 150, ARENA.groundY);
+      ctx.lineTo(ax + 150, backY);
       ctx.closePath();
       ctx.fill();
     }
@@ -570,7 +608,7 @@
     ctx.lineWidth = 1;
     for (var row = 0; row < 9; row += 1) {
       var y = 120 + row * 38;
-      if (y > ARENA.groundY) break;
+      if (y > backY) break;
       ctx.beginPath();
       ctx.moveTo(0, y);
       ctx.lineTo(ARENA.width, y);
@@ -602,7 +640,32 @@
       ctx.fill();
     });
 
-    /* floor */
+    /* The band: the floor they walk on, running back to the wall. */
+    var recede = ctx.createLinearGradient(0, backY, 0, ARENA.groundY);
+    recede.addColorStop(0, PALETTE.bandBack);
+    recede.addColorStop(1, PALETTE.floorTop);
+    ctx.fillStyle = recede;
+    ctx.fillRect(0, backY, ARENA.width, ARENA.groundY - backY);
+    /*
+     * Board seams placed by the square of how far back they are, so the gaps
+     * open up towards the viewer. Even spacing is the one thing that would make
+     * this strip read as a wall with lines drawn on it instead of a floor going
+     * away from the camera, and it is the whole of the depth cue a 12.7-degree
+     * camera gets: the projection has no horizontal convergence to offer.
+     */
+    ctx.strokeStyle = PALETTE.floorLine;
+    ctx.lineWidth = 1;
+    var seams = 5;
+    for (var seam = 0; seam <= seams; seam += 1) {
+      var far = seam / seams;
+      var seamY = backY + (ARENA.groundY - backY) * far * far;
+      ctx.beginPath();
+      ctx.moveTo(0, seamY);
+      ctx.lineTo(ARENA.width, seamY);
+      ctx.stroke();
+    }
+
+    /* the skirt: floor in front of the band, which nothing is ever placed on */
     var floor = ctx.createLinearGradient(0, ARENA.groundY, 0, ARENA.height);
     floor.addColorStop(0, PALETTE.floorTop);
     floor.addColorStop(1, PALETTE.floorBottom);
@@ -617,6 +680,7 @@
       ctx.lineTo(ARENA.width, ly);
       ctx.stroke();
     }
+    /* The front edge of the band: the one line everyone's feet stand on. */
     ctx.fillStyle = "rgba(255, 214, 170, 0.16)";
     ctx.fillRect(0, ARENA.groundY, ARENA.width, 2);
   }
@@ -641,12 +705,12 @@
     (state.hazards || []).forEach(function (hazard) {
       var stage = hazard.stage || "dormant";
       ctx.save();
-      ctx.translate(hazard.x, ARENA.groundY);
+      ctx.translate(hazard.x, floorY(hazard.z));
       ctx.strokeStyle =
         stage === "dormant" ? "rgba(120, 150, 190, 0.34)" : "rgba(255, 152, 110, 0.9)";
       ctx.lineWidth = stage === "collapsing" ? 3.5 : 2;
       ctx.beginPath();
-      ctx.ellipse(0, 0, hazard.radius, hazard.radius * 0.22, 0, 0, Math.PI * 2);
+      ctx.ellipse(0, 0, hazard.radius, hazard.radius * DEPTH.scale, 0, 0, Math.PI * 2);
       ctx.stroke();
       ctx.beginPath();
       ctx.moveTo(-hazard.radius * 0.62, -2);
@@ -831,7 +895,7 @@
     var bodyW = player.width;
     var bodyH = player.height;
     ctx.save();
-    ctx.translate(player.x, player.y);
+    ctx.translate(player.x, feetY(player));
     if (player.facing < 0) ctx.scale(-1, 1);
     var fallbackSwing = player.attackDuration || Core.PLAYER.attackDuration;
     var swing = player.attackTimer > 0 ? 1 - player.attackTimer / fallbackSwing : 0;
@@ -896,7 +960,7 @@
     ctx.save();
     ctx.fillStyle = "rgba(0,0,0,0.34)";
     ctx.beginPath();
-    ctx.ellipse(player.x, ARENA.groundY + 3, shadowW, 6, 0, 0, Math.PI * 2);
+    ctx.ellipse(player.x, floorY(player.z) + 3, shadowW, 6, 0, 0, Math.PI * 2);
     ctx.fill();
     ctx.restore();
 
@@ -920,7 +984,7 @@
     var body = raging && ragingSheet(image) ? ragingSheet(image) : image;
     /* A hurt flash outranks the stance's own lift. */
     if (raging && player.hurtTimer <= 0 && "filter" in ctx) ctx.filter = "saturate(1.2)";
-    drawSpriteFrame(ctx, body, frame.col, frame.row, player.x, player.y, player.facing < 0);
+    drawSpriteFrame(ctx, body, frame.col, frame.row, player.x, feetY(player), player.facing < 0);
     ctx.restore();
     if (raging) drawStanceBadge(ctx, state, sprites);
   }
@@ -950,7 +1014,7 @@
   function drawRage(ctx, state, player) {
     var pulse = 0.86 + 0.14 * Math.sin(state.time * 9);
     var cx = player.x;
-    var cy = player.y - player.height * 0.5;
+    var cy = feetY(player) - player.height * 0.5;
     var radius = player.height * 0.95 * pulse;
     ctx.save();
     var glow = ctx.createRadialGradient(cx, cy, 2, cx, cy, radius);
@@ -968,7 +1032,7 @@
       var t = (state.time * 0.9 + drop / 3) % 1;
       var dx = Math.sin((state.time + drop) * 4) * 10;
       ctx.beginPath();
-      ctx.arc(cx + dx, player.y - player.height * (1 - t) - 6, 2.6 - 1.4 * t, 0, Math.PI * 2);
+      ctx.arc(cx + dx, feetY(player) - player.height * (1 - t) - 6, 2.6 - 1.4 * t, 0, Math.PI * 2);
       ctx.fill();
     }
     ctx.restore();
@@ -982,7 +1046,7 @@
     var player = state.player;
     var size = 22;
     var x = player.x - size / 2;
-    var y = player.y - player.height - 42;
+    var y = feetY(player) - player.height - 42;
     ctx.save();
     roundRect(ctx, x - 3, y - 3, size + 6, size + 6, 6);
     ctx.fillStyle = "rgba(10, 12, 22, 0.72)";
@@ -1015,7 +1079,7 @@
     ctx.save();
     ctx.fillStyle = "rgba(0,0,0,0.35)";
     ctx.beginPath();
-    ctx.ellipse(enemy.x, enemy.y + 3, w * 0.62, 6, 0, 0, Math.PI * 2);
+    ctx.ellipse(enemy.x, feetY(enemy) + 3, w * 0.62, 6, 0, 0, Math.PI * 2);
     ctx.fill();
 
     /* Second-phase tell: a pulsing blood ring so the enrage reads at a glance. */
@@ -1025,12 +1089,12 @@
       ctx.strokeStyle = "rgba(255, 82, 108, 0.95)";
       ctx.lineWidth = 3;
       ctx.beginPath();
-      ctx.arc(enemy.x, enemy.y - h * 0.5, w * 0.95, 0, Math.PI * 2);
+      ctx.arc(enemy.x, feetY(enemy) - h * 0.5, w * 0.95, 0, Math.PI * 2);
       ctx.stroke();
       ctx.restore();
     }
 
-    ctx.translate(enemy.x, enemy.y);
+    ctx.translate(enemy.x, feetY(enemy));
     if (enemy.facing > 0) ctx.scale(-1, 1);
 
     if (enemy.hurtTimer > 0 && "filter" in ctx) ctx.filter = "brightness(1.9)";
@@ -1113,12 +1177,12 @@
       ctx.strokeStyle = "rgba(255, 226, 160, 0.92)";
       ctx.lineWidth = 4;
       ctx.beginPath();
-      ctx.arc(enemy.x, enemy.y - h * 0.45, spinRadius, spinArc, spinArc + Math.PI * 1.2);
+      ctx.arc(enemy.x, feetY(enemy) -h * 0.45, spinRadius, spinArc, spinArc + Math.PI * 1.2);
       ctx.stroke();
       ctx.beginPath();
       ctx.arc(
         enemy.x,
-        enemy.y - h * 0.45,
+        feetY(enemy) -h * 0.45,
         spinRadius,
         spinArc + Math.PI,
         spinArc + Math.PI * 2.2
@@ -1140,7 +1204,7 @@
       ctx.strokeStyle = "rgba(255, 120, 120, 0.85)";
       ctx.lineWidth = 2.5;
       ctx.beginPath();
-      ctx.arc(enemy.x, enemy.y - h * 0.55, radius * (0.35 + windup * 0.65), 0, Math.PI * 2);
+      ctx.arc(enemy.x, feetY(enemy) -h * 0.55, radius * (0.35 + windup * 0.65), 0, Math.PI * 2);
       ctx.stroke();
       ctx.restore();
     }
@@ -1150,10 +1214,10 @@
       var ratio = Math.max(0, enemy.hp / enemy.maxHp);
       ctx.save();
       ctx.fillStyle = "rgba(0,0,0,0.62)";
-      roundRect(ctx, enemy.x - barW / 2, enemy.y - h - 18, barW, 6, 3);
+      roundRect(ctx, enemy.x - barW / 2, feetY(enemy) -h - 18, barW, 6, 3);
       ctx.fill();
       ctx.fillStyle = enemy.type === "boss" ? PALETTE.danger : "#ff9d5c";
-      roundRect(ctx, enemy.x - barW / 2 + 1, enemy.y - h - 17, (barW - 2) * ratio, 4, 2);
+      roundRect(ctx, enemy.x - barW / 2 + 1, feetY(enemy) -h - 17, (barW - 2) * ratio, 4, 2);
       ctx.fill();
       ctx.restore();
     }
@@ -1167,7 +1231,7 @@
         ctx.beginPath();
         ctx.ellipse(
           enemy.x - 10 + drop * 10,
-          enemy.y - enemy.height - 26 + wobble,
+          feetY(enemy) -enemy.height - 26 + wobble,
           2.6,
           4,
           0,
@@ -1184,7 +1248,7 @@
       ctx.strokeStyle = "rgba(255, 226, 160, 0.9)";
       ctx.lineWidth = 2.4;
       ctx.beginPath();
-      ctx.arc(enemy.x, enemy.y - 6, enemy.width * 0.9, 0.15 * Math.PI, 0.85 * Math.PI);
+      ctx.arc(enemy.x, feetY(enemy) -6, enemy.width * 0.9, 0.15 * Math.PI, 0.85 * Math.PI);
       ctx.stroke();
       ctx.restore();
     }
@@ -1198,7 +1262,7 @@
         ctx.beginPath();
         ctx.arc(
           enemy.x + Math.cos(angle) * 12,
-          enemy.y - enemy.height - 22 + Math.sin(angle) * 5,
+          feetY(enemy) -enemy.height - 22 + Math.sin(angle) * 5,
           3,
           0,
           Math.PI * 2
@@ -1213,16 +1277,16 @@
     (state.projectiles || []).forEach(function (shot) {
       var pulse = 0.85 + 0.15 * Math.sin(state.time * 24 + shot.x);
       ctx.save();
-      var glow = ctx.createRadialGradient(shot.x, shot.y, 1, shot.x, shot.y, shot.radius * 3.2 * pulse);
+      var glow = ctx.createRadialGradient(shot.x, feetY(shot), 1, shot.x, feetY(shot), shot.radius * 3.2 * pulse);
       glow.addColorStop(0, "rgba(255, 214, 150, 0.85)");
       glow.addColorStop(1, "rgba(255, 140, 60, 0)");
       ctx.fillStyle = glow;
       ctx.beginPath();
-      ctx.arc(shot.x, shot.y, shot.radius * 3.2 * pulse, 0, Math.PI * 2);
+      ctx.arc(shot.x, feetY(shot), shot.radius * 3.2 * pulse, 0, Math.PI * 2);
       ctx.fill();
       ctx.fillStyle = "#fff0cf";
       ctx.beginPath();
-      ctx.arc(shot.x, shot.y, shot.radius * 0.7, 0, Math.PI * 2);
+      ctx.arc(shot.x, feetY(shot), shot.radius * 0.7, 0, Math.PI * 2);
       ctx.fill();
       ctx.restore();
     });
@@ -1295,7 +1359,7 @@
      * in the air for the first half of the window. On the ground the two are the
      * same point, so this only changes the airborne half.
      */
-    var baseY = draw.ground ? Core.ARENA.groundY : caster.y;
+    var baseY = (draw.ground ? Core.ARENA.groundY : caster.y) - Core.depthLift(caster.z);
 
     ctx.save();
     ctx.translate(caster.x + caster.facing * reach, baseY + draw.dy);
@@ -1396,7 +1460,7 @@
     var size = draw.size * 0.9;
 
     ctx.save();
-    ctx.translate(player.x + player.facing * draw.dx * 0.55, player.y + draw.dy * 0.55);
+    ctx.translate(player.x + player.facing * draw.dx * 0.55, feetY(player) + draw.dy * 0.55);
     ctx.scale(player.facing, 1);
     ctx.globalAlpha = 1 - Math.max(0, (local - 0.7) / 0.3) * 0.6;
     ctx.imageSmoothingEnabled = true;
@@ -1433,7 +1497,7 @@
     var column = Math.min(frames - 1, Math.floor(local * frames));
     var size = 150;
     ctx.save();
-    ctx.translate(player.x + player.facing * 26, player.y - player.height * 0.35);
+    ctx.translate(player.x + player.facing * 26, feetY(player) - player.height * 0.35);
     ctx.scale(player.facing, 1);
     ctx.rotate(Math.PI * 0.5);
     ctx.globalAlpha = 1 - Math.max(0, (local - 0.7) / 0.3) * 0.7;
@@ -1461,20 +1525,20 @@
       var pulse = 0.8 + 0.2 * Math.sin(state.time * 8 + drop.x);
       ctx.save();
       ctx.globalAlpha = drop.life < 2 ? Math.max(0.25, drop.life / 2) : 1;
-      var glow = ctx.createRadialGradient(drop.x, drop.y, 1, drop.x, drop.y, drop.radius * 3 * pulse);
+      var glow = ctx.createRadialGradient(drop.x, feetY(drop), 1, drop.x, feetY(drop), drop.radius * 3 * pulse);
       glow.addColorStop(0, "rgba(150, 255, 180, 0.6)");
       glow.addColorStop(1, "rgba(90, 220, 140, 0)");
       ctx.fillStyle = glow;
       ctx.beginPath();
-      ctx.arc(drop.x, drop.y, drop.radius * 3 * pulse, 0, Math.PI * 2);
+      ctx.arc(drop.x, feetY(drop), drop.radius * 3 * pulse, 0, Math.PI * 2);
       ctx.fill();
       ctx.fillStyle = "#8dffb0";
       ctx.beginPath();
-      ctx.arc(drop.x, drop.y, drop.radius, 0, Math.PI * 2);
+      ctx.arc(drop.x, feetY(drop), drop.radius, 0, Math.PI * 2);
       ctx.fill();
       ctx.fillStyle = "rgba(255,255,255,0.85)";
       ctx.beginPath();
-      ctx.arc(drop.x - drop.radius / 3, drop.y - drop.radius / 3, drop.radius / 3, 0, Math.PI * 2);
+      ctx.arc(drop.x - drop.radius / 3, feetY(drop) - drop.radius / 3, drop.radius / 3, 0, Math.PI * 2);
       ctx.fill();
       ctx.restore();
     });
@@ -1491,13 +1555,13 @@
     ctx.save();
     ctx.globalAlpha = drop.life < 0.35 ? Math.max(0.2, drop.life / 0.35) : 1;
     var radius = drop.radius * 3.2 * pulse;
-    var glow = ctx.createRadialGradient(drop.x, drop.y, 1, drop.x, drop.y, radius);
+    var glow = ctx.createRadialGradient(drop.x, feetY(drop), 1, drop.x, feetY(drop), radius);
     glow.addColorStop(0, "rgba(255, 74, 96, 0.8)");
     glow.addColorStop(0.55, "rgba(206, 22, 46, 0.45)");
     glow.addColorStop(1, "rgba(150, 8, 26, 0)");
     ctx.fillStyle = glow;
     ctx.beginPath();
-    ctx.arc(drop.x, drop.y, radius, 0, Math.PI * 2);
+    ctx.arc(drop.x, feetY(drop), radius, 0, Math.PI * 2);
     ctx.fill();
     if (sprites && sprites.effects && sprites.effects.width) {
       var frames = EFFECT.orbFrames;
@@ -1511,14 +1575,14 @@
         EFFECT.cell,
         EFFECT.cell,
         drop.x - size / 2,
-        drop.y - size / 2,
+        feetY(drop) - size / 2,
         size,
         size
       );
     } else {
       ctx.fillStyle = "#e5233c";
       ctx.beginPath();
-      ctx.arc(drop.x, drop.y, drop.radius, 0, Math.PI * 2);
+      ctx.arc(drop.x, feetY(drop), drop.radius, 0, Math.PI * 2);
       ctx.fill();
     }
     ctx.restore();
@@ -1526,6 +1590,14 @@
 
   function drawEffect(ctx, state, effect, bannerOrdinal) {
     var alpha = clamp01(effect.life / effect.maxLife);
+    /*
+     * An effect's own depth, for the kinds that live on the floor. The banner
+     * reads it too but never uses it: it is placed against the frame, not the
+     * room. Damage numbers ride their target's depth, baked in when they were
+     * spawned, so a hit lands over the body that took it and not over the line
+     * the body used to stand on.
+     */
+    var ey = feetY(effect);
     if (effect.kind === "damage") {
       var rise = (1 - alpha) * 28;
       ctx.save();
@@ -1534,9 +1606,9 @@
       ctx.textAlign = "center";
       ctx.lineWidth = 3;
       ctx.strokeStyle = "rgba(12, 14, 24, 0.9)";
-      ctx.strokeText(effect.text, effect.x, effect.y - rise);
+      ctx.strokeText(effect.text, effect.x, ey - rise);
       ctx.fillStyle = "#ffe08a";
-      ctx.fillText(effect.text, effect.x, effect.y - rise);
+      ctx.fillText(effect.text, effect.x, ey - rise);
       ctx.restore();
     } else if (effect.kind === "heal") {
       ctx.save();
@@ -1545,9 +1617,9 @@
       ctx.textAlign = "center";
       ctx.lineWidth = 3;
       ctx.strokeStyle = "rgba(12, 24, 16, 0.9)";
-      ctx.strokeText(effect.text, effect.x, effect.y - (1 - alpha) * 26);
+      ctx.strokeText(effect.text, effect.x, ey - (1 - alpha) * 26);
       ctx.fillStyle = "#8dffb0";
-      ctx.fillText(effect.text, effect.x, effect.y - (1 - alpha) * 26);
+      ctx.fillText(effect.text, effect.x, ey - (1 - alpha) * 26);
       ctx.restore();
     } else if (effect.kind === "banner") {
       /*
@@ -1580,13 +1652,13 @@
       ctx.lineWidth = 2;
       if (effect.radius > 0) {
         ctx.beginPath();
-        ctx.ellipse(effect.x, effect.y, effect.radius, effect.radius * 0.22, 0, 0, Math.PI * 2);
+        ctx.ellipse(effect.x, ey, effect.radius, effect.radius * DEPTH.scale, 0, 0, Math.PI * 2);
         ctx.stroke();
       }
       if (effect.dir) {
         ctx.beginPath();
-        ctx.moveTo(effect.x, effect.y);
-        ctx.lineTo(effect.x + effect.dir * effect.radius, effect.y);
+        ctx.moveTo(effect.x, ey);
+        ctx.lineTo(effect.x + effect.dir * effect.radius, ey);
         ctx.stroke();
       }
       if (effect.text) {
@@ -1594,7 +1666,7 @@
         ctx.fillStyle = "#ffd2c4";
         ctx.font = "600 13px 'PingFang SC', 'Segoe UI', sans-serif";
         ctx.textAlign = "center";
-        ctx.fillText(effect.text, effect.x, effect.y - 10);
+        ctx.fillText(effect.text, effect.x, ey - 10);
       }
       ctx.restore();
     } else if (effect.kind === "shockwave" && effect.arc !== false) {
@@ -1605,9 +1677,9 @@
       ctx.beginPath();
       ctx.ellipse(
         effect.x,
-        effect.y,
+        ey,
         effect.radius * (1.15 - alpha * 0.35),
-        effect.radius * 0.22 * (1.15 - alpha * 0.35),
+        effect.radius * DEPTH.scale * (1.15 - alpha * 0.35),
         0,
         0,
         Math.PI * 2
@@ -1620,7 +1692,7 @@
       ctx.strokeStyle = PALETTE.ghost;
       ctx.lineWidth = 9;
       ctx.beginPath();
-      ctx.arc(effect.x, effect.y, effect.radius, -0.95, 0.95);
+      ctx.arc(effect.x, ey, effect.radius, -0.95, 0.95);
       ctx.stroke();
       ctx.restore();
     } else if (effect.kind === "collapse") {
@@ -1630,14 +1702,14 @@
       ctx.globalAlpha = Math.min(1, alpha * 1.2);
       ctx.fillStyle = "rgba(38, 30, 34, 0.72)";
       ctx.beginPath();
-      ctx.ellipse(effect.x, effect.y, effect.radius * 0.96, effect.radius * 0.22, 0, 0, Math.PI * 2);
+      ctx.ellipse(effect.x, ey, effect.radius * 0.96, effect.radius * DEPTH.scale, 0, 0, Math.PI * 2);
       ctx.fill();
       ctx.strokeStyle = "rgba(255, 168, 120, 0.75)";
       ctx.lineWidth = 2.5;
       ctx.beginPath();
       ctx.ellipse(
         effect.x,
-        effect.y,
+        ey,
         effect.radius * (0.9 + fall * 0.5),
         effect.radius * 0.2 * (0.9 + fall * 0.5),
         0,
@@ -1649,7 +1721,7 @@
       for (var grit = 0; grit < 6; grit += 1) {
         var spread = (grit / 5 - 0.5) * effect.radius * 1.4;
         var lift = fall * (26 + (grit % 3) * 12);
-        ctx.fillRect(effect.x + spread, effect.y - lift, 3, 5);
+        ctx.fillRect(effect.x + spread, ey - lift, 3, 5);
       }
       ctx.restore();
     }
@@ -1666,8 +1738,8 @@
         var inner = 6 + spark * 16;
         var outer = inner + 7;
         ctx.beginPath();
-        ctx.moveTo(effect.x + Math.cos(angle) * inner, effect.y + Math.sin(angle) * inner);
-        ctx.lineTo(effect.x + Math.cos(angle) * outer, effect.y + Math.sin(angle) * outer);
+        ctx.moveTo(effect.x + Math.cos(angle) * inner, ey + Math.sin(angle) * inner);
+        ctx.lineTo(effect.x + Math.cos(angle) * outer, ey + Math.sin(angle) * outer);
         ctx.stroke();
       }
       ctx.restore();
