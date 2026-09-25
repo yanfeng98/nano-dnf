@@ -303,7 +303,7 @@ PICKS = {
     # that come up at his own feet. The rest of the fire and the blood sword are
     # FRONT_ROWS below, baked to this same window.
     "mountainRift": {"palette": "", "pack": "_outragebreak", "anchor": (382, 281),
-                     "length": 45, "window": (120, -140, 960, 420), "stages": [
+                     "length": 45, "window": (120, -200, 960, 480), "stages": [
         # The pack ships the broken floor as three things, and the reference
         # wants all three: f0 is the dark plate field itself (mean 57,48,44 - it
         # keeps the pack's own grey), f1 is the seams through it, f2-f6 is the
@@ -334,7 +334,8 @@ PICKS = {
         # what this did - showed the first ninth of the web through the quiet
         # stretch and only reached the finished web on the cast's last frame.
         {"entry": "outragebreak_floor.img", "ramp": FLOOR_RAMP, "frames": (7, 10), "scale": 0.98, "offset": (170, 27), "from": 0.265, "until": 0.33},
-        {"entry": "outragebreak_floor.img", "ramp": FLOOR_RAMP, "frames": (10, 10), "scale": 0.98, "offset": (170, 27), "from": 0.33, "until": 1.00},
+        {"entry": "outragebreak_floor.img", "ramp": FLOOR_RAMP, "frames": (10, 10), "scale": 0.98, "offset": (170, 27), "from": 0.33, "until": 0.84},
+        {"entry": "outragebreak_floor.img", "ramp": FLOOR_RAMP, "frames": (10, 10), "scale": 1.24, "offset": (170, 27), "from": 0.84, "until": 1.00},
         # Rock thrown up by the slam and by the second eruption. `part` has no
         # colour board of its own and its frames sit at the pack's origin (the
         # client scatters it as a particle), so it keeps the plain art and each
@@ -380,7 +381,7 @@ EXTRA_ROWS = [
 FRONT_ROWS = [
     ("mountainRiftFire", {"palette": "", "pack": "_outragebreak",
                           "match": "mountainRift", "length": 45,
-                          "window": (120, -140, 960, 420), "stages": [
+                          "window": (120, -200, 960, 480), "stages": [
         # The blood sword 举剑 carries - the owner reads the move as 先举剑 and
         # points at the client's own body frames 123-124 for it, and the
         # reference shows a flame blade standing off the raised hands (its
@@ -399,7 +400,7 @@ FRONT_ROWS = [
         # entry's own bottom centre: the wisp's is (174, 284) once it has grown,
         # the burst's (299, 284).
         {"entry": "outragebreak_bloodsword_none.img", "ramp": FIRE_RAMP, "scale": 1.84,
-         "offset": (248, -130), "frames": (0, 12), "from": 0.00, "until": 0.28},
+         "offset": (248, 12), "frames": (0, 12), "from": 0.00, "until": 0.28},
         {"entry": "outragebreak_bloodsword_none.img", "ramp": FIRE_RAMP, "scale": 2.00,
          "offset": (253, 16), "frames": (13, 19), "from": 0.28, "until": 0.37},
         # The pack's soft disc and its starburst, not a flame, so they stay a
@@ -407,7 +408,7 @@ FRONT_ROWS = [
         # first wave. Both are the pack's glow, whose bottom centre is (482, 353)
         # - the same place, so the flash and the core do not jump.
         {"entry": "outragebreak_bloodsexp_glow.img", "ramp": FIRE_RAMP, "frames": (1, 1),
-         "scale": 0.55, "offset": (70, -44), "from": 0.27, "until": 0.34},
+         "scale": 0.14, "offset": (70, -44), "from": 0.27, "until": 0.34},
         {"entry": "outragebreak_bloodsexp_glow.img", "ramp": FIRE_RAMP, "frames": (0, 0),
          "scale": 0.50, "offset": (70, -44), "from": 0.29, "until": 0.44},
         # The fire is *a rank of pillars standing along the gash*, not a ring
@@ -471,25 +472,25 @@ FRONT_ROWS = [
         #    draws it, which is what turns a rank of bushes into a rank of
         #    tongues with the reference's thin dark gaps between them.
         {"entry": "outragebreak_bloodsexp_2_none.img", "ramp": FIRE_RAMP, "scale": 1.75, "stretch": (0.55, 1.0),
-         "offset": (-32, -12), "from": 0.55, "until": 0.90},
+         "offset": (-32, -12), "from": 0.55, "until": 0.84},
         {"entry": "outragebreak_bloodsexp_2_none.img", "ramp": FIRE_RAMP, "scale": 1.95, "stretch": (0.55, 1.0),
-         "offset": (28, 42), "from": 0.54, "until": 0.91},
+         "offset": (28, 42), "from": 0.54, "until": 0.84},
         {"entry": "outragebreak_bloodsexp_2_none.img", "ramp": FIRE_RAMP, "scale": 2.05, "stretch": (0.55, 1.0),
-         "offset": (88, 12), "from": 0.54, "until": 0.91},
+         "offset": (88, 12), "from": 0.54, "until": 0.84},
         {"entry": "outragebreak_bloodsexp_2_none.img", "ramp": FIRE_RAMP, "scale": 1.90, "stretch": (0.55, 1.0),
-         "offset": (148, 62), "from": 0.55, "until": 0.90},
+         "offset": (148, 62), "from": 0.55, "until": 0.84},
         {"entry": "outragebreak_bloodsexp_2_none.img", "ramp": FIRE_RAMP, "scale": 1.65, "stretch": (0.55, 1.0),
-         "offset": (203, 24), "from": 0.56, "until": 0.90},
+         "offset": (203, 24), "from": 0.56, "until": 0.84},
         # The base of the rank: the bush stretched wide and pressed down, so the
         # three of them overlap into the one lit sheet of fire the reference's
         # tongues stand in (at 0.18 of a Slayer above his feet that sheet runs
         # 2.1 of his heights unbroken).
         {"entry": "outragebreak_bloodsexp_1_none.img", "ramp": FIRE_RAMP, "scale": 1.30, "stretch": (1.60, 0.75),
-         "offset": (53, -34), "from": 0.55, "until": 0.90},
+         "offset": (53, -34), "from": 0.55, "until": 0.82},
         {"entry": "outragebreak_bloodsexp_1_none.img", "ramp": FIRE_RAMP, "scale": 1.30, "stretch": (1.60, 0.75),
-         "offset": (163, -11), "from": 0.55, "until": 0.90},
+         "offset": (163, -11), "from": 0.55, "until": 0.82},
         {"entry": "outragebreak_bloodsexp_1_none.img", "ramp": FIRE_RAMP, "scale": 1.30, "stretch": (1.60, 0.75),
-         "offset": (263, 12), "from": 0.56, "until": 0.89},
+         "offset": (263, 12), "from": 0.56, "until": 0.82},
         # The two hot cores, drawn last so they read through the tongues the way
         # the reference's white-yellow base does.
         {"entry": "outragebreak_bloodsexp_glow.img", "ramp": FIRE_RAMP, "frames": (0, 0),
@@ -500,11 +501,11 @@ FRONT_ROWS = [
         # embers rather than fire, so the row ends on the lit rift the way the
         # reference does (its last thirty frames are cracks and glow).
         {"entry": "outragebreak_bloodsexp_1_none.img", "ramp": FIRE_RAMP, "frames": (5, 6),
-         "scale": 1.30, "offset": (48, -28), "from": 0.88, "until": 1.00},
+         "scale": 0.78, "offset": (48, -28), "from": 0.82, "until": 1.00},
         {"entry": "outragebreak_bloodsexp_1_none.img", "ramp": FIRE_RAMP, "frames": (5, 6),
-         "scale": 1.20, "offset": (168, -14), "from": 0.90, "until": 1.00},
+         "scale": 0.76, "offset": (168, -14), "from": 0.83, "until": 1.00},
         {"entry": "outragebreak_bloodsexp_1_none.img", "ramp": FIRE_RAMP, "frames": (5, 6),
-         "scale": 1.15, "offset": (293, 1), "from": 0.91, "until": 1.00},
+         "scale": 0.75, "offset": (293, 1), "from": 0.84, "until": 1.00},
     ]}),
 ]
 

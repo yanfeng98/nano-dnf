@@ -63,6 +63,18 @@
     cols: 42,
     anchorX: 88,
     anchorY: 156,
+    /*
+     * The height he is actually drawn at, which is *not* anchorY. anchorY is
+     * where his feet sit in the cell; the art above it is headroom the cell
+     * reserves for the widest swing in the sheet. This is the art that is there:
+     * the idle row's own bounding box (rows 74..157 of the frame). It is the
+     * unit reference measurements are normalised against - "how many Slayers
+     * tall is that flame" - so it is pinned by a test to the sheet, because it
+     * is a fact about the PNG and not a number anyone should be free to edit.
+     * Core.SLAYER_HEIGHT (156) is the other height, and it is a different thing:
+     * that one measures the cell between the feet and the anchor.
+     */
+    bodyHeight: 84,
     rows: { idle: 0, run: 1, attack: 2, skill: 3, extras: 4, clips: 5, clips2: 6 },
     /* Frames the renderer actually plays per row; the rest of the row is spare art.
        The stand is a four-frame breath off the client's "still" frames, the attack
@@ -415,15 +427,17 @@
      * strength until the fire is actually going out (the reference's last three
      * frames) and only then drops.
      *
-     * The floor is what the row has come down to by the last frame, and 大蹦's
-     * is high because its ground outlives the cast: the reference's own ground
+     * The floor is what the row has come down to by the last frame, and 大蹦's is
+     * nearly full: its ground outlives the cast - the reference's own ground
      * measures (86,26,18) on its last frames against (117,49,38) at the quiet
-     * stretch - it is still three quarters as bright when he is on his feet -
+     * stretch, and that is its *brightness* while the lit web is at its widest -
      * and the rift is handed to a field at that moment (see Core's spawnField),
      * so a low floor here is a rift that arrives dim and fades out from there.
+     * It was 0.75, which read as the web going out; holding it near full and
+     * keeping the fade on the last eighth is what the reference's own outro does.
      */
     fade: {
-      mountainRift: { from: 0.92, to: 1, floor: 0.75 }
+      mountainRift: { from: 0.92, to: 1, floor: 0.95 }
     }
   };
 

@@ -997,13 +997,32 @@ test("a monster's floor marks carry the monster's own depth", () => {
  * makes your own swing miss, which is what keeps the standoff a standoff rather
  * than a place to farm from.
  */
-test("the Slayer's height is one number, not two", () => {
+test("the Slayer has two heights, and the sheet is the judge of both", () => {
   /*
-   * `SLAYER_HEIGHT` is the unit every reach in the game is written in, and the
-   * sheet's ground anchor is the same distance seen from the asset side. Two
-   * copies of it would mean a reach that drifts every time the art is re-baked.
+   * 格 (the reach unit) is the cell: `SLAYER_HEIGHT` is `SPRITE.anchorY` seen
+   * from the physics side, and two copies of it would mean a reach that drifts
+   * every time the art is re-baked.
    */
   assert.equal(Core.SLAYER_HEIGHT, Render.SPRITE.anchorY);
+
+  /*
+   * 身位 (the art unit) is the *man*: how tall he is actually drawn. It is what
+   * reference measurements are normalised against, so it is a fact about the
+   * PNG rather than a number anyone may edit - it is read back off the idle
+   * row here. The two are different numbers by design: the cell reserves
+   * headroom above his head for the widest swing in the sheet, and reading a
+   * flame's height in the wrong one is off by that headroom.
+   */
+  const sheet = decodeRgbaPng(path.join(__dirname, "..", "assets", "slayer.png"));
+  let top = Infinity;
+  let bottom = -Infinity;
+  for (let col = 0; col < Render.SPRITE.frames.idle; col += 1) {
+    const box = cellAlphaBox(sheet, col, Render.SPRITE.rows.idle);
+    top = Math.min(top, box.y0);
+    bottom = Math.max(bottom, box.y1);
+  }
+  assert.equal(bottom - top + 1, Render.SPRITE.bodyHeight, "身位 is the idle frame's own height");
+  assert.ok(Render.SPRITE.bodyHeight < Render.SPRITE.anchorY, "身位 is shorter than 格: the cell has headroom");
 });
 
 test("a reach is a band either side of the row you are standing on", () => {
@@ -3313,9 +3332,28 @@ test("大蹦 plays in stages, not all at once", () => {
    * reference's 2.32.
    */
   const floorStages = back.filter((stage) => stage.entry.includes("floor"));
-  const web = floorStages.find((stage) => stage.first === 10 && stage.first === stage.last);
-  assert.ok(web, "the finished lit web is drawn at all");
-  assert.ok(web.from <= 0.4 && web.until >= 0.99, "and held from the split to the end");
+  const webStages = floorStages
+    .filter((stage) => stage.first === 10 && stage.first === stage.last)
+    .sort((a, b) => a.from - b.from);
+  assert.ok(webStages.length >= 1, "the finished lit web is drawn at all");
+  /*
+   * Held from the split to the end *without a gap*. It was one stage; it is two
+   * now, because the reference's web spreads as its fire dies - it is at its
+   * widest on the clip's last frames, not at the lull - so the held web hands
+   * over to a wider copy instead of sitting at one width and fading out. The
+   * property worth pinning is the coverage, not the stage count.
+   */
+  for (let i = 1; i < webStages.length; i += 1) {
+    assert.ok(webStages[i].from <= webStages[i - 1].until, "the held web has no gap in it");
+  }
+  assert.ok(
+    webStages[0].from <= 0.4 && webStages[webStages.length - 1].until >= 0.99,
+    "and held from the split to the end"
+  );
+  assert.ok(
+    webStages[webStages.length - 1].scale > webStages[0].scale,
+    "and spreads as the fire dies, the way the reference's does"
+  );
   assert.ok(
     floorStages.some((stage) => stage.first === 7 && stage.last > stage.first),
     "and it spreads in the frames right after the landing, rather than crawling"

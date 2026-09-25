@@ -140,6 +140,13 @@
      * own fire already pretended to have: slice 54 staggered its 12 tongues by
      * ±26 client px to read as "a patch on the ground plane", and ±26px of
      * screen is ±118 z.
+     *
+     * Slice 60 tried to derive this from the picture instead - the gash's own
+     * ellipse read as a circle seen at the client's camera - and had to withdraw
+     * it: three of the pack's floor pools, all circles in the game, measure
+     * squashes of 0.295, 0.426 and 0.581, so an art's aspect says nothing about
+     * the camera it was drawn for. The number stays where the picture put it.
+     * See docs/adr/0002.
      */
     floor: 0.75
   };
