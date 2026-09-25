@@ -7,14 +7,21 @@
  */
 (function (root, factory) {
   if (typeof module === "object" && module.exports) {
-    module.exports = factory();
+    module.exports = factory(require("./core.js"));
   } else {
-    root.DNFHints = factory();
+    root.DNFHints = factory(root.DNFCore);
   }
-})(typeof self !== "undefined" ? self : this, function () {
+})(typeof self !== "undefined" ? self : this, function (Core) {
   "use strict";
 
   var LOW_HP_RATIO = 0.35;
+  /*
+   * How far off a monster's row a cut still crosses, taken from the game rather
+   * than guessed: a hint that says "you are on the wrong row" has to use the
+   * same number the hit test does, or it tells the player to walk when he is
+   * already there.
+   */
+  var ROW_REACH = Core.DEPTH_REACH.melee * Core.SLAYER_HEIGHT;
 
   /*
    * Order is priority, most urgent first: the slab warning only lasts 1.35s and
@@ -54,6 +61,27 @@
       life: 4,
       when: function (state) {
         return state.stats.kills >= 1;
+      }
+    },
+    {
+      id: "row",
+      text: "站到怪那一行才打得到它：↑ ↓ 走进 / 走出屏幕",
+      life: 5,
+      when: function (state) {
+        /*
+         * He is swinging and every monster is off his row - which is the one way
+         * a cut can land nothing and give the player no clue why. A caster holds
+         * its row on purpose (see Core's chooseEnemyAction), so without this the
+         * fight he cannot win is also a fight that says nothing.
+         */
+        if (state.player.attackTimer <= 0) return false;
+        var alive = state.enemies.filter(function (enemy) {
+          return !enemy.dead;
+        });
+        if (!alive.length) return false;
+        return alive.every(function (enemy) {
+          return Math.abs((enemy.z || 0) - (state.player.z || 0)) > ROW_REACH;
+        });
       }
     },
     {

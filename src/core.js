@@ -68,11 +68,19 @@
   }
 
   /**
-   * Walking in depth, in `z` units per second. The ratio is a screen speed, so
-   * the foreshortening has to be divided out again to get back to the floor.
+   * How fast something that walks the floor at `floorSpeed` covers depth, in `z`
+   * units per second. The ratio is a screen speed, so the foreshortening has to
+   * be divided out again to get back to the floor - and that is the only place
+   * either side's depth pace is decided, so the Slayer's and the monsters' look
+   * like the same kind of walking.
    */
+  function depthSpeedFor(floorSpeed) {
+    return (floorSpeed * PHYSICS.depthSpeedRatio) / DEPTH.scale;
+  }
+
+  /** How fast the Slayer walks into the screen. */
   function depthSpeed() {
-    return (PHYSICS.moveSpeed * PHYSICS.depthSpeedRatio) / DEPTH.scale;
+    return depthSpeedFor(PHYSICS.moveSpeed);
   }
 
   /*
@@ -918,7 +926,16 @@
        */
       name: "Broken Span",
       enemies: [
-        { type: "caster", x: 600 },
+        /*
+         * A caster keeps its distance, and it has two axes to keep it on: it
+         * opens the fight standing back rather than on the Slayer's row, so the
+         * first thing this fight asks for is a step into the screen - and it
+         * holds that row (see chooseEnemyAction), so the step has to be taken.
+         * `depth` is a share of the room's floor, not a distance: a room that
+         * knows how deep its floor is can still say "a third back", and the same
+         * number means the same place whatever the floor turns out to be.
+         */
+        { type: "caster", x: 600, depth: 0.37 },
         { type: "elite", x: 780 },
         { type: "charger", x: 920 }
       ]
@@ -927,7 +944,7 @@
       /* The alternate: a wider, slower room that trades the charger for bodies. */
       name: "Sunken Chapel",
       enemies: [
-        { type: "caster", x: 560 },
+        { type: "caster", x: 560, depth: 0.3 },
         { type: "brute", x: 720 },
         { type: "grunt", x: 860 }
       ],
@@ -935,14 +952,29 @@
       hazards: [
         { x: 640 },
         { x: 850 }
-      ]
+      ],
+      /*
+       * Wider than the default floor, which is what the room already says it is:
+       * 150 screen px against 120, 682 z against 545, so a third more floor to
+       * cross and to dodge across. The slabs cover the whole of it either way -
+       * they are a timing puzzle, not a walk-around.
+       */
+      band: { backY: 280 }
     },
     {
       name: "Goblin King's Hall",
       enemies: [
         { type: "grunt", x: 520 },
         { type: "boss", x: 740 }
-      ]
+      ],
+      /*
+       * And the throne room is the other way: a ledge, 60 screen px against 120.
+       * The King's slam is a disc on the floor, so a narrow floor is what makes
+       * it bite - there is nowhere to stand aside to, and the way out is the
+       * jump it has always had. A room with less floor is a room with fewer
+       * answers, which is what the last room should be.
+       */
+      band: { backY: 370 }
     }
   ];
 
@@ -1162,6 +1194,7 @@
       z: z || 0,
       vx: 0,
       vy: 0,
+      vz: 0,
       width: spec.width,
       height: spec.height,
       facing: -1,
@@ -1289,9 +1322,15 @@
      * constant and one room's band object can back several rooms.
      */
     state.band = spec.band || BAND;
-    /* A room entry is {type, x, z?}: z is the depth it stands at. */
+    /*
+     * A room entry is {type, x, depth?}: `depth` is a share of this room's floor
+     * - 0 is the front edge, 1 the far end - and it is turned into world units
+     * here, once, so a room can be written without knowing how deep its floor is
+     * and everything downstream only ever deals in `z`.
+     */
     state.enemies = spec.enemies.map(function (entry) {
-      return createEnemy(state, entry.type, entry.x, entry.z);
+      var z = entry.depth === undefined ? 0 : entry.depth * bandDepth(state.band);
+      return createEnemy(state, entry.type, entry.x, z);
     });
     state.player.x = 110;
     state.player.y = ARENA.groundY;
@@ -2314,10 +2353,39 @@
     if (!player.dead) enemy.facing = delta >= 0 ? 1 : -1;
     if (player.dead) {
       enemy.vx = 0;
+      enemy.vz = 0;
       return;
     }
 
+    /*
+     * Monsters walk the second axis too, and this is the one line that makes the
+     * whole axis a fight rather than a hiding place: without it the Slayer could
+     * stand one row off every melee monster in the game and neither side could
+     * land a blow, a standoff he could hold for as long as he liked.
+     *
+     * They walk onto his row at their own pace rather than snapping onto it, and
+     * the pace is the screen pace, so a retreat in depth looks like a retreat
+     * sideways. Being slower than he is, a step aside that beats their walk still
+     * dodges a swing they have already committed to - which is what the axis is
+     * for. Within reach they hold still, or they would jitter across his row.
+     *
+     * A monster with a live attack keeps the vz it had and the caller damps it,
+     * the same way a wind-up damps its vx: committed is committed.
+     */
+    var rowGap = (player.z || 0) - (enemy.z || 0);
+    var rowReach = DEPTH_REACH.melee * SLAYER_HEIGHT;
+    enemy.vz =
+      Math.abs(rowGap) <= rowReach ? 0 : (rowGap > 0 ? 1 : -1) * depthSpeedFor(enemy.speed);
+
     if (enemy.behavior === "ranged") {
+      /*
+       * A ranged monster holds its row the way it holds its distance. Its shots
+       * carry whatever row it is standing on (see spawnProjectile), so walking
+       * onto the Slayer's row would only put it where he already is - and holding
+       * it is what makes room data worth writing: a caster that opens a fight
+       * standing back is one he has to walk to, on both axes, while it shoots.
+       */
+      enemy.vz = 0;
       var keep = enemy.keepRange || enemy.attackRange * 0.6;
       if (distance < keep) {
         enemy.vx = -enemy.facing * enemy.speed;
@@ -2515,8 +2583,10 @@
           ARENA.rightWall - enemy.width / 2
         );
         enemy.y = ARENA.groundY;
+        enemy.z = player.z || 0;
         enemy.vx = 0;
         enemy.vy = 0;
+        enemy.vz = 0;
         enemy.attackTimer = 0;
       }
       if (enemy.bleed) {
@@ -2540,9 +2610,12 @@
 
       if (enemy.hurtTimer > 0) {
         enemy.vx *= 0.86;
+        enemy.vz *= 0.86;
       } else if (enemy.attackTimer > 0) {
         enemy.vx *= 0.5;
+        enemy.vz *= 0.5;
       } else if (
+
         !enemy.onGround ||
         enemy.knockdown > 0 ||
         enemy.stun > 0 ||
@@ -2550,6 +2623,7 @@
       ) {
         /* Launched, knocked down or stunned enemies cannot act. */
         enemy.vx *= 0.98;
+        enemy.vz *= 0.98;
       } else {
         chooseEnemyAction(state, enemy, player);
       }
@@ -2561,6 +2635,7 @@
       enemy.vy = Math.min(enemy.vy + PHYSICS.gravity * dt, PHYSICS.maxFallSpeed);
       enemy.x += enemy.vx * dt;
       enemy.y += enemy.vy * dt;
+      enemy.z += enemy.vz * dt;
       if (enemy.y >= ARENA.groundY) {
         enemy.y = ARENA.groundY;
         enemy.vy = 0;
@@ -2571,6 +2646,8 @@
         ARENA.leftWall + enemy.width / 2,
         ARENA.rightWall - enemy.width / 2
       );
+      /* The band's edges stop it the way the walls do, and it is the room's band. */
+      enemy.z = clamp(enemy.z, 0, bandDepth(state.band));
     });
 
     updateProjectiles(state, dt);
@@ -2586,6 +2663,13 @@
         var minGap = (a.width + b.width) / 2;
         var gap = Math.abs(a.x - b.x);
         if (gap >= minGap) continue;
+        /*
+         * Two monsters on different rows are not in each other's way, however
+         * much their x ranges overlap: the floor has two axes here too, and a
+         * body-width is the same reading of "the same spot" it is everywhere
+         * else (see the projectile test).
+         */
+        if (Math.abs((a.z || 0) - (b.z || 0)) >= minGap) continue;
         var push = (minGap - gap) / 2;
         if (a.x <= b.x) {
           a.x = clamp(a.x - push, ARENA.leftWall + a.width / 2, ARENA.rightWall - a.width / 2);

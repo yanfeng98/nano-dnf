@@ -60,6 +60,24 @@ test("the urgent moments outrank the informational ones", () => {
   );
 });
 
+test("the row hint fires only when a swing cannot reach anything", () => {
+  const state = opening();
+  state.time = 30;
+  const seen = { move: true };
+  const caster = Core.createEnemy(state, "caster", state.player.x + 80, 0);
+  state.enemies = [caster];
+
+  assert.equal(Hints.select(state, seen), null, "standing still says nothing");
+
+  /* Swinging, and the only monster is on his row: that cut can land. */
+  state.player.attackTimer = Core.PLAYER.attackDuration;
+  assert.equal(Hints.select(state, seen), null, "a swing that can reach is not a problem");
+
+  /* Swinging, and the only monster is a row away: that cut cannot. */
+  caster.z = Core.DEPTH_REACH.melee * Core.SLAYER_HEIGHT + 40;
+  assert.equal(Hints.select(state, seen).id, "row");
+});
+
 test("every trigger fires on the state it describes", () => {
   const state = opening();
   state.time = 30;

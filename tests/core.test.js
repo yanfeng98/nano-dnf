@@ -942,14 +942,16 @@ test("a room with a shallower floor stops him sooner", () => {
 test("a rift keeps its depth when the arena takes it over at the cast's end", () => {
   const state = lastRoomState();
   state.player.mp = state.player.maxMp;
-  state.player.z = 300;
+  /* A row inside this room's own floor: rooms differ now, so ask the room. */
+  const deep = Core.bandDepth(state.band) * 0.6;
+  state.player.z = deep;
 
   Core.step(state, { skills: { mountainRift: true } });
   Core.runFrames(state, Math.ceil(Core.SKILLS.mountainRift.duration * Core.FPS) + 2, {});
 
   const field = state.fields[0];
   assert.ok(field, "the end of the cast hands the ground to the arena");
-  assert.equal(field.z, 300, "and the spot it remembers has a depth");
+  assert.equal(field.z, deep, "and the spot it remembers has a depth");
 });
 
 test("a wave's ring lies on the row its caster is standing on", () => {
@@ -974,6 +976,12 @@ test("a monster's floor marks carry the monster's own depth", () => {
 
   let mark = null;
   for (let frame = 0; frame < 60 * 5 && !mark; frame += 1) {
+    /*
+     * Held where it was put. It walks toward the Slayer's row on its own now,
+     * which is tested below; this test is about what depth the mark carries.
+     */
+    caster.z = 250;
+    caster.vz = 0;
     Core.step(state, {});
     mark = state.effects.find((effect) => effect.kind === "telegraph");
   }
@@ -1109,6 +1117,68 @@ test("a floor move covers the patch it draws, and stops where it stops", () => {
   assert.equal(caughtBy(patch + 40), 0, "past the patch, nothing");
 });
 
+/*
+ * Monsters walk the second axis too. What that buys is the difference between a
+ * fight and a hiding place: without it the Slayer could stand one row off every
+ * melee monster in the game and neither side could land a blow, for as long as
+ * he liked. What it costs is that parking far away is no longer a defence - the
+ * defence is a step aside taken while the blow is already committed, which is
+ * what the axis is for. Both halves are pinned here.
+ */
+test("a monster walks onto the row the Slayer has stepped to", () => {
+  const state = lastRoomState();
+  const grunt = Core.createEnemy(state, "grunt", state.player.x + 40);
+  state.enemies = [grunt];
+  assert.equal(grunt.z, 0, "it starts level with him");
+
+  state.player.z = 300;
+  Core.runFrames(state, 60, {});
+
+  const gap = Math.abs(state.player.z - grunt.z);
+  assert.ok(gap < 300 / 2, `a second of walking should close most of the gap, left ${gap}`);
+});
+
+test("stepping aside during a wind-up still dodges the blow", () => {
+  const state = lastRoomState();
+  const brute = Core.createEnemy(state, "brute", state.player.x + 40);
+  state.enemies = [brute];
+  /* Stays put, so the only thing that moves is the Slayer. A monster that can
+     follow him is the test above; this one is about the commit. */
+  brute.speed = 0;
+
+  let committed = false;
+  for (let frame = 0; frame < 60 * 3 && !committed; frame += 1) {
+    Core.step(state, {});
+    committed = brute.attackTimer > 0;
+  }
+  assert.ok(committed, "the brute winds up a swing");
+
+  state.player.z = Core.DEPTH_REACH.melee * Core.SLAYER_HEIGHT + 100;
+  Core.runFrames(state, Math.ceil(brute.attackDuration * Core.FPS) + 2, {});
+
+  assert.equal(state.stats.damageTaken, 0, "the blow lands on the row he left");
+});
+
+test("monsters on different rows do not shove each other", () => {
+  const apart = (zA, zB) => {
+    const state = lastRoomState();
+    const a = Core.createEnemy(state, "grunt", 400);
+    const b = Core.createEnemy(state, "grunt", 400);
+    state.enemies = [a, b];
+    a.x = 400;
+    b.x = 400;
+    a.z = zA;
+    b.z = zB;
+    a.speed = 0;
+    b.speed = 0;
+    Core.runFrames(state, 2, {});
+    return Math.abs(a.x - b.x);
+  };
+
+  assert.ok(apart(0, 400) === 0, "the same spot on two rows is not a collision");
+  assert.ok(apart(0, 0) > 0, "and the same spot on one row still is");
+});
+
 test("a radial move is a disc on the floor, not a line across it", () => {
   const burst = (dz) => {
     const state = lastRoomState();
@@ -1159,12 +1229,19 @@ test("the depth constant, the lift and the band cannot drift apart", () => {
 });
 
 test("a room can bring its own floor, and gets the default without one", () => {
+  /*
+   * Which rooms do is their own business and it changes; this asks for one that
+   * does not, so it keeps testing the fallback instead of whoever just moved.
+   */
+  const plain = Core.ROOMS.findIndex((room) => !room.band);
+  assert.ok(plain >= 0, "there is still a room standing on the shared floor");
+
   const state = Core.createState({ seed: Core.DEFAULT_SEED });
-  state.layout = [Core.ALTERNATE_ROOM_INDEX];
+  state.layout = [plain];
   Core.startRoom(state, 0);
   assert.equal(state.band, Core.BAND, "a room with no floor of its own gets the default one");
 
-  const room = Core.ROOMS[Core.ALTERNATE_ROOM_INDEX];
+  const room = Core.ROOMS[plain];
   const was = room.band;
   try {
     room.band = { backY: 350 };
@@ -1186,6 +1263,20 @@ test("a room can place a monster at a depth", () => {
   assert.equal(Core.createEnemy(state, "grunt", 500, 240).z, 240);
 });
 
+test("a room can open a fight at a depth", () => {
+  const state = Core.createState({ seed: Core.DEFAULT_SEED, roomIndex: Core.GAUNTLET_ROOM_INDEX });
+  const caster = state.enemies.find((enemy) => enemy.type === "caster");
+
+  assert.ok(caster, "the gauntlet fields a caster");
+  assert.equal(
+    caster.z,
+    0.37 * Core.bandDepth(state.band),
+    "and it opens the fight standing back off the Slayer's row"
+  );
+  assert.ok(caster.z > Core.DEPTH_REACH.melee * Core.SLAYER_HEIGHT, "far enough back to be a walk");
+  assert.equal(state.player.z, 0, "who walks in on the front edge");
+});
+
 test("a shot flies on the floor its caster stands on", () => {
   const state = lastRoomState();
   state.player.x = 500;
@@ -1194,6 +1285,9 @@ test("a shot flies on the floor its caster stands on", () => {
 
   let shot = null;
   for (let frame = 0; frame < 60 * 5 && !shot; frame += 1) {
+    /* Held on its row: it walks toward the Slayer's on its own now. */
+    caster.z = 260;
+    caster.vz = 0;
     Core.step(state, {});
     shot = state.projectiles[0] || null;
   }
@@ -1568,6 +1662,17 @@ function kitingBot(state) {
   const target = alive[0];
   const delta = target.x - player.x;
   const distance = Math.abs(delta);
+  /*
+   * The floor's second axis. A caster holds its row - its shots carry the row it
+   * stands on, so standing off the Slayer's is what makes him come to it - which
+   * means a policy that only knows x can never finish that fight: it walks up and
+   * swings at the floor. This walks the row the same way it walks the gap, with
+   * the game's own reach as the threshold rather than a number of its own.
+   */
+  const rowGap = (target.z || 0) - (player.z || 0);
+  const rowReach = Core.DEPTH_REACH.melee * Core.SLAYER_HEIGHT;
+  const offRow = Math.abs(rowGap) > rowReach;
+  const rowStep = rowGap > 0 ? "up" : "down";
   const elapsed = target.attackDuration - target.attackTimer;
   const threatRange =
     target.attackKind === "slam" && target.slam
@@ -1620,6 +1725,8 @@ function kitingBot(state) {
       /* Out of reach of the mob and blocked by a breaking slab: hold ground. */
       input.attack = true;
     }
+    /* The row too, while the gap closes. The slab rule governs x only. */
+    if (offRow) input[rowStep] = true;
     return input;
   }
   /* Attacks only reach where the Slayer looks, so turn around first. */
@@ -1627,6 +1734,11 @@ function kitingBot(state) {
   if (!facingTarget) {
     if (delta > 0) input.right = true;
     else input.left = true;
+    return input;
+  }
+  /* In range sideways, but a swing only crosses his own row: walk onto it first. */
+  if (offRow) {
+    input[rowStep] = true;
     return input;
   }
   input.attack = true;

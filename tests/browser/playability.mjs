@@ -159,6 +159,24 @@ function decide(state, constants) {
         : target.attackWindup;
   const threatened = target.attackTimer > 0 && elapsed <= activeUntil + 0.05;
 
+  /*
+   * The floor's second axis. Monsters open fights at a depth of their own (Broken
+   * Span's caster does) and swing only across their own row, so a bot that knows
+   * x and nothing else walks up and swings at the floor for the rest of the run.
+   * It walks the row the way it walks the gap, both at once, and does not swing
+   * until the row is right - which is also what a player who understands the game
+   * does.
+   *
+   * While it is being attacked the block below takes over instead: a blow that
+   * cannot reach it is not a reason to stop backing off.
+   */
+  const rowGap = (target.z || 0) - (player.z || 0);
+  if (!threatened && Math.abs(rowGap) > constants.meleeReach) {
+    want.add(rowGap > 0 ? "up" : "down");
+    if (distance > 60) want.add(delta > 0 ? "right" : "left");
+    return want;
+  }
+
   if (threatened) {
     /*
      * A spinning sweep outruns a retreat once it is on top of you, so the read
@@ -403,6 +421,12 @@ async function runPass(browser, baseUrl, options) {
     arena: JSON.parse(JSON.stringify(window.DNFCore.ARENA)),
     rooms: JSON.parse(JSON.stringify(window.DNFCore.ROOMS)),
     /*
+     * How far off a monster's row a swing still crosses, in world pixels, read
+     * off the game's own numbers: the bot has to aim with the same reach the hit
+     * test uses or it walks to a row its swings cannot reach.
+     */
+    meleeReach: window.DNFCore.DEPTH_REACH.melee * window.DNFCore.SLAYER_HEIGHT,
+    /*
      * The biggest single hit the shipped game can deal to the Slayer, taken
      * from the game's own numbers (boss damage scaled by its phase-two ratio).
      * The damage gate is written against this instead of a wall-clock total:
@@ -631,6 +655,13 @@ async function runPass(browser, baseUrl, options) {
    * room with nothing in it.
    */
   const depthProbe = { frames: 0, deepest: 0, returned: null };
+  /*
+   * And the deepest the bot itself took him, after the probe is over. A monster
+   * that holds its row - a caster does, because its shots carry whatever row it
+   * stands on - can only be hit by walking onto its row, so a pass that never
+   * gets above zero walked past a fight it could not have won.
+   */
+  let steppedIn = 0;
   /* Into the screen for twenty, back out for forty: long enough to cross the
      band both ways at the speed the game walks it. */
   const DEPTH_PROBE_FRAMES = 64;
@@ -781,6 +812,7 @@ async function runPass(browser, baseUrl, options) {
         depthProbe.returned = depthProbe.returned === null ? z : Math.min(depthProbe.returned, z);
       }
     }
+    if (depthProbe.returned !== null) steppedIn = Math.max(steppedIn, state.player.z || 0);
 
     const changes = [];
     for (const action of [...held]) {
@@ -1368,6 +1400,7 @@ async function runPass(browser, baseUrl, options) {
     airReadout,
     keyChecks,
     depthProbe,
+    steppedIn,
     overallBefore,
     paceEarly,
     pace: { before: paceBefore, after: paceAfter, record: paceFlip.best },
@@ -1783,6 +1816,9 @@ function problemsFor(pass) {
     problems.push(
       `${pass.mode}: walking back towards the camera did not bring him in (${walked.deepest} -> ${walked.returned})`
     );
+  }
+  if (!(pass.steppedIn > 0)) {
+    problems.push(`${pass.mode}: never walked onto a monster's row to reach it (deepest ${pass.steppedIn})`);
   }
   const upgrades = (pass.state.player.upgradesTaken || []).length;
   if (upgrades !== pass.expectedUpgrades) {

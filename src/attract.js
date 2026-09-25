@@ -21,6 +21,12 @@
   var SKILL_GAP = 2.6;
   /* Swing from here instead of walking into the enemy's own hitbox. */
   var APPROACH = 58;
+  /*
+   * How far off the target's row he is willing to swing from, taken from the
+   * game's own melee reach rather than picked: aim and judgment have to agree,
+   * or the demo walks to a row its swings cannot cross.
+   */
+  var ROW_REACH = Core.DEPTH_REACH.melee * Core.SLAYER_HEIGHT;
   /* An enemy this far above the Slayer is worth a jump before the swing. */
   var LEAP_GAP = 120;
   /* Long demos stop being demos, so a stalled run is restarted. */
@@ -121,11 +127,25 @@
     }
 
     var dx = target.x - state.player.x;
+    var dz = (target.z || 0) - (state.player.z || 0);
+    /*
+     * The row, as well as the gap: a monster can open the fight standing well
+     * back (Broken Span's caster does), and a swing thrown across the floor
+     * sideways is a swing at the floor. Both of them are walking toward each
+     * other's row, so this is also what the monster is doing - and the reach is
+     * the same number the hit test uses, so the demo stops where its blows land.
+     */
+    if (Math.abs(dz) > ROW_REACH) {
+      if (dz > 0) input.up = true;
+      else input.down = true;
+    }
     if (Math.abs(dx) > APPROACH) {
       if (dx > 0) input.right = true;
       else input.left = true;
       return input;
     }
+    /* In position sideways but not on the row yet: keep walking, do not swing. */
+    if (Math.abs(dz) > ROW_REACH) return input;
 
     /*
      * Holding the direction keeps the swing pointed at the target; the rooted

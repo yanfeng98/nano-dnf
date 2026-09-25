@@ -629,21 +629,26 @@
       }
     }
 
-    /* torches */
+    /*
+     * Torches, hung on the wall a fixed height above where it meets the floor,
+     * so a room with a floor of its own keeps its torches on its own wall. At
+     * the default band that height is the 250 they have always been at.
+     */
+    var torchY = backY - 60;
     [180, 480, 780].forEach(function (tx, index) {
       var flicker = 0.72 + 0.28 * Math.sin(state.time * 9 + index * 2.1);
-      var glow = ctx.createRadialGradient(tx, 250, 4, tx, 250, 130 * flicker);
+      var glow = ctx.createRadialGradient(tx, torchY, 4, tx, torchY, 130 * flicker);
       glow.addColorStop(0, "rgba(255, 176, 92, 0.34)");
       glow.addColorStop(1, "rgba(255, 150, 60, 0)");
       ctx.fillStyle = glow;
       ctx.beginPath();
-      ctx.arc(tx, 250, 130 * flicker, 0, Math.PI * 2);
+      ctx.arc(tx, torchY, 130 * flicker, 0, Math.PI * 2);
       ctx.fill();
       ctx.fillStyle = "#3a2b1f";
-      ctx.fillRect(tx - 3, 250, 6, 34);
+      ctx.fillRect(tx - 3, torchY, 6, 34);
       ctx.fillStyle = "#ffcf7a";
       ctx.beginPath();
-      ctx.ellipse(tx, 246, 6 * flicker, 11 * flicker, 0, 0, Math.PI * 2);
+      ctx.ellipse(tx, torchY - 4, 6 * flicker, 11 * flicker, 0, 0, Math.PI * 2);
       ctx.fill();
     });
 
