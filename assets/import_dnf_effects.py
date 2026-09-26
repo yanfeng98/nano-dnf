@@ -516,7 +516,14 @@ FRONT_ROWS = [
         # against 1.1 at the other, which is the slope he read.
         #
         # The scales below are scattered (2.20 / 1.70 / 1.95 / 2.10) so each half
-        # of the rank carries a tall one. **They are also taller than they were**,
+        # of the rank carries a tall one, and their `stretch` x came down from
+        # 0.72 to **0.45** when the heights went up: the scale multiplies both
+        # axes, so raising them had quietly widened each tongue to 1.9 Slayers -
+        # wider than the clip's own runs (26-98 screen px, and ours measured
+        # 85-99 before the narrowing). 0.45 puts the towers back at the width
+        # they had and leaves the *height* as the only thing that changed.
+        #
+        # **They are also taller than they were**,
         # and that is measured rather than guessed: the spire is 179px of client
         # art, the row draws a client px at 0.596 of a screen one, and a flame's
         # own faint tip costs it about a tenth of its art in the alpha cut - so
@@ -540,16 +547,22 @@ FRONT_ROWS = [
         # disc's own bottom edge is two round lumps sitting under the fire like
         # stones, where what the eye wants is fire coming down to the ground.
         {"entry": "outragebreak_bloodsexp_glow.img", "ramp": BODY_RAMP, "frames": (0, 0), "alpha": 0.55, "base": 16,
+         "scale": 0.90, "offset": (33, -11), "from": 0.55, "until": 0.84},
+        {"entry": "outragebreak_bloodsexp_glow.img", "ramp": BODY_RAMP, "frames": (0, 0), "alpha": 0.55, "base": 16,
          "scale": 0.90, "offset": (73, -6), "from": 0.54, "until": 0.84},
         {"entry": "outragebreak_bloodsexp_glow.img", "ramp": BODY_RAMP, "frames": (0, 0), "alpha": 0.55, "base": 16,
          "scale": 0.90, "offset": (218, 5), "from": 0.55, "until": 0.84},
-        {"entry": "outragebreak_bloodsexp_2_none.img", "ramp": FIRE_RAMP, "scale": 2.20, "stretch": (0.72, 1.0),
+        {"entry": "outragebreak_bloodsexp_2_none.img", "ramp": FIRE_RAMP, "scale": 1.45, "stretch": (0.35, 1.0),
+         "offset": (-22, 15), "from": 0.55, "until": 0.84},
+        {"entry": "outragebreak_bloodsexp_2_none.img", "ramp": FIRE_RAMP, "scale": 1.60, "stretch": (0.35, 1.0),
+         "offset": (13, 20), "from": 0.55, "until": 0.84},
+        {"entry": "outragebreak_bloodsexp_2_none.img", "ramp": FIRE_RAMP, "scale": 2.20, "stretch": (0.45, 1.0),
          "offset": (25, 39), "from": 0.55, "until": 0.84},
-        {"entry": "outragebreak_bloodsexp_2_none.img", "ramp": FIRE_RAMP, "scale": 1.70, "stretch": (0.72, 1.0),
+        {"entry": "outragebreak_bloodsexp_2_none.img", "ramp": FIRE_RAMP, "scale": 1.70, "stretch": (0.45, 1.0),
          "offset": (90, 14), "from": 0.54, "until": 0.84},
-        {"entry": "outragebreak_bloodsexp_2_none.img", "ramp": FIRE_RAMP, "scale": 1.95, "stretch": (0.72, 1.0),
+        {"entry": "outragebreak_bloodsexp_2_none.img", "ramp": FIRE_RAMP, "scale": 1.95, "stretch": (0.45, 1.0),
          "offset": (205, 53), "from": 0.54, "until": 0.84},
-        {"entry": "outragebreak_bloodsexp_2_none.img", "ramp": FIRE_RAMP, "scale": 2.10, "stretch": (0.72, 1.0),
+        {"entry": "outragebreak_bloodsexp_2_none.img", "ramp": FIRE_RAMP, "scale": 2.10, "stretch": (0.45, 1.0),
          "offset": (265, 44), "from": 0.56, "until": 0.84},
         # The slab they stand out of, and the two things the pack does not ship.
         #
@@ -563,16 +576,32 @@ FRONT_ROWS = [
         #
         # So they stay on that one line even now that the rank runs twice as far
         # down the band: `dy` does **not** follow the spine here the way the
-        # spires' do, which leaves the near bush's foot 27px below the spine and
+        # spires' do, which leaves the near bush's foot 30px below the spine and
         # the far one's 1px below it. Both are inside the gash's band (the test
         # pins +/-34), and a straight foot is what the reference's slab has.
         #
-        # And that bound is what sets how near the slab may start: the spine rises
-        # 0.12px per px forward while the foot stays level, so every station has
-        # to clear the gash's far edge by its own 4.5px of slack. Standing the
-        # rank clear of the caster (see above) is what buys the room - at the old
-        # stations the near bush's foot sat 33px under the spine, right on the
-        # bound, and it could not have gone a pixel nearer.
+        # **The first of the four stands back at u 60 as the base the near tongues
+        # rise out of - 1.85, not the 2.50 it briefly was.** Four rounds of the
+        # owner playing this end: 「还是靠近角色」 (a column stood on his
+        # shoulders), 「有一个小小的空间没有岩浆…空了一块」 (the rank had been moved
+        # out and left bare floor), 「好像还是缺一点」, and finally 「靠近角色部分
+        # 现在像是一滩鲜红的血，没有区分开」 - the wedge had been closed with one
+        # 2.5-scale bush, and a bush is a rounded dome, so it read as a pool.
+        #
+        # Measuring the fire's near edge **by height** (0.25/0.5/1.0/1.5/2.0 of a
+        # Slayer off the ground) over #86-#115 is what pinned the wedge: the clip's
+        # edge is a near-vertical wall at -0.10/-0.16/+0.28/+0.24/+0.25, while
+        # ours came in at the floor and sloped away to +0.67/+0.74/+0.77, leaving
+        # empty room beside his chest. But the fix for *that* has to be **tongues**:
+        # the clip's near region over #90/#93/#96/#99 is a comb of 4-6 narrow
+        # flames with dark ground between them standing out of a lit base (its top
+        # fifth is 21% lit over a solid lower mass). A bush cannot do it - it is
+        # round - so the two narrow spires above (1.45 and 1.60 at u 70 and 105)
+        # carry the comb and this bush is only their base.
+        #
+        # And the band bound is what sets how near it may stand: the spine rises
+        # 0.12px per px forward while the foot stays level, so u 60 is as near as
+        # the straight foot can sit at all (+33.8 of the 34px band).
         #
         # **`fill` then `base`**: close the flames' own furry gaps, then cut the
         # foot straight. Measured row by row against #100, the rank already
@@ -590,8 +619,8 @@ FRONT_ROWS = [
         # that 「中间高，两边低」 was about, and the reference's fire is a narrow
         # wall, not a wide one. The silhouette is what the eye reads; the last
         # 2-10% of the base is not worth trading it for.
-        {"entry": "outragebreak_bloodsexp_1_none.img", "ramp": FIRE_RAMP, "scale": 1.35, "stretch": (0.85, 0.80),
-         "fill": 6, "base": 16, "offset": (75, 6), "from": 0.55, "until": 0.82},
+        {"entry": "outragebreak_bloodsexp_1_none.img", "ramp": FIRE_RAMP, "scale": 1.85, "stretch": (0.85, 0.80),
+         "fill": 6, "base": 16, "offset": (23, 6), "from": 0.55, "until": 0.82},
         {"entry": "outragebreak_bloodsexp_1_none.img", "ramp": FIRE_RAMP, "scale": 1.45, "stretch": (0.85, 0.80),
          "fill": 6, "base": 16, "offset": (145, 6), "from": 0.55, "until": 0.82},
         {"entry": "outragebreak_bloodsexp_1_none.img", "ramp": FIRE_RAMP, "scale": 1.45, "stretch": (0.85, 0.80),

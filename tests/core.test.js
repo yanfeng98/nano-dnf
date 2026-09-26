@@ -3465,15 +3465,18 @@ test("大蹦 plays in stages, not all at once", () => {
    * fire the lull burns, 1.15 for the landing, 2.20 at the top of the second
    * wave, where 179px of art comes out 2.5 Slayers tall.
    *
-   * The 2.1 ceiling on that scale moved to 2.3 in slice 65. The clip's tallest
+   * The 2.1 ceiling on that scale moved twice in slice 65. The clip's tallest
    * tongues reach 2.5 Slayers against the ruler (measured on the outro frame,
    * where he stands alone: his drawn height in the 720px frame is 112px), which
    * is 2.2 of the spire's 179px of art once the faint tip is discounted - so
    * 2.1 put a ceiling *below the reference* and is what 「火焰要高一下」 was
-   * about.
+   * about. It went to 2.6 for the near end: measured across the second wave's
+   * frames, the clip's fire comes within 0.10 of a Slayer of his feet at 0.25 of
+   * a Slayer up and is still only 0.25 out at 2.0 - so the flames beside him are
+   * tall ones, and a ceiling under 2.2 cannot draw that edge.
    */
   assert.ok(
-    everyFlame.every((stage) => stage.scale >= 0.75 && stage.scale <= 2.3),
+    everyFlame.every((stage) => stage.scale >= 0.75 && stage.scale <= 2.6),
     "every flame is a pillar of its own, neither a candle nor a column off the screen"
   );
   assert.ok(
@@ -3512,63 +3515,79 @@ test("大蹦 plays in stages, not all at once", () => {
     }
   );
   /*
-   * The two waves cover **comparable ground** - the second is not a shorter rank
-   * bunched up inside the first one. Measured off 10_崩山裂地斩 with one mask on
-   * both (720px frame, his body centre x=332, drawn height 110px): the landing
-   * wave is 346px wide and the second 371, a ratio of 1.07. Ours came out at
-   * 0.67, which is the owner's 「应该岩浆范围和第一波一样」. Comparing the two
-   * waves to each other rather than to the clip keeps this free of the
-   * Slayer-height conversion: it is the same ruler on both sides.
+   * The two slabs end on the **same ground**: the second eruption is not a
+   * shorter rank bunched up inside the landing wave's. Measured off
+   * 10_崩山裂地斩 with one mask on both, its two waves run 346px and 371 - the
+   * second a shade wider, ending 20px past the first. The owner's first note was
+   * the far end of this (「第二波岩浆偏向角色方向…应该岩浆范围和第一波一样」) and
+   * the old rank stopped 134px short of where the landing wave's slab does.
    *
-   * Only the `scale >= 1` tongues count, which in each wave is the eruption and
-   * not the low fire around it: the landing wave's lull burns at 0.80-0.85 and
-   * the second wave dies back into embers at 0.75-0.78, so measuring the extremes
-   * of the whole wave would let a far-out ember stand in for a rank that had
-   * bunched up - which is how the old bake passed a span check while measuring
-   * 0.58 by this one.
+   * **Bushes only, and not the embers** (`from < 0.8`). Comparing like shapes
+   * keeps this free of the two shapes' own art widths and of the Slayer-height
+   * conversion - it is the same ruler on both sides. And the embers have to go:
+   * they are the same bush at 0.75-0.78 running the whole gash in both waves, so
+   * a span that counted them would let a far-out ember stand in for a rank that
+   * had bunched up, which is how the old bake passed a span check while
+   * measuring 0.58 by its tongues.
    */
-  const spanOf = (wave) => {
-    const places = wave.filter((stage) => stage.scale >= 1).map(stands).map(([u]) => u);
-    return Math.max(...places) - Math.min(...places);
-  };
-  const ratio = spanOf(second) / spanOf(first);
+  const slabEnd = (wave) =>
+    Math.max(
+      ...wave
+        .filter((stage) => shapeOf(stage) === "bloodsexp_1" && stage.from < 0.8)
+        .map(stands)
+        .map(([u]) => u)
+    );
+  const endStep = slabEnd(first) - slabEnd(second);
   assert.ok(
-    ratio > 0.85 && ratio < 1.35,
-    `the second eruption runs the landing wave's own stretch of gash (${ratio.toFixed(2)}x, clip 1.07x)`
+    Math.abs(endStep) <= 45,
+    `the two waves' slabs end on the same ground (${slabEnd(second)} against ${slabEnd(first)}px forward)`
   );
   /*
-   * And its near end stands **clear of the caster**, a little past where the
-   * landing wave's fire does. Both ends measured with his own red body masked
-   * out: the clip's landing wave reaches 0.38 of a Slayer behind his feet, its
-   * second wave starts 0.19 in front. In client px that is a 45-130px step
-   * between the two near stations; ours has to be a step, not a coincidence -
-   * the wave that stood on his feet was the other half of 「还是靠近角色」.
+   * And its near end keeps the clip's own split: **low fire on his feet, tall
+   * tongues clear of him.** Both halves of this were the owner playing it. First
+   * 「还是靠近角色」 - the wave stood a column on his shoulders, so the rank moved
+   * out and the spires baked behind him came out; then 「靠近角色有一个小小的空间
+   * 没有岩浆，换言之就是空了一块」 - moving the rank out had left a bare strip of
+   * floor between him and the fire, and the clip has no hole there: measured per
+   * quarter-Slayer column over #86-#115, its second wave keeps 0.75 Slayers of
+   * fire at his feet and 1.18 just in front, while its tongues begin +0.19 out.
+   * So one bush stands back at the near end (1.0 Slayer, reaching over his feet
+   * by its own 90px of art) and every spire stays forward of it.
    */
-  const nearOf = (wave) =>
-    Math.min(...wave.filter((stage) => stage.scale >= 1).map(stands).map(([u]) => u));
-  const step = nearOf(second) - nearOf(first);
+  const secondBushes = second.filter((stage) => shapeOf(stage) === "bloodsexp_1" && stage.scale >= 1);
+  const nearBush = Math.min(...secondBushes.map(stands).map(([u]) => u));
   assert.ok(
-    step > 45 && step < 130,
-    `the second eruption starts clear of him, past the landing wave's near fire (step ${step}px)`
+    nearBush <= 100,
+    `the second eruption's low fire reaches his feet, the way the clip's does (nearest bush at ${nearBush}px)`
   );
   /*
-   * And it is a **mass**, not a rank of tongues with floor showing between them.
-   * Measured off the reference (#100/#105), 96% of its bottom two fifths is lit
-   * - in runs a Slayer wide - while only its top fifth is separate tongues at
-   * 21%. Ours read as 「一排细丝」 at 65% / 33% however tall it was, and the
-   * cause is structural rather than a matter of scale: the pack's flame is
-   * bushy, and its own gaps survive every scaling, so no arrangement of flames
-   * alone closes them. What closes them is the light behind the fire, which is
-   * a layer of its own (`outragebreak_bloodsexp_glow.img` f0, a soft disc, on
-   * BODY_RAMP so it stays dark blood rather than becoming another flame).
+   * **And the wall beside him is tongues, not one mass.** This is the last thing
+   * the owner saw, playing the version that closed the wedge: 「靠近角色部分现在
+   * 像是一滩鲜红的血，没有区分开」 - it had been closed with a single 2.5-scale
+   * bush, and a bush is a rounded dome, so it read as a pool. The clip's near
+   * region is a **comb**: over #90/#93/#96/#99 its edge is 4-6 narrow flames with
+   * dark ground between them, rising out of a lit base. A tongue has to be a
+   * spire to do that - a spire is narrow at the top and widens downward, so the
+   * tops separate while the bases run together, which is exactly the comb the
+   * clip's top fifth is (21% lit) over a solid lower mass.
    *
-   * Pinned by construction rather than by a pixel statistic on purpose: the
-   * numbers for the old bake and this one overlap (65% vs 72% of the body lit),
-   * so a threshold on them would either pass both or be flaky.
+   * So at least two of the tongues stand in the near quarter of the rank, and the
+   * base they rise from is still a bush at his feet. Counting them is the pin:
+   * the blob version has one tongue this near, and so does the rank that stood
+   * clear of him altogether.
    */
-  /* The second wave's own bushes, told apart from the embers it dies back into
+  const nearTongues = second.filter(
+    (stage) => shapeOf(stage) === "bloodsexp_2" && stands(stage)[0] <= 140 && stage.scale >= 1.3
+  );
+  assert.ok(
+    nearTongues.length >= 2,
+    `the near end of the second eruption is a comb of tongues, not one mass (${nearTongues.length} there)`
+  );
+  /*
+   * The second wave's own bushes, told apart from the embers it dies back into
    * (`bloodsexp_1` too, but with no fill and on the gash's own line) by the one
-   * thing only the slab carries. */
+   * thing only the slab carries.
+   */
   const slab = second.filter(
     (stage) => stage.entry.includes("bloodsexp_1") && /"fill":/.test(stage.raw)
   );
