@@ -1272,7 +1272,14 @@ test("a radial move is a disc on the floor, not a line across it", () => {
   };
 
   assert.ok(burst(0) > 0, "under him is inside the ring");
-  assert.ok(burst(120) > 0, "and so is a body standing 120 into the screen");
+  /*
+   * 92, not the 152 this used to be: the ring the reference draws is 2.17
+   * Slayer-heights across, so the disc is 1.09 either side of his soles and the
+   * old circle was sized to the caster rather than to the art. 60 is a depth a
+   * "line across the floor" would miss, which is what this test is about - the
+   * exact number belongs to the move's own spec, not here.
+   */
+  assert.ok(burst(60) > 0, "and so is a body standing 60 into the screen");
   assert.equal(burst(400), 0, "400 in is outside it");
 });
 
@@ -2960,16 +2967,24 @@ test("the rift's draw size is the window the bake declares", () => {
    * never agreed to. This is that hand-off, pinned from both ends.
    */
   const declared = Number(/RIFT_CLIENT_PX = ([\d.]+)/.exec(source)[1]);
-  const windows = [
-    ...source.matchAll(/"window":\s*\((-?\d+),\s*(-?\d+),\s*(\d+),\s*(\d+)\)/g)
+  /*
+   * Read from the move's own block, not from the whole file: 怒气爆发 declares a
+   * window of its own now (see the test below), and counting every `"window":` in
+   * the bake would make this pair's count depend on how many other picks happen
+   * to have one.
+   */
+  const riftWindows = [
+    ...source
+      .slice(source.indexOf('"mountainRift": {'))
+      .matchAll(/"window":\s*\((-?\d+),\s*(-?\d+),\s*(\d+),\s*(\d+)\)/g)
   ].map((match) => match.slice(1).map(Number));
-  assert.equal(windows.length, 2, "both halves of the move declare a window");
+  assert.equal(riftWindows.length, 2, "both halves of the move declare a window");
   assert.deepEqual(
-    windows[0],
-    windows[1],
+    riftWindows[0],
+    riftWindows[1],
     "and it is the same window for both, or one draw size cannot place them"
   );
-  const [left, top, right, bottom] = windows[0];
+  const [left, top, right, bottom] = riftWindows[0];
   const spanW = right - left;
   const spanH = bottom - top;
   const cell = Render.EFFECT.riftCell;
@@ -3010,6 +3025,29 @@ test("the shipped DNF effect sheet matches the renderer grid", () => {
    * count the drawn columns per row, so a stale atlas cannot pass.
    */
   const sheet = decodeRgbaPng(path.join(__dirname, "..", "assets", "effects.png"));
+  /*
+   * Which rows are staged, read off the bake. A staged row is a *timeline*, not
+   * a sequence: its columns are fixed windows of the cast and the moves that have
+   * a quiet act leave those columns empty on purpose (大蹦 holds its ring with
+   * only the cracks lit; 怒气爆发 has seven tenths of a second between its burst
+   * and its column). Every other row is one shape played back to back, so a hole
+   * in it really is a frame of the wrong shape at that moment.
+   */
+  const bake = fs.readFileSync(
+    path.join(__dirname, "..", "assets", "import_dnf_effects.py"),
+    "utf8"
+  );
+  const picks = bake.slice(bake.indexOf("PICKS = {"), bake.indexOf("\n}\n", bake.indexOf("PICKS = {")));
+  const staged = new Set(
+    Core.SKILL_ORDER.filter((skillId) => {
+      const at = picks.indexOf(`"${skillId}": {`);
+      if (at < 0) return false;
+      /* To the next key of the same block, so one pick's `stages` cannot vouch
+         for the pick above or below it. */
+      const next = picks.indexOf('\n    "', at + 1);
+      return picks.slice(at, next < 0 ? picks.length : next).includes('"stages"');
+    })
+  );
   Core.SKILL_ORDER.forEach((skillId, row) => {
     /* 大蹦's rows are not on this sheet - see the rift sheet below. */
     if (Render.EFFECT.riftRows[skillId]) return;
@@ -3019,21 +3057,29 @@ test("the shipped DNF effect sheet matches the renderer grid", () => {
     for (let column = 0; column < Render.EFFECT.maxFrames; column += 1) {
       if (cellAlphaBox(sheet, column, row, Render.EFFECT.cell, Render.EFFECT.cell)) drawn.push(column);
     }
+    assert.ok(drawn.length > 0, `${skillId} has no art in its row at all`);
     /*
      * A row is one timeline over one cast, and it is declared as long as the
-     * cast is. Every row on this sheet fills it from column 0, and no row may
-     * have a hole: a gap would draw the wrong frame of the shape at that moment.
+     * cast is. A row may not run past its own length, and it ends on its last
+     * column: the move's last act is at the end of the cast, not somewhere in
+     * the middle with dead air after it.
      */
     assert.ok(
-      drawn.every((column, index) => column === drawn[0] + index),
-      `${skillId} frames must be packed with no hole in the row`
+      drawn[drawn.length - 1] < declared,
+      `${skillId} draws past its declared ${declared} frame(s)`
     );
     assert.equal(
-      drawn[0] + drawn.length,
-      declared,
-      `${skillId} should bake ${declared} frame(s), found ${drawn.length}`
+      drawn[drawn.length - 1],
+      declared - 1,
+      `${skillId} should end on its last column (${declared - 1})`
     );
-    assert.equal(drawn[0], 0, `${skillId} frames must be packed from column 0`);
+    if (!staged.has(skillId)) {
+      assert.ok(
+        drawn.every((column, index) => column === drawn[0] + index),
+        `${skillId} frames must be packed with no hole in the row`
+      );
+      assert.equal(drawn[0], 0, `${skillId} frames must be packed from column 0`);
+    }
   });
   assert.equal(Render.EFFECT.rowFrames.mountainBreaker, 6, "崩山击 ships its six-frame ground slash");
   assert.equal(Render.EFFECT.rowFrames.crossSlash, 11, "十字斩 ships its eleven-frame cross");
@@ -3216,15 +3262,40 @@ test("the effect bake draws each shape in exactly one colour board", () => {
   /*
    * 怒气爆发 is rooted at the caster: the bake places a declared anchor (the
    * middle of the pack's own ground ring) on the cell's ground line, so the
-   * effect no longer floats wherever its bounding box sits. It also bakes from
-   * the colour board the client plays - the official BloodBlast preview erupts
-   * white-gold out of the ring - while the plain board of the same shapes is
-   * blood red.
+   * effect no longer floats wherever its bounding box sits.
+   *
+   * It bakes from the **plain** board, which is the red one, and that reverses
+   * slices 38/39. Those read the official BloodBlast preview - a pale-gold plume
+   * - and baked "(tn)" to match it. But the reference the owner names for this
+   * move is the training-room clip, and that measures saturated red with blue at
+   * zero (ring 217,27,4; column 249,58,3), as does the pack's own preview. 大蹦
+   * sits in the same split and the repo already ships it red. So this assertion
+   * is the one that would catch a slide back to the gold board - see
+   * docs/adr/0006.
+   *
+   * It is also staged rather than stacked: the clip's two eruptions are a beat
+   * apart with nothing between them, and stacking the pack played both at once.
    */
   const rageBurst = blocks.find((entry) => entry.skill === "rageBurst");
   const rageText = picks.slice(rageBurst.from, picks.indexOf("\n}", rageBurst.from));
   assert.match(rageText, /"anchor":\s*\(\s*-?\d+,\s*-?\d+\s*\)/, "rageBurst needs a ground anchor");
-  assert.match(rageText, /"palette":\s*"\(tn\)"/, "rageBurst needs the client's white-gold board");
+  assert.match(rageText, /"palette":\s*""/, "rageBurst bakes the pack's own red board");
+  assert.doesNotMatch(rageText, /"palette":\s*"\(tn\)"/, "and never the pale-gold one");
+  assert.match(rageText, /"stages":\s*\[/, "rageBurst plays in windows, not as one stack");
+  assert.match(rageText, /"window":\s*\(\s*-?\d+,\s*-?\d+,\s*\d+,\s*\d+\s*\)/,
+    "and declares the window that is its zoom");
+  /*
+   * Every use of the ring's two halves names the same line to scale about. That
+   * line is the whole reason the ring can be flattened at all (see `rescale`):
+   * without it each half scales about its own bottom, 38px apart, and the ring
+   * is flat at the front and round at the back. Counted rather than pattern-
+   * matched once, because a stage that forgets it is the failure mode.
+   */
+  const abouts = [...rageText.matchAll(/"about":\s*(\d+)/g)].map((match) => Number(match[1]));
+  const halves = (rageText.match(/blood_floor_(?:front|back)\.img/g) || []).length;
+  assert.ok(halves >= 4, `the ring's two halves are used for the burst and its tail (${halves})`);
+  assert.equal(abouts.length, halves, "every ring half flattens about a named line");
+  assert.equal(new Set(abouts).size, 1, "and the two halves name the same one");
   /*
    * 崩山击's landing is the client preview's, in three parts: d-end is the
    * orange fire column and the white-blue flash that crosses it, and
@@ -3961,16 +4032,56 @@ test("the two blood eruptions are their own art, not one effect twice", () => {
   const rift = Core.SKILL_ORDER.indexOf("mountainRift");
   const smash = Core.SKILL_ORDER.indexOf("mountainBreaker");
   /*
-   * The colour is part of the art: 怒气爆发 erupts white-gold out of a pool of
-   * blood, not red. The plain board of the same shapes measures [141,9,2] there,
-   * so this is the assertion that would have caught shipping the wrong board.
+   * The columns this row actually draws, and the reason it has any empty ones:
+   * 怒气爆发 is staged, so the seven tenths of a second between its burst and its
+   * column are columns with nothing on them. Every assertion below reads those
+   * columns - "is this red", "how big is it", "is it 大蹦's art" - and a test that
+   * sampled the row on a fixed loop would have been measuring the quiet stretch.
    */
-  const meanInk = (row) => {
+  const rageFrames = Render.EFFECT.rowFrames.rageBurst;
+  const drawn = [];
+  for (let column = 0; column < rageFrames; column += 1) {
+    if (cellAlphaBox(sheet, column, rage, cell, cell)) drawn.push(column);
+  }
+  assert.ok(
+    drawn.length > 0 && drawn.length < rageFrames,
+    `怒气爆发 draws some columns and leaves others empty (${drawn.length} of ${rageFrames})`
+  );
+  /*
+   * The two acts, split at the **quiet stretch** rather than at the midpoint of
+   * the row: the burst act does not end when it stops being drawn, it ends when
+   * the crescent it collapses to has faded (cols 12-18), and a fixed halfway
+   * mark would cut that crescent in half and file it under the column. The
+   * biggest gap between two drawn columns *is* the quiet stretch, so it is the
+   * split.
+   */
+  let gapAt = 0;
+  for (let index = 1; index < drawn.length; index += 1) {
+    if (drawn[index] - drawn[index - 1] > drawn[gapAt + 1] - drawn[gapAt]) gapAt = index - 1;
+  }
+  const burstCols = drawn.slice(0, gapAt + 1);
+  const columnCols = drawn.slice(gapAt + 1);
+  assert.ok(burstCols.length >= 5, `the burst owns its own columns (${burstCols.length})`);
+  assert.ok(columnCols.length >= 4, `and the column owns later ones (${columnCols.length})`);
+  assert.ok(
+    columnCols[0] - burstCols[burstCols.length - 1] > 4,
+    "with a quiet stretch between them, which is the move"
+  );
+  /*
+   * The colour is part of the art, and this one is a **reversal**: slices 38/39
+   * baked this row white-gold off the official BloodBlast preview. The clip the
+   * owner names is red - saturated, with blue at zero - and the pack's own
+   * preview is red too, so the row is the pack's plain board through BURST_RAMP
+   * and reads (180,20,3) over the burst against the clip's (217,27,4). The
+   * white-gold board of the very same shapes would put green near 230 and blue
+   * near 200 here, so this is the assertion that catches a slide back to it.
+   */
+  const meanInk = (row, columns) => {
     let red = 0;
     let green = 0;
     let blue = 0;
     let count = 0;
-    for (let column = 0; column < Render.EFFECT.rowFrames.rageBurst; column += 1) {
+    for (const column of columns) {
       const pixels = cellPixels(row, column);
       for (let at = 0; at < pixels.length; at += 4) {
         if (pixels[at + 3] === 0) continue;
@@ -3982,21 +4093,106 @@ test("the two blood eruptions are their own art, not one effect twice", () => {
     }
     return count === 0 ? [0, 0, 0] : [red / count, green / count, blue / count];
   };
-  const burst = meanInk(rage);
-  assert.ok(burst[1] > 150, `怒气爆发 erupts white-gold, not red (green ${burst[1].toFixed(0)})`);
-  assert.ok(burst[2] > 100, `怒气爆发 keeps its gold tail (blue ${burst[2].toFixed(0)})`);
+  const burst = meanInk(rage, drawn);
+  assert.ok(burst[0] > 120, `怒气爆发 is red (red ${burst[0].toFixed(0)})`);
+  assert.ok(burst[1] < 60, `怒气爆发 is blood, not gold (green ${burst[1].toFixed(0)})`);
+  assert.ok(burst[2] < 40, `and with no blue in it at all (blue ${burst[2].toFixed(0)})`);
+  /*
+   * And both acts are drawn at the sizes the training room shows. The clip's own
+   * numbers, in Slayer-heights off its 220px Slayer: the burst ring is 2.17
+   * across, the column 1.77 x 2.99. Everything here is the row's own ink times
+   * the renderer's `size`, so a retuned window, a retuned `size` or a rescaled
+   * layer all move this number - which is the point of pinning the *look* rather
+   * than the plumbing.
+   */
+  const draw = Render.EFFECT.draw.rageBurst;
+  /*
+   * The box this measures is the **lit red** one, not the alpha one. The clip's
+   * own numbers were read with `measure_effect.py`, whose mask is
+   * `red > 90 && red > green*1.9+12 && red > blue*1.9+12` - and the alpha box
+   * would count the LANCZOS fringe the bake leaves around every resized layer,
+   * which is 3px a side on this row and would flatter it by 7%. Same ruler on
+   * both sides, or the comparison is between two different things.
+   */
+  const litBox = (column) => {
+    const pixels = cellPixels(rage, column);
+    let x0 = cell;
+    let y0 = cell;
+    let x1 = -1;
+    let y1 = -1;
+    for (let y = 0; y < cell; y += 1) {
+      for (let x = 0; x < cell; x += 1) {
+        const at = (y * cell + x) * 4;
+        const red = pixels[at];
+        const green = pixels[at + 1];
+        const blue = pixels[at + 2];
+        /*
+         * alpha > 60 as well as the colour: a resized layer keeps its own RGB
+         * under a nearly transparent edge, so the colour test alone reads the
+         * fringe as ink. 60 is the same floor the bake treats as an edge.
+         */
+        if (pixels[at + 3] <= 60) continue;
+        if (!(red > 90 && red > green * 1.9 + 12 && red > blue * 1.9 + 12)) continue;
+        if (x < x0) x0 = x;
+        if (y < y0) y0 = y;
+        if (x > x1) x1 = x;
+        if (y > y1) y1 = y;
+      }
+    }
+    return x1 < 0 ? null : { x0, y0, x1, y1 };
+  };
+  const heights = (columns) => {
+    let widest = 0;
+    let tallest = 0;
+    for (const column of columns) {
+      const box = litBox(column);
+      if (!box) continue;
+      widest = Math.max(widest, box.x1 - box.x0 + 1);
+      tallest = Math.max(tallest, box.y1 - box.y0 + 1);
+    }
+    return [
+      (widest * draw.size) / cell / Render.SPRITE.bodyHeight,
+      (tallest * draw.size) / cell / Render.SPRITE.bodyHeight
+    ];
+  };
+  const [ringWide, ringTall] = heights(burstCols);
+  const [columnWide, columnTall] = heights(columnCols);
+  assert.ok(Math.abs(ringWide - 2.17) < 0.15, `the burst ring is the clip's 2.17 Slayer-heights across (${ringWide.toFixed(2)})`);
+  /*
+   * And as flat as it is wide, which took a bake change rather than a number:
+   * the ring is a front half and a back half whose bottoms are 38px apart, so
+   * squashing each about its own bottom drew them apart and the ring came out
+   * 0.97 deep against the clip's 0.85. Both halves now name one line to flatten
+   * about (`"about"` in the pick, the caster's ground point), and that is what
+   * this reading is the end of.
+   */
+  assert.ok(Math.abs(ringTall - 0.85) < 0.12, `and the clip's 0.85 deep (${ringTall.toFixed(2)})`);
+  assert.ok(Math.abs(columnWide - 1.77) < 0.2, `the column is the clip's 1.77 across (${columnWide.toFixed(2)})`);
+  assert.ok(Math.abs(columnTall - 2.99) < 0.2, `and the clip's 2.99 tall (${columnTall.toFixed(2)})`);
+  /*
+   * The ring does not go straight to a clean floor: it collapses into a thin
+   * crescent that lingers in the same patch of ground (the clip's #49-#58) and
+   * is gone by #60. So the burst act has to reach past the halfway mark of the
+   * cast, or that crescent is not being drawn at all.
+   */
+  assert.ok(
+    burstCols[burstCols.length - 1] / (rageFrames - 1) > 0.4,
+    `the collapsed crescent lingers into the quiet half (last burst column ${burstCols[burstCols.length - 1]})`
+  );
   /*
    * The rift row opens on the landing, so the frames to compare are the ones it
-   * actually draws - the broken floor and the first eruption.
+   * actually draws - the broken floor and the first eruption. Compared against
+   * 怒气爆发's own drawn columns, since its later ones are the empty quiet.
    */
   const riftRow = Render.EFFECT.riftRows.mountainRift.back;
   const riftCell = Render.EFFECT.riftCell;
-  for (let column = 12; column < 18; column += 1) {
+  for (let index = 0; index < 6; index += 1) {
+    const column = drawn[index % drawn.length];
     const a = cellPixels(rage, column);
     const b = cellPixels(riftRow, column, riftSheet, riftCell);
     const c = cellPixels(smash, column % Render.EFFECT.rowFrames.mountainBreaker);
-    assert.ok(difference(a, b) > 0.4, `frame ${column}: 怒气爆发 and 大蹦 are different art`);
-    assert.ok(difference(b, c) > 0.4, `frame ${column}: 大蹦 is not 崩山击's smash again`);
+    assert.ok(difference(a, b) > 0.4, `column ${column}: 怒气爆发 and 大蹦 are different art`);
+    assert.ok(difference(b, c) > 0.4, `column ${column}: 大蹦 is not 崩山击's smash again`);
   }
   /* and the comparison has something to look at, or the two above prove nothing */
   const riftInk = cellPixels(riftRow, 14, riftSheet, riftCell).filter(

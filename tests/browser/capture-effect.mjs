@@ -171,7 +171,21 @@ for (let shot = 0; shot < shots; shot += 1) {
   );
   await page.waitForTimeout(stepMs);
 }
-fs.writeFileSync(path.join(OUT, "log.json"), JSON.stringify(log, null, 1));
+/*
+ * Where the canvas sits inside the screenshot, so a comparison sheet can put the
+ * two pictures on the same ruler. The stage is 960x540 and the viewport is
+ * 1120x720, so every screenshot carries a margin and an offset that nothing in
+ * the log used to name - a `y: 430` in the log is not row 430 of the PNG. The
+ * rect is measured once, after the loop, because it cannot move.
+ */
+const canvasRect = await page.evaluate(() => {
+  const rect = document.getElementById("stage").getBoundingClientRect();
+  return { x: rect.x, y: rect.y, w: rect.width, h: rect.height };
+});
+fs.writeFileSync(
+  path.join(OUT, "log.json"),
+  JSON.stringify({ canvas: canvasRect, shots: log }, null, 1)
+);
 console.log(`${shots} shots in ${OUT} · casting ${log.filter((row) => row.progress !== null).length}`);
 await browser.close();
 server.close();

@@ -199,6 +199,34 @@ BODY_RAMP = [
     (0.45, (96, 11, 7)),
     (1.00, (170, 32, 20)),
 ]
+# 怒气爆发's blood, and the ramp exists because the pack's own plain board is a
+# flat deep red with no highlight to speak of: drawn as exported its ring comes
+# out (111,6,2) and its column (167,15,6) against the clip's (204,26,5) and
+# (200,39,1) - about half as bright, and flat.
+#
+# The stops are the clip's own numbers read back through a pixel's level (see
+# tint), and the two that matter are the levels the two acts actually sit at:
+#
+#   水平 0.37  the ring's lit pixels   -> (194,25,4)   clip #43 (204,26,5)
+#   水平 0.87  the column's            -> (204,40,2)   clip #70 (200,39,1)
+#   水平 0.98  the column's hot tail   -> (248,62,12)  clip p90 (254,61,12)
+#
+# Note what that says about the reference: its ring and its column sit at *the
+# same* brightness, and all of the column's extra punch is in the tail. So this
+# ramp is close to flat between 0.4 and 0.9 rather than a diagonal - a diagonal
+# made the column come out (252,86,29), washed orange, where the clip is
+# saturated red with blue at 1.
+#
+# The top is vermilion, not the white-hot FIRE_RAMP ends on: the clip's column
+# core measures (255,61,1), fully saturated, with no white in it at all.
+BURST_RAMP = [
+    (0.00, (44, 3, 1)),
+    (0.25, (150, 16, 2)),
+    (0.40, (206, 27, 4)),
+    (0.62, (198, 34, 2)),
+    (0.88, (204, 40, 2)),
+    (1.00, (255, 66, 14)),
+]
 
 PICKS = {
     "upSlash": {"stack": [("", "upperslash.img")]},
@@ -277,33 +305,116 @@ PICKS = {
     # 血之狂暴: the dual-blade glow that rides the normal attack.
     "frenzy": {"stack": [("_frenzy", "blood-energy.img")]},
     "bloodyRave": {"stack": [("_bloodyrave", "*")]},
-    # 怒气爆发: the pack's ground ring, the blood pillar and the hit flash.
-    # Stacking the whole pack shrank everything - one layer is 355x387, so the
-    # composite had to scale down to fit and the blood read as a smudge. The
-    # dark streak fields (blood-d2, bloodreddodge) stay out for the same reason:
-    # the client draws them additively, this sheet cannot.
+    # 怒气爆发 is **two eruptions on one timeline**, a long beat apart, and the
+    # pack is built that way: a ring bursts under him and is gone inside a fifth
+    # of a second, nothing burns for seven tenths, and then a column of blood
+    # comes up over him. Stacking the pack played all of it at once, which is the
+    # same reading the owner gave 大蹦 (「这个技能应该是多个技能特效组合的」), so
+    # this row is staged like that one.
     #
-    # The eruption is the "(tn)" board: the client's own preview shows a
-    # white-gold column coming out of a ring, and that board is exactly that art
-    # (plain "blood-front" measures [204,28,0], "(tn)" [249,236,200]).
+    # Measured off the training-room clip the owner points at
+    # (assets/dnf_src/bilibili/skill-clips/08_怒气爆发.mp4, 97 frames at 30fps,
+    # 32.900-36.133s) with his own press at #38:
+    #
+    #   #42  0.133s  the pool blooms at his feet, small and flat
+    #   #43  0.167s  the ring bursts - the clip's brightest frame, 2.17 x 0.85
+    #                 Slayer-heights of ground
+    #   #49  0.367s  the ring is gone; he settles back to the idle he holds
+    #   #69  1.033s  the column: 1.77 Slayer-heights across, 2.99 tall, its base
+    #                 pool running 0.31 of a height below his soles
+    #   #73  1.167s  the column has lost its footing and goes out
+    #
+    # So the row is 36 columns over the 1.2s cast, and the two windows sit where
+    # the clip puts them. The pack's own frame counts are the clip's: seven ring
+    # frames against the clip's seven (#43-#49), and the column's five.
+    #
+    # **The board is the plain one, and that reverses slices 38/39.** The client's
+    # own BloodBlast preview shows a pale-gold plume, and those slices baked "(tn)"
+    # to match it. The clip the owner names measures the opposite - saturated red
+    # with blue at zero: ring (217,27,4), column (249,58,3) with a (255,61,1) core
+    # - and the pack's own preview (assets/dnf_effect_anim/blastblood.mp4) is red
+    # as well. 大蹦 sits in exactly this split (orange in its preview, red in its
+    # clip, and the repo ships it red), so the clip wins here too. See
+    # docs/adr/0006.
     #
     # The pack holds two clusters of layers, and only one of them is the caster:
     # blood / blood_floor_front / blood_floor_back / blood_back / bloodred all
     # sit within +-90px of the ring's middle, while b-01, blood-b, blood-front and
-    # blastbloodhit sit 160-270px off to the left. Stacking both clusters made the
-    # move look like two effects at once, so the left cluster stays out.
+    # blastbloodhit sit 160-270px off to the left. That left cluster is a second,
+    # smaller eruption drawn at the *hit* position - the clip has no such thing,
+    # and stacking it made the move look like two effects at once, so it stays out.
+    #
+    # blood-d2 is out for a different reason: it is a fan of pale light shafts the
+    # clip does not draw, and this sheet cannot do the additive blend it needs.
     #
     # The anchor is the middle of the pack's own floor ring (blood_floor.img, 251
     # wide at x=219, y=328): that is where the caster stands and where the ring
     # has to meet his feet. Without it the row was centred on its bounding box,
     # which put the eruption column a third of a screen to his left.
-    "rageBurst": {"palette": "(tn)", "anchor": (344, 365), "stack": [
-        ("_blastblood", "blood_floor_front.img"),
-        ("_blastblood", "blood_floor_back.img"),
-        ("_blastblood", "blood-back.img"),
-        ("_blastblood", "bloodred.img"),
-        ("_blastblood", "blood.img"),
-        ("_blastblood", "blood-d1.img"),
+    #
+    # `window` is declared rather than measured off the art, for 大蹦's reason: it
+    # is the zoom, and the renderer's one `size` is `this window x fit_scale`.
+    # 324 x 365 client px of window, so a client pixel lands on
+    # 0.3288 x size / 128 of a screen pixel, and the ring's 307 client px come out
+    # at the clip's 2.17 Slayer-heights.
+    "rageBurst": {"palette": "", "pack": "_blastblood", "anchor": (344, 365),
+                  "length": 36, "window": (182, -76, 513, 412), "stages": [
+        # The pool blooms under him a frame before the burst (#42). The clip draws
+        # it 0.70 x 0.32 Slayer-heights, so the pack's 238px ellipse comes down to
+        # 0.42 rather than being blown up with everything else.
+        {"entry": "blood_floor.img", "ramp": BURST_RAMP, "scale": 0.42,
+         "from": 0.10, "until": 0.15},
+        # The burst itself (#43-#49), back half first so the front half's flames
+        # are not painted over by it. `about` is the caster's own ground point:
+        # the two halves' bottoms are 38px apart, so squashing each about its own
+        # would draw them apart and the ring would be flat at the front and round
+        # at the back. See `rescale`.
+        {"entry": "blood_floor_back.img", "ramp": BURST_RAMP, "scale": 0.99,
+         "stretch": (1.0, 0.74), "about": 365, "from": 0.13, "until": 0.31},
+        {"entry": "blood_floor_front.img", "ramp": BURST_RAMP, "scale": 0.99,
+         "stretch": (1.0, 0.74), "about": 365, "from": 0.13, "until": 0.31},
+        # ... and what the ring leaves behind. The clip does not go straight from
+        # the ring to a clean floor: #49-#58 has a thin red crescent lying in the
+        # same patch of floor, thinning out, and it is gone by #60. That is the
+        # ring's own last frame - the pack draws the collapse as the crescent it
+        # comes down to (blood_floor_front f4-f6 are all thin arcs) - held and
+        # dimmed, so it is the same shape arriving at the same place rather than a
+        # second effect parked under him.
+        {"entry": "blood_floor_back.img", "ramp": BURST_RAMP, "scale": 0.93,
+         "stretch": (1.0, 0.66), "about": 365, "frames": (6, 6), "alpha": 0.6,
+         "from": 0.31, "until": 0.51},
+        {"entry": "blood_floor_front.img", "ramp": BURST_RAMP, "scale": 0.93,
+         "stretch": (1.0, 0.66), "about": 365, "frames": (6, 6), "alpha": 0.6,
+         "from": 0.31, "until": 0.51},
+        # The column (#69-#73): a fat mass of overlapping tongues standing on its
+        # own pool, and the pack ships exactly one layer that is that shape -
+        # blood-front, the tall 157x300 one. Slice 38 struck it off as one of the
+        # four "hit position" layers because its centroid lands 214px to the
+        # *left* of the ring's middle, and stacking it then really did read as two
+        # effects at once. But that was a complaint about where it sits, not about
+        # what it is, and where a layer sits is an `offset`: `blood.img` - the
+        # layer this row shipped first - is a thin spiky fountain, and drawn at
+        # the clip's size it reads as a firecracker rather than as blood.
+        #
+        # Two things about this layer that the pick has to work around. Its
+        # centroid is 214px left of the ring's middle and its own base sits 17px
+        # above the caster's ground line, so the offset is (214, 48) - that is
+        # the whole of what slice 38 was objecting to. And **only its first frame
+        # is a column**: f0 is the mass, f1 is the same mass with holes opening,
+        # and f2-f6 are it shredding apart. So the mass is held (the clip holds
+        # its own column for #69-#70, two of its five frames) and the one
+        # dispersal frame carries the end, which is the clip's "loses its footing"
+        # at #72-#73. Playing the whole entry - the first thing tried - scattered
+        # disconnected fragments across the screen.
+        #
+        # 1.555 about its own base turns f0's 157px of art into the clip's 1.77
+        # Slayer-heights across and 2.99 tall, measured 1.80 x 3.15.
+        {"entry": "blood-front.img", "ramp": BURST_RAMP, "frames": (0, 0),
+         "scale": 1.80, "stretch": (0.79, 0.78), "offset": (214, 48),
+         "from": 0.85, "until": 0.93},
+        {"entry": "blood-front.img", "ramp": BURST_RAMP, "frames": (1, 1),
+         "scale": 1.80, "stretch": (0.79, 0.78), "offset": (214, 48),
+         "from": 0.93, "until": 1.0},
     ]},
     "bloodSnatch": {"stack": [("_bloodsnatch", "*")]},
     "graspHead": {"stack": [("_grabblastblood", "*")]},
@@ -939,7 +1050,7 @@ def pack_entries(client: Path, pack: str, palette: str = ""):
 
 # One client layer, ready to composite: its frames, the offset of the first
 # one, and the size of the largest.
-def rescale(decoded, scale: float, stretch=(1.0, 1.0)):
+def rescale(decoded, scale: float, stretch=(1.0, 1.0), about: float | None = None):
     """Grow one layer about the point it lands on (its bottom centre).
 
     The client sizes some effect layers from the skill's animation data rather
@@ -954,6 +1065,15 @@ def rescale(decoded, scale: float, stretch=(1.0, 1.0)):
     that makes them - is a flame twice as wide as that at any size that also
     reaches 2.2 tall. Squeezing x is what turns one spire into a tongue; it is
     still the pack's own flame, only drawn at the proportions the reference has.
+
+    `about` is a y in the client's own coordinates to scale about instead of each
+    frame's own bottom, and it exists because **one shape can be more than one
+    layer**: 怒气爆发's burst ring is a front half and a back half, and their
+    bottoms are 38px apart (the back half sits further from the camera). Squashed
+    about their own bottoms they move apart by that much, so the ring came out
+    flat at the front and round at the back. Naming the line they share - the
+    caster's ground point, in that case - flattens the pair by the same amount at
+    the same place. Same lesson as `flatten_base`'s: 平底要求各层先说好在哪儿平.
     """
     if scale == 1.0 and stretch == (1.0, 1.0):
         return decoded
@@ -961,10 +1081,14 @@ def rescale(decoded, scale: float, stretch=(1.0, 1.0)):
     for picture, x, y in decoded:
         width = max(1, int(round(picture.width * scale * stretch[0])))
         height = max(1, int(round(picture.height * scale * stretch[1])))
+        if about is None:
+            grown_y = int(round(y + picture.height - height))
+        else:
+            grown_y = int(round(about + (y - about) * scale * stretch[1]))
         grown.append((
             picture.resize((width, height), Image.LANCZOS),
             int(round(x + (picture.width - width) / 2)),
-            int(round(y + picture.height - height)),
+            grown_y,
         ))
     return grown
 
@@ -1151,7 +1275,15 @@ def stage_layers(client: Path, pick: dict):
         offset = tuple(stage.get("offset", (0, 0)))
         decoded = tint(decoded, stage.get("ramp"))
         decoded = dim(
-            shift(rescale(decoded, scale, tuple(stage.get("stretch", (1.0, 1.0)))), offset),
+            shift(
+                rescale(
+                    decoded,
+                    scale,
+                    tuple(stage.get("stretch", (1.0, 1.0))),
+                    stage.get("about"),
+                ),
+                offset,
+            ),
             stage.get("alpha", 1.0),
         )
         # Filling is a *scale* thing, so it runs after the shape has been grown:
@@ -1364,8 +1496,37 @@ def main() -> None:
         # empty here) so every other row keeps the number it is addressed by.
         if skill in RIFT_ROWS:
             continue
+        # A row that is not the other half of some front row can still declare
+        # its own window, and then that window is the zoom - the same promise
+        # 大蹦's two rows make to each other. 怒气爆发 needs it for the other
+        # reason a window is worth declaring: its art is drawn at two scales at
+        # once (a ring on the floor and a column three Slayers tall), so an ink
+        # window measured off the union would zoom the row to fit the tallest
+        # thing in it and leave the ring a smudge. The clip says what both come
+        # out at, so the window is stated rather than derived.
+        declared = PICKS.get(skill, {}).get("window")
+        window = tuple(declared) if declared else windows.get(skill)
+        if declared:
+            ink = ink_window(rows[skill], origins[skill], padding=0)
+            if ink and (
+                ink[0] < window[0] or ink[1] < window[1]
+                or ink[2] > window[2] or ink[3] > window[3]
+            ):
+                print(
+                    f"  WARNING {skill}: ink {ink} runs outside the declared "
+                    f"window {window} and will be clipped",
+                    file=sys.stderr,
+                )
+            print(
+                f"  {skill}: window {window}, one client px is {fit_scale(window):.4f} "
+                f"of a cell px, so `size` = {CELL / fit_scale(window):.2f} draws it 1:1"
+            )
+        # One call only: `bake_frames` pops leading and trailing empty frames off
+        # the list it is given when no window is declared, so calling it twice
+        # would time the row a second time from a list that had already lost its
+        # head.
         counts[skill] = bake_frames(
-            rows[skill], row, sheet, anchors[skill], origins[skill], window=windows.get(skill)
+            rows[skill], row, sheet, anchors[skill], origins[skill], window=window
         )
     for offset, (name, _pick) in enumerate(EXTRA_ROWS):
         counts[name] = bake_frames(rows[name], len(EFFECTS) + offset, sheet)

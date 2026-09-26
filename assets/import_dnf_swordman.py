@@ -105,7 +105,7 @@ ROWS = ["idle", "run", "attack", "skill", "extras", "clips", "clips2", "bloodbla
 # the character never seemed to perform the skill being cast.
 CLIPS = [
     ("mountainBreaker", [187, 194, 203, 204, 205, 206, 207, 208, 209, 210, 211, 187]),
-    ("rageBurst", list(range(76, 84))),
+    ("rageBurst", list(range(76, 84)) + [176, 177]),
     ("crossSlash", list(range(5, 19)) + list(range(198, 204))),
     ("frenzy", list(range(161, 170))),
     ("mountainRift", [123, 124, 204, 205, 208, 209, 132]),

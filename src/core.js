@@ -481,17 +481,48 @@
       cooldown: 6.5,
       damage: 15,
       growth: 3,
-      duration: 0.66,
-      activeFrom: 0.18,
-      activeTo: 0.52,
+      /*
+       * 怒气爆发 is two eruptions a long beat apart, and the cast is the training
+       * room's: assets/dnf_src/bilibili/skill-clips/08_怒气爆发.mp4 (97 frames at
+       * 30fps, 32.900-36.133s), measured frame by frame with his own press at
+       * #38 -
+       *
+       *   #38  0.000s  the press; he snaps into a braced stance
+       *   #42  0.133s  a pool blooms at his feet
+       *   #43  0.167s  the burst ring: 2.17 x 0.85 Slayer-heights of ground
+       *   #49  0.367s  the ring is gone, and he settles back to his stand
+       *   #69  1.033s  the column, 1.77 x 2.99, out of the same patch of floor
+       *   #73  1.167s  it loses its footing and goes out
+       *
+       * He does not move: the nameplate riding over his head holds its row on all
+       * 97 frames and drifts 7px across the whole clip, so there is no leap here
+       * and no reach to fold - unlike 崩山击's one body height of hop.
+       */
+      duration: 1.2,
+      /*
+       * Three hits over the two eruptions: the engine spreads them evenly, so the
+       * window is pinned to the ring (0.17s) and the column (1.03s) and the middle
+       * one lands in the quiet stretch between them. That is the same price 大蹦
+       * pays for its even spread, and it is written down for the same reason.
+       */
+      activeFrom: 0.17,
+      activeTo: 1.03,
       reach: 0,
       heightPad: 0,
       knockbackX: 180,
       launch: -430,
-      radius: 152,
+      /*
+       * The ring the clip draws is 2.17 Slayer-heights across - 1.09 either side
+       * of his soles, measured on #46 where it is at its widest - so this is 92px
+       * and not the 152 it used to be: the old number was sized to a circle round
+       * the caster rather than to the art, and the art is what the clip shows.
+       */
+      radius: 92,
       hits: 3,
-      /* DNF shape: 怒气爆发 erupts around the Slayer - blood pillars out of the
-         ground, three hits, and everything caught is lifted into the air. */
+      /* DNF shape: 怒气爆发 erupts around the Slayer - blood out of the ground,
+         three hits, and everything caught is lifted into the air. The lift is the
+         owner's own reading of the move and the clip cannot speak to it - a
+         training room has nothing standing in the fire - so it stays as it was. */
       juggle: true
     },
     bloodSnatch: {

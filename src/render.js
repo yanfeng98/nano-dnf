@@ -162,8 +162,43 @@
          */
         flare: { from: 0.325, until: 0.35, scale: 1.45 }
       },
-      rageBurst: { row: 5, first: 12, frames: 8 },
-      crossSlash: { row: 5, first: 20, frames: 20 },
+      /*
+       * 怒气爆发 barely moves him, and that is the reference rather than an
+       * omission: 08_怒气爆发 holds one braced pose for 16 of its 30fps frames
+       * (#38-#53) with only the rim glow moving, settles back to the stand over
+       * the next five (#54-#58), and is *already standing still* when the column
+       * comes up out of the floor at #69 - the clip erupts it with no pose change
+       * at all. So the clip is three acts, and the frames are the client's own:
+       *
+       *   body 76-79  the braced stance (client action 10's own opening)
+       *   body 80-83  the settle back up
+       *   body 176-177 the stand he is left in, held through the column
+       *
+       * The beats are what make it read: spreading ten frames evenly over the
+       * 1.2s cast put a different pose on screen every 0.12s, which is a settle
+       * that never settles. Here one frame takes the press, three carry the half
+       * second the clip holds its stance, four do the settle and two hold the
+       * stand - i.e. the changeovers are 0.00 / 0.04 / 0.50 / 0.70 against the
+       * reference's own #38 / #40 / #53 / #58 (0.00, 0.06, 0.50, 0.65 of its
+       * 36-frame cast). The last beat runs to the end because the clip's own last
+       * changeover is #69 (0.86) and that one is not a pose at all - the column
+       * erupts with the stand he is already holding.
+       */
+      rageBurst: {
+        row: 5,
+        first: 12,
+        frames: 10,
+        beats: [
+          { frames: 1, from: 0.0, until: 0.04 },
+          { frames: 3, from: 0.04, until: 0.5 },
+          { frames: 4, from: 0.5, until: 0.7 },
+          { frames: 2, from: 0.7, until: 1.0 }
+        ]
+      },
+      /* 怒气爆发 took one more body frame than it used to, so everything after
+         it in the clips row moves up two columns (the bake packs the row in
+         order, and a clip that does not fit starts the next row instead). */
+      crossSlash: { row: 5, first: 22, frames: 20 },
       /* 血之狂暴: body action 22, the stand that flings both arms out. */
       frenzy: { row: 6, first: 0, frames: 9 },
       /*
@@ -344,7 +379,14 @@
       bloodSword: 27,
       frenzy: 20,
       bloodyRave: 17,
-      rageBurst: 13,
+      /*
+       * 怒气爆发 is a staged row like 大蹦's: the pool and the burst ring own
+       * columns 4-11, the quiet stretch is columns 12-29, and the column comes
+       * up at 30-35. 36 columns over the 1.2s cast is one every 34ms, which is
+       * what it takes to carry the ring's seven frames exactly (cols 5-11), and
+       * the column's two - its mass held, then the frame it comes apart on.
+       */
+      rageBurst: 36,
       bloodSnatch: 19,
       graspHead: 18,
       bloodEvil: 15,
@@ -441,11 +483,15 @@
       frenzy: { dx: 52, dy: -40, size: 150, copies: 1, spin: 0 },
       bloodyRave: { dx: 52, dy: -46, size: 170, copies: 1, spin: 0 },
       /*
-       * 怒气爆发 erupts around him: it is the widest effect in the kit, and its
-       * row is baked with the caster's ground point on the cell's ground line
-       * (75% down), so the ring has to meet his feet rather than his knees.
+       * 怒气爆发 erupts around him, and its two acts are drawn at the sizes the
+       * training room shows: the row's window is 331 x 488 client px, so one
+       * client pixel is 0.2459 of a cell pixel and `size` 317 draws the burst
+       * ring 2.18 x 0.83 Slayer-heights and the column 1.71 x 3.07 - against the
+       * clip's 2.17 x 0.85 and 1.77 x 2.99, every one inside 4%. The row is baked
+       * with the caster's ground point on the cell's ground line (75% down), so
+       * `dy = -size / 4` puts the ring on his feet rather than his knees.
        */
-      rageBurst: { dx: 0, dy: -75, size: 300, copies: 1, spin: 0 },
+      rageBurst: { dx: 0, dy: -79, size: 317, copies: 1, spin: 0 },
       bloodSnatch: { dx: 56, dy: -46, size: 190, copies: 1, spin: 0 },
       graspHead: { dx: 30, dy: -36, size: 128, copies: 1, spin: 0 },
       bloodEvil: { dx: 44, dy: -30, size: 178, copies: 1, spin: 0 },
@@ -479,6 +525,17 @@
     timing: {
       mountainRift: { from: 0, to: 0.99 },
       /*
+       * 怒气爆发 opens on its own first frame and runs to its last. Neither end
+       * is where the default window would put it: that one is derived from
+       * `activeFrom`, which for this move is the ring's peak at 0.17s of 1.2 - so
+       * it would open a tenth of the way in and throw away the pool that blooms
+       * under him before the burst, and close at 0.96 with the column's last
+       * frame still to come. `to` is 0.99 rather than 1 for the same reason 大蹦's
+       * is: progress reaches exactly 1 only on the frame the cast is already over,
+       * and 0.99 still lands the row's last column (0.96 of the way through it).
+       */
+      rageBurst: { from: 0, to: 0.99 },
+      /*
        * 崩山击's landing art opens as he comes down, not on the press. The
        * reference erupts the fire column at #35 - six of its 30fps frames, i.e.
        * 0.200s, before touchdown at #41 - and the spikes spread as he lands; the
@@ -508,7 +565,15 @@
      * keeping the fade on the last eighth is what the reference's own outro does.
      */
     fade: {
-      mountainRift: { from: 0.92, to: 1, floor: 0.95 }
+      mountainRift: { from: 0.92, to: 1, floor: 0.95 },
+      /*
+       * 怒气爆发's last act is its biggest one too - the column is the whole
+       * point of the move and it arrives at 0.86 of the cast. The default fade
+       * (from 0.75) would draw it at two thirds strength from the frame it
+       * appears. It does go out on its own: the pack's own last frames lose their
+       * footing, and the clip's do the same at #73.
+       */
+      rageBurst: { from: 0.93, to: 1, floor: 0.85 }
     }
   };
 
