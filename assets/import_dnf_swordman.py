@@ -60,8 +60,14 @@ ROWS = ["idle", "run", "attack", "skill", "extras", "clips", "clips2", "bloodbla
 #              blade still down and forward, where the character already stands),
 #              194 (both hands up, the blade over the head) and 203 (the same
 #              raise on the client's own 举剑 frame), then the coil 204-205, the
-#              crescent of the smash 206-207, and the low lunge it lands in
-#              208-209. The client's own hop frames (127-132) are out: they carry
+#              crescent of the smash 206-207, the low lunge it lands in 208-209,
+#              and then the client's own get-up: 210 (up off the back knee, the
+#              blade across his chest) and 211 (nearly upright), back onto 187 -
+#              the pose he is standing in - which is where the training-room clip
+#              leaves him too (#51-56 rises and returns to the idle it started
+#              from; without this the move held the lunge for the last third of
+#              its cast, with the reference already standing).
+#              The client's own hop frames (127-132) are out: they carry
 #              no sword motion, which is what made the leap read as a second
 #              wind-up in front of the smash (owner: 「举剑过头」is part of the
 #              jump, so putting the raise back is the point of this cut).
@@ -98,7 +104,7 @@ ROWS = ["idle", "run", "attack", "skill", "extras", "clips", "clips2", "bloodbla
 # The game used to draw one generic skill animation for every move, which is why
 # the character never seemed to perform the skill being cast.
 CLIPS = [
-    ("mountainBreaker", [187, 194, 203, 204, 205, 206, 207, 208, 209]),
+    ("mountainBreaker", [187, 194, 203, 204, 205, 206, 207, 208, 209, 210, 211, 187]),
     ("rageBurst", list(range(76, 84))),
     ("crossSlash", list(range(5, 19)) + list(range(198, 204))),
     ("frenzy", list(range(161, 170))),

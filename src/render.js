@@ -116,24 +116,35 @@
       mountainBreaker: {
         row: 5,
         first: 0,
-        frames: 9,
+        frames: 12,
         beats: [
           /* the lift: the blade comes up as he leaves the ground, and it is over
-             his head by the apex at 0.30 of the cast ... */
-          { frames: 3, from: 0.0, until: 0.32 },
-          /* ... the coil at the top of the hop ... */
-          { frames: 2, from: 0.32, until: 0.45 },
+             his head by the apex at 0.29 of the cast ... */
+          { frames: 3, from: 0.0, until: 0.29 },
+          /* ... the coil at the top of the hop (#32-33 of 01 崩山击) ... */
+          { frames: 2, from: 0.29, until: 0.35 },
           /*
-           * ... the crescent. It is brief, the way the reference holds it - two
-           * frames around the apex and the descent (#33 of 01 崩山击) - and the
-           * hit lands a frame into it, at 0.75s of the 1.3s cast. Holding it
-           * for a third of the move (what this used to do) left him swinging
-           * mid-air for most of the cast, where the clip is already on the
-           * ground with the spikes out.
+           * ... the crescent, and it is the descent: the reference has the blade
+           * coming down from #34 to #40 and the feet back on the floor at #41,
+           * so the whole fall is this one act and the hit at 0.70s of the 1.3s
+           * cast lands inside it. These three beats used to sit a full act late -
+           * the crescent opened at 0.45, half way through the fall, which left
+           * him swinging at the top of the hop while the reference already had
+           * the blade down (owner, on the 对照图: 「按照参考」).
            */
-          { frames: 2, from: 0.45, until: 0.62 },
-          /* ... and the lunge it lands in, held through the recovery. */
-          { frames: 2, from: 0.62, until: 1.0 }
+          { frames: 2, from: 0.35, until: 0.51 },
+          /* ... the lunge it lands in ... */
+          { frames: 2, from: 0.51, until: 0.78 },
+          /*
+           * ... and the get-up: the reference rises from #51 to #55 (0.78-0.89
+           * of this cast) and is back on the idle it started from at #56 (0.91),
+           * so the client's own 210/211 carry him up and the pose he stands in -
+           * 187, the frame this clip opens on - is what he is left holding. The
+           * move used to hold the lunge for the whole last third, with the
+           * reference standing over its fire.
+           */
+          { frames: 2, from: 0.78, until: 0.89 },
+          { frames: 1, from: 0.89, until: 1.0 }
         ],
         /*
          * The apex flash. The reference paints him flat yellow for the single
@@ -143,11 +154,16 @@
          * with that yellow, drawn behind him and run up 1.45x about his feet:
          * the reference's ghost stands on his feet and its head reaches about
          * 310 of its client px against the 216 he is drawn at.
+         *
+         * The window stops at 0.35 - where the crescent takes over - rather than
+         * running into it. #34 is the frame he is still holding the blade up in,
+         * and the flash is a *silhouette of him*: riding the crescent cell made
+         * the ghost the slash's arc instead, a yellow scythe twice his width.
          */
-        flare: { from: 0.346, until: 0.372, scale: 1.45 }
+        flare: { from: 0.325, until: 0.35, scale: 1.45 }
       },
-      rageBurst: { row: 5, first: 9, frames: 8 },
-      crossSlash: { row: 5, first: 17, frames: 20 },
+      rageBurst: { row: 5, first: 12, frames: 8 },
+      crossSlash: { row: 5, first: 20, frames: 20 },
       /* 血之狂暴: body action 22, the stand that flings both arms out. */
       frenzy: { row: 6, first: 0, frames: 9 },
       /*

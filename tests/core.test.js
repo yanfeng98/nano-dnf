@@ -2129,6 +2129,16 @@ test("崩山击 flashes yellow at the top of its hop, behind him", () => {
   assert.ok(flare.from > 0.3 && flare.from < 0.4, "the flash opens just past the apex");
   assert.ok(flare.until > flare.from, "and it closes");
   assert.ok(flare.until - flare.from < 0.05, "a flash is a frame or two, not a pose");
+  /*
+   * And it rides the coil, not the swing that follows it. #34 of the reference
+   * still has the blade up, and the flash is a silhouette of *him*: pointed at
+   * the crescent's cell it became the slash's own arc instead - a yellow scythe
+   * twice his width, with the character a speck inside it.
+   */
+  assert.ok(
+    flare.from >= clip.beats[1].from && flare.until <= clip.beats[1].until,
+    "the flash rides the pose the reference flashes, not the crescent after it"
+  );
 
   const state = Core.createState({ seed: 5 });
   const player = state.player;
@@ -2228,29 +2238,73 @@ test("one press plays one stage of the normal attack, and attack speed sets the 
   );
 
   /*
-   * 崩山击 has to read as the client's own preview, which opens on the lift: 187
-   * (the blade still down and forward, the pose he is already standing in),
+   * 崩山击 has to read as the training-room reference, which opens on the lift:
+   * 187 (the blade still down and forward, the pose he is already standing in),
    * 194/203 (both hands up, the blade over the head - the client's own 举剑),
    * 204-205 (the coil at the top of the hop), the smash's crescent (206-207)
-   * landing with the hit, and the low lunge it ends in (208-209) through the
-   * recovery. The client's own hop frames (127-132) are out: they carry no sword
-   * motion, so putting them in front of the smash gave the move two wind-ups
-   * (owner: 「举剑过头」is part of the jump).
+   * coming down through the fall, the low lunge it lands in (208-209), and the
+   * client's own get-up (210-211) back onto 187, the pose he stands in. The
+   * client's own hop frames (127-132) are out: they carry no
+   * sword motion, so putting them in front of the smash gave the move two
+   * wind-ups (owner: 「举剑过头」is part of the jump).
+   *
+   * The boundaries are the reference's own frames, folded into this cast
+   * (`p = (0.05 + (k - 22) / 30) / 1.3`, k over 01 崩山击's own numbering):
+   * #32-33 is the apex at 0.29-0.32, #34 opens the fall at 0.35, #41 puts his
+   * feet down at 0.53 and the rise runs #51-56 (0.78-0.91). The three beats
+   * after the lift used to sit an act late - the crescent did not open until
+   * 0.45, so he was still swinging at the top of the hop where the reference
+   * already has the blade down - and the move then held the lunge where the
+   * reference gets up.
    */
   const smash = Render.SPRITE.skillClips.mountainBreaker;
   assert.equal(smash.row, Render.SPRITE.rows.clips);
   assert.equal(smash.first, 0, "崩山击 opens the first clip row");
-  assert.equal(smash.frames, 9, "the lift, the coil, the crescent and the lunge");
+  assert.equal(smash.frames, 12, "the lift, the coil, the crescent, the lunge and the get-up");
   const beats = smash.beats.map((beat) => beat.frames);
-  assert.deepEqual(beats, [3, 2, 2, 2], "each act is paced on its own");
+  assert.deepEqual(beats, [3, 2, 2, 2, 2, 1], "each act is paced on its own");
+  /* Each act hands over to the next, and each boundary is a reference frame. */
+  assert.deepEqual(
+    smash.beats.map((beat) => [beat.from, beat.until]),
+    [[0, 0.29], [0.29, 0.35], [0.35, 0.51], [0.51, 0.78], [0.78, 0.89], [0.89, 1]],
+    "the acts change over on the reference's own apex, fall, touchdown and rise"
+  );
   assert.ok(
     smash.beats[0].until <= Core.SKILLS.mountainBreaker.activeFrom / Core.SKILLS.mountainBreaker.duration,
     "and the blade is up before the hit, not on it"
+  );
+  /*
+   * The crescent is the fall, so the hit - a frame after touchdown - lands in
+   * the lunge the reference lands in, not on the swing (#41 holds the low pose
+   * from 0.53 all the way to the rise at the end).
+   */
+  const hitAt = Core.SKILLS.mountainBreaker.activeFrom / Core.SKILLS.mountainBreaker.duration;
+  assert.ok(
+    smash.beats[2].until <= hitAt,
+    `the swing is over before he lands on it (crescent ends ${smash.beats[2].until}, hit at ${hitAt})`
   );
   assert.equal(
     beats.reduce((total, count) => total + count, 0),
     smash.frames,
     "every baked frame belongs to a beat"
+  );
+  /*
+   * And the clip is the one the bake ships. The last three are the get-up the
+   * reference does at #51-56 and this move used to skip: the client's own 210
+   * (up off the back knee, blade across the chest) and 211 (nearly upright),
+   * back onto 187 - the pose he stands in, which is also the frame this clip
+   * opens on, so the move ends where it started. 崩山裂地斩 keeps its own 132
+   * stand for the same reason; 崩山击 must not end on the lunge the way it used
+   * to, holding it for the last third of the cast with the reference standing.
+   */
+  const smashBake = fs.readFileSync(
+    path.join(__dirname, "..", "assets", "import_dnf_swordman.py"),
+    "utf8"
+  );
+  assert.match(
+    smashBake,
+    /"mountainBreaker", \[187, 194, 203, 204, 205, 206, 207, 208, 209, 210, 211, 187\]\)/,
+    "崩山击 rises out of its lunge and is left standing where it started"
   );
 
   /*
