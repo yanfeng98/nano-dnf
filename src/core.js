@@ -283,17 +283,19 @@
       growth: 4,
       /*
        * 崩山击 is a committed move - raise, forward hop, landing shockwave,
-       * recovery - and the cast is cut to the client's own preview
+       * recovery - and the cast is cut to the training-room reference
        * (assets/dnf_src/bilibili/skill-clips/01_崩山击.mp4): the leap is the
        * raise, the blade connects on the landing, and the whole thing is 1.3s
-       * from the press.
+       * from the press. The client's own preview of the same move is a
+       * different file (assets/dnf_src/skill-videos/Swordman-HopSmash.mp4) and
+       * is only ever a 旁证 - this comment used to name the clip above as it.
        */
       duration: 1.3,
-      /* seconds: the hop starts at 0.065s and touches down at ~0.733s, so the
+      /* seconds: the hop starts at 0.05s and touches down at ~0.70s, so the
          blade and its ground wave connect a frame later - while he is still in
          the air the box sits above the enemies and nothing lands. */
-      activeFrom: 0.75,
-      activeTo: 0.83,
+      activeFrom: 0.70,
+      activeTo: 0.78,
       reach: 96,
       heightPad: 18,
       knockbackX: 240,
@@ -303,26 +305,42 @@
       /* DNF shape: leap smash that knocks the target down. */
       knockdown: 1.1,
       /*
-       * The hop is the raise itself, and its arc is the client preview's: he
-       * rises ~250px - about 3.7 body heights, measured off 01 崩山击 - and is
-       * back down inside 0.67s. The global gravity (2200) cannot do both: 250px
-       * at 2200 would hang for 0.95s. DNF's own world is that much heavier, so
-       * the move brings its own fall gravity and the two numbers both land. The
-       * 150px/s push then covers about 100px before he lands on the smash, which
-       * is the drift the same clip shows.
+       * The hop is the raise itself, and its arc is the reference's, read in
+       * Slayer-heights: he leaves the ground at frame 22 of 01 崩山击 and is
+       * back on it at frame 41, 19 of the clip's 30fps frames = 0.633s, and the
+       * nameplate that rides over his head rises 215 client px against the 218
+       * client px he is drawn at. So this is a hop of **one body height**, folded
+       * into this screen (84px to the 身位, see CONTEXT.md) = 83px up, 42px
+       * forward. The nameplate is the clean ruler: it is a rigid box that sits at
+       * a fixed row while he stands and travels with him in the air.
+       *
+       * The gravity is this move's own and it is *lighter* than the world's
+       * (2200): the reference hangs 0.633s over only 83px, and 2200 would put
+       * him down in 0.55s. Folding the two measured numbers through
+       * h = g t^2 / 8 and v = g t / 2 gives the pair below.
+       *
+       * Both used to be about three times this big, and the cause is worth
+       * keeping: 250px and "about 3.7 body heights" were read off 01 崩山击 and
+       * used as *this* screen's pixels, at a time when the repo had no 身位 to
+       * convert through - `bodyHeight` and CONTEXT.md's 身位 entry both arrive a
+       * day later, in 06107f2. Measuring the reference in the reference's own
+       * units and drawing the result in ours is the trap this repo has now
+       * written up three times (see assets/dnf_effect_picks.md); this is the one
+       * that survived into the leap.
        */
-      leap: 150,
-      leapUp: -1500,
-      /* Only the airborne half of this move: -1500 under 4500 peaks at
-         -1500^2 / (2 * 4500) = 250px and touches down 2 * 1500 / 4500 = 0.67s
+      leap: 66,
+      leapUp: -523,
+      /* Only the airborne half of this move: -523 under 1653 peaks at
+         -523^2 / (2 * 1653) = 83px and touches down 2 * 523 / 1653 = 0.633s
          later, on activeFrom. */
-      leapGravity: 4500,
+      leapGravity: 1653,
       leapFrom: 0.05,
       /* The leap's landing frames are invulnerable, DNF style: the Slayer is
          committed to the smash and cannot be knocked out of the air - the window
-         has to cover the whole hop plus the landing hit, or a grunt standing
-         where he comes down cancels the move before the blade connects. */
-      leapInvuln: 0.75,
+         has to cover the whole hop plus the landing hit (which now lands at
+         0.70s, off a take-off at 0.067s), or a grunt standing where he comes
+         down cancels the move before the blade connects. */
+      leapInvuln: 0.72,
       shockwave: {
         reach: 150,
         damage: 10,

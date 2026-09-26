@@ -46,7 +46,7 @@ FRAME_H = 176
 COLS = 42
 ANCHOR_X = 88
 ANCHOR_Y = 156
-ROWS = ["idle", "run", "attack", "skill", "extras", "clips", "clips2", "bloodblade"]
+ROWS = ["idle", "run", "attack", "skill", "extras", "clips", "clips2", "bloodblade", "flare"]
 
 # Per-move body animations, picked by the owner off the body sheet next to each
 # skill's own client clip. Only the picked frames go in: widening them to their
@@ -449,6 +449,40 @@ def blood_blade(cell: Image.Image) -> Image.Image:
     return out
 
 
+# 崩山击's apex flash. One frame of the reference (01 崩山击 #34, the frame just
+# past the top of the hop) paints him flat yellow, behind the pose he is holding
+# and about 1.45x his size, his feet on its feet. The pack has no such layer -
+# the seven candidates under _hopsmash are spike fans, fire and a blue finish -
+# so this is the body's own art again, filled: the same *copy* the blood blade
+# is, for the same reason (a copy cannot be aimed wrong), and it tells the eye
+# nothing about which part of him changed because nothing did.
+#
+# Alpha does the shading: the silhouette's interior is opaque and its rim is
+# anti-aliased, so grading the fill by alpha gives the reference's gold rim over
+# its flat core without measuring anything.
+FLARE = (255, 242, 105)
+FLARE_RIM = (238, 176, 22)
+
+
+def flare_cell(cell: Image.Image) -> Image.Image:
+    """One body cell filled with the reference's yellow, alpha left alone."""
+    out = cell.copy()
+    pixels = out.load()
+    for y in range(out.height):
+        for x in range(out.width):
+            red, green, blue, alpha = pixels[x, y]
+            if alpha <= 60:
+                continue
+            level = min(1.0, alpha / 255.0)
+            pixels[x, y] = (
+                round(FLARE_RIM[0] + (FLARE[0] - FLARE_RIM[0]) * level),
+                round(FLARE_RIM[1] + (FLARE[1] - FLARE_RIM[1]) * level),
+                round(FLARE_RIM[2] + (FLARE[2] - FLARE_RIM[2]) * level),
+                alpha,
+            )
+    return out
+
+
 def build(client: pathlib.Path, force: bool) -> Image.Image:
     decoder = Decoder(client, force)
     layer_frames = [(key, decoder.frames(key)) for key in LAYERS]
@@ -457,9 +491,10 @@ def build(client: pathlib.Path, force: bool) -> Image.Image:
     clip_row = 0
     clip_column = 0
     placed_mountain_rift = []
+    placed_mountain_breaker = []
     for row, name in enumerate(ROWS):
-        if name == "bloodblade":
-            continue                 # filled from 大蹦's own cells, after the loop
+        if name in ("bloodblade", "flare"):
+            continue                 # filled from their own clip's cells, after the loop
         if name in CLIP_ROWS:
             if clip_row >= len(CLIPS):
                 continue
@@ -475,6 +510,8 @@ def build(client: pathlib.Path, force: bool) -> Image.Image:
                     sheet.alpha_composite(cell, (clip_column * FRAME_W, row * FRAME_H))
                     if skill == "mountainRift":
                         placed_mountain_rift.append((row, clip_column, index))
+                    if skill == "mountainBreaker":
+                        placed_mountain_breaker.append((row, clip_column, index))
                     clip_column += 1
                 if clip_column >= COLS:
                     print(f"  {name}: {skill} cols {first}-{clip_column - 1}")
@@ -505,6 +542,17 @@ def build(client: pathlib.Path, force: bool) -> Image.Image:
                                          (column + 1) * FRAME_W, (row + 1) * FRAME_H)))
         sheet.alpha_composite(blood_blade(cell), (column * FRAME_W, blade_row * FRAME_H))
         print(f"  bloodblade: col {column} from frame {index}")
+    # 崩山击's apex flash: every one of its own cells again, one row down, filled
+    # with the reference's yellow. All nine are copied rather than only the cell
+    # the flash lands on, so this row stays column-for-column with the clip and
+    # the renderer can hand it the column it is already drawing.
+    flare_row = ROWS.index("flare")
+    for row, column, index in placed_mountain_breaker:
+        cell = Image.new("RGBA", (FRAME_W, FRAME_H), (0, 0, 0, 0))
+        cell.alpha_composite(sheet.crop((column * FRAME_W, row * FRAME_H,
+                                         (column + 1) * FRAME_W, (row + 1) * FRAME_H)))
+        sheet.alpha_composite(flare_cell(cell), (column * FRAME_W, flare_row * FRAME_H))
+        print(f"  flare: col {column} from frame {index}")
     return sheet
 
 

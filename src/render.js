@@ -75,7 +75,7 @@
      * that one measures the cell between the feet and the anchor.
      */
     bodyHeight: 84,
-    rows: { idle: 0, run: 1, attack: 2, skill: 3, extras: 4, clips: 5, clips2: 6, bloodblade: 7 },
+    rows: { idle: 0, run: 1, attack: 2, skill: 3, extras: 4, clips: 5, clips2: 6, bloodblade: 7, flare: 8 },
     /* Frames the renderer actually plays per row; the rest of the row is spare art.
        The stand is a four-frame breath off the client's "still" frames, the attack
        is the whole normal-attack chain (see Core.ATTACK_STAGES). */
@@ -134,7 +134,17 @@
           { frames: 2, from: 0.45, until: 0.62 },
           /* ... and the lunge it lands in, held through the recovery. */
           { frames: 2, from: 0.62, until: 1.0 }
-        ]
+        ],
+        /*
+         * The apex flash. The reference paints him flat yellow for the single
+         * frame just past the top of the hop (#34 of 01 崩山击, 0.400s after it
+         * leaves the ground), which at its 30fps is 0.033s - two of this game's
+         * frames. The cell comes off the sheet's `flare` row, his own art filled
+         * with that yellow, drawn behind him and run up 1.45x about his feet:
+         * the reference's ghost stands on his feet and its head reaches about
+         * 310 of its client px against the 216 he is drawn at.
+         */
+        flare: { from: 0.346, until: 0.372, scale: 1.45 }
       },
       rageBurst: { row: 5, first: 9, frames: 8 },
       crossSlash: { row: 5, first: 17, frames: 20 },
@@ -356,8 +366,14 @@
      */
     riftCell: 384,
     riftRows: { mountainRift: { back: 0, front: 1 } },
-    /* A move that draws a second row over the Slayer says how long it is. */
-    frontFrames: { mountainRift: 45 },
+    /*
+     * A move that draws a second row over the Slayer says how long it is.
+     * 大蹦's second row is a *different* row, on its own sheet (see riftRows);
+     * 崩山击's is the same six cells drawn on the other side of him, which is
+     * why its draw entry also carries `front` - without that the row would be
+     * painted twice, once behind him and once in front.
+     */
+    frontFrames: { mountainRift: 45, mountainBreaker: 6 },
     draw: {
       upSlash: { dx: 34, dy: -56, size: 156, copies: 1, spin: 0 },
       /*
@@ -365,11 +381,42 @@
        * with an anchor now (the foot of the fire column, which is also where the
        * spikes were moved to), so dy is a quarter of the size like 大蹦's rows:
        * that puts the impact on his feet instead of a fixed few pixels under
-       * them, which is what the un-anchored row used to need. `ground` keeps it
-       * there while he is still in the air (see drawEffectRow): the fire comes
-       * out of the floor he is falling toward, not out of his boots.
+       * them, which is what the un-anchored row used to need.
+       *
+       * `size` is not a free zoom knob on this row. The spike fan is the widest
+       * thing in it, so the fan is what the row's ink window is measured across
+       * and its drawn width comes out as (cell - margin) / cell * `size` - the
+       * fan's own `scale` cannot move it (raising it a third moved the fan 6% and
+       * cost the column 20%; the measurement is written up in the bake's own
+       * note). 264 is what lands the fan at the reference's 2.80 Slayer-heights,
+       * where 236 left it at 2.39. The column was signed off at its own size, so
+       * its `stretch` in import_dnf_effects.py is scaled by 236/264 to hold it.
+       *
+       * The row rides him: `ground` is deliberately *not* set here, though this
+       * move carried it for two rounds. The reference's fire column opens 167
+       * client px above the floor while he is still falling (#35 of 01 崩山击)
+       * and its foot only meets the ground after he does (#41-42, where it
+       * crosses the floor line by 14px). Pinning it to the floor stood the fire
+       * up while he was still in the air, which is the opposite of the clip; on
+       * the ground the two are the same point, so this only changes the airborne
+       * half.
+       *
+       * `front` is the other half of the same reading: the reference's fire and
+       * spikes are drawn *over* him, and at their peak (#44-45) he is inside the
+       * burst and cannot be seen at all. So this row is skipped on the pass
+       * behind him and drawn on the one in front instead (see frontFrames).
+       *
+       * `dx` is the third: the row's anchor is the column's foot, and the
+       * reference stands that foot **in front of him, not under him**. Measured
+       * against the nameplate over his head (rigid, and the only thing in the
+       * clip that holds still), the fire's own centre sits +70px ahead of him as
+       * he lands (#42) and +87px as the burst peaks (#45) - 0.83 and 1.03
+       * Slayer-heights. With dx at 0 the whole row sat on top of him instead,
+       * which is the read the owner sent back on 大蹦 once already (「火焰都靠近
+       * 角色，没有在圈内」). 70 puts the column where the clip has it and leaves
+       * the burst 0.2 of a Slayer-height short of its own.
        */
-      mountainBreaker: { dx: 0, dy: -59, size: 236, copies: 1, spin: 0, ground: true },
+      mountainBreaker: { dx: 70, dy: -66, size: 264, copies: 1, spin: 0, front: true },
       /* 十字斩's own art draws the cross (a horizontal stroke, then the
          vertical one landing on it), so it is no longer mirrored into one.
          DNF draws the cross and then pushes it forward, so it also travels. */
@@ -417,15 +464,16 @@
       mountainRift: { from: 0, to: 0.99 },
       /*
        * 崩山击's landing art opens as he comes down, not on the press. The
-       * reference erupts the fire column while he is still in the air (#34 of
-       * 01 崩山击, well before touchdown at #41) and the spikes spread as he
-       * lands; the default window (a fraction of activeFrom) opened it while
-       * the hop was still climbing, and 0.58 opened it on the hit alone. 0.45
-       * is a tenth of a second before touchdown at 0.75s of the 1.3s cast, so
-       * the column is up when he arrives and the row runs out over the
+       * reference erupts the fire column at #35 - six of its 30fps frames, i.e.
+       * 0.200s, before touchdown at #41 - and the spikes spread as he lands; the
+       * default window (a fraction of activeFrom) opened it while the hop was
+       * still climbing, and 0.58 opened it on the hit alone. 0.38 is that 0.200s
+       * before the landing at 0.70s of the 1.3s cast, and it lands him where the
+       * reference has him when the fire appears: 69px up, against its 64px, so
+       * the column opens on the same patch of air. The row runs out over the
        * recovery, the way the clip's spikes do.
        */
-      mountainBreaker: { from: 0.45, to: 0.95 }
+      mountainBreaker: { from: 0.38, to: 0.95 }
     },
     /*
      * How a row dies down, per skill. The default (0.75 -> 1, down to 0.3 of
@@ -991,6 +1039,23 @@
     ctx.restore();
   }
 
+  /**
+   * The clip's own apex flash, if one is due - see 崩山击's `flare` in skillClips.
+   *
+   * It is declared on the clip rather than here because it only means anything
+   * on the clip's own clock, so it travels with the frames it paints and moves
+   * with the beats if they move.
+   */
+  function flareFlash(player) {
+    var clip = player.skillTimer > 0 ? SPRITE.skillClips[player.skillId] : null;
+    if (!clip || !clip.flare) return null;
+    var skill = Core.SKILLS[player.skillId];
+    if (!skill || !skill.duration) return null;
+    var progress = 1 - player.skillTimer / skill.duration;
+    if (progress < clip.flare.from || progress >= clip.flare.until) return null;
+    return clip.flare;
+  }
+
   function drawPlayer(ctx, state, sprites) {
     var player = state.player;
     /*
@@ -1020,6 +1085,16 @@
       return;
     }
     var frame = playerFrame(state, player);
+    /*
+     * The apex flash goes down first so it sits behind him, and off the plain
+     * sheet rather than the raging one: it is a flash of light, and the stance
+     * tinting it would only make two reds.
+     */
+    var flare = flareFlash(player);
+    if (flare) {
+      drawSpriteFrame(ctx, image, frame.col, SPRITE.rows.flare, player.x, feetY(player),
+                      player.facing < 0, flare.scale);
+    }
     ctx.save();
     if (player.hurtTimer > 0 && "filter" in ctx) ctx.filter = "brightness(1.7) saturate(0.6)";
     /*
@@ -1360,6 +1435,13 @@
     var spec = Core.SKILLS[skillId];
     var draw = EFFECT.draw[skillId];
     if (!spec || !draw) return;
+    /*
+     * A row that says it belongs in front of the Slayer must not also be painted
+     * behind him - 崩山击 draws the one effect it has on the near side, so the
+     * pass behind him skips it (the pass in front is gated on frontFrames).
+     * 大蹦 splits its art into two rows instead (riftRows) and carries no flag.
+     */
+    if (draw.front && layer !== "front") return;
     /*
      * Which sheet, which cell and which row the half to draw lives on. Almost
      * everything reads off assets/effects.png at EFFECT.cell, in the skill's own
@@ -2681,6 +2763,7 @@
     EFFECT: EFFECT,
     attackColumn: attackColumn,
     playerFrame: playerFrame,
+    flareFlash: flareFlash,
     skillEffectFrame: skillEffectFrame,
     skillBarButtons: skillBarButtons,
     touchBarButtons: touchBarButtons,

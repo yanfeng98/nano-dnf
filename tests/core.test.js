@@ -419,10 +419,13 @@ test("崩山击 jumps properly and lands the smash on the ground", () => {
    * The owner's read: the hop has to look like a jump, and the blade has to land
    * on the ground rather than in the air. Record the actual arc the sim produces.
    *
-   * The arc is the client preview's now (assets/dnf_src/bilibili/skill-clips/
-   * 01_崩山击.mp4): he rises ~240px - the clip's own leap is about 3.7 body
-   * heights - and is back down inside 0.75s, which is what the move's own
-   * leapGravity is for. The global 2200 cannot hit both of those numbers.
+   * The arc is the training-room reference's (assets/dnf_src/bilibili/skill-clips/
+   * 01_崩山击.mp4), measured on the nameplate that rides over his head - a rigid
+   * box that holds one row while he stands and travels with him in the air. He
+   * leaves the ground at #22 and is back on it at #41, 0.633s, and the plate
+   * rises 215 client px against the 218 client px he is drawn at: one body
+   * height, which is 83px in this screen's own 身位. It used to be 250px, read
+   * off the same clip and spent as this screen's pixels; see the move's own note.
    */
   state.enemies = [];
   const takeoff = state.player.y;
@@ -436,8 +439,8 @@ test("崩山击 jumps properly and lands the smash on the ground", () => {
       landedAt = frame * Core.DT;
     }
   }
-  assert.ok(apex >= 200, `崩山击 has to jump properly (apex ${Math.round(apex)}px)`);
-  assert.ok(apex <= 300, `and not higher than the clip's leap (apex ${Math.round(apex)}px)`);
+  assert.ok(apex >= 70, `崩山击 has to jump properly (apex ${Math.round(apex)}px)`);
+  assert.ok(apex <= 100, `and not higher than the reference's hop (apex ${Math.round(apex)}px)`);
   assert.ok(
     landedAt !== null && landedAt < skill.activeFrom,
     `the smash has to land on the ground (touched down at ${landedAt}, hit at ${skill.activeFrom})`
@@ -447,16 +450,17 @@ test("崩山击 jumps properly and lands the smash on the ground", () => {
 
 test("崩山击 brings its own fall gravity, and no other move does", () => {
   /*
-   * The leap's arc is the client preview's, and the world's gravity cannot make
-   * it: ~240px up would hang for almost a second under 2200. 崩山击 is the one
-   * move that overrides it, so the override is the only thing this test guards -
-   * a plain hop (C) or any other airborne skill still falls at PHYSICS.gravity.
+   * The leap's arc is the reference's, and the world's gravity cannot make it:
+   * 0.633s hanging over 83px needs a *lighter* fall than 2200, which would put
+   * him down in 0.55s. 崩山击 is the one move that overrides it, so the override
+   * is the only thing this test guards - a plain hop (C) or any other airborne
+   * skill still falls at PHYSICS.gravity.
    */
   const carrying = Core.CASTABLE_SKILLS.filter((id) => Core.SKILLS[id].leapGravity);
   assert.deepEqual(carrying, ["mountainBreaker"], "only 崩山击 overrides the fall gravity");
   assert.ok(
-    Core.SKILLS.mountainBreaker.leapGravity > Core.PHYSICS.gravity,
-    "and its fall is heavier than the world's, which is what makes the leap high and short"
+    Core.SKILLS.mountainBreaker.leapGravity < Core.PHYSICS.gravity,
+    "and its fall is lighter than the world's, which is what hangs the hop for 0.633s"
   );
   assert.equal(
     Core.SKILLS.mountainRift.leapGravity,
@@ -495,12 +499,12 @@ test("崩山击's leap is invulnerable without the hit flash", () => {
 test("崩山击 adds a ground shockwave that reaches past the blade", () => {
   const state = lastRoomState();
   /*
-   * The move hops him ~105px forward before the blade lands, so the pair sits
+   * The move hops him ~42px forward before the blade lands, so the pair sits
    * ahead of the landing point: one inside the blade's 96px reach, one past it
    * but inside the 150px ground wave.
    */
-  const near = Core.createEnemy(state, "grunt", state.player.x + 180);
-  const far = Core.createEnemy(state, "grunt", state.player.x + 240);
+  const near = Core.createEnemy(state, "grunt", state.player.x + 110);
+  const far = Core.createEnemy(state, "grunt", state.player.x + 170);
   [near, far].forEach((enemy) => {
     enemy.hp = 300;
     enemy.maxHp = 300;
@@ -513,9 +517,9 @@ test("崩山击 adds a ground shockwave that reaches past the blade", () => {
 
   Core.step(state, { skills: { mountainBreaker: true } });
   /*
-   * 崩山击 raises, hops ~240px and lands the smash at 0.75s. The wave effect only
-   * lives 0.4s, so it is checked as it lands rather than at the end of the
-   * recovery.
+   * 崩山击 raises, hops one body height and lands the smash at 0.70s. The wave
+   * effect only lives 0.4s, so it is checked as it lands rather than at the end
+   * of the recovery.
    */
   Core.runFrames(state, Math.ceil(0.8 * Core.FPS), {});
   assert.ok(state.effects.some((effect) => effect.kind === "shockwave"));
@@ -563,8 +567,8 @@ test("上挑 lifts the target and airborne hits keep it juggled", () => {
 
 test("崩山击 knocks the target down and its shockwave does too", () => {
   const state = lastRoomState();
-  const near = Core.createEnemy(state, "grunt", state.player.x + 180);
-  const far = Core.createEnemy(state, "grunt", state.player.x + 240);
+  const near = Core.createEnemy(state, "grunt", state.player.x + 110);
+  const far = Core.createEnemy(state, "grunt", state.player.x + 170);
   [near, far].forEach((enemy) => {
     enemy.hp = 400;
     enemy.maxHp = 400;
@@ -627,13 +631,23 @@ test("崩山击's wave hits and shakes without drawing a targeting ring", () => 
   );
   assert.equal(
     Render.EFFECT.draw.mountainBreaker.ground,
+    undefined,
+    "and the landing art rides him down, the way the reference's column falls"
+  );
+  assert.equal(
+    Render.EFFECT.draw.mountainBreaker.front,
     true,
-    "and the landing art is rooted on the floor, not on his airborne feet"
+    "drawn over him, not behind - the reference's burst covers him at its peak"
+  );
+  assert.equal(
+    Render.EFFECT.frontFrames.mountainBreaker,
+    6,
+    "a row drawn in front says how long it is, same as 大蹦's second row"
   );
   assert.equal(
     Render.EFFECT.timing.mountainBreaker.from,
-    0.45,
-    "the column is up before touchdown, the way the reference erupts it"
+    0.38,
+    "the column opens 0.2s before touchdown, the way the reference erupts it"
   );
 });
 
@@ -1880,7 +1894,10 @@ test("the shipped sprite sheet matches the frame grid the renderer expects", () 
     clips2: 6,
     /* 大蹦's clip again with the katana's own pixels pushed red - see the
      * blood-blade test below and assets/import_dnf_swordman.py. */
-    bloodblade: 7
+    bloodblade: 7,
+    /* 崩山击's own clip again, filled with the reference's yellow: the one frame
+     * of him the clip paints flat (see the apex-flash test below). */
+    flare: 8
   });
   /*
    * Long actions need room: the sheet carries twelve columns so a full DNF run
@@ -2046,6 +2063,109 @@ test("大蹦's sword turns to blood for the strike, and back after", () => {
   assert.equal(at2(0.2), bloodRow, "the leap carries the blood blade");
   assert.equal(at2(0.45), bloodRow, "and so does the landing");
   assert.equal(at2(0.8), clipRow, "and it is the plain katana again for the stand");
+});
+
+/*
+ * 崩山击's apex flash - the one frame of the reference that paints him flat
+ * yellow (#34 of 01 崩山击, 0.400s after his feet leave the ground and 0.200s
+ * before they come back to it).
+ *
+ * It is the same trick as the blood blade and for the same reason: the pack
+ * ships no such layer (its seven 崩山击 candidates are spike fans, fire and a
+ * blue finish), so the flash is his *own* art filled, on a row of its own. A
+ * copy cannot be aimed wrong, and the fill is what makes it a flash rather than
+ * a second character: nothing about him changes colour, he is lit up.
+ */
+test("崩山击 flashes yellow at the top of its hop, behind him", () => {
+  const sheet = decodeRgbaPng(path.join(__dirname, "..", "assets", "slayer.png"));
+  const clip = Render.SPRITE.skillClips.mountainBreaker;
+  const flareRow = Render.SPRITE.rows.flare;
+  const flare = clip.flare;
+  const at = (row, col, x, y) =>
+    sheet.pixels.subarray(
+      ((row * Render.SPRITE.frameH + y) * sheet.width + col * Render.SPRITE.frameW + x) * 4,
+      ((row * Render.SPRITE.frameH + y) * sheet.width + col * Render.SPRITE.frameW + x) * 4 + 4
+    );
+
+  let lit = 0;
+  for (let step = 0; step < clip.frames; step += 1) {
+    const col = clip.first + step;
+    let copyInk = 0;
+    for (let y = 0; y < Render.SPRITE.frameH; y += 1) {
+      for (let x = 0; x < Render.SPRITE.frameW; x += 1) {
+        const plain = at(clip.row, col, x, y);
+        const flash = at(flareRow, col, x, y);
+        /* Column for column with the clip, so the renderer can hand this row the
+         * column it is already drawing and it cannot come out on a different
+         * pose from the body it is behind. */
+        assert.equal(
+          flash[3],
+          plain[3],
+          `cell ${col} pixel ${x},${y}: the flash keeps his own silhouette`
+        );
+        if (flash[3] <= 60) continue;
+        copyInk += 1;
+        assert.ok(
+          flash[0] > 200 && flash[1] > 140 && flash[2] < 160,
+          `cell ${col} pixel ${x},${y}: the flash is the reference's yellow`
+        );
+      }
+    }
+    assert.ok(copyInk > 100, `cell ${col} has a body to light up (${copyInk} pixels)`);
+    lit += copyInk;
+  }
+  assert.ok(lit > 1000, `and the whole clip is lit (${lit} pixels)`);
+  /* Nothing beyond the clip's own nine columns: the row is the clip's and
+   * nothing else's, so no other move can flash with it. */
+  for (let col = clip.first + clip.frames; col < Render.SPRITE.cols; col += 1) {
+    let ink = 0;
+    for (let y = 0; y < Render.SPRITE.frameH; y += 1) {
+      for (let x = 0; x < Render.SPRITE.frameW; x += 1) if (at(flareRow, col, x, y)[3] > 0) ink += 1;
+    }
+    assert.equal(ink, 0, `column ${col} is not this clip's`);
+  }
+
+  /* The reference's flash sits just past the top of the hop, and only there. */
+  assert.ok(flare.from > 0.3 && flare.from < 0.4, "the flash opens just past the apex");
+  assert.ok(flare.until > flare.from, "and it closes");
+  assert.ok(flare.until - flare.from < 0.05, "a flash is a frame or two, not a pose");
+
+  const state = Core.createState({ seed: 5 });
+  const player = state.player;
+  const flashAt = (fraction) => {
+    player.skillId = "mountainBreaker";
+    player.skillTimer = Core.SKILLS.mountainBreaker.duration * (1 - fraction);
+    return Render.flareFlash(player);
+  };
+  assert.equal(flashAt(flare.from - 0.01), null, "the hop climbs unlit");
+  assert.equal(flashAt((flare.from + flare.until) / 2), flare, "the apex flashes");
+  assert.equal(flashAt(flare.until + 0.01), null, "and the descent is unlit");
+  /* No other move has one, and neither has a 崩山击 that is not being cast. */
+  player.skillId = "mountainRift";
+  player.skillTimer = Core.SKILLS.mountainRift.duration * 0.7;
+  assert.equal(Render.flareFlash(player), null, "大蹦 has no flash to run");
+  player.skillId = "mountainBreaker";
+  player.skillTimer = 0;
+  assert.equal(Render.flareFlash(player), null, "and neither has a cast that is over");
+
+  /*
+   * Behind him, and off the plain sheet: drawPlayer has to put the flash down
+   * before it draws the body, or it covers the character instead of glowing out
+   * from behind him. A flash of light over him would also be the one thing the
+   * stance's own tint could turn into a second red.
+   */
+  const renderSource = fs.readFileSync(path.join(__dirname, "..", "src", "render.js"), "utf8");
+  const flareAt = renderSource.indexOf("var flare = flareFlash(player);");
+  const bodyAt = renderSource.indexOf(
+    "drawSpriteFrame(ctx, body, frame.col, frame.row, player.x, feetY(player), player.facing < 0);"
+  );
+  assert.ok(flareAt > 0, "drawPlayer draws the flash");
+  assert.ok(bodyAt > flareAt, "and draws it before the body, so it is behind him");
+  assert.match(
+    renderSource,
+    /drawSpriteFrame\(ctx, image, frame\.col, SPRITE\.rows\.flare, player\.x, feetY\(player\),\s*\n\s*player\.facing < 0, flare\.scale\);/,
+    "off the plain sheet, scaled by what the clip declares"
+  );
 });
 
 test("one press plays one stage of the normal attack, and attack speed sets the pace", () => {
@@ -3100,6 +3220,49 @@ test("the effect bake draws each shape in exactly one colour board", () => {
   assert.ok(
     !/"entry":\s*"d-end\.img",\s*"frames":\s*\(2,\s*5\)[^}]*"scale"/.test(smashText),
     "and the flash left at the size the pack draws it"
+  );
+  /*
+   * The fan's drawn width is the *row's* zoom, not the fan's own scale, and the
+   * pair below is what that costs.
+   *
+   * The fan is the widest thing in this row, so the row's ink window is measured
+   * across the fan: every client pixel of fan the scale adds, the window adds
+   * too, and fit_scale hands the gain straight back. Measured on the bake,
+   * taking the fan's scale from 1.2 to 1.6 moved its cell from 109 to 116px
+   * while the column lost a fifth of its own size to the shrunken fit. So the
+   * fan's scale stays where round 12 signed it off - what fills the cell is the
+   * fan, so its drawn width is (cell - margin) / cell * `size` and nothing else.
+   * 264 puts it at the reference's 2.80 Slayer-heights (01 崩山击's burst frame,
+   * x 699..1308 against a 218px Slayer); 236 left it at 2.39.
+   *
+   * Growing `size` grows the column with it, so the column's stretch is the one
+   * it was measured at (1.36, 1.66), scaled by 236/264 - the column still
+   * measures what slice 63 signed off (1.06 x 1.56 against the reference's
+   * 1.06 x 1.51).
+   */
+  assert.match(
+    smashText,
+    /"stretch":\s*\(1\.15,\s*1\.46\)/,
+    "the column keeps the size it was measured at, scaled by the row's new zoom"
+  );
+  const renderText = fs.readFileSync(path.join(__dirname, "..", "src", "render.js"), "utf8");
+  assert.match(
+    renderText,
+    /mountainBreaker:\s*\{\s*dx:\s*70,\s*dy:\s*-66,\s*size:\s*264\b/,
+    "and the row is zoomed out to the fan's width, which is what 264 is"
+  );
+  /*
+   * The impact stands in front of him, not on him. Measured against the
+   * nameplate over his head - the one thing in the clip that holds still - the
+   * reference's fire centre is 70px ahead of him at the landing and 87px ahead
+   * at the burst peak; the row's anchor is the column's foot, so dx is where
+   * that foot goes. It is the same complaint the owner sent back on 大蹦 once:
+   * 「火焰都靠近角色，没有在圈内」.
+   */
+  assert.match(
+    renderText,
+    /mountainBreaker:\s*\{\s*dx:\s*70,/,
+    "and its column stands where the reference stands it, in front of him"
   );
   /*
    * 崩山裂地斩 is the 45-level ultimate's own pack, layer by layer: the blood

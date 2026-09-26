@@ -246,13 +246,27 @@ PICKS = {
     # the pair took three passes: the row's ink window is derived from the art,
     # so the drawn size is a *ratio* of the two axes rather than of either one -
     # widening the column alone shrank it, and the pair has to move together.
-    # (1.36, 1.66) lands at 1.06 x 1.56.
+    # (1.36, 1.66) landed at 1.06 x 1.56 - and those are the numbers to hold,
+    # because they are the pair the column was signed off at. The pair below is
+    # the same shape one row-width smaller: see the note under it.
     #
     # The later frames are *not* stretched: they are the low ground fire the
     # column dies back into, which the reference keeps wide and short (measured
     # 1.11 x 0.79 there), and the test pins that they keep the pack's own size.
+    #
+    # **The spike fan's width is set by the row's `size`, not by its own scale.**
+    # The fan is the widest thing in this row, so it is what the ink window is
+    # measured across - every client pixel of fan it gains, the window gains too,
+    # and `fit_scale` hands the gain straight back. Measured: taking the fan's
+    # scale from 1.2 to 1.6 (a third more art) moved its cell from 109 to 116 px,
+    # while the column lost a fifth of its own size to the shrunken fit. What the
+    # fan *does* fill is the cell, so its drawn width is (cell - margin) / cell x
+    # `size` and nothing else: 264 puts it at the reference's 2.80 Slayer-heights
+    # (measured on 01 崩山击's burst frame, x 699..1308 of a 218px Slayer), where
+    # 236 had it at 2.39. Raising `size` grows the column with it, so the pair
+    # above is the one it was signed off at, scaled by 236/264.
     "mountainBreaker": {"length": 6, "pack": "_hopsmash", "anchor": (79, 242), "stages": [
-        {"entry": "d-end.img", "frames": (0, 1), "scale": 1.4, "stretch": (1.36, 1.66), "from": 0.0, "until": 0.30},
+        {"entry": "d-end.img", "frames": (0, 1), "scale": 1.4, "stretch": (1.15, 1.46), "from": 0.0, "until": 0.30},
         {"entry": "d-end.img", "frames": (2, 5), "from": 0.22, "until": 0.80},
         {"entry": "b_bottom_01_n.img", "scale": 1.2, "offset": (-86, 142),
          "from": 0.20, "until": 1.0},
