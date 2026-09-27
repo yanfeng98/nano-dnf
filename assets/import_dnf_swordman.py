@@ -72,7 +72,24 @@ ROWS = ["idle", "run", "attack", "skill", "extras", "clips", "clips2", "bloodbla
 #              wind-up in front of the smash (owner: 「举剑过头」is part of the
 #              jump, so putting the raise back is the point of this cut).
 #   怒气爆发   action 10 (8 frames)
-#   十字斩     action 1 (14 frames) + action 25 (6 frames)
+#   十字斩     seven poses, one per act of the training-room clip
+#              (02_十字斩.mp4): 5 the crouched ready the clip opens on and holds
+#              to #25, 14 the standing forward sweep, 37 the sword coming up
+#              (#33-36), **66 the stand he holds through the 十 (#37-44)**, 200
+#              the low crouch he drops into as the blood fan bursts (#45-47),
+#              200 the same crouch held while it burns (#48-52), and 187 the
+#              plain stand he is left in (#53 on). The old cut ran the client's
+#              own 5-18 thrust combo and then 198-203, which ended him on an
+#              overhead crescent swing the clip never makes.
+#
+#              **66 replaced 38 and 199 when the owner had this move redone to
+#              the clip.** 38 is the blade held straight overhead and 199 is the
+#              low lunge; the clip's #39-#43 is neither - he *stands* with the
+#              sword thrust out in front of him, and 66 is that pose. That beat
+#              is half the cast, so getting it wrong put the character's whole
+#              silhouette at odds with the reference for 0.25s. 200 now covers
+#              the drop as well, because the clip drops him between #43 and #44
+#              and keeps him there past #54 - there is no separate pose to name.
 #   血之狂暴   action 22 (9 frames) - the stand that flings both arms out
 #   崩山裂地斩 举剑, leap, land prone, get up. The owner's note is 「崩山裂地斩是
 #              先举剑，参考 123-124」, and 123-124 on this sheet is the raise - both
@@ -106,7 +123,22 @@ ROWS = ["idle", "run", "attack", "skill", "extras", "clips", "clips2", "bloodbla
 CLIPS = [
     ("mountainBreaker", [187, 194, 203, 204, 205, 206, 207, 208, 209, 210, 211, 187]),
     ("rageBurst", list(range(76, 84)) + [176, 177]),
-    ("crossSlash", list(range(5, 19)) + list(range(198, 204))),
+    # 十字斩 是对着参考片每一拍的**姿势**挑的（不是照客户端动作表顺序抄）——
+    # 参考 #26-#32 那一拍（横扫，占全招四分之一）他**站着、剑向前平伸**，
+    # 而这里原来是 **14 = 蹲姿**，屏幕上就是一整拍蹲着扫。66 才是那一拍
+    # （站着、剑向右前方伸出去），它原来被分给第 4 拍（#37-#44），
+    # 而参考第 4 拍也是站着、剑向前 —— 所以两拍都用 66。
+    # **这一招用客户端自己的连续动画，不是挑出来的几个姿势。**
+    # 上一片把它从 `range(5,19)+range(198,204)`（20 帧）换成了 7 个"每拍一帧"的姿势，
+    # 理由是躲开 198-203 末尾那记过头上劈。代价是**整招只剩 7 个姿势**、
+    # 每拍按住 0.1–0.3 秒，而参考片每一帧他的身体都在动（30fps）——业主 2026-09-27
+    # 对着 `02_十字斩.png`（90 帧对照图）说「看看释放少帧了，以及动作少了」，
+    # 指的就是这个。**帧数少和"末尾多一记"是两件事，不该拿前者去换后者。**
+    # 末尾三帧（201-203）是他那记**过头上劈 + 白弧**，参考片里没有，所以不取；
+    # 但**要凑满 20 格**——`clips` 那一行是 42 格，山崩 12 + 怒气爆发 10 + 这一招 20
+    # 正好排满，少一格后面的行就会从 `clips` 里被截掉。腾出来的三格用 200（低身扑）
+    # 按住，参考片 #48-#52 本来也就是**低身按住**。见 src/render.js 的 `skillClips.crossSlash`。
+    ("crossSlash", list(range(5, 19)) + [198, 199, 200, 200, 200, 200]),
     ("frenzy", list(range(161, 170))),
     ("mountainRift", [123, 124, 204, 205, 208, 209, 132]),
     ("silverFall", list(range(134, 142))),

@@ -299,7 +299,200 @@ PICKS = {
         {"entry": "b_bottom_01_n.img", "scale": 1.2, "offset": (-86, 142),
          "from": 0.20, "until": 1.0},
     ]},
-    "crossSlash": {"stack": [("_gorecross", "gorecross_cross.img")]},
+    # 十字斩 is **three cuts on one timeline**, and the pack ships one entry per
+    # cut. The row used to be a plain stack of `gorecross_cross.img` alone - the
+    # thin red 十 - so two thirds of the move was missing: the owner's clip
+    # (assets/dnf_src/bilibili/skill-clips/02_十字斩.mp4) sweeps a **golden arc**
+    # through the cut, the blood 十 forms, and only then does the big hatched
+    # **blood fan** burst with a thin red line across it. See docs/adr/0007.
+    #
+    # Measured on that clip with the nameplate as the ruler (`Lv.51 麻子哥` ends
+    # at row 508, hair from 514, boots at 731 -> 218 reference px = 84 of ours,
+    # the same ratio 崩山击 was measured at):
+    #
+    #   #26-#31  0.13-0.30s  the horizontal sweep: a wide flat gold arc,
+    #                        1.65 x 0.84 Slayer-heights
+    #   #32-#35  0.33-0.43s  the vertical cut: a *tall narrow* gold arc, and the
+    #                        十 slams in - 0.79 x 2.01, its top at +1.74 of a
+    #                        height over his soles and its foot on them
+    #   #36-#43  0.47-0.70s  the 十 **settles to 0.79 x 1.33 and hangs there.**
+    #                        It does not move: the bar's centre sits on column 631
+    #                        for f38 through f43, six frames without a pixel of
+    #                        travel, and nothing in the clip ever goes forward but
+    #                        the arm.
+    #   #44-#53  0.73-1.03s  he drops low: a big gold arc 1.61 x 1.56, the
+    #                        hatched fan 1.78 x 1.66, and a thin red line
+    #
+    # **The 十 does not fly, and it does not end up on him either.** Two things
+    # this row used to get wrong, both corrected against the clip:
+    #
+    # 1. *Travel.* `dnf_effect_picks.md` pushed it forward 46 -> 154px on the
+    #    owner's early description 「画十字，然后十字向前攻击」 plus the client's
+    #    own GoreCross preview. The clip shows a cross that stands still, so the
+    #    `travel` came off `EFFECT.draw.crossSlash` and the bake stopped faking a
+    #    push. See `0005` (the clip is the judge) and `0007`'s 补记 + `0008`.
+    # 2. *Where it stands.* `0007` measured "cx -0.07 Slayer-heights, on his
+    #    midline" and put the ink on top of him. Re-measured, its bar is at x 631
+    #    against his body's midline at 772, so it stands **0.65 of a height in
+    #    front of him** - in front, not through. The old number was wrong, and so
+    #    was the first correction of it: see the next paragraph.
+    #
+    # **The clip's character faces LEFT; ours faces right.** That is the whole of
+    # `mirror` and it is why this row is the one row in the repo that turns its
+    # art round. `02_十字斩.mp4` shows the client drawing a left-facing caster,
+    # and the client mirrors the sprite *and every effect layer together* about
+    # the point he stands on; our sheet is the pack's art unmirrored, so it faces
+    # right. Measuring the clip's screen x and typing it straight into an `offset`
+    # therefore puts each layer on the wrong side of him by twice its distance -
+    # "0.65 of a height behind him" above is that error written down as if it were
+    # a reading. A row that names `"mirror": True` is flipped once, about his own
+    # axis, after every other transform; the numbers in `stages` stay the clip's
+    # own numbers and `mirror_layer` is the single line that says which way the
+    # clip's caster was looking. See `docs/adr/0011`.
+    #
+    # `gorecross_slash.img` is the key to the first two cuts: its nine frames are
+    # **two** arcs, not one - f1-f4 is the wide flat sweep and f5-f8 the tall
+    # narrow one, which is why one entry covers both. The third cut's arc comes
+    # from `gorecross_3slash_dodge.img`, the only big fat crescent in the pack.
+    # Each layer's `scale`/`stretch` and `offset` put the pack's own art where the
+    # clip draws it, in his Slayer-heights about his soles. Measured off
+    # 02_十字斩.mp4 with the nameplate as the ruler and **the top of the window
+    # opened past his head** - a first pass measured into a window that started at
+    # row 400 and so clipped every tall shape: the 十 is 1.99 high, not 1.76, and
+    # its top reaches +1.74 of a height over his soles.
+    #
+    #   the 十     0.79 x 1.33  **0.65 behind him**, its foot on his soles
+    #                          (2.01 with the slam, 0.79 wide throughout)
+    #   arc 1      1.65 x 0.73  0.43 in front of him,   +1.05 over / 0.32 over
+    #   arc 2      0.82 x 1.90  on him,                 +1.70 over / 0.20 under
+    #   arc 3      1.61 x 1.48  0.21 behind him,        +1.32 over / 0.24 under
+    #   the fan    1.78 x 1.66  0.30 behind him,        +1.42 over / 0.24 under
+    #   the line   1.95 x 1.35  0.35 behind him
+    "crossSlash": {"pack": "_gorecross", "length": 32, "mirror": True,
+                  # The window is this row's ruler (`0008`): it must contain
+                  # every layer's ink or the bake clips it - `mirror_layer`
+                  # negates the placement, so where the old x -200..140 held the
+                  # whole move on his back, the mirrored one needs the box on
+                  # the other side. Measured ink box after the flip is
+                  # (-157, -146, 73, 31), so this window takes all of it and no
+                  # more: span 240 x 220, `fit_scale` 0.5, `size` 256.
+                  "window": (-140, -160, 240, 270), "stages": [
+        # **这一行的窗口就是尺子，1:1。** `window` 的跨度 = 参考上量到的框，`size` 取
+        # `128 / fit_scale` 之后 k = fit * size / 128 = 1，即**一个客户端像素 = 一个屏幕
+        # 像素**，而屏幕像素也正是参考那把尺（1 身位 = 84）。所以下面每一个 `stretch`/
+        # `offset` 都可以直接拿去和 `02_十字斩.mp4` 上的框对照，不用再乘一个系数——
+        # 上一版的窗口是 368 客户端px 摊进 128 的格子，k = 0.693，整招被画成参考的 69%，
+        # 于是每一层都得反着放大 1.44 倍去找补，数是越改越不可读的。
+        # 各层由 /tmp/xz/fit2.py 逐层解出来（一层一层单独合成、单独量），量法见 `0008`。
+        #
+        # The sweep's arc grows into place and only then dies: the clip's gold is
+        # 0.61 x 0.13 Slayer-heights on #26 and 1.71 x 0.71 by #29, so it is held
+        # on the art's one bright frame (f1 - f2-f4 have already lost their gold)
+        # at two sizes rather than run through art frames that fade where the clip
+        # is still climbing.
+        {"entry": "gorecross_slash.img", "frames": (1, 4), "scale": 0.659, "stretch": (0.6156, 0.661),
+         "offset": (-139, -202), "from": 0.129, "until": 0.194},
+        # **横扫是走过去的，不只是长大。** 参考里那道弧的框 #26 x −102..−15 → #28 x −65..+67
+        # → #30 x −18..+80：重心从 −58 挪到 −2，宽从 87 长到 155 再 168。上一版只有两档、
+        # 两档的框都在原地，所以它读起来是"亮了一下"而不是"扫过去"。三档各自的横位由
+        # /tmp/xz/fit6.py 解出来。
+        {"entry": "gorecross_slash.img", "frames": (1, 4), "scale": 1.108, "stretch": (0.5036, 0.919),
+         "offset": (-145, -177), "from": 0.194, "until": 0.242},
+        # 到 col9 才收：参考 #30 与 #31 的红是同一个 147x42，到 #32 才缩。早收一格
+        # 会在那一格上留出一段空白（合成 85x34 对参考 147x42）。**但金弧比红早收一格**：
+        # 参考的金在 #30/#31 是 515/519、到 #32 就只剩 70（几乎没了），所以这一档只到 col9。
+        {"entry": "gorecross_slash.img", "frames": (1, 4), "scale": 1.108, "stretch": (0.5418, 0.7883),
+         "offset": (-147, -176), "from": 0.242, "until": 0.290},
+        # 十 是**两拍**，不是一拍：竖条甩上去（#36 量到 97 x 165，他脚下往上 1.16 身位）、
+        # 再收回它该在的大小（#38 起 97 x 129）。收的那一下**在原地**：竖条重心 #38→#43
+        # 六帧全落在 631 那一列。
+        #
+        # **它从 0.29 才开始**（#31 那一拍），不是从第一格：参考里横扫那两拍（#26-#32）
+        # 画面上**只有那道金弧**，十要到 #33 才成形——早开一格，横扫还没走完就先冒出一个
+        # 红十，横扫那道框也因此量歪（118x43 对参考的 87x28）。
+        {"entry": "gorecross_cross.img", "frames": (0, 6), "scale": 0.825, "stretch": (0.9878, 1.202),
+         "offset": (-280, -202), "from": 0.290, "until": 0.452},
+        # 定下来之后它一直这么大：1.15 x 1.54 身位，**在他身前**（翻了，见 `0011`），
+        # **到 0.71 就走了**——参考里 #46 起那一拍只剩那道金弧和细线。
+        #
+        # **定格必须用干净的那一帧，不能用 f10。** `gorecross_cross.img` 11 帧的形状是
+        # f0-f4 一横长出来、**f5-f9 一个干净的「十」**、f10 **歪掉/化掉**——f10 的竖条
+        # 顶上向左钩出去、整条斜着。业主 2026-09-27 说「「十」的形状反了」，屏幕上看到的
+        # 就是这个 f10：不是镜像反了，是**定格定在了化掉的那一帧**。改 f7（f5-f9 同形，
+        # 取中间那一帧）。**f10 的框比 f7 小一圈**（117x166 对 128x178），所以 `stretch`
+        # 要跟着收：原来的 (1.0318, 0.9298) 是按 f10 解的，换 f7 之后同样的乘积仍是
+        # 132 x 165——框没动，只是形状对了。
+        {"entry": "gorecross_cross.img", "frames": (7, 9), "scale": 0.886, "stretch": (0.672, 0.708),
+         "offset": (-289, -226), "from": 0.484, "until": 0.680},
+        # **只用最亮那一帧，分两档。** 包里的 f5→f6 宽度是 **54 → 17**，一刀砍掉三分之二；
+        # 参考是 **#34 68 → #36 61 → #38 24**，先慢慢缩、最后才收。**播 f6/f7 就等于把
+        # 参考的"慢慢缩"演成"一刀断"**，所以这两帧不用了：定住 f5，靠两档大小演它。
+        # 起手也要对：原来从 col10 起，而参考 #32 那一刻画面上几乎什么都没有
+        # （金弧 #33-#34 才起来），所以推到 **0.355 = col11 = 参考 #33** —— 它最宽的那两格。
+        # **改这一行之前先量素材每一帧的宽度差多少**：这一行的列宽是三倍一档的。
+        #
+        # **两档的窗口都不许越过 col14。** 参考的白热金弧到 **#36 就没了**：#37/#38 的画面上
+        # 只剩那个红「十」和他自己那把橙色的剑 —— 金掩膜在 #37/#38 读到的 48/49 像素就在
+        # x 746-798，那是**他的剑**，上一版把它当成弧的尾巴、于是金一直拖到 col17，
+        # 翻过来之后在屏幕上是「十都钉住了还有一道金在扫」。看一帧就知道：#35/#36 的金
+        # 只剩头顶一个钩，#37 干净。
+        {"entry": "gorecross_slash.img", "frames": (5, 8), "scale": 1.976, "stretch": (0.5733, 0.3254),
+         "offset": (-199, -242), "from": 0.355, "until": 0.387},
+        {"entry": "gorecross_slash.img", "frames": (5, 8), "scale": 1.976, "stretch": (0.2051, 0.1746),
+         "offset": (-163, -308), "from": 0.387, "until": 0.452},
+        # 第三刀的金弧，和血扇同一拍起（参考 #44 两样同时出现）。
+        #
+        # **只放它最亮的那一帧。** `gorecross_3slash_dodge.img` 那四帧**各自带一个不同的
+        # 帧位**（x 167 / 195 / 218 / 223），所以照 f0→f3 播过去，那道月牙会自己**往右滑
+        # 约 50px** —— 滑到血扇那一拍时它已经落在 x −57..**+52**，也就是**他身前半个身位**，
+        # 那正是"绕着他扫的镰"另一半来处（另一半是血扇本身）。参考里这道弧 #44 x −102..16
+        # → #48 x −117..14，是**往回**走一点，没有前滑。所以这里定住一帧、位置解到 #48 的
+        # 金弧框上。
+        # **取最细的那一帧。** 参考里这道金弧在 #48 是 **453 px 铺在 132x118 上 = 2.9%
+        # 的实心度**——细得很。包里四帧的实心度是 f0 20.1% / f1 13.9% / f2 9.5% /
+        # f3 **7.0%**，所以取 f3。f0 那一版（20%）在屏幕上读起来是一道**又粗又重的月牙**，
+        # 加上血扇那几层就是业主说的「绕着他扫的镰」。
+        # **光靠 `stretch` 到不了参考的细度。** 参考 2.9%、包里最细的一帧只有 7%，而
+        # 要再细就得只压 x 不压 y —— 那会把框压窄，形状就散了。所以这一层用上了
+        # 新加的 `rotate`：**先把它转到 15°，再分轴压**，两个自由度分开，于是框和细度
+        # 可以各要各的（现在量到 **2.5%**，参考 2.9%）。`rotate` 的用法与理由见
+        # `rotate_layer` 与 `docs/adr/0010`。
+        {"entry": "gorecross_3slash_dodge.img", "frames": (3, 3), "scale": 1.054, "stretch": (0.5557, 0.7195),
+         "rotate": 15, "offset": (-499, -290), "from": 0.710, "until": 0.775},
+        # **血扇不再从包里取。** 这一拍参考片画的是一束**羽丝**（#48 的红色掩膜：x −118
+        # 处一团实心，往右上射出五道细丝，到 x −16 就没了），而这个包里没有那个形状：
+        # 十一个条目里最像的 `gorecross_obj_3cross_dodge.img` 是一整块**实心半圆盘**
+        # （局部墨迹密度处处 >0.85，根本没有缝），另外两个 gorecross 包也没有。全部
+        # 11+3 个条目 × 4 种镜像 × 24 个角度逐一去套，最好的 IoU 只有 0.53。
+        # 所以这一层改成**照参考量到的剪影画**，参数由 /tmp/xz/wing.py 解出，见
+        # `EFFECT.feathers`（src/render.js）与 `docs/adr/0009`。这里腾出来的两格由细红线
+        # 继续占着，所以整行仍是 32 格。
+        # **细红线要保持细。** 上一版的 `stretch` 是 (0.686, 1.896)：那个 1.896 是为了把它
+        # **转陡**（参考里这条线约 47°，而这张图自己的弧只有 ~18°），代价是把线**变粗到
+        # 约 19px** —— 而参考里这条线只有 **4–6px**（#48 的列 profile：每一段 3–5px）。
+        # 粗到 19px 它就不是「细红线」了，是一条绕着人扫的红弧，业主说的「镰」剩下一半就是它。
+        # 所以改成**等比**：线保住了细，代价是角度浅一些。这张图的弧没法又陡又细 ——
+        # 烘焙没有旋转，谁要两样都要，得先给烘焙加一个 `rotate`。
+        # **第三拍那只红羽翼 —— 装回来了。** 业主 2026-09-27 拿参考片 0:01 那一帧
+        # 点着说「这个动作不对」：那一拍他是**压低前扑 + 身前一只大红羽翼 + 一道细红线**。
+        # `0009` 补记那轮他把**我画的那一层**否掉了（"爪"），我误读成"这一拍不要翼"、
+        # 把整层删了；他这一张图说的是**翼要在**。所以改用**包里自己的图**
+        # `gorecross_obj_3cross_dodge.img`（这一包唯一的翼形），不再用代码画。
+        # 位置按参考 #48 的红色掩膜框解（身前 −0.17..+1.60、y −0.27..+1.37 身位）。
+        # **这只翼一直在包里，而且是 `gcm_slash.img`。** 上两轮用的是
+        # `gorecross_obj_3cross_dodge.img`（"宽而扁的一条"，拉出来是一条细红丝带），
+        # `0009` 那一轮据此断言"包里没有这个形状、最好的 IoU 0.53"——**那一轮把包摊开
+        # 逐张看过之后就站不住了**：`gcm_slash.img` 14 帧，每一帧就是
+        # **一团实心羽体 + 一排放射状羽丝**，和参考 #46-#51 是同一个形状。
+        # 尺寸按参考那一帧的红色掩膜框解（见 `dnf_effect_picks.md`）。
+        # **第三拍那只燕形翼：用包里的 `gorecross_3cross.img` f1。**
+        # 参考那一帧不是"一扇羽丝"，是**一条带排线的实心扫击**（粗头 + 长尾 + 斜向纹理），
+        # 这张图就是那个形状，且 131x141 与参考量到的 148x138 几乎一比一。见 `dnf_effect_picks.md`。
+        {"entry": "gorecross_3cross.img", "frames": (1, 1), "scale": 1.05, "stretch": (1.0, 1.0),
+         "offset": (-366, -352), "from": 0.710, "until": 1.000},
+        {"entry": "gcm_crossline.img", "frames": (0, 6), "scale": 0.75, "stretch": (0.686, 0.686),
+         "offset": (-461, -373), "from": 0.742, "until": 1.000},
+    ]},
     # 血气之刃: the blood sword is thrust, then it bursts.
     "bloodSword": {"sequence": [("_bloodsword", "sword_normal.img"), ("_bloodsword", "exp_dodge.img")]},
     # 血之狂暴: the dual-blade glow that rides the normal attack.
@@ -1093,6 +1286,44 @@ def rescale(decoded, scale: float, stretch=(1.0, 1.0), about: float | None = Non
     return grown
 
 
+def rotate_layer(decoded, degrees, pivot=None):
+    """Turn one layer about a point, keeping that point where it was.
+
+    A stage's `stretch` is the only shape control the bake had, and two of the
+    things the references ask for cannot be said with it: a crescent that has to
+    be **steep** (the clip's third-cut arc runs at ~47 degrees, the pack draws it
+    at ~18) and a set of quills that has to leave the base at an angle. Stretching
+    one axis turns the shape *and* thins it - the 十字斩 thin red line came out
+    19px thick that way, where the clip's is 4-6. Rotating first and stretching
+    after separates the two.
+
+    `pivot` is a client point to spin about (default: the frame's own centre), and
+    it is named separately from `rescale`'s `about` because those two want
+    different points: `about` is the line a layer is squashed against (the floor),
+    `pivot` is the point that must not move while it turns.
+    """
+    if not degrees:
+        return decoded
+    out = []
+    for picture, x, y in decoded:
+        width, height = picture.width, picture.height
+        if pivot is None:
+            ax, ay = x + width / 2.0, y + height / 2.0
+            px, py = width / 2.0, height / 2.0
+        else:
+            ax, ay = pivot
+            px, py = ax - x, ay - y
+        turned = picture.rotate(degrees, expand=True, resample=Image.BICUBIC)
+        # keep the pivot at the same *fraction* of the picture, which is where
+        # PIL's own rotation puts it
+        out.append((
+            turned,
+            int(round(ax - px * turned.width / max(1, width))),
+            int(round(ay - py * turned.height / max(1, height))),
+        ))
+    return out
+
+
 def shift(decoded, offset):
     """Move one layer by (dx, dy) in the client's own coordinates.
 
@@ -1103,6 +1334,38 @@ def shift(decoded, offset):
     if not offset or offset == (0, 0):
         return decoded
     return [(picture, x + offset[0], y + offset[1]) for picture, x, y in decoded]
+
+
+def mirror_layer(decoded):
+    """Put a layer on the caster's **front** side, from offsets measured off a
+    left-facing clip.
+
+    A reference clip can show the client drawing a character **facing left**. We
+    measure such a clip in its own screen x, and the caster's *forward* is then
+    the direction of **decreasing** x - while in our own client space forward is
+    **increasing** x, because `assets/slayer.png` is the pack's art unmirrored
+    and therefore faces right. Taking the clip's screen offsets straight into an
+    `offset` puts the whole move on his **back**, which is what
+    「绕着他扫的镰」 was; see `docs/adr/0011`.
+
+    So this negates the placement about client x = 0: a picture covering
+    [x, x + w) comes back at [-(x + w), -x).
+
+    **It does not turn the art round, and that is deliberate.** The first cut of
+    this did (`FLIP_LEFT_RIGHT`), and it is wrong for the same reason the
+    offsets were: our caster is drawn from the pack's own unmirrored art facing
+    right, so the pack's art is *already* the right way round for him - the
+    reference only looks mirrored because its caster is the one facing left.
+    Flipping it made 十字斩's 十 land with the fat end of every brush stroke on
+    the **far** side, where the clip has it on the near side - and no mirror
+    about his own axis can fix that, because near/far of a stroke is exactly
+    what a mirror about that axis preserves. The owner said 「反的」 twice for
+    it. `drawRight`-style reasoning: **positions flip, pictures do not.**
+    """
+    return [
+        (picture, -x - picture.width, y)
+        for picture, x, y in decoded
+    ]
 
 
 def dim(decoded, factor):
@@ -1276,11 +1539,15 @@ def stage_layers(client: Path, pick: dict):
         decoded = tint(decoded, stage.get("ramp"))
         decoded = dim(
             shift(
-                rescale(
-                    decoded,
-                    scale,
-                    tuple(stage.get("stretch", (1.0, 1.0))),
-                    stage.get("about"),
+                rotate_layer(
+                    rescale(
+                        decoded,
+                        scale,
+                        tuple(stage.get("stretch", (1.0, 1.0))),
+                        stage.get("about"),
+                    ),
+                    float(stage.get("rotate", 0.0)),
+                    tuple(stage["pivot"]) if stage.get("pivot") else None,
                 ),
                 offset,
             ),
@@ -1291,6 +1558,10 @@ def stage_layers(client: Path, pick: dict):
         # ones it had at the pack's own size.
         decoded = fill_gaps(decoded, int(stage.get("fill", 0)))
         decoded = flatten_base(decoded, int(stage.get("base", 0)))
+        # Last, so that every number in `stage` stays the clip's own number and
+        # only the finished placement is turned round. See `mirror_layer`.
+        if pick.get("mirror"):
+            decoded = mirror_layer(decoded)
         first, last = stage.get("frames", (0, len(decoded) - 1))
         part = decoded[first:last + 1]
         if not part:

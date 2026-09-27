@@ -195,11 +195,34 @@
           { frames: 2, from: 0.7, until: 1.0 }
         ]
       },
-      /* 怒气爆发 took one more body frame than it used to, so everything after
-         it in the clips row moves up two columns (the bake packs the row in
-         order, and a clip that does not fit starts the next row instead). */
-      crossSlash: { row: 5, first: 22, frames: 20 },
-      /* 血之狂暴: body action 22, the stand that flings both arms out. */
+      /*
+       * 十字斩 is the client's **own twenty-frame animation**, not seven picked
+       * poses: `range(5, 19)` (the crouched ready, the forward sweep, and him
+       * coming up into the stand) + `range(198, 204)` (the drop into the lunge
+       * and the recovery). Two beats, cut where the training-room clip's own
+       * act boundary is - #22-#43 (the ready, both cuts and the held 十) is 22
+       * of its 34 frames, so 0.647; the lunge and the recovery are the rest.
+       *
+       * An earlier cut of this slice ran seven one-frame beats instead, and the
+       * owner sent the 90-frame contact sheet back (2026-09-27) saying
+       * 「释放少帧了，以及动作少了」: the clip's body changes every frame at 30fps,
+       * ours held each of seven poses for a tenth of a second. **The trailing
+       * overhead swing in 198-203 was a real complaint, but shedding frames was
+       * the wrong fix for it.**
+       */
+      crossSlash: {
+        row: 5,
+        first: 22,
+        frames: 20,
+        beats: [
+          { frames: 14, from: 0.0, until: 0.647 },
+          { frames: 6, from: 0.647, until: 1.0 }
+        ]
+      },
+      /* 血之狂暴: body action 22, the stand that flings both arms out. It used to
+         open `clips2`; 十字斩 shed thirteen columns in slice 68, enough for this
+         clip to move up into `clips` behind it, so mountainRift and the two after
+         it start nine columns earlier than they did. */
       frenzy: { row: 6, first: 0, frames: 9 },
       /*
        * 大蹦 opens on the 举剑 the owner asked for (body frames 123-124: both
@@ -375,7 +398,7 @@
     rowFrames: {
       upSlash: 9,
       mountainBreaker: 6,
-      crossSlash: 11,
+      crossSlash: 32,
       bloodSword: 27,
       frenzy: 20,
       bloodyRave: 17,
@@ -475,10 +498,46 @@
        * the burst 0.2 of a Slayer-height short of its own.
        */
       mountainBreaker: { dx: 70, dy: -66, size: 264, copies: 1, spin: 0, front: true },
-      /* 十字斩's own art draws the cross (a horizontal stroke, then the
-         vertical one landing on it), so it is no longer mirrored into one.
-         DNF draws the cross and then pushes it forward, so it also travels. */
-      crossSlash: { dx: 46, dy: -38, size: 168, copies: 1, spin: 0, travel: 108 },
+      /*
+       * 十字斩 is **three cuts on one row** now, and the row is the clip's own 32
+       * frames - `length: 32` in the bake, one cell per frame of
+       * 02_十字斩.mp4 from his press at #22 to the #53 he settles on. So the row
+       * is read at the clip's own place in the cast and `dx`/`dy`/`size` only put
+       * the composite on him.
+       *
+       * **The 十 does not travel, and it stands in front of him.** `travel` came
+       * off the row in the first cut of this slice (the clip holds the bar on
+       * column 631 for f38-f43), the owner asked for the push back, the bake
+       * faked it as eight steps, and he has now asked for the clip again - so the
+       * row is back to the clip's own single held 十 and `travel` stays off.
+       *
+       * Where it stands was wrong twice, and the second correction is the one
+       * that mattered: the clip's caster **faces left** (see the bake's `mirror`
+       * paragraph and `docs/adr/0011`), so a bar at x 631 against a midline of
+       * 772 is 0.65 of a Slayer-height **in front of him**, not behind. Read the
+       * wrong way round it put every layer of the move on his back side, which
+       * is what 「绕着他扫的镰」 was.
+       *
+       * `dx`/`dy`/`size` are not free numbers - they undo the bake's window, and
+       * they are chosen so that **one client pixel of the row is one screen
+       * pixel**. The window is (-140, -180, 200, 40) client px - the mirror of
+       * the (-200, -180, 140, 40) the clip was measured in - so `fit_scale` is
+       * 120/340 and `size` = 128 / that = 363; the cell then draws at
+       * 363/128 = 2.836 screen px per cell px, and a client pixel lands on
+       * 0.35294 * 2.836 = 1.0009 of a screen px. `dx`/`dy` put the window's own
+       * middle - (+30, -70) - on the cell's middle, which lands the caster's
+       * ground point on his feet.
+       *
+       * Why that matters: **it makes the bake's numbers the clip's numbers.** A
+       * screen pixel about his feet is the unit the reference is measured in
+       * (1 身位 = 84 of them), so every `stretch`/`offset` in the bake can be
+       * read straight off `02_十字斩.mp4`. The window used to be 368 client px
+       * wide fitted into the 128 cell, which draws the whole move at 0.693 of
+       * the clip's size; each layer then had to be pre-multiplied by 1.44 to
+       * come back out right, and no number in the row could be compared with
+       * the clip it was supposed to be copied from. See `docs/adr/0008`.
+       */
+      crossSlash: { dx: 50, dy: 55, size: 459, copies: 1, spin: 0 },
       bloodSword: { dx: 30, dy: -32, size: 182, copies: 1, spin: 0 },
       frenzy: { dx: 52, dy: -40, size: 150, copies: 1, spin: 0 },
       bloodyRave: { dx: 52, dy: -46, size: 170, copies: 1, spin: 0 },
@@ -546,7 +605,16 @@
        * the column opens on the same patch of air. The row runs out over the
        * recovery, the way the clip's spikes do.
        */
-      mountainBreaker: { from: 0.38, to: 0.95 }
+      mountainBreaker: { from: 0.38, to: 0.95 },
+      /*
+       * 十字斩's row is the clip's own 32 frames, so it opens at the cast's own
+       * start rather than at a fraction of `activeFrom`: the row's first three
+       * cells are blank because the clip's first three frames are (#22-#24, the
+       * ready crouch, before the blade moves). `to` is 0.97 rather than 1 for the
+       * reason 大蹦's is - progress reaches exactly 1 only on the frame the cast
+       * is already over - and 0.97 still lands the row's last drawn column.
+       */
+      crossSlash: { from: 0, to: 0.97 }
     },
     /*
      * How a row dies down, per skill. The default (0.75 -> 1, down to 0.3 of
@@ -573,8 +641,60 @@
        * appears. It does go out on its own: the pack's own last frames lose their
        * footing, and the clip's do the same at #73.
        */
-      rageBurst: { from: 0.93, to: 1, floor: 0.85 }
-    }
+      rageBurst: { from: 0.93, to: 1, floor: 0.85 },
+      /*
+       * 十字斩's biggest act is its last one too - the hatched blood fan, which
+       * arrives at #44 of the clip (0.69 of the cast) and is still at full
+       * strength at #50. The default (from 0.75) would start dimming it as it
+       * opens. The clip's own outro is the fan losing its colour over #51-#53,
+       * which is the last tenth here.
+       */
+      crossSlash: { from: 0.90, to: 0.97, floor: 0.35 }
+    },
+  };
+
+  /*
+   * **十字斩第三拍那只翼 —— 画出来的，参数全部由参考的列剖面解出。**
+   *
+   * 包里有 `gcm_slash.img`（形状对：一团实心羽体 + 一排放射羽丝），但它**太细**：
+   * 逐列量它的 alpha，羽丝厚 7.5 原生px，按这一拍该有的尺寸（`scale 0.412`）折下来
+   * 只有 **3.1 客户端px**，f8 之后掉到 0.8–0.4px；而**参考 #46–#49 的羽丝是
+   * 4.6–7.7 客户端px**、约二十道、整只翼的实心度 **25%**。0.4–3px 的丝画成 140px 宽的
+   * 翼必然糊成一团——这就是上一版读起来"光滑"的原因，不是缩放没调对。
+   *
+   * 所以这一层照**量到的三个数**画：羽丝 **6–8px**、**n 20** 道、整只 **140 x 138px**、
+   * 实心度盯着 **25%**。业主 2026-09-27 选的这条路（「照量到的数重画一只」）。
+   * **改这几个数之前先把参考和成品各自的列剖面重跑一遍**，别再凭眼睛调。
+   *
+   * `origin` 是这一行的窗口中心取负（客户端坐标 → 本行局部坐标）；
+   * `mirror` 与烘焙那一行同一件事（参考片里的他朝左，见 `docs/adr/0011`）。
+   */
+  var CROSS_WING = {
+    origin: [-50, -55],
+    /*
+     * **不要再翻一次。** 这一层的 `bx`/`by` 是**手写在"他朝右"的世界坐标里**的
+     * （与烘焙那一行的 `offset` 不同：那些是照参考片量的、要过 `mirror` 那一层）。
+     * 上一版带了 `mirror: true`，等于把已经写对的方向又翻回去、整只翼跑到他身后。
+     */
+    mirror: false,
+    from: 0.710,
+    to: 1.0,
+    color: "#f0001c",          // gorecross_cross.img 自己的核心色 (240,0,28)
+    /*
+     * `bx`/`by` 是**客户端px、以他的脚为原点**（见上面那段）：
+     * 参考 #46–#49 那只翼从地面起、往前铺到 身前 +1.6 身位（+134px），
+     * 所以羽体的中心在 (+40, -58)、羽丝往上打到脚上方约 150px。
+     */
+    keys: [
+      { at: 0.72, bx: 44, by: -46, bw: 44, bh: 62, n: 18, a0: -112, a1: -16,
+        len: 96, w: 7.2, bend: 12, taper: 0.45, tailA: 70, tailLen: 54, tailW: 6.0 },
+      { at: 0.82, bx: 48, by: -58, bw: 52, bh: 74, n: 20, a0: -116, a1: -14,
+        len: 108, w: 7.4, bend: 10, taper: 0.45, tailA: 66, tailLen: 60, tailW: 6.5 },
+      { at: 0.92, bx: 50, by: -58, bw: 50, bh: 72, n: 18, a0: -116, a1: -16,
+        len: 100, w: 7.0, bend: 8, taper: 0.45, tailA: 64, tailLen: 56, tailW: 6.0 },
+      { at: 1.0, bx: 48, by: -54, bw: 36, bh: 54, n: 14, a0: -114, a1: -20,
+        len: 70, w: 6.2, bend: 8, taper: 0.5, tailA: 64, tailLen: 36, tailW: 5.0 }
+    ]
   };
 
   /* Short DNF-style effect tags shown in the loadout panel. */
@@ -1551,10 +1671,16 @@
       : Math.min(1, Math.max(0, 1 - player.skillTimer / spec.duration));
     var frame = skillEffectFrame(skillId, progress, row, frames);
     if (!frame) return;
+    var timing = EFFECT.timing && EFFECT.timing[skillId];
+    var local = timing
+      ? (progress - timing.from) / Math.max(0.0001, timing.to - timing.from)
+      : progress;
 
     /*
-     * 十字斩 draws the cross and then pushes it out, so an effect can travel
-     * forward over its cast instead of sitting on the caster.
+     * `travel` pushes a row forward over its cast, for a move whose art leaves
+     * the caster. No row uses it now: 十字斩's cross was the only one that ever
+     * did, and the clip holds it still (`docs/adr/0007`), so it came off. Kept
+     * because it is a property of the draw, not of that one move.
      */
     var reach = draw.dx + (draw.travel || 0) * progress;
     var size = draw.size * (1 + (draw.grow || 0) * progress);
@@ -1575,7 +1701,12 @@
     ctx.imageSmoothingEnabled = true;
     for (var copy = 0; copy < draw.copies; copy += 1) {
       ctx.save();
-      /* 十字斩 is the same DNF slash mirrored into a cross. */
+      /*
+       * `copies`/`spin` draw one shape more than once, mirrored, which is how a
+       * pack's single slash was once turned into 十字斩's cross. That is not how
+       * the move is drawn any more - the cross is its own art in the pack
+       * (`gorecross_cross.img`), and this row is `copies: 1, spin: 0`.
+       */
       ctx.rotate(draw.spin * (copy === 0 ? 1 : -1));
       ctx.drawImage(
         sheet,
@@ -1590,7 +1721,76 @@
       );
       ctx.restore();
     }
+    /*
+     * 十字斩第三拍那只翼：全仓库唯一一层不是包里的图（`docs/adr/0009` 的补记）。
+     * 画在这一行的变换之内，所以它跟着施法者、也跟着朝向镜像。
+     */
+    /*
+     * 十字斩第三拍那只翼现在**是包里的图**（`gorecross_3cross.img` f1），所以这里不再画。
+     * `CROSS_WING` / `drawFeathers` 留着：它是"包里那张图不对时"的做法，
+     * 量法与取舍记在 `dnf_effect_picks.md` 第十七节。
+     */
+    drawFeathers(ctx, null, local);
     ctx.restore();
+  }
+
+  /**
+   * 十字斩第三拍那束羽丝。参数在 `CROSS_WING`，那里写着数是怎么量出来的。
+   */
+  function drawFeathers(ctx, spec, local) {
+    if (!spec || local < spec.from || local > spec.to) return;
+    var keys = spec.keys;
+    var lo = keys[0], hi = keys[0];
+    for (var i = 0; i < keys.length - 1; i += 1) {
+      if (local >= keys[i].at) { lo = keys[i]; hi = keys[i + 1]; }
+    }
+    if (local >= keys[keys.length - 1].at) { lo = hi = keys[keys.length - 1]; }
+    var span = Math.max(1e-6, hi.at - lo.at);
+    var t = lo === hi ? 0 : Math.max(0, Math.min(1, (local - lo.at) / span));
+    var at = function (name) { return lo[name] + (hi[name] - lo[name]) * t; };
+    var rad = Math.PI / 180;
+    if (spec.mirror) {
+      ctx.translate(spec.origin[0], 0);
+      ctx.scale(-1, 1);
+      ctx.translate(-spec.origin[0], 0);
+    }
+    var bx = at("bx") + spec.origin[0];
+    var by = at("by") + spec.origin[1];
+    var disc = function (x, y, r) {
+      ctx.moveTo(x + r, y);
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+    };
+    ctx.beginPath();
+    var u;
+    var bodyW = at("bw"), bodyH = at("bh");
+    for (u = 0; u <= 48; u += 1) {
+      var a2 = Math.PI * 2 * u / 48;
+      disc(bx + Math.cos(a2) * bodyW / 2, by + Math.sin(a2) * bodyH / 2, 2.2);
+    }
+    var quills = Math.max(1, Math.round(at("n")));
+    for (var q = 0; q < quills; q += 1) {
+      u = quills === 1 ? 0 : q / (quills - 1);
+      var angle = (at("a0") + (at("a1") - at("a0")) * u) * rad;
+      var length = at("len") * (0.50 + 0.50 * Math.sin(Math.PI * (0.18 + 0.64 * u)));
+      var width = at("w") * (0.80 + 0.35 * Math.sin(Math.PI * u));
+      var bend = at("bend") * rad;
+      for (var sk = 0; sk <= 26; sk += 1) {
+        var along = sk / 26;
+        var a = angle - bend * along * along;
+        disc(bx + Math.cos(a) * length * along, by + Math.sin(a) * length * along,
+             Math.max(1.0, width * Math.pow(Math.max(0, 1 - along), Math.max(0.05, at("taper")))));
+      }
+    }
+    for (var tail = 0; tail < 2; tail += 1) {
+      var ta = (at("tailA") + tail * 14) * rad;
+      for (var s2 = 0; s2 <= 32; s2 += 1) {
+        var v2 = s2 / 32;
+        disc(bx + Math.cos(ta) * at("tailLen") * v2, by + Math.sin(ta) * at("tailLen") * v2,
+             Math.max(0.8, at("tailW") * (1 - v2)));
+      }
+    }
+    ctx.fillStyle = spec.color;
+    ctx.fill();
   }
 
   function drawSkillEffect(ctx, state, sprites) {

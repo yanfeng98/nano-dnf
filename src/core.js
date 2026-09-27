@@ -373,9 +373,28 @@
       cooldown: 4,
       damage: 18,
       growth: 3,
-      duration: 0.42,
-      activeFrom: 0.1,
-      activeTo: 0.26,
+      /*
+       * The cast is the reference clip's own 32 frames at 30fps (02_十字斩.mp4,
+       * his press at #22 to the stand at #53), and the two hits are where its two
+       * cuts land: the 十 takes shape on #33 (0.367s) and the blood fan bursts on
+       * #44 (0.733s). `hits` spreads evenly across the window, so the second one
+       * lands at the midpoint - `activeTo` at the full cast puts it at 0.718s,
+       * half a frame ahead of the fan's first frame. The move used to be 0.42s
+       * with both hits inside 0.26s, which is a jab, not this.
+       */
+      duration: 1.07,
+      activeFrom: 0.367,
+      activeTo: 1.07,
+      /*
+       * `reach` stays where it was. The reference is a training-room clip with
+       * nothing to hit, so it can measure the art and not the box: the 十 and the
+       * fan are both **centred on him** and reach only 0.58 of a Slayer-height
+       * past his middle, while the blade itself swings out to 1.33. 84px is 1.0
+       * of a height - between the two, and the only one of the three that was
+       * ever picked for the judgement rather than for the drawing. `heightPad` is
+       * the clip's own: the 十 runs 1.52 heights over his head and 0.24 under his
+       * soles, so 30 clears the top and gives away a little at the bottom.
+       */
       reach: 84,
       heightPad: 30,
       knockbackX: 180,

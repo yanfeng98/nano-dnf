@@ -1362,8 +1362,9 @@ python3 assets/make_slayer_rift_candidates.py   # 可选：重出「跟崩山裂
 HUD 左下角是技能栏，显示按键、技能名、MP 消耗与冷却读秒；敌人头顶会出现出血滴、倒地弧线与硬直星环等状态提示。
 
 每个技能释放时还会播放**官方 DNF 刀光**（`assets/effects.png`，由 `assets/import_dnf_effects.py` 从原始 IMG 烘焙）：
-上挑用 `upperslash` 的蓝色上挑弧、崩山击用 `blast-front` 的火焰爆裂、十字斩用 `atgorecross/cross`
-的红色斜刀光镜像成十字、鬼斩用 `atghost` 升起的鬼神。部分特效导出时没有 alpha 通道（DNF 靠调色板与
+上挑用 `upperslash` 的蓝色上挑弧、崩山击用 `blast-front` 的火焰爆裂、十字斩用 `gorecross` 那一包
+自己的四层（`gorecross_slash` 的金弧、`gorecross_cross` 的血「十」、`gorecross_obj_3cross_dodge`
+的血扇与 `gcm_crossline` 的红线）、鬼斩用 `atghost` 升起的鬼神。部分特效导出时没有 alpha 通道（DNF 靠调色板与
 叠加混合），脚本会把纯黑底键出成透明，再统一对齐、缩放成 4×4 的 128×128 图集。
 
 新增的位移/抓取/大招也各配了官方素材：鬼影闪用 `ghoststep/01_sword_dodge`（紫色瞬闪残影）、
