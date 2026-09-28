@@ -542,8 +542,16 @@ test("skill damage grows with the character level", () => {
   const hpBefore = enemy.hp;
 
   Core.step(state, { skills: { crossSlash: true } });
-  /* Both cuts land inside the cast: the 十 on frame 22, the fan on frame 44. */
-  Core.runFrames(state, 50, {});
+  /*
+   * All three cuts land inside the cast - the sweep, the 十 and the qi the
+   * third one leaves behind - and the sum is the same number it was when the
+   * move had two hits at 18 each, which is why the balance numbers did not move.
+   *
+   * The window is the cast and no more: this move bleeds, and at level 4 the
+   * first bleed tick comes 1s after the first cut, which is past the end of the
+   * cast. Run a frame longer and the number below is three cuts plus a tick.
+   */
+  Core.runFrames(state, Math.ceil(skill.duration * Core.FPS), {});
 
   assert.equal(hpBefore - enemy.hp, (skill.damage + (4 - 1) * skill.growth) * skill.hits);
 });
@@ -661,9 +669,9 @@ test("十字斩 makes the target bleed from skill level 2", () => {
   state.enemies = [enemy];
 
   Core.step(state, { skills: { crossSlash: true } });
-  /* Past the whole 1.07s cast - the move roots him for it, so a second press
-     cannot start until this one is over. */
-  Core.runFrames(state, 70, {});
+  /* Past the whole cast - the move holds him for it, so a second press cannot
+     start until this one is over. */
+  Core.runFrames(state, Core.FPS * 2, {});
   assert.equal(enemy.bleed, null, "no bleed at level 1");
 
   state.player.level = 3;
@@ -671,13 +679,154 @@ test("十字斩 makes the target bleed from skill level 2", () => {
   state.player.mp = state.player.maxMp;
   const hpBefore = enemy.hp;
   Core.step(state, { skills: { crossSlash: true } });
-  Core.runFrames(state, 70, {});
+  Core.runFrames(state, Math.ceil(Core.SKILLS.crossSlash.duration * Core.FPS), {});
   assert.ok(enemy.bleed, "十字斩 should apply bleed from level 2");
 
   const damage = hpBefore - enemy.hp;
+  /*
+   * Three seconds of it at one tick a second, and the spec says so: the tick
+   * had been landing once and then sitting on a NaN timer until it expired.
+   */
   Core.runFrames(state, 200, {});
-  assert.ok(enemy.hp < hpBefore - damage, "bleed should keep ticking after the cast");
+  const bleedDamage = hpBefore - damage - enemy.hp;
+  assert.ok(bleedDamage > 0, "bleed keeps ticking after the cast");
+  assert.equal(
+    bleedDamage,
+    (Core.SKILLS.crossSlash.bleed.damage + 2 * Core.SKILLS.crossSlash.bleed.growth) * 3,
+    "a tick a second for the three seconds the spec promises"
+  );
   assert.equal(enemy.bleed, null, "bleed expires");
+});
+
+test("十字斩 carries him through the cross and puts him back where he pressed it", () => {
+  const state = lastRoomState();
+  state.enemies = [];
+  state.player.mp = state.player.maxMp;
+  const skill = Core.SKILLS.crossSlash;
+  const startX = state.player.x;
+
+  Core.step(state, { skills: { crossSlash: true } });
+  assert.equal(state.player.castOriginX, startX, "the cast remembers where it started");
+
+  /*
+   * The clip holds him still for #22-#43 and takes the whole step between #43
+   * and #44, so nothing has moved by the third cut - the cross is carved in
+   * front of the spot he was standing on.
+   */
+  const thirdCut = Math.ceil(skill.hitAt[2] * skill.duration * Core.FPS);
+  let peak = startX;
+  let movedEarly = false;
+  Core.runFrames(state, Core.FPS * 2, (frame) => {
+    if (frame < thirdCut - 2 && state.player.x !== startX) movedEarly = true;
+    peak = Math.max(peak, state.player.x);
+  });
+
+  assert.ok(!movedEarly, "he stands still up to the third cut");
+  assert.ok(
+    peak > startX + skill.advance * 0.9,
+    "the third cut walks him forward through the cross"
+  );
+  assert.ok(peak <= startX + skill.advance, "and no further than the clip's own step");
+
+  /* Net zero: the recovery puts him back on the spot, exactly. */
+  assert.equal(state.player.x, startX, "the recovery puts him back");
+});
+
+test("十字斩 lands all three cuts, on the clip's own three beats", () => {
+  const state = lastRoomState();
+  const enemy = Core.createEnemy(state, "brute", state.player.x + 60);
+  enemy.hp = 900;
+  enemy.maxHp = 900;
+  enemy.speed = 0;
+  state.enemies = [enemy];
+  state.player.attackBonus = 0;
+  const skill = Core.SKILLS.crossSlash;
+  const oneCut = skill.damage + (state.player.level - 1) * skill.growth;
+
+  Core.step(state, { skills: { crossSlash: true } });
+  const landed = [];
+  let was = enemy.hp;
+  Core.runFrames(state, Core.FPS * 2, (frame) => {
+    if (enemy.hp !== was) {
+      landed.push({ frame: frame, damage: was - enemy.hp });
+      was = enemy.hp;
+    }
+  });
+
+  assert.equal(landed.length, skill.hits, "three cuts, three hits");
+  assert.deepEqual(
+    landed.map((hit) => hit.damage),
+    [oneCut, oneCut, oneCut],
+    "each cut does its own damage"
+  );
+  skill.hitAt.forEach((at, index) => {
+    /*
+     * `hitAt` is a fraction of the cast and the loop tests it against the
+     * elapsed time it had *before* this frame's tick, so a beat legitimately
+     * lands a frame or two either side of the clip's own frame - which is what
+     * the slack is. It is not room to spread them: the move these replaced had
+     * two hits at the midpoint of their window, which is where the second cut
+     * would sit (frame 26 against the clip's 20).
+     *
+     * The third is looser on purpose: it is a qi that has to fly to him.
+     */
+    const beat = Math.ceil(at * skill.duration * Core.FPS);
+    const slack = index === 2 ? 8 : 3;
+    assert.ok(
+      Math.abs(landed[index].frame - beat) <= slack,
+      `cut ${index + 1} lands on its own beat - frame ${beat}, give or take ${slack} (landed on ${landed[index].frame})`
+    );
+  });
+});
+
+test("十字斩's third cut is a qi that leaves him, flies, and expires", () => {
+  const state = lastRoomState();
+  state.enemies = [];
+  state.player.mp = state.player.maxMp;
+  const skill = Core.SKILLS.crossSlash;
+  const origin = state.player.x;
+
+  Core.step(state, { skills: { crossSlash: true } });
+  Core.runFrames(state, Math.ceil(skill.shot.from * skill.duration * Core.FPS) + 1, {});
+  assert.equal(state.shots.length, 1, "the third cut leaves a qi behind");
+  const bornAt = state.shots[0].x;
+  assert.ok(
+    Math.abs(bornAt - (origin + state.shots[0].facing * skill.shot.ahead)) < 8,
+    "it starts where the clip starts it - in front of him, not on his hands"
+  );
+
+  Core.runFrames(state, Math.ceil(skill.shot.life * Core.FPS) - 6, {});
+  assert.equal(state.shots.length, 1, "it is still in the air for its own life");
+  assert.ok(state.shots[0].x > bornAt + 40, "and it travels while it is");
+
+  Core.runFrames(state, 12, {});
+  assert.equal(state.shots.length, 0, "then it is gone");
+});
+
+test("十字斩's qi passes through what it crosses, once each", () => {
+  const state = lastRoomState();
+  /*
+   * Both stand outside the first two cuts' reach (84) and inside the qi's
+   * flight, so whatever they lose is the qi's alone - and the far one proves it
+   * is a sweep rather than a stop-on-first-contact.
+   */
+  const near = Core.createEnemy(state, "grunt", state.player.x + 115);
+  const far = Core.createEnemy(state, "grunt", state.player.x + 175);
+  [near, far].forEach((enemy) => {
+    enemy.hp = 400;
+    enemy.maxHp = 400;
+    enemy.speed = 0;
+  });
+  state.enemies = [near, far];
+  state.player.attackBonus = 0;
+  const skill = Core.SKILLS.crossSlash;
+  const oneCut = skill.damage + (state.player.level - 1) * skill.growth;
+
+  Core.step(state, { skills: { crossSlash: true } });
+  Core.runFrames(state, Core.FPS * 2, {});
+
+  assert.equal(400 - near.hp, oneCut, "the near body is hit once, by the qi");
+  assert.equal(400 - far.hp, oneCut, "and the qi carries on to the far body");
 });
 
 test("血气之刃 lands three hits and stuns the target while it is held", () => {
@@ -3098,7 +3247,7 @@ test("the shipped DNF effect sheet matches the renderer grid", () => {
     }
   });
   assert.equal(Render.EFFECT.rowFrames.mountainBreaker, 6, "崩山击 ships its six-frame ground slash");
-  assert.equal(Render.EFFECT.rowFrames.crossSlash, 32, "十字斩 ships the clip's own thirty-two frames");
+  assert.equal(Render.EFFECT.rowFrames.crossSlash, 34, "十字斩 ships the clip's own thirty-four frames");
   /*
    * 大蹦 is the one move whose art is drawn far bigger than a cell can hold, so
    * its two rows - the rift behind the Slayer and the fire over him - are baked
@@ -3205,6 +3354,21 @@ test("the effect bake draws each shape in exactly one colour board", () => {
   const start = source.indexOf("PICKS = {");
   assert.ok(start > 0, "the bake declares its per-move picks");
   const picks = source.slice(start, source.indexOf("\n}\n", start));
+  /*
+   * A row whose columns are a reference clip's own frames writes its stage
+   * windows as `ref(44)` rather than as a fraction - `ref`'s docstring has the
+   * reason. This test compares windows, so it has to read them the same way the
+   * bake does, and it takes `ref`'s own declared bounds rather than assuming
+   * 十字斩's cast.
+   */
+  const refBounds = /def ref\(frame: int, first: int = (\d+), last: int = (\d+)\)/.exec(source);
+  assert.ok(refBounds, "the bake declares what a reference frame number means");
+  const refFirst = Number(refBounds[1]);
+  const refLast = Number(refBounds[2]);
+  const asFraction = (frame, number) =>
+    frame === undefined
+      ? Number(number)
+      : (Number(frame) - refFirst) / (refLast - refFirst);
   const blocks = [];
   const key = /^ {4}"(\w+)":\s*\{/gm;
   for (let match = key.exec(picks); match; match = key.exec(picks)) {
@@ -3223,15 +3387,15 @@ test("the effect bake draws each shape in exactly one colour board", () => {
      * the same frames of it - drawn twice at once.
      */
     const stages = [];
-    for (const [, entry, middle, from, until] of text.matchAll(
-      /"entry":\s*"([^"]+\.img)"([^}]*)"from":\s*([\d.]+),\s*"until":\s*([\d.]+)/g
+    for (const [, entry, middle, fromRef, fromNum, untilRef, untilNum] of text.matchAll(
+      /"entry":\s*"([^"]+\.img)"([^}]*)"from":\s*(?:ref\((\d+)\)|([\d.]+)),\s*"until":\s*(?:ref\((\d+)\)|([\d.]+))/g
     )) {
       const range = /"frames":\s*\((\d+),\s*(\d+)\)/.exec(middle);
       const offset = /"offset":\s*\(\s*(-?\d+)\s*,\s*(-?\d+)\s*\)/.exec(middle);
       stages.push({
         shape: entry.replace(/^\((?:tn|18)\)/, ""),
-        from: Number(from),
-        until: Number(until),
+        from: asFraction(fromRef, fromNum),
+        until: asFraction(untilRef, untilNum),
         first: range ? Number(range[1]) : 0,
         last: range ? Number(range[2]) : Infinity,
         at: offset ? `${offset[1]},${offset[2]}` : "0,0"

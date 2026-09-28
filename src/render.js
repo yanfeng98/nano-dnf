@@ -398,7 +398,7 @@
     rowFrames: {
       upSlash: 9,
       mountainBreaker: 6,
-      crossSlash: 32,
+      crossSlash: 34,
       bloodSword: 27,
       frenzy: 20,
       bloodyRave: 17,
@@ -499,19 +499,25 @@
        */
       mountainBreaker: { dx: 70, dy: -66, size: 264, copies: 1, spin: 0, front: true },
       /*
-       * 十字斩 is **three cuts on one row** now, and the row is the clip's own 32
-       * frames - `length: 32` in the bake, one cell per frame of
-       * 02_十字斩.mp4 from his press at #22 to the #53 he settles on. So the row
-       * is read at the clip's own place in the cast and `dx`/`dy`/`size` only put
-       * the composite on him.
+       * 十字斩 is **three cuts on one row**, and the row is the clip's own
+       * frames - `length: 34` in the bake, **one cell per frame of
+       * 02_十字斩.mp4 from his press at #22 to #55**, the last frame the merged
+       * qi is still on screen. So the row is read at the clip's own place in the
+       * cast and `dx`/`dy`/`size` only put the composite on him. (It was 32
+       * cells over #22-#53 until the third act was measured properly: he is
+       * still shrinking on #54, and the old row simply stopped two frames early.)
        *
-       * **The 十 does not travel, and it stands in front of him.** `travel` came
-       * off the row in the first cut of this slice (the clip holds the bar on
-       * column 631 for f38-f43), the owner asked for the push back, the bake
-       * faked it as eight steps, and he has now asked for the clip again - so the
-       * row is back to the clip's own single held 十 and `travel` stays off.
+       * **The motion of the third act lives in the baked cells, not here.** The
+       * merged qi walks 0.73 of a Slayer-height forward and shrinks away before
+       * it goes - that is the bake's `travel` plus the pack's own shrinking
+       * frames on the `_atgorecross/shoot.img` stages, interpolated column by
+       * column. It used to be one held frame for the whole last 29% of the
+       * cast, which is why the owner kept saying 「往前移动，逐渐变小消失」 and
+       * this row kept not doing it. `travel` on `draw` is still off and should
+       * stay off: it moves the whole row, and the 十 in the first two acts does
+       * **not** travel (the clip holds its bar on column 632 for #38-#44).
        *
-       * Where it stands was wrong twice, and the second correction is the one
+       * Where the 十 stands was wrong twice, and the second correction is the one
        * that mattered: the clip's caster **faces left** (see the bake's `mirror`
        * paragraph and `docs/adr/0011`), so a bar at x 631 against a midline of
        * 772 is 0.65 of a Slayer-height **in front of him**, not behind. Read the
@@ -520,13 +526,13 @@
        *
        * `dx`/`dy`/`size` are not free numbers - they undo the bake's window, and
        * they are chosen so that **one client pixel of the row is one screen
-       * pixel**. The window is (-140, -180, 200, 40) client px - the mirror of
-       * the (-200, -180, 140, 40) the clip was measured in - so `fit_scale` is
-       * 120/340 and `size` = 128 / that = 363; the cell then draws at
-       * 363/128 = 2.836 screen px per cell px, and a client pixel lands on
-       * 0.35294 * 2.836 = 1.0009 of a screen px. `dx`/`dy` put the window's own
-       * middle - (+30, -70) - on the cell's middle, which lands the caster's
-       * ground point on his feet.
+       * pixel**. The window is (-115, -156, 265, 132) client px, so `fit_scale`
+       * is 120/380 and `size` = 128 / that = 405.33; the cell then draws at
+       * 405/128 = 3.164 screen px per cell px, and a client pixel lands on
+       * 0.31579 * 3.164 = 0.9992 of a screen px. `dx`/`dy` are the window's own
+       * middle - (75, -12) - which lands the caster's ground point on his feet.
+       * The bake prints both numbers when it runs; take them from there rather
+       * than from this comment.
        *
        * Why that matters: **it makes the bake's numbers the clip's numbers.** A
        * screen pixel about his feet is the unit the reference is measured in
@@ -537,7 +543,15 @@
        * come back out right, and no number in the row could be compared with
        * the clip it was supposed to be copied from. See `docs/adr/0008`.
        */
-      crossSlash: { dx: 50, dy: 55, size: 459, copies: 1, spin: 0 },
+      crossSlash: {
+        dx: 75,
+        dy: -24,
+        size: 405,
+        copies: 1,
+        spin: 0,
+        /* He walks through the cross he drew - see `drawEffectRow`. */
+        anchor: "cast"
+      },
       bloodSword: { dx: 30, dy: -32, size: 182, copies: 1, spin: 0 },
       frenzy: { dx: 52, dy: -40, size: 150, copies: 1, spin: 0 },
       bloodyRave: { dx: 52, dy: -46, size: 170, copies: 1, spin: 0 },
@@ -607,14 +621,18 @@
        */
       mountainBreaker: { from: 0.38, to: 0.95 },
       /*
-       * 十字斩's row is the clip's own 32 frames, so it opens at the cast's own
-       * start rather than at a fraction of `activeFrom`: the row's first three
-       * cells are blank because the clip's first three frames are (#22-#24, the
-       * ready crouch, before the blade moves). `to` is 0.97 rather than 1 for the
-       * reason 大蹦's is - progress reaches exactly 1 only on the frame the cast
-       * is already over - and 0.97 still lands the row's last drawn column.
+       * 十字斩's row is the clip's own 34 frames, so it opens at the cast's own
+       * start rather than at a fraction of `activeFrom`: the row's first four
+       * cells are blank because the clip's first four frames are (#22-#25, the
+       * ready crouch, before the blade moves).
+       *
+       * **`to` is 1, and here that is exact rather than convenient.** The cast
+       * is 34 clip frames long, the row is 34 cells, so `col = floor(progress *
+       * 34)` is `clip frame - 22` with no rounding left over - the property
+       * `0008` asks for, and the reason a stage in the bake can be written as
+       * `ref(44)` and land on column 22.
        */
-      crossSlash: { from: 0, to: 0.97 }
+      crossSlash: { from: 0, to: 1 }
     },
     /*
      * How a row dies down, per skill. The default (0.75 -> 1, down to 0.3 of
@@ -643,13 +661,18 @@
        */
       rageBurst: { from: 0.93, to: 1, floor: 0.85 },
       /*
-       * 十字斩's biggest act is its last one too - the hatched blood fan, which
-       * arrives at #44 of the clip (0.69 of the cast) and is still at full
-       * strength at #50. The default (from 0.75) would start dimming it as it
-       * opens. The clip's own outro is the fan losing its colour over #51-#53,
-       * which is the last tenth here.
+       * 十字斩's biggest act is its last one too - the merged qi, which arrives
+       * at #44 of the clip (0.65 of the cast) and is still at full strength at
+       * #50. The default (from 0.75) would start dimming it as it opens.
+       *
+       * **The fade is the last of the three things that take it away.** The
+       * clip loses that qi three ways at once: the bake shrinks it to 0.28 of
+       * itself, the clip's own outro goes dark (#53 on), and it is gone by #56.
+       * Shrinking alone still leaves a bright 33px blob sitting on screen for
+       * the last frame, so the fade is what actually lands 「消失」 - and it
+       * starts on #54, which is 0.94 of this cast.
        */
-      crossSlash: { from: 0.90, to: 0.97, floor: 0.35 }
+      crossSlash: { from: 0.94, to: 1, floor: 0.2 }
     },
   };
 
@@ -732,7 +755,15 @@
       from = timing.from;
       to = timing.to;
     }
-    if (progress < from || progress > to) return null;
+    /*
+     * The window is half-open: `[from, to)`. `to` is where the move is over, and
+     * on that frame there is nothing left to draw - which matters for a row
+     * whose `to` is exactly 1 (十字斩's, because its 34 cells are the clip's own
+     * 34 frames and the last of them is the last frame the art is on screen).
+     * Read as `progress > to` that row drew one frame of itself after the cast
+     * had ended.
+     */
+    if (progress < from || progress >= to) return null;
     var local = Math.min(1, (progress - from) / Math.max(0.0001, to - from));
     if (frames === undefined || frames === null) frames = EFFECT.rowFrames[skillId] || 4;
     /*
@@ -1677,10 +1708,12 @@
       : progress;
 
     /*
-     * `travel` pushes a row forward over its cast, for a move whose art leaves
-     * the caster. No row uses it now: 十字斩's cross was the only one that ever
-     * did, and the clip holds it still (`docs/adr/0007`), so it came off. Kept
-     * because it is a property of the draw, not of that one move.
+     * `travel` pushes a **whole row** forward over its cast. No row uses it:
+     * 十字斩 was the only one that ever did, and what the clip actually does is
+     * move *him* and then let the third act's own cells fly (`grow`/`travel` in
+     * the bake, which are per stage). Kept because it is a property of the draw,
+     * not of that one move - but reach for the bake first: moving a whole row
+     * moves the 十 too, and the 十 stands still in the clip.
      */
     var reach = draw.dx + (draw.travel || 0) * progress;
     var size = draw.size * (1 + (draw.grow || 0) * progress);
@@ -1691,11 +1724,22 @@
      * `ground` pins the row to the floor line instead of to his feet - which are
      * in the air for the first half of the window. On the ground the two are the
      * same point, so this only changes the airborne half.
+     *
+     * `anchor: "cast"` is the third case, and the only one where the caster
+     * moves **past** his own effect: 十字斩 刻 a cross in front of him, then the
+     * third cut carries him 0.54 of a Slayer-height forward and he walks through
+     * it (`Core`'s `advance`). Riding the live `caster.x` would drag the whole
+     * row along with him and the cross would never be overtaken. Read off
+     * `castOriginX`, which the cast writes once, at the press.
      */
+    var originX =
+      draw.anchor === "cast" && caster.castOriginX !== undefined
+        ? caster.castOriginX
+        : caster.x;
     var baseY = (draw.ground ? Core.ARENA.groundY : caster.y) - Core.depthLift(caster.z);
 
     ctx.save();
-    ctx.translate(caster.x + caster.facing * reach, baseY + draw.dy);
+    ctx.translate(originX + caster.facing * reach, baseY + draw.dy);
     ctx.scale(caster.facing, 1);
     ctx.globalAlpha = frame.alpha * (source ? source.fade : 1);
     ctx.imageSmoothingEnabled = true;
@@ -1726,9 +1770,11 @@
      * 画在这一行的变换之内，所以它跟着施法者、也跟着朝向镜像。
      */
     /*
-     * 十字斩第三拍那只翼现在**是包里的图**（`gorecross_3cross.img` f1），所以这里不再画。
-     * `CROSS_WING` / `drawFeathers` 留着：它是"包里那张图不对时"的做法，
-     * 量法与取舍记在 `dnf_effect_picks.md` 第十七节。
+     * 十字斩第三拍那一层现在是 `_atgorecross/shoot.img`（**十字斩自己打出去的那一件**），
+     * 所以这里不再画。`CROSS_WING` / `drawFeathers` 留着：它是"包里那张图不对时"的做法，
+     * 但 2026-09-28 把 175 个包按剪影扫过一遍之后，答案是**包里本来就有**
+     * （IoU 0.46，同一把尺量业主认过的「十」是 0.42）—— 前二十轮找不到它，是因为
+     * 一直拿**包围盒**在比。量法与对照见 `dnf_effect_picks.md` 第二十一节。
      */
     drawFeathers(ctx, null, local);
     ctx.restore();

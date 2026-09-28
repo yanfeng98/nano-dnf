@@ -371,20 +371,53 @@
       key: "D",
       mp: 14,
       cooldown: 4,
-      damage: 18,
-      growth: 3,
+      damage: 12,
+      growth: 2,
       /*
-       * The cast is the reference clip's own 32 frames at 30fps (02_十字斩.mp4,
-       * his press at #22 to the stand at #53), and the two hits are where its two
-       * cuts land: the 十 takes shape on #33 (0.367s) and the blood fan bursts on
-       * #44 (0.733s). `hits` spreads evenly across the window, so the second one
-       * lands at the midpoint - `activeTo` at the full cast puts it at 0.718s,
-       * half a frame ahead of the fan's first frame. The move used to be 0.42s
-       * with both hits inside 0.26s, which is a jab, not this.
+       * The cast is the reference clip's own 34 frames at 30fps (02_十字斩.mp4,
+       * his press at #22 to the last frame the merged qi is still on screen,
+       * #55). That is 1.1333s, and it is also the row's own length: 34 cells,
+       * one per clip frame, so `col` is `clip frame - 22` exactly.
+       *
+       * **Three cuts, three hits** (`hitAt`, read as progress through the cast),
+       * where the old spec had two spread evenly over a window - which is why
+       * the first cut's arc never carried one:
+       *
+       *   #29 = 0.206  the sweep reaches its widest
+       *   #33 = 0.324  the 十 takes shape
+       *   #44 = 0.647  the third cut: the crescent sweeps and the qi merges
+       *
+       * Even spacing cannot say that (0.206/0.324/0.647 are not equally apart),
+       * so this move names its own beats and the generic loop lands on them.
+       *
+       * `damage`/`growth` are a third of what they were, so three hits do what
+       * two used to: a level-1 cut is 12 and the move still totals 36 a level,
+       * which is why the balance numbers did not have to be re-tuned.
        */
-      duration: 1.07,
-      activeFrom: 0.367,
-      activeTo: 1.07,
+      duration: 1.1333,
+      activeFrom: 0.206,
+      activeTo: 1,
+      hitAt: [0.206, 0.324, 0.647],
+      /*
+       * **He moves, and then he comes back.** The clip's caster walks forward
+       * 0.54 of a Slayer-height on the third cut - measured off his own boots,
+       * not the art: their centre jumps from x 778 (#43) to 660 (#44) and stays
+       * there to #55, while the 十 he drew stays on x 554-727 and lets him walk
+       * through it. `advance` is that step in px; `advanceBack` is where the
+       * recovery starts bringing him back to the spot he pressed the key on, so
+       * the move is net zero - the clip ends with him back on 761.
+       *
+       * The clip does the return in one frame (#55 -> #56); 0.72 spreads it
+       * over the last 0.32s so it reads as a step rather than a teleport.
+       *
+       * This is why the move is no longer fully `定身` - it locks the facing and
+       * refuses input, but it carries him. See `CONTEXT.md` and `docs/adr/0012`.
+       */
+      advance: 45.5,
+      advanceAt: 0.647,
+      /* One frame of the clip at 30fps, which is all the step itself takes. */
+      advanceRamp: 0.035,
+      advanceBack: 0.72,
       /*
        * `reach` stays where it was. The reference is a training-room clip with
        * nothing to hit, so it can measure the art and not the box: the 十 and the
@@ -400,7 +433,26 @@
       knockbackX: 180,
       launch: 0,
       radius: 0,
-      hits: 2,
+      hits: 3,
+      /*
+       * **The third hit leaves him.** In the clip, the three cuts' qi merge at
+       * #44-#46 into one body that then flies 0.73 of a height forward and
+       * shrinks away - so the cut that lands is not a box on his hands, it is a
+       * box on **the thing that is flying** (`spawnShot`). The numbers are the
+       * bake's own numbers for that stage (`travel` 63.5, `ahead` 66), read once
+       * more here because the judgement and the picture have to agree about
+       * where the qi is: he is hit by it where he sees it.
+       */
+      shot: {
+        /* Which of the three cuts leaves him: the third (`hitAt` 0.647). */
+        hit: 2,
+        from: 0.647,
+        ahead: 66,
+        speed: 159,
+        reach: 84,
+        heightPad: 30,
+        life: 0.4
+      },
       /* DNF shape: cross cut that leaves the target bleeding. */
       bleed: { damage: 4, growth: 1, duration: 3, interval: 1, fromLevel: 2 }
     },
@@ -1368,6 +1420,12 @@
       effects: [],
       /* Ground a skill opened and left burning: see spawnField. */
       fields: [],
+      /*
+       * A skill's own judgement that leaves him and flies - not to be confused
+       * with `projectiles`, which are the monsters' and travel the other way.
+       * See `spawnShot`; 十字斩's third cut is the only one so far.
+       */
+      shots: [],
       nextEnemyId: 1,
       nextProjectileId: 1,
       stats: { hits: 0, kills: 0, damageDealt: 0, damageTaken: 0, airHits: 0, collapses: 0, bloodOrbs: 0 },
@@ -1425,6 +1483,8 @@
     state.projectiles = [];
     /* A new room is a new floor: nothing he opened in the last one burns here. */
     state.fields = [];
+    /* ...and nothing he threw is still in the air in it either. */
+    state.shots = [];
     state.upgradeChoice = null;
     state.roomTime = 0;
     state.hazards = (spec.hazards || []).map(function (hazard, index) {
@@ -1471,13 +1531,134 @@
     return a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
   }
 
-  function attackBox(player, reach, heightPad) {
-    var left = player.facing > 0 ? player.x : player.x - reach;
+  /*
+   * `at` is the x the box is rooted at, and it exists because **not every box
+   * comes off the caster**. 十字斩's third cut leaves him: the merged qi is a
+   * thing that flies forward on its own (see `spawnShot`), and its box has to
+   * travel with it rather than stretch from his hands. Everything else passes
+   * nothing and roots on him, which is what it always did.
+   */
+  function attackBox(player, reach, heightPad, at) {
+    var root = at === undefined ? player.x : at;
+    var left = player.facing > 0 ? root : root - reach;
     return {
       left: left,
       right: left + reach,
       bottom: player.y + heightPad,
       top: player.y - player.height - heightPad
+    };
+  }
+
+  /** When a skill's `index`-th hit lands, in seconds into the cast. */
+  function hitTime(skill, index) {
+    /*
+     * Most moves spread their hits evenly across the active window, and that is
+     * all they ever needed to say. A move whose cuts land where the reference's
+     * own cuts land cannot: 十字斩's three are 0.206 / 0.324 / 0.647 apart.
+     */
+    if (skill.hitAt) return skill.duration * skill.hitAt[index];
+    var count = skill.hits || 1;
+    return skill.activeFrom + index * ((skill.activeTo - skill.activeFrom) / count);
+  }
+
+  /*
+   * How far in front of the spot he pressed the key on he stands, `elapsed`
+   * seconds into a move that carries him.
+   *
+   * Three pieces, and all three are the clip's: nothing until the third cut,
+   * then the step, then hold it, then walk back over the recovery. The step
+   * itself takes ~one clip frame (#43 -> #44 is where his boots move), so it is
+   * ramped over `advanceRamp` rather than snapped - at 30fps the clip can hide a
+   * 139px jump inside one frame, at 60fps the same jump in one frame is a
+   * teleport. The return is the one part the clip does not show: it cuts
+   * straight back to the idle on #56, and a cut is not something a 60fps
+   * renderer can play, so `advanceBack` spreads it instead.
+   */
+  function advanceAhead(skill, elapsed) {
+    var progress = skill.duration > 0 ? elapsed / skill.duration : 1;
+    var ramp = skill.advanceRamp === undefined ? 0 : skill.advanceRamp;
+    if (progress <= skill.advanceAt) return 0;
+    if (progress < skill.advanceAt + ramp) {
+      return skill.advance * ((progress - skill.advanceAt) / Math.max(0.0001, ramp));
+    }
+    var back = skill.advanceBack === undefined ? 1 : skill.advanceBack;
+    if (progress <= back) return skill.advance;
+    var t = Math.min(1, (progress - back) / Math.max(0.0001, 1 - back));
+    return skill.advance * (1 - t);
+  }
+
+  /*
+   * Hand a skill's **flying** hitbox over to the arena.
+   *
+   * 十字斩's third cut is not a box on his hands - the clip's own third act is
+   * the three cuts' qi merging into one body that flies forward and shrinks
+   * away, so what lands is a box on *that*. The art for it is baked into the
+   * row (the third stage's `travel`/`grow`), and this is the judgement half of
+   * the same motion: it reads the same two numbers out of the skill's own `shot`
+   * spec so that **he is hit by the qi where he can see it**.
+   *
+   * A shot is its own entity because it outlives the hit frame it was born on
+   * and because it moves: it carries its own clock, its own speed and a list of
+   * the bodies it has already passed through (so it hits each one once - it is a
+   * sweep, not a trap).
+   */
+  function spawnShot(state, skillId, damage, hitIndex) {
+    var skill = SKILLS[skillId];
+    var shot = skill && skill.shot;
+    if (!shot) return null;
+    var player = state.player;
+    var origin = player.castOriginX === undefined ? player.x : player.castOriginX;
+    state.shots.push({
+      skillId: skillId,
+      /* Where the qi's own middle is, in world x. */
+      x: origin + player.facing * shot.ahead,
+      vx: player.facing * shot.speed,
+      z: player.z || 0,
+      facing: player.facing,
+      y: player.y,
+      height: player.height,
+      reach: shot.reach,
+      heightPad: shot.heightPad,
+      damage: damage,
+      hitIndex: hitIndex,
+      struck: [],
+      life: shot.life,
+      maxLife: shot.life
+    });
+    return state.shots[state.shots.length - 1];
+  }
+
+  /*
+   * Move every qi still in the air and let it hit what it is passing through.
+   * One hit per body per qi: a second of overlap is not a second of damage.
+   */
+  function updateShots(state, dt) {
+    if (!state.shots || !state.shots.length) return;
+    state.shots.forEach(function (shot) {
+      shot.life -= dt;
+      shot.x += shot.vx * dt;
+      var box = shotBox(shot);
+      state.enemies.forEach(function (enemy) {
+        if (enemy.dead || shot.struck.indexOf(enemy.id) !== -1) return;
+        if (!inReachOf(enemy.z, shot.z, undefined)) return;
+        if (!boxesOverlap(box, bodyBox(enemy))) return;
+        shot.struck.push(enemy.id);
+        applySkillHit(state, enemy, shot.damage, SKILLS[shot.skillId], shot.hitIndex);
+      });
+    });
+    state.shots = state.shots.filter(function (shot) {
+      return shot.life > 0;
+    });
+  }
+
+  /** The qi's own box: centred on it, not stretching back to his hands. */
+  function shotBox(shot) {
+    var half = shot.reach / 2;
+    return {
+      left: shot.x - half,
+      right: shot.x + half,
+      bottom: shot.y + shot.heightPad,
+      top: shot.y - shot.height - shot.heightPad
     };
   }
 
@@ -1688,7 +1869,17 @@
       enemy.bleed = {
         damage: opts.bleed.damage,
         remaining: opts.bleed.duration,
-        timer: opts.bleed.interval
+        timer: opts.bleed.interval,
+        /*
+         * **The interval has to be stored, not just used once.** The tick does
+         * `timer += bleed.interval` to line the next one up, and it was reading
+         * a field the record never carried: `timer` went to NaN on the very
+         * first tick and `NaN <= 0` is false, so a "4 a second for 3 seconds"
+         * bleed ticked **exactly once** and then sat there until it expired.
+         * Found on 2026-09-27 when 十字斩's beats moved and the bleed test
+         * started measuring the wrong window.
+         */
+        interval: opts.bleed.interval
       };
     }
     if (opts.grabbed) {
@@ -1977,6 +2168,14 @@
       var skillSpec = SKILLS[castSkill];
       player.mp -= skillSpec.mp;
       player.skillId = castSkill;
+      /*
+       * **Where he pressed the key.** A move that carries him states its own
+       * position each frame from this point (`advanceAhead`), and a move whose
+       * art is nailed to the ground - 十字斩's cross - is drawn from it too
+       * (`anchor: "cast"` in the renderer). Read once, here, so neither of them
+       * has to guess where "here" was after he has already moved off it.
+       */
+      player.castOriginX = player.x;
       player.skillTimer = skillSpec.duration;
       player.skillHitDone = false;
       player.skillHitsDone = 0;
@@ -2044,7 +2243,6 @@
       var active = SKILLS[player.skillId];
       var skillElapsed = active.duration - player.skillTimer;
       var hitCount = active.hits || 1;
-      var hitSpan = (active.activeTo - active.activeFrom) / hitCount;
 
       /*
        * The hop is its own beat, not a side effect of the hit: it fires once the
@@ -2072,9 +2270,22 @@
         player.solidInvuln = Math.max(player.solidInvuln || 0, active.leapInvuln || 0.3);
       }
 
+      /*
+       * **He can be carried by his own move.** A cast normally locks him to the
+       * spot; 十字斩 is the one that walks him forward and back (see its own
+       * `advance`/`advanceAt`/`advanceBack` and `docs/adr/0012`), and the step is
+       * driven off the cast's clock rather than off `vx` - the rooted damping
+       * would smear a 0.06s step into a long slide, and walls and bodies would
+       * chop it up on the way. So his x is *stated* for each frame of the move,
+       * from the spot he pressed the key on.
+       */
+      if (active.advance) {
+        player.x = player.castOriginX + player.facing * advanceAhead(active, skillElapsed);
+      }
+
       while (
         player.skillHitsDone < hitCount &&
-        skillElapsed >= active.activeFrom + player.skillHitsDone * hitSpan
+        skillElapsed >= hitTime(active, player.skillHitsDone)
       ) {
         var hitIndex = player.skillHitsDone;
         player.skillHitsDone += 1;
@@ -2124,26 +2335,35 @@
             player.skillPower
         );
         var struck = [];
-        state.enemies.slice().forEach(function (enemy) {
-          if (enemy.dead) return;
+        if (active.shot && hitIndex === active.shot.hit) {
           /*
-           * A radial move is a disc lying on the floor, so depth is part of its
-           * distance - and it is the same circle the renderer squashes by
-           * DEPTH.scale, which is why there is only one of that constant. Every
-           * other move is a box plus the depth reach its own spec asks for.
+           * This cut's box is not on his hands, so there is nothing to test
+           * here: the qi leaves him and `updateShots` carries it from now on.
+           * See `spawnShot` and the skill's own `shot`.
            */
-          if (active.radius > 0 && floorDistance(enemy, player) <= active.radius) {
-            applySkillHit(state, enemy, skillDamage, active, hitIndex);
-            struck.push(enemy.id);
-          } else if (
-            active.radius <= 0 &&
-            inReachOf(enemy.z, player.z, active.depthReach) &&
-            boxesOverlap(skillBox, bodyBox(enemy))
-          ) {
-            applySkillHit(state, enemy, skillDamage, active, hitIndex);
-            struck.push(enemy.id);
-          }
-        });
+          spawnShot(state, active.id, skillDamage, hitIndex);
+        } else {
+          state.enemies.slice().forEach(function (enemy) {
+            if (enemy.dead) return;
+            /*
+             * A radial move is a disc lying on the floor, so depth is part of its
+             * distance - and it is the same circle the renderer squashes by
+             * DEPTH.scale, which is why there is only one of that constant. Every
+             * other move is a box plus the depth reach its own spec asks for.
+             */
+            if (active.radius > 0 && floorDistance(enemy, player) <= active.radius) {
+              applySkillHit(state, enemy, skillDamage, active, hitIndex);
+              struck.push(enemy.id);
+            } else if (
+              active.radius <= 0 &&
+              inReachOf(enemy.z, player.z, active.depthReach) &&
+              boxesOverlap(skillBox, bodyBox(enemy))
+            ) {
+              applySkillHit(state, enemy, skillDamage, active, hitIndex);
+              struck.push(enemy.id);
+            }
+          });
+        }
 
         /*
          * Which hit carries the ground wave: the last one by default (the usual
@@ -2229,6 +2449,19 @@
       }
       player.skillTimer = Math.max(0, player.skillTimer - dt);
       if (player.skillTimer === 0) {
+        /*
+         * A move that carried him puts him back on the exact spot he pressed the
+         * key on. The last frame of a cast lands *short* of progress 1 - the
+         * timer hits zero between frames - so the recovery's own curve would
+         * leave him a couple of px forward of where he started, every time, for
+         * good. The clip has him back on 761 too (`docs/adr/0012`).
+         *
+         * Only on a cast that ran to its end: an interrupted one leaves him
+         * wherever the step had got to, which is what being interrupted means.
+         */
+        if (active.advance && player.castOriginX !== undefined) {
+          player.x = player.castOriginX;
+        }
         /*
          * The cast is over but the ground is not: whatever it opened goes on
          * burning where it is, which is how the reference ends - him on his
@@ -2948,6 +3181,12 @@
     if (state.victory || state.defeat) return state;
 
     updatePlayer(state, input, dt);
+    /*
+     * What he threw, after what he did and before what the room does. A qi born
+     * on this frame is already in the air on it, which is what the art does too:
+     * the row's third stage starts flying on the very column it appears on.
+     */
+    updateShots(state, dt);
     updateEnemies(state, dt);
     updateHazards(state, dt);
     updatePickups(state, dt);

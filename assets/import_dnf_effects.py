@@ -97,6 +97,26 @@ RIFT_CLIENT_PX = 0.596
 def clamp01(value: float) -> float:
     return max(0.0, min(1.0, value))
 
+
+def ref(frame: int, first: int = 22, last: int = 55) -> float:
+    """A reference clip's own frame number as the row fraction `pick_frames` wants.
+
+    A staged pick's `from`/`until` are fractions of the row, and `pick_frames`
+    turns them into columns with `round(fraction * (length - 1))`. Reading and
+    writing those fractions by hand is where this row kept going wrong: a stage
+    that was meant to start on the clip's #33 came out on #31, and the fix was
+    invisible because the number in the file (`0.29`) says nothing about frames.
+
+    So a row that is **one column per reference frame** writes `ref(n)` and gets
+    column `n - first`. That is the property `0008` asks for - *size a layer on
+    the frame it actually plays* - made checkable by reading the line.
+
+    Defaults are 十字斩's own cast: `02_十字斩.mp4` #22 is his press and #55 is
+    the last frame of the merged qi, so the row is 34 columns and `ref(44)` is
+    the third cut (0.6667).
+    """
+    return (frame - first) / (last - first)
+
 # Moves the owner picked pack by pack (see assets/dnf_effect_picks.md) ship the
 # move's real frames instead of a four-frame sample. A row is built from one or
 # more client entries:
@@ -368,7 +388,13 @@ PICKS = {
     #   arc 3      1.61 x 1.48  0.21 behind him,        +1.32 over / 0.24 under
     #   the fan    1.78 x 1.66  0.30 behind him,        +1.42 over / 0.24 under
     #   the line   1.95 x 1.35  0.35 behind him
-    "crossSlash": {"pack": "_gorecross", "length": 32, "mirror": True,
+    #   `clip` / `firstFrame` are what `assets/measure_row_against_clip.py` reads:
+    #   column `c` of this row is frame `#(firstFrame + c)` of that clip, so the
+    #   two rulers can be laid on top of each other without anyone re-deriving
+    #   the offset by hand. They live here rather than in the tool because the
+    #   row is the thing that knows what it was cut from.
+    "crossSlash": {"pack": "_gorecross", "length": 34, "mirror": True,
+                  "clip": "02_十字斩", "firstFrame": 22,
                   # The window is this row's ruler (`0008`): it must contain
                   # every layer's ink or the bake clips it - `mirror_layer`
                   # negates the placement, so where the old x -200..140 held the
@@ -376,7 +402,24 @@ PICKS = {
                   # the other side. Measured ink box after the flip is
                   # (-157, -146, 73, 31), so this window takes all of it and no
                   # more: span 240 x 220, `fit_scale` 0.5, `size` 256.
-                  "window": (-140, -160, 240, 270), "stages": [
+                  #
+                  # **The row is now 34 columns and column `c` is the clip's own
+                  # frame #(22 + c)** (`length` 32 -> 34 on 2026-09-27, when the
+                  # cast turned out to run #22-#55: he is still shrinking on #54,
+                  # and the old 32-column row stopped at #53). Every stage below
+                  # is therefore written as `ref(...)` - see `ref()` - so its
+                  # numbers can be read straight against the clip instead of
+                  # against a fraction nobody can check.
+                  #
+                  # The window grew with the third act: it now flies 0.73 of a
+                  # height forward, so the front edge had to move out past 240.
+                  # Measured off the finished row (`pick_frames` with this spec):
+                  # the ink is x -107..256, y -141..119, so this window is that
+                  # box plus 8px of margin on the width side. Span 380 x 288 ->
+                  # `fit_scale` 0.31579 -> `size` 405, and the renderer's
+                  # `dx`/`dy` are the window's own centre (75, -12) - see
+                  # `EFFECT.draw.crossSlash`.
+                  "window": (-115, -180, 265, 132), "stages": [
         # **这一行的窗口就是尺子，1:1。** `window` 的跨度 = 参考上量到的框，`size` 取
         # `128 / fit_scale` 之后 k = fit * size / 128 = 1，即**一个客户端像素 = 一个屏幕
         # 像素**，而屏幕像素也正是参考那把尺（1 身位 = 84）。所以下面每一个 `stretch`/
@@ -390,19 +433,19 @@ PICKS = {
         # on the art's one bright frame (f1 - f2-f4 have already lost their gold)
         # at two sizes rather than run through art frames that fade where the clip
         # is still climbing.
-        {"entry": "gorecross_slash.img", "frames": (1, 4), "scale": 0.659, "stretch": (0.6156, 0.661),
-         "offset": (-139, -202), "from": 0.129, "until": 0.194},
+        {"entry": "gorecross_slash.img", "frames": (1, 4), "scale": 0.327, "stretch": (0.6156, 0.661),
+         "offset": (-160, -202), "from": ref(26), "until": ref(28)},
         # **横扫是走过去的，不只是长大。** 参考里那道弧的框 #26 x −102..−15 → #28 x −65..+67
         # → #30 x −18..+80：重心从 −58 挪到 −2，宽从 87 长到 155 再 168。上一版只有两档、
         # 两档的框都在原地，所以它读起来是"亮了一下"而不是"扫过去"。三档各自的横位由
         # /tmp/xz/fit6.py 解出来。
-        {"entry": "gorecross_slash.img", "frames": (1, 4), "scale": 1.108, "stretch": (0.5036, 0.919),
-         "offset": (-145, -177), "from": 0.194, "until": 0.242},
+        {"entry": "gorecross_slash.img", "frames": (1, 4), "scale": 0.683, "stretch": (0.5036, 0.919),
+         "offset": (-167.5, -177), "from": ref(28), "until": ref(30)},
         # 到 col9 才收：参考 #30 与 #31 的红是同一个 147x42，到 #32 才缩。早收一格
         # 会在那一格上留出一段空白（合成 85x34 对参考 147x42）。**但金弧比红早收一格**：
         # 参考的金在 #30/#31 是 515/519、到 #32 就只剩 70（几乎没了），所以这一档只到 col9。
-        {"entry": "gorecross_slash.img", "frames": (1, 4), "scale": 1.108, "stretch": (0.5418, 0.7883),
-         "offset": (-147, -176), "from": 0.242, "until": 0.290},
+        {"entry": "gorecross_slash.img", "frames": (1, 4), "scale": 0.732, "stretch": (0.5418, 0.7883),
+         "offset": (-168, -176), "from": ref(30), "until": ref(32)},
         # 十 是**两拍**，不是一拍：竖条甩上去（#36 量到 97 x 165，他脚下往上 1.16 身位）、
         # 再收回它该在的大小（#38 起 97 x 129）。收的那一下**在原地**：竖条重心 #38→#43
         # 六帧全落在 631 那一列。
@@ -410,8 +453,16 @@ PICKS = {
         # **它从 0.29 才开始**（#31 那一拍），不是从第一格：参考里横扫那两拍（#26-#32）
         # 画面上**只有那道金弧**，十要到 #33 才成形——早开一格，横扫还没走完就先冒出一个
         # 红十，横扫那道框也因此量歪（118x43 对参考的 87x28）。
+        # **那 0.25 身位撤掉了**（2026-09-28，第二十三节）。它是**业主指定**、与量到的数
+        # 不符的一条：参考里十钉死（竖杠峰值列 #38→#44 全是 632-633，左缘 554 七帧不动），
+        # 而 2026-09-27 按「业主说参考的往前移了」把它摊成了整拍匀速前移 21px。
+        # 撤它的依据不是"业主改主意了"，是**同一把尺量出来的两个数**：
+        # 撤掉之后十对参考的 IoU 从 0.082 回到 0.417（对照口径见第二十二节），
+        # 而 2026-09-28 重量的落位是：我们的十**前缘在身前 26px、参考在 8.6px**，
+        # 而且**每播一列自己往前走 1.5px**（col16→21 量到 +19.6 → +28.6），
+        # 参考七列一动不动。也就是说这条"指定"在屏幕上做出来的正是业主后来说的「差距」。
         {"entry": "gorecross_cross.img", "frames": (0, 6), "scale": 0.825, "stretch": (0.9878, 1.202),
-         "offset": (-280, -202), "from": 0.290, "until": 0.452},
+         "offset": (-280, -203.8), "from": ref(33), "until": ref(36)},
         # 定下来之后它一直这么大：1.15 x 1.54 身位，**在他身前**（翻了，见 `0011`），
         # **到 0.71 就走了**——参考里 #46 起那一拍只剩那道金弧和细线。
         #
@@ -422,8 +473,15 @@ PICKS = {
         # 取中间那一帧）。**f10 的框比 f7 小一圈**（117x166 对 128x178），所以 `stretch`
         # 要跟着收：原来的 (1.0318, 0.9298) 是按 f10 解的，换 f7 之后同样的乘积仍是
         # 132 x 165——框没动，只是形状对了。
+        # 这一拍原来还要"接上甩上去那一拍没走完的那 0.25 身位"：`offset` 补 7.64px、
+        # 余下 13.36px 由 `travel` 摊到 #44。**两段一起撤了**（见上一段的注释）。
+        # 撤掉 `travel` 之后位置由 `offset` 一处定：`offset` 加 (+17.6, -9.1)，
+        # 就是把这一层从"身前 26..97、离地 102"搬到参考的"身前 8.6..75.2、离地 111.4"。
+        # 这两个数是 `assets/measure_row_against_clip.py crossSlash --per-stage` 量出来的，
+        # 不是试出来的：composed 的墨是 `offset` 的纯平移（`mirror_layer` 把 x 取反，
+        # 所以两个轴都一一对应），一次就到位。
         {"entry": "gorecross_cross.img", "frames": (7, 9), "scale": 0.886, "stretch": (0.672, 0.708),
-         "offset": (-289, -226), "from": 0.484, "until": 0.680},
+         "offset": (-279.0, -235.1), "from": ref(37), "until": ref(44)},
         # **只用最亮那一帧，分两档。** 包里的 f5→f6 宽度是 **54 → 17**，一刀砍掉三分之二；
         # 参考是 **#34 68 → #36 61 → #38 24**，先慢慢缩、最后才收。**播 f6/f7 就等于把
         # 参考的"慢慢缩"演成"一刀断"**，所以这两帧不用了：定住 f5，靠两档大小演它。
@@ -437,9 +495,9 @@ PICKS = {
         # 翻过来之后在屏幕上是「十都钉住了还有一道金在扫」。看一帧就知道：#35/#36 的金
         # 只剩头顶一个钩，#37 干净。
         {"entry": "gorecross_slash.img", "frames": (5, 8), "scale": 1.976, "stretch": (0.5733, 0.3254),
-         "offset": (-199, -242), "from": 0.355, "until": 0.387},
-        {"entry": "gorecross_slash.img", "frames": (5, 8), "scale": 1.976, "stretch": (0.2051, 0.1746),
-         "offset": (-163, -308), "from": 0.387, "until": 0.452},
+         "offset": (-203, -242), "from": ref(33), "until": ref(34)},
+        {"entry": "gorecross_slash.img", "frames": (5, 8), "scale": 2.84, "stretch": (0.2051, 0.1746),
+         "offset": (-211, -308), "from": ref(34), "until": ref(36)},
         # 第三刀的金弧，和血扇同一拍起（参考 #44 两样同时出现）。
         #
         # **只放它最亮的那一帧。** `gorecross_3slash_dodge.img` 那四帧**各自带一个不同的
@@ -458,40 +516,53 @@ PICKS = {
         # 可以各要各的（现在量到 **2.5%**，参考 2.9%）。`rotate` 的用法与理由见
         # `rotate_layer` 与 `docs/adr/0010`。
         {"entry": "gorecross_3slash_dodge.img", "frames": (3, 3), "scale": 1.054, "stretch": (0.5557, 0.7195),
-         "rotate": 15, "offset": (-499, -290), "from": 0.710, "until": 0.775},
-        # **血扇不再从包里取。** 这一拍参考片画的是一束**羽丝**（#48 的红色掩膜：x −118
-        # 处一团实心，往右上射出五道细丝，到 x −16 就没了），而这个包里没有那个形状：
-        # 十一个条目里最像的 `gorecross_obj_3cross_dodge.img` 是一整块**实心半圆盘**
-        # （局部墨迹密度处处 >0.85，根本没有缝），另外两个 gorecross 包也没有。全部
-        # 11+3 个条目 × 4 种镜像 × 24 个角度逐一去套，最好的 IoU 只有 0.53。
-        # 所以这一层改成**照参考量到的剪影画**，参数由 /tmp/xz/wing.py 解出，见
-        # `EFFECT.feathers`（src/render.js）与 `docs/adr/0009`。这里腾出来的两格由细红线
-        # 继续占着，所以整行仍是 32 格。
-        # **细红线要保持细。** 上一版的 `stretch` 是 (0.686, 1.896)：那个 1.896 是为了把它
-        # **转陡**（参考里这条线约 47°，而这张图自己的弧只有 ~18°），代价是把线**变粗到
-        # 约 19px** —— 而参考里这条线只有 **4–6px**（#48 的列 profile：每一段 3–5px）。
-        # 粗到 19px 它就不是「细红线」了，是一条绕着人扫的红弧，业主说的「镰」剩下一半就是它。
-        # 所以改成**等比**：线保住了细，代价是角度浅一些。这张图的弧没法又陡又细 ——
-        # 烘焙没有旋转，谁要两样都要，得先给烘焙加一个 `rotate`。
-        # **第三拍那只红羽翼 —— 装回来了。** 业主 2026-09-27 拿参考片 0:01 那一帧
-        # 点着说「这个动作不对」：那一拍他是**压低前扑 + 身前一只大红羽翼 + 一道细红线**。
-        # `0009` 补记那轮他把**我画的那一层**否掉了（"爪"），我误读成"这一拍不要翼"、
-        # 把整层删了；他这一张图说的是**翼要在**。所以改用**包里自己的图**
-        # `gorecross_obj_3cross_dodge.img`（这一包唯一的翼形），不再用代码画。
-        # 位置按参考 #48 的红色掩膜框解（身前 −0.17..+1.60、y −0.27..+1.37 身位）。
-        # **这只翼一直在包里，而且是 `gcm_slash.img`。** 上两轮用的是
-        # `gorecross_obj_3cross_dodge.img`（"宽而扁的一条"，拉出来是一条细红丝带），
-        # `0009` 那一轮据此断言"包里没有这个形状、最好的 IoU 0.53"——**那一轮把包摊开
-        # 逐张看过之后就站不住了**：`gcm_slash.img` 14 帧，每一帧就是
-        # **一团实心羽体 + 一排放射状羽丝**，和参考 #46-#51 是同一个形状。
-        # 尺寸按参考那一帧的红色掩膜框解（见 `dnf_effect_picks.md`）。
-        # **第三拍那只燕形翼：用包里的 `gorecross_3cross.img` f1。**
-        # 参考那一帧不是"一扇羽丝"，是**一条带排线的实心扫击**（粗头 + 长尾 + 斜向纹理），
-        # 这张图就是那个形状，且 131x141 与参考量到的 148x138 几乎一比一。见 `dnf_effect_picks.md`。
-        {"entry": "gorecross_3cross.img", "frames": (1, 1), "scale": 1.05, "stretch": (1.0, 1.0),
-         "offset": (-366, -352), "from": 0.710, "until": 1.000},
-        {"entry": "gcm_crossline.img", "frames": (0, 6), "scale": 0.75, "stretch": (0.686, 0.686),
-         "offset": (-461, -373), "from": 0.742, "until": 1.000},
+         "rotate": 15, "offset": (-499, -290), "from": ref(44), "until": ref(45)},
+        # **第三拍那一层换过三次素材，前两次都是拿包围盒挑的，两次都挑错。**
+        # 先是照参考量到的一束羽丝**画**了一层（`0009`，业主两次说它像「爪」），再是换成
+        # `gorecross_3cross.img` f1，理由是「131x141 与参考的 148x138 几乎一比一」。
+        # **那个一比一是包围盒的一比一** —— 而这一层是一根斜跨整个方框的细丝，框被它撑到
+        # 120x128，于是前二十轮每一次框对照都过了，屏幕上却一直是业主说的「一条红丝带」。
+        # 换掉的依据见下面那一层自己的注释与 `assets/dnf_effect_picks.md` 第二十一节。
+        # **第三拍那股气是 `_atgorecross/shoot.img` —— 十字斩自己打出去的那一件。**
+        #
+        # 上一版用的是 `gorecross_3cross.img` f1，理由是「131x141 与参考量到的 148x138 几乎一比一」。
+        # **那个一比一是包围盒的一比一，而包围盒区分不了一条斜着走的细带和一只鸟**：这一层是一根
+        # 斜跨整个方框的细丝，框被它撑到 120x128，于是前二十轮每一次框对照都过了，屏幕上却一直是
+        # 业主说的「一条红丝带」。
+        #
+        # 换掉的依据不是眼看，是**按剪影找**：把 175 个 `sprite_character_swordman_effect*` 包
+        # 每一帧的包围盒归一化掉、再对参考 #46-#50 的红掩膜做 scale+offset 搜索，全客户端最高
+        # **`shoot.img` f0/f1，IoU 0.46**；同一把尺量「十」那一拍（业主认过的）是 **0.42**。
+        # 也就是说它和对照组是同一档的吻合，而旧的那一层只有 0.15-0.31。
+        # 量法与对照写在 `assets/dnf_effect_picks.md` 第二十一节。
+        #
+        # **两段，不是一段。** 参考里它从 #46 到 #50 几乎不缩（实心体 99x103 → 86x102），
+        # 到 #51 才塌（→ 29x51）。包里这 8 帧自己就是「大、大、半、半、小、小、更小、更小」，
+        # 一整段匀速播完会缩得太早，所以前 6 列只播 f0-f1、后 6 列播 f2-f7。
+        {"pack": "_atgorecross", "entry": "shoot.img", "frames": (0, 1),
+         "scale": 0.924, "stretch": (1.55, 0.8904), "about": 0, "offset": (-93.2, -139),
+         "travel": (-41.25, -10), "from": ref(44), "until": ref(50)},
+        # f4-f5 are **narrower** than f6-f7 (12px against 31), so playing the lot in order
+        # makes the qi widen again on its last two columns. The clip's tail only ever gets
+        # smaller, so f6-f7 are dropped and the last two columns are f4-f5.
+        {"pack": "_atgorecross", "entry": "shoot.img", "frames": (2, 3),
+         "scale": 0.924, "stretch": (1.55, 0.8904), "about": 0, "offset": (-108, -109.4),
+         "travel": (-38.4, -7), "from": ref(50), "until": ref(52)},
+        {"pack": "_atgorecross", "entry": "shoot.img", "frames": (4, 5),
+         "scale": 0.924, "stretch": (1.55, 0.8904), "about": 0, "offset": (-124.5, -84),
+         "travel": (-8, 5), "from": ref(52), "until": ref(55)},
+        # **定住一帧。** `gcm_crossline.img` 的七帧**不是一条线的七个状态，是同一条线
+        # 的七个大小**，而且每一帧自带一个不同的帧位：照 f0→f6 播过去，它在屏幕上从
+        # 身前 8..128 **一路倒退回 −21..58**（量到每列退 4.9px），而这一拍里参考的每一样
+        # 东西都在往前走。倒着走的还不只是难看：它退到 col31 时已经比那团气**更大**，
+        # 于是量整行时它把气挤掉、读出一个"身后 79x27"，而参考那一格是身前 107..139。
+        # 取 f0 是因为它的横位（身前 8..128）与参考 #52 上量到的细线（身前 7.3..134）对得上。
+        # 它还是**斜的**：参考 #52 上那条线从「身前 134、离地 38」拉到「身前 7、离地 121」，
+        # 是一条 **33 度**、约 131 客户端px 长的斜线，而包里画的是横的。横的摆在这儿
+        # 就是业主最早说的那条红丝带。`stretch` 单独做不到（压细会把长度一起压掉），
+        # 所以用 `rotate` 转、再用 `stretch` 压细 —— 两个自由度分开，理由见 `0010`。
+        {"entry": "gcm_crossline.img", "frames": (0, 0), "scale": 0.75, "stretch": (0.686, 0.20),
+         "rotate": 33, "offset": (-461, -373), "from": ref(44), "until": ref(53)},
     ]},
     # 血气之刃: the blood sword is thrust, then it bursts.
     "bloodSword": {"sequence": [("_bloodsword", "sword_normal.img"), ("_bloodsword", "exp_dodge.img")]},
@@ -1518,8 +1589,32 @@ def tint(decoded, stops):
     return out
 
 
+def place_frame(picture, x, y, travel, grow, at):
+    """One frame of a stage, `at` of the way through that stage's own span.
+
+    **`grow` scales about the frame's own middle, and that is not the same
+    choice `rescale` makes by default.** `rescale`'s default is the bottom, which
+    is right for a shape that has to stay standing on a line. A qi that is
+    *shrinking away* is not standing on anything: scaled about its bottom it
+    sinks - 十字斩's merged qi started 117px over the clip's ground line and the
+    last cell of it was being drawn 70px **under** the floor, where nobody would
+    ever see the 「缩小消失」 the owner kept asking for. Mid-frame it only
+    shrinks, and the `travel` that the clip also asks for is said separately.
+    """
+    scale = 1.0 + (grow - 1.0) * at
+    if scale != 1.0:
+        picture, x, y = rescale(
+            [(picture, x, y)], scale, about=y + picture.height / 2.0
+        )[0]
+    return (
+        picture,
+        x + int(round(travel[0] * at)),
+        y + int(round(travel[1] * at)),
+    )
+
+
 def stage_layers(client: Path, pick: dict):
-    """Every stage of a staged pick, as (frames, from, until) in row progress."""
+    """Every stage of a staged pick, as (frames, from, until, travel, grow)."""
     out = []
     default_pack = pick.get("pack", "")
     default_board = pick.get("palette", "")
@@ -1558,6 +1653,22 @@ def stage_layers(client: Path, pick: dict):
         # ones it had at the pack's own size.
         decoded = fill_gaps(decoded, int(stage.get("fill", 0)))
         decoded = flatten_base(decoded, int(stage.get("base", 0)))
+        # **`flip` turns the picture round, which is the one thing `mirror` never
+        # does.** `mirror_layer` moves a layer to the caster's front side and
+        # leaves the art alone - that is `0011`, and it is right for a shape that
+        # has no facing: 十字斩's 十 is a brush stroke either way. A shape that
+        # *does* have a facing needs the art flipped as well, or the placement
+        # says "in front" while the drawing says "behind".
+        #
+        # `shoot.img` is that shape: its mass is at the art's own left and its
+        # thin tips at its right, so placed in front of our right-facing caster
+        # the qi read as a bird flying **backwards** - the owner: 「我感觉你实现
+        # 有的剑气都到身后了，参考的没有」.
+        if stage.get("flip"):
+            decoded = [
+                (picture.transpose(Image.FLIP_LEFT_RIGHT), x, y)
+                for picture, x, y in decoded
+            ]
         # Last, so that every number in `stage` stays the clip's own number and
         # only the finished placement is turned round. See `mirror_layer`.
         if pick.get("mirror"):
@@ -1567,7 +1678,20 @@ def stage_layers(client: Path, pick: dict):
         if not part:
             print(f"  empty stage {pack}/{wanted} frames {first}-{last}", file=sys.stderr)
             continue
-        out.append((part, float(stage["from"]), float(stage["until"])))
+        # **一笔的"动"和它的"形"是两件事。** `scale`/`stretch`/`offset` 说的是一层长什么样、
+        # 站在哪，一整段里都不变；而参考里有的层**在同一段里一直在走、一直在缩**——第三拍
+        # 那团合体剑气就是：它的重心从身前 0.61 身位走到 1.29，框从 121x140 缩到 32x40 再到
+        # 没有。这没法用一个静止的 `offset` 说，也不该拆成二十段（2026-09-27 那一轮的
+        # 「八级飞出」就是这么拆的，两轮后被业主推翻）。
+        #
+        # `travel` 是这段里**从第一格走到最后一格**多走的位移，`grow` 是它到头时相对
+        # `scale` 的倍数，两者都按列线性插值（见 `pick_frames`）。数写在**参考自己的坐标系**
+        # 里，所以 `mirror` 会连它们一起翻——见 `mirror_layer`。
+        travel = tuple(stage.get("travel", (0, 0)))
+        grow = float(stage.get("grow", 1.0))
+        if pick.get("mirror"):
+            travel = (-travel[0], travel[1])
+        out.append((part, float(stage["from"]), float(stage["until"]), travel, grow))
     return out
 
 
@@ -1582,20 +1706,33 @@ def pick_frames(client: Path, mode: str, entries, palette: str = "", spec: dict 
         layers = stage_layers(client, spec or {})
         if not layers:
             return [], (0, 0)
-        parts = [part for layer, _from, _until in layers for part in layer]
-        left = min(x for _p, x, _y in parts)
-        top = min(y for _p, _x, y in parts)
-        width = max(x + p.width for p, x, _y in parts) - left
-        height = max(y + p.height for p, _x, y in parts) - top
+        # The canvas has to hold every layer **at every column it plays on**. A
+        # stage that walks forward or grows would otherwise be clipped at exactly
+        # the frame it is moving on - `0008`'s failure, on a slower fuse.
+        parts = []
+        for layer, _start, _until, travel, grow in layers:
+            for picture, x, y in layer:
+                parts.append((picture, x, y))
+                parts.append(place_frame(picture, x, y, travel, grow, 1.0))
+        # A stage's `offset` is allowed to be fractional (a layer solved to a
+        # tenth of a pixel), so the canvas is rounded once, here, rather than at
+        # every use of it.
+        left = int(round(min(x for _p, x, _y in parts)))
+        top = int(round(min(y for _p, _x, y in parts)))
+        width = int(round(max(x + p.width for p, x, _y in parts))) - left
+        height = int(round(max(y + p.height for p, _x, y in parts))) - top
         length = max(2, int((spec or {}).get("length", 45)))
         frames = [Image.new("RGBA", (width, height), (0, 0, 0, 0)) for _ in range(length)]
-        for layer, start, until in layers:
+        for layer, start, until, travel, grow in layers:
             first = round(clamp01(start) * (length - 1))
             last = max(first, round(clamp01(until) * (length - 1)))
             for index in range(first, last + 1):
                 at = (index - first) / max(1, last - first)
                 picture, x, y = layer[round(at * (len(layer) - 1))]
-                frames[index].alpha_composite(picture, (x - left, y - top))
+                picture, x, y = place_frame(picture, x, y, travel, grow, at)
+                frames[index].alpha_composite(
+                    picture, (int(round(x - left)), int(round(y - top)))
+                )
         return frames, (left, top)
 
     layers = []
