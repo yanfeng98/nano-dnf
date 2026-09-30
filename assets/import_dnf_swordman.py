@@ -43,7 +43,7 @@ DEFAULT_CLIENT = pathlib.Path("/mnt/c/dnf/地下城与勇士")
 # and both facings, lined up on the same spot.
 FRAME_W = 208
 FRAME_H = 176
-COLS = 42
+COLS = 47
 ANCHOR_X = 88
 ANCHOR_Y = 156
 ROWS = ["idle", "run", "attack", "skill", "extras", "clips", "clips2", "bloodblade", "flare"]
@@ -135,14 +135,28 @@ CLIPS = [
     # 对着 `02_十字斩.png`（90 帧对照图）说「看看释放少帧了，以及动作少了」，
     # 指的就是这个。**帧数少和"末尾多一记"是两件事，不该拿前者去换后者。**
     # 末尾三帧（201-203）是他那记**过头上劈 + 白弧**，参考片里没有，所以不取；
-    # 但**要凑满 20 格**——`clips` 那一行是 42 格，山崩 12 + 怒气爆发 10 + 这一招 20
-    # 正好排满，少一格后面的行就会从 `clips` 里被截掉。腾出来的三格用 200（低身扑）
-    # 按住，参考片 #48-#52 本来也就是**低身按住**。见 src/render.js 的 `skillClips.crossSlash`。
+    # 但**要凑满 20 格**——写完这一行时 `clips` 那一行是 42 格，山崩 12 + 怒气爆发 10 +
+    # 这一招 20 正好排满，少一格后面的行就会从 `clips` 里被截掉。（2026-09-28 加
+    # 嗜魂之手时 COLS 抬到 47，这条"正好排满"不再成立，但 20 格是这一招自己的数，
+    # 不改。）腾出来的三格用 200（低身扑）按住，参考片 #48-#52 本来也就是**低身按住**。
+    # 见 src/render.js 的 `skillClips.crossSlash`。
     ("crossSlash", list(range(5, 19)) + [198, 199, 200, 200, 200, 200]),
     ("frenzy", list(range(161, 170))),
     ("mountainRift", [123, 124, 204, 205, 208, 209, 132]),
     ("silverFall", list(range(134, 142))),
     ("jump", list(range(127, 133))),
+    # 嗜魂之手: the client's own reach grab, body 161-177. Matched to the clip by
+    # silhouette (beat counts 4/1/2 land on 161-164/165/166-167, and the hand's
+    # reach-out per frame agrees to 1px), not picked by eye off a contact sheet:
+    # the animation is one arm, so a whole-figure score barely separates the
+    # candidates - what separates them is the *beat structure*.
+    #
+    # 17 frames is what the move needs and `clips2` had 12 columns left, so
+    # COLS went 42 -> 47 rather than the move losing its four-frame tail. The
+    # column space was not there to squeeze: 161-175 is the move and 176-177 is
+    # the hand dropping, which the clip needs to play the burst over.
+    ("graspHead", [161, 162, 163, 164, 165, 166, 167,
+                   168, 169, 170, 171, 172, 173, 174, 175, 176, 177]),
 ]
 CLIP_ROWS = ("clips", "clips2")
 
@@ -306,8 +320,19 @@ def is_stub(image: Image.Image) -> bool:
     return not image.getbbox()
 
 
-def composed_frame(layer_frames, overlay_frames, index: int) -> tuple[Image.Image, int, int]:
+def composed_frame(layer_frames, overlay_frames, index: int) -> tuple[Image.Image, int, int, Image.Image]:
+    """One frame with every layer on it, plus the mask that says where his feet are.
+
+    The mask is the **body layer alone**, cut to the composite's own box. It is
+    what `place()` measures the cell centre on, and it has to be the body rather
+    than the finished picture: a weapon hangs lower than the boots on 22 of these
+    72 frames, and even when the blade only *ties* with the sole it joins the
+    average. Measuring the finished frame hands the cell centre to the sword tip,
+    which walks the character sideways off his own anchor wherever the blade
+    swings - 57px on 银光落刃, 42px on 崩山击, 17px on the frames this skill uses.
+    """
     parts = []
+    body_part = None
     for key, frames in layer_frames:
         if index < len(frames):
             image, x, y = frames[index]
@@ -319,6 +344,8 @@ def composed_frame(layer_frames, overlay_frames, index: int) -> tuple[Image.Imag
             image, x, y = frames[near]
         if is_stub(image):
             continue
+        if key == "body":
+            body_part = (image, x, y)
         parts.append((image, x, y))
     # head anchor for the overlays: the hair sprite of this frame
     hair_frames = dict(layer_frames)["hair"]
@@ -354,7 +381,10 @@ def composed_frame(layer_frames, overlay_frames, index: int) -> tuple[Image.Imag
     out = Image.new("RGBA", (x1 - x0, y1 - y0), (0, 0, 0, 0))
     for im, x, y in parts:
         out.alpha_composite(im, (x - x0, y - y0))
-    return out, x0, y0
+    foot = Image.new("L", out.size, 0)
+    if body_part is not None:
+        foot.paste(body_part[0].getchannel("A"), (body_part[1] - x0, body_part[2] - y0))
+    return out, x0, y0, foot
 
 
 def nearest_frame(frames, reference, radius: float = 40.0):
@@ -383,14 +413,20 @@ def nearest_frame(frames, reference, radius: float = 40.0):
     return best
 
 
-def foot_centre(frame: Image.Image) -> float:
-    """Mean x of the lowest opaque pixels: the point the character stands on.
+def foot_centre(foot: Image.Image) -> float:
+    """Mean x of the lowest opaque pixel of the *body* mask: where he stands.
 
     DNF shifts whole animations sideways inside the img (dash, lunge, thrust),
     so aligning on the feet keeps every cell centred on the same spot.
+
+    It takes the mask `composed_frame` hands back, not the finished picture, and
+    that distinction is the whole point of the function: the body's own bottom
+    row is always the boots (2-4 rows above the sole, which is covered by the
+    shoes layer), while the finished picture's bottom row is the weapon as soon
+    as the blade reaches past the heel.
     """
-    alpha = frame.getchannel("A")
-    width, height = frame.size
+    alpha = foot
+    width, height = alpha.size
     bottom = None
     for row in range(height - 1, -1, -1):
         if any(alpha.getpixel((col, row)) > 24 for col in range(width)):
@@ -402,8 +438,11 @@ def foot_centre(frame: Image.Image) -> float:
     return sum(cols) / len(cols)
 
 
-def place(cell: Image.Image, frame: Image.Image, x: int, y: int) -> tuple[int, int, int, int]:
+def place(cell: Image.Image, frame: Image.Image, x: int, y: int, foot: Image.Image) -> tuple[int, int, int, int]:
     """Put a DNF frame into a sheet cell: feet centred, ground on the anchor.
+
+    `foot` is the body mask from `composed_frame`, in this frame's own box - see
+    `foot_centre` for why the finished picture is the wrong thing to measure.
 
     A frame that reaches past its cell is a bug, not a crop: `alpha_composite`
     would quietly slice the blade or the slash arc off and the renderer has no
@@ -413,7 +452,7 @@ def place(cell: Image.Image, frame: Image.Image, x: int, y: int) -> tuple[int, i
         (max(1, round(frame.width * SCALE)), max(1, round(frame.height * SCALE))),
         Image.LANCZOS,
     )
-    px = round(ANCHOR_X - foot_centre(frame) * SCALE)
+    px = round(ANCHOR_X - foot_centre(foot) * SCALE)
     py = round(ANCHOR_Y + (y - ORIGIN[1]) * SCALE)
     left, top = px, py
     right, bottom = px + scaled.width, py + scaled.height
@@ -542,9 +581,9 @@ def build(client: pathlib.Path, force: bool) -> Image.Image:
                 for index in indices:
                     if clip_column >= COLS:
                         break
-                    frame, x, y = composed_frame(layer_frames, overlay_frames, index)
+                    frame, x, y, foot = composed_frame(layer_frames, overlay_frames, index)
                     cell = Image.new("RGBA", (FRAME_W, FRAME_H), (0, 0, 0, 0))
-                    place(cell, frame, x, y)
+                    place(cell, frame, x, y, foot)
                     sheet.alpha_composite(cell, (clip_column * FRAME_W, row * FRAME_H))
                     if skill == "mountainRift":
                         placed_mountain_rift.append((row, clip_column, index))
@@ -563,9 +602,9 @@ def build(client: pathlib.Path, force: bool) -> Image.Image:
                     break
             continue
         for col, index in enumerate(CELLS[name][:COLS]):
-            frame, x, y = composed_frame(layer_frames, overlay_frames, index)
+            frame, x, y, foot = composed_frame(layer_frames, overlay_frames, index)
             cell = Image.new("RGBA", (FRAME_W, FRAME_H), (0, 0, 0, 0))
-            place(cell, frame, x, y)
+            place(cell, frame, x, y, foot)
             sheet.alpha_composite(cell, (col * FRAME_W, row * FRAME_H))
     # 大蹦's blood blade: the same cells again, one row down, with the katana's
     # own pixels pushed red. Only the frames where the move has the sword out in

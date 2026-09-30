@@ -165,6 +165,15 @@ for (let shot = 0; shot < shots; shot += 1) {
         facing: state.player.facing,
         /* Whether 血之狂暴 is up: it is what decides the colours in the shot. */
         raging: !!(state.player.buffs && state.player.buffs.bloodRage > 0),
+        /*
+         * Whether the cast is being *cut short* rather than running out. A move
+         * with 霸体 takes the hit and keeps going, so a run that shows `hp`
+         * falling while `progress` keeps climbing is the 霸体 working; one that
+         * shows `progress` going null with `hurtTimer` up is the interruption.
+         */
+        hp: state.player.hp,
+        hurtTimer: Number((state.player.hurtTimer || 0).toFixed(3)),
+        invuln: Number((state.player.invuln || 0).toFixed(3)),
         groundY: window.DNFCore.ARENA.groundY
       };
     }, skillId)

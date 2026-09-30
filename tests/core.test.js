@@ -4668,6 +4668,52 @@ test("抓头 grabs a target, holds it, slams it down and drains HP", () => {
   assert.ok(state.player.hp > hpBefore, `抓头 drains HP, hp=${state.player.hp}`);
 });
 
+test("嗜魂之手 is 无敌: a hit during the cast does not land at all", () => {
+  const state = lastRoomState();
+  Core.step(state, { skills: { graspHead: true } });
+  Core.runFrames(state, 6, {});
+  assert.ok(state.player.skillTimer > 0, "the cast is running");
+
+  const hpBefore = state.player.hp;
+  const dealt = Core.damagePlayer(state, 30, state.player.x + 40);
+
+  assert.equal(dealt, 0, "无敌: the hit is refused outright");
+  assert.equal(state.player.hp, hpBefore, "and costs him nothing");
+  assert.equal(state.player.skillId, "graspHead", "the cast is not cut short");
+  assert.ok(state.player.skillTimer > 0, "it is still running");
+});
+
+test("嗜魂之手 is 霸体 underneath: even with the i-frames spent, the move goes on", () => {
+  const state = lastRoomState();
+  Core.step(state, { skills: { graspHead: true } });
+  Core.runFrames(state, 6, {});
+  /* Spend the i-frames but leave the skill's 霸体: this is the guarantee the
+     invuln window cannot make on its own, on the frames either side of it. */
+  state.player.invuln = 0;
+
+  const hpBefore = state.player.hp;
+  const dealt = Core.damagePlayer(state, 30, state.player.x + 40);
+
+  assert.ok(dealt > 0, "now the hit lands");
+  assert.equal(state.player.hp, hpBefore - dealt, "and he pays for it");
+  assert.equal(state.player.hurtTimer, 0, "but takes no hit-stun");
+  assert.equal(state.player.skillId, "graspHead", "and the cast is not cut short");
+});
+
+test("the same hit does cut short a move without 霸体", () => {
+  const state = lastRoomState();
+  Core.step(state, { skills: { crossSlash: true } });
+  Core.runFrames(state, 6, {});
+  assert.ok(state.player.skillTimer > 0, "the cast is running");
+
+  const dealt = Core.damagePlayer(state, 30, state.player.x + 40);
+
+  assert.ok(dealt > 0, "the hit lands");
+  assert.equal(state.player.skillId, null, "the cast is cut short");
+  assert.equal(state.player.skillTimer, 0, "and its timer is cleared");
+  assert.ok(state.player.hurtTimer > 0, "he takes the hit-stun instead");
+});
+
 test("血魔 dashes through the target with invincibility frames", () => {
   const state = lastRoomState();
   const enemy = Core.createEnemy(state, "grunt", state.player.x + 70);

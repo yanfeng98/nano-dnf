@@ -53,6 +53,23 @@ SEGMENTS = (
 # detector only scans here so a gameplay explosion can't be mistaken for a cut.
 DETECT_WINDOW = (11.0, 58.0)
 
+# In-combat effect references, called out by the *owner* by clock time rather
+# than found by the title detector. The training-room slices above are single
+# casts with nothing to hit: a grab fires no VFX at all there, so 04_嗜魂之手 is
+# a motion demo and says nothing about what the move looks like when it lands.
+# For that the owner pointed into the source recording itself -
+# 「1分16秒和1分17秒就是嗜魂之手」 - and this table is where that pointer lives.
+# Each entry is (name, start, end, note); frames are numbered from the clip's
+# own #1 at `start` when it is read back, so a row cut from it can declare
+# `firstFrame` in the same numbering.
+EFFECT_CLIPS = (
+    (
+        "嗜魂之手-实战",
+        76.633333, 77.666667,
+        "#26-#56 of the source: wind-up, reach, hold, burst - the whole event, 31 frames",
+    ),
+)
+
 FONT_CANDIDATES = (
     "/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc",
     "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc",
@@ -166,6 +183,18 @@ def main() -> int:
         contact_sheet(title, frames, args.out / f"{stem}.png")
         first_frames.append((f"{number:02d} {name} (Lv{level})", frames[0]))
         index.append(f"{stem}.mp4: {name} (Lv{level}) t={start:.3f}-{end:.3f}s, {len(frames)} frames")
+        print(f"  {stem}: {len(frames)} frames")
+
+    for number, (name, start, end, note) in enumerate(EFFECT_CLIPS, 1):
+        stem = f"E{number:02d}_{name}"
+        clip = args.out / f"{stem}.mp4"
+        cut_clip(args.input, start, end, clip)
+        frames = frames_of(clip)
+        if not frames:
+            print(f"  {stem}: no frames", file=sys.stderr)
+            continue
+        contact_sheet(f"{stem} {name} · {start:.3f}-{end:.3f}s", frames, args.out / f"{stem}.png")
+        index.append(f"{stem}.mp4: {name} t={start:.3f}-{end:.3f}s, {len(frames)} frames - {note}")
         print(f"  {stem}: {len(frames)} frames")
 
     if first_frames:

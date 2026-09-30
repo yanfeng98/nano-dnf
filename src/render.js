@@ -60,7 +60,7 @@
   var SPRITE = {
     frameW: 208,
     frameH: 176,
-    cols: 42,
+    cols: 47,
     anchorX: 88,
     anchorY: 156,
     /*
@@ -276,7 +276,35 @@
        * moves whenever that clip's length does (see assets/import_dnf_swordman.py
        * CLIPS, which prints the layout it bakes).
        */
-      silverFall: { row: 6, first: 16, frames: 8 }
+      silverFall: { row: 6, first: 16, frames: 8 },
+      /*
+       * 嗜魂之手: the client's own reach grab (body 161-177), the one move in the
+       * set that is *not* a swing. The clip holds two poses - the wind-up and
+       * the reach - and the four beats are the clip's own:
+       *
+       *   161-164  0.000-0.097  the wind-up, four frames held
+       *   165-167  0.097-0.194  the hand goes out front-left
+       *   168-175  0.194-0.677  the hold; this is the move
+       *   176-177  0.677-1.000  the hand drops, and the burst plays over it
+       *
+       * The beats are uneven on purpose, the way 崩山击's are: spreading seventeen
+       * frames evenly over 1.0333s puts each pose on screen for 61ms, and the
+       * hold - which is 0.48s of the cast and was 0.567s in the reference - would
+       * flicker past. The hold's own eight frames are near-identical (they differ
+       * only in the wrist, by ~80px of a 9100px figure), so the beat is what
+       * keeps the arm out there.
+       */
+      graspHead: {
+        row: 6,
+        first: 30,
+        frames: 17,
+        beats: [
+          { frames: 4, from: 0.0, until: 0.0968 },
+          { frames: 3, from: 0.0968, until: 0.1935 },
+          { frames: 8, from: 0.1935, until: 0.6774 },
+          { frames: 2, from: 0.6774, until: 1.0 }
+        ]
+      }
     },
     /*
      * The plain hop: the client's own jump animation (sm_body0048 126-131). It is
@@ -411,7 +439,7 @@
        */
       rageBurst: 36,
       bloodSnatch: 19,
-      graspHead: 18,
+      graspHead: 31,
       bloodEvil: 15,
       /*
        * 大蹦 bakes a staged row: the pack is one move in several acts (the floor
@@ -566,7 +594,21 @@
        */
       rageBurst: { dx: 0, dy: -79, size: 317, copies: 1, spin: 0 },
       bloodSnatch: { dx: 56, dy: -46, size: 190, copies: 1, spin: 0 },
-      graspHead: { dx: 30, dy: -36, size: 128, copies: 1, spin: 0 },
+      /*
+       * 嗜魂之手's window is 310 x 213 client px around the caster's own ground
+       * point, so one client px is 0.3871 of a cell px and `size` 330.67 draws it
+       * 1:1 - the same ruler the character is drawn on, which is what puts the
+       * blood spray at the size the clip draws it. Anchored like 大蹦's rows, so
+       * `dy = -size / 4` puts his ground point on his feet.
+       *
+       * The window is wider than the effect needs (the ink is 154 client px of
+       * it) because **this move only ever draws in front of him**: the anchor is
+       * the caster's feet, and the baker centres the anchor in the cell, so a
+       * window that merely hugged the ink would push all of it off the cell's
+       * left edge. `scale <= 64 / |ink_x0|` is the rule; 310 wide keeps it at
+       * 0.3871 against a limit of 0.410.
+       */
+      graspHead: { dx: 0, dy: -82.67, size: 330.67, copies: 1, spin: 0 },
       bloodEvil: { dx: 44, dy: -30, size: 178, copies: 1, spin: 0 },
       /*
        * 大蹦 is the ultimate, and its art is the training-room reference's: the
@@ -608,6 +650,9 @@
        * and 0.99 still lands the row's last column (0.96 of the way through it).
        */
       rageBurst: { from: 0, to: 0.99 },
+      /* 嗜魂之手 draws for the whole cast, like 大蹦: the row's 31 columns
+         are the reference's own 31 frames, and its first one is the wind-up. */
+      graspHead: { from: 0, to: 1 },
       /*
        * 崩山击's landing art opens as he comes down, not on the press. The
        * reference erupts the fire column at #35 - six of its 30fps frames, i.e.
@@ -660,6 +705,7 @@
        * footing, and the clip's do the same at #73.
        */
       rageBurst: { from: 0.93, to: 1, floor: 0.85 },
+      graspHead: { from: 0.94, to: 1, floor: 0.35 },
       /*
        * 十字斩's biggest act is its last one too - the merged qi, which arrives
        * at #44 of the clip (0.65 of the cast) and is still at full strength at

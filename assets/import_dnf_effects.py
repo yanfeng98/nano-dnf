@@ -248,6 +248,23 @@ BURST_RAMP = [
     (1.00, (255, 66, 14)),
 ]
 
+# How 嗜魂之手's spray was measured off E01 #49-#56, kept because it is the ruler
+# its size and place come from, and because the ramp that came out of it is what
+# `blood.img` does *not* need. His own body box masked out of the sample, binned
+# by each pixel's brightest channel:
+#
+#   level    64-95   96-127  128-159  160-191  192-223  224-255
+#   mean   (89,16,11) (113,30,25) (144,41,34) (176,53,42) (208,67,46) (247,78,40)
+#   share     3.7%     12.2%     17.5%     14.0%     14.8%     37.7%
+#
+# So the reference is a *bright* saturated blood red - over half of it sits above
+# level 192 - and it is 2.45 x 1.63 Slayer-heights centred 53 client px in front
+# of him (the 520px bounding box the row was first built to was the clipped one;
+# the burst runs off the left edge of the screen in every frame). The row shipped
+# a red ramp derived from those bins for a while, against a pack layer whose own
+# board tops out around 156; `blood.img` carries the gold rim on its own board,
+# so the ramp is gone and this table is what is left of it.
+
 PICKS = {
     "upSlash": {"stack": [("", "upperslash.img")]},
     # 崩山击: the client preview lands the smash on an orange fire column with a
@@ -681,7 +698,97 @@ PICKS = {
          "from": 0.93, "until": 1.0},
     ]},
     "bloodSnatch": {"stack": [("_bloodsnatch", "*")]},
-    "graspHead": {"stack": [("_grabblastblood", "*")]},
+    # 嗜魂之手: the reach grab. Two references again - the *body* is the training
+    # room's (skill-clips/04_嗜魂之手.mp4), which fires no VFX at all because
+    # there is nothing to grab, and the *effect* is the one the owner pointed at
+    # inside the source recording (「1分16秒和1分17秒就是嗜魂之手」, cut as
+    # E01_嗜魂之手-实战 = source #26-#56, exactly the cast's 31 frames at 30fps).
+    #
+    # That makes this row's own frame of reference the *combat* clip, not a
+    # training-room one: column `c` is its frame #(26+c), and every number below
+    # is a measurement off it. The clip draws him 463px tall, ours is 84 client
+    # px, so 1 combat px = 0.1814 client px; his ground point there is the boot
+    # centre (858, 899) and he does not move during the move.
+    #
+    # What the clip shows, frame by frame:
+    #
+    #   #29-#45  the hold. Nothing but the arm and the chain he wears - the
+    #            chain is *his*, it is baked into sm_body0000 with the rest of
+    #            the skin, so no layer here draws it.
+    #   #40-#48  a pond of pink blood in front of the palm - and it is *not*
+    #            this skill's. It is 血之狂暴's heal orb, which pops on a monster
+    #            that takes damage; the held target is taking damage right here.
+    #   #49-#56  the burst, after the hand has already dropped. **This is the
+    #            move's own blood spray** - the owner: 「半个屏幕的大爆就是喷血」.
+    #
+    # The gold ring (`blood.img` f0, 2954 gold px at (207,139,0)) is *not* in
+    # this clip - it is the layer the owner picked for this skill on 2026-09-19,
+    # and it is the pack's own "the grab lands" art. It is kept, at the grab,
+    # because without it the first fourteen columns draw nothing at all.
+    #
+    # `anchor` is the korean-pack origin; the offsets are the clip's own screen
+    # measurements (身前 is -x here, `mirror` turns them round - see 0011).
+    "graspHead": {"palette": "", "pack": "_grabblastblood", "anchor": (0, 0),
+                  "clip": "嗜魂之手-实战", "firstFrame": 26, "mirror": True,
+                  "length": 31, "window": (-135, -160, 175, 53), "stages": [
+        # The grab lands (hit 0, cast 0.1333 = column 4) and this clip does not
+        # draw it - the ring is here because the owner picked `blood.img` for
+        # this skill himself and it is the pack's own "the grab lands" art.
+        # f0 is the gold ring, f1-f2 open it out, f3-f5 are it coming apart;
+        # three frames is the impact, the rest is the splash. Sized to the palm
+        # rather than to the clip's ball, because the clip has nothing here:
+        # 50 client px across, centred on the hand the clip holds out at
+        # (682,486) for #29-#45.
+        {"entry": "blood.img", "frames": (0, 2), "scale": 0.119,
+         "offset": (-138.5, -302.5), "from": 0.129, "until": 0.226},
+        # **吸住**: a starburst of thin red spikes on the *held target*, from the
+        # hand arriving to the spray. The owner's read of the move is
+        # 「将怪物吸住，然后喷血」 and this is the first half of it - he picked this
+        # entry by name on 2026-09-30 after I could not separate "the monster" from
+        # "the red on the monster" in the reference video (the berserker is red all
+        # over in it - 血之狂暴, which by 0003/0004 is the stance's red, not this
+        # move's).
+        #
+        # It sits on the target, not on his palm: Core pulls a grabbed enemy to
+        # `player.x + facing * 30`, so the centre is 身前 30 client px, and it is
+        # 90 px across because the enemies are 56-96 px tall (grunt 58, brute 70).
+        # Those two numbers are the *mechanic's*, not the clip's - the clip's own
+        # red there is a different skill's and cannot size this.
+        {"entry": "blood-dodge.img", "frames": (0, 15), "scale": 0.481,
+         "offset": (-185.0, -190.0), "from": 0.19, "until": 0.742},
+        # **The burst (#49-#56) is the move's own blood spray** - the owner:
+        # 「半个屏幕的大爆就是喷血」. It is the only thing in either reference
+        # that is this skill's: the pond of pink blood that floats in front of
+        # the palm across #40-#48 is 血之狂暴's heal orb (it pops when the *held*
+        # target takes damage - `dnf_effect_picks.md` has it as
+        # `frenzy/blood-stone-0.img`「怪物身上吸的血球」), and the training-room
+        # clip has no target to hit, so it fires no VFX at all. So the hold
+        # columns draw nothing, and that is a measurement, not an omission.
+        #
+        # **And it is `blood.img`, not a fireball.** Three rounds of this row
+        # drew the pack's bright fluid burst here and the owner kept saying
+        # 「喷血不对」; the entry he named in the end is the one that is a red maw
+        # opening and then coming apart into blood - which is the move: 吸住,
+        # then 喷血. It is the *same entry* as the impact ring above, at the far
+        # end of the cast and four times the size.
+        #
+        # Sized and placed off the clip's own burst, and the first number this
+        # had was wrong: 520px was the *clipped* bounding box (the burst runs off
+        # the left edge of the screen at x=0 in every frame of it). Masked out of
+        # the frame his body sits in, it is 2.45 Slayer-heights across and 1.63
+        # up, centred 53 client px in front of him and reaching the ground - so
+        # 0.840 with y squashed to 0.678. The mask picture is in
+        # assets/dnf_src/bilibili/skill-clips/graspHead-spray-mask.png.
+        #
+        # **No ramp on this one**, unlike the burst it replaces: the reference's
+        # spray measures a bright blood red (37.7% of its pixels above level 192,
+        # top bin (247,78,40)) so a ramp was right for a dull layer, but this
+        # entry already carries the gold rim on its own board and a red ramp eats
+        # it. 大红+金爆 is what the reference draws, and what this entry is.
+        {"entry": "blood.img", "frames": (0, 5), "scale": 0.840,
+         "stretch": (1.0, 0.678), "offset": (-179.5, -250.0),
+         "from": 0.767, "until": 1.0},
+    ]},
     "bloodEvil": {"stack": [("_bloodriven", "*")]},
     # 崩山裂地斩: the 45-level ultimate's own pack, layer by layer - the blood
     # sword it summons (bloodsword_none, 20 frames), the ground splitting under

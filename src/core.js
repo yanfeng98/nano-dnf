@@ -617,15 +617,54 @@
     },
     graspHead: {
       id: "graspHead",
-      name: "抓头",
+      name: "嗜魂之手",
       key: "U",
       mp: 20,
       cooldown: 7,
       damage: 24,
       growth: 3,
-      duration: 0.9,
-      activeFrom: 0.1,
-      activeTo: 0.6,
+      /*
+       * Two clips, and the owner pointed at both of them: the move's *body* is
+       * the training-room one (skill-clips/04_嗜魂之手.mp4, 96 frames at 30fps)
+       * and the *effect* is the one he called out inside the source recording
+       * (BV1oUDLBaEaK.mp4, 76.63-77.63s - the only place this skill is on screen
+       * with something in its hand; the training room has no target, so it fires
+       * no VFX at all and is a pure motion demo).
+       *
+       * Both are the same animation, measured frame by frame:
+       *
+       *   training  #40-#43  wind-up, four frames, pixel-identical
+       *             #44      one transition frame
+       *             #45-#57  the hold, thirteen frames, pixel-identical
+       *             #58      back on the stand        -> 18 frames = 0.600s
+       *
+       *   combat    f026-f028 wind-up, three frames held
+       *             f029-f045 the same hold (verified against training #45-#57)
+       *             f046-f047 the hand drops
+       *             f049-f056 the burst, after he is already back on the stand
+       *                                               -> 31 frames = 1.0333s
+       *
+       * The combat copy is the longer one because the burst is part of the
+       * event and the training copy has no burst: its 0.600s is the body alone.
+       * The owner picked the longer cut (2026-09-28), so the cast is the combat
+       * clip's own 31 frames and the *body* beats below are the training clip's,
+       * which is the one that resolves the transition into its own frame.
+       *
+       * He never leaves the ground (boot sole y=730 on all 96 training frames,
+       * head row y=512 on all 96) and he never travels: the peak displacement is
+       * 11.5 ref px = 4.4 client px, and he is back at zero by #58. So this move
+       * carries no `advance` - **the only thing that moves is the hand**, 64 ref
+       * px out and 71.9 ref px up. That is why the skill reads as
+       * 定住 -> 伸手 -> 保持 rather than a swing, and why the hold is the move.
+       *
+       * `hold` is the combat clip's own hold: 17 frames = 0.567s. The burst has
+       * no hit of its own - it is the *picture* of the slam, so the second hit
+       * is pinned to where the clip puts the burst (f049 = 0.767s).
+       */
+      duration: 1.0333,
+      activeFrom: 0.1333,
+      activeTo: 1.0333,
+      hitAt: [0.129, 0.742],
       reach: 52,
       heightPad: 12,
       knockbackX: 0,
@@ -633,9 +672,24 @@
       radius: 0,
       hits: 2,
       /* DNF shape: grab the target, hold it, slam it down and drain some HP. */
-      grab: { hold: 0.45, slamKnockdown: 1.1 },
+      grab: { hold: 0.567, slamKnockdown: 1.1 },
       drain: 0.25,
-      ignoresSuperArmor: true
+      ignoresSuperArmor: true,
+      /*
+       * 无敌 for the whole cast, and 霸体 under it. The owner asked for both, in
+       * that order: first 「这个技能不能被打断吧」 (which is 霸体) and then
+       * 「这个技能要无敌」 (which is this). 无敌 is the one that answers him
+       * completely - `damagePlayer` returns before it touches anything - and the
+       * cast is the window, not `activeFrom`: the reach is the part that has to
+       * survive being walked into.
+       *
+       * 霸体 stays because it is the flag for what this move is even without the
+       * i-frames - a grab you can be shoved out of on the way in is not a grab -
+       * and because it is the one that still holds on the frames either side of
+       * an i-frame window.
+       */
+      invuln: 1.0333,
+      superArmor: true
     },
     bloodEvil: {
       id: "bloodEvil",
@@ -1961,15 +2015,25 @@
     state.stats.damageTaken += applied;
     pushDamageEffect(state, player.x, player.y - player.height - 6, applied);
     player.invuln = PLAYER.invulnAfterHit;
-    player.hurtTimer = PLAYER.hurtStun;
-    player.vx = (player.x >= sourceX ? 1 : -1) * PLAYER.knockbackX;
+    /*
+     * 霸体: a move that carries `superArmor` takes the hit and keeps its feet.
+     * No hitstun and no knockback, because either one would end the pose the
+     * move is - the reach of 嗜魂之手 has to survive the walk in. The damage,
+     * the i-frames and the flash are all exactly the same; only the
+     * interruption is off.
+     */
+    var armored = !!(player.skillId && SKILLS[player.skillId] && SKILLS[player.skillId].superArmor);
+    if (!armored) {
+      player.hurtTimer = PLAYER.hurtStun;
+      player.vx = (player.x >= sourceX ? 1 : -1) * PLAYER.knockbackX;
+    }
     player.attackTimer = 0;
     /*
      * A hit cuts the cast short - and the fire he had already opened stays on
      * the floor where he opened it (see spawnField). The knockback above is a
      * velocity, so his x is still the spot he was standing on.
      */
-    var interrupted = player.skillId && SKILLS[player.skillId];
+    var interrupted = !armored && player.skillId && SKILLS[player.skillId];
     if (interrupted) {
       spawnField(
         state,
@@ -1978,9 +2042,11 @@
         player
       );
     }
-    player.skillId = null;
-    player.skillTimer = 0;
-    player.comboTimer = 0;
+    if (!armored) {
+      player.skillId = null;
+      player.skillTimer = 0;
+      player.comboTimer = 0;
+    }
     if (player.hp <= 0) {
       player.hp = 0;
       player.dead = true;
@@ -2180,6 +2246,21 @@
       player.skillHitDone = false;
       player.skillHitsDone = 0;
       player.skillCooldowns[castSkill] = skillSpec.cooldown;
+      /*
+       * 无敌 from the press, for a move that asks for it. `invuln` used to only
+       * ever start on a *hit* (血魔's "flash through the target", whose first
+       * hit is a frame after the press anyway), which cannot cover the reach of
+       * a grab: the thing that ends 嗜魂之手 is a monster landing on him while
+       * his hand is still going out. The owner asked for it by name -
+       * 「这个技能要无敌」.
+       *
+       * `solidInvuln` rides along for 大蹦's reason: a whole second of i-frames
+       * would otherwise blink him, and nothing in the reference blinks.
+       */
+      if (skillSpec.invuln) {
+        player.invuln = Math.max(player.invuln, skillSpec.invuln);
+        player.solidInvuln = Math.max(player.solidInvuln || 0, skillSpec.invuln);
+      }
       player.attackTimer = 0;
       player.attackHitDone = false;
       player.comboTimer = 0;
