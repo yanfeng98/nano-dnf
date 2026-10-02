@@ -4454,6 +4454,83 @@ test("血之狂暴 is a stance with no timer, and casting it again takes it down
   );
 });
 
+/*
+ * 暴走 is **not** 血之狂暴 - they are two skills with two reference clips, and
+ * the repo used to conflate them (see CONTEXT.md and docs/adr/0016). The three
+ * things that separate them are all here: 暴走 has a real duration rather than
+ * being a stance, it puts its own buff up rather than the stance's, and it
+ * announces itself with a short-lived icon instead of a badge that stays.
+ */
+test("暴走 is a timed buff with its own icon, not the stance", () => {
+  const state = lastRoomState();
+  state.enemies = [];
+  state.player.mp = state.player.maxMp;
+
+  const baseSpeed = Core.attackSpeedOf(state.player);
+  Core.step(state, { skills: { berserk: true } });
+  /* The buff lands on the cast's own active window, a few frames in. */
+  Core.runFrames(state, 10, {});
+  assert.ok(state.player.buffIconTimer > 0, "the icon lights on the press");
+
+  /* The icon is its own, much shorter clock: 1.5s against the buff's 8. */
+  Core.runFrames(state, 100, {});
+  assert.equal(state.player.buffIconTimer, 0, "the icon is gone after a beat and a half");
+  assert.ok(state.player.buffs.berserk > 0, "while the buff is still running");
+  assert.ok(Core.attackSpeedOf(state.player) > baseSpeed, "the buff buys attack speed");
+  assert.ok(!(state.player.buffs.bloodRage > 0), "and it does not put the stance up");
+
+  /* Unlike a stance it runs out on its own - that is the whole difference. */
+  Core.runFrames(state, 8 * 60, {});
+  assert.equal(state.player.buffs.berserk, 0, "eight seconds later it is off");
+  assert.equal(Core.attackSpeedOf(state.player), baseSpeed, "and the attack speed goes with it");
+});
+
+test("暴走 moves him faster and hits harder while it is up", () => {
+  const state = lastRoomState();
+
+  /* Controls first: the same walk and the same cut, with the buff never cast. */
+  Core.runFrames(state, 2, { right: true });
+  const plainVx = Math.abs(state.player.vx);
+  assert.ok(plainVx > 0, "he walks without the buff");
+
+  const enemy = Core.createEnemy(state, "brute", state.player.x + 40);
+  enemy.hp = 5000;
+  enemy.maxHp = 5000;
+  enemy.speed = 0;
+  state.enemies = [enemy];
+  Core.step(state, { skills: { upSlash: true } });
+  Core.runFrames(state, Math.ceil(Core.SKILLS.upSlash.duration * Core.FPS) + 4, {});
+  const plainDamage = 5000 - enemy.hp;
+  assert.ok(plainDamage > 0, "the up-slash lands without the buff");
+
+  /* Now with 暴走 up. The cast itself roots him, so it has to run out first. */
+  state.enemies = [];
+  state.player.mp = state.player.maxMp;
+  state.player.skillCooldowns.berserk = 0;
+  state.player.skillCooldowns.upSlash = 0;
+  Core.step(state, { skills: { berserk: true } });
+  Core.runFrames(state, Math.ceil(Core.SKILLS.berserk.duration * Core.FPS) + 4, {});
+
+  Core.runFrames(state, 2, { right: true });
+  assert.ok(
+    Math.abs(state.player.vx) > plainVx * 1.15,
+    `暴走 must move him faster (${plainVx} -> ${Math.abs(state.player.vx)})`
+  );
+
+  const enemy2 = Core.createEnemy(state, "brute", state.player.x + 40);
+  enemy2.hp = 5000;
+  enemy2.maxHp = 5000;
+  enemy2.speed = 0;
+  state.enemies = [enemy2];
+  Core.step(state, { skills: { upSlash: true } });
+  Core.runFrames(state, Math.ceil(Core.SKILLS.upSlash.duration * Core.FPS) + 4, {});
+  const berserkDamage = 5000 - enemy2.hp;
+  assert.ok(
+    berserkDamage > plainDamage,
+    `暴走 must hit harder (${plainDamage} -> ${berserkDamage})`
+  );
+});
+
 test("血之狂暴 draws blood orbs out of what it hits and they fly back as healing", () => {
   const state = lastRoomState();
   const target = Core.createEnemy(state, "brute", state.player.x + 160);

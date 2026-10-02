@@ -236,13 +236,47 @@
     return PLAYER.attackDuration / attackSpeedOf(player);
   }
 
+  /*
+   * A buff's own numbers, looked up by the id it declares rather than by the
+   * skill that happens to own it. Every stat reader asks "is anything up that
+   * scales me?" through `buffScale` instead of reaching for one buff by name -
+   * that is what lets 暴走 stack its attack speed on 血之狂暴's without either
+   * reader naming a skill.
+   */
+  var BUFF_INDEX = null;
+  function buffById(buffId) {
+    if (!BUFF_INDEX) {
+      BUFF_INDEX = {};
+      Object.keys(SKILLS).forEach(function (id) {
+        var buff = SKILLS[id].buff;
+        if (buff) BUFF_INDEX[buff.id] = buff;
+      });
+    }
+    return BUFF_INDEX[buffId] || null;
+  }
+
+  /* The product of every live buff's multiplier for one stat. */
+  function buffScale(player, field) {
+    var scale = 1;
+    var buffs = (player && player.buffs) || {};
+    Object.keys(buffs).forEach(function (id) {
+      if (!(buffs[id] > 0)) return;
+      var buff = buffById(id);
+      if (buff && buff[field]) scale *= buff[field];
+    });
+    return scale;
+  }
+
   function attackSpeedOf(player) {
     var speed = Number(player && player.attackSpeed);
     if (!isFinite(speed) || speed <= 0) return PLAYER.attackSpeed;
     var base = Math.min(MAX_ATTACK_SPEED, Math.max(MIN_ATTACK_SPEED, speed));
-    /* 血之狂暴 is the dual-blade stance: it reads as the Slayer swinging faster. */
-    var raging = player && player.buffs && player.buffs.bloodRage > 0;
-    return Math.min(MAX_ATTACK_SPEED, raging ? base * 1.25 : base);
+    /*
+     * 血之狂暴 swings faster (it is the dual-blade stance) and 暴走 stacks its
+     * own attack speed on top of it. Both are declared on their own SKILLS
+     * entry, so this reader names neither.
+     */
+    return Math.min(MAX_ATTACK_SPEED, base * buffScale(player, "attackSpeed"));
   }
 
   /*
@@ -513,6 +547,54 @@
         attackSpeed: 1.25,
         cooldownScale: 1.4,
         hpCost: 6
+      }
+    },
+    berserk: {
+      id: "berserk",
+      name: "暴走",
+      key: "Y",
+      mp: 18,
+      cooldown: 10,
+      damage: 0,
+      growth: 0,
+      duration: 0.6,
+      activeFrom: 0.12,
+      activeTo: 0.2,
+      reach: 0,
+      heightPad: 0,
+      knockbackX: 0,
+      launch: 0,
+      radius: 0,
+      hits: 1,
+      /*
+       * DNF shape: 暴走 is the Berserker's timed buff, and it is **not** 血之狂暴
+       * - the two are separate skills with separate reference clips (see
+       * CONTEXT.md and docs/adr/0016). 血之狂暴 is a stance you keep up (toggle,
+       * no timer, dual blades, red body); 暴走 is a buff you re-cast: a real
+       * duration, gone on its own.
+       *
+       * Its read is a cast icon over his head for a beat and a half (the same
+       * art the hotbar shows), then 四条若隐若现的红丝 hanging round him for as
+       * long as the buff runs (assets/dnf_src/bilibili/skill-clips/05_暴走.mp4,
+       * measured frame by frame - the threads peak at 0.19% of the frame, which
+       * a coarse red-pass missed entirely).
+       *
+       * **The numbers are deliberately over the client's.** The first cut used
+       * the client's max-level 52% / 30% / 30% scaled down for a character still
+       * on the level-up curve, and the owner played it and said it does not
+       * land (「暴走效果不明显，比如移动速度等等 Buffer」, 2026-10-02). Measured
+       * in the running game before touching it: walking was 265 px/s plain and
+       * 331 with 暴走 - the hook was right and the number was just too small to
+       * feel. So it now runs **above** the client's ceiling rather than below
+       * it: a demo has one room to prove a buff in, and "有点效果" is not it.
+       */
+      castIcon: 1.5,
+      buff: {
+        id: "berserk",
+        duration: 8,
+        attackSpeed: 1.4,
+        moveSpeed: 1.5,
+        attackPower: 1.6
       }
     },
     bloodyRave: {
@@ -888,7 +970,13 @@
     "bloodSnatch",
     "graspHead",
     "bloodEvil",
-    "mountainRift"
+    "mountainRift",
+    /*
+     * 暴走 sits last rather than next to 血之狂暴 because SKILL_ORDER doubles as
+     * the row index of both baked sheets (assets/effects.png and skills.png):
+     * appending keeps every existing row where the art already has it.
+     */
+    "berserk"
   ];
   /*
    * Every skill the Slayer can end up casting, in the order the cooldown table
@@ -1342,8 +1430,15 @@
       skillHitDone: false,
       skillHitsDone: 0,
       airHitTimer: 0,
-      /* Timed self-buffs (血之狂暴 is the only one so far). */
+      /* Self-buffs: 血之狂暴 (stance, no timer) and 暴走 (timed). */
       buffs: {},
+      /*
+       * The cast icon a buff flashes over his head, and its own clock. 暴走 is
+       * the only buff that shows one; 血之狂暴 keeps a badge for as long as the
+       * stance is up instead (see drawStanceBadge).
+       */
+      buffIconTimer: 0,
+      buffIconId: null,
       skillCooldowns: CASTABLE_SKILLS.reduce(function (map, skillId) {
         map[skillId] = 0;
         return map;
@@ -1435,6 +1530,18 @@
   function normalizeInput(input) {
     input = input || {};
     var skills = input.skills || {};
+    /*
+     * Built off SKILL_ORDER rather than listed by hand. A skill missing from
+     * this map is **silently uncastable** - the press never reaches the bar's
+     * own gate, so the move simply does nothing and there is no error - which is
+     * exactly what happened to 暴走 the first time it was added. 银光落刃 is not
+     * in SKILL_ORDER (it is the air half of the up-slash key), so it is not in
+     * here either; that key is read directly where the air case is decided.
+     */
+    var pressed = {};
+    SKILL_ORDER.forEach(function (skillId) {
+      pressed[skillId] = !!skills[skillId];
+    });
     return {
       left: !!input.left,
       right: !!input.right,
@@ -1443,19 +1550,7 @@
       down: !!input.down,
       jump: !!input.jump,
       attack: !!input.attack,
-      skills: {
-        upSlash: !!skills.upSlash,
-        mountainBreaker: !!skills.mountainBreaker,
-        crossSlash: !!skills.crossSlash,
-        bloodSword: !!skills.bloodSword,
-        frenzy: !!skills.frenzy,
-        bloodyRave: !!skills.bloodyRave,
-        rageBurst: !!skills.rageBurst,
-        bloodSnatch: !!skills.bloodSnatch,
-        graspHead: !!skills.graspHead,
-        bloodEvil: !!skills.bloodEvil,
-        mountainRift: !!skills.mountainRift
-      }
+      skills: pressed
     };
   }
 
@@ -2116,8 +2211,10 @@
       player.vx *= 0.25;
       player.vz *= 0.25;
     } else if (!rooted) {
-      player.vx = direction * PHYSICS.moveSpeed;
-      player.vz = depthDirection * depthSpeed();
+      /* 暴走's move speed covers both axes: it is a run, not a ground slide. */
+      var moveScale = buffScale(player, "moveSpeed");
+      player.vx = direction * PHYSICS.moveSpeed * moveScale;
+      player.vz = depthDirection * depthSpeed() * moveScale;
     }
 
     if (input.jump && player.onGround && !rooted) {
@@ -2188,6 +2285,8 @@
     Object.keys(player.buffs).forEach(function (id) {
       player.buffs[id] = Math.max(0, player.buffs[id] - dt);
     });
+    /* The buff's cast icon is its own short clock, not the buff's own. */
+    player.buffIconTimer = Math.max(0, (player.buffIconTimer || 0) - dt);
     if (player.comboTimer === 0) player.comboIndex = 0;
     player.mp = Math.min(player.maxMp, player.mp + player.mpRegen * dt);
 
@@ -2304,7 +2403,11 @@
       ) {
         player.attackHitDone = true;
         var box = attackBox(player, PLAYER.attackReach, PLAYER.attackHeightPad);
-        var damage = PLAYER.comboDamage[player.comboIndex] + player.attackBonus;
+        /* 暴走's attack power lifts the normal chain too, not just skills. */
+        var damage = Math.round(
+          (PLAYER.comboDamage[player.comboIndex] + player.attackBonus) *
+            buffScale(player, "attackPower")
+        );
         state.enemies.slice().forEach(function (enemy) {
           if (enemy.dead) return;
           if (inReachOf(enemy.z, player.z) && boxesOverlap(box, bodyBox(enemy))) {
@@ -2398,6 +2501,15 @@
               player.hp = Math.max(1, player.hp - active.buff.hpCost);
             }
             player.buffs[active.buff.id] = active.buff.duration;
+            /*
+             * A timed buff announces itself with a short icon over his head;
+             * the stance does not, because it keeps a badge up the whole time
+             * it lasts.
+             */
+            if (active.castIcon) {
+              player.buffIconTimer = active.castIcon;
+              player.buffIconId = active.id;
+            }
             if (active.buff.toggle) {
               state.effects.push({
                 kind: "stance",
@@ -2413,7 +2525,8 @@
         }
         var skillDamage = Math.round(
           (active.damage + (player.level - 1) * active.growth + player.attackBonus) *
-            player.skillPower
+            player.skillPower *
+            buffScale(player, "attackPower")
         );
         var struck = [];
         if (active.shot && hitIndex === active.shot.hit) {

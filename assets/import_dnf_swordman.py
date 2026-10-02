@@ -43,7 +43,15 @@ DEFAULT_CLIENT = pathlib.Path("/mnt/c/dnf/地下城与勇士")
 # and both facings, lined up on the same spot.
 FRAME_W = 208
 FRAME_H = 176
-COLS = 47
+# 57 rather than 47 when 暴走's ten-frame cast went in (2026-10-02). The clips
+# rows were exactly full at 47 - graspHead ended on the last column - so a new
+# clip had nowhere to land and the row-packer silently dropped it (the next row
+# after `clips2` is `bloodblade`, which the loop skips). Ten columns is what
+# 暴走 needs; the slack the other rows gain is spare art the renderer never
+# reaches. **The packer walks CLIPS across both rows and the layout shifts when
+# COLS does** - it prints where each clip landed, and src/render.js
+# SPRITE.skillClips has to be re-read off that print, not hand-guessed.
+COLS = 57
 ANCHOR_X = 88
 ANCHOR_Y = 156
 ROWS = ["idle", "run", "attack", "skill", "extras", "clips", "clips2", "bloodblade", "flare"]
@@ -157,6 +165,16 @@ CLIPS = [
     # the hand dropping, which the clip needs to play the burst over.
     ("graspHead", [161, 162, 163, 164, 165, 166, 167,
                    168, 169, 170, 171, 172, 173, 174, 175, 176, 177]),
+    # 暴走: the owner's own pick off the labelled full-frame sheet (2026-10-02) -
+    # body 80-89, the ten frames where he lifts his hand up over his head. He
+    # looked at assets/dnf_src/full-frames/frames-061-121.png and named the
+    # range himself; the earlier candidate strip was cut from the *other*
+    # contact sheet (full-frames-sm_body0048, the 210-frame awakened skin) and
+    # its frame numbers do not mean the same thing.
+    #
+    # 80-83 are also rageBurst's middle pose - the owner was told and kept
+    # 80-89, so the two casts share four frames on purpose.
+    ("berserk", list(range(80, 90))),
 ]
 CLIP_ROWS = ("clips", "clips2")
 

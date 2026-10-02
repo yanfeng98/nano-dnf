@@ -69,7 +69,15 @@ EFFECTS = [
     ("bloodSnatch", "sprite_character_swordman_effect_bloodsnatch.NPK", "bloodwave.img", f"{SLASH}/fullmoon.img.js"),
     ("graspHead", "sprite_character_swordman_effect.NPK", "pinchhpregen.img", f"{SLASH}/pinchhpregen.img.js"),
     ("bloodEvil", "sprite_character_swordman_effect_bloodevil.NPK", "bloodevil_stand_dungeon_effect.img", f"{STEP}/01_sword_dodge.img.js"),
-    ("mountainRift", "sprite_character_swordman_effect.NPK", "fire-front.img", f"{SLASH}/fire-front.img.js")
+    ("mountainRift", "sprite_character_swordman_effect.NPK", "fire-front.img", f"{SLASH}/fire-front.img.js"),
+    # 暴走. The row is the cast's own flash - a burst of 血气 off the client's
+    # `frenzy` pack - and that is all it is: the move's real read is the icon over
+    # his head and the threads round his body, both drawn live (see
+    # drawBerserkCast / drawBerserkThreads in src/render.js). The reference clip
+    # draws its flash cyan-white (05_暴走 #63-68) and no client board ships that;
+    # the reference is measured, not copied (docs/adr/0005), so the row takes the
+    # pack's own blood burst instead.
+    ("berserk", "sprite_character_swordman_effect_frenzy.NPK", "blood-start.img", f"{SLASH}/blood-start.img.js")
 ]
 
 FRAMES = 4
@@ -883,6 +891,13 @@ PICKS = {
         # art edge runs back over him, so nothing needs to be drawn behind the
         # Slayer to get it.
     ]},
+    # 暴走's cast flash. The move's own read is the icon over his head and the
+    # threads round his body, both of them drawn live in the renderer, so this
+    # row is only the bloom that opens the cast - the client's own blood burst,
+    # off the pack the game names Frenzy. The reference's flash is cyan-white
+    # (05_暴走 #63-68) and no client board ships that; the reference is measured,
+    # not copied (docs/adr/0005), so the row takes the pack's blood burst.
+    "berserk": {"stack": [("_frenzy", "blood-start.img")]},
 }
 
 # Rows after the skill rows, for art a move needs away from its own cast: the

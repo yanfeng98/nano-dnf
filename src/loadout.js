@@ -37,7 +37,7 @@
     "rageBurst",
     "bloodSnatch",
     "bloodEvil",
-    null
+    "berserk"
   ];
 
   function create(skillIds) {

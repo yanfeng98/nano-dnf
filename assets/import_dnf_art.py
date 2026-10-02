@@ -63,6 +63,7 @@ SKILL_IDS = [
     "graspHead",
     "bloodEvil",
     "mountainRift",
+    "berserk",
 ]
 
 # Official skill-icon frames the project owner picked from the labelled atlas
@@ -81,6 +82,12 @@ ICON_FRAMES = {
     "rageBurst": 48,
     "graspHead": 98,
     "mountainRift": 172,
+    # 暴走: the owner's pick, 2026-10-02, off dnf_skillicon_atlas.png. It is a
+    # 78/79 pair like 血之狂暴's 134/135 - 78 carries the colour (measured mean
+    # chroma 49 against 79's 12) and is what the hotbar and the cast icon draw;
+    # 79 is the same art without it, kept in case 暴走 ever wants a standing
+    # badge the way the stance has one.
+    "berserk": 78,
 }
 # 血气之刃 / 血气爆发 / 嗜血 / 血魔 are Berserker moves the owner picked no
 # atlas frame for, and the frames that used to sit in those slots belonged to the

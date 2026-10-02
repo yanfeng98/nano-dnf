@@ -1854,9 +1854,10 @@ function problemsFor(pass) {
   }
   if (pass.mode === "keyboard") {
     const checks = pass.loadoutChecks;
+    /* Slot Y (the last one) used to be empty; 暴走 lives there now. */
     const defaults =
       "upSlash,mountainBreaker,crossSlash,bloodSword,graspHead,mountainRift," +
-      "frenzy,bloodyRave,rageBurst,bloodSnatch,bloodEvil,";
+      "frenzy,bloodyRave,rageBurst,bloodSnatch,bloodEvil,berserk";
     if (!checks || !checks.arranging) problems.push("keyboard: B did not open the arrange panel");
     if (!checks || checks.dragged.loadout[0] !== "bloodSnatch") {
       problems.push("keyboard: dragging 嗜血 into slot A did not apply");

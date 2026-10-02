@@ -60,7 +60,8 @@
   var SPRITE = {
     frameW: 208,
     frameH: 176,
-    cols: 47,
+    /* 47 -> 57 when 暴走's body clip went in - see assets/import_dnf_swordman.py. */
+    cols: 57,
     anchorX: 88,
     anchorY: 156,
     /*
@@ -219,11 +220,11 @@
           { frames: 6, from: 0.647, until: 1.0 }
         ]
       },
-      /* 血之狂暴: body action 22, the stand that flings both arms out. It used to
-         open `clips2`; 十字斩 shed thirteen columns in slice 68, enough for this
-         clip to move up into `clips` behind it, so mountainRift and the two after
-         it start nine columns earlier than they did. */
-      frenzy: { row: 6, first: 0, frames: 9 },
+      /* 血之狂暴: body action 22, the stand that flings both arms out. It opens
+         `clips` again since the sheet went 47 -> 57 for 暴走's ten frames -
+         before that the row filled up before this clip and it spilled into
+         `clips2`. Re-read these off the bake's own print, never by hand. */
+      frenzy: { row: 5, first: 42, frames: 9 },
       /*
        * 大蹦 opens on the 举剑 the owner asked for (body frames 123-124: both
        * hands over the head, the blade down in front of him) and drives it into
@@ -246,7 +247,7 @@
        */
       mountainRift: {
         row: 6,
-        first: 9,
+        first: 0,
         frames: 7,
         beats: [
           /* the raise, held long enough to read as 举剑 - plain katana */
@@ -276,7 +277,7 @@
        * moves whenever that clip's length does (see assets/import_dnf_swordman.py
        * CLIPS, which prints the layout it bakes).
        */
-      silverFall: { row: 6, first: 16, frames: 8 },
+      silverFall: { row: 6, first: 7, frames: 8 },
       /*
        * 嗜魂之手: the client's own reach grab (body 161-177), the one move in the
        * set that is *not* a swing. The clip holds two poses - the wind-up and
@@ -296,13 +297,33 @@
        */
       graspHead: {
         row: 6,
-        first: 30,
+        first: 21,
         frames: 17,
         beats: [
           { frames: 4, from: 0.0, until: 0.0968 },
           { frames: 3, from: 0.0968, until: 0.1935 },
           { frames: 8, from: 0.1935, until: 0.6774 },
           { frames: 2, from: 0.6774, until: 1.0 }
+        ]
+      },
+      /*
+       * 暴走: the owner's own pick - body 80-89, the ten frames where he lifts a
+       * hand up over his head (he named the range off
+       * assets/dnf_src/full-frames/frames-061-121.png, 2026-10-02).
+       *
+       * They are paced as one act, not spread: the reference's raise is a single
+       * movement that arrives at the top and holds, so four frames carry the
+       * lift and six hold the pose he lands in, with the head icon lighting on
+       * the changeover. 80-83 double as 怒气爆发's middle pose - the owner was
+       * told and kept the range.
+       */
+      berserk: {
+        row: 6,
+        first: 38,
+        frames: 10,
+        beats: [
+          { frames: 4, from: 0.0, until: 0.35 },
+          { frames: 6, from: 0.35, until: 1.0 }
         ]
       }
     },
@@ -311,7 +332,7 @@
      * driven by how far the hop has fallen, so the crouch, the launch, the apex
      * and the landing walk in order however high the jump was.
      */
-    jump: { row: 6, first: 24, frames: 6 },
+    jump: { row: 6, first: 15, frames: 6 },
     extras: { hurt: 0, dead: 1, jump: 2, fall: 3 }
   };
 
@@ -449,7 +470,14 @@
        * as long as the windows in assets/import_dnf_effects.py add up to - and at
        * 45 columns over a 4s cast it is a column every 89ms.
        */
-      mountainRift: 45
+      mountainRift: 45,
+      /*
+       * 暴走's row is the cast's own flash only - the icon over his head and the
+       * threads round him are drawn live (drawBerserkCast / drawBerserkThreads).
+       * The row is the whole `blood-start` entry (13 frames), because a picked
+       * row ships its real frames rather than the four-frame sample.
+       */
+      berserk: 13
     },
     maxFrames: 45,
     /*
@@ -626,7 +654,14 @@
        * line while he is still leaping: the gash opens on the ground he is
        * coming down to, not on his boots.
        */
-      mountainRift: { dx: 0, dy: -125, size: 501, copies: 1, spin: 0, ground: true }
+      mountainRift: { dx: 0, dy: -125, size: 501, copies: 1, spin: 0, ground: true },
+      /*
+       * 暴走's cast flash, off the client's own burst: a one-off bloom around his
+       * head and shoulders, not a shape on the floor. `dy` lifts it to his head
+       * rather than leaving it at his feet, which is where the row is rooted by
+       * default.
+       */
+      berserk: { dx: 0, dy: -46, size: 130, copies: 1, spin: 0 }
     },
     /*
      * When a row is drawn, for the moves whose own art says it: 崩山裂地斩 is a
@@ -778,7 +813,8 @@
     bloodSnatch: "嗜血 · 血波",
     graspHead: "抓取 · 吸血",
     bloodEvil: "血魔 · 突进",
-    mountainRift: "跃斩 · 裂地"
+    mountainRift: "跃斩 · 裂地",
+    berserk: "暴走 · 攻速移速"
   };
 
   /**
@@ -1359,6 +1395,8 @@
     var image = sprites && sprites.slayer;
     if (!image || !image.width) {
       drawFallbackPlayer(ctx, state, player);
+      drawBerserkThreads(ctx, state, player);
+      drawBerserkCast(ctx, state, player, sprites);
       if (raging) drawStanceBadge(ctx, state, sprites);
       return;
     }
@@ -1385,6 +1423,14 @@
     if (raging && player.hurtTimer <= 0 && "filter" in ctx) ctx.filter = "saturate(1.2)";
     drawSpriteFrame(ctx, body, frame.col, frame.row, player.x, feetY(player), player.facing < 0);
     ctx.restore();
+    /*
+     * 暴走's threads sit *over* him rather than behind: the reference's four
+     * columns run down his own body (05_暴走 - measured at -0.23 to +0.19 of a
+     * Slayer-height either side of his centre), so drawing them behind the
+     * sprite would hide most of what the move is.
+     */
+    drawBerserkThreads(ctx, state, player);
+    drawBerserkCast(ctx, state, player, sprites);
     if (raging) drawStanceBadge(ctx, state, sprites);
   }
 
@@ -1455,6 +1501,193 @@
     ctx.stroke();
     ctx.drawImage(sprites.skills, slot * 32, 32, 32, 32, x, y, size, size);
     ctx.restore();
+  }
+
+  /*
+   * 暴走's own read, for as long as the buff is up: four vertical red threads
+   * hanging round him, soft-edged, breathing rather than moving.
+   *
+   * **The first cut of this was wrong three ways and the owner caught all three
+   * (2026-10-02): it marched its dashes, it was a 1.5px hairline, and it kept
+   * the lines faint enough to disappear. Re-measured off 05_暴走 frame by frame:**
+   *
+   *   - **Nothing translates.** Cross-correlating one column's vertical profile
+   *     between frames over the whole steady stretch (#78-#102) puts the best
+   *     shift at 0px every time, and the mse at zero shift *is* the best one
+   *     (f78->f86: 632 at 0px, f86->f94: 418). The pattern holds still; only its
+   *     brightness changes.
+   *   - **It is a soft band, not a line.** A cut across the left column (#84,
+   *     y620) reads 21 31 62 75 64 48 27 21 13 over x736-744 - a 2px core with a
+   *     smooth skirt either side, ~8 clip px of visible thread against a floor of
+   *     literally 0. At 226px to the 身位 that is 3px here, not 1.5.
+   *   - **It is bright, and it swells.** The core runs 40-90 with knots to 134,
+   *     against a black floor: full contrast, not a tint. Each column swells and
+   *     dies on its own clock - at #84 y620 the left column peaks 75 while the
+   *     right-outer one, same row, is at 18.
+   *
+   * So: two strokes per column (a 3px skirt under a 1.2px core), no dash offset
+   * anywhere, and the column's brightness varied **along its length** by a
+   * vertical gradient. Cutting the column into even segments with flat ends was
+   * the first attempt and the owner sent it straight back (「线条有点不丝滑」):
+   * hard segment ends read as a row of little bars, where the reference is one
+   * continuous band that fades in and out along itself. The gradient gives the
+   * breaks soft ends for free.
+   *
+   * Geometry is the clip's, converted through 身位: four columns at -0.23 /
+   * -0.17 / +0.11 / +0.19 either side of his centre, running from 0.15 above his
+   * feet to 1.25 up (the reference spans 0.16-1.23).
+   *
+   * It is deliberately **not** the stance's aura: 血之狂暴 turns him red all
+   * over, 暴走 leaves his colour alone and only hangs these threads on him. The
+   * two are different skills - see CONTEXT.md and docs/adr/0016.
+   */
+  function drawBerserkThreads(ctx, state, player) {
+    var buffs = player.buffs;
+    if (!buffs || !(buffs.berserk > 0)) return;
+    var H = SPRITE.bodyHeight;
+    var columns = [-0.23, -0.17, 0.11, 0.19];
+    var footY = feetY(player);
+    var top = footY - H * 1.25;
+    var bottom = footY - H * 0.15;
+    var STOPS = 26;
+    ctx.save();
+    ctx.lineCap = "round";
+    for (var i = 0; i < columns.length; i += 1) {
+      var x = player.x + player.facing * columns[i] * H;
+      /* The column's own slow swell. It never reaches zero: in the reference
+         every column is present on every frame of the steady stretch. */
+      var swell = 0.62 + 0.38 * Math.sin(state.time * 0.7 + i * 2.1);
+      var halo = ctx.createLinearGradient(0, top, 0, bottom);
+      var skirt = ctx.createLinearGradient(0, top, 0, bottom);
+      var core = ctx.createLinearGradient(0, top, 0, bottom);
+      for (var k = 0; k <= STOPS; k += 1) {
+        var t = k / STOPS;
+        /*
+         * How lit the thread is *at this height*. Three slow sines at unrelated
+         * rates, so the profile is irregular but smooth both in y and in time -
+         * a gap opens where it stands and closes again, and nothing travels
+         * down the line. Whatever ends up near zero becomes a break whose ends
+         * are ramps, not cuts.
+         */
+        var a = 0.5 + 0.5 * Math.sin(t * 5.1 + i * 2.7 + state.time * 1.13);
+        var b = 0.5 + 0.5 * Math.sin(t * 2.3 + i * 1.3 + state.time * 0.51);
+        var c = 0.5 + 0.5 * Math.sin(t * 8.7 + i * 4.1 + state.time * 0.29);
+        var lit = swell * (0.16 + 0.84 * (a * b * 0.7 + c * 0.3));
+        halo.addColorStop(t, "rgba(150, 30, 20, " + (0.1 * lit).toFixed(3) + ")");
+        skirt.addColorStop(t, "rgba(176, 40, 26, " + (0.28 * lit).toFixed(3) + ")");
+        core.addColorStop(t, "rgba(212, 66, 42, " + (0.6 * lit).toFixed(3) + ")");
+      }
+      /*
+       * Three passes over the same line - a wide faint halo, a mid skirt and a
+       * narrow core - so the edge is a ramp rather than a step. Two passes read
+       * as a line with an outline (owner: 「有点不丝滑」); the third is what
+       * actually makes it a soft band.
+       */
+      ctx.strokeStyle = halo;
+      ctx.lineWidth = 6.5;
+      ctx.beginPath(); ctx.moveTo(x, top); ctx.lineTo(x, bottom); ctx.stroke();
+      ctx.strokeStyle = skirt;
+      ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.moveTo(x, top); ctx.lineTo(x, bottom); ctx.stroke();
+      ctx.strokeStyle = core;
+      ctx.lineWidth = 1.2;
+      ctx.beginPath(); ctx.moveTo(x, top); ctx.lineTo(x, bottom); ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  /*
+   * The icon 暴走 flashes over his head on the press: the same atlas frame the
+   * hotbar shows, on the glowing disc the reference draws it on (05_暴走 #63-93
+   * - a flash, then the disc, and it is gone by #94).
+   *
+   * Its clock is `player.buffIconTimer`, not the buff's own: the buff runs for
+   * eight seconds and the icon shows for a beat and a half.
+   */
+  function drawBerserkCast(ctx, state, player, sprites) {
+    if (!(player.buffIconTimer > 0) || !player.buffIconId) return;
+    var spec = Core.SKILLS[player.buffIconId];
+    if (!spec || !spec.buff) return;
+    if (!sprites || !sprites.skills || !sprites.skills.width) return;
+    var slot = Core.SKILL_ORDER.indexOf(player.buffIconId);
+    if (slot === -1) return;
+    var sheet = goldIconSheet(sprites.skills) || sprites.skills;
+    var total = spec.castIcon || 1.5;
+    var fade = Math.min(1, player.buffIconTimer / 0.45);
+    /*
+     * Small on purpose (owner, 2026-10-02: 「头顶的图标要小一点」). The disc in
+     * the reference is 0.73 of a Slayer-height across, but drawn at that size
+     * over an 84px Slayer it reads as a signboard rather than a badge, so the
+     * icon itself sits at 22px with the glow doing the rest.
+     */
+    var size = 22 * (1 + 0.15 * Math.max(0, (player.buffIconTimer - (total - 0.25)) / 0.25));
+    var cx = player.x;
+    var cy = feetY(player) - player.height - 50 - (1 - fade) * 6;
+    ctx.save();
+    ctx.globalAlpha = fade;
+    var glow = ctx.createRadialGradient(cx, cy, 1, cx, cy, size * 1.5);
+    glow.addColorStop(0, "rgba(255, 228, 150, 0.5)");
+    glow.addColorStop(1, "rgba(255, 160, 40, 0)");
+    ctx.fillStyle = glow;
+    ctx.beginPath();
+    ctx.arc(cx, cy, size * 1.5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.drawImage(sheet, slot * 32, 0, 32, 32,
+                  cx - size / 2, cy - size / 2, size, size);
+    ctx.restore();
+  }
+
+  /*
+   * The atlas again, in gold, built once.
+   *
+   * 暴走's own client icon is blue; the reference floats a **gold** disc over his
+   * head, and the owner asked for that colour (2026-10-02: 「要是黄色的」).
+   * Re-baking the atlas for one tint would mean a second icon per skill and a
+   * second thing to keep in step, so the recolour happens here instead: each
+   * pixel's brightest channel becomes a level, the icon's dark backdrop drops to
+   * nothing, and what survives is the icon's own linework in gold. The hotbar
+   * keeps the untouched atlas - this is only what hangs over his head.
+   */
+  var goldTint = null;
+  function goldIconSheet(image) {
+    if (typeof document === "undefined" || !document.createElement) return null;
+    if (goldTint && goldTint.source === image) return goldTint.sheet;
+    var canvas = document.createElement("canvas");
+    canvas.width = image.width;
+    canvas.height = image.height;
+    var brush = canvas.getContext("2d");
+    if (!brush) return null;
+    brush.drawImage(image, 0, 0);
+    var data;
+    try {
+      data = brush.getImageData(0, 0, canvas.width, canvas.height);
+    } catch (err) {
+      return null;
+    }
+    var px = data.data;
+    for (var i = 0; i < px.length; i += 4) {
+      var lum = Math.max(px[i], px[i + 1], px[i + 2]);
+      if (lum <= 42) {
+        px[i + 3] = 0;
+        continue;
+      }
+      /*
+       * The level scales the **colour**, it does not just gate it: forcing the
+       * red channel to 255 whatever the pixel's own brightness turned the whole
+       * 32px cell into one flat gold square, because the icon's art fills its
+       * cell and only its dark outlines survived. Scaling all three channels
+       * keeps the icon's own light and shade - it reads as an icon in gold
+       * rather than a gold plate.
+       */
+      var level = (lum - 42) / 213;
+      px[i] = 255 * level;
+      px[i + 1] = 202 * level;
+      px[i + 2] = 58 * level;
+      px[i + 3] = 255;
+    }
+    brush.putImageData(data, 0, 0);
+    goldTint = { source: image, sheet: canvas };
+    return canvas;
   }
 
   var ENEMY_STYLE = {
