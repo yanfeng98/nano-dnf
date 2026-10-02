@@ -814,7 +814,12 @@
     graspHead: "抓取 · 吸血",
     bloodEvil: "血魔 · 突进",
     mountainRift: "跃斩 · 裂地",
-    berserk: "暴走 · 攻速移速"
+    /*
+     * 暴走's own three, heaviest first - the loadout panel is where a player
+     * decides whether to equip it, and since the numbers went up it is the
+     * attack power that carries the move, not the two speeds it used to name.
+     */
+    berserk: "暴走 · 攻击移速"
   };
 
   /**
