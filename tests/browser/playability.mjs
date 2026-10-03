@@ -922,7 +922,14 @@ async function runPass(browser, baseUrl, options) {
       };
       const hpBeforeStance = await page.evaluate(() => window.nanoDnf.getState().player.hp);
       await castStance();
-      await waitWatching(300);
+      /*
+       * The stance lands at the end of the cast's one beat, not at its start
+       * (docs/adr/0017: the reference's transform is 0.50s of burst and the
+       * state comes up as it finishes), so this has to outlast the cast. At
+       * 300ms it read "did not raise the stance" on a cast that was still
+       * playing.
+       */
+      await waitWatching(700);
       const raised = await page.evaluate(() => ({
         raging: window.nanoDnf.isRaging(),
         hp: window.nanoDnf.getState().player.hp
@@ -979,12 +986,21 @@ async function runPass(browser, baseUrl, options) {
           onGround: player.onGround,
           vy: player.vy,
           skillId: player.skillId,
-          skillTimer: player.skillTimer
+          skillTimer: player.skillTimer,
+          hurtTimer: player.hurtTimer
         };
         player.skillId = "mountainBreaker";
         player.skillTimer = window.DNFCore.SKILLS.mountainBreaker.duration * 0.6;
         player.onGround = false;
         player.vy = -220;
+        /*
+         * A hurt pose outranks the clip in `playerFrame`, so a boss landing one
+         * on him at the wrong moment would read as "the leap fell back to the
+         * generic air art" - a verdict about where he is in the air, decided by
+         * whether a monster happened to hit him. Freeze that out; it is restored
+         * with the rest below.
+         */
+        player.hurtTimer = 0;
         const frame = window.DNFRender.playerFrame(state, player);
         const clip = window.DNFRender.SPRITE.skillClips.mountainBreaker;
         return {
@@ -1005,6 +1021,7 @@ async function runPass(browser, baseUrl, options) {
         player.vy = before.vy;
         player.skillId = before.skillId;
         player.skillTimer = before.skillTimer;
+        player.hurtTimer = before.hurtTimer;
       }, air.before);
       airReadout = {
         row: air.row,

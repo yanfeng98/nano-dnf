@@ -43,15 +43,18 @@ DEFAULT_CLIENT = pathlib.Path("/mnt/c/dnf/地下城与勇士")
 # and both facings, lined up on the same spot.
 FRAME_W = 208
 FRAME_H = 176
-# 57 rather than 47 when 暴走's ten-frame cast went in (2026-10-02). The clips
-# rows were exactly full at 47 - graspHead ended on the last column - so a new
-# clip had nowhere to land and the row-packer silently dropped it (the next row
-# after `clips2` is `bloodblade`, which the loop skips). Ten columns is what
-# 暴走 needs; the slack the other rows gain is spare art the renderer never
-# reaches. **The packer walks CLIPS across both rows and the layout shifts when
-# COLS does** - it prints where each clip landed, and src/render.js
-# SPRITE.skillClips has to be re-read off that print, not hand-guessed.
-COLS = 57
+# 64 rather than 57 when 血之狂暴's cast became its own seventeen-frame motion
+# (2026-10-03). At 57 the four `clips` entries came to 51 columns and the stance
+# needs 17, which overflows the row - and an overflowing clip is *truncated*, not
+# spilled: the packer breaks out of that clip's frame loop the moment the column
+# runs past COLS, so two of its frames would have gone missing with nothing said.
+# **The packer walks CLIPS across both rows and the layout shifts when COLS
+# does** - it prints where each clip landed, and src/render.js SPRITE.skillClips
+# has to be re-read off that print, not hand-guessed.
+#
+# (57 was itself a raise, from 47, when 暴走's ten-frame cast went in. Same
+# hazard, same fix, and the same note.)
+COLS = 64
 ANCHOR_X = 88
 ANCHOR_Y = 156
 ROWS = ["idle", "run", "attack", "skill", "extras", "clips", "clips2", "bloodblade", "flare"]
@@ -149,7 +152,21 @@ CLIPS = [
     # 不改。）腾出来的三格用 200（低身扑）按住，参考片 #48-#52 本来也就是**低身按住**。
     # 见 src/render.js 的 `skillClips.crossSlash`。
     ("crossSlash", list(range(5, 19)) + [198, 199, 200, 200, 200, 200]),
-    ("frenzy", list(range(161, 170))),
+    # **血之狂暴's cast, and the owner named it: body 159-175.**
+    #
+    # This row has been wrong twice. It first baked 161-169, which is the opening
+    # of 嗜魂之手's reach, and an audit found the two rows byte-identical - so it
+    # was "fixed" to a still stand on the reading that the reference's transform
+    # does not move his body. That reading was taken from the *first* beat only
+    # (07_血之狂暴 f40-58 really is a still body), and it missed the second: at
+    # f64-78 his arm goes out and the blood gathers in his hand. 159-175 is
+    # exactly that - he stands, extends the arm, and holds it out.
+    #
+    # It **shares its frames with 嗜魂之手** (161-177) on purpose, the way
+    # 怒气爆发 and 暴走 share 80-83: it is one motion in the client's sheet and
+    # the owner put this move on it. What separates the two casts is the art over
+    # them, not the body.
+    ("frenzy", list(range(159, 176))),
     ("mountainRift", [123, 124, 204, 205, 208, 209, 132]),
     ("silverFall", list(range(134, 142))),
     ("jump", list(range(127, 133))),

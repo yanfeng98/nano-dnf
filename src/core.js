@@ -267,6 +267,22 @@
     return scale;
   }
 
+  /*
+   * The total of every live buff's *additive* term for one stat. 命中 is the
+   * only one so far: evasion is a probability, so it subtracts rather than
+   * multiplies (docs/adr/0018).
+   */
+  function buffSum(player, field) {
+    var total = 0;
+    var buffs = (player && player.buffs) || {};
+    Object.keys(buffs).forEach(function (id) {
+      if (!(buffs[id] > 0)) return;
+      var buff = buffById(id);
+      if (buff && buff[field]) total += buff[field];
+    });
+    return total;
+  }
+
   function attackSpeedOf(player) {
     var speed = Number(player && player.attackSpeed);
     if (!isFinite(speed) || speed <= 0) return PLAYER.attackSpeed;
@@ -487,8 +503,12 @@
         heightPad: 30,
         life: 0.4
       },
-      /* DNF shape: cross cut that leaves the target bleeding. */
-      bleed: { damage: 4, growth: 1, duration: 3, interval: 1, fromLevel: 2 }
+      /*
+       * The cross used to leave the target bleeding from level 2. That line
+       * moved to 血之狂暴, which is now the only thing in this game that draws
+       * blood: with the stance down this is three cuts and a flying blade like
+       * any other move (docs/adr/0017).
+       */
     },
     bloodSword: {
       id: "bloodSword",
@@ -519,8 +539,35 @@
       cooldown: 3,
       damage: 0,
       growth: 0,
-      duration: 0.6,
-      activeFrom: 0.12,
+      /*
+       * 0.50s: the first of the reference's two beats, and the only one that is
+       * his. The whole ceremony in the clip runs 1.33s, but the thing that makes
+       * it read is that he goes red in *one frame* at the burst - f43 stands
+       * there ordinary, f44 is a flat red silhouette - and the corona spreads
+       * over a character who is already raging. So the state lands with the
+       * burst, a tenth of a second in, and the rest of the beat is that corona
+       * dying back (docs/adr/0017).
+       *
+       * The first pass landed it at the *end* of the beat instead, and the owner
+       * caught it: that reads as a wind-up and then a colour change, not as a
+       * burst. The reference measures 1.33s of ceremony, but its ceremony opens
+       * at f44, not at f84.
+       */
+      /*
+       * **1.40s, which is the reference's own clock.** The owner caught this one:
+       * the first pass fired the whole thing off in 0.6s, and he read it as the
+       * stance arriving before it had finished being cast. Measured off
+       * 07_血之狂暴, the ceremony runs f39-f84 = 46 frames = **1.53s**, and it is
+       * worth being that long because it has three things in it: the body goes
+       * red at f44, the arm goes out and the blood gathers at f64-f78, and it
+       * settles by f84. Squeezed into 0.6s those beats land on top of each other.
+       *
+       * The clip's own frames are paced against this - see the `beats` on
+       * SPRITE.skillClips.frenzy: he stands through the burst and spends the
+       * arm motion over the back half, which is where the reference has it.
+       */
+      duration: 1.4,
+      activeFrom: 0.13,
       activeTo: 0.2,
       reach: 0,
       heightPad: 0,
@@ -529,16 +576,17 @@
       radius: 0,
       hits: 1,
       /*
-       * DNF shape: 血之狂暴 is the dual-blade stance, not a damage move. It
-       * costs HP to keep up and buys attack speed and shorter skill cooldowns
-       * while it lasts.
+       * DNF shape: 血之狂暴 is the stance, not a damage move. It is the one
+       * skill that owns this character's blood - the red body (0003/0004), the
+       * dual blade, the bleed it puts on whatever he hits, and the 命中 that
+       * keeps his cuts from sliding off an elite. Then the price: his own HP,
+       * cut once to open it and then a little at a time for as long as he
+       * keeps it up.
        *
        * It is a buffer in the DNF sense: the state has no timer at all (the
        * owner's read of the client is "cast it again to take it down"), so the
        * duration is Infinity and the toggle flag is what turns the second cast
-       * into a cancel. Nothing else in the buff machinery changes - the stance
-       * is still a number in player.buffs, so attack speed and cooldowns keep
-       * reading it the way they always did.
+       * into a cancel.
        */
       buff: {
         id: "bloodRage",
@@ -546,7 +594,41 @@
         toggle: true,
         attackSpeed: 1.25,
         cooldownScale: 1.4,
-        hpCost: 6
+        attackPower: 1.25,
+        /*
+         * 命中, as the flat evasion it cancels. This game has no accuracy stat
+         * and had no miss roll anywhere before this slice - the stance is the
+         * only thing that grants either (docs/adr/0018).
+         */
+        accuracy: 0.15,
+        /* 硬直: what is left of his own hit recovery while the stance is up. */
+        hitRecovery: 0.5,
+        /*
+         * 出血. This used to be 十字斩's own line; the owner moved it here so
+         * that blood has exactly one owner. Every hit lands it and every hit
+         * refreshes it, and it stays on the target after the stance comes down.
+         */
+        bleed: { damage: 4, growth: 1, duration: 3, interval: 1 },
+        /*
+         * The price. `open.hpRatio` is the cut he takes on the frame the stance
+         * lands - 17.5% of max HP, measured off the reference's own HP orb
+         * (07_血之狂暴 #44: -14px, white loss band visible) - and `drain` is
+         * the trickle after it, deliberately small and often. Neither has a
+         * floor: the owner's call is that this is a cost and not a fee, so it
+         * can kill him, and the blood orbs are the only way back up.
+         */
+        open: { hpRatio: 0.175 },
+        drain: { interval: 0.5, hp: 1 },
+        /*
+         * The reference's **second beat**: a compact mass of blood gathers in his
+         * free hand while a star goes off over his head (07_血之狂暴 f64-78).
+         *
+         * **Timed to the body, not to a stopwatch.** 0.67s is f44 -> f64 in the
+         * reference, and it is also exactly where the cast's own clip has the arm
+         * out with the hand open - so the blood arrives in the hand that is
+         * holding it out, which is the whole point of the beat.
+         */
+        gather: { delay: 0.67, life: 0.5 }
       }
     },
     berserk: {
@@ -1097,6 +1179,13 @@
      */
     elite: {
       behavior: "elite",
+      /*
+       * 回避: a hit can slide off him. The elite and the boss are the only two
+       * things in the game that have any, and they are the only reason
+       * 血之狂暴's 命中 exists - grunts are exactly as hittable as they always
+       * were, so clearing a room is unchanged (docs/adr/0018).
+       */
+      evasion: 0.15,
       maxHp: 150,
       xp: 45,
       width: 46,
@@ -1120,6 +1209,8 @@
     },
     boss: {
       behavior: "boss",
+      /* 回避, the same as the elite's - see the note there. */
+      evasion: 0.15,
       maxHp: 260,
       xp: 80,
       width: 56,
@@ -1432,10 +1523,12 @@
       airHitTimer: 0,
       /* Self-buffs: 血之狂暴 (stance, no timer) and 暴走 (timed). */
       buffs: {},
+      /* How long until 血之狂暴 charges him again for keeping it up. */
+      stanceDrainTimer: 0,
       /*
        * The cast icon a buff flashes over his head, and its own clock. 暴走 is
-       * the only buff that shows one; 血之狂暴 keeps a badge for as long as the
-       * stance is up instead (see drawStanceBadge).
+       * the only buff that shows one - 血之狂暴's own read is the red body and
+       * the lit hotbar slot, both of which are up the whole time it is.
        */
       buffIconTimer: 0,
       buffIconId: null,
@@ -1479,6 +1572,8 @@
       damage: spec.damage,
       xp: spec.xp,
       behavior: spec.behavior || "melee",
+      /* 回避: copied per-enemy, like everything else off the type spec (0018). */
+      evasion: spec.evasion || 0,
       speed: spec.speed,
       attackRange: spec.attackRange,
       keepRange: spec.keepRange || 0,
@@ -1662,6 +1757,24 @@
       text: String(amount),
       x: x,
       y: y,
+      life: 0.7,
+      maxLife: 0.7
+    });
+  }
+
+  /*
+   * A swing that slid off. It rides the damage-number effect rather than getting
+   * a kind of its own, because it *is* the number for that hit - there just is
+   * not one. Without it the player reads a miss as "my attack did nothing",
+   * which is the shape of a bug (docs/adr/0018).
+   */
+  function pushMissEffect(state, enemy) {
+    state.effects.push({
+      kind: "damage",
+      miss: true,
+      text: "MISS",
+      x: enemy.x,
+      y: enemy.y - enemy.height - 6,
       life: 0.7,
       maxLife: 0.7
     });
@@ -1968,21 +2081,91 @@
     return true;
   }
 
+  /*
+   * Put - or refresh - the bleed on a monster. Every landed hit lands it again
+   * while the stance is up, so the wound reads as "he is bleeding" rather than
+   * as a pile of separate timers, and there is exactly one slot for it
+   * (docs/adr/0017).
+   */
+  function startBleed(enemy, spec) {
+    if (!spec) return;
+    enemy.bleed = {
+      damage: spec.damage,
+      remaining: spec.duration,
+      timer: spec.interval,
+      /*
+       * **The interval has to be stored, not just used once.** The tick does
+       * `timer += bleed.interval` to line the next one up, and it was reading
+       * a field the record never carried: `timer` went to NaN on the very first
+       * tick and `NaN <= 0` is false, so a "4 a second for 3 seconds" bleed
+       * ticked **exactly once** and then sat there until it expired. Found on
+       * 2026-09-27 when 十字斩's beats moved and the bleed test started
+       * measuring the wrong window.
+       */
+      interval: spec.interval
+    };
+  }
+
+  /*
+   * The bleed 血之狂暴 puts on whatever he hits, or null while the stance is
+   * down. Its damage follows his level the way every other number in the game
+   * does, and it is the same bleed whichever move landed it - blood has exactly
+   * one owner, and that owner is the stance (docs/adr/0017).
+   */
+  function stanceBleed(player) {
+    if (!player || !(player.buffs.bloodRage > 0)) return null;
+    var buff = buffById("bloodRage");
+    if (!buff || !buff.bleed) return null;
+    var spec = buff.bleed;
+    return {
+      damage: spec.damage + (player.level - 1) * spec.growth,
+      duration: spec.duration,
+      interval: spec.interval
+    };
+  }
+
+  /*
+   * 回避 against 命中 (docs/adr/0018). Only an elite or a boss can slide out from
+   * under a hit, and only 血之狂暴's accuracy closes the gap; the roll goes
+   * through the seeded stream the drops use, so the same seed and the same
+   * inputs still land every hit the same way.
+   */
+  function slidesOff(state, enemy) {
+    var evasion = enemy.evasion || 0;
+    if (evasion <= 0) return false;
+    var miss = evasion - buffSum(state.player, "accuracy");
+    if (miss <= 0) return false;
+    return nextRandom(state) < miss;
+  }
+
   function damageEnemy(state, enemy, amount, knockbackX, sourceX, options) {
     if (enemy.dead) return 0;
     var opts = options || {};
+    /*
+     * Is this the Slayer's own swing? His are the only hits that can slide off
+     * (docs/adr/0018) and the only ones that carry 血之狂暴's bleed. Bleed ticks
+     * and the chapel floor hit monsters too, and they pass `noBloodOrbs` - the
+     * same flag the blood orbs were already using to ask this exact question.
+     */
+    var slayerSwing = !opts.noBloodOrbs;
+    if (slayerSwing && slidesOff(state, enemy)) {
+      pushMissEffect(state, enemy);
+      return 0;
+    }
     var applied = Math.max(0, Math.round(amount));
     enemy.hp -= applied;
     state.stats.hits += 1;
     state.stats.damageDealt += applied;
     pushDamageEffect(state, enemy.x, enemy.y - enemy.height - 6, applied);
     /*
-     * 血之狂暴: while the stance is up, a landed hit can draw blood out of the
-     * monster. Bleed ticks and the chapel floor hit monsters too, but they are
-     * not the Slayer's own swings, so those calls opt out with noBloodOrbs.
+     * 血之狂暴: while the stance is up his hits draw blood out of the monster,
+     * and every landed hit leaves the wound bleeding. Landing the bleed here
+     * rather than on each move is what keeps it belonging to the stance instead
+     * of to whichever skill happened to swing (docs/adr/0017).
      */
-    if (applied > 0 && !opts.noBloodOrbs && state.player.buffs.bloodRage > 0) {
+    if (applied > 0 && slayerSwing && state.player.buffs.bloodRage > 0) {
       if (nextRandom(state) < BLOOD_ORB.chance) spawnBloodOrb(state, enemy);
+      startBleed(enemy, stanceBleed(state.player));
     }
 
     /* Super armour keeps bosses swinging through light hits, DNF style. */
@@ -2014,23 +2197,7 @@
       enemy.stun = Math.max(enemy.stun, opts.stun);
       enemy.attackTimer = 0;
     }
-    if (opts.bleed) {
-      enemy.bleed = {
-        damage: opts.bleed.damage,
-        remaining: opts.bleed.duration,
-        timer: opts.bleed.interval,
-        /*
-         * **The interval has to be stored, not just used once.** The tick does
-         * `timer += bleed.interval` to line the next one up, and it was reading
-         * a field the record never carried: `timer` went to NaN on the very
-         * first tick and `NaN <= 0` is false, so a "4 a second for 3 seconds"
-         * bleed ticked **exactly once** and then sat there until it expired.
-         * Found on 2026-09-27 when 十字斩's beats moved and the bleed test
-         * started measuring the wrong window.
-         */
-        interval: opts.bleed.interval
-      };
-    }
+    if (opts.bleed) startBleed(enemy, opts.bleed);
     if (opts.grabbed) {
       enemy.grabbed = opts.grabbed;
       enemy.knockdown = 0;
@@ -2102,6 +2269,61 @@
     };
   }
 
+  /*
+   * HP the Slayer spends on himself: 血之狂暴's opening cut and its drain.
+   *
+   * Deliberately *not* `damagePlayer` - this is not a hit, so it grants no
+   * i-frames, no knockback, no 硬直 and no floating number, and `damageTaken`
+   * stays a count of what the monsters did rather than of what he did to
+   * himself. It can still kill him: the owner's call is that this is the price
+   * of the stance and not a fee, so there is no 1 HP floor (docs/adr/0017).
+   */
+  function spendPlayerHp(state, player, amount) {
+    if (player.dead) return 0;
+    var spent = Math.max(0, amount);
+    player.hp -= spent;
+    if (player.hp <= 0) {
+      player.hp = 0;
+      player.dead = true;
+      state.defeat = true;
+    }
+    return spent;
+  }
+
+  /*
+   * 血之狂暴's trickle: his own HP, a little at a time, for as long as the
+   * stance is up. Small and often rather than one big bite, and it does not
+   * stop - not between rooms, not standing still. The blood orbs are the only
+   * way back up, which is what makes the stance something he has to keep
+   * feeding (docs/adr/0017).
+   *
+   * The countdown lives on the player rather than on the buff record, because a
+   * buff is a number of seconds and nothing else. Exactly one buff in the game
+   * carries a drain; if a second one ever does, this needs a timer per buff.
+   */
+  function updateStanceDrain(state, player, dt) {
+    var drain = null;
+    Object.keys(player.buffs || {}).forEach(function (id) {
+      if (!(player.buffs[id] > 0)) return;
+      var buff = buffById(id);
+      if (buff && buff.drain && buff.drain.interval > 0) drain = buff.drain;
+    });
+    if (!drain) {
+      player.stanceDrainTimer = 0;
+      return;
+    }
+    player.stanceDrainTimer -= dt;
+    if (player.stanceDrainTimer <= 0) {
+      /*
+       * `+= interval` lines the next tick up rather than resetting to it, and
+       * the interval has to be *stored* to do that - the bleed learned this one
+       * the hard way and ticked exactly once for a week (see `damageEnemy`).
+       */
+      player.stanceDrainTimer += drain.interval;
+      spendPlayerHp(state, player, drain.hp);
+    }
+  }
+
   function damagePlayer(state, amount, sourceX) {
     var player = state.player;
     if (player.dead || player.invuln > 0) return 0;
@@ -2119,7 +2341,12 @@
      */
     var armored = !!(player.skillId && SKILLS[player.skillId] && SKILLS[player.skillId].superArmor);
     if (!armored) {
-      player.hurtTimer = PLAYER.hurtStun;
+      /*
+       * 硬直: his own hit recovery, which 血之狂暴 cuts short. It is not 霸体 -
+       * he still takes every point of the damage above and is still
+       * interrupted here; he just gets his feet back sooner (docs/adr/0018).
+       */
+      player.hurtTimer = PLAYER.hurtStun * buffScale(player, "hitRecovery");
       player.vx = (player.x >= sourceX ? 1 : -1) * PLAYER.knockbackX;
     }
     player.attackTimer = 0;
@@ -2287,11 +2514,17 @@
     });
     /* The buff's cast icon is its own short clock, not the buff's own. */
     player.buffIconTimer = Math.max(0, (player.buffIconTimer || 0) - dt);
+    updateStanceDrain(state, player, dt);
     if (player.comboTimer === 0) player.comboIndex = 0;
     player.mp = Math.min(player.maxMp, player.mp + player.mpRegen * dt);
 
-    /* 血之狂暴 shortens every skill's cooldown while it is up. */
-    var cooldownScale = player.buffs.bloodRage > 0 ? 1.4 : 1;
+    /*
+     * Cooldowns run faster under a buff that says so. This reads the buff's own
+     * `cooldownScale` field now - it used to be a literal 1.4 nailed to
+     * bloodRage, which meant the buff declared a number that nothing read and a
+     * second buff could not have shortened a cooldown at all (docs/adr/0017).
+     */
+    var cooldownScale = buffScale(player, "cooldownScale");
     CASTABLE_SKILLS.forEach(function (skillId) {
       player.skillCooldowns[skillId] = Math.max(
         0,
@@ -2329,9 +2562,33 @@
       );
     })[0];
 
+    /*
+     * Taking a toggle stance down is instant and free: no MP, and none of the
+     * 0.5s of standing still that raising it costs. Dropping 血之狂暴 is what
+     * you do when its price is about to kill you, so it cannot be the more
+     * expensive half. It still pays the move's cooldown - a held slot key
+     * re-casts the moment it is allowed to (input is `held || pressed`), and
+     * without the cooldown a held key would flip the stance on and off.
+     */
     if (castSkill) {
       var skillSpec = SKILLS[castSkill];
-      player.mp -= skillSpec.mp;
+      /*
+       * **Taking a toggle stance down is free, but it is not instant and it is
+       * not silent.** The owner's read is that the way out has to look like the
+       * way in (「关掉的血之狂暴的技能的特效也要跟开一样」), so the same cast
+       * plays and the same art goes off; the only difference is that the state
+       * comes *down* where the arrow lands, which the hit loop decides.
+       *
+       * It still pays the move's cooldown, which is what stops a held key from
+       * flipping the stance on and off - a held slot key re-casts the moment it
+       * is allowed to (input is `held || pressed`).
+       */
+      var stanceComingDown = !!(
+        skillSpec.buff &&
+        skillSpec.buff.toggle &&
+        player.buffs[skillSpec.buff.id] > 0
+      );
+      if (!stanceComingDown) player.mp -= skillSpec.mp;
       player.skillId = castSkill;
       /*
        * **Where he pressed the key.** A move that carries him states its own
@@ -2478,49 +2735,60 @@
         var skillBox = attackBox(player, active.reach, active.heightPad);
         if (active.buff) {
           /*
-           * A buff skill pays its HP cost and goes up; it does not swing.
+           * A buff skill pays its price and goes up; it does not swing.
            *
-           * 血之狂暴 is a stance rather than a timer (duration: Infinity): it
-           * stays up until the skill is cast again, and casting it again takes
-           * it down and costs nothing. Everything else keeps the old shape.
+           * 血之狂暴 is a stance, so the same beat either raises it or takes it
+           * down depending on which way it is already pointing - and it does the
+           * whole ceremony either way, because the owner's read is that the way
+           * out has to look like the way in.
            */
-          var stanceUp = player.buffs[active.buff.id] > 0;
-          if (active.buff.toggle && stanceUp) {
+          var alreadyUp = player.buffs[active.buff.id] > 0;
+          if (active.buff.toggle && alreadyUp) {
             player.buffs[active.buff.id] = 0;
-            state.effects.push({
-              kind: "stance",
-              up: false,
-              x: player.x,
-              y: player.y - player.height * 0.5,
-              life: 0.5,
-              maxLife: 0.5
-            });
             pushBanner(state, active.name + " 解除", 1.1);
           } else {
-            if (active.buff.hpCost) {
-              player.hp = Math.max(1, player.hp - active.buff.hpCost);
+            /*
+             * The opening cut, taken off max HP rather than as a flat number so
+             * it stays the same fraction of the bar as he levels - 17.5% is how
+             * the reference reads (07_血之狂暴 #44: the orb drops 14px with the
+             * white loss band showing).
+             */
+            if (active.buff.open && active.buff.open.hpRatio) {
+              spendPlayerHp(state, player, player.maxHp * active.buff.open.hpRatio);
             }
             player.buffs[active.buff.id] = active.buff.duration;
+            /* The drain's first tick is a full interval away, not this frame. */
+            if (active.buff.drain && active.buff.drain.interval) {
+              player.stanceDrainTimer = active.buff.drain.interval;
+            }
             /*
-             * A timed buff announces itself with a short icon over his head;
-             * the stance does not, because it keeps a badge up the whole time
-             * it lasts.
+             * A timed buff announces itself with a short icon over his head. The
+             * stance does not: its read is the red body and the lit slot on the
+             * hotbar, and both of those are up for as long as it is.
              */
             if (active.castIcon) {
               player.buffIconTimer = active.castIcon;
               player.buffIconId = active.id;
             }
             if (active.buff.toggle) {
-              state.effects.push({
-                kind: "stance",
-                up: true,
-                x: player.x,
-                y: player.y - player.height * 0.5,
-                life: 0.5,
-                maxLife: 0.5
-              });
               pushBanner(state, active.name, 1.1);
             }
+          }
+          /*
+           * The second beat goes off either way - it is the ceremony's, not the
+           * state's. It is queued here so it lands on the stance's own clock
+           * rather than the cast's, and drawn after him (see drawRageGather), so
+           * it reads as gathering in his hand rather than as another burst off
+           * his body.
+           */
+          if (active.buff.gather) {
+            var gather = active.buff.gather;
+            state.effects.push({
+              kind: "rageGather",
+              delay: gather.delay,
+              life: gather.delay + gather.life,
+              maxLife: gather.delay + gather.life
+            });
           }
         }
         var skillDamage = Math.round(
@@ -2691,13 +2959,11 @@
       }
     }
     if (skill.stun) options.stun = skill.stun;
-    if (skill.bleed && hitIndex === 0 && state.player.level >= (skill.bleed.fromLevel || 1)) {
-      options.bleed = {
-        damage: skill.bleed.damage + (state.player.level - 1) * skill.bleed.growth,
-        duration: skill.bleed.duration,
-        interval: skill.bleed.interval
-      };
-    }
+    /*
+     * No bleed here, and no `skill.bleed` field anywhere: 出血 belongs to
+     * 血之狂暴 alone and is landed inside `damageEnemy` for every hit he lands,
+     * whichever move it came from (docs/adr/0017).
+     */
 
     var wasAirborne = !enemy.onGround;
     damageEnemy(state, enemy, damage, skill.knockbackX, state.player.x, options);

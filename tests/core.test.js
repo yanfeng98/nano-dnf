@@ -660,7 +660,7 @@ test("崩山击's wave hits and shakes without drawing a targeting ring", () => 
   );
 });
 
-test("十字斩 makes the target bleed from skill level 2", () => {
+test("出血 belongs to 血之狂暴 and to nothing else", () => {
   const state = lastRoomState();
   const enemy = Core.createEnemy(state, "brute", state.player.x + 60);
   enemy.hp = 500;
@@ -668,19 +668,24 @@ test("十字斩 makes the target bleed from skill level 2", () => {
   enemy.speed = 0;
   state.enemies = [enemy];
 
+  /*
+   * The control: the move that used to leave this wound now leaves nothing at
+   * all. Blood has exactly one owner and the owner is the stance (adr/0017).
+   */
   Core.step(state, { skills: { crossSlash: true } });
   /* Past the whole cast - the move holds him for it, so a second press cannot
      start until this one is over. */
   Core.runFrames(state, Core.FPS * 2, {});
-  assert.equal(enemy.bleed, null, "no bleed at level 1");
+  assert.equal(enemy.bleed, null, "十字斩 no longer bleeds on its own");
 
   state.player.level = 3;
+  state.player.buffs.bloodRage = Infinity;
   state.player.skillCooldowns.crossSlash = 0;
   state.player.mp = state.player.maxMp;
   const hpBefore = enemy.hp;
   Core.step(state, { skills: { crossSlash: true } });
   Core.runFrames(state, Math.ceil(Core.SKILLS.crossSlash.duration * Core.FPS), {});
-  assert.ok(enemy.bleed, "十字斩 should apply bleed from level 2");
+  assert.ok(enemy.bleed, "with the stance up, the same move leaves the wound");
 
   const damage = hpBefore - enemy.hp;
   /*
@@ -689,11 +694,12 @@ test("十字斩 makes the target bleed from skill level 2", () => {
    */
   Core.runFrames(state, 200, {});
   const bleedDamage = hpBefore - damage - enemy.hp;
-  assert.ok(bleedDamage > 0, "bleed keeps ticking after the cast");
+  assert.ok(bleedDamage > 0, "bleed keeps ticking after the hit that opened it");
+  const bleed = Core.SKILLS.frenzy.buff.bleed;
   assert.equal(
     bleedDamage,
-    (Core.SKILLS.crossSlash.bleed.damage + 2 * Core.SKILLS.crossSlash.bleed.growth) * 3,
-    "a tick a second for the three seconds the spec promises"
+    (bleed.damage + 2 * bleed.growth) * 3,
+    "a tick a second for the three seconds the stance promises"
   );
   assert.equal(enemy.bleed, null, "bleed expires");
 });
@@ -3181,8 +3187,8 @@ test("the shipped DNF effect sheet matches the renderer grid", () => {
   assert.equal(buffer.readUInt32BE(16), Render.EFFECT.cell * Render.EFFECT.maxFrames);
   assert.equal(
     buffer.readUInt32BE(20),
-    Render.EFFECT.cell * (Core.SKILL_ORDER.length + 3),
-    "one baked effect row per skill, plus the blood-orb, dive and 大蹦-fire rows"
+    Render.EFFECT.cell * (Core.SKILL_ORDER.length + Render.EFFECT.extraRowCount),
+    "one baked effect row per skill, plus the orb / dive / crescent / two blades / 大蹦-fire rows"
   );
   /*
    * Each row carries its own frame count: the picked moves ship their whole
@@ -4413,23 +4419,36 @@ test("血之狂暴 is a stance with no timer, and casting it again takes it down
   state.player.mp = state.player.maxMp;
 
   const baseSpeed = Core.attackSpeedOf(state.player);
+  const maxHp = state.player.maxHp;
   const hpBefore = state.player.hp;
   Core.step(state, { skills: { frenzy: true } });
   Core.runFrames(state, 60, {});
 
-  const hpAfterCast = state.player.hp;
   assert.ok(state.player.buffs.bloodRage > 0, "the stance goes up");
-  assert.ok(hpAfterCast < hpBefore, "going up costs HP");
   assert.ok(Core.attackSpeedOf(state.player) > baseSpeed, "the stance buys attack speed");
 
   /*
-   * A buffer in the DNF sense: the client's own read is "cast it again to take
-   * it down", so an hour of game time must not tick it away - and it must not
-   * keep draining HP either.
+   * The opening cut comes off max HP rather than being a flat number, so it
+   * means the same fraction of the bar at every level. 17.5% is what the
+   * reference's own HP orb reads on the frame the stance lands (adr/0017).
    */
-  Core.runFrames(state, 3600, {});
+  assert.ok(
+    hpBefore - state.player.hp >= maxHp * 0.175,
+    "opening it costs the reference's 17.5% of the bar"
+  );
+
+  /*
+   * A buffer in the DNF sense: the client's own read is "cast it again to take
+   * it down", so an hour of game time must not tick it away. The HP does not
+   * stop, though - the stance is paid for in blood for as long as it is up.
+   */
+  const hpAfterCast = state.player.hp;
+  Core.runFrames(state, 300, {});
   assert.equal(state.player.buffs.bloodRage, Infinity, "the stance has no timer");
-  assert.equal(state.player.hp, hpAfterCast, "and it stops charging HP after the cast");
+  assert.ok(
+    state.player.hp < hpAfterCast,
+    "and it keeps charging him for as long as it is up"
+  );
   assert.ok(Core.attackSpeedOf(state.player) > baseSpeed, "it is still up a minute later");
 
   /* Cooldowns run fast while it is up ... */
@@ -4437,14 +4456,28 @@ test("血之狂暴 is a stance with no timer, and casting it again takes it down
   Core.runFrames(state, 60, {});
   const ragingCooldown = state.player.skillCooldowns.upSlash;
 
-  /* ... and the second cast is the cancel, which costs nothing. */
+  /* ... and the second cast is the cancel: instant, and free of MP. */
   state.player.mp = state.player.maxMp;
   state.player.skillCooldowns.frenzy = 0;
   Core.step(state, { skills: { frenzy: true } });
-  Core.runFrames(state, 60, {});
+  /*
+   * Dropping it is free but it is not instant: the same cast plays and the
+   * stance comes down where the arrow lands, so the way out looks like the way
+   * in (docs/adr/0017).
+   */
+  Core.runFrames(state, 10, {});
   assert.equal(state.player.buffs.bloodRage, 0, "casting it again takes it down");
-  assert.equal(state.player.hp, hpAfterCast, "taking it down is free");
+  assert.equal(state.player.mp, state.player.maxMp, "and dropping it costs no MP");
   assert.equal(Core.attackSpeedOf(state.player), baseSpeed, "the attack speed goes with it");
+
+  /*
+   * The drain goes with it too, which is the whole point of being able to drop
+   * it. Read from where it actually came down, not from the press: the stance is
+   * still up for the ten frames the cast takes to land, and it charges for them.
+   */
+  const hpWhenDown = state.player.hp;
+  Core.runFrames(state, 120, {});
+  assert.equal(state.player.hp, hpWhenDown, "the drain stops the moment it is down");
 
   state.player.skillCooldowns.upSlash = 4;
   Core.runFrames(state, 60, {});
@@ -4452,6 +4485,167 @@ test("血之狂暴 is a stance with no timer, and casting it again takes it down
     state.player.skillCooldowns.upSlash > ragingCooldown,
     "cooldowns run at the normal rate once the stance is down"
   );
+});
+
+test("血之狂暴's release is two beats: the burst, then the blood gathering", () => {
+  const state = lastRoomState();
+  state.enemies = [];
+  state.player.mp = state.player.maxMp;
+
+  Core.step(state, { skills: { frenzy: true } });
+  /* Past the stance landing (0.10s in) but not yet at the second beat's delay. */
+  Core.runFrames(state, 10, {});
+  assert.ok(state.player.buffs.bloodRage > 0, "precondition: the stance is up");
+
+  /*
+   * The second beat is queued when the stance lands and plays on afterwards, on
+   * its own clock. Its delay is set against the *body*: it lands where the cast's
+   * clip has the arm out and the hand open, which is where the reference puts the
+   * blood (docs/adr/0017).
+   */
+  const queued = state.effects.filter((e) => e.kind === "rageGather");
+  assert.equal(queued.length, 1, "the burst queues exactly one gathering");
+  const gather = Core.SKILLS.frenzy.buff.gather;
+  assert.equal(queued[0].delay, gather.delay, "and it waits the reference's beat");
+  assert.equal(queued[0].maxLife, gather.delay + gather.life, "then runs for its own life");
+
+  /* Half a second after the press it has not started: the burst is still all. */
+  const started = queued[0].maxLife - queued[0].life;
+  assert.ok(
+    started < queued[0].delay,
+    `nothing to draw yet (${started.toFixed(2)}s of a ${gather.delay}s wait)`
+  );
+
+  /* And it outlives the cast, which is the whole point of it being separate. */
+  Core.runFrames(state, Math.round((gather.delay + gather.life + 0.4) * Core.FPS), {});
+  assert.equal(state.player.skillTimer, 0, "the cast is long over");
+  assert.equal(
+    state.effects.filter((e) => e.kind === "rageGather").length,
+    0,
+    "and the gathering has finished and cleaned itself up"
+  );
+});
+
+test("血之狂暴 is paid for in blood, and the price can kill him", () => {
+  const state = lastRoomState();
+  state.enemies = [];
+  state.player.mp = state.player.maxMp;
+
+  const maxHp = state.player.maxHp;
+  const hpBefore = state.player.hp;
+  Core.step(state, { skills: { frenzy: true } });
+  Core.runFrames(state, 30, {});
+  assert.ok(state.player.buffs.bloodRage > 0, "precondition: the stance is up");
+  assert.equal(
+    Math.round(hpBefore - state.player.hp),
+    Math.round(maxHp * 0.175),
+    "opening it costs the reference's 17.5% of the bar"
+  );
+
+  /*
+   * **No floor under it.** This is the one place in the game where the Slayer
+   * can spend his own last point of HP, and the owner's call is that it has to
+   * be able to take him out: a cost you cannot die of is a fee, not a cost, and
+   * then nobody ever has to decide whether to keep the stance up (adr/0017).
+   * It is also why the drain is charged in `spendPlayerHp` and not
+   * `damagePlayer` - no i-frames, no knockback, no 硬直, and `damageTaken` stays
+   * a count of what the monsters did.
+   */
+  const takenBefore = state.stats.damageTaken;
+  state.player.hp = 1;
+  Core.runFrames(state, 60, {});
+  assert.equal(state.player.hp, 0, "the drip takes his last point and then some");
+  assert.ok(state.player.dead, "and it kills him");
+  assert.ok(state.defeat, "the run is over");
+  assert.equal(state.stats.damageTaken, takenBefore, "but the monsters get no credit for it");
+});
+
+test("精英 与 Boss 的 回避, and 血之狂暴's 命中 closes it", () => {
+  const state = lastRoomState();
+  state.player.level = 5;
+  const boss = Core.createEnemy(state, "boss", state.player.x + 60);
+  boss.hp = 100000;
+  boss.maxHp = 100000;
+  boss.speed = 0;
+  state.enemies = [boss];
+  assert.ok(boss.evasion > 0, "a boss can slide out from under a hit");
+
+  /* Grunts cannot: clearing a room is exactly as it was before this slice. */
+  assert.equal(
+    Core.createEnemy(state, "grunt", state.player.x - 60).evasion,
+    0,
+    "a grunt has no evasion at all"
+  );
+
+  let missed = 0;
+  for (let hit = 0; hit < 200; hit += 1) {
+    if (Core.damageEnemy(state, boss, 1, 0, state.player.x) === 0) missed += 1;
+  }
+  assert.ok(missed > 0, `without the stance some cuts slide off (${missed} of 200)`);
+  const missText = state.effects.filter((e) => e.miss && e.text === "MISS");
+  assert.equal(missText.length, missed, "and every one of them says MISS where it happened");
+
+  /* With the stance up, none of them do. */
+  state.player.buffs.bloodRage = Infinity;
+  state.player.stanceDrainTimer = 999;
+  let stillMissed = 0;
+  for (let hit = 0; hit < 200; hit += 1) {
+    if (Core.damageEnemy(state, boss, 1, 0, state.player.x) === 0) stillMissed += 1;
+  }
+  assert.equal(stillMissed, 0, "with the stance up, nothing slides off him");
+});
+
+test("硬直 is his own recovery, the stance halves it, and it is not 霸体", () => {
+  const state = lastRoomState();
+  state.enemies = [];
+  state.player.hp = state.player.maxHp;
+
+  /* The control: the same hit with the stance down. */
+  state.player.buffs.bloodRage = 0;
+  state.player.invuln = 0;
+  Core.damagePlayer(state, 1, state.player.x + 40);
+  const plainRecovery = state.player.hurtTimer;
+  assert.equal(plainRecovery, Core.PLAYER.hurtStun, "a hit stuns him for the base time");
+
+  /* The same hit with it up. */
+  state.player.hp = state.player.maxHp;
+  state.player.invuln = 0;
+  state.player.hurtTimer = 0;
+  state.player.buffs.bloodRage = Infinity;
+  state.player.stanceDrainTimer = 999;
+  Core.damagePlayer(state, 1, state.player.x + 40);
+  assert.equal(state.player.maxHp - state.player.hp, 1, "he takes every point of the damage");
+  assert.equal(state.player.hurtTimer, plainRecovery * 0.5, "but his feet come back in half the time");
+});
+
+test("血之狂暴's attack power reaches every skill, not only the three the wiki names", () => {
+  const state = lastRoomState();
+  state.player.level = 5;
+  const enemy = Core.createEnemy(state, "grunt", state.player.x + 40);
+  enemy.speed = 0;
+  state.enemies = [enemy];
+
+  const land = () => {
+    state.player.mp = state.player.maxMp;
+    state.player.skillCooldowns.upSlash = 0;
+    enemy.hp = 100000;
+    const before = enemy.hp;
+    Core.step(state, { skills: { upSlash: true } });
+    Core.runFrames(state, Math.ceil(Core.SKILLS.upSlash.duration * Core.FPS), {});
+    return before - enemy.hp;
+  };
+
+  const plain = land();
+  state.player.buffs.bloodRage = Infinity;
+  state.player.stanceDrainTimer = 999;
+  const raging = land();
+  assert.ok(plain > 0, "precondition: the move lands");
+  /*
+   * 上挑 is not one of the three the wiki's old text names, and it is lifted all
+   * the same: since 2019 the live skill lifts every 转职后 skill, and the owner
+   * took that version (adr/0017).
+   */
+  assert.equal(raging, Math.round(plain * Core.SKILLS.frenzy.buff.attackPower), "lifted by the stance's own multiplier");
 });
 
 /*
@@ -4547,6 +4741,8 @@ test("血之狂暴 draws blood orbs out of what it hits and they fly back as hea
   assert.equal(state.pickups.length, 0, "and nothing is left on the floor");
 
   state.player.buffs.bloodRage = Infinity;
+  /* Park the stance's own HP drip so this test measures the orb and nothing else. */
+  state.player.stanceDrainTimer = 999;
   let hits = 0;
   while (state.stats.bloodOrbs === 0 && hits < 40) {
     Core.damageEnemy(state, target, 1, 0, state.player.x);
@@ -4586,21 +4782,21 @@ test("血之狂暴 draws blood orbs out of what it hits and they fly back as hea
   assert.equal(state.pickups.length, 0, "orbs do not pile up");
 });
 
-test("the stance paints him red, badges its icon and rides the normal attack", () => {
+test("the stance paints him red, carries a second blade and draws nothing else", () => {
   const state = Core.createState({ seed: 9 });
   const sprites = {
     slayer: { width: 8736, height: 1232 },
     skills: { width: 32 * Core.SKILL_ORDER.length, height: 64 },
-    effects: { width: 3456, height: 1536 }
+    effects: { width: 5760, height: 128 * (Core.SKILL_ORDER.length + 6) }
   };
-  const slot = Core.SKILL_ORDER.indexOf("frenzy");
   const rowOf = (calls, image, row) =>
     calls.filter(
       (call) => call[0] === "drawImage" && call[1] === image && call[3] === row * Render.EFFECT.cell
     );
   /*
    * The shared context double stubs the gradient factories out, so this test
-   * counts them itself: the aura is a radial gradient behind the character.
+   * counts them itself: an aura round the Slayer would be a radial gradient
+   * behind him, and the reference has none (docs/adr/0017).
    */
   const renderWith = (calls) => {
     const ctx = recordingContext(calls);
@@ -4615,15 +4811,87 @@ test("the stance paints him red, badges its icon and rides the normal attack", (
 
   const calm = [];
   const calmGradients = renderWith(calm);
-  const calmBadge = calm.filter(
-    (call) => call[0] === "drawImage" && call[1] === sprites.skills && call[3] === 32
-  );
-  assert.equal(calmBadge.length, 0, "no stance, no badge");
-  assert.equal(rowOf(calm, sprites.effects, Render.EFFECT.orbRow).length, 0, "and no blood orbs");
+  assert.equal(rowOf(calm, sprites.effects, Render.EFFECT.orbRow).length, 0, "no stance, no blood orbs");
 
   /* Mid-swing with the stance up: the whole look is on screen at once. */
   state.player.buffs.bloodRage = Infinity;
   state.player.attackTimer = state.player.attackDuration * 0.5;
+  const raging = [];
+  const ragingGradients = renderWith(raging);
+
+  /*
+   * **The second blade.** 血之狂暴's dual-wield is a layer over the equipped
+   * sword, not a second weapon in the body art - the client ships no such
+   * animation - and the pack draws it twice so his own body can pass between
+   * the halves. Both have to be on screen: a swing that only drew the front
+   * copy would look like the blade snapped wherever he covers it.
+   */
+  assert.ok(
+    rowOf(raging, sprites.effects, Render.EFFECT.rageBladeUnderRow).length >= 1,
+    "the half of the blade behind him"
+  );
+  assert.ok(
+    rowOf(raging, sprites.effects, Render.EFFECT.rageBladeUpperRow).length >= 1,
+    "and the half in front of him"
+  );
+
+  /* The crimson trail rides the same swing, off its own row now that the skill
+     row is the cast's burst. */
+  assert.ok(
+    rowOf(raging, sprites.effects, Render.EFFECT.rageSlashRow).length >= 1,
+    "the swing carries the stance's own crimson trail"
+  );
+  /*
+   * ... and over it, the cream crescent, which is the part of the swing the eye
+   * actually reads. It is a *fan*: several successive arcs of the row laid over
+   * each other, because one arc of it alone is 13-19x short of the ink the
+   * reference's crescent carries (docs/adr/0017).
+   */
+  assert.ok(
+    rowOf(raging, sprites.effects, Render.EFFECT.rageCrescentRow).length > 1,
+    "the crescent is a fan of strokes, not one"
+  );
+  assert.equal(
+    rowOf(raging, sprites.effects, Core.SKILL_ORDER.indexOf("frenzy")).length,
+    0,
+    "and the cast's burst never draws on a swing"
+  );
+
+  /* Non-vacuous: the same mid-swing frame with the stance down draws none of it. */
+  state.player.buffs.bloodRage = 0;
+  const swing = [];
+  Render.render(recordingContext(swing), state, { sprites });
+  state.player.buffs.bloodRage = Infinity;
+  assert.equal(
+    rowOf(swing, sprites.effects, Render.EFFECT.rageSlashRow).length,
+    0,
+    "no stance, no crimson trail"
+  );
+  assert.equal(
+    rowOf(swing, sprites.effects, Render.EFFECT.rageCrescentRow).length,
+    0,
+    "no stance, no crescent"
+  );
+  assert.equal(
+    rowOf(swing, sprites.effects, Render.EFFECT.rageBladeUpperRow).length,
+    0,
+    "no stance, no second blade"
+  );
+
+  /*
+   * **And nothing else.** The reference draws no aura round him and no icon over
+   * his head for as long as the stance is up - measured over its steady stretch,
+   * the bands either side of him hold zero non-black pixels. Both of those used
+   * to be invented here. The read is the red body and the lit hotbar slot, and
+   * that is all (docs/adr/0017).
+   */
+  const badge = raging.filter(
+    (call) => call[0] === "drawImage" && call[1] === sprites.skills && call[3] === 32
+  );
+  assert.equal(badge.length, 0, "no badge over his head");
+  assert.equal(ragingGradients.length, calmGradients.length, "and no glow round him");
+
+  /* And the blood drawn out of a monster is drawn from its own row. */
   state.pickups.push({
     kind: "blood_orb",
     x: state.player.x + 60,
@@ -4633,37 +4901,11 @@ test("the stance paints him red, badges its icon and rides the normal attack", (
     life: 1.2,
     speed: Core.BLOOD_ORB.speed
   });
-  const raging = [];
-  const ragingGradients = renderWith(raging);
-
-  /*
-   * The badge is atlas frame 135, which lives on the icon sheet's second row:
-   * a source y of 32 is the only place that art can come from.
-   */
-  const badge = raging.filter(
-    (call) => call[0] === "drawImage" && call[1] === sprites.skills && call[3] === 32
-  );
-  assert.equal(badge.length, 1, "the stance shows its buff icon");
-  assert.equal(badge[0][2], slot * 32, "the badge belongs to the stance's own slot");
-
-  /* The dual-blade arc rides the normal attack, timed off the swing. */
-  const frenzyRow = Core.SKILL_ORDER.indexOf("frenzy");
-  const slash = rowOf(raging, sprites.effects, frenzyRow);
-  assert.ok(slash.length >= 1, "the swing carries the stance's own arc");
-
-  /* Non-vacuous: the same mid-swing frame without the stance draws no arc. */
-  state.player.buffs.bloodRage = 0;
-  const swing = [];
-  Render.render(recordingContext(swing), state, { sprites });
-  state.player.buffs.bloodRage = Infinity;
-  assert.equal(rowOf(swing, sprites.effects, frenzyRow).length, 0, "no stance, no arc");
-
-  /* And the blood drawn out of a monster is drawn from its own row. */
-  const orbs = rowOf(raging, sprites.effects, Render.EFFECT.orbRow);
-  assert.ok(orbs.length >= 1, "the orb art comes off the orb row");
+  const orbPass = [];
+  Render.render(recordingContext(orbPass), state, { sprites });
   assert.ok(
-    ragingGradients.length > calmGradients.length,
-    "the stance adds its own glow behind him"
+    rowOf(orbPass, sprites.effects, Render.EFFECT.orbRow).length >= 1,
+    "the orb art comes off the orb row"
   );
 });
 
@@ -4684,7 +4926,8 @@ test("the three new DNF skills land their hits and statuses", () => {
   const hpBeforeBuff = state.player.hp;
   const speedBeforeBuff = Core.attackSpeedOf(state.player);
   Core.step(state, { skills: { frenzy: true } });
-  Core.runFrames(state, 20, {});
+  /* Past the cast's active window - the stance lands at the end of the beat. */
+  Core.runFrames(state, 30, {});
   assert.ok(state.player.buffs.bloodRage > 0, "血之狂暴 goes up");
   assert.ok(state.player.hp < hpBeforeBuff, "血之狂暴 costs HP to keep");
   assert.ok(
@@ -4692,8 +4935,8 @@ test("the three new DNF skills land their hits and statuses", () => {
     "血之狂暴 speeds the Slayer up"
   );
   assert.equal(near.hp, 400, "血之狂暴 is a stance, not a damage move");
-  /* let the stance finish casting before the next skill */
-  Core.runFrames(state, 30, {});
+  /* Let the stance finish casting before the next skill - it is a long one. */
+  Core.runFrames(state, Math.ceil(Core.SKILLS.frenzy.duration * Core.FPS), {});
 
   // 血气爆发: launches through its wave
   state.player.skillCooldowns.bloodyRave = 0;

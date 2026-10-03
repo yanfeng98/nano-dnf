@@ -63,7 +63,7 @@ EFFECTS = [
     ("mountainBreaker", "sprite_character_swordman_effect.NPK", "normalwave1.img", f"{SLASH}/normalwave1.img.js"),
     ("crossSlash", "sprite_character_swordman_effect_gorecross.NPK", "gorecross_cross.img", f"{GORE}/cross.img.js"),
     ("bloodSword", "sprite_character_swordman_effect_bloodsword.NPK", "sword_normal.img", f"{SLASH}/atghost.img.js"),
-    ("frenzy", "sprite_character_swordman_effect_frenzy.NPK", "sword_blood_upper.img", f"{SLASH}/momentaryslashblade.img.js"),
+    ("frenzy", "sprite_character_swordman_effect_frenzy.NPK", "blood-start.img", f"{SLASH}/blood-start.img.js"),
     ("bloodyRave", "sprite_character_swordman_effect_bloodyrave.NPK", "lslash-normal.img", f"{SLASH}/grandwaveblade.img.js"),
     ("rageBurst", "sprite_character_swordman_effect.NPK", "blast-back.img", f"{SLASH}/blast-back.img.js"),
     ("bloodSnatch", "sprite_character_swordman_effect_bloodsnatch.NPK", "bloodwave.img", f"{SLASH}/fullmoon.img.js"),
@@ -592,7 +592,10 @@ PICKS = {
     # 血气之刃: the blood sword is thrust, then it bursts.
     "bloodSword": {"sequence": [("_bloodsword", "sword_normal.img"), ("_bloodsword", "exp_dodge.img")]},
     # 血之狂暴: the dual-blade glow that rides the normal attack.
-    "frenzy": {"stack": [("_frenzy", "blood-energy.img")]},
+    # 血之狂暴's cast, and only its cast: the burst of 血气 the reference opens
+    # with (07_血之狂暴 #44-58, the spiked corona). The crescent that rides the
+    # swings moved to its own extra row below, and so did the second blade.
+    "frenzy": {"stack": [("_frenzy", "blood-start.img")]},
     "bloodyRave": {"stack": [("_bloodyrave", "*")]},
     # 怒气爆发 is **two eruptions on one timeline**, a long beat apart, and the
     # pack is built that way: a ring bursts under him and is gone inside a fifth
@@ -900,15 +903,42 @@ PICKS = {
     "berserk": {"stack": [("_frenzy", "blood-start.img")]},
 }
 
-# Rows after the skill rows, for art a move needs away from its own cast: the
-# owner picked these two entries out of the same 血之狂暴 pack and gave them
-# different jobs. The orbs used to ride along inside the dual-blade row, which
-# put a slash arc on every drop of blood that flew into the character.
+# Rows after the skill rows, for art a move needs away from its own cast. The
+# owner picked all four of the 血之狂暴 entries out of that skill's own pack and
+# gave them different jobs. The orbs used to ride along inside the dual-blade
+# row, which put a slash arc on every drop of blood that flew into the character.
 EXTRA_ROWS = [
     ("bloodOrb", {"stack": [("_frenzy", "blood-stone-0.img")]}),
     # 银光落刃: the up-slash arc, drawn rotated in the game so it reads as the
     # blade coming down with the dive.
     ("diveSlash", {"stack": [("", "upperslash.img")]}),
+    # 血之狂暴's crescent, which rides every normal attack rather than the cast.
+    # It had to move off the skill row when the skill row became the cast's own
+    # burst: one row cannot be both the burst and the swing.
+    ("rageSlash", {"stack": [("_frenzy", "blood-energy.img")]}),
+    # **The crescent that actually carries the dual-blade look.** The reference's
+    # swings are dominated by a fat cream brush arc, and the frenzy board has no
+    # such thing - `blood-energy` is the crimson trail that follows the blade.
+    # Measured off the owner's own contact sheet, that arc's core is (242,242,178)
+    # over an orange body; this entry's core is (255,243,181) over (255,120,0),
+    # which is the same two-tone brush. It lives on the client's `atblooddance`
+    # board, and it is the one thing on the swing the eye actually reads
+    # (docs/adr/0017).
+    ("rageCrescent", {"stack": [("_atblooddance", "blooddance_effect.img")]}),
+    # **The second blade.** 血之狂暴's dual-wield is not a second weapon in the
+    # body art - the client has no such animation, all 242 body frames carry one
+    # katana - it is these two layers drawn over the weapon's own slot, one per
+    # swing direction, each a blood-red redraw of equipped katana 5601 complete
+    # with its cyan guard. Owner's pick, rows 50/51 of the frenzy candidate sheet
+    # (docs/adr/0017).
+    ("rageBladeUnder", {"stack": [("_frenzy", "sword_blood_under.img")]}),
+    ("rageBladeUpper", {"stack": [("_frenzy", "sword_blood_upper.img")]}),
+    # The stance's **second beat**: ~0.7s after the burst the reference has a
+    # compact mass of blood gathering in his free hand (07_血之狂暴 f68-74,
+    # 36-42px across at 0.40 of his height in front of him and 0.80-1.27 up) and
+    # a short flash over his head. It plays on over a character who can already
+    # move, which is why it is its own row rather than part of the cast.
+    ("rageGather", {"stack": [("_frenzy", "blood-stone-start.img")]}),
 ]
 
 # Rows for art a move draws *over* the Slayer. DNF orders the layers of one

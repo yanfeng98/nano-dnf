@@ -60,8 +60,14 @@
   var SPRITE = {
     frameW: 208,
     frameH: 176,
-    /* 47 -> 57 when 暴走's body clip went in - see assets/import_dnf_swordman.py. */
-    cols: 57,
+    /*
+     * 47 -> 57 when 暴走's body clip went in, 57 -> 64 when 血之狂暴's cast became
+     * its own seventeen-frame motion. Both raises are the same hazard - an
+     * overflowing clip is truncated in silence - and both are explained in
+     * assets/import_dnf_swordman.py. Every `first` below was re-read off that
+     * bake's print, which is the only place the real layout comes from.
+     */
+    cols: 64,
     anchorX: 88,
     anchorY: 156,
     /*
@@ -224,7 +230,33 @@
          `clips` again since the sheet went 47 -> 57 for 暴走's ten frames -
          before that the row filled up before this clip and it spilled into
          `clips2`. Re-read these off the bake's own print, never by hand. */
-      frenzy: { row: 5, first: 42, frames: 9 },
+      /*
+       * 血之狂暴's cast: body 159-175, the owner's own pick - he stands, puts his
+       * arm out and holds it, which is the reference's second beat (07_血之狂暴
+       * f64-78) and where the blood gathers in his hand. It shares those frames
+       * with 嗜魂之手 on purpose; what separates the casts is the art over them,
+       * not the body.
+       */
+      frenzy: {
+        row: 5,
+        first: 42,
+        frames: 17,
+        /*
+         * **The cast is 1.4s and the motion is not spread evenly through it.**
+         * In the reference he stands for the first half - the burst goes off and
+         * the body turns red with his feet planted (f40-f58) - and only then does
+         * the arm go out (f64-f78). Laid out flat, seventeen frames over 1.4s is
+         * 12fps and the arm would creep out from the first instant, which is not
+         * what the clip does. So the six near-identical standing frames hold the
+         * front half and the eleven that carry the reach spend the back of it,
+         * the way 崩山击 paces its wind-up against its smash.
+         */
+        beats: [
+          { from: 0, until: 0.52, frames: 6 },
+          { from: 0.52, until: 0.85, frames: 8 },
+          { from: 0.85, until: 1, frames: 3 }
+        ]
+      },
       /*
        * 大蹦 opens on the 举剑 the owner asked for (body frames 123-124: both
        * hands over the head, the blade down in front of him) and drives it into
@@ -449,7 +481,13 @@
       mountainBreaker: 6,
       crossSlash: 34,
       bloodSword: 27,
-      frenzy: 20,
+      /*
+       * 血之狂暴's cast row: the pack's own 血气 burst, which is the closest thing
+       * the client has to the reference's spiked corona on the frame the stance
+       * lands (07_血之狂暴 #44-58). The crescent that rides the swings is on an
+       * extra row now, and so is the second blade.
+       */
+      frenzy: 13,
       bloodyRave: 17,
       /*
        * 怒气爆发 is a staged row like 大蹦's: the pool and the burst ring own
@@ -491,6 +529,40 @@
     /* 银光落刃's arc, on the extra row after the orbs. */
     diveRow: Core.SKILL_ORDER.length + 1,
     diveFrames: 9,
+    /* 血之狂暴's crimson trail, on the row after the dive arc. */
+    rageSlashRow: Core.SKILL_ORDER.length + 2,
+    rageSlashFrames: 20,
+    /*
+     * ... and the cream crescent that rides on top of it, which is the part of
+     * the swing the eye actually reads: measured off the owner's contact sheet
+     * the reference's arc core is (242,242,178), and this row's is (255,243,181)
+     * (docs/adr/0017).
+     */
+    rageCrescentRow: Core.SKILL_ORDER.length + 3,
+    rageCrescentFrames: 15,
+    /*
+     * **The second blade**, one row per swing direction - the pack's own
+     * blood-red redraw of equipped katana 5601, drawn over the weapon's slot so
+     * the swing reads as two blades. The body art never changes: there is no
+     * dual-wield animation in the client to switch to (docs/adr/0017). The
+     * under row carries 22 frames and the upper 19, because the bake trims each
+     * row to the frames that actually have ink in them.
+     */
+    rageBladeUnderRow: Core.SKILL_ORDER.length + 4,
+    rageBladeUnderFrames: 22,
+    rageBladeUpperRow: Core.SKILL_ORDER.length + 5,
+    rageBladeUpperFrames: 19,
+    /* The stance's second beat: the blood gathering in his free hand. */
+    rageGatherRow: Core.SKILL_ORDER.length + 6,
+    rageGatherFrames: 5,
+    /*
+     * How many rows assets/effects.png carries past the skill rows: the orb, the
+     * dive arc, the stance's crimson trail, cream crescent, two blade halves and
+     * second beat, and 大蹦's fire. The bake test reads this rather than a
+     * literal, so adding a row cannot leave the shipped atlas and the grid
+     * disagreeing.
+     */
+    extraRowCount: 8,
     /*
      * 大蹦 is the one move whose art is drawn far bigger than a cell can hold:
      * its own row on assets/effects.png would be ~120x72 px of art stretched
@@ -609,7 +681,53 @@
         anchor: "cast"
       },
       bloodSword: { dx: 30, dy: -32, size: 182, copies: 1, spin: 0 },
-      frenzy: { dx: 52, dy: -40, size: 150, copies: 1, spin: 0 },
+      /*
+       * 血之狂暴's cast. The burst goes off *around* him, not in front of him,
+       * and it is body-sized: the reference's corona on the frame the stance
+       * lands reaches 1.22-1.32 of his height up and 0.37-0.49 of it forward of
+       * his centre line (07_血之狂暴 #47-53), which is why it is centred on his
+       * middle and drawn bigger than the cell it comes from.
+       */
+      frenzy: { dx: 28, dy: -62, size: 130, copies: 1, spin: 0 },
+      /*
+       * ... and the crescent that rides every normal attack, which is a
+       * different read on a different frame: it hangs off the blade side. It
+       * used to share the frenzy row, and had to move when that row became the
+       * cast's burst - one row cannot be both (docs/adr/0017).
+       */
+      rageSlash: { dx: 52, dy: -40, size: 150, copies: 1, spin: 0 },
+      /*
+       * The cream brush arc, placed and sized off the owner's contact sheet
+       * rather than by eye. Measured on three separate swings of the reference
+       * (d037/d040/d046): the crescent's centre sits **on his own centre line,
+       * 0.35-0.54 of a Slayer-height above his feet** - his lower half, not his
+       * chest - and it spans **0.89-1.15 of his height across by 0.61-0.81 of it
+       * tall**. At our 84px Slayer that is 75-97px across, which is what
+       * `size x stretchX` has to come to; the first pass drew it 177px wide,
+       * twice the reference, and read as a ribbon flying round him.
+       */
+      rageCrescent: { dx: 2, dy: -30, size: 95, stretchX: 1.84, copies: 1, spin: 0 },
+      /*
+       * The second blade sits on the weapon, not out in front like the crescent:
+       * this offset is where the katana is in the *body* cell (the hand at about
+       * mid-torso, a little ahead of centre), because the effect bake centres
+       * each row on its own ink and the hand has to be stated here.
+       */
+      rageBlade: {
+        dx: 18,
+        dy: -28,
+        size: 98,
+        /*
+         * **Where the second blade sits relative to the first.** The pack ships
+         * the blood sword twice and the owner's read of rows 50/51 is "the dual
+         * blade's second sword" - but drawn on top of the equipped katana it just
+         * makes one sword with a red tint. The reference is explicit about the
+         * two (d029, d032, d050: the sword up, and a red blade shape behind and
+         * below it, which is the after-image the swing leaves), so the back half
+         * is offset down the arc the swing came from and reads as its own blade.
+         */
+        trail: [-30, 10]
+      },
       bloodyRave: { dx: 52, dy: -46, size: 170, copies: 1, spin: 0 },
       /*
        * 怒气爆发 erupts around him, and its two acts are drawn at the sizes the
@@ -674,6 +792,13 @@
      */
     timing: {
       mountainRift: { from: 0, to: 0.99 },
+      /*
+       * 血之狂暴's burst is a *window* in a 1.4s cast, not a wash over all of it:
+       * the reference's corona is f45-f58, which is 0.10s to 0.60s of a ceremony
+       * that starts at f40 - so it opens just after the body goes red and is gone
+       * by the time the arm starts to move.
+       */
+      frenzy: { from: 0.07, to: 0.45 },
       /*
        * 怒气爆发 opens on its own first frame and runs to its last. Neither end
        * is where the default window would put it: that one is derived from
@@ -1395,14 +1520,12 @@
     ctx.restore();
 
     var raging = !!(player.buffs && player.buffs.bloodRage > 0);
-    if (raging) drawRage(ctx, state, player);
 
     var image = sprites && sprites.slayer;
     if (!image || !image.width) {
       drawFallbackPlayer(ctx, state, player);
       drawBerserkThreads(ctx, state, player);
       drawBerserkCast(ctx, state, player, sprites);
-      if (raging) drawStanceBadge(ctx, state, sprites);
       return;
     }
     var frame = playerFrame(state, player);
@@ -1436,7 +1559,6 @@
      */
     drawBerserkThreads(ctx, state, player);
     drawBerserkCast(ctx, state, player, sprites);
-    if (raging) drawStanceBadge(ctx, state, sprites);
   }
 
   /*
@@ -1454,59 +1576,32 @@
     if (!brush) return null;
     brush.drawImage(image, 0, 0);
     brush.globalCompositeOperation = "source-atop";
-    brush.fillStyle = "rgba(214, 28, 44, 0.58)";
+    /*
+     * The *steady* red, not the flash. The reference has two and they are not
+     * the same paint: the burst on the frame the stance lands is (230,26,2),
+     * and what he settles into for as long as it is up is (184,63,47) - darker
+     * and browner (G/R 0.34 against the flash's 0.11). The steady one is the
+     * one that stays on screen, so it is the one this matches (docs/adr/0017).
+     */
+    brush.fillStyle = "rgba(196, 58, 40, 0.66)";
     brush.fillRect(0, 0, canvas.width, canvas.height);
     rageTint = { source: image, sheet: canvas };
     return canvas;
   }
 
-  /** The blood aura that reads as "the stance is up" even at a glance. */
-  function drawRage(ctx, state, player) {
-    var pulse = 0.86 + 0.14 * Math.sin(state.time * 9);
-    var cx = player.x;
-    var cy = feetY(player) - player.height * 0.5;
-    var radius = player.height * 0.95 * pulse;
-    ctx.save();
-    var glow = ctx.createRadialGradient(cx, cy, 2, cx, cy, radius);
-    glow.addColorStop(0, "rgba(255, 60, 78, 0.5)");
-    glow.addColorStop(0.6, "rgba(196, 18, 40, 0.25)");
-    glow.addColorStop(1, "rgba(150, 10, 28, 0)");
-    ctx.fillStyle = glow;
-    ctx.beginPath();
-    ctx.arc(cx, cy, radius, 0, Math.PI * 2);
-    ctx.fill();
-    /* Drops that run off him, so the state is not just a colour change. */
-    ctx.globalAlpha = 0.5 + 0.3 * Math.sin(state.time * 7);
-    ctx.fillStyle = "rgba(226, 32, 48, 0.9)";
-    for (var drop = 0; drop < 3; drop += 1) {
-      var t = (state.time * 0.9 + drop / 3) % 1;
-      var dx = Math.sin((state.time + drop) * 4) * 10;
-      ctx.beginPath();
-      ctx.arc(cx + dx, feetY(player) - player.height * (1 - t) - 6, 2.6 - 1.4 * t, 0, Math.PI * 2);
-      ctx.fill();
-    }
-    ctx.restore();
-  }
-
-  /** The buff icon over his head: atlas frame 135, the stance's own art. */
-  function drawStanceBadge(ctx, state, sprites) {
-    if (!sprites || !sprites.skills || !sprites.skills.width) return;
-    var slot = Core.SKILL_ORDER.indexOf("frenzy");
-    if (slot === -1) return;
-    var player = state.player;
-    var size = 22;
-    var x = player.x - size / 2;
-    var y = feetY(player) - player.height - 42;
-    ctx.save();
-    roundRect(ctx, x - 3, y - 3, size + 6, size + 6, 6);
-    ctx.fillStyle = "rgba(10, 12, 22, 0.72)";
-    ctx.fill();
-    ctx.strokeStyle = "rgba(226, 60, 78, 0.9)";
-    ctx.lineWidth = 1.4;
-    ctx.stroke();
-    ctx.drawImage(sprites.skills, slot * 32, 32, 32, 32, x, y, size, size);
-    ctx.restore();
-  }
+  /*
+   * There is deliberately nothing here for the stance's steady state.
+   *
+   * It used to draw a pulsing blood aura round him and keep a badge over his
+   * head. Both of them were invented: the reference has neither. Measured over
+   * `07_血之狂暴`'s steady stretch (f79-f106) the two bands either side of him
+   * hold **zero** non-black pixels - no threads, no particles, no ground glow -
+   * and the owner's own clip reads the same on a black background. The one
+   * "aura" in the reference is the spiked corona on the frame the stance lands,
+   * which is the cast's art and not a thing that hangs around (docs/adr/0017).
+   *
+   * The read for "it is up" is the red body and the lit hotbar slot.
+   */
 
   /*
    * 暴走's own read, for as long as the buff is up: four vertical red threads
@@ -2168,36 +2263,44 @@
     });
   }
 
-  /**
-   * The dual-blade flourish 血之狂暴 puts on every normal attack.
-   *
-   * The stance's own art rides the swing instead of the cast: the row is the
-   * layered blood energy the client draws around both blades, and it is timed
-   * off the normal attack's active window rather than a skill's.
+  /*
+   * How far into a normal attack the stance's own art should be, or -1 when he
+   * is not swinging one. The window is the attack's active window widened a
+   * little at both ends, so the art is already moving before the hit lands and
+   * still fading after it.
    */
-  function drawRageSlash(ctx, state, sprites) {
-    var player = state.player;
-    if (!player || player.dead) return;
-    if (!(player.buffs && player.buffs.bloodRage > 0)) return;
-    if (player.attackTimer <= 0) return;
-    if (!sprites || !sprites.effects || !sprites.effects.width) return;
-    var draw = EFFECT.draw.frenzy;
-    var row = Core.SKILL_ORDER.indexOf("frenzy");
-    if (!draw || row === -1) return;
-
+  function rageSwingLocal(player) {
+    if (!player || player.dead) return -1;
+    if (!(player.buffs && player.buffs.bloodRage > 0)) return -1;
+    if (player.attackTimer <= 0) return -1;
     var progress = clamp01(1 - player.attackTimer / player.attackDuration);
     var from = Math.max(0, Core.PLAYER.attackActiveFrom - 0.18);
     var to = Math.min(1, Core.PLAYER.attackActiveTo + 0.4);
-    if (progress < from || progress > to) return;
-    var local = clamp01((progress - from) / Math.max(0.0001, to - from));
-    var frames = EFFECT.rowFrames.frenzy || 4;
-    var column = Math.min(frames - 1, Math.floor(local * frames));
-    var size = draw.size * 0.9;
+    if (progress < from || progress > to) return -1;
+    return clamp01((progress - from) / Math.max(0.0001, to - from));
+  }
 
+  /*
+   * **The second blade.** 血之狂暴's dual-wield is not a second weapon baked
+   * into the body art - the client ships no such animation, and all 242 body
+   * frames carry one katana - it is this layer: the equipped sword redrawn
+   * blood-red, drawn over the weapon's slot as the swing plays. The pack ships
+   * it twice, `sword_blood_under` for the half that belongs behind the Slayer
+   * and `sword_blood_upper` for the half in front, which is how DNF orders the
+   * layers of one effect around a character. Both are the same sword, so this
+   * is one blade drawn twice around him, not two blades (docs/adr/0017).
+   */
+  function drawRageBlade(ctx, sprites, player, local, column, row, offset) {
+    if (local < 0 || column < 0 || row === undefined) return;
+    var draw = EFFECT.draw.rageBlade;
+    if (!draw) return;
+    var size = draw.size;
+    var dx = draw.dx + (offset ? offset[0] : 0);
+    var dy = draw.dy + (offset ? offset[1] : 0);
     ctx.save();
-    ctx.translate(player.x + player.facing * draw.dx * 0.55, feetY(player) + draw.dy * 0.55);
+    ctx.translate(player.x + player.facing * dx, feetY(player) + dy);
     ctx.scale(player.facing, 1);
-    ctx.globalAlpha = 1 - Math.max(0, (local - 0.7) / 0.3) * 0.6;
+    ctx.globalAlpha = 1 - Math.max(0, (local - 0.75) / 0.25) * 0.7;
     ctx.imageSmoothingEnabled = true;
     ctx.drawImage(
       sprites.effects,
@@ -2211,6 +2314,184 @@
       size
     );
     ctx.restore();
+  }
+
+  /**
+   * The dual-blade flourish 血之狂暴 puts on every normal attack, on the half
+   * of it that belongs behind him: the crescent the swing throws, and the
+   * behind-the-body copy of the blood blade.
+   *
+   * The stance's art rides the swing instead of the cast, and it is timed off
+   * the normal attack's active window rather than a skill's.
+   */
+  function drawRageSlash(ctx, state, sprites) {
+    if (!sprites || !sprites.effects || !sprites.effects.width) return;
+    var player = state.player;
+    var local = rageSwingLocal(player);
+    if (local < 0) return;
+
+    /*
+     * **One column for both halves.** The pack ships the same sword twice, once
+     * for behind the Slayer and once for in front, so the two rows have to be
+     * read at the *same* frame or the swing draws two blades in two different
+     * poses. The shorter row sets the ceiling: it is the one that would run out.
+     */
+    var bladeFrames = Math.min(EFFECT.rageBladeUnderFrames, EFFECT.rageBladeUpperFrames);
+    var bladeColumn = Math.min(bladeFrames - 1, Math.floor(local * bladeFrames));
+    var bladeDraw = EFFECT.draw.rageBlade;
+    drawRageBlade(
+      ctx,
+      sprites,
+      player,
+      local,
+      bladeColumn,
+      EFFECT.rageBladeUnderRow,
+      bladeDraw ? bladeDraw.trail : null
+    );
+
+    /* The crimson trail the blade leaves, then the brush arc over it. */
+    var trail = EFFECT.draw.rageSlash;
+    if (trail) {
+      placeEffectCell(
+        ctx,
+        sprites.effects,
+        EFFECT.rageSlashRow,
+        rowAt(local, EFFECT.rageSlashFrames || 4),
+        trail.size * 0.9,
+        player.x + player.facing * trail.dx * 0.55,
+        feetY(player) + trail.dy * 0.55,
+        player.facing,
+        swingFade(local, 0.7, 0.6)
+      );
+    }
+  }
+
+  /*
+   * One cell of the effect atlas, placed by its centre at a given alpha.
+   * `stretchX` widens it without making it taller: the stance's crescent is a
+   * *wide flat* arc in the reference (0.89-1.29 of his height across against
+   * 0.61-0.81 of it tall - an aspect of 1.4 to 1.9), and drawn square it comes
+   * out as an upright ring instead of the sweep the reference shows.
+   */
+  function placeEffectCell(ctx, sheet, row, column, size, x, y, facing, alpha, stretchX, additive) {
+    if (column < 0 || alpha <= 0) return;
+    var wide = size * (stretchX || 1);
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.scale(facing, 1);
+    ctx.globalAlpha = alpha;
+    /*
+     * **`lighter` is how DNF draws these.** The client's effects lean on additive
+     * blending - the repo's own importer says so ("DNF 靠调色板与叠加混合") - and
+     * it is the difference between a bundle of pale strokes and the *mass* of
+     * cream the reference shows: laid down additively, the strokes pile up in the
+     * middle of the arc until the core burns out to near-white, which is exactly
+     * what the reference's crescent looks like and what normal alpha can never
+     * reach however many of them are stacked.
+     */
+    if (additive) ctx.globalCompositeOperation = "lighter";
+    ctx.imageSmoothingEnabled = true;
+    ctx.drawImage(
+      sheet,
+      column * EFFECT.cell,
+      row * EFFECT.cell,
+      EFFECT.cell,
+      EFFECT.cell,
+      -wide / 2,
+      -size / 2,
+      wide,
+      size
+    );
+    ctx.restore();
+  }
+
+  /* How far through a row the swing is, and how much of it is left to show. */
+  function rowAt(local, frames) {
+    return Math.min(frames - 1, Math.floor(local * frames));
+  }
+
+  /* The tail of the swing, where the art starts going: full until `from`. */
+  function swingFade(local, from, amount) {
+    return 1 - Math.max(0, (local - from) / (1 - from)) * amount;
+  }
+
+  /**
+   * The swing's front pass: the half of the blood blade that belongs over him,
+   * and the cream crescent.
+   *
+   * **The crescent goes in front, and that is most of what makes it read.** It
+   * wraps *around* the Slayer rather than sitting behind him: put it in the back
+   * pass and his own body eats the middle of the sweep, which is exactly where
+   * its mass is. The reference's arc is drawn over him the same way - on the
+   * contact sheet it crosses his chest and his legs, not his silhouette.
+   */
+  function drawRageBladeFront(ctx, state, sprites) {
+    if (!sprites || !sprites.effects || !sprites.effects.width) return;
+    var player = state.player;
+    var local = rageSwingLocal(player);
+    if (local < 0) return;
+    var bladeFrames = Math.min(EFFECT.rageBladeUnderFrames, EFFECT.rageBladeUpperFrames);
+    drawRageBlade(
+      ctx,
+      sprites,
+      player,
+      local,
+      Math.min(bladeFrames - 1, Math.floor(local * bladeFrames)),
+      EFFECT.rageBladeUpperRow
+    );
+    drawRageCrescent(ctx, sprites, player, local);
+  }
+
+  /**
+   * The cream brush arc over everything else, built the way a trail is built:
+   * the blade's arc at several successive moments, all on screen at once.
+   *
+   * A single frame of this row is one thin arc and reads as nothing - measured
+   * on the owner's contact sheet the reference's crescent carries 11k-19k pale
+   * pixels at 0.89-1.29 of his height across, and one stroke of ours is 13-19x
+   * short of that. Laying the row's own frames over each other reconstructs the
+   * fan, because that is what the row *is*: an arc animating through the cut.
+   */
+  function drawRageCrescent(ctx, sprites, player, local) {
+    var crescent = EFFECT.draw.rageCrescent;
+    if (!crescent) return;
+    var frames = EFFECT.rageCrescentFrames || 4;
+    var live = rowAt(local, frames);
+    var x = player.x + player.facing * crescent.dx;
+    var y = feetY(player) + crescent.dy;
+    var fade = swingFade(local, 0.72, 0.75);
+    /*
+     * **Dense, and barely dimming.** The first pass used every other frame and
+     * dropped each one hard (1.0, 0.89, 0.78, ...), which left a fan of thin
+     * separated lines - and measured against the reference that is the same
+     * mistake as drawing one stroke, just less obviously: the reference's arc is
+     * a *mass* of cream with a few darker streaks through it, not a bundle of
+     * hairlines. So every frame of the span goes down, and the falloff is gentle
+     * enough that they pile up into a body.
+     *
+     * **...but a narrow span of them.** The second pass spread eleven frames and
+     * swept a closed ring round him; the reference is one wide open arc, maybe a
+     * third of a turn. Consecutive frames of this row are near-copies of one arc
+     * at slightly different angles, so a short run of them fans into a stroke
+     * instead of closing a loop.
+     */
+    for (var back = 0; back <= 9; back += 1) {
+      var column = live - back;
+      if (column < 0) continue;
+      placeEffectCell(
+        ctx,
+        sprites.effects,
+        EFFECT.rageCrescentRow,
+        column,
+        crescent.size,
+        x,
+        y,
+        player.facing,
+        fade * (1 - back * 0.04),
+        crescent.stretchX,
+        true
+      );
+    }
   }
 
   /**
@@ -2321,7 +2602,109 @@
     ctx.restore();
   }
 
-  function drawEffect(ctx, state, effect, bannerOrdinal) {
+  /*
+   * 血之狂暴's second beat: the blood gathering in his free hand, and the short
+   * flash over his head that goes with it.
+   *
+   * It follows him rather than sitting where he cast, because by the time it
+   * plays he can already move - the stance came up with the burst a beat earlier
+   * (docs/adr/0017). Measured off the reference: the mass is 36-42px across at
+   * 0.40 of his height in front of him and 0.80-1.27 of it above the ground
+   * (07_血之狂暴 f68-74), and the flash runs f65-70 over his head.
+   */
+  function drawRageGather(ctx, state, sprites, effect) {
+    if (!sprites || !sprites.effects || !sprites.effects.width) return;
+    var elapsed = effect.maxLife - effect.life;
+    if (elapsed < effect.delay) return;
+    var player = state.player;
+    if (!player || player.dead) return;
+    var span = Math.max(0.0001, effect.maxLife - effect.delay);
+    var t = clamp01((elapsed - effect.delay) / span);
+    /*
+     * It gathers and then goes: the mass shrinks away over the back half instead
+     * of blinking out, which is the difference between "gathering into his hand"
+     * and "a puff that was there for a moment".
+     */
+    var shrink = t < 0.6 ? 1 : 1 - (t - 0.6) / 0.4;
+    if (shrink <= 0) return;
+    /* 身位 is the height he is *drawn* at, which is taller than his body box. */
+    var slayerHeight = player.height * 1.3;
+    placeEffectCell(
+      ctx,
+      sprites.effects,
+      EFFECT.rageGatherRow,
+      rowAt(t, EFFECT.rageGatherFrames || 4),
+      46 * shrink,
+      player.x + player.facing * slayerHeight * 0.4,
+      feetY(player) - slayerHeight,
+      player.facing,
+      shrink
+    );
+    /* The star opens the beat - see drawRageStar. */
+    var starT = t / 0.45;
+    if (starT > 1) return;
+    drawRageStar(
+      ctx,
+      player.x,
+      feetY(player) - slayerHeight,
+      slayerHeight * 0.54,
+      0.95 * (starT < 0.35 ? 1 : 1 - (starT - 0.35) / 0.65)
+    );
+  }
+
+  /*
+   * **The star over his head** - and it is the loudest thing in the whole
+   * activation, which is why leaving it out made the release read as "a burst
+   * and then some red".
+   *
+   * No client board ships this one. It is the game's own "buff applied" flash,
+   * the same mark 暴走's reference draws (05_暴走 #63-68), and that is why 暴走's
+   * row has a blood burst standing in for it (docs/adr/0016). Drawn live instead,
+   * off `07_血之狂暴` f65-70: a white four-point core with cyan rays fanning off
+   * it, 124x110px against a 230px Slayer - 0.54 x 0.48 of him - centred on his
+   * own centre line with its middle at the top of his head, for six frames.
+   */
+  function drawRageStar(ctx, x, y, size, alpha) {
+    if (alpha <= 0) return;
+    var half = size / 2;
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.globalAlpha = alpha;
+    /* The rays: a fan of thin cyan spikes reaching past the core. */
+    ctx.strokeStyle = "rgba(120, 196, 236, 0.9)";
+    ctx.lineWidth = Math.max(1, size * 0.04);
+    ctx.lineCap = "round";
+    for (var i = 0; i < 12; i += 1) {
+      var angle = (i / 12) * Math.PI * 2 + Math.PI / 12;
+      var reach = half * (i % 3 === 0 ? 1.15 : 0.72);
+      ctx.beginPath();
+      ctx.moveTo(Math.cos(angle) * half * 0.25, Math.sin(angle) * half * 0.25);
+      ctx.lineTo(Math.cos(angle) * reach, Math.sin(angle) * reach);
+      ctx.stroke();
+    }
+    /*
+     * The core: a squat white four-point star. Two crossed diamonds rather than
+     * one symmetric star, because the reference's is much wider than it is tall.
+     */
+    ctx.fillStyle = "rgba(255, 255, 255, 0.95)";
+    ctx.beginPath();
+    ctx.moveTo(-half, 0);
+    ctx.lineTo(0, -half * 0.3);
+    ctx.lineTo(half, 0);
+    ctx.lineTo(0, half * 0.3);
+    ctx.closePath();
+    ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(0, -half * 0.8);
+    ctx.lineTo(half * 0.22, 0);
+    ctx.lineTo(0, half * 0.8);
+    ctx.lineTo(-half * 0.22, 0);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function drawEffect(ctx, state, effect, bannerOrdinal, sprites) {
     var alpha = clamp01(effect.life / effect.maxLife);
     /*
      * An effect's own depth, for the kinds that live on the floor. The banner
@@ -2335,12 +2718,20 @@
       var rise = (1 - alpha) * 28;
       ctx.save();
       ctx.globalAlpha = Math.min(1, alpha * 1.6);
-      ctx.font = "bold 20px 'Segoe UI', system-ui, sans-serif";
+      /*
+       * A miss rides the damage effect because it *is* that hit's readout -
+       * there is just no number in it. It is smaller and grey-blue rather than
+       * gold, so "I did nothing" can never read as "I did damage"
+       * (docs/adr/0018).
+       */
+      ctx.font = effect.miss
+        ? "bold 15px 'Segoe UI', system-ui, sans-serif"
+        : "bold 20px 'Segoe UI', system-ui, sans-serif";
       ctx.textAlign = "center";
       ctx.lineWidth = 3;
       ctx.strokeStyle = "rgba(12, 14, 24, 0.9)";
       ctx.strokeText(effect.text, effect.x, ey - rise);
-      ctx.fillStyle = "#ffe08a";
+      ctx.fillStyle = effect.miss ? "#b9c6d8" : "#ffe08a";
       ctx.fillText(effect.text, effect.x, ey - rise);
       ctx.restore();
     } else if (effect.kind === "heal") {
@@ -2419,6 +2810,8 @@
       );
       ctx.stroke();
       ctx.restore();
+    } else if (effect.kind === "rageGather") {
+      drawRageGather(ctx, state, sprites, effect);
     } else if (effect.kind === "ghost") {
       ctx.save();
       ctx.globalAlpha = alpha * 0.85;
@@ -2459,8 +2852,9 @@
       ctx.restore();
     }
 
-    if (effect.kind === "damage") {
-      /* sparks around every damage number */
+    if (effect.kind === "damage" && !effect.miss) {
+      /* sparks around every damage number - but never around a miss: nothing
+         connected, so nothing flies off it (docs/adr/0018). */
       var spark = 1 - alpha;
       ctx.save();
       ctx.globalAlpha = alpha * 0.8;
@@ -2723,15 +3117,34 @@
       var skill = skillId ? Core.SKILLS[skillId] : null;
       var cooldown = skill ? player.skillCooldowns[skillId] || 0 : 0;
       var ready = skill ? cooldown <= 0 && player.mp >= skill.mp && !player.dead : false;
+      /*
+       * A toggle stance that is up says so on its own slot, and that is the whole
+       * read for "血之狂暴 is running": the reference draws nothing round him and
+       * no icon over his head, so without this the only sign would be the colour
+       * of his body (docs/adr/0017). It is UI rather than an effect, which is
+       * exactly why it is allowed to exist where the aura was not.
+       */
+      var stanceUp = !!(
+        skill &&
+        skill.buff &&
+        skill.buff.toggle &&
+        player.buffs[skill.buff.id] > 0
+      );
 
       ctx.save();
-      ctx.fillStyle = ready ? "rgba(20, 28, 48, 0.92)" : "rgba(12, 14, 24, 0.9)";
+      ctx.fillStyle = stanceUp
+        ? "rgba(62, 14, 22, 0.95)"
+        : ready
+          ? "rgba(20, 28, 48, 0.92)"
+          : "rgba(12, 14, 24, 0.9)";
       roundRect(ctx, slot.x, slot.y, slot.w, slot.h, 6);
       ctx.fill();
       ctx.strokeStyle = skill
-        ? ready
-          ? "rgba(226, 191, 114, 0.85)"
-          : "rgba(96, 106, 136, 0.6)"
+        ? stanceUp
+          ? "rgba(240, 84, 96, 0.95)"
+          : ready
+            ? "rgba(226, 191, 114, 0.85)"
+            : "rgba(96, 106, 136, 0.6)"
         : "rgba(96, 106, 136, 0.4)";
       ctx.lineWidth = 1.4;
       roundRect(ctx, slot.x + 0.7, slot.y + 0.7, slot.w - 1.4, slot.h - 1.4, 6);
@@ -3290,6 +3703,11 @@
     add(inFront, function () {
       drawSkillEffectFront(ctx, state, sprites);
     });
+    /* 血之狂暴's blood blade passes in front of him as well as behind - see
+       drawRageBlade for why it is the same blade twice and not two blades. */
+    add(inFront, function () {
+      drawRageBladeFront(ctx, state, sprites);
+    });
     (state.fields || []).forEach(function (field) {
       add((field.z || 0) - LAYER_GAP, function () {
         drawField(ctx, state, sprites, "front", field);
@@ -3339,7 +3757,13 @@
     var bannerOrdinal = 0;
     state.effects.forEach(function (effect) {
       if (effect.kind === "banner" && overlayOpen) return;
-      drawEffect(ctx, state, effect, effect.kind === "banner" ? bannerOrdinal++ : 0);
+      drawEffect(
+        ctx,
+        state,
+        effect,
+        effect.kind === "banner" ? bannerOrdinal++ : 0,
+        sprites
+      );
     });
     ctx.restore();
 
