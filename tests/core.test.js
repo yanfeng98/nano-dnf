@@ -2075,7 +2075,11 @@ test("the shipped sprite sheet matches the frame grid the renderer expects", () 
     bloodblade: 7,
     /* 崩山击's own clip again, filled with the reference's yellow: the one frame
      * of him the clip paints flat (see the apex-flash test below). */
-    flare: 8
+    flare: 8,
+    /* 血之狂暴's own swing: the body's 188-209, on its own row at the bottom. */
+    rage: 9,
+    /* ... and the client's own slash arc alone, graded to cream. */
+    ragearc: 10
   });
   /*
    * Long actions need room: the sheet carries twelve columns so a full DNF run
@@ -2354,6 +2358,51 @@ test("崩山击 flashes yellow at the top of its hop, behind him", () => {
     /drawSpriteFrame\(ctx, image, frame\.col, SPRITE\.rows\.flare, player\.x, feetY\(player\),\s*\n\s*player\.facing < 0, flare\.scale\);/,
     "off the plain sheet, scaled by what the clip declares"
   );
+});
+
+test("血之狂暴's chain still comes round: its window scales with its slower swing", () => {
+  /*
+   * The owner, after the stance's swings got their own 22-frame animation:
+   * 「是不是少动作了」. They were: the combo window was a flat 0.45s, the stance
+   * made a press last 0.44s, and by the time the next press was allowed the
+   * window had run out - `comboIndex` never left 0, so a chain that walks three
+   * swings only ever played the first of them (8 of the 22 frames).
+   *
+   * So this pins the two numbers that have to agree: a press may be taken as soon
+   * as `attackCooldown` allows, and the window a press opens has to outlast that.
+   */
+  const state = Core.createState({ seed: 11 });
+  const base = state.player.attackDuration;
+  state.player.buffs.bloodRage = Infinity;
+  const speed = Core.attackSpeedOf(state.player);
+  const swing = (base / speed) * Core.FPS;
+  assert.ok(speed < 1, "the stance swings slower than his own combo");
+
+  /* Mash X the moment the game allows it, and watch the indexes come round. */
+  const seen = new Set();
+  for (let i = 0; i < 12 * Core.FPS; i += 1) {
+    const player = state.player;
+    const ready =
+      player.attackTimer <= 0 && player.attackCooldown <= 0 && player.skillTimer <= 0;
+    Core.step(state, ready ? { attack: true } : {});
+    if (player.attackTimer > 0) seen.add(player.comboIndex);
+  }
+  assert.deepEqual(
+    [...seen].sort(),
+    [0, 1, 2],
+    "mashing walks the whole chain instead of replaying its first cut"
+  );
+
+  /* And the window a press opens is longer than the slowest press it must catch. */
+  state.player.attackTimer = 0;
+  state.player.attackCooldown = 0;
+  Core.step(state, { attack: true });
+  const cycle = state.player.attackCycle;
+  assert.ok(
+    state.player.comboTimer > cycle * 0.95,
+    `the window (${state.player.comboTimer.toFixed(2)}s) must outlast the press cycle (${cycle.toFixed(2)}s)`
+  );
+  assert.ok(swing > 0, "sanity: the swing has frames to play");
 });
 
 test("one press plays one stage of the normal attack, and attack speed sets the pace", () => {
@@ -4425,7 +4474,12 @@ test("血之狂暴 is a stance with no timer, and casting it again takes it down
   Core.runFrames(state, 60, {});
 
   assert.ok(state.player.buffs.bloodRage > 0, "the stance goes up");
-  assert.ok(Core.attackSpeedOf(state.player) > baseSpeed, "the stance buys attack speed");
+  /*
+   * **The stance makes his cuts slower, not faster** (0.8, the owner's number -
+   * see Core.SKILLS.frenzy.buff.attackSpeed): 22 body frames inside a 0.176s cut
+   * was a flick rather than a swing. What it still buys is power.
+   */
+  assert.ok(Core.attackSpeedOf(state.player) < baseSpeed, "the stance slows the swing down");
 
   /*
    * The opening cut comes off max HP rather than being a flat number, so it
@@ -4449,7 +4503,7 @@ test("血之狂暴 is a stance with no timer, and casting it again takes it down
     state.player.hp < hpAfterCast,
     "and it keeps charging him for as long as it is up"
   );
-  assert.ok(Core.attackSpeedOf(state.player) > baseSpeed, "it is still up a minute later");
+  assert.ok(Core.attackSpeedOf(state.player) < baseSpeed, "it is still up a minute later");
 
   /* Cooldowns run fast while it is up ... */
   state.player.skillCooldowns.upSlash = 4;
@@ -4787,7 +4841,7 @@ test("the stance paints him red, carries a second blade and draws nothing else",
   const sprites = {
     slayer: { width: 8736, height: 1232 },
     skills: { width: 32 * Core.SKILL_ORDER.length, height: 64 },
-    effects: { width: 5760, height: 128 * (Core.SKILL_ORDER.length + 6) }
+    effects: { width: 5760, height: 128 * (Core.SKILL_ORDER.length + Render.EFFECT.extraRowCount) }
   };
   const rowOf = (calls, image, row) =>
     calls.filter(
@@ -4835,22 +4889,26 @@ test("the stance paints him red, carries a second blade and draws nothing else",
     "and the half in front of him"
   );
 
-  /* The crimson trail rides the same swing, off its own row now that the skill
+  /* The red brush fan rides the same swing, off its own row now that the skill
      row is the cast's burst. */
   assert.ok(
     rowOf(raging, sprites.effects, Render.EFFECT.rageSlashRow).length >= 1,
-    "the swing carries the stance's own crimson trail"
+    "the swing carries the stance's own red fan"
   );
   /*
-   * ... and over it, the cream crescent, which is the part of the swing the eye
-   * actually reads. It is a *fan*: several successive arcs of the row laid over
-   * each other, because one arc of it alone is 13-19x short of the ink the
-   * reference's crescent carries (docs/adr/0017).
+   * **The cream trail is the *second* sword's** (the owner read the reference
+   * apart frame by frame: 「奶油颜色的应该是第二把剑的剑影」), laid on that blade's
+   * own per-frame positions. The *first* sword's pale arc is the client's own,
+   * in the body cells, and is left alone (docs/adr/0019).
    */
-  assert.ok(
-    rowOf(raging, sprites.effects, Render.EFFECT.rageCrescentRow).length > 1,
-    "the crescent is a fan of strokes, not one"
+  assert.equal(Render.EFFECT.rageSwipeRows, undefined, "no separate crescent rows out here");
+  assert.equal(
+    Render.EFFECT.extraRowCount,
+    7,
+    "the extra rows are the orb, the dive arc, the red fan, the two blades, the gathering and 大蹦's fire"
   );
+  state.player.comboIndex = 0;
+  state.player.attackTimer = state.player.attackDuration * 0.5;
   assert.equal(
     rowOf(raging, sprites.effects, Core.SKILL_ORDER.indexOf("frenzy")).length,
     0,
@@ -4865,12 +4923,12 @@ test("the stance paints him red, carries a second blade and draws nothing else",
   assert.equal(
     rowOf(swing, sprites.effects, Render.EFFECT.rageSlashRow).length,
     0,
-    "no stance, no crimson trail"
+    "no stance, no red fan"
   );
   assert.equal(
-    rowOf(swing, sprites.effects, Render.EFFECT.rageCrescentRow).length,
+    rowOf(swing, sprites.effects, Render.EFFECT.rageSlashRow).length,
     0,
-    "no stance, no crescent"
+    "no stance, no red fan either"
   );
   assert.equal(
     rowOf(swing, sprites.effects, Render.EFFECT.rageBladeUpperRow).length,
@@ -4931,8 +4989,8 @@ test("the three new DNF skills land their hits and statuses", () => {
   assert.ok(state.player.buffs.bloodRage > 0, "血之狂暴 goes up");
   assert.ok(state.player.hp < hpBeforeBuff, "血之狂暴 costs HP to keep");
   assert.ok(
-    Core.attackSpeedOf(state.player) > speedBeforeBuff,
-    "血之狂暴 speeds the Slayer up"
+    Core.attackSpeedOf(state.player) < speedBeforeBuff,
+    "血之狂暴 slows the swing down (its own animation needs the time)"
   );
   assert.equal(near.hp, 400, "血之狂暴 is a stance, not a damage move");
   /* Let the stance finish casting before the next skill - it is a long one. */
@@ -5227,6 +5285,41 @@ test("the renderer picks the sprite row that matches the player state", () => {
   state.player.comboTimer = Core.PLAYER.comboWindow;
   state.player.comboIndex = 0;
   assert.equal(renderIdle()[3], Render.SPRITE.frameH * 2, "attacks use the attack row");
+
+  /*
+   * **With the stance up the cut is its own animation.** 血之狂暴's swings are
+   * the body's 188-209 (the owner picked the frames): three swings over the
+   * three-hit chain, and the client's blood-sword row is drawn against them
+   * frame for frame. The column comes off the *combo*, so the chain walks the
+   * whole animation once instead of restarting it every press (docs/adr/0019).
+   */
+  const rage = Render.SPRITE.rageSwing;
+  const arc = Render.SPRITE.rageArc;
+  state.player.buffs.bloodRage = Infinity;
+  const raging = renderIdle();
+  /*
+   * Two draws, both of them the stance's own: the swing's body art, and the
+   * client's slash arc (lifted to its own row and graded to cream) over it.
+   */
+  const rows = calls
+    .filter((call) => call[0] === "drawImage" && call[1] === sheet && call[6] === -Render.SPRITE.anchorX)
+    .map((call) => call[3] / Render.SPRITE.frameH);
+  assert.ok(
+    rows.indexOf(rage.row) >= 0,
+    "the stance's attack is its own clip, not the katana chain"
+  );
+  assert.ok(rows.indexOf(arc.row) >= 0, "and its own arc rides over it");
+  assert.ok(
+    raging[2] >= rage.first * Render.SPRITE.frameW &&
+      raging[2] < (rage.first + rage.frames) * Render.SPRITE.frameW,
+    "and it is drawn from that clip's own columns"
+  );
+  state.player.buffs.bloodRage = 0;
+  assert.equal(
+    renderIdle()[3],
+    Render.SPRITE.frameH * 2,
+    "with the stance down the katana chain is back"
+  );
 
   /*
    * The cut's frames span the whole press cycle, so its recovery keeps the

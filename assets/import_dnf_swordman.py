@@ -24,7 +24,9 @@ import io
 import pathlib
 import sys
 
+import numpy as np
 from PIL import Image, ImageDraw
+from scipy import ndimage
 
 from pydnfex.img.image.format import FormatConvertor
 from pydnfex.img.version import IMGFactory
@@ -57,7 +59,12 @@ FRAME_H = 176
 COLS = 64
 ANCHOR_X = 88
 ANCHOR_Y = 156
-ROWS = ["idle", "run", "attack", "skill", "extras", "clips", "clips2", "bloodblade", "flare"]
+ROWS = ["idle", "run", "attack", "skill", "extras", "clips", "clips2", "bloodblade", "flare",
+        # 血之狂暴's own swing - see CELLS["rage"] - and, right below it, the
+        # client's slash arc alone (`ragearc`). The order is what the renderer's
+        # `SPRITE.rows` names: rage 9, ragearc 10, and a swap of the two draws the
+        # graded copy of the whole Slayer as his swing (docs/adr/0019).
+        "rage", "ragearc"]
 
 # Per-move body animations, picked by the owner off the body sheet next to each
 # skill's own client clip. Only the picked frames go in: widening them to their
@@ -273,6 +280,17 @@ CELLS = {
     # 上挑 is sm_body0048's 42-50, one frame earlier on that sheet).
     "skill": [194, 196, 197, 198, 199, 200] + list(range(43, 52)),
     "extras": [100, 102, 232, 236, 240, 241, 101, 103, 233, 237, 238, 239],
+    # **血之狂暴's swing, and the owner named the frames himself (2026-10-03):
+    # 「真正的角色动作帧在 frames-182-241.png 中的 188-209」.** Twenty-two frames
+    # carrying **three swings** - 188-193 opens with the blade low and sweeps,
+    # 194-200 raises and sweeps again, 201-209 lifts the blade over his head and
+    # puts the last one through - which is why our three-hit combo plays one
+    # segment per hit and not all 22 at once (src/render.js SPRITE.rageSwing).
+    #
+    # It matches the client's blood-sword rows frame for frame: that art is 22
+    # frames and its blade is at the grip of body 188+k for sword frame k
+    # (docs/adr/0019).
+    "rage": list(range(188, 210)),
 }
 
 
@@ -526,6 +544,73 @@ BLOOD_BLADE = [
 ]
 
 
+# **血之狂暴's own slash arc, on its own row.** The arc the reference shows is drawn by the
+# client *in the weapon layer* of its own 188-209: frames 190/196/202/206 carry the katana
+# with a big crescent swept out of it, so it varies from swing to swing exactly like the
+# reference's does. A row of ours built any other way is one arc repeating, which is what the
+# owner saw: 「好像就两个剑影不停循环，不如参考的自然」 (docs/adr/0019).
+#
+# This row is that arc **alone**: the weapon layer's own frames, masked to its *bright
+# neutral* pixels (the blade is silver, 110-190; the arc is white, above 190) and graded to
+# the reference's cream. The renderer draws it over the body cell, a few pixels along the
+# swing, and that is the second sword's trail.
+# The floor separates the arc from the blade it was drawn beside: measured over
+# these frames the blade's silver sits at 110-190 and the arc's body at
+# (236,233,233), so 205 takes the arc and leaves the katana out of this row
+# (at 190 the blade's highlights came along and the second copy doubled it).
+RAGE_ARC_FLOOR = 205
+RAGE_ARC_RAMP = [
+    (0.00, (150, 138, 104)),
+    (0.62, (200, 198, 175)),
+    (0.80, (224, 222, 181)),
+    (0.92, (242, 241, 181)),
+    (1.00, (246, 245, 190)),
+]
+
+
+def rage_arc_layer(picture: Image.Image) -> Image.Image:
+    """The weapon layer's arc alone, graded to the reference's cream."""
+    out = picture.copy().convert("RGBA")
+    pixels = out.load()
+    tables = []
+    for channel in range(3):
+        table = []
+        for value in range(256):
+            level = value / 255.0
+            if level <= RAGE_ARC_RAMP[0][0]:
+                table.append(RAGE_ARC_RAMP[0][1][channel])
+                continue
+            for index in range(1, len(RAGE_ARC_RAMP)):
+                low, high = RAGE_ARC_RAMP[index - 1], RAGE_ARC_RAMP[index]
+                if level <= high[0]:
+                    span = max(1e-6, high[0] - low[0])
+                    blend = (level - low[0]) / span
+                    table.append(round(low[1][channel] + (high[1][channel] - low[1][channel]) * blend))
+                    break
+            else:
+                table.append(RAGE_ARC_RAMP[-1][1][channel])
+        tables.append(table)
+    # **The floor alone is not enough.** The katana is silver and its *highlights*
+    # are as bright as the arc, so a plain flood of `high > FLOOR` takes slivers
+    # of the blade with it - drawn over the body that is a **white sword on a red
+    # Slayer**, and the cream arc underneath read as missing (「角色还不泛红了，
+    # 变成白色了」). So the mask keeps only its **largest connected blob**: the arc
+    # is one big sweep, the blade's highlights are thin slivers.
+    array = np.asarray(out).copy()
+    high = array[..., :3].max(2)
+    low = array[..., :3].min(2)
+    mask = (array[..., 3] > 60) & ((high - low) < 40) & (high > RAGE_ARC_FLOOR)
+    labels, count = ndimage.label(mask, structure=np.ones((3, 3)))
+    if count:
+        sizes = ndimage.sum(mask, labels, range(1, count + 1))
+        mask = labels == int(np.argmax(sizes)) + 1
+    array[..., 3] = np.where(mask, array[..., 3], 0)
+    levels = array[..., :3].max(2)
+    for channel in range(3):
+        array[..., channel] = np.where(mask, np.array(tables[channel], dtype="uint8")[levels], array[..., channel])
+    return Image.fromarray(array.astype("uint8"), "RGBA")
+
+
 def blood_blade(cell: Image.Image) -> Image.Image:
     """One body cell with the sword's silver pixels pushed to blood red."""
     out = cell.copy()
@@ -605,7 +690,7 @@ def build(client: pathlib.Path, force: bool) -> Image.Image:
     placed_mountain_rift = []
     placed_mountain_breaker = []
     for row, name in enumerate(ROWS):
-        if name in ("bloodblade", "flare"):
+        if name in ("bloodblade", "flare", "ragearc"):
             continue                 # filled from their own clip's cells, after the loop
         if name in CLIP_ROWS:
             if clip_row >= len(CLIPS):
@@ -641,6 +726,28 @@ def build(client: pathlib.Path, force: bool) -> Image.Image:
             cell = Image.new("RGBA", (FRAME_W, FRAME_H), (0, 0, 0, 0))
             place(cell, frame, x, y, foot)
             sheet.alpha_composite(cell, (col * FRAME_W, row * FRAME_H))
+    # 血之狂暴's arc, alone on its own row (`ragearc`): the weapon layer's own frames 188-209,
+    # masked to the arc and graded to the reference's cream. `place` needs the frame's own box
+    # and the *body's* foot for that instant, which is what `composed_frame` hands back.
+    arc_row = ROWS.index("ragearc")
+    # **Both weapon layers.** The client draws the equipped sword twice - `_b`
+    # behind the Slayer and `_c` in front - and it is `_c` that carries the arc on
+    # these frames (at 190 `_b` is a 1x1 stub and `_c` is 133x94 of blade and
+    # arc). Both are read and masked, so neither order of the layers is assumed.
+    weapons = [dict(layer_frames)[key] for key in ("weapon_b", "weapon_c")]
+    for col, index in enumerate(CELLS["rage"][:COLS]):
+        _frame, _x, _y, foot = composed_frame(layer_frames, overlay_frames, index)
+        cell = Image.new("RGBA", (FRAME_W, FRAME_H), (0, 0, 0, 0))
+        for weapon in weapons:
+            if index >= len(weapon):
+                continue
+            picture, wx, wy = weapon[index]
+            # A 1x1 stub means this layer has no blade in this frame; the composed
+            # frame skips those too.
+            if is_stub(picture):
+                continue
+            place(cell, rage_arc_layer(picture), wx, wy, foot)
+        sheet.alpha_composite(cell, (col * FRAME_W, arc_row * FRAME_H))
     # 大蹦's blood blade: the same cells again, one row down, with the katana's
     # own pixels pushed red. Only the frames where the move has the sword out in
     # its blood form - the raise (123/124) and the stand he ends on (132) keep

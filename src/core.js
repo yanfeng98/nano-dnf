@@ -592,7 +592,47 @@
         id: "bloodRage",
         duration: Infinity,
         toggle: true,
-        attackSpeed: 1.25,
+        /*
+         * **0.8, not 1.25: the stance makes his cuts slower, not faster.**
+         *
+         * It has been 1.25 (a fifth quicker than his own combo) since the slice
+         * that made this a stance, and the owner only saw what that cost once the
+         * swings got their own animation: 「我看了确实是，但是应该是攻速太快」 -
+         * 22 body frames were being played inside a 0.176s cut, and on screen that
+         * is a flick, not a swing. The reference's own swing takes ~0.3s
+         * (docs/adr/0019 decision 8), and 0.8 lands this one at 0.275s.
+         *
+         * **0.5, and the second half of the same note from the owner**: 「是不是少
+         * 动作了，感觉原版的一套要运行 2s 钟左右，能看清动作」. At 0.8 a press lasted
+         * 0.275s and the whole three-swing chain ~0.9s, so the 22 frames went by at
+         * ~30fps - close to the client's own rate, but in a game you are *playing*
+         * that reads as skipping frames rather than swinging. 0.5 puts one press at
+         * 0.44s and the chain at ~1.5-1.8s, which is the ~2s he reads off the
+         * reference.
+         *
+         * **0.85, and it is a measurement off the reference, not an estimate.**
+         * The owner, after playing the 0.4 build: 「我怎么感觉源码的更丝滑，也更连贯，请你仔细
+         * 量一下 BV1W9Gx6LELk.mp4」. Measured off that clip at 30fps: it advances ~12 *new*
+         * poses a second (15 of its frames are duplicates - the recording is 30fps, the game is
+         * not), which is the 13fps ours already runs at; what differs is the *swing*: the
+         * reference's cream flashes at t=3.67 and again at t=3.93, so **one swing is ~0.26s**,
+         * where our 0.4 made it 0.55s - 2.1x slower, which is what "not smooth" was. 0.85 puts
+         * ours at 0.26s and the three-swing chain at ~0.8s, which is the clip's own 0.8-1.0s.
+         * (The earlier 0.4 came from a spoken 「一套要运行 2s 左右」; the clip says ~1s.)
+         *
+         * **0.4, and the last of the three notes**: 「三个动作之间连贯性不好，感觉停了好久」.
+         * The gap was the recovery between presses, not the swing - a chain press
+         * now comes as soon as the swing ends (see the attack branch), so the
+         * three swings run back to back. What is left is how long each swing is:
+         * 0.55s here, which puts the whole set at ~1.7s with 22 frames playing at
+         * ~13fps.
+         *
+         * It is a *taste* number and the owner set it: the stance keeps its
+         * `attackPower: 1.25`, so what it gives up in rate it still pays back in
+         * damage. Everything else that reads attack speed (upgrades, 暴走's own
+         * 1.4) multiplies on top of this and is untouched.
+         */
+        attackSpeed: 0.85,
         cooldownScale: 1.4,
         attackPower: 1.25,
         /*
@@ -2632,7 +2672,17 @@
       input.attack &&
       player.attackTimer <= 0 &&
       player.skillTimer <= 0 &&
-      player.attackCooldown <= 0
+      /*
+       * **A chain press may come during the recovery.** The cooldown exists to
+       * stop a *fresh* press being spammed; it is not meant to put a gap between
+       * two cuts of one chain, and the owner heard that gap the moment the
+       * stance's swings got long: 「三个动作之间连贯性不好，感觉停了好久」 -
+       * a 0.44s swing followed by 0.32s of standing still. The combo timer is
+       * what says the chain is still alive, so a press inside it is taken as
+       * soon as the swing is over; once it lapses the cooldown still gates the
+       * next press exactly as before.
+       */
+      (player.attackCooldown <= 0 || player.comboTimer > 0)
     ) {
       var nextStage = player.comboTimer > 0 ? (player.comboIndex + 1) % PLAYER.maxCombo : 0;
       player.attackDuration = swingDuration(player);
@@ -2647,7 +2697,16 @@
       player.attackCycle = player.attackDuration + PLAYER.attackCooldown / attackSpeedOf(player);
       player.attackCooldown = player.attackCycle;
       player.comboIndex = nextStage;
-      player.comboTimer = PLAYER.comboWindow;
+      /*
+       * **The combo window scales with the swing, or a slow swing never chains.**
+       * It was a flat `PLAYER.comboWindow` (0.45s). That is longer than a normal
+       * cut (0.22s) so it never showed, and the moment 血之狂暴 slowed his swing
+       * to 0.44s it showed on every one of them: the window expired while the
+       * cut was still playing, `comboIndex` never left 0, and the stance's
+       * animation - 22 frames carrying three swings - only ever played its first
+       * eight. The owner read exactly that: 「是不是少动作了」.
+       */
+      player.comboTimer = PLAYER.comboWindow / attackSpeedOf(player);
       player.attackHitDone = false;
     }
 

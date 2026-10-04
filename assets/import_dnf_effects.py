@@ -157,7 +157,17 @@ def ref(frame: int, first: int = 22, last: int = 55) -> float:
 #   one layer  - a stack entry may carry, after its name, a scale factor, a
 #                colour board of its own, and an (dx, dy) offset: the client
 #                sizes and scatters some layers from the skill's animation data,
-#                which the export does not carry
+#                which the export does not carry.
+#                Two more sit after the offset, and 血之狂暴's swings are why
+#                they exist (docs/adr/0019): the **frames** to take from that
+#                entry - a half-open slice `(first, last)`, `(first, None)` for
+#                "to the end", or a list of frame numbers when the row wants the
+#                fat ones and not the ones between them - and a **ramp**, the
+#                same recolouring a stage can name, for a row whose colour is on
+#                no board the pack ships (CRESCENT_RAMP). A seventh element
+#                scales the layer's own alpha up instead of down (see solidify);
+#                the swipe rows are baked with it because the reference draws
+#                that brush solid and the pack draws it soft.
 #   "*"        - every entry of that pack in the selected colour board
 #
 # Every DNF effect pack ships the same shapes several times: the plain entry plus
@@ -227,6 +237,57 @@ BODY_RAMP = [
     (0.45, (96, 11, 7)),
     (1.00, (170, 32, 20)),
 ]
+# 血之狂暴's crescent, and this is the third time a row has needed a ramp for the
+# same reason (大蹦's fire, 怒气爆发's blood): **the pack ships no board in the
+# colour the reference draws.** The stance's swings come out of its own pack
+# (rage/attack01-03, see docs/adr/0019) and that art is red, then gold - the red
+# pass measures (166,0,0) and the gold one (184,126,87) at its very best. The
+# reference's crescent is neither: sampled off the owner's contact sheet, over
+# the three clearest panels (d037/d040/d066) and with his own body masked out,
+# **66% of its mass is (242,241,181)** and what runs through it is olive - not
+# red. Binned by each pixel's brightest channel:
+#
+#   level   70-119    120-159   160-189   190-214   215-234   235-255
+#   mean  (91,75,55) (138,130,109) (174,169,144) (200,198,179) (224,222,181) (242,241,181)
+#   share    11%        6%         5%         8%         5%         66%
+#
+# So the row is ramped through the reference's own numbers, exactly the way the
+# fire is: the art's shading survives (its dull rim stays dark, its core lands
+# on the reference's ivory) and every pixel's three channels come off one stop,
+# which is what keeps the mass *neutral* - a per-channel tint would leave the
+# red board's blue at zero and make a red crescent all over again.
+#
+# The stops are placed by the **art's own percentiles**, not by its levels: the
+# two distributions are not the same shape (the reference is 66% ivory and
+# almost nothing between, the pack's brush is a long gradient), so a ramp that
+# put "level 0.9" on ivory left ours mid-grey and translucent. Read off the
+# three swings' own ink - p5 40, p11 56, p20 80, p30 104, p50 160, p70 224 - and
+# laid on the reference's bins:
+#
+#   art p5-11 (56)  -> (91,75,55)     the olive the reference's streaks measure
+#   art p20   (80)  -> (150,140,112)
+#   art p30   (104) -> (200,198,175)
+#   art p50   (160) -> (242,241,181)  two thirds of the reference's mass
+#   art p70+  (224) -> (248,247,190)
+CRESCENT_RAMP = [
+    (0.00, (16, 12, 8)),
+    (0.16, (91, 75, 55)),
+    (0.31, (150, 140, 112)),
+    (0.41, (200, 198, 175)),
+    (0.55, (230, 229, 182)),
+    (0.63, (242, 241, 181)),
+    (1.00, (248, 247, 190)),
+]
+# **Do not add a correction for the arena.** The built frame reads about a fifth
+# under these stops near the edge of the screen, and that is `drawVignette`: it
+# lays up to rgba(0,0,0,0.55) over everything away from the arena's middle, so
+# the character's own corner costs the brush a third of its brightness. The
+# reference is a training room with a black floor and no vignette at all. A ×1.22
+# was tried on these stops to make up for it and taken back out - the row is the
+# reference's colour, and the difference between the picture and the reference is
+# the arena's, which is `0008`'s lesson read from the other end: measure the
+# baked cell, not the screenshot.
+
 # 怒气爆发's blood, and the ramp exists because the pack's own plain board is a
 # flat deep red with no highlight to speak of: drawn as exported its ring comes
 # out (111,6,2) and its column (167,15,6) against the clip's (204,26,5) and
@@ -903,34 +964,106 @@ PICKS = {
     "berserk": {"stack": [("_frenzy", "blood-start.img")]},
 }
 
+# **Where the cream trail sits, column by column: on the *second* sword.**
+# The owner read the reference apart frame by frame: 「奶油颜色的应该是第二把剑的剑影」 -
+# the white arc is the *first* sword's (the client draws it in the weapon layer of its own
+# 188-209), and the cream one is what the blood blade leaves. So these columns are laid on
+# `frenzy/sword_blood_upper.img` - the second sword's own 22-frame position table - each
+# one anchored by the arc's top edge at the blade's x, so the trail hangs off the second
+# blade the way the reference's does. `draw.rageSwipe.dy` then carries the reference's
+# height (its crescent sits 0.47 Slayer-heights over the feet). See docs/adr/0019.
+
+
 # Rows after the skill rows, for art a move needs away from its own cast. The
-# owner picked all four of the 血之狂暴 entries out of that skill's own pack and
-# gave them different jobs. The orbs used to ride along inside the dual-blade
-# row, which put a slash arc on every drop of blood that flew into the character.
+# 血之狂暴 rows are the ones the borrow went wrong on: the stance's swings live
+# in `sprite_character_swordman_effect_rage.NPK` (see `docs/adr/0019`), while the
+# orbs, the blood blade and the gathering blood are taken from the frenzy board.
+# The orbs used to ride along inside the dual-blade row, which put a slash arc on
+# every drop of blood that flew into the character.
 EXTRA_ROWS = [
     ("bloodOrb", {"stack": [("_frenzy", "blood-stone-0.img")]}),
     # 银光落刃: the up-slash arc, drawn rotated in the game so it reads as the
     # blade coming down with the dive.
     ("diveSlash", {"stack": [("", "upperslash.img")]}),
-    # 血之狂暴's crescent, which rides every normal attack rather than the cast.
-    # It had to move off the skill row when the skill row became the cast's own
-    # burst: one row cannot be both the burst and the swing.
-    ("rageSlash", {"stack": [("_frenzy", "blood-energy.img")]}),
-    # **The crescent that actually carries the dual-blade look.** The reference's
-    # swings are dominated by a fat cream brush arc, and the frenzy board has no
-    # such thing - `blood-energy` is the crimson trail that follows the blade.
-    # Measured off the owner's own contact sheet, that arc's core is (242,242,178)
-    # over an orange body; this entry's core is (255,243,181) over (255,120,0),
-    # which is the same two-tone brush. It lives on the client's `atblooddance`
-    # board, and it is the one thing on the swing the eye actually reads
-    # (docs/adr/0017).
-    ("rageCrescent", {"stack": [("_atblooddance", "blooddance_effect.img")]}),
+    # 血之狂暴's swings come out of **that skill's own pack** - the client keeps
+    # them under `sprite_character_swordman_effect_rage.NPK`, next to the buff's
+    # cast art, and it ships them as `attack01/02/03.img`. The rows below are
+    # that pack; `docs/adr/0019` records what the two borrowed rows they replaced
+    # (frenzy/blood-energy and atblooddance/blooddance_effect) were doing wrong.
+    #
+    # **The red fan under the swing.** `attack01` is eight frames of a dark red
+    # brush fan that opens and fades - it is the swipe's own trail, and it is the
+    # layer the reference's "slash1 red blood trail" is drawn with. It used to be
+    # `frenzy/blood-energy.img`, borrowed from 暴走's pack and measured (122,1,1)
+    # flat: that colour was never on the reference's swing.
+    ("rageSlash", {"stack": [("_rage", "attack01.img")]}),
+    # **The crescents, one swing each.** `attack02` is not one slash - it is the
+    # combo's whole timeline, 65 frames carrying **eight separate swings**, each a
+    # fat brush crescent that goes red first and then gold (see the three slices
+    # below). The eye reads that pair as one thing: the red is the swipe, the gold
+    # pass laid over it is what turns the crescent pale.
+    #
+    # The client plays all eight; our combo is three hits of 0.22s, so each hit
+    # gets one swing. **A swing's frames are listed one by one, not sliced**:
+    # each one is drawn fat, then thin (that is the brush fading), then fat again
+    # in the gold board - so a slice carries the thin frames too, and stacking
+    # them drew a closed ring round him where the reference draws one sweep. The
+    # listed frames are the fat ones, red pass and gold pass.
+    # **The three are the pack's wide swings** - a crescent is *horizontal*: their
+    # art is 2.0-3.4 as wide as it is tall (334x137, 348x122, 300x91), and so is
+    # every crescent on the reference (d037 1.45x0.60, d046 1.32x0.91, d066
+    # 2.02x0.88 Slayer-heights). The pack's other swings are tall vertical hooks
+    # (222x222, 241x265, 199x225), the same brush drawn for an over-the-head cut
+    # our three-hit combo does not have.
+    #
+    # **And the *aspect* is what the owner kept seeing** (「剑的黄色剑影还是不太对」,
+    # then 「好像还是有一点区别」). Measured off the built sheet, at their own size
+    # these hooks draw 1.43 x **1.41** Slayer-heights - square - where the
+    # reference's crescent is 1.43 x 0.60-0.91: a *thick wide* band. The pack's
+    # other swings are the same brush drawn *flat* (1.16-1.47 x 0.25-0.62), which
+    # is too flat. So the aspect comes from the draw: `stretchX` in
+    # src/render.js's `draw.rageSwipe` flattens the hook to the reference's band
+    # (the same knob `0017` reached for, rejected then because the row behind it
+    # was a thin streak - on the fat brush it is the right one).
+    # **All three carry CRESCENT_RAMP**: the client's own swing is red and gold,
+    # and the reference's crescent is ivory, so the row is recoloured through the
+    # colour the reference measures (the same move as 大蹦's fire, and for the same
+    # reason - the pack has no board in it). The unramped red is the *fan* row
+    # above, which is a different layer of the same swing.
+    # The pack's `attack03` - a red-and-gold cross, 467px, ~3.8 Slayer-heights
+    # across - is deliberately *not* here: neither the owner's reference nor our
+    # 3-hit combo shows a cross on a normal attack, and at its own size it would
+    # be twice the widest thing the reference does (docs/adr/0019).
     # **The second blade.** 血之狂暴's dual-wield is not a second weapon in the
     # body art - the client has no such animation, all 242 body frames carry one
-    # katana - it is these two layers drawn over the weapon's own slot, one per
-    # swing direction, each a blood-red redraw of equipped katana 5601 complete
-    # with its cyan guard. Owner's pick, rows 50/51 of the frenzy candidate sheet
-    # (docs/adr/0017).
+    # katana - it is these two layers, one per swing direction, each a blood-red
+    # redraw of equipped katana 5601 complete with its cyan guard. Owner's pick,
+    # rows 50/51 of the frenzy candidate sheet (docs/adr/0017).
+    #
+    # **Anchored, and that is the whole of it.** These frames carry the *hand's*
+    # own position in the client's coordinates - the blade is at (124,250) while
+    # the body's frame is at (154,226), and it tracks the grip across the swing -
+    # so the pair only lines up when the row is baked with the caster's ground
+    # point ((208.8, 341), the mean of the attack poses' foot centres) named as
+    # its anchor. Centred on its own ink instead, the sword lands wherever its
+    # bounding box happens to be and the renderer has to be *told* where the hand
+    # is: that is what the invented `dx`/`dy` on this row were, and why the
+    # second blade sat on top of the katana and read as a red tint rather than as
+    # a sword in the other hand (docs/adr/0019).
+    # **Drawn on the weapon, which is where the pack puts it.** These rows are
+    # the client's own blood-red redraw of equipped katana 5601 - the *same*
+    # sword, in the same hand - so they are baked the plain way (centred on their
+    # own ink) and the renderer places them on the katana's slot.
+    #
+    # This row has been dragged around twice and both ends were wrong. Baked
+    # against the caster's ground point with a per-frame table measured off body
+    # 188-209, the blade *floated in the air* - because that art is not drawn
+    # against those frames at all: sword frame k sits in the grip of the **normal
+    # attack's** frame k (0-22), which is what `assets/dnf_src/bilibili/
+    # skill-clips/sword-pairing.png` shows and what the 22-frame count says. The
+    # stance's own swing is 188-209 (the owner picked them), and nothing in this
+    # pack carries a grip for that - so the second blade reads the way the owner's
+    # own label for it reads: "sword + red after-image", on the sword (docs/adr/0019).
     ("rageBladeUnder", {"stack": [("_frenzy", "sword_blood_under.img")]}),
     ("rageBladeUpper", {"stack": [("_frenzy", "sword_blood_upper.img")]}),
     # The stance's **second beat**: ~0.7s after the burst the reference has a
@@ -1714,6 +1847,52 @@ def ramp_tables(stops):
     return tables
 
 
+def select_frames(decoded, frames):
+    """The frames a layer names, either a half-open slice or a list of indices.
+
+    A slice is what a row wants when it plays a *run* of the client's timeline.
+    A list is what it wants when the client's run alternates: 血之狂暴's swings
+    are drawn fat, then thin, then fat again in the gold board, and a row that is
+    the *crescent* (not the thinning) has to say which of them it is made of -
+    stacking the thin frames in as well is what drew a closed ring round him
+    instead of one sweep (docs/adr/0019).
+    """
+    if frames is None:
+        return decoded
+    if len(frames) == 2 and frames[1] is None:
+        return decoded[frames[0]:]
+    if len(frames) == 2:
+        return decoded[frames[0]:frames[1]]
+    return [decoded[index] for index in frames]
+
+
+def solidify(decoded, factor):
+    """Raise a layer's alpha, for a stroke the reference draws *solid*.
+
+    The opposite of `dim`, and 血之狂暴's crescent is why it exists: the pack's
+    brush is drawn soft - its body carries about half its alpha, which is right
+    for a glow and wrong for a stroke - and the reference's crescent is a flat
+    ivory mass (242,241,181) with no translucency in it at all. Laid down once,
+    ours measured (202,202,177): the source was already saturated and the
+    coverage was the limit, which is not something a colour ramp can fix.
+
+    A layer that names it says how many times over the stroke should be laid
+    down; the soft rim scales with it instead of being cut off, so the brush
+    keeps its furry edge.
+    """
+    factor = float(factor or 1.0)
+    if factor <= 1.0:
+        return decoded
+    out = []
+    for picture, x, y in decoded:
+        solid = picture.copy()
+        solid.putalpha(
+            solid.getchannel("A").point(lambda value: min(255, int(round(value * factor))))
+        )
+        out.append((solid, x, y))
+    return out
+
+
 def tint(decoded, stops):
     """Recolour one layer through a ramp of (level, (r, g, b)) stops.
 
@@ -1895,6 +2074,18 @@ def pick_frames(client: Path, mode: str, entries, palette: str = "", spec: dict 
         # blood in the plain (red) art and the eruption above it in white-gold.
         board = pick[3] if len(pick) > 3 and pick[3] is not None else palette
         offset = pick[4] if len(pick) > 4 and pick[4] is not None else (0, 0)
+        # A layer can take a *slice* of its entry: one client row can carry a
+        # whole combo (rage/attack02 is eight separate swings over one timeline),
+        # and a row that plays one swing at a time has to say which. Half-open,
+        # like a Python slice. And it can name a ramp, the same way a stage does:
+        # a *stack* row needs one when the pack's own boards are the wrong colour
+        # (see CRESCENT_RAMP).
+        frames = pick[5] if len(pick) > 5 and pick[5] is not None else (0, None)
+        ramp = pick[6] if len(pick) > 6 else None
+        # How many times over this layer's own alpha should be laid down - see
+        # solidify. It is a layer's property and not the row's: one row can carry
+        # a soft glow and a solid stroke.
+        solid = pick[7] if len(pick) > 7 else None
         if entry == "*":
             for _name, img in pack_entries(client, pack, board):
                 decoded = decode_frames(img)
@@ -1908,6 +2099,7 @@ def pick_frames(client: Path, mode: str, entries, palette: str = "", spec: dict 
             continue
         decoded = decode_frames(found)
         if decoded:
+            decoded = tint(solidify(select_frames(decoded, frames), solid), ramp)
             layers.append(shift(rescale(decoded, scale), offset))
     if not layers:
         return [], (0, 0)
@@ -1917,15 +2109,18 @@ def pick_frames(client: Path, mode: str, entries, palette: str = "", spec: dict 
     # could not be anchored on the caster, and the effect jittered as layers came
     # and went.
     parts = [part for layer in layers for part in layer]
-    left = min(x for _p, x, _y in parts)
-    top = min(y for _p, _x, y in parts)
-    width = max(x + p.width for p, x, _y in parts) - left
-    height = max(y + p.height for p, _x, y in parts) - top
+    # Rounded once, here: a layer's `offset` may be fractional (血之狂暴's blood
+    # sword carries a per-frame one, measured to the tenth of a client pixel), and
+    # a canvas is whole pixels - the same rule the staged path above follows.
+    left = int(round(min(x for _p, x, _y in parts)))
+    top = int(round(min(y for _p, _x, y in parts)))
+    width = int(round(max(x + p.width for p, x, _y in parts))) - left
+    height = int(round(max(y + p.height for p, _x, y in parts))) - top
 
     def frame_of(chosen):
         canvas = Image.new("RGBA", (width, height), (0, 0, 0, 0))
         for picture, x, y in chosen:
-            canvas.alpha_composite(picture, (x - left, y - top))
+            canvas.alpha_composite(picture, (int(round(x)) - left, int(round(y)) - top))
         return canvas
 
     if mode == "sequence":

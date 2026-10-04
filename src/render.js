@@ -82,7 +82,11 @@
      * that one measures the cell between the feet and the anchor.
      */
     bodyHeight: 84,
-    rows: { idle: 0, run: 1, attack: 2, skill: 3, extras: 4, clips: 5, clips2: 6, bloodblade: 7, flare: 8 },
+    rows: { idle: 0, run: 1, attack: 2, skill: 3, extras: 4, clips: 5, clips2: 6, bloodblade: 7, flare: 8,
+            /* 血之狂暴's own swing, its own row at the bottom of the sheet. */
+            rage: 9,
+            /* ... and the client's own slash arc alone, graded to cream. */
+            ragearc: 10 },
     /* Frames the renderer actually plays per row; the rest of the row is spare art.
        The stand is a four-frame breath off the client's "still" frames, the attack
        is the whole normal-attack chain (see Core.ATTACK_STAGES). */
@@ -93,6 +97,24 @@
      * plays this instead of the three ground cuts.
      */
     airAttack: { row: 2, first: 23, frames: 4 },
+    /*
+     * **血之狂暴's own swing.** 22 frames, the owner's pick off the full-frame
+     * sheet (188-209) and the one animation the client's blood sword is drawn
+     * against - three swings over the three-hit chain, so the column is read off
+     * `rageComboLocal` and not off the single press. Every normal attack with the
+     * stance up plays this instead of the katana chain's small cuts.
+     */
+    rageSwing: { row: 9, first: 0, frames: 22 },
+    /*
+     * **The client's own arc, in cream.** The body sheet carries the arc *alone*
+     * on the row below the swing (`rage_arc_layer` in the bake: the weapon
+     * layer's own frames 188-209, masked to the arc and graded to the reference's
+     * cream). Drawn over the body cell a few pixels along the swing, it reads as
+     * the second blade's trail - and it is the same arc the client draws, so it is
+     * per-swing, at the reference's size, and cannot disagree with the sword.
+     * `dx`/`dy` are the offset along the swing that makes it its own arc.
+     */
+    rageArc: { row: 10, first: 0, frames: 22, dx: 7, dy: 5 },
     /* Skill body art: every skill plays the top of the skill row, except the
        up-slash, whose own raise-and-lift is baked right after those. The bake
        (assets/import_dnf_swordman.py CELLS.skill) has to keep the same order,
@@ -529,17 +551,19 @@
     /* 银光落刃's arc, on the extra row after the orbs. */
     diveRow: Core.SKILL_ORDER.length + 1,
     diveFrames: 9,
-    /* 血之狂暴's crimson trail, on the row after the dive arc. */
-    rageSlashRow: Core.SKILL_ORDER.length + 2,
-    rageSlashFrames: 20,
     /*
-     * ... and the cream crescent that rides on top of it, which is the part of
-     * the swing the eye actually reads: measured off the owner's contact sheet
-     * the reference's arc core is (242,242,178), and this row's is (255,243,181)
-     * (docs/adr/0017).
+     * 血之狂暴's swings: **one** extra row here - `rage/attack01.img`, the red
+     * brush fan the swipe leaves.
+     *
+     * The cream trail is not on this sheet. It is the client's *own* slash arc -
+     * the one drawn in the weapon layer of the body's 188-209 - lifted onto its
+     * own row of the **body** sheet by the bake (`rage_arc_layer`, row
+     * `SPRITE.rows.ragearc`) and graded to cream. Anything built out here was a
+     * second arc beside the client's and read as one shape cycling: 「好像就两个
+     * 剑影不停循环，不如参考的自然」 (docs/adr/0019).
      */
-    rageCrescentRow: Core.SKILL_ORDER.length + 3,
-    rageCrescentFrames: 15,
+    rageSlashRow: Core.SKILL_ORDER.length + 2,
+    rageSlashFrames: 8,
     /*
      * **The second blade**, one row per swing direction - the pack's own
      * blood-red redraw of equipped katana 5601, drawn over the weapon's slot so
@@ -548,21 +572,21 @@
      * under row carries 22 frames and the upper 19, because the bake trims each
      * row to the frames that actually have ink in them.
      */
-    rageBladeUnderRow: Core.SKILL_ORDER.length + 4,
+    rageBladeUnderRow: Core.SKILL_ORDER.length + 3,
     rageBladeUnderFrames: 22,
-    rageBladeUpperRow: Core.SKILL_ORDER.length + 5,
+    rageBladeUpperRow: Core.SKILL_ORDER.length + 4,
     rageBladeUpperFrames: 19,
     /* The stance's second beat: the blood gathering in his free hand. */
-    rageGatherRow: Core.SKILL_ORDER.length + 6,
+    rageGatherRow: Core.SKILL_ORDER.length + 5,
     rageGatherFrames: 5,
     /*
      * How many rows assets/effects.png carries past the skill rows: the orb, the
-     * dive arc, the stance's crimson trail, cream crescent, two blade halves and
-     * second beat, and 大蹦's fire. The bake test reads this rather than a
+     * dive arc, the swipe's red fan, two blade halves and second beat, and 大蹦's
+     * fire. The bake test reads this rather than a
      * literal, so adding a row cannot leave the shipped atlas and the grid
      * disagreeing.
      */
-    extraRowCount: 8,
+    extraRowCount: 7,
     /*
      * 大蹦 is the one move whose art is drawn far bigger than a cell can hold:
      * its own row on assets/effects.png would be ~120x72 px of art stretched
@@ -690,42 +714,54 @@
        */
       frenzy: { dx: 28, dy: -62, size: 130, copies: 1, spin: 0 },
       /*
-       * ... and the crescent that rides every normal attack, which is a
-       * different read on a different frame: it hangs off the blade side. It
-       * used to share the frenzy row, and had to move when that row became the
-       * cast's burst - one row cannot be both (docs/adr/0017).
+       * ... and the red brush fan under it. Both this row and the crescents
+       * below are one attack's art, so they are drawn at **one scale**: the
+       * numbers are the reference's, not the client's (the client's own
+       * animation data scales effect layers, and the export does not carry it -
+       * see the bake's note). Measured off the owner's sheet, the crescent is
+       * 0.93-2.02 Slayer-heights across; a swing's own art is 282-348 client px,
+       * so one client px is about 0.38 of a screen px here and `size` 142 puts
+       * the drawn crescent at 1.5 of his height. The pack draws the fan 113/128
+       * of the way across its cell, which is 1.49 x 0.81 Slayer-heights.
        */
-      rageSlash: { dx: 52, dy: -40, size: 150, copies: 1, spin: 0 },
+      rageSlash: { dx: 26, dy: -26, size: 142, copies: 1, spin: 0 },
       /*
-       * The cream brush arc, placed and sized off the owner's contact sheet
-       * rather than by eye. Measured on three separate swings of the reference
-       * (d037/d040/d046): the crescent's centre sits **on his own centre line,
-       * 0.35-0.54 of a Slayer-height above his feet** - his lower half, not his
-       * chest - and it spans **0.89-1.15 of his height across by 0.61-0.81 of it
-       * tall**. At our 84px Slayer that is 75-97px across, which is what
-       * `size x stretchX` has to come to; the first pass drew it 177px wide,
-       * twice the reference, and read as a ribbon flying round him.
+       * **The crescent.** Placed and sized off the owner's contact sheet, the
+       * same way the fan above is - the pack's swings are 113/128 of their cell
+       * across, so one `size` holds both rows to one scale.
+       *
+       * Where it sits was measured on three separate swings (d037/d040/d046):
+       * its centre is **0.44 of a Slayer-height in front of his centre line and
+       * 0.47 of one above his feet** - his middle, not his chest. At our 84px
+       * Slayer that is dx 37, dy -39. It used to sit on his centre line at 0.36
+       * up, which reads as the arc hanging off his own middle instead of
+       * sweeping past it.
+       *
+       * `stretchX` is 1: the first pass squeezed a 128-cell into 175x95 to make
+       * the arc wide, on the strength of a reading (0.89-1.15 Slayer-heights
+       * across) taken from the reference's *smaller* frames. Re-measured over
+       * every crescent on that sheet, the arc is 0.93-2.02 across by 0.28-0.91
+       * tall, and the pack's own swing art is already 2.1 to 3.0 wide; nothing
+       * needs stretching (docs/adr/0019).
        */
-      rageCrescent: { dx: 2, dy: -30, size: 95, stretchX: 1.84, copies: 1, spin: 0 },
       /*
-       * The second blade sits on the weapon, not out in front like the crescent:
-       * this offset is where the katana is in the *body* cell (the hand at about
-       * mid-torso, a little ahead of centre), because the effect bake centres
-       * each row on its own ink and the hand has to be stated here.
+       * **The second blade sits on the weapon.** It is the pack's own blood-red
+       * redraw of the equipped katana - the same sword, the same hand - so this
+       * offset is where that katana is in the *body* cell, and the row is baked
+       * centred on its own ink like every other effect row. The `trail` copy is
+       * the after-image the swing leaves, which is the owner's own read of the
+       * reference ("sword + red after-image", d050).
+       *
+       * This was moved to the caster's ground point for a round, to put the blade
+       * in his *other* hand: it floated. The blood-sword art is drawn against the
+       * normal attack's frames (0-22), not against the 188-209 the stance swings
+       * with, so a table of per-frame offsets measured off 188-209 put it in the
+       * air (docs/adr/0019).
        */
       rageBlade: {
         dx: 18,
         dy: -28,
         size: 98,
-        /*
-         * **Where the second blade sits relative to the first.** The pack ships
-         * the blood sword twice and the owner's read of rows 50/51 is "the dual
-         * blade's second sword" - but drawn on top of the equipped katana it just
-         * makes one sword with a red tint. The reference is explicit about the
-         * two (d029, d032, d050: the sword up, and a red blade shape behind and
-         * below it, which is the after-image the swing leaves), so the back half
-         * is offset down the arc the swing came from and reads as its own blade.
-         */
         trail: [-30, 10]
       },
       bloodyRave: { dx: 52, dy: -46, size: 170, copies: 1, spin: 0 },
@@ -1318,6 +1354,30 @@
         col: air.first + Math.min(air.frames - 1, Math.floor(airProgress * air.frames))
       };
     }
+    /*
+     * **The stance swings differently, and the client is explicit about it.**
+     * The body's own animation for these attacks is 188-209 (the owner named the
+     * frames): he opens with the blade low, sweeps, raises it over his head and
+     * puts the last one through - one animation over the three presses. The
+     * columns come off `rageComboLocal`, so the chain walks the whole thing once
+     * and the blood sword stays in his hand while it does.
+     */
+    if (
+      player.onGround &&
+      player.skillTimer <= 0 &&
+      (player.attackTimer > 0 || (player.attackCooldown > 0 && player.comboTimer > 0)) &&
+      player.buffs &&
+      player.buffs.bloodRage > 0
+    ) {
+      var rageAt = rageComboLocal(player);
+      if (rageAt >= 0) {
+        var rage = SPRITE.rageSwing;
+        return {
+          row: rage.row,
+          col: rage.first + Math.min(rage.frames - 1, Math.floor(rageAt * rage.frames))
+        };
+      }
+    }
     if (!player.onGround && !(clip && clip.row !== undefined)) {
       /*
        * A hop with nothing else going on plays the client's jump animation: its
@@ -1550,6 +1610,29 @@
     /* A hurt flash outranks the stance's own lift. */
     if (raging && player.hurtTimer <= 0 && "filter" in ctx) ctx.filter = "saturate(1.2)";
     drawSpriteFrame(ctx, body, frame.col, frame.row, player.x, feetY(player), player.facing < 0);
+    /*
+     * **The second sword's cream trail, and it is the client's own arc.** The body
+     * sheet carries the client's slash arc alone on its own row (`ragearc`), one
+     * column per instant of 188-209; drawing it over the body cell, a few pixels
+     * along the swing, is that arc again in cream - so it varies from swing to
+     * swing the way the reference's does, instead of being one shape cycling
+     * (docs/adr/0019).
+     */
+    if (player.buffs && player.buffs.bloodRage > 0 && player.attackTimer > 0) {
+      var arc = SPRITE.rageArc;
+      var arcAt = rageComboLocal(player);
+      if (arcAt >= 0) {
+        drawSpriteFrame(
+          ctx,
+          sprites.slayer,
+          arc.first + Math.min(arc.frames - 1, Math.floor(arcAt * arc.frames)),
+          arc.row,
+          player.x + player.facing * arc.dx,
+          feetY(player) + arc.dy,
+          player.facing < 0
+        );
+      }
+    }
     ctx.restore();
     /*
      * 暴走's threads sit *over* him rather than behind: the reference's four
@@ -2274,10 +2357,49 @@
     if (!(player.buffs && player.buffs.bloodRage > 0)) return -1;
     if (player.attackTimer <= 0) return -1;
     var progress = clamp01(1 - player.attackTimer / player.attackDuration);
-    var from = Math.max(0, Core.PLAYER.attackActiveFrom - 0.18);
+    /*
+     * The window opens on the *press*, not part way in. It used to start at
+     * `attackActiveFrom - 0.18` (0.12), which left the first eighth of every
+     * swing drawing the katana row and then popping into the stance's own art.
+     */
+    var from = 0;
     var to = Math.min(1, Core.PLAYER.attackActiveTo + 0.4);
     if (progress < from || progress > to) return -1;
     return clamp01((progress - from) / Math.max(0.0001, to - from));
+  }
+
+  /*
+   * **Where the swing is in the *combo*, 0..1** - and both the body and the
+   * blade read their frame off this, which is the whole reason it exists.
+   *
+   * 血之狂暴's swing is *one* animation over the three-hit chain: 22 body frames
+   * the owner picked (188-209) carrying three swings, and a 22-frame blood sword
+   * drawn against them frame for frame - sword frame k is in the grip of body
+   * 188+k (docs/adr/0019). Playing a column from the single press instead (what
+   * this did) restarts that animation on every hit, and the blade leaves the
+   * hand the moment the press's progress and the animation's frame disagree.
+   */
+  function rageComboLocal(player) {
+    var stages = Core.ATTACK_STAGES.length || 3;
+    var index = Math.max(0, Math.min(stages - 1, player.comboIndex || 0));
+    var swing = rageSwingLocal(player);
+    if (swing >= 0) return (index + swing) / stages;
+    /*
+     * **The recovery holds this press's last frame.** The attack row does the
+     * same thing (a cut's follow-through stays on screen until the next press),
+     * and without it the stance's art dropped back to the katana pose between
+     * every two hits - which is what "the motion is not the frames I gave you"
+     * looked like on screen.
+     */
+    if (
+      player.attackCooldown > 0 &&
+      player.comboTimer > 0 &&
+      player.buffs &&
+      player.buffs.bloodRage > 0
+    ) {
+      return Math.min(0.9999, (index + 1) / stages);
+    }
+    return -1;
   }
 
   /*
@@ -2337,7 +2459,8 @@
      * poses. The shorter row sets the ceiling: it is the one that would run out.
      */
     var bladeFrames = Math.min(EFFECT.rageBladeUnderFrames, EFFECT.rageBladeUpperFrames);
-    var bladeColumn = Math.min(bladeFrames - 1, Math.floor(local * bladeFrames));
+    var combo = Math.max(0, rageComboLocal(player));
+    var bladeColumn = Math.min(bladeFrames - 1, Math.floor(combo * bladeFrames));
     var bladeDraw = EFFECT.draw.rageBlade;
     drawRageBlade(
       ctx,
@@ -2349,7 +2472,12 @@
       bladeDraw ? bladeDraw.trail : null
     );
 
-    /* The crimson trail the blade leaves, then the brush arc over it. */
+    /*
+     * The red brush fan the swipe leaves, under the crescent. It is the pack's
+     * own `attack01` - eight frames of a fan that opens and fades - so one
+     * column per frame *is* the whole animation: the art carries the fade and
+     * nothing here has to.
+     */
     var trail = EFFECT.draw.rageSlash;
     if (trail) {
       placeEffectCell(
@@ -2357,21 +2485,24 @@
         sprites.effects,
         EFFECT.rageSlashRow,
         rowAt(local, EFFECT.rageSlashFrames || 4),
-        trail.size * 0.9,
-        player.x + player.facing * trail.dx * 0.55,
-        feetY(player) + trail.dy * 0.55,
+        trail.size,
+        player.x + player.facing * trail.dx,
+        feetY(player) + trail.dy,
         player.facing,
-        swingFade(local, 0.7, 0.6)
+        swingFade(local, 0.55, 0.8),
+        null,
+        true
       );
     }
   }
 
   /*
    * One cell of the effect atlas, placed by its centre at a given alpha.
-   * `stretchX` widens it without making it taller: the stance's crescent is a
-   * *wide flat* arc in the reference (0.89-1.29 of his height across against
-   * 0.61-0.81 of it tall - an aspect of 1.4 to 1.9), and drawn square it comes
-   * out as an upright ring instead of the sweep the reference shows.
+   * `stretchX` widens it without making it taller, and no row wants it any
+   * more: it was added to squeeze the stance's crescent into a wide flat arc,
+   * back when the row behind it was a thin streak a third of the size it should
+   * have been. The pack's own swing art is already 2.1-3.0 as wide as it is
+   * tall (docs/adr/0019).
    */
   function placeEffectCell(ctx, sheet, row, column, size, x, y, facing, alpha, stretchX, additive) {
     if (column < 0 || alpha <= 0) return;
@@ -2431,70 +2562,18 @@
     var local = rageSwingLocal(player);
     if (local < 0) return;
     var bladeFrames = Math.min(EFFECT.rageBladeUnderFrames, EFFECT.rageBladeUpperFrames);
+    var combo = Math.max(0, rageComboLocal(player));
     drawRageBlade(
       ctx,
       sprites,
       player,
       local,
-      Math.min(bladeFrames - 1, Math.floor(local * bladeFrames)),
+      Math.min(bladeFrames - 1, Math.floor(combo * bladeFrames)),
       EFFECT.rageBladeUpperRow
     );
-    drawRageCrescent(ctx, sprites, player, local);
   }
 
-  /**
-   * The cream brush arc over everything else, built the way a trail is built:
-   * the blade's arc at several successive moments, all on screen at once.
-   *
-   * A single frame of this row is one thin arc and reads as nothing - measured
-   * on the owner's contact sheet the reference's crescent carries 11k-19k pale
-   * pixels at 0.89-1.29 of his height across, and one stroke of ours is 13-19x
-   * short of that. Laying the row's own frames over each other reconstructs the
-   * fan, because that is what the row *is*: an arc animating through the cut.
-   */
-  function drawRageCrescent(ctx, sprites, player, local) {
-    var crescent = EFFECT.draw.rageCrescent;
-    if (!crescent) return;
-    var frames = EFFECT.rageCrescentFrames || 4;
-    var live = rowAt(local, frames);
-    var x = player.x + player.facing * crescent.dx;
-    var y = feetY(player) + crescent.dy;
-    var fade = swingFade(local, 0.72, 0.75);
-    /*
-     * **Dense, and barely dimming.** The first pass used every other frame and
-     * dropped each one hard (1.0, 0.89, 0.78, ...), which left a fan of thin
-     * separated lines - and measured against the reference that is the same
-     * mistake as drawing one stroke, just less obviously: the reference's arc is
-     * a *mass* of cream with a few darker streaks through it, not a bundle of
-     * hairlines. So every frame of the span goes down, and the falloff is gentle
-     * enough that they pile up into a body.
-     *
-     * **...but a narrow span of them.** The second pass spread eleven frames and
-     * swept a closed ring round him; the reference is one wide open arc, maybe a
-     * third of a turn. Consecutive frames of this row are near-copies of one arc
-     * at slightly different angles, so a short run of them fans into a stroke
-     * instead of closing a loop.
-     */
-    for (var back = 0; back <= 9; back += 1) {
-      var column = live - back;
-      if (column < 0) continue;
-      placeEffectCell(
-        ctx,
-        sprites.effects,
-        EFFECT.rageCrescentRow,
-        column,
-        crescent.size,
-        x,
-        y,
-        player.facing,
-        fade * (1 - back * 0.04),
-        crescent.stretchX,
-        true
-      );
-    }
-  }
-
-  /**
+    /**
    * 银光落刃's blade: the same arc the up-slash uses, turned a quarter turn so it
    * reads as the sword coming down with the dive instead of rising with a cut.
    */
