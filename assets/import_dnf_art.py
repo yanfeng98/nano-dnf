@@ -88,8 +88,16 @@ ICON_FRAMES = {
     # 79 is the same art without it, kept in case 暴走 ever wants a standing
     # badge the way the stance has one.
     "berserk": 78,
+    # 嗜魂封魔斩: the owner's pick, 2026-10-05, off dnf_skillicon_atlas.png -
+    # **176/177**, the same pair shape as 血之狂暴's 134/135 and 暴走's 78/79.
+    # Which of the two is the coloured one is measured, not guessed: 176 reads
+    # mean (148,119,50) at chroma 97.9 and 177 reads (84,84,84) at chroma 0.0,
+    # so 176 is the hotbar icon and 177 is kept as its grey twin. The art is the
+    # move's own tell - a nest of gold loops, the same shape the vortex is drawn
+    # from (`particle.img`).
+    "bloodyRave": 176,
 }
-# 血气之刃 / 嗜魂封魔斩 / 嗜血 / 血魔 are Berserker moves the owner picked no
+# 血气之刃 / 嗜血 / 血魔 are Berserker moves the owner picked no
 # atlas frame for, and the frames that used to sit in those slots belonged to the
 # 鬼泣/剑魂 skills they replaced. They keep the effect-thumbnail fallback below
 # until the owner picks frames off dnf_skillicon_atlas.png with --icons.

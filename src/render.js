@@ -659,7 +659,17 @@
         loops: 13,
         lag: 2,
         nearX: 72, farX: 189,
-        nearSize: 70, farSize: 182,
+        /*
+         * **A spindle is thickest in the middle, and this is the number that says
+         * so.** The first version grew the loops all the way out (70 near, 182
+         * far), which put the tallest rings at the far end - so the top edge ran
+         * 1.55 and 1.60 Slayer-heights up out there where the reference's runs
+         * 1.29 and 1.38. Measured along the length, the reference's top edge
+         * climbs from 0.89 at his hand, peaks at **1.51 half way along**, and
+         * comes back to about 1.3: a lemon, not a cone. These three are the near,
+         * middle and far sizes and the curve through them is quadratic.
+         */
+        sizes: [10, 170, 120],
         /*
          * **The pack's one loop is a tall hairpin, and the reference's rings are
          * not.** Overlaying the two masks at the same scale is what showed it:
@@ -1174,6 +1184,17 @@
    * #153-#156) - the collapse runs from the release, which is the one thing here
    * the reference has no frame for because its cast was never let go of early.
    */
+  /** The quadratic through a spindle's near, middle and far loop sizes. */
+  function sizeAlong(sizes, u) {
+    var near = sizes[0];
+    var middle = sizes[1];
+    var far = sizes[2];
+    /* Through (0, near), (0.5, middle) and (1, far). */
+    var b = 4 * (middle - near) - (far - near);
+    var a = far - near - b;
+    return a * u * u + b * u + near;
+  }
+
   function drawBloodVortex(ctx, state, sprites, player, elapsed) {
     var spec = EFFECT.vortex.bloodyRave;
     var channel = EFFECT.channel.bloodyRave;
@@ -1193,7 +1214,7 @@
     for (var loop = 0; loop < spec.loops; loop += 1) {
       var u = (loop + 1) / spec.loops;
       if (u > grown + 0.001) break;
-      var size = spec.nearSize + (spec.farSize - spec.nearSize) * u;
+      var size = sizeAlong(spec.sizes, u);
       var x = spec.nearX + (spec.farX - spec.nearX) * u;
       var w = size * spec.wide;
       var h = size * spec.tall;
