@@ -371,6 +371,31 @@
        * the changeover. 80-83 double as 怒气爆发's middle pose - the owner was
        * told and kept the range.
        */
+      /*
+       * 嗜魂封魔斩: the only clip whose beats are cut by the *progress of a cast
+       * whose length the player chose*. That works because progress is not time
+       * here - the entrance is always 0 to 0.182 of the row and the tail always
+       * 0.839 to 1, whatever the hold in between was. Letting go jumps progress
+       * across the middle beat, which is exactly right: the vortex stops wherever
+       * it had got to and the tail starts (docs/adr/0023).
+       */
+      bloodyRave: {
+        row: 6,
+        first: 48,
+        frames: 12,
+        beats: [
+          /* 起手闪 → 抬剑 → 把手伸出去（参考 #033-#041）。 */
+          { frames: 3, from: 0.0, until: 0.182 },
+          /*
+           * 站桩 —— 参考里那三秒身体**是不动的**（#059-#152 逐帧比 #070，差值
+           * 只在漩涡透进框的噪声里），所以四帧几乎一样的姿势在四分之一秒的短按
+           * 和三秒的长按里读起来一样。
+           */
+          { frames: 4, from: 0.182, until: 0.839 },
+          /* 收势 → 转身横剑 → 举剑过头 → 拧身 → 劈穿 → 低伏（#153-#163）。 */
+          { frames: 5, from: 0.839, until: 1.0 }
+        ]
+      },
       berserk: {
         row: 6,
         first: 38,
@@ -510,7 +535,15 @@
        * extra row now, and so is the second blade.
        */
       frenzy: 13,
-      bloodyRave: 17,
+      /*
+       * 嗜魂封魔斩 is the game's only channel, and its row is a **timeline in
+       * seconds** rather than in progress: columns 0-9 are the opening (the blood
+       * ball growing in his hand, then let go), columns 10-23 the tail that runs
+       * from the moment the player lets go. `EFFECT.channel` says where the split
+       * is and what a column is worth in seconds - reading this row by progress
+       * would name a fraction of a total that does not exist until they release.
+       */
+      bloodyRave: 24,
       /*
        * 怒气爆发 is a staged row like 大蹦's: the pool and the burst ring own
        * columns 4-11, the quiet stretch is columns 12-29, and the column comes
@@ -580,13 +613,65 @@
     rageGatherRow: Core.SKILL_ORDER.length + 5,
     rageGatherFrames: 5,
     /*
+     * 嗜魂封魔斩's vortex: one churning loop of the reference's spindle, on its own
+     * row because the renderer draws it **live** - several copies along the
+     * caster's front, cycling on the reference's own beat - rather than as a
+     * baked timeline. The cast can be held for as long as the player likes, so
+     * there is no row long enough to hold it (docs/adr/0023).
+     */
+    vortexRow: Core.SKILL_ORDER.length + 6,
+    vortexFrames: 12,
+    /*
+     * **A channel's row is read by elapsed seconds, not by progress.** Progress is
+     * a fraction of the cast's total, and this cast has no total until the player
+     * lets go - so `channel` cuts the row in two halves and says what each half is
+     * worth: columns `0..entranceCols` are the opening seconds since the press,
+     * `entranceCols..` the tail seconds since the release (docs/adr/0023). The
+     * three numbers on the right are the reference's own (assets/dnf_effect_picks.md
+     * §25) and are the same three `SKILLS.bloodyRave.channel` carries, on purpose:
+     * the art and the hit beats are the same clock.
+     */
+    channel: {
+      bloodyRave: {
+        entrance: 0.867,
+        hold: 3.133,
+        tail: 0.767,
+        entranceCols: 10,
+        tailCols: 14
+      }
+    },
+    /*
+     * 嗜魂封魔斩's vortex, **drawn live** rather than played as a row.
+     *
+     * The reference's vortex is a spindle: a line of nested red loops, biggest at
+     * the far end and closing to a point at his hand, churning for as long as he
+     * holds (measured 2.8-3.0 Slayer-heights forward and 1.68 high). One frame of
+     * the pack's `particle.img` is one of those loops, so the draw is `loops`
+     * copies of it along the arm - not a baked composite, because the number that
+     * matters (how long it runs) is the player's. `lag` is how many frames of the
+     * cycle further out each loop is behind the one in front of it, which is what
+     * keeps eight copies reading as one thing turning.
+     */
+    vortex: {
+      bloodyRave: {
+        loops: 9,
+        lag: 2,
+        nearX: 55, farX: 210,
+        nearSize: 72, farSize: 172,
+        midY: -70,
+        /* 长出来与收回去的两段：参考 #053-#059 与 #153-#156。 */
+        grow: 0.2,
+        close: 0.133
+      }
+    },
+    /*
      * How many rows assets/effects.png carries past the skill rows: the orb, the
      * dive arc, the swipe's red fan, two blade halves and second beat, and 大蹦's
      * fire. The bake test reads this rather than a
      * literal, so adding a row cannot leave the shipped atlas and the grid
      * disagreeing.
      */
-    extraRowCount: 7,
+    extraRowCount: 8,
     /*
      * 大蹦 is the one move whose art is drawn far bigger than a cell can hold:
      * its own row on assets/effects.png would be ~120x72 px of art stretched
@@ -764,7 +849,13 @@
         size: 98,
         trail: [-30, 10]
       },
-      bloodyRave: { dx: 52, dy: -46, size: 170, copies: 1, spin: 0 },
+      /*
+     * 嗜魂封魔斩's own row. The bake anchors it on the caster's own feet, and a
+     * cell drawn at `size` puts that anchor at `size / 4` below its middle - so
+     * `dx: 0, dy: -size / 4` is what lands the ball on his hand. `size` is the
+     * 1:1 number the bake prints for the row's window.
+     */
+    bloodyRave: { dx: 0, dy: -143, size: 571, copies: 1, spin: 0 },
       /*
        * 怒气爆发 erupts around him, and its two acts are drawn at the sizes the
        * training room shows: the row's window is 331 x 488 client px, so one
@@ -969,7 +1060,7 @@
     crossSlash: "十字 · 出血",
     bloodSword: "血气 · 三连",
     frenzy: "双刀 · 攻速",
-    bloodyRave: "血气爆发",
+    bloodyRave: "噬魂 · 吸附",
     rageBurst: "范围爆发",
     bloodSnatch: "嗜血 · 血波",
     graspHead: "抓取 · 吸血",
@@ -1030,6 +1121,80 @@
         Math.min(1, Math.max(0, (local - fade.from) / Math.max(0.0001, fade.to - fade.from))) *
           (1 - fade.floor)
     };
+  }
+
+  /**
+   * Which cell of a channel's row is on screen, `elapsed` seconds after the press.
+   *
+   * Two clocks, because the cast has two halves and only one of them belongs to
+   * the player. Before the release the tail has no position at all, so the second
+   * half is only ever asked for once there is a release to measure from.
+   */
+  function channelFrame(skillId, elapsed, releasedAt) {
+    var channel = EFFECT.channel[skillId];
+    if (releasedAt === null || releasedAt === undefined) {
+      var head = Math.min(1, Math.max(0, elapsed / channel.entrance));
+      return {
+        row: Core.SKILL_ORDER.indexOf(skillId),
+        col: Math.min(channel.entranceCols - 1, Math.floor(head * channel.entranceCols)),
+        alpha: 1
+      };
+    }
+    var tail = Math.min(1, Math.max(0, (elapsed - releasedAt) / channel.tail));
+    return {
+      row: Core.SKILL_ORDER.indexOf(skillId),
+      col:
+        channel.entranceCols +
+        Math.min(channel.tailCols - 1, Math.floor(tail * channel.tailCols)),
+      alpha: 1
+    };
+  }
+
+  /**
+   * 嗜魂封魔斩's vortex - the one effect in the game that is not a baked row.
+   *
+   * It is a line of the pack's one loop, laid along his arm and cycled on the
+   * reference's own beat, so the same draw covers a quarter-second tap and a full
+   * three-second hold. It grows out over `grow` seconds and collapses back over
+   * `close`, both of which are the reference's own two beats (#053-#059 and
+   * #153-#156) - the collapse runs from the release, which is the one thing here
+   * the reference has no frame for because its cast was never let go of early.
+   */
+  function drawBloodVortex(ctx, state, sprites, player, elapsed) {
+    var spec = EFFECT.vortex.bloodyRave;
+    var channel = EFFECT.channel.bloodyRave;
+    var local = elapsed - channel.entrance;
+    if (local < 0 || !sprites.effects) return;
+    var grown = Math.min(1, local / spec.grow);
+    var released = player.channelReleasedAt;
+    if (released !== null && released !== undefined) {
+      grown = Math.min(grown, Math.max(0, 1 - (elapsed - released) / spec.close));
+    }
+    if (grown <= 0) return;
+    var beat = Math.floor(local / Core.SKILLS[player.skillId].channel.tick);
+    ctx.save();
+    ctx.translate(player.x, feetY(player) - Core.depthLift(player.z || 0));
+    ctx.scale(player.facing, 1);
+    ctx.imageSmoothingEnabled = true;
+    for (var loop = 0; loop < spec.loops; loop += 1) {
+      var u = (loop + 1) / spec.loops;
+      if (u > grown + 0.001) break;
+      var size = spec.nearSize + (spec.farSize - spec.nearSize) * u;
+      var x = spec.nearX + (spec.farX - spec.nearX) * u;
+      var col = (((beat + loop * spec.lag) % EFFECT.vortexFrames) + EFFECT.vortexFrames) % EFFECT.vortexFrames;
+      ctx.drawImage(
+        sprites.effects,
+        col * EFFECT.cell,
+        EFFECT.vortexRow * EFFECT.cell,
+        EFFECT.cell,
+        EFFECT.cell,
+        x - size / 2,
+        spec.midY - size / 2,
+        size,
+        size
+      );
+    }
+    ctx.restore();
   }
 
   function touchButtons() {
@@ -2162,7 +2327,22 @@
     var progress = source
       ? source.progress
       : Math.min(1, Math.max(0, 1 - player.skillTimer / spec.duration));
-    var frame = skillEffectFrame(skillId, progress, row, frames);
+    var frame;
+    if (spec.channel && !source) {
+      /*
+       * A channel's elapsed time has to be put back together: once the player
+       * lets go, `skillTimer` counts down to the *shortened* end, so the seconds
+       * already served get added back on top of the tail's own countdown.
+       */
+      var served = spec.duration - player.skillTimer;
+      var released = player.channelReleasedAt;
+      if (released !== null && released !== undefined) {
+        served = released + (spec.channel.tail - player.skillTimer);
+      }
+      frame = channelFrame(skillId, served, released);
+    } else {
+      frame = skillEffectFrame(skillId, progress, row, frames);
+    }
     if (!frame) return;
     var timing = EFFECT.timing && EFFECT.timing[skillId];
     var local = timing
@@ -2302,6 +2482,15 @@
   }
 
   function drawSkillEffect(ctx, state, sprites) {
+    var player = state.player;
+    if (player.skillId && Core.SKILLS[player.skillId] && Core.SKILLS[player.skillId].channel) {
+      var spec = Core.SKILLS[player.skillId];
+      var elapsed = spec.duration - player.skillTimer;
+      if (player.channelReleasedAt !== null && player.channelReleasedAt !== undefined) {
+        elapsed = player.channelReleasedAt + (spec.channel.tail - player.skillTimer);
+      }
+      drawBloodVortex(ctx, state, sprites, player, elapsed);
+    }
     drawEffectRow(ctx, state, sprites);
   }
 

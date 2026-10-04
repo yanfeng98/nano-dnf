@@ -89,7 +89,7 @@ ICON_FRAMES = {
     # badge the way the stance has one.
     "berserk": 78,
 }
-# 血气之刃 / 血气爆发 / 嗜血 / 血魔 are Berserker moves the owner picked no
+# 血气之刃 / 嗜魂封魔斩 / 嗜血 / 血魔 are Berserker moves the owner picked no
 # atlas frame for, and the frames that used to sit in those slots belonged to the
 # 鬼泣/剑魂 skills they replaced. They keep the effect-thumbnail fallback below
 # until the owner picks frames off dnf_skillicon_atlas.png with --icons.

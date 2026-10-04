@@ -10,7 +10,8 @@ the GitHub mirror otherwise:
   十字斩      effect/gorecross/gorecross_cross.img
   血气之刃    effect/bloodsword/sword_normal.img
   暴走        effect/frenzy/sword_blood_upper.img
-  血气爆发    effect/bloodyrave/lslash-normal.img
+  嗜魂封魔斩  effect/bloodyrave/*.img  (start-dodge 血球 / particle 漩涡 /
+              finish-dodge+scrach+lslash-dodge 金叉 —— 2026-10-04 前错记成「血气爆发」)
   怒气爆发    effect/blast-back.img
   嗜血        effect/bloodsnatch/bloodwave.img
   抓头        effect/pinchhpregen.img
@@ -661,7 +662,11 @@ PICKS = {
     # with (07_血之狂暴 #44-58, the spiked corona). The crescent that rides the
     # swings moved to its own extra row below, and so did the second blade.
     "frenzy": {"stack": [("_frenzy", "blood-start.img")]},
-    "bloodyRave": {"stack": [("_bloodyrave", "*")]},
+    # 嗜魂封魔斩's own pick is further down, next to 大蹦's, because its row is
+    # declared with a `window` and the test that reads 大蹦's two windows counts
+    # every `"window":` from 大蹦's block to the end of the file. It used to stand
+    # here as `{"stack": [("_bloodyrave", "*")]}` - the whole pack at once, which
+    # is the "all of it on screen in the same instant" mistake `0019` names.
     # 怒气爆发 is **two eruptions on one timeline**, a long beat apart, and the
     # pack is built that way: a ring bursts under him and is gone inside a fifth
     # of a second, nothing burns for seven tenths, and then a column of blood
@@ -898,6 +903,72 @@ PICKS = {
     # under him for the whole lull), and the two spires of the second eruption
     # that come up at his own feet. The rest of the fire and the blood sword are
     # FRONT_ROWS below, baked to this same window.
+    # 嗜魂封魔斩. **The row is a timeline in seconds, not in progress.**
+    #
+    # Every other skill's row is read by progress - a fraction of a cast whose
+    # length is a constant. This one is the game's only channel: the player holds
+    # it and lets go, so the total does not exist until they do, and a fraction of
+    # it cannot name a moment. `EFFECT.channel` therefore splits the row in two
+    # and reads each half off its own clock: **columns 0-ENTRANCE are the opening
+    # seconds since the press, columns ENTRANCE- are the tail seconds since the
+    # release.** `from`/`until` below are fractions of the row, as always, and
+    # land on those two ranges.
+    #
+    # Measured off `skill-clips/09_嗜魂封魔斩.mp4` (176 frames at 30fps, #033 is
+    # the press; the ruler and every number are in assets/dnf_effect_picks.md §25).
+    # The pack is `sprite_character_swordman_effect_bloodyrave.NPK`, which the
+    # repo had been calling 血气爆发 and using exactly one entry of (docs/adr/0022).
+    # A client pixel is 1/123.5 of a Slayer-height; the offsets below are in those.
+    "bloodyRave": {"palette": "", "pack": "_bloodyrave", "anchor": (0, 0),
+                   "length": 24, "window": (-175, -215, 360, 265), "stages": [
+        # 起手那颗血球 (#042-#052). The reference grows it to **0.87 Slayer-heights
+        # across, centred 0.76 in front of his feet and 0.87 above them** - 73 px
+        # at (+94, -107), which is where his outstretched hand is. `start-dodge` is
+        # the client's own eight frames of exactly that ball, a red disc with a
+        # white-hot core. Every `offset` below is solved, not eyeballed: the
+        # client's frames each carry their own place inside the pack's canvas, so
+        # the number is `target centre - the ink's own centre at that scale`,
+        # measured off the decoded entry. `scale` is what makes 1 client effect px
+        # land on 1 screen px, which is the size the rest of this sheet is drawn at.
+        {"entry": "start-dodge.img", "frames": (0, 7), "scale": 0.52,
+         "offset": (24, -211), "from": 0.0, "until": 0.42},
+        # The ball opening into the sweep (#053-#058): `line-dodge` is the pack's
+        # own seventeen frames of thin red streaks fanning out.
+        {"entry": "line-dodge.img", "frames": (0, 16), "scale": 1.00,
+         "offset": (88, -154), "from": 0.18, "until": 0.50},
+        # 收势 (#153-#156): the vortex collapsing back into the hand.
+        {"entry": "casting_end_dodge.img", "frames": (0, 5), "scale": 0.55,
+         "offset": (25, -206), "from": 0.42, "until": 0.54},
+        # 金色巨叉 (#162-#170). Three layers of the one burst, which is what the
+        # reference's X is made of: a long white-gold stroke, a second one crossing
+        # it, and the star that collapses into the bar at the end. Measured as a
+        # whole it is **2.86 x 1.74 Slayer-heights, centred 1.18 in front and 0.80
+        # up** - 240 x 146 px at (+99, -67) - and each layer is scaled to it.
+        # The reference's X is **two thick strokes crossing** - a long one rising
+        # toward him and a shorter one cutting across it - inside a shell of red
+        # flame (measured: the whole thing 2.86 x 1.74 Slayer-heights, its middle
+        # 1.18 in front of his feet and 0.80 up). The pack ships those as
+        # separate entries, so what makes it read as a cross is the **rotation
+        # between them**: stacked at their own angles the three of them are one
+        # gold blob, which is what the first bake drew.
+        #
+        # **Only the frames that are *strokes*.** Both `finish_dodge` and
+        # `lslash-dodge` end their runs on a dark brown cloud with a thin gold
+        # line over it - the burst dying, which the reference has too but as soft
+        # red light rather than as a solid ball. Taking the whole entry put that
+        # ball in the middle of the cross and the X read as "a red blob with a
+        # scratch on it".
+        {"entry": "finish_dodge.img", "frames": (0, 2), "scale": 0.62, "stretch": (1.30, 0.78),
+         "offset": (-216, -329), "from": 0.52, "until": 0.74},
+        {"entry": "lslash-dodge.img", "frames": (0, 3), "scale": 0.56, "stretch": (1.25, 0.80),
+         "offset": (-141, -289), "rotate": -10.0, "from": 0.53, "until": 0.80},
+        {"entry": "scrach.img", "frames": (0, 4), "scale": 0.86, "stretch": (1.2, 0.85),
+         "offset": (-52, -109), "rotate": 46.0, "from": 0.55, "until": 0.82},
+        # 余晖 (#171-#176): the burst's own light, left behind on the ground.
+        {"entry": "light.img", "frames": (0, 0), "scale": 0.34,
+         "offset": (-177, -413), "from": 0.80, "until": 1.00},
+    ]},
+
     "mountainRift": {"palette": "", "pack": "_outragebreak", "anchor": (382, 281),
                      "length": 45, "window": (120, -200, 960, 480), "stages": [
         # The pack ships the broken floor as three things, and the reference
@@ -1083,6 +1154,16 @@ EXTRA_ROWS = [
     # a short flash over his head. It plays on over a character who can already
     # move, which is why it is its own row rather than part of the cast.
     ("rageGather", {"stack": [("_frenzy", "blood-stone-start.img")]}),
+    # 嗜魂封魔斩's vortex, alone on its own row because it is the one thing in the
+    # game that is *drawn live*: it is a spindle of nested loops that churns for as
+    # long as the player holds the key, so its length is not knowable at bake time.
+    # `particle.img`'s twelve frames are one loop each and the reference's churn
+    # period is **9 frames at 30fps = 0.300s**, measured by autocorrelation over
+    # the steady stretch (#059-#152, assets/dnf_effect_picks.md §25); the renderer
+    # draws several of them along the caster's front and cycles the columns on that
+    # beat. The pack draws one loop at 105x163 client px; the reference's whole
+    # spindle is 2.9 x 1.68 Slayer-heights, so it is a *line* of these, not one.
+    ("bloodyRaveVortex", {"stack": [("_bloodyrave", "particle.img")]}),
 ]
 
 # Rows for art a move draws *over* the Slayer. DNF orders the layers of one

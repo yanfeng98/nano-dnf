@@ -731,32 +731,96 @@
     },
     bloodyRave: {
       id: "bloodyRave",
-      name: "血气爆发",
-      key: "H",
-      mp: 16,
-      cooldown: 4.5,
-      damage: 16,
-      growth: 3,
-      duration: 0.5,
-      activeFrom: 0.14,
-      activeTo: 0.3,
-      reach: 104,
-      heightPad: 26,
-      knockbackX: 90,
-      launch: -380,
+      /*
+       * **It was called 血气爆发 and that name was wrong** - the client's own
+       * preview (`Swordman-BloodyRave.avi`) and the training-room clip
+       * (`skill-clips/09_嗜魂封魔斩.mp4`) are the same move, section for section.
+       * The id stays `bloodyRave` because that is the client's own name for it;
+       * the owner confirmed the identity off two frame sheets (docs/adr/0022).
+       */
+      name: "嗜魂封魔斩",
+      /* Its default slot is W (src/loadout.js DEFAULT_SLOTS); this is the label. */
+      key: "W",
+      mp: 40,
+      cooldown: 12,
+      /* The finisher's own cut. The vortex's ticks are priced separately below. */
+      damage: 34,
+      growth: 4,
+      /*
+       * **The one cast whose length is the player's.** `duration` is the *cap* -
+       * press, hold the vortex no longer than 3.133s, then the tail - and letting
+       * go early brings the end forward. Every second here is a reference second
+       * (assets/dnf_effect_picks.md §25, `09_嗜魂封魔斩.mp4` at 30fps, #033 is the
+       * press):
+       *
+       *   #033-036  0.000  the press: two gold frames, two dark red ones
+       *   #037-041  0.133  the blade comes up, the hand goes out
+       *   #042-052  0.300  the blood ball gathers in his hand and grows
+       *   #053-058  0.667  it opens and runs out into the vortex
+       *   #059-152  0.867  the vortex - **the stretch he can cut short**
+       *   #153-156  4.000  it collapses back into his hand
+       *   #157-161  4.133  the blade goes up and comes down
+       *   #162-170  4.300  the golden cross
+       *   #171-176  4.567  the afterglow
+       *
+       * He does not move through any of it: the reference's name plate never
+       * shifts a pixel, so there is no `advance` and no `leap` here.
+       */
+      duration: 4.767,
+      activeFrom: 0.867,
+      activeTo: 4.0,
+      /*
+       * The vortex reaches **2.8-3.0 Slayer-heights in front of him** (measured
+       * over the whole steady stretch; the middle of that band is 2.77) and stands
+       * **1.68 high** - taller than he is. That is 245px and 141px, so the pad is
+       * 141 minus his own 64. Depth takes the spin's lane rather than a melee
+       * line's: it is a sweep across the floor, not a blade (DEPTH_REACH.spin).
+       */
+      reach: 245,
+      heightPad: 77,
+      knockbackX: 260,
+      launch: 0,
       radius: 0,
+      /* Only the finisher goes through the ordinary hit loop - see `channel`. */
       hits: 1,
-      /* DNF shape: a rising wave that lifts whatever it touches. */
-      juggle: true,
-      shockwave: {
-        reach: 170,
-        damage: 8,
-        growth: 2,
-        heightPad: 26,
-        knockbackX: 60,
-        launch: -340,
-        extraWaveFromLevel: 6
-      }
+      knockdown: true,
+      depthReach: DEPTH_REACH.spin,
+      /*
+       * **按住／松手即收** (the owner's own pick, Q3 - it overrode my "fixed
+       * length" recommendation; docs/adr/0023).
+       *
+       * `entrance` cannot be skipped: the reference spends 0.867s getting the ball
+       * out before there is a vortex at all, and that is the move's whole warning.
+       * After it, letting go at any frame runs `tail` and then the finisher.
+       *
+       * The vortex ticks on the reference's own beat - **0.300s**, the period the
+       * steady stretch (#059-#152) autocorrelates to - and each tick pulls what it
+       * catches toward him. Neither the tick nor the pull could be measured off
+       * the clip: the training room has no monsters in it, so the reference shows
+       * the vortex churning over bare floor. Those two numbers are the owner's
+       * ruling (Q4) and are written down as invented, here and in the ledger.
+       */
+      channel: {
+        entrance: 0.867,
+        hold: 3.133,
+        tail: 0.767,
+        /* The finisher's cut, 0.300s after the release (the reference's #162). */
+        hits: [0.300],
+        tick: 0.3,
+        tickDamage: 5,
+        tickGrowth: 1,
+        /* Px per second it drags what it has hold of toward his feet. */
+        pull: 90,
+        /* Nothing reaches him past this: the vortex has a near end. */
+        stopAt: 46
+      },
+      /*
+       * 霸体 and no more. The owner asked for 无敌 on 嗜魂之手 and got it, but that
+       * move is 1.03s; this one can hold for 3.13 and then stands still for the
+       * whole tail, and five seconds of i-frames would take half a room's threats
+       * off the table. He takes the damage, keeps his feet, and finishes the move.
+       */
+      superArmor: true
     },
     rageBurst: {
       id: "rageBurst",
@@ -1594,6 +1658,13 @@
       skillTimer: 0,
       skillHitDone: false,
       skillHitsDone: 0,
+      /*
+       * 嗜魂封魔斩's own clock. `channelReleasedAt` is null for as long as he is
+       * still holding, and the elapsed second he let go once he is; the vortex's
+       * ticks are counted off `channelTickAt` (docs/adr/0023).
+       */
+      channelReleasedAt: null,
+      channelTickAt: 0,
       airHitTimer: 0,
       /* Self-buffs: 血之狂暴 (stance, no timer) and 暴走 (timed). */
       buffs: {},
@@ -1886,7 +1957,19 @@
   }
 
   /** When a skill's `index`-th hit lands, in seconds into the cast. */
-  function hitTime(skill, index) {
+  function hitTime(skill, index, player) {
+    /*
+     * **A channel's beats are timed from the release, not from the press.** Its
+     * other beats are all "N seconds after he let go", and the press does not know
+     * when that will be - which is the whole of why this move's art is read by
+     * elapsed seconds rather than by progress (docs/adr/0023). Before the release
+     * its hit is infinitely far away, so the ordinary hit loop simply waits.
+     */
+    if (skill.channel) {
+      var released = player && player.channelReleasedAt;
+      if (released === null || released === undefined) return Infinity;
+      return released + (skill.channel.hits || [])[index];
+    }
     /*
      * Most moves spread their hits evenly across the active window, and that is
      * all they ever needed to say. A move whose cuts land where the reference's
@@ -2656,6 +2739,8 @@
       player.skillTimer = skillSpec.duration;
       player.skillHitDone = false;
       player.skillHitsDone = 0;
+      player.channelReleasedAt = null;
+      player.channelTickAt = skillSpec.channel ? skillSpec.channel.entrance : 0;
       player.skillCooldowns[castSkill] = skillSpec.cooldown;
       /*
        * 无敌 from the press, for a move that asks for it. `invuln` used to only
@@ -2798,9 +2883,36 @@
         player.x = player.castOriginX + player.facing * advanceAhead(active, skillElapsed);
       }
 
+      /*
+       * **Letting go.** After the entrance, the frame the key stops being held is
+       * the frame the tail starts, and the tail is a fixed 0.767s however long the
+       * vortex ran (`docs/adr/0023`). Read off `input.skills` rather than a new
+       * field because both input paths already carry "still down" there: the
+       * keyboard through `held || pressed`, the touch bar through `held[slot]`
+       * until `pointerup` (src/main.js).
+       */
+      if (active.channel && player.channelReleasedAt === null) {
+        if (skillElapsed >= active.channel.entrance && !input.skills[active.id]) {
+          player.channelReleasedAt = skillElapsed;
+          player.skillTimer = active.channel.tail;
+        } else if (skillElapsed >= active.channel.entrance) {
+          channelPull(state, active, player, dt);
+          /*
+           * The vortex's ticks, on the reference's own 0.300s beat. This is not
+           * the hit loop below: how many there are depends on how long the player
+           * holds, and `hits`/`hitAt` describe a fixed list.
+           */
+          var holdEnd = Math.min(skillElapsed, active.channel.entrance + active.channel.hold);
+          while (player.channelTickAt <= holdEnd) {
+            channelTick(state, active, player);
+            player.channelTickAt += active.channel.tick;
+          }
+        }
+      }
+
       while (
         player.skillHitsDone < hitCount &&
-        skillElapsed >= hitTime(active, player.skillHitsDone)
+        skillElapsed >= hitTime(active, player.skillHitsDone, player)
       ) {
         var hitIndex = player.skillHitsDone;
         player.skillHitsDone += 1;
@@ -3007,6 +3119,66 @@
         player.skillId = null;
       }
     }
+  }
+
+  /**
+   * One beat of 嗜魂封魔斩's vortex: whatever it has hold of takes a small hit and
+   * is held still for the beat.
+   *
+   * **Neither this nor the pull below could be measured.** The reference's
+   * training room has no monsters in it - the vortex churns over bare floor for
+   * three seconds - so what it *does* to an enemy is the owner's ruling (Q4) and
+   * the numbers are ours. The beat it lands on is not ours: 0.300s is what the
+   * steady stretch autocorrelates to (assets/dnf_effect_picks.md §25).
+   */
+  function channelTick(state, skill, player) {
+    var channel = skill.channel;
+    var box = attackBox(player, skill.reach, skill.heightPad);
+    var damage = Math.round(
+      (channel.tickDamage +
+        (player.level - 1) * (channel.tickGrowth || 0) +
+        player.attackBonus) *
+        player.skillPower *
+        buffScale(player, "attackPower")
+    );
+    state.enemies.slice().forEach(function (enemy) {
+      if (enemy.dead) return;
+      if (!inReachOf(enemy.z, player.z, skill.depthReach)) return;
+      if (!boxesOverlap(box, bodyBox(enemy))) return;
+      /*
+       * No knockback and no launch: the point of the vortex is that what it
+       * catches *stays* in it. The hit goes through `damageEnemy`, so the stance's
+       * own hooks - bleed, the blood orb, the miss - ride along without this
+       * function knowing about any of them.
+       */
+      damageEnemy(state, enemy, damage, 0, player.x, { stun: channel.tick });
+    });
+  }
+
+  /**
+   * The vortex's drag, one frame at a time.
+   *
+   * It moves the enemy rather than setting `vx`, for the reason the caster's own
+   * `advance` states his position rather than pushing him (`docs/adr/0012`): the
+   * step is small and every frame, and an impulse that short is eaten by the
+   * grounded damping before it ever shows on screen. `stopAt` is what keeps the
+   * vortex from swallowing its catch - it pulls them to the near end and no
+   * closer, so they are still in front of him when the finisher lands.
+   */
+  function channelPull(state, skill, player, dt) {
+    var channel = skill.channel;
+    var box = attackBox(player, skill.reach, skill.heightPad);
+    var step = channel.pull * dt;
+    state.enemies.slice().forEach(function (enemy) {
+      if (enemy.dead) return;
+      if (!inReachOf(enemy.z, player.z, skill.depthReach)) return;
+      if (!boxesOverlap(box, bodyBox(enemy))) return;
+      var gap = player.x - enemy.x;
+      var distance = Math.abs(gap) - channel.stopAt;
+      if (distance <= 0) return;
+      enemy.x += (gap < 0 ? -1 : 1) * Math.min(distance, step);
+      enemy.vx = 0;
+    });
   }
 
   function applySkillHit(state, enemy, damage, skill, hitIndex) {

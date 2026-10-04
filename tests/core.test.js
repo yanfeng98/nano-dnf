@@ -4998,8 +4998,9 @@ test("the stance paints him red, carries a second blade and draws nothing else",
   assert.equal(Render.EFFECT.rageSwipeRows, undefined, "no separate crescent rows out here");
   assert.equal(
     Render.EFFECT.extraRowCount,
-    7,
-    "the extra rows are the orb, the dive arc, the red fan, the two blades, the gathering and 大蹦's fire"
+    8,
+    "the extra rows are the orb, the dive arc, the red fan, the two blades, the gathering, " +
+      "嗜魂封魔斩's vortex and 大蹦's fire"
   );
   state.player.comboIndex = 0;
   state.player.attackTimer = state.player.attackDuration * 0.5;
@@ -5068,6 +5069,50 @@ test("the stance paints him red, carries a second blade and draws nothing else",
   );
 });
 
+test("嗜魂封魔斩 is a channel: the key being down is its length", () => {
+  /*
+   * The move is the game's only cast whose length is the player's (docs/adr/0023).
+   * The two properties that make it one are both here: **the entrance cannot be
+   * skipped** however fast the key comes up, and **letting go is what ends it** -
+   * a hold of one length and a hold of another give two different casts out of
+   * the same press.
+   */
+  const run = (heldFrames) => {
+    const state = lastRoomState();
+    state.player.mp = state.player.maxMp;
+    state.enemies = [];
+    const hold = { skills: { bloodyRave: true } };
+    Core.step(state, hold);
+    let frames = 0;
+    while (state.player.skillId === "bloodyRave" && frames < 600) {
+      Core.step(state, frames < heldFrames ? hold : {});
+      frames += 1;
+    }
+    return frames;
+  };
+  const channel = Core.SKILLS.bloodyRave.channel;
+  const shortest = run(1);
+  const long = run(600);
+  /*
+   * A tap still pays the whole entrance and the whole tail - the reference has no
+   * vortex at all before 0.867s and the finisher is what the move is for.
+   */
+  const floor = (channel.entrance + channel.tail) * Core.FPS;
+  assert.ok(
+    shortest >= floor - 2,
+    `a one-frame tap still runs the entrance and the tail (${shortest} frames, floor ${Math.round(floor)})`
+  );
+  assert.ok(
+    long >= shortest + channel.hold * Core.FPS - 6,
+    `holding adds the vortex's own seconds on top (${long} vs ${shortest})`
+  );
+  /* And the cap is the reference's steady stretch, not unbounded. */
+  assert.ok(
+    long <= (channel.entrance + channel.hold + channel.tail) * Core.FPS + 2,
+    `the hold is capped at the reference's own 3.133s (${long} frames)`
+  );
+});
+
 test("the three new DNF skills land their hits and statuses", () => {
   const state = lastRoomState();
   const near = Core.createEnemy(state, "brute", state.player.x + 60);
@@ -5097,14 +5142,37 @@ test("the three new DNF skills land their hits and statuses", () => {
   /* Let the stance finish casting before the next skill - it is a long one. */
   Core.runFrames(state, Math.ceil(Core.SKILLS.frenzy.duration * Core.FPS), {});
 
-  // 血气爆发: launches through its wave
+  /*
+   * 嗜魂封魔斩: the vortex gnaws in small beats and drags what it catches toward
+   * him, and the finisher is one heavy cut at the end. It used to be a rising
+   * wave called 血气爆发 - the owner identified it as this move off two frame
+   * sheets and had it redone (docs/adr/0022).
+   */
   state.player.skillCooldowns.bloodyRave = 0;
   state.player.mp = state.player.maxMp;
   near.hp = 400;
-  Core.step(state, { skills: { bloodyRave: true } });
-  Core.runFrames(state, 12, {});
-  assert.ok(near.y < Core.ARENA.groundY || near.vy < 0, "血气爆发 lifts the target");
-  Core.runFrames(state, 28, {});
+  near.x = state.player.x + 60;
+  const hold = { skills: { bloodyRave: true } };
+  Core.step(state, hold);
+  /* The entrance is the move's warning and cannot be skipped or cut short. */
+  Core.runFrames(state, Math.ceil(Core.SKILLS.bloodyRave.channel.entrance * Core.FPS) - 3, hold);
+  assert.equal(near.hp, 400, "the vortex is not out yet during the 0.867s entrance");
+  assert.equal(state.player.channelReleasedAt, null, "and letting go early cannot end the entrance");
+  const startX = near.x;
+  Core.runFrames(state, 24, hold);
+  assert.ok(near.hp < 400, "the vortex beats damage what it holds");
+  assert.ok(near.x < startX, "and drags it toward his feet rather than pushing it away");
+  /* Let go: the tail is fixed, and the finisher lands inside it. */
+  const beforeFinisher = near.hp;
+  Core.runFrames(state, 2, {});
+  assert.notEqual(state.player.channelReleasedAt, null, "letting go is what ends the channel");
+  /* The tail is 0.767s however long the vortex ran - 46 frames at 60fps. */
+  Core.runFrames(state, Math.ceil(Core.SKILLS.bloodyRave.channel.tail * Core.FPS) + 2, {});
+  assert.ok(
+    beforeFinisher - near.hp >= Core.SKILLS.bloodyRave.damage,
+    "the finisher cuts harder than any single vortex beat"
+  );
+  assert.equal(state.player.skillId, null, "and the cast is over");
 
   // 怒气爆发: hits everything around the player
   const behind = Core.createEnemy(state, "grunt", state.player.x - 90);

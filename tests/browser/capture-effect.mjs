@@ -144,10 +144,25 @@ const slotKey = await page.evaluate((id) => {
   return index === -1 ? null : `Key${window.DNFLoadout.SLOT_KEYS[index]}`;
 }, skillId);
 if (!slotKey) throw new Error(`${skillId} is not on the hotbar`);
-await page.keyboard.press(slotKey);
+/*
+ * `HOLD=<seconds>` keeps the key down that long before letting go. A tap is all
+ * any other move wants - they run to their own end whether the key is up or not -
+ * but 嗜魂封魔斩 is the game's one channel: how long it runs *is* how long the key
+ * is down, so a press() would only ever capture its shortest possible cast
+ * (docs/adr/0023).
+ */
+const holdShots = Number(process.env.HOLD_SHOTS || 0);
+if (holdShots > 0) {
+  /* Down now, up inside the shot loop below: waiting here would spend the whole
+     cast before the first screenshot. */
+  await page.keyboard.down(slotKey);
+} else {
+  await page.keyboard.press(slotKey);
+}
 
 const log = [];
 for (let shot = 0; shot < shots; shot += 1) {
+  if (holdShots > 0 && shot === holdShots) await page.keyboard.up(slotKey);
   await page.screenshot({ path: path.join(OUT, `f${String(shot).padStart(2, "0")}.png`) });
   log.push(
     await page.evaluate((id) => {

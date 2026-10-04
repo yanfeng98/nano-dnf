@@ -199,6 +199,22 @@ CLIPS = [
     # 80-83 are also rageBurst's middle pose - the owner was told and kept
     # 80-89, so the two casts share four frames on purpose.
     ("berserk", list(range(80, 90))),
+    # 嗜魂封魔斩. Two motions in one cast, because the cast is the game's only
+    # channel (docs/adr/0023):
+    #
+    # - **起手 + 那 3 秒站桩** is 159-176, the client's own "he stands, extends the
+    #   arm, and holds it out" - the same run 血之狂暴's cast uses, and the same
+    #   shape the reference holds for three seconds (`09_嗜魂封魔斩` #059-#152 is a
+    #   still body: compared frame by frame against #070, nothing moves but the
+    #   vortex passing in front of him). It is one motion in the client's sheet
+    #   and three casts sit on it now; what separates them is the art over them.
+    # - **收招** is 189 / 194 / 195 / 197 / 198: he turns with the blade behind him,
+    #   raises it over his head, coils, cuts through and finishes low. Those five
+    #   are the owner's own pick off `guifeng-body-finish.png`. **190-193 are
+    #   skipped on purpose**: they carry the client's own white slash arc, and the
+    #   reference's own sweep is golden - the body row must not bring a white arc
+    #   of its own into the move (the same call 十字斩 made about 201-203).
+    ("bloodyRave", [176, 159, 160, 161, 168, 174, 175, 189, 194, 195, 197, 198]),
 ]
 CLIP_ROWS = ("clips", "clips2")
 

@@ -56,7 +56,7 @@ SKILL_NAMES = {
     "crossSlash": "十字斩",
     "bloodSword": "血气之刃",
     "frenzy": "血之狂暴",
-    "bloodyRave": "血气爆发",
+    "bloodyRave": "嗜魂封魔斩",
     "rageBurst": "怒气爆发",
     "bloodSnatch": "嗜血",
     "graspHead": "抓头",
