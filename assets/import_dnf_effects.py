@@ -45,7 +45,7 @@ import sys
 import urllib.request
 from pathlib import Path
 
-from PIL import Image, ImageChops, ImageFilter
+from PIL import Image, ImageChops, ImageDraw, ImageFilter
 
 ROOT = Path(__file__).resolve().parent
 SRC = ROOT / "dnf_src"
@@ -154,6 +154,10 @@ def ref(frame: int, first: int = 22, last: int = 55) -> float:
 #   "anchor"   - the point in the client's own coordinates that the caster stands
 #                on, so the row can be baked with the effect rooted at his feet
 #                instead of floating wherever the bounding box happens to sit
+#   "core"     - an (inner, outer) radius pair: keep only what is inside `inner`
+#                of the art's own centre and ramp the rest away by `outer`. For a
+#                radial effect whose picture carries more than the move shows -
+#                血球's ball and the lilac ring it does not wear in the reference
 #   one layer  - a stack entry may carry, after its name, a scale factor, a
 #                colour board of its own, and an (dx, dy) offset: the client
 #                sizes and scatters some layers from the skill's animation data,
@@ -981,7 +985,14 @@ PICKS = {
 # The orbs used to ride along inside the dual-blade row, which put a slash arc on
 # every drop of blood that flew into the character.
 EXTRA_ROWS = [
-    ("bloodOrb", {"stack": [("_frenzy", "blood-stone-0.img")]}),
+    # 血球: the ball 血之狂暴 pulls out of a monster. The art is the client's own
+    # (`frenzy/blood-stone-0.img`, the entry the owner pointed at) but **only its
+    # core**: the picture is a red ball out to r16, a gap, then a pale lilac ring
+    # at 1.6x the ball's radius, and the reference's own 血球 is red at every
+    # radius (docs/adr/0020). `core` is the ramp that drops the ring. The
+    # renderer draws the halo and the trail itself, both measured off the
+    # reference - the row is the ball alone.
+    ("bloodOrb", {"stack": [("_frenzy", "blood-stone-0.img")], "core": (14, 18.5)}),
     # 银光落刃: the up-slash arc, drawn rotated in the game so it reads as the
     # blade coming down with the dive.
     ("diveSlash", {"stack": [("", "upperslash.img")]}),
@@ -1318,6 +1329,41 @@ FRONT_ROWS = [
          "scale": 0.75, "offset": (305, 6), "from": 0.84, "until": 1.00},
     ]}),
 ]
+
+
+def radial_core(image: Image.Image, inner: float, outer: float) -> Image.Image:
+    """Keep only the middle of a radial effect and fade the rest out.
+
+    `frenzy/blood-stone-0.img` is one picture in three rings: a red ball out to
+    r16, a gap, then a pale lilac ring at 1.6x the ball's own radius. The
+    reference's 血球 is the ball alone - measured, it is red at *every* radius
+    (BV1W9Gx6LELk #836: `(246,76,113)` at the centre, `(249,114,162)` at r18,
+    still red at r45) - so the row drops the ring rather than carrying it into
+    the game, where it read as a lilac bead (docs/adr/0020).
+
+    A ramp rather than a hard cut: the ball's own edge is soft, and a disc
+    punched out of it would show as a ring of its own.
+    """
+    box = image.getbbox()
+    if box is None:
+        return image
+    centre_x = (box[0] + box[2] - 1) / 2
+    centre_y = (box[1] + box[3] - 1) / 2
+    mask = Image.new("L", image.size, 0)
+    draw = ImageDraw.Draw(mask)
+    # Outside in: each disc is smaller and brighter than the one before it, so
+    # the last (innermost) fill is what the centre ends up with.
+    steps = max(1, int((outer - inner) * 8))
+    for step in range(steps + 1):
+        radius = outer - (outer - inner) * step / steps
+        value = int(255 * step / steps)
+        draw.ellipse(
+            [centre_x - radius, centre_y - radius, centre_x + radius, centre_y + radius],
+            fill=value,
+        )
+    out = image.copy()
+    out.putalpha(ImageChops.multiply(image.getchannel("A"), mask))
+    return out
 
 
 def key_black_background(image: Image.Image, low: int = 26, soft: int = 48) -> Image.Image:
@@ -2283,8 +2329,24 @@ def main() -> None:
         counts[skill] = bake_frames(
             rows[skill], row, sheet, anchors[skill], origins[skill], window=window
         )
-    for offset, (name, _pick) in enumerate(EXTRA_ROWS):
-        counts[name] = bake_frames(rows[name], len(EFFECTS) + offset, sheet)
+    for offset, (name, pick) in enumerate(EXTRA_ROWS):
+        # An extra row can name a `core` (inner, outer): keep only what is inside
+        # it, ramped out, and bake from there. 血球 needs it because the client's
+        # picture is a ball *and* a ring it does not wear in the reference.
+        core = pick.get("core")
+        frames = [radial_core(frame, core[0], core[1]) for frame in rows[name]] if core else rows[name]
+        counts[name] = bake_frames(frames, len(EFFECTS) + offset, sheet)
+        if core:
+            # What the shape left in the cell, as a fraction of it: `bake_frames`
+            # pads its window, so this is *not* the same number as the window's
+            # zoom and the renderer needs this one to size the draw.
+            scale = fit_scale(ink_window(frames, origins[name]))
+            ink = ink_window(frames, origins[name], padding=0)
+            fill = (ink[2] - ink[0]) * scale / CELL
+            print(
+                f"  {name}: core {core}, the ball's ink is {ink[2] - ink[0]} client px "
+                f"and fills {fill:.3f} of its cell"
+            )
     for offset, (name, _pick) in enumerate(FRONT_ROWS):
         if name in RIFT_ROWS:
             continue

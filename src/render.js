@@ -2611,73 +2611,197 @@
     ctx.restore();
   }
 
+  /*
+   * Everything on the floor is 血球 now - monsters stopped leaving heal orbs
+   * behind when they died (docs/adr/0021), so this is a name for the walk over
+   * `state.pickups` rather than a dispatcher with one case in it.
+   */
   function drawDrop(ctx, state, drop, sprites) {
-    if (drop.kind === "blood_orb") {
-      drawBloodOrb(ctx, state, drop, sprites);
-      return;
-    }
-    var pulse = 0.8 + 0.2 * Math.sin(state.time * 8 + drop.x);
-    ctx.save();
-    ctx.globalAlpha = drop.life < 2 ? Math.max(0.25, drop.life / 2) : 1;
-    var glow = ctx.createRadialGradient(drop.x, feetY(drop), 1, drop.x, feetY(drop), drop.radius * 3 * pulse);
-    glow.addColorStop(0, "rgba(150, 255, 180, 0.6)");
-    glow.addColorStop(1, "rgba(90, 220, 140, 0)");
-    ctx.fillStyle = glow;
-    ctx.beginPath();
-    ctx.arc(drop.x, feetY(drop), drop.radius * 3 * pulse, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = "#8dffb0";
-    ctx.beginPath();
-    ctx.arc(drop.x, feetY(drop), drop.radius, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = "rgba(255,255,255,0.85)";
-    ctx.beginPath();
-    ctx.arc(drop.x - drop.radius / 3, feetY(drop) - drop.radius / 3, drop.radius / 3, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
+    drawBloodOrb(ctx, state, drop, sprites);
   }
 
   /*
-   * 血球: the drop 血之狂暴 pulls out of a monster. It is drawn from its own row
-   * of assets/effects.png - the owner picked that art out of the same 血之狂暴
-   * pack as the dual-blade slash, and it is the only part of the row that is a
-   * ball rather than an arc.
+   * 血球: the drop 血之狂暴 pulls out of a monster, and it is a **ball with a
+   * tail**, both measured off the reference (docs/adr/0020).
+   *
+   * The ball is the client's own art, cropped to its core by the bake - the row
+   * carries the red ball and nothing else, and `ORB_INK_OF_CELL` is what the
+   * bake left filling its cell (measured off the built sheet, 0008's rule).
+   * `radius` is the ball in world px, so the cell is drawn at whatever makes
+   * that ink come out at `2 * radius`.
+   *
+   * The tail is the ball drawn again at the positions it has just been at,
+   * fading: the reference's tail is the *same ball* left behind (#842-845), a
+   * series of blobs with dark gaps between them, which is what a row of
+   * after-images looks like and what nothing else would look like.
    */
+  var ORB_INK_OF_CELL = 0.595;
+
   function drawBloodOrb(ctx, state, drop, sprites) {
-    var pulse = 0.85 + 0.15 * Math.sin(state.time * 14 + drop.x * 0.05);
+    var pulse = 0.94 + 0.06 * Math.sin(state.time * 14 + drop.x * 0.05);
+    var lift = feetY(drop) - drop.y;
+    var size = (2 * drop.radius * pulse) / ORB_INK_OF_CELL;
+    var image = sprites && sprites.effects && sprites.effects.width ? sprites.effects : null;
+    var col = Math.floor(state.time * 14 + drop.x * 0.05) % EFFECT.orbFrames;
+    var trail = drop.trail || [];
+
+    function ballAt(x, y, alpha, at) {
+      ctx.globalAlpha = alpha;
+      if (image) {
+        ctx.imageSmoothingEnabled = true;
+        ctx.drawImage(
+          image,
+          at * EFFECT.cell,
+          EFFECT.orbRow * EFFECT.cell,
+          EFFECT.cell,
+          EFFECT.cell,
+          x - size / 2,
+          y - size / 2,
+          size,
+          size
+        );
+        return;
+      }
+      ctx.fillStyle = "#e5233c";
+      ctx.beginPath();
+      ctx.arc(x, y, drop.radius * pulse, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
     ctx.save();
-    ctx.globalAlpha = drop.life < 0.35 ? Math.max(0.2, drop.life / 0.35) : 1;
-    var radius = drop.radius * 3.2 * pulse;
-    var glow = ctx.createRadialGradient(drop.x, feetY(drop), 1, drop.x, feetY(drop), radius);
+    ctx.globalAlpha = drop.life < 0.25 ? Math.max(0.2, drop.life / 0.25) : 1;
+    /* Furthest back first, so the newest copy of the ball is the one on top. */
+    for (var back = trail.length - 1; back >= 1; back -= 1) {
+      ballAt(trail[back].x, trail[back].y + lift, 0.5 * (1 - back / (trail.length + 1)), col);
+    }
+    ctx.globalAlpha = drop.life < 0.25 ? Math.max(0.2, drop.life / 0.25) : 1;
+    /*
+     * Its halo, under the ball: the reference's glow dies about a fifth of the
+     * ball's own radius past its edge (#836: bright to r50, off by r65 against
+     * a 50px ball), so this is a tight rim of light rather than a lamp.
+     */
+    var halo = drop.radius * 1.25 * pulse;
+    var glow = ctx.createRadialGradient(drop.x, feetY(drop), 1, drop.x, feetY(drop), halo);
     glow.addColorStop(0, "rgba(255, 74, 96, 0.8)");
     glow.addColorStop(0.55, "rgba(206, 22, 46, 0.45)");
     glow.addColorStop(1, "rgba(150, 8, 26, 0)");
     ctx.fillStyle = glow;
     ctx.beginPath();
-    ctx.arc(drop.x, feetY(drop), radius, 0, Math.PI * 2);
+    ctx.arc(drop.x, feetY(drop), halo, 0, Math.PI * 2);
     ctx.fill();
-    if (sprites && sprites.effects && sprites.effects.width) {
-      var frames = EFFECT.orbFrames;
-      var col = Math.floor(state.time * 14 + drop.x * 0.05) % frames;
-      var size = drop.radius * 4.6 * pulse;
-      ctx.imageSmoothingEnabled = true;
-      ctx.drawImage(
-        sprites.effects,
-        col * EFFECT.cell,
-        EFFECT.orbRow * EFFECT.cell,
-        EFFECT.cell,
-        EFFECT.cell,
-        drop.x - size / 2,
-        feetY(drop) - size / 2,
-        size,
-        size
-      );
-    } else {
-      ctx.fillStyle = "#e5233c";
+    ballAt(drop.x, feetY(drop), 1, col);
+    /*
+     * Its white-hot middle. The reference's ball is a *hot* point inside red
+     * rather than flat red: #836 measures pure `(255,255,255)` across the
+     * middle ~10px of a 100px ball, fading out to the body's red within a
+     * fifth of the ball's own width. The client's art stops at bright red, and
+     * without this the ball reads as a painted disc.
+     */
+    var hot = drop.radius * 0.42 * pulse;
+    var core = ctx.createRadialGradient(drop.x, feetY(drop), 0, drop.x, feetY(drop), hot);
+    core.addColorStop(0, "rgba(255, 255, 255, 0.92)");
+    core.addColorStop(0.35, "rgba(255, 226, 236, 0.5)");
+    core.addColorStop(1, "rgba(255, 190, 200, 0)");
+    ctx.fillStyle = core;
+    ctx.beginPath();
+    ctx.arc(drop.x, feetY(drop), hot, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  /*
+   * The second half of a 血球 landing: the *drink*. A glass-green sphere closes
+   * over him and then breaks into motes that float off.
+   *
+   * Measured off the reference (#850-855, docs/adr/0020): the sphere is about
+   * 0.76 Slayer-heights across, its brightest band near-white mint
+   * (`(220,254,220)`) with a deeper green rim, and it is translucent - he shows
+   * through it. It peaks in under a tenth of a second and is gone by 0.2s, and
+   * the three motes it breaks into (each about 0.2 Slayer-heights) rise off him
+   * over the next 0.2s. Without this half the orb simply vanished at his chest.
+   */
+  function drawBloodHeal(ctx, effect, state) {
+    var age = 1 - effect.life / effect.maxLife;
+    ctx.save();
+    /*
+     * The sphere opens a beat *after* the flash, not with it: the reference
+     * spends #846-849 on the white burst and only then closes the green over
+     * him. Drawn together the flash's spokes sit on top of the sphere and
+     * neither reads.
+     */
+    var opened = (age - 0.25) / 0.75;
+    if (opened > 0) {
+      var radius = SPRITE.bodyHeight * 0.38;
+      var sphere = radius * (0.62 + 0.38 * Math.min(1, opened / 0.35));
+      ctx.globalAlpha = Math.min(1, (1 - opened) * 2.6);
+      var skin = ctx.createRadialGradient(effect.x, effect.y, 1, effect.x, effect.y, sphere);
+      skin.addColorStop(0, "rgba(236, 255, 238, 0.34)");
+      skin.addColorStop(0.6, "rgba(150, 240, 180, 0.44)");
+      /* The glassy edge: the reference's sphere reads by its rim, not its fill. */
+      skin.addColorStop(0.9, "rgba(214, 255, 224, 0.62)");
+      skin.addColorStop(0.97, "rgba(120, 240, 170, 0.3)");
+      skin.addColorStop(1, "rgba(120, 240, 170, 0)");
+      ctx.fillStyle = skin;
       ctx.beginPath();
-      ctx.arc(drop.x, feetY(drop), drop.radius, 0, Math.PI * 2);
+      ctx.arc(effect.x, effect.y, sphere, 0, Math.PI * 2);
       ctx.fill();
     }
+    /* The motes it breaks into, each on its own slow drift upward. */
+    for (var mote = 0; mote < 3; mote += 1) {
+      var own = Math.max(0, Math.min(1, (age - 0.55) / 0.45));
+      if (own <= 0) continue;
+      var angle = -Math.PI / 2 + (mote - 1) * 0.75;
+      var travel = SPRITE.bodyHeight * 0.5 * own;
+      var mx = effect.x + Math.cos(angle) * travel * 0.7 + (mote - 1) * 11;
+      var my = effect.y + Math.sin(angle) * travel;
+      var moteRadius = SPRITE.bodyHeight * 0.1 * (0.7 + 0.3 * Math.sin(state.time * 9 + mote));
+      ctx.globalAlpha = Math.min(1, (1 - own) * 2.4);
+      var glow = ctx.createRadialGradient(mx, my, 1, mx, my, moteRadius * 2.2);
+      glow.addColorStop(0, "rgba(226, 255, 232, 0.95)");
+      glow.addColorStop(0.45, "rgba(110, 245, 170, 0.7)");
+      glow.addColorStop(1, "rgba(60, 200, 140, 0)");
+      ctx.fillStyle = glow;
+      ctx.beginPath();
+      ctx.arc(mx, my, moteRadius * 2.2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  /*
+   * What a 血球 does when it lands: the reference goes off like a flashbulb on
+   * his chest - a white core, then pale spokes off it, `(226,255,255)` at r45
+   * and fading inside a tenth of a second (#846-849, docs/adr/0020).
+   */
+  function drawBloodFlash(ctx, effect) {
+    var age = 1 - effect.life / effect.maxLife;
+    var alpha = Math.min(1, effect.life / effect.maxLife) * (1 - age * 0.45);
+    /*
+     * Short spokes off a bright core, not a sparkler: the reference's rays
+     * reach about a ball and a half past their own core and are pale, thin and
+     * soft (#847, `(226,255,255)`), and the whole thing is over inside 0.2s.
+     */
+    var reach = 12 + age * 36;
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.strokeStyle = "rgba(222, 252, 255, 0.6)";
+    ctx.lineWidth = 2;
+    ctx.lineCap = "round";
+    for (var spoke = 0; spoke < 14; spoke += 1) {
+      var angle = (spoke / 14) * Math.PI * 2 + 0.35;
+      ctx.beginPath();
+      ctx.moveTo(effect.x + Math.cos(angle) * (reach * 0.35), effect.y + Math.sin(angle) * (reach * 0.35));
+      ctx.lineTo(effect.x + Math.cos(angle) * reach, effect.y + Math.sin(angle) * reach);
+      ctx.stroke();
+    }
+    var core = ctx.createRadialGradient(effect.x, effect.y, 1, effect.x, effect.y, 13);
+    core.addColorStop(0, "rgba(255, 255, 255, 0.95)");
+    core.addColorStop(0.55, "rgba(226, 255, 255, 0.5)");
+    core.addColorStop(1, "rgba(180, 235, 255, 0)");
+    ctx.fillStyle = core;
+    ctx.beginPath();
+    ctx.arc(effect.x, effect.y, 13, 0, Math.PI * 2);
+    ctx.fill();
     ctx.restore();
   }
 
@@ -2824,6 +2948,10 @@
       ctx.fillStyle = "#8dffb0";
       ctx.fillText(effect.text, effect.x, ey - (1 - alpha) * 26);
       ctx.restore();
+    } else if (effect.kind === "bloodFlash") {
+      drawBloodFlash(ctx, effect);
+    } else if (effect.kind === "bloodHeal") {
+      drawBloodHeal(ctx, effect, state);
     } else if (effect.kind === "banner") {
       /*
        * The room banner and the boss health bar both live at the top centre, so

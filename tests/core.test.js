@@ -153,8 +153,17 @@ function preferredUpgrade(options) {
 }
 
 function killAll(state) {
+  /*
+   * Hit until it is dead: an elite or a boss gets a 回避 roll per hit
+   * (docs/adr/0018), and every caller of this helper wants an empty room, not
+   * a fight. The roll comes off the same seeded stream as everything else, so
+   * "one big hit" lands or misses depending on how many numbers the code has
+   * drawn before it - which changes whenever anything upstream does.
+   */
   state.enemies.slice().forEach((enemy) => {
-    Core.damageEnemy(state, enemy, 99999, 0, state.player.x);
+    for (let hit = 0; !enemy.dead && hit < 50; hit += 1) {
+      Core.damageEnemy(state, enemy, 99999, 0, state.player.x);
+    }
   });
 }
 
@@ -1538,16 +1547,32 @@ test("a shot flies on the floor its caster stands on", () => {
   assert.equal(shot.z, 260);
 });
 
-test("a drop lands on the floor the body fell on", () => {
+test("a kill leaves nothing on the floor", () => {
+  /*
+   * Monsters used to leave a heal orb where the body fell - a brute always,
+   * an elite and a boss always, half the chaff. The owner took the whole line
+   * out: blood comes back only through 血之狂暴's own orbs, which is what
+   * `0017` said the stance's price was buying (docs/adr/0021).
+   */
   const state = lastRoomState();
+  state.player.buffs.bloodRage = 0;
   const brute = Core.createEnemy(state, "brute", state.player.x + 60, 300);
-  state.enemies = [brute];
+  const boss = Core.createEnemy(state, "boss", state.player.x + 120, 0);
+  state.enemies = [brute, boss];
 
   Core.damageEnemy(state, brute, brute.maxHp + 1, 0, brute.x, {});
+  Core.damageEnemy(state, boss, boss.maxHp + 1, 0, boss.x, {});
 
-  const drop = state.pickups.find((pickup) => pickup.kind === "heal_orb");
-  assert.ok(drop, "a brute always pays out");
-  assert.equal(drop.z, 300);
+  assert.equal(state.pickups.length, 0, "no heal orbs, from any rank");
+  /* And the blood orbs still come out of a hit while the stance is up. */
+  state.player.buffs.bloodRage = Infinity;
+  state.player.stanceDrainTimer = 999;
+  const target = Core.createEnemy(state, "brute", state.player.x + 60);
+  for (let hit = 0; hit < 40 && !state.pickups.length; hit += 1) {
+    Core.damageEnemy(state, target, 1, 0, state.player.x);
+  }
+  assert.equal(state.pickups.length, 1, "the stance's own blood is the only pick-up");
+  assert.equal(state.pickups[0].kind, "blood_orb");
 });
 
 /*
@@ -1651,37 +1676,21 @@ test("level up heals the player and raises combo damage", () => {
   assert.equal(hpBefore - enemy.hp, Core.PLAYER.comboDamage[0] + state.player.attackBonus);
 });
 
-test("bosses always drop a heal orb and picking it up restores health", () => {
+test("bosses pay out in experience, not in health", () => {
   const state = lastRoomState();
   const boss = Core.createEnemy(state, "boss", state.player.x + 60);
   state.enemies = [boss];
   state.player.hp = 30;
+  const xpBefore = state.player.xp;
 
   Core.damageEnemy(state, boss, 9999, 0, state.player.x);
-  assert.equal(state.pickups.length, 1);
-  assert.equal(state.pickups[0].value, Core.DROPS.bossHeal);
-  const hpAfterKill = state.player.hp;
 
-  const drop = state.pickups[0];
-  drop.x = state.player.x;
-  Core.step(state, {});
-  Core.runFrames(state, 45, {});
-
-  assert.equal(state.pickups.length, 0);
-  assert.equal(state.player.hp, hpAfterKill + Core.DROPS.bossHeal);
-});
-
-test("dropped orbs expire instead of accumulating forever", () => {
-  const state = lastRoomState();
-  const boss = Core.createEnemy(state, "boss", state.player.x + 700);
-  state.enemies = [boss];
-
-  Core.damageEnemy(state, boss, 9999, 0, state.player.x);
-  assert.equal(state.pickups.length, 1);
-
-  Core.runFrames(state, Math.ceil(Core.DROPS.lifetimeSeconds * Core.FPS) + 5, {});
-
-  assert.equal(state.pickups.length, 0);
+  assert.equal(state.pickups.length, 0, "the kill itself drops nothing");
+  assert.ok(
+    state.player.hp <= 30 + Core.PROGRESSION.healOnLevelUp * 3,
+    "and the only health it hands back is the level-up heal, not an orb"
+  );
+  assert.ok(state.player.xp > xpBefore, "the reward for a boss is the level");
 });
 
 test("casters keep their firing range and telegraph a shot", () => {
@@ -4494,11 +4503,16 @@ test("血之狂暴 is a stance with no timer, and casting it again takes it down
   /*
    * A buffer in the DNF sense: the client's own read is "cast it again to take
    * it down", so an hour of game time must not tick it away. The HP does not
-   * stop, though - the stance is paid for in blood for as long as it is up.
+   * stop, though - the stance is paid for in blood for as long as it is up, on
+   * a ten-second clock (docs/adr/0020: the owner read our old per-second
+   * trickle as far too fast, and the move's own numbers charge every ten
+   * seconds).
    */
   const hpAfterCast = state.player.hp;
-  Core.runFrames(state, 300, {});
+  Core.runFrames(state, 540, {});
   assert.equal(state.player.buffs.bloodRage, Infinity, "the stance has no timer");
+  assert.equal(state.player.hp, hpAfterCast, "and it is not due for ten seconds");
+  Core.runFrames(state, 120, {});
   assert.ok(
     state.player.hp < hpAfterCast,
     "and it keeps charging him for as long as it is up"
@@ -4605,10 +4619,30 @@ test("血之狂暴 is paid for in blood, and the price can kill him", () => {
    * `damagePlayer` - no i-frames, no knockback, no 硬直, and `damageTaken` stays
    * a count of what the monsters did.
    */
+  /*
+   * And the bill itself: 1% of max HP a tick, one tick every ten seconds. This
+   * is the number the owner reset (docs/adr/0020) - it used to be 1 HP every
+   * half second, which at 120 max HP is three times the rate the move's own
+   * numbers charge for.
+   */
+  const billBefore = state.player.hp;
+  Core.runFrames(state, 660, {});
+  assert.equal(
+    Math.round(billBefore - state.player.hp),
+    Math.round(maxHp * 0.01),
+    "the bill is 1% of the bar every ten seconds"
+  );
+  Core.runFrames(state, 600, {});
+  assert.equal(
+    Math.round(billBefore - state.player.hp),
+    Math.round(maxHp * 0.02),
+    "and it comes round again ten seconds later"
+  );
+
   const takenBefore = state.stats.damageTaken;
   state.player.hp = 1;
-  Core.runFrames(state, 60, {});
-  assert.equal(state.player.hp, 0, "the drip takes his last point and then some");
+  Core.runFrames(state, 660, {});
+  assert.equal(state.player.hp, 0, "the bill takes his last point and then some");
   assert.ok(state.player.dead, "and it kills him");
   assert.ok(state.defeat, "the run is over");
   assert.equal(state.stats.damageTaken, takenBefore, "but the monsters get no credit for it");
@@ -4834,8 +4868,68 @@ test("血之狂暴 draws blood orbs out of what it hits and they fly back as hea
   state.player.hp = state.player.maxHp;
   Core.runFrames(state, 200, {});
   assert.equal(state.pickups.length, 0, "orbs do not pile up");
-});
 
+  /*
+   * **The crossing is timed, not paced** (docs/adr/0020). The reference spends
+   * 0.45s flying the orb from the monster to him - #834 has the ball on the
+   * monster, #846 has it going off on his chest - and that is what makes it
+   * read as flying at all. At the fixed 620 px/s this used to run at, a
+   * monster standing next to him got the blood back in 0.08s and the whole
+   * thing was a blink. So: the same seconds at any range, and 0.45 of them.
+   */
+  const crossing = (gap) => {
+    state.player.onGround = true;
+    state.player.vy = 0;
+    state.player.y = Core.ARENA.groundY;
+    state.player.hp = state.player.maxHp;
+    state.player.buffs.bloodRage = Infinity;
+    state.player.stanceDrainTimer = 999;
+    state.pickups.length = 0;
+    target.x = state.player.x + gap;
+    for (let hit = 0; hit < 40 && !state.pickups.length; hit += 1) {
+      Core.damageEnemy(state, target, 1, 0, state.player.x);
+    }
+    assert.equal(state.pickups.length, 1, `precondition: an orb from ${gap}px away`);
+    const chest = () => state.player.y - state.player.height * 0.75;
+    const away = () => {
+      const orb = state.pickups[0];
+      return Math.hypot(state.player.x - orb.x, chest() - orb.y);
+    };
+    const distance = away();
+    const half = Math.round((Core.BLOOD_ORB.flightSeconds * Core.FPS) / 2);
+    let frames = 0;
+    let leftAtHalf = null;
+    while (state.pickups.length && frames < 240) {
+      Core.runFrames(state, 1, {});
+      frames += 1;
+      if (frames === half && state.pickups.length) leftAtHalf = away();
+    }
+    return { distance, frames, leftAtHalf };
+  };
+  const near = crossing(140);
+  const far = crossing(420);
+  const flight = Core.BLOOD_ORB.flightSeconds;
+  const expected = Math.round(flight * Core.FPS);
+  /*
+   * **The trip is the clock, not the distance** (docs/adr/0020): 0.55s whether
+   * it was drawn four Slayer-widths away or twelve.
+   */
+  assert.ok(
+    Math.abs(near.frames - expected) <= 1 && Math.abs(far.frames - expected) <= 1,
+    `the crossing is ${flight}s at any range (${near.frames} and ${far.frames} frames, want ${expected})`
+  );
+  /*
+   * **And it eases in.** Halfway through the clock the ball is still more than
+   * half the way out - the reference drifts out of the body and then comes, so
+   * the last third of the time covers most of the ground. A constant speed
+   * would leave exactly half of it at the half-way mark.
+   */
+  assert.ok(
+    near.leftAtHalf > near.distance * 0.6 && far.leftAtHalf > far.distance * 0.6,
+    `the ball is still far out at half time (${near.leftAtHalf.toFixed(0)}/${near.distance.toFixed(0)}, ` +
+      `${far.leftAtHalf.toFixed(0)}/${far.distance.toFixed(0)}), so it is pulled rather than thrown`
+  );
+});
 test("the stance paints him red, carries a second blade and draws nothing else", () => {
   const state = Core.createState({ seed: 9 });
   const sprites = {
@@ -4954,10 +5048,17 @@ test("the stance paints him red, carries a second blade and draws nothing else",
     kind: "blood_orb",
     x: state.player.x + 60,
     y: state.player.y - 40,
-    radius: 9,
+    radius: Core.BLOOD_ORB.radius,
     value: Core.BLOOD_ORB.heal,
     life: 1.2,
-    speed: Core.BLOOD_ORB.speed
+    fromX: state.player.x + 60,
+    fromY: state.player.y - 40,
+    progress: 0.5,
+    /* The ball's own path: the renderer draws these behind it as the tail. */
+    trail: [
+      { x: state.player.x + 60, y: state.player.y - 40 },
+      { x: state.player.x + 85, y: state.player.y - 40 }
+    ]
   });
   const orbPass = [];
   Render.render(recordingContext(orbPass), state, { sprites });
@@ -6249,20 +6350,21 @@ test("the spin is answerable: backing out of the lane avoids it", () => {
   assert.equal(run(true), 0, "leaving the lane avoids the sweep");
 });
 
-test("the elite mini-boss always pays out a bigger heal orb", () => {
+test("the elite is worth more experience than the chaff it is made of", () => {
+  /*
+   * The elite used to be worth a bigger heal orb than a grunt. With the whole
+   * drop line gone (docs/adr/0021) its reward is the experience and the room
+   * it unlocks, so that is what this holds.
+   */
   const state = lastRoomState();
   const elite = Core.createEnemy(state, "elite", state.player.x + 60);
-  state.enemies = [elite];
+  const grunt = Core.createEnemy(state, "grunt", state.player.x + 90);
+  state.enemies = [elite, grunt];
 
   Core.damageEnemy(state, elite, 9999, 0, state.player.x);
 
-  assert.equal(state.pickups.length, 1, "the elite must always drop");
-  assert.equal(state.pickups[0].value, Core.DROPS.eliteHeal);
-  assert.ok(
-    Core.DROPS.eliteHeal > Core.DROPS.playerHeal &&
-      Core.DROPS.eliteHeal < Core.DROPS.bossHeal,
-    "the mini-boss pays out between a grunt and the boss"
-  );
+  assert.equal(state.pickups.length, 0, "no orb");
+  assert.ok(elite.xp > grunt.xp, "but it is worth more than a grunt");
 });
 
 test("the elite is a mini-boss, not a second boss: no phase two, no boss drop", () => {

@@ -653,12 +653,22 @@
          * The price. `open.hpRatio` is the cut he takes on the frame the stance
          * lands - 17.5% of max HP, measured off the reference's own HP orb
          * (07_血之狂暴 #44: -14px, white loss band visible) - and `drain` is
-         * the trickle after it, deliberately small and often. Neither has a
-         * floor: the owner's call is that this is a cost and not a fee, so it
-         * can kill him, and the blood orbs are the only way back up.
+         * what it takes after that. Neither has a floor: the owner's call is
+         * that this is a cost and not a fee, so it can kill him, and the blood
+         * orbs are the only way back up.
+         *
+         * **Once every ten seconds, 1% of max HP** (docs/adr/0020). The clip
+         * cannot time this one - it runs 3.5s and its orb sits still for the
+         * last 1.33s of it - so the cadence comes from the move's own numbers,
+         * which charge the caster every ten seconds (75 against the 220 the cast
+         * costs at level 1). What we had was 2 HP/s: 20 HP over ten seconds
+         * against a 21 HP cast, three times the original's ratio, and the owner
+         * read it as a bleed rather than a bill. He set the rate at 1% a tick
+         * instead of the original's 6%, so a full bar lasts ~100 seconds of
+         * standing still.
          */
         open: { hpRatio: 0.175 },
-        drain: { interval: 0.5, hp: 1 },
+        drain: { interval: 10, hpRatio: 0.01 },
         /*
          * The reference's **second beat**: a compact mass of blood gathers in his
          * free hand while a star goes off over his head (07_血之狂暴 f64-78).
@@ -1118,29 +1128,53 @@
     maxLevel: 12
   };
 
-  var DROPS = {
-    orbRadius: 13,
-    pickupRadius: 32,
-    playerHeal: 18,
-    eliteHeal: 30,
-    bossHeal: 42,
-    gruntDropChance: 0.5,
-    lifetimeSeconds: 14,
-    gravity: 1500
-  };
-
   /*
    * 血之狂暴 pulls blood out of whatever the Slayer hits: a landed hit has a
    * chance to draw an orb that flies into him and heals on arrival. The orb
    * ignores gravity on purpose - it is being pulled towards him, not dropped.
+   *
+   * **It is pulled in, and that is a shape, not a speed.** The reference's trip
+   * is 0.55s - it leaves the monster around #79 and goes off on his chest at
+   * #846 - but it does not spend them evenly: it drifts out of the body, then
+   * the last fifth of the crossing covers most of the distance. That ease is
+   * what "being drawn into him" looks like, and a constant speed reads as a
+   * projectile instead (docs/adr/0020).
+   *
+   * So the orb is parameterised by *time*: `progress` runs 0 to 1 over
+   * `flightSeconds` and the ball sits at `progress²` of the way from where it
+   * was drawn to wherever he is now. Being homing falls out of that for free -
+   * the far end of the line is his chest, re-read every frame - and so does
+   * arriving on time, whatever the distance was.
    */
   var BLOOD_ORB = {
     chance: 0.34,
     heal: 4,
-    radius: 9,
-    speed: 620,
-    lifetimeSeconds: 1.6
+    /* The ball itself: 0.47 Slayer-heights across, off the reference (#836:
+     * its red mass is ~100px against his ~210). */
+    radius: 20,
+    flightSeconds: 0.55,
+    /* Long enough that a ball can never be left hanging in the air. */
+    lifetimeSeconds: 1.2,
+    /*
+     * The trail: how many of the ball's own past positions the renderer is
+     * given to draw behind it. `trailStep` is the spacing, in ball radii, so
+     * the tail is a fixed *length* behind the ball - about 1.8 ball-widths,
+     * which is what the reference drags (#842-845) - rather than a fixed slice
+     * of the flight, which would make a long crossing a long tail. The spacing
+     * is well under a radius so the copies run into one another and read as a
+     * smear with red blobs in it, which is what the reference's tail is.
+     */
+    trailSteps: 6,
+    trailStep: 0.55
   };
+
+  /*
+   * How far up his body a 血球 lands, as a share of his collision box. The
+   * reference puts it at the middle of his chest (#847: the flash goes off
+   * about 55% of the way up a character drawn 84px tall), which is higher than
+   * the box's own middle because the box is 64 and the art is 84.
+   */
+  var CHEST_OF_HEIGHT = 0.75;
 
   var ENEMY_TYPES = {
     grunt: {
@@ -2040,44 +2074,23 @@
     return true;
   }
 
-  function spawnDrop(state, enemy) {
-    var value = 0;
-    if (enemy.type === "boss") {
-      value = DROPS.bossHeal;
-    } else if (enemy.type === "elite") {
-      /* A mini-boss always pays out: the gauntlet should leave you able to fight. */
-      value = DROPS.eliteHeal;
-    } else if (enemy.type === "brute" || nextRandom(state) < DROPS.gruntDropChance) {
-      value = DROPS.playerHeal;
-    }
-    if (value <= 0) return null;
-    var drop = {
-      kind: "heal_orb",
-      x: enemy.x,
-      y: enemy.y - enemy.height - 18,
-      /* It falls where the body was, so it lands on the body's own floor. */
-      z: enemy.z || 0,
-      vy: -180,
-      radius: DROPS.orbRadius,
-      value: value,
-      life: DROPS.lifetimeSeconds
-    };
-    state.pickups.push(drop);
-    return drop;
-  }
-
   /** The blood 血之狂暴 pulls out of a monster it just hit. */
   function spawnBloodOrb(state, enemy) {
+    var x = enemy.x;
+    var y = enemy.y - enemy.height * 0.55;
     var orb = {
       kind: "blood_orb",
-      x: enemy.x,
-      y: enemy.y - enemy.height * 0.55,
+      x: x,
+      y: y,
       z: enemy.z || 0,
-      vy: 0,
       radius: BLOOD_ORB.radius,
       value: BLOOD_ORB.heal,
       life: BLOOD_ORB.lifetimeSeconds,
-      speed: BLOOD_ORB.speed
+      /* Where it was drawn, and how far along the pull it is (see BLOOD_ORB). */
+      fromX: x,
+      fromY: y,
+      progress: 0,
+      trail: [{ x: x, y: y }]
     };
     state.pickups.push(orb);
     state.stats.bloodOrbs += 1;
@@ -2251,7 +2264,6 @@
       enemy.dead = true;
       state.stats.kills += 1;
       pushBanner(state, enemy.type === "boss" ? "Boss down!" : "Enemy down", 0.9);
-      spawnDrop(state, enemy);
       grantXp(state, enemy.xp);
     } else if (enemy.phase2 && enemy.phase < 2 && enemy.hp <= enemy.maxHp * enemy.phase2.hpRatio) {
       enterPhase2(state, enemy);
@@ -2331,11 +2343,11 @@
   }
 
   /*
-   * 血之狂暴's trickle: his own HP, a little at a time, for as long as the
-   * stance is up. Small and often rather than one big bite, and it does not
-   * stop - not between rooms, not standing still. The blood orbs are the only
-   * way back up, which is what makes the stance something he has to keep
-   * feeding (docs/adr/0017).
+   * 血之狂暴's bill: his own HP, charged for as long as the stance is up. It is
+   * a bill and not a bleed - 1% of max HP every ten seconds (docs/adr/0020) -
+   * and it does not stop: not between rooms, not standing still. The blood orbs
+   * are the only way back up, which is what makes the stance something he has
+   * to keep feeding (docs/adr/0017).
    *
    * The countdown lives on the player rather than on the buff record, because a
    * buff is a number of seconds and nothing else. Exactly one buff in the game
@@ -2360,7 +2372,10 @@
        * the hard way and ticked exactly once for a week (see `damageEnemy`).
        */
       player.stanceDrainTimer += drain.interval;
-      spendPlayerHp(state, player, drain.hp);
+      /* The cast's own cut is taken off max HP so it stays the same fraction of
+       * the bar as he levels; the bill is charged the same way, for the same
+       * reason - it is a share of the stance's price, not a flat number. */
+      spendPlayerHp(state, player, (drain.hp || 0) + player.maxHp * (drain.hpRatio || 0));
     }
   }
 
@@ -3623,35 +3638,37 @@
       drop.life -= dt;
       if (drop.life <= 0) return;
 
-      var sameLevel;
-      var closeEnough;
-      if (drop.kind === "blood_orb") {
-        /*
-         * 血球 is pulled into the Slayer: it homes at his chest instead of
-         * falling, so it cannot be lost to gravity or to a jump he is in the
-         * middle of. The level check that ordinary drops need would drop it
-         * the moment he leaves the ground.
-         */
-        var toX = player.x - drop.x;
-        var toY = player.y - player.height * 0.55 - drop.y;
-        var distance = Math.sqrt(toX * toX + toY * toY) || 1;
-        var step = Math.min(distance, drop.speed * dt);
-        drop.x += (toX / distance) * step;
-        drop.y += (toY / distance) * step;
-        sameLevel = true;
-        closeEnough = distance <= DROPS.pickupRadius + player.width / 2;
-      } else {
-        drop.vy += DROPS.gravity * dt;
-        drop.y += drop.vy * dt;
-        if (drop.y >= ARENA.groundY - drop.radius) {
-          drop.y = ARENA.groundY - drop.radius;
-          drop.vy = 0;
-        }
-        sameLevel =
-          Math.abs(drop.y - (player.y - player.height / 2)) <= player.height * 0.9 + drop.radius;
-        closeEnough = Math.abs(drop.x - player.x) <= DROPS.pickupRadius + player.width / 2;
+      /*
+       * 血球 is pulled into the Slayer: it homes at his chest instead of
+       * falling, so it cannot be lost to gravity or to a jump he is in the
+       * middle of - and it is the only thing that goes into `pickups` at all.
+       * Monsters used to leave a heal orb on the floor when they died; the
+       * owner took that out, so blood has exactly one way back (docs/adr/0021).
+       *
+       * Where it sits is a function of the clock and not of a speed: it eases
+       * out of the monster and into him over `flightSeconds` (see BLOOD_ORB),
+       * and the far end of that line is his chest *now*, so walking away with
+       * one in the air drags it along.
+       */
+      drop.progress = Math.min(1, drop.progress + dt / BLOOD_ORB.flightSeconds);
+      var eased = drop.progress * drop.progress;
+      var targetY = player.y - player.height * CHEST_OF_HEIGHT;
+      drop.x = drop.fromX + (player.x - drop.fromX) * eased;
+      drop.y = drop.fromY + (targetY - drop.fromY) * eased;
+      /*
+       * The tail is the ball's own path, sampled every `trailStep` radii
+       * rather than every frame: the renderer draws the entries behind the
+       * ball, so a fixed spacing is what keeps the tail the same length
+       * however fast this particular crossing is (docs/adr/0020).
+       */
+      var backX = drop.x - drop.trail[0].x;
+      var backY = drop.y - drop.trail[0].y;
+      var spacing = drop.radius * BLOOD_ORB.trailStep;
+      if (backX * backX + backY * backY >= spacing * spacing) {
+        drop.trail.unshift({ x: drop.x, y: drop.y });
+        if (drop.trail.length > BLOOD_ORB.trailSteps) drop.trail.pop();
       }
-      if (!player.dead && closeEnough && sameLevel) {
+      if (!player.dead && drop.progress >= 1) {
         var healed = Math.min(player.maxHp - player.hp, drop.value);
         player.hp += healed;
         state.effects.push({
@@ -3661,6 +3678,30 @@
           y: player.y - player.height - 10,
           life: 0.8,
           maxLife: 0.8
+        });
+        /*
+         * And what it looks like when the blood lands, which is **two beats**
+         * (docs/adr/0020): a flashbulb on his chest - a white core with pale
+         * spokes off it (#846-849, `(226,255,255)` at r45) - and then the
+         * *drink*: a glass-green sphere closes over him (#850-852, ~0.76
+         * Slayer-heights across, `(220,254,220)` at its brightest) and bursts
+         * into three green motes that float up off him (#853-855). The flash
+         * says "something landed"; the green says his health went up. Only
+         * blood orbs push either.
+         */
+        state.effects.push({
+          kind: "bloodFlash",
+          x: player.x,
+          y: player.y - player.height * CHEST_OF_HEIGHT,
+          life: 0.26,
+          maxLife: 0.26
+        });
+        state.effects.push({
+          kind: "bloodHeal",
+          x: player.x,
+          y: player.y - player.height * CHEST_OF_HEIGHT,
+          life: 0.42,
+          maxLife: 0.42
         });
         return;
       }
@@ -3741,7 +3782,6 @@
     SKILL_ORDER: SKILL_ORDER,
     CASTABLE_SKILLS: CASTABLE_SKILLS,
     PROGRESSION: PROGRESSION,
-    DROPS: DROPS,
     BLOOD_ORB: BLOOD_ORB,
     ENEMY_TYPES: ENEMY_TYPES,
     ROOMS: ROOMS,
@@ -3774,7 +3814,6 @@
     offerUpgrade: offerUpgrade,
     chooseUpgrade: chooseUpgrade,
     grantXp: grantXp,
-    spawnDrop: spawnDrop,
     spawnProjectile: spawnProjectile,
     updateProjectiles: updateProjectiles,
     updatePickups: updatePickups,
