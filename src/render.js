@@ -656,20 +656,24 @@
      */
     vortex: {
       bloodyRave: {
+        /*
+         * **It starts as a point at his hand and grows the whole way out.**
+         *
+         * Two readings of the reference were wrong before this one, and the owner
+         * called both of them. The first grew the loops out but started them big
+         * (70), so the vortex's near end was a full-height ring floating *above*
+         * his hand - 「漩涡开始应该和角色手挨着，不要高一块」. The second read the
+         * reference's top edge in 3px slices, hit the **gap between two rings** at
+         * 0.7 of the length, took it for a taper, and drew a lemon - 「怎么不是
+         * 漩涡了，不是越来越大」. Measured as *thickness* per decile the reference
+         * is 0.18, 0.71, 0.76, 1.01, 1.20 ... at his hand, a small blob, then
+         * bigger and bigger outward. Which is what a vortex is.
+         */
         loops: 13,
         lag: 2,
-        nearX: 72, farX: 189,
-        /*
-         * **A spindle is thickest in the middle, and this is the number that says
-         * so.** The first version grew the loops all the way out (70 near, 182
-         * far), which put the tallest rings at the far end - so the top edge ran
-         * 1.55 and 1.60 Slayer-heights up out there where the reference's runs
-         * 1.29 and 1.38. Measured along the length, the reference's top edge
-         * climbs from 0.89 at his hand, peaks at **1.51 half way along**, and
-         * comes back to about 1.3: a lemon, not a cone. These three are the near,
-         * middle and far sizes and the curve through them is quadratic.
-         */
-        sizes: [10, 170, 120],
+        /* 近端圆心就在他手上：身前 0.76 身位；远端够到 2.90 身位。 */
+        nearX: 64, farX: 199,
+        nearSize: 22, farSize: 172,
         /*
          * **The pack's one loop is a tall hairpin, and the reference's rings are
          * not.** Overlaying the two masks at the same scale is what showed it:
@@ -682,7 +686,8 @@
          * which is the shape the reference's rings have.
          */
         wide: 1.25, tall: 0.80,
-        midY: -72,
+        /* 纺锤的中线压在他手的高度上（参考里它一路都在 0.9 身位上下）。 */
+        midY: -73,
         /* 长出来与收回去的两段：参考 #053-#059 与 #153-#156。 */
         grow: 0.2,
         close: 0.133
@@ -1184,17 +1189,6 @@
    * #153-#156) - the collapse runs from the release, which is the one thing here
    * the reference has no frame for because its cast was never let go of early.
    */
-  /** The quadratic through a spindle's near, middle and far loop sizes. */
-  function sizeAlong(sizes, u) {
-    var near = sizes[0];
-    var middle = sizes[1];
-    var far = sizes[2];
-    /* Through (0, near), (0.5, middle) and (1, far). */
-    var b = 4 * (middle - near) - (far - near);
-    var a = far - near - b;
-    return a * u * u + b * u + near;
-  }
-
   function drawBloodVortex(ctx, state, sprites, player, elapsed) {
     var spec = EFFECT.vortex.bloodyRave;
     var channel = EFFECT.channel.bloodyRave;
@@ -1214,7 +1208,7 @@
     for (var loop = 0; loop < spec.loops; loop += 1) {
       var u = (loop + 1) / spec.loops;
       if (u > grown + 0.001) break;
-      var size = sizeAlong(spec.sizes, u);
+      var size = spec.nearSize + (spec.farSize - spec.nearSize) * u;
       var x = spec.nearX + (spec.farX - spec.nearX) * u;
       var w = size * spec.wide;
       var h = size * spec.tall;
