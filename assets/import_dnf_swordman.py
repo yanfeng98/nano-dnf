@@ -214,7 +214,7 @@ CLIPS = [
     #   skipped on purpose**: they carry the client's own white slash arc, and the
     #   reference's own sweep is golden - the body row must not bring a white arc
     #   of its own into the move (the same call 十字斩 made about 201-203).
-    ("bloodyRave", [176, 159, 160, 161, 168, 174, 175, 189, 194, 195, 197, 198]),
+    ("bloodyRave", [176, 159, 160, 161, 168, 174, 175, 176, 189, 194, 195, 197, 198]),
 ]
 CLIP_ROWS = ("clips", "clips2")
 

@@ -382,16 +382,18 @@
       bloodyRave: {
         row: 6,
         first: 48,
-        frames: 12,
+        frames: 13,
         beats: [
-          /* 起手闪 → 抬剑 → 把手伸出去（参考 #033-#041）。 */
-          { frames: 3, from: 0.0, until: 0.182 },
+          /* 起手闪 → 抬剑（参考 #033-#041，0.267s = 进度的 0.056）。 */
+          { frames: 3, from: 0.0, until: 0.056 },
+          /* 手伸到位、掌心血球凝出来（#042-#052）。 */
+          { frames: 2, from: 0.056, until: 0.182 },
           /*
            * 站桩 —— 参考里那三秒身体**是不动的**（#059-#152 逐帧比 #070，差值
            * 只在漩涡透进框的噪声里），所以四帧几乎一样的姿势在四分之一秒的短按
            * 和三秒的长按里读起来一样。
            */
-          { frames: 4, from: 0.182, until: 0.839 },
+          { frames: 3, from: 0.182, until: 0.839 },
           /* 收势 → 转身横剑 → 举剑过头 → 拧身 → 劈穿 → 低伏（#153-#163）。 */
           { frames: 5, from: 0.839, until: 1.0 }
         ]
@@ -654,11 +656,23 @@
      */
     vortex: {
       bloodyRave: {
-        loops: 9,
+        loops: 13,
         lag: 2,
-        nearX: 55, farX: 210,
-        nearSize: 72, farSize: 172,
-        midY: -70,
+        nearX: 72, farX: 189,
+        nearSize: 70, farSize: 182,
+        /*
+         * **The pack's one loop is a tall hairpin, and the reference's rings are
+         * not.** Overlaying the two masks at the same scale is what showed it:
+         * the reference packs *many small, wide* rings into a solid mass, so at
+         * the far end they read as a coil; drawn at their own aspect a few big
+         * ones stick out above and below as open arcs and the whole thing reads
+         * as a tall wall standing next to him - which is what the owner saw
+         * (「漩涡太高了」). So each cell is drawn **wider than it is tall**:
+         * 62x110 of art in the cell at `wide` x `tall` comes out about square,
+         * which is the shape the reference's rings have.
+         */
+        wide: 1.25, tall: 0.80,
+        midY: -72,
         /* 长出来与收回去的两段：参考 #053-#059 与 #153-#156。 */
         grow: 0.2,
         close: 0.133
@@ -1181,6 +1195,8 @@
       if (u > grown + 0.001) break;
       var size = spec.nearSize + (spec.farSize - spec.nearSize) * u;
       var x = spec.nearX + (spec.farX - spec.nearX) * u;
+      var w = size * spec.wide;
+      var h = size * spec.tall;
       var col = (((beat + loop * spec.lag) % EFFECT.vortexFrames) + EFFECT.vortexFrames) % EFFECT.vortexFrames;
       ctx.drawImage(
         sprites.effects,
@@ -1188,10 +1204,10 @@
         EFFECT.vortexRow * EFFECT.cell,
         EFFECT.cell,
         EFFECT.cell,
-        x - size / 2,
-        spec.midY - size / 2,
-        size,
-        size
+        x - w / 2,
+        spec.midY - h / 2,
+        w,
+        h
       );
     }
     ctx.restore();

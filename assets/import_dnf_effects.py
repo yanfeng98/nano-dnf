@@ -931,14 +931,14 @@ PICKS = {
         # measured off the decoded entry. `scale` is what makes 1 client effect px
         # land on 1 screen px, which is the size the rest of this sheet is drawn at.
         {"entry": "start-dodge.img", "frames": (0, 7), "scale": 0.52,
-         "offset": (24, -211), "from": 0.0, "until": 0.42},
+         "offset": (24, -211), "from": 0.150, "until": 0.317},
         # The ball opening into the sweep (#053-#058): `line-dodge` is the pack's
         # own seventeen frames of thin red streaks fanning out.
         {"entry": "line-dodge.img", "frames": (0, 16), "scale": 1.00,
-         "offset": (88, -154), "from": 0.18, "until": 0.50},
+         "offset": (88, -154), "from": 0.300, "until": 0.435},
         # 收势 (#153-#156): the vortex collapsing back into the hand.
         {"entry": "casting_end_dodge.img", "frames": (0, 5), "scale": 0.55,
-         "offset": (25, -206), "from": 0.42, "until": 0.54},
+         "offset": (25, -206), "from": 0.435, "until": 0.539},
         # 金色巨叉 (#162-#170). Three layers of the one burst, which is what the
         # reference's X is made of: a long white-gold stroke, a second one crossing
         # it, and the star that collapses into the bar at the end. Measured as a
@@ -959,14 +959,14 @@ PICKS = {
         # ball in the middle of the cross and the X read as "a red blob with a
         # scratch on it".
         {"entry": "finish_dodge.img", "frames": (0, 2), "scale": 0.62, "stretch": (1.30, 0.78),
-         "offset": (-216, -329), "from": 0.52, "until": 0.74},
+         "offset": (-216, -329), "from": 0.539, "until": 0.830},
         {"entry": "lslash-dodge.img", "frames": (0, 3), "scale": 0.56, "stretch": (1.25, 0.80),
-         "offset": (-141, -289), "rotate": -10.0, "from": 0.53, "until": 0.80},
+         "offset": (-141, -289), "rotate": -10.0, "from": 0.552, "until": 0.870},
         {"entry": "scrach.img", "frames": (0, 4), "scale": 0.86, "stretch": (1.2, 0.85),
-         "offset": (-52, -109), "rotate": 46.0, "from": 0.55, "until": 0.82},
+         "offset": (-52, -109), "rotate": 46.0, "from": 0.591, "until": 0.909},
         # 余晖 (#171-#176): the burst's own light, left behind on the ground.
         {"entry": "light.img", "frames": (0, 0), "scale": 0.34,
-         "offset": (-177, -413), "from": 0.80, "until": 1.00},
+         "offset": (-177, -413), "from": 0.883, "until": 1.00},
     ]},
 
     "mountainRift": {"palette": "", "pack": "_outragebreak", "anchor": (382, 281),
