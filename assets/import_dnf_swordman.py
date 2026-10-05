@@ -214,7 +214,15 @@ CLIPS = [
     #   skipped on purpose**: they carry the client's own white slash arc, and the
     #   reference's own sweep is golden - the body row must not bring a white arc
     #   of its own into the move (the same call 十字斩 made about 201-203).
-    ("bloodyRave", [176, 159, 160, 161, 168, 174, 175, 176, 189, 194, 195, 197, 198]),
+    #
+    # 176 is in the list **once**, at the front, where it is the pose the move is
+    # entered from. It used to be second-to-last as well, which put it inside the
+    # 站桩 beat (the beat is three frames, and the beat's frames cycle): 176 is the
+    # *standing* cell - arm down, sword planted, byte-identical to the first
+    # column of this clip - so for a third of a three-second hold he was not in
+    # the casting pose at all. The reference holds one pose for the whole hold
+    # (#059-#152), so the hold now cycles 174/175 only.
+    ("bloodyRave", [176, 159, 160, 161, 168, 174, 175, 175, 189, 194, 195, 197, 198]),
 ]
 CLIP_ROWS = ("clips", "clips2")
 

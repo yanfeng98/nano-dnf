@@ -2892,7 +2892,20 @@
        * until `pointerup` (src/main.js).
        */
       if (active.channel && player.channelReleasedAt === null) {
-        if (skillElapsed >= active.channel.entrance && !input.skills[active.id]) {
+        /*
+         * **Letting go, and the cap letting go for him.** ADR 0023 says holding
+         * all the way to 3.133s ends the cast by itself - 「不松手到 3.133s 自动收」
+         * - and that is also the only case the reference clip shows: its own cast
+         * holds the full steady stretch and cuts at 4.300s. The code used to wait
+         * for `input.skills` alone, so a player who never lifted his finger got no
+         * ending at all: the sprite played the tail while the effect kept drawing
+         * the entrance's column, and `hitTime` stayed Infinity, so the finisher's
+         * cut never landed either. Releasing at the cap costs no time - the cast
+         * has exactly `tail` seconds left there - it only records that the tail
+         * has started.
+         */
+        var cap = active.channel.entrance + active.channel.hold;
+        if (skillElapsed >= active.channel.entrance && (!input.skills[active.id] || skillElapsed >= cap)) {
           player.channelReleasedAt = skillElapsed;
           player.skillTimer = active.channel.tail;
         } else if (skillElapsed >= active.channel.entrance) {

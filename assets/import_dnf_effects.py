@@ -939,34 +939,45 @@ PICKS = {
         # 收势 (#153-#156): the vortex collapsing back into the hand.
         {"entry": "casting_end_dodge.img", "frames": (0, 5), "scale": 0.55,
          "offset": (25, -206), "from": 0.435, "until": 0.539},
-        # 金色巨叉 (#162-#170). Three layers of the one burst, which is what the
-        # reference's X is made of: a long white-gold stroke, a second one crossing
-        # it, and the star that collapses into the bar at the end. Measured as a
-        # whole it is **2.86 x 1.74 Slayer-heights, centred 1.18 in front and 0.80
-        # up** - 240 x 146 px at (+99, -67) - and each layer is scaled to it.
-        # The reference's X is **two thick strokes crossing** - a long one rising
-        # toward him and a shorter one cutting across it - inside a shell of red
-        # flame (measured: the whole thing 2.86 x 1.74 Slayer-heights, its middle
-        # 1.18 in front of his feet and 0.80 up). The pack ships those as
-        # separate entries, so what makes it read as a cross is the **rotation
-        # between them**: stacked at their own angles the three of them are one
-        # gold blob, which is what the first bake drew.
+        # **红爆 (#162-#170): the layer the first bake never had.** `finish_normal`
+        # is the pack's own eight-frame red explosion - sharp blades, the cloud it
+        # opens into, and the specks it dies to - and the reference's burst is
+        # exactly that shape: measured at the peak (#166) the red is **2.19 x 1.46
+        # Slayer-heights, centred 1.55 in front and 0.77 up**, and it sits *behind*
+        # the gold. Without it the cut read as gold strokes on an empty floor while
+        # the reference has a blood burst wrapped round them.
+        {"entry": "finish_normal.img", "frames": (0, 7), "scale": 0.37,
+         "offset": (-241, -308), "from": 0.652, "until": 0.913},
+        # **白核 (#162-#163).** `finish_dodge` f0 is the white fan the cut opens
+        # with, and the reference *does* have it - it is the bright core the burst
+        # lands on, 1.2-1.5 Slayer-heights across at 0.30-0.40s. It is on its own
+        # here, short and small: the old bake ran it for the whole window at the
+        # row's size, which is what made the fat white spear over him.
+        {"entry": "finish_dodge.img", "frames": (0, 0), "scale": 0.22,
+         "offset": (-197, -355), "from": 0.652, "until": 0.783},
+        # 白核 → 长弧 → 断弧 + 长剑 (#162-#170). **Frames 1 and 2 only.** Frame 0 is
+        # the white fan the cut opens with - and drawn at this row's size it read as
+        # a fat white spear lying across him, which is what the 0.42s 对照图 shows
+        # the difference of. What the reference wears for the whole of #164-#170 is
+        # f1/f2's **two thin strokes**: a long crescent hooking up toward his head
+        # and a bar cutting across it. Measured as a pair the gold is 2.86 x 1.74
+        # Slayer-heights centred 1.19 in front and 0.77 up (same centre as the red,
+        # same clock).
         #
-        # **Only the frames that are *strokes*.** Both `finish_dodge` and
-        # `lslash-dodge` end their runs on a dark brown cloud with a thin gold
-        # line over it - the burst dying, which the reference has too but as soft
-        # red light rather than as a solid ball. Taking the whole entry put that
-        # ball in the middle of the cross and the X read as "a red blob with a
-        # scratch on it".
-        {"entry": "finish_dodge.img", "frames": (0, 2), "scale": 0.62, "stretch": (1.30, 0.78),
-         "offset": (-216, -329), "from": 0.539, "until": 0.830},
-        {"entry": "lslash-dodge.img", "frames": (0, 3), "scale": 0.56, "stretch": (1.25, 0.80),
-         "offset": (-141, -289), "rotate": -10.0, "from": 0.552, "until": 0.870},
-        {"entry": "scrach.img", "frames": (0, 4), "scale": 0.86, "stretch": (1.2, 0.85),
-         "offset": (-52, -109), "rotate": 46.0, "from": 0.591, "until": 0.909},
+        # `lslash-dodge` and `scrach` are **out**. They were the other two thirds of
+        # the old "two strokes crossing" bake; on the drawn row their own dark cloud
+        # and their 46-degree bar landed as a brown mass at 0.53s and a comb of
+        # streaks 3 Slayer-heights out, neither of which is on the reference. The
+        # two strokes the reference does have are inside this one entry.
+        {"entry": "finish_dodge.img", "frames": (1, 2), "scale": 0.62, "stretch": (1.30, 0.78),
+         "offset": (-216, -329), "from": 0.652, "until": 0.870},
         # 余晖 (#171-#176): the burst's own light, left behind on the ground.
-        {"entry": "light.img", "frames": (0, 0), "scale": 0.34,
-         "offset": (-177, -413), "from": 0.883, "until": 1.00},
+        # `alpha` because the pack's own light is a *solid* red ball and the
+        # reference's afterglow (#174) is a soft haze with the specks of
+        # `finish_normal`'s tail still in it - at full strength it read as a red
+        # ball sitting on the floor.
+        {"entry": "light.img", "frames": (0, 0), "scale": 0.34, "alpha": 0.55,
+         "offset": (-177, -413), "from": 0.870, "until": 1.00},
     ]},
 
     "mountainRift": {"palette": "", "pack": "_outragebreak", "anchor": (382, 281),
@@ -1164,6 +1175,18 @@ EXTRA_ROWS = [
     # beat. The pack draws one loop at 105x163 client px; the reference's whole
     # spindle is 2.9 x 1.68 Slayer-heights, so it is a *line* of these, not one.
     ("bloodyRaveVortex", {"stack": [("_bloodyrave", "particle.img")]}),
+    # **嗜魂封魔斩's blood fog at his hand.** The reference's vortex does not begin
+    # as a thin loop: measured over the 94 steady frames (#059-#152) its near end
+    # is a mass that starts 0.36 Slayer-heights in front of his feet - his *palm*
+    # is at 0.46 - and wraps it (top 0.95, bottom 0.58, centre 0.78 against the
+    # palm's 0.81). It is not the loop art drawn small: its pixels average 88
+    # brightness against the loops' 159, and a thin stroke stays full-bright
+    # however small it is. The client ships exactly one dim blood mass in this
+    # skill's own pack and it had never been used: `loop-dodge.img`, twelve frames
+    # of it, one per churn phase like `particle`. Drawn live like the vortex,
+    # because it is there for as long as the player holds (assets/dnf_effect_picks.md
+    # §26).
+    ("bloodyRaveMist", {"stack": [("_bloodyrave", "loop-dodge.img")]}),
 ]
 
 # Rows for art a move draws *over* the Slayer. DNF orders the layers of one

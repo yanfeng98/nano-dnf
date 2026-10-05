@@ -624,6 +624,14 @@
     vortexRow: Core.SKILL_ORDER.length + 6,
     vortexFrames: 12,
     /*
+     * The blood fog that sits at his hand - the vortex's near end, which the
+     * reference wears as a dim mass rather than as a loop (see the bake's note
+     * and assets/dnf_effect_picks.md §26). Same twelve-frame churn as the loops,
+     * drawn live for the same reason the vortex is.
+     */
+    mistRow: Core.SKILL_ORDER.length + 7,
+    mistFrames: 12,
+    /*
      * **A channel's row is read by elapsed seconds, not by progress.** Progress is
      * a fraction of the cast's total, and this cast has no total until the player
      * lets go - so `channel` cuts the row in two halves and says what each half is
@@ -671,7 +679,15 @@
          */
         loops: 13,
         lag: 2,
-        /* 近端圆心就在他手上：身前 0.76 身位；远端够到 2.90 身位。 */
+        /*
+         * **`nearX` is the asymptote, not the near end** - the innermost drawn
+         * ring is `u = 1/13`, which lands at 74.4px (0.886 Slayer-heights), and
+         * what actually touches his hand is the fog (below). The reference's own
+         * *loops* start at about 0.8 Slayer-heights and run out to 2.85, which is
+         * this span; the old comment called 64px "on his hand" off the ledger's
+         * forward origin, which sat 0.20 of a Slayer-height behind the real anchor
+         * (assets/dnf_effect_picks.md §26). farX 199 puts the far ink at 2.79.
+         */
         nearX: 64, farX: 199,
         nearSize: 22, farSize: 172,
         /*
@@ -686,8 +702,21 @@
          * which is the shape the reference's rings have.
          */
         wide: 1.25, tall: 0.80,
-        /* 纺锤的中线压在他手的高度上（参考里它一路都在 0.9 身位上下）。 */
-        midY: -73,
+        /*
+         * 纺锤的中线压在他手的高度上。沿长度十等分量的参考中线是**一条平的**
+         * 0.81 身位（0.75–0.86，94 帧平均；掌心也在 0.81）—— -73 (0.87) 比它高
+         * 5px，这 5px 就是业主那句「高」里除深度 bug 之外的那一点。
+         */
+        midY: -68,
+        /*
+         * **The fog at his hand.** Centre on the measured mass (身前 0.58 身位、
+         * 离地 0.76), sized to what it covers: 0.44 x 0.37 身位 of ink, which is
+         * the bake's ~0.77 of a cell. `alpha` is not decoration: the reference's
+         * near mass measures 88 brightness against the loops' 159, and a thin
+         * stroke stays bright however small it is - dim is what makes it fog and
+         * not a ball.
+         */
+        mist: { x: 49, y: -64, w: 48, h: 40, alpha: 0.5 },
         /* 长出来与收回去的两段：参考 #053-#059 与 #153-#156。 */
         grow: 0.2,
         close: 0.133
@@ -695,12 +724,13 @@
     },
     /*
      * How many rows assets/effects.png carries past the skill rows: the orb, the
-     * dive arc, the swipe's red fan, two blade halves and second beat, and 大蹦's
-     * fire. The bake test reads this rather than a
+     * dive arc, the swipe's red fan, two blade halves and second beat,
+     * 嗜魂封魔斩's vortex **and the fog that sits at his hand**, and 大蹦's fire.
+     * The bake test reads this rather than a
      * literal, so adding a row cannot leave the shipped atlas and the grid
      * disagreeing.
      */
-    extraRowCount: 8,
+    extraRowCount: 9,
     /*
      * 大蹦 is the one move whose art is drawn far bigger than a cell can hold:
      * its own row on assets/effects.png would be ~120x72 px of art stretched
@@ -1202,9 +1232,41 @@
     if (grown <= 0) return;
     var beat = Math.floor(local / Core.SKILLS[player.skillId].channel.tick);
     ctx.save();
-    ctx.translate(player.x, feetY(player) - Core.depthLift(player.z || 0));
+    /*
+     * **On his feet, lifted once.** `feetY()` already carries the depth lift, so
+     * subtracting `depthLift` again here lifted the whole vortex a second time -
+     * z * 0.22 px, which is 1.05 Slayer-heights of float at the back of the band
+     * (z = 400) and about 0.4 where the owner was standing when he sent the
+     * screenshot. That is the whole of 「高于手」: the art was level with his hand
+     * all along *at z = 0*, which is the depth every capture-effect run uses by
+     * default - so four rounds of measuring kept signing the vortex off while it
+     * visibly floated away from him in play. The body is drawn at `feetY(player)`
+     * (drawPlayer), and now this is too, so the two cannot disagree at any depth.
+     */
+    ctx.translate(player.x, feetY(player));
     ctx.scale(player.facing, 1);
     ctx.imageSmoothingEnabled = true;
+    /*
+     * The fog first: it is the mass the loops come out of, and drawing it over
+     * them would put a red haze on the one part of the vortex that has to stay
+     * crisp. It fades with `grown` so it arrives and leaves with the cone.
+     */
+    if (spec.mist) {
+      var mistFrame = ((beat % EFFECT.mistFrames) + EFFECT.mistFrames) % EFFECT.mistFrames;
+      ctx.globalAlpha = spec.mist.alpha * grown;
+      ctx.drawImage(
+        sprites.effects,
+        mistFrame * EFFECT.cell,
+        EFFECT.mistRow * EFFECT.cell,
+        EFFECT.cell,
+        EFFECT.cell,
+        spec.mist.x - spec.mist.w / 2,
+        spec.mist.y - spec.mist.h / 2,
+        spec.mist.w,
+        spec.mist.h
+      );
+      ctx.globalAlpha = 1;
+    }
     for (var loop = 0; loop < spec.loops; loop += 1) {
       var u = (loop + 1) / spec.loops;
       if (u > grown + 0.001) break;

@@ -4998,9 +4998,9 @@ test("the stance paints him red, carries a second blade and draws nothing else",
   assert.equal(Render.EFFECT.rageSwipeRows, undefined, "no separate crescent rows out here");
   assert.equal(
     Render.EFFECT.extraRowCount,
-    8,
+    9,
     "the extra rows are the orb, the dive arc, the red fan, the two blades, the gathering, " +
-      "嗜魂封魔斩's vortex and 大蹦's fire"
+      "嗜魂封魔斩's vortex, the fog at his hand and 大蹦's fire"
   );
   state.player.comboIndex = 0;
   state.player.attackTimer = state.player.attackDuration * 0.5;
@@ -5111,6 +5111,132 @@ test("嗜魂封魔斩 is a channel: the key being down is its length", () => {
     long <= (channel.entrance + channel.hold + channel.tail) * Core.FPS + 2,
     `the hold is capped at the reference's own 3.133s (${long} frames)`
   );
+  /*
+   * **The cap ends the cast by itself** (docs/adr/0023: 「不松手到 3.133s 自动收」),
+   * which is also the one case the reference clip shows - its cast holds the whole
+   * steady stretch and cuts at 4.300s. Waiting on `input.skills` alone meant a
+   * player who never let go got no ending: no finisher art (the effect kept
+   * drawing the entrance's column) and no cut (`hitTime` stays Infinity until
+   * there is a release).
+   */
+  const capped = lastRoomState();
+  const caught = Core.createEnemy(capped, "grunt", capped.player.x + 70);
+  caught.hp = 900;
+  caught.maxHp = 900;
+  caught.speed = 0;
+  capped.enemies = [caught];
+  capped.player.mp = capped.player.maxMp;
+  const never = { skills: { bloodyRave: true } };
+  Core.step(capped, never);
+  Core.runFrames(capped, Math.ceil((channel.entrance + channel.hold) * Core.FPS) + 2, never);
+  assert.notEqual(capped.player.channelReleasedAt, null, "holding to the cap lets go for him");
+  assert.ok(
+    Math.abs(capped.player.channelReleasedAt - (channel.entrance + channel.hold)) < 0.05,
+    `and it lets go at the reference's own 3.133s (${capped.player.channelReleasedAt.toFixed(3)})`
+  );
+  const beforeCut = caught.hp;
+  Core.runFrames(capped, Math.ceil(channel.tail * Core.FPS) + 2, never);
+  assert.ok(
+    beforeCut - caught.hp >= Core.SKILLS.bloodyRave.damage,
+    "and the finisher's cut lands on a hold that was never let go of"
+  );
+});
+
+test("嗜魂封魔斩's vortex is rooted on his feet, whatever depth he casts from", () => {
+  /*
+   * **The bug the owner found by playing, after four rounds of 对照图 could not.**
+   * `drawBloodVortex` translated to `feetY(player) - depthLift(player.z)`, and
+   * `feetY()` already takes the depth lift out - so the whole vortex rode a
+   * *second* lift up the screen: 0.4 Slayer-heights at the depth he was standing
+   * in the screenshot he sent, 1.05 at the back of the band. Every
+   * capture-effect run defaults to `DEPTH=0`, where the two lifts cancel and the
+   * art really is on his hand - which is why the numbers kept saying 「挨着了」
+   * while the screen said 「高于手」.
+   *
+   * This pins the two origins together: whatever depth he casts from, the
+   * vortex's own translate has to be the point the body is drawn on (`feetY`,
+   * which is also what the baked rows anchor to: caster.y - depthLift).
+   */
+  const state = Core.createState({ seed: 11 });
+  const sprites = {
+    slayer: { width: 13312, height: 1936 },
+    skills: { width: 32 * Core.SKILL_ORDER.length, height: 64 },
+    effects: { width: 5760, height: 128 * (Core.SKILL_ORDER.length + Render.EFFECT.extraRowCount) }
+  };
+  const spec = Core.SKILLS.bloodyRave;
+  const vortexOrigin = (z) => {
+    state.player.skillId = "bloodyRave";
+    state.player.skillTimer = spec.duration * 0.5;
+    state.player.channelReleasedAt = null;
+    state.player.z = z;
+    const calls = [];
+    Render.render(recordingContext(calls), state, { sprites });
+    const first = calls.findIndex(
+      (call) => call[0] === "drawImage" && call[3] === Render.EFFECT.vortexRow * Render.EFFECT.cell
+    );
+    assert.ok(first > 0, `the vortex is drawn at z=${z}`);
+    for (let index = first; index >= 0; index -= 1) {
+      if (calls[index][0] === "translate") return calls[index];
+    }
+    throw new Error("the vortex draws with no translate of its own");
+  };
+  for (const z of [0, 220, 400]) {
+    const origin = vortexOrigin(z);
+    assert.equal(origin[1], state.player.x, `the vortex is on his column at z=${z}`);
+    assert.equal(
+      origin[2],
+      state.player.y - Core.depthLift(z),
+      `and on his feet at z=${z}, lifted once rather than twice`
+    );
+  }
+});
+
+test("嗜魂封魔斩's hold stays in the casting pose", () => {
+  /*
+   * The clip's own frame list carried client frame 176 twice - once as the pose
+   * the move is entered from, once second-to-last, which put it inside the 站桩
+   * beat. A beat's frames cycle, so a third of a three-second hold was spent in
+   * the *standing* cell (arm down, sword planted, byte-identical to the column
+   * the cast opens on) instead of the pose the reference holds through its whole
+   * steady stretch (#059-#152 is a still body).
+   */
+  const sheet = decodeRgbaPng(path.join(__dirname, "..", "assets", "slayer.png"));
+  const clip = Render.SPRITE.skillClips.bloodyRave;
+  const at = (col, x, y) =>
+    sheet.pixels.subarray(
+      ((clip.row * Render.SPRITE.frameH + y) * sheet.width + col * Render.SPRITE.frameW + x) * 4,
+      ((clip.row * Render.SPRITE.frameH + y) * sheet.width + col * Render.SPRITE.frameW + x) * 4 + 4
+    );
+  const differing = (a, b) => {
+    let count = 0;
+    for (let y = 0; y < Render.SPRITE.frameH; y += 1) {
+      for (let x = 0; x < Render.SPRITE.frameW; x += 1) {
+        const one = at(a, x, y);
+        const two = at(b, x, y);
+        if (Math.abs(one[0] - two[0]) + Math.abs(one[1] - two[1]) + Math.abs(one[2] - two[2]) +
+            Math.abs(one[3] - two[3]) > 32) {
+          count += 1;
+        }
+      }
+    }
+    return count;
+  };
+  const entry = clip.first;
+  const state = Core.createState({ seed: 11 });
+  const player = state.player;
+  player.skillId = "bloodyRave";
+  const spec = Core.SKILLS.bloodyRave;
+  let holdFrames = 0;
+  for (let progress = 0.2; progress < 0.84; progress += 0.02) {
+    player.skillTimer = spec.duration * (1 - progress);
+    const frame = Render.playerFrame(state, player);
+    holdFrames += 1;
+    assert.ok(
+      differing(entry, frame.col) > 400,
+      `progress ${progress.toFixed(2)} draws column ${frame.col}, which is the standing cell`
+    );
+  }
+  assert.ok(holdFrames >= 30, `the steady stretch was sampled (${holdFrames} frames)`);
 });
 
 test("the three new DNF skills land their hits and statuses", () => {
