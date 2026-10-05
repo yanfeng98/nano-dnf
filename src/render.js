@@ -677,7 +677,7 @@
          * is 0.18, 0.71, 0.76, 1.01, 1.20 ... at his hand, a small blob, then
          * bigger and bigger outward. Which is what a vortex is.
          */
-        loops: 13,
+        loops: 24,
         lag: 2,
         /*
          * **`nearX` is the asymptote, not the near end** - the innermost drawn
@@ -689,7 +689,7 @@
          * (assets/dnf_effect_picks.md §26). farX 199 puts the far ink at 2.79.
          */
         nearX: 64, farX: 199,
-        nearSize: 22, farSize: 172,
+        nearSize: 26, farSize: 128,
         /*
          * **The pack's one loop is a tall hairpin, and the reference's rings are
          * not.** Overlaying the two masks at the same scale is what showed it:
@@ -701,7 +701,7 @@
          * 62x110 of art in the cell at `wide` x `tall` comes out about square,
          * which is the shape the reference's rings have.
          */
-        wide: 1.25, tall: 0.80,
+        wide: 1.30, tall: 0.92,
         /*
          * 纺锤的中线压在他手的高度上。沿长度十等分量的参考中线是**一条平的**
          * 0.81 身位（0.75–0.86，94 帧平均；掌心也在 0.81）—— -73 (0.87) 比它高
