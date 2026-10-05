@@ -936,8 +936,15 @@ PICKS = {
         # the number is `target centre - the ink's own centre at that scale`,
         # measured off the decoded entry. `scale` is what makes 1 client effect px
         # land on 1 screen px, which is the size the rest of this sheet is drawn at.
-        {"entry": "start-dodge.img", "frames": (0, 7), "scale": 0.52,
-         "offset": (-6, -177), "from": 0.150, "until": 0.317},
+        # **两段，因为包里那八帧自己会漂。** 客户端这八帧的 (x,y) 从 (0,0) 走到 (42,43)，
+        # 于是"整体解一个 offset"只能让**并集**的中心落到参考的位置：实玩抓帧里那颗**球**
+        # 落在身前 0.79 / 离地 1.14 身位（他本人才 1.0 高），而**盘**落在 0.86 / 0.87 ——
+        # 球比盘高了 0.29 身位，参考里球长成盘是**原地**的（#042–#046 球心恒定）。
+        # 拆成两段、各自解到参考自己的位置：球 (0.56, 0.85)、盘 (0.76, 0.87)。
+        {"entry": "start-dodge.img", "frames": (0, 4), "scale": 0.52,
+         "offset": (-25, -153), "from": 0.150, "until": 0.233},
+        {"entry": "start-dodge.img", "frames": (5, 7), "scale": 0.52,
+         "offset": (-14, -177), "from": 0.233, "until": 0.317},
         # The ball opening into the sweep (#053-#058): `line-dodge` is the pack's
         # own seventeen frames of thin red streaks fanning out.
         {"entry": "line-dodge.img", "frames": (0, 16), "scale": 1.00,
