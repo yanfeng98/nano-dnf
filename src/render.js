@@ -914,7 +914,12 @@
      * `dx: 0, dy: -size / 4` is what lands the ball on his hand. `size` is the
      * 1:1 number the bake prints for the row's window.
      */
-    bloodyRave: { dx: 0, dy: -143, size: 571, copies: 1, spin: 0 },
+    /*
+     * window 于 2026-10-05 加宽到 480（收尾那一叉原先被裁掉一截），fit 因此由 0.2243
+     * 变成 0.25 cell px / 客户端px —— `size` = CELL / fit = 512，`dy` = -size/4（锚点在
+     * 脚下），1 客户端px 与改窗口前一样是 1 屏幕px。
+     */
+    bloodyRave: { dx: 0, dy: -180, size: 720, copies: 1, spin: 0 },
       /*
        * 怒气爆发 erupts around him, and its two acts are drawn at the sizes the
        * training room shows: the row's window is 331 x 488 client px, so one

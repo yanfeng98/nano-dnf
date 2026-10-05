@@ -920,7 +920,13 @@ PICKS = {
     # repo had been calling 血气爆发 and using exactly one entry of (docs/adr/0022).
     # A client pixel is 1/123.5 of a Slayer-height; the offsets below are in those.
     "bloodyRave": {"palette": "", "pack": "_bloodyrave", "anchor": (0, 0),
-                   "length": 24, "window": (-175, -215, 360, 265), "stages": [
+                   # **窗口要装得下收尾那一叉。** 旧窗口 (-175,-215,360,265) 只到
+                   # 客户端 x=185，而金叉（`lslash-dodge`）与红爆（`finish_normal`
+                   # 在客户端里是 ×1.66 画的）伸到 x≈280 —— 右边一截是被**裁掉**的，
+                   # 这也是那一版读起来"一坨"的一部分。加宽到 480 后 fit 由宽度说了算
+                   # （0.25 cell px / 客户端px），渲染端 `size` 跟着 = 128/0.25 = 512
+                   # （`EFFECT.draw.bloodyRave`），1 客户端px 仍然是 1 屏幕px。
+                   "length": 24, "window": (-175, -215, 500, 265), "stages": [
         # 起手那颗血球 (#042-#052). The reference grows it to **0.87 Slayer-heights
         # across, centred 0.76 in front of his feet and 0.87 above them** - 73 px
         # at (+94, -107), which is where his outstretched hand is. `start-dodge` is
@@ -939,45 +945,33 @@ PICKS = {
         # 收势 (#153-#156): the vortex collapsing back into the hand.
         {"entry": "casting_end_dodge.img", "frames": (0, 5), "scale": 0.55,
          "offset": (25, -206), "from": 0.435, "until": 0.539},
-        # **红爆 (#162-#170): the layer the first bake never had.** `finish_normal`
-        # is the pack's own eight-frame red explosion - sharp blades, the cloud it
-        # opens into, and the specks it dies to - and the reference's burst is
-        # exactly that shape: measured at the peak (#166) the red is **2.19 x 1.46
-        # Slayer-heights, centred 1.55 in front and 0.77 up**, and it sits *behind*
-        # the gold. Without it the cut read as gold strokes on an empty floor while
-        # the reference has a blood burst wrapped round them.
-        {"entry": "finish_normal.img", "frames": (0, 7), "scale": 0.37,
-         "offset": (-241, -308), "from": 0.652, "until": 0.913},
-        # **白核 (#162-#163).** `finish_dodge` f0 is the white fan the cut opens
-        # with, and the reference *does* have it - it is the bright core the burst
-        # lands on, 1.2-1.5 Slayer-heights across at 0.30-0.40s. It is on its own
-        # here, short and small: the old bake ran it for the whole window at the
-        # row's size, which is what made the fat white spear over him.
-        {"entry": "finish_dodge.img", "frames": (0, 0), "scale": 0.22,
-         "offset": (-197, -355), "from": 0.652, "until": 0.783},
-        # 白核 → 长弧 → 断弧 + 长剑 (#162-#170). **Frames 1 and 2 only.** Frame 0 is
-        # the white fan the cut opens with - and drawn at this row's size it read as
-        # a fat white spear lying across him, which is what the 0.42s 对照图 shows
-        # the difference of. What the reference wears for the whole of #164-#170 is
-        # f1/f2's **two thin strokes**: a long crescent hooking up toward his head
-        # and a bar cutting across it. Measured as a pair the gold is 2.86 x 1.74
-        # Slayer-heights centred 1.19 in front and 0.77 up (same centre as the red,
-        # same clock).
+        # **收尾那一下：两块金 + 两张红，全部按客户端像素 1:1 认下来的。**
+        # 这一段的读法是模板匹配给的，不是看着像：把客户端条目镜像后按白芯掩膜做尺度+平移搜索，
+        # #164 对 `lslash-dodge` f1 的白芯 IoU **0.92**、#166-#168 对 f2 的 **0.93**、#169 对 f3、
+        # #171 对 f4；三帧独立解出的尺度都是 **×1.8**——正好是这个视频自己的放大比
+        # （800x600 的游戏窗口放大到 1440x1080），**即游戏是拿包里的美术按客户端像素 1:1 画的**。
+        # 于是本行的 scale = 客户端 scale × 0.457：1 客户端px 在本作是 84/123.5 = 0.68 屏幕px，
+        # 而这一行把 1 客户端px 画成 1.487 屏幕px（窗口 fit 0.3333 × size/cell 4.46）。
         #
-        # `lslash-dodge` and `scrach` are **out**. They were the other two thirds of
-        # the old "two strokes crossing" bake; on the drawn row their own dark cloud
-        # and their 46-degree bar landed as a brown mass at 0.53s and a comb of
-        # streaks 3 Slayer-heights out, neither of which is on the reference. The
-        # two strokes the reference does have are inside this one entry.
-        {"entry": "finish_dodge.img", "frames": (1, 2), "scale": 0.62, "stretch": (1.30, 0.78),
-         "offset": (-216, -329), "from": 0.652, "until": 0.870},
-        # 余晖 (#171-#176): the burst's own light, left behind on the ground.
-        # `alpha` because the pack's own light is a *solid* red ball and the
-        # reference's afterglow (#174) is a soft haze with the specks of
-        # `finish_normal`'s tail still in it - at full strength it read as a red
-        # ball sitting on the floor.
-        {"entry": "light.img", "frames": (0, 0), "scale": 0.34, "alpha": 0.55,
-         "offset": (-177, -413), "from": 0.870, "until": 1.00},
+        # **红爆的尖芒**（#162-#164，客户端里 ×1.66）——第一版烘这一下时它整个没进来。
+        {"entry": "finish_normal.img", "frames": (0, 2), "scale": 0.626,
+         "offset": (-205, -313), "from": 0.652, "until": 0.722},
+        #
+        # **红雾的主体是 `light.img`**（客户端里 ×0.78，质心量在身前 1.70 / 离地 0.77）——
+        # 我们原来只用它当 0.34 的小余晖。`alpha` 是因为包里那盏光是实心红球，
+        # 参考的雾峰值亮度只有金的八成、且是低对比的一团。
+        {"entry": "light.img", "frames": (0, 0), "scale": 0.292, "alpha": 0.6,
+         "offset": (-134, -458), "from": 0.722, "until": 0.913},
+        # 余晖 (#171-#176)：同一盏光，收小、压暗（参考 #171 之后金已退尽、只剩暗云）。
+        {"entry": "light.img", "frames": (0, 0), "scale": 0.23, "alpha": 0.35,
+         "offset": (-134, -458), "from": 0.913, "until": 1.00},
+        #
+        # **金叉（#162-#171）= `lslash-dodge` 的 f0..f4，一层。** 白芯是它自己带的
+        # （勾上没有白芯、长劈上有），所以 `scrach` 与 `finish_dodge` 都不在这一下里——
+        # 前者的白闪参考里没有，后者的白扇/细弧与参考的白芯对不上（最佳 IoU 0.05-0.44）。
+        # 它是最后一条：参考里金压在红上面（把金笔内缩后，内部只有 0.6% 的像素落在红类里）。
+        {"entry": "lslash-dodge.img", "frames": (0, 4), "scale": 0.68,
+         "offset": (-62, -263), "from": 0.652, "until": 0.870},
     ]},
 
     "mountainRift": {"palette": "", "pack": "_outragebreak", "anchor": (382, 281),
