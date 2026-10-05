@@ -937,14 +937,14 @@ PICKS = {
         # measured off the decoded entry. `scale` is what makes 1 client effect px
         # land on 1 screen px, which is the size the rest of this sheet is drawn at.
         {"entry": "start-dodge.img", "frames": (0, 7), "scale": 0.52,
-         "offset": (24, -211), "from": 0.150, "until": 0.317},
+         "offset": (-6, -177), "from": 0.150, "until": 0.317},
         # The ball opening into the sweep (#053-#058): `line-dodge` is the pack's
         # own seventeen frames of thin red streaks fanning out.
         {"entry": "line-dodge.img", "frames": (0, 16), "scale": 1.00,
-         "offset": (88, -154), "from": 0.300, "until": 0.435},
+         "offset": (40, -120), "from": 0.300, "until": 0.435},
         # 收势 (#153-#156): the vortex collapsing back into the hand.
         {"entry": "casting_end_dodge.img", "frames": (0, 5), "scale": 0.55,
-         "offset": (25, -206), "from": 0.435, "until": 0.539},
+         "offset": (-5, -172), "from": 0.435, "until": 0.539},
         # **收尾那一下：两块金 + 两张红，全部按客户端像素 1:1 认下来的。**
         # 这一段的读法是模板匹配给的，不是看着像：把客户端条目镜像后按白芯掩膜做尺度+平移搜索，
         # #164 对 `lslash-dodge` f1 的白芯 IoU **0.92**、#166-#168 对 f2 的 **0.93**、#169 对 f3、
