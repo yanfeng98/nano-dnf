@@ -1235,7 +1235,20 @@
       grown = Math.min(grown, Math.max(0, 1 - (elapsed - released) / spec.close));
     }
     if (grown <= 0) return;
-    var beat = Math.floor(local / Core.SKILLS[player.skillId].channel.tick);
+    /*
+     * **The churn is a clock, not the damage beat.** This used to advance the art
+     * on `channel.tick` - 0.300s, the vortex's *hit* beat - so the whole thing
+     * stood still for 0.29 of every 0.3 seconds and then jumped on one frame: 3.3
+     * pictures a second. The owner, playing it: 「我觉得现在的漩涡不如参考的漩涡丝滑」.
+     *
+     * The reference animates on every frame it has. Over #088-#100 every
+     * neighbouring pair of its 30fps frames differs by ~15-19 (mean abs over the
+     * vortex's box) and frames a whole period apart (9 of them = 0.300s) by ~4-13 -
+     * so its 0.300s is the *period* of the churn, and the pack's twelve phases are
+     * one turn of it, i.e. 40 pictures a second. `churn` is that many turns since
+     * the vortex opened.
+     */
+    var churn = local / Core.SKILLS[player.skillId].channel.tick;
     ctx.save();
     /*
      * **On his feet, lifted once.** `feetY()` already carries the depth lift, so
@@ -1257,7 +1270,8 @@
      * crisp. It fades with `grown` so it arrives and leaves with the cone.
      */
     if (spec.mist) {
-      var mistFrame = ((beat % EFFECT.mistFrames) + EFFECT.mistFrames) % EFFECT.mistFrames;
+      var mistFrame =
+        ((Math.floor(churn * EFFECT.mistFrames) % EFFECT.mistFrames) + EFFECT.mistFrames) % EFFECT.mistFrames;
       ctx.globalAlpha = spec.mist.alpha * grown;
       ctx.drawImage(
         sprites.effects,
@@ -1279,7 +1293,10 @@
       var x = spec.nearX + (spec.farX - spec.nearX) * u;
       var w = size * spec.wide;
       var h = size * spec.tall;
-      var col = (((beat + loop * spec.lag) % EFFECT.vortexFrames) + EFFECT.vortexFrames) % EFFECT.vortexFrames;
+      var col =
+        ((Math.floor(churn * EFFECT.vortexFrames) + loop * spec.lag) % EFFECT.vortexFrames +
+          EFFECT.vortexFrames) %
+        EFFECT.vortexFrames;
       ctx.drawImage(
         sprites.effects,
         col * EFFECT.cell,
