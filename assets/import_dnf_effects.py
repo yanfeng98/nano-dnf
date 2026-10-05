@@ -274,6 +274,28 @@ BODY_RAMP = [
 #   art p30   (104) -> (200,198,175)
 #   art p50   (160) -> (242,241,181)  two thirds of the reference's mass
 #   art p70+  (224) -> (248,247,190)
+# **嗜魂封魔斩's vortex and the fog at his hand, in the reference's own red.**
+# The pack's `particle.img` is a deep saturated crimson; the training-room clip's
+# strands are a *lighter, more orange* red at every brightness. Measured per
+# level (the pixel's own max channel) over the two:
+#
+#   level      0.20-0.35  0.35-0.50  0.50-0.65  0.65-0.80  0.80-0.90  0.90-1.0
+#   参考       (74, 6, 3) (108,12, 7) (146,22,14) (184,37,23) (217,48,30) (244,60,36)
+#   particle   (68, 1, 1) (108, 2, 3) (146, 4, 5) (185, 7, 8) (217,13,14) (247,29,30)
+#
+# The **red channel is the same ramp** (74/68, 108/108, 146/146, 184/185, 217/217,
+# 244/247); what differs is green and blue - the reference's red is coral where
+# the pack's is pure. The owner: 「我感觉色彩不对」.
+VORTEX_RAMP = [
+    (0.00, (26, 2, 1)),
+    (0.20, (74, 6, 3)),
+    (0.35, (108, 12, 7)),
+    (0.50, (146, 22, 14)),
+    (0.65, (184, 37, 23)),
+    (0.80, (217, 48, 30)),
+    (0.90, (244, 60, 36)),
+    (1.00, (252, 68, 42)),
+]
 CRESCENT_RAMP = [
     (0.00, (16, 12, 8)),
     (0.16, (91, 75, 55)),
@@ -1175,7 +1197,7 @@ EXTRA_ROWS = [
     # draws several of them along the caster's front and cycles the columns on that
     # beat. The pack draws one loop at 105x163 client px; the reference's whole
     # spindle is 2.9 x 1.68 Slayer-heights, so it is a *line* of these, not one.
-    ("bloodyRaveVortex", {"stack": [("_bloodyrave", "particle.img")]}),
+    ("bloodyRaveVortex", {"stack": [("_bloodyrave", "particle.img", None, None, None, None, VORTEX_RAMP)]}),
     # **嗜魂封魔斩's blood fog at his hand.** The reference's vortex does not begin
     # as a thin loop: measured over the 94 steady frames (#059-#152) its near end
     # is a mass that starts 0.36 Slayer-heights in front of his feet - his *palm*
@@ -1187,7 +1209,7 @@ EXTRA_ROWS = [
     # of it, one per churn phase like `particle`. Drawn live like the vortex,
     # because it is there for as long as the player holds (assets/dnf_effect_picks.md
     # §26).
-    ("bloodyRaveMist", {"stack": [("_bloodyrave", "loop-dodge.img")]}),
+    ("bloodyRaveMist", {"stack": [("_bloodyrave", "loop-dodge.img", None, None, None, None, VORTEX_RAMP)]}),
 ]
 
 # Rows for art a move draws *over* the Slayer. DNF orders the layers of one
