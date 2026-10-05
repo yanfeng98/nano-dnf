@@ -1651,12 +1651,28 @@ BV1W9Gx6LELk.mp4」**。量下来：那条片子 30fps，但**其中 15 帧是�
 按住不放那一趟，收尾的伤害与美术**全都不出**，而参考演的就是那一趟（按满稳态、4.300s 劈出去）。
 上限那一刻"松手"不花时间（尾巴正好剩 `tail` 秒），只是把 `channelReleasedAt` 记上。
 
-验收：`npm test` **208/208**、`npm run test:browser` 双通（键盘 + 触屏）。
+**业主实玩后又追了五处**（都在同一片里修完，量法与他原话在 `assets/dnf_effect_picks.md` §26）：
+
+- **「开始的时候在角色上方出现，然后突然移到角色手附近」**——那一行活在**客户端像素**里
+  （`size = CELL / fit`，1 客户端px = 1 屏幕px），而本作的角色是客户端的 0.68 倍：进场三段的
+  落点照客户端坐标解、却按 1:1 画，于是血球出现在他头顶（1.47 倍远）。×0.68 之后落回掌心。
+- **球和盘还是没对齐**——包里那八帧的 (x,y) 自己会漂（(0,0)→(42,43)），"整段解一个 offset"
+  只有**并集**对得上：球比盘高 0.29 身位。拆成两段（球 f0–4 / 盘 f5–7）各自落位。
+- **「现在的漩涡不如参考的漩涡丝滑」**——原来拿**命中**的拍子（0.300s）去推进美术的列，
+  0.29 秒不动、3.3 张/秒；改成按钟走（0.300s 一周期 = 40 张/秒）。量法：相邻帧差，
+  参考 15.4–18.7、改前每 0.3s 里有 0.29s 是 0、改后 7.0–12.1。
+- **「参考漩涡线条更好看，更细致」**——不是线粗（两边 0.009–0.095 身位几乎一样），是**放大**：
+  环最远画到 172px 而包里那一格只有 128px。收到 `farSize 128`（≤1:1），用 `wide/tall`
+  去填锥高而不是靠放大。
+- **「我感觉色彩不对」**——红通道逐档吻合（74/68…244/247），差的是绿蓝：参考偏珊瑚、
+  包里是纯深红。漩涡与近端那团雾两行换成参考量出来的色档（`VORTEX_RAMP`）。
+
+验收：`npm test` **208/208**、`npm run test:browser` 双通（键盘 + 触屏）。**业主：「我觉得嗜魂封魔斩可以了。」**
 两条测试钉：**漩涡的原点在任何深度都等于 `feetY`**（z=0/220/400 各渲一次）、
 **站桩采样里不许出现与开场那一列相同的帧**（直接读 `assets/slayer.png`）。
 量法、四把尺与被推翻的读数在 `assets/dnf_effect_picks.md` §26；决定与它推翻过什么在 `docs/adr/0024`；
-对照图 `assets/dnf_src/bilibili/skill-clips/guifeng-hand-rootcause.png`（z=0 与 z=400 并排）、
-`.../guifeng-near-end-issue.png`、`.../guifeng-finish-vs.png`（每张左参考右本作，gitignored）。
+对照图 `assets/dnf_src/bilibili/skill-clips/` 下的 `guifeng-hand-rootcause.png`（z=0 与 z=400 并排）、
+`guifeng-near-end-issue.png`、`guifeng-finish-vs.png`、`guifeng-vortex-lines.png`、`guifeng-vortex-color.png`（gitignored）。
 
 
 ## 运行
