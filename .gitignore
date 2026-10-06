@@ -6,7 +6,12 @@
 assets/dnf_src/
 
 # Slayer skill-icon atlases (regenerate with: python3 assets/import_dnf_art.py --atlas)
-assets/dnf_skillicon_atlas.png
+#
+# **`dnf_skillicon_atlas.png` is deliberately NOT ignored.** It is where every
+# skill icon is picked from (see CLAUDE.md), and a pick is only reviewable if the
+# sheet it was made against is in the history - `ICON_FRAMES` says "frame 176"
+# and without the sheet nobody can see what 176 is. The second-awakening sheet
+# stays ignored: nothing has been picked off it.
 assets/dnf_atskillicon_atlas.png
 
 # Node dependencies and failed-run screenshots from the browser check
