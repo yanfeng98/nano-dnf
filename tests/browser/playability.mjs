@@ -638,6 +638,7 @@ async function runPass(browser, baseUrl, options) {
   let midShot = false;
   let pauseReadout = null;
   let stanceReadout = null;
+  let awakeningReadout = null;
   let airReadout = null;
   let keyChecks = null;
   /*
@@ -970,6 +971,78 @@ async function runPass(browser, baseUrl, options) {
         flying: blood.flying,
         hits: blood.hits,
         off: !(await page.evaluate(() => window.nanoDnf.isRaging()))
+      };
+
+      /*
+       * 魔狱血刹 is the kit's one key that is a *state* rather than a cast
+       * (docs/adr/0025): no hotbar slot, one key, two presses. It is driven
+       * through the pass's own input path - `KeyV` on the keyboard, its own
+       * button on touch - which is the half only this pass can prove: the unit
+       * tests call `Core.step` directly and never touch the key map, the touch
+       * layout or the one-shot rule that stops a held key walking him through
+       * the whole move.
+       */
+      const castAwakening = async () => {
+        /*
+         * **Wait for a frame he is free on.** The key is edge-triggered (a held
+         * key would walk him raise-fall-raise), so a press that lands inside a
+         * swing is *dropped* rather than kept - unlike a slot key, which is
+         * `held || pressed` and therefore re-fires the moment the move is over.
+         * A player aiming the 一觉 presses when he is free; the bot has to be
+         * told to.
+         */
+        await page.waitForFunction(
+          () => {
+            const player = window.nanoDnf.getState().player;
+            return (
+              player.skillTimer <= 0 &&
+              player.attackTimer <= 0 &&
+              (player.hurtTimer || 0) <= 0 &&
+              !player.dead
+            );
+          },
+          null,
+          { timeout: 20000 }
+        );
+        if (options.mode === "touch") {
+          await touchAction(page, "skill:hellbenter", true);
+          await touchAction(page, "skill:hellbenter", false);
+        } else {
+          await page.keyboard.press("KeyV");
+        }
+      };
+      await castAwakening();
+      /* The cast is its own second, and the sword lands inside it. */
+      await waitWatching(1500);
+      const swordUp = await page.evaluate(() => {
+        const player = window.nanoDnf.getState().player;
+        return { tier: player.hellbenterTier, buff: player.buffs.hellbenter || 0 };
+      });
+      /*
+       * **The 落 is 5.4s now, and he holds the pose for all of it.** The sword
+       * goes into the ground 0.6s in, but the tier is only cleared when the cast
+       * lets go - the ground burns its five seconds with him standing in it (the
+       * owner: 「在崩的过程中身体应该保持一个固定的姿势」, `docs/adr/0025` 补记八).
+       * So the wait is the move's own length, read off Core rather than guessed.
+       *
+       * It is 霸体, so in a room full of monsters it is not interrupted; the retry
+       * is left in anyway, because a fall that *did* get cut short keeps the sword
+       * on his back on purpose and a player would simply press again.
+       */
+      const fallMs = await page.evaluate(() => window.DNFCore.SKILLS.hellbenterSlam.duration * 1000);
+      let swordDown = null;
+      for (let attempt = 0; attempt < 3 && !(swordDown && swordDown.tier === 0); attempt += 1) {
+        await castAwakening();
+        await waitWatching(Math.ceil(fallMs) + 400);
+        swordDown = await page.evaluate(() => {
+          const player = window.nanoDnf.getState().player;
+          return { tier: player.hellbenterTier, skillId: player.skillId };
+        });
+      }
+      awakeningReadout = {
+        tier: swordUp.tier,
+        buff: Number(swordUp.buff.toFixed(1)),
+        afterSecondPress: swordDown.tier
       };
 
       /*
@@ -1414,6 +1487,7 @@ async function runPass(browser, baseUrl, options) {
     attractAfterInput,
     pauseReadout,
     stanceReadout,
+    awakeningReadout,
     airReadout,
     keyChecks,
     depthProbe,
@@ -1452,14 +1526,21 @@ async function runPass(browser, baseUrl, options) {
  */
 function damageProblems(mode, pass, maxHit) {
   const problems = [];
-  const events = (pass && pass.damageLog) || [];
-  events.forEach((event) => {
-    if (typeof maxHit === "number" && maxHit > 0 && event.amount > maxHit) {
-      problems.push(
-        `${mode}: a ${event.amount} hit at ${event.t}s in room ${event.room} is bigger than the game's biggest attack (${maxHit})`
-      );
-    }
-  });
+  /*
+   * **The number is the game's own.** `stats.maxHitTaken` is written inside
+   * `damagePlayer`, so it is what one call landed. The per-poll `damageLog`
+   * below samples the running total instead, and two hits inside one sample read
+   * as one bigger hit - which is what this gate reported the first time a slab
+   * and a monster landed in the same window: a 24 in a game whose biggest attack
+   * is 22. The log stays in the report as the shape of the fight.
+   */
+  const stats = (pass && pass.state && pass.state.stats) || {};
+  const biggest = stats.maxHitTaken || 0;
+  if (typeof maxHit === "number" && maxHit > 0 && biggest > maxHit) {
+    problems.push(
+      `${mode}: a single hit of ${biggest} is bigger than the game's biggest attack (${maxHit})`
+    );
+  }
   return problems;
 }
 
@@ -1595,6 +1676,27 @@ function problemsFor(pass) {
     }
     if (stance.off !== true) {
       problems.push(`${pass.mode}: casting 血之狂暴 again did not take the stance down`);
+    }
+  }
+  const awakening = pass.awakeningReadout;
+  if (!awakening) {
+    problems.push(`${pass.mode}: the 魔狱血刹 check never ran`);
+  } else {
+    /*
+     * `>= 1`, not `=== 1`: the sword is **forged by hits** (docs/adr/0025), so by
+     * the time this reads it back the bot has usually landed one and the tier has
+     * moved on. What the check is about is that there is a sword at all.
+     */
+    if (!(awakening.tier >= 1) || !(awakening.buff > 0)) {
+      problems.push(
+        `${pass.mode}: pressing the 一觉 key did not put a sword on his back ` +
+          `(tier ${awakening.tier}, buff ${awakening.buff})`
+      );
+    }
+    if (awakening.afterSecondPress !== 0) {
+      problems.push(
+        `${pass.mode}: the second press did not bring the sword down (tier ${awakening.afterSecondPress})`
+      );
     }
   }
   const air = pass.airReadout;
@@ -1950,6 +2052,7 @@ async function main() {
       resumed: pass.pauseReadout.resumed
     },
     stanceReadout: pass.stanceReadout,
+    awakeningReadout: pass.awakeningReadout,
     airReadout: pass.airReadout,
     keyChecks: pass.keyChecks,
     pace: {
@@ -1993,16 +2096,9 @@ async function main() {
    * ever passes is not a gate.
    */
   const gateSelfTest = {
-    caughtRegression: damageProblems(
-      "selftest",
-      { damageLog: [{ t: 1, room: 1, amount: 60, attacker: "boss:melee" }] },
-      22
-    ).length,
-    cleanPasses: damageProblems(
-      "selftest",
-      { damageLog: [{ t: 1, room: 1, amount: 13, attacker: "brute:melee" }] },
-      22
-    ).length
+    caughtRegression: damageProblems("selftest", { state: { stats: { maxHitTaken: 60 } } }, 22)
+      .length,
+    cleanPasses: damageProblems("selftest", { state: { stats: { maxHitTaken: 13 } } }, 22).length
   };
   console.log(
     `damage gate self-test: caught=${gateSelfTest.caughtRegression} clean=${gateSelfTest.cleanPasses}`

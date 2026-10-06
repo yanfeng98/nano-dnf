@@ -729,6 +729,187 @@
         attackPower: 1.6
       }
     },
+    /*
+     * 魔狱血刹, the Berserker's 一觉 - and the first skill in this game that is a
+     * **state before it is a move** (docs/adr/0025).
+     *
+     * Press it and the 觉醒插画 slides in over him while a 血气之剑 forms behind
+     * his back; then the press is over and everything is as it was - except he is
+     * carrying that sword, and everything he does for the next fifty seconds he
+     * does with it on. The second press takes it into the ground (that half is
+     * `hellbenterSlam`), and so does the clock running out.
+     *
+     * **The clock lives in `player.buffs`, not in `skillTimer`**, and that is the
+     * whole reason the shape works: `startRoom` clears every skill field on the
+     * player and deliberately leaves the buffs alone, so he walks into the next
+     * room with the sword still on his back. A `skillTimer` would have dropped it
+     * at the door.
+     *
+     * It is not in SKILL_ORDER: that list is the twelve hotbar slots (two rows of
+     * six, all full) and it is also the row index of both baked sheets. Its key is
+     * its own, the way 上挑's is - see `Loadout.SKILL_KEYS`.
+     */
+    hellbenter: {
+      id: "hellbenter",
+      name: "魔狱血刹",
+      key: "V",
+      /*
+       * **A cooldown, not a once-a-run.** 业主 2026-10-06：「觉醒不能一局一次，
+       * 像普通技能一样有冷却」。原来的 `cooldown: 0` 配着技能条上那句"一局一次"——
+       * 那句话是骗人的（代码里根本没有一局一次的闸），而且他把话说反了：他不要
+       * 一局一次，要的是**能再放**。
+       *
+       * 数取 **25**（一局就是三四十秒，五十秒的冷却等于"一局一次"——那正是他不要的）。
+       * 别的技能最长的是 12（崩山裂地斩 / 崩山击），觉醒是这个倍数里最贵的那一个，
+       * 但一局里放得出两三次。
+       * 没有 MP——他要的是冷却，不是多一道门槛。
+       */
+      mp: 0,
+      cooldown: 25,
+      damage: 0,
+      growth: 0,
+      /* One second, which is the cut-in's own second in the reference. */
+      duration: 1.0,
+      /*
+       * **The sword lands with the pose.** The 起手 motion is the client's own
+       * 75-89 and its last frame is the stand he holds (see
+       * `SPRITE.skillClips.hellbenter`), so the buff opens on the half second
+       * that motion takes: the blade appears behind him exactly as he brings his
+       * own around - the picture is already sliding back out, and the fifty
+       * seconds are already running.
+       */
+      activeFrom: 0.5,
+      activeTo: 0.6,
+      reach: 0,
+      heightPad: 0,
+      knockbackX: 0,
+      launch: 0,
+      radius: 0,
+      hits: 1,
+      /* `swordTier` is the tier the sword comes up at - see the buff branch. */
+      buff: { id: "hellbenter", duration: 50, swordTier: 1 }
+    },
+    /*
+     * The second press of 魔狱血刹's key, and what the clock triggers when it runs
+     * out - one move, so the two ways of ending the state cannot drift apart.
+     *
+     * **This slice only takes the sword down.** The slam and the volcano (落剑
+     * 1.5s, 喷发 3.15s - docs/adr/0025) are the next slice; what is here is the
+     * ending that lets the two-press shape be played at all.
+     */
+    hellbenterSlam: {
+      id: "hellbenterSlam",
+      name: "魔狱血刹·落",
+      key: "V",
+      mp: 0,
+      cooldown: 0,
+      /*
+       * The sword coming down is one blow; the **volcano is the field below**,
+       * and it is where the rest of the damage lives. He is rooted for the fall
+       * only - 0.6s - and then the ground keeps erupting without him, which is
+       * the whole reason the eruption is a field and not a five-second cast
+       * (docs/adr/0002's rule, and 大蹦's rift is the precedent).
+       */
+      /*
+       * **5.4s: the blow, then the whole eruption with him still in the pose.** The
+       * cast used to be 0.6s and then it let him go - a deliberate choice once
+       * (「拍完 0.6 秒他就自由了」), and the owner has overruled it: 「在崩的过程中身体
+       * 应该保持一个固定的姿势」. The reference holds one crouch from the slam to the
+       * end of the column - 11_魔狱血刹 #158 through #230 and past it, the same low
+       * forward pose frame for frame, and it only stands him up once the ground has
+       * stopped (#330).
+       *
+       * So: the blow is still at 0.22s, the drive is still done by 0.6s (see the
+       * beats in SPRITE.skillClips), and everything after that is the hold - the
+       * ground burns its five seconds with him standing in it. The field opens at
+       * 0.6s through `field.at`, not at the cast's end, or the volcano would be
+       * 4.8s late.
+       *
+       * 5.4 = the 0.6s he needs + the 4.8s the field's own timeline runs to the end
+       * of the column.
+       */
+      duration: 5.4,
+      activeFrom: 0.22,
+      activeTo: 0.3,
+      reach: 120,
+      heightPad: 20,
+      knockbackX: 0,
+      launch: 0,
+      radius: 0,
+      hits: 1,
+      damage: 26,
+      growth: 6,
+      /*
+       * The blow itself **holds what it lands on** - the owner's reading of the
+       * reference is 「砸地瞬间控制住被击的敌人」 - and then the ticks below keep
+       * holding it while the column is up.
+       */
+      stun: 0.4,
+      /*
+       * **霸体, because the payoff must not be lost to a grunt.** The fall is
+       * half a second of standing still in the middle of a room; without this, a
+       * hit taken at the wrong moment cancels the one move the whole fifty
+       * seconds was for. He still takes every point of the damage (docs/adr/0018).
+       */
+      superArmor: true,
+      field: {
+        /*
+         * **8/59: where the caster's own art stopped.** The row is one
+         * five-second timeline and the cast draws its first eight columns (see
+         * `EFFECT.timing.hellbenterSlam.cast`), so the ground has to take over at
+         * column 8 or the claw and the crescents would play twice - once in the
+         * slam and again when the field opens. `from` is a progress, and a
+         * column is `progress * 59`: 8/59.
+         */
+        from: 8 / 59,
+        /*
+         * **Seconds into the cast, not a progress of it.** The ground opens 0.6s
+         * in - the moment the drive is done - and the field's own clock starts
+         * there. (A progress would have to be re-read every time the hold's
+         * length changes, which is exactly what it just did.)
+         */
+        at: 0.6,
+        /*
+         * **And it opens in front of him, not under him.** Measured on the
+         * reference (#180): the crater's centre sits 305 video px ahead of his
+         * own - and the clip draws him 195 video px tall against our 84 world px,
+         * so that is **131 world px**, a little over 1.5 of his own heights. He
+         * ends up at the crater's *near rim* (the art is 108 px either side) and
+         * the column comes up well clear of him. Ours spawned on `caster.x`,
+         * which put him inside his own volcano (the owner: 「崩的位置不对」).
+         *
+         * World px, not `SLAYER_HEIGHT`: that constant is the *cell* (156) and a
+         * 身位 is the art (84), which is the one the reference's frames are
+         * measured in - see CONTEXT.md's two units.
+         */
+        forward: 131,
+        /*
+         * Its own span, not the cast's: the row is a five-second timeline - slam,
+         * crack, column, smoke - and the handover happens on its first frame
+         * (`span` is what says so; see spawnField).
+         */
+        span: 5.0,
+        linger: 0.6,
+        /*
+         * 火山: the eruption keeps hitting whatever is standing in the crack.
+         * The numbers are the reference's own shape - 3.15s of eruption at about
+         * a tick every sixth of a second is 17 beats, and it holds what it has
+         * (`stun`, the same 定身 the reference's slam does) and knocks it down on
+         * the way out.
+         */
+        tick: {
+          interval: 0.18,
+          from: 0.28,
+          until: 0.93,
+          radius: 1.3,
+          depth: 1.3,
+          damage: 12,
+          growth: 3,
+          stun: 0.32,
+          knockdownLast: true
+        }
+      }
+    },
     bloodyRave: {
       id: "bloodyRave",
       /*
@@ -1180,7 +1361,17 @@
    * hotbar slot, no icon and no effect row of its own (SKILL_ORDER drives all
    * three), so it stays a Z-in-the-air move only.
    */
-  var CASTABLE_SKILLS = SKILL_ORDER.concat(["silverFall"]);
+  var CASTABLE_SKILLS = SKILL_ORDER.concat([
+    "silverFall",
+    /*
+     * 魔狱血刹 is castable, hotbarred nowhere: its own key raises the sword and
+     * the same key brings it down. Both halves are here because this list is
+     * what the cooldown table is built from - a skill missing from it has
+     * `undefined <= 0` for a cooldown and can never pass the gate.
+     */
+    "hellbenter",
+    "hellbenterSlam"
+  ]);
 
   var PROGRESSION = {
     baseXpToNext: 30,
@@ -1210,6 +1401,22 @@
    * the far end of the line is his chest, re-read every frame - and so does
    * arriving on time, whatever the distance was.
    */
+  /*
+   * 魔狱血刹's 铸剑, as a rule rather than as art (docs/adr/0025): how many tiers
+   * the sword has, what one landed hit is worth, and what a kill is worth on top.
+   *
+   * **A hit forges it; a clock does not.** The owner's own reading of the
+   * reference is 「需要通过攻击从怪物身上汲取血气」 - the sword is paid for by
+   * fighting, so a player who never swings carries the small one to the end.
+   */
+  var HELLBENTER = {
+    tiers: 8,
+    perHit: 1,
+    perKill: 1,
+    /* How long one 血丝 takes to fly from the wound to his chest. */
+    strandLife: 0.32
+  };
+
   var BLOOD_ORB = {
     chance: 0.34,
     heal: 4,
@@ -1666,8 +1873,21 @@
       channelReleasedAt: null,
       channelTickAt: 0,
       airHitTimer: 0,
-      /* Self-buffs: 血之狂暴 (stance, no timer) and 暴走 (timed). */
+      /*
+       * Self-buffs: 血之狂暴 (stance, no timer), 暴走 (timed) and 魔狱血刹's
+       * 持剑期 (fifty seconds, and the one state that has to survive a room
+       * change - see `startRoom`).
+       */
       buffs: {},
+      /*
+       * How far 魔狱血刹's 血气之剑 has been forged, 1..8. It is next to the buff
+       * rather than inside it because `player.buffs` carries seconds and nothing
+       * else; **armed means `hellbenterTier > 0`**, and the sword is on his back
+       * while `buffs.hellbenter > 0`. The two disagree in the one frame that
+       * matters: the clock has run out but the sword has not come down yet, which
+       * is what tells the gate to bring it down on its own.
+       */
+      hellbenterTier: 0,
       /* How long until 血之狂暴 charges him again for keeping it up. */
       stanceDrainTimer: 0,
       /*
@@ -1777,11 +1997,17 @@
      * exactly what happened to 暴走 the first time it was added. 银光落刃 is not
      * in SKILL_ORDER (it is the air half of the up-slash key), so it is not in
      * here either; that key is read directly where the air case is decided.
+     *
+     * 魔狱血刹 is the second skill outside SKILL_ORDER and it *is* in here, so the
+     * list is spelled out rather than read off the bar: both of its halves come
+     * in on the one key, and which half the key means is decided in the gate (see
+     * `wantsHellbenter` there).
      */
     var pressed = {};
     SKILL_ORDER.forEach(function (skillId) {
       pressed[skillId] = !!skills[skillId];
     });
+    pressed.hellbenter = !!skills.hellbenter;
     return {
       left: !!input.left,
       right: !!input.right,
@@ -1817,7 +2043,17 @@
       shots: [],
       nextEnemyId: 1,
       nextProjectileId: 1,
-      stats: { hits: 0, kills: 0, damageDealt: 0, damageTaken: 0, airHits: 0, collapses: 0, bloodOrbs: 0 },
+      stats: {
+        hits: 0,
+        kills: 0,
+        damageDealt: 0,
+        damageTaken: 0,
+        /* The largest amount any single `damagePlayer` call landed (see it). */
+        maxHitTaken: 0,
+        airHits: 0,
+        collapses: 0,
+        bloodOrbs: 0
+      },
       upgradeChoice: null,
       layout: null,
       victory: false,
@@ -1868,6 +2104,12 @@
     state.player.skillHitDone = false;
     state.player.skillHitsDone = 0;
     state.player.comboTimer = 0;
+    /*
+     * **What is deliberately not cleared**: `player.buffs` and, riding with it,
+     * `player.hellbenterTier` - 魔狱血刹's whole shape is that the sword outlives
+     * the room it was raised in (docs/adr/0025). Every skill field above is about
+     * a cast that this room ended; the sword is not a cast.
+     */
     state.pickups = [];
     state.projectiles = [];
     /* A new room is a new floor: nothing he opened in the last one burns here. */
@@ -2180,6 +2422,31 @@
     return orb;
   }
 
+  /*
+   * One landed hit's worth of blood, two ways: the tier it buys and the strand
+   * it draws on the way in. They are the same fact about the same hit, which is
+   * why they are spawned together - a hit that grew the sword with nothing flying
+   * into him would read as the sword growing on its own (docs/adr/0025).
+   */
+  function growSword(state, steps) {
+    var player = state.player;
+    if (!(player.buffs.hellbenter > 0)) return;
+    var tier = Math.max(1, player.hellbenterTier || 1);
+    player.hellbenterTier = Math.min(HELLBENTER.tiers, tier + steps);
+  }
+
+  function spawnBloodStrand(state, enemy) {
+    state.effects.push({
+      kind: "bloodStrand",
+      /* Out of the wound: half way up the body that owns it. */
+      x: enemy.x,
+      y: enemy.y - enemy.height * 0.5,
+      z: enemy.z || 0,
+      life: HELLBENTER.strandLife,
+      maxLife: HELLBENTER.strandLife
+    });
+  }
+
   /**
    * DNF bosses change gear once they are cornered. Crossing the phase-two health
    * ratio raises speed, damage and slam reach and unlocks the mid-range lunge.
@@ -2303,6 +2570,16 @@
       if (nextRandom(state) < BLOOD_ORB.chance) spawnBloodOrb(state, enemy);
       startBleed(enemy, stanceBleed(state.player));
     }
+    /*
+     * 魔狱血刹's 铸剑, and it asks the same question the stance's orbs do: *was
+     * this his own swing?* A slab that crushes a monster must not forge anybody's
+     * sword any more than it may draw blood for the stance, so the gate is
+     * `slayerSwing` - the flag the floor and the bleed ticks already clear.
+     */
+    if (applied > 0 && slayerSwing && state.player.buffs.hellbenter > 0) {
+      growSword(state, HELLBENTER.perHit);
+      spawnBloodStrand(state, enemy);
+    }
 
     /* Super armour keeps bosses swinging through light hits, DNF style. */
     if (enemy.superArmor && !opts.ignoreSuperArmor) {
@@ -2346,6 +2623,13 @@
       enemy.hp = 0;
       enemy.dead = true;
       state.stats.kills += 1;
+      /*
+       * A kill is worth more blood than a hit is (docs/adr/0025): the whole body
+       * empties into the sword, not one cut's worth. The strand is the same one -
+       * a second streak for the same death would be the animation talking, not
+       * the rule.
+       */
+      if (slayerSwing) growSword(state, HELLBENTER.perKill);
       pushBanner(state, enemy.type === "boss" ? "Boss down!" : "Enemy down", 0.9);
       grantXp(state, enemy.xp);
     } else if (enemy.phase2 && enemy.phase < 2 && enemy.hp <= enemy.maxHp * enemy.phase2.hpRatio) {
@@ -2370,11 +2654,27 @@
     var spec = SKILLS[skillId];
     var field = spec && spec.field;
     if (!field || progress < field.from) return null;
-    var span = (1 - field.from) * spec.duration;
-    state.fields.push({
+    /*
+     * How much of the move's animation the ground still has to play. Normally
+     * that is what is left of the cast - the field picks up the art exactly
+     * where the caster's own clock was - but a move can declare its own `span`
+     * instead, and then the handover is the *first* frame of the field's
+     * timeline: 魔狱血刹's volcano is five seconds of ground (slam, crack,
+     * column, smoke) behind a 0.6s cast, and none of that five seconds has
+     * happened yet when he lets go of it.
+     */
+    var span = field.span || (1 - field.from) * spec.duration;
+    var field_ = {
       skillId: skillId,
       from: field.from,
-      x: caster.x,
+      /*
+       * **Where it opens is not where he stands.** `forward` is the reference's
+       * own measurement of how far ahead of him the ground breaks open (魔狱血刹:
+       * 1.5 身位), and it is the *spot* - art, anchor and every tick off it - that
+       * moves, so the eruption burns where it was opened rather than where he is
+       * (see `field.forward`).
+       */
+      x: caster.x + (caster.facing || 1) * (field.forward || 0),
       y: caster.y,
       /*
        * The depth is part of the spot, not a detail of the caster. A rift opened
@@ -2384,11 +2684,65 @@
        */
       z: caster.z || 0,
       facing: caster.facing,
-      clock: Math.max(0, (progress - field.from) * spec.duration),
+      clock: field.span ? 0 : Math.max(0, (progress - field.from) * spec.duration),
       span: span,
-      life: span + field.linger
+      life: span + field.linger,
+      /*
+       * The tick clock, and the one thing a field has to remember about its own
+       * birth: how far the sword behind it had been forged. 满档的火山比断剑砸出来
+       * 的猛 - the same dial the sword's size reads (docs/adr/0025).
+       */
+      tickAt: field.tick ? field.tick.interval : 0,
+      ticks: 0,
+      tier: caster.hellbenterTier || 1
+    };
+    state.fields.push(field_);
+    return field_;
+  }
+
+  /*
+   * 火山: what a field does to whatever is standing in it.
+   *
+   * A field is ground he opened, so this runs on the field's own clock and not
+   * on his - he may be three Slayer-heights away by the time the third tongue
+   * comes up, and the thing that hits you is the floor, not him. Only fields
+   * whose move declares `field.tick` damage anything; 大蹦's rift is art.
+   */
+  function updateFieldTicks(state, dt) {
+    state.fields.forEach(function (field) {
+      var spec = SKILLS[field.skillId];
+      var tick = spec && spec.field && spec.field.tick;
+      if (!tick || field.clock < 0) return;
+      /* The eruption's own window, as fractions of the field's timeline. */
+      var at = field.span > 0 ? field.clock / field.span : 1;
+      if (at < (tick.from || 0) || at > (tick.until === undefined ? 1 : tick.until)) return;
+      field.tickAt -= dt;
+      if (field.tickAt > 0) return;
+      field.tickAt += tick.interval;
+      field.ticks += 1;
+      var radius = tick.radius * SLAYER_HEIGHT;
+      var last = at >= (tick.until === undefined ? 1 : tick.until) - tick.interval / Math.max(0.0001, field.span);
+      /*
+       * 满档最猛: the sword's own tier scales every beat, so the same volcano is
+       * worth half as much when he slams the 断剑 he never fed.
+       */
+      var forged = (Math.max(1, Math.min(HELLBENTER.tiers, field.tier)) - 1) /
+        Math.max(1, HELLBENTER.tiers - 1);
+      var scale = 0.45 + 0.55 * forged;
+      state.enemies.slice().forEach(function (enemy) {
+        if (enemy.dead) return;
+        var dx = enemy.x - field.x;
+        var dz = (enemy.z || 0) - (field.z || 0);
+        if (dx * dx > radius * radius) return;
+        if (Math.abs(dz) > tick.depth * SLAYER_HEIGHT) return;
+        var amount = Math.round((tick.damage + (state.player.level - 1) * tick.growth) * scale);
+        damageEnemy(state, enemy, amount, 0, field.x, {
+          noBloodOrbs: true,
+          stun: tick.stun,
+          knockdown: last && tick.knockdownLast ? 1.1 : 0
+        });
+      });
     });
-    return state.fields[state.fields.length - 1];
   }
 
   /** Where a field is in its move's animation, and how far it has faded. */
@@ -2468,6 +2822,15 @@
     var applied = Math.max(0, Math.round(amount));
     player.hp -= applied;
     state.stats.damageTaken += applied;
+    /*
+     * **The biggest *single* hit, kept here rather than worked out by
+     * differencing `damageTaken`.** The browser gate asks "is any one hit bigger
+     * than the biggest attack the game can deal", and a caller that only samples
+     * that running total sees two hits inside one poll window as one bigger hit -
+     * a slab and a monster landing together read as a 24 in a game whose largest
+     * attack is 22. The game knows what one call was; this is where it says so.
+     */
+    if (applied > state.stats.maxHitTaken) state.stats.maxHitTaken = applied;
     pushDamageEffect(state, player.x, player.y - player.height - 6, applied);
     player.invuln = PLAYER.invulnAfterHit;
     /*
@@ -2689,7 +3052,29 @@
       (player.attackTimer <= 0 || attackRecovering) &&
       player.skillCooldowns.silverFall <= 0 &&
       player.mp >= SKILLS.silverFall.mp;
-    var castSkill = wantsAirDive ? "silverFall" : SKILL_ORDER.filter(function (skillId) {
+    /*
+     * **魔狱血刹's key casts one of two moves, and the state decides which**
+     * (docs/adr/0025). While the sword is on his back the key brings it down;
+     * with nothing on his back it raises one. And the third way in is the clock:
+     * the fifty seconds running out arms the fall by itself, because the sword
+     * never simply vanishes - that is read off the pair of fields rather than off
+     * an edge, so a fall that arrives while he is mid-swing waits for the swing
+     * to end instead of being dropped.
+     */
+    var swordUp = player.buffs.hellbenter > 0;
+    var swordDue = !swordUp && (player.hellbenterTier || 0) > 0;
+    var hellbenterMove = swordUp || swordDue ? "hellbenterSlam" : "hellbenter";
+    var wantsHellbenter =
+      (!!input.skills.hellbenter || swordDue) &&
+      player.skillTimer <= 0 &&
+      (player.attackTimer <= 0 || attackRecovering) &&
+      player.skillCooldowns[hellbenterMove] <= 0 &&
+      player.mp >= SKILLS[hellbenterMove].mp;
+    var castSkill = wantsAirDive
+      ? "silverFall"
+      : wantsHellbenter
+      ? hellbenterMove
+      : SKILL_ORDER.filter(function (skillId) {
       var spec = SKILLS[skillId];
       return (
         input.skills[skillId] &&
@@ -2738,6 +3123,8 @@
       player.castOriginX = player.x;
       player.skillTimer = skillSpec.duration;
       player.skillHitDone = false;
+      /* Every cast gets its own ground to open - see `field.at`. */
+      player.fieldSpawned = false;
       player.skillHitsDone = 0;
       player.channelReleasedAt = null;
       player.channelTickAt = skillSpec.channel ? skillSpec.channel.entrance : 0;
@@ -2871,6 +3258,42 @@
       }
 
       /*
+       * **A move can open its ground before it lets go.** 魔狱血刹's 落 holds him
+       * for the whole eruption now (5.4s), so the volcano cannot wait for the
+       * cast to end - `field.at` is the *time into the cast* it opens on (0.6s)
+       * and the field's own clock starts there, exactly as it did when the two
+       * coincided at the cast's end.
+       *
+       * `1` and not `active.field.at`: the third argument is a progress of the
+       * **move's timeline**, which the field compares against its own `from` (the
+       * column it takes the row over at, 8/59) - a progress of the *cast* is a
+       * different number and would be refused for being too early.
+       */
+      if (
+        active.field &&
+        active.field.at !== undefined &&
+        !player.fieldSpawned &&
+        skillElapsed >= active.field.at
+      ) {
+        player.fieldSpawned = true;
+        spawnField(state, active.id, 1, player);
+      }
+
+      /*
+       * **拍完剑就不在背后了。** 业主：「拍后背后没有剑了」——参考里第二下把剑送进地里
+       * 之后，他背后那把就没了（11_魔狱血刹 0:08 那一段，他周围只剩火山，身上是空的）。
+       * 原来这条只写在**施法结束**那一支里，所以整整 5.4 秒的喷发期间他还背着一把剑，
+       * 剑和火山同时在屏幕上。
+       *
+       * 挂在 `activeFrom` 上而不是 `field.at`：`field.at`（0.6）是地面裂开、火山起来
+       * 的那一瞬，而剑是**抡下去**的那一下离开他手的，那一下是 0.22。
+       */
+      if (active.id === "hellbenterSlam" && player.buffs.hellbenter > 0 &&
+          skillElapsed >= active.activeFrom) {
+        player.buffs.hellbenter = 0;
+      }
+
+      /*
        * **He can be carried by his own move.** A cast normally locks him to the
        * spot; 十字斩 is the one that walks him forward and back (see its own
        * `advance`/`advanceAt`/`advanceBack` and `docs/adr/0012`), and the step is
@@ -2956,6 +3379,14 @@
               spendPlayerHp(state, player, player.maxHp * active.buff.open.hpRatio);
             }
             player.buffs[active.buff.id] = active.buff.duration;
+            /*
+             * 魔狱血刹's 血气之剑 comes up with the buff and rides next to it: the
+             * tier is how far it has been forged (1..8, grown by hits in the next
+             * slice) and `player.buffs` has no room for it - it carries seconds.
+             * A tier of 1 is the sword the reference shows at the cast, 0.52 of
+             * a Slayer-height, and `swordTier` is what raises it.
+             */
+            if (active.buff.swordTier) player.hellbenterTier = active.buff.swordTier;
             /* The drain's first tick is a full interval away, not this frame. */
             if (active.buff.drain && active.buff.drain.interval) {
               player.stanceDrainTimer = active.buff.drain.interval;
@@ -3128,7 +3559,21 @@
          * burning where it is, which is how the reference ends - him on his
          * feet at 3.97s with the cracks still lit.
          */
-        spawnField(state, active.id, 1, player);
+        if (!player.fieldSpawned) spawnField(state, active.id, 1, player);
+        /*
+         * **魔狱血刹's sword goes into the ground here, and both halves of the
+         * state go with it.** The tier is what the gate reads to know the move is
+         * over, and the buff is what the *renderer* reads to know the sword is on
+         * his back - clear one and not the other and the sword is drawn for
+         * another forty seconds after it has been put down. (The two are only
+         * out of step in one place, which is deliberate: the clock running out
+         * leaves the buff at 0 and the tier up, and that gap is what arms the
+         * fall - see the gate.)
+         */
+        if (active.id === "hellbenterSlam") {
+          player.hellbenterTier = 0;
+          player.buffs.hellbenter = 0;
+        }
         player.skillId = null;
       }
     }
@@ -3927,6 +4372,12 @@
 
     updatePlayer(state, input, dt);
     /*
+     * The ground he opened hits on its own clock, right after his own move has
+     * run: 火山's beats belong to the spot, and a beat that landed while he was
+     * recovering, interrupted or already in the next room still lands here.
+     */
+    updateFieldTicks(state, dt);
+    /*
      * What he threw, after what he did and before what the room does. A qi born
      * on this frame is already in the air on it, which is what the art does too:
      * the row's third stage starts flying on the very column it appears on.
@@ -3968,6 +4419,7 @@
     CASTABLE_SKILLS: CASTABLE_SKILLS,
     PROGRESSION: PROGRESSION,
     BLOOD_ORB: BLOOD_ORB,
+    HELLBENTER: HELLBENTER,
     ENEMY_TYPES: ENEMY_TYPES,
     ROOMS: ROOMS,
     BOSS_ROOM_INDEX: BOSS_ROOM_INDEX,

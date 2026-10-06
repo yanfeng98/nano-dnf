@@ -64,7 +64,15 @@ ROWS = ["idle", "run", "attack", "skill", "extras", "clips", "clips2", "bloodbla
         # client's slash arc alone (`ragearc`). The order is what the renderer's
         # `SPRITE.rows` names: rage 9, ragearc 10, and a swap of the two draws the
         # graded copy of the whole Slayer as his swing (docs/adr/0019).
-        "rage", "ragearc"]
+        "rage", "ragearc",
+        # 魔狱血刹's two motions, on a row of their own (2026-10-05). They do not
+        # fit after `clips2`: that row ends on 血之狂暴's 13-frame cast at column
+        # 48 and has 3 columns left, and a clip that runs past COLS is
+        # **truncated, not spilled** - the packer breaks out of its frame loop and
+        # the rest of the frames are dropped in silence. A row of their own was
+        # cheaper than widening COLS again (the sheet grows 176px either way, and
+        # widening would have renumbered every `first` in `SPRITE.skillClips`).
+        "awaken"]
 
 # Per-move body animations, picked by the owner off the body sheet next to each
 # skill's own client clip. Only the picked frames go in: widening them to their
@@ -223,8 +231,29 @@ CLIPS = [
     # the casting pose at all. The reference holds one pose for the whole hold
     # (#059-#152), so the hold now cycles 174/175 only.
     ("bloodyRave", [176, 159, 160, 161, 168, 174, 175, 175, 189, 194, 195, 197, 198]),
+    # **魔狱血刹's 起手 is 75-89, and the owner named it** (2026-10-05): he read
+    # the range off assets/dnf_src/full-frames/frames-061-121.png, the same
+    # labelled sheet 暴走's 80-89 came off. It is 75-79 rising out of a low
+    # thrust and settling, then 80-89 standing with the sword brought across his
+    # body - the last ten of which are exactly 暴走's own frames, the way
+    # 怒气爆发 and 暴走 have always shared 80-83.
+    #
+    # It replaces a one-cell stand (`[176]`). That reading came from the
+    # *training-room* clip, where he does stand through the cut-in
+    # (11_魔狱血刹 #26-#56) - but the cast is a performance in the client and the
+    # owner asked for it back. The motion runs 0.5s of the 1.0s cast and holds
+    # its last frame for the rest (see SPRITE.skillClips.hellbenter).
+    ("hellbenter", list(range(75, 90))),
+    # **魔狱血刹's 落 is 143-156, the owner's second range.** 142-144 compress him
+    # down and 145-156 is the low forward drive he stays in - and the training
+    # clip's own finisher (#146-#156) is that same silhouette under the claw, so
+    # this one is verifiable against the reference, not just named.
+    #
+    # The generic skill row used to play here (194, 196-200): an overhead raise
+    # and a cut, which is not what the move does. The owner: 「角色动作差了很多」
+    ("hellbenterSlam", list(range(143, 157))),
 ]
-CLIP_ROWS = ("clips", "clips2")
+CLIP_ROWS = ("clips", "clips2", "awaken")
 
 # DNF frame coordinate space of the swordman body: idle frames put the feet at
 # y=341 and the body centre at x=242. Everything maps through this point.

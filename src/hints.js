@@ -91,6 +91,25 @@
       when: function (state) {
         return state.time > 1.5 && state.stats.kills === 0;
       }
+    },
+    {
+      /*
+       * **The 一觉 has no slot, so nothing in the bar says it exists.** The tile
+       * at the end of the bar is where it lives; this says it once, in words,
+       * while the first fight is under way. The owner's first play of that slice
+       * reported exactly this gap - 「没看到技能」 - and a move nobody is told
+       * about is a move nobody casts (docs/adr/0025).
+       */
+      id: "awakening",
+      text: "V 觉醒 · 魔狱血刹（身后背剑，再按落下）",
+      life: 4.5,
+      when: function (state) {
+        return (
+          state.time > 6 &&
+          state.stats.kills >= 1 &&
+          !(state.player.buffs.hellbenter > 0)
+        );
+      }
     }
   ];
 

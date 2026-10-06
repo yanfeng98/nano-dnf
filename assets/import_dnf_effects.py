@@ -10,13 +10,13 @@ the GitHub mirror otherwise:
   十字斩      effect/gorecross/gorecross_cross.img
   血气之刃    effect/bloodsword/sword_normal.img
   暴走        effect/frenzy/sword_blood_upper.img
-  嗜魂封魔斩  effect/bloodyrave/*.img  (start-dodge 血球 / particle 漩涡 /
+  嗜魂封魔斩  effect/bloodyrave#.img  (start-dodge 血球 / particle 漩涡 /
               finish-dodge+scrach+lslash-dodge 金叉 —— 2026-10-04 前错记成「血气爆发」)
   怒气爆发    effect/blast-back.img
   嗜血        effect/bloodsnatch/bloodwave.img
   抓头        effect/pinchhpregen.img
   血魔        effect/bloodevil/bloodevil_stand_dungeon_effect.img
-  崩山裂地斩  effect/outragebreak/*.img  (the move's own pack; the fire-front pair
+  崩山裂地斩  effect/outragebreak#.img  (the move's own pack; the fire-front pair
               this used to name was rejected by the owner)
 
 The hotbar is the Berserker kit: every move above is one the red-eyed Slayer
@@ -46,6 +46,7 @@ import sys
 import urllib.request
 from pathlib import Path
 
+import numpy as np
 from PIL import Image, ImageChops, ImageDraw, ImageFilter
 
 ROOT = Path(__file__).resolve().parent
@@ -95,7 +96,7 @@ GROUND_LINE = 0.75
 # its detail at the size the screen draws it, and the renderer reads them from
 # there (EFFECT.riftRows / EFFECT.riftCell in src/render.js).
 RIFT_CELL = 384
-RIFT_ROWS = ("mountainRift", "mountainRiftFire")
+RIFT_ROWS = ("mountainRift", "mountainRiftFire", "hellbenterSlam")
 RIFT_SHEET = "rift.png"
 # How much of a screen pixel one client pixel of that sheet gets, at the size
 # the renderer draws it: the number that puts the pack's 445px floor on the
@@ -295,6 +296,106 @@ VORTEX_RAMP = [
     (0.80, (217, 48, 30)),
     (0.90, (244, 60, 36)),
     (1.00, (252, 68, 42)),
+]
+# 魔狱血刹's sword, gone white. The reference turns the *same* serrated blade
+# white for the last seconds of the state (11_魔狱血刹 B 2:36.4), so this is the
+# red art through a luminance ramp rather than a second drawing: the stop at 0
+# keeps the guard and the outline dark, and everything bright - the blade, the
+# edges the reference's own white sword shows off - comes out near white.
+# 魔狱血刹's 火山, measured off the reference's own eruption rather than taken
+# from the pack. The pack's lava is a muted brown-ochre - built, it read as wood
+# - and the owner sent it back (「还是差很多」). Bucketing the clip's pixels by
+# their own brightness (the column at 11_魔狱血刹 #7.5s, 376k pixels of it) gives
+# this table directly, and the number that matters is the last line: **60% of the
+# reference's eruption is at (248, 215, 30)** - a saturated yellow, not a brown.
+LAVA_RAMP = [
+    (0.000, (34, 22, 6)),
+    (0.235, (74, 62, 13)),
+    (0.353, (105, 82, 21)),
+    (0.470, (135, 105, 27)),
+    (0.588, (164, 125, 32)),
+    (0.706, (194, 150, 37)),
+    (0.824, (223, 170, 34)),
+    (0.922, (248, 215, 30)),
+    (1.000, (255, 236, 70)),
+]
+# 魔狱血刹's 火山: the column's colour, read straight off the reference.
+#
+# The pack's `new11` is the right *shape* (see PICKS.hellbenterSlam) and the
+# wrong colour. Its own art is a red-orange ramp - measured over its opaque
+# pixels, `G/R` runs 0.23 / 0.25 / 0.26 / 0.27 / 0.29 / 0.33 through the
+# levels - where the reference's column is a **gold** one, `G/R` 0.60-0.68.
+# Painted as exported, our column measured (207,128,8) against the reference's
+# (234,165,23) inside the same band.
+#
+# So this is the reference's own curve, binned the way `tint` reads: `11_魔狱血刹`
+# #250, inside the column's footprint (video x 380-880, y 250-700), pixels
+# bucketed by their brightest channel.
+#
+# The green is taken down about a tenth from that raw table (painted at the
+# reference's own numbers the column came out `G/R` **0.81** against its
+# **0.76**), and then **the whole ramp is lifted**.
+#
+# That second part is the one that reads as "和参考不一样". The raw table above
+# is the reference's *colour* at each level - and the reference simply does not
+# spend many pixels down there: **66% of its column sits at level 240+** with a
+# mean of (250,197,30), one big blown-out mass, where `new11`'s own art keeps
+# about 40% of itself in dark veins and ours measured **7%**. Matching the hue
+# while leaving two fifths of the column dark is what produced a gold slab with
+# brown stripes. Lifting the low stops is what turns it into the bright mass the
+# rocks float in; `EFFECT.draw.hellbenterSlam.glowBlur` (bloom) is the other half.
+#
+# **Note what is deliberately *not* here: a `level` (gamma).** `LAVA_RAMP` with
+# `level: 0.4` was tried first and is what reads as "木纹": bending the level
+# before the ramp pushes two thirds of the art - which is in shadow - into the
+# ramp's bright end, and the dark veins that make the column read as fire come
+# back as pale gold stripes. The ramp alone keeps them dark.
+VOLCANO_RAMP = [
+    (0.000, (96, 32, 6)),
+    (0.150, (170, 84, 14)),
+    (0.320, (222, 140, 24)),
+    (0.500, (246, 180, 30)),
+    (0.700, (250, 205, 42)),
+    (0.880, (253, 220, 66)),
+    (1.000, (255, 234, 120)),
+]
+WHITE_RAMP = [
+    (0.00, (26, 26, 34)),
+    (0.22, (96, 100, 116)),
+    (0.45, (168, 176, 196)),
+    (0.70, (226, 232, 246)),
+    (1.00, (255, 255, 255)),
+]
+# 魔狱血刹's 血丝. The pack's `new13` is the right *shape* - a long thin thread -
+# and the wrong colour: it ships on the pack's plain board, which is the orange
+# its other `new*` entries use, and the reference's strands are red (「细红丝」,
+# measured off `BV1U1v6B2EWt` at 2:01.9-2:03.5). So the thread keeps its own
+# brightness and takes this ramp's colour, the way the vortex does.
+STRAND_RAMP = [
+    (0.00, (34, 2, 2)),
+    (0.25, (118, 10, 7)),
+    (0.50, (176, 26, 16)),
+    (0.75, (226, 46, 30)),
+    (1.00, (252, 84, 60)),
+]
+# 魔狱血刹's 血气之剑: **how tall the sword is drawn at each 铸剑 tier**, in client
+# pixels **of `sword-normal` frame 0** - the one frame whose *shape* is the
+# reference's (see the bake's note on PICKS.hellbenterSword).
+#
+# The reference measures 0.92-0.96 身位 while he holds it and 1.20-1.36 once it is
+# white; frame 0 is 97 client px = 0.69 身位 at 1:1, so the ladder is that frame
+# drawn at 1.33 -> 1.98 of its own size. One cell per tier, so this list and
+# `Core.HELLBENTER.tiers` have to have the same length; a test pins that.
+SWORD_TIERS = (129, 138, 147, 156, 165, 174, 182, 192)
+
+# 血气之剑's colour. The sword's own frame is a **faint outline** (it ships unlit),
+# so the ramp is what makes it the red sword the reference shows - dark at the
+# hilt end, bright along the blade.
+BLADE_RAMP = [
+    (0.00, (152, 22, 14)),
+    (0.45, (198, 32, 20)),
+    (0.75, (226, 48, 30)),
+    (1.00, (250, 84, 56)),
 ]
 CRESCENT_RAMP = [
     (0.00, (16, 12, 8)),
@@ -1003,6 +1104,161 @@ PICKS = {
          "offset": (-62, -263), "from": 0.652, "until": 0.870},
     ]},
 
+    # **魔狱血刹's 火山**, and it is one row because it is one event: the sword
+    # goes into the ground, the floor cracks and lights, the column comes up and
+    # then it is smoke. All five pieces are the client's own `hellbenter` pack -
+    # the pack the whole move lives in - and each one is placed by where its own
+    # art sits relative to the caster's feet, which is the anchor (0, 0) here.
+    #
+    # The window is not the art: it is the *space* the row is drawn in, and it
+    # has to leave room **below** the anchor because `bake_frames` puts the
+    # anchor on the cell's 0.75 line (the same convention 大蹦's rows use, so the
+    # renderer's `dy = -size / 4` holds here too). The art itself hangs upward
+    # from that line - a 806px column and a 335px crack, both standing on it.
+    #
+    # **The window is also the zoom**, and this one used to be 670x1150 for an
+    # eruption 700 wide and ~1030 tall. Trimming it to what the art actually
+    # covers takes `fit_scale` from 0.329 to 0.356, so the LANCZOS pass throws
+    # away a quarter less detail on its way to the cell.
+    "hellbenterSlam": {"palette": "", "pack": "_hellbenter", "anchor": (0, 0),
+                       "length": 60, "window": (-350, -880, 350, 200), "stages": [
+        # **拍地那一瞬的主形状：`change-n` 的巨型爪。** 业主说的「真正崩坏的，请你去
+        # 客户端里找」就是它：参考片第 146-153 帧他整个人被一团**白mass + 黑回钩 +
+        # 红光晕**罩住（把参考帧和 `change-n` 的 f0/f1/f2 并排贴过，形状逐帧对上），
+        # 而这一条在包里放了两年没人用——第一版终结只有 `slash-d`（一道白月牙）和
+        # `impact-d`（一点金爆），所以那一拍读起来是"挥了一下"，不是"砸下去了"。
+        #
+        # 位置与大小是**量出来再校**的：参考里那团爪子的框约 168x177 客户端像素
+        # （＝1.26 身位高）、中心在他**身后 0.24 身位、离地 0.57 身位**（第 148 帧量的：
+        # 爪心离地 189 视频像素，他本人 195 视频像素高＝84 客户端像素）。`change-n`
+        # 自己的 f1 是 215x214（＝1.52 身位），所以缩到 **0.9**、中心放到 (-15, -85)。
+        # 第一版放在 -115（0.82 身位）——比参考高半个头，第一眼像顶在他头上而不是罩住他。
+        # **拍地那一下落在他身上，只有地面开在他身前。** 这一行的锚点现在是"盘心"
+        # （在 `caster.x` 前方 131 世界像素），所以属于**这一下**的三层（爪、两道新月、金爆）
+        # 要各自往回拉 220 客户端像素（131 世界像素 ÷ 本行的 0.596 客户端像素/屏幕像素），
+        # 才落在参考里那个位置：他整个人被爪罩住，而裂缝在他身前张开。
+        # **0.83, 不是 0.9**：参考里那团爪子的框是 168x177 客户端像素，`change-n` 的 f1
+        # 是 215x214，215x214 x 0.83 = 178x178 才正好是它。0.9 是"量到 1.52 身位、往 1.26
+        # 缩一点"的年代里拍的，而那时整行还按 782 画（见 EFFECT.draw 里 `size` 那一段），
+        # 所以实画出来是 1.56 身位。现在整行的倍率对了，这里也回到量出来的数。
+        # `offset` 的 y 跟着缩了 8（缩放的定点是每帧的**底心**，不是墨心），x 不动。
+        {"entry": "change-n.img", "frames": (0, 2), "scale": 0.83,
+         "offset": (87, -211), "from": 0.00, "until": 0.07},
+        # 白月牙扫进地面 + 落点金爆（参考里这一下是"白**和红**两道新月"；白的那道是
+        # `slash-d`，红的那道 `slash-n` 是它的孪生条目，第一版漏了）。两道对齐到同一个
+        # 中心：`slash-n` 的 f0 比 `slash-d` 的 f0 在包里偏 (26, 1) 像素，所以偏移补回去。
+        {"entry": "slash-d.img", "frames": (0, 3), "scale": 1.0,
+         "offset": (70, -90), "from": 0.00, "until": 0.09},
+        {"entry": "slash-n.img", "frames": (0, 1), "scale": 1.0,
+         "offset": (43, -91), "from": 0.00, "until": 0.09},
+        {"entry": "impact-d.img", "frames": (0, 3), "scale": 1.1,
+         "offset": (40, -55), "from": 0.00, "until": 0.07},
+        # **主喷发的形状是 `new11`——包里那条 261x537 的火柱。** 这一条走过一大圈弯路，
+        # 记在这里免得再绕回去：中间有几片把它换成了 `new17`（9 帧 266x160 的**穹顶**，
+        # 亮黄裹着黑岩块），理由是我觉得"参考是一大团黄里翻着黑石头，不是一条带黑条纹
+        # 的柱子"。**那个判断是错的**，错在拿穹顶的**包围盒**去比柱子：`new17` 高宽比
+        # 0.6，参考里那根量出来 2.77 x ≥4.15 身位，于是只好把五朵穹顶叠起来凑高度——
+        # 叠出来的是一摞**有横缝的饼**（业主看的就是这一版）。
+        #
+        # 真的量一遍就明白了。参考第 250 帧（`assets/dnf_src/bilibili/skill-clips/
+        # 11_魔狱血刹.mp4`）从地面到屏幕顶，柱身 x 从 360 到 900 视频像素，**宽度沿高度
+        # 基本不变**（527 / 527 / 540 / 555 / 564），不是收口的锥。195 视频像素 = 1 身位
+        # = 141 客户端像素，所以那是 **390 客户端像素宽**；`new11` 是 261，**1.5 倍**。
+        # 高度：柱身被屏幕顶切掉，可见 ≥810 视频像素 = 586 客户端像素；`new11` 1.5 倍
+        # 之后是 806，正好长出一截去被切——参考里它也是切掉的。
+        #
+        # 颜色走 `VOLCANO_RAMP`——**从参考自己的像素量出来的那条曲线**，没有 gamma。
+        # 原来挂的是 `LAVA_RAMP` ＋ `level 0.4`，那是"木纹柱"的真正来源：不是 ramp 错，
+        # 是那个 **gamma** 把画面里三分之二处在暗部的板推到 ramp 的亮端，暗纹全变成
+        # 淡金条纹。只上 ramp、不弯 level，纹路就还在。详见 `VOLCANO_RAMP` 上的注释。
+        # 位置：`new11` f0 的底心在客户端坐标 (384.5, 1006)，本行的锚点 (0,0) 是**弹坑心
+        # 在地面上**，所以 `offset` 是它的相反数再往下压 40：柱子自己的下沿是一条**平直
+        # 的横线**，压在地面线上时它在扇面之上露出一条硬边。沉 40 px 让那条边落到地板
+        # 下面，柱身照旧被屏幕顶切掉（上面还有 766 px，屏幕以上只放得下 430）。
+        #
+        # **五遍**：一行只画一遍的话，8 帧摊在 0.4→0.88 上是 2 张/秒，糊成一张静图。
+        # 拆成五遍、每遍自己播完 8 帧，就是 16 张/秒的翻搅（列 24/30/35/41/47/52）。
+        {"entry": "new11.img", "ramp": VOLCANO_RAMP, "frames": (0, 7), "scale": 1.5,
+         "offset": (-384, -966), "from": 0.40, "until": 0.50},
+        {"entry": "new11.img", "ramp": VOLCANO_RAMP, "frames": (0, 7), "scale": 1.5,
+         "offset": (-384, -966), "from": 0.50, "until": 0.60},
+        {"entry": "new11.img", "ramp": VOLCANO_RAMP, "frames": (0, 7), "scale": 1.5,
+         "offset": (-384, -966), "from": 0.60, "until": 0.70},
+        {"entry": "new11.img", "ramp": VOLCANO_RAMP, "frames": (0, 7), "scale": 1.5,
+         "offset": (-384, -966), "from": 0.70, "until": 0.79},
+        {"entry": "new11.img", "ramp": VOLCANO_RAMP, "frames": (0, 7), "scale": 1.5,
+         "offset": (-384, -966), "from": 0.79, "until": 0.88},
+        # **柱子底座那圈放射，是两件东西。** 参考的柱脚是：一团**肥厚发白的黄**
+        # 贴在地上，外面再套一圈**细长的橙色射线**沿地面向外扫、末端往下垂。
+        #
+        # 那圈射线是 `new03`（3 帧，491x130，本来就是一圈细尖）——**压扁**到 0.5 才是
+        # 参考那个比例：参考量出来射线环约 542 客户端像素宽、72 高（6.4:1），`new03`
+        # 自己是 3.8:1，不压就是一圈立起来的刺。移回 `-163` 之前它整个在**地面以下**。
+        # 用 **f0**：`new03` 的三帧里 f1 是一圈对着外圈的火焰、f2 是**一条光秃秃的
+        # 椭圆线**（第一版就是拿 f2 画的，屏幕上是一个圈），只有 f0 是参考那种
+        # **从中心射出去、末端在外面的细射线**。
+        {"entry": "new03.img", "frames": (0, 0), "scale": 1.22, "stretch": (1.0, 0.50),
+         "offset": (-300, -160), "from": 0.40, "until": 0.88},
+        # 里面的那团黄是 `kaaa-d1`（357x245 的金色爆散，客户端自带）。它原来放在 `-170`，
+        # 也就是说**连底沉到地面以下 251 客户端像素**——实玩里只看得见几根尖，业主那句
+        # 「感觉最后崩的特效也不对」里少的那半圈就是这个。现在墨心落在地面线上。
+        {"entry": "kaaa-d1.img", "frames": (0, 0), "scale": 0.95, "stretch": (1.0, 0.70),
+         "offset": (-180, -316), "from": 0.40, "until": 0.88},
+        # **里面翻着的那几块黑岩**：参考那根柱子不是纯光，是岩浆裹着石头在翻。
+        # 包里的 `exi-particle` 就是石头（6 帧，27x42 到 53x47 的深褐块），五块都摆在
+        # **参考量到的位置上**——把 #220/#235/#250/#265/#290 五帧里"暗、圆、面积>300 视频
+        # 像素"的块挑出来（长宽比 >2.2 的一律不算，那些是柱身自己的暗纹），它们落在
+        # 客户端 x -170…+130、离地 100…470、大小 22x30…35x28 的一段里。
+        # 位置用每块自己的**墨心**对，不是框心：`exi-particle` 每帧都是 (0,0)、框和墨不等大。
+        # `travel` 让它们在这一段里往上浮（y 负＝上）。
+        # 尺寸再抬三成：参考里那些暗块是 22x30 到 35x28 客户端像素，`exi-particle`
+        # 的 f0 本来就有 53x47，所以 1:1 就够大——**之前看不见不是小，是柱子本身太暗**，
+        # 石头和柱身一片暗纹混在一起。柱子上了 bloom（`EFFECT.draw.glowBlur`）之后
+        # 亮底出来了，石头才立得住；这里只再加一档保险。
+        # **坐标的 y 是"往上为负"**——本行锚点 (0,0) 是弹坑心在地面上。第一版把量到的
+        # **高度**（100…470）当成了 y 直接写进去，五块石头全跑到地板底下去，屏幕上
+        # 一块也没有。`place.py` 按 -177 / -202 / -105 / -470 / -350 重算。
+        {"entry": "exi-particle.img", "frames": (0, 5), "scale": 1.4, "travel": (0, -150),
+         "offset": (-15, -202), "from": 0.42, "until": 0.88},
+        {"entry": "exi-particle.img", "frames": (0, 5), "scale": 1.8, "travel": (0, -170),
+         "offset": (-19, -221), "from": 0.42, "until": 0.88},
+        {"entry": "exi-particle.img", "frames": (0, 5), "scale": 1.3, "travel": (0, -130),
+         "offset": (-74, -132), "from": 0.43, "until": 0.88},
+        {"entry": "exi-particle.img", "frames": (0, 5), "scale": 1.0, "travel": (0, -90),
+         "offset": (-196, -502), "from": 0.44, "until": 0.88},
+        {"entry": "exi-particle.img", "frames": (0, 5), "scale": 1.7, "travel": (0, -110),
+         "offset": (48, -371), "from": 0.45, "until": 0.88},
+        # **裂盘是两件东西，不是一件。** 参考里那是**一块摊在地上的浅色石头盘**（灰褐、
+        # 布满裂缝），盘心才有那道**橙黑熔岩口**——业主第二次给的参考帧（裂缝那一下）
+        # 一眼能看出来：盘约 2.55 身位宽、熔岩口只有它三分之一。
+        #
+        # 客户端把这两件分开放：`split-n1.img`（5 帧，浅色盘，497x171）与 `split-d.img`
+        # （12 帧，熔岩口，335x101）。**我们一直只画了后者，而且按盘的尺寸画**——
+        # `docs/adr/0025` 补记三那句"参考量到 2.6 身位、我们 2.7"量的是**盘**，却把这
+        # 个数落在了熔岩口的美术上，所以那口一直大了三倍、盘整个没有。
+        #
+        # 两个尺寸都是照参考帧量的：盘 2.55 身位（497 客户端像素 → 0.73 倍），
+        # 熔岩口连它自己的黑岩一起 1.33 身位（335 → 0.55 倍）。
+        # **盘是"开裂"那一下，不是烧着的那一段。** 它自己那 5 帧就是 浅盘 → 藕褐 →
+        # 只剩一圈红环：客户端用它演"地面碎开"，碎完就没了。撑满整段的话，火已经
+        # 烧了三秒地上还摊着一块黑饼（业主那张实玩图里就是这个）。参考也一样：
+        # 拍地后约 0.3 秒是浅盘，柱子起来时地面上只剩裂缝。
+        {"entry": "split-n1.img", "frames": (0, 4), "scale": 0.73,
+         "offset": (-336, -212), "from": 0.02, "until": 0.30},
+        {"entry": "split-d.img", "ramp": LAVA_RAMP, "level": 0.4, "frames": (0, 11), "scale": 0.55,
+         "offset": (-168, -113), "from": 0.04, "until": 0.30},
+        {"entry": "split-d.img", "ramp": LAVA_RAMP, "level": 0.4, "frames": (11, 11), "scale": 0.55,
+         "offset": (-168, -113), "from": 0.30, "until": 0.95},
+        # **它自己烧的那一段才是参考的 1.5 秒。** 参考里拍地之后地面先裂开、烧
+        # **1.3-1.5 秒**，柱子才起来（训练房 #168-#207 只有裂缝，喷发在第 208 帧），
+        # 所以柱子的窗口排在 **0.40**：场地自己的时钟从 0.136 起（＝影子接过的那一列），
+        # 0.40 落在它 5 秒的第 1.5 秒上。原先柱子排在 0.26，那是在场地从头播（没有
+        # `from` 偏移、施法自己把整行快放一遍）的年代算的，改完两处之后就会早 0.8 秒。
+        # 收尾的烟：参考塌成一团紫烟，包里只有红烟（`newsmoke01`，14 帧）。
+        {"entry": "newsmoke01.img", "frames": (0, 13), "scale": 1.0,
+         "offset": (-239, -258), "from": 0.88, "until": 1.00},
+    ]},
+
     "mountainRift": {"palette": "", "pack": "_outragebreak", "anchor": (382, 281),
                      "length": 45, "window": (120, -200, 960, 480), "stages": [
         # The pack ships the broken floor as three things, and the reference
@@ -1210,6 +1466,99 @@ EXTRA_ROWS = [
     # because it is there for as long as the player holds (assets/dnf_effect_picks.md
     # §26).
     ("bloodyRaveMist", {"stack": [("_bloodyrave", "loop-dodge.img", None, None, None, None, VORTEX_RAMP)]}),
+    # 血气之剑: 魔狱血刹 (the Berserker's 一觉) carries a sword of its own behind
+    # him for the whole of its 持剑期, and it is **not** the blade in his hand -
+    # see CONTEXT.md's 血气之剑 (血剑 is the equipped blade turned red, 剑气 is a
+    # shot). The art is the client's own: `sprite_character_swordman_effect_
+    # hellbenter.NPK/sword-normal.img` is **the same sword at three lengths**
+    # (43x97 unlit / 43x73 red short / 43x160 red long, all drawn tip-down), so
+    # the move's growth was already in the pack.
+    #
+    # **The row is one cell per tier, and the cells are cuts of the long frame.**
+    # The three client lengths are anchors - 73 at tier 1, 97 at tier 4, 160 at
+    # tier 8 - and the four between them are the long frame cut at the
+    # interpolated length. That is legitimate here because **the client's own
+    # short frame is literally the long one cut short**: decoded, f1 (43x73) and
+    # f2 (43x160) agree pixel for pixel in their top 73 rows, hilt, crossguard,
+    # eye and all. So a cut is not an approximation of the art, it is the same
+    # operation the client did.
+    #
+    # What must never happen is a **zoom**: scaling the long frame makes the hilt
+    # small too, and a small *complete* sword is what the owner sent back
+    # (「断剑好像不对」). Cutting keeps the hilt 1:1 and only shortens the blade -
+    # and it is why the pommel can be pinned (see drawBloodSword).
+    #
+    # Two cells and one swap at tier 5 (what this was) held the sword at 0.52
+    # 身位 for four tiers and then jumped to 1.13; the owner read that stretch as
+    # wrong: 「血剑没成型前跟参考不一样」. The unlit frame (43x97) stays unused -
+    # it is the same sword with no blood lit in it.
+    # **一格一档，每个格子是 f2 按这一档的长度裁出来的。** 这一段被推翻过一次，
+    # 记清楚免得再翻回去：
+    #
+    # 2026-10-05（补记十）我把这一行换成了 **f0＋`BLADE_RAMP`**，理由是"f0 的**剪影**才是
+    # 参考那把剑"。**形状是看对了，颜色看漏了**——f0 是一张**没点亮**的灰线稿（137 个不透明
+    # 像素，全是 (55,55,55) 的无彩灰），照它填实再上一道红的 ramp，出来是一根**纯红的棒**：
+    # 参考里那个**黑色四角护手**和护心里那颗**金眼睛**，在这条路上根本画不出来。
+    # 它们在 f1/f2 里本来就有，而 f1/f2 是**彩色帧**（黑刃、红刃芯、黑护手、金眼）。
+    #
+    # 业主 2026-10-06 把参考那把剑在帧上框出来给我看（黑护手＋金眼＋红刃），就是这一句
+    # 「断剑不对吧」。
+    #
+    # 裁不是缩放：客户端自己那两帧就是**同一张画裁短**（f1 43x73 与 f2 43x160 的前 73 行
+    # 逐像素相同），所以每一档的护手、金眼、柄都是同一张原图、1:1，只有刃的长短在变。
+    # 73 与 160 是客户端自己给的两个长度。
+    ("hellbenterSword", {"growth": {"pack": "_hellbenter", "entry": "sword-normal.img",
+                                    "frame": 2,
+                                    "lengths": [73, 85, 97, 110, 122, 135, 147, 160]}}),
+    # **白的那把，是同一批格子上 `WHITE_RAMP`。** 参考最后几秒把同一把剑整个转白
+    # （11_魔狱血刹 B 2:36.4），所以它不是第二张画。
+    ("hellbenterSwordWhite", {"growth": {"pack": "_hellbenter", "entry": "sword-normal.img",
+                                         "frame": 2, "ramp": WHITE_RAMP,
+                                         "lengths": [73, 85, 97, 110, 122, 135, 147, 160]}}),
+    # **血气被吸进来的那缕丝**: the client's own thin red thread, `new13` (30
+    # frames of it, each one a streak that flickers out along its own length).
+    # The reference's strands are what the owner pointed at - 「很多血丝很多血丝到
+    # 红眼身上，就是一觉汲取血气的特效」 - and this is the pack's only long thin
+    # blood thread; the renderer draws it live, rotated from the monster to the
+    # Slayer (see drawBloodStrand).
+    ("hellbenterStrand", {"stack": [("_hellbenter", "new13.img", None, None, None, None, STRAND_RAMP)]}),
+    # **血气之剑 成形的那一下**, and it is the one beat of this whole move that had
+    # never been drawn: the sword used to *pop in*, finished and red.
+    #
+    # **`sword-dodge.img`, not `sim1-dodge.img`.** 补记九 挑的是 `sim1-dodge`
+    #（7 帧 60x70，一圈红盘里带魔狱血刹那个「獄」字），注释里写的是"一把剑走
+    # 暗→白→金"——**那不是剑，是那个字**：放大看 f2-f4，盘里是一个戏字。业主
+    # 2026-10-06 又说了第二次：**「开始的断剑样子和参考不一样」**。
+    #
+    # 包里真正的成形是这一条：`sword-dodge.img`，10 帧，把参考 `11_魔狱血刹`
+    # #52-#72 那一串**一帧一帧走完**——
+    #   f0 淡灰线稿 → f1 **纯白的剑** → f2/f3 红描边 → f4/f5 **白爆**（带星芒）
+    #   → f6 红白带火星 → f7/f8 **红剑** → f9 金刃
+    # 参考那一串就是：他胸前炸一下白（#52）→ 一圈辐条张开（#56）→ 左上角一把
+    # **白剑**（#60）→ 变暗红（#64）→ 成红剑（#68-72）。`sim1-dodge` 是"技能进
+    # 场的那个章"，`sword-dodge` 才是**剑本身在成形**。
+    #
+    # **加上扣在他身上的那圈放射。** 参考 #56 除了剑还有一圈东西：一个**圆盘**，
+    # 中心亮、往外走金→橙→红，边上一圈细尖射出去，直径量到 1.26 身位、尖到 1.54，
+    # 正扣在他胸口上（`ref_ring_56`）。就是 **`kaaa-d1`**——火山柱脚那一个金色爆散，
+    # 它的径向剖面本来就是"亮心 → 金 → 橙 → 红边"，只是那一处只用它做柱脚。
+    # 这里是同一张图、同一行的第二层：`offset` 把它从他**背后那把剑**的位置挪到他身上
+    # （剑在行的局部坐标 -42 屏幕像素处，他在 0），`scale 0.60` 让它 199 客户端像素宽
+    # ＝约 1.4 身位。两层都在同一格、同一段里，所以环和剑是一起出现的。
+    ("hellbenterForm", {"stack": [("_hellbenter", "sword-dodge.img")]}),
+    # **扣在他身上的那圈放射，单开一行。** 参考 #56 除了剑还有一圈：一个**圆盘**，中心亮、
+    # 往外走金→橙→红，边上一圈细尖射出去，直径量到 1.26 身位、尖到 1.54，正扣在他胸口上。
+    # 就是 **`kaaa-d1`**——火山柱脚那一个金色爆散，它的径向剖面本来就是"亮心 → 金 → 橙 → 红边"。
+    #
+    # **为什么不跟剑挤在一格**：`bake_frames` 的缩放是整格一起算的（`fit_scale` 取窗口
+    # 宽高比里小的那个），环比剑宽一倍多，塞进去会把整格缩小——**剑跟着变成六成大小**，
+    # 那是上一版试出来的。两件东西本来就不一样大，各占一行、各算各的缩放才对。
+    #
+    # 压扁那一下是必须的：`kaaa-d1` 是 357x245 的**椭圆**，而参考那圈是**正圆**，
+    # 所以 `stretch` 的 y 因子取 1.46 把它拉圆（压 x 会把每一根射线都变细）。
+    ("hellbenterFormRing", {"stack": [
+        ("_hellbenter", "kaaa-d1.img", 0.60, None, None, None, None, None, None, (1.0, 1.46)),
+    ]}),
 ]
 
 # Rows for art a move draws *over* the Slayer. DNF orders the layers of one
@@ -1916,6 +2265,63 @@ def dim(decoded, factor):
     return out
 
 
+def fill_outline(decoded):
+    """Fill what a line drawing's own outline encloses, so it reads solid.
+
+    `sword-normal` frame 0 is **the sword as a silhouette** - a faint outline of
+    the hilt, the crossguard and a **rounded blade**, and it is the frame whose
+    shape matches the reference (see PICKS.hellbenterSword). It is drawn unlit, so
+    what the reference shows as a red sword is this outline filled.
+    """
+    from collections import deque
+
+    filled = []
+    for picture, x, y in decoded:
+        picture = picture.convert("RGBA")
+        #
+        # The outline is drawn as a broken line - without closing it first the
+        # flood fill walks straight out through the gaps and nothing is filled. A
+        # dilate-then-erode (the same morphological closing `fill_gaps` uses) joins
+        # the strokes; the shape itself is unchanged.
+        closed = picture.getchannel("A").filter(ImageFilter.MaxFilter(7)).filter(ImageFilter.MinFilter(7))
+        picture.putalpha(closed)
+        array = np.asarray(picture).copy()
+        solid = array[..., 3] > 60
+        height, width = solid.shape
+        reachable = np.zeros_like(solid)
+        queue = deque()
+        for column in range(width):
+            for row in (0, height - 1):
+                if not solid[row, column] and not reachable[row, column]:
+                    reachable[row, column] = True
+                    queue.append((row, column))
+        for row in range(height):
+            for column in (0, width - 1):
+                if not solid[row, column] and not reachable[row, column]:
+                    reachable[row, column] = True
+                    queue.append((row, column))
+        while queue:
+            row, column = queue.popleft()
+            for dr, dc in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                nr, nc = row + dr, column + dc
+                if 0 <= nr < height and 0 <= nc < width and not solid[nr, nc] and not reachable[nr, nc]:
+                    reachable[nr, nc] = True
+                    queue.append((nr, nc))
+        inside = (~solid) & (~reachable)
+        stroke = array[solid]
+        colour = np.median(stroke[:, :3], axis=0) if len(stroke) else np.array([150, 20, 12])
+        # **Darker than the stroke**, so the drawing keeps its own lines: filling
+        # the whole silhouette with one flat colour turned the sword into a red
+        # blob with no hilt and no crossguard in it (the owner: 「这个也不对吧」).
+        colour = colour * 0.55
+        array[inside, 0] = colour[0]
+        array[inside, 1] = colour[1]
+        array[inside, 2] = colour[2]
+        array[inside, 3] = 225
+        filled.append((Image.fromarray(array), x, y))
+    return filled
+
+
 def fill_gaps(decoded, radius: int = 5, soften: float = 1.2, floor: int = 96):
     """Thicken a shape's own gaps shut, so a furry mass reads as one body.
 
@@ -2066,7 +2472,7 @@ def solidify(decoded, factor):
     return out
 
 
-def tint(decoded, stops):
+def tint(decoded, stops, gamma=None):
     """Recolour one layer through a ramp of (level, (r, g, b)) stops.
 
     The pack's own colour boards are all or nothing - 大蹦's fire is deep blood
@@ -2084,6 +2490,13 @@ def tint(decoded, stops):
     for picture, x, y in decoded:
         red, green, blue = picture.convert("RGBA").split()[:3]
         level = ImageChops.lighter(ImageChops.lighter(red, green), blue)
+        # `gamma` bends the level before the ramp reads it. A ramp can only move
+        # colour *along* a shape's own brightness, so a lane whose art is mostly
+        # dark - 魔狱血刹's lava column, two thirds of it in shadow - stays dark
+        # however bright the ramp's top stop is. Bending the level first is how a
+        # row says "the reference's version of this shape is lit, not shaded".
+        if gamma:
+            level = level.point(lambda v: int(round(255.0 * (v / 255.0) ** gamma)))
         recoloured = Image.merge(
             "RGB",
             (level.point(tables[0]), level.point(tables[1]), level.point(tables[2])),
@@ -2135,7 +2548,7 @@ def stage_layers(client: Path, pick: dict):
             continue
         scale = float(stage.get("scale", 1.0))
         offset = tuple(stage.get("offset", (0, 0)))
-        decoded = tint(decoded, stage.get("ramp"))
+        decoded = tint(decoded, stage.get("ramp"), stage.get("level"))
         decoded = dim(
             shift(
                 rotate_layer(
@@ -2239,6 +2652,42 @@ def pick_frames(client: Path, mode: str, entries, palette: str = "", spec: dict 
                 )
         return frames, (left, top)
 
+    if mode == "growth":
+        # **One entry, one frame, cut to each of a list of lengths.** 血气之剑 is
+        # the case: the client draws its own sword at three lengths and the move
+        # needs one cell per 铸剑 tier, so the longest frame is cut at each tier's
+        # length. The cuts are honest because the client's *own* short frame is
+        # the long one cut - decoded, 43x73 and the top 73 rows of 43x160 agree in
+        # 3101 of their 3139 pixels (the 38 that differ are the cut edge itself).
+        #
+        # Nothing here rescales: every cell is the same art at 1:1, so the hilt,
+        # the crossguard and the gold eye are identical from the first tier to the
+        # last and only the blade changes length. See PICKS.hellbenterSword.
+        spec = spec or {}
+        # The pick's `growth` block, or the pick itself when it is passed bare.
+        grow = spec.get("growth", spec)
+        pack = grow.get("pack", "")
+        board = grow.get("palette", palette)
+        found = dict(pack_entries(client, pack, board)).get(palette_name(grow["entry"], board))
+        if found is None:
+            print(f"  missing {pack}/{grow['entry']}", file=sys.stderr)
+            return [], (0, 0)
+        decoded = decode_frames(found)
+        if not decoded:
+            return [], (0, 0)
+        at = int(grow.get("frame", 0))
+        picture, x, y = tint([decoded[at]], grow.get("ramp"))[0]
+        lengths = [int(value) for value in grow["lengths"]]
+        cuts = [(picture.crop((0, 0, picture.width, length)), x, y) for length in lengths]
+        width = max(part.width for part, _x, _y in cuts)
+        height = max(part.height for part, _x, _y in cuts)
+        frames = []
+        for part, _x, _y in cuts:
+            canvas = Image.new("RGBA", (width, height), (0, 0, 0, 0))
+            canvas.alpha_composite(part, (0, 0))
+            frames.append(canvas)
+        return frames, (x, y)
+
     layers = []
     for pick in entries:
         pack, entry = pick[0], pick[1]
@@ -2259,11 +2708,19 @@ def pick_frames(client: Path, mode: str, entries, palette: str = "", spec: dict 
         # solidify. It is a layer's property and not the row's: one row can carry
         # a soft glow and a solid stroke.
         solid = pick[7] if len(pick) > 7 else None
+        # A layer that is line art says so, and gets filled before its ramp: the
+        # sword's own silhouette frame is the one case (see fill_outline).
+        fill = pick[8] if len(pick) > 8 else None
+        # A third, separate factor per axis, the same one a *stage* can name (see
+        # rescale). 魔狱血刹's 成形 ring is the case: `kaaa-d1` is a 357x245 burst
+        # and the reference's ring is a **circle**, so it is stretched on y until
+        # the oval is round. Squeezing x instead would thin every ray.
+        stretch = pick[9] if len(pick) > 9 and pick[9] is not None else (1.0, 1.0)
         if entry == "*":
             for _name, img in pack_entries(client, pack, board):
                 decoded = decode_frames(img)
                 if decoded:
-                    layers.append(shift(rescale(decoded, scale), offset))
+                    layers.append(shift(rescale(decoded, scale, stretch), offset))
             continue
         wanted = palette_name(entry, board)
         found = dict(pack_entries(client, pack, board)).get(wanted)
@@ -2272,8 +2729,11 @@ def pick_frames(client: Path, mode: str, entries, palette: str = "", spec: dict 
             continue
         decoded = decode_frames(found)
         if decoded:
-            decoded = tint(solidify(select_frames(decoded, frames), solid), ramp)
-            layers.append(shift(rescale(decoded, scale), offset))
+            decoded = select_frames(decoded, frames)
+            if fill:
+                decoded = fill_outline(decoded)
+            decoded = tint(solidify(decoded, solid), ramp)
+            layers.append(shift(rescale(decoded, scale, stretch), offset))
     if not layers:
         return [], (0, 0)
     # Every frame is composited onto one canvas covering the whole group, in the
@@ -2337,7 +2797,12 @@ def main() -> None:
         if skill in PICKS:
             pick = PICKS[skill]
             entries = list(pick.get("stack") or pick.get("sequence") or [])
-            mode = "stages" if pick.get("stages") else ("sequence" if pick.get("sequence") else "stack")
+            mode = (
+                "stages" if pick.get("stages")
+                else "growth" if pick.get("growth")
+                else "sequence" if pick.get("sequence")
+                else "stack"
+            )
             frames, origin = pick_frames(args.client, mode, entries, pick.get("palette", ""), pick)
             modes[skill] = mode
             described = (
@@ -2357,8 +2822,14 @@ def main() -> None:
         anchors[skill] = PICKS.get(skill, {}).get("anchor")
     for name, pick in EXTRA_ROWS:
         entries = list(pick.get("stack") or pick.get("sequence") or [])
-        mode = "sequence" if pick.get("sequence") else "stack"
-        rows[name], origins[name] = pick_frames(args.client, mode, entries, pick.get("palette", ""))
+        mode = (
+            "growth" if pick.get("growth")
+            else "sequence" if pick.get("sequence")
+            else "stack"
+        )
+        rows[name], origins[name] = pick_frames(
+            args.client, mode, entries, pick.get("palette", ""), pick
+        )
         print(f"{name}: picked {mode} of {len(entries)} entrie(s): {len(rows[name])} frames")
     for name, pick in FRONT_ROWS:
         rows[name], origins[name] = pick_frames(args.client, "stages", [], pick.get("palette", ""), pick)
@@ -2411,7 +2882,35 @@ def main() -> None:
         print(f"  {base}: window {windows[base]}")
         print(f"  {name}: window {windows[name]} (anchor {PICKS[base]['anchor']})")
 
-    columns = max(FRAMES, max(len(frames) for frames in rows.values()))
+    # A rift row that is nobody's front half - 魔狱血刹's 火山 - is not in EFFECTS,
+    # so it is picked here rather than in the loop above. It carries its own
+    # window like 大蹦's rows do, for the same reason: its art is drawn far
+    # bigger than a cell.
+    for name in RIFT_ROWS:
+        if name in rows:
+            continue
+        pick = PICKS[name]
+        frames, origin = pick_frames(args.client, "stages", [], pick.get("palette", ""), pick)
+        rows[name] = frames
+        origins[name] = origin
+        anchors[name] = pick.get("anchor")
+        windows[name] = tuple(pick["window"])
+        print(f"{name}: picked stages of {len(pick['stages'])} stage(s): {len(frames)} frames")
+
+    # **The big-cell rows that are not skills must not widen this sheet.** 大蹦's
+    # two rows are skills: their slots are kept here (empty) and their length is
+    # part of the sheet's own width, which the renderer's `maxFrames` names.
+    # 魔狱血刹's volcano is nobody's skill row - it lives on the big sheet only -
+    # so its 60 columns are counted there and not here.
+    effect_names = {skill for skill, _npk, _entry, _url in EFFECTS}
+    columns = max(
+        FRAMES,
+        max(
+            len(frames)
+            for name, frames in rows.items()
+            if name not in RIFT_ROWS or name in effect_names
+        ),
+    )
     sheet = Image.new(
         "RGBA",
         (CELL * columns, CELL * (len(EFFECTS) + len(EXTRA_ROWS) + len(FRONT_ROWS))),
@@ -2495,8 +2994,13 @@ def main() -> None:
     # EFFECT.draw.mountainRift). This prints the size the windows come to, so a
     # retuned window can be carried across in one step.
     if any(name in rows for name in RIFT_ROWS):
+        # The sheet is as wide as its own longest row (the volcano is 60 columns
+        # where 大蹦's two are 45), and every row is drawn from column 0.
+        rift_columns = max(
+            columns, max(len(rows[name]) for name in RIFT_ROWS if name in rows)
+        )
         rift = Image.new(
-            "RGBA", (RIFT_CELL * columns, RIFT_CELL * len(RIFT_ROWS)), (0, 0, 0, 0)
+            "RGBA", (RIFT_CELL * rift_columns, RIFT_CELL * len(RIFT_ROWS)), (0, 0, 0, 0)
         )
         for index, name in enumerate(RIFT_ROWS):
             counts[name] = bake_frames(

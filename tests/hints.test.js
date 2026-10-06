@@ -90,7 +90,8 @@ test("every trigger fires on the state it describes", () => {
   state.upgradeChoice = null;
   state.hazards = [{ x: 600, radius: 70, stage: "collapsing" }];
   assert.equal(
-    Hints.select(state, { firstBlood: true }),
+    /* 魔狱血刹's tip is due on this state too - this is a question about the trap. */
+    Hints.select(state, { firstBlood: true, awakening: true }),
     null,
     "the trap tip is about the warning, not the hit"
   );

@@ -23,8 +23,14 @@
    * also holds it. Keyed by keyboard code for the input layer, with a printable
    * label the bar can draw.
    */
-  var SKILL_KEYS = { KeyZ: "upSlash" };
-  var SKILL_SHORTCUTS = { upSlash: "Z" };
+  /*
+   * `V` is 魔狱血刹's own key, next to Z's up-slash, and it is here for the same
+   * reason 上挑's is: the bar cannot hold it. The twelve slots are full and two
+   * rows of six is the shape of the bar, so the Berserker's 一觉 is a key rather
+   * than a tile (docs/adr/0025).
+   */
+  var SKILL_KEYS = { KeyZ: "upSlash", KeyV: "hellbenter" };
+  var SKILL_SHORTCUTS = { upSlash: "Z", hellbenter: "V" };
   var DEFAULT_SLOTS = [
     "upSlash",
     "mountainBreaker",

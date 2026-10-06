@@ -86,7 +86,14 @@
             /* 血之狂暴's own swing, its own row at the bottom of the sheet. */
             rage: 9,
             /* ... and the client's own slash arc alone, graded to cream. */
-            ragearc: 10 },
+            ragearc: 10,
+            /*
+             * 魔狱血刹's two body motions. They are on a row of their own
+             * because `clips2` had three columns left and a clip that runs past
+             * `cols` is truncated in silence - see
+             * assets/import_dnf_swordman.py ROWS.
+             */
+            awaken: 11 },
     /* Frames the renderer actually plays per row; the rest of the row is spare art.
        The stand is a four-frame breath off the client's "still" frames, the attack
        is the whole normal-attack chain (see Core.ATTACK_STAGES). */
@@ -406,6 +413,40 @@
           { frames: 4, from: 0.0, until: 0.35 },
           { frames: 6, from: 0.35, until: 1.0 }
         ]
+      },
+      /*
+       * 魔狱血刹's 起手: the client's own body 75-89, the owner's pick off the
+       * labelled full-frame sheet (2026-10-05) - 75-79 rising out of a low
+       * thrust, 80-89 standing with the sword brought across his body.
+       *
+       * 15 frames over the first **half** of the 1.0s cast (30fps, which is the
+       * reference's own rate) and then the last one holds for the other half.
+       * Paced as one beat rather than spread: spread over the whole second it
+       * would play at 15fps and read as syrup. The one-cell stand this replaces
+       * is why the owner said 「角色动作差了很多」.
+       */
+      hellbenter: { row: 11, first: 0, frames: 15, beats: [{ frames: 15, from: 0, until: 0.5 }] },
+      /*
+       * 魔狱血刹's 落: the client's own body 143-156 - 142-144 compress him down,
+       * 145-156 is the low forward drive. Two beats so that the drive's first
+       * frame lands **on the blow** (`SKILLS.hellbenterSlam.activeFrom` = 0.22)
+       * instead of 0.07s early: the wind-up takes the first 0.22s and the twelve
+       * frames of the drive take the 0.38s after it, which is 31fps - the
+       * reference's own rate again.
+       */
+      hellbenterSlam: {
+        row: 11,
+        first: 15,
+        frames: 14,
+        /*
+         * **The drive is over by 0.6s, and the rest is the hold.** The cast is 5.4s
+         * (he stands in the whole eruption - see Core's `duration`), so the beats
+         * stop at 0.6/5.4: he compresses for the blow at 0.22s, drives through,
+         * and then the last cell is what is on screen for the next 4.8 seconds
+         * while the ground burns. That is the reference exactly - #158 to #330 is
+         * one pose, frame for frame, and he only stands once it has stopped.
+         */
+        beats: [{ frames: 2, from: 0, until: 0.22 / 5.4 }, { frames: 12, from: 0.22 / 5.4, until: 0.6 / 5.4 }]
       }
     },
     /*
@@ -437,7 +478,14 @@
      * key, so without its own button the pause screen - and the live readout on
      * it - is unreachable for anyone playing with fingers.
      */
-    { action: "pause", x: 734, y: 20, w: 62, h: 44, label: "停" }
+    { action: "pause", x: 734, y: 20, w: 62, h: 44, label: "停" },
+    /*
+     * 魔狱血刹's key. It has no hotbar slot to sit in - all twelve are taken and
+     * the bar is two rows of six - so a touch surface needs a button of its own
+     * or the 一觉 is simply unreachable for anyone playing with fingers. It sits
+     * above 攻, on the thumb that already does the fighting.
+     */
+    { action: "skill:hellbenter", x: 864, y: 330, w: 88, h: 88, label: "觉" }
   ];
 
   /* Hotbar: DNF's two rows of six (A S D F G H / Q W E R T Y). */
@@ -572,7 +620,14 @@
        * The row is the whole `blood-start` entry (13 frames), because a picked
        * row ships its real frames rather than the four-frame sample.
        */
-      berserk: 13
+      berserk: 13,
+      /*
+       * 魔狱血刹's 火山 is not a SKILL_ORDER row: it lives on assets/rift.png at
+       * `riftCell`, because its column stands five Slayer-heights tall. Its
+       * length is here because this is the table `skillEffectFrame` reads a
+       * row's column count from.
+       */
+      hellbenterSlam: 60
     },
     maxFrames: 45,
     /*
@@ -631,6 +686,29 @@
      */
     mistRow: Core.SKILL_ORDER.length + 7,
     mistFrames: 12,
+    /*
+     * 魔狱血刹's 血气之剑: **one cell per tier**, all cut from the client's own
+     * `hellbenter/sword-normal` longest frame, drawn live because the sword is up
+     * for as long as the state is - fifty seconds, which no baked row could hold
+     * (the same reason the vortex has a row of its own). The cell is read off
+     * `player.hellbenterTier`, so the sword comes out one step longer per hit that
+     * forged it.
+     */
+    bloodSwordRow: Core.SKILL_ORDER.length + 8,
+    bloodSwordFrames: 8,
+    /* The same sword gone white - the warning the last five seconds are (see
+       drawBloodSword). Its own row because the bake recolours it; the renderer
+       swaps rows rather than tinting a cell at run time. */
+    whiteSwordRow: Core.SKILL_ORDER.length + 9,
+    whiteSwordFrames: 1,
+    /*
+     * 魔狱血刹's 血丝 - one strand of the client's own thin red thread (30 frames
+     * of it). Drawn live and rotated, because a strand runs from wherever the
+     * monster was to wherever he is now: a baked row could not hold a line whose
+     * two ends are both moving (see drawBloodStrand).
+     */
+    strandRow: Core.SKILL_ORDER.length + 10,
+    strandFrames: 30,
     /*
      * **A channel's row is read by elapsed seconds, not by progress.** Progress is
      * a fraction of the cast's total, and this cast has no total until the player
@@ -725,12 +803,12 @@
     /*
      * How many rows assets/effects.png carries past the skill rows: the orb, the
      * dive arc, the swipe's red fan, two blade halves and second beat,
-     * 嗜魂封魔斩's vortex **and the fog that sits at his hand**, and 大蹦's fire.
-     * The bake test reads this rather than a
-     * literal, so adding a row cannot leave the shipped atlas and the grid
-     * disagreeing.
+     * 嗜魂封魔斩's vortex **and the fog that sits at his hand**, 魔狱血刹's sword,
+     * its white warning, its 血丝, its 成形 **and the blood its blade sits in**, and
+     * 大蹦's fire. The bake test reads this rather than a literal, so adding a row
+     * cannot leave the shipped atlas and the grid disagreeing.
      */
-    extraRowCount: 9,
+    extraRowCount: 14,
     /*
      * 大蹦 is the one move whose art is drawn far bigger than a cell can hold:
      * its own row on assets/effects.png would be ~120x72 px of art stretched
@@ -742,7 +820,15 @@
      * so one draw size places them on top of each other.
      */
     riftCell: 384,
-    riftRows: { mountainRift: { back: 0, front: 1 } },
+    riftRows: {
+      mountainRift: { back: 0, front: 1 },
+      /*
+       * 魔狱血刹's 火山 is one row on the same sheet, and it is drawn **behind**
+       * him: the column comes up out of the floor he is standing in, and the
+       * reference keeps him visible in front of it while it burns.
+       */
+      hellbenterSlam: { back: 2 }
+    },
     /*
      * A move that draws a second row over the Slayer says how long it is.
      * 大蹦's second row is a *different* row, on its own sheet (see riftRows);
@@ -970,7 +1056,71 @@
        * rather than leaving it at his feet, which is where the row is rooted by
        * default.
        */
-      berserk: { dx: 0, dy: -46, size: 130, copies: 1, spin: 0 }
+      berserk: { dx: 0, dy: -46, size: 130, copies: 1, spin: 0 },
+      /*
+       * **魔狱血刹's 火山**, on the big-cell sheet the way 大蹦's two rows are.
+       *
+       * `size` is the *character's* own scale, not 大蹦's: the bake fits its
+       * window (452x903 client px) into the 384 cell, so a drawn size of 614 puts
+       * one client pixel at 84/123.5 of a screen pixel - the same ratio every
+       * other piece of art in this game is drawn at. The column comes out 2.2
+       * Slayer-heights across and five tall, which is the reference's own
+       * eruption (2.6-3.0 across, and clipped by the top of the screen).
+       *
+       * `dy` is `-size / 4`, the same convention 大蹦's rows use: the row is
+       * anchored on the caster's feet, and the bake puts that point on the
+       * cell's 0.75 line. And `ground: true` is what makes it a volcano rather
+       * than a thing that follows him - the floor is what erupts, so the art
+       * belongs to the spot, not to the man who opened it (docs/adr/0002).
+       *
+       * **`size` is not free, and it was 14% too big.** `fit_scale` is the whole
+       * zoom of a row: a client pixel lands on `fit_scale(window, cell) * size /
+       * cell` of the screen, and the pack's own scale is fixed by the Slayer -
+       * **141 client pixels to a 身位, i.e. 0.596 of a screen pixel** (=
+       * `RIFT_CLIENT_PX`). So `size` has to be `RIFT_CLIENT_PX * cell /
+       * fit_scale(...)`, which the bake prints on every run. The 670x1150 window
+       * gave 685 and this row drew at 782 - so the column came out 2.9 身位 wide
+       * where the reference's is 2.77, and everything placed by hand in the bake
+       * was scaled with it. The window is 700x1080 now (fit_scale 0.35556) and
+       * the printed size is 643.7.
+       */
+      hellbenterSlam: {
+        dx: 0,
+        dy: -160.9,
+        size: 643.7,
+        copies: 1,
+        spin: 0,
+        ground: true,
+        /*
+         * **Not additive, and the measurement is why.** 补记三 turned it on when
+         * the eruption was three stacked lava domes, which needed the addition to
+         * read as one mass. The row is one column now, and additive over *our*
+         * floor is not free: the floor is purple, so it puts its own blue into
+         * every pixel of the column. Measured against the reference's own
+         * eruption (11_魔狱血刹 #230-#260, 190k pixels): the reference's body is
+         * (246, 219, 33) and the additive draw came out (213, 190, 83) - the same
+         * shape 55 units bluer than the clip, i.e. pale. The reference's floor is
+         * black, so for the client additive *is* the flat colour; for us it is
+         * flat colour plus floor.
+         *
+         * `glow` puts the light back without the wash: the cell is drawn flat and
+         * then again with `lighter` at 0.14. Measured both ways against the clip
+         * (`#230-#260`): body / core-blue come out **33 / 116** at 0.14 where the
+         * clip has **30 / 129** - the flat pass alone gives 27 / 70 and the
+         * additive one alone 88 / 138.
+         *
+         * **0.30 without a blur was tried and put back.** The column read pale
+         * and washed at that fraction - a uniformly lit slab - and it bought
+         * almost nothing (212,176,29 against 210,170,26). A plain additive pass
+         * cannot make a core: it scales the art's own bright and dark by the same
+         * factor, so the veins come up with the mass. `glowBlur` is what turns it
+         * into bloom, and bloom is what the reference actually has - see the note
+         * in drawEffectRow and `VOLCANO_RAMP` for the colour.
+         */
+        blend: "source-over",
+        glow: 0.55,
+        glowBlur: 6
+      }
     },
     /*
      * When a row is drawn, for the moves whose own art says it: 崩山裂地斩 is a
@@ -983,6 +1133,20 @@
      */
     timing: {
       mountainRift: { from: 0, to: 0.99 },
+      /*
+       * 火山 is a **field's** row, and a field's progress is its own five seconds
+       * (Core's `spawnField`), not the 0.6s cast it came out of: the default
+       * window is derived from `activeFrom`, which would open the eruption at a
+       * third of the way in and shut it before the column exists.
+       *
+       * `cast` is the other half of that thought - **the caster's own beat is not
+       * the field's clock**. He shows the first eight columns of the row (the claw,
+       * the two crescents, the gold burst, the crack starting to open) from the
+       * blow at 0.22s of the 5.4s cast until the ground opens at 0.6s,
+       * and the field picks the row up at column 8
+       * (`SKILLS.hellbenterSlam.field.from = 8/59`).
+       */
+      hellbenterSlam: { from: 0, to: 1, cast: { from: 0.22 / 5.4, to: 0.6 / 5.4, frames: 8 } },
       /*
        * 血之狂暴's burst is a *window* in a 1.4s cast, not a wash over all of it:
        * the reference's corona is f45-f58, which is 0.10s to 0.60s of a ceremony
@@ -1048,6 +1212,12 @@
      */
     fade: {
       mountainRift: { from: 0.92, to: 1, floor: 0.95 },
+      /*
+       * 火山's own last act is the smoke, and the row is already drawing it
+       * faint: the default (from 0.75) would start dimming the *column* while it
+       * is still at full height, three quarters of the way through the eruption.
+       */
+      hellbenterSlam: { from: 0.93, to: 1, floor: 0.4 },
       /*
        * 怒气爆发's last act is its biggest one too - the column is the whole
        * point of the move and it arrives at 0.86 of the cast. The default fade
@@ -1144,7 +1314,7 @@
    * `row` and `frames` override where the art is read from, for the moves that
    * ship a second row; left out, the skill's own row and its own length are used.
    */
-  function skillEffectFrame(skillId, progress, row, frames) {
+  function skillEffectFrame(skillId, progress, row, frames, timingOverride) {
     var spec = Core.SKILLS[skillId];
     var draw = EFFECT.draw[skillId];
     if (!spec || !draw) return null;
@@ -1152,8 +1322,12 @@
     if (row === -1) return null;
     var from = (spec.activeFrom / spec.duration) * 0.8;
     var to = Math.min(0.98, (spec.activeTo + 0.12) / spec.duration);
-    /* A move can pin its own window: 大蹦's art starts on the landing. */
-    var timing = EFFECT.timing && EFFECT.timing[skillId];
+    /*
+     * A move can pin its own window: 大蹦's art starts on the landing. And a move
+     * whose row belongs to a **field** can pin a second, narrower one for the
+     * caster's own draw - see `timing.cast` and drawEffectRow.
+     */
+    var timing = timingOverride || (EFFECT.timing && EFFECT.timing[skillId]);
     if (timing) {
       from = timing.from;
       to = timing.to;
@@ -1169,6 +1343,14 @@
     if (progress < from || progress >= to) return null;
     var local = Math.min(1, (progress - from) / Math.max(0.0001, to - from));
     if (frames === undefined || frames === null) frames = EFFECT.rowFrames[skillId] || 4;
+    /*
+     * ...and a window can say it covers only the **first n columns** of the row.
+     * A field's row is sixty columns long and its caster's own window is a
+     * fraction of a second; without this the window would still walk all sixty
+     * (a window is a *mapping*, so what it shows is always the whole row unless
+     * it is told how much of it to show).
+     */
+    if (timing && timing.frames) frames = timing.frames;
     /*
      * A row's tail fades out, because those rows are a move dying down. A move
      * whose own last act is its biggest one says so instead: 大蹦's second
@@ -1859,7 +2041,14 @@
     ctx.fill();
     ctx.restore();
 
-    var raging = !!(player.buffs && player.buffs.bloodRage > 0);
+    /*
+     * The red sheet, for the stance and for **one move of its own**: 魔狱血刹's
+     * 落. In the reference the frame the sword goes into the ground is a red
+     * silhouette of him - not the demon, just him washed out to blood - and the
+     * same tint that draws the stance is exactly that read (docs/adr/0025).
+     */
+    var raging =
+      !!(player.buffs && player.buffs.bloodRage > 0) || player.skillId === "hellbenterSlam";
 
     var image = sprites && sprites.slayer;
     if (!image || !image.width) {
@@ -2456,7 +2645,22 @@
       }
       frame = channelFrame(skillId, served, released);
     } else {
-      frame = skillEffectFrame(skillId, progress, row, frames);
+      /*
+       * **A row that belongs to a field is read twice, and the two reads want
+       * different windows.** 魔狱血刹's volcano is one five-second timeline -
+       * slam, crack, column, smoke - and the *ground* is what plays it (Core's
+       * spawnField hands it the row's own clock). The caster's 0.6s cast shows
+       * only the first beat, the slam itself, from column 0 to
+       * `SKILLS.hellbenterSlam.field.from` where the ground takes over.
+       *
+       * Reading one window for both put all sixty columns on the 0.6s cast: the
+       * column rose and collapsed to smoke in half a second, and then the field
+       * started the same five seconds over. Two eruptions, neither of them the
+       * move (docs/adr/0025 补记四).
+       */
+      var timingSpec = EFFECT.timing && EFFECT.timing[skillId];
+      var castWindow = source ? timingSpec : (timingSpec && timingSpec.cast) || timingSpec;
+      frame = skillEffectFrame(skillId, progress, row, frames, castWindow);
     }
     if (!frame) return;
     var timing = EFFECT.timing && EFFECT.timing[skillId];
@@ -2493,11 +2697,38 @@
       draw.anchor === "cast" && caster.castOriginX !== undefined
         ? caster.castOriginX
         : caster.x;
+    /*
+     * **And a move whose ground opens in front of him is drawn there from its
+     * own first frame.** 魔狱血刹's crater is 1.5 身位 ahead of him (Core's
+     * `field.forward`, measured on the reference), and the *field* has always
+     * been drawn on that spot - but the cast's own half of the row was still
+     * drawn on `caster.x`, so the impact art appeared on his feet and then
+     * jumped forward when the ground took over. The owner saw exactly that:
+     * 「开始的一瞬间还是在原来错误的位置」.
+     *
+     * The stages that belong to the *blow* - the claw, the two crescents, the
+     * gold burst - are pulled back onto him inside the bake instead (see
+     * PICKS.hellbenterSlam), because the reference has them landing on him and
+     * only the ground opening ahead.
+     */
+    if (!source) {
+      var ground = spec.field;
+      if (ground && ground.forward) originX += (caster.facing || 1) * ground.forward;
+    }
     var baseY = (draw.ground ? Core.ARENA.groundY : caster.y) - Core.depthLift(caster.z);
 
     ctx.save();
     ctx.translate(originX + caster.facing * reach, baseY + draw.dy);
     ctx.scale(caster.facing, 1);
+    /*
+     * A row can ask to be drawn **additively**, and 魔狱血刹's volcano is the one
+     * that must: the client's own eruption is three lava domes stacked, and in
+     * the game they are added together into one blown-out mass - drawn with
+     * plain alpha they read as three separate dumplings with seams between them
+     * (which is exactly what the first bake of this looked like). Additive is
+     * also what makes the core go white the way the reference's does.
+     */
+    if (draw.blend) ctx.globalCompositeOperation = draw.blend;
     ctx.globalAlpha = frame.alpha * (source ? source.fade : 1);
     ctx.imageSmoothingEnabled = true;
     for (var copy = 0; copy < draw.copies; copy += 1) {
@@ -2520,6 +2751,49 @@
         size,
         size
       );
+      /*
+       * **The bloom, on top of the colour rather than instead of it.** A row's
+       * flat draw is what lands its own colours on screen; what a flat draw
+       * cannot do is glow. 魔狱血刹's eruption needs both, and the reference says
+       * so with numbers: its body is (246, 219, 33) while its core runs to
+       * (241, 231, 129). Drawn additively the *whole* row picks up the floor's
+       * own colour and the body comes out 55 units bluer than the clip; drawn
+       * flat the body is right and the core is 44 units short. So: flat first,
+       * then the same cell again with `lighter` at a fraction - the same trick,
+       * and for the same reason, as the white sword's pulse in drawBloodSword.
+       */
+      if (draw.glow) {
+        /*
+         * **`glowBlur` is the difference between "lit" and "bloomed", and only
+         * one row wants the second.** A plain additive pass adds the art to
+         * itself: the bright mass gets brighter and the dark veins stay dark,
+         * because both are scaled by the same factor. What the reference's
+         * volcano has is the *other* thing - a **blown-out core**, a large
+         * plateau at the top of the range with the dark rocks floating in it:
+         * 66% of its column's pixels sit at level 240+ where ours were 7%. Blur
+         * the same copy before adding it and the bright neighbourhood bleeds
+         * into the veins, which is what fills that plateau in. The same trick,
+         * for the same reason, as the white sword's own `glowBlur` in
+         * drawBloodSword.
+         */
+        ctx.globalCompositeOperation = "lighter";
+        ctx.globalAlpha = ctx.globalAlpha * draw.glow;
+        if (draw.glowBlur) ctx.filter = "blur(" + draw.glowBlur + "px)";
+        ctx.drawImage(
+          sheet,
+          frame.col * cell,
+          frame.row * cell,
+          cell,
+          cell,
+          -size / 2,
+          -size / 2,
+          size,
+          size
+        );
+        if (draw.glowBlur) ctx.filter = "none";
+        ctx.globalAlpha = ctx.globalAlpha / draw.glow;
+        ctx.globalCompositeOperation = draw.blend || "source-over";
+      }
       ctx.restore();
     }
     /*
@@ -2916,6 +3190,484 @@
   }
 
   /*
+   * 魔狱血刹's numbers, and every one of them is measured off the reference
+   * rather than dialled in (docs/adr/0025). Two of them are the bake's own: how
+   * much of its cell the sword's ink fills. The row is drawn live - the sword is
+   * up for the whole of the 持剑期, which no baked timeline could hold - so the
+   * renderer has to place the ink itself, and these are the fractions it places.
+   */
+  var SWORD = {
+    /* How many steps the forging has - the game's own number, not a second copy. */
+    tiers: Core.HELLBENTER.tiers,
+    /*
+     * How long the state lasts, which is also how the renderer tells **when** the
+     * sword arrived: the buff is written to its full length the moment it lands, so
+     * `hold - buffs.hellbenter` is the seconds since - and the two things that
+     * happen only at the start (the 成形) and only at the end (the white warning)
+     * are both read off it.
+     */
+    hold: Core.SKILLS.hellbenter.buff.duration,
+    /*
+     * **The pommel is pinned and the tip falls.** Measured in the training room:
+     * the sword's top stays 1.27 of a Slayer-height off the floor while the blade
+     * grows from 0.52 to 1.30, so a full sword puts its tip *on the floor* - which
+     * is what the reference shows while it is going white (#B 2:37). Scaling
+     * about the middle instead would lift the whole sword as it grew.
+     */
+    top: 1.27,
+    /*
+     * **One cell per tier, and the blade is what grows.** The client's own
+     * `sword-normal` is one sword at three lengths (43x73, 43x97, 43x160) and the
+     * art is *literally the same picture cut short* - its own two lit frames
+     * line up to the pixel above the cut. So the bake emits one cell per tier by
+     * cutting the longest frame at the tier's length (see PICKS.hellbenterSword):
+     * the hilt and the pommel never move, the blade comes out downwards, and
+     * **nothing is ever zoomed** - which is the line the owner drew when he sent
+     * the first cut back (「断剑好像不对」: a scaled-down sword is a miniature
+     * complete sword, not a broken one).
+     *
+     * Two cells and one swap at tier 5 (what this was) meant the sword sat at
+     * 0.52 身位 for four tiers and then jumped to 1.13 - and the owner read the
+     * whole pre-formed stretch as wrong: 「血剑没成型前跟参考不一样」.
+     */
+    /*
+     * **One cell per tier, and the cells are the client's own long frame cut to
+     * eight lengths.** 补记十 replaced this with a single cell drawn at eight
+     * sizes, on the reading that frame 0's *silhouette* is the reference's sword.
+     * The shape was right and the **colour** was not: f0 is the unlit frame - 137
+     * opaque pixels, every one of them (55,55,55) - so filling it and running it
+     * through a red ramp can only ever produce a red bar. The reference's own
+     * sword has a **black four-pointed crossguard and a gold eye**, and those are
+     * in the *coloured* frames (f1/f2), which the eye skipped. The owner boxed
+     * the reference's sword on the frame and sent it back: 「断剑不对吧」.
+     *
+     * Cutting is not zooming: the client's f1 (43x73) and the top 73 rows of f2
+     * (43x160) agree pixel for pixel, so every tier carries the same 1:1 hilt,
+     * guard and eye and only the blade's length changes.
+     */
+    tierCell: [0, 1, 2, 3, 4, 5, 6, 7],
+    /*
+     * One `size` for all eight, because the cells already carry the growth: the
+     * row is baked at `RIFT_CLIENT_PX * CELL / fit_scale` = 109.3, which is the
+     * pack's own 0.596 screen px per client px. Tier 1's 73 client px then comes
+     * out 44 screen px and tier 8's 160 comes out 95 - 0.52 and 1.14 of a 84-px
+     * Slayer (the reference measures 0.91 while he holds it and 1.20-1.36 once
+     * it is white; the pack's longest frame is 1.13, so the top of that range
+     * needs art we do not have).
+     */
+    size: 109.3,
+    /* Behind him: the client's own frame carries the blade half a height back. */
+    behind: 0.5,
+    /* Where the ink starts inside the cell - the pommel, the same in all eight. */
+    inkTop: 8 / 128,
+    /*
+     * **The last five seconds are white, and they breathe.** The owner set the
+     * number (the reference's own white stretch is 2.9s and he asked for longer),
+     * and it is the warning the whole two-press shape needs: the sword says "put
+     * me down" before the clock says it for him. The pulse is what makes it read
+     * as a warning rather than as a colour change - white throughout, brightness
+     * breathing at 2Hz under it.
+     */
+    whiteFrom: 5,
+    pulseHz: 2,
+    /*
+     * How hard the sword lights itself. The art's blade is dark and the reference
+     * draws it over black; one additive pass of the same cell is what keeps it
+     * reading as a red sword on our purple floor (see drawBloodSword).
+     *
+     * **0.35, not 0.9.** The pass used to be doing the sword's colouring for it -
+     * the cell was a flat red silhouette and the glow was what made it read. The
+     * cell now carries the client's own black crossguard and gold eye, and at 0.9
+     * the addition washed the blacks out of exactly those two shapes.
+     */
+    glow: 0.35,
+    /*
+     * **Zero: the blur is gone.** It was there to smear a saw blade into the
+     * "soft red mass" the reference shows, and it was already known to be
+     * dangerous - at three pixels it took the crossguard and the gold eye with
+     * it. With the coloured frame in the row there is nothing left to smear.
+     */
+    glowBlur: 0
+  };
+  /*
+   * Which cell of the sword row a tier draws. Trivial arithmetic, but it is the
+   * one place the tier *count* and the cell *count* meet, and the bake's own
+   * list of lengths has to be the same length: `SWORD.tiers` cells, tier 1 at
+   * the client's shortest frame and tier 8 at its longest.
+   */
+  SWORD.cellFor = function (tier) {
+    var clamped = Math.max(1, Math.min(SWORD.tiers, tier));
+    return SWORD.tierCell[clamped - 1];
+  };
+
+  /*
+   * **血气之剑 成形的那半秒**, drawn live the way the sword itself is because it is
+   * the same object arriving: the client's own `sim1-dodge` (7 frames, dark sword
+   * -> white -> gold inside a red disc that opens and fades - see the bake). The
+   * reference's cast is exactly this, and the owner pointed at those frames
+   * (「开始」) after playing a version where the sword simply popped in, finished
+   * and red.
+   *
+   * `seconds` is the reference's own: the disc is up from #54 to about #66, which
+   * is 0.4s. Until it is over **the sword row is not drawn at all** - the disc is
+   * what the sword is doing, not a second thing next to it.
+   */
+  /*
+   * The sunburst disc the 成形 opens with, a row of its own (see `drawSwordForm`).
+   * `size` is `RIFT_CLIENT_PX * CELL / fit_scale` for its own window, so the ring
+   * comes out 199 client px = **1.41 Slayer-heights** across - the reference
+   * measures 1.26 for the disc's body and 1.54 out to the tips of its rays, and
+   * `kaaa-d1`'s ink runs from the middle of one to the other.
+   */
+  var SWORD_FORM_RING = {
+    row: Core.SKILL_ORDER.length + 12,
+    size: 136.0,
+    up: 0.6
+  };
+  var SWORD_FORM = {
+    row: Core.SKILL_ORDER.length + 11,
+    /*
+     * **Ten frames, and they are the reference's 成形 end to end.** The entry is
+     * `sword-dodge.img`: a faint outline -> a solid white sword -> red outline ->
+     * a white burst with rays -> red-and-white with sparks -> a red sword -> a
+     * gold blade. 11_魔狱血刹 #52-#72 walks the same beats (a white flash at his
+     * chest, rays opening, a white sword at his shoulder, then dark red, then the
+     * red sword). That is 20 video frames, so 0.67s.
+     */
+    frames: 10,
+    seconds: 0.67,
+    /*
+     * **1:1, which is the point.** `sword-dodge`'s own sword is 169 client px =
+     * 1.20 身位, and the reference's sword measures 1.20-1.36 through its white
+     * stretch - so this entry is already the right size and must not be scaled to
+     * something else's. `size` is `RIFT_CLIENT_PX * CELL / fit_scale`, the same
+     * rule as every row that has to keep the pack's own scale; at 234 (what this
+     * was, sized for `sim1-dodge`'s disc) the forming sword came out 199 screen px
+     * = 2.4 身位.
+     */
+    size: 126.5,
+    /*
+     * Where the sword will be. The reference's forming sword appears at the same
+     * spot the finished one hangs - behind him, pommel at `SWORD.top` - so the two
+     * read as one object arriving rather than two swapping. Measured off the two
+     * baked cells' ink tops, not guessed: `behind` is the sword's own 0.5, and
+     * `up` puts this cell's ink top on the same line as the sword row's.
+     */
+    behind: 0.5,
+    up: 0.635
+  };
+
+  function swordFormFrame(player) {
+    if (!(player.buffs && player.buffs.hellbenter > 0)) return -1;
+    var elapsed = SWORD.hold - player.buffs.hellbenter;
+    if (!(elapsed >= 0 && elapsed < SWORD_FORM.seconds)) return -1;
+    return Math.min(
+      SWORD_FORM.frames - 1,
+      Math.floor((elapsed / SWORD_FORM.seconds) * SWORD_FORM.frames)
+    );
+  }
+
+  function drawSwordForm(ctx, state, sprites) {
+    var player = state.player;
+    if (!player || player.dead) return;
+    var frame = swordFormFrame(player);
+    if (frame < 0) return;
+    if (!sprites || !sprites.effects || !sprites.effects.width) return;
+    var slayer = SPRITE.bodyHeight;
+    var size = SWORD_FORM.size;
+    ctx.save();
+    ctx.translate(
+      player.x - player.facing * SWORD_FORM.behind * slayer,
+      feetY(player) - SWORD_FORM.up * slayer
+    );
+    ctx.scale(player.facing, 1);
+    ctx.imageSmoothingEnabled = true;
+    /*
+     * **`-dodge` is the client's own word for how this entry is drawn**, and the
+     * reference says the same thing: at #56 the ring's inside is the room showing
+     * through, not a red plate. Drawn flat the disc is a solid balloon over him.
+     */
+    ctx.globalCompositeOperation = "lighter";
+    ctx.drawImage(
+      sprites.effects,
+      frame * EFFECT.cell,
+      SWORD_FORM.row * EFFECT.cell,
+      EFFECT.cell,
+      EFFECT.cell,
+      -size / 2,
+      -size / 2,
+      size,
+      size
+    );
+    ctx.restore();
+    /*
+     * **And the ring he is standing in.** The reference's 成形 is *two* things -
+     * the sword resolving at his shoulder and a sunburst disc centred on his
+     * chest (11_魔狱血刹 #56) - and they are not the same size, so they are not the
+     * same row: a second layer in the sword's own cell drags the cell's whole
+     * `fit_scale` down with it and the sword comes out six tenths of its size.
+     *
+     * It is drawn where **he** is, not where the sword is: the sword row's cell is
+     * centred `behind` Slayer-heights back along his facing, the ring's own cell
+     * is centred on his feet. `up` is the reference's own - the disc's middle sits
+     * on his chest, 0.6 of a Slayer above the floor.
+     */
+    var ring = SWORD_FORM_RING;
+    ctx.save();
+    ctx.translate(player.x, feetY(player) - ring.up * slayer);
+    ctx.scale(player.facing, 1);
+    ctx.imageSmoothingEnabled = true;
+    ctx.globalCompositeOperation = "lighter";
+    ctx.drawImage(
+      sprites.effects,
+      0,
+      ring.row * EFFECT.cell,
+      EFFECT.cell,
+      EFFECT.cell,
+      -ring.size / 2,
+      -ring.size / 2,
+      ring.size,
+      ring.size
+    );
+    ctx.restore();
+  }
+
+  function drawBloodSword(ctx, state, sprites) {
+    var player = state.player;
+    if (!player || player.dead) return;
+    /*
+     * The read is the buff, not the tier: the sword is on his back for as long as
+     * `buffs.hellbenter` runs. The tier only says how far it has been forged, and
+     * the two disagree for exactly one cast - the 落, when the clock is out but the
+     * sword has not been put down yet (see Core's gate).
+     */
+    if (!(player.buffs && player.buffs.hellbenter > 0)) return;
+    /* While it is still forming there is no sword yet - see drawSwordForm. */
+    if (swordFormFrame(player) >= 0) return;
+    if (!sprites || !sprites.effects || !sprites.effects.width) return;
+    var tier = Math.max(1, Math.min(SWORD.tiers, player.hellbenterTier || 1));
+    /*
+     * `SPRITE.bodyHeight`, not `Core.SLAYER_HEIGHT`: the reference's heights are
+     * measured against the art he is *drawn* at (84), and the other 156 is the
+     * cell between his feet and the anchor - using that one in the renderer drew
+     * the sword 1.86x too long, which is what the first cut of this did.
+     */
+    var slayer = SPRITE.bodyHeight;
+    /*
+     * 铸剑 drawn: the eight cells already carry the growth, so every tier is drawn
+     * at the same `size` and it is the *cut* that changes - tier 1 comes out 44
+     * screen px, tier 8 95, which is 0.52 and 1.14 of his 84-px height (see
+     * `tierCell`).
+     */
+    var size = SWORD.size;
+    /*
+     * The pommel is pinned: it sits `top` Slayer-heights off the floor and stays
+     * there while the blade comes out downwards, which is what keeps the swap
+     * from jumping - the row's two cells share this line and differ below it.
+     */
+    var centreY = -SWORD.top * slayer + (0.5 - SWORD.inkTop) * size;
+    var cell = SWORD.cellFor(tier);
+    /*
+     * The warning, and the only thing about this sword that is a *colour*: the
+     * reference turns the same serrated blade white for the last seconds
+     * (11_魔狱血刹 B 2:36.4) and the bake carries that as its own row.
+     */
+    var white = player.buffs.hellbenter <= SWORD.whiteFrom;
+    var row = white ? EFFECT.whiteSwordRow : EFFECT.bloodSwordRow;
+    ctx.save();
+    ctx.translate(player.x - player.facing * SWORD.behind * slayer, feetY(player));
+    ctx.scale(player.facing, 1);
+    ctx.imageSmoothingEnabled = true;
+    ctx.drawImage(
+      sprites.effects,
+      cell * EFFECT.cell,
+      row * EFFECT.cell,
+      EFFECT.cell,
+      EFFECT.cell,
+      -size / 2,
+      centreY - size / 2,
+      size,
+      size
+    );
+    /*
+     * **And then lit, because the blade's own art is mostly dark.** The client's
+     * sword is a dark serrated blade with a red edge, and the reference shows it
+     * as a red thing hanging behind him - its floor is black, so the dark half
+     * simply is not there. Ours is purple, so the same dark half reads as a
+     * sword with its blade missing, which is what the owner saw and called by
+     * name: 「断剑不对吧」. One additive pass of the same cell puts the light back
+     * without inventing anything: whichever pixels are red go brighter, and the
+     * black ones stay black (`docs/adr/0025` 补记五).
+     */
+    if (SWORD.glow) {
+      ctx.globalCompositeOperation = "lighter";
+      ctx.globalAlpha = SWORD.glow;
+      /*
+       * **Not blurred any more.** The blur was there to turn a saw into a mass -
+       * the reference's sword reads as a soft red blob with the guard on top of
+       * it - but that was when the cell was a flat red silhouette. The cell now
+       * carries the client's own crossguard and gold eye, and smearing it is
+       * what would destroy them.
+       */
+      if (SWORD.glowBlur) ctx.filter = "blur(" + SWORD.glowBlur + "px)";
+      ctx.drawImage(
+        sprites.effects,
+        cell * EFFECT.cell,
+        row * EFFECT.cell,
+        EFFECT.cell,
+        EFFECT.cell,
+        -size / 2,
+        centreY - size / 2,
+        size,
+        size
+      );
+      if (SWORD.glowBlur) ctx.filter = "none";
+      ctx.globalAlpha = 1;
+      ctx.globalCompositeOperation = "source-over";
+    }
+    if (white) {
+      /*
+       * The breath. A second pass of the same cell laid on with `lighter`, so
+       * what the eye reads is one sword whose brightness moves rather than two
+       * swords swapping - it is the same art, added to itself. `state.time` and
+       * not the buff's own clock, because a pulse that stopped when the seconds
+       * did would go dark exactly as it ran out.
+       */
+      var beat = 0.5 + 0.5 * Math.sin(state.time * Math.PI * 2 * SWORD.pulseHz);
+      ctx.globalCompositeOperation = "lighter";
+      ctx.globalAlpha = 0.12 + 0.3 * beat;
+      ctx.drawImage(
+        sprites.effects,
+        cell * EFFECT.cell,
+        row * EFFECT.cell,
+        EFFECT.cell,
+        EFFECT.cell,
+        -size / 2,
+        centreY - size / 2,
+        size,
+        size
+      );
+      ctx.globalAlpha = 1;
+      ctx.globalCompositeOperation = "source-over";
+    }
+    ctx.restore();
+  }
+
+  /*
+   * 血气被吸进来的那缕丝: from the wound to his chest, drawn live and rotated,
+   * because both of its ends move - the monster it came out of may be dead and
+   * the Slayer is wherever he is now (docs/adr/0025).
+   *
+   * The art is the client's own thin blood thread (`hellbenter/new13`, 30 frames
+   * of a streak that flickers along its own length), so a long strand is the
+   * same picture stretched along the line rather than a longer drawing: the cell
+   * is scaled to the distance and turned to face it, and its own column is picked
+   * by how far along the flight is.
+   */
+  function drawBloodStrand(ctx, state, effect, sprites) {
+    var player = state.player;
+    if (!sprites || !sprites.effects || !sprites.effects.width) return;
+    var progress = clamp01(1 - effect.life / effect.maxLife);
+    var to = {
+      x: player.x - player.facing * 4,
+      y: feetY(player) - player.height * 0.62
+    };
+    /* Its head leads, so the strand reaches him before the effect runs out. */
+    var head = {
+      x: effect.x + (to.x - effect.x) * progress,
+      y: effect.y + (to.y - effect.y) * progress
+    };
+    var dx = head.x - effect.x;
+    var dy = head.y - effect.y;
+    var length = Math.sqrt(dx * dx + dy * dy);
+    if (length < 1) return;
+    var column = Math.min(
+      EFFECT.strandFrames - 1,
+      Math.floor(progress * EFFECT.strandFrames)
+    );
+    /* The art is 112 of a 128 cell tall, so a segment of `length` needs this. */
+    var size = (length / (112 / 128)) * 1.08;
+    ctx.save();
+    ctx.globalAlpha = 1 - progress * 0.35;
+    ctx.imageSmoothingEnabled = true;
+    ctx.translate(head.x, head.y);
+    ctx.rotate(Math.atan2(dy, dx) + Math.PI / 2);
+    ctx.drawImage(
+      sprites.effects,
+      column * EFFECT.cell,
+      EFFECT.strandRow * EFFECT.cell,
+      EFFECT.cell,
+      EFFECT.cell,
+      -size / 2,
+      -size / 2,
+      size,
+      size
+    );
+    ctx.restore();
+    /* The round head the reference draws on the end of every strand. */
+    ctx.save();
+    ctx.fillStyle = "rgba(255, 74, 58, 0.9)";
+    ctx.beginPath();
+    ctx.arc(head.x, head.y, 2.6, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  /*
+   * 觉醒插画: the picture that slides in over him on the frame 魔狱血刹 is pressed
+   * (docs/adr/0025). Measured off `11_魔狱血刹.mp4`: it is in and settled at
+   * 1.00s, holds, and is gone by 1.90s - so it owns the whole of the cast's own
+   * second, and the out is a *snap* rather than a fade, which is what makes the
+   * end of it read as the cast letting go.
+   *
+   * The art itself is the one piece in this folder that is not the client's: the
+   * client has no 一觉 illustration, so the picture is cut out of the reference
+   * frame (assets/import_awakening_cutin.py).
+   */
+  var CUT_IN = {
+    enter: 0.15,
+    /*
+     * **It has to be off the screen before the sword starts forming.** The
+     * reference's own order is cast -> 插画 -> 成形 -> 持剑: the illustration is a
+     * burst around its f30-f45, and the ring with the sword inside it is f50-f66,
+     * *after* it (11_魔狱血刹). This used to leave at 0.95 of the cast, so it
+     * covered the 成形 completely and the owner never saw it - what he saw was
+     * the illustration, and then a finished sword. `hellbenter`'s buff lands at
+     * 0.5 and `SWORD_FORM` runs from there, so the bar has to be clear by 0.5.
+     */
+    leaveAt: 0.40,
+    leave: 0.10,
+    /* The frame it was cut from has 1080 lines; the arena has 540. */
+    scale: ARENA.height / 1080,
+    /*
+     * Its lower edge stops on the skill bar's top line. That is not a coincidence
+     * to be tuned: the bake stops at the reference's own HUD line for the same
+     * reason, and the reference draws its bar over the picture exactly here.
+     */
+    bottom: BAR.y
+  };
+
+  function drawAwakening(ctx, state, sprites) {
+    var player = state.player;
+    if (!player || !sprites || !sprites.awakening || !sprites.awakening.width) return;
+    if (player.skillTimer <= 0 || player.skillId !== "hellbenter") return;
+    var progress = clamp01(1 - player.skillTimer / Core.SKILLS.hellbenter.duration);
+    var image = sprites.awakening;
+    var width = image.width * CUT_IN.scale;
+    var height = image.height * CUT_IN.scale;
+    var slide =
+      progress < CUT_IN.enter
+        ? 1 - progress / CUT_IN.enter
+        : progress > CUT_IN.leaveAt
+        ? (progress - CUT_IN.leaveAt) / CUT_IN.leave
+        : 0;
+    ctx.save();
+    ctx.imageSmoothingEnabled = true;
+    ctx.drawImage(image, -slide * width, CUT_IN.bottom - height, width, height);
+    ctx.restore();
+  }
+
+  /*
    * Everything on the floor is 血球 now - monsters stopped leaving heal orbs
    * behind when they died (docs/adr/0021), so this is a name for the walk over
    * `state.pickups` rather than a dispatcher with one case in it.
@@ -3252,6 +4004,8 @@
       ctx.fillStyle = "#8dffb0";
       ctx.fillText(effect.text, effect.x, ey - (1 - alpha) * 26);
       ctx.restore();
+    } else if (effect.kind === "bloodStrand") {
+      drawBloodStrand(ctx, state, effect, sprites);
     } else if (effect.kind === "bloodFlash") {
       drawBloodFlash(ctx, effect);
     } else if (effect.kind === "bloodHeal") {
@@ -3737,6 +4491,74 @@
       }
       ctx.restore();
     });
+
+    /*
+     * **魔狱血刹's key, drawn where this game says which keys exist.** It is not
+     * a slot - the twelve are the player's own arrangement and it is not in them
+     * (docs/adr/0025) - so it gets a tile of its own at the end of the bar rather
+     * than a thirteenth cell. The first cut of this slice had no tile at all, and
+     * the owner played it and reported the only thing there was to report:
+     * 「没看到技能」. A move the bar cannot show is a move nobody finds.
+     *
+     * While the sword is on his back the tile lights the way a stance's slot does
+     * - same read, same reason - and carries the seconds left, because until the
+     * sword's own white warning lands (the next slice) there is no other read of
+     * a fifty-second clock.
+     */
+    if (!compact) {
+      var swordSeconds = player.buffs.hellbenter || 0;
+      var swordUp = swordSeconds > 0;
+      /*
+       * 觉醒 is an ordinary cooldown skill now, so its tile reads like every other
+       * one: gold while it is ready, grey while it is not (see Core's
+       * `hellbenter.cooldown`). "一局一次" was never true - there was no gate -
+       * and the owner has said what he wants instead: 「觉醒不能一局一次，像普通技能
+       * 一样有冷却」.
+       */
+      var swordCd = Math.max(0, player.skillCooldowns.hellbenter || 0);
+      var swordReady = swordCd <= 0 && !player.dead;
+      var tile = {
+        x: BAR.x + SLOT_COLS * (BAR.slotW + BAR.gap),
+        y: BAR.y,
+        w: BAR.slotW,
+        h: BAR.slotH * 2 + BAR.rowGap
+      };
+      ctx.save();
+      ctx.fillStyle = swordUp
+        ? "rgba(62, 14, 22, 0.95)"
+        : swordReady
+          ? "rgba(20, 28, 48, 0.92)"
+          : "rgba(12, 14, 24, 0.9)";
+      roundRect(ctx, tile.x, tile.y, tile.w, tile.h, 6);
+      ctx.fill();
+      ctx.strokeStyle = swordUp
+        ? "rgba(240, 84, 96, 0.95)"
+        : swordReady
+          ? "rgba(226, 191, 114, 0.85)"
+          : "rgba(96, 106, 136, 0.6)";
+      ctx.lineWidth = 1.4;
+      roundRect(ctx, tile.x + 0.7, tile.y + 0.7, tile.w - 1.4, tile.h - 1.4, 6);
+      ctx.stroke();
+      ctx.textAlign = "left";
+      ctx.fillStyle = PALETTE.gold;
+      ctx.font = "700 13px 'Segoe UI', system-ui, sans-serif";
+      ctx.fillText("V", tile.x + 10, tile.y + 20);
+      ctx.fillStyle = swordUp ? PALETTE.text : "rgba(198, 208, 228, 0.7)";
+      ctx.font = "600 13px 'PingFang SC', 'Segoe UI', sans-serif";
+      ctx.fillText("魔狱血刹", tile.x + 10, tile.y + 41);
+      ctx.fillStyle = swordUp ? "rgba(240, 140, 150, 0.95)" : "rgba(150, 160, 190, 0.6)";
+      ctx.font = "600 11px 'PingFang SC', 'Segoe UI', sans-serif";
+      ctx.fillText(
+        swordUp
+          ? "持剑 " + Math.ceil(swordSeconds) + "s · 再按落下"
+          : swordReady
+            ? "觉醒 · 按 V 起手"
+            : "冷却 " + Math.ceil(swordCd) + "s",
+        tile.x + 10,
+        tile.y + 64
+      );
+      ctx.restore();
+    }
   }
 
   function drawLoadoutPanel(ctx, state, sprites, meta) {
@@ -4208,6 +5030,15 @@
     add(behind, function () {
       drawDiveSlash(ctx, state, sprites);
     });
+    /* 魔狱血刹's 血气之剑 rides on his back, so it takes his depth and stays
+       behind him - the same gap the rest of his own art uses. The 成形 goes in
+       with it: it is the same object, half a second earlier. */
+    add(behind, function () {
+      drawBloodSword(ctx, state, sprites);
+    });
+    add(behind, function () {
+      drawSwordForm(ctx, state, sprites);
+    });
     add(playerZ, function () {
       drawPlayer(ctx, state, sprites);
     });
@@ -4279,6 +5110,12 @@
     ctx.restore();
 
     drawVignette(ctx, state);
+    /*
+     * 魔狱血刹's 觉醒插画 goes over the room and under the HUD: the reference
+     * paints its own bar over the picture, and so does this one - the illustration
+     * takes the corner the bar does not.
+     */
+    drawAwakening(ctx, state, sprites);
     drawHud(ctx, state, sprites);
     /* The pace line belongs to live play, not to a full-screen overlay. */
     if (!overlayOpen && meta.run && meta.run.pace && meta.run.pace.text) {
@@ -4307,6 +5144,10 @@
     PALETTE: PALETTE,
     SPRITE: SPRITE,
     EFFECT: EFFECT,
+    /* 魔狱血刹's two live-drawn numbers, so tests can pin them to the sheets. */
+    BLOOD_SWORD: SWORD,
+    BLOOD_SWORD_FORM: SWORD_FORM,
+    CUT_IN: CUT_IN,
     attackColumn: attackColumn,
     playerFrame: playerFrame,
     flareFlash: flareFlash,

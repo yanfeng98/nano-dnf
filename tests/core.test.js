@@ -2088,7 +2088,11 @@ test("the shipped sprite sheet matches the frame grid the renderer expects", () 
     /* 血之狂暴's own swing: the body's 188-209, on its own row at the bottom. */
     rage: 9,
     /* ... and the client's own slash arc alone, graded to cream. */
-    ragearc: 10
+    ragearc: 10,
+    /* 魔狱血刹's two body motions, on a row of their own below the stance's:
+     * `clips2` had three columns left and a clip that overruns `cols` is
+     * truncated in silence (see assets/import_dnf_swordman.py ROWS). */
+    awaken: 11
   });
   /*
    * Long actions need room: the sheet carries twelve columns so a full DNF run
@@ -3324,24 +3328,34 @@ test("the shipped DNF effect sheet matches the renderer grid", () => {
   assert.equal(rift.back, 0, "the rift is the first row of its sheet");
   assert.equal(rift.front, 1, "and the fire the second");
   assert.ok(Render.EFFECT.riftCell > Render.EFFECT.cell, "at a cell a cell-sized grid cannot hold");
-  const riftBuffer = fs.readFileSync(path.join(__dirname, "..", "assets", "rift.png"));
-  assert.equal(riftBuffer.subarray(1, 4).toString("ascii"), "PNG");
-  assert.equal(
-    riftBuffer.readUInt32BE(16),
-    Render.EFFECT.riftCell * Render.EFFECT.maxFrames,
-    "the rift sheet is as long as the cast too"
-  );
-  assert.equal(riftBuffer.readUInt32BE(20), Render.EFFECT.riftCell * 2, "and holds both halves");
-  const riftSheet = decodeRgbaPng(path.join(__dirname, "..", "assets", "rift.png"));
-  const columnsDrawn = (row) => {
+  /*
+   * **魔狱血刹's 火山 is the third row**, and its own length is what the sheet is
+   * as wide as - the sheet is as long as its longest row, which is the
+   * volcano's sixty columns rather than 大蹦's forty-five.
+   */
+  const volcano = Render.EFFECT.riftRows.hellbenterSlam;
+  assert.ok(volcano, "魔狱血刹 declares its eruption on the same sheet");
+  assert.equal(volcano.back, 2, "as the row after 大蹦's two");
+  const riftColumns = Math.max(Render.EFFECT.maxFrames, Render.EFFECT.rowFrames.hellbenterSlam);
+  const riftColumnsDrawn = (row, columns) => {
     const drawn = [];
-    for (let column = 0; column < Render.EFFECT.maxFrames; column += 1) {
+    for (let column = 0; column < columns; column += 1) {
       if (cellAlphaBox(riftSheet, column, row, Render.EFFECT.riftCell, Render.EFFECT.riftCell)) {
         drawn.push(column);
       }
     }
     return drawn;
   };
+  const riftBuffer = fs.readFileSync(path.join(__dirname, "..", "assets", "rift.png"));
+  assert.equal(riftBuffer.subarray(1, 4).toString("ascii"), "PNG");
+  assert.equal(
+    riftBuffer.readUInt32BE(16),
+    Render.EFFECT.riftCell * riftColumns,
+    "the rift sheet is as long as its longest row"
+  );
+  assert.equal(riftBuffer.readUInt32BE(20), Render.EFFECT.riftCell * 3, "and holds all three rows");
+  const riftSheet = decodeRgbaPng(path.join(__dirname, "..", "assets", "rift.png"));
+  const columnsDrawn = (row) => riftColumnsDrawn(row, riftColumns);
   const riftFrames = columnsDrawn(rift.back);
   assert.equal(
     Render.EFFECT.rowFrames.mountainRift,
@@ -4998,9 +5012,10 @@ test("the stance paints him red, carries a second blade and draws nothing else",
   assert.equal(Render.EFFECT.rageSwipeRows, undefined, "no separate crescent rows out here");
   assert.equal(
     Render.EFFECT.extraRowCount,
-    9,
+    14,
     "the extra rows are the orb, the dive arc, the red fan, the two blades, the gathering, " +
-      "嗜魂封魔斩's vortex, the fog at his hand and 大蹦's fire"
+      "嗜魂封魔斩's vortex, the fog at his hand, 魔狱血刹's sword, its white warning, its 血丝, " +
+      "its 成形, the ring that 成形 opens with, and 大蹦's fire"
   );
   state.player.comboIndex = 0;
   state.player.attackTimer = state.player.attackDuration * 0.5;
@@ -5237,6 +5252,779 @@ test("嗜魂封魔斩's hold stays in the casting pose", () => {
     );
   }
   assert.ok(holdFrames >= 30, `the steady stretch was sampled (${holdFrames} frames)`);
+});
+
+test("魔狱血刹: the first press leaves a sword on his back and a clock running", () => {
+  /*
+   * The shape docs/adr/0025 decided, and the thing that makes this skill unlike
+   * every other one in the kit: the press is a **state**, not a move. It plays
+   * its own second, hands him back to the room, and leaves `buffs.hellbenter`
+   * counting down - which is what makes everything he does for the next fifty
+   * seconds happen with the sword on his back.
+   */
+  const state = Core.createState({ seed: 11 });
+  const player = state.player;
+  assert.equal(player.hellbenterTier, 0, "he starts with nothing on his back");
+  Core.step(state, { skills: { hellbenter: true } });
+  assert.equal(player.skillId, "hellbenter", "the press raises the sword");
+  assert.ok(!player.buffs.hellbenter, "and nothing lands on the press itself");
+  /* The buff opens inside the cast (`activeFrom`), the way 血之狂暴's does. */
+  Core.runFrames(state, Math.ceil(Core.SKILLS.hellbenter.activeFrom * Core.FPS) + 2, {});
+  assert.equal(player.hellbenterTier, 1, "the sword is on him by the middle of the cast");
+  assert.ok(
+    player.buffs.hellbenter > Core.SKILLS.hellbenter.buff.duration - 1,
+    `with the reference's own fifty seconds on it (${player.buffs.hellbenter.toFixed(2)})`
+  );
+  Core.runFrames(state, Math.ceil(Core.SKILLS.hellbenter.duration * Core.FPS) + 2, {});
+  assert.equal(player.skillId, null, "and the cast lets go");
+  assert.ok(player.buffs.hellbenter > 0, "leaving the sword exactly where it is");
+  assert.equal(player.hellbenterTier, 1, "and the move is playable again - he is not rooted");
+  assert.equal(Core.SKILLS.hellbenter.buff.duration, 50, "the clock is the reference's own");
+});
+
+test("魔狱血刹's sword outlives the room it was raised in", () => {
+  /*
+   * **The decision that made the clock a buff rather than a `skillTimer`.**
+   * `startRoom` clears every skill field on the player - `skillId`, `skillTimer`,
+   * the hit counters - and a sword kept in any of those would be dropped at the
+   * door, which is the opposite of the move: he is supposed to walk into the
+   * next room carrying it (docs/adr/0025). If someone tidies the exemption away,
+   * this is the test that says so.
+   */
+  const state = Core.createState({ seed: 11 });
+  const player = state.player;
+  Core.step(state, { skills: { hellbenter: true } });
+  Core.runFrames(state, Math.ceil(Core.SKILLS.hellbenter.duration * Core.FPS) + 2, {});
+  const before = player.buffs.hellbenter;
+  assert.ok(player.hellbenterTier > 0 && before > 40, "he is carrying it");
+  Core.startRoom(state, Math.min(state.layout.length - 1, state.roomIndex + 1));
+  assert.ok(player.buffs.hellbenter > 0, "the next room finds the sword still on him");
+  assert.ok(player.hellbenterTier > 0, "the tier rides with it");
+  Core.runFrames(state, 30, {});
+  assert.ok(
+    player.buffs.hellbenter < before - 0.4,
+    `and its clock kept running in the new room (${before} -> ${player.buffs.hellbenter})`
+  );
+});
+
+test("魔狱血刹: the second press brings the sword down, it does not raise another", () => {
+  const state = Core.createState({ seed: 11 });
+  const player = state.player;
+  Core.step(state, { skills: { hellbenter: true } });
+  Core.runFrames(state, Math.ceil(Core.SKILLS.hellbenter.duration * Core.FPS) + 2, {});
+  assert.ok(player.buffs.hellbenter > 0, "the sword is up");
+  Core.step(state, { skills: { hellbenter: true } });
+  /*
+   * **Two moves on one key, decided by the state, not by the key.** Both halves
+   * are separate `SKILLS` entries so the art, the hit beats and the end-of-cast
+   * bookkeeping cannot drift apart between the two ways in.
+   */
+  assert.equal(player.skillId, "hellbenterSlam", "the same key casts the other half");
+  Core.runFrames(state, Math.ceil(Core.SKILLS.hellbenterSlam.duration * Core.FPS) + 2, {});
+  assert.equal(player.hellbenterTier, 0, "and the sword is gone once it lands");
+  assert.equal(player.buffs.hellbenter, 0, "with its clock stopped");
+});
+
+test("魔狱血刹: the clock running out brings it down by itself", () => {
+  /*
+   * The owner's call in the grill: the sword never simply vanishes. Fifty
+   * seconds running out is the *same* ending as the second press - one move,
+   * `hellbenterSlam` - so the two cannot drift apart, and a player who never
+   * presses again still gets the payoff.
+   */
+  const state = Core.createState({ seed: 11 });
+  const player = state.player;
+  Core.step(state, { skills: { hellbenter: true } });
+  Core.runFrames(state, Math.ceil(Core.SKILLS.hellbenter.duration * Core.FPS) + 2, {});
+  player.buffs.hellbenter = 2 * Core.DT;
+  Core.runFrames(state, 4, {});
+  assert.equal(player.skillId, "hellbenterSlam", "the clock ends the state with no key pressed");
+  Core.runFrames(state, Math.ceil(Core.SKILLS.hellbenterSlam.duration * Core.FPS) + 2, {});
+  assert.equal(player.hellbenterTier, 0, "and the state is over");
+});
+
+test("魔狱血刹's sword hangs behind him, tip down, and grows from the neck", () => {
+  /*
+   * Two measured facts about the reference, pinned together here: the sword
+   * hangs **behind him** (the client's own frame carries the blade 0.5 of a
+   * Slayer-height back, and the training room agrees), and it grows **downward**
+   * - the pommel stays at 1.27 heights off the floor while the blade gets longer,
+   * so a full sword puts its tip on the ground (11_魔狱血刹 2:37).
+   */
+  const state = Core.createState({ seed: 11 });
+  const player = state.player;
+  const sprites = {
+    slayer: { width: 13312, height: 1936 },
+    skills: { width: 32 * Core.SKILL_ORDER.length, height: 64 },
+    effects: {
+      width: 5760,
+      height: 128 * (Core.SKILL_ORDER.length + Render.EFFECT.extraRowCount)
+    },
+    awakening: { width: 560, height: 296 }
+  };
+  /*
+   * The sword's own draw, and the transform it was drawn under. `drawImage` is
+   * called in the nine-argument form, so `[6]`/`[7]` are where the cell lands
+   * and `[8]` is its size - and the cell lands inside a translate that is the
+   * sword's own column and line.
+   */
+  const swordDraw = (tier) => {
+    player.facing = 1;
+    player.buffs.hellbenter = 30;
+    player.hellbenterTier = tier;
+    const calls = [];
+    Render.render(recordingContext(calls), state, { sprites });
+    const index = calls.findIndex(
+      (call) =>
+        call[0] === "drawImage" && call[3] === Render.EFFECT.bloodSwordRow * Render.EFFECT.cell
+    );
+    assert.ok(index > 0, `the sword is drawn at tier ${tier}`);
+    let origin = null;
+    for (let back = index; back >= 0; back -= 1) {
+      if (calls[back][0] === "translate") {
+        origin = calls[back];
+        break; /* the sword's own, which is the nearest one before the draw */
+      }
+    }
+    return { draw: calls[index], origin };
+  };
+  const body = Render.SPRITE.bodyHeight;
+  const small = swordDraw(1);
+  const full = swordDraw(Render.BLOOD_SWORD.tiers);
+  const sizeOf = (entry) => entry.draw[8];
+  /*
+   * **The growth is a cell per tier, not a zoom.** The row carries the client's
+   * own sword cut to eight lengths and `SWORD.cellFor` says which one a tier
+   * draws; the blade comes out one step per hit that forged it (the owner:
+   * 「血剑没成型前跟参考不一样」). The first cut scaled the long frame instead,
+   * which drew a miniature *complete* sword at the cast; the owner sent that
+   * back (「断剑好像不对」).
+   */
+  assert.equal(small.draw[2], 0, "the cast draws the shortest cell");
+  /*
+   * Eight tiers walk up four cells and hold the last: the row is the client's
+   * own sword at four lengths, and the mapping between them is `tierCell`.
+   */
+  let previousSize = 0;
+  for (let tier = 1; tier <= Render.BLOOD_SWORD.tiers; tier += 1) {
+    const entry = swordDraw(tier);
+    const drawn = entry.draw[8];
+    assert.ok(drawn >= previousSize, `tier ${tier} never shrinks (${previousSize} -> ${drawn})`);
+    previousSize = drawn;
+  }
+  assert.equal(Render.EFFECT.bloodSwordFrames, 8, "the row carries one drawing per tier");
+  /*
+   * **Every tier is drawn at the same `size` and the *cell* is what changes.** A
+   * zoom would carry the hilt along with the blade, and the client's own frames
+   * are the same picture cut short (f1's 73 rows agree with f2's pixel for
+   * pixel), so the cut is the operation the pack itself uses. 补记十 swapped this
+   * for a single cell drawn at eight sizes and lost the black crossguard and the
+   * gold eye with it - they only exist in the *coloured* frames.
+   */
+  assert.equal(sizeOf(small), Render.BLOOD_SWORD.size, "the cast draws at the one size");
+  assert.equal(sizeOf(full), Render.BLOOD_SWORD.size, "and so does a full sword");
+  assert.equal(
+    Render.BLOOD_SWORD.cellFor(1),
+    0,
+    "the cast reads the client's shortest cut"
+  );
+  assert.equal(
+    Render.BLOOD_SWORD.cellFor(Render.BLOOD_SWORD.tiers),
+    Render.EFFECT.bloodSwordFrames - 1,
+    "and the last tier the longest"
+  );
+  assert.ok(
+    Render.BLOOD_SWORD.cellFor(Render.BLOOD_SWORD.tiers) > Render.BLOOD_SWORD.cellFor(1),
+    "so the blade is what grows"
+  );
+  /*
+   * **The pommel is what stays.** The ink's top edge, measured from the feet,
+   * has to be the same number at both tiers - a sword that grew about its middle
+   * would lift as it grew, and the reference's tip falls to the floor instead.
+   */
+  const neckOf = (entry) =>
+    entry.origin[2] + entry.draw[7] + Render.BLOOD_SWORD.inkTop * sizeOf(entry);
+  assert.ok(
+    Math.abs(neckOf(small) - neckOf(full)) < 0.5,
+    `the pommel is pinned while the blade grows (${neckOf(small)} vs ${neckOf(full)})`
+  );
+  assert.ok(
+    Math.abs(neckOf(full) - player.y + Render.BLOOD_SWORD.top * body) < 0.5,
+    `and it sits where the reference has it (${player.y - neckOf(full)} off the floor)`
+  );
+  /* Behind him: he faces +x, so the sword's column is *behind* his own. */
+  assert.ok(
+    Math.abs(small.origin[1] - (player.x - Render.BLOOD_SWORD.behind * body)) < 0.5,
+    `the sword hangs behind him (${small.origin[1]} vs his ${player.x})`
+  );
+  assert.equal(small.origin[2], player.y, "and its line is his own ground line");
+  /* And nothing is drawn once the state is down. */
+  player.buffs.hellbenter = 0;
+  player.hellbenterTier = 0;
+  const quiet = [];
+  Render.render(recordingContext(quiet), state, { sprites });
+  assert.equal(
+    quiet.filter(
+      (call) =>
+        call[0] === "drawImage" && call[3] === Render.EFFECT.bloodSwordRow * Render.EFFECT.cell
+    ).length,
+    0,
+    "no sword once the clock is out"
+  );
+});
+
+test("魔狱血刹's 血气之剑 forms before it is a sword", () => {
+  /*
+   * The owner pointed at the reference's own cast twice (「开始」, then 「开始的断剑
+   * 样子和参考不一样」): the sword does not arrive finished. The art is the client's
+   * `sword-dodge.img` - outline -> **white sword** -> red outline -> a white burst
+   * with rays -> red-and-white with sparks -> a **red sword** -> a gold blade -
+   * which is 11_魔狱血刹 #52-#72 beat for beat. The sword row must not be drawn
+   * while that is running, or the finished sword pops in behind the effect that is
+   * meant to be making it (docs/adr/0025 补记五).
+   */
+  const state = Core.createState({ seed: 11 });
+  const player = state.player;
+  const sprites = {
+    slayer: { width: Render.SPRITE.frameW * Render.SPRITE.cols, height: Render.SPRITE.frameH * 12 },
+    skills: { width: 32 * Core.SKILL_ORDER.length, height: 64 },
+    effects: {
+      width: 5760,
+      height: 128 * (Core.SKILL_ORDER.length + Render.EFFECT.extraRowCount)
+    },
+    rift: { width: 23040, height: 384 * 3 },
+    awakening: { width: 560, height: 296 }
+  };
+  const hold = Render.BLOOD_SWORD.hold;
+  const drawnRows = (left) => {
+    player.facing = 1;
+    player.buffs.hellbenter = left;
+    player.hellbenterTier = 1;
+    const calls = [];
+    Render.render(recordingContext(calls), state, { sprites });
+    return calls
+      .filter((call) => call[0] === "drawImage" && call[4] === Render.EFFECT.cell)
+      .map((call) => call[3] / Render.EFFECT.cell);
+  };
+  const swordRow = Render.EFFECT.bloodSwordRow;
+  const formRow = Render.EFFECT.bloodSwordRow + 3;  // sword +8, white +9, strand +10, form +11
+  /* The moment it lands: the disc and nothing else. */
+  const fresh = drawnRows(hold);
+  assert.ok(fresh.includes(formRow), "the 成形 is drawn the moment the sword lands");
+  assert.ok(!fresh.includes(swordRow), "and the finished sword is not, yet");
+  /* Seven tenths later the 成形 is over and the sword itself is there. */
+  const settled = drawnRows(hold - 0.7);
+  assert.ok(settled.includes(swordRow), "the sword is drawn once the disc is over");
+  assert.ok(!settled.includes(formRow), "and the 成形 is not drawn twice");
+  /* The line is `SWORD_FORM.seconds`, read off the reference's own 20 frames. */
+  assert.ok(
+    drawnRows(hold - 0.6).includes(formRow) && !drawnRows(hold - 0.75).includes(formRow),
+    "the 成形 lasts about the two thirds of a second the reference has it for"
+  );
+  /* Every one of its ten cells is real art on the shipped sheet, and the row runs
+     outline -> white -> lit, which is the whole point of it. */
+  const effects = decodeRgbaPng(path.join(__dirname, "..", "assets", "effects.png"));
+  const cell = Render.EFFECT.cell;
+  const formCells = [];
+  for (let index = 0; index < Render.BLOOD_SWORD_FORM.frames; index += 1) {
+    formCells.push(cellAlphaBox(effects, index, formRow, cell, cell));
+  }
+  assert.ok(
+    formCells.every((box) => box),
+    "all ten frames of the 成形 have ink"
+  );
+  /* f1 is the same sword **lit**: white and longer than the faint outline f0. */
+  assert.ok(
+    formCells[1].y1 - formCells[1].y0 > formCells[0].y1 - formCells[0].y0,
+    "the second frame is the same sword lit up, taller than the outline"
+  );
+  /* And f4 is the burst - the widest thing in the row, which is the flash the
+     reference opens the whole cast with. */
+  assert.ok(
+    formCells[4].x1 - formCells[4].x0 > formCells[1].x1 - formCells[1].x0 * 1.5,
+    "the middle of the row is the burst"
+  );
+});
+
+test("魔狱血刹's 觉醒插画 owns the cast's own second and nothing else", () => {
+  const state = Core.createState({ seed: 11 });
+  const player = state.player;
+  const sprites = {
+    slayer: { width: 13312, height: 1936 },
+    skills: { width: 32 * Core.SKILL_ORDER.length, height: 64 },
+    effects: {
+      width: 5760,
+      height: 128 * (Core.SKILL_ORDER.length + Render.EFFECT.extraRowCount)
+    },
+    awakening: { width: 560, height: 296 }
+  };
+  const cutInCall = () => {
+    const calls = [];
+    Render.render(recordingContext(calls), state, { sprites });
+    const index = calls.findIndex((call) => call[0] === "drawImage" && call[1] === sprites.awakening);
+    return index === -1 ? null : calls[index];
+  };
+  const spec = Core.SKILLS.hellbenter;
+  player.skillId = "hellbenter";
+  /*
+   * **The reference's order is 起手 -> 插画 -> 成形 -> 持剑**, and the middle two
+   * are what this pins: the illustration is a burst (11_魔狱血刹 f30-f45) and the
+   * ring with the sword inside it is f50-f66, *after* it. So the picture has to be
+   * fully in at a quarter of the cast and fully **off** by the halfway mark,
+   * which is where `hellbenter`'s buff lands and `SWORD_FORM` starts.
+   */
+  player.skillTimer = spec.duration * 0.75;
+  const settled = cutInCall();
+  assert.ok(settled, "the picture is drawn while the cast runs");
+  /* `drawImage(image, dx, dy, dw, dh)`: `[2]` is where its left edge lands. */
+  assert.ok(Math.abs(settled[2]) < 0.001, `and is fully in a quarter of the way in (${settled[2]})`);
+  player.skillTimer = spec.duration * 0.5;
+  const clearing = cutInCall();
+  assert.ok(
+    clearing && clearing[2] < 0,
+    `and is off the screen before the sword forms (${clearing && clearing[2]})`
+  );
+  player.skillTimer = spec.duration * 0.99;
+  player.skillId = null;
+  player.skillTimer = 0;
+  assert.equal(cutInCall(), null, "and it is gone the moment the cast is");
+});
+
+test("魔狱血刹's sword is forged by his own hits, and only by them", () => {
+  /*
+   * 铸剑 is the owner's own reading of the reference - 「需要通过攻击从怪物身上汲取
+   * 血气」 - so the growth is paid for by fighting and by nothing else. The two
+   * ways it could go wrong are both here: a sword that grows when the *floor*
+   * kills something (the gate is `slayerSwing`, the flag the arena's own damage
+   * already clears), and a sword that grows with no sword up.
+   */
+  const state = Core.createState({ seed: 11 });
+  const player = state.player;
+  player.buffs.hellbenter = 40;
+  player.hellbenterTier = 1;
+  const enemy = Core.createEnemy(state, "brute", player.x + 60);
+  enemy.hp = 900;
+  enemy.maxHp = 900;
+  state.enemies = [enemy];
+
+  Core.damageEnemy(state, enemy, 5, 0, player.x);
+  assert.equal(player.hellbenterTier, 2, "a landed hit forges one tier");
+  assert.equal(
+    state.effects.filter((effect) => effect.kind === "bloodStrand").length,
+    1,
+    "and the blood it took is drawn flying into him"
+  );
+
+  Core.damageEnemy(state, enemy, 5, 0, player.x, { noBloodOrbs: true });
+  assert.equal(player.hellbenterTier, 2, "a slab crushing a monster forges nothing");
+
+  Core.damageEnemy(state, enemy, 999, 0, player.x);
+  assert.ok(enemy.dead, "the brute is dead");
+  assert.equal(player.hellbenterTier, 4, "a kill pays the hit and the kill");
+
+  for (let index = 0; index < 20; index += 1) {
+    const next = Core.createEnemy(state, "grunt", 520);
+    next.hp = 1;
+    state.enemies.push(next);
+    Core.damageEnemy(state, next, 5, 0, player.x);
+  }
+  assert.equal(
+    player.hellbenterTier,
+    Core.HELLBENTER.tiers,
+    "and the sword stops growing at the top tier"
+  );
+
+  player.buffs.hellbenter = 0;
+  player.hellbenterTier = 0;
+  const before = state.effects.filter((effect) => effect.kind === "bloodStrand").length;
+  const plain = Core.createEnemy(state, "grunt", 520);
+  Core.damageEnemy(state, plain, 5, 0, player.x);
+  assert.equal(player.hellbenterTier, 0, "with no sword on his back there is nothing to forge");
+  assert.equal(
+    state.effects.filter((effect) => effect.kind === "bloodStrand").length,
+    before,
+    "and nothing flies in"
+  );
+});
+
+test("魔狱血刹's sword turns white for the last five seconds, and breathes", () => {
+  const state = Core.createState({ seed: 11 });
+  const player = state.player;
+  const sprites = {
+    slayer: { width: 13312, height: 1936 },
+    skills: { width: 32 * Core.SKILL_ORDER.length, height: 64 },
+    effects: {
+      width: 5760,
+      height: 128 * (Core.SKILL_ORDER.length + Render.EFFECT.extraRowCount)
+    },
+    awakening: { width: 560, height: 296 }
+  };
+  const swordPasses = (seconds) => {
+    player.buffs.hellbenter = seconds;
+    player.hellbenterTier = Render.BLOOD_SWORD.tiers;
+    const calls = [];
+    Render.render(recordingContext(calls), state, { sprites });
+    const rows = {
+      red: Render.EFFECT.bloodSwordRow * Render.EFFECT.cell,
+      white: Render.EFFECT.whiteSwordRow * Render.EFFECT.cell
+    };
+    return {
+      red: calls.filter((call) => call[0] === "drawImage" && call[3] === rows.red).length,
+      white: calls.filter((call) => call[0] === "drawImage" && call[3] === rows.white).length
+    };
+  };
+  const calm = swordPasses(Render.BLOOD_SWORD.whiteFrom + 6);
+  /*
+   * **Two passes of the red row, and both are the sword.** The cell is drawn
+   * flat and then again with `lighter` (`SWORD.glow`), which is what keeps a
+   * blade whose own art is mostly dark reading as a red sword on our floor -
+   * the owner named what it looked like without that pass: 「断剑不对吧」.
+   */
+  assert.equal(
+    calm.red,
+    Render.BLOOD_SWORD.glow ? 2 : 1,
+    "there is time left: the sword is the red one"
+  );
+  assert.equal(calm.white, 0, "and the white row is not drawn at all");
+  const warning = swordPasses(Render.BLOOD_SWORD.whiteFrom - 1);
+  assert.equal(warning.red, 0, "the last five seconds swap the row rather than tint it");
+  assert.equal(
+    warning.white,
+    Render.BLOOD_SWORD.glow ? 3 : 2,
+    "and the white sword is drawn twice - itself, and the breath laid over it " +
+      "(plus the glow pass, when the sword has one)"
+  );
+});
+
+test("魔狱血刹's 血丝 flies from the wound to him", () => {
+  const state = Core.createState({ seed: 11 });
+  const player = state.player;
+  const sprites = {
+    slayer: { width: 13312, height: 1936 },
+    skills: { width: 32 * Core.SKILL_ORDER.length, height: 64 },
+    effects: {
+      width: 5760,
+      height: 128 * (Core.SKILL_ORDER.length + Render.EFFECT.extraRowCount)
+    },
+    awakening: { width: 560, height: 296 }
+  };
+  const wound = { x: player.x + 180, y: player.y - 40 };
+  state.effects.push({
+    kind: "bloodStrand",
+    x: wound.x,
+    y: wound.y,
+    z: 0,
+    life: 0.16,
+    maxLife: 0.32
+  });
+  const calls = [];
+  Render.render(recordingContext(calls), state, { sprites });
+  const index = calls.findIndex(
+    (call) => call[0] === "drawImage" && call[3] === Render.EFFECT.strandRow * Render.EFFECT.cell
+  );
+  assert.ok(index > 0, "the strand is drawn");
+  const head = calls.slice(0, index).reverse().find((call) => call[0] === "translate");
+  assert.ok(
+    head[1] > player.x && head[1] < wound.x,
+    `half way through, its head is half way there (${head[1]})`
+  );
+  assert.ok(head[2] < player.y, "and above the floor, on its way to his chest");
+  const turn = calls.slice(0, index).reverse().find((call) => call[0] === "rotate");
+  assert.ok(turn && Math.abs(turn[1]) > 0.01, "the thread is turned along the line it is flying");
+});
+
+test("魔狱血刹's 火山 is ground he opened, and it burns on its own clock", () => {
+  /*
+   * The half of the move that is not his: the sword goes into the floor and
+   * **the floor is what erupts** (docs/adr/0002's rule, and why this is a field
+   * rather than a five-second cast). It keeps hitting after he has walked away,
+   * it holds what it has (the reference's 砸地瞬间控制住敌人), and it knocks what
+   * is left standing down on its way out.
+   */
+  const state = Core.createState({ seed: 11 });
+  const player = state.player;
+  player.buffs.hellbenter = 40;
+  player.hellbenterTier = Core.HELLBENTER.tiers;
+  const victim = Core.createEnemy(state, "brute", player.x + 60, 0);
+  victim.hp = 9000;
+  victim.maxHp = 9000;
+  victim.speed = 0;
+  victim.attackRange = 0;
+  state.enemies = [victim];
+
+  Core.step(state, { skills: { hellbenter: true } });
+  assert.equal(player.skillId, "hellbenterSlam", "the second press is the fall");
+  /*
+   * The cast is 3.0s now - he holds the pose while the ground burns (see the
+   * skill's own `duration`) - so the field is read at its *handover*, `field.at`
+   * of the cast, not at its end.
+   */
+  const slam = Core.SKILLS.hellbenterSlam;
+  Core.runFrames(state, Math.ceil(slam.field.at * Core.FPS) + 1, {});
+  assert.equal(state.fields.length, 1, "it leaves the ground burning where the sword went in");
+  const field = state.fields[0];
+  /*
+   * **In front of him, not under him.** The owner: 「崩的位置不对」. Measured on
+   * 11_魔狱血刹 #180, the crater's centre is 131 client px = 1.56 身位 ahead of his
+   * own, so the crater is 1.5 身位 forward and he ends up standing at its near
+   * rim (`SKILLS.hellbenterSlam.field.forward`).
+   */
+  const forward = Core.SKILLS.hellbenterSlam.field.forward;
+  assert.equal(
+    field.x,
+    player.x + field.facing * forward,
+    "in front of him"
+  );
+  /*
+   * The art is 108 world px either side of that spot, so the crater's near rim
+   * lands 23 px in front of his soles - he is standing just behind it, which is
+   * the reference's own reading.
+   */
+  assert.ok(forward > 108, `and not on his own feet (${forward} px ahead of the crater's centre)`);
+  assert.equal(field.tier, Core.HELLBENTER.tiers, "and it remembers what the sword was worth");
+  /*
+   * **And he is not free: he holds the pose.** The owner: 「在崩的过程中身体应该保持
+   * 一个固定的姿势」 - the reference holds the same crouch from the slam to the end
+   * of the eruption (#158 through #230), so the cast runs to 3.0s and the last
+   * 2.4s of it are the hold.
+   */
+  assert.equal(player.skillId, "hellbenterSlam", "he is still in the move while it burns");
+  /*
+   * ... and the pose he holds is the motion's **last frame**, not a pose of its
+   * own: the beats stop at 0.2 of the cast, so everything after that is the
+   * drive's final cell (`SPRITE.skillClips.hellbenterSlam`).
+   */
+  const beats = Render.SPRITE.skillClips.hellbenterSlam.beats;
+  assert.equal(
+    Number((beats[beats.length - 1].until * slam.duration).toFixed(3)),
+    slam.field.at,
+    "the drive ends as the ground opens"
+  );
+  assert.equal(
+    beats.reduce((sum, beat) => sum + beat.frames, 0),
+    Render.SPRITE.skillClips.hellbenterSlam.frames,
+    "and the beats are the whole clip"
+  );
+
+  /*
+   * The crack alone: no damage yet - the column is what burns (see the stages).
+   * The victim stands where the crater is now, which is 1.5 身位 ahead of the
+   * caster rather than on him, so it is placed off the *field*.
+   */
+  victim.x = field.x;
+  const cracked = victim.hp;
+  Core.runFrames(state, Math.ceil(0.6 * Core.FPS), {});
+  assert.equal(victim.hp, cracked, "the crack under him does not damage on its own");
+
+  /* Walk him into the eruption. */
+  Core.runFrames(state, Math.ceil(3.5 * Core.FPS), {});
+  assert.ok(victim.hp < cracked - 100, `the column does, and in beats (${cracked - victim.hp})`);
+  assert.ok(
+    victim.stun > 0 || victim.knockdown > 0,
+    "and it holds what it has rather than knocking it about"
+  );
+  /* And it is still the floor's, not his: he can be somewhere else entirely. */
+  player.x += 300;
+  victim.hp = 9000;
+  const far = victim.hp;
+  Core.runFrames(state, Math.ceil(0.4 * Core.FPS), {});
+  assert.ok(victim.hp < far, "the beats land wherever the crack is, not wherever he is");
+});
+
+test("魔狱血刹's 火山 is worth what the sword was worth", () => {
+  /*
+   * The owner's own shape for the two presses: **没铸满也能拍，伤害按档位缩放**
+   * (grill Q4). Same volcano, two swords - the stub he never fed and the one the
+   * whole fifty seconds went into.
+   */
+  const burn = (tier) => {
+    const state = Core.createState({ seed: 11 });
+    const player = state.player;
+    player.buffs.hellbenter = 40;
+    player.hellbenterTier = tier;
+    const victim = Core.createEnemy(state, "brute", player.x + 60, 0);
+    victim.hp = 9000;
+    victim.maxHp = 9000;
+    victim.speed = 0;
+    victim.attackRange = 0;
+    state.enemies = [victim];
+    const slam = Core.SKILLS.hellbenterSlam;
+    Core.step(state, { skills: { hellbenter: true } });
+    /* To the handover, then the whole five seconds of ground. */
+    Core.runFrames(state, Math.ceil(slam.field.at * Core.FPS) + 1, {});
+    const start = victim.hp;
+    Core.runFrames(state, Math.ceil((slam.field.span + slam.field.linger) * Core.FPS) + 2, {});
+    return start - victim.hp;
+  };
+  const forged = burn(Core.HELLBENTER.tiers);
+  const stub = burn(1);
+  assert.ok(stub > 0, `the 断剑 still erupts (${stub})`);
+  assert.ok(
+    forged > stub * 1.6,
+    `but a full sword is worth about twice it (${stub} -> ${forged})`
+  );
+});
+
+test("魔狱血刹's 火山 is drawn on the floor, not on him", () => {
+  const state = Core.createState({ seed: 11 });
+  const player = state.player;
+  const sprites = {
+    slayer: { width: 13312, height: 1936 },
+    skills: { width: 32 * Core.SKILL_ORDER.length, height: 64 },
+    effects: {
+      width: 5760,
+      height: 128 * (Core.SKILL_ORDER.length + Render.EFFECT.extraRowCount)
+    },
+    rift: { width: 23040, height: 384 * 3 },
+    awakening: { width: 560, height: 296 }
+  };
+  const field = {
+    skillId: "hellbenterSlam",
+    from: 0,
+    x: 640,
+    y: Core.ARENA.groundY,
+    z: 220,
+    facing: 1,
+    clock: 2.5,
+    span: 5,
+    life: 5.6
+  };
+  state.fields = [field];
+  player.x = 120;
+  const calls = [];
+  Render.render(recordingContext(calls), state, { sprites });
+  const row = Render.EFFECT.riftRows.hellbenterSlam.back;
+  /* `drawImage(image, sx, sy, sw, sh, dx, dy, dw, dh)`: `[3]` is which row. */
+  const index = calls.findIndex(
+    (call) => call[0] === "drawImage" && call[3] === row * Render.EFFECT.riftCell
+  );
+  assert.ok(index > 0, "the eruption is drawn");
+  const draw = Render.EFFECT.draw.hellbenterSlam;
+  const origin = calls.slice(0, index).reverse().find((call) => call[0] === "translate");
+  assert.equal(origin[1], field.x, "on the spot it was opened on, not on the Slayer");
+  /*
+   * The row is anchored on the ground point the bake pinned to the cell's 0.75
+   * line, so the drawn origin sits `size / 4` above it - and that ground point
+   * has to be *this spot's* floor line, depth lift and all. Getting this wrong
+   * is what put 嗜魂封魔斩's vortex a Slayer-height over his hand for four rounds
+   * (docs/adr/0024).
+   */
+  assert.ok(
+    Math.abs(origin[2] + draw.size / 4 - (Core.ARENA.groundY - Core.depthLift(field.z))) < 0.5,
+    `the column stands on that spot's own floor line (${origin[2] + draw.size / 4})`
+  );
+  /* The draw entry has to pin it to the floor, or it would ride him instead. */
+  assert.equal(Render.EFFECT.draw.hellbenterSlam.ground, true, "it belongs to the ground");
+});
+
+test("魔狱血刹's two pieces of art are the ones the bake wrote", () => {
+  /*
+   * Both new files are facts about PNGs rather than numbers anyone should be
+   * free to edit, so they are read back here the way the body sheet's own height
+   * is: the sword's row has to still be the shape the renderer's ink fractions
+   * describe, and the 插画 has to be the half-body it was cut from, not a
+   * full-frame rectangle of the clip.
+   */
+  const effects = decodeRgbaPng(path.join(__dirname, "..", "assets", "effects.png"));
+  const cell = Render.EFFECT.cell;
+  const tiers = 1;
+  const cells = [];
+  for (let index = 0; index < tiers; index += 1) {
+    cells.push(cellAlphaBox(effects, index, Render.EFFECT.bloodSwordRow, cell, cell));
+  }
+  assert.ok(
+    cells.every((box) => box),
+    "the sword row's cell has ink"
+  );
+  const shortCell = cells[0];
+  const longCell = cells[tiers - 1];
+  /*
+   * **They all share a pommel line and start from the same hilt.** That is what
+   * lets the renderer pin the sword by its top and step cell by cell as it is
+   * forged without the sword jumping - the hilt stays where it is and only the
+   * blade below it changes (see SWORD.cellFor).
+   */
+  assert.ok(
+    cells.every((box) => box.y0 === shortCell.y0),
+    "every tier hangs from the same point"
+  );
+  /*
+   * **The range is the reference's own pair, and it is narrow on purpose.** It
+   * used to open on the client's shortest frame (73 of its 160), which is 85%
+   * hilt and reads as a guard with a stub - the owner: 「断剑不对吧」. Measured off
+   * 11_魔狱血刹 #100/#140 the sword behind him is 0.92-0.96 of a Slayer-height,
+   * so the ladder starts at 0.90 身位 and ends at the full 1.29.
+   */
+
+  /*
+   * The row is the client's own `sword-dodge` at four lengths, 0.61 -> 1.20
+   * 身位, so the first cell is a little over half the last - **not** the 85%-hilt
+   * stub the old cut opened on. (0.61/1.20 = 0.51, measured on the shipped PNG.)
+   */
+  assert.ok(
+    shortCell.y1 - shortCell.y0 > 0.45 * (longCell.y1 - longCell.y0),
+    `and the first is a whole sword, not a stub (${shortCell.y1 - shortCell.y0} rows)`
+  );
+  /*
+   * **The blade only ever grows.** Read bottom to top: each tier's ink is taller
+   * than the one before it, and never shorter - a row that went the other way
+   * anywhere would read as the sword shrinking on a hit.
+   */
+  for (let index = 1; index < tiers; index += 1) {
+    assert.ok(
+      cells[index].y1 >= cells[index - 1].y1,
+      `tier ${index + 1} is at least as long as tier ${index} ` +
+        `(${cells[index - 1].y1 - cells[index - 1].y0} -> ${cells[index].y1 - cells[index].y0})`
+    );
+  }
+  assert.ok(
+    Math.abs(shortCell.y0 / cell - Render.BLOOD_SWORD.inkTop) < 0.02,
+    `the renderer's ink top still describes every one of them (${shortCell.y0})`
+  );
+  /* And the white row is the same cells, recoloured. */
+  for (let index = 0; index < tiers; index += 1) {
+    const white = cellAlphaBox(effects, index, Render.EFFECT.whiteSwordRow, cell, cell);
+    assert.ok(
+      white && white.y0 === cells[index].y0 && white.y1 === cells[index].y1,
+      `the white warning is the same sword at tier ${index + 1}, not a differently shaped one`
+    );
+  }
+  const awakening = decodeRgbaPng(path.join(__dirname, "..", "assets", "awakening.png"));
+  const lit = cellAlphaBox(awakening, 0, 0, awakening.width, awakening.height);
+  assert.ok(lit, "the cut-in is not empty");
+  assert.ok(
+    lit.y0 > 0 || lit.x1 < awakening.width - 1,
+    "the picture is a shaped illustration, not the whole clip frame"
+  );
+  /* The one thing that makes it the 一觉 picture: it was cut from the reference. */
+  assert.ok(
+    awakening.width >= 500 && awakening.height >= 250,
+    `the cut-in is cut at the reference's own size (${awakening.width}x${awakening.height})`
+  );
+  /*
+   * And both of the cast's body motions are real cells on the sheet, not blank
+   * columns. 魔狱血刹's 起手 is the client's 75-89 and its 落 is 143-156 - the
+   * owner named both off the labelled full-frame sheet (`docs/adr/0025`), and
+   * every frame of each has to exist or the move plays a hole.
+   */
+  const sheet = decodeRgbaPng(path.join(__dirname, "..", "assets", "slayer.png"));
+  const moves = [
+    ["hellbenter", 15, "起手"],
+    ["hellbenterSlam", 14, "落"]
+  ];
+  moves.forEach(([skillId, frames, label]) => {
+    const clip = Render.SPRITE.skillClips[skillId];
+    assert.ok(
+      clip && clip.frames === frames,
+      `魔狱血刹's ${label} is the client's ${frames}-frame motion`
+    );
+    for (let step = 0; step < clip.frames; step += 1) {
+      assert.ok(
+        cellAlphaBox(sheet, clip.first + step, clip.row),
+        `and every one of its cells has the Slayer in it (column ${clip.first + step})`
+      );
+    }
+  });
 });
 
 test("the three new DNF skills land their hits and statuses", () => {

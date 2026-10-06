@@ -28,12 +28,19 @@
    * 128px cell can hold, so its two rows live there instead (see EFFECT.riftRows
    * in render.js).
    */
-  var sprites = { slayer: null, skills: null, effects: null, rift: null };
+  var sprites = { slayer: null, skills: null, effects: null, rift: null, awakening: null };
   [
     ["slayer", "./assets/slayer.png"],
     ["skills", "./assets/skills.png"],
     ["effects", "./assets/effects.png"],
-    ["rift", "./assets/rift.png"]
+    ["rift", "./assets/rift.png"],
+    /*
+     * 魔狱血刹's 觉醒插画, and the one piece of art in this folder that is not
+     * baked from the client: the client has no 一觉 illustration to bake (see
+     * assets/import_awakening_cutin.py), so it is cut out of the reference clip
+     * the owner handed over instead.
+     */
+    ["awakening", "./assets/awakening.png"]
   ].forEach(function (entry) {
     var image = new Image();
     image.src = entry[1];
@@ -79,7 +86,15 @@
 
   var ONE_SHOT_ACTIONS = {
     jump: true,
-    attack: true
+    attack: true,
+    /*
+     * 魔狱血刹 is the one *skill* key that is a press rather than a hold. The
+     * first press raises the sword and the second brings it down, so a held key
+     * would walk him through the whole move - raise, fall, raise again - twenty
+     * times a second; the other skill keys want the opposite (holding them
+     * re-casts the moment the cooldown allows).
+     */
+    "skill:hellbenter": true
   };
 
   /* Digit/Numpad 1-3 pick the between-room upgrade card with the same index. */
@@ -860,7 +875,10 @@
     Object.keys(Loadout.SKILL_KEYS).forEach(function (code) {
       var skillId = Loadout.SKILL_KEYS[code];
       var shortcut = "skill:" + skillId;
-      if (held[shortcut] || pressed[shortcut]) input.skills[skillId] = true;
+      var wants = ONE_SHOT_ACTIONS[shortcut]
+        ? pressed[shortcut]
+        : held[shortcut] || pressed[shortcut];
+      if (wants) input.skills[skillId] = true;
     });
     return input;
   }
