@@ -3561,129 +3561,6 @@
     );
     ctx.restore();
   }
-
-  /*
-   * 魔狱血刹's 落: **the one beat where the sword is not on his back.**
-   *
-   * The reference puts it in his hands - `ref/t5.300.png` is a long white blade
-   * swung down and forward, with the 白红新月 sweeping behind it as its trail -
-   * and the owner sent the slice back on exactly that: the red silhouette with a
-   * sword standing upright at his back is the 起手's picture, not the 落's.
-   *
-   * It is drawn from the move and not from the buff because **the buff is gone
-   * by then on purpose**: the gate clears `buffs.hellbenter` on `activeFrom` so
-   * the volcano that follows is his and not the sword's (see Core's 落). So the
-   * window is the body pose's own, read off `skillTimer` the way every other
-   * clip's progress is.
-   *
-   * The numbers are the reference's: at full growth the sword is 1.36 身位, and
-   * the grip sits forward of his chest with the blade running down and away at
-   * about fifty degrees. It is drawn in the **white** row, which is the frame the
-   * reference shows at this beat - the warning colour is also the colour of the
-   * swing.
-   */
-  var SWING = {
-    /* Of the 落's own duration: the body's 落 pose runs 0 to 0.6s. */
-    from: 0,
-    until: 0.6 / Core.SKILLS.hellbenterSlam.duration,
-    /*
-     * **The arc is over by the blow, and then the blade stays put.** `until` is
-     * how long the blade is drawn (the body's own 0.6s pose); `strike` is how
-     * long the *swing* takes, and it is not the same number. It is the move's
-     * damage frame - `SKILLS.hellbenterSlam.activeFrom` - because that is what
-     * the reference does: `11_魔狱血刹` #146-#153 has the sword already **in the
-     * floor** with the claw closed over him, and #158 - the blow - is the giant
-     * crescent the swing left behind. With the arc spread over the whole 0.6s the
-     * blade was still travelling down while the row drew the plunge and the wing,
-     * so the two beats played over a sword that had not landed yet.
-     */
-    strike: 0.22 / Core.SKILLS.hellbenterSlam.duration,
-    /* In Slayer-heights off the floor and in front of him, where the grip is. */
-    reach: 0.42,
-    /*
-     * **The blade travels.** This used to be one constant angle, and the owner's
-     * complaint is what it reads like: a sword parked in front of him for six
-     * tenths of a second. The reference's own 落 is a *swing* - `11_魔狱血刹`
-     * #150-#157 has the white blade up and behind him with the speed streaks over
-     * his head, and by #158 the whole arc has come down and the wing is the trail
-     * it left. So the angles are the ends of that arc, and `swing` below walks
-     * between them.
-     *
-     * **42 degrees, not 118.** The first cut of this started the swing with the
-     * blade right up behind his shoulder and swept 170 degrees out of it - and
-     * because his crouched pose has no visible hand holding it, the whole thing
-     * read as **a sword flying around him**: 「崩的那一下，看到了一把剑乱飞」. The
-     * reference's own 落 keeps the blade close (it is barely visible under the
-     * crescent), so the arc is now 94 degrees and starts at chest height.
-     * (Positive angles tip the blade back because the rotation happens inside
-     * `scale(facing, 1)`.)
-     */
-    angleUp: 42,
-    angleDown: -52,
-    /* Off the floor: he brings it down from above his head, so the grip falls. */
-    liftUp: 0.84,
-    liftDown: 0.66,
-    /*
-     * **Where on the sword his hand is: the crossguard.** The ink's top is the
-     * sword's *tip* (the client's frame is drawn tip-up), so anchoring the cell's
-     * top on his hand holds it by the point and swings the blood mass backwards.
-     * The guard sits a fixed 0.26 of the ink below the tip in every tier - the
-     * bake cuts from the top, so the guard never moves - which is 0.288 of the
-     * cell once `inkTop` is added in.
-     */
-    grip: 0.288
-  };
-  function drawSwungSword(ctx, state, sprites) {
-    var player = state.player;
-    if (!player || player.dead) return false;
-    var skill = player.skillId === "hellbenterSlam" ? Core.SKILLS.hellbenterSlam : null;
-    if (!skill || !(player.skillTimer > 0)) return false;
-    var progress = 1 - player.skillTimer / skill.duration;
-    if (progress < SWING.from || progress >= SWING.until) return false;
-    if (!sprites || !sprites.effects || !sprites.effects.width) return false;
-    var slayer = SPRITE.bodyHeight;
-    var size = SWORD.size;
-    var cell = SWORD.cellFor(SWORD.tiers);
-    /*
-     * Smoothstep, not a straight line: the reference holds the raised pose for
-     * the first third of the swing and the arc is most of its travel in the
-     * middle, which is what makes it read as a blow rather than a turn.
-     *
-     * Measured against `strike`, not against `until`: the blade is on screen for
-     * 0.6s but it has arrived by the blow, and from there it is held. Clamped, so
-     * the rest of the window is a still frame at the bottom of the arc.
-     */
-    var at = (progress - SWING.from) / Math.max(1e-6, SWING.strike - SWING.from);
-    at = Math.max(0, Math.min(1, at));
-    var swing = at * at * (3 - 2 * at);
-    var angle = SWING.angleUp + (SWING.angleDown - SWING.angleUp) * swing;
-    var lift = SWING.liftUp + (SWING.liftDown - SWING.liftUp) * swing;
-    ctx.save();
-    ctx.translate(player.x + player.facing * SWING.reach * slayer, feetY(player) - lift * slayer);
-    ctx.scale(player.facing, 1);
-    ctx.rotate((angle * Math.PI) / 180);
-    ctx.imageSmoothingEnabled = true;
-    /*
-     * **The grip is the anchor, not the cell's centre.** The ink starts
-     * `SWORD.inkTop` into the cell and runs down from there, so the cell is
-     * shifted up by that much: what lands on his hand is the pommel, and the
-     * blade comes off it downward and away.
-     */
-    ctx.drawImage(
-      sprites.effects,
-      cell * EFFECT.cell,
-      EFFECT.whiteSwordRow * EFFECT.cell,
-      EFFECT.cell,
-      EFFECT.cell,
-      -size / 2,
-      -size / 2 + SWING.grip * size,
-      size,
-      size
-    );
-    ctx.restore();
-    return true;
-  }
-
   function drawBloodSword(ctx, state, sprites) {
     var player = state.player;
     if (!player || player.dead) return;
@@ -3694,15 +3571,15 @@
      * sword has not been put down yet (see Core's gate).
      */
     /*
-     * **While he is bringing it down it is in his hand, and that comes first.**
-     * The reference's own 落 is not a red silhouette with a sword standing at
-     * his back: he has the 血气之剑 *out in front of him*, swung down, and the
-     * white-and-red crescent behind it is its trail (`ref/t5.300.png`). The buff
-     * is not cleared until `activeFrom` - a fifth of a second into the swing -
-     * so reading the buff first would draw the 起手's upright sword over the top
-     * of the 落 for that fifth, which is what it did before this was moved up.
+     * **The 落 draws no sword of its own.** The owner, 2026-10-07, on the second
+     * press: 「再拍的那一下，看到一个另一把剑存在，但是参考是没有的」. Frame by frame
+     * the reference has no blade in it at any point: `11_魔狱血刹` #147-#156 (the
+     * plunge) is the white spiky mass and the red vortex with nothing held, and
+     * #158-#185 has the wing and then the crater. The sword that used to be here
+     * came from a misreading of the plunge's white mass as a blade (docs/adr/0025
+     * 补记十八 §四, retracted in 补记十九 §十六).
      */
-    if (drawSwungSword(ctx, state, sprites)) return;
+    if (player.skillId === "hellbenterSlam") return;
     if (!(player.buffs && player.buffs.hellbenter > 0)) return;
     /* While it is still forming there is no sword yet - see drawSwordForm. */
     if (swordFormFrame(player) >= 0) return;

@@ -7887,14 +7887,19 @@ test("the room banner moves clear of the boss bar and the help quotes the real r
   assert.notEqual(first, second, "stacked banners must not overprint each other");
 });
 
-test("魔狱血刹's 落 puts the sword in his hands, and only for the swing", () => {
+test("魔狱血刹's 落 draws no sword at all", () => {
   /*
-   * The reference's 落 is not the 起手's picture: at `ref/t5.300.png` he has the
-   * 血气之剑 **out in front of him**, swung down, and the 白红新月 behind it is
-   * its trail. The buff is already cleared by then - the gate drops it on
-   * `activeFrom` so the volcano belongs to him and not to the sword - so the
-   * swing is read off the move's own clock, and it has to stop when the body's
-   * 落 pose does.
+   * **The owner's eye, 2026-10-07:** 「再拍的那一下，看到一个另一把剑存在，但是参考
+   * 是没有的」. Frame by frame the reference has no blade anywhere in the 落:
+   * `11_魔狱血刹` #147-#156 (the plunge) is a white spiky mass and a red vortex
+   * with nothing held, and #158-#185 (the wing, then the crater) has no weapon
+   * either. The sword this test used to assert came from reading the plunge's
+   * white mass as a blade - docs/adr/0025 补记十八 §四, retracted in 补记十九 §十六.
+   *
+   * Both halves have to stay empty: the swung sword is gone, and the **on-back**
+   * one must not creep in behind it. The gate only clears `buffs.hellbenter` on
+   * `activeFrom`, so for the first fifth of the 落 the buff is still up and
+   * `drawBloodSword` would happily draw the 起手's upright sword over the plunge.
    */
   const state = Core.createState({ seed: 11 });
   const player = state.player;
@@ -7907,8 +7912,15 @@ test("魔狱血刹's 落 puts the sword in his hands, and only for the swing", (
     },
     awakening: { width: 560, height: 296 }
   };
-  const whiteRow = Render.EFFECT.whiteSwordRow * Render.EFFECT.cell;
-  const swingAt = (seconds) => {
+  const swordRows = [
+    Render.EFFECT.whiteSwordRow * Render.EFFECT.cell,
+    Render.EFFECT.bloodSwordRow * Render.EFFECT.cell,
+    Render.EFFECT.goldSwordRow * Render.EFFECT.cell
+  ];
+  /* Every frame of the cast, not a sample: the plunge and the wing are the beats
+   * that were wrong, and they are the first third of it. */
+  for (let step = 0; step <= 60; step += 1) {
+    const seconds = (Core.SKILLS.hellbenterSlam.duration * step) / 60;
     player.facing = 1;
     player.buffs.hellbenter = 0;
     player.hellbenterTier = 0;
@@ -7916,51 +7928,28 @@ test("魔狱血刹's 落 puts the sword in his hands, and only for the swing", (
     player.skillTimer = Math.max(0, Core.SKILLS.hellbenterSlam.duration - seconds);
     const calls = [];
     Render.render(recordingContext(calls), state, { sprites });
-    const index = calls.findIndex(
-      (call) => call[0] === "drawImage" && call[3] === whiteRow
+    const drawn = calls.find(
+      (call) => call[0] === "drawImage" && swordRows.includes(call[3])
     );
-    if (index < 0) return null;
-    let rotate = 0;
-    let origin = null;
-    for (let back = index; back >= 0; back -= 1) {
-      if (calls[back][0] === "rotate") rotate = calls[back][1];
-      if (calls[back][0] === "translate") {
-        origin = calls[back];
-        break;
-      }
-    }
-    return { draw: calls[index], rotate, origin };
-  };
-
-  const held = swingAt(0.02);
-  assert.ok(held, "the sword is drawn while he swings it");
-  assert.ok(
-    held.origin[1] > player.x,
-    "and it is in front of him, not behind: the 落 is not the 起手"
-  );
+    assert.equal(
+      drawn,
+      undefined,
+      `no sword may be drawn at ${seconds.toFixed(2)}s into the 落`
+    );
+  }
   /*
-   * **It travels.** The angle used to be one constant, and a sword parked at one
-   * angle for six tenths of a second is what the owner's eye caught; the
-   * reference's own 落 has the blade up and behind him at #150-#157 and the whole
-   * arc down by #158. So the arm is read at both ends of the swing.
+   * And the 起手 still has its sword - the thing this must not have broken.
+   * While the buff runs and the sword is not being formed, `drawBloodSword`
+   * paints the on-back sword out of one of the three rows.
    */
-  assert.ok(held.rotate > 0, "raised up and behind him as the swing starts");
-  const landed = swingAt(0.55);
-  assert.ok(landed && landed.rotate < 0, "and driven down and forward by the end of it");
+  player.skillId = null;
+  player.buffs.hellbenter = 30;
+  player.hellbenterTier = 4;
+  player.skillTimer = 0;
+  const calls = [];
+  Render.render(recordingContext(calls), state, { sprites });
   assert.ok(
-    landed.rotate < held.rotate,
-    "with the blade travelling one way the whole way through"
-  );
-  assert.equal(
-    held.draw[8],
-    Render.BLOOD_SWORD.size,
-    "at the grown sword's own size, which is what the reference swings"
-  );
-
-  assert.equal(swingAt(0.9), null, "and it is out of his hands once the pose ends");
-  assert.equal(
-    swingAt(Core.SKILLS.hellbenterSlam.duration - 0.1),
-    null,
-    "so the volcano burns on his ground with no sword standing in it"
+    calls.some((call) => call[0] === "drawImage" && swordRows.includes(call[3])),
+    "the 持剑期 still draws the 血气之剑"
   );
 });
