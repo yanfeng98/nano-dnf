@@ -699,7 +699,15 @@
     /* The same sword gone white - the warning the last five seconds are (see
        drawBloodSword). Its own row because the bake recolours it; the renderer
        swaps rows rather than tinting a cell at run time. */
-    whiteSwordRow: Core.SKILL_ORDER.length + 9,
+    whiteSwordRow: Core.SKILL_ORDER.length + 10,
+    /*
+     * **血气榨满的那一把，是金的。** The owner pointed at the reference's own
+     * gold sword: 「血气汲取满了，剑应该变成这样」. The client ships that version
+     * too - `sword-dodge`'s last frame is a plain gold blade - so the row is the
+     * same cut-out through a gold ramp, not a second drawing (see
+     * PICKS.hellbenterSwordGold).
+     */
+    goldSwordRow: Core.SKILL_ORDER.length + 9,
     whiteSwordFrames: 1,
     /*
      * 魔狱血刹's 血丝 - one strand of the client's own thin red thread (30 frames
@@ -707,7 +715,7 @@
      * monster was to wherever he is now: a baked row could not hold a line whose
      * two ends are both moving (see drawBloodStrand).
      */
-    strandRow: Core.SKILL_ORDER.length + 10,
+    strandRow: Core.SKILL_ORDER.length + 11,
     strandFrames: 30,
     /*
      * **A channel's row is read by elapsed seconds, not by progress.** Progress is
@@ -808,7 +816,7 @@
      * 大蹦's fire. The bake test reads this rather than a literal, so adding a row
      * cannot leave the shipped atlas and the grid disagreeing.
      */
-    extraRowCount: 14,
+    extraRowCount: 15,
     /*
      * 大蹦 is the one move whose art is drawn far bigger than a cell can hold:
      * its own row on assets/effects.png would be ~120x72 px of art stretched
@@ -3208,13 +3216,19 @@
      */
     hold: Core.SKILLS.hellbenter.buff.duration,
     /*
-     * **The pommel is pinned and the tip falls.** Measured in the training room:
-     * the sword's top stays 1.27 of a Slayer-height off the floor while the blade
-     * grows from 0.52 to 1.30, so a full sword puts its tip *on the floor* - which
-     * is what the reference shows while it is going white (#B 2:37). Scaling
-     * about the middle instead would lift the whole sword as it grew.
+     * **The guard is pinned and the blood falls.** The reference's own growth is
+     * what pins it (2026-10-06, `BV1oUDLBaEaK.mp4` 1:08.7–1:13.0, measured frame
+     * by frame): the star guard does not move - 85–90 px wide and the same 100 px
+     * of blade above it for the whole stretch - while **only the part below it
+     * grows**, 99 px to 295 px, continuously and without a step. Its centre sits
+     * 0.94–0.96 of a Slayer-height off the floor at both ends of that range.
+     *
+     * 1.31 is that 0.95 plus the 0.357 the blade above the guard occupies, so the
+     * pinned thing is the guard's own line, not the sword's tip: a full sword
+     * then hangs its blood *onto the floor*, which is what the reference shows
+     * (its mass ends at y≈749 with the ground line at 758).
      */
-    top: 1.27,
+    top: 1.325,
     /*
      * **One cell per tier, and the blade is what grows.** The client's own
      * `sword-normal` is one sword at three lengths (43x73, 43x97, 43x160) and the
@@ -3247,19 +3261,23 @@
      */
     tierCell: [0, 1, 2, 3, 4, 5, 6, 7],
     /*
-     * One `size` for all eight, because the cells already carry the growth: the
-     * row is baked at `RIFT_CLIENT_PX * CELL / fit_scale` = 109.3, which is the
-     * pack's own 0.596 screen px per client px. Tier 1's 73 client px then comes
-     * out 44 screen px and tier 8's 160 comes out 95 - 0.52 and 1.14 of a 84-px
-     * Slayer (the reference measures 0.91 while he holds it and 1.20-1.36 once
-     * it is white; the pack's longest frame is 1.13, so the top of that range
-     * needs art we do not have).
+     * One `size` for all eight, because the cells already carry the growth. The
+     * row is baked at `RIFT_CLIENT_PX * CELL / fit_scale`, the pack's own 0.596
+     * screen px per client px.
+     *
+     * **130, fitted to the cut-out.** The row is no longer built from client
+     * entries at all: `assets/import_dnf_awakening_sword.py` keys the sword out
+     * of the reference clip's black backdrop, and the bake stretches its drop
+     * per tier (see PICKS.hellbenterSword). At 130 the cut-out's own height lands
+     * on 0.70 身位 - which is what the reference measures for it - and the full
+     * tier on 1.31, against the grow clip's 1.36.
      */
-    size: 109.3,
+    size: 130,
+    size: 130,
     /* Behind him: the client's own frame carries the blade half a height back. */
     behind: 0.5,
     /* Where the ink starts inside the cell - the pommel, the same in all eight. */
-    inkTop: 8 / 128,
+    inkTop: 7 / 128,
     /*
      * **The last five seconds are white, and they breathe.** The owner set the
      * number (the reference's own white stretch is 2.9s and he asked for longer),
@@ -3320,12 +3338,12 @@
    * `kaaa-d1`'s ink runs from the middle of one to the other.
    */
   var SWORD_FORM_RING = {
-    row: Core.SKILL_ORDER.length + 12,
+    row: Core.SKILL_ORDER.length + 13,
     size: 136.0,
     up: 0.6
   };
   var SWORD_FORM = {
-    row: Core.SKILL_ORDER.length + 11,
+    row: Core.SKILL_ORDER.length + 12,
     /*
      * **Ten frames, and they are the reference's 成形 end to end.** The entry is
      * `sword-dodge.img`: a faint outline -> a solid white sword -> red outline ->
@@ -3432,6 +3450,85 @@
     ctx.restore();
   }
 
+  /*
+   * 魔狱血刹's 落: **the one beat where the sword is not on his back.**
+   *
+   * The reference puts it in his hands - `ref/t5.300.png` is a long white blade
+   * swung down and forward, with the 白红新月 sweeping behind it as its trail -
+   * and the owner sent the slice back on exactly that: the red silhouette with a
+   * sword standing upright at his back is the 起手's picture, not the 落's.
+   *
+   * It is drawn from the move and not from the buff because **the buff is gone
+   * by then on purpose**: the gate clears `buffs.hellbenter` on `activeFrom` so
+   * the volcano that follows is his and not the sword's (see Core's 落). So the
+   * window is the body pose's own, read off `skillTimer` the way every other
+   * clip's progress is.
+   *
+   * The numbers are the reference's: at full growth the sword is 1.36 身位, and
+   * the grip sits forward of his chest with the blade running down and away at
+   * about fifty degrees. It is drawn in the **white** row, which is the frame the
+   * reference shows at this beat - the warning colour is also the colour of the
+   * swing.
+   */
+  var SWING = {
+    /* Of the 落's own duration: the body's 落 pose runs 0 to 0.6s. */
+    from: 0,
+    until: 0.6 / Core.SKILLS.hellbenterSlam.duration,
+    /* In Slayer-heights off the floor and in front of him, where the grip is. */
+    reach: 0.42,
+    lift: 0.66,
+    /* Degrees below the horizontal - swung down and forward, not held up. */
+    angle: -52,
+    /*
+     * **Where on the sword his hand is: the crossguard.** The ink's top is the
+     * sword's *tip* (the client's frame is drawn tip-up), so anchoring the cell's
+     * top on his hand holds it by the point and swings the blood mass backwards.
+     * The guard sits a fixed 0.26 of the ink below the tip in every tier - the
+     * bake cuts from the top, so the guard never moves - which is 0.288 of the
+     * cell once `inkTop` is added in.
+     */
+    grip: 0.288
+  };
+  function drawSwungSword(ctx, state, sprites) {
+    var player = state.player;
+    if (!player || player.dead) return false;
+    var skill = player.skillId === "hellbenterSlam" ? Core.SKILLS.hellbenterSlam : null;
+    if (!skill || !(player.skillTimer > 0)) return false;
+    var progress = 1 - player.skillTimer / skill.duration;
+    if (progress < SWING.from || progress >= SWING.until) return false;
+    if (!sprites || !sprites.effects || !sprites.effects.width) return false;
+    var slayer = SPRITE.bodyHeight;
+    var size = SWORD.size;
+    var cell = SWORD.cellFor(SWORD.tiers);
+    ctx.save();
+    ctx.translate(
+      player.x + player.facing * SWING.reach * slayer,
+      feetY(player) - SWING.lift * slayer
+    );
+    ctx.scale(player.facing, 1);
+    ctx.rotate((SWING.angle * Math.PI) / 180);
+    ctx.imageSmoothingEnabled = true;
+    /*
+     * **The grip is the anchor, not the cell's centre.** The ink starts
+     * `SWORD.inkTop` into the cell and runs down from there, so the cell is
+     * shifted up by that much: what lands on his hand is the pommel, and the
+     * blade comes off it downward and away.
+     */
+    ctx.drawImage(
+      sprites.effects,
+      cell * EFFECT.cell,
+      EFFECT.whiteSwordRow * EFFECT.cell,
+      EFFECT.cell,
+      EFFECT.cell,
+      -size / 2,
+      -size / 2 + SWING.grip * size,
+      size,
+      size
+    );
+    ctx.restore();
+    return true;
+  }
+
   function drawBloodSword(ctx, state, sprites) {
     var player = state.player;
     if (!player || player.dead) return;
@@ -3441,6 +3538,16 @@
      * the two disagree for exactly one cast - the 落, when the clock is out but the
      * sword has not been put down yet (see Core's gate).
      */
+    /*
+     * **While he is bringing it down it is in his hand, and that comes first.**
+     * The reference's own 落 is not a red silhouette with a sword standing at
+     * his back: he has the 血气之剑 *out in front of him*, swung down, and the
+     * white-and-red crescent behind it is its trail (`ref/t5.300.png`). The buff
+     * is not cleared until `activeFrom` - a fifth of a second into the swing -
+     * so reading the buff first would draw the 起手's upright sword over the top
+     * of the 落 for that fifth, which is what it did before this was moved up.
+     */
+    if (drawSwungSword(ctx, state, sprites)) return;
     if (!(player.buffs && player.buffs.hellbenter > 0)) return;
     /* While it is still forming there is no sword yet - see drawSwordForm. */
     if (swordFormFrame(player) >= 0) return;
@@ -3473,7 +3580,17 @@
      * (11_魔狱血刹 B 2:36.4) and the bake carries that as its own row.
      */
     var white = player.buffs.hellbenter <= SWORD.whiteFrom;
-    var row = white ? EFFECT.whiteSwordRow : EFFECT.bloodSwordRow;
+    /*
+     * **Three states, in this order: forged red, full gold, and the white
+     * warning over both.** Gold is the reward the owner asked for - the whole
+     * 铸剑 ladder exists to reach it - and white still wins when the clock is
+     * nearly out, because that one is about *time*, not about how far the sword
+     * got.
+     */
+    var full = tier >= SWORD.tiers;
+    var row = white
+      ? EFFECT.whiteSwordRow
+      : (full ? EFFECT.goldSwordRow : EFFECT.bloodSwordRow);
     ctx.save();
     ctx.translate(player.x - player.facing * SWORD.behind * slayer, feetY(player));
     ctx.scale(player.facing, 1);

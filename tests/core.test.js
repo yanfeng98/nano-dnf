@@ -5012,7 +5012,7 @@ test("the stance paints him red, carries a second blade and draws nothing else",
   assert.equal(Render.EFFECT.rageSwipeRows, undefined, "no separate crescent rows out here");
   assert.equal(
     Render.EFFECT.extraRowCount,
-    14,
+    15,
     "the extra rows are the orb, the dive arc, the red fan, the two blades, the gathering, " +
       "嗜魂封魔斩's vortex, the fog at his hand, 魔狱血刹's sword, its white warning, its 血丝, " +
       "its 成形, the ring that 成形 opens with, and 大蹦's fire"
@@ -5374,9 +5374,16 @@ test("魔狱血刹's sword hangs behind him, tip down, and grows from the neck",
     player.hellbenterTier = tier;
     const calls = [];
     Render.render(recordingContext(calls), state, { sprites });
+    /*
+     * **A full sword is the gold one** (the owner: 「血气汲取满了，剑应该变成…」),
+     * so the row to look for is the gold one at the top tier and the red one
+     * below it.
+     */
+    const wanted = tier >= Render.BLOOD_SWORD.tiers
+      ? Render.EFFECT.goldSwordRow
+      : Render.EFFECT.bloodSwordRow;
     const index = calls.findIndex(
-      (call) =>
-        call[0] === "drawImage" && call[3] === Render.EFFECT.bloodSwordRow * Render.EFFECT.cell
+      (call) => call[0] === "drawImage" && call[3] === wanted * Render.EFFECT.cell
     );
     assert.ok(index > 0, `the sword is drawn at tier ${tier}`);
     let origin = null;
@@ -5507,7 +5514,7 @@ test("魔狱血刹's 血气之剑 forms before it is a sword", () => {
       .map((call) => call[3] / Render.EFFECT.cell);
   };
   const swordRow = Render.EFFECT.bloodSwordRow;
-  const formRow = Render.EFFECT.bloodSwordRow + 3;  // sword +8, white +9, strand +10, form +11
+  const formRow = Render.EFFECT.bloodSwordRow + 4;  // sword +8, gold +9, white +10, strand +11, form +12
   /* The moment it lands: the disc and nothing else. */
   const fresh = drawnRows(hold);
   assert.ok(fresh.includes(formRow), "the 成形 is drawn the moment the sword lands");
@@ -5597,6 +5604,11 @@ test("魔狱血刹's sword is forged by his own hits, and only by them", () => {
    * ways it could go wrong are both here: a sword that grows when the *floor*
    * kills something (the gate is `slayerSwing`, the flag the arena's own damage
    * already clears), and a sword that grows with no sword up.
+   *
+   * **How much fighting buys a tier** is the other half, and the owner's own
+   * note on it: one-hit-per-tier maxed the sword inside the first two monsters,
+   * and he sent it back as 「你现在的短剑长得有点快」. Ten hits to a tier now, and
+   * the ten are counted rather than rounded up, so nine hits must move nothing.
    */
   const state = Core.createState({ seed: 11 });
   const player = state.player;
@@ -5607,22 +5619,37 @@ test("魔狱血刹's sword is forged by his own hits, and only by them", () => {
   enemy.maxHp = 900;
   state.enemies = [enemy];
 
-  Core.damageEnemy(state, enemy, 5, 0, player.x);
-  assert.equal(player.hellbenterTier, 2, "a landed hit forges one tier");
+  const perTier = Core.HELLBENTER.hitsPerTier;
+  for (let hit = 1; hit < perTier; hit += 1) {
+    Core.damageEnemy(state, enemy, 1, 0, player.x);
+    assert.equal(
+      player.hellbenterTier,
+      1,
+      `hit ${hit} of ${perTier} has not bought a tier yet`
+    );
+  }
   assert.equal(
     state.effects.filter((effect) => effect.kind === "bloodStrand").length,
-    1,
-    "and the blood it took is drawn flying into him"
+    perTier - 1,
+    "and the blood each hit took is drawn flying into him"
   );
+
+  Core.damageEnemy(state, enemy, 1, 0, player.x);
+  assert.equal(player.hellbenterTier, 2, `${perTier} hits buy the tier`);
+  assert.equal(player.hellbenterCharge, 0, "and the count starts again from zero");
 
   Core.damageEnemy(state, enemy, 5, 0, player.x, { noBloodOrbs: true });
   assert.equal(player.hellbenterTier, 2, "a slab crushing a monster forges nothing");
 
   Core.damageEnemy(state, enemy, 999, 0, player.x);
   assert.ok(enemy.dead, "the brute is dead");
-  assert.equal(player.hellbenterTier, 4, "a kill pays the hit and the kill");
+  assert.equal(
+    player.hellbenterTier,
+    3,
+    "a kill pays a whole tier on the spot, on top of the hit that killed it"
+  );
 
-  for (let index = 0; index < 20; index += 1) {
+  for (let index = 0; index < 40; index += 1) {
     const next = Core.createEnemy(state, "grunt", 520);
     next.hp = 1;
     state.enemies.push(next);
@@ -5666,10 +5693,12 @@ test("魔狱血刹's sword turns white for the last five seconds, and breathes",
     Render.render(recordingContext(calls), state, { sprites });
     const rows = {
       red: Render.EFFECT.bloodSwordRow * Render.EFFECT.cell,
+      gold: Render.EFFECT.goldSwordRow * Render.EFFECT.cell,
       white: Render.EFFECT.whiteSwordRow * Render.EFFECT.cell
     };
     return {
       red: calls.filter((call) => call[0] === "drawImage" && call[3] === rows.red).length,
+      gold: calls.filter((call) => call[0] === "drawImage" && call[3] === rows.gold).length,
       white: calls.filter((call) => call[0] === "drawImage" && call[3] === rows.white).length
     };
   };
@@ -5680,14 +5709,20 @@ test("魔狱血刹's sword turns white for the last five seconds, and breathes",
    * blade whose own art is mostly dark reading as a red sword on our floor -
    * the owner named what it looked like without that pass: 「断剑不对吧」.
    */
+  /*
+   * With time left and the ladder finished, the sword is the **gold** one - and
+   * it is drawn the same two passes: flat, then again with `lighter`.
+   */
   assert.equal(
-    calm.red,
+    calm.gold,
     Render.BLOOD_SWORD.glow ? 2 : 1,
-    "there is time left: the sword is the red one"
+    "there is time left and the ladder is finished: the sword is the gold one"
   );
-  assert.equal(calm.white, 0, "and the white row is not drawn at all");
+  assert.equal(calm.red, 0, "and the red row is not drawn at all");
+  assert.equal(calm.white, 0, "and neither is the white row");
   const warning = swordPasses(Render.BLOOD_SWORD.whiteFrom - 1);
-  assert.equal(warning.red, 0, "the last five seconds swap the row rather than tint it");
+  assert.equal(warning.gold, 0, "the last five seconds swap the row rather than tint it");
+  assert.equal(warning.red, 0, "and the red row is not the one it swaps to");
   assert.equal(
     warning.white,
     Render.BLOOD_SWORD.glow ? 3 : 2,
@@ -7615,4 +7650,70 @@ test("the room banner moves clear of the boss bar and the help quotes the real r
   const first = stacked.find((call) => call[0] === "fillText" && call[1] === "Boss down!")[3];
   const second = stacked.find((call) => call[0] === "fillText" && call[1] === "Dungeon cleared!")[3];
   assert.notEqual(first, second, "stacked banners must not overprint each other");
+});
+
+test("魔狱血刹's 落 puts the sword in his hands, and only for the swing", () => {
+  /*
+   * The reference's 落 is not the 起手's picture: at `ref/t5.300.png` he has the
+   * 血气之剑 **out in front of him**, swung down, and the 白红新月 behind it is
+   * its trail. The buff is already cleared by then - the gate drops it on
+   * `activeFrom` so the volcano belongs to him and not to the sword - so the
+   * swing is read off the move's own clock, and it has to stop when the body's
+   * 落 pose does.
+   */
+  const state = Core.createState({ seed: 11 });
+  const player = state.player;
+  const sprites = {
+    slayer: { width: 13312, height: 1936 },
+    skills: { width: 32 * Core.SKILL_ORDER.length, height: 64 },
+    effects: {
+      width: 5760,
+      height: 128 * (Core.SKILL_ORDER.length + Render.EFFECT.extraRowCount)
+    },
+    awakening: { width: 560, height: 296 }
+  };
+  const whiteRow = Render.EFFECT.whiteSwordRow * Render.EFFECT.cell;
+  const swingAt = (seconds) => {
+    player.facing = 1;
+    player.buffs.hellbenter = 0;
+    player.hellbenterTier = 0;
+    player.skillId = "hellbenterSlam";
+    player.skillTimer = Math.max(0, Core.SKILLS.hellbenterSlam.duration - seconds);
+    const calls = [];
+    Render.render(recordingContext(calls), state, { sprites });
+    const index = calls.findIndex(
+      (call) => call[0] === "drawImage" && call[3] === whiteRow
+    );
+    if (index < 0) return null;
+    let rotate = 0;
+    let origin = null;
+    for (let back = index; back >= 0; back -= 1) {
+      if (calls[back][0] === "rotate") rotate = calls[back][1];
+      if (calls[back][0] === "translate") {
+        origin = calls[back];
+        break;
+      }
+    }
+    return { draw: calls[index], rotate, origin };
+  };
+
+  const held = swingAt(0.1);
+  assert.ok(held, "the sword is drawn while he swings it");
+  assert.ok(
+    held.origin[1] > player.x,
+    "and it is in front of him, not behind: the 落 is not the 起手"
+  );
+  assert.ok(held.rotate < 0, "swung down and forward, not held upright");
+  assert.equal(
+    held.draw[8],
+    Render.BLOOD_SWORD.size,
+    "at the grown sword's own size, which is what the reference swings"
+  );
+
+  assert.equal(swingAt(0.9), null, "and it is out of his hands once the pose ends");
+  assert.equal(
+    swingAt(Core.SKILLS.hellbenterSlam.duration - 0.1),
+    null,
+    "so the volcano burns on his ground with no sword standing in it"
+  );
 });

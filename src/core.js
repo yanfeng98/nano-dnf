@@ -1403,16 +1403,27 @@
    */
   /*
    * 魔狱血刹's 铸剑, as a rule rather than as art (docs/adr/0025): how many tiers
-   * the sword has, what one landed hit is worth, and what a kill is worth on top.
+   * the sword has, how much fighting buys one tier, and what a kill is worth on
+   * top of that.
    *
    * **A hit forges it; a clock does not.** The owner's own reading of the
    * reference is 「需要通过攻击从怪物身上汲取血气」 - the sword is paid for by
    * fighting, so a player who never swings carries the small one to the end.
+   *
+   * **Ten hits to a tier, not one.** One-per-hit filled all eight tiers inside
+   * the first two monsters - a run is ~14 enemies and ~120 landed hits, so the
+   * sword was maxed a sixth of the way in and the rest of the run bought
+   * nothing. The owner played it and said so: 「你现在的短剑长得有点快」.
+   * A tier now costs 10 hits and a kill pays a whole tier outright, so a full
+   * sword is 80 hits' worth - about six tenths of a run's fighting, which puts
+   * the last tiers on the boss room where the 51-second hold wants them.
    */
   var HELLBENTER = {
     tiers: 8,
-    perHit: 1,
-    perKill: 1,
+    /* Landed hits that buy one tier. */
+    hitsPerTier: 10,
+    /* And what a kill is worth on top, in whole tiers. */
+    killTiers: 1,
     /* How long one 血丝 takes to fly from the wound to his chest. */
     strandLife: 0.32
   };
@@ -1888,6 +1899,13 @@
        * is what tells the gate to bring it down on its own.
        */
       hellbenterTier: 0,
+      /*
+       * Hits landed towards the *next* tier, 0..hitsPerTier-1. The tier is what
+       * the sword is drawn from; this is only the part of the payment that has
+       * not bought anything yet, and it is why the sword steps every tenth hit
+       * instead of every hit (see growSword).
+       */
+      hellbenterCharge: 0,
       /* How long until 血之狂暴 charges him again for keeping it up. */
       stanceDrainTimer: 0,
       /*
@@ -2427,11 +2445,25 @@
    * it draws on the way in. They are the same fact about the same hit, which is
    * why they are spawned together - a hit that grew the sword with nothing flying
    * into him would read as the sword growing on its own (docs/adr/0025).
+   *
+   * Hits are counted, not rounded up: ten of them buy a tier, and the ten are
+   * carried across calls, so the sword steps at the tenth hit and not at the
+   * first. A kill is the exception and skips the count entirely - it is worth a
+   * whole tier on the spot, which is what makes finishing a monster feel like
+   * the sword's business rather than the clock's.
    */
-  function growSword(state, steps) {
+  function growSword(state, hits, kills) {
     var player = state.player;
     if (!(player.buffs.hellbenter > 0)) return;
     var tier = Math.max(1, player.hellbenterTier || 1);
+    if (tier >= HELLBENTER.tiers) {
+      player.hellbenterCharge = 0;
+      return;
+    }
+    var charge = (player.hellbenterCharge || 0) + (hits || 0);
+    var steps = (kills || 0) * HELLBENTER.killTiers +
+      Math.floor(charge / HELLBENTER.hitsPerTier);
+    player.hellbenterCharge = charge % HELLBENTER.hitsPerTier;
     player.hellbenterTier = Math.min(HELLBENTER.tiers, tier + steps);
   }
 
@@ -2577,7 +2609,7 @@
      * `slayerSwing` - the flag the floor and the bleed ticks already clear.
      */
     if (applied > 0 && slayerSwing && state.player.buffs.hellbenter > 0) {
-      growSword(state, HELLBENTER.perHit);
+      growSword(state, 1, 0);
       spawnBloodStrand(state, enemy);
     }
 
@@ -2629,7 +2661,7 @@
        * a second streak for the same death would be the animation talking, not
        * the rule.
        */
-      if (slayerSwing) growSword(state, HELLBENTER.perKill);
+      if (slayerSwing) growSword(state, 0, 1);
       pushBanner(state, enemy.type === "boss" ? "Boss down!" : "Enemy down", 0.9);
       grantXp(state, enemy.xp);
     } else if (enemy.phase2 && enemy.phase < 2 && enemy.hp <= enemy.maxHp * enemy.phase2.hpRatio) {
@@ -3383,10 +3415,11 @@
              * 魔狱血刹's 血气之剑 comes up with the buff and rides next to it: the
              * tier is how far it has been forged (1..8, grown by hits in the next
              * slice) and `player.buffs` has no room for it - it carries seconds.
-             * A tier of 1 is the sword the reference shows at the cast, 0.52 of
+             * A tier of 1 is the sword the reference shows at the cast, 0.71 of
              * a Slayer-height, and `swordTier` is what raises it.
              */
             if (active.buff.swordTier) player.hellbenterTier = active.buff.swordTier;
+            if (active.buff.swordTier) player.hellbenterCharge = 0;
             /* The drain's first tick is a full interval away, not this frame. */
             if (active.buff.drain && active.buff.drain.interval) {
               player.stanceDrainTimer = active.buff.drain.interval;
@@ -3572,6 +3605,7 @@
          */
         if (active.id === "hellbenterSlam") {
           player.hellbenterTier = 0;
+          player.hellbenterCharge = 0;
           player.buffs.hellbenter = 0;
         }
         player.skillId = null;
