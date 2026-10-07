@@ -395,6 +395,33 @@ COLUMN_ROCK_RAMP = [
     (0.80, (176, 124, 38)),
     (1.00, (206, 162, 80)),
 ]
+# **柱身里那些"暗火"的颜色。** 参考里它们不是黑，是**橙褐**：亮的边上 (196,110,36)、
+# 芯里压到 (60,20,6)。这一条给 `smoke-d`（软边）上色，让它读成"火里翻着的一块暗"，
+# 而不是一块贴在黄墙上的灰。
+FLAME_VEIN_RAMP = [
+    (0.00, (60, 20, 6)),
+    (0.45, (140, 60, 16)),
+    (0.75, (196, 110, 36)),
+    (1.00, (236, 170, 80)),
+]
+# **柱芯要是"过曝的淡黄"，不是"另一块黄"。** 参考（王的遗迹那张）里柱子中间是一整片
+# **偏白的过曝**：那一批 (lvl>=250) 的均值是 **(253, 205, 78)**，比柱身外缘亮一档、
+# 也更淡。我们原来给 `kaaa-d2` 挂的是柱身同一条 ramp，所以它只是"更亮的一块黄"，
+# 读不出"芯"。这两条是柱芯自己的色，金/淡两版跟着柱身的摆动一起换。
+COLUMN_CORE_GOLD = [
+    (0.00, (180, 80, 26)),
+    (0.45, (236, 160, 62)),
+    (0.75, (250, 206, 110)),
+    (1.00, (255, 232, 150)),
+]
+COLUMN_CORE_PALE = [
+    (0.00, (180, 90, 30)),
+    (0.45, (240, 180, 80)),
+    (0.75, (252, 224, 140)),
+    (1.00, (255, 246, 200)),
+]
+
+
 # **柱身的两个端点色：参考那根柱子的色相是在摆的。**
 #
 # 业主 2026-10-07 让把这一条做出来。沿柱身整片量参考六帧（`ref/r215/230/245/260/275/290.png`
@@ -1342,41 +1369,33 @@ PICKS = {
         # **五遍、每遍换一条 ramp：金 → 淡 → 金 → 淡 → 金。** 这就是业主让做的
         # "色相摆起来"（`VOLCANO_RAMP_GOLD` / `VOLCANO_RAMP_PALE` 上面写了量法）。
         # 两个来回摊在 0.40→0.88 的 2.4 秒上 ≈ **1.2 秒一个来回**，对上参考的节奏。
-        {"entry": "new11.img", "fill": 12, "solid": 1.8, "ramp": VOLCANO_RAMP_GOLD, "frames": (0, 7), "scale": 1.62,
+        {"entry": "new11.img", "fill": 26, "solid": 1.8, "ramp": VOLCANO_RAMP_GOLD, "frames": (0, 7), "scale": 1.62,
          "offset": (-384, -966), "from": 0.40, "until": 0.50},
-        {"entry": "new11.img", "fill": 12, "solid": 1.8, "ramp": VOLCANO_RAMP_PALE, "frames": (0, 7), "scale": 1.62,
+        {"entry": "new11.img", "fill": 26, "solid": 1.8, "ramp": VOLCANO_RAMP_PALE, "frames": (0, 7), "scale": 1.62,
          "offset": (-384, -966), "from": 0.50, "until": 0.60},
-        {"entry": "new11.img", "fill": 12, "solid": 1.8, "ramp": VOLCANO_RAMP_GOLD, "frames": (0, 7), "scale": 1.62,
+        {"entry": "new11.img", "fill": 26, "solid": 1.8, "ramp": VOLCANO_RAMP_GOLD, "frames": (0, 7), "scale": 1.62,
          "offset": (-384, -966), "from": 0.60, "until": 0.70},
-        {"entry": "new11.img", "fill": 12, "solid": 1.8, "ramp": VOLCANO_RAMP_PALE, "frames": (0, 7), "scale": 1.62,
+        {"entry": "new11.img", "fill": 26, "solid": 1.8, "ramp": VOLCANO_RAMP_PALE, "frames": (0, 7), "scale": 1.62,
          "offset": (-384, -966), "from": 0.70, "until": 0.79},
-        {"entry": "new11.img", "fill": 12, "solid": 1.8, "ramp": VOLCANO_RAMP_GOLD, "frames": (0, 7), "scale": 1.62,
+        {"entry": "new11.img", "fill": 26, "solid": 1.8, "ramp": VOLCANO_RAMP_GOLD, "frames": (0, 7), "scale": 1.62,
          "offset": (-384, -966), "from": 0.79, "until": 0.88},
-        # **柱芯换成 `kaaa-d2`，压掉 `new11` 自己的竖纹。** 业主 2026-10-06 的实玩图里
-        # 那根柱子读起来是"一块黄板上刷了几道深色竖纹"，而参考 `#250` 的柱身是
-        # **一整片过曝的柠檬黄、往外平滑地转成橙色**，没有纹路。量下来：`new11` 自己
-        # 只有 **35%** 的像素在 240+，`kaaa-d2` 是 **73%**、均值 (220,182,29)——就是参考
-        # 那个亮度。**排在 `new11` 之后画**（后画的压上面），按参考柱芯的宽度铺开，
-        # 把中段那几道纹盖掉，柱身外缘仍留 `new11` 的形状。
-        # **它自己的 offset 不能照抄 `new11` 的。** 两条都写着 `(-384, -966)`，可这两件
-        # 美术在包里**各自带着不同的 (x, y)**：`new11` f0 是 261x537、底心在 (384.5, 1006)，
-        # 也就是它自己的 (x,y) 是 (254, 469)；`kaaa-d2` 是 147x422、(x,y) 约 (0, 0)。
-        # 同一个 offset 落下去，`kaaa-d2` 就比柱子**偏左 286 客户端像素**——实机上就是业主
-        # 问的那块"柱子左上角的石块"：柱芯那一层整条挂在柱子的左边（`assets/rift.png`
-        # 第 2 行第 40 列量：柱身在 client x -211..+212，而 `kaaa-d2` 在 -433..-161）。
-        # 按"墨心落在柱子中线上、离地 394 客户端像素"重算 → **(-98, -815)**。
-        # **柱芯也要跟着摆，不然它会把柱身按住。** 它原来是一整条 0.40→0.88 的静态层，
-        # 现在拆成同样五份、走同一组 ramp——两层的色相一起动，整根柱子才是一起在翻搅。
-        {"entry": "kaaa-d2.img", "fill": 10, "ramp": VOLCANO_RAMP_GOLD, "frames": (0, 3), "scale": 1.95,
-         "offset": (-103, -394), "from": 0.40, "until": 0.50},
-        {"entry": "kaaa-d2.img", "fill": 10, "ramp": VOLCANO_RAMP_PALE, "frames": (0, 3), "scale": 1.95,
-         "offset": (-103, -394), "from": 0.50, "until": 0.60},
-        {"entry": "kaaa-d2.img", "fill": 10, "ramp": VOLCANO_RAMP_GOLD, "frames": (0, 3), "scale": 1.95,
-         "offset": (-103, -394), "from": 0.60, "until": 0.70},
-        {"entry": "kaaa-d2.img", "fill": 10, "ramp": VOLCANO_RAMP_PALE, "frames": (0, 3), "scale": 1.95,
-         "offset": (-103, -394), "from": 0.70, "until": 0.79},
-        {"entry": "kaaa-d2.img", "fill": 10, "ramp": VOLCANO_RAMP_GOLD, "frames": (0, 3), "scale": 1.95,
-         "offset": (-103, -394), "from": 0.79, "until": 0.88},
+        # **柱芯那一层，宽度要刚好补住 `new11` 的缺口、又不能把柱子铺成一块板。**
+        # `new11` 的右缘有一道**连到外面的缺口**（实机量：1.0/1.5 身位高各约 40/36 屏幕
+        # 像素），`fill` 闭到 26 也补不上（形态学闭运算补不了"通到边界"的空）。
+        # 它原来铺 1.95 倍（柱宽的 70%）——缺口是补住了，但那样是一根**直筒亮条**压在
+        # 中间，柱身就成了"一块矩形板"，左右两条直边也正是"像板不像火"的来源。
+        # 收到 **1.55 倍、纵向 1.30** 之后是 1.51 x 5.48 身位：缺口补住、中间那片
+        # 过曝的淡黄也出来了，柱身外缘仍留 `new11` 自己的火焰形状。
+        {"entry": "kaaa-d2.img", "fill": 10, "ramp": COLUMN_CORE_GOLD, "frames": (0, 3), "scale": 1.55, "stretch": (1.0, 1.30),
+         "offset": (-95, -378), "from": 0.40, "until": 0.50},
+        {"entry": "kaaa-d2.img", "fill": 10, "ramp": COLUMN_CORE_PALE, "frames": (0, 3), "scale": 1.55, "stretch": (1.0, 1.30),
+         "offset": (-95, -378), "from": 0.50, "until": 0.60},
+        {"entry": "kaaa-d2.img", "fill": 10, "ramp": COLUMN_CORE_GOLD, "frames": (0, 3), "scale": 1.55, "stretch": (1.0, 1.30),
+         "offset": (-95, -378), "from": 0.60, "until": 0.70},
+        {"entry": "kaaa-d2.img", "fill": 10, "ramp": COLUMN_CORE_PALE, "frames": (0, 3), "scale": 1.55, "stretch": (1.0, 1.30),
+         "offset": (-95, -378), "from": 0.70, "until": 0.79},
+        {"entry": "kaaa-d2.img", "fill": 10, "ramp": COLUMN_CORE_GOLD, "frames": (0, 3), "scale": 1.55, "stretch": (1.0, 1.30),
+         "offset": (-95, -378), "from": 0.79, "until": 0.88},
         # **柱子底座那圈放射，是两件东西。** 参考的柱脚是：一团**肥厚发白的黄**
         # 贴在地上，外面再套一圈**细长的橙色射线**沿地面向外扫、末端往下垂。
         #
@@ -1402,66 +1421,12 @@ PICKS = {
         # 改回 1.45 倍、纵向 0.62、横向 1.12 —— 3.80 x 1.47 身位，球还是球。
         {"entry": "kaaa-d1.img", "frames": (0, 0), "scale": 1.45, "stretch": (1.12, 0.62),
          "offset": (-180, -359), "from": 0.40, "until": 0.88},
-        # **柱脚不要"一块饼"——参考那边是**从柱身往外化开的光晕**，没有边。
-        # 第一版在这里铺了一条 2.0 倍的 `new17`（3.45 x 1.40 身位）去盖石头盘，
-        # 实机上是一块**硬边的黄饼躺在地上**（`Z10-base.png` 右格），比不盖还糟。
-        # 改成：石头盘在柱子起来时**整条收掉**（`split-n1` 收到 0.42），柱脚交给
-        # `kaaa-d1` 那圈亮扇与 `new03` 的细射线——它们本来就是"从中心射出去"的形状。
-        # **里面翻着的那几块黑岩**：参考那根柱子不是纯光，是岩浆裹着石头在翻。
-        # 包里的 `exi-particle` 就是石头（6 帧，27x42 到 53x47 的深褐块），五块都摆在
-        # **参考量到的位置上**——把 #220/#235/#250/#265/#290 五帧里"暗、圆、面积>300 视频
-        # 像素"的块挑出来（长宽比 >2.2 的一律不算，那些是柱身自己的暗纹），它们落在
-        # 客户端 x -170…+130、离地 100…470、大小 22x30…35x28 的一段里。
-        # 位置用每块自己的**墨心**对，不是框心：`exi-particle` 每帧都是 (0,0)、框和墨不等大。
-        # `travel` 让它们在这一段里往上浮（y 负＝上）。
-        # 尺寸再抬三成：参考里那些暗块是 22x30 到 35x28 客户端像素，`exi-particle`
-        # 的 f0 本来就有 53x47，所以 1:1 就够大——**之前看不见不是小，是柱子本身太暗**，
-        # 石头和柱身一片暗纹混在一起。柱子上了 bloom（`EFFECT.draw.glowBlur`）之后
-        # 亮底出来了，石头才立得住；这里只再加一档保险。
-        # **坐标的 y 是"往上为负"**——本行锚点 (0,0) 是弹坑心在地面上。第一版把量到的
-        # **高度**（100…470）当成了 y 直接写进去，五块石头全跑到地板底下去，屏幕上
-        # 一块也没有。`place.py` 按 -177 / -202 / -105 / -470 / -350 重算。
-        {"entry": "exi-particle.img", "ramp": COLUMN_ROCK_RAMP, "frames": (0, 5), "scale": 1.12, "travel": (0, -150),
-         "offset": (-15, -202), "from": 0.42, "until": 0.88},
-        {"entry": "exi-particle.img", "ramp": COLUMN_ROCK_RAMP, "frames": (0, 5), "scale": 1.44, "travel": (0, -170),
-         "offset": (-19, -221), "from": 0.42, "until": 0.88},
-        {"entry": "exi-particle.img", "ramp": COLUMN_ROCK_RAMP, "frames": (0, 5), "scale": 1.04, "travel": (0, -130),
-         "offset": (-74, -132), "from": 0.43, "until": 0.88},
-        {"entry": "exi-particle.img", "ramp": COLUMN_ROCK_RAMP, "frames": (0, 5), "scale": 0.80, "travel": (0, -90),
-         "offset": (-196, -502), "from": 0.44, "until": 0.88},
-        {"entry": "exi-particle.img", "ramp": COLUMN_ROCK_RAMP, "frames": (0, 5), "scale": 1.36, "travel": (0, -110),
-         "offset": (48, -371), "from": 0.45, "until": 0.88},
-        # **参考里是 12-16 块，不是 5 块。** 数出来的是「柱体内部、暗橄榄/黑、单块
-        # 25-80 × 45-230 视频像素」，对上身位就是 0.11-0.36 宽 × 0.20-1.05 高，散布在
-        # 柱身从脚到顶的整条高度上（含两块 0.35 × 1.05 的大块）。五块撑不满那根 3.99
-        # 身位高的柱子，中段是空的——这就是"柱子里没有翻滚的石头"。下面八块补中段与
-        # 上半段，尺寸取参考量到的区间，`travel` 各自往上浮，错开的 `from` 让它们不同
-        # 时冒出来。
-        {"entry": "exi-particle.img", "ramp": COLUMN_ROCK_RAMP, "frames": (0, 5), "scale": 1.28, "travel": (0, -230),
-         "offset": (-120, -300), "from": 0.44, "until": 0.90},
-        {"entry": "exi-particle.img", "ramp": COLUMN_ROCK_RAMP, "frames": (0, 5), "scale": 1.60, "travel": (0, -260),
-         "offset": (95, -430), "from": 0.46, "until": 0.90},
-        {"entry": "exi-particle.img", "ramp": COLUMN_ROCK_RAMP, "frames": (0, 5), "scale": 0.96, "travel": (0, -200),
-         "offset": (-45, -470), "from": 0.47, "until": 0.90},
-        {"entry": "exi-particle.img", "ramp": COLUMN_ROCK_RAMP, "frames": (0, 5), "scale": 1.52, "travel": (0, -180),
-         "offset": (-210, -500), "from": 0.48, "until": 0.92},
-        {"entry": "exi-particle.img", "ramp": COLUMN_ROCK_RAMP, "frames": (0, 5), "scale": 1.12, "travel": (0, -300),
-         "offset": (30, -520), "from": 0.49, "until": 0.92},
-        {"entry": "exi-particle.img", "ramp": COLUMN_ROCK_RAMP, "frames": (0, 5), "scale": 1.84, "travel": (0, -210),
-         "offset": (140, -460), "from": 0.50, "until": 0.92},
-        {"entry": "exi-particle.img", "ramp": COLUMN_ROCK_RAMP, "frames": (0, 5), "scale": 0.88, "travel": (0, -340),
-         "offset": (-140, -390), "from": 0.51, "until": 0.94},
-        {"entry": "exi-particle.img", "ramp": COLUMN_ROCK_RAMP, "frames": (0, 5), "scale": 1.36, "travel": (0, -160),
-         "offset": (60, -340), "from": 0.52, "until": 0.94},
-        # **那两块大的。** 参考里最大的一块量到 **0.35 × 1.05 身位**（＝50 × 148 客户端
-        # 像素），我们最大的一块才 0.36 × 0.47——柱子里就少了这种"整块翻过来"的石头。
-        # `exi-particle` 的 **f1 是 26×81**（长宽比 0.32，和参考那两块一样细长），
-        # **锁在 f1 不换帧**、放大 1.9 / 2.2 倍就是 0.35 × 1.09 与 0.41 × 1.26 身位。
-        # 上面那十三块都在换帧（(0,5) 循环），所以它们时大时小；这两块是定帧的大块。
-        {"entry": "exi-particle.img", "ramp": COLUMN_ROCK_RAMP, "frames": (1, 1), "scale": 1.52, "travel": (0, -240),
-         "offset": (-95, -390), "from": 0.46, "until": 0.92},
-        {"entry": "exi-particle.img", "ramp": COLUMN_ROCK_RAMP, "frames": (1, 1), "scale": 1.76, "travel": (0, -300),
-         "offset": (105, -560), "from": 0.50, "until": 0.94},
+        # **柱子里**不加**任何"碎块"**。业主 2026-10-07 给的那张参考里，柱身里那些暗的
+        # 形状是**火自己的暗部**——边缘发虚、颜色是橙褐、和火焰连成一片，不是撒在
+        # 黄板上的独立小块。`exi-particle`（地牢碎石）与后来拿 `smoke-d` 染出来的
+        # "暗火"都试过：前者读成枯叶，后者读成浮在柱子上的一团褐云，**两版都比不画糟**。
+        # `new11` 自己的帧里本来就有暗纹（它那 8 帧的暗部就是这件事），所以那 15 条
+        # 石头连同 4 条暗火一起删掉。
         # **裂盘是两件东西，不是一件。** 参考里那是**一块摊在地上的浅色石头盘**（灰褐、
         # 布满裂缝），盘心才有那道**橙黑熔岩口**——业主第二次给的参考帧（裂缝那一下）
         # 一眼能看出来：盘约 2.55 身位宽、熔岩口只有它三分之一。
