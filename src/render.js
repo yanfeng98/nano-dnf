@@ -1127,7 +1127,7 @@
          * in drawEffectRow and `VOLCANO_RAMP` for the colour.
          */
         blend: "source-over",
-        glow: 0.55,
+        glow: 0.10,
         glowBlur: 6
       }
     },
@@ -1149,13 +1149,21 @@
        * third of the way in and shut it before the column exists.
        *
        * `cast` is the other half of that thought - **the caster's own beat is not
-       * the field's clock**. He shows the first eight columns of the row (the claw,
-       * the two crescents, the gold burst, the crack starting to open) from the
-       * blow at 0.22s of the 5.4s cast until the ground opens at 0.6s,
-       * and the field picks the row up at column 8
-       * (`SKILLS.hellbenterSlam.field.from = 8/59`).
+       * the field's clock**. He shows the first eight columns of the row (the
+       * plunge, the two crescents, the gold burst, the crack starting to open)
+       * from the press until the ground opens at 0.6s, and the field picks the
+       * row up at column 8 (`SKILLS.hellbenterSlam.field.from = 8/59`).
+       *
+       * **`from` is 0, not the blow at 0.22s.** The row's first beat is the
+       * *plunge* - the reference's `11_魔狱血刹` #146-#153, the white blade already
+       * in the floor with the claw closed over him - and in the reference that
+       * beat is over **before** the blow lands (#158 is where the giant crescent
+       * sweeps in). Started at 0.22 it would play after the damage, which is the
+       * wrong way round; started at 0 the eight columns are the cast's own 0.6s,
+       * 0.075s each, and the blow falls in column 2 exactly the way the bake's
+       * stage windows are written (see `PICKS.hellbenterSlam`).
        */
-      hellbenterSlam: { from: 0, to: 1, cast: { from: 0.22 / 5.4, to: 0.6 / 5.4, frames: 8 } },
+      hellbenterSlam: { from: 0, to: 1, cast: { from: 0, to: 0.6 / 5.4, frames: 8 } },
       /*
        * 血之狂暴's burst is a *window* in a 1.4s cast, not a wash over all of it:
        * the reference's corona is f45-f58, which is 0.10s to 0.60s of a ceremony
@@ -1225,8 +1233,17 @@
        * 火山's own last act is the smoke, and the row is already drawing it
        * faint: the default (from 0.75) would start dimming the *column* while it
        * is still at full height, three quarters of the way through the eruption.
+       *
+       * **It was 0.93, and that was cutting the wrong thing.** The reference's
+       * last second is two bright acts, not a dying one - a screen-filling
+       * white-out at #303-#313 (23% of the play area near-white) and then the
+       * violet cloud it cools into, #314-#320 (33% at its peak). At 0.93 the
+       * white-out came in at 0.93 of full strength and the violet at 0.40 of it,
+       * which is the opposite of what the clip does. The row is now only dimmed
+       * in its last fortieth, where the field's own `fade` is already taking it
+       * out (`Core.fieldProgress`).
        */
-      hellbenterSlam: { from: 0.93, to: 1, floor: 0.4 },
+      hellbenterSlam: { from: 0.975, to: 1, floor: 0.65 },
       /*
        * 怒气爆发's last act is its biggest one too - the column is the whole
        * point of the move and it arrives at 0.86 of the cast. The default fade
@@ -3569,6 +3586,18 @@
     /* Of the 落's own duration: the body's 落 pose runs 0 to 0.6s. */
     from: 0,
     until: 0.6 / Core.SKILLS.hellbenterSlam.duration,
+    /*
+     * **The arc is over by the blow, and then the blade stays put.** `until` is
+     * how long the blade is drawn (the body's own 0.6s pose); `strike` is how
+     * long the *swing* takes, and it is not the same number. It is the move's
+     * damage frame - `SKILLS.hellbenterSlam.activeFrom` - because that is what
+     * the reference does: `11_魔狱血刹` #146-#153 has the sword already **in the
+     * floor** with the claw closed over him, and #158 - the blow - is the giant
+     * crescent the swing left behind. With the arc spread over the whole 0.6s the
+     * blade was still travelling down while the row drew the plunge and the wing,
+     * so the two beats played over a sword that had not landed yet.
+     */
+    strike: 0.22 / Core.SKILLS.hellbenterSlam.duration,
     /* In Slayer-heights off the floor and in front of him, where the grip is. */
     reach: 0.42,
     /*
@@ -3619,8 +3648,12 @@
      * Smoothstep, not a straight line: the reference holds the raised pose for
      * the first third of the swing and the arc is most of its travel in the
      * middle, which is what makes it read as a blow rather than a turn.
+     *
+     * Measured against `strike`, not against `until`: the blade is on screen for
+     * 0.6s but it has arrived by the blow, and from there it is held. Clamped, so
+     * the rest of the window is a still frame at the bottom of the arc.
      */
-    var at = (progress - SWING.from) / (SWING.until - SWING.from);
+    var at = (progress - SWING.from) / Math.max(1e-6, SWING.strike - SWING.from);
     at = Math.max(0, Math.min(1, at));
     var swing = at * at * (3 - 2 * at);
     var angle = SWING.angleUp + (SWING.angleDown - SWING.angleUp) * swing;
