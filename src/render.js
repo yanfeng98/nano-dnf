@@ -812,11 +812,12 @@
      * How many rows assets/effects.png carries past the skill rows: the orb, the
      * dive arc, the swipe's red fan, two blade halves and second beat,
      * 嗜魂封魔斩's vortex **and the fog that sits at his hand**, 魔狱血刹's sword,
-     * its white warning, its 血丝, its 成形 **and the blood its blade sits in**, and
-     * 大蹦's fire. The bake test reads this rather than a literal, so adding a row
+     * its white warning, its 血丝, its 成形 **and the blood its blade sits in**,
+     * the disc that 成形 opens with, **the red star it opens into**, and 大蹦's
+     * fire. The bake test reads this rather than a literal, so adding a row
      * cannot leave the shipped atlas and the grid disagreeing.
      */
-    extraRowCount: 15,
+    extraRowCount: 16,
     /*
      * 大蹦 is the one move whose art is drawn far bigger than a cell can hold:
      * its own row on assets/effects.png would be ~120x72 px of art stretched
@@ -3317,6 +3318,28 @@
     var clamped = Math.max(1, Math.min(SWORD.tiers, tier));
     return SWORD.tierCell[clamped - 1];
   };
+  /*
+   * **The ladder is discrete; the sword is not.** 铸剑 buys a tier every ten hits,
+   * and drawing one cell per tier means the drop jumps a whole step on the tenth
+   * blow - which is not what the reference does. `BV1U1v6B2EWt` 1:49-2:05, walked
+   * frame by frame, has the drop go 0.32 -> 1.05 Slayer-heights **continuously**,
+   * with no step anywhere in it (补记十八 二). So the held sword is drawn as the
+   * blend of the tier it is on and the one it is working towards, weighted by how
+   * many of that tier's hits are already in.
+   *
+   * `cellFor` stays as it is: the 落 always swings the **full** sword, whatever
+   * the ladder happens to be showing.
+   */
+  SWORD.blendFor = function (player) {
+    var tiers = SWORD.tiers;
+    var tier = Math.max(1, Math.min(tiers, player.hellbenterTier || 1));
+    var per = Math.max(1, Core.HELLBENTER.hitsPerTier);
+    var charge = Math.max(0, Math.min(per, player.hellbenterCharge || 0));
+    var at = tier - 1 + (tier >= tiers ? 0 : charge / per);
+    var low = Math.max(0, Math.min(tiers - 1, Math.floor(at)));
+    var high = Math.min(tiers - 1, low + 1);
+    return { from: SWORD.tierCell[low], to: SWORD.tierCell[high], mix: at - low };
+  };
 
   /*
    * **血气之剑 成形的那半秒**, drawn live the way the sword itself is because it is
@@ -3340,7 +3363,29 @@
   var SWORD_FORM_RING = {
     row: Core.SKILL_ORDER.length + 13,
     size: 136.0,
-    up: 0.6
+    up: 0.6,
+    /*
+     * **The gold disc is the first beat and the red star is the second.** The
+     * reference's 成形 is four of them (补记十八 六): a gold sunburst at his chest
+     * (`#49-#55`), then a **red spiked star** over it (`#57-#59`), then the white
+     * sword (`#61`) and the red one (`#63`). Before this the disc stayed up for
+     * the whole stretch, which read as one long gold flash; the star row below is
+     * what makes it read as the sword *forging* - light, then shape.
+     */
+    until: 0.45
+  };
+  /*
+   * The red star 成形 opens into (see SWORD_FORM_RING.until). `new18.img` is the
+   * client's own radial star; its frame is 710x182 - a star squashed to fit a
+   * wide canvas - so the bake stretches it back round on y, and this `size` then
+   * draws its ink at 1.23 x 1.11 Slayer-heights, which is what the reference
+   * measures (its red ring is 225x269 px at 220 px to a Slayer = 1.02 x 1.22).
+   */
+  var SWORD_FORM_STAR = {
+    row: Core.SKILL_ORDER.length + 14,
+    size: 112.0,
+    up: 0.6,
+    from: 0.45
   };
   var SWORD_FORM = {
     row: Core.SKILL_ORDER.length + 12,
@@ -3352,18 +3397,32 @@
      * chest, rays opening, a white sword at his shoulder, then dark red, then the
      * red sword). That is 20 video frames, so 0.67s.
      */
-    frames: 10,
-    seconds: 0.67,
+    frames: 4,
     /*
-     * **1:1, which is the point.** `sword-dodge`'s own sword is 169 client px =
-     * 1.20 身位, and the reference's sword measures 1.20-1.36 through its white
-     * stretch - so this entry is already the right size and must not be scaled to
-     * something else's. `size` is `RIFT_CLIENT_PX * CELL / fit_scale`, the same
-     * rule as every row that has to keep the pack's own scale; at 234 (what this
-     * was, sized for `sim1-dodge`'s disc) the forming sword came out 199 screen px
-     * = 2.4 身位.
+     * **Four frames, not ten** (补记二十). `sword-dodge`'s f4-f8 are the *long*
+     * sword - 115 px of ink in the cell against the held first tier's 60 - so the
+     * 成形 used to resolve into a full-grown sword and then hand over to a
+     * half-length one. That join is what the owner saw: 「在释放的一瞬间有个长剑变成了
+     * 短剑，应该一开始就是短剑」. f0-f3 (line drawing -> white sword -> red outline)
+     * are 39/63/72/57, which is the first tier's own size.
      */
-    size: 126.5,
+    /*
+     * **0.43s, re-measured.** It was 0.67, from reading the reference's 成形 as
+     * #52-#72. Walked again for 补记十八: the gold disc is #49-#55, the red star
+     * #57-#59, the white sword #61 and the red one #63 - the whole thing is
+     * 1.633s to 2.067s, which is 13 frames, **0.43s**. The extra fifth of a second
+     * was the disc's own tail being counted as part of the sword's arrival.
+     */
+    seconds: 0.43,
+    /*
+     * **79, sized to the sword he will actually be holding** (补记二十). It was
+     * 126.5, which drew the 成形's sword at ~96 screen px - and the held first tier
+     * is 60 - so the sword visibly shrank the moment the cast ended. The row's
+     * cells carry 97 px of ink in a 128 cell and the held row's first cell carries
+     * 59, so 126.5 x 59/97 = 77; 79 with the same centre line lands the forming
+     * sword on the held one's length, which is what 「一开始就是短剑」 asks for.
+     */
+    size: 79.0,
     /*
      * Where the sword will be. The reference's forming sword appears at the same
      * spot the finished one hangs - behind him, pommel at `SWORD.top` - so the two
@@ -3376,13 +3435,21 @@
   };
 
   function swordFormFrame(player) {
+    var at = swordFormAt(player);
+    if (at < 0) return -1;
+    return Math.min(SWORD_FORM.frames - 1, Math.floor(at * SWORD_FORM.frames));
+  }
+
+  /*
+   * How far through 成形 this is, 0..1, or -1 when it is not running. The two
+   * layers it drives (the disc and the star) are not frames of one sequence, so
+   * they need the progress itself and not a frame index.
+   */
+  function swordFormAt(player) {
     if (!(player.buffs && player.buffs.hellbenter > 0)) return -1;
     var elapsed = SWORD.hold - player.buffs.hellbenter;
     if (!(elapsed >= 0 && elapsed < SWORD_FORM.seconds)) return -1;
-    return Math.min(
-      SWORD_FORM.frames - 1,
-      Math.floor((elapsed / SWORD_FORM.seconds) * SWORD_FORM.frames)
-    );
+    return elapsed / SWORD_FORM.seconds;
   }
 
   function drawSwordForm(ctx, state, sprites) {
@@ -3431,21 +3498,49 @@
      * on his chest, 0.6 of a Slayer above the floor.
      */
     var ring = SWORD_FORM_RING;
+    var star = SWORD_FORM_STAR;
+    var at = swordFormAt(player);
+    if (at < star.from) {
+      ctx.save();
+      ctx.translate(player.x, feetY(player) - ring.up * slayer);
+      ctx.scale(player.facing, 1);
+      ctx.imageSmoothingEnabled = true;
+      ctx.globalCompositeOperation = "lighter";
+      ctx.drawImage(
+        sprites.effects,
+        0,
+        ring.row * EFFECT.cell,
+        EFFECT.cell,
+        EFFECT.cell,
+        -ring.size / 2,
+        -ring.size / 2,
+        ring.size,
+        ring.size
+      );
+      ctx.restore();
+      return;
+    }
+    /*
+     * **The second beat is a different picture, not a longer one.** At #57 the
+     * reference's gold disc is gone and a red spiked star is spinning open in its
+     * place; holding the `kaaa-d1` disc up instead is what made the whole 成形
+     * read as one gold flash (see SWORD_FORM_RING.until).
+     */
     ctx.save();
-    ctx.translate(player.x, feetY(player) - ring.up * slayer);
+    ctx.translate(player.x, feetY(player) - star.up * slayer);
     ctx.scale(player.facing, 1);
     ctx.imageSmoothingEnabled = true;
     ctx.globalCompositeOperation = "lighter";
     ctx.drawImage(
       sprites.effects,
       0,
-      ring.row * EFFECT.cell,
+      star.row * EFFECT.cell,
       EFFECT.cell,
       EFFECT.cell,
-      -ring.size / 2,
-      -ring.size / 2,
-      ring.size,
-      ring.size
+      -star.size / 2,
+      -star.size / 2,
+      star.size,
+      star.size
     );
     ctx.restore();
   }
@@ -3476,9 +3571,29 @@
     until: 0.6 / Core.SKILLS.hellbenterSlam.duration,
     /* In Slayer-heights off the floor and in front of him, where the grip is. */
     reach: 0.42,
-    lift: 0.66,
-    /* Degrees below the horizontal - swung down and forward, not held up. */
-    angle: -52,
+    /*
+     * **The blade travels.** This used to be one constant angle, and the owner's
+     * complaint is what it reads like: a sword parked in front of him for six
+     * tenths of a second. The reference's own 落 is a *swing* - `11_魔狱血刹`
+     * #150-#157 has the white blade up and behind him with the speed streaks over
+     * his head, and by #158 the whole arc has come down and the wing is the trail
+     * it left. So the angles are the ends of that arc, and `swing` below walks
+     * between them.
+     *
+     * **42 degrees, not 118.** The first cut of this started the swing with the
+     * blade right up behind his shoulder and swept 170 degrees out of it - and
+     * because his crouched pose has no visible hand holding it, the whole thing
+     * read as **a sword flying around him**: 「崩的那一下，看到了一把剑乱飞」. The
+     * reference's own 落 keeps the blade close (it is barely visible under the
+     * crescent), so the arc is now 94 degrees and starts at chest height.
+     * (Positive angles tip the blade back because the rotation happens inside
+     * `scale(facing, 1)`.)
+     */
+    angleUp: 42,
+    angleDown: -52,
+    /* Off the floor: he brings it down from above his head, so the grip falls. */
+    liftUp: 0.84,
+    liftDown: 0.66,
     /*
      * **Where on the sword his hand is: the crossguard.** The ink's top is the
      * sword's *tip* (the client's frame is drawn tip-up), so anchoring the cell's
@@ -3500,13 +3615,20 @@
     var slayer = SPRITE.bodyHeight;
     var size = SWORD.size;
     var cell = SWORD.cellFor(SWORD.tiers);
+    /*
+     * Smoothstep, not a straight line: the reference holds the raised pose for
+     * the first third of the swing and the arc is most of its travel in the
+     * middle, which is what makes it read as a blow rather than a turn.
+     */
+    var at = (progress - SWING.from) / (SWING.until - SWING.from);
+    at = Math.max(0, Math.min(1, at));
+    var swing = at * at * (3 - 2 * at);
+    var angle = SWING.angleUp + (SWING.angleDown - SWING.angleUp) * swing;
+    var lift = SWING.liftUp + (SWING.liftDown - SWING.liftUp) * swing;
     ctx.save();
-    ctx.translate(
-      player.x + player.facing * SWING.reach * slayer,
-      feetY(player) - SWING.lift * slayer
-    );
+    ctx.translate(player.x + player.facing * SWING.reach * slayer, feetY(player) - lift * slayer);
     ctx.scale(player.facing, 1);
-    ctx.rotate((SWING.angle * Math.PI) / 180);
+    ctx.rotate((angle * Math.PI) / 180);
     ctx.imageSmoothingEnabled = true;
     /*
      * **The grip is the anchor, not the cell's centre.** The ink starts
@@ -3573,7 +3695,18 @@
      * from jumping - the row's two cells share this line and differ below it.
      */
     var centreY = -SWORD.top * slayer + (0.5 - SWORD.inkTop) * size;
-    var cell = SWORD.cellFor(tier);
+    /*
+     * **Two cells, cross-faded by how far into the tier the forging is.** See
+     * `SWORD.blendFor`: the ladder is bought in tens of hits and the reference's
+     * own drop grows with no step in it at all, so a sword that jumped a whole
+     * cell every tenth blow was the one thing about 铸剑 the frames disagreed
+     * with. The guard is pinned in every cell (the bake cuts from the pommel
+     * down), so the two agree exactly where it matters and only the drop's length
+     * is what the mix moves.
+     */
+    var blend = SWORD.blendFor(player);
+    var cell = blend.from;
+    var mixing = blend.to !== blend.from && blend.mix > 0.002;
     /*
      * The warning, and the only thing about this sword that is a *colour*: the
      * reference turns the same serrated blade white for the last seconds
@@ -3595,41 +3728,16 @@
     ctx.translate(player.x - player.facing * SWORD.behind * slayer, feetY(player));
     ctx.scale(player.facing, 1);
     ctx.imageSmoothingEnabled = true;
-    ctx.drawImage(
-      sprites.effects,
-      cell * EFFECT.cell,
-      row * EFFECT.cell,
-      EFFECT.cell,
-      EFFECT.cell,
-      -size / 2,
-      centreY - size / 2,
-      size,
-      size
-    );
     /*
-     * **And then lit, because the blade's own art is mostly dark.** The client's
-     * sword is a dark serrated blade with a red edge, and the reference shows it
-     * as a red thing hanging behind him - its floor is black, so the dark half
-     * simply is not there. Ours is purple, so the same dark half reads as a
-     * sword with its blade missing, which is what the owner saw and called by
-     * name: 「断剑不对吧」. One additive pass of the same cell puts the light back
-     * without inventing anything: whichever pixels are red go brighter, and the
-     * black ones stay black (`docs/adr/0025` 补记五).
+     * One sword, drawn as up to two cells. `weight` is what the mix does to a
+     * pass's own alpha, so the fade is the same picture laid on itself twice and
+     * the pinned guard never doubles.
      */
-    if (SWORD.glow) {
-      ctx.globalCompositeOperation = "lighter";
-      ctx.globalAlpha = SWORD.glow;
-      /*
-       * **Not blurred any more.** The blur was there to turn a saw into a mass -
-       * the reference's sword reads as a soft red blob with the guard on top of
-       * it - but that was when the cell was a flat red silhouette. The cell now
-       * carries the client's own crossguard and gold eye, and smearing it is
-       * what would destroy them.
-       */
-      if (SWORD.glowBlur) ctx.filter = "blur(" + SWORD.glowBlur + "px)";
+    var paint = function (which, weight) {
+      ctx.globalAlpha = weight;
       ctx.drawImage(
         sprites.effects,
-        cell * EFFECT.cell,
+        which * EFFECT.cell,
         row * EFFECT.cell,
         EFFECT.cell,
         EFFECT.cell,
@@ -3638,35 +3746,69 @@
         size,
         size
       );
-      if (SWORD.glowBlur) ctx.filter = "none";
-      ctx.globalAlpha = 1;
-      ctx.globalCompositeOperation = "source-over";
-    }
-    if (white) {
       /*
-       * The breath. A second pass of the same cell laid on with `lighter`, so
-       * what the eye reads is one sword whose brightness moves rather than two
-       * swords swapping - it is the same art, added to itself. `state.time` and
-       * not the buff's own clock, because a pulse that stopped when the seconds
-       * did would go dark exactly as it ran out.
+       * **And then lit, because the blade's own art is mostly dark.** The client's
+       * sword is a dark serrated blade with a red edge, and the reference shows it
+       * as a red thing hanging behind him - its floor is black, so the dark half
+       * simply is not there. Ours is purple, so the same dark half reads as a
+       * sword with its blade missing, which is what the owner saw and called by
+       * name: 「断剑不对吧」. One additive pass of the same cell puts the light back
+       * without inventing anything: whichever pixels are red go brighter, and the
+       * black ones stay black (`docs/adr/0025` 补记五).
        */
-      var beat = 0.5 + 0.5 * Math.sin(state.time * Math.PI * 2 * SWORD.pulseHz);
-      ctx.globalCompositeOperation = "lighter";
-      ctx.globalAlpha = 0.12 + 0.3 * beat;
-      ctx.drawImage(
-        sprites.effects,
-        cell * EFFECT.cell,
-        row * EFFECT.cell,
-        EFFECT.cell,
-        EFFECT.cell,
-        -size / 2,
-        centreY - size / 2,
-        size,
-        size
-      );
+      if (SWORD.glow) {
+        ctx.globalCompositeOperation = "lighter";
+        ctx.globalAlpha = SWORD.glow * weight;
+        /*
+         * **Not blurred any more.** The blur was there to turn a saw into a mass -
+         * the reference's sword reads as a soft red blob with the guard on top of
+         * it - but that was when the cell was a flat red silhouette. The cell now
+         * carries the client's own crossguard and gold eye, and smearing it is
+         * what would destroy them.
+         */
+        if (SWORD.glowBlur) ctx.filter = "blur(" + SWORD.glowBlur + "px)";
+        ctx.drawImage(
+          sprites.effects,
+          which * EFFECT.cell,
+          row * EFFECT.cell,
+          EFFECT.cell,
+          EFFECT.cell,
+          -size / 2,
+          centreY - size / 2,
+          size,
+          size
+        );
+        if (SWORD.glowBlur) ctx.filter = "none";
+        ctx.globalCompositeOperation = "source-over";
+      }
+      if (white) {
+        /*
+         * The breath. A second pass of the same cell laid on with `lighter`, so
+         * what the eye reads is one sword whose brightness moves rather than two
+         * swords swapping - it is the same art, added to itself. `state.time` and
+         * not the buff's own clock, because a pulse that stopped when the seconds
+         * did would go dark exactly as it ran out.
+         */
+        var beat = 0.5 + 0.5 * Math.sin(state.time * Math.PI * 2 * SWORD.pulseHz);
+        ctx.globalCompositeOperation = "lighter";
+        ctx.globalAlpha = (0.12 + 0.3 * beat) * weight;
+        ctx.drawImage(
+          sprites.effects,
+          which * EFFECT.cell,
+          row * EFFECT.cell,
+          EFFECT.cell,
+          EFFECT.cell,
+          -size / 2,
+          centreY - size / 2,
+          size,
+          size
+        );
+        ctx.globalCompositeOperation = "source-over";
+      }
       ctx.globalAlpha = 1;
-      ctx.globalCompositeOperation = "source-over";
-    }
+    };
+    paint(cell, 1);
+    if (mixing) paint(blend.to, blend.mix);
     ctx.restore();
   }
 
@@ -3742,18 +3884,25 @@
    * frame (assets/import_awakening_cutin.py).
    */
   var CUT_IN = {
-    enter: 0.15,
+    enter: 0.12,
     /*
-     * **It has to be off the screen before the sword starts forming.** The
-     * reference's own order is cast -> 插画 -> 成形 -> 持剑: the illustration is a
-     * burst around its f30-f45, and the ring with the sword inside it is f50-f66,
-     * *after* it (11_魔狱血刹). This used to leave at 0.95 of the cast, so it
-     * covered the 成形 completely and the owner never saw it - what he saw was
-     * the illustration, and then a finished sword. `hellbenter`'s buff lands at
-     * 0.5 and `SWORD_FORM` runs from there, so the bar has to be clear by 0.5.
+     * **The whole cast, the way the reference does it** (补记十八 七). Measured
+     * off `11_魔狱血刹.mp4`: the illustration is in at 0.900s and still there at
+     * 2.067s, when the sword is already forming - it covers the entire cast, and
+     * it does not move or grow while it is up.
+     *
+     * This used to leave at 0.40, on the reading that it would otherwise cover
+     * the 成形. That reading was wrong about *where* the two are drawn: the
+     * reference puts the illustration in the **lower left corner** and the 成形
+     * on the character, and so does this - the bar is 280px wide over a 1080px
+     * arena and he stands at its middle. Nothing overlaps, so there is nothing
+     * to give way to.
+     *
+     * The out is still a **snap**, not a fade: that is what makes the end of it
+     * read as the cast letting go.
      */
-    leaveAt: 0.40,
-    leave: 0.10,
+    leaveAt: 0.88,
+    leave: 0.12,
     /* The frame it was cut from has 1080 lines; the arena has 540. */
     scale: ARENA.height / 1080,
     /*

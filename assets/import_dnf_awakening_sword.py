@@ -29,6 +29,13 @@ luma threshold would punch the crossguard out of the middle of the sprite.
 
 Writes assets/awakening_sword.png (RGBA). The clip it reads is gitignored local
 material, the same way the client NPKs are.
+
+**The drop grows by stretching that one cut-out, not by cutting more of them.**
+Earlier versions also pulled four grown masses out of `BV1oUDLBaEaK.mp4` and
+cross-faded them per tier; that is gone (`docs/adr/0025` 补记十八 三). The
+reference's own drop keeps one width from 0.32 to 1.05 Slayer-heights, so one
+clean shape with its middle band stretched is both simpler and truer - see
+`_stretch_mass` in `import_dnf_effects.py`, which is what builds the ladder.
 """
 
 from __future__ import annotations
@@ -39,7 +46,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from PIL import Image, ImageChops, ImageFilter
+from PIL import Image, ImageFilter
 
 ROOT = Path(__file__).resolve().parent
 CLIP = ROOT / "dnf_src" / "bilibili" / "skill-clips" / "11_魔狱血刹.mp4"
@@ -160,13 +167,7 @@ def main() -> None:
     parser.add_argument("--time", type=float, default=4.667, help="seconds into the clip")
     parser.add_argument("--clip", type=Path, default=CLIP)
     parser.add_argument("--crop", type=str, default=None, help="x0,y0,x1,y1 override")
-    parser.add_argument("--masses", action="store_true",
-                        help="also cut the grown masses out of the second clip")
     args = parser.parse_args()
-
-    if args.masses:
-        cut_masses()
-        return
 
     crop = CROP
     if args.crop:
@@ -183,118 +184,6 @@ def main() -> None:
     print(f"wrote {OUT} ({sword.width}x{sword.height}, ink {ink})")
 
 
-
-
-# ---------------------------------------------------------------------------
-# **The grown sword's mass, off the second clip.**
-#
-# `11_魔狱血刹.mp4` catches the sword already grown - its drop is the *short* one,
-# and stretching it into the long shape is what the owner sent back: the lobes of
-# a 290-px mass squeezed into 70 px band, and the fully-grown sword still wrong
-# (「最后完全体的剑不对」).
-#
-# `BV1oUDLBaEaK.mp4` is the clip the owner pointed at for the growth
-# (「1:06到1:16是剑长大的过程」), and it is a *dungeon*, not the training room -
-# the backdrop is a blue-grey floor, so the black flood fill cannot run. The key
-# there is by colour: the sword is the only strongly red thing in the window, and
-# its dark crossguard is recovered by dilating the red envelope and keeping the
-# dark pixels inside it.
-#
-# The stages are the ones the measurement table names, in seconds into that clip
-# and the mass height they were measured at (a Slayer is 280 px there):
-#
-#     68.0 s   99 px     70.0 s  140 px     72.2 s  254 px
-#
-# Each is cut to `assets/awakening_sword_mass_<t>.png`, the mass only - the split
-# is at the crossguard's own bottom edge, the same `_narrow_after` walk the bake
-# does.
-MASS_CLIP = ROOT / "dnf_src" / "bilibili" / "BV1oUDLBaEaK.mp4"
-MASS_STAGES = ((68.0, 99), (69.4, 110), (70.0, 140), (72.2, 254))
-
-
-def cut_masses() -> None:
-    import numpy as np
-    import cv2
-    from collections import deque
-
-    for seconds, want in MASS_STAGES:
-        raw = subprocess.run(
-            ["ffmpeg", "-loglevel", "error", "-ss", str(seconds), "-i", str(MASS_CLIP),
-             "-frames:v", "1", "-f", "image2pipe", "-vcodec", "png", "-"],
-            check=True, capture_output=True,
-        ).stdout
-        frame = Image.open(io.BytesIO(raw)).convert("RGB")
-        a = np.array(frame).astype(np.int16)
-        r, g, b = a[..., 0], a[..., 1], a[..., 2]
-        red = ((r - g) > 45) & ((r - b) > 35) & (r > 70)
-        count, labels, stats, _ = cv2.connectedComponentsWithStats(red.astype(np.uint8), 8)
-        best = None
-        for i in range(1, count):
-            x, y, w, h, area = stats[i]
-            if w > 120 or h < 80 or not (0.7 * want < h < 2.6 * want):
-                continue
-            if best is None or area > best[0]:
-                best = (area, x, y, w, h)
-        if best is None:
-            print(f"  {seconds}s: no sword found", file=sys.stderr)
-            continue
-        _, x, y, w, h = best
-        keyed = key_red(frame.crop((max(0, x - 12), max(0, y - 12),
-                                    x + w + 12, y + h + 12)))
-        ink = keyed.getbbox()
-        if ink:
-            keyed = keyed.crop(ink)
-        guard_row = _widest_row(keyed) + _narrow_after(keyed, _widest_row(keyed))
-        mass = keyed.crop((0, guard_row, keyed.width, keyed.height))
-        box = mass.getbbox()
-        if box:
-            mass = mass.crop(box)
-        target = ROOT / f"awakening_sword_mass_{int(seconds * 10)}.png"
-        mass.save(target)
-        print(f"wrote {target} ({mass.width}x{mass.height})")
-
-
-def key_red(image: Image.Image) -> Image.Image:
-    """The sword out of a *floor*, not out of black - see `cut_masses`."""
-    import numpy as np
-    from collections import deque
-
-    a = np.array(image).astype(np.int16)
-    height, width, _ = a.shape
-    r, g, b = a[..., 0], a[..., 1], a[..., 2]
-    red = ((r - g) > 45) & ((r - b) > 35) & (r > 70)
-    envelope = np.array(
-        Image.fromarray((red * 255).astype(np.uint8)).filter(ImageFilter.MaxFilter(9))
-    ) > 127
-    dark = a.mean(2) < 45
-    sword = red | (envelope & dark)
-
-    seen = np.zeros((height, width), bool)
-    backdrop = np.zeros((height, width), bool)
-    queue = deque()
-    for x in range(width):
-        for y in (0, height - 1):
-            if not sword[y, x] and not seen[y, x]:
-                seen[y, x] = True
-                queue.append((x, y))
-    for y in range(height):
-        for x in (0, width - 1):
-            if not sword[y, x] and not seen[y, x]:
-                seen[y, x] = True
-                queue.append((x, y))
-    while queue:
-        x, y = queue.popleft()
-        backdrop[y, x] = True
-        for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
-            nx, ny = x + dx, y + dy
-            if 0 <= nx < width and 0 <= ny < height and not seen[ny, nx] and not sword[ny, nx]:
-                seen[ny, nx] = True
-                queue.append((nx, ny))
-
-    out = np.dstack([a.astype(np.uint8), ((~backdrop) * 255).astype(np.uint8)])
-    keyed = Image.fromarray(out, "RGBA")
-    keyed.putalpha(keyed.getchannel("A").filter(ImageFilter.GaussianBlur(0.6)))
-    return keyed
 
 
 if __name__ == "__main__":

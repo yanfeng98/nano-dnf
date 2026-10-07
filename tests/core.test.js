@@ -5012,10 +5012,10 @@ test("the stance paints him red, carries a second blade and draws nothing else",
   assert.equal(Render.EFFECT.rageSwipeRows, undefined, "no separate crescent rows out here");
   assert.equal(
     Render.EFFECT.extraRowCount,
-    15,
+    16,
     "the extra rows are the orb, the dive arc, the red fan, the two blades, the gathering, " +
       "嗜魂封魔斩's vortex, the fog at his hand, 魔狱血刹's sword, its white warning, its 血丝, " +
-      "its 成形, the ring that 成形 opens with, and 大蹦's fire"
+      "its 成形, the ring that 成形 opens with, the star it opens into, and 大蹦's fire"
   );
   state.player.comboIndex = 0;
   state.player.attackTimer = state.player.attackDuration * 0.5;
@@ -5480,6 +5480,75 @@ test("魔狱血刹's sword hangs behind him, tip down, and grows from the neck",
   );
 });
 
+test("魔狱血刹's sword grows between the rungs, not in one jump at each", () => {
+  /*
+   * The ladder is bought in tens of hits (Core.HELLBENTER.hitsPerTier) and each
+   * rung is one baked cell, so drawing one cell per tier makes the drop jump a
+   * whole step on the tenth blow. The reference does not: `BV1U1v6B2EWt`
+   * 1:49-2:05, walked frame by frame, has the drop go 0.32 -> 1.05
+   * Slayer-heights with no step anywhere in it (docs/adr/0025 补记十八 二). So the
+   * held sword is drawn as the rung it is on cross-faded into the next one, by
+   * however many of that rung's hits are already in.
+   */
+  const sword = Render.BLOOD_SWORD;
+  const at = (tier, charge) => sword.blendFor({ hellbenterTier: tier, hellbenterCharge: charge });
+  const per = Core.HELLBENTER.hitsPerTier;
+  /* On the rung, before any of its hits: that cell alone. */
+  assert.deepEqual(
+    at(3, 0),
+    { from: sword.cellFor(3), to: sword.cellFor(4), mix: 0 },
+    "a fresh tier draws its own cell"
+  );
+  /* Halfway through the rung's hits: half of the next cell laid over it. */
+  assert.deepEqual(
+    at(3, per / 2),
+    { from: sword.cellFor(3), to: sword.cellFor(4), mix: 0.5 },
+    "and the next one comes in as the hits land"
+  );
+  /* The top rung has nowhere to go, and must not blend off the end of the row. */
+  assert.deepEqual(
+    at(sword.tiers, per),
+    {
+      from: sword.cellFor(sword.tiers),
+      to: sword.cellFor(sword.tiers),
+      mix: 0
+    },
+    "the full sword is the full sword whatever the charge says"
+  );
+  /*
+   * And the renderer actually uses it: at half a rung the sword row is drawn
+   * twice - the cell it is on, and the one it is working towards.
+   */
+  const state = Core.createState({ seed: 11 });
+  const player = state.player;
+  const sprites = {
+    slayer: { width: 13312, height: 1936 },
+    skills: { width: 32 * Core.SKILL_ORDER.length, height: 64 },
+    effects: {
+      width: 5760,
+      height: 128 * (Core.SKILL_ORDER.length + Render.EFFECT.extraRowCount)
+    },
+    awakening: { width: 560, height: 296 }
+  };
+  player.facing = 1;
+  player.buffs.hellbenter = sword.hold - 10;
+  player.hellbenterTier = 3;
+  player.hellbenterCharge = per / 2;
+  const calls = [];
+  Render.render(recordingContext(calls), state, { sprites });
+  const swordRow = Render.EFFECT.bloodSwordRow;
+  const cells = calls
+    .filter(
+      (call) =>
+        call[0] === "drawImage" && call[3] / Render.EFFECT.cell === swordRow
+    )
+    .map((call) => call[2] / Render.EFFECT.cell);
+  assert.ok(
+    cells.includes(sword.cellFor(3)) && cells.includes(sword.cellFor(4)),
+    "the sword is drawn as both rungs, half a rung in"
+  );
+});
+
 test("魔狱血刹's 血气之剑 forms before it is a sword", () => {
   /*
    * The owner pointed at the reference's own cast twice (「开始」, then 「开始的断剑
@@ -5515,20 +5584,43 @@ test("魔狱血刹's 血气之剑 forms before it is a sword", () => {
   };
   const swordRow = Render.EFFECT.bloodSwordRow;
   const formRow = Render.EFFECT.bloodSwordRow + 4;  // sword +8, gold +9, white +10, strand +11, form +12
+  const bloodFormRingRow = Render.EFFECT.bloodSwordRow + 5;
+  const bloodFormStarRow = Render.EFFECT.bloodSwordRow + 6;
   /* The moment it lands: the disc and nothing else. */
   const fresh = drawnRows(hold);
   assert.ok(fresh.includes(formRow), "the 成形 is drawn the moment the sword lands");
   assert.ok(!fresh.includes(swordRow), "and the finished sword is not, yet");
-  /* Seven tenths later the 成形 is over and the sword itself is there. */
-  const settled = drawnRows(hold - 0.7);
+  /* Half a second later the 成形 is over and the sword itself is there. */
+  const settled = drawnRows(hold - 0.5);
   assert.ok(settled.includes(swordRow), "the sword is drawn once the disc is over");
   assert.ok(!settled.includes(formRow), "and the 成形 is not drawn twice");
-  /* The line is `SWORD_FORM.seconds`, read off the reference's own 20 frames. */
+  /* The line is `SWORD_FORM.seconds`, read off the reference's own 13 frames. */
   assert.ok(
-    drawnRows(hold - 0.6).includes(formRow) && !drawnRows(hold - 0.75).includes(formRow),
-    "the 成形 lasts about the two thirds of a second the reference has it for"
+    drawnRows(hold - 0.4).includes(formRow) && !drawnRows(hold - 0.5).includes(formRow),
+    "the 成形 lasts the 0.43s the reference's #49-#63 has it for"
   );
-  /* Every one of its ten cells is real art on the shipped sheet, and the row runs
+  /*
+   * **And it has two beats, not one.** The reference holds a gold sunburst at his
+   * chest for #49-#55, then swaps it for a red spiked star at #57 (补记十八 六);
+   * the disc used to stay up for the whole stretch, which is what made the 成形
+   * read as one gold flash. The two are different rows, so which one is drawn at
+   * a given progress is exactly what this can check.
+   */
+  const rowsAt = (left) =>
+    drawnRows(left).filter(
+      (row) => row === bloodFormRingRow || row === bloodFormStarRow
+    );
+  assert.deepEqual(
+    rowsAt(hold)[0],
+    bloodFormRingRow,
+    "the 成形 opens with the gold disc"
+  );
+  assert.deepEqual(
+    rowsAt(hold - 0.4)[0],
+    bloodFormStarRow,
+    "and ends on the red star the reference swaps in for it"
+  );
+  /* Every one of its cells is real art on the shipped sheet, and the row runs
      outline -> white -> lit, which is the whole point of it. */
   const effects = decodeRgbaPng(path.join(__dirname, "..", "assets", "effects.png"));
   const cell = Render.EFFECT.cell;
@@ -5538,18 +5630,152 @@ test("魔狱血刹's 血气之剑 forms before it is a sword", () => {
   }
   assert.ok(
     formCells.every((box) => box),
-    "all ten frames of the 成形 have ink"
+    "every frame of the 成形 has ink"
   );
   /* f1 is the same sword **lit**: white and longer than the faint outline f0. */
   assert.ok(
     formCells[1].y1 - formCells[1].y0 > formCells[0].y1 - formCells[0].y0,
     "the second frame is the same sword lit up, taller than the outline"
   );
-  /* And f4 is the burst - the widest thing in the row, which is the flash the
-     reference opens the whole cast with. */
+  /*
+   * **And none of them is the long sword** (docs/adr/0025 补记二十). The owner saw
+   * the 成形 resolve into a full-grown sword and then hand over to a first-tier one:
+   * 「在释放的一瞬间有个长剑变成了短剑，应该一开始就是短剑」. `sword-dodge`'s f4-f8
+   * are 115 px of ink in the cell - as tall as the last tier - while the first tier
+   * is 60, so the row now stops at f3 and every frame it keeps is first-tier sized.
+   */
+  const held = /* the first tier's own cell, on the sword's row */
+    cellAlphaBox(
+      effects,
+      0,
+      Render.EFFECT.bloodSwordRow,
+      cell,
+      cell
+    );
+  /*
+   * **Both sides in screen pixels, because the two rows are drawn at different
+   * `size`.** What the owner sees is not the cells' ink but what the renderer
+   * scales them to: the 成形 at `BLOOD_SWORD_FORM.size`, the held sword at
+   * `BLOOD_SWORD.size`.
+   */
+  const heldHeight = ((held.y1 - held.y0) / cell) * Render.BLOOD_SWORD.size;
+  formCells.forEach((box, index) => {
+    const drawn = ((box.y1 - box.y0) / cell) * Render.BLOOD_SWORD_FORM.size;
+    assert.ok(
+      drawn <= heldHeight * 1.25,
+      `and the 成形's frame ${index} is the sword he will actually be holding ` +
+        `(${drawn.toFixed(0)}px against ${heldHeight.toFixed(0)}px)`
+    );
+  });
+});
+
+test("魔狱血刹's full sword is a different sword, not the same one re-edged", () => {
+  /*
+   * The owner, looking at the 满档 sword: 「铸剑完成后应该是换了一把剑」, and then a
+   * reference frame: 「就是这一把」. In it the guard and the red shaft above it are
+   * unchanged, and **everything below the guard is a blade that comes to a point**
+   * - dark body, gold edge - where the growing sword has a round-ended blood drop.
+   * docs/adr/0025 补记十九.
+   *
+   * Both rows are read back off the shipped sheet, so a stale atlas cannot pass:
+   * the red one has to stay round (that is the reference's own growth, 补记十八 二)
+   * and the full one has to taper to a point.
+   */
+  const sheet = decodeRgbaPng(path.join(__dirname, "..", "assets", "effects.png"));
+  const cell = Render.EFFECT.cell;
+  const alphaAt = (x, y) => sheet.pixels[(y * sheet.width + x) * 4 + 3];
+  const widthAt = (row, column, y) => {
+    let left = -1;
+    let right = -1;
+    for (let x = 0; x < cell; x += 1) {
+      if (alphaAt(column * cell + x, row * cell + y) > 40) {
+        if (left < 0) left = x;
+        right = x;
+      }
+    }
+    return left < 0 ? 0 : right - left + 1;
+  };
+  const last = Render.EFFECT.bloodSwordFrames - 1;
+  /*
+   * **The blade curves.** That is the shape 换剑 swaps in: the reference's own
+   * 满档 sword is a **sabre that hooks towards its tip** (业主的第二张参考图), not a
+   * straight-sided drop - and it is the client's own `sword-dodge` f9, which has
+   * that hook in its art. So the measure is the blade's *spine*: the centre of the
+   * silhouette a few rows under the guard versus the centre near its end. A drop
+   * is symmetric and its spine never leaves the guard's line; a sabre's does.
+   */
+  const spine = (row, column) => {
+    const span = (y) => {
+      let left = -1;
+      let right = -1;
+      for (let x = 0; x < cell; x += 1) {
+        if (alphaAt(column * cell + x, row * cell + y) > 40) {
+          if (left < 0) left = x;
+          right = x;
+        }
+      }
+      return [left, right];
+    };
+    let guard = 0;
+    let widest = 0;
+    for (let y = 0; y < cell; y += 1) {
+      const [left, right] = span(y);
+      if (left >= 0 && right - left + 1 > widest) {
+        widest = right - left + 1;
+        guard = y;
+      }
+    }
+    let bottom = guard;
+    for (let y = cell - 1; y > guard; y -= 1) {
+      if (span(y)[0] >= 0) {
+        bottom = y;
+        break;
+      }
+    }
+    const middle = (y) => {
+      const [left, right] = span(y);
+      return left < 0 ? null : (left + right) / 2;
+    };
+    const top = middle(guard + 2);
+    const low = middle(guard + Math.floor((bottom - guard) * 0.95));
+    return {
+      widest,
+      height: bottom - guard,
+      drift: top === null || low === null ? 0 : low - top
+    };
+  };
+  const red = spine(Render.EFFECT.bloodSwordRow, last);
+  assert.ok(red.height > 40, `the drop really is there (${red.height} rows)`);
   assert.ok(
-    formCells[4].x1 - formCells[4].x0 > formCells[1].x1 - formCells[1].x0 * 1.5,
-    "the middle of the row is the burst"
+    Math.abs(red.drift) < 1.5,
+    `the growing sword's drop is symmetric about the guard (${red.drift})`
+  );
+  const gold = spine(Render.EFFECT.goldSwordRow, last);
+  assert.ok(gold.height > 40, `and the full sword's blade is there (${gold.height} rows)`);
+  assert.ok(
+    Math.abs(gold.drift) > Math.abs(red.drift) + 2,
+    `while the full sword carries a sabre's curve (${gold.drift} vs ${red.drift})`
+  );
+  /*
+   * **And the swap only happens at full.** Reaching the top of the ladder is
+   * 「铸剑完成」; below it the sword is the drop, growing (the reference's own
+   * growth, 补记十八 二), including in the white warning's own row.
+   */
+  const whiteLow = spine(Render.EFFECT.whiteSwordRow, 3);
+  assert.ok(
+    Math.abs(whiteLow.drift) < 1.5,
+    `a half-forged sword stays a drop even in the white warning (${whiteLow.drift})`
+  );
+  const whiteFull = spine(Render.EFFECT.whiteSwordRow, last);
+  assert.ok(
+    Math.abs(whiteFull.drift) > Math.abs(red.drift) + 2,
+    `and the full one is the same sabre, whitened (${whiteFull.drift})`
+  );
+  /* The guard is the one thing the swap must not touch, and the row order holds. */
+  assert.equal(
+    Render.EFFECT.bloodSwordRow + 1,
+    Render.EFFECT.goldSwordRow,
+    "gold is still its own row, right after the red one"
   );
 });
 
@@ -5574,11 +5800,13 @@ test("魔狱血刹's 觉醒插画 owns the cast's own second and nothing else", 
   const spec = Core.SKILLS.hellbenter;
   player.skillId = "hellbenter";
   /*
-   * **The reference's order is 起手 -> 插画 -> 成形 -> 持剑**, and the middle two
-   * are what this pins: the illustration is a burst (11_魔狱血刹 f30-f45) and the
-   * ring with the sword inside it is f50-f66, *after* it. So the picture has to be
-   * fully in at a quarter of the cast and fully **off** by the halfway mark,
-   * which is where `hellbenter`'s buff lands and `SWORD_FORM` starts.
+   * **It owns the whole cast** (补记十八 七). Walked off `11_魔狱血刹.mp4`: the
+   * illustration is in at 0.900s and *still there* at 2.067s, when the sword is
+   * already forming - it covers the cast and does not move or grow while it is up.
+   * It used to leave at 0.40, on the reading that it would otherwise cover the
+   * 成形; that reading was wrong about where the two are drawn (the picture is in
+   * the lower left, the 成形 is on him), so the picture now stays and only the
+   * cast's own end takes it away.
    */
   player.skillTimer = spec.duration * 0.75;
   const settled = cutInCall();
@@ -5586,10 +5814,17 @@ test("魔狱血刹's 觉醒插画 owns the cast's own second and nothing else", 
   /* `drawImage(image, dx, dy, dw, dh)`: `[2]` is where its left edge lands. */
   assert.ok(Math.abs(settled[2]) < 0.001, `and is fully in a quarter of the way in (${settled[2]})`);
   player.skillTimer = spec.duration * 0.5;
-  const clearing = cutInCall();
+  const holding = cutInCall();
   assert.ok(
-    clearing && clearing[2] < 0,
-    `and is off the screen before the sword forms (${clearing && clearing[2]})`
+    holding && Math.abs(holding[2]) < 0.001,
+    `and is still there where the sword starts forming (${holding && holding[2]})`
+  );
+  /* And it is only the cast's end that takes it away. */
+  player.skillTimer = spec.duration * 0.05;
+  const leaving = cutInCall();
+  assert.ok(
+    leaving && leaving[2] < 0,
+    `and it is sliding out as the cast lets go (${leaving && leaving[2]})`
   );
   player.skillTimer = spec.duration * 0.99;
   player.skillId = null;
@@ -7697,13 +7932,25 @@ test("魔狱血刹's 落 puts the sword in his hands, and only for the swing", (
     return { draw: calls[index], rotate, origin };
   };
 
-  const held = swingAt(0.1);
+  const held = swingAt(0.02);
   assert.ok(held, "the sword is drawn while he swings it");
   assert.ok(
     held.origin[1] > player.x,
     "and it is in front of him, not behind: the 落 is not the 起手"
   );
-  assert.ok(held.rotate < 0, "swung down and forward, not held upright");
+  /*
+   * **It travels.** The angle used to be one constant, and a sword parked at one
+   * angle for six tenths of a second is what the owner's eye caught; the
+   * reference's own 落 has the blade up and behind him at #150-#157 and the whole
+   * arc down by #158. So the arm is read at both ends of the swing.
+   */
+  assert.ok(held.rotate > 0, "raised up and behind him as the swing starts");
+  const landed = swingAt(0.55);
+  assert.ok(landed && landed.rotate < 0, "and driven down and forward by the end of it");
+  assert.ok(
+    landed.rotate < held.rotate,
+    "with the blade travelling one way the whole way through"
+  );
   assert.equal(
     held.draw[8],
     Render.BLOOD_SWORD.size,

@@ -360,9 +360,13 @@ LAVA_RAMP = [
 # reference's is a saturated one. The three upper stops lose about half their
 # blue, which is where the 73 at lvl>=240 comes from.
 VOLCANO_RAMP = [
-    (0.000, (96, 32, 6)),
-    (0.150, (170, 84, 12)),
-    (0.320, (222, 140, 18)),
+    # **外缘是红的，不是深褐。** 业主 2026-10-07 说柱子参考的更红——参考 t=8.30s 的柱身：
+    # 芯是 (250,240,124) 的过曝黄，**外缘 (236,115,8) 是一圈亮橙红**，再外面压到深红。
+    # 这条 ramp 的暗端是 (96,32,6) 的褐，只上 ramp 就画不出那一圈红——补记十二 把它从
+    # (20,11,3) 抬到 (96,32,6) 是治过曝，抬这一步方向对、**色相不对**：该抬成红，不该抬成褐。
+    (0.000, (152, 26, 6)),
+    (0.150, (206, 66, 8)),
+    (0.320, (236, 128, 16)),
     (0.500, (246, 180, 24)),
     (0.700, (250, 196, 26)),
     (0.880, (253, 208, 32)),
@@ -421,6 +425,11 @@ SWORD_GOLD_RAMP = [
     (0.78, (238, 196, 44)),
     (1.00, (255, 238, 150)),
 ]
+
+# **血团按三段切拉长。** 上段与下段 1:1、只拉中间那一段（`_stretch_mass`）：
+# 参考的圆头才留得住，两种宽度也才一直是同一个。数是从 `awakening_sword.png` 自己量的
+# 逐行宽度里挑的——护手以下那 67 行里，前 14 行还在护手的暗臂上，最后 24 行是收口的圆头。
+MASS_SLICE = (14, 24)
 
 # 血气之剑's colour. The sword's own frame is a **faint outline** (it ships unlit),
 # so the ramp is what makes it the red sword the reference shows - dark at the
@@ -1219,15 +1228,15 @@ PICKS = {
         #
         # **五遍**：一行只画一遍的话，8 帧摊在 0.4→0.88 上是 2 张/秒，糊成一张静图。
         # 拆成五遍、每遍自己播完 8 帧，就是 16 张/秒的翻搅（列 24/30/35/41/47/52）。
-        {"entry": "new11.img", "ramp": VOLCANO_RAMP, "frames": (0, 7), "scale": 1.5,
+        {"entry": "new11.img", "ramp": VOLCANO_RAMP, "frames": (0, 7), "scale": 1.62,
          "offset": (-384, -966), "from": 0.40, "until": 0.50},
-        {"entry": "new11.img", "ramp": VOLCANO_RAMP, "frames": (0, 7), "scale": 1.5,
+        {"entry": "new11.img", "ramp": VOLCANO_RAMP, "frames": (0, 7), "scale": 1.62,
          "offset": (-384, -966), "from": 0.50, "until": 0.60},
-        {"entry": "new11.img", "ramp": VOLCANO_RAMP, "frames": (0, 7), "scale": 1.5,
+        {"entry": "new11.img", "ramp": VOLCANO_RAMP, "frames": (0, 7), "scale": 1.62,
          "offset": (-384, -966), "from": 0.60, "until": 0.70},
-        {"entry": "new11.img", "ramp": VOLCANO_RAMP, "frames": (0, 7), "scale": 1.5,
+        {"entry": "new11.img", "ramp": VOLCANO_RAMP, "frames": (0, 7), "scale": 1.62,
          "offset": (-384, -966), "from": 0.70, "until": 0.79},
-        {"entry": "new11.img", "ramp": VOLCANO_RAMP, "frames": (0, 7), "scale": 1.5,
+        {"entry": "new11.img", "ramp": VOLCANO_RAMP, "frames": (0, 7), "scale": 1.62,
          "offset": (-384, -966), "from": 0.79, "until": 0.88},
         # **柱芯换成 `kaaa-d2`，压掉 `new11` 自己的竖纹。** 业主 2026-10-06 的实玩图里
         # 那根柱子读起来是"一块黄板上刷了几道深色竖纹"，而参考 `#250` 的柱身是
@@ -1235,7 +1244,7 @@ PICKS = {
         # 只有 **35%** 的像素在 240+，`kaaa-d2` 是 **73%**、均值 (220,182,29)——就是参考
         # 那个亮度。**排在 `new11` 之后画**（后画的压上面），按参考柱芯的宽度铺开，
         # 把中段那几道纹盖掉，柱身外缘仍留 `new11` 的形状。
-        {"entry": "kaaa-d2.img", "ramp": VOLCANO_RAMP, "frames": (0, 3), "scale": 2.60,
+        {"entry": "kaaa-d2.img", "ramp": VOLCANO_RAMP, "frames": (0, 3), "scale": 1.82,
          "offset": (-384, -966), "from": 0.40, "until": 0.88, "probe": True},
         # **柱子底座那圈放射，是两件东西。** 参考的柱脚是：一团**肥厚发白的黄**
         # 贴在地上，外面再套一圈**细长的橙色射线**沿地面向外扫、末端往下垂。
@@ -1364,6 +1373,36 @@ PICKS = {
         # 收尾的烟：参考塌成一团紫烟，包里只有红烟（`newsmoke01`，14 帧）。
         {"entry": "newsmoke01.img", "frames": (0, 13), "scale": 1.0,
          "offset": (-239, -258), "from": 0.88, "until": 1.00},
+        # **盘心那朵摊平的大金星，是 `impact-d` 放大。** 补记十八 五。
+        # 参考 t=5.567s（`ref/t5.567.png`）里地面是**一块裂成大片石板的深灰盘**，
+        # 上面压着一枚**摊平的金色星芒**：横的那两根射线从 x≈80 拉到 x≈1050，
+        # 970 视频像素＝**4.4 身位**，竖的两根短一些。我们盘心那片"亮黄"只是
+        # `new17` 的熔岩口铺平，读起来是一块黄饼，不是一朵星芒。
+        #
+        # **先试过 `fire-d`，它不行。** 包里 `fire-d.img` 的形状正好是"四角十字"，
+        # 第一版就是它——烘出来盘上什么也没有。重量之后原因很清楚：那 235x115 的
+        # 框里只有 **614 个不透明像素**（2% 的填充率），是一**把撒开的火星**凑出的
+        # 十字走向，不是一**根实心的横杠**；本行的格是 384 画一个 1080 的窗口
+        # （1 客户端像素＝0.356 格像素），细到 1-2 像素的星火过完 LANCZOS 就没了。
+        # 过 `VOLCANO_RAMP` 也只把那些点变成橙色点，成不了参考那朵星。
+        # （这条留着：`fire-d` 在别处当火星子用是好的，当"十字"不行。）
+        #
+        # `impact-d.img` 的 f0 是 342x119、**均值 (255,190,65)** 的一朵实心金星，
+        # 放大 **1.81 倍**＝墨 619x215 客户端像素＝**4.39 x 1.52 身位**（参考 4.4 x 2.0）。
+        # offset 把墨心搬到盘心（本行锚点 (0,0)）：`rescale` 之后墨心落在客户端
+        # (171.5, 12.5)，所以 offset = (-138-171.5, -95-12.5)＝(-309.5, -107.5)。
+        # ——按"锚点落在 offset 上"算会把它摆到盘外面去（这条坑上一片在 `new17` 上
+        # 踩过两次，见那一条的注释）。
+        {"entry": "impact-d.img", "frames": (0, 3), "scale": 1.81,
+         "offset": (-310, -108), "from": 0.06, "until": 0.95},
+        # **盘上那几缕白烟。** 参考的盘上一直有**白色（不是红）**的细烟丝从石缝里往上走，
+        # 我们一条都没有——收尾那团 `newsmoke01` 是红的、而且只出现在最后 0.12。
+        # `smoke-d.img`（276x135 的灰白烟）是包里唯一的白烟。两缕，位置不同、速度不同，
+        # 免得两条并排走成一根。
+        {"entry": "smoke-d.img", "frames": (0, 0), "scale": 1.00,
+         "offset": (-390, -130), "travel": (-18, -74), "from": 0.10, "until": 0.95},
+        {"entry": "smoke-d.img", "frames": (0, 0), "scale": 0.72,
+         "offset": (-160, -196), "travel": (-10, -58), "from": 0.24, "until": 0.95},
     ]},
 
     "mountainRift": {"palette": "", "pack": "_outragebreak", "anchor": (382, 281),
@@ -1624,25 +1663,31 @@ EXTRA_ROWS = [
     # 配合 `SWORD.size` 132.3，得到 0.71 / 1.36，星心以上恒 0.357 身位（参考量到 0.357）。
     # 仍然是**裁**：81 到 155 每一档都是 f2 从顶端数下来的行数，护手不动。
     ("hellbenterSword", {"growth": {"sprite": "awakening_sword.png",
-                                    "massSprites": ["awakening_sword_mass_680.png",
-                                                    "awakening_sword_mass_694.png",
-                                                    "awakening_sword_mass_700.png",
-                                                    "awakening_sword_mass_722.png"],
+                                    "massSlice": MASS_SLICE,
                                     "lengths": [141, 162, 183, 204, 224, 245, 266, 287]}}),
     # **白的那把，是同一张抠图上 `WHITE_RAMP`。** 参考最后几秒把同一把剑整个转白
     # （11_魔狱血刹 B 2:36.4），所以它不是第二张画。
-    # **满了的那把。** 同一张抠图、同一批血团，只把颜色换成金——见 `SWORD_GOLD_RAMP`。
-    ("hellbenterSwordGold", {"growth": {"sprite": "awakening_sword.png", "ramp": SWORD_GOLD_RAMP,
-                                        "massSprites": ["awakening_sword_mass_680.png",
-                                                        "awakening_sword_mass_694.png",
-                                                        "awakening_sword_mass_700.png",
-                                                        "awakening_sword_mass_722.png"],
+    # **满了那一把是"换了一把剑"**（补记十九）。业主 2026-10-07 给了一张参考图并说
+    # 「就是这一把」：护手以上还是那截红杆、还是那枚四角星加金眼，**但护手以下换成一把
+    # 收了尖的刃**——刃身暗、刃口一道亮金，末端是一个尖，不是我们那种圆头的血团。
+    #
+    # 走客户端：`sword-dodge.img` 的 f9 本来就是包里那把**向下弯的金刃**（21x115），
+    # §二十二 早就记过它，当时绕开了；补记十九 的第一版也试过它、又因为"21 像素比
+    # 护手的 71 太细"退了回来。业主的两张参考图把这件事定死了（网格量：护手 39 px、
+    # 护手下面那截 22 px ＝ **0.56**），所以加一步 **`bladeWiden` 1.35** 把 0.46 补到
+    # 0.56，别的都照原样——它自己就是金身暗边。
+    ("hellbenterSwordGold", {"growth": {"sprite": "awakening_sword.png",
+                                        "bladeEntry": "sword-dodge.img", "bladeFrame": 9,
+                                        "bladeWiden": 1.35,
+                                        "massSlice": MASS_SLICE,
                                         "lengths": [141, 162, 183, 204, 224, 245, 266, 287]}}),
+    # **白那把跟着剑的形状走。** 末 5 秒的警告是画在**他当前那一档**上的，所以这一行
+    # 必须两种形状都有：一到七档还是圆头的血团（只是白的），第八档才是那把弯的金刃
+    # （白的）—— 和红行同一条规矩（`bladeFull`，补记十九）。
     ("hellbenterSwordWhite", {"growth": {"sprite": "awakening_sword.png", "ramp": WHITE_RAMP,
-                                         "massSprites": ["awakening_sword_mass_680.png",
-                                                         "awakening_sword_mass_694.png",
-                                                         "awakening_sword_mass_700.png",
-                                                         "awakening_sword_mass_722.png"],
+                                         "massSlice": MASS_SLICE,
+                                         "bladeEntry": "sword-dodge.img", "bladeFrame": 9,
+                                         "bladeWiden": 1.35, "bladeFull": True,
                                          "lengths": [141, 162, 183, 204, 224, 245, 266, 287]}}),
     # **血气被吸进来的那缕丝**: the client's own thin red thread, `new13` (30
     # frames of it, each one a streak that flickers out along its own length).
@@ -1674,7 +1719,14 @@ EXTRA_ROWS = [
     # 这里是同一张图、同一行的第二层：`offset` 把它从他**背后那把剑**的位置挪到他身上
     # （剑在行的局部坐标 -42 屏幕像素处，他在 0），`scale 0.60` 让它 199 客户端像素宽
     # ＝约 1.4 身位。两层都在同一格、同一段里，所以环和剑是一起出现的。
-    ("hellbenterForm", {"stack": [("_hellbenter", "sword-dodge.img")]}),
+    # **只取 f0-f3，因为后面那几帧是"长剑"。** 业主 2026-10-07：「在释放的一瞬间有个长剑
+    # 变成了短剑，应该一开始就是短剑」——量了烘出来的格：`sword-dodge` 的 f4-f8 每一格墨高
+    # **115**，而持剑期**第一档**只有 **60**（`assets/effects.png` 第 20 行）。也就是说成形
+    # 最后亮出来的是**满档那么大的一把剑**，一入持剑期就砍成一半——那一下就是他看到的"长剑
+    # 变短剑"。f0-f3 是线稿 → 白剑 → 红描边 → 红描边，墨高 39/63/72/57，本来就是第一档那个
+    # 尺寸，所以成型那一刻起他手里那把就已经是他要拿的那把了。
+    # 白爆那一拍不丢：`hellbenterFormRing`（金盘）与 `hellbenterFormStar`（红星）各占一行。
+    ("hellbenterForm", {"stack": [("_hellbenter", "sword-dodge.img", None, None, None, (0, 4))]}),
     # **扣在他身上的那圈放射，单开一行。** 参考 #56 除了剑还有一圈：一个**圆盘**，中心亮、
     # 往外走金→橙→红，边上一圈细尖射出去，直径量到 1.26 身位、尖到 1.54，正扣在他胸口上。
     # 就是 **`kaaa-d1`**——火山柱脚那一个金色爆散，它的径向剖面本来就是"亮心 → 金 → 橙 → 红边"。
@@ -1687,6 +1739,14 @@ EXTRA_ROWS = [
     # 所以 `stretch` 的 y 因子取 1.46 把它拉圆（压 x 会把每一根射线都变细）。
     ("hellbenterFormRing", {"stack": [
         ("_hellbenter", "kaaa-d1.img", 0.60, None, None, None, None, None, None, (1.0, 1.46)),
+    ]}),
+    # **成形 的第三拍：红色放射星。** 参考 `#57-#59` 在那圈金盘之后换成一枚**红色放射星**
+    # （细长尖芒、中心空着），补记十八 六。客户端的 `new18.img`（1 帧 710x182）就是它——
+    # 一圈红蕾丝似的细芒从中心射出去。金盘是"亮起来"，红星是"开出来"，两拍各有各的条目，
+    # 所以它单开一行（同 `hellbenterFormRing` 的理由：两件不一样大的东西挤一格会被
+    # `fit_scale` 一起算）。
+    ("hellbenterFormStar", {"stack": [
+        ("_hellbenter", "new18.img", 0.62, None, None, None, None, None, None, (1.0, 3.5)),
     ]}),
 ]
 
@@ -2487,29 +2547,36 @@ def fill_gaps(decoded, radius: int = 5, soften: float = 1.2, floor: int = 96):
     return out
 
 
-def _mass_width(source):
-    """How wide the blood mass is drawn, in the head sprite's own pixels.
+def _stretch_mass(drop, height, top_rows, cap_rows):
+    """Grow one drop to `height` by stretching only its **middle** band.
 
-    The crossguard's own span - the mass hangs off it and the reference draws the
-    two at the same width, at every stage of the growth.
+    A plain resize takes the round cap with it: five times taller turns the
+    reference's rounded end into a long ellipse and its straight sides into a
+    taper. Keeping the top `top_rows` and the bottom `cap_rows` at 1:1 - the
+    three-slice every 9-patch does - leaves the cap round and the sides parallel,
+    which is what the reference's own drop does over its whole growth (width
+    measured constant while the length goes 0.32 -> 1.05 Slayer-heights).
     """
-    row = _widest_row(source)
-    alpha = source.getchannel("A")
-    pixels = alpha.load()
-    left = right = None
-    for column in range(source.width):
-        if pixels[column, row] > 24:
-            if left is None:
-                left = column
-            right = column
-    return (right - left + 1) if left is not None else source.width
-
-
-def _rescale_sprite(picture, factor: float):
-    """One sprite, scaled about its own bottom centre, in one line."""
-    width = max(1, int(round(picture.width * factor)))
-    height = max(1, int(round(picture.height * factor)))
-    return picture.resize((width, height), Image.LANCZOS)
+    width, natural = drop.size
+    top_rows = max(0, min(top_rows, natural - 1))
+    cap_rows = max(0, min(cap_rows, natural - top_rows - 1))
+    middle = natural - top_rows - cap_rows
+    out = Image.new("RGBA", (width, max(1, height)), (0, 0, 0, 0))
+    if height <= top_rows + cap_rows + 1:
+        # Shorter than the two bands themselves: nothing left to stretch, so the
+        # whole drop scales - it only happens at tier 1, where the difference is
+        # a few pixels.
+        return drop.resize((width, max(1, height)), Image.LANCZOS)
+    middle_height = height - top_rows - cap_rows
+    out.alpha_composite(drop.crop((0, 0, width, top_rows)), (0, 0))
+    out.alpha_composite(
+        drop.crop((0, top_rows, width, top_rows + middle)).resize(
+            (width, middle_height), Image.LANCZOS
+        ),
+        (0, top_rows),
+    )
+    out.alpha_composite(drop.crop((0, natural - cap_rows, width, natural)), (0, height - cap_rows))
+    return out
 
 
 def punch_dark(decoded, threshold: int = 0):
@@ -2925,80 +2992,85 @@ def pick_frames(client: Path, mode: str, entries, palette: str = "", spec: dict 
             guard_row = _widest_row(source)
             guard_row = guard_row + _narrow_after(source, guard_row)
             head = source.crop((0, 0, source.width, guard_row))
-            # **The mass comes from a second cut-out, off the growth clip.**
-            # `awakening_sword.png` is the *training* room's sword, which the clip
-            # caught already grown - its drop is the short one. The grown sword's
-            # drop is a different shape (a long lumpy mass, not the short one
-            # stretched), and it only exists in `BV1oUDLBaEaK.mp4` - the dungeon,
-            # where the key has to be by colour instead of by black. So the head
-            # is the clean black-keyed one and the mass is the colour-keyed one.
-            # `massSprites` names one mass *per tier*: the reference's own drop is
-            # a different shape at each stage (a compact lobe low down, a long
-            # lumpy mass when it is full), so the tiers take the nearest cut-out
-            # instead of one shape stretched six ways over. Ours would band - a
-            # 290 px mass squeezed into 70 px is stripes, not lobes.
-            mass_paths = grow.get("massSprites")
-            if not mass_paths and grow.get("massSprite"):
-                mass_paths = [grow["massSprite"]]
-            # **The two clips are not at the same scale.** A Slayer is 220 px in
-            # the training room and 280 px in the dungeon, so a mass cut from the
-            # dungeon has to be shrunk by 220/280 before it can sit under a head
-            # cut from the training room - otherwise the drop is a fifth too long
-            # for its own crossguard and every tier is squeezed to match.
-            MASS_SCALE = 220.0 / 280.0
-            masses = [
-                _rescale_sprite(Image.open(ROOT / name).convert("RGBA"), MASS_SCALE)
-                for name in mass_paths
-            ] if mass_paths else None
+            # **One shape, stretched in three slices** (补记十八 三). This used
+            # to blend four colour-keyed masses cut out of the dungeon clip, each
+            # at its own aspect - and a blend of a round lobe and a long drop is
+            # wider than either, which is what made the middle tiers bulge and the
+            # whole drop read as a jagged, dripping column. `BV1U1v6B2EWt`
+            # 1:49-2:05 says the drop grows 0.32 -> 1.05 Slayer-heights while its
+            # **width does not change** (42-48 px at t=114.5, 36-46 px at t=122.5),
+            # so the honest construction is the training room's own drop -
+            # black-keyed, clean edges, a round cap - with only its **middle band**
+            # stretched. `massSlice` is (top rows kept 1:1, bottom rows kept 1:1).
+            # **Or the drop is a different sword altogether** (`bladeEntry`, 补记十九).
+            # 铸剑 满了之后参考里那把不再是"同一把剑的血团长到底"：护手以下换成
+            # **一把收了尖的刃**，刃身暗、刃口一道亮金。客户端自己就有一把这样的刃
+            # ——`sword-dodge.img` 的 f9。见 `bladeScale` 那一段的注释。
+            blade = None
+            if grow.get("bladeEntry"):
+                entries = dict(pack_entries(client, grow.get("bladePack", "_hellbenter"), ""))
+                found = entries.get(grow["bladeEntry"])
+                if found is None:
+                    print(f"  missing blade {grow['bladeEntry']}", file=sys.stderr)
+                    return [], (0, 0)
+                decoded = decode_frames(found)
+                picture = decoded[int(grow.get("bladeFrame", 0))][0]
+                if grow.get("bladeDarken"):
+                    picture = dim([(picture, 0, 0)], float(grow["bladeDarken"]))[0][0]
+                # **And it is widened a little.** `sword-dodge`'s f9 is 21 client px
+                # across and the sword's crossguard is 71, so at 1:1 the blade is
+                # 0.46 of its guard. Measured off the owner's second reference frame
+                # (grid at 8x: the star is 39 px across, the blade 22 just under it)
+                # the reference's own is **0.56** - so 1.35, and that is the whole
+                # of the stretch. Widening it is a stretch of the *art*, not a
+                # second drawing; the curve it carries stays where it is.
+                if grow.get("bladeWiden"):
+                    picture = picture.resize(
+                        (max(1, int(round(picture.width * float(grow["bladeWiden"])))),
+                         picture.height),
+                        Image.LANCZOS,
+                    )
+                # **The two clips' units are not the same.** `decode_frames` hands
+                # back the client's own pixels (1 身位 = 141 of them); the cut-out
+                # above is drawn in the *training room's* video pixels (1 身位 = 220).
+                # Everything below works in the cut-out's space, so the blade is
+                # converted once, here.
+                to_video = 220.0 / 141.0
+                picture = picture.resize(
+                    (max(1, int(round(picture.width * to_video))),
+                     max(1, int(round(picture.height * to_video)))),
+                    Image.LANCZOS,
+                )
+                box = picture.getbbox()
+                blade = picture.crop(box) if box else picture
             frames = []
             tiers = [int(value) for value in grow["lengths"]]
             for index, height in enumerate(tiers):
                 band = max(1, height - guard_row)
                 frame = Image.new("RGBA", (source.width, max(height, guard_row)), (0, 0, 0, 0))
-                if masses:
-                    # **Blend the stages, do not pick one.** Two cuts of the same
-                    # mass at two stages, each resized to this tier's band, cross
-                    # faded by how far along the ladder the tier is: the shape
-                    # walks from the short lobe to the long mass the way the
-                    # reference's own does, and neither cut is ever stretched far
-                    # enough to band.
-                    at = index / max(1, len(tiers) - 1)
-                    # Each cut keeps its **own aspect** - that is the growth (a
-                    # round lobe becomes a long drop) - so they are laid into a
-                    # common canvas bottom-aligned before blending, because
-                    # `Image.blend` needs two images the same size and these are
-                    # 0.86, 0.94, 0.68 and 0.35 wide-to-tall.
-                    # **Every stage is drawn to the *same* width and only the
-                    # height changes.** That is what the reference does - over the
-                    # whole growth the mass stays 0.32-0.36 of a Slayer across
-                    # while it goes 0.35 to 1.05 tall - and keeping each cut's own
-                    # aspect instead is what the owner caught: 「短剑越来越粗」.
-                    # Blending a round lobe into a long drop at their own aspects
-                    # makes the mixture wider than either, so the middle tiers
-                    # bulged to 0.41 身位.
-                    wide = max(1, int(round(_mass_width(source)))) if masses else 1
-                    scaled = []
-                    for m in masses:
-                        canvas = Image.new("RGBA", (wide, band), (0, 0, 0, 0))
-                        canvas.alpha_composite(m.resize((wide, band), Image.LANCZOS), (0, 0))
-                        scaled.append(canvas)
-                    near = at * (len(scaled) - 1)
-                    low = min(int(near), len(scaled) - 1)
-                    high = min(low + 1, len(scaled) - 1)
-                    mix = near - low
-                    layer = scaled[low]
-                    if high != low and mix > 0:
-                        layer = Image.blend(layer, scaled[high], mix)
-                    left = int(round((source.width - layer.width) / 2))
-                    frame.alpha_composite(layer, (left, guard_row - 6))
+                if blade is not None and (not grow.get("bladeFull") or index == len(tiers) - 1):
+                    drop = blade.resize(
+                        (max(1, int(round(blade.width * band / blade.height))), band),
+                        Image.LANCZOS,
+                    )
+                    frame.alpha_composite(
+                        drop, (int(round((source.width - drop.width) / 2)), guard_row)
+                    )
                 else:
                     drop = source.crop((0, guard_row, source.width, source.height))
-                    frame.alpha_composite(drop.resize((drop.width, band), Image.LANCZOS), (0, guard_row))
-                # The head goes on **last**: the mass cuts carry a sliver of the
-                # crossguard's own dark arms along their top edge, and drawing the
+                    top_rows, cap_rows = grow.get("massSlice", (0, 0))
+                    if top_rows or cap_rows:
+                        drop = _stretch_mass(drop, band, top_rows, cap_rows)
+                    else:
+                        drop = drop.resize((drop.width, band), Image.LANCZOS)
+                    frame.alpha_composite(drop, (0, guard_row))
+                # The head goes on **last**: the drop carries a sliver of the
+                # crossguard's own dark arms along its top edge, and drawing the
                 # head over them is what hides the seam.
                 frame.alpha_composite(head, (0, 0))
-                if grow.get("ramp"):
+                if grow.get("darken"):
+                    frame = dim([(frame, 0, 0)], float(grow["darken"]))[0][0]
+                elif grow.get("ramp"):
                     frame = tint([(frame, 0, 0)], grow["ramp"])[0][0]
                 frames.append(frame)
             return frames, (0, 0)
