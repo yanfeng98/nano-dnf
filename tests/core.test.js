@@ -102,14 +102,30 @@ function cellAlphaBox(sheet, col, row, cellW, cellH) {
   return x1 < 0 ? null : { x0, y0, x1, y1 };
 }
 
+/*
+ * The stage these tests run: 幽暗密林 is the only one with rooms so far, and a
+ * run is one stage now (`docs/adr/0026`). The pool, the gauntlet index and the
+ * boss index are read off the stage rather than spelled out here, so filling in
+ * the other seven stages cannot silently re-point this file at a stale room.
+ */
+const STAGE = Core.STAGES.mirkwood;
+const ROOMS = STAGE.rooms;
+
+/**
+ * 胆小鬼的窝, the run's alternate: the room that took over 沉没礼拜堂's
+ * collapsing floor, and the only one with slabs. Found by that, not by index,
+ * because the slot it sits in is content and this file must not pin content.
+ */
+const ALTERNATE_ROOM_INDEX = ROOMS.findIndex((room) => room.hazards && room.hazards.length > 0);
+
 /** Rooms in one run for a seed, so tests never assume the pool is the run. */
 function runRooms(seed) {
-  const layout = Core.layoutForSeed(seed === undefined ? Core.DEFAULT_SEED : seed);
-  return layout.map((index) => Core.ROOMS[index]);
+  const layout = Core.layoutForSeed(STAGE, seed === undefined ? Core.DEFAULT_SEED : seed);
+  return layout.map((index) => ROOMS[index]);
 }
 
 function lastRoomIndex(seed) {
-  return Core.layoutForSeed(seed === undefined ? Core.DEFAULT_SEED : seed).length - 1;
+  return Core.layoutForSeed(STAGE, seed === undefined ? Core.DEFAULT_SEED : seed).length - 1;
 }
 
 function enemiesInRun(seed) {
@@ -118,15 +134,15 @@ function enemiesInRun(seed) {
 
 /** First room of this seed's run that fields a caster, or -1. */
 function roomIndexWithCaster(seed) {
-  return Core.layoutForSeed(seed).findIndex((index) =>
-    Core.ROOMS[index].enemies.some((enemy) => enemy.type === "caster")
+  return Core.layoutForSeed(STAGE, seed).findIndex((index) =>
+    ROOMS[index].enemies.some((enemy) => enemy.type === "caster")
   );
 }
 
 /** Where this seed's run fights the collapsing-floor room, or -1. */
-function chapelRoomIndex(seed) {
-  return Core.layoutForSeed(seed === undefined ? Core.DEFAULT_SEED : seed).indexOf(
-    Core.ALTERNATE_ROOM_INDEX
+function hazardRoomIndex(seed) {
+  return Core.layoutForSeed(STAGE, seed === undefined ? Core.DEFAULT_SEED : seed).indexOf(
+    ALTERNATE_ROOM_INDEX
   );
 }
 
@@ -977,17 +993,17 @@ function renderCalls(state, meta) {
 /*
  * Depth (docs/adr/0001-depth-axis.md).
  *
- * The player can walk on the second axis from slice 2 on, but nothing else in
- * the world has a depth of its own yet: no room asks for one and no monster
- * takes a step in it, so z = 0 is still where every body stands and a run that
- * never presses up or down has to come out exactly as it did before the axis
- * existed. That is the invariant the five-slice plan rests on, so it is
+ * Depth is opt-in: a room may open a fight on a row of its own, and a monster
+ * only leaves the ground line to follow the Slayer there. This room does not
+ * ask for one and the run never presses up or down, so z = 0 is where every
+ * body stands and the run has to come out exactly as it did before the axis
+ * existed. That is the invariant the five-slice plan rested on, so it is
  * asserted rather than assumed.
  */
-test("no room and no monster has a depth of its own yet", () => {
+test("a run that never walks in depth stays on the ground line", () => {
   const state = Core.createState({ seed: Core.DEFAULT_SEED });
   assert.equal(state.player.z, 0, "a fresh player walks the ground line");
-  assert.ok(state.enemies.every((enemy) => enemy.z === 0), "no room asks for a depth yet");
+  assert.ok(state.enemies.every((enemy) => enemy.z === 0), "this room opens the fight on it");
 
   Core.runFrames(state, 900, (frame) => ({
     right: frame % 200 < 150,
@@ -998,8 +1014,9 @@ test("no room and no monster has a depth of its own yet", () => {
   }));
 
   /*
-   * A tripwire, on purpose: the day a slice gives a room or a monster a depth,
-   * this fails and gets replaced by a real test of whatever it was given.
+   * A tripwire, on purpose: the day a slice gives *this* room a depth, or has a
+   * monster walk one without being followed there, this fails and gets replaced
+   * by a real test of whatever it was given.
    */
   assert.equal(state.player.z, 0, "and staying off the arrow keys keeps him there");
   assert.ok(state.enemies.every((enemy) => enemy.z === 0));
@@ -1033,7 +1050,16 @@ test("the band's two edges stop him", () => {
 });
 
 test("crossing the whole floor takes about six tenths of a second", () => {
+  /*
+   * Measured on the shared floor: this number is the default band's speed, and
+   * the seed's own opening room can bring a wider one of its own (胆小鬼的窝
+   * does). Two entries, so the emptied room is not the last of the run - a won
+   * run stops stepping.
+   */
+  const plain = ROOMS.findIndex((room) => !room.band);
   const state = Core.createState({ seed: Core.DEFAULT_SEED });
+  state.layout = [plain, plain];
+  Core.startRoom(state, 0);
   state.enemies = [];
   const band = Core.bandDepth(state.band);
 
@@ -1132,7 +1158,7 @@ test("a swing roots him in depth the way it roots him sideways", () => {
 
 test("a room with a shallower floor stops him sooner", () => {
   const state = Core.createState({ seed: Core.DEFAULT_SEED });
-  const room = Core.ROOMS[Core.ALTERNATE_ROOM_INDEX];
+  const room = ROOMS[ALTERNATE_ROOM_INDEX];
   const was = room.band;
   try {
     room.band = { backY: 380 };
@@ -1141,7 +1167,7 @@ test("a room with a shallower floor stops him sooner", () => {
      * won run stops stepping. The second entry is only there to stop the first
      * from being last.
      */
-    state.layout = [Core.ALTERNATE_ROOM_INDEX, Core.ALTERNATE_ROOM_INDEX];
+    state.layout = [ALTERNATE_ROOM_INDEX, ALTERNATE_ROOM_INDEX];
     Core.startRoom(state, 0);
     state.enemies = [];
 
@@ -1484,7 +1510,7 @@ test("a room can bring its own floor, and gets the default without one", () => {
    * Which rooms do is their own business and it changes; this asks for one that
    * does not, so it keeps testing the fallback instead of whoever just moved.
    */
-  const plain = Core.ROOMS.findIndex((room) => !room.band);
+  const plain = ROOMS.findIndex((room) => !room.band);
   assert.ok(plain >= 0, "there is still a room standing on the shared floor");
 
   const state = Core.createState({ seed: Core.DEFAULT_SEED });
@@ -1492,7 +1518,7 @@ test("a room can bring its own floor, and gets the default without one", () => {
   Core.startRoom(state, 0);
   assert.equal(state.band, Core.BAND, "a room with no floor of its own gets the default one");
 
-  const room = Core.ROOMS[plain];
+  const room = ROOMS[plain];
   const was = room.band;
   try {
     room.band = { backY: 350 };
@@ -1515,14 +1541,19 @@ test("a room can place a monster at a depth", () => {
 });
 
 test("a room can open a fight at a depth", () => {
-  const state = Core.createState({ seed: Core.DEFAULT_SEED, roomIndex: Core.GAUNTLET_ROOM_INDEX });
+  /* The gauntlet is the room that declares one: its thrower holds its own row. */
+  const position = Core.layoutForSeed(STAGE, Core.DEFAULT_SEED).indexOf(STAGE.gauntletIndex);
+  const state = Core.createState({ seed: Core.DEFAULT_SEED, roomIndex: position });
   const caster = state.enemies.find((enemy) => enemy.type === "caster");
+  const declared = ROOMS[STAGE.gauntletIndex].enemies.find(
+    (enemy) => enemy.type === "caster"
+  ).depth;
 
   assert.ok(caster, "the gauntlet fields a caster");
   assert.equal(
     caster.z,
-    0.37 * Core.bandDepth(state.band),
-    "and it opens the fight standing back off the Slayer's row"
+    declared * Core.bandDepth(state.band),
+    "and it opens the fight at the depth the room declared, in the band it fights on"
   );
   assert.ok(caster.z > Core.DEPTH_REACH.melee * Core.SLAYER_HEIGHT, "far enough back to be a walk");
   assert.equal(state.player.z, 0, "who walks in on the front edge");
@@ -1847,7 +1878,7 @@ test("the same seed still yields identical progression and drops", () => {
 /**
  * Policy that plays the way a person would: respect each telegraph, stay out of the
  * dash lane and the slam ring, jump over aimed bolts, close in on recovery frames, and
- * spend MP on the AoE skill. Used to prove the dungeon is beatable.
+ * spend MP on the AoE skill. Used to prove the stage is beatable.
  */
 function kitingBot(state) {
   const player = state.player;
@@ -2012,7 +2043,7 @@ function kitingBot(state) {
   return input;
 }
 
-test("a timing-aware policy can clear the whole dungeon without losing health", () => {
+test("a timing-aware policy can clear the whole stage without losing health", () => {
   const results = [1, 7, 42, 20260915].map((seed) => {
     const state = Core.createState({ seed });
     for (let frame = 0; frame < 60 * 240 && !state.victory && !state.defeat; frame += 1) {
@@ -2035,7 +2066,7 @@ test("a timing-aware policy can clear the whole dungeon without losing health", 
      * damage went from mean 5.2 / max 22 to mean 11.5 / max 26, with no seed
      * failing to clear either way. So the bar is a quarter of his health rather
      * than the 12 that was tuned to the shorter move; what this test is for is
-     * that a policy which reads cooldowns can walk the dungeon at all, not that
+     * that a policy which reads cooldowns can walk the stage at all, not that
      * it walks it untouched.
      */
     assert.ok(state.stats.damageTaken <= state.player.maxHp * 0.25,
@@ -2057,7 +2088,11 @@ test("renderer draws a live frame and both end-state overlays without throwing",
   const lost = renderCalls(state);
 
   const texts = live.concat(won, lost).filter((call) => call[0] === "fillText").map((call) => call[1]);
-  assert.ok(texts.includes("DUNGEON CLEARED"));
+  /* A clear names the stage it cleared; only a defeat is generic. */
+  assert.ok(
+    texts.includes(STAGE.name + " 通关"),
+    `a clear must name the stage: ${texts.join(" / ")}`
+  );
   assert.ok(texts.includes("YOU DIED"));
 });
 
@@ -6954,8 +6989,9 @@ test("the boss enrages at half health without mutating the shared type spec", ()
 
   Core.damageEnemy(state, boss, 2, 0, state.player.x);
   assert.equal(boss.phase, 2, "crossing half health starts phase two");
+  /* The banner is the stage's to own: every stage's boss is a different animal. */
   assert.equal(
-    state.effects.some((effect) => effect.kind === "banner" && effect.text === spec.phase2.banner),
+    state.effects.some((effect) => effect.kind === "banner" && effect.text === STAGE.bossBanner),
     true,
     "the phase change must announce itself"
   );
@@ -7057,11 +7093,15 @@ test("super armour never sticks when a wind-up is interrupted", () => {
   assert.ok(Math.abs(boss.vx) > 0, "the boss must take knockback again");
 });
 
-test("the chapel's floor cracks, breaks, and then settles again", () => {
-  const index = chapelRoomIndex(1);
-  assert.notEqual(index, -1, "seed 1 should draw the chapel");
+test("the collapsing floor cracks, breaks, and then settles again", () => {
+  const index = hazardRoomIndex(1);
+  assert.notEqual(index, -1, "seed 1 should draw the collapsing-floor room");
   const state = Core.createState({ seed: 1, roomIndex: index });
-  assert.equal(state.hazards.length, 2, "the chapel has two slabs");
+  assert.equal(
+    state.hazards.length,
+    ROOMS[ALTERNATE_ROOM_INDEX].hazards.length,
+    "the room fights on the floor it declares, slab for slab"
+  );
 
   const seen = new Set();
   const stages = [];
@@ -7084,7 +7124,7 @@ test("the chapel's floor cracks, breaks, and then settles again", () => {
 });
 
 test("a breaking slab hits whoever is standing on it, both sides included", () => {
-  const index = chapelRoomIndex(1);
+  const index = hazardRoomIndex(1);
   const state = Core.createState({ seed: 1, roomIndex: index });
   state.enemies = [];
   const hazard = state.hazards[0];
@@ -7114,7 +7154,7 @@ test("a breaking slab hits whoever is standing on it, both sides included", () =
 });
 
 test("each break is counted once and carries its own effect, not a slam", () => {
-  const index = chapelRoomIndex(1);
+  const index = hazardRoomIndex(1);
   const state = Core.createState({ seed: 1, roomIndex: index });
   const hazard = state.hazards[0];
   state.enemies = [];
@@ -7200,7 +7240,7 @@ test("the renderer gives the break its own shake and dust", () => {
 });
 
 test("the policy will not walk onto a slab that is about to break", () => {
-  const index = chapelRoomIndex(1);
+  const index = hazardRoomIndex(1);
   const state = Core.createState({ seed: 1, roomIndex: index });
   const hazard = state.hazards[0];
   /* Stand left of the slab with the only enemy beyond it: walking right crosses
@@ -7230,67 +7270,69 @@ test("the policy will not walk onto a slab that is about to break", () => {
 });
 
 test("a seed draws its own room order and replays exactly", () => {
-  const layout = Core.layoutForSeed(7);
-  assert.deepEqual(Core.layoutForSeed(7), layout, "the same seed must draw the same run");
+  const layout = Core.layoutForSeed(STAGE, 7);
+  assert.deepEqual(Core.layoutForSeed(STAGE, 7), layout, "the same seed must draw the same run");
 
   const drawn = [1, 7, 42, Core.DEFAULT_SEED, 5, 99, 1234, 31337].map((seed) =>
-    Core.layoutForSeed(seed).join(",")
+    Core.layoutForSeed(STAGE, seed).join(",")
   );
   assert.ok(new Set(drawn).size > 1, `seeds must differ: ${drawn.join(" | ")}`);
 
   /* Drawing a run must not reorder the authored pool. */
-  const pool = Core.ROOMS.map((room) => room.name).join(",");
-  Core.layoutForSeed(999);
-  assert.equal(Core.ROOMS.map((room) => room.name).join(","), pool);
+  const pool = ROOMS.map((room) => room.name).join(",");
+  Core.layoutForSeed(STAGE, 999);
+  assert.equal(ROOMS.map((room) => room.name).join(","), pool);
 });
 
 test("a run opens on a ramp room, never on the hardest fight", () => {
-  const ramps = Core.rampRooms();
+  const ramps = Core.rampRooms(STAGE);
   assert.ok(ramps.length >= 2, "there has to be a choice of opening rooms");
   ramps.forEach((index) => {
-    const hardest = Math.max(...Core.rampRooms().map((room) => Core.roomThreat(room)));
+    const hardest = Math.max(
+      ...Core.rampRooms(STAGE).map((room) => Core.roomThreat(STAGE, room))
+    );
     assert.ok(
-      Core.roomThreat(index) <= hardest,
-      `${Core.ROOMS[index].name} is meant to be one of the gentler rooms`
+      Core.roomThreat(STAGE, index) <= hardest,
+      `${ROOMS[index].name} is meant to be one of the gentler rooms`
     );
   });
 
   for (let seed = 1; seed <= 200; seed += 1) {
-    const opening = Core.layoutForSeed(seed)[0];
+    const opening = Core.layoutForSeed(STAGE, seed)[0];
     assert.ok(
       ramps.includes(opening),
-      `seed ${seed} opened on ${Core.ROOMS[opening].name}, which is not a ramp room`
+      `seed ${seed} opened on ${ROOMS[opening].name}, which is not a ramp room`
     );
   }
 
   /* The hard rooms still show up, just not first. */
   const hard = [];
-  for (let index = 0; index < Core.BOSS_ROOM_INDEX; index += 1) {
-    if (index !== Core.GAUNTLET_ROOM_INDEX && !ramps.includes(index)) hard.push(index);
+  for (let index = 0; index < STAGE.bossIndex; index += 1) {
+    if (index !== STAGE.gauntletIndex && !ramps.includes(index)) hard.push(index);
   }
   assert.ok(hard.length >= 1, "the pool needs rooms harder than the ramp set");
   hard.forEach((index) => {
     const appearsLater = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].some((seed) =>
-      Core.layoutForSeed(seed).slice(1).includes(index)
+      Core.layoutForSeed(STAGE, seed).slice(1).includes(index)
     );
-    assert.ok(appearsLater, `${Core.ROOMS[index].name} should still be reachable later in a run`);
+    assert.ok(appearsLater, `${ROOMS[index].name} should still be reachable later in a run`);
   });
 });
 
-test("every run is four combat rooms plus the throne, with the gauntlet last", () => {
+test("every run is four combat rooms plus the boss room, with the gauntlet last", () => {
   for (let seed = 1; seed <= 64; seed += 1) {
-    const layout = Core.layoutForSeed(seed);
+    const layout = Core.layoutForSeed(STAGE, seed);
     assert.equal(layout.length, Core.RUN_COMBAT_ROOMS + 1, `seed ${seed}`);
-    assert.equal(layout[layout.length - 1], Core.BOSS_ROOM_INDEX, `seed ${seed} must end at the boss`);
+    assert.equal(layout[layout.length - 1], STAGE.bossIndex, `seed ${seed} must end at the boss`);
     assert.equal(
       layout[layout.length - 2],
-      Core.GAUNTLET_ROOM_INDEX,
-      `seed ${seed} must run the gauntlet before the throne`
+      STAGE.gauntletIndex,
+      `seed ${seed} must run the gauntlet before the boss`
     );
     assert.equal(new Set(layout).size, layout.length, `seed ${seed} repeats a room`);
     layout.slice(0, -1).forEach((index) => {
       assert.ok(
-        index >= 0 && index < Core.BOSS_ROOM_INDEX,
+        index >= 0 && index < STAGE.bossIndex,
         `seed ${seed} drew ${index} outside the combat pool`
       );
     });
@@ -7301,40 +7343,51 @@ test("the alternate room is a real possibility, not scenery", () => {
   let included = 0;
   const skippable = new Set();
   for (let seed = 1; seed <= 200; seed += 1) {
-    const layout = Core.layoutForSeed(seed);
-    if (layout.includes(Core.ALTERNATE_ROOM_INDEX)) included += 1;
-    for (let index = 0; index < Core.BOSS_ROOM_INDEX; index += 1) {
-      if (index !== Core.GAUNTLET_ROOM_INDEX && !layout.includes(index)) skippable.add(index);
+    const layout = Core.layoutForSeed(STAGE, seed);
+    if (layout.includes(ALTERNATE_ROOM_INDEX)) included += 1;
+    for (let index = 0; index < STAGE.bossIndex; index += 1) {
+      if (index !== STAGE.gauntletIndex && !layout.includes(index)) skippable.add(index);
     }
   }
   assert.ok(included > 40, `the alternate should appear often, saw ${included}/200`);
   assert.ok(included < 200, "and it must sometimes be skipped");
-  assert.equal(skippable.size, 4, "every non-gauntlet combat room can be skipped");
+  assert.equal(
+    skippable.size,
+    STAGE.bossIndex - 1,
+    "every non-gauntlet combat room can be skipped"
+  );
 });
 
 test("the layout changes what you fight, not only the order", () => {
   const rosters = new Set();
-  const enemyCounts = new Set();
+  const threats = new Set();
   for (let seed = 1; seed <= 200; seed += 1) {
-    const layout = Core.layoutForSeed(seed);
+    const layout = Core.layoutForSeed(STAGE, seed);
     rosters.add(layout.slice(0, -1).sort().join(","));
-    enemyCounts.add(enemiesInRun(seed));
+    /*
+     * 幽暗密林's rooms all field three bodies bar the boss room's two, so the
+     * head count of a run is the same whatever the seed. What the seed changes
+     * is *which* bodies, and that is what the run's total health measures.
+     */
+    threats.add(
+      layout.reduce((total, index) => total + Core.roomThreat(STAGE, index), 0)
+    );
   }
   assert.ok(rosters.size > 1, "different seeds field different rooms");
   assert.ok(
-    enemyCounts.size > 1,
-    `different seeds field different enemy counts, got ${[...enemyCounts].join(", ")}`
+    threats.size > 1,
+    `different seeds field different fights, got ${[...threats].join(", ")}`
   );
 });
 
 test("startRoom follows the seed's layout", () => {
   const seed = 42;
-  const layout = Core.layoutForSeed(seed);
+  const layout = Core.layoutForSeed(STAGE, seed);
   const state = Core.createState({ seed });
 
   assert.deepEqual(state.layout, layout);
-  assert.equal(state.room.name, Core.ROOMS[layout[0]].name);
-  assert.equal(state.enemies.length, Core.ROOMS[layout[0]].enemies.length);
+  assert.equal(state.room.name, ROOMS[layout[0]].name);
+  assert.equal(state.enemies.length, ROOMS[layout[0]].enemies.length);
 
   killAll(state);
   Core.step(state, {});
@@ -7343,49 +7396,55 @@ test("startRoom follows the seed's layout", () => {
   Core.step(state, {});
 
   assert.equal(state.roomIndex, 1);
-  assert.equal(state.room.name, Core.ROOMS[layout[1]].name);
-  assert.equal(state.enemies.length, Core.ROOMS[layout[1]].enemies.length);
+  assert.equal(state.room.name, ROOMS[layout[1]].name);
+  assert.equal(state.enemies.length, ROOMS[layout[1]].enemies.length);
 });
 
 test("the gauntlet ahead of the boss mixes caster pressure with the elite mini-boss", () => {
-  assert.equal(Core.ROOMS.length, 6, "the pool holds five combat rooms plus the throne");
-  assert.equal(Core.BOSS_ROOM_INDEX, Core.ROOMS.length - 1);
+  assert.equal(ROOMS.length, STAGE.bossIndex + 1, "the pool is the combat rooms plus the boss room");
+  assert.equal(STAGE.bossIndex, ROOMS.length - 1, "the boss room closes the pool");
 
   /* Every seed runs the same number of rooms, ending with the gauntlet and boss. */
   [1, 7, 42, Core.DEFAULT_SEED].forEach((seed) => {
-    const layout = Core.layoutForSeed(seed);
+    const layout = Core.layoutForSeed(STAGE, seed);
     assert.equal(layout.length, Core.RUN_COMBAT_ROOMS + 1, `seed ${seed} run length`);
-    assert.equal(layout[layout.length - 1], Core.BOSS_ROOM_INDEX, "the boss closes every run");
+    assert.equal(layout[layout.length - 1], STAGE.bossIndex, "the boss closes every run");
     assert.equal(
       layout[layout.length - 2],
-      Core.GAUNTLET_ROOM_INDEX,
-      "the gauntlet always sits directly before the throne"
+      STAGE.gauntletIndex,
+      "the gauntlet always sits directly before the boss"
     );
     assert.equal(new Set(layout).size, layout.length, "a run never repeats a room");
   });
 
-  const bossRoom = Core.ROOMS[Core.BOSS_ROOM_INDEX];
-  assert.ok(
-    bossRoom.enemies.some((enemy) => enemy.type === "boss"),
-    "the boss must still close the dungeon"
+  const bossRoom = ROOMS[STAGE.bossIndex];
+  assert.equal(
+    bossRoom.enemies.filter((enemy) => enemy.type === "boss").length,
+    1,
+    "the boss must still close the stage, and be the only boss in it"
   );
-  assert.equal(bossRoom.enemies.length, 2, "the boss room stays a bodyguard fight");
+  assert.ok(
+    bossRoom.enemies.length >= 2,
+    "the boss room stays a bodyguard fight, not a solo"
+  );
   assert.equal(
     bossRoom.enemies.filter((enemy) => enemy.type === "elite").length,
     0,
-    "the mini-boss belongs to the gauntlet, not the throne room"
+    "the mini-boss belongs to the gauntlet, not the boss room"
   );
 
-  const gauntlet = Core.ROOMS[Core.GAUNTLET_ROOM_INDEX];
+  const gauntlet = ROOMS[STAGE.gauntletIndex];
   const types = gauntlet.enemies.map((enemy) => enemy.type);
   assert.ok(types.includes("caster"), `caster pressure missing from ${gauntlet.name}`);
-  assert.ok(types.includes("charger"), `charger pressure missing from ${gauntlet.name}`);
+  /* 幽暗密林 fields no charger anywhere in its rooms, so the chaff under the
+   * elite is a melee body here; the charge archetype keeps its own test. */
+  assert.ok(types.includes("grunt"), `melee chaff missing from ${gauntlet.name}`);
   assert.equal(
     types.filter((type) => type === "elite").length,
     1,
     "the gauntlet holds exactly one elite mini-boss"
   );
-  assert.equal(types.includes("boss"), false, "the gauntlet is not the throne room");
+  assert.equal(types.includes("boss"), false, "the gauntlet is not the boss room");
   assert.ok(
     gauntlet.enemies.length <= 3,
     "the gauntlet stays readable: three threats, one of them the mini-boss"
@@ -7522,7 +7581,7 @@ test("the last room still ends the run instead of offering a reward", () => {
   Core.step(state, {});
 
   assert.equal(state.victory, true);
-  assert.equal(state.upgradeChoice, null, "the throne room pays out with victory, not a card");
+  assert.equal(state.upgradeChoice, null, "the boss room pays out with victory, not a card");
 });
 
 test("the renderer lays out three tap targets and hit-tests them", () => {
@@ -7624,7 +7683,7 @@ test("the elite is a mini-boss, not a second boss: no phase two, no boss drop", 
   const elite = Core.createEnemy(state, "elite", state.player.x + 90);
   state.enemies = [elite];
 
-  assert.equal(elite.phase2, null, "only the Goblin King enrages");
+  assert.equal(elite.phase2, null, "only the stage's boss enrages");
   assert.equal(elite.phase, 1);
   Core.damageEnemy(state, elite, elite.maxHp * 0.6, 0, state.player.x);
   assert.equal(elite.phase, 1, "the elite never enters a second phase");
@@ -7671,9 +7730,19 @@ test("the renderer gives the enraged boss its own palette, aura and bar label", 
   Render.render(ctx, state, {});
   const calmArcs = calls.filter((call) => call[0] === "arc").length;
   const calmTexts = calls.filter((call) => call[0] === "fillText").map((call) => call[1]);
-  assert.ok(calmTexts.includes("GOBLIN KING"), "phase one keeps the plain bar label");
+  /*
+   * The label is the **stage's** boss, and the stage is the only place that
+   * knows it: `render.js` used to draw a hard-coded "GOBLIN KING" long after
+   * that boss was deleted, while `STAGES.*.bossName` was read by nobody.
+   */
+  const bossName = STAGE.bossName;
+  const enrageMark = "狂暴";
+  assert.ok(
+    calmTexts.includes(bossName),
+    `the bar must name this stage's boss (${bossName}), got ${JSON.stringify(calmTexts)}`
+  );
   assert.equal(
-    calmTexts.some((text) => String(text).includes("狂暴")),
+    calmTexts.some((text) => String(text).includes(enrageMark)),
     false,
     "phase one must not claim to be enraged"
   );
@@ -7683,9 +7752,13 @@ test("the renderer gives the enraged boss its own palette, aura and bar label", 
   Render.render(ctx, state, {});
   const enragedArcs = calls.filter((call) => call[0] === "arc").length;
   const enragedTexts = calls.filter((call) => call[0] === "fillText").map((call) => call[1]);
+  const enragedMarked = enragedTexts.filter((text) => String(text).includes(enrageMark));
+  assert.ok(enragedMarked.length >= 1, "the bar must read as enraged in phase two");
   assert.ok(
-    enragedTexts.some((text) => String(text).includes("狂暴")),
-    "the bar must read as enraged in phase two"
+    enragedMarked.some((text) =>
+      calmTexts.includes(String(text).replace(" · " + enrageMark, ""))
+    ),
+    "and the enrage is phase one's label with its suffix"
   );
   assert.ok(
     enragedArcs > calmArcs,
@@ -7724,7 +7797,7 @@ test("the title screen shows the seed record and a clear shows the result", () =
     run: { seed: 7, improved: true, resultText: "新纪录！ 0:44.4 · Lv 4", recordText: run.recordText }
   });
   const clearTexts = textsFrom(clearCalls);
-  assert.ok(clearTexts.includes("DUNGEON CLEARED"));
+  assert.ok(clearTexts.includes(cleared.stage.name + " 通关"));
   assert.ok(
     clearTexts.some((text) => text.includes("新纪录！")),
     `a record run must say so: ${clearTexts.join(" / ")}`
@@ -7876,14 +7949,16 @@ test("the room banner moves clear of the boss bar and the help quotes the real r
     `the help overlay must quote the run length (${help.layout.length}): ${texts.join(" / ")}`
   );
 
-  /* Killing the boss stacks "Boss down!" and "Dungeon cleared!" in the same frame. */
+  /* Killing the boss stacks "Boss down!" and the stage's clear banner in the same frame. */
   const stacked = [];
   const cleared = Core.createState({ seed: Core.DEFAULT_SEED, roomIndex: lastRoomIndex() });
   cleared.effects.push({ kind: "banner", text: "Boss down!", life: 1, maxLife: 1 });
-  cleared.effects.push({ kind: "banner", text: "Dungeon cleared!", life: 1, maxLife: 1 });
+  cleared.effects.push({ kind: "banner", text: STAGE.clearBanner, life: 1, maxLife: 1 });
   Render.render(recordingContext(stacked), cleared, {});
   const first = stacked.find((call) => call[0] === "fillText" && call[1] === "Boss down!")[3];
-  const second = stacked.find((call) => call[0] === "fillText" && call[1] === "Dungeon cleared!")[3];
+  const second = stacked.find(
+    (call) => call[0] === "fillText" && call[1] === STAGE.clearBanner
+  )[3];
   assert.notEqual(first, second, "stacked banners must not overprint each other");
 });
 

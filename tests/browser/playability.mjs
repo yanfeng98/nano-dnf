@@ -419,7 +419,8 @@ async function runPass(browser, baseUrl, options) {
     skills: JSON.parse(JSON.stringify(window.DNFCore.SKILLS)),
     skillOrder: window.DNFCore.SKILL_ORDER,
     arena: JSON.parse(JSON.stringify(window.DNFCore.ARENA)),
-    rooms: JSON.parse(JSON.stringify(window.DNFCore.ROOMS)),
+    /* The rooms of the run's own stage: a pool belongs to a stage now. */
+    rooms: JSON.parse(JSON.stringify(window.nanoDnf.getState().stage.rooms)),
     /*
      * How far off a monster's row a swing still crosses, in world pixels, read
      * off the game's own numbers: the bot has to aim with the same reach the hit
@@ -540,7 +541,19 @@ async function runPass(browser, baseUrl, options) {
     if (JSON.stringify(await realSnapshot()) !== JSON.stringify(inertBefore)) {
       attractDemo.inert = false;
     }
-    if (attractDemo.upgradePicks >= 1 && attractDemo.roomsReached >= 2) break;
+    /*
+     * `upgradeShown` is part of the exit condition on purpose. The demo picks a
+     * card and walks through the gate it opened well inside one poll interval,
+     * so breaking as soon as those two are seen can leave the card never
+     * observed at a poll - which is a race, not a fact about the demo.
+     */
+    if (
+      attractDemo.upgradeShown &&
+      attractDemo.upgradePicks >= 1 &&
+      attractDemo.roomsReached >= 2
+    ) {
+      break;
+    }
     await page.waitForTimeout(250);
   }
   await page.screenshot({ path: path.join(ARTIFACTS, "attract-play.png") });
@@ -583,6 +596,13 @@ async function runPass(browser, baseUrl, options) {
    * the skill back, then put the run back to its starting state so the pass
    * itself is measured from a clean run.
    */
+  /*
+   * Two commits, not one: off the title the game goes to the region map first
+   * and the run is entered from there (`main.js`: "into the hub, not straight
+   * into a run"). The map freezes the sim while it is up.
+   */
+  await page.keyboard.press("Enter");
+  await page.waitForTimeout(80);
   await page.keyboard.press("Enter");
   await page.waitForTimeout(80);
   /* Taking over retires the demo: F1 mid-run must not replay it. */
@@ -960,8 +980,45 @@ async function runPass(browser, baseUrl, options) {
       });
       await page.waitForTimeout(60);
       await page.screenshot({ path: path.join(ARTIFACTS, "rage-stance.png") });
-      await castStance();
-      await waitWatching(240);
+      /*
+       * Take the stance down. **The second cast has to actually land**, and a
+       * skill pressed while the Slayer is rooted - mid-swing, mid-recovery - is
+       * refused by the game's own rules, so a single press at a fixed delay is a
+       * race between the animation's remaining frames and the harness's round
+       * trip. That race is real, not a defect: the state above deliberately left
+       * him mid-attack for the screenshot.
+       *
+       * So press until it takes, within a bounded window. This cannot mask a
+       * broken toggle - if the stance never comes down, the loop runs out and
+       * `off` is still false - but it stops the check from measuring latency.
+       */
+      const releaseDeadline = Date.now() + 4000;
+      let off = false;
+      while (Date.now() < releaseDeadline) {
+        /*
+         * Cast only when the game would accept it. 血之狂暴 has a **3 s
+         * cooldown** and a cast is refused while the Slayer is rooted, so
+         * pressing on a fixed beat spends most of its presses on refusals and
+         * the check becomes a race with whichever timer is longest. Waiting for
+         * a legal moment keeps what is being proved - that a second cast takes
+         * the stance down - and drops the part that was measuring latency.
+         */
+        const legal = await page.evaluate(() => {
+          const p = window.nanoDnf.getState().player;
+          return {
+            cooling: (p.skillCooldowns && p.skillCooldowns.frenzy) || 0,
+            rooted: p.skillTimer > 0 || p.attackTimer > 0
+          };
+        });
+        if (!legal.cooling && !legal.rooted) {
+          await castStance();
+          await waitWatching(220);
+        } else {
+          await waitWatching(120);
+        }
+        off = !(await page.evaluate(() => window.nanoDnf.isRaging()));
+        if (off) break;
+      }
       stanceReadout = {
         hpBefore: hpBeforeStance,
         raging: raised.raging,
@@ -970,7 +1027,8 @@ async function runPass(browser, baseUrl, options) {
         orbs: blood.orbs,
         flying: blood.flying,
         hits: blood.hits,
-        off: !(await page.evaluate(() => window.nanoDnf.isRaging()))
+        /* From the release loop above, so the two cannot disagree. */
+        off: off
       };
 
       /*
@@ -1246,7 +1304,16 @@ async function runPass(browser, baseUrl, options) {
    * fight for a moment so the table has real numbers, then take a lethal hit
    * through the game's own damage path and read the YOU DIED screen.
    */
+  /*
+   * `F3` on a finished run goes back to the region map, not straight into
+   * another attempt - picking the stage is the next decision (`src/main.js`).
+   * So the second run is two commits again: out to the map, then into the
+   * stage the cursor is already sitting on.
+   */
   await page.keyboard.press("F3");
+  await page.waitForTimeout(120);
+  await page.keyboard.press("Enter");
+  await page.waitForTimeout(120);
   await page.keyboard.down("ArrowRight");
   await page.keyboard.down("KeyX");
   await page.waitForTimeout(5000);
@@ -1340,6 +1407,8 @@ async function runPass(browser, baseUrl, options) {
   /* The cleared run must have been banked, and banked in storage. */
   const records = await page.evaluate(() => ({
     seed: window.nanoDnf.getSeed(),
+    /* A record is keyed `<stage>:<seed>` now - a run is one stage. */
+    stage: window.nanoDnf.getStage(),
     store: window.nanoDnf.getRecords(),
     summary: window.nanoDnf.getRunSummary(),
     stored: window.localStorage.getItem("nano-dnf-records")
@@ -1451,7 +1520,7 @@ async function runPass(browser, baseUrl, options) {
     await page.evaluate(() => {
       const state = window.nanoDnf.getState();
       const chapel = state.layout.findIndex((index) => {
-        const spec = window.DNFCore.ROOMS[index];
+        const spec = state.stage.rooms[index];
         return spec.hazards && spec.hazards.length;
       });
       if (chapel === -1) return;
@@ -1891,11 +1960,15 @@ function problemsFor(pass) {
         `restored=${music.mute && music.mute.restoredGain})`
     );
   }
+  const bankedKey = `${pass.records.stage}:${pass.records.seed}`;
   const banked = pass.records && pass.records.store && pass.records.store.seeds
-    ? pass.records.store.seeds[String(pass.records.seed)]
+    ? pass.records.store.seeds[bankedKey]
     : null;
   if (!banked) {
-    problems.push(`${pass.mode}: the cleared run was not recorded for seed ${pass.records.seed}`);
+    problems.push(
+      `${pass.mode}: the cleared run was not recorded for ${bankedKey} ` +
+        `(store holds ${Object.keys((pass.records.store && pass.records.store.seeds) || {}).join(", ") || "nothing"})`
+    );
   } else {
     if (banked.clears !== 1) {
       problems.push(`${pass.mode}: expected 1 clear on the fresh store, got ${banked.clears}`);

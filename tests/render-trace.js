@@ -10,9 +10,9 @@
  * `write` plays two scenarios through the real renderer with a stand-in 2D
  * context that records every call, and hashes each frame. The attract demo
  * covers a whole run on its own (fights, skills, the boss, the upgrade cards)
- * and the Sunken Chapel is entered by hand because a layout drawn from the pool
- * does not always contain it - the collapsing slabs are the one thing on the
- * floor that is drawn as a disc, so they have to be in the sample.
+ * and the collapsing-floor room is entered by hand because a layout drawn from
+ * the pool does not always contain it - the collapsing slabs are the one thing
+ * on the floor that is drawn as a disc, so they have to be in the sample.
  *
  * `compare` answers the question the depth work keeps needing answered: given a
  * change that claims not to move something, where did it actually move? Equal
@@ -117,9 +117,14 @@ function write(path, attractSeconds, chapelSeconds) {
     if (session.state) capture(session.state, i);
   }
 
-  /* Then the Sunken Chapel, driven by hand: hazards, collapses and the gate. */
+  /* Then the collapsing-floor room (胆小鬼的窝), driven by hand: hazards,
+   * collapses and the gate. Its index is read off the stage, since a layout
+   * drawn from the pool does not always contain it. */
+  const hazardRoom = Core.STAGES.mirkwood.rooms.findIndex(
+    (room) => room.hazards && room.hazards.length
+  );
   const chapel = Core.createState({ seed: Core.DEFAULT_SEED });
-  chapel.layout = [Core.ALTERNATE_ROOM_INDEX];
+  chapel.layout = [hazardRoom];
   Core.startRoom(chapel, 0);
   const chapelFrames = Math.round(chapelSeconds / Core.DT);
   const offset = frames.length;

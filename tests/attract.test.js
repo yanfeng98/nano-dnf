@@ -84,7 +84,7 @@ test("the demo carries the run into the boss rage and past it", () => {
       if (phase2At !== null && clearAt !== null) break;
     }
     assert.notEqual(phase2At, null, `seed ${seed}: the demo never showed the phase-two boss`);
-    assert.notEqual(clearAt, null, `seed ${seed}: the demo never finished the throne room`);
+    assert.notEqual(clearAt, null, `seed ${seed}: the demo never finished the stage`);
     assert.ok(
       clearAt >= phase2At,
       `seed ${seed}: the clear came before the rage (${phase2At} -> ${clearAt})`

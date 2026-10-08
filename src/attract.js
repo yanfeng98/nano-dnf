@@ -150,8 +150,17 @@
     /*
      * Holding the direction keeps the swing pointed at the target; the rooted
      * attack damps the walk, so it reads as a step-in combo rather than a charge.
+     *
+     * **Both** directions, not just `dx < 0`. The old line pressed left only,
+     * assuming that anything already inside `APPROACH` was being faced. A knock
+     * back can shove him *past* the monster, and then he keeps the wrong face for
+     * the rest of the fight: the swing box is built out of `facing`
+     * (`startAttack`), so the demo and the monster end up standing 36 px apart
+     * trading blows that cannot land. `facing` follows the movement direction, so
+     * asking to walk the way he is looking is also how he turns around.
      */
     if (dx < 0) input.left = true;
+    else input.right = true;
     input.attack = true;
     if (state.player.onGround && target.y < state.player.y - LEAP_GAP) input.jump = true;
     var skill = readySkill(session, state);

@@ -1458,6 +1458,19 @@
    */
   var CHEST_OF_HEIGHT = 0.75;
 
+  /*
+   * **Sizes here are gameplay, not art.** `width` and `height` are the boxes the
+   * AI and the hit tests reason about, and every range below was tuned against
+   * them - they are centre-to-centre (`chooseEnemyAction`), so a body that grows
+   * without its ranges growing beside it stops being able to reach anything.
+   *
+   * The monsters are *drawn* at the size the client draws them, which is a
+   * separate number on purpose: see `MONSTER.draw` in src/render.js. Measured off
+   * the owner's 幽暗密林 recording, a goblin is about 0.85 of a Slayer on screen
+   * and 牛头巨兽 is about 3.2 - so the beast is drawn at more than three times a
+   * goblin, which is most of what makes it read as a boss, while the fight it
+   * fights is still the one these boxes were tuned for.
+   */
   var ENEMY_TYPES = {
     grunt: {
       behavior: "melee",
@@ -1472,6 +1485,26 @@
       attackDuration: 0.5,
       attackCooldown: 1.05,
       knockbackX: 150
+    },
+    /*
+     * 胆小哥布林: the same melee rank and file, but it breaks sooner and comes
+     * back faster - less health than a grunt and quicker on its feet. It is a
+     * stat change on `melee`, not a new behaviour, which is what the stage's
+     * roster asked for (`docs/adr/0026` 换皮为主).
+     */
+    coward: {
+      behavior: "melee",
+      maxHp: 22,
+      xp: 8,
+      width: 26,
+      height: 52,
+      speed: 118,
+      damage: 5,
+      attackRange: 42,
+      attackWindup: 0.24,
+      attackDuration: 0.44,
+      attackCooldown: 0.9,
+      knockbackX: 130
     },
     brute: {
       behavior: "melee",
@@ -1609,99 +1642,203 @@
     }
   };
 
-  var ROOMS = [
-    {
-      name: "Forsaken Alley",
-      enemies: [
-        { type: "grunt", x: 620 },
-        { type: "grunt", x: 790 }
-      ]
-    },
-    {
-      name: "Bloody Culvert",
-      enemies: [
-        { type: "grunt", x: 540 },
-        { type: "caster", x: 700 },
-        { type: "brute", x: 760 },
-        { type: "grunt", x: 890 }
-      ]
-    },
-    {
-      name: "Ossuary Gate",
-      enemies: [
-        { type: "charger", x: 600 },
-        { type: "brute", x: 760 },
-        { type: "brute", x: 870 }
-      ]
-    },
-    {
-      /*
-       * The gauntlet before the throne: caster pressure, the elite mini-boss and
-       * a charger that punishes a Slayer caught mid-air. Spacing is deliberate -
-       * each threat needs room to telegraph before the next one commits.
-       */
-      name: "Broken Span",
-      enemies: [
-        /*
-         * A caster keeps its distance, and it has two axes to keep it on: it
-         * opens the fight standing back rather than on the Slayer's row, so the
-         * first thing this fight asks for is a step into the screen - and it
-         * holds that row (see chooseEnemyAction), so the step has to be taken.
-         * `depth` is a share of the room's floor, not a distance: a room that
-         * knows how deep its floor is can still say "a third back", and the same
-         * number means the same place whatever the floor turns out to be.
-         */
-        { type: "caster", x: 600, depth: 0.37 },
-        { type: "elite", x: 780 },
-        { type: "charger", x: 920 }
-      ]
-    },
-    {
-      /* The alternate: a wider, slower room that trades the charger for bodies. */
-      name: "Sunken Chapel",
-      enemies: [
-        { type: "caster", x: 560, depth: 0.3 },
-        { type: "brute", x: 720 },
-        { type: "grunt", x: 860 }
-      ],
-      /* Two slabs give way on offset cycles, so the safe ground keeps moving. */
-      hazards: [
-        { x: 640 },
-        { x: 850 }
-      ],
-      /*
-       * Wider than the default floor, which is what the room already says it is:
-       * 150 screen px against 120, 682 z against 545, so a third more floor to
-       * cross and to dodge across. The slabs cover the whole of it either way -
-       * they are a timing puzzle, not a walk-around.
-       */
-      band: { backY: 280 }
-    },
-    {
-      name: "Goblin King's Hall",
-      enemies: [
-        { type: "grunt", x: 520 },
-        { type: "boss", x: 740 }
-      ],
-      /*
-       * And the throne room is the other way: a ledge, 60 screen px against 120.
-       * The King's slam is a disc on the floor, so a narrow floor is what makes
-       * it bite - there is nowhere to stand aside to, and the way out is the
-       * jump it has always had. A room with less floor is a room with fewer
-       * answers, which is what the last room should be.
-       */
-      band: { backY: 370 }
-    }
-  ];
-
   /*
-   * A run is not the whole pool. The gauntlet always sits directly before the
-   * throne; the three rooms ahead of it are drawn from the rest of the pool, so
-   * two seeds differ in both order and which room they skip.
+   * 地区 -> 关卡 -> 房间 (`CONTEXT.md`, `docs/adr/0026`).
+   *
+   * A stage is one named dungeon: a run of rooms ending in its own boss, and a
+   * **run of its own** - the seed, the upgrade cards and the record all live
+   * inside one stage now. The eight stages of 格兰之森 are the whole game; the
+   * old six-room tower, and the Goblin King that sat at the top of it, are gone.
+   *
+   * Only 幽暗密林 has rooms so far. The rest are declared because the region map
+   * draws all eight slots (the client's own stage-select strip has them) and a
+   * stage with no `rooms` simply cannot be entered yet.
    */
-  var BOSS_ROOM_INDEX = ROOMS.length - 1;
-  var GAUNTLET_ROOM_INDEX = 3;
-  var ALTERNATE_ROOM_INDEX = 4;
+  var REGION = {
+    id: "granfloris",
+    name: "格兰之森",
+    /* Unlock order: parent stage first, its variant right behind it. */
+    stages: [
+      "mirkwood",
+      "mirkwooddeep",
+      "sunderland",
+      "mirkwoodfrost",
+      "sunderlandpoison",
+      "grakkarak",
+      "grakkarakburning",
+      "sunderlanddark"
+    ]
+  };
+
+  var STAGES = {
+    mirkwood: {
+      id: "mirkwood",
+      /* The client's own code, off the `sprite/map/title/mirkwood.img` banner. */
+      code: "mirkwood",
+      name: "幽暗密林",
+      /* 适合等级, off the DNF table; the run opens at `level[0]`. */
+      level: [3, 5],
+      /* Which frame of the client's stage-select strip is this stage. */
+      slot: 0,
+      /*
+       * Six rooms declared, five fought: a run draws three of the four
+       * non-gauntlet combat rooms, so the seed still decides the order and which
+       * one is skipped. `gauntlet` always sits directly before the beast, which
+       * is what makes it a ramp rather than a coin flip.
+       */
+      rooms: [
+        {
+          name: "林间空地",
+          enemies: [
+            { type: "grunt", x: 620 },
+            { type: "grunt", x: 790 },
+            { type: "grunt", x: 880 }
+          ]
+        },
+        {
+          /*
+           * The throwers hold a row of their own, so this fight asks for a step
+           * into the screen before it can be won - the same job the old caster
+           * rooms did, said again with goblins (`chooseEnemyAction` holds it).
+           */
+          name: "投石坡",
+          enemies: [
+            { type: "caster", x: 600, depth: 0.34 },
+            { type: "grunt", x: 720 },
+            { type: "grunt", x: 900 }
+          ]
+        },
+        {
+          name: "兽栏",
+          enemies: [
+            { type: "brute", x: 700 },
+            { type: "brute", x: 850 },
+            { type: "grunt", x: 560 }
+          ]
+        },
+        {
+          /*
+           * 十夫长的营寨, the gauntlet: the ten-captain is the skill check, and
+           * the thrower behind him keeps the floor honest while he spins.
+           */
+          name: "十夫长的营寨",
+          enemies: [
+            { type: "caster", x: 560, depth: 0.4 },
+            { type: "elite", x: 760 },
+            { type: "grunt", x: 920 }
+          ]
+        },
+        {
+          /*
+           * The alternate: the cowards break and run, so they arrive in a pack -
+           * and the floor is theirs, because this is the room they dug. The two
+           * slabs give way on offset cycles, so the safe ground keeps moving; the
+           * mechanic is 沉没礼拜堂's and survived its room (`docs/adr/0026`),
+           * re-hung here where a goblin warren makes it read.
+           *
+           * Wider than the default floor, which is what the room already is: a
+           * warren is something you cross, not a corridor you hold - 150 screen
+           * px against 120, so a third more ground to be pushed across.
+           */
+          name: "胆小鬼的窝",
+          enemies: [
+            { type: "coward", x: 600 },
+            { type: "coward", x: 740 },
+            { type: "coward", x: 880 }
+          ],
+          hazards: [
+            { x: 640 },
+            { x: 850 }
+          ],
+          band: { backY: 280 }
+        },
+        {
+          /*
+           * 牛头巨兽的林地. The beast charges on a line, so this floor is a
+           * little wider than the default instead of narrower: there has to be
+           * somewhere to be that is not in front of it.
+           */
+          name: "牛头巨兽的林地",
+          enemies: [
+            { type: "grunt", x: 520 },
+            { type: "boss", x: 780 }
+          ],
+          band: { backY: 300 }
+        }
+      ],
+      bossIndex: 5,
+      gauntletIndex: 3,
+      /*
+       * The beast's own name, and what it says when it crosses half health -
+       * every stage's boss is a different animal, so the banner is the stage's
+       * to own rather than the `boss` archetype's.
+       */
+      bossName: "牛头巨兽",
+      bossBanner: "牛头巨兽 暴怒！",
+      clearBanner: "幽暗密林 通关！"
+    },
+
+    mirkwooddeep: {
+      id: "mirkwooddeep",
+      code: "mirkwooddeep",
+      name: "幽暗密林深处",
+      level: [4, 7],
+      slot: 1,
+      rooms: []
+    },
+    sunderland: {
+      id: "sunderland",
+      code: "sunderland",
+      name: "雷鸣废墟",
+      level: [6, 9],
+      slot: 3,
+      rooms: []
+    },
+    mirkwoodfrost: {
+      id: "mirkwoodfrost",
+      code: "mirkwoodfrost",
+      name: "冰霜幽暗密林",
+      level: [6, 9],
+      slot: 2,
+      rooms: []
+    },
+    sunderlandpoison: {
+      id: "sunderlandpoison",
+      code: "sunderlandpoison",
+      name: "猛毒雷鸣废墟",
+      level: [8, 11],
+      slot: 4,
+      rooms: []
+    },
+    grakkarak: {
+      id: "grakkarak",
+      code: "grakkarak",
+      name: "格拉卡",
+      level: [11, 14],
+      slot: 5,
+      rooms: []
+    },
+    grakkarakburning: {
+      id: "grakkarakburning",
+      code: "grakkarakburning",
+      name: "烈焰格拉卡",
+      level: [6, 9],
+      slot: 6,
+      rooms: []
+    },
+    sunderlanddark: {
+      id: "sunderlanddark",
+      code: "sunderlanddark",
+      name: "暗黑雷鸣废墟",
+      level: [17, 20],
+      slot: 7,
+      rooms: []
+    }
+  };
+
+  /* The stage a run starts on until the region map says otherwise. */
+  var DEFAULT_STAGE = "mirkwood";
+  /* How many combat rooms one run of a stage fights, the gauntlet included. */
   var RUN_COMBAT_ROOMS = 4;
 
   /* Same generator as the state RNG, but local: a layout must not consume the
@@ -1717,38 +1854,42 @@
   }
 
   /** How much punishment a room's roster carries, by base health. */
-  function roomThreat(index) {
-    return ROOMS[index].enemies.reduce(function (total, entry) {
+  function roomThreat(stage, index) {
+    return stage.rooms[index].enemies.reduce(function (total, entry) {
       var spec = ENEMY_TYPES[entry.type] || ENEMY_TYPES.grunt;
       return total + spec.maxHp;
     }, 0);
   }
 
   /**
-   * The gentlest half of the pool. A run opens on one of these: seeding the
-   * order used to be able to put the hardest room first, at level one with no
-   * upgrades, which is a spike rather than a ramp.
+   * The gentlest half of one stage's combat pool. A run opens on one of these:
+   * seeding the order used to be able to put the hardest room first, at level one
+   * with no upgrades, which is a spike rather than a ramp.
    */
-  function rampRooms() {
+  function rampRooms(stage) {
     var pool = [];
-    for (var index = 0; index < BOSS_ROOM_INDEX; index += 1) {
-      if (index !== GAUNTLET_ROOM_INDEX) pool.push(index);
+    for (var index = 0; index < stage.bossIndex; index += 1) {
+      if (index !== stage.gauntletIndex) pool.push(index);
     }
     pool.sort(function (a, b) {
-      return roomThreat(a) - roomThreat(b) || a - b;
+      return roomThreat(stage, a) - roomThreat(stage, b) || a - b;
     });
     return pool.slice(0, Math.max(1, Math.ceil(pool.length / 2)));
   }
 
-  /** The room order for one seed: a ramp room, two more, the gauntlet, the boss. */
-  function layoutForSeed(seed) {
+  /**
+   * The room order of one stage for one seed: a ramp room, two more, the
+   * gauntlet, the boss. It takes the stage now - every stage owns its own
+   * pool, its own gauntlet and its own boss, and a run is one stage.
+   */
+  function layoutForSeed(stage, seed) {
     var next = layoutRandom(seed);
-    var ramps = rampRooms();
+    var ramps = rampRooms(stage);
     var opening = ramps[Math.min(ramps.length - 1, Math.floor(next() * ramps.length))];
 
     var rest = [];
-    for (var index = 0; index < BOSS_ROOM_INDEX; index += 1) {
-      if (index !== GAUNTLET_ROOM_INDEX && index !== opening) rest.push(index);
+    for (var index = 0; index < stage.bossIndex; index += 1) {
+      if (index !== stage.gauntletIndex && index !== opening) rest.push(index);
     }
     /* Fisher-Yates on a copy, so the pool itself is never reordered. */
     for (var cursor = rest.length - 1; cursor > 0; cursor -= 1) {
@@ -1760,7 +1901,7 @@
     }
     return [opening]
       .concat(rest.slice(0, RUN_COMBAT_ROOMS - 2))
-      .concat([GAUNTLET_ROOM_INDEX, BOSS_ROOM_INDEX]);
+      .concat([stage.gauntletIndex, stage.bossIndex]);
   }
 
   var DEFAULT_SEED = 20260915;
@@ -2042,6 +2183,12 @@
     options = options || {};
     var state = {
       seed: typeof options.seed === "number" ? options.seed : DEFAULT_SEED,
+      /*
+       * Which stage this run is. It owns the room pool, the gauntlet index and
+       * the boss index, so a run is one stage and nothing climbs between them
+       * (`docs/adr/0026`). Resolved here once, and every reader goes through it.
+       */
+      stage: STAGES[options.stage] || STAGES[DEFAULT_STAGE],
       rngState: 0,
       time: 0,
       roomIndex: 0,
@@ -2078,17 +2225,17 @@
       defeat: false
     };
     state.rngState = state.seed >>> 0;
-    state.layout = layoutForSeed(state.seed);
+    state.layout = layoutForSeed(state.stage, state.seed);
     state.player = createPlayer(options.startX || 110);
     startRoom(state, options.roomIndex || 0);
     return state;
   }
 
   function startRoom(state, index) {
-    var layout = state.layout || layoutForSeed(state.seed);
+    var layout = state.layout || layoutForSeed(state.stage, state.seed);
     state.layout = layout;
     var roomIndex = clamp(index, 0, layout.length - 1);
-    var spec = ROOMS[layout[roomIndex]];
+    var spec = state.stage.rooms[layout[roomIndex]];
     state.roomIndex = roomIndex;
     state.room = { index: roomIndex, name: spec.name, total: spec.enemies.length, cleared: false };
     /*
@@ -2149,7 +2296,7 @@
     });
     state.effects.push({
       kind: "banner",
-      text: "Room " + (roomIndex + 1) + " - " + spec.name,
+      text: "房间 " + (roomIndex + 1) + " · " + spec.name,
       life: 1.8,
       maxLife: 1.8
     });
@@ -2512,7 +2659,7 @@
       life: 0.45,
       maxLife: 0.45
     });
-    pushBanner(state, phase2.banner, 1.8);
+    pushBanner(state, (state.stage && state.stage.bossBanner) || phase2.banner, 1.8);
     return true;
   }
 
@@ -4212,10 +4359,10 @@
       var isLast = state.roomIndex >= state.layout.length - 1;
       if (isLast) {
         state.victory = true;
-        pushBanner(state, "Dungeon cleared!", 2.4);
+        pushBanner(state, (state.stage && state.stage.clearBanner) || "Dungeon cleared!", 2.4);
       } else {
         offerUpgrade(state);
-        pushBanner(state, "Room cleared - choose an upgrade", 1.8);
+        pushBanner(state, "房间清空 · 选一张强化卡", 1.8);
       }
       return;
     }
@@ -4455,10 +4602,9 @@
     BLOOD_ORB: BLOOD_ORB,
     HELLBENTER: HELLBENTER,
     ENEMY_TYPES: ENEMY_TYPES,
-    ROOMS: ROOMS,
-    BOSS_ROOM_INDEX: BOSS_ROOM_INDEX,
-    GAUNTLET_ROOM_INDEX: GAUNTLET_ROOM_INDEX,
-    ALTERNATE_ROOM_INDEX: ALTERNATE_ROOM_INDEX,
+    REGION: REGION,
+    STAGES: STAGES,
+    DEFAULT_STAGE: DEFAULT_STAGE,
     RUN_COMBAT_ROOMS: RUN_COMBAT_ROOMS,
     layoutForSeed: layoutForSeed,
     roomThreat: roomThreat,

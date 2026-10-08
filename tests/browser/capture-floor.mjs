@@ -87,15 +87,19 @@ await page.keyboard.press("KeyC");
 await page.waitForTimeout(160);
 await shot("03-jump");
 
-/* The Sunken Chapel: two collapsing slabs, drawn as ellipses lying on the floor. */
-await jumpToPoolRoom(await page.evaluate(() => window.DNFCore.ALTERNATE_ROOM_INDEX));
+/* The collapsing-floor room (胆小鬼的窝): two slabs, drawn as ellipses on the floor. */
+await jumpToPoolRoom(
+  await page.evaluate(() =>
+    window.nanoDnf.getState().stage.rooms.findIndex((room) => room.hazards && room.hazards.length)
+  )
+);
 await page.waitForTimeout(500);
 await shot("04-chapel-dormant");
 await page.waitForTimeout(900);
 await shot("05-chapel-cracking");
 
 /* The boss room: the gate at the end of the floor, and a body on each side. */
-await jumpToPoolRoom(await page.evaluate(() => window.DNFCore.BOSS_ROOM_INDEX));
+await jumpToPoolRoom(await page.evaluate(() => window.nanoDnf.getState().stage.bossIndex));
 await page.waitForTimeout(500);
 await shot("06-boss-room");
 
@@ -108,7 +112,7 @@ await shot("06-boss-room");
 await page.evaluate(() => {
   const Core = window.DNFCore;
   const state = window.nanoDnf.getState();
-  state.layout = Core.layoutForSeed(state.seed);
+  state.layout = Core.layoutForSeed(state.stage, state.seed);
   Core.startRoom(state, 0);
   state.enemies.forEach((enemy) => {
     enemy.x = 900;

@@ -28,12 +28,26 @@
    * 128px cell can hold, so its two rows live there instead (see EFFECT.riftRows
    * in render.js).
    */
-  var sprites = { slayer: null, skills: null, effects: null, rift: null, awakening: null };
+  var sprites = {
+    slayer: null, skills: null, effects: null, rift: null, awakening: null, region: null,
+    monsters: null
+  };
   [
     ["slayer", "./assets/slayer.png"],
     ["skills", "./assets/skills.png"],
     ["effects", "./assets/effects.png"],
     ["rift", "./assets/rift.png"],
+    /*
+     * The region map's stage cards: the client's own menu art, nine 168x73
+     * cards with each stage's name and boss already painted into them
+     * (assets/import_dnf_region.py).
+     */
+    ["region", "./assets/region.png"],
+    /*
+     * The monsters of 幽暗密林: one row per archetype, frames in the client's
+     * own order (assets/import_dnf_monsters.py).
+     */
+    ["monsters", "./assets/monsters.png"],
     /*
      * 魔狱血刹's 觉醒插画, and the one piece of art in this folder that is not
      * baked from the client: the client has no 一觉 illustration to bake (see
@@ -160,6 +174,53 @@
     }
   }
 
+  /*
+   * Which stages are open. A stage unlocks when the one before it in
+   * `Core.REGION.stages` has been cleared, so the region is a ramp and not a
+   * menu - and the flag is the only thing about a run that outlives it
+   * (`docs/adr/0026`: no character, no carried levels).
+   */
+  var PROGRESS_KEY = "nano-dnf-progress";
+  var clearedStages = {};
+  try {
+    var savedProgress = window.localStorage.getItem(PROGRESS_KEY);
+    var parsedProgress = savedProgress ? JSON.parse(savedProgress) : null;
+    if (parsedProgress && typeof parsedProgress === "object" && parsedProgress.cleared) {
+      Object.keys(parsedProgress.cleared).forEach(function (id) {
+        if (parsedProgress.cleared[id] && Core.STAGES[id]) clearedStages[id] = true;
+      });
+    }
+  } catch (error) {
+    clearedStages = {};
+  }
+
+  function saveProgress() {
+    try {
+      window.localStorage.setItem(PROGRESS_KEY, JSON.stringify({ cleared: clearedStages }));
+    } catch (error) {
+      /* private mode: the unlock lasts for this session only */
+    }
+  }
+
+  function stageIsOpen(id) {
+    if (id === Core.REGION.stages[0]) return true;
+    var chain = Core.REGION.stages;
+    var spot = chain.indexOf(id);
+    if (spot <= 0) return false;
+    return !!clearedStages[chain[spot - 1]];
+  }
+
+  /* The next stage down the chain, if there is one and it has rooms to fight. */
+  function unlockNext(id) {
+    var chain = Core.REGION.stages;
+    var spot = chain.indexOf(id);
+    var next = spot >= 0 && spot + 1 < chain.length ? chain[spot + 1] : null;
+    clearedStages[id] = true;
+    saveProgress();
+    if (next && Core.STAGES[next] && Core.STAGES[next].rooms.length) return next;
+    return null;
+  }
+
   /* `?seed=123` pins a run; otherwise the shipped seed is the default. */
   function seedFromUrl() {
     var match = /[?&]seed=(\d{1,10})/.exec(location.search);
@@ -172,11 +233,13 @@
 
   var pinnedSeed = seedFromUrl();
   var currentSeed = pinnedSeed === null ? Core.DEFAULT_SEED : pinnedSeed;
+  /* Which stage the next run fights; the region map is what changes it. */
+  var currentStage = Core.REGION.stages[0];
   var lastRun = null;
   /* The numbers of the run that just ended, frozen at the clear. */
   var finishedRun = null;
 
-  var state = Core.createState({ seed: currentSeed });
+  var state = Core.createState({ seed: currentSeed, stage: currentStage });
   var paused = false;
   var showHelp = true;
   var accumulator = 0;
@@ -441,6 +504,7 @@
     if (!state.victory || runBanked) return;
     runBanked = true;
     var outcome = Records.record(records, {
+      stage: currentStage,
       seed: currentSeed,
       seconds: state.time,
       level: state.player.level,
@@ -448,7 +512,10 @@
     });
     records = outcome.store;
     lastRun = { improved: outcome.improved, entry: outcome.entry };
-    if (outcome.entry) saveRecords();
+    if (outcome.entry) {
+      saveRecords();
+      unlockNext(currentStage);
+    }
   }
 
   /*
@@ -473,8 +540,8 @@
 
   /* What the title and victory screens need, without leaking storage details. */
   function runSummary() {
-    var record = Records.best(records, currentSeed);
-    var overall = Records.bestOverall(records);
+    var record = Records.best(records, currentStage, currentSeed);
+    var overall = Records.bestOverall(records, currentStage);
     var link = shareLink();
     var run = finishedRun || {
       seed: currentSeed,
@@ -585,12 +652,20 @@
 
   function touchDown(event) {
     if (showHelp) {
-      showHelp = false;
-      leaveTitle();
+      openRegion();
       event.preventDefault();
       return;
     }
     var point = canvasPoint(event);
+    if (regionOpen) {
+      event.preventDefault();
+      ensureAudio();
+      var hit = Render.hitTestRegion(point.x, point.y, regionStageIds().length);
+      if (hit === null) return;
+      if (hit === regionSelection) regionEnter();
+      else regionPick(regionStageIds()[hit]);
+      return;
+    }
 
     /* The reward chooser owns the pointer while it is open. */
     if (state.upgradeChoice) {
@@ -720,8 +795,31 @@
       event.preventDefault();
       return;
     }
+    /*
+     * The region map owns the keyboard while it is up: arrows walk the cards and
+     * Enter commits. `F3` on a finished run goes back to it rather than straight
+     * into another attempt - picking the stage is the player's next decision.
+     */
+    if (regionOpen) {
+      if (event.code === "ArrowLeft" || event.code === "ArrowUp") {
+        regionMove(-1);
+        event.preventDefault();
+        return;
+      }
+      if (event.code === "ArrowRight" || event.code === "ArrowDown") {
+        regionMove(1);
+        event.preventDefault();
+        return;
+      }
+      if (event.code === "Enter" || event.code === "Space") {
+        regionEnter();
+        event.preventDefault();
+        return;
+      }
+    }
     if (event.code === "F3") {
-      restart();
+      if (state.victory || state.defeat) openRegion();
+      else restart();
       event.preventDefault();
       return;
     }
@@ -764,8 +862,10 @@
       return;
     }
     if (showHelp) {
-      showHelp = false;
-      leaveTitle();
+      /* Off the title and into the hub, not straight into a run. */
+      openRegion();
+      event.preventDefault();
+      return;
     }
     setKey(event.code, true, event);
   });
@@ -797,7 +897,7 @@
   });
 
   function restart() {
-    state = Core.createState({ seed: currentSeed });
+    state = Core.createState({ seed: currentSeed, stage: currentStage });
     paused = false;
     accumulator = 0;
     attractAccumulator = 0;
@@ -845,6 +945,68 @@
    */
   function leaveTitle() {
     attractActive = false;
+  }
+
+  /* ---------------------------------------------------------- region map */
+
+  /*
+   * The hub of the whole game: 格兰之森's eight stages, one card each. The cards
+   * are the client's own menu art (`assets/region.png`), so the stage's name and
+   * its boss are already on them and this screen draws no words of its own
+   * except the ones the client did not supply.
+   *
+   * Stages open in `Core.REGION.stages` order - a stage opens when the one
+   * before it is cleared - and the sim is frozen the whole time this is up, the
+   * same as every other full-screen overlay.
+   */
+  var regionOpen = false;
+  var regionSelection = 0;
+
+  function regionStageIds() {
+    return Core.REGION.stages.filter(function (id) {
+      return !!Core.STAGES[id];
+    });
+  }
+
+  function openRegion() {
+    regionOpen = true;
+    regionSelection = Math.max(0, regionStageIds().indexOf(currentStage));
+    showHelp = false;
+    leaveTitle();
+    /* Behind the map the run is rebuilt for whichever stage is selected, so the
+       attract demo and the first frame of the run are never stale. */
+    if (attractActive && Attract) attract = Attract.create({ seed: currentSeed });
+  }
+
+  /**
+   * Move the cursor onto a stage. **This does not choose it.** Merely walking
+   * across the map used to reassign `currentStage`, which is what a run is
+   * launched from and what a record is filed under - so arrowing past a card
+   * after a win filed the *next* run's name on the last run's record. Only
+   * `regionEnter` picks.
+   */
+  function regionPick(id) {
+    if (!id) return;
+    regionSelection = Math.max(0, regionStageIds().indexOf(id));
+  }
+
+  /** Start the stage the cursor is on, if it is open and built. */
+  function regionEnter() {
+    var ids = regionStageIds();
+    var spot = Math.max(0, Math.min(ids.length - 1, regionSelection));
+    var id = ids[spot];
+    if (!id || !stageIsOpen(id) || !Core.STAGES[id].rooms.length) return;
+    currentStage = id;
+    regionOpen = false;
+    restart();
+  }
+
+  /** Move the cursor, skipping nothing - a locked card is still worth reading. */
+  function regionMove(step) {
+    var ids = regionStageIds();
+    if (!ids.length) return;
+    regionSelection = (regionSelection + step + ids.length) % ids.length;
+    regionPick(ids[regionSelection]);
   }
 
   function currentInput() {
@@ -899,7 +1061,7 @@
      * overlay, so leaving it up used to let the room-1 enemies beat an idle
      * Slayer to 0 HP before the player pressed anything.
      */
-    if (!paused && !showHelp) {
+    if (!paused && !showHelp && !regionOpen) {
       accumulator += delta;
       var guard = 0;
       while (accumulator >= Core.DT && guard < 5) {
@@ -942,7 +1104,35 @@
       loadoutOpen: loadoutOpen,
       drag: drag,
       run: runSummary(),
-      hint: titleUp ? null : activeHint
+      hint: titleUp ? null : activeHint,
+      /*
+       * The region map, assembled here so render.js never reaches into the
+       * storage or the stage table for it (`drawRegionMap`).
+       */
+      region: regionOpen
+        ? {
+            open: true,
+            selected: regionSelection,
+            list: regionStageIds().map(function (id) {
+              var spec = Core.STAGES[id];
+              var best = Records.bestOverall(records, id);
+              /* The card art already carries the stage's name and its boss, so
+                 the only line render.js has to draw under a card is this one. */
+              var note = "Lv " + spec.level[0] + "–" + spec.level[1];
+              if (best) note += " · 最佳 " + Records.formatSeconds(best.seconds);
+              if (clearedStages[id]) note += " · 已通关";
+              return {
+                id: id,
+                name: spec.name,
+                slot: spec.slot,
+                built: spec.rooms.length > 0,
+                open: stageIsOpen(id),
+                cleared: !!clearedStages[id],
+                note: note
+              };
+            })
+          }
+        : null
     };
     /* A paused run reports itself from the live state, never from a finished one. */
     if (meta.paused && Summary) meta.liveRows = Summary.liveRun(state, currentSeed).rows;
@@ -1032,6 +1222,21 @@
     },
     getSeed: function () {
       return currentSeed;
+    },
+    /* Which stage the run is on, and where the region map has got to. */
+    getStage: function () {
+      return currentStage;
+    },
+    getProgress: function () {
+      return {
+        current: currentStage,
+        regionOpen: regionOpen,
+        selected: regionStageIds()[regionSelection] || null,
+        cleared: Object.keys(clearedStages).filter(function (id) {
+          return clearedStages[id];
+        }),
+        open: regionStageIds().filter(stageIsOpen)
+      };
     },
     getRecords: function () {
       return JSON.parse(JSON.stringify(records));

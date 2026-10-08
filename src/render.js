@@ -2378,7 +2378,179 @@
     bossPhase2: { body: "#ff4d6d", dark: "#8c0f26", accent: "#ffe9a8", eye: "#ff3b3b" }
   };
 
-  function drawEnemy(ctx, state, enemy) {
+  /*
+   * The monsters are the client's own art: `assets/monsters.png`, baked by
+   * `assets/import_dnf_monsters.py`. One row per archetype, frames in the
+   * client's own order.
+   *
+   * **Which frame is which action is not in the client** - it lives in the
+   * encrypted `Script.pvf` `.ani`. The ranges below were read off the owner's
+   * 幽暗密林 recording, by putting the video's frames next to the art's and
+   * matching poses (`assets/match_monster_motions.py`, `docs/granfloris-assets.md`).
+   *
+   * The cell and the anchor belong to the bake, not to this file: the sheet puts
+   * every monster's feet on `anchorY`, with the idle footprint centred on
+   * `anchorX`.
+   */
+  var MONSTER = {
+    cellW: 480,
+    cellH: 500,
+    anchorX: 300,
+    anchorY: 340,
+    rows: { grunt: 0, coward: 1, caster: 2, brute: 3, elite: 4, boss: 5 },
+    frames: { grunt: 17, coward: 17, caster: 17, brute: 32, elite: 17, boss: 32 },
+    /*
+     * How tall each monster's art is on frame 0, in the sheet's own pixels.
+     * Measured off the sheet (the alpha box of frame 0), not picked.
+     */
+    stand: { grunt: 76, coward: 76, caster: 78, brute: 164, elite: 86, boss: 164 },
+    /*
+     * **Drawn height, in world pixels - and it is deliberately not `enemy.height`.**
+     * The client draws its monsters at very different scales (measured off the
+     * owner's 幽暗密林 recording, in Slayer-heights): a goblin is about **0.85** of
+     * the Slayer and 牛头巨兽 about **3.2**, so the beast is more than three times
+     * a goblin on screen. `ENEMY_TYPES` cannot say that, because those boxes are
+     * gameplay - the AI measures centre to centre, so a body that grows without
+     * its ranges growing stops being able to reach anything.
+     *
+     * So the art is sized here and the fight is fought on the box. The two are
+     * close for the rank and file (a goblin is 58 in both) and differ for the
+     * beast on purpose: **re-deriving every enemy range from the body, so the box
+     * can follow the art, is its own slice.**
+     *
+     * Every number here comes off the recording through one conversion: **the
+     * Slayer measures 240 px there and is 84 world px here**, so 1 world px is
+     * 240/84 ≈ 2.86 video px. A goblin measures 146-153 px (-> 51-54) and
+     * 牛头巨兽 574 px (-> **201**). 牛头兵 is not in this recording at all, so its
+     * 80 is a choice - a tau between the rank and file and the beast - and is
+     * marked as one (`docs/granfloris-assets.md`).
+     */
+    draw: { grunt: 54, coward: 54, caster: 55, brute: 80, elite: 61, boss: 201 },
+    /*
+     * The ten goblin bodies are **one set of seventeen poses**, and that was
+     * measured rather than assumed - their silhouettes match frame for frame at
+     * IoU 0.74-0.94 - so `grunt`, `coward`, `caster` and `elite` all read this
+     * one table, and only the beast (32 frames) will need its own.
+     *
+     * Read off the recording at 63.0-94.6s: a goblin stands on f0, swings
+     * f1-f6, is on its back f7-f9, gets up f10-f11, walks f12-f16.
+     * **There is no hurt pose among the seventeen** - a hit is the white flash
+     * and nothing else, which is also how the client reads.
+     */
+    goblin: {
+      idle: [0, 0],
+      attack: [1, 6],
+      down: [7, 9],
+      rise: [10, 11],
+      walk: [12, 16]
+    },
+    /*
+     * 牛头巨兽, read off the same recording by overlaying each candidate frame's
+     * silhouette back onto the video and keeping only the fits - the boss fight
+     * runs 236-330s. Its own report marks two things as **not settled**, and they
+     * are recorded here as such rather than smoothed over:
+     *
+     * - **`idle` may really be `f0-f1` or may be the `walk` run.** f20-f27 is a
+     *   walk beyond doubt (it is on screen while the beast is measurably moving,
+     *   +307 px and -276 px, with a static camera), but the beast also plays
+     *   that run while standing still for a moment, so which run is *the* idle
+     *   is open. f0-f1 is the choice that costs least if it is wrong: two frames
+     *   of breathing.
+     * - **There are no hurt frames.** Hit without being knocked down, the beast
+     *   holds its pose and flashes - which is also what the goblins do.
+     *
+     * f7-f8, f16-f19 and f28-f31 are transition crouches the recording never
+     * isolates, so no state names them.
+     *
+     * `tau/body01`, `03`, `04` and `06` are **pixel-identical to `body02`** - a
+     * frame-by-frame XOR comes out at exactly 0.0000 across all 32 - so they read
+     * this table too. `body05` differs slightly and `body07` (牛头王) is another
+     * body entirely; neither is in this stage.
+     */
+    tau: {
+      idle: [0, 1],
+      attack: [2, 6],
+      down: [9, 12],
+      rise: [13, 15],
+      walk: [20, 27]
+    },
+    poses: {
+      grunt: "goblin",
+      coward: "goblin",
+      caster: "goblin",
+      elite: "goblin",
+      brute: "tau",
+      boss: "tau"
+    }
+  };
+
+  /** Which pose an enemy is in, in the sheet's own words. */
+  function monsterPose(enemy) {
+    if (enemy.dead || enemy.knockdown > 0) return "down";
+    if (enemy.attackTimer > 0) return "attack";
+    if (Math.abs(enemy.vx || 0) > 1 || Math.abs(enemy.vz || 0) > 1) return "walk";
+    return "idle";
+  }
+
+  /**
+   * The frame to draw: the pose's own range, walked by whatever clock that pose
+   * runs on - the swing's timer, a walking monster's gait, a standing one's slow
+   * breath. `down` holds its last frame, because a body on the floor is not
+   * doing anything, and a pose with no range in the table falls back to the
+   * first frame rather than to a frame from another action.
+   */
+  function monsterFrame(state, enemy, table) {
+    var pose = monsterPose(enemy);
+    var range = table[pose] || table.idle || [0, 0];
+    var first = range[0];
+    var span = range[1] - range[0];
+    if (span <= 0) return first;
+    if (pose === "attack") {
+      var progress = 1 - Math.max(0, enemy.attackTimer / (enemy.attackDuration || 1));
+      return first + Math.min(span, Math.floor(progress * (span + 1)));
+    }
+    if (pose === "down") return range[1];
+    var beat = pose === "walk" ? 11 : 3.2;
+    return first + (Math.floor(state.time * beat) % (span + 1));
+  }
+
+  /**
+   * One monster, out of the sheet. His feet go on the ground point the bake put
+   * them at, so the sprite and his hitbox agree without either one being scaled
+   * to the other - the drawn height IS `enemy.height`, which is the contract the
+   * boxes were laid out on.
+   *
+   * **The client's monsters face right**, like `assets/slayer.png`; the old
+   * shape art faced left, so the flip is inverted here (it was
+   * `facing > 0`).
+   */
+  function drawMonster(ctx, state, enemy, sprites) {
+    var sheet = sprites && sprites.monsters;
+    if (!sheet || !sheet.width) return false;
+    var row = MONSTER.rows[enemy.type];
+    if (row === undefined) return false;
+    var table = MONSTER[MONSTER.poses[enemy.type]];
+    var column = monsterFrame(state, enemy, table || { idle: [0, 0] });
+    var art = MONSTER.draw[enemy.type] || MONSTER.draw.grunt;
+    /* The sheet is in the client's own pixels; `draw` is in ours. */
+    var scale = art / (MONSTER.stand[enemy.type] || MONSTER.stand.grunt);
+    var dw = MONSTER.cellW * scale;
+    var dh = MONSTER.cellH * scale;
+
+    ctx.save();
+    ctx.translate(enemy.x, feetY(enemy));
+    if (enemy.facing < 0) ctx.scale(-1, 1);
+    if (enemy.hurtTimer > 0 && "filter" in ctx) ctx.filter = "brightness(1.9)";
+    ctx.drawImage(
+      sheet,
+      column * MONSTER.cellW, row * MONSTER.cellH, MONSTER.cellW, MONSTER.cellH,
+      -MONSTER.anchorX * scale, -MONSTER.anchorY * scale, dw, dh
+    );
+    ctx.restore();
+    return true;
+  }
+
+  function drawEnemy(ctx, state, enemy, sprites) {
     var enraged = enemy.type === "boss" && enemy.phase >= 2;
     var style = enraged
       ? ENEMY_STYLE.bossPhase2
@@ -2391,6 +2563,7 @@
     ctx.beginPath();
     ctx.ellipse(enemy.x, feetY(enemy) + 3, w * 0.62, 6, 0, 0, Math.PI * 2);
     ctx.fill();
+    ctx.restore();
 
     /* Second-phase tell: a pulsing blood ring so the enrage reads at a glance. */
     if (enraged) {
@@ -2404,79 +2577,32 @@
       ctx.restore();
     }
 
-    ctx.translate(enemy.x, feetY(enemy));
-    if (enemy.facing > 0) ctx.scale(-1, 1);
-
-    if (enemy.hurtTimer > 0 && "filter" in ctx) ctx.filter = "brightness(1.9)";
-
-    ctx.fillStyle = style.dark;
-    roundRect(ctx, -w / 2, -h * 0.72, w, h * 0.72, w * 0.28);
-    ctx.fill();
-    ctx.fillStyle = style.body;
-    roundRect(ctx, -w / 2 + 2, -h * 0.72 + 2, w - 4, h * 0.58, w * 0.26);
-    ctx.fill();
-    ctx.fillStyle = style.accent;
-    ctx.fillRect(-w / 2 + 3, -h * 0.34, w - 6, 3);
-
-    ctx.fillStyle = style.dark;
-    ctx.fillRect(-w / 2 - 2, -h * 0.2, 8, h * 0.2);
-    ctx.fillRect(w / 2 - 6, -h * 0.2, 8, h * 0.2);
-
-    ctx.fillStyle = style.body;
-    ctx.beginPath();
-    ctx.arc(0, -h * 0.78, w * 0.3, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = style.eye;
-    ctx.beginPath();
-    ctx.arc(-w * 0.12, -h * 0.8, 2.6, 0, Math.PI * 2);
-    ctx.arc(w * 0.12, -h * 0.8, 2.6, 0, Math.PI * 2);
-    ctx.fill();
-
-    if (enemy.type === "brute" || enemy.type === "boss") {
-      ctx.fillStyle = style.accent;
-      ctx.beginPath();
-      ctx.moveTo(-w * 0.26, -h * 0.95);
-      ctx.lineTo(-w * 0.4, -h * 1.16);
-      ctx.lineTo(-w * 0.06, -h * 1.0);
-      ctx.closePath();
-      ctx.moveTo(w * 0.26, -h * 0.95);
-      ctx.lineTo(w * 0.4, -h * 1.16);
-      ctx.lineTo(w * 0.06, -h * 1.0);
-      ctx.closePath();
-      ctx.fill();
-    }
-    if (enemy.type === "caster") {
-      ctx.strokeStyle = style.eye;
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.arc(w * 0.42, -h * 0.6, 6 + Math.sin(state.time * 6) * 1.4, 0, Math.PI * 2);
-      ctx.stroke();
-    }
-    if (enemy.type === "charger") {
-      ctx.fillStyle = style.accent;
-      ctx.beginPath();
-      ctx.moveTo(w * 0.3, -h * 0.62);
-      ctx.lineTo(w * 0.62, -h * 0.5);
-      ctx.lineTo(w * 0.3, -h * 0.4);
-      ctx.closePath();
-      ctx.fill();
-    }
-    if (enemy.type === "elite") {
-      /* Pauldrons, a crest and a lit visor: rank above the rank and file. */
-      ctx.fillStyle = style.accent;
-      ctx.beginPath();
-      ctx.moveTo(-w * 0.3, -h * 0.98);
-      ctx.lineTo(-w * 0.46, -h * 1.2);
-      ctx.lineTo(-w * 0.08, -h * 1.02);
-      ctx.closePath();
-      ctx.fill();
+    /*
+     * The body. If the sheet is missing - a stale staging step, a bake that was
+     * never run - the old block-colour figure still draws, because a monster you
+     * cannot see is worse than one you can (the deploy test is what keeps that
+     * from happening quietly).
+     */
+    if (!drawMonster(ctx, state, enemy, sprites)) {
+      ctx.save();
+      ctx.translate(enemy.x, feetY(enemy));
+      if (enemy.facing > 0) ctx.scale(-1, 1);
+      if (enemy.hurtTimer > 0 && "filter" in ctx) ctx.filter = "brightness(1.9)";
       ctx.fillStyle = style.dark;
-      ctx.fillRect(-w * 0.64, -h * 0.7, 10, h * 0.24);
-      ctx.fillRect(w * 0.64 - 10, -h * 0.7, 10, h * 0.24);
+      roundRect(ctx, -w / 2, -h * 0.72, w, h * 0.72, w * 0.28);
+      ctx.fill();
+      ctx.fillStyle = style.body;
+      roundRect(ctx, -w / 2 + 2, -h * 0.72 + 2, w - 4, h * 0.58, w * 0.26);
+      ctx.fill();
+      ctx.fillStyle = style.accent;
+      ctx.fillRect(-w / 2 + 3, -h * 0.34, w - 6, 3);
       ctx.fillStyle = style.eye;
-      ctx.fillRect(-w * 0.2, -h * 0.82, w * 0.4, 3);
+      ctx.beginPath();
+      ctx.arc(-w * 0.12, -h * 0.8, 2.6, 0, Math.PI * 2);
+      ctx.arc(w * 0.12, -h * 0.8, 2.6, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
     }
-    ctx.restore();
 
     /* The whirl itself: two rotating blades so the sweep reads as a spin. */
     if (enemy.attackKind === "spin" && enemy.spinDash && enemy.attackTimer > 0) {
@@ -4435,7 +4561,14 @@
       ctx.textAlign = "center";
       ctx.fillStyle = PALETTE.text;
       ctx.font = "700 13px 'PingFang SC', 'Segoe UI', sans-serif";
-      ctx.fillText(boss.phase >= 2 ? "GOBLIN KING · 狂暴" : "GOBLIN KING", ARENA.width / 2, 101);
+      /*
+       * The name comes off the stage, not off the `boss` archetype: every stage
+       * ends on a different animal, and this label read "GOBLIN KING" for a
+       * whole slice after 哥布林王 was deleted - `STAGES.*.bossName` was written
+       * and then read by nobody.
+       */
+      var bossName = (state.stage && state.stage.bossName) || "BOSS";
+      ctx.fillText(boss.phase >= 2 ? bossName + " · 狂暴" : bossName, ARENA.width / 2, 101);
       ctx.restore();
       bar(
         ctx,
@@ -4845,7 +4978,130 @@
     ctx.restore();
   }
 
+  /* --------------------------------------------------------- region map */
+
+  /*
+   * The region map is the hub: 格兰之森's stages, one card each. **The cards are
+   * the client's own menu art** - `assets/region.png` holds nine 168x73 cells and
+   * each one already has that stage's Chinese name and a portrait of its boss
+   * painted into it (`assets/import_dnf_region.py`) - so this screen draws no
+   * stage name of its own, only the frame around the cards: the cursor, the lock
+   * and the record line.
+   */
+  var REGION_CARD = {
+    w: 168, h: 73, sheetCols: 5, gapX: 14, gapY: 30, cols: 4, top: 150
+  };
+
+  /** Fixed geometry, so a tap and a draw always agree on where a card is. */
+  function regionCards(count) {
+    var cards = [];
+    for (var index = 0; index < count; index += 1) {
+      var row = Math.floor(index / REGION_CARD.cols);
+      var col = index % REGION_CARD.cols;
+      var inRow = Math.min(count - row * REGION_CARD.cols, REGION_CARD.cols);
+      var rowW = inRow * REGION_CARD.w + (inRow - 1) * REGION_CARD.gapX;
+      cards.push({
+        index: index,
+        x: (ARENA.width - rowW) / 2 + col * (REGION_CARD.w + REGION_CARD.gapX),
+        y: REGION_CARD.top + row * (REGION_CARD.h + REGION_CARD.gapY),
+        w: REGION_CARD.w,
+        h: REGION_CARD.h
+      });
+    }
+    return cards;
+  }
+
+  function hitTestRegion(x, y, count) {
+    var cards = regionCards(count);
+    for (var index = 0; index < cards.length; index += 1) {
+      var card = cards[index];
+      if (x >= card.x && x <= card.x + card.w && y >= card.y && y <= card.y + card.h) {
+        return index;
+      }
+    }
+    return null;
+  }
+
+  function drawRegionMap(ctx, meta) {
+    var map = meta.region;
+    var list = map.list || [];
+    var sheet = meta.sprites && meta.sprites.region;
+    var cards = regionCards(list.length);
+
+    ctx.save();
+    ctx.fillStyle = "rgba(4, 6, 12, 0.94)";
+    ctx.fillRect(0, 0, ARENA.width, ARENA.height);
+
+    ctx.textAlign = "center";
+    ctx.fillStyle = PALETTE.gold;
+    ctx.font = "700 34px 'PingFang SC', 'Segoe UI', sans-serif";
+    ctx.fillText("格兰之森", ARENA.width / 2, 72);
+    ctx.fillStyle = PALETTE.textDim;
+    ctx.font = "600 15px 'PingFang SC', 'Segoe UI', sans-serif";
+    ctx.fillText("打过前一个关卡，才开下一个", ARENA.width / 2, 98);
+
+    var selected = null;
+    for (var index = 0; index < cards.length; index += 1) {
+      var card = cards[index];
+      var stage = list[index];
+      var onCursor = index === map.selected;
+      if (onCursor) selected = stage;
+      if (sheet && sheet.width) {
+        ctx.drawImage(
+          sheet,
+          (stage.slot % REGION_CARD.sheetCols) * REGION_CARD.w,
+          Math.floor(stage.slot / REGION_CARD.sheetCols) * REGION_CARD.h,
+          REGION_CARD.w, REGION_CARD.h,
+          card.x, card.y, card.w, card.h
+        );
+      } else {
+        roundRect(ctx, card.x, card.y, card.w, card.h, 6);
+        ctx.fillStyle = "rgba(20, 26, 42, 0.9)";
+        ctx.fill();
+      }
+
+      var shut = !stage.open || !stage.built;
+      if (shut) {
+        /* A locked card is still worth reading: it dims, it does not vanish. */
+        roundRect(ctx, card.x, card.y, card.w, card.h, 6);
+        ctx.fillStyle = "rgba(4, 6, 12, 0.7)";
+        ctx.fill();
+        ctx.fillStyle = "rgba(226, 236, 255, 0.75)";
+        ctx.font = "700 14px 'PingFang SC', 'Segoe UI', sans-serif";
+        ctx.fillText(stage.open ? "尚未开放" : "未解锁", card.x + card.w / 2, card.y + card.h / 2 + 5);
+      }
+
+      ctx.lineWidth = onCursor ? 3 : 1;
+      ctx.strokeStyle = onCursor ? PALETTE.gold : "rgba(120, 140, 190, 0.45)";
+      roundRect(ctx, card.x - 1, card.y - 1, card.w + 2, card.h + 2, 7);
+      ctx.stroke();
+
+      ctx.font = "600 12px 'PingFang SC', 'Segoe UI', sans-serif";
+      ctx.fillStyle = stage.cleared ? PALETTE.gold : PALETTE.textDim;
+      ctx.fillText(stage.note, card.x + card.w / 2, card.y + card.h + 16);
+    }
+
+    ctx.font = "600 15px 'PingFang SC', 'Segoe UI', sans-serif";
+    ctx.fillStyle = PALETTE.text;
+    ctx.fillText(
+      selected
+        ? selected.name + (selected.open && selected.built ? "　Enter 进入" : "　还不能进")
+        : "",
+      ARENA.width / 2,
+      ARENA.height - 54
+    );
+    ctx.font = "600 13px 'PingFang SC', 'Segoe UI', sans-serif";
+    ctx.fillStyle = PALETTE.textDim;
+    ctx.fillText("← → 选关　Enter 进入　M 静音", ARENA.width / 2, ARENA.height - 28);
+    ctx.restore();
+  }
+
   function drawOverlay(ctx, state, meta, sprites) {
+    /* The hub is a screen of its own: nothing else belongs behind it. */
+    if (meta && meta.region && meta.region.open) {
+      drawRegionMap(ctx, meta);
+      return;
+    }
     if (meta && meta.attract) {
       drawAttractTitle(ctx, state, meta);
       return;
@@ -4858,7 +5114,10 @@
       ctx.font = "bold 46px 'Segoe UI', system-ui, sans-serif";
       ctx.lineWidth = 6;
       ctx.strokeStyle = "rgba(10, 12, 22, 0.9)";
-      var title = state.defeat ? "YOU DIED" : "DUNGEON CLEARED";
+      /* Cleared means one stage, so the screen says which one (docs/adr/0026). */
+      var title = state.defeat
+        ? "YOU DIED"
+        : ((state.stage && state.stage.name) || "DUNGEON") + " 通关";
       ctx.strokeText(title, ARENA.width / 2, ARENA.height / 2 - 10);
       ctx.fillStyle = state.defeat ? PALETTE.danger : PALETTE.gold;
       ctx.fillText(title, ARENA.width / 2, ARENA.height / 2 - 10);
@@ -5176,7 +5435,7 @@
 
     state.enemies.forEach(function (enemy) {
       add(enemy.z, function () {
-        drawEnemy(ctx, state, enemy);
+        drawEnemy(ctx, state, enemy, sprites);
       });
     });
     (state.projectiles || []).forEach(function (shot) {
@@ -5249,7 +5508,10 @@
      * room banner would otherwise sit half-faded under the title forever; hold
      * it back and let it announce the room once play actually starts.
      */
-    var overlayOpen = !!(meta.paused || meta.showHelp || state.victory || state.defeat);
+    var overlayOpen = !!(
+      meta.paused || meta.showHelp || state.victory || state.defeat ||
+      (meta.region && meta.region.open)
+    );
     ctx.clearRect(0, 0, ARENA.width, ARENA.height);
 
     var shake = 0;
@@ -5335,6 +5597,7 @@
     hitTestLoadout: hitTestLoadout,
     upgradeCards: upgradeCards,
     hitTestUpgrade: hitTestUpgrade,
+    hitTestRegion: hitTestRegion,
     touchButtons: touchButtons,
     hitTestTouch: hitTestTouch
   };

@@ -1,5 +1,10 @@
 /*
- * Per-seed run records: the best clear time and level seen for a seed.
+ * Per-stage, per-seed run records: the best clear time and level seen.
+ *
+ * A record is keyed by `<stage>:<seed>` - a run is one stage now, so "the best
+ * time on this seed" is not a question anyone can ask without saying which
+ * stage (`docs/adr/0026`). Keys written before stages existed are bare seeds;
+ * they are read as belonging to the first stage rather than thrown away.
  *
  * Pure data + pure functions so the merge rules can be unit tested without a
  * DOM or localStorage. Loaded as `window.DNFRecords` in the browser and as a
@@ -17,11 +22,39 @@
   var SCHEMA_VERSION = 1;
   /* Keep the store small: a demo does not need an unbounded seed history. */
   var MAX_SEEDS = 40;
+  /* Where a record with no stage on it belongs - the first stage of the region. */
+  var DEFAULT_STAGE = "mirkwood";
 
   function normalizeSeed(seed) {
     var value = Number(seed);
     if (!isFinite(value)) return null;
     return Math.floor(value) >>> 0;
+  }
+
+  /** A stage id is a lowercase slug, the same shape `Core.STAGES` uses. */
+  function normalizeStage(stage) {
+    if (typeof stage !== "string") return null;
+    var trimmed = stage.trim();
+    return /^[a-z][a-z0-9]*$/.test(trimmed) ? trimmed : null;
+  }
+
+  function keyFor(stage, seed) {
+    var normalized = normalizeSeed(seed);
+    if (normalized === null) return null;
+    return (normalizeStage(stage) || DEFAULT_STAGE) + ":" + normalized;
+  }
+
+  /** Old keys are bare seeds; they are read as the first stage's. */
+  function parseKey(key) {
+    var parts = String(key).split(":");
+    if (parts.length === 1) {
+      var bare = normalizeSeed(parts[0]);
+      return bare === null ? null : { stage: DEFAULT_STAGE, seed: bare };
+    }
+    var stage = normalizeStage(parts[0]);
+    var seed = normalizeSeed(parts[1]);
+    if (stage === null || seed === null) return null;
+    return { stage: stage, seed: seed };
   }
 
   function emptyStore() {
@@ -62,10 +95,10 @@
 
     var seeds = parsed.seeds && typeof parsed.seeds === "object" ? parsed.seeds : {};
     Object.keys(seeds).forEach(function (key) {
-      var seed = normalizeSeed(key);
+      var spot = parseKey(key);
       var entry = normalizeEntry(seeds[key]);
-      if (seed === null || !entry) return;
-      store.seeds[String(seed)] = entry;
+      if (!spot || !entry) return;
+      store.seeds[spot.stage + ":" + spot.seed] = entry;
     });
     return store;
   }
@@ -74,31 +107,43 @@
     return JSON.stringify(store || emptyStore());
   }
 
-  function best(store, seed) {
-    var normalized = normalizeSeed(seed);
-    if (!store || !store.seeds || normalized === null) return null;
-    return store.seeds[String(normalized)] || null;
+  function best(store, stage, seed) {
+    var key = keyFor(stage, seed);
+    if (!store || !store.seeds || key === null) return null;
+    return store.seeds[key] || null;
   }
 
   /*
-   * The fastest clear across every seed the store remembers, with the seed it
-   * belongs to. Ties go to the smaller seed so the answer never depends on key
-   * order, and entries that cannot be read are skipped instead of trusted.
+   * The fastest clear of one stage across every seed the store remembers, with
+   * the seed it belongs to. Ties go to the smaller seed so the answer never
+   * depends on key order, and entries that cannot be read are skipped instead
+   * of trusted. Without a stage it looks at every stage - the title screen
+   * always passes one, the tests use the bare form.
+   *
+   * **An unreadable id is not "every stage".** `normalizeStage` returns null for
+   * anything that is not a slug, and reading that as "no stage asked for" made a
+   * typo answer with some other stage's record - which is the one way this
+   * screen could show a wrong number instead of no number.
    */
-  function bestOverall(store) {
+  function bestOverall(store, stage) {
     if (!store || !store.seeds) return null;
+    var asked = stage !== undefined && stage !== null;
+    var wanted = asked ? normalizeStage(stage) : null;
+    if (asked && wanted === null) return null;
     var winner = null;
     Object.keys(store.seeds).forEach(function (key) {
-      var seed = normalizeSeed(key);
+      var spot = parseKey(key);
       var entry = normalizeEntry(store.seeds[key]);
-      if (seed === null || !entry) return;
+      if (!spot || !entry) return;
+      if (wanted !== null && spot.stage !== wanted) return;
       if (
         !winner ||
         entry.seconds < winner.seconds ||
-        (entry.seconds === winner.seconds && seed < winner.seed)
+        (entry.seconds === winner.seconds && spot.seed < winner.seed)
       ) {
         winner = {
-          seed: seed,
+          stage: spot.stage,
+          seed: spot.seed,
           seconds: entry.seconds,
           level: entry.level,
           clears: entry.clears
@@ -131,12 +176,12 @@
    */
   function record(store, run) {
     var base = store && typeof store === "object" ? store : emptyStore();
-    var seed = normalizeSeed(run && run.seed);
     var seconds = Number(run && run.seconds);
     var level = Math.floor(Number(run && run.level));
+    var key = keyFor(run && run.stage, run && run.seed);
 
     if (
-      seed === null ||
+      key === null ||
       !isFinite(seconds) ||
       seconds <= 0 ||
       !isFinite(level) ||
@@ -146,11 +191,10 @@
     }
 
     var seeds = {};
-    Object.keys(base.seeds || {}).forEach(function (key) {
-      seeds[key] = base.seeds[key];
+    Object.keys(base.seeds || {}).forEach(function (key2) {
+      seeds[key2] = base.seeds[key2];
     });
 
-    var key = String(seed);
     var previous = seeds[key] || null;
     var improved =
       !previous || seconds < previous.seconds || (seconds === previous.seconds && level > previous.level);
@@ -195,9 +239,12 @@
   return {
     SCHEMA_VERSION: SCHEMA_VERSION,
     MAX_SEEDS: MAX_SEEDS,
+    DEFAULT_STAGE: DEFAULT_STAGE,
     emptyStore: emptyStore,
     deserialize: deserialize,
     serialize: serialize,
+    keyFor: keyFor,
+    parseKey: parseKey,
     best: best,
     bestOverall: bestOverall,
     record: record,
