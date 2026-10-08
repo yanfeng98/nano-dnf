@@ -59,6 +59,13 @@ const KEY_FOR_ACTION = {
   choice2: "Digit3"
 };
 
+/*
+ * How close the bot walks before it stops closing. It is a fraction of the
+ * Slayer's own normal-attack reach, measured as a gap like every other reach
+ * here, so a bigger monster does not tempt it inside.
+ */
+const CLOSING_GAP = 24;
+
 /** A damage-first player: take the sharpest upgrade on offer. */
 const UPGRADE_PREFERENCE = ["attack", "skillPower", "maxHp", "mpRegen"];
 
@@ -143,6 +150,14 @@ function decide(state, constants) {
   const target = alive[0];
   const delta = target.x - player.x;
   const distance = Math.abs(delta);
+  /*
+   * Reaches are measured **past the body** now (`bodyGap` in src/core.js), so
+   * the bot has to read them the same way or it aims with a different ruler than
+   * the game judges with. A fixed centre distance put it inside 牛头巨兽 once the
+   * beast was drawn at the client's size, and being inside the body is being
+   * inside its swing.
+   */
+  const gap = distance - (target.width + player.width) / 2;
   const elapsed = target.attackDuration - target.attackTimer;
   const threatRange =
     target.attackKind === "slam" && target.slam
@@ -173,7 +188,7 @@ function decide(state, constants) {
   const rowGap = (target.z || 0) - (player.z || 0);
   if (!threatened && Math.abs(rowGap) > constants.meleeReach) {
     want.add(rowGap > 0 ? "up" : "down");
-    if (distance > 60) want.add(delta > 0 ? "right" : "left");
+    if (gap > CLOSING_GAP) want.add(delta > 0 ? "right" : "left");
     return want;
   }
 
@@ -184,7 +199,7 @@ function decide(state, constants) {
      */
     if (target.attackKind === "spin" && target.spinDash) {
       const closing = delta > 0 ? "left" : "right";
-      if (distance < threatRange + 45) {
+      if (gap < threatRange + 45) {
         if (player.onGround && elapsed >= target.spinDash.windup - 0.25) {
           want.add("jump");
         } else {
@@ -197,7 +212,7 @@ function decide(state, constants) {
     const atLeftWall = player.x <= constants.arena.leftWall + player.width;
     const atRightWall = player.x >= constants.arena.rightWall - player.width;
     const cornered = (away === "left" && atLeftWall) || (away === "right" && atRightWall);
-    if (distance < threatRange + 45 && !cornered) {
+    if (gap < threatRange + 45 && !cornered) {
       want.add(away);
     } else if (cornered) {
       /* Cornered in DNF means launch: 上挑 cancels the wind-up and buys space. */
@@ -214,12 +229,12 @@ function decide(state, constants) {
     }
     return want;
   }
-  if (distance > 60) {
+  if (gap > CLOSING_GAP) {
     const direction = delta > 0 ? "right" : "left";
     const ahead = player.x + (direction === "right" ? 60 : -60);
     if (!slabAt(ahead)) {
       want.add(direction);
-    } else if (distance <= constants.skills.upSlash.reach) {
+    } else if (gap <= constants.skills.upSlash.reach) {
       /* Out of reach and blocked by a breaking slab: hold ground. */
       want.add("attack");
     }

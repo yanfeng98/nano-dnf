@@ -2405,27 +2405,13 @@
      */
     stand: { grunt: 76, coward: 76, caster: 78, brute: 164, elite: 86, boss: 164 },
     /*
-     * **Drawn height, in world pixels - and it is deliberately not `enemy.height`.**
-     * The client draws its monsters at very different scales (measured off the
-     * owner's 幽暗密林 recording, in Slayer-heights): a goblin is about **0.85** of
-     * the Slayer and 牛头巨兽 about **3.2**, so the beast is more than three times
-     * a goblin on screen. `ENEMY_TYPES` cannot say that, because those boxes are
-     * gameplay - the AI measures centre to centre, so a body that grows without
-     * its ranges growing stops being able to reach anything.
-     *
-     * So the art is sized here and the fight is fought on the box. The two are
-     * close for the rank and file (a goblin is 58 in both) and differ for the
-     * beast on purpose: **re-deriving every enemy range from the body, so the box
-     * can follow the art, is its own slice.**
-     *
-     * Every number here comes off the recording through one conversion: **the
-     * Slayer measures 240 px there and is 84 world px here**, so 1 world px is
-     * 240/84 ≈ 2.86 video px. A goblin measures 146-153 px (-> 51-54) and
-     * 牛头巨兽 574 px (-> **201**). 牛头兵 is not in this recording at all, so its
-     * 80 is a choice - a tau between the rank and file and the beast - and is
-     * marked as one (`docs/granfloris-assets.md`).
+     * **How big a monster is drawn is `enemy.height`, the same number the fight
+     * is fought on.** The two used to differ - the art followed the client and
+     * the box stayed where it had been tuned - because every AI reach was
+     * centre-to-centre, so a body that grew lost that much of its reach. With the
+     * reaches measured past the body (`bodyGap` in src/core.js) the box can be
+     * the art's size, and `ENEMY_TYPES` is where both are decided.
      */
-    draw: { grunt: 54, coward: 54, caster: 55, brute: 80, elite: 61, boss: 201 },
     /*
      * The ten goblin bodies are **one set of seventeen poses**, and that was
      * measured rather than assumed - their silhouettes match frame for frame at
@@ -2531,8 +2517,8 @@
     if (row === undefined) return false;
     var table = MONSTER[MONSTER.poses[enemy.type]];
     var column = monsterFrame(state, enemy, table || { idle: [0, 0] });
-    var art = MONSTER.draw[enemy.type] || MONSTER.draw.grunt;
-    /* The sheet is in the client's own pixels; `draw` is in ours. */
+    var art = enemy.height;
+    /* The sheet is in the client's own pixels; `enemy.height` is in ours. */
     var scale = art / (MONSTER.stand[enemy.type] || MONSTER.stand.grunt);
     var dw = MONSTER.cellW * scale;
     var dh = MONSTER.cellH * scale;

@@ -1471,16 +1471,32 @@
    * goblin, which is most of what makes it read as a boss, while the fight it
    * fights is still the one these boxes were tuned for.
    */
+  /*
+   * **The monsters are the size the client draws them, and the boxes are that
+   * size.** Every reach below is measured **past the body** (`bodyGap`), so a
+   * body can change size without its reach changing with it - which is the whole
+   * reason 牛头巨兽 can be as big as it looks.
+   *
+   * The sizes come off the owner's 幽暗密林 recording through one conversion: the
+   * Slayer measures 240 px there and is 84 world px here, so 1 world px is about
+   * 2.86 video px. A goblin measures 146-153 px (-> 53) and 牛头巨兽 574 px
+   * (-> **201**), i.e. the beast is more than three times a goblin, which is
+   * most of what makes it read as a boss. Width follows the art's own aspect.
+   *
+   * Every reach was converted one for one from the centre-to-centre numbers this
+   * file used before, by subtracting the body span it had been measured against,
+   * so the fight on screen is still the one those numbers were tuned for.
+   */
   var ENEMY_TYPES = {
     grunt: {
       behavior: "melee",
       maxHp: 32,
       xp: 10,
-      width: 30,
-      height: 58,
+      width: 33,
+      height: 53,
       speed: 95,
       damage: 6,
-      attackRange: 46,
+      attackRange: 14,
       attackWindup: 0.28,
       attackDuration: 0.5,
       attackCooldown: 1.05,
@@ -1496,11 +1512,11 @@
       behavior: "melee",
       maxHp: 22,
       xp: 8,
-      width: 26,
-      height: 52,
+      width: 33,
+      height: 53,
       speed: 118,
       damage: 5,
-      attackRange: 42,
+      attackRange: 12,
       attackWindup: 0.24,
       attackDuration: 0.44,
       attackCooldown: 0.9,
@@ -1510,11 +1526,11 @@
       behavior: "melee",
       maxHp: 68,
       xp: 22,
-      width: 40,
-      height: 70,
+      width: 68,
+      height: 80,
       speed: 68,
       damage: 13,
-      attackRange: 54,
+      attackRange: 17,
       attackWindup: 0.42,
       attackDuration: 0.7,
       attackCooldown: 1.5,
@@ -1524,12 +1540,12 @@
       behavior: "ranged",
       maxHp: 26,
       xp: 14,
-      width: 30,
-      height: 56,
+      width: 32,
+      height: 55,
       speed: 76,
       damage: 7,
-      attackRange: 210,
-      keepRange: 150,
+      attackRange: 178,
+      keepRange: 118,
       attackWindup: 0.5,
       attackDuration: 0.8,
       attackCooldown: 1.9,
@@ -1550,7 +1566,7 @@
       height: 62,
       speed: 64,
       damage: 15,
-      attackRange: 170,
+      attackRange: 135,
       attackWindup: 0.5,
       attackDuration: 1.5,
       attackCooldown: 2.2,
@@ -1577,11 +1593,11 @@
       evasion: 0.15,
       maxHp: 150,
       xp: 45,
-      width: 46,
-      height: 78,
+      width: 39,
+      height: 61,
       speed: 72,
       damage: 16,
-      attackRange: 64,
+      attackRange: 24,
       attackWindup: 0.38,
       attackDuration: 0.72,
       attackCooldown: 1.7,
@@ -1592,7 +1608,11 @@
         duration: 0.45,
         recovery: 0.5,
         cooldown: 5,
+        /* Edge-relative, like every other reach here - `spinHitsPlayer` adds it
+           to his own body. */
         radius: 84,
+        /* When he decides to spin: the gap he commits from. */
+        commit: 73,
         damage: 14
       }
     },
@@ -1602,11 +1622,11 @@
       evasion: 0.15,
       maxHp: 260,
       xp: 80,
-      width: 56,
-      height: 96,
+      width: 172,
+      height: 201,
       speed: 88,
       damage: 18,
-      attackRange: 74,
+      attackRange: 29,
       attackWindup: 0.36,
       attackDuration: 0.66,
       attackCooldown: 1.15,
@@ -1615,7 +1635,14 @@
       chargeFrom: 0.22,
       chargeTo: 0.62,
       slam: {
-        radius: 150,
+        /*
+         * A disc on the floor, so its reach is floored rather than past the
+         * body: 105 px past a body that is 103 px half-wide (the beast's 172
+         * plus the Slayer's 34, halved), which is the 150 it was.
+         */
+        radius: 208,
+        /* When it decides to slam: the gap it commits from. */
+        commit: 75,
         damage: 20,
         windup: 0.7,
         recovery: 0.5,
@@ -1631,8 +1658,8 @@
         slamRadiusScale: 1.18,
         slamCooldownScale: 0.55,
         lunge: {
-          range: 210,
-          minRange: 96,
+          gap: 165,
+          minGap: 51,
           speed: 430,
           windup: 0.34,
           recovery: 0.5,
@@ -4013,9 +4040,32 @@
     return Math.sqrt(dx * dx + dz * dz);
   }
 
+  /**
+   * The gap between two bodies' edges along x: 0 when they touch, negative when
+   * they overlap.
+   *
+   * **Every reach in the AI is measured this way, and that is the point.** The
+   * distances used to be centre-to-centre, so a monster's reach silently
+   * depended on how wide its body was: growing a body by 87 px a side took 87 px
+   * off its reach. That is not a hypothetical - enlarging 牛头巨兽 to the size the
+   * client draws it pushed it 189 px clear of the Slayer while its `attackRange`
+   * was still 74, and **it could not land a single blow**. A reach expressed past
+   * the body survives the body changing size, which is what lets the boxes follow
+   * the art at all.
+   *
+   * The numbers were converted one for one - each tuned value minus the body
+   * span it was measured against - so the fight on screen is the one the old
+   * numbers were tuned for.
+   */
+  function bodyGap(a, b) {
+    return Math.abs(a.x - b.x) - (a.width + b.width) / 2;
+  }
+
   function chooseEnemyAction(state, enemy, player) {
     var delta = player.x - enemy.x;
     var distance = Math.abs(delta);
+    /* Reaches are measured past the bodies, not between the centres - see bodyGap. */
+    var gap = bodyGap(enemy, player);
     if (!player.dead) enemy.facing = delta >= 0 ? 1 : -1;
     if (player.dead) {
       enemy.vx = 0;
@@ -4053,9 +4103,9 @@
        */
       enemy.vz = 0;
       var keep = enemy.keepRange || enemy.attackRange * 0.6;
-      if (distance < keep) {
+      if (gap < keep) {
         enemy.vx = -enemy.facing * enemy.speed;
-      } else if (distance > enemy.attackRange) {
+      } else if (gap > enemy.attackRange) {
         enemy.vx = enemy.facing * enemy.speed;
       } else {
         enemy.vx = 0;
@@ -4068,7 +4118,7 @@
     }
 
     if (enemy.behavior === "charger") {
-      if (distance > enemy.attackRange * 0.8) {
+      if (gap > enemy.attackRange * 0.8) {
         enemy.vx = enemy.facing * enemy.speed;
       } else {
         enemy.vx = 0;
@@ -4088,7 +4138,7 @@
         enemy.spinCooldown <= 0 &&
         enemy.attackCooldown <= 0 &&
         /* Commits when the Slayer is close: the sweep punishes a hug, not a retreat. */
-        distance <= spinDash.radius * 1.35
+        gap <= spinDash.commit
       ) {
         enemy.vx = 0;
         enemy.spinDir = enemy.facing;
@@ -4102,7 +4152,7 @@
         pushTelegraph(state, enemy, "SPIN", spinDash.radius, spinDash.windup, enemy.facing);
         return;
       }
-      if (distance > enemy.attackRange * 0.8) {
+      if (gap > enemy.attackRange * 0.8) {
         enemy.vx = enemy.facing * enemy.speed;
       } else {
         enemy.vx = 0;
@@ -4114,7 +4164,7 @@
     }
 
     var slam = enemy.slam;
-    if (slam && enemy.slamCooldown <= 0 && enemy.attackCooldown <= 0 && distance <= slam.radius * 0.8) {
+    if (slam && enemy.slamCooldown <= 0 && enemy.attackCooldown <= 0 && gap <= slam.commit) {
       enemy.vx = 0;
       beginEnemyAttack(enemy, "slam", slam.windup, slam.windup + slam.recovery);
       pushTelegraph(state, enemy, "SLAM", slam.radius, slam.windup, 0);
@@ -4128,8 +4178,8 @@
       lunge &&
       enemy.attackCooldown <= 0 &&
       enemy.lungeCooldown <= 0 &&
-      distance >= lunge.minRange &&
-      distance <= lunge.range
+      gap >= lunge.minGap &&
+      gap <= lunge.gap
     ) {
       enemy.vx = 0;
       enemy.chargeSpeed = lunge.speed;
@@ -4143,7 +4193,7 @@
       return;
     }
 
-    if (distance > enemy.attackRange * 0.8) {
+    if (gap > enemy.attackRange * 0.8) {
       enemy.vx = enemy.facing * enemy.speed;
     } else {
       enemy.vx = 0;
@@ -4219,7 +4269,7 @@
         }
         enemy.slamCooldown = enemy.slam.cooldown;
         enemy.attackCooldown = enemy.attackCooldownMax;
-      } else if (inReachOf(player.z, enemy.z) && Math.abs(player.x - enemy.x) <= enemy.attackRange) {
+      } else if (inReachOf(player.z, enemy.z) && bodyGap(enemy, player) <= enemy.attackRange) {
         damagePlayer(state, enemy.damage, enemy.x);
         enemy.attackCooldown = enemy.attackCooldownMax;
       }

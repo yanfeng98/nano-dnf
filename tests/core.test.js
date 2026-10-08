@@ -288,7 +288,13 @@ test("attack does not reach an enemy far outside the hitbox", () => {
 
 test("the combo chain walks the three cuts of the normal attack", () => {
   const state = lastRoomState();
-  const enemy = Core.createEnemy(state, "brute", state.player.x + 48);
+  /*
+   * Placed clear of the bodies on purpose: a brute is 68 wide and the Slayer 34,
+   * so a fixed +48 put them overlapping and the push-apart walked the target out
+   * of reach between cuts. The gap comes from the two bodies instead.
+   */
+  const inReach = (Core.ENEMY_TYPES.brute.width + Core.PLAYER.width) / 2 + 10;
+  const enemy = Core.createEnemy(state, "brute", state.player.x + inReach);
   enemy.hp = 500;
   enemy.maxHp = 500;
   enemy.speed = 0;
@@ -299,7 +305,7 @@ test("the combo chain walks the three cuts of the normal attack", () => {
 
   const hits = [];
   for (let swing = 0; swing < stages.length; swing += 1) {
-    enemy.x = state.player.x + 48;
+    enemy.x = state.player.x + inReach;
     const hpBefore = enemy.hp;
     Core.step(state, { attack: true });
     assert.equal(state.player.comboIndex, swing, `press ${swing + 1} plays stage ${swing}`);
@@ -1341,7 +1347,7 @@ test("the spin is answerable in depth too, and it reaches wider than a swing", (
     const elite = Core.createEnemy(state, "elite", state.player.x + 120);
     state.enemies = [elite];
     elite.speed = 0;
-    elite.attackRange = 0;
+    elite.attackRange = NEVER_REACHES;
     state.player.z = z;
     Core.runFrames(state, 60 * 5, {});
     return state.stats.damageTaken;
@@ -1792,7 +1798,7 @@ test("chargers telegraph, dash at charge speed, then recover", () => {
 test("the boss slam hits a grounded player and misses a jumping one", () => {
   const grounded = lastRoomState();
   const groundedBoss = Core.createEnemy(grounded, "boss", grounded.player.x + 90);
-  groundedBoss.attackRange = 0;
+  groundedBoss.attackRange = NEVER_REACHES;
   grounded.enemies = [groundedBoss];
 
   let telegraphed = false;
@@ -1808,7 +1814,7 @@ test("the boss slam hits a grounded player and misses a jumping one", () => {
 
   const airborne = lastRoomState();
   const airborneBoss = Core.createEnemy(airborne, "boss", airborne.player.x + 90);
-  airborneBoss.attackRange = 0;
+  airborneBoss.attackRange = NEVER_REACHES;
   airborne.enemies = [airborneBoss];
 
   let slamResolved = false;
@@ -1880,6 +1886,19 @@ test("the same seed still yields identical progression and drops", () => {
  * dash lane and the slam ring, jump over aimed bolts, close in on recovery frames, and
  * spend MP on the AoE skill. Used to prove the stage is beatable.
  */
+/** The same measure the AI uses: how far apart two bodies are, edge to edge. */
+function bodyGapOf(a, b) {
+  return Math.abs(a.x - b.x) - (a.width + b.width) / 2;
+}
+
+/*
+ * A reach that can never connect. `attackRange` is measured **past the body**
+ * now, so the old idiom of setting it to 0 to disable melee no longer disables
+ * anything: 0 means "only when the bodies touch", and a body wide enough to
+ * overlap already touches. Tests that want melee out of the way use this.
+ */
+const NEVER_REACHES = -1e6;
+
 function kitingBot(state) {
   const player = state.player;
   const alive = state.enemies.filter((enemy) => !enemy.dead);
@@ -1944,6 +1963,8 @@ function kitingBot(state) {
   const target = alive[0];
   const delta = target.x - player.x;
   const distance = Math.abs(delta);
+  /* Every threat below is a reach past the body, so the bot measures the gap. */
+  const gap = bodyGapOf(target, player);
   /*
    * The floor's second axis. A caster holds its row - its shots carry the row it
    * stands on, so standing off the Slayer's is what makes him come to it - which
@@ -1976,7 +1997,7 @@ function kitingBot(state) {
      */
     if (target.attackKind === "spin" && target.spinDash) {
       const closing = delta > 0 ? "left" : "right";
-      if (distance < threatRange + 45) {
+      if (gap < threatRange + 45) {
         if (player.onGround && elapsed >= target.spinDash.windup - 0.25) {
           input.jump = true;
         } else {
@@ -1985,7 +2006,7 @@ function kitingBot(state) {
       }
       return input;
     }
-    if (distance < threatRange + 45) {
+    if (gap < threatRange + 45) {
       const away = delta > 0 ? "left" : "right";
       const atLeftWall = player.x <= Core.ARENA.leftWall + player.width;
       const atRightWall = player.x >= Core.ARENA.rightWall - player.width;
@@ -1998,9 +2019,16 @@ function kitingBot(state) {
     }
     return input;
   }
-  if (distance > 60) {
+  /*
+   * Close to **his own reach**, measured as a gap, not to a fixed centre
+   * distance. A flat "60 away" put him inside 牛头巨兽's body once the beast was
+   * drawn at the size the client draws it - and being inside the body is being
+   * inside its swing, which is where the policy's damage was coming from.
+   */
+  const closingGap = Core.PLAYER.attackReach * 0.35;
+  if (gap > closingGap) {
     const direction = delta > 0 ? "right" : "left";
-    const ahead = player.x + (direction === "right" ? 60 : -60);
+    const ahead = player.x + (direction === "right" ? closingGap + player.width : -(closingGap + player.width));
     if (!activeSlabAt(ahead)) {
       input[direction] = true;
     } else if (distance <= Core.PLAYER.attackReach) {
@@ -2046,13 +2074,26 @@ function kitingBot(state) {
 test("a timing-aware policy can clear the whole stage without losing health", () => {
   const results = [1, 7, 42, 20260915].map((seed) => {
     const state = Core.createState({ seed });
+    /*
+     * Where the damage happened, room by room. A bare total says the policy got
+     * hurt but not by what, and "the beast's new reach" and "a hazard the policy
+     * mis-reads" are different problems.
+     */
+    const damageByRoom = [];
+    let last = -1;
     for (let frame = 0; frame < 60 * 240 && !state.victory && !state.defeat; frame += 1) {
+      if (state.roomIndex !== last) {
+        last = state.roomIndex;
+        damageByRoom[last] = 0;
+      }
+      const before = state.stats.damageTaken;
       Core.step(state, kitingBot(state));
+      damageByRoom[last] = (damageByRoom[last] || 0) + (state.stats.damageTaken - before);
     }
-    return state;
+    return { state, damageByRoom };
   });
 
-  results.forEach((state) => {
+  results.forEach(({ state, damageByRoom }) => {
     assert.equal(state.victory, true, `seed run ended defeated=${state.defeat} room=${state.roomIndex + 1}`);
     assert.equal(state.defeat, false);
     /* Each seed draws its own rooms, so the kill count has to come from its run. */
@@ -2070,7 +2111,8 @@ test("a timing-aware policy can clear the whole stage without losing health", ()
      * it walks it untouched.
      */
     assert.ok(state.stats.damageTaken <= state.player.maxHp * 0.25,
-      `damageTaken=${state.stats.damageTaken} of ${state.player.maxHp}`);
+      `seed ${state.seed}: damageTaken=${state.stats.damageTaken} of ${state.player.maxHp} ` +
+        `by room [${damageByRoom.join(", ")}] (${state.stage.rooms.map((r) => r.name).join(" / ")})`);
     assert.ok(state.time < 90, `clear took ${state.time}s`);
   });
 });
@@ -6054,7 +6096,7 @@ test("魔狱血刹's 火山 is ground he opened, and it burns on its own clock",
   victim.hp = 9000;
   victim.maxHp = 9000;
   victim.speed = 0;
-  victim.attackRange = 0;
+  victim.attackRange = NEVER_REACHES;
   state.enemies = [victim];
 
   Core.step(state, { skills: { hellbenter: true } });
@@ -6151,7 +6193,7 @@ test("魔狱血刹's 火山 is worth what the sword was worth", () => {
     victim.hp = 9000;
     victim.maxHp = 9000;
     victim.speed = 0;
-    victim.attackRange = 0;
+    victim.attackRange = NEVER_REACHES;
     state.enemies = [victim];
     const slam = Core.SKILLS.hellbenterSlam;
     Core.step(state, { skills: { hellbenter: true } });
@@ -7001,14 +7043,19 @@ test("the boss enrages at half health without mutating the shared type spec", ()
   assert.ok(boss.slam.radius > spec.slam.radius, "phase two slams further");
 
   /* Every other boss in every other run reads from this one table. */
-  assert.equal(spec.slam.radius, 150, "the shared slam radius must not change");
+  /*
+   * 208, not the 150 it was: the slam is a disc on the floor whose edge reaches
+   * 105 past a body that is now 103 half-wide (the beast's 172 plus the Slayer's
+   * 34, halved). The disc grew because the beast did, which is the point.
+   */
+  assert.equal(spec.slam.radius, 208, "the shared slam radius must not change");
   assert.equal(spec.slam.cooldown, 3.6, "the shared slam cooldown must not change");
   assert.equal(spec.speed, 88, "the shared speed must not change");
   assert.equal(spec.damage, 18, "the shared damage must not change");
 
   const fresh = Core.createEnemy(Core.createState({ seed: 3 }), "boss", 500);
   assert.equal(fresh.phase, 1);
-  assert.equal(fresh.slam.radius, 150, "a new boss starts from the pristine spec");
+  assert.equal(fresh.slam.radius, 208, "a new boss starts from the pristine spec");
   assert.equal(fresh.speed, 88);
 
   /* The enrage is a deterministic state, so a twin boss lands on the same numbers. */
@@ -7023,10 +7070,15 @@ test("the boss enrages at half health without mutating the shared type spec", ()
 test("only the enraged boss lunges, and the lunge carries super armour", () => {
   const run = (enraged) => {
     const state = lastRoomState();
-    const boss = Core.createEnemy(state, "boss", state.player.x + 160);
+    /*
+     * Mid band, and the band moved with the body: the lunge needs a gap between
+     * `minGap` and `gap`, which for a 172-wide beast is a centre distance of
+     * 154-268. +160 sat just under the near edge once the body grew.
+     */
+    const boss = Core.createEnemy(state, "boss", state.player.x + 200);
     /* Isolate the lunge: the slam would otherwise preempt a mid-range attack. */
     boss.slam = null;
-    boss.attackRange = 0;
+    boss.attackRange = NEVER_REACHES;
     boss.attackCooldown = 0;
     boss.slamCooldown = 0;
     state.enemies = [boss];
@@ -7064,9 +7116,10 @@ test("only the enraged boss lunges, and the lunge carries super armour", () => {
 
 test("super armour never sticks when a wind-up is interrupted", () => {
   const state = lastRoomState();
-  const boss = Core.createEnemy(state, "boss", state.player.x + 160);
+  /* Mid band for the lunge, which is a gap - see the lunge test below. */
+  const boss = Core.createEnemy(state, "boss", state.player.x + 200);
   boss.slam = null;
-  boss.attackRange = 0;
+  boss.attackRange = NEVER_REACHES;
   state.enemies = [boss];
   Core.enterPhase2(state, boss);
   boss.attackCooldown = 0;
@@ -7613,7 +7666,7 @@ test("the elite mini-boss telegraphs a spin that sweeps a wide lane", () => {
   state.enemies = [elite];
   /* Pin it down so the sweep itself, not a chase, is what threatens the player. */
   elite.speed = 0;
-  elite.attackRange = 0;
+  elite.attackRange = NEVER_REACHES;
   const startX = elite.x;
 
   let telegraphed = false;
@@ -7646,7 +7699,7 @@ test("the spin is answerable: backing out of the lane avoids it", () => {
     const elite = Core.createEnemy(state, "elite", state.player.x + 120);
     state.enemies = [elite];
     elite.speed = 0;
-    elite.attackRange = 0;
+    elite.attackRange = NEVER_REACHES;
     for (let frame = 0; frame < 60 * 5; frame += 1) {
       Core.step(state, retreat ? { left: true } : {});
     }
