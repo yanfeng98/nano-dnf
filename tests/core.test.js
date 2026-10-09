@@ -8081,3 +8081,240 @@ test("魔狱血刹's 落 draws no sword at all", () => {
     "the 持剑期 still draws the 血气之剑"
   );
 });
+
+/*
+ * ---------------------------------------------------------------------------
+ * 幽暗密林's room art and the map window (`docs/adr/0028`, `docs/adr/0029`).
+ *
+ * Both are baked sheets with a hand-kept table in `src/render.js` - the same
+ * arrangement the monsters have - so both need the same two guards: every name
+ * the game can ask for exists in the table, and every rect in the table has the
+ * art in the sheet at that spot.
+ * ---------------------------------------------------------------------------
+ */
+
+/** The alpha box of one rect of a sheet, in the rect's own coordinates. */
+function rectAlphaBox(sheet, rect) {
+  const [x, y, w, h] = rect;
+  let x0 = w;
+  let y0 = h;
+  let x1 = -1;
+  let y1 = -1;
+  for (let j = 0; j < h; j += 1) {
+    for (let i = 0; i < w; i += 1) {
+      const alpha = sheet.pixels[((y + j) * sheet.width + (x + i)) * 4 + 3];
+      if (alpha === 0) continue;
+      if (i < x0) x0 = i;
+      if (j < y0) y0 = j;
+      if (i > x1) x1 = i;
+      if (j > y1) y1 = j;
+    }
+  }
+  return x1 < 0 ? null : { x0, y0, x1, y1, w, h };
+}
+
+function asset(name) {
+  return decodeRgbaPng(path.join(__dirname, "..", "assets", name));
+}
+
+test("a hit during 魔狱血刹's 起手 does not cancel the whole state", () => {
+  /*
+   * `activeFrom` lands the sword half a second into a one-second 起手, so a hit
+   * taken before then used to cancel the cast outright - measured `tier 0` and
+   * no buff, where a hit at 0.7s left both. The 落 is 霸体 so that a grunt
+   * cannot eat what the fifty seconds were for (`docs/adr/0025`); the 起手 is
+   * what those fifty seconds *are*, and it is the longer of the two windows.
+   */
+  const state = Core.createState({ seed: 3, stage: "mirkwood" });
+  const idle = {
+    left: false, right: false, up: false, down: false, jump: false, attack: false, skills: {}
+  };
+  const press = { ...idle, skills: { hellbenter: true } };
+  const hit = Math.round(0.2 / Core.DT);
+  const end = Math.round(1 / Core.DT);
+  for (let frame = 0; frame <= end; frame += 1) {
+    Core.step(state, frame === 0 ? press : idle);
+    if (frame === hit) Core.damagePlayer(state, 5, state.player.x + 40);
+  }
+  assert.equal(state.player.hellbenterTier, 1, "the sword has to come up through the hit");
+  assert.ok(state.player.buffs.hellbenter > 0, "and the fifty seconds have to be running");
+});
+
+test("every prop a room scatters names a piece the bake produced", () => {
+  const known = Object.keys(Render.SCENE.pieces);
+  Object.keys(Core.STAGES).forEach((id) => {
+    (Core.STAGES[id].rooms || []).forEach((room) => {
+      (room.props || []).forEach((prop) => {
+        assert.ok(
+          known.includes(prop.piece),
+          `${id} / ${room.name} scatters "${prop.piece}", which has no rect in SCENE.pieces`
+        );
+      });
+    });
+  });
+  /* And the reverse: a piece nothing uses is art shipped for nothing. */
+  const used = new Set();
+  Object.keys(Core.STAGES).forEach((id) => {
+    (Core.STAGES[id].rooms || []).forEach((room) => {
+      (room.props || []).forEach((prop) => used.add(prop.piece));
+    });
+  });
+  /*
+   * The pieces no room scatters because the renderer places them itself: the way
+   * out of the room, and everything the map window is built from.
+   */
+  ["gate", "boss", "marker", "blank", "tl", "top", "tr", "left", "centre", "right",
+   "bl", "bottom", "br"].forEach((reserved) => used.add(reserved));
+  known.filter((name) => !used.has(name)).forEach((unused) => {
+    assert.ok(
+      ["far", "mid", "tile0", "tile1", "tile2", "tile3"].includes(unused),
+      `SCENE.pieces.${unused} is neither a layer nor scattered by any room`
+    );
+  });
+});
+
+test("the forest sheet holds each piece of the room art where the table says", () => {
+  const sheet = asset("forest.png");
+  Object.keys(Render.SCENE.pieces).forEach((name) => {
+    const box = rectAlphaBox(sheet, Render.SCENE.pieces[name]);
+    assert.ok(box, `SCENE.pieces.${name} points at empty pixels`);
+    /*
+     * The bake crops every piece to its own ink, so the box has to touch all
+     * four edges of the rect - a gap means the table and the sheet have drifted.
+     */
+    assert.equal(box.x0, 0, `${name} has a gap on its left`);
+    assert.equal(box.y0, 0, `${name} has a gap on its top`);
+    assert.equal(box.x1, box.w - 1, `${name} has a gap on its right`);
+    assert.equal(box.y1, box.h - 1, `${name} has a gap on its bottom`);
+  });
+});
+
+test("the ground strips are the same height as each other", () => {
+  /*
+   * The band is drawn as one column of strips from the far edge to the bottom of
+   * the screen, so strips of different heights would leave a step in the grass.
+   */
+  const heights = Render.SCENE.ground.map((name) => Render.SCENE.pieces[name][3]);
+  heights.forEach((height) => {
+    assert.ok(
+      Math.abs(height - heights[0]) <= 2,
+      `the ground strips are ${heights.join("/")} tall, which would show a seam`
+    );
+  });
+});
+
+test("every room of a run has a tile to be drawn with, on every seed", () => {
+  for (let seed = 0; seed < 400; seed += 1) {
+    const map = Core.minimapFor(seed);
+    assert.equal(map.cells.length, Core.STAGES.mirkwood.rooms.length > 0
+      ? Core.RUN_COMBAT_ROOMS + 1 : 5, "a run is five rooms");
+    map.cells.forEach((cell) => {
+      const name = `room:${"NESW".split("").filter((_, index) => cell.exits & (1 << index)).join("")}`;
+      assert.ok(
+        Render.MINIMAP.tiles[name] !== undefined,
+        `seed ${seed} wants a "${name}" tile, which the sheet has no column for`
+      );
+    });
+  }
+});
+
+test("the map's path is a path: inside the grid, no two rooms on one cell, linked", () => {
+  const codes = { N: 1, E: 2, S: 4, W: 8 };
+  for (let seed = 0; seed < 100; seed += 1) {
+    const map = Core.minimapFor(seed);
+    const seen = new Set();
+    map.cells.forEach((cell, index) => {
+      assert.ok(cell.col >= 0 && cell.col < map.cols, `seed ${seed} cell ${index} is off the grid`);
+      assert.ok(cell.row >= 0 && cell.row < map.rows, `seed ${seed} cell ${index} is off the grid`);
+      const spot = `${cell.col},${cell.row}`;
+      assert.ok(!seen.has(spot), `seed ${seed} puts two rooms on ${spot}`);
+      seen.add(spot);
+      /* Its exits are exactly its neighbours' directions - no more, no less. */
+      let wanted = 0;
+      [index - 1, index + 1].forEach((other) => {
+        if (other < 0 || other >= map.cells.length) return;
+        const dx = map.cells[other].col - cell.col;
+        const dy = map.cells[other].row - cell.row;
+        assert.equal(Math.abs(dx) + Math.abs(dy), 1, "rooms of a run have to touch");
+        wanted |= dx === 1 ? codes.E : dx === -1 ? codes.W : dy === 1 ? codes.S : codes.N;
+      });
+      assert.equal(cell.exits, wanted, `seed ${seed} cell ${index} opens the wrong ways`);
+    });
+  }
+});
+
+test("the map window sits in the corner, clear of the panels that share the top", () => {
+  const box = Render.minimapBox({});
+  assert.ok(box.x + box.w <= Core.ARENA.width, "the window runs off the right edge");
+  assert.equal(box.x + box.w, Core.ARENA.width - Render.MINIMAP.margin, "it is not right-aligned");
+  assert.ok(box.y >= 0 && box.y + box.h < 140, "the window is not along the top");
+  /* The room card moves out of its way - see drawHud. */
+  const cardW = 236;
+  const cardX = Core.ARENA.width - cardW - 16 - (box.w) - 12;
+  assert.ok(cardX + cardW < box.x, "the room card and the map window overlap");
+  /*
+   * In touch mode the corner is the mute/loadout/pause buttons', so the window
+   * drops below them rather than under them.
+   */
+  const touch = Render.minimapBox({ touch: { enabled: true } });
+  assert.ok(touch.y > box.y, "touch mode has to move the window off the buttons");
+  assert.ok(touch.y >= 20 + 44, "the window still overlaps the touch buttons");
+});
+
+test("the map's button is what a tap has to hit, not the window", () => {
+  const box = Render.minimapBox({});
+  assert.equal(Render.hitTestMinimap(box.x + box.w - 10, 8 + box.y, {}), "map",
+    "the ⊘ in the title bar has to answer a tap");
+  assert.equal(Render.hitTestMinimap(box.x + box.w / 2, box.y + box.h / 2, {}), null,
+    "the map's own floor is not a button");
+  assert.equal(Render.hitTestMinimap(10, 10, {}), null, "the player panel is not the map");
+  /* In the radar form it is the disc that answers, wherever the window sits. */
+  const radarMeta = { map: { mode: "radar" } };
+  const centre = { x: box.x + box.w / 2, y: box.y + box.h / 2 + 4 };
+  assert.equal(Render.hitTestMinimap(centre.x, centre.y, radarMeta), "map");
+  assert.equal(Render.hitTestMinimap(centre.x + Render.MINIMAP.radarRadius + 10, centre.y,
+    radarMeta), null, "a tap outside the disc is not the map");
+});
+
+test("the map draws a tile in every cell of its grid, blanks included", () => {
+  const state = Core.createState({ seed: 1, stage: "mirkwood" });
+  const calls = [];
+  const sheet = { width: 378, height: 122 };
+  Render.render(recordingContext(calls), state, {
+    sprites: { minimap: sheet },
+    map: { mode: "window" }
+  });
+  const tiles = calls.filter((call) => call[0] === "drawImage" && call[1] === sheet);
+  const grid = Core.MINIMAP.cols * Core.MINIMAP.rows;
+  assert.ok(
+    tiles.length >= grid + state.minimap.cells.length,
+    `only ${tiles.length} tiles were drawn for a ${grid}-cell grid and ` +
+    `${state.minimap.cells.length} rooms`
+  );
+  /* The blank is drawn in every cell, so no cell is left showing the panel. */
+  const blanks = tiles.filter((call) => call[2] === Render.MINIMAP.pieces.blank[0] &&
+                                         call[3] === Render.MINIMAP.pieces.blank[1]);
+  assert.equal(blanks.length, grid, "every cell of the grid gets the blank cell first");
+});
+
+test("the map window's markers land in the boss's cell and in the player's", () => {
+  const state = Core.createState({ seed: 7, stage: "mirkwood" });
+  state.roomIndex = 2;
+  const calls = [];
+  const sheet = { width: 378, height: 122 };
+  Render.render(recordingContext(calls), state, {
+    sprites: { minimap: sheet },
+    map: { mode: "window" }
+  });
+  const box = Render.minimapBox({});
+  const placed = calls.filter((call) => call[0] === "drawImage" && call[1] === sheet)
+    .map((call) => ({ sx: call[3], sy: call[4], dx: call[6], dy: call[7] }));
+  const cell = Render.MINIMAP.tile;
+  const at = (col, row) => placed.some((spot) =>
+    Math.abs(spot.dx - (box.left + col * cell)) < cell &&
+    Math.abs(spot.dy - (box.top + row * cell)) < cell);
+  const boss = state.minimap.cells[state.minimap.cells.length - 1];
+  const here = state.minimap.cells[2];
+  assert.ok(at(boss.col, boss.row), "the boss's room is not marked");
+  assert.ok(at(here.col, here.row), "the room the player is in is not marked");
+});

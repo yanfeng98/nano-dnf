@@ -1084,13 +1084,24 @@ async function runPass(browser, baseUrl, options) {
           await page.keyboard.press("KeyV");
         }
       };
-      await castAwakening();
-      /* The cast is its own second, and the sword lands inside it. */
-      await waitWatching(1500);
-      const swordUp = await page.evaluate(() => {
-        const player = window.nanoDnf.getState().player;
-        return { tier: player.hellbenterTier, buff: player.buffs.hellbenter || 0 };
-      });
+      /*
+       * **Press until the sword is up, not once.** The key is edge-triggered and
+       * a press that lands inside one of the bot's own swings is *dropped*
+       * rather than queued - `castAwakening` waits for a frame he is free on,
+       * but the bot decides for itself in between, so the press can still arrive
+       * one frame into an attack. The second half of this check has always
+       * retried for exactly that reason; the first half did not.
+       */
+      let swordUp = { tier: 0, buff: 0 };
+      for (let attempt = 0; attempt < 4 && !(swordUp.tier >= 1); attempt += 1) {
+        await castAwakening();
+        /* The cast is its own second, and the sword lands inside it. */
+        await waitWatching(1500);
+        swordUp = await page.evaluate(() => {
+          const player = window.nanoDnf.getState().player;
+          return { tier: player.hellbenterTier, buff: player.buffs.hellbenter || 0 };
+        });
+      }
       /*
        * **The 落 is 5.4s now, and he holds the pose for all of it.** The sword
        * goes into the ground 0.6s in, but the tier is only cleared when the cast

@@ -780,6 +780,17 @@
        */
       activeFrom: 0.5,
       activeTo: 0.6,
+      /*
+       * **霸体, for the same reason the 落 is.** The sword lands half a second
+       * into this second-long 起手, so a single hit taken before then cancels
+       * the cast and **the whole fifty seconds never happens** - measured:
+       * `hellbenterTier` 0 and no buff after a hit at 0.2s, and 1 with the buff
+       * up after the same hit at 0.7s. The 落's note says a grunt must not eat
+       * what the fifty seconds were for (`docs/adr/0025`); the 起手 is what those
+       * fifty seconds *are*, and it is the longer of the two windows. He still
+       * takes every point of the damage (docs/adr/0018).
+       */
+      superArmor: true,
       reach: 0,
       heightPad: 0,
       knockbackX: 0,
@@ -1720,6 +1731,16 @@
             { type: "grunt", x: 620 },
             { type: "grunt", x: 790 },
             { type: "grunt", x: 880 }
+          ],
+          props: [
+            { piece: "trunkTall", x: 150, depth: 1 },
+            { piece: "trunkBent", x: 430, depth: 1 },
+            { piece: "trunkMossy", x: 780, depth: 1 },
+            { piece: "treeLeafy", x: 620, depth: 0.86 },
+            { piece: "bush", x: 300, depth: 0.62 },
+            { piece: "grassFlower", x: 640, depth: 0.5 },
+            { piece: "rockSmall", x: 900, depth: 0.34 },
+            { piece: "sprout", x: 60, depth: 0.12 }
           ]
         },
         {
@@ -1733,6 +1754,15 @@
             { type: "caster", x: 600, depth: 0.34 },
             { type: "grunt", x: 720 },
             { type: "grunt", x: 900 }
+          ],
+          props: [
+            { piece: "trunkBent", x: 210, depth: 1 },
+            { piece: "trunkMossy", x: 560, depth: 1 },
+            { piece: "wallStone", x: 470, depth: 0.72 },
+            { piece: "rockFlat", x: 240, depth: 0.4 },
+            { piece: "rockSmall", x: 700, depth: 0.46 },
+            { piece: "grass", x: 860, depth: 0.3 },
+            { piece: "barrel", x: 110, depth: 0.1 }
           ]
         },
         {
@@ -1741,6 +1771,15 @@
             { type: "brute", x: 700 },
             { type: "brute", x: 850 },
             { type: "grunt", x: 560 }
+          ],
+          props: [
+            { piece: "trunkTall", x: 340, depth: 1 },
+            { piece: "trunkMossy", x: 700, depth: 1 },
+            { piece: "pillar", x: 250, depth: 0.66 },
+            { piece: "pillar", x: 800, depth: 0.66 },
+            { piece: "barrel", x: 420, depth: 0.42 },
+            { piece: "barrel", x: 470, depth: 0.3 },
+            { piece: "grass", x: 620, depth: 0.14 }
           ]
         },
         {
@@ -1753,6 +1792,16 @@
             { type: "caster", x: 560, depth: 0.4 },
             { type: "elite", x: 760 },
             { type: "grunt", x: 920 }
+          ],
+          props: [
+            { piece: "trunkTall", x: 120, depth: 1 },
+            { piece: "trunkBent", x: 660, depth: 1 },
+            { piece: "wallStone", x: 330, depth: 0.78 },
+            { piece: "barrel", x: 250, depth: 0.6 },
+            { piece: "barrel", x: 300, depth: 0.5 },
+            { piece: "barrel", x: 360, depth: 0.44 },
+            { piece: "flower", x: 880, depth: 0.22 },
+            { piece: "bush", x: 60, depth: 0.16 }
           ]
         },
         {
@@ -1773,6 +1822,16 @@
             { type: "coward", x: 740 },
             { type: "coward", x: 880 }
           ],
+          props: [
+            { piece: "trunkMossy", x: 100, depth: 1 },
+            { piece: "trunkBent", x: 380, depth: 1 },
+            { piece: "trunkTall", x: 880, depth: 1 },
+            { piece: "stump", x: 520, depth: 0.74 },
+            { piece: "bush", x: 240, depth: 0.56 },
+            { piece: "bush", x: 700, depth: 0.5 },
+            { piece: "sprout", x: 780, depth: 0.26 },
+            { piece: "grassFlower", x: 430, depth: 0.18 }
+          ],
           hazards: [
             { x: 640 },
             { x: 850 }
@@ -1789,6 +1848,14 @@
           enemies: [
             { type: "grunt", x: 520 },
             { type: "boss", x: 780 }
+          ],
+          props: [
+            { piece: "trunkTall", x: 210, depth: 1 },
+            { piece: "trunkMossy", x: 560, depth: 1 },
+            { piece: "trunkBent", x: 900, depth: 1 },
+            { piece: "rockFlat", x: 680, depth: 0.62 },
+            { piece: "stump", x: 400, depth: 0.44 },
+            { piece: "grass", x: 120, depth: 0.2 }
           ],
           band: { backY: 300 }
         }
@@ -1932,6 +1999,61 @@
   }
 
   var DEFAULT_SEED = 20260915;
+
+  /*
+   * The room map - the little window in the corner of a room showing where in
+   * the dungeon you are (`docs/adr/0029`).
+   *
+   * **It is a grid of cells, and every cell is one tile of the client's own
+   * minimap art.** That art comes in fixed shapes: a room with its exits, or a
+   * corridor passing through, and only some combinations exist (measured in
+   * `assets/import_dnf_minimap.py`; the frames are in `src/render.js` MINIMAP).
+   * Of the two-exit rooms the client has exactly **{E,S}** and **{N,W}**, which
+   * is why every path below steps west or south and turns one way: those two
+   * shapes are the only corners the art can draw.
+   *
+   * A path is one spot per room of the run, in the order they are fought, so the
+   * map is drawn from `state.layout` and never lies about where you have been.
+   * Which path a run gets is the seed's, like the room order itself.
+   */
+  var MINIMAP = {
+    cols: 4,
+    rows: 3,
+    paths: [
+      [[0, 3], [0, 2], [1, 2], [1, 1], [2, 1]],
+      [[0, 2], [0, 1], [1, 1], [1, 0], [2, 0]],
+      [[0, 3], [1, 3], [1, 2], [2, 2], [2, 1]],
+      [[0, 2], [1, 2], [1, 1], [2, 1], [2, 0]]
+    ]
+  };
+
+  /* North, east, south, west - the same bits `assets/import_dnf_minimap.py` uses. */
+  var MINIMAP_DIR = { N: 1, E: 2, S: 4, W: 8 };
+
+  /**
+   * Where each room of a run sits on the map, and which ways it opens.
+   *
+   * Returns `{cols, rows, cells: [{col, row, exits}]}` in fight order, so
+   * `cells[state.roomIndex]` is the room the player is standing in.
+   */
+  function minimapFor(seed) {
+    var paths = MINIMAP.paths;
+    var path = paths[(Math.abs(seed >>> 0) % paths.length)];
+    var cells = path.map(function (spot, index) {
+      var exits = 0;
+      [index - 1, index + 1].forEach(function (other) {
+        if (other < 0 || other >= path.length) return;
+        var across = path[other][1] - spot[1];
+        var down = path[other][0] - spot[0];
+        if (across === 1) exits |= MINIMAP_DIR.E;
+        if (across === -1) exits |= MINIMAP_DIR.W;
+        if (down === 1) exits |= MINIMAP_DIR.S;
+        if (down === -1) exits |= MINIMAP_DIR.N;
+      });
+      return { col: spot[1], row: spot[0], exits: exits };
+    });
+    return { cols: MINIMAP.cols, rows: MINIMAP.rows, cells: cells };
+  }
 
   /*
    * Between-room rewards. Clearing a room offers three of these, so two runs on
@@ -2253,6 +2375,8 @@
     };
     state.rngState = state.seed >>> 0;
     state.layout = layoutForSeed(state.stage, state.seed);
+    /* Where each room of this run sits on the map (`docs/adr/0029`). */
+    state.minimap = minimapFor(state.seed);
     state.player = createPlayer(options.startX || 110);
     startRoom(state, options.roomIndex || 0);
     return state;
@@ -2280,6 +2404,17 @@
     state.enemies = spec.enemies.map(function (entry) {
       var z = entry.depth === undefined ? 0 : entry.depth * bandDepth(state.band);
       return createEnemy(state, entry.type, entry.x, z);
+    });
+    /*
+     * Scenery, in the room's own words: `{piece, x, depth?}`, where `piece` is a
+     * name the bake produced (`assets/import_dnf_scene.py`) and `depth` is a
+     * share of this room's floor, exactly like an enemy's. Props are art only -
+     * nothing collides with them and nothing is ever hit by them - so they are
+     * drawn in the depth-sorted pass and nowhere else (`drawProps`).
+     */
+    state.props = (spec.props || []).map(function (entry) {
+      var z = entry.depth === undefined ? 0 : entry.depth * bandDepth(state.band);
+      return { piece: entry.piece, x: entry.x, z: z };
     });
     state.player.x = 110;
     state.player.y = ARENA.groundY;
@@ -4659,6 +4794,8 @@
     layoutForSeed: layoutForSeed,
     roomThreat: roomThreat,
     rampRooms: rampRooms,
+    MINIMAP: MINIMAP,
+    minimapFor: minimapFor,
     UPGRADES: UPGRADES,
     UPGRADE_ORDER: UPGRADE_ORDER,
     UPGRADES_PER_ROOM: UPGRADES_PER_ROOM,

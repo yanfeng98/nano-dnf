@@ -30,7 +30,7 @@
    */
   var sprites = {
     slayer: null, skills: null, effects: null, rift: null, awakening: null, region: null,
-    monsters: null
+    monsters: null, forest: null, minimap: null
   };
   [
     ["slayer", "./assets/slayer.png"],
@@ -48,6 +48,18 @@
      * own order (assets/import_dnf_monsters.py).
      */
     ["monsters", "./assets/monsters.png"],
+    /*
+     * 幽暗密林's room art: the client's forest set 02 - far and mid layers, the
+     * grass ground strips and the props a room scatters - each cropped to its
+     * own ink (assets/import_dnf_scene.py, docs/adr/0028).
+     */
+    ["forest", "./assets/forest.png"],
+    /*
+     * The map window: one 18 px tile per cell of the dungeon, plus the two
+     * markers, the disc its radar form is cut into and the nine pieces of its
+     * own panel (assets/import_dnf_minimap.py).
+     */
+    ["minimap", "./assets/minimap.png"],
     /*
      * 魔狱血刹's 觉醒插画, and the one piece of art in this folder that is not
      * baked from the client: the client has no 一觉 illustration to bake (see
@@ -242,6 +254,8 @@
   var state = Core.createState({ seed: currentSeed, stage: currentStage });
   var paused = false;
   var showHelp = true;
+  /* "window" (the whole dungeon) or "radar" (the disc round the room he is in). */
+  var mapMode = "window";
   var accumulator = 0;
   var lastTime = 0;
   /*
@@ -650,6 +664,15 @@
     };
   }
 
+  /*
+   * What the map's hit test needs: which of its two forms is up, and whether the
+   * top-right corner is already the touch buttons' (they take it, so the window
+   * drops below them - see Render.minimapBox).
+   */
+  function mapMeta() {
+    return { map: { mode: mapMode }, touch: { enabled: touchMode } };
+  }
+
   function touchDown(event) {
     if (showHelp) {
       openRegion();
@@ -676,6 +699,18 @@
         Core.chooseUpgrade(state, state.upgradeChoice.options[cardIndex]);
         return;
       }
+    }
+
+    /*
+     * The map, in the corner: its ⊘ (or the disc, in the radar form) switches
+     * between the two forms. It is hit-tested before the skill bar only because
+     * it sits under it on the screen - neither reaches the other.
+     */
+    if (Render.hitTestMinimap(point.x, point.y, mapMeta())) {
+      mapMode = mapMode === "window" ? "radar" : "window";
+      event.preventDefault();
+      ensureAudio();
+      return;
     }
 
     /* Skill bar: tap to cast, or start a drag while arranging the loadout. */
@@ -846,6 +881,16 @@
     if (event.code === "KeyB") {
       loadoutOpen = !loadoutOpen;
       drag = null;
+      event.preventDefault();
+      return;
+    }
+    /*
+     * The map's two forms. `Tab` is the key DNF gives its map, and it is
+     * swallowed here: left alone the browser would walk the page's own links
+     * instead, and the next Enter would press one.
+     */
+    if (event.code === "Tab") {
+      mapMode = mapMode === "window" ? "radar" : "window";
       event.preventDefault();
       return;
     }
@@ -1106,6 +1151,12 @@
       run: runSummary(),
       hint: titleUp ? null : activeHint,
       /*
+       * The map window's form (`docs/adr/0029`). It is always up - that is what
+       * the reference does - and this only picks which of its two shapes it is
+       * drawn in: the whole dungeon, or the disc centred on the room he is in.
+       */
+      map: { mode: mapMode },
+      /*
        * The region map, assembled here so render.js never reaches into the
        * storage or the stage table for it (`drawRegionMap`).
        */
@@ -1226,6 +1277,18 @@
     /* Which stage the run is on, and where the region map has got to. */
     getStage: function () {
       return currentStage;
+    },
+    /* The map window: its form, and the room grid it is drawing. */
+    getMap: function () {
+      return {
+        mode: mapMode,
+        grid: state.minimap,
+        room: state.roomIndex
+      };
+    },
+    setMapMode: function (mode) {
+      mapMode = mode === "radar" ? "radar" : "window";
+      return mapMode;
     },
     getProgress: function () {
       return {

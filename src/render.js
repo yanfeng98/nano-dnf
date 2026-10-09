@@ -1612,11 +1612,575 @@
     return ARENA.groundY - Core.depthLift(z);
   }
 
-  function drawBackdrop(ctx, state) {
+  /*
+   * 幽暗密林's room art: the client's own forest set **02**, baked into
+   * `assets/forest.png` by `assets/import_dnf_scene.py`.
+   *
+   * A client room is not one picture. It is a `far` panorama, a `mid` layer that
+   * carries the trees, four `tile` ground strips that repeat across the floor,
+   * and numbered `obj` props (`docs/granfloris-assets.md` 第三节). `docs/adr/0028`
+   * is where the set number comes from: that document's own guess was 01, and
+   * the owner's recording said otherwise.
+   *
+   * Every rect is in the sheet's own pixels and every piece is already cropped
+   * to its ink, so a piece is placed by **where its bottom edge goes**: the foot
+   * of a trunk, the front edge of a rock. The three ground strips are the only
+   * pieces that are laid end to end instead.
+   */
+  var SCENE = {
+    pieces: {
+      far: [0, 0, 640, 375],
+      mid: [640, 0, 640, 380],
+      tile0: [0, 380, 224, 203],
+      tile1: [224, 380, 224, 233],
+      tile2: [448, 380, 224, 233],
+      tile3: [672, 380, 224, 235],
+      trunkTall: [896, 380, 203, 422],
+      trunkBent: [1099, 380, 143, 423],
+      trunkMossy: [0, 803, 160, 428],
+      treeLeafy: [160, 803, 153, 203],
+      stump: [313, 803, 105, 199],
+      wallStone: [418, 803, 167, 125],
+      rockFlat: [585, 803, 141, 89],
+      rockSmall: [726, 803, 42, 44],
+      pillar: [768, 803, 44, 111],
+      bush: [812, 803, 64, 59],
+      flower: [876, 803, 30, 55],
+      grass: [906, 803, 127, 66],
+      grassFlower: [1033, 803, 188, 78],
+      sprout: [0, 1231, 126, 66],
+      gate: [126, 1231, 131, 240],
+      barrel: [257, 1231, 63, 78]
+    },
     /*
-     * Built outwards from the floor band, because the band is what everything
-     * in the room is placed against: the wall stops at its far edge, and the
-     * strip in front of the ground line is a skirt nothing ever stands on.
+     * The ground, left to right. `tile0` is a short one (203 against their 233),
+     * so it is not in the run: strips of different heights would leave a ragged
+     * top edge, and the top edge is the line the floor meets the trees on.
+     */
+    ground: ["tile1", "tile2", "tile3"],
+    /*
+     * How far above the band's back edge the ground's own top edge is drawn. The
+     * strips are already grass right to their last row, so this only has to
+     * close the seam between the band and the `mid` layer's feet.
+     */
+    groundLift: 6,
+    /* The `mid` layer's own ground line sits on the band's back edge. */
+    midLift: 0
+  };
+
+  function sceneRect(name) {
+    return SCENE.pieces[name] || null;
+  }
+
+  /*
+   * The map window: the little dungeon map in the corner of a room.
+   *
+   * It is the client's own art - `assets/minimap.png`, baked by
+   * `assets/import_dnf_minimap.py` - where **one 18x18 tile is one cell of the
+   * dungeon**, holding either a room or a corridor and a stub towards every
+   * neighbour it links to. `Core.minimapFor` decides which cell is which shape;
+   * this file only says which column of the sheet that shape is.
+   *
+   * Everything about the window is measured off the owner's recording
+   * (`assets/dnf_src/bilibili/BV1d24y1P74G.mp4`, 幽暗密林, the map window in the
+   * top-right from 76s on, `docs/adr/0029`):
+   *
+   * - the tile is drawn **1:1**, the client's own 18 px against this game's 84 px
+   *   Slayer - the same 22% of a body the recording shows;
+   * - the title bar's brown `(57,48,39)`, its cream text and its button
+   *   `(185,173,153)`, the room's khaki `(112,116,47)`, the boss marker's red
+   *   `(233,74,0)` and the player's blue `(25,194,255)` are all sampled from it;
+   * - the reference draws the whole map in the tile set's **dim** family, not the
+   *   bright one (sampled at 90s and again at 250s).
+   */
+  var MINIMAP = {
+    tile: 18,
+    titleH: 16,
+    /* Right and top margins, matching the rest of this game's HUD. */
+    margin: 16,
+    top: 14,
+    /* In touch mode the top-right corner holds the mute/loadout/pause buttons. */
+    touchTop: 74,
+    /*
+     * The window is not drawn by hand: it is the client's own panel as a
+     * 9-slice, and the markers and the disc are cut out of the same atlas. Rects
+     * are in `assets/minimap.png`, read off the bake's manifest.
+     */
+    pieces: {
+      blank: [0, 18, 18, 18],
+      boss: [22, 18, 16, 14],
+      marker: [42, 18, 14, 19],
+      ring: [60, 18, 104, 104],
+      tl: [168, 18, 5, 5],
+      top: [177, 18, 18, 5],
+      tr: [199, 18, 4, 5],
+      left: [207, 18, 5, 18],
+      centre: [216, 18, 18, 18],
+      right: [238, 18, 4, 18],
+      bl: [246, 18, 5, 4],
+      bottom: [255, 18, 18, 4],
+      br: [277, 18, 4, 4]
+    },
+    /*
+     * Column of each shape in the sheet. The keys are `kind:exits`, the exits
+     * being N/E/S/W in that order - the same table
+     * `assets/import_dnf_minimap.py --table` prints.
+     */
+    tiles: {
+      "corr:N": 0,
+      "corr:E": 1,
+      "corr:NE": 2,
+      "corr:S": 3,
+      "corr:NS": 4,
+      "corr:ES": 5,
+      "corr:NES": 6,
+      "corr:NW": 7,
+      "corr:EW": 8,
+      "corr:NEW": 9,
+      "corr:SW": 10,
+      "corr:NSW": 11,
+      "corr:ESW": 12,
+      "room:N": 13,
+      "room:E": 14,
+      "room:S": 15,
+      "room:ES": 16,
+      "room:W": 17,
+      "room:NW": 18,
+      "room:ESW": 19,
+      "room:NESW": 20
+    },
+    /* The panel's own brown, read off the client's frame pieces. */
+    panel: "#62543c",
+    /* The two colours the hand-drawn fallbacks use, sampled off the recording. */
+    boss: "#e94a00",
+    marker: "#19c2ff",
+    /*
+     * The round "radar" form: the same tiles, clipped into a disc and centred on
+     * the room the player is in, at twice the scale - which is what the
+     * recording shows for the first twenty seconds of a run. The radius is the
+     * client's disc read from the inside: the ring is 104 across and its hole
+     * measures 93 (`--hole`), so the map is clipped just inside that and the
+     * ring's own band covers the edge.
+     */
+    radarZoom: 2,
+    radarRadius: 45
+  };
+
+  var MINIMAP_DIRS = [["N", 1], ["E", 2], ["S", 4], ["W", 8]];
+
+  function exitsName(exits) {
+    var name = "";
+    MINIMAP_DIRS.forEach(function (pair) {
+      if (exits & pair[1]) name += pair[0];
+    });
+    return name;
+  }
+
+  function minimapTileName(cell) {
+    /* A cell the path only runs through has no room in it. */
+    return "room:" + exitsName(cell.exits);
+  }
+
+  function drawMinimapTile(ctx, sprites, name, x, y, scale) {
+    var sheet = sprites && sprites.minimap;
+    var column = MINIMAP.tiles[name];
+    if (!sheet || column === undefined) return;
+    var tile = MINIMAP.tile * scale;
+    ctx.drawImage(sheet, column * MINIMAP.tile, 0, MINIMAP.tile, MINIMAP.tile,
+                  Math.round(x), Math.round(y), tile, tile);
+  }
+
+  /**
+   * The whole grid, then the rooms on it.
+   *
+   * The client has no empty cell - every frame of its tile set carries a room or
+   * a corridor, because in the recording every cell of the dungeon has one. A
+   * five-room stage on a 4x3 grid does not, so the cells it leaves over are
+   * filled with the blank the bake derives from the unknown-room frame
+   * (`import_dnf_minimap.py`), and the map reads as a grid rather than as tiles
+   * floating in the dark.
+   */
+  function drawMinimapGrid(ctx, sprites, x, y, scale) {
+    for (var row = 0; row < Core.MINIMAP.rows; row += 1) {
+      for (var col = 0; col < Core.MINIMAP.cols; col += 1) {
+        drawMinimapPiece(ctx, sprites, "blank", x + col * MINIMAP.tile * scale,
+                         y + row * MINIMAP.tile * scale,
+                         MINIMAP.tile * scale, MINIMAP.tile * scale);
+      }
+    }
+  }
+
+  /** The red horned face that marks the boss's room, drawn at 18 px. */
+  function drawBossFaceFallback(ctx, x, y, size) {
+    var scale = size / 18;
+    ctx.save();
+    ctx.translate(x + size / 2, y + size / 2);
+    ctx.scale(scale, scale);
+    /* the face glows, which is how the recording reads it at this size */
+    var glow = ctx.createRadialGradient(0, 0, 1, 0, 0, 11);
+    glow.addColorStop(0, "rgba(255, 96, 24, 0.55)");
+    glow.addColorStop(1, "rgba(255, 96, 24, 0)");
+    ctx.fillStyle = glow;
+    ctx.beginPath();
+    ctx.arc(0, 0, 11, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = MINIMAP.boss;
+    ctx.beginPath();
+    ctx.moveTo(-6, -4);
+    ctx.lineTo(-7.5, -8);
+    ctx.lineTo(-3.5, -6);
+    ctx.lineTo(3.5, -6);
+    ctx.lineTo(7.5, -8);
+    ctx.lineTo(6, -4);
+    ctx.lineTo(7, 4);
+    ctx.lineTo(0, 8);
+    ctx.lineTo(-7, 4);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = "#ffd23a";
+    ctx.beginPath();
+    ctx.ellipse(-3, -1, 1.6, 1.2, 0, 0, Math.PI * 2);
+    ctx.ellipse(3, -1, 1.6, 1.2, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  /** The blue lozenge that marks the room the player is standing in. */
+  function drawMarkerFallback(ctx, x, y, size) {
+    var scale = size / 18;
+    ctx.save();
+    ctx.translate(x + size / 2, y + size / 2);
+    ctx.scale(scale, scale);
+    ctx.fillStyle = MINIMAP.marker;
+    ctx.beginPath();
+    ctx.moveTo(0, -7);
+    ctx.lineTo(3.4, -2);
+    ctx.lineTo(3.4, 4);
+    ctx.lineTo(0, 7);
+    ctx.lineTo(-3.4, 4);
+    ctx.lineTo(-3.4, -2);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = "rgba(226, 250, 255, 0.85)";
+    ctx.beginPath();
+    ctx.moveTo(0, -6);
+    ctx.lineTo(1.5, -2);
+    ctx.lineTo(0, 3);
+    ctx.lineTo(-1.5, -2);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+  }
+
+  /**
+   * The two markers, in the cell they belong to.
+   *
+   * Both are the client's own art and both are drawn **centred on the cell** and
+   * at their own size - the recording's boss face is the full width of a cell
+   * and its lozenge is a third of one, and neither grows with the cell.
+   */
+  function drawMapBoss(ctx, sprites, x, y, size) {
+    var piece = MINIMAP.pieces.boss;
+    var scale = size / MINIMAP.tile;
+    var w = piece[2] * scale;
+    var h = piece[3] * scale;
+    if (!drawMinimapPiece(ctx, sprites, "boss", x + (size - w) / 2, y + (size - h) / 2, w, h)) {
+      drawBossFaceFallback(ctx, x, y, size);
+    }
+  }
+
+  function drawMapMarker(ctx, sprites, x, y, size, time) {
+    var piece = MINIMAP.pieces.marker;
+    var scale = size / MINIMAP.tile;
+    var w = piece[2] * scale;
+    var h = piece[3] * scale;
+    /* A slow breath, so the eye finds it in a busy room - the recording's own
+       marker is static, and this is the one thing this file adds to it. */
+    var bob = Math.sin(time * 3) * 1.2;
+    if (!drawMinimapPiece(ctx, sprites, "marker", x + (size - w) / 2, y + (size - h) / 2 + bob,
+                          w, h)) {
+      drawMarkerFallback(ctx, x, y, size);
+    }
+  }
+
+  /**
+   * The ⊘ in the title bar - the button the recording's map has.
+   *
+   * **This one is drawn, not baked**: the client has the button's face as a flat
+   * tile and no glyph to put on it (`assets/dnf_src/granfloris-probe/mirkmap/`,
+   * where every frame of the interface packs was scanned for it), so the circle
+   * and its slash are two arcs here.
+   */
+  function drawMinimapButton(ctx, box) {
+    var x = box.x + box.w - 19;
+    var y = box.y + 3;
+    ctx.save();
+    ctx.fillStyle = "rgba(196, 186, 166, 0.85)";
+    roundRect(ctx, x, y, 15, 11, 3);
+    ctx.fill();
+    ctx.strokeStyle = "rgba(60, 52, 42, 0.9)";
+    ctx.lineWidth = 1.4;
+    ctx.beginPath();
+    ctx.arc(x + 7.5, y + 5.5, 3.6, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x + 5, y + 3);
+    ctx.lineTo(x + 10, y + 8);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  /**
+   * The map, in whichever of its two forms the player asked for.
+   *
+   * `meta.map.mode` is "window" (the whole dungeon, the way the recording has it
+   * for most of a run) or "radar" (the same map clipped into a disc and centred
+   * on the room he is in, the way it starts out).
+   */
+  function drawMinimap(ctx, state, sprites, meta) {
+    var map = state.minimap;
+    if (!map || !sprites || !sprites.minimap) return;
+    var box = minimapBox(meta);
+    var tile = MINIMAP.tile;
+    var mode = (meta.map && meta.map.mode) || "window";
+    var here = map.cells[Math.min(state.roomIndex, map.cells.length - 1)];
+    var boss = map.cells[map.cells.length - 1];
+
+    ctx.save();
+    if (mode === "radar") {
+      /* The disc, centred on the room he is in, twice the scale. */
+      var centre = {
+        x: box.x + box.w / 2,
+        y: box.y + box.h / 2 + 4
+      };
+      var radius = MINIMAP.radarRadius;
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(centre.x, centre.y, radius, 0, Math.PI * 2);
+      ctx.clip();
+      ctx.fillStyle = "#20340a";
+      ctx.fillRect(centre.x - radius, centre.y - radius, radius * 2, radius * 2);
+      var zoom = MINIMAP.radarZoom;
+      var originX = centre.x - (here.col + 0.5) * tile * zoom;
+      var originY = centre.y - (here.row + 0.5) * tile * zoom;
+      drawMinimapGrid(ctx, sprites, originX, originY, zoom);
+      map.cells.forEach(function (cell) {
+        drawMinimapTile(ctx, sprites, minimapTileName(cell),
+                        originX + cell.col * tile * zoom,
+                        originY + cell.row * tile * zoom, zoom);
+      });
+      drawMapBoss(ctx, sprites, originX + boss.col * tile * zoom,
+                  originY + boss.row * tile * zoom, tile * zoom);
+      drawMapMarker(ctx, sprites, originX + here.col * tile * zoom,
+                    originY + here.row * tile * zoom, tile * zoom, state.time);
+      ctx.restore();
+      /* The client's own disc, over the top: an overlay, not a frame - the map
+         shows through the middle of it, which is why it is not a clip. */
+      var ring = MINIMAP.pieces.ring;
+      drawMinimapPiece(ctx, sprites, "ring", centre.x - ring[2] / 2, centre.y - ring[3] / 2);
+      ctx.restore();
+      return;
+    }
+
+    drawMinimapWindow(ctx, sprites, box);
+
+    ctx.fillStyle = "rgba(255, 248, 226, 0.96)";
+    ctx.font = "600 12px 'PingFang SC', 'Segoe UI', sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("地图", box.x + box.w / 2 + 3, box.y + 13);
+
+    drawMinimapGrid(ctx, sprites, box.left, box.top, 1);
+    map.cells.forEach(function (cell) {
+      drawMinimapTile(ctx, sprites, minimapTileName(cell),
+                      box.left + cell.col * tile, box.top + cell.row * tile, 1);
+    });
+    drawMapBoss(ctx, sprites, box.left + boss.col * tile, box.top + boss.row * tile, tile);
+    drawMapMarker(ctx, sprites, box.left + here.col * tile, box.top + here.row * tile,
+                  tile, state.time);
+
+    drawMinimapButton(ctx, box);
+    ctx.restore();
+  }
+
+  /**
+   * What a tap at `(x, y)` hits on the map, or null.
+   *
+   * The ⊘ in the title bar switches the window to its radar form, and the disc
+   * switches back - a touch surface has no Tab key, and a corner of the screen
+   * that does nothing when tapped reads as broken.
+   */
+  function hitTestMinimap(x, y, meta) {
+    var box = minimapBox(meta);
+    var mode = (meta && meta.map && meta.map.mode) || "window";
+    if (mode === "radar") {
+      var dx = x - (box.x + box.w / 2);
+      var dy = y - (box.y + box.h / 2 + 4);
+      return Math.sqrt(dx * dx + dy * dy) <= MINIMAP.radarRadius + 3 ? "map" : null;
+    }
+    if (x < box.x || x > box.x + box.w || y < box.y || y > box.y + box.h) return null;
+    if (x >= box.x + box.w - 21 && y <= box.y + 16) return "map";
+    return null;
+  }
+
+  /*
+   * The window's own edges: the client's panel is 5 px down the left and 4 down
+   * the right, 5 across the top and 4 along the bottom, so the box is the grid
+   * plus those - not a padding of our choosing.
+   */
+  /** Where the touch row along the top starts, so the HUD can stay off it. */
+  function touchTopLeft() {
+    var left = ARENA.width;
+    TOUCH_LAYOUT.forEach(function (button) {
+      if (button.y < 100 && button.x < left) left = button.x;
+    });
+    return left;
+  }
+
+  /** How wide the window is, the frame included - the HUD lays out around it. */
+  function minimapWidth() {
+    return Core.MINIMAP.cols * MINIMAP.tile + MINIMAP.pieces.left[2] + MINIMAP.pieces.right[2];
+  }
+
+  function minimapBox(meta) {
+    var cols = Core.MINIMAP.cols;
+    var rows = Core.MINIMAP.rows;
+    var touch = !!(meta && meta.touch && meta.touch.enabled);
+    var width = minimapWidth();
+    var height = rows * MINIMAP.tile + MINIMAP.titleH +
+                 MINIMAP.pieces.top[3] + MINIMAP.pieces.bottom[3];
+    var x = ARENA.width - width - MINIMAP.margin;
+    var y = touch ? MINIMAP.touchTop : MINIMAP.top;
+    return {
+      x: x,
+      y: y,
+      w: width,
+      h: height,
+      left: x + MINIMAP.pieces.left[2],
+      top: y + MINIMAP.titleH + MINIMAP.pieces.top[3],
+      centre: { x: x + width / 2, y: y + height / 2 }
+    };
+  }
+
+  /** One piece of the sheet, placed as a rect. */
+  function drawMinimapPiece(ctx, sprites, name, x, y, w, h) {
+    var sheet = sprites && sprites.minimap;
+    var rect = MINIMAP.pieces[name];
+    if (!sheet || !rect) return false;
+    ctx.drawImage(sheet, rect[0], rect[1], rect[2], rect[3],
+                  Math.round(x), Math.round(y),
+                  w === undefined ? rect[2] : Math.round(w),
+                  h === undefined ? rect[3] : Math.round(h));
+    return true;
+  }
+
+  /**
+   * The client's panel, drawn as the 9-slice it is.
+   *
+   * Its middle piece is **not a colour**: it is a flat 50% black (alpha 128, all
+   * 18x18 of it), and the panel's edges are painted over a solid brown. So the
+   * window is the brown first and the nine pieces over it - which is also why
+   * the recording's title strip comes out a warm `(57,48,39)`: the client's
+   * `(98,84,60)` cut in half.
+   */
+  function drawMinimapWindow(ctx, sprites, box) {
+    var corners = MINIMAP.pieces;
+    var l = corners.left[2];
+    var r = corners.right[2];
+    var t = corners.top[3];
+    var b = corners.bottom[3];
+    ctx.fillStyle = MINIMAP.panel;
+    ctx.fillRect(box.x, box.y, box.w, box.h);
+    drawMinimapPiece(ctx, sprites, "tl", box.x, box.y);
+    drawMinimapPiece(ctx, sprites, "tr", box.x + box.w - r, box.y);
+    drawMinimapPiece(ctx, sprites, "bl", box.x, box.y + box.h - b);
+    drawMinimapPiece(ctx, sprites, "br", box.x + box.w - r, box.y + box.h - b);
+    drawMinimapPiece(ctx, sprites, "top", box.x + l, box.y, box.w - l - r, t);
+    drawMinimapPiece(ctx, sprites, "bottom", box.x + l, box.y + box.h - b, box.w - l - r, b);
+    drawMinimapPiece(ctx, sprites, "left", box.x, box.y + t, l, box.h - t - b);
+    drawMinimapPiece(ctx, sprites, "right", box.x + box.w - r, box.y + t, r, box.h - t - b);
+    drawMinimapPiece(ctx, sprites, "centre", box.x + l, box.y + t, box.w - l - r, box.h - t - b);
+  }
+
+  /**
+   * One piece, placed by its own bottom edge and centred on `x`.
+   *
+   * Returns false when the piece or the sheet is missing, so a caller can fall
+   * back rather than draw nothing at all.
+   */
+  function drawScenePiece(ctx, sprites, name, x, bottom) {
+    var sheet = sprites && sprites.forest;
+    var rect = sceneRect(name);
+    if (!sheet || !rect) return false;
+    ctx.drawImage(
+      sheet, rect[0], rect[1], rect[2], rect[3],
+      Math.round(x - rect[2] / 2), Math.round(bottom - rect[3]), rect[2], rect[3]
+    );
+    return true;
+  }
+
+  /** A layer that repeats across the room, hung from its own bottom edge. */
+  function drawSceneStrip(ctx, sprites, name, bottom) {
+    var sheet = sprites && sprites.forest;
+    var rect = sceneRect(name);
+    if (!sheet || !rect) return false;
+    for (var x = -rect[2]; x < ARENA.width + rect[2]; x += rect[2]) {
+      ctx.drawImage(sheet, rect[0], rect[1], rect[2], rect[3],
+                    x, Math.round(bottom - rect[3]), rect[2], rect[3]);
+    }
+    return true;
+  }
+
+  function drawBackdrop(ctx, state, sprites) {
+    /*
+     * The room 幽暗密林 is fought in: the client's own forest, painted in the
+     * order the client paints it - far, then the trees, then the ground over
+     * their feet. Everything below the band's back edge is ground right to the
+     * bottom of the screen, because in the reference the floor does not stop at
+     * the line the feet stand on; it carries on under the HUD.
+     */
+    var band = state.band || Core.BAND;
+    var backY = band.backY;
+    var groundTop = backY - SCENE.groundLift;
+
+    var sky = ctx.createLinearGradient(0, 0, 0, backY);
+    sky.addColorStop(0, PALETTE.skyTop);
+    sky.addColorStop(1, PALETTE.skyMid);
+    ctx.fillStyle = sky;
+    ctx.fillRect(0, 0, ARENA.width, backY);
+
+    if (!drawSceneStrip(ctx, sprites, "far", backY)) {
+      drawStoneBackdrop(ctx, state);
+      return;
+    }
+    drawSceneStrip(ctx, sprites, "mid", backY + SCENE.midLift);
+
+    /*
+     * The ground, from its own top edge down to the bottom of the room. The
+     * strips are shorter than that, so each column repeats instead of stretching
+     * - grass that grew to fit would show it immediately.
+     */
+    var strip = SCENE.pieces[SCENE.ground[0]];
+    var column = 0;
+    for (var x = 0; x < ARENA.width; x += strip[2]) {
+      var name = SCENE.ground[column % SCENE.ground.length];
+      var tall = sceneRect(name)[3];
+      for (var bottom = groundTop + tall; bottom - tall < ARENA.height; bottom += tall) {
+        drawScenePiece(ctx, sprites, name, x + strip[2] / 2, bottom);
+      }
+      column += 1;
+    }
+    /* The front edge of the band: the one line everyone's feet stand on. */
+    ctx.fillStyle = "rgba(255, 226, 180, 0.10)";
+    ctx.fillRect(0, ARENA.groundY, ARENA.width, 2);
+  }
+
+  function drawStoneBackdrop(ctx, state) {
+    /*
+     * The room the tower used to be fought in, kept as the fallback for a frame
+     * drawn before `assets/forest.png` has loaded. Built outwards from the floor
+     * band, because the band is what everything in the room is placed against:
+     * the wall stops at its far edge, and the strip in front of the ground line
+     * is a skirt nothing ever stands on.
      */
     var band = state.band || Core.BAND;
     var backY = band.backY;
@@ -1777,9 +2341,42 @@
     });
   }
 
-  function drawGate(ctx, state) {
-    var x = ARENA.rightWall + 6;
+  function drawGate(ctx, state, sprites) {
     var open = state.room && state.room.cleared;
+    /*
+     * The client's own gate, standing at the right edge of the floor: the same
+     * arch 幽暗密林's rooms show in the recording, in the forest's own colour
+     * family. The glow when the room is cleared is ours - the client's gate art
+     * has no open state, and "the way on is open" has to read at a glance.
+     */
+    var rect = sceneRect("gate");
+    if (sprites && sprites.forest && rect) {
+      var gateX = ARENA.width - rect[2] / 2 - 10;
+      var bottom = ARENA.groundY + 4;
+      if (open) {
+        ctx.save();
+        var halo = ctx.createRadialGradient(gateX, bottom - rect[3] / 2, 8,
+                                            gateX, bottom - rect[3] / 2, 90);
+        halo.addColorStop(0, "rgba(255, 226, 168, 0.30)");
+        halo.addColorStop(1, "rgba(255, 190, 110, 0)");
+        ctx.fillStyle = halo;
+        ctx.beginPath();
+        ctx.arc(gateX, bottom - rect[3] / 2, 90, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+      ctx.save();
+      /*
+       * A gate that is not open yet is dimmed with alpha rather than a canvas
+       * `filter`: a filter on a per-frame draw is the one thing here that costs
+       * real frames, and this draws every room of every run.
+       */
+      if (!open) ctx.globalAlpha = 0.62;
+      drawScenePiece(ctx, sprites, "gate", gateX, bottom);
+      ctx.restore();
+      return;
+    }
+    var x = ARENA.rightWall + 6;
     ctx.save();
     ctx.translate(x, ARENA.groundY - 60);
     ctx.fillStyle = "#0d1220";
@@ -4426,7 +5023,7 @@
     }
   }
 
-  function drawHud(ctx, state, sprites) {
+  function drawHud(ctx, state, sprites, meta) {
     var player = state.player;
     var panelX = 16;
     var panelY = 14;
@@ -4501,9 +5098,17 @@
     ctx.fillText(Math.round(player.xp) + " / " + player.xpToNext + " XP", barX + barW - 4, py + 65);
     ctx.restore();
 
-    /* room card */
+    /* room card - left of the map window, which owns the corner */
     var roomW = 236;
-    var roomX = ARENA.width - roomW - 16;
+    /*
+     * It sits left of the map window, and in touch mode left of the buttons that
+     * own the corner there - otherwise 停/编/音 sit on top of the enemy count.
+     */
+    var roomRight = ARENA.width - 16 - minimapWidth() - 12;
+    if (meta && meta.touch && meta.touch.enabled) {
+      roomRight = Math.min(roomRight, touchTopLeft() - 12);
+    }
+    var roomX = roomRight - roomW;
     panel(ctx, roomX, 14, roomW, 60, 8);
     ctx.save();
     ctx.textAlign = "left";
@@ -5429,6 +6034,16 @@
         drawProjectile(ctx, state, shot);
       });
     });
+    /*
+     * The room's scenery stands on the same floor as everyone else, so it goes
+     * through the same sort: a trunk at the back of the room is painted before
+     * the goblin in front of it, and a barrel on the front edge after him.
+     */
+    (state.props || []).forEach(function (prop) {
+      add(prop.z, function () {
+        drawScenePiece(ctx, sprites, prop.piece, prop.x, floorY(prop.z));
+      });
+    });
     (state.pickups || []).forEach(function (drop) {
       add(drop.z, function () {
         drawDrop(ctx, state, drop, sprites);
@@ -5511,8 +6126,8 @@
     if (shake > 0) {
       ctx.translate(Math.sin(state.time * 90) * 2.4 * shake, Math.cos(state.time * 77) * 1.6 * shake);
     }
-    drawBackdrop(ctx, state);
-    drawGate(ctx, state);
+    drawBackdrop(ctx, state, sprites);
+    drawGate(ctx, state, sprites);
     drawHazards(ctx, state);
 
     /*
@@ -5540,7 +6155,9 @@
      * takes the corner the bar does not.
      */
     drawAwakening(ctx, state, sprites);
-    drawHud(ctx, state, sprites);
+    drawHud(ctx, state, sprites, meta);
+    /* The map belongs to live play and to the title demo, not to a full-screen overlay. */
+    if (!overlayOpen) drawMinimap(ctx, state, sprites, meta);
     /* The pace line belongs to live play, not to a full-screen overlay. */
     if (!overlayOpen && meta.run && meta.run.pace && meta.run.pace.text) {
       drawPace(ctx, meta.run.pace);
@@ -5568,6 +6185,12 @@
     PALETTE: PALETTE,
     SPRITE: SPRITE,
     EFFECT: EFFECT,
+    /* The room's art table, so tests can pin every prop name to a rect. */
+    SCENE: SCENE,
+    /* The map window's table and its box, so tests can pin both. */
+    MINIMAP: MINIMAP,
+    minimapBox: minimapBox,
+    hitTestMinimap: hitTestMinimap,
     /* 魔狱血刹's two live-drawn numbers, so tests can pin them to the sheets. */
     BLOOD_SWORD: SWORD,
     BLOOD_SWORD_FORM: SWORD_FORM,
