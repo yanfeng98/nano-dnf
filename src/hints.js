@@ -24,20 +24,13 @@
   var ROW_REACH = Core.DEPTH_REACH.melee * Core.SLAYER_HEIGHT;
 
   /*
-   * Order is priority, most urgent first: the slab warning only lasts 1.35s and
-   * the upgrade card blocks the next room, while the rest can wait a beat.
+   * Order is priority, most urgent first: the upgrade card blocks the way on,
+   * while the rest can wait a beat.
+   *
+   * 这里原先第一条是「陷阱」（石板裂开时离开那块地板）。业主 2026-10-10 说
+   * 「以后也不要有这种陷阱」，整套塌陷地板连着这条提示一起拆了（`docs/adr/0030`）。
    */
   var HINTS = [
-    {
-      id: "hazard",
-      text: "地面裂开时离开那块石板",
-      life: 5,
-      when: function (state) {
-        return (state.hazards || []).some(function (hazard) {
-          return hazard.stage === "cracking";
-        });
-      }
-    },
     {
       id: "upgrade",
       text: "选一张强化卡：按 1 / 2 / 3，或直接点卡片",
@@ -53,6 +46,18 @@
       when: function (state) {
         var player = state.player;
         return player.hp > 0 && player.hp <= player.maxHp * LOW_HP_RATIO;
+      }
+    },
+    {
+      /*
+       * 门口按地图方向开（`docs/adr/0030`）：不认字也知道往哪走，但"清完房门口才亮"
+       * 这件事得有人说过一次。
+       */
+      id: "door",
+      text: "清完房间门口会亮，走到那儿去下一间",
+      life: 5,
+      when: function (state) {
+        return !!(state.room && state.room.cleared) && !state.upgradeChoice;
       }
     },
     {

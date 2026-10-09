@@ -1649,9 +1649,59 @@
       grass: [906, 803, 127, 66],
       grassFlower: [1033, 803, 188, 78],
       sprout: [0, 1231, 126, 66],
+      /*
+       * 门口，四个方向一套（`docs/adr/0030`）：`gate` 是左右走的那种侧门拱、`gateUp`
+       * 立在房间后墙上、`gateDown` 是躺在你面前地上那个（客户端的画已经把透视烘进去了，
+       * 所以三个都是 1:1 画）。`door*` 是房间**没清**时插在拱里那扇拦着的门。
+       */
       gate: [126, 1231, 131, 240],
-      barrel: [257, 1231, 63, 78]
+      gateUp: [257, 1231, 157, 198],
+      gateDown: [414, 1231, 192, 118],
+      door: [606, 1231, 50, 171],
+      doorUp: [656, 1231, 73, 132],
+      doorDown: [729, 1231, 88, 46],
+      barrel: [817, 1231, 63, 78],
+      /*
+       * 怪物死亡那一瞬间（`docs/adr/0030`）：一团青白色的圆爆（`deathBurst`，
+       * 客户端 `monsterdieflash`，白核 + 青边），和飞出来的三种红肉块
+       * （`deathChunk1-3`，`sprite/common/hiteffect/bloodlarge` 的第 1-3 帧）。
+       */
+      deathBurst: [880, 1231, 103, 103],
+      deathChunk1: [983, 1231, 34, 28],
+      deathChunk2: [1017, 1231, 40, 41],
+      deathChunk3: [1057, 1231, 37, 48],
+      barrel1: [1094, 1231, 25, 21],
+      barrel2: [1119, 1231, 41, 13],
+      barrel3: [1160, 1231, 29, 10],
+      barrel4: [1189, 1231, 33, 14],
+      barrel5: [1222, 1231, 16, 25],
+      barrel6: [1238, 1231, 31, 24],
+      barrel7: [0, 1471, 38, 16],
+      barrel8: [38, 1471, 25, 9],
+      barrel9: [63, 1471, 46, 22],
+      barrel10: [109, 1471, 44, 21],
+      barrel11: [153, 1471, 28, 22],
+      barrel12: [181, 1471, 42, 16]
     },
+    /*
+     * [piece, dx, dy] - 木桶碎开的那 12 帧，每一帧相对**完整那只桶的 ink 左上角**的
+     * 偏移。烘的是照 ink 裁下来的小块，所以不带上这个偏移就会全堆在桶脚上。
+     * 表是 `assets/import_dnf_scene.py --table` 印的，别手抄。
+     */
+    barrelBreak: [
+      ["barrel1", 19, 28],
+      ["barrel2", 11, 32],
+      ["barrel3", 17, 34],
+      ["barrel4", 15, 32],
+      ["barrel5", 23, 26],
+      ["barrel6", 16, 27],
+      ["barrel7", 12, 31],
+      ["barrel8", 19, 34],
+      ["barrel9", 8, 28],
+      ["barrel10", 9, 28],
+      ["barrel11", 17, 28],
+      ["barrel12", 10, 31]
+    ],
     /*
      * The ground, left to right. `tile0` is a short one (203 against their 233),
      * so it is not in the run: strips of different heights would leave a ragged
@@ -1678,8 +1728,9 @@
    * It is the client's own art - `assets/minimap.png`, baked by
    * `assets/import_dnf_minimap.py` - where **one 18x18 tile is one cell of the
    * dungeon**, holding either a room or a corridor and a stub towards every
-   * neighbour it links to. `Core.minimapFor` decides which cell is which shape;
-   * this file only says which column of the sheet that shape is.
+   * neighbour it links to. `Core.dungeonFor` decides which cell is which shape
+   * (the shape itself is measured off the recording, `docs/adr/0030`); this file
+   * only says which column of the sheet that shape is.
    *
    * Everything about the window is measured off the owner's recording
    * (`assets/dnf_src/bilibili/BV1d24y1P74G.mp4`, 幽暗密林, the map window in the
@@ -1695,6 +1746,13 @@
    */
   var MINIMAP = {
     tile: 18,
+    /*
+     * 窗口里画几列几行。**这是地牢的形状，不是这里的自由**：幽暗密林量出来是 4x3
+     * （`Core.DUNGEON`），测试把两个数钉在一起，改一边就会红。窗口自己读不到 state
+     * （`minimapBox` 连 state 都没有），所以这一份是那份数据的影子。
+     */
+    cols: 4,
+    rows: 3,
     titleH: 16,
     /* Right and top margins, matching the rest of this game's HUD. */
     margin: 16,
@@ -1777,8 +1835,12 @@
   }
 
   function minimapTileName(cell) {
-    /* A cell the path only runs through has no room in it. */
-    return "room:" + exitsName(cell.exits);
+    /*
+     * 一格画成**房间**（圆角方块）还是**走廊**（线）是那一格自己的事，不是它有几条路
+     * 的事：录像里 (1,0) 是"三出口的走廊"、(2,2) 是"一出口的房间"，而且 (1,1) 与
+     * (2,1) 明明贴着却不相通（`docs/adr/0030`）。所以 `kind` 从地牢数据里读。
+     */
+    return (cell.kind === "corr" ? "corr:" : "room:") + exitsName(cell.exits);
   }
 
   function drawMinimapTile(ctx, sprites, name, x, y, scale) {
@@ -1801,8 +1863,8 @@
    * floating in the dark.
    */
   function drawMinimapGrid(ctx, sprites, x, y, scale) {
-    for (var row = 0; row < Core.MINIMAP.rows; row += 1) {
-      for (var col = 0; col < Core.MINIMAP.cols; col += 1) {
+    for (var row = 0; row < MINIMAP.rows; row += 1) {
+      for (var col = 0; col < MINIMAP.cols; col += 1) {
         drawMinimapPiece(ctx, sprites, "blank", x + col * MINIMAP.tile * scale,
                          y + row * MINIMAP.tile * scale,
                          MINIMAP.tile * scale, MINIMAP.tile * scale);
@@ -1938,13 +2000,18 @@
    * on the room he is in, the way it starts out).
    */
   function drawMinimap(ctx, state, sprites, meta) {
-    var map = state.minimap;
+    /*
+     * 画的是**整座地牢**，不是走过的轨迹：录像里那张图从它出现的第一帧（76.0s）就
+     * 12 格全画满了，之后 250 秒一格都没变过，**包括他从没进去过的那四格**
+     * （`docs/adr/0030`）。`state.dungeon.cells` 就是那 12 格，`state.cell` 是他在哪。
+     */
+    var map = state.dungeon;
     if (!map || !sprites || !sprites.minimap) return;
     var box = minimapBox(meta);
     var tile = MINIMAP.tile;
     var mode = (meta.map && meta.map.mode) || "window";
-    var here = map.cells[Math.min(state.roomIndex, map.cells.length - 1)];
-    var boss = map.cells[map.cells.length - 1];
+    var here = map.cells[state.cell] || map.cells[0];
+    var boss = map.cells[map.boss];
 
     ctx.save();
     if (mode === "radar") {
@@ -1994,9 +2061,14 @@
       drawMinimapTile(ctx, sprites, minimapTileName(cell),
                       box.left + cell.col * tile, box.top + cell.row * tile, 1);
     });
-    drawMapBoss(ctx, sprites, box.left + boss.col * tile, box.top + boss.row * tile, tile);
+    /*
+     * 他在的那格压的是蓝柱子先画，Boss 那张红脸后画 —— 顺序是有意的：录像里他走进
+     * Boss 房之后**蓝柱子一个像素都看不见**（226s 起整张图里蓝色像素归零），红牛头
+     * 比蓝柱子大，正好把它盖住。所以这里的先后不是"谁重要"，是"照录像画"。
+     */
     drawMapMarker(ctx, sprites, box.left + here.col * tile, box.top + here.row * tile,
                   tile, state.time);
+    drawMapBoss(ctx, sprites, box.left + boss.col * tile, box.top + boss.row * tile, tile);
 
     drawMinimapButton(ctx, box);
     ctx.restore();
@@ -2038,12 +2110,12 @@
 
   /** How wide the window is, the frame included - the HUD lays out around it. */
   function minimapWidth() {
-    return Core.MINIMAP.cols * MINIMAP.tile + MINIMAP.pieces.left[2] + MINIMAP.pieces.right[2];
+    return MINIMAP.cols * MINIMAP.tile + MINIMAP.pieces.left[2] + MINIMAP.pieces.right[2];
   }
 
   function minimapBox(meta) {
-    var cols = Core.MINIMAP.cols;
-    var rows = Core.MINIMAP.rows;
+    var cols = MINIMAP.cols;
+    var rows = MINIMAP.rows;
     var touch = !!(meta && meta.touch && meta.touch.enabled);
     var width = minimapWidth();
     var height = rows * MINIMAP.tile + MINIMAP.titleH +
@@ -2119,6 +2191,31 @@
   }
 
   /** A layer that repeats across the room, hung from its own bottom edge. */
+  /** 一块场景美术，左上角落在 (left, top)：木桶碎片要的是这个，不是底边。 */
+  function drawScenePieceBox(ctx, sprites, name, left, top) {
+    var sheet = sprites && sprites.forest;
+    var rect = sceneRect(name);
+    if (!sheet || !rect) return false;
+    ctx.drawImage(sheet, rect[0], rect[1], rect[2], rect[3],
+                  Math.round(left), Math.round(top), rect[2], rect[3]);
+    return true;
+  }
+
+  /** 一块场景美术，画在自己的大小上再缩放，中心落在 (cx, cy)。 */
+  function drawScenePieceAt(ctx, sprites, name, cx, cy, scale, alpha) {
+    var sheet = sprites && sprites.forest;
+    var rect = sceneRect(name);
+    if (!sheet || !rect) return false;
+    ctx.save();
+    if (alpha !== undefined) ctx.globalAlpha = alpha;
+    var w = rect[2] * scale;
+    var h = rect[3] * scale;
+    ctx.drawImage(sheet, rect[0], rect[1], rect[2], rect[3],
+                  cx - w / 2, cy - h / 2, w, h);
+    ctx.restore();
+    return true;
+  }
+
   function drawSceneStrip(ctx, sprites, name, bottom) {
     var sheet = sprites && sprites.forest;
     var rect = sceneRect(name);
@@ -2313,72 +2410,166 @@
     ctx.fillRect(0, 0, ARENA.width, ARENA.height);
   }
 
-  /** Cracked slabs are always visible, so a trap is never a surprise. */
-  function drawHazards(ctx, state) {
-    (state.hazards || []).forEach(function (hazard) {
-      var stage = hazard.stage || "dormant";
-      ctx.save();
-      ctx.translate(hazard.x, floorY(hazard.z));
-      ctx.strokeStyle =
-        stage === "dormant" ? "rgba(120, 150, 190, 0.34)" : "rgba(255, 152, 110, 0.9)";
-      ctx.lineWidth = stage === "collapsing" ? 3.5 : 2;
-      ctx.beginPath();
-      ctx.ellipse(0, 0, hazard.radius, hazard.radius * DEPTH.scale, 0, 0, Math.PI * 2);
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.moveTo(-hazard.radius * 0.62, -2);
-      ctx.lineTo(-hazard.radius * 0.12, -9);
-      ctx.lineTo(hazard.radius * 0.24, -3);
-      ctx.lineTo(hazard.radius * 0.68, -10);
-      ctx.stroke();
-      if (stage !== "dormant") {
-        ctx.fillStyle = "rgba(24, 14, 12, 0.5)";
-        ctx.beginPath();
-        ctx.ellipse(0, 0, hazard.radius * 0.88, hazard.radius * 0.19, 0, 0, Math.PI * 2);
-        ctx.fill();
+  /*
+   * 一扇门画在哪、用什么美术、门里有没有插着那扇拦门的板。
+   *
+   * 四个方向各有自己的画（客户端 `granfloris{side,up,down}gate02` 那一族）：
+   * 侧门立在左右墙上（左右共用一张拱，它的样子本来就是对称的）、上门立在房间后
+   * 边的地板上、下门躺在你面前的地上 —— **下门**那个位置在本作的画框里几乎全被
+   * 技能栏压住（本站地面线 430、技能栏 444），所以它只画一截露在技能栏上面的
+   * 拱顶 + 一圈地上的光，够读"往这边下去"（`docs/adr/0030`）。
+   *
+   * `northX`/`southX` 是门在房间里的 x（占屏幕宽几成）；侧门没有选择，它就在墙边。
+   */
+  var GATE = {
+    side: { piece: "gate", door: "door", stand: 10, height: 2 },
+    N: { piece: "gateUp", door: "doorUp" },
+    S: { piece: "gateDown", door: "doorDown" }
+  };
+
+  /** 一块门口美术：左右两个方向共用同一副侧门（它的样子本来就是对称的）。 */
+  function gateShape(dir) {
+    return dir === "E" || dir === "W" ? GATE.side : GATE[dir];
+  }
+
+  /** 这一格的门画在哪：`{x, bottom, dir}`，没有这扇门就 null。 */
+  function gateSpot(state, dir) {
+    var cell = Core.currentCell(state);
+    if (!cell || !state.dungeon) return null;
+    if (Core.exitMode(state, dir) === "none") return null;
+    if (dir === "E") return { x: ARENA.width - 34, bottom: ARENA.groundY + 4 };
+    if (dir === "W") return { x: 34, bottom: ARENA.groundY + 4 };
+    var x = Core.doorX(state.dungeon, cell, dir);
+    if (dir === "N") return { x: x, bottom: floorY(Core.bandDepth(state.band)) + 6 };
+    /*
+     * 南门（下门）**压在技能栏底下**：本站地面线 430、技能栏从 444 起，门前那片
+     * "观众这一侧"只有 14 px，而客户端那扇下门有 118 px 高。所以它只画**拱顶那一条**
+     * 露在技能栏上面（底边落在画面底、顶边 540-118=422，露 22 px）—— 够读"这儿有门"，
+     * 又不至于盖住走位的地面。清完房另外在地上加一圈光（`drawGateHalo` 的落点跟着改），
+     * 因为这一扇没有"门框左右"可以靠。
+     */
+    return { x: x, bottom: ARENA.height, floorGlow: true };
+  }
+
+  /**
+   * 门口那一组：拱门 + （没清房时）插在里面的拦门板 + 清房后那一圈光。
+   *
+   * 光是我们加的（客户端那套美术没有"开着"的样子），但它是这一间房**唯一**会说
+   * "现在能出去了"的东西，所以留着；拦门板反过来是客户端的（`granfloris*sidedoor02`），
+   * 录像里没清的房间拱门里就插着它。
+   */
+  function drawGate(ctx, state, sprites) {
+    if (!sprites || !sprites.forest) {
+      drawFallbackGate(ctx, state);
+      return;
+    }
+    Core.MINIMAP_DIRS.forEach(function (dir) {
+      var spot = gateSpot(state, dir);
+      if (!spot) return;
+      var shape = gateShape(dir);
+      var open = Core.exitMode(state, dir) === "open";
+      var mirror = dir === "W";
+      var rect = sceneRect(shape.piece);
+      if (!rect) return;
+      if (open) {
+        /*
+         * 光落在哪：侧门/后门落在门的中间，**南门落在地上**（门前那一片地板），
+         * 因为那扇门自己几乎整扇都在技能栏底下。
+         */
+        var glowY = spot.floorGlow ? ARENA.groundY - 6 : spot.bottom - rect[3] / 2;
+        drawGateHalo(ctx, spot.x, glowY, spot.floorGlow ? 150 : rect[3]);
       }
+      ctx.save();
+      /* 没清房的门暗一档：光说了"能走"，暗就说了"还不能走"。 */
+      if (!open) ctx.globalAlpha = 0.72;
+      drawDoorPiece(ctx, sprites, shape.piece, spot.x, spot.bottom, mirror);
+      ctx.restore();
+      if (open) return;
+      /* 没清房：拱门里插着那扇拦着的门板。 */
+      ctx.save();
+      ctx.globalAlpha = 0.85;
+      drawDoorPiece(ctx, sprites, shape.door, spot.x, spot.bottom, mirror);
       ctx.restore();
     });
   }
 
-  function drawGate(ctx, state, sprites) {
-    var open = state.room && state.room.cleared;
-    /*
-     * The client's own gate, standing at the right edge of the floor: the same
-     * arch 幽暗密林's rooms show in the recording, in the forest's own colour
-     * family. The glow when the room is cleared is ours - the client's gate art
-     * has no open state, and "the way on is open" has to read at a glance.
-     */
-    var rect = sceneRect("gate");
-    if (sprites && sprites.forest && rect) {
-      var gateX = ARENA.width - rect[2] / 2 - 10;
-      var bottom = ARENA.groundY + 4;
-      if (open) {
-        ctx.save();
-        var halo = ctx.createRadialGradient(gateX, bottom - rect[3] / 2, 8,
-                                            gateX, bottom - rect[3] / 2, 90);
-        halo.addColorStop(0, "rgba(255, 226, 168, 0.30)");
-        halo.addColorStop(1, "rgba(255, 190, 110, 0)");
-        ctx.fillStyle = halo;
-        ctx.beginPath();
-        ctx.arc(gateX, bottom - rect[3] / 2, 90, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
-      }
-      ctx.save();
-      /*
-       * A gate that is not open yet is dimmed with alpha rather than a canvas
-       * `filter`: a filter on a per-frame draw is the one thing here that costs
-       * real frames, and this draws every room of every run.
-       */
-      if (!open) ctx.globalAlpha = 0.62;
-      drawScenePiece(ctx, sprites, "gate", gateX, bottom);
-      ctx.restore();
+  /** 一块门口美术，摆在 x 上、底边落在 `bottom`；`mirror` 是给西侧门用的。 */
+  function drawDoorPiece(ctx, sprites, name, x, bottom, mirror) {
+    if (!mirror) {
+      drawScenePiece(ctx, sprites, name, x, bottom);
       return;
     }
-    var x = ARENA.rightWall + 6;
     ctx.save();
-    ctx.translate(x, ARENA.groundY - 60);
+    ctx.translate(x, 0);
+    ctx.scale(-1, 1);
+    drawScenePiece(ctx, sprites, name, 0, bottom);
+    ctx.restore();
+  }
+
+  /** 一个稳定的 [0,1)：同一个 (种子, 第几块) 每次都落在同一处。 */
+  function scatter(seed, index) {
+    var t = Math.imul(((seed || 1) * 2654435761 + index * 40503) >>> 0, 2246822519) >>> 0;
+    t ^= t >>> 13;
+    t = Math.imul(t, 3266489917) >>> 0;
+    return ((t ^ (t >>> 16)) >>> 0) / 4294967296;
+  }
+
+  /*
+   * 一只怪的死。录像里这是一下子出来的两样东西（`docs/adr/0030`）：
+   *
+   * - 一团**青白色的圆爆**（客户端 `monsterdieflash`），亮 0.10 秒、最大 129x83 游戏像素；
+   * - **9-14 块红肉块**，7x11 ~ 16x21 游戏像素，**悬在空中不落、不上飘**，半秒内散掉。
+   *
+   * 肉块的位置是**算出来的、不是随机的**：十几块的位置由这只怪的 id 决定，同一个 id
+   * 每次都撒在同一处 —— 跟着帧随机撒的话，一具尸体半秒钟里会变十几副样子。
+   * 地上不留血泊（录像里量过：爆开点正下方 0.5 秒后红像素归零）。
+   */
+  function drawDeathBurst(ctx, state, sprites, effect, alpha) {
+    var sheet = sprites && sprites.forest;
+    if (!sheet) return;
+    var gone = 1 - alpha;
+    var foot = floorY(effect.z);
+    var burst = (Core.DEATH && Core.DEATH.burst) || 0.1;
+    var chunkLife = effect.maxLife || 0.5;
+    var flash = 1 - gone / (burst / chunkLife);
+    if (flash > 0) {
+      drawScenePieceAt(ctx, sprites, "deathBurst",
+                       effect.x, foot - 40,
+                       0.6 + (1 - flash) * 0.7, Math.min(1, flash * 1.25) * 0.95);
+    }
+    var count = (Core.DEATH && Core.DEATH.chunkCount) || 12;
+    var names = ["deathChunk1", "deathChunk2", "deathChunk3"];
+    ctx.save();
+    ctx.globalAlpha = Math.min(1, alpha * 1.6);
+    for (var index = 0; index < count; index += 1) {
+      var across = (scatter(effect.seed, index * 2) - 0.5) * 150;
+      var up = 8 + scatter(effect.seed, index * 2 + 1) * 62;
+      var scale = 0.55 + scatter(effect.seed, index * 2 + 101) * 0.5;
+      drawScenePieceAt(ctx, sprites, names[index % names.length],
+                       effect.x + across, foot - up, scale);
+    }
+    ctx.restore();
+  }
+
+  /** 一扇开着的门外面那圈光。 */
+  function drawGateHalo(ctx, x, y, height) {
+    var radius = Math.max(70, height * 0.4);
+    ctx.save();
+    var halo = ctx.createRadialGradient(x, y, 8, x, y, radius);
+    halo.addColorStop(0, "rgba(255, 226, 168, 0.30)");
+    halo.addColorStop(1, "rgba(255, 190, 110, 0)");
+    ctx.fillStyle = halo;
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  /** 森林那张表还没落地的头几帧：还是那座手画的石门，只在右边。 */
+  function drawFallbackGate(ctx, state) {
+    var open = state.room && state.room.cleared;
+    ctx.save();
+    ctx.translate(ARENA.rightWall + 6, ARENA.groundY - 60);
     ctx.fillStyle = "#0d1220";
     ctx.beginPath();
     ctx.moveTo(-26, 60);
@@ -2648,14 +2839,16 @@
   function drawPlayer(ctx, state, sprites) {
     var player = state.player;
     /*
-     * Invulnerability blinks, except where the move says otherwise: a leap marks
-     * its window solid (see SKILLS.leapInvuln), because the client's own preview
-     * of 崩山击 holds the pose still through the hop and the flicker chopped the
-     * whole move up. `hurtTimer` still wins outright - a hit always flashes.
+     * **He does not blink, and there is no flash on him.**
+     *
+     * 挨打之后那段无敌时间以前是一闪一闪的（每秒 10 次整个消失/出现），挨打那一瞬间
+     * 还会整个人提亮一下。业主 2026-10-10 的原话是「角色被打不能闪烁」，而录像量下来
+     * 两条都站不住：他挨打那 20 帧**每一帧人都可见**，也没有一帧变白，只有 0.33 秒的
+     * 受击硬直（`docs/adr/0030`）。所以两条一起删，不是二选一。
+     *
+     * `solidInvuln`（跳起来那一段的无敌）不再需要为闪烁让路了 —— 没有人闪，也就没有
+     * "这一段不许闪"这件事；那个字段还留着，因为它说的是另一件事（无敌的来路）。
      */
-    var blinking = player.invuln > 0 && !(player.solidInvuln > 0) && player.hurtTimer <= 0;
-    if (blinking && Math.floor(state.time * 20) % 2 === 0) return;
-
     var shadowW = player.width * 0.75;
     ctx.save();
     ctx.fillStyle = "rgba(0,0,0,0.34)";
@@ -2692,15 +2885,14 @@
                       player.facing < 0, flare.scale);
     }
     ctx.save();
-    if (player.hurtTimer > 0 && "filter" in ctx) ctx.filter = "brightness(1.7) saturate(0.6)";
     /*
      * 血之狂暴 turns him red all over. The tint is baked off-screen: source-atop
      * composites against whatever already sits on the target canvas, so filling
      * the live frame would wash the arena red instead of the character.
      */
     var body = raging && ragingSheet(image) ? ragingSheet(image) : image;
-    /* A hurt flash outranks the stance's own lift. */
-    if (raging && player.hurtTimer <= 0 && "filter" in ctx) ctx.filter = "saturate(1.2)";
+    /* 血之狂暴 的红色本来就是这股劲的颜色，不跟"挨打"抢 —— 挨打不再画任何东西（见上）。 */
+    if (raging && "filter" in ctx) ctx.filter = "saturate(1.2)";
     drawSpriteFrame(ctx, body, frame.col, frame.row, player.x, feetY(player), player.facing < 0);
     /*
      * **The second sword's cream trail, and it is the client's own arc.** The body
@@ -4971,35 +5163,8 @@
       ctx.arc(effect.x, ey, effect.radius, -0.95, 0.95);
       ctx.stroke();
       ctx.restore();
-    } else if (effect.kind === "collapse") {
-      /* Dust, and grit thrown up out of the hole. */
-      var fall = 1 - alpha;
-      ctx.save();
-      ctx.globalAlpha = Math.min(1, alpha * 1.2);
-      ctx.fillStyle = "rgba(38, 30, 34, 0.72)";
-      ctx.beginPath();
-      ctx.ellipse(effect.x, ey, effect.radius * 0.96, effect.radius * DEPTH.scale, 0, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.strokeStyle = "rgba(255, 168, 120, 0.75)";
-      ctx.lineWidth = 2.5;
-      ctx.beginPath();
-      ctx.ellipse(
-        effect.x,
-        ey,
-        effect.radius * (0.9 + fall * 0.5),
-        effect.radius * 0.2 * (0.9 + fall * 0.5),
-        0,
-        0,
-        Math.PI * 2
-      );
-      ctx.stroke();
-      ctx.fillStyle = "rgba(196, 176, 156, 0.9)";
-      for (var grit = 0; grit < 6; grit += 1) {
-        var spread = (grit / 5 - 0.5) * effect.radius * 1.4;
-        var lift = fall * (26 + (grit % 3) * 12);
-        ctx.fillRect(effect.x + spread, ey - lift, 3, 5);
-      }
-      ctx.restore();
+    } else if (effect.kind === "deathburst") {
+      drawDeathBurst(ctx, state, sprites, effect, alpha);
     }
 
     if (effect.kind === "damage" && !effect.miss) {
@@ -5120,8 +5285,16 @@
     }).length;
     ctx.fillStyle = PALETTE.textDim;
     ctx.font = "600 12px 'PingFang SC', 'Segoe UI', sans-serif";
+    /*
+     * 卡片上不再写"房间 2/5"：副本图里没有"N"可说 —— 一局打几间房由他选的路线决定
+     * （`docs/adr/0030`）。清完房改成指路，因为"哪扇门开了"现在是这张卡唯一还没说的
+     * 那件事。
+     */
+    var cardLine = state.room && state.room.cleared
+      ? "已清空 · 门口亮了就能走"
+      : "剩余敌人 " + enemiesLeft;
     ctx.fillText(
-      "房间 " + (state.roomIndex + 1) + "/" + state.layout.length + " · 剩余敌人 " + enemiesLeft,
+      cardLine,
       roomX + 14,
       58
     );
@@ -5815,11 +5988,7 @@
 
       ctx.fillStyle = PALETTE.textDim;
       ctx.font = "600 14px 'PingFang SC', 'Segoe UI', sans-serif";
-      ctx.fillText(
-        "清空房间后走到最右侧传送门，第 " + state.layout.length + " 层击败 Boss 即通关",
-        344,
-        462
-      );
+      ctx.fillText("清空房间后门口亮起来，从那儿走去下一间；打掉牛头巨兽通关", 344, 462);
       ctx.fillStyle = "#ffd66b";
       ctx.font = "700 16px 'PingFang SC', 'Segoe UI', sans-serif";
       ctx.fillText("按任意键开始", 344, 496);
@@ -6038,10 +6207,33 @@
      * The room's scenery stands on the same floor as everyone else, so it goes
      * through the same sort: a trunk at the back of the room is painted before
      * the goblin in front of it, and a barrel on the front edge after him.
+     *
+     * 木桶是其中唯一会变的一件（`docs/adr/0030`）：碎开的那 0.42 秒画它的 12 块木片，
+     * 之后这一块地就空了 —— 桶这一局不再回来。碎片的位置是从桶自己的位置加偏移算的，
+     * 偏移在 `SCENE.barrelBreak` 里（烘的时候就量好了）。
      */
     (state.props || []).forEach(function (prop) {
       add(prop.z, function () {
-        drawScenePiece(ctx, sprites, prop.piece, prop.x, floorY(prop.z));
+        if (!prop.broken) {
+          drawScenePiece(ctx, sprites, prop.piece, prop.x, floorY(prop.z));
+          return;
+        }
+        if (prop.gone) return;
+        var age = state.time - prop.brokenAt;
+        if (age >= Core.BREAK_ANIM) return;
+        var whole = sceneRect(prop.piece);
+        if (!whole) return;
+        var left = prop.x - whole[2] / 2;
+        var top = floorY(prop.z) - whole[3];
+        var shown = Math.floor((age / Core.BREAK_ANIM) * SCENE.barrelBreak.length);
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, 1 - age / Core.BREAK_ANIM);
+        SCENE.barrelBreak.forEach(function (chip, index) {
+          /* 一块一块飞出来，不是一下子全出现。 */
+          if (index > shown) return;
+          drawScenePieceBox(ctx, sprites, chip[0], left + chip[1], top + chip[2]);
+        });
+        ctx.restore();
       });
     });
     (state.pickups || []).forEach(function (drop) {
@@ -6118,8 +6310,6 @@
     var shake = 0;
     state.effects.forEach(function (effect) {
       if (effect.kind === "shockwave") shake = Math.max(shake, effect.life / effect.maxLife);
-      /* The floor dropping is its own jolt, not a copy of a slam. */
-      if (effect.kind === "collapse") shake = Math.max(shake, (effect.life / effect.maxLife) * 1.3);
     });
 
     ctx.save();
@@ -6128,7 +6318,6 @@
     }
     drawBackdrop(ctx, state, sprites);
     drawGate(ctx, state, sprites);
-    drawHazards(ctx, state);
 
     /*
      * Everything in the room - bodies, the Slayer, the art he casts and the
@@ -6177,6 +6366,18 @@
      */
     if (meta.paused && meta.touch && meta.touch.enabled) {
       drawTouchControls(ctx, state, sprites, meta.touch, ["pause"]);
+    }
+    /*
+     * 换房那一下，**最后画、盖住所有东西**（连 HUD 一起）：录像里切过去是旧画面
+     * 直接消失、黑的立刻盖满一帧，然后新房间在 0.3 秒里淡进来（`docs/adr/0030`）。
+     * 所以这是一层黑幕在减淡，不是"淡出再淡入"。
+     */
+    if (state.transition > 0 && Core.TRANSITION) {
+      ctx.save();
+      ctx.globalAlpha = clamp01(state.transition / Core.TRANSITION.dur);
+      ctx.fillStyle = "#000000";
+      ctx.fillRect(0, 0, ARENA.width, ARENA.height);
+      ctx.restore();
     }
   }
 

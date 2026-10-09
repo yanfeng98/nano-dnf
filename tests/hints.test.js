@@ -52,11 +52,13 @@ test("the urgent moments outrank the informational ones", () => {
     "a blocked gate is more urgent than a combo tip"
   );
 
-  state.hazards = [{ x: 600, radius: 70, stage: "cracking" }];
+  /* 清完房、卡片也拿了：这时该说的是"门口亮了"。 */
+  state.upgradeChoice = null;
+  state.room.cleared = true;
   assert.equal(
     Hints.select(state, { move: true }).id,
-    "hazard",
-    "a 1.35s warning window beats everything else"
+    "door",
+    "the way out beats a combo tip"
   );
 });
 
@@ -88,17 +90,20 @@ test("every trigger fires on the state it describes", () => {
   assert.equal(Hints.select(state, {}).id, "upgrade");
 
   state.upgradeChoice = null;
-  state.hazards = [{ x: 600, radius: 70, stage: "collapsing" }];
+  /*
+   * 石板那套拆了（`docs/adr/0030`），所以"没清房"这段什么都没得说 —— 魔狱血刹 那条
+   * 在这份状态上也到期了，所以这里问的是"还有没有别的提示"。
+   */
+  state.room.cleared = false;
   assert.equal(
-    /* 魔狱血刹's tip is due on this state too - this is a question about the trap. */
     Hints.select(state, { firstBlood: true, awakening: true }),
     null,
-    "the trap tip is about the warning, not the hit"
+    "nothing left to say in a room that is still full"
   );
-  state.hazards = [{ x: 600, radius: 70, stage: "cracking" }];
-  assert.equal(Hints.select(state, {}).id, "hazard");
+  state.room.cleared = true;
+  assert.equal(Hints.select(state, {}).id, "door");
+  state.room.cleared = false;
 
-  state.hazards = [];
   state.player.hp = Math.floor(state.player.maxHp * Hints.LOW_HP_RATIO) - 1;
   assert.equal(Hints.select(state, {}).id, "lowHp");
 

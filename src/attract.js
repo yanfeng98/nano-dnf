@@ -122,7 +122,27 @@
 
     var target = nearestEnemy(state);
     if (!target) {
-      input.right = true;
+      /*
+       * 清完房：走向一扇**开着的门**。门口是按地图上那一格的方向开的
+       * （`docs/adr/0030`），所以这里不能再一路往右走 —— 上/下门要真的往上/往下走，
+       * 左右门要走到对应的那面墙。
+       */
+      var door = openDoorGoal(state);
+      if (!door) {
+        input.right = true;
+        return input;
+      }
+      if (door.dir === "E") input.right = true;
+      else if (door.dir === "W") input.left = true;
+      else {
+        var gap = door.x - state.player.x;
+        if (Math.abs(gap) > 24) {
+          if (gap > 0) input.right = true;
+          else input.left = true;
+        }
+        if (door.dir === "N") input.up = true;
+        else input.down = true;
+      }
       return input;
     }
 
@@ -166,6 +186,53 @@
     var skill = readySkill(session, state);
     if (skill) input.skills[skill] = true;
     return input;
+  }
+
+  /**
+   * 这一格现在该往哪扇门走：`{dir, x}`，一扇都没有就 null（不该发生 —— 清完房的
+   * 每一格至少有一条路）。
+   *
+   * **往 Boss 房的方向走**，不是一个方向一个方向地蹭：副本图有岔路（`docs/adr/0030`），
+   * 优先走"没走过的门"会在两间房之间来回蹭，演示就永远打不到 Boss。所以这里先算一条
+   * 到 Boss 房的最短路（BFS，走的是玩法真正走的门），取下一步。
+   */
+  function openDoorGoal(state) {
+    var cell = Core.currentCell(state);
+    if (!cell || !state.dungeon) return null;
+    var route = routeToBoss(state);
+    if (!route.length) return null;
+    return {
+      dir: route[0],
+      x: Core.doorX(state.dungeon, cell, route[0])
+    };
+  }
+
+  /** 从他在的这一格走到 Boss 房，一个方向一步；走不到就给空表。 */
+  function routeToBoss(state) {
+    var dungeon = state.dungeon;
+    var start = state.cell;
+    var goal = dungeon.boss;
+    if (start === goal) return [];
+    var came = {};
+    came[start] = null;
+    var queue = [start];
+    while (queue.length) {
+      var at = queue.shift();
+      for (var index = 0; index < Core.MINIMAP_DIRS.length; index += 1) {
+        var dir = Core.MINIMAP_DIRS[index];
+        var next = Core.doorNeighbour(dungeon, dungeon.cells[at], dir);
+        if (next < 0 || came[next] !== undefined) continue;
+        came[next] = { at: at, dir: dir };
+        queue.push(next);
+      }
+    }
+    if (came[goal] === undefined) return [];
+    var steps = [];
+    for (var walk = goal; walk !== start; ) {
+      steps.unshift(came[walk].dir);
+      walk = came[walk].at;
+    }
+    return steps;
   }
 
   function readySkill(session, state) {
@@ -259,8 +326,10 @@
       phase2Runs: session.phase2Runs,
       clears: session.clears,
       finished: session.finished,
-      roomIndex: state.roomIndex,
-      rooms: state.layout.length,
+      /* 走过几格、图上一共几格 —— 副本图里没有定的"第几间"（docs/adr/0030）。 */
+      rooms: state.stats.rooms,
+      cells: state.dungeon ? state.dungeon.cells.length : 0,
+      cell: state.cell,
       kills: state.stats.kills,
       hp: state.player.hp,
       alive: livingEnemies(state).length,

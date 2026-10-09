@@ -17,6 +17,15 @@ import http from "node:http";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+/*
+ * 页内那份 `Core` 也能在 Node 里 import：bot 跑在 **Node 这一侧**（它拿到的是
+ * `readState` 快照），所以门、路线、木桶盒子这些都得用这一份算，不能用页里的
+ * `window.DNFCore`（那边根本没有 window）。
+ */
+import { createRequire } from "node:module";
+
+const nodeRequire = createRequire(import.meta.url);
+const Core = nodeRequire("../../src/core.js");
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const ARTIFACTS = path.join(ROOT, "tests", "browser", "artifacts");
@@ -113,27 +122,74 @@ function decide(state, constants) {
     return want;
   }
 
-  /* A cracked slab is a telegraphed threat: step off it before it drops. */
-  const slabAt = (x) =>
-    (state.hazards || []).find(
-      (hazard) =>
-        hazard.stage &&
-        hazard.stage !== "dormant" &&
-        Math.abs(hazard.x - x) <= hazard.radius + 12
-    );
-  const underfoot = slabAt(player.x);
-  if (underfoot && player.y >= constants.arena.groundY - 26) {
-    const away = underfoot.x >= player.x ? "left" : "right";
-    const atWall =
-      away === "left"
-        ? player.x <= constants.arena.leftWall + player.width
-        : player.x >= constants.arena.rightWall - player.width;
-    want.add(atWall ? (away === "left" ? "right" : "left") : away);
-    return want;
-  }
+  /*
+   * 到 Boss 房的下一步（BFS，走的是玩法真正走的门）。副本图有岔路，只认"哪扇门开着"
+   * 会在两间房之间来回蹭，永远打不到 Boss。
+   */
+  const routeStep = () => {
+    const dungeon = state.dungeon;
+    if (!dungeon) return null;
+    const came = { [state.cell]: null };
+    const queue = [state.cell];
+    while (queue.length) {
+      const at = queue.shift();
+      if (at === dungeon.boss) break;
+      for (const dir of Core.MINIMAP_DIRS) {
+        const next = Core.doorNeighbour(dungeon, dungeon.cells[at], dir);
+        if (next < 0 || came[next] !== undefined) continue;
+        came[next] = { at, dir };
+        queue.push(next);
+      }
+    }
+    if (came[dungeon.boss] === undefined) return null;
+    let step = null;
+    for (let at = dungeon.boss; at !== state.cell; ) {
+      step = came[at].dir;
+      at = came[at].at;
+    }
+    return step;
+  };
+  /*
+   * 木桶是实心的（`docs/adr/0030`），这个 bot 又不会绕路：前面撞上桶就让一格。
+   * 让的方向按他现在站的这一排在哪一边取；`alongZ` 为真时他本来就在走深度轴，不用让。
+   */
+  const detour = (want, stepX, alongZ) => {
+    if (alongZ) return;
+    const target = player.x + stepX;
+    for (const prop of state.props || []) {
+      if (!prop.solid || prop.broken) continue;
+      const spec = Core.BREAKABLE[prop.piece];
+      if (!spec) continue;
+      if (Math.abs(target - prop.x) > spec.width / 2 + player.width / 2) continue;
+      if (Math.abs((player.z || 0) - prop.z) > spec.depth / 2 + player.width / 2) continue;
+      want.add((player.z || 0) <= prop.z ? "down" : "up");
+      return;
+    }
+  };
 
   if (alive.length === 0) {
-    want.add("right");
+    /*
+     * 清完房就走出门。门口按地图上那一格的方向开（`docs/adr/0030`），所以"一路往右"
+     * 不再能出门：先算一条到 Boss 房的路（副本图有岔路），再朝下一步的方向走 ——
+     * 上门/下门要先横向对上门的 x。
+     */
+    const dir = routeStep();
+    if (!dir) {
+      want.add("right");
+      return want;
+    }
+    if (dir === "E") {
+      want.add("right");
+    } else if (dir === "W") {
+      want.add("left");
+    } else {
+      const cell = Core.currentCell(state);
+      const doorX = Core.doorX(state.dungeon, cell, dir);
+      if (Math.abs(doorX - player.x) > 20) want.add(doorX > player.x ? "right" : "left");
+      want.add(dir === "N" ? "up" : "down");
+    }
+    detour(want, dir === "W" ? -player.width : player.width,
+            dir === "N" || dir === "S");
     return want;
   }
 
@@ -231,13 +287,8 @@ function decide(state, constants) {
   }
   if (gap > CLOSING_GAP) {
     const direction = delta > 0 ? "right" : "left";
-    const ahead = player.x + (direction === "right" ? 60 : -60);
-    if (!slabAt(ahead)) {
-      want.add(direction);
-    } else if (gap <= constants.skills.upSlash.reach) {
-      /* Out of reach and blocked by a breaking slab: hold ground. */
-      want.add("attack");
-    }
+    want.add(direction);
+    detour(want, direction === "right" ? player.width : -player.width, false);
     return want;
   }
 
@@ -458,23 +509,17 @@ async function runPass(browser, baseUrl, options) {
           max = Math.max(max, Math.round(spec.damage * spec.phase2.damageScale));
         }
       });
-      const hazard = window.DNFCore.HAZARD;
-      if (hazard && hazard.playerDamage) max = Math.max(max, hazard.playerDamage);
       return max;
     })(),
-    layout: window.nanoDnf.getState().layout.slice(),
+    /*
+     * 这一局的地牢：每一格摆的是哪间房（`docs/adr/0030`）。一局打哪些格由 bot 走的
+     * 路线决定，所以"该杀几只"只能等他走完再从走过的格子算 —— 见本次 pass 的
+     * `visited` 与结尾的 `expectedKills`。
+     */
+    cells: window.nanoDnf.getState().dungeon.cells.map((cell) => cell.room),
     equipped: window.nanoDnf.getLoadout()
   }));
-  /*
-   * Read the required kill count from the run this seed actually drew, so a
-   * seeded layout cannot make the expectation drift.
-   */
-  const expectedKills = constants.layout.reduce(
-    (total, index) => total + constants.rooms[index].enemies.length,
-    0
-  );
-  /* Every room but the last one pays out exactly one upgrade. */
-  const expectedUpgrades = constants.layout.length - 1;
+  const visited = new Set();
   let loadout = constants.equipped.slice();
   const touchMode = await page.evaluate(() => window.nanoDnf.isTouchMode());
   if (options.mode === "touch") {
@@ -514,7 +559,12 @@ async function runPass(browser, baseUrl, options) {
         hp: state.player.hp,
         xp: state.player.xp,
         level: state.player.level,
-        roomIndex: state.roomIndex,
+        cell: state.cell,
+        props: (state.props || []).map((prop) => ({
+          piece: prop.piece,
+          solid: !!prop.solid,
+          broken: !!prop.broken
+        })),
         kills: state.stats.kills,
         damageTaken: state.stats.damageTaken,
         time: Number(state.time.toFixed(4)),
@@ -548,7 +598,7 @@ async function runPass(browser, baseUrl, options) {
     attractDemo.kills = Math.max(attractDemo.kills, demo.demo.kills);
     attractDemo.upgradePicks = Math.max(attractDemo.upgradePicks, demo.demo.upgradePicks);
     attractDemo.loops = Math.max(attractDemo.loops, demo.demo.loops);
-    attractDemo.roomsReached = Math.max(attractDemo.roomsReached, demo.demo.roomIndex + 1);
+    attractDemo.roomsReached = Math.max(attractDemo.roomsReached, demo.demo.rooms);
     if (demo.demo.upgradeOpen && !attractDemo.upgradeShown) {
       attractDemo.upgradeShown = true;
       await page.screenshot({ path: path.join(ARTIFACTS, "attract-upgrade.png") });
@@ -709,34 +759,25 @@ async function runPass(browser, baseUrl, options) {
   const damageLog = [];
   let previousDamage = state.stats.damageTaken;
   /*
-   * Watch every slab from the outside: a break that was never seen cracking
-   * first would mean the trap fired without warning, which the design forbids
-   * and a player could not dodge.
+   * 走过的每一格都要记下来：一局打哪些格由路线决定，"该杀几只"要从这儿算。
+   * 顺手看一眼木桶的状态：碎过的桶必须同时**不再挡人**（`docs/adr/0030`）。
    */
-  const slabWatch = new Map();
-  const unwarnedBreaks = [];
-  /*
-   * The trap watch only sees what the pass samples, so a deliberate wait has to
-   * keep sampling: the pause and stance checks hold the loop for seconds at a
-   * time, which is longer than a slab needs to crack and break.
-   */
-  const sampleHazards = (sample) => {
-    (sample.hazards || []).forEach((hazard, index) => {
-      const key = `${sample.roomIndex}:${index}:${hazard.x}`;
-      const entry = slabWatch.get(key) || { warned: false };
-      if (hazard.stage === "cracking") entry.warned = true;
-      if (hazard.stage === "collapsing" && !entry.warned) {
-        unwarnedBreaks.push(`${key} broke without a warning`);
-      }
-      if (hazard.stage === "dormant") entry.warned = false;
-      slabWatch.set(key, entry);
+  const barrelWatch = { seen: 0, broken: 0, stillSolid: 0 };
+  const sampleWorld = (sample) => {
+    if (typeof sample.cell === "number") visited.add(sample.cell);
+    (sample.props || []).forEach((prop) => {
+      if (prop.piece !== "barrel") return;
+      barrelWatch.seen += 1;
+      if (!prop.broken) return;
+      barrelWatch.broken += 1;
+      if (prop.solid) barrelWatch.stillSolid += 1;
     });
   };
   const waitWatching = async (ms) => {
     const until = Date.now() + ms;
     while (Date.now() < until) {
       await page.waitForTimeout(Math.max(1, Math.min(100, until - Date.now())));
-      sampleHazards(await readState(page));
+      sampleWorld(await readState(page));
     }
   };
   /* Coaching: which hints showed, and whether any of them cleared again. */
@@ -822,6 +863,17 @@ async function runPass(browser, baseUrl, options) {
   while (!state.victory && !state.defeat) {
     if ((Date.now() - started) / 1000 > MAX_SECONDS) {
       await page.screenshot({ path: path.join(ARTIFACTS, `playability-timeout-${options.mode}.png`) });
+      const stuck = await page.evaluate(() => ({
+        regionOpen: window.nanoDnf.getProgress().regionOpen,
+        paused: window.nanoDnf.isPaused(),
+        time: window.nanoDnf.getState().time,
+        cell: window.nanoDnf.getState().cell,
+        doors: window.nanoDnf.getMap().doors,
+        alive: window.nanoDnf.getState().enemies.filter((enemy) => !enemy.dead).length,
+        hp: window.nanoDnf.getState().player.hp
+      }));
+      console.error(`--- ${options.mode} pass timed out; live page: ${JSON.stringify(stuck)} ---`);
+      console.error(`--- page errors: ${JSON.stringify(diagnostics.pageErrors)} ---`);
       console.error(`--- ${options.mode} pass timed out; last samples ---`);
       trace.slice(-24).forEach((sample) => {
         console.error(
@@ -877,7 +929,7 @@ async function runPass(browser, baseUrl, options) {
         else await page.keyboard.up(keyOf(change.action));
       }
     }
-    if (!midShot && state.roomIndex === 1) {
+    if (!midShot && state.stats.rooms >= 1) {
       await page.screenshot({ path: path.join(ARTIFACTS, `playability-${options.mode}-fight.png`) });
       midShot = true;
       /* With no record banked yet, the pace line has to say exactly that. */
@@ -924,11 +976,7 @@ async function runPass(browser, baseUrl, options) {
             kills: String(state.stats.kills),
             damage: String(state.stats.damageTaken),
             reached:
-              "第 " +
-              Math.min(state.layout.length, state.roomIndex + 1) +
-              "/" +
-              state.layout.length +
-              " 层"
+              "走过 " + state.stats.rooms + " 间 / 图上 " + state.dungeon.cells.length + " 格"
           }
         };
       });
@@ -975,6 +1023,17 @@ async function runPass(browser, baseUrl, options) {
       const stillUp = await page.evaluate(() => window.nanoDnf.isRaging());
       const blood = await page.evaluate(() => {
         const state = window.nanoDnf.getState();
+        /*
+         * 这一条要的是"打中一下就得掉血球"，不是"这会儿屋里有怪"：bot 现在走自己的
+         * 路线（`docs/adr/0030`），检查落在一间刚清空的房子里很正常，那就先放一只
+         * 站在刀口上的怪，再打它。
+         */
+        const borrowed = !state.enemies.some((enemy) => !enemy.dead);
+        if (borrowed) {
+          state.enemies.push(
+            window.DNFCore.createEnemy(state, "grunt", state.player.x + 60, state.player.z || 0)
+          );
+        }
         let hits = 0;
         while (state.stats.bloodOrbs === 0 && hits < 60) {
           const target = state.enemies.find((enemy) => !enemy.dead);
@@ -983,6 +1042,11 @@ async function runPass(browser, baseUrl, options) {
           window.DNFCore.damageEnemy(state, target, 1, 0, state.player.x);
           hits += 1;
         }
+        /*
+         * 借来的那只用完要还回去：它要是被留在这儿，bot 之后把它打死，这一局的击杀数
+         * 就比"清过的格子里的怪"多一只。
+         */
+        if (borrowed) state.enemies.pop();
         /* Freeze mid-swing so the dual-blade arc is in the shot. */
         state.player.invuln = 0;
         state.player.hurtTimer = 0;
@@ -1051,7 +1115,7 @@ async function runPass(browser, baseUrl, options) {
        * (docs/adr/0025): no hotbar slot, one key, two presses. It is driven
        * through the pass's own input path - `KeyV` on the keyboard, its own
        * button on touch - which is the half only this pass can prove: the unit
-       * tests call `Core.step` directly and never touch the key map, the touch
+       * tests call `window.DNFCore.step` directly and never touch the key map, the touch
        * layout or the one-shot rule that stops a held key walking him through
        * the whole move.
        */
@@ -1191,7 +1255,7 @@ async function runPass(browser, baseUrl, options) {
     }
     await page.waitForTimeout(options.mode === "touch" ? 16 : 20);
     state = await readState(page);
-    sampleHazards(state);
+    sampleWorld(state);
     const hintNow = await page.evaluate(() => window.nanoDnf.getHintState().active);
     if (hintNow && hintNow.id) {
       hints.seen.add(hintNow.id);
@@ -1203,7 +1267,7 @@ async function runPass(browser, baseUrl, options) {
     if (state.stats.damageTaken > previousDamage) {
       damageLog.push({
         t: Number(state.time.toFixed(1)),
-        room: state.roomIndex + 1,
+        cell: state.cell,
         amount: state.stats.damageTaken - previousDamage,
         attacker: state.enemies
           .filter((enemy) => !enemy.dead && enemy.attackTimer > 0)
@@ -1214,7 +1278,7 @@ async function runPass(browser, baseUrl, options) {
     }
     trace.push({
       t: Number(state.time.toFixed(2)),
-      room: state.roomIndex + 1,
+      cell: state.cell,
       hp: Math.round(state.player.hp),
       px: Math.round(state.player.x),
       want: [...want].join("+"),
@@ -1265,7 +1329,7 @@ async function runPass(browser, baseUrl, options) {
       kills: String(state.stats.kills),
       damage: String(state.stats.damageTaken),
       reached:
-        "第 " + Math.min(state.layout.length, state.roomIndex + 1) + "/" + state.layout.length + " 层"
+        "走过 " + state.stats.rooms + " 间 / 图上 " + state.dungeon.cells.length + " 格"
     };
     return {
       victory: state.victory,
@@ -1294,7 +1358,7 @@ async function runPass(browser, baseUrl, options) {
    */
   const shareOrigin = await page.evaluate(() => ({
     seed: window.nanoDnf.getSeed(),
-    layout: window.nanoDnf.getState().layout.slice()
+    dungeon: window.nanoDnf.getState().dungeon.cells.map((cell) => cell.room)
   }));
   const shareLink = await page.evaluate(() => window.nanoDnf.getShareLink());
   const shareRoundTrip = {
@@ -1309,11 +1373,11 @@ async function runPass(browser, baseUrl, options) {
     await sharePage.waitForFunction(() => window.nanoDnf && window.nanoDnf.getState().room);
     const reopened = await sharePage.evaluate(() => ({
       seed: window.nanoDnf.getSeed(),
-      layout: window.nanoDnf.getState().layout.slice()
+      dungeon: window.nanoDnf.getState().dungeon.cells.map((cell) => cell.room)
     }));
     shareRoundTrip.seedOk = reopened.seed === shareOrigin.seed;
     shareRoundTrip.layoutOk =
-      JSON.stringify(reopened.layout) === JSON.stringify(shareOrigin.layout);
+      JSON.stringify(reopened.dungeon) === JSON.stringify(shareOrigin.dungeon);
     await sharePage.close();
   }
   await page.click("#copy-seed");
@@ -1376,8 +1440,8 @@ async function runPass(browser, baseUrl, options) {
     const clock = /^(\d+):(\d\d)\.(\d)$/.exec(shown.time || "");
     return {
       defeat: state.defeat,
-      rooms: state.layout.length,
-      roomIndex: state.roomIndex,
+      rooms: state.dungeon.cells.length,
+      cell: state.cell,
       shown,
       expected: {
         seed: String(window.nanoDnf.getSeed()),
@@ -1390,7 +1454,7 @@ async function runPass(browser, baseUrl, options) {
         kills: String(state.stats.kills),
         damage: String(state.stats.damageTaken),
         reached:
-          "第 " + Math.min(state.layout.length, state.roomIndex + 1) + "/" + state.layout.length + " 层"
+          "走过 " + state.stats.rooms + " 间 / 图上 " + state.dungeon.cells.length + " 格"
       },
       shownSeconds: clock
         ? Number(clock[1]) * 60 + Number(clock[2]) + Number(clock[3]) / 10
@@ -1484,16 +1548,27 @@ async function runPass(browser, baseUrl, options) {
    * Captured after the clear shot so the run-progress artifacts keep their meaning.
    */
   if (options.mode === "keyboard") {
-    await page.evaluate(() => {
-      const state = window.nanoDnf.getState();
-      window.DNFCore.startRoom(state, state.layout.length - 2);
-    });
+    /*
+     * 跳到"摆着某一间房"的那一格。房间是被种子洗到格子上的（`docs/adr/0030`），
+     * 所以按名字找，不按下标。
+     */
+    const jumpToRoom = (name) =>
+      page.evaluate((wanted) => {
+        const state = window.nanoDnf.getState();
+        const cell = state.dungeon.cells.findIndex(
+          (spot) => state.stage.rooms[spot.room].name === wanted
+        );
+        if (cell < 0) throw new Error(`no cell holds ${wanted}`);
+        window.DNFCore.goToCell(state, cell);
+      }, name);
+
+    await jumpToRoom("十夫长的营寨");
     await page.waitForTimeout(90);
     await page.screenshot({ path: path.join(ARTIFACTS, "room-mix.png") });
 
+    await jumpToRoom("牛头巨兽的林地");
     await page.evaluate(() => {
       const state = window.nanoDnf.getState();
-      window.DNFCore.startRoom(state, state.layout.length - 1);
       /* Drop the room-entry banner so the enrage announcement is what we capture. */
       state.effects = state.effects.filter((effect) => effect.kind !== "banner");
       const boss = state.enemies.find((enemy) => enemy.type === "boss");
@@ -1504,9 +1579,9 @@ async function runPass(browser, baseUrl, options) {
     await page.screenshot({ path: path.join(ARTIFACTS, "boss-phase2.png") });
 
     /* Freeze the elite mid-spin so the whirl and its swept lane read on screen. */
+    await jumpToRoom("十夫长的营寨");
     await page.evaluate(() => {
       const state = window.nanoDnf.getState();
-      window.DNFCore.startRoom(state, state.layout.length - 2);
       state.effects = state.effects.filter((effect) => effect.kind !== "banner");
       const elite = state.enemies.find((enemy) => enemy.type === "elite");
       const spin = elite.spinDash;
@@ -1523,7 +1598,7 @@ async function runPass(browser, baseUrl, options) {
     /* Freeze the reward chooser so the between-room decision reads on screen. */
     await page.evaluate(() => {
       const state = window.nanoDnf.getState();
-      window.DNFCore.startRoom(state, 0);
+      window.DNFCore.goToCell(state, state.dungeon.entry);
       state.enemies = [];
       state.room.cleared = true;
       window.DNFCore.offerUpgrade(state);
@@ -1535,29 +1610,28 @@ async function runPass(browser, baseUrl, options) {
     /* Freeze a coaching line: hints are transient, so ask for one on purpose. */
     await page.evaluate(() => {
       const state = window.nanoDnf.getState();
-      window.DNFCore.startRoom(state, 0);
+      window.DNFCore.goToCell(state, state.dungeon.entry);
       state.effects = state.effects.filter((effect) => effect.kind !== "banner");
-      window.nanoDnf.previewHint("hazard");
+      window.nanoDnf.previewHint("upgrade");
     });
     await page.waitForTimeout(90);
     await page.screenshot({ path: path.join(ARTIFACTS, "hint-preview.png") });
 
-    /* Freeze a breaking slab so the chapel's own mechanic is visible. */
+    /*
+     * 地图窗口：清过的房间每一扇门都亮着（`docs/adr/0030`），把这一格的怪清掉拍一张，
+     * 好一眼看出"哪几扇门开了"。
+     */
     await page.evaluate(() => {
       const state = window.nanoDnf.getState();
-      const chapel = state.layout.findIndex((index) => {
-        const spec = state.stage.rooms[index];
-        return spec.hazards && spec.hazards.length;
-      });
-      if (chapel === -1) return;
-      window.DNFCore.startRoom(state, chapel);
+      const cell = window.DNFCore.currentCell(state);
+      cell.cleared = true;
+      state.room.cleared = true;
+      state.enemies = [];
       state.effects = state.effects.filter((effect) => effect.kind !== "banner");
-      /* Park the room clock at the moment the first slab gives way. */
-      state.roomTime = window.DNFCore.HAZARD.warn + 0.1;
-      state.player.x = state.hazards[0].x + 130;
+      state.upgradeChoice = null;
     });
     await page.waitForTimeout(90);
-    await page.screenshot({ path: path.join(ARTIFACTS, "chapel-hazard.png") });
+    await page.screenshot({ path: path.join(ARTIFACTS, "door-open.png") });
 
     /* Back to the title after a clear: the seed now carries a record. */
     await page.evaluate(() => {
@@ -1596,10 +1670,19 @@ async function runPass(browser, baseUrl, options) {
     attackChain,
     upSlashKey,
     music: { beforeInput: musicBeforeInput, afterRun: musicAfterRun, mute: musicMuteProbe },
-    slabWatch: { unwarnedBreaks, slabs: slabWatch.size },
+    visited: [...visited],
+    barrelWatch,
+    /*
+     * 走过的每一格里的怪都得清光 —— 一局走的是他自己选的那条路（`docs/adr/0030`），
+     * 所以总击杀数只能从他**清过**的格子算。用格子自己的 `cleared`，不是采样：
+     * 门口那一下换得快，逐帧采样会漏掉一整格。
+     */
+    expectedKills: state.dungeon.cells.reduce(
+      (total, cell) =>
+        cell.cleared ? total + constants.rooms[cell.room].enemies.length : total,
+      0
+    ),
     hints: { seen: [...hints.seen], cleared: hints.cleared },
-    expectedKills,
-    expectedUpgrades,
     maxHit: constants.maxHit,
     touchMode,
     state,
@@ -1945,13 +2028,13 @@ function problemsFor(pass) {
   }
   /* Soundtrack: silent until the first gesture, then running and mute-aware. */
   const music = pass.music || {};
-  /* The collapsing floor: it must have fired, and never without its warning. */
-  const slabs = pass.slabWatch || {};
-  if (!(pass.state.stats.collapses > 0)) {
-    problems.push(`${pass.mode}: the chapel's floor never broke during the run`);
-  }
-  if (slabs.slabs > 0 && (slabs.unwarnedBreaks || []).length) {
-    problems.push(`${pass.mode}: ${slabs.unwarnedBreaks.join("; ")}`);
+  /*
+   * 木桶：实心的可破坏物（`docs/adr/0030`）。这一趟不一定撞上它（摆在哪由房间决定），
+   * 所以只在"确实出现过"时检查它的两条规矩：碎过的桶不会再挡人。
+   */
+  const barrels = pass.barrelWatch || { seen: 0, stillSolid: 0 };
+  if (barrels.stillSolid > 0) {
+    problems.push(`${pass.mode}: ${barrels.stillSolid} smashed barrels still block the player`);
   }
   /* Coaching: it has to show up, cover the key moments, and clear again. */
   const coaching = pass.hints || {};
@@ -2038,10 +2121,16 @@ function problemsFor(pass) {
   if (!(pass.steppedIn > 0)) {
     problems.push(`${pass.mode}: never walked onto a monster's row to reach it (deepest ${pass.steppedIn})`);
   }
+  /*
+   * 强化卡：**清过的每一格都付一张，除了 Boss 房**。一局走的是他自己选的那条路，
+   * 所以"打了几间"由状态自己说（`stats.rooms`），不是事先算好的一个常数。
+   */
   const upgrades = (pass.state.player.upgradesTaken || []).length;
-  if (upgrades !== pass.expectedUpgrades) {
+  const expectedUpgrades = pass.state.stats.rooms - (pass.state.victory ? 1 : 0);
+  if (upgrades !== expectedUpgrades) {
     problems.push(
-      `${pass.mode}: upgradesTaken=${upgrades} (expected ${pass.expectedUpgrades})`
+      `${pass.mode}: upgradesTaken=${upgrades} (expected ${expectedUpgrades} for ` +
+        `${pass.state.stats.rooms} cleared cells)`
     );
   }
   problems.push(...damageProblems(pass.mode, pass, pass.maxHit));
@@ -2168,8 +2257,7 @@ async function main() {
     },
     attackChain: pass.attackChain,
     upSlashKey: pass.upSlashKey,
-    slabWatch: pass.slabWatch,
-    collapses: pass.state.stats.collapses,
+    barrelWatch: pass.barrelWatch,
     hints: pass.hints,
     music: pass.music,
     damageLog: pass.damageLog,

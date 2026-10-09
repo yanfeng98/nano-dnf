@@ -117,25 +117,22 @@ function write(path, attractSeconds, chapelSeconds) {
     if (session.state) capture(session.state, i);
   }
 
-  /* Then the collapsing-floor room (胆小鬼的窝), driven by hand: hazards,
-   * collapses and the gate. Its index is read off the stage, since a layout
-   * drawn from the pool does not always contain it. */
-  const hazardRoom = Core.STAGES.mirkwood.rooms.findIndex(
-    (room) => room.hazards && room.hazards.length
-  );
-  const chapel = Core.createState({ seed: Core.DEFAULT_SEED });
-  chapel.layout = [hazardRoom];
-  Core.startRoom(chapel, 0);
-  const chapelFrames = Math.round(chapelSeconds / Core.DT);
+  /* Then the room with a floor of its own (胆小鬼的窝), driven by hand.
+   * Which cell holds it is the seed's business（`docs/adr/0030`）, so it is
+   * looked up rather than assumed. */
+  const roomy = Core.STAGES.mirkwood.rooms.findIndex((room) => room.band);
+  const warren = Core.createState({ seed: Core.DEFAULT_SEED });
+  Core.goToCell(warren, warren.dungeon.cells.findIndex((cell) => cell.room === roomy));
+  const warrenFrames = Math.round(chapelSeconds / Core.DT);
   const offset = frames.length;
-  for (let i = 0; i < chapelFrames; i += 1) {
-    Core.step(chapel, {
+  for (let i = 0; i < warrenFrames; i += 1) {
+    Core.step(warren, {
       right: i % 120 < 60,
       left: i % 120 >= 60,
       jump: i % 45 === 0,
       attack: i % 30 === 0
     });
-    capture(chapel, offset + i);
+    capture(warren, offset + i);
   }
 
   const digest = crypto.createHash("sha1").update(frames.join(",")).digest("hex");

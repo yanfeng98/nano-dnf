@@ -42,6 +42,8 @@ META = ROOT / "assets" / "dnf_src" / "forest.json"
 MAP = "sprite_map.NPK"
 GATE = "sprite_map_pathgate.NPK"
 BREAK = "sprite_map_breakableobject.NPK"
+MONSTER = "sprite_monster_common.NPK"
+HIT = "sprite_common_hiteffect.NPK"
 
 # (name, pack, entry, frame). Names are what `src/render.js` SCENE.pieces and a
 # room's `props` list use, so they are part of the game's vocabulary, not of the
@@ -69,12 +71,41 @@ PIECES = [
     ("grass",      MAP, "sprite/map/02obj201.img", 0),
     ("grassFlower", MAP, "sprite/map/02obj202.img", 0),
     ("sprout",     MAP, "sprite/map/02obj500.img", 0),
-    # The way out of a room is a stone gate in the client's own forest palette
-    # (family 02 = the set's own family), and the barrel is the client's own
-    # breakable, used here as scenery.
-    ("gate",   GATE, "sprite/map/pathgate/granflorissidegate02.img", 0),
+    # The way out of a room: **one gate per direction** (`docs/adr/0030`), and
+    # the client already has all three - a side gate you walk through left/right,
+    # an `up` gate that stands on the floor's far edge, and a `down` gate that
+    # lies on the floor in front of you. Family 02 is the set's own family, the
+    # same one the room art comes from.
+    ("gate",     GATE, "sprite/map/pathgate/granflorissidegate02.img", 0),
+    ("gateUp",   GATE, "sprite/map/pathgate/granflorisupgate02.img", 0),
+    ("gateDown", GATE, "sprite/map/pathgate/granflorisdowngate02.img", 0),
+    # ...and the door that stands *in* a gate while the room is not cleared: the
+    # client's own barred leaf, one per direction, drawn at its own offset.
+    ("door",     GATE, "sprite/map/pathgate/granflorissidedoor02.img", 0),
+    ("doorUp",   GATE, "sprite/map/pathgate/granflorisupdoor02.img", 0),
+    ("doorDown", GATE, "sprite/map/pathgate/granflorisdowndoor02.img", 0),
+    # The barrel: the client's own breakable, and **frame 0 only**. The twelve
+    # frames that follow are the pieces it breaks into; they are baked below,
+    # with the offsets they fly to (`BARREL_*`).
     ("barrel", BREAK, "sprite/map/breakableobject/barrel.img", 0),
+    # 怪物死亡那一瞬间的两样东西，都是客户端的（`docs/adr/0031`）。
+    #
+    # 1) 青白色的圆爆：`monsterdieflash`，白核 + 青边（采样 (255,255,255) 核心、
+    #    (1,145,255) 外环）。它只有一帧，录像里亮 3 帧 = 0.10 秒、最大 129x83 游戏像素。
+    # 2) 飞出来的红肉块：`sprite/common/hiteffect/bloodlarge.img` 第 1-3 帧 —— 不规则的
+    #    橘红碎块，录像里一次冒 9-14 块、大小 7x11 ~ 16x21 游戏像素、**悬在空中不落**、
+    #    半秒内散掉。这三个是三种形状，撒开画就不是同一块重复 14 次。
+    ("deathBurst", MONSTER, "sprite/monster/common/monsterdieflash.img", 0),
+    ("deathChunk1", HIT, "sprite/common/hiteffect/bloodlarge.img", 1),
+    ("deathChunk2", HIT, "sprite/common/hiteffect/bloodlarge.img", 2),
+    ("deathChunk3", HIT, "sprite/common/hiteffect/bloodlarge.img", 3),
 ]
+
+# 木桶碎开的那 12 帧。客户端把 13 帧摆在同一格里，每帧带自己的 (x, y)；烘成"照 ink 裁"
+# 之后要画得叠得回去，就得知道每帧相对**第 0 帧**的偏移 —— 那是量出来的，写在下面这张
+# 表里，跟着 manifest 一起出去（`src/render.js` SCENE.barrelBreak）。
+BARREL_ENTRY = "sprite/map/breakableobject/barrel.img"
+BARREL_PIECES = 12
 
 SHELF_W = 1280
 
@@ -88,15 +119,32 @@ def offset_of(frame) -> tuple[int, int]:
     return 0, 0
 
 
-def crop_ink(picture: Image.Image) -> Image.Image:
-    """The art alone, no canvas - what the composition actually places."""
-    spot = picture.getbbox()
-    if spot is None:
-        return picture
-    return picture.crop(spot)
+def tinted(picture: Image.Image, colour) -> Image.Image:
+    """A white mask, washed to one colour.
+
+    The client stores a few things as a **white shape whose colour the engine
+    picks at draw time** - `monsterdieblood` is one, the room gates' lights are
+    another. Baking the colour in keeps `src/render.js` drawing plain images and
+    keeps the tint itself reviewable in the sheet.
+    """
+    out = picture.copy()
+    pixels = out.load()
+    for y in range(out.height):
+        for x in range(out.width):
+            r, g, b, a = pixels[x, y]
+            if a == 0:
+                continue
+            pixels[x, y] = (round(r * colour[0] / 255), round(g * colour[1] / 255),
+                            round(b * colour[2] / 255), a)
+    return out
 
 
-def decode(client: pathlib.Path, pack: str, entry: str, frame_index: int):
+def decode_at(client: pathlib.Path, pack: str, entry: str, frame_index: int, tint=None):
+    """(the art cropped to its ink, that ink's top-left in the frame's own space).
+
+    The offset is what a *group* of frames needs to line up again once each has
+    been cropped on its own - the barrel's break pieces are the reason.
+    """
     handle = open(client / "ImagePacks2" / pack, "rb")
     try:
         npk = NPK.open(handle)
@@ -105,10 +153,23 @@ def decode(client: pathlib.Path, pack: str, entry: str, frame_index: int):
                 continue
             img = IMGFactory.open(io.BytesIO(item.data))
             frame = img.images[frame_index]
-            return crop_ink(img.build(frame).convert("RGBA"))
+            full = img.build(frame).convert("RGBA")
+            if tint is not None:
+                full = tinted(full, tint)
+            spot = full.getbbox()
+            if spot is None:
+                return full, offset_of(frame)
+            # 落在**帧自己那个空间**里的位置：帧的锚点偏移 + ink 在画布里的位置。
+            # 两个都要加 —— 光有画布里的 bbox 会永远得到 (0, 0)。
+            anchor = offset_of(frame)
+            return full.crop(spot), (anchor[0] + spot[0], anchor[1] + spot[1])
         raise SystemExit(f"{entry} not found in {pack}")
     finally:
         handle.close()
+
+
+def decode(client: pathlib.Path, pack: str, entry: str, frame_index: int):
+    return decode_at(client, pack, entry, frame_index)[0]
 
 
 def shelf_pack(sizes, width):
@@ -132,10 +193,25 @@ def main() -> None:
     args = ap.parse_args()
 
     art = []
-    for name, pack, entry, index in PIECES:
-        picture = decode(args.client, pack, entry, index)
+    for piece in PIECES:
+        name, pack, entry, index = piece[:4]
+        tint = piece[4] if len(piece) > 4 else None
+        picture, _at = decode_at(args.client, pack, entry, index, tint)
         art.append((name, picture, pack, entry, index))
         print(f"{name:12s} {entry:44s} {picture.width:4d}x{picture.height:<4d}")
+
+    # The barrel's twelve break frames, and where each one flies to. The offset
+    # is `this frame's ink corner - frame 0's ink corner`, both read in the
+    # frame's own space, so the renderer can stack the pieces back onto the
+    # whole barrel it just replaced.
+    base = decode_at(args.client, BREAK, BARREL_ENTRY, 0)[1]
+    break_at = []
+    for index in range(1, BARREL_PIECES + 1):
+        picture, at = decode_at(args.client, BREAK, BARREL_ENTRY, index)
+        name = f"barrel{index}"
+        break_at.append({"piece": name, "dx": at[0] - base[0], "dy": at[1] - base[1]})
+        art.append((name, picture, BREAK, BARREL_ENTRY, index))
+        print(f"{name:12s} {BARREL_ENTRY:44s} {picture.width:4d}x{picture.height:<4d}")
 
     spots, height = shelf_pack([(p.width, p.height) for _, p, _, _, _ in art], SHELF_W)
     sheet = Image.new("RGBA", (SHELF_W, height), (0, 0, 0, 0))
@@ -151,6 +227,11 @@ def main() -> None:
             r = rects[name]
             print(f'      {name}: [{r["x"]}, {r["y"]}, {r["w"]}, {r["h"]}],')
         print("    },")
+        print("\n    /* [piece, dx, dy] - see barrelBreak in src/render.js */")
+        print("    barrelBreak: [")
+        for item in break_at:
+            print(f'      ["{item["piece"]}", {item["dx"]}, {item["dy"]}],')
+        print("    ],")
         return
 
     if args.preview:

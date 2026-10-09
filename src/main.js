@@ -484,8 +484,7 @@
     kills: 0,
     hp: state.player.hp,
     level: state.player.level,
-    roomIndex: 0,
-    collapses: 0,
+    cell: 0,
     victory: false
   };
 
@@ -546,8 +545,9 @@
       upgrades: state.player.upgradesTaken.slice(),
       kills: state.stats.kills,
       damageTaken: state.stats.damageTaken,
-      room: state.roomIndex,
-      rooms: state.layout.length,
+      /* 走过几间房 —— 副本图里没有"第几间"，只有他走了多少格（docs/adr/0030）。 */
+      room: state.stats.rooms,
+      rooms: state.dungeon ? state.dungeon.cells.length : 0,
       victory: state.victory
     };
   }
@@ -564,8 +564,8 @@
       upgrades: state.player.upgradesTaken,
       kills: state.stats.kills,
       damageTaken: state.stats.damageTaken,
-      room: state.roomIndex,
-      rooms: state.layout.length
+      room: state.stats.rooms,
+      rooms: state.dungeon ? state.dungeon.cells.length : 0
     };
     var table = Summary
       ? Summary.describe({
@@ -628,15 +628,14 @@
     if (state.stats.kills > watch.kills) play("kill");
     if (player.hp < watch.hp) play("hurt");
     if (player.level > watch.level) play("levelup");
-    if (state.roomIndex > watch.roomIndex) play("gate");
-    if (state.stats.collapses > watch.collapses) play("collapse");
+    /* 换房那一下由门口触发，所以听的是"格变了"，不是"第几间变大了"。 */
+    if (state.cell !== watch.cell) play("gate");
     if (state.victory && !watch.victory) play("clear");
     watch.hits = state.stats.hits;
     watch.kills = state.stats.kills;
     watch.hp = player.hp;
     watch.level = player.level;
-    watch.roomIndex = state.roomIndex;
-    watch.collapses = state.stats.collapses;
+    watch.cell = state.cell;
     watch.victory = state.victory;
   }
 
@@ -957,8 +956,7 @@
     watch.kills = 0;
     watch.hp = state.player.hp;
     watch.level = state.player.level;
-    watch.roomIndex = 0;
-    watch.collapses = 0;
+    watch.cell = 0;
     watch.victory = false;
   }
 
@@ -1193,9 +1191,9 @@
     if (status) {
       status.textContent =
         "room " +
-        (state.roomIndex + 1) +
+        state.stats.rooms +
         "/" +
-        state.layout.length +
+        (state.dungeon ? state.dungeon.cells.length : 0) +
         " | hp " +
         Math.round(state.player.hp) +
         " | mp " +
@@ -1225,9 +1223,9 @@
     var hint = document.getElementById("dungeon-hint");
     if (!hint) return;
     hint.textContent =
-      "清空房间后走到最右侧传送门进入下一层，第 " +
-      state.layout.length +
-      " 层击败 Boss 即通关。触屏设备会自动显示虚拟按键（也可在地址后加 ?touch=1 强制开启）。";
+      "每一格的门口按地图上那一格的方向开：左右走墙边的门，上边走房间深处那扇，下边朝你面前走。" +
+      "清空房间后门口会亮。走到牛头巨兽那一格把它打掉就通关。" +
+      "触屏设备会自动显示虚拟按键（也可在地址后加 ?touch=1 强制开启）。";
   })();
 
   window.nanoDnf = {
@@ -1278,12 +1276,16 @@
     getStage: function () {
       return currentStage;
     },
-    /* The map window: its form, and the room grid it is drawing. */
+    /* The map window: its form, and the dungeon grid it is drawing. */
     getMap: function () {
       return {
         mode: mapMode,
-        grid: state.minimap,
-        room: state.roomIndex
+        grid: state.dungeon,
+        cell: state.cell,
+        doors: Core.MINIMAP_DIRS.reduce(function (out, dir) {
+          out[dir] = Core.exitMode(state, dir);
+          return out;
+        }, {})
       };
     },
     setMapMode: function (mode) {

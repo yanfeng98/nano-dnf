@@ -47,9 +47,10 @@ test("the demo clears the opening room and takes an upgrade card", () => {
   assert.ok(opening.kills >= 1, "the demo never killed anything");
 
   run(session, 8);
-  assert.ok(
-    session.state.roomIndex >= 1,
-    "the demo never walked through the gate it opened"
+  assert.notEqual(
+    session.state.cell,
+    session.state.dungeon.entry,
+    "the demo never walked through the door it opened"
   );
 });
 
@@ -108,7 +109,7 @@ test("a finished demo holds its last frame before looping", () => {
 
   run(session, Attract.HOLD_SECONDS);
   assert.equal(session.loops, loops + 1, "the demo has to restart once the hold is over");
-  assert.equal(session.state.roomIndex, 0);
+  assert.equal(session.state.cell, session.state.dungeon.entry);
   assert.equal(session.state.victory, false);
 });
 
@@ -125,13 +126,22 @@ test("the demo does not lean on the ambient random generator", () => {
   }
 });
 
-test("the demo loops back to the first room instead of ending", () => {
+test("the demo loops back to the entry cell instead of ending", () => {
   const session = demo();
   run(session, Attract.MAX_SECONDS + 5);
 
   assert.ok(session.loops >= 1, "a finished demo run has to restart");
   assert.ok(session.upgradePicks >= 1, "the replay still shows the card pick");
-  assert.ok(session.state.roomIndex < session.state.layout.length);
+  /*
+   * 重开之后**新的一局已经在跑**了：时间从零重新数起（他不该停在上一次的战果上），
+   * 人站在地牢里的某一格上，而且站着。不钉"必然在起点格"—— 50 秒够他跑完第二局的一部分，
+   * 那时他当然已经走开了。
+   */
+  assert.ok(
+    session.seconds > 0 && session.seconds <= Attract.MAX_SECONDS,
+    `the next run is under way (${session.seconds}s)`
+  );
+  assert.ok(session.state.cell >= 0 && session.state.cell < session.state.dungeon.cells.length);
   assert.equal(session.state.player.dead, false);
 });
 

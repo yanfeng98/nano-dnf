@@ -122,8 +122,8 @@
       upgrades: player.upgradesTaken || [],
       kills: stats.kills,
       damageTaken: stats.damageTaken,
-      room: state.roomIndex,
-      rooms: state.layout ? state.layout.length : 0
+      room: stats.rooms,
+      rooms: state.dungeon ? state.dungeon.cells.length : 0
     });
   }
 
@@ -146,14 +146,17 @@
     /*
      * How far the run got. A lost run needs this more than a won one, but the
      * clear screen shows it too so both endings read the same way.
+     *
+     * 不再写"第几层"：副本图上没有"第几" —— 一局走的是他自己选的那条路，所以报的是
+     * **走过几间** 除以 **图上几格**（`docs/adr/0030`）。
      */
     var rooms = whole(run.rooms, 0);
     if (rooms > 0) {
-      var reached = Math.min(rooms, whole(run.room, 0) + 1);
+      var walked = Math.max(0, Math.min(rooms, whole(run.room, 0)));
       rows.push({
         id: "reached",
         label: "到达",
-        value: "第 " + (reached < 1 ? 1 : reached) + "/" + rooms + " 层"
+        value: "走过 " + walked + " 间 / 图上 " + rooms + " 格"
       });
     }
     return {

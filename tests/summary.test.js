@@ -43,14 +43,21 @@ test("a run with nothing picked says so instead of printing nothing", () => {
 });
 
 test("the table says how far the run got", () => {
-  const reached = Summary.describe({ seed: 1, room: 2, rooms: 5 });
-  assert.equal(rowOf(reached, "reached").value, "第 3/5 层", "roomIndex 2 is the third room");
-  assert.equal(Summary.describe({ seed: 1, room: 0, rooms: 5 }).rows.length, 7);
+  /*
+   * 副本图上没有"第几层"：一局走的是他自己选的那条路（`docs/adr/0030`），所以报的是
+   * 走过几格、图上几格。
+   */
+  const reached = Summary.describe({ seed: 1, room: 2, rooms: 12 });
+  assert.equal(rowOf(reached, "reached").value, "走过 2 间 / 图上 12 格");
+  assert.equal(Summary.describe({ seed: 1, room: 0, rooms: 12 }).rows.length, 7);
 
-  /* A run that never left the first room, and one that cannot be trusted. */
-  assert.equal(rowOf(Summary.describe({ room: 0, rooms: 5 }), "reached").value, "第 1/5 层");
-  assert.equal(rowOf(Summary.describe({ room: -4, rooms: 5 }), "reached").value, "第 1/5 层");
-  assert.equal(rowOf(Summary.describe({ room: 99, rooms: 5 }), "reached").value, "第 5/5 层");
+  /* A run that never left the entry cell, and one that cannot be trusted. */
+  assert.equal(rowOf(Summary.describe({ room: 0, rooms: 12 }), "reached").value,
+    "走过 0 间 / 图上 12 格");
+  assert.equal(rowOf(Summary.describe({ room: -4, rooms: 12 }), "reached").value,
+    "走过 0 间 / 图上 12 格");
+  assert.equal(rowOf(Summary.describe({ room: 99, rooms: 12 }), "reached").value,
+    "走过 12 间 / 图上 12 格");
 
   /* Without a room count there is nothing honest to say, so the row is absent. */
   assert.ok(
@@ -121,7 +128,10 @@ test("the live variant reads the run that is still going", () => {
   assert.equal(value("upgrades"), "锐锋");
   assert.equal(value("kills"), String(state.stats.kills));
   assert.equal(value("damage"), String(state.stats.damageTaken));
-  assert.equal(value("reached"), "第 1/" + state.layout.length + " 层");
+  assert.equal(
+    value("reached"),
+    "走过 " + state.stats.rooms + " 间 / 图上 " + state.dungeon.cells.length + " 格"
+  );
 
   /* A half-built state must not throw or invent numbers. */
   assert.doesNotThrow(() => Summary.liveRun(null, 9));

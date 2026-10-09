@@ -13,7 +13,7 @@
  *
  * Everything after the title screen is driven with real key events, so the
  * captures show the shipped input path; the room jumps at the end go through
- * Core.startRoom on the live state, which is what the browser suite does too.
+ * Core.goToCell on the live state, which is what the browser suite does too.
  */
 
 import { chromium } from "playwright";
@@ -55,16 +55,15 @@ await page.waitForFunction(() => window.nanoDnf && window.nanoDnf.getState().roo
 const shot = (name) => page.screenshot({ path: path.join(OUT, name + ".png") });
 
 /*
- * A run's layout is drawn from the room pool by seed, so the alternate does not
- * always appear in it - and startRoom takes a position in the layout, not an
- * index into ROOMS. Rewriting the layout to that one room is the only way to be
- * sure the capture lands on the collapsing slabs.
+ * 一格摆的是哪间房由种子洗（`docs/adr/0030`），所以"跳到某一间房"要按**房间**找它
+ * 被洗到的那一格，不能按下标。
  */
 const jumpToPoolRoom = (poolIndex) =>
   page.evaluate((index) => {
     const state = window.nanoDnf.getState();
-    state.layout = [index];
-    window.DNFCore.startRoom(state, 0);
+    const cell = state.dungeon.cells.findIndex((spot) => spot.room === index);
+    if (cell < 0) throw new Error(`room ${index} is not in this seed's dungeon`);
+    window.DNFCore.goToCell(state, cell);
   }, poolIndex);
 
 /* The title screen: the attract demo, playing on the real backdrop. */
@@ -87,16 +86,14 @@ await page.keyboard.press("KeyC");
 await page.waitForTimeout(160);
 await shot("03-jump");
 
-/* The collapsing-floor room (胆小鬼的窝): two slabs, drawn as ellipses on the floor. */
+/* 胆小鬼的窝：这一间自己带一条更浅的地面带（石板那套已经拆了，见 docs/adr/0030）。 */
 await jumpToPoolRoom(
   await page.evaluate(() =>
-    window.nanoDnf.getState().stage.rooms.findIndex((room) => room.hazards && room.hazards.length)
+    window.nanoDnf.getState().stage.rooms.findIndex((room) => room.band)
   )
 );
 await page.waitForTimeout(500);
-await shot("04-chapel-dormant");
-await page.waitForTimeout(900);
-await shot("05-chapel-cracking");
+await shot("04-warren-floor");
 
 /* The boss room: the gate at the end of the floor, and a body on each side. */
 await jumpToPoolRoom(await page.evaluate(() => window.nanoDnf.getState().stage.bossIndex));
@@ -112,8 +109,7 @@ await shot("06-boss-room");
 await page.evaluate(() => {
   const Core = window.DNFCore;
   const state = window.nanoDnf.getState();
-  state.layout = Core.layoutForSeed(state.stage, state.seed);
-  Core.startRoom(state, 0);
+  Core.goToCell(state, state.dungeon.entry);
   state.enemies.forEach((enemy) => {
     enemy.x = 900;
     enemy.speed = 0;

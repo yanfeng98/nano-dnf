@@ -1727,6 +1727,8 @@
       rooms: [
         {
           name: "林间空地",
+          /* 起点房：地牢一进来就是它（`MIRKWOOD_DUNGEON.entryRoom`）。 */
+          kind: "room",
           enemies: [
             { type: "grunt", x: 620 },
             { type: "grunt", x: 790 },
@@ -1750,6 +1752,7 @@
            * rooms did, said again with goblins (`chooseEnemyAction` holds it).
            */
           name: "投石坡",
+          kind: "room",
           enemies: [
             { type: "caster", x: 600, depth: 0.34 },
             { type: "grunt", x: 720 },
@@ -1767,6 +1770,7 @@
         },
         {
           name: "兽栏",
+          kind: "room",
           enemies: [
             { type: "brute", x: 700 },
             { type: "brute", x: 850 },
@@ -1788,6 +1792,7 @@
            * the thrower behind him keeps the floor honest while he spins.
            */
           name: "十夫长的营寨",
+          kind: "room",
           enemies: [
             { type: "caster", x: 560, depth: 0.4 },
             { type: "elite", x: 760 },
@@ -1807,16 +1812,19 @@
         {
           /*
            * The alternate: the cowards break and run, so they arrive in a pack -
-           * and the floor is theirs, because this is the room they dug. The two
-           * slabs give way on offset cycles, so the safe ground keeps moving; the
-           * mechanic is 沉没礼拜堂's and survived its room (`docs/adr/0026`),
-           * re-hung here where a goblin warren makes it read.
+           * and the floor is theirs, because this is the room they dug.
            *
            * Wider than the default floor, which is what the room already is: a
            * warren is something you cross, not a corridor you hold - 150 screen
            * px against 120, so a third more ground to be pushed across.
+           *
+           * 这里原先还埋着两块会塌的石板（`hazards`）。业主 2026-10-10 的原话是
+           * 「以后也不要有这种陷阱」，所以整套塌陷地板拆了 —— 连同 `Core.HAZARD`、
+           * `updateHazards` 和那条提示。它不是幽暗密林的东西，是从已经删掉的
+           * 「沉没礼拜堂」搬过来的（`docs/adr/0030`）。
            */
           name: "胆小鬼的窝",
+          kind: "room",
           enemies: [
             { type: "coward", x: 600 },
             { type: "coward", x: 740 },
@@ -1832,10 +1840,6 @@
             { piece: "sprout", x: 780, depth: 0.26 },
             { piece: "grassFlower", x: 430, depth: 0.18 }
           ],
-          hazards: [
-            { x: 640 },
-            { x: 850 }
-          ],
           band: { backY: 280 }
         },
         {
@@ -1843,8 +1847,12 @@
            * 牛头巨兽的林地. The beast charges on a line, so this floor is a
            * little wider than the default instead of narrower: there has to be
            * somewhere to be that is not in front of it.
+           *
+           * 这是 Boss 房（`MIRKWOOD_DUNGEON.bossRoom`）：地图上 (0,2) 那格的东出口
+           * 通回 (1,2)，两条路都要穿过它，所以这一格是地牢的尽头。
            */
           name: "牛头巨兽的林地",
+          kind: "room",
           enemies: [
             { type: "grunt", x: 520 },
             { type: "boss", x: 780 }
@@ -1858,6 +1866,102 @@
             { piece: "grass", x: 120, depth: 0.2 }
           ],
           band: { backY: 300 }
+        },
+
+        /*
+         * 下面六间是**走廊格**（地图上画成线的那些格子）。录像里它们在画面上
+         * 和别的房间一模一样 —— 一屏、有树有桶、有仗打（量过：(1,0)/(1,1)/(1,2)
+         * 三格他各待了 24 / 38 / 41 秒，画面里都有哥布林）；不一样的是**地图上
+         * 那一格的形状**，以及它们都只有两条到三条路、是过道不是尽头。
+         *
+         * 所以名单轻一档：两只是"挡路的"，不是"这一间的内容"。哪一间摆在哪一格由
+         * 种子洗牌（`dungeonFor`），所以名字不能写死到格子上去。
+         */
+        {
+          name: "藤蔓窄道",
+          kind: "corr",
+          enemies: [
+            { type: "coward", x: 660 },
+            { type: "coward", x: 840 }
+          ],
+          props: [
+            { piece: "trunkBent", x: 150, depth: 1 },
+            { piece: "bush", x: 400, depth: 0.62 },
+            { piece: "grass", x: 720, depth: 0.4 },
+            { piece: "barrel", x: 60, depth: 0.46 }
+          ]
+        },
+        {
+          name: "倒木小径",
+          kind: "corr",
+          enemies: [
+            { type: "grunt", x: 700, depth: 0.2 },
+            { type: "coward", x: 870 }
+          ],
+          props: [
+            { piece: "trunkTall", x: 250, depth: 1 },
+            { piece: "stump", x: 470, depth: 0.7 },
+            { piece: "rockFlat", x: 620, depth: 0.44 },
+            { piece: "sprout", x: 330, depth: 0.24 },
+            { piece: "barrel", x: 900, depth: 0.34 }
+          ]
+        },
+        {
+          name: "腐叶浅沟",
+          kind: "corr",
+          enemies: [
+            { type: "grunt", x: 640 },
+            { type: "grunt", x: 820, depth: 0.28 }
+          ],
+          props: [
+            { piece: "trunkMossy", x: 180, depth: 1 },
+            { piece: "bush", x: 520, depth: 0.58 },
+            { piece: "grassFlower", x: 760, depth: 0.3 },
+            { piece: "rockSmall", x: 380, depth: 0.4 },
+            { piece: "barrel", x: 80, depth: 0.5 }
+          ]
+        },
+        {
+          name: "雾林岔口",
+          kind: "corr",
+          enemies: [
+            { type: "caster", x: 620, depth: 0.38 },
+            { type: "grunt", x: 860 }
+          ],
+          props: [
+            { piece: "trunkMossy", x: 260, depth: 1 },
+            { piece: "pillar", x: 470, depth: 0.66 },
+            { piece: "grass", x: 640, depth: 0.36 },
+            { piece: "barrel", x: 120, depth: 0.44 }
+          ]
+        },
+        {
+          name: "断桩隘口",
+          kind: "corr",
+          enemies: [
+            { type: "brute", x: 780 },
+            { type: "grunt", x: 600, depth: 0.3 }
+          ],
+          props: [
+            { piece: "trunkBent", x: 160, depth: 1 },
+            { piece: "stump", x: 420, depth: 0.72 },
+            { piece: "rockSmall", x: 660, depth: 0.42 },
+            { piece: "bush", x: 300, depth: 0.5 }
+          ]
+        },
+        {
+          name: "苔石夹道",
+          kind: "corr",
+          enemies: [
+            { type: "grunt", x: 680, depth: 0.26 },
+            { type: "caster", x: 880 }
+          ],
+          props: [
+            { piece: "wallStone", x: 240, depth: 0.78 },
+            { piece: "rockFlat", x: 500, depth: 0.52 },
+            { piece: "grass", x: 820, depth: 0.34 },
+            { piece: "barrel", x: 70, depth: 0.42 }
+          ]
         }
       ],
       bossIndex: 5,
@@ -1932,8 +2036,6 @@
 
   /* The stage a run starts on until the region map says otherwise. */
   var DEFAULT_STAGE = "mirkwood";
-  /* How many combat rooms one run of a stage fights, the gauntlet included. */
-  var RUN_COMBAT_ROOMS = 4;
 
   /* Same generator as the state RNG, but local: a layout must not consume the
    * draws that place enemies, so the two stay independent. */
@@ -1947,112 +2049,232 @@
     };
   }
 
-  /** How much punishment a room's roster carries, by base health. */
-  function roomThreat(stage, index) {
-    return stage.rooms[index].enemies.reduce(function (total, entry) {
-      var spec = ENEMY_TYPES[entry.type] || ENEMY_TYPES.grunt;
-      return total + spec.maxHp;
-    }, 0);
-  }
-
-  /**
-   * The gentlest half of one stage's combat pool. A run opens on one of these:
-   * seeding the order used to be able to put the hardest room first, at level one
-   * with no upgrades, which is a spike rather than a ramp.
-   */
-  function rampRooms(stage) {
-    var pool = [];
-    for (var index = 0; index < stage.bossIndex; index += 1) {
-      if (index !== stage.gauntletIndex) pool.push(index);
-    }
-    pool.sort(function (a, b) {
-      return roomThreat(stage, a) - roomThreat(stage, b) || a - b;
-    });
-    return pool.slice(0, Math.max(1, Math.ceil(pool.length / 2)));
-  }
-
-  /**
-   * The room order of one stage for one seed: a ramp room, two more, the
-   * gauntlet, the boss. It takes the stage now - every stage owns its own
-   * pool, its own gauntlet and its own boss, and a run is one stage.
-   */
-  function layoutForSeed(stage, seed) {
-    var next = layoutRandom(seed);
-    var ramps = rampRooms(stage);
-    var opening = ramps[Math.min(ramps.length - 1, Math.floor(next() * ramps.length))];
-
-    var rest = [];
-    for (var index = 0; index < stage.bossIndex; index += 1) {
-      if (index !== stage.gauntletIndex && index !== opening) rest.push(index);
-    }
-    /* Fisher-Yates on a copy, so the pool itself is never reordered. */
-    for (var cursor = rest.length - 1; cursor > 0; cursor -= 1) {
-      var swap = Math.floor(next() * (cursor + 1));
-      if (swap > cursor) swap = cursor;
-      var held = rest[cursor];
-      rest[cursor] = rest[swap];
-      rest[swap] = held;
-    }
-    return [opening]
-      .concat(rest.slice(0, RUN_COMBAT_ROOMS - 2))
-      .concat([stage.gauntletIndex, stage.bossIndex]);
-  }
-
   var DEFAULT_SEED = 20260915;
 
   /*
-   * The room map - the little window in the corner of a room showing where in
-   * the dungeon you are (`docs/adr/0029`).
+   * 幽暗密林 的副本图。**形状是量出来的，不是画的**（`docs/adr/0030`）。
    *
-   * **It is a grid of cells, and every cell is one tile of the client's own
-   * minimap art.** That art comes in fixed shapes: a room with its exits, or a
-   * corridor passing through, and only some combinations exist (measured in
-   * `assets/import_dnf_minimap.py`; the frames are in `src/render.js` MINIMAP).
-   * Of the two-exit rooms the client has exactly **{E,S}** and **{N,W}**, which
-   * is why every path below steps west or south and turns one way: those two
-   * shapes are the only corners the art can draw.
+   * 业主的录像（`assets/dnf_src/bilibili/BV1d24y1P74G.mp4`）里那张地图窗口是
+   * **4 列 × 3 行、12 格全满**：6 格画成房间（圆角方块）、6 格画成走廊（线）。
+   * 一格算房间还是走廊由客户端的图块自己决定（`assets/import_dnf_minimap.py` 量出来的
+   * 那 21 个形状）；**相邻也不等于相通** —— 录像里 (1,1) 和 (2,1) 贴在一起，却各自
+   * 只开三个方向（(1,1) 是 NSW、(2,1) 只有 N），所以连接要一条条写出来，不从格子推。
    *
-   * A path is one spot per room of the run, in the order they are fought, so the
-   * map is drawn from `state.layout` and never lies about where you have been.
-   * Which path a run gets is the seed's, like the room order itself.
+   * `shape` 一行一行从上往下，一个字母一格：`R` 房间格、`C` 走廊格、`.` 没有这一格。
+   * 这一关 12 格全满；`.` 是留给别的关卡的（模型支持，这里用不到）。
+   *
+   * `links` 是 11 条连接，每条两端各给一个 `[列, 行]`。每格的门（`exits`）从这里算，
+   * 不另外写一遍 —— 写两遍就总有一天对不上。
+   *
+   * `northX` 是上门在房间里立在哪（占屏幕宽的几成）。录像里三处看得见的上门量到
+   * 0.673 / 0.492 / 0.469；没进去过的那一格没有证据，用 0.5。南门在录像里被 HUD
+   * 挡住、量不出位置，一律 0.5。
    */
-  var MINIMAP = {
+  var MIRKWOOD_DUNGEON = {
     cols: 4,
     rows: 3,
-    paths: [
-      [[0, 3], [0, 2], [1, 2], [1, 1], [2, 1]],
-      [[0, 2], [0, 1], [1, 1], [1, 0], [2, 0]],
-      [[0, 3], [1, 3], [1, 2], [2, 2], [2, 1]],
-      [[0, 2], [1, 2], [1, 1], [2, 1], [2, 0]]
+    shape: ["RCCC", "RCRC", "RCRR"],
+    /* 起点房与 Boss 房钉死；别的格子由种子洗牌（见 `dungeonFor`）。 */
+    entry: [2, 1],
+    boss: [0, 2],
+    entryRoom: 0,
+    bossRoom: 5,
+    northX: { "1,1": 0.492, "1,2": 0.469, "2,1": 0.673, "3,1": 0.5 },
+    links: [
+      [[0, 0], [1, 0]],
+      [[1, 0], [2, 0]],
+      [[2, 0], [3, 0]],
+      [[1, 0], [1, 1]],
+      [[1, 1], [1, 2]],
+      [[1, 1], [0, 1]],
+      [[2, 0], [2, 1]],
+      [[3, 0], [3, 1]],
+      [[3, 1], [3, 2]],
+      [[1, 2], [2, 2]],
+      [[1, 2], [0, 2]]
     ]
   };
 
+  /*
+   * 挂到关卡身上：一个关卡有没有地牢，看的就是 `stage.dungeon`（`dungeonFor` 从那里读）。
+   * 常量写在下面是因为它要和 `dungeonFor` 挨着读；这一行是它唯一的入口。
+   */
+  STAGES.mirkwood.dungeon = MIRKWOOD_DUNGEON;
+
   /* North, east, south, west - the same bits `assets/import_dnf_minimap.py` uses. */
   var MINIMAP_DIR = { N: 1, E: 2, S: 4, W: 8 };
+  /* 一个方向的步长，和它的反面：从哪个门进来，这一格的哪个门就通回去。 */
+  var MINIMAP_STEPS = {
+    N: { dx: 0, dy: -1, bit: 1, back: "S" },
+    E: { dx: 1, dy: 0, bit: 2, back: "W" },
+    S: { dx: 0, dy: 1, bit: 4, back: "N" },
+    W: { dx: -1, dy: 0, bit: 8, back: "E" }
+  };
+  var MINIMAP_DIRS = ["N", "E", "S", "W"];
+
+  function cellKey(col, row) {
+    return col + "," + row;
+  }
+
+  function indexOfCell(cells, col, row) {
+    for (var index = 0; index < cells.length; index += 1) {
+      if (cells[index].col === col && cells[index].row === row) return index;
+    }
+    return -1;
+  }
+
+  function currentCell(state) {
+    if (!state.dungeon || state.cell === undefined) return null;
+    return state.dungeon.cells[state.cell] || null;
+  }
+
+  function currentSpec(state) {
+    var cell = currentCell(state);
+    return cell ? state.stage.rooms[cell.room] : null;
+  }
 
   /**
-   * Where each room of a run sits on the map, and which ways it opens.
+   * 一关的地牢：`{cols, rows, cells, entry, boss}`。
    *
-   * Returns `{cols, rows, cells: [{col, row, exits}]}` in fight order, so
-   * `cells[state.roomIndex]` is the room the player is standing in.
+   * 每格是 `{col, row, kind, exits, room, cleared}`：`exits` 是 N/E/S/W 的位，
+   * `room` 是 `stage.rooms` 的下标，`cleared` 说过没有 —— 打过的房间再进去不刷怪，
+   * 这是"能回头"的前提（`docs/adr/0030`）。
+   *
+   * 发牌：起点房与 Boss 房钉死，**同一类的格子之间**按种子洗完再发。所以换种子换的是
+   * 哪间房摆在哪一格，不是地牢的形状 —— 形状照录像，一间都不许动。
    */
-  function minimapFor(seed) {
-    var paths = MINIMAP.paths;
-    var path = paths[(Math.abs(seed >>> 0) % paths.length)];
-    var cells = path.map(function (spot, index) {
-      var exits = 0;
-      [index - 1, index + 1].forEach(function (other) {
-        if (other < 0 || other >= path.length) return;
-        var across = path[other][1] - spot[1];
-        var down = path[other][0] - spot[0];
-        if (across === 1) exits |= MINIMAP_DIR.E;
-        if (across === -1) exits |= MINIMAP_DIR.W;
-        if (down === 1) exits |= MINIMAP_DIR.S;
-        if (down === -1) exits |= MINIMAP_DIR.N;
+  function dungeonFor(stage, seed) {
+    var dun = stage && stage.dungeon;
+    if (!dun) return null;
+    var cells = [];
+    dun.shape.forEach(function (line, row) {
+      line.split("").forEach(function (code, col) {
+        if (code === ".") return;
+        cells.push({
+          col: col,
+          row: row,
+          kind: code === "R" ? "room" : "corr",
+          exits: 0,
+          room: -1,
+          cleared: false
+        });
       });
-      return { col: spot[1], row: spot[0], exits: exits };
     });
-    return { cols: MINIMAP.cols, rows: MINIMAP.rows, cells: cells };
+    dun.links.forEach(function (pair) {
+      var a = indexOfCell(cells, pair[0][0], pair[0][1]);
+      var b = indexOfCell(cells, pair[1][0], pair[1][1]);
+      if (a < 0 || b < 0) return;
+      var dx = cells[b].col - cells[a].col;
+      var dy = cells[b].row - cells[a].row;
+      MINIMAP_DIRS.forEach(function (dir) {
+        var step = MINIMAP_STEPS[dir];
+        if (step.dx !== dx || step.dy !== dy) return;
+        cells[a].exits |= step.bit;
+        cells[b].exits |= MINIMAP_STEPS[step.back].bit;
+      });
+    });
+    var next = layoutRandom(seed ^ 0x5bf03635);
+    var deck = { room: [], corr: [] };
+    stage.rooms.forEach(function (spec, index) {
+      if (index === dun.entryRoom || index === dun.bossRoom) return;
+      deck[spec.kind === "corr" ? "corr" : "room"].push(index);
+    });
+    Object.keys(deck).forEach(function (kind) {
+      for (var cursor = deck[kind].length - 1; cursor > 0; cursor -= 1) {
+        var swap = Math.min(cursor, Math.floor(next() * (cursor + 1)));
+        var held = deck[kind][cursor];
+        deck[kind][cursor] = deck[kind][swap];
+        deck[kind][swap] = held;
+      }
+    });
+    cells.forEach(function (cell) {
+      if (cell.col === dun.entry[0] && cell.row === dun.entry[1]) {
+        cell.room = dun.entryRoom;
+      } else if (cell.col === dun.boss[0] && cell.row === dun.boss[1]) {
+        cell.room = dun.bossRoom;
+      } else {
+        cell.room = deck[cell.kind].shift();
+      }
+    });
+    return {
+      cols: dun.cols,
+      rows: dun.rows,
+      cells: cells,
+      entry: indexOfCell(cells, dun.entry[0], dun.entry[1]),
+      boss: indexOfCell(cells, dun.boss[0], dun.boss[1]),
+      northX: dun.northX || {}
+    };
+  }
+
+  /** 这一格某一扇门通向哪一格（`cells` 的下标），没这扇门就是 -1。 */
+  function doorNeighbour(dungeon, cell, dir) {
+    var step = MINIMAP_STEPS[dir];
+    if (!step || !(cell.exits & step.bit)) return -1;
+    return indexOfCell(dungeon.cells, cell.col + step.dx, cell.row + step.dy);
+  }
+
+  /**
+   * 这一格的一扇门现在是什么状态：`"none"` 没有这扇门，`"locked"` 锁着，
+   * `"open"` 能走。**清过房就都开；没清，只有他进来的那扇能走回去** ——
+   * 这是 DNF 的规矩，也是"清房"这件事的意义。
+   */
+  function exitMode(state, dir) {
+    var cell = currentCell(state);
+    var step = MINIMAP_STEPS[dir];
+    if (!cell || !step || !(cell.exits & step.bit)) return "none";
+    if (cell.cleared || dir === state.entryDoor) return "open";
+    return "locked";
+  }
+
+  /*
+   * 换房那一下。录像里切过去是**一帧近全黑，然后新房间在 0.3 秒里淡进来**
+   * （量法：整屏亮度 121.333s 掉到 4.2 再一路爬回 58，`docs/adr/0030`）。
+   * 所以这不是"淡出再淡入"：旧画面直接切掉，黑的立刻盖上来。
+   */
+  var TRANSITION = {
+    dur: 0.3
+  };
+
+  /* 门口那几块地：侧门沿 x，上门/下门沿 z，一样都要求他站在门口那一块。 */
+  var DOOR = {
+    /* 侧门：贴上左右墙这么近就算进了门框。 */
+    side: 60,
+    /* 上门/下门：走进地板最里/最外这么深。 */
+    depth: 46,
+    /* 上门/下门在 x 上认多宽 —— 门框左右各这么宽。 */
+    span: 110,
+    /* 换房之后他站在离门多远的地方。 */
+    stand: 74,
+    share: 0.5
+  };
+
+  /** 上门/下门在这一格立在哪（像素）。 */
+  function doorX(dungeon, cell, dir) {
+    var share = dir === "N" ? (dungeon.northX || {})[cellKey(cell.col, cell.row)] : undefined;
+    if (share === undefined) share = DOOR.share;
+    return share * ARENA.width;
+  }
+
+  function inDoorZone(state, dir) {
+    var player = state.player;
+    var cell = currentCell(state);
+    if (!cell) return false;
+    if (dir === "E") return player.x >= ARENA.rightWall - DOOR.side;
+    if (dir === "W") return player.x <= ARENA.leftWall + DOOR.side;
+    if (Math.abs(player.x - doorX(state.dungeon, cell, dir)) > DOOR.span) return false;
+    var deep = bandDepth(state.band);
+    if (dir === "N") return player.z >= deep - DOOR.depth;
+    return player.z <= DOOR.depth;
+  }
+
+  /** 他正站在哪扇开着的门口，没有就 null。顺序按 N/E/S/W，先来的先算。 */
+  function doorAt(state) {
+    for (var index = 0; index < MINIMAP_DIRS.length; index += 1) {
+      var dir = MINIMAP_DIRS[index];
+      if (exitMode(state, dir) !== "open") continue;
+      if (inDoorZone(state, dir)) return dir;
+    }
+    return null;
   }
 
   /*
@@ -2108,19 +2330,47 @@
   var UPGRADES_PER_ROOM = 3;
 
   /*
-   * Collapsing floor. A hazard warns for long enough to walk out, then breaks
-   * under anything still standing on it - mobs included, which is what makes the
-   * chapel play differently rather than just longer.
+   * 可破坏的布景：木桶。
+   *
+   * 客户端那只桶自己有 13 帧（`sprite_map_breakableobject.NPK :: barrel.img`）：第 0 帧
+   * 是完整的桶，第 1-12 帧是飞散的木片和铁箍。所以"打碎"不是另画一套，是把那 12 帧放出来。
+   *
+   * **只有他打得碎，怪打不碎**：怪的攻击和怪的身体都撞得到它（业主的原话是「人和怪都撞得到
+   * 它…只有人能打碎，怪物打不碎」），所以它挡两份、碎只认他那一下。
+   *
+   * 盒子照美术来：一个桶立在地上占这么宽、这么深。判定只看 x 和 z。
    */
-  var HAZARD = {
-    radius: 72,
-    period: 4.2,
-    warn: 1.35,
-    collapse: 0.45,
-    playerDamage: 12,
-    enemyDamage: 24,
-    enemyKnockdown: 0.7
+  var BREAKABLE = {
+    /* 盒子照美术来：那个桶画出来是 63x78（`SCENE.pieces.barrel`），桶身比影子窄一点。 */
+    barrel: { width: 52, depth: 34, height: 78, hp: 1 }
   };
+
+  /* 一个桶碎开之后，那一地木片还画多久（秒）。 */
+  var BREAK_ANIM = 0.42;
+
+  /*
+   * 怪物怎么死。时间线是量出来的（`docs/adr/0030`）：录像里四次独立击杀对得一样齐 ——
+   * **致命一击 → 身体倒地躺约 0.2 秒 → 原地炸开 → 身体不再回来**。
+   *
+   * 炸开是两样东西：一团**青白色圆爆**（客户端 `monsterdieflash`，亮 3 帧 = 0.10 秒）
+   * 和 9-14 块**悬在空中不落**的红肉块（半秒内散掉）。**地上不留血泊、不留尸体** ——
+   * 那是"击倒"，0.2 秒后会站起来，和死是两回事。
+   */
+  var DEATH = {
+    /* 倒地到炸开之间那一下，7 帧。 */
+    lie: 0.2,
+    /* 圆爆亮多久。 */
+    burst: 0.1,
+    /* 肉块从出现到散掉。 */
+    chunks: 0.5,
+    /* 一次炸开冒几块（录像 9→14，取 12）。 */
+    chunkCount: 12
+  };
+
+  /** A prop is scenery unless its piece is one of these. */
+  function breakableSpec(piece) {
+    return BREAKABLE[piece] || null;
+  }
 
   function nextRandom(state) {
     var t = (state.rngState = (state.rngState + 0x6d2b79f5) >>> 0);
@@ -2340,7 +2590,11 @@
       stage: STAGES[options.stage] || STAGES[DEFAULT_STAGE],
       rngState: 0,
       time: 0,
-      roomIndex: 0,
+      /* 地牢与他在哪一格（`docs/adr/0030`）；一格就是过去的"一间房"。 */
+      dungeon: null,
+      cell: 0,
+      /* 他这一格是从哪个门进来的 —— 那扇门永远能走回去。开局没有。 */
+      entryDoor: null,
       room: null,
       player: null,
       enemies: [],
@@ -2365,30 +2619,69 @@
         /* The largest amount any single `damagePlayer` call landed (see it). */
         maxHitTaken: 0,
         airHits: 0,
-        collapses: 0,
-        bloodOrbs: 0
+        bloodOrbs: 0,
+        rooms: 0,
+        barrels: 0
       },
       upgradeChoice: null,
-      layout: null,
+      /* 换房那一下的黑幕：从 TRANSITION.dur 数到 0，`1` 是全黑。 */
+      transition: 0,
       victory: false,
       defeat: false
     };
     state.rngState = state.seed >>> 0;
-    state.layout = layoutForSeed(state.stage, state.seed);
-    /* Where each room of this run sits on the map (`docs/adr/0029`). */
-    state.minimap = minimapFor(state.seed);
+    state.dungeon = dungeonFor(state.stage, state.seed);
+    state.cell = state.dungeon ? state.dungeon.entry : 0;
+    if (state.dungeon && typeof options.cell === "number") {
+      state.cell = clamp(options.cell, 0, state.dungeon.cells.length - 1);
+    }
     state.player = createPlayer(options.startX || 110);
-    startRoom(state, options.roomIndex || 0);
+    beginRoom(state, null);
+    state.transition = TRANSITION.dur;
     return state;
   }
 
-  function startRoom(state, index) {
-    var layout = state.layout || layoutForSeed(state.stage, state.seed);
-    state.layout = layout;
-    var roomIndex = clamp(index, 0, layout.length - 1);
-    var spec = state.stage.rooms[layout[roomIndex]];
-    state.roomIndex = roomIndex;
-    state.room = { index: roomIndex, name: spec.name, total: spec.enemies.length, cleared: false };
+  /**
+   * 直接落在某一格上，不开场演出、不算"走过来的"。
+   *
+   * 这是给**测试和调试**用的：一局从哪一格开始是地牢自己的事（`dungeonFor` 的起点房），
+   * 玩家没有选择。所以它不算一条玩法入口，只算一个"把人放这儿"。
+   */
+  function goToCell(state, index) {
+    if (!state.dungeon) return state.room;
+    state.cell = clamp(index, 0, state.dungeon.cells.length - 1);
+    state.entryDoor = null;
+    return beginRoom(state, null);
+  }
+
+  /**
+   * 走进一格：换的是"哪一格"，不是"第几关的第几间"。
+   *
+   * 进门之后他站在**进来那扇门**的位置（从东门进来就站在右边），这是"门口和地图方向一致"
+   * 最直接的那一半 —— 他往哪走进去的，就从那边出现在下一间。
+   */
+  function enterCell(state, dir) {
+    var cell = currentCell(state);
+    if (!cell || !state.dungeon) return state.room;
+    var at = doorNeighbour(state.dungeon, cell, dir);
+    if (at < 0) return state.room;
+    state.cell = at;
+    state.entryDoor = MINIMAP_STEPS[dir].back;
+    state.transition = TRANSITION.dur;
+    return beginRoom(state, state.entryDoor);
+  }
+
+  function beginRoom(state, entryDoor) {
+    var cell = currentCell(state);
+    var spec = state.stage.rooms[cell.room];
+    /* 清过的房间不再刷怪：这是"能回头"的前提。 */
+    var cleared = !!cell.cleared;
+    state.room = {
+      name: spec.name,
+      total: spec.enemies.length,
+      cleared: cleared,
+      cell: state.cell
+    };
     /*
      * The floor this room is fought on; a room without one gets the default
      * band. Read-only, like the room spec it comes from: `BAND` is a module
@@ -2401,25 +2694,48 @@
      * here, once, so a room can be written without knowing how deep its floor is
      * and everything downstream only ever deals in `z`.
      */
-    state.enemies = spec.enemies.map(function (entry) {
-      var z = entry.depth === undefined ? 0 : entry.depth * bandDepth(state.band);
-      return createEnemy(state, entry.type, entry.x, z);
-    });
+    var depth = bandDepth(state.band);
+    state.enemies = cleared
+      ? []
+      : spec.enemies.map(function (entry) {
+          var z = entry.depth === undefined ? 0 : entry.depth * depth;
+          return createEnemy(state, entry.type, entry.x, z);
+        });
     /*
      * Scenery, in the room's own words: `{piece, x, depth?}`, where `piece` is a
      * name the bake produced (`assets/import_dnf_scene.py`) and `depth` is a
-     * share of this room's floor, exactly like an enemy's. Props are art only -
-     * nothing collides with them and nothing is ever hit by them - so they are
-     * drawn in the depth-sorted pass and nowhere else (`drawProps`).
+     * share of this room's floor, exactly like an enemy's. Most props are art
+     * only; a piece in `BREAKABLE` (the barrel) also carries a box, blocks both
+     * fighters and can be smashed by the player alone.
      */
     state.props = (spec.props || []).map(function (entry) {
-      var z = entry.depth === undefined ? 0 : entry.depth * bandDepth(state.band);
-      return { piece: entry.piece, x: entry.x, z: z };
+      var z = entry.depth === undefined ? 0 : entry.depth * depth;
+      var box = breakableSpec(entry.piece);
+      return {
+        piece: entry.piece,
+        x: entry.x,
+        z: z,
+        /* 完整的桶才有盒子；碎了就只剩美术。 */
+        solid: !!box,
+        hp: box ? box.hp : 0,
+        broken: false,
+        /* 碎片的钟：从 0 数到 `BREAK_ANIM`，这段时间放那 12 帧。 */
+        brokenAt: -1
+      };
     });
-    state.player.x = 110;
+    state.player.x = ARENA.leftWall + 86;
     state.player.y = ARENA.groundY;
-    /* He walks in through the door at the front of the floor, like every room before. */
     state.player.z = 0;
+    if (entryDoor === "E") state.player.x = ARENA.rightWall - DOOR.stand;
+    if (entryDoor === "W") state.player.x = ARENA.leftWall + DOOR.stand;
+    if (entryDoor === "N") {
+      state.player.x = doorX(state.dungeon, cell, "N");
+      state.player.z = depth - DOOR.stand;
+    }
+    if (entryDoor === "S") {
+      state.player.x = doorX(state.dungeon, cell, "S");
+      state.player.z = DOOR.stand;
+    }
     state.player.vx = 0;
     state.player.vy = 0;
     state.player.vz = 0;
@@ -2444,21 +2760,9 @@
     /* ...and nothing he threw is still in the air in it either. */
     state.shots = [];
     state.upgradeChoice = null;
-    state.roomTime = 0;
-    state.hazards = (spec.hazards || []).map(function (hazard, index) {
-      return {
-        x: hazard.x,
-        radius: hazard.radius || HAZARD.radius,
-        /* Offset the cycles so the whole room never breaks at once. */
-        phase: (hazard.phase === undefined ? index * (HAZARD.period / 2) : hazard.phase) % HAZARD.period,
-        stage: "dormant",
-        warnedCycle: -1,
-        resolvedCycle: -1
-      };
-    });
     state.effects.push({
       kind: "banner",
-      text: "房间 " + (roomIndex + 1) + " · " + spec.name,
+      text: spec.name,
       life: 1.8,
       maxLife: 1.8
     });
@@ -2698,7 +3002,7 @@
 
   function offerUpgrade(state) {
     state.upgradeChoice = {
-      roomIndex: state.roomIndex,
+      cell: state.cell,
       options: rollUpgradeOptions(state),
       picked: null
     };
@@ -2722,7 +3026,11 @@
     choice.picked = id;
     state.upgradeChoice = null;
     pushBanner(state, spec.name + " - " + spec.detail, 1.8);
-    pushBanner(state, "Gate open - head right", 1.4);
+    /*
+     * 不再是"往右走"：门口按地图上那一格的方向开（`docs/adr/0030`），去哪一扇由他选的路
+     * 决定，所以这句话只说"门开了"。
+     */
+    pushBanner(state, "门开了 · 去下一间", 1.4);
     return true;
   }
 
@@ -2963,6 +3271,8 @@
     if (enemy.hp <= 0) {
       enemy.hp = 0;
       enemy.dead = true;
+      /* 还要在地上躺 0.2 秒才炸开（`DEATH` / `updateDeaths`）。 */
+      enemy.dying = DEATH.lie;
       state.stats.kills += 1;
       /*
        * A kill is worth more blood than a hit is (docs/adr/0025): the whole body
@@ -3344,6 +3654,11 @@
      * are hard limits: he is held against them rather than slid along them.
      */
     player.z = clamp(player.z, 0, bandDepth(state.band));
+    /*
+     * 实心布景（木桶）最后说话：它推人，墙推不动它。纵深那一半用 `width / 2`，
+     * 和 `separateEnemies` 同一个读法 —— 一个身体"占多深"就是"占多宽"。
+     */
+    blockProps(state, player, player.width / 2, player.width / 2);
 
     player.attackCooldown = Math.max(0, player.attackCooldown - dt);
     player.invuln = Math.max(0, player.invuln - dt);
@@ -3547,6 +3862,8 @@
       ) {
         player.attackHitDone = true;
         var box = attackBox(player, PLAYER.attackReach, PLAYER.attackHeightPad);
+        /* 这一下也扫布景：木桶只有他打得碎（`swingProps`）。 */
+        swingProps(state, box);
         /* 暴走's attack power lifts the normal chain too, not just skills. */
         var damage = Math.round(
           (PLAYER.comboDamage[player.comboIndex] + player.attackBonus) *
@@ -3696,6 +4013,7 @@
         player.skillHitDone = player.skillHitsDone >= hitCount;
 
         var skillBox = attackBox(player, active.reach, active.heightPad);
+        swingProps(state, skillBox, active.depthReach);
         if (active.buff) {
           /*
            * A buff skill pays its price and goes up; it does not swing.
@@ -3815,6 +4133,7 @@
             wave.reach + extraWave * 80,
             wave.heightPad + extraWave * 6
           );
+          swingProps(state, waveBox, active.depthReach);
           var waveDamage = Math.round(
             (wave.damage + (player.level - 1) * wave.growth + player.attackBonus) *
               player.skillPower
@@ -4499,6 +4818,8 @@
       );
       /* The band's edges stop it the way the walls do, and it is the room's band. */
       enemy.z = clamp(enemy.z, 0, bandDepth(state.band));
+      /* 木桶也挡怪（业主："人和怪都撞得到它"）—— 它只是打不碎。 */
+      blockProps(state, enemy, enemy.width / 2, enemy.width / 2);
     });
 
     updateProjectiles(state, dt);
@@ -4537,12 +4858,17 @@
     var alive = state.enemies.filter(function (enemy) {
       return !enemy.dead;
     });
-    state.enemies = alive;
+    /* 刚倒下的还躺在地上（`updateDeaths` 收尸），所以别把他们从名单里划掉。 */
+    state.enemies = state.enemies.filter(function (enemy) {
+      return !enemy.dead || enemy.dying > 0;
+    });
 
     if (alive.length === 0 && !state.room.cleared && !state.defeat) {
       state.room.cleared = true;
-      var isLast = state.roomIndex >= state.layout.length - 1;
-      if (isLast) {
+      var cell = currentCell(state);
+      if (cell) cell.cleared = true;
+      state.stats.rooms += 1;
+      if (state.dungeon && state.cell === state.dungeon.boss) {
         state.victory = true;
         pushBanner(state, (state.stage && state.stage.clearBanner) || "Dungeon cleared!", 2.4);
       } else {
@@ -4552,77 +4878,122 @@
       return;
     }
 
-    var nearExit = state.player.x >= ARENA.rightWall - 60;
-    if (
-      state.room.cleared &&
-      nearExit &&
-      !state.upgradeChoice &&
-      state.roomIndex < state.layout.length - 1
-    ) {
-      startRoom(state, state.roomIndex + 1);
-    }
+    /*
+     * 出门：站在一扇开着的门里就换房。门清过房才全开，没清只有进来那扇能走回去
+     * （`exitMode`）。卡片还没选完就不放人 —— 强化是清房的报酬，不是路上的选装。
+     */
+    if (!state.room.cleared || state.upgradeChoice || !state.dungeon) return;
+    var dir = doorAt(state);
+    if (dir) enterCell(state, dir);
   }
 
   /**
-   * Run the collapsing-floor cycle for the current room.
+   * 倒下的人：躺满 `DEATH.lie` 就炸开，然后从这一局里消失。
    *
-   * Each hazard is dormant, then cracked (warned, escapable), then briefly
-   * broken. Anything grounded inside the slab when it goes takes the hit, so the
-   * player can also lure a brute onto one.
+   * 炸开只推一条 `deathburst`：血块和圆爆是**同一件事的两半**，所以它们共用一个钟
+   * （`self` 的半秒里，前 0.1 秒还亮着那团圆爆）。`seed` 是这只怪的 id —— 撒开的
+   * 十几块肉块要每次都撒在同一处，不然一帧一个花样。
    */
-  function updateHazards(state, dt) {
-    var hazards = state.hazards;
-    if (!hazards || hazards.length === 0) return;
-    state.roomTime = (state.roomTime || 0) + dt;
-
-    hazards.forEach(function (hazard) {
-      var offset = state.roomTime + hazard.phase;
-      var local = offset % HAZARD.period;
-      var cycle = Math.floor(offset / HAZARD.period);
-      var cracking = local < HAZARD.warn;
-      var collapsing = !cracking && local < HAZARD.warn + HAZARD.collapse;
-      hazard.stage = cracking ? "cracking" : collapsing ? "collapsing" : "dormant";
-
-      if (cracking && hazard.warnedCycle !== cycle) {
-        hazard.warnedCycle = cycle;
-        state.effects.push({
-          kind: "telegraph",
-          text: "CRACK",
-          x: hazard.x,
-          y: ARENA.groundY,
-          radius: hazard.radius,
-          dir: 0,
-          life: HAZARD.warn,
-          maxLife: HAZARD.warn
-        });
-      }
-      if (!collapsing || hazard.resolvedCycle === cycle) return;
-      hazard.resolvedCycle = cycle;
-
-      var player = state.player;
-      var groundedPlayer =
-        !player.dead && player.y >= ARENA.groundY - 26 && Math.abs(player.x - hazard.x) <= hazard.radius;
-      if (groundedPlayer) damagePlayer(state, HAZARD.playerDamage, hazard.x);
-
-      state.enemies.slice().forEach(function (enemy) {
-        if (enemy.dead || !enemy.onGround) return;
-        if (Math.abs(enemy.x - hazard.x) > hazard.radius) return;
-        damageEnemy(state, enemy, HAZARD.enemyDamage, 0, hazard.x, {
-          knockdown: HAZARD.enemyKnockdown,
-          noBloodOrbs: true
-        });
-      });
-
-      /* Its own effect kind, so the shell can give the floor a distinct cue. */
-      state.stats.collapses += 1;
+  function updateDeaths(state, dt) {
+    var buried = false;
+    state.enemies.forEach(function (enemy) {
+      if (!enemy.dead || !(enemy.dying > 0)) return;
+      enemy.dying -= dt;
+      if (enemy.dying > 0) return;
+      enemy.dying = 0;
+      enemy.gone = true;
+      buried = true;
       state.effects.push({
-        kind: "collapse",
-        x: hazard.x,
-        y: ARENA.groundY,
-        radius: hazard.radius,
-        life: 0.6,
-        maxLife: 0.6
+        kind: "deathburst",
+        x: enemy.x,
+        z: enemy.z,
+        seed: enemy.id,
+        life: DEATH.chunks,
+        maxLife: DEATH.chunks
       });
+    });
+    if (!buried) return;
+    state.enemies = state.enemies.filter(function (enemy) {
+      return !enemy.gone;
+    });
+  }
+
+  /**
+   * 木桶那 12 帧碎片的钟。
+   *
+   * 碎片只活 `BREAK_ANIM` 秒，然后那个桶就只剩"这儿曾经有个桶"——美术不再画它，
+   * 盒子也不再挡人。天底下没有别的东西要算：他撞上去是位置约束（`blockProps`），
+   * 打中它是他那一下自己查的（`hitProps`）。
+   */
+  function updateBreakables(state) {
+    (state.props || []).forEach(function (prop) {
+      if (!prop.broken) return;
+      if (state.time - prop.brokenAt >= BREAK_ANIM) prop.gone = true;
+    });
+  }
+
+  /**
+   * 把一个身体从实心布景里推出去。
+   *
+   * 木桶是唯一的实心布景，判定在 x-z 平面上：两个轴都压上了才算撞上（前后错开就能从
+   * 它面前走过去）。推的方向按他来的那一侧，所以擦着走过去不会粘住。
+   *
+   * 没有人绕路：怪也是这么被挡住的（业主说"人和怪都撞得到它"），所以摆桶的人别把桶
+   * 摆在小怪必经的直线上 —— 这是布景的规矩，写在 `docs/adr/0030`。
+   */
+  function blockProps(state, body, halfWidth, halfDepth) {
+    (state.props || []).forEach(function (prop) {
+      if (!prop.solid || prop.broken) return;
+      var box = breakableSpec(prop.piece);
+      if (!box) return;
+      var spanX = halfWidth + box.width / 2;
+      var spanZ = halfDepth + box.depth / 2;
+      var dx = body.x - prop.x;
+      var dz = (body.z || 0) - prop.z;
+      if (Math.abs(dx) >= spanX || Math.abs(dz) >= spanZ) return;
+      /* 推出去走最浅的那条路：哪个轴压得少就推哪个。 */
+      var pushX = spanX - Math.abs(dx);
+      var pushZ = spanZ - Math.abs(dz);
+      if (pushX <= pushZ) {
+        body.x = prop.x + (dx < 0 ? -spanX : spanX);
+        body.x = clamp(body.x, ARENA.leftWall + halfWidth, ARENA.rightWall - halfWidth);
+        body.vx = 0;
+      } else {
+        body.z = clamp(prop.z + (dz < 0 ? -spanZ : spanZ), 0, bandDepth(state.band));
+        body.vz = 0;
+      }
+    });
+  }
+
+  /**
+   * 一团挥击扫过布景。**只有他挥出去的那几下走到这里** —— 怪的挥击、怪的身体都不碰桶
+   * （业主的话：「只有人能打碎，怪物打不碎」）。所以这个函数只在他那三条命中路径上
+   * （普攻连段、技能那一下、大蹦的冲击波）被叫，怪的命中路径上没有它。
+   *
+   * 判定和打怪一样是"盒子碰上、深度够得着"，只是深度那一半要加上桶自己的厚度：桶不是
+   * 一个点，它占了半格地。
+   */
+  function swingProps(state, box, reach) {
+    (state.props || []).forEach(function (prop) {
+      if (!prop.solid || prop.broken) return;
+      var spec = breakableSpec(prop.piece);
+      if (!spec) return;
+      var depthReach = (reach === undefined ? DEPTH_REACH.melee : reach) * SLAYER_HEIGHT;
+      if (Math.abs((prop.z || 0) - state.player.z) > depthReach + spec.depth / 2) return;
+      var foot = ARENA.groundY - depthLift(prop.z);
+      var barrel = {
+        left: prop.x - spec.width / 2,
+        right: prop.x + spec.width / 2,
+        bottom: foot,
+        top: foot - spec.height
+      };
+      if (!boxesOverlap(box, barrel)) return;
+      prop.hp -= 1;
+      if (prop.hp > 0) return;
+      prop.broken = true;
+      prop.brokenAt = state.time;
+      prop.solid = false;
+      state.stats.barrels += 1;
     });
   }
 
@@ -4734,6 +5105,13 @@
         return field.clock < field.life;
       });
 
+    if (state.transition > 0) state.transition = Math.max(0, state.transition - dt);
+    /*
+     * 倒下的人自有它的钟，**通关那一下也得走**：不然 Boss 一死世界就冻住，最后一具
+     * 尸体永远躺在那儿 —— 录像里它躺 0.2 秒是要炸开的。
+     */
+    updateDeaths(state, dt);
+
     if (state.victory || state.defeat) return state;
 
     updatePlayer(state, input, dt);
@@ -4750,7 +5128,7 @@
      */
     updateShots(state, dt);
     updateEnemies(state, dt);
-    updateHazards(state, dt);
+    updateBreakables(state);
     updatePickups(state, dt);
     resolveRoom(state);
     return state;
@@ -4790,22 +5168,34 @@
     REGION: REGION,
     STAGES: STAGES,
     DEFAULT_STAGE: DEFAULT_STAGE,
-    RUN_COMBAT_ROOMS: RUN_COMBAT_ROOMS,
-    layoutForSeed: layoutForSeed,
-    roomThreat: roomThreat,
-    rampRooms: rampRooms,
-    MINIMAP: MINIMAP,
-    minimapFor: minimapFor,
+    dungeonFor: dungeonFor,
+    DUNGEON: MIRKWOOD_DUNGEON,
+    MINIMAP_DIR: MINIMAP_DIR,
+    MINIMAP_DIRS: MINIMAP_DIRS,
+    MINIMAP_STEPS: MINIMAP_STEPS,
+    currentCell: currentCell,
+    currentSpec: currentSpec,
+    doorNeighbour: doorNeighbour,
+    doorX: doorX,
+    exitMode: exitMode,
+    doorAt: doorAt,
+    DOOR: DOOR,
+    TRANSITION: TRANSITION,
+    BREAKABLE: BREAKABLE,
+    BREAK_ANIM: BREAK_ANIM,
+    DEATH: DEATH,
     UPGRADES: UPGRADES,
     UPGRADE_ORDER: UPGRADE_ORDER,
     UPGRADES_PER_ROOM: UPGRADES_PER_ROOM,
-    HAZARD: HAZARD,
     DEFAULT_SEED: DEFAULT_SEED,
     clamp: clamp,
     createState: createState,
     createPlayer: createPlayer,
     createEnemy: createEnemy,
-    startRoom: startRoom,
+    enterCell: enterCell,
+    beginRoom: beginRoom,
+    goToCell: goToCell,
+    updateDeaths: updateDeaths,
     attackBox: attackBox,
     bodyBox: bodyBox,
     boxesOverlap: boxesOverlap,
