@@ -6371,8 +6371,13 @@
      * 换房那一下，**最后画、盖住所有东西**（连 HUD 一起）：录像里切过去是旧画面
      * 直接消失、黑的立刻盖满一帧，然后新房间在 0.3 秒里淡进来（`docs/adr/0030`）。
      * 所以这是一层黑幕在减淡，不是"淡出再淡入"。
+     *
+     * **但全屏界面开着的时候不画**：这层黑跟着 `state.transition` 走，而那个数只在
+     * `Core.step` 里减 —— 标题页和地区地图不步进，所以它一直停在 0.3（= 全黑）。
+     * 一开始就把地区地图整个盖住了（业主：「点击任意键，直接黑屏了」）。
+     * **标题上那段自动演示是例外**（`meta.attract`）：它是自己步进的，换房该有那一下黑。
      */
-    if (state.transition > 0 && Core.TRANSITION) {
+    if ((!overlayOpen || meta.attract) && state.transition > 0 && Core.TRANSITION) {
       ctx.save();
       ctx.globalAlpha = clamp01(state.transition / Core.TRANSITION.dur);
       ctx.fillStyle = "#000000";
