@@ -2267,6 +2267,187 @@
     return player.z <= DOOR.depth;
   }
 
+  /*
+   * **门口净空**（`docs/adr/0032`，业主：「门口不能有石头和树木」）。
+   *
+   * 每扇门前面留一条不许摆东西的带：左右门是贴墙的一条，上下门是那一格自己的门 x
+   * 左右各一条；两边再各让出**一个半身位**（`DOOR.stand` 那一档），免得进门落脚就顶在
+   * 石头上。带里的**实心**布景（木桶、树、石头）摆位时就丢掉 —— 花草贴花不算，它们不挡人。
+   *
+   * 这一关在**摆位的时候按格**过，不在写房间的时候过：房间是按种子洗到格子上的，
+   * 同一间房落在不同格子上会碰上不同的门（上门/下门的 x 是那一格自己的）。
+   */
+  var DOOR_CLEAR = {
+    side: DOOR.side + DOOR.stand,
+    span: DOOR.span + DOOR.stand,
+    depth: DOOR.depth + DOOR.stand
+  };
+
+  /*
+   * 门口要清的是**两块地方**（`docs/adr/0032`）：进门落脚、出门站的那块**判定区**，和
+   * **门拱自己的美术盒子**。只看 z 是不够的 —— 一棵 105x199 的树桩可以"站在判定区前面"
+   * 却把整个门拱画糊（业主截图里的胆小鬼的窝就是这样）。
+   *
+   * 两样都用屏幕上的矩形比：地图是 x-y 的，判定区在 z 上怎么摆，最后都要落到同一个屏幕上。
+   */
+  var GATE_ART = { N: [157, 198], S: [192, 118], side: [131, 240] };
+
+  /** 一扇门**拱**自己的美术盒子（画在哪、多大）—— 门口净空里那条"别把门画糊"的判据。 */
+  function gateArtRect(state, cell, dir) {
+    var depth = bandDepth(state.band);
+    var floorOf = function (z) { return ARENA.groundY - depthLift(z); };
+    if (dir === "N" || dir === "S") {
+      var art = GATE_ART[dir];
+      var x = doorX(state.dungeon, cell, dir);
+      var bottom = dir === "N" ? floorOf(depth) + 6 : ARENA.height;
+      return { left: x - art[0] / 2, right: x + art[0] / 2, top: bottom - art[1], bottom: bottom };
+    }
+    var side = GATE_ART.side;
+    var cx = dir === "E" ? ARENA.width - 34 : 34;
+    var base = ARENA.groundY + 4;
+    return { left: cx - side[0] / 2, right: cx + side[0] / 2, top: base - side[1], bottom: base };
+  }
+
+  /** 这一格某扇门"进出要用的那块地"（x-z 平面上的矩形）。 */
+  function doorFloor(state, cell, dir) {
+    var deep = bandDepth(state.band);
+    if (dir === "E") {
+      return { x: [ARENA.rightWall - DOOR_CLEAR.side, ARENA.width], z: [0, deep] };
+    }
+    if (dir === "W") {
+      return { x: [0, ARENA.leftWall + DOOR_CLEAR.side], z: [0, deep] };
+    }
+    var at = doorX(state.dungeon, cell, dir);
+    return {
+      x: [at - DOOR_CLEAR.span, at + DOOR_CLEAR.span],
+      z: dir === "N" ? [deep - DOOR_CLEAR.depth, deep] : [0, DOOR_CLEAR.depth]
+    };
+  }
+
+  /**
+   * 这件布景压没压到这一格任何一扇门。两种压法都算（`docs/adr/0032`）：
+   *
+   * 1. **地面**：它的盒子（x-z）压在"进出要用的那块地"上 —— 挡路；
+   * 2. **美术**：它的美术矩形（屏幕）压到门拱自己的美术盒子上 —— 把门画糊。一棵
+   *    105x199 的树桩可以站在判定区**前面**（第 1 条查不出来）却把整个门拱盖掉。
+   *
+   * 两条各用各的空间：第 1 条是地板对地板，第 2 条是画面对画面 —— 拿美术盒子去比地板
+   * 那条，会把"站在门口前面的一棵高树"全判成违章（断桩隘口那间房会被掏空）。
+   */
+  function blocksDoorway(state, cell, entry, depth) {
+    if (!cell) return false;
+    var box = propBox(entry.piece);
+    if (!box) return false;
+    var z = entry.depth === undefined ? 0 : entry.depth * depth;
+    var inkW = box.ink ? box.ink[0] : box.width;
+    var inkH = box.ink ? box.ink[1] : box.width;
+    var foot = ARENA.groundY - depthLift(z);
+    var art = { left: entry.x - inkW / 2, right: entry.x + inkW / 2, top: foot - inkH, bottom: foot };
+    var floorRect = {
+      left: entry.x - box.width / 2,
+      right: entry.x + box.width / 2,
+      near: z - box.depth / 2,
+      far: z + box.depth / 2
+    };
+    for (var index = 0; index < MINIMAP_DIRS.length; index += 1) {
+      var dir = MINIMAP_DIRS[index];
+      if (!(cell.exits & MINIMAP_STEPS[dir].bit)) continue;
+      var floor = doorFloor(state, cell, dir);
+      if (floorRect.left < floor.x[1] && floorRect.right > floor.x[0] &&
+          floorRect.near < floor.z[1] && floorRect.far > floor.z[0]) return true;
+      var gate = gateArtRect(state, cell, dir);
+      if (art.left < gate.right && art.right > gate.left &&
+          art.top < gate.bottom && art.bottom > gate.top) return true;
+    }
+    return false;
+  }
+
+  /*
+   * **走位**：朝一个点走、绕开实心布景的下一步。返回 `[dx, dz]`，各是 -1 / 0 / 1。
+   *
+   * 玩法本身不用它 —— 玩家自己会绕。它是给**自动演示和测试里的那些 bot** 用的：木桶、
+   * 树、石头都是实心的（`docs/adr/0030` / `0032`），"一直往目标按方向键"会在树干上原地
+   * 推（顶着推、被 `blockProps` 推回来，来回一帧），演示就永远走不到 Boss。
+   *
+   * 一格 24 单位、整间房 38x22 格，一步 BFS 便宜到可以每帧算一次；布景按半格放大再判定，
+   * 否则会有"格心在盒外、两格之间那段却在盒里"的缝。
+   */
+  function routeStep(state, targetX, targetZ) {
+    var step = 24;
+    var left = ARENA.leftWall;
+    var half = (state.player && state.player.width ? state.player.width : 34) / 2;
+    var depth = bandDepth(state.band);
+    var cols = Math.max(1, Math.floor((ARENA.rightWall - left) / step));
+    var rows = Math.max(1, Math.floor(depth / step));
+    var margin = step / 2;
+    var solids = (state.props || []).filter(function (prop) {
+      return prop.solid && !prop.broken && propBox(prop.piece);
+    });
+    var blocked = function (x, z) {
+      return solids.some(function (prop) {
+        var box = propBox(prop.piece);
+        var centre = prop.x + (box.dx || 0);
+        return (
+          Math.abs(x - centre) < half + box.width / 2 + margin &&
+          Math.abs(z - prop.z) < half + box.depth / 2 + margin
+        );
+      });
+    };
+    var cellX = function (x) {
+      return Math.min(cols - 1, Math.max(0, Math.floor((x - left) / step)));
+    };
+    var cellZ = function (z) {
+      return Math.min(rows - 1, Math.max(0, Math.floor(z / step)));
+    };
+    var seatX = function (i) { return left + (i + 0.5) * step; };
+    var seatZ = function (j) { return (j + 0.5) * step; };
+
+    var from = [cellX(state.player.x), cellZ(state.player.z)];
+    var goal = [cellX(targetX), cellZ(targetZ)];
+    if (blocked(seatX(goal[0]), seatZ(goal[1]))) {
+      /* 目标那一格被布景占着（门口那一带是清的，几乎用不到）：退到最近的一格空地。 */
+      var best = null;
+      for (var i = 0; i < cols; i += 1) {
+        for (var j = 0; j < rows; j += 1) {
+          if (blocked(seatX(i), seatZ(j))) continue;
+          var far = Math.abs(i - goal[0]) + Math.abs(j - goal[1]);
+          if (!best || far < best.far) best = { at: [i, j], far: far };
+        }
+      }
+      if (!best) return [0, 0];
+      goal = best.at;
+    }
+    if (from[0] === goal[0] && from[1] === goal[1]) return [0, 0];
+
+    var key = function (a, b) { return a + "," + b; };
+    var came = {};
+    came[key(from[0], from[1])] = null;
+    var queue = [from];
+    var moves = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+    var found = false;
+    while (queue.length && !found) {
+      var at = queue.shift();
+      for (var m = 0; m < moves.length && !found; m += 1) {
+        var ni = at[0] + moves[m][0];
+        var nj = at[1] + moves[m][1];
+        if (ni < 0 || nj < 0 || ni >= cols || nj >= rows) continue;
+        if (came[key(ni, nj)] !== undefined) continue;
+        if (blocked(seatX(ni), seatZ(nj))) continue;
+        came[key(ni, nj)] = { at: at, step: moves[m] };
+        if (ni === goal[0] && nj === goal[1]) found = true;
+        queue.push([ni, nj]);
+      }
+    }
+    if (!found) return [0, 0];
+    var first = null;
+    for (var walk = goal; walk[0] !== from[0] || walk[1] !== from[1]; ) {
+      var hop = came[key(walk[0], walk[1])];
+      first = hop.step;
+      walk = hop.at;
+    }
+    return first || [0, 0];
+  }
+
   /** 他正站在哪扇开着的门口，没有就 null。顺序按 N/E/S/W，先来的先算。 */
   function doorAt(state) {
     for (var index = 0; index < MINIMAP_DIRS.length; index += 1) {
@@ -2342,8 +2523,37 @@
    */
   var BREAKABLE = {
     /* 盒子照美术来：那个桶画出来是 63x78（`SCENE.pieces.barrel`），桶身比影子窄一点。 */
-    barrel: { width: 52, depth: 34, height: 78, hp: 1 }
+    barrel: { width: 52, depth: 34, height: 78, hp: 1, ink: [63, 78] }
   };
+
+  /*
+   * **立着的布景：树、石头、树桩、石柱 —— 实心，挡人**（`docs/adr/0032`，业主：
+   * 「树木和石头也要有碰撞」）。它们跟木桶不一样的地方只有两条：**打不碎**（挥击只认
+   * `BREAKABLE`），**不挡飞行物**（和木桶一致：怪不会绕路也不会换排，挡了投石就等于
+   * 把它们废掉）。
+   *
+   * `width` / `dx` 是**量出来的**：把每件美术最底下 12 行（贴地那一段）的 ink 取出来，
+   * 量它占多宽、中心偏在美术中心哪一边（`assets/import_dnf_scene.py` 烘的图，
+   * 树根会往外张，所以树干那一段比上面细）。树冠、石头的上半截**不进盒子** ——
+   * 一个"看得见的树冠"和"走不过去的空墙"对不上，读起来是 bug。
+   *
+   * `depth` 没有像素可量（美术是正面的），按同一个规矩给：宽的三分之一，钳在 24–40，
+   * 和木桶(52/34)是同一档手感。
+   */
+  var SOLID = {
+    trunkTall:  { width: 146, dx: 4,   ink: [203, 422] },
+    trunkBent:  { width: 111, dx: 6,   ink: [143, 423] },
+    trunkMossy: { width: 100, dx: -18, ink: [160, 428] },
+    treeLeafy:  { width: 84,  dx: -4,  ink: [153, 203] },
+    stump:      { width: 74,  dx: -4,  ink: [105, 199] },
+    pillar:     { width: 43,  dx: 0,   ink: [44, 111] },
+    wallStone:  { width: 163, dx: -1,  ink: [167, 125] },
+    rockFlat:   { width: 92,  dx: -20, ink: [141, 89] },
+    rockSmall:  { width: 42,  dx: 0,   ink: [42, 44] }
+  };
+  Object.keys(SOLID).forEach(function (piece) {
+    SOLID[piece].depth = clamp(Math.round(SOLID[piece].width / 3), 24, 40);
+  });
 
   /* 一个桶碎开之后，那一地木片还画多久（秒）。 */
   var BREAK_ANIM = 0.42;
@@ -2386,6 +2596,11 @@
   /** A prop is scenery unless its piece is one of these. */
   function breakableSpec(piece) {
     return BREAKABLE[piece] || null;
+  }
+
+  /** 一件布景的碰撞盒：**只挡人的**（树、石头）和**挡人又打碎得开的**（木桶）都在这一张表上。 */
+  function propBox(piece) {
+    return BREAKABLE[piece] || SOLID[piece] || null;
   }
 
   function nextRandom(state) {
@@ -2732,21 +2947,52 @@
      * 重进时满血重来，那是另一回事。）
      */
     if (!cell.props) {
-      cell.props = (spec.props || []).map(function (entry) {
+      var built = [];
+      (spec.props || []).forEach(function (entry) {
         var z = entry.depth === undefined ? 0 : entry.depth * depth;
-        var box = breakableSpec(entry.piece);
-        return {
+        var box = propBox(entry.piece);
+        /*
+         * 门口净空（`docs/adr/0032`，业主：「门口不能有石头和树木」）：压着门就**先往
+         * 旁边挪**（最近的空位），挪不开才丢掉 —— 直接丢会把一间房掏空一半（断桩隘口
+         * 的树桩正好站在上门那一条上）。
+         *
+         * 挪的位置要同时满足两条：离开**所有**门（判定区 + 门拱美术，`blocksDoorway`），
+         * 也不压到已经摆下的实心件。房间是按种子洗到格子上的，所以这一刀只能落在这儿 ——
+         * 写房间的人不知道它会落在哪一格。贴花不在这套里：它们不挡人也不挡门。
+         */
+        if (box && blocksDoorway(state, cell, entry, depth)) {
+          var moved = null;
+          for (var away = 1; away <= 60 && moved === null; away += 1) {
+            for (var side = -1; side <= 1 && moved === null; side += 2) {
+              /* 挪不动就贴着墙试（最后那几个位置是这么够到的）。 */
+              var x = clamp(entry.x + side * away * 12,
+                            ARENA.leftWall + box.width / 2,
+                            ARENA.rightWall - box.width / 2);
+              if (blocksDoorway(state, cell, { piece: entry.piece, x: x, depth: entry.depth }, depth)) continue;
+              if (built.some(function (other) {
+                if (!other.solid) return false;
+                var otherBox = propBox(other.piece);
+                return Math.abs(x - other.x) < (box.width + otherBox.width) / 2;
+              })) continue;
+              moved = x;
+            }
+          }
+          if (moved === null) return;
+          entry = { piece: entry.piece, x: moved, depth: entry.depth };
+        }
+        built.push({
           piece: entry.piece,
           x: entry.x,
           z: z,
-          /* 完整的桶才有盒子；碎了就只剩美术。 */
+          /* 桶和立着的布景（树、石头）才有盒子；花草贴花没有。碎了的桶只剩美术。 */
           solid: !!box,
-          hp: box ? box.hp : 0,
+          hp: box && box.hp ? box.hp : 0,
           broken: false,
           /* 碎片的钟：从 0 数到 `BREAK_ANIM`，这段时间放那 12 帧。 */
           brokenAt: -1
-        };
+        });
       });
+      cell.props = built;
     }
     state.props = cell.props;
     state.player.x = ARENA.leftWall + 86;
@@ -4976,27 +5222,30 @@
   /**
    * 把一个身体从实心布景里推出去。
    *
-   * 木桶是唯一的实心布景，判定在 x-z 平面上：两个轴都压上了才算撞上（前后错开就能从
-   * 它面前走过去）。推的方向按他来的那一侧，所以擦着走过去不会粘住。
+   * 实心的是**木桶和立着的布景**（树、石头、树桩、石柱 —— `docs/adr/0032`），判定在
+   * x-z 平面上：两个轴都压上了才算撞上（前后错开就能从它面前走过去）。推的方向按他来的
+   * 那一侧，所以擦着走过去不会粘住。盒子的中心带 `dx` 的偏移（树根张的方向、石头偏的
+   * 那一边都是量出来的），不然一块斜着长的树根会把半条路挡掉。
    *
-   * 没有人绕路：怪也是这么被挡住的（业主说"人和怪都撞得到它"），所以摆桶的人别把桶
-   * 摆在小怪必经的直线上 —— 这是布景的规矩，写在 `docs/adr/0030`。
+   * **没有人绕路**：怪也是这么被挡住的（业主："人和怪都撞得到它"）。所以摆布景的规矩是
+   * **别把它摆在小怪必经的直线上**，也别摆进门里（同一条 ADR）。
    */
   function blockProps(state, body, halfWidth, halfDepth) {
     (state.props || []).forEach(function (prop) {
       if (!prop.solid || prop.broken) return;
-      var box = breakableSpec(prop.piece);
+      var box = propBox(prop.piece);
       if (!box) return;
+      var centre = prop.x + (box.dx || 0);
       var spanX = halfWidth + box.width / 2;
       var spanZ = halfDepth + box.depth / 2;
-      var dx = body.x - prop.x;
+      var dx = body.x - centre;
       var dz = (body.z || 0) - prop.z;
       if (Math.abs(dx) >= spanX || Math.abs(dz) >= spanZ) return;
       /* 推出去走最浅的那条路：哪个轴压得少就推哪个。 */
       var pushX = spanX - Math.abs(dx);
       var pushZ = spanZ - Math.abs(dz);
       if (pushX <= pushZ) {
-        body.x = prop.x + (dx < 0 ? -spanX : spanX);
+        body.x = centre + (dx < 0 ? -spanX : spanX);
         body.x = clamp(body.x, ARENA.leftWall + halfWidth, ARENA.rightWall - halfWidth);
         body.vx = 0;
       } else {
@@ -5223,6 +5472,11 @@
     DOOR: DOOR,
     TRANSITION: TRANSITION,
     BREAKABLE: BREAKABLE,
+    SOLID: SOLID,
+    blocksDoorway: blocksDoorway,
+    doorFloor: doorFloor,
+    routeStep: routeStep,
+    propBox: propBox,
     BREAK_ANIM: BREAK_ANIM,
     DEATH: DEATH,
     UPGRADES: UPGRADES,

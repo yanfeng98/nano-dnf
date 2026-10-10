@@ -1704,8 +1704,20 @@
      * The ground, left to right. `tile0` is a short one (203 against their 233),
      * so it is not in the run: strips of different heights would leave a ragged
      * top edge, and the top edge is the line the floor meets the trees on.
+     *
+     * **这个顺序是量出来的，不是 1-2-3**（`docs/adr/0032`）：三张图的顶边缺口天生
+     * 接得上，但只在 **tile2 → tile1 → tile3** 这个循环里 —— tile2 末列 39/38/39
+     * 接 tile1 首列 40/39/38 ✓、tile1 末列 7/9 接 tile3 首列 6/8 ✓、tile3 末列 9/11
+     * 接 tile2 首列 9/7 ✓。按 1→2→3 摆会在 x=672 处留下 11→40 的一道 30 像素竖台阶。
      */
-    ground: ["tile1", "tile2", "tile3"],
+    ground: ["tile2", "tile1", "tile3"],
+    /*
+     * `mid` 那张图里**树根线在第 316 行、底下还有 63 行是草**（`docs/adr/0032`）。
+     * 地面条顶上那些缺口（客户端原图就带，每张 224 列里有 217 列有缺口）在客户端里
+     * 透出来的正是这 63 行草裙 —— 客户端的摆位就是让根线落在地面顶边上。所以缺口后面
+     * 要**再铺一遍 mid、裁到接缝以下**（`drawBackdrop`），缺口里露出的才是草，不是画布。
+     */
+    midSkirt: 63,
     /*
      * 长在地上的花草是**贴花**，不参加"站着的东西"那个按身位排的队：一律画在
      * 所有人、怪、道具之前 —— 人踩在草上面，**草不遮人**（业主 2026-10-10 定的）。
@@ -2255,6 +2267,23 @@
       return;
     }
     drawSceneStrip(ctx, sprites, "mid", backY + SCENE.midLift);
+
+    /*
+     * 地面条顶上的缺口：**mid 自己的草裙**（`SCENE.midSkirt`，量出来的 63 行）。
+     *
+     * 客户端的摆位是"树根线压在地面顶边上"，所以缺口里透出来的永远是草。本作把 mid
+     * 摆得比客户端高一条裙边（`midLift = 0` 对齐的是美术的最低一行），缺口下面就成了
+     * 没人画的地方 —— 先烘成竖条纹（还是难看），现在改成在这里**把 mid 再铺一遍、
+     * 裁到接缝以下**：地面不透明的地方把它盖住，只有缺口里看得见，看见的就是草裙。
+     */
+    if (SCENE.midSkirt) {
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(0, groundTop, ARENA.width, ARENA.height - groundTop);
+      ctx.clip();
+      drawSceneStrip(ctx, sprites, "mid", groundTop + SCENE.midSkirt);
+      ctx.restore();
+    }
 
     /*
      * The ground, from its own top edge down to the bottom of the room. The
@@ -6222,16 +6251,6 @@
       items.push({ z: z || 0, draw: draw });
     }
 
-    state.enemies.forEach(function (enemy) {
-      add(enemy.z, function () {
-        drawEnemy(ctx, state, enemy, sprites);
-      });
-    });
-    (state.projectiles || []).forEach(function (shot) {
-      add(shot.z, function () {
-        drawProjectile(ctx, state, shot);
-      });
-    });
     /*
      * 布景分两拨。
      *
@@ -6243,6 +6262,10 @@
      * 之前，前边缘的桶画在他之后。木桶是其中唯一会变的一件（`docs/adr/0030`）：
      * 碎开的那 0.42 秒画它的 12 块木片，之后这一块地就空了 —— 桶这一局不再回来。
      * 碎片的位置是从桶自己的位置加偏移算的，偏移在 `SCENE.barrelBreak` 里。
+     *
+     * **它们先入队**：身位相同时身体压在布景上（`docs/adr/0032`）。以前布景排在
+     * 怪后面，于是同一个 z 上"布景盖怪、人盖布景"—— 业主报的「怪物和石头的图层
+     * 不对」就是这一处不对称。人/怪/抛射物谁盖谁另有规矩（见下面 body 那一段）。
      */
     (state.props || []).forEach(function (prop) {
       if (SCENE.decals.indexOf(prop.piece) !== -1) {
@@ -6277,6 +6300,23 @@
     (state.pickups || []).forEach(function (drop) {
       add(drop.z, function () {
         drawDrop(ctx, state, drop, sprites);
+      });
+    });
+
+    /*
+     * **身体压在布景上**：怪和抛射物排在这一队的后半段 —— 同一个身位上，站着的东西
+     * 盖过地上的布景（`docs/adr/0032`）。人本来就是最后入队的，这里只是把怪和他对齐；
+     * 以前布景排在怪后面，同一个 z 上是"布景盖怪、人盖布景"，业主报的「怪物和石头的
+     * 图层不对」就是这处不对称。
+     */
+    state.enemies.forEach(function (enemy) {
+      add(enemy.z, function () {
+        drawEnemy(ctx, state, enemy, sprites);
+      });
+    });
+    (state.projectiles || []).forEach(function (shot) {
+      add(shot.z, function () {
+        drawProjectile(ctx, state, shot);
       });
     });
 

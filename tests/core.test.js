@@ -198,31 +198,73 @@ function lastRoomState(seed) {
  * 门口是按地图方向立的，所以"往右走到底"不再能换房：左右门走到对应的墙，上门走到
  * 房间深处那扇（先横向对上门的 x），下门朝观众走到底。
  */
+/**
+ * 走到这一格某一扇开着的门口，返回用了多少帧；走不到就返回 -1。
+ *
+ * 门口是按地图方向立的，所以"往右走到底"不再能换房：左右门走到对应的墙，上门走到
+ * 房间深处那扇（先横向对上门的 x），下门朝观众走到底。
+ */
+
+/**
+ * 走到这一格某一扇开着的门口，返回用了多少帧；走不到就返回 -1。
+ *
+ * 门口是按地图方向立的，所以"往右走到底"不再能换房：左右门走到对应的墙，上门走到
+ * 房间深处那扇（先横向对上门的 x），下门朝观众走到底。树和石头是实心的（`docs/adr/0032`），
+ * 所以这一路是**绕过去**的，不是"一直按着方向键"。
+ */
 function walkToDoor(state, dir, frames) {
   const budget = frames || 60 * 12;
   const cell = Core.currentCell(state);
   const doorX = Core.doorX(state.dungeon, cell, dir);
+  const depth = Core.bandDepth(state.band);
   const input = {
     left: false, right: false, up: false, down: false, jump: false, attack: false, skills: {}
   };
   for (let frame = 0; frame < budget; frame += 1) {
+    const player = state.player;
+    /* 目标点要**站进门口判定区里**（`DOOR.side`/`DOOR.depth`），不是站在门口外面。 */
+    const targetX =
+      dir === "N" || dir === "S"
+        ? doorX
+        : dir === "E"
+          ? Core.ARENA.rightWall - Core.DOOR.side / 2
+          : Core.ARENA.leftWall + Core.DOOR.side / 2;
+    const targetZ =
+      dir === "N"
+        ? depth - Core.DOOR.depth / 2
+        : dir === "S"
+          ? Core.DOOR.depth / 2
+          : player.z;
+    const move = Core.routeStep(state, targetX, targetZ);
     const step = { ...input };
-    if (dir === "E") step.right = true;
-    else if (dir === "W") step.left = true;
-    else {
-      const gap = doorX - state.player.x;
-      if (Math.abs(gap) > 18) {
-        if (gap > 0) step.right = true;
-        else step.left = true;
-      }
-      if (dir === "N") step.up = true;
-      else step.down = true;
-    }
+    if (move[0] > 0) step.right = true;
+    if (move[0] < 0) step.left = true;
+    if (move[1] > 0) step.up = true;
+    if (move[1] < 0) step.down = true;
     const before = state.cell;
     Core.step(state, step);
     if (state.cell !== before) return frame;
   }
   return -1;
+}
+
+/**
+ * 一条**净空的竖道**：这一列上没有实心布景挡路。
+ *
+ * 树和石头从 `docs/adr/0032` 起是实心的（人和怪都撞得到），而"地面带有多深"这类测试
+ * 只想量地板、不想量布景 —— 所以先找一条没人站的列，把他放过去。
+ */
+function clearLaneX(state) {
+  const player = state.player;
+  const props = (state.props || []).filter((prop) => prop.solid && !prop.broken);
+  for (let x = Core.ARENA.leftWall + 40; x < Core.ARENA.rightWall - 40; x += 6) {
+    const blocked = props.some((prop) => {
+      const box = Core.propBox(prop.piece);
+      return Math.abs(x - (prop.x + (box.dx || 0))) <= box.width / 2 + player.width / 2;
+    });
+    if (!blocked) return x;
+  }
+  return player.x;
 }
 
 /** A damage-first player: take the sharpest upgrade on offer. */
@@ -1251,9 +1293,33 @@ test("the player can walk into the screen and back out", () => {
   assert.ok(state.player.z < walked, "and down walks back out");
 });
 
+test("门口那一块没有实心布景 —— 而且是挪开的，不是丢掉的", () => {
+  const state = Core.createState({ seed: Core.DEFAULT_SEED });
+  state.dungeon.cells.forEach((cell, index) => {
+    Core.goToCell(state, index);
+    const depth = Core.bandDepth(state.band);
+    const spec = (ROOMS[cell.room].props || []).filter((prop) => Core.propBox(prop.piece));
+    const placed = state.props.filter((prop) => prop.solid);
+    assert.equal(
+      placed.length,
+      spec.length,
+      `${state.room.name} 的实心布景要一件不少（压门的挪开，不是丢掉）`
+    );
+    placed.forEach((prop) => {
+      assert.equal(
+        Core.blocksDoorway(state, cell, { piece: prop.piece, x: prop.x, depth: prop.z / depth }, depth),
+        false,
+        `${state.room.name} 的 ${prop.piece} 压在门口上`
+      );
+    });
+  });
+});
+
 test("the band's two edges stop him", () => {
   const state = Core.createState({ seed: Core.DEFAULT_SEED });
   state.enemies = [];
+  /* 走一条净空的竖道 —— 树和石头现在是实心的，这一条只量地板（`docs/adr/0032`）。 */
+  state.player.x = clearLaneX(state);
 
   /* Four seconds a side, against a floor that takes six tenths to cross. */
   Core.runFrames(state, 240, { up: true });
@@ -1272,6 +1338,7 @@ test("crossing the whole floor takes about six tenths of a second", () => {
    */
   const state = sealedRoomState(Core.DEFAULT_SEED, plainRoomIndex());
   const band = Core.bandDepth(state.band);
+  state.player.x = clearLaneX(state);
 
   let frames = 0;
   while (state.player.z < band && frames < 600) {
@@ -1374,6 +1441,7 @@ test("a room with a shallower floor stops him sooner", () => {
   try {
     room.band = { backY: 380 };
     const state = sealedRoomState(Core.DEFAULT_SEED, plain);
+    state.player.x = clearLaneX(state);
 
     Core.runFrames(state, 240, { up: true });
 
@@ -2101,8 +2169,8 @@ function bodyGapOf(a, b) {
 const NEVER_REACHES = -1e6;
 
 /**
- * 前面那一步撞在木桶上就让一格：木桶现在是实心的（`docs/adr/0030`），这个 bot 又不会
- * 绕路，不躲开就会顶着桶原地推。
+ * 前面那一步撞在实心布景上就让一格：木桶（`docs/adr/0030`）和树、石头（`docs/adr/0032`）
+ * 都是实心的，这个 bot 又不会绕路，不躲开就会顶着它们原地推。
  *
  * 让的方向按"他现在站的这一排在哪一边"取，所以让完还是朝着目标那一排走。
  */
@@ -2111,9 +2179,10 @@ function detour(state, input, stepX) {
   const target = player.x + stepX;
   for (const prop of state.props || []) {
     if (!prop.solid || prop.broken) continue;
-    const spec = Core.BREAKABLE[prop.piece];
+    const spec = Core.propBox(prop.piece);
     if (!spec) continue;
-    if (Math.abs(target - prop.x) > spec.width / 2 + player.width / 2) continue;
+    const centre = prop.x + (spec.dx || 0);
+    if (Math.abs(target - centre) > spec.width / 2 + player.width / 2) continue;
     if (Math.abs((player.z || 0) - prop.z) > spec.depth / 2 + player.width / 2) continue;
     const sidestep = (player.z || 0) <= prop.z ? "down" : "up";
     return { ...input, [sidestep]: true };

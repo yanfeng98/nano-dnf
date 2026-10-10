@@ -150,7 +150,7 @@ function decide(state, constants) {
     return step;
   };
   /*
-   * 木桶是实心的（`docs/adr/0030`），这个 bot 又不会绕路：前面撞上桶就让一格。
+   * 实心布景（木桶、树、石头 —— `docs/adr/0030` / `0032`）这个 bot 都不会绕：前面撞上就让一格。
    * 让的方向按他现在站的这一排在哪一边取；`alongZ` 为真时他本来就在走深度轴，不用让。
    */
   const detour = (want, stepX, alongZ) => {
@@ -158,9 +158,10 @@ function decide(state, constants) {
     const target = player.x + stepX;
     for (const prop of state.props || []) {
       if (!prop.solid || prop.broken) continue;
-      const spec = Core.BREAKABLE[prop.piece];
+      const spec = Core.propBox(prop.piece);
       if (!spec) continue;
-      if (Math.abs(target - prop.x) > spec.width / 2 + player.width / 2) continue;
+      const centre = prop.x + (spec.dx || 0);
+      if (Math.abs(target - centre) > spec.width / 2 + player.width / 2) continue;
       if (Math.abs((player.z || 0) - prop.z) > spec.depth / 2 + player.width / 2) continue;
       want.add((player.z || 0) <= prop.z ? "down" : "up");
       return;

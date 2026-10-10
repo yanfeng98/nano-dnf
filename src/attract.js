@@ -100,6 +100,21 @@
     return null;
   }
 
+  /**
+   * 朝一个点走一步：方向由 `Core.routeStep` 算（绕开实心布景），这里只把它翻译成按键。
+   *
+   * 布景是实心的（`docs/adr/0032`）—— 演示以前是"一直朝着目标按方向键"，树和石头一实心
+   * 它就会顶着树干原地推，永远走不到 Boss。
+   */
+  function walk(state, input, targetX, targetZ) {
+    var move = Core.routeStep(state, targetX, targetZ);
+    if (move[0] > 0) input.right = true;
+    else if (move[0] < 0) input.left = true;
+    if (move[1] > 0) input.up = true;
+    else if (move[1] < 0) input.down = true;
+    return move;
+  }
+
   function emptyInput() {
     var input = { left: false, right: false, jump: false, attack: false, skills: {} };
     Core.SKILL_ORDER.forEach(function (skillId) {
@@ -125,24 +140,28 @@
       /*
        * 清完房：走向一扇**开着的门**。门口是按地图上那一格的方向开的
        * （`docs/adr/0030`），所以这里不能再一路往右走 —— 上/下门要真的往上/往下走，
-       * 左右门要走到对应的那面墙。
+       * 左右门要走到对应的那面墙。走的步子交给 `Core.routeStep`：布景是实心的
+       * （`docs/adr/0032`），直着走会在树干上原地推。
        */
       var door = openDoorGoal(state);
       if (!door) {
         input.right = true;
         return input;
       }
-      if (door.dir === "E") input.right = true;
-      else if (door.dir === "W") input.left = true;
-      else {
-        var gap = door.x - state.player.x;
-        if (Math.abs(gap) > 24) {
-          if (gap > 0) input.right = true;
-          else input.left = true;
-        }
-        if (door.dir === "N") input.up = true;
-        else input.down = true;
-      }
+      /* 目标点要**落在门口判定区里**，不是站在门外：左右门是那面墙、上下门是门那条线。 */
+      var doorwayX =
+        door.dir === "E"
+          ? Core.ARENA.rightWall - Core.DOOR.side / 2
+          : door.dir === "W"
+            ? Core.ARENA.leftWall + Core.DOOR.side / 2
+            : door.x;
+      var doorwayZ =
+        door.dir === "N"
+          ? Core.bandDepth(state.band) - Core.DOOR.depth / 2
+          : door.dir === "S"
+            ? Core.DOOR.depth / 2
+            : state.player.z;
+      walk(state, input, doorwayX, doorwayZ);
       return input;
     }
 
@@ -155,17 +174,10 @@
      * other's row, so this is also what the monster is doing - and the reach is
      * the same number the hit test uses, so the demo stops where its blows land.
      */
-    if (Math.abs(dz) > ROW_REACH) {
-      if (dz > 0) input.up = true;
-      else input.down = true;
-    }
-    if (Math.abs(dx) > APPROACH) {
-      if (dx > 0) input.right = true;
-      else input.left = true;
+    if (Math.abs(dx) > APPROACH || Math.abs(dz) > ROW_REACH) {
+      walk(state, input, target.x, target.z || 0);
       return input;
     }
-    /* In position sideways but not on the row yet: keep walking, do not swing. */
-    if (Math.abs(dz) > ROW_REACH) return input;
 
     /*
      * Holding the direction keeps the swing pointed at the target; the rooted

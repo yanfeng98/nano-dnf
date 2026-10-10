@@ -174,32 +174,6 @@ def decode(client: pathlib.Path, pack: str, entry: str, frame_index: int):
     return decode_at(client, pack, entry, frame_index)[0]
 
 
-def close_top_gaps(picture: Image.Image) -> Image.Image:
-    """把地面条**顶上的透明缺口**用它正下方的颜色补上。
-
-    客户端这三张地面条（`02tile0N.img`）的顶角是按树的外轮廓切掉的 —— 原图就带
-    alpha=0，不是烘图烘坏的（量过：`02tile01.img` 有 6.6% 的像素是透明的，整行第 0 行
-    都在里头）。原版游戏里那块空当由 `obj` 层的树干/草丛填住；本作把那些树的底座
-    摆在地面带的上沿，差一截填不到，于是缺口里透出来的是画布底色 —— 屏幕上就是两块
-    死黑（业主 2026-10-10 报的「黑色阴影」）。
-
-    补成"地面往上多长一块"是最省事也最不打架的做法：接缝那条线本来就在地面自己
-    顶上，补完之后缺口和「地面条不透明的地方」看起来是同一条线。
-    """
-    out = picture.copy()
-    pixels = out.load()
-    for x in range(out.width):
-        below = None
-        for y in range(out.height - 1, -1, -1):
-            r, g, b, a = pixels[x, y]
-            if a == 0:
-                if below is not None:
-                    pixels[x, y] = below
-            else:
-                below = (r, g, b, a)
-    return out
-
-
 def shelf_pack(sizes, width):
     """Place (w, h) boxes on shelves of `width`. Simple, and the sheet is small."""
     placed, x, y, shelf = [], 0, 0, 0
@@ -225,8 +199,6 @@ def main() -> None:
         name, pack, entry, index = piece[:4]
         tint = piece[4] if len(piece) > 4 else None
         picture, _at = decode_at(args.client, pack, entry, index, tint)
-        if name.startswith("tile"):
-            picture = close_top_gaps(picture)
         art.append((name, picture, pack, entry, index))
         print(f"{name:12s} {entry:44s} {picture.width:4d}x{picture.height:<4d}")
 
