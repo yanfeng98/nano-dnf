@@ -2356,16 +2356,32 @@
    * 和 9-14 块**悬在空中不落**的红肉块（半秒内散掉）。**地上不留血泊、不留尸体** ——
    * 那是"击倒"，0.2 秒后会站起来，和死是两回事。
    */
+  /*
+   * 倒下的那一下（`docs/adr/0031`）。录像里量到的样子是：尸体先躺住，一团**白烟**盖
+   * 上来，烟散的时候尸体一起没 —— 地上不留血泊、不留尸体、不留碎块。
+   *
+   * 烟的素材是客户端自己的（`monsterdieblood`，一张白色的不规则云，原版把颜色交给
+   * 引擎挑，死亡这里它就是白的）。青白色圆爆（`monsterdieflash`）**不是每只怪都有**：
+   * 录里六次击杀只拍到一次（那只是带诅咒的哥布林），所以本作把它留给精英与 Boss。
+   *
+   * 曾经这里还有 `chunks` / `chunkCount` 两个数：一次炸开冒 9–14 块红肉块。那是**看错
+   * 了** —— 录像里满天飞的那些红球是怪掉在地上的东西（掉落物），不是血（同一条 ADR）。
+   */
   var DEATH = {
-    /* 倒地到炸开之间那一下，7 帧。 */
+    /* 倒地到烟起来之间那一下，7 帧。 */
     lie: 0.2,
-    /* 圆爆亮多久。 */
-    burst: 0.1,
-    /* 肉块从出现到散掉。 */
-    chunks: 0.5,
-    /* 一次炸开冒几块（录像 9→14，取 12）。 */
-    chunkCount: 12
+    /* 白烟从起到散（录像 0.35–0.6 秒）。尸体这段时间被烟盖着，烟散一起没。 */
+    smoke: 0.5,
+    /* Boss 那一团更大更久：录像里 233x130 游戏像素、约 0.95 秒。 */
+    bossSmoke: 0.95,
+    /* 圆爆亮多久（只有精英与 Boss）。 */
+    burst: 0.1
   };
+
+  /** 这一只死了要冒多久的烟。 */
+  function smokeLife(enemy) {
+    return enemy && enemy.type === "boss" ? DEATH.bossSmoke : DEATH.smoke;
+  }
 
   /** A prop is scenery unless its piece is one of these. */
   function breakableSpec(piece) {
@@ -2708,21 +2724,31 @@
      * only; a piece in `BREAKABLE` (the barrel) also carries a box, blocks both
      * fighters and can be smashed by the player alone.
      */
-    state.props = (spec.props || []).map(function (entry) {
-      var z = entry.depth === undefined ? 0 : entry.depth * depth;
-      var box = breakableSpec(entry.piece);
-      return {
-        piece: entry.piece,
-        x: entry.x,
-        z: z,
-        /* 完整的桶才有盒子；碎了就只剩美术。 */
-        solid: !!box,
-        hp: box ? box.hp : 0,
-        broken: false,
-        /* 碎片的钟：从 0 数到 `BREAK_ANIM`，这段时间放那 12 帧。 */
-        brokenAt: -1
-      };
-    });
+    /*
+     * **一格只摆一次。** 布景是这一格的记性，不是每次进门重铺一遍：木桶碎过就是
+     * 碎了 —— 「这一局不再回来」（业主 2026-10-10）。所以这批对象挂在 `cell` 上，
+     * 和 `cell.cleared` 一样活得比"进这一趟门"久；回头再走进来读到的是同一批对象，
+     * `broken` / `gone` 都还在。（怪不在其中：清过的房间根本不刷怪，没清的房间
+     * 重进时满血重来，那是另一回事。）
+     */
+    if (!cell.props) {
+      cell.props = (spec.props || []).map(function (entry) {
+        var z = entry.depth === undefined ? 0 : entry.depth * depth;
+        var box = breakableSpec(entry.piece);
+        return {
+          piece: entry.piece,
+          x: entry.x,
+          z: z,
+          /* 完整的桶才有盒子；碎了就只剩美术。 */
+          solid: !!box,
+          hp: box ? box.hp : 0,
+          broken: false,
+          /* 碎片的钟：从 0 数到 `BREAK_ANIM`，这段时间放那 12 帧。 */
+          brokenAt: -1
+        };
+      });
+    }
+    state.props = cell.props;
     state.player.x = ARENA.leftWall + 86;
     state.player.y = ARENA.groundY;
     state.player.z = 0;
@@ -2759,6 +2785,13 @@
     state.fields = [];
     /* ...and nothing he threw is still in the air in it either. */
     state.shots = [];
+    /*
+     * ...and the flashes of the room he just left go with them. An effect is
+     * drawn at the x/z it was born at, so a death burst left running would burn
+     * on the *new* room's floor for the rest of its half second. The banner for
+     * this room is pushed below, after the clear.
+     */
+    state.effects = [];
     state.upgradeChoice = null;
     state.effects.push({
       kind: "banner",
@@ -3271,8 +3304,8 @@
     if (enemy.hp <= 0) {
       enemy.hp = 0;
       enemy.dead = true;
-      /* 还要在地上躺 0.2 秒才炸开（`DEATH` / `updateDeaths`）。 */
-      enemy.dying = DEATH.lie;
+      /* 先躺 `DEATH.lie`，再让白烟盖住它 —— 烟散的时候尸体一起没（`updateDeaths`）。 */
+      enemy.dying = DEATH.lie + smokeLife(enemy);
       state.stats.kills += 1;
       /*
        * A kill is worth more blood than a hit is (docs/adr/0025): the whole body
@@ -4888,29 +4921,37 @@
   }
 
   /**
-   * 倒下的人：躺满 `DEATH.lie` 就炸开，然后从这一局里消失。
+   * 倒下的人：躺满 `DEATH.lie`，白烟盖上来，烟散的时候一起没。
    *
-   * 炸开只推一条 `deathburst`：血块和圆爆是**同一件事的两半**，所以它们共用一个钟
-   * （`self` 的半秒里，前 0.1 秒还亮着那团圆爆）。`seed` 是这只怪的 id —— 撒开的
-   * 十几块肉块要每次都撒在同一处，不然一帧一个花样。
+   * 一具尸体只起一次烟（`smoking`），烟和尸体共用一条时间线：`enemy.dying` 从
+   * `lie + smokeLife()` 数到 0，途中滑过 `smokeLife()` 那一刻推一条 `deathburst`，
+   * 数到 0 时尸体（和那口烟）一起从这一局里消失 —— 烟盖着它散的，所以**不能**提前撤。
+   *
+   * `seed` 是这只怪的 id：撒开的几片白团要每次都撒在同一处，不然一帧一个花样。
    */
   function updateDeaths(state, dt) {
     var buried = false;
     state.enemies.forEach(function (enemy) {
       if (!enemy.dead || !(enemy.dying > 0)) return;
       enemy.dying -= dt;
+      if (!enemy.smoking && enemy.dying <= smokeLife(enemy)) {
+        enemy.smoking = true;
+        state.effects.push({
+          kind: "deathburst",
+          x: enemy.x,
+          z: enemy.z,
+          seed: enemy.id,
+          /* 精英与 Boss 才多那一团青白圆爆（`docs/adr/0031`）。 */
+          flash: enemy.type === "elite" || enemy.type === "boss",
+          boss: enemy.type === "boss",
+          life: smokeLife(enemy),
+          maxLife: smokeLife(enemy)
+        });
+      }
       if (enemy.dying > 0) return;
       enemy.dying = 0;
       enemy.gone = true;
       buried = true;
-      state.effects.push({
-        kind: "deathburst",
-        x: enemy.x,
-        z: enemy.z,
-        seed: enemy.id,
-        life: DEATH.chunks,
-        maxLife: DEATH.chunks
-      });
     });
     if (!buried) return;
     state.enemies = state.enemies.filter(function (enemy) {

@@ -385,7 +385,7 @@ test("the combo chain walks the three cuts of the normal attack", () => {
   assert.equal(state.player.comboIndex, stages.length - 1);
 });
 
-test("a dead monster lies for a beat, bursts into blood, and does not come back", () => {
+test("a dead monster lies for a beat, goes up in white smoke, and does not come back", () => {
   const state = Core.createState({ seed: Core.DEFAULT_SEED });
   Core.goToCell(state, state.dungeon.boss);
   const total = state.enemies.length;
@@ -393,22 +393,51 @@ test("a dead monster lies for a beat, bursts into blood, and does not come back"
   killAll(state);
   Core.step(state, {});
 
-  /* 录像的时间线：致命一击 → 倒地躺约 0.2 秒 → 原地炸开 → 身体不再回来。 */
+  /* 录像的时间线：致命一击 → 倒地躺约 0.2 秒 → 白烟盖住它 → 烟散时一起没（adr/0031）。 */
   assert.equal(state.enemies.length, total, "the bodies are still on the floor");
   assert.ok(
     state.enemies.every((enemy) => enemy.dying > 0),
     "and they are dying, not gone"
   );
-  Core.runFrames(state, Math.ceil(Core.DEATH.lie * Core.FPS) + 2, {});
 
+  /* 还没躺够，不许起烟。 */
+  Core.runFrames(state, Math.ceil(Core.DEATH.lie * Core.FPS) - 3, {});
+  assert.ok(
+    !state.effects.some((effect) => effect.kind === "deathburst"),
+    "the smoke waits for the body to finish falling"
+  );
+
+  Core.runFrames(state, 6, {});
+  const smoke = state.effects.filter((effect) => effect.kind === "deathburst");
+  assert.ok(smoke.length > 0, "then the white smoke covers it");
+  assert.ok(
+    state.enemies.length === total,
+    "and the body is still under the smoke - 烟散的时候它才一起没"
+  );
+  const bossSmoke = smoke.find((effect) => effect.boss);
+  assert.ok(bossSmoke, "Boss 自己那一团在里头");
+  assert.equal(bossSmoke.flash, true, "它带青白圆爆（`docs/adr/0031`）");
+  assert.equal(bossSmoke.maxLife, Core.DEATH.bossSmoke, "而且更大更久");
+
+  Core.runFrames(state, Math.ceil(Core.DEATH.bossSmoke * Core.FPS) + 2, {});
   assert.equal(state.enemies.length, 0);
   assert.equal(state.stats.kills, total);
-  assert.ok(
-    state.effects.some((effect) => effect.kind === "deathburst"),
-    "each one bursts into the blood the recording shows"
-  );
   assert.equal(state.room.cleared, true);
   assert.equal(state.victory, true, "the boss cell ends the run");
+});
+
+test("烟是普通怪的收场，青白圆爆只留给精英与 Boss", () => {
+  const state = stateInCell(Core.DEFAULT_SEED, 0);
+  const mob = state.enemies.find((enemy) => enemy.type === "grunt" || enemy.type === "caster");
+  assert.ok(mob, "兽栏里有一只普通哥布林");
+
+  Core.damageEnemy(state, mob, 99999, 0, state.player.x);
+  Core.runFrames(state, Math.ceil(Core.DEATH.lie * Core.FPS) + 2, {});
+
+  const smoke = state.effects.filter((effect) => effect.kind === "deathburst");
+  assert.equal(smoke.length, 1, "一只怪死了就是一团烟");
+  assert.equal(smoke[0].flash, false, "普通怪没有那团圆爆");
+  assert.equal(smoke[0].maxLife, Core.DEATH.smoke);
 });
 
 test("a cleared room walks out through the door the map says, and the reward gates it", () => {
@@ -438,6 +467,99 @@ test("a cleared room walks out through the door the map says, and the reward gat
   assert.equal(state.room.cleared, false);
   assert.ok(state.enemies.length > 0, "an uncleared room fields its roster");
   assert.ok(state.transition > 0, "a room change fades in over BLACK (docs/adr/0030)");
+});
+
+/**
+ * 摆到"这一局里摆着木桶、而且不是 Boss 房"的那一格上 —— 「打碎、出门、走回来」
+ * 那条测试要找的就是它（Boss 房清完就通关了，走不出去）。
+ */
+function stateInBarrelCell(seed) {
+  const state = Core.createState({
+    seed: seed === undefined ? Core.DEFAULT_SEED : seed,
+    stage: "mirkwood"
+  });
+  const at = state.dungeon.cells.findIndex((cell, index) => {
+    if (index === state.dungeon.boss) return false;
+    const spec = ROOMS[cell.room];
+    return (spec.props || []).some((prop) => Core.BREAKABLE[prop.piece]);
+  });
+  assert.ok(at >= 0, "this seed deals a room with a barrel in it, off the boss cell");
+  Core.goToCell(state, at);
+  return state;
+}
+
+/** 走到桶边上抡到它碎。桶是实心的（`docs/adr/0030`），所以这一趟是边走边砍。 */
+function smashBarrel(state, prop) {
+  state.player.z = prop.z;
+  state.player.x = Math.max(Core.ARENA.leftWall + 20, prop.x - 90);
+  state.player.facing = 1;
+  for (let frame = 0; frame < 120 && !prop.broken; frame += 1) {
+    Core.step(state, { right: true, attack: true });
+  }
+  assert.ok(prop.broken, "a swing next to it has to break the barrel");
+  return prop;
+}
+
+/** 清空这一间房、把清房那张卡也收了 —— 这间房的门才会让人走。 */
+function clearAndTakeCard(state) {
+  killAll(state);
+  Core.runFrames(state, Math.ceil(Core.DEATH.lie * Core.FPS) + 2, {});
+  if (state.upgradeChoice) {
+    Core.chooseUpgrade(state, preferredUpgrade(state.upgradeChoice.options));
+  }
+}
+
+test("a smashed barrel stays smashed when he walks out of the room and back in", () => {
+  const state = stateInBarrelCell();
+  const wasAt = state.cell;
+  const barrel = state.props.find((prop) => Core.BREAKABLE[prop.piece]);
+  assert.ok(barrel, "兽栏 has a barrel standing in it");
+
+  clearAndTakeCard(state);
+  smashBarrel(state, barrel);
+  assert.equal(barrel.solid, false, "碎的桶不再挡人");
+  Core.runFrames(state, Math.ceil(Core.BREAK_ANIM * Core.FPS) + 2, {});
+  assert.equal(barrel.gone, true, "木片飞完，这块地就空了");
+
+  /* 出门 —— 挑一扇不通向 Boss 房的门，不然走不回来。 */
+  const cell = Core.currentCell(state);
+  const dir = "NESW".split("").find((d) => {
+    const next = Core.doorNeighbour(state.dungeon, cell, d);
+    return Core.exitMode(state, d) === "open" && next >= 0 && next !== state.dungeon.boss;
+  });
+  assert.ok(dir, "a cleared room has at least one door that is not the boss's");
+  assert.ok(walkToDoor(state, dir) >= 0, "and it lets him through");
+  assert.notEqual(state.cell, wasAt);
+
+  /* 回头。门是那扇进来的门，随时能走（`exitMode`）。 */
+  clearAndTakeCard(state);
+  const back = state.entryDoor;
+  assert.ok(walkToDoor(state, back) >= 0, "the way back is always open");
+  assert.equal(state.cell, wasAt, "he is standing in the barrel's room again");
+
+  const after = state.props.find((prop) => Core.BREAKABLE[prop.piece]);
+  assert.equal(after.broken, true, "打碎的桶不能因为再进一次门就长回来");
+  assert.equal(after.solid, false, "回来也不挡人");
+  assert.equal(after.gone, true, "地上还是空的");
+  assert.equal(after, barrel, "而且是同一个桶记着这件事，不是又摆了一只");
+});
+
+test("换房把上一间房的光和字一并留下，不带进新房间", () => {
+  const state = Core.createState({ seed: Core.DEFAULT_SEED });
+  /* 一站就是 99 秒的一条，走到新房间时本来还没散。 */
+  state.effects.push({ kind: "deathburst", x: 120, z: 0, life: 99, maxLife: 99 });
+
+  killAll(state);
+  Core.step(state, {});
+  Core.chooseUpgrade(state, preferredUpgrade(state.upgradeChoice.options));
+  const dir = "NESW".split("").find((d) => Core.exitMode(state, d) === "open");
+  assert.ok(walkToDoor(state, dir) >= 0, "the door has to let him through");
+
+  assert.deepEqual(
+    state.effects.map((effect) => effect.kind),
+    ["banner"],
+    "新房间里只剩这一间的房名牌；上一间房的血光和伤害数字都留在门外"
+  );
 });
 
 test("enemy damage is applied once and grants invulnerability frames", () => {
@@ -8110,7 +8232,7 @@ test("every prop a room scatters names a piece the bake produced", () => {
    * out of the room, and everything the map window is built from.
    */
   ["gate", "gateUp", "gateDown", "door", "doorUp", "doorDown",
-   "deathBurst", "deathChunk1", "deathChunk2", "deathChunk3",
+   "deathSmoke", "deathBurst",
    "barrel1", "barrel2", "barrel3", "barrel4", "barrel5", "barrel6",
    "barrel7", "barrel8", "barrel9", "barrel10", "barrel11", "barrel12",
    "boss", "marker", "blank", "tl", "top", "tr", "left", "centre", "right",

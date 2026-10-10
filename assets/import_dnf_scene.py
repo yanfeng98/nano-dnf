@@ -43,7 +43,6 @@ MAP = "sprite_map.NPK"
 GATE = "sprite_map_pathgate.NPK"
 BREAK = "sprite_map_breakableobject.NPK"
 MONSTER = "sprite_monster_common.NPK"
-HIT = "sprite_common_hiteffect.NPK"
 
 # (name, pack, entry, frame). Names are what `src/render.js` SCENE.pieces and a
 # room's `props` list use, so they are part of the game's vocabulary, not of the
@@ -88,17 +87,20 @@ PIECES = [
     # frames that follow are the pieces it breaks into; they are baked below,
     # with the offsets they fly to (`BARREL_*`).
     ("barrel", BREAK, "sprite/map/breakableobject/barrel.img", 0),
-    # 怪物死亡那一瞬间的两样东西，都是客户端的（`docs/adr/0031`）。
+    # 怪物死的两样东西，都是客户端的（`docs/adr/0031`）。
     #
-    # 1) 青白色的圆爆：`monsterdieflash`，白核 + 青边（采样 (255,255,255) 核心、
-    #    (1,145,255) 外环）。它只有一帧，录像里亮 3 帧 = 0.10 秒、最大 129x83 游戏像素。
-    # 2) 飞出来的红肉块：`sprite/common/hiteffect/bloodlarge.img` 第 1-3 帧 —— 不规则的
-    #    橘红碎块，录像里一次冒 9-14 块、大小 7x11 ~ 16x21 游戏像素、**悬在空中不落**、
-    #    半秒内散掉。这三个是三种形状，撒开画就不是同一块重复 14 次。
+    # 1) **白烟**：`monsterdieblood` —— 一团**白色的不规则云**。客户端把它当"白色形状、
+    #    颜色由引擎挑"用（`tinted()` 那条注释说的就是这一类东西），死亡这里它就是白的。
+    #    录像里普通怪死就是几片这样的白团撒在尸体上、0.35-0.6 秒散掉，尸体随烟一起没。
+    # 2) 青白色的圆爆：`monsterdieflash`，白核 + 青边（采样 (255,255,255) 核心、
+    #    (1,145,255) 外环）。一帧，亮 0.1-0.3 秒、最大 129x83 游戏像素 —— 但**不是每只
+    #    怪都有**：录像六次击杀里只拍到一次（那只是带诅咒的哥布林），所以留给了精英与 Boss。
+    #
+    # 这里曾经还烘过三块 `hiteffect/bloodlarge` 的"红肉块"，已经删掉：录像里那些红球
+    # 是**怪掉在地上的东西**（怪死时从尸体里飞出来的掉落物，有高光、有名字条），
+    # 不是血 —— 地上、尸体上都不留任何红的。
+    ("deathSmoke", MONSTER, "sprite/monster/common/monsterdieblood.img", 0),
     ("deathBurst", MONSTER, "sprite/monster/common/monsterdieflash.img", 0),
-    ("deathChunk1", HIT, "sprite/common/hiteffect/bloodlarge.img", 1),
-    ("deathChunk2", HIT, "sprite/common/hiteffect/bloodlarge.img", 2),
-    ("deathChunk3", HIT, "sprite/common/hiteffect/bloodlarge.img", 3),
 ]
 
 # 木桶碎开的那 12 帧。客户端把 13 帧摆在同一格里，每帧带自己的 (x, y)；烘成"照 ink 裁"
@@ -172,6 +174,32 @@ def decode(client: pathlib.Path, pack: str, entry: str, frame_index: int):
     return decode_at(client, pack, entry, frame_index)[0]
 
 
+def close_top_gaps(picture: Image.Image) -> Image.Image:
+    """把地面条**顶上的透明缺口**用它正下方的颜色补上。
+
+    客户端这三张地面条（`02tile0N.img`）的顶角是按树的外轮廓切掉的 —— 原图就带
+    alpha=0，不是烘图烘坏的（量过：`02tile01.img` 有 6.6% 的像素是透明的，整行第 0 行
+    都在里头）。原版游戏里那块空当由 `obj` 层的树干/草丛填住；本作把那些树的底座
+    摆在地面带的上沿，差一截填不到，于是缺口里透出来的是画布底色 —— 屏幕上就是两块
+    死黑（业主 2026-10-10 报的「黑色阴影」）。
+
+    补成"地面往上多长一块"是最省事也最不打架的做法：接缝那条线本来就在地面自己
+    顶上，补完之后缺口和「地面条不透明的地方」看起来是同一条线。
+    """
+    out = picture.copy()
+    pixels = out.load()
+    for x in range(out.width):
+        below = None
+        for y in range(out.height - 1, -1, -1):
+            r, g, b, a = pixels[x, y]
+            if a == 0:
+                if below is not None:
+                    pixels[x, y] = below
+            else:
+                below = (r, g, b, a)
+    return out
+
+
 def shelf_pack(sizes, width):
     """Place (w, h) boxes on shelves of `width`. Simple, and the sheet is small."""
     placed, x, y, shelf = [], 0, 0, 0
@@ -197,6 +225,8 @@ def main() -> None:
         name, pack, entry, index = piece[:4]
         tint = piece[4] if len(piece) > 4 else None
         picture, _at = decode_at(args.client, pack, entry, index, tint)
+        if name.startswith("tile"):
+            picture = close_top_gaps(picture)
         art.append((name, picture, pack, entry, index))
         print(f"{name:12s} {entry:44s} {picture.width:4d}x{picture.height:<4d}")
 

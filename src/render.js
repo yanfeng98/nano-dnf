@@ -1662,26 +1662,24 @@
       doorDown: [729, 1231, 88, 46],
       barrel: [817, 1231, 63, 78],
       /*
-       * 怪物死亡那一瞬间（`docs/adr/0030`）：一团青白色的圆爆（`deathBurst`，
-       * 客户端 `monsterdieflash`，白核 + 青边），和飞出来的三种红肉块
-       * （`deathChunk1-3`，`sprite/common/hiteffect/bloodlarge` 的第 1-3 帧）。
+       * 怪物死的两样东西（`docs/adr/0031`）：一团**白烟**（`deathSmoke`，客户端
+       * `monsterdieblood` —— 一张白色形状，撒几片就是盖住尸体的那一团），和青白色的
+       * 圆爆（`deathBurst`，`monsterdieflash`，白核 + 青边；只有精英与 Boss 有）。
        */
-      deathBurst: [880, 1231, 103, 103],
-      deathChunk1: [983, 1231, 34, 28],
-      deathChunk2: [1017, 1231, 40, 41],
-      deathChunk3: [1057, 1231, 37, 48],
-      barrel1: [1094, 1231, 25, 21],
-      barrel2: [1119, 1231, 41, 13],
-      barrel3: [1160, 1231, 29, 10],
-      barrel4: [1189, 1231, 33, 14],
-      barrel5: [1222, 1231, 16, 25],
-      barrel6: [1238, 1231, 31, 24],
-      barrel7: [0, 1471, 38, 16],
-      barrel8: [38, 1471, 25, 9],
-      barrel9: [63, 1471, 46, 22],
-      barrel10: [109, 1471, 44, 21],
-      barrel11: [153, 1471, 28, 22],
-      barrel12: [181, 1471, 42, 16]
+      deathSmoke: [880, 1231, 40, 42],
+      deathBurst: [920, 1231, 103, 103],
+      barrel1: [1023, 1231, 25, 21],
+      barrel2: [1048, 1231, 41, 13],
+      barrel3: [1089, 1231, 29, 10],
+      barrel4: [1118, 1231, 33, 14],
+      barrel5: [1151, 1231, 16, 25],
+      barrel6: [1167, 1231, 31, 24],
+      barrel7: [1198, 1231, 38, 16],
+      barrel8: [1236, 1231, 25, 9],
+      barrel9: [0, 1471, 46, 22],
+      barrel10: [46, 1471, 44, 21],
+      barrel11: [90, 1471, 28, 22],
+      barrel12: [118, 1471, 42, 16]
     },
     /*
      * [piece, dx, dy] - 木桶碎开的那 12 帧，每一帧相对**完整那只桶的 ink 左上角**的
@@ -1708,6 +1706,13 @@
      * top edge, and the top edge is the line the floor meets the trees on.
      */
     ground: ["tile1", "tile2", "tile3"],
+    /*
+     * 长在地上的花草是**贴花**，不参加"站着的东西"那个按身位排的队：一律画在
+     * 所有人、怪、道具之前 —— 人踩在草上面，**草不遮人**（业主 2026-10-10 定的）。
+     * 「草」就是这一档：草、花草、小苗、花、灌木丛。木桶、石头、树、树桩、柱子
+     * 那些立起来的东西仍然按身位排（`docs/adr/0031`）。
+     */
+    decals: ["grass", "grassFlower", "sprout", "flower", "bush"],
     /*
      * How far above the band's back edge the ground's own top edge is drawn. The
      * strips are already grass right to their last row, so this only has to
@@ -2524,31 +2529,55 @@
    * 每次都撒在同一处 —— 跟着帧随机撒的话，一具尸体半秒钟里会变十几副样子。
    * 地上不留血泊（录像里量过：爆开点正下方 0.5 秒后红像素归零）。
    */
+  /*
+   * 一具尸体死掉的样子（`docs/adr/0031`）：**一团白烟把它盖掉**。
+   *
+   * 录像里普通怪死就是这一团白烟 —— 58x36 到 113x42 游戏像素、0.35-0.6 秒；烟起来
+   * 的时候尸体还看得见，烟散的那一下它一起没。地上不留血泊、不留碎块。
+   *
+   * 烟是客户端自己那团白（`monsterdieblood`：一张白色的形状，颜色由引擎挑），这里
+   * 撒几片、每片错开一点钟：一片同时出现同时消失的白贴在身上，看着就是贴纸不是烟。
+   *
+   * 青白圆爆（`monsterdieflash`）只有带 `flash` 的那几档有 —— 录像里六次击杀只拍到
+   * 一次，本作把它留给了精英与 Boss（`docs/adr/0031`）。
+   */
   function drawDeathBurst(ctx, state, sprites, effect, alpha) {
     var sheet = sprites && sprites.forest;
     if (!sheet) return;
-    var gone = 1 - alpha;
     var foot = floorY(effect.z);
-    var burst = (Core.DEATH && Core.DEATH.burst) || 0.1;
-    var chunkLife = effect.maxLife || 0.5;
-    var flash = 1 - gone / (burst / chunkLife);
-    if (flash > 0) {
-      drawScenePieceAt(ctx, sprites, "deathBurst",
-                       effect.x, foot - 40,
-                       0.6 + (1 - flash) * 0.7, Math.min(1, flash * 1.25) * 0.95);
+    var life = effect.maxLife || (Core.DEATH && Core.DEATH.smoke) || 0.5;
+    /* 0 = 烟刚起，1 = 烟散尽（`alpha` 是剩余的那一头）。 */
+    var age = clamp01(1 - alpha);
+    var seconds = age * life;
+    var boss = !!effect.boss;
+
+    if (effect.flash) {
+      var burst = (Core.DEATH && Core.DEATH.burst) || 0.1;
+      /* 一下就满、亮 `burst` 秒、再收回去：录像里它的大小基本不变。 */
+      var lit = 1 - clamp01((seconds - burst) / (burst * 1.5));
+      if (lit > 0) {
+        drawScenePieceAt(ctx, sprites, "deathBurst", effect.x, foot - (boss ? 76 : 40),
+                         0.9 + age * 0.5, lit * 0.9);
+      }
     }
-    var count = (Core.DEATH && Core.DEATH.chunkCount) || 12;
-    var names = ["deathChunk1", "deathChunk2", "deathChunk3"];
-    ctx.save();
-    ctx.globalAlpha = Math.min(1, alpha * 1.6);
+
+    var count = boss ? 9 : 6;
+    var spread = boss ? 150 : 78;
+    var lift = boss ? 118 : 54;
+    var size = boss ? 2.0 : 1.0;
     for (var index = 0; index < count; index += 1) {
-      var across = (scatter(effect.seed, index * 2) - 0.5) * 150;
-      var up = 8 + scatter(effect.seed, index * 2 + 1) * 62;
-      var scale = 0.55 + scatter(effect.seed, index * 2 + 101) * 0.5;
-      drawScenePieceAt(ctx, sprites, names[index % names.length],
-                       effect.x + across, foot - up, scale);
+      var stagger = scatter(effect.seed, index * 4) * 0.3;
+      var bloom = clamp01((age - stagger) / 0.25);
+      var fade = clamp01((1 - age) / 0.4);
+      var shown = Math.min(bloom, fade);
+      if (shown <= 0) continue;
+      var across = (scatter(effect.seed, index * 4 + 1) - 0.5) * spread;
+      var up = (boss ? 20 : 8) + scatter(effect.seed, index * 4 + 2) * lift;
+      var scale = size * (0.8 + scatter(effect.seed, index * 4 + 3) * 0.5)
+                       * (0.8 + 0.35 * clamp01((age - stagger) / 0.7));
+      drawScenePieceAt(ctx, sprites, "deathSmoke",
+                       effect.x + across, foot - up, scale, shown * 0.9);
     }
-    ctx.restore();
   }
 
   /** 一扇开着的门外面那圈光。 */
@@ -6204,15 +6233,24 @@
       });
     });
     /*
-     * The room's scenery stands on the same floor as everyone else, so it goes
-     * through the same sort: a trunk at the back of the room is painted before
-     * the goblin in front of it, and a barrel on the front edge after him.
+     * 布景分两拨。
      *
-     * 木桶是其中唯一会变的一件（`docs/adr/0030`）：碎开的那 0.42 秒画它的 12 块木片，
-     * 之后这一块地就空了 —— 桶这一局不再回来。碎片的位置是从桶自己的位置加偏移算的，
-     * 偏移在 `SCENE.barrelBreak` 里（烘的时候就量好了）。
+     * 一拨是**贴花**：长在地上的花草（`SCENE.decals`）先铺掉。它们是画在地面那
+     * 一层上的，不是站在地上的东西；要是也去排队，站在同一排（甚至只靠前两三个
+     * 像素）的一丛草就会把人盖住 —— 业主看到的就是那一下。
+     *
+     * 另一拨**站在同一块地板上**，和人走同一个队：后墙边的树干画在他前面的哥布林
+     * 之前，前边缘的桶画在他之后。木桶是其中唯一会变的一件（`docs/adr/0030`）：
+     * 碎开的那 0.42 秒画它的 12 块木片，之后这一块地就空了 —— 桶这一局不再回来。
+     * 碎片的位置是从桶自己的位置加偏移算的，偏移在 `SCENE.barrelBreak` 里。
      */
     (state.props || []).forEach(function (prop) {
+      if (SCENE.decals.indexOf(prop.piece) !== -1) {
+        drawScenePiece(ctx, sprites, prop.piece, prop.x, floorY(prop.z));
+      }
+    });
+    (state.props || []).forEach(function (prop) {
+      if (SCENE.decals.indexOf(prop.piece) !== -1) return;
       add(prop.z, function () {
         if (!prop.broken) {
           drawScenePiece(ctx, sprites, prop.piece, prop.x, floorY(prop.z));
