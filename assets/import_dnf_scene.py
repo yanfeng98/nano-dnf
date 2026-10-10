@@ -43,6 +43,7 @@ MAP = "sprite_map.NPK"
 GATE = "sprite_map_pathgate.NPK"
 BREAK = "sprite_map_breakableobject.NPK"
 MONSTER = "sprite_monster_common.NPK"
+HIT = "sprite_common_hiteffect.NPK"
 
 # (name, pack, entry, frame). Names are what `src/render.js` SCENE.pieces and a
 # room's `props` list use, so they are part of the game's vocabulary, not of the
@@ -107,6 +108,27 @@ PIECES = [
 # 之后要画得叠得回去，就得知道每帧相对**第 0 帧**的偏移 —— 那是量出来的，写在下面这张
 # 表里，跟着 manifest 一起出去（`src/render.js` SCENE.barrelBreak）。
 BARREL_ENTRY = "sprite/map/breakableobject/barrel.img"
+
+# 怪物死时炸出来的**肉块**（`docs/adr/0033`）。
+#
+# 形状取自客户端 `sprite/common/hiteffect/splashbloodlarge.img` 的第 0-2 帧 —— 那是
+# **白色的形状**（原版把颜色交给引擎挑，和 `monsterdieblood` 同一类），一帧里是一团
+# 血渍带着小滴，所以烘之前先取**最大的那一块**（`biggest_blob`）。
+#
+# 颜色是**这只怪自己的皮肤色**：业主的话是「绿色的怪物是绿色的，黄色的是黄色」，
+# 录像里量过（绿哥布林炸出来的块和它皮肤几乎逐像素同色）。下面这六个色号是从
+# `assets/monsters.png` 每一行的身体像素上量下来的（饱和度 > 0.2、中亮度，取**中位数**
+# 再提亮 30% —— 录像里炸出来的块比皮肤最暗的那一档亮一档），不是挑的。
+CHUNK_ENTRY = "sprite/common/hiteffect/splashbloodlarge.img"
+CHUNK_FRAMES = [0, 1, 2]
+CHUNK_TINTS = {
+    "grunt": (74, 159, 149),
+    "coward": (96, 149, 96),
+    "caster": (106, 128, 149),
+    "brute": (182, 139, 106),
+    "elite": (117, 182, 159),
+    "boss": (159, 96, 96)
+}
 BARREL_PIECES = 12
 
 SHELF_W = 1280
@@ -174,6 +196,42 @@ def decode(client: pathlib.Path, pack: str, entry: str, frame_index: int):
     return decode_at(client, pack, entry, frame_index)[0]
 
 
+def biggest_blob(picture: Image.Image) -> Image.Image:
+    """只留**最大的一块**（4 邻域连通），裁到它自己的框。
+
+    客户端那几帧是"一团血渍 + 溅出来的小滴"，当肉块用的时候要的是那一团。
+    """
+    w, h = picture.size
+    px = picture.load()
+    seen = set()
+    best = []
+    for y in range(h):
+        for x in range(w):
+            if px[x, y][3] < 128 or (x, y) in seen:
+                continue
+            blob = []
+            stack = [(x, y)]
+            seen.add((x, y))
+            while stack:
+                cx, cy = stack.pop()
+                blob.append((cx, cy))
+                for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                    nx, ny = cx + dx, cy + dy
+                    if 0 <= nx < w and 0 <= ny < h and (nx, ny) not in seen and px[nx, ny][3] >= 128:
+                        seen.add((nx, ny))
+                        stack.append((nx, ny))
+            if len(blob) > len(best):
+                best = blob
+    if not best:
+        return picture
+    xs = [q[0] for q in best]
+    ys = [q[1] for q in best]
+    keep = Image.new("RGBA", picture.size, (0, 0, 0, 0))
+    for q in best:
+        keep.putpixel(q, px[q[0], q[1]])
+    return keep.crop((min(xs), min(ys), max(xs) + 1, max(ys) + 1))
+
+
 def shelf_pack(sizes, width):
     """Place (w, h) boxes on shelves of `width`. Simple, and the sheet is small."""
     placed, x, y, shelf = [], 0, 0, 0
@@ -214,6 +272,14 @@ def main() -> None:
         break_at.append({"piece": name, "dx": at[0] - base[0], "dy": at[1] - base[1]})
         art.append((name, picture, BREAK, BARREL_ENTRY, index))
         print(f"{name:12s} {BARREL_ENTRY:44s} {picture.width:4d}x{picture.height:<4d}")
+
+    # 肉块：三张形状 × 每种怪自己的色。
+    for index in CHUNK_FRAMES:
+        shape = biggest_blob(decode(args.client, HIT, CHUNK_ENTRY, index))
+        for kind, tint in sorted(CHUNK_TINTS.items()):
+            name = f"chunk_{kind}{index}"
+            art.append((name, tinted(shape, tint), HIT, CHUNK_ENTRY, index))
+            print(f"{name:12s} {CHUNK_ENTRY:44s} {shape.width:4d}x{shape.height:<4d} tint {tint}")
 
     spots, height = shelf_pack([(p.width, p.height) for _, p, _, _, _ in art], SHELF_W)
     sheet = Image.new("RGBA", (SHELF_W, height), (0, 0, 0, 0))

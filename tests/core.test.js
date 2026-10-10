@@ -427,59 +427,95 @@ test("the combo chain walks the three cuts of the normal attack", () => {
   assert.equal(state.player.comboIndex, stages.length - 1);
 });
 
-test("a dead monster lies for a beat, goes up in white smoke, and does not come back", () => {
+test("a dead monster lies, goes up in white smoke, then bursts into its own colour", () => {
   const state = Core.createState({ seed: Core.DEFAULT_SEED });
   Core.goToCell(state, state.dungeon.boss);
   const total = state.enemies.length;
+  const mob = state.enemies.find((enemy) => enemy.type !== "boss");
+  assert.ok(mob, "Boss 房里还有小怪");
 
-  killAll(state);
+  Core.damageEnemy(state, mob, 99999, 0, state.player.x);
   Core.step(state, {});
 
-  /* 录像的时间线：致命一击 → 倒地躺约 0.2 秒 → 白烟盖住它 → 烟散时一起没（adr/0031）。 */
-  assert.equal(state.enemies.length, total, "the bodies are still on the floor");
-  assert.ok(
-    state.enemies.every((enemy) => enemy.dying > 0),
-    "and they are dying, not gone"
-  );
-
-  /* 还没躺够，不许起烟。 */
+  /*
+   * 录像里的两段（`docs/adr/0033`）：致命一击 → 倒地躺约 0.2 秒 → 白烟盖住它、烟散时
+   * 尸体一起没 → **同时**炸成十二块它自己颜色的碎块。
+   */
+  assert.ok(mob.dying > 0, "尸体先躺着");
   Core.runFrames(state, Math.ceil(Core.DEATH.lie * Core.FPS) - 3, {});
   assert.ok(
-    !state.effects.some((effect) => effect.kind === "deathburst"),
-    "the smoke waits for the body to finish falling"
+    !state.effects.some((effect) => effect.kind === "deathsmoke"),
+    "躺够之前不许起烟"
   );
 
   Core.runFrames(state, 6, {});
-  const smoke = state.effects.filter((effect) => effect.kind === "deathburst");
-  assert.ok(smoke.length > 0, "then the white smoke covers it");
   assert.ok(
-    state.enemies.length === total,
-    "and the body is still under the smoke - 烟散的时候它才一起没"
+    state.effects.some((effect) => effect.kind === "deathsmoke"),
+    "躺够了才是白烟"
   );
-  const bossSmoke = smoke.find((effect) => effect.boss);
-  assert.ok(bossSmoke, "Boss 自己那一团在里头");
-  assert.equal(bossSmoke.flash, true, "它带青白圆爆（`docs/adr/0031`）");
-  assert.equal(bossSmoke.maxLife, Core.DEATH.bossSmoke, "而且更大更久");
+  assert.ok(
+    !state.effects.some((effect) => effect.kind === "deathburst"),
+    "烟还盖着它，这时候还没炸"
+  );
 
+  Core.runFrames(state, Math.ceil(Core.DEATH.smoke * Core.FPS) + 2, {});
+  const burst = state.effects.find((effect) => effect.kind === "deathburst");
+  assert.ok(burst, "烟散的那一刻炸开");
+  assert.equal(burst.type, mob.type, "碎块用的是这只怪自己的色号");
+  assert.equal(burst.maxLife, Core.DEATH.chunks);
+  assert.ok(
+    !state.enemies.includes(mob),
+    "尸体和烟一起没（碎块是它没了以后的事）"
+  );
+  assert.ok(state.enemies.includes(state.enemies.find((enemy) => enemy.type === "boss")), "Boss 还在");
+
+  /* Boss 例外：录像里它只是一大团白云散掉，不炸。 */
+  const boss = state.enemies.find((enemy) => enemy.type === "boss");
+  /* Boss 每一击都掷一次回避（`docs/adr/0018`），一刀不一定砍得死。 */
+  for (let hit = 0; hit < 50 && !boss.dead; hit += 1) {
+    Core.damageEnemy(state, boss, 999999, 0, state.player.x);
+  }
+  Core.runFrames(state, Math.ceil(Core.DEATH.lie * Core.FPS) + 2, {});
+  const smoke = state.effects.filter((effect) => effect.kind === "deathsmoke" && effect.boss);
+  assert.equal(smoke.length, 1, "Boss 那团云");
+  assert.equal(smoke[0].maxLife, Core.DEATH.bossSmoke, "而且更大更久");
   Core.runFrames(state, Math.ceil(Core.DEATH.bossSmoke * Core.FPS) + 2, {});
-  assert.equal(state.enemies.length, 0);
-  assert.equal(state.stats.kills, total);
-  assert.equal(state.room.cleared, true);
-  assert.equal(state.victory, true, "the boss cell ends the run");
+  assert.equal(
+    state.effects.filter((effect) => effect.kind === "deathburst" && effect.seed === boss.id).length,
+    0,
+    "Boss 不留碎块"
+  );
+  assert.equal(state.victory, true, "Boss 房打掉就通关");
 });
 
-test("烟是普通怪的收场，青白圆爆只留给精英与 Boss", () => {
-  const state = stateInCell(Core.DEFAULT_SEED, 0);
-  const mob = state.enemies.find((enemy) => enemy.type === "grunt" || enemy.type === "caster");
-  assert.ok(mob, "兽栏里有一只普通哥布林");
-
-  Core.damageEnemy(state, mob, 99999, 0, state.player.x);
-  Core.runFrames(state, Math.ceil(Core.DEATH.lie * Core.FPS) + 2, {});
-
-  const smoke = state.effects.filter((effect) => effect.kind === "deathburst");
-  assert.equal(smoke.length, 1, "一只怪死了就是一团烟");
-  assert.equal(smoke[0].flash, false, "普通怪没有那团圆爆");
-  assert.equal(smoke[0].maxLife, Core.DEATH.smoke);
+test("碎块的颜色跟着怪走 —— 每种怪都有自己的那张", () => {
+  const state = Core.createState({ seed: Core.DEFAULT_SEED });
+  Core.goToCell(state, 0);
+  const kinds = new Set();
+  state.enemies.forEach((enemy) => {
+    Core.damageEnemy(state, enemy, 99999, 0, state.player.x);
+    kinds.add(enemy.type);
+  });
+  Core.runFrames(state, Math.ceil((Core.DEATH.lie + Core.DEATH.smoke) * Core.FPS) + 4, {});
+  const bursts = state.effects.filter((effect) => effect.kind === "deathburst");
+  assert.ok(bursts.length >= 2, `一屋子怪死了就炸出几团（这次 ${bursts.length} 团）`);
+  bursts.forEach((effect) => {
+    ["0", "1", "2"].forEach((shape) => {
+      const name = "chunk_" + effect.type + shape;
+      assert.ok(
+        Object.prototype.hasOwnProperty.call(Render.SCENE.pieces, name),
+        `${effect.type} 死了要炸出 ${name} 这种碎块（自己那张色）`
+      );
+    });
+  });
+  kinds.forEach((kind) => {
+    ["0", "1", "2"].forEach((shape) => {
+      assert.ok(
+        Object.prototype.hasOwnProperty.call(Render.SCENE.pieces, "chunk_" + kind + shape),
+        `${kind} 也要有一张自己的碎块`
+      );
+    });
+  });
 });
 
 test("a cleared room walks out through the door the map says, and the reward gates it", () => {
@@ -8302,6 +8338,12 @@ test("every prop a room scatters names a piece the bake produced", () => {
    */
   ["gate", "gateUp", "gateDown", "door", "doorUp", "doorDown",
    "deathSmoke", "deathBurst",
+   "chunk_grunt0", "chunk_grunt1", "chunk_grunt2",
+   "chunk_coward0", "chunk_coward1", "chunk_coward2",
+   "chunk_caster0", "chunk_caster1", "chunk_caster2",
+   "chunk_brute0", "chunk_brute1", "chunk_brute2",
+   "chunk_elite0", "chunk_elite1", "chunk_elite2",
+   "chunk_boss0", "chunk_boss1", "chunk_boss2",
    "barrel1", "barrel2", "barrel3", "barrel4", "barrel5", "barrel6",
    "barrel7", "barrel8", "barrel9", "barrel10", "barrel11", "barrel12",
    "boss", "marker", "blank", "tl", "top", "tr", "left", "centre", "right",

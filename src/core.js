@@ -2567,25 +2567,31 @@
    * 那是"击倒"，0.2 秒后会站起来，和死是两回事。
    */
   /*
-   * 倒下的那一下（`docs/adr/0031`）。录像里量到的样子是：尸体先躺住，一团**白烟**盖
-   * 上来，烟散的时候尸体一起没 —— 地上不留血泊、不留尸体、不留碎块。
+   * 倒下的那一下（`docs/adr/0033`，推翻 `0031` 的一半）。录像里量到的样子是**两段**：
    *
-   * 烟的素材是客户端自己的（`monsterdieblood`，一张白色的不规则云，原版把颜色交给
-   * 引擎挑，死亡这里它就是白的）。青白色圆爆（`monsterdieflash`）**不是每只怪都有**：
-   * 录里六次击杀只拍到一次（那只是带诅咒的哥布林），所以本作把它留给精英与 Boss。
+   * 1. 尸体先躺住 → 一团**白烟**把尸体盖住，**尸体随烟一起消失**（烟 0.1–0.4 秒）；
+   * 2. 烟散的那一刻，青白圆爆亮一下，尸体当场**炸成十几块按自己颜色的碎块**飞出去、
+   *    减速、落地、摊在草上（≥2 秒）；地上不留尸体、不留血泊。
    *
-   * 曾经这里还有 `chunks` / `chunkCount` 两个数：一次炸开冒 9–14 块红肉块。那是**看错
-   * 了** —— 录像里满天飞的那些红球是怪掉在地上的东西（掉落物），不是血（同一条 ADR）。
+   * 上一片只量到第 1 段就收工，把整段判成了"白烟" —— 业主一句「原视频是变成肉块，
+   * 绿色的怪物是绿色的」把它翻了过来。碎块的颜色就是这只怪**自己的皮肤色**
+   * （烘在 `chunk_<type>{0,1,2}` 三张形状上，色号量自 `assets/monsters.png`）。
+   *
+   * Boss 不一样：录像里它是**一大团白云（约 0.95 秒）然后把烟啵掉**，没有碎块、不炸。
    */
   var DEATH = {
     /* 倒地到烟起来之间那一下，7 帧。 */
     lie: 0.2,
-    /* 白烟从起到散（录像 0.35–0.6 秒）。尸体这段时间被烟盖着，烟散一起没。 */
-    smoke: 0.5,
-    /* Boss 那一团更大更久：录像里 233x130 游戏像素、约 0.95 秒。 */
-    bossSmoke: 0.95,
-    /* 圆爆亮多久（只有精英与 Boss）。 */
-    burst: 0.1
+    /* 白烟盖住尸体多久（录像 0.1–0.4 秒）；尸体在这段时间里被盖着，烟散一起没。 */
+    smoke: 0.2,
+    /* 烟散那一下的青白圆爆亮多久。 */
+    burst: 0.25,
+    /* 碎块从炸出来到摊平不动：飞、减速、落地，然后留在草上。 */
+    chunks: 2.6,
+    /* 一次炸开冒几块（录像 8–15 块，取 12）。 */
+    chunkCount: 12,
+    /* Boss 那一团更大更久：录像里约 0.95 秒、约 230x175 游戏像素。 */
+    bossSmoke: 0.95
   };
 
   /** 这一只死了要冒多久的烟。 */
@@ -3550,7 +3556,7 @@
     if (enemy.hp <= 0) {
       enemy.hp = 0;
       enemy.dead = true;
-      /* 先躺 `DEATH.lie`，再让白烟盖住它 —— 烟散的时候尸体一起没（`updateDeaths`）。 */
+      /* 先躺 `DEATH.lie`，再让白烟盖住它 —— 烟散的时候尸体一起没，同时炸出碎块。 */
       enemy.dying = DEATH.lie + smokeLife(enemy);
       state.stats.kills += 1;
       /*
@@ -5167,13 +5173,15 @@
   }
 
   /**
-   * 倒下的人：躺满 `DEATH.lie`，白烟盖上来，烟散的时候一起没。
+   * 倒下的人：躺满 `DEATH.lie`，白烟盖上来，烟散的时候**尸体一起没**。
    *
    * 一具尸体只起一次烟（`smoking`），烟和尸体共用一条时间线：`enemy.dying` 从
-   * `lie + smokeLife()` 数到 0，途中滑过 `smokeLife()` 那一刻推一条 `deathburst`，
-   * 数到 0 时尸体（和那口烟）一起从这一局里消失 —— 烟盖着它散的，所以**不能**提前撤。
+   * `lie + smokeLife()` 数到 0，途中滑过 `smokeLife()` 那一刻推一条烟，数到 0 时尸体从
+   * 这一局里消失 —— 并且**同时**推一条 `deathburst`：炸开的碎块（`docs/adr/0033`）。
+   * 烟盖着它散，所以尸体不能提前撤；碎块是它没了以后的事。
    *
-   * `seed` 是这只怪的 id：撒开的几片白团要每次都撒在同一处，不然一帧一个花样。
+   * `seed` 是这只怪的 id：撒开的几片白团、飞出去的十二块，都要每次都撒在同一处，
+   * 不然一帧一个花样。
    */
   function updateDeaths(state, dt) {
     var buried = false;
@@ -5183,12 +5191,10 @@
       if (!enemy.smoking && enemy.dying <= smokeLife(enemy)) {
         enemy.smoking = true;
         state.effects.push({
-          kind: "deathburst",
+          kind: "deathsmoke",
           x: enemy.x,
           z: enemy.z,
           seed: enemy.id,
-          /* 精英与 Boss 才多那一团青白圆爆（`docs/adr/0031`）。 */
-          flash: enemy.type === "elite" || enemy.type === "boss",
           boss: enemy.type === "boss",
           life: smokeLife(enemy),
           maxLife: smokeLife(enemy)
@@ -5198,6 +5204,21 @@
       enemy.dying = 0;
       enemy.gone = true;
       buried = true;
+      /*
+       * 炸开：一小团圆爆 + 十二块**它自己的颜色**。Boss 例外 —— 录像里它只是一大团
+       * 白云散掉，不炸、不留东西。
+       */
+      if (enemy.type !== "boss") {
+        state.effects.push({
+          kind: "deathburst",
+          x: enemy.x,
+          z: enemy.z,
+          seed: enemy.id,
+          type: enemy.type,
+          life: DEATH.chunks,
+          maxLife: DEATH.chunks
+        });
+      }
     });
     if (!buried) return;
     state.enemies = state.enemies.filter(function (enemy) {
