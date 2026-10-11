@@ -2626,10 +2626,15 @@
        * 就会摊成一排、糊在地上（业主：「像落叶一样」）。角度与速度都由 id + 序号
        * 定死，同一具尸体每次都甩成同一副样子。
        */
+      /*
+       * 距离也是量的：录像里那些块**最远飞 60–70 世界像素**（200 px/s 上下、活 0.3 秒），
+       * 我们原来 300–640 px/s × 0.5 秒 = 最远 300+，等于甩出去半个房间
+       * （业主：「最后散开的距离太远了」）。
+       */
       var angle = scatter(effect.seed, index * 6) * Math.PI * 2;
-      var speed = 300 + scatter(effect.seed, index * 6 + 1) * 340;
+      var speed = 110 + scatter(effect.seed, index * 6 + 1) * 150;
       var vx = Math.cos(angle) * speed;
-      var vy = Math.sin(angle) * speed * 0.55 + 110;     /* 略往上偏，甩得开 */
+      var vy = Math.sin(angle) * speed * 0.55 + 70;      /* 略往上偏，甩得开 */
       var spin = (scatter(effect.seed, index * 6 + 3) - 0.5) * 11;
       var x = effect.x + vx * t;
       var height = body + vy * t - 0.5 * gravity * t * t;
