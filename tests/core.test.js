@@ -427,7 +427,7 @@ test("the combo chain walks the three cuts of the normal attack", () => {
   assert.equal(state.player.comboIndex, stages.length - 1);
 });
 
-test("a dead monster goes into a flat cloud on the floor, and nothing is left behind", () => {
+test("a dead monster lies down, turns into its own white silhouette, then bursts into its own colour", () => {
   const state = Core.createState({ seed: Core.DEFAULT_SEED });
   Core.goToCell(state, state.dungeon.boss);
   const mob = state.enemies.find((enemy) => enemy.type !== "boss");
@@ -435,75 +435,98 @@ test("a dead monster goes into a flat cloud on the floor, and nothing is left be
 
   Core.damageEnemy(state, mob, 99999, 0, state.player.x);
   /*
-   * 录像里的这一拍（`docs/adr/0034`，幽暗密林 96.63–96.97s 逐帧量）：致命一击那一帧
-   * 云就起来了，怪**当场没** —— 没有倒地那一段，没有圆爆，也没有碎块。
+   * 业主的口径（`docs/adr/0034`）：「怪物确实会躺着死，然后出现白色怪物轮廓，
+   * 然后碎裂成血块（和怪物颜色一样）散向四处」。
    */
-  const smoke = state.effects.find((effect) => effect.kind === "deathsmoke");
-  assert.ok(smoke, "死的那一帧云就在了");
-  assert.equal(smoke.maxLife, Core.DEATH.cloud, "云活 0.30 秒（录像 96.667–96.967）");
-  assert.equal(smoke.height, mob.height, "云照着这只怪自己的高来摊");
+  assert.ok(mob.dying > 0, "先躺着");
+  assert.ok(!mob.silhouette, "躺着的这一段还是它自己");
+  Core.runFrames(state, Math.ceil(Core.DEATH.lie * Core.FPS) - 3, {});
+  assert.ok(!mob.silhouette, "躺够之前不许变白");
+
+  Core.runFrames(state, 6, {});
+  assert.ok(mob.silhouette, "躺够了下一次就是白色剪影");
   assert.ok(
     !state.effects.some((effect) => effect.kind === "deathburst"),
-    "录像里没有青白圆爆，也没有碎块"
+    "剪影还亮着，这时候还没炸"
   );
 
-  Core.step(state, {});
-  assert.ok(!state.enemies.includes(mob), "尸体不留场（录像里下一帧就没了）");
+  /* 剪影亮 `DEATH.shape` 秒，然后炸开。 */
+  Core.runFrames(state, Math.ceil(Core.DEATH.shape * Core.FPS) + 2, {});
+  const burst = state.effects.find((effect) => effect.kind === "deathburst");
+  assert.ok(burst, "剪影散的那一刻炸开");
+  assert.equal(burst.type, mob.type, "碎块用的是这只怪自己的色号");
+  assert.equal(burst.maxLife, Core.DEATH.chunks);
+  assert.ok(!state.enemies.includes(mob), "炸完尸体从场上没了");
 
-  /* 云散掉，地上什么也不许剩。 */
-  Core.runFrames(state, Math.ceil(Core.DEATH.cloud * Core.FPS) + 2, {});
+  /* 碎块飞完化掉，地上什么都不许剩。 */
+  Core.runFrames(state, Math.ceil(Core.DEATH.chunks * Core.FPS) + 2, {});
   assert.equal(
-    state.effects.filter((effect) => effect.kind === "deathsmoke").length,
+    state.effects.filter((effect) => effect.kind === "deathburst").length,
     0,
-    "云散干净"
-  );
-  assert.equal(
-    state.effects.filter((effect) => /death|chunk/.test(effect.kind)).length,
-    0,
-    "地上不留碎块、不留血泊、不留尸体"
+    "碎块化干净"
   );
 
-  /* Boss：同一件事的放大版 —— 一大团、约 0.9 秒，一样不留东西。 */
+  /* Boss：一样躺、一样白，但**不炸**（录像里它只有那一片白）。 */
   const boss = state.enemies.find((enemy) => enemy.type === "boss");
   /* Boss 每一击都掷一次回避（`docs/adr/0018`），一刀不一定砍得死。 */
   for (let hit = 0; hit < 50 && !boss.dead; hit += 1) {
     Core.damageEnemy(state, boss, 999999, 0, state.player.x);
   }
-  const bossCloud = state.effects.filter((effect) => effect.kind === "deathsmoke" && effect.boss);
-  assert.equal(bossCloud.length, 1, "Boss 那团云");
-  assert.equal(bossCloud[0].maxLife, Core.DEATH.bossCloud, "而且更大更久");
-  assert.ok(bossCloud[0].height > mob.height, "按它自己的个头放大");
-  Core.runFrames(state, Math.ceil(Core.DEATH.bossCloud * Core.FPS) + 2, {});
+  assert.equal(boss.dying, Core.DEATH.lie + Core.DEATH.bossSmoke, "Boss 那一片白更大更久");
+  Core.runFrames(state, Math.ceil(Core.DEATH.lie * Core.FPS) + 2, {});
+  assert.ok(boss.silhouette, "Boss 也变白");
+  Core.runFrames(state, Math.ceil(Core.DEATH.bossSmoke * Core.FPS) + 2, {});
   assert.equal(
-    state.effects.filter((effect) => /death|chunk/.test(effect.kind)).length,
+    state.effects.filter((effect) => effect.kind === "deathburst" && effect.seed === boss.id).length,
     0,
-    "Boss 也一样不留东西"
+    "Boss 不炸"
   );
   assert.equal(state.victory, true, "Boss 房打掉就通关");
 });
 
-test("每只怪死都只起一团云，个头按它自己算", () => {
+test("每只怪死都走同一条线：躺 → 白色剪影 → 自己颜色的碎块", () => {
   const state = Core.createState({ seed: Core.DEFAULT_SEED });
   Core.goToCell(state, 0);
   const killed = state.enemies.slice();
   killed.forEach((enemy) => {
     Core.damageEnemy(state, enemy, 99999, 0, state.player.x);
   });
-  const clouds = state.effects.filter((effect) => effect.kind === "deathsmoke");
-  assert.equal(clouds.length, killed.length, "一只一团，不多不少");
-  clouds.forEach((effect) => {
-    assert.ok(effect.height > 0, "云得知道这只怪多高");
-    assert.equal(effect.boss, effect.type === "boss", "Boss 那一团按 boss 画");
+  assert.equal(
+    state.enemies.filter((enemy) => enemy.dead).length,
+    killed.length,
+    "躺着的都在名单里（收尸要等剪影走完）"
+  );
+
+  /* 躺 → 白：每一只都变，一只不落。 */
+  Core.runFrames(state, Math.ceil(Core.DEATH.lie * Core.FPS) + 2, {});
+  killed.forEach((enemy) => {
+    assert.ok(enemy.silhouette, `${enemy.type} 也要变白`);
   });
 
-  /* 云散完，场上干干净净。 */
-  Core.runFrames(state, Math.ceil(Core.DEATH.cloud * Core.FPS) + 4, {});
+  /* 白 → 炸：每只一份，用的是它自己的色号。 */
+  Core.runFrames(state, Math.ceil(Core.DEATH.shape * Core.FPS) + 2, {});
+  const bursts = state.effects.filter((effect) => effect.kind === "deathburst");
+  assert.equal(bursts.length, killed.length, "一只一份碎块，不多不少");
+  const kinds = new Set(killed.map((enemy) => enemy.type));
+  kinds.forEach((kind) => {
+    assert.ok(
+      bursts.some((effect) => effect.type === kind),
+      `${kind} 的碎块要用它自己的色号`
+    );
+  });
   assert.equal(
-    state.effects.filter((effect) => effect.kind === "deathsmoke").length,
+    state.enemies.filter((enemy) => enemy.dead).length,
     0,
-    "云都散干净了"
+    "炸完尸体都不在名单里"
   );
-  assert.equal(state.enemies.length, 0, "没有躺着的尸体留在名单里");
+
+  /* 碎块化完，场上干干净净。 */
+  Core.runFrames(state, Math.ceil(Core.DEATH.chunks * Core.FPS) + 4, {});
+  assert.equal(
+    state.effects.filter((effect) => effect.kind === "deathburst").length,
+    0,
+    "碎块都化干净了"
+  );
 });
 
 test("a cleared room walks out through the door the map says, and the reward gates it", () => {
@@ -569,7 +592,7 @@ function smashBarrel(state, prop) {
 /** 清空这一间房、把清房那张卡也收了 —— 这间房的门才会让人走。 */
 function clearAndTakeCard(state) {
   killAll(state);
-  Core.runFrames(state, Math.ceil(Core.DEATH.cloud * Core.FPS) + 2, {});
+  Core.runFrames(state, Math.ceil((Core.DEATH.lie + Core.DEATH.shape) * Core.FPS) + 2, {});
   if (state.upgradeChoice) {
     Core.chooseUpgrade(state, preferredUpgrade(state.upgradeChoice.options));
   }
@@ -613,7 +636,7 @@ test("a smashed barrel stays smashed when he walks out of the room and back in",
 test("换房把上一间房的光和字一并留下，不带进新房间", () => {
   const state = Core.createState({ seed: Core.DEFAULT_SEED });
   /* 一站就是 99 秒的一条，走到新房间时本来还没散。 */
-  state.effects.push({ kind: "deathsmoke", x: 120, z: 0, life: 99, maxLife: 99 });
+  state.effects.push({ kind: "deathburst", x: 120, z: 0, life: 99, maxLife: 99 });
 
   killAll(state);
   Core.step(state, {});
@@ -7760,7 +7783,7 @@ test("upgrades stack across the run", () => {
   assert.ok(route.length > 2, `a route to the boss crosses more than a room or two: ${route.length}`);
   for (const dir of route) {
     killAll(state);
-    Core.runFrames(state, Math.ceil(Core.DEATH.cloud * Core.FPS) + 2, {});
+    Core.runFrames(state, Math.ceil((Core.DEATH.lie + Core.DEATH.shape) * Core.FPS) + 2, {});
     Core.step(state, {});
     if (state.victory) break;
     assert.ok(state.upgradeChoice, `room ${taken.length + 1} must offer an upgrade`);
@@ -8325,7 +8348,12 @@ test("every prop a room scatters names a piece the bake produced", () => {
    * out of the room, and everything the map window is built from.
    */
   ["gate", "gateUp", "gateDown", "door", "doorUp", "doorDown",
-   "deathSmoke",
+   "chunk_grunt0", "chunk_grunt1", "chunk_grunt2",
+   "chunk_coward0", "chunk_coward1", "chunk_coward2",
+   "chunk_caster0", "chunk_caster1", "chunk_caster2",
+   "chunk_brute0", "chunk_brute1", "chunk_brute2",
+   "chunk_elite0", "chunk_elite1", "chunk_elite2",
+   "chunk_boss0", "chunk_boss1", "chunk_boss2",
    "barrel1", "barrel2", "barrel3", "barrel4", "barrel5", "barrel6",
    "barrel7", "barrel8", "barrel9", "barrel10", "barrel11", "barrel12",
    "boss", "marker", "blank", "tl", "top", "tr", "left", "centre", "right",

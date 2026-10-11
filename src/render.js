@@ -1662,15 +1662,31 @@
       doorDown: [729, 1231, 88, 46],
       barrel: [817, 1231, 63, 78],
       /*
-       * 那团贴地的白云（`docs/adr/0034`）：客户端 `monsterdieblood` 的白色形状，
-       * 横着叠几片摊成一整条 —— 怪死的那一下出现，0.3 秒散掉。
+       * 碎块那十八个矩形（`docs/adr/0034`）：三张白色形状 × 六种怪自己的色号，
+       * 炸开的时候随机挑（色号量自 `assets/monsters.png` 每行的身体像素中位数）。
        *
-       * 以前这儿还有 `deathBurst`（青白圆爆）与 `chunk_<type>{0,1,2}`（按怪染色的
-       * 十二块碎块）两组矩形：重新逐帧量完录像发现**那两样在录像里根本不存在**，
-       * 整条删了。它们在 `assets/forest.png` 里烘着的那几块像素还留着（这个环境没有
-       * 客户端，重烘不了），下次带着客户端重跑 `assets/import_dnf_scene.py` 时可以一并去掉。
+       * 那一段"白色剪影"不用这里的图 —— 剪影是**这只怪自己**换成白的（`ghostSheet`），
+       * 所以形状天然是它躺下那个形状。以前这儿还有 `deathSmoke`（一团云）与
+       * `deathBurst`（青白圆爆）两块：云是我把剪影看成了烟，圆爆在录像里没有，都删了。
        */
-      deathSmoke: [880, 1231, 40, 42],
+      chunk_boss0: [160, 1471, 22, 21],
+      chunk_brute0: [182, 1471, 22, 21],
+      chunk_caster0: [204, 1471, 22, 21],
+      chunk_coward0: [226, 1471, 22, 21],
+      chunk_elite0: [248, 1471, 22, 21],
+      chunk_grunt0: [270, 1471, 22, 21],
+      chunk_boss1: [292, 1471, 34, 25],
+      chunk_brute1: [326, 1471, 34, 25],
+      chunk_caster1: [360, 1471, 34, 25],
+      chunk_coward1: [394, 1471, 34, 25],
+      chunk_elite1: [428, 1471, 34, 25],
+      chunk_grunt1: [462, 1471, 34, 25],
+      chunk_boss2: [496, 1471, 40, 25],
+      chunk_brute2: [536, 1471, 40, 25],
+      chunk_caster2: [576, 1471, 40, 25],
+      chunk_coward2: [616, 1471, 40, 25],
+      chunk_elite2: [656, 1471, 40, 25],
+      chunk_grunt2: [696, 1471, 40, 25],
       barrel1: [1023, 1231, 25, 21],
       barrel2: [1048, 1231, 41, 13],
       barrel3: [1089, 1231, 29, 10],
@@ -2572,49 +2588,41 @@
    * 撒几片、每片错开一点钟：一片同时出现同时消失的白贴在身上，看着就是贴纸不是烟。
    */
   /*
-   * 怪死：**一团贴地的白云**（`docs/adr/0034`）。
+   * 炸开：**十几块它自己颜色的碎块**（`docs/adr/0034`）。
    *
-   * 量的是业主那条幽暗密林录像（96.63–96.97s，30fps 逐帧）：一片横着、贴地的白，
-   * 包围盒 **2.6 × 怪高宽、1.05 × 怪高厚** —— 上缘高过脚线 0.44 个怪高、下缘低
-   * 0.61 个（脚 y≈837，云 790–903，哥布林 108px 高）。**整片不往上飘**：包围盒
-   * 一直在原地，只有里面的形状慢慢翻搅；活 0.30 秒，末段淡掉，地上什么都不留。
+   * 量自业主的幽暗密林录像（T+4:50 那只，30fps 逐帧）：白色剪影散掉的那一刻，
+   * 十几块**按它自己皮肤色**染的小块放射出去 —— 金黄的那只飞的全是金黄的，
+   * 绿哥布林飞绿的（落在深绿草地上几乎看不见，上一片就是这么漏掉的）。飞出去、
+   * 减速、坠地，然后化掉；地上不留东西。
    *
-   * 画法就是把客户端的云片**横着摊平叠几片**：每片按 `seed` 错开、随 age 轻微起伏
-   * （翻搅的读法），整片在最后四分之一淡出。位置只跟 `effect.x` 走（死在哪散在哪），
-   * 抬升与其它贴地的东西共用同一条 `floorY`。
+   * 位置由怪的 id 定死（`seed`），所以同一具尸体每次都撒在同一处；轨迹是解析的
+   * （`h = vy*t - g*t^2/2`），不积分 —— 只读 `t`，暂停、慢放都不会飘。
    */
-  function drawDeathSmoke(ctx, state, sprites, effect, alpha) {
+  function drawDeathBurst(ctx, state, sprites, effect, alpha) {
     var sheet = sprites && sprites.forest;
     if (!sheet) return;
-    var foot = floorY(effect.z);
-    var age = clamp01(1 - alpha);
-    var height = effect.height || 60;
-    var width = height * 2.6;
-    var thick = height * 1.05;
-    var count = effect.boss ? 11 : 9;
-    /* 末四分之一淡出；剩下那段时间只有形状在动。 */
-    var fade = clamp01(alpha / 0.25);
+    var life = effect.maxLife || (Core.DEATH && Core.DEATH.chunks) || 1.6;
+    var t = clamp01(1 - alpha) * life;
+    var depth = Core.bandDepth(state.band);
+    var gravity = 400;
+    var count = (Core.DEATH && Core.DEATH.chunkCount) || 12;
+    var shapes = ["0", "1", "2"];
+    /* 从上身散开，不是从脚底 —— 从脚底起飞读起来像"地上一滩"。 */
+    var body = (effect.height || 60) * 0.45;
+    /* 最后半秒一起淡掉，前面一直在空中/地上。 */
+    var fade = Math.min(1, (alpha * life) / 0.5);
     for (var index = 0; index < count; index += 1) {
-      var k = count === 1 ? 0.5 : index / (count - 1);
-      var phase = scatter(effect.seed, index * 4 + 1);
-      /* 一秒来回一两次的慢翻 —— 包围盒不动，动的是里面的形状。 */
-      var churn = Math.sin((age * 2.2 + phase) * Math.PI * 2);
-      var across = (k - 0.5) * width * 0.58;
-      var lift = (scatter(effect.seed, index * 4 + 2) - 0.5) * thick * 0.16
-                 + churn * thick * 0.05;
-      var scale = (thick / 42) * (1.7 + 0.2 * churn);
-      /*
-       * **多过叠实**：这张云片自己是软边的（alpha 均值 107、只有 16% 的像素是实的），
-       * 盖一遍出来是烟，不是录像里那团**实心白**（190 与 232 两个阈值量出来的面积
-       * 一样大）。所以同一片连着盖几遍、每次挪一点，中段就实了。
-       */
-      for (var pass = 0; pass < 4; pass += 1) {
-        var nudge = (pass - 1.5) / 1.5;
-        drawScenePieceAt(ctx, sprites, "deathSmoke",
-                         effect.x + across + nudge * thick * 0.06,
-                         foot + thick * 0.085 - lift + nudge * thick * 0.05,
-                         scale, fade);
-      }
+      var piece = "chunk_" + (effect.type || "grunt") + shapes[index % shapes.length];
+      var vx = (scatter(effect.seed, index * 5) - 0.5) * 340;
+      var vz = (scatter(effect.seed, index * 5 + 1) - 0.5) * 160;
+      var vy = 190 + scatter(effect.seed, index * 5 + 2) * 110;
+      /* 起手的位置在尸体身上撒开一点 —— 全从一点出发会堆成一大坨。 */
+      var x = effect.x + (scatter(effect.seed, index * 5 + 4) - 0.5) * 40 + vx * t;
+      var z = Math.max(0, Math.min(depth, effect.z + vz * t));
+      var height = body + vy * t - 0.5 * gravity * t * t;
+      if (height < 0) height = 0;                       /* 落地就摊在那儿 */
+      var scale = 0.35 + scatter(effect.seed, index * 5 + 3) * 0.45;
+      drawScenePieceAt(ctx, sprites, piece, x, floorY(z) - height - 8, scale, fade);
     }
   }
 
@@ -3248,6 +3256,28 @@
    * every monster's feet on `anchorY`, with the idle footprint centred on
    * `anchorX`.
    */
+  /*
+   * 白色的那一份怪图，整张烘一次、缓存（和 `ragingSheet` 一个做法）。死的那 0.3 秒
+   * 画的不是"另加的一层白"，而是**这只怪自己**换一身白 —— 所以形状天然是它的形状
+   * （`docs/adr/0034`）。留一点点透明（0.96），免得纯白把轮廓糊成一块板。
+   */
+  var ghostTint = null;
+  function ghostSheet(image) {
+    if (typeof document === "undefined" || !document.createElement) return null;
+    if (ghostTint && ghostTint.source === image) return ghostTint.sheet;
+    var canvas = document.createElement("canvas");
+    canvas.width = image.width;
+    canvas.height = image.height;
+    var brush = canvas.getContext("2d");
+    if (!brush) return null;
+    brush.drawImage(image, 0, 0);
+    brush.globalCompositeOperation = "source-atop";
+    brush.fillStyle = "rgba(255, 255, 255, 0.96)";
+    brush.fillRect(0, 0, canvas.width, canvas.height);
+    ghostTint = { source: image, sheet: canvas };
+    return canvas;
+  }
+
   var MONSTER = {
     cellW: 480,
     cellH: 500,
@@ -3369,6 +3399,12 @@
   function drawMonster(ctx, state, enemy, sprites) {
     var sheet = sprites && sprites.monsters;
     if (!sheet || !sheet.width) return false;
+    /*
+     * 死的那一段画的是**它自己的白色剪影**（`docs/adr/0034`，业主：「出现白色怪物
+     * 轮廓」）—— 同一行、同一列、同一处落脚点，只是整张图换成白的，所以轮廓就是它
+     * 自己躺下那个形状。
+     */
+    if (enemy.silhouette) sheet = ghostSheet(sheet) || sheet;
     var row = MONSTER.rows[enemy.type];
     if (row === undefined) return false;
     var table = MONSTER[MONSTER.poses[enemy.type]];
@@ -5230,8 +5266,8 @@
       ctx.arc(effect.x, ey, effect.radius, -0.95, 0.95);
       ctx.stroke();
       ctx.restore();
-    } else if (effect.kind === "deathsmoke") {
-      drawDeathSmoke(ctx, state, sprites, effect, alpha);
+    } else if (effect.kind === "deathburst") {
+      drawDeathBurst(ctx, state, sprites, effect, alpha);
     }
 
     if (effect.kind === "damage" && !effect.miss) {

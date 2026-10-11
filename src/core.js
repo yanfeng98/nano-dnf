@@ -2567,32 +2567,35 @@
    * 那是"击倒"，0.2 秒后会站起来，和死是两回事。
    */
   /*
-   * 怪死：**当场没入一团贴地的白云**（`docs/adr/0034`，推翻 `0033` 的第二段）。
+   * 怪死：**倒地的尸体 → 变成它自己的白色剪影 → 炸成按它颜色的碎块四散**
+   * （`docs/adr/0034`）。
    *
-   * 量的是业主那条幽暗密林录像（`dnf-dungeon-videos/00001-幽暗密林.mp4`）里 96.63–96.97s
-   * 的一次击杀，30fps 逐帧（1080p，哥布林 108px 高）：
+   * 业主的口径（2026-10-11，实玩之后）：「怪物确实会躺着死，然后出现白色怪物轮廓，
+   * 然后碎裂成血块（和怪物颜色一样）散向四处」。拿他的幽暗密林录像逐帧对过：
+   * **那团白不是烟，是怪自己的剪影** —— 96.65s 两只哥布林一起死，白色的包围盒
+   * 276 × 114 px，正好是两只站着的身量（画上每只 98 × 108），96.667 满、96.933 缩、
+   * 96.967 没了（**0.30 秒**）；随后炸开的碎块按怪自己的皮肤色染（T+4:50 那一只
+   * 量到十几块金黄的，飞出去 0.4 秒内四散、渐隐）。
    *
-   * - 怪**当场没**（96.633 还站着、96.667 就没了），没有倒地那一段；
-   * - 原地起一片云：包围盒 **276 × 114 px** = **2.6 × 怪高宽、1.05 × 怪高厚**，
-   *   下缘压在脚线上下（脚 y≈837，云 y 790–903，即上缘高过脚 0.44 怪高、下缘低 0.61）；
-   * - 云**不往上飘**，只在自己那块地上慢慢翻搅，活 **0.30 秒**（96.667 满、96.933 缩、
-   *   96.967 没了），散掉以后**地上什么都不留**。
-   *
-   * 所以 `lie` / 青白圆爆 / 十二块彩色碎块整条删掉 —— 那三样是上一片读出来的，
-   * 业主实玩后说「怪物死后和视频依旧不一致」，重新逐帧量完发现录像里根本没有。
-   *
-   * Boss 那一团是同一件事的放大版：一大团白云约 0.9 秒，散掉不留东西。
+   * 上一片把它读成"一片贴地的云、什么都不留" —— 错在只量白色：绿怪的碎块落在
+   * 深绿草地上，按白色去扫一个也扫不到。
    */
   var DEATH = {
-    /* 云的寿命：满 → 缩 → 没，一共 0.30 秒（录像 96.667–96.967）。 */
-    cloud: 0.3,
-    /* Boss 那一团更大更久（录像里约 0.9 秒）。 */
-    bossCloud: 0.9
+    /* 先倒地躺着（业主：「怪物确实会躺着死」）。 */
+    lie: 0.2,
+    /* 尸体变成它自己的**白色剪影**亮多久：录像里 0.30 秒（96.667–96.967）。 */
+    shape: 0.3,
+    /* 碎块从炸出来到淡尽：飞、减速、坠地，最后化掉。 */
+    chunks: 1.6,
+    /* 一次炸开冒几块（录像 8–15 块，取 12）。 */
+    chunkCount: 12,
+    /* Boss 只有那一片白、更大更久（录像里约 0.9 秒），砸不出碎块。 */
+    bossSmoke: 0.9
   };
 
-  /** 这一只死了那团云散多久。 */
+  /** 这一只死了那一片白亮多久（Boss 更大更久）。 */
   function smokeLife(enemy) {
-    return enemy && enemy.type === "boss" ? DEATH.bossCloud : DEATH.cloud;
+    return enemy && enemy.type === "boss" ? DEATH.bossSmoke : DEATH.shape;
   }
 
   /** A prop is scenery unless its piece is one of these. */
@@ -3552,23 +3555,12 @@
     if (enemy.hp <= 0) {
       enemy.hp = 0;
       enemy.dead = true;
-      enemy.dying = 0;
       /*
-       * 死是**一团贴地的白云**（`docs/adr/0034`）：怪当场没，云在原地慢慢散，
-       * 散掉以后地上什么都不留。云推在这里而不是收尸那一步 —— 收尸只把它从
-       * `state.enemies` 里拿掉，两个函数谁先跑都一样。
+       * 躺 `DEATH.lie` 秒 → 尸体变成**它自己的白色剪影** `smokeLife()` 秒 →
+       * 炸成碎块（`docs/adr/0034`）。剪影就是这只怪自己（`enemy.silhouette`），
+       * 所以它得留在名单里到数完为止 —— 收尸那一步看 `enemy.dying`。
        */
-      state.effects.push({
-        kind: "deathsmoke",
-        x: enemy.x,
-        z: enemy.z,
-        seed: enemy.id,
-        type: enemy.type,
-        height: enemy.height,
-        boss: enemy.type === "boss",
-        life: smokeLife(enemy),
-        maxLife: smokeLife(enemy)
-      });
+      enemy.dying = DEATH.lie + smokeLife(enemy);
       state.stats.kills += 1;
       /*
        * A kill is worth more blood than a hit is (docs/adr/0025): the whole body
@@ -5154,8 +5146,13 @@
     var alive = state.enemies.filter(function (enemy) {
       return !enemy.dead;
     });
-    /* 死人是当场没的（`updateDeaths` / `docs/adr/0034`），名单里不留躺着的。 */
-    state.enemies = alive;
+    /*
+     * 刚倒下的还躺在地上（白色剪影那一段要走完，`updateDeaths` 收尸），
+     * 所以别把他们从名单里划掉（`docs/adr/0034`）。
+     */
+    state.enemies = state.enemies.filter(function (enemy) {
+      return !enemy.dead || enemy.dying > 0;
+    });
 
     if (alive.length === 0 && !state.room.cleared && !state.defeat) {
       state.room.cleared = true;
@@ -5182,16 +5179,44 @@
   }
 
   /**
-   * 收尸：死了的从 `state.enemies` 里拿掉，**当场**（`docs/adr/0034`）。
+   * 倒下的人（`docs/adr/0034`）：躺 `DEATH.lie` → **变成自己的白色剪影** `smokeLife()`
+   * → 炸成十二块它自己颜色的碎块、从场上拿掉。
    *
-   * 这里只干这一件事 —— 那团白云在 `damageEnemy` 里就推好了，所以"谁先把死人删掉"
-   * 不再是问题（以前烟和尸体共用 `enemy.dying` 一条时间线，删早了就没烟了）。
-   * 怪死的那一帧就不再画它：录像里哥布林是 96.633 站着、96.667 已经没了的。
+   * 剪影就是这只怪自己画的（`enemy.silhouette` 交给渲染层），所以尸体得留到数完；
+   * `dying` 是这条线唯一的钟。Boss 例外：只有那一片白，不炸。
    */
-  function updateDeaths(state) {
-    if (!state.enemies.some(function (enemy) { return enemy.dead; })) return;
+  function updateDeaths(state, dt) {
+    var buried = false;
+    state.enemies.forEach(function (enemy) {
+      if (!enemy.dead || !(enemy.dying > 0)) return;
+      enemy.dying -= dt;
+      if (!enemy.silhouette && enemy.dying <= smokeLife(enemy)) enemy.silhouette = true;
+      if (enemy.dying > 0) return;
+      enemy.dying = 0;
+      enemy.silhouette = false;
+      enemy.gone = true;
+      buried = true;
+      /*
+       * 炸开：十几块**它自己的颜色**，飞出去、减速、落地、化掉（`DEATH.chunks`）。
+       * Boss 不炸 —— 录像里它只有那一片白。
+       */
+      if (enemy.type !== "boss") {
+        state.effects.push({
+          kind: "deathburst",
+          x: enemy.x,
+          z: enemy.z,
+          seed: enemy.id,
+          type: enemy.type,
+          /* 碎块从**身上**起手，不是从脚底 —— 从脚底起飞读起来像地上冒泡。 */
+          height: enemy.height,
+          life: DEATH.chunks,
+          maxLife: DEATH.chunks
+        });
+      }
+    });
+    if (!buried) return;
     state.enemies = state.enemies.filter(function (enemy) {
-      return !enemy.dead;
+      return !enemy.gone;
     });
   }
 
@@ -5390,7 +5415,7 @@
      * 倒下的人自有它的钟，**通关那一下也得走**：不然 Boss 一死世界就冻住，最后一具
      * 尸体永远躺在那儿 —— 录像里它躺 0.2 秒是要炸开的。
      */
-    updateDeaths(state);
+    updateDeaths(state, dt);
 
     if (state.victory || state.defeat) return state;
 
