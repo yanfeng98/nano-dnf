@@ -2601,28 +2601,59 @@
   function drawDeathBurst(ctx, state, sprites, effect, alpha) {
     var sheet = sprites && sprites.forest;
     if (!sheet) return;
-    var life = effect.maxLife || (Core.DEATH && Core.DEATH.chunks) || 1.6;
+    var life = effect.maxLife || (Core.DEATH && Core.DEATH.chunks) || 0.5;
     var t = clamp01(1 - alpha) * life;
-    var depth = Core.bandDepth(state.band);
-    var gravity = 400;
+    var gravity = 900;
     var count = (Core.DEATH && Core.DEATH.chunkCount) || 12;
-    var shapes = ["0", "1", "2"];
-    /* 从上身散开，不是从脚底 —— 从脚底起飞读起来像"地上一滩"。 */
+    /*
+     * **只用每只怪那张圆的一坨**（`chunk_<type>0`，22×21）。烘出来的三张里，
+     * 后两张是带长须的"摊开"形状（34×25 / 40×25），摊在空中就是叶子 ——
+     * 圆的一坨飞出去才读得体量（业主：「不如视频中块更厚重」）。
+     */
+    var piece = "chunk_" + (effect.type || "grunt") + "0";
+    /* 从**身上**散开，不是从脚底 —— 从脚底起飞读起来像"地上一滩"。 */
     var body = (effect.height || 60) * 0.45;
-    /* 最后半秒一起淡掉，前面一直在空中/地上。 */
-    var fade = Math.min(1, (alpha * life) / 0.5);
+    /* 末四成淡出：前面是硬的，最后才化掉。 */
+    var fade = clamp01(alpha / 0.4);
+    var shadow = chunkShadowSheet(sheet);
     for (var index = 0; index < count; index += 1) {
-      var piece = "chunk_" + (effect.type || "grunt") + shapes[index % shapes.length];
-      var vx = (scatter(effect.seed, index * 5) - 0.5) * 340;
-      var vz = (scatter(effect.seed, index * 5 + 1) - 0.5) * 160;
-      var vy = 190 + scatter(effect.seed, index * 5 + 2) * 110;
-      /* 起手的位置在尸体身上撒开一点 —— 全从一点出发会堆成一大坨。 */
-      var x = effect.x + (scatter(effect.seed, index * 5 + 4) - 0.5) * 40 + vx * t;
-      var z = Math.max(0, Math.min(depth, effect.z + vz * t));
+      var rect = sceneRect(piece);
+      if (!rect) continue;
+      /*
+       * **放射**：每块自己一个角度一个初速，绕尸体甩出去 —— 都往同一个方向偏
+       * 就会摊成一排、糊在地上（业主：「像落叶一样」）。角度与速度都由 id + 序号
+       * 定死，同一具尸体每次都甩成同一副样子。
+       */
+      var angle = scatter(effect.seed, index * 6) * Math.PI * 2;
+      var speed = 300 + scatter(effect.seed, index * 6 + 1) * 340;
+      var vx = Math.cos(angle) * speed;
+      var vy = Math.sin(angle) * speed * 0.55 + 110;     /* 略往上偏，甩得开 */
+      var spin = (scatter(effect.seed, index * 6 + 3) - 0.5) * 11;
+      var x = effect.x + vx * t;
       var height = body + vy * t - 0.5 * gravity * t * t;
-      if (height < 0) height = 0;                       /* 落地就摊在那儿 */
-      var scale = 0.35 + scatter(effect.seed, index * 5 + 3) * 0.45;
-      drawScenePieceAt(ctx, sprites, piece, x, floorY(z) - height - 8, scale, fade);
+      if (height < 0) height = 0;                        /* 落地就摊在那儿 */
+      /*
+       * 比原来大一圈（0.5–1.05）：录像里那些块是**实心带暗边的肉块**，小薄片在
+       * 草地上读成叶屑，大一点才压得住地。
+       */
+      var scale = 0.7 + scatter(effect.seed, index * 6 + 2) * 0.6;
+      var w = rect[2] * scale;
+      var h = rect[3] * scale;
+      var cy = floorY(effect.z) - height;
+      /*
+       * **厚度**：同一块先往右下压一个暗的当底，再把本来的那块盖上去 —— 底下那层
+       * 就成了它的厚度和暗边（业主：「不如视频中块更厚重」）。
+       */
+      ctx.save();
+      ctx.globalAlpha = fade;
+      ctx.translate(x, cy);
+      ctx.rotate(spin * t);
+      if (shadow) {
+        ctx.drawImage(shadow, rect[0], rect[1], rect[2], rect[3],
+                      -w / 2 + 2.5, -h / 2 + 2.5, w, h);
+      }
+      ctx.drawImage(sheet, rect[0], rect[1], rect[2], rect[3], -w / 2, -h / 2, w, h);
+      ctx.restore();
     }
   }
 
@@ -3275,6 +3306,27 @@
     brush.fillStyle = "rgba(255, 255, 255, 0.96)";
     brush.fillRect(0, 0, canvas.width, canvas.height);
     ghostTint = { source: image, sheet: canvas };
+    return canvas;
+  }
+
+  /*
+   * 一张压暗的森林图，给碎块当"厚度"用（source-atop 压黑，整张烘一次、缓存）。
+   * 只为那十二块服务，但每帧每块都要画两次，所以不能现场做。
+   */
+  var chunkDark = null;
+  function chunkShadowSheet(image) {
+    if (typeof document === "undefined" || !document.createElement) return null;
+    if (chunkDark && chunkDark.source === image) return chunkDark.sheet;
+    var canvas = document.createElement("canvas");
+    canvas.width = image.width;
+    canvas.height = image.height;
+    var brush = canvas.getContext("2d");
+    if (!brush) return null;
+    brush.drawImage(image, 0, 0);
+    brush.globalCompositeOperation = "source-atop";
+    brush.fillStyle = "rgba(0, 0, 0, 0.5)";
+    brush.fillRect(0, 0, canvas.width, canvas.height);
+    chunkDark = { source: image, sheet: canvas };
     return canvas;
   }
 
