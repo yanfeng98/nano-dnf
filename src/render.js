@@ -2604,19 +2604,21 @@
     var life = effect.maxLife || (Core.DEATH && Core.DEATH.chunks) || 0.5;
     var t = clamp01(1 - alpha) * life;
     var gravity = 900;
-    var count = (Core.DEATH && Core.DEATH.chunkCount) || 12;
+    var count = (Core.DEATH && Core.DEATH.chunkCount) || 14;
     /*
-     * **只用每只怪那张圆的一坨**（`chunk_<type>0`，22×21）。烘出来的三张里，
-     * 后两张是带长须的"摊开"形状（34×25 / 40×25），摊在空中就是叶子 ——
-     * 圆的一坨飞出去才读得体量（业主：「不如视频中块更厚重」）。
+     * 三张形状轮着用 —— 录像里那些块是**小碎片**（业主：「不如视频不规则」）：
+     * T+4:50 那次量到十几块，横竖大多在 **4–17 世界像素**之间，而且不少是细长的
+     * 片（11.5×4.5、14×6、4×14）。所以每块按**目标宽度**反推缩放，形状本身的
+     * 长须在小尺寸下正好读成碎片；大了才是叶子（上一版就是那么栽的）。
      */
-    var piece = "chunk_" + (effect.type || "grunt") + "0";
+    var shapes = ["0", "1", "2"];
     /* 从**身上**散开，不是从脚底 —— 从脚底起飞读起来像"地上一滩"。 */
     var body = (effect.height || 60) * 0.45;
     /* 末四成淡出：前面是硬的，最后才化掉。 */
     var fade = clamp01(alpha / 0.4);
     var shadow = chunkShadowSheet(sheet);
     for (var index = 0; index < count; index += 1) {
+      var piece = "chunk_" + (effect.type || "grunt") + shapes[index % shapes.length];
       var rect = sceneRect(piece);
       if (!rect) continue;
       /*
@@ -2632,11 +2634,9 @@
       var x = effect.x + vx * t;
       var height = body + vy * t - 0.5 * gravity * t * t;
       if (height < 0) height = 0;                        /* 落地就摊在那儿 */
-      /*
-       * 比原来大一圈（0.5–1.05）：录像里那些块是**实心带暗边的肉块**，小薄片在
-       * 草地上读成叶屑，大一点才压得住地。
-       */
-      var scale = 0.7 + scatter(effect.seed, index * 6 + 2) * 0.6;
+      /* 每块按目标宽度（6–17 世界像素）反推缩放，形状多大都不影响它的大小。 */
+      var target = 6 + scatter(effect.seed, index * 6 + 2) * 11;
+      var scale = target / rect[2];
       var w = rect[2] * scale;
       var h = rect[3] * scale;
       var cy = floorY(effect.z) - height;
@@ -2649,8 +2649,9 @@
       ctx.translate(x, cy);
       ctx.rotate(spin * t);
       if (shadow) {
+        var edge = Math.max(1, target * 0.14);            /* 碎片小，暗边也得跟着小 */
         ctx.drawImage(shadow, rect[0], rect[1], rect[2], rect[3],
-                      -w / 2 + 2.5, -h / 2 + 2.5, w, h);
+                      -w / 2 + edge, -h / 2 + edge, w, h);
       }
       ctx.drawImage(sheet, rect[0], rect[1], rect[2], rect[3], -w / 2, -h / 2, w, h);
       ctx.restore();
