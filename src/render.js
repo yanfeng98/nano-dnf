@@ -1662,30 +1662,15 @@
       doorDown: [729, 1231, 88, 46],
       barrel: [817, 1231, 63, 78],
       /*
-       * 怪物死的两样东西（`docs/adr/0031`）：一团**白烟**（`deathSmoke`，客户端
-       * `monsterdieblood` —— 一张白色形状，撒几片就是盖住尸体的那一团），和青白色的
-       * 圆爆（`deathBurst`，`monsterdieflash`，白核 + 青边；只有精英与 Boss 有）。
+       * 那团贴地的白云（`docs/adr/0034`）：客户端 `monsterdieblood` 的白色形状，
+       * 横着叠几片摊成一整条 —— 怪死的那一下出现，0.3 秒散掉。
+       *
+       * 以前这儿还有 `deathBurst`（青白圆爆）与 `chunk_<type>{0,1,2}`（按怪染色的
+       * 十二块碎块）两组矩形：重新逐帧量完录像发现**那两样在录像里根本不存在**，
+       * 整条删了。它们在 `assets/forest.png` 里烘着的那几块像素还留着（这个环境没有
+       * 客户端，重烘不了），下次带着客户端重跑 `assets/import_dnf_scene.py` 时可以一并去掉。
        */
       deathSmoke: [880, 1231, 40, 42],
-      deathBurst: [920, 1231, 103, 103],
-      chunk_boss0: [160, 1471, 22, 21],
-      chunk_brute0: [182, 1471, 22, 21],
-      chunk_caster0: [204, 1471, 22, 21],
-      chunk_coward0: [226, 1471, 22, 21],
-      chunk_elite0: [248, 1471, 22, 21],
-      chunk_grunt0: [270, 1471, 22, 21],
-      chunk_boss1: [292, 1471, 34, 25],
-      chunk_brute1: [326, 1471, 34, 25],
-      chunk_caster1: [360, 1471, 34, 25],
-      chunk_coward1: [394, 1471, 34, 25],
-      chunk_elite1: [428, 1471, 34, 25],
-      chunk_grunt1: [462, 1471, 34, 25],
-      chunk_boss2: [496, 1471, 40, 25],
-      chunk_brute2: [536, 1471, 40, 25],
-      chunk_caster2: [576, 1471, 40, 25],
-      chunk_coward2: [616, 1471, 40, 25],
-      chunk_elite2: [656, 1471, 40, 25],
-      chunk_grunt2: [696, 1471, 40, 25],
       barrel1: [1023, 1231, 25, 21],
       barrel2: [1048, 1231, 41, 13],
       barrel3: [1089, 1231, 29, 10],
@@ -2586,75 +2571,50 @@
    * 烟是客户端自己那团白（`monsterdieblood`：一张白色的形状，颜色由引擎挑），这里
    * 撒几片、每片错开一点钟：一片同时出现同时消失的白贴在身上，看着就是贴纸不是烟。
    */
+  /*
+   * 怪死：**一团贴地的白云**（`docs/adr/0034`）。
+   *
+   * 量的是业主那条幽暗密林录像（96.63–96.97s，30fps 逐帧）：一片横着、贴地的白，
+   * 包围盒 **2.6 × 怪高宽、1.05 × 怪高厚** —— 上缘高过脚线 0.44 个怪高、下缘低
+   * 0.61 个（脚 y≈837，云 790–903，哥布林 108px 高）。**整片不往上飘**：包围盒
+   * 一直在原地，只有里面的形状慢慢翻搅；活 0.30 秒，末段淡掉，地上什么都不留。
+   *
+   * 画法就是把客户端的云片**横着摊平叠几片**：每片按 `seed` 错开、随 age 轻微起伏
+   * （翻搅的读法），整片在最后四分之一淡出。位置只跟 `effect.x` 走（死在哪散在哪），
+   * 抬升与其它贴地的东西共用同一条 `floorY`。
+   */
   function drawDeathSmoke(ctx, state, sprites, effect, alpha) {
     var sheet = sprites && sprites.forest;
     if (!sheet) return;
     var foot = floorY(effect.z);
     var age = clamp01(1 - alpha);
-    var boss = !!effect.boss;
-    var count = boss ? 9 : 6;
-    var spread = boss ? 150 : 78;
-    var lift = boss ? 118 : 54;
-    var size = boss ? 2.0 : 1.0;
+    var height = effect.height || 60;
+    var width = height * 2.6;
+    var thick = height * 1.05;
+    var count = effect.boss ? 11 : 9;
+    /* 末四分之一淡出；剩下那段时间只有形状在动。 */
+    var fade = clamp01(alpha / 0.25);
     for (var index = 0; index < count; index += 1) {
-      var stagger = scatter(effect.seed, index * 4) * 0.3;
-      var bloom = clamp01((age - stagger) / 0.25);
-      var fade = clamp01((1 - age) / 0.4);
-      var shown = Math.min(bloom, fade);
-      if (shown <= 0) continue;
-      var across = (scatter(effect.seed, index * 4 + 1) - 0.5) * spread;
-      var up = (boss ? 20 : 8) + scatter(effect.seed, index * 4 + 2) * lift;
-      var scale = size * (0.8 + scatter(effect.seed, index * 4 + 3) * 0.5)
-                       * (0.8 + 0.35 * clamp01((age - stagger) / 0.7));
-      drawScenePieceAt(ctx, sprites, "deathSmoke",
-                       effect.x + across, foot - up, scale, shown * 0.9);
-    }
-  }
-
-  /*
-   * 第二段：**炸成十二块它自己颜色的碎块**（`docs/adr/0033`）。
-   *
-   * 录像里量到的：烟散那一刻青白圆爆亮一下（0.1–0.3 秒），十几块 4–21 游戏像素的碎块
-   * 从尸体上放射出去、减速、坠地，**落地以后还留在草上**（有一块绿灯下留了 2 秒以上）。
-   * 颜色是这只怪自己的皮肤色 —— 绿怪出绿块、青怪出青块（色号量自 `assets/monsters.png`，
-   * 烘在 `chunk_<type>{0,1,2}` 三张形状上）。
-   *
-   * 位置由怪的 id 定死（`seed`），所以同一具尸体每次都撒在同一处；轨迹是解析的
-   * （`h = vy*t - g*t^2/2`），不积分 —— 只读 `t`，暂停、慢放都不会飘。
-   */
-  function drawDeathBurst(ctx, state, sprites, effect, alpha) {
-    var sheet = sprites && sprites.forest;
-    if (!sheet) return;
-    var life = effect.maxLife || (Core.DEATH && Core.DEATH.chunks) || 2.6;
-    var t = clamp01(1 - alpha) * life;
-    var burst = (Core.DEATH && Core.DEATH.burst) || 0.25;
-    var foot = floorY(effect.z);
-    var depth = Core.bandDepth(state.band);
-
-    if (t <= burst) {
-      /* 一下子就满、亮 `burst` 秒、再收回去。 */
-      var lit = 1 - clamp01(t / burst);
-      drawScenePieceAt(ctx, sprites, "deathBurst", effect.x, foot - 40,
-                       0.9 + (t / burst) * 0.35, lit * 0.9);
-    }
-
-    var gravity = 400;
-    var count = (Core.DEATH && Core.DEATH.chunkCount) || 12;
-    var shapes = ["0", "1", "2"];
-    /* 最后半秒一起淡掉，前面一直在地上躺着。 */
-    var fade = Math.min(1, (alpha * life) / 0.5);
-    for (var index = 0; index < count; index += 1) {
-      var piece = "chunk_" + (effect.type || "grunt") + shapes[index % shapes.length];
-      var vx = (scatter(effect.seed, index * 5) - 0.5) * 260;
-      var vz = (scatter(effect.seed, index * 5 + 1) - 0.5) * 140;
-      var vy = 170 + scatter(effect.seed, index * 5 + 2) * 90;
-      /* 起手的位置在尸体身上撒开一点 —— 全从一点出发会堆成一大坨。 */
-      var x = effect.x + (scatter(effect.seed, index * 5 + 4) - 0.5) * 32 + vx * t;
-      var z = Math.max(0, Math.min(depth, effect.z + vz * t));
-      var height = vy * t - 0.5 * gravity * t * t;
-      if (height < 0) height = 0;                       /* 落地就摊在那儿 */
-      var scale = 0.45 + scatter(effect.seed, index * 5 + 3) * 0.5;
-      drawScenePieceAt(ctx, sprites, piece, x, floorY(z) - height - 8, scale, fade);
+      var k = count === 1 ? 0.5 : index / (count - 1);
+      var phase = scatter(effect.seed, index * 4 + 1);
+      /* 一秒来回一两次的慢翻 —— 包围盒不动，动的是里面的形状。 */
+      var churn = Math.sin((age * 2.2 + phase) * Math.PI * 2);
+      var across = (k - 0.5) * width * 0.58;
+      var lift = (scatter(effect.seed, index * 4 + 2) - 0.5) * thick * 0.16
+                 + churn * thick * 0.05;
+      var scale = (thick / 42) * (1.7 + 0.2 * churn);
+      /*
+       * **多过叠实**：这张云片自己是软边的（alpha 均值 107、只有 16% 的像素是实的），
+       * 盖一遍出来是烟，不是录像里那团**实心白**（190 与 232 两个阈值量出来的面积
+       * 一样大）。所以同一片连着盖几遍、每次挪一点，中段就实了。
+       */
+      for (var pass = 0; pass < 4; pass += 1) {
+        var nudge = (pass - 1.5) / 1.5;
+        drawScenePieceAt(ctx, sprites, "deathSmoke",
+                         effect.x + across + nudge * thick * 0.06,
+                         foot + thick * 0.085 - lift + nudge * thick * 0.05,
+                         scale, fade);
+      }
     }
   }
 
@@ -5272,8 +5232,6 @@
       ctx.restore();
     } else if (effect.kind === "deathsmoke") {
       drawDeathSmoke(ctx, state, sprites, effect, alpha);
-    } else if (effect.kind === "deathburst") {
-      drawDeathBurst(ctx, state, sprites, effect, alpha);
     }
 
     if (effect.kind === "damage" && !effect.miss) {
