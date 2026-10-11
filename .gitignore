@@ -45,3 +45,6 @@ assets/dnf_src/skill-videos/
 assets/dnf_src/skill-body-match/
 # Python bytecode from the asset tools
 __pycache__/
+
+# The asset tools' Python venv (pillow / numpy / scipy / pydnfex)
+.venv/

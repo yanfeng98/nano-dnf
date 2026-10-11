@@ -1741,6 +1741,24 @@ python3 assets/make_slayer_rift_candidates.py   # 可选：重出「跟崩山裂
 
 直接在浏览器里打开 `index.html` 也可以玩。
 
+### 云开发机：端口要先转发出来
+
+在有桌面的机器上 `npm run serve` 之后开 http://localhost:8080 就行；**这台云机器上多一步** ——
+服务跑在远端，8080 要在 VS Code 里转发到你本机才打得开：
+
+- **VS Code Remote-SSH**：底部面板的 **PORTS / 转发端口** 标签 → **Forward a Port / 转发端口** → `8080`
+  → 点那一行的地球图标，用本机浏览器打开。（`remote.autoForwardPorts` 默认开着，多数时候它自己就会
+  把 8080 列出来，手动加是兜底。）
+- **SSH 隧道**：本机跑 `ssh -L 8080:localhost:8080 <user>@<这台机器>`，再开 http://localhost:8080。
+- 本机 8080 被占用就换端口：`PORT=9000 npm run serve`，转发的也改成 9000。
+
+远端 `curl http://localhost:8080/` 返回 200 只说明服务起来了，**不等于画面到了人眼前** ——
+转发这一下才算交付。
+
+> 这台云机器上的环境（2026-10-11 配好）：Python 依赖装在仓库内 `.venv/`（系统 python 没有 pip，
+> 也没有 ensurepip），跑 `assets/*.py` 前先 `source .venv/bin/activate`；Playwright 的浏览器是从
+> `npmmirror` 镜像装的（`cdn.playwright.dev` 在这边会拖到超时），浏览器要的系统库本机齐的，不用 sudo。
+
 ## 操作
 
 按键沿用 DNF 鬼剑士布局：方向键移动，`X` 普攻，`C` 跳跃，`A` / `S` / `D` / `F` 释放技能。
