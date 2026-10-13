@@ -30,12 +30,21 @@ test("the demo plays in its own run and never touches the real one", () => {
   const before = JSON.stringify(live);
   const session = demo();
 
-  run(session, 30);
+  /*
+   * 一路记**跑过的最高击杀数**，而不是"第 30 秒那一瞬间的击杀数"：演示一局跑完会
+   * **自己从头再来**（那是它的规矩，见「the demo loops back to the entry cell」），
+   * 所以"此刻杀了几只"完全可能是 0 —— 房间内容变密之后一局变快，这条就正好撞上。
+   */
+  let kills = 0;
+  for (let frame = 0; frame < Math.round(30 / Core.DT); frame += 1) {
+    Attract.step(session, Core.DT);
+    kills = Math.max(kills, session.state.stats.kills);
+  }
 
   assert.equal(JSON.stringify(live), before, "the demo wrote into the real run");
   /* And the two runs are genuinely different objects, not a shared reference. */
   assert.notEqual(session.state, live);
-  assert.ok(session.state.stats.kills > 0, "the demo should be fighting in its own run");
+  assert.ok(kills > 0, "the demo should be fighting in its own run");
 });
 
 test("the demo clears the opening room and takes an upgrade card", () => {
@@ -97,9 +106,22 @@ test("the demo carries the run into the boss rage and past it", () => {
 
 test("a finished demo holds its last frame before looping", () => {
   const session = demo();
-  while (!Attract.snapshot(session).victory && session.seconds < 60) {
+  /*
+   * **帧数也要有上限。** `session.seconds` 只在游戏时间往前走时才涨，而演示**卡住**
+   * 的时候（走不出门、卡在一张选不了的卡上）它一动不动 —— 那样这个 `while` 就是个
+   * 死循环。2026-10-13 真踩过一次：撒在门口的一根倒木把演示堵在里面，
+   * 这个文件**转满一核六分钟**，而"一次只跑一个"那条规矩让整台机器陪着它等。
+   */
+  const budget = Math.round(120 / Core.DT);
+  let frames = 0;
+  while (!Attract.snapshot(session).victory && session.seconds < 60 && frames < budget) {
     Attract.step(session, Core.DT);
+    frames += 1;
   }
+  assert.ok(
+    frames < budget,
+    `演示卡住了（${frames} 帧、游戏时间只走到 ${session.seconds.toFixed(1)} 秒）—— 它不会自己结束`
+  );
   assert.ok(Attract.snapshot(session).victory, "the shipped seed should be winnable by the script");
 
   const loops = session.loops;

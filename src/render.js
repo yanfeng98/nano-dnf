@@ -1649,56 +1649,62 @@
       grass: [906, 803, 127, 66],
       grassFlower: [1033, 803, 188, 78],
       sprout: [0, 1231, 126, 66],
-      /*
-       * 门口，四个方向一套（`docs/adr/0030`）：`gate` 是左右走的那种侧门拱、`gateUp`
-       * 立在房间后墙上、`gateDown` 是躺在你面前地上那个（客户端的画已经把透视烘进去了，
-       * 所以三个都是 1:1 画）。`door*` 是房间**没清**时插在拱里那扇拦着的门。
-       */
-      gate: [126, 1231, 131, 240],
-      gateUp: [257, 1231, 157, 198],
-      gateDown: [414, 1231, 192, 118],
-      door: [606, 1231, 50, 171],
-      doorUp: [656, 1231, 73, 132],
-      doorDown: [729, 1231, 88, 46],
-      barrel: [817, 1231, 63, 78],
-      /*
-       * 碎块那十八个矩形（`docs/adr/0034`）：三张白色形状 × 六种怪自己的色号，
-       * 炸开的时候随机挑（色号量自 `assets/monsters.png` 每行的身体像素中位数）。
-       *
-       * 那一段"白色剪影"不用这里的图 —— 剪影是**这只怪自己**换成白的（`ghostSheet`），
-       * 所以形状天然是它躺下那个形状。以前这儿还有 `deathSmoke`（一团云）与
-       * `deathBurst`（青白圆爆）两块：云是我把剪影看成了烟，圆爆在录像里没有，都删了。
-       */
-      chunk_boss0: [160, 1471, 22, 21],
-      chunk_brute0: [182, 1471, 22, 21],
-      chunk_caster0: [204, 1471, 22, 21],
-      chunk_coward0: [226, 1471, 22, 21],
-      chunk_elite0: [248, 1471, 22, 21],
-      chunk_grunt0: [270, 1471, 22, 21],
-      chunk_boss1: [292, 1471, 34, 25],
-      chunk_brute1: [326, 1471, 34, 25],
-      chunk_caster1: [360, 1471, 34, 25],
-      chunk_coward1: [394, 1471, 34, 25],
-      chunk_elite1: [428, 1471, 34, 25],
-      chunk_grunt1: [462, 1471, 34, 25],
-      chunk_boss2: [496, 1471, 40, 25],
-      chunk_brute2: [536, 1471, 40, 25],
-      chunk_caster2: [576, 1471, 40, 25],
-      chunk_coward2: [616, 1471, 40, 25],
-      chunk_elite2: [656, 1471, 40, 25],
-      chunk_grunt2: [696, 1471, 40, 25],
-      barrel1: [1023, 1231, 25, 21],
-      barrel2: [1048, 1231, 41, 13],
-      barrel3: [1089, 1231, 29, 10],
-      barrel4: [1118, 1231, 33, 14],
-      barrel5: [1151, 1231, 16, 25],
-      barrel6: [1167, 1231, 31, 24],
-      barrel7: [1198, 1231, 38, 16],
-      barrel8: [1236, 1231, 25, 9],
-      barrel9: [0, 1471, 46, 22],
-      barrel10: [46, 1471, 44, 21],
-      barrel11: [90, 1471, 28, 22],
-      barrel12: [118, 1471, 42, 16]
+      firSmall: [126, 1231, 42, 59],
+      firMid: [168, 1231, 43, 71],
+      firTall: [211, 1231, 44, 78],
+      pebble: [255, 1231, 24, 27],
+      snagTall: [279, 1231, 139, 207],
+      fallenTrunk: [418, 1231, 226, 340],
+      stumpBroken: [644, 1231, 78, 112],
+      trunkHollow: [722, 1231, 133, 178],
+      snagShort: [855, 1231, 97, 104],
+      snagStub: [952, 1231, 87, 101],
+      ruinStone: [1039, 1231, 142, 103],
+      rockArch: [0, 1571, 195, 180],
+      logMossy: [195, 1571, 317, 175],
+      grassPatch: [512, 1571, 110, 48],
+      treeDead: [622, 1571, 105, 277],
+      treeDeadTall: [727, 1571, 175, 303],
+      leaves: [902, 1571, 126, 66],
+      leavesBroad: [1028, 1571, 126, 66],
+      leavesDense: [1154, 1571, 126, 66],
+      gate: [0, 1874, 131, 240],
+      gateUp: [131, 1874, 157, 198],
+      gateDown: [288, 1874, 192, 118],
+      door: [480, 1874, 50, 171],
+      doorUp: [530, 1874, 73, 132],
+      doorDown: [603, 1874, 88, 46],
+      barrel: [691, 1874, 63, 78],
+      barrel1: [754, 1874, 25, 21],
+      barrel2: [779, 1874, 41, 13],
+      barrel3: [820, 1874, 29, 10],
+      barrel4: [849, 1874, 33, 14],
+      barrel5: [882, 1874, 16, 25],
+      barrel6: [898, 1874, 31, 24],
+      barrel7: [929, 1874, 38, 16],
+      barrel8: [967, 1874, 25, 9],
+      barrel9: [992, 1874, 46, 22],
+      barrel10: [1038, 1874, 44, 21],
+      barrel11: [1082, 1874, 28, 22],
+      barrel12: [1110, 1874, 42, 16],
+      chunk_boss0: [1152, 1874, 22, 21],
+      chunk_brute0: [1174, 1874, 22, 21],
+      chunk_caster0: [1196, 1874, 22, 21],
+      chunk_coward0: [1218, 1874, 22, 21],
+      chunk_elite0: [1240, 1874, 22, 21],
+      chunk_grunt0: [0, 2114, 22, 21],
+      chunk_boss1: [22, 2114, 34, 25],
+      chunk_brute1: [56, 2114, 34, 25],
+      chunk_caster1: [90, 2114, 34, 25],
+      chunk_coward1: [124, 2114, 34, 25],
+      chunk_elite1: [158, 2114, 34, 25],
+      chunk_grunt1: [192, 2114, 34, 25],
+      chunk_boss2: [226, 2114, 40, 25],
+      chunk_brute2: [266, 2114, 40, 25],
+      chunk_caster2: [306, 2114, 40, 25],
+      chunk_coward2: [346, 2114, 40, 25],
+      chunk_elite2: [386, 2114, 40, 25],
+      chunk_grunt2: [426, 2114, 40, 25],
     },
     /*
      * [piece, dx, dy] - 木桶碎开的那 12 帧，每一帧相对**完整那只桶的 ink 左上角**的
@@ -1738,12 +1744,25 @@
      */
     midSkirt: 63,
     /*
-     * 长在地上的花草是**贴花**，不参加"站着的东西"那个按身位排的队：一律画在
-     * 所有人、怪、道具之前 —— 人踩在草上面，**草不遮人**（业主 2026-10-10 定的）。
-     * 「草」就是这一档：草、花草、小苗、花、灌木丛。木桶、石头、树、树桩、柱子
-     * 那些立起来的东西仍然按身位排（`docs/adr/0031`）。
+     * **贴花**：长在地上的**矮**花草，不参加"站着的东西"那个按身位排的队 ——
+     * 一律画在所有人、怪、道具之前，人踩在草上面，**它们不遮人**（业主 2026-10-10 定的）。
+     *
+     * **`grass`（那一丛高草）不在这一档里了**：录像里它**画在他的裤腿前面**，
+     * 也就是说它得按身位排。业主 2026-10-12 照录像把这条改了（Q12 选 c）——
+     * 高草**挡画不挡路**：它不占身位、不挡判定，只是画的时候排在他前面。
+     * 它已经有 `depth`（房间数据里本来就写了），所以只要从这一档拿出去，
+     * 它就自动落进 `drawWorld` 那个按身位排的队里。
+     *
+     * 木桶、石头、树、树桩、柱子那些**立着的实心件**照样按身位排（`docs/adr/0032`）。
      */
-    decals: ["grass", "grassFlower", "sprout", "flower", "bush"],
+    decals: [
+      "grassFlower", "sprout", "flower", "bush",
+      /*
+       * 02 套里那几片**贴地平铺**的 —— 录像里满地就是这种东西（一屏 8–16 丛）。
+       * `pebble` 是一粒小石子，同样的道理：没人会以为自己被一粒石子挡住。
+       */
+      "grassPatch", "leaves", "leavesBroad", "leavesDense", "pebble"
+    ],
     /*
      * How far above the band's back edge the ground's own top edge is drawn. The
      * strips are already grass right to their last row, so this only has to
@@ -2252,11 +2271,66 @@
     return true;
   }
 
-  function drawSceneStrip(ctx, sprites, name, bottom) {
+  /*
+   * **房间是"世界"，`ARENA` 只是窗口**（`docs/adr/0035`）。
+   *
+   * 凡是画在房间里的东西 —— 背景、地面、门、人、怪、地上的火 —— 宽度都取这一个；
+   * 屏幕上的那一层（HUD、地图窗口、暗角、过场那层黑幕）仍然取 `ARENA.width`。
+   * 房间还没开出来的时候两者相等（回落到窗口宽），所以这层区分不改变现在的画面。
+   */
+  function worldWidth(state) {
+    return Core.roomWidth(state);
+  }
+
+  /*
+   * 镜头往右挪了多少。世界那一层整体减掉它；**画在世界那一层里、但属于屏幕的东西**
+   * （比如换房那块房名牌）再把它加回来，否则它会跟着房间跑。
+   */
+  /*
+   * **战斗里那几行字**（伤害数字与命中状态词）。全都量自业主的幽暗密林录像，
+   * 录像像素用 `Core.VIDEO_PX`（= 84 / 265 —— 一身位在录像里与本作里各是多少像素）
+   * 折成**世界**像素。
+   *
+   * 写成一个名字表而不是散在绘制分支里，是因为它们是一组：录像里这批字的字高、
+   * 颜色、存活时间互相只差一点点，改一个往往另几个也要跟着动。
+   */
+  var HIT_TEXT = {
+    /*
+     * 伤害数字：**粗斜体**、纯黄、字高 **22 视频像素** = 7.0 世界像素。
+     * 字号取 10，因为一个数字画出来大约占字号的 0.7。
+     */
+    damageFont: "italic 700 10px 'Segoe UI', system-ui, sans-serif",
+    damageFill: "#ffff00",
+    /* 头 **0.17 秒** 蹿上 **10 视频像素**（3.2 世界像素），占 0.6 秒寿命的那一段。 */
+    climb: 10 * Core.VIDEO_PX,
+    climbShare: 0.17 / 0.6,
+    /* 描边：录像里 2–3 像素。 */
+    outline: 2.5 * Core.VIDEO_PX,
+    /*
+     * MISS 是本作自己的，录像里没有对应物（DNF 的"打空"是另一个样子），
+     * 所以它**不跟**这批量出来的数走，只按比例跟着伤害数字缩小。
+     */
+    missFont: "bold 8px 'Segoe UI', system-ui, sans-serif",
+    /* 命中状态词 `无法浮空`：冷白、字高 **29 视频像素** = 9.2 世界像素。 */
+    wordFont: "700 13px 'PingFang SC', 'Segoe UI', system-ui, sans-serif",
+    wordFill: "#e4e7ed",
+    /*
+     * 伤害数字旁边那几道火花是本作自己的（录像里量不到），所以它按同样的比例缩小，
+     * 免得一圈 22 像素的火花围着一个个位数的字。
+     */
+    sparkScale: 0.5
+  };
+
+  function cameraX(state) {
+    var camera = state && state.camera;
+    return camera && typeof camera.x === "number" ? camera.x : 0;
+  }
+
+  function drawSceneStrip(ctx, sprites, name, bottom, width) {
     var sheet = sprites && sprites.forest;
     var rect = sceneRect(name);
     if (!sheet || !rect) return false;
-    for (var x = -rect[2]; x < ARENA.width + rect[2]; x += rect[2]) {
+    for (var x = -rect[2]; x < width + rect[2]; x += rect[2]) {
       ctx.drawImage(sheet, rect[0], rect[1], rect[2], rect[3],
                     x, Math.round(bottom - rect[3]), rect[2], rect[3]);
     }
@@ -2274,18 +2348,31 @@
     var band = state.band || Core.BAND;
     var backY = band.backY;
     var groundTop = backY - SCENE.groundLift;
+    var width = worldWidth(state);
 
     var sky = ctx.createLinearGradient(0, 0, 0, backY);
     sky.addColorStop(0, PALETTE.skyTop);
     sky.addColorStop(1, PALETTE.skyMid);
     ctx.fillStyle = sky;
-    ctx.fillRect(0, 0, ARENA.width, backY);
+    ctx.fillRect(0, 0, width, backY);
 
-    if (!drawSceneStrip(ctx, sprites, "far", backY)) {
+    /*
+     * **远景钉在屏幕上，不跟着房间滚。**
+     *
+     * 量自录像：画面上方那片远墙与远树干**整场一像素都不动**，跟着镜头动的只有它
+     * 下面那一层（中景树干、地面、前景一起平移，位移量完全相同）。所以这一层把镜头
+     * **加回来**，把世界那一趟的平移抵掉 —— 它就跟着屏幕走，房间再宽背景也不跟着跑。
+     * 纵向仍然在世界里（它坐在 `backY` 上，得跟地面带对齐）。
+     */
+    ctx.save();
+    ctx.translate(cameraX(state), 0);
+    var farDrawn = drawSceneStrip(ctx, sprites, "far", backY, width);
+    ctx.restore();
+    if (!farDrawn) {
       drawStoneBackdrop(ctx, state);
       return;
     }
-    drawSceneStrip(ctx, sprites, "mid", backY + SCENE.midLift);
+    drawSceneStrip(ctx, sprites, "mid", backY + SCENE.midLift, width);
 
     /*
      * 地面条顶上的缺口：**mid 自己的草裙**（`SCENE.midSkirt`，量出来的 63 行）。
@@ -2298,9 +2385,9 @@
     if (SCENE.midSkirt) {
       ctx.save();
       ctx.beginPath();
-      ctx.rect(0, groundTop, ARENA.width, ARENA.height - groundTop);
+      ctx.rect(0, groundTop, width, ARENA.height - groundTop);
       ctx.clip();
-      drawSceneStrip(ctx, sprites, "mid", groundTop + SCENE.midSkirt);
+      drawSceneStrip(ctx, sprites, "mid", groundTop + SCENE.midSkirt, width);
       ctx.restore();
     }
 
@@ -2311,7 +2398,7 @@
      */
     var strip = SCENE.pieces[SCENE.ground[0]];
     var column = 0;
-    for (var x = 0; x < ARENA.width; x += strip[2]) {
+    for (var x = 0; x < width; x += strip[2]) {
       var name = SCENE.ground[column % SCENE.ground.length];
       var tall = sceneRect(name)[3];
       for (var bottom = groundTop + tall; bottom - tall < ARENA.height; bottom += tall) {
@@ -2321,7 +2408,7 @@
     }
     /* The front edge of the band: the one line everyone's feet stand on. */
     ctx.fillStyle = "rgba(255, 226, 180, 0.10)";
-    ctx.fillRect(0, ARENA.groundY, ARENA.width, 2);
+    ctx.fillRect(0, ARENA.groundY, width, 2);
   }
 
   function drawStoneBackdrop(ctx, state) {
@@ -2334,18 +2421,19 @@
      */
     var band = state.band || Core.BAND;
     var backY = band.backY;
+    var width = worldWidth(state);
 
     var sky = ctx.createLinearGradient(0, 0, 0, backY);
     sky.addColorStop(0, PALETTE.skyTop);
     sky.addColorStop(0.55, PALETTE.skyMid);
     sky.addColorStop(1, PALETTE.skyBottom);
     ctx.fillStyle = sky;
-    ctx.fillRect(0, 0, ARENA.width, backY);
+    ctx.fillRect(0, 0, width, backY);
 
     /* far arches, slowly drifting */
     var drift = -((state.time * 6) % 240);
     ctx.fillStyle = PALETTE.wallFar;
-    ctx.fillRect(0, 40, ARENA.width, backY - 40);
+    ctx.fillRect(0, 40, width, backY - 40);
     ctx.save();
     ctx.globalAlpha = 0.55;
     ctx.fillStyle = "#0b1120";
@@ -2369,7 +2457,7 @@
       if (y > backY) break;
       ctx.beginPath();
       ctx.moveTo(0, y);
-      ctx.lineTo(ARENA.width, y);
+      ctx.lineTo(width, y);
       ctx.stroke();
       for (var col = -1; col < 16; col += 1) {
         var bx = col * 64 + (row % 2 ? 32 : 0);
@@ -2408,7 +2496,7 @@
     recede.addColorStop(0, PALETTE.bandBack);
     recede.addColorStop(1, PALETTE.floorTop);
     ctx.fillStyle = recede;
-    ctx.fillRect(0, backY, ARENA.width, ARENA.groundY - backY);
+    ctx.fillRect(0, backY, width, ARENA.groundY - backY);
     /*
      * Board seams placed by the square of how far back they are, so the gaps
      * open up towards the viewer. Even spacing is the one thing that would make
@@ -2424,7 +2512,7 @@
       var seamY = backY + (ARENA.groundY - backY) * far * far;
       ctx.beginPath();
       ctx.moveTo(0, seamY);
-      ctx.lineTo(ARENA.width, seamY);
+      ctx.lineTo(width, seamY);
       ctx.stroke();
     }
 
@@ -2433,19 +2521,19 @@
     floor.addColorStop(0, PALETTE.floorTop);
     floor.addColorStop(1, PALETTE.floorBottom);
     ctx.fillStyle = floor;
-    ctx.fillRect(0, ARENA.groundY, ARENA.width, ARENA.height - ARENA.groundY);
+    ctx.fillRect(0, ARENA.groundY, width, ARENA.height - ARENA.groundY);
     ctx.strokeStyle = PALETTE.floorLine;
     ctx.lineWidth = 1;
     for (var line = 0; line < 5; line += 1) {
       var ly = ARENA.groundY + 8 + line * 14;
       ctx.beginPath();
       ctx.moveTo(0, ly);
-      ctx.lineTo(ARENA.width, ly);
+      ctx.lineTo(width, ly);
       ctx.stroke();
     }
     /* The front edge of the band: the one line everyone's feet stand on. */
     ctx.fillStyle = "rgba(255, 214, 170, 0.16)";
-    ctx.fillRect(0, ARENA.groundY, ARENA.width, 2);
+    ctx.fillRect(0, ARENA.groundY, width, 2);
   }
 
   function drawVignette(ctx, state) {
@@ -2490,9 +2578,9 @@
     var cell = Core.currentCell(state);
     if (!cell || !state.dungeon) return null;
     if (Core.exitMode(state, dir) === "none") return null;
-    if (dir === "E") return { x: ARENA.width - 34, bottom: ARENA.groundY + 4 };
+    if (dir === "E") return { x: worldWidth(state) - 34, bottom: ARENA.groundY + 4 };
     if (dir === "W") return { x: 34, bottom: ARENA.groundY + 4 };
-    var x = Core.doorX(state.dungeon, cell, dir);
+    var x = Core.doorX(state, cell, dir);
     if (dir === "N") return { x: x, bottom: floorY(Core.bandDepth(state.band)) + 6 };
     /*
      * 南门（下门）**压在技能栏底下**：本站地面线 430、技能栏从 444 起，门前那片
@@ -3341,13 +3429,24 @@
     cellH: 500,
     anchorX: 300,
     anchorY: 340,
-    rows: { grunt: 0, coward: 1, caster: 2, brute: 3, elite: 4, boss: 5 },
-    frames: { grunt: 17, coward: 17, caster: 17, brute: 32, elite: 17, boss: 32 },
+    rows: {
+      grunt: 0, coward: 1, caster: 2, brute: 3, elite: 4, boss: 5,
+      /* 换色的两具是后加的两行（`assets/import_dnf_monsters.py` 的 ROSTER 顺序）。 */
+      goblinBlue: 6, goblinRed: 7
+    },
+    frames: {
+      grunt: 17, coward: 17, caster: 17, brute: 32, elite: 17, boss: 32,
+      goblinBlue: 17, goblinRed: 17
+    },
     /*
      * How tall each monster's art is on frame 0, in the sheet's own pixels.
      * Measured off the sheet (the alpha box of frame 0), not picked.
      */
-    stand: { grunt: 76, coward: 76, caster: 78, brute: 164, elite: 86, boss: 164 },
+    stand: {
+      grunt: 76, coward: 76, caster: 78, brute: 164, elite: 86, boss: 164,
+      /* 换色那两具是同一套画布，烘的时候量出来的和 `grunt` 一模一样。 */
+      goblinBlue: 76, goblinRed: 76
+    },
     /*
      * **How big a monster is drawn is `enemy.height`, the same number the fight
      * is fought on.** The two used to differ - the art followed the client and
@@ -3410,7 +3509,13 @@
       caster: "goblin",
       elite: "goblin",
       brute: "tau",
-      boss: "tau"
+      boss: "tau",
+      /*
+       * 换色的那两具走的是**同一套十七帧动作**（客户端那一族本来就是同一画布换色，
+       * 量过：轮廓逐帧 IoU 0.74–0.94），所以它们读同一个姿势表。
+       */
+      goblinBlue: "goblin",
+      goblinRed: "goblin"
     }
   };
 
@@ -3483,7 +3588,46 @@
       -MONSTER.anchorX * scale, -MONSTER.anchorY * scale, dw, dh
     );
     ctx.restore();
+    /*
+     * **怪头顶的名字。** 量出来只有"**有名字的怪**"才有：录像里普通哥布林头上什么都没有，
+     * 而 `诅咒之赤哥布林` 有、Boss 也有。本作照这条办 —— **只有 `grunt` 那一档不写**，
+     * 它是这一关里唯一"无名"的杂兵。
+     *
+     * 颜色量到两个值：哥布林那只 `#A975E5`（淡蓝紫）、Boss 那只 `#DD04C3`（品红）。
+     * 分不出这是"两个颜色"还是"同一个半透明的字压在两种背景上"（Boss 站在自己的红气里），
+     * 所以这里取**一个**色，写成 `MONSTER_NAME.fill` 一个数 —— 要分色，改一处。
+     */
+    drawMonsterName(ctx, enemy);
     return true;
+  }
+
+  var MONSTER_NAME = {
+    /*
+     * 字高 24 视频像素 = 7.6 **世界**像素（这一层在世界里画，跟着镜头一起放大）——
+     * 一个汉字的字面高差不多就是一个字号，所以字号取 8。
+     */
+    font: "700 8px 'PingFang SC', 'Segoe UI', system-ui, sans-serif",
+    fill: "#a975e5",
+    /* 浮在头顶上方：量到约 15 视频像素。 */
+    lift: 15 * Core.VIDEO_PX,
+    /* 唯一不写名字的那一档。 */
+    anonymous: "grunt"
+  };
+
+  function drawMonsterName(ctx, enemy) {
+    if (enemy.type === MONSTER_NAME.anonymous || enemy.dead) return;
+    var info = Core.monsterInfo(enemy.type);
+    if (!info) return;
+    ctx.save();
+    ctx.font = MONSTER_NAME.font;
+    ctx.textAlign = "center";
+    ctx.lineWidth = Math.max(1, 2.5 * Core.VIDEO_PX);
+    ctx.strokeStyle = "rgba(24, 4, 32, 0.92)";
+    var y = feetY(enemy) - enemy.height - MONSTER_NAME.lift;
+    ctx.strokeText(info.label, enemy.x, y);
+    ctx.fillStyle = MONSTER_NAME.fill;
+    ctx.fillText(info.label, enemy.x, y);
+    ctx.restore();
   }
 
   function drawEnemy(ctx, state, enemy, sprites) {
@@ -5212,24 +5356,53 @@
      */
     var ey = feetY(effect);
     if (effect.kind === "damage") {
-      var rise = (1 - alpha) * 28;
+      /*
+       * **量出来的画法**（录像像素 → 世界像素都过 `Core.VIDEO_PX` = 84/265）。
+       *
+       * - **粗斜体**（量到向右斜 10–22°）、纯黄 `#FFFF00`、黑描边；
+       * - 字高 **22 视频像素** = **7.0 世界像素**；
+       * - 活 **0.6 秒**（在 `pushDamageEffect` 上），**到点直接消失**；
+       * - 走法**不是匀速上浮**：头 **0.17 秒** 蹿上去约 **10 视频像素**，然后**停在那儿**
+       *   一动不动。量了 35 个数字，**没有一个往下掉**，也没有一个淡出。
+       *
+       * 早先这里是一路匀速浮 28 像素、边浮边淡出 —— 两条都是错的读法，
+       * 错在把"蹿一下然后悬住"看成了"慢慢飘上去"。
+       */
+      var climb = HIT_TEXT.climb * Math.min(1, (1 - alpha) / HIT_TEXT.climbShare);
       ctx.save();
-      ctx.globalAlpha = Math.min(1, alpha * 1.6);
+      /*
+       * 不淡出：`alpha` 只用来算走到哪一帧，不用来调透明度。签名里那句
+       * "alpha 1 → 0" 在这一支上是**还剩多少寿命**，不是"多透明"。
+       */
+      ctx.globalAlpha = 1;
       /*
        * A miss rides the damage effect because it *is* that hit's readout -
        * there is just no number in it. It is smaller and grey-blue rather than
        * gold, so "I did nothing" can never read as "I did damage"
        * (docs/adr/0018).
        */
-      ctx.font = effect.miss
-        ? "bold 15px 'Segoe UI', system-ui, sans-serif"
-        : "bold 20px 'Segoe UI', system-ui, sans-serif";
+      ctx.font = effect.miss ? HIT_TEXT.missFont : HIT_TEXT.damageFont;
       ctx.textAlign = "center";
-      ctx.lineWidth = 3;
-      ctx.strokeStyle = "rgba(12, 14, 24, 0.9)";
-      ctx.strokeText(effect.text, effect.x, ey - rise);
-      ctx.fillStyle = effect.miss ? "#b9c6d8" : "#ffe08a";
-      ctx.fillText(effect.text, effect.x, ey - rise);
+      ctx.lineWidth = HIT_TEXT.outline;
+      ctx.strokeStyle = "rgba(0, 0, 0, 0.92)";
+      ctx.strokeText(effect.text, effect.x, ey - climb);
+      ctx.fillStyle = effect.miss ? "#b9c6d8" : HIT_TEXT.damageFill;
+      ctx.fillText(effect.text, effect.x, ey - climb);
+      ctx.restore();
+    } else if (effect.kind === "hitWord") {
+      /*
+       * 命中状态词（`Core.HIT_WORD`）：冷白、深色描边、字高 29 视频像素，
+       * **钉在怪身上**（不是钉在数字上），**不淡出**，活完就消失。
+       */
+      ctx.save();
+      ctx.globalAlpha = 1;
+      ctx.font = HIT_TEXT.wordFont;
+      ctx.textAlign = "left";
+      ctx.lineWidth = HIT_TEXT.outline;
+      ctx.strokeStyle = "rgba(0, 0, 0, 0.92)";
+      ctx.strokeText(effect.text, effect.x, ey);
+      ctx.fillStyle = HIT_TEXT.wordFill;
+      ctx.fillText(effect.text, effect.x, ey);
       ctx.restore();
     } else if (effect.kind === "heal") {
       ctx.save();
@@ -5260,6 +5433,21 @@
       /* Simultaneous banners stack instead of overprinting each other. */
       var bannerY = (bossOnScreen ? 230 : 104) + (bannerOrdinal || 0) * 34;
       ctx.save();
+      /*
+       * **它是屏幕上的字，不是房间里的东西。**
+       *
+       * 偏偏又是在世界那一趟里画出来的（房名牌按顺序和别的效果混在一起），而世界那一趟
+       * 现在已经"拉近 + 平移"了（`docs/adr/0035`）—— 不退回去的话，这块字会跟着房间跑、
+       * 跟着 zoom 变大、还会被算到画面外面去（y=104 在世界坐标里，乘完 zoom 是负的）。
+       *
+       * 所以这里把**世界那一趟的变换原样倒退回去**：反向、逆序，正好是下面四行。
+       * 没有用 `setTransform(1,0,0,1,0,0)` 是因为那会连外层的屏幕震动一起抹掉 ——
+       * 挨打时那块房名牌跟着震一下是对的。
+       */
+      ctx.translate(cameraX(state), 0);
+      ctx.translate(0, ARENA.groundY);
+      ctx.scale(1 / Core.CAMERA.zoom, 1 / Core.CAMERA.zoom);
+      ctx.translate(0, -ARENA.groundY);
       ctx.globalAlpha = Math.min(1, alpha * 1.5);
       ctx.textAlign = "center";
       ctx.font = "700 26px 'PingFang SC', 'Segoe UI', system-ui, sans-serif";
@@ -5332,14 +5520,15 @@
       /* sparks around every damage number - but never around a miss: nothing
          connected, so nothing flies off it (docs/adr/0018). */
       var spark = 1 - alpha;
+      var sparkSize = HIT_TEXT.sparkScale;
       ctx.save();
       ctx.globalAlpha = alpha * 0.8;
       ctx.strokeStyle = "#ffd9a0";
-      ctx.lineWidth = 2;
+      ctx.lineWidth = 2 * sparkSize;
       for (var i = 0; i < 5; i += 1) {
         var angle = (i / 5) * Math.PI * 2 + effect.x;
-        var inner = 6 + spark * 16;
-        var outer = inner + 7;
+        var inner = (6 + spark * 16) * sparkSize;
+        var outer = inner + 7 * sparkSize;
         ctx.beginPath();
         ctx.moveTo(effect.x + Math.cos(angle) * inner, ey + Math.sin(angle) * inner);
         ctx.lineTo(effect.x + Math.cos(angle) * outer, ey + Math.sin(angle) * outer);
@@ -5347,6 +5536,202 @@
       }
       ctx.restore();
     }
+  }
+
+  /*
+   * **左上角的"当前目标"块**（`Core.TARGET`）。量自业主的幽暗密林录像：
+   * 一个描金的**头像框**（怪的脸）、一块**类别牌**（`人型` / `野兽`）、
+   * `Lv{n} 名字`、下面一条**红血条**。**每一只怪都会有** —— 它不是精英专属。
+   *
+   * **长度怎么折**：录像像素 × `HUD_PX`。`HUD_PX` = 一个录像像素在**屏幕上**等于多少，
+   * = `Core.VIDEO_PX`（录像 → 世界）× `Core.CAMERA.zoom`（世界 → 屏幕）
+   * = 84/265 × 1.5775 = **0.5**。它和 `Core.VIDEO_PX` 不是一回事：那个折进**世界**，
+   * 跟着镜头一起放大缩小；这一块是 HUD，画在屏幕那一层，所以要用屏幕这一档。
+   */
+  var HUD_PX = Core.VIDEO_PX * Core.CAMERA.zoom;
+
+  /** HUD 上的字号：中文优先，回落到系统字体。 */
+  function HUD_FONT(size) {
+    return "700 " + size.toFixed(1) + "px 'PingFang SC', 'Segoe UI', system-ui, sans-serif";
+  }
+
+  /*
+   * 那块条的尺寸，单位是**录像像素**（画的时候乘 `HUD_PX`）。除了血条长度，
+   * 每一个数都是从帧里量出来的。
+   */
+  var TARGET_PANEL = {
+    x: 16,
+    /* 挂在玩家卡（高 96，在 y 14）与它下面那行配速字（y 128）**下面**。 */
+    y: 150,
+    portrait: [61, 63],
+    gap: 3,
+    rowH: 32,
+    nameW: 365,
+    tagW: 72,
+    textSize: 27,
+    barH: 32,
+    barBorder: 3,
+    /* 边框里那一条红有多高 —— 量出来是 20（上下各 6 是边框与内边距）。 */
+    barInner: 20,
+    /*
+     * **血条长度**：录像里**每只怪不一样**（哥布林量到 287 / 323 / 362，牛头巨兽 1068），
+     * 跟着怪变 —— 是照最大血量还是照个头，量不出来（只有三个样本）。所以这里**不编公式**：
+     * 杂兵一律取那个出现得最多的 362，Boss 取 1068。真查出规律再改这两个数。
+     */
+    barW: 362,
+    bossBar: 1068
+  };
+
+  /** 把一张怪的脸画进头像框：取它站姿那一帧的**头部**那一段。 */
+  function drawMonsterFace(ctx, sprites, type, box) {
+    var sheet = sprites && sprites.monsters;
+    var row = MONSTER.rows[type];
+    if (!sheet || row === undefined) return false;
+    var stand = MONSTER.stand[type] || MONSTER.cellH;
+    /*
+     * 头在站姿那一帧的顶上：`stand` 是那一帧画了多高，锚点（脚底）在 `anchorY`。
+     * 取顶部 55% 见方的一块 —— 哥布林的头宽而扁，切太窄会把耳朵切掉。
+     *
+     * **行列偏移不能漏**（`drawMonster` 取的是 `column*cellW, row*cellH` 那一格）：
+     * 少加 `row * cellH` 就是从上排那只怪身上切一块下来，头像是别人的。
+     */
+    var side = stand * 0.62;
+    var sx = MONSTER.anchorX - side / 2;
+    var sy = row * MONSTER.cellH + MONSTER.anchorY - stand;
+    var sh = stand * 0.55;
+    ctx.drawImage(sheet, row * MONSTER.cellW + sx, sy, side, sh, box.x, box.y, box.w, box.h);
+    return true;
+  }
+
+  function drawTargetPanel(ctx, state, sprites) {
+    var target = state.target;
+    if (!target) return;
+    var enemy = target.enemy;
+    var info = Core.monsterInfo(enemy.type);
+    if (!info) return;
+    var px = HUD_PX;
+    var boss = enemy.type === "boss";
+
+    var portraitW = TARGET_PANEL.portrait[0] * px;
+    var portraitH = TARGET_PANEL.portrait[1] * px;
+    var x = TARGET_PANEL.x;
+    var y = TARGET_PANEL.y;
+    var rowH = TARGET_PANEL.rowH * px;
+    var textX = x + portraitW + TARGET_PANEL.gap * px;
+    var nameW = TARGET_PANEL.nameW * px;
+    var barLen = (boss ? TARGET_PANEL.bossBar : TARGET_PANEL.barW) * px;
+    var barH = TARGET_PANEL.barH * px;
+    var barY = y + rowH + TARGET_PANEL.gap * px;
+    var border = Math.max(1, TARGET_PANEL.barBorder * px);
+
+    ctx.save();
+    /* 头像框：描金的框 + 深底；画得出来的怪才画脸，画不出来就留一块深底。 */
+    ctx.fillStyle = "#0a0c14";
+    ctx.fillRect(x, y, portraitW, portraitH);
+    if (!drawMonsterFace(ctx, sprites, enemy.type, { x: x, y: y, w: portraitW, h: portraitH })) {
+      ctx.fillStyle = "rgba(255, 255, 255, 0.06)";
+      ctx.fillRect(x, y, portraitW, portraitH);
+    }
+    ctx.strokeStyle = "#d4c09f";
+    ctx.lineWidth = Math.max(1, 2 * px);
+    ctx.strokeRect(x + ctx.lineWidth / 2, y + ctx.lineWidth / 2,
+                   portraitW - ctx.lineWidth, portraitH - ctx.lineWidth);
+
+    /*
+     * **倒下那一下：头像上打一个红叉**，闪三下、共约 1.2 秒（量出来的
+     * 0.25 秒亮 / 0.25 秒灭）。它闪完，整块才消失（`Core.TARGET.deathBlink`）。
+     */
+    if (enemy.dead) {
+      var blink = Math.floor(target.dying / 0.25) % 2 === 0;
+      if (blink) {
+        var pen = Math.max(2, 8 * px);
+        /* 往里缩半个笔画，免得那个圆头戳出头像框外面去。 */
+        var inset = pen / 2;
+        ctx.strokeStyle = "#da090f";
+        ctx.lineWidth = pen;
+        ctx.lineCap = "round";
+        ctx.beginPath();
+        ctx.moveTo(x + inset, y + inset);
+        ctx.lineTo(x + portraitW - inset, y + portraitH - inset);
+        ctx.moveTo(x + portraitW - inset, y + inset);
+        ctx.lineTo(x + inset, y + portraitH - inset);
+        ctx.stroke();
+        ctx.lineCap = "butt";
+      }
+      ctx.restore();
+    }
+
+    /* 名字行：深底、细亮边；里面一块橙框橙字的类别牌，再是白色的 `Lv{n} 名字`。 */
+    ctx.fillStyle = "rgba(8, 10, 18, 0.86)";
+    roundRect(ctx, textX, y, nameW, rowH, Math.max(2, 4 * px));
+    ctx.fill();
+    ctx.strokeStyle = "rgba(212, 192, 159, 0.55)";
+    ctx.lineWidth = Math.max(1, 1.5 * px);
+    ctx.stroke();
+
+    var tagW = TARGET_PANEL.tagW * px;
+    var tagPad = 2 * px;
+    ctx.fillStyle = "#000000";
+    roundRect(ctx, textX + tagPad, y + tagPad, tagW, rowH - tagPad * 2, Math.max(2, 4 * px));
+    ctx.fill();
+    ctx.strokeStyle = "#d88246";
+    ctx.lineWidth = Math.max(1, 3 * px);
+    ctx.stroke();
+
+    ctx.textBaseline = "middle";
+    ctx.textAlign = "center";
+    /*
+     * 字号就是量出来的字高（27 录像像素 = 13.5 屏幕像素）：一个汉字的字面高差不多
+     * 就是一个字号，所以这里**不再乘一个 0.7 之类的折算**。
+     */
+    ctx.font = HUD_FONT(TARGET_PANEL.textSize * px);
+    ctx.fillStyle = "#f38d4c";
+    ctx.fillText(info.race, textX + tagPad + tagW / 2, y + rowH / 2);
+
+    ctx.textAlign = "left";
+    ctx.lineWidth = Math.max(1, 3 * px);
+    ctx.strokeStyle = "rgba(0, 0, 0, 0.9)";
+    /*
+     * Boss 翻脸之后名字后面挂 `· 狂暴`：这个读法原来长在顶部正中那条横条上，
+     * 横条删了它就得跟过来（另一半是 `drawBossPhaseTick` 那条半血线）。
+     */
+    var label = "Lv" + info.level + " " + info.label;
+    if (enemy.type === "boss" && enemy.phase >= 2) label += " · 狂暴";
+    var labelX = textX + tagPad + tagW + 6 * px;
+    ctx.strokeText(label, labelX, y + rowH / 2);
+    ctx.fillStyle = "#e4edf7";
+    ctx.fillText(label, labelX, y + rowH / 2);
+    ctx.textBaseline = "alphabetic";
+
+    /* 血条：亮边、纯黑空槽、左起饱和红；掉掉的那一段是**自己褪色的白块**。 */
+    ctx.fillStyle = "#000000";
+    ctx.fillRect(textX, barY, barLen, barH);
+    var innerH = TARGET_PANEL.barInner * px;
+    var innerY = barY + (barH - innerH) / 2;
+    var share = enemy.maxHp > 0 ? Math.max(0, enemy.hp / enemy.maxHp) : 0;
+    ctx.fillStyle = "#dc0000";
+    ctx.fillRect(textX + border, innerY, Math.max(0, (barLen - border * 2) * share), innerH);
+    /*
+     * 刚失去的那一段：量出来是**白块原地褪到黑**（约 0.8 秒，经过粉 → 暗红），
+     * **宽度不变、只有颜色变** —— 不是一条追着填上来的条（`Core.TARGET.ghostFade`）。
+     */
+    if (target.ghost) {
+      var g = target.ghost;
+      var t = Math.min(1, g.t / Core.TARGET.ghostFade);
+      var gx = textX + border + (barLen - border * 2) * g.to;
+      var gw = Math.max(0, (barLen - border * 2) * (g.from - g.to));
+      ctx.fillStyle = "#860000";
+      ctx.fillRect(gx, innerY, gw, innerH);
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, 1 - t) * 0.95;
+      ctx.fillStyle = "#f8ece5";
+      ctx.fillRect(gx, innerY, gw, innerH);
+      ctx.restore();
+    }
+    ctx.strokeStyle = "rgba(213, 186, 156, 0.9)";
+    ctx.lineWidth = border;
+    ctx.strokeRect(textX + border / 2, barY + border / 2, barLen - border, barH - border);
+    ctx.restore();
   }
 
   function drawHud(ctx, state, sprites, meta) {
@@ -5475,43 +5860,37 @@
       ctx.restore();
     }
 
-    var boss = state.enemies.find(function (enemy) {
-      return !enemy.dead && enemy.type === "boss";
-    });
-    if (boss) {
-      var bossW = 420;
-      var bossX = ARENA.width / 2 - bossW / 2;
-      panel(ctx, bossX, 84, bossW, 34, 6);
-      ctx.save();
-      ctx.textAlign = "center";
-      ctx.fillStyle = PALETTE.text;
-      ctx.font = "700 13px 'PingFang SC', 'Segoe UI', sans-serif";
-      /*
-       * The name comes off the stage, not off the `boss` archetype: every stage
-       * ends on a different animal, and this label read "GOBLIN KING" for a
-       * whole slice after 哥布林王 was deleted - `STAGES.*.bossName` was written
-       * and then read by nobody.
-       */
-      var bossName = (state.stage && state.stage.bossName) || "BOSS";
-      ctx.fillText(boss.phase >= 2 ? bossName + " · 狂暴" : bossName, ARENA.width / 2, 101);
-      ctx.restore();
-      bar(
-        ctx,
-        bossX + 12,
-        106,
-        bossW - 24,
-        8,
-        boss.hp / boss.maxHp,
-        "#ff9aa8",
-        "#a8203a",
-        "rgba(40, 10, 18, 0.9)"
-      );
-      /* Half-health tick: the exact point that flips the boss into phase two. */
-      ctx.save();
-      ctx.fillStyle = boss.phase >= 2 ? "rgba(255, 226, 160, 0.95)" : "rgba(255, 226, 160, 0.5)";
-      ctx.fillRect(ARENA.width / 2 - 1, 105, 2, 10);
-      ctx.restore();
-    }
+    /*
+     * **左上角的当前目标块**，包括 Boss —— 顶部正中那条 420×34 的横条整条删掉了
+     * （`docs/adr/00xx`）：录像里**没有**它，Boss 走的是左上角那一块的**放大版**
+     * （条长到 1068 录像像素，约等于整屏高）。
+     *
+     * 它原来还顺带报两件事，都跟着搬了过来，不然是白丢的反馈：
+     * `· 狂暴` 并进那块条上的名字（录像里名字就写在条上），半血分界那条竖线留在血条上。
+     */
+    drawTargetPanel(ctx, state, sprites);
+    drawBossPhaseTick(ctx, state);
+  }
+
+  /**
+   * 半血分界：Boss 掉到一半会翻脸（`STAGES.*.boss` 的第二阶段）。这条竖线是本作自己的
+   * —— 录像里没有它 —— 所以画在那块条的血条上，而不是另起一块 UI。
+   */
+  function drawBossPhaseTick(ctx, state) {
+    var target = state.target;
+    if (!target || target.enemy.type !== "boss" || target.enemy.dead) return;
+    var enemy = target.enemy;
+    var px = HUD_PX;
+    var portraitW = TARGET_PANEL.portrait[0] * px;
+    var border = Math.max(1, TARGET_PANEL.barBorder * px);
+    var barLen = TARGET_PANEL.bossBar * px;
+    var barX = TARGET_PANEL.x + portraitW + TARGET_PANEL.gap * px;
+    var barY = TARGET_PANEL.y + TARGET_PANEL.rowH * px + TARGET_PANEL.gap * px;
+    ctx.save();
+    ctx.fillStyle = enemy.phase >= 2 ? "rgba(255, 226, 160, 0.95)" : "rgba(255, 226, 160, 0.5)";
+    ctx.fillRect(barX + border + (barLen - border * 2) / 2, barY + border,
+                 Math.max(1, 2 * px), TARGET_PANEL.barInner * px);
+    ctx.restore();
   }
 
   /** A short line of coaching, centred above the action but below the HUD. */
@@ -6357,9 +6736,12 @@
     /*
      * 布景分两拨。
      *
-     * 一拨是**贴花**：长在地上的花草（`SCENE.decals`）先铺掉。它们是画在地面那
-     * 一层上的，不是站在地上的东西；要是也去排队，站在同一排（甚至只靠前两三个
-     * 像素）的一丛草就会把人盖住 —— 业主看到的就是那一下。
+     * 一拨是**贴花**：长在地上的**矮**花草（`SCENE.decals`）先铺掉。它们是画在地面那
+     * 一层上的，不是站在地上的东西；矮的草不遮人，谁站上去都是踩着它。
+     *
+     * **那一丛高草不在这一拨里**：录像里它画在他的裤腿前面，所以它跟立着的东西
+     * 走同一个队（业主 2026-10-12 照录像定的，Q12 选 c）。它**挡画不挡路** ——
+     * 不占身位、不进判定，只是画的时候能排在人前面。
      *
      * 另一拨**站在同一块地板上**，和人走同一个队：后墙边的树干画在他前面的哥布林
      * 之前，前边缘的桶画在他之后。木桶是其中唯一会变的一件（`docs/adr/0030`）：
@@ -6497,6 +6879,26 @@
     if (shake > 0) {
       ctx.translate(Math.sin(state.time * 90) * 2.4 * shake, Math.cos(state.time * 77) * 1.6 * shake);
     }
+    /*
+     * **世界那一趟的全部变换，就在这三行里**（`docs/adr/0035`）。
+     *
+     *   屏幕 = (世界 − 镜头) × zoom，纵向以**地面线**为轴
+     *
+     * 写在一次、写在这一个地方，而不是在几十个绘制函数里各乘各的：下面这一整趟 ——
+     * 背景、门、布景、人、怪、地上的火、飘出来的伤害数字 —— 全都在同一层，一次变换
+     * 全解决。屏幕那一层（HUD、地图窗口、暗角、过场那层黑幕）在 `ctx.restore()` 之后，
+     * 一动不动。
+     *
+     * **纵向以地面线为轴**：0 和 430 原地不动，其余按 zoom 伸缩。地面线于是永远落在
+     * 技能栏上沿那一条（430，栏从 444 起），和他站的地方一起不动 —— 拉近的是世界，
+     * 不是"脚底那一行"。
+     *
+     * `zoom` 是量出来的（录像里他一屏高 4.0755 个身位），推法见 `Core.CAMERA`。
+     */
+    ctx.translate(0, ARENA.groundY);
+    ctx.scale(Core.CAMERA.zoom, Core.CAMERA.zoom);
+    ctx.translate(0, -ARENA.groundY);
+    ctx.translate(-cameraX(state), 0);
     drawBackdrop(ctx, state, sprites);
     drawGate(ctx, state, sprites);
 

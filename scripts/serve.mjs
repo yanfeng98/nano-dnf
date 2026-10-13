@@ -32,6 +32,47 @@ const MIME = {
   ".ico": "image/x-icon"
 };
 
+/*
+ * **音乐清单**：`assets/music/manifest.json` 说"哪几首真的在"。
+ *
+ * 为什么不让游戏自己去试一把：试一个不存在的文件，控制台就会留下一条 404，而浏览器
+ * 证明里"控制台无报错"是一条硬门（`tests/browser/playability.mjs`）。清单文件本身
+ * 一定在，所以读它不会有任何一条失败请求 —— 只有它列出来的那几首才会被真的去取。
+ *
+ * 那两首是要业主从客户端 `Music\` 拷过来的（`assets/music/README.md`），所以每次
+ * `npm run serve` 都按目录里的实际文件重写一遍：**放好之后跑一次 serve 就同步了**。
+ */
+function syncMusicManifest() {
+  const dir = path.join(ROOT, "assets", "music");
+  let files = [];
+  try {
+    files = fs
+      .readdirSync(dir)
+      .filter((name) => name.toLowerCase().endsWith(".ogg"))
+      .sort();
+  } catch (error) {
+    files = [];
+  }
+  const body =
+    JSON.stringify(
+      {
+        note: "由 `npm run serve` 按 assets/music/ 里实际的 .ogg 重写 —— 别手改。",
+        files: files
+      },
+      null,
+      2
+    ) + "\n";
+  const target = path.join(dir, "manifest.json");
+  try {
+    if (fs.readFileSync(target, "utf8") !== body) fs.writeFileSync(target, body);
+  } catch (error) {
+    /* 目录还不存在就不写；游戏读不到清单就当作一首都没有。 */
+  }
+  if (files.length) console.log(`music: ${files.join(", ")}`);
+}
+
+syncMusicManifest();
+
 http
   .createServer((req, res) => {
     const url = new URL(req.url, "http://localhost");

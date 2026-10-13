@@ -155,3 +155,25 @@ test("a frozen run never hints", () => {
     }
   }
 });
+
+/*
+ * 提示一次只显示一条，而**更急的那条可以顶掉正在显示的那条**（`syncHints`）。
+ * 这条断言守的是那个顶替赖以前提：名次要真的分开，而且"挡着路的那张卡"
+ * 必须排在"打完一套连击"前面 —— 不然它永远轮不上。
+ */
+test("每条提示都带着自己的名次，急的那条排得靠前", () => {
+  const state = opening();
+  state.time = 30;
+  state.stats.kills = 4;
+  const combo = Hints.select(state, {});
+  assert.equal(combo.id, "firstBlood");
+
+  state.upgradeChoice = { options: ["attack", "maxHp", "mpRegen"], picked: null };
+  const gate = Hints.select(state, {});
+  assert.equal(gate.id, "upgrade");
+  assert.equal(typeof gate.priority, "number", "select 要把名次一起交出来");
+  assert.ok(
+    gate.priority < combo.priority,
+    `挡路的强化卡（名次 ${gate.priority}）必须比连击提示（名次 ${combo.priority}）急`
+  );
+});

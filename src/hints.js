@@ -123,6 +123,9 @@
    *
    * `seen` is a plain id -> true map owned by the caller, so each hint lands
    * once per run and a missed one does not nag forever.
+   *
+   * `priority` 是它在 `HINTS` 里的**名次**（越小越急）。调用方拿它做一件事：
+   * 决定这条能不能**顶掉**正在显示的那一条 —— 见 `src/main.js` 的 `syncHints`。
    */
   function select(state, seen) {
     var shown = seen || {};
@@ -130,7 +133,7 @@
       var hint = HINTS[index];
       if (shown[hint.id]) continue;
       if (!safeWhen(hint, state)) continue;
-      return { id: hint.id, text: hint.text, life: hint.life };
+      return { id: hint.id, text: hint.text, life: hint.life, priority: index };
     }
     return null;
   }

@@ -64,6 +64,14 @@ ROSTER = [
     ("brute",  "sprite_monster_tau.NPK",               "tau/body01.img"),
     ("elite",  "sprite_monster_goblin.NPK",            "goblin/whiteboss.img"),
     ("boss",   "sprite_monster_tau.NPK",               "tau/body02.img"),
+    # 换色的哥布林。客户端那一族是**同一套画布十具换色**（`goblin/body0..9`），
+    # 业主录像那块条上写过七个哥布林变体（哥布林 / 青哥布林 / 赤哥布林 /
+    # 胆小哥布林 / 投掷哥布林 / 燃烧之投掷哥布林 / 诅咒之赤哥布林）——
+    # 本作原来只烘了 body0 一具青绿的，所以同一间房三只长得一模一样，
+    # 业主连说两次「怪物少」。这两具是按**颜色对上的**（量的平均色）：
+    # body7 (44, 98, 129) 蓝 → 青哥布林，body8 (145, 53, 45) 红 → 赤哥布林。
+    ("goblinBlue", "sprite_monster_goblin.NPK",        "goblin/body7.img"),
+    ("goblinRed",  "sprite_monster_goblin.NPK",        "goblin/body8.img"),
 ]
 
 # Layers drawn on top of a body, in order. The beast's white mane is the reason

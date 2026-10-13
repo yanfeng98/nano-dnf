@@ -71,6 +71,36 @@ PIECES = [
     ("grass",      MAP, "sprite/map/02obj201.img", 0),
     ("grassFlower", MAP, "sprite/map/02obj202.img", 0),
     ("sprout",     MAP, "sprite/map/02obj500.img", 0),
+    # ------------------------------------------------------------------
+    # 02 套剩下那 19 件（业主 2026-10-13 把整包客户端拷上来之后补的）。
+    #
+    # 原来是只取 14 件 —— 而这一套一共 **33 件**（另加覆雪孪生）。业主第一轮就说过
+    # **「场景素材少」**，那时只能靠"把 14 件摆得更密"顶；客户端到手之后，缺的那批
+    # 本来就在那儿：**三棵大小不一的杉苗、两种倒木、四截断桩、两块暗色岩壁、
+    # 四片贴地平铺的草丛**（正是录像里满地那种），外加一粒小石子。
+    #
+    # 名字是按**看起来是什么**起的（对照表：`/tmp/scene-02.jpg` 那张做法见 `CLAUDE.md`）。
+    # **"贴地"与"立着"的分法看 `SOLID`/`SCENE.decals`**，不在这张表里 ——
+    # 这张表只管"从客户端哪一条烘"。
+    ("firSmall",   MAP, "sprite/map/02obj003.img", 0),
+    ("firMid",     MAP, "sprite/map/02obj004.img", 0),
+    ("firTall",    MAP, "sprite/map/02obj005.img", 0),
+    ("pebble",     MAP, "sprite/map/02obj007.img", 0),
+    ("snagTall",   MAP, "sprite/map/02obj011.img", 0),
+    ("fallenTrunk", MAP, "sprite/map/02obj012.img", 0),
+    ("stumpBroken", MAP, "sprite/map/02obj105.img", 0),
+    ("trunkHollow", MAP, "sprite/map/02obj106.img", 0),
+    ("snagShort",  MAP, "sprite/map/02obj107.img", 0),
+    ("snagStub",   MAP, "sprite/map/02obj108.img", 0),
+    ("ruinStone",  MAP, "sprite/map/02obj109.img", 0),
+    ("rockArch",   MAP, "sprite/map/02obj110.img", 0),
+    ("logMossy",   MAP, "sprite/map/02obj111.img", 0),
+    ("grassPatch", MAP, "sprite/map/02obj200.img", 0),
+    ("treeDead",   MAP, "sprite/map/02obj401.img", 0),
+    ("treeDeadTall", MAP, "sprite/map/02obj402.img", 0),
+    ("leaves",     MAP, "sprite/map/02obj501.img", 0),
+    ("leavesBroad", MAP, "sprite/map/02obj502.img", 0),
+    ("leavesDense", MAP, "sprite/map/02obj503.img", 0),
     # The way out of a room: **one gate per direction** (`docs/adr/0030`), and
     # the client already has all three - a side gate you walk through left/right,
     # an `up` gate that stands on the floor's far edge, and a `down` gate that
@@ -100,8 +130,12 @@ PIECES = [
     # 这里曾经还烘过三块 `hiteffect/bloodlarge` 的"红肉块"，已经删掉：录像里那些红球
     # 是**怪掉在地上的东西**（怪死时从尸体里飞出来的掉落物，有高光、有名字条），
     # 不是血 —— 地上、尸体上都不留任何红的。
-    ("deathSmoke", MONSTER, "sprite/monster/common/monsterdieblood.img", 0),
-    ("deathBurst", MONSTER, "sprite/monster/common/monsterdieflash.img", 0),
+    #
+    # **上面这两样都不烘了**（2026-10-13）：`docs/adr/0034` 之后死的画法换成
+    # "躺下 → 它自己的**白色剪影** → 炸成它自己颜色的碎块"，白烟与圆爆整条删掉，
+    # 于是这两条烘出来**没有任何人用**。判据是这条测试自己的：
+    # `every prop a room scatters names a piece the bake produced` —— "烘了没人用
+    # 就是白烘"。留在表里会让 `--table` 把死条目一起印回来。
 ]
 
 # 木桶碎开的那 12 帧。客户端把 13 帧摆在同一格里，每帧带自己的 (x, y)；烘成"照 ink 裁"

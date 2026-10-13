@@ -10,9 +10,9 @@
  * `write` plays two scenarios through the real renderer with a stand-in 2D
  * context that records every call, and hashes each frame. The attract demo
  * covers a whole run on its own (fights, skills, the boss, the upgrade cards)
- * and the collapsing-floor room is entered by hand because a layout drawn from
- * the pool does not always contain it - the collapsing slabs are the one thing
- * on the floor that is drawn as a disc, so they have to be in the sample.
+ * and the room with a floor band of its own is entered by hand, because that
+ * band is the second backdrop path and a layout drawn from the seed does not
+ * always visit it.
  *
  * `compare` answers the question the depth work keeps needing answered: given a
  * change that claims not to move something, where did it actually move? Equal
@@ -140,7 +140,7 @@ function write(path, attractSeconds, chapelSeconds) {
   console.log(
     path,
     "frames=" + frames.length,
-    "(attract " + attractFrames + ", chapel " + chapelFrames + ")",
+    "(attract " + attractFrames + ", roomy " + warrenFrames + ")",
     "digest=" + digest
   );
 }

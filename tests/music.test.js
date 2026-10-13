@@ -4,6 +4,8 @@ const test = require("node:test");
 const assert = require("node:assert/strict");
 
 const Music = require("../src/music.js");
+/* 换那一首看的是"这一格是不是 Boss 房"，那件事只有地牢知道（`state.dungeon`）。 */
+const Core = require("../src/core.js");
 
 test("the loop is a whole number of bars in A minor", () => {
   assert.equal(Music.STEPS_PER_BAR, Music.STEPS_PER_BEAT * Music.BEATS_PER_BAR);
@@ -110,4 +112,35 @@ test("the tempo gives a usable sixteenth-note step", () => {
   );
   const loopSeconds = Music.STEP_SECONDS * Music.LOOP_STEPS;
   assert.ok(loopSeconds > 8 && loopSeconds < 14, `the loop should run ~10s, got ${loopSeconds}`);
+});
+
+/*
+ * **进 Boss 房换那一首**（`docs/adr/0038`）。第三片定的口径是音乐改成读文件：
+ * 关卡一首、Boss 房另一首。这条只管"该放哪一首" —— 文件在不在、怎么放，
+ * 是 `src/main.js` 那一段的事（没文件时它回落到现在这个合成器）。
+ */
+test("走到 Boss 房那一格就换成 Boss 那一首", () => {
+  assert.ok(Music.TRACKS.room.file && Music.TRACKS.boss.file, "两首都要有文件");
+  assert.notEqual(Music.TRACKS.room.file, Music.TRACKS.boss.file, "两首不能是同一个文件");
+
+  const state = Core.createState({ seed: Core.DEFAULT_SEED });
+  /* `dungeon.boss` 是**格子序号**，和 `state.cell` 同一个坐标系。 */
+  const bossCell = state.dungeon.boss;
+  assert.ok(typeof bossCell === "number", "地牢要说得出 Boss 落在哪一格");
+
+  let sawBoss = false;
+  state.dungeon.cells.forEach((cell, index) => {
+    state.cell = index;
+    const want = Music.trackFor(state);
+    if (index === bossCell) {
+      sawBoss = true;
+      assert.equal(want, "boss", `第 ${index} 格是 Boss 房，该放 Boss 那一首`);
+    } else {
+      assert.equal(want, "room", `第 ${index} 格不是 Boss 房，该放关卡那一首`);
+    }
+  });
+  assert.ok(sawBoss, "这一关要真的有一格是 Boss 房");
+  /* 没有地牢的时候不许炸：标题页、地区地图都会问到它。 */
+  assert.equal(Music.trackFor(null), "room");
+  assert.equal(Music.trackFor({}), "room");
 });

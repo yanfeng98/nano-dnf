@@ -410,10 +410,129 @@
     var context = audio.ctx;
     if (context.state === "suspended" && context.resume) context.resume();
     music.playing = true;
+    /*
+     * **先按合成器起，文件随后接管**（`playTrack` 会把合成器的定时器停掉）。
+     * 反过来等文件会有一小段静音，而"文件在不在"要等 fetch 回来才知道 ——
+     * 现在这样：有文件就放文件，没文件就是原来那个循环，两条路都听得见。
+     */
+    loadMusicFiles();
+    syncTrack();
     music.nextNoteTime = context.currentTime + 0.05;
     pumpMusic();
     music.timer = window.setInterval(pumpMusic, 60);
     return true;
+  }
+
+  /* ------------------------------------------------------- 音乐：放那两首文件 */
+
+  /*
+   * **第三片定的口径：音乐不再是这个合成器，改成读文件**（`docs/adr/0038`）——
+   * 关卡一首、Boss 房另一首（`Music.TRACKS`），进 Boss 房就换。
+   *
+   * **文件还没有的时候，上面那个合成器继续放着。** 那两首在业主机器的客户端里
+   * （`Music\mirkwood.ogg` / `mirkwood_boss.ogg`），不在这台机器上，所以这里落地成
+   * 一个**回落**：文件在就放文件、不在就还放合成器。文件一放进来，合成器那条路就
+   * 永远走不到了 —— 那时照着 ADR 把它删掉即可（它由 `tests/music.test.js` 守着）。
+   *
+   * 它走**同一条音乐总线**（`music.bus`），所以"静音＝把总线增益归零"这条不用改：
+   * 文件与合成器共用那一个归零点。
+   */
+  /* 说"哪几首真的在"的那份清单（由 `npm run serve` 重写，见 `scripts/serve.mjs`）。 */
+  var MUSIC_MANIFEST = "assets/music/manifest.json";
+  var musicBuffers = {};
+  var musicTrackId = null;
+  var musicSource = null;
+  var musicLoadStarted = false;
+
+  /**
+   * 第一次用户手势之后再去抓音频 —— 浏览器的自动播放策略要的就是那一下。
+   *
+   * **先去读清单，只取它列出来的那几首。** 清单（`assets/music/manifest.json`）一定在，
+   * 所以读它不会留下任何一条失败请求；而"直接去试一把有没有"会 —— 试一个不存在的文件
+   * 就是一条 404，浏览器证明里"控制台无报错"那条门会被它顶红。清单由 `npm run serve`
+   * 按目录里的实际文件重写（`scripts/serve.mjs`）。
+   */
+  function loadMusicFiles() {
+    if (musicLoadStarted) return;
+    musicLoadStarted = true;
+    var context = ensureAudio();
+    if (!context || typeof fetch !== "function") return;
+    fetch(MUSIC_MANIFEST)
+      .then(function (response) {
+        return response.ok ? response.json() : { files: [] };
+      })
+      .then(function (manifest) {
+        var present = manifest && Array.isArray(manifest.files) ? manifest.files : [];
+        Object.keys(Music.TRACKS).forEach(function (id) {
+          var file = Music.TRACKS[id].file;
+          if (present.indexOf(file.replace("assets/music/", "")) === -1) return;
+          fetch(file)
+            .then(function (response) {
+              if (!response.ok) throw new Error("missing " + file);
+              return response.arrayBuffer();
+            })
+            .then(function (bytes) {
+              return context.decodeAudioData(bytes);
+            })
+            .then(function (buffer) {
+              musicBuffers[id] = buffer;
+              /* 文件到的时候正好该放它，就当场接上（合成器这时让位）。 */
+              if (music.playing && musicTrackId === id && !musicSource) playTrack(id);
+            })
+            .catch(function () {
+              /* 读到了却取不到：继续用合成器，别把整局音乐拖下水。 */
+            });
+        });
+      })
+      .catch(function () {
+        /* 清单都没有（老构建、离线打开）：全用合成器。**这是常态，不是错误** —— 见上面那段。 */
+      });
+  }
+
+  /** 把某一首从头循环起来，走音乐总线；接上的同时把合成器停掉（一次只能有一个在唱）。 */
+  function playTrack(id) {
+    var context = audio.ctx;
+    var buffer = musicBuffers[id];
+    if (!context || !buffer || !ensureMusicBus()) return false;
+    /*
+     * 合成器让位：把它的定时器停掉。已经排进音频时钟的那零点几秒会放完 ——
+     * 那是 `MUSIC_LOOKAHEAD_SECONDS` 那一下，不是"两首在叠"。
+     */
+    if (music.timer) {
+      window.clearInterval(music.timer);
+      music.timer = null;
+    }
+    stopTrack();
+    musicSource = context.createBufferSource();
+    musicSource.buffer = buffer;
+    musicSource.loop = true;
+    musicSource.connect(music.bus);
+    musicSource.start();
+    return true;
+  }
+
+  function stopTrack() {
+    if (!musicSource) return;
+    try {
+      musicSource.stop();
+    } catch (error) {
+      /* 已经停了就算了。 */
+    }
+    musicSource = null;
+  }
+
+  /**
+   * 一帧一次：该放的那一首换了就换。
+   *
+   * **没有文件时它什么都不做**（`musicBuffers` 是空的），合成器照旧 —— 所以这一层
+   * 在文件到位之前是惰性的，和第一片的镜头管线同一个做法：管线先接好，东西到了就用。
+   */
+  function syncTrack() {
+    var want = Music.trackFor(state);
+    if (want === musicTrackId) return;
+    musicTrackId = want;
+    if (!musicBuffers[want]) return;
+    playTrack(want);
   }
 
   var SOUNDS = {
@@ -498,13 +617,34 @@
   var hintSeen = {};
   var activeHint = null;
 
-  /** One hint at a time, each landing once per run so it teaches instead of nags. */
+  /**
+   * One hint at a time, each landing once per run so it teaches instead of nags.
+   *
+   * **但更急的那条可以顶掉正在显示的那条。** 这条口径是补出来的：原来这里是
+   * 「正在显示就什么都不做」，于是最急的那条（`upgrade` ——「选一张强化卡」）
+   * 会被一条闲聊式的提示（`awakening`）押后四五秒，而玩家一秒就把卡选了 ——
+   * **那条提示等于从来没出现过**，玩家也就没被告知那张卡是什么意思。
+   * 浏览器证明里那句「提示要覆盖住强化卡这一刻」本来就是冲着这件事写的，它间歇性地红，
+   * 红的不是测试，是这里。
+   */
   function syncHints() {
-    if (activeHint) return;
     var pick = Hints.select(state, hintSeen);
     if (!pick) return;
+    if (activeHint) {
+      if (activeHint.priority <= pick.priority) return;
+      /*
+       * 被顶掉的那条**不算"讲过了"**：它只露了个头就被打断，记成讲过就再也回不来了。
+       */
+      delete hintSeen[activeHint.id];
+    }
     hintSeen[pick.id] = true;
-    activeHint = { id: pick.id, text: pick.text, life: pick.life, maxLife: pick.life };
+    activeHint = {
+      id: pick.id,
+      text: pick.text,
+      life: pick.life,
+      maxLife: pick.life,
+      priority: pick.priority
+    };
   }
 
   function ageHint(dt) {
@@ -1111,6 +1251,7 @@
         Core.step(state, currentInput());
         syncSounds();
         syncHints();
+        syncTrack();
         ageHint(Core.DT);
         syncFinishedRun();
         syncRecords();
@@ -1317,7 +1458,15 @@
         busGain: music.bus ? music.bus.gain.value : null,
         nextNoteTime: music.nextNoteTime,
         stepSeconds: typeof Music === "undefined" ? null : Music.STEP_SECONDS,
-        contextState: audio.ctx ? audio.ctx.state : "none"
+        contextState: audio.ctx ? audio.ctx.state : "none",
+        /*
+         * 该放哪一首（`Music.trackFor`）、有没有那一首的文件、现在放的是文件还是
+         * 合成器。三样分开报，因为"文件到位了没有"与"该放哪一首"是两件事 ——
+         * 验收时要能一眼看出换没换到 Boss 那一首。
+         */
+        track: Music.trackFor(state),
+        trackFiles: Object.keys(musicBuffers),
+        source: musicSource ? "file" : "synth"
       };
     },
     getHintState: function () {

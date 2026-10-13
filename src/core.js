@@ -14,6 +14,14 @@
   var FPS = 60;
   var DT = 1 / FPS;
 
+  /*
+   * **房间是"世界"，`ARENA` 只是窗口**（`docs/adr/0035`）。
+   *
+   * 一间房有它**自己的**宽度（`state.room.width`），而人看到的一直是 `ARENA.width`
+   * 那么宽的一块 —— 房间比它宽就滚。所以下面这两个宽度不是一回事，写代码时别混：
+   * 判定、刷怪、摆布景、门，全都读**房间**那三个（`roomWidth` / `roomLeft` /
+   * `roomRight`），不要读这里的 `leftWall` / `rightWall`。
+   */
   var ARENA = {
     width: 960,
     height: 540,
@@ -23,9 +31,86 @@
      * and the owner asked for the floor to stay visible.
      */
     groundY: 430,
+    /* 房间左右各留的墙厚；默认那一间就是 24 与 936。 */
     leftWall: 24,
     rightWall: 936
   };
+
+  /*
+   * 一间房的两堵墙与它的宽度 —— **这三个是权威，`ARENA` 那两个不是。**
+   *
+   * 读它们而不是直接读 `state.room.width`，是因为**房间还没开出来的时候也得答得上来**
+   * （`createEnemy`、抛射物、身体分离这些都在 `beginRoom` 之外跑）：答不上来就回落到
+   * 默认那一间的尺寸，于是任何一次调用都不会读到一个空房间。
+   */
+  function roomWidth(state) {
+    var room = state && state.room;
+    if (!room || room.width === undefined) return ARENA.width;
+    return room.width;
+  }
+
+  function roomLeft(state) {
+    var room = state && state.room;
+    if (!room || room.leftWall === undefined) return ARENA.leftWall;
+    return room.leftWall;
+  }
+
+  function roomRight(state) {
+    var room = state && state.room;
+    if (!room || room.rightWall === undefined) return ARENA.rightWall;
+    return room.rightWall;
+  }
+
+  /*
+   * 美术里他画出来多高 —— 这就是**身位**（`CONTEXT.md`）。和 `Render.SPRITE.bodyHeight`
+   * 是同一个数（那张图上他自己的包围盒，由一个测试钉着），这里是因为镜头要按它算远近。
+   */
+  var ART_HEIGHT = 84;
+
+  /*
+   * **录像里的一个像素等于本作世界里的多少。**
+   *
+   * 录像里他一身的 265 像素，本作美术里是 84（`ART_HEIGHT`），所以
+   * 1 视频像素 = 84 / 265 = **0.317 世界像素**。业主那条整场录像里的每一处长度
+   * （血条、头像框、字高、偏移）都是乘这个数折过来的 —— 写成一个名字而不是一堆
+   * 手算好的小数，是为了让"这个数从哪儿来"在每一处都还看得见。
+   */
+  var VIDEO_PX = ART_HEIGHT / 265;
+
+  /*
+   * **镜头离他多近，以及它什么时候开始跟**（`docs/adr/0035`）。
+   *
+   * 这一组全是**量出来的**，不是挑的。量的是业主给的整场录像
+   * （`dnf-dungeon-videos/00001-幽暗密林.mp4`，1920×1080，游戏画面居中 1440×1080）：
+   *
+   * **一、远近。** 录像里他一屏高 **4.0755 个身位**（一屏 1080 视频像素 ÷ 他画出来的
+   * 265 像素）。本作一屏 `ARENA.height` = 540 屏幕像素，所以一个身位要画
+   * **132.51** 屏幕像素 —— 而美术里的他只有 **84**，世界因此整体画大 **1.5775 倍**。
+   * 一屏于是只看得到 960 / 1.5775 = **608.6 世界像素** = **7.245 身位**。
+   * **这比录像的 5.434 身位还宽 33%** —— 那 33% 是**画幅**（录像 4:3，本作 16:9），
+   * 单独一条，业主 2026-10-12 定的是先不动（Q16 选 a）。
+   *
+   * **二、死区。** 他到屏幕中间这一条带子里走动时**镜头不动**，一到边上镜头就开始跟。
+   * 带子量出来是屏宽的 **224/1440 = 15.556%**，**居中**，六个房间一模一样
+   * （屏幕 x 只落在 [607, 831] 这两个峰上，中间几乎是空的）。
+   *
+   * **三、跟法与边界。** 越过带子**一帧内就到全速**、跟他 **1:1**（30fps 下量不出任何
+   * 滞后，所以这里不写平滑）；**到房间的墙就停住**，他还走他的（录像里他走到屏幕
+   * x=1211 而镜头一动不动，连续 6.8 秒）；**纵向不跟**（95% 的帧 dy = 0）。
+   */
+  var CAMERA = {
+    /* 一身位在屏幕上画多少像素：540 ÷ 4.0755 = 132.51。 */
+    figure: ARENA.height / (1080 / 265),
+    /* 一**世界**像素画多少屏幕像素：132.51 ÷ 84 = 1.5775。 */
+    zoom: (ARENA.height / (1080 / 265)) / ART_HEIGHT,
+    /* 死区，存成**屏宽**的比例 —— 因为它量的是屏幕，不是房间。 */
+    deadzoneShare: 224 / 1440
+  };
+
+  /** 一屏看得见多宽的世界（世界像素）。房间比它宽就有得滚。 */
+  function windowWidth() {
+    return ARENA.width / CAMERA.zoom;
+  }
 
   var PHYSICS = {
     gravity: 2200,
@@ -1498,8 +1583,73 @@
    * file used before, by subtracting the body span it had been measured against,
    * so the fight on screen is still the one those numbers were tuned for.
    */
+  /*
+   * **每只怪的身份：`label`（名字）、`race`（类别）、`level`（等级）。**
+   *
+   * 这三样不是给玩法用的，是给左上角那块**"当前目标"**面板用的
+   * （量法与依据见下面的 `TARGET`）。它们放在这里而不是另开一张表，是为了让
+   * "一只怪是什么"只有一个地方—— 挑名字的人不会漏掉一只怪。
+   *
+   * **出处**：业主的幽暗密林录像里，那块条上出现过的全部写法是
+   * `人型 Lv4` 加 {哥布林, 胆小哥布林, 青哥布林, 赤哥布林, 投掷哥布林,
+   * 燃烧之投掷哥布林, 诅咒之赤哥布林}，以及 `野兽 Lv7 领主 - 牛头巨兽`。
+   * 所以：**杂兵一律 Lv4、Boss Lv7**，名字照客户端自己的叫法
+   * （`docs/granfloris-assets.md` 的怪物总表）。
+   *
+   * 录像里没有、名字只能照着客户端总表读的两个（都标在它们自己那一条上）：
+   * `brute` 与 `elite`。
+   */
   var ENEMY_TYPES = {
     grunt: {
+      /* 录像里出现最多的那一只：`人型 Lv4 哥布林`。 */
+      label: "哥布林",
+      race: "人型",
+      level: 4,
+      behavior: "melee",
+      maxHp: 32,
+      xp: 10,
+      width: 33,
+      height: 53,
+      speed: 95,
+      damage: 6,
+      attackRange: 14,
+      attackWindup: 0.28,
+      attackDuration: 0.5,
+      attackCooldown: 1.05,
+      knockbackX: 150
+    },
+    /*
+     * **换色的哥布林：同一套十七帧动作、同一个兵种，只是换了一张皮。**
+     *
+     * 这一个是业主连说两次「怪物少」之后补上的。量出来的答案不是"数量不够"
+     * （录像同屏 2–4 只，本作正房 3 只，对得上），而是**三只长得一模一样** ——
+     * 客户端那一族本来就是**同一画布十具换色**（`goblin/body0..9`），业主录像
+     * 那块条上写过七个哥布林变体，而本作原来只烘了 `body0` 一具。
+     *
+     * 颜色是**量的平均色**对上的（`assets/import_dnf_monsters.py` 的 ROSTER）：
+     * `body7` (44, 98, 129) 蓝 → 录像里的 `青哥布林`；`body8` (145, 53, 45) 红 → `赤哥布林`。
+     */
+    goblinBlue: {
+      label: "青哥布林",
+      race: "人型",
+      level: 4,
+      behavior: "melee",
+      maxHp: 32,
+      xp: 10,
+      width: 33,
+      height: 53,
+      speed: 95,
+      damage: 6,
+      attackRange: 14,
+      attackWindup: 0.28,
+      attackDuration: 0.5,
+      attackCooldown: 1.05,
+      knockbackX: 150
+    },
+    goblinRed: {
+      label: "赤哥布林",
+      race: "人型",
+      level: 4,
       behavior: "melee",
       maxHp: 32,
       xp: 10,
@@ -1520,6 +1670,10 @@
      * roster asked for (`docs/adr/0026` 换皮为主).
      */
     coward: {
+      /* 录像：`人型 Lv4 胆小哥布林`。 */
+      label: "胆小哥布林",
+      race: "人型",
+      level: 4,
       behavior: "melee",
       maxHp: 22,
       xp: 8,
@@ -1534,6 +1688,14 @@
       knockbackX: 130
     },
     brute: {
+      /*
+       * **录像里没有这只怪**（幽暗密林那头牛只有 Boss 那一只），名字照客户端的
+       * 牛头一族读：`sprite_monster_tau.NPK` 的 body01 与 Boss 用的 body02 同族，
+       * Boss 是"巨兽"，这一只就是**牛头怪**。类别跟着 Boss 走 `野兽`，等级按"杂兵 Lv4"。
+       */
+      label: "牛头怪",
+      race: "野兽",
+      level: 4,
       behavior: "melee",
       maxHp: 68,
       xp: 22,
@@ -1548,6 +1710,10 @@
       knockbackX: 200
     },
     caster: {
+      /* 录像：`人型 Lv4 投掷哥布林`（客户端 `goblin/rtrowgoblin.img`，就是投掷那一只）。 */
+      label: "投掷哥布林",
+      race: "人型",
+      level: 4,
       behavior: "ranged",
       maxHp: 26,
       xp: 14,
@@ -1570,6 +1736,13 @@
       }
     },
     charger: {
+      /*
+       * 本作自己写的兵种，客户端没有对应美术（`docs/granfloris-assets.md` 第六节），
+       * 也没有出现在录像里 —— 名字是照它的行为起的。
+       */
+      label: "冲锋兵",
+      race: "人型",
+      level: 4,
       behavior: "charger",
       maxHp: 46,
       xp: 18,
@@ -1594,6 +1767,16 @@
      * one body-width aside.
      */
     elite: {
+      /*
+       * **录像里没有这只怪**（幽暗密林那几间房没有白毛这一个），名字照客户端读：
+       * `goblin/whiteboss.img`（白毛 + 蓝弯刀）在 `docs/granfloris-assets.md` 的
+       * 怪物总表里写的是"疑**十夫长**" —— 那是个**存疑的读法**，而本作把它放在
+       * 「十夫长的营寨」，两边对得上，所以就用这个名。哪天真从客户端里查到别的写法，
+       * 改这一行即可。
+       */
+      label: "十夫长",
+      race: "人型",
+      level: 4,
       behavior: "elite",
       /*
        * 回避: a hit can slide off him. The elite and the boss are the only two
@@ -1628,6 +1811,10 @@
       }
     },
     boss: {
+      /* 录像里那条唯一的 `野兽`：`Lv7 领主 - 牛头巨兽`（客户端 `tau/body02.img`）。 */
+      label: "领主 - 牛头巨兽",
+      race: "野兽",
+      level: 7,
       behavior: "boss",
       /* 回避, the same as the elite's - see the note there. */
       evasion: 0.15,
@@ -1730,9 +1917,10 @@
           /* 起点房：地牢一进来就是它（`MIRKWOOD_DUNGEON.entryRoom`）。 */
           kind: "room",
           enemies: [
-            { type: "grunt", x: 620 },
-            { type: "grunt", x: 790 },
-            { type: "grunt", x: 880 }
+            { type: "grunt", x: 430 },
+            { type: "grunt", x: 489 },
+            { type: "goblinBlue", x: 700 },
+            { type: "grunt", x: 759 }
           ],
           props: [
             { piece: "trunkTall", x: 150, depth: 1 },
@@ -1754,9 +1942,12 @@
           name: "投石坡",
           kind: "room",
           enemies: [
-            { type: "caster", x: 600, depth: 0.34 },
-            { type: "grunt", x: 720 },
-            { type: "grunt", x: 900 }
+            { type: "caster", x: 400, depth: 0.34 },
+            { type: "grunt", x: 459 },
+            { type: "grunt", x: 518 },
+            { type: "grunt", x: 760 },
+            { type: "goblinBlue", x: 819 },
+            { type: "grunt", x: 878 }
           ],
           props: [
             { piece: "trunkBent", x: 210, depth: 1 },
@@ -1772,9 +1963,12 @@
           name: "兽栏",
           kind: "room",
           enemies: [
-            { type: "brute", x: 700 },
-            { type: "brute", x: 850 },
-            { type: "grunt", x: 560 }
+            { type: "grunt", x: 380 },
+            { type: "brute", x: 439 },
+            { type: "brute", x: 533 },
+            { type: "goblinRed", x: 760 },
+            { type: "grunt", x: 819 },
+            { type: "goblinBlue", x: 878 }
           ],
           props: [
             { piece: "trunkTall", x: 340, depth: 1 },
@@ -1794,9 +1988,12 @@
           name: "十夫长的营寨",
           kind: "room",
           enemies: [
-            { type: "caster", x: 560, depth: 0.4 },
+            { type: "caster", x: 420, depth: 0.4 },
+            { type: "grunt", x: 479 },
+            { type: "grunt", x: 538 },
             { type: "elite", x: 760 },
-            { type: "grunt", x: 920 }
+            { type: "grunt", x: 824 },
+            { type: "goblinRed", x: 883 }
           ],
           props: [
             { piece: "trunkTall", x: 120, depth: 1 },
@@ -1826,9 +2023,12 @@
           name: "胆小鬼的窝",
           kind: "room",
           enemies: [
-            { type: "coward", x: 600 },
+            { type: "coward", x: 400 },
+            { type: "coward", x: 459 },
+            { type: "coward", x: 518 },
             { type: "coward", x: 740 },
-            { type: "coward", x: 880 }
+            { type: "coward", x: 799 },
+            { type: "goblinBlue", x: 858 }
           ],
           props: [
             { piece: "trunkMossy", x: 100, depth: 1 },
@@ -1854,8 +2054,10 @@
           name: "牛头巨兽的林地",
           kind: "room",
           enemies: [
-            { type: "grunt", x: 520 },
-            { type: "boss", x: 780 }
+            { type: "grunt", x: 420 },
+            { type: "grunt", x: 479 },
+            { type: "goblinRed", x: 538 },
+            { type: "boss", x: 800 }
           ],
           props: [
             { piece: "trunkTall", x: 210, depth: 1 },
@@ -1881,8 +2083,10 @@
           name: "藤蔓窄道",
           kind: "corr",
           enemies: [
-            { type: "coward", x: 660 },
-            { type: "coward", x: 840 }
+            { type: "coward", x: 420 },
+            { type: "coward", x: 479 },
+            { type: "coward", x: 700 },
+            { type: "coward", x: 759 }
           ],
           props: [
             { piece: "trunkBent", x: 150, depth: 1 },
@@ -1895,8 +2099,10 @@
           name: "倒木小径",
           kind: "corr",
           enemies: [
-            { type: "grunt", x: 700, depth: 0.2 },
-            { type: "coward", x: 870 }
+            { type: "grunt", x: 420, depth: 0.2 },
+            { type: "coward", x: 479 },
+            { type: "coward", x: 700 },
+            { type: "goblinBlue", x: 759 }
           ],
           props: [
             { piece: "trunkTall", x: 250, depth: 1 },
@@ -1910,8 +2116,10 @@
           name: "腐叶浅沟",
           kind: "corr",
           enemies: [
-            { type: "grunt", x: 640 },
-            { type: "grunt", x: 820, depth: 0.28 }
+            { type: "grunt", x: 420 },
+            { type: "grunt", x: 479, depth: 0.28 },
+            { type: "goblinRed", x: 700 },
+            { type: "grunt", x: 759 }
           ],
           props: [
             { piece: "trunkMossy", x: 180, depth: 1 },
@@ -1925,8 +2133,10 @@
           name: "雾林岔口",
           kind: "corr",
           enemies: [
-            { type: "caster", x: 620, depth: 0.38 },
-            { type: "grunt", x: 860 }
+            { type: "caster", x: 420, depth: 0.38 },
+            { type: "grunt", x: 479 },
+            { type: "grunt", x: 700 },
+            { type: "goblinBlue", x: 759 }
           ],
           props: [
             { piece: "trunkMossy", x: 260, depth: 1 },
@@ -1939,8 +2149,10 @@
           name: "断桩隘口",
           kind: "corr",
           enemies: [
-            { type: "brute", x: 780 },
-            { type: "grunt", x: 600, depth: 0.3 }
+            { type: "grunt", x: 420, depth: 0.3 },
+            { type: "brute", x: 482 },
+            { type: "brute", x: 742 },
+            { type: "grunt", x: 802 }
           ],
           props: [
             { piece: "trunkBent", x: 160, depth: 1 },
@@ -1953,8 +2165,10 @@
           name: "苔石夹道",
           kind: "corr",
           enemies: [
-            { type: "grunt", x: 680, depth: 0.26 },
-            { type: "caster", x: 880 }
+            { type: "grunt", x: 420, depth: 0.26 },
+            { type: "caster", x: 479 },
+            { type: "grunt", x: 700 },
+            { type: "caster", x: 759 }
           ],
           props: [
             { piece: "wallStone", x: 240, depth: 0.78 },
@@ -1967,11 +2181,12 @@
       bossIndex: 5,
       gauntletIndex: 3,
       /*
-       * The beast's own name, and what it says when it crosses half health -
-       * every stage's boss is a different animal, so the banner is the stage's
-       * to own rather than the `boss` archetype's.
+       * The banner it says when the beast crosses half health. **Its name is not
+       * here** - a monster's name lives on the monster (`ENEMY_TYPES.boss.label`,
+       * `领主 - 牛头巨兽`), because that is what the 当前目标 panel shows and what
+       * the reference writes; this field used to hold a second, shorter copy of it
+       * and was read by nothing but a test.
        */
-      bossName: "牛头巨兽",
       bossBanner: "牛头巨兽 暴怒！",
       clearBanner: "幽暗密林 通关！"
     },
@@ -2248,20 +2463,26 @@
     share: 0.5
   };
 
-  /** 上门/下门在这一格立在哪（像素）。 */
-  function doorX(dungeon, cell, dir) {
-    var share = dir === "N" ? (dungeon.northX || {})[cellKey(cell.col, cell.row)] : undefined;
+  /**
+   * 上门/下门在这一格立在哪（像素）。
+   *
+   * **它是这一间房的比例，不是屏幕的比例。** 量录像时那三个数（0.673 / 0.492 /
+   * 0.469）当时没区分这两者；房间能滚之后必须选一个，选的是**房间**
+   * （`docs/adr/0035`）—— 门是房间里的东西，屏幕只是看它的一扇窗。
+   */
+  function doorX(state, cell, dir) {
+    var share = dir === "N" ? (state.dungeon.northX || {})[cellKey(cell.col, cell.row)] : undefined;
     if (share === undefined) share = DOOR.share;
-    return share * ARENA.width;
+    return share * roomWidth(state);
   }
 
   function inDoorZone(state, dir) {
     var player = state.player;
     var cell = currentCell(state);
     if (!cell) return false;
-    if (dir === "E") return player.x >= ARENA.rightWall - DOOR.side;
-    if (dir === "W") return player.x <= ARENA.leftWall + DOOR.side;
-    if (Math.abs(player.x - doorX(state.dungeon, cell, dir)) > DOOR.span) return false;
+    if (dir === "E") return player.x >= roomRight(state) - DOOR.side;
+    if (dir === "W") return player.x <= roomLeft(state) + DOOR.side;
+    if (Math.abs(player.x - doorX(state, cell, dir)) > DOOR.span) return false;
     var deep = bandDepth(state.band);
     if (dir === "N") return player.z >= deep - DOOR.depth;
     return player.z <= DOOR.depth;
@@ -2298,12 +2519,12 @@
     var floorOf = function (z) { return ARENA.groundY - depthLift(z); };
     if (dir === "N" || dir === "S") {
       var art = GATE_ART[dir];
-      var x = doorX(state.dungeon, cell, dir);
+      var x = doorX(state, cell, dir);
       var bottom = dir === "N" ? floorOf(depth) + 6 : ARENA.height;
       return { left: x - art[0] / 2, right: x + art[0] / 2, top: bottom - art[1], bottom: bottom };
     }
     var side = GATE_ART.side;
-    var cx = dir === "E" ? ARENA.width - 34 : 34;
+    var cx = dir === "E" ? roomWidth(state) - 34 : 34;
     var base = ARENA.groundY + 4;
     return { left: cx - side[0] / 2, right: cx + side[0] / 2, top: base - side[1], bottom: base };
   }
@@ -2312,12 +2533,12 @@
   function doorFloor(state, cell, dir) {
     var deep = bandDepth(state.band);
     if (dir === "E") {
-      return { x: [ARENA.rightWall - DOOR_CLEAR.side, ARENA.width], z: [0, deep] };
+      return { x: [roomRight(state) - DOOR_CLEAR.side, roomWidth(state)], z: [0, deep] };
     }
     if (dir === "W") {
-      return { x: [0, ARENA.leftWall + DOOR_CLEAR.side], z: [0, deep] };
+      return { x: [0, roomLeft(state) + DOOR_CLEAR.side], z: [0, deep] };
     }
-    var at = doorX(state.dungeon, cell, dir);
+    var at = doorX(state, cell, dir);
     return {
       x: [at - DOOR_CLEAR.span, at + DOOR_CLEAR.span],
       z: dir === "N" ? [deep - DOOR_CLEAR.depth, deep] : [0, DOOR_CLEAR.depth]
@@ -2374,10 +2595,10 @@
    */
   function routeStep(state, targetX, targetZ) {
     var step = 24;
-    var left = ARENA.leftWall;
+    var left = roomLeft(state);
     var half = (state.player && state.player.width ? state.player.width : 34) / 2;
     var depth = bandDepth(state.band);
-    var cols = Math.max(1, Math.floor((ARENA.rightWall - left) / step));
+    var cols = Math.max(1, Math.floor((roomRight(state) - left) / step));
     var rows = Math.max(1, Math.floor(depth / step));
     var margin = step / 2;
     var solids = (state.props || []).filter(function (prop) {
@@ -2549,7 +2770,31 @@
     pillar:     { width: 43,  dx: 0,   ink: [44, 111] },
     wallStone:  { width: 163, dx: -1,  ink: [167, 125] },
     rockFlat:   { width: 92,  dx: -20, ink: [141, 89] },
-    rockSmall:  { width: 42,  dx: 0,   ink: [42, 44] }
+    rockSmall:  { width: 42,  dx: 0,   ink: [42, 44] },
+    /*
+     * 02 套剩下那批里**立着的**（业主 2026-10-13 把客户端拷上来之后补的）。
+     * `width`/`dx` 是照同一条规矩量的：**每件美术最底下 12 行的墨**，
+     * 树冠、石头的上半截不进盒子（`docs/adr/0032`）—— 量法：
+     * 取 `assets/forest.png` 里这块矩形的最下 12 行，量 ink 的左右缘。
+     * `depth` 仍然由宽度推（下面那一段）。
+     *
+     * **贴地平铺的那几件不在这里**（`grassPatch` / `leaves` / `leavesBroad` /
+     * `leavesDense` / `pebble`）：它们走 `SCENE.decals`，谁都不撞。
+     */
+    firSmall:   { width: 42,  dx: 0,   ink: [42, 59] },
+    firMid:     { width: 43,  dx: 0,   ink: [43, 71] },
+    firTall:    { width: 44,  dx: 0,   ink: [44, 78] },
+    snagTall:   { width: 96,  dx: 20,  ink: [139, 207] },
+    fallenTrunk: { width: 223, dx: -2, ink: [226, 340] },
+    stumpBroken: { width: 40, dx: -19, ink: [78, 112] },
+    trunkHollow: { width: 84, dx: 2,   ink: [133, 178] },
+    snagShort:  { width: 95,  dx: 0,   ink: [97, 104] },
+    snagStub:   { width: 84,  dx: 2,   ink: [87, 101] },
+    ruinStone:  { width: 139, dx: 2,   ink: [142, 103] },
+    rockArch:   { width: 105, dx: -22, ink: [195, 180] },
+    logMossy:   { width: 96,  dx: 24,  ink: [317, 175] },
+    treeDead:   { width: 74,  dx: -4,  ink: [105, 277] },
+    treeDeadTall: { width: 84, dx: 0,  ink: [175, 303] }
   };
   Object.keys(SOLID).forEach(function (piece) {
     SOLID[piece].depth = clamp(Math.round(SOLID[piece].width / 3), 24, 40);
@@ -2713,7 +2958,7 @@
       kind: "enemy",
       id: state.nextEnemyId++,
       type: type,
-      x: clamp(x + jitter, ARENA.leftWall + spec.width, ARENA.rightWall - spec.width),
+      x: clamp(x + jitter, roomLeft(state) + spec.width, roomRight(state) - spec.width),
       y: ARENA.groundY,
       /*
        * A room may place a monster at a depth; without one it stands on the
@@ -2835,6 +3080,14 @@
       /* 他这一格是从哪个门进来的 —— 那扇门永远能走回去。开局没有。 */
       entryDoor: null,
       room: null,
+      /*
+       * 镜头：世界往哪一边挪（`docs/adr/0035`）。它在**世界**那一侧，屏幕上的
+       * HUD 不跟着动。跟着谁走、有没有死区、到不到边夹取，都还在量录像，见
+       * `updateCamera`。
+       */
+      camera: { x: 0, y: 0 },
+      /* 他正在打的那只怪（左上角那块条显示的就是它）；见 `setTarget`。 */
+      target: null,
       player: null,
       enemies: [],
       projectiles: [],
@@ -2910,6 +3163,130 @@
     return beginRoom(state, state.entryDoor);
   }
 
+  /*
+   * **一间房的布景要摆到录像那个密度。**
+   *
+   * 量自业主的幽暗密林录像：一间房 **50–90 件**、走位带 **75–95% 有东西**；
+   * 本作原来是 **4–8 件**、不到一成 —— **差十倍**（业主说的「场景素材少」就是这个）。
+   * 手写 60 件 × 12 间 = 700 多条 `{piece, x, depth}` 不现实，所以：
+   * **手写的那几件留着**（它们是这间房的地标：门口那两棵树、挡路的那块石头），
+   * 缺的那批**按种子撒**。
+   *
+   * **撒的只用不挡人的那几档**（矮贴花与高草）。立着的实心件仍然由人写 ——
+   * 怪不会绕路、会顶着它原地推（`docs/adr/0032`），几十块撒出来的石头会把它们顶死。
+   *
+   * 数量按录像折算：录像一屏 1440 视频像素 = 456 世界像素，我们一屏看得见 608，
+   * 所以一间 960 像素的房子大致就是录像的一间房，直接用它的每屏量乘开。
+   *
+   * **它走自己的一条随机流**（`layoutRandom`，和地牢洗牌同一个做法），
+   * 不碰 `nextRandom` —— 那一条是敌人抖动和掉落共用的，动它整段演示都会变。
+   */
+  var SCATTER = {
+    /* 矮草丛：录像一屏 8–16 丛，是场上最密的一样。三件轮着来，免得一间房全一个样。 */
+    low: {
+      /*
+       * 矮草丛与贴地平铺的叶片。后四件是 02 套里原来没取的那一批 ——
+       * 录像里满地的是它们，不是我们那三件轮着来。
+       */
+      pieces: [
+        "grassFlower", "sprout", "bush",
+        "grassPatch", "leaves", "leavesBroad", "leavesDense",
+        /* 一粒小石子：也是贴地的，混在草丛里。 */
+        "pebble"
+      ],
+      count: 34
+    },
+    /* 粉花：录像一屏 10–15 朵。 */
+    flowers: { pieces: ["flower"], count: 26 },
+    /* 高草：录像一屏 0–5 丛（Boss 房几乎没有）。它**挡画不挡路**（`CONTEXT.md`）。 */
+    tall: { pieces: ["grass"], count: 8 },
+    /*
+     * **立着的那批**（02 套剩下那 19 件里的 14 件：三棵杉苗、两种倒木、四截断桩、
+     * 两块岩壁、两棵枯树）。
+     *
+     * 它们**占地方、挡人**（`SOLID`），所以撒的时候必须躲开怪走的那条线 ——
+     * 怪不会绕路，会顶着它原地推（`docs/adr/0032`）。躲法不是"别撒"，是**撒在深处**：
+     * 本作的小怪站位最深到 depth 0.4（`stages.mirkwood.rooms` 里最大的那个），
+     * 所以从 **0.55 往后**撒，它们够不着（判定是 z 上差 32 像素就算让开）。
+     * 录像那边也是一样：大件都在带子靠里的那一半。
+     */
+    solid: {
+      pieces: [
+        "firSmall", "firMid", "firTall", "snagTall", "fallenTrunk",
+        "stumpBroken", "trunkHollow", "snagShort", "snagStub",
+        "ruinStone", "rockArch", "logMossy", "treeDead", "treeDeadTall"
+      ],
+      count: 6
+    },
+    solidFrom: 0.55,
+    solidTo: 0.94,
+    /* 深度落在带子的哪一段：录像里布景基本都贴在走位带上。 */
+    depthFrom: 0.04,
+    depthTo: 0.96,
+    /* 离房间两头留的边距，别撒进墙里。 */
+    margin: 34
+  };
+
+  function scatterProps(state, next) {
+    var out = [];
+    var left = roomLeft(state) + SCATTER.margin;
+    var right = roomRight(state) - SCATTER.margin;
+    var depth = bandDepth(state.band);
+    [SCATTER.low, SCATTER.flowers, SCATTER.tall].forEach(function (group) {
+      for (var i = 0; i < group.count; i += 1) {
+        out.push({
+          piece: group.pieces[Math.floor(next() * group.pieces.length)],
+          x: left + next() * (right - left),
+          z: (SCATTER.depthFrom + next() * (SCATTER.depthTo - SCATTER.depthFrom)) * depth,
+          /* 撒的这几档不挡人：没有盒子，也就没有血、打不碎。 */
+          solid: false,
+          /* 撒的（不是人写的）：测试与复核要能把两拨分开，见 `SCATTER` 那段。 */
+          scattered: true,
+          hp: 0,
+          broken: false,
+          brokenAt: -1
+        });
+      }
+    });
+    /*
+     * 立着的那一批：有盒子、挡人，所以只撒在带子深处（见上面那段），**而且要过
+     * 「门口净空」那一关**（`docs/adr/0032`：门口不能有石头和树木）。
+     *
+     * 手写的那几件在 `beginRoom` 里会过这一关（压门就挪、挪不开才丢），**撒的这一批
+     * 原来没走那条路** —— 于是那根 223 像素宽的倒木正好横在一扇门前，人和演示 bot
+     * 都出不去：浏览器证明没红，`tests/attract.test.js` **转满一核六分钟**卡在那儿
+     * （它那个 `while (!victory && seconds < 60)` 在"时间不推进"时是个死循环）。
+     * 这里跟手写的那条一个待遇：**换几个位置再试，试不出来就丢**。
+     */
+    for (var k = 0; k < SCATTER.solid.count; k += 1) {
+      var piece = SCATTER.solid.pieces[Math.floor(next() * SCATTER.solid.pieces.length)];
+      var box = propBox(piece);
+      var placed = null;
+      for (var attempt = 0; attempt < 8 && placed === null; attempt += 1) {
+        var candidate = {
+          piece: piece,
+          x: left + next() * (right - left),
+          depth: SCATTER.solidFrom + next() * (SCATTER.solidTo - SCATTER.solidFrom)
+        };
+        if (!box || !blocksDoorway(state, currentCell(state), candidate, depth)) {
+          placed = candidate;
+        }
+      }
+      if (!placed) continue;
+      out.push({
+        piece: piece,
+        x: placed.x,
+        z: placed.depth * depth,
+        solid: !!box,
+        scattered: true,
+        hp: box && box.hp ? box.hp : 0,
+        broken: false,
+        brokenAt: -1
+      });
+    }
+    return out;
+  }
+
   function beginRoom(state, entryDoor) {
     var cell = currentCell(state);
     var spec = state.stage.rooms[cell.room];
@@ -2919,8 +3296,17 @@
       name: spec.name,
       total: spec.enemies.length,
       cleared: cleared,
-      cell: state.cell
+      cell: state.cell,
+      /*
+       * 这一间房有多宽、两堵墙在哪（`docs/adr/0035`）。宽度写在房间上，没写的
+       * 房间就是 `ARENA.width` —— 也就是"一屏一间"，改宽之前所有房间都是这样。
+       */
+      width: spec.width || ARENA.width,
+      leftWall: ARENA.leftWall,
+      rightWall: (spec.width || ARENA.width) - (ARENA.width - ARENA.rightWall)
     };
+    /* 新的一间房：上一间那条"当前目标"不带进来。 */
+    state.target = null;
     /*
      * The floor this room is fought on; a room without one gets the default
      * band. Read-only, like the room spec it comes from: `BAND` is a module
@@ -2974,8 +3360,8 @@
             for (var side = -1; side <= 1 && moved === null; side += 2) {
               /* 挪不动就贴着墙试（最后那几个位置是这么够到的）。 */
               var x = clamp(entry.x + side * away * 12,
-                            ARENA.leftWall + box.width / 2,
-                            ARENA.rightWall - box.width / 2);
+                            roomLeft(state) + box.width / 2,
+                            roomRight(state) - box.width / 2);
               if (blocksDoorway(state, cell, { piece: entry.piece, x: x, depth: entry.depth }, depth)) continue;
               if (built.some(function (other) {
                 if (!other.solid) return false;
@@ -3000,26 +3386,37 @@
           brokenAt: -1
         });
       });
+      /*
+       * 手写的那几件摆完，再把缺的那批**按种子撒**上去（`SCATTER`）。
+       * 每格的种子不一样 —— 同一间房落在不同格子上不该长成同一副样子。
+       */
+      built = built.concat(scatterProps(state, layoutRandom(state.seed + (state.cell + 1) * 7919)));
       cell.props = built;
     }
     state.props = cell.props;
-    state.player.x = ARENA.leftWall + 86;
+    state.player.x = roomLeft(state) + 86;
     state.player.y = ARENA.groundY;
     state.player.z = 0;
-    if (entryDoor === "E") state.player.x = ARENA.rightWall - DOOR.stand;
-    if (entryDoor === "W") state.player.x = ARENA.leftWall + DOOR.stand;
+    if (entryDoor === "E") state.player.x = roomRight(state) - DOOR.stand;
+    if (entryDoor === "W") state.player.x = roomLeft(state) + DOOR.stand;
     if (entryDoor === "N") {
-      state.player.x = doorX(state.dungeon, cell, "N");
+      state.player.x = doorX(state, cell, "N");
       state.player.z = depth - DOOR.stand;
     }
     if (entryDoor === "S") {
-      state.player.x = doorX(state.dungeon, cell, "S");
+      state.player.x = doorX(state, cell, "S");
       state.player.z = DOOR.stand;
     }
     state.player.vx = 0;
     state.player.vy = 0;
     state.player.vz = 0;
     state.player.onGround = true;
+    /*
+     * 人一落地就把镜头摆好 —— 从东门进来镜头就贴在右墙上，从西门进来贴在左墙上，
+     * 和录像里一样（他进门那一下镜头是**顶在边上**的，然后才跟着他往另一边滚）。
+     * 每帧末尾还会再叫一次（`step`），两次的结果一样：它是幂等的。
+     */
+    updateCamera(state);
     state.player.attackTimer = 0;
     state.player.skillId = null;
     state.player.skillTimer = 0;
@@ -3056,14 +3453,53 @@
     return state.room;
   }
 
+  /*
+   * **命中状态词：`无法浮空`。**
+   *
+   * 量自业主的幽暗密林录像。那一块浅色小字**自始至终只有一个词**，就是 `无法浮空`
+   * —— 不是"浮空"：t=65 那一次`无`字被伤害数字压住了，只看得到后三个字，所以早先
+   * 有一版把它读成了"浮空"。冷白 `#E4E7ED`、深色描边约 3 px、字高 **29 视频像素**、
+   * 活 **0.4–0.8 秒**（和伤害数字的 0.6 秒同一档）。
+   *
+   * **它是钉在怪身上的，不是钉在数字上的** —— t=60 那一次它身旁 350 像素内一个数字都没有。
+   * 有数字的时候它落在数字右边一点点（量到：左缘贴着数字的右缘，基线比数字低约 10 px）。
+   *
+   * 它讲的是**为什么这一下没把他挑起来**：霸体不吃浮空（见 `damageEnemy` 里
+   * `opts.launch` 那一段）。业主在 Q17 上要它，要的正是这件事 —— 一个讲不清的
+   * 手感问题，从此有一句话解释。
+   */
+  var HIT_WORD = {
+    text: "无法浮空",
+    life: 0.6,
+    /* 相对伤害数字那个锚点的偏移（视频像素折成世界像素）。 */
+    dx: 30 * VIDEO_PX,
+    dy: 10 * VIDEO_PX
+  };
+
+  /** 在他身上落一个命中状态词。 */
+  function pushHitWordEffect(state, enemy, text) {
+    state.effects.push({
+      kind: "hitWord",
+      text: text,
+      x: enemy.x + HIT_WORD.dx,
+      y: enemy.y - enemy.height - 6 + HIT_WORD.dy,
+      life: HIT_WORD.life,
+      maxLife: HIT_WORD.life
+    });
+  }
+
   function pushDamageEffect(state, x, y, amount) {
     state.effects.push({
       kind: "damage",
       text: String(amount),
       x: x,
       y: y,
-      life: 0.7,
-      maxLife: 0.7
+      /*
+       * **活 0.6 秒** —— 量自录像（35 个数字：0.30–0.93 秒，中位 0.60），
+       * 到点**直接消失**，不淡出、不缩小。
+       */
+      life: 0.6,
+      maxLife: 0.6
     });
   }
 
@@ -3477,6 +3913,69 @@
     return nextRandom(state) < miss;
   }
 
+  /*
+   * **当前目标：左上角那块条显示的是他正在打的那只怪。**
+   *
+   * 量自业主的幽暗密林录像（`dnf-dungeon-videos/00001-幽暗密林.mp4`）：
+   *
+   * - 那块条**每一只怪都会有** —— 它不是"精英专属"，是**当前目标**的读数；
+   *   一帧里只有一块，换目标时**整块被换掉**（头像、类别、名字、血条一起换）。
+   * - 目标倒下时，头像上打一个**闪三下**的红叉（约 **1.2 秒**），然后整块一帧消失。
+   * - 录像里那条血条的**长度每只怪不一样**（哥布林量到 287 / 323 / 362 px，
+   *   牛头巨兽 1068 px）—— 跟着怪变。是照最大血量还是照个头，量不出来。
+   *
+   * **有一件录像没讲清、这里就先不照抄的**：那一帧里"第一次打中"到"条子出现"
+   * 之间量到约 **0.7 秒**的差（t=105.77 首个伤害数字 → t=106.533 条子到位）。
+   * 只有一个样本，而且同一段里另外两间房的条子几乎是开局就在的 —— 所以本作做成
+   * **打中即显示**，不搬那 0.7 秒。真要是固定延迟，加一个 `delay` 数就行。
+   */
+  var TARGET = {
+    /* 目标倒下之后红叉还要闪多久（秒）。量出来是闪 3 下、共约 1.2 秒。 */
+    deathBlink: 1.2,
+    /*
+     * 掉血那一截**不是"慢慢追上来的条"**：量出来是一块**白色块**，占着刚失去的那一段，
+     * 原地**由白褪到黑**（约 0.7–0.8 秒），途中经过粉 → 暗红 → `#860000` → 黑。
+     * 宽度从生到死**不变**，变的只有颜色。
+     */
+    ghostFade: 0.8
+  };
+
+  /** 他打中谁，谁就是当前目标。换人时整块换掉（那 1.2 秒的红叉也是从这儿重新算）。 */
+  function setTarget(state, enemy) {
+    if (!state.target || state.target.enemy.id !== enemy.id) {
+      state.target = { enemy: enemy, dying: 0 };
+    }
+  }
+
+  /**
+   * 目标的存亡。**它握的是那只怪本身**，不是 id —— 目标倒下之后那只怪会被移出
+   * `state.enemies`，可红叉还得闪完 1.2 秒，所以这块条读的是它自己那一份。
+   */
+  function updateTarget(state, dt) {
+    var target = state.target;
+    if (!target) return;
+    if (target.enemy.dead) {
+      target.dying += dt;
+      if (target.dying >= TARGET.deathBlink) state.target = null;
+      return;
+    }
+    target.dying = 0;
+    /*
+     * **掉血那一截**（`TARGET.ghostFade`）：血掉下去的那一帧把"刚失去的那一段"
+     * 记下来，渲染那边照着它画一块白块 —— 那条血条的读数因此永远不用自己去记历史。
+     */
+    var share = target.enemy.maxHp > 0 ? target.enemy.hp / target.enemy.maxHp : 0;
+    if (target.share === undefined) target.share = share;
+    if (share < target.share - 1e-9) {
+      target.ghost = { from: target.share, to: share, t: 0 };
+    }
+    target.share = share;
+    if (target.ghost) {
+      target.ghost.t += dt;
+      if (target.ghost.t >= TARGET.ghostFade) target.ghost = null;
+    }
+  }
+
   function damageEnemy(state, enemy, amount, knockbackX, sourceX, options) {
     if (enemy.dead) return 0;
     var opts = options || {};
@@ -3487,6 +3986,11 @@
      * same flag the blood orbs were already using to ask this exact question.
      */
     var slayerSwing = !opts.noBloodOrbs;
+    /*
+     * 当前目标记在**同一个问法**上：这一下是不是他自己挥的。打空的（滑开）也算 ——
+     * 那仍然是"他在打这一只"。地板与出血的 tick 不算：那是地的事，不是他在打谁。
+     */
+    if (slayerSwing) setTarget(state, enemy);
     if (slayerSwing && slidesOff(state, enemy)) {
       pushMissEffect(state, enemy);
       return 0;
@@ -3527,10 +4031,24 @@
     }
 
     if (opts.launch) {
-      enemy.vy = opts.launch;
-      enemy.onGround = false;
-      enemy.attackTimer = 0;
-      enemy.knockdown = 0;
+      /*
+       * **霸体不吃浮空。** 伤害已经在上面结过了，一分不少 —— 但它**挑不起来**，
+       * 而且连它的出招都不打断：打断了霸体就白叫霸体。挑不起来的时候在他身上落一句
+       * `无法浮空`（`HIT_WORD`），把"为什么这一下没把他挑起来"讲出来。
+       *
+       * **这是一条玩法上的改动，不只是加一行字**：改之前 上挑 能把 Boss 从它的重踏里
+       * 挑出来，改之后只能挨着。业主在 Q17 上要那句话，要的就是这件事 ——
+       * 录像里那句话是冲着"这么打没用"说的，所以它得**真的**没用。
+       * 带 `ignoreSuperArmor` 的技能（嗜魂之手那两处）不受这条约束：它们本来就是破霸体的。
+       */
+      if (enemy.superArmor && !opts.ignoreSuperArmor) {
+        pushHitWordEffect(state, enemy, HIT_WORD.text);
+      } else {
+        enemy.vy = opts.launch;
+        enemy.onGround = false;
+        enemy.attackTimer = 0;
+        enemy.knockdown = 0;
+      }
     } else if (opts.juggle && !enemy.onGround) {
       /* Keep an airborne target in the air: this is the DNF juggle. */
       enemy.vy = Math.min(enemy.vy, -150);
@@ -3936,8 +4454,8 @@
     }
     player.x = clamp(
       player.x,
-      ARENA.leftWall + player.width / 2,
-      ARENA.rightWall - player.width / 2
+      roomLeft(state) + player.width / 2,
+      roomRight(state) - player.width / 2
     );
     /*
      * And the band's two edges stop him the way the walls do. The front edge is
@@ -4726,8 +5244,8 @@
       var spent =
         shot.life <= 0 ||
         shot.traveled >= shot.maxDistance ||
-        shot.x <= ARENA.leftWall ||
-        shot.x >= ARENA.rightWall ||
+        shot.x <= roomLeft(state) ||
+        shot.x >= roomRight(state) ||
         shot.y >= ARENA.groundY;
       if (spent) return;
 
@@ -5040,8 +5558,8 @@
         enemy.grabbed = Math.max(0, enemy.grabbed - dt);
         enemy.x = clamp(
           player.x + player.facing * 30,
-          ARENA.leftWall + enemy.width / 2,
-          ARENA.rightWall - enemy.width / 2
+          roomLeft(state) + enemy.width / 2,
+          roomRight(state) - enemy.width / 2
         );
         enemy.y = ARENA.groundY;
         enemy.z = player.z || 0;
@@ -5104,8 +5622,8 @@
       }
       enemy.x = clamp(
         enemy.x,
-        ARENA.leftWall + enemy.width / 2,
-        ARENA.rightWall - enemy.width / 2
+        roomLeft(state) + enemy.width / 2,
+        roomRight(state) - enemy.width / 2
       );
       /* The band's edges stop it the way the walls do, and it is the room's band. */
       enemy.z = clamp(enemy.z, 0, bandDepth(state.band));
@@ -5114,10 +5632,10 @@
     });
 
     updateProjectiles(state, dt);
-    separateEnemies(state.enemies);
+    separateEnemies(state, state.enemies);
   }
 
-  function separateEnemies(enemies) {
+  function separateEnemies(state, enemies) {
     for (var i = 0; i < enemies.length; i++) {
       for (var j = i + 1; j < enemies.length; j++) {
         var a = enemies[i];
@@ -5135,11 +5653,11 @@
         if (Math.abs((a.z || 0) - (b.z || 0)) >= minGap) continue;
         var push = (minGap - gap) / 2;
         if (a.x <= b.x) {
-          a.x = clamp(a.x - push, ARENA.leftWall + a.width / 2, ARENA.rightWall - a.width / 2);
-          b.x = clamp(b.x + push, ARENA.leftWall + b.width / 2, ARENA.rightWall - b.width / 2);
+          a.x = clamp(a.x - push, roomLeft(state) + a.width / 2, roomRight(state) - a.width / 2);
+          b.x = clamp(b.x + push, roomLeft(state) + b.width / 2, roomRight(state) - b.width / 2);
         } else {
-          a.x = clamp(a.x + push, ARENA.leftWall + a.width / 2, ARENA.rightWall - a.width / 2);
-          b.x = clamp(b.x - push, ARENA.leftWall + b.width / 2, ARENA.rightWall - b.width / 2);
+          a.x = clamp(a.x + push, roomLeft(state) + a.width / 2, roomRight(state) - a.width / 2);
+          b.x = clamp(b.x - push, roomLeft(state) + b.width / 2, roomRight(state) - b.width / 2);
         }
       }
     }
@@ -5264,7 +5782,7 @@
       var pushZ = spanZ - Math.abs(dz);
       if (pushX <= pushZ) {
         body.x = centre + (dx < 0 ? -spanX : spanX);
-        body.x = clamp(body.x, ARENA.leftWall + halfWidth, ARENA.rightWall - halfWidth);
+        body.x = clamp(body.x, roomLeft(state) + halfWidth, roomRight(state) - halfWidth);
         body.vx = 0;
       } else {
         body.z = clamp(prop.z + (dz < 0 ? -spanZ : spanZ), 0, bandDepth(state.band));
@@ -5386,6 +5904,44 @@
     state.pickups = remaining;
   }
 
+  /*
+   * **镜头跟着他走**（`docs/adr/0035`：房间是"世界"，`ARENA` 只是窗口）。
+   *
+   * 规矩全部量自录像，逐条见 `CAMERA` 那一块。这里只做一件事：**把他保持在死区里**。
+   *
+   * - 他到带子边上了才动 —— 没到边上镜头一格都不挪（录像里 71% 的帧镜头位移恰好是 0）；
+   * - 一旦要动就**跟他 1:1**，没有平滑、没有滞后（量过：越过边界一帧内就到全速）；
+   * - **夹在房间里**：房间比窗口窄就钉死居中，宽就滑，两端停在房间的边上
+   *   ——「到墙就停住，他还走他的」；
+   * - **纵向不动**（`y` 一直是 0）：录像里 95% 的帧 dy = 0。
+   *
+   * 它是**幂等**的：同一个 `player.x` 调两次得同一个结果，所以 `beginRoom` 和每帧末尾
+   * 都可以放心各叫一次。
+   */
+  function updateCamera(state) {
+    var window = windowWidth();
+    var room = roomWidth(state);
+    state.camera.y = 0;
+
+    /* 房间还没窗口宽：没有可滑的余量，钉在正中间。 */
+    if (room <= window) {
+      state.camera.x = (room - window) / 2;
+      return;
+    }
+
+    /*
+     * 死区量的是**屏幕**，换算到世界要除以 `zoom` —— 他在世界里走多远，
+     * 屏幕上才走出一条带子那么宽。
+     */
+    var half = (ARENA.width * CAMERA.deadzoneShare) / 2 / CAMERA.zoom;
+    var centre = state.camera.x + window / 2;
+    var offset = state.player.x - centre;
+    if (offset > half) state.camera.x = state.player.x - half - window / 2;
+    else if (offset < -half) state.camera.x = state.player.x + half - window / 2;
+
+    state.camera.x = clamp(state.camera.x, 0, room - window);
+  }
+
   function step(state, input, dt) {
     dt = typeof dt === "number" && dt > 0 ? dt : DT;
     input = normalizeInput(input);
@@ -5436,9 +5992,16 @@
      */
     updateShots(state, dt);
     updateEnemies(state, dt);
+    updateTarget(state, dt);
     updateBreakables(state);
     updatePickups(state, dt);
     resolveRoom(state);
+    /*
+     * Last, and on purpose: the camera reads where everyone ended up this frame,
+     * not where they were when it started - and `resolveRoom` may already have
+     * begun the next room, which moves the walls it clamps against.
+     */
+    updateCamera(state);
     return state;
   }
 
@@ -5485,6 +6048,33 @@
     currentSpec: currentSpec,
     doorNeighbour: doorNeighbour,
     doorX: doorX,
+    /*
+     * 房间是"世界"、`ARENA` 只是窗口（`docs/adr/0035`）：渲染那边也要用这三个，
+     * 所以和 `ARENA` 一起出去 —— 它画背景要铺满**房间**，不是铺满窗口。
+     */
+    roomWidth: roomWidth,
+    roomLeft: roomLeft,
+    roomRight: roomRight,
+    /* 当前目标那一套（左上角那块条）：量出来的数见 `TARGET` 的注释。 */
+    TARGET: TARGET,
+    /*
+     * 撒布景那一张表（`SCATTER` 自己那段有全部依据）。出去是因为**测试要能问
+     * "这一件有没有人在用"** —— 撒出来的那批不在任何房间的 `props` 里，
+     * 只有这张表点得到它们的名字。
+     */
+    SCATTER: SCATTER,
+    /* 录像像素 → 世界像素。HUD 那边还要再乘一次镜头远近，见 `src/render.js`。 */
+    VIDEO_PX: VIDEO_PX,
+    /* 一只怪的名字、类别、等级（左上角那块条上写的三样）。 */
+    monsterInfo: function (type) {
+      return ENEMY_TYPES[type] || null;
+    },
+    /*
+     * 镜头那一组量出来的数（`docs/adr/0035`）。渲染要用 `zoom`，把世界画大；
+     * 测试要按 `deadzoneShare` 与 `figure` 复核，所以一起出去。
+     */
+    CAMERA: CAMERA,
+    windowWidth: windowWidth,
     exitMode: exitMode,
     doorAt: doorAt,
     DOOR: DOOR,

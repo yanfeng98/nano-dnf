@@ -39,6 +39,12 @@ jobs:
           # Explicit list: assets/ also holds gitignored working references.
           cp assets/slayer.png assets/skills.png assets/effects.png assets/rift.png assets/awakening.png assets/region.png assets/monsters.png assets/forest.png assets/minimap.png assets/favicon.png _site/assets/
           cp assets/share-card.png _site/assets/
+          # 音乐：清单必进（它一定在）；那两首曲子是从客户端拷来的，在了才拷。
+          mkdir -p _site/assets/music
+          cp assets/music/manifest.json _site/assets/music/
+          for f in assets/music/*.ogg; do
+            if [ -f "$f" ]; then cp "$f" _site/assets/music/; fi
+          done
 
       - name: Verify every referenced asset was staged
         run: |
@@ -59,6 +65,19 @@ jobs:
               status=1
             fi
           done
+          # 音乐走清单（它按名字去取，所以前面那条 grep 看不见它）：清单说哪几首该在，
+          # 就有哪几首必须真的上线 —— 少一首的后果是线上静音，而构建照样绿。
+          node -e '
+            const manifest = require("./assets/music/manifest.json");
+            const fs = require("fs");
+            const missing = (manifest.files || []).filter(
+              (name) => !fs.existsSync("_site/assets/music/" + name)
+            );
+            if (missing.length) {
+              console.error("::error::staged site is missing music: " + missing.join(", "));
+              process.exit(1);
+            }
+          '
           exit $status
 
       - name: Configure GitHub Pages

@@ -215,7 +215,7 @@
     if (!route.length) return null;
     return {
       dir: route[0],
-      x: Core.doorX(state.dungeon, cell, route[0])
+      x: Core.doorX(state, cell, route[0])
     };
   }
 

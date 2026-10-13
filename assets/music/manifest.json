@@ -1,0 +1,7 @@
+{
+  "note": "由 `npm run serve` 按 assets/music/ 里实际的 .ogg 重写 —— 别手改。",
+  "files": [
+    "mirkwood.ogg",
+    "mirkwood_boss.ogg"
+  ]
+}

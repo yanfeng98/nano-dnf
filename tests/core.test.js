@@ -215,7 +215,7 @@ function lastRoomState(seed) {
 function walkToDoor(state, dir, frames) {
   const budget = frames || 60 * 12;
   const cell = Core.currentCell(state);
-  const doorX = Core.doorX(state.dungeon, cell, dir);
+  const doorX = Core.doorX(state, cell, dir);
   const depth = Core.bandDepth(state.band);
   const input = {
     left: false, right: false, up: false, down: false, jump: false, attack: false, skills: {}
@@ -432,6 +432,13 @@ test("a dead monster lies down, turns into its own white silhouette, then bursts
   Core.goToCell(state, state.dungeon.boss);
   const mob = state.enemies.find((enemy) => enemy.type !== "boss");
   assert.ok(mob, "Boss 房里还有小怪");
+  /*
+   * 其余的小兵也一并解决 —— 通关条件是"这一间清干净"，Boss 房的小兵也是兵。
+   * 这条断言原来默认"Boss 房只有一只小兵"，那是房间内容的一个巧合，不是规矩。
+   */
+  state.enemies
+    .filter((enemy) => enemy !== mob && enemy.type !== "boss")
+    .forEach((enemy) => Core.damageEnemy(state, enemy, 99999, 0, state.player.x));
 
   Core.damageEnemy(state, mob, 99999, 0, state.player.x);
   /*
@@ -1346,7 +1353,8 @@ test("门口那一块没有实心布景 —— 而且是挪开的，不是丢掉
     Core.goToCell(state, index);
     const depth = Core.bandDepth(state.band);
     const spec = (ROOMS[cell.room].props || []).filter((prop) => Core.propBox(prop.piece));
-    const placed = state.props.filter((prop) => prop.solid);
+    /* 只数**人写的**那一批：撒出来的实心件躲不开门时是**丢掉**的（`SCATTER` 那段）。 */
+    const placed = state.props.filter((prop) => prop.solid && !prop.scattered);
     assert.equal(
       placed.length,
       spec.length,
@@ -1657,7 +1665,14 @@ test("and a monster's does not cross it either", () => {
 test("the spin is answerable in depth too, and it reaches wider than a swing", () => {
   const run = (z) => {
     const state = lastRoomState();
-    const elite = Core.createEnemy(state, "elite", state.player.x + 120);
+    const elite = Core.createEnemy(state, "elite", state.player.x + SPIN_FROM);
+    /*
+     * **位置钉死**：`createEnemy` 会按随机流抖 ±14 像素，而这几条要的是一个
+     * 确定的几何 —— 旋风的判定是**身体间距 ≤ 73**，抖出去就永远不进那一招。
+     * 它曾经因此红过：房间内容多两只怪就会挪动那条随机流，这一步就从
+     * "进得来"滑到"进不来"，而测试看上去像在说"精英不会旋风"。
+     */
+    elite.x = state.player.x + SPIN_FROM;
     state.enemies = [elite];
     elite.speed = 0;
     elite.attackRange = NEVER_REACHES;
@@ -2213,6 +2228,8 @@ function bodyGapOf(a, b) {
  * anything: 0 means "only when the bodies touch", and a body wide enough to
  * overlap already touches. Tests that want melee out of the way use this.
  */
+/* 摆在这个距离上，身体间距 58.5，稳稳落在旋风的 73 以内。 */
+const SPIN_FROM = 95;
 const NEVER_REACHES = -1e6;
 
 /**
@@ -2276,7 +2293,7 @@ function kitingBot(state) {
       input.left = true;
       return detour(state, input, -player.width);
     }
-    const doorX = Core.doorX(state.dungeon, Core.currentCell(state), dir);
+    const doorX = Core.doorX(state, Core.currentCell(state), dir);
     if (Math.abs(doorX - player.x) > 20) {
       if (doorX > player.x) {
         input.right = true;
@@ -7838,7 +7855,14 @@ test("the renderer lays out three tap targets and hit-tests them", () => {
 
 test("the elite mini-boss telegraphs a spin that sweeps a wide lane", () => {
   const state = lastRoomState();
-  const elite = Core.createEnemy(state, "elite", state.player.x + 120);
+  const elite = Core.createEnemy(state, "elite", state.player.x + SPIN_FROM);
+  /*
+   * **位置钉死**：`createEnemy` 会按随机流抖 ±14 像素，而这几条要的是一个
+   * 确定的几何 —— 旋风的判定是**身体间距 ≤ 73**，抖出去就永远不进那一招。
+   * 它曾经因此红过：房间内容多两只怪就会挪动那条随机流，这一步就从
+   * "进得来"滑到"进不来"，而测试看上去像在说"精英不会旋风"。
+   */
+  elite.x = state.player.x + SPIN_FROM;
   state.enemies = [elite];
   /* Pin it down so the sweep itself, not a chase, is what threatens the player. */
   elite.speed = 0;
@@ -7872,7 +7896,14 @@ test("the elite mini-boss telegraphs a spin that sweeps a wide lane", () => {
 test("the spin is answerable: backing out of the lane avoids it", () => {
   const run = (retreat) => {
     const state = lastRoomState();
-    const elite = Core.createEnemy(state, "elite", state.player.x + 120);
+    const elite = Core.createEnemy(state, "elite", state.player.x + SPIN_FROM);
+    /*
+     * **位置钉死**：`createEnemy` 会按随机流抖 ±14 像素，而这几条要的是一个
+     * 确定的几何 —— 旋风的判定是**身体间距 ≤ 73**，抖出去就永远不进那一招。
+     * 它曾经因此红过：房间内容多两只怪就会挪动那条随机流，这一步就从
+     * "进得来"滑到"进不来"，而测试看上去像在说"精英不会旋风"。
+     */
+    elite.x = state.player.x + SPIN_FROM;
     state.enemies = [elite];
     elite.speed = 0;
     elite.attackRange = NEVER_REACHES;
@@ -7954,17 +7985,23 @@ test("the renderer gives the enraged boss its own palette, aura and bar label", 
   const boss = Core.createEnemy(state, "boss", 600);
   boss.hp = boss.maxHp * 0.8;
   state.enemies = [boss];
+  /*
+   * 那块条显示的是**当前目标**（他正在打的那只怪），所以要先把目标设上 —— 录制那会儿
+   * 顶部正中还有一条独立的 Boss 血条，谁都没打也能看见；那条已经删了（录像里没有它）。
+   */
+  state.target = { enemy: boss, dying: 0, share: boss.hp / boss.maxHp };
 
   calls.length = 0;
   Render.render(ctx, state, {});
   const calmArcs = calls.filter((call) => call[0] === "arc").length;
   const calmTexts = calls.filter((call) => call[0] === "fillText").map((call) => call[1]);
   /*
-   * The label is the **stage's** boss, and the stage is the only place that
-   * knows it: `render.js` used to draw a hard-coded "GOBLIN KING" long after
-   * that boss was deleted, while `STAGES.*.bossName` was read by nobody.
+   * **名字归怪自己**（`ENEMY_TYPES.boss.label`）：`render.js` 曾经画过一个写死的
+   * "GOBLIN KING"（那只 Boss 删了很久之后还在），后来改读 `STAGES.*.bossName`，
+   * 于是同一个名字有两个地方 —— 现在只有一处，而且是照录像里那块条上的写法。
    */
-  const bossName = STAGE.bossName;
+  const bossInfo = Core.monsterInfo("boss");
+  const bossName = "Lv" + bossInfo.level + " " + bossInfo.label;
   const enrageMark = "狂暴";
   assert.ok(
     calmTexts.includes(bossName),
@@ -8344,6 +8381,13 @@ test("every prop a room scatters names a piece the bake produced", () => {
     });
   });
   /*
+   * **撒出来的也要算**：那批不在任何房间的 `props` 里，只在 `Core.SCATTER` 那张表上 ——
+   * 漏了它，补进来的 19 件（02 套剩下那批）会被判成"烘了没人用"。
+   */
+  ["low", "flowers", "tall", "solid"].forEach((group) => {
+    (Core.SCATTER[group].pieces || []).forEach((piece) => used.add(piece));
+  });
+  /*
    * The pieces no room scatters because the renderer places them itself: the way
    * out of the room, and everything the map window is built from.
    */
@@ -8494,4 +8538,441 @@ test("the map window's markers land in the boss's cell and in the player's", () 
     ordered.indexOf(face[0]) > ordered.indexOf(marker[0]),
     "the horned face has to be painted over the blue marker"
   );
+});
+
+/*
+ * 镜头（`docs/adr/0035`）。这一条钉的是**量出来的那个数**，不是实现：
+ * 录像里他一屏高 4.0755 个身位（一屏 1080 视频像素 ÷ 他画出来的 265 像素），
+ * 所以本作一屏 540 屏幕像素里装的世界高度要是 `ARENA.height / zoom`，
+ * 而一个身位（美术里 84 px，`Render.SPRITE.bodyHeight`）要正好画成它的 1/4.0755。
+ *
+ * 把这条写成断言而不是注释，是因为 zoom 是**一整条链子**量出来的数：
+ * 改精灵图、改画布高度、或者顺手"调一下镜头"，都会从这里错开 —— 而错开之后
+ * 画面上看不出来（它只是"没那么像录像了"），只有这个比值能立刻说出来。
+ */
+test("镜头拉近到录像那一档，一屏装的身位数对得上", () => {
+  const figures = Core.ARENA.height / Core.CAMERA.zoom / Render.SPRITE.bodyHeight;
+  assert.ok(
+    Math.abs(figures - 1080 / 265) < 1e-9,
+    `一屏装 ${figures.toFixed(4)} 个身位，录像里是 ${(1080 / 265).toFixed(4)}`
+  );
+  /* 死区那个比例也是量的：录像里屏宽的 224/1440，居中，六个房间一致。 */
+  assert.equal(Core.CAMERA.deadzoneShare, 224 / 1440);
+  /*
+   * 拉近之后一屏只看得到 608.6 世界像素 —— 房间（960）比它宽，所以镜头才有得滚。
+   * 这一条要是翻了，说明镜头已经松到一屏装得下整间房，`docs/adr/0035` 就白写了。
+   */
+  assert.ok(
+    Math.abs(Core.windowWidth() - Core.ARENA.width / Core.CAMERA.zoom) < 1e-9,
+    "窗口宽度就是屏宽除以 zoom"
+  );
+  assert.ok(
+    Core.windowWidth() < Core.ARENA.width,
+    `一屏看得见 ${Core.windowWidth().toFixed(1)} 世界像素，房间 ${Core.ARENA.width}：镜头没得滚`
+  );
+});
+
+test("镜头只在死区边上才动，到墙就停住，而且跟他 1:1", () => {
+  const state = Core.createState({ seed: Core.DEFAULT_SEED });
+  const zoom = Core.CAMERA.zoom;
+  const screenX = () => (state.player.x - state.camera.x) * zoom;
+  /* 死区的两条边在**屏幕**上量。 */
+  const half = (Core.ARENA.width * Core.CAMERA.deadzoneShare) / 2;
+  const rightEdge = Core.ARENA.width / 2 + half;
+
+  assert.equal(state.camera.x, 0, "从西门那间房开局，镜头应该贴在左边的墙上");
+
+  let followed = 0;
+  let clamped = 0;
+  for (let i = 0; i < 600; i += 1) {
+    Core.step(state, { right: true });
+    const atWall = state.camera.x >= Core.roomWidth(state) - Core.windowWidth() - 1e-9;
+    if (atWall) {
+      /*
+       * 镜头顶在墙上了，**这一段不该再管他**：他本来就该能一路走到屏幕边上
+       * （录像里他走到 x=1211 而镜头一动不动，连续 6.8 秒）。所以这里只数帧数。
+       */
+      clamped += 1;
+      continue;
+    }
+    const x = screenX();
+    if (state.camera.x > 0) {
+      /*
+       * 越过死区之后他跟镜头是 1:1 的：他钉在带子的右边缘，镜头替他走。
+       * 录像里量出来没有滞后（30fps 下一帧内就到全速），所以这里要求**每一帧**都严丝合缝，
+       * 而不是"大致在一个范围内"—— 给镜头加平滑就会从这里红。
+       */
+      assert.ok(
+        Math.abs(x - rightEdge) < 1e-6,
+        `跟着走的时候他应该钉在死区右边缘 ${rightEdge.toFixed(1)}，现在在 ${x.toFixed(1)}`
+      );
+      followed += 1;
+    } else {
+      assert.ok(
+        x <= rightEdge + 1e-6,
+        `镜头还没动，他就不该越过死区右边缘 ${rightEdge.toFixed(1)}（在 ${x.toFixed(1)}）`
+      );
+    }
+  }
+
+  assert.ok(followed > 30, `跟了 ${followed} 帧，太短了，没量到 1:1 那一段`);
+  assert.ok(clamped > 30, `顶在墙上只有 ${clamped} 帧，没量到"他到屏幕边上去"那一段`);
+  assert.ok(
+    Math.abs(state.camera.x - (Core.roomWidth(state) - Core.windowWidth())) < 1e-9,
+    "他跑到最右边，镜头应该正好停在右边那堵墙上"
+  );
+  assert.ok(
+    screenX() > rightEdge + 1,
+    "镜头停在墙上之后他还应该能往右走到屏幕边上 —— 录像里就是这样（他走到 x=1211 镜头不动）"
+  );
+});
+
+/*
+ * 当前目标与那两句战斗里的字（`docs/adr/00xx`）。量自业主的幽暗密林录像：
+ * 那块条**每一只怪都会有**、换目标整块换掉、目标倒下时红叉闪 1.2 秒；
+ * 而 `无法浮空` 讲的是**霸体不吃浮空** —— 这条是玩法，不只是那四个字。
+ */
+test("霸体挑不起来，而且落一句 无法浮空", () => {
+  const state = Core.createState({ seed: Core.DEFAULT_SEED });
+  const enemy = Core.createEnemy(state, "grunt", 600);
+  state.enemies = [enemy];
+
+  /* 没霸体：挑得起来，一个字都不该多。 */
+  Core.damageEnemy(state, enemy, 5, 0, enemy.x - 40, { launch: -430 });
+  assert.ok(enemy.vy < 0, "没霸体的怪要被挑起来");
+  assert.equal(
+    state.effects.some((effect) => effect.kind === "hitWord"),
+    false,
+    "挑起来了就不该说'无法浮空'"
+  );
+
+  /* 挂着霸体：挑不起来 —— 连它的出招都不打断。 */
+  enemy.vy = 0;
+  enemy.onGround = true;
+  enemy.attackTimer = 0.4;
+  enemy.superArmor = true;
+  Core.damageEnemy(state, enemy, 5, 0, enemy.x - 40, { launch: -430 });
+  assert.equal(enemy.vy, 0, "霸体挑不起来");
+  assert.equal(enemy.onGround, true, "霸体还站在地上");
+  assert.equal(enemy.attackTimer, 0.4, "霸体的出招不能被打断");
+  const word = state.effects.find((effect) => effect.kind === "hitWord");
+  assert.ok(word, "挑不起来就得说 `无法浮空`");
+  assert.equal(word.text, "无法浮空");
+  assert.ok(word.life > 0, "那句话活得了一会儿才会消失");
+
+  /* 伤害一分不少 —— 霸体是"不被打断"，不是"免伤"。 */
+  assert.ok(enemy.hp < enemy.maxHp, "霸体照样吃伤害");
+
+  /* 破霸体的招式不受这条约束（嗜魂之手那两处就是这么用的）。 */
+  enemy.superArmor = true;
+  Core.damageEnemy(state, enemy, 1, 0, enemy.x - 40, { launch: -430, ignoreSuperArmor: true });
+  assert.ok(enemy.vy < 0, "ignoreSuperArmor 的招式照挑不误");
+});
+
+test("当前目标跟着他打的那只怪走，倒下之后红叉闪完才散", () => {
+  const state = Core.createState({ seed: Core.DEFAULT_SEED });
+  const first = Core.createEnemy(state, "grunt", 600);
+  const second = Core.createEnemy(state, "coward", 700);
+  state.enemies = [first, second];
+  assert.equal(state.target, null, "一开局没有目标");
+
+  Core.damageEnemy(state, first, 5, 0, 600, {});
+  assert.equal(state.target.enemy, first, "打中谁，谁就是目标");
+
+  /* 换一只打：整块换掉，而不是"两块都在"。 */
+  Core.damageEnemy(state, second, 5, 0, 700, {});
+  assert.equal(state.target.enemy, second, "换目标就整块换掉");
+
+  /* 掉血那一截记成一个白块（`TARGET.ghostFade`）。 */
+  const before = state.target.enemy.hp;
+  Core.step(state, {});
+  assert.equal(state.target.share, before / second.maxHp, "血条的读数跟着目标走");
+
+  /* 目标倒下：那 1.2 秒里它还在（红叉就画在这段时间里），之后才散。 */
+  Core.damageEnemy(state, second, 99999, 0, 700, {});
+  assert.ok(second.dead, "这一下应该把它打死");
+  let lived = 0;
+  for (let i = 0; i < Math.ceil(Core.TARGET.deathBlink / Core.DT) + 2; i += 1) {
+    if (state.target) lived += 1;
+    Core.step(state, {});
+  }
+  assert.equal(state.target, null, "红叉闪完，那块条就该散了");
+  assert.ok(
+    Math.abs(lived * Core.DT - Core.TARGET.deathBlink) <= Core.DT * 2,
+    `目标在倒下之后还留了 ${(lived * Core.DT).toFixed(2)} 秒，量出来是 ${Core.TARGET.deathBlink}`
+  );
+});
+
+test("那只条上的名字、类别、等级都长在怪自己身上", () => {
+  /* 名字只有一处：`ENEMY_TYPES`。舞台上那份副本已经删掉了（它只被一个测试读）。 */
+  const paths = ["src/core.js"];
+  const source = fs.readFileSync(path.join(__dirname, "..", paths[0]), "utf8");
+  assert.equal(
+    source.includes("bossName"),
+    false,
+    "Boss 的名字现在归怪自己（`ENEMY_TYPES.boss.label`），舞台上不该再有第二份"
+  );
+  /* 每一个兵种都要有这三样，否则那块条会画出 `undefined`。 */
+  ["grunt", "coward", "brute", "caster", "charger", "elite", "boss"].forEach((type) => {
+    const info = Core.monsterInfo(type);
+    assert.ok(info, `${type} 没有身份`);
+    assert.ok(info.label && typeof info.label === "string", `${type} 没有名字`);
+    assert.ok(["人型", "野兽"].includes(info.race), `${type} 的类别是 ${info.race}`);
+    assert.ok(info.level > 0, `${type} 没有等级`);
+  });
+  /* 录像里那块条写过的三档就是这些：杂兵 Lv4、Boss Lv7、Boss 是 野兽。 */
+  assert.equal(Core.monsterInfo("grunt").label, "哥布林");
+  assert.equal(Core.monsterInfo("grunt").level, 4);
+  assert.equal(Core.monsterInfo("boss").label, "领主 - 牛头巨兽");
+  assert.equal(Core.monsterInfo("boss").race, "野兽");
+  assert.equal(Core.monsterInfo("boss").level, 7);
+});
+
+test("那两句战斗里的字，照量出来的样子画", () => {
+  /*
+   * 这一条用自己的一层录制壳，因为要看**赋值**（字体、颜色），而共用的那个
+   * `recordingContext` 只记方法调用。量出来的样子是：伤害数字粗斜体、纯黄、
+   * 到点不淡出；命中状态词冷白、钉在怪身上；那块条上写的是类别牌 + `Lv{n} 名字`。
+   */
+  const calls = [];
+  const ctx = new Proxy(
+    {
+      createLinearGradient: () => ({ addColorStop() {} }),
+      createRadialGradient: () => ({ addColorStop() {} })
+    },
+    {
+      get(target, prop) {
+        if (prop in target) return target[prop];
+        target[prop] = (...args) => calls.push([prop, ...args]);
+        return target[prop];
+      },
+      set(target, prop, value) {
+        calls.push(["set:" + String(prop), value]);
+        target[prop] = value;
+        return true;
+      }
+    }
+  );
+
+  const state = lastRoomState();
+  const enemy = Core.createEnemy(state, "grunt", 600);
+  enemy.hp = enemy.maxHp / 2;
+  state.enemies = [enemy];
+  state.target = { enemy: enemy, dying: 0, share: 0.5, ghost: { from: 1, to: 0.5, t: 0 } };
+  state.effects.push({ kind: "damage", text: "16", x: enemy.x, y: 400, life: 0.6, maxLife: 0.6 });
+  state.effects.push({
+    kind: "hitWord", text: "无法浮空", x: enemy.x + 10, y: 410, life: 0.6, maxLife: 0.6
+  });
+
+  Render.render(ctx, state, {});
+
+  const texts = calls.filter((c) => c[0] === "fillText").map((c) => String(c[1]));
+  assert.ok(texts.includes("16"), "伤害数字要画出来");
+  assert.ok(texts.includes("无法浮空"), "命中状态词要画出来");
+  assert.ok(texts.includes("人型"), "那块条上要有类别牌");
+  assert.ok(
+    texts.some((text) => text.startsWith("Lv" + Core.monsterInfo("grunt").level + " ")),
+    `那块条上要有 \`Lv{n} 名字\`：${texts.join(" / ")}`
+  );
+
+  const fonts = calls.filter((c) => String(c[0]).startsWith("set:font")).map((c) => String(c[1]));
+  assert.ok(fonts.some((font) => font.includes("italic")), "伤害数字是粗斜体（量到向右斜 10–22°）");
+  const fills = calls.filter((c) => c[0] === "set:fillStyle").map((c) => String(c[1]));
+  assert.ok(fills.includes("#ffff00"), "伤害数字是纯黄 #FFFF00");
+  assert.ok(fills.includes("#dc0000"), "血条是饱和红");
+  assert.ok(fills.includes("#f8ece5"), "掉血那一截是惨白的白块");
+
+  /*
+   * **顶部正中那条 420×34 的 Boss 横条已经删掉**（录像里没有它）。
+   * 它原来画在正中间，所以只要没有再往居中位置画那块面板，就算删干净了。
+   */
+  const panels = calls.filter((call) => call[0] === "fillRect" && call[2] === 84);
+  assert.equal(panels.length, 0, "正中间那条 Boss 横条不该还在");
+});
+
+/*
+ * **高草按身位排**（业主 2026-10-12 照录像定的，Q12 选 c）：录像里那一丛高草
+ * 画在他裤腿**前面**。它**挡画不挡路** —— 不占身位、不进判定，只是排队的时候
+ * 跟立着的东西走同一个队（`SCENE.decals` 里已经没有它了）。
+ *
+ * 这一条同时守住了另一半：**同一丛草，靠里的那次必须画在他之前**。只测"草能盖住人"
+ * 是不够的 —— 把草整个挪到人后面（或者干脆从队里拿掉）都会让前半句通过。
+ */
+test("高草按身位排：靠镜头的那一丛画在他前面，靠里的画在他后面", () => {
+  const SL = { width: 1, height: 1 };
+  const FO = { width: 1, height: 1 };
+  const MO = { width: 1, height: 1 };
+  const sprites = { slayer: SL, forest: FO, monsters: MO };
+
+  const order = (grassZ) => {
+    const calls = [];
+    const state = lastRoomState();
+    state.enemies = [];
+    state.props = [{ piece: "grass", x: 480, z: grassZ }];
+    state.player.x = 480;
+    state.player.z = 200;
+    Render.render(recordingContext(calls), state, { sprites: sprites });
+    /*
+     * 草和背景铺的是**同一张图集**（`sprites.forest`），所以不能按图集找它 ——
+     * 那找到的是背景那几条。按它自己的那块源矩形找（`SCENE.pieces.grass`）。
+     */
+    const grass = Render.SCENE.pieces.grass;
+    const draws = calls.filter((call) => call[0] === "drawImage");
+    return {
+      player: draws.map((call) => call[1]).indexOf(SL),
+      /* 连宽高一起比：玩家的第 0 帧也从 (0, 0) 取，只比左上角会认错人。 */
+      grass: draws.findIndex(
+        (call) => call[2] === grass[0] && call[3] === grass[1] &&
+          call[4] === grass[2] && call[5] === grass[3]
+      )
+    };
+  };
+
+  const near = order(0);
+  const far = order(430);
+  assert.ok(near.player >= 0 && near.grass >= 0, "人和草都得画出来");
+  assert.ok(
+    near.grass > near.player,
+    `靠镜头的草要画在他之后（压在他腿前面）：人 ${near.player} → 草 ${near.grass}`
+  );
+  assert.ok(
+    far.grass < far.player,
+    `靠里的草要画在他之前（被他挡住）：草 ${far.grass} → 人 ${far.player}`
+  );
+
+  /* 矮的那几档还是贴花：它们永远铺在最底下，跟身位无关。 */
+  ["grassFlower", "sprout", "flower", "bush"].forEach((piece) => {
+    assert.ok(Render.SCENE.decals.includes(piece), `${piece} 该留在贴花那一档`);
+  });
+  assert.equal(Render.SCENE.decals.includes("grass"), false, "高草不该再算贴花");
+});
+
+/*
+ * **一间房里的怪是"分组"聚着的。** 量自业主的幽暗密林录像：同时在场 **2–4 只**、
+ * 相邻两只见的**中位是 0.70 身位**（59 世界像素）、一群展开的**中位是 1.32 身位**；
+ * 而他在一间房里待 17–45 秒，一路上遇到的是**几组**（那一群不围着他转，
+ * 有的在他身前、有的在他身后 —— 那是多组散布在房间里的读法）。
+ *
+ * 所以这条禁掉的是**"一字排开"那个间距**：相邻两只见要么是**同一组**（贴着，约 0.7 身位），
+ * 要么**换了一组**（隔开至少两个身位）。原来那个 `x 620/790/880` 正好落在中间，
+ * 两头都不是 —— 业主说的「怪物少」有一半是这个。
+ *
+ * 体宽大的（牛头 68 宽）同组间距按体宽让开，所以门槛跟着体型走。
+ */
+test("一间房里的怪是分组聚着的，不是一字排开", () => {
+  const FIGURE = 84;
+  Core.STAGES.mirkwood.rooms.forEach((room) => {
+    const info = room.enemies.map((entry) => Core.monsterInfo(entry.type));
+    for (let i = 1; i < room.enemies.length; i += 1) {
+      const gap = room.enemies[i].x - room.enemies[i - 1].x;
+      const wide = Math.max(info[i].width, info[i - 1].width) - 33;
+      const within = FIGURE + Math.max(0, wide);
+      assert.ok(
+        gap <= within || gap >= 2 * FIGURE,
+        `${room.name} 第 ${i} 与第 ${i + 1} 只相距 ${gap} 像素：同组该 ≤ ${within}、` +
+          `换组该 ≥ ${2 * FIGURE} —— 卡在中间就是"一字排开"`
+      );
+    }
+  });
+});
+
+/*
+ * **远景钉在屏幕上，不跟着房间滚。**
+ *
+ * 量自录像：画面上方那片远墙与远树干**整场一像素都不动**，跟着镜头动的只有它下面
+ * 那一层。所以这条两头发力：镜头挪过之后 **`far` 落在屏幕上的位置必须一模一样**，
+ * 而 **`mid` 必须挪** —— 只测前半句的话，把整个世界都钉住也会通过。
+ *
+ * 这里**必须把变换算进去**：镜头是 `ctx.translate` 干的，`drawImage` 的参数里看不见它。
+ * 只比参数的话，far 与 mid 在两个镜头下的参数**完全一样**，这条测试会假绿。
+ * 所以下面跟着一小层画布变换（只认 save/restore/translate/scale/setTransform）。
+ */
+function drawScreenXs(cameraX) {
+  const draws = [];
+  const stack = [];
+  let m = [1, 0, 0, 1, 0, 0];
+  /* m = m · n（canvas 的约定：(x,y) → (a·x + c·y + e, b·x + d·y + f)） */
+  const mul = (n) => {
+    const [a, b, c, d, e, f] = m;
+    m = [
+      a * n[0] + b * n[2], a * n[1] + b * n[3],
+      c * n[0] + d * n[2], c * n[1] + d * n[3],
+      e * n[0] + f * n[2] + n[4], e * n[1] + f * n[3] + n[5]
+    ];
+  };
+  const handlers = {
+    save: () => stack.push(m.slice()),
+    restore: () => { m = stack.pop() || [1, 0, 0, 1, 0, 0]; },
+    translate: (x, y) => mul([1, 0, 0, 1, x, y]),
+    scale: (x, y) => mul([x, 0, 0, y, 0, 0]),
+    setTransform: (a, b, c, d, e, f) => { m = [a, b, c, d, e, f]; },
+    drawImage: function (sheet, sx, sy, sw, sh, dx, dy) {
+      draws.push({ rect: [sx, sy, sw, sh], screenX: m[0] * dx + m[2] * dy + m[4] });
+    }
+  };
+  const base = {
+    createLinearGradient: () => ({ addColorStop() {} }),
+    createRadialGradient: () => ({ addColorStop() {} })
+  };
+  const ctx = new Proxy(base, {
+    get(target, prop) {
+      if (prop in target) return target[prop];
+      if (handlers[prop]) return handlers[prop];
+      target[prop] = () => {};
+      return target[prop];
+    }
+  });
+
+  const state = lastRoomState();
+  state.enemies = [];
+  state.props = [];
+  state.camera.x = cameraX;
+  const sheet = { width: 1, height: 1 };
+  Render.render(ctx, state, { sprites: { slayer: sheet, forest: sheet, monsters: sheet } });
+
+  /*
+   * **要连宽高一起比。** `far` 那块是 `[0, 0, 640, 375]`，而玩家精灵的第 0 帧也从
+   * `(0, 0)` 取 —— 只比 `(sx, sy)` 会把他匹配进来，于是"远景动了"是假的。
+   */
+  const at = (rect) =>
+    draws
+      .filter((d) => d.rect.every((v, i) => v === rect[i]))
+      .map((d) => Math.round(d.screenX));
+  return { far: at(Render.SCENE.pieces.far), mid: at(Render.SCENE.pieces.mid) };
+}
+
+test("镜头挪了，远景不动、中景跟着动", () => {
+  const still = drawScreenXs(0);
+  const shifted = drawScreenXs(300);
+  assert.ok(still.far.length > 0, "远景要真的画出来");
+  assert.ok(still.mid.length > 0, "中景要真的画出来");
+  assert.deepEqual(
+    shifted.far,
+    still.far,
+    `远景不该跟着镜头动：${JSON.stringify(still.far)} → ${JSON.stringify(shifted.far)}`
+  );
+  assert.notDeepEqual(
+    shifted.mid,
+    still.mid,
+    "中景必须跟着镜头动，否则整幅背景都钉死了"
+  );
+});
+
+/*
+ * **每间房都要摆到录像那个密度。** 量出来录像一间房 **50–90 件**、走位带上
+ * **75–95% 有东西**；本作原来是 **4–8 件**、不到一成（业主说的「场景素材少」）。
+ * 缺的那批按种子撒（`Core.SCATTER`），这条守住"撒够了"。
+ */
+test("每间房都摆到录像那个密度", () => {
+  const state = Core.createState({ seed: Core.DEFAULT_SEED });
+  state.dungeon.cells.forEach((cell, index) => {
+    Core.goToCell(state, index);
+    assert.ok(
+      state.props.length >= 55 && state.props.length <= 90,
+      `${state.room.name} 摆了 ${state.props.length} 件，录像里一间房是 50–90 件`
+    );
+    /* 撒出来的全是**不挡人**的那几档；立着的实心件仍然是人手写的（`docs/adr/0032`）。 */
+    const soft = state.props.filter((prop) => !prop.solid).length;
+    assert.ok(soft >= 50, `${state.room.name} 只有 ${soft} 件不挡人的布景，撒得太少`);
+  });
 });

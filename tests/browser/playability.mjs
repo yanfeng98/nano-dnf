@@ -185,7 +185,7 @@ function decide(state, constants) {
       want.add("left");
     } else {
       const cell = Core.currentCell(state);
-      const doorX = Core.doorX(state.dungeon, cell, dir);
+      const doorX = Core.doorX(state, cell, dir);
       if (Math.abs(doorX - player.x) > 20) want.add(doorX > player.x ? "right" : "left");
       want.add(dir === "N" ? "up" : "down");
     }
@@ -1426,6 +1426,13 @@ async function runPass(browser, baseUrl, options) {
   const defeatDeath = await page.evaluate(() => {
     const state = window.nanoDnf.getState();
     const deathTime = state.time;
+    /*
+     * **先把无敌帧清掉。** `damagePlayer` 第一句就是 `if (player.dead || player.invuln > 0) return 0`
+     * （那是挨打之后的保护，不是 bug），所以只要他刚挨过一下，**这一刀就会被整个吃掉**，
+     * 送死那一段就永远走不到结算。这一刀要证明的是"结算界面到得了"，不是"无敌帧管用"，
+     * 所以在这儿把它让开 —— 怪聚成团之后他挨打的时机变了，这个旧假设才露出来。
+     */
+    state.player.invuln = 0;
     window.DNFCore.damagePlayer(state, state.player.hp + 50, state.player.x + 40);
     return { deathTime: deathTime, defeated: state.defeat };
   });
@@ -2063,6 +2070,23 @@ function problemsFor(pass) {
     if (!(music.afterRun.busGain > 0)) {
       problems.push(`${pass.mode}: the music bus is silent while unmuted (${music.afterRun.busGain})`);
     }
+  }
+  /*
+   * **有文件就得放文件。** 合成器现在只是"那两首还没到位"时的回落，而业主 2026-10-13
+   * 已经把客户端里的 `mirkwood.ogg` / `mirkwood_boss.ogg` 拷进来了（`assets/music/`），
+   * 所以这一条盯的是**真的在放源文件** —— 否则回落会安静地把这一片变成"看起来做了"。
+   */
+  const trackFiles = (music.afterRun && music.afterRun.trackFiles) || [];
+  if (trackFiles.length < 2) {
+    problems.push(
+      `${pass.mode}: assets/music/ 里那两首应该在（manifest 认得它们），` +
+        `现在只认到 ${JSON.stringify(trackFiles)}`
+    );
+  } else if (music.afterRun.source !== "file") {
+    problems.push(
+      `${pass.mode}: 两首都在，却在放合成器（source=${music.afterRun.source}）—— ` +
+        `那说明文件没解码成功`
+    );
   }
   if (!music.mute || music.mute.mutedGain !== 0 || !(music.mute.restoredGain > 0)) {
     problems.push(

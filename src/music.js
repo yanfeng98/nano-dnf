@@ -93,6 +93,33 @@
     return notes;
   }
 
+  /*
+   * **放哪一首。**
+   *
+   * 第三片定的口径是：音乐不再是这个合成器，而是**客户端里那两首**
+   * （`docs/adr/0038`）—— 关卡一首、Boss 房另一首，客户端的曲单里就是成对的
+   * （`mirkwood.ogg` / `mirkwood_boss.ogg`）。**哪一格是 Boss 房由地牢自己说**
+   * （`MIRKWOOD_DUNGEON.bossRoom` 是**房间序号**，不是格子序号），不用另立一张表。
+   *
+   * 这个函数是**纯的**：它只说"该放哪一首"，不管文件在不在、更不管怎么放。
+   * 播放那一段在 `src/main.js`，没文件的时候它会回落到下面这个合成器。
+   */
+  var TRACKS = {
+    room: { file: "assets/music/mirkwood.ogg", label: "关卡" },
+    boss: { file: "assets/music/mirkwood_boss.ogg", label: "Boss 房" }
+  };
+
+  function trackFor(state) {
+    var dungeon = state && state.dungeon;
+    if (!dungeon || dungeon.boss === undefined) return "room";
+    /*
+     * **`dungeon.boss` 是格子序号**（这一局那张图上 Boss 落在哪一格），和 `state.cell`
+     * 同一个坐标系，所以直接比。`MIRKWOOD_DUNGEON.bossRoom` 是**房间序号**，两个
+     * 不是一回事，别混。
+     */
+    return state.cell === dungeon.boss ? "boss" : "room";
+  }
+
   return {
     BPM: BPM,
     STEP_SECONDS: STEP_SECONDS,
@@ -104,6 +131,8 @@
     midiToFreq: midiToFreq,
     normalizeStep: normalizeStep,
     chordForStep: chordForStep,
-    notesForStep: notesForStep
+    notesForStep: notesForStep,
+    TRACKS: TRACKS,
+    trackFor: trackFor
   };
 });
