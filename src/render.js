@@ -13,6 +13,34 @@
 
   var ARENA = Core.ARENA;
   /*
+   * **HUD 的左右边界量的是世界窗口的边，不是画布的边**（`docs/adr/0040`）。
+   *
+   * 世界收成居中的 4:3（720 宽）之后，画布左右各 120 px 是黑边；靠左靠右的 HUD
+   * 若还按 0 与 960 摆，就会摆进黑边里 —— 而录像的 HUD 一律压在游戏画面**之内**
+   * （它的地图窗口、目标条、日志全在 1440 那块里，没有一样画在黑边上）。
+   *
+   * **以 480 居中的东西不受影响**（120 + 720/2 = 480）：提示条、强化卡、胜负画面、
+   * 地区地图、标题、房名牌全在这一档，所以它们一个字都不用动。
+   */
+  var VIEW = Core.VIEW;
+  var HUD_LEFT = VIEW.left;
+  var HUD_RIGHT = VIEW.left + VIEW.width;
+  /*
+   * **界面那一套美术画在世界里时不是 1:1。**
+   *
+   * 怪的图我们按 1 客户端像素 = 1 世界像素烘（`docs/adr/0028`），那条换算里
+   * 1 世界像素 = 265/84 = 3.155 视频像素。可是**界面**那几样在录像里是另一个比例：
+   * 脚下那颗椭圆 81 px 的画在录像里占 130 视频px、关卡名那 272 px 的画占 443 ——
+   * 两样都是 **≈1.6 视频像素 / 画像素**，不是 3.155。所以画它们时要乘
+   * `1.6 ÷ 3.155 = 0.507`。
+   *
+   * 这条**只管界面那几件**（椭圆、冠军光环、开箱、关卡名），不管怪与布景 ——
+   * 怪那边牛头巨兽量下来正好是 1:1（录像 555 视频px 对本作 536），所以两边不是
+   * 同一个比例，别把这条推广过去（`docs/adr/0042`）。
+   */
+  /* 1.6 视频px/画px ÷ 3.155 视频px/世界px = 0.507。 */
+  var UI_SCALE = (1.6 * 84) / 265;
+  /*
    * The floor's foreshortening, named once so nothing else invents a second
    * one. `DEPTH.scale` squashes the ground ellipses; `depthLift` is the same
    * number applied to placement (see Core.DEPTH).
@@ -458,41 +486,66 @@
     extras: { hurt: 0, dead: 1, jump: 2, fall: 3 }
   };
 
-  /* On-screen controls for touch play, laid out in arena coordinates. */
+  /*
+   * On-screen controls for touch play, laid out in arena coordinates.
+   *
+   * **它们住在黑边里，不压在画面上**（`docs/adr/0040`）。世界收成居中的 4:3 之后，
+   * 画布左右各 120 px 是纯黑 —— 那正是拇指自然落下的地方，而"手指该放哪"是录像
+   * 答不出来的（它没有触屏）。于是两条黑边各归一组：**左边 120 px 全给四向**，
+   * **右边 120 px 全给打**，画面一点没被压住。
+   *
+   * 代价是键变小了：黑边只有 120 宽，原来那对 86 的块塞不进去，所以四向改成
+   * **2×2、每格 56**（2 + 56 + 4 + 56 + 2 = 120），右边的 跳/觉/攻 同样 56。
+   * 56 是设计画布宽度的 5.8% —— 手机上按 `94vw` 缩放之后约 47 CSS px，压在
+   * 44 px 那条最低可点线之上。**具体排法等他实玩再定**（这一片只保证"不压画面"）。
+   */
   var TOUCH_LAYOUT = [
     /*
      * The four-way block: width and depth share one thumb, stacked the way the
      * floor reads - up goes into the screen, down comes back towards the camera -
      * so the hand learns one shape instead of four separate keys.
      */
-    { action: "up", x: 22, y: 330, w: 86, h: 86, label: "↑" },
-    { action: "down", x: 120, y: 330, w: 86, h: 86, label: "↓" },
-    { action: "left", x: 22, y: 418, w: 86, h: 86, label: "←" },
-    { action: "right", x: 120, y: 418, w: 86, h: 86, label: "→" },
-    { action: "jump", x: 776, y: 346, w: 76, h: 76, label: "跳" },
-    { action: "attack", x: 864, y: 426, w: 88, h: 88, label: "攻" },
-    { action: "mute", x: 878, y: 20, w: 62, h: 44, label: "音" },
-    { action: "loadout", x: 806, y: 20, w: 62, h: 44, label: "编" },
-    /*
-     * Pause sits next to mute and the loadout toggle: a touch surface has no P
-     * key, so without its own button the pause screen - and the live readout on
-     * it - is unreachable for anyone playing with fingers.
-     */
-    { action: "pause", x: 734, y: 20, w: 62, h: 44, label: "停" },
+    { action: "up", x: 2, y: 356, w: 56, h: 56, label: "↑" },
+    { action: "down", x: 62, y: 356, w: 56, h: 56, label: "↓" },
+    { action: "left", x: 2, y: 416, w: 56, h: 56, label: "←" },
+    { action: "right", x: 62, y: 416, w: 56, h: 56, label: "→" },
+    { action: "jump", x: 842, y: 356, w: 56, h: 56, label: "跳" },
+    { action: "attack", x: 902, y: 416, w: 56, h: 56, label: "攻" },
     /*
      * 魔狱血刹's key. It has no hotbar slot to sit in - all twelve are taken and
      * the bar is two rows of six - so a touch surface needs a button of its own
      * or the 一觉 is simply unreachable for anyone playing with fingers. It sits
      * above 攻, on the thumb that already does the fighting.
      */
-    { action: "skill:hellbenter", x: 864, y: 330, w: 88, h: 88, label: "觉" }
+    { action: "skill:hellbenter", x: 902, y: 356, w: 56, h: 56, label: "觉" },
+    /*
+     * The three chrome keys stay on the picture at the top: three of them do not
+     * fit in one 120 px bar. They hang off the **window's** right edge, like the
+     * rest of the HUD, and the map window drops below them (`MINIMAP.touchTop`).
+     */
+    { action: "pause", x: 622, y: 20, w: 62, h: 44, label: "停" },
+    { action: "loadout", x: 692, y: 20, w: 62, h: 44, label: "编" },
+    { action: "mute", x: 762, y: 20, w: 62, h: 44, label: "音" }
   ];
 
   /* Hotbar: DNF's two rows of six (A S D F G H / Q W E R T Y). */
   var SLOT_COUNT = 12;
   var SLOT_COLS = 6;
-  var BAR = { x: 16, y: ARENA.height - 96, slotW: 104, slotH: 40, gap: 6, rowGap: 6 };
-  var TOUCH_BAR = { x: 250, y: ARENA.height - 118, slotW: 56, slotH: 56, gap: 2, rowGap: 2 };
+  var BAR = { x: HUD_LEFT + 16, y: ARENA.height - 96, slotW: 104, slotH: 40, gap: 6, rowGap: 6 };
+  /*
+   * The touch hotbar hangs off the **window**, centred in it, instead of the
+   * fixed 250 it used to sit at - that number was a leftover from when the whole
+   * 960-wide canvas was picture, and it would now read as off-centre
+   * （`docs/adr/0040`）。Six 56 slots and five 2 gaps make it 346 across.
+   */
+  var TOUCH_BAR = {
+    x: HUD_LEFT + (VIEW.width - (SLOT_COLS * 56 + (SLOT_COLS - 1) * 2)) / 2,
+    y: ARENA.height - 118,
+    slotW: 56,
+    slotH: 56,
+    gap: 2,
+    rowGap: 2
+  };
 
   function slotButtons(layout) {
     var buttons = [];
@@ -526,7 +579,7 @@
   }
 
   /* Loadout panel: every skill as a draggable tile, shown while arranging. */
-  var PANEL = { x: 16, y: ARENA.height - 330, w: 696, h: 160, tileW: 104, tileH: 56, gap: 8 };
+  var PANEL = { x: HUD_LEFT + 16, y: ARENA.height - 330, w: 696, h: 160, tileW: 104, tileH: 56, gap: 8 };
 
   function loadoutPanelButtons() {
     var buttons = [];
@@ -1646,71 +1699,68 @@
       pillar: [768, 803, 44, 111],
       bush: [812, 803, 64, 59],
       flower: [876, 803, 30, 55],
-      grass: [906, 803, 127, 66],
-      grassFlower: [1033, 803, 188, 78],
-      sprout: [0, 1231, 126, 66],
-      firSmall: [126, 1231, 42, 59],
-      firMid: [168, 1231, 43, 71],
-      firTall: [211, 1231, 44, 78],
-      pebble: [255, 1231, 24, 27],
-      snagTall: [279, 1231, 139, 207],
-      fallenTrunk: [418, 1231, 226, 340],
-      stumpBroken: [644, 1231, 78, 112],
-      trunkHollow: [722, 1231, 133, 178],
-      snagShort: [855, 1231, 97, 104],
-      snagStub: [952, 1231, 87, 101],
-      ruinStone: [1039, 1231, 142, 103],
-      rockArch: [0, 1571, 195, 180],
-      logMossy: [195, 1571, 317, 175],
-      grassPatch: [512, 1571, 110, 48],
-      treeDead: [622, 1571, 105, 277],
-      treeDeadTall: [727, 1571, 175, 303],
-      leaves: [902, 1571, 126, 66],
-      leavesBroad: [1028, 1571, 126, 66],
-      leavesDense: [1154, 1571, 126, 66],
-      gate: [0, 1874, 131, 240],
-      gateUp: [131, 1874, 157, 198],
-      gateDown: [288, 1874, 192, 118],
-      door: [480, 1874, 50, 171],
-      doorUp: [530, 1874, 73, 132],
-      doorDown: [603, 1874, 88, 46],
-      barrel: [691, 1874, 63, 78],
-      barrel1: [754, 1874, 25, 21],
-      barrel2: [779, 1874, 41, 13],
-      barrel3: [820, 1874, 29, 10],
-      barrel4: [849, 1874, 33, 14],
-      barrel5: [882, 1874, 16, 25],
-      barrel6: [898, 1874, 31, 24],
-      barrel7: [929, 1874, 38, 16],
-      barrel8: [967, 1874, 25, 9],
-      barrel9: [992, 1874, 46, 22],
-      barrel10: [1038, 1874, 44, 21],
-      barrel11: [1082, 1874, 28, 22],
-      barrel12: [1110, 1874, 42, 16],
-      chunk_boss0: [1152, 1874, 22, 21],
-      chunk_brute0: [1174, 1874, 22, 21],
-      chunk_caster0: [1196, 1874, 22, 21],
-      chunk_coward0: [1218, 1874, 22, 21],
-      chunk_elite0: [1240, 1874, 22, 21],
-      chunk_grunt0: [0, 2114, 22, 21],
-      chunk_boss1: [22, 2114, 34, 25],
-      chunk_brute1: [56, 2114, 34, 25],
-      chunk_caster1: [90, 2114, 34, 25],
-      chunk_coward1: [124, 2114, 34, 25],
-      chunk_elite1: [158, 2114, 34, 25],
-      chunk_grunt1: [192, 2114, 34, 25],
-      chunk_boss2: [226, 2114, 40, 25],
-      chunk_brute2: [266, 2114, 40, 25],
-      chunk_caster2: [306, 2114, 40, 25],
-      chunk_coward2: [346, 2114, 40, 25],
-      chunk_elite2: [386, 2114, 40, 25],
-      chunk_grunt2: [426, 2114, 40, 25],
+      grass: [906, 803, 39, 87],
+      grassFlower: [945, 803, 188, 78],
+      sprout: [1133, 803, 126, 66],
+      firSmall: [0, 1231, 42, 59],
+      firMid: [42, 1231, 43, 71],
+      firTall: [85, 1231, 44, 78],
+      pebble: [129, 1231, 24, 27],
+      snagTall: [153, 1231, 139, 207],
+      fallenTrunk: [292, 1231, 226, 340],
+      stumpBroken: [518, 1231, 78, 112],
+      trunkHollow: [596, 1231, 133, 178],
+      snagShort: [729, 1231, 97, 104],
+      snagStub: [826, 1231, 87, 101],
+      ruinStone: [913, 1231, 142, 103],
+      rockArch: [1055, 1231, 195, 180],
+      logMossy: [0, 1571, 317, 175],
+      grassPatch: [317, 1571, 110, 48],
+      treeDead: [427, 1571, 105, 277],
+      treeDeadTall: [532, 1571, 175, 303],
+      leaves: [707, 1571, 126, 66],
+      leavesBroad: [833, 1571, 126, 66],
+      leavesDense: [959, 1571, 126, 66],
+      gate: [1085, 1571, 131, 240],
+      gateUp: [0, 1874, 157, 198],
+      gateDown: [157, 1874, 192, 118],
+      door: [349, 1874, 50, 171],
+      doorUp: [399, 1874, 73, 132],
+      doorDown: [472, 1874, 88, 46],
+      barrel: [560, 1874, 63, 78],
+      barrel1: [623, 1874, 25, 21],
+      barrel2: [648, 1874, 41, 13],
+      barrel3: [689, 1874, 29, 10],
+      barrel4: [718, 1874, 33, 14],
+      barrel5: [751, 1874, 16, 25],
+      barrel6: [767, 1874, 31, 24],
+      barrel7: [798, 1874, 38, 16],
+      barrel8: [836, 1874, 25, 9],
+      barrel9: [861, 1874, 46, 22],
+      barrel10: [907, 1874, 44, 21],
+      barrel11: [951, 1874, 28, 22],
+      barrel12: [979, 1874, 42, 16],
+      chunk_boss0: [1021, 1874, 22, 21],
+      chunk_brute0: [1043, 1874, 22, 21],
+      chunk_caster0: [1065, 1874, 22, 21],
+      chunk_coward0: [1087, 1874, 22, 21],
+      chunk_elite0: [1109, 1874, 22, 21],
+      chunk_grunt0: [1131, 1874, 22, 21],
+      chunk_boss1: [1153, 1874, 34, 25],
+      chunk_brute1: [1187, 1874, 34, 25],
+      chunk_caster1: [1221, 1874, 34, 25],
+      chunk_coward1: [0, 2072, 34, 25],
+      chunk_elite1: [34, 2072, 34, 25],
+      chunk_grunt1: [68, 2072, 34, 25],
+      chunk_boss2: [102, 2072, 40, 25],
+      chunk_brute2: [142, 2072, 40, 25],
+      chunk_caster2: [182, 2072, 40, 25],
+      chunk_coward2: [222, 2072, 40, 25],
+      chunk_elite2: [262, 2072, 40, 25],
+      chunk_grunt2: [302, 2072, 40, 25],
     },
-    /*
-     * [piece, dx, dy] - 木桶碎开的那 12 帧，每一帧相对**完整那只桶的 ink 左上角**的
-     * 偏移。烘的是照 ink 裁下来的小块，所以不带上这个偏移就会全堆在桶脚上。
-     * 表是 `assets/import_dnf_scene.py --table` 印的，别手抄。
-     */
+
+
     barrelBreak: [
       ["barrel1", 19, 28],
       ["barrel2", 11, 32],
@@ -1799,6 +1849,150 @@
    * - the reference draws the whole map in the tile set's **dim** family, not the
    *   bright one (sampled at 90s and again at 250s).
    */
+  /*
+   * **界面那一张（`assets/ui.png`，`docs/adr/0042`）**：每一样都对着业主录像里的
+   * 一帧。它不是"场景"不是"怪"，所以自己一张表、自己一张图 —— 表由
+   * `assets/import_dnf_ui.py --table` 生成，**别手抄也别手改**。
+   *
+   * `cell` 是一段动画的固定单元格，`anchor` 是 `.img` 那张图自己的原点落在这格里的
+   * 位置，`ink` 是这一段的**画**在格子里占的框 —— 关卡名要对屏幕某点的中心、
+   * 脚下的椭圆要对他的脚，那两样都不是原点，所以两个都留着。
+   *
+   * 两个坑记在这里：
+   * - **过场插画的画框客户端没有**（`sprite_map_cutscene.NPK` 那张 800x600 是光板；
+   *   全客户端 639 张大图里没有框这种东西）—— 所以照录像里那张**画**烘，不自己画框。
+   * - **脚下的椭圆与冠军光环是画在黑底上的**（角落不透明且黑），烘的时候要抠掉；
+   *   标题与评级字母自带透明通道，抠了反而会在深色的美术上打洞（`import_dnf_ui.py`）。
+   */
+  var UI = {
+    /* generated by assets/import_dnf_ui.py --table - do not hand-edit */
+    cutscene: { cell: [800, 600], anchor: [0, 0], ink: [0, 0, 800, 600], frames: [
+      [0, 0, 800, 600],
+    ]},
+    stageTitle: { cell: [272, 98], anchor: [9, 20], ink: [0, 0, 272, 98], frames: [
+      [800, 0, 272, 98],
+      [1072, 0, 272, 98],
+      [0, 600, 272, 98],
+      [272, 600, 272, 98],
+      [544, 600, 272, 98],
+      [816, 600, 272, 98],
+      [1088, 600, 272, 98],
+      [0, 698, 272, 98],
+      [272, 698, 272, 98],
+      [544, 698, 272, 98],
+      [816, 698, 272, 98],
+      [1088, 698, 272, 98],
+      [0, 796, 272, 98],
+      [272, 796, 272, 98],
+    ]},
+    champdark: { cell: [198, 213], anchor: [0, 0], ink: [1, 21, 172, 190], frames: [
+      [544, 796, 198, 213],
+      [742, 796, 198, 213],
+      [940, 796, 198, 213],
+      [1138, 796, 198, 213],
+      [1336, 796, 198, 213],
+      [0, 1009, 198, 213],
+      [198, 1009, 198, 213],
+      [396, 1009, 198, 213],
+      [594, 1009, 198, 213],
+      [792, 1009, 198, 213],
+      [990, 1009, 198, 213],
+      [1188, 1009, 198, 213],
+      [1386, 1009, 198, 213],
+      [0, 1222, 198, 213],
+      [198, 1222, 198, 213],
+      [396, 1222, 198, 213],
+    ]},
+    champdarkback: { cell: [230, 315], anchor: [0, 0], ink: [0, 70, 216, 224], frames: [
+      [594, 1222, 230, 315],
+      [824, 1222, 230, 315],
+      [1054, 1222, 230, 315],
+      [1284, 1222, 230, 315],
+      [0, 1537, 230, 315],
+      [230, 1537, 230, 315],
+      [460, 1537, 230, 315],
+      [690, 1537, 230, 315],
+      [920, 1537, 230, 315],
+      [1150, 1537, 230, 315],
+      [0, 1852, 230, 315],
+      [230, 1852, 230, 315],
+    ]},
+    champfire: { cell: [191, 220], anchor: [0, 0], ink: [16, 10, 169, 207], frames: [
+      [460, 1852, 191, 220],
+      [651, 1852, 191, 220],
+      [842, 1852, 191, 220],
+      [1033, 1852, 191, 220],
+      [1224, 1852, 191, 220],
+      [0, 2167, 191, 220],
+      [191, 2167, 191, 220],
+      [382, 2167, 191, 220],
+      [573, 2167, 191, 220],
+      [764, 2167, 191, 220],
+    ]},
+    champfireback: { cell: [233, 367], anchor: [0, 0], ink: [23, 35, 204, 323], frames: [
+      [955, 2167, 233, 367],
+      [1188, 2167, 233, 367],
+      [0, 2534, 233, 367],
+      [233, 2534, 233, 367],
+      [466, 2534, 233, 367],
+      [699, 2534, 233, 367],
+      [932, 2534, 233, 367],
+      [1165, 2534, 233, 367],
+      [0, 2901, 233, 367],
+      [233, 2901, 233, 367],
+      [466, 2901, 233, 367],
+      [699, 2901, 233, 367],
+    ]},
+    dropMark: { cell: [81, 28], anchor: [0, 0], ink: [1, 1, 79, 25], frames: [
+      [932, 2901, 81, 28],
+      [1013, 2901, 81, 28],
+      [1094, 2901, 81, 28],
+      [1175, 2901, 81, 28],
+      [1256, 2901, 81, 28],
+      [1337, 2901, 81, 28],
+    ]},
+    chestOpen: { cell: [131, 76], anchor: [32, 82], ink: [0, 0, 131, 76], frames: [
+      [1418, 2901, 131, 76],
+      [0, 3268, 131, 76],
+      [131, 3268, 131, 76],
+    ]},
+    rank: { cell: [169, 106], anchor: [29, 0], ink: [0, 0, 169, 106], frames: [
+      [262, 3268, 169, 106],
+      [431, 3268, 169, 106],
+      [600, 3268, 169, 106],
+      [769, 3268, 169, 106],
+      [938, 3268, 169, 106],
+      [1107, 3268, 169, 106],
+      [1276, 3268, 169, 106],
+      [0, 3374, 169, 106],
+      [169, 3374, 169, 106],
+      [338, 3374, 169, 106],
+      [507, 3374, 169, 106],
+      [676, 3374, 169, 106],
+      [845, 3374, 169, 106],
+      [1014, 3374, 169, 106],
+      [1183, 3374, 169, 106],
+      [1352, 3374, 169, 106],
+      [0, 3480, 169, 106],
+    ]},
+    scoreDigit: { cell: [27, 30], anchor: [4, 0], ink: [0, 0, 27, 30], frames: [
+      [169, 3480, 27, 30],
+      [196, 3480, 27, 30],
+      [223, 3480, 27, 30],
+      [250, 3480, 27, 30],
+      [277, 3480, 27, 30],
+      [304, 3480, 27, 30],
+      [331, 3480, 27, 30],
+      [358, 3480, 27, 30],
+      [385, 3480, 27, 30],
+      [412, 3480, 27, 30],
+    ]},
+    rewardChest: { cell: [153, 97], anchor: [3, 3], ink: [0, 0, 153, 97], frames: [
+      [439, 3480, 153, 97],
+    ]},
+
+  };
+
   var MINIMAP = {
     tile: 18,
     /*
@@ -2054,11 +2248,26 @@
    * for most of a run) or "radar" (the same map clipped into a disc and centred
    * on the room he is in, the way it starts out).
    */
+  /*
+   * **没去过的格子是黑的**（业主 2026-10-15 实玩：「探索地图是现在这种颜色，
+   * 没有探索过的是黑的」）。
+   *
+   * 这一条**推翻了 `docs/adr/0030` 里那句「整张图从第一帧就 12 格画满、包括他从没
+   * 进去过的那四格」** —— 那是误读：客户端的 `act1.img` 里本来就有一整族"已经去过"的
+   * 亮图块，我们只烘了暗的那一族，于是把**没去过**看成了画满。业主说的才对。
+   *
+   * 盖的时候连那一格的边一起盖：留一条缝就会被读成"去过但没内容"。
+   */
+  function drawMinimapFog(ctx, x, y, size) {
+    ctx.save();
+    ctx.fillStyle = "#05060a";
+    ctx.fillRect(Math.round(x), Math.round(y), Math.ceil(size), Math.ceil(size));
+    ctx.restore();
+  }
+
   function drawMinimap(ctx, state, sprites, meta) {
     /*
-     * 画的是**整座地牢**，不是走过的轨迹：录像里那张图从它出现的第一帧（76.0s）就
-     * 12 格全画满了，之后 250 秒一格都没变过，**包括他从没进去过的那四格**
-     * （`docs/adr/0030`）。`state.dungeon.cells` 就是那 12 格，`state.cell` 是他在哪。
+     * 画的是**他探过的那几格**（没去过的盖黑）—— 十二格里他在哪一格由 `state.cell` 说。
      */
     var map = state.dungeon;
     if (!map || !sprites || !sprites.minimap) return;
@@ -2087,12 +2296,19 @@
       var originY = centre.y - (here.row + 0.5) * tile * zoom;
       drawMinimapGrid(ctx, sprites, originX, originY, zoom);
       map.cells.forEach(function (cell) {
+        if (!cell.seen) {
+          drawMinimapFog(ctx, originX + cell.col * tile * zoom,
+                         originY + cell.row * tile * zoom, tile * zoom);
+          return;
+        }
         drawMinimapTile(ctx, sprites, minimapTileName(cell),
                         originX + cell.col * tile * zoom,
                         originY + cell.row * tile * zoom, zoom);
       });
-      drawMapBoss(ctx, sprites, originX + boss.col * tile * zoom,
-                  originY + boss.row * tile * zoom, tile * zoom);
+      if (boss.seen) {
+        drawMapBoss(ctx, sprites, originX + boss.col * tile * zoom,
+                    originY + boss.row * tile * zoom, tile * zoom);
+      }
       drawMapMarker(ctx, sprites, originX + here.col * tile * zoom,
                     originY + here.row * tile * zoom, tile * zoom, state.time);
       ctx.restore();
@@ -2113,6 +2329,10 @@
 
     drawMinimapGrid(ctx, sprites, box.left, box.top, 1);
     map.cells.forEach(function (cell) {
+      if (!cell.seen) {
+        drawMinimapFog(ctx, box.left + cell.col * tile, box.top + cell.row * tile, tile);
+        return;
+      }
       drawMinimapTile(ctx, sprites, minimapTileName(cell),
                       box.left + cell.col * tile, box.top + cell.row * tile, 1);
     });
@@ -2123,7 +2343,10 @@
      */
     drawMapMarker(ctx, sprites, box.left + here.col * tile, box.top + here.row * tile,
                   tile, state.time);
-    drawMapBoss(ctx, sprites, box.left + boss.col * tile, box.top + boss.row * tile, tile);
+    /* 红脸也只在去过之后才画 —— 不然迷雾对它不成立。 */
+    if (boss.seen) {
+      drawMapBoss(ctx, sprites, box.left + boss.col * tile, box.top + boss.row * tile, tile);
+    }
 
     drawMinimapButton(ctx, box);
     ctx.restore();
@@ -2175,7 +2398,7 @@
     var width = minimapWidth();
     var height = rows * MINIMAP.tile + MINIMAP.titleH +
                  MINIMAP.pieces.top[3] + MINIMAP.pieces.bottom[3];
-    var x = ARENA.width - width - MINIMAP.margin;
+    var x = HUD_RIGHT - width - MINIMAP.margin;
     var y = touch ? MINIMAP.touchTop : MINIMAP.top;
     return {
       x: x,
@@ -2234,14 +2457,37 @@
    * Returns false when the piece or the sheet is missing, so a caller can fall
    * back rather than draw nothing at all.
    */
-  function drawScenePiece(ctx, sprites, name, x, bottom) {
+  /*
+   * **越靠里画得越小**（`docs/adr/0050` 追记）。量出来的：**同一帧里**两只木桶，
+   * 靠前那只 160 视频px、靠里那只 132 —— **1.21 倍/整条带子**。本作原来是平的。
+   *
+   * **只给不挡人的那几档（贴花）用**，实心件与怪一律不缩：实心件缩了就**判定也得跟着缩**，
+   * 那要把 `z` 穿进 `blockProps` / `routeStep` / `swingProps` / `props` 布点五个地方，
+   * 而收益只有前后 ±10%。仓库里"美术与判定必须是同一个数"这条规矩（`docs/adr/0014` /
+   * `0032`）是踩过坑才有的，不为这 10% 破它。
+   */
+  var DEPTH_SIZE = 0.18;
+
+  function depthSize(zShare) {
+    if (!zShare) return 1;
+    return 1 - DEPTH_SIZE * Math.max(0, Math.min(1, zShare));
+  }
+
+  function drawScenePiece(ctx, sprites, name, x, bottom, zShare) {
     var sheet = sprites && sprites.forest;
     var rect = sceneRect(name);
     if (!sheet || !rect) return false;
-    ctx.drawImage(
-      sheet, rect[0], rect[1], rect[2], rect[3],
-      Math.round(x - rect[2] / 2), Math.round(bottom - rect[3]), rect[2], rect[3]
-    );
+    /*
+     * **画的尺寸乘那一件的倍率**（`Core.propScale`，`docs/adr/0050`）：
+     * 烘出来的是客户端的**原始像素**，而录像里每一件按自己的倍率画。底边仍是落点，
+     * 所以缩了之后还是"站在那儿"。
+     */
+    var scale = Core.propScale ? Core.propScale(name) : [1, 1];
+    var near = depthSize(zShare);
+    var w = rect[2] * scale[0] * near;
+    var h = rect[3] * scale[1] * near;
+    ctx.drawImage(sheet, rect[0], rect[1], rect[2], rect[3],
+                  Math.round(x - w / 2), Math.round(bottom - h), w, h);
     return true;
   }
 
@@ -2251,8 +2497,11 @@
     var sheet = sprites && sprites.forest;
     var rect = sceneRect(name);
     if (!sheet || !rect) return false;
+    /* 木桶碎片按同一个倍率画（`docs/adr/0050`）—— 它们是同一个桶的十二块。 */
+    var scale = Core.propScale ? Core.propScale(name) : [1, 1];
     ctx.drawImage(sheet, rect[0], rect[1], rect[2], rect[3],
-                  Math.round(left), Math.round(top), rect[2], rect[3]);
+                  Math.round(left * scale[0]), Math.round(top * scale[1]),
+                  rect[2] * scale[0], rect[3] * scale[1]);
     return true;
   }
 
@@ -2769,7 +3018,7 @@
   function drawFallbackGate(ctx, state) {
     var open = state.room && state.room.cleared;
     ctx.save();
-    ctx.translate(ARENA.rightWall + 6, ARENA.groundY - 60);
+    ctx.translate(Core.ROOM.rightWall + 6, ARENA.groundY - 60);
     ctx.fillStyle = "#0d1220";
     ctx.beginPath();
     ctx.moveTo(-26, 60);
@@ -3034,6 +3283,109 @@
     var progress = 1 - player.skillTimer / skill.duration;
     if (progress < clip.flare.from || progress >= clip.flare.until) return null;
     return clip.flare;
+  }
+
+  /*
+   * **他脚下那个亮黄绿椭圆**（`docs/adr/0042`）。录像里**只有玩家有**这一颗，
+   * 怪没有；它也不是影子（影子另有一层），是一枚标记。
+   *
+   * 量出来的四条：**扁环不是实心**（中心透出地面）、**没有深色描边**（外缘直接化进
+   * 地面）、**130 x 43 视频px**（即 0.49 x 0.16 身位）、**脚落在它纵向的上 1/4 处**
+   * —— 大部分铺在他的脚下方向。它在全片 110 次检出里尺寸恒定，**不随深度缩放**。
+   *
+   * 客户端那 6 帧是脉动（帧 2-4 最亮），照它自己的帧序走；速度是本作自己的数。
+   */
+  var FOOT_MARK = { fps: 8, width: 130 / (265 / 84), height: 43 / (265 / 84), footShare: 0.25 };
+
+  /*
+   * 过场插画：客户端那张 800x600，铺满世界窗口（窗口正是 4:3，与它同形）。
+   * 淡入 0.3 / 保持 1.5 / 淡出 0.24 —— 全部量自录像的 53.93-55.97 s。
+   */
+  function drawIntroArt(ctx, state, sprites) {
+    var sheet = sprites && sprites.ui;
+    var run = sheet && UI.cutscene;
+    if (!run) return;
+    var art = Core.INTRO;
+    var t = state.intro.t;
+    var alpha = 1;
+    if (t < art.artIn) alpha = t / art.artIn;
+    else if (t > art.artIn + art.artHold) {
+      alpha = Math.max(0, 1 - (t - art.artIn - art.artHold) / art.artOut);
+    }
+    var frame = run.frames[0];
+    ctx.save();
+    ctx.globalAlpha = Math.max(0, Math.min(1, alpha));
+    ctx.drawImage(
+      sheet,
+      frame[0], frame[1], frame[2], frame[3],
+      VIEW.left, 0, VIEW.width, VIEW.height
+    );
+    ctx.restore();
+  }
+
+  /*
+   * **两行关卡名**（`docs/adr/0044`）。客户端 `mirkwood.img` 那一张里两行字都在
+   * 同一张图里（上行大字 + 细线 + `Gran-Floris 格兰之森`），所以这里只画一张。
+   *
+   * 尺寸对得上：那 272 px 的画在录像里占 443 视频px，正是界面那一档的 ≈1.6 倍
+   * （`UI_SCALE`）；换算到本作是 217.6 画布px，量到的录像字块是 221.5 —— 差 2%。
+   *
+   * **它画在世界那一趟里**：录像里人挡在字前面、地图的近景石柱也压在字上，
+   * 所以它跟房名牌走同一个办法 —— 把世界那一趟的变换原地倒退回去。
+   */
+  /*
+   * 画在窗口横向正中、画布纵向 305 处 —— 量自录像：那一块字的中心在 x 955 ≈
+   * 游戏画面中心 959.5，两行 y 548..671 的重心在 610 视频px（画布 305）。
+   */
+  var TITLE_POS = { x: 0.5, y: 305 };
+
+  function drawStageTitle(ctx, state, sprites) {
+    if (!state.titleT || state.titleT <= 0) return;
+    var sheet = sprites && sprites.ui;
+    var run = sheet && UI.stageTitle;
+    if (!run) return;
+    var left = Core.INTRO.title - state.titleT;
+    var alpha = Math.min(1, left / 0.5);
+    if (state.titleT < Core.INTRO.titleOut) alpha = state.titleT / Core.INTRO.titleOut;
+    var w = run.cell[0] * UI_SCALE * Core.CAMERA.zoom;
+    var h = run.cell[1] * UI_SCALE * Core.CAMERA.zoom;
+    var index = Math.floor(left * 12) % run.frames.length;
+    var frame = run.frames[index];
+    ctx.save();
+    ctx.translate(cameraX(state), 0);
+    ctx.translate(0, ARENA.groundY);
+    ctx.scale(1 / Core.CAMERA.zoom, 1 / Core.CAMERA.zoom);
+    ctx.translate(0, -ARENA.groundY);
+    ctx.translate(-VIEW.left, 0);
+    ctx.globalAlpha = Math.max(0, Math.min(1, alpha));
+    ctx.drawImage(
+      sheet,
+      frame[0], frame[1], frame[2], frame[3],
+      HUD_LEFT + VIEW.width * TITLE_POS.x - w / 2,
+      TITLE_POS.y - h / 2,
+      w, h
+    );
+    ctx.restore();
+  }
+
+  function drawFootMark(ctx, state, sprites) {
+    var sheet = sprites && sprites.ui;
+    var run = sheet && UI.dropMark;
+    var player = state.player;
+    if (!run || !player || player.dead) return;
+    var frames = run.frames;
+    var index = Math.floor(state.time * FOOT_MARK.fps) % frames.length;
+    var frame = frames[index];
+    var w = FOOT_MARK.width;
+    var h = FOOT_MARK.height;
+    var feet = floorY(player.z);
+    ctx.save();
+    ctx.drawImage(
+      sheet,
+      frame[0], frame[1], frame[2], frame[3],
+      player.x - w / 2, feet - h * FOOT_MARK.footShare, w, h
+    );
+    ctx.restore();
   }
 
   function drawPlayer(ctx, state, sprites) {
@@ -3432,11 +3784,18 @@
     rows: {
       grunt: 0, coward: 1, caster: 2, brute: 3, elite: 4, boss: 5,
       /* 换色的两具是后加的两行（`assets/import_dnf_monsters.py` 的 ROSTER 顺序）。 */
-      goblinBlue: 6, goblinRed: 7
+      goblinBlue: 6, goblinRed: 7,
+      /*
+       * 冠军怪那两条**没有自己的行**：它们是同一个兵种加一层光环（`docs/adr/0046`），
+       * 所以指回原来那一行 —— 咒之赤哥布林就是赤哥布林那张画，燃烧之投掷就是投掷
+       * 哥布林那张画。
+       */
+      cursedRed: 7, burningThrower: 2
     },
     frames: {
       grunt: 17, coward: 17, caster: 17, brute: 32, elite: 17, boss: 32,
-      goblinBlue: 17, goblinRed: 17
+      goblinBlue: 17, goblinRed: 17,
+      cursedRed: 17, burningThrower: 17
     },
     /*
      * How tall each monster's art is on frame 0, in the sheet's own pixels.
@@ -3445,7 +3804,8 @@
     stand: {
       grunt: 76, coward: 76, caster: 78, brute: 164, elite: 86, boss: 164,
       /* 换色那两具是同一套画布，烘的时候量出来的和 `grunt` 一模一样。 */
-      goblinBlue: 76, goblinRed: 76
+      goblinBlue: 76, goblinRed: 76,
+      cursedRed: 76, burningThrower: 78
     },
     /*
      * **How big a monster is drawn is `enemy.height`, the same number the fight
@@ -3559,6 +3919,39 @@
    * shape art faced left, so the flip is inverted here (it was
    * `facing > 0`).
    */
+  /*
+   * **冠军怪那一圈光环**（`docs/adr/0046`）。客户端里"冠军怪"不是另一具身体，
+   * 是**同一具身体另加一层 `champ*.img`**：一圈发光的地环 + 升起来的焰，分前
+   * （画在怪身上）后（画在怪身后）两层。录像里 `咒之赤哥布林` 身上那圈紫光就是
+   * `champdark`，`champfire` 是同族的火属性那一套。
+   *
+   * 尺寸走**界面那一档**（`UI_SCALE`）：它 172 px 的墨按 1:1 画是 2 个身位宽，
+   * 而它罩着的那只哥布林自己只有 0.9 —— 按 1:1 会盖掉半间房。
+   */
+  var CHAMPION_AURA = {
+    dark: "champdark",
+    fire: "champfire",
+    /* 每秒放几帧。录像里那是火焰在动的节奏，本作没有逐帧量它。 */
+    fps: 12
+  };
+
+  function drawChampionAura(ctx, state, enemy, sprites, layer) {
+    var run = enemy.champion && CHAMPION_AURA[enemy.champion];
+    var sheet = sprites && sprites.ui;
+    var back = layer === "back";
+    var art = run && sheet && UI[back ? run + "back" : run];
+    if (!art) return;
+    var frames = art.frames;
+    var frame = frames[Math.floor(state.time * CHAMPION_AURA.fps) % frames.length];
+    var w = frame[2] * UI_SCALE * Core.CAMERA.zoom;
+    var h = frame[3] * UI_SCALE * Core.CAMERA.zoom;
+    ctx.save();
+    ctx.globalAlpha = 0.85;
+    ctx.drawImage(sheet, frame[0], frame[1], frame[2], frame[3],
+                  enemy.x - w / 2, feetY(enemy) - h * 0.82, w, h);
+    ctx.restore();
+  }
+
   function drawMonster(ctx, state, enemy, sprites) {
     var sheet = sprites && sprites.monsters;
     if (!sheet || !sheet.width) return false;
@@ -3663,6 +4056,8 @@
      * cannot see is worse than one you can (the deploy test is what keeps that
      * from happening quietly).
      */
+    /* 冠军怪那一圈光环的**背面层**画在它身后（`docs/adr/0046`）。 */
+    drawChampionAura(ctx, state, enemy, sprites, "back");
     if (!drawMonster(ctx, state, enemy, sprites)) {
       ctx.save();
       ctx.translate(enemy.x, feetY(enemy));
@@ -3683,6 +4078,8 @@
       ctx.fill();
       ctx.restore();
     }
+    /* 光环的**正面层**画在怪身上（`docs/adr/0046`）：那圈焰要从它身上烧出来。 */
+    drawChampionAura(ctx, state, enemy, sprites, "front");
 
     /* The whirl itself: two rotating blades so the sweep reads as a spin. */
     if (enemy.attackKind === "spin" && enemy.spinDash && enemy.attackTimer > 0) {
@@ -5045,7 +5442,7 @@
         : 0;
     ctx.save();
     ctx.imageSmoothingEnabled = true;
-    ctx.drawImage(image, -slide * width, CUT_IN.bottom - height, width, height);
+    ctx.drawImage(image, HUD_LEFT - slide * width, CUT_IN.bottom - height, width, height);
     ctx.restore();
   }
 
@@ -5055,7 +5452,61 @@
    * `state.pickups` rather than a dispatcher with one case in it.
    */
   function drawDrop(ctx, state, drop, sprites) {
+    if (drop.kind === "loot") {
+      drawLootPlate(ctx, state, drop);
+      return;
+    }
     drawBloodOrb(ctx, state, drop, sprites);
+  }
+
+  /*
+   * **地上那块写着物品名的名牌**（`docs/adr/0042`）。录像里它不是一个图标：一块
+   * 深色半透明底 + 2-3 px 亮边的圆角牌，里面一行**浅青 (126,210,216)** 的字，
+   * 牌宽随名字长度（`诺顿的新手HP药剂` 那块是 263 x 45 视频px）。
+   *
+   * **边框会变色**：脚下那件（走进去就收得到的那件）换成**黄绿亮边** —— 录像里
+   * 同一件东西在 245.8 s 是黄绿边、249.0 s 不在脚下时是白边。那是"这一件现在
+   * 收得走"的读数，所以它得跟判定用同一个半径，不能另编一个是给眼睛看的。
+   */
+  var LOOT_PLATE = {
+    padX: 7,
+    padY: 4,
+    font: 9,
+    radius: 3,
+    ink: "#7ed2d8",
+    edge: "rgba(226,232,238,0.92)",
+    ready: "#c6f04a",
+    back: "rgba(10,14,20,0.72)"
+  };
+
+  function lootWithinReach(state, drop) {
+    var player = state.player;
+    if (!player || player.dead) return false;
+    var onRow =
+      Math.abs((player.z || 0) - (drop.z || 0)) <= Core.DEPTH_REACH.melee * Core.SLAYER_HEIGHT;
+    return onRow && Math.abs(player.x - drop.x) <= Core.LOOT.reach + player.width / 2;
+  }
+
+  function drawLootPlate(ctx, state, drop) {
+    var ready = lootWithinReach(state, drop);
+    var text = drop.name;
+    ctx.save();
+    ctx.font = "600 " + LOOT_PLATE.font.toFixed(1) + "px 'PingFang SC', 'Segoe UI', sans-serif";
+    var w = ctx.measureText(text).width + LOOT_PLATE.padX * 2;
+    var h = LOOT_PLATE.font + LOOT_PLATE.padY * 2;
+    var x = drop.x - w / 2;
+    var y = floorY(drop.z) - h;
+    roundRect(ctx, x, y, w, h, LOOT_PLATE.radius);
+    ctx.fillStyle = LOOT_PLATE.back;
+    ctx.fill();
+    ctx.lineWidth = ready ? 2 : 1.4;
+    ctx.strokeStyle = ready ? LOOT_PLATE.ready : LOOT_PLATE.edge;
+    ctx.stroke();
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillStyle = LOOT_PLATE.ink;
+    ctx.fillText(text, drop.x, y + h / 2 + 0.5);
+    ctx.restore();
   }
 
   /*
@@ -5415,6 +5866,23 @@
       ctx.fillStyle = "#8dffb0";
       ctx.fillText(effect.text, effect.x, ey - (1 - alpha) * 26);
       ctx.restore();
+    } else if (effect.kind === "pickupText") {
+      /*
+       * `+40 Exp`（`docs/adr/0042`）：亮绿 (105,198,46) 带黑描边，**上浮 66 视频px
+       * 用 0.3 秒**（约 220 px/s）然后停住，整串活不到 1 秒。它是"这一件收进来了"的
+       * 读数，所以钉在**掉落点**上，不跟人走。
+       */
+      var climb = Math.min(1, (1 - alpha) / 0.3) * (66 / (265 / 84));
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.font = "700 11px 'Segoe UI', system-ui, sans-serif";
+      ctx.textAlign = "center";
+      ctx.lineWidth = 2.6;
+      ctx.strokeStyle = "rgba(10, 18, 8, 0.9)";
+      ctx.strokeText(effect.text, effect.x, ey - climb);
+      ctx.fillStyle = "#69c62e";
+      ctx.fillText(effect.text, effect.x, ey - climb);
+      ctx.restore();
     } else if (effect.kind === "bloodStrand") {
       drawBloodStrand(ctx, state, effect, sprites);
     } else if (effect.kind === "bloodFlash") {
@@ -5448,6 +5916,8 @@
       ctx.translate(0, ARENA.groundY);
       ctx.scale(1 / Core.CAMERA.zoom, 1 / Core.CAMERA.zoom);
       ctx.translate(0, -ARENA.groundY);
+      /* 还有世界窗口那一段横向偏移（`docs/adr/0040`）—— 退干净之后 x 才是屏幕 x。 */
+      ctx.translate(-Core.VIEW.left, 0);
       ctx.globalAlpha = Math.min(1, alpha * 1.5);
       ctx.textAlign = "center";
       ctx.font = "700 26px 'PingFang SC', 'Segoe UI', system-ui, sans-serif";
@@ -5560,7 +6030,7 @@
    * 每一个数都是从帧里量出来的。
    */
   var TARGET_PANEL = {
-    x: 16,
+    x: HUD_LEFT + 16,
     /* 挂在玩家卡（高 96，在 y 14）与它下面那行配速字（y 128）**下面**。 */
     y: 150,
     portrait: [61, 63],
@@ -5570,6 +6040,8 @@
     tagW: 72,
     textSize: 27,
     barH: 32,
+    /* **放大版**：目标条在 boss 形态下整条高一半（录像 59 视频px 对杂兵的 28）。 */
+    bossBarH: 59,
     barBorder: 3,
     /* 边框里那一条红有多高 —— 量出来是 20（上下各 6 是边框与内边距）。 */
     barInner: 20,
@@ -5579,7 +6051,13 @@
      * 杂兵一律取那个出现得最多的 362，Boss 取 1068。真查出规律再改这两个数。
      */
     barW: 362,
-    bossBar: 1068
+    /*
+     * **278，不是 1068。** 第一轮把 `x 328..1396` 整条读成了血条长度，第二轮放大看
+     * 才分开：那是**绿血条 x 328..605（278）**加上它右边**橙色的 `ALERT!` 条
+     * （x 607..1395）**两段拼起来的总长。绿条自己是会随伤害从右端退的
+     * （254 s 起明显、261 s 见底），一条 1068 长的条退不到那个样子（`docs/adr/0043`）。
+     */
+    bossBar: 278
   };
 
   /** 把一张怪的脸画进头像框：取它站姿那一帧的**头部**那一段。 */
@@ -5620,7 +6098,7 @@
     var textX = x + portraitW + TARGET_PANEL.gap * px;
     var nameW = TARGET_PANEL.nameW * px;
     var barLen = (boss ? TARGET_PANEL.bossBar : TARGET_PANEL.barW) * px;
-    var barH = TARGET_PANEL.barH * px;
+    var barH = (boss ? TARGET_PANEL.bossBarH : TARGET_PANEL.barH) * px;
     var barY = y + rowH + TARGET_PANEL.gap * px;
     var border = Math.max(1, TARGET_PANEL.barBorder * px);
 
@@ -5731,12 +6209,19 @@
     ctx.strokeStyle = "rgba(213, 186, 156, 0.9)";
     ctx.lineWidth = border;
     ctx.strokeRect(textX + border / 2, barY + border / 2, barLen - border, barH - border);
+    /*
+     * 交上手了才把那一段橙色接上去（`docs/adr/0043`）：它是这块条的 boss 形态，
+     * 所以跟着条自己的 y 与高走，不另起一块。
+     */
+    if (enemy.type === "boss" && state.bossEngaged) {
+      drawAlertStrip(ctx, textX + barLen + 2 * px, HUD_RIGHT - 16, barY, barH);
+    }
     ctx.restore();
   }
 
   function drawHud(ctx, state, sprites, meta) {
     var player = state.player;
-    var panelX = 16;
+    var panelX = HUD_LEFT + 16;
     var panelY = 14;
     var panelW = 322;
     var panelH = 96;
@@ -5815,7 +6300,7 @@
      * It sits left of the map window, and in touch mode left of the buttons that
      * own the corner there - otherwise 停/编/音 sit on top of the enemy count.
      */
-    var roomRight = ARENA.width - 16 - minimapWidth() - 12;
+    var roomRight = HUD_RIGHT - 16 - minimapWidth() - 12;
     if (meta && meta.touch && meta.touch.enabled) {
       roomRight = Math.min(roomRight, touchTopLeft() - 12);
     }
@@ -6427,11 +6912,13 @@
       ctx.fillText(title, ARENA.width / 2, ARENA.height / 2 - 10);
       ctx.fillStyle = "rgba(230, 240, 255, 0.85)";
       ctx.font = "18px 'PingFang SC', 'Segoe UI', sans-serif";
-      ctx.fillText(
-        state.defeat ? "按 F3 重新开始" : "按 F3 再来一次",
-        ARENA.width / 2,
-        ARENA.height / 2 + 34
-      );
+      /*
+       * **F3 在这一页上是"回地区地图"，不是"再来一次"。** 一行提示曾经两个都说错了
+       * （`src/main.js` 里，结束之后 F3 走的是 `openRegion()`，只有**跑图当中**才是
+       * `restart()`），而选关本来就是下一件该由他决定的事。录像结尾那个
+       * `返回城镇 / 再次挑战 / 选择其他地下城` 三步里，本作对应的是**回选关那一步**。
+       */
+      ctx.fillText("按 F3 回到地区地图", ARENA.width / 2, ARENA.height / 2 + 34);
       if (meta && meta.run && meta.run.resultText && state.victory) {
         ctx.font = "700 20px 'PingFang SC', 'Segoe UI', sans-serif";
         ctx.fillStyle = meta.run.improved ? PALETTE.gold : PALETTE.textDim;
@@ -6446,6 +6933,7 @@
         ctx.fillStyle = PALETTE.textDim;
         ctx.fillText(meta.run.recordText, ARENA.width / 2, ARENA.height / 2 + 98);
       }
+      drawResultFrame(ctx, state, meta, sprites, !state.defeat);
       drawRunTable(ctx, meta && meta.run && meta.run.rows);
       /* The link that reopens this exact run, so a good seed can be passed on. */
       if (meta && meta.run && meta.run.linkText) {
@@ -6556,6 +7044,144 @@
    * One line under the HUD: this seed's best time and which side of it the run
    * is on right now, so a replay has something to race.
    */
+  /*
+   * **左边那一栏事件日志**（`docs/adr/0042`）。量出来的四条：
+   *
+   * - **没有底板**：字直接描边压在世界画面上（录像 160 s 那帧放大看，后面就是草地）。
+   * - **8 个固定槽位**，首字离游戏画面左缘 45 视频px，行距 33.7 视频px、字高 26-27。
+   * - **不淡出、不滚动、没有存活时间**：8 行满了把最上面那行挤掉，其余不动。
+   * - **四档颜色**（取每行最亮三分之一像素的均值）：经验/金币土黄、白名道具白、
+   *   蓝名道具青、状态消息橙。
+   */
+  var LOG_STYLE = {
+    x: (285 - 240) / 2 + 120,
+    /*
+     * **比录像低 44 px。** 录像的首行在 y 204 视频px（画布 102），因为它那一栏上面
+     * 只有一块目标条、再没有别的东西；本作那一带是**玩家卡（14..110）与它下面那行
+     * 配速字（128）**，照录像摆会压在它们身上（第一版抓帧就是这样，见
+     * `tests/browser/capture-hud.mjs`）。组织是本作自己的（`docs/adr/0041` Q13 选 b），
+     * 所以首行让到它们**与"当前目标"条**下面，**左右边距仍是量的那个**。
+     */
+    top: 210,
+    row: 33.7 / 2,
+    size: 26.5 / 2,
+    tones: {
+      gold: "#d7c5a8",
+      white: "#f1f4f5",
+      cyan: "#7ed2d8",
+      orange: "#da612d"
+    }
+  };
+
+  function drawLog(ctx, state) {
+    var lines = state.log || [];
+    if (!lines.length) return;
+    ctx.save();
+    ctx.textAlign = "left";
+    ctx.textBaseline = "top";
+    ctx.font = HUD_FONT(LOG_STYLE.size);
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = "rgba(8, 10, 16, 0.9)";
+    lines.forEach(function (line, index) {
+      var y = LOG_STYLE.top + index * LOG_STYLE.row;
+      ctx.strokeText(line.text, LOG_STYLE.x, y);
+      ctx.fillStyle = LOG_STYLE.tones[line.tone] || LOG_STYLE.tones.white;
+      ctx.fillText(line.text, LOG_STYLE.x, y);
+    });
+    ctx.restore();
+  }
+
+  /*
+   * **右边那一栏战斗评分**（`docs/adr/0041`、`docs/adr/0042`）。四条量出来的：
+   *
+   * - 包围盒 x 1454..1659、y 702..831（**右缘离游戏画面右缘 20 视频px**），
+   *   四行、行距 33 视频px —— 与日志同一套字号。
+   * - **进副本就有**，不是打完才出现：t≈57.2 跟房间一起淡入，到 t=330 一字不差。
+   * - 数字**右对齐** x≈1575、标签**右对齐** x≈1656。
+   * - 全程 330 秒里只有被击数与评分动过（4 变 5 的那一帧 `SS` 掉成 `S`）；
+   *   操作 85% 与技巧 57% 一个字没动。
+   */
+  var RATING_PANEL = {
+    valueRight: (1575 - 240) / 2 + 120,
+    labelRight: (1656 - 240) / 2 + 120,
+    top: 702 / 2 + 4,
+    row: 33 / 2,
+    size: 26.5 / 2
+  };
+
+  function drawRatingPanel(ctx, state) {
+    var rating = Core.ratingOf(state);
+    var rows = [
+      [rating.operation + "%", "操作"],
+      [rating.technique + "%", "技巧"],
+      [String(rating.hits), "被击数"],
+      [rating.grade, "评分"]
+    ];
+    ctx.save();
+    ctx.textBaseline = "top";
+    ctx.font = HUD_FONT(RATING_PANEL.size);
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = "rgba(8, 10, 16, 0.9)";
+    rows.forEach(function (row, index) {
+      var y = RATING_PANEL.top + index * RATING_PANEL.row;
+      ctx.textAlign = "right";
+      ctx.strokeText(row[0], RATING_PANEL.valueRight, y);
+      ctx.strokeText(row[1], RATING_PANEL.labelRight, y);
+      ctx.fillStyle = index === 3 ? "#ffd98a" : "#cdc8c3";
+      ctx.fillText(row[0], RATING_PANEL.valueRight, y);
+      ctx.fillStyle = "#e8ecef";
+      ctx.fillText(row[1], RATING_PANEL.labelRight, y);
+    });
+    ctx.restore();
+  }
+
+  /*
+   * **顶部那条 `ALERT!` 是"当前目标"那块条的**交战形态**（`docs/adr/0043`）。
+   *
+   * 它**不是"Boss 登场"**：录像里那只牛头巨兽早就跟哥布林一起在场上打，248.567
+   * 那一帧变的只是这块显示 —— 而它变的时机是**玩家的攻击第一次打到它**（正好是
+   * 挥砍弧线命中、冒出 `10` 的那帧）。所以它是"你跟他交上手了"的读数，本作也是
+   * 这么亮的（`state.bossEngaged`）。
+   *
+   * 第二轮的放大图把这块条拆清楚了：左端 80x80 肖像框 → **绿血条 278 视频px**
+   * → **橙底 `ALERT!` 条 789 视频px**，三样同一个高度、压在 y 97..155 那一条上，
+   * **一帧里整块出现**（248.533 还没有、248.567 全在）。ALERT 字色 (255,159,32)、
+   * 两行错开半格、横向重复周期 85.5 视频px、**不闪不滚**，从 248.57 挂到约 292 s。
+   *
+   * 本作的条比录像长（`bossBar` 534 画布px 对录像的 139），所以橙色那一段只画到
+   * **世界窗口的右缘**为止 —— 录像那条 789 长的在这里会伸到窗口外面去。
+   */
+  var ALERT_STRIP = {
+    /* 量的：字 (255,164,39)、底 (236,122,4)。对比很低 —— 录像里它靠**粗斜体**读出来。 */
+    ink: "#ffa427",
+    back: "#ec7a04",
+    row: 24 / 2,
+    period: 85.5 / 2
+  };
+
+  function drawAlertStrip(ctx, left, right, y, height) {
+    if (right - left < 40) return;
+    var px = Core.VIDEO_PX * Core.CAMERA.zoom;
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(left, y, right - left, height);
+    ctx.clip();
+    ctx.fillStyle = ALERT_STRIP.back;
+    ctx.fillRect(left, y, right - left, height);
+    ctx.fillStyle = ALERT_STRIP.ink;
+    ctx.font = "italic 700 7.8px 'PingFang SC', 'Segoe UI', system-ui, sans-serif";
+    ctx.textAlign = "left";
+    ctx.textBaseline = "middle";
+    for (var row = 0; row < 2; row += 1) {
+      var rowY = y + (row === 0 ? height * 0.3 : height * 0.7);
+      var start = left + (row === 0 ? 2 * px : 2 * px - ALERT_STRIP.period / 2);
+      for (var x = start; x < right; x += ALERT_STRIP.period) {
+        ctx.fillText("ALERT!", x, rowY);
+      }
+    }
+    ctx.restore();
+  }
+
   function drawPace(ctx, pace) {
     ctx.save();
     ctx.textAlign = "left";
@@ -6563,8 +7189,8 @@
     ctx.fillStyle = pace.state === "behind" ? PALETTE.danger : PALETTE.gold;
     ctx.lineWidth = 3;
     ctx.strokeStyle = "rgba(10, 12, 22, 0.85)";
-    ctx.strokeText(pace.text, 22, 128);
-    ctx.fillText(pace.text, 22, 128);
+    ctx.strokeText(pace.text, HUD_LEFT + 22, 128);
+    ctx.fillText(pace.text, HUD_LEFT + 22, 128);
     ctx.restore();
   }
 
@@ -6573,6 +7199,143 @@
    * level, the upgrades taken, kills, damage taken and how far the run got. Two
    * short columns keep the table clear of the skill bar underneath.
    */
+  /*
+   * **战绩与奖励**（`docs/adr/0045`）。录像里通关之后是两页：先 `战绩`
+   * （`总分 85 / 140`，下面 `操作 60 / 技巧 40 / 被击数 -15` 三行，左边一枚金色
+   * 评级徽记），再 `奖励`（一口红木金边宝箱坐在蓝色魔法阵正中、打开时迸出白青的光）。
+   *
+   * 本作的战绩表本来就在这一页上（种子/用时/等级/强化/击杀/承伤），所以这里补的是
+   * **那枚评级徽记**与**那只箱子** —— 徽记用的是客户端 `dungeon_rank.img` 自己那
+   * 几帧（白彩两套 SSS..F），不是现画的字。
+   *
+   * 位置是本作自己的：录像那块板在 4:3 的正中，本作这一页已经排满了，所以徽记摆
+   * 在表的左边、箱子摆在右边 —— 「照录像的**内容**，不照它的**排布**」（`docs/adr/0041`
+   * 那条同一句）。
+   */
+  var RANK_FRAME = { S: 5, A: 7, B: 9, C: 11 };
+
+  /*
+   * 结算那一页的两段（`docs/adr/0045`）。录像里它是**逐行浮出来**的：
+   * `战绩` + `总分 85/140` → `操作 60`（金）+ 条 → `技巧 40` → `被击数 -15`（红）
+   * → 一枚金色徽记 + `评分`，**每行差 0.8 秒**；然后换到 `奖励`：宝箱 → 白青爆闪
+   * → 一条铺满整幅宽的青色光带 → 四张金卡背 → 领奖框。
+   *
+   * 本作把它**压到四秒半**（每行 0.45 秒）：录像那 17 秒的谢幕配一局 3 分钟的副本
+   * 太长。**四张卡的"选"没有做** —— 本作的奖励回路本来就是打怪掉东西 + 清房翻卡，
+   * 再开一套"选一张卡"是另加一个回路，不是补一帧。做的是那口箱子开的那两下与领奖框，
+   * 框里那行金币读的是 `stats.gold`：**这一局从地上捡起来的总数**（业主 Q8 选 b）。
+   */
+  var RESULT_BEATS = {
+    rows: 0.45,
+    badge: 1.8,
+    chest: 2.6,
+    flash: 3.1,
+    reward: 3.8
+  };
+
+  function beatAlpha(since, at) {
+    return Math.max(0, Math.min(1, (since - at) / 0.3));
+  }
+
+  function drawResultFrame(ctx, state, meta, sprites, won) {
+    var since = state.finishedAt === null ? 9 : state.time - state.finishedAt;
+    var rating = Core.ratingOf(state);
+    var sheet = sprites && sprites.ui;
+    var cx = HUD_LEFT + 105;
+    var top = ARENA.height / 2 + 96;
+    ctx.save();
+    ctx.textAlign = "center";
+    /*
+     * 逐行：总分 → 操作 → 技巧 → 被击数 → 评分。被击数那一行是红的、
+     * 操作与技巧是金的 —— 录像里 HUD 上的那三行是白的，结算页这三行是彩的。
+     */
+    var rows = [
+      ["总分 " + rating.score, "#f3d79b"],
+      ["操作 " + rating.operation + "%", "#f3d79b"],
+      ["技巧 " + rating.technique + "%", "#f3d79b"],
+      ["被击数 " + rating.hits, "#ff8080"],
+      ["评分 " + rating.grade, "#f3d79b"]
+    ];
+    ctx.font = "700 15px 'PingFang SC', 'Segoe UI', sans-serif";
+    rows.forEach(function (row, index) {
+      var alpha = beatAlpha(since, index * RESULT_BEATS.rows);
+      if (alpha <= 0) return;
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle = row[1];
+      ctx.fillText(row[0], cx, top + 22 * index);
+    });
+    ctx.globalAlpha = 1;
+    /* 徽记跟"评分"那一行同时到（录像里那一行左边就是它）。 */
+    var badgeAlpha = beatAlpha(since, RESULT_BEATS.badge);
+    if (sheet && UI.rank && badgeAlpha > 0) {
+      var frame = UI.rank.frames[RANK_FRAME[rating.grade] === undefined ? 11 : RANK_FRAME[rating.grade]];
+      ctx.globalAlpha = badgeAlpha;
+      /* 那一帧 169x106 是连辉光一起量的，字形只占一小块 —— 所以按 1:1 画、不缩。 */
+      ctx.drawImage(sheet, frame[0], frame[1], frame[2], frame[3],
+                    HUD_LEFT + 20, top + 66, frame[2], frame[3]);
+      ctx.globalAlpha = 1;
+    }
+    if (!won || !sheet || !UI.rewardChest) {
+      ctx.restore();
+      return;
+    }
+    /* `奖励`：箱子坐进蓝色魔法阵 → 白青爆闪 → 四张金卡背（本作停在爆闪之后）。 */
+    /*
+     * 摆**右上角那条空带**（画布 y 160..300 的右侧）：本作这一页中间是战绩表、
+     * 下面那一条是技能栏与分享链接，只有那里是空的。录像那块板在 4:3 正中，
+     * 它那一页上只有 `战绩` 与 `奖励` 两样东西，本作比它多一张表。
+     */
+    var box = UI.rewardChest.frames[0];
+    var bx = HUD_RIGHT - 96;
+    var by = 168;
+    var reveal = beatAlpha(since, RESULT_BEATS.chest);
+    if (reveal > 0) {
+      var pop = 1 + (1 - reveal) * 0.25;
+      var bw = box[2] * 0.72 * pop;
+      var bh = box[3] * 0.72 * pop;
+      ctx.globalAlpha = reveal;
+      /* 底下那圈蓝魔法阵：录像里箱子坐在它正中。 */
+      var glow = ctx.createRadialGradient(bx, by + bh * 0.5, 4, bx, by + bh * 0.5, bw * 0.8);
+      glow.addColorStop(0, "rgba(120, 200, 255, 0.55)");
+      glow.addColorStop(1, "rgba(40, 90, 190, 0)");
+      ctx.fillStyle = glow;
+      ctx.beginPath();
+      ctx.ellipse(bx, by + bh * 0.5, bw * 0.8, bh * 0.42, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.drawImage(sheet, box[0], box[1], box[2], box[3], bx - bw / 2, by, bw, bh);
+      ctx.globalAlpha = 1;
+    }
+    var flash = beatAlpha(since, RESULT_BEATS.flash) * (1 - beatAlpha(since, RESULT_BEATS.flash + 0.35));
+    if (flash > 0) {
+      var burst = ctx.createRadialGradient(bx, by + bh * 0.5, 2, bx, by + bh * 0.5, bw * 1.1);
+      burst.addColorStop(0, "rgba(255,255,255," + (0.95 * flash).toFixed(3) + ")");
+      burst.addColorStop(0.45, "rgba(170,230,255," + (0.7 * flash).toFixed(3) + ")");
+      burst.addColorStop(1, "rgba(90,170,255,0)");
+      ctx.fillStyle = burst;
+      ctx.beginPath();
+      ctx.ellipse(bx, by + bh * 0.5, bw * 1.1, bh * 0.9, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    /* 领奖框：一行物品名 + 这一局捡到的金币（`stats.gold`）。 */
+    var shown = beatAlpha(since, RESULT_BEATS.reward);
+    if (shown > 0) {
+      ctx.globalAlpha = shown;
+      var boxW = 210;
+      var boxH = 34;
+      roundRect(ctx, bx - boxW / 2, by + bh + 12, boxW, boxH, 5);
+      ctx.fillStyle = "rgba(8, 14, 26, 0.86)";
+      ctx.fill();
+      ctx.strokeStyle = "rgba(120, 200, 255, 0.8)";
+      ctx.lineWidth = 1.4;
+      ctx.stroke();
+      ctx.font = "700 14px 'PingFang SC', 'Segoe UI', sans-serif";
+      ctx.fillStyle = "#f3d79b";
+      ctx.fillText("+" + state.stats.gold + " 金币", bx, by + bh + 34);
+      ctx.globalAlpha = 1;
+    }
+    ctx.restore();
+  }
+
   function drawRunTable(ctx, rows) {
     if (!rows || !rows.length) return;
     var perColumn = Math.ceil(rows.length / 2);
@@ -6754,7 +7517,9 @@
      */
     (state.props || []).forEach(function (prop) {
       if (SCENE.decals.indexOf(prop.piece) !== -1) {
-        drawScenePiece(ctx, sprites, prop.piece, prop.x, floorY(prop.z));
+        /* 贴花按它自己在带子里的深浅缩小 —— 带子于是读起来是一块**往里退的面**。 */
+        drawScenePiece(ctx, sprites, prop.piece, prop.x, floorY(prop.z),
+                       prop.z / Core.bandDepth(state.band));
       }
     });
     (state.props || []).forEach(function (prop) {
@@ -6830,7 +7595,18 @@
     add(behind, function () {
       drawSwordForm(ctx, state, sprites);
     });
+    /*
+     * **关卡名插在这一队里，站在他那一档上**（`docs/adr/0044`）。录像里它被
+     * **人**挡在前面，所以它不能画在整趟世界之后（那样会盖住人），也不能画在
+     * scenery 之前（那样会被草丛吃掉 —— 第一版就是这么整块消失的，抓帧见
+     * `tests/browser/capture-hud.mjs`）。跟人同一个 z、排在人前面，这一条天然成立，
+     * 而且再没有别的假设。
+     */
     add(playerZ, function () {
+      drawStageTitle(ctx, state, sprites);
+    });
+    add(playerZ, function () {
+      drawFootMark(ctx, state, sprites);
       drawPlayer(ctx, state, sprites);
     });
     add(inFront, function () {
@@ -6869,6 +7645,19 @@
       (meta.region && meta.region.open)
     );
     ctx.clearRect(0, 0, ARENA.width, ARENA.height);
+    /*
+     * 左右那两条黑边（`docs/adr/0040`）。录像的游戏画面是**居中的 4:3**（1440×1080
+     * 装在 1920×1080 里），两边纯黑；本作照它把**世界**收进中间 720×540，剩下的画布
+     * 归 HUD 与触屏。明着填一次黑，而不是指望画布底下那层 CSS —— 抓帧、分享图与
+     * "世界有没有画进黑边"这种东西都要它一定是黑的。全屏界面（标题/暂停/通关/地区
+     * 地图）画在它**上面**，所以那些仍是满屏 16:9。
+     */
+    ctx.fillStyle = "#000";
+    ctx.fillRect(0, 0, Core.VIEW.left, ARENA.height);
+    ctx.fillRect(
+      Core.VIEW.left + Core.VIEW.width, 0,
+      ARENA.width - Core.VIEW.left - Core.VIEW.width, ARENA.height
+    );
 
     var shake = 0;
     state.effects.forEach(function (effect) {
@@ -6876,6 +7665,25 @@
     });
 
     ctx.save();
+    /*
+     * 世界只画在**世界窗口**里。这一刀（`clip`）是"收成 4:3"的真正一半：不收，
+     * 世界会铺满整块画布，拉近之后黑边里会露出本该在窗口外的树干与地面。
+     * 它压在 `shake` **之前** —— 镜头晃的是世界，窗口不动。
+     */
+    ctx.beginPath();
+    ctx.rect(Core.VIEW.left, 0, Core.VIEW.width, Core.VIEW.height);
+    ctx.clip();
+    /* 窗口自己那一段横向偏移：世界从窗口左缘开始画，而不是从画布左缘。 */
+    ctx.translate(Core.VIEW.left, 0);
+    /*
+     * **进副本那一串**（`docs/adr/0044`）：过场插画占满整个窗口，其余什么都不画 ——
+     * 录像里那 2 秒是过场与加载，没有世界、没有 HUD，两边只有纯黑。
+     */
+    if (state.intro) {
+      drawIntroArt(ctx, state, sprites);
+      ctx.restore();
+      return;
+    }
     if (shake > 0) {
       ctx.translate(Math.sin(state.time * 90) * 2.4 * shake, Math.cos(state.time * 77) * 1.6 * shake);
     }
@@ -6901,7 +7709,6 @@
     ctx.translate(-cameraX(state), 0);
     drawBackdrop(ctx, state, sprites);
     drawGate(ctx, state, sprites);
-
     /*
      * Everything in the room - bodies, the Slayer, the art he casts and the
      * ground he leaves burning - in one pass, ordered by depth. See drawWorld.
@@ -6928,6 +7735,11 @@
      */
     drawAwakening(ctx, state, sprites);
     drawHud(ctx, state, sprites, meta);
+    /* 左边那栏日志、右边的评分、顶部那块交战横幅（`docs/adr/0042`、`0043`）。 */
+    if (!overlayOpen) {
+      drawLog(ctx, state);
+      drawRatingPanel(ctx, state);
+    }
     /* The map belongs to live play and to the title demo, not to a full-screen overlay. */
     if (!overlayOpen) drawMinimap(ctx, state, sprites, meta);
     /* The pace line belongs to live play, not to a full-screen overlay. */
@@ -6978,6 +7790,7 @@
     SCENE: SCENE,
     /* The map window's table and its box, so tests can pin both. */
     MINIMAP: MINIMAP,
+    UI: UI,
     minimapBox: minimapBox,
     hitTestMinimap: hitTestMinimap,
     /* 魔狱血刹's two live-drawn numbers, so tests can pin them to the sheets. */

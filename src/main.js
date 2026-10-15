@@ -30,7 +30,7 @@
    */
   var sprites = {
     slayer: null, skills: null, effects: null, rift: null, awakening: null, region: null,
-    monsters: null, forest: null, minimap: null
+    monsters: null, forest: null, minimap: null, ui: null
   };
   [
     ["slayer", "./assets/slayer.png"],
@@ -54,6 +54,12 @@
      * own ink (assets/import_dnf_scene.py, docs/adr/0028).
      */
     ["forest", "./assets/forest.png"],
+    /*
+     * 界面那一张：进副本前的过场插画、关卡名那两行大字、脚下的绿椭圆、
+     * 冠军怪的光环、评级字母与结算那口宝箱 —— 每一样都对着录像里的一帧
+     * （assets/import_dnf_ui.py, docs/adr/0042）。
+     */
+    ["ui", "./assets/ui.png"],
     /*
      * The map window: one 18 px tile per cell of the dungeon, plus the two
      * markers, the disc its radar form is cut into and the nine pieces of its
@@ -1182,6 +1188,12 @@
     currentStage = id;
     regionOpen = false;
     restart();
+    /*
+     * **进副本那一串**（`docs/adr/0044`）：过场插画 2.04 秒 + 全黑 0.3 秒，
+     * 之后房间才淡进来、两行关卡名挂 4.2 秒。只有**从地区地图进关卡**走这一步 ——
+     * 重开一局（R / N）不重放，那是在同一间已经打过的副本里再来一次。
+     */
+    Core.beginIntro(state);
   }
 
   /** Move the cursor, skipping nothing - a locked card is still worth reading. */

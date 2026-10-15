@@ -227,8 +227,8 @@ function walkToDoor(state, dir, frames) {
       dir === "N" || dir === "S"
         ? doorX
         : dir === "E"
-          ? Core.ARENA.rightWall - Core.DOOR.side / 2
-          : Core.ARENA.leftWall + Core.DOOR.side / 2;
+          ? Core.ROOM.rightWall - Core.DOOR.side / 2
+          : Core.ROOM.leftWall + Core.DOOR.side / 2;
     const targetZ =
       dir === "N"
         ? depth - Core.DOOR.depth / 2
@@ -257,7 +257,7 @@ function walkToDoor(state, dir, frames) {
 function clearLaneX(state) {
   const player = state.player;
   const props = (state.props || []).filter((prop) => prop.solid && !prop.broken);
-  for (let x = Core.ARENA.leftWall + 40; x < Core.ARENA.rightWall - 40; x += 6) {
+  for (let x = Core.ROOM.leftWall + 40; x < Core.ROOM.rightWall - 40; x += 6) {
     const blocked = props.some((prop) => {
       const box = Core.propBox(prop.piece);
       return Math.abs(x - (prop.x + (box.dx || 0))) <= box.width / 2 + player.width / 2;
@@ -295,11 +295,11 @@ function killAll(state) {
 
 test("player runs right and is clamped by the arena wall", () => {
   const state = lastRoomState();
-  state.player.x = Core.ARENA.rightWall - 70;
+  state.player.x = Core.ROOM.rightWall - 70;
 
   Core.runFrames(state, 60, { right: true });
 
-  assert.equal(state.player.x, Core.ARENA.rightWall - state.player.width / 2);
+  assert.equal(state.player.x, Core.ROOM.rightWall - state.player.width / 2);
   assert.equal(state.player.facing, 1);
 });
 
@@ -574,10 +574,14 @@ function stateInBarrelCell(seed) {
     seed: seed === undefined ? Core.DEFAULT_SEED : seed,
     stage: "mirkwood"
   });
+  /*
+   * 桶是**按种子撒**的（`docs/adr/0048`：录像一间房 5 只，散在整条带子里），
+   * 不再是手写在某一间房的数据里 —— 所以这里要问的是**撒完之后**那一格有没有桶。
+   */
   const at = state.dungeon.cells.findIndex((cell, index) => {
     if (index === state.dungeon.boss) return false;
-    const spec = ROOMS[cell.room];
-    return (spec.props || []).some((prop) => Core.BREAKABLE[prop.piece]);
+    Core.goToCell(state, index);
+    return state.props.some((prop) => Core.BREAKABLE[prop.piece]);
   });
   assert.ok(at >= 0, "this seed deals a room with a barrel in it, off the boss cell");
   Core.goToCell(state, at);
@@ -587,7 +591,7 @@ function stateInBarrelCell(seed) {
 /** 走到桶边上抡到它碎。桶是实心的（`docs/adr/0030`），所以这一趟是边走边砍。 */
 function smashBarrel(state, prop) {
   state.player.z = prop.z;
-  state.player.x = Math.max(Core.ARENA.leftWall + 20, prop.x - 90);
+  state.player.x = Math.max(Core.ROOM.leftWall + 20, prop.x - 90);
   state.player.facing = 1;
   for (let frame = 0; frame < 120 && !prop.broken; frame += 1) {
     Core.step(state, { right: true, attack: true });
@@ -1267,8 +1271,8 @@ test("a 900-frame scripted run keeps the world inside its invariants", () => {
 
   assert.ok(state.time > 14);
   assert.ok(Number.isFinite(state.player.x) && Number.isFinite(state.player.y));
-  assert.ok(state.player.x >= Core.ARENA.leftWall);
-  assert.ok(state.player.x <= Core.ARENA.rightWall);
+  assert.ok(state.player.x >= Core.ROOM.leftWall);
+  assert.ok(state.player.x <= Core.ROOM.rightWall);
   assert.ok(state.player.hp >= 0 && state.player.hp <= state.player.maxHp);
   assert.ok(state.player.mp >= 0 && state.player.mp <= state.player.maxMp);
   assert.ok(state.cell >= 0 && state.cell < state.dungeon.cells.length);
@@ -1384,7 +1388,7 @@ test("the band's two edges stop him", () => {
   assert.equal(state.player.z, 0, "and against the front edge, which is the ground line");
 });
 
-test("crossing the whole floor takes about six tenths of a second", () => {
+test("crossing the whole floor takes about a third of crossing the window sideways", () => {
   /*
    * Measured on the shared floor: this number is the default band's speed, and
    * the seed's own opening room can bring a wider one of its own (胆小鬼的窝
@@ -1402,12 +1406,20 @@ test("crossing the whole floor takes about six tenths of a second", () => {
   }
 
   /*
-   * The feel the depth speed was chosen for: the run covers the band in about
-   * the time it takes to cross a third of the screen sideways. It is a screen
-   * speed, so this number moving means PHYSICS.depthSpeedRatio moved.
+   * The feel the depth speed was chosen for: he crosses the band in about the
+   * time it takes to cross **a third of the window sideways**. It is a screen
+   * speed, so what is pinned here is the **ratio** and not a number of seconds -
+   * the band, the window and his walk have all moved under it once already
+   * (`docs/adr/0039` scaled every walk onto the recording's pace, `0040` cut the
+   * window to 4:3). A ratio keeps saying what the number is *for*.
    */
   const seconds = frames * Core.DT;
-  assert.ok(seconds > 0.5 && seconds < 0.7, `crossed the band in ${seconds}s`);
+  const screen = Core.windowWidth() / Core.PHYSICS.moveSpeed;
+  const share = seconds / screen;
+  assert.ok(
+    share > 0.32 && share < 0.38,
+    `他穿过地面带用了横穿窗口的 ${share.toFixed(3)}（${seconds.toFixed(3)}s 对 ${screen.toFixed(3)}s）`
+  );
 });
 
 test("walking in depth never turns him around", () => {
@@ -1475,7 +1487,17 @@ test("a swing roots him in depth the way it roots him sideways", () => {
   free.enemies = [];
   Core.runFrames(free, 5, { up: true });
   const walked = free.player.z;
-  assert.ok(walked > 60, `five frames of walking should be worth something, got ${walked}`);
+  /*
+   * 五帧的自由走位正好是五帧的深度速度。写成从 `PHYSICS` 推出来的数、而不是一个
+   * 绝对值：整档步速被乘过一次 0.65（`docs/adr/0039`），绝对值会跟着过期，
+   * 这一条要钉的是"深度那根轴还在按同一个比例走"。
+   */
+  const perFrame =
+    ((Core.PHYSICS.depthSpeedRatio * Core.PHYSICS.moveSpeed) / Core.DEPTH.scale) * Core.DT;
+  assert.ok(
+    Math.abs(walked - perFrame * 5) < 0.01,
+    `five frames of walking should be worth ${(perFrame * 5).toFixed(2)}, got ${walked}`
+  );
 
   const swinging = Core.createState({ seed: Core.DEFAULT_SEED });
   swinging.enemies = [];
@@ -1736,10 +1758,21 @@ test("a monster walks onto the row the Slayer has stepped to", () => {
   assert.equal(grunt.z, 0, "it starts level with him");
 
   state.player.z = 300;
-  Core.runFrames(state, 60, {});
+  /*
+   * Three seconds, because arriving is the thing being tested and it takes about
+   * 1.7 of them: a walk (about 1s of cooldown), a whiffed swing (0.5s, and a
+   * monster cannot choose actions mid-swing), then the walk again. The old form
+   * asked for half the gap inside one second, which only held because every
+   * walk was 1.5x faster before `docs/adr/0039`.
+   */
+  Core.runFrames(state, 180, {});
 
+  const row = Core.DEPTH_REACH.melee * Core.SLAYER_HEIGHT;
   const gap = Math.abs(state.player.z - grunt.z);
-  assert.ok(gap < 300 / 2, `a second of walking should close most of the gap, left ${gap}`);
+  assert.ok(
+    gap <= row + 1,
+    `it should end up on his row (within ${row.toFixed(1)} z), left ${gap}`
+  );
 });
 
 test("stepping aside during a wind-up still dodges the blow", () => {
@@ -1909,12 +1942,15 @@ test("a shot flies on the floor its caster stands on", () => {
   assert.equal(shot.z, 260);
 });
 
-test("a kill leaves nothing on the floor", () => {
+test("a kill leaves no health on the floor", () => {
   /*
    * Monsters used to leave a heal orb where the body fell - a brute always,
    * an elite and a boss always, half the chaff. The owner took the whole line
    * out: blood comes back only through 血之狂暴's own orbs, which is what
    * `0017` said the stance's price was buying (docs/adr/0021).
+   *
+   * **地上现在有东西了，可它不是血**（`docs/adr/0042`）：怪一死摆出来的是一块
+   * 掉落名牌，收掉它给经验与金币，血条一分都不涨 —— 这一条要的正是后者。
    */
   const state = lastRoomState();
   state.player.buffs.bloodRage = 0;
@@ -1925,8 +1961,30 @@ test("a kill leaves nothing on the floor", () => {
   Core.damageEnemy(state, brute, brute.maxHp + 1, 0, brute.x, {});
   Core.damageEnemy(state, boss, boss.maxHp + 1, 0, boss.x, {});
 
-  assert.equal(state.pickups.length, 0, "no heal orbs, from any rank");
+  assert.ok(
+    state.pickups.every((drop) => drop.kind === "loot" && drop.value === undefined),
+    "no heal orbs, from any rank"
+  );
+  /*
+   * 走过去把两块名牌收掉：经验金币进账，**血一点不动** —— 唯一的例外是升级本身
+   * 回的那一口（`PROGRESSION.healOnLevelUp`），那是等级的账，不是掉落的。
+   */
+  const levelBefore = state.player.level;
+  state.player.hp = 20;
+  state.pickups.slice().forEach((drop) => {
+    state.player.x = drop.x;
+    state.player.z = drop.z || 0;
+    Core.step(state, {});
+  });
+  const levels = state.player.level - levelBefore;
+  assert.equal(
+    state.player.hp,
+    20 + levels * Core.PROGRESSION.healOnLevelUp,
+    "picking a drop up heals nothing beyond the level it earned"
+  );
+
   /* And the blood orbs still come out of a hit while the stance is up. */
+  state.pickups = [];
   state.player.buffs.bloodRage = Infinity;
   state.player.stanceDrainTimer = 999;
   const target = Core.createEnemy(state, "brute", state.player.x + 60);
@@ -1994,13 +2052,31 @@ test("everything placed on the floor comes up the screen by exactly the lift", (
   const propFlat = renderCalls(state, { sprites: { forest } });
   state.props[0].z = 120;
   const propDeep = renderCalls(state, { sprites: { forest } });
-  const barrelLeft = Math.round(300 - Render.SCENE.pieces.barrel[2] / 2);
+  /*
+   * 木桶是**有自己倍率**的那几件之一（`Core.propScale`，`docs/adr/0050`）——
+   * 烘出来的像素数乘那个倍率才是它画多大，所以这里也要乘。
+   */
+  const barrelRect = Render.SCENE.pieces.barrel;
+  const barrelScale = Core.propScale("barrel");
+  const barrelLeft = Math.round(300 - (barrelRect[2] * barrelScale[0]) / 2);
   const prop = (calls) => call(calls, "drawImage", (c) => c[6] === barrelLeft)[7];
-  const barrelTall = Render.SCENE.pieces.barrel[3];
+  const barrelTall = barrelRect[3] * barrelScale[1];
   assert.equal(prop(propFlat), Math.round(Core.ARENA.groundY - barrelTall),
     "a barrel with no depth stands on the ground line");
   assert.equal(prop(propDeep), Math.round(Core.ARENA.groundY - Core.depthLift(120) - barrelTall));
 });
+
+/*
+ * **经验是捡起来才给的**（业主 2026-10-14，Q12 选 a）：怪倒下的那一刻只把掉落
+ * 名牌放到地上，走进去收掉才进账（`docs/adr/0042`）。
+ */
+function pickUpEverything(state) {
+  state.pickups.slice().forEach((drop) => {
+    state.player.x = drop.x;
+    state.player.z = drop.z || 0;
+    Core.step(state, {});
+  });
+}
 
 test("defeating enemies grants XP and levels the player up", () => {
   const state = lastRoomState();
@@ -2011,6 +2087,9 @@ test("defeating enemies grants XP and levels the player up", () => {
 
   Core.damageEnemy(state, first, 9999, 0, state.player.x);
   Core.damageEnemy(state, second, 9999, 0, state.player.x);
+
+  assert.equal(state.player.xp, 0, "倒下那一刻还不给经验");
+  pickUpEverything(state);
 
   assert.equal(state.player.level, levelBefore + 1);
   assert.ok(state.player.attackBonus > 0);
@@ -2052,7 +2131,13 @@ test("bosses pay out in experience, not in health", () => {
 
   Core.damageEnemy(state, boss, 9999, 0, state.player.x);
 
-  assert.equal(state.pickups.length, 0, "the kill itself drops nothing");
+  assert.ok(
+    state.pickups.every((drop) => drop.kind === "loot"),
+    "the kill itself drops no health"
+  );
+  assert.equal(state.player.xp, xpBefore, "倒下那一刻还不给经验");
+  pickUpEverything(state);
+
   assert.ok(
     state.player.hp <= 30 + Core.PROGRESSION.healOnLevelUp * 3,
     "and the only health it hands back is the level-up heal, not an orb"
@@ -2091,7 +2176,7 @@ test("enemy projectiles expire after their fixed travel budget", () => {
 
   const shot = Core.spawnProjectile(state, caster);
   assert.equal(state.projectiles.length, 1);
-  state.player.x = Core.ARENA.leftWall + state.player.width / 2;
+  state.player.x = Core.ROOM.leftWall + state.player.width / 2;
 
   for (let frame = 0; frame < 300 && state.projectiles.length > 0; frame += 1) {
     Core.updateProjectiles(state, Core.DT);
@@ -2241,17 +2326,91 @@ const NEVER_REACHES = -1e6;
 function detour(state, input, stepX) {
   const player = state.player;
   const target = player.x + stepX;
+  const half = player.width / 2 + 8;
+  const blocker = blockingProp(state, (prop, spec, centre) =>
+    Math.abs(target - centre) < spec.width / 2 + half &&
+    Math.abs((player.z || 0) - prop.z) < spec.depth / 2 + half);
+  if (!blocker) return input;
+  /*
+   * **挡路的是桶就砸它。** 桶是全场唯一**只有他打得碎**的东西（`CONTEXT.md`「木桶」），
+   * 而绕开一坨挨在一起的三只桶比砸碎难得多 —— 人是这么打的，演示 bot 也照这么打。
+   * 不砸的话它会在桶堆边上顶满一整局（`docs/adr/0050` 记了实测）。
+   */
+  if (Core.BREAKABLE[blocker.prop.piece]) return smashTowards(input, blocker, player);
+  /*
+   * 否则让一步：**按他现在站的这一排取**，不查路网 —— `Core.routeStep` 在盒子的边界上
+   * 会一帧答"往左"、下一帧答"往右"，实测卡在 626.0 / 628.9 两个数之间来回三个像素
+   * （`docs/adr/0048`）。这条规矩是确定的，所以它收敛。
+   */
+  const sidestep = (player.z || 0) <= blocker.z ? "down" : "up";
+  return { ...input, [sidestep]: true };
+}
+
+/** 朝挡住他的那件东西挥一刀。 */
+function smashTowards(input, blocker, player) {
+  const out = { ...input };
+  if (blocker.x > player.x) { out.right = true; out.left = false; }
+  else { out.left = true; out.right = false; }
+  out.attack = true;
+  return out;
+}
+
+/*
+ * 往**上/下**走的时候被实心件挡住：横着让一让。`detour` 那一套是给横走用的，
+ * 而门口是按地图方向开的（`docs/adr/0030`）—— 北门要他从带子前缘一路走到底，
+ * 路上那五只桶正好横在那条直线上，少了这一段，bot 就顶着一只桶推满一整局。
+ */
+function detourRow(state, input, stepZ) {
+  const player = state.player;
+  const half = player.width / 2 + 8;
+  const blocker = blockingProp(state, (prop, spec, centre) =>
+    Math.abs(player.x - centre) < spec.width / 2 + half &&
+    Math.abs((player.z || 0) + stepZ - prop.z) < spec.depth / 2 + half);
+  const out = { ...input };
+  if (!blocker) {
+    if (stepZ > 0) out.up = true;
+    else out.down = true;
+    return out;
+  }
+  if (Core.BREAKABLE[blocker.prop.piece]) return smashTowards({ ...input }, blocker, player);
+  /* 让一步的方向由**障碍在哪一边**定死，不长在会在边界上翻面的答案上。 */
+  const sidestep = player.x <= blocker.x ? "left" : "right";
+  out[sidestep] = true;
+  out[sidestep === "left" ? "right" : "left"] = false;
+  return out;
+}
+
+/** 第一个挡住的那个实心件（找不到就是 null）。`hit` 收下它的盒子与中心。 */
+function blockingProp(state, hit) {
   for (const prop of state.props || []) {
     if (!prop.solid || prop.broken) continue;
     const spec = Core.propBox(prop.piece);
     if (!spec) continue;
     const centre = prop.x + (spec.dx || 0);
-    if (Math.abs(target - centre) > spec.width / 2 + player.width / 2) continue;
-    if (Math.abs((player.z || 0) - prop.z) > spec.depth / 2 + player.width / 2) continue;
-    const sidestep = (player.z || 0) <= prop.z ? "down" : "up";
-    return { ...input, [sidestep]: true };
+    if (hit(prop, spec, centre)) return { prop, spec, x: centre, z: prop.z };
   }
-  return input;
+  return null;
+}
+
+/*
+ * bot 这一帧要往哪儿去：还有活怪就找最近那只，没有就找一扇开着的门
+ * （上/下门要对上门的 x、再走到那一头；左右门直接走到墙）。
+ */
+function botGoal(state) {
+  const alive = state.enemies.filter((enemy) => !enemy.dead);
+  if (alive.length) {
+    const near = alive.reduce((best, enemy) =>
+      (best && Math.abs(best.x - state.player.x) <= Math.abs(enemy.x - state.player.x)
+        ? best : enemy), null);
+    return { x: near.x, z: near.z || 0 };
+  }
+  const cell = Core.currentCell(state);
+  const dirs = "NESW".split("").filter((d) => Core.exitMode(state, d) === "open");
+  const dir = dirs[0];
+  if (!dir) return null;
+  if (dir === "E") return { x: Core.roomRight(state) - 30, z: state.player.z || 0 };
+  if (dir === "W") return { x: Core.roomLeft(state) + 30, z: state.player.z || 0 };
+  return { x: Core.doorX(state, cell, dir), z: dir === "N" ? Core.bandDepth(state.band) - 10 : 10 };
 }
 
 function kitingBot(state) {
@@ -2293,6 +2452,16 @@ function kitingBot(state) {
       input.left = true;
       return detour(state, input, -player.width);
     }
+    const stepZ = dir === "N" ? player.width : -player.width;
+    /*
+     * **先让开，再对门。** 这两条规矩会互相顶：门口那一列的桶让他往左让一步，
+     * 而"对上门的 x"立刻把他推回来 —— 实测卡在 624 与 629 之间来回蹭，
+     * 一局走不完（`docs/adr/0048`）。所以被挡住的时候，让路优先。
+     */
+    const blockedRow = blockingProp(state, (prop, spec, centre) =>
+      Math.abs(player.x - centre) < spec.width / 2 + player.width / 2 + 8 &&
+      Math.abs((player.z || 0) + stepZ - prop.z) < spec.depth / 2 + player.width / 2 + 8);
+    if (blockedRow) return detourRow(state, input, stepZ);
     const doorX = Core.doorX(state, Core.currentCell(state), dir);
     if (Math.abs(doorX - player.x) > 20) {
       if (doorX > player.x) {
@@ -2302,7 +2471,7 @@ function kitingBot(state) {
       input.left = true;
       return detour(state, input, -player.width);
     }
-    if (dir === "N") input.up = true;
+    if (stepZ > 0) input.up = true;
     else input.down = true;
     return input;
   }
@@ -2363,10 +2532,17 @@ function kitingBot(state) {
       }
       return input;
     }
-    if (gap < threatRange + 45) {
+    /*
+     * **只剩一只杂兵就不跑了。** 这条策略是"贴着就撤、只有被逼到墙角才还手"，
+     * 场上还有别的怪时它总会被逼到墙角；**剩最后一只**（而且是个杂兵）时它就一直
+     * 绕圈跑 —— 实测跑了 240 秒、一刀没砍中，门永远不开（`docs/adr/0050` 追记四）。
+     * Boss 不在此列：它本来就得靠风筝。
+     */
+    const allChaff = alive.every((enemy) => enemy.maxHp <= 70);
+    if (!allChaff && gap < threatRange + 45) {
       const away = delta > 0 ? "left" : "right";
-      const atLeftWall = player.x <= Core.ARENA.leftWall + player.width;
-      const atRightWall = player.x >= Core.ARENA.rightWall - player.width;
+      const atLeftWall = player.x <= Core.ROOM.leftWall + player.width;
+      const atRightWall = player.x >= Core.ROOM.rightWall - player.width;
       const cornered = (away === "left" && atLeftWall) || (away === "right" && atRightWall);
       if (!cornered) {
         input[away] = true;
@@ -2431,6 +2607,8 @@ test("a timing-aware policy can clear the whole stage without losing health", ()
      */
     const damageByRoom = [];
     const visited = new Set();
+    const botLast = { x: NaN, z: NaN };
+    let botStuck = 0;
     let last = -1;
     for (let frame = 0; frame < 60 * 240 && !state.victory && !state.defeat; frame += 1) {
       visited.add(state.cell);
@@ -2439,7 +2617,43 @@ test("a timing-aware policy can clear the whole stage without losing health", ()
         damageByRoom[last] = 0;
       }
       const before = state.stats.damageTaken;
-      Core.step(state, kitingBot(state));
+      /*
+       * **卡住就蹭一下。** 布景一密，"对上门的 x"和"让开挡路的东西"两条规矩会互相顶，
+       * 实测在两三个像素之间来回蹭满一整局（`docs/adr/0049` / `0050` 都记过）。
+       * 与其每改一次摆法就修一次 bot，不如让它**自己发现没动**：连着 40 帧没挪窝就
+       * 改成上下蹭、再 200 帧还没动就横着蹭。它是脚手架，不该是这一片最容易坏的那件。
+       */
+      if (!state.victory && !state.defeat && frame % 60 === 0) {
+        /*
+         * **一秒一量，不是一帧一量。** 一帧一量会被亚像素的抖动骗过去：他贴着石头
+         * 原地抖，每帧都"动"了 0.2 像素，于是这个计数永远是 0 —— 实测他那样停了
+         * 七十五秒而 `botStuck` 还是 0。
+         */
+        const moved = Math.abs(state.player.x - botLast.x) +
+          Math.abs(state.player.z - botLast.z);
+        botStuck = moved < 8 ? botStuck + 1 : 0;
+        botLast.x = state.player.x;
+        botLast.z = state.player.z;
+      }
+      const walking = kitingBot(state);
+      /*
+       * **卡住就用游戏自己那套路网走。** 这条 bot 的走法是自己写的一堆"往目标挪一步、
+       * 撞上了就让一让"，而布景一密，"对上门的 x / 让开挡路的东西 / 走到怪那一排"
+       * 三件事会互相顶，实测能在原地蹭满一整局（`docs/adr/0050` 追记四）。
+       * `Core.routeStep` 是**怪也在走**的那套一步 BFS（`docs/adr/0048`），
+       * 拿它当兜底，比再加一条手写规矩稳。目标：还有活怪就找它，没有就找门。
+       */
+      if (botStuck > 1) {
+        const goal = botGoal(state);
+        if (goal) {
+          const route = Core.routeStep(state, goal.x, goal.z, state.player.x, state.player.z);
+          walking.up = route[1] > 0;
+          walking.down = route[1] < 0;
+          walking.right = route[0] > 0;
+          walking.left = route[0] < 0;
+        }
+      }
+      Core.step(state, walking);
       damageByRoom[last] = (damageByRoom[last] || 0) + (state.stats.damageTaken - before);
     }
     return { state, damageByRoom, visited };
@@ -6248,12 +6462,21 @@ test("魔狱血刹's 觉醒插画 owns the cast's own second and nothing else", 
   player.skillTimer = spec.duration * 0.75;
   const settled = cutInCall();
   assert.ok(settled, "the picture is drawn while the cast runs");
-  /* `drawImage(image, dx, dy, dw, dh)`: `[2]` is where its left edge lands. */
-  assert.ok(Math.abs(settled[2]) < 0.001, `and is fully in a quarter of the way in (${settled[2]})`);
+  /*
+   * `drawImage(image, dx, dy, dw, dh)`: `[2]` is where its left edge lands.
+   * **It is the world window's left edge, not the canvas'** (`docs/adr/0040`):
+   * the picture slides in from the edge of the picture, so it never sits in the
+   * black bar.
+   */
+  const atRest = Core.VIEW.left;
+  assert.ok(
+    Math.abs(settled[2] - atRest) < 0.001,
+    `and is fully in a quarter of the way in (${settled[2]}, expected ${atRest})`
+  );
   player.skillTimer = spec.duration * 0.5;
   const holding = cutInCall();
   assert.ok(
-    holding && Math.abs(holding[2]) < 0.001,
+    holding && Math.abs(holding[2] - atRest) < 0.001,
     `and is still there where the sword starts forming (${holding && holding[2]})`
   );
   /* And it is only the cast's end that takes it away. */
@@ -7407,19 +7630,20 @@ test("the boss enrages at half health without mutating the shared type spec", ()
 
   /* Every other boss in every other run reads from this one table. */
   /*
-   * 208, not the 150 it was: the slam is a disc on the floor whose edge reaches
-   * 105 past a body that is now 103 half-wide (the beast's 172 plus the Slayer's
-   * 34, halved). The disc grew because the beast did, which is the point.
+   * **191, not the 208 it was**：那一圈是"盘子的边比身体半宽再远 105"（`docs/adr/0036`），
+   * 而牛的体宽照录像量出来偏大 1.20 倍、改成了 138（`docs/adr/0050` 追记），
+   * 于是半宽从 (172+34)/2 = 103 变成 (138+34)/2 = 86 —— 那 105 是量出来的，它不变。
    */
-  assert.equal(spec.slam.radius, 208, "the shared slam radius must not change");
+  assert.equal(spec.slam.radius, 191, "the shared slam radius must not change");
   assert.equal(spec.slam.cooldown, 3.6, "the shared slam cooldown must not change");
-  assert.equal(spec.speed, 88, "the shared speed must not change");
+  /* 57, not 88: every locomotion speed was scaled onto the recording's pace (docs/adr/0039). */
+  assert.equal(spec.speed, 57, "the shared speed must not change");
   assert.equal(spec.damage, 18, "the shared damage must not change");
 
   const fresh = Core.createEnemy(Core.createState({ seed: 3 }), "boss", 500);
   assert.equal(fresh.phase, 1);
-  assert.equal(fresh.slam.radius, 208, "a new boss starts from the pristine spec");
-  assert.equal(fresh.speed, 88);
+  assert.equal(fresh.slam.radius, 191, "a new boss starts from the pristine spec");
+  assert.equal(fresh.speed, 57);
 
   /* The enrage is a deterministic state, so a twin boss lands on the same numbers. */
   const twin = Core.createEnemy(Core.createState({ seed: 3 }), "boss", 500);
@@ -7933,8 +8157,9 @@ test("the elite is worth more experience than the chaff it is made of", () => {
   state.enemies = [elite, grunt];
 
   Core.damageEnemy(state, elite, 9999, 0, state.player.x);
+  pickUpEverything(state);
 
-  assert.equal(state.pickups.length, 0, "no orb");
+  assert.ok(state.stats.loot > 0, "它掉下来的名牌收得走");
   assert.ok(elite.xp > grunt.xp, "but it is worth more than a grunt");
 });
 
@@ -8384,7 +8609,7 @@ test("every prop a room scatters names a piece the bake produced", () => {
    * **撒出来的也要算**：那批不在任何房间的 `props` 里，只在 `Core.SCATTER` 那张表上 ——
    * 漏了它，补进来的 19 件（02 套剩下那批）会被判成"烘了没人用"。
    */
-  ["low", "flowers", "tall", "solid"].forEach((group) => {
+  ["low", "flowers", "tall", "solid", "barrels"].forEach((group) => {
     (Core.SCATTER[group].pieces || []).forEach((piece) => used.add(piece));
   });
   /*
@@ -8441,13 +8666,18 @@ test("the ground strips are the same height as each other", () => {
 });
 
 test("the map window sits in the corner, clear of the panels that share the top", () => {
+  /*
+   * 右上角是**世界窗口**的右上角，不是画布的（`docs/adr/0040`）：画布右边 120 px
+   * 是黑边，HUD 一律压在游戏画面之内，录像也是这么摆的。
+   */
+  const right = Core.VIEW.left + Core.VIEW.width;
   const box = Render.minimapBox({});
-  assert.ok(box.x + box.w <= Core.ARENA.width, "the window runs off the right edge");
-  assert.equal(box.x + box.w, Core.ARENA.width - Render.MINIMAP.margin, "it is not right-aligned");
+  assert.ok(box.x + box.w <= right, "the window runs off the right edge");
+  assert.equal(box.x + box.w, right - Render.MINIMAP.margin, "it is not right-aligned");
   assert.ok(box.y >= 0 && box.y + box.h < 140, "the window is not along the top");
   /* The room card moves out of its way - see drawHud. */
   const cardW = 236;
-  const cardX = Core.ARENA.width - cardW - 16 - (box.w) - 12;
+  const cardX = right - cardW - 16 - (box.w) - 12;
   assert.ok(cardX + cardW < box.x, "the room card and the map window overlap");
   /*
    * In touch mode the corner is the mute/loadout/pause buttons', so the window
@@ -8541,10 +8771,14 @@ test("the map window's markers land in the boss's cell and in the player's", () 
 });
 
 /*
- * 镜头（`docs/adr/0035`）。这一条钉的是**量出来的那个数**，不是实现：
+ * 镜头（`docs/adr/0035`、`docs/adr/0040`）。这一条钉的是**量出来的那个数**，不是实现：
  * 录像里他一屏高 4.0755 个身位（一屏 1080 视频像素 ÷ 他画出来的 265 像素），
  * 所以本作一屏 540 屏幕像素里装的世界高度要是 `ARENA.height / zoom`，
  * 而一个身位（美术里 84 px，`Render.SPRITE.bodyHeight`）要正好画成它的 1/4.0755。
+ *
+ * **横向量的是世界窗口，不是画布**：录像的游戏画面是居中的 4:3（1440×1080），
+ * 一屏只装 5.434 身位，所以一屏的世界宽是 `VIEW.width / zoom` 而不是画布宽除以 zoom ——
+ * 画布左右那两条黑边不算世界。
  *
  * 把这条写成断言而不是注释，是因为 zoom 是**一整条链子**量出来的数：
  * 改精灵图、改画布高度、或者顺手"调一下镜头"，都会从这里错开 —— 而错开之后
@@ -8563,22 +8797,29 @@ test("镜头拉近到录像那一档，一屏装的身位数对得上", () => {
    * 这一条要是翻了，说明镜头已经松到一屏装得下整间房，`docs/adr/0035` 就白写了。
    */
   assert.ok(
-    Math.abs(Core.windowWidth() - Core.ARENA.width / Core.CAMERA.zoom) < 1e-9,
-    "窗口宽度就是屏宽除以 zoom"
+    Math.abs(Core.windowWidth() - Core.VIEW.width / Core.CAMERA.zoom) < 1e-9,
+    "窗口宽度就是世界窗口的宽除以 zoom"
+  );
+  /* 一屏装的身位数：`VIEW.width / zoom / bodyHeight`，录像 1440/265 = 5.434。 */
+  const across = Core.VIEW.width / Core.CAMERA.zoom / Render.SPRITE.bodyHeight;
+  assert.ok(
+    Math.abs(across - 1440 / 265) < 1e-9,
+    `一屏横向装 ${across.toFixed(4)} 个身位，录像里是 ${(1440 / 265).toFixed(4)}`
   );
   assert.ok(
-    Core.windowWidth() < Core.ARENA.width,
-    `一屏看得见 ${Core.windowWidth().toFixed(1)} 世界像素，房间 ${Core.ARENA.width}：镜头没得滚`
+    Core.windowWidth() < Core.ROOM.width,
+    `一屏看得见 ${Core.windowWidth().toFixed(1)} 世界像素，房间 ${Core.ROOM.width}：镜头没得滚`
   );
 });
 
 test("镜头只在死区边上才动，到墙就停住，而且跟他 1:1", () => {
   const state = Core.createState({ seed: Core.DEFAULT_SEED });
   const zoom = Core.CAMERA.zoom;
-  const screenX = () => (state.player.x - state.camera.x) * zoom;
-  /* 死区的两条边在**屏幕**上量。 */
-  const half = (Core.ARENA.width * Core.CAMERA.deadzoneShare) / 2;
-  const rightEdge = Core.ARENA.width / 2 + half;
+  /* 屏幕 x：世界先过窗口自己那一段偏移，才是画布上的位置（`docs/adr/0040`）。 */
+  const screenX = () => Core.VIEW.left + (state.player.x - state.camera.x) * zoom;
+  /* 死区的两条边在**屏幕**上量，而且是量在**世界窗口**里的。 */
+  const half = (Core.VIEW.width * Core.CAMERA.deadzoneShare) / 2;
+  const rightEdge = Core.VIEW.left + Core.VIEW.width / 2 + half;
 
   assert.equal(state.camera.x, 0, "从西门那间房开局，镜头应该贴在左边的墙上");
 
@@ -8975,4 +9216,119 @@ test("每间房都摆到录像那个密度", () => {
     const soft = state.props.filter((prop) => !prop.solid).length;
     assert.ok(soft >= 50, `${state.room.name} 只有 ${soft} 件不挡人的布景，撒得太少`);
   });
+});
+
+/*
+ * 步速（`docs/adr/0039`）。整档速度是**量的**，不是调的：录像里他一秒走
+ * **2.05 个身位**（三段独立样本，镜头自己的滚动量已经扣掉），哥布林一秒走
+ * **0.62–0.77**。这一条把这两段读数钉在代码里 —— 动 `PHYSICS.moveSpeed` 或
+ * `ENEMY_TYPES.grunt.speed` 而不重新去录像里量，就会从这里红。
+ *
+ * 单位是**身位**（美术里他画出来多高，`Render.SPRITE.bodyHeight` = 84），
+ * 不是格 —— 格是量判定用的另一个单位（`CONTEXT.md`「单位与量法」）。
+ */
+test("全场步速是录像那一档：他一秒走 2.05 个身位", () => {
+  const heights = Core.PHYSICS.moveSpeed / Render.SPRITE.bodyHeight;
+  assert.ok(
+    Math.abs(heights - 2.05) < 0.02,
+    `他一秒走 ${heights.toFixed(3)} 个身位，录像里是 2.05`
+  );
+  /*
+   * 哥布林那一档是**同一个比例**压出来的，落点正好在录像那段 0.62–0.77 里：
+   * 录像只量得到他和哥布林两样在走路的东西，其余每一档按同一比例走。
+   */
+  const goblin = Core.ENEMY_TYPES.grunt.speed / Render.SPRITE.bodyHeight;
+  assert.ok(
+    goblin > 0.62 && goblin < 0.77,
+    `哥布林一秒走 ${goblin.toFixed(3)} 个身位，录像里是 0.62–0.77`
+  );
+  /*
+   * 过一间房：本作 960 ÷ 172 = 5.58 秒；录像最小那间 11.4 身位 ÷ 2.05 = 5.56 秒。
+   * 房间宽度两边本来就一样（`docs/adr/0035`），所以这一个数两边也该一样。
+   */
+  const across = Core.ROOM.width / Core.PHYSICS.moveSpeed;
+  assert.ok(across > 5.4 && across < 5.7, `过一间房要 ${across.toFixed(2)} 秒，录像里是 5.56`);
+});
+
+/*
+ * **挥空也是一次出手。** 这一条钉的是 `advanceEnemyAttack` 里那个坑：
+ * 每一种招都在自己收招那一下给冷却，只有**普攻打空**没给 —— 于是 `attackCooldown`
+ * 留在 0，而 `chooseEnemyAction` 在出招期间根本不跑，怪就在原地一记一记地挥空，
+ * `vz` 每帧被砍一半：往屏幕里走得只剩自己的一小截，站远一档就等于把它钉在地上。
+ */
+test("挥空的怪也要吃冷却，不然它会一直挥空、再也走不过来", () => {
+  const state = sealedRoomState(Core.DEFAULT_SEED, plainRoomIndex());
+  const grunt = Core.createEnemy(state, "grunt", state.player.x + 40);
+  state.enemies = [grunt];
+  /* 把他挪到怪够不着的那一档深度：x 上贴身，深度上够不着 —— 那个怪必打空。 */
+  state.player.z = 300;
+
+  let swung = false;
+  for (let i = 0; i < 240 && !swung; i += 1) {
+    Core.step(state, {});
+    if (grunt.attackTimer > 0) swung = true;
+  }
+  assert.ok(swung, "怪应该会出手，但是 240 帧里一次都没挥");
+
+  while (grunt.attackTimer > 0) Core.step(state, {});
+  const row = Core.DEPTH_REACH.melee * Core.SLAYER_HEIGHT;
+  assert.ok(
+    Math.abs(state.player.z - grunt.z) > row,
+    "这一下必须是打空的，否则这条测的不是挥空"
+  );
+  assert.ok(grunt.attackCooldown > 0, "挥空之后冷却还是 0 —— 它会一记接一记地挥下去");
+
+  /* 冷却走完之后它得带着深度速度重新上路，而不是永远钉在原地。 */
+  Core.runFrames(state, 180, {});
+  const gap = Math.abs(state.player.z - grunt.z);
+  assert.ok(gap <= row + 1, `三秒之后它应该走到他那一档上，还差 ${gap.toFixed(1)}`);
+});
+
+/*
+ * **每间房不是一副样子**（`docs/adr/0047`）。录像里六间房量出来差别最大的那一档是
+ * 高草：Boss 房**一屏 0–2 丛**，别的房间 0–5 —— 那一间的草地上几乎是空的。
+ * 这一条钉的是"按房间改写撒景件数"这条路真的通了（改的是 `SCATTER` 的默认值，
+ * 那一间在自己的 `scatter` 里盖掉）。
+ */
+test("Boss 房的高草几乎为零，别的房间仍是那一档", () => {
+  const state = Core.createState({ seed: Core.DEFAULT_SEED, stage: "mirkwood" });
+  Core.goToCell(state, state.dungeon.boss);
+  const tall = state.props.filter((prop) => prop.piece === "grass").length;
+  assert.ok(tall <= 2, `Boss 房摆了 ${tall} 丛高草，录像里是 0–2`);
+
+  Core.goToCell(state, state.dungeon.entry);
+  const other = state.props.filter((prop) => prop.piece === "grass").length;
+  assert.ok(other >= 6, `普通房只摆了 ${other} 丛高草，撒得太少`);
+  /* 布景总数那一档没被这条改坏（录像一间房 50–90 件）。 */
+  assert.ok(state.props.length >= 55 && state.props.length <= 90);
+});
+
+/*
+ * **地图窗口画的是"他探过哪儿"，没去过的是黑的**（业主 2026-10-15 实玩）。
+ *
+ * 这一条推翻了 `docs/adr/0030` 里那句「整张图从第一帧就 12 格画满、包括他从没进去过的
+ * 那四格」—— 那是误读：客户端 `act1.img` 里本来就有一整族"已经去过"的亮图块，
+ * 我们只烘了暗的那一族，于是把**没去过**看成了画满。
+ */
+test("地图上的迷雾：探过的格子记着，没去过的不算探过", () => {
+  const state = Core.createState({ seed: Core.DEFAULT_SEED, stage: "mirkwood" });
+  const seenCount = () => state.dungeon.cells.filter((cell) => cell.seen).length;
+
+  assert.equal(seenCount(), 1, "开局只有他站着的那一格是探过的");
+  assert.equal(state.dungeon.cells[state.cell].seen, true, "而且就是他那一格");
+
+  /* 走开一格：两格都探过了。 */
+  const first = state.cell;
+  const other = (first + 1) % state.dungeon.cells.length;
+  Core.goToCell(state, other);
+  assert.equal(seenCount(), 2, "走过的那一格也该记上");
+  assert.equal(state.dungeon.cells[other].seen, true);
+
+  /* 回去：还是探过的，不会"忘掉"。 */
+  Core.goToCell(state, first);
+  assert.equal(seenCount(), 2);
+  assert.equal(state.dungeon.cells[first].seen, true);
+
+  /* Boss 那格没去过之前不算探过 —— 红脸也是靠这一条才能等到去过才画。 */
+  assert.ok(!state.dungeon.cells[state.dungeon.boss].seen, "没进过 Boss 房就不该算探过");
 });

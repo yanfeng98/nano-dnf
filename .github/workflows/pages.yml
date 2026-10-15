@@ -37,7 +37,7 @@ jobs:
           # Every browser module, so adding a new src/*.js cannot ship a broken site.
           cp src/*.js _site/src/
           # Explicit list: assets/ also holds gitignored working references.
-          cp assets/slayer.png assets/skills.png assets/effects.png assets/rift.png assets/awakening.png assets/region.png assets/monsters.png assets/forest.png assets/minimap.png assets/favicon.png _site/assets/
+          cp assets/slayer.png assets/skills.png assets/effects.png assets/rift.png assets/awakening.png assets/region.png assets/monsters.png assets/forest.png assets/minimap.png assets/ui.png assets/favicon.png _site/assets/
           cp assets/share-card.png _site/assets/
           # 音乐：清单必进（它一定在）；那两首曲子是从客户端拷来的，在了才拷。
           mkdir -p _site/assets/music

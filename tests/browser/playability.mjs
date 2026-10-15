@@ -670,6 +670,12 @@ async function runPass(browser, baseUrl, options) {
   await page.keyboard.press("Enter");
   await page.waitForTimeout(80);
   await page.keyboard.press("Enter");
+  /*
+   * **进副本那一串要走完才轮得到他**（`docs/adr/0044`）：过场插画 2.04 秒 +
+   * 全黑 0.3 秒里世界不推、输入不收，所以下面那串按键得等这段时间过去 ——
+   * 不等的话第一次按 Z 会被吃掉，报出来的是"Z 放不出上挑"这种**假缺陷**。
+   */
+  await page.waitForFunction(() => !window.nanoDnf.getState().intro, null, { timeout: 15000 });
   await page.waitForTimeout(80);
   /* Taking over retires the demo: F1 mid-run must not replay it. */
   const attractAfterInput = await page.evaluate(() => window.nanoDnf.getAttract());

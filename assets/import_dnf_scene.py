@@ -68,7 +68,11 @@ PIECES = [
     ("pillar",     MAP, "sprite/map/02obj006.img", 0),
     ("bush",       MAP, "sprite/map/02obj001.img", 0),
     ("flower",     MAP, "sprite/map/02obj002.img", 0),
-    ("grass",      MAP, "sprite/map/02obj201.img", 0),
+    # **高草用的是另一件。** `02obj201` 是**宽而扁**的一丛（127x66），而录像里那一档是
+    # **细高的一撮竖叶**（95x170 视频px）—— 形状正相反。客户端给幽暗密林专门准备的那一丛
+    # 在**可破坏物**那个包里（`grass1.img` / `grass2.img`，39x87 与 17x76，八帧），
+    # 和录像里那撮逐叶对得上（`docs/adr/0050` 追记三）。
+    ("grass",      BREAK, "sprite/map/breakableobject/grass1.img", 0),
     ("grassFlower", MAP, "sprite/map/02obj202.img", 0),
     ("sprout",     MAP, "sprite/map/02obj500.img", 0),
     # ------------------------------------------------------------------

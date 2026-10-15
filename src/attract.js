@@ -151,9 +151,9 @@
       /* 目标点要**落在门口判定区里**，不是站在门外：左右门是那面墙、上下门是门那条线。 */
       var doorwayX =
         door.dir === "E"
-          ? Core.ARENA.rightWall - Core.DOOR.side / 2
+          ? Core.ROOM.rightWall - Core.DOOR.side / 2
           : door.dir === "W"
-            ? Core.ARENA.leftWall + Core.DOOR.side / 2
+            ? Core.ROOM.leftWall + Core.DOOR.side / 2
             : door.x;
       var doorwayZ =
         door.dir === "N"
