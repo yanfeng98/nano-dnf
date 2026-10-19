@@ -15,8 +15,6 @@
 })(typeof self !== "undefined" ? self : this, function (Core) {
   "use strict";
 
-  /* A beat after a room empties, so the card choice is visible before it is taken. */
-  var PICK_DELAY = 0.9;
   /* At most one skill this often: the demo is a showcase, not a DPS race. */
   var SKILL_GAP = 2.6;
   /* Swing from here instead of walking into the enemy's own hitbox. */
@@ -41,13 +39,10 @@
       state: null,
       seconds: 0,
       loops: 0,
-      upgradePicks: 0,
       /* Sticky across loops: what the visitor has been shown so far. */
       phase2Runs: 0,
       clears: 0,
       skillWait: 0,
-      pickArmed: false,
-      pickWait: 0,
       finished: false,
       holdWait: 0,
       countedPhase2: false,
@@ -65,8 +60,6 @@
     session.state = Core.createState({ seed: session.seed });
     session.seconds = 0;
     session.skillWait = 0;
-    session.pickArmed = false;
-    session.pickWait = 0;
     session.finished = false;
     session.holdWait = 0;
     session.countedPhase2 = false;
@@ -132,8 +125,6 @@
     var state = session.state;
     var input = emptyInput();
     if (state.victory || state.defeat) return input;
-    /* The card is taken on a timer so the demo pauses on the choice. */
-    if (state.upgradeChoice) return input;
 
     var target = nearestEnemy(state);
     if (!target) {
@@ -285,21 +276,6 @@
       return session;
     }
 
-    if (state.upgradeChoice) {
-      if (!session.pickArmed) {
-        session.pickArmed = true;
-        session.pickWait = PICK_DELAY;
-      }
-      session.pickWait = Math.max(0, session.pickWait - dt);
-      if (session.pickWait === 0 && Core.chooseUpgrade(state, state.upgradeChoice.options[0])) {
-        session.upgradePicks += 1;
-        session.pickArmed = false;
-      }
-    } else {
-      session.pickArmed = false;
-      session.pickWait = 0;
-    }
-
     session.skillWait = Math.max(0, session.skillWait - dt);
     Core.step(state, decide(session), dt);
     session.seconds += dt;
@@ -333,7 +309,6 @@
       seed: session.seed,
       seconds: round(session.seconds),
       loops: session.loops,
-      upgradePicks: session.upgradePicks,
       /* Sticky across loops: what the visitor has been shown. */
       phase2Runs: session.phase2Runs,
       clears: session.clears,
@@ -345,7 +320,6 @@
       kills: state.stats.kills,
       hp: state.player.hp,
       alive: livingEnemies(state).length,
-      upgradeOpen: !!state.upgradeChoice,
       bossPhase: boss ? boss.phase : null,
       bossHp: boss ? boss.hp : null,
       bossMaxHp: boss ? boss.maxHp : null,
@@ -355,7 +329,6 @@
   }
 
   return {
-    PICK_DELAY: PICK_DELAY,
     SKILL_GAP: SKILL_GAP,
     MAX_SECONDS: MAX_SECONDS,
     HOLD_SECONDS: HOLD_SECONDS,

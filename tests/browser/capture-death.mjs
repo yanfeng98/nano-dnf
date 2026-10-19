@@ -64,7 +64,7 @@ await page.addInitScript(() => {
     });
 });
 await page.goto(`http://localhost:${server.address().port}/`, { waitUntil: "load" });
-await page.waitForFunction(() => window.nanoDnf && window.nanoDnf.getState().room);
+await page.waitForFunction(() => window.nanoDnf && window.nanoDnf.getAssetState().ready);
 /* Out of the title (any key), through the region map (Enter), into the stage. */
 await page.keyboard.press("Enter");
 await page.waitForTimeout(400);

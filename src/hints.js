@@ -24,21 +24,13 @@
   var ROW_REACH = Core.DEPTH_REACH.melee * Core.SLAYER_HEIGHT;
 
   /*
-   * Order is priority, most urgent first: the upgrade card blocks the way on,
-   * while the rest can wait a beat.
+   * Order is priority, most urgent first.
    *
    * 这里原先第一条是「陷阱」（石板裂开时离开那块地板）。业主 2026-10-10 说
    * 「以后也不要有这种陷阱」，整套塌陷地板连着这条提示一起拆了（`docs/adr/0030`）。
+   * 2026-10-17 又拆了「选一张强化卡」—— 清房不再发卡（`docs/adr/0053`）。
    */
   var HINTS = [
-    {
-      id: "upgrade",
-      text: "选一张强化卡：按 1 / 2 / 3，或直接点卡片",
-      life: 5,
-      when: function (state) {
-        return !!state.upgradeChoice;
-      }
-    },
     {
       id: "lowHp",
       text: "血量偏低：捡回血球，或先拉开距离",
@@ -57,7 +49,7 @@
       text: "清完房间门口会亮，走到那儿去下一间",
       life: 5,
       when: function (state) {
-        return !!(state.room && state.room.cleared) && !state.upgradeChoice;
+        return !!(state.room && state.room.cleared);
       }
     },
     {

@@ -53,7 +53,7 @@ fs.mkdirSync(OUT, { recursive: true });
 const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 1120, height: 720 } });
 await page.goto(`http://localhost:${server.address().port}/`, { waitUntil: "load" });
-await page.waitForFunction(() => window.nanoDnf && window.nanoDnf.getState().room);
+await page.waitForFunction(() => window.nanoDnf && window.nanoDnf.getAssetState().ready);
 
 const shot = (name) => page.screenshot({ path: path.join(OUT, name + ".png") });
 
@@ -123,6 +123,8 @@ await page.evaluate(() => {
   if (!boss) throw new Error("no boss in the boss room");
   state.player.x = boss.x - 40;
   state.player.z = boss.z || 0;
+  /* 直接调 damageEnemy 不走玩家命中那条路，把"交上手了"补上（ALERT 空槽要用）。 */
+  state.bossEngaged = state.bossEngaged || { name: boss.label, at: state.time };
   Core.damageEnemy(state, boss, 12, 0, boss.x, { slayerSwing: true });
 });
 await page.waitForTimeout(200);
@@ -160,6 +162,9 @@ await page.waitForTimeout(600);
 await shot("08-victory-rows");
 await page.waitForTimeout(4200);
 await shot("09-victory-reward");
+/* 翻牌倒计时结束、自动选最左一张之后的领奖详情（`docs/adr/0055`）。 */
+await page.waitForTimeout(4000);
+await shot("10-reward-reveal");
 
 await browser.close();
 server.close();

@@ -45,15 +45,7 @@ test("the urgent moments outrank the informational ones", () => {
   state.stats.kills = 4;
   assert.equal(Hints.select(state, { move: true }).id, "firstBlood");
 
-  state.upgradeChoice = { options: ["attack", "maxHp", "mpRegen"], picked: null };
-  assert.equal(
-    Hints.select(state, { move: true }).id,
-    "upgrade",
-    "a blocked gate is more urgent than a combo tip"
-  );
-
-  /* 清完房、卡片也拿了：这时该说的是"门口亮了"。 */
-  state.upgradeChoice = null;
+  /* 清完房：这时该说的是"门口亮了"。 */
   state.room.cleared = true;
   assert.equal(
     Hints.select(state, { move: true }).id,
@@ -86,10 +78,6 @@ test("every trigger fires on the state it describes", () => {
   state.stats.kills = 1;
   assert.equal(Hints.select(state, {}).id, "firstBlood");
 
-  state.upgradeChoice = { options: ["attack"], picked: null };
-  assert.equal(Hints.select(state, {}).id, "upgrade");
-
-  state.upgradeChoice = null;
   /*
    * 石板那套拆了（`docs/adr/0030`），所以"没清房"这段什么都没得说 —— 魔狱血刹 那条
    * 在这份状态上也到期了，所以这里问的是"还有没有别的提示"。
@@ -158,7 +146,7 @@ test("a frozen run never hints", () => {
 
 /*
  * 提示一次只显示一条，而**更急的那条可以顶掉正在显示的那条**（`syncHints`）。
- * 这条断言守的是那个顶替赖以前提：名次要真的分开，而且"挡着路的那张卡"
+ * 这条断言守的是那个顶替赖以前提：名次要真的分开，而且"门口亮了、该走了"
  * 必须排在"打完一套连击"前面 —— 不然它永远轮不上。
  */
 test("每条提示都带着自己的名次，急的那条排得靠前", () => {
@@ -168,12 +156,12 @@ test("每条提示都带着自己的名次，急的那条排得靠前", () => {
   const combo = Hints.select(state, {});
   assert.equal(combo.id, "firstBlood");
 
-  state.upgradeChoice = { options: ["attack", "maxHp", "mpRegen"], picked: null };
-  const gate = Hints.select(state, {});
-  assert.equal(gate.id, "upgrade");
-  assert.equal(typeof gate.priority, "number", "select 要把名次一起交出来");
+  state.room.cleared = true;
+  const door = Hints.select(state, {});
+  assert.equal(door.id, "door");
+  assert.equal(typeof door.priority, "number", "select 要把名次一起交出来");
   assert.ok(
-    gate.priority < combo.priority,
-    `挡路的强化卡（名次 ${gate.priority}）必须比连击提示（名次 ${combo.priority}）急`
+    door.priority < combo.priority,
+    `门口提示（名次 ${door.priority}）必须比连击提示（名次 ${combo.priority}）急`
   );
 });

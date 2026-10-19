@@ -1990,7 +1990,36 @@
     rewardChest: { cell: [153, 97], anchor: [3, 3], ink: [0, 0, 153, 97], frames: [
       [439, 3480, 153, 97],
     ]},
-
+    rewardMagic: { cell: [800, 600], anchor: [0, 0], ink: [20, 0, 734, 600], frames: [
+      [592, 3480, 800, 600],
+    ]},
+    rewardCardFrame: { cell: [153, 97], anchor: [3, 3], ink: [0, 0, 153, 97], frames: [
+      [1392, 3480, 153, 97],
+    ]},
+    rewardCardGem: { cell: [141, 61], anchor: [9, 9], ink: [0, 0, 141, 61], frames: [
+      [0, 4080, 141, 61],
+    ]},
+    rewardNamePlate: { cell: [147, 58], anchor: [0, 0], ink: [0, 0, 147, 58], frames: [
+      [141, 4080, 147, 58],
+    ]},
+    rewardBand: { cell: [732, 113], anchor: [0, 0], ink: [0, 0, 732, 113], frames: [
+      [288, 4080, 732, 113],
+    ]},
+    rewardMagicPanel: { cell: [527, 270], anchor: [0, 0], ink: [0, 0, 527, 270], frames: [
+      [1020, 4080, 527, 270],
+    ]},
+    rewardDigit: { cell: [87, 51], anchor: [28, 14], ink: [0, 0, 87, 51], frames: [
+      [0, 4350, 87, 51],
+      [87, 4350, 87, 51],
+      [174, 4350, 87, 51],
+      [261, 4350, 87, 51],
+      [348, 4350, 87, 51],
+      [435, 4350, 87, 51],
+      [522, 4350, 87, 51],
+      [609, 4350, 87, 51],
+      [696, 4350, 87, 51],
+      [783, 4350, 87, 51],
+    ]},
   };
 
   var MINIMAP = {
@@ -2015,18 +2044,20 @@
      */
     pieces: {
       blank: [0, 18, 18, 18],
-      boss: [22, 18, 16, 14],
-      marker: [42, 18, 14, 19],
-      ring: [60, 18, 104, 104],
-      tl: [168, 18, 5, 5],
-      top: [177, 18, 18, 5],
-      tr: [199, 18, 4, 5],
-      left: [207, 18, 5, 18],
-      centre: [216, 18, 18, 18],
-      right: [238, 18, 4, 18],
-      bl: [246, 18, 5, 4],
-      bottom: [255, 18, 18, 4],
-      br: [277, 18, 4, 4]
+      /* 清房后邻接的未探索格：客户端的「?」图块（`assets/import_dnf_minimap.py`）。 */
+      question: [22, 18, 18, 18],
+      boss: [44, 18, 16, 14],
+      marker: [64, 18, 14, 19],
+      ring: [82, 18, 104, 104],
+      tl: [190, 18, 5, 5],
+      top: [199, 18, 18, 5],
+      tr: [221, 18, 4, 5],
+      left: [229, 18, 5, 18],
+      centre: [238, 18, 18, 18],
+      right: [260, 18, 4, 18],
+      bl: [268, 18, 5, 4],
+      bottom: [277, 18, 18, 4],
+      br: [299, 18, 4, 4]
     },
     /*
      * Column of each shape in the sheet. The keys are `kind:exits`, the exits
@@ -2184,11 +2215,16 @@
   }
 
   /**
-   * The two markers, in the cell they belong to.
+   * 领主房那一格的标记：客户端那张 **16×14 的红牛头**（`MINIMAP.pieces.boss`）。
    *
-   * Both are the client's own art and both are drawn **centred on the cell** and
-   * at their own size - the recording's boss face is the full width of a cell
-   * and its lozenge is a third of one, and neither grows with the cell.
+   * 它是客户端的自有美术，**居中画在格子里、按自己的尺寸**（录像里那张红脸
+   * 正好一格宽，蓝色菱形是三分之一格，两个都不随格子放大）。
+   *
+   * 试过用 `drawMonsterFace` 从 `monsters.png` 第 5 行切牛头巨兽**本体**的脸，
+   * 抓帧一比：那张画在 18 px 下只剩一团棕色，角和白鬃糊在一起，反而认不出是牛。
+   * 客户端这张标记是**专门为这一格画的**，亮红、双角、轮廓清楚 —— 它本来就是
+   * 业主说的「牛头图标」。所以图标不换，换的是**它什么时候出现**（见 drawMinimap：
+   * 领主房不吃迷雾，从第一帧就画）。
    */
   function drawMapBoss(ctx, sprites, x, y, size) {
     var piece = MINIMAP.pieces.boss;
@@ -2265,6 +2301,27 @@
     ctx.restore();
   }
 
+  /**
+   * **清房之后，挨着当前房间、还没去过、有门的那几格露一个「?」**
+   * （业主 2026-10-18）。它回答的是"清完这间，下一间在哪" —— 迷雾仍然盖住
+   * 房间内容，只把"那边还有一间"这一点告诉玩家。没清房、没门、或已经去过的
+   * 格子都不画。Boss 那格也不画：它从第一帧就有牛头图标。
+   */
+  function drawMinimapQuestions(ctx, sprites, map, here, x, y, scale) {
+    if (!map || !here || !here.cleared) return;
+    var tile = MINIMAP.tile;
+    MINIMAP_DIRS.forEach(function (pair) {
+      if (!(here.exits & pair[1])) return;
+      var index = Core.doorNeighbour(map, here, pair[0]);
+      if (index < 0 || index === map.boss) return;
+      var cell = map.cells[index];
+      if (!cell || cell.seen) return;
+      drawMinimapPiece(ctx, sprites, "question",
+                       x + cell.col * tile * scale, y + cell.row * tile * scale,
+                       tile * scale, tile * scale);
+    });
+  }
+
   function drawMinimap(ctx, state, sprites, meta) {
     /*
      * 画的是**他探过的那几格**（没去过的盖黑）—— 十二格里他在哪一格由 `state.cell` 说。
@@ -2305,10 +2362,14 @@
                         originX + cell.col * tile * zoom,
                         originY + cell.row * tile * zoom, zoom);
       });
-      if (boss.seen) {
-        drawMapBoss(ctx, sprites, originX + boss.col * tile * zoom,
-                    originY + boss.row * tile * zoom, tile * zoom);
-      }
+      drawMinimapQuestions(ctx, sprites, map, here, originX, originY, zoom);
+      /*
+       * **领主房不吃迷雾**：它是这张图唯一要指的地方 —— 等他走进去才画，
+       * 图标就只剩"我已经到了"的意义。底下的格子仍是黑的（没去过），只把
+       * 牛头露在上面（业主 2026-10-17；这条改了 `docs/adr/0051` 的半条）。
+       */
+      drawMapBoss(ctx, sprites, originX + boss.col * tile * zoom,
+                  originY + boss.row * tile * zoom, tile * zoom);
       drawMapMarker(ctx, sprites, originX + here.col * tile * zoom,
                     originY + here.row * tile * zoom, tile * zoom, state.time);
       ctx.restore();
@@ -2341,12 +2402,15 @@
      * Boss 房之后**蓝柱子一个像素都看不见**（226s 起整张图里蓝色像素归零），红牛头
      * 比蓝柱子大，正好把它盖住。所以这里的先后不是"谁重要"，是"照录像画"。
      */
-    drawMapMarker(ctx, sprites, box.left + here.col * tile, box.top + here.row * tile,
+    drawMinimapQuestions(ctx, sprites, map, here, box.left, box.top, 1);
+    drawMapMarker(ctx, sprites, here.col * tile + box.left, box.top + here.row * tile,
                   tile, state.time);
-    /* 红脸也只在去过之后才画 —— 不然迷雾对它不成立。 */
-    if (boss.seen) {
-      drawMapBoss(ctx, sprites, box.left + boss.col * tile, box.top + boss.row * tile, tile);
-    }
+    /*
+     * 领主房那一格**不吃迷雾**：牛头从第一帧就画，底下的格子没去过仍是黑的。
+     * 等他走进去才画的话，这张图就只在他已经站在里面时才告诉他 Boss 在哪。
+     * 这条改了 `docs/adr/0051` 里「Boss 红脸也只在去过之后才画」那半条。
+     */
+    drawMapBoss(ctx, sprites, box.left + boss.col * tile, box.top + boss.row * tile, tile);
 
     drawMinimapButton(ctx, box);
     ctx.restore();
@@ -2492,16 +2556,22 @@
   }
 
   /** A layer that repeats across the room, hung from its own bottom edge. */
-  /** 一块场景美术，左上角落在 (left, top)：木桶碎片要的是这个，不是底边。 */
-  function drawScenePieceBox(ctx, sprites, name, left, top) {
+  /**
+   * 一块场景美术，左上角落在 (left, top)：木桶碎片要的是这个，不是底边。
+   *
+   * **倍率只作用在尺寸上，坐标已经是世界坐标**。以前这里把 `left/top` 也乘了一遍
+   * `scale` —— 碎片名不在 `PROP_SCALE` 里时表里是 1，侥幸没炸；一旦给碎片补上 0.74，
+   * 整组碎片会被画到 `0.74 × 世界坐标` 的位置。坐标与缩放分开，才不会再踩。
+   */
+  function drawScenePieceBox(ctx, sprites, name, left, top, scaleX, scaleY) {
     var sheet = sprites && sprites.forest;
     var rect = sceneRect(name);
     if (!sheet || !rect) return false;
-    /* 木桶碎片按同一个倍率画（`docs/adr/0050`）—— 它们是同一个桶的十二块。 */
-    var scale = Core.propScale ? Core.propScale(name) : [1, 1];
+    var sx = scaleX === undefined ? 1 : scaleX;
+    var sy = scaleY === undefined ? 1 : scaleY;
     ctx.drawImage(sheet, rect[0], rect[1], rect[2], rect[3],
-                  Math.round(left * scale[0]), Math.round(top * scale[1]),
-                  rect[2] * scale[0], rect[3] * scale[1]);
+                  Math.round(left), Math.round(top),
+                  rect[2] * sx, rect[3] * sy);
     return true;
   }
 
@@ -2935,13 +3005,149 @@
    * 位置由怪的 id 定死（`seed`），所以同一具尸体每次都撒在同一处；轨迹是解析的
    * （`h = vy*t - g*t^2/2`），不积分 —— 只读 `t`，暂停、慢放都不会飘。
    */
+  /**
+   * **领主倒下的那组光线**（参考录像 5:28s / t=328s，业主点名的结束特效）。
+   *
+   * 参考里是从它身上甩出来的几条**细长白/红光束**（外面红粉晕、芯是白的），
+   * 外加一道横在脖子/胸口位置的金色横光。这里用加色混合画，0.7 秒淡出；
+   * 角度/长度由尸体 id 定死，同一具 Boss 每次一样。
+   */
+  function drawBossRays(ctx, effect, alpha) {
+    var fade = clamp01(alpha);
+    var h = effect.height || 168;
+    var ox = effect.x;
+    var oy = floorY(effect.z) - h * 0.62;
+    ctx.save();
+    ctx.globalCompositeOperation = "lighter";
+
+    /* 金色横光（参考里那一笔横在它脖子上）。 */
+    var lensW = h * 2.4;
+    var lensH = h * 0.08;
+    var lens = ctx.createLinearGradient(ox - lensW / 2, oy, ox + lensW / 2, oy);
+    lens.addColorStop(0, "rgba(255, 220, 120, 0)");
+    lens.addColorStop(0.5, "rgba(255, 248, 210, " + (0.8 * fade).toFixed(3) + ")");
+    lens.addColorStop(1, "rgba(255, 220, 120, 0)");
+    ctx.fillStyle = lens;
+    ctx.beginPath();
+    ctx.ellipse(ox, oy, lensW / 2, lensH, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    /* 9 条细长光束：红粉晕 + 白芯。 */
+    for (var index = 0; index < 9; index += 1) {
+      var angle = -Math.PI * 0.95 + (index / 8) * Math.PI * 1.9 +
+        (scatter(effect.seed, index) - 0.5) * 0.3;
+      var length = h * (2.1 + scatter(effect.seed, index + 40) * 2.0);
+      var dx = Math.cos(angle);
+      var dy = Math.sin(angle);
+      var x0 = ox - dx * length * 0.12;
+      var y0 = oy - dy * length * 0.12;
+      var x1 = ox + dx * length;
+      var y1 = oy + dy * length;
+      ctx.lineCap = "round";
+      ctx.strokeStyle = "rgba(255, 70, 90, " + (0.40 * fade).toFixed(3) + ")";
+      ctx.lineWidth = Math.max(2, h * 0.075);
+      ctx.beginPath();
+      ctx.moveTo(x0, y0);
+      ctx.lineTo(x1, y1);
+      ctx.stroke();
+      ctx.strokeStyle = "rgba(255, 246, 246, " + (0.95 * fade).toFixed(3) + ")";
+      ctx.lineWidth = Math.max(1.5, h * 0.02);
+      ctx.beginPath();
+      ctx.moveTo(x0, y0);
+      ctx.lineTo(x1, y1);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  /**
+   * **领主的蓝紫魂柱**（参考 329.5s）：从地面升起的一根窄而高的漩涡，
+   * 大血块在这一柱里翻涌，不是一圈摊平的辉光。画在碎块下面。
+   */
+  function drawBossSoul(ctx, effect, alpha) {
+    var h = effect.height || 168;
+    var cx = effect.x;
+    var base = floorY(effect.z);
+    var top = base - h * 1.05;
+    var width = h * 0.65;
+    ctx.save();
+    ctx.globalCompositeOperation = "lighter";
+
+    var col = ctx.createLinearGradient(cx, base, cx, top);
+    col.addColorStop(0, "rgba(120, 86, 240, " + (0.62 * alpha).toFixed(3) + ")");
+    col.addColorStop(0.32, "rgba(80, 190, 255, " + (0.66 * alpha).toFixed(3) + ")");
+    col.addColorStop(0.68, "rgba(130, 160, 255, " + (0.46 * alpha).toFixed(3) + ")");
+    col.addColorStop(1, "rgba(200, 180, 255, 0)");
+    ctx.fillStyle = col;
+    ctx.beginPath();
+    ctx.ellipse(cx, base - h * 0.52, width * 0.5, h * 0.52, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    /* 底部一团青白的热芯。 */
+    var foot = ctx.createRadialGradient(cx, base - h * 0.08, 2,
+                                        cx, base - h * 0.08, width * 0.72);
+    foot.addColorStop(0, "rgba(170, 240, 255, " + (0.72 * alpha).toFixed(3) + ")");
+    foot.addColorStop(1, "rgba(70, 70, 220, 0)");
+    ctx.fillStyle = foot;
+    ctx.beginPath();
+    ctx.ellipse(cx, base - h * 0.08, width * 0.58, h * 0.16, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    /*
+     * **粗的漩涡带**：参考里是几道蓝青色的带子从地面绕着柱身往上卷，
+     * 不是几圈手镯。用贝塞尔曲线画，带宽跟着 Boss 身高。
+     */
+    for (var band = 0; band < 4; band += 1) {
+      var phase = band * 1.8 + effect.seed * 0.011;
+      var x0 = cx + Math.sin(phase) * width * 0.22;
+      var x1 = cx + Math.sin(phase + 2.2) * width * 0.48;
+      var x2 = cx + Math.sin(phase + 4.4) * width * 0.48;
+      var x3 = cx + Math.sin(phase + 6.6) * width * 0.18;
+      ctx.beginPath();
+      ctx.moveTo(x0, base - h * 0.02);
+      ctx.bezierCurveTo(x1, base - h * 0.34, x2, base - h * 0.7, x3, top);
+      ctx.strokeStyle = "rgba(105, 220, 255, " + (0.42 * alpha).toFixed(3) + ")";
+      ctx.lineWidth = Math.max(2, h * 0.055);
+      ctx.stroke();
+      ctx.strokeStyle = "rgba(235, 250, 255, " + (0.55 * alpha).toFixed(3) + ")";
+      ctx.lineWidth = Math.max(1, h * 0.015);
+      ctx.stroke();
+    }
+
+    /* 几道细环给漩涡一点层次。 */
+    for (var ring = 0; ring < 5; ring += 1) {
+      var y = base - h * (0.12 + ring * 0.24);
+      var wobble = Math.sin(effect.seed * 0.11 + ring * 1.7) * width * 0.12;
+      ctx.strokeStyle = "rgba(185, 215, 255, " + (0.34 * alpha).toFixed(3) + ")";
+      ctx.lineWidth = Math.max(1.5, h * 0.018);
+      ctx.beginPath();
+      ctx.ellipse(cx + wobble, y, width * (0.26 + ring * 0.03), h * 0.055,
+                  0.28, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+
+    /* 魂柱里的碎光点。 */
+    for (var spark = 0; spark < 12; spark += 1) {
+      var angle = scatter(effect.seed, spark + 80) * Math.PI * 2;
+      var radius = width * (0.12 + scatter(effect.seed, spark + 90) * 0.42);
+      var sy = base - h * (0.1 + scatter(effect.seed, spark + 100) * 1.15);
+      ctx.fillStyle = "rgba(240, 250, 255, " + (0.8 * alpha).toFixed(3) + ")";
+      ctx.beginPath();
+      ctx.arc(cx + Math.cos(angle) * radius, sy,
+              Math.max(1, h * 0.012), 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+
   function drawDeathBurst(ctx, state, sprites, effect, alpha) {
     var sheet = sprites && sprites.forest;
     if (!sheet) return;
     var life = effect.maxLife || (Core.DEATH && Core.DEATH.chunks) || 0.5;
     var t = clamp01(1 - alpha) * life;
-    var gravity = 900;
-    var count = (Core.DEATH && Core.DEATH.chunkCount) || 14;
+    var bossBurst = effect.type === "boss";
+    var gravity = bossBurst ? 520 : 900;
+    var count = bossBurst ? 8 : ((Core.DEATH && Core.DEATH.chunkCount) || 14);
     /*
      * 三张形状轮着用 —— 录像里那些块是**小碎片**（业主：「不如视频不规则」）：
      * T+4:50 那次量到十几块，横竖大多在 **4–17 世界像素**之间，而且不少是细长的
@@ -2950,10 +3156,17 @@
      */
     var shapes = ["0", "1", "2"];
     /* 从**身上**散开，不是从脚底 —— 从脚底起飞读起来像"地上一滩"。 */
-    var body = (effect.height || 60) * 0.45;
+    var body = (effect.height || 60) * (bossBurst ? 0.55 : 0.45);
     /* 末四成淡出：前面是硬的，最后才化掉。 */
     var fade = clamp01(alpha / 0.4);
+    /*
+     * **Boss 的魂柱**（参考录像 329.5s）：碎块从一根窄而高的蓝紫漩涡里翻上来，
+     * 不是一圈摊平的辉光。先画柱，再画碎块。
+     */
+    if (bossBurst) drawBossSoul(ctx, effect, alpha);
     var shadow = chunkShadowSheet(sheet);
+    /* Boss 的血块用压过粉的那张；暗边仍用原图烘的。 */
+    var artSheet = bossBurst ? (chunkPinkSheet(sheet) || sheet) : sheet;
     for (var index = 0; index < count; index += 1) {
       var piece = "chunk_" + (effect.type || "grunt") + shapes[index % shapes.length];
       var rect = sceneRect(piece);
@@ -2969,15 +3182,24 @@
        * （业主：「最后散开的距离太远了」）。
        */
       var angle = scatter(effect.seed, index * 6) * Math.PI * 2;
-      var speed = 110 + scatter(effect.seed, index * 6 + 1) * 150;
+      /* Boss 的血块大、慢，往上翻而不是甩出去；杂兵仍是快速放射。 */
+      var speed = bossBurst
+        ? 42 + scatter(effect.seed, index * 6 + 1) * 88
+        : 110 + scatter(effect.seed, index * 6 + 1) * 150;
       var vx = Math.cos(angle) * speed;
-      var vy = Math.sin(angle) * speed * 0.55 + 70;      /* 略往上偏，甩得开 */
+      var vy = bossBurst
+        ? 35 + scatter(effect.seed, index * 6 + 4) * 90
+        : Math.sin(angle) * speed * 0.55 + 70;      /* 略往上偏，甩得开 */
       var spin = (scatter(effect.seed, index * 6 + 3) - 0.5) * 11;
       var x = effect.x + vx * t;
       var height = body + vy * t - 0.5 * gravity * t * t;
       if (height < 0) height = 0;                        /* 落地就摊在那儿 */
-      /* 每块按目标宽度（6–17 世界像素）反推缩放，形状多大都不影响它的大小。 */
-      var target = 6 + scatter(effect.seed, index * 6 + 2) * 11;
+      /*
+       * 每块按目标宽度反推缩放，形状多大都不影响它的大小。Boss 的碎块是
+       * 参考里那一身大肉块（12–28 世界像素），杂兵仍是 6–17。
+       */
+      var target = (bossBurst ? 36 : 6) +
+        scatter(effect.seed, index * 6 + 2) * (bossBurst ? 24 : 11);
       var scale = target / rect[2];
       var w = rect[2] * scale;
       var h = rect[3] * scale;
@@ -2995,7 +3217,7 @@
         ctx.drawImage(shadow, rect[0], rect[1], rect[2], rect[3],
                       -w / 2 + edge, -h / 2 + edge, w, h);
       }
-      ctx.drawImage(sheet, rect[0], rect[1], rect[2], rect[3], -w / 2, -h / 2, w, h);
+      ctx.drawImage(artSheet, rect[0], rect[1], rect[2], rect[3], -w / 2, -h / 2, w, h);
       ctx.restore();
     }
   }
@@ -3749,7 +3971,8 @@
     if (!brush) return null;
     brush.drawImage(image, 0, 0);
     brush.globalCompositeOperation = "source-atop";
-    brush.fillStyle = "rgba(255, 255, 255, 0.96)";
+    /* 参考里的剪影是**实心白**，不是 96% 的半透明白。 */
+    brush.fillStyle = "#ffffff";
     brush.fillRect(0, 0, canvas.width, canvas.height);
     ghostTint = { source: image, sheet: canvas };
     return canvas;
@@ -3760,6 +3983,28 @@
    * 只为那十二块服务，但每帧每块都要画两次，所以不能现场做。
    */
   var chunkDark = null;
+  var chunkPink = null;
+  /**
+   * **Boss 血块的粉肉色**：`chunk_boss*` 是从 Boss 的皮肤色烘的（深红褐），
+   * 参考 329.5s 那几块是**浅粉/奶油色的肉**。在整张 forest 上压一层粉、
+   * `source-atop` 只染有像素的地方，颜色变浅、原来的明暗和暗边都保留。
+   */
+  function chunkPinkSheet(image) {
+    if (typeof document === "undefined" || !document.createElement) return null;
+    if (chunkPink && chunkPink.source === image) return chunkPink.sheet;
+    var canvas = document.createElement("canvas");
+    canvas.width = image.width;
+    canvas.height = image.height;
+    var brush = canvas.getContext("2d");
+    if (!brush) return null;
+    brush.drawImage(image, 0, 0);
+    brush.globalCompositeOperation = "source-atop";
+    brush.fillStyle = "rgba(255, 186, 176, 0.72)";
+    brush.fillRect(0, 0, canvas.width, canvas.height);
+    chunkPink = { source: image, sheet: canvas };
+    return canvas;
+  }
+
   function chunkShadowSheet(image) {
     if (typeof document === "undefined" || !document.createElement) return null;
     if (chunkDark && chunkDark.source === image) return chunkDark.sheet;
@@ -3806,6 +4051,18 @@
       /* 换色那两具是同一套画布，烘的时候量出来的和 `grunt` 一模一样。 */
       goblinBlue: 76, goblinRed: 76,
       cursedRed: 76, burningThrower: 78
+    },
+    /*
+     * **头像那一块**，相对于它自己那一格的左上角。
+     *
+     * 哥布林沿用"站姿帧顶部居中"的裁法；牛头巨兽是**侧身低头**，头不在锚点
+     * 正上方 —— 照那条通用裁法切出来的是肩膀。这个矩形是照它的头量的：
+     * 那一格整只怪只占 x 230..370、y 170..340，头在最上面 x 242..372、
+     * y 168..244（含白鬃与獠牙），宽高比 130:76。头像框是方的，所以
+     * `drawMonsterFace` 按比例装进去、上下留一点黑边，不把它拉扁。
+     */
+    face: {
+      boss: [242, 168, 130, 76]
     },
     /*
      * **How big a monster is drawn is `enemy.height`, the same number the fight
@@ -5984,6 +6241,8 @@
       ctx.restore();
     } else if (effect.kind === "deathburst") {
       drawDeathBurst(ctx, state, sprites, effect, alpha);
+    } else if (effect.kind === "bossrays") {
+      drawBossRays(ctx, effect, alpha);
     }
 
     if (effect.kind === "damage" && !effect.miss) {
@@ -6040,8 +6299,6 @@
     tagW: 72,
     textSize: 27,
     barH: 32,
-    /* **放大版**：目标条在 boss 形态下整条高一半（录像 59 视频px 对杂兵的 28）。 */
-    bossBarH: 59,
     barBorder: 3,
     /* 边框里那一条红有多高 —— 量出来是 20（上下各 6 是边框与内边距）。 */
     barInner: 20,
@@ -6052,12 +6309,25 @@
      */
     barW: 362,
     /*
-     * **278，不是 1068。** 第一轮把 `x 328..1396` 整条读成了血条长度，第二轮放大看
-     * 才分开：那是**绿血条 x 328..605（278）**加上它右边**橙色的 `ALERT!` 条
-     * （x 607..1395）**两段拼起来的总长。绿条自己是会随伤害从右端退的
-     * （254 s 起明显、261 s 见底），一条 1068 长的条退不到那个样子（`docs/adr/0043`）。
+     * **1068，不是 278。** 2026-10-17 重看录像（`docs/adr/0054`）：`x 328..1396`
+     * 从来就是**一条**条，绿色是 HP 填充、橙色是这条里没被填满的空槽（上面写满
+     * `ALERT!`）。`278` 是 t≈250s 那一帧的绿色剩余量，不是条长 —— 同一场 Boss
+     * 战里绿色在 t=232s 还有 776。Boss 条因此按整条重做。
      */
-    bossBar: 278
+    bossBar: 1068,
+    /*
+     * 录像里 Boss 头像 80×80、条高 59；本作把它放在玩家卡下面（见 bossY）。
+     * **条高 59 → 70**（2026-10-18 业主：「boss的血条应该是粗的」）：宽度仍是
+     * 录像的 1068，只把条加厚，让它读起来是一条实心的大条，而不是细带。
+     */
+    bossPortrait: 80,
+    bossBarH: 70,
+    /*
+     * **录像里这块条贴着屏幕最上沿（y≈97 视频px）**，本作左上角是玩家卡
+     * （y 14..110）与配速行（y 128），所以把它放在它们下面：内容与形状照录像，
+     * 绝对位置不照（`docs/adr/0054`）。
+     */
+    bossY: 150
   };
 
   /** 把一张怪的脸画进头像框：取它站姿那一帧的**头部**那一段。 */
@@ -6065,6 +6335,19 @@
     var sheet = sprites && sprites.monsters;
     var row = MONSTER.rows[type];
     if (!sheet || row === undefined) return false;
+    var face = MONSTER.face && MONSTER.face[type];
+    if (face) {
+      /* 这一只的头不按通用裁法长（牛头巨兽的侧身低头）：按量的矩形装进框里。 */
+      var fit = Math.min(box.w / face[2], box.h / face[3]);
+      var fw = face[2] * fit;
+      var fh = face[3] * fit;
+      ctx.drawImage(
+        sheet,
+        row * MONSTER.cellW + face[0], row * MONSTER.cellH + face[1], face[2], face[3],
+        box.x + (box.w - fw) / 2, box.y + (box.h - fh) / 2, fw, fh
+      );
+      return true;
+    }
     var stand = MONSTER.stand[type] || MONSTER.cellH;
     /*
      * 头在站姿那一帧的顶上：`stand` 是那一帧画了多高，锚点（脚底）在 `anchorY`。
@@ -6081,6 +6364,235 @@
     return true;
   }
 
+  /*
+   * **倒下那一下：头像上打一个红叉**，闪三下、共约 1.2 秒（量出来的
+   * 0.25 秒亮 / 0.25 秒灭）。它闪完，整块才消失（`Core.TARGET.deathBlink`）。
+   */
+  function drawDeathCross(ctx, enemy, target, x, y, w, h, px) {
+    if (!enemy.dead) return;
+    /*
+     * **参考 328.5–329.0s 那个红叉是常亮的**，不是本作原来的 0.25 秒闪三下；
+     * 而且它有黑描边、方头笔画（客户端那种像素叉）。这里先画粗黑叉再压红叉。
+     */
+    var pen = Math.max(2, 9 * px);
+    var inset = pen / 2;
+    ctx.lineCap = "square";
+    ctx.strokeStyle = "rgba(12, 4, 6, 0.92)";
+    ctx.lineWidth = pen + Math.max(2, 3 * px);
+    ctx.beginPath();
+    ctx.moveTo(x + inset, y + inset);
+    ctx.lineTo(x + w - inset, y + h - inset);
+    ctx.moveTo(x + w - inset, y + inset);
+    ctx.lineTo(x + inset, y + h - inset);
+    ctx.stroke();
+    ctx.strokeStyle = "#e00000";
+    ctx.lineWidth = pen;
+    ctx.beginPath();
+    ctx.moveTo(x + inset, y + inset);
+    ctx.lineTo(x + w - inset, y + h - inset);
+    ctx.moveTo(x + w - inset, y + inset);
+    ctx.lineTo(x + inset, y + h - inset);
+    ctx.stroke();
+    ctx.lineCap = "butt";
+  }
+
+  /*
+   * **领主的目标条**（`docs/adr/0054`）—— 照录像重做的那一条：
+   *
+   *   头像 80×80 ｜ 一条 1068 长、59 高的条
+   *
+   * 绿色是 HP 填充，橙色 `ALERT!` 是**这条里没被填满的空槽**（不是另加的一条）；
+   * 绿条见底/翻脸之后换成红色。类别牌与名字画在条内。半血竖线和「· 狂暴」
+   * 录像里没有，这里也不画 —— 狂暴仍然是玩法，只是不写在条上。
+   *
+   * 位置：录像贴着屏幕左上角，本作左上角被玩家卡与配速行占着，所以整块挂在
+   * 它们下面（`TARGET_PANEL.bossY`）；条的长度与形状照录像。
+   */
+  /**
+   * **领主的目标框头像**：用赛丽亚选关卡片上那张 **3/4 正脸**（`assets/region.png`
+   * 第 0 张卡，crop `[112,8,60,60]`），不是战斗精灵的侧身头 —— 侧脸在 40px 下
+   * 只剩肩膀，和参考录像的目标框对不上（业主 2026-10-18：「领主牛头的血条头像不对」）。
+   * 卡片自带的森林底用一圈暗角压掉，保留参考里那张脸。
+   */
+  function drawBossPortrait(ctx, sprites, x, y, size) {
+    /*
+     * **首选那张从参考录像里裁的 80×80 正脸**（`assets/boss_portrait.png`）——
+     * 它连参考里的金属框和四角红铆钉一起裁进来了，所以画它的那一路不再自己
+     * 描框（否则会画两圈）。没有它时才用选关卡片的正脸 / 战斗精灵兜底。
+     */
+    var baked = sprites && sprites.bossPortrait;
+    if (baked && baked.width) {
+      ctx.drawImage(baked, x, y, size, size);
+      return "baked";
+    }
+    var region = sprites && sprites.region;
+    if (region && region.width) {
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(x, y, size, size);
+      ctx.clip();
+      ctx.drawImage(region, 112, 8, 60, 60, x, y, size, size);
+      var shade = ctx.createRadialGradient(x + size * 0.5, y + size * 0.48, size * 0.18,
+                                           x + size * 0.5, y + size * 0.48, size * 0.78);
+      shade.addColorStop(0, "rgba(4, 9, 22, 0)");
+      shade.addColorStop(1, "rgba(4, 9, 22, 0.82)");
+      ctx.fillStyle = shade;
+      ctx.fillRect(x, y, size, size);
+      ctx.restore();
+      return "drawn";
+    }
+    return drawMonsterFace(ctx, sprites, "boss", { x: x, y: y, w: size, h: size })
+      ? "drawn" : false;
+  }
+
+  /**
+   * **领主是两条血，不是一条变色**（业主 2026-10-18）。
+   *
+   * Core 里仍是一条 `maxHp` 池，但二阶段在 `hp <= maxHp * phase2.hpRatio`
+   * （当前 0.5）触发；所以条按两段画：
+   *
+   * - 一阶段（绿色）：从满血到 `maxHp * ratio`，这一段走完就空了；
+   * - 二阶段（红色）：从 `maxHp * ratio` 到 0，这一段从满格开始往下走。
+   *
+   * 两条各占整条 1068 的长度；颜色变化就是"换到第二条血"。
+   */
+  function bossBarShare(enemy) {
+    var ratio = Core.ENEMY_TYPES.boss &&
+      Core.ENEMY_TYPES.boss.phase2 &&
+      Core.ENEMY_TYPES.boss.phase2.hpRatio !== undefined
+      ? Core.ENEMY_TYPES.boss.phase2.hpRatio : 0.5;
+    var second = enemy.maxHp * ratio;
+    var first = enemy.maxHp - second;
+    var red = enemy.phase >= 2;
+    var span = red ? second : first;
+    if (!(span > 0)) return 0;
+    var value = red ? enemy.hp : enemy.hp - second;
+    return Math.max(0, Math.min(1, value / span));
+  }
+
+  function drawBossTargetPanel(ctx, state, sprites, enemy, info) {
+    var px = HUD_PX;
+    var x = HUD_LEFT + 4;
+    var y = TARGET_PANEL.bossY;
+    var portrait = TARGET_PANEL.bossPortrait * px;
+    var barX = x + portrait;
+    var barW = TARGET_PANEL.bossBar * px;
+    var barH = TARGET_PANEL.bossBarH * px;
+    var barY = y + (portrait - barH) / 2;
+    var border = Math.max(1, 3 * px);
+    /* 两条血：绿条走完（到 50%）才换红条，红条从满格再走一遍。 */
+    var share = bossBarShare(enemy);
+    var red = enemy.phase >= 2;
+
+    ctx.save();
+
+    /* 头像：深底 + 牛头自己的脸 + 深灰钢框 + 四角红铆钉。 */
+    ctx.fillStyle = "#0a0c14";
+    ctx.fillRect(x, y, portrait, portrait);
+    var portraitMode = drawBossPortrait(ctx, sprites, x, y, portrait);
+    if (!portraitMode) {
+      ctx.fillStyle = "rgba(255, 255, 255, 0.06)";
+      ctx.fillRect(x, y, portrait, portrait);
+    }
+    if (portraitMode !== "baked") {
+      ctx.strokeStyle = "#3d3d35";
+      ctx.lineWidth = Math.max(1, 2 * px);
+      ctx.strokeRect(x + ctx.lineWidth / 2, y + ctx.lineWidth / 2,
+                     portrait - ctx.lineWidth, portrait - ctx.lineWidth);
+      ctx.fillStyle = "#b23a2a";
+      [[0, 0], [1, 0], [0, 1], [1, 1]].forEach(function (corner) {
+        ctx.beginPath();
+        ctx.arc(x + (corner[0] ? portrait : 0), y + (corner[1] ? portrait : 0),
+                Math.max(1.4, 3 * px), 0, Math.PI * 2);
+        ctx.fill();
+      });
+    }
+    drawDeathCross(ctx, enemy, state.target, x, y, portrait, portrait, px);
+
+    /*
+     * 条：黑底 + 深灰外框。空槽先画橙色 ALERT（只在绿相位、交上手之后），
+     * 再把 HP 填充压上去 —— 绿条从右端退，橙色就露出来。
+     */
+    ctx.fillStyle = "#000000";
+    ctx.fillRect(barX, barY, barW, barH);
+    ctx.strokeStyle = "#3d3d35";
+    ctx.lineWidth = Math.max(1, 2 * px);
+    ctx.strokeRect(barX + ctx.lineWidth / 2, barY + ctx.lineWidth / 2,
+                   barW - ctx.lineWidth, barH - ctx.lineWidth);
+
+    var innerX = barX + border;
+    var innerW = barW - border * 2;
+    /*
+     * **填满整条高度**（2026-10-18）：业主说 Boss 血条要粗。以前上下各留了
+     * `border`，59 高的条只填 53；现在条本身加高到 70，填充从顶到底。
+     */
+    var innerY = barY;
+    var innerH = barH;
+    /* 领主倒下那一刻，条要是**黑**的：参考 328.5s 那条橙色 ALERT 已经没了。 */
+    if (!red && state.bossEngaged && !enemy.dead) {
+      drawAlertStrip(ctx, innerX + innerW * share, innerX + innerW, innerY, innerH);
+    }
+
+    ctx.fillStyle = red ? "#db0000" : "#8fc700";
+    ctx.fillRect(innerX, innerY, innerW * share, innerH);
+
+    /*
+     * 刚失去的那一段：白块原地褪色（和杂兵那条同一个 `target.ghost`），
+     * 位置就在新的 HP 右缘。
+     */
+    if (state.target.ghost) {
+      var g = state.target.ghost;
+      var t = Math.min(1, g.t / Core.TARGET.ghostFade);
+      var gx = innerX + innerW * g.to;
+      var gw = Math.max(0, innerW * (g.from - g.to));
+      ctx.fillStyle = red ? "#993232" : "#868f45";
+      ctx.fillRect(gx, innerY, gw, innerH);
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, 1 - t) * 0.95;
+      ctx.fillStyle = "#f8ece5";
+      ctx.fillRect(gx, innerY, gw, innerH);
+      ctx.restore();
+    }
+
+    /* 内框：绿相位偏橄榄、红相位偏暗红（录像里那条细边）。 */
+    ctx.strokeStyle = red ? "rgba(169, 0, 0, 0.9)" : "rgba(117, 144, 0, 0.9)";
+    ctx.lineWidth = Math.max(1, 1 * px);
+    ctx.strokeRect(innerX, innerY, innerW, innerH);
+
+    /*
+     * 类别牌与名字**画在条内**：黑底橙框的「野兽」+ 白字黑描边的
+     * `Lv7 领主 - 牛头巨兽`。录像里名字就压在这条上，不另起一行。
+     */
+    var tagW = TARGET_PANEL.tagW * px;
+    var tagH = 32 * px;
+    var tagX = barX + 6;
+    var tagY = barY + (barH - tagH) / 2;
+    var tagPad = 2 * px;
+    ctx.fillStyle = "#000000";
+    roundRect(ctx, tagX + tagPad, tagY + tagPad, tagW, tagH - tagPad * 2, Math.max(2, 4 * px));
+    ctx.fill();
+    ctx.strokeStyle = "#d88246";
+    ctx.lineWidth = Math.max(1, 3 * px);
+    ctx.stroke();
+
+    ctx.textBaseline = "middle";
+    ctx.textAlign = "center";
+    ctx.font = HUD_FONT(TARGET_PANEL.textSize * px);
+    ctx.fillStyle = "#f38d4c";
+    ctx.fillText(info.race, tagX + tagPad + tagW / 2, tagY + tagH / 2);
+
+    ctx.textAlign = "left";
+    ctx.lineWidth = Math.max(1, 3 * px);
+    ctx.strokeStyle = "rgba(0, 0, 0, 0.9)";
+    var label = "Lv" + info.level + " " + info.label;
+    var labelX = tagX + tagW + 6 * px;
+    ctx.strokeText(label, labelX, barY + barH / 2);
+    ctx.fillStyle = "#e4edf7";
+    ctx.fillText(label, labelX, barY + barH / 2);
+    ctx.textBaseline = "alphabetic";
+    ctx.restore();
+  }
+
   function drawTargetPanel(ctx, state, sprites) {
     var target = state.target;
     if (!target) return;
@@ -6088,7 +6600,10 @@
     var info = Core.monsterInfo(enemy.type);
     if (!info) return;
     var px = HUD_PX;
-    var boss = enemy.type === "boss";
+    if (enemy.type === "boss") {
+      drawBossTargetPanel(ctx, state, sprites, enemy, info);
+      return;
+    }
 
     var portraitW = TARGET_PANEL.portrait[0] * px;
     var portraitH = TARGET_PANEL.portrait[1] * px;
@@ -6097,8 +6612,8 @@
     var rowH = TARGET_PANEL.rowH * px;
     var textX = x + portraitW + TARGET_PANEL.gap * px;
     var nameW = TARGET_PANEL.nameW * px;
-    var barLen = (boss ? TARGET_PANEL.bossBar : TARGET_PANEL.barW) * px;
-    var barH = (boss ? TARGET_PANEL.bossBarH : TARGET_PANEL.barH) * px;
+    var barLen = TARGET_PANEL.barW * px;
+    var barH = TARGET_PANEL.barH * px;
     var barY = y + rowH + TARGET_PANEL.gap * px;
     var border = Math.max(1, TARGET_PANEL.barBorder * px);
 
@@ -6115,29 +6630,7 @@
     ctx.strokeRect(x + ctx.lineWidth / 2, y + ctx.lineWidth / 2,
                    portraitW - ctx.lineWidth, portraitH - ctx.lineWidth);
 
-    /*
-     * **倒下那一下：头像上打一个红叉**，闪三下、共约 1.2 秒（量出来的
-     * 0.25 秒亮 / 0.25 秒灭）。它闪完，整块才消失（`Core.TARGET.deathBlink`）。
-     */
-    if (enemy.dead) {
-      var blink = Math.floor(target.dying / 0.25) % 2 === 0;
-      if (blink) {
-        var pen = Math.max(2, 8 * px);
-        /* 往里缩半个笔画，免得那个圆头戳出头像框外面去。 */
-        var inset = pen / 2;
-        ctx.strokeStyle = "#da090f";
-        ctx.lineWidth = pen;
-        ctx.lineCap = "round";
-        ctx.beginPath();
-        ctx.moveTo(x + inset, y + inset);
-        ctx.lineTo(x + portraitW - inset, y + portraitH - inset);
-        ctx.moveTo(x + portraitW - inset, y + inset);
-        ctx.lineTo(x + inset, y + portraitH - inset);
-        ctx.stroke();
-        ctx.lineCap = "butt";
-      }
-      ctx.restore();
-    }
+    drawDeathCross(ctx, enemy, target, x, y, portraitW, portraitH, px);
 
     /* 名字行：深底、细亮边；里面一块橙框橙字的类别牌，再是白色的 `Lv{n} 名字`。 */
     ctx.fillStyle = "rgba(8, 10, 18, 0.86)";
@@ -6169,12 +6662,7 @@
     ctx.textAlign = "left";
     ctx.lineWidth = Math.max(1, 3 * px);
     ctx.strokeStyle = "rgba(0, 0, 0, 0.9)";
-    /*
-     * Boss 翻脸之后名字后面挂 `· 狂暴`：这个读法原来长在顶部正中那条横条上，
-     * 横条删了它就得跟过来（另一半是 `drawBossPhaseTick` 那条半血线）。
-     */
     var label = "Lv" + info.level + " " + info.label;
-    if (enemy.type === "boss" && enemy.phase >= 2) label += " · 狂暴";
     var labelX = textX + tagPad + tagW + 6 * px;
     ctx.strokeText(label, labelX, y + rowH / 2);
     ctx.fillStyle = "#e4edf7";
@@ -6209,13 +6697,6 @@
     ctx.strokeStyle = "rgba(213, 186, 156, 0.9)";
     ctx.lineWidth = border;
     ctx.strokeRect(textX + border / 2, barY + border / 2, barLen - border, barH - border);
-    /*
-     * 交上手了才把那一段橙色接上去（`docs/adr/0043`）：它是这块条的 boss 形态，
-     * 所以跟着条自己的 y 与高走，不另起一块。
-     */
-    if (enemy.type === "boss" && state.bossEngaged) {
-      drawAlertStrip(ctx, textX + barLen + 2 * px, HUD_RIGHT - 16, barY, barH);
-    }
     ctx.restore();
   }
 
@@ -6346,36 +6827,12 @@
     }
 
     /*
-     * **左上角的当前目标块**，包括 Boss —— 顶部正中那条 420×34 的横条整条删掉了
-     * （`docs/adr/00xx`）：录像里**没有**它，Boss 走的是左上角那一块的**放大版**
-     * （条长到 1068 录像像素，约等于整屏高）。
-     *
-     * 它原来还顺带报两件事，都跟着搬了过来，不然是白丢的反馈：
-     * `· 狂暴` 并进那块条上的名字（录像里名字就写在条上），半血分界那条竖线留在血条上。
+     * **左上角的当前目标块**，包括 Boss —— 顶部正中那条 420×34 的横条没有。
+     * Boss 走自己的形态（`drawBossTargetPanel`）：80×80 头像 + 一条 1068 长的条，
+     * 类别牌与名字画在条内；半血竖线与「· 狂暴」录像里没有，已经不画了
+     * （`docs/adr/0054`）。狂暴仍然是玩法，只是不在条上读出来。
      */
     drawTargetPanel(ctx, state, sprites);
-    drawBossPhaseTick(ctx, state);
-  }
-
-  /**
-   * 半血分界：Boss 掉到一半会翻脸（`STAGES.*.boss` 的第二阶段）。这条竖线是本作自己的
-   * —— 录像里没有它 —— 所以画在那块条的血条上，而不是另起一块 UI。
-   */
-  function drawBossPhaseTick(ctx, state) {
-    var target = state.target;
-    if (!target || target.enemy.type !== "boss" || target.enemy.dead) return;
-    var enemy = target.enemy;
-    var px = HUD_PX;
-    var portraitW = TARGET_PANEL.portrait[0] * px;
-    var border = Math.max(1, TARGET_PANEL.barBorder * px);
-    var barLen = TARGET_PANEL.bossBar * px;
-    var barX = TARGET_PANEL.x + portraitW + TARGET_PANEL.gap * px;
-    var barY = TARGET_PANEL.y + TARGET_PANEL.rowH * px + TARGET_PANEL.gap * px;
-    ctx.save();
-    ctx.fillStyle = enemy.phase >= 2 ? "rgba(255, 226, 160, 0.95)" : "rgba(255, 226, 160, 0.5)";
-    ctx.fillRect(barX + border + (barLen - border * 2) / 2, barY + border,
-                 Math.max(1, 2 * px), TARGET_PANEL.barInner * px);
-    ctx.restore();
   }
 
   /** A short line of coaching, centred above the action but below the HUD. */
@@ -6392,76 +6849,6 @@
     panel(ctx, ARENA.width / 2 - width / 2, 196, width, 38, 19);
     ctx.fillStyle = PALETTE.gold;
     ctx.fillText(hint.text, ARENA.width / 2, 221);
-    ctx.restore();
-  }
-
-  var UPGRADE_CARD = { w: 220, h: 120, gap: 24, y: 206 };
-
-  /** Fixed geometry: the chooser slots stay put so a tap always hits one. */
-  function upgradeCards() {
-    var count = Core.UPGRADES_PER_ROOM;
-    var total = count * UPGRADE_CARD.w + (count - 1) * UPGRADE_CARD.gap;
-    var startX = (ARENA.width - total) / 2;
-    var cards = [];
-    for (var index = 0; index < count; index += 1) {
-      cards.push({
-        action: "choice" + index,
-        index: index,
-        x: startX + index * (UPGRADE_CARD.w + UPGRADE_CARD.gap),
-        y: UPGRADE_CARD.y,
-        w: UPGRADE_CARD.w,
-        h: UPGRADE_CARD.h
-      });
-    }
-    return cards;
-  }
-
-  function hitTestUpgrade(x, y) {
-    var cards = upgradeCards();
-    for (var index = 0; index < cards.length; index += 1) {
-      var card = cards[index];
-      if (x >= card.x && x <= card.x + card.w && y >= card.y && y <= card.y + card.h) {
-        return index;
-      }
-    }
-    return null;
-  }
-
-  function drawUpgradeChoice(ctx, state) {
-    var choice = state.upgradeChoice;
-    if (!choice) return;
-
-    ctx.save();
-    ctx.fillStyle = "rgba(6, 8, 16, 0.66)";
-    ctx.fillRect(0, 0, ARENA.width, ARENA.height);
-
-    ctx.textAlign = "center";
-    ctx.fillStyle = PALETTE.gold;
-    ctx.font = "700 24px 'PingFang SC', 'Segoe UI', system-ui, sans-serif";
-    ctx.fillText("房间已清空 · 选一个强化", ARENA.width / 2, 160);
-    ctx.fillStyle = PALETTE.textDim;
-    ctx.font = "600 14px 'PingFang SC', 'Segoe UI', system-ui, sans-serif";
-    ctx.fillText("按 1 / 2 / 3 选择，触屏直接点卡片", ARENA.width / 2, 184);
-
-    upgradeCards().forEach(function (card, index) {
-      panel(ctx, card.x, card.y, card.w, card.h, 8);
-      var id = choice.options[index];
-      var spec = id ? Core.UPGRADES[id] : null;
-      if (!spec) return;
-
-      ctx.textAlign = "center";
-      ctx.fillStyle = PALETTE.gold;
-      ctx.font = "700 18px 'PingFang SC', 'Segoe UI', system-ui, sans-serif";
-      ctx.fillText(String(index + 1), card.x + card.w / 2, card.y + 28);
-
-      ctx.fillStyle = PALETTE.text;
-      ctx.font = "700 21px 'PingFang SC', 'Segoe UI', system-ui, sans-serif";
-      ctx.fillText(spec.name, card.x + card.w / 2, card.y + 62);
-
-      ctx.fillStyle = PALETTE.textDim;
-      ctx.font = "600 13px 'PingFang SC', 'Segoe UI', system-ui, sans-serif";
-      ctx.fillText(spec.detail, card.x + card.w / 2, card.y + 92);
-    });
     ctx.restore();
   }
 
@@ -6885,6 +7272,243 @@
     ctx.restore();
   }
 
+  /*
+   * **奖励页**（`docs/adr/0055`）：录像 343.5–356s 的那一页。蓝色魔法阵、中央
+   * 红木宝箱、四张牌、`请选择奖励卡牌` + 3→2→1、选中后的玩家名条与物品卡。
+   *
+   * 位置在参考的录像像素 / 2（`HUD_PX`）上取整：四张牌一行 `x 131..836`、
+   * y 190..294；标题在 y≈92；倒计时在 y≈458。牌背用客户端的青边外框 + 宝石纹样，
+   * 牌面用已经烘好的金币宝箱卡面（`rewardChest`）。
+   */
+  var REWARD_UI = {
+    cardW: 167,
+    cardH: 104,
+    cardGap: 15,
+    cardY: 190,
+    countdownY: 458,
+    hintY: 340
+  };
+
+  function drawUiFrame(ctx, sheet, block, index, x, y, w, h) {
+    if (!sheet || !block || !block.frames || !block.frames.length) return false;
+    var frame = block.frames[index || 0] || block.frames[0];
+    ctx.drawImage(sheet, frame[0], frame[1], frame[2], frame[3], x, y, w, h);
+    return true;
+  }
+
+  function rewardCardBoxes() {
+    var total = REWARD_UI.cardW * 4 + REWARD_UI.cardGap * 3;
+    var startX = (ARENA.width - total) / 2;
+    var boxes = [];
+    for (var index = 0; index < 4; index += 1) {
+      boxes.push({
+        index: index,
+        x: startX + index * (REWARD_UI.cardW + REWARD_UI.cardGap),
+        y: REWARD_UI.cardY,
+        w: REWARD_UI.cardW,
+        h: REWARD_UI.cardH
+      });
+    }
+    return boxes;
+  }
+
+  function hitTestRewardCard(x, y) {
+    var boxes = rewardCardBoxes();
+    for (var index = 0; index < boxes.length; index += 1) {
+      var box = boxes[index];
+      if (x >= box.x && x <= box.x + box.w && y >= box.y && y <= box.y + box.h) return index;
+    }
+    return null;
+  }
+
+  function drawRewardCard(ctx, sheet, reward, box) {
+    var back = reward.faceUp ? false : true;
+    if (back) {
+      drawUiFrame(ctx, sheet, UI.rewardCardFrame, 0, box.x, box.y, box.w, box.h);
+      /* f42 的锚点是 (9,9)：按外框的同一个倍率放进内圈。 */
+      var ix = box.x + (9 / 153) * box.w;
+      var iy = box.y + (9 / 97) * box.h;
+      drawUiFrame(ctx, sheet, UI.rewardCardGem, 0, ix, iy,
+                  (141 / 153) * box.w, (61 / 97) * box.h);
+      return;
+    }
+    drawUiFrame(ctx, sheet, UI.rewardChest, 0, box.x, box.y, box.w, box.h);
+  }
+
+  function drawRewardPage(ctx, reward, sprites) {
+    var sheet = sprites && sprites.ui;
+    ctx.save();
+    ctx.fillStyle = "rgba(4, 9, 22, 0.66)";
+    ctx.fillRect(0, 0, ARENA.width, ARENA.height);
+
+    /* 蓝色魔法阵铺满中央：800x600 的客户端设计图按 0.9 装进画布。 */
+    drawUiFrame(ctx, sheet, UI.rewardMagic, 0, 120, 0, 720, 540);
+    /*
+     * 客户端的深蓝面板（左边怪物列表、右边五芒星）压在上面，透明度压低一点：
+     * 参考里那圈魔法阵是亮蓝的，这一件只是它的底纹。
+     */
+    if (UI.rewardMagicPanel) {
+      ctx.save();
+      ctx.globalAlpha = 0.55;
+      drawUiFrame(ctx, sheet, UI.rewardMagicPanel, 0, 0, 24, 960, 492);
+      ctx.restore();
+    }
+
+    ctx.textAlign = "center";
+    ctx.lineWidth = 5;
+    ctx.strokeStyle = "rgba(6, 10, 24, 0.9)";
+    ctx.font = "800 38px 'PingFang SC', 'Segoe UI', system-ui, sans-serif";
+    ctx.strokeText("奖励", ARENA.width / 2, 100);
+    ctx.fillStyle = "#f0d79a";
+    ctx.fillText("奖励", ARENA.width / 2, 100);
+
+    /* 牌行只在"选牌"那一拍出现；选中之后参考把牌收走，只剩左边的领奖详情。 */
+    var cardsUp = reward.phase === "cards";
+    if (reward.phase === "chest" || cardsUp) {
+      /*
+       * 中央红木宝箱：`chest` 里 0→1→2 开盖；进了牌局就停在打开的那一帧。
+       * 它画在牌后面，牌一盖上来就只露出边缘（录像里也是这样）。
+       */
+      var chest = UI.chestOpen;
+      /* `Reward.TIMES.chest` 是 1.2 秒；这里按同一个数分三帧（render 不引那个模块）。 */
+      var frame = reward.phase === "chest"
+        ? Math.min(2, Math.floor((reward.t / 1.2) * 3))
+        : 2;
+      var cw = 172;
+      var ch = 100;
+      drawUiFrame(ctx, sheet, chest, frame, ARENA.width / 2 - cw / 2, 210, cw, ch);
+    }
+
+    if (cardsUp) {
+      /* 牌行背后的深色横带。 */
+      drawUiFrame(ctx, sheet, UI.rewardBand, 0, 114, 176,
+                  REWARD_UI.cardW * 4 + REWARD_UI.cardGap * 3, 110);
+      var boxes = rewardCardBoxes();
+      boxes.forEach(function (box) {
+        drawRewardCard(ctx, sheet, reward, box);
+        if (reward.picked === box.index) {
+          ctx.strokeStyle = "#ffe8a6";
+          ctx.lineWidth = 3;
+          ctx.strokeRect(box.x - 2, box.y - 2, box.w + 4, box.h + 4);
+        }
+      });
+      if (reward.phase === "cards") {
+        ctx.textAlign = "center";
+        ctx.font = "700 20px 'PingFang SC', 'Segoe UI', system-ui, sans-serif";
+        ctx.lineWidth = 4;
+        ctx.strokeStyle = "rgba(6, 10, 24, 0.9)";
+        ctx.strokeText("请选择奖励卡牌", ARENA.width / 2, REWARD_UI.hintY);
+        ctx.fillStyle = "#f0d79a";
+        ctx.fillText("请选择奖励卡牌", ARENA.width / 2, REWARD_UI.hintY);
+        if (reward.faceUp) {
+          /*
+           * 倒计时用客户端自己的金色数字（`rewardDigit` 的帧 0–9），不是现画的字。
+           * 参考里 3→2→1 就是这个字形。
+           */
+          var digit = UI.rewardDigit ? UI.rewardDigit.frames[reward.countdown] : null;
+          if (digit) {
+            var dw = 60;
+            var dh = 35;
+            ctx.drawImage(sheet, digit[0], digit[1], digit[2], digit[3],
+                          ARENA.width / 2 - dw / 2, REWARD_UI.countdownY - dh + 10, dw, dh);
+          } else {
+            ctx.font = "800 42px 'Segoe UI', system-ui, sans-serif";
+            ctx.strokeText(String(reward.countdown), ARENA.width / 2, REWARD_UI.countdownY);
+            ctx.fillStyle = "#ffd66b";
+            ctx.fillText(String(reward.countdown), ARENA.width / 2, REWARD_UI.countdownY);
+          }
+        }
+      }
+    }
+
+    if (reward.phase === "reveal" || reward.phase === "done") {
+      /*
+       * 领奖详情：左边玩家名条（f60）与物品卡（复用青边卡框）。录像的奖励是
+       * 「古老的法杖 ×1 + 3526 金币」；本作的物品名与金币由 `Reward` 按种子给。
+       */
+      /*
+       * 名条（f60）左端那个黑方块是**玩家头像位**，右边整条橙底才是名字。
+       * 名字要压在橙底里、和黑方块同一条水平中线；物品卡紧贴在名条箭头下面
+       * （参考里两者只隔几像素，不是隔着一大块魔法阵）。
+       */
+      var plateX = 130;
+      var plateY = 128;
+      var plateW = 160;
+      var plateH = 63;
+      drawUiFrame(ctx, sheet, UI.rewardNamePlate, 0, plateX, plateY, plateW, plateH);
+      if (sprites && sprites.rewardAvatar && sprites.rewardAvatar.width) {
+        /*
+         * 这张 52×60 的玩家头像直接从参考录像的名条上裁下来（`assets/
+         * import_reference_portraits.py`）：参考里那张脸朝左、白发尖角，
+         * 和游戏内待机头不是同一个裁法。黑方块在 f60 里的位置是
+         * `(9, 8, ~28, 40)`；头像放 26×30、居中，正好填满。
+         */
+        ctx.imageSmoothingEnabled = false;
+        /* 黑格上缘在 y=8；脸从 y=9 起，和参考一样顶到格子上沿。 */
+        ctx.drawImage(sprites.rewardAvatar, plateX + 11, plateY + 9, 26, 30);
+      } else if (sprites && sprites.slayer && sprites.slayer.width) {
+        /* 没有参考头像时的兜底：待机头的方裁，不压扁。 */
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(plateX + 9, plateY + 8, 30, 40);
+        ctx.clip();
+        ctx.imageSmoothingEnabled = false;
+        ctx.drawImage(sprites.slayer, SPRITE.anchorX - 12, 70, 44, 44,
+                      plateX + 10, plateY + 11, 28, 28);
+        ctx.restore();
+      }
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.font = "700 15px 'PingFang SC', 'Segoe UI', system-ui, sans-serif";
+      ctx.fillStyle = "#3a2412";
+      /*
+       * 参考里名条上是一个短昵称。"鬼剑士 SLAYER" 顶到右边框，读起来没对齐
+       * （业主 2026-10-18）；这里只写"鬼剑士"，居中对齐橙底那块。
+       */
+      /*
+       * 参考里那个名字的中心在整块名条的 ~52%（不是橙底的正中）：量的是
+       * `ref_nameplate` 的 318 宽里名字中心约在 166 处。所以 center = +84；
+       * 纵向在**橙底中线** +24（业主复看说 +30 还靠下，见 0055 追记四）。
+       */
+      ctx.fillText("鬼剑士", plateX + 84, plateY + 24);
+      ctx.textBaseline = "alphabetic";
+
+      var cardX = 130;
+      var cardY = 193;
+      var cardW = 167;
+      var cardH = 104;
+      drawUiFrame(ctx, sheet, UI.rewardCardFrame, 0, cardX, cardY, cardW, cardH);
+      ctx.fillStyle = "rgba(8, 16, 30, 0.82)";
+      ctx.fillRect(cardX + 8, cardY + 8, cardW - 16, cardH - 16);
+      /*
+       * 物品名与金币行**居中**：参考里这两行都在物品卡的中线上，不是左对齐
+       * （业主 2026-10-18：「名字还是没对齐」）。金币图标放在文字左边。
+       */
+      ctx.textAlign = "center";
+      ctx.font = "700 15px 'PingFang SC', 'Segoe UI', system-ui, sans-serif";
+      ctx.fillStyle = "#f1f5f8";
+      ctx.fillText(reward.item, cardX + cardW / 2, cardY + 48);
+      var goldLabel = "+" + reward.gold + " 金币";
+      ctx.font = "700 13px 'PingFang SC', 'Segoe UI', system-ui, sans-serif";
+      var goldW = ctx.measureText(goldLabel).width;
+      var goldX = cardX + cardW / 2 + 7;
+      ctx.fillStyle = "#d8a83c";
+      ctx.beginPath();
+      ctx.arc(goldX - goldW / 2 - 5, cardY + 73, 7, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "#ffe9a8";
+      ctx.fillText(goldLabel, goldX, cardY + 78);
+
+      if (reward.phase === "done") {
+        ctx.textAlign = "center";
+        ctx.font = "600 15px 'PingFang SC', 'Segoe UI', system-ui, sans-serif";
+        ctx.fillStyle = "rgba(232, 220, 190, 0.82)";
+        ctx.fillText("按 F3 回到地区地图", ARENA.width / 2, 500);
+      }
+    }
+    ctx.restore();
+  }
+
   function drawOverlay(ctx, state, meta, sprites) {
     /* The hub is a screen of its own: nothing else belongs behind it. */
     if (meta && meta.region && meta.region.open) {
@@ -6896,6 +7520,14 @@
       return;
     }
     if (state.defeat || state.victory) {
+      /*
+       * 通关后的第二页：战绩走完（`Reward` 的 `stats` 拍）就换成 `奖励` 页，
+       * 翻牌与开奖都在那一页（`docs/adr/0055`）。失败页不变。
+       */
+      if (state.victory && meta && meta.reward && meta.reward.phase !== "stats") {
+        drawRewardPage(ctx, meta.reward, sprites);
+        return;
+      }
       ctx.save();
       ctx.fillStyle = "rgba(6, 8, 16, 0.74)";
       ctx.fillRect(0, 0, ARENA.width, ARENA.height);
@@ -7160,14 +7792,19 @@
   };
 
   function drawAlertStrip(ctx, left, right, y, height) {
-    if (right - left < 40) return;
+    if (right - left <= 0) return;
     var px = Core.VIDEO_PX * Core.CAMERA.zoom;
     ctx.save();
     ctx.beginPath();
     ctx.rect(left, y, right - left, height);
     ctx.clip();
+    /* 空槽窄的时候也要是橙色的（只放不下字）：近满血时那条橙色只是一丝。 */
     ctx.fillStyle = ALERT_STRIP.back;
     ctx.fillRect(left, y, right - left, height);
+    if (right - left < 40) {
+      ctx.restore();
+      return;
+    }
     ctx.fillStyle = ALERT_STRIP.ink;
     ctx.font = "italic 700 7.8px 'PingFang SC', 'Segoe UI', system-ui, sans-serif";
     ctx.textAlign = "left";
@@ -7215,22 +7852,13 @@
   var RANK_FRAME = { S: 5, A: 7, B: 9, C: 11 };
 
   /*
-   * 结算那一页的两段（`docs/adr/0045`）。录像里它是**逐行浮出来**的：
-   * `战绩` + `总分 85/140` → `操作 60`（金）+ 条 → `技巧 40` → `被击数 -15`（红）
-   * → 一枚金色徽记 + `评分`，**每行差 0.8 秒**；然后换到 `奖励`：宝箱 → 白青爆闪
-   * → 一条铺满整幅宽的青色光带 → 四张金卡背 → 领奖框。
-   *
-   * 本作把它**压到四秒半**（每行 0.45 秒）：录像那 17 秒的谢幕配一局 3 分钟的副本
-   * 太长。**四张卡的"选"没有做** —— 本作的奖励回路本来就是打怪掉东西 + 清房翻卡，
-   * 再开一套"选一张卡"是另加一个回路，不是补一帧。做的是那口箱子开的那两下与领奖框，
-   * 框里那行金币读的是 `stats.gold`：**这一局从地上捡起来的总数**（业主 Q8 选 b）。
+   * 战绩那一页的逐行拍点（`docs/adr/0045`）：`总分` → `操作` → `技巧` →
+   * `被击数` → `评分`，每行 0.45 秒；徽记跟"评分"同拍。三秒后由 `Reward`
+   * 切到 `奖励` 页（`docs/adr/0055`）。
    */
   var RESULT_BEATS = {
     rows: 0.45,
-    badge: 1.8,
-    chest: 2.6,
-    flash: 3.1,
-    reward: 3.8
+    badge: 1.8
   };
 
   function beatAlpha(since, at) {
@@ -7275,64 +7903,10 @@
                     HUD_LEFT + 20, top + 66, frame[2], frame[3]);
       ctx.globalAlpha = 1;
     }
-    if (!won || !sheet || !UI.rewardChest) {
-      ctx.restore();
-      return;
-    }
-    /* `奖励`：箱子坐进蓝色魔法阵 → 白青爆闪 → 四张金卡背（本作停在爆闪之后）。 */
     /*
-     * 摆**右上角那条空带**（画布 y 160..300 的右侧）：本作这一页中间是战绩表、
-     * 下面那一条是技能栏与分享链接，只有那里是空的。录像那块板在 4:3 正中，
-     * 它那一页上只有 `战绩` 与 `奖励` 两样东西，本作比它多一张表。
+     * **箱子与领奖框搬去 `奖励` 页了**（`docs/adr/0055`）：这一页只留战绩，
+     * 翻牌与开奖由 `drawRewardPage` 负责，不再在右上角先开一次箱子。
      */
-    var box = UI.rewardChest.frames[0];
-    var bx = HUD_RIGHT - 96;
-    var by = 168;
-    var reveal = beatAlpha(since, RESULT_BEATS.chest);
-    if (reveal > 0) {
-      var pop = 1 + (1 - reveal) * 0.25;
-      var bw = box[2] * 0.72 * pop;
-      var bh = box[3] * 0.72 * pop;
-      ctx.globalAlpha = reveal;
-      /* 底下那圈蓝魔法阵：录像里箱子坐在它正中。 */
-      var glow = ctx.createRadialGradient(bx, by + bh * 0.5, 4, bx, by + bh * 0.5, bw * 0.8);
-      glow.addColorStop(0, "rgba(120, 200, 255, 0.55)");
-      glow.addColorStop(1, "rgba(40, 90, 190, 0)");
-      ctx.fillStyle = glow;
-      ctx.beginPath();
-      ctx.ellipse(bx, by + bh * 0.5, bw * 0.8, bh * 0.42, 0, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.drawImage(sheet, box[0], box[1], box[2], box[3], bx - bw / 2, by, bw, bh);
-      ctx.globalAlpha = 1;
-    }
-    var flash = beatAlpha(since, RESULT_BEATS.flash) * (1 - beatAlpha(since, RESULT_BEATS.flash + 0.35));
-    if (flash > 0) {
-      var burst = ctx.createRadialGradient(bx, by + bh * 0.5, 2, bx, by + bh * 0.5, bw * 1.1);
-      burst.addColorStop(0, "rgba(255,255,255," + (0.95 * flash).toFixed(3) + ")");
-      burst.addColorStop(0.45, "rgba(170,230,255," + (0.7 * flash).toFixed(3) + ")");
-      burst.addColorStop(1, "rgba(90,170,255,0)");
-      ctx.fillStyle = burst;
-      ctx.beginPath();
-      ctx.ellipse(bx, by + bh * 0.5, bw * 1.1, bh * 0.9, 0, 0, Math.PI * 2);
-      ctx.fill();
-    }
-    /* 领奖框：一行物品名 + 这一局捡到的金币（`stats.gold`）。 */
-    var shown = beatAlpha(since, RESULT_BEATS.reward);
-    if (shown > 0) {
-      ctx.globalAlpha = shown;
-      var boxW = 210;
-      var boxH = 34;
-      roundRect(ctx, bx - boxW / 2, by + bh + 12, boxW, boxH, 5);
-      ctx.fillStyle = "rgba(8, 14, 26, 0.86)";
-      ctx.fill();
-      ctx.strokeStyle = "rgba(120, 200, 255, 0.8)";
-      ctx.lineWidth = 1.4;
-      ctx.stroke();
-      ctx.font = "700 14px 'PingFang SC', 'Segoe UI', sans-serif";
-      ctx.fillStyle = "#f3d79b";
-      ctx.fillText("+" + state.stats.gold + " 金币", bx, by + bh + 34);
-      ctx.globalAlpha = 1;
-    }
     ctx.restore();
   }
 
@@ -7430,30 +8004,27 @@
     /*
      * The demo's own banners are the page's running commentary — "Room 2 -
      * Bloody Culvert", "Goblin King enraged!", "Dungeon cleared!" — so they are
-     * drawn on top of the plate rather than buried under it. The card chooser
-     * speaks for itself while it is open.
+     * drawn on top of the plate rather than buried under it.
      */
-    if (!state.upgradeChoice) {
-      var bannerY = 260;
-      state.effects.forEach(function (effect) {
-        if (effect.kind !== "banner") return;
-        var alpha = Math.min(1, (effect.life / effect.maxLife) * 1.5);
-        ctx.save();
-        ctx.globalAlpha = alpha;
-        ctx.textAlign = "center";
-        ctx.font = "700 26px 'PingFang SC', 'Segoe UI', system-ui, sans-serif";
-        ctx.lineWidth = 5;
-        ctx.strokeStyle = "rgba(10, 12, 22, 0.85)";
-        ctx.strokeText(effect.text, ARENA.width / 2, bannerY);
-        var bannerGrad = ctx.createLinearGradient(0, bannerY - 20, 0, bannerY + 8);
-        bannerGrad.addColorStop(0, "#fff3c4");
-        bannerGrad.addColorStop(1, "#e3bf72");
-        ctx.fillStyle = bannerGrad;
-        ctx.fillText(effect.text, ARENA.width / 2, bannerY);
-        ctx.restore();
-        bannerY += 32;
-      });
-    }
+    var bannerY = 260;
+    state.effects.forEach(function (effect) {
+      if (effect.kind !== "banner") return;
+      var alpha = Math.min(1, (effect.life / effect.maxLife) * 1.5);
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.textAlign = "center";
+      ctx.font = "700 26px 'PingFang SC', 'Segoe UI', system-ui, sans-serif";
+      ctx.lineWidth = 5;
+      ctx.strokeStyle = "rgba(10, 12, 22, 0.85)";
+      ctx.strokeText(effect.text, ARENA.width / 2, bannerY);
+      var bannerGrad = ctx.createLinearGradient(0, bannerY - 20, 0, bannerY + 8);
+      bannerGrad.addColorStop(0, "#fff3c4");
+      bannerGrad.addColorStop(1, "#e3bf72");
+      ctx.fillStyle = bannerGrad;
+      ctx.fillText(effect.text, ARENA.width / 2, bannerY);
+      ctx.restore();
+      bannerY += 32;
+    });
     ctx.restore();
   }
 
@@ -7534,15 +8105,29 @@
         if (age >= Core.BREAK_ANIM) return;
         var whole = sceneRect(prop.piece);
         if (!whole) return;
-        var left = prop.x - whole[2] / 2;
-        var top = floorY(prop.z) - whole[3];
+        /*
+         * **碎片跟着整只桶的倍率走**（`docs/adr/0050`）：完整桶画 0.74，碎片原来
+         * 按 1.0 画、还锚在未缩放的 63×78 框上，于是单块木片几乎和整只桶一样宽 ——
+         * 业主 2026-10-17 报的「有的木桶图片图层不对」就是砸碎那一下。`chip[1]/[2]`
+         * 是相对桶原始 ink 左上角的偏移，所以整组一起乘同一个倍率。
+         */
+        var scale = Core.propScale(prop.piece);
+        var wholeW = whole[2] * scale[0];
+        var wholeH = whole[3] * scale[1];
+        var left = prop.x - wholeW / 2;
+        var top = floorY(prop.z) - wholeH;
         var shown = Math.floor((age / Core.BREAK_ANIM) * SCENE.barrelBreak.length);
         ctx.save();
         ctx.globalAlpha = Math.max(0, 1 - age / Core.BREAK_ANIM);
         SCENE.barrelBreak.forEach(function (chip, index) {
           /* 一块一块飞出来，不是一下子全出现。 */
           if (index > shown) return;
-          drawScenePieceBox(ctx, sprites, chip[0], left + chip[1], top + chip[2]);
+          drawScenePieceBox(
+            ctx, sprites, chip[0],
+            left + chip[1] * scale[0],
+            top + chip[2] * scale[1],
+            scale[0], scale[1]
+          );
         });
         ctx.restore();
       });
@@ -7630,6 +8215,62 @@
     items.forEach(function (item) {
       item.draw();
     });
+  }
+
+  /**
+   * 启动加载屏：**只画字和条，不碰任何素材图。**
+   *
+   * 它存在的理由就是"别让玩家看见后备画法"（业主 2026-10-17：「开始时加载的
+   * 角色和怪物是像素和老的怪物」）。所以这里一个 `drawImage` 都没有 ——
+   * 图还没到齐的时候，画面上不该出现任何"老素材"的痕迹。
+   */
+  function renderLoading(ctx, info) {
+    var ratio = info && info.total ? Math.min(1, info.loaded / info.total) : 0;
+    var cx = ARENA.width / 2;
+    var cy = ARENA.height * 0.42;
+
+    ctx.clearRect(0, 0, ARENA.width, ARENA.height);
+    ctx.fillStyle = "#05070b";
+    ctx.fillRect(0, 0, ARENA.width, ARENA.height);
+
+    /* 一层很淡的森林绿，让黑屏不像"卡住了"。 */
+    var glow = ctx.createRadialGradient(cx, cy, 20, cx, cy, 340);
+    glow.addColorStop(0, "rgba(58, 92, 46, 0.38)");
+    glow.addColorStop(1, "rgba(5, 7, 11, 0)");
+    ctx.fillStyle = glow;
+    ctx.fillRect(0, 0, ARENA.width, ARENA.height);
+
+    ctx.save();
+    ctx.textAlign = "center";
+    ctx.fillStyle = PALETTE.gold;
+    ctx.font = "800 52px 'PingFang SC', 'Segoe UI', sans-serif";
+    ctx.fillText("NANO DNF", cx, cy - 18);
+
+    ctx.fillStyle = "rgba(232, 220, 190, 0.72)";
+    ctx.font = "600 15px 'PingFang SC', 'Segoe UI', sans-serif";
+    ctx.fillText("鬼剑士 · 地下城试炼", cx, cy + 10);
+
+    var barW = 300;
+    var barH = 10;
+    var barX = cx - barW / 2;
+    var barY = cy + 58;
+    ctx.fillStyle = "#10161e";
+    roundRect(ctx, barX, barY, barW, barH, 5);
+    ctx.fill();
+    ctx.strokeStyle = "rgba(226, 191, 114, 0.45)";
+    ctx.lineWidth = 1;
+    roundRect(ctx, barX + 0.5, barY + 0.5, barW - 1, barH - 1, 5);
+    ctx.stroke();
+    if (ratio > 0) {
+      ctx.fillStyle = PALETTE.goldDim;
+      roundRect(ctx, barX + 2, barY + 2, Math.max(2, (barW - 4) * ratio), barH - 4, 3);
+      ctx.fill();
+    }
+
+    ctx.fillStyle = "rgba(232, 220, 190, 0.62)";
+    ctx.font = "600 12px 'PingFang SC', 'Segoe UI', sans-serif";
+    ctx.fillText("正在加载 " + Math.round(ratio * 100) + "%", cx, barY + 30);
+    ctx.restore();
   }
 
   function render(ctx, state, meta) {
@@ -7749,8 +8390,6 @@
     drawSkillBar(ctx, state, sprites, meta.loadout, !!(meta.touch && meta.touch.enabled));
     if (meta.touch && meta.touch.enabled) drawTouchControls(ctx, state, sprites, meta.touch);
     if (meta.loadoutOpen) drawLoadoutPanel(ctx, state, sprites, meta);
-    /* The reward prompt belongs to live play too, and to the demo's own card pick. */
-    if (!overlayOpen || meta.attract) drawUpgradeChoice(ctx, state);
     /* Coaching belongs to live play as well. */
     if (!overlayOpen) drawHint(ctx, meta.hint);
     drawOverlay(ctx, state, meta, sprites);
@@ -7783,6 +8422,8 @@
 
   return {
     render: render,
+    /* The start-up screen the shell shows until every sheet is decoded. */
+    renderLoading: renderLoading,
     PALETTE: PALETTE,
     SPRITE: SPRITE,
     EFFECT: EFFECT,
@@ -7790,6 +8431,10 @@
     SCENE: SCENE,
     /* The map window's table and its box, so tests can pin both. */
     MINIMAP: MINIMAP,
+    /* The current-target panel's measured numbers (the boss bar is one 1068-long bar). */
+    TARGET_PANEL: TARGET_PANEL,
+    /* The boss's two bars: green for the first half of the pool, red for the second. */
+    bossBarShare: bossBarShare,
     UI: UI,
     minimapBox: minimapBox,
     hitTestMinimap: hitTestMinimap,
@@ -7806,8 +8451,8 @@
     SLOT_COUNT: SLOT_COUNT,
     loadoutPanelButtons: loadoutPanelButtons,
     hitTestLoadout: hitTestLoadout,
-    upgradeCards: upgradeCards,
-    hitTestUpgrade: hitTestUpgrade,
+    hitTestRewardCard: hitTestRewardCard,
+    REWARD_UI: REWARD_UI,
     hitTestRegion: hitTestRegion,
     touchButtons: touchButtons,
     hitTestTouch: hitTestTouch

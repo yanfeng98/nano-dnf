@@ -122,6 +122,13 @@ test("the tempo gives a usable sixteenth-note step", () => {
 test("走到 Boss 房那一格就换成 Boss 那一首", () => {
   assert.ok(Music.TRACKS.room.file && Music.TRACKS.boss.file, "两首都要有文件");
   assert.notEqual(Music.TRACKS.room.file, Music.TRACKS.boss.file, "两首不能是同一个文件");
+  /*
+   * **开始画面有自己的一首**（业主 2026-10-17：「游戏开始的音乐请你也改掉」）。
+   * 它不能借 `room` 顶上：进副本要听得出换了一首。
+   */
+  assert.ok(Music.TRACKS.title.file, "开始画面也要有文件");
+  assert.notEqual(Music.TRACKS.title.file, Music.TRACKS.room.file);
+  assert.notEqual(Music.TRACKS.title.file, Music.TRACKS.boss.file);
 
   const state = Core.createState({ seed: Core.DEFAULT_SEED });
   /* `dungeon.boss` 是**格子序号**，和 `state.cell` 同一个坐标系。 */
@@ -143,4 +150,17 @@ test("走到 Boss 房那一格就换成 Boss 那一首", () => {
   /* 没有地牢的时候不许炸：标题页、地区地图都会问到它。 */
   assert.equal(Music.trackFor(null), "room");
   assert.equal(Music.trackFor({}), "room");
+});
+
+/*
+ * **还没进副本 = 开始画面那一首。** 标题、地区地图与进副本那 2.34 秒过场都由
+ * 调用方标成 `title`；房间淡进来、`state.intro` 清掉之后才轮到副本曲。
+ */
+test("标题、地区地图与进副本过场放开始画面那一首", () => {
+  const state = Core.createState({ seed: Core.DEFAULT_SEED });
+  assert.equal(Music.trackFor(null, { title: true }), "title");
+  assert.equal(Music.trackFor(state, { title: true }), "title",
+    "地牢已经建好、但过场还在走的时候，仍然是开始画面那一首");
+  assert.equal(Music.trackFor(state), "room",
+    "不传 title 时保持原来的口径：副本里默认放关卡曲");
 });

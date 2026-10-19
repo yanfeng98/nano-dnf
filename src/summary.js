@@ -8,11 +8,11 @@
  */
 (function (root, factory) {
   if (typeof module === "object" && module.exports) {
-    module.exports = factory(require("./core.js"));
+    module.exports = factory();
   } else {
-    root.DNFSummary = factory(root.DNFCore);
+    root.DNFSummary = factory();
   }
-})(typeof self !== "undefined" ? self : this, function (Core) {
+})(typeof self !== "undefined" ? self : this, function () {
   "use strict";
 
   /*
@@ -28,14 +28,6 @@
     var whole = Math.floor(rest / 10);
     var tenths = rest - whole * 10;
     return minutes + ":" + (whole < 10 ? "0" : "") + whole + "." + tenths;
-  }
-
-  /* Upgrade ids are public-safe, but the screen should read like the game does. */
-  function upgradeNames(ids) {
-    return (ids || []).map(function (id) {
-      var spec = Core.UPGRADES[id];
-      return spec ? spec.name : String(id);
-    });
   }
 
   function whole(value, fallback) {
@@ -119,7 +111,6 @@
       seed: seed === undefined ? state.seed : seed,
       seconds: state.time,
       level: player.level,
-      upgrades: player.upgradesTaken || [],
       kills: stats.kills,
       damageTaken: stats.damageTaken,
       room: stats.rooms,
@@ -133,13 +124,11 @@
    */
   function describe(run) {
     run = run || {};
-    var names = upgradeNames(run.upgrades);
     var level = whole(run.level, 1);
     var rows = [
       { id: "seed", label: "种子", value: String(whole(run.seed, 0)) },
       { id: "time", label: "用时", value: formatSeconds(run.seconds) },
       { id: "level", label: "等级", value: "Lv " + (level < 1 ? 1 : level) },
-      { id: "upgrades", label: "强化", value: names.length ? names.join(" · ") : "无" },
       { id: "kills", label: "击杀", value: String(whole(run.kills, 0)) },
       { id: "damage", label: "承伤", value: String(whole(run.damageTaken, 0)) }
     ];
@@ -159,15 +148,11 @@
         value: "走过 " + walked + " 间 / 图上 " + rooms + " 格"
       });
     }
-    return {
-      rows: rows,
-      upgradeNames: names
-    };
+    return { rows: rows };
   }
 
   return {
     formatSeconds: formatSeconds,
-    upgradeNames: upgradeNames,
     describe: describe,
     liveRun: liveRun,
     pace: pace,

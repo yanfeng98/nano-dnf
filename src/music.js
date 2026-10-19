@@ -105,11 +105,27 @@
    * 播放那一段在 `src/main.js`，没文件的时候它会回落到下面这个合成器。
    */
   var TRACKS = {
+    /*
+     * **开始画面一首，副本一首。** 标题页与地区地图放的是客户端自己的
+     * `intro.ogg` —— 它不是副本里的曲子，所以不能借 `room` 那一首顶：
+     * 业主 2026-10-17 的原话是「游戏开始的音乐请你也改掉」。进副本
+     * （过场插画走完、房间淡进来）才切到 `mirkwood`，Boss 房再切 Boss 那首。
+     */
+    title: { file: "assets/music/intro.ogg", label: "开始画面" },
     room: { file: "assets/music/mirkwood.ogg", label: "关卡" },
     boss: { file: "assets/music/mirkwood_boss.ogg", label: "Boss 房" }
   };
 
-  function trackFor(state) {
+  /**
+   * Which track belongs on screen.
+   *
+   * `options.title` is the title/region-map/cutscene state: the caller knows
+   * whether the run has actually started, and this module stays pure. Without
+   * the flag the old contract holds (a state with no dungeon asks for `room`),
+   * so existing callers and tests keep working.
+   */
+  function trackFor(state, options) {
+    if (options && options.title) return "title";
     var dungeon = state && state.dungeon;
     if (!dungeon || dungeon.boss === undefined) return "room";
     /*

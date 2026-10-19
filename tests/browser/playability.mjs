@@ -62,10 +62,7 @@ const KEY_FOR_ACTION = {
   left: "ArrowLeft",
   right: "ArrowRight",
   jump: "KeyC",
-  attack: "KeyX",
-  choice0: "Digit1",
-  choice1: "Digit2",
-  choice2: "Digit3"
+  attack: "KeyX"
 };
 
 /*
@@ -74,9 +71,6 @@ const KEY_FOR_ACTION = {
  * here, so a bigger monster does not tempt it inside.
  */
 const CLOSING_GAP = 24;
-
-/** A damage-first player: take the sharpest upgrade on offer. */
-const UPGRADE_PREFERENCE = ["attack", "skillPower", "maxHp", "mpRegen"];
 
 /** Skill id -> the key/slot that currently holds it. */
 function keyForSkill(skillId, loadout) {
@@ -106,21 +100,13 @@ function decide(state, constants) {
   const player = state.player;
   const alive = state.enemies.filter((enemy) => !enemy.dead);
   const want = new Set();
-
-  /* Clearing a room opens the reward chooser; pick the sharpest card on offer. */
-  if (state.upgradeChoice) {
-    const options = state.upgradeChoice.options || [];
-    let index = 0;
-    for (const id of UPGRADE_PREFERENCE) {
-      const found = options.indexOf(id);
-      if (found !== -1) {
-        index = found;
-        break;
-      }
-    }
-    want.add("choice" + index);
-    return want;
-  }
+  /* 这一间房自己的墙（`Core.roomLeft/roomRight` 的取法），不是全局默认值。 */
+  const leftWall = state.room && state.room.leftWall !== undefined
+    ? state.room.leftWall
+    : leftWall;
+  const rightWall = state.room && state.room.rightWall !== undefined
+    ? state.room.rightWall
+    : rightWall;
 
   /*
    * 到 Boss 房的下一步（BFS，走的是玩法真正走的门）。副本图有岔路，只认"哪扇门开着"
@@ -203,8 +189,16 @@ function decide(state, constants) {
     return want;
   }
 
-  alive.sort((a, b) => Math.abs(a.x - player.x) - Math.abs(b.x - player.x));
-  const target = alive[0];
+  /*
+   * **领主房里先清小怪，再打领主。** 只按"离得最近"选会在走进领主房时越过那几只
+   * 小怪、一路贴到领主身上，然后被小怪和领主的重击一起夹死（实测 73 秒倒在
+   * 领主房，伤害日志是 boss:melee / boss:slam）。先把杂兵清掉，少挨十几点。
+   */
+  const bossAlive = alive.find((enemy) => enemy.type === "boss");
+  const chaffAlive = alive.filter((enemy) => enemy.type !== "boss");
+  const pool = bossAlive && chaffAlive.length ? chaffAlive : alive;
+  pool.sort((a, b) => Math.abs(a.x - player.x) - Math.abs(b.x - player.x));
+  const target = pool[0];
   const delta = target.x - player.x;
   const distance = Math.abs(delta);
   /*
@@ -249,7 +243,69 @@ function decide(state, constants) {
     return want;
   }
 
+  /*
+   * **领主的近战只有 29（身体间距），他的刀有 68** —— 所以安全区是中间那一段，
+   * 不是贴脸。等它起手才退已经晚了：先维持 40–60 的间距，再在它的冷却里出刀。
+   */
+  if (target.type === "boss" && !threatened) {
+    /*
+     * 被逼到墙角时**从他身上穿过去**（身体不挡路，只有攻击判定挡路）。穿的时候
+     * 锁住方向，直到真的到了他另一侧或摸到对面的墙 —— 不然每 20ms 都会因为
+     * "离墙远了一点"而翻向，最后在两厘米里来回摆（实测 px 61↔75）。
+     */
+    if (constants.bossCross) {
+      const dir = constants.bossCrossDir;
+      const passed = dir > 0 ? delta < 0 : delta > 0;
+      const atFarWall = dir > 0
+        ? player.x >= rightWall - player.width - 4
+        : player.x <= leftWall + player.width + 4;
+      if (passed || atFarWall) {
+        constants.bossCross = false;
+      } else {
+        want.add(dir > 0 ? "right" : "left");
+        return want;
+      }
+    }
+    if (gap < 40) {
+      const away = delta > 0 ? "left" : "right";
+      const atLeftWall = player.x <= leftWall + player.width + 4;
+      const atRightWall = player.x >= rightWall - player.width - 4;
+      const cornered = (away === "left" && atLeftWall) || (away === "right" && atRightWall);
+      if (cornered) {
+        constants.bossCross = true;
+        constants.bossCrossDir = delta > 0 ? 1 : -1;
+        want.add(constants.bossCrossDir > 0 ? "right" : "left");
+      } else {
+        want.add(away);
+      }
+      return want;
+    }
+    if (gap > 60) {
+      want.add(delta > 0 ? "right" : "left");
+      return want;
+    }
+  }
+
   if (threatened) {
+    /*
+     * **冲锋只打它自己那一排。** 横向后退跑不过 430 的冲锋，往深度轴让开一步
+     * 才是录像里的解法（`enemyHitsPlayer` 的 z 容差），也能少挨 16 点。
+     */
+    if (target.attackKind === "charge" && elapsed >= target.chargeFrom - 0.3 &&
+        elapsed <= target.chargeTo) {
+      want.add((player.z || 0) <= (target.z || 0) ? "down" : "up");
+      return want;
+    }
+    /*
+     * **下砸是地上的一个盘，跳起来就躲得掉**（`src/core.js` 的 slam 命中要求
+     * `player.y >= groundY - 26`）。被逼在墙角时后退已经来不及，跳是录像里
+     * 那个 Boss 那一招的另一个解法。
+     */
+    if (target.attackKind === "slam" && target.slam && player.onGround &&
+        elapsed >= target.attackWindup - 0.25) {
+      want.add("jump");
+      return want;
+    }
     /*
      * A spinning sweep outruns a retreat once it is on top of you, so the read
      * is to back off through the wind-up and jump the sweep itself.
@@ -266,11 +322,22 @@ function decide(state, constants) {
       return want;
     }
     const away = delta > 0 ? "left" : "right";
-    const atLeftWall = player.x <= constants.arena.leftWall + player.width;
-    const atRightWall = player.x >= constants.arena.rightWall - player.width;
+    const atLeftWall = player.x <= leftWall + player.width;
+    const atRightWall = player.x >= rightWall - player.width;
     const cornered = (away === "left" && atLeftWall) || (away === "right" && atRightWall);
-    if (gap < threatRange + 45 && !cornered) {
+    /*
+     * **只剩杂兵就不跑了**（和 `tests/core.test.js` 的 kitingBot 同一条）：一直后退
+     * 会被逼到墙角，或者干脆绕圈耗到超时；最后一只杂兵值得站着吃完这一下再还手。
+     */
+    const allChaff = alive.every((enemy) => enemy.maxHp <= 70);
+    if (!allChaff && gap < threatRange + 45 && !cornered) {
       want.add(away);
+    } else if (allChaff && gap <= CLOSING_GAP + 12) {
+      /*
+       * 只剩杂兵、而且已经在能够到的那一档：**还手**。站着等它的下一刀只会
+       * 被两只杂兵一记接一记磨死（实测第 9 格 4 血时 `want` 是空的）。
+       */
+      want.add("attack");
     } else if (cornered) {
       /* Cornered in DNF means launch: 上挑 cancels the wind-up and buys space. */
       const upSlash = constants.skills.upSlash;
@@ -286,7 +353,12 @@ function decide(state, constants) {
     }
     return want;
   }
-  if (gap > CLOSING_GAP) {
+  /*
+   * 打领主是**打了就退**：它的近战 74、重踏 191，站进 24 像素的缝里会被它一记
+   * 接一记地换血。离得比小怪远一点、只在他自己的冷却里挥刀。
+   */
+  const closingGap = target.type === "boss" ? 50 : CLOSING_GAP;
+  if (gap > closingGap) {
     const direction = delta > 0 ? "right" : "left";
     want.add(direction);
     detour(want, direction === "right" ? player.width : -player.width, false);
@@ -435,13 +507,10 @@ async function touchActions(page, changes) {
     window.__touchIds = window.__touchIds || {};
     for (const { action, down } of list) {
       const slotIndex = action.startsWith("slot") ? Number(action.slice(4)) : -1;
-      const choiceIndex = action.startsWith("choice") ? Number(action.slice(6)) : -1;
       const button =
-        choiceIndex >= 0
-          ? window.DNFRender.upgradeCards()[choiceIndex]
-          : slotIndex >= 0
-            ? window.DNFRender.touchBarButtons()[slotIndex]
-            : window.DNFRender.touchButtons().find((entry) => entry.action === action);
+        slotIndex >= 0
+          ? window.DNFRender.touchBarButtons()[slotIndex]
+          : window.DNFRender.touchButtons().find((entry) => entry.action === action);
       if (!button) continue;
       const clientX = rect.left + ((button.x + button.w / 2) / canvas.width) * rect.width;
       const clientY = rect.top + ((button.y + button.h / 2) / canvas.height) * rect.height;
@@ -480,12 +549,14 @@ async function runPass(browser, baseUrl, options) {
 
   const url = options.mode === "touch" ? `${baseUrl}?touch=1` : baseUrl;
   await page.goto(url, { waitUntil: "load" });
-  await page.waitForFunction(() => window.nanoDnf && window.nanoDnf.getState().room);
+  await page.waitForFunction(() => window.nanoDnf && window.nanoDnf.getAssetState().ready);
 
   const constants = await page.evaluate(() => ({
     skills: JSON.parse(JSON.stringify(window.DNFCore.SKILLS)),
     skillOrder: window.DNFCore.SKILL_ORDER,
     arena: JSON.parse(JSON.stringify(window.DNFCore.ARENA)),
+    /* 房间自己的墙（`Core.roomLeft/roomRight` 的默认值），不是画布/世界窗口的。 */
+    room: JSON.parse(JSON.stringify(window.DNFCore.ROOM)),
     /* The rooms of the run's own stage: a pool belongs to a stage now. */
     rooms: JSON.parse(JSON.stringify(window.nanoDnf.getState().stage.rooms)),
     /*
@@ -520,6 +591,9 @@ async function runPass(browser, baseUrl, options) {
     cells: window.nanoDnf.getState().dungeon.cells.map((cell) => cell.room),
     equipped: window.nanoDnf.getLoadout()
   }));
+  /* 被领主逼到墙角时"从他身上穿过去"的锁：一次只认一个方向，别在两厘米里来回摆。 */
+  constants.bossCross = false;
+  constants.bossCrossDir = 1;
   const visited = new Set();
   let loadout = constants.equipped.slice();
   const touchMode = await page.evaluate(() => window.nanoDnf.isTouchMode());
@@ -550,8 +624,8 @@ async function runPass(browser, baseUrl, options) {
 
   /*
    * The title screen is also the demo. The page has to look alive before anyone
-   * presses a key, so watch it clear the opening room and take an upgrade card
-   * while re-checking that the run waiting behind the overlay never moves.
+   * presses a key, so watch it clear the opening room and walk out of it while
+   * re-checking that the run waiting behind the overlay never moves.
    */
   const realSnapshot = () =>
     page.evaluate(() => {
@@ -580,8 +654,6 @@ async function runPass(browser, baseUrl, options) {
     polls: 0,
     seconds: 0,
     kills: 0,
-    upgradePicks: 0,
-    upgradeShown: false,
     roomsReached: 0,
     loops: 0,
     inert: true,
@@ -597,29 +669,13 @@ async function runPass(browser, baseUrl, options) {
     }
     attractDemo.seconds = Math.max(attractDemo.seconds, demo.demo.seconds);
     attractDemo.kills = Math.max(attractDemo.kills, demo.demo.kills);
-    attractDemo.upgradePicks = Math.max(attractDemo.upgradePicks, demo.demo.upgradePicks);
     attractDemo.loops = Math.max(attractDemo.loops, demo.demo.loops);
     attractDemo.roomsReached = Math.max(attractDemo.roomsReached, demo.demo.rooms);
-    if (demo.demo.upgradeOpen && !attractDemo.upgradeShown) {
-      attractDemo.upgradeShown = true;
-      await page.screenshot({ path: path.join(ARTIFACTS, "attract-upgrade.png") });
-    }
     if (JSON.stringify(await realSnapshot()) !== JSON.stringify(inertBefore)) {
       attractDemo.inert = false;
     }
-    /*
-     * `upgradeShown` is part of the exit condition on purpose. The demo picks a
-     * card and walks through the gate it opened well inside one poll interval,
-     * so breaking as soon as those two are seen can leave the card never
-     * observed at a poll - which is a race, not a fact about the demo.
-     */
-    if (
-      attractDemo.upgradeShown &&
-      attractDemo.upgradePicks >= 1 &&
-      attractDemo.roomsReached >= 2
-    ) {
-      break;
-    }
+    /* The demo has to clear a room and walk out of it; that is the whole beat. */
+    if (attractDemo.roomsReached >= 2) break;
     await page.waitForTimeout(250);
   }
   await page.screenshot({ path: path.join(ARTIFACTS, "attract-play.png") });
@@ -669,6 +725,16 @@ async function runPass(browser, baseUrl, options) {
    */
   await page.keyboard.press("Enter");
   await page.waitForTimeout(80);
+  /*
+   * **开始画面那一首**（`docs/adr/0052`）：第一次手势之后该放 `title`，
+   * 而且放的是客户端文件（`intro.ogg`），不是合成器。地区地图还开着的时候
+   * 它就该在响；第二次 Enter 进副本、过场走完才切 `room`。
+   */
+  await page.waitForFunction(() => {
+    const state = window.nanoDnf.getMusicState();
+    return state.track === "title" && state.trackFiles.includes("title") && state.source === "file";
+  }, null, { timeout: 15000 });
+  const titleMusic = await page.evaluate(() => window.nanoDnf.getMusicState());
   await page.keyboard.press("Enter");
   /*
    * **进副本那一串要走完才轮得到他**（`docs/adr/0044`）：过场插画 2.04 秒 +
@@ -967,7 +1033,6 @@ async function runPass(browser, baseUrl, options) {
         window.nanoDnf.getLiveRows().forEach((row) => {
           shown[row.id] = row.value;
         });
-        const upgrades = state.player.upgradesTaken;
         return {
           paused: window.nanoDnf.isPaused(),
           shown,
@@ -975,11 +1040,6 @@ async function runPass(browser, baseUrl, options) {
             seed: String(window.nanoDnf.getSeed()),
             time: window.DNFRecords.formatSeconds(state.time),
             level: "Lv " + state.player.level,
-            upgrades: upgrades.length
-              ? upgrades
-                  .map((id) => (window.DNFCore.UPGRADES[id] || { name: id }).name)
-                  .join(" · ")
-              : "无",
             kills: String(state.stats.kills),
             damage: String(state.stats.damageTaken),
             reached:
@@ -1320,7 +1380,6 @@ async function runPass(browser, baseUrl, options) {
     (summary.rows || []).forEach((row) => {
       shown[row.id] = row.value;
     });
-    const upgrades = state.player.upgradesTaken;
     const overall = window.DNFRecords.bestOverall(window.nanoDnf.getRecords());
     const expected = {
       seed: String(window.nanoDnf.getSeed()),
@@ -1328,11 +1387,6 @@ async function runPass(browser, baseUrl, options) {
         summary.lastRun && summary.lastRun.entry ? summary.lastRun.entry.seconds : state.time
       ),
       level: "Lv " + state.player.level,
-      upgrades: upgrades.length
-        ? upgrades
-            .map((id) => (window.DNFCore.UPGRADES[id] || { name: id }).name)
-            .join(" · ")
-        : "无",
       kills: String(state.stats.kills),
       damage: String(state.stats.damageTaken),
       reached:
@@ -1360,6 +1414,51 @@ async function runPass(browser, baseUrl, options) {
   });
 
   /*
+   * **通关后的翻牌**（`docs/adr/0055`）：战绩页 → 红木宝箱 → 四张牌 → 3→2→1
+   * 自动选最左一张 → 领奖详情。这里从真实页面读每一拍，并留两张抓帧。
+   */
+  const rewardStart = await page.evaluate(() => window.nanoDnf.getReward());
+  let rewardCards = null;
+  let rewardReveal = null;
+  if (rewardStart) {
+    await page.waitForFunction(() => {
+      const state = window.nanoDnf.getReward();
+      return state && state.phase === "cards" && state.faceUp;
+    }, null, { timeout: 15000 });
+    rewardCards = await page.evaluate(() => window.nanoDnf.getReward());
+    await page.screenshot({
+      path: path.join(ARTIFACTS, `reward-cards-${options.mode}.png`)
+    });
+    await page.waitForFunction(() => {
+      const state = window.nanoDnf.getReward();
+      return state && state.phase === "reveal";
+    }, null, { timeout: 10000 });
+    rewardReveal = await page.evaluate(() => {
+      const state = window.nanoDnf.getReward();
+      return {
+        ...state,
+        itemInPool: window.DNFCore.LOOT.cyan.indexOf(state.item) !== -1
+      };
+    });
+    await page.screenshot({
+      path: path.join(ARTIFACTS, `reward-reveal-${options.mode}.png`)
+    });
+  } else {
+    const lost = await page.evaluate(() => {
+      const state = window.nanoDnf.getState();
+      return {
+        defeat: state.defeat,
+        hp: state.player.hp,
+        cell: state.cell,
+        time: state.time,
+        damageTaken: state.stats.damageTaken,
+        rooms: state.stats.rooms
+      };
+    });
+    console.log("no reward", options.mode, JSON.stringify(lost));
+  }
+
+  /*
    * A shared link has to reopen the same run, and the page's copy control has
    * to hand back exactly that link.
    */
@@ -1377,7 +1476,7 @@ async function runPass(browser, baseUrl, options) {
   if (shareLink) {
     const sharePage = await context.newPage();
     await sharePage.goto(shareLink, { waitUntil: "load" });
-    await sharePage.waitForFunction(() => window.nanoDnf && window.nanoDnf.getState().room);
+    await sharePage.waitForFunction(() => window.nanoDnf && window.nanoDnf.getAssetState().ready);
     const reopened = await sharePage.evaluate(() => ({
       seed: window.nanoDnf.getSeed(),
       dungeon: window.nanoDnf.getState().dungeon.cells.map((cell) => cell.room)
@@ -1450,7 +1549,6 @@ async function runPass(browser, baseUrl, options) {
     (summary.rows || []).forEach((row) => {
       shown[row.id] = row.value;
     });
-    const upgrades = state.player.upgradesTaken;
     const clock = /^(\d+):(\d\d)\.(\d)$/.exec(shown.time || "");
     return {
       defeat: state.defeat,
@@ -1460,11 +1558,6 @@ async function runPass(browser, baseUrl, options) {
       expected: {
         seed: String(window.nanoDnf.getSeed()),
         level: "Lv " + state.player.level,
-        upgrades: upgrades.length
-          ? upgrades
-              .map((id) => (window.DNFCore.UPGRADES[id] || { name: id }).name)
-              .join(" · ")
-          : "无",
         kills: String(state.stats.kills),
         damage: String(state.stats.damageTaken),
         reached:
@@ -1609,24 +1702,13 @@ async function runPass(browser, baseUrl, options) {
     await page.waitForTimeout(90);
     await page.screenshot({ path: path.join(ARTIFACTS, "elite-spin.png") });
 
-    /* Freeze the reward chooser so the between-room decision reads on screen. */
-    await page.evaluate(() => {
-      const state = window.nanoDnf.getState();
-      window.DNFCore.goToCell(state, state.dungeon.entry);
-      state.enemies = [];
-      state.room.cleared = true;
-      window.DNFCore.offerUpgrade(state);
-      state.effects = state.effects.filter((effect) => effect.kind !== "banner");
-    });
-    await page.waitForTimeout(90);
-    await page.screenshot({ path: path.join(ARTIFACTS, "upgrade-choice.png") });
-
     /* Freeze a coaching line: hints are transient, so ask for one on purpose. */
     await page.evaluate(() => {
       const state = window.nanoDnf.getState();
       window.DNFCore.goToCell(state, state.dungeon.entry);
+      state.room.cleared = true;
       state.effects = state.effects.filter((effect) => effect.kind !== "banner");
-      window.nanoDnf.previewHint("upgrade");
+      window.nanoDnf.previewHint("door");
     });
     await page.waitForTimeout(90);
     await page.screenshot({ path: path.join(ARTIFACTS, "hint-preview.png") });
@@ -1642,7 +1724,6 @@ async function runPass(browser, baseUrl, options) {
       state.room.cleared = true;
       state.enemies = [];
       state.effects = state.effects.filter((effect) => effect.kind !== "banner");
-      state.upgradeChoice = null;
     });
     await page.waitForTimeout(90);
     await page.screenshot({ path: path.join(ARTIFACTS, "door-open.png") });
@@ -1683,7 +1764,13 @@ async function runPass(browser, baseUrl, options) {
     defeatSummary,
     attackChain,
     upSlashKey,
-    music: { beforeInput: musicBeforeInput, afterRun: musicAfterRun, mute: musicMuteProbe },
+    music: {
+      beforeInput: musicBeforeInput,
+      title: titleMusic,
+      afterRun: musicAfterRun,
+      mute: musicMuteProbe
+    },
+    reward: { start: rewardStart, cards: rewardCards, reveal: rewardReveal },
     visited: [...visited],
     barrelWatch,
     /*
@@ -1691,7 +1778,17 @@ async function runPass(browser, baseUrl, options) {
      * 所以总击杀数只能从他**清过**的格子算。用格子自己的 `cleared`，不是采样：
      * 门口那一下换得快，逐帧采样会漏掉一整格。
      */
-    expectedKills: state.dungeon.cells.reduce(
+    expectedKills: state.dungeon.cells.reduce((total, cell, index) => {
+      if (!cell.cleared) return total;
+      const enemies = constants.rooms[cell.room].enemies;
+      /* 领主房只数领主：它倒下后其余小怪会从场上拿掉（业主 2026-10-18）。 */
+      if (index === state.dungeon.boss) {
+        return total + enemies.filter((enemy) => enemy.type === "boss").length;
+      }
+      return total + enemies.length;
+    }, 0),
+    /* 上限：领主房的小怪也可能在他倒下之前先被杀掉。 */
+    maxKills: state.dungeon.cells.reduce(
       (total, cell) =>
         cell.cleared ? total + constants.rooms[cell.room].enemies.length : total,
       0
@@ -1748,14 +1845,8 @@ function problemsFor(pass) {
     if (demo.kills < 1) {
       problems.push(`${pass.mode}: the attract demo never fought`);
     }
-    if (demo.upgradePicks < 1) {
-      problems.push(`${pass.mode}: the attract demo never took an upgrade card`);
-    }
     if (demo.roomsReached < 2) {
       problems.push(`${pass.mode}: the attract demo never walked through the gate it opened`);
-    }
-    if (!demo.upgradeShown) {
-      problems.push(`${pass.mode}: the demo never showed the upgrade cards`);
     }
   }
   if (!pass.attractAfterInput || pass.attractAfterInput.retired !== true) {
@@ -1783,7 +1874,7 @@ function problemsFor(pass) {
   if (!summary || !summary.victory) {
     problems.push(`${pass.mode}: the clear screen was never reached to read its summary`);
   } else {
-    const rowIds = ["seed", "time", "level", "upgrades", "kills", "damage"];
+    const rowIds = ["seed", "time", "level", "kills", "damage"];
     rowIds.forEach((id) => {
       if (summary.shown[id] === undefined) {
         problems.push(`${pass.mode}: the clear screen has no ${id} row`);
@@ -1796,6 +1887,36 @@ function problemsFor(pass) {
           .join("; ")})`
       );
     }
+  }
+  /*
+   * **通关翻牌**（`docs/adr/0055`）：战绩 → 宝箱 → 四张牌 → 3→2→1 自动选最左 →
+   * 领奖详情。少一拍、少一张牌、奖励不是客户端青名池里的东西，都算没做。
+   */
+  const reward = pass.reward || {};
+  if (!reward.start || reward.start.phase !== "stats") {
+    problems.push(
+      `${pass.mode}: the reward flow did not start on the stats page ` +
+        `(phase=${reward.start && reward.start.phase})`
+    );
+  }
+  if (!reward.cards || reward.cards.cards !== 4 || reward.cards.faceUp !== true) {
+    problems.push(
+      `${pass.mode}: the reward page did not show four face-up cards ` +
+        `(cards=${reward.cards && reward.cards.cards}, up=${reward.cards && reward.cards.faceUp})`
+    );
+  }
+  if (!reward.reveal || reward.reveal.phase !== "reveal" || reward.reveal.picked !== 0) {
+    problems.push(
+      `${pass.mode}: the countdown did not auto-pick the leftmost card ` +
+        `(phase=${reward.reveal && reward.reveal.phase}, picked=${reward.reveal && reward.reveal.picked})`
+    );
+  }
+  if (reward.reveal && (!reward.reveal.item || !(reward.reveal.gold > 0) ||
+      !reward.reveal.itemInPool)) {
+    problems.push(
+      `${pass.mode}: the reward detail is wrong ` +
+        `(item=${reward.reveal.item}, gold=${reward.reveal.gold}, inPool=${reward.reveal.itemInPool})`
+    );
   }
   const share = pass.shareRoundTrip;
   if (pass.overallBefore !== null) {
@@ -1830,7 +1951,7 @@ function problemsFor(pass) {
   if (!paused || !paused.paused) {
     problems.push(`${pass.mode}: the pause screen was never reached to read its live table`);
   } else {
-    const pauseRowIds = ["seed", "time", "level", "upgrades", "kills", "damage", "reached"];
+    const pauseRowIds = ["seed", "time", "level", "kills", "damage", "reached"];
     pauseRowIds.forEach((id) => {
       if (paused.shown[id] === undefined) {
         problems.push(`${pass.mode}: the pause screen has no ${id} row`);
@@ -1968,7 +2089,7 @@ function problemsFor(pass) {
   if (!defeat || !defeat.defeat) {
     problems.push(`${pass.mode}: the defeat screen was never reached to read its summary`);
   } else {
-    const defeatRowIds = ["seed", "time", "level", "upgrades", "kills", "damage", "reached"];
+    const defeatRowIds = ["seed", "time", "level", "kills", "damage", "reached"];
     defeatRowIds.forEach((id) => {
       if (defeat.shown[id] === undefined) {
         problems.push(`${pass.mode}: the defeat screen has no ${id} row`);
@@ -2053,9 +2174,10 @@ function problemsFor(pass) {
   /* Coaching: it has to show up, cover the key moments, and clear again. */
   const coaching = pass.hints || {};
   const shownHints = coaching.seen || [];
-  if (!shownHints.includes("upgrade")) {
+  if (!shownHints.includes("firstBlood") && !shownHints.includes("door")) {
     problems.push(
-      `${pass.mode}: the upgrade hint never appeared (saw ${shownHints.join(", ") || "none"})`
+      `${pass.mode}: neither the first-kill nor the door hint appeared ` +
+        `(saw ${shownHints.join(", ") || "none"})`
     );
   }
   if (shownHints.length < 2) {
@@ -2066,6 +2188,21 @@ function problemsFor(pass) {
   }
   if (!music.beforeInput || music.beforeInput.started !== false) {
     problems.push(`${pass.mode}: music must not start before the first input`);
+  }
+  /*
+   * **开始画面那一首**（`docs/adr/0052`）：第一次手势之后该放 `title`，
+   * 而且必须是客户端文件，不是合成器 —— 否则"换掉了开始音乐"只是看起来做了。
+   */
+  if (!music.title || music.title.track !== "title") {
+    problems.push(
+      `${pass.mode}: 开始画面没有放 title 那一首（track=${music.title && music.title.track}）`
+    );
+  }
+  if (music.title && music.title.source !== "file") {
+    problems.push(
+      `${pass.mode}: 开始画面那一首在放合成器（source=${music.title.source}）—— ` +
+        `intro.ogg 没解码成功`
+    );
   }
   if (!music.afterRun || music.afterRun.started !== true) {
     problems.push(`${pass.mode}: the soundtrack never started`);
@@ -2134,8 +2271,10 @@ function problemsFor(pass) {
       problems.push(`${pass.mode}: the record never reached localStorage`);
     }
   }
-  if (pass.state.stats.kills !== pass.expectedKills) {
-    problems.push(`${pass.mode}: kills=${pass.state.stats.kills} (expected ${pass.expectedKills})`);
+  if (pass.state.stats.kills < pass.expectedKills || pass.state.stats.kills > pass.maxKills) {
+    problems.push(
+      `${pass.mode}: kills=${pass.state.stats.kills} (expected ${pass.expectedKills}-${pass.maxKills})`
+    );
   }
   /*
    * The floor's second axis, walked through this pass's own input path - real
@@ -2151,18 +2290,6 @@ function problemsFor(pass) {
   }
   if (!(pass.steppedIn > 0)) {
     problems.push(`${pass.mode}: never walked onto a monster's row to reach it (deepest ${pass.steppedIn})`);
-  }
-  /*
-   * 强化卡：**清过的每一格都付一张，除了 Boss 房**。一局走的是他自己选的那条路，
-   * 所以"打了几间"由状态自己说（`stats.rooms`），不是事先算好的一个常数。
-   */
-  const upgrades = (pass.state.player.upgradesTaken || []).length;
-  const expectedUpgrades = pass.state.stats.rooms - (pass.state.victory ? 1 : 0);
-  if (upgrades !== expectedUpgrades) {
-    problems.push(
-      `${pass.mode}: upgradesTaken=${upgrades} (expected ${expectedUpgrades} for ` +
-        `${pass.state.stats.rooms} cleared cells)`
-    );
   }
   problems.push(...damageProblems(pass.mode, pass, pass.maxHit));
   if (pass.diagnostics.consoleErrors.length) {
@@ -2249,7 +2376,6 @@ async function main() {
     damageTaken: pass.state.stats.damageTaken,
     seconds: Number(pass.state.time.toFixed(1)),
     level: pass.state.player.level,
-    upgradesTaken: pass.state.player.upgradesTaken,
     titleIdle: pass.titleIdle,
     attract: { ...pass.attractDemo, retiredOnTakeover: !!(pass.attractAfterInput || {}).retired },
     attractArc: pass.attractArc,

@@ -245,7 +245,16 @@ def main() -> None:
     specials = [(name, cut(atlas, *rect)) for name, *rect in MARKERS]
     blank = blank_cell(frames[UNKNOWN_FRAME])
     specials.insert(0, ("blank", blank))
-    window = decode(args.client, WINDOW_FOLDER, WINDOW_PACK, WINDOW_ENTRY)
+    # **问号格**：清完一间房之后，**挨着当前房间、还没去过、有门**的那几格
+    # 要露出客户端的「?」图块，告诉玩家"那边还有一间"（业主 2026-10-18）。
+    # 它就是 `UNKNOWN_FRAME` 的原图；`blank` 是同一帧把字抹掉之后的空底。
+    specials.insert(1, ("question", frames[UNKNOWN_FRAME]))
+    # The 5.6 GB client copy keeps the old interface pack in `ImagePacks2/`
+    # rather than the older `ImagePacks2_70/`; both layouts bake the same panel.
+    window_folder = WINDOW_FOLDER
+    if not (args.client / window_folder / WINDOW_PACK).exists():
+        window_folder = "ImagePacks2"
+    window = decode(args.client, window_folder, WINDOW_PACK, WINDOW_ENTRY)
     for offset, name in enumerate(WINDOW_SLICES):
         specials.append((name, window[WINDOW_FIRST + offset]))
 

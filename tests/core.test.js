@@ -267,17 +267,6 @@ function clearLaneX(state) {
   return player.x;
 }
 
-/** A damage-first player: take the sharpest upgrade on offer. */
-const UPGRADE_PREFERENCE = ["attack", "skillPower", "maxHp", "mpRegen"];
-
-function preferredUpgrade(options) {
-  const offered = options || [];
-  for (const id of UPGRADE_PREFERENCE) {
-    if (offered.includes(id)) return id;
-  }
-  return offered[0] || null;
-}
-
 function killAll(state) {
   /*
    * Hit until it is dead: an elite or a boss gets a 回避 roll per hit
@@ -473,7 +462,7 @@ test("a dead monster lies down, turns into its own white silhouette, then bursts
     "碎块化干净"
   );
 
-  /* Boss：一样躺、一样白，但**不炸**（录像里它只有那一片白）。 */
+  /* Boss：一样躺、一样白，**而且也要炸**（参考录像里白剪影之后是碎块 + 魂光）。 */
   const boss = state.enemies.find((enemy) => enemy.type === "boss");
   /* Boss 每一击都掷一次回避（`docs/adr/0018`），一刀不一定砍得死。 */
   for (let hit = 0; hit < 50 && !boss.dead; hit += 1) {
@@ -483,11 +472,13 @@ test("a dead monster lies down, turns into its own white silhouette, then bursts
   Core.runFrames(state, Math.ceil(Core.DEATH.lie * Core.FPS) + 2, {});
   assert.ok(boss.silhouette, "Boss 也变白");
   Core.runFrames(state, Math.ceil(Core.DEATH.bossSmoke * Core.FPS) + 2, {});
-  assert.equal(
-    state.effects.filter((effect) => effect.kind === "deathburst" && effect.seed === boss.id).length,
-    0,
-    "Boss 不炸"
+  const bossBurst = state.effects.filter(
+    (effect) => effect.kind === "deathburst" && effect.seed === boss.id
   );
+  assert.equal(bossBurst.length, 1, "Boss 也要炸出它自己的碎块");
+  assert.equal(bossBurst[0].type, "boss", "碎块用 chunk_boss 那一族");
+  /* 死亡特效（白剪影 + 碎块）演完才进胜利页（业主 2026-10-18）。 */
+  Core.runFrames(state, Math.ceil((Core.DEATH.bossChunks + 0.5) * Core.FPS) + 2, {});
   assert.equal(state.victory, true, "Boss 房打掉就通关");
 });
 
@@ -536,14 +527,18 @@ test("每只怪死都走同一条线：躺 → 白色剪影 → 自己颜色的�
   );
 });
 
-test("a cleared room walks out through the door the map says, and the reward gates it", () => {
+test("a cleared room opens its doors and lets him walk out", () => {
   const state = Core.createState({ seed: Core.DEFAULT_SEED });
   const from = state.dungeon.cells[state.cell];
   killAll(state);
   Core.step(state, {});
 
   assert.equal(state.room.cleared, true);
-  assert.ok(state.upgradeChoice, "clearing a room must offer an upgrade");
+  /*
+   * **清房不发强化卡**（业主 2026-10-17；`docs/adr/0053`）：门在清房那一刻就开，
+   * 没有人再拦着他，也没有「选完卡才放行」那一步。
+   */
+  assert.equal(state.upgradeChoice, undefined);
 
   /*
    * 门口是按地图方向立的（`docs/adr/0030`），所以测试也得按方向走到那扇门：起点房
@@ -551,12 +546,8 @@ test("a cleared room walks out through the door the map says, and the reward gat
    */
   const dir = "NESW".split("").find((d) => Core.exitMode(state, d) === "open");
   assert.equal(dir, "N", "the entry room of this dungeon opens north");
-  assert.equal(walkToDoor(state, dir, 60), -1, "the card gates the exit - he must not leave");
-  assert.equal(state.cell, state.dungeon.entry);
-
-  Core.chooseUpgrade(state, preferredUpgrade(state.upgradeChoice.options));
   const frames = walkToDoor(state, dir);
-  assert.ok(frames >= 0, "with the card taken, the door has to let him through");
+  assert.ok(frames >= 0, "the door has to let him through");
   assert.notEqual(state.cell, state.dungeon.entry);
   assert.equal(state.cell, Core.doorNeighbour(state.dungeon, from, dir));
   assert.equal(state.entryDoor, "S", "he came in the far side of that door");
@@ -600,13 +591,10 @@ function smashBarrel(state, prop) {
   return prop;
 }
 
-/** 清空这一间房、把清房那张卡也收了 —— 这间房的门才会让人走。 */
-function clearAndTakeCard(state) {
+/** 清空这一间房 —— 门在清房那一刻就开，不用再收卡（`docs/adr/0053`）。 */
+function clearRoom(state) {
   killAll(state);
   Core.runFrames(state, Math.ceil((Core.DEATH.lie + Core.DEATH.shape) * Core.FPS) + 2, {});
-  if (state.upgradeChoice) {
-    Core.chooseUpgrade(state, preferredUpgrade(state.upgradeChoice.options));
-  }
 }
 
 test("a smashed barrel stays smashed when he walks out of the room and back in", () => {
@@ -615,7 +603,7 @@ test("a smashed barrel stays smashed when he walks out of the room and back in",
   const barrel = state.props.find((prop) => Core.BREAKABLE[prop.piece]);
   assert.ok(barrel, "兽栏 has a barrel standing in it");
 
-  clearAndTakeCard(state);
+  clearRoom(state);
   smashBarrel(state, barrel);
   assert.equal(barrel.solid, false, "碎的桶不再挡人");
   Core.runFrames(state, Math.ceil(Core.BREAK_ANIM * Core.FPS) + 2, {});
@@ -632,7 +620,7 @@ test("a smashed barrel stays smashed when he walks out of the room and back in",
   assert.notEqual(state.cell, wasAt);
 
   /* 回头。门是那扇进来的门，随时能走（`exitMode`）。 */
-  clearAndTakeCard(state);
+  clearRoom(state);
   const back = state.entryDoor;
   assert.ok(walkToDoor(state, back) >= 0, "the way back is always open");
   assert.equal(state.cell, wasAt, "he is standing in the barrel's room again");
@@ -651,7 +639,6 @@ test("换房把上一间房的光和字一并留下，不带进新房间", () =>
 
   killAll(state);
   Core.step(state, {});
-  Core.chooseUpgrade(state, preferredUpgrade(state.upgradeChoice.options));
   const dir = "NESW".split("").find((d) => Core.exitMode(state, d) === "open");
   assert.ok(walkToDoor(state, dir) >= 0, "the door has to let him through");
 
@@ -1351,7 +1338,7 @@ test("the player can walk into the screen and back out", () => {
   assert.ok(state.player.z < walked, "and down walks back out");
 });
 
-test("门口那一块没有实心布景 —— 而且是挪开的，不是丢掉的", () => {
+test("门口那一块没有布景压着 —— 实心件挪开、花草也不许盖门拱", () => {
   const state = Core.createState({ seed: Core.DEFAULT_SEED });
   state.dungeon.cells.forEach((cell, index) => {
     Core.goToCell(state, index);
@@ -1364,13 +1351,113 @@ test("门口那一块没有实心布景 —— 而且是挪开的，不是丢掉
       spec.length,
       `${state.room.name} 的实心布景要一件不少（压门的挪开，不是丢掉）`
     );
-    placed.forEach((prop) => {
+    /*
+     * **所有**布景都过这一关，不只是实心件：花草贴花不挡人，但会把门拱画糊
+     * （业主 2026-10-17：「有杂草盖住了门口」；`docs/adr/0056`）。
+     */
+    state.props.forEach((prop) => {
       assert.equal(
         Core.blocksDoorway(state, cell, { piece: prop.piece, x: prop.x, depth: prop.z / depth }, depth),
         false,
         `${state.room.name} 的 ${prop.piece} 压在门口上`
       );
     });
+  });
+});
+
+test("无盒布景的美术尺寸与渲染表对得上", () => {
+  Object.keys(Core.PROP_ART).forEach((piece) => {
+    const rect = Render.SCENE.pieces[piece];
+    assert.ok(rect, `${piece} 在 SCENE.pieces 里没有`);
+    assert.deepEqual(
+      Core.PROP_ART[piece],
+      [rect[2], rect[3]],
+      `${piece} 的净空尺寸和画出来的尺寸分家了`
+    );
+  });
+});
+
+/*
+ * 业主指名的那个格子：第一排第 3 格（(2,0)）往东到第一排第 4 格。
+ * 默认种子下东门门拱 `x∈[873.6,978.4]`，原来有一丛 grass 在 x=876.8。
+ */
+test("业主报的那一格：东门门拱上不再有草", () => {
+  const state = Core.createState({ seed: Core.DEFAULT_SEED });
+  Core.goToCell(state, 2);
+  const cell = Core.currentCell(state);
+  assert.equal(cell.col, 2);
+  assert.equal(cell.row, 0);
+  assert.ok(cell.exits & Core.MINIMAP_STEPS.E.bit, "这一格要真的有东门");
+  const gate = Core.gateArtRect(state, cell, "E");
+  state.props.forEach((prop) => {
+    const art = Core.propArtSize(prop.piece);
+    const box = Core.propBox(prop.piece);
+    const ink = art || (box && box.ink);
+    if (!ink) return;
+    const foot = Core.ARENA.groundY - Core.depthLift(prop.z);
+    const left = prop.x - ink[0] / 2;
+    const right = prop.x + ink[0] / 2;
+    const top = foot - ink[1];
+    assert.ok(
+      right <= gate.left || left >= gate.right || foot <= gate.top || top >= gate.bottom,
+      `${prop.piece} 仍然压着东门门拱（x=${Math.round(prop.x)}）`
+    );
+  });
+});
+
+/*
+ * **木桶碎片不许比整只桶还大。** 完整桶画 0.74，碎片原来按 1.0 画、还锚在
+ * 未缩放的 63×78 框上（业主 2026-10-17：「有的木桶图片图层不对」）。这条把
+ * 碎片的落点钉在缩放后的桶框里，尺寸也按同一个倍率。
+ */
+test("木桶碎片跟着桶的倍率画，不越出整只桶的框", () => {
+  const state = Core.createState({ seed: Core.DEFAULT_SEED, stage: "mirkwood" });
+  let barrel = null;
+  for (let index = 0; index < state.dungeon.cells.length && !barrel; index += 1) {
+    Core.goToCell(state, index);
+    barrel = state.props.find((prop) => prop.piece === "barrel");
+  }
+  assert.ok(barrel, "这一局总得有一只桶");
+
+  barrel.broken = true;
+  barrel.brokenAt = state.time - 0.2;
+  barrel.solid = false;
+  /* 这一间可能还有别的完整桶；这一条只看我们砸碎的那一只。 */
+  state.props = [barrel];
+  state.enemies = [];
+  state.effects = [];
+
+  const calls = [];
+  const forest = { width: 1280, height: 2097 };
+  Render.render(recordingContext(calls), state, { sprites: { forest } });
+
+  /* 同一行 y=1874 还有门（sx<560）和死亡碎块（sx>979），只看桶与它的碎片。 */
+  const pieces = calls.filter((call) =>
+    call[0] === "drawImage" && call[1] === forest &&
+    call[3] === 1874 && call[2] >= 560 && call[2] <= 979);
+  assert.ok(pieces.length > 0, "碎片一块都没画");
+  assert.equal(
+    pieces.some((call) => call[2] === Render.SCENE.pieces.barrel[0]),
+    false,
+    "碎了的桶不该再画完整帧"
+  );
+
+  const scale = Core.propScale("barrel");
+  const whole = Render.SCENE.pieces.barrel;
+  const wholeW = whole[2] * scale[0];
+  const wholeH = whole[3] * scale[1];
+  const left = barrel.x - wholeW / 2;
+  const top = Core.ARENA.groundY - Core.depthLift(barrel.z) - wholeH;
+  pieces.forEach((call) => {
+    assert.ok(
+      Math.abs(call[8] - call[4] * scale[0]) < 0.01,
+      `碎片宽 ${call[8]} 没有按桶的倍率 ${scale[0]} 画`
+    );
+    assert.ok(
+      call[6] >= left - 1 && call[6] + call[8] <= left + wholeW + 1 &&
+      call[7] >= top - 1 && call[7] + call[9] <= top + wholeH + 1,
+      `碎片跑到整只桶的框外面了：(${call[6]},${call[7]}) ${call[8]}x${call[9]}`
+    );
   });
 });
 
@@ -1541,6 +1628,12 @@ test("a room with a shallower floor stops him sooner", () => {
  */
 test("a rift keeps its depth when the arena takes it over at the cast's end", () => {
   const state = lastRoomState();
+  /*
+   * 这一条量的是"施法结束时地面接过来的那一档深度"，不是布景。门口净空会把
+   * 实心件挪到新的位置（`docs/adr/0056`），挪过来的石头可能正好顶在测试选的
+   * 那一档上，把他推开 —— 那检验的是布景，不是这一条。先清掉实心件。
+   */
+  state.props = state.props.filter((prop) => !prop.solid);
   state.player.mp = state.player.maxMp;
   /* A row inside this room's own floor: rooms differ now, so ask the room. */
   const deep = Core.bandDepth(state.band) * 0.6;
@@ -2416,16 +2509,6 @@ function botGoal(state) {
 function kitingBot(state) {
   const player = state.player;
   const alive = state.enemies.filter((enemy) => !enemy.dead);
-  /*
-   * Clearing a room opens the reward chooser. Taking a card is the same call the
-   * key handler makes, so the policy "presses a key" rather than steering around
-   * it: a run that skips its reward is not the behaviour under test.
-   */
-  if (state.upgradeChoice) {
-    const pick = preferredUpgrade(state.upgradeChoice.options);
-    if (pick) Core.chooseUpgrade(state, pick);
-    return { left: false, right: false, jump: false, attack: false, skills: {} };
-  }
   /* A cracked slab is a telegraphed threat: step off it before it drops. */
   const input = { left: false, right: false, up: false, down: false, jump: false,
                   attack: false, skills: {} };
@@ -2667,21 +2750,32 @@ test("a timing-aware policy can clear the whole stage without losing health", ()
      * 一路打到 Boss 房：**走过哪几格，就要把那几格的怪清光**。一局走的是他自己选的那条
      * 路（`docs/adr/0030`），所以总击杀数只有这条路上算得出来，不是整张图的怪。
      */
-    const routed = [...visited].reduce((total, cell) => total + state.dungeon.cells[cell].room
-      !== undefined
-      ? total + state.stage.rooms[state.dungeon.cells[cell].room].enemies.length
-      : total, 0);
+    /*
+     * 领主房只数领主：它一倒下就通关，剩下的小怪会从场上拿掉、不用杀
+     * （业主 2026-10-18）。其余走过的格子仍然要清光。
+     */
+    const routed = [...visited].reduce((total, cell) => {
+      const roomIndex = state.dungeon.cells[cell].room;
+      if (roomIndex === undefined) return total;
+      const enemies = state.stage.rooms[roomIndex].enemies;
+      if (cell === state.dungeon.boss) {
+        return total + enemies.filter((enemy) => enemy.type === "boss").length;
+      }
+      return total + enemies.length;
+    }, 0);
     assert.equal(state.stats.kills, routed,
       `seed ${state.seed}: ${visited.size} cells walked, ${routed} bodies in them`);
     /*
      * 「without losing health」, with the bar where the run's shape moved it.
      *
      * 一局现在走的是副本图上他自己的一条路（`docs/adr/0030`），比过去那条五间房的线
-     * 长，路上还多了三个房间的怪；量过十二个种子：伤害 38-67，最大生命 156-176，也就是
-     * 四分之一到五分之二。所以横线放在**一半**：它守的是"读着冷却走的策略能不能把这一关
-     * 走完"，不是"一路不挨打" —— 后者这条测试给不了，也不该由它给。
+     * 长，路上还多了三个房间的怪。**2026-10-17 清房不再发强化卡**（`docs/adr/0053`），
+     * 同一条策略不再有那几张卡的伤害/生命补正，实测承伤从 38-67 抬到 **62-121**
+     * （最大生命 156-176；最高的那一局是 seed 42 的腐叶浅沟，121/168 ≈ 72%）。
+     * 横线因此放到 **80%**：它守的是"读着冷却走的策略能不能把这一关走完"，不是
+     * "一路不挨打" —— 后者这条测试给不了，也不该由它给。真玩觉得太硬，再回来调平衡。
      */
-    assert.ok(state.stats.damageTaken <= state.player.maxHp * 0.5,
+    assert.ok(state.stats.damageTaken <= state.player.maxHp * 0.8,
       `seed ${state.seed}: damageTaken=${state.stats.damageTaken} of ${state.player.maxHp} ` +
         `by room [${damageByRoom.join(", ")}] (${state.stage.rooms.map((r) => r.name).join(" / ")})`);
     assert.ok(state.time < 90, `clear took ${state.time}s`);
@@ -5158,7 +5252,7 @@ test("血之狂暴 is a stance with no timer, and casting it again takes it down
    * reference's own HP orb reads on the frame the stance lands (adr/0017).
    */
   assert.ok(
-    hpBefore - state.player.hp >= maxHp * 0.175,
+    hpBefore - state.player.hp >= maxHp * 0.175 - 1e-9,
     "opening it costs the reference's 17.5% of the bar"
   );
 
@@ -7638,7 +7732,8 @@ test("the boss enrages at half health without mutating the shared type spec", ()
   assert.equal(spec.slam.cooldown, 3.6, "the shared slam cooldown must not change");
   /* 57, not 88: every locomotion speed was scaled onto the recording's pace (docs/adr/0039). */
   assert.equal(spec.speed, 57, "the shared speed must not change");
-  assert.equal(spec.damage, 18, "the shared damage must not change");
+  /* 13, not 18: 删掉每房强化卡之后补的余量（`docs/adr/0053`）。 */
+  assert.equal(spec.damage, 13, "the shared damage must not change");
 
   const fresh = Core.createEnemy(Core.createState({ seed: 3 }), "boss", 500);
   assert.equal(fresh.phase, 1);
@@ -7917,164 +8012,66 @@ function routeToBoss(state) {
   return steps;
 }
 
-function clearedRoomState(seed, cell) {
-  const state = Core.createState({ seed: seed, stage: "mirkwood", cell: cell });
+/*
+ * **清房不再发卡**（业主 2026-10-17：「我不想要通关每一个房间给的加 buffer 的奖励」；
+ * `docs/adr/0053`）。门在 `cell.cleared` 那一刻就开，玩家数值一个都不涨。
+ */
+test("清房不发强化卡：门直接开，玩家的数值不变", () => {
+  const state = Core.createState({ seed: Core.DEFAULT_SEED, stage: "mirkwood" });
+  const read = () => ({
+    attackBonus: state.player.attackBonus,
+    maxHp: state.player.maxHp,
+    mpRegen: state.player.mpRegen,
+    skillPower: state.player.skillPower,
+    attackSpeed: state.player.attackSpeed
+  });
+  const before = read();
+
   killAll(state);
   Core.step(state, {});
-  return state;
-}
 
-test("clearing a room offers three distinct upgrades from the pool", () => {
-  const state = clearedRoomState(Core.DEFAULT_SEED, 0);
+  assert.equal(state.room.cleared, true);
+  assert.equal(state.upgradeChoice, undefined, "清房不该再弹强化卡");
+  assert.equal(state.player.upgradesTaken, undefined, "玩家身上不该再记强化");
+  assert.deepEqual(read(), before, "清房不该改任何一项数值");
 
-  assert.ok(state.upgradeChoice, "a cleared room must open the chooser");
-  assert.equal(state.upgradeChoice.options.length, Core.UPGRADES_PER_ROOM);
-  assert.equal(
-    new Set(state.upgradeChoice.options).size,
-    Core.UPGRADES_PER_ROOM,
-    "the three cards must be three different upgrades"
-  );
-  state.upgradeChoice.options.forEach((id) => {
-    assert.ok(Core.UPGRADE_ORDER.includes(id), `${id} must come from the upgrade pool`);
-    assert.ok(Core.UPGRADES[id], `${id} needs a spec`);
-  });
+  const dir = "NESW".split("").find((d) => Core.exitMode(state, d) === "open");
+  assert.ok(walkToDoor(state, dir) >= 0, `清完房 ${dir} 门就该让他走`);
 });
 
-test("a room's upgrade offer is seeded, and different seeds offer different sets", () => {
-  const offered = [1, 7, 42, 20260915, 5, 99].map((seed) => {
-    const state = clearedRoomState(seed, 0);
-    return state.upgradeChoice.options.join(",");
-  });
-
-  /* Same seed twice: the offer replays exactly. */
-  assert.equal(offered[0], clearedRoomState(1, 0).upgradeChoice.options.join(","));
-  assert.ok(new Set(offered).size > 1, `runs must diverge, got ${offered.join(" | ")}`);
-});
-
-test("taking a card applies it once and records the pick", () => {
-  const state = clearedRoomState(Core.DEFAULT_SEED, 0);
-  const options = state.upgradeChoice.options.slice();
-  const player = state.player;
-
-  assert.equal(Core.chooseUpgrade(state, "not-offered"), false, "only offered cards count");
-  assert.ok(state.upgradeChoice, "a rejected pick leaves the chooser open");
-
-  assert.equal(Core.chooseUpgrade(state, options[0]), true);
-  assert.equal(state.upgradeChoice, null, "the chooser closes after a pick");
-  assert.deepEqual(player.upgradesTaken, [options[0]]);
-  assert.equal(
-    Core.chooseUpgrade(state, options[1]),
-    false,
-    "the same room cannot pay out twice"
-  );
-});
-
-test("every upgrade in the pool changes the player's numbers", () => {
-  const cases = [
-    ["attack", (p) => p.attackBonus],
-    ["attackSpeed", (p) => p.attackSpeed],
-    ["maxHp", (p) => p.maxHp],
-    ["mpRegen", (p) => p.mpRegen],
-    ["skillPower", (p) => p.skillPower]
-  ];
-
-  cases.forEach(([id, read]) => {
-    const state = lastRoomState();
-    const before = read(state.player);
-    Core.UPGRADES[id].apply(state.player);
-    assert.ok(
-      read(state.player) > before,
-      `${id} must raise its stat: ${before} -> ${read(state.player)}`
-    );
-  });
-
-  /* The two stat upgrades have to matter to the simulation, not just the numbers. */
-  const regen = lastRoomState();
-  regen.player.mp = 0;
-  Core.UPGRADES.mpRegen.apply(regen.player);
-  Core.runFrames(regen, Core.FPS, {});
-  assert.ok(
-    regen.player.mp > Core.PLAYER.mpRegenPerSecond,
-    `extra regen must refill MP faster, got ${regen.player.mp}`
-  );
-
-  const power = lastRoomState();
-  const plain = lastRoomState();
-  power.player.skillPower = 2;
-  [power, plain].forEach((state) => {
-    const dummy = Core.createEnemy(state, "brute", state.player.x + 40);
-    dummy.maxHp = 100000;
-    dummy.hp = 100000;
-    dummy.speed = 0;
-    state.enemies = [dummy];
-    Core.step(state, { skills: { upSlash: true } });
-    Core.runFrames(state, 40, {});
-  });
-  assert.ok(
-    power.stats.damageDealt > plain.stats.damageDealt,
-    `skill power must scale skill damage: ${plain.stats.damageDealt} -> ${power.stats.damageDealt}`
-  );
-});
-
-test("upgrades stack across the run", () => {
-  const state = Core.createState({ seed: Core.DEFAULT_SEED });
-  const taken = [];
-  /* 一局清几间房是路线决定的，所以先算一条到 Boss 房的路（`docs/adr/0030`）。 */
-  const route = routeToBoss(state);
-  assert.ok(route.length > 2, `a route to the boss crosses more than a room or two: ${route.length}`);
-  for (const dir of route) {
-    killAll(state);
-    Core.runFrames(state, Math.ceil((Core.DEATH.lie + Core.DEATH.shape) * Core.FPS) + 2, {});
-    Core.step(state, {});
-    if (state.victory) break;
-    assert.ok(state.upgradeChoice, `room ${taken.length + 1} must offer an upgrade`);
-    const pick = preferredUpgrade(state.upgradeChoice.options);
-    taken.push(pick);
-    Core.chooseUpgrade(state, pick);
-    assert.ok(walkToDoor(state, dir) >= 0, `the door ${dir} has to let him through`);
-    Core.runFrames(state, 40, {});
-  }
-
-  assert.equal(
-    state.player.upgradesTaken.length,
-    taken.length,
-    "every cleared room but the boss pays out exactly one upgrade"
-  );
-  assert.ok(taken.length >= 3, `a route to the boss clears more than a room or two: ${taken.length}`);
-  assert.deepEqual(state.player.upgradesTaken, taken);
-});
-
-test("the boss room still ends the run instead of offering a reward", () => {
+/*
+ * **领主一倒下就通关，不用再清剩下的怪**（业主 2026-10-18）。它的白色剪影
+ * 先演完（`victoryDelay`），然后才进胜利页；其余小怪在那一刻就从场上拿掉。
+ */
+test("killing the lord clears the run without killing the other monsters", () => {
   const state = Core.createState({ seed: Core.DEFAULT_SEED, stage: "mirkwood" });
   Core.goToCell(state, state.dungeon.boss);
-  killAll(state);
+  const boss = state.enemies.find((enemy) => enemy.type === "boss");
+  assert.ok(boss, "the lord is in the room");
+  assert.ok(state.enemies.length > 1, "and he is not alone");
+  boss.evasion = 0;
+  boss.hp = 1;
+  Core.damageEnemy(state, boss, 99999, 0, boss.x);
   Core.step(state, {});
 
-  assert.equal(state.victory, true);
-  assert.equal(state.upgradeChoice, null, "the boss room pays out with victory, not a card");
-});
-
-test("the renderer lays out three tap targets and hit-tests them", () => {
-  const cards = Render.upgradeCards();
-  assert.equal(cards.length, Core.UPGRADES_PER_ROOM);
-  cards.forEach((card, index) => {
-    assert.equal(Render.hitTestUpgrade(card.x + card.w / 2, card.y + card.h / 2), index);
-    assert.equal(card.action, "choice" + index);
-  });
-  assert.equal(Render.hitTestUpgrade(2, 2), null, "dead space is not a card");
-
-  const state = clearedRoomState(Core.DEFAULT_SEED, 0);
-  const names = state.upgradeChoice.options.map((id) => Core.UPGRADES[id].name);
-  const calls = [];
-  Render.render(recordingContext(calls), state, {});
-  const texts = calls.filter((call) => call[0] === "fillText").map((call) => String(call[1]));
-  names.forEach((name) => {
-    assert.ok(texts.includes(name), `the chooser must label ${name}`);
-  });
+  assert.equal(state.room.cleared, true);
+  assert.equal(state.victory, false, "the death effect still has to play");
+  assert.ok(state.victoryDelay > 0, "the death effect is on its clock");
   assert.ok(
-    texts.some((text) => text.includes("选一个强化")),
-    "the chooser must say what it is"
+    state.enemies.every((enemy) => enemy.type === "boss"),
+    "the other monsters are taken off the field"
   );
+  assert.ok(
+    state.effects.some((effect) => effect.kind === "bossrays"),
+    "the lord's finishing light rays are on the clock"
+  );
+
+  Core.runFrames(
+    state,
+    Math.ceil((Core.DEATH.lie + Core.DEATH.bossSmoke + Core.DEATH.bossChunks + 0.6) * Core.FPS),
+    {}
+  );
+  assert.equal(state.victory, true);
 });
 
 test("the elite mini-boss telegraphs a spin that sweeps a wide lane", () => {
@@ -8202,7 +8199,32 @@ test("the renderer draws the elite's whirl while it spins", () => {
   );
 });
 
-test("the renderer gives the enraged boss its own palette, aura and bar label", () => {
+/*
+ * **领主是两条血**（业主 2026-10-18「原视频中是两条血，才换颜色的」）：
+ * 绿色那条从满血走到 50% 见底，然后红色那条从满格再走到 0；不是同一条换颜色。
+ */
+test("the lord's bar is two bars: green to half, then red from full", () => {
+  const state = lastRoomState();
+  const boss = Core.createEnemy(state, "boss", 600);
+  boss.maxHp = 160;
+  boss.hp = 160;
+  boss.phase = 1;
+  assert.equal(Render.bossBarShare(boss), 1, "phase one starts full");
+  boss.hp = 120;
+  assert.equal(Render.bossBarShare(boss), 0.5, "phase one is half spent at 120/160");
+  boss.hp = 80;
+  assert.equal(Render.bossBarShare(boss), 0, "phase one is empty at exactly half");
+
+  Core.enterPhase2(state, boss);
+  assert.equal(boss.phase, 2);
+  assert.equal(Render.bossBarShare(boss), 1, "the red bar starts full at 80/160");
+  boss.hp = 40;
+  assert.equal(Render.bossBarShare(boss), 0.5, "the red bar is half spent at 40/160");
+  boss.hp = 0;
+  assert.equal(Render.bossBarShare(boss), 0, "and empty at zero");
+});
+
+test("the boss bar names the boss in both phases, and no longer writes 狂暴 on it", () => {
   const calls = [];
   const ctx = recordingContext(calls);
 
@@ -8210,46 +8232,45 @@ test("the renderer gives the enraged boss its own palette, aura and bar label", 
   const boss = Core.createEnemy(state, "boss", 600);
   boss.hp = boss.maxHp * 0.8;
   state.enemies = [boss];
-  /*
-   * 那块条显示的是**当前目标**（他正在打的那只怪），所以要先把目标设上 —— 录制那会儿
-   * 顶部正中还有一条独立的 Boss 血条，谁都没打也能看见；那条已经删了（录像里没有它）。
-   */
+  /* 那块条显示的是**当前目标**，所以先把目标设上。 */
   state.target = { enemy: boss, dying: 0, share: boss.hp / boss.maxHp };
+  state.bossEngaged = true;
 
   calls.length = 0;
   Render.render(ctx, state, {});
   const calmArcs = calls.filter((call) => call[0] === "arc").length;
   const calmTexts = calls.filter((call) => call[0] === "fillText").map((call) => call[1]);
-  /*
-   * **名字归怪自己**（`ENEMY_TYPES.boss.label`）：`render.js` 曾经画过一个写死的
-   * "GOBLIN KING"（那只 Boss 删了很久之后还在），后来改读 `STAGES.*.bossName`，
-   * 于是同一个名字有两个地方 —— 现在只有一处，而且是照录像里那块条上的写法。
-   */
   const bossInfo = Core.monsterInfo("boss");
   const bossName = "Lv" + bossInfo.level + " " + bossInfo.label;
-  const enrageMark = "狂暴";
+  assert.equal(
+    Render.TARGET_PANEL.bossBar,
+    1068,
+    "Boss 条是整条 1068，不是某一帧剩下的绿色"
+  );
   assert.ok(
     calmTexts.includes(bossName),
     `the bar must name this stage's boss (${bossName}), got ${JSON.stringify(calmTexts)}`
   );
-  assert.equal(
-    calmTexts.some((text) => String(text).includes(enrageMark)),
-    false,
-    "phase one must not claim to be enraged"
+  assert.ok(
+    calmTexts.includes("ALERT!"),
+    "交上手之后，条里没填满的那一段要写 ALERT!"
   );
 
   Core.enterPhase2(state, boss);
   calls.length = 0;
   Render.render(ctx, state, {});
   const enragedArcs = calls.filter((call) => call[0] === "arc").length;
-  const enragedTexts = calls.filter((call) => call[0] === "fillText").map((call) => call[1]);
-  const enragedMarked = enragedTexts.filter((text) => String(text).includes(enrageMark));
-  assert.ok(enragedMarked.length >= 1, "the bar must read as enraged in phase two");
-  assert.ok(
-    enragedMarked.some((text) =>
-      calmTexts.includes(String(text).replace(" · " + enrageMark, ""))
-    ),
-    "and the enrage is phase one's label with its suffix"
+  const enragedTexts = calls.filter((call) => call[0] === "fillText").map((call) => String(call[1]));
+  assert.ok(enragedTexts.includes(bossName), "phase two still names him");
+  assert.equal(
+    enragedTexts.some((text) => text.includes("狂暴")),
+    false,
+    "录像里没有「· 狂暴」—— 翻脸仍然是玩法，但不写在条上"
+  );
+  assert.equal(
+    enragedTexts.includes("ALERT!"),
+    false,
+    "红相位不再画橙色 ALERT 空槽"
   );
   assert.ok(
     enragedArcs > calmArcs,
@@ -8325,40 +8346,6 @@ test("the renderer shows a hint in play and hides it behind overlays", () => {
     "a paused frame must not show coaching either"
   );
   assert.equal(textsFor({}).includes(hint.text), false, "no active hint means no line");
-});
-
-test("the reward chooser never shows through a full-screen overlay", () => {
-  const state = clearedRoomState(Core.DEFAULT_SEED, 0);
-  assert.ok(state.upgradeChoice, "precondition: a reward choice is pending");
-
-  const textsFor = (meta) => {
-    const calls = [];
-    Render.render(recordingContext(calls), state, meta);
-    return calls.filter((call) => call[0] === "fillText").map((call) => String(call[1]));
-  };
-
-  assert.ok(
-    textsFor({}).some((text) => text.includes("选一个强化")),
-    "live play must show the chooser"
-  );
-
-  [
-    ["pause", { paused: true }],
-    ["title", { showHelp: true }]
-  ].forEach(([label, meta]) => {
-    assert.equal(
-      textsFor(meta).some((text) => text.includes("选一个强化")),
-      false,
-      `the chooser must stay hidden behind the ${label} overlay`
-    );
-  });
-
-  state.victory = true;
-  assert.equal(
-    textsFor({}).some((text) => text.includes("选一个强化")),
-    false,
-    "the victory overlay hides the chooser too"
-  );
 });
 
 test("the room banner waits for live play instead of freezing behind an overlay", () => {
@@ -8665,6 +8652,20 @@ test("the ground strips are the same height as each other", () => {
   });
 });
 
+/*
+ * **启动加载屏不许画任何图。** 它的全部意义是"素材没到齐时别让玩家看见
+ * 后备画法"；一旦它自己画了图，那条保证就漏了。
+ */
+test("加载屏只画字和进度条，不碰任何素材图", () => {
+  const calls = [];
+  Render.renderLoading(recordingContext(calls), { total: 10, loaded: 4, ready: false });
+  assert.equal(calls.filter((call) => call[0] === "drawImage").length, 0,
+    "加载屏画了图，素材没到齐时就会把老画法露出来");
+  const texts = calls.filter((call) => call[0] === "fillText").map((call) => call[1]);
+  assert.ok(texts.some((text) => String(text).includes("40%")),
+    `加载屏没有报进度：${texts.join(" / ")}`);
+});
+
 test("the map window sits in the corner, clear of the panels that share the top", () => {
   /*
    * 右上角是**世界窗口**的右上角，不是画布的（`docs/adr/0040`）：画布右边 120 px
@@ -8726,6 +8727,87 @@ test("the map draws the whole dungeon, and blanks only what is not there", () =>
                                          call[3] === Render.MINIMAP.pieces.blank[1]);
   assert.equal(blanks.length, grid, "every cell of the grid gets the blank cell first");
   assert.equal(state.dungeon.cells.length, grid, "and this dungeon uses all of them");
+});
+
+/*
+ * **领主房那格的牛头从第一帧就画，不等他走进那间房**
+ * （业主 2026-10-17：「右上角的地图，领主房间，应该是牛头图标」）。
+ *
+ * 图标本身一直是客户端那张红牛头（`MINIMAP.pieces.boss`）；这次改的是它被迷雾
+ * 藏起来的问题 —— 等他走进去才画的话，这张图就只在他已经站在里面时才告诉他
+ * Boss 在哪。底下的格子没去过仍是黑的，只把牛头露出来。
+ */
+test("地图的领主格是牛头，没去过也露出来", () => {
+  const state = Core.createState({ seed: 7, stage: "mirkwood" });
+  const boss = state.dungeon.cells[state.dungeon.boss];
+  assert.ok(!boss.seen, "这一条要从没去过的领主房开始");
+
+  const calls = [];
+  const minimap = { width: 378, height: 122 };
+  Render.render(recordingContext(calls), state, {
+    sprites: { minimap },
+    map: { mode: "window" }
+  });
+
+  const box = Render.minimapBox({});
+  const cell = Render.MINIMAP.tile;
+  const face = Render.MINIMAP.pieces.boss;
+  const heads = calls.filter((call) =>
+    call[0] === "drawImage" &&
+    call[1] === minimap &&
+    call[2] === face[0] && call[3] === face[1] &&
+    Math.abs(call[6] - (box.left + boss.col * cell)) <= cell &&
+    Math.abs(call[7] - (box.top + boss.row * cell)) <= cell);
+  assert.ok(heads.length > 0, "领主格没有画牛头");
+  assert.ok(
+    heads[0][6] >= box.left + boss.col * cell &&
+    heads[0][6] < box.left + (boss.col + 1) * cell,
+    "牛头要落在领主那一格里"
+  );
+});
+
+/*
+ * **清房之后，邻接的未探索房间露一个「?」**（业主 2026-10-18）。它只在
+ * "当前这间清了 + 那扇门真的通 + 那格没去过"三条同时成立时画。
+ */
+test("清房后邻接的未探索房间在地图上变成问号", () => {
+  const state = Core.createState({ seed: Core.DEFAULT_SEED, stage: "mirkwood" });
+  const minimap = { width: 378, height: 122 };
+  const box = Render.minimapBox({});
+  const tile = Render.MINIMAP.tile;
+  const here = state.dungeon.cells[state.cell];
+  const dir = Core.MINIMAP_DIRS.find((name) => here.exits & Core.MINIMAP_STEPS[name].bit);
+  assert.ok(dir, "the entry room has an exit to question");
+  const next = Core.doorNeighbour(state.dungeon, here, dir);
+  assert.ok(next >= 0 && next !== state.dungeon.boss);
+  const nextCell = state.dungeon.cells[next];
+  assert.ok(!nextCell.seen, "the neighbour starts unseen");
+
+  const questionCalls = (sprites) => {
+    const calls = [];
+    Render.render(recordingContext(calls), state, {
+      sprites: { minimap: sprites },
+      map: { mode: "window" }
+    });
+    return calls.filter((call) =>
+      call[0] === "drawImage" && call[1] === sprites &&
+      call[2] === Render.MINIMAP.pieces.question[0] &&
+      call[3] === Render.MINIMAP.pieces.question[1]);
+  };
+
+  assert.equal(questionCalls(minimap).length, 0, "没清房之前不该有问号");
+
+  killAll(state);
+  Core.step(state, {});
+  assert.equal(here.cleared, true);
+  const marked = questionCalls(minimap);
+  assert.ok(marked.length >= 1, "清房后邻接的未探索房间要露问号");
+  assert.ok(
+    marked.some((call) =>
+      Math.abs(call[6] - (box.left + nextCell.col * tile)) <= tile &&
+      Math.abs(call[7] - (box.top + nextCell.row * tile)) <= tile),
+    "问号要落在邻接那一格上"
+  );
 });
 
 test("the map window's markers land in the boss's cell and in the player's", () => {

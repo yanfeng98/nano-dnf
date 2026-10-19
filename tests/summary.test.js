@@ -18,28 +18,20 @@ test("the summary lists the run's own numbers", () => {
     seed: 20260915,
     seconds: 49.38,
     level: 5,
-    upgrades: ["attack", "maxHp", "mpRegen"],
     kills: 14,
     damageTaken: 7
   });
 
   assert.deepEqual(
     table.rows.map((row) => row.id),
-    ["seed", "time", "level", "upgrades", "kills", "damage"],
+    ["seed", "time", "level", "kills", "damage"],
     "row ids are the stable contract"
   );
   assert.equal(rowOf(table, "seed").value, "20260915");
   assert.equal(rowOf(table, "time").value, "0:49.3");
   assert.equal(rowOf(table, "level").value, "Lv 5");
-  assert.equal(rowOf(table, "upgrades").value, "锐锋 · 体魄 · 灵息");
   assert.equal(rowOf(table, "kills").value, "14");
   assert.equal(rowOf(table, "damage").value, "7");
-});
-
-test("a run with nothing picked says so instead of printing nothing", () => {
-  const table = Summary.describe({ seed: 7, seconds: 12, level: 1, upgrades: [] });
-  assert.equal(rowOf(table, "upgrades").value, "无");
-  assert.equal(table.upgradeNames.length, 0);
 });
 
 test("the table says how far the run got", () => {
@@ -49,7 +41,7 @@ test("the table says how far the run got", () => {
    */
   const reached = Summary.describe({ seed: 1, room: 2, rooms: 12 });
   assert.equal(rowOf(reached, "reached").value, "走过 2 间 / 图上 12 格");
-  assert.equal(Summary.describe({ seed: 1, room: 0, rooms: 12 }).rows.length, 7);
+  assert.equal(Summary.describe({ seed: 1, room: 0, rooms: 12 }).rows.length, 6);
 
   /* A run that never left the entry cell, and one that cannot be trusted. */
   assert.equal(rowOf(Summary.describe({ room: 0, rooms: 12 }), "reached").value,
@@ -64,12 +56,6 @@ test("the table says how far the run got", () => {
     Summary.describe({ seed: 1 }).rows.every((row) => row.id !== "reached"),
     "no room total means no reached row"
   );
-});
-
-test("an unknown upgrade id still shows something readable", () => {
-  const table = Summary.describe({ upgrades: ["attack", "mystery"] });
-  assert.deepEqual(table.upgradeNames, ["锐锋", "mystery"]);
-  assert.equal(rowOf(table, "upgrades").value, "锐锋 · mystery");
 });
 
 test("the summary never prints a number it cannot vouch for", () => {
@@ -116,7 +102,6 @@ test("the share link reopens one exact seed", () => {
 test("the live variant reads the run that is still going", () => {
   const state = Core.createState({ seed: 4242 });
   Core.runFrames(state, 300, { right: true, attack: true });
-  state.player.upgradesTaken.push("attack");
 
   const table = Summary.liveRun(state, 4242);
   const rows = table.rows;
@@ -125,7 +110,6 @@ test("the live variant reads the run that is still going", () => {
   assert.equal(value("seed"), "4242");
   assert.equal(value("time"), Summary.formatSeconds(state.time));
   assert.equal(value("level"), "Lv " + state.player.level);
-  assert.equal(value("upgrades"), "锐锋");
   assert.equal(value("kills"), String(state.stats.kills));
   assert.equal(value("damage"), String(state.stats.damageTaken));
   assert.equal(
@@ -135,7 +119,7 @@ test("the live variant reads the run that is still going", () => {
 
   /* A half-built state must not throw or invent numbers. */
   assert.doesNotThrow(() => Summary.liveRun(null, 9));
-  assert.equal(Summary.liveRun({}, 9).rows.length, 6, "no layout means no reached row");
+  assert.equal(Summary.liveRun({}, 9).rows.length, 5, "no layout means no reached row");
 });
 
 test("the pace line knows which side of the record the run is on", () => {
@@ -169,17 +153,15 @@ test("the pace line knows which side of the record the run is on", () => {
 test("a real cleared run produces a table the victory screen can print", () => {
   const state = Core.createState({ seed: 1234 });
   Core.runFrames(state, 60, { right: true, attack: true });
-  state.player.upgradesTaken.push("attack", "skillPower");
   const rows = Summary.describe({
     seed: state.seed,
     seconds: state.time,
     level: state.player.level,
-    upgrades: state.player.upgradesTaken,
     kills: state.stats.kills,
     damageTaken: state.stats.damageTaken
   }).rows;
 
-  assert.equal(rows.length, 6);
+  assert.equal(rows.length, 5);
   rows.forEach((row) => {
     assert.equal(typeof row.label, "string");
     assert.equal(typeof row.value, "string");

@@ -153,7 +153,7 @@ def draw_text(image: Image.Image) -> None:
     )
     draw.text(
         (96, 362),
-        "种子化布局 · 强化三选一 · 通关记录 · 无第三方库",
+        "种子化布局 · 通关翻牌 · 通关记录 · 无第三方库",
         font=load_font(28),
         fill=DIM,
     )

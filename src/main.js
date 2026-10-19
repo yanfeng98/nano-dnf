@@ -14,6 +14,7 @@
   var Hints = window.DNFHints;
   var Attract = window.DNFAttract || null;
   var Summary = window.DNFSummary || null;
+  var Reward = window.DNFReward || null;
   var canvas = document.getElementById("stage");
   var ctx = canvas.getContext("2d");
 
@@ -30,9 +31,24 @@
    */
   var sprites = {
     slayer: null, skills: null, effects: null, rift: null, awakening: null, region: null,
-    monsters: null, forest: null, minimap: null, ui: null
+    monsters: null, forest: null, minimap: null, ui: null,
+    /* The two portraits cut from the owner's reference recording (ADR 0054/0055). */
+    bossPortrait: null, rewardAvatar: null
   };
-  [
+  /*
+   * **素材没到齐之前，一帧游戏都不画。**
+   *
+   * 这些图是异步加载的，而最早那版渲染器为"图还没到"准备了后备画法
+   * （`drawFallbackPlayer` 的像素小人、`ENEMY_STYLE` 的方块怪、石头地牢）。
+   * 业主 2026-10-17 看到的"开始时加载的角色和怪物是像素和老的怪物"就是
+   * 那一瞬间 —— 后备画法不是另一套美术，它只是老版本的尸体。现在用一张
+   * 自己的加载屏（`Render.renderLoading`）等它们全部 onload，再开始标题演示。
+   *
+   * `failed` 也算"到过"：一张图 404 就永远等下去的话，页面会卡在加载屏；
+   * 渲染器对缺失的图本来就有后备，所以这里只记账、不阻塞。
+   */
+  var assets = { total: 0, loaded: 0, failed: 0, ready: false };
+  var ASSET_ENTRIES = [
     ["slayer", "./assets/slayer.png"],
     ["skills", "./assets/skills.png"],
     ["effects", "./assets/effects.png"],
@@ -72,13 +88,34 @@
      * assets/import_awakening_cutin.py), so it is cut out of the reference clip
      * the owner handed over instead.
      */
-    ["awakening", "./assets/awakening.png"]
-  ].forEach(function (entry) {
+    ["awakening", "./assets/awakening.png"],
+    /*
+     * 两张从业主参考录像里裁的人像：领主目标框的牛头正脸（t=250s）与通关
+     * 翻牌名条上的玩家头像（t=354s）。客户端里没有一个单独的正脸分件，
+     * 侧身战斗精灵在 40px 下对不上参考（`docs/adr/0054` 追记二、0055 追记）。
+     */
+    ["bossPortrait", "./assets/boss_portrait.png"],
+    ["rewardAvatar", "./assets/reward_avatar.png"]
+  ];
+  assets.total = ASSET_ENTRIES.length;
+  ASSET_ENTRIES.forEach(function (entry) {
     var image = new Image();
-    image.src = entry[1];
+    var settled = false;
+    var settle = function (ok) {
+      if (settled) return;
+      settled = true;
+      assets.loaded += 1;
+      if (!ok) assets.failed += 1;
+      assets.ready = assets.loaded >= assets.total;
+    };
     image.onload = function () {
       sprites[entry[0]] = image;
+      settle(true);
     };
+    image.onerror = function () {
+      settle(false);
+    };
+    image.src = entry[1];
   });
 
   /*
@@ -129,14 +166,10 @@
     "skill:hellbenter": true
   };
 
-  /* Digit/Numpad 1-3 pick the between-room upgrade card with the same index. */
-  var CHOICE_KEYS = {
-    Digit1: 0,
-    Digit2: 1,
-    Digit3: 2,
-    Numpad1: 0,
-    Numpad2: 1,
-    Numpad3: 2
+  /* 通关翻牌：1–4 选一张（触屏直接点卡片）。 */
+  var REWARD_KEYS = {
+    Digit1: 0, Digit2: 1, Digit3: 2, Digit4: 3,
+    Numpad1: 0, Numpad2: 1, Numpad3: 2, Numpad4: 3
   };
 
   var held = { left: false, right: false, up: false, down: false, jump: false, attack: false };
@@ -256,6 +289,8 @@
   var lastRun = null;
   /* The numbers of the run that just ended, frozen at the clear. */
   var finishedRun = null;
+  /* 通关后的翻牌奖励：`Reward.create` 的纯状态，`src/reward.js`（`docs/adr/0055`）。 */
+  var reward = null;
 
   var state = Core.createState({ seed: currentSeed, stage: currentStage });
   var paused = false;
@@ -534,7 +569,13 @@
    * 在文件到位之前是惰性的，和第一片的镜头管线同一个做法：管线先接好，东西到了就用。
    */
   function syncTrack() {
-    var want = Music.trackFor(state);
+    /*
+     * **开始画面、地区地图与进副本那 2.34 秒过场都还没"进副本"**：放
+     * `intro.ogg`。过场走完（`state.intro` 清掉）房间淡进来，才切到
+     * `mirkwood.ogg`；Boss 格再切 Boss 那首。
+     */
+    var titleUp = showHelp || regionOpen || !!state.intro;
+    var want = Music.trackFor(state, { title: titleUp });
     if (want === musicTrackId) return;
     musicTrackId = want;
     if (!musicBuffers[want]) return;
@@ -683,12 +724,16 @@
    * snapshot instead of a still-moving state.
    */
   function syncFinishedRun() {
+    /*
+     * 通关那一帧起一张翻牌奖励（`docs/adr/0055`）。它按种子确定：同一个种子
+     * 给同一件物品与同一笔金币。
+     */
+    if (state.victory && !reward && Reward) reward = Reward.create({ seed: currentSeed });
     if (finishedRun || (!state.victory && !state.defeat)) return;
     finishedRun = {
       seed: currentSeed,
       seconds: state.time,
       level: state.player.level,
-      upgrades: state.player.upgradesTaken.slice(),
       kills: state.stats.kills,
       damageTaken: state.stats.damageTaken,
       /* 走过几间房 —— 副本图里没有"第几间"，只有他走了多少格（docs/adr/0030）。 */
@@ -707,7 +752,6 @@
       seed: currentSeed,
       seconds: state.time,
       level: state.player.level,
-      upgrades: state.player.upgradesTaken,
       kills: state.stats.kills,
       damageTaken: state.stats.damageTaken,
       room: state.stats.rooms,
@@ -718,7 +762,6 @@
           seed: run.seed,
           seconds: run.seconds,
           level: run.level,
-          upgrades: run.upgrades,
           kills: run.kills,
           damageTaken: run.damageTaken,
           room: run.room,
@@ -819,6 +862,13 @@
   }
 
   function touchDown(event) {
+    if (!assets.ready) {
+      event.preventDefault();
+      return;
+    }
+    /* 触屏这条路也一样：第一下点按就是浏览器允许出声的那一下手势。 */
+    ensureAudio();
+    startMusic();
     if (showHelp) {
       openRegion();
       event.preventDefault();
@@ -835,13 +885,13 @@
       return;
     }
 
-    /* The reward chooser owns the pointer while it is open. */
-    if (state.upgradeChoice) {
-      var cardIndex = Render.hitTestUpgrade(point.x, point.y);
-      if (cardIndex !== null) {
+    /* 通关翻牌：点哪张选哪张（触屏这一条和键盘 1–4 走同一个 `Reward.pick`）。 */
+    if (state.victory && reward && reward.phase === "cards") {
+      var rewardCard = Render.hitTestRewardCard(point.x, point.y);
+      if (rewardCard !== null) {
         event.preventDefault();
         ensureAudio();
-        Core.chooseUpgrade(state, state.upgradeChoice.options[cardIndex]);
+        Reward.pick(reward, rewardCard);
         return;
       }
     }
@@ -970,6 +1020,15 @@
       if (KEY_MAP[event.code]) event.preventDefault();
       return;
     }
+    /* 加载屏上不接受任何游戏输入 —— 包括"按任意键开始"。 */
+    if (!assets.ready) return;
+    /*
+     * **第一次手势就把开始画面那首放起来。** 浏览器只允许在用户手势之后出声，
+     * 而标题页现在也有一首自己的曲子（`Music.TRACKS.title`）—— 以前要等到
+     * 进副本按下第一个键才响，标题那一段是静的。
+     */
+    ensureAudio();
+    startMusic();
     if (event.code === "KeyP") {
       paused = !paused;
       event.preventDefault();
@@ -1002,6 +1061,15 @@
       else restart();
       event.preventDefault();
       return;
+    }
+    /* 通关翻牌：1–4 选一张。倒计时到点由 `Reward.step` 自动选最左一张。 */
+    if (state.victory && reward && reward.phase === "cards") {
+      var rewardCard = REWARD_KEYS[event.code];
+      if (rewardCard !== undefined) {
+        Reward.pick(reward, rewardCard);
+        event.preventDefault();
+        return;
+      }
     }
     if (event.code === "KeyN") {
       /* A fresh seed is the reason a run is worth repeating. */
@@ -1041,13 +1109,6 @@
     }
     if (event.code === "F2") {
       touchMode = !touchMode;
-      event.preventDefault();
-      return;
-    }
-    /* The between-room reward is picked with 1/2/3 so it works on any layout. */
-    var pick = CHOICE_KEYS[event.code];
-    if (pick !== undefined && state.upgradeChoice) {
-      Core.chooseUpgrade(state, state.upgradeChoice.options[pick]);
       event.preventDefault();
       return;
     }
@@ -1095,6 +1156,7 @@
     if (attractActive && Attract) attract = Attract.create({ seed: currentSeed });
     lastRun = null;
     finishedRun = null;
+    reward = null;
     runBanked = false;
     hintSeen = {};
     activeHint = null;
@@ -1252,6 +1314,17 @@
     lastTime = timestamp;
 
     /*
+     * **素材没到齐之前，画加载屏，不画那一局。** 以前这里会先画后备画法，
+     * 于是标题演示开头零点几秒是像素小人和方块怪（业主 2026-10-17 报的
+     * "开始时加载的角色和怪物是像素和老的怪物"）。加载屏不碰任何图。
+     */
+    if (!assets.ready) {
+      Render.renderLoading(ctx, assets);
+      window.requestAnimationFrame(frame);
+      return;
+    }
+
+    /*
      * The dungeon only runs during live play. The title screen is a full-screen
      * overlay, so leaving it up used to let the room-1 enemies beat an idle
      * Slayer to 0 HP before the player pressed anything.
@@ -1272,6 +1345,14 @@
         guard += 1;
       }
       if (guard >= 5) accumulator = 0;
+    }
+
+    /*
+     * **通关后的翻牌**按真实时间走（`docs/adr/0055`）：战绩页 3 秒 → 宝箱 →
+     * 四张牌 + 3→2→1 → 领奖。暂停/回地区地图时停住。
+     */
+    if (state.victory && reward && !paused && !regionOpen) {
+      Reward.step(reward, delta);
     }
 
     /*
@@ -1307,6 +1388,8 @@
        * drawn in: the whole dungeon, or the disc centred on the room he is in.
        */
       map: { mode: mapMode },
+      /* 通关后的翻牌奖励（`docs/adr/0055`）：没有通关时为 null。 */
+      reward: reward && Reward ? Reward.snapshot(reward) : null,
       /*
        * The region map, assembled here so render.js never reaches into the
        * storage or the stage table for it (`drawRegionMap`).
@@ -1476,9 +1559,28 @@
          * 合成器。三样分开报，因为"文件到位了没有"与"该放哪一首"是两件事 ——
          * 验收时要能一眼看出换没换到 Boss 那一首。
          */
-        track: Music.trackFor(state),
+        track: Music.trackFor(state, {
+          title: showHelp || regionOpen || !!state.intro
+        }),
         trackFiles: Object.keys(musicBuffers),
         source: musicSource ? "file" : "synth"
+      };
+    },
+    /* 通关翻牌的当前一拍，浏览器证明用它逐段核对（`docs/adr/0055`）。 */
+    getReward: function () {
+      return reward && Reward ? Reward.snapshot(reward) : null;
+    },
+    /* 证明里也用它直接选一张，和键盘/点击走同一个入口。 */
+    pickReward: function (index) {
+      return !!(reward && Reward && Reward.pick(reward, index));
+    },
+    /* 加载屏的进度，浏览器证明用它等到标题演示真的开始。 */
+    getAssetState: function () {
+      return {
+        total: assets.total,
+        loaded: assets.loaded,
+        failed: assets.failed,
+        ready: assets.ready
       };
     },
     getHintState: function () {

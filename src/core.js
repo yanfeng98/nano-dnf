@@ -309,7 +309,12 @@
   ];
 
   var PLAYER = {
-    maxHp: 120,
+    /*
+     * **120 → 176**（2026-10-18）：清房不再发强化卡（`docs/adr/0053`），
+     * 原来靠「体魄」等卡补的那点余量没了，实玩证明在领主房/多怪房会被磨死。
+     * 基础生命 +56，满级上限 156 → 212；不是把卡偷偷加回来，是补基础值。
+     */
+    maxHp: 176,
     maxMp: 100,
     width: 34,
     height: 64,
@@ -1783,7 +1788,8 @@
       width: 68,
       height: 80,
       speed: 44,
-      damage: 13,
+      /* 13 → 11：删掉强化卡之后补的一点余量（`docs/adr/0053`）。 */
+      damage: 11,
       attackRange: 17,
       attackWindup: 0.42,
       attackDuration: 0.7,
@@ -1899,7 +1905,12 @@
       behavior: "boss",
       /* 回避, the same as the elite's - see the note there. */
       evasion: 0.15,
-      maxHp: 260,
+      /*
+       * **260 → 120**（2026-10-18）：删掉每房强化卡之后，同一场领主战要多挨
+       * 五六下（`docs/adr/0053`）。血量不是录像量出来的数，缩短这一场比继续
+       * 压它的伤害更不伤"重踏要躲、贴脸要挨打"的读法。
+       */
+      maxHp: 120,
       xp: 80,
       /*
        * **172x201 → 138x168**（`docs/adr/0050` 追记）。录像里它站着是 355x530 视频px；
@@ -1913,7 +1924,8 @@
       width: 138,
       height: 168,
       speed: 57,
-      damage: 18,
+      /* 18 → 13（二阶段 1.2 倍后 15.6）：删掉强化卡之后补的余量（`docs/adr/0053`）。 */
+      damage: 13,
       attackRange: 29,
       attackWindup: 0.36,
       attackDuration: 0.66,
@@ -1935,7 +1947,8 @@
         radius: 191,
         /* When it decides to slam: the gap it commits from. */
         commit: 75,
-        damage: 20,
+        /* 20 → 15：同上，删卡之后补的余量（`docs/adr/0053`）。 */
+        damage: 15,
         windup: 0.7,
         recovery: 0.5,
         cooldown: 3.6
@@ -2676,24 +2689,40 @@
   function blocksDoorway(state, cell, entry, depth) {
     if (!cell) return false;
     var box = propBox(entry.piece);
-    if (!box) return false;
+    /*
+     * **没有盒子的也要查门拱。** 花草贴花不挡路，但会盖住门拱；它们的美术尺寸
+     * 从 `PROP_ART` 取（业主 2026-10-17：「有杂草盖住了门口」）。只有地面那一条
+     * 需要盒子 —— 无盒件不占身位，地面永远不用查。
+     */
+    var artSize = null;
+    if (box) {
+      artSize = box.ink ? box.ink : [box.width, box.width];
+    } else {
+      artSize = propArtSize(entry.piece);
+      if (!artSize) return false;
+    }
     var z = entry.depth === undefined ? 0 : entry.depth * depth;
-    var inkW = box.ink ? box.ink[0] : box.width;
-    var inkH = box.ink ? box.ink[1] : box.width;
     var foot = ARENA.groundY - depthLift(z);
-    var art = { left: entry.x - inkW / 2, right: entry.x + inkW / 2, top: foot - inkH, bottom: foot };
-    var floorRect = {
+    var art = {
+      left: entry.x - artSize[0] / 2,
+      right: entry.x + artSize[0] / 2,
+      top: foot - artSize[1],
+      bottom: foot
+    };
+    var floorRect = box ? {
       left: entry.x - box.width / 2,
       right: entry.x + box.width / 2,
       near: z - box.depth / 2,
       far: z + box.depth / 2
-    };
+    } : null;
     for (var index = 0; index < MINIMAP_DIRS.length; index += 1) {
       var dir = MINIMAP_DIRS[index];
       if (!(cell.exits & MINIMAP_STEPS[dir].bit)) continue;
-      var floor = doorFloor(state, cell, dir);
-      if (floorRect.left < floor.x[1] && floorRect.right > floor.x[0] &&
-          floorRect.near < floor.z[1] && floorRect.far > floor.z[0]) return true;
+      if (floorRect) {
+        var floor = doorFloor(state, cell, dir);
+        if (floorRect.left < floor.x[1] && floorRect.right > floor.x[0] &&
+            floorRect.near < floor.z[1] && floorRect.far > floor.z[0]) return true;
+      }
       var gate = gateArtRect(state, cell, dir);
       if (art.left < gate.right && art.right > gate.left &&
           art.top < gate.bottom && art.bottom > gate.top) return true;
@@ -2803,58 +2832,6 @@
   }
 
   /*
-   * Between-room rewards. Clearing a room offers three of these, so two runs on
-   * different seeds stop looking alike. Every option is a plain stat change on
-   * the player, which keeps the core deterministic and easy to reason about.
-   */
-  var UPGRADES = {
-    attack: {
-      id: "attack",
-      name: "锐锋",
-      detail: "普攻与技能伤害 +3",
-      apply: function (player) {
-        player.attackBonus += 3;
-      }
-    },
-    maxHp: {
-      id: "maxHp",
-      name: "体魄",
-      detail: "生命上限 +20 并立即回复 20",
-      apply: function (player) {
-        player.maxHp += 20;
-        player.hp = Math.min(player.maxHp, player.hp + 20);
-      }
-    },
-    mpRegen: {
-      id: "mpRegen",
-      name: "灵息",
-      detail: "每秒回蓝 +3",
-      apply: function (player) {
-        player.mpRegen += 3;
-      }
-    },
-    skillPower: {
-      id: "skillPower",
-      name: "鬼气",
-      detail: "技能伤害 +15%",
-      apply: function (player) {
-        player.skillPower += 0.15;
-      }
-    },
-    attackSpeed: {
-      id: "attackSpeed",
-      name: "迅捷",
-      detail: "攻速 +15%",
-      apply: function (player) {
-        player.attackSpeed = Math.min(MAX_ATTACK_SPEED, attackSpeedOf(player) * 1.15);
-      }
-    }
-  };
-
-  var UPGRADE_ORDER = ["attack", "attackSpeed", "maxHp", "mpRegen", "skillPower"];
-  var UPGRADES_PER_ROOM = 3;
-
-  /*
    * 可破坏的布景：木桶。
    *
    * 客户端那只桶自己有 13 帧（`sprite_map_breakableobject.NPK :: barrel.img`）：第 0 帧
@@ -2960,8 +2937,13 @@
     chunks: 0.45,
     /* 一次炸开冒几块（T+4:50 量到十几块，取 14）。 */
     chunkCount: 14,
-    /* Boss 只有那一片白、更大更久（录像里约 0.9 秒），砸不出碎块。 */
-    bossSmoke: 0.9
+    /* Boss 的白剪影更大更久（录像里约 0.9 秒）。 */
+    bossSmoke: 0.9,
+    /*
+     * **Boss 的血块活得更久**（录像 329.5–330.5s）：白剪影之后是蓝紫魂柱 +
+     * 大块血肉，飘/落到下一拍才淡；不是杂兵那 0.45 秒的小碎片。
+     */
+    bossChunks: 0.9
   };
 
   /** 这一只死了那一片白亮多久（Boss 更大更久）。 */
@@ -3039,6 +3021,38 @@
     return typeof entry === "number" ? [entry, entry] : entry;
   }
 
+  /*
+   * **没有碰撞盒的布景也有美术尺寸。**
+   *
+   * 门口净空要按**画面**比：花草不挡人，却能把门拱整个盖掉（业主 2026-10-17：
+   * 「有杂草盖住了门口」）。原来的 `blocksDoorway` 一拿到 `propBox` 为 null 就
+   * return，于是草和贴花在四扇门前全部免检；`blocksDoorLane` 又只查 N/S。
+   *
+   * 这里收的是它们烘出来的 ink 尺寸（与 `src/render.js` 的 `SCENE.pieces` 一致），
+   * **再乘 `propScale`**。摆位检查用的是前缘尺寸（不乘 `depthSize`），比实际画出来的
+   * 略大一点 —— 宁可多让一格，也别让草压住门。
+   */
+  var PROP_ART = {
+    grass: [39, 87],
+    grassFlower: [188, 78],
+    grassPatch: [110, 48],
+    sprout: [126, 66],
+    bush: [64, 59],
+    flower: [30, 55],
+    leaves: [126, 66],
+    leavesBroad: [126, 66],
+    leavesDense: [126, 66],
+    pebble: [24, 27]
+  };
+
+  /** 一件无盒布景的美术尺寸（已乘倍率）；有盒的走 `propBox().ink`。 */
+  function propArtSize(piece) {
+    var art = PROP_ART[piece];
+    if (!art) return null;
+    var scale = propScale(piece);
+    return [art[0] * scale[0], art[1] * scale[1]];
+  }
+
   function propBox(piece) {
     var box = BREAKABLE[piece] || SOLID[piece] || null;
     if (!box) return box;
@@ -3054,7 +3068,8 @@
       height: (box.height || 0) * scale[1],
       hp: box.hp,
       dx: (box.dx || 0) * scale[0],
-      ink: box.ink
+      /* 门拱那一关按画出来的大小比，ink 也跟着缩。 */
+      ink: box.ink ? [box.ink[0] * scale[0], box.ink[1] * scale[1]] : box.ink
     };
   }
 
@@ -3090,7 +3105,6 @@
       mpRegen: PLAYER.mpRegenPerSecond,
       skillPower: 1,
       attackSpeed: PLAYER.attackSpeed,
-      upgradesTaken: [],
       attackTimer: 0,
       attackDuration: PLAYER.attackDuration,
       attackCycle: PLAYER.attackDuration + PLAYER.attackCooldown,
@@ -3484,10 +3498,15 @@
        * 时间戳是那一页唯一能用的表。
        */
       finishedAt: null,
-      upgradeChoice: null,
       /* 换房那一下的黑幕：从 TRANSITION.dur 数到 0，`1` 是全黑。 */
       transition: 0,
       victory: false,
+      /*
+       * **领主倒下到胜利页之间那一下死亡特效**（2026-10-18）：领主一死就
+       * 不再要求清剩下的怪，但先把它的白色剪影演完再进胜利页；这个数在
+       * `step` 里倒数，到 0 才把 `victory` 立起来。
+       */
+      victoryDelay: null,
       defeat: false
     };
     state.rngState = state.seed >>> 0;
@@ -3907,10 +3926,11 @@
          */
         if (blocksDoorway(state, cell, entry, depth)) {
           var moved = null;
+          var artSize = propArtSize(entry.piece);
           for (var away = 1; away <= 60 && moved === null; away += 1) {
             for (var side = -1; side <= 1 && moved === null; side += 2) {
               /* 挪不动就贴着墙试（最后那几个位置是这么够到的）。 */
-              var span = box ? box.width / 2 : 0;
+              var span = box ? box.width / 2 : (artSize ? artSize[0] / 2 : 0);
               var x = clamp(entry.x + side * away * 12,
                             roomLeft(state) + span,
                             roomRight(state) - span);
@@ -3997,7 +4017,6 @@
      * this room is pushed below, after the clear.
      */
     state.effects = [];
-    state.upgradeChoice = null;
     state.effects.push({
       kind: "banner",
       text: spec.name,
@@ -4300,52 +4319,6 @@
       pushBanner(state, "LEVEL UP - Lv " + player.level, 1.4);
     }
     return levels;
-  }
-
-  /** Three distinct upgrades, drawn from the seeded RNG so a seed replays exactly. */
-  function rollUpgradeOptions(state) {
-    var pool = UPGRADE_ORDER.slice();
-    var options = [];
-    while (options.length < UPGRADES_PER_ROOM && pool.length > 0) {
-      var index = Math.floor(nextRandom(state) * pool.length);
-      if (index >= pool.length) index = pool.length - 1;
-      options.push(pool.splice(index, 1)[0]);
-    }
-    return options;
-  }
-
-  function offerUpgrade(state) {
-    state.upgradeChoice = {
-      cell: state.cell,
-      options: rollUpgradeOptions(state),
-      picked: null
-    };
-    return state.upgradeChoice;
-  }
-
-  /**
-   * Take one offered upgrade. The gate to the next room only opens once a pick
-   * is recorded, so a run cannot skip its reward by walking past it.
-   */
-  function chooseUpgrade(state, upgradeId) {
-    var choice = state.upgradeChoice;
-    if (!choice || choice.picked) return false;
-    var id = String(upgradeId || "");
-    if (choice.options.indexOf(id) === -1) return false;
-    var spec = UPGRADES[id];
-    if (!spec) return false;
-
-    spec.apply(state.player);
-    state.player.upgradesTaken.push(id);
-    choice.picked = id;
-    state.upgradeChoice = null;
-    pushBanner(state, spec.name + " - " + spec.detail, 1.8);
-    /*
-     * 不再是"往右走"：门口按地图上那一格的方向开（`docs/adr/0030`），去哪一扇由他选的路
-     * 决定，所以这句话只说"门开了"。
-     */
-    pushBanner(state, "门开了 · 去下一间", 1.4);
-    return true;
   }
 
   /** The blood 血之狂暴 pulls out of a monster it just hit. */
@@ -4695,6 +4668,22 @@
        * 所以它得留在名单里到数完为止 —— 收尸那一步看 `enemy.dying`。
        */
       enemy.dying = DEATH.lie + smokeLife(enemy);
+      /*
+       * **领主倒下的那一下光线**（业主 2026-10-18：「5:28秒的放光线的特效是
+       * 结束特效」）：白剪影和红叉出现的同时，从它身上甩出一组细长的白/红光束。
+       * 单独一条 0.7 秒的特效，和后面的碎块/魂光分开计时。
+       */
+      if (enemy.type === "boss") {
+        state.effects.push({
+          kind: "bossrays",
+          x: enemy.x,
+          z: enemy.z,
+          height: enemy.height,
+          seed: enemy.id,
+          life: 0.7,
+          maxLife: 0.7
+        });
+      }
       state.stats.kills += 1;
       /*
        * A kill is worth more blood than a hit is (docs/adr/0025): the whole body
@@ -6367,26 +6356,50 @@
       return !enemy.dead || enemy.dying > 0;
     });
 
-    if (alive.length === 0 && !state.room.cleared && !state.defeat) {
+    var bossCell = !!(state.dungeon && state.cell === state.dungeon.boss);
+    var boss = null;
+    if (bossCell) {
+      for (var bi = 0; bi < state.enemies.length; bi += 1) {
+        if (state.enemies[bi].type === "boss") {
+          boss = state.enemies[bi];
+          break;
+        }
+      }
+    }
+    /*
+     * **领主一倒下就通关，剩下的怪不用再清**（业主 2026-10-18：「dnf杀死领主后
+     * 会有一个特效，并且就通关，不需要再次杀死其他任务」）。先把其余小怪从场上
+     * 拿掉，只留领主自己的白色剪影演完；`victoryDelay` 到 0 才进胜利页。
+     */
+    var bossDown = bossCell && boss && boss.dead;
+    if ((alive.length === 0 || bossDown) && !state.room.cleared && !state.defeat) {
       state.room.cleared = true;
       var cell = currentCell(state);
       if (cell) cell.cleared = true;
       state.stats.rooms += 1;
-      if (state.dungeon && state.cell === state.dungeon.boss) {
-        state.victory = true;
-        pushBanner(state, (state.stage && state.stage.clearBanner) || "Dungeon cleared!", 2.4);
+      if (bossCell) {
+        if (state.victoryDelay === null || state.victoryDelay === undefined) {
+          state.enemies = boss
+            ? state.enemies.filter(function (enemy) { return enemy === boss; })
+            : [];
+          /* 白剪影 → 魂柱/大血块都演完，再进胜利页。 */
+          state.victoryDelay = DEATH.lie + smokeLife(boss) + DEATH.bossChunks + 0.35;
+          pushBanner(state, (state.stage && state.stage.clearBanner) || "Dungeon cleared!", 2.4);
+        }
       } else {
-        offerUpgrade(state);
-        pushBanner(state, "房间清空 · 选一张强化卡", 1.8);
+        /*
+         * **清房没有强化卡**（业主 2026-10-17：「我不想要通关每一个房间给的加
+         * buffer 的奖励」）。门在 `cell.cleared` 那一刻就开了，这里只说一声。
+         */
+        pushBanner(state, "房间清空 · 门开了", 1.4);
       }
       return;
     }
 
-    /*
-     * 出门：站在一扇开着的门里就换房。门清过房才全开，没清只有进来那扇能走回去
-     * （`exitMode`）。卡片还没选完就不放人 —— 强化是清房的报酬，不是路上的选装。
-     */
-    if (!state.room.cleared || state.upgradeChoice || !state.dungeon) return;
+    /* 死亡特效还在演：先别让他从门口走掉，等 `victoryDelay` 到 0。 */
+    if (state.victoryDelay !== null && state.victoryDelay !== undefined) return;
+    /* 出门：站在一扇开着的门里就换房。门清过房才全开，没清只有进来那扇能走回去。 */
+    if (!state.room.cleared || !state.dungeon) return;
     var dir = doorAt(state);
     if (dir) enterCell(state, dir);
   }
@@ -6396,7 +6409,8 @@
    * → 炸成十二块它自己颜色的碎块、从场上拿掉。
    *
    * 剪影就是这只怪自己画的（`enemy.silhouette` 交给渲染层），所以尸体得留到数完；
-   * `dying` 是这条线唯一的钟。Boss 例外：只有那一片白，不炸。
+   * `dying` 是这条线唯一的钟。**Boss 也炸**，只是白剪影更大更久（`bossSmoke`），
+   * 碎块更大（`chunk_boss*`），渲染端再叠一团蓝紫魂光（业主 2026-10-18）。
    */
   function updateDeaths(state, dt) {
     var buried = false;
@@ -6411,21 +6425,20 @@
       buried = true;
       /*
        * 炸开：十几块**它自己的颜色**，飞出去、减速、落地、化掉（`DEATH.chunks`）。
-       * Boss 不炸 —— 录像里它只有那一片白。
+       * **Boss 也炸**（业主 2026-10-18：「死亡特效按照参考视频做」）：参考里
+       * 白剪影之后是粉肉碎块 + 一团蓝紫魂光，不是只留一片白。
        */
-      if (enemy.type !== "boss") {
-        state.effects.push({
-          kind: "deathburst",
-          x: enemy.x,
-          z: enemy.z,
-          seed: enemy.id,
-          type: enemy.type,
-          /* 碎块从**身上**起手，不是从脚底 —— 从脚底起飞读起来像地上冒泡。 */
-          height: enemy.height,
-          life: DEATH.chunks,
-          maxLife: DEATH.chunks
-        });
-      }
+      state.effects.push({
+        kind: "deathburst",
+        x: enemy.x,
+        z: enemy.z,
+        seed: enemy.id,
+        type: enemy.type,
+        /* 碎块从**身上**起手，不是从脚底 —— 从脚底起飞读起来像地上冒泡。 */
+        height: enemy.height,
+        life: enemy.type === "boss" ? DEATH.bossChunks : DEATH.chunks,
+        maxLife: enemy.type === "boss" ? DEATH.bossChunks : DEATH.chunks
+      });
     });
     if (!buried) return;
     state.enemies = state.enemies.filter(function (enemy) {
@@ -6496,8 +6509,15 @@
       if (!prop.solid || prop.broken) return;
       var spec = breakableSpec(prop.piece);
       if (!spec) return;
+      /*
+       * **打碎盒用 `propBox`，不用原始 `BREAKABLE`。** 桶画 0.74，判定也必须是
+       * 0.74 后的那个盒子（`docs/adr/0032`：美术与判定同一个数）；否则画面上看着
+       * 还有一小段距离，刀却已经把它劈了。
+       */
+      var boxed = propBox(prop.piece);
+      if (!boxed) return;
       var depthReach = (reach === undefined ? DEPTH_REACH.melee : reach) * SLAYER_HEIGHT;
-      if (Math.abs((prop.z || 0) - state.player.z) > depthReach + spec.depth / 2) return;
+      if (Math.abs((prop.z || 0) - state.player.z) > depthReach + boxed.depth / 2) return;
       /*
        * **这个盒子画在高度轴上，不是屏幕 y 上。** 它原来把桶的落脚点写成
        * `groundY - depthLift(z)` —— 那是**画**它用的那一条（`docs/adr/0047`），
@@ -6506,11 +6526,12 @@
        * 怪的身体盒一直是按高度轴写的（`bodyBox` 读 `enemy.y`），桶照同一条走。
        */
       var foot = ARENA.groundY;
+      var centre = prop.x + (boxed.dx || 0);
       var barrel = {
-        left: prop.x - spec.width / 2,
-        right: prop.x + spec.width / 2,
+        left: centre - boxed.width / 2,
+        right: centre + boxed.width / 2,
         bottom: foot,
-        top: foot - spec.height
+        top: foot - (boxed.height || spec.height)
       };
       if (!boxesOverlap(box, barrel)) return;
       prop.hp -= 1;
@@ -6678,6 +6699,17 @@
 
     state.time += dt;
     if (state.titleT > 0) state.titleT = Math.max(0, state.titleT - dt);
+    /*
+     * 领主倒下的死亡特效演完才进胜利页；这段时间世界照常推进（`updateDeaths`
+     * 会把白色剪影放完），但其余小怪已经在 `resolveRoom` 里拿掉了。
+     */
+    if (state.victoryDelay !== null && state.victoryDelay !== undefined) {
+      state.victoryDelay -= dt;
+      if (state.victoryDelay <= 0) {
+        state.victoryDelay = null;
+        state.victory = true;
+      }
+    }
     if (state.finishedAt === null && (state.victory || state.defeat)) {
       state.finishedAt = state.time;
     }
@@ -6833,17 +6865,17 @@
     BREAKABLE: BREAKABLE,
     /* 一件布景画多大（`docs/adr/0050`）—— 怪有 `enemy.height`，布景有它。 */
     PROP_SCALE: PROP_SCALE,
+    PROP_ART: PROP_ART,
     propScale: propScale,
+    propArtSize: propArtSize,
     SOLID: SOLID,
     blocksDoorway: blocksDoorway,
+    gateArtRect: gateArtRect,
     doorFloor: doorFloor,
     routeStep: routeStep,
     propBox: propBox,
     BREAK_ANIM: BREAK_ANIM,
     DEATH: DEATH,
-    UPGRADES: UPGRADES,
-    UPGRADE_ORDER: UPGRADE_ORDER,
-    UPGRADES_PER_ROOM: UPGRADES_PER_ROOM,
     DEFAULT_SEED: DEFAULT_SEED,
     clamp: clamp,
     createState: createState,
@@ -6861,9 +6893,6 @@
     spawnField: spawnField,
     fieldProgress: fieldProgress,
     enterPhase2: enterPhase2,
-    rollUpgradeOptions: rollUpgradeOptions,
-    offerUpgrade: offerUpgrade,
-    chooseUpgrade: chooseUpgrade,
     grantXp: grantXp,
     spawnProjectile: spawnProjectile,
     updateProjectiles: updateProjectiles,

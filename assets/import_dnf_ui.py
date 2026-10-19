@@ -6,7 +6,9 @@ owner's recording (`dnf-dungeon-videos/00001-幽暗密林.mp4`) that this game d
 not have yet: the cutscene before the first room (54.0-55.9 s), the two-line
 stage title floating in it, the champion aura around a 咒之赤哥布林, the green
 foot marker under the Slayer, the letter grade on the 战绩 panel and the red
-chest the 奖励 screen opens. `docs/adr/0042` records what each one is for.
+chest the 奖励 screen opens. 2026-10-18 added the 奖励 page's own pieces: the magic
+circle, the blue card frame/gem, the player name plate, the card band and the gold
+countdown digits (`docs/adr/0055`). `docs/adr/0042` records what each one is for.
 
 **Two things the client does NOT have**, both worth knowing before looking for
 them again:
@@ -89,6 +91,27 @@ RUNS = [
     ("rewardChest", "sprite_interface2_reward_ver2.0.NPK",
      "sprite/interface2/reward_ver2.0/reward_ver2.img", 36, 1,
      "结算 `奖励` 那一页的宝箱卡面（153x97，满箱金币）"),
+    ("rewardMagic", "sprite_interface2_reward_ver2.0.NPK",
+     "sprite/interface2/reward_ver2.0/reward_ver2.img", 33, 1,
+     "奖励页的背景：蓝色五芒星/符文魔法阵（800x600 透明叠加层）"),
+    ("rewardCardFrame", "sprite_interface2_reward_ver2.0.NPK",
+     "sprite/interface2/reward_ver2.0/reward_ver2.img", 41, 1,
+     "牌背/物品卡的青边外框（153x97，内部透明 + 左下小金锁）"),
+    ("rewardCardGem", "sprite_interface2_reward_ver2.0.NPK",
+     "sprite/interface2/reward_ver2.0/reward_ver2.img", 42, 1,
+     "青边外框里的宝石/卷草纹样（141x61），与 frame 41 叠着画"),
+    ("rewardNamePlate", "sprite_interface2_reward_ver2.0.NPK",
+     "sprite/interface2/reward_ver2.0/reward_ver2.img", 60, 1,
+     "领奖详情左侧的玩家名条（147x58，金框橙底 + 向下箭头）"),
+    ("rewardBand", "sprite_interface2_reward_ver2.0.NPK",
+     "sprite/interface2/reward_ver2.0/reward_ver2.img", 103, 1,
+     "四张牌背后那条深色横带（732x113）"),
+    ("rewardMagicPanel", "sprite_interface2_reward_ver2.0.NPK",
+     "sprite/interface2/reward_ver2.0/reward_ver2.img", 35, 1,
+     "奖励页的深蓝面板：左边怪物列表、右边五芒星魔法阵（527x270）"),
+    ("rewardDigit", "sprite_interface2_reward_ver2.0.NPK",
+     "sprite/interface2/reward_ver2.0/reward_ver2.img", 104, 10,
+     "倒计时 0-9 的金色数字（104=0 … 113=9）"),
 ]
 
 

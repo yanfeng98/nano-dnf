@@ -47,12 +47,11 @@ test("the demo plays in its own run and never touches the real one", () => {
   assert.ok(kills > 0, "the demo should be fighting in its own run");
 });
 
-test("the demo clears the opening room and takes an upgrade card", () => {
+test("the demo clears the opening room and walks out", () => {
   const session = demo();
   run(session, 12);
   const opening = Attract.snapshot(session);
 
-  assert.ok(opening.upgradePicks >= 1, `the demo never took a card: ${JSON.stringify(opening)}`);
   assert.ok(opening.kills >= 1, "the demo never killed anything");
 
   run(session, 8);
@@ -108,7 +107,7 @@ test("a finished demo holds its last frame before looping", () => {
   const session = demo();
   /*
    * **帧数也要有上限。** `session.seconds` 只在游戏时间往前走时才涨，而演示**卡住**
-   * 的时候（走不出门、卡在一张选不了的卡上）它一动不动 —— 那样这个 `while` 就是个
+   * 的时候（走不出门、被一棵树顶住）它一动不动 —— 那样这个 `while` 就是个
    * 死循环。2026-10-13 真踩过一次：撒在门口的一根倒木把演示堵在里面，
    * 这个文件**转满一核六分钟**，而"一次只跑一个"那条规矩让整台机器陪着它等。
    */
@@ -153,7 +152,6 @@ test("the demo loops back to the entry cell instead of ending", () => {
   run(session, Attract.MAX_SECONDS + 5);
 
   assert.ok(session.loops >= 1, "a finished demo run has to restart");
-  assert.ok(session.upgradePicks >= 1, "the replay still shows the card pick");
   /*
    * 重开之后**新的一局已经在跑**了：时间从零重新数起（他不该停在上一次的战果上），
    * 人站在地牢里的某一格上，而且站着。不钉"必然在起点格"—— 50 秒够他跑完第二局的一部分，
@@ -165,16 +163,6 @@ test("the demo loops back to the entry cell instead of ending", () => {
   );
   assert.ok(session.state.cell >= 0 && session.state.cell < session.state.dungeon.cells.length);
   assert.equal(session.state.player.dead, false);
-});
-
-test("a card the demo cannot take still cannot wedge it", () => {
-  const session = demo();
-  run(session, 5);
-  if (session.state.upgradeChoice) session.state.upgradeChoice.options = [];
-
-  run(session, Attract.MAX_SECONDS + 5);
-
-  assert.ok(session.loops >= 1, "the demo has to restart rather than sit on a dead card");
 });
 
 test("the scripted input is well formed and leaves the state alone", () => {

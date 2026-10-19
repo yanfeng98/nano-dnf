@@ -52,7 +52,7 @@ await page.addInitScript((slow) => {
     real(() => callback(started + (performance.now() - started) * slow));
 }, slowdown);
 await page.goto(`http://localhost:${server.address().port}/`, { waitUntil: "load" });
-await page.waitForFunction(() => window.nanoDnf && window.nanoDnf.getState().room);
+await page.waitForFunction(() => window.nanoDnf && window.nanoDnf.getAssetState().ready);
 await page.keyboard.press("Enter");
 await page.waitForTimeout(200);
 
