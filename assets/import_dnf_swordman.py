@@ -296,7 +296,16 @@ OVERLAYS = [("eye", 2, 24, 20), ("blood", 0, 32, 24)]
 #   still stand (the "静止" frames)  176-179  - feet planted, only the breath moves
 #   basic attack, four cuts          0-41     - guard then the chain's four swings
 #   up-slash (上挑)                  40-50    - the skill's own raise-and-lift
-#   run cycle                        105-116  - the trailing repeats dropped
+#   run cycle                        105-112  - the client's eight run frames
+#                                              (two 4-frame strides); 113-116 is
+#                                              the thrust at the end of the
+#                                              dash, not the run. Played at
+#                                              15fps the two strides take 0.533s
+#                                              (0.267s each), which is the
+#                                              recording's cadence; 30fps made
+#                                              both strides in 0.267s and the
+#                                              owner read that as "hopping"
+#                                              (2026-10-20).
 #   crescent slam and recovery       194-200
 #   knockdown / airborne             100,102,232,236
 # Frames 51-60 repeat the raise-and-cut cycle that 40-50 already covers, so they
@@ -304,7 +313,7 @@ OVERLAYS = [("eye", 2, 24, 20), ("blood", 0, 32, 24)]
 # reaches, so the still stand repeats to fill its row instead of leaving blanks.
 CELLS = {
     "idle": [176, 177, 178, 179] * 3,
-    "run": list(range(105, 117)),
+    "run": list(range(105, 113)),
     # The Slayer's real normal attack: four cuts, one per press. The client's
     # sheet holds six slash peaks (3, 13, 24, 36, 45, 54) but only *three*
     # directions: 13 and 24 are the same backward-low sweep (pixel-identical),

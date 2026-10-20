@@ -125,7 +125,15 @@
     /* Frames the renderer actually plays per row; the rest of the row is spare art.
        The stand is a four-frame breath off the client's "still" frames, the attack
        is the whole normal-attack chain (see Core.ATTACK_STAGES). */
-    frames: { idle: 4, run: 12, attack: 27, skill: 6, extras: 6 },
+    /*
+     * **The run is the client's eight frames 105-112, played at 15fps.**
+     * 105-108 and 109-112 are the **two 4-frame strides** of the client's run
+     * (they match frame for frame), and 113-116 is the thrust at the end of a
+     * dash, not the run. At 15fps the 8-frame row is 0.533s = two 0.267s
+     * strides, which is the recording's cadence; the first 30fps cut played
+     * both strides in 0.267s and the owner read it as "hopping" (2026-10-20).
+     */
+    frames: { idle: 4, run: 8, attack: 27, skill: 6, extras: 6 },
     /*
      * The air slash, parked at the end of the attack row: the client's own jump
      * attack (sm_body0048 133-136, = 134-137 here). A press of X off the ground
@@ -1680,6 +1688,57 @@
    * of a trunk, the front edge of a rock. The three ground strips are the only
    * pieces that are laid end to end instead.
    */
+  /*
+   * **雨**（`docs/adr/0057`）：客户端 `sprite/map/rain.img`（两条 5×43 的白色雨丝）
+   * 与 `sprite/map/raindrop.img`（7 帧落地溅点）。它们被烘进 `assets/weather.png`
+   * （`assets/import_dnf_weather.py`）。
+   *
+   * 参考里雨是**屏幕空间**的一层：细、近垂直略向左斜、低不透明度，静帧几乎看不见。
+   * 所以这里画两层（远小暗慢 / 近大亮快），落在房间的地面带上有淡溅点。雨不参与判定。
+   */
+  var WEATHER = {
+    rain: [[0, 0, 5, 43], [6, 0, 5, 22]],
+    raindrop: [
+      [12, 0, 5, 3], [18, 0, 9, 11], [28, 0, 15, 13],
+      [44, 0, 17, 13], [62, 0, 19, 13], [82, 0, 20, 14], [103, 0, 22, 14]
+    ],
+    /*
+     * 960×540 上约 95 条（业主 grill 选的是轻雨、两层）。远层 55 条、近层 40 条；
+     * 速度是屏幕像素/秒，风把雨丝略往右推。
+     */
+    /*
+     * **The reference's rain leans the other way and is longer.** 把 1:10 的
+     * 时间中位数减掉后，最长的几条雨丝是 128–174 视频像素高、角度 **99–102°**
+     * （从 +x 量，即**顶部偏右 / 底部偏左**，离竖直约 10°）。我们第一版是
+     * `-0.10`（顶部偏左）且只有 42 px 长 —— 方向和长度都错了。
+     * 现在按 960×540 折：近层约 70 px、远层约 40 px，角度 +10°，风往左吹。
+     */
+    layers: [
+      { count: 55, scale: 0.95, speed: 430, alpha: 0.16, wind: -76 },
+      { count: 40, scale: 1.65, speed: 760, alpha: 0.25, wind: -134 }
+    ],
+    angle: 0.18,
+    /* 溅点：14 个槽位轮转，每槽 1.2 秒一次；7 帧放 0.35 秒。 */
+    splashSlots: 14,
+    splashPeriod: 1.2,
+    splashLife: 0.35
+  };
+
+  /*
+   * **牛头巨兽自己的五块死亡碎块**（`metacowpiece.img`，烘成 `assets/bossdeath.png`）。
+   * 大块棕红肉片 + 三块小的；`chunk_boss*` 那套通用血花不再用于领主
+   * （`docs/adr/0034` 追记二：参考里的碎块是它自己的肉，不是血泊）。
+   */
+  var BOSSPIECE = {
+    frames: [
+      [0, 0, 29, 29],
+      [30, 0, 11, 12],
+      [42, 0, 16, 15],
+      [59, 0, 22, 21],
+      [82, 0, 6, 7]
+    ]
+  };
+
   var SCENE = {
     pieces: {
       far: [0, 0, 640, 375],
@@ -3015,139 +3074,129 @@
   function drawBossRays(ctx, effect, alpha) {
     var fade = clamp01(alpha);
     var h = effect.height || 168;
-    var ox = effect.x;
-    var oy = floorY(effect.z) - h * 0.62;
+    /*
+     * **从最后一击的那一点出发**（`sourceX` / `sourceZ` 由核心在 Boss 死时记下）：
+     * 参考里光束在玩家剑上交汇，金色横光横在他胸口。上一版从 Boss 身上向四周炸，
+     * 读起来像 Boss 自己发光（业主：「散光不对」）。
+     */
+    var ox = effect.sourceX !== undefined ? effect.sourceX : effect.x;
+    var sourceZ = effect.sourceZ !== undefined ? effect.sourceZ : effect.z;
+    var oy = floorY(sourceZ) - Core.SLAYER_HEIGHT * 0.55;
     ctx.save();
     ctx.globalCompositeOperation = "lighter";
 
-    /* 金色横光（参考里那一笔横在它脖子上）。 */
-    var lensW = h * 2.4;
-    var lensH = h * 0.08;
-    var lens = ctx.createLinearGradient(ox - lensW / 2, oy, ox + lensW / 2, oy);
-    lens.addColorStop(0, "rgba(255, 220, 120, 0)");
-    lens.addColorStop(0.5, "rgba(255, 248, 210, " + (0.8 * fade).toFixed(3) + ")");
-    lens.addColorStop(1, "rgba(255, 220, 120, 0)");
-    ctx.fillStyle = lens;
-    ctx.beginPath();
-    ctx.ellipse(ox, oy, lensW / 2, lensH, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    /* 9 条细长光束：红粉晕 + 白芯。 */
-    for (var index = 0; index < 9; index += 1) {
-      var angle = -Math.PI * 0.95 + (index / 8) * Math.PI * 1.9 +
-        (scatter(effect.seed, index) - 0.5) * 0.3;
-      var length = h * (2.1 + scatter(effect.seed, index + 40) * 2.0);
+    /*
+     * **十条斜向光束**，不是 360° 的星芒：参考 328.0s 的亮线集中在
+     * 约 47°/56°/154°/167° 那几条斜线上（另有一道金色横光），数量比上一版
+     * 的 6 条更密。上一版 9 条把竖直/水平方向也铺满了，读起来像"发光球"；
+     * 这一版只保留斜向、加密到 10 条。
+     */
+    var angles = [-2.65, -2.25, -1.85, -1.45, -1.05, 1.05, 1.45, 1.85, 2.25, 2.65];
+    for (var index = 0; index < angles.length; index += 1) {
+      var angle = angles[index] + (scatter(effect.seed, index) - 0.5) * 0.24;
+      var length = h * (2.4 + scatter(effect.seed, index + 40) * 1.9);
       var dx = Math.cos(angle);
       var dy = Math.sin(angle);
-      var x0 = ox - dx * length * 0.12;
-      var y0 = oy - dy * length * 0.12;
+      /* 从剑尖稍微外一点起手，别让十条线在原点叠成一颗白球。 */
+      var x0 = ox + dx * length * 0.04;
+      var y0 = oy + dy * length * 0.04;
       var x1 = ox + dx * length;
       var y1 = oy + dy * length;
       ctx.lineCap = "round";
       ctx.strokeStyle = "rgba(255, 70, 90, " + (0.40 * fade).toFixed(3) + ")";
-      ctx.lineWidth = Math.max(2, h * 0.075);
+      ctx.lineWidth = Math.max(1.5, h * 0.04);
       ctx.beginPath();
       ctx.moveTo(x0, y0);
       ctx.lineTo(x1, y1);
       ctx.stroke();
       ctx.strokeStyle = "rgba(255, 246, 246, " + (0.95 * fade).toFixed(3) + ")";
-      ctx.lineWidth = Math.max(1.5, h * 0.02);
+      ctx.lineWidth = Math.max(1, h * 0.01);
       ctx.beginPath();
       ctx.moveTo(x0, y0);
       ctx.lineTo(x1, y1);
       ctx.stroke();
     }
+    /*
+     * **金色横光最后画**：参考里它是最显眼的一道，画在光束下面会被十条白芯
+     * 盖掉。约 450 视频像素，折成世界约 140。
+     */
+    var lensW = Core.SLAYER_HEIGHT * 0.9;
+    var lensH = h * 0.10;
+    var lens = ctx.createLinearGradient(ox - lensW / 2, oy, ox + lensW / 2, oy);
+    lens.addColorStop(0, "rgba(255, 220, 120, 0)");
+    lens.addColorStop(0.5, "rgba(255, 250, 220, " + (0.95 * fade).toFixed(3) + ")");
+    lens.addColorStop(1, "rgba(255, 220, 120, 0)");
+    ctx.fillStyle = lens;
+    ctx.beginPath();
+    ctx.ellipse(ox, oy, lensW / 2, lensH, 0, 0, Math.PI * 2);
+    ctx.fill();
     ctx.restore();
   }
 
-  /**
-   * **领主的蓝紫魂柱**（参考 329.5s）：从地面升起的一根窄而高的漩涡，
-   * 大血块在这一柱里翻涌，不是一圈摊平的辉光。画在碎块下面。
+  /*
+   * **领主的魂球**（参考 329.3–329.5s）：白剪影散掉后，在它站的那一点亮起
+   * 一颗蓝白球，约 0.2–0.3 秒就灭；不是一根从地面升起的柱子。
+   *
+   * 画在碎块下面；`age` 从 deathburst 的年龄算，只在前 0.28 秒出现。
    */
-  function drawBossSoul(ctx, effect, alpha) {
+  function drawBossSoulOrb(ctx, effect, age) {
+    var life = 0.28;
+    if (age >= life) return;
+    var u = clamp01(age / life);
+    var env = Math.sin(Math.PI * u);
+    if (env <= 0.01) return;
     var h = effect.height || 168;
     var cx = effect.x;
-    var base = floorY(effect.z);
-    var top = base - h * 1.05;
-    var width = h * 0.65;
+    var cy = floorY(effect.z) - h * 0.5;
+    var radius = h * (0.15 + 0.85 * env) * 0.28;
     ctx.save();
     ctx.globalCompositeOperation = "lighter";
 
-    var col = ctx.createLinearGradient(cx, base, cx, top);
-    col.addColorStop(0, "rgba(120, 86, 240, " + (0.62 * alpha).toFixed(3) + ")");
-    col.addColorStop(0.32, "rgba(80, 190, 255, " + (0.66 * alpha).toFixed(3) + ")");
-    col.addColorStop(0.68, "rgba(130, 160, 255, " + (0.46 * alpha).toFixed(3) + ")");
-    col.addColorStop(1, "rgba(200, 180, 255, 0)");
-    ctx.fillStyle = col;
+    var halo = ctx.createRadialGradient(cx, cy, 1, cx, cy, radius * 1.45);
+    halo.addColorStop(0, "rgba(255, 255, 255, " + (0.9 * env).toFixed(3) + ")");
+    halo.addColorStop(0.28, "rgba(170, 235, 255, " + (0.75 * env).toFixed(3) + ")");
+    halo.addColorStop(0.62, "rgba(95, 120, 255, " + (0.45 * env).toFixed(3) + ")");
+    halo.addColorStop(1, "rgba(80, 50, 190, 0)");
+    ctx.fillStyle = halo;
     ctx.beginPath();
-    ctx.ellipse(cx, base - h * 0.52, width * 0.5, h * 0.52, 0, 0, Math.PI * 2);
+    ctx.arc(cx, cy, radius * 1.45, 0, Math.PI * 2);
     ctx.fill();
 
-    /* 底部一团青白的热芯。 */
-    var foot = ctx.createRadialGradient(cx, base - h * 0.08, 2,
-                                        cx, base - h * 0.08, width * 0.72);
-    foot.addColorStop(0, "rgba(170, 240, 255, " + (0.72 * alpha).toFixed(3) + ")");
-    foot.addColorStop(1, "rgba(70, 70, 220, 0)");
-    ctx.fillStyle = foot;
+    /* 白热芯，跟着包络一起亮灭。 */
+    var core = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius * 0.55);
+    core.addColorStop(0, "rgba(255, 255, 255, " + (0.95 * env).toFixed(3) + ")");
+    core.addColorStop(1, "rgba(210, 245, 255, 0)");
+    ctx.fillStyle = core;
     ctx.beginPath();
-    ctx.ellipse(cx, base - h * 0.08, width * 0.58, h * 0.16, 0, 0, Math.PI * 2);
+    ctx.arc(cx, cy, radius * 0.55, 0, Math.PI * 2);
     ctx.fill();
 
-    /*
-     * **粗的漩涡带**：参考里是几道蓝青色的带子从地面绕着柱身往上卷，
-     * 不是几圈手镯。用贝塞尔曲线画，带宽跟着 Boss 身高。
-     */
-    for (var band = 0; band < 4; band += 1) {
-      var phase = band * 1.8 + effect.seed * 0.011;
-      var x0 = cx + Math.sin(phase) * width * 0.22;
-      var x1 = cx + Math.sin(phase + 2.2) * width * 0.48;
-      var x2 = cx + Math.sin(phase + 4.4) * width * 0.48;
-      var x3 = cx + Math.sin(phase + 6.6) * width * 0.18;
+    /* 几粒白火花绕着球炸开。 */
+    for (var spark = 0; spark < 8; spark += 1) {
+      var angle = scatter(effect.seed, spark + 160) * Math.PI * 2;
+      var distance = radius * (0.7 + scatter(effect.seed, spark + 170) * 0.6);
+      var size = Math.max(1, h * 0.012 * env);
+      ctx.fillStyle = "rgba(240, 250, 255, " + (0.8 * env).toFixed(3) + ")";
       ctx.beginPath();
-      ctx.moveTo(x0, base - h * 0.02);
-      ctx.bezierCurveTo(x1, base - h * 0.34, x2, base - h * 0.7, x3, top);
-      ctx.strokeStyle = "rgba(105, 220, 255, " + (0.42 * alpha).toFixed(3) + ")";
-      ctx.lineWidth = Math.max(2, h * 0.055);
-      ctx.stroke();
-      ctx.strokeStyle = "rgba(235, 250, 255, " + (0.55 * alpha).toFixed(3) + ")";
-      ctx.lineWidth = Math.max(1, h * 0.015);
-      ctx.stroke();
-    }
-
-    /* 几道细环给漩涡一点层次。 */
-    for (var ring = 0; ring < 5; ring += 1) {
-      var y = base - h * (0.12 + ring * 0.24);
-      var wobble = Math.sin(effect.seed * 0.11 + ring * 1.7) * width * 0.12;
-      ctx.strokeStyle = "rgba(185, 215, 255, " + (0.34 * alpha).toFixed(3) + ")";
-      ctx.lineWidth = Math.max(1.5, h * 0.018);
-      ctx.beginPath();
-      ctx.ellipse(cx + wobble, y, width * (0.26 + ring * 0.03), h * 0.055,
-                  0.28, 0, Math.PI * 2);
-      ctx.stroke();
-    }
-
-    /* 魂柱里的碎光点。 */
-    for (var spark = 0; spark < 12; spark += 1) {
-      var angle = scatter(effect.seed, spark + 80) * Math.PI * 2;
-      var radius = width * (0.12 + scatter(effect.seed, spark + 90) * 0.42);
-      var sy = base - h * (0.1 + scatter(effect.seed, spark + 100) * 1.15);
-      ctx.fillStyle = "rgba(240, 250, 255, " + (0.8 * alpha).toFixed(3) + ")";
-      ctx.beginPath();
-      ctx.arc(cx + Math.cos(angle) * radius, sy,
-              Math.max(1, h * 0.012), 0, Math.PI * 2);
+      ctx.arc(cx + Math.cos(angle) * distance, cy + Math.sin(angle) * distance * 0.8,
+              size, 0, Math.PI * 2);
       ctx.fill();
     }
     ctx.restore();
   }
 
   function drawDeathBurst(ctx, state, sprites, effect, alpha) {
-    var sheet = sprites && sprites.forest;
-    if (!sheet) return;
+    var forest = sprites && sprites.forest;
+    var bossSheet = sprites && sprites.bossdeath;
+    if (!forest && !bossSheet) return;
     var life = effect.maxLife || (Core.DEATH && Core.DEATH.chunks) || 0.5;
     var t = clamp01(1 - alpha) * life;
     var bossBurst = effect.type === "boss";
-    var gravity = bossBurst ? 520 : 900;
-    var count = bossBurst ? 8 : ((Core.DEATH && Core.DEATH.chunkCount) || 14);
+    /* Boss 的大肉块更重：落得快、落地后留在场上。 */
+    var gravity = bossBurst ? 950 : 900;
+    var count = bossBurst
+      ? ((Core.DEATH && Core.DEATH.bossChunkCount) || 12)
+      : ((Core.DEATH && Core.DEATH.chunkCount) || 14);
     /*
      * 三张形状轮着用 —— 录像里那些块是**小碎片**（业主：「不如视频不规则」）：
      * T+4:50 那次量到十几块，横竖大多在 **4–17 世界像素**之间，而且不少是细长的
@@ -3157,19 +3206,27 @@
     var shapes = ["0", "1", "2"];
     /* 从**身上**散开，不是从脚底 —— 从脚底起飞读起来像"地上一滩"。 */
     var body = (effect.height || 60) * (bossBurst ? 0.55 : 0.45);
-    /* 末四成淡出：前面是硬的，最后才化掉。 */
-    var fade = clamp01(alpha / 0.4);
     /*
-     * **Boss 的魂柱**（参考录像 329.5s）：碎块从一根窄而高的蓝紫漩涡里翻上来，
-     * 不是一圈摊平的辉光。先画柱，再画碎块。
+     * 末四成淡出（杂兵）；Boss 的碎块要**留到过关画面**，所以一直硬着，
+     * 只在最后 0.24 秒才化掉。
      */
-    if (bossBurst) drawBossSoul(ctx, effect, alpha);
-    var shadow = chunkShadowSheet(sheet);
-    /* Boss 的血块用压过粉的那张；暗边仍用原图烘的。 */
-    var artSheet = bossBurst ? (chunkPinkSheet(sheet) || sheet) : sheet;
+    var fade = bossBurst ? clamp01(alpha / 0.08) : clamp01(alpha / 0.4);
+    /* Boss 的肉片自带暗边，不再压一层阴影；杂兵的碎片仍用暗底做厚度。 */
+    var shadow = bossBurst ? null : chunkShadowSheet(forest);
     for (var index = 0; index < count; index += 1) {
-      var piece = "chunk_" + (effect.type || "grunt") + shapes[index % shapes.length];
-      var rect = sceneRect(piece);
+      /*
+       * **领主的碎块用 `metacowpiece.img` 自己的五块肉**；杂兵仍用
+       * `chunk_<type>*` 的通用血花（`docs/adr/0034` 追记二）。
+       */
+      var sheetForPiece = forest;
+      var rect = null;
+      if (bossBurst && bossSheet && BOSSPIECE.frames.length) {
+        sheetForPiece = bossSheet;
+        rect = BOSSPIECE.frames[index % BOSSPIECE.frames.length];
+      } else {
+        var piece = "chunk_" + (effect.type || "grunt") + shapes[index % shapes.length];
+        rect = sceneRect(piece);
+      }
       if (!rect) continue;
       /*
        * **放射**：每块自己一个角度一个初速，绕尸体甩出去 —— 都往同一个方向偏
@@ -3182,28 +3239,61 @@
        * （业主：「最后散开的距离太远了」）。
        */
       var angle = scatter(effect.seed, index * 6) * Math.PI * 2;
-      /* Boss 的血块大、慢，往上翻而不是甩出去；杂兵仍是快速放射。 */
+      /*
+       * Boss 的大肉块往四周甩、再被重力拉下来；杂兵仍是快速放射。参考里
+       * Boss 的块在 329.5s 前后从魂球周围散开，332.5s 过关时已经摊在地上。
+       */
       var speed = bossBurst
-        ? 42 + scatter(effect.seed, index * 6 + 1) * 88
+        ? 80 + scatter(effect.seed, index * 6 + 1) * 140
         : 110 + scatter(effect.seed, index * 6 + 1) * 150;
       var vx = Math.cos(angle) * speed;
       var vy = bossBurst
-        ? 35 + scatter(effect.seed, index * 6 + 4) * 90
+        ? 45 + scatter(effect.seed, index * 6 + 4) * 130
         : Math.sin(angle) * speed * 0.55 + 70;      /* 略往上偏，甩得开 */
       var spin = (scatter(effect.seed, index * 6 + 3) - 0.5) * 11;
-      var x = effect.x + vx * t;
-      var height = body + vy * t - 0.5 * gravity * t * t;
+      /*
+       * **Boss 的块从它身上不同的位置起手**，不是全从同一个点喷出来：
+       * 参考 329.4s 那几块已经散在魂球周围了。起手的水平/高度各按序号散开
+       * 到它身量的一小片里，然后才受速度与重力。
+       */
+      var x0 = effect.x;
+      var h0 = body;
+      if (bossBurst) {
+        x0 += (scatter(effect.seed, index * 6 + 5) - 0.5) * effect.height * 0.8;
+        h0 = Math.max(0, body + (scatter(effect.seed, index * 6 + 7) - 0.5) * effect.height * 0.5);
+      }
+      /*
+       * **Boss 的块落地就停在那儿**：解出落地时间，之后 x 不再走、高度归 0。
+       * 不解这一步，3 秒的寿命会让它们在地上继续滑，看着像被风吹。
+       */
+      var travel = t;
+      if (bossBurst) {
+        var land = (vy + Math.sqrt(vy * vy + 2 * gravity * h0)) / gravity;
+        if (travel > land) travel = land;
+      }
+      var x = x0 + vx * travel;
+      var height = h0 + vy * travel - 0.5 * gravity * travel * travel;
       if (height < 0) height = 0;                        /* 落地就摊在那儿 */
       /*
-       * 每块按目标宽度反推缩放，形状多大都不影响它的大小。Boss 的碎块是
-       * 参考里那一身大肉块（12–28 世界像素），杂兵仍是 6–17。
+       * 每块按目标宽度反推缩放。Boss 的两块大的（29 / 22 px 原稿）画到
+       * 40–60 世界像素，小的三块画到 22–36；杂兵仍是 6–17。
        */
-      var target = (bossBurst ? 36 : 6) +
-        scatter(effect.seed, index * 6 + 2) * (bossBurst ? 24 : 11);
+      var target;
+      if (bossBurst) {
+        var bigPiece = rect[2] >= 20;
+        target = (bigPiece ? 40 : 22) +
+          scatter(effect.seed, index * 6 + 2) * (bigPiece ? 20 : 14);
+      } else {
+        target = 6 + scatter(effect.seed, index * 6 + 2) * 11;
+      }
       var scale = target / rect[2];
       var w = rect[2] * scale;
       var h = rect[3] * scale;
-      var cy = floorY(effect.z) - height;
+      /*
+       * `height` 是碎块**底边**离地的高度；画的是中心，所以要再抬 `h / 2`。
+       * 不减这一下，块的中心落在落地线上，一半埋进草里（领主的大块尤其明显）。
+       */
+      var cy = floorY(effect.z) - height - h / 2;
       /*
        * **厚度**：同一块先往右下压一个暗的当底，再把本来的那块盖上去 —— 底下那层
        * 就成了它的厚度和暗边（业主：「不如视频中块更厚重」）。
@@ -3211,15 +3301,20 @@
       ctx.save();
       ctx.globalAlpha = fade;
       ctx.translate(x, cy);
-      ctx.rotate(spin * t);
+      ctx.rotate(spin * travel);
       if (shadow) {
         var edge = Math.max(1, target * 0.14);            /* 碎片小，暗边也得跟着小 */
         ctx.drawImage(shadow, rect[0], rect[1], rect[2], rect[3],
                       -w / 2 + edge, -h / 2 + edge, w, h);
       }
-      ctx.drawImage(artSheet, rect[0], rect[1], rect[2], rect[3], -w / 2, -h / 2, w, h);
+      ctx.drawImage(sheetForPiece, rect[0], rect[1], rect[2], rect[3], -w / 2, -h / 2, w, h);
       ctx.restore();
     }
+    /*
+     * **魂球画在碎块上面**：前 0.28 秒它还在亮，而这一段碎块正挤在它周围；
+     * 画在下面会整颗被棕色肉块盖掉（参考里球是看得见的）。
+     */
+    if (bossBurst) drawBossSoulOrb(ctx, effect, t);
   }
 
   /** 一扇开着的门外面那圈光。 */
@@ -3408,7 +3503,7 @@
      * cycle for it.
      */
     if (Math.abs(player.vx) > 8 || Math.abs(player.vz || 0) > 8) {
-      return { row: rows.run, col: Math.floor(state.time * 14) % SPRITE.frames.run };
+      return { row: rows.run, col: Math.floor(state.time * 15) % SPRITE.frames.run };
     }
     /* Four frames, so keep the breath under two cycles a second. */
     return { row: rows.idle, col: Math.floor(state.time * 5) % SPRITE.frames.idle };
@@ -3956,54 +4051,18 @@
    * `anchorX`.
    */
   /*
-   * 白色的那一份怪图，整张烘一次、缓存（和 `ragingSheet` 一个做法）。死的那 0.3 秒
-   * 画的不是"另加的一层白"，而是**这只怪自己**换一身白 —— 所以形状天然是它的形状
-   * （`docs/adr/0034`）。留一点点透明（0.96），免得纯白把轮廓糊成一块板。
+   * **白色剪影按格做，不整张烘。** 整张 monster sheet 是 15360×4000，逐像素
+   * 二值化会吃掉几百 MB；一只怪只占一格 480×500，所以死的那一下按 `(row,column)`
+   * 取一格、把 alpha 二值化成实心白、再在四周压一圈黑描边，缓存起来。
+   * 参考里哥布林和领主的白团都有黑边（`docs/adr/0034` 追记二）。
    */
-  var ghostTint = null;
-  function ghostSheet(image) {
-    if (typeof document === "undefined" || !document.createElement) return null;
-    if (ghostTint && ghostTint.source === image) return ghostTint.sheet;
-    var canvas = document.createElement("canvas");
-    canvas.width = image.width;
-    canvas.height = image.height;
-    var brush = canvas.getContext("2d");
-    if (!brush) return null;
-    brush.drawImage(image, 0, 0);
-    brush.globalCompositeOperation = "source-atop";
-    /* 参考里的剪影是**实心白**，不是 96% 的半透明白。 */
-    brush.fillStyle = "#ffffff";
-    brush.fillRect(0, 0, canvas.width, canvas.height);
-    ghostTint = { source: image, sheet: canvas };
-    return canvas;
-  }
+  var silhouetteCache = {};
 
   /*
    * 一张压暗的森林图，给碎块当"厚度"用（source-atop 压黑，整张烘一次、缓存）。
    * 只为那十二块服务，但每帧每块都要画两次，所以不能现场做。
    */
   var chunkDark = null;
-  var chunkPink = null;
-  /**
-   * **Boss 血块的粉肉色**：`chunk_boss*` 是从 Boss 的皮肤色烘的（深红褐），
-   * 参考 329.5s 那几块是**浅粉/奶油色的肉**。在整张 forest 上压一层粉、
-   * `source-atop` 只染有像素的地方，颜色变浅、原来的明暗和暗边都保留。
-   */
-  function chunkPinkSheet(image) {
-    if (typeof document === "undefined" || !document.createElement) return null;
-    if (chunkPink && chunkPink.source === image) return chunkPink.sheet;
-    var canvas = document.createElement("canvas");
-    canvas.width = image.width;
-    canvas.height = image.height;
-    var brush = canvas.getContext("2d");
-    if (!brush) return null;
-    brush.drawImage(image, 0, 0);
-    brush.globalCompositeOperation = "source-atop";
-    brush.fillStyle = "rgba(255, 186, 176, 0.72)";
-    brush.fillRect(0, 0, canvas.width, canvas.height);
-    chunkPink = { source: image, sheet: canvas };
-    return canvas;
-  }
 
   function chunkShadowSheet(image) {
     if (typeof document === "undefined" || !document.createElement) return null;
@@ -4136,6 +4195,71 @@
     }
   };
 
+  /**
+   * **一格白色剪影：实心白 + 黑描边。**
+   *
+   * `ghostSheet` 原来把整张图用 `source-atop` 涂白，保留了半透明边和内部灰
+   * 细节；参考录像里哥布林的白团（96.667s）和领主的白团（328.2s）都是
+   * **硬的实心白 + 一圈黑边**。所以这里取当前这一格，把 alpha > 32 的像素
+   * 全部变成不透明白，再把同一块 mask 往八个方向各偏 `outline` 像素压黑，
+   * 最后把白 mask 盖回去。按格缓存，死的那 0.3 / 0.9 秒只做一次。
+   */
+  function silhouetteCell(image, row, column) {
+    if (typeof document === "undefined" || !document.createElement) return null;
+    var key = row + ":" + column;
+    var cached = silhouetteCache[key];
+    if (cached && cached.source === image) return cached.canvas;
+    var cw = MONSTER.cellW;
+    var ch = MONSTER.cellH;
+    var source = document.createElement("canvas");
+    source.width = cw;
+    source.height = ch;
+    var sb = source.getContext("2d");
+    if (!sb) return null;
+    sb.drawImage(image, column * cw, row * ch, cw, ch, 0, 0, cw, ch);
+    var data = sb.getImageData(0, 0, cw, ch);
+    var px = data.data;
+    var white = document.createElement("canvas");
+    white.width = cw;
+    white.height = ch;
+    var wb = white.getContext("2d");
+    if (!wb) return null;
+    var mask = wb.createImageData(cw, ch);
+    for (var i = 0; i < px.length; i += 4) {
+      if (px[i + 3] > 32) {
+        mask.data[i] = 255;
+        mask.data[i + 1] = 255;
+        mask.data[i + 2] = 255;
+        mask.data[i + 3] = 255;
+      }
+    }
+    wb.putImageData(mask, 0, 0);
+
+    var black = document.createElement("canvas");
+    black.width = cw;
+    black.height = ch;
+    var bb = black.getContext("2d");
+    bb.drawImage(white, 0, 0);
+    bb.globalCompositeOperation = "source-in";
+    bb.fillStyle = "#000000";
+    bb.fillRect(0, 0, cw, ch);
+
+    var out = document.createElement("canvas");
+    out.width = cw;
+    out.height = ch;
+    var ob = out.getContext("2d");
+    var edge = Math.max(2, Math.round(ch * 0.006));
+    for (var dx = -edge; dx <= edge; dx += edge) {
+      for (var dy = -edge; dy <= edge; dy += edge) {
+        if (!dx && !dy) continue;
+        ob.drawImage(black, dx, dy);
+      }
+    }
+    ob.drawImage(white, 0, 0);
+    silhouetteCache[key] = { source: image, canvas: out };
+    return out;
+  }
+
   /** Which pose an enemy is in, in the sheet's own words. */
   function monsterPose(enemy) {
     if (enemy.dead || enemy.knockdown > 0) return "down";
@@ -4212,16 +4336,16 @@
   function drawMonster(ctx, state, enemy, sprites) {
     var sheet = sprites && sprites.monsters;
     if (!sheet || !sheet.width) return false;
-    /*
-     * 死的那一段画的是**它自己的白色剪影**（`docs/adr/0034`，业主：「出现白色怪物
-     * 轮廓」）—— 同一行、同一列、同一处落脚点，只是整张图换成白的，所以轮廓就是它
-     * 自己躺下那个形状。
-     */
-    if (enemy.silhouette) sheet = ghostSheet(sheet) || sheet;
     var row = MONSTER.rows[enemy.type];
     if (row === undefined) return false;
     var table = MONSTER[MONSTER.poses[enemy.type]];
     var column = monsterFrame(state, enemy, table || { idle: [0, 0] });
+    /*
+     * 死的那一段画的是**它自己的白色剪影**（`docs/adr/0034`，业主：「出现白色怪物
+     * 轮廓」）—— 同一行、同一列、同一处落脚点，但这一格是**实心白 + 黑描边**
+     * （`silhouetteCell`），不是原来的半透明白。
+     */
+    var ghost = enemy.silhouette ? silhouetteCell(sheet, row, column) : null;
     var art = enemy.height;
     /* The sheet is in the client's own pixels; `enemy.height` is in ours. */
     var scale = art / (MONSTER.stand[enemy.type] || MONSTER.stand.grunt);
@@ -4231,12 +4355,19 @@
     ctx.save();
     ctx.translate(enemy.x, feetY(enemy));
     if (enemy.facing < 0) ctx.scale(-1, 1);
-    if (enemy.hurtTimer > 0 && "filter" in ctx) ctx.filter = "brightness(1.9)";
-    ctx.drawImage(
-      sheet,
-      column * MONSTER.cellW, row * MONSTER.cellH, MONSTER.cellW, MONSTER.cellH,
-      -MONSTER.anchorX * scale, -MONSTER.anchorY * scale, dw, dh
-    );
+    if (!ghost && enemy.hurtTimer > 0 && "filter" in ctx) ctx.filter = "brightness(1.9)";
+    if (ghost) {
+      ctx.drawImage(
+        ghost,
+        -MONSTER.anchorX * scale, -MONSTER.anchorY * scale, dw, dh
+      );
+    } else {
+      ctx.drawImage(
+        sheet,
+        column * MONSTER.cellW, row * MONSTER.cellH, MONSTER.cellW, MONSTER.cellH,
+        -MONSTER.anchorX * scale, -MONSTER.anchorY * scale, dw, dh
+      );
+    }
     ctx.restore();
     /*
      * **怪头顶的名字。** 量出来只有"**有名字的怪**"才有：录像里普通哥布林头上什么都没有，
@@ -6794,7 +6925,7 @@
     ctx.fillText(state.room ? state.room.name : "", roomX + 14, 38);
     var enemiesLeft = state.enemies.filter(function (enemy) {
       return !enemy.dead;
-    }).length;
+    }).length + (state.room && state.room.pendingWave ? state.room.pendingWave.length : 0);
     ctx.fillStyle = PALETTE.textDim;
     ctx.font = "600 12px 'PingFang SC', 'Segoe UI', sans-serif";
     /*
@@ -8218,6 +8349,90 @@
   }
 
   /**
+   * **地上的雨点**（`docs/adr/0057`）：画在世界那一层、贴着房间的地面带，
+   * 在布景和身体之前 —— 所以它们落在地上，不盖人。
+   *
+   * 14 个槽位各自按 `state.time` 轮转，每 1.2 秒一次、每次 0.35 秒放完
+   * `raindrop.img` 的 7 帧。位置由房间 seed 定死，雨不会每帧乱跳。
+   */
+  function drawRainSplashes(ctx, state, sprites) {
+    var sheet = sprites && sprites.weather;
+    if (!sheet || !sheet.width || !state.room) return;
+    var left = state.room.leftWall;
+    var right = state.room.rightWall;
+    var depth = Core.bandDepth(state.band);
+    var seed = (state.seed || 1) + (state.cell + 1) * 7919 + 31;
+    for (var i = 0; i < WEATHER.splashSlots; i += 1) {
+      var phase = scatter(seed, i * 5 + 1) * WEATHER.splashPeriod;
+      var age = (state.time + phase) % WEATHER.splashPeriod;
+      if (age >= WEATHER.splashLife) continue;
+      var x = left + scatter(seed, i * 5 + 2) * (right - left);
+      var z = scatter(seed, i * 5 + 3) * depth;
+      var frame = Math.min(
+        WEATHER.raindrop.length - 1,
+        Math.floor((age / WEATHER.splashLife) * WEATHER.raindrop.length)
+      );
+      var rect = WEATHER.raindrop[frame];
+      var scale = 0.9;
+      var w = rect[2] * scale;
+      var h = rect[3] * scale;
+      ctx.save();
+      ctx.globalAlpha = 0.38 * (1 - age / WEATHER.splashLife);
+      ctx.drawImage(sheet, rect[0], rect[1], rect[2], rect[3],
+                    x - w / 2, floorY(z) - h, w, h);
+      ctx.restore();
+    }
+  }
+
+  /**
+   * **屏幕空间的雨层**（`docs/adr/0057`）：细、略斜（顶部偏右）、低不透明度；
+   * 画在背景之后、人和布景之前（不在人身上盖白线），不随镜头滚动。
+   *
+   * 两层：远层小 / 暗 / 慢，近层大一点 / 亮一点 / 快。位置由 seed + 序号定死，
+   * 但用 `state.time` 推着落，所以静帧也能抓、整段演示可复现。
+   */
+  function drawRain(ctx, state, sprites, meta) {
+    var sheet = sprites && sprites.weather;
+    if (!sheet || !sheet.width || !state.room || state.intro) return;
+    if (state.victory || state.defeat) return;
+    if (meta && (meta.paused || meta.showHelp || (meta.region && meta.region.open))) return;
+    var left = Core.VIEW.left;
+    var width = Core.VIEW.width;
+    var height = Core.ARENA.height;
+    var seed = (state.seed || 1) + (state.cell + 1) * 7919;
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(left, 0, width, height);
+    ctx.clip();
+    WEATHER.layers.forEach(function (layer, layerIndex) {
+      ctx.save();
+      ctx.globalAlpha = layer.alpha;
+      for (var i = 0; i < layer.count; i += 1) {
+        var h1 = scatter(seed + layerIndex * 997, i * 11 + 1);
+        var h2 = scatter(seed + layerIndex * 997, i * 11 + 2);
+        var h3 = scatter(seed + layerIndex * 997, i * 11 + 3);
+        var scale = layer.scale * (0.8 + h3 * 0.45);
+        var rect = WEATHER.rain[(i + layerIndex) % WEATHER.rain.length];
+        var w = rect[2] * scale;
+        var h = rect[3] * scale;
+        var span = height + h;
+        /* 风往左吹（负值）：先做正模，别让雨丝从窗口左边消失。 */
+        var drift = h1 * width + state.time * layer.wind;
+        var x = left + (((drift % width) + width) % width);
+        var y = ((state.time * layer.speed + h2 * span) % span) - h;
+        ctx.save();
+        ctx.translate(x, y + h / 2);
+        ctx.rotate(WEATHER.angle);
+        ctx.drawImage(sheet, rect[0], rect[1], rect[2], rect[3],
+                      -w / 2, -h / 2, w, h);
+        ctx.restore();
+      }
+      ctx.restore();
+    });
+    ctx.restore();
+  }
+
+  /**
    * 启动加载屏：**只画字和条，不碰任何素材图。**
    *
    * 它存在的理由就是"别让玩家看见后备画法"（业主 2026-10-17：「开始时加载的
@@ -8350,6 +8565,19 @@
     ctx.translate(-cameraX(state), 0);
     drawBackdrop(ctx, state, sprites);
     drawGate(ctx, state, sprites);
+    /*
+     * **雨丝画在背景之后、人和布景之前**（`docs/adr/0057` 追记）。参考里雨是天气层，
+     * 但我们的近层如果盖在人身上，跑动时会读成"人物在闪"（业主 2026-10-19 实玩）。
+     * 放在这一层：背景与缺口里仍看得到斜雨，人和怪保持干净。
+     *
+     * 雨是屏幕空间的，所以临时把变换切成屏幕坐标；画完再回到世界变换。
+     */
+    ctx.save();
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    drawRain(ctx, state, sprites, meta);
+    ctx.restore();
+    /* 雨点落在地上：画在地面之后、人和布景之前（`docs/adr/0057`）。 */
+    drawRainSplashes(ctx, state, sprites);
     /*
      * Everything in the room - bodies, the Slayer, the art he casts and the
      * ground he leaves burning - in one pass, ordered by depth. See drawWorld.

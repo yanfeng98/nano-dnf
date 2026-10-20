@@ -35,7 +35,12 @@ const MIME = {
   ".css": "text/css; charset=utf-8",
   ".png": "image/png"
 };
-const MAX_SECONDS = 150;
+/*
+ * One run is now **~90–100s**: two waves per room and 35 kills. 150s left no
+ * room for a slow cloud core, and the documented false red — "touch pass did
+ * not finish within 150s" — is exactly this budget expiring on a busy machine.
+ */
+const MAX_SECONDS = 220;
 
 const SLOT_KEYS = [
   "KeyA",
@@ -237,6 +242,50 @@ function decide(state, constants) {
    * cannot reach it is not a reason to stop backing off.
    */
   const rowGap = (target.z || 0) - (player.z || 0);
+  /*
+   * **Boss 只剩最后 12% 时贴脸换血。** 实测在领主 8/120 血时按"先退"走，
+   * 下一记近战就把他从 11 打到 0；人都到这儿了，最后一刀值得吃。只在它已经
+   * 够得着、而且同排的时候这么做。
+   */
+  if (
+    target.type === "boss" &&
+    target.hp <= target.maxHp * 0.12 &&
+    gap <= CLOSING_GAP + 20 &&
+    Math.abs(rowGap) <= constants.meleeReach
+  ) {
+    /*
+     * **最后一刀优先用无敌技**：嗜魂之手那一类整段无敌，能在领主的下一记
+     * 近战里把最后几点血打掉。**如果领主正在冲锋/重踏/旋风，而没有无敌技，
+     * 就先让下面的闪避分支走** —— 否则会像实测那样站着读条被冲锋撞死。
+     */
+    const finishers = constants.skillOrder.filter((skillId) => {
+      const skill = constants.skills[skillId];
+      return (
+        (constants.equipped || constants.skillOrder).indexOf(skillId) !== -1 &&
+        player.mp >= skill.mp &&
+        player.skillCooldowns[skillId] <= 0 &&
+        distance <= skill.reach + target.width / 2
+      );
+    });
+    const invuln = finishers.find((skillId) => constants.skills[skillId].invuln);
+    /*
+     * **普通近战也换**：他的 0.22 秒一刀比领主的起手快，最后几点血值得抢；
+     * 只有冲锋/重踏/旋风这种"站着读条会被撞死"的招才先让给闪避分支。
+     */
+    if (!threatened || invuln || target.attackKind === "melee") {
+      if (invuln) want.add(invuln);
+      else if (finishers.length > 0) {
+        want.add(
+          finishers.reduce((top, skillId) =>
+            constants.skills[skillId].damage > constants.skills[top].damage ? skillId : top
+          )
+        );
+      } else {
+        want.add("attack");
+      }
+      return want;
+    }
+  }
   if (!threatened && Math.abs(rowGap) > constants.meleeReach) {
     want.add(rowGap > 0 ? "up" : "down");
     if (gap > CLOSING_GAP) want.add(delta > 0 ? "right" : "left");
@@ -291,8 +340,12 @@ function decide(state, constants) {
      * **冲锋只打它自己那一排。** 横向后退跑不过 430 的冲锋，往深度轴让开一步
      * 才是录像里的解法（`enemyHitsPlayer` 的 z 容差），也能少挨 16 点。
      */
-    if (target.attackKind === "charge" && elapsed >= target.chargeFrom - 0.3 &&
-        elapsed <= target.chargeTo) {
+    /*
+     * **冲锋一看到就换排**，不再等它滑到 `chargeFrom`。实测最后 7 血时它在
+     * 起手阶段，bot 按通用"后退"走横向，下一帧冲锋就撞上了；深度让开才是
+     * `enemyHitsPlayer` 的 z 容差那条解法。
+     */
+    if (target.attackKind === "charge" && elapsed <= target.chargeTo) {
       want.add((player.z || 0) <= (target.z || 0) ? "down" : "up");
       return want;
     }
@@ -379,7 +432,14 @@ function decide(state, constants) {
       (constants.equipped || constants.skillOrder).indexOf(skillId) !== -1 &&
       player.mp >= skill.mp &&
       player.skillCooldowns[skillId] <= 0 &&
-      distance <= skill.reach &&
+      /*
+       * The game's `attackBox` starts at the player's centre and reaches
+       * `skill.reach`; it overlaps the target's body out to
+       * `reach + target.width / 2`. The old check used the centre distance
+       * alone, so against the 138-wide boss almost no skill ever qualified and
+       * the bot fought it with normal attacks only (measured: died at 8/120).
+       */
+      distance <= skill.reach + target.width / 2 &&
       target.attackCooldown > skill.duration + 0.3
     );
   });
@@ -2308,6 +2368,23 @@ function problemsFor(pass) {
     problems.push(`${pass.mode}: skills.png was never loaded`);
   }
   if (!pass.audio.created) problems.push(`${pass.mode}: WebAudio was never initialised`);
+  /*
+   * 声音链（`docs/adr/0058`）：客户端原音必须真的取齐、真的放出去过，雨 / 森林
+   * 两条环境循环必须真的在跑。只查 `created` 会把"声音一条都没响"判成绿。
+   */
+  if (!pass.audio.sfxTotal || pass.audio.sfxLoaded !== pass.audio.sfxTotal) {
+    problems.push(
+      `${pass.mode}: sfx ${pass.audio.sfxLoaded}/${pass.audio.sfxTotal} files loaded`
+    );
+  }
+  if (!(pass.audio.sfxPlayed > 0)) {
+    problems.push(`${pass.mode}: not one client sound was played`);
+  }
+  if (!pass.audio.rain || !pass.audio.forest) {
+    problems.push(
+      `${pass.mode}: ambience loops missing (rain=${pass.audio.rain} forest=${pass.audio.forest})`
+    );
+  }
   if (pass.mode === "touch") {
     if (!pass.touchMode) problems.push("touch: on-screen controls were not enabled");
     if (!pass.muteRoundTrip || pass.muteRoundTrip.afterFirstTap !== true) {

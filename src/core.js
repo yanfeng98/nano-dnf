@@ -313,8 +313,13 @@
      * **120 → 176**（2026-10-18）：清房不再发强化卡（`docs/adr/0053`），
      * 原来靠「体魄」等卡补的那点余量没了，实玩证明在领主房/多怪房会被磨死。
      * 基础生命 +56，满级上限 156 → 212；不是把卡偷偷加回来，是补基础值。
+     *
+     * **176 → 200**（2026-10-20）：每间房加了第二批怪之后，浏览器证明的两条
+     * 通路都会在最后两三下倒地（一次在领主 8/100 血、一次在两只胆小哥布林前）。
+     * 这不是把怪改弱，是给"加了两批怪"补一点基础余量；领主同时压到 100。
+     * 觉得太软就回调这两个数（`docs/adr/0053` 追记）。
      */
-    maxHp: 176,
+    maxHp: 200,
     maxMp: 100,
     width: 34,
     height: 64,
@@ -1910,7 +1915,13 @@
        * 五六下（`docs/adr/0053`）。血量不是录像量出来的数，缩短这一场比继续
        * 压它的伤害更不伤"重踏要躲、贴脸要挨打"的读法。
        */
-      maxHp: 120,
+      /*
+       * **120 → 100**（2026-10-20）：每间房加了第二批怪之后，浏览器证明的
+       * 键盘/触屏两条通路都在领主 **8/120 血**时倒下（它一刀 13、玩家只剩
+       * 6–8 血，最后一下没换过）。把领主血量压到 100，让"先退再打"的读法
+       * 仍然成立；觉得太软再回调（`docs/adr/0053` 追记）。
+       */
+      maxHp: 100,
       xp: 80,
       /*
        * **172x201 → 138x168**（`docs/adr/0050` 追记）。录像里它站着是 355x530 视频px；
@@ -2026,8 +2037,10 @@
           enemies: [
             { type: "grunt", x: 430 },
             { type: "grunt", x: 489 },
-            { type: "goblinBlue", x: 700 },
-            { type: "grunt", x: 759 }
+            { type: "grunt", x: 370 },
+            { type: "goblinBlue", x: 548 },
+            { type: "goblinBlue", x: 700, wave: 2 },
+            { type: "grunt", x: 759, wave: 2 }
           ],
           props: [
             { piece: "trunkTall", x: 150, depth: 1 },
@@ -2052,9 +2065,11 @@
             { type: "caster", x: 400, depth: 0.34 },
             { type: "grunt", x: 459 },
             { type: "grunt", x: 518 },
-            { type: "grunt", x: 760 },
-            { type: "goblinBlue", x: 819 },
-            { type: "burningThrower", x: 878 }
+            { type: "grunt", x: 380 },
+            { type: "goblinBlue", x: 580 },
+            { type: "grunt", x: 760, wave: 2 },
+            { type: "goblinBlue", x: 819, wave: 2 },
+            { type: "burningThrower", x: 878, wave: 2 }
           ],
           props: [
             { piece: "trunkBent", x: 210, depth: 1 },
@@ -2072,9 +2087,11 @@
             { type: "grunt", x: 380 },
             { type: "brute", x: 439 },
             { type: "brute", x: 533 },
-            { type: "goblinRed", x: 760 },
-            { type: "grunt", x: 819 },
-            { type: "goblinBlue", x: 878 }
+            { type: "grunt", x: 340 },
+            { type: "goblinRed", x: 620 },
+            { type: "goblinRed", x: 760, wave: 2 },
+            { type: "grunt", x: 819, wave: 2 },
+            { type: "goblinBlue", x: 878, wave: 2 }
           ],
           props: [
             { piece: "trunkTall", x: 340, depth: 1 },
@@ -2095,9 +2112,12 @@
             { type: "caster", x: 420, depth: 0.4 },
             { type: "grunt", x: 479 },
             { type: "grunt", x: 538 },
+            { type: "goblinBlue", x: 590 },
+            /* 十夫长是这一间的技能检查，开场就在；加的那批从边上走进来。 */
             { type: "elite", x: 760 },
-            { type: "grunt", x: 824 },
-            { type: "cursedRed", x: 883 }
+            { type: "grunt", x: 370, wave: 2 },
+            { type: "grunt", x: 824, wave: 2 },
+            { type: "cursedRed", x: 883, wave: 2 }
           ],
           props: [
             { piece: "trunkTall", x: 120, depth: 1 },
@@ -2134,9 +2154,11 @@
             { type: "coward", x: 400 },
             { type: "coward", x: 459 },
             { type: "coward", x: 518 },
-            { type: "coward", x: 740 },
-            { type: "coward", x: 799 },
-            { type: "goblinBlue", x: 858 }
+            { type: "coward", x: 350 },
+            { type: "coward", x: 570 },
+            { type: "coward", x: 740, wave: 2 },
+            { type: "coward", x: 799, wave: 2 },
+            { type: "goblinBlue", x: 858, wave: 2 }
           ],
           props: [
             { piece: "trunkMossy", x: 100, depth: 1 },
@@ -2164,8 +2186,9 @@
           enemies: [
             { type: "grunt", x: 420 },
             { type: "grunt", x: 479 },
-            { type: "goblinRed", x: 538 },
-            { type: "boss", x: 800 }
+            { type: "boss", x: 800 },
+            { type: "grunt", x: 620, wave: 2 },
+            { type: "goblinRed", x: 900, wave: 2 }
           ],
           props: [
             { piece: "trunkTall", x: 210, depth: 1 },
@@ -2199,7 +2222,9 @@
             { type: "coward", x: 420 },
             { type: "coward", x: 479 },
             { type: "coward", x: 700 },
-            { type: "coward", x: 759 }
+            { type: "coward", x: 759 },
+            { type: "coward", x: 70, wave: 2 },
+            { type: "coward", x: 900, wave: 2 }
           ],
           props: [
             { piece: "trunkBent", x: 150, depth: 1 },
@@ -2214,7 +2239,9 @@
             { type: "grunt", x: 420, depth: 0.2 },
             { type: "coward", x: 479 },
             { type: "coward", x: 700 },
-            { type: "goblinBlue", x: 759 }
+            { type: "goblinBlue", x: 759 },
+            { type: "coward", x: 70, wave: 2 },
+            { type: "grunt", x: 900, wave: 2 }
           ],
           props: [
             { piece: "trunkTall", x: 250, depth: 1 },
@@ -2230,7 +2257,9 @@
             { type: "grunt", x: 420 },
             { type: "grunt", x: 479, depth: 0.28 },
             { type: "cursedRed", x: 700 },
-            { type: "grunt", x: 759 }
+            { type: "grunt", x: 759 },
+            { type: "grunt", x: 70, wave: 2 },
+            { type: "cursedRed", x: 900, wave: 2 }
           ],
           props: [
             { piece: "trunkMossy", x: 180, depth: 1 },
@@ -2246,7 +2275,9 @@
             { type: "caster", x: 420, depth: 0.38 },
             { type: "grunt", x: 479 },
             { type: "grunt", x: 700 },
-            { type: "goblinBlue", x: 759 }
+            { type: "goblinBlue", x: 759 },
+            { type: "grunt", x: 70, wave: 2 },
+            { type: "caster", x: 900, wave: 2 }
           ],
           props: [
             { piece: "trunkMossy", x: 260, depth: 1 },
@@ -2261,7 +2292,9 @@
             { type: "grunt", x: 420, depth: 0.3 },
             { type: "brute", x: 482 },
             { type: "brute", x: 742 },
-            { type: "grunt", x: 802 }
+            { type: "grunt", x: 802 },
+            { type: "grunt", x: 70, wave: 2 },
+            { type: "brute", x: 900, wave: 2 }
           ],
           props: [
             { piece: "trunkBent", x: 160, depth: 1 },
@@ -2277,7 +2310,9 @@
             { type: "grunt", x: 420, depth: 0.26 },
             { type: "caster", x: 479 },
             { type: "grunt", x: 700 },
-            { type: "burningThrower", x: 759 }
+            { type: "burningThrower", x: 759 },
+            { type: "grunt", x: 70, wave: 2 },
+            { type: "burningThrower", x: 900, wave: 2 }
           ],
           props: [
             { piece: "wallStone", x: 240, depth: 0.78 },
@@ -2937,14 +2972,30 @@
     chunks: 0.45,
     /* 一次炸开冒几块（T+4:50 量到十几块，取 14）。 */
     chunkCount: 14,
-    /* Boss 的白剪影更大更久（录像里约 0.9 秒）。 */
+    /*
+     * **Boss 没有可见的躺下拍**（参考 328.2s 白团几乎立刻出现），所以只留
+     * 一帧的交接；白剪影仍是 0.9 秒。
+     */
+    bossLie: 0.02,
     bossSmoke: 0.9,
     /*
-     * **Boss 的血块活得更久**（录像 329.5–330.5s）：白剪影之后是蓝紫魂柱 +
-     * 大块血肉，飘/落到下一拍才淡；不是杂兵那 0.45 秒的小碎片。
+     * **Boss 的血块留到过关画面**（参考 329.5–332.5s，约 3 秒）：大肉块落地后
+     * 摊在地上，不是 0.9 秒就淡掉。`victoryDelay` 也是按这一段时间算的。
      */
-    bossChunks: 0.9
+    bossChunks: 3.0,
+    /* 一次冒 10–14 块（参考里量到 12–14 块）；杂兵仍是 14 块小的。 */
+    bossChunkCount: 12,
+    /*
+     * 领主的收束光线（参考 327.5–329.5s，约 2 秒）：细的红白光线 + 金色横光，
+     * 不是 0.7 秒就收掉。
+     */
+    bossRays: 1.8
   };
+
+  /** 这一只死之后先躺多久（Boss 几乎立刻变白）。 */
+  function deathLie(enemy) {
+    return enemy && enemy.type === "boss" ? DEATH.bossLie : DEATH.lie;
+  }
 
   /** 这一只死了那一片白亮多久（Boss 更大更久）。 */
   function smokeLife(enemy) {
@@ -3109,6 +3160,8 @@
       attackDuration: PLAYER.attackDuration,
       attackCycle: PLAYER.attackDuration + PLAYER.attackCooldown,
       attackCooldown: 0,
+      /* 脚步的节拍（`docs/adr/0058`）：走起来每 0.3 秒发一条声音事件。 */
+      stepTimer: 0,
       attackHitDone: false,
       comboIndex: 0,
       comboTimer: 0,
@@ -3211,6 +3264,8 @@
       baseDamage: spec.damage,
       baseAttackCooldownMax: spec.attackCooldown,
       attackCooldown: 0.5,
+      /* 脚步的节拍（`docs/adr/0058`）：按 id 错开，免得一群怪同帧踏步。 */
+      stepTimer: (state.nextEnemyId % 5) * 0.07,
       attackTimer: 0,
       attackKind: "melee",
       attackHitDone: false,
@@ -3412,6 +3467,30 @@
     return { operation: operation, technique: technique, hits: hits, score: score, grade: grade };
   }
 
+  /**
+   * **声音事件**（`docs/adr/0058`）：核心只排队，不播放。
+   *
+   * 每条是一个普通的对象，带 `kind` 和发生点的 `x`/`z`；`main.js` 按
+   * `kind` 查表、按屏幕 x 做声像并播放。事件**不参与模拟** —— 不消耗
+   * `nextRandom`，也不会因为没人消费而改变任何判定。
+   */
+  function pushSound(state, kind, data) {
+    if (!state.sounds) state.sounds = [];
+    /* 一帧最多几十条；测试和标题演示可能一直不取，所以封顶。 */
+    if (state.sounds.length >= 64) state.sounds.shift();
+    var event = data || {};
+    event.kind = kind;
+    event.t = state.time;
+    state.sounds.push(event);
+  }
+
+  /** 取走这一帧排下的声音事件（`main.js` 每步一次；测试也可以直接看）。 */
+  function drainSounds(state) {
+    var events = state.sounds || [];
+    state.sounds = [];
+    return events;
+  }
+
   function createState(options) {
     options = options || {};
     var state = {
@@ -3443,6 +3522,12 @@
       projectiles: [],
       pickups: [],
       effects: [],
+      /*
+       * **声音事件**（`docs/adr/0058`）：核心不碰 WebAudio，只在这里排队
+       * `{kind, type, skillId, x, z, id, t}`；`main.js` 每帧取走并播放。
+       * 队列有上限，测试/演示不消费也不会无限长。
+       */
+      sounds: [],
       /* Ground a skill opened and left burning: see spawnField. */
       fields: [],
       /*
@@ -3886,12 +3971,32 @@
      * and everything downstream only ever deals in `z`.
      */
     var depth = bandDepth(state.band);
+    /*
+     * **一间房分两批出**（业主 2026-10-19，`docs/adr/0037` 追记三）：
+     * `wave: 2` 的那几只开场不摆出来，等第一批剩 2 只（或开场 8 秒）再从房间
+     * 边缘 / 门口走进来。同一间房同一时刻最多 5 只；房间要等两批都死完才清。
+     *
+     * 第一批仍然用 `createEnemy` 的随机抖动，所以同 seed 的初始摆位与以前一样
+     * 只受新的 entry 影响；第二批在触发时走同一条流，输入相同则时机相同。
+     */
+    var firstWave = [];
+    var laterWave = [];
+    (spec.enemies || []).forEach(function (entry) {
+      var z = entry.depth === undefined ? 0 : entry.depth * depth;
+      var item = { type: entry.type, x: entry.x, z: z };
+      if ((entry.wave || 1) === 2) laterWave.push(item);
+      else firstWave.push(item);
+    });
     state.enemies = cleared
       ? []
-      : spec.enemies.map(function (entry) {
-          var z = entry.depth === undefined ? 0 : entry.depth * depth;
-          return createEnemy(state, entry.type, entry.x, z);
+      : firstWave.map(function (entry) {
+          return createEnemy(state, entry.type, entry.x, entry.z);
         });
+    state.room.pendingWave = cleared ? [] : laterWave;
+    state.room.enteredAt = state.time;
+    state.room.waveTriggered = false;
+    /* 同屏上限：Boss 房也是 5（Boss + 最多 3 只小兵）。 */
+    state.room.waveCap = 5;
     /*
      * Scenery, in the room's own words: `{piece, x, depth?}`, where `piece` is a
      * name the bake produced (`assets/import_dnf_scene.py`) and `depth` is a
@@ -4417,6 +4522,13 @@
       maxLife: 0.45
     });
     pushBanner(state, (state.stage && state.stage.bossBanner) || phase2.banner, 1.8);
+    /* 暴怒那一下自己也要吼一声（`docs/adr/0058`）。 */
+    pushSound(state, "bossRoar", {
+      type: enemy.type,
+      id: enemy.id,
+      x: enemy.x,
+      z: enemy.z
+    });
     return true;
   }
 
@@ -4561,6 +4673,19 @@
     }
     var applied = Math.max(0, Math.round(amount));
     enemy.hp -= applied;
+    /*
+     * 活着挨打是一声受击；这一下打死就只出死亡声（`docs/adr/0058`）。
+     * **只有他自己挥的那一下才算**：出血 / 地火的 tick 也走这个函数，让它们
+     * 每跳一声会把怪叫成一串。
+     */
+    if (slayerSwing && enemy.hp > 0) {
+      pushSound(state, "enemyHurt", {
+        type: enemy.type,
+        id: enemy.id,
+        x: enemy.x,
+        z: enemy.z
+      });
+    }
     state.stats.hits += 1;
     state.stats.damageDealt += applied;
     if (slayerSwing) {
@@ -4662,16 +4787,22 @@
     if (enemy.hp <= 0) {
       enemy.hp = 0;
       enemy.dead = true;
+      pushSound(state, "enemyDie", {
+        type: enemy.type,
+        id: enemy.id,
+        x: enemy.x,
+        z: enemy.z
+      });
       /*
        * 躺 `DEATH.lie` 秒 → 尸体变成**它自己的白色剪影** `smokeLife()` 秒 →
        * 炸成碎块（`docs/adr/0034`）。剪影就是这只怪自己（`enemy.silhouette`），
        * 所以它得留在名单里到数完为止 —— 收尸那一步看 `enemy.dying`。
        */
-      enemy.dying = DEATH.lie + smokeLife(enemy);
+      enemy.dying = deathLie(enemy) + smokeLife(enemy);
       /*
        * **领主倒下的那一下光线**（业主 2026-10-18：「5:28秒的放光线的特效是
        * 结束特效」）：白剪影和红叉出现的同时，从它身上甩出一组细长的白/红光束。
-       * 单独一条 0.7 秒的特效，和后面的碎块/魂光分开计时。
+       * 参考里它们一直亮到白团散掉（约 2 秒），不是 0.7 秒。
        */
       if (enemy.type === "boss") {
         state.effects.push({
@@ -4679,9 +4810,16 @@
           x: enemy.x,
           z: enemy.z,
           height: enemy.height,
+          /*
+           * **光线从最后一击的那一点甩出去**（参考 327.5–328.6s：光束在玩家剑上
+           * 交汇，金色横光横在他胸口），不是从 Boss 身上向四周炸。`sourceX` 是
+           * `damageEnemy` 收的那个施法者位置；不是玩家打死的时候回落到 Boss。
+           */
+          sourceX: typeof sourceX === "number" ? sourceX : enemy.x,
+          sourceZ: state.player ? state.player.z : enemy.z,
           seed: enemy.id,
-          life: 0.7,
-          maxLife: 0.7
+          life: DEATH.bossRays,
+          maxLife: DEATH.bossRays
         });
       }
       state.stats.kills += 1;
@@ -4692,7 +4830,11 @@
        * the rule.
        */
       if (slayerSwing) growSword(state, 0, 1);
-      pushBanner(state, enemy.type === "boss" ? "Boss down!" : "Enemy down", 0.9);
+      /*
+       * **领主不弹 "Boss down!"**：参考里它倒下那几秒只有光/白团/魂球/肉块，
+       * 没有这行大字；目标条上的红叉已经说了它倒下。杂兵仍保留。
+       */
+      if (enemy.type !== "boss") pushBanner(state, "Enemy down", 0.9);
       /*
        * **经验改成"捡起来才给"**（业主 2026-10-14，Q12 选 a）：这里只把名牌放到地上，
        * `grantXp` 挪到 `collectLoot` 里 —— 录像里那行 `+40 Exp` 就是名牌被收走那一刻
@@ -4842,6 +4984,7 @@
       player.hp = 0;
       player.dead = true;
       state.defeat = true;
+      pushSound(state, "playerDie", { x: player.x, z: player.z });
     }
     return spent;
   }
@@ -4888,6 +5031,7 @@
     if (player.dead || player.invuln > 0) return 0;
     var applied = Math.max(0, Math.round(amount));
     player.hp -= applied;
+    pushSound(state, "playerHurt", { x: player.x, z: player.z });
     state.stats.damageTaken += applied;
     /* 被击数数的是**挨了几下**，不是挨了多少伤害（`docs/adr/0041`）。 */
     state.stats.hitsTaken += 1;
@@ -4943,6 +5087,7 @@
       player.hp = 0;
       player.dead = true;
       state.defeat = true;
+      pushSound(state, "playerDie", { x: player.x, z: player.z });
     }
     return applied;
   }
@@ -4950,6 +5095,7 @@
   function updatePlayer(state, input, dt) {
     var player = state.player;
     if (player.dead) return;
+    var wasOnGround = player.onGround;
 
     var direction = (input.right ? 1 : 0) - (input.left ? 1 : 0);
     var rooted = player.attackTimer > 0 || player.skillTimer > 0 || player.hurtTimer > 0;
@@ -5017,6 +5163,7 @@
     if (input.jump && player.onGround && !rooted) {
       player.vy = PHYSICS.jumpVelocity;
       player.onGround = false;
+      pushSound(state, "playerJump", { x: player.x, z: player.z });
     }
 
     if (!player.onGround) {
@@ -5060,6 +5207,7 @@
       var landedDive =
         player.skillTimer > 0 && SKILLS[player.skillId] && SKILLS[player.skillId].dive;
       if (landedDive) player.vx = 0;
+      if (!wasOnGround) pushSound(state, "playerLand", { x: player.x, z: player.z });
     }
     player.x = clamp(
       player.x,
@@ -5077,6 +5225,21 @@
      * 和 `separateEnemies` 同一个读法 —— 一个身体"占多深"就是"占多宽"。
      */
     blockProps(state, player, player.width / 2, player.width / 2);
+
+    /*
+     * 脚步声（`docs/adr/0058`）：走起来每 0.3 秒一条；停下来就把节拍清零，
+     * 下一步立刻出声，不会先等半拍。
+     */
+    var moving = Math.abs(player.vx) > 1 || Math.abs(player.vz) > 1;
+    if (player.onGround && !rooted && moving) {
+      player.stepTimer -= dt;
+      if (player.stepTimer <= 0) {
+        pushSound(state, "playerStep", { x: player.x, z: player.z });
+        player.stepTimer = 0.3;
+      }
+    } else {
+      player.stepTimer = 0;
+    }
 
     player.attackCooldown = Math.max(0, player.attackCooldown - dt);
     player.invuln = Math.max(0, player.invuln - dt);
@@ -5187,6 +5350,12 @@
       );
       if (!stanceComingDown) player.mp -= skillSpec.mp;
       player.skillId = castSkill;
+      /* 技能语音：起手那一帧一条（`docs/adr/0058`）。 */
+      pushSound(state, "playerSkill", {
+        skillId: castSkill,
+        x: player.x,
+        z: player.z
+      });
       /*
        * **只有能打的招算一次出手。** 血之狂暴与暴走是纯架势（`buff`），既没有判定
        * 也命中不了任何东西，记进去只会把"操作"那一行白白往下拖（`docs/adr/0041`）。
@@ -5280,6 +5449,12 @@
        */
       player.comboTimer = PLAYER.comboWindow / attackSpeedOf(player);
       player.attackHitDone = false;
+      /* 普攻语音 + 挥剑声（`docs/adr/0058`）：每一下各一条。 */
+      pushSound(state, "playerAttack", {
+        stage: player.comboIndex,
+        x: player.x,
+        z: player.z
+      });
     }
 
     if (player.attackTimer > 0) {
@@ -5933,7 +6108,7 @@
     if (route[1]) enemy.vz = route[1] * depthSpeedFor(speed);
   }
 
-  function beginEnemyAttack(enemy, kind, windup, duration) {
+  function beginEnemyAttack(state, enemy, kind, windup, duration) {
     enemy.attackKind = kind;
     /* DNF bosses swing through light hits while winding up a heavy skill. */
     enemy.superArmor = kind === "slam";
@@ -5942,6 +6117,14 @@
     enemy.attackTimer = duration;
     enemy.attackHitDone = false;
     enemy.attackRecovered = false;
+    /* 怪物出招的叫声 / 挥击声（`docs/adr/0058`）。 */
+    pushSound(state, "enemyAttack", {
+      type: enemy.type,
+      attackKind: kind,
+      id: enemy.id,
+      x: enemy.x,
+      z: enemy.z
+    });
   }
 
   function enemyHitsPlayer(enemy, player) {
@@ -6037,7 +6220,7 @@
       } else {
         enemy.vx = 0;
         if (enemy.attackCooldown <= 0) {
-          beginEnemyAttack(enemy, "shoot", enemy.baseAttackWindup, enemy.baseAttackDuration);
+          beginEnemyAttack(state, enemy, "shoot", enemy.baseAttackWindup, enemy.baseAttackDuration);
           pushTelegraph(state, enemy, "AIM", enemy.attackRange * 0.25, enemy.attackWindup, enemy.facing);
         }
       }
@@ -6050,7 +6233,7 @@
       } else {
         enemy.vx = 0;
         if (enemy.attackCooldown <= 0) {
-          beginEnemyAttack(enemy, "charge", enemy.baseAttackWindup, enemy.baseAttackDuration);
+          beginEnemyAttack(state, enemy, "charge", enemy.baseAttackWindup, enemy.baseAttackDuration);
           enemy.chargeDir = enemy.facing;
           pushTelegraph(state, enemy, "CHARGE", enemy.attackRange, enemy.attackWindup, enemy.facing);
         }
@@ -6070,6 +6253,7 @@
         enemy.vx = 0;
         enemy.spinDir = enemy.facing;
         beginEnemyAttack(
+          state,
           enemy,
           "spin",
           spinDash.windup,
@@ -6084,7 +6268,7 @@
       } else {
         enemy.vx = 0;
         if (enemy.attackCooldown <= 0) {
-          beginEnemyAttack(enemy, "melee", enemy.baseAttackWindup, enemy.baseAttackDuration);
+          beginEnemyAttack(state, enemy, "melee", enemy.baseAttackWindup, enemy.baseAttackDuration);
         }
       }
       return;
@@ -6093,7 +6277,7 @@
     var slam = enemy.slam;
     if (slam && enemy.slamCooldown <= 0 && enemy.attackCooldown <= 0 && gap <= slam.commit) {
       enemy.vx = 0;
-      beginEnemyAttack(enemy, "slam", slam.windup, slam.windup + slam.recovery);
+      beginEnemyAttack(state, enemy, "slam", slam.windup, slam.windup + slam.recovery);
       pushTelegraph(state, enemy, "SLAM", slam.radius, slam.windup, 0);
       return;
     }
@@ -6113,7 +6297,7 @@
       enemy.chargeFrom = lunge.windup * 0.6;
       enemy.chargeTo = lunge.windup + lunge.recovery * 0.75;
       enemy.chargeDir = enemy.facing;
-      beginEnemyAttack(enemy, "charge", lunge.windup, lunge.windup + lunge.recovery);
+      beginEnemyAttack(state, enemy, "charge", lunge.windup, lunge.windup + lunge.recovery);
       enemy.superArmor = true;
       enemy.lungeCooldown = lunge.cooldown;
       pushTelegraph(state, enemy, "LUNGE", lunge.range, lunge.windup, enemy.facing);
@@ -6125,7 +6309,7 @@
     } else {
       enemy.vx = 0;
       if (enemy.attackCooldown <= 0) {
-        beginEnemyAttack(enemy, "melee", enemy.baseAttackWindup, enemy.baseAttackDuration);
+        beginEnemyAttack(state, enemy, "melee", enemy.baseAttackWindup, enemy.baseAttackDuration);
       }
     }
   }
@@ -6310,6 +6494,25 @@
       enemy.z = clamp(enemy.z, 0, bandDepth(state.band));
       /* 木桶也挡怪（业主："人和怪都撞得到它"）—— 它只是打不碎。 */
       blockProps(state, enemy, enemy.width / 2, enemy.width / 2);
+      /*
+       * 怪物脚步（`docs/adr/0058`）：每只按自己的节拍走一步出一声，音量在
+       * `main.js` 里压得很低、并按屏幕位置做声像；同屏五只也不会糊成一片。
+       */
+      var walking = Math.abs(enemy.vx) > 1 || Math.abs(enemy.vz) > 1;
+      if (enemy.onGround && walking) {
+        enemy.stepTimer -= dt;
+        if (enemy.stepTimer <= 0) {
+          pushSound(state, "enemyStep", {
+            type: enemy.type,
+            id: enemy.id,
+            x: enemy.x,
+            z: enemy.z
+          });
+          enemy.stepTimer = 0.38;
+        }
+      } else {
+        enemy.stepTimer = 0;
+      }
     });
 
     updateProjectiles(state, dt);
@@ -6344,6 +6547,35 @@
     }
   }
 
+  /**
+   * **第二批怪进场**（业主 2026-10-19，`docs/adr/0037` 追记三）。
+   *
+   * 触发条件：第一批剩 2 只，或开场 8 秒；触发后按同屏上限 5 只一只一只补，
+   * 死一只补一只，直到第二批出完。它们从各自的 `x`（贴着房间边缘写）走进来，
+   * 不是凭空出现 —— `createEnemy` 的出生点就在边上，`chooseEnemyAction` 会让它们
+   * 朝玩家走。
+   */
+  function updateWaves(state) {
+    var room = state.room;
+    if (!room || room.cleared || !room.pendingWave || !room.pendingWave.length) return;
+    var alive = 0;
+    state.enemies.forEach(function (enemy) {
+      if (!enemy.dead) alive += 1;
+    });
+    var elapsed = state.time - (room.enteredAt || 0);
+    if (!room.waveTriggered) {
+      if (alive > 2 && elapsed < 8) return;
+      room.waveTriggered = true;
+    }
+    var cap = room.waveCap || 5;
+    while (room.pendingWave.length && alive < cap) {
+      var entry = room.pendingWave.shift();
+      state.enemies.push(createEnemy(state, entry.type, entry.x, entry.z));
+      alive += 1;
+      room.waveSpawned = (room.waveSpawned || 0) + 1;
+    }
+  }
+
   function resolveRoom(state) {
     var alive = state.enemies.filter(function (enemy) {
       return !enemy.dead;
@@ -6372,19 +6604,30 @@
      * 拿掉，只留领主自己的白色剪影演完；`victoryDelay` 到 0 才进胜利页。
      */
     var bossDown = bossCell && boss && boss.dead;
-    if ((alive.length === 0 || bossDown) && !state.room.cleared && !state.defeat) {
+    var pending = state.room.pendingWave ? state.room.pendingWave.length : 0;
+    /* 两批都清完（或领主倒下）才开房；第一批死光但第二批还没出场不算清。 */
+    if (((alive.length === 0 && pending === 0) || bossDown) && !state.room.cleared && !state.defeat) {
       state.room.cleared = true;
       var cell = currentCell(state);
       if (cell) cell.cleared = true;
       state.stats.rooms += 1;
       if (bossCell) {
         if (state.victoryDelay === null || state.victoryDelay === undefined) {
+          /* 领主一倒，第二波也不算数了：参考里这一间直接进结束特效。 */
+          state.room.pendingWave = [];
           state.enemies = boss
             ? state.enemies.filter(function (enemy) { return enemy === boss; })
             : [];
-          /* 白剪影 → 魂柱/大血块都演完，再进胜利页。 */
-          state.victoryDelay = DEATH.lie + smokeLife(boss) + DEATH.bossChunks + 0.35;
-          pushBanner(state, (state.stage && state.stage.clearBanner) || "Dungeon cleared!", 2.4);
+          /*
+           * 白剪影（0.9s）→ 蓝白魂球（0.3s）→ 大血块落地并留在场上（3s），
+           * 参考里死亡到过关画面约 **4.3 秒**。
+           */
+          state.victoryDelay = deathLie(boss) + smokeLife(boss) + DEATH.bossChunks + 0.35;
+          /*
+           * **死亡特效演完之前不弹"通关"横幅**：参考里那几秒只有领主自己的光/魂球/
+           * 血块，通关字样在结算页。这条横幅原来一倒下就盖在特效上（业主：「放光的
+           * 不对」——它被大字挡住了）。
+           */
         }
       } else {
         /*
@@ -6425,8 +6668,8 @@
       buried = true;
       /*
        * 炸开：十几块**它自己的颜色**，飞出去、减速、落地、化掉（`DEATH.chunks`）。
-       * **Boss 也炸**（业主 2026-10-18：「死亡特效按照参考视频做」）：参考里
-       * 白剪影之后是粉肉碎块 + 一团蓝紫魂光，不是只留一片白。
+       * **Boss 也炸**（参考 329.3–332.5s）：白剪影之后先亮一颗**短命的蓝白魂球**，
+       * 再甩出 12 块**棕红大碎块**；碎块落地后留在场上，直到过关画面。
        */
       state.effects.push({
         kind: "deathburst",
@@ -6758,6 +7001,7 @@
      */
     updateShots(state, dt);
     updateEnemies(state, dt);
+    updateWaves(state);
     updateTarget(state, dt);
     updateBreakables(state);
     updatePickups(state, dt);
@@ -6816,6 +7060,8 @@
     introLength: introLength,
     beginIntro: beginIntro,
     pushLog: pushLog,
+    /* 声音事件队列（`docs/adr/0058`）：排队的在核心，播放的在 main.js。 */
+    drainSounds: drainSounds,
     BLOOD_ORB: BLOOD_ORB,
     HELLBENTER: HELLBENTER,
     ENEMY_TYPES: ENEMY_TYPES,

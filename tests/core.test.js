@@ -275,11 +275,21 @@ function killAll(state) {
    * "one big hit" lands or misses depending on how many numbers the code has
    * drawn before it - which changes whenever anything upstream does.
    */
-  state.enemies.slice().forEach((enemy) => {
-    for (let hit = 0; !enemy.dead && hit < 50; hit += 1) {
-      Core.damageEnemy(state, enemy, 99999, 0, state.player.x);
-    }
-  });
+  /*
+   * **Also drain the second wave** (docs/adr/0037 追记三): killing the first
+   * wave only leaves `room.pendingWave` on the clock, so "empty room" means
+   * stepping until those have walked in and killing them too. The loop is
+   * capped: a room has at most two waves.
+   */
+  for (let round = 0; round < 6; round += 1) {
+    state.enemies.slice().forEach((enemy) => {
+      for (let hit = 0; !enemy.dead && hit < 50; hit += 1) {
+        Core.damageEnemy(state, enemy, 99999, 0, state.player.x);
+      }
+    });
+    if (!state.room || !state.room.pendingWave || state.room.pendingWave.length === 0) break;
+    Core.step(state, {});
+  }
 }
 
 test("player runs right and is clamped by the arena wall", () => {
@@ -462,15 +472,15 @@ test("a dead monster lies down, turns into its own white silhouette, then bursts
     "碎块化干净"
   );
 
-  /* Boss：一样躺、一样白，**而且也要炸**（参考录像里白剪影之后是碎块 + 魂光）。 */
+  /* Boss：几乎立刻变白；白剪影之后是魂球 + 碎块，**而且碎块要留在场上**。 */
   const boss = state.enemies.find((enemy) => enemy.type === "boss");
   /* Boss 每一击都掷一次回避（`docs/adr/0018`），一刀不一定砍得死。 */
   for (let hit = 0; hit < 50 && !boss.dead; hit += 1) {
     Core.damageEnemy(state, boss, 999999, 0, state.player.x);
   }
-  assert.equal(boss.dying, Core.DEATH.lie + Core.DEATH.bossSmoke, "Boss 那一片白更大更久");
-  Core.runFrames(state, Math.ceil(Core.DEATH.lie * Core.FPS) + 2, {});
-  assert.ok(boss.silhouette, "Boss 也变白");
+  assert.equal(boss.dying, Core.DEATH.bossLie + Core.DEATH.bossSmoke, "Boss 那一片白更大更久");
+  Core.runFrames(state, Math.ceil(Core.DEATH.bossLie * Core.FPS) + 2, {});
+  assert.ok(boss.silhouette, "Boss 也变白（几乎立刻，没有可见的躺下拍）");
   Core.runFrames(state, Math.ceil(Core.DEATH.bossSmoke * Core.FPS) + 2, {});
   const bossBurst = state.effects.filter(
     (effect) => effect.kind === "deathburst" && effect.seed === boss.id
@@ -2837,16 +2847,17 @@ test("the shipped sprite sheet matches the frame grid the renderer expects", () 
     awaken: 11
   });
   /*
-   * Long actions need room: the sheet carries twelve columns so a full DNF run
-   * cycle fits and every played frame has to exist inside the row. The stand is
-   * the client's four "still" frames (176-179), so it only asks for four.
+   * Every played frame has to exist inside its row. The run is the client's
+   * **eight-frame cycle** (105-112; 113-116 is the dash thrust at the end).
+   * The stand is the client's four "still" frames (176-179), so it only asks
+   * for four.
    */
   Object.keys(Render.SPRITE.frames).forEach((row) => {
     const count = Render.SPRITE.frames[row];
     assert.ok(count > 0 && count <= Render.SPRITE.cols, `${row} frames must fit the row`);
   });
   assert.ok(Render.SPRITE.frames.idle >= 4, "the idle loop needs real frames");
-  assert.ok(Render.SPRITE.frames.run >= 8, "the run cycle needs real frames");
+  assert.equal(Render.SPRITE.frames.run, 8, "the run is the client's eight-frame cycle at 30fps");
   assert.ok(Render.SPRITE.frames.attack >= 4, "a cut needs wind-up, slash and recovery");
 
   const icons = fs.readFileSync(path.join(__dirname, "..", "assets", "skills.png"));
@@ -8068,7 +8079,7 @@ test("killing the lord clears the run without killing the other monsters", () =>
 
   Core.runFrames(
     state,
-    Math.ceil((Core.DEATH.lie + Core.DEATH.bossSmoke + Core.DEATH.bossChunks + 0.6) * Core.FPS),
+    Math.ceil((Core.DEATH.bossLie + Core.DEATH.bossSmoke + Core.DEATH.bossChunks + 0.6) * Core.FPS),
     {}
   );
   assert.equal(state.victory, true);
@@ -8434,7 +8445,7 @@ test("the room banner moves clear of the boss bar and the help quotes the real m
     `the help overlay must say what ends a run: ${texts.join(" / ")}`
   );
 
-  /* Killing the boss stacks "Boss down!" and the stage's clear banner in the same frame. */
+  /* Two banners in one frame (whatever produced them) must stack, not overprint. */
   const stacked = [];
   const cleared = Core.createState({ seed: Core.DEFAULT_SEED, stage: "mirkwood" });
   Core.goToCell(cleared, cleared.dungeon.boss);
@@ -9185,17 +9196,30 @@ test("高草按身位排：靠镜头的那一丛画在他前面，靠里的画�
 test("一间房里的怪是分组聚着的，不是一字排开", () => {
   const FIGURE = 84;
   Core.STAGES.mirkwood.rooms.forEach((room) => {
-    const info = room.enemies.map((entry) => Core.monsterInfo(entry.type));
-    for (let i = 1; i < room.enemies.length; i += 1) {
-      const gap = room.enemies[i].x - room.enemies[i - 1].x;
-      const wide = Math.max(info[i].width, info[i - 1].width) - 33;
-      const within = FIGURE + Math.max(0, wide);
-      assert.ok(
-        gap <= within || gap >= 2 * FIGURE,
-        `${room.name} 第 ${i} 与第 ${i + 1} 只相距 ${gap} 像素：同组该 ≤ ${within}、` +
-          `换组该 ≥ ${2 * FIGURE} —— 卡在中间就是"一字排开"`
-      );
-    }
+    /*
+     * **Two waves, two checks.** A wave is what is on the floor together, so
+     * each wave has to satisfy the group spacing on its own; a wave-2 monster
+     * standing apart from wave 1 is the point of a wave (`docs/adr/0037`
+     * 追记三). Sort by x first: the roster array is authored by role, not by
+     * position, and only the sorted neighbours are actually neighbours.
+     */
+    [1, 2].forEach((wave) => {
+      const entries = room.enemies
+        .filter((entry) => (entry.wave || 1) === wave)
+        .slice()
+        .sort((a, b) => a.x - b.x);
+      const info = entries.map((entry) => Core.monsterInfo(entry.type));
+      for (let i = 1; i < entries.length; i += 1) {
+        const gap = entries[i].x - entries[i - 1].x;
+        const wide = Math.max(info[i].width, info[i - 1].width) - 33;
+        const within = FIGURE + Math.max(0, wide);
+        assert.ok(
+          gap <= within || gap >= 2 * FIGURE,
+          `${room.name} 第 ${wave} 波第 ${i} 与第 ${i + 1} 只相距 ${gap} 像素：` +
+            `同组该 ≤ ${within}、换组该 ≥ ${2 * FIGURE} —— 卡在中间就是"一字排开"`
+        );
+      }
+    });
   });
 });
 
@@ -9413,4 +9437,85 @@ test("地图上的迷雾：探过的格子记着，没去过的不算探过", ()
 
   /* Boss 那格没去过之前不算探过 —— 红脸也是靠这一条才能等到去过才画。 */
   assert.ok(!state.dungeon.cells[state.dungeon.boss].seen, "没进过 Boss 房就不该算探过");
+});
+
+/*
+ * **声音事件**（`docs/adr/0058`）：核心只排队，`main.js` 才播放。这条钉的是
+ * "每一种玩家 / 怪物事件都真的排上了" —— 浏览器证明只能看出"有声音放出去过"，
+ * 分不出是玩家还是怪物。
+ */
+test("Core queues client-sound events for the player and the monsters", () => {
+  const state = Core.createState({ seed: Core.DEFAULT_SEED });
+  Core.drainSounds(state);
+
+  /* 普攻与技能起手各一条。 */
+  Core.step(state, { attack: true });
+  let events = Core.drainSounds(state);
+  assert.ok(
+    events.some((event) => event.kind === "playerAttack"),
+    "a normal swing should queue a playerAttack voice"
+  );
+  /* 技能要在他没出招的时候按 —— 用一局新的，免得被上一刀的硬直挡住。 */
+  const skillState = Core.createState({ seed: Core.DEFAULT_SEED });
+  Core.drainSounds(skillState);
+  Core.step(skillState, { skills: { upSlash: true } });
+  events = Core.drainSounds(skillState);
+  assert.ok(
+    events.some((event) => event.kind === "playerSkill" && event.skillId === "upSlash"),
+    "a skill cast should queue its own voice"
+  );
+
+  /* 受伤与死亡。 */
+  Core.damagePlayer(state, 5, state.player.x + 10);
+  events = Core.drainSounds(state);
+  assert.ok(
+    events.some((event) => event.kind === "playerHurt"),
+    "taking a hit should queue a hurt voice"
+  );
+  state.player.hp = 1;
+  state.player.invuln = 0;
+  Core.damagePlayer(state, 99, state.player.x + 10);
+  events = Core.drainSounds(state);
+  assert.ok(
+    events.some((event) => event.kind === "playerDie"),
+    "dying should queue the death voice"
+  );
+
+  /* 怪物：受击、死亡、出招、脚步。 */
+  const monsterState = Core.createState({ seed: Core.DEFAULT_SEED });
+  Core.goToCell(monsterState, 0);
+  Core.drainSounds(monsterState);
+  const enemy = monsterState.enemies[0];
+  enemy.evasion = 0;
+  Core.damageEnemy(monsterState, enemy, 1, 0, monsterState.player.x);
+  events = Core.drainSounds(monsterState);
+  assert.ok(
+    events.some((event) => event.kind === "enemyHurt" && event.id === enemy.id),
+    "a wounded monster should queue its hurt voice"
+  );
+  Core.damageEnemy(monsterState, enemy, 99999, 0, monsterState.player.x);
+  events = Core.drainSounds(monsterState);
+  assert.ok(
+    events.some((event) => event.kind === "enemyDie" && event.id === enemy.id),
+    "a dying monster should queue its death voice"
+  );
+
+  /*
+   * 把玩家放到它面前、不动手，等它出招；一条一条地 drain，免得队列封顶把
+   * 那一条挤掉。
+   */
+  monsterState.player.x = enemy.x - 30;
+  monsterState.player.z = enemy.z;
+  let sawAttack = false;
+  let sawStep = false;
+  for (let frame = 0; frame < 240 && !(sawAttack && sawStep); frame += 1) {
+    Core.step(monsterState, {});
+    events = Core.drainSounds(monsterState);
+    events.forEach((event) => {
+      if (event.kind === "enemyAttack") sawAttack = true;
+      if (event.kind === "enemyStep") sawStep = true;
+    });
+  }
+  assert.ok(sawAttack, "a monster in reach should queue its attack voice");
+  assert.ok(sawStep, "a walking monster should queue footsteps");
 });

@@ -27,8 +27,13 @@
   var ROW_REACH = Core.DEPTH_REACH.melee * Core.SLAYER_HEIGHT;
   /* An enemy this far above the Slayer is worth a jump before the swing. */
   var LEAP_GAP = 120;
-  /* Long demos stop being demos, so a stalled run is restarted. */
-  var MAX_SECONDS = 45;
+  /*
+   * Long demos stop being demos, so a stalled run is restarted.
+   * **45 → 75 when the rooms grew a second wave** (`docs/adr/0037` 追记三):
+   * the same script now has 2–3 more monsters per room, and 45s restarted it
+   * just before the clear.
+   */
+  var MAX_SECONDS = 75;
   /* A finished run holds its last frame for a beat, so the end reads on screen. */
   var HOLD_SECONDS = 2.5;
 

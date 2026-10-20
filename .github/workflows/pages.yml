@@ -37,13 +37,19 @@ jobs:
           # Every browser module, so adding a new src/*.js cannot ship a broken site.
           cp src/*.js _site/src/
           # Explicit list: assets/ also holds gitignored working references.
-          cp assets/slayer.png assets/skills.png assets/effects.png assets/rift.png assets/awakening.png assets/region.png assets/monsters.png assets/forest.png assets/minimap.png assets/ui.png assets/boss_portrait.png assets/reward_avatar.png assets/favicon.png _site/assets/
+          cp assets/slayer.png assets/skills.png assets/effects.png assets/rift.png assets/awakening.png assets/region.png assets/monsters.png assets/forest.png assets/weather.png assets/bossdeath.png assets/minimap.png assets/ui.png assets/boss_portrait.png assets/reward_avatar.png assets/favicon.png _site/assets/
           cp assets/share-card.png _site/assets/
           # 音乐：清单必进（它一定在）；那几首曲子是从客户端拷来的，在了才拷。
           mkdir -p _site/assets/music
           cp assets/music/manifest.json _site/assets/music/
           for f in assets/music/*.ogg; do
             if [ -f "$f" ]; then cp "$f" _site/assets/music/; fi
+          done
+          # 声音（docs/adr/0058）：清单 + 客户端抽出来的 ogg，和音乐同一条规矩。
+          mkdir -p _site/assets/sfx
+          cp assets/sfx/manifest.json _site/assets/sfx/
+          for f in assets/sfx/*.ogg; do
+            if [ -f "$f" ]; then cp "$f" _site/assets/sfx/; fi
           done
 
       - name: Verify every referenced asset was staged
@@ -75,6 +81,17 @@ jobs:
             );
             if (missing.length) {
               console.error("::error::staged site is missing music: " + missing.join(", "));
+              process.exit(1);
+            }
+          '
+          node -e '
+            const manifest = require("./assets/sfx/manifest.json");
+            const fs = require("fs");
+            const missing = (manifest.files || []).filter(
+              (name) => !fs.existsSync("_site/assets/sfx/" + name)
+            );
+            if (missing.length) {
+              console.error("::error::staged site is missing sfx: " + missing.join(", "));
               process.exit(1);
             }
           '

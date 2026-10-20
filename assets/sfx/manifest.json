@@ -1,0 +1,233 @@
+{
+  "note": "由 assets/import_dnf_sounds.py 从客户端 SoundPacks 抽出；别手改。",
+  "files": [
+    "amb_forest_01.ogg",
+    "amb_rain_01.ogg",
+    "b_shauta_01.ogg",
+    "b_tau_talk_01.ogg",
+    "b_tauarmy_01.ogg",
+    "b_taubeast_01.ogg",
+    "bloodgaru_dmg_01.ogg",
+    "bloodgaru_dmg_02.ogg",
+    "bloodgaru_slayer.ogg",
+    "gbn_comm.ogg",
+    "gbn_die_01.ogg",
+    "gbn_die_02.ogg",
+    "gbn_dmg_01.ogg",
+    "gbn_dmg_02.ogg",
+    "gbn_dmg_03.ogg",
+    "gbn_dmg_04.ogg",
+    "gbn_fright.ogg",
+    "gbn_scared.ogg",
+    "gbn_spin.ogg",
+    "gbn_spinatk.ogg",
+    "gbn_talk_01.ogg",
+    "gbn_talk_02.ogg",
+    "gbn_talk_03.ogg",
+    "gbn_talk_04.ogg",
+    "gbn_talk_05.ogg",
+    "gbn_thw.ogg",
+    "grass_pass.ogg",
+    "grasshash.ogg",
+    "sm_ancient.ogg",
+    "sm_atk_01.ogg",
+    "sm_atk_02.ogg",
+    "sm_atk_03.ogg",
+    "sm_bghost.ogg",
+    "sm_blood.ogg",
+    "sm_blood_rave_atk.ogg",
+    "sm_blood_rave_storm.ogg",
+    "sm_bloodboom_01.ogg",
+    "sm_bloodboom_02.ogg",
+    "sm_bloodriven_01.ogg",
+    "sm_bloodriven_02.ogg",
+    "sm_boongsan.ogg",
+    "sm_die.ogg",
+    "sm_dmg_01.ogg",
+    "sm_dmg_02.ogg",
+    "sm_dmg_03.ogg",
+    "sm_flense.ogg",
+    "sm_gorecross.ogg",
+    "sm_gue_01.ogg",
+    "sm_gue_02.ogg",
+    "sm_jump.ogg",
+    "sm_outrage_break_01.ogg",
+    "sm_outrage_break_02.ogg",
+    "sm_triple1.ogg",
+    "sm_triple2.ogg",
+    "sm_triple3.ogg",
+    "sm_upslash.ogg",
+    "sm_wave.ogg",
+    "tau_axeswing.ogg",
+    "tau_breath.ogg",
+    "tau_comm.ogg",
+    "tau_crash.ogg",
+    "tau_die.ogg",
+    "tau_dmg_01.ogg",
+    "tau_dmg_02.ogg",
+    "tau_dmg_03.ogg",
+    "tau_roar.ogg",
+    "tau_rush.ogg",
+    "tau_talk_01.ogg"
+  ],
+  "map": {
+    "player_attack": [
+      "sm_atk_01.ogg",
+      "sm_atk_02.ogg",
+      "sm_atk_03.ogg"
+    ],
+    "player_hurt": [
+      "sm_dmg_01.ogg",
+      "sm_dmg_02.ogg",
+      "sm_dmg_03.ogg"
+    ],
+    "player_die": [
+      "sm_die.ogg"
+    ],
+    "player_jump": [
+      "sm_jump.ogg"
+    ],
+    "player_swing": [
+      "sm_triple1.ogg",
+      "sm_triple2.ogg",
+      "sm_triple3.ogg"
+    ],
+    "player_skill_upSlash": [
+      "sm_upslash.ogg"
+    ],
+    "player_skill_mountainBreaker": [
+      "sm_boongsan.ogg"
+    ],
+    "player_skill_crossSlash": [
+      "sm_gorecross.ogg"
+    ],
+    "player_skill_bloodSword": [
+      "sm_bloodriven_01.ogg",
+      "sm_bloodriven_02.ogg"
+    ],
+    "player_skill_frenzy": [
+      "sm_blood_rave_atk.ogg"
+    ],
+    "player_skill_bloodyRave": [
+      "sm_blood_rave_storm.ogg"
+    ],
+    "player_skill_rageBurst": [
+      "sm_bloodboom_01.ogg",
+      "sm_bloodboom_02.ogg"
+    ],
+    "player_skill_bloodSnatch": [
+      "sm_blood.ogg"
+    ],
+    "player_skill_graspHead": [
+      "sm_gue_01.ogg",
+      "sm_gue_02.ogg"
+    ],
+    "player_skill_bloodEvil": [
+      "sm_bghost.ogg"
+    ],
+    "player_skill_mountainRift": [
+      "sm_outrage_break_01.ogg",
+      "sm_outrage_break_02.ogg"
+    ],
+    "player_skill_berserk": [
+      "sm_flense.ogg"
+    ],
+    "player_skill_hellbenter": [
+      "sm_ancient.ogg"
+    ],
+    "player_skill_silverFall": [
+      "sm_wave.ogg"
+    ],
+    "goblin_attack": [
+      "gbn_comm.ogg",
+      "gbn_talk_01.ogg",
+      "gbn_talk_02.ogg",
+      "gbn_talk_03.ogg",
+      "gbn_talk_04.ogg",
+      "gbn_talk_05.ogg"
+    ],
+    "goblin_hurt": [
+      "gbn_dmg_01.ogg",
+      "gbn_dmg_02.ogg",
+      "gbn_dmg_03.ogg",
+      "gbn_dmg_04.ogg"
+    ],
+    "goblin_die": [
+      "gbn_die_01.ogg",
+      "gbn_die_02.ogg"
+    ],
+    "goblin_throw": [
+      "gbn_thw.ogg"
+    ],
+    "goblin_scared": [
+      "gbn_scared.ogg"
+    ],
+    "goblin_fright": [
+      "gbn_fright.ogg"
+    ],
+    "goblin_spin": [
+      "gbn_spin.ogg"
+    ],
+    "goblin_spinattack": [
+      "gbn_spinatk.ogg"
+    ],
+    "cursed_attack": [
+      "bloodgaru_slayer.ogg"
+    ],
+    "cursed_hurt": [
+      "bloodgaru_dmg_01.ogg",
+      "bloodgaru_dmg_02.ogg"
+    ],
+    "cursed_die": [
+      "gbn_die_02.ogg"
+    ],
+    "elite_attack": [
+      "b_shauta_01.ogg"
+    ],
+    "elite_idle": [
+      "gbn_comm.ogg"
+    ],
+    "tau_attack": [
+      "tau_axeswing.ogg",
+      "tau_crash.ogg",
+      "tau_rush.ogg",
+      "tau_comm.ogg",
+      "tau_talk_01.ogg"
+    ],
+    "tau_hurt": [
+      "tau_dmg_01.ogg",
+      "tau_dmg_02.ogg",
+      "tau_dmg_03.ogg"
+    ],
+    "tau_die": [
+      "tau_die.ogg"
+    ],
+    "tau_roar": [
+      "tau_roar.ogg"
+    ],
+    "tau_breath": [
+      "tau_breath.ogg"
+    ],
+    "boss_attack": [
+      "b_taubeast_01.ogg",
+      "b_tau_talk_01.ogg",
+      "b_tauarmy_01.ogg"
+    ],
+    "boss_roar": [
+      "b_taubeast_01.ogg"
+    ],
+    "rain_loop": [
+      "amb_rain_01.ogg"
+    ],
+    "forest_loop": [
+      "amb_forest_01.ogg"
+    ],
+    "step_grass": [
+      "grass_pass.ogg",
+      "grasshash.ogg"
+    ],
+    "step_monster": [
+      "grass_pass.ogg"
+    ]
+  }
+}

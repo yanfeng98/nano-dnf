@@ -113,7 +113,11 @@ test("a finished demo holds its last frame before looping", () => {
    */
   const budget = Math.round(120 / Core.DT);
   let frames = 0;
-  while (!Attract.snapshot(session).victory && session.seconds < 60 && frames < budget) {
+  while (
+    !Attract.snapshot(session).victory &&
+    session.seconds < Attract.MAX_SECONDS + 5 &&
+    frames < budget
+  ) {
     Attract.step(session, Core.DT);
     frames += 1;
   }

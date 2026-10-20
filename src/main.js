@@ -71,6 +71,16 @@
      */
     ["forest", "./assets/forest.png"],
     /*
+     * 雨（`docs/adr/0057`）：客户端 `sprite/map/rain.img` / `raindrop.img`
+     * 烘成的一张小图（`assets/import_dnf_weather.py`）。
+     */
+    ["weather", "./assets/weather.png"],
+    /*
+     * 牛头巨兽自己的五块死亡碎块（`metacowpiece.img`，`docs/adr/0034` 追记二）：
+     * 大块棕红肉片，不是通用的 `splashbloodlarge` 血花。
+     */
+    ["bossdeath", "./assets/bossdeath.png"],
+    /*
      * 界面那一张：进副本前的过场插画、关卡名那两行大字、脚下的绿椭圆、
      * 冠军怪的光环、评级字母与结算那口宝箱 —— 每一样都对着录像里的一帧
      * （assets/import_dnf_ui.py, docs/adr/0042）。
@@ -380,15 +390,27 @@
    */
   var MUSIC_LEVEL = 0.5;
   var MUSIC_LOOKAHEAD_SECONDS = 0.25;
-  var music = { bus: null, timer: null, step: 0, nextNoteTime: 0, scheduled: 0, playing: false };
+  var music = {
+    bus: null,
+    /* 语音响起时压一下音乐（`docs/adr/0058`）：`bus → duck → master`。 */
+    duck: null,
+    timer: null,
+    step: 0,
+    nextNoteTime: 0,
+    scheduled: 0,
+    playing: false
+  };
 
   function ensureMusicBus() {
     var context = ensureAudio();
     if (!context) return null;
     if (music.bus) return music.bus;
+    music.duck = context.createGain();
+    music.duck.gain.value = 1;
     music.bus = context.createGain();
     music.bus.gain.value = audio.muted ? 0 : MUSIC_LEVEL;
-    music.bus.connect(audio.master);
+    music.bus.connect(music.duck);
+    music.duck.connect(audio.master);
     return music.bus;
   }
 
@@ -457,6 +479,8 @@
      * 现在这样：有文件就放文件，没文件就是原来那个循环，两条路都听得见。
      */
     loadMusicFiles();
+    /* 首次手势后也把客户端声音取来（`docs/adr/0058`）。 */
+    loadSfxFiles();
     syncTrack();
     music.nextNoteTime = context.currentTime + 0.05;
     pumpMusic();
@@ -582,6 +606,287 @@
     playTrack(want);
   }
 
+  /* --------------------------------------------------- 声音：客户端原音 */
+  /*
+   * **`docs/adr/0058`：玩家与每种怪都用自己的声音，外加雨 / 森林 / 脚步。**
+   *
+   * `Core` 只在 `state.sounds` 里排队事件；这一层把事件映射到
+   * `assets/sfx/manifest.json` 里的客户端 ogg，按屏幕 x 做声像、同怪短冷却，
+   * 语音响起时把音乐轻压一下。声音不参与模拟，没加载完就静音等着。
+   */
+  var SFX_MANIFEST = "assets/sfx/manifest.json";
+  var sfx = {
+    manifest: null,
+    buffers: {},
+    loadStarted: false,
+    bus: null,
+    active: 0,
+    /* 真的放出去过多少条（浏览器证明拿它确认声音链不是摆设）。 */
+    played: 0,
+    last: {},
+    duckTimer: null
+  };
+  var ambient = { bus: null, rain: null, forest: null };
+
+  function ensureSfxBus() {
+    var context = ensureAudio();
+    if (!context) return null;
+    if (sfx.bus) return sfx.bus;
+    sfx.bus = context.createGain();
+    sfx.bus.gain.value = 0.9;
+    sfx.bus.connect(audio.master);
+    return sfx.bus;
+  }
+
+  function ensureAmbientBus() {
+    var context = ensureAudio();
+    if (!context) return null;
+    if (ambient.bus) return ambient.bus;
+    ambient.bus = context.createGain();
+    ambient.bus.gain.value = 0.7;
+    ambient.bus.connect(audio.master);
+    return ambient.bus;
+  }
+
+  /** 第一次手势之后读清单、逐条取 ogg；清单一定在，所以不会留下 404。 */
+  function loadSfxFiles() {
+    if (sfx.loadStarted) return;
+    sfx.loadStarted = true;
+    var context = ensureAudio();
+    if (!context || typeof fetch !== "function") return;
+    fetch(SFX_MANIFEST)
+      .then(function (response) {
+        return response.ok ? response.json() : { files: [], map: {} };
+      })
+      .then(function (manifest) {
+        sfx.manifest = manifest;
+        var files = Array.isArray(manifest.files) ? manifest.files : [];
+        files.forEach(function (name) {
+          fetch("assets/sfx/" + name)
+            .then(function (response) {
+              if (!response.ok) throw new Error("missing " + name);
+              return response.arrayBuffer();
+            })
+            .then(function (bytes) {
+              return context.decodeAudioData(bytes);
+            })
+            .then(function (buffer) {
+              sfx.buffers[name] = buffer;
+            })
+            .catch(function () {
+              /* 一条没取到就少一个声音，不拖整局。 */
+            });
+        });
+      })
+      .catch(function () {
+        /* 没有清单（老构建）：一点声音都没有，和音乐回落同一个道理。 */
+      });
+  }
+
+  /** 把一条客户端声音放出去；同一只怪/同一类事件的短冷却由调用方给。 */
+  function playSfx(key, options) {
+    if (audio.muted) return;
+    var context = audio.ctx;
+    if (!context) return;
+    if (!ensureSfxBus()) return;
+    var list = sfx.manifest && sfx.manifest.map && sfx.manifest.map[key];
+    if (!list || !list.length) return;
+    var name = list[Math.floor(Math.random() * list.length)];
+    var buffer = sfx.buffers[name];
+    if (!buffer) return;
+    if (sfx.active >= 24) return;
+    var opts = options || {};
+    var source = context.createBufferSource();
+    source.buffer = buffer;
+    if (opts.rate) source.playbackRate.value = opts.rate;
+    var gain = context.createGain();
+    gain.gain.value = opts.gain === undefined ? 0.3 : opts.gain;
+    var tail = gain;
+    if (context.createStereoPanner) {
+      var panner = context.createStereoPanner();
+      var pan = Math.max(-0.85, Math.min(0.85, opts.pan || 0));
+      panner.pan.value = pan;
+      gain.connect(panner);
+      tail = panner;
+    }
+    tail.connect(sfx.bus);
+    source.connect(gain);
+    sfx.active += 1;
+    source.onended = function () {
+      sfx.active = Math.max(0, sfx.active - 1);
+    };
+    source.start();
+    sfx.played += 1;
+  }
+
+  /** 语音压音乐：约 −4 dB，300ms 后自己回来；连续语音就重新计时。 */
+  function duckMusic(ms) {
+    if (!music.duck || audio.muted) return;
+    var context = audio.ctx;
+    if (!context) return;
+    var now = context.currentTime;
+    music.duck.gain.cancelScheduledValues(now);
+    music.duck.gain.setTargetAtTime(0.63, now, 0.02);
+    if (sfx.duckTimer) window.clearTimeout(sfx.duckTimer);
+    sfx.duckTimer = window.setTimeout(function () {
+      if (!music.duck) return;
+      music.duck.gain.setTargetAtTime(1, audio.ctx.currentTime, 0.08);
+    }, ms || 300);
+  }
+
+  /** 屏幕 x → 左右声像；声音跟着画面里的位置走。 */
+  function panFor(x) {
+    var screen = (x - state.camera.x) * Core.CAMERA.zoom + Core.VIEW.left;
+    var centre = Core.VIEW.left + Core.VIEW.width / 2;
+    return Math.max(-0.85, Math.min(0.85, (screen - centre) / (Core.VIEW.width / 2)));
+  }
+
+  function soundFamily(type) {
+    if (type === "boss") return "boss";
+    if (type === "brute") return "tau";
+    if (type === "elite") return "elite";
+    if (type === "cursedRed") return "cursed";
+    return "goblin";
+  }
+
+  /** 同一只怪同一类声音的短冷却。 */
+  function sfxReady(key, id, seconds) {
+    if (!audio.ctx) return false;
+    var slot = key + ":" + (id === undefined ? "player" : id);
+    var now = audio.ctx.currentTime;
+    if (sfx.last[slot] !== undefined && now - sfx.last[slot] < seconds) return false;
+    sfx.last[slot] = now;
+    return true;
+  }
+
+  function playSoundEvent(event) {
+    if (!event || audio.muted) return;
+    var pan = panFor(event.x === undefined ? state.player.x : event.x);
+    var family = event.type ? soundFamily(event.type) : "goblin";
+    if (event.kind === "playerAttack") {
+      if (!sfxReady("playerAttack", undefined, 0.08)) return;
+      playSfx("player_attack", { gain: 0.34, pan: pan });
+      playSfx("player_swing", { gain: 0.16, pan: pan });
+      duckMusic(220);
+    } else if (event.kind === "playerSkill") {
+      playSfx("player_skill_" + event.skillId, { gain: 0.45, pan: pan });
+      duckMusic(360);
+    } else if (event.kind === "playerHurt") {
+      if (!sfxReady("playerHurt", undefined, 0.18)) return;
+      playSfx("player_hurt", { gain: 0.44, pan: pan });
+      duckMusic(260);
+    } else if (event.kind === "playerDie") {
+      playSfx("player_die", { gain: 0.5, pan: pan });
+      duckMusic(600);
+    } else if (event.kind === "playerJump") {
+      playSfx("player_jump", { gain: 0.18, pan: pan });
+    } else if (event.kind === "playerLand" || event.kind === "playerStep") {
+      playSfx("step_grass", {
+        gain: event.kind === "playerLand" ? 0.12 : 0.09,
+        pan: pan,
+        rate: event.kind === "playerLand" ? 0.9 : 0.95 + Math.random() * 0.1
+      });
+    } else if (event.kind === "enemyAttack") {
+      if (!sfxReady("enemyAttack", event.id, 0.12)) return;
+      if (family === "boss") {
+        playSfx(event.attackKind === "slam" ? "tau_roar" : "boss_attack",
+                { gain: 0.42, pan: pan });
+      } else if (family === "tau") {
+        playSfx(event.attackKind === "shoot" ? "tau_breath" : "tau_attack",
+                { gain: 0.32, pan: pan });
+      } else if (family === "cursed") {
+        playSfx("cursed_attack", { gain: 0.3, pan: pan });
+      } else if (family === "elite") {
+        playSfx("elite_attack", { gain: 0.34, pan: pan });
+      } else if (event.attackKind === "shoot") {
+        playSfx("goblin_throw", { gain: 0.3, pan: pan });
+      } else if (event.attackKind === "spin") {
+        playSfx("goblin_spinattack", { gain: 0.3, pan: pan });
+      } else {
+        playSfx("goblin_attack", { gain: 0.28, pan: pan });
+      }
+      duckMusic(180);
+    } else if (event.kind === "enemyHurt") {
+      if (!sfxReady("enemyHurt", event.id, 0.24)) return;
+      if (family === "boss" || family === "tau") {
+        playSfx("tau_hurt", { gain: family === "boss" ? 0.34 : 0.28, pan: pan });
+      } else if (family === "cursed") {
+        playSfx("cursed_hurt", { gain: 0.24, pan: pan });
+      } else {
+        playSfx("goblin_hurt", { gain: 0.22, pan: pan });
+      }
+    } else if (event.kind === "enemyDie") {
+      if (!sfxReady("enemyDie", event.id, 0.4)) return;
+      if (family === "boss" || family === "tau") {
+        playSfx("tau_die", { gain: family === "boss" ? 0.5 : 0.34, pan: pan });
+      } else if (family === "cursed") {
+        playSfx("cursed_die", { gain: 0.3, pan: pan });
+      } else {
+        playSfx("goblin_die", { gain: 0.28, pan: pan });
+      }
+      duckMusic(260);
+    } else if (event.kind === "enemyStep") {
+      if (!sfxReady("enemyStep", event.id, 0.34)) return;
+      playSfx("step_monster", { gain: 0.055, pan: pan, rate: 0.9 + Math.random() * 0.2 });
+    } else if (event.kind === "bossRoar") {
+      playSfx("boss_roar", { gain: 0.52, pan: pan });
+      duckMusic(500);
+    }
+  }
+
+  /** 每步把核心排下的事件取走；标题演示的事件不取（它自己那一局在背后跑）。 */
+  function playSoundEvents() {
+    if (!Core.drainSounds) return;
+    var events = Core.drainSounds(state);
+    for (var index = 0; index < events.length; index += 1) playSoundEvent(events[index]);
+  }
+
+  /** 环境声：进了房间才响，雨和森林各一条循环；离开 / 过关淡出。 */
+  function startAmbient(id, key, level) {
+    if (ambient[id] || !ambient.bus) return;
+    var context = audio.ctx;
+    var list = sfx.manifest && sfx.manifest.map && sfx.manifest.map[key];
+    var buffer = list && list.length ? sfx.buffers[list[0]] : null;
+    if (!context || !buffer) return;
+    var source = context.createBufferSource();
+    source.buffer = buffer;
+    source.loop = true;
+    var gain = context.createGain();
+    gain.gain.value = 0;
+    source.connect(gain);
+    gain.connect(ambient.bus);
+    source.start();
+    ambient[id] = { source: source, gain: gain, level: level, on: false };
+  }
+
+  function syncAmbience() {
+    /*
+     * **第一次手势之前不要碰 AudioContext**：浏览器会拦自动播放，控制台还会留下
+     * 一条警告。`startMusic()` 在第一下手势里把 `loadSfxFiles()` 起起来之后这条路才通。
+     */
+    if (!audio.ctx || !sfx.loadStarted) return;
+    if (!ensureAmbientBus()) return;
+    var inRoom = !!(
+      state.room && !state.intro && !state.victory && !state.defeat &&
+      !showHelp && !regionOpen
+    );
+    if (inRoom) {
+      startAmbient("rain", "rain_loop", 0.22);
+      startAmbient("forest", "forest_loop", 0.12);
+    }
+    ["rain", "forest"].forEach(function (id) {
+      var layer = ambient[id];
+      if (!layer) return;
+      if (layer.on === inRoom) return;
+      layer.on = inRoom;
+      layer.gain.gain.setTargetAtTime(
+        inRoom ? layer.level : 0,
+        audio.ctx.currentTime,
+        0.2
+      );
+    });
+  }
+
   var SOUNDS = {
     swing: function () {
       noise(0.07, 0.12, 0, 1800);
@@ -675,6 +980,15 @@
    * 红的不是测试，是这里。
    */
   function syncHints() {
+    /*
+     * **领主死亡特效演完之前不弹任何提示**：参考里那几秒只有光/魂球/血块，
+     * 教学提示（「清完房间门口会亮」）会盖在特效上，业主看到的"放光不对"
+     * 有一半是被那行大字和提示挡住的。
+     */
+    if (state.victoryDelay !== null && state.victoryDelay !== undefined) {
+      activeHint = null;
+      return;
+    }
     var pick = Hints.select(state, hintSeen);
     if (!pick) return;
     if (activeHint) {
@@ -1335,6 +1649,7 @@
       while (accumulator >= Core.DT && guard < 5) {
         Core.step(state, currentInput());
         syncSounds();
+        playSoundEvents();
         syncHints();
         syncTrack();
         ageHint(Core.DT);
@@ -1346,6 +1661,8 @@
       }
       if (guard >= 5) accumulator = 0;
     }
+    /* 雨 / 森林环境声跟着房间走；标题、地区地图、过关都淡出。 */
+    syncAmbience();
 
     /*
      * **通关后的翻牌**按真实时间走（`docs/adr/0055`）：战绩页 3 秒 → 宝箱 →
@@ -1473,7 +1790,13 @@
       return {
         created: !!audio.ctx,
         muted: audio.muted,
-        state: audio.ctx ? audio.ctx.state : "none"
+        state: audio.ctx ? audio.ctx.state : "none",
+        /* 声音素材的加载进度（`docs/adr/0058`），浏览器证明用来确认真的取到了。 */
+        sfxLoaded: Object.keys(sfx.buffers).length,
+        sfxTotal: sfx.manifest && sfx.manifest.files ? sfx.manifest.files.length : 0,
+        sfxPlayed: sfx.played,
+        rain: !!ambient.rain,
+        forest: !!ambient.forest
       };
     },
     toggleMute: toggleMute,
