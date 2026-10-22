@@ -227,8 +227,8 @@ function walkToDoor(state, dir, frames) {
       dir === "N" || dir === "S"
         ? doorX
         : dir === "E"
-          ? Core.ROOM.rightWall - Core.DOOR.side / 2
-          : Core.ROOM.leftWall + Core.DOOR.side / 2;
+          ? Core.roomRight(state) - Core.DOOR.side / 2
+          : Core.roomLeft(state) + Core.DOOR.side / 2;
     const targetZ =
       dir === "N"
         ? depth - Core.DOOR.depth / 2
@@ -424,6 +424,220 @@ test("the combo chain walks the three cuts of the normal attack", () => {
 
   assert.deepEqual(hits, Core.PLAYER.comboDamage);
   assert.equal(state.player.comboIndex, stages.length - 1);
+});
+
+test("a landed normal cut stops the world for three frames", () => {
+  const state = lastRoomState();
+  const enemy = Core.createEnemy(state, "brute", state.player.x + 55);
+  enemy.hp = 500;
+  enemy.maxHp = 500;
+  enemy.speed = 0;
+  state.enemies = [enemy];
+
+  Core.step(state, { attack: true });
+  let hit = false;
+  for (let frame = 0; frame < 30 && !hit; frame += 1) {
+    Core.runFrames(state, 1, {});
+    hit = state.hitStop > 0;
+  }
+  assert.ok(hit, "the cut lands");
+  const swing = state.player.attackTimer;
+  const hp = enemy.hp;
+  const clock = state.time;
+  let frozen = 0;
+  while (state.hitStop > 0) {
+    Core.runFrames(state, 1, {});
+    frozen += 1;
+    assert.equal(state.player.attackTimer, swing, "the swing holds still");
+    assert.equal(enemy.hp, hp, "the monster takes no further tick");
+  }
+  assert.equal(frozen, 3, "0.05s is three 60fps frames");
+  assert.ok(
+    state.time >= clock + 3 * Core.DT - 0.0001,
+    "but the clock keeps running"
+  );
+  Core.runFrames(state, 1, {});
+  assert.ok(state.player.attackTimer < swing, "and then the swing resumes");
+});
+
+test("a skill pressed during hit stop is not swallowed", () => {
+  const state = lastRoomState();
+  state.enemies = [];
+  state.player.mp = state.player.maxMp;
+  state.hitStop = 0.1;
+
+  Core.step(state, { skills: { upSlash: true } });
+  assert.ok(state.skillBuffer && state.skillBuffer.id === "upSlash", "the press is remembered");
+  assert.equal(state.player.skillId, null, "the world is still frozen on the hit");
+
+  let frames = 0;
+  while (state.player.skillId !== "upSlash" && frames < 30) {
+    Core.runFrames(state, 1, {});
+    frames += 1;
+  }
+  assert.equal(state.player.skillId, "upSlash", "the first unfrozen step casts it");
+  assert.equal(state.skillBuffer, null, "and the buffer is spent once");
+});
+
+test("an attack pressed during hit stop is remembered", () => {
+  const state = lastRoomState();
+  state.enemies = [];
+  state.hitStop = 0.05;
+
+  Core.step(state, { attack: true });
+  assert.equal(
+    state.player.attackBuffer,
+    Core.PLAYER.attackBuffer,
+    "the press is remembered through the freeze"
+  );
+  let frames = 0;
+  while (state.stats.swings < 1 && frames < 30) {
+    Core.runFrames(state, 1, {});
+    frames += 1;
+  }
+  assert.equal(state.stats.swings, 1, "the first unfrozen step swings");
+});
+
+test("a jump pressed during hit stop is remembered", () => {
+  const state = lastRoomState();
+  state.enemies = [];
+  state.hitStop = 0.05;
+
+  Core.step(state, { jump: true });
+  assert.equal(
+    state.player.jumpBuffer,
+    Core.PLAYER.jumpBuffer,
+    "the jump is remembered through the freeze"
+  );
+  let frames = 0;
+  while (state.player.onGround && frames < 30) {
+    Core.runFrames(state, 1, {});
+    frames += 1;
+  }
+  assert.equal(state.player.onGround, false, "the first unfrozen step jumps");
+});
+
+test("a landed skill hit stops the world for its own beat", () => {
+  const state = lastRoomState();
+  const enemy = Core.createEnemy(state, "grunt", state.player.x + 40);
+  enemy.hp = 500;
+  enemy.maxHp = 500;
+  enemy.speed = 0;
+  state.enemies = [enemy];
+  state.player.mp = state.player.maxMp;
+
+  const hp = enemy.hp;
+  Core.step(state, { skills: { upSlash: true } });
+  let hit = false;
+  for (let frame = 0; frame < 60 && !hit; frame += 1) {
+    Core.runFrames(state, 1, {});
+    hit = enemy.hp < hp && state.hitStop > 0;
+  }
+  assert.ok(hit, "上挑 lands");
+  assert.equal(
+    state.hitStop,
+    Core.SKILL_HIT_STOP.upSlash,
+    "its stop comes from the skill table, not the normal chain"
+  );
+  const skill = state.player.skillTimer;
+  let frozen = 0;
+  while (state.hitStop > 0) {
+    Core.runFrames(state, 1, {});
+    frozen += 1;
+    assert.equal(state.player.skillTimer, skill, "the cast holds still");
+  }
+  assert.equal(frozen, 3, "0.05s is three 60fps frames");
+  Core.runFrames(state, 1, {});
+  assert.ok(state.player.skillTimer < skill, "and then the cast resumes");
+});
+
+test("a non-fatal hit on him does not freeze the world; the killing blow does", () => {
+  const state = lastRoomState();
+  state.enemies = [];
+  state.player.invuln = 0;
+  const hp = state.player.hp;
+  Core.damagePlayer(state, 10, state.player.x + 50);
+  assert.ok(state.player.hp < hp, "the hit lands");
+  /*
+   * 非致命不冻（`docs/adr/0061` 追记二）：3 帧停顿实测把浏览器机器人拖进和
+   * 胆小哥布林的换血循环，先不做。致命那一下仍停 6 帧。
+   */
+  assert.equal(state.hitStop, 0, "a non-fatal hit does not stop the world");
+
+  const fatal = lastRoomState();
+  fatal.enemies = [];
+  fatal.player.invuln = 0;
+  fatal.player.hp = 5;
+  Core.damagePlayer(fatal, 10, fatal.player.x + 50);
+  assert.ok(fatal.player.dead, "the hit kills him");
+  assert.equal(fatal.hitStop, Core.HIT_STOP.kill, "the killing blow still stops");
+
+  /* 霸体: the cast keeps its feet - no stop either. */
+  const armored = lastRoomState();
+  armored.enemies = [];
+  armored.player.invuln = 0;
+  armored.player.skillId = "graspHead";
+  armored.player.skillTimer = 0.5;
+  Core.damagePlayer(armored, 10, armored.player.x + 50);
+  assert.equal(armored.hitStop, 0, "super armour takes the damage without the freeze");
+});
+
+test("the third normal cut knocks the monster down; the first two only push", () => {
+  const state = lastRoomState();
+  const inReach = (Core.ENEMY_TYPES.brute.width + Core.PLAYER.width) / 2 + 10;
+  const enemy = Core.createEnemy(state, "brute", state.player.x + inReach);
+  enemy.hp = 9999;
+  enemy.maxHp = 9999;
+  enemy.speed = 0;
+  state.enemies = [enemy];
+
+  const reactions = [];
+  for (let press = 0; press < 3; press += 1) {
+    enemy.x = state.player.x + inReach;
+    enemy.z = state.player.z;
+    enemy.onGround = true;
+    enemy.knockdown = 0;
+    enemy.vy = 0;
+    const hp = enemy.hp;
+    Core.step(state, { attack: true });
+    assert.equal(state.player.comboIndex, press, `press ${press + 1} plays stage ${press}`);
+    let frames = 0;
+    while (enemy.hp === hp && frames < 40) {
+      Core.runFrames(state, 1, {});
+      frames += 1;
+    }
+    assert.ok(enemy.hp < hp, `press ${press + 1} connects`);
+    reactions.push(enemy.knockdown > 0 || !enemy.onGround);
+    /* 这一刀（含停顿）走完，趁 combo 窗口还在，按下一段。 */
+    let guard = 0;
+    while (state.player.attackTimer > 0 && guard < 60) {
+      Core.runFrames(state, 1, {});
+      guard += 1;
+    }
+  }
+  assert.deepEqual(reactions, [false, false, true]);
+});
+
+test("an attack pressed during the swing is remembered", () => {
+  const state = lastRoomState();
+  state.enemies = [];
+  Core.step(state, { attack: true });
+  assert.equal(state.stats.swings, 1);
+  Core.runFrames(state, 3, {});
+  /* 挥砍中按一下再松开：原来这一下会被吞掉。 */
+  Core.step(state, { attack: true });
+  assert.equal(
+    state.player.attackBuffer,
+    Core.PLAYER.attackBuffer,
+    "the press is remembered"
+  );
+  let guard = 0;
+  while (state.stats.swings < 2 && guard < 60) {
+    Core.runFrames(state, 1, {});
+    guard += 1;
+  }
+  assert.equal(state.stats.swings, 2, "the remembered press starts the next cut");
+  assert.equal(state.player.comboIndex, 1);
 });
 
 test("a dead monster lies down, turns into its own white silhouette, then bursts into its own colour", () => {
@@ -700,11 +914,17 @@ test("血气之刃 spends MP, hits inside reach, then stays on cooldown", () => 
   const farHp = far.hp;
 
   Core.step(state, { skills: { bloodSword: true } });
-  Core.runFrames(state, 26, {});
+  /* 命中停顿会把技能自己的钟往后推（`docs/adr/0061`）：跑到这一招收完。 */
+  let cast = 0;
+  while (state.player.skillTimer > 0 && cast < 180) {
+    Core.runFrames(state, 1, {});
+    cast += 1;
+  }
 
   assert.equal(nearHp - near.hp, skill.damage * skill.hits);
   assert.equal(far.hp, farHp);
-  assert.ok(state.player.mp < mpBefore - skill.mp + 5, `mp=${state.player.mp}`);
+  /* 跑到收势会多回一点 MP；+8 是这一整段（含命中停顿）的回蓝余量。 */
+  assert.ok(state.player.mp < mpBefore - skill.mp + 8, `mp=${state.player.mp}`);
   assert.ok(state.player.skillCooldowns.bloodSword > 0, "血气之刃 should start its cooldown");
 
   const hpBefore = near.hp;
@@ -1194,11 +1414,11 @@ test("血气之刃 lands three hits and stuns the target while it is held", () =
 
 test("normal attacks can be cancelled into a skill during recovery", () => {
   const state = lastRoomState();
-  const enemy = Core.createEnemy(state, "brute", state.player.x + 55);
-  enemy.hp = 600;
-  enemy.maxHp = 600;
-  enemy.speed = 0;
-  state.enemies = [enemy];
+  /*
+   * **这一条不摆怪**：打中了会触发命中停顿（`docs/adr/0061`），世界停三帧，
+   * 11 帧后就不是同一个"收招段"了。这里量的是取消窗口，不是命中。
+   */
+  state.enemies = [];
 
   Core.step(state, { attack: true });
   /* The cut is 0.22s and its recovery starts at 0.64 of it: 11 frames since the
@@ -5486,7 +5706,12 @@ test("血之狂暴's attack power reaches every skill, not only the three the wi
     enemy.hp = 100000;
     const before = enemy.hp;
     Core.step(state, { skills: { upSlash: true } });
-    Core.runFrames(state, Math.ceil(Core.SKILLS.upSlash.duration * Core.FPS), {});
+    /* 命中停顿会推后这一招的收势：等它真的收完，再量伤害。 */
+    let cast = 0;
+    while (state.player.skillTimer > 0 && cast < 120) {
+      Core.runFrames(state, 1, {});
+      cast += 1;
+    }
     return before - enemy.hp;
   };
 
@@ -6795,7 +7020,11 @@ test("魔狱血刹's 火山 is ground he opened, and it burns on its own clock",
    * of the cast, not at its end.
    */
   const slam = Core.SKILLS.hellbenterSlam;
-  Core.runFrames(state, Math.ceil(slam.field.at * Core.FPS) + 1, {});
+  let handover = 0;
+  while (state.fields.length === 0 && handover < 180) {
+    Core.runFrames(state, 1, {});
+    handover += 1;
+  }
   assert.equal(state.fields.length, 1, "it leaves the ground burning where the sword went in");
   const field = state.fields[0];
   /*
@@ -7292,14 +7521,18 @@ test("崩山裂地斩 leaps forward, lands on its gash and stands back up", () =
    * up rather than free. The last tick is what floors what the rift caught.
    */
   assert.ok(state.player.skillTimer > 1, "the fire is still to come when the hit lands");
-  Core.runFrames(state, 110, {});
+  let tail = 0;
+  while (state.player.skillTimer > 0 && tail < 240) {
+    Core.runFrames(state, 1, {});
+    tail += 1;
+  }
   assert.ok(
     state.player.skillCooldowns.mountainRift > 0 &&
       state.player.skillCooldowns.mountainRift < skill.cooldown,
     "the long cooldown runs down after the cast"
   );
   assert.ok(near.knockdown > 0 || near.dead, "the rift knocks them down");
-  assert.ok(state.player.skillTimer <= 0.1, "and the cast does end, 4s after the press");
+  assert.equal(state.player.skillTimer, 0, "and the cast does end (its own 4s plus the hit stops)");
 });
 
 test("the skill loadout assigns, swaps, clears and round-trips", () => {
@@ -8283,9 +8516,14 @@ test("the boss bar names the boss in both phases, and no longer writes 狂暴 on
     false,
     "红相位不再画橙色 ALERT 空槽"
   );
-  assert.ok(
-    enragedArcs > calmArcs,
-    `the enrage aura must add draw calls: ${calmArcs} -> ${enragedArcs}`
+  /*
+   * 业主 2026-10-21：「领主的……脚底下的光环」不要了。半血不再加那圈持续
+   * 脉冲环；阶段变化只由金色一闪 / 暴怒横幅交代，所以 draw calls 不该增加。
+   */
+  assert.equal(
+    enragedArcs,
+    calmArcs,
+    `the enrage aura is gone: ${calmArcs} -> ${enragedArcs}`
   );
 });
 
@@ -8623,6 +8861,7 @@ test("every prop a room scatters names a piece the bake produced", () => {
    "chunk_boss0", "chunk_boss1", "chunk_boss2",
    "barrel1", "barrel2", "barrel3", "barrel4", "barrel5", "barrel6",
    "barrel7", "barrel8", "barrel9", "barrel10", "barrel11", "barrel12",
+   "chest1", "chest2", "tomb1", "tomb2", "tomb3", "tomb4", "tomb5", "tomb6", "tomb7",
    "boss", "marker", "blank", "tl", "top", "tr", "left", "centre", "right",
    "bl", "bottom", "br"].forEach((reserved) => used.add(reserved));
   known.filter((name) => !used.has(name)).forEach((unused) => {
@@ -8936,8 +9175,12 @@ test("镜头只在死区边上才动，到墙就停住，而且跟他 1:1", () =
        * 录像里量出来没有滞后（30fps 下一帧内就到全速），所以这里要求**每一帧**都严丝合缝，
        * 而不是"大致在一个范围内"—— 给镜头加平滑就会从这里红。
        */
+      /*
+       * 跑速降到 1.25 身位/秒后，一帧只走约 2.8 屏幕px；镜头仍是 1:1，
+       * 但玩家可能还差小半步才贴到边缘。给 3 屏幕px 的量化余量，镜头平滑仍会红。
+       */
       assert.ok(
-        Math.abs(x - rightEdge) < 1e-6,
+        Math.abs(x - rightEdge) < 3,
         `跟着走的时候他应该钉在死区右边缘 ${rightEdge.toFixed(1)}，现在在 ${x.toFixed(1)}`
       );
       followed += 1;
@@ -9326,18 +9569,18 @@ test("每间房都摆到录像那个密度", () => {
 
 /*
  * 步速（`docs/adr/0039`）。整档速度是**量的**，不是调的：录像里他一秒走
- * **2.05 个身位**（三段独立样本，镜头自己的滚动量已经扣掉），哥布林一秒走
+ * **1.25 个身位**（330 视频px/s，镜头自己的滚动量已经扣掉），哥布林一秒走
  * **0.62–0.77**。这一条把这两段读数钉在代码里 —— 动 `PHYSICS.moveSpeed` 或
  * `ENEMY_TYPES.grunt.speed` 而不重新去录像里量，就会从这里红。
  *
  * 单位是**身位**（美术里他画出来多高，`Render.SPRITE.bodyHeight` = 84），
  * 不是格 —— 格是量判定用的另一个单位（`CONTEXT.md`「单位与量法」）。
  */
-test("全场步速是录像那一档：他一秒走 2.05 个身位", () => {
+test("全场步速是录像那一档：他一秒走 1.25 个身位", () => {
   const heights = Core.PHYSICS.moveSpeed / Render.SPRITE.bodyHeight;
   assert.ok(
-    Math.abs(heights - 2.05) < 0.02,
-    `他一秒走 ${heights.toFixed(3)} 个身位，录像里是 2.05`
+    Math.abs(heights - 1.25) < 0.02,
+    `他一秒走 ${heights.toFixed(3)} 个身位，录像里是 1.25`
   );
   /*
    * 哥布林那一档是**同一个比例**压出来的，落点正好在录像那段 0.62–0.77 里：
@@ -9349,11 +9592,11 @@ test("全场步速是录像那一档：他一秒走 2.05 个身位", () => {
     `哥布林一秒走 ${goblin.toFixed(3)} 个身位，录像里是 0.62–0.77`
   );
   /*
-   * 过一间房：本作 960 ÷ 172 = 5.58 秒；录像最小那间 11.4 身位 ÷ 2.05 = 5.56 秒。
+   * 过一间房：本作 960 ÷ 105 = 9.14 秒；录像最小那间 11.4 身位 ÷ 1.25 = 9.12 秒。
    * 房间宽度两边本来就一样（`docs/adr/0035`），所以这一个数两边也该一样。
    */
   const across = Core.ROOM.width / Core.PHYSICS.moveSpeed;
-  assert.ok(across > 5.4 && across < 5.7, `过一间房要 ${across.toFixed(2)} 秒，录像里是 5.56`);
+  assert.ok(across > 8.9 && across < 9.3, `过一间房要 ${across.toFixed(2)} 秒，录像里是 9.12`);
 });
 
 /*
@@ -9518,4 +9761,474 @@ test("Core queues client-sound events for the player and the monsters", () => {
   }
   assert.ok(sawAttack, "a monster in reach should queue its attack voice");
   assert.ok(sawStep, "a walking monster should queue footsteps");
+});
+
+/*
+ * 幽暗密林深处（2026-10-21）：4x4 的 15 格、猫妖族与暗咒猫妖。
+ * 这些测试钉的是**这一关自己的数据**，不是 mirkwood 的回归。
+ */
+test("the deep dungeon is the recording's 4x4 grid with the (3,2) hole", () => {
+  const stage = Core.STAGES.mirkwooddeep;
+  const dun = stage.dungeon;
+  assert.equal(dun.cols, 4);
+  assert.equal(dun.rows, 4);
+  assert.deepEqual(dun.shape, ["RCCR", "CCCR", "RCC.", "RCCR"]);
+  assert.deepEqual(dun.entry, [1, 1]);
+  assert.deepEqual(dun.boss, [3, 1]);
+
+  const state = Core.createState({ stage: "mirkwooddeep", seed: 1 });
+  assert.equal(state.dungeon.cells.length, 15, "the (3,2) hole is not a cell");
+  assert.equal(
+    state.dungeon.cells.filter((cell) => cell.kind === "room").length,
+    6,
+    "six room cells"
+  );
+  assert.equal(
+    state.dungeon.cells.filter((cell) => cell.kind === "corr").length,
+    9,
+    "nine corridor cells"
+  );
+  assert.ok(
+    !state.dungeon.cells.some((cell) => cell.col === 3 && cell.row === 2),
+    "the recording's black corner stays a hole"
+  );
+  assert.equal(state.dungeon.cells[state.dungeon.entry].col, 1);
+  assert.equal(state.dungeon.cells[state.dungeon.entry].row, 1);
+  assert.equal(state.dungeon.cells[state.dungeon.boss].col, 3);
+  assert.equal(state.dungeon.cells[state.dungeon.boss].row, 1);
+  assert.equal(
+    state.dungeon.cells[state.dungeon.boss].room,
+    stage.bossIndex,
+    "the boss cell is pinned to the boss room spec"
+  );
+  assert.equal(
+    state.dungeon.cells[state.dungeon.entry].room,
+    stage.dungeon.entryRoom,
+    "the entry cell is pinned to the entry spec"
+  );
+  state.dungeon.cells.forEach((cell) => {
+    assert.ok(state.stage.rooms[cell.room], `cell ${cell.col},${cell.row} has a room spec`);
+  });
+  assert.equal(stage.rooms.filter((room) => room.kind === "corr").length, 9);
+  assert.equal(stage.rooms.filter((room) => room.kind !== "corr").length, 6);
+});
+
+test("the deep stage names its new monsters the way the recording does", () => {
+  const cat = Core.monsterInfo("cat");
+  const thrower = Core.monsterInfo("throwerElite");
+  const boss = Core.monsterInfo("lugaruBoss");
+  assert.equal(cat.label, "猫妖");
+  assert.equal(cat.race, "野兽");
+  assert.equal(cat.level, 6);
+  assert.equal(thrower.label, "投掷十夫长");
+  assert.equal(thrower.race, "人型");
+  assert.equal(boss.label, "领主 - 暗咒猫妖");
+  assert.equal(boss.race, "野兽");
+  assert.equal(boss.level, 9);
+  assert.equal(boss.behavior, "boss");
+
+  const state = Core.createState({ stage: "mirkwooddeep", seed: 1 });
+  assert.ok(
+    state.enemies.some((enemy) => enemy.type === "cat" && enemy.level === 6),
+    "the entry room fields a Lv6 cat"
+  );
+  assert.ok(
+    state.enemies.some((enemy) => enemy.type === "throwerElite" && enemy.level === 6),
+    "and a Lv6 throwing ten-captain"
+  );
+  const bossEnemy = Core.createEnemy(state, "lugaruBoss", 500);
+  const catEnemy = Core.createEnemy(state, "cat", 500);
+  assert.equal(Core.isBossEnemy(bossEnemy), true);
+  assert.equal(Core.isBossEnemy(catEnemy), false);
+});
+
+test("the deep boss reaches phase two without a banner and dies into victory", () => {
+  const state = Core.createState({ stage: "mirkwooddeep", seed: 3 });
+  Core.goToCell(state, state.dungeon.boss);
+  const boss = state.enemies.find((enemy) => Core.isBossEnemy(enemy));
+  assert.ok(boss, "the boss cell fields the cat king");
+  /* The room's own name banner is not the boss's phase banner; clear the queue. */
+  state.effects = [];
+
+  /* 领主有 10% 回避：单次大伤害可能被闪掉，和 `killAll` 一样重复到为止。 */
+  for (let hit = 0; hit < 50 && boss.phase < 2; hit += 1) {
+    Core.damageEnemy(state, boss, Math.ceil(boss.maxHp * 0.52), 0, state.player.x);
+  }
+  assert.equal(boss.phase, 2, "crossing half health starts phase two");
+  assert.equal(
+    state.effects.filter((effect) => effect.kind === "banner").length,
+    0,
+    "the stage's bossBanner is empty on purpose: no words"
+  );
+  assert.ok(
+    state.effects.some((effect) => effect.kind === "shockwave" && effect.gold),
+    "the gold ring is the phase-two tell"
+  );
+
+  for (let hit = 0; hit < 50 && !boss.dead; hit += 1) {
+    Core.damageEnemy(state, boss, 99999, 0, state.player.x);
+  }
+  Core.runFrames(state, 300, {});
+  assert.equal(state.victory, true, "killing the cat king clears the stage");
+  assert.ok(state.finishedAt > 0);
+});
+
+test("a chest pays one cyan item and gold; a tomb pays gold alone", () => {
+  const state = Core.createState({ stage: "mirkwooddeep", seed: 1 });
+  clearRoom(state);
+  /* The cleared room leaves the monsters' plates on the floor; this test is about
+     the chest's own drop, so start from an empty pickup list. */
+  state.pickups = [];
+  const chest = state.props.find((prop) => prop.piece === "chest");
+  assert.ok(chest, "the entry room has a chest");
+  smashBarrel(state, chest);
+  assert.equal(chest.broken, true);
+  const chestDrop = state.pickups.find((drop) => drop.kind === "loot");
+  assert.ok(chestDrop, "the chest leaves a loot plate");
+  assert.equal(chestDrop.exp, 0, "breakables do not grant experience");
+  assert.equal(chestDrop.tone, "cyan");
+  assert.ok(chestDrop.gold >= 60 && chestDrop.gold <= 120, `chest gold ${chestDrop.gold}`);
+
+  const beforeLoot = state.stats.loot;
+  state.log = [];
+  state.player.x = chestDrop.x;
+  state.player.z = chestDrop.z;
+  Core.runFrames(state, 4, {});
+  assert.equal(state.stats.loot, beforeLoot + 1, "walking over the plate collects it");
+  assert.ok(
+    state.log.some((line) => line.text.includes(chestDrop.name)),
+    "the item's name is logged"
+  );
+  assert.ok(
+    !state.log.some((line) => line.text.includes("0点经验值")),
+    "no zero-experience line"
+  );
+
+  const roomAt = state.stage.rooms.findIndex((room) => room.name === "石碑夹道");
+  const cellAt = state.dungeon.cells.findIndex((cell) => cell.room === roomAt);
+  Core.goToCell(state, cellAt);
+  clearRoom(state);
+  state.pickups = [];
+  const tomb = state.props.find((prop) => prop.piece === "tomb");
+  assert.ok(tomb, "the stone-tablet corridor has a tomb");
+  smashBarrel(state, tomb);
+  assert.equal(tomb.broken, true);
+  const goldDrop = state.pickups.find((drop) => drop.kind === "gold");
+  assert.ok(goldDrop, "the tomb leaves gold only");
+  assert.ok(goldDrop.gold >= 20 && goldDrop.gold <= 50, `tomb gold ${goldDrop.gold}`);
+
+  state.log = [];
+  state.player.x = goldDrop.x;
+  state.player.z = goldDrop.z;
+  const before = state.stats.gold;
+  Core.runFrames(state, 4, {});
+  assert.equal(state.stats.gold, before + goldDrop.gold);
+  assert.ok(
+    !state.log.some((line) => line.text.includes("[金币]")),
+    "gold-only loot never prints an item line"
+  );
+});
+
+test("the map window's height follows the dungeon's rows, not a fixed 4x3", () => {
+  const three = Render.minimapBox({ map: { cols: 4, rows: 3 } });
+  const four = Render.minimapBox({ map: { cols: 4, rows: 4 } });
+  assert.equal(four.w, three.w, "both grids are four columns wide");
+  assert.ok(four.h > three.h, "a 4x4 dungeon needs the fourth row");
+  assert.equal(four.left, three.left, "the grid starts at the same x");
+});
+
+test("the deep stage uses the recording's blue ten-captain and the larger cats", () => {
+  const info = Core.monsterInfo("deepElite");
+  assert.equal(info.label, "十夫长");
+  assert.equal(info.race, "人型");
+  assert.equal(info.behavior, "elite");
+  assert.equal(Core.ENEMY_TYPES.cat.height >= 50, true, "the owner said the cat was too small");
+  assert.equal(Core.ENEMY_TYPES.lugaruBoss.height >= 60, true);
+  assert.notEqual(
+    Core.ENEMY_TYPES.deepElite.label,
+    undefined,
+    "the deep ten-captain has its own type"
+  );
+  const state = Core.createState({ stage: "mirkwooddeep", seed: 3 });
+  Core.goToCell(state, state.dungeon.boss);
+  assert.ok(
+    state.enemies.some((enemy) => enemy.type === "deepElite" && enemy.level === 7),
+    "the boss room fields the Lv7 deep ten-captain"
+  );
+  /* The four-way corridor cell needs a tile; without it the map draws nothing. */
+  assert.notEqual(Render.MINIMAP.tiles["corr:NESW"], undefined);
+});
+
+test("the deep route is pinned for every seed and the side eight shuffle", () => {
+  const route = {
+    "1,1": 0,
+    "1,3": 10,
+    "1,2": 8,
+    "1,0": 13,
+    "2,0": 12,
+    "2,1": 9,
+    "3,1": 1
+  };
+  const side = [2, 3, 4, 5, 6, 7, 11, 14].sort((a, b) => a - b);
+  [1, 7, 42, 20260915].forEach((seed) => {
+    const state = Core.createState({ stage: "mirkwooddeep", seed });
+    Object.keys(route).forEach((key) => {
+      const col = Number(key.split(",")[0]);
+      const row = Number(key.split(",")[1]);
+      const cell = state.dungeon.cells.find((at) => at.col === col && at.row === row);
+      assert.ok(cell, `${key} exists`);
+      assert.equal(cell.room, route[key], `seed ${seed}: ${key} is pinned`);
+    });
+    const sideCells = state.dungeon.cells
+      .filter((cell) => Object.keys(route).every((key) => key !== `${cell.col},${cell.row}`))
+      .map((cell) => cell.room)
+      .sort((a, b) => a - b);
+    assert.deepEqual(sideCells, side, `seed ${seed}: only the side eight remain`);
+  });
+});
+
+test("the measured room widths and band are on the deep route", () => {
+  const widths = {
+    "1,1": 1008,
+    "1,3": 704,
+    "1,2": 960,
+    "1,0": 1118,
+    "2,0": 622,
+    "2,1": 951,
+    "3,1": 960
+  };
+  const state = Core.createState({ stage: "mirkwooddeep", seed: 7 });
+  Object.keys(widths).forEach((key) => {
+    const col = Number(key.split(",")[0]);
+    const row = Number(key.split(",")[1]);
+    const cell = state.dungeon.cells.find((at) => at.col === col && at.row === row);
+    Core.goToCell(state, state.dungeon.cells.indexOf(cell));
+    assert.equal(state.room.width, widths[key], `${key} room width`);
+    assert.equal(state.band.backY, 256, `${key} ground band`);
+  });
+});
+
+test("the route only scatters ground cover; the side eight keep the full scatter", () => {
+  const state = Core.createState({ stage: "mirkwooddeep", seed: 7 });
+  const route = ["1,1", "1,3", "1,2", "1,0", "2,0", "2,1", "3,1"];
+  route.forEach((key) => {
+    const col = Number(key.split(",")[0]);
+    const row = Number(key.split(",")[1]);
+    const cell = state.dungeon.cells.find((at) => at.col === col && at.row === row);
+    Core.goToCell(state, state.dungeon.cells.indexOf(cell));
+    const scatteredSolid = state.props.filter(
+      (prop) => prop.scattered && prop.solid
+    );
+    const scatteredBarrels = state.props.filter(
+      (prop) => prop.scattered && prop.piece === "barrel"
+    );
+    assert.equal(scatteredSolid.length, 0, `${key}: no scattered solid props`);
+    assert.equal(scatteredBarrels.length, 0, `${key}: no scattered barrels`);
+  });
+
+  const sideKey = ["0,1", "2,2", "2,3"];
+  sideKey.forEach((key) => {
+    const col = Number(key.split(",")[0]);
+    const row = Number(key.split(",")[1]);
+    const cell = state.dungeon.cells.find((at) => at.col === col && at.row === row);
+    Core.goToCell(state, state.dungeon.cells.indexOf(cell));
+    assert.ok(
+      state.props.some((prop) => prop.scattered && prop.solid),
+      `${key}: the side corridors still get the full scatter`
+    );
+  });
+});
+
+test("the deep route keeps its measured props; only a doorway moves one", () => {
+  const state = Core.createState({ stage: "mirkwooddeep", seed: 7 });
+  const route = ["1,1", "1,3", "1,2", "1,0", "2,0", "2,1", "3,1"];
+  /* (1,3) 只有那两棵 146 宽的树是“整间房都没有合法位置”：美术 203 宽、房间 704、
+     上门门拱 157 宽，再让开左右门之后两边都放不下。全关只有这两件。 */
+  const impossible = { "1,3": 2 };
+  route.forEach((key) => {
+    const col = Number(key.split(",")[0]);
+    const row = Number(key.split(",")[1]);
+    const cell = state.dungeon.cells.find((at) => at.col === col && at.row === row);
+    Core.goToCell(state, state.dungeon.cells.indexOf(cell));
+    const depth = Core.bandDepth(state.band);
+    const spec = state.stage.rooms[cell.room].props || [];
+    const hand = state.props.filter((prop) => !prop.scattered);
+    assert.equal(
+      hand.length,
+      spec.length - (impossible[key] || 0),
+      `${key}: 手摆件只丢挪不下的那几件`
+    );
+    /*
+     * **不压门的原样不动。** 布景的 x/depth 是录像里量的；只有压到门框/门拱的才挪
+     * （`docs/adr/0059` 追记）。这一条把“量出来的就是最终位置”钉住。
+     */
+    spec.forEach((entry) => {
+      if (Core.blocksDoorway(state, cell, entry, depth)) return;
+      const z = (entry.depth === undefined ? 0 : entry.depth) * depth;
+      assert.ok(
+        hand.some((prop) => prop.piece === entry.piece &&
+          Math.abs(prop.x - entry.x) < 0.001 && Math.abs(prop.z - z) < 0.001),
+        `${key}: ${entry.piece}@${entry.x} 没压门，应该留在原位`
+      );
+    });
+    /* 挪完（以及换深度之后）也不能压在门口上。 */
+    state.props.forEach((prop) => {
+      assert.equal(
+        Core.blocksDoorway(state, cell,
+          { piece: prop.piece, x: prop.x, depth: prop.z / depth }, depth),
+        false,
+        `${key}: ${prop.piece}@${Math.round(prop.x)} 压在门口上`
+      );
+    });
+    const specChests = spec.filter((entry) => entry.piece === "chest").length;
+    assert.equal(
+      hand.filter((prop) => prop.piece === "chest").length,
+      specChests,
+      `${key}: 宝箱一只不少`
+    );
+  });
+});
+
+test("路线格挪过的布景不许把宝箱/石碑盖住", () => {
+  const route = ["1,1", "1,3", "1,2", "1,0", "2,0", "2,1", "3,1"];
+  [7, 20260915].forEach((seed) => {
+    const state = Core.createState({ stage: "mirkwooddeep", seed });
+    route.forEach((key) => {
+      const col = Number(key.split(",")[0]);
+      const row = Number(key.split(",")[1]);
+      const cell = state.dungeon.cells.find((at) => at.col === col && at.row === row);
+      Core.goToCell(state, state.dungeon.cells.indexOf(cell));
+      const depth = Core.bandDepth(state.band);
+      const artOf = (prop) => Core.propArtRect(state, {
+        piece: prop.piece,
+        x: prop.x,
+        depth: prop.z / depth
+      }, depth);
+      state.props.filter((prop) => prop.piece === "chest" || prop.piece === "tomb")
+        .forEach((loot) => {
+          const lootArt = artOf(loot);
+          state.props.forEach((prop) => {
+            /*
+             * 宝箱/石碑彼此并排不算：录像里两只箱子本来就挨着。别的件只在
+             * **画在它前面**（z 更小，后画）时才会盖住它 —— 远的先画。
+             */
+            if (prop === loot) return;
+            if (prop.piece === "chest" || prop.piece === "tomb") return;
+            if (prop.z > loot.z + 0.001) return;
+            const art = artOf(prop);
+            if (!art) return;
+            const covers =
+              art.left < lootArt.right && art.right > lootArt.left &&
+              art.top < lootArt.bottom && art.bottom > lootArt.top;
+            assert.equal(
+              covers,
+              false,
+              `seed ${seed} ${key}: ${prop.piece}@${Math.round(prop.x)} 挡住了 ` +
+              `${loot.piece}@${Math.round(loot.x)}`
+            );
+          });
+        });
+    });
+  });
+});
+
+test("the second wave runs in from the room edge instead of popping in", () => {
+  const state = Core.createState({ stage: "mirkwooddeep", seed: 7 });
+  const cell = state.dungeon.cells.find((at) => at.col === 1 && at.row === 1);
+  Core.goToCell(state, state.dungeon.cells.indexOf(cell));
+  /* 清掉第一波：第二波会从边缘进场。 */
+  state.enemies.slice().forEach((enemy) => {
+    Core.damageEnemy(state, enemy, 99999, 0, state.player.x);
+  });
+  /* 只走一帧：波次刚生成，它们还没开始跑，x 应该正好在边缘。 */
+  Core.runFrames(state, 1, {});
+
+  const entering = state.enemies.filter((enemy) => enemy.entering && !enemy.dead);
+  assert.ok(entering.length > 0, "the second wave is on its way in");
+  const left = Core.roomLeft(state);
+  const right = Core.roomRight(state);
+  entering.forEach((enemy) => {
+    assert.ok(
+      Math.abs(enemy.x - (left + enemy.width)) < 1 ||
+        Math.abs(enemy.x - (right - enemy.width)) < 1,
+      `${enemy.type} starts at the room edge (${enemy.x})`
+    );
+    assert.equal(enemy.entering.speed, 200, "and runs in");
+  });
+
+  const first = entering[0];
+  const toX = first.entering.toX;
+  let frames = 0;
+  while (first.entering && frames < 420) {
+    Core.runFrames(state, 1, {});
+    frames += 1;
+  }
+  assert.equal(first.entering, null, "it arrives (or times out) instead of walking forever");
+  assert.ok(
+    Math.abs(first.x - toX) < 20,
+    `it stops on its mark, not at the spawn point (${first.x} vs ${toX})`
+  );
+});
+
+test("the deep route's prop layout is the same on every seed", () => {
+  const route = ["1,1", "1,3", "1,2", "1,0", "2,0", "2,1", "3,1"];
+  const layout = (seed) => {
+    const state = Core.createState({ stage: "mirkwooddeep", seed });
+    return route.map((key) => {
+      const col = Number(key.split(",")[0]);
+      const row = Number(key.split(",")[1]);
+      const cell = state.dungeon.cells.find((at) => at.col === col && at.row === row);
+      Core.goToCell(state, state.dungeon.cells.indexOf(cell));
+      return state.props.filter((prop) => !prop.scattered)
+        .map((prop) => `${prop.piece}@${prop.x.toFixed(1)}/${prop.z.toFixed(1)}`)
+        .sort()
+        .join("|");
+    });
+  };
+  assert.deepEqual(layout(7), layout(20260915));
+});
+
+test("the deep route's seven cells can be walked through their own doors", () => {
+  const state = Core.createState({ stage: "mirkwooddeep", seed: 7 });
+  const route = [
+    ["S", "1,2", "猫妖岔路"],
+    ["S", "1,3", "宝箱浅沟"],
+    ["N", "1,2", "猫妖岔路"],
+    ["N", "1,1", "铁门入口"],
+    ["N", "1,0", "老树回廊"],
+    ["E", "2,0", "藤蔓窄道"],
+    ["W", "1,0", "老树回廊"],
+    ["S", "1,1", "铁门入口"],
+    ["E", "2,1", "投掷手坡"],
+    ["E", "3,1", "暗咒猫妖的林地"]
+  ];
+  const cellAt = (key) => {
+    const col = Number(key.split(",")[0]);
+    const row = Number(key.split(",")[1]);
+    return state.dungeon.cells.find((cell) => cell.col === col && cell.row === row);
+  };
+  route.forEach(([dir, key, name]) => {
+    clearRoom(state);
+    /*
+     * `beginRoom` 从侧门进来把 z 放在 0（前缘），而 (2,1)/(1,0) 这些房间正中
+     * 还有一扇 S 门；测试先走到中段再横穿，模拟一个会看门的玩家。
+     */
+    if (dir === "E" || dir === "W") {
+      state.player.z = Core.bandDepth(state.band) / 2;
+    }
+    const before = state.cell;
+    assert.ok(walkToDoor(state, dir) >= 0, `${name}: the ${dir} door lets him through`);
+    assert.notEqual(state.cell, before, `${name}: he left the room`);
+    const cell = state.dungeon.cells[state.cell];
+    assert.equal(`${cell.col},${cell.row}`, key, `${name}: landed on ${key}`);
+    assert.equal(state.stage.rooms[cell.room].name, name, `${name}: the pinned room`);
+  });
+  clearRoom(state);
+  for (let hit = 0; hit < 80 && !state.victory; hit += 1) {
+    state.enemies.slice().forEach((enemy) => {
+      if (!enemy.dead) Core.damageEnemy(state, enemy, 99999, 0, state.player.x);
+    });
+    Core.runFrames(state, 40, {});
+  }
+  assert.equal(state.victory, true, "the deep route reaches the boss and clears it");
 });

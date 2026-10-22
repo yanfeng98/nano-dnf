@@ -743,8 +743,14 @@
 
   function soundFamily(type) {
     if (type === "boss") return "boss";
+    /*
+     * 猫妖一族用客户端 `bloodgaru_*` / `b_kurogaru` 那一组声音 —— 它们已经在
+     * `cursed` 这一族里（咒之赤哥布林当年就是借这组猫叫）。暗咒猫妖只是把
+     * 同一族声音放到 Boss 的响度上，不再借牛头的吼。
+     */
+    if (type === "lugaruBoss" || type === "cat") return "cursed";
     if (type === "brute") return "tau";
-    if (type === "elite") return "elite";
+    if (type === "elite" || type === "deepElite") return "elite";
     if (type === "cursedRed") return "cursed";
     return "goblin";
   }
@@ -829,7 +835,9 @@
       if (!sfxReady("enemyStep", event.id, 0.34)) return;
       playSfx("step_monster", { gain: 0.055, pan: pan, rate: 0.9 + Math.random() * 0.2 });
     } else if (event.kind === "bossRoar") {
-      playSfx("boss_roar", { gain: 0.52, pan: pan });
+      /* 暗咒猫妖吼的是猫，不是牛头。`cursed_attack` 就是客户端那条猫叫。 */
+      if (event.type === "lugaruBoss") playSfx("cursed_attack", { gain: 0.52, pan: pan });
+      else playSfx("boss_roar", { gain: 0.52, pan: pan });
       duckMusic(500);
     }
   }
@@ -1172,7 +1180,15 @@
    * drops below them - see Render.minimapBox).
    */
   function mapMeta() {
-    return { map: { mode: mapMode }, touch: { enabled: touchMode } };
+    var dungeon = state && state.dungeon;
+    return {
+      map: {
+        mode: mapMode,
+        cols: dungeon ? dungeon.cols : 4,
+        rows: dungeon ? dungeon.rows : 3
+      },
+      touch: { enabled: touchMode }
+    };
   }
 
   function touchDown(event) {
@@ -1704,7 +1720,11 @@
        * the reference does - and this only picks which of its two shapes it is
        * drawn in: the whole dungeon, or the disc centred on the room he is in.
        */
-      map: { mode: mapMode },
+      map: {
+        mode: mapMode,
+        cols: state.dungeon ? state.dungeon.cols : 4,
+        rows: state.dungeon ? state.dungeon.rows : 3
+      },
       /* 通关后的翻牌奖励（`docs/adr/0055`）：没有通关时为 null。 */
       reward: reward && Reward ? Reward.snapshot(reward) : null,
       /*

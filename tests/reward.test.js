@@ -44,8 +44,11 @@ test("the reward runs 战绩 → 宝箱 → 四张牌 → 领奖", () => {
 
 test("a click or a number key picks that card, and only once", () => {
   const reward = Reward.create({ seed: 42 });
-  Reward.step(reward, Reward.TIMES.stats + Reward.TIMES.chest + Reward.TIMES.flip);
+  Reward.step(reward, Reward.TIMES.stats);
+  Reward.step(reward, Reward.TIMES.chest);
+  Reward.step(reward, Reward.TIMES.flip);
   assert.equal(reward.phase, "cards");
+  assert.equal(reward.faceUp, true);
 
   assert.equal(Reward.pick(reward, 2), true);
   assert.equal(reward.phase, "reveal");
@@ -74,4 +77,16 @@ test("the item is one of the client's own cyan loot names", () => {
   for (let seed = 1; seed <= 50; seed += 1) {
     assert.ok(pool.includes(Reward.create({ seed }).item), `seed ${seed} paid an unknown item`);
   }
+});
+
+test("a card cannot be picked while the backs are still showing", () => {
+  const reward = Reward.create({ seed: 11 });
+  Reward.step(reward, Reward.TIMES.stats + Reward.TIMES.chest);
+  assert.equal(reward.phase, "cards");
+  assert.equal(reward.faceUp, false);
+  assert.equal(Reward.pick(reward, 2), false, "the backs have not flipped yet");
+  Reward.step(reward, Reward.TIMES.flip);
+  assert.equal(reward.faceUp, true);
+  assert.equal(Reward.pick(reward, 2), true, "after the flip the third card is selectable");
+  assert.equal(reward.picked, 2);
 });

@@ -113,7 +113,12 @@
      */
     title: { file: "assets/music/intro.ogg", label: "开始画面" },
     room: { file: "assets/music/mirkwood.ogg", label: "关卡" },
-    boss: { file: "assets/music/mirkwood_boss.ogg", label: "Boss 房" }
+    boss: { file: "assets/music/mirkwood_boss.ogg", label: "Boss 房" },
+    /*
+     * 幽暗密林深处 的 Boss 曲：频谱比对录像 350-390s 对上客户端 `forest02.ogg`
+     * （相关系数 0.78，明显高于 `mirkwood_boss.ogg` 的 0.48）。
+     */
+    bossDeep: { file: "assets/music/forest02.ogg", label: "幽暗密林深处 Boss" }
   };
 
   /**
@@ -133,7 +138,13 @@
      * 同一个坐标系，所以直接比。`MIRKWOOD_DUNGEON.bossRoom` 是**房间序号**，两个
      * 不是一回事，别混。
      */
-    return state.cell === dungeon.boss ? "boss" : "room";
+    if (state.cell !== dungeon.boss) return "room";
+    /*
+     * 深处的 Boss 房换客户端的 `forest02.ogg`；别的关卡仍用各自的 Boss 曲。
+     * 这里读 `stage.id`，因为同一首曲子可能被两个关卡共用，不能只看 "boss"。
+     */
+    var stageId = state.stage && (state.stage.id || state.stage.code);
+    return stageId === "mirkwooddeep" ? "bossDeep" : "boss";
   }
 
   return {

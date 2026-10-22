@@ -122,6 +122,10 @@ PIECES = [
     # frames that follow are the pieces it breaks into; they are baked below,
     # with the offsets they fly to (`BARREL_*`).
     ("barrel", BREAK, "sprite/map/breakableobject/barrel.img", 0),
+    # 幽暗密林深处 那两件可破坏的布景：红木宝箱与石碑。和木桶一样只烘
+    # 第 0 帧作完整态，碎开的帧在下面单独烘（`CHESTENTRY` / `TOMBENTRY`）。
+    ("chest", BREAK, "sprite/map/breakableobject/treasurebox.img", 0),
+    ("tomb",  BREAK, "sprite/map/breakableobject/stonetomb.img", 0),
     # 怪物死的两样东西，都是客户端的（`docs/adr/0031`）。
     #
     # 1) **白烟**：`monsterdieblood` —— 一团**白色的不规则云**。客户端把它当"白色形状、
@@ -146,6 +150,9 @@ PIECES = [
 # 之后要画得叠得回去，就得知道每帧相对**第 0 帧**的偏移 —— 那是量出来的，写在下面这张
 # 表里，跟着 manifest 一起出去（`src/render.js` SCENE.barrelBreak）。
 BARREL_ENTRY = "sprite/map/breakableobject/barrel.img"
+CHEST_ENTRY = "sprite/map/breakableobject/treasurebox.img"
+TOMB_ENTRY = "sprite/map/breakableobject/stonetomb.img"
+TOMB_DESTROY = "sprite/map/breakableobject/stonetombdestroy.img"
 
 # 怪物死时炸出来的**肉块**（`docs/adr/0033`）。
 #
@@ -311,6 +318,29 @@ def main() -> None:
         art.append((name, picture, BREAK, BARREL_ENTRY, index))
         print(f"{name:12s} {BARREL_ENTRY:44s} {picture.width:4d}x{picture.height:<4d}")
 
+    # 宝箱：第 0 帧是完整的，1-2 帧是开盖/亮起来的那一下。它没有木桶那样的
+    # 十二块碎片，开盖两帧放完就消失。
+    chest_base = decode_at(args.client, BREAK, CHEST_ENTRY, 0)[1]
+    chest_break = []
+    for index in (1, 2):
+        picture, at = decode_at(args.client, BREAK, CHEST_ENTRY, index)
+        name = f"chest{index}"
+        chest_break.append({"piece": name, "dx": at[0] - chest_base[0], "dy": at[1] - chest_base[1]})
+        art.append((name, picture, BREAK, CHEST_ENTRY, index))
+        print(f"{name:12s} {CHEST_ENTRY:44s} {picture.width:4d}x{picture.height:<4d}")
+
+    # 石碑：完整的石碑是 `stonetomb.img` 第 0 帧，碎开的石头在另一条
+    # `stonetombdestroy.img` 的 7 帧里。偏移照木桶的规矩：碎块自己的 ink 角
+    # 减去完整石碑的 ink 角。
+    tomb_base = decode_at(args.client, BREAK, TOMB_ENTRY, 0)[1]
+    tomb_break = []
+    for index in range(7):
+        picture, at = decode_at(args.client, BREAK, TOMB_DESTROY, index)
+        name = f"tomb{index + 1}"
+        tomb_break.append({"piece": name, "dx": at[0] - tomb_base[0], "dy": at[1] - tomb_base[1]})
+        art.append((name, picture, BREAK, TOMB_DESTROY, index))
+        print(f"{name:12s} {TOMB_DESTROY:44s} {picture.width:4d}x{picture.height:<4d}")
+
     # 肉块：三张形状 × 每种怪自己的色。
     for index in CHUNK_FRAMES:
         shape = biggest_blob(decode(args.client, HIT, CHUNK_ENTRY, index))
@@ -336,6 +366,16 @@ def main() -> None:
         print("\n    /* [piece, dx, dy] - see barrelBreak in src/render.js */")
         print("    barrelBreak: [")
         for item in break_at:
+            print(f'      ["{item["piece"]}", {item["dx"]}, {item["dy"]}],')
+        print("    ],")
+        print("\n    /* [piece, dx, dy] - the chest's two opening frames */")
+        print("    chestBreak: [")
+        for item in chest_break:
+            print(f'      ["{item["piece"]}", {item["dx"]}, {item["dy"]}],')
+        print("    ],")
+        print("\n    /* [piece, dx, dy] - the tomb's seven stone pieces */")
+        print("    tombBreak: [")
+        for item in tomb_break:
             print(f'      ["{item["piece"]}", {item["dx"]}, {item["dy"]}],')
         print("    ],")
         return

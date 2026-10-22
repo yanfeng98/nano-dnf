@@ -72,6 +72,13 @@ ROSTER = [
     # body7 (44, 98, 129) 蓝 → 青哥布林，body8 (145, 53, 45) 红 → 赤哥布林。
     ("goblinBlue", "sprite_monster_goblin.NPK",        "goblin/body7.img"),
     ("goblinRed",  "sprite_monster_goblin.NPK",        "goblin/body8.img"),
+    # 幽暗密林深处 - the cat family and the throwing ten-captain. `lugaru` is the
+    # orange 猫妖 the recording names; `blacklugaru` is 库罗猫妖, the stage boss
+    # (the recording calls it 领主 - 暗咒猫妖); `goblintaskmaster` is the
+    # recording's 投掷十夫长.
+    ("cat",          "sprite_monster_lugaru.NPK",       "lugaru/lugaru.img"),
+    ("throwerElite", "sprite_monster_goblin_event.NPK", "goblin/event/goblintaskmaster.img"),
+    ("lugaruBoss",   "sprite_monster_lugaru.NPK",       "lugaru/blacklugaru.img"),
 ]
 
 # Layers drawn on top of a body, in order. The beast's white mane is the reason
@@ -84,14 +91,14 @@ OVERLAYS = {
 # Where the ground point sits inside a cell. Not centred: a monster's art is
 # mostly *above* its feet, and a swing reaches forward, so the anchor wants room
 # above and to both sides.
-ANCHOR_IN_CELL = (300, 340)
+ANCHOR_IN_CELL = (180, 260)
 
 # Sized by measurement, not by taste: `--report` prints how far each monster's
 # art reaches from its own feet over every frame, and 牛头巨兽 (`tau/body02`) is
 # the one that sets the cell - 170 px left of the feet when it swings, 222 above
 # them, and 146 below on the frame it goes down. A goblin needs a fraction of
 # this and simply rattles around inside its cell.
-CELL = (480, 500)
+CELL = (360, 420)
 
 
 def offset_of(frame) -> tuple[int, int]:

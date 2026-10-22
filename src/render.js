@@ -1787,39 +1787,50 @@
       doorUp: [399, 1874, 73, 132],
       doorDown: [472, 1874, 88, 46],
       barrel: [560, 1874, 63, 78],
-      barrel1: [623, 1874, 25, 21],
-      barrel2: [648, 1874, 41, 13],
-      barrel3: [689, 1874, 29, 10],
-      barrel4: [718, 1874, 33, 14],
-      barrel5: [751, 1874, 16, 25],
-      barrel6: [767, 1874, 31, 24],
-      barrel7: [798, 1874, 38, 16],
-      barrel8: [836, 1874, 25, 9],
-      barrel9: [861, 1874, 46, 22],
-      barrel10: [907, 1874, 44, 21],
-      barrel11: [951, 1874, 28, 22],
-      barrel12: [979, 1874, 42, 16],
-      chunk_boss0: [1021, 1874, 22, 21],
-      chunk_brute0: [1043, 1874, 22, 21],
-      chunk_caster0: [1065, 1874, 22, 21],
-      chunk_coward0: [1087, 1874, 22, 21],
-      chunk_elite0: [1109, 1874, 22, 21],
-      chunk_grunt0: [1131, 1874, 22, 21],
-      chunk_boss1: [1153, 1874, 34, 25],
-      chunk_brute1: [1187, 1874, 34, 25],
-      chunk_caster1: [1221, 1874, 34, 25],
-      chunk_coward1: [0, 2072, 34, 25],
-      chunk_elite1: [34, 2072, 34, 25],
-      chunk_grunt1: [68, 2072, 34, 25],
-      chunk_boss2: [102, 2072, 40, 25],
-      chunk_brute2: [142, 2072, 40, 25],
-      chunk_caster2: [182, 2072, 40, 25],
-      chunk_coward2: [222, 2072, 40, 25],
-      chunk_elite2: [262, 2072, 40, 25],
-      chunk_grunt2: [302, 2072, 40, 25],
+      chest: [623, 1874, 86, 56],
+      tomb: [709, 1874, 135, 108],
+      barrel1: [844, 1874, 25, 21],
+      barrel2: [869, 1874, 41, 13],
+      barrel3: [910, 1874, 29, 10],
+      barrel4: [939, 1874, 33, 14],
+      barrel5: [972, 1874, 16, 25],
+      barrel6: [988, 1874, 31, 24],
+      barrel7: [1019, 1874, 38, 16],
+      barrel8: [1057, 1874, 25, 9],
+      barrel9: [1082, 1874, 46, 22],
+      barrel10: [1128, 1874, 44, 21],
+      barrel11: [1172, 1874, 28, 22],
+      barrel12: [1200, 1874, 42, 16],
+      chest1: [0, 2072, 87, 61],
+      chest2: [87, 2072, 108, 66],
+      tomb1: [195, 2072, 25, 25],
+      tomb2: [220, 2072, 34, 17],
+      tomb3: [254, 2072, 29, 15],
+      tomb4: [283, 2072, 25, 18],
+      tomb5: [308, 2072, 19, 17],
+      tomb6: [327, 2072, 12, 14],
+      tomb7: [339, 2072, 13, 8],
+      chunk_boss0: [352, 2072, 22, 21],
+      chunk_brute0: [374, 2072, 22, 21],
+      chunk_caster0: [396, 2072, 22, 21],
+      chunk_coward0: [418, 2072, 22, 21],
+      chunk_elite0: [440, 2072, 22, 21],
+      chunk_grunt0: [462, 2072, 22, 21],
+      chunk_boss1: [484, 2072, 34, 25],
+      chunk_brute1: [518, 2072, 34, 25],
+      chunk_caster1: [552, 2072, 34, 25],
+      chunk_coward1: [586, 2072, 34, 25],
+      chunk_elite1: [620, 2072, 34, 25],
+      chunk_grunt1: [654, 2072, 34, 25],
+      chunk_boss2: [688, 2072, 40, 25],
+      chunk_brute2: [728, 2072, 40, 25],
+      chunk_caster2: [768, 2072, 40, 25],
+      chunk_coward2: [808, 2072, 40, 25],
+      chunk_elite2: [848, 2072, 40, 25],
+      chunk_grunt2: [888, 2072, 40, 25],
     },
 
-
+    /* [piece, dx, dy] - see barrelBreak in src/render.js */
     barrelBreak: [
       ["barrel1", 19, 28],
       ["barrel2", 11, 32],
@@ -1832,8 +1843,27 @@
       ["barrel9", 8, 28],
       ["barrel10", 9, 28],
       ["barrel11", 17, 28],
-      ["barrel12", 10, 31]
+      ["barrel12", 10, 31],
     ],
+
+    /* [piece, dx, dy] - the chest's two opening frames */
+    chestBreak: [
+      ["chest1", -2, -5],
+      ["chest2", -23, -10],
+    ],
+
+    /* [piece, dx, dy] - the tomb's seven stone pieces */
+    tombBreak: [
+      ["tomb1", 5, 0],
+      ["tomb2", 1, 4],
+      ["tomb3", 3, 5],
+      ["tomb4", 5, 4],
+      ["tomb5", 8, 4],
+      ["tomb6", 12, 6],
+      ["tomb7", 11, 9],
+    ],
+
+
     /*
      * The ground, left to right. `tile0` is a short one (203 against their 233),
      * so it is not in the run: strips of different heights would leave a ragged
@@ -1881,6 +1911,17 @@
     /* The `mid` layer's own ground line sits on the band's back edge. */
     midLift: 0
   };
+
+  /*
+   * 哪一件布景碎开时放哪张碎片表：木桶十二块木片、宝箱两帧开盖、石碑七块石头。
+   * 表本身都在 `SCENE` 里（由 `assets/import_dnf_scene.py --table` 印出来）。
+   */
+  function breakTableFor(piece) {
+    if (piece === "chest") return SCENE.chestBreak;
+    if (piece === "tomb") return SCENE.tombBreak;
+    return SCENE.barrelBreak;
+  }
+
 
   function sceneRect(name) {
     return SCENE.pieces[name] || null;
@@ -2084,9 +2125,9 @@
   var MINIMAP = {
     tile: 18,
     /*
-     * 窗口里画几列几行。**这是地牢的形状，不是这里的自由**：幽暗密林量出来是 4x3
-     * （`Core.DUNGEON`），测试把两个数钉在一起，改一边就会红。窗口自己读不到 state
-     * （`minimapBox` 连 state 都没有），所以这一份是那份数据的影子。
+     * **兜底的行列数**：真正的行列来自当前这一关的 `state.dungeon`（幽暗密林 4x3、
+     * 幽暗密林深处 4x4，`docs/adr/0059`）。`drawMinimap` 直接读 state；触屏命中与
+     * HUD 布局从 `meta.map.cols/rows` 读。这里只在没有地牢时兜底。
      */
     cols: 4,
     rows: 3,
@@ -2137,6 +2178,13 @@
       "corr:SW": 10,
       "corr:NSW": 11,
       "corr:ESW": 12,
+      /*
+       * **四向走廊**：客户端的 `act1.img` 没有单独的 `corr:NESW` 形状 —— 那个十字
+       * 被 `import_dnf_minimap.py` 的"宽行/占比"判据归到了 `room:NESW`（第 20 帧），
+       * 所以这里借同一张十字图块。幽暗密林深处 的中间一列/第二列都是四向走廊；
+       * 不补这一条，地图上那几格会**什么都不画**（业主 2026-10-21 报的"中间的路没显示"）。
+       */
+      "corr:NESW": 20,
       "room:N": 13,
       "room:E": 14,
       "room:S": 15,
@@ -2201,9 +2249,24 @@
    * (`import_dnf_minimap.py`), and the map reads as a grid rather than as tiles
    * floating in the dark.
    */
-  function drawMinimapGrid(ctx, sprites, x, y, scale) {
-    for (var row = 0; row < MINIMAP.rows; row += 1) {
-      for (var col = 0; col < MINIMAP.cols; col += 1) {
+  function drawMinimapGrid(ctx, sprites, x, y, scale, map) {
+    var rows = (map && map.rows) || MINIMAP.rows;
+    var cols = (map && map.cols) || MINIMAP.cols;
+    for (var row = 0; row < rows; row += 1) {
+      for (var col = 0; col < cols; col += 1) {
+        /*
+         * **不是每张 4×4 都满格。** 幽暗密林深处 的 (3,2) 在录像里是纯黑、
+         * 没有图块；这里把那格留成窗口的深底，别铺一张绿色 blank。
+         */
+        if (map && map.cells && !map.cells.some(function (cell) {
+          return cell.col === col && cell.row === row;
+        })) {
+          ctx.fillStyle = "#000000";
+          ctx.fillRect(x + col * MINIMAP.tile * scale,
+                       y + row * MINIMAP.tile * scale,
+                       MINIMAP.tile * scale, MINIMAP.tile * scale);
+          continue;
+        }
         drawMinimapPiece(ctx, sprites, "blank", x + col * MINIMAP.tile * scale,
                          y + row * MINIMAP.tile * scale,
                          MINIMAP.tile * scale, MINIMAP.tile * scale);
@@ -2387,7 +2450,7 @@
      */
     var map = state.dungeon;
     if (!map || !sprites || !sprites.minimap) return;
-    var box = minimapBox(meta);
+    var box = minimapBox(meta, map);
     var tile = MINIMAP.tile;
     var mode = (meta.map && meta.map.mode) || "window";
     var here = map.cells[state.cell] || map.cells[0];
@@ -2410,7 +2473,7 @@
       var zoom = MINIMAP.radarZoom;
       var originX = centre.x - (here.col + 0.5) * tile * zoom;
       var originY = centre.y - (here.row + 0.5) * tile * zoom;
-      drawMinimapGrid(ctx, sprites, originX, originY, zoom);
+      drawMinimapGrid(ctx, sprites, originX, originY, zoom, map);
       map.cells.forEach(function (cell) {
         if (!cell.seen) {
           drawMinimapFog(ctx, originX + cell.col * tile * zoom,
@@ -2447,7 +2510,7 @@
     ctx.textAlign = "center";
     ctx.fillText("地图", box.x + box.w / 2 + 3, box.y + 13);
 
-    drawMinimapGrid(ctx, sprites, box.left, box.top, 1);
+    drawMinimapGrid(ctx, sprites, box.left, box.top, 1, map);
     map.cells.forEach(function (cell) {
       if (!cell.seen) {
         drawMinimapFog(ctx, box.left + cell.col * tile, box.top + cell.row * tile, tile);
@@ -2510,15 +2573,21 @@
   }
 
   /** How wide the window is, the frame included - the HUD lays out around it. */
-  function minimapWidth() {
-    return MINIMAP.cols * MINIMAP.tile + MINIMAP.pieces.left[2] + MINIMAP.pieces.right[2];
+  function minimapWidth(cols) {
+    var columns = cols || MINIMAP.cols;
+    return columns * MINIMAP.tile + MINIMAP.pieces.left[2] + MINIMAP.pieces.right[2];
   }
 
-  function minimapBox(meta) {
-    var cols = MINIMAP.cols;
-    var rows = MINIMAP.rows;
+  function minimapBox(meta, map) {
+    /*
+     * **窗口的行列跟着这一关的副本图走**，不是一张固定的 4x3。幽暗密林是 4x3，
+     * 幽暗密林深处是 4x4（`docs/adr/0059`）；`meta.map` 在 `mapMeta()` 里带着
+     * 当前地牢的 cols/rows，绘制这一路直接拿 `state.dungeon`。
+     */
+    var cols = (map && map.cols) || (meta && meta.map && meta.map.cols) || MINIMAP.cols;
+    var rows = (map && map.rows) || (meta && meta.map && meta.map.rows) || MINIMAP.rows;
     var touch = !!(meta && meta.touch && meta.touch.enabled);
-    var width = minimapWidth();
+    var width = minimapWidth(cols);
     var height = rows * MINIMAP.tile + MINIMAP.titleH +
                  MINIMAP.pieces.top[3] + MINIMAP.pieces.bottom[3];
     var x = HUD_RIGHT - width - MINIMAP.margin;
@@ -4033,6 +4102,12 @@
     charger: { body: "#b07cff", dark: "#5a2f96", accent: "#e8d6ff", eye: "#ffd166" },
     elite: { body: "#cdd6e6", dark: "#465071", accent: "#ffd166", eye: "#7ff0ff" },
     boss: { body: "#e0556d", dark: "#7d1f31", accent: "#ffd0d6", eye: "#ffe066" },
+    /* 深处那三只：橙猫、灰绿投掷十夫长、金鬃黑身的猫 Boss。 */
+    cat: { body: "#e89a4f", dark: "#8a4a1f", accent: "#ffe0a8", eye: "#ffe066" },
+    throwerElite: { body: "#9aa87a", dark: "#46503a", accent: "#d9e0b8", eye: "#ffd166" },
+    /* 深处的十夫长用客户端的 goblintaskmaster（蓝绿、弯刀），不是白毛的 whiteboss。 */
+    deepElite: { body: "#8fb0c8", dark: "#465a6e", accent: "#d9f0ff", eye: "#ffd166" },
+    lugaruBoss: { body: "#d9b45a", dark: "#2b2620", accent: "#ffe9a8", eye: "#ff3b3b" },
     bossPhase2: { body: "#ff4d6d", dark: "#8c0f26", accent: "#ffe9a8", eye: "#ff3b3b" }
   };
 
@@ -4081,14 +4156,24 @@
   }
 
   var MONSTER = {
-    cellW: 480,
-    cellH: 500,
-    anchorX: 300,
-    anchorY: 340,
+    /*
+     * **一格 360x420，不是 480x500**（2026-10-21）：加进猫妖一族之后，
+     * 37 列 × 480 会把整张 sheet 撑到 17760 宽，超过浏览器 16384 的纹理上限；
+     * 缩到 360 宽后 13320，整张 61.5M 像素，和加猫之前那一版基本一样大
+     * （15360x4000）。牛头巨兽 170 左 / 96 右的挥击仍然装得下。
+     */
+    cellW: 360,
+    cellH: 420,
+    anchorX: 180,
+    anchorY: 260,
     rows: {
       grunt: 0, coward: 1, caster: 2, brute: 3, elite: 4, boss: 5,
       /* 换色的两具是后加的两行（`assets/import_dnf_monsters.py` 的 ROSTER 顺序）。 */
       goblinBlue: 6, goblinRed: 7,
+      /* 幽暗密林深处 的三只：猫妖、投掷十夫长、暗咒猫妖（ROSTER 顺序 8/9/10）。 */
+      cat: 8, throwerElite: 9, lugaruBoss: 10,
+      /* 深处的十夫长借投掷十夫长那一行（同一具 goblintaskmaster 美术）。 */
+      deepElite: 9,
       /*
        * 冠军怪那两条**没有自己的行**：它们是同一个兵种加一层光环（`docs/adr/0046`），
        * 所以指回原来那一行 —— 咒之赤哥布林就是赤哥布林那张画，燃烧之投掷就是投掷
@@ -4099,6 +4184,8 @@
     frames: {
       grunt: 17, coward: 17, caster: 17, brute: 32, elite: 17, boss: 32,
       goblinBlue: 17, goblinRed: 17,
+      cat: 37, throwerElite: 17, lugaruBoss: 37,
+      deepElite: 17,
       cursedRed: 17, burningThrower: 17
     },
     /*
@@ -4109,6 +4196,12 @@
       grunt: 76, coward: 76, caster: 78, brute: 164, elite: 86, boss: 164,
       /* 换色那两具是同一套画布，烘的时候量出来的和 `grunt` 一模一样。 */
       goblinBlue: 76, goblinRed: 76,
+      /*
+       * 猫妖/暗咒猫妖的 `.img` 是 73×75 的画布，站姿帧的墨高 75；投掷十夫长
+       * 和十夫长同族，量出来 86。**烘焙后用 `--report` 复核**，不一致改这里。
+       */
+      cat: 74, throwerElite: 75, lugaruBoss: 74,
+      deepElite: 75,
       cursedRed: 76, burningThrower: 78
     },
     /*
@@ -4121,7 +4214,8 @@
      * `drawMonsterFace` 按比例装进去、上下留一点黑边，不把它拉扁。
      */
     face: {
-      boss: [242, 168, 130, 76]
+      /* 牛头巨兽的头：原来按 480x500/锚点 300,340 量，跟着格子缩了 100/40。 */
+      boss: [122, 88, 130, 76]
     },
     /*
      * **How big a monster is drawn is `enemy.height`, the same number the fight
@@ -4179,6 +4273,19 @@
       rise: [13, 15],
       walk: [20, 27]
     },
+    /*
+     * 猫妖一族（`lugaru` 与 `blacklugaru` 是同一套 37 帧的画布）：f0 蹲伏待机，
+     * f1-f4 快速扑爪（金色拖尾），f8-f11 宽幅横扫（金色月牙），f16-f19 倒地，
+     * f20-f28 低姿爬走。**这四个范围是从客户端帧序和录像对出来的**；f5-f7、
+     * f12-f15、f29-f36 是待机/过渡，没被任何状态占用。
+     */
+    lugaru: {
+      idle: [0, 0],
+      attack: [1, 4],
+      sweep: [8, 11],
+      down: [16, 19],
+      walk: [20, 28]
+    },
     poses: {
       grunt: "goblin",
       coward: "goblin",
@@ -4186,6 +4293,10 @@
       elite: "goblin",
       brute: "tau",
       boss: "tau",
+      cat: "lugaru",
+      throwerElite: "goblin",
+      deepElite: "goblin",
+      lugaruBoss: "lugaru",
       /*
        * 换色的那两具走的是**同一套十七帧动作**（客户端那一族本来就是同一画布换色，
        * 量过：轮廓逐帧 IoU 0.74–0.94），所以它们读同一个姿势表。
@@ -4263,7 +4374,8 @@
   /** Which pose an enemy is in, in the sheet's own words. */
   function monsterPose(enemy) {
     if (enemy.dead || enemy.knockdown > 0) return "down";
-    if (enemy.attackTimer > 0) return "attack";
+    /* 猫 Boss 的横扫有自己的四帧；别的攻击仍走 attack。 */
+    if (enemy.attackTimer > 0) return enemy.attackKind === "sweep" ? "sweep" : "attack";
     if (Math.abs(enemy.vx || 0) > 1 || Math.abs(enemy.vz || 0) > 1) return "walk";
     return "idle";
   }
@@ -4281,7 +4393,7 @@
     var first = range[0];
     var span = range[1] - range[0];
     if (span <= 0) return first;
-    if (pose === "attack") {
+    if (pose === "attack" || pose === "sweep") {
       var progress = 1 - Math.max(0, enemy.attackTimer / (enemy.attackDuration || 1));
       return first + Math.min(span, Math.floor(progress * (span + 1)));
     }
@@ -4396,7 +4508,11 @@
   };
 
   function drawMonsterName(ctx, enemy) {
-    if (enemy.type === MONSTER_NAME.anonymous || enemy.dead) return;
+    /*
+     * **领主头顶不写字**（业主 2026-10-21）：它的名字只在左上角目标条上。
+     * 普通有名字的怪仍保留头顶名条。
+     */
+    if (enemy.type === MONSTER_NAME.anonymous || enemy.dead || Core.isBossEnemy(enemy)) return;
     var info = Core.monsterInfo(enemy.type);
     if (!info) return;
     ctx.save();
@@ -4412,31 +4528,30 @@
   }
 
   function drawEnemy(ctx, state, enemy, sprites) {
-    var enraged = enemy.type === "boss" && enemy.phase >= 2;
+    var enraged = enemy.behavior === "boss" && enemy.phase >= 2;
     var style = enraged
       ? ENEMY_STYLE.bossPhase2
       : ENEMY_STYLE[enemy.type] || ENEMY_STYLE.grunt;
     var w = enemy.width;
     var h = enemy.height;
 
-    ctx.save();
-    ctx.fillStyle = "rgba(0,0,0,0.35)";
-    ctx.beginPath();
-    ctx.ellipse(enemy.x, feetY(enemy) + 3, w * 0.62, 6, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
-
-    /* Second-phase tell: a pulsing blood ring so the enrage reads at a glance. */
-    if (enraged) {
+    /*
+     * **领主脚下不画影子**（业主 2026-10-21：「脚底下的光环」）。
+     * 普通怪仍保留这圈影子，它给出深度；领主只留目标条与阶段闪光。
+     */
+    if (!Core.isBossEnemy(enemy)) {
       ctx.save();
-      ctx.globalAlpha = 0.3 + 0.18 * Math.sin(state.time * 6.5);
-      ctx.strokeStyle = "rgba(255, 82, 108, 0.95)";
-      ctx.lineWidth = 3;
+      ctx.fillStyle = "rgba(0,0,0,0.35)";
       ctx.beginPath();
-      ctx.arc(enemy.x, feetY(enemy) - h * 0.5, w * 0.95, 0, Math.PI * 2);
-      ctx.stroke();
+      ctx.ellipse(enemy.x, feetY(enemy) + 3, w * 0.62, 6, 0, 0, Math.PI * 2);
+      ctx.fill();
       ctx.restore();
     }
+
+    /*
+     * **领主的半血红环也去掉**：Q11 已经定了深处用金色一闪、mirkwood 用暴怒横幅。
+     * 这里的持续脉冲环不是录像里的东西，也不再给任何领主画。
+     */
 
     /*
      * The body. If the sheet is missing - a stale staging step, a bake that was
@@ -4497,15 +4612,21 @@
       var radius =
         enemy.attackKind === "slam" && enemy.slam
           ? enemy.slam.radius
-          : enemy.attackKind === "spin" && enemy.spinDash
-            ? enemy.spinDash.radius
-            : enemy.attackRange;
+          : enemy.attackKind === "sweep" && enemy.sweep
+            ? enemy.sweep.radius
+            : enemy.attackKind === "spin" && enemy.spinDash
+              ? enemy.spinDash.radius
+              : enemy.attackRange;
+      var telegraphX = enemy.x;
+      if (enemy.attackKind === "sweep" && enemy.sweep) {
+        telegraphX += enemy.facing * enemy.sweep.offset;
+      }
       ctx.save();
       ctx.globalAlpha = 0.35 + 0.4 * windup;
       ctx.strokeStyle = "rgba(255, 120, 120, 0.85)";
       ctx.lineWidth = 2.5;
       ctx.beginPath();
-      ctx.arc(enemy.x, feetY(enemy) -h * 0.55, radius * (0.35 + windup * 0.65), 0, Math.PI * 2);
+      ctx.arc(telegraphX, feetY(enemy) -h * 0.55, radius * (0.35 + windup * 0.65), 0, Math.PI * 2);
       ctx.stroke();
       ctx.restore();
     }
@@ -4517,7 +4638,7 @@
       ctx.fillStyle = "rgba(0,0,0,0.62)";
       roundRect(ctx, enemy.x - barW / 2, feetY(enemy) -h - 18, barW, 6, 3);
       ctx.fill();
-      ctx.fillStyle = enemy.type === "boss" ? PALETTE.danger : "#ff9d5c";
+      ctx.fillStyle = enemy.behavior === "boss" ? PALETTE.danger : "#ff9d5c";
       roundRect(ctx, enemy.x - barW / 2 + 1, feetY(enemy) -h - 17, (barW - 2) * ratio, 4, 2);
       ctx.fill();
       ctx.restore();
@@ -5840,7 +5961,7 @@
    * `state.pickups` rather than a dispatcher with one case in it.
    */
   function drawDrop(ctx, state, drop, sprites) {
-    if (drop.kind === "loot") {
+    if (drop.kind === "loot" || drop.kind === "gold") {
       drawLootPlate(ctx, state, drop);
       return;
     }
@@ -5892,7 +6013,8 @@
     ctx.stroke();
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillStyle = LOOT_PLATE.ink;
+    /* 石碑只掉金币：同一块牌，字换成金色。 */
+    ctx.fillStyle = drop.tone === "gold" ? "#e3bf72" : LOOT_PLATE.ink;
     ctx.fillText(text, drop.x, y + h / 2 + 0.5);
     ctx.restore();
   }
@@ -6284,7 +6406,7 @@
        * boss is on screen instead of letting the two draw over each other.
        */
       var bossOnScreen = state.enemies.some(function (enemy) {
-        return !enemy.dead && enemy.type === "boss";
+        return !enemy.dead && enemy.behavior === "boss";
       });
       /* Simultaneous banners stack instead of overprinting each other. */
       var bannerY = (bossOnScreen ? 230 : 104) + (bannerOrdinal || 0) * 34;
@@ -6345,8 +6467,9 @@
     } else if (effect.kind === "shockwave" && effect.arc !== false) {
       ctx.save();
       ctx.globalAlpha = alpha * 0.85;
-      ctx.strokeStyle = "#ffb066";
-      ctx.lineWidth = 4;
+      /* 猫 Boss 的二阶段闪光：同一条环，换成金色，读作"它变了"。 */
+      ctx.strokeStyle = effect.gold ? "#ffd166" : "#ffb066";
+      ctx.lineWidth = effect.gold ? 6 : 4;
       ctx.beginPath();
       ctx.ellipse(
         effect.x,
@@ -6545,11 +6668,20 @@
    * 只剩肩膀，和参考录像的目标框对不上（业主 2026-10-18：「领主牛头的血条头像不对」）。
    * 卡片自带的森林底用一圈暗角压掉，保留参考里那张脸。
    */
-  function drawBossPortrait(ctx, sprites, x, y, size) {
+  function drawBossPortrait(ctx, sprites, x, y, size, type) {
+    /*
+     * **每只领主自己的脸。** 牛头巨兽走参考录像裁的那张 80×80 正脸
+     * （`assets/boss_portrait.png`），它连金属框和四角红铆钉一起裁进来了；
+     * 暗咒猫妖没有这张现成裁图，就从它自己的战斗精灵里裁头，走"drawn"
+     * 那一路（目标框会替它画钢框和红铆钉）。
+     */
+    if (type === "lugaruBoss" &&
+        drawMonsterFace(ctx, sprites, type, { x: x, y: y, w: size, h: size })) {
+      return "drawn";
+    }
     /*
      * **首选那张从参考录像里裁的 80×80 正脸**（`assets/boss_portrait.png`）——
-     * 它连参考里的金属框和四角红铆钉一起裁进来了，所以画它的那一路不再自己
-     * 描框（否则会画两圈）。没有它时才用选关卡片的正脸 / 战斗精灵兜底。
+     * 没有它时才用选关卡片的正脸 / 战斗精灵兜底。
      */
     var baked = sprites && sprites.bossPortrait;
     if (baked && baked.width) {
@@ -6588,10 +6720,8 @@
    * 两条各占整条 1068 的长度；颜色变化就是"换到第二条血"。
    */
   function bossBarShare(enemy) {
-    var ratio = Core.ENEMY_TYPES.boss &&
-      Core.ENEMY_TYPES.boss.phase2 &&
-      Core.ENEMY_TYPES.boss.phase2.hpRatio !== undefined
-      ? Core.ENEMY_TYPES.boss.phase2.hpRatio : 0.5;
+    var ratio = enemy.phase2 && enemy.phase2.hpRatio !== undefined
+      ? enemy.phase2.hpRatio : 0.5;
     var second = enemy.maxHp * ratio;
     var first = enemy.maxHp - second;
     var red = enemy.phase >= 2;
@@ -6620,7 +6750,7 @@
     /* 头像：深底 + 牛头自己的脸 + 深灰钢框 + 四角红铆钉。 */
     ctx.fillStyle = "#0a0c14";
     ctx.fillRect(x, y, portrait, portrait);
-    var portraitMode = drawBossPortrait(ctx, sprites, x, y, portrait);
+    var portraitMode = drawBossPortrait(ctx, sprites, x, y, portrait, enemy.type);
     if (!portraitMode) {
       ctx.fillStyle = "rgba(255, 255, 255, 0.06)";
       ctx.fillRect(x, y, portrait, portrait);
@@ -6715,7 +6845,7 @@
     ctx.textAlign = "left";
     ctx.lineWidth = Math.max(1, 3 * px);
     ctx.strokeStyle = "rgba(0, 0, 0, 0.9)";
-    var label = "Lv" + info.level + " " + info.label;
+    var label = "Lv" + (enemy.level || info.level) + " " + info.label;
     var labelX = tagX + tagW + 6 * px;
     ctx.strokeText(label, labelX, barY + barH / 2);
     ctx.fillStyle = "#e4edf7";
@@ -6731,7 +6861,7 @@
     var info = Core.monsterInfo(enemy.type);
     if (!info) return;
     var px = HUD_PX;
-    if (enemy.type === "boss") {
+    if (enemy.behavior === "boss") {
       drawBossTargetPanel(ctx, state, sprites, enemy, info);
       return;
     }
@@ -6793,7 +6923,7 @@
     ctx.textAlign = "left";
     ctx.lineWidth = Math.max(1, 3 * px);
     ctx.strokeStyle = "rgba(0, 0, 0, 0.9)";
-    var label = "Lv" + info.level + " " + info.label;
+    var label = "Lv" + (enemy.level || info.level) + " " + info.label;
     var labelX = textX + tagPad + tagW + 6 * px;
     ctx.strokeText(label, labelX, y + rowH / 2);
     ctx.fillStyle = "#e4edf7";
@@ -6912,7 +7042,7 @@
      * It sits left of the map window, and in touch mode left of the buttons that
      * own the corner there - otherwise 停/编/音 sit on top of the enemy count.
      */
-    var roomRight = HUD_RIGHT - 16 - minimapWidth() - 12;
+    var roomRight = HUD_RIGHT - 16 - minimapWidth(state.dungeon && state.dungeon.cols) - 12;
     if (meta && meta.touch && meta.touch.enabled) {
       roomRight = Math.min(roomRight, touchTopLeft() - 12);
     }
@@ -8247,10 +8377,11 @@
         var wholeH = whole[3] * scale[1];
         var left = prop.x - wholeW / 2;
         var top = floorY(prop.z) - wholeH;
-        var shown = Math.floor((age / Core.BREAK_ANIM) * SCENE.barrelBreak.length);
+        var breakTable = breakTableFor(prop.piece);
+        var shown = Math.floor((age / Core.BREAK_ANIM) * breakTable.length);
         ctx.save();
         ctx.globalAlpha = Math.max(0, 1 - age / Core.BREAK_ANIM);
-        SCENE.barrelBreak.forEach(function (chip, index) {
+        breakTable.forEach(function (chip, index) {
           /* 一块一块飞出来，不是一下子全出现。 */
           if (index > shown) return;
           drawScenePieceBox(

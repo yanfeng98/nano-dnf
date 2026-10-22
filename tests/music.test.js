@@ -164,3 +164,14 @@ test("标题、地区地图与进副本过场放开始画面那一首", () => {
   assert.equal(Music.trackFor(state), "room",
     "不传 title 时保持原来的口径：副本里默认放关卡曲");
 });
+
+test("幽暗密林深处的 Boss 房放客户端的 forest02", () => {
+  assert.ok(Music.TRACKS.bossDeep.file, "深处的 Boss 要有自己的文件");
+  assert.notEqual(Music.TRACKS.bossDeep.file, Music.TRACKS.boss.file);
+  assert.notEqual(Music.TRACKS.bossDeep.file, Music.TRACKS.room.file);
+  const state = Core.createState({ stage: "mirkwooddeep", seed: 1 });
+  state.cell = state.dungeon.boss;
+  assert.equal(Music.trackFor(state), "bossDeep");
+  state.cell = state.dungeon.entry;
+  assert.equal(Music.trackFor(state), "room");
+});

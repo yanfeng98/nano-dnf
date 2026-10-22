@@ -76,9 +76,16 @@
     reward.countdown = 3;
   }
 
-  /** 选一张牌（0..3）。只在一手牌还开着的时候算数。 */
+  /**
+   * 选一张牌（0..3）。只在一手牌还开着、而且**已经翻成金色牌面**之后算数。
+   *
+   * 业主 2026-10-21：「我选择第三个，翻得不是」。原因是他点得比 `TIMES.flip`
+   * （0.5 秒）早：牌还是背面时 `pick` 就收下了，四张牌没有翻面就直接进了领奖页，
+   * 看起来像"选的不是第三张"。现在翻面之前不接受选择；0.5 秒后牌面亮出来再点。
+   */
   function pick(reward, index) {
     if (!reward || reward.phase !== "cards" || reward.picked !== null) return false;
+    if (!reward.faceUp) return false;
     var spot = Math.floor(Number(index));
     if (!isFinite(spot) || spot < 0 || spot >= CARD_COUNT) return false;
     reward.picked = spot;

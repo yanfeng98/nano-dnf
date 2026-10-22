@@ -134,21 +134,16 @@
     gravity: 2200,
     /*
      * **His pace is the recording's.** 幽暗密林's recording has him covering
-     * **2.05 of his own body heights a second** - measured off his feet over
-     * three separate clean runs, with the camera's own scroll divided back out
-     * (520-555 video px/s against the 265 px to a height). This game had him at
-     * 3.155, so every **locomotion** speed in this file was scaled onto that
-     * reading by the same factor, `2.05 / 3.155 = 0.65`: his walk, the monsters'
-     * walks, the rocks they throw and the beast's charge.
+     * **1.25 of his own body heights a second** (330 video px/s against the
+     * 265 px to a height), measured off his feet with the camera scroll divided
+     * back out. The old 172 (2.05) was the *other* 520-555 px/s reading, which
+     * was never his run; the owner felt the result was "更丝滑/不对".
      *
-     * The line is **locomotion vs. attack timing**: how fast a body or a rock
-     * crosses the field is the recording's, while wind-ups, recoveries and
-     * cooldowns stay this game's own numbers. The recording measures a goblin's
-     * walk (0.62-0.77 heights a second, which 0.65 lands inside) and nothing
-     * else that walks, so scaling the rest by the same factor is what keeps the
-     * ratios the fights were tuned on - see `docs/adr/0039`.
+     * **172 → 105**（2026-10-21）：105 = 1.25 × 84。跑动仍用客户端 105-112
+     * 八帧/15fps；攻击/技能不动。怪物那一档的 0.65 缩放仍是 `docs/adr/0039`
+     * 的量法（哥布林录像 0.62-0.77 身位/秒，本作 0.74），这一条只改他。
      */
-    moveSpeed: 172,
+    moveSpeed: 105,
     jumpVelocity: -760,
     maxFallSpeed: 1400,
     /*
@@ -308,6 +303,32 @@
     { first: 16, frames: 7, damage: 11 }
   ];
 
+  /*
+   * **普攻命中的停顿**（`docs/adr/0061`）。
+   *
+   * 60fps 下数的是整帧：0.05 秒 = 3 帧，0.075 = 5 帧，0.1 = 6 帧。录像 30fps，
+   * 这么短的停顿在录像里只合 1–2 帧，量不出准确值 —— 这几个数**是本作的**，
+   * 实玩觉得木/拖就改这里。技能自己那张表在 `SKILL_HIT_STOP`，机制是同一套。
+   */
+  var HIT_STOP = {
+    /* 三段普攻：前两下轻，第三下收尾重一点。 */
+    stage: [0.05, 0.05, 0.075],
+    /* 这一下把人打死：再多停两帧。 */
+    kill: 0.1,
+    /*
+     * 他自己挨打的停顿：**非致命先不做**（`docs/adr/0061` 追记二）。
+     * 实测 3 帧会把浏览器机器人拖进和胆小哥布林的换血循环；致命那一下仍用 `kill`。
+     */
+    hurt: 0
+  };
+
+  /*
+   * **停顿里按下的技能记这么久**（`docs/adr/0061` 追记）。最长的一停是 0.12 秒，
+   * 记 0.4 秒够盖住“停一下 + 这一刀剩下的挥砍/收招”；在能放出来的第一帧兑现，
+   * 按过的技能不会被那 3–7 帧吞掉。
+   */
+  var SKILL_BUFFER = 0.4;
+
   var PLAYER = {
     /*
      * **120 → 176**（2026-10-18）：清房不再发强化卡（`docs/adr/0053`），
@@ -317,9 +338,18 @@
      * **176 → 200**（2026-10-20）：每间房加了第二批怪之后，浏览器证明的两条
      * 通路都会在最后两三下倒地（一次在领主 8/100 血、一次在两只胆小哥布林前）。
      * 这不是把怪改弱，是给"加了两批怪"补一点基础余量；领主同时压到 100。
+     *
+     * **200 → 220**（2026-10-21）：合跑仍在领主 **2–6 血**时红（单跑时才绿）；
+     * 机器人最后 6 血被一刀 13 带走，差最后一下。再补 20 基础值，领主压到 90，
+     * 让它能多挨一记、把最后一刀换出去。还是余量，不是把怪改弱；
      * 觉得太软就回调这两个数（`docs/adr/0053` 追记）。
+     *
+     * **220 → 240**（2026-10-22）：技能/受击停顿之后，浏览器触屏通路在咒之赤
+     * 哥布林前 **4 血**倒下（它一刀 7，bot 已经挨了 222）；键盘通路同一份代码
+     * 是 198 血收的。再补 20 基础值给两条通路留同样的余量 —— 还是余量，
+     * 不是把怪改弱。
      */
-    maxHp: 200,
+    maxHp: 240,
     maxMp: 100,
     width: 34,
     height: 64,
@@ -350,6 +380,18 @@
     }),
     comboWindow: 0.45,
     maxCombo: ATTACK_STAGES.length,
+    /*
+     * **挥砍中按下的普攻记这么久**（`docs/adr/0061`）：挥的那一下里按下的会被
+     * 吞掉，读起来是「连段没出来」。最长的一刀是 0.22 / `MIN_ATTACK_SPEED`(0.5)
+     * = 0.44 秒，所以记 0.5 秒 —— 只要是在这一刀挥完之前按的，就一定接得上。
+     */
+    attackBuffer: 0.5,
+    /*
+     * **停顿里按下的跳跃记 0.12 秒**（`docs/adr/0061` 追记）：跳是一个瞬间输入，
+     * 被那 3–7 帧吞掉就是“我明明跳了还是被砸中”。0.12 秒只够盖住一次停顿，
+     * 不会让人在地上按早了半秒还莫名起跳。
+     */
+    jumpBuffer: 0.12,
     invulnAfterHit: 0.9,
     hurtStun: 0.22,
     knockbackX: 190,
@@ -1476,6 +1518,39 @@
     }
   };
 
+  /*
+   * **技能命中的停顿**（`docs/adr/0061` 追记）。
+   *
+   * 和普攻同一套 `HIT_STOP`：命中那一下世界停几帧，钟照走。表按**招式重量**给，
+   * 数组是每一段各自的秒数（最后一段通常最重）。这些数**是本作的**，不是录像量的：
+   * 30fps 的录像分不出 2–7 个 60fps 帧的停顿。实玩觉得哪一招拖/木，就改这一行。
+   *
+   * **持续 tick 不在这张表里**：嗜魂封魔斩的漩涡每 0.3 秒一跳、地面火每几帧一跳，
+   * 每跳都停会把整招变成一串卡顿。它们只走伤害与僵直，不停世界。
+   */
+  var SKILL_HIT_STOP = {
+    upSlash: 0.05,
+    mountainBreaker: 0.09,
+    crossSlash: [0.04, 0.04, 0.06],
+    bloodSword: [0.045, 0.045, 0.055],
+    bloodyRave: 0.06,
+    rageBurst: [0.045, 0.045, 0.065],
+    bloodSnatch: 0.07,
+    graspHead: [0.05, 0.09],
+    bloodEvil: [0.045, 0.06],
+    mountainRift: [0.05, 0.07, 0.09],
+    silverFall: 0.06,
+    hellbenterSlam: 0.12
+  };
+
+  /** 一招第 `hitIndex` 段的停顿秒数；没写的就是不停。 */
+  function skillHitStop(skill, hitIndex) {
+    var entry = SKILL_HIT_STOP[skill.id];
+    if (entry === undefined) return 0;
+    if (Array.isArray(entry)) return entry[Math.min(hitIndex, entry.length - 1)];
+    return entry;
+  }
+
   var SKILL_ORDER = [
     "upSlash",
     "mountainBreaker",
@@ -1916,12 +1991,14 @@
        * 压它的伤害更不伤"重踏要躲、贴脸要挨打"的读法。
        */
       /*
-       * **120 → 100**（2026-10-20）：每间房加了第二批怪之后，浏览器证明的
-       * 键盘/触屏两条通路都在领主 **8/120 血**时倒下（它一刀 13、玩家只剩
-       * 6–8 血，最后一下没换过）。把领主血量压到 100，让"先退再打"的读法
-       * 仍然成立；觉得太软再回调（`docs/adr/0053` 追记）。
+       * **120 → 100 → 90**（2026-10-20 / 2026-10-21）：每间房加了第二批怪
+       * 之后，浏览器证明的键盘/触屏两条通路都在领主 **1–8 血**时倒下（它一刀
+       * 13、玩家只剩 4–10 血，最后一下没换过）。100 在单跑时够，合跑仍会在
+       * **2 血 / 6 血**时红；再压到 90，给"先退再打"的读法留最后一下的余量。
+       * 这是给浏览器证明的余量，不是把 Boss 做软；觉得太软再回调
+       * （`docs/adr/0053` 追记）。
        */
-      maxHp: 100,
+      maxHp: 90,
       xp: 80,
       /*
        * **172x201 → 138x168**（`docs/adr/0050` 追记）。录像里它站着是 355x530 视频px；
@@ -1982,8 +2059,151 @@
           cooldown: 4.2
         }
       }
+    },
+
+    /*
+     * **幽暗密林深处的猫妖族**（`docs/granfloris-assets.md` 第 213 节）：
+     * `lugaru/lugaru.img` 是录像里那只橙色的 `Lv6 猫妖`（`野兽`），37 帧。
+     *
+     * 行为借 `charger` 的"走近 → 短扑"骨架，但把那一扑压短、加快：录像里它
+     * 是贴地蹿上来的一下，不是冲锋兵那种长预警。**这不是新 AI**，是同一套
+     * 提交-冲刺的两个数；真正属于这一只的是美术、身量和扑击的距离。
+     */
+    cat: {
+      label: "猫妖",
+      race: "野兽",
+      level: 6,
+      behavior: "charger",
+      maxHp: 30,
+      xp: 12,
+      /*
+       * **猫妖比哥布林大，不是小。** 业主 2026-10-21 实玩：「猫妖很小」。
+       * 录像 t≈160/340s 里那只橙猫的整只高度约是哥布林的 1.5 倍、到玩家胸口；
+       * 上一版按 103 视频px 直接折成 30 世界px 画出来只有一个脚踝高。
+       * 现在取 **58 世界px**（含尾巴），宽 72；判定盒跟着放大。
+       */
+      width: 72,
+      height: 58,
+      speed: 84,
+      damage: 7,
+      attackRange: 55,
+      attackWindup: 0.26,
+      attackDuration: 0.7,
+      attackCooldown: 1.0,
+      knockbackX: 140,
+      chargeSpeed: 320,
+      chargeFrom: 0.26,
+      chargeTo: 0.48
+    },
+
+    /*
+     * **投掷十夫长**：录像那块条上的 `人型 Lv6 投掷十夫长`，客户端对应
+     * `goblin/event/goblintaskmaster.img`。它是十夫长的远程亲戚——站位更远、
+     * 扔得更重，但仍走 `ranged` 那一套（保持距离、起手、扔出、收招），不是新行为。
+     */
+    throwerElite: {
+      label: "投掷十夫长",
+      race: "人型",
+      level: 6,
+      behavior: "ranged",
+      maxHp: 70,
+      xp: 30,
+      width: 38,
+      height: 62,
+      speed: 52,
+      damage: 10,
+      attackRange: 195,
+      keepRange: 135,
+      attackWindup: 0.55,
+      attackDuration: 0.85,
+      attackCooldown: 2.3,
+      knockbackX: 150,
+      projectile: {
+        speed: 230,
+        radius: 10,
+        life: 1.5,
+        maxDistance: 330,
+        height: 38
+      }
+    },
+
+    /*
+     * **领主 - 暗咒猫妖**：录像里 `Lv9 领主 - 暗咒猫妖`（`野兽`），客户端
+     * `lugaru/blacklugaru.img`（金鬃黑身，37 帧）。客户端只给了两套物理动作：
+     * 一次**快速扑爪**（f1-f4，带金色拖尾）和一次**宽幅横扫**（f8-f11，金色月牙）；
+     * 没有施法帧，录像里也没有毒/诅咒 DoT —— 所以这一只不做毒，也不做半血横幅。
+     *
+     * **半血二阶段是本作自己的加料**（业主 2026-10-21 选 B）：速度 +15%、
+     * 冷却 −20%，用一下金色闪光/低吼交代，不弹字。它不改伤害，也不换招式。
+     */
+    lugaruBoss: {
+      label: "领主 - 暗咒猫妖",
+      race: "野兽",
+      level: 9,
+      behavior: "boss",
+      evasion: 0.10,
+      maxHp: 150,
+      xp: 120,
+      /*
+       * 猫 Boss 和猫妖共用 73x75 的客户端画布，但录像里它是领主体量：
+       * 取 **68 世界px**、宽 88（含鬃毛/尾巴），比猫妖再大一档。
+       */
+      width: 88,
+      height: 68,
+      speed: 88,
+      damage: 12,
+      attackRange: 18,
+      attackWindup: 0.24,
+      attackDuration: 0.5,
+      attackCooldown: 0.9,
+      knockbackX: 220,
+      /* 中距离扑上来：和牛头巨兽的二阶段 lunge 同一套提交-冲刺，但一阶段就有。 */
+      lunge: {
+        gap: 120,
+        minGap: 40,
+        speed: 360,
+        windup: 0.30,
+        recovery: 0.40,
+        cooldown: 3.2,
+        range: 120
+      },
+      /*
+       * 横扫：判定是一颗**圆心在身前**的圆，不是贴着自己的盘。`offset` 是圆心
+       * 离身体中心的距离，`radius` 是那一爪扫到的半径；两者一起读作"面前那一片"。
+       */
+      sweep: {
+        commit: 55,
+        radius: 70,
+        offset: 34,
+        damage: 14,
+        windup: 0.45,
+        recovery: 0.55,
+        cooldown: 4.2
+      },
+      phase2: {
+        banner: "",
+        hpRatio: 0.5,
+        speedScale: 1.15,
+        damageScale: 1,
+        cooldownScale: 0.8,
+        windupScale: 1,
+        slamRadiusScale: 1,
+        slamCooldownScale: 1,
+        lunge: null
+      }
     }
   };
+
+  /*
+   * **幽暗密林深处的十夫长**：录像 t≈346s 那只蓝绿、弯刀的 goblin，客户端对应
+   * `goblin/event/goblintaskmaster.img`；不是 mirkwood 里猜的 `whiteboss`（白毛）。
+   * 战斗行为与 `elite` 完全相同（回避 15% + 霸体旋风），只换 type/美术，
+   * 这样 mirkwood 已经接受的十夫长不用动。房里的 `level` 仍可逐间覆盖（6/7）。
+   */
+  ENEMY_TYPES.deepElite = Object.assign({}, ENEMY_TYPES.elite, {
+    label: "十夫长",
+    level: 7
+  });
 
   /*
    * 地区 -> 关卡 -> 房间 (`CONTEXT.md`, `docs/adr/0026`).
@@ -2334,14 +2554,492 @@
       clearBanner: "幽暗密林 通关！"
     },
 
+    /*
+     * **幽暗密林深处**（2026-10-21 逐格量过路线 + 侧 8 重做）。
+     *
+     * 录像蓝柱实际走过 **7 个不同格**：入口 (1,1)、5 条路线走廊
+     * (1,0)/(1,3)/(1,2)/(2,0)/(2,1)、Boss (3,1)。其余 8 格（5 房 + 3 侧走廊）
+     * 没有实机画面；这一版把侧 8 也换成深处名册/set 02 布景，仍标“推断”。
+     *
+     * 路线 7 格用 `MIRKWOODDEEP_DUNGEON.pins` 钉死；侧 8 格按种子洗牌。
+     * 路线格房宽/背板/布景/敌人是量出来的；侧 8 的房宽用 11.4/13.3/15.1（房）
+     * 与 7.4/8.4/11.3（走廊）分布，内容为推断。
+     * 深处 15 格地面带 backY 256。
+     * 路线格只保留矮草/花/高草的随机撒景；侧 8 保留全套随机撒景。
+     */
     mirkwooddeep: {
       id: "mirkwooddeep",
       code: "mirkwooddeep",
       name: "幽暗密林深处",
       level: [4, 7],
       slot: 1,
-      rooms: []
+      rooms: [
+        /* 0 —— 入口 (1,1)。录像 10.1–73.8 / 147.5–189.6 / 272.1–276.7s；房宽 12.0 身位（估，下界 10.1）；地面带 backY 256。 */
+        {
+          name: "铁门入口",
+          kind: "corr",
+          width: 1008,
+          band: { backY: 256 },
+          enemies: [
+            { type: "goblinRed", x: 252, level: 6 },
+            { type: "goblinBlue", x: 403, level: 6 },
+            { type: "throwerElite", x: 605, depth: 0.35, level: 6 },
+            { type: "cat", x: 504, level: 6 },
+            { type: "goblinRed", x: 726, level: 6 },
+            { type: "cat", x: 151, wave: 2, level: 6 },
+            { type: "goblinBlue", x: 857, wave: 2, level: 6 },
+            { type: "throwerElite", x: 907, depth: 0.35, wave: 2, level: 6 },
+          ],
+          props: [
+            { piece: "trunkTall", x: 50, depth: 0.95 },
+            { piece: "trunkBent", x: 161, depth: 0.95 },
+            { piece: "trunkMossy", x: 282, depth: 0.95 },
+            { piece: "trunkTall", x: 454, depth: 0.95 },
+            { piece: "trunkMossy", x: 625, depth: 0.95 },
+            { piece: "trunkBent", x: 806, depth: 0.95 },
+            { piece: "trunkTall", x: 948, depth: 0.95 },
+            { piece: "pillar", x: 131, depth: 0.72 },
+            { piece: "pillar", x: 181, depth: 0.72 },
+            { piece: "pillar", x: 232, depth: 0.72 },
+            { piece: "pillar", x: 292, depth: 0.72 },
+            { piece: "pillar", x: 353, depth: 0.72 },
+            { piece: "pillar", x: 413, depth: 0.72 },
+            { piece: "pillar", x: 474, depth: 0.72 },
+            { piece: "pillar", x: 534, depth: 0.72 },
+            { piece: "pillar", x: 585, depth: 0.72 },
+            { piece: "barrel", x: 121, depth: 0.38 },
+            { piece: "barrel", x: 302, depth: 0.38 },
+            { piece: "barrel", x: 504, depth: 0.38 },
+            { piece: "barrel", x: 706, depth: 0.38 },
+            { piece: "barrel", x: 887, depth: 0.38 },
+            { piece: "chest", x: 454, depth: 0.42 },
+            { piece: "rockFlat", x: 302, depth: 0.5 },
+            { piece: "rockFlat", x: 504, depth: 0.5 },
+            { piece: "wallStone", x: 504, depth: 0.85 },
+          ],
+          scatter: {"solid":0,"barrels":0,"stones":0}
+        },
+        /* 1 —— Boss (3,1)。录像 311.9–约387s；房宽 11.4 身位（估，下界 7.8）；骷髅袋/帐篷本作无对应件，不放。 */
+        {
+          name: "暗咒猫妖的林地",
+          kind: "room",
+          width: 960,
+          band: { backY: 256 },
+          enemies: [
+            { type: "deepElite", x: 528, level: 7 },
+            { type: "cat", x: 432, level: 6 },
+            { type: "cat", x: 576, level: 6 },
+            { type: "throwerElite", x: 672, depth: 0.35, level: 7 },
+            { type: "lugaruBoss", x: 787, level: 9 },
+            { type: "cat", x: 720, wave: 2, level: 6 },
+            { type: "deepElite", x: 864, wave: 2, level: 7 },
+          ],
+          props: [
+            { piece: "chest", x: 48, depth: 0.42 },
+            { piece: "chest", x: 365, depth: 0.42 },
+            { piece: "chest", x: 480, depth: 0.42 },
+            { piece: "barrel", x: 528, depth: 0.45 },
+            { piece: "barrel", x: 595, depth: 0.45 },
+            { piece: "treeLeafy", x: 144, depth: 0.6 },
+            { piece: "trunkTall", x: 77, depth: 0.95 },
+            { piece: "trunkMossy", x: 336, depth: 0.95 },
+            { piece: "trunkBent", x: 672, depth: 0.95 },
+            { piece: "trunkTall", x: 883, depth: 0.95 },
+          ],
+          scatter: {"tall":1,"solid":0,"barrels":0,"stones":0}
+        },
+        /* 2 —— 侧 5 房（录像未进入，内容为推断）：苔石庭院；深处名册 6–8 只，箱 2。 */
+        {
+          name: "苔石庭院",
+          kind: "room",
+          width: 960,
+          band: { backY: 256 },
+          enemies: [
+            { type: "grunt", x: 336, level: 6 },
+            { type: "grunt", x: 432, level: 6 },
+            { type: "goblinBlue", x: 528, level: 6 },
+            { type: "deepElite", x: 672, level: 6 },
+            { type: "cat", x: 576, level: 6 },
+            { type: "goblinRed", x: 240, wave: 2, level: 6 },
+            { type: "throwerElite", x: 768, depth: 0.35, wave: 2, level: 6 },
+          ],
+          props: [
+            { piece: "pillar", x: 144, depth: 0.72 },
+            { piece: "pillar", x: 240, depth: 0.72 },
+            { piece: "pillar", x: 336, depth: 0.72 },
+            { piece: "pillar", x: 624, depth: 0.72 },
+            { piece: "pillar", x: 720, depth: 0.72 },
+            { piece: "wallStone", x: 192, depth: 0.85 },
+            { piece: "wallStone", x: 480, depth: 0.85 },
+            { piece: "trunkMossy", x: 77, depth: 0.95 },
+            { piece: "trunkTall", x: 432, depth: 0.95 },
+            { piece: "trunkBent", x: 864, depth: 0.95 },
+            { piece: "chest", x: 288, depth: 0.42 },
+            { piece: "chest", x: 384, depth: 0.42 },
+            { piece: "barrel", x: 576, depth: 0.38 },
+            { piece: "barrel", x: 816, depth: 0.38 },
+            { piece: "rockFlat", x: 528, depth: 0.5 },
+          ]
+        },
+        /* 3 —— 侧 5 房：猫妖枝巢；树/灌木/箱/碑。 */
+        {
+          name: "猫妖枝巢",
+          kind: "room",
+          width: 1118,
+          band: { backY: 256 },
+          enemies: [
+            { type: "cat", x: 391, level: 6 },
+            { type: "cat", x: 503, level: 6 },
+            { type: "cat", x: 615, level: 6 },
+            { type: "goblinBlue", x: 727, level: 6 },
+            { type: "throwerElite", x: 839, depth: 0.35, level: 6 },
+            { type: "cat", x: 224, wave: 2, level: 6 },
+            { type: "goblinRed", x: 950, wave: 2, level: 6 },
+          ],
+          props: [
+            { piece: "trunkTall", x: 67, depth: 0.95 },
+            { piece: "trunkMossy", x: 280, depth: 0.95 },
+            { piece: "trunkTall", x: 503, depth: 0.95 },
+            { piece: "trunkBent", x: 783, depth: 0.95 },
+            { piece: "trunkMossy", x: 1029, depth: 0.95 },
+            { piece: "treeLeafy", x: 559, depth: 0.6 },
+            { piece: "bush", x: 168, depth: 0.55 },
+            { piece: "bush", x: 894, depth: 0.55 },
+            { piece: "chest", x: 447, depth: 0.42 },
+            { piece: "tomb", x: 727, depth: 0.4 },
+            { piece: "barrel", x: 950, depth: 0.38 },
+          ]
+        },
+        /* 4 —— 侧 5 房：古木深庭；树/碑/箱。 */
+        {
+          name: "古木深庭",
+          kind: "room",
+          width: 1268,
+          band: { backY: 256 },
+          enemies: [
+            { type: "grunt", x: 444, level: 6 },
+            { type: "grunt", x: 571, level: 6 },
+            { type: "goblinBlue", x: 697, level: 6 },
+            { type: "cat", x: 824, level: 6 },
+            { type: "deepElite", x: 951, level: 6 },
+            { type: "goblinRed", x: 254, wave: 2, level: 6 },
+            { type: "cat", x: 634, wave: 2, level: 6 },
+            { type: "throwerElite", x: 1078, depth: 0.35, wave: 2, level: 6 },
+          ],
+          props: [
+            { piece: "trunkTall", x: 63, depth: 0.95 },
+            { piece: "trunkMossy", x: 228, depth: 0.95 },
+            { piece: "trunkTall", x: 380, depth: 0.95 },
+            { piece: "trunkBent", x: 571, depth: 0.95 },
+            { piece: "trunkMossy", x: 761, depth: 0.95 },
+            { piece: "trunkTall", x: 989, depth: 0.95 },
+            { piece: "trunkBent", x: 1167, depth: 0.95 },
+            { piece: "treeLeafy", x: 507, depth: 0.6 },
+            { piece: "treeLeafy", x: 888, depth: 0.6 },
+            { piece: "rockFlat", x: 697, depth: 0.5 },
+            { piece: "tomb", x: 317, depth: 0.4 },
+            { piece: "tomb", x: 1078, depth: 0.4 },
+            { piece: "chest", x: 634, depth: 0.42 },
+            { piece: "barrel", x: 824, depth: 0.38 },
+          ]
+        },
+        /* 5 —— 侧 5 房：残柱祭坛；石柱/碑/箱。 */
+        {
+          name: "残柱祭坛",
+          kind: "room",
+          width: 960,
+          band: { backY: 256 },
+          enemies: [
+            { type: "cat", x: 336, level: 6 },
+            { type: "cat", x: 432, level: 6 },
+            { type: "goblinRed", x: 528, level: 6 },
+            { type: "deepElite", x: 672, level: 6 },
+            { type: "throwerElite", x: 768, depth: 0.35, level: 6 },
+            { type: "grunt", x: 192, wave: 2, level: 6 },
+            { type: "cat", x: 816, wave: 2, level: 6 },
+          ],
+          props: [
+            { piece: "pillar", x: 96, depth: 0.72 },
+            { piece: "pillar", x: 144, depth: 0.72 },
+            { piece: "pillar", x: 192, depth: 0.72 },
+            { piece: "pillar", x: 240, depth: 0.72 },
+            { piece: "pillar", x: 288, depth: 0.72 },
+            { piece: "pillar", x: 624, depth: 0.72 },
+            { piece: "pillar", x: 720, depth: 0.72 },
+            { piece: "pillar", x: 816, depth: 0.72 },
+            { piece: "wallStone", x: 144, depth: 0.85 },
+            { piece: "wallStone", x: 528, depth: 0.85 },
+            { piece: "tomb", x: 336, depth: 0.4 },
+            { piece: "tomb", x: 432, depth: 0.4 },
+            { piece: "rockFlat", x: 576, depth: 0.5 },
+            { piece: "chest", x: 480, depth: 0.42 },
+            { piece: "trunkMossy", x: 48, depth: 0.95 },
+            { piece: "trunkTall", x: 864, depth: 0.95 },
+          ]
+        },
+        /* 6 —— 侧 5 房：断墙营地；墙/桶/箱/碑。 */
+        {
+          name: "断墙营地",
+          kind: "room",
+          width: 1118,
+          band: { backY: 256 },
+          enemies: [
+            { type: "goblinRed", x: 391, level: 6 },
+            { type: "goblinRed", x: 503, level: 6 },
+            { type: "throwerElite", x: 671, depth: 0.35, level: 6 },
+            { type: "throwerElite", x: 783, depth: 0.35, level: 6 },
+            { type: "deepElite", x: 894, level: 6 },
+            { type: "grunt", x: 224, wave: 2, level: 6 },
+            { type: "cat", x: 559, wave: 2, level: 6 },
+            { type: "goblinBlue", x: 950, wave: 2, level: 6 },
+          ],
+          props: [
+            { piece: "wallStone", x: 168, depth: 0.85 },
+            { piece: "wallStone", x: 447, depth: 0.85 },
+            { piece: "wallStone", x: 783, depth: 0.85 },
+            { piece: "barrel", x: 335, depth: 0.38 },
+            { piece: "barrel", x: 503, depth: 0.38 },
+            { piece: "barrel", x: 671, depth: 0.38 },
+            { piece: "chest", x: 280, depth: 0.42 },
+            { piece: "chest", x: 615, depth: 0.42 },
+            { piece: "trunkTall", x: 89, depth: 0.95 },
+            { piece: "trunkMossy", x: 559, depth: 0.95 },
+            { piece: "trunkBent", x: 1006, depth: 0.95 },
+            { piece: "tomb", x: 894, depth: 0.4 },
+            { piece: "rockFlat", x: 727, depth: 0.5 },
+          ]
+        },
+        /* 7 —— 侧走廊 苔柱夹道；石柱/树/箱。 */
+        {
+          name: "苔柱夹道",
+          kind: "corr",
+          width: 704,
+          band: { backY: 256 },
+          enemies: [
+            { type: "grunt", x: 246, level: 6 },
+            { type: "goblinBlue", x: 352, level: 6 },
+            { type: "cat", x: 458, level: 6 },
+            { type: "goblinRed", x: 141, wave: 2, level: 6 },
+            { type: "deepElite", x: 563, wave: 2, level: 6 },
+          ],
+          props: [
+            { piece: "pillar", x: 106, depth: 0.72 },
+            { piece: "pillar", x: 176, depth: 0.72 },
+            { piece: "pillar", x: 246, depth: 0.72 },
+            { piece: "pillar", x: 458, depth: 0.72 },
+            { piece: "pillar", x: 563, depth: 0.72 },
+            { piece: "trunkTall", x: 70, depth: 0.95 },
+            { piece: "trunkMossy", x: 317, depth: 0.95 },
+            { piece: "trunkBent", x: 634, depth: 0.95 },
+            { piece: "bush", x: 352, depth: 0.55 },
+            { piece: "chest", x: 282, depth: 0.42 },
+            { piece: "barrel", x: 493, depth: 0.38 },
+          ]
+        },
+        /* 8 —— 路线 (1,2)。录像 105.7–147.5s；房宽 11.4（下界 9.8）；石柱 5、桶 1、墙 2、树 4。 */
+        {
+          name: "猫妖岔路",
+          kind: "corr",
+          width: 960,
+          band: { backY: 256 },
+          enemies: [
+            { type: "goblinBlue", x: 384, level: 6 },
+            { type: "deepElite", x: 672, level: 6 },
+            { type: "goblinBlue", x: 768, wave: 2, level: 6 },
+          ],
+          props: [
+            { piece: "pillar", x: 77, depth: 0.72 },
+            { piece: "pillar", x: 144, depth: 0.72 },
+            { piece: "pillar", x: 211, depth: 0.72 },
+            { piece: "pillar", x: 691, depth: 0.72 },
+            { piece: "pillar", x: 816, depth: 0.72 },
+            { piece: "barrel", x: 864, depth: 0.38 },
+            { piece: "wallStone", x: 432, depth: 0.85 },
+            { piece: "wallStone", x: 528, depth: 0.85 },
+            { piece: "trunkMossy", x: 96, depth: 0.95 },
+            { piece: "trunkTall", x: 336, depth: 0.95 },
+            { piece: "trunkMossy", x: 576, depth: 0.95 },
+            { piece: "trunkBent", x: 864, depth: 0.95 },
+          ],
+          scatter: {"solid":0,"barrels":0,"stones":0}
+        },
+        /* 9 —— 路线 (2,1)。录像 276.7–311.9s；房宽 11.3（量到）；桶 3、岩 1、阔叶树 1、树 5。 */
+        {
+          name: "投掷手坡",
+          kind: "corr",
+          width: 951,
+          band: { backY: 256 },
+          enemies: [
+            { type: "goblinBlue", x: 428, level: 6 },
+            { type: "deepElite", x: 571, level: 6 },
+            { type: "throwerElite", x: 666, depth: 0.35, level: 6 },
+            { type: "goblinBlue", x: 523, level: 6 },
+            { type: "deepElite", x: 190, wave: 2, level: 6 },
+            { type: "throwerElite", x: 808, depth: 0.35, wave: 2, level: 6 },
+          ],
+          props: [
+            { piece: "barrel", x: 124, depth: 0.38 },
+            { piece: "barrel", x: 152, depth: 0.38 },
+            { piece: "barrel", x: 181, depth: 0.38 },
+            { piece: "rockFlat", x: 238, depth: 0.5 },
+            { piece: "treeLeafy", x: 428, depth: 0.6 },
+            { piece: "trunkTall", x: 76, depth: 0.95 },
+            { piece: "trunkMossy", x: 285, depth: 0.95 },
+            { piece: "trunkTall", x: 523, depth: 0.95 },
+            { piece: "trunkBent", x: 742, depth: 0.95 },
+            { piece: "trunkMossy", x: 875, depth: 0.95 },
+          ],
+          scatter: {"solid":0,"barrels":0,"stones":0}
+        },
+        /* 10 —— 路线 (1,3)。录像 73.8–105.7s；房宽 8.4（量到）；宝箱 2、石柱 5、墙 2、岩 1、桩 1、桶 1、树 4。 */
+        {
+          name: "宝箱浅沟",
+          kind: "corr",
+          width: 704,
+          band: { backY: 256 },
+          enemies: [
+            { type: "goblinRed", x: 211, level: 6 },
+            { type: "goblinBlue", x: 387, level: 6 },
+            { type: "goblinBlue", x: 528, level: 6 },
+            { type: "goblinRed", x: 141, wave: 2, level: 6 },
+          ],
+          props: [
+            { piece: "chest", x: 120, depth: 0.42 },
+            { piece: "chest", x: 190, depth: 0.42 },
+            { piece: "pillar", x: 225, depth: 0.72 },
+            { piece: "pillar", x: 268, depth: 0.72 },
+            { piece: "pillar", x: 310, depth: 0.72 },
+            { piece: "pillar", x: 352, depth: 0.72 },
+            { piece: "pillar", x: 387, depth: 0.72 },
+            { piece: "wallStone", x: 49, depth: 0.85 },
+            { piece: "wallStone", x: 148, depth: 0.85 },
+            { piece: "rockFlat", x: 99, depth: 0.5 },
+            { piece: "stump", x: 317, depth: 0.32 },
+            { piece: "barrel", x: 535, depth: 0.38 },
+            { piece: "trunkTall", x: 70, depth: 0.95 },
+            { piece: "trunkMossy", x: 211, depth: 0.95 },
+            { piece: "trunkTall", x: 458, depth: 0.95 },
+            { piece: "trunkBent", x: 634, depth: 0.95 },
+          ],
+          scatter: {"solid":0,"barrels":0,"stones":0}
+        },
+        /* 11 —— 侧走廊 石碑夹道；碑/树/箱。 */
+        {
+          name: "石碑夹道",
+          kind: "corr",
+          width: 622,
+          band: { backY: 256 },
+          enemies: [
+            { type: "cat", x: 218, level: 6 },
+            { type: "goblinRed", x: 311, level: 6 },
+            { type: "throwerElite", x: 435, depth: 0.35, level: 6 },
+            { type: "grunt", x: 124, wave: 2, level: 6 },
+            { type: "cat", x: 498, wave: 2, level: 6 },
+          ],
+          props: [
+            { piece: "tomb", x: 124, depth: 0.4 },
+            { piece: "tomb", x: 249, depth: 0.4 },
+            { piece: "tomb", x: 373, depth: 0.4 },
+            { piece: "trunkTall", x: 50, depth: 0.95 },
+            { piece: "trunkMossy", x: 311, depth: 0.95 },
+            { piece: "trunkBent", x: 560, depth: 0.95 },
+            { piece: "wallStone", x: 187, depth: 0.85 },
+            { piece: "bush", x: 342, depth: 0.55 },
+            { piece: "chest", x: 280, depth: 0.42 },
+          ]
+        },
+        /* 12 —— 路线 (2,0)。录像 235.9–266.0s；房宽 7.4（量到）；左右门、灌木 1、桩 1、树 4；无柱/箱/桶。 */
+        {
+          name: "藤蔓窄道",
+          kind: "corr",
+          width: 622,
+          band: { backY: 256 },
+          enemies: [
+            { type: "grunt", x: 280, level: 4 },
+            { type: "deepElite", x: 342, level: 6 },
+            { type: "throwerElite", x: 373, depth: 0.35, level: 6 },
+            { type: "goblinRed", x: 404, level: 6 },
+            { type: "grunt", x: 124, wave: 2, level: 6 },
+            { type: "throwerElite", x: 498, depth: 0.35, wave: 2, level: 6 },
+          ],
+          props: [
+            { piece: "trunkTall", x: 62, depth: 0.95 },
+            { piece: "trunkMossy", x: 218, depth: 0.95 },
+            { piece: "trunkTall", x: 404, depth: 0.95 },
+            { piece: "trunkBent", x: 560, depth: 0.95 },
+            { piece: "bush", x: 131, depth: 0.55 },
+            { piece: "stump", x: 205, depth: 0.32 },
+          ],
+          scatter: {"solid":0,"barrels":0,"stones":0}
+        },
+        /* 13 —— 路线 (1,0)。录像 189.6–235.9 / 266.0–272.1s；房宽 13.3（滚动量到 13.7）；石柱 8、桶 1、岩 2、树 5。 */
+        {
+          name: "老树回廊",
+          kind: "corr",
+          width: 1118,
+          band: { backY: 256 },
+          enemies: [
+            { type: "goblinRed", x: 559, level: 6 },
+            { type: "deepElite", x: 839, level: 6 },
+            { type: "goblinRed", x: 950, level: 6 },
+            { type: "deepElite", x: 335, wave: 2, level: 6 },
+          ],
+          props: [
+            { piece: "pillar", x: 145, depth: 0.72 },
+            { piece: "pillar", x: 179, depth: 0.72 },
+            { piece: "pillar", x: 212, depth: 0.72 },
+            { piece: "pillar", x: 581, depth: 0.72 },
+            { piece: "pillar", x: 648, depth: 0.72 },
+            { piece: "pillar", x: 716, depth: 0.72 },
+            { piece: "pillar", x: 805, depth: 0.72 },
+            { piece: "pillar", x: 883, depth: 0.72 },
+            { piece: "barrel", x: 391, depth: 0.38 },
+            { piece: "rockFlat", x: 727, depth: 0.5 },
+            { piece: "rockSmall", x: 1006, depth: 0.5 },
+            { piece: "trunkTall", x: 67, depth: 0.95 },
+            { piece: "trunkMossy", x: 280, depth: 0.95 },
+            { piece: "trunkTall", x: 503, depth: 0.95 },
+            { piece: "trunkBent", x: 783, depth: 0.95 },
+            { piece: "trunkMossy", x: 1029, depth: 0.95 },
+          ],
+          scatter: {"solid":0,"barrels":0,"stones":0}
+        },
+        /* 14 —— 侧走廊 断柱小径；石柱/断桩/箱。 */
+        {
+          name: "断柱小径",
+          kind: "corr",
+          width: 951,
+          band: { backY: 256 },
+          enemies: [
+            { type: "grunt", x: 285, level: 6 },
+            { type: "goblinRed", x: 428, level: 6 },
+            { type: "deepElite", x: 571, level: 6 },
+            { type: "throwerElite", x: 713, depth: 0.35, level: 6 },
+            { type: "cat", x: 190, wave: 2, level: 6 },
+            { type: "goblinBlue", x: 808, wave: 2, level: 6 },
+          ],
+          props: [
+            { piece: "pillar", x: 143, depth: 0.72 },
+            { piece: "pillar", x: 238, depth: 0.72 },
+            { piece: "pillar", x: 333, depth: 0.72 },
+            { piece: "pillar", x: 618, depth: 0.72 },
+            { piece: "pillar", x: 761, depth: 0.72 },
+            { piece: "stump", x: 428, depth: 0.32 },
+            { piece: "stumpBroken", x: 523, depth: 0.32 },
+            { piece: "rockFlat", x: 666, depth: 0.5 },
+            { piece: "trunkTall", x: 76, depth: 0.95 },
+            { piece: "trunkMossy", x: 380, depth: 0.95 },
+            { piece: "trunkBent", x: 856, depth: 0.95 },
+            { piece: "chest", x: 476, depth: 0.42 },
+          ]
+        }
+      ],
+      bossIndex: 1,
+      gauntletIndex: 2,
+      bossBanner: "",
+      clearBanner: "幽暗密林深处 通关！"
     },
+
     sunderland: {
       id: "sunderland",
       code: "sunderland",
@@ -2459,6 +3157,74 @@
    */
   STAGES.mirkwood.dungeon = MIRKWOOD_DUNGEON;
 
+  /*
+   * 幽暗密林深处的副本图（`docs/adr/0059`）。
+   *
+   * 量自 `dnf-dungeon-videos/00002-幽暗密林深处.mp4` 右上角的地图窗口：
+   * **4 列 × 4 行、15 格**——`(3,2)` 是空的（那一格在录像里纯黑，没有图块），
+   * 其余 6 个房间格 + 9 条走廊格。入口 **(1,1)**，Boss **(3,1)**。
+   *
+   * 形状与门位按客户端 `act1.img` 的 18×18 图块对过：`(0,1)` 是 **N+E** 的拐角
+   * （不是死路），`(2,2)` 是 **N+S+W**（没有东门，因为右边是洞）；其余格子按
+   * 图上的直线读。录像的蓝柱只走了中间一列和 Boss，所以两侧 5 个房间格 +
+   * 5 条走廊格是图上可见、录像没进去的——门位从图块读，内容为推断。
+   *
+   * `northX` 录像里没量到明确的上门位置，全部按 0.5（和 mirkwood 的兜底同一条）。
+   */
+  var MIRKWOODDEEP_DUNGEON = {
+    cols: 4,
+    rows: 4,
+    shape: ["RCCR", "CCCR", "RCC.", "RCCR"],
+    entry: [1, 1],
+    boss: [3, 1],
+    entryRoom: 0,
+    bossRoom: 1,
+    northX: {},
+    /*
+     * **录像走过的 7 格钉死**：入口/Boss 由 `entryRoom`/`bossRoom` 钉；
+     * 这里钉 5 条路线走廊到它们量出来的 spec：
+     *   (1,0) 老树回廊 #13、(1,2) 猫妖岔路 #8、(1,3) 宝箱浅沟 #10、
+     *   (2,0) 藤蔓窄道 #12、(2,1) 投掷手坡 #9。
+     * 其余 8 格（5 房 + 3 侧走廊）仍由 `dungeonFor` 按种子洗。
+     */
+    pins: {
+      "1,0": 13,
+      "1,2": 8,
+      "1,3": 10,
+      "2,0": 12,
+      "2,1": 9
+    },
+    links: [
+      /* 上行 */
+      [[0, 0], [1, 0]],
+      [[1, 0], [2, 0]],
+      [[2, 0], [3, 0]],
+      /* 左上角的小环：(0,0) 下来经 (0,1) 回 (1,1) */
+      [[0, 0], [0, 1]],
+      [[0, 1], [1, 1]],
+      /* 中间一列 */
+      [[1, 0], [1, 1]],
+      [[1, 1], [1, 2]],
+      [[1, 2], [1, 3]],
+      /* 第二行到 Boss */
+      [[1, 1], [2, 1]],
+      [[2, 1], [3, 1]],
+      /* 第二列 */
+      [[2, 0], [2, 1]],
+      [[2, 1], [2, 2]],
+      [[2, 2], [2, 3]],
+      /* 第三行 */
+      [[0, 2], [1, 2]],
+      [[1, 2], [2, 2]],
+      /* 下行 */
+      [[0, 3], [1, 3]],
+      [[1, 3], [2, 3]],
+      [[2, 3], [3, 3]]
+    ]
+  };
+
+  STAGES.mirkwooddeep.dungeon = MIRKWOODDEEP_DUNGEON;
+
   /* North, east, south, west - the same bits `assets/import_dnf_minimap.py` uses. */
   var MINIMAP_DIR = { N: 1, E: 2, S: 4, W: 8 };
   /* 一个方向的步长，和它的反面：从哪个门进来，这一格的哪个门就通回去。 */
@@ -2532,9 +3298,18 @@
       });
     });
     var next = layoutRandom(seed ^ 0x5bf03635);
+    /*
+     * **钉死的格子**（`dun.pins`）：录像里走过的 7 格永远拿到它量出来的那间房，
+     * 不参与洗牌。没写 `pins` 的关卡（幽暗密林）完全保持原来的发牌。
+     */
+    var pins = dun.pins || {};
+    var pinned = {};
+    Object.keys(pins).forEach(function (key) {
+      pinned[pins[key]] = true;
+    });
     var deck = { room: [], corr: [] };
     stage.rooms.forEach(function (spec, index) {
-      if (index === dun.entryRoom || index === dun.bossRoom) return;
+      if (index === dun.entryRoom || index === dun.bossRoom || pinned[index]) return;
       deck[spec.kind === "corr" ? "corr" : "room"].push(index);
     });
     Object.keys(deck).forEach(function (kind) {
@@ -2550,6 +3325,8 @@
         cell.room = dun.entryRoom;
       } else if (cell.col === dun.boss[0] && cell.row === dun.boss[1]) {
         cell.room = dun.bossRoom;
+      } else if (pins[cellKey(cell.col, cell.row)] !== undefined) {
+        cell.room = pins[cellKey(cell.col, cell.row)];
       } else {
         cell.room = deck[cell.kind].shift();
       }
@@ -2721,6 +3498,35 @@
    * 两条各用各的空间：第 1 条是地板对地板，第 2 条是画面对画面 —— 拿美术盒子去比地板
    * 那条，会把"站在门口前面的一棵高树"全判成违章（断桩隘口那间房会被掏空）。
    */
+  /**
+   * 一件布景画在屏幕上的矩形（脚底在 `ARENA.groundY - depthLift(z)`）。
+   * 门口净空那条“别把门画糊”和“挪过的件别把箱子盖住”用的是同一个矩形。
+   * 无盒又无美术尺寸的件（不该有）返回 null。
+   */
+  function propArtRect(state, entry, depth) {
+    var box = propBox(entry.piece);
+    var artSize = null;
+    if (box) {
+      artSize = box.ink ? box.ink : [box.width, box.width];
+    } else {
+      artSize = propArtSize(entry.piece);
+      if (!artSize) return null;
+    }
+    var z = entry.depth === undefined ? 0 : entry.depth * depth;
+    var foot = ARENA.groundY - depthLift(z);
+    return {
+      left: entry.x - artSize[0] / 2,
+      right: entry.x + artSize[0] / 2,
+      top: foot - artSize[1],
+      bottom: foot
+    };
+  }
+
+  /** 两个屏幕矩形叠不叠（`propArtRect` 的那一套）。 */
+  function rectOverlap(a, b) {
+    return a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
+  }
+
   function blocksDoorway(state, cell, entry, depth) {
     if (!cell) return false;
     var box = propBox(entry.piece);
@@ -2729,21 +3535,9 @@
      * 从 `PROP_ART` 取（业主 2026-10-17：「有杂草盖住了门口」）。只有地面那一条
      * 需要盒子 —— 无盒件不占身位，地面永远不用查。
      */
-    var artSize = null;
-    if (box) {
-      artSize = box.ink ? box.ink : [box.width, box.width];
-    } else {
-      artSize = propArtSize(entry.piece);
-      if (!artSize) return false;
-    }
+    var art = propArtRect(state, entry, depth);
+    if (!art) return false;
     var z = entry.depth === undefined ? 0 : entry.depth * depth;
-    var foot = ARENA.groundY - depthLift(z);
-    var art = {
-      left: entry.x - artSize[0] / 2,
-      right: entry.x + artSize[0] / 2,
-      top: foot - artSize[1],
-      bottom: foot
-    };
     var floorRect = box ? {
       left: entry.x - box.width / 2,
       right: entry.x + box.width / 2,
@@ -2759,8 +3553,35 @@
             floorRect.near < floor.z[1] && floorRect.far > floor.z[0]) return true;
       }
       var gate = gateArtRect(state, cell, dir);
-      if (art.left < gate.right && art.right > gate.left &&
-          art.top < gate.bottom && art.bottom > gate.top) return true;
+      if (rectOverlap(art, gate)) return true;
+    }
+    return false;
+  }
+
+  /*
+   * **挪过的件别把宝箱/石碑盖在身后。** 业主第三次复看：「箱子好像没有」。查下来不是
+   * 箱子丢了 —— `(1,3)` 的两只都还在（190 / 229），但一只被挪到前面的墙石
+   * （depth 0.85 → 0.24）挡在画面前面。深度排序是**远的先画**，所以只有“候选比箱子
+   * 更靠前（z 更小）”时才可能盖住它；候选在箱子后面就是箱子画在上面，不挡。
+   *
+   * 这条只保**宝箱/石碑**：它们是可打碎的战利品，读不到就是“没有”。树/墙彼此叠在
+   * 一起是森林的常态，不在这里管。宝箱/石碑之间也不互保（两只并排本来就该挨着）。
+   */
+  function coversLoot(state, entry, depth, z, placed) {
+    if (entry.piece === "chest" || entry.piece === "tomb") return false;
+    var art = propArtRect(state, entry, depth);
+    if (!art) return false;
+    for (var index = 0; index < placed.length; index += 1) {
+      var other = placed[index];
+      if (other.piece !== "chest" && other.piece !== "tomb") continue;
+      /* 候选在它后面：它后画，盖不到。 */
+      if (z > other.z + 0.001) continue;
+      var otherArt = propArtRect(state, {
+        piece: other.piece,
+        x: other.x,
+        depth: other.z / depth
+      }, depth);
+      if (otherArt && rectOverlap(art, otherArt)) return true;
     }
     return false;
   }
@@ -2879,7 +3700,14 @@
    */
   var BREAKABLE = {
     /* 盒子照美术来：那个桶画出来是 63x78（`SCENE.pieces.barrel`），桶身比影子窄一点。 */
-    barrel: { width: 52, depth: 34, height: 78, hp: 1, ink: [63, 78] }
+    barrel: { width: 52, depth: 34, height: 78, hp: 1, ink: [63, 78] },
+    /*
+     * 幽暗密林深处 的两件可破坏布景（客户端 `treasurebox.img` / `stonetomb.img`）。
+     * 盒子按美术的 ink 写，再乘 `PROP_SCALE` 落到录像的大小；只有玩家打得碎，
+     * 和木桶同一条规矩。
+     */
+    chest: { width: 80, depth: 30, height: 56, hp: 1, ink: [86, 56] },
+    tomb:  { width: 90, depth: 36, height: 108, hp: 1, ink: [135, 108] }
   };
 
   /*
@@ -2992,14 +3820,23 @@
     bossRays: 1.8
   };
 
+  /**
+   * **是不是领主**：看行为，不只看 type。幽暗密林深处 的 Boss 是
+   * `lugaruBoss`（type 不是 "boss"），但它的行为仍是 `"boss"` —— 通关、
+   * 目标条、死亡光线、白剪影这一整套都认这个行为，不认某一个 type 字符串。
+   */
+  function isBossEnemy(enemy) {
+    return !!enemy && enemy.behavior === "boss";
+  }
+
   /** 这一只死之后先躺多久（Boss 几乎立刻变白）。 */
   function deathLie(enemy) {
-    return enemy && enemy.type === "boss" ? DEATH.bossLie : DEATH.lie;
+    return isBossEnemy(enemy) ? DEATH.bossLie : DEATH.lie;
   }
 
   /** 这一只死了那一片白亮多久（Boss 更大更久）。 */
   function smokeLife(enemy) {
-    return enemy && enemy.type === "boss" ? DEATH.bossSmoke : DEATH.shape;
+    return isBossEnemy(enemy) ? DEATH.bossSmoke : DEATH.shape;
   }
 
   /** A prop is scenery unless its piece is one of these. */
@@ -3062,7 +3899,14 @@
      * **高草换了那一件之后重新量的**（`docs/adr/0050` 追记三）：新那一件是 39x87，
      * 录像里那一撮是 **95x170 视频px**，所以两轴都要缩：横向 0.77、纵向 0.62。
      */
-    grass: [0.77, 0.62]
+    grass: [0.77, 0.62],
+    /*
+     * 宝箱/石碑：宝箱在录像 t≈80s 那一帧两只并排，单只约 130 视频px 宽，
+     * 客户端画布 86 → **0.48**；石碑没有并排样本，按同一档暂取 **0.50**。
+     * 两件都是实玩后可调的摆设，判定跟着这个倍率走（`propBox`）。
+     */
+    chest: 0.48,
+    tomb: 0.50
   };
 
   /** 一件布景的倍率，拆成 `[横向, 纵向]`。 */
@@ -3165,6 +4009,8 @@
       attackHitDone: false,
       comboIndex: 0,
       comboTimer: 0,
+      attackBuffer: 0,
+      jumpBuffer: 0,
       skillId: null,
       skillTimer: 0,
       skillHitDone: false,
@@ -3220,13 +4066,19 @@
     };
   }
 
-  function createEnemy(state, type, x, z) {
+  function createEnemy(state, type, x, z, level) {
     var spec = ENEMY_TYPES[type] || ENEMY_TYPES.grunt;
     var jitter = (nextRandom(state) * 2 - 1) * 14;
     return {
       kind: "enemy",
       id: state.nextEnemyId++,
       type: type,
+      /*
+       * **怪的目标条等级可以逐间覆盖**：同一种哥布林在幽暗密林是 Lv4，在深处
+       * 那块条上写的是 Lv5/6。类型自己的 `level` 只是默认值；房间条目里的
+       * `level` 优先，和 `depth` 一样是这一间房的摆法，不是新兵种。
+       */
+      level: level || spec.level || 1,
       x: clamp(x + jitter, roomLeft(state) + spec.width, roomRight(state) - spec.width),
       y: ARENA.groundY,
       /*
@@ -3279,6 +4131,15 @@
       slam: spec.slam ? Object.assign({}, spec.slam) : null,
       baseSlam: spec.slam ? Object.assign({}, spec.slam) : null,
       slamCooldown: spec.slam ? spec.slam.cooldown * 0.5 : 0,
+      /*
+       * 猫 Boss 的扑击与横扫：和 slam/spin 一样逐只拷一份，半血二阶段只改
+       * 自己的冷却，不碰共享的 ENEMY_TYPES。`lunge` 也允许一阶段就有（牛头
+       * 巨兽把它放在 phase2.lunge 里，所以下面两处都读）。
+       */
+      lunge: spec.lunge ? Object.assign({}, spec.lunge) : null,
+      sweep: spec.sweep ? Object.assign({}, spec.sweep) : null,
+      baseSweep: spec.sweep ? Object.assign({}, spec.sweep) : null,
+      sweepCooldown: spec.sweep ? spec.sweep.cooldown * 0.5 : 0,
       spinDash: spec.spinDash || null,
       spinDir: -1,
       spinCooldown: spec.spinDash ? spec.spinDash.cooldown * 0.4 : 0,
@@ -3503,6 +4364,10 @@
       stage: STAGES[options.stage] || STAGES[DEFAULT_STAGE],
       rngState: 0,
       time: 0,
+      /* 命中停顿的剩余秒数（`docs/adr/0061`）；0 就是世界照常推进。 */
+      hitStop: 0,
+      /* 停顿里按下、等解冻后兑现的技能（`{id, ttl}`）；没有就是 null。 */
+      skillBuffer: null,
       /* 地牢与他在哪一格（`docs/adr/0030`）；一格就是过去的"一间房"。 */
       dungeon: null,
       cell: 0,
@@ -3787,6 +4652,17 @@
      * 量到的差别最大的是高草 —— Boss 房一屏 0–2 丛，别的房间 0–5。
      */
     var perRoom = state.room && state.room.scatter;
+    /*
+     * **路线 6 格要关掉实心/可破坏件的随机撒景**（业主 2026-10-21 的 Q9 选 A）：
+     * 录像里那几件桶/石/树是画出来的，随机撒会立刻长出不存在的件。矮草/花/高草
+     * 的密度随机保留；`solid/barrels/stones` 为 0 的房间只摆手测件。
+     */
+    var solidCount = perRoom && perRoom.solid !== undefined
+      ? perRoom.solid : SCATTER.solid.count;
+    var barrelCount = perRoom && perRoom.barrels !== undefined
+      ? perRoom.barrels : SCATTER.barrels.count;
+    var stonePiles = perRoom && perRoom.stones !== undefined
+      ? perRoom.stones : SCATTER.stones.piles;
     [SCATTER.low, SCATTER.flowers, SCATTER.tall].forEach(function (group) {
       var count = group.count;
       if (perRoom) {
@@ -3808,7 +4684,9 @@
             depth: SCATTER.depthFrom + next() * (SCATTER.depthTo - SCATTER.depthFrom)
           };
           if (!blocksDoorway(state, currentCell(state), spot, depth) &&
-              !blocksDoorLane(state, currentCell(state), spot)) decal = spot;
+              !blocksDoorLane(state, currentCell(state), spot) &&
+              !coversLoot(state, spot, depth, spot.depth * depth,
+                alreadyPlaced.concat(out))) decal = spot;
         }
         if (!decal) continue;
         out.push({
@@ -3835,7 +4713,7 @@
      * （它那个 `while (!victory && seconds < 60)` 在"时间不推进"时是个死循环）。
      * 这里跟手写的那条一个待遇：**换几个位置再试，试不出来就丢**。
      */
-    for (var pile = 0; pile < SCATTER.stones.piles; pile += 1) {
+    for (var pile = 0; pile < stonePiles; pile += 1) {
       var pileX = left + next() * (right - left);
       var pileDepth = SCATTER.stones.from +
         next() * (SCATTER.stones.to - SCATTER.stones.from);
@@ -3855,7 +4733,9 @@
           };
           if (!blocksDoorway(state, currentCell(state), stone, depth) &&
               !blocksDoorLane(state, currentCell(state), stone) &&
-              !overlaps(stone.x, stone.depth * depth, stoneBox)) stoneAt = stone;
+              !overlaps(stone.x, stone.depth * depth, stoneBox) &&
+              !coversLoot(state, stone, depth, stone.depth * depth,
+                alreadyPlaced.concat(out))) stoneAt = stone;
         }
         if (!stoneAt) continue;
         out.push({
@@ -3870,7 +4750,7 @@
         });
       }
     }
-    for (var b = 0; b < SCATTER.barrels.count; b += 1) {
+    for (var b = 0; b < barrelCount; b += 1) {
       var barrelPiece = SCATTER.barrels.pieces[0];
       var barrelBox = propBox(barrelPiece);
       var barrelAt = null;
@@ -3883,7 +4763,9 @@
         };
         if (!blocksDoorway(state, currentCell(state), barrel, depth) &&
             !blocksDoorLane(state, currentCell(state), barrel) &&
-            !overlaps(barrel.x, barrel.depth * depth, barrelBox)) barrelAt = barrel;
+            !overlaps(barrel.x, barrel.depth * depth, barrelBox) &&
+            !coversLoot(state, barrel, depth, barrel.depth * depth,
+              alreadyPlaced.concat(out))) barrelAt = barrel;
       }
       if (!barrelAt) continue;
       out.push({
@@ -3897,7 +4779,7 @@
         brokenAt: -1
       });
     }
-    for (var k = 0; k < SCATTER.solid.count; k += 1) {
+    for (var k = 0; k < solidCount; k += 1) {
       var piece = SCATTER.solid.pieces[Math.floor(next() * SCATTER.solid.pieces.length)];
       var box = propBox(piece);
       var placed = null;
@@ -3909,7 +4791,9 @@
         };
         if (!box || (!blocksDoorway(state, currentCell(state), candidate, depth) &&
             !blocksDoorLane(state, currentCell(state), candidate) &&
-            !overlaps(candidate.x, candidate.depth * depth, box))) {
+            !overlaps(candidate.x, candidate.depth * depth, box) &&
+            !coversLoot(state, candidate, depth, candidate.depth * depth,
+              alreadyPlaced.concat(out)))) {
           placed = candidate;
         }
       }
@@ -3926,6 +4810,87 @@
       });
     }
     return out;
+  }
+
+  /**
+   * 这件布景的**目标位置**合不合法：门框/门拱（`blocksDoorway`）和上下门那一列
+   * （`blocksDoorLane`，只对实心件）。
+   *
+   * **它只管“挪到哪儿”，不管“要不要挪”**：要不要挪看 `blocksDoorway`
+   * （`docs/adr/0059` 追记）。录像里量出来的布景本来就站在上下门那一列里 ——
+   * 那是录像的摆法，玩家绕着走；为了这条给撒景定的规矩把量出来的件推开，
+   * 只会离录像更远。**挪过的那几件**才要求落点离开那一列。
+   */
+  function propSpotBlocked(state, cell, entry, depth) {
+    if (blocksDoorway(state, cell, entry, depth)) return true;
+    return !!propBox(entry.piece) && blocksDoorLane(state, cell, entry);
+  }
+
+  /** 一件实心布景的盒子（x-z）和已摆下的实心件叠不叠 —— 两轴都查。 */
+  function overlapsSolid(list, x, z, box) {
+    for (var index = 0; index < list.length; index += 1) {
+      var other = list[index];
+      if (!other.solid) continue;
+      var otherBox = propBox(other.piece);
+      if (!otherBox) continue;
+      if (Math.abs(x - other.x) < (box.width + otherBox.width) / 2 &&
+          Math.abs(z - other.z) < (box.depth + otherBox.depth) / 2) return true;
+    }
+    return false;
+  }
+
+  /*
+   * **压门布景的最近空位**（`docs/adr/0032` 追记、`docs/adr/0059` 追记）。
+   *
+   * 先在同一深度上横着找：深度不动，画面里的前后关系就不变。那个深度一个合法位置都
+   * 没有，才按 x-z 平面找最近 —— 距离按世界像素算（`DEPTH.scale` 只在画的时候用，
+   * 这里 x 和 z 本来就是同一个单位），所以挪一档深度（约 32 世界px）和横着挪 32px
+   * 是同一个代价。找不到返回 null，调用方丢掉这一件。
+   *
+   * `lane` 说目标位置要不要避开上/下门那一列：先按 `true` 找一遍（能避开就避开），
+   * 找不到再按 `false` 找 —— **让不开也别丢件**，这是 `docs/adr/0059` 追记里的取舍。
+   */
+  function nearestClearPropSpot(state, cell, entry, depth, solids, lane) {
+    var box = propBox(entry.piece);
+    var art = box ? null : propArtSize(entry.piece);
+    var span = box ? box.width / 2 : (art ? art[0] / 2 : 0);
+    var left = roomLeft(state) + span;
+    var right = roomRight(state) - span;
+    var originShare = entry.depth === undefined ? 0 : entry.depth;
+    var originZ = originShare * depth;
+    var STEP = 6;
+    var clearAt = function (x, share, allowCover) {
+      var candidate = { piece: entry.piece, x: x, depth: share };
+      if (lane ? propSpotBlocked(state, cell, candidate, depth)
+               : blocksDoorway(state, cell, candidate, depth)) return false;
+      if (box && overlapsSolid(solids, x, share * depth, box)) return false;
+      return allowCover || !coversLoot(state, candidate, depth, share * depth, solids);
+    };
+    /* 先找不盖宝箱的位置；一个都没有才退回“盖就盖吧，别丢件”。 */
+    for (var pass = 0; pass < 2; pass += 1) {
+      var allowCover = pass === 1;
+      var best = null;
+      for (var x = left; x <= right; x += STEP) {
+        if (!clearAt(x, originShare, allowCover)) continue;
+        if (best === null || Math.abs(x - entry.x) < Math.abs(best - entry.x)) best = x;
+      }
+      if (best !== null) return { x: best, z: originZ };
+      var nearest = null;
+      var nearestScore = Infinity;
+      for (var share = 0; share <= 1.0001; share += 0.04) {
+        var dz = share * depth - originZ;
+        for (var along = left; along <= right; along += STEP) {
+          var dx = along - entry.x;
+          var score = dx * dx + dz * dz;
+          if (score >= nearestScore) continue;
+          if (!clearAt(along, share, allowCover)) continue;
+          nearestScore = score;
+          nearest = { x: along, z: share * depth };
+        }
+      }
+      if (nearest !== null) return nearest;
+    }
+    return null;
   }
 
   function beginRoom(state, entryDoor) {
@@ -3983,14 +4948,14 @@
     var laterWave = [];
     (spec.enemies || []).forEach(function (entry) {
       var z = entry.depth === undefined ? 0 : entry.depth * depth;
-      var item = { type: entry.type, x: entry.x, z: z };
+      var item = { type: entry.type, x: entry.x, z: z, level: entry.level };
       if ((entry.wave || 1) === 2) laterWave.push(item);
       else firstWave.push(item);
     });
     state.enemies = cleared
       ? []
       : firstWave.map(function (entry) {
-          return createEnemy(state, entry.type, entry.x, entry.z);
+          return createEnemy(state, entry.type, entry.x, entry.z, entry.level);
         });
     state.room.pendingWave = cleared ? [] : laterWave;
     state.room.enteredAt = state.time;
@@ -4013,47 +4978,10 @@
      */
     if (!cell.props) {
       var built = [];
-      (spec.props || []).forEach(function (entry) {
-        var z = entry.depth === undefined ? 0 : entry.depth * depth;
-        var box = propBox(entry.piece);
-        /*
-         * 门口净空（`docs/adr/0032`，业主：「门口不能有石头和树木」）：压着门就**先往
-         * 旁边挪**（最近的空位），挪不开才丢掉 —— 直接丢会把一间房掏空一半（断桩隘口
-         * 的树桩正好站在上门那一条上）。
-         *
-         * 挪的位置要同时满足两条：离开**所有**门（判定区 + 门拱美术，`blocksDoorway`），
-         * 也不压到已经摆下的实心件。房间是按种子洗到格子上的，所以这一刀只能落在这儿 ——
-         * 写房间的人不知道它会落在哪一格。
-         *
-         * **贴花也在这套里了**（业主 2026-10-15 实玩：「有的花丛遮挡住门口了」）。
-         * 原来它们不管：判定上确实"不挡人也不挡门"，但**画**上会盖住门拱 ——
-         * 门口那一块是给人认路的，盖住就是盖住了。贴花没有盒子，所以让位时按 0 宽算。
-         */
-        if (blocksDoorway(state, cell, entry, depth)) {
-          var moved = null;
-          var artSize = propArtSize(entry.piece);
-          for (var away = 1; away <= 60 && moved === null; away += 1) {
-            for (var side = -1; side <= 1 && moved === null; side += 2) {
-              /* 挪不动就贴着墙试（最后那几个位置是这么够到的）。 */
-              var span = box ? box.width / 2 : (artSize ? artSize[0] / 2 : 0);
-              var x = clamp(entry.x + side * away * 12,
-                            roomLeft(state) + span,
-                            roomRight(state) - span);
-              if (blocksDoorway(state, cell, { piece: entry.piece, x: x, depth: entry.depth }, depth)) continue;
-              if (box && built.some(function (other) {
-                if (!other.solid) return false;
-                var otherBox = propBox(other.piece);
-                return Math.abs(x - other.x) < (box.width + otherBox.width) / 2;
-              })) continue;
-              moved = x;
-            }
-          }
-          if (moved === null) return;
-          entry = { piece: entry.piece, x: moved, depth: entry.depth };
-        }
-        built.push({
+      var makeProp = function (entry, x, z, box) {
+        return {
           piece: entry.piece,
-          x: entry.x,
+          x: x,
           z: z,
           /* 桶和立着的布景（树、石头）才有盒子；花草贴花没有。碎了的桶只剩美术。 */
           solid: !!box,
@@ -4061,7 +4989,106 @@
           broken: false,
           /* 碎片的钟：从 0 数到 `BREAK_ANIM`，这段时间放那 12 帧。 */
           brokenAt: -1
-        });
+        };
+      };
+      /*
+       * 门口净空（`docs/adr/0032`，业主：「门口不能有石头和树木」）：压着门就**先往
+       * 旁边挪**（最近的空位），挪不开才丢掉 —— 直接丢会把一间房掏空一半（断桩隘口
+       * 的树桩正好站在上门那一条上）。
+       *
+       * 挪的位置要同时满足两条：离开**所有**门（判定区 + 门拱美术，`blocksDoorway`），
+       * 也不压到已经摆下的实心件。房间是按种子洗到格子上的，所以这一刀只能落在这儿 ——
+       * 写房间的人不知道它会落在哪一格。
+       *
+       * **贴花也在这套里了**（业主 2026-10-15 实玩：「有的花丛遮挡住门口了」）。
+       * 原来它们不管：判定上确实"不挡人也不挡门"，但**画**上会盖住门拱 ——
+       * 门口那一块是给人认路的，盖住就是盖住了。贴花没有盒子，所以让位时按 0 宽算。
+       *
+       * **路线格按“最近空位”重摆**（业主 2026-10-22 复看「和参考视频还是存在很大差异」，
+       * `docs/adr/0059` 追记）：旧版只在 x 上 ±12px 一格格试、先左后右，撞到已摆下的
+       * 实心件就再走一格 —— 实测 `(1,1)` 的桶从 121 被推到 706，`(1,3)` 的宝箱从
+       * 120 到 180，还有 8 件直接被丢。现在分三步：
+       *
+       * 1. 不压门的**原样不动**（录像量出来的 x/depth 就是最终位置）；
+       * 2. 压门的按“可用位置最少”的先摆，先在整个房间的同一深度里找离原位最近的合法 x；
+       *    同一深度没有，再按 x-z 平面找最近（深度变化也按世界像素算距离）；
+       * 3. 挪的目标先挑**不盖住宝箱/石碑**的（`coversLoot`，业主：「箱子好像没有」）；
+       *    一个都没有才允许盖；
+       * 4. 整个房间都找不到才丢。
+       *
+       * 实心件之间的让位同时查 x 和 z（旧版只查 x，隔着一整条带子也算撞上，把靠门的
+       * 几件推得更远）。**挪到哪儿**还要避开上/下门那一整列（`blocksDoorLane`，
+       * 2026-10-21 那条“门口那一路别横着实心件”的规矩，和撒景用的是同一条）：
+       * 只有**已经要挪**的件才受它约束 —— 录像里量出来的件本来就站在那一列里，
+       * 那是录像的摆法，为了这条规矩把它们再推开只会离录像更远。
+       */
+      var displaced = [];
+      (spec.props || []).forEach(function (entry) {
+        var share = entry.depth === undefined ? 0 : entry.depth;
+        var box = propBox(entry.piece);
+        if (blocksDoorway(state, cell, entry, depth)) {
+          displaced.push({ entry: entry, share: share, box: box });
+          return;
+        }
+        built.push(makeProp(entry, entry.x, share * depth, box));
+      });
+      /*
+       * 同一深度上有多少个合法 x —— 越少的那件越先摆，免得宽敞的那件把它唯一的位置
+       * 抢走。这一遍先不算“和实心件相撞”，只算门；相撞在真正落位时再筛一次。
+       * 每个 x 记两档：`strict` 连上下门那一列都避开，`relaxed` 只让开门框/门拱。
+       * 排位用 `strict` 的数量；一件严格位子都没有的，用 `relaxed` 的数量算它有多挤。
+       */
+      displaced.forEach(function (item) {
+        var box = item.box;
+        var art = box ? null : propArtSize(item.entry.piece);
+        var span = box ? box.width / 2 : (art ? art[0] / 2 : 0);
+        var left = roomLeft(state) + span;
+        var right = roomRight(state) - span;
+        var strict = [];
+        var relaxed = [];
+        for (var x = left; x <= right; x += 6) {
+          var candidate = { piece: item.entry.piece, x: x, depth: item.share };
+          if (blocksDoorway(state, cell, candidate, depth)) continue;
+          relaxed.push(x);
+          if (!box || !blocksDoorLane(state, cell, candidate)) strict.push(x);
+        }
+        item.strict = strict;
+        item.relaxed = relaxed;
+      });
+      displaced.sort(function (a, b) {
+        /* 宝箱/石碑先落位：挪景物的那几件要看得见它们，才能让开（`coversLoot`）。 */
+        var lootA = a.entry.piece === "chest" || a.entry.piece === "tomb" ? 0 : 1;
+        var lootB = b.entry.piece === "chest" || b.entry.piece === "tomb" ? 0 : 1;
+        var countA = a.strict.length || a.relaxed.length;
+        var countB = b.strict.length || b.relaxed.length;
+        return lootA - lootB || countA - countB || a.entry.x - b.entry.x;
+      });
+      displaced.forEach(function (item) {
+        var box = item.box;
+        var best = function (spots) {
+          for (var pass = 0; pass < 2; pass += 1) {
+            var found = null;
+            for (var index = 0; index < spots.length; index += 1) {
+              var x = spots[index];
+              if (box && overlapsSolid(built, x, item.share * depth, box)) continue;
+              if (pass === 0 && coversLoot(state,
+                  { piece: item.entry.piece, x: x, depth: item.share },
+                  depth, item.share * depth, built)) continue;
+              if (found === null || Math.abs(x - item.entry.x) < Math.abs(found - item.entry.x)) found = x;
+            }
+            if (found !== null) return found;
+          }
+          return null;
+        };
+        var x = best(item.strict);
+        if (x === null) x = best(item.relaxed);
+        var spot = x === null
+          ? nearestClearPropSpot(state, cell, item.entry, depth, built, true)
+          : { x: x, z: item.share * depth };
+        if (!spot) spot = nearestClearPropSpot(state, cell, item.entry, depth, built, false);
+        /* 整个房间（连同换深度）都找不到才丢这一件。 */
+        if (!spot) return;
+        built.push(makeProp(item.entry, spot.x, spot.z, box));
       });
       /*
        * 手写的那几件摆完，再把缺的那批**按种子撒**上去（`SCATTER`）。
@@ -4379,6 +5406,52 @@
     });
   }
 
+  /**
+   * 可破坏布景掉什么（业主 2026-10-21 选 C）：
+   *
+   * - **宝箱**：一件青名物品 + 60–120 金币；
+   * - **石碑**：20–50 金币；
+   * - 两样都**不给经验** —— 经验挂在怪倒下/捡起上，不该让砸石头也能升级。
+   *
+   * 掉落点的哈希仍走 `hash32`（不走 `nextRandom`），所以同一 seed 下宝箱开出的
+   * 东西与位置是确定的，和怪物的掉落互不干扰。
+   */
+  function breakableLootFor(state, prop) {
+    var h = hash32(
+      state.seed ^ 0x6d2b79f5,
+      Math.round(prop.x * 7) + Math.round((prop.z || 0) * 131)
+    );
+    if (prop.piece === "chest") {
+      return {
+        kind: "loot",
+        name: LOOT.cyan[(h >>> 4) % LOOT.cyan.length],
+        tone: "cyan",
+        gold: 60 + ((h >>> 12) % 61),
+        exp: 0,
+        x: prop.x,
+        z: prop.z || 0,
+        life: LOOT.life
+      };
+    }
+    if (prop.piece === "tomb") {
+      return {
+        kind: "gold",
+        name: "金币",
+        tone: "gold",
+        gold: 20 + ((h >>> 12) % 31),
+        x: prop.x,
+        z: prop.z || 0,
+        life: LOOT.life
+      };
+    }
+    return null;
+  }
+
+  function dropBreakableLoot(state, prop) {
+    var drop = breakableLootFor(state, prop);
+    if (drop) state.pickups.push(drop);
+  }
+
   /** 走过去把它收掉：经验、金币、日志三行、原地一行 `+N Exp`（`docs/adr/0042`）。 */
   function collectLoot(state, drop) {
     state.stats.loot += 1;
@@ -4386,19 +5459,31 @@
     /*
      * **经验挂在"捡"上，不挂在"杀"上**（业主 2026-10-14，Q12 选 a）。录像里那三行
      * 日志（`获得[X]1个` / `获得40点经验值` / `获得38金币`）也是同一刻一起出来的。
+     *
+     * 可破坏布景的掉落 `exp` 是 0：那就只写物品与金币两行，不写"获得0点经验值"，
+     * 也不浮 `+0 Exp`。
      */
-    grantXp(state, drop.exp);
     pushLog(state, "获得[" + drop.name + "]1个", drop.tone);
-    pushLog(state, "获得" + drop.exp + "点经验值", "gold");
+    if (drop.exp > 0) {
+      grantXp(state, drop.exp);
+      pushLog(state, "获得" + drop.exp + "点经验值", "gold");
+      state.effects.push({
+        kind: "pickupText",
+        text: "+" + drop.exp + " Exp",
+        x: drop.x,
+        y: ARENA.groundY - depthLift(drop.z || 0) - 18,
+        life: 0.9,
+        maxLife: 0.9
+      });
+    }
     pushLog(state, "获得" + drop.gold + "金币", "gold");
-    state.effects.push({
-      kind: "pickupText",
-      text: "+" + drop.exp + " Exp",
-      x: drop.x,
-      y: ARENA.groundY - depthLift(drop.z || 0) - 18,
-      life: 0.9,
-      maxLife: 0.9
-    });
+  }
+
+  /** 石碑只掉金币：不写物品行、不给经验。 */
+  function collectGold(state, drop) {
+    state.stats.loot += 1;
+    state.stats.gold += drop.gold;
+    pushLog(state, "获得" + drop.gold + "金币", "gold");
   }
 
   function grantXp(state, amount) {
@@ -4510,18 +5595,31 @@
       enemy.slam.cooldown = enemy.baseSlam.cooldown * phase2.slamCooldownScale;
       enemy.slamCooldown = Math.min(enemy.slamCooldown, 0.6);
     }
-    enemy.lungeCooldown = phase2.lunge.cooldown * 0.35;
+    /* 牛头巨兽的二阶段有 lunge；猫妖把它放在一阶段，所以这里可能没有。 */
+    if (phase2.lunge) enemy.lungeCooldown = phase2.lunge.cooldown * 0.35;
+    if (enemy.sweep) enemy.sweepCooldown = Math.min(enemy.sweepCooldown, 0.6);
 
-    /* The transition telegraphs itself: a non-damaging ring plus a banner. */
+    /*
+     * The transition telegraphs itself: a non-damaging ring, a roar, and - only
+     * when the stage actually has something to say - a banner. 幽暗密林深处's
+     * boss banner is the empty string on purpose: the owner chose "speed up,
+     * shorter cooldowns, no words". The ring is gold for the cat (a visible
+     * tell without inventing a line the reference never had).
+     */
+    var phaseRing = enemy.slam ? enemy.slam.radius
+      : enemy.sweep ? enemy.sweep.radius
+      : enemy.attackRange;
     state.effects.push({
       kind: "shockwave",
       x: enemy.x,
       y: ARENA.groundY,
-      radius: enemy.slam ? enemy.slam.radius : enemy.attackRange,
+      radius: phaseRing,
+      gold: enemy.type === "lugaruBoss",
       life: 0.45,
       maxLife: 0.45
     });
-    pushBanner(state, (state.stage && state.stage.bossBanner) || phase2.banner, 1.8);
+    var bannerText = (state.stage && state.stage.bossBanner) || phase2.banner;
+    if (bannerText) pushBanner(state, bannerText, 1.8);
     /* 暴怒那一下自己也要吼一声（`docs/adr/0058`）。 */
     pushSound(state, "bossRoar", {
       type: enemy.type,
@@ -4674,6 +5772,16 @@
     var applied = Math.max(0, Math.round(amount));
     enemy.hp -= applied;
     /*
+     * **普攻命中停一下**（`docs/adr/0061`）：只有他自己挥、且真的打掉了血才停；
+     * 技能/出血/地板火不走这条（它们不传 `opts.hitStop`）。打死的那一下更长一点。
+     */
+    if (slayerSwing && applied > 0 && opts.hitStop) {
+      state.hitStop = Math.max(
+        state.hitStop || 0,
+        enemy.hp <= 0 ? HIT_STOP.kill : opts.hitStop
+      );
+    }
+    /*
      * 活着挨打是一声受击；这一下打死就只出死亡声（`docs/adr/0058`）。
      * **只有他自己挥的那一下才算**：出血 / 地火的 tick 也走这个函数，让它们
      * 每跳一声会把怪叫成一串。
@@ -4706,7 +5814,7 @@
        * 那一帧，正好是他的挥砍弧线第一次打到牛头巨兽、冒出 `10` 的那一帧 ——
        * 不是它登场（它早就跟哥布林一起在场上打了），也不是小怪清完。
        */
-      if (enemy.type === "boss" && !state.bossEngaged) {
+      if (isBossEnemy(enemy) && !state.bossEngaged) {
         state.bossEngaged = { name: enemy.label, at: state.time };
       }
     }
@@ -4804,7 +5912,7 @@
        * 结束特效」）：白剪影和红叉出现的同时，从它身上甩出一组细长的白/红光束。
        * 参考里它们一直亮到白团散掉（约 2 秒），不是 0.7 秒。
        */
-      if (enemy.type === "boss") {
+      if (isBossEnemy(enemy)) {
         state.effects.push({
           kind: "bossrays",
           x: enemy.x,
@@ -4834,7 +5942,7 @@
        * **领主不弹 "Boss down!"**：参考里它倒下那几秒只有光/白团/魂球/肉块，
        * 没有这行大字；目标条上的红叉已经说了它倒下。杂兵仍保留。
        */
-      if (enemy.type !== "boss") pushBanner(state, "Enemy down", 0.9);
+      if (!isBossEnemy(enemy)) pushBanner(state, "Enemy down", 0.9);
       /*
        * **经验改成"捡起来才给"**（业主 2026-10-14，Q12 选 a）：这里只把名牌放到地上，
        * `grantXp` 挪到 `collectLoot` 里 —— 录像里那行 `+40 Exp` 就是名牌被收走那一刻
@@ -5054,6 +6162,17 @@
      * interruption is off.
      */
     var armored = !!(player.skillId && SKILLS[player.skillId] && SKILLS[player.skillId].superArmor);
+    /*
+     * **挨打也停一下**（`docs/adr/0061` 追记）：被打的那一帧世界停 3 帧
+     * （致命那一下 6 帧），让硬直和击退读得出来。霸体不吃 —— 那一招的
+     * 「站住」就是它的全部意义。
+     */
+    if (applied > 0 && !armored) {
+      state.hitStop = Math.max(
+        state.hitStop || 0,
+        player.hp <= 0 ? HIT_STOP.kill : HIT_STOP.hurt
+      );
+    }
     if (!armored) {
       /*
        * 硬直: his own hit recovery, which 血之狂暴 cuts short. It is not 霸体 -
@@ -5064,6 +6183,9 @@
       player.vx = (player.x >= sourceX ? 1 : -1) * PLAYER.knockbackX;
     }
     player.attackTimer = 0;
+    /* 挨打也把记住的那一刀/那一跳清掉：硬直里冒出来不是"连段顺"，是失控。 */
+    player.attackBuffer = 0;
+    player.jumpBuffer = 0;
     /*
      * A hit cuts the cast short - and the fire he had already opened stays on
      * the floor where he opened it (see spawnField). The knockback above is a
@@ -5096,6 +6218,18 @@
     var player = state.player;
     if (player.dead) return;
     var wasOnGround = player.onGround;
+    /*
+     * **挥砍中按下的普攻记到这一刀挥完**（`docs/adr/0061`）。挥的那一下里按下的
+     * 原来会被直接吞掉：玩家按三下的节拍不会刚好落在收招段，读起来就是
+     * 「我明明按了，连段没出来」。记下来，这一刀结束立刻起下一段。
+     */
+    if (input.attack && player.attackTimer > 0 &&
+        player.skillTimer <= 0 && player.hurtTimer <= 0) {
+      player.attackBuffer = PLAYER.attackBuffer;
+    } else if (player.attackBuffer > 0) {
+      player.attackBuffer = Math.max(0, player.attackBuffer - dt);
+    }
+    if (player.jumpBuffer > 0) player.jumpBuffer = Math.max(0, player.jumpBuffer - dt);
 
     var direction = (input.right ? 1 : 0) - (input.left ? 1 : 0);
     var rooted = player.attackTimer > 0 || player.skillTimer > 0 || player.hurtTimer > 0;
@@ -5160,9 +6294,10 @@
       player.vz = depthDirection * depthSpeed() * moveScale;
     }
 
-    if (input.jump && player.onGround && !rooted) {
+    if ((input.jump || player.jumpBuffer > 0) && player.onGround && !rooted) {
       player.vy = PHYSICS.jumpVelocity;
       player.onGround = false;
+      player.jumpBuffer = 0;
       pushSound(state, "playerJump", { x: player.x, z: player.z });
     }
 
@@ -5350,6 +6485,8 @@
       );
       if (!stanceComingDown) player.mp -= skillSpec.mp;
       player.skillId = castSkill;
+      /* 这一下把停顿里记住的技能兑现了。 */
+      state.skillBuffer = null;
       /* 技能语音：起手那一帧一条（`docs/adr/0058`）。 */
       pushSound(state, "playerSkill", {
         skillId: castSkill,
@@ -5399,6 +6536,9 @@
       player.attackHitDone = false;
       player.comboTimer = 0;
       player.comboIndex = 0;
+      /* 放技能就把记住的那一刀/那一跳清掉，别让它在技能结束后自己冒出来。 */
+      player.attackBuffer = 0;
+      player.jumpBuffer = 0;
       player.leapDone = false;
       /* A dive starts falling the moment it is cast, not a frame later. */
       if (skillSpec.dive && !player.onGround) {
@@ -5407,7 +6547,7 @@
         if (skillSpec.diveForward) player.vx = player.facing * skillSpec.diveForward;
       }
     } else if (
-      input.attack &&
+      (input.attack || player.attackBuffer > 0) &&
       player.attackTimer <= 0 &&
       player.skillTimer <= 0 &&
       /*
@@ -5449,6 +6589,8 @@
        */
       player.comboTimer = PLAYER.comboWindow / attackSpeedOf(player);
       player.attackHitDone = false;
+      /* 这一下已经把记住的那一刀兑现了。 */
+      player.attackBuffer = 0;
       /* 普攻语音 + 挥剑声（`docs/adr/0058`）：每一下各一条。 */
       pushSound(state, "playerAttack", {
         stage: player.comboIndex,
@@ -5473,11 +6615,20 @@
           (PLAYER.comboDamage[player.comboIndex] + player.attackBonus) *
             buffScale(player, "attackPower")
         );
+        var stage = player.comboIndex;
         state.enemies.slice().forEach(function (enemy) {
           if (enemy.dead) return;
           if (inReachOf(enemy.z, player.z) && boxesOverlap(box, bodyBox(enemy))) {
             var wasAirborne = !enemy.onGround;
-            damageEnemy(state, enemy, damage, 140, player.x, { juggle: true });
+            damageEnemy(state, enemy, damage, stage === 2 ? 220 : 140, player.x, {
+              juggle: true,
+              /*
+               * **第三下有自己的收尾**（`docs/adr/0061`）：前两下只推开，第三下把人
+               * 打倒。霸体不吃击倒 —— 和 `launch` 同一条（`docs/adr/0018`）。
+               */
+              knockdown: stage === 2 && !enemy.superArmor ? 0.6 : 0,
+              hitStop: HIT_STOP.stage[stage]
+            });
             if (!enemy.dead && wasAirborne) {
               state.stats.airHits += 1;
               player.airHitTimer = 0.6;
@@ -5751,6 +6902,7 @@
                 waveOptions.launch = wave.launch;
                 waveOptions.juggle = true;
               }
+              waveOptions.hitStop = skillHitStop(active, waveHit);
               damageEnemy(state, enemy, waveDamage, wave.knockbackX, player.x, waveOptions);
             }
           });
@@ -5936,6 +7088,8 @@
      */
 
     var wasAirborne = !enemy.onGround;
+    /* 技能命中停一下（`docs/adr/0061` 追记）：表在 `SKILL_HIT_STOP`。 */
+    options.hitStop = skillHitStop(skill, hitIndex);
     damageEnemy(state, enemy, damage, skill.knockbackX, state.player.x, options);
     if (skill.drain && damage > 0) {
       var healed = Math.round(damage * skill.drain);
@@ -6282,10 +7436,30 @@
       return;
     }
 
-    /* Phase-two bosses close the gap with a super-armoured lunge. */
-    var lunge = enemy.phase2 && enemy.phase2.lunge;
+    /*
+     * **暗咒猫妖的横扫**：近距离、身前一颗圆。它和 slam 的区别是圆心不在
+     * 自己脚下，而在身前 `offset` 处；判定在 `advanceEnemyAttack` 里读 `sweep`。
+     * 摆在这里是为了让"贴脸"先吃横扫，再谈扑击。
+     */
+    var sweep = enemy.sweep;
     if (
-      enemy.phase >= 2 &&
+      sweep &&
+      enemy.sweepCooldown <= 0 &&
+      enemy.attackCooldown <= 0 &&
+      gap <= sweep.commit
+    ) {
+      enemy.vx = 0;
+      beginEnemyAttack(state, enemy, "sweep", sweep.windup, sweep.windup + sweep.recovery);
+      pushTelegraph(state, enemy, "SWEEP", sweep.radius, sweep.windup, enemy.facing);
+      return;
+    }
+
+    /*
+     * 扑击：牛头巨兽把它放在二阶段，猫妖把它放在一阶段。两处读同一个形状，
+     * 所以先取 phase2.lunge（只在二阶段有效），再落到类型自己的 `lunge`。
+     */
+    var lunge = (enemy.phase >= 2 && enemy.phase2 && enemy.phase2.lunge) || enemy.lunge;
+    if (
       lunge &&
       enemy.attackCooldown <= 0 &&
       enemy.lungeCooldown <= 0 &&
@@ -6362,6 +7536,33 @@
       return;
     }
 
+    /*
+     * **横扫**：圆心在身前，不是一个贴着自己的盘。玩家站在那颗圆里就吃一下；
+     * 跳起来仍然躲得掉（和 slam 同一条 `onGround` 规则），因为这是一爪扫过
+     * 地面高度的那一片。
+     */
+    if (enemy.attackKind === "sweep") {
+      var sweep = enemy.sweep;
+      if (!sweep) {
+        enemy.attackTimer = 0;
+        return;
+      }
+      if (!enemy.attackHitDone && elapsed >= sweep.windup) {
+        enemy.attackHitDone = true;
+        var sweepX = enemy.x + enemy.facing * sweep.offset;
+        var sweepDz = (player.z || 0) - (enemy.z || 0);
+        var onGround = player.y >= ARENA.groundY - 26;
+        var inSweep = Math.sqrt(Math.pow(player.x - sweepX, 2) + sweepDz * sweepDz) <= sweep.radius;
+        if (!player.dead && onGround && inSweep) {
+          damagePlayer(state, sweep.damage, enemy.x);
+        }
+        enemy.sweepCooldown = sweep.cooldown;
+        enemy.attackCooldown = enemy.attackCooldownMax;
+      }
+      enemy.attackTimer = Math.max(0, enemy.attackTimer - dt);
+      return;
+    }
+
     if (!enemy.attackHitDone && elapsed >= enemy.attackWindup) {
       enemy.attackHitDone = true;
       if (enemy.attackKind === "shoot") {
@@ -6414,6 +7615,7 @@
       enemy.hurtTimer = Math.max(0, enemy.hurtTimer - dt);
       enemy.attackCooldown = Math.max(0, enemy.attackCooldown - dt);
       if (enemy.slam) enemy.slamCooldown = Math.max(0, enemy.slamCooldown - dt);
+      if (enemy.sweep) enemy.sweepCooldown = Math.max(0, enemy.sweepCooldown - dt);
       enemy.spinCooldown = Math.max(0, enemy.spinCooldown - dt);
       enemy.lungeCooldown = Math.max(0, enemy.lungeCooldown - dt);
       enemy.knockdown = Math.max(0, enemy.knockdown - dt);
@@ -6446,6 +7648,26 @@
       }
 
       /*
+       * **第二波从边缘跑进来**（`docs/adr/0037` 追记三）：只跑，不选招；到了
+       * 自己该站的那一格就交给普通 AI。被布景卡住超过 6 秒也放弃进场，免得
+       * 永远站在边缘；被抓住/打倒/挑起来也立刻结束进场。
+       */
+      if (enemy.entering) {
+        var enterDx = enemy.entering.toX - enemy.x;
+        if (Math.abs(enterDx) <= 8 || enemy.entering.time > 6) {
+          enemy.entering = null;
+          enemy.vx = 0;
+        } else if (enemy.grabbed > 0 || enemy.knockdown > 0 || !enemy.onGround) {
+          enemy.entering = null;
+        } else {
+          enemy.facing = enterDx > 0 ? 1 : -1;
+          enemy.vx = enemy.facing * enemy.entering.speed;
+          enemy.vz = 0;
+          enemy.entering.time += dt;
+        }
+      }
+
+      /*
        * Super armour belongs to a live wind-up only. A knockdown, stun or grab
        * zeroes attackTimer mid-attack, so clear it here rather than leaving the
        * boss permanently unstoppable.
@@ -6468,7 +7690,7 @@
         /* Launched, knocked down or stunned enemies cannot act. */
         enemy.vx *= 0.98;
         enemy.vz *= 0.98;
-      } else {
+      } else if (!enemy.entering) {
         chooseEnemyAction(state, enemy, player);
       }
 
@@ -6555,6 +7777,38 @@
    * 不是凭空出现 —— `createEnemy` 的出生点就在边上，`chooseEnemyAction` 会让它们
    * 朝玩家走。
    */
+  /*
+   * **第二波从房间边缘跑进来，不凭空出现在屋子中间**（`docs/adr/0037` 追记三，
+   * 业主 2026-10-22 复看：「会出现有的哥布林突然出现和视频不一样」）。
+   *
+   * 录像里领主房那一批哥布林是从他进来的那扇门（左侧）跑进来的，一只接一只。
+   * 这里按同一个读法：从他进来的侧门那一侧进场；进来的是 N/S 门或者开局没有门，
+   * 就选离它该站的位置最近的一侧。进场时只跑不选招，到了自己该站的那一格才开打；
+   * 被布景挡住超过 6 秒就放弃进场、就地开打（免得永远卡在边缘）。
+   */
+  function spawnWaveEnemy(state, entry) {
+    var spec = ENEMY_TYPES[entry.type] || ENEMY_TYPES.grunt;
+    var left = roomLeft(state);
+    var right = roomRight(state);
+    var side;
+    if (state.entryDoor === "W") side = -1;
+    else if (state.entryDoor === "E") side = 1;
+    else side = entry.x <= left + roomWidth(state) / 2 ? -1 : 1;
+    var spawnX = side < 0 ? left + spec.width : right - spec.width;
+    var toX = clamp(entry.x, left + spec.width, right - spec.width);
+    var enemy = createEnemy(state, entry.type, spawnX, entry.z, entry.level);
+    /* `createEnemy` 会加一个 ±14 的随机抖动；进场要从**边缘**开始，所以钉回去。 */
+    enemy.x = spawnX;
+    enemy.facing = toX >= spawnX ? 1 : -1;
+    enemy.entering = {
+      toX: toX,
+      /* 跑进来比它自己的走速快：录像里这一批是跑进来的，不是散步。 */
+      speed: 200,
+      time: 0
+    };
+    return enemy;
+  }
+
   function updateWaves(state) {
     var room = state.room;
     if (!room || room.cleared || !room.pendingWave || !room.pendingWave.length) return;
@@ -6570,7 +7824,7 @@
     var cap = room.waveCap || 5;
     while (room.pendingWave.length && alive < cap) {
       var entry = room.pendingWave.shift();
-      state.enemies.push(createEnemy(state, entry.type, entry.x, entry.z));
+      state.enemies.push(spawnWaveEnemy(state, entry));
       alive += 1;
       room.waveSpawned = (room.waveSpawned || 0) + 1;
     }
@@ -6592,7 +7846,7 @@
     var boss = null;
     if (bossCell) {
       for (var bi = 0; bi < state.enemies.length; bi += 1) {
-        if (state.enemies[bi].type === "boss") {
+        if (isBossEnemy(state.enemies[bi])) {
           boss = state.enemies[bi];
           break;
         }
@@ -6679,8 +7933,8 @@
         type: enemy.type,
         /* 碎块从**身上**起手，不是从脚底 —— 从脚底起飞读起来像地上冒泡。 */
         height: enemy.height,
-        life: enemy.type === "boss" ? DEATH.bossChunks : DEATH.chunks,
-        maxLife: enemy.type === "boss" ? DEATH.bossChunks : DEATH.chunks
+        life: isBossEnemy(enemy) ? DEATH.bossChunks : DEATH.chunks,
+        maxLife: isBossEnemy(enemy) ? DEATH.bossChunks : DEATH.chunks
       });
     });
     if (!buried) return;
@@ -6783,6 +8037,8 @@
       prop.brokenAt = state.time;
       prop.solid = false;
       state.stats.barrels += 1;
+      /* 木桶不掉东西；宝箱/石碑按业主 2026-10-21 的 Q12 选 C 掉。 */
+      dropBreakableLoot(state, prop);
     });
   }
 
@@ -6793,17 +8049,19 @@
     state.pickups.forEach(function (drop) {
       drop.life -= dt;
       if (drop.life <= 0) return;
-      if (drop.kind === "loot") {
+      if (drop.kind === "loot" || drop.kind === "gold") {
         /*
          * **走过去就收，没有拾取键**（`docs/adr/0042`）：录像里他全程没按过拾取。
          * 半径按**身体间距**量 —— 和"够不够得着"同一把尺子（`CONTEXT.md`「身体间距」），
          * 不是两个中心之间的距离；深度也要在同一档上，不然隔着一排就能隔着捡。
+         * 石碑掉的是 `kind:"gold"`：只有金币，没有物品/经验那两行。
          */
         var onRow =
           Math.abs((player.z || 0) - (drop.z || 0)) <= DEPTH_REACH.melee * SLAYER_HEIGHT;
         if (!player.dead && onRow &&
             Math.abs(player.x - drop.x) <= LOOT.reach + player.width / 2) {
-          collectLoot(state, drop);
+          if (drop.kind === "gold") collectGold(state, drop);
+          else collectLoot(state, drop);
           return;
         }
         remaining.push(drop);
@@ -6940,6 +8198,48 @@
       return;
     }
 
+    /*
+     * **命中停顿**（`docs/adr/0061`）：这一帧世界不推进 —— 他、怪、伤害数字、
+     * 镜头都停在命中那一格。**钟照走**（配速、连段窗口、计时），所以这不是暂停，
+     * 也不该让录像对比的秒数丢帧。
+     */
+    if (state.hitStop > 0) {
+      /*
+       * **停顿里按下的键不丢**（`docs/adr/0061` 追记）：世界停，但输入照收 ——
+       * 普攻记进 `attackBuffer`，技能记进 `skillBuffer`，解冻后的第一步兑现。
+       * 不然玩家（和浏览器机器人）在那 3–7 帧里按的技能会被整个吞掉。
+       */
+      if (state.player && !state.player.dead) {
+        if (input.attack) state.player.attackBuffer = PLAYER.attackBuffer;
+        if (input.jump) state.player.jumpBuffer = PLAYER.jumpBuffer;
+        Object.keys(input.skills).forEach(function (id) {
+          if (input.skills[id]) state.skillBuffer = { id: id, ttl: SKILL_BUFFER };
+        });
+        if (state.skillBuffer) {
+          state.skillBuffer.ttl -= dt;
+          if (state.skillBuffer.ttl <= 0) state.skillBuffer = null;
+        }
+      }
+      state.time += dt;
+      state.hitStop -= dt;
+      /* 浮点余数（0.05 − 3×1/60 ≈ 5e−18）算零，不然会多冻一帧。 */
+      if (state.hitStop < 1e-6) state.hitStop = 0;
+      return state;
+    }
+    /*
+     * **解冻后的第一步兑现停顿里按下的技能**（只兑现一次）：按过的技能不该因为
+     * 那几帧世界不动就从输入里消失。普攻的缓冲由 `updatePlayer` 自己读。
+     */
+    if (state.skillBuffer) {
+      var queuedSkill = state.skillBuffer;
+      if (queuedSkill.ttl <= 0) {
+        state.skillBuffer = null;
+      } else {
+        if (!input.skills[queuedSkill.id]) input.skills[queuedSkill.id] = true;
+        queuedSkill.ttl -= dt;
+      }
+    }
+
     state.time += dt;
     if (state.titleT > 0) state.titleT = Math.max(0, state.titleT - dt);
     /*
@@ -7043,6 +8343,8 @@
     PHYSICS: PHYSICS,
     PLAYER: PLAYER,
     ATTACK_STAGES: ATTACK_STAGES,
+    HIT_STOP: HIT_STOP,
+    SKILL_HIT_STOP: SKILL_HIT_STOP,
     swingDuration: swingDuration,
     attackSpeedOf: attackSpeedOf,
     SKILLS: SKILLS,
@@ -7098,6 +8400,8 @@
     monsterInfo: function (type) {
       return ENEMY_TYPES[type] || null;
     },
+    /* 通关/目标条/死亡特效都认这个行为，不认某个 type 字符串。 */
+    isBossEnemy: isBossEnemy,
     /*
      * 镜头那一组量出来的数（`docs/adr/0035`）。渲染要用 `zoom`，把世界画大；
      * 测试要按 `deadzoneShare` 与 `figure` 复核，所以一起出去。
@@ -7114,6 +8418,7 @@
     PROP_ART: PROP_ART,
     propScale: propScale,
     propArtSize: propArtSize,
+    propArtRect: propArtRect,
     SOLID: SOLID,
     blocksDoorway: blocksDoorway,
     gateArtRect: gateArtRect,

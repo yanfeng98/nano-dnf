@@ -36,11 +36,10 @@ const MIME = {
   ".png": "image/png"
 };
 /*
- * One run is now **~90–100s**: two waves per room and 35 kills. 150s left no
- * room for a slow cloud core, and the documented false red — "touch pass did
- * not finish within 150s" — is exactly this budget expiring on a busy machine.
+ * 跑速降到录像的 1.25 身位/秒之后，一局会比原来长约 60%；220s 已经不够，
+ * 给到 360s。CLAUDE.md 那条"一次一核、慢机器会假红"仍然适用。
  */
-const MAX_SECONDS = 220;
+const MAX_SECONDS = 360;
 
 const SLOT_KEYS = [
   "KeyA",
@@ -195,13 +194,25 @@ function decide(state, constants) {
   }
 
   /*
-   * **领主房里先清小怪，再打领主。** 只按"离得最近"选会在走进领主房时越过那几只
-   * 小怪、一路贴到领主身上，然后被小怪和领主的重击一起夹死（实测 73 秒倒在
-   * 领主房，伤害日志是 boss:melee / boss:slam）。先把杂兵清掉，少挨十几点。
+   * **领主房里先清小怪，但别为了清小怪横穿领主。** 只按"离得最近"选会在走进
+   * 领主房时越过那几只小怪、一路贴到领主身上，然后被小怪和领主的重击一起夹死
+   * （实测 73 秒倒在领主房，伤害日志是 boss:melee / boss:slam）。先把杂兵清掉，
+   * 少挨十几点。
+   *
+   * **但小怪在房间另一头时不能横穿领主去找它**：命中停顿之后实测从西边进领主房、
+   * 小怪在 421/490、领主在 790，bot 一路向左穿过领主，被领主从背后砍到 3 血。
+   * 现在只有小怪不比领主远太多（或领主已经死了）才换目标；否则先打领主，等小怪
+   * 自己走近再换。
    */
   const bossAlive = alive.find((enemy) => enemy.type === "boss");
   const chaffAlive = alive.filter((enemy) => enemy.type !== "boss");
-  const pool = bossAlive && chaffAlive.length ? chaffAlive : alive;
+  const nearestChaff = chaffAlive.slice()
+    .sort((a, b) => Math.abs(a.x - player.x) - Math.abs(b.x - player.x))[0];
+  const chaffIsClose = nearestChaff && (
+    !bossAlive ||
+    Math.abs(nearestChaff.x - player.x) <= Math.abs(bossAlive.x - player.x) + 120
+  );
+  const pool = chaffIsClose ? [nearestChaff] : bossAlive ? [bossAlive] : alive;
   pool.sort((a, b) => Math.abs(a.x - player.x) - Math.abs(b.x - player.x));
   const target = pool[0];
   const delta = target.x - player.x;
@@ -269,6 +280,14 @@ function decide(state, constants) {
     });
     const invuln = finishers.find((skillId) => constants.skills[skillId].invuln);
     /*
+     * 收尾技也只打到面朝那一边；先转身，不然最后 6 血会站着对空气读条。
+     */
+    const facingTarget = delta >= 0 ? player.facing >= 0 : player.facing < 0;
+    if (!facingTarget) {
+      want.add(delta >= 0 ? "right" : "left");
+      return want;
+    }
+    /*
      * **普通近战也换**：他的 0.22 秒一刀比领主的起手快，最后几点血值得抢；
      * 只有冲锋/重踏/旋风这种"站着读条会被撞死"的招才先让给闪避分支。
      */
@@ -289,6 +308,21 @@ function decide(state, constants) {
   if (!threatened && Math.abs(rowGap) > constants.meleeReach) {
     want.add(rowGap > 0 ? "up" : "down");
     if (gap > CLOSING_GAP) want.add(delta > 0 ? "right" : "left");
+    return want;
+  }
+  /*
+   * **够不到的那一排，先走排再打。** 被胆小哥布林追着打时 `threatened` 为真，
+   * 原来 `allChaff` 的「还手」分支不看 rowGap：站错排一刀刀挥空（实测 z 差 97、
+   * 26 秒没掉一滴血），对方每 1.2 秒磨 5 点。杂兵的近战只打自己那一排，先上下
+   * 对齐/让开再还手。冲锋不在此列 —— 它的解法本来就是让开那一排。
+   */
+  if (
+    threatened &&
+    target.type !== "boss" &&
+    target.attackKind !== "charge" &&
+    Math.abs(rowGap) > constants.meleeReach
+  ) {
+    want.add(rowGap > 0 ? "up" : "down");
     return want;
   }
 
@@ -389,12 +423,21 @@ function decide(state, constants) {
       /*
        * 只剩杂兵、而且已经在能够到的那一档：**还手**。站着等它的下一刀只会
        * 被两只杂兵一记接一记磨死（实测第 9 格 4 血时 `want` 是空的）。
+       *
+       * **还手前先转身。** 这个分支在通用的“攻击只打到面朝那一边”检查之前，
+       * 原来直接 `attack`；如果他是从左边冲过了头、怪现在在左手边，他会一直
+       * 朝右挥空——实测会卡满 220s（两只咒之赤哥布林那一间）。
        */
-      want.add("attack");
+      const facingTarget = delta >= 0 ? player.facing >= 0 : player.facing < 0;
+      if (!facingTarget) want.add(delta >= 0 ? "right" : "left");
+      else want.add("attack");
     } else if (cornered) {
       /* Cornered in DNF means launch: 上挑 cancels the wind-up and buys space. */
       const upSlash = constants.skills.upSlash;
-      if (
+      const facingTarget = delta >= 0 ? player.facing >= 0 : player.facing < 0;
+      if (!facingTarget) {
+        want.add(delta >= 0 ? "right" : "left");
+      } else if (
         distance <= upSlash.reach &&
         player.mp >= upSlash.mp &&
         player.skillCooldowns.upSlash <= 0
@@ -993,6 +1036,27 @@ async function runPass(browser, baseUrl, options) {
         return out;
       });
 
+  /*
+   * **防卡死的测试侧让路**（2026-10-21）：实心布景（木桶/树/石头）没有寻路，
+   * 机器人贴到一件布景的侧面上时会一直按深度方向、却动不了，最后在 220s
+   * 超时（实测两间房各一次）。游戏本身不用改：玩家会自己绕；机器人在这里
+   * 连续 90 帧没有位移、又不在出招/受击时，就横向让一步，必要时跳一下。
+   */
+  let lastX = state.player ? state.player.x : 0;
+  let lastZ = state.player ? (state.player.z || 0) : 0;
+  let stillFrames = 0;
+  /*
+   * **打不死/走不动也要让路**：跑速降到 1.25 后，机器人会站在一只怪的错位
+   * 深度上一直按攻击、却一刀不中，或一直按 down 却走不过去（实测卡在胆小
+   * 哥布林前 350s+）。每 60 帧看一次"敌人总血量、命中数、玩家位移"；4 个窗口
+   * 都没变化就强制横向让 1.5 秒。**不按帧重置**，所以 down/attack 交替也逃不掉。
+   */
+  let lastHits = (state.stats && state.stats.hits) || 0;
+  let lastEnemyHp = state.enemies.filter((enemy) => !enemy.dead)
+    .reduce((total, enemy) => total + enemy.hp, 0);
+  let progressFrames = 0;
+  let stuckWindows = 0;
+  let overrideFrames = 0;
   while (!state.victory && !state.defeat) {
     if ((Date.now() - started) / 1000 > MAX_SECONDS) {
       await page.screenshot({ path: path.join(ARTIFACTS, `playability-timeout-${options.mode}.png`) });
@@ -1016,6 +1080,47 @@ async function runPass(browser, baseUrl, options) {
       throw new Error(`${options.mode} pass did not finish within ${MAX_SECONDS}s`);
     }
     const want = decide(state, constants);
+    const player = state.player;
+    const moved = Math.abs(player.x - lastX) + Math.abs((player.z || 0) - lastZ);
+    lastX = player.x;
+    lastZ = player.z || 0;
+    if (
+      moved < 0.5 &&
+      !player.dead &&
+      !player.attackTimer &&
+      !player.skillTimer &&
+      !player.hurtTimer &&
+      state.enemies.some((enemy) => !enemy.dead)
+    ) {
+      stillFrames += 1;
+    } else {
+      stillFrames = 0;
+    }
+    if (stillFrames > 90) {
+      want.clear();
+      want.add(stillFrames % 60 < 30 ? "left" : "right");
+      if (stillFrames % 30 === 0) want.add("jump");
+    }
+    const hitsNow = (state.stats && state.stats.hits) || 0;
+    const enemyHpNow = state.enemies.filter((enemy) => !enemy.dead)
+      .reduce((total, enemy) => total + enemy.hp, 0);
+    progressFrames += 1;
+    if (progressFrames % 60 === 0) {
+      const unchanged = enemyHpNow === lastEnemyHp && hitsNow === lastHits && moved < 2;
+      stuckWindows = unchanged ? stuckWindows + 1 : 0;
+      lastEnemyHp = enemyHpNow;
+      lastHits = hitsNow;
+      if (stuckWindows >= 4) {
+        overrideFrames = 90;
+        stuckWindows = 0;
+      }
+    }
+    if (overrideFrames > 0) {
+      want.clear();
+      want.add(overrideFrames % 60 < 30 ? "left" : "right");
+      if (overrideFrames % 30 === 0) want.add("jump");
+      overrideFrames -= 1;
+    }
 
     /*
      * The clock is `frames` alone. An earlier cut stopped the whole block the

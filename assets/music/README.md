@@ -1,10 +1,11 @@
-# assets/music —— 开始画面 + 这一关的两首曲子
+# assets/music —— 开始画面 + 各关的曲子
 
-**这里要放三个文件**，文件名是写死的（`src/music.js` 的 `TRACKS`）：
+**这里要放四个文件**，文件名是写死的（`src/music.js` 的 `TRACKS`）：
 
     assets/music/intro.ogg            开始画面（标题 / 地区地图 / 进副本过场）
     assets/music/mirkwood.ogg         关卡（幽暗密林）
-    assets/music/mirkwood_boss.ogg    Boss 房
+    assets/music/mirkwood_boss.ogg    Boss 房（幽暗密林）
+    assets/music/forest02.ogg         幽暗密林深处 的 Boss 房
 
 ## 它们从哪儿来
 
@@ -17,6 +18,8 @@
 客户端那边是**无缝循环的源文件**，而且**关卡与 Boss 房是两首**（量出来录像里 Boss 房
 也在换），抠录像只能得到一首。开始画面那一首（`intro.ogg`，1:44.85）是 2026-10-17
 业主说「游戏开始的音乐请你也改掉」之后，同样从客户端 `Music\` 拷进来的。
+`forest02.ogg` 是 2026-10-21 照 `00002-幽暗密林深处.mp4` 的 Boss 段（350–390s）
+做频谱比对选出来的（相关系数 0.78，见 `docs/adr/0059`），同样直接从客户端拷。
 
 ## 在它们到位之前
 
@@ -28,7 +31,7 @@
 
 ## 出处
 
-这两个文件是**客户端自带的原曲**，不是本仓库的作品。它们进版本库是业主 2026-10-12
+这几首是**客户端自带的原曲**，不是本仓库的作品。它们进版本库是业主 2026-10-12
 在 grill 上定的（Q9 选 c：进 git，并在 README 与 ADR 里记明出处）。本仓库早就在提交
 从同一个客户端烘出来的美术（`slayer.png` / `monsters.png` / `forest.png` / `effects.png`），
 音乐与那批图是同一个来路。
