@@ -8480,6 +8480,51 @@ test("the title screen shows the seed record and a clear shows the result", () =
   );
 });
 
+test("the two orbs are capsules flush with the bar's two ends", () => {
+  /*
+   * 2026-10-27 业主实玩反馈「血条和蓝条和框没对齐」：旧版画的是两颗 38×72 的竖椭圆，
+   * 圆心 (146,496)/(814,496)，既比录像的胶囊窄一圈，又比球窝高 4px，还多画了数字。
+   * 录像里它们是竖直胶囊：外框各 91×161 录像px、左右各自贴住底条两端的球窝、
+   * 一直落到画面底边（`ref-13.png`：红 x9..100 / 蓝 x1341..1433，y5..166）。
+   */
+  const orb = Render.HUD_ORB;
+  const bar = { x: 120, y: 456, w: 720, h: 82 };
+  assert.deepEqual(orb.left, { x: 124.5, y: 458, w: 45.5, h: 80 }, "the HP capsule");
+  assert.deepEqual(orb.right, { x: 790, y: 458, w: 45.5, h: 80 }, "the MP capsule");
+  assert.equal(orb.left.x - bar.x, 4.5, "the HP capsule sits in the bar's left socket");
+  assert.equal(
+    bar.x + bar.w - (orb.right.x + orb.right.w),
+    orb.left.x - bar.x,
+    "the MP capsule mirrors it on the right"
+  );
+  assert.equal(orb.left.y + orb.left.h, 538, "both capsules reach the bar's bottom edge");
+  assert.ok(
+    orb.left.w < orb.left.h,
+    `a capsule, not a sphere: ${orb.left.w}x${orb.left.h}`
+  );
+});
+
+test("nothing is printed inside the two orbs", () => {
+  /* 录像里球上没有数字 —— 血量只由液面读（`docs/adr/0064` 补记）。 */
+  const state = Core.createState({ seed: Core.DEFAULT_SEED });
+  state.player.hp = 77;
+  state.player.mp = 33;
+  const calls = [];
+  Render.render(recordingContext(calls), state, {});
+  const inside = (x, y, box) =>
+    x >= box.x && x <= box.x + box.w && y >= box.y && y <= box.y + box.h;
+  const texts = calls.filter((call) => call[0] === "fillText");
+  for (const call of texts) {
+    for (const box of [Render.HUD_ORB.left, Render.HUD_ORB.right]) {
+      assert.equal(
+        inside(call[2], call[3], box),
+        false,
+        `"${call[1]}" is printed inside an orb at ${call[2]},${call[3]}`
+      );
+    }
+  }
+});
+
 test("the coaching line is gone from the HUD", () => {
   const hint = {
     id: "upgrade",

@@ -7610,10 +7610,8 @@
     drawHudFrame(ctx, sprites, HUD_UI.hudBar, 120, 456, 720, 82);
     var maxHp = player.maxHp || 1;
     var maxMp = player.maxMp || 1;
-    drawOrbSprite(ctx, sprites, HUD_UI.orbRed, 146, 496, 19, 36,
-                  (player.hp || maxHp) / maxHp, Math.round(player.hp || maxHp));
-    drawOrbSprite(ctx, sprites, HUD_UI.orbBlue, 814, 496, 20, 36,
-                  (player.mp || maxMp) / maxMp, Math.round(player.mp || maxMp));
+    drawHudOrb(ctx, HUD_ORB.left, (player.hp || maxHp) / maxHp, "#da160f", "#8f0b08");
+    drawHudOrb(ctx, HUD_ORB.right, (player.mp || maxMp) / maxMp, "#0079ed", "#0050ad");
     drawItemSlots(ctx, sprites, 205, 500, 34.6, 36, 0, meta.progress);
     if (meta.state && meta.loadout) {
       drawSkillBar(ctx, meta.state, sprites, meta.loadout, true, false);
@@ -7650,6 +7648,25 @@
   }
 
   /*
+   * **两个球（红 HP / 蓝 MP）的矩形**（`docs/adr/0064` 补记）。
+   *
+   * 录像里它们不是圆球，是**竖直的胶囊**：外框（含金边）各 91×161 录像px，左右两端
+   * 分别贴住底条两端的球窝，一直落到游戏画面底边（2026-10-27 量 `ref-13.png`：
+   * 红 x9..100 / 蓝 x1341..1433，y5..166；液面各 36×69 / 37.5×71）。
+   * 折到本作 720×540（÷2、x+120）就是下面这组数：离底条两端各 4.5，
+   * 底边压在底条下沿 538，内胆比外框缩 4.5 —— 对得上录像那条内胆。
+   *
+   * **客户端这套 HUD 只有圆球窝**（`hud.img` f0 两端是圆形齿圈），录像那版皮肤
+   * 不在客户端里；所以胶囊的金边是本作照录像画的，液体用录像量到的两个色，
+   * 不再用 `mainhud.img` f1/f2 那张 56×56 的圆球（拉伸成胶囊会露出球面的暗边）。
+   * 数字也不画：录像里球上没有数字，血量只由液面读。
+   */
+  var HUD_ORB = {
+    left: { x: 124.5, y: 458, w: 45.5, h: 80 },
+    right: { x: 790, y: 458, w: 45.5, h: 80 }
+  };
+
+  /*
    * **录像 HUD**（`docs/adr/0064`）：左下红/蓝球、物品槽 1–6、任务条、
    * 右下 6+6 紧凑技能槽、左上目标条、右侧常驻评分面板。
    * 玩家卡/房间卡/节奏线/提示都撤掉；球与槽的位置先按录像比例估，
@@ -7658,10 +7675,11 @@
   function drawHudVideo(ctx, state, sprites, meta) {
     var player = state.player;
     /*
-     * 录像坐标（1440×1080，游戏画面内）：红球心 (52,993)、蓝球心 (1388,993)、
-     * 底部 HUD 总带 x0..1440 / y912..1080。**物品与技能是两排不同的东西，
-     * 位置别对调**（2026-10-25 逐帧量 `band-13.png` / `band-316.png`）：
+     * 录像坐标（1440×1080，游戏画面内）：底部 HUD 总带 x0..1440 / y912..1080。
+     * **物品与技能是两排不同的东西，位置别对调**（2026-10-25 逐帧量
+     * `band-13.png` / `band-316.png`）：
      *
+     *   红球/蓝球    x9..100 / x1341..1433   y5..166（竖直胶囊，贴底边）
      *   物品槽 1–6   x170..585   y1000..1072  每格 ≈69×72
      *   中央圆盘     x600..820   y912 以上伸出     C 按钮心 ≈(720, 958)
      *   技能槽 A–H   x860..1295  y1000..1072  每格 ≈72×72
@@ -7671,10 +7689,8 @@
      * 折到本作 720×540（÷2，x 再加窗口左缘 120）就是下面这些数。
      */
     drawHudFrame(ctx, sprites, HUD_UI.hudBar, 120, 456, 720, 82);
-    drawOrbSprite(ctx, sprites, HUD_UI.orbRed, 146, 496, 19, 36,
-                  player.hp / player.maxHp, Math.round(player.hp));
-    drawOrbSprite(ctx, sprites, HUD_UI.orbBlue, 814, 496, 20, 36,
-                  player.mp / player.maxMp, Math.round(player.mp));
+    drawHudOrb(ctx, HUD_ORB.left, player.hp / player.maxHp, "#da160f", "#8f0b08");
+    drawHudOrb(ctx, HUD_ORB.right, player.mp / player.maxMp, "#0079ed", "#0050ad");
     drawItemSlots(ctx, sprites, 205, 500, 34.6, 36, 0, meta.progress);
     /*
      * 中央那张圆盘（C + 雪花/骰子/人像/齿轮）暂时不画：客户端这个版本的
@@ -7729,46 +7745,56 @@
     return true;
   }
 
-  function drawOrbSprite(ctx, sprites, block, cx, cy, rx, ry, share, text) {
-    var sheet = sprites && sprites.hud;
+  /*
+   * **一个球**：外圈金胶囊 → 内胆近黑的空球 → 液面从下往上 → 白点高光。
+   * 几何全在 `HUD_ORB` 里，这里不再收半径/圆心 —— 球的形状与位置是一件事，
+   * 分开传参就是上一次"液面没落在球窝里"的来源。
+   */
+  function drawHudOrb(ctx, box, share, color, dark) {
     var fill = clamp01(share);
+    var pad = 4.5;
+    var r = box.w / 2;
+    var ix = box.x + pad;
+    var iy = box.y + pad;
+    var iw = box.w - 2 * pad;
+    var ih = box.h - 2 * pad;
+    var ir = r - pad;
     ctx.save();
-    ctx.beginPath();
-    ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
-    ctx.fillStyle = "#100b0b";
+    /* 金边：上沿亮、下沿深，录像里那圈窄金框在这个尺寸下只剩明暗两档。 */
+    roundRect(ctx, box.x, box.y, box.w, box.h, r);
+    var frame = ctx.createLinearGradient(box.x, box.y, box.x, box.y + box.h);
+    frame.addColorStop(0, "#f0d9a4");
+    frame.addColorStop(0.35, "#c39a5a");
+    frame.addColorStop(0.75, "#8a6531");
+    frame.addColorStop(1, "#5d431d");
+    ctx.fillStyle = frame;
     ctx.fill();
-    ctx.save();
-    ctx.beginPath();
-    ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
-    ctx.clip();
-    var top = cy + ry - 2 * ry * fill;
-    ctx.beginPath();
-    ctx.rect(cx - rx, top, 2 * rx, 2 * ry);
-    ctx.clip();
-    if (sheet && block && block.frames && block.frames.length) {
-      var r = block.frames[0];
-      ctx.drawImage(sheet, r[0], r[1], r[2], r[3], cx - rx, cy - ry, 2 * rx, 2 * ry);
-    } else {
-      var grad = ctx.createLinearGradient(0, cy - ry, 0, cy + ry);
-      grad.addColorStop(0, "#ff7a6b");
-      grad.addColorStop(1, "#c41414");
-      ctx.fillStyle = grad;
-      ctx.fillRect(cx - rx, cy - ry, 2 * rx, 2 * ry);
-    }
-    ctx.restore();
-    ctx.beginPath();
-    ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
-    ctx.strokeStyle = "rgba(226, 191, 114, 0.9)";
-    ctx.lineWidth = 2.5;
+    ctx.strokeStyle = "rgba(34, 22, 8, 0.9)";
+    ctx.lineWidth = 1;
     ctx.stroke();
-    ctx.beginPath();
-    ctx.ellipse(cx - rx * 0.32, cy - ry * 0.38, rx * 0.30, ry * 0.12, -0.6, 0, Math.PI * 2);
-    ctx.fillStyle = "rgba(255,255,255,0.55)";
+    /* 内胆：空的部分是近黑，液面盖住下半截。 */
+    roundRect(ctx, ix, iy, iw, ih, ir);
+    ctx.fillStyle = "#140e0c";
     ctx.fill();
-    ctx.textAlign = "center";
-    ctx.font = "700 9px 'PingFang SC', 'Segoe UI', sans-serif";
-    ctx.fillStyle = "#f2eadf";
-    ctx.fillText(String(text), cx, cy + ry - 7);
+    ctx.save();
+    roundRect(ctx, ix, iy, iw, ih, ir);
+    ctx.clip();
+    var top = iy + ih * (1 - fill);
+    var liquid = ctx.createLinearGradient(0, top, 0, iy + ih);
+    liquid.addColorStop(0, color);
+    liquid.addColorStop(1, dark);
+    ctx.fillStyle = liquid;
+    ctx.fillRect(ix, top, iw, ih);
+    /* 高光：录像里左上那颗小白点，跟着玻璃走、不跟着液面走。 */
+    ctx.beginPath();
+    ctx.arc(ix + iw * 0.30, iy + ih * 0.16, 2.4, 0, Math.PI * 2);
+    ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
+    ctx.fill();
+    ctx.restore();
+    roundRect(ctx, ix, iy, iw, ih, ir);
+    ctx.strokeStyle = "rgba(0, 0, 0, 0.55)";
+    ctx.lineWidth = 1;
+    ctx.stroke();
     ctx.restore();
   }
 
@@ -9697,6 +9723,8 @@
     PALETTE: PALETTE,
     SPRITE: SPRITE,
     EFFECT: EFFECT,
+    /* 两个球的矩形（`docs/adr/0064` 补记）：位置与形状一件事，测试钉这一组数。 */
+    HUD_ORB: HUD_ORB,
     /* The room's art table, so tests can pin every prop name to a rect. */
     SCENE: SCENE,
     /* The map window's table and its box, so tests can pin both. */
