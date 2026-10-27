@@ -494,67 +494,27 @@
     extras: { hurt: 0, dead: 1, jump: 2, fall: 3 }
   };
 
-  /*
-   * On-screen controls for touch play, laid out in arena coordinates.
-   *
-   * **它们住在黑边里，不压在画面上**（`docs/adr/0040`）。世界收成居中的 4:3 之后，
-   * 画布左右各 120 px 是纯黑 —— 那正是拇指自然落下的地方，而"手指该放哪"是录像
-   * 答不出来的（它没有触屏）。于是两条黑边各归一组：**左边 120 px 全给四向**，
-   * **右边 120 px 全给打**，画面一点没被压住。
-   *
-   * 代价是键变小了：黑边只有 120 宽，原来那对 86 的块塞不进去，所以四向改成
-   * **2×2、每格 56**（2 + 56 + 4 + 56 + 2 = 120），右边的 跳/觉/攻 同样 56。
-   * 56 是设计画布宽度的 5.8% —— 手机上按 `94vw` 缩放之后约 47 CSS px，压在
-   * 44 px 那条最低可点线之上。**具体排法等他实玩再定**（这一片只保证"不压画面"）。
-   */
-  var TOUCH_LAYOUT = [
-    /*
-     * The four-way block: width and depth share one thumb, stacked the way the
-     * floor reads - up goes into the screen, down comes back towards the camera -
-     * so the hand learns one shape instead of four separate keys.
-     */
-    { action: "up", x: 2, y: 356, w: 56, h: 56, label: "↑" },
-    { action: "down", x: 62, y: 356, w: 56, h: 56, label: "↓" },
-    { action: "left", x: 2, y: 416, w: 56, h: 56, label: "←" },
-    { action: "right", x: 62, y: 416, w: 56, h: 56, label: "→" },
-    { action: "jump", x: 842, y: 356, w: 56, h: 56, label: "跳" },
-    { action: "attack", x: 902, y: 416, w: 56, h: 56, label: "攻" },
-    /*
-     * 魔狱血刹's key. It has no hotbar slot to sit in - all twelve are taken and
-     * the bar is two rows of six - so a touch surface needs a button of its own
-     * or the 一觉 is simply unreachable for anyone playing with fingers. It sits
-     * above 攻, on the thumb that already does the fighting.
-     */
-    { action: "skill:hellbenter", x: 902, y: 356, w: 56, h: 56, label: "觉" },
-    /*
-     * The three chrome keys stay on the picture at the top: three of them do not
-     * fit in one 120 px bar. They hang off the **window's** right edge, like the
-     * rest of the HUD, and the map window drops below them (`MINIMAP.touchTop`).
-     */
-    { action: "pause", x: 622, y: 20, w: 62, h: 44, label: "停" },
-    { action: "loadout", x: 692, y: 20, w: 62, h: 44, label: "编" },
-    { action: "mute", x: 762, y: 20, w: 62, h: 44, label: "音" }
-  ];
-
   /* Hotbar: DNF's two rows of six (A S D F G H / Q W E R T Y). */
   var SLOT_COUNT = 12;
   var SLOT_COLS = 6;
-  var BAR = { x: HUD_LEFT + 16, y: ARENA.height - 96, slotW: 104, slotH: 40, gap: 6, rowGap: 6 };
   /*
-   * The touch hotbar hangs off the **window**, centred in it, instead of the
-   * fixed 250 it used to sit at - that number was a leftover from when the whole
-   * 960-wide canvas was picture, and it would now read as off-centre
-   * （`docs/adr/0040`）。Six 56 slots and five 2 gaps make it 346 across.
+   * 录像的底部技能栏是**紧凑方槽**，不是本作原来的长条 + 技能名。
+   * 6 列 × 2 行（A S D F G H / Q W E R T Y），贴在窗口右下角；
+   * 位置先用 40px 槽估，等 HUD 原件量完再按录像px微调。
    */
-  var TOUCH_BAR = {
-    x: HUD_LEFT + (VIEW.width - (SLOT_COLS * 56 + (SLOT_COLS - 1) * 2)) / 2,
-    y: ARENA.height - 118,
-    slotW: 56,
-    slotH: 56,
-    gap: 2,
-    rowGap: 2
+  var BAR = {
+    /*
+     * 录像 A–H 一排在**游戏画面 x860..1295**（band-316.png 逐格量），不是 166；
+     * y1000..1072、每格 ≈72×72。折半后 x430 → 画布 550，格宽 36.25。
+     * 第二排（Q–Y）按条目的 6+6 决定叠在上面，见 `slotButtons`。
+     */
+    x: 120 + 430,
+    y: 540 - 76,
+    slotW: 36.25,
+    slotH: 36,
+    gap: 0,
+    rowGap: 0
   };
-
   function slotButtons(layout) {
     var buttons = [];
     for (var index = 0; index < SLOT_COUNT; index += 1) {
@@ -580,10 +540,6 @@
 
   function skillBarButtons() {
     return slotButtons(BAR);
-  }
-
-  function touchBarButtons() {
-    return slotButtons(TOUCH_BAR);
   }
 
   /* Loadout panel: every skill as a draggable tile, shown while arranging. */
@@ -616,7 +572,7 @@
         }
       }
     }
-    var slots = compact ? touchBarButtons() : skillBarButtons();
+    var slots = skillBarButtons();
     for (var index = 0; index < slots.length; index += 1) {
       var slot = slots[index];
       if (x >= slot.x && x <= slot.x + slot.w && y >= slot.y && y <= slot.y + slot.h) {
@@ -1581,29 +1537,6 @@
     ctx.restore();
   }
 
-  function touchButtons() {
-    return TOUCH_LAYOUT.map(function (entry) {
-      return {
-        action: entry.action,
-        x: entry.x,
-        y: entry.y,
-        w: entry.w,
-        h: entry.h,
-        label: entry.label
-      };
-    });
-  }
-
-  function hitTestTouch(x, y) {
-    for (var i = 0; i < TOUCH_LAYOUT.length; i += 1) {
-      var entry = TOUCH_LAYOUT[i];
-      if (x >= entry.x && x <= entry.x + entry.w && y >= entry.y && y <= entry.y + entry.h) {
-        return entry.action;
-      }
-    }
-    return null;
-  }
-
   function clamp01(value) {
     return Math.max(0, Math.min(1, value));
   }
@@ -1751,6 +1684,18 @@
       trunkBent: [1099, 380, 143, 423],
       trunkMossy: [0, 803, 160, 428],
       treeLeafy: [160, 803, 153, 203],
+      hut: [0, 0, 222, 198],
+      pillarPale: [0, 0, 44, 111],
+      /* Same art as pillarPale, but art-only: no collision / door clearance. */
+      pillarDecor: [0, 0, 44, 111],
+      gateBlock: [0, 0, 157, 198],
+      doorBlock: [157, 0, 73, 132],
+      /*
+       * 清房后门拱上那层符文光（客户端 `granflorisuplight01/02`，蓝/橙两帧），
+       * 画在 `gateBlock` 那张表的右半边（`assets/import_dnf_gate.py`）。
+       */
+      gateLight: [230, 0, 122, 171],
+      gateLight2: [352, 0, 122, 171],
       stump: [313, 803, 105, 199],
       wallStone: [418, 803, 167, 125],
       rockFlat: [585, 803, 141, 89],
@@ -2122,6 +2067,115 @@
     ]},
   };
 
+  /*
+   * 战斗 HUD 的原件表（`assets/import_dnf_hud.py --table`，`docs/adr/0064`）。
+   * 尺寸是客户端自己的，画的时候由 `drawHudFrame` 折到录像矩形。
+   */
+  var HUD_UI = {
+    /* generated by assets/import_dnf_hud.py --table - do not hand-edit */
+    hudBar: { cell: [800, 91], anchor: [0, 1], ink: [0, 0, 800, 91], frames: [
+      [0, 0, 800, 91],
+    ]},
+    orbRed: { cell: [56, 56], anchor: [0, 0], ink: [0, 0, 56, 56], frames: [
+      [800, 0, 56, 56],
+    ]},
+    orbBlue: { cell: [56, 56], anchor: [0, 0], ink: [0, 0, 56, 56], frames: [
+      [856, 0, 56, 56],
+    ]},
+    slotFrame: { cell: [40, 39], anchor: [0, 0], ink: [0, 0, 40, 39], frames: [
+      [912, 0, 40, 39],
+    ]},
+    menu: { cell: [65, 65], anchor: [0, 0], ink: [1, 1, 63, 63], frames: [
+      [952, 0, 65, 65],
+    ]},
+    quest: { cell: [154, 52], anchor: [0, 0], ink: [0, 0, 154, 52], frames: [
+      [1017, 0, 154, 52],
+    ]},
+    chat: { cell: [317, 146], anchor: [0, 0], ink: [0, 0, 317, 146], frames: [
+      [1171, 0, 317, 146],
+    ]},
+  };
+
+  /*
+   * 城镇与 NPC 的原件表（`assets/import_dnf_town.py`，`docs/adr/0065`）。
+   * 城镇套来自 `grenselos`，城门借艾尔文防线；NPC 是 `sprite_map_npc.NPK`。
+   */
+  var TOWN_UI = {
+    pieces: {
+      far: { rect: [0, 0, 640, 219], size: [640, 219], offset: [0, 0] },
+      mid: { rect: [640, 0, 895, 258], size: [895, 258], offset: [0, 40] },
+      tile: { rect: [0, 258, 224, 244], size: [224, 244], offset: [0, 236] },
+      house1: { rect: [224, 258, 229, 217], size: [229, 217], offset: [1, 55] },
+      house2: { rect: [453, 258, 230, 175], size: [230, 175], offset: [1, 92] },
+      house3: { rect: [683, 258, 229, 216], size: [229, 216], offset: [1, 54] },
+      house4: { rect: [912, 258, 294, 223], size: [294, 223], offset: [1, 55] },
+      house5: { rect: [1206, 258, 246, 219], size: [246, 219], offset: [1, 55] },
+      house6: { rect: [0, 502, 324, 228], size: [324, 228], offset: [1, 53] },
+      brleft: { rect: [324, 502, 222, 147], size: [222, 147], offset: [0, 333] },
+      brright: { rect: [546, 502, 222, 164], size: [222, 164], offset: [1, 275] },
+      brrightblock: { rect: [768, 502, 187, 110], size: [187, 110], offset: [1, 185] },
+      wall01: { rect: [955, 502, 224, 81], size: [224, 81], offset: [0, 175] },
+      wall02: { rect: [1179, 502, 224, 81], size: [224, 81], offset: [0, 175] },
+      wallleft: { rect: [1403, 502, 119, 81], size: [119, 81], offset: [0, 175] },
+      wallright: { rect: [0, 730, 129, 81], size: [129, 81], offset: [0, 175] },
+      tree1: { rect: [129, 730, 146, 114], size: [146, 114], offset: [1, 1] },
+      tree2: { rect: [275, 730, 99, 224], size: [99, 224], offset: [1, 1] },
+      pole1: { rect: [374, 730, 60, 189], size: [60, 189], offset: [1, 1] },
+      pole2: { rect: [434, 730, 37, 142], size: [37, 142], offset: [1, 1] },
+      pole3: { rect: [471, 730, 29, 29], size: [29, 29], offset: [1, 1] },
+      sandbag1: { rect: [500, 730, 159, 82], size: [159, 82], offset: [1, 1] },
+      sandbag2: { rect: [659, 730, 151, 77], size: [151, 77], offset: [1, 1] },
+      crate1: { rect: [810, 730, 114, 91], size: [114, 91], offset: [1, 1] },
+      crate2: { rect: [924, 730, 109, 86], size: [109, 86], offset: [1, 1] },
+      gravelLarge: { rect: [1033, 730, 86, 25], size: [86, 25], offset: [1, 1] },
+      gravelMid: { rect: [1119, 730, 69, 15], size: [69, 15], offset: [10, 6] },
+      gravelSmall: { rect: [1188, 730, 45, 9], size: [45, 9], offset: [22, 9] },
+      seriaHouse: { rect: [0, 954, 445, 381], size: [445, 381], offset: [27, 0] },
+      gate: { rect: [445, 954, 170, 121], size: [170, 121], offset: [17, 16] },
+    },
+    runs: {
+      gateDoor: { cell: [183, 77], anchor: [0, 0], frames: [[615, 954, 183, 77], [798, 954, 183, 77], [981, 954, 183, 77], [1164, 954, 183, 77], [1347, 954, 183, 77], [0, 1335, 183, 77], [183, 1335, 183, 77], [366, 1335, 183, 77], [549, 1335, 183, 77], [732, 1335, 183, 77]] },
+      gateLight: { cell: [298, 121], anchor: [0, 0], frames: [[915, 1335, 298, 121], [1213, 1335, 298, 121], [0, 1456, 298, 121], [298, 1456, 298, 121], [596, 1456, 298, 121], [894, 1456, 298, 121], [1192, 1456, 298, 121], [0, 1577, 298, 121], [298, 1577, 298, 121], [596, 1577, 298, 121]] },
+    }
+  };
+  var NPC_UI = {
+    seria: { cell: [62, 143], anchor: [20, 20], frames: [[0, 0, 62, 143], [62, 0, 62, 143], [124, 0, 62, 143], [186, 0, 62, 143], [248, 0, 62, 143], [310, 0, 62, 143]] },
+    minet: { cell: [49, 133], anchor: [28, 28], frames: [[372, 0, 49, 133], [421, 0, 49, 133], [470, 0, 49, 133], [519, 0, 49, 133], [568, 0, 49, 133], [617, 0, 49, 133], [666, 0, 49, 133], [715, 0, 49, 133], [764, 0, 49, 133], [813, 0, 49, 133], [862, 0, 49, 133], [911, 0, 49, 133]] },
+    gsd: { cell: [75, 96], anchor: [5, 3], frames: [[960, 0, 75, 96], [1035, 0, 75, 96], [1110, 0, 75, 96], [1185, 0, 75, 96]] },
+    kanna: { cell: [39, 106], anchor: [35, 69], frames: [[1260, 0, 39, 106], [1299, 0, 39, 106], [1338, 0, 39, 106], [1377, 0, 39, 106], [1416, 0, 39, 106], [1455, 0, 39, 106], [1494, 0, 39, 106], [1533, 0, 39, 106]] },
+    brownie: { cell: [103, 79], anchor: [61, 62], frames: [[0, 143, 103, 79], [103, 143, 103, 79], [206, 143, 103, 79], [309, 143, 103, 79], [412, 143, 103, 79], [515, 143, 103, 79], [618, 143, 103, 79], [721, 143, 103, 79], [824, 143, 103, 79], [927, 143, 103, 79], [1030, 143, 103, 79], [1133, 143, 103, 79], [1236, 143, 103, 79], [1339, 143, 103, 79], [1442, 143, 103, 79], [0, 222, 103, 79], [103, 222, 103, 79], [206, 222, 103, 79], [309, 222, 103, 79], [412, 222, 103, 79], [515, 222, 103, 79], [618, 222, 103, 79], [721, 222, 103, 79], [824, 222, 103, 79], [927, 222, 103, 79], [1030, 222, 103, 79]] },
+    sinda: { cell: [86, 97], anchor: [0, 8], frames: [[1133, 222, 86, 97], [1219, 222, 86, 97], [1305, 222, 86, 97], [1391, 222, 86, 97], [1477, 222, 86, 97], [0, 319, 86, 97], [86, 319, 86, 97], [172, 319, 86, 97], [258, 319, 86, 97], [344, 319, 86, 97], [430, 319, 86, 97], [516, 319, 86, 97], [602, 319, 86, 97], [688, 319, 86, 97], [774, 319, 86, 97]] },
+    guard: { cell: [73, 191], anchor: [67, 12], frames: [[860, 319, 73, 191], [933, 319, 73, 191], [1006, 319, 73, 191], [1079, 319, 73, 191], [1152, 319, 73, 191], [1225, 319, 73, 191], [1298, 319, 73, 191], [1371, 319, 73, 191], [1444, 319, 73, 191], [1517, 319, 73, 191], [0, 510, 73, 191], [73, 510, 73, 191], [146, 510, 73, 191], [219, 510, 73, 191], [292, 510, 73, 191], [365, 510, 73, 191], [438, 510, 73, 191], [511, 510, 73, 191], [584, 510, 73, 191], [657, 510, 73, 191]] },
+    guardCaptain: { cell: [75, 171], anchor: [60, 30], frames: [[730, 510, 75, 171], [805, 510, 75, 171], [880, 510, 75, 171], [955, 510, 75, 171], [1030, 510, 75, 171], [1105, 510, 75, 171], [1180, 510, 75, 171], [1255, 510, 75, 171], [1330, 510, 75, 171], [1405, 510, 75, 171], [1480, 510, 75, 171], [0, 701, 75, 171], [75, 701, 75, 171], [150, 701, 75, 171], [225, 701, 75, 171], [300, 701, 75, 171], [375, 701, 75, 171], [450, 701, 75, 171], [525, 701, 75, 171], [600, 701, 75, 171]] },
+  };
+
+  /* 商店/任务/背包/对话窗与物品图标（`assets/import_dnf_gui.py --table`）。 */
+  var GUI_UI = {
+    shop: { cell: [291, 380], anchor: [0, 0], frames: [[0, 0, 291, 380]] },
+    quest: { cell: [291, 380], anchor: [0, 0], frames: [[291, 0, 291, 380]] },
+    inventory: { cell: [291, 410], anchor: [0, 0], frames: [[582, 0, 291, 410]] },
+    equipment: { cell: [291, 410], anchor: [0, 0], frames: [[873, 0, 291, 410]] },
+    dialog: { cell: [618, 165], anchor: [0, 0], frames: [[0, 410, 618, 165]] },
+    gold: { cell: [17, 21], anchor: [0, 0], frames: [[618, 410, 17, 21]] },
+    chat: { cell: [317, 146], anchor: [0, 0], frames: [[635, 410, 317, 146]] },
+    potion0: { rect: [952, 410, 28, 28], size: [28, 28] },
+    potion1: { rect: [980, 410, 28, 28], size: [28, 28] },
+    potion2: { rect: [1008, 410, 28, 28], size: [28, 28] },
+    potion3: { rect: [1036, 410, 28, 28], size: [28, 28] },
+    mat0: { rect: [1064, 410, 28, 28], size: [28, 28] },
+    mat1: { rect: [1092, 410, 28, 28], size: [28, 28] },
+    weapon0: { rect: [1120, 410, 28, 28], size: [28, 28] }
+  };
+
+  function drawGuiWindow(ctx, sprites, name, x, y, w, h) {
+    var sheet = sprites && sprites.gui;
+    var block = GUI_UI[name];
+    if (!sheet || !block || !block.frames || !block.frames.length) return false;
+    var r = block.frames[0];
+    ctx.drawImage(sheet, r[0], r[1], r[2], r[3], x, y, w, h);
+    return true;
+  }
+
   var MINIMAP = {
     tile: 18,
     /*
@@ -2135,7 +2189,6 @@
     /* Right and top margins, matching the rest of this game's HUD. */
     margin: 16,
     top: 14,
-    /* In touch mode the top-right corner holds the mute/loadout/pause buttons. */
     touchTop: 74,
     /*
      * The window is not drawn by hand: it is the client's own panel as a
@@ -2564,14 +2617,6 @@
    * plus those - not a padding of our choosing.
    */
   /** Where the touch row along the top starts, so the HUD can stay off it. */
-  function touchTopLeft() {
-    var left = ARENA.width;
-    TOUCH_LAYOUT.forEach(function (button) {
-      if (button.y < 100 && button.x < left) left = button.x;
-    });
-    return left;
-  }
-
   /** How wide the window is, the frame included - the HUD lays out around it. */
   function minimapWidth(cols) {
     var columns = cols || MINIMAP.cols;
@@ -2665,16 +2710,25 @@
     return 1 - DEPTH_SIZE * Math.max(0, Math.min(1, zShare));
   }
 
-  function drawScenePiece(ctx, sprites, name, x, bottom, zShare) {
-    var sheet = sprites && sprites.forest;
+  function drawScenePiece(ctx, sprites, name, x, bottom, zShare, scaleOverride) {
+    var sheet = name === "hut" ? sprites && sprites.hut
+      : name === "pillarPale" || name === "pillarDecor"
+        ? sprites && sprites.pillarPale
+        : name === "gateBlock" || name === "doorBlock" ||
+          name === "gateLight" || name === "gateLight2"
+          ? sprites && sprites.gateBlock
+          : sprites && sprites.forest;
     var rect = sceneRect(name);
     if (!sheet || !rect) return false;
     /*
      * **画的尺寸乘那一件的倍率**（`Core.propScale`，`docs/adr/0050`）：
      * 烘出来的是客户端的**原始像素**，而录像里每一件按自己的倍率画。底边仍是落点，
      * 所以缩了之后还是"站在那儿"。
+     *
+     * `scaleOverride` 给**逐件量过倍率的布景**用（背景石门，`docs/adr/0063`）：
+     * 同一件美术在不同房里被拉成不同比例，一张按名字的表装不下。
      */
-    var scale = Core.propScale ? Core.propScale(name) : [1, 1];
+    var scale = scaleOverride || (Core.propScale ? Core.propScale(name) : [1, 1]);
     var near = depthSize(zShare);
     var w = rect[2] * scale[0] * near;
     var h = rect[3] * scale[1] * near;
@@ -2794,14 +2848,20 @@
      */
     var band = state.band || Core.BAND;
     var backY = band.backY;
-    var groundTop = backY - SCENE.groundLift;
+    /*
+     * **可走带与可见草带分开**（`docs/adr/0063`）：幽暗密林深处把可走深度收到
+     * 37px，但草地/树根线仍从录像的 `visualBackY 320` 开始画。没有这个量时，
+     * 两层仍用同一个 `backY`（幽暗密林没有变）。
+     */
+    var visualBackY = band.visualBackY === undefined ? backY : band.visualBackY;
+    var groundTop = visualBackY - SCENE.groundLift;
     var width = worldWidth(state);
 
-    var sky = ctx.createLinearGradient(0, 0, 0, backY);
+    var sky = ctx.createLinearGradient(0, 0, 0, visualBackY);
     sky.addColorStop(0, PALETTE.skyTop);
     sky.addColorStop(1, PALETTE.skyMid);
     ctx.fillStyle = sky;
-    ctx.fillRect(0, 0, width, backY);
+    ctx.fillRect(0, 0, width, visualBackY);
 
     /*
      * **远景钉在屏幕上，不跟着房间滚。**
@@ -2813,13 +2873,36 @@
      */
     ctx.save();
     ctx.translate(cameraX(state), 0);
-    var farDrawn = drawSceneStrip(ctx, sprites, "far", backY, width);
+    var farDrawn = drawSceneStrip(ctx, sprites, "far", visualBackY, width);
     ctx.restore();
     if (!farDrawn) {
       drawStoneBackdrop(ctx, state);
       return;
     }
-    drawSceneStrip(ctx, sprites, "mid", backY + SCENE.midLift, width);
+    drawSceneStrip(ctx, sprites, "mid", visualBackY + SCENE.midLift, width);
+    /*
+     * **上沿那排圆树冠。** 录像每一间的上沿 60–160 都压着一层阔叶树冠
+     * （`02obj300` 这一类站着的树），mid 层里只有裸树干、没有冠 —— 少了这层，
+     * 背景读起来就是"一排切了头的柱子"。冠按房间宽度平铺，间距/大小用两个固定
+     * 的素数错开，同一间房每次进门都一样；它画在背景那一趟，永远在布景和人后面。
+     */
+    if (state.stage && (state.stage.id === "mirkwood" || state.stage.id === "mirkwooddeep")) {
+      /*
+       * 间距/大小是照着录像那一条"连续树冠带"定的：树冠要**互相压住**才连成
+       * 一条带，稀疏的一排读起来还是柱子。间距 95 世界px、冠的倍率 0.95–1.04，
+       * 两个数都用素数错开，同一间房每次进门一模一样。
+       */
+      for (var cx = 10; cx < width + 120; cx += 88) {
+        var jitter = ((cx * 37) % 41) - 20;
+        var crownScale = 0.78 + ((cx * 17) % 23) / 160;
+        ctx.save();
+        ctx.globalAlpha = 1;
+        ctx.translate(cx + jitter, visualBackY + 8);
+        ctx.scale(crownScale, crownScale);
+        drawScenePiece(ctx, sprites, "treeLeafy", 0, 0, undefined, [1, 1]);
+        ctx.restore();
+      }
+    }
 
     /*
      * 地面条顶上的缺口：**mid 自己的草裙**（`SCENE.midSkirt`，量出来的 63 行）。
@@ -3015,8 +3098,30 @@
     S: { piece: "gateDown", door: "doorDown" }
   };
 
+  /*
+   * **下门（南门）的底边落在世界 y 482**（`Core.GATE_DOWN`，画法与门口净空共用）。
+   *
+   * 量的：录像 106s 帧那道石拱拱顶在**画布 413**（游戏 y 827），本作那一件
+   * 192x118 按 0.533 画出来高 99 画布px → 底边画布 512 → 反算世界 y
+   * `430 + (512 - 430) ÷ 1.5775 ≈ 482`。技能栏从画布 456 起，所以拱顶露出 43px，
+   * 其余压在栏底下 —— 和录像一样。
+   *
+   * **不能写 `ARENA.height`（540）**：世界那一趟纵向是按 `CAMERA.zoom` 以地面线
+   * 为轴拉开的，540 会落到画布 603 —— 整扇在画布外面。早先那一版就是写 540，
+   * 于是录像底部那道拱在本作一次都没出现（2026-10-26 修）。
+   */
+  var GATE_DOWN_BOTTOM = Core.GATE_DOWN.bottom;
+
   /** 一块门口美术：左右两个方向共用同一副侧门（它的样子本来就是对称的）。 */
-  function gateShape(dir) {
+  function gateShape(state, dir) {
+    /*
+     * 深处用录像里那套**石块框 + 铁栅**（`granflorisupgate02`/`updoor02`），
+     * 不是 `sidegate02` 的符文侧拱；其余关卡仍用原侧拱。
+     */
+    if (state && state.stage && state.stage.id === "mirkwooddeep" &&
+        (dir === "E" || dir === "W")) {
+      return { piece: "gateBlock", door: "doorBlock", stand: 10, height: 2 };
+    }
     return dir === "E" || dir === "W" ? GATE.side : GATE[dir];
   }
 
@@ -3030,13 +3135,12 @@
     var x = Core.doorX(state, cell, dir);
     if (dir === "N") return { x: x, bottom: floorY(Core.bandDepth(state.band)) + 6 };
     /*
-     * 南门（下门）**压在技能栏底下**：本站地面线 430、技能栏从 444 起，门前那片
-     * "观众这一侧"只有 14 px，而客户端那扇下门有 118 px 高。所以它只画**拱顶那一条**
-     * 露在技能栏上面（底边落在画面底、顶边 540-118=422，露 22 px）—— 够读"这儿有门"，
-     * 又不至于盖住走位的地面。清完房另外在地上加一圈光（`drawGateHalo` 的落点跟着改），
+     * 南门（下门）**压在技能栏底下**：底边落在 `GATE_DOWN_BOTTOM`（世界 482，
+     * 画布 512），拱顶在画布 413 —— 只露拱顶那条在技能栏（456）上面，和录像一致。
+     * 清完房另外在地上加一圈光（`drawGateHalo` 的落点跟着改），
      * 因为这一扇没有"门框左右"可以靠。
      */
-    return { x: x, bottom: ARENA.height, floorGlow: true };
+    return { x: x, bottom: GATE_DOWN_BOTTOM, floorGlow: true };
   }
 
   /**
@@ -3046,6 +3150,18 @@
    * "现在能出去了"的东西，所以留着；拦门板反过来是客户端的（`granfloris*sidedoor02`），
    * 录像里没清的房间拱门里就插着它。
    */
+  /** 他是不是已经站进这扇门的门口那一块（决定画栅栏还是画符文光）。 */
+  function inDoorway(state, dir, spot) {
+    var player = state.player;
+    if (!player || player.dead) return false;
+    if (dir === "E" || dir === "W") {
+      return Math.abs(player.x - spot.x) < 80;
+    }
+    var doorZ = dir === "N" ? Core.bandDepth(state.band) : 0;
+    return Math.abs((player.z || 0) - doorZ) < 70 &&
+      Math.abs(player.x - spot.x) < Core.DOOR.span;
+  }
+
   function drawGate(ctx, state, sprites) {
     if (!sprites || !sprites.forest) {
       drawFallbackGate(ctx, state);
@@ -3054,8 +3170,21 @@
     Core.MINIMAP_DIRS.forEach(function (dir) {
       var spot = gateSpot(state, dir);
       if (!spot) return;
-      var shape = gateShape(dir);
+      var shape = gateShape(state, dir);
       var open = Core.exitMode(state, dir) === "open";
+      /*
+       * **上/下门从进门那一刻就画着；左右门仍然清完房才出现**（2026-10-27 逐帧）。
+       *
+       * 155s 帧（23 房）房里还有活着的哥布林，顶上门拱已经立在那儿了 —— 所以
+       * 上/下门不看清房状态。左右门反过来：106s 帧（33 房，已清）左边墙上是木桶
+       * 不是门，而录像里那两间房从头到尾没在左右墙上出现过门；13s/22s 的 41 房
+       * 那扇东门也是**走进视野**才看见的（房宽 560，镜头贴左墙时它在窗口外）。
+       * 所以左右门维持旧规矩（`exitMode` 能走才算），只在清完房后随光出现。
+       */
+      if (state.stage && state.stage.id === "mirkwooddeep" &&
+          !open && dir !== "N" && dir !== "S") {
+        return;
+      }
       var mirror = dir === "W";
       var rect = sceneRect(shape.piece);
       if (!rect) return;
@@ -3068,29 +3197,59 @@
         drawGateHalo(ctx, spot.x, glowY, spot.floorGlow ? 150 : rect[3]);
       }
       ctx.save();
-      /* 没清房的门暗一档：光说了"能走"，暗就说了"还不能走"。 */
-      if (!open) ctx.globalAlpha = 0.72;
-      drawDoorPiece(ctx, sprites, shape.piece, spot.x, spot.bottom, mirror);
+      /*
+       * 没清房的门暗一档：光说了"能走"，暗就说了"还不能走"。
+       * **深处上/下门不暗**：155s 帧那道还没开的上门就是正常亮度，它本来就从进门
+       * 那一刻立在录像里，不是"锁着"才画出来的部件。
+       */
+      var deepStage = state.stage && state.stage.id === "mirkwooddeep";
+      if (!open && !(deepStage && (dir === "N" || dir === "S"))) ctx.globalAlpha = 0.72;
+      drawDoorPiece(ctx, sprites, shape.piece, spot.x, spot.bottom, mirror, shape.scale);
       ctx.restore();
-      if (open) return;
+      if (open) {
+        /*
+         * **门的两种样子**（2026-10-26 照录像定）：
+         * - 没清房，哪怕是人刚进来的那扇门，也是**带铁栅**的（42 房 27/30s）；
+         * - 清房之后**仍是铁栅**，直到他走到门口那一块（41 房 24s 是栅栏）；
+         * - 走进去的那一下才亮成**蓝符文**（33 房 147s）。
+         * 所以亮 = 这一格清了 且 他站在门口；其余时候都是栅栏。
+         * 只用蓝色那一帧（`granflorisuplight01`），橙色整场没出现过。
+         */
+        var cell = Core.currentCell(state);
+        var lit = deepStage && cell && cell.cleared && inDoorway(state, dir, spot);
+        if (lit) {
+          var pulse = 0.62 + 0.2 * (0.5 + 0.5 * Math.sin((state.time || 0) * 3.2));
+          ctx.save();
+          ctx.globalCompositeOperation = "lighter";
+          ctx.globalAlpha = pulse;
+          drawDoorPiece(ctx, sprites, "gateLight", spot.x, spot.bottom, mirror, shape.scale);
+          ctx.restore();
+        } else {
+          ctx.save();
+          ctx.globalAlpha = 0.85;
+          drawDoorPiece(ctx, sprites, shape.door, spot.x, spot.bottom, mirror, shape.scale);
+          ctx.restore();
+        }
+        return;
+      }
       /* 没清房：拱门里插着那扇拦着的门板。 */
       ctx.save();
       ctx.globalAlpha = 0.85;
-      drawDoorPiece(ctx, sprites, shape.door, spot.x, spot.bottom, mirror);
+      drawDoorPiece(ctx, sprites, shape.door, spot.x, spot.bottom, mirror, shape.scale);
       ctx.restore();
     });
   }
 
   /** 一块门口美术，摆在 x 上、底边落在 `bottom`；`mirror` 是给西侧门用的。 */
-  function drawDoorPiece(ctx, sprites, name, x, bottom, mirror) {
+  function drawDoorPiece(ctx, sprites, name, x, bottom, mirror, scale) {
     if (!mirror) {
-      drawScenePiece(ctx, sprites, name, x, bottom);
+      drawScenePiece(ctx, sprites, name, x, bottom, undefined, scale);
       return;
     }
     ctx.save();
     ctx.translate(x, 0);
     ctx.scale(-1, 1);
-    drawScenePiece(ctx, sprites, name, 0, bottom);
+    drawScenePiece(ctx, sprites, name, 0, bottom, undefined, scale);
     ctx.restore();
   }
 
@@ -3140,6 +3299,69 @@
    * 外加一道横在脖子/胸口位置的金色横光。这里用加色混合画，0.7 秒淡出；
    * 角度/长度由尸体 id 定死，同一具 Boss 每次一样。
    */
+  /**
+   * 深处领主的死亡：一次紫白爆光（录像 384.83–385.00s），没有白剪影/碎块/魂球。
+   * 它不是 `deathburst`：后者会去拿 `chunk_*` 与魂球，那些是牛头巨兽那套。
+   */
+  function drawBossBurst(ctx, effect, alpha) {
+    var fade = clamp01(alpha);
+    var age = 1 - fade;
+    var cx = effect.x;
+    var cy = floorY(effect.z || 0) - (effect.height || 28) * 0.6;
+    var r = 8 + age * 46;
+    ctx.save();
+    ctx.globalAlpha = fade;
+    var glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+    glow.addColorStop(0, "rgba(255,255,255,0.95)");
+    glow.addColorStop(0.35, "rgba(235,160,255,0.75)");
+    glow.addColorStop(1, "rgba(120,40,160,0)");
+    ctx.fillStyle = glow;
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = "rgba(255,230,255,0.85)";
+    ctx.lineWidth = 1.6;
+    for (var i = 0; i < 8; i += 1) {
+      var angle = (i * Math.PI) / 4 + age * 0.35;
+      ctx.beginPath();
+      ctx.moveTo(cx + Math.cos(angle) * r * 0.25, cy + Math.sin(angle) * r * 0.25);
+      ctx.lineTo(cx + Math.cos(angle) * r * 1.35, cy + Math.sin(angle) * r * 1.35);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  /**
+   * 低血交叉光束（录像 381–385s）：几条粉白/红的横光，横穿整个房间；
+   * 起手结束后亮 `duration` 秒。它不是 `bossrays`——那是牛头死时的收束光线。
+   */
+  function drawBossBeam(ctx, state, effect, alpha) {
+    var fade = clamp01(alpha);
+    var width = worldWidth(state);
+    var baseY = floorY(effect.z || 0) - (effect.height || 28) * 0.55;
+    var count = effect.beams || 5;
+    ctx.save();
+    ctx.globalAlpha = fade * 0.9;
+    for (var i = 0; i < count; i += 1) {
+      var offset = (i - (count - 1) / 2) * 11;
+      var y = baseY + offset;
+      var lean = (i % 2 === 0 ? 1 : -1) * 10;
+      var grad = ctx.createLinearGradient(0, y, width, y + lean);
+      grad.addColorStop(0, "rgba(255,120,220,0)");
+      grad.addColorStop(0.15, "rgba(255,150,230,0.75)");
+      grad.addColorStop(0.5, "rgba(255,255,255,0.95)");
+      grad.addColorStop(0.85, "rgba(255,150,230,0.75)");
+      grad.addColorStop(1, "rgba(255,120,220,0)");
+      ctx.strokeStyle = grad;
+      ctx.lineWidth = 2.2;
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(width, y + lean);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
   function drawBossRays(ctx, effect, alpha) {
     var fade = clamp01(alpha);
     var h = effect.height || 168;
@@ -3720,10 +3942,16 @@
    * 所以它跟房名牌走同一个办法 —— 把世界那一趟的变换原地倒退回去。
    */
   /*
-   * 画在窗口横向正中、画布纵向 305 处 —— 量自录像：那一块字的中心在 x 955 ≈
-   * 游戏画面中心 959.5，两行 y 548..671 的重心在 610 视频px（画布 305）。
+   * 画在窗口横向正中、**屏幕上**纵向 295 —— 量自 00002 的 13s 帧：两行字
+   * `幽暗密林深处` + `Gran-Floris 格兰之森` 占视频 y530..650（画布 265..325，
+   * 重心 295），横向中心在画面正中。
+   *
+   * 注意这个 `y` 走的是**世界那一趟的变换**（`drawStageTitle` 里把缩放绕
+   * `groundY` 倒退回去），所以屏幕 y = groundY + (y - groundY) / zoom。
+   * 要让屏幕上落在 295，这里要写反算出来的 **217**，不是 295 —— 早先写 305
+   * 画出来落在 351，整块字比录像低了 56 画布 px。
    */
-  var TITLE_POS = { x: 0.5, y: 305 };
+  var TITLE_POS = { x: 0.5, y: 217 };
 
   function drawStageTitle(ctx, state, sprites) {
     if (!state.titleT || state.titleT <= 0) return;
@@ -4490,7 +4718,7 @@
      * 分不出这是"两个颜色"还是"同一个半透明的字压在两种背景上"（Boss 站在自己的红气里），
      * 所以这里取**一个**色，写成 `MONSTER_NAME.fill` 一个数 —— 要分色，改一处。
      */
-    drawMonsterName(ctx, enemy);
+    drawMonsterName(ctx, state, enemy);
     return true;
   }
 
@@ -4507,12 +4735,16 @@
     anonymous: "grunt"
   };
 
-  function drawMonsterName(ctx, enemy) {
+  function drawMonsterName(ctx, state, enemy) {
     /*
-     * **领主头顶不写字**（业主 2026-10-21）：它的名字只在左上角目标条上。
-     * 普通有名字的怪仍保留头顶名条。
+     * **普通怪头顶不写名字**（录像 30s / 330s 都没有）：只有领主在成为
+     * `state.target` 时浮出名字（`docs/adr/0064` 改写 `0060`）。
+     * 目标条仍然显示每一只当前目标的名字。
      */
-    if (enemy.type === MONSTER_NAME.anonymous || enemy.dead || Core.isBossEnemy(enemy)) return;
+    if (enemy.dead) return;
+    var boss = Core.isBossEnemy(enemy);
+    if (!boss) return;
+    if (!state.target || state.target.enemy !== enemy) return;
     var info = Core.monsterInfo(enemy.type);
     if (!info) return;
     ctx.save();
@@ -4522,8 +4754,24 @@
     ctx.strokeStyle = "rgba(24, 4, 32, 0.92)";
     var y = feetY(enemy) - enemy.height - MONSTER_NAME.lift;
     ctx.strokeText(info.label, enemy.x, y);
-    ctx.fillStyle = MONSTER_NAME.fill;
+    ctx.fillStyle = boss ? "#DD04C3" : MONSTER_NAME.fill;
     ctx.fillText(info.label, enemy.x, y);
+    ctx.restore();
+  }
+
+  function drawPlayerName(ctx, state) {
+    var player = state.player;
+    if (!player || player.dead) return;
+    ctx.save();
+    ctx.font = MONSTER_NAME.font;
+    ctx.textAlign = "center";
+    ctx.lineWidth = Math.max(1, 2.5 * Core.VIDEO_PX);
+    ctx.strokeStyle = "rgba(24, 4, 32, 0.92)";
+    var y = feetY(player) - (player.height || 84) - MONSTER_NAME.lift;
+    var text = "Lv." + player.level + " 鬼剑士";
+    ctx.strokeText(text, player.x, y);
+    ctx.fillStyle = "#e6eef8";
+    ctx.fillText(text, player.x, y);
     ctx.restore();
   }
 
@@ -4607,7 +4855,9 @@
       ctx.restore();
     }
 
-    if (enemy.attackTimer > 0) {
+    /* 录像里没有这圈红色预警；深处的出招提示只留音效，不画环。 */
+    if (enemy.attackTimer > 0 &&
+        !(state.stage && state.stage.id === "mirkwooddeep")) {
       var windup = 1 - Math.max(0, enemy.attackTimer / enemy.attackDuration);
       var radius =
         enemy.attackKind === "slam" && enemy.slam
@@ -6497,6 +6747,10 @@
       drawDeathBurst(ctx, state, sprites, effect, alpha);
     } else if (effect.kind === "bossrays") {
       drawBossRays(ctx, effect, alpha);
+    } else if (effect.kind === "bossburst") {
+      drawBossBurst(ctx, effect, alpha);
+    } else if (effect.kind === "bossbeam") {
+      drawBossBeam(ctx, state, effect, alpha);
     }
 
     if (effect.kind === "damage" && !effect.miss) {
@@ -6543,25 +6797,25 @@
    * 每一个数都是从帧里量出来的。
    */
   var TARGET_PANEL = {
-    x: HUD_LEFT + 16,
-    /* 挂在玩家卡（高 96，在 y 14）与它下面那行配速字（y 128）**下面**。 */
-    y: 150,
-    portrait: [61, 63],
+    x: HUD_LEFT + 8,
+    /* 玩家卡已按录像撤掉；目标条回到左上角第一行（录像矩形 10,50,340,75）。 */
+    y: 25,
+    portrait: [50, 52],
     gap: 3,
-    rowH: 32,
-    nameW: 365,
+    rowH: 30,
+    nameW: 250,
     tagW: 72,
-    textSize: 27,
-    barH: 32,
+    textSize: 26,
+    barH: 28,
     barBorder: 3,
     /* 边框里那一条红有多高 —— 量出来是 20（上下各 6 是边框与内边距）。 */
-    barInner: 20,
+    barInner: 18,
     /*
      * **血条长度**：录像里**每只怪不一样**（哥布林量到 287 / 323 / 362，牛头巨兽 1068），
      * 跟着怪变 —— 是照最大血量还是照个头，量不出来（只有三个样本）。所以这里**不编公式**：
      * 杂兵一律取那个出现得最多的 362，Boss 取 1068。真查出规律再改这两个数。
      */
-    barW: 362,
+    barW: 250,
     /*
      * **1068，不是 278。** 2026-10-17 重看录像（`docs/adr/0054`）：`x 328..1396`
      * 从来就是**一条**条，绿色是 HP 填充、橙色是这条里没被填满的空槽（上面写满
@@ -6581,7 +6835,7 @@
      * （y 14..110）与配速行（y 128），所以把它放在它们下面：内容与形状照录像，
      * 绝对位置不照（`docs/adr/0054`）。
      */
-    bossY: 150
+    bossY: 25
   };
 
   /** 把一张怪的脸画进头像框：取它站姿那一帧的**头部**那一段。 */
@@ -6743,7 +6997,8 @@
     var border = Math.max(1, 3 * px);
     /* 两条血：绿条走完（到 50%）才换红条，红条从满格再走一遍。 */
     var share = bossBarShare(enemy);
-    var red = enemy.phase >= 2;
+    /* 深处领主从头就是红条（`docs/adr/0063`）；牛头仍走绿→红相位。 */
+    var red = enemy.barColor === "red" || enemy.phase >= 2;
 
     ctx.save();
 
@@ -6961,6 +7216,662 @@
     ctx.restore();
   }
 
+  /*
+   * 城镇（`docs/adr/0065`）：一条约 30 身位宽、4 层的横版街。没有战斗；
+   * NPC 与城门在 `meta.town` 里，画的时候按深度排序。
+   */
+  var TOWN = {
+    width: 2520,
+    groundY: 430,
+    backY: 330,
+    gateX: 2420,
+    houses: [
+      { piece: "house1", x: 120 },
+      { piece: "house3", x: 520 },
+      { piece: "seriaHouse", x: 900 },
+      { piece: "house4", x: 1350 },
+      { piece: "house2", x: 1750 },
+      { piece: "house6", x: 2150 }
+    ],
+    props: [
+      { piece: "tree1", x: 300 },
+      { piece: "tree2", x: 700 },
+      { piece: "pole1", x: 1050 },
+      { piece: "sandbag1", x: 1250 },
+      { piece: "crate1", x: 1600 },
+      { piece: "tree1", x: 1900 },
+      { piece: "pole2", x: 2200 },
+      { piece: "wall01", x: 2350 }
+    ]
+  };
+
+  function drawTownPiece(ctx, sheet, name, x, bottom, width) {
+    var piece = TOWN_UI.pieces[name];
+    if (!sheet || !piece) return;
+    var r = piece.rect;
+    var w = width || piece.size[0];
+    var h = piece.size[1] * (w / piece.size[0]);
+    ctx.drawImage(sheet, r[0], r[1], r[2], r[3], x, bottom - h, w, h);
+  }
+
+  /**
+   * 背包 / 任务 / 装备三页（`docs/adr/0065`）。第一版是程序画的深色面板；
+   * 客户端商店/任务/背包窗的原件另烘（`assets/import_dnf_gui.py`）。
+   */
+  function drawProgressPanel(ctx, panelName, progress, sprites) {
+    var boxes = { inventory: "背包", quests: "任务", equipment: "装备" };
+    var x = 334;
+    var y = 64;
+    var w = 291;
+    var h = 410;
+    ctx.save();
+    ctx.fillStyle = "rgba(4, 6, 12, 0.82)";
+    ctx.fillRect(0, 0, ARENA.width, ARENA.height);
+    var guiName = panelName === "inventory" ? "inventory"
+      : panelName === "quests" ? "quest" : "equipment";
+    if (!drawGuiWindow(ctx, sprites, guiName, x, y, w, h)) panel(ctx, x, y, w, h, 10);
+    ctx.textAlign = "left";
+    ctx.fillStyle = "#f1dfb8";
+    ctx.font = HUD_FONT(15);
+    ctx.fillText(boxes[panelName] || "进度", x + 16, y + 28);
+    ctx.fillStyle = "rgba(225, 232, 240, 0.55)";
+    ctx.font = HUD_FONT(9);
+    ctx.fillText("I 背包 · L 任务 · K 装备 · Esc", x + 74, y + 28);
+    ctx.fillStyle = "rgba(226, 191, 114, 0.8)";
+    ctx.fillRect(x + 20, y + 44, w - 40, 1);
+
+    if (!progress) {
+      ctx.fillStyle = "#e8ecef";
+      ctx.font = HUD_FONT(12);
+      ctx.fillText("进度未加载", x + 18, y + 60);
+      ctx.restore();
+      return;
+    }
+
+    var lineY = y + 60;
+    var defs = (typeof window !== "undefined" && window.DNFProgress)
+      ? window.DNFProgress : null;
+
+    if (panelName === "inventory") {
+      ctx.font = HUD_FONT(11);
+      ctx.fillStyle = "#e8ecef";
+      var ids = Object.keys(progress.items || {});
+      if (!ids.length) ctx.fillText("背包是空的。", x + 18, lineY);
+      ids.forEach(function (id) {
+        var item = defs && defs.ITEMS[id];
+        var count = progress.items[id];
+        ctx.fillStyle = "#e8ecef";
+        ctx.fillText((item ? item.name : id) + " × " + count, x + 18, lineY);
+        ctx.fillStyle = "rgba(190, 205, 220, 0.7)";
+        ctx.fillText(item && item.category === "consumable"
+          ? "1 / 2 使用" : (item ? item.category : ""), x + 170, lineY);
+        lineY += 22;
+      });
+      ctx.fillStyle = "rgba(190, 205, 220, 0.8)";
+      ctx.fillText("金币：" + (progress.gold || 0), x + 18, y + h - 26);
+      ctx.fillStyle = "#f1dfb8";
+      ctx.fillText("E 装备第一件", x + 160, y + h - 26);
+    } else if (panelName === "quests") {
+      var questDefs = defs ? defs.QUESTS : {};
+      Object.keys(questDefs).forEach(function (id) {
+        var def = questDefs[id];
+        var quest = progress.quests[id] || { state: "available", progress: 0 };
+        ctx.font = HUD_FONT(11);
+        ctx.fillStyle = quest.state === "turnedIn" ? "#8fa0b6" : "#f1dfb8";
+        ctx.fillText(def.title, x + 18, lineY);
+        ctx.font = HUD_FONT(9);
+        ctx.fillStyle = "#cdd8e6";
+        var label = quest.state === "available" ? "未接取"
+          : quest.state === "turnedIn" ? "已交付"
+            : "进行中 " + quest.progress + " / " + def.goal + (quest.done ? " · 可交付" : "");
+        ctx.fillText(label, x + 18, lineY + 14);
+        ctx.fillStyle = "rgba(190, 205, 220, 0.7)";
+        ctx.fillText("发布：" + def.npc, x + 18, lineY + 26);
+        lineY += 58;
+      });
+    } else {
+      var slots = defs ? defs.EQUIP_SLOTS : [];
+      ctx.font = HUD_FONT(10);
+      slots.forEach(function (slot, index) {
+        var itemId = progress.equipment[slot];
+        var item = itemId && defs ? defs.ITEMS[itemId] : null;
+        ctx.fillStyle = "#cdd8e6";
+        ctx.fillText(slot, x + 18, lineY);
+        ctx.fillStyle = item ? "#f1dfb8" : "rgba(190, 205, 220, 0.45)";
+        ctx.fillText(item ? item.name : "（空）", x + 120, lineY);
+        lineY += 24;
+        if (index === 4) lineY += 8;
+      });
+    }
+    ctx.restore();
+  }
+
+  function drawGuiIcon(ctx, sprites, name, x, y, size) {
+    var sheet = sprites && sprites.gui;
+    var block = GUI_UI[name];
+    if (!sheet || !block || !block.rect) return false;
+    var r = block.rect;
+    ctx.drawImage(sheet, r[0], r[1], r[2], r[3], x, y, size, size);
+    return true;
+  }
+
+  /**
+   * 城镇里 NPC 打开的窗口（`docs/adr/0065`）：商店、仓库、铁匠、对话。
+   * 底图是客户端旧式窗；内容仍是程序画的字。
+   */
+  function drawTownPanel(ctx, town, progress, sprites) {
+    ctx.save();
+    ctx.textAlign = "left";
+    if (town.dialogue) {
+      var dx = 171;
+      var dy = 280;
+      if (!drawGuiWindow(ctx, sprites, "dialog", dx, dy, 618, 165)) {
+        panel(ctx, dx, dy, 618, 165, 8);
+      }
+      ctx.fillStyle = "#f1dfb8";
+      ctx.font = HUD_FONT(15);
+      ctx.fillText(town.dialogue.label, dx + 28, dy + 40);
+      ctx.fillStyle = "#e8ecef";
+      ctx.font = HUD_FONT(12);
+      ctx.fillText(town.dialogue.line || "", dx + 28, dy + 74);
+      ctx.fillStyle = "rgba(190, 205, 220, 0.7)";
+      ctx.font = HUD_FONT(9);
+      ctx.fillText("空格 / Esc 关闭", dx + 28, dy + 146);
+      ctx.restore();
+      return;
+    }
+    if (!town.panel) { ctx.restore(); return; }
+
+    var x = 334;
+    var y = 64;
+    var w = 291;
+    var h = town.panel === "shop" ? 380 : 410;
+    var windowName = town.panel === "shop" ? "shop"
+      : town.panel === "storage" ? "inventory" : "equipment";
+    if (!drawGuiWindow(ctx, sprites, windowName, x, y, w, h)) {
+      panel(ctx, x, y, w, h, 10);
+    }
+    ctx.fillStyle = "#f1dfb8";
+    ctx.font = HUD_FONT(14);
+    var title = town.panel === "shop" ? "卡妮娜的商店"
+      : town.panel === "storage" ? "布兰妮的仓库" : "辛达的铁匠铺";
+    ctx.fillText(title, x + 16, y + 30);
+    ctx.fillStyle = "rgba(190, 205, 220, 0.75)";
+    ctx.font = HUD_FONT(9);
+    ctx.fillText("Esc 关闭", x + 216, y + 30);
+
+    var lineY = y + 62;
+    if (town.panel === "shop") {
+      var rows = [
+        ["potion0", "1  HP 药水", "30 金币"],
+        ["potion1", "2  MP 药水", "30 金币"],
+        ["mat0", "3  卖 1 个材料", "12 金币"]
+      ];
+      rows.forEach(function (row) {
+        drawGuiIcon(ctx, sprites, row[0], x + 16, lineY - 14, 24);
+        ctx.fillStyle = "#e8ecef";
+        ctx.font = HUD_FONT(11);
+        ctx.fillText(row[1], x + 48, lineY);
+        ctx.fillStyle = "#f1dfb8";
+        ctx.fillText(row[2], x + 178, lineY);
+        lineY += 40;
+      });
+      ctx.fillStyle = "rgba(190, 205, 220, 0.9)";
+      ctx.font = HUD_FONT(10);
+      ctx.fillText("金币：" + (progress ? progress.gold : 0), x + 16, y + h - 28);
+    } else if (town.panel === "storage") {
+      ctx.font = HUD_FONT(10);
+      var ids = progress ? Object.keys(progress.items) : [];
+      if (!ids.length) {
+        ctx.fillStyle = "#cdd8e6";
+        ctx.fillText("背包是空的。", x + 18, lineY);
+      }
+      ids.forEach(function (id) {
+        var item = GUI_ITEMS[id];
+        ctx.fillStyle = "#e8ecef";
+        ctx.fillText((item ? item.name : id) + " × " + progress.items[id], x + 18, lineY);
+        lineY += 22;
+      });
+      ctx.fillStyle = "#f1dfb8";
+      ctx.font = HUD_FONT(11);
+      ctx.fillText("R  重置进度（记录保留）", x + 18, y + h - 54);
+      ctx.fillStyle = "rgba(190, 205, 220, 0.9)";
+      ctx.font = HUD_FONT(9);
+      ctx.fillText("金币：" + (progress ? progress.gold : 0), x + 18, y + h - 28);
+    } else {
+      ctx.font = HUD_FONT(10);
+      var gear = progress ? Object.keys(progress.items).filter(function (id) {
+        var item = GUI_ITEMS[id];
+        return item && item.category === "equipment" && progress.items[id] > 0;
+      }) : [];
+      if (!gear.length) {
+        ctx.fillStyle = "#cdd8e6";
+        ctx.fillText("没有可分解的装备。", x + 18, lineY);
+      }
+      gear.forEach(function (id) {
+        drawGuiIcon(ctx, sprites, "weapon0", x + 14, lineY - 14, 24);
+        ctx.fillStyle = "#e8ecef";
+        ctx.fillText(GUI_ITEMS[id].name + " × " + progress.items[id], x + 46, lineY);
+        lineY += 30;
+      });
+      ctx.fillStyle = "#f1dfb8";
+      ctx.font = HUD_FONT(11);
+      ctx.fillText("1  分解第一件", x + 18, y + h - 28);
+    }
+    if (town.panelMessage) {
+      ctx.fillStyle = "rgba(255, 226, 180, 0.95)";
+      ctx.font = HUD_FONT(10);
+      ctx.fillText(town.panelMessage, x + 16, y + h - 8);
+    }
+    ctx.restore();
+  }
+
+  /*
+   * The store/craft panels read the item names from the same module; this is a
+   * narrow view because render.js must not reach into main.js's progress object.
+   */
+  var GUI_ITEMS = (typeof window !== "undefined" && window.DNFProgress)
+    ? window.DNFProgress.ITEMS : {};
+
+  function drawTownChat(ctx, sprites, state) {
+    var x = 125;
+    var y = 300;
+    var w = 285;
+    var h = 131;
+    if (!drawGuiWindow(ctx, sprites, "chat", x, y, w, h)) return;
+    var lines = (state && state.log ? state.log : []).slice(-4);
+    ctx.save();
+    ctx.textAlign = "left";
+    ctx.textBaseline = "top";
+    ctx.font = HUD_FONT(9);
+    if (!lines.length) {
+      ctx.fillStyle = "rgba(210, 220, 232, 0.7)";
+      ctx.fillText("暂无消息", x + 12, y + 24);
+    }
+    lines.forEach(function (line, index) {
+      ctx.fillStyle = LOG_STYLE.tones[line.tone] || LOG_STYLE.tones.white;
+      ctx.fillText(line.text, x + 12, y + 24 + index * 24);
+    });
+    ctx.restore();
+  }
+
+  function drawTown(ctx, meta) {
+    var town = meta.town;
+    var sprites = meta.sprites || {};
+    var sheet = sprites.town;
+    var npcSheet = sprites.npc;
+    var player = meta.player || {};
+    ctx.save();
+    ctx.fillStyle = "#05070c";
+    ctx.fillRect(0, 0, ARENA.width, ARENA.height);
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(VIEW.left, 0, VIEW.width, VIEW.height);
+    ctx.clip();
+    ctx.translate(VIEW.left, 0);
+
+    var sky = ctx.createLinearGradient(0, 0, 0, TOWN.backY);
+    sky.addColorStop(0, "#0b1730");
+    sky.addColorStop(1, "#1d3140");
+    ctx.fillStyle = sky;
+    ctx.fillRect(0, 0, VIEW.width, TOWN.backY);
+
+    var camera = town.cameraX || 0;
+    drawTownPiece(ctx, sheet, "far", 0, TOWN.backY, VIEW.width);
+    for (var mx = -(camera % 895); mx < VIEW.width; mx += 895) {
+      drawTownPiece(ctx, sheet, "mid", mx, TOWN.backY + 40);
+    }
+    for (var tx = -(camera % 224); tx < VIEW.width; tx += 224) {
+      drawTownPiece(ctx, sheet, "tile", tx, TOWN.backY + 204);
+    }
+    TOWN.houses.forEach(function (house) {
+      drawTownPiece(ctx, sheet, house.piece, house.x - camera, TOWN.backY + 20);
+    });
+    TOWN.props.forEach(function (prop) {
+      drawTownPiece(ctx, sheet, prop.piece, prop.x - camera, TOWN.backY + 60);
+    });
+
+    /* Gate: the Elvengard arch, its door and its light. */
+    var gateX = TOWN.gateX - camera;
+    drawTownPiece(ctx, sheet, "gate", gateX, TOWN.groundY - 20);
+    var gateFrame = Math.floor((town.time || 0) * 10) % 10;
+    var door = TOWN_UI.runs.gateDoor;
+    var light = TOWN_UI.runs.gateLight;
+    if (sheet && door) {
+      var dr = door.frames[gateFrame];
+      ctx.drawImage(sheet, dr[0], dr[1], dr[2], dr[3],
+                    gateX - 34, TOWN.groundY - 88, 183, 77);
+    }
+    if (sheet && light) {
+      var lr = light.frames[gateFrame];
+      ctx.drawImage(sheet, lr[0], lr[1], lr[2], lr[3],
+                    gateX - 70, TOWN.groundY - 90, 298, 121);
+    }
+
+    /* Actors: NPCs and the player, far (large z) first. */
+    var actors = (town.npcs || []).map(function (npc) {
+      return { kind: "npc", npc: npc, x: npc.x, z: npc.z || 50 };
+    });
+    actors.push({ kind: "player", x: town.x, z: town.z || 50 });
+    actors.sort(function (a, b) { return b.z - a.z; });
+    actors.forEach(function (actor) {
+      var sx = actor.x - camera;
+      var bottom = TOWN.groundY - (actor.z || 0) * Core.DEPTH.scale;
+      if (actor.kind === "player") {
+        if (!sprites.slayer) return;
+        ctx.save();
+        ctx.translate(sx, bottom);
+        /* 城镇是 800×600 的客户端比例；他在这里比副本里画大一点，免得像小孩。 */
+        ctx.scale((town.facing < 0 ? -1 : 1) * 1.35, 1.35);
+        ctx.drawImage(sprites.slayer, 0, 0, SPRITE.frameW, SPRITE.frameH,
+                      -SPRITE.anchorX, -SPRITE.anchorY, SPRITE.frameW, SPRITE.frameH);
+        ctx.restore();
+        return;
+      }
+      var npc = actor.npc;
+      var block = NPC_UI[npc.id];
+      if (!npcSheet || !block) return;
+      var frame = Math.floor((town.time || 0) * 6) % block.frames.length;
+      var r = block.frames[frame];
+      var scale = 0.9;
+      var w = block.cell[0] * scale;
+      var h = block.cell[1] * scale;
+      ctx.drawImage(npcSheet, r[0], r[1], r[2], r[3],
+                    sx - w / 2, bottom - h, w, h);
+      ctx.save();
+      ctx.textAlign = "center";
+      ctx.font = "700 11px 'PingFang SC', 'Segoe UI', sans-serif";
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = "rgba(8, 10, 16, 0.9)";
+      ctx.strokeText(npc.label, sx, bottom - h - 8);
+      ctx.fillStyle = "#f0e6cf";
+      ctx.fillText(npc.label, sx, bottom - h - 8);
+      ctx.restore();
+    });
+
+    ctx.restore();
+
+    /* Black bars and the town chrome. */
+    ctx.fillStyle = "#000000";
+    ctx.fillRect(0, 0, VIEW.left, ARENA.height);
+    ctx.fillRect(VIEW.left + VIEW.width, 0, ARENA.width - VIEW.left - VIEW.width, ARENA.height);
+
+    ctx.save();
+    ctx.textAlign = "center";
+    ctx.font = "700 20px 'PingFang SC', 'Segoe UI', sans-serif";
+    ctx.fillStyle = "#f1dfb8";
+    ctx.fillText("格兰之森 · 城镇", VIEW.left + VIEW.width / 2, 34);
+    ctx.font = "600 12px 'PingFang SC', 'Segoe UI', sans-serif";
+    ctx.fillStyle = "rgba(225, 232, 240, 0.8)";
+    ctx.fillText("方向键走动 · 空格交互", VIEW.left + VIEW.width / 2, 54);
+    ctx.restore();
+
+    /* The bottom bar and the two orbs keep the town in the same UI as a room. */
+    drawHudFrame(ctx, sprites, HUD_UI.hudBar, 120, 456, 720, 82);
+    var maxHp = player.maxHp || 1;
+    var maxMp = player.maxMp || 1;
+    drawOrbSprite(ctx, sprites, HUD_UI.orbRed, 146, 496, 19, 36,
+                  (player.hp || maxHp) / maxHp, Math.round(player.hp || maxHp));
+    drawOrbSprite(ctx, sprites, HUD_UI.orbBlue, 814, 496, 20, 36,
+                  (player.mp || maxMp) / maxMp, Math.round(player.mp || maxMp));
+    drawItemSlots(ctx, sprites, 205, 500, 34.6, 36, 0, meta.progress);
+    if (meta.state && meta.loadout) {
+      drawSkillBar(ctx, meta.state, sprites, meta.loadout, true, false);
+    }
+
+    drawTownChat(ctx, sprites, meta.state);
+    if (town.panel || town.dialogue) {
+      drawTownPanel(ctx, town, meta.progress, sprites);
+    } else {
+      var prompt = null;
+      if (town.near && town.near.kind === "gate") {
+        prompt = "空格：进入地区地图";
+      } else if (town.near && town.near.kind === "npc") {
+        prompt = "空格：与 " + town.near.npc.label + " 对话";
+      }
+      if (prompt) {
+        ctx.save();
+        ctx.textAlign = "center";
+        ctx.font = "600 13px 'PingFang SC', 'Segoe UI', sans-serif";
+        var width = Math.min(VIEW.width - 40, ctx.measureText(prompt).width + 30);
+        var x = VIEW.left + VIEW.width / 2 - width / 2;
+        ctx.fillStyle = "rgba(8, 10, 18, 0.9)";
+        roundRect(ctx, x, 390, width, 30, 6);
+        ctx.fill();
+        ctx.strokeStyle = "rgba(226, 191, 114, 0.8)";
+        ctx.lineWidth = 1.2;
+        ctx.stroke();
+        ctx.fillStyle = "#f2e7ce";
+        ctx.fillText(prompt, VIEW.left + VIEW.width / 2, 410);
+        ctx.restore();
+      }
+    }
+    if (meta.progressPanel) drawProgressPanel(ctx, meta.progressPanel, meta.progress, sprites);
+  }
+
+  /*
+   * **录像 HUD**（`docs/adr/0064`）：左下红/蓝球、物品槽 1–6、任务条、
+   * 右下 6+6 紧凑技能槽、左上目标条、右侧常驻评分面板。
+   * 玩家卡/房间卡/节奏线/提示都撤掉；球与槽的位置先按录像比例估，
+   * 客户端 HUD 原件回来后按录像px微调。
+   */
+  function drawHudVideo(ctx, state, sprites, meta) {
+    var player = state.player;
+    /*
+     * 录像坐标（1440×1080，游戏画面内）：红球心 (52,993)、蓝球心 (1388,993)、
+     * 底部 HUD 总带 x0..1440 / y912..1080。**物品与技能是两排不同的东西，
+     * 位置别对调**（2026-10-25 逐帧量 `band-13.png` / `band-316.png`）：
+     *
+     *   物品槽 1–6   x170..585   y1000..1072  每格 ≈69×72
+     *   中央圆盘     x600..820   y912 以上伸出     C 按钮心 ≈(720, 958)
+     *   技能槽 A–H   x860..1295  y1000..1072  每格 ≈72×72
+     *   任务条       x890..1210  y930..975
+     *   等级卡       “Lv.6” x160..215，绿经验条 x260..390 / y969..989
+     *
+     * 折到本作 720×540（÷2，x 再加窗口左缘 120）就是下面这些数。
+     */
+    drawHudFrame(ctx, sprites, HUD_UI.hudBar, 120, 456, 720, 82);
+    drawOrbSprite(ctx, sprites, HUD_UI.orbRed, 146, 496, 19, 36,
+                  player.hp / player.maxHp, Math.round(player.hp));
+    drawOrbSprite(ctx, sprites, HUD_UI.orbBlue, 814, 496, 20, 36,
+                  player.mp / player.maxMp, Math.round(player.mp));
+    drawItemSlots(ctx, sprites, 205, 500, 34.6, 36, 0, meta.progress);
+    /*
+     * 中央那张圆盘（C + 雪花/骰子/人像/齿轮）暂时不画：客户端这个版本的
+     * `menu_icon.img` 只有一排带中文标签的方按钮（个人情报/物品栏/任务…），
+     * 没有录像里那张齿边圆盘，`menu_icon.img` f1 只是青色高亮框 —— 画上去
+     * 反而是一个录像里没有的青色方块。底条自带的 SP 位先留着，找到原件再补。
+     */
+    /*
+     * 任务条在录像里压在技能排**正上方**（local 465..489）；本作 6+6 的第二排
+     * 正好占那一条，所以往上让一格（local 424..448），x 仍是录像的 445..605。
+     */
+    drawQuestTracker(ctx, state, sprites, 565, 424, 160, 24, meta.progress);
+    drawTargetPanel(ctx, state, sprites);
+    drawRatingPanel(ctx, state);
+    /* 等级卡：录像里 “Lv.6” 与绿经验条都在底条左侧，不是屏幕底下一条细线。 */
+    var xpX = 250;
+    var xpW = 65;
+    var xpY = 484;
+    ctx.save();
+    ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
+    ctx.fillRect(xpX, xpY, xpW, 10);
+    ctx.fillStyle = "#7ed26a";
+    ctx.fillRect(xpX, xpY, xpW * clamp01(player.xp / Math.max(1, player.xpToNext)), 10);
+    ctx.strokeStyle = "rgba(226, 191, 114, 0.55)";
+    ctx.lineWidth = 1;
+    ctx.strokeRect(xpX + 0.5, xpY + 0.5, xpW - 1, 9);
+    ctx.fillStyle = "#e8ecef";
+    ctx.font = "700 11px 'Segoe UI', system-ui, sans-serif";
+    ctx.textAlign = "left";
+    ctx.fillText("Lv." + player.level, 200, 493);
+    ctx.restore();
+    if (player.comboTimer > 0 && player.comboIndex > 0) {
+      ctx.save();
+      ctx.textAlign = "right";
+      ctx.font = "800 20px 'Segoe UI', system-ui, sans-serif";
+      ctx.lineWidth = 4;
+      ctx.strokeStyle = "rgba(12, 14, 24, 0.85)";
+      var comboLabel =
+        (player.comboIndex + 1) + (player.airHitTimer > 0 ? " AIR COMBO" : " COMBO");
+      ctx.strokeText(comboLabel, HUD_RIGHT - 20, 330);
+      ctx.fillStyle = "#ffd66b";
+      ctx.fillText(comboLabel, HUD_RIGHT - 20, 330);
+      ctx.restore();
+    }
+  }
+
+  function drawHudFrame(ctx, sprites, block, x, y, w, h) {
+    var sheet = sprites && sprites.hud;
+    if (!sheet || !block || !block.frames || !block.frames.length) return false;
+    var r = block.frames[0];
+    ctx.drawImage(sheet, r[0], r[1], r[2], r[3], x, y, w, h);
+    return true;
+  }
+
+  function drawOrbSprite(ctx, sprites, block, cx, cy, rx, ry, share, text) {
+    var sheet = sprites && sprites.hud;
+    var fill = clamp01(share);
+    ctx.save();
+    ctx.beginPath();
+    ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+    ctx.fillStyle = "#100b0b";
+    ctx.fill();
+    ctx.save();
+    ctx.beginPath();
+    ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+    ctx.clip();
+    var top = cy + ry - 2 * ry * fill;
+    ctx.beginPath();
+    ctx.rect(cx - rx, top, 2 * rx, 2 * ry);
+    ctx.clip();
+    if (sheet && block && block.frames && block.frames.length) {
+      var r = block.frames[0];
+      ctx.drawImage(sheet, r[0], r[1], r[2], r[3], cx - rx, cy - ry, 2 * rx, 2 * ry);
+    } else {
+      var grad = ctx.createLinearGradient(0, cy - ry, 0, cy + ry);
+      grad.addColorStop(0, "#ff7a6b");
+      grad.addColorStop(1, "#c41414");
+      ctx.fillStyle = grad;
+      ctx.fillRect(cx - rx, cy - ry, 2 * rx, 2 * ry);
+    }
+    ctx.restore();
+    ctx.beginPath();
+    ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+    ctx.strokeStyle = "rgba(226, 191, 114, 0.9)";
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.ellipse(cx - rx * 0.32, cy - ry * 0.38, rx * 0.30, ry * 0.12, -0.6, 0, Math.PI * 2);
+    ctx.fillStyle = "rgba(255,255,255,0.55)";
+    ctx.fill();
+    ctx.textAlign = "center";
+    ctx.font = "700 9px 'PingFang SC', 'Segoe UI', sans-serif";
+    ctx.fillStyle = "#f2eadf";
+    ctx.fillText(String(text), cx, cy + ry - 7);
+    ctx.restore();
+  }
+
+  function drawOrb(ctx, cx, cy, rx, ry, share, dark, light, text) {
+    var fill = clamp01(share);
+    ctx.save();
+    ctx.beginPath();
+    ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+    ctx.fillStyle = "#0b0c12";
+    ctx.fill();
+    ctx.save();
+    ctx.beginPath();
+    ctx.ellipse(cx, cy, rx - 2, ry - 3, 0, 0, Math.PI * 2);
+    ctx.clip();
+    var top = cy + ry - (2 * ry - 6) * fill;
+    var grad = ctx.createLinearGradient(0, top, 0, cy + ry);
+    grad.addColorStop(0, light);
+    grad.addColorStop(1, dark);
+    ctx.fillStyle = grad;
+    ctx.fillRect(cx - rx, top, 2 * rx, 2 * ry);
+    ctx.restore();
+    ctx.beginPath();
+    ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+    ctx.strokeStyle = "rgba(226, 191, 114, 0.85)";
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.ellipse(cx - rx * 0.32, cy - ry * 0.38, rx * 0.30, ry * 0.12, -0.6, 0, Math.PI * 2);
+    ctx.fillStyle = "rgba(255,255,255,0.55)";
+    ctx.fill();
+    ctx.textAlign = "center";
+    ctx.font = "700 9px 'PingFang SC', 'Segoe UI', sans-serif";
+    ctx.fillStyle = "#f2eadf";
+    ctx.fillText(String(text), cx, cy + ry - 7);
+    ctx.restore();
+  }
+
+  function drawItemSlots(ctx, sprites, x, y, w, h, gap, progress) {
+    var filled = [
+      { id: "hpPotion", icon: "potion0" },
+      { id: "mpPotion", icon: "potion1" },
+      { id: "material", icon: "mat0" }
+    ];
+    ctx.save();
+    for (var i = 0; i < 6; i += 1) {
+      var sx = x + i * (w + gap);
+      /*
+       * **不画槽框**：客户端 `hud.img` 那条底条本身就把六个物品槽与六个技能槽
+       * 的凹槽烘进去了，叠一层 `mainhud.img` f77 反而在每格里画出一颗绿宝石
+       * （f77 是镶嵌槽/宝石，不是空槽）。空槽就露出底条自己的凹槽。
+       */
+      var entry = filled[i];
+      var count = entry && progress ? (progress.items[entry.id] || 0) : 0;
+      if (entry && count > 0) {
+        drawGuiIcon(ctx, sprites, entry.icon, sx + 5, y + 6, w - 10);
+        ctx.fillStyle = "#fff2d0";
+        ctx.font = "700 9px 'Segoe UI', system-ui, sans-serif";
+        ctx.textAlign = "right";
+        ctx.fillText(String(count), sx + w - 2, y + h - 2);
+      }
+      /* 录像里 1–6 是槽**底下正中**的小字，不是左上角。 */
+      ctx.fillStyle = "rgba(232, 215, 168, 0.95)";
+      ctx.font = "700 8px 'Segoe UI', system-ui, sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText(String(i + 1), sx + w / 2, y + h - 1);
+    }
+    ctx.restore();
+  }
+
+  function drawQuestTracker(ctx, state, sprites, x, y, w, h, progress) {
+    ctx.save();
+    /*
+     * **底图暂时自己画**：录像那条 `任务` 横条（页签 + 三颗菱形奖励图标）在
+     * 这个客户端版本里找不到对应原件 —— `mission.img` f0/f3/f5 是竖着的高面板，
+     * `battledungeon.img` f0 写的是「戰場列表」，`quest_tag.img` 是任务类型标签
+     * （史诗/主线/重复…）。与其拿错的底板充数，先画一条同位置的深色横条：
+     * 位置（x445..605、高 24）按 band-13.png 量，样式等原件找到再换。
+     */
+    panel(ctx, x, y, w, h, 5);
+    ctx.fillStyle = "#e8d7a8";
+    ctx.font = "700 11px 'PingFang SC', 'Segoe UI', sans-serif";
+    ctx.textAlign = "left";
+    ctx.fillText("任务", x + 8, y + 15);
+    ctx.fillStyle = "rgba(225, 232, 240, 0.88)";
+    ctx.font = "600 10px 'PingFang SC', 'Segoe UI', sans-serif";
+    var name = state.stage && state.stage.name ? state.stage.name : "幽暗密林深处";
+    var line = "通关" + name;
+    if (progress && typeof window !== "undefined" && window.DNFProgress) {
+      var defs = window.DNFProgress.QUESTS;
+      var order = ["main", "cats", "breakables"];
+      for (var i = 0; i < order.length; i += 1) {
+        var def = defs[order[i]];
+        var quest = progress.quests[order[i]];
+        if (!def || !quest || quest.state !== "active") continue;
+        line = def.title + " " + quest.progress + "/" + def.goal +
+          (quest.done ? " · 可交付" : "");
+        break;
+      }
+    }
+    ctx.fillText(line, x + 38, y + 15);
+    ctx.restore();
+  }
+
   function drawHud(ctx, state, sprites, meta) {
     var player = state.player;
     var panelX = HUD_LEFT + 16;
@@ -7038,14 +7949,7 @@
 
     /* room card - left of the map window, which owns the corner */
     var roomW = 236;
-    /*
-     * It sits left of the map window, and in touch mode left of the buttons that
-     * own the corner there - otherwise 停/编/音 sit on top of the enemy count.
-     */
     var roomRight = HUD_RIGHT - 16 - minimapWidth(state.dungeon && state.dungeon.cols) - 12;
-    if (meta && meta.touch && meta.touch.enabled) {
-      roomRight = Math.min(roomRight, touchTopLeft() - 12);
-    }
     var roomX = roomRight - roomW;
     panel(ctx, roomX, 14, roomW, 60, 8);
     ctx.save();
@@ -7094,6 +7998,8 @@
      * （`docs/adr/0054`）。狂暴仍然是玩法，只是不在条上读出来。
      */
     drawTargetPanel(ctx, state, sprites);
+    /* 录像右侧那块常驻评分面板（`docs/adr/0064`）：不是结算页专属。 */
+    drawRatingPanel(ctx, state);
   }
 
   /** A short line of coaching, centred above the action but below the HUD. */
@@ -7117,7 +8023,7 @@
     var player = state.player;
     var slots = loadout || [];
     var keys = ["A", "S", "D", "F", "G", "H", "Q", "W", "E", "R", "T", "Y"];
-    var buttons = compact ? touchBarButtons() : skillBarButtons();
+    var buttons = skillBarButtons();
     var iconIndex = {};
     Core.SKILL_ORDER.forEach(function (skillId, index) {
       iconIndex[skillId] = index;
@@ -7143,25 +8049,33 @@
       );
 
       ctx.save();
-      ctx.fillStyle = stanceUp
-        ? "rgba(62, 14, 22, 0.95)"
-        : ready
-          ? "rgba(20, 28, 48, 0.92)"
-          : "rgba(12, 14, 24, 0.9)";
-      roundRect(ctx, slot.x, slot.y, slot.w, slot.h, 6);
-      ctx.fill();
-      ctx.strokeStyle = skill
-        ? stanceUp
-          ? "rgba(240, 84, 96, 0.95)"
+      /* 紧凑条（录像那条）不叠槽框：底条自己带凹槽，见 `drawItemSlots`。 */
+      var framed = compact;
+      if (!framed) {
+        ctx.fillStyle = stanceUp
+          ? "rgba(62, 14, 22, 0.95)"
           : ready
-            ? "rgba(226, 191, 114, 0.85)"
-            : "rgba(96, 106, 136, 0.6)"
-        : "rgba(96, 106, 136, 0.4)";
-      ctx.lineWidth = 1.4;
-      roundRect(ctx, slot.x + 0.7, slot.y + 0.7, slot.w - 1.4, slot.h - 1.4, 6);
-      if (!skill) ctx.setLineDash([5, 4]);
-      ctx.stroke();
-      ctx.setLineDash([]);
+            ? "rgba(20, 28, 48, 0.92)"
+            : "rgba(12, 14, 24, 0.9)";
+        roundRect(ctx, slot.x, slot.y, slot.w, slot.h, 6);
+        ctx.fill();
+        ctx.strokeStyle = skill
+          ? stanceUp
+            ? "rgba(240, 84, 96, 0.95)"
+            : ready
+              ? "rgba(226, 191, 114, 0.85)"
+              : "rgba(96, 106, 136, 0.6)"
+          : "rgba(96, 106, 136, 0.4)";
+        ctx.lineWidth = 1.4;
+        roundRect(ctx, slot.x + 0.7, slot.y + 0.7, slot.w - 1.4, slot.h - 1.4, 6);
+        if (!skill) ctx.setLineDash([5, 4]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      } else if (stanceUp) {
+        ctx.strokeStyle = "rgba(240, 84, 96, 0.95)";
+        ctx.lineWidth = 1.6;
+        ctx.strokeRect(slot.x + 1, slot.y + 1, slot.w - 2, slot.h - 2);
+      }
 
       if (skill && sprites && sprites.skills && sprites.skills.width) {
         var iconSize = compact ? slot.w - 8 : 36;
@@ -7182,14 +8096,14 @@
       }
 
       if (compact) {
-        /* Touch bar: icon-only slots with the key in the corner and a cooldown sweep. */
-        ctx.textAlign = "left";
-        ctx.fillStyle = "rgba(10, 12, 20, 0.75)";
-        roundRect(ctx, slot.x + 2, slot.y + 2, 15, 13, 3);
-        ctx.fill();
-        ctx.fillStyle = PALETTE.gold;
-        ctx.font = "700 10px 'Segoe UI', system-ui, sans-serif";
-        ctx.fillText(keys[slot.index], slot.x + 5, slot.y + 12);
+        /*
+         * 录像的键位字母在**槽底下正中**（A S D F G H，band-skills.png），
+         * 不是左上角的小黑框。
+         */
+        ctx.textAlign = "center";
+        ctx.fillStyle = "rgba(232, 215, 168, 0.95)";
+        ctx.font = "700 8px 'Segoe UI', system-ui, sans-serif";
+        ctx.fillText(keys[slot.index], slot.x + slot.w / 2, slot.y + slot.h + 3);
         if (cooldown > 0) {
           ctx.fillStyle = "rgba(8, 10, 18, 0.62)";
           roundRect(ctx, slot.x + 1, slot.y + 1, slot.w - 2, (slot.h - 2) * clamp01(cooldown / skill.cooldown), 5);
@@ -7384,37 +8298,6 @@
 
   /* `only` redraws a subset of the controls; the pause overlay uses it to put
      the one button that still does something back on top of itself. */
-  function drawTouchControls(ctx, state, sprites, meta, only) {
-    var player = state.player;
-    var pressed = (meta && meta.pressed) || [];
-
-    ctx.save();
-    TOUCH_LAYOUT.forEach(function (button) {
-      if (only && only.indexOf(button.action) === -1) return;
-      var isDown = pressed.indexOf(button.action) !== -1;
-      var fill = isDown ? "rgba(226, 191, 114, 0.32)" : "rgba(16, 20, 34, 0.55)";
-
-      ctx.fillStyle = fill;
-      roundRect(ctx, button.x, button.y, button.w, button.h, 14);
-      ctx.fill();
-      ctx.strokeStyle = isDown ? "rgba(255, 232, 170, 0.95)" : "rgba(226, 191, 114, 0.6)";
-      ctx.lineWidth = isDown ? 2.4 : 1.6;
-      roundRect(ctx, button.x + 0.8, button.y + 0.8, button.w - 1.6, button.h - 1.6, 13);
-      ctx.stroke();
-
-      ctx.fillStyle = isDown ? "#fff3c4" : "rgba(238, 244, 255, 0.88)";
-      ctx.font = "700 " + Math.round(button.h * 0.42) + "px 'PingFang SC', 'Segoe UI', sans-serif";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      var label = button.label;
-      if (button.action === "mute") label = meta && meta.muted ? "静" : "音";
-      if (button.action === "pause") label = meta && meta.paused ? "续" : "停";
-      ctx.fillText(label, button.x + button.w / 2, button.y + button.h / 2 + 1);
-      ctx.textBaseline = "alphabetic";
-    });
-    ctx.restore();
-  }
-
   /* --------------------------------------------------------- region map */
 
   /*
@@ -7764,7 +8647,7 @@
         ctx.textAlign = "center";
         ctx.font = "600 15px 'PingFang SC', 'Segoe UI', system-ui, sans-serif";
         ctx.fillStyle = "rgba(232, 220, 190, 0.82)";
-        ctx.fillText("按 F3 回到地区地图", ARENA.width / 2, 500);
+        ctx.fillText("按 F3 回到地区地图 · F4 回城镇", ARENA.width / 2, 500);
       }
     }
     ctx.restore();
@@ -7811,7 +8694,7 @@
        * `restart()`），而选关本来就是下一件该由他决定的事。录像结尾那个
        * `返回城镇 / 再次挑战 / 选择其他地下城` 三步里，本作对应的是**回选关那一步**。
        */
-      ctx.fillText("按 F3 回到地区地图", ARENA.width / 2, ARENA.height / 2 + 34);
+      ctx.fillText("按 F3 回到地区地图 · F4 回城镇", ARENA.width / 2, ARENA.height / 2 + 34);
       if (meta && meta.run && meta.run.resultText && state.victory) {
         ctx.font = "700 20px 'PingFang SC', 'Segoe UI', sans-serif";
         ctx.fillStyle = meta.run.improved ? PALETTE.gold : PALETTE.textDim;
@@ -7855,7 +8738,7 @@
       ctx.font = "18px 'PingFang SC', 'Segoe UI', sans-serif";
       ctx.fillStyle = PALETTE.textDim;
       ctx.fillText(
-        meta.touch && meta.touch.enabled ? "按 P 或点右上角 续 继续" : "按 P 继续",
+        "按 P 继续",
         ARENA.width / 2,
         ARENA.height / 2 + 34
       );
@@ -7955,7 +8838,7 @@
      * `tests/browser/capture-hud.mjs`）。组织是本作自己的（`docs/adr/0041` Q13 选 b），
      * 所以首行让到它们**与"当前目标"条**下面，**左右边距仍是量的那个**。
      */
-    top: 210,
+    top: 70,
     row: 33.7 / 2,
     size: 26.5 / 2,
     tones: {
@@ -8008,7 +8891,12 @@
       [rating.operation + "%", "操作"],
       [rating.technique + "%", "技巧"],
       [String(rating.hits), "被击数"],
-      [rating.grade, "评分"]
+      /*
+       * **评分那一行是数字不是字母**：录像四行量下来是 `85% 操作 / 57% 技巧 /
+       * 0 被击数 / 55 评分`（`band-13.png`），本作原来写的是 S/A/B 的档位。
+       * 档位留给结算页，跑图里照录像写 `score`。
+       */
+      [String(rating.score), "评分"]
     ];
     ctx.save();
     ctx.textBaseline = "top";
@@ -8356,9 +9244,11 @@
     });
     (state.props || []).forEach(function (prop) {
       if (SCENE.decals.indexOf(prop.piece) !== -1) return;
-      add(prop.z, function () {
+      /* `sortZ`：只换画的前后，不换站的位置（背景石门用，见 `core.js`）。 */
+      add(prop.sortZ === null || prop.sortZ === undefined ? prop.z : prop.sortZ, function () {
         if (!prop.broken) {
-          drawScenePiece(ctx, sprites, prop.piece, prop.x, floorY(prop.z));
+          drawScenePiece(ctx, sprites, prop.piece, prop.x, floorY(prop.z),
+                         undefined, prop.scale);
           return;
         }
         if (prop.gone) return;
@@ -8456,6 +9346,9 @@
       drawFootMark(ctx, state, sprites);
       drawPlayer(ctx, state, sprites);
     });
+    add(playerZ - 0.01, function () {
+      drawPlayerName(ctx, state);
+    });
     add(inFront, function () {
       drawSkillEffectFront(ctx, state, sprites);
     });
@@ -8525,6 +9418,8 @@
   function drawRain(ctx, state, sprites, meta) {
     var sheet = sprites && sprites.weather;
     if (!sheet || !sheet.width || !state.room || state.intro) return;
+    /* 幽暗密林深处按 `00002` 不下雨（`docs/adr/0063`）。 */
+    if (state.stage && state.stage.rain === false) return;
     if (state.victory || state.defeat) return;
     if (meta && (meta.paused || meta.showHelp || (meta.region && meta.region.open))) return;
     var left = Core.VIEW.left;
@@ -8623,6 +9518,14 @@
     meta = meta || {};
     var sprites = meta.sprites || null;
     /*
+     * 深处用**调过色的 set 02**（`assets/grade_deep_forest.py`）：录像的
+     * 饱和度/对比度比客户端原图高一档；只换这一关的森林图，别的关不动。
+     */
+    if (state.stage && state.stage.id === "mirkwooddeep" &&
+        sprites && sprites.forestDeep) {
+      sprites = Object.assign({}, sprites, { forest: sprites.forestDeep });
+    }
+    /*
      * A full-screen overlay owns the frame. The sim is frozen behind it, so the
      * room banner would otherwise sit half-faded under the title forever; hold
      * it back and let it announce the room once play actually starts.
@@ -8715,8 +9618,11 @@
      */
     drawWorld(ctx, state, sprites);
     var bannerOrdinal = 0;
+    var hideTelegraph = !!(state.stage && state.stage.id === "mirkwooddeep");
     state.effects.forEach(function (effect) {
       if (effect.kind === "banner" && overlayOpen) return;
+      /* 录像里没有 AIM/扑击/横扫的预警圈；深处的预警只留在核心，不画。 */
+      if (hideTelegraph && effect.kind === "telegraph") return;
       drawEffect(
         ctx,
         state,
@@ -8727,6 +9633,26 @@
     });
     ctx.restore();
 
+    /*
+     * **录像比这套渲染亮一档。** 同机位量 9 间路线房，游戏画面中央的平均亮度
+     * 录像 50–77、本作 45–56（`docs/adr/0064` 同机位对照）。客户端美术是同一套，
+     * 差的是整体调色；用一层很淡的暖白压在世界窗口上，HUD 与黑边不跟着动。
+     * 不用 `ctx.filter`：全屏 filter 在云机器上把帧率拖垮，deep 冒烟因此假红。
+     *
+     * **深处换一层冷色**（2026-10-26）：那层暖白把地面的红通道抬了 20
+     * （草地均值 (50,72,72) 对录像的 (23,62,68)），整片草偏灰、偏亮。
+     * 深处改用淡青蓝，红不再被抬、绿蓝补一点 —— 同机位草地上量到
+     * ≈(26,59,66)，与录像那一格对得上。别的关照旧用暖白。
+     */
+    var deepStage = state.stage && state.stage.id === "mirkwooddeep";
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(VIEW.left, 0, VIEW.width, VIEW.height);
+    ctx.clip();
+    ctx.fillStyle = deepStage ? "rgba(10, 90, 130, 0.10)" : "rgba(255, 248, 230, 0.08)";
+    ctx.fillRect(VIEW.left, 0, VIEW.width, VIEW.height);
+    ctx.restore();
+
     drawVignette(ctx, state);
     /*
      * 魔狱血刹's 觉醒插画 goes over the room and under the HUD: the reference
@@ -8734,32 +9660,15 @@
      * takes the corner the bar does not.
      */
     drawAwakening(ctx, state, sprites);
-    drawHud(ctx, state, sprites, meta);
-    /* 左边那栏日志、右边的评分、顶部那块交战横幅（`docs/adr/0042`、`0043`）。 */
-    if (!overlayOpen) {
-      drawLog(ctx, state);
-      drawRatingPanel(ctx, state);
-    }
+    drawHudVideo(ctx, state, sprites, meta);
+    /* 录像左侧掉落/经验消息流；评分面板已在 `drawHudVideo` 里常驻。 */
+    if (!overlayOpen) drawLog(ctx, state);
     /* The map belongs to live play and to the title demo, not to a full-screen overlay. */
     if (!overlayOpen) drawMinimap(ctx, state, sprites, meta);
-    /* The pace line belongs to live play, not to a full-screen overlay. */
-    if (!overlayOpen && meta.run && meta.run.pace && meta.run.pace.text) {
-      drawPace(ctx, meta.run.pace);
-    }
-    drawSkillBar(ctx, state, sprites, meta.loadout, !!(meta.touch && meta.touch.enabled));
-    if (meta.touch && meta.touch.enabled) drawTouchControls(ctx, state, sprites, meta.touch);
+    drawSkillBar(ctx, state, sprites, meta.loadout, true);
     if (meta.loadoutOpen) drawLoadoutPanel(ctx, state, sprites, meta);
-    /* Coaching belongs to live play as well. */
-    if (!overlayOpen) drawHint(ctx, meta.hint);
+    if (meta.progressPanel) drawProgressPanel(ctx, meta.progressPanel, meta.progress, sprites);
     drawOverlay(ctx, state, meta, sprites);
-    /*
-     * The pause overlay is drawn over the controls and says "按 P 继续", which a
-     * touch player has no way to press. Put the pause button back on top of that
-     * overlay - and flip it to 续 - so the way out of the pause is visible.
-     */
-    if (meta.paused && meta.touch && meta.touch.enabled) {
-      drawTouchControls(ctx, state, sprites, meta.touch, ["pause"]);
-    }
     /*
      * 换房那一下，**最后画、盖住所有东西**（连 HUD 一起）：录像里切过去是旧画面
      * 直接消失、黑的立刻盖满一帧，然后新房间在 0.3 秒里淡进来（`docs/adr/0030`）。
@@ -8781,6 +9690,8 @@
 
   return {
     render: render,
+    drawTown: drawTown,
+    TOWN: TOWN,
     /* The start-up screen the shell shows until every sheet is decoded. */
     renderLoading: renderLoading,
     PALETTE: PALETTE,
@@ -8806,14 +9717,11 @@
     flareFlash: flareFlash,
     skillEffectFrame: skillEffectFrame,
     skillBarButtons: skillBarButtons,
-    touchBarButtons: touchBarButtons,
     SLOT_COUNT: SLOT_COUNT,
     loadoutPanelButtons: loadoutPanelButtons,
     hitTestLoadout: hitTestLoadout,
     hitTestRewardCard: hitTestRewardCard,
     REWARD_UI: REWARD_UI,
-    hitTestRegion: hitTestRegion,
-    touchButtons: touchButtons,
-    hitTestTouch: hitTestTouch
+    hitTestRegion: hitTestRegion
   };
 });

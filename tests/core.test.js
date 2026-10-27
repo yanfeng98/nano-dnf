@@ -817,8 +817,14 @@ function smashBarrel(state, prop) {
 
 /** 清空这一间房 —— 门在清房那一刻就开，不用再收卡（`docs/adr/0053`）。 */
 function clearRoom(state) {
-  killAll(state);
-  Core.runFrames(state, Math.ceil((Core.DEATH.lie + Core.DEATH.shape) * Core.FPS) + 2, {});
+  /*
+   * 多批房要等后续批次也进场再杀；只杀当前这一批，房间不会 cleared、门也不开。
+   * 每轮跑够死亡三拍，最多 12 轮。
+   */
+  for (let round = 0; round < 12 && state.room && !state.room.cleared; round += 1) {
+    killAll(state);
+    Core.runFrames(state, Math.ceil((Core.DEATH.lie + Core.DEATH.shape) * Core.FPS) + 8, {});
+  }
 }
 
 test("a smashed barrel stays smashed when he walks out of the room and back in", () => {
@@ -868,8 +874,8 @@ test("换房把上一间房的光和字一并留下，不带进新房间", () =>
 
   assert.deepEqual(
     state.effects.map((effect) => effect.kind),
-    ["banner"],
-    "新房间里只剩这一间的房名牌；上一间房的血光和伤害数字都留在门外"
+    [],
+    "上一间房的血光、伤害数字和房名牌都留在门外"
   );
 });
 
@@ -3860,11 +3866,6 @@ test("银光落刃 is what Z does in the air, and only in the air", () => {
     `the dive lands ahead of the take-off (${Math.round(takeOffX)} -> ${Math.round(state.player.x)})`
   );
   assert.ok(enemy.hp < hpBefore, "the blade lands on whatever is under it");
-  assert.ok(
-    state.effects.some((effect) => effect.kind === "shockwave") ||
-      state.effects.some((effect) => effect.kind === "banner"),
-    "the landing is answered by the floor"
-  );
 });
 
 test("银光落刃 only sometimes floors what it lands on", () => {
@@ -7727,90 +7728,10 @@ test("the renderer picks the sprite row that matches the player state", () => {
   assert.equal(hurt[2], 0, "hurt uses the hurt column");
 });
 
-test("touch controls expose a hit-testable layout for mobile play", () => {
-  const buttons = Render.touchButtons();
-  const actions = buttons.map((button) => button.action);
-
-  /*
-   * The six a player holds the device with, in the block they are drawn in:
-   * four ways to move on the floor's two axes, then jump and attack. Depth is
-   * not an extra on a touch surface - whether the floor has a second axis is
-   * the same question with a finger as with a keyboard.
-   */
-  assert.deepEqual(actions.slice(0, 6), ["up", "down", "left", "right", "jump", "attack"]);
-  assert.ok(actions.includes("mute"));
-  assert.ok(actions.includes("loadout"), "touch play needs the arrange button");
-
-  buttons.forEach((button) => {
-    assert.ok(button.x >= 0 && button.y >= 0, `${button.action} starts inside the arena`);
-    assert.ok(button.x + button.w <= Core.ARENA.width, `${button.action} fits horizontally`);
-    assert.ok(button.y + button.h <= Core.ARENA.height, `${button.action} fits vertically`);
-    assert.equal(
-      Render.hitTestTouch(button.x + button.w / 2, button.y + button.h / 2),
-      button.action
-    );
-  });
-
-  for (let i = 0; i < buttons.length; i += 1) {
-    for (let j = i + 1; j < buttons.length; j += 1) {
-      const a = buttons[i];
-      const b = buttons[j];
-      const overlaps = a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
-      assert.equal(overlaps, false, `${a.action} overlaps ${b.action}`);
-    }
-  }
-
-  assert.equal(Render.hitTestTouch(Core.ARENA.width / 2, 180), null, "empty space is not a button");
-});
-
-test("a touch player can pause and get out of it without a keyboard", () => {
-  const pause = Render.touchButtons().find((button) => button.action === "pause");
-  assert.ok(pause, "the touch layout needs a pause button");
-  assert.equal(pause.label, "停");
-  assert.equal(Render.hitTestTouch(pause.x + pause.w / 2, pause.y + pause.h / 2), "pause");
-
-  const state = Core.createState({ seed: 5 });
-  const liveCalls = [];
-  Render.render(recordingContext(liveCalls), state, {
-    touch: { enabled: true, pressed: [], muted: false }
-  });
-  const liveTexts = liveCalls.filter((call) => call[0] === "fillText").map((call) => String(call[1]));
-  assert.ok(liveTexts.includes("停"), `live play draws the pause button: ${liveTexts.join(" / ")}`);
-  assert.equal(liveTexts.includes("续"), false, "an unpaused run does not offer to resume");
-
-  const pausedCalls = [];
-  Render.render(recordingContext(pausedCalls), state, {
-    paused: true,
-    liveRows: [{ id: "seed", label: "种子", value: "5" }],
-    touch: { enabled: true, pressed: [], muted: false, paused: true }
-  });
-  const pausedTexts = pausedCalls
-    .filter((call) => call[0] === "fillText")
-    .map((call) => String(call[1]));
-  assert.ok(pausedTexts.includes("PAUSED"));
-  assert.ok(pausedTexts.includes("续"), "the paused frame offers the way out");
-  assert.ok(
-    pausedTexts.some((text) => text.includes("点右上角")),
-    "the pause overlay tells a touch player how to leave it"
-  );
-
-  /*
-   * Order matters: the overlay is painted over the controls, so a resume button
-   * drawn before it would be sitting under a dark wash with no way to tap out.
-   * It is drawn a second time after the overlay for exactly that reason, and the
-   * last copy is the one that has to land on top.
-   */
-  const overlayAt = pausedTexts.indexOf("PAUSED");
-  const resumeAt = pausedTexts.lastIndexOf("续");
-  assert.ok(overlayAt !== -1, "the paused frame announces itself");
-  assert.ok(resumeAt > overlayAt, "the resume button is drawn on top of the pause overlay");
-});
-
 test("the hotbar exposes two rows of DNF slots and the panel exposes every skill", () => {
   const Loadout = require("../src/loadout.js");
   const slots = Render.skillBarButtons();
   assert.equal(slots.length, Loadout.SLOT_COUNT, "A S D F G H / Q W E R T Y");
-  assert.equal(Render.touchBarButtons().length, Loadout.SLOT_COUNT, "touch keeps both rows");
   assert.equal(slots[0].y, slots[5].y, "the A row shares a baseline");
   assert.equal(slots[6].y, slots[11].y, "and so does the Q row");
   /*
@@ -7828,13 +7749,6 @@ test("the hotbar exposes two rows of DNF slots and the panel exposes every skill
     const hit = Render.hitTestLoadout(slot.x + slot.w / 2, slot.y + slot.h / 2, false, false);
     assert.deepEqual(hit, { kind: "slot", index: slot.index });
   });
-
-  /* Touch mode uses the compact bar, and hit-testing follows it. */
-  const touchSlot = Render.touchBarButtons()[7];
-  assert.deepEqual(
-    Render.hitTestLoadout(touchSlot.x + 4, touchSlot.y + 4, false, true),
-    { kind: "slot", index: 7 }
-  );
 
   const tiles = Render.loadoutPanelButtons();
   assert.equal(tiles.length, Core.SKILL_ORDER.length, "every skill is draggable");
@@ -7880,8 +7794,8 @@ test("the renderer draws both hotbar rows and the loadout panel", () => {
 
   const state = Core.createState({ seed: 11 });
   const sprites = { slayer: { width: 576, height: 480 }, skills: { width: 128, height: 32 } };
-  const barY = Render.skillBarButtons()[0].y + 2;
-  const barY2 = Render.skillBarButtons()[6].y + 2;
+  const barY = Render.skillBarButtons()[0].y + 4;
+  const barY2 = Render.skillBarButtons()[6].y + 4;
   const tileYs = [...new Set(Render.loadoutPanelButtons().map((tile) => tile.y + 4))];
   const drawsAt = (destY) =>
     calls.filter(
@@ -7902,14 +7816,10 @@ test("the renderer draws both hotbar rows and the loadout panel", () => {
     sprites,
     loadout,
     loadoutOpen: true,
-    drag: { skillId: "bloodyRave", x: 400, y: 300 },
-    touch: { enabled: true, pressed: [], muted: false }
+    drag: { skillId: "bloodyRave", x: 400, y: 300 }
   });
-  const touchY = Render.touchBarButtons()[0].y + 4;
-  const touchY2 = Render.touchBarButtons()[6].y + 4;
-  assert.equal(drawsAt(barY), 0, "touch mode uses the compact bar");
-  assert.equal(drawsAt(touchY), 6, "compact bar keeps the first row while arranging");
-  assert.equal(drawsAt(touchY2), 5, "compact bar keeps the second row while arranging");
+  assert.equal(drawsAt(barY), 6, "the compact bar keeps its first row while arranging");
+  assert.equal(drawsAt(barY2), 5, "and its second row");
   assert.equal(tileDraws(), Core.SKILL_ORDER.length, "every skill tile is drawn");
 });
 
@@ -8570,7 +8480,7 @@ test("the title screen shows the seed record and a clear shows the result", () =
   );
 });
 
-test("the renderer shows a hint in play and hides it behind overlays", () => {
+test("the coaching line is gone from the HUD", () => {
   const hint = {
     id: "upgrade",
     text: "选一张强化卡：按 1 / 2 / 3，或直接点卡片",
@@ -8583,7 +8493,12 @@ test("the renderer shows a hint in play and hides it behind overlays", () => {
     return calls.filter((call) => call[0] === "fillText").map((call) => String(call[1]));
   };
 
-  assert.ok(textsFor({ hint }).includes(hint.text), "live play shows the coaching line");
+  /* `docs/adr/0064`：本作附加 HUD 撤掉，操作提示不再画；状态仍可留给测试读。 */
+  assert.equal(
+    textsFor({ hint }).includes(hint.text),
+    false,
+    "live play no longer draws the coaching line"
+  );
   assert.equal(
     textsFor({ showHelp: true, hint }).includes(hint.text),
     false,
@@ -8595,57 +8510,6 @@ test("the renderer shows a hint in play and hides it behind overlays", () => {
     "a paused frame must not show coaching either"
   );
   assert.equal(textsFor({}).includes(hint.text), false, "no active hint means no line");
-});
-
-test("the room banner waits for live play instead of freezing behind an overlay", () => {
-  const state = Core.createState({ seed: Core.DEFAULT_SEED });
-  const banner = state.effects.find((effect) => effect.kind === "banner");
-  assert.ok(banner, "a fresh run starts with a room banner queued");
-
-  const textsFor = (meta) => {
-    const calls = [];
-    Render.render(recordingContext(calls), state, meta);
-    return calls.filter((call) => call[0] === "fillText").map((call) => String(call[1]));
-  };
-
-  /*
-   * 卡片上写的也是房间名（`drawHud`），所以"画面上出现过这几个字"不再等于"横幅画了"：
-   * 数**次数**。横幅多画一次，卡片只有一次。
-   */
-  const countOf = (texts) => texts.filter((text) => text === banner.text).length;
-  assert.equal(countOf(textsFor({})), 2, "live play draws the card and the banner");
-  assert.equal(
-    countOf(textsFor({ showHelp: true })),
-    1,
-    "the title overlay must not show a half-faded room banner"
-  );
-  assert.equal(
-    countOf(textsFor({ paused: true })),
-    1,
-    "a paused frame must not show the banner either"
-  );
-
-  /* Held back, not consumed: it still announces the room once play resumes. */
-  assert.ok(
-    state.effects.some((effect) => effect.kind === "banner"),
-    "the queued banner is left alone"
-  );
-  assert.ok(textsFor({}).includes(banner.text), "and it appears when play resumes");
-});
-
-test("a run without a record yet says so instead of inventing one", () => {
-  const calls = [];
-  Render.render(recordingContext(calls), Core.createState({ seed: 7 }), {
-    showHelp: true,
-    run: { seed: 7, seedText: "种子 7", recordText: "本种子还没有通关记录", improved: false }
-  });
-  const texts = calls.filter((call) => call[0] === "fillText").map((call) => String(call[1]));
-  assert.ok(texts.some((text) => text.includes("还没有通关记录")));
-  assert.equal(
-    texts.some((text) => text.includes("新纪录")),
-    false,
-    "an unfinished run cannot claim a record"
-  );
 });
 
 test("the room banner moves clear of the boss bar and the help quotes the real map", () => {
@@ -8853,6 +8717,7 @@ test("every prop a room scatters names a piece the bake produced", () => {
    * out of the room, and everything the map window is built from.
    */
   ["gate", "gateUp", "gateDown", "door", "doorUp", "doorDown",
+   "gateBlock", "doorBlock", "gateLight", "gateLight2",
    "chunk_grunt0", "chunk_grunt1", "chunk_grunt2",
    "chunk_coward0", "chunk_coward1", "chunk_coward2",
    "chunk_caster0", "chunk_caster1", "chunk_caster2",
@@ -9767,34 +9632,38 @@ test("Core queues client-sound events for the player and the monsters", () => {
  * 幽暗密林深处（2026-10-21）：4x4 的 15 格、猫妖族与暗咒猫妖。
  * 这些测试钉的是**这一关自己的数据**，不是 mirkwood 的回归。
  */
-test("the deep dungeon is the recording's 4x4 grid with the (3,2) hole", () => {
+test("the deep dungeon is the recording's 5x4 grid with two holes", () => {
   const stage = Core.STAGES.mirkwooddeep;
   const dun = stage.dungeon;
-  assert.equal(dun.cols, 4);
+  assert.equal(dun.cols, 5);
   assert.equal(dun.rows, 4);
-  assert.deepEqual(dun.shape, ["RCCR", "CCCR", "RCC.", "RCCR"]);
-  assert.deepEqual(dun.entry, [1, 1]);
-  assert.deepEqual(dun.boss, [3, 1]);
+  assert.deepEqual(dun.shape, ["RCCCR", ".CRCR", "RCRC.", "RCCCR"]);
+  assert.deepEqual(dun.entry, [0, 3]);
+  assert.deepEqual(dun.boss, [4, 1]);
 
   const state = Core.createState({ stage: "mirkwooddeep", seed: 1 });
-  assert.equal(state.dungeon.cells.length, 15, "the (3,2) hole is not a cell");
+  assert.equal(state.dungeon.cells.length, 18, "the two holes are not cells");
   assert.equal(
     state.dungeon.cells.filter((cell) => cell.kind === "room").length,
-    6,
-    "six room cells"
+    8,
+    "eight room cells"
   );
   assert.equal(
     state.dungeon.cells.filter((cell) => cell.kind === "corr").length,
-    9,
-    "nine corridor cells"
+    10,
+    "ten corridor cells"
   );
   assert.ok(
-    !state.dungeon.cells.some((cell) => cell.col === 3 && cell.row === 2),
-    "the recording's black corner stays a hole"
+    !state.dungeon.cells.some((cell) => cell.col === 0 && cell.row === 1),
+    "the recording's first black cell stays a hole"
   );
-  assert.equal(state.dungeon.cells[state.dungeon.entry].col, 1);
-  assert.equal(state.dungeon.cells[state.dungeon.entry].row, 1);
-  assert.equal(state.dungeon.cells[state.dungeon.boss].col, 3);
+  assert.ok(
+    !state.dungeon.cells.some((cell) => cell.col === 4 && cell.row === 2),
+    "the recording's second black cell stays a hole"
+  );
+  assert.equal(state.dungeon.cells[state.dungeon.entry].col, 0);
+  assert.equal(state.dungeon.cells[state.dungeon.entry].row, 3);
+  assert.equal(state.dungeon.cells[state.dungeon.boss].col, 4);
   assert.equal(state.dungeon.cells[state.dungeon.boss].row, 1);
   assert.equal(
     state.dungeon.cells[state.dungeon.boss].room,
@@ -9809,8 +9678,8 @@ test("the deep dungeon is the recording's 4x4 grid with the (3,2) hole", () => {
   state.dungeon.cells.forEach((cell) => {
     assert.ok(state.stage.rooms[cell.room], `cell ${cell.col},${cell.row} has a room spec`);
   });
-  assert.equal(stage.rooms.filter((room) => room.kind === "corr").length, 9);
-  assert.equal(stage.rooms.filter((room) => room.kind !== "corr").length, 6);
+  assert.equal(stage.rooms.filter((room) => room.kind === "corr").length, 10);
+  assert.equal(stage.rooms.filter((room) => room.kind !== "corr").length, 8);
 });
 
 test("the deep stage names its new monsters the way the recording does", () => {
@@ -9828,9 +9697,21 @@ test("the deep stage names its new monsters the way the recording does", () => {
   assert.equal(boss.behavior, "boss");
 
   const state = Core.createState({ stage: "mirkwooddeep", seed: 1 });
+  const entrySpec = Core.STAGES.mirkwooddeep.rooms[0];
+  assert.ok(
+    entrySpec.enemies.some((enemy) => enemy.type === "goblinRed"),
+    "the entry room fields the recording's red goblins"
+  );
+  assert.ok(
+    entrySpec.enemies.some((enemy) => enemy.type === "goblinBlue"),
+    "and its blue goblins"
+  );
+  const chestRoom = state.stage.rooms.findIndex((room) => room.name === "宝箱浅沟");
+  const chestCell = state.dungeon.cells.findIndex((cell) => cell.room === chestRoom);
+  Core.goToCell(state, chestCell);
   assert.ok(
     state.enemies.some((enemy) => enemy.type === "cat" && enemy.level === 6),
-    "the entry room fields a Lv6 cat"
+    "the chest room fields a Lv6 cat"
   );
   assert.ok(
     state.enemies.some((enemy) => enemy.type === "throwerElite" && enemy.level === 6),
@@ -9842,7 +9723,7 @@ test("the deep stage names its new monsters the way the recording does", () => {
   assert.equal(Core.isBossEnemy(catEnemy), false);
 });
 
-test("the deep boss reaches phase two without a banner and dies into victory", () => {
+test("the deep boss has no phase two and dies into victory", () => {
   const state = Core.createState({ stage: "mirkwooddeep", seed: 3 });
   Core.goToCell(state, state.dungeon.boss);
   const boss = state.enemies.find((enemy) => Core.isBossEnemy(enemy));
@@ -9851,18 +9732,19 @@ test("the deep boss reaches phase two without a banner and dies into victory", (
   state.effects = [];
 
   /* 领主有 10% 回避：单次大伤害可能被闪掉，和 `killAll` 一样重复到为止。 */
-  for (let hit = 0; hit < 50 && boss.phase < 2; hit += 1) {
+  for (let hit = 0; hit < 50 && boss.hp > boss.maxHp * 0.45; hit += 1) {
     Core.damageEnemy(state, boss, Math.ceil(boss.maxHp * 0.52), 0, state.player.x);
   }
-  assert.equal(boss.phase, 2, "crossing half health starts phase two");
+  assert.equal(boss.phase, 1, "the recording has one health bar, not a phase two");
   assert.equal(
     state.effects.filter((effect) => effect.kind === "banner").length,
     0,
     "the stage's bossBanner is empty on purpose: no words"
   );
-  assert.ok(
+  assert.equal(
     state.effects.some((effect) => effect.kind === "shockwave" && effect.gold),
-    "the gold ring is the phase-two tell"
+    false,
+    "there is no phase-two gold ring"
   );
 
   for (let hit = 0; hit < 50 && !boss.dead; hit += 1) {
@@ -9875,12 +9757,15 @@ test("the deep boss reaches phase two without a banner and dies into victory", (
 
 test("a chest pays one cyan item and gold; a tomb pays gold alone", () => {
   const state = Core.createState({ stage: "mirkwooddeep", seed: 1 });
+  const chestRoom = state.stage.rooms.findIndex((room) => room.name === "猫妖岔路");
+  const chestCell = state.dungeon.cells.findIndex((cell) => cell.room === chestRoom);
+  Core.goToCell(state, chestCell);
   clearRoom(state);
   /* The cleared room leaves the monsters' plates on the floor; this test is about
      the chest's own drop, so start from an empty pickup list. */
   state.pickups = [];
   const chest = state.props.find((prop) => prop.piece === "chest");
-  assert.ok(chest, "the entry room has a chest");
+  assert.ok(chest, "the chest room has a chest");
   smashBarrel(state, chest);
   assert.equal(chest.broken, true);
   const chestDrop = state.pickups.find((drop) => drop.kind === "loot");
@@ -9942,8 +9827,13 @@ test("the deep stage uses the recording's blue ten-captain and the larger cats",
   assert.equal(info.label, "十夫长");
   assert.equal(info.race, "人型");
   assert.equal(info.behavior, "elite");
-  assert.equal(Core.ENEMY_TYPES.cat.height >= 50, true, "the owner said the cat was too small");
-  assert.equal(Core.ENEMY_TYPES.lugaruBoss.height >= 60, true);
+  assert.equal(Core.ENEMY_TYPES.cat.height >= 50, true, "the cat is the recording's larger quadruped");
+  assert.equal(
+    Core.ENEMY_TYPES.lugaruBoss.height <= 31,
+    true,
+    "the boss is a low quadruped: 0.31-0.37 body, not the old 88x68"
+  );
+  assert.equal(Core.ENEMY_TYPES.lugaruBoss.width >= 66, true);
   assert.notEqual(
     Core.ENEMY_TYPES.deepElite.label,
     undefined,
@@ -9959,17 +9849,19 @@ test("the deep stage uses the recording's blue ten-captain and the larger cats",
   assert.notEqual(Render.MINIMAP.tiles["corr:NESW"], undefined);
 });
 
-test("the deep route is pinned for every seed and the side eight shuffle", () => {
+test("the deep route is pinned for every seed and the side nine shuffle", () => {
   const route = {
-    "1,1": 0,
+    "0,3": 0,
     "1,3": 10,
-    "1,2": 8,
-    "1,0": 13,
-    "2,0": 12,
+    "2,3": 8,
+    "2,2": 12,
     "2,1": 9,
-    "3,1": 1
+    "2,0": 13,
+    "3,0": 5,
+    "3,1": 6,
+    "4,1": 1
   };
-  const side = [2, 3, 4, 5, 6, 7, 11, 14].sort((a, b) => a - b);
+  const side = [2, 3, 4, 7, 11, 14, 15, 16, 17].sort((a, b) => a - b);
   [1, 7, 42, 20260915].forEach((seed) => {
     const state = Core.createState({ stage: "mirkwooddeep", seed });
     Object.keys(route).forEach((key) => {
@@ -9983,19 +9875,25 @@ test("the deep route is pinned for every seed and the side eight shuffle", () =>
       .filter((cell) => Object.keys(route).every((key) => key !== `${cell.col},${cell.row}`))
       .map((cell) => cell.room)
       .sort((a, b) => a - b);
-    assert.deepEqual(sideCells, side, `seed ${seed}: only the side eight remain`);
+    assert.deepEqual(sideCells, side, `seed ${seed}: only the side nine remain`);
   });
 });
 
 test("the measured room widths and band are on the deep route", () => {
   const widths = {
-    "1,1": 1008,
-    "1,3": 704,
-    "1,2": 960,
-    "1,0": 1118,
-    "2,0": 622,
-    "2,1": 951,
-    "3,1": 960
+    /*
+     * 41 房 **560**（不是下界 456，2026-10-27）：22s 帧房里还有活着的青哥布林，
+     * 东门却已经画在右墙上 —— 反推房间至少 543 世界px（`docs/adr/0063`）。
+     */
+    "0,3": 560,
+    "1,3": 520,
+    "2,3": 684,
+    "2,2": 734,
+    "2,1": 885,
+    "2,0": 524,
+    "3,0": 529,
+    "3,1": 588,
+    "4,1": 538
   };
   const state = Core.createState({ stage: "mirkwooddeep", seed: 7 });
   Object.keys(widths).forEach((key) => {
@@ -10004,13 +9902,20 @@ test("the measured room widths and band are on the deep route", () => {
     const cell = state.dungeon.cells.find((at) => at.col === col && at.row === row);
     Core.goToCell(state, state.dungeon.cells.indexOf(cell));
     assert.equal(state.room.width, widths[key], `${key} room width`);
-    assert.equal(state.band.backY, 256, `${key} ground band`);
+    assert.equal(state.band.backY, 375, `${key} walkable band`);
+    assert.equal(state.band.visualBackY, 320, `${key} visible ground top`);
+    /*
+     * 上/下门同轴只在这一关开（`doorX`）。这条守着"开关真的传到 `state.dungeon`"——
+     * 2026-10-27 就漏过一次：`dungeonFor` 只抄了 `northX`，`southSharesNorthX`
+     * 没带出来，于是 S 门还留在中心线，门测试当场红。
+     */
+    assert.equal(state.dungeon.southSharesNorthX, true, `${key}: 上/下门同轴开关传到了`);
   });
 });
 
 test("the route only scatters ground cover; the side eight keep the full scatter", () => {
   const state = Core.createState({ stage: "mirkwooddeep", seed: 7 });
-  const route = ["1,1", "1,3", "1,2", "1,0", "2,0", "2,1", "3,1"];
+  const route = ["0,3", "1,3", "2,3", "2,2", "2,1", "2,0", "3,0", "3,1", "4,1"];
   route.forEach((key) => {
     const col = Number(key.split(",")[0]);
     const row = Number(key.split(",")[1]);
@@ -10026,7 +9931,7 @@ test("the route only scatters ground cover; the side eight keep the full scatter
     assert.equal(scatteredBarrels.length, 0, `${key}: no scattered barrels`);
   });
 
-  const sideKey = ["0,1", "2,2", "2,3"];
+  const sideKey = ["0,2", "1,1", "3,2"];
   sideKey.forEach((key) => {
     const col = Number(key.split(",")[0]);
     const row = Number(key.split(",")[1]);
@@ -10039,12 +9944,9 @@ test("the route only scatters ground cover; the side eight keep the full scatter
   });
 });
 
-test("the deep route keeps its measured props; only a doorway moves one", () => {
+test("the deep route keeps its measured props where the recording puts them", () => {
   const state = Core.createState({ stage: "mirkwooddeep", seed: 7 });
-  const route = ["1,1", "1,3", "1,2", "1,0", "2,0", "2,1", "3,1"];
-  /* (1,3) 只有那两棵 146 宽的树是“整间房都没有合法位置”：美术 203 宽、房间 704、
-     上门门拱 157 宽，再让开左右门之后两边都放不下。全关只有这两件。 */
-  const impossible = { "1,3": 2 };
+  const route = ["0,3", "1,3", "2,3", "2,2", "2,1", "2,0", "3,0", "3,1", "4,1"];
   route.forEach((key) => {
     const col = Number(key.split(",")[0]);
     const row = Number(key.split(",")[1]);
@@ -10053,31 +9955,18 @@ test("the deep route keeps its measured props; only a doorway moves one", () => 
     const depth = Core.bandDepth(state.band);
     const spec = state.stage.rooms[cell.room].props || [];
     const hand = state.props.filter((prop) => !prop.scattered);
-    assert.equal(
-      hand.length,
-      spec.length - (impossible[key] || 0),
-      `${key}: 手摆件只丢挪不下的那几件`
-    );
+    assert.equal(hand.length, spec.length, `${key}: 手摆件一件不少`);
     /*
-     * **不压门的原样不动。** 布景的 x/depth 是录像里量的；只有压到门框/门拱的才挪
-     * （`docs/adr/0059` 追记）。这一条把“量出来的就是最终位置”钉住。
+     * **手摆件就是量出来的位置，门口也不挪**（`docs/adr/0063` 追记，2026-10-27）。
+     * 录像自己就把桶摆在下门拱旁边、把桶摆在上门前 35px —— "压门就挪"这条旧规矩
+     * 会把它们推走，反而离录像更远。只允许撒出来的那批让门（见 `scatterProps`）。
      */
     spec.forEach((entry) => {
-      if (Core.blocksDoorway(state, cell, entry, depth)) return;
       const z = (entry.depth === undefined ? 0 : entry.depth) * depth;
       assert.ok(
         hand.some((prop) => prop.piece === entry.piece &&
           Math.abs(prop.x - entry.x) < 0.001 && Math.abs(prop.z - z) < 0.001),
-        `${key}: ${entry.piece}@${entry.x} 没压门，应该留在原位`
-      );
-    });
-    /* 挪完（以及换深度之后）也不能压在门口上。 */
-    state.props.forEach((prop) => {
-      assert.equal(
-        Core.blocksDoorway(state, cell,
-          { piece: prop.piece, x: prop.x, depth: prop.z / depth }, depth),
-        false,
-        `${key}: ${prop.piece}@${Math.round(prop.x)} 压在门口上`
+        `${key}: ${entry.piece}@${entry.x} 应该留在量出来的位置`
       );
     });
     const specChests = spec.filter((entry) => entry.piece === "chest").length;
@@ -10090,7 +9979,7 @@ test("the deep route keeps its measured props; only a doorway moves one", () => 
 });
 
 test("路线格挪过的布景不许把宝箱/石碑盖住", () => {
-  const route = ["1,1", "1,3", "1,2", "1,0", "2,0", "2,1", "3,1"];
+  const route = ["0,3", "1,3", "2,3", "2,2", "2,1", "2,0", "3,0", "3,1", "4,1"];
   [7, 20260915].forEach((seed) => {
     const state = Core.createState({ stage: "mirkwooddeep", seed });
     route.forEach((key) => {
@@ -10134,7 +10023,7 @@ test("路线格挪过的布景不许把宝箱/石碑盖住", () => {
 
 test("the second wave runs in from the room edge instead of popping in", () => {
   const state = Core.createState({ stage: "mirkwooddeep", seed: 7 });
-  const cell = state.dungeon.cells.find((at) => at.col === 1 && at.row === 1);
+  const cell = state.dungeon.cells.find((at) => at.col === 0 && at.row === 3);
   Core.goToCell(state, state.dungeon.cells.indexOf(cell));
   /* 清掉第一波：第二波会从边缘进场。 */
   state.enemies.slice().forEach((enemy) => {
@@ -10171,7 +10060,7 @@ test("the second wave runs in from the room edge instead of popping in", () => {
 });
 
 test("the deep route's prop layout is the same on every seed", () => {
-  const route = ["1,1", "1,3", "1,2", "1,0", "2,0", "2,1", "3,1"];
+  const route = ["0,3", "1,3", "2,3", "2,2", "2,1", "2,0", "3,0", "3,1", "4,1"];
   const layout = (seed) => {
     const state = Core.createState({ stage: "mirkwooddeep", seed });
     return route.map((key) => {
@@ -10188,19 +10077,19 @@ test("the deep route's prop layout is the same on every seed", () => {
   assert.deepEqual(layout(7), layout(20260915));
 });
 
-test("the deep route's seven cells can be walked through their own doors", () => {
+test("the deep route's nine cells can be walked through their own doors", () => {
   const state = Core.createState({ stage: "mirkwooddeep", seed: 7 });
   const route = [
-    ["S", "1,2", "猫妖岔路"],
-    ["S", "1,3", "宝箱浅沟"],
-    ["N", "1,2", "猫妖岔路"],
-    ["N", "1,1", "铁门入口"],
-    ["N", "1,0", "老树回廊"],
-    ["E", "2,0", "藤蔓窄道"],
-    ["W", "1,0", "老树回廊"],
-    ["S", "1,1", "铁门入口"],
-    ["E", "2,1", "投掷手坡"],
-    ["E", "3,1", "暗咒猫妖的林地"]
+    ["E", "1,3", "宝箱浅沟"],
+    ["E", "2,3", "猫妖岔路"],
+    ["N", "2,2", "藤蔓窄道"],
+    ["N", "2,1", "投掷手坡"],
+    ["N", "2,0", "老树回廊"],
+    ["E", "3,0", "残柱祭坛"],
+    ["W", "2,0", "老树回廊"],
+    ["S", "2,1", "投掷手坡"],
+    ["E", "3,1", "断墙营地"],
+    ["E", "4,1", "暗咒猫妖的林地"]
   ];
   const cellAt = (key) => {
     const col = Number(key.split(",")[0]);

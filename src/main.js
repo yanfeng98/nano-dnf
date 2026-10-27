@@ -1,5 +1,5 @@
 /*
- * Browser entry point: keyboard + touch input, WebAudio feedback, fixed-step loop.
+ * Browser entry point: keyboard input, WebAudio feedback, fixed-step loop.
  * Depends on window.DNFCore, window.DNFRender, window.DNFLoadout and
  * window.DNFRecords.
  */
@@ -10,6 +10,7 @@
   var Render = window.DNFRender;
   var Loadout = window.DNFLoadout;
   var Records = window.DNFRecords;
+  var Progress = window.DNFProgress || null;
   var Music = window.DNFMusic;
   var Hints = window.DNFHints;
   var Attract = window.DNFAttract || null;
@@ -70,6 +71,7 @@
      * own ink (assets/import_dnf_scene.py, docs/adr/0028).
      */
     ["forest", "./assets/forest.png"],
+    ["forestDeep", "./assets/forest-deep.png"],
     /*
      * 雨（`docs/adr/0057`）：客户端 `sprite/map/rain.img` / `raindrop.img`
      * 烘成的一张小图（`assets/import_dnf_weather.py`）。
@@ -86,6 +88,22 @@
      * （assets/import_dnf_ui.py, docs/adr/0042）。
      */
     ["ui", "./assets/ui.png"],
+    /*
+     * 战斗 HUD 的原件（`assets/import_dnf_hud.py`, `docs/adr/0064`）：
+     * 底部主条、红/蓝球液体、槽框、中央菜单、任务条、聊天框底板。
+     */
+    ["hud", "./assets/hud.png"],
+    /* 城镇与 8 个 NPC（`assets/import_dnf_town.py`, `docs/adr/0065`）。 */
+    ["town", "./assets/town.png"],
+    ["npc", "./assets/npc.png"],
+    /* 商店/任务/背包/对话窗与物品图标（`assets/import_dnf_gui.py`）。 */
+    ["gui", "./assets/gui.png"],
+    /* 深处 33 房与 Boss 房的茅草屋（`assets/import_dnf_hut.py`）。 */
+    ["hut", "./assets/hut.png"],
+    /* 深处那批偏白的高石柱（`assets/import_dnf_pillar.py`）。 */
+    ["pillarPale", "./assets/pillar-pale.png"],
+    /* 深处的石块城门 + 铁栅（`assets/import_dnf_gate.py`）。 */
+    ["gateBlock", "./assets/gate-block.png"],
     /*
      * The map window: one 18 px tile per cell of the dungeon, plus the two
      * markers, the disc its radar form is cut into and the nine pieces of its
@@ -211,11 +229,6 @@
     }
   }
 
-  var touchMode =
-    location.search.indexOf("touch=1") !== -1 ||
-    (window.matchMedia && window.matchMedia("(pointer: coarse)").matches);
-  var activePointers = {};
-  var touchActions = [];
 
   /* --------------------------------------------------------------- runs */
   var RECORDS_KEY = "nano-dnf-records";
@@ -233,6 +246,13 @@
     } catch (error) {
       /* private mode: keep the in-memory record */
     }
+  }
+
+  /* 跨局进度（`docs/adr/0065`）：和 records 分两本账。 */
+  var progress = Progress ? Progress.load(window.localStorage) : null;
+  var progressStats = { cats: 0, breaks: 0, eliteKills: 0, victory: false };
+  function saveProgress() {
+    if (Progress && progress) Progress.save(progress, window.localStorage);
   }
 
   /*
@@ -306,7 +326,8 @@
   var paused = false;
   var showHelp = true;
   /* "window" (the whole dungeon) or "radar" (the disc round the room he is in). */
-  var mapMode = "window";
+  /* 录像开场到 74s 前右上角是圆形雷达，之后才切方形整图。 */
+  var mapMode = "radar";
   var accumulator = 0;
   var lastTime = 0;
   /*
@@ -598,7 +619,7 @@
      * `intro.ogg`。过场走完（`state.intro` 清掉）房间淡进来，才切到
      * `mirkwood.ogg`；Boss 格再切 Boss 那首。
      */
-    var titleUp = showHelp || regionOpen || !!state.intro;
+    var titleUp = showHelp || regionOpen || townOpen || !!state.intro;
     var want = Music.trackFor(state, { title: titleUp });
     if (want === musicTrackId) return;
     musicTrackId = want;
@@ -876,7 +897,7 @@
     if (!ensureAmbientBus()) return;
     var inRoom = !!(
       state.room && !state.intro && !state.victory && !state.defeat &&
-      !showHelp && !regionOpen
+      !showHelp && !regionOpen && !townOpen
     );
     if (inRoom) {
       startAmbient("rain", "rain_loop", 0.22);
@@ -885,10 +906,12 @@
     ["rain", "forest"].forEach(function (id) {
       var layer = ambient[id];
       if (!layer) return;
-      if (layer.on === inRoom) return;
-      layer.on = inRoom;
+      /* 深处不下雨：连环境雨声也一起关（`docs/adr/0063`）。 */
+      var wants = inRoom && !(id === "rain" && state.stage && state.stage.rain === false);
+      if (layer.on === wants) return;
+      layer.on = wants;
       layer.gain.gain.setTargetAtTime(
-        inRoom ? layer.level : 0,
+        wants ? layer.level : 0,
         audio.ctx.currentTime,
         0.2
       );
@@ -1020,6 +1043,46 @@
     if (!activeHint) return;
     activeHint.life -= dt;
     if (activeHint.life <= 0) activeHint = null;
+  }
+
+  /**
+   * 任务计数（`docs/adr/0065`）：击杀猫妖、打碎桶/箱、通关。
+   * 统计是**本局累计**，任务进度取两者的较大值；只在真的变了时写一次存储。
+   */
+  function syncProgress() {
+    if (!Progress || !progress) return;
+    var changed = false;
+    var cats = (state.stats.killsByType && state.stats.killsByType.cat) || 0;
+    if (cats > progressStats.cats) {
+      Progress.noteKill(progress, "cat", cats);
+      progressStats.cats = cats;
+      changed = true;
+    }
+    var breaks = state.stats.barrels || 0;
+    if (breaks > progressStats.breaks) {
+      Progress.noteBreak(progress, breaks);
+      progressStats.breaks = breaks;
+      changed = true;
+    }
+    /* 精英/Boss 低概率掉装备（`docs/adr/0065`）：本片只是入包，数值为 0。 */
+    var eliteKills = ((state.stats.killsByType || {}).deepElite || 0) +
+      ((state.stats.killsByType || {}).lugaruBoss || 0);
+    if (eliteKills > progressStats.eliteKills) {
+      progressStats.eliteKills = eliteKills;
+      var roll = (state.seed + eliteKills * 37) % 3;
+      if (roll === 0) {
+        var gear = ["rustyBlade", "clothArmor", "copperRing"];
+        Progress.addItem(progress, gear[(state.seed + eliteKills) % gear.length], 1);
+        changed = true;
+      }
+    }
+    if (state.victory && !progressStats.victory) {
+      Progress.addGold(progress, state.stats.gold || 0);
+      if (state.stage && state.stage.id) Progress.noteClear(progress, state.stage.id);
+      progressStats.victory = true;
+      changed = true;
+    }
+    if (changed) saveProgress();
   }
 
   function syncRecords() {
@@ -1176,8 +1239,7 @@
 
   /*
    * What the map's hit test needs: which of its two forms is up, and whether the
-   * top-right corner is already the touch buttons' (they take it, so the window
-   * drops below them - see Render.minimapBox).
+   * top-right corner is the map window's.
    */
   function mapMeta() {
     var dungeon = state && state.dungeon;
@@ -1186,12 +1248,11 @@
         mode: mapMode,
         cols: dungeon ? dungeon.cols : 4,
         rows: dungeon ? dungeon.rows : 3
-      },
-      touch: { enabled: touchMode }
+      }
     };
   }
 
-  function touchDown(event) {
+  function pointerDown(event) {
     if (!assets.ready) {
       event.preventDefault();
       return;
@@ -1200,7 +1261,7 @@
     ensureAudio();
     startMusic();
     if (showHelp) {
-      openRegion();
+      openTown();
       event.preventDefault();
       return;
     }
@@ -1239,7 +1300,7 @@
     }
 
     /* Skill bar: tap to cast, or start a drag while arranging the loadout. */
-    var bar = Render.hitTestLoadout(point.x, point.y, loadoutOpen, touchMode);
+    var bar = Render.hitTestLoadout(point.x, point.y, loadoutOpen, false);
     if (bar) {
       event.preventDefault();
       ensureAudio();
@@ -1258,44 +1319,13 @@
         return;
       }
       if (bar.kind === "slot" && loadout[bar.index]) {
-        var slotAction = "slot" + bar.index;
-        activePointers[event.pointerId] = slotAction;
-        held[slotAction] = true;
-        pressed[slotAction] = true;
-        if (touchActions.indexOf(slotAction) === -1) touchActions.push(slotAction);
+        pressed["slot" + bar.index] = true;
       }
       return;
     }
-
-    /* Movement / jump / attack buttons only exist on touch surfaces. */
-    if (!touchMode) return;
-    var action = Render.hitTestTouch(point.x, point.y);
-    if (!action) return;
-    event.preventDefault();
-    ensureAudio();
-    /* A tap is a gesture too: the soundtrack has to start on the touch path. */
-    if (action !== "mute") startMusic();
-    if (action === "mute") {
-      toggleMute();
-      return;
-    }
-    if (action === "loadout") {
-      loadoutOpen = !loadoutOpen;
-      drag = null;
-      return;
-    }
-    /* Same toggle as the P key: a touch surface has no keyboard. */
-    if (action === "pause") {
-      paused = !paused;
-      return;
-    }
-    activePointers[event.pointerId] = action;
-    held[action] = true;
-    if (ONE_SHOT_ACTIONS[action]) pressed[action] = true;
-    if (touchActions.indexOf(action) === -1) touchActions.push(action);
   }
 
-  function touchMove(event) {
+  function pointerMove(event) {
     if (!drag) return;
     var point = canvasPoint(event);
     drag.x = point.x;
@@ -1303,10 +1333,10 @@
     event.preventDefault();
   }
 
-  function touchUp(event) {
+  function pointerUp(event) {
     if (drag && drag.pointerId === event.pointerId) {
       var point = canvasPoint(event);
-      var target = Render.hitTestLoadout(point.x, point.y, loadoutOpen, touchMode);
+      var target = Render.hitTestLoadout(point.x, point.y, loadoutOpen, false);
       if (target && target.kind === "slot") {
         loadout = Loadout.assign(loadout, target.index, drag.skillId);
         saveLoadout();
@@ -1329,19 +1359,6 @@
       event.preventDefault();
       return;
     }
-    var action = activePointers[event.pointerId];
-    if (!action) return;
-    delete activePointers[event.pointerId];
-    held[action] = false;
-    var stillHeld = Object.keys(activePointers).some(function (id) {
-      return activePointers[id] === action;
-    });
-    if (!stillHeld) {
-      held[action] = false;
-      touchActions = touchActions.filter(function (entry) {
-        return entry !== action;
-      });
-    }
     if (event.preventDefault) event.preventDefault();
   }
 
@@ -1359,6 +1376,49 @@
      */
     ensureAudio();
     startMusic();
+    /*
+     * 背包 / 任务 / 装备三页（`docs/adr/0065`）：I / L / K，
+     * 打开时吃掉其它按键；Esc 或同一个键再按一次关掉。
+     */
+    if (progressPanel) {
+      if (event.code === "Escape") progressPanel = null;
+      else if (event.code === "KeyI") progressPanel = progressPanel === "inventory" ? null : "inventory";
+      else if (event.code === "KeyL") progressPanel = progressPanel === "quests" ? null : "quests";
+      else if (event.code === "KeyK") progressPanel = progressPanel === "equipment" ? null : "equipment";
+      else if (event.code === "KeyE" && progressPanel === "inventory") equipFirst();
+      event.preventDefault();
+      return;
+    }
+    if (!showHelp && !regionOpen && !state.victory && !state.defeat &&
+        (event.code === "KeyI" || event.code === "KeyL" || event.code === "KeyK")) {
+      /* 三页盖住城镇的 NPC 窗，别让对白/商店从底下露出来。 */
+      if (townOpen) {
+        town.dialogue = null;
+        town.panel = null;
+        town.left = false;
+        town.right = false;
+        town.up = false;
+        town.down = false;
+      }
+      progressPanel = event.code === "KeyI" ? "inventory"
+        : event.code === "KeyL" ? "quests" : "equipment";
+      event.preventDefault();
+      return;
+    }
+    /* 1 / 2 = HP / MP 药；翻牌那一屏的 1–4 仍归选牌。 */
+    if (!showHelp && !regionOpen && !(townOpen && town.panel) &&
+        !(state.victory && reward && reward.phase === "cards") &&
+        /^Digit[1-2]$/.test(event.code)) {
+      usePotion(event.code === "Digit1" ? "hpPotion" : "mpPotion");
+      event.preventDefault();
+      return;
+    }
+    /* 城镇有自己的走动与交互键；在它上面不跑副本的键位。 */
+    if (townOpen) {
+      townKey(event);
+      event.preventDefault();
+      return;
+    }
     if (event.code === "KeyP") {
       paused = !paused;
       event.preventDefault();
@@ -1389,6 +1449,12 @@
     if (event.code === "F3") {
       if (state.victory || state.defeat) openRegion();
       else restart();
+      event.preventDefault();
+      return;
+    }
+    /* 死亡/通关后回城镇（`docs/adr/0065`）；F3 仍保留回地区地图。 */
+    if (event.code === "F4" && (state.victory || state.defeat)) {
+      returnToTown();
       event.preventDefault();
       return;
     }
@@ -1437,14 +1503,9 @@
       event.preventDefault();
       return;
     }
-    if (event.code === "F2") {
-      touchMode = !touchMode;
-      event.preventDefault();
-      return;
-    }
     if (showHelp) {
-      /* Off the title and into the hub, not straight into a run. */
-      openRegion();
+      /* 标题 → 城镇；城镇的城门再开地区地图（`docs/adr/0065`）。 */
+      openTown();
       event.preventDefault();
       return;
     }
@@ -1452,16 +1513,20 @@
   });
 
   window.addEventListener("keyup", function (event) {
+    if (townOpen) {
+      townKeyUp(event);
+      return;
+    }
     if (setKey(event.code, false, event) && event.code === "Space") {
       pressed.jump = false;
     }
   });
 
-  canvas.addEventListener("pointerdown", touchDown);
-  canvas.addEventListener("pointermove", touchMove);
-  canvas.addEventListener("pointerup", touchUp);
-  canvas.addEventListener("pointercancel", touchUp);
-  canvas.addEventListener("pointerleave", touchUp);
+  canvas.addEventListener("pointerdown", pointerDown);
+  canvas.addEventListener("pointermove", pointerMove);
+  canvas.addEventListener("pointerup", pointerUp);
+  canvas.addEventListener("pointercancel", pointerUp);
+  canvas.addEventListener("pointerleave", pointerUp);
   canvas.addEventListener("contextmenu", function (event) {
     event.preventDefault();
   });
@@ -1473,8 +1538,6 @@
     Object.keys(pressed).forEach(function (key) {
       pressed[key] = false;
     });
-    activePointers = {};
-    touchActions = [];
   });
 
   function restart() {
@@ -1496,6 +1559,7 @@
     watch.level = state.player.level;
     watch.cell = 0;
     watch.victory = false;
+    progressStats = { cats: 0, breaks: 0, eliteKills: 0, victory: false };
   }
 
   /* The link that reopens this exact run. */
@@ -1542,6 +1606,255 @@
    */
   var regionOpen = false;
   var regionSelection = 0;
+
+  /*
+   * **城镇**（`docs/adr/0065`）：标题之后、地区地图之前的安全区。
+   * 第一版只做走动、8 个 NPC 与城门；任务/商店/仓库界面随后接。
+   */
+  var TOWN_NPCS = [
+    { id: "guard", x: 360, z: 50, label: "守卫", role: "装饰", line: "森林最近不太平，进去别走太深。" },
+    { id: "seria", x: 650, z: 50, label: "赛丽亚", role: "主线任务", line: "通关幽暗密林深处，再回来找我。" },
+    { id: "minet", x: 900, z: 50, label: "敏泰", role: "支线任务 1", line: "深处的猫妖越来越多了。" },
+    { id: "gsd", x: 1150, z: 50, label: "GSD", role: "支线任务 2", line: "木桶和宝箱里也有线索。" },
+    { id: "kanna", x: 1400, z: 50, label: "卡妮娜", role: "商店", line: "药水与材料，等商店接上再卖你。" },
+    { id: "brownie", x: 1700, z: 50, label: "布兰妮", role: "仓库 / 重置", line: "存东西和重置进度，等仓库接上。" },
+    { id: "sinda", x: 2000, z: 50, label: "辛达", role: "铁匠 / 分解", line: "不要的装备可以拿来分解。" },
+    { id: "guardCaptain", x: 2250, z: 50, label: "守卫队长", role: "装饰", line: "城门就在前面。" }
+  ];
+  var townOpen = false;
+  /* `null` / `"inventory"` / `"quests"` / `"equipment"`（`docs/adr/0065`）。 */
+  var progressPanel = null;
+  var town = {
+    x: 250,
+    z: 50,
+    facing: 1,
+    cameraX: 0,
+    time: 0,
+    left: false,
+    right: false,
+    up: false,
+    down: false,
+    near: null,
+    dialogue: null,
+    panel: null,
+    panelMessage: "",
+    resetArmed: false,
+    npcs: TOWN_NPCS
+  };
+
+  function equipFirst() {
+    if (!Progress || !progress) return false;
+    var id = Object.keys(progress.items).find(function (key) {
+      var item = Progress.ITEMS[key];
+      return item && item.category === "equipment" && progress.items[key] > 0;
+    });
+    if (!id) return false;
+    var ok = Progress.equip(progress, id);
+    if (ok) saveProgress();
+    return ok;
+  }
+
+  function usePotion(id) {
+    if (!Progress || !progress) return false;
+    var effect = Progress.useItem(progress, id);
+    if (!effect) return false;
+    var player = state.player;
+    if (effect.hp) player.hp = Math.min(player.maxHp, player.hp + effect.hp);
+    if (effect.mp) player.mp = Math.min(player.maxMp, player.mp + effect.mp);
+    saveProgress();
+    if (state.log) {
+      state.log.push({ text: "使用" + Progress.ITEMS[id].name, tone: "white" });
+      if (state.log.length > 8) state.log.shift();
+    }
+    return true;
+  }
+
+  function townNear() {
+    if (Math.abs(town.x - 2420) < 90 && town.z < 90) return { kind: "gate" };
+    var best = null;
+    var distance = 1e9;
+    TOWN_NPCS.forEach(function (npc) {
+      var d = Math.abs(npc.x - town.x) + Math.abs(npc.z - town.z);
+      if (d < distance) { distance = d; best = npc; }
+    });
+    if (best && Math.abs(best.x - town.x) < 90 && Math.abs(best.z - town.z) < 70) {
+      return { kind: "npc", npc: best };
+    }
+    return null;
+  }
+
+  function questForNpc(npcId) {
+    if (!Progress) return null;
+    var ids = Object.keys(Progress.QUESTS);
+    for (var i = 0; i < ids.length; i += 1) {
+      if (Progress.QUESTS[ids[i]].npc === npcId) return ids[i];
+    }
+    return null;
+  }
+
+  function townInteract() {
+    var near = townNear();
+    if (!near) { town.dialogue = null; town.panel = null; return; }
+    if (near.kind === "gate") {
+      townOpen = false;
+      openRegion();
+      return;
+    }
+    var npc = near.npc;
+    if (npc.id === "kanna" || npc.id === "brownie" || npc.id === "sinda") {
+      town.left = false;
+      town.right = false;
+      town.up = false;
+      town.down = false;
+      town.dialogue = null;
+      town.panelMessage = "";
+      town.resetArmed = false;
+      town.panel = npc.id === "kanna" ? "shop"
+        : npc.id === "brownie" ? "storage" : "craft";
+      return;
+    }
+    var line = npc.line;
+    var questId = questForNpc(npc.id);
+    if (questId && progress) {
+      var def = Progress.QUESTS[questId];
+      var quest = progress.quests[questId];
+      if (quest.state === "available") {
+        Progress.accept(progress, questId);
+        line = "任务已接：" + def.title;
+        saveProgress();
+      } else if (quest.state === "active" && quest.done) {
+        var reward = Progress.turnIn(progress, questId);
+        line = "任务完成：" + def.title +
+          (reward ? "。奖励 " + reward.gold + " 金币" : "");
+        saveProgress();
+      } else if (quest.state === "active") {
+        line = def.title + "：进度 " + quest.progress + " / " + def.goal;
+      } else if (quest.state === "turnedIn") {
+        line = "这条任务已经交付过了。";
+      }
+    }
+    town.dialogue = Object.assign({}, npc, { line: line });
+  }
+
+  function shopBuy(id) {
+    if (!Progress || !progress) return;
+    var item = Progress.ITEMS[id];
+    if (!item) return;
+    if ((progress.gold || 0) < item.price) {
+      town.panelMessage = "金币不够";
+      return;
+    }
+    Progress.addGold(progress, -item.price);
+    Progress.addItem(progress, id, 1);
+    saveProgress();
+    town.panelMessage = "买到 " + item.name;
+  }
+
+  function sellMaterial() {
+    if (!Progress || !progress) return;
+    if ((progress.items.material || 0) <= 0) {
+      town.panelMessage = "没有材料可卖";
+      return;
+    }
+    progress.items.material -= 1;
+    Progress.addGold(progress, Progress.ITEMS.material.price);
+    saveProgress();
+    town.panelMessage = "卖出 1 个下级硬化剂";
+  }
+
+  function resetProgressFromTown() {
+    if (!Progress || !progress) return;
+    if (!town.resetArmed) {
+      town.resetArmed = true;
+      town.panelMessage = "再按一次 R 确认重置（通关记录保留）";
+      return;
+    }
+    progress = Progress.reset(progress, window.localStorage);
+    progressStats = { cats: 0, breaks: 0, eliteKills: 0, victory: false };
+    town.resetArmed = false;
+    town.panelMessage = "进度已重置；通关记录保留";
+  }
+
+  function salvageFirstEquipment() {
+    if (!Progress || !progress) return;
+    var id = Object.keys(progress.items).find(function (key) {
+      var item = Progress.ITEMS[key];
+      return item && item.category === "equipment" && progress.items[key] > 0;
+    });
+    if (!id) {
+      town.panelMessage = "没有可分解的装备";
+      return;
+    }
+    var result = Progress.salvage(progress, id);
+    saveProgress();
+    town.panelMessage = "分解 " + Progress.ITEMS[id].name +
+      "：材料 +" + result.material + "，金币 +" + result.gold;
+  }
+
+  function townKey(event) {
+    if (town.panel) {
+      if (event.code === "Escape") {
+        town.panel = null;
+        town.resetArmed = false;
+        return;
+      }
+      if (town.panel === "shop") {
+        if (event.code === "Digit1") shopBuy("hpPotion");
+        if (event.code === "Digit2") shopBuy("mpPotion");
+        if (event.code === "Digit3") sellMaterial();
+      } else if (town.panel === "storage" && event.code === "KeyR") {
+        resetProgressFromTown();
+      } else if (town.panel === "craft" && event.code === "Digit1") {
+        salvageFirstEquipment();
+      }
+      return;
+    }
+    if (event.code === "ArrowLeft") town.left = true;
+    if (event.code === "ArrowRight") town.right = true;
+    if (event.code === "ArrowUp") town.up = true;
+    if (event.code === "ArrowDown") town.down = true;
+    if (event.code === "Space" || event.code === "Enter") townInteract();
+    if (event.code === "Escape") town.dialogue = null;
+  }
+
+  function townKeyUp(event) {
+    if (event.code === "ArrowLeft") town.left = false;
+    if (event.code === "ArrowRight") town.right = false;
+    if (event.code === "ArrowUp") town.up = false;
+    if (event.code === "ArrowDown") town.down = false;
+  }
+
+  function returnToTown() {
+    reward = null;
+    regionOpen = false;
+    progressPanel = null;
+    openTown();
+  }
+
+  function openTown() {
+    townOpen = true;
+    showHelp = false;
+    leaveTitle();
+    town.x = 250;
+    town.z = 50;
+    town.facing = 1;
+    town.cameraX = 0;
+    town.time = 0;
+    town.near = null;
+    town.dialogue = null;
+  }
+
+  function townStep(delta) {
+    var dx = (town.right ? 1 : 0) - (town.left ? 1 : 0);
+    var dz = (town.down ? 1 : 0) - (town.up ? 1 : 0);
+    if (dx) town.facing = dx > 0 ? 1 : -1;
+    town.x = Math.max(80, Math.min(2440, town.x + dx * 140 * delta));
+    town.z = Math.max(0, Math.min(100, town.z + dz * 80 * delta));
+    var target = Math.max(0, Math.min(2520 - Core.VIEW.width, town.x - Core.VIEW.width / 2));
+    town.cameraX += (target - town.cameraX) * Math.min(1, delta * 8);
+    town.time += delta;
+    town.near = townNear();
+  }
 
   function regionStageIds() {
     return Core.REGION.stages.filter(function (id) {
@@ -1654,12 +1967,28 @@
       return;
     }
 
+    /* 城镇：自己的走动/镜头，不进副本的 `Core.step`（`docs/adr/0065`）。 */
+    if (townOpen) {
+      townStep(delta);
+      Render.drawTown(ctx, {
+        town: town,
+        sprites: sprites,
+        player: state.player,
+        state: state,
+        loadout: loadout,
+        progressPanel: progressPanel,
+        progress: progress
+      });
+      window.requestAnimationFrame(frame);
+      return;
+    }
+
     /*
      * The dungeon only runs during live play. The title screen is a full-screen
      * overlay, so leaving it up used to let the room-1 enemies beat an idle
      * Slayer to 0 HP before the player pressed anything.
      */
-    if (!paused && !showHelp && !regionOpen) {
+    if (!paused && !showHelp && !regionOpen && !progressPanel) {
       accumulator += delta;
       var guard = 0;
       while (accumulator >= Core.DT && guard < 5) {
@@ -1671,6 +2000,7 @@
         ageHint(Core.DT);
         syncFinishedRun();
         syncRecords();
+        syncProgress();
         consumePressed();
         accumulator -= Core.DT;
         guard += 1;
@@ -1706,10 +2036,11 @@
 
     var meta = {
       paused: titleUp ? false : paused,
+      progressPanel: progressPanel,
+      progress: progress,
       showHelp: showHelp,
       attract: titleUp,
       sprites: sprites,
-      touch: { enabled: touchMode, pressed: touchActions, muted: audio.muted, paused: paused },
       loadout: loadout,
       loadoutOpen: loadoutOpen,
       drag: drag,
@@ -1780,7 +2111,6 @@
         " xp)" +
         " | kills " +
         state.stats.kills +
-        (touchMode ? " | touch" : "") +
         (audio.muted ? " | muted" : "") +
         (state.victory ? " | cleared" : "") +
         (state.defeat ? " | defeated" : "");
@@ -1797,8 +2127,8 @@
     if (!hint) return;
     hint.textContent =
       "每一格的门口按地图上那一格的方向开：左右走墙边的门，上边走房间深处那扇，下边朝你面前走。" +
-      "清空房间后门口会亮。走到牛头巨兽那一格把它打掉就通关。" +
-      "触屏设备会自动显示虚拟按键（也可在地址后加 ?touch=1 强制开启）。";
+      "清空房间后门口会亮。走到领主那一格把它打掉就通关。" +
+      "键盘操作：方向键走，X 普攻，C 跳，A/S/D/F/G/H/Q/W/E/R/T/Y 技能，I/L/K 背包/任务/装备。";
   })();
 
   window.nanoDnf = {
@@ -1841,13 +2171,6 @@
       drag = null;
       return loadoutOpen;
     },
-    setTouchMode: function (enabled) {
-      touchMode = !!enabled;
-      return touchMode;
-    },
-    isTouchMode: function () {
-      return touchMode;
-    },
     getSeed: function () {
       return currentSeed;
     },
@@ -1885,6 +2208,47 @@
     getRecords: function () {
       return JSON.parse(JSON.stringify(records));
     },
+    /* 城镇的状态与两个测试入口（`docs/adr/0065`）。 */
+    getTown: function () {
+      return {
+        open: townOpen,
+        x: town.x,
+        z: town.z,
+        cameraX: town.cameraX,
+        npcCount: town.npcs.length,
+        npcs: town.npcs.map(function (npc) { return npc.id; }),
+        near: town.near
+          ? { kind: town.near.kind, id: town.near.npc ? town.near.npc.id : null }
+          : null,
+        dialogue: town.dialogue ? town.dialogue.id : null,
+        panel: town.panel,
+        panelMessage: town.panelMessage
+      };
+    },
+    leaveTown: function () {
+      if (!townOpen) return false;
+      townOpen = false;
+      openRegion();
+      return true;
+    },
+    townInteract: townInteract,
+    getProgressState: function () {
+      return progress ? JSON.parse(JSON.stringify(progress)) : null;
+    },
+    resetProgress: function () {
+      if (!Progress) return null;
+      progress = Progress.reset(progress, window.localStorage);
+      progressStats = { cats: 0, breaks: 0, eliteKills: 0, victory: false };
+      return JSON.parse(JSON.stringify(progress));
+    },
+    setTownPosition: function (x, z) {
+      town.x = Math.max(80, Math.min(2440, x));
+      town.z = Math.max(0, Math.min(100, z === undefined ? town.z : z));
+      town.cameraX = Math.max(0, Math.min(2520 - Core.VIEW.width,
+                                           town.x - Core.VIEW.width / 2));
+      town.near = townNear();
+      return townNear();
+    },
     getRunSummary: function () {
       return runSummary();
     },
@@ -1903,7 +2267,7 @@
          * 验收时要能一眼看出换没换到 Boss 那一首。
          */
         track: Music.trackFor(state, {
-          title: showHelp || regionOpen || !!state.intro
+          title: showHelp || regionOpen || townOpen || !!state.intro
         }),
         trackFiles: Object.keys(musicBuffers),
         source: musicSource ? "file" : "synth"

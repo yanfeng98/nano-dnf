@@ -12,8 +12,12 @@
 **要美术素材就去这里找，不要去别处截、不要自己画。** 2026-10-06 业主的原话：
 「以后在这个客户端找资源」。
 
-- `assets/import_dnf_effects.py` 的 `DEFAULT_CLIENT` 已经指着它，脚本优先读本地客户端、
-  读不到才回落到 GitHub 镜像。
+- **这台云开发机上客户端实际在 `/home/luyanfeng/dnf-client/地下城与勇士`**；
+  `/mnt/c/...` 在这台机器上不存在。`import_dnf_*.py` 的 `DEFAULT_CLIENT` 目前仍指向
+  旧路径，跑脚本要显式传 `--client /home/luyanfeng/dnf-client/地下城与勇士`；
+  以后统一修默认值。
+- 素材脚本优先读本地客户端、读不到才回落到 GitHub 镜像；本机要显式传 `--client`
+  （见上一条），不要依赖默认值。
 - 包是按技能分的（`_hellbenter`、`_outragebreak`、`_bloodyrave`…），一条 `.img` 是若干帧。
   列一个包里有什么：
 
@@ -64,7 +68,9 @@
 **改完不算完。** 一片的收工条件是下面三件事全过；缺任何一件，这一片就还是**未完成**：
 
 1. `npm test` 全绿、`npm run test:browser` 双通；
-2. **`npm run serve` 把游戏起起来交给业主实玩**（http://localhost:8080，键盘和触屏两条路都通）。
+2. **`npm run serve` 把游戏起起来交给业主实玩**（http://localhost:8080，**键盘路径通**）。
+   **2026-10-22 起触屏不再是一条验收路径**（`docs/adr/0064`：UI 照录像、触屏键删除），
+   浏览器测试只跑键盘路径。
    **这台机器是云服务器，8080 在远端**：业主用 VS Code Remote-SSH 连过来，**端口转发那一步不能省** ——
    PORTS 面板 → 转发端口 → `8080` → 点地球图标（等价做法：本机 `ssh -L 8080:localhost:8080`）。
    **服务端 `curl` 返回 200 只说明服务起来了，不等于交到了他手上。** 详情见 `README.md` 的「运行」；

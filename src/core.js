@@ -250,6 +250,13 @@
     /* A spin sweeps the lane rather than a body-width (see spinHitsPlayer). */
     spin: 0.6,
     /*
+     * **打碎布景比打怪深得多。** 录像里宝箱/桶坐在后场那条草沿上
+     * （43 房 76s：箱底画布 y272，比他的脚高 46px），他挥一刀就能开；
+     * 按打怪的 0.3 身位够不着。DNF 的挥击本来就有纵向厚度，所以这一档单独放
+     * 1.6 身位（= 250 世界px），只给 `swingProps` 用，打怪仍是 0.3。
+     */
+    breakable: 1.6,
+    /*
      * A patch of floor rather than a line. 0.75 is the footprint the client's
      * own fire already pretended to have: slice 54 staggered its 12 tongues by
      * ±26 client px to read as "a patch on the ground plane", and ±26px of
@@ -2141,15 +2148,19 @@
       race: "野兽",
       level: 9,
       behavior: "boss",
+      /* 录像 384.83–385.00s：只有一次紫白爆光，没有白剪影/碎块/魂球。 */
+      deathStyle: "burst",
+      /* 录像那条领主条从一开始就是红的；没有绿/红相位切换。 */
+      barColor: "red",
       evasion: 0.10,
       maxHp: 150,
       xp: 120,
       /*
-       * 猫 Boss 和猫妖共用 73x75 的客户端画布，但录像里它是领主体量：
-       * 取 **68 世界px**、宽 88（含鬃毛/尾巴），比猫妖再大一档。
+       * 录像量到的是一只**低伏四足兽**：高 0.31–0.37 身位（26–31 世界px）、
+       * 长 0.79–0.91（66–76）；不是原来的 88×68。
        */
-      width: 88,
-      height: 68,
+      width: 70,
+      height: 28,
       speed: 88,
       damage: 12,
       attackRange: 18,
@@ -2157,39 +2168,28 @@
       attackDuration: 0.5,
       attackCooldown: 0.9,
       knockbackX: 220,
-      /* 中距离扑上来：和牛头巨兽的二阶段 lunge 同一套提交-冲刺，但一阶段就有。 */
+      /* 扑跃（录像 327–330s）：水平 100–150 视频px ≈ 32–47 世界px。 */
       lunge: {
-        gap: 120,
-        minGap: 40,
-        speed: 360,
+        gap: 70,
+        minGap: 24,
+        speed: 300,
         windup: 0.30,
         recovery: 0.40,
         cooldown: 3.2,
-        range: 120
+        range: 48
       },
       /*
-       * 横扫：判定是一颗**圆心在身前**的圆，不是贴着自己的盘。`offset` 是圆心
-       * 离身体中心的距离，`radius` 是那一爪扫到的半径；两者一起读作"面前那一片"。
+       * 低血交叉光束（录像 381–385s）：至少 4 条粉白/红光束横穿全屏，多段。
+       * 首版在血量 ≤35% 且冷却结束时放；它不是召唤，也不改阶段。
        */
-      sweep: {
-        commit: 55,
-        radius: 70,
-        offset: 34,
+      beam: {
+        hpRatio: 0.35,
+        windup: 0.6,
+        duration: 1.2,
         damage: 14,
-        windup: 0.45,
-        recovery: 0.55,
-        cooldown: 4.2
-      },
-      phase2: {
-        banner: "",
-        hpRatio: 0.5,
-        speedScale: 1.15,
-        damageScale: 1,
-        cooldownScale: 0.8,
-        windupScale: 1,
-        slamRadiusScale: 1,
-        slamCooldownScale: 1,
-        lunge: null
+        cooldown: 20,
+        beams: 5,
+        range: 720
       }
     }
   };
@@ -2555,17 +2555,17 @@
     },
 
     /*
-     * **幽暗密林深处**（2026-10-21 逐格量过路线 + 侧 8 重做）。
+     * **幽暗密林深处**（2026-10-24 按 `00002` 重测，`docs/adr/0062` / `0063`）。
      *
-     * 录像蓝柱实际走过 **7 个不同格**：入口 (1,1)、5 条路线走廊
-     * (1,0)/(1,3)/(1,2)/(2,0)/(2,1)、Boss (3,1)。其余 8 格（5 房 + 3 侧走廊）
-     * 没有实机画面；这一版把侧 8 也换成深处名册/set 02 布景，仍标“推断”。
+     * 录像蓝柱走过 **9 间不同房、11 次进房**：
+     * `41(0,3) → 42(1,3) → 43(2,3) → 33(2,2) → 23(2,1) → 13(2,0) →
+     *  14(3,0) → 13 → 23 → 24(3,1) → 25(4,1) Boss`。
+     * 地图是 **5 列 × 4 行、20 格位、18 格**；洞在 (0,1) 与 (4,2)。
      *
-     * 路线 7 格用 `MIRKWOODDEEP_DUNGEON.pins` 钉死；侧 8 格按种子洗牌。
-     * 路线格房宽/背板/布景/敌人是量出来的；侧 8 的房宽用 11.4/13.3/15.1（房）
-     * 与 7.4/8.4/11.3（走廊）分布，内容为推断。
-     * 深处 15 格地面带 backY 256。
-     * 路线格只保留矮草/花/高草的随机撒景；侧 8 保留全套随机撒景。
+     * 路线 9 格用 `MIRKWOODDEEP_DUNGEON.pins` 钉死；侧 9 格按种子洗牌。
+     * 路线房宽用 `docs/adr/0062` 的实测下界（456–734 世界px）；侧 9 格内容为推断。
+     * 地面带仍暂用 backY 256；`docs/adr/0063` 的收窄是下一步。
+     * 路线格只保留矮草/花/高草的随机撒景；侧 9 格保留全套随机撒景。
      */
     mirkwooddeep: {
       id: "mirkwooddeep",
@@ -2573,78 +2573,100 @@
       name: "幽暗密林深处",
       level: [4, 7],
       slot: 1,
+      /* 录像 `00002` 整场没有雨、雪、雾（`docs/adr/0063`）。 */
+      rain: false,
+      /*
+       * **这关的布景是逐件从录像上量的，量出来就是最终位置。** 旧版"压门就挪到最近
+       * 空位"的净空在这一关关掉（`beginRoom` 里按这个开关分路）：录像自己就把桶摆在
+       * 下门拱旁边、把桶摆在上门前 35px —— 挪它们只会离录像更远。别的关仍走净空，
+       * 那些关的摆位不是在 00002 上逐帧量出来的（`docs/adr/0063` 追记）。
+       */
+      propsAreMeasured: true,
       rooms: [
-        /* 0 —— 入口 (1,1)。录像 10.1–73.8 / 147.5–189.6 / 272.1–276.7s；房宽 12.0 身位（估，下界 10.1）；地面带 backY 256。 */
+        /* 0 —— 路线 41 (0,3)。录像 11–26s；房宽下界 456 世界px（5.43 身位）；地面带暂 backY 256。 */
         {
           name: "铁门入口",
-          kind: "corr",
-          width: 1008,
+          kind: "room",
+          /*
+           * **560，不是下界 456**（2026-10-27 从 22s 帧反推）：22s 房里还有活着的青哥布林，
+           * 东门却已经画在右墙上 —— 按它那一帧的屏幕位置反推，房间**至少 543 世界px**；
+           * 13s 镜头贴左墙时那扇门其实在窗口外面（画布 950 > 840），不是"没画"。
+           * 取 560（比 543 留一点余量）。摆位是绝对坐标，加宽只动右墙，手摆件不用动。
+           */
+          width: 560,
           band: { backY: 256 },
+          /*
+           * 怪按 560 宽重排：旧表（180/360/560/760 + 260/520/780）是按 ~960 宽的
+           * 房间写的，落到 560 之后后两只都被夹在右墙同一点（503/503）—— 叠成一只。
+           * 13s 帧里红哥布林聚在 world 380–430 一带，这里按整间铺开、把第二波错开。
+           */
           enemies: [
-            { type: "goblinRed", x: 252, level: 6 },
-            { type: "goblinBlue", x: 403, level: 6 },
-            { type: "throwerElite", x: 605, depth: 0.35, level: 6 },
-            { type: "cat", x: 504, level: 6 },
-            { type: "goblinRed", x: 726, level: 6 },
-            { type: "cat", x: 151, wave: 2, level: 6 },
-            { type: "goblinBlue", x: 857, wave: 2, level: 6 },
-            { type: "throwerElite", x: 907, depth: 0.35, wave: 2, level: 6 },
+            { type: "goblinRed", x: 150, level: 6 },
+            { type: "goblinRed", x: 300, level: 6 },
+            { type: "goblinRed", x: 430, level: 6 },
+            { type: "goblinRed", x: 500, level: 6 },
+            { type: "goblinBlue", x: 220, wave: 2, level: 6 },
+            { type: "goblinBlue", x: 360, wave: 2, level: 6 },
+            { type: "goblinBlue", x: 480, wave: 2, level: 6 },
           ],
+          cap: 4,
+          /*
+           * **41 房逐件量过**（13s 帧，720×540 游戏坐标；`ref/13.png`）：
+           * 六棵直树的树干底边都落在 245–255 → depth ≈ 2.03（树在走位带**后面**，
+           * 不在带子边上）；苔石底 275 → 1.79；前桶底 390 → 0.46；右桶底 455 →
+           * -0.29；倒木底 480 → -0.58。
+           * 世界 x = 屏幕 x ÷ 1.5775：树 81/157/228/299/374/431、苔石 242、
+           * 桶 210/378、倒木 304。
+           * 旧的那组（120/450/800 + 桶 520/760）是按 ~960 宽的房间写的，房间只有
+           * 456 宽时后三件直接落在墙外、根本没画出来。
+           */
           props: [
-            { piece: "trunkTall", x: 50, depth: 0.95 },
-            { piece: "trunkBent", x: 161, depth: 0.95 },
-            { piece: "trunkMossy", x: 282, depth: 0.95 },
-            { piece: "trunkTall", x: 454, depth: 0.95 },
-            { piece: "trunkMossy", x: 625, depth: 0.95 },
-            { piece: "trunkBent", x: 806, depth: 0.95 },
-            { piece: "trunkTall", x: 948, depth: 0.95 },
-            { piece: "pillar", x: 131, depth: 0.72 },
-            { piece: "pillar", x: 181, depth: 0.72 },
-            { piece: "pillar", x: 232, depth: 0.72 },
-            { piece: "pillar", x: 292, depth: 0.72 },
-            { piece: "pillar", x: 353, depth: 0.72 },
-            { piece: "pillar", x: 413, depth: 0.72 },
-            { piece: "pillar", x: 474, depth: 0.72 },
-            { piece: "pillar", x: 534, depth: 0.72 },
-            { piece: "pillar", x: 585, depth: 0.72 },
-            { piece: "barrel", x: 121, depth: 0.38 },
-            { piece: "barrel", x: 302, depth: 0.38 },
-            { piece: "barrel", x: 504, depth: 0.38 },
-            { piece: "barrel", x: 706, depth: 0.38 },
-            { piece: "barrel", x: 887, depth: 0.38 },
-            { piece: "chest", x: 454, depth: 0.42 },
-            { piece: "rockFlat", x: 302, depth: 0.5 },
-            { piece: "rockFlat", x: 504, depth: 0.5 },
-            { piece: "wallStone", x: 504, depth: 0.85 },
+            /*
+             * **三棵，不是六棵。** 本作这三件树干的画幅比录像粗（枝杈铺开
+             * 144 画布px，录像那棵 65），六棵排下来把上沿的树冠带全挡住了；
+             * 录像里前面看得清的也就三大棵，其余是 mid 层的裸树干。
+             */
+            { piece: "trunkTall", x: 81, depth: 2.03 },
+            { piece: "trunkMossy", x: 228, depth: 2.03 },
+            { piece: "trunkBent", x: 374, depth: 2.03 },
+            { piece: "rockFlat", x: 242, depth: 1.79, scale: [0.34, 0.34] },
+            { piece: "barrel", x: 210, depth: 0.46 },
+            { piece: "barrel", x: 378, depth: -0.29 },
+            { piece: "fallenTrunk", x: 304, depth: -0.58 },
           ],
           scatter: {"solid":0,"barrels":0,"stones":0}
         },
-        /* 1 —— Boss (3,1)。录像 311.9–约387s；房宽 11.4 身位（估，下界 7.8）；骷髅袋/帐篷本作无对应件，不放。 */
+        /* 1 —— 路线 25 Boss (4,1)。录像 314–385s；房宽下界 538、TH100 752 世界px；骷髅袋/帐篷本作无对应件，不放。 */
         {
           name: "暗咒猫妖的林地",
           kind: "room",
-          width: 960,
+          width: 538,
           band: { backY: 256 },
           enemies: [
-            { type: "deepElite", x: 528, level: 7 },
-            { type: "cat", x: 432, level: 6 },
-            { type: "cat", x: 576, level: 6 },
-            { type: "throwerElite", x: 672, depth: 0.35, level: 7 },
-            { type: "lugaruBoss", x: 787, level: 9 },
-            { type: "cat", x: 720, wave: 2, level: 6 },
-            { type: "deepElite", x: 864, wave: 2, level: 7 },
+            { type: "deepElite", x: 300, level: 7 },
+            { type: "throwerElite", x: 520, depth: 0.35, level: 7 },
+            { type: "cat", x: 420, wave: 2, level: 6 },
+            { type: "cat", x: 600, wave: 2, level: 6 },
+            { type: "lugaruBoss", x: 800, level: 9 },
           ],
+          cap: 5,
           props: [
-            { piece: "chest", x: 48, depth: 0.42 },
-            { piece: "chest", x: 365, depth: 0.42 },
-            { piece: "chest", x: 480, depth: 0.42 },
-            { piece: "barrel", x: 528, depth: 0.45 },
-            { piece: "barrel", x: 595, depth: 0.45 },
-            { piece: "treeLeafy", x: 144, depth: 0.6 },
-            { piece: "trunkTall", x: 77, depth: 0.95 },
-            { piece: "trunkMossy", x: 336, depth: 0.95 },
-            { piece: "trunkBent", x: 672, depth: 0.95 },
-            { piece: "trunkTall", x: 883, depth: 0.95 },
+            { piece: "chest", x: 80, depth: 0.25 },
+            { piece: "chest", x: 250, depth: 0.25 },
+            { piece: "chest", x: 500, depth: 0.25 },
+            { piece: "barrel", x: 300, depth: 0.50 },
+            { piece: "barrel", x: 520, depth: 0.50 },
+            { piece: "trunkTall", x: 120, depth: 0.95 },
+            /*
+             * **25 房按 316s 帧量**：两座茅草屋（不是一座）——
+             * 左 190..320 底 355 → x 162 / depth 0.86；
+             * 右 455..590 底 450 → x 331 / depth -0.23。
+             * 旧版一 Hut 在 120、另外三件树在 700/880 全在 538 宽的墙外。
+             */
+            { piece: "hut", x: 162, depth: 0.86 },
+            { piece: "hut", x: 331, depth: -0.23 },
+            { piece: "treeLeafy", x: 470, depth: 1.20 },
+            { piece: "trunkMossy", x: 30, depth: 2.03 },
           ],
           scatter: {"tall":1,"solid":0,"barrels":0,"stones":0}
         },
@@ -2655,8 +2677,8 @@
           width: 960,
           band: { backY: 256 },
           enemies: [
-            { type: "grunt", x: 336, level: 6 },
-            { type: "grunt", x: 432, level: 6 },
+            { type: "goblinRed", x: 336, level: 6 },
+            { type: "goblinRed", x: 432, level: 6 },
             { type: "goblinBlue", x: 528, level: 6 },
             { type: "deepElite", x: 672, level: 6 },
             { type: "cat", x: 576, level: 6 },
@@ -2664,11 +2686,11 @@
             { type: "throwerElite", x: 768, depth: 0.35, wave: 2, level: 6 },
           ],
           props: [
-            { piece: "pillar", x: 144, depth: 0.72 },
-            { piece: "pillar", x: 240, depth: 0.72 },
-            { piece: "pillar", x: 336, depth: 0.72 },
-            { piece: "pillar", x: 624, depth: 0.72 },
-            { piece: "pillar", x: 720, depth: 0.72 },
+            { piece: "pillarPale", x: 144, depth: 0.72 },
+            { piece: "pillarPale", x: 240, depth: 0.72 },
+            { piece: "pillarPale", x: 336, depth: 0.72 },
+            { piece: "pillarPale", x: 624, depth: 0.72 },
+            { piece: "pillarPale", x: 720, depth: 0.72 },
             { piece: "wallStone", x: 192, depth: 0.85 },
             { piece: "wallStone", x: 480, depth: 0.85 },
             { piece: "trunkMossy", x: 77, depth: 0.95 },
@@ -2717,8 +2739,8 @@
           width: 1268,
           band: { backY: 256 },
           enemies: [
-            { type: "grunt", x: 444, level: 6 },
-            { type: "grunt", x: 571, level: 6 },
+            { type: "goblinBlue", x: 444, level: 6 },
+            { type: "goblinBlue", x: 571, level: 6 },
             { type: "goblinBlue", x: 697, level: 6 },
             { type: "cat", x: 824, level: 6 },
             { type: "deepElite", x: 951, level: 6 },
@@ -2743,91 +2765,86 @@
             { piece: "barrel", x: 824, depth: 0.38 },
           ]
         },
-        /* 5 —— 侧 5 房：残柱祭坛；石柱/碑/箱。 */
+        /* 5 —— 路线 14 (3,0)。录像 236–265s；房宽下界 529 世界px（6.30 身位）；石柱/碑/箱。 */
         {
           name: "残柱祭坛",
-          kind: "room",
-          width: 960,
+          kind: "corr",
+          width: 529,
           band: { backY: 256 },
           enemies: [
-            { type: "cat", x: 336, level: 6 },
-            { type: "cat", x: 432, level: 6 },
-            { type: "goblinRed", x: 528, level: 6 },
-            { type: "deepElite", x: 672, level: 6 },
-            { type: "throwerElite", x: 768, depth: 0.35, level: 6 },
-            { type: "grunt", x: 192, wave: 2, level: 6 },
-            { type: "cat", x: 816, wave: 2, level: 6 },
+            { type: "deepElite", x: 350, level: 6 },
+            { type: "deepElite", x: 600, level: 6 },
+            { type: "deepElite", x: 250, wave: 2, level: 6 },
+            { type: "goblinRed", x: 700, wave: 2, level: 6 },
           ],
+          cap: 4,
           props: [
-            { piece: "pillar", x: 96, depth: 0.72 },
-            { piece: "pillar", x: 144, depth: 0.72 },
-            { piece: "pillar", x: 192, depth: 0.72 },
-            { piece: "pillar", x: 240, depth: 0.72 },
-            { piece: "pillar", x: 288, depth: 0.72 },
-            { piece: "pillar", x: 624, depth: 0.72 },
-            { piece: "pillar", x: 720, depth: 0.72 },
-            { piece: "pillar", x: 816, depth: 0.72 },
-            { piece: "wallStone", x: 144, depth: 0.85 },
-            { piece: "wallStone", x: 528, depth: 0.85 },
-            { piece: "tomb", x: 336, depth: 0.4 },
-            { piece: "tomb", x: 432, depth: 0.4 },
-            { piece: "rockFlat", x: 576, depth: 0.5 },
-            { piece: "chest", x: 480, depth: 0.42 },
-            { piece: "trunkMossy", x: 48, depth: 0.95 },
-            { piece: "trunkTall", x: 864, depth: 0.95 },
-          ]
+            { piece: "trunkTall", x: 100, depth: 0.95 },
+            { piece: "trunkMossy", x: 300, depth: 0.95 },
+            { piece: "trunkBent", x: 500, depth: 0.95 },
+            { piece: "trunkTall", x: 700, depth: 0.95 },
+            { piece: "trunkMossy", x: 880, depth: 0.95 },
+            /*
+             * 西侧那道石门现在由 `drawGate` 自己画（从西门进来时它从进门那一刻就在，
+             * 清房后仍带栅）—— 旧的静态装饰件 2026-10-27 删掉，不再两扇叠着。
+             */
+          ],
+          scatter: {"solid":0,"barrels":0,"stones":0}
         },
-        /* 6 —— 侧 5 房：断墙营地；墙/桶/箱/碑。 */
+        /* 6 —— 路线 24 (3,1)。录像 277–313s；房宽下界 588 世界px（7.00 身位）；墙/桶/箱/碑。 */
         {
           name: "断墙营地",
-          kind: "room",
-          width: 1118,
+          kind: "corr",
+          width: 588,
           band: { backY: 256 },
           enemies: [
-            { type: "goblinRed", x: 391, level: 6 },
-            { type: "goblinRed", x: 503, level: 6 },
-            { type: "throwerElite", x: 671, depth: 0.35, level: 6 },
-            { type: "throwerElite", x: 783, depth: 0.35, level: 6 },
-            { type: "deepElite", x: 894, level: 6 },
-            { type: "grunt", x: 224, wave: 2, level: 6 },
-            { type: "cat", x: 559, wave: 2, level: 6 },
-            { type: "goblinBlue", x: 950, wave: 2, level: 6 },
+            { type: "goblinRed", x: 250, level: 6 },
+            { type: "goblinRed", x: 450, level: 6 },
+            { type: "goblinBlue", x: 650, level: 6 },
+            { type: "goblinBlue", x: 850, level: 6 },
+            { type: "deepElite", x: 350, wave: 2, level: 6 },
+            { type: "goblinBlue", x: 550, wave: 2, level: 6 },
+            { type: "goblinBlue", x: 750, wave: 2, level: 6 },
+            { type: "throwerElite", x: 950, depth: 0.35, wave: 3, level: 6 },
           ],
+          cap: 4,
+          /*
+           * **24 房逐件量过**（279s 帧；`ref/279.png`）：三只桶从左下往右上斜排
+           * （x 134/155/170，底 350/300/435 → depth 0.92/1.50/-0.06）；
+           * 两块苔石（x 215/242，depth 0.81/0.69）；右边一棵果树（x 415，
+           * 底 330 → 1.15）。旧的那组 x 到 1000，房间 588 宽时全在墙外。
+           */
           props: [
-            { piece: "wallStone", x: 168, depth: 0.85 },
-            { piece: "wallStone", x: 447, depth: 0.85 },
-            { piece: "wallStone", x: 783, depth: 0.85 },
-            { piece: "barrel", x: 335, depth: 0.38 },
-            { piece: "barrel", x: 503, depth: 0.38 },
-            { piece: "barrel", x: 671, depth: 0.38 },
-            { piece: "chest", x: 280, depth: 0.42 },
-            { piece: "chest", x: 615, depth: 0.42 },
-            { piece: "trunkTall", x: 89, depth: 0.95 },
-            { piece: "trunkMossy", x: 559, depth: 0.95 },
-            { piece: "trunkBent", x: 1006, depth: 0.95 },
-            { piece: "tomb", x: 894, depth: 0.4 },
-            { piece: "rockFlat", x: 727, depth: 0.5 },
-          ]
+            { piece: "barrel", x: 155, depth: 1.50 },
+            { piece: "barrel", x: 134, depth: 0.92 },
+            { piece: "barrel", x: 170, depth: -0.06 },
+            { piece: "rockFlat", x: 215, depth: 0.81, scale: [0.45, 0.45] },
+            { piece: "rockFlat", x: 242, depth: 0.69, scale: [0.45, 0.45] },
+            { piece: "treeLeafy", x: 415, depth: 1.15 },
+            { piece: "trunkMossy", x: 20, depth: 2.03 },
+            { piece: "trunkTall", x: 540, depth: 2.03 },
+          ],
+          scatter: {"solid":0,"barrels":0,"stones":0}
         },
-        /* 7 —— 侧走廊 苔柱夹道；石柱/树/箱。 */
+        /* 7 —— 侧 9 格（推断）：苔柱夹道；石柱/树/箱。 */
         {
           name: "苔柱夹道",
           kind: "corr",
           width: 704,
           band: { backY: 256 },
           enemies: [
-            { type: "grunt", x: 246, level: 6 },
+            { type: "goblinRed", x: 246, level: 6 },
             { type: "goblinBlue", x: 352, level: 6 },
             { type: "cat", x: 458, level: 6 },
             { type: "goblinRed", x: 141, wave: 2, level: 6 },
             { type: "deepElite", x: 563, wave: 2, level: 6 },
           ],
           props: [
-            { piece: "pillar", x: 106, depth: 0.72 },
-            { piece: "pillar", x: 176, depth: 0.72 },
-            { piece: "pillar", x: 246, depth: 0.72 },
-            { piece: "pillar", x: 458, depth: 0.72 },
-            { piece: "pillar", x: 563, depth: 0.72 },
+            { piece: "pillarPale", x: 106, depth: 0.72 },
+            { piece: "pillarPale", x: 176, depth: 0.72 },
+            { piece: "pillarPale", x: 246, depth: 0.72 },
+            { piece: "pillarPale", x: 458, depth: 0.72 },
+            { piece: "pillarPale", x: 563, depth: 0.72 },
             { piece: "trunkTall", x: 70, depth: 0.95 },
             { piece: "trunkMossy", x: 317, depth: 0.95 },
             { piece: "trunkBent", x: 634, depth: 0.95 },
@@ -2836,94 +2853,143 @@
             { piece: "barrel", x: 493, depth: 0.38 },
           ]
         },
-        /* 8 —— 路线 (1,2)。录像 105.7–147.5s；房宽 11.4（下界 9.8）；石柱 5、桶 1、墙 2、树 4。 */
+        /* 8 —— 路线 43 (2,3)。录像 74–105s；房宽下界 684 世界px（8.14 身位）；石柱 5、桶 1、墙 2、树 4。 */
         {
           name: "猫妖岔路",
           kind: "corr",
-          width: 960,
+          width: 684,
           band: { backY: 256 },
           enemies: [
-            { type: "goblinBlue", x: 384, level: 6 },
-            { type: "deepElite", x: 672, level: 6 },
-            { type: "goblinBlue", x: 768, wave: 2, level: 6 },
+            { type: "goblinRed", x: 300, level: 6 },
+            { type: "goblinBlue", x: 500, level: 6 },
+            { type: "goblinBlue", x: 700, level: 6 },
+            { type: "goblinRed", x: 350, wave: 2, level: 6 },
+            { type: "goblinBlue", x: 650, wave: 2, level: 6 },
           ],
+          cap: 4,
+          /*
+           * **43 房逐件量过**（76s 帧；`ref/76.png`）：两只宝箱并排坐在后场
+           * （底 272 → depth 1.82，世界 x 254 / 323）；灰石墙在箱子身后（底 265
+           * → 1.90，x 220）；两棵浅柱在右侧（底 270 / 282 → 1.84 / 1.71，
+           * x 361 / 397）；桶在右缘（底 360 → 0.81，x 435）；苔石在前缘
+           * （底 430 → 0，x 244）；倒木在左下（底 480 → -0.58，x 158）。
+           * 旧版按 ~900 宽写（柱 850、树 900），房间 684 宽时那几件在墙外。
+           */
           props: [
-            { piece: "pillar", x: 77, depth: 0.72 },
-            { piece: "pillar", x: 144, depth: 0.72 },
-            { piece: "pillar", x: 211, depth: 0.72 },
-            { piece: "pillar", x: 691, depth: 0.72 },
-            { piece: "pillar", x: 816, depth: 0.72 },
-            { piece: "barrel", x: 864, depth: 0.38 },
-            { piece: "wallStone", x: 432, depth: 0.85 },
-            { piece: "wallStone", x: 528, depth: 0.85 },
-            { piece: "trunkMossy", x: 96, depth: 0.95 },
-            { piece: "trunkTall", x: 336, depth: 0.95 },
-            { piece: "trunkMossy", x: 576, depth: 0.95 },
-            { piece: "trunkBent", x: 864, depth: 0.95 },
+            { piece: "chest", x: 254, depth: 1.82 },
+            { piece: "chest", x: 323, depth: 1.82 },
+            { piece: "wallStone", x: 220, depth: 1.90 },
+            { piece: "pillarPale", x: 361, depth: 1.84 },
+            { piece: "pillarPale", x: 397, depth: 1.71 },
+            { piece: "barrel", x: 435, depth: 0.81 },
+            { piece: "rockFlat", x: 244, depth: 0, scale: [0.77, 0.77] },
+            { piece: "fallenTrunk", x: 158, depth: -0.58 },
+            { piece: "trunkTall", x: 40, depth: 2.03 },
           ],
           scatter: {"solid":0,"barrels":0,"stones":0}
         },
-        /* 9 —— 路线 (2,1)。录像 276.7–311.9s；房宽 11.3（量到）；桶 3、岩 1、阔叶树 1、树 5。 */
+        /* 9 —— 路线 23 (2,1)。录像 148–189s；房宽下界 725、TH100 885（这一间用 885，四扇门才放得下布景）；桶 3、岩 1、阔叶树 1、树 5。 */
         {
           name: "投掷手坡",
-          kind: "corr",
-          width: 951,
+          kind: "room",
+          width: 725,
           band: { backY: 256 },
           enemies: [
-            { type: "goblinBlue", x: 428, level: 6 },
-            { type: "deepElite", x: 571, level: 6 },
-            { type: "throwerElite", x: 666, depth: 0.35, level: 6 },
-            { type: "goblinBlue", x: 523, level: 6 },
-            { type: "deepElite", x: 190, wave: 2, level: 6 },
-            { type: "throwerElite", x: 808, depth: 0.35, wave: 2, level: 6 },
+            { type: "goblinRed", x: 250, level: 6 },
+            { type: "goblinRed", x: 450, level: 6 },
+            { type: "cat", x: 300, wave: 2, level: 6 },
+            { type: "deepElite", x: 500, wave: 2, level: 6 },
+            { type: "goblinRed", x: 650, wave: 2, level: 6 },
+            { type: "goblinBlue", x: 800, wave: 2, level: 6 },
+            { type: "goblinBlue", x: 300, wave: 3, level: 6 },
+            { type: "goblinBlue", x: 500, wave: 3, level: 6 },
+            { type: "goblinBlue", x: 700, wave: 3, level: 6 },
+            { type: "goblinRed", x: 850, wave: 3, level: 6 },
+            { type: "cat", x: 600, wave: 4, level: 6 },
           ],
+          cap: 4,
+          /*
+           * **150s 帧按 25px 网格重量**（`ref/150.png`）：桶 0..45 / 290..345 /
+           * 480..535（桶心 20/317/507 → 世界 13/201/321，底 330/355/355 →
+           * depth 1.15/0.86/0.86）；浅柱 375..420 / 545..585（世界 252/358）；
+           * 苔石 430..480（世界 288）。本房间宽在 `fitDeepRouteRooms` 里
+           * 725 → 885（×1.2207），所以 x 都按 authored = 世界 ÷ 1.2207 写。
+           */
           props: [
-            { piece: "barrel", x: 124, depth: 0.38 },
-            { piece: "barrel", x: 152, depth: 0.38 },
-            { piece: "barrel", x: 181, depth: 0.38 },
-            { piece: "rockFlat", x: 238, depth: 0.5 },
-            { piece: "treeLeafy", x: 428, depth: 0.6 },
-            { piece: "trunkTall", x: 76, depth: 0.95 },
-            { piece: "trunkMossy", x: 285, depth: 0.95 },
-            { piece: "trunkTall", x: 523, depth: 0.95 },
-            { piece: "trunkBent", x: 742, depth: 0.95 },
-            { piece: "trunkMossy", x: 875, depth: 0.95 },
+            { piece: "barrel", x: 11, depth: 1.15 },
+            { piece: "barrel", x: 165, depth: 0.86 },
+            { piece: "barrel", x: 263, depth: 0.86 },
+            { piece: "rockFlat", x: 236, depth: 0.85, scale: [0.55, 0.55] },
+            { piece: "pillarPale", x: 206, depth: 1.00 },
+            { piece: "pillarPale", x: 293, depth: 0.75 },
+            { piece: "trunkTall", x: 100, depth: 2.03 },
+            { piece: "trunkMossy", x: 400, depth: 2.03 },
+            { piece: "trunkBent", x: 700, depth: 2.03 },
+            { piece: "trunkTall", x: 880, depth: 2.03 },
+            /*
+             * 上门由 `drawGate` 画在 `northX` 那条竖轴上（0.16，world 142）——
+             * 150s 帧那道拱中心就在这儿。旧的静态装饰件 2026-10-27 删掉。
+             */
           ],
           scatter: {"solid":0,"barrels":0,"stones":0}
         },
-        /* 10 —— 路线 (1,3)。录像 73.8–105.7s；房宽 8.4（量到）；宝箱 2、石柱 5、墙 2、岩 1、桩 1、桶 1、树 4。 */
+        /* 10 —— 路线 42 (1,3)。录像 27–73s；房宽下界 520 世界px（6.19 身位）；宝箱 2、石柱 5、墙 2、岩 1、桩 1、桶 1、树 4。 */
         {
           name: "宝箱浅沟",
           kind: "corr",
-          width: 704,
+          width: 520,
           band: { backY: 256 },
           enemies: [
-            { type: "goblinRed", x: 211, level: 6 },
-            { type: "goblinBlue", x: 387, level: 6 },
-            { type: "goblinBlue", x: 528, level: 6 },
-            { type: "goblinRed", x: 141, wave: 2, level: 6 },
+            { type: "throwerElite", x: 250, depth: 0.35, level: 6 },
+            { type: "cat", x: 400, level: 6 },
+            { type: "goblinRed", x: 550, level: 6 },
+            { type: "deepElite", x: 300, wave: 2, level: 6 },
+            { type: "throwerElite", x: 450, depth: 0.35, wave: 2, level: 6 },
+            { type: "cat", x: 600, wave: 2, level: 6 },
+            { type: "goblinRed", x: 200, wave: 2, level: 6 },
+            { type: "deepElite", x: 400, wave: 3, level: 6 },
+            { type: "cat", x: 550, wave: 3, level: 6 },
+            { type: "deepElite", x: 500, wave: 4, level: 6 },
           ],
+          cap: 4,
           props: [
-            { piece: "chest", x: 120, depth: 0.42 },
-            { piece: "chest", x: 190, depth: 0.42 },
-            { piece: "pillar", x: 225, depth: 0.72 },
-            { piece: "pillar", x: 268, depth: 0.72 },
-            { piece: "pillar", x: 310, depth: 0.72 },
-            { piece: "pillar", x: 352, depth: 0.72 },
-            { piece: "pillar", x: 387, depth: 0.72 },
-            { piece: "wallStone", x: 49, depth: 0.85 },
-            { piece: "wallStone", x: 148, depth: 0.85 },
-            { piece: "rockFlat", x: 99, depth: 0.5 },
-            { piece: "stump", x: 317, depth: 0.32 },
-            { piece: "barrel", x: 535, depth: 0.38 },
-            { piece: "trunkTall", x: 70, depth: 0.95 },
-            { piece: "trunkMossy", x: 211, depth: 0.95 },
-            { piece: "trunkTall", x: 458, depth: 0.95 },
-            { piece: "trunkBent", x: 634, depth: 0.95 },
+            /* 量自录像 30s：左树、右树、两根高石柱、中间岩块、宝箱、倒木。 */
+            /*
+             * 录像 30s 这一帧画面里**没有箱子**；门清空规则又会把左侧的箱子
+             * 推到画面中央，所以这一间先不放箱子（42 的箱子在 43 房那两只是录像证据）。
+             */
+            /*
+             * 录像 30s（`ref/30.png`，720×540 游戏坐标）三根柱子重新逐像素量：
+             *
+             *   左（十夫长身后）左缘 ≈445 底 ≈390 → 世界 x282  depth 0.461
+             *   中（最前）      左缘 497   底 455  → 世界 x315  depth -0.288
+             *   右              左缘 562   底 409  → 世界 x356  depth 0.242
+             *
+             * **屏幕 y 不是世界 y**：世界那一趟以地面线为轴按 `CAMERA.zoom`(1.5775)
+             * 伸缩（`drawWorld`），所以 一条 55 世界px 的带子画到屏幕上变 86.76px。
+             * 世界 x = 屏幕左缘 ÷ zoom；depth = (430 - 屏幕底边) ÷ (55 × 1.5775)。
+             * 早先只除以 55，柱子就整体画高了 ~23 画布px。
+             * 之前写的 245/318/360 与 -0.70/-0.70/1.31 是另一版读数，画出来三根
+             * 都在前缘、而且顺序反了（前两根离得远、第三根贴右），与录像对不上。
+             * 用 art-only 的 `pillarDecor`，不被门口净空挪走。
+             */
+            { piece: "pillarDecor", x: 254, depth: 0.173 },
+            { piece: "pillarDecor", x: 318, depth: -0.346 },
+            { piece: "pillarDecor", x: 363, depth: 0.230 },
+            /*
+             * 背景那座石门（不是出口）：30s 帧 25px 网格量 —— 右缘 110、
+             * 底 395、栅 0..65、拱约 150 宽 180 高。世界 x = 35 ÷ 1.5775 ≈ 22；
+             * depth = (430 - 395) ÷ 86.76 = 0.403。早先按 354 高画，是录像的两倍。
+             */
+            { piece: "rockSmall", x: 140, depth: 0.45 },
+            { piece: "trunkTall", x: 127, depth: 0.92 },
+            { piece: "trunkMossy", x: 425, depth: 0.92 },
+            { piece: "trunkBent", x: 60, depth: 0.92 },
+            { piece: "fallenTrunk", x: 480, depth: 0.45 },
           ],
           scatter: {"solid":0,"barrels":0,"stones":0}
         },
-        /* 11 —— 侧走廊 石碑夹道；碑/树/箱。 */
+        /* 11 —— 侧 9 格（推断）：石碑夹道；碑/树/箱。 */
         {
           name: "石碑夹道",
           kind: "corr",
@@ -2933,7 +2999,7 @@
             { type: "cat", x: 218, level: 6 },
             { type: "goblinRed", x: 311, level: 6 },
             { type: "throwerElite", x: 435, depth: 0.35, level: 6 },
-            { type: "grunt", x: 124, wave: 2, level: 6 },
+            { type: "goblinRed", x: 124, wave: 2, level: 6 },
             { type: "cat", x: 498, wave: 2, level: 6 },
           ],
           props: [
@@ -2948,70 +3014,89 @@
             { piece: "chest", x: 280, depth: 0.42 },
           ]
         },
-        /* 12 —— 路线 (2,0)。录像 235.9–266.0s；房宽 7.4（量到）；左右门、灌木 1、桩 1、树 4；无柱/箱/桶。 */
+        /* 12 —— 路线 33 (2,2)。录像 106–147s；房宽下界 734 世界px（8.74 身位）；左右门、灌木 1、桩 1、树 4；无柱/箱/桶。 */
         {
           name: "藤蔓窄道",
-          kind: "corr",
-          width: 622,
+          kind: "room",
+          width: 734,
           band: { backY: 256 },
           enemies: [
-            { type: "grunt", x: 280, level: 4 },
-            { type: "deepElite", x: 342, level: 6 },
-            { type: "throwerElite", x: 373, depth: 0.35, level: 6 },
-            { type: "goblinRed", x: 404, level: 6 },
-            { type: "grunt", x: 124, wave: 2, level: 6 },
-            { type: "throwerElite", x: 498, depth: 0.35, wave: 2, level: 6 },
+            { type: "goblinBlue", x: 300, level: 6 },
+            { type: "deepElite", x: 400, wave: 2, level: 6 },
+            { type: "goblinRed", x: 250, wave: 3, level: 6 },
+            { type: "goblinRed", x: 350, wave: 3, level: 6 },
+            { type: "goblinRed", x: 450, wave: 3, level: 6 },
+            { type: "goblinRed", x: 550, wave: 3, level: 6 },
           ],
+          cap: 4,
+          /*
+           * **106s 帧按 25px 网格重量**（`ref/106.png`）。旧的那组把屏幕坐标当成了
+           * 世界坐标写（柱 320/350/380/410 画出来落在画布 505..647，录像里在
+           * 420..570）：柱心 435/477/520/555 → 世界 x 276/302/330/352，
+           * 底 305/340/370/390 → depth 1.44/1.04/0.69/0.46（四根**不在同一深度**，
+           * 是斜着一路往里）；茅草屋 x375 / −0.12；六只桶照帧里的两簇摆。
+           */
           props: [
-            { piece: "trunkTall", x: 62, depth: 0.95 },
-            { piece: "trunkMossy", x: 218, depth: 0.95 },
-            { piece: "trunkTall", x: 404, depth: 0.95 },
-            { piece: "trunkBent", x: 560, depth: 0.95 },
-            { piece: "bush", x: 131, depth: 0.55 },
-            { piece: "stump", x: 205, depth: 0.32 },
+            { piece: "barrel", x: 39, depth: 1.38 },
+            { piece: "barrel", x: 60, depth: 1.04 },
+            { piece: "barrel", x: 166, depth: 0.86 },
+            { piece: "barrel", x: 168, depth: 0.40 },
+            { piece: "barrel", x: 311, depth: 0.58 },
+            { piece: "barrel", x: 317, depth: 0.11 },
+            { piece: "pillarPale", x: 276, depth: 1.44 },
+            { piece: "pillarPale", x: 302, depth: 1.04 },
+            { piece: "pillarPale", x: 330, depth: 0.69 },
+            { piece: "pillarPale", x: 352, depth: 0.46 },
+            { piece: "hut", x: 375, depth: -0.12 },
+            /*
+             * 上门由 `drawGate` 画在 `northX` 那条竖轴上（0.24，world 176）——
+             * 106s 帧那道拱中心就在这儿。旧的静态装饰件 2026-10-27 删掉。
+             */
           ],
           scatter: {"solid":0,"barrels":0,"stones":0}
         },
-        /* 13 —— 路线 (1,0)。录像 189.6–235.9 / 266.0–272.1s；房宽 13.3（滚动量到 13.7）；石柱 8、桶 1、岩 2、树 5。 */
+        /* 13 —— 路线 13 (2,0)。录像 190–235 / 266–271s；房宽下界 524 世界px（6.24 身位）；石柱 8、桶 1、岩 2、树 5。 */
         {
           name: "老树回廊",
           kind: "corr",
-          width: 1118,
+          width: 524,
           band: { backY: 256 },
           enemies: [
-            { type: "goblinRed", x: 559, level: 6 },
-            { type: "deepElite", x: 839, level: 6 },
-            { type: "goblinRed", x: 950, level: 6 },
-            { type: "deepElite", x: 335, wave: 2, level: 6 },
+            { type: "goblinRed", x: 350, level: 6 },
+            { type: "goblinRed", x: 650, level: 6 },
+            { type: "cat", x: 500, wave: 2, level: 6 },
+            { type: "throwerElite", x: 300, depth: 0.35, wave: 3, level: 6 },
+            { type: "deepElite", x: 600, wave: 3, level: 6 },
+            { type: "goblinRed", x: 850, wave: 3, level: 6 },
           ],
+          cap: 4,
+          /*
+           * **13 房逐件量过**（192s 帧；`ref/192.png`）：左边一簇三根浅柱
+           * （左缘 240/275/300，底 330/335/345 → x 166/188/204、
+           * depth 1.15/1.09/0.98）；右边一簇两根（x 402/431，depth ≈1.0）+
+           * 一只桶（x 439，底 435 → depth -0.06）。
+           * 旧的那组 x 到 900，房间 524 宽时后面几根根本不在房里。
+           */
           props: [
-            { piece: "pillar", x: 145, depth: 0.72 },
-            { piece: "pillar", x: 179, depth: 0.72 },
-            { piece: "pillar", x: 212, depth: 0.72 },
-            { piece: "pillar", x: 581, depth: 0.72 },
-            { piece: "pillar", x: 648, depth: 0.72 },
-            { piece: "pillar", x: 716, depth: 0.72 },
-            { piece: "pillar", x: 805, depth: 0.72 },
-            { piece: "pillar", x: 883, depth: 0.72 },
-            { piece: "barrel", x: 391, depth: 0.38 },
-            { piece: "rockFlat", x: 727, depth: 0.5 },
-            { piece: "rockSmall", x: 1006, depth: 0.5 },
-            { piece: "trunkTall", x: 67, depth: 0.95 },
-            { piece: "trunkMossy", x: 280, depth: 0.95 },
-            { piece: "trunkTall", x: 503, depth: 0.95 },
-            { piece: "trunkBent", x: 783, depth: 0.95 },
-            { piece: "trunkMossy", x: 1029, depth: 0.95 },
+            { piece: "pillarPale", x: 166, depth: 1.15 },
+            { piece: "pillarPale", x: 188, depth: 1.09 },
+            { piece: "pillarPale", x: 204, depth: 0.98 },
+            { piece: "pillarPale", x: 402, depth: 1.00 },
+            { piece: "pillarPale", x: 431, depth: 0.95 },
+            { piece: "barrel", x: 439, depth: -0.06 },
+            { piece: "trunkMossy", x: 30, depth: 2.03 },
+            { piece: "trunkTall", x: 500, depth: 2.03 },
           ],
           scatter: {"solid":0,"barrels":0,"stones":0}
         },
-        /* 14 —— 侧走廊 断柱小径；石柱/断桩/箱。 */
+        /* 14 —— 侧 9 格（推断）：断柱小径；石柱/断桩/箱。 */
         {
           name: "断柱小径",
           kind: "corr",
           width: 951,
           band: { backY: 256 },
           enemies: [
-            { type: "grunt", x: 285, level: 6 },
+            { type: "goblinRed", x: 285, level: 6 },
             { type: "goblinRed", x: 428, level: 6 },
             { type: "deepElite", x: 571, level: 6 },
             { type: "throwerElite", x: 713, depth: 0.35, level: 6 },
@@ -3019,23 +3104,85 @@
             { type: "goblinBlue", x: 808, wave: 2, level: 6 },
           ],
           props: [
-            { piece: "pillar", x: 143, depth: 0.72 },
-            { piece: "pillar", x: 238, depth: 0.72 },
-            { piece: "pillar", x: 333, depth: 0.72 },
-            { piece: "pillar", x: 618, depth: 0.72 },
-            { piece: "pillar", x: 761, depth: 0.72 },
+            { piece: "pillarPale", x: 143, depth: 0.72 },
+            { piece: "pillarPale", x: 238, depth: 0.72 },
+            { piece: "pillarPale", x: 333, depth: 0.72 },
+            { piece: "pillarPale", x: 618, depth: 0.72 },
+            { piece: "pillarPale", x: 761, depth: 0.72 },
             { piece: "stump", x: 428, depth: 0.32 },
-            { piece: "stumpBroken", x: 523, depth: 0.32 },
+            { piece: "fallenTrunk", x: 523, depth: 0.32 },
             { piece: "rockFlat", x: 666, depth: 0.5 },
             { piece: "trunkTall", x: 76, depth: 0.95 },
             { piece: "trunkMossy", x: 380, depth: 0.95 },
             { piece: "trunkBent", x: 856, depth: 0.95 },
             { piece: "chest", x: 476, depth: 0.42 },
           ]
+        },
+        /* 15 —— 侧 9 格（推断）：雾林支路；深处名册，无绿哥布林。 */
+        {
+          name: "雾林支路",
+          kind: "room",
+          width: 600,
+          band: { backY: 256 },
+          enemies: [
+            { type: "goblinRed", x: 180, level: 6 },
+            { type: "goblinBlue", x: 300, level: 6 },
+            { type: "cat", x: 420, level: 6 },
+            { type: "deepElite", x: 520, wave: 2, level: 6 },
+          ],
+          props: [
+            { piece: "trunkTall", x: 60, depth: 0.95 },
+            { piece: "trunkMossy", x: 200, depth: 0.95 },
+            { piece: "pillarPale", x: 340, depth: 0.72 },
+            { piece: "barrel", x: 450, depth: 0.38 },
+            { piece: "chest", x: 250, depth: 0.42 },
+            { piece: "rockFlat", x: 380, depth: 0.5 },
+          ]
+        },
+        /* 16 —— 侧 9 格（推断）：苔根岔口。 */
+        {
+          name: "苔根岔口",
+          kind: "corr",
+          width: 650,
+          band: { backY: 256 },
+          enemies: [
+            { type: "goblinBlue", x: 160, level: 6 },
+            { type: "cat", x: 320, level: 6 },
+            { type: "throwerElite", x: 480, depth: 0.35, level: 6 },
+            { type: "goblinRed", x: 560, wave: 2, level: 6 },
+          ],
+          props: [
+            { piece: "trunkBent", x: 70, depth: 0.95 },
+            { piece: "trunkTall", x: 250, depth: 0.95 },
+            { piece: "bush", x: 400, depth: 0.55 },
+            { piece: "tomb", x: 500, depth: 0.4 },
+            { piece: "barrel", x: 300, depth: 0.38 },
+          ]
+        },
+        /* 17 —— 侧 9 格（推断）：断木庭院。 */
+        {
+          name: "断木庭院",
+          kind: "corr",
+          width: 700,
+          band: { backY: 256 },
+          enemies: [
+            { type: "deepElite", x: 220, level: 6 },
+            { type: "goblinRed", x: 380, level: 6 },
+            { type: "goblinBlue", x: 500, level: 6 },
+            { type: "cat", x: 620, wave: 2, level: 6 },
+          ],
+          props: [
+            { piece: "pillarPale", x: 120, depth: 0.72 },
+            { piece: "pillarPale", x: 240, depth: 0.72 },
+            { piece: "stump", x: 360, depth: 0.32 },
+            { piece: "fallenTrunk", x: 480, depth: 0.32 },
+            { piece: "trunkMossy", x: 600, depth: 0.95 },
+            { piece: "chest", x: 300, depth: 0.42 },
+          ]
         }
       ],
       bossIndex: 1,
-      gauntletIndex: 2,
+      gauntletIndex: 10,
       bossBanner: "",
       clearBanner: "幽暗密林深处 通关！"
     },
@@ -3158,72 +3305,131 @@
   STAGES.mirkwood.dungeon = MIRKWOOD_DUNGEON;
 
   /*
-   * 幽暗密林深处的副本图（`docs/adr/0059`）。
+   * 幽暗密林深处的副本图（`docs/adr/0062`，**推翻 `docs/adr/0059` 的 4×4/15**）。
    *
-   * 量自 `dnf-dungeon-videos/00002-幽暗密林深处.mp4` 右上角的地图窗口：
-   * **4 列 × 4 行、15 格**——`(3,2)` 是空的（那一格在录像里纯黑，没有图块），
-   * 其余 6 个房间格 + 9 条走廊格。入口 **(1,1)**，Boss **(3,1)**。
+   * 74s 的小地图是 **5 列 × 4 行、20 个格位、18 格**：洞在 `(0,1)` 与 `(4,2)`。
+   * 入口 **(0,3)**（左下米色椭圆），Boss **(4,1)**（红牛头）。
+   * 蓝柱路线 9 间、11 次进房：
+   *   `41(0,3) → 42(1,3) → 43(2,3) → 33(2,2) → 23(2,1) → 13(2,0) →
+   *    14(3,0) → 13 → 23 → 24(3,1) → 25(4,1)`。
    *
-   * 形状与门位按客户端 `act1.img` 的 18×18 图块对过：`(0,1)` 是 **N+E** 的拐角
-   * （不是死路），`(2,2)` 是 **N+S+W**（没有东门，因为右边是洞）；其余格子按
-   * 图上的直线读。录像的蓝柱只走了中间一列和 Boss，所以两侧 5 个房间格 +
-   * 5 条走廊格是图上可见、录像没进去的——门位从图块读，内容为推断。
-   *
-   * `northX` 录像里没量到明确的上门位置，全部按 0.5（和 mirkwood 的兜底同一条）。
+   * 中央 col 2 是小地图上那条竖向走廊（`C`），其余是房间（`R`）；
+   * 侧 9 格录像没进去，内容为推断。
+   * `northX` 录像里没量到明确的上门位置，全部按 0.5 兜底。
    */
   var MIRKWOODDEEP_DUNGEON = {
-    cols: 4,
+    cols: 5,
     rows: 4,
-    shape: ["RCCR", "CCCR", "RCC.", "RCCR"],
-    entry: [1, 1],
-    boss: [3, 1],
+    /*
+     * **逐格出口从客户端 `sprite_map_minimap.NPK :: sprite/map/minimap/act1.img`
+     * 的 18×18 图块读出来**，再与 74s 小地图逐格匹配（2026-10-24，IoU 0.8–1.0；
+     * 细走廊 0.53–0.62）。不是猜的：
+     *
+     *   (0,0) room E      (1,0) corr SW   (2,0) corr ES   (3,0) corr EW   (4,0) room W
+     *   (0,1) hole        (1,1) corr NE   (2,1) room NESW (3,1) corr EW   (4,1) room W ← Boss
+     *   (0,2) room E      (1,2) corr EW   (2,2) room NESW (3,2) corr SW   (4,2) hole
+     *   (0,3) room E ←入口 (1,3) corr EW   (2,3) corr NW   (3,3) corr NE   (4,3) room W
+     */
+    shape: ["RCCCR", ".CRCR", "RCRC.", "RCCCR"],
+    entry: [0, 3],
+    boss: [4, 1],
     entryRoom: 0,
     bossRoom: 1,
-    northX: {},
     /*
-     * **录像走过的 7 格钉死**：入口/Boss 由 `entryRoom`/`bossRoom` 钉；
-     * 这里钉 5 条路线走廊到它们量出来的 spec：
-     *   (1,0) 老树回廊 #13、(1,2) 猫妖岔路 #8、(1,3) 宝箱浅沟 #10、
-     *   (2,0) 藤蔓窄道 #12、(2,1) 投掷手坡 #9。
-     * 其余 8 格（5 房 + 3 侧走廊）仍由 `dungeonFor` 按种子洗。
+     * **上下门的竖轴**，一格一个（占房宽几成），从录像上量的（2026-10-27）：
+     *   (2,2) 33 房：106s 帧上门拱中心 world 177、下门 174 → 176 ÷ 734 = **0.24**
+     *   (2,1) 23 房：150s 帧上门 137、下门 149 → 143 ÷ 885 = **0.16**
+     *   (2,0) 13 房：192s 帧下门 106 → **0.20**（这一格没有上门）
+     * 三帧的镜头都贴在左墙（他站在房间左三分之一），世界 x = 游戏 x ÷ 3.155。
+     * 别的格没量到，仍按 0.5（中间）。
+     */
+    northX: { "2,2": 0.24, "2,1": 0.16, "2,0": 0.20 },
+    /* 这一关的上/下门量到在同一条竖轴上（`doorX`）。别的关没有这个证据，不开。 */
+    southSharesNorthX: true,
+    /*
+     * **录像走过的 9 间钉死**：入口/Boss 由 `entryRoom`/`bossRoom` 钉；
+     * 这里钉其余 7 格到它们量出来的 spec：
+     *   (1,3) 宝箱浅沟 #10、(2,3) 猫妖岔路 #8、(2,2) 藤蔓窄道 #12、
+     *   (2,1) 投掷手坡 #9、(2,0) 老树回廊 #13、(3,0) 残柱祭坛 #5、
+     *   (3,1) 断墙营地 #6。
+     * 其余 9 格（推断）仍由 `dungeonFor` 按种子洗。
      */
     pins: {
-      "1,0": 13,
-      "1,2": 8,
       "1,3": 10,
-      "2,0": 12,
-      "2,1": 9
+      "2,3": 8,
+      "2,2": 12,
+      "2,1": 9,
+      "2,0": 13,
+      "3,0": 5,
+      "3,1": 6
     },
+    /*
+     * 17 条连接，正好是一棵树；每条都与上表的出口一一对应。
+     * 旧的 23 条里多出来的 6 条已删：
+     * (1,0)-(2,0)、(1,1)-(1,2)、(1,2)-(1,3)、(2,3)-(3,3)、(4,0)-(4,1)、(0,2)-(0,3)。
+     */
     links: [
-      /* 上行 */
       [[0, 0], [1, 0]],
-      [[1, 0], [2, 0]],
-      [[2, 0], [3, 0]],
-      /* 左上角的小环：(0,0) 下来经 (0,1) 回 (1,1) */
-      [[0, 0], [0, 1]],
-      [[0, 1], [1, 1]],
-      /* 中间一列 */
       [[1, 0], [1, 1]],
-      [[1, 1], [1, 2]],
-      [[1, 2], [1, 3]],
-      /* 第二行到 Boss */
+      [[2, 0], [3, 0]],
+      [[2, 0], [2, 1]],
+      [[3, 0], [4, 0]],
       [[1, 1], [2, 1]],
       [[2, 1], [3, 1]],
-      /* 第二列 */
-      [[2, 0], [2, 1]],
       [[2, 1], [2, 2]],
-      [[2, 2], [2, 3]],
-      /* 第三行 */
+      [[3, 1], [4, 1]],
       [[0, 2], [1, 2]],
       [[1, 2], [2, 2]],
-      /* 下行 */
+      [[2, 2], [3, 2]],
+      [[2, 2], [2, 3]],
+      [[3, 2], [3, 3]],
       [[0, 3], [1, 3]],
       [[1, 3], [2, 3]],
-      [[2, 3], [3, 3]]
+      [[3, 3], [4, 3]]
     ]
   };
 
   STAGES.mirkwooddeep.dungeon = MIRKWOODDEEP_DUNGEON;
+
+  /*
+   * 路线 9 房的宽度按 `docs/adr/0062` 的实测下界重排；x 按旧房宽等比折到新房宽，
+   * 免得怪和布景落到房间外面。侧 9 格的房宽与摆位是推断，不折。
+   */
+  (function fitDeepRouteRooms() {
+    var widths = {
+      0: 560,
+      1: 538,
+      5: 529,
+      6: 588,
+      8: 684,
+      9: 885,
+      10: 520,
+      12: 734,
+      13: 524
+    };
+    Object.keys(widths).forEach(function (index) {
+      var room = STAGES.mirkwooddeep.rooms[Number(index)];
+      if (!room) return;
+      var scale = widths[index] / room.width;
+      room.width = widths[index];
+      room.enemies.forEach(function (enemy) {
+        enemy.x = Math.round(enemy.x * scale);
+      });
+      room.props.forEach(function (prop) {
+        prop.x = Math.round(prop.x * scale);
+      });
+    });
+  })();
+
+  /*
+   * **地面带收窄**（`docs/adr/0063`）：录像可走深度下界 74 视频px = 37 屏幕px；
+   * 可见草带约 260–270 视频px = 130–135 屏幕px。所以把**可走带**收到 37px
+   * （`backY 393`，前缘仍是 430），另用 `visualBackY 320` 让草地/中景仍从录像
+   * 那条树根线开始画。视觉与判定分开，别再用一个 backY 兼任两件事。
+   */
+  STAGES.mirkwooddeep.rooms.forEach(function (room) {
+    room.band = { backY: 375, visualBackY: 320 };
+  });
 
   /* North, east, south, west - the same bits `assets/import_dnf_minimap.py` uses. */
   var MINIMAP_DIR = { N: 1, E: 2, S: 4, W: 8 };
@@ -3328,1768 +3534,1870 @@
       } else if (pins[cellKey(cell.col, cell.row)] !== undefined) {
         cell.room = pins[cellKey(cell.col, cell.row)];
       } else {
-        cell.room = deck[cell.kind].shift();
-      }
-    });
-    return {
-      cols: dun.cols,
-      rows: dun.rows,
-      cells: cells,
-      entry: indexOfCell(cells, dun.entry[0], dun.entry[1]),
-      boss: indexOfCell(cells, dun.boss[0], dun.boss[1]),
-      northX: dun.northX || {}
-    };
-  }
-
-  /** 这一格某一扇门通向哪一格（`cells` 的下标），没这扇门就是 -1。 */
-  function doorNeighbour(dungeon, cell, dir) {
-    var step = MINIMAP_STEPS[dir];
-    if (!step || !(cell.exits & step.bit)) return -1;
-    return indexOfCell(dungeon.cells, cell.col + step.dx, cell.row + step.dy);
-  }
-
-  /**
-   * 这一格的一扇门现在是什么状态：`"none"` 没有这扇门，`"locked"` 锁着，
-   * `"open"` 能走。**清过房就都开；没清，只有他进来的那扇能走回去** ——
-   * 这是 DNF 的规矩，也是"清房"这件事的意义。
-   */
-  function exitMode(state, dir) {
-    var cell = currentCell(state);
-    var step = MINIMAP_STEPS[dir];
-    if (!cell || !step || !(cell.exits & step.bit)) return "none";
-    if (cell.cleared || dir === state.entryDoor) return "open";
-    return "locked";
-  }
-
-  /*
-   * 换房那一下。录像里切过去是**一帧近全黑，然后新房间在 0.3 秒里淡进来**
-   * （量法：整屏亮度 121.333s 掉到 4.2 再一路爬回 58，`docs/adr/0030`）。
-   * 所以这不是"淡出再淡入"：旧画面直接切掉，黑的立刻盖上来。
-   */
-  var TRANSITION = {
-    dur: 0.3
-  };
-
-  /* 门口那几块地：侧门沿 x，上门/下门沿 z，一样都要求他站在门口那一块。 */
-  var DOOR = {
-    /* 侧门：贴上左右墙这么近就算进了门框。 */
-    side: 60,
-    /* 上门/下门：走进地板最里/最外这么深。 */
-    depth: 46,
-    /* 上门/下门在 x 上认多宽 —— 门框左右各这么宽。 */
-    span: 110,
-    /* 换房之后他站在离门多远的地方。 */
-    stand: 74,
-    share: 0.5
-  };
-
-  /**
-   * 上门/下门在这一格立在哪（像素）。
-   *
-   * **它是这一间房的比例，不是屏幕的比例。** 量录像时那三个数（0.673 / 0.492 /
-   * 0.469）当时没区分这两者；房间能滚之后必须选一个，选的是**房间**
-   * （`docs/adr/0035`）—— 门是房间里的东西，屏幕只是看它的一扇窗。
-   */
-  function doorX(state, cell, dir) {
-    var share = dir === "N" ? (state.dungeon.northX || {})[cellKey(cell.col, cell.row)] : undefined;
-    if (share === undefined) share = DOOR.share;
-    return share * roomWidth(state);
-  }
-
-  /**
-   * **一扇上/下门的整条路留空。**
-   *
-   * `blocksDoorway` 管的是门框自己那一块（门口净空，`docs/adr/0032`）；这一条管的是
-   * **从带子前缘一路走到那扇门的那一整列** —— 上/下门只有这一条路可走，路上横着一件
-   * 实心件，谁过一次都得绕一次。侧门不在此列：左右门贴墙，进出的路本来就是横着的，
-   * 绕一件东西是横着让一步，不是"整条路被堵"。
-   *
-   * 业主的规矩是「门口不能有石头和树木」（`docs/adr/0032`）；这一条是它朝"门的那条路"
-   * 上的一步 —— 桶按录像摆到一间房五只之后，正是这一列上的那一只把演示 bot 钉住的
-   * （`docs/adr/0048` 记了实测）。
-   */
-  function blocksDoorLane(state, cell, entry) {
-    if (!cell) return false;
-    for (var i = 0; i < MINIMAP_DIRS.length; i += 1) {
-      var dir = MINIMAP_DIRS[i];
-      if (dir !== "N" && dir !== "S") continue;
-      if (!(cell.exits & MINIMAP_STEPS[dir].bit)) continue;
-      if (Math.abs(entry.x - doorX(state, cell, dir)) < DOOR.span) return true;
-    }
-    return false;
-  }
-
-  function inDoorZone(state, dir) {
-    var player = state.player;
-    var cell = currentCell(state);
-    if (!cell) return false;
-    if (dir === "E") return player.x >= roomRight(state) - DOOR.side;
-    if (dir === "W") return player.x <= roomLeft(state) + DOOR.side;
-    if (Math.abs(player.x - doorX(state, cell, dir)) > DOOR.span) return false;
-    var deep = bandDepth(state.band);
-    if (dir === "N") return player.z >= deep - DOOR.depth;
-    return player.z <= DOOR.depth;
-  }
-
-  /*
-   * **门口净空**（`docs/adr/0032`，业主：「门口不能有石头和树木」）。
-   *
-   * 每扇门前面留一条不许摆东西的带：左右门是贴墙的一条，上下门是那一格自己的门 x
-   * 左右各一条；两边再各让出**一个半身位**（`DOOR.stand` 那一档），免得进门落脚就顶在
-   * 石头上。带里的**实心**布景（木桶、树、石头）摆位时就丢掉 —— 花草贴花不算，它们不挡人。
-   *
-   * 这一关在**摆位的时候按格**过，不在写房间的时候过：房间是按种子洗到格子上的，
-   * 同一间房落在不同格子上会碰上不同的门（上门/下门的 x 是那一格自己的）。
-   */
-  var DOOR_CLEAR = {
-    side: DOOR.side + DOOR.stand,
-    span: DOOR.span + DOOR.stand,
-    depth: DOOR.depth + DOOR.stand
-  };
-
-  /*
-   * 门口要清的是**两块地方**（`docs/adr/0032`）：进门落脚、出门站的那块**判定区**，和
-   * **门拱自己的美术盒子**。只看 z 是不够的 —— 一棵 105x199 的树桩可以"站在判定区前面"
-   * 却把整个门拱画糊（业主截图里的胆小鬼的窝就是这样）。
-   *
-   * 两样都用屏幕上的矩形比：地图是 x-y 的，判定区在 z 上怎么摆，最后都要落到同一个屏幕上。
-   */
-  var GATE_ART = { N: [157, 198], S: [192, 118], side: [131, 240] };
-
-  /** 一扇门**拱**自己的美术盒子（画在哪、多大）—— 门口净空里那条"别把门画糊"的判据。 */
-  function gateArtRect(state, cell, dir) {
-    var depth = bandDepth(state.band);
-    var floorOf = function (z) { return ARENA.groundY - depthLift(z); };
-    if (dir === "N" || dir === "S") {
-      var art = GATE_ART[dir];
-      var x = doorX(state, cell, dir);
-      var bottom = dir === "N" ? floorOf(depth) + 6 : ARENA.height;
-      return { left: x - art[0] / 2, right: x + art[0] / 2, top: bottom - art[1], bottom: bottom };
-    }
-    var side = GATE_ART.side;
-    var cx = dir === "E" ? roomWidth(state) - 34 : 34;
-    var base = ARENA.groundY + 4;
-    return { left: cx - side[0] / 2, right: cx + side[0] / 2, top: base - side[1], bottom: base };
-  }
-
-  /** 这一格某扇门"进出要用的那块地"（x-z 平面上的矩形）。 */
-  function doorFloor(state, cell, dir) {
-    var deep = bandDepth(state.band);
-    if (dir === "E") {
-      return { x: [roomRight(state) - DOOR_CLEAR.side, roomWidth(state)], z: [0, deep] };
-    }
-    if (dir === "W") {
-      return { x: [0, roomLeft(state) + DOOR_CLEAR.side], z: [0, deep] };
-    }
-    var at = doorX(state, cell, dir);
-    return {
-      x: [at - DOOR_CLEAR.span, at + DOOR_CLEAR.span],
-      z: dir === "N" ? [deep - DOOR_CLEAR.depth, deep] : [0, DOOR_CLEAR.depth]
-    };
-  }
-
-  /**
-   * 这件布景压没压到这一格任何一扇门。两种压法都算（`docs/adr/0032`）：
-   *
-   * 1. **地面**：它的盒子（x-z）压在"进出要用的那块地"上 —— 挡路；
-   * 2. **美术**：它的美术矩形（屏幕）压到门拱自己的美术盒子上 —— 把门画糊。一棵
-   *    105x199 的树桩可以站在判定区**前面**（第 1 条查不出来）却把整个门拱盖掉。
-   *
-   * 两条各用各的空间：第 1 条是地板对地板，第 2 条是画面对画面 —— 拿美术盒子去比地板
-   * 那条，会把"站在门口前面的一棵高树"全判成违章（断桩隘口那间房会被掏空）。
-   */
-  /**
-   * 一件布景画在屏幕上的矩形（脚底在 `ARENA.groundY - depthLift(z)`）。
-   * 门口净空那条“别把门画糊”和“挪过的件别把箱子盖住”用的是同一个矩形。
-   * 无盒又无美术尺寸的件（不该有）返回 null。
-   */
-  function propArtRect(state, entry, depth) {
-    var box = propBox(entry.piece);
-    var artSize = null;
-    if (box) {
-      artSize = box.ink ? box.ink : [box.width, box.width];
-    } else {
-      artSize = propArtSize(entry.piece);
-      if (!artSize) return null;
-    }
-    var z = entry.depth === undefined ? 0 : entry.depth * depth;
-    var foot = ARENA.groundY - depthLift(z);
-    return {
-      left: entry.x - artSize[0] / 2,
-      right: entry.x + artSize[0] / 2,
-      top: foot - artSize[1],
-      bottom: foot
-    };
-  }
-
-  /** 两个屏幕矩形叠不叠（`propArtRect` 的那一套）。 */
-  function rectOverlap(a, b) {
-    return a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
-  }
-
-  function blocksDoorway(state, cell, entry, depth) {
-    if (!cell) return false;
-    var box = propBox(entry.piece);
-    /*
-     * **没有盒子的也要查门拱。** 花草贴花不挡路，但会盖住门拱；它们的美术尺寸
-     * 从 `PROP_ART` 取（业主 2026-10-17：「有杂草盖住了门口」）。只有地面那一条
-     * 需要盒子 —— 无盒件不占身位，地面永远不用查。
-     */
-    var art = propArtRect(state, entry, depth);
-    if (!art) return false;
-    var z = entry.depth === undefined ? 0 : entry.depth * depth;
-    var floorRect = box ? {
-      left: entry.x - box.width / 2,
-      right: entry.x + box.width / 2,
-      near: z - box.depth / 2,
-      far: z + box.depth / 2
-    } : null;
-    for (var index = 0; index < MINIMAP_DIRS.length; index += 1) {
-      var dir = MINIMAP_DIRS[index];
-      if (!(cell.exits & MINIMAP_STEPS[dir].bit)) continue;
-      if (floorRect) {
-        var floor = doorFloor(state, cell, dir);
-        if (floorRect.left < floor.x[1] && floorRect.right > floor.x[0] &&
-            floorRect.near < floor.z[1] && floorRect.far > floor.z[0]) return true;
-      }
-      var gate = gateArtRect(state, cell, dir);
-      if (rectOverlap(art, gate)) return true;
-    }
-    return false;
-  }
-
-  /*
-   * **挪过的件别把宝箱/石碑盖在身后。** 业主第三次复看：「箱子好像没有」。查下来不是
-   * 箱子丢了 —— `(1,3)` 的两只都还在（190 / 229），但一只被挪到前面的墙石
-   * （depth 0.85 → 0.24）挡在画面前面。深度排序是**远的先画**，所以只有“候选比箱子
-   * 更靠前（z 更小）”时才可能盖住它；候选在箱子后面就是箱子画在上面，不挡。
-   *
-   * 这条只保**宝箱/石碑**：它们是可打碎的战利品，读不到就是“没有”。树/墙彼此叠在
-   * 一起是森林的常态，不在这里管。宝箱/石碑之间也不互保（两只并排本来就该挨着）。
-   */
-  function coversLoot(state, entry, depth, z, placed) {
-    if (entry.piece === "chest" || entry.piece === "tomb") return false;
-    var art = propArtRect(state, entry, depth);
-    if (!art) return false;
-    for (var index = 0; index < placed.length; index += 1) {
-      var other = placed[index];
-      if (other.piece !== "chest" && other.piece !== "tomb") continue;
-      /* 候选在它后面：它后画，盖不到。 */
-      if (z > other.z + 0.001) continue;
-      var otherArt = propArtRect(state, {
-        piece: other.piece,
-        x: other.x,
-        depth: other.z / depth
-      }, depth);
-      if (otherArt && rectOverlap(art, otherArt)) return true;
-    }
-    return false;
-  }
-
-  /*
-   * **走位**：朝一个点走、绕开实心布景的下一步。返回 `[dx, dz]`，各是 -1 / 0 / 1。
-   *
-   * **从哪儿出发由 `fromX`/`fromZ` 说**（不给就是玩家）：玩家自己会绕，所以它原来是给
-   * **自动演示和测试里的那些 bot** 用的 —— "一直往目标按方向键"会在树干上原地推，
-   * 演示就永远走不到 Boss。**怪后来也要用它**（`docs/adr/0047`）：录像里那间房摆着
-   * 五只木桶、哥布林照样一路走到他面前，而本作原来是"没有人绕路"（`blockProps` 那一节
-   * 写着这条规矩），于是怪会被一件布景**永久钉住**。
-   *
-   * 一格 24 单位、整间房 38x22 格，一步 BFS 便宜到可以每帧算一次；布景按半格放大再判定，
-   * 否则会有"格心在盒外、两格之间那段却在盒里"的缝。
-   */
-  function routeStep(state, targetX, targetZ, fromX, fromZ) {
-    var step = 24;
-    var left = roomLeft(state);
-    var half = (state.player && state.player.width ? state.player.width : 34) / 2;
-    var depth = bandDepth(state.band);
-    var cols = Math.max(1, Math.floor((roomRight(state) - left) / step));
-    var rows = Math.max(1, Math.floor(depth / step));
-    var margin = step / 2;
-    var solids = (state.props || []).filter(function (prop) {
-      return prop.solid && !prop.broken && propBox(prop.piece);
-    });
-    var blocked = function (x, z) {
-      return solids.some(function (prop) {
-        var box = propBox(prop.piece);
-        var centre = prop.x + (box.dx || 0);
-        return (
-          Math.abs(x - centre) < half + box.width / 2 + margin &&
-          Math.abs(z - prop.z) < half + box.depth / 2 + margin
-        );
+          cell.room = deck[cell.kind].shift();
+        }
       });
-    };
-    var cellX = function (x) {
-      return Math.min(cols - 1, Math.max(0, Math.floor((x - left) / step)));
-    };
-    var cellZ = function (z) {
-      return Math.min(rows - 1, Math.max(0, Math.floor(z / step)));
-    };
-    var seatX = function (i) { return left + (i + 0.5) * step; };
-    var seatZ = function (j) { return (j + 0.5) * step; };
+      return {
+        cols: dun.cols,
+        rows: dun.rows,
+        cells: cells,
+        entry: indexOfCell(cells, dun.entry[0], dun.entry[1]),
+        boss: indexOfCell(cells, dun.boss[0], dun.boss[1]),
+        northX: dun.northX || {},
+        /* 上/下门同轴只在量过的那一关开（`doorX`、`docs/adr/0063`）。 */
+        southSharesNorthX: !!dun.southSharesNorthX
+      };
+    }
 
-    var from = [
-      cellX(fromX === undefined ? state.player.x : fromX),
-      cellZ(fromZ === undefined ? state.player.z : fromZ)
-    ];
-    var goal = [cellX(targetX), cellZ(targetZ)];
-    if (blocked(seatX(goal[0]), seatZ(goal[1]))) {
-      /* 目标那一格被布景占着（门口那一带是清的，几乎用不到）：退到最近的一格空地。 */
-      var best = null;
-      for (var i = 0; i < cols; i += 1) {
-        for (var j = 0; j < rows; j += 1) {
-          if (blocked(seatX(i), seatZ(j))) continue;
-          var far = Math.abs(i - goal[0]) + Math.abs(j - goal[1]);
-          if (!best || far < best.far) best = { at: [i, j], far: far };
+    /** 这一格某一扇门通向哪一格（`cells` 的下标），没这扇门就是 -1。 */
+    function doorNeighbour(dungeon, cell, dir) {
+      var step = MINIMAP_STEPS[dir];
+      if (!step || !(cell.exits & step.bit)) return -1;
+      return indexOfCell(dungeon.cells, cell.col + step.dx, cell.row + step.dy);
+    }
+
+    /**
+     * 这一格的一扇门现在是什么状态：`"none"` 没有这扇门，`"locked"` 锁着，
+     * `"open"` 能走。**清过房就都开；没清，只有他进来的那扇能走回去** ——
+     * 这是 DNF 的规矩，也是"清房"这件事的意义。
+     */
+    function exitMode(state, dir) {
+      var cell = currentCell(state);
+      var step = MINIMAP_STEPS[dir];
+      if (!cell || !step || !(cell.exits & step.bit)) return "none";
+      if (cell.cleared || dir === state.entryDoor) return "open";
+      return "locked";
+    }
+
+    /*
+     * 换房那一下。录像里切过去是**一帧近全黑，然后新房间在 0.3 秒里淡进来**
+     * （量法：整屏亮度 121.333s 掉到 4.2 再一路爬回 58，`docs/adr/0030`）。
+     * 所以这不是"淡出再淡入"：旧画面直接切掉，黑的立刻盖上来。
+     */
+    var TRANSITION = {
+      dur: 0.3
+    };
+
+    /* 门口那几块地：侧门沿 x，上门/下门沿 z，一样都要求他站在门口那一块。 */
+    var DOOR = {
+      /* 侧门：贴上左右墙这么近就算进了门框。 */
+      side: 60,
+      /* 上门/下门：走进地板最里/最外这么深。 */
+      depth: 46,
+      /*
+       * 上门/下门在 x 上认多宽 —— 门框左右各这么宽。
+       * 门拱美术本身 157 宽（半宽 78.5）；110 是给旧宽房留的，收到 80 后
+       * 窄房（深处 33 房 734 宽、四扇门）才放得下录像里的桶/柱。
+       */
+      span: 80,
+      /* 换房之后他站在离门多远的地方。 */
+      stand: 74,
+      share: 0.5
+    };
+
+    /**
+     * 上门/下门在这一格立在哪（像素）。
+     *
+     * **它是这一间房的比例，不是屏幕的比例。** 量录像时那三个数（0.673 / 0.492 /
+     * 0.469）当时没区分这两者；房间能滚之后必须选一个，选的是**房间**
+     * （`docs/adr/0035`）—— 门是房间里的东西，屏幕只是看它的一扇窗。
+     */
+    function doorX(state, cell, dir) {
+      /*
+       * **上/下门同一条竖轴**（2026-10-27 照 00002 量）：106s 帧（33 房）上门拱中心 world 177、
+       * 下门拱 174，只差 3 世界px；150s 帧（23 房）137 与 149。两扇门落在同一列上，
+       * 所以一格记的 `northX` 同时给 N 和 S 用 —— 这也是录像里上下两道拱上下对齐的原因。
+       *
+       * **只在这么标的副本里生效**（`southSharesNorthX`）：00001 的幽暗密林没有逐帧量过
+       * 下门的位置，那里的 S 门仍走中心线，不为一条没量过的类推去动它。
+       */
+      var sameAxis = (dir === "N") ||
+        (dir === "S" && !!state.dungeon.southSharesNorthX);
+      var share = sameAxis
+        ? (state.dungeon.northX || {})[cellKey(cell.col, cell.row)]
+        : undefined;
+      if (share === undefined) share = DOOR.share;
+      return share * roomWidth(state);
+    }
+
+    /**
+     * **一扇上/下门的整条路留空。**
+     *
+     * `blocksDoorway` 管的是门框自己那一块（门口净空，`docs/adr/0032`）；这一条管的是
+     * **从带子前缘一路走到那扇门的那一整列** —— 上/下门只有这一条路可走，路上横着一件
+     * 实心件，谁过一次都得绕一次。侧门不在此列：左右门贴墙，进出的路本来就是横着的，
+     * 绕一件东西是横着让一步，不是"整条路被堵"。
+     *
+     * 业主的规矩是「门口不能有石头和树木」（`docs/adr/0032`）；这一条是它朝"门的那条路"
+     * 上的一步 —— 桶按录像摆到一间房五只之后，正是这一列上的那一只把演示 bot 钉住的
+     * （`docs/adr/0048` 记了实测）。
+     */
+    function blocksDoorLane(state, cell, entry) {
+      if (!cell) return false;
+      for (var i = 0; i < MINIMAP_DIRS.length; i += 1) {
+        var dir = MINIMAP_DIRS[i];
+        if (dir !== "N" && dir !== "S") continue;
+        if (!(cell.exits & MINIMAP_STEPS[dir].bit)) continue;
+        if (Math.abs(entry.x - doorX(state, cell, dir)) < DOOR.span) return true;
+      }
+      return false;
+    }
+
+    function inDoorZone(state, dir) {
+      var player = state.player;
+      var cell = currentCell(state);
+      if (!cell) return false;
+      if (dir === "E") return player.x >= roomRight(state) - DOOR.side;
+      if (dir === "W") return player.x <= roomLeft(state) + DOOR.side;
+      if (Math.abs(player.x - doorX(state, cell, dir)) > DOOR.span) return false;
+      var deep = bandDepth(state.band);
+      if (dir === "N") return player.z >= deep - DOOR.depth;
+      return player.z <= DOOR.depth;
+    }
+
+    /*
+     * **门口净空**（`docs/adr/0032`，业主：「门口不能有石头和树木」）。
+     *
+     * 每扇门前面留一条不许摆东西的带：左右门是贴墙的一条，上下门是那一格自己的门 x
+     * 左右各一条；两边再各让出**一个半身位**（`DOOR.stand` 那一档），免得进门落脚就顶在
+     * 石头上。带里的**实心**布景（木桶、树、石头）摆位时就丢掉 —— 花草贴花不算，它们不挡人。
+     *
+     * 这一关在**摆位的时候按格**过，不在写房间的时候过：房间是按种子洗到格子上的，
+     * 同一间房落在不同格子上会碰上不同的门（上门/下门的 x 是那一格自己的）。
+     */
+    var DOOR_CLEAR = {
+      side: DOOR.side + DOOR.stand,
+      span: DOOR.span + DOOR.stand,
+      depth: DOOR.depth + DOOR.stand
+    };
+
+    /*
+     * 门口要清的是**两块地方**（`docs/adr/0032`）：进门落脚、出门站的那块**判定区**，和
+     * **门拱自己的美术盒子**。只看 z 是不够的 —— 一棵 105x199 的树桩可以"站在判定区前面"
+     * 却把整个门拱画糊（业主截图里的胆小鬼的窝就是这样）。
+     *
+     * 两样都用屏幕上的矩形比：地图是 x-y 的，判定区在 z 上怎么摆，最后都要落到同一个屏幕上。
+     */
+    var GATE_ART = { N: [157, 198], S: [192, 118], side: [131, 240] };
+
+    /*
+     * **下门的底边（世界 y）= 482。**
+     *
+     * 画（`render.js` 的 `gateSpot`）和"别把门画糊"的美术矩形共用这一个数：
+     * 录像 106s 帧拱顶在画布 413，本作那件 192x118 按 0.533 画出来 161x99 画布px，
+     * 底边就是画布 512 → 世界 y `430 + (512-430) ÷ 1.5775 ≈ 482`。
+     * 写成 `ARENA.height`（540）会被纵向 zoom 拉到画布 603，整扇在屏幕外面。
+     */
+    var GATE_DOWN = { bottom: 482, scale: 0.533 };
+
+    /** 一扇门**拱**自己的美术盒子（画在哪、多大）—— 门口净空里那条"别把门画糊"的判据。 */
+    function gateArtRect(state, cell, dir) {
+      var depth = bandDepth(state.band);
+      var floorOf = function (z) { return ARENA.groundY - depthLift(z); };
+      if (dir === "N" || dir === "S") {
+        var x = doorX(state, cell, dir);
+        if (dir === "S") {
+          /* 下门的尺寸与底边照**实际画出来的那一份**（`GATE_DOWN`），不是美术原尺寸。 */
+          var zoom = CAMERA.zoom;
+          var w = GATE_ART.S[0] * GATE_DOWN.scale * zoom;
+          var h = GATE_ART.S[1] * GATE_DOWN.scale * zoom;
+          var at = ARENA.groundY + (GATE_DOWN.bottom - ARENA.groundY) * zoom;
+          return { left: x - w / 2, right: x + w / 2, top: at - h, bottom: at };
+        }
+        var art = GATE_ART[dir];
+        var bottom = floorOf(depth) + 6;
+        return { left: x - art[0] / 2, right: x + art[0] / 2, top: bottom - art[1], bottom: bottom };
+      }
+      var side = GATE_ART.side;
+      var cx = dir === "E" ? roomWidth(state) - 34 : 34;
+      var base = ARENA.groundY + 4;
+      return { left: cx - side[0] / 2, right: cx + side[0] / 2, top: base - side[1], bottom: base };
+    }
+
+    /** 这一格某扇门"进出要用的那块地"（x-z 平面上的矩形）。 */
+    function doorFloor(state, cell, dir) {
+      var deep = bandDepth(state.band);
+      if (dir === "E") {
+        return { x: [roomRight(state) - DOOR_CLEAR.side, roomWidth(state)], z: [0, deep] };
+      }
+      if (dir === "W") {
+        return { x: [0, roomLeft(state) + DOOR_CLEAR.side], z: [0, deep] };
+      }
+      var at = doorX(state, cell, dir);
+      return {
+        x: [at - DOOR_CLEAR.span, at + DOOR_CLEAR.span],
+        z: dir === "N" ? [deep - DOOR_CLEAR.depth, deep] : [0, DOOR_CLEAR.depth]
+      };
+    }
+
+    /**
+     * 这件布景压没压到这一格任何一扇门。两种压法都算（`docs/adr/0032`）：
+     *
+     * 1. **地面**：它的盒子（x-z）压在"进出要用的那块地"上 —— 挡路；
+     * 2. **美术**：它的美术矩形（屏幕）压到门拱自己的美术盒子上 —— 把门画糊。一棵
+     *    105x199 的树桩可以站在判定区**前面**（第 1 条查不出来）却把整个门拱盖掉。
+     *
+     * 两条各用各的空间：第 1 条是地板对地板，第 2 条是画面对画面 —— 拿美术盒子去比地板
+     * 那条，会把"站在门口前面的一棵高树"全判成违章（断桩隘口那间房会被掏空）。
+     */
+    /**
+     * 一件布景画在屏幕上的矩形（脚底在 `ARENA.groundY - depthLift(z)`）。
+     * 门口净空那条“别把门画糊”和“挪过的件别把箱子盖住”用的是同一个矩形。
+     * 无盒又无美术尺寸的件（不该有）返回 null。
+     */
+    function propArtRect(state, entry, depth) {
+      var box = propBox(entry.piece);
+      var artSize = null;
+      if (box) {
+        artSize = box.ink ? box.ink : [box.width, box.width];
+      } else {
+        artSize = propArtSize(entry.piece);
+        if (!artSize) return null;
+      }
+      var z = entry.depth === undefined ? 0 : entry.depth * depth;
+      var foot = ARENA.groundY - depthLift(z);
+      return {
+        left: entry.x - artSize[0] / 2,
+        right: entry.x + artSize[0] / 2,
+        top: foot - artSize[1],
+        bottom: foot
+      };
+    }
+
+    /** 两个屏幕矩形叠不叠（`propArtRect` 的那一套）。 */
+    function rectOverlap(a, b) {
+      return a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
+    }
+
+    function blocksDoorway(state, cell, entry, depth) {
+      if (!cell) return false;
+      var box = propBox(entry.piece);
+      /*
+       * **没有盒子的也要查门拱。** 花草贴花不挡路，但会盖住门拱；它们的美术尺寸
+       * 从 `PROP_ART` 取（业主 2026-10-17：「有杂草盖住了门口」）。只有地面那一条
+       * 需要盒子 —— 无盒件不占身位，地面永远不用查。
+       */
+      var art = propArtRect(state, entry, depth);
+      if (!art) return false;
+      var z = entry.depth === undefined ? 0 : entry.depth * depth;
+      /*
+       * **站在后场草沿后面的件不挡门。** 43 房的宝箱、33 房的石门都坐在走位带
+       * 后面（z > 带的深度），画面上它们本来就在门后面，挪开只会把录像的摆位
+       * 破坏掉（2026-10-25：新布景一进门就被净空逻辑推走 200-300px）。
+       */
+      if (z > depth + 0.001) return false;
+      var floorRect = box ? {
+        left: entry.x - box.width / 2,
+        right: entry.x + box.width / 2,
+        near: z - box.depth / 2,
+        far: z + box.depth / 2
+      } : null;
+      for (var index = 0; index < MINIMAP_DIRS.length; index += 1) {
+        var dir = MINIMAP_DIRS[index];
+        if (!(cell.exits & MINIMAP_STEPS[dir].bit)) continue;
+        if (floorRect) {
+          var floor = doorFloor(state, cell, dir);
+          if (floorRect.left < floor.x[1] && floorRect.right > floor.x[0] &&
+              floorRect.near < floor.z[1] && floorRect.far > floor.z[0]) return true;
+        }
+        var gate = gateArtRect(state, cell, dir);
+        if (rectOverlap(art, gate)) return true;
+      }
+      return false;
+    }
+
+    /*
+     * **挪过的件别把宝箱/石碑盖在身后。** 业主第三次复看：「箱子好像没有」。查下来不是
+     * 箱子丢了 —— `(1,3)` 的两只都还在（190 / 229），但一只被挪到前面的墙石
+     * （depth 0.85 → 0.24）挡在画面前面。深度排序是**远的先画**，所以只有“候选比箱子
+     * 更靠前（z 更小）”时才可能盖住它；候选在箱子后面就是箱子画在上面，不挡。
+     *
+     * 这条只保**宝箱/石碑**：它们是可打碎的战利品，读不到就是“没有”。树/墙彼此叠在
+     * 一起是森林的常态，不在这里管。宝箱/石碑之间也不互保（两只并排本来就该挨着）。
+     */
+    function coversLoot(state, entry, depth, z, placed) {
+      if (entry.piece === "chest" || entry.piece === "tomb") return false;
+      var art = propArtRect(state, entry, depth);
+      if (!art) return false;
+      for (var index = 0; index < placed.length; index += 1) {
+        var other = placed[index];
+        if (other.piece !== "chest" && other.piece !== "tomb") continue;
+        /* 候选在它后面：它后画，盖不到。 */
+        if (z > other.z + 0.001) continue;
+        var otherArt = propArtRect(state, {
+          piece: other.piece,
+          x: other.x,
+          depth: other.z / depth
+        }, depth);
+        if (otherArt && rectOverlap(art, otherArt)) return true;
+      }
+      return false;
+    }
+
+    /*
+     * **走位**：朝一个点走、绕开实心布景的下一步。返回 `[dx, dz]`，各是 -1 / 0 / 1。
+     *
+     * **从哪儿出发由 `fromX`/`fromZ` 说**（不给就是玩家）：玩家自己会绕，所以它原来是给
+     * **自动演示和测试里的那些 bot** 用的 —— "一直往目标按方向键"会在树干上原地推，
+     * 演示就永远走不到 Boss。**怪后来也要用它**（`docs/adr/0047`）：录像里那间房摆着
+     * 五只木桶、哥布林照样一路走到他面前，而本作原来是"没有人绕路"（`blockProps` 那一节
+     * 写着这条规矩），于是怪会被一件布景**永久钉住**。
+     *
+     * 一格 24 单位、整间房 38x22 格，一步 BFS 便宜到可以每帧算一次；布景按半格放大再判定，
+     * 否则会有"格心在盒外、两格之间那段却在盒里"的缝。
+     */
+    function routeStep(state, targetX, targetZ, fromX, fromZ) {
+      var step = 24;
+      var left = roomLeft(state);
+      var half = (state.player && state.player.width ? state.player.width : 34) / 2;
+      var depth = bandDepth(state.band);
+      var cols = Math.max(1, Math.floor((roomRight(state) - left) / step));
+      var rows = Math.max(1, Math.floor(depth / step));
+      var margin = step / 2;
+      var solids = (state.props || []).filter(function (prop) {
+        return prop.solid && !prop.broken && propBox(prop.piece);
+      });
+      var blocked = function (x, z) {
+        return solids.some(function (prop) {
+          var box = propBox(prop.piece);
+          var centre = prop.x + (box.dx || 0);
+          return (
+            Math.abs(x - centre) < half + box.width / 2 + margin &&
+            Math.abs(z - prop.z) < half + box.depth / 2 + margin
+          );
+        });
+      };
+      var cellX = function (x) {
+        return Math.min(cols - 1, Math.max(0, Math.floor((x - left) / step)));
+      };
+      var cellZ = function (z) {
+        return Math.min(rows - 1, Math.max(0, Math.floor(z / step)));
+      };
+      var seatX = function (i) { return left + (i + 0.5) * step; };
+      var seatZ = function (j) { return (j + 0.5) * step; };
+
+      var from = [
+        cellX(fromX === undefined ? state.player.x : fromX),
+        cellZ(fromZ === undefined ? state.player.z : fromZ)
+      ];
+      var goal = [cellX(targetX), cellZ(targetZ)];
+      if (blocked(seatX(goal[0]), seatZ(goal[1]))) {
+        /* 目标那一格被布景占着（门口那一带是清的，几乎用不到）：退到最近的一格空地。 */
+        var best = null;
+        for (var i = 0; i < cols; i += 1) {
+          for (var j = 0; j < rows; j += 1) {
+            if (blocked(seatX(i), seatZ(j))) continue;
+            var far = Math.abs(i - goal[0]) + Math.abs(j - goal[1]);
+            if (!best || far < best.far) best = { at: [i, j], far: far };
+          }
+        }
+        if (!best) return [0, 0];
+        goal = best.at;
+      }
+      if (from[0] === goal[0] && from[1] === goal[1]) return [0, 0];
+
+      var key = function (a, b) { return a + "," + b; };
+      var came = {};
+      came[key(from[0], from[1])] = null;
+      var queue = [from];
+      var moves = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+      var found = false;
+      while (queue.length && !found) {
+        var at = queue.shift();
+        for (var m = 0; m < moves.length && !found; m += 1) {
+          var ni = at[0] + moves[m][0];
+          var nj = at[1] + moves[m][1];
+          if (ni < 0 || nj < 0 || ni >= cols || nj >= rows) continue;
+          if (came[key(ni, nj)] !== undefined) continue;
+          if (blocked(seatX(ni), seatZ(nj))) continue;
+          came[key(ni, nj)] = { at: at, step: moves[m] };
+          if (ni === goal[0] && nj === goal[1]) found = true;
+          queue.push([ni, nj]);
         }
       }
-      if (!best) return [0, 0];
-      goal = best.at;
-    }
-    if (from[0] === goal[0] && from[1] === goal[1]) return [0, 0];
-
-    var key = function (a, b) { return a + "," + b; };
-    var came = {};
-    came[key(from[0], from[1])] = null;
-    var queue = [from];
-    var moves = [[1, 0], [-1, 0], [0, 1], [0, -1]];
-    var found = false;
-    while (queue.length && !found) {
-      var at = queue.shift();
-      for (var m = 0; m < moves.length && !found; m += 1) {
-        var ni = at[0] + moves[m][0];
-        var nj = at[1] + moves[m][1];
-        if (ni < 0 || nj < 0 || ni >= cols || nj >= rows) continue;
-        if (came[key(ni, nj)] !== undefined) continue;
-        if (blocked(seatX(ni), seatZ(nj))) continue;
-        came[key(ni, nj)] = { at: at, step: moves[m] };
-        if (ni === goal[0] && nj === goal[1]) found = true;
-        queue.push([ni, nj]);
+      if (!found) return [0, 0];
+      var first = null;
+      for (var walk = goal; walk[0] !== from[0] || walk[1] !== from[1]; ) {
+        var hop = came[key(walk[0], walk[1])];
+        first = hop.step;
+        walk = hop.at;
       }
+      return first || [0, 0];
     }
-    if (!found) return [0, 0];
-    var first = null;
-    for (var walk = goal; walk[0] !== from[0] || walk[1] !== from[1]; ) {
-      var hop = came[key(walk[0], walk[1])];
-      first = hop.step;
-      walk = hop.at;
+
+    /** 他正站在哪扇开着的门口，没有就 null。顺序按 N/E/S/W，先来的先算。 */
+    function doorAt(state) {
+      for (var index = 0; index < MINIMAP_DIRS.length; index += 1) {
+        var dir = MINIMAP_DIRS[index];
+        if (exitMode(state, dir) !== "open") continue;
+        if (inDoorZone(state, dir)) return dir;
+      }
+      return null;
     }
-    return first || [0, 0];
-  }
 
-  /** 他正站在哪扇开着的门口，没有就 null。顺序按 N/E/S/W，先来的先算。 */
-  function doorAt(state) {
-    for (var index = 0; index < MINIMAP_DIRS.length; index += 1) {
-      var dir = MINIMAP_DIRS[index];
-      if (exitMode(state, dir) !== "open") continue;
-      if (inDoorZone(state, dir)) return dir;
-    }
-    return null;
-  }
-
-  /*
-   * 可破坏的布景：木桶。
-   *
-   * 客户端那只桶自己有 13 帧（`sprite_map_breakableobject.NPK :: barrel.img`）：第 0 帧
-   * 是完整的桶，第 1-12 帧是飞散的木片和铁箍。所以"打碎"不是另画一套，是把那 12 帧放出来。
-   *
-   * **只有他打得碎，怪打不碎**：怪的攻击和怪的身体都撞得到它（业主的原话是「人和怪都撞得到
-   * 它…只有人能打碎，怪物打不碎」），所以它挡两份、碎只认他那一下。
-   *
-   * 盒子照美术来：一个桶立在地上占这么宽、这么深。判定只看 x 和 z。
-   */
-  var BREAKABLE = {
-    /* 盒子照美术来：那个桶画出来是 63x78（`SCENE.pieces.barrel`），桶身比影子窄一点。 */
-    barrel: { width: 52, depth: 34, height: 78, hp: 1, ink: [63, 78] },
     /*
-     * 幽暗密林深处 的两件可破坏布景（客户端 `treasurebox.img` / `stonetomb.img`）。
-     * 盒子按美术的 ink 写，再乘 `PROP_SCALE` 落到录像的大小；只有玩家打得碎，
-     * 和木桶同一条规矩。
-     */
-    chest: { width: 80, depth: 30, height: 56, hp: 1, ink: [86, 56] },
-    tomb:  { width: 90, depth: 36, height: 108, hp: 1, ink: [135, 108] }
-  };
-
-  /*
-   * **立着的布景：树、石头、树桩、石柱 —— 实心，挡人**（`docs/adr/0032`，业主：
-   * 「树木和石头也要有碰撞」）。它们跟木桶不一样的地方只有两条：**打不碎**（挥击只认
-   * `BREAKABLE`），**不挡飞行物**（和木桶一致：怪不会绕路也不会换排，挡了投石就等于
-   * 把它们废掉）。
-   *
-   * `width` / `dx` 是**量出来的**：把每件美术最底下 12 行（贴地那一段）的 ink 取出来，
-   * 量它占多宽、中心偏在美术中心哪一边（`assets/import_dnf_scene.py` 烘的图，
-   * 树根会往外张，所以树干那一段比上面细）。树冠、石头的上半截**不进盒子** ——
-   * 一个"看得见的树冠"和"走不过去的空墙"对不上，读起来是 bug。
-   *
-   * `depth` 没有像素可量（美术是正面的），按同一个规矩给：宽的三分之一，钳在 24–40，
-   * 和木桶(52/34)是同一档手感。
-   */
-  var SOLID = {
-    trunkTall:  { width: 146, dx: 4,   ink: [203, 422] },
-    trunkBent:  { width: 111, dx: 6,   ink: [143, 423] },
-    trunkMossy: { width: 100, dx: -18, ink: [160, 428] },
-    treeLeafy:  { width: 84,  dx: -4,  ink: [153, 203] },
-    stump:      { width: 74,  dx: -4,  ink: [105, 199] },
-    pillar:     { width: 43,  dx: 0,   ink: [44, 111] },
-    wallStone:  { width: 163, dx: -1,  ink: [167, 125] },
-    rockFlat:   { width: 92,  dx: -20, ink: [141, 89] },
-    rockSmall:  { width: 42,  dx: 0,   ink: [42, 44] },
-    /*
-     * 02 套剩下那批里**立着的**（业主 2026-10-13 把客户端拷上来之后补的）。
-     * `width`/`dx` 是照同一条规矩量的：**每件美术最底下 12 行的墨**，
-     * 树冠、石头的上半截不进盒子（`docs/adr/0032`）—— 量法：
-     * 取 `assets/forest.png` 里这块矩形的最下 12 行，量 ink 的左右缘。
-     * `depth` 仍然由宽度推（下面那一段）。
+     * 可破坏的布景：木桶。
      *
-     * **贴地平铺的那几件不在这里**（`grassPatch` / `leaves` / `leavesBroad` /
-     * `leavesDense` / `pebble`）：它们走 `SCENE.decals`，谁都不撞。
-     */
-    firSmall:   { width: 42,  dx: 0,   ink: [42, 59] },
-    firMid:     { width: 43,  dx: 0,   ink: [43, 71] },
-    firTall:    { width: 44,  dx: 0,   ink: [44, 78] },
-    snagTall:   { width: 96,  dx: 20,  ink: [139, 207] },
-    fallenTrunk: { width: 223, dx: -2, ink: [226, 340] },
-    stumpBroken: { width: 40, dx: -19, ink: [78, 112] },
-    trunkHollow: { width: 84, dx: 2,   ink: [133, 178] },
-    snagShort:  { width: 95,  dx: 0,   ink: [97, 104] },
-    snagStub:   { width: 84,  dx: 2,   ink: [87, 101] },
-    ruinStone:  { width: 139, dx: 2,   ink: [142, 103] },
-    rockArch:   { width: 105, dx: -22, ink: [195, 180] },
-    logMossy:   { width: 96,  dx: 24,  ink: [317, 175] },
-    treeDead:   { width: 74,  dx: -4,  ink: [105, 277] },
-    treeDeadTall: { width: 84, dx: 0,  ink: [175, 303] }
-  };
-  Object.keys(SOLID).forEach(function (piece) {
-    SOLID[piece].depth = clamp(Math.round(SOLID[piece].width / 3), 24, 40);
-  });
-
-  /* 一个桶碎开之后，那一地木片还画多久（秒）。 */
-  var BREAK_ANIM = 0.42;
-
-  /*
-   * 怪物怎么死。时间线是量出来的（`docs/adr/0030`）：录像里四次独立击杀对得一样齐 ——
-   * **致命一击 → 身体倒地躺约 0.2 秒 → 原地炸开 → 身体不再回来**。
-   *
-   * 炸开是两样东西：一团**青白色圆爆**（客户端 `monsterdieflash`，亮 3 帧 = 0.10 秒）
-   * 和 9-14 块**悬在空中不落**的红肉块（半秒内散掉）。**地上不留血泊、不留尸体** ——
-   * 那是"击倒"，0.2 秒后会站起来，和死是两回事。
-   */
-  /*
-   * 怪死：**倒地的尸体 → 变成它自己的白色剪影 → 炸成按它颜色的碎块四散**
-   * （`docs/adr/0034`）。
-   *
-   * 业主的口径（2026-10-11，实玩之后）：「怪物确实会躺着死，然后出现白色怪物轮廓，
-   * 然后碎裂成血块（和怪物颜色一样）散向四处」。拿他的幽暗密林录像逐帧对过：
-   * **那团白不是烟，是怪自己的剪影** —— 96.65s 两只哥布林一起死，白色的包围盒
-   * 276 × 114 px，正好是两只站着的身量（画上每只 98 × 108），96.667 满、96.933 缩、
-   * 96.967 没了（**0.30 秒**）；随后炸开的碎块按怪自己的皮肤色染（T+4:50 那一只
-   * 量到十几块金黄的，飞出去 0.4 秒内四散、渐隐）。
-   *
-   * 上一片把它读成"一片贴地的云、什么都不留" —— 错在只量白色：绿怪的碎块落在
-   * 深绿草地上，按白色去扫一个也扫不到。
-   */
-  var DEATH = {
-    /* 先倒地躺着（业主：「怪物确实会躺着死」）。 */
-    lie: 0.2,
-    /* 尸体变成它自己的**白色剪影**亮多久：录像里 0.30 秒（96.667–96.967）。 */
-    shape: 0.3,
-    /*
-     * 碎块从炸出来到淡尽：**快、短**。录像里那些块只活 0.1–0.2 秒（T+4:50 那只
-     * 290.167 出现、290.233 就没了），我们原来拖到 1.6 秒，看着像落叶飘下来。
-     */
-    chunks: 0.45,
-    /* 一次炸开冒几块（T+4:50 量到十几块，取 14）。 */
-    chunkCount: 14,
-    /*
-     * **Boss 没有可见的躺下拍**（参考 328.2s 白团几乎立刻出现），所以只留
-     * 一帧的交接；白剪影仍是 0.9 秒。
-     */
-    bossLie: 0.02,
-    bossSmoke: 0.9,
-    /*
-     * **Boss 的血块留到过关画面**（参考 329.5–332.5s，约 3 秒）：大肉块落地后
-     * 摊在地上，不是 0.9 秒就淡掉。`victoryDelay` 也是按这一段时间算的。
-     */
-    bossChunks: 3.0,
-    /* 一次冒 10–14 块（参考里量到 12–14 块）；杂兵仍是 14 块小的。 */
-    bossChunkCount: 12,
-    /*
-     * 领主的收束光线（参考 327.5–329.5s，约 2 秒）：细的红白光线 + 金色横光，
-     * 不是 0.7 秒就收掉。
-     */
-    bossRays: 1.8
-  };
-
-  /**
-   * **是不是领主**：看行为，不只看 type。幽暗密林深处 的 Boss 是
-   * `lugaruBoss`（type 不是 "boss"），但它的行为仍是 `"boss"` —— 通关、
-   * 目标条、死亡光线、白剪影这一整套都认这个行为，不认某一个 type 字符串。
-   */
-  function isBossEnemy(enemy) {
-    return !!enemy && enemy.behavior === "boss";
-  }
-
-  /** 这一只死之后先躺多久（Boss 几乎立刻变白）。 */
-  function deathLie(enemy) {
-    return isBossEnemy(enemy) ? DEATH.bossLie : DEATH.lie;
-  }
-
-  /** 这一只死了那一片白亮多久（Boss 更大更久）。 */
-  function smokeLife(enemy) {
-    return isBossEnemy(enemy) ? DEATH.bossSmoke : DEATH.shape;
-  }
-
-  /** A prop is scenery unless its piece is one of these. */
-  function breakableSpec(piece) {
-    return BREAKABLE[piece] || null;
-  }
-
-  /** 一件布景的碰撞盒：**只挡人的**（树、石头）和**挡人又打碎得开的**（木桶）都在这一张表上。 */
-  /*
-   * **布景也有"画多大"这个数。**
-   *
-   * 怪一直有（`enemy.height`，渲染那边按它缩那张 sheet —— 所以怪表里那个高度既是美术
-   * 也是判定）；**布景没有**：它按烘出来那张图的像素数画。而录像里**每一件是各自一个
-   * 倍率**（客户端拿动画数据缩放每一件，那份数据在加密的 `Script.pvf` 里）——
-   * 量出来的：木桶 1.83 视频px/画px、哥布林 2.0-2.6、石拱门 2.52、牛头巨兽 3.38。
-   * 本作一律用 3.155（= 265 ÷ 84，身位换算那一条），于是**偏大的都是那些倍率比 3.155
-   * 低的**：木桶偏大 1.35 倍、侧门 1.25 倍（`docs/adr/0050`）。
-   *
-   * 下面这两个数是**量的**（录像像素 ÷ 本作画出来的像素，几个样本一致）。
-   * **没量到的一律 1** —— 猜一个比留着不动更糟：那会把一件本来对的也缩坏。
-   */
-  var PROP_SCALE = {
-    /* 木桶：录像 132-160 视频px 宽、182 高（两个深度的样本），本作 63x78。 */
-    barrel: 0.74,
-    /*
-     * 门的倍率只在**侧门**上量到（录像 330 视频px 宽，本作 131 画布px → 0.80）；
-     * 上/下门与门板跟它同一族美术，按同一个数走，但**没单独量过**。
-     */
-    gate: 0.80, gateUp: 0.80, gateDown: 0.80,
-    door: 0.80, doorUp: 0.80, doorDown: 0.80,
-    /*
-     * **石柱要两个数。** 录像里那根站着的是 **80x280 视频px = 0.30x1.06 身位**
-     * （t=150 那一帧，三根并排，取最左边那根 —— 顶上和脚下都看得见），本作烘出来是
-     * **44x111**。所以客户端把这一件**竖着拉长**了：横向 1.82 倍、纵向 2.52 倍。
+     * 客户端那只桶自己有 13 帧（`sprite_map_breakableobject.NPK :: barrel.img`）：第 0 帧
+     * 是完整的桶，第 1-12 帧是飞散的木片和铁箍。所以"打碎"不是另画一套，是把那 12 帧放出来。
      *
-     * 所以这一张表允许**两个数**（`[横向, 纵向]`），一个数的意思就是两个轴同一个 ——
-     * 木桶与门量下来两轴基本一致，石柱不一致。别把"一个数"当成规矩。
-     */
-    pillar: [0.58, 0.80],
-    /*
-     * **三棵直树干**（直 / 弯 / 长苔）。录像里那棵的**上段**是 **190 视频px = 0.72 身位**宽
-     * （t=200 那一帧，树干两侧都看得清），而本作三棵的上段是 **1.40 / 0.82 / 0.93 身位** ——
-     * 平均下来偏大 **1.45 倍**，最粗那棵偏大 **1.95 倍**。
+     * **只有他打得碎，怪打不碎**：怪的攻击和怪的身体都撞得到它（业主的原话是「人和怪都撞得到
+     * 它…只有人能打碎，怪物打不碎」），所以它挡两份、碎只认他那一下。
      *
-     * **倍率取三棵的平均 0.70**，不是逐棵的：录像里只看得见**一棵**，认不出它是这三棵里的
-     * 哪一棵（三棵都是直的、都长苔）。逐棵要量得先认出它是谁。
-     *
-     * **只有横向**：树是**跑出画面顶**的（录像和本作都跑出去了），**高度量不到** ——
-     * 所以纵向留 1，等于把树画细。客户端自己就是两轴分开缩的（石柱那一件量过），
-     * 所以"只缩一个轴"不是歪门邪道。
+     * 盒子照美术来：一个桶立在地上占这么宽、这么深。判定只看 x 和 z。
      */
-    trunkTall: [0.70, 1], trunkBent: [0.70, 1], trunkMossy: [0.70, 1],
-    /*
-     * **阔叶树**（t=88 那一帧，树冠左右、树顶、根脚四处都看得见）：
-     * 录像 **260x440 视频px = 0.98x1.66 身位**，本作烘的是 **153x203** ——
-     * 横向偏大 1.86 倍、纵向 1.46 倍。**又是"偏胖"**（本作 0.75 的宽高比对录像的 0.59）。
-     */
-    treeLeafy: [0.54, 0.69],
-    /*
-     * **高草换了那一件之后重新量的**（`docs/adr/0050` 追记三）：新那一件是 39x87，
-     * 录像里那一撮是 **95x170 视频px**，所以两轴都要缩：横向 0.77、纵向 0.62。
-     */
-    grass: [0.77, 0.62],
-    /*
-     * 宝箱/石碑：宝箱在录像 t≈80s 那一帧两只并排，单只约 130 视频px 宽，
-     * 客户端画布 86 → **0.48**；石碑没有并排样本，按同一档暂取 **0.50**。
-     * 两件都是实玩后可调的摆设，判定跟着这个倍率走（`propBox`）。
-     */
-    chest: 0.48,
-    tomb: 0.50
-  };
-
-  /** 一件布景的倍率，拆成 `[横向, 纵向]`。 */
-  function propScale(piece) {
-    var entry = PROP_SCALE[piece];
-    if (entry === undefined) return [1, 1];
-    return typeof entry === "number" ? [entry, entry] : entry;
-  }
-
-  /*
-   * **没有碰撞盒的布景也有美术尺寸。**
-   *
-   * 门口净空要按**画面**比：花草不挡人，却能把门拱整个盖掉（业主 2026-10-17：
-   * 「有杂草盖住了门口」）。原来的 `blocksDoorway` 一拿到 `propBox` 为 null 就
-   * return，于是草和贴花在四扇门前全部免检；`blocksDoorLane` 又只查 N/S。
-   *
-   * 这里收的是它们烘出来的 ink 尺寸（与 `src/render.js` 的 `SCENE.pieces` 一致），
-   * **再乘 `propScale`**。摆位检查用的是前缘尺寸（不乘 `depthSize`），比实际画出来的
-   * 略大一点 —— 宁可多让一格，也别让草压住门。
-   */
-  var PROP_ART = {
-    grass: [39, 87],
-    grassFlower: [188, 78],
-    grassPatch: [110, 48],
-    sprout: [126, 66],
-    bush: [64, 59],
-    flower: [30, 55],
-    leaves: [126, 66],
-    leavesBroad: [126, 66],
-    leavesDense: [126, 66],
-    pebble: [24, 27]
-  };
-
-  /** 一件无盒布景的美术尺寸（已乘倍率）；有盒的走 `propBox().ink`。 */
-  function propArtSize(piece) {
-    var art = PROP_ART[piece];
-    if (!art) return null;
-    var scale = propScale(piece);
-    return [art[0] * scale[0], art[1] * scale[1]];
-  }
-
-  function propBox(piece) {
-    var box = BREAKABLE[piece] || SOLID[piece] || null;
-    if (!box) return box;
-    /*
-     * **盒子跟着美术一起缩。** 这是仓库里定过的规矩（`docs/adr/0032` / 0014）：
-     * 美术和判定必须是同一个数，不然会出现"看着能走、结果被挡住"。
-     */
-    var scale = propScale(piece);
-    if (scale[0] === 1 && scale[1] === 1) return box;
-    return {
-      width: box.width * scale[0],
-      depth: box.depth * scale[0],
-      height: (box.height || 0) * scale[1],
-      hp: box.hp,
-      dx: (box.dx || 0) * scale[0],
-      /* 门拱那一关按画出来的大小比，ink 也跟着缩。 */
-      ink: box.ink ? [box.ink[0] * scale[0], box.ink[1] * scale[1]] : box.ink
+    var BREAKABLE = {
+      /* 盒子照美术来：那个桶画出来是 63x78（`SCENE.pieces.barrel`），桶身比影子窄一点。 */
+      barrel: { width: 52, depth: 34, height: 78, hp: 1, ink: [63, 78] },
+      /*
+       * 幽暗密林深处 的两件可破坏布景（客户端 `treasurebox.img` / `stonetomb.img`）。
+       * 盒子按美术的 ink 写，再乘 `PROP_SCALE` 落到录像的大小；只有玩家打得碎，
+       * 和木桶同一条规矩。
+       */
+      /*
+       * 宝箱画到录像的 0.72 之后，**判定盒仍旧按 0.48 那一档**（`box`）：
+       * 它是矮件，箱子边沿不该变成一堵墙 —— 全按美术放大时演示 bot 会被它挡死
+       * （2026-10-26 实测）。`box` 只给判定用，画还是 0.72。
+       */
+      chest: { width: 80, depth: 30, height: 56, hp: 1, ink: [86, 56], box: 0.48 },
+      tomb:  { width: 90, depth: 36, height: 108, hp: 1, ink: [135, 108] }
     };
-  }
 
-  function nextRandom(state) {
-    var t = (state.rngState = (state.rngState + 0x6d2b79f5) >>> 0);
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  }
-
-  function createPlayer(x) {
-    return {
-      kind: "player",
-      x: x,
-      y: ARENA.groundY,
-      /* Depth: 0 is the front edge of the floor, which is the ground line. */
-      z: 0,
-      vx: 0,
-      vy: 0,
-      vz: 0,
-      width: PLAYER.width,
-      height: PLAYER.height,
-      facing: 1,
-      onGround: true,
-      hp: PLAYER.maxHp,
-      maxHp: PLAYER.maxHp,
-      mp: PLAYER.maxMp,
-      maxMp: PLAYER.maxMp,
-      level: 1,
-      xp: 0,
-      xpToNext: PROGRESSION.baseXpToNext,
-      attackBonus: 0,
-      mpRegen: PLAYER.mpRegenPerSecond,
-      skillPower: 1,
-      attackSpeed: PLAYER.attackSpeed,
-      attackTimer: 0,
-      attackDuration: PLAYER.attackDuration,
-      attackCycle: PLAYER.attackDuration + PLAYER.attackCooldown,
-      attackCooldown: 0,
-      /* 脚步的节拍（`docs/adr/0058`）：走起来每 0.3 秒发一条声音事件。 */
-      stepTimer: 0,
-      attackHitDone: false,
-      comboIndex: 0,
-      comboTimer: 0,
-      attackBuffer: 0,
-      jumpBuffer: 0,
-      skillId: null,
-      skillTimer: 0,
-      skillHitDone: false,
-      skillHitsDone: 0,
-      /*
-       * 嗜魂封魔斩's own clock. `channelReleasedAt` is null for as long as he is
-       * still holding, and the elapsed second he let go once he is; the vortex's
-       * ticks are counted off `channelTickAt` (docs/adr/0023).
-       */
-      channelReleasedAt: null,
-      channelTickAt: 0,
-      airHitTimer: 0,
-      /*
-       * Self-buffs: 血之狂暴 (stance, no timer), 暴走 (timed) and 魔狱血刹's
-       * 持剑期 (fifty seconds, and the one state that has to survive a room
-       * change - see `startRoom`).
-       */
-      buffs: {},
-      /*
-       * How far 魔狱血刹's 血气之剑 has been forged, 1..8. It is next to the buff
-       * rather than inside it because `player.buffs` carries seconds and nothing
-       * else; **armed means `hellbenterTier > 0`**, and the sword is on his back
-       * while `buffs.hellbenter > 0`. The two disagree in the one frame that
-       * matters: the clock has run out but the sword has not come down yet, which
-       * is what tells the gate to bring it down on its own.
-       */
-      hellbenterTier: 0,
-      /*
-       * Hits landed towards the *next* tier, 0..hitsPerTier-1. The tier is what
-       * the sword is drawn from; this is only the part of the payment that has
-       * not bought anything yet, and it is why the sword steps every tenth hit
-       * instead of every hit (see growSword).
-       */
-      hellbenterCharge: 0,
-      /* How long until 血之狂暴 charges him again for keeping it up. */
-      stanceDrainTimer: 0,
-      /*
-       * The cast icon a buff flashes over his head, and its own clock. 暴走 is
-       * the only buff that shows one - 血之狂暴's own read is the red body and
-       * the lit hotbar slot, both of which are up the whole time it is.
-       */
-      buffIconTimer: 0,
-      buffIconId: null,
-      skillCooldowns: CASTABLE_SKILLS.reduce(function (map, skillId) {
-        map[skillId] = 0;
-        return map;
-      }, {}),
-      invuln: 0,
-      /* Invulnerability that does not blink (see drawPlayer): set by a leap. */
-      solidInvuln: 0,
-      hurtTimer: 0,
-      dead: false
-    };
-  }
-
-  function createEnemy(state, type, x, z, level) {
-    var spec = ENEMY_TYPES[type] || ENEMY_TYPES.grunt;
-    var jitter = (nextRandom(state) * 2 - 1) * 14;
-    return {
-      kind: "enemy",
-      id: state.nextEnemyId++,
-      type: type,
-      /*
-       * **怪的目标条等级可以逐间覆盖**：同一种哥布林在幽暗密林是 Lv4，在深处
-       * 那块条上写的是 Lv5/6。类型自己的 `level` 只是默认值；房间条目里的
-       * `level` 优先，和 `depth` 一样是这一间房的摆法，不是新兵种。
-       */
-      level: level || spec.level || 1,
-      x: clamp(x + jitter, roomLeft(state) + spec.width, roomRight(state) - spec.width),
-      y: ARENA.groundY,
-      /*
-       * A room may place a monster at a depth; without one it stands on the
-       * ground line, where every monster stood before there was a floor plane.
-       * The jitter above is drawn whether or not `z` is passed, so adding
-       * depths to a room cannot shift the deterministic stream.
-       */
-      z: z || 0,
-      vx: 0,
-      vy: 0,
-      vz: 0,
-      width: spec.width,
-      height: spec.height,
-      facing: -1,
-      onGround: true,
-      hp: spec.maxHp,
-      maxHp: spec.maxHp,
-      damage: spec.damage,
-      xp: spec.xp,
-      behavior: spec.behavior || "melee",
-      /* 冠军怪那一圈光环（`champdark` / `champfire`）；普通怪是 null。 */
-      champion: spec.champion || null,
-      /* 回避: copied per-enemy, like everything else off the type spec (0018). */
-      evasion: spec.evasion || 0,
-      speed: spec.speed,
-      attackRange: spec.attackRange,
-      keepRange: spec.keepRange || 0,
-      attackWindup: spec.attackWindup,
-      attackDuration: spec.attackDuration,
-      baseAttackWindup: spec.attackWindup,
-      baseAttackDuration: spec.attackDuration,
-      attackCooldownMax: spec.attackCooldown,
-      baseSpeed: spec.speed,
-      baseDamage: spec.damage,
-      baseAttackCooldownMax: spec.attackCooldown,
-      attackCooldown: 0.5,
-      /* 脚步的节拍（`docs/adr/0058`）：按 id 错开，免得一群怪同帧踏步。 */
-      stepTimer: (state.nextEnemyId % 5) * 0.07,
-      attackTimer: 0,
-      attackKind: "melee",
-      attackHitDone: false,
-      attackRecovered: false,
-      projectile: spec.projectile || null,
-      chargeSpeed: spec.chargeSpeed || 0,
-      chargeFrom: spec.chargeFrom || 0,
-      chargeTo: spec.chargeTo || 0,
-      chargeDir: -1,
-      /* Per-enemy copies: a phase change must never mutate the shared type spec. */
-      slam: spec.slam ? Object.assign({}, spec.slam) : null,
-      baseSlam: spec.slam ? Object.assign({}, spec.slam) : null,
-      slamCooldown: spec.slam ? spec.slam.cooldown * 0.5 : 0,
-      /*
-       * 猫 Boss 的扑击与横扫：和 slam/spin 一样逐只拷一份，半血二阶段只改
-       * 自己的冷却，不碰共享的 ENEMY_TYPES。`lunge` 也允许一阶段就有（牛头
-       * 巨兽把它放在 phase2.lunge 里，所以下面两处都读）。
-       */
-      lunge: spec.lunge ? Object.assign({}, spec.lunge) : null,
-      sweep: spec.sweep ? Object.assign({}, spec.sweep) : null,
-      baseSweep: spec.sweep ? Object.assign({}, spec.sweep) : null,
-      sweepCooldown: spec.sweep ? spec.sweep.cooldown * 0.5 : 0,
-      spinDash: spec.spinDash || null,
-      spinDir: -1,
-      spinCooldown: spec.spinDash ? spec.spinDash.cooldown * 0.4 : 0,
-      lungeCooldown: 0,
-      phase: 1,
-      phase2: spec.phase2 || null,
-      knockdown: 0,
-      stun: 0,
-      grabbed: 0,
-      bleed: null,
-      superArmor: false,
-      knockbackX: spec.knockbackX,
-      hurtTimer: 0,
-      dead: false
-    };
-  }
-
-  function clamp(value, min, max) {
-    if (value < min) return min;
-    if (value > max) return max;
-    return value;
-  }
-
-  function normalizeInput(input) {
-    input = input || {};
-    var skills = input.skills || {};
     /*
-     * Built off SKILL_ORDER rather than listed by hand. A skill missing from
-     * this map is **silently uncastable** - the press never reaches the bar's
-     * own gate, so the move simply does nothing and there is no error - which is
-     * exactly what happened to 暴走 the first time it was added. 银光落刃 is not
-     * in SKILL_ORDER (it is the air half of the up-slash key), so it is not in
-     * here either; that key is read directly where the air case is decided.
+     * **立着的布景：树、石头、树桩、石柱 —— 实心，挡人**（`docs/adr/0032`，业主：
+     * 「树木和石头也要有碰撞」）。它们跟木桶不一样的地方只有两条：**打不碎**（挥击只认
+     * `BREAKABLE`），**不挡飞行物**（和木桶一致：怪不会绕路也不会换排，挡了投石就等于
+     * 把它们废掉）。
      *
-     * 魔狱血刹 is the second skill outside SKILL_ORDER and it *is* in here, so the
-     * list is spelled out rather than read off the bar: both of its halves come
-     * in on the one key, and which half the key means is decided in the gate (see
-     * `wantsHellbenter` there).
+     * `width` / `dx` 是**量出来的**：把每件美术最底下 12 行（贴地那一段）的 ink 取出来，
+     * 量它占多宽、中心偏在美术中心哪一边（`assets/import_dnf_scene.py` 烘的图，
+     * 树根会往外张，所以树干那一段比上面细）。树冠、石头的上半截**不进盒子** ——
+     * 一个"看得见的树冠"和"走不过去的空墙"对不上，读起来是 bug。
+     *
+     * `depth` 没有像素可量（美术是正面的），按同一个规矩给：宽的三分之一，钳在 24–40，
+     * 和木桶(52/34)是同一档手感。
      */
-    var pressed = {};
-    SKILL_ORDER.forEach(function (skillId) {
-      pressed[skillId] = !!skills[skillId];
+    var SOLID = {
+      trunkTall:  { width: 146, dx: 4,   ink: [203, 422] },
+      trunkBent:  { width: 111, dx: 6,   ink: [143, 423] },
+      trunkMossy: { width: 100, dx: -18, ink: [160, 428] },
+      treeLeafy:  { width: 84,  dx: -4,  ink: [153, 203] },
+      stump:      { width: 74,  dx: -4,  ink: [105, 199] },
+      pillar:     { width: 43,  dx: 0,   ink: [44, 111] },
+      pillarPale: { width: 43,  dx: 0,   ink: [44, 111] },
+      wallStone:  { width: 163, dx: -1,  ink: [167, 125] },
+      rockFlat:   { width: 92,  dx: -20, ink: [141, 89] },
+      rockSmall:  { width: 42,  dx: 0,   ink: [42, 44] },
+      /*
+       * 02 套剩下那批里**立着的**（业主 2026-10-13 把客户端拷上来之后补的）。
+       * `width`/`dx` 是照同一条规矩量的：**每件美术最底下 12 行的墨**，
+       * 树冠、石头的上半截不进盒子（`docs/adr/0032`）—— 量法：
+       * 取 `assets/forest.png` 里这块矩形的最下 12 行，量 ink 的左右缘。
+       * `depth` 仍然由宽度推（下面那一段）。
+       *
+       * **贴地平铺的那几件不在这里**（`grassPatch` / `leaves` / `leavesBroad` /
+       * `leavesDense` / `pebble`）：它们走 `SCENE.decals`，谁都不撞。
+       */
+      firSmall:   { width: 42,  dx: 0,   ink: [42, 59] },
+      firMid:     { width: 43,  dx: 0,   ink: [43, 71] },
+      firTall:    { width: 44,  dx: 0,   ink: [44, 78] },
+      snagTall:   { width: 96,  dx: 20,  ink: [139, 207] },
+      fallenTrunk: { width: 223, dx: -2, ink: [226, 340] },
+      stumpBroken: { width: 40, dx: -19, ink: [78, 112] },
+      trunkHollow: { width: 84, dx: 2,   ink: [133, 178] },
+      snagShort:  { width: 95,  dx: 0,   ink: [97, 104] },
+      snagStub:   { width: 84,  dx: 2,   ink: [87, 101] },
+      ruinStone:  { width: 139, dx: 2,   ink: [142, 103] },
+      rockArch:   { width: 105, dx: -22, ink: [195, 180] },
+      logMossy:   { width: 96,  dx: 24,  ink: [317, 175] },
+      treeDead:   { width: 74,  dx: -4,  ink: [105, 277] },
+      treeDeadTall: { width: 84, dx: 0,  ink: [175, 303] }
+    };
+    Object.keys(SOLID).forEach(function (piece) {
+      SOLID[piece].depth = clamp(Math.round(SOLID[piece].width / 3), 24, 40);
     });
-    pressed.hellbenter = !!skills.hellbenter;
-    return {
-      left: !!input.left,
-      right: !!input.right,
-      /* Walking into and out of the screen: the second ground axis. */
-      up: !!input.up,
-      down: !!input.down,
-      jump: !!input.jump,
-      attack: !!input.attack,
-      skills: pressed
-    };
-  }
 
-  /*
-   * **地上的掉落**（`docs/adr/0042`）。录像里怪一死，地上就摆出一块**写着物品名的
-   * 名牌**（深底圆角 + 浅青字），走过去**自动收**；收的那一刻三样一起发生：牌子没了、
-   * 原地浮一行绿色的 `+40 Exp`、左边日志加一行 `获得[X]1个`（外加点数与金币两行）。
-   *
-   * **经验是捡起来才给的**（业主 2026-10-14 定，Q12 选 a）—— 怪倒下的那一刻只把
-   * 牌子放出来。掉落点就是它倒下的地方，够得着。
-   *
-   * 名字全部来自录像那份日志里念过的那些；白名与青名是照录像分的两档颜色
-   * （`获得[哥布林毛皮]1个` 是白、`获得[最下级硬化剂]1个` 是青）。
-   */
-  var LOOT = {
+    /* 一个桶碎开之后，那一地木片还画多久（秒）。 */
+    var BREAK_ANIM = 0.42;
+
     /*
-     * 走过去就收的半径，按**身体间距**量（`CONTEXT.md`「身体间距」）—— 和"够不够
-     * 得着"同一把尺子。录像里精确半径量不出来（地上叠了好几件分不清哪件是哪件），
-     * 这是本作自己的数。
+     * 怪物怎么死。时间线是量出来的（`docs/adr/0030`）：录像里四次独立击杀对得一样齐 ——
+     * **致命一击 → 身体倒地躺约 0.2 秒 → 原地炸开 → 身体不再回来**。
+     *
+     * 炸开是两样东西：一团**青白色圆爆**（客户端 `monsterdieflash`，亮 3 帧 = 0.10 秒）
+     * 和 9-14 块**悬在空中不落**的红肉块（半秒内散掉）。**地上不留血泊、不留尸体** ——
+     * 那是"击倒"，0.2 秒后会站起来，和死是两回事。
      */
-    reach: 34,
-    /* 名牌在地上就一直摆着，换房才清 —— **录像里没量到存活上限**（`docs/adr/0042`）。 */
-    life: 1e9,
-    white: ["破旧的皮革", "碎片", "哥布林毛皮", "生锈的铁片", "煤尘", "哥布林手骨"],
-    cyan: ["最下级硬化剂", "炉岩炭", "冰冻水", "诺顿的新手HP药剂", "古老的法杖"]
-  };
-
-  /*
-   * 战斗评分那四个读数（`docs/adr/0041`）。**名字照录像，公式是本作自己的**：
-   * 录像里只读得出一个动静 —— 被击数从 4 变 5 的那一帧评分从 `SS` 掉成 `S`，
-   * 之后一直到 15 次都没再掉档。所以这里也让**被击数**占主导，用时与等级是配重。
-   * 这几个常数一个都没在录像里量到，实玩之后调的就是这一块。
-   */
-  var RATING = {
-    hitCost: 4,
-    hitCostCap: 50,
-    parSeconds: 300,
-    timeCost: 30,
-    levelBonus: 2,
-    levelBonusCap: 10,
-    comboBaseline: 6,
-    bands: [["S", 90], ["A", 75], ["B", 60], ["C", 0]]
-  };
-
-  /*
-   * **进副本那一串**（`docs/adr/0044`）。全部量自录像的 53.87-61.3 s：
-   *
-   *   三帧全黑 → 插画淡入 0.3 秒 → 保持 1.5 秒 → 淡出 0.24 秒 → 全黑 0.3 秒
-   *   → 房间淡入（很慢，约 2 秒才满亮）
-   *
-   * 两行关卡名（`幽暗密林` / `Gran-Floris 格兰之森`）跟房间一起淡入，
-   * **到 t=61.10 用 0.17 秒快速淡出**（不是被顶掉）。它画在**世界层**里 ——
-   * 录像里人挡在字前面、地图的近景石柱也压在字上。
-   *
-   * 录像里插画外面还有一圈 48 px 的金棕雕花木框，**这个客户端里没有**：过场图是
-   * 一张光板的 800x600（全客户端 639 张大图里没有框这种东西，`assets/import_dnf_ui.py`）。
-   * 所以照它**画的那张画**烘，框不自己画。
-   */
-  var INTRO = {
-    artIn: 0.3,
-    artHold: 1.5,
-    artOut: 0.24,
-    black: 0.3,
-    /* 关卡名从房间亮起来算起挂多久、以及淡出用多久。 */
-    title: 4.2,
-    titleOut: 0.17
-  };
-
-  function introLength() {
-    return INTRO.artIn + INTRO.artHold + INTRO.artOut + INTRO.black;
-  }
-
-  /** 进副本：把插画那一段挂上去。**只有真开局才要**，标题演示不从这里过。 */
-  function beginIntro(state) {
-    state.intro = { t: 0 };
-    state.titleT = 0;
-    return state;
-  }
-
-  /* 左边的日志栏能有几行 —— 录像里是 8 个固定槽位。 */
-  var LOG_LINES = 8;
-
-  function pushLog(state, text, tone) {
-    state.log.push({ text: text, tone: tone || "white" });
-    while (state.log.length > LOG_LINES) state.log.shift();
-  }
-
-  /*
-   * 一件掉落由 (种子, 怪的编号) 决定，**不走 `nextRandom`**：那一条是敌人抖动与
-   * 血球共用的，动它整段演示都会变（`docs/adr/0037` 在这一条上踩过一次）。
-   */
-  function hash32(a, b) {
-    var h = ((a >>> 0) ^ Math.imul(b >>> 0, 0x9e3779b1)) >>> 0;
-    h = Math.imul(h ^ (h >>> 15), 0x85ebca6b) >>> 0;
-    h = Math.imul(h ^ (h >>> 13), 0xc2b2ae35) >>> 0;
-    return (h ^ (h >>> 16)) >>> 0;
-  }
-
-  function lootFor(state, enemy) {
-    var h = hash32(state.seed, enemy.id || 0);
-    var rare = (h & 1) === 0;
-    var pool = rare ? LOOT.cyan : LOOT.white;
-    return {
-      name: pool[(h >>> 4) % pool.length],
-      tone: rare ? "cyan" : "white",
-      gold: 30 + ((h >>> 12) % 45)
+    /*
+     * 怪死：**倒地的尸体 → 变成它自己的白色剪影 → 炸成按它颜色的碎块四散**
+     * （`docs/adr/0034`）。
+     *
+     * 业主的口径（2026-10-11，实玩之后）：「怪物确实会躺着死，然后出现白色怪物轮廓，
+     * 然后碎裂成血块（和怪物颜色一样）散向四处」。拿他的幽暗密林录像逐帧对过：
+     * **那团白不是烟，是怪自己的剪影** —— 96.65s 两只哥布林一起死，白色的包围盒
+     * 276 × 114 px，正好是两只站着的身量（画上每只 98 × 108），96.667 满、96.933 缩、
+     * 96.967 没了（**0.30 秒**）；随后炸开的碎块按怪自己的皮肤色染（T+4:50 那一只
+     * 量到十几块金黄的，飞出去 0.4 秒内四散、渐隐）。
+     *
+     * 上一片把它读成"一片贴地的云、什么都不留" —— 错在只量白色：绿怪的碎块落在
+     * 深绿草地上，按白色去扫一个也扫不到。
+     */
+    var DEATH = {
+      /* 先倒地躺着（业主：「怪物确实会躺着死」）。 */
+      lie: 0.2,
+      /* 尸体变成它自己的**白色剪影**亮多久：录像里 0.30 秒（96.667–96.967）。 */
+      shape: 0.3,
+      /*
+       * 碎块从炸出来到淡尽：**快、短**。录像里那些块只活 0.1–0.2 秒（T+4:50 那只
+       * 290.167 出现、290.233 就没了），我们原来拖到 1.6 秒，看着像落叶飘下来。
+       */
+      chunks: 0.45,
+      /* 一次炸开冒几块（T+4:50 量到十几块，取 14）。 */
+      chunkCount: 14,
+      /*
+       * **Boss 没有可见的躺下拍**（参考 328.2s 白团几乎立刻出现），所以只留
+       * 一帧的交接；白剪影仍是 0.9 秒。
+       */
+      bossLie: 0.02,
+      bossSmoke: 0.9,
+      /*
+       * **Boss 的血块留到过关画面**（参考 329.5–332.5s，约 3 秒）：大肉块落地后
+       * 摊在地上，不是 0.9 秒就淡掉。`victoryDelay` 也是按这一段时间算的。
+       */
+      bossChunks: 3.0,
+      /* 一次冒 10–14 块（参考里量到 12–14 块）；杂兵仍是 14 块小的。 */
+      bossChunkCount: 12,
+      /*
+       * 领主的收束光线（参考 327.5–329.5s，约 2 秒）：细的红白光线 + 金色横光，
+       * 不是 0.7 秒就收掉。
+       */
+      bossRays: 1.8
     };
-  }
 
-  /** 战斗评分那一行读数：操作 / 技巧 / 被击数 / 评分（`docs/adr/0041`）。 */
-  function ratingOf(state) {
-    var stats = state.stats || {};
-    var player = state.player || {};
-    var swings = stats.swings || 0;
-    var operation = swings > 0
-      ? Math.round(((stats.swingsLanded || 0) / swings) * 100)
-      : 100;
-    var chains = stats.comboChains || 0;
-    var technique = chains > 0
-      ? Math.round(Math.min(1, (stats.comboHits || 0) / chains / RATING.comboBaseline) * 100)
-      : 0;
-    var hits = stats.hitsTaken || 0;
-    var over = Math.max(0, (state.time - RATING.parSeconds) / RATING.parSeconds) * RATING.timeCost;
-    var score = 100
-      - Math.min(RATING.hitCostCap, hits * RATING.hitCost)
-      - over
-      + Math.min(RATING.levelBonusCap, Math.max(0, (player.level || 1) - 1) * RATING.levelBonus);
-    score = Math.max(0, Math.min(100, Math.round(score)));
-    var grade = "C";
-    for (var i = 0; i < RATING.bands.length; i += 1) {
-      if (score >= RATING.bands[i][1]) { grade = RATING.bands[i][0]; break; }
+    /**
+     * **是不是领主**：看行为，不只看 type。幽暗密林深处 的 Boss 是
+     * `lugaruBoss`（type 不是 "boss"），但它的行为仍是 `"boss"` —— 通关、
+     * 目标条、死亡光线、白剪影这一整套都认这个行为，不认某一个 type 字符串。
+     */
+    function isBossEnemy(enemy) {
+      return !!enemy && enemy.behavior === "boss";
     }
-    return { operation: operation, technique: technique, hits: hits, score: score, grade: grade };
-  }
 
-  /**
-   * **声音事件**（`docs/adr/0058`）：核心只排队，不播放。
-   *
-   * 每条是一个普通的对象，带 `kind` 和发生点的 `x`/`z`；`main.js` 按
-   * `kind` 查表、按屏幕 x 做声像并播放。事件**不参与模拟** —— 不消耗
-   * `nextRandom`，也不会因为没人消费而改变任何判定。
-   */
-  function pushSound(state, kind, data) {
-    if (!state.sounds) state.sounds = [];
-    /* 一帧最多几十条；测试和标题演示可能一直不取，所以封顶。 */
-    if (state.sounds.length >= 64) state.sounds.shift();
-    var event = data || {};
-    event.kind = kind;
-    event.t = state.time;
-    state.sounds.push(event);
-  }
+    /** 这一只死之后先躺多久（Boss 几乎立刻变白）。 */
+    function deathLie(enemy) {
+      return isBossEnemy(enemy) ? DEATH.bossLie : DEATH.lie;
+    }
 
-  /** 取走这一帧排下的声音事件（`main.js` 每步一次；测试也可以直接看）。 */
-  function drainSounds(state) {
-    var events = state.sounds || [];
-    state.sounds = [];
-    return events;
-  }
+    /** 这一只死了那一片白亮多久（Boss 更大更久）。 */
+    function smokeLife(enemy) {
+      return isBossEnemy(enemy) ? DEATH.bossSmoke : DEATH.shape;
+    }
 
-  function createState(options) {
-    options = options || {};
-    var state = {
-      seed: typeof options.seed === "number" ? options.seed : DEFAULT_SEED,
+    /** A prop is scenery unless its piece is one of these. */
+    function breakableSpec(piece) {
+      return BREAKABLE[piece] || null;
+    }
+
+    /** 一件布景的碰撞盒：**只挡人的**（树、石头）和**挡人又打碎得开的**（木桶）都在这一张表上。 */
+    /*
+     * **布景也有"画多大"这个数。**
+     *
+     * 怪一直有（`enemy.height`，渲染那边按它缩那张 sheet —— 所以怪表里那个高度既是美术
+     * 也是判定）；**布景没有**：它按烘出来那张图的像素数画。而录像里**每一件是各自一个
+     * 倍率**（客户端拿动画数据缩放每一件，那份数据在加密的 `Script.pvf` 里）——
+     * 量出来的：木桶 1.83 视频px/画px、哥布林 2.0-2.6、石拱门 2.52、牛头巨兽 3.38。
+     * 本作一律用 3.155（= 265 ÷ 84，身位换算那一条），于是**偏大的都是那些倍率比 3.155
+     * 低的**：木桶偏大 1.35 倍、侧门 1.25 倍（`docs/adr/0050`）。
+     *
+     * 下面这两个数是**量的**（录像像素 ÷ 本作画出来的像素，几个样本一致）。
+     * **没量到的一律 1** —— 猜一个比留着不动更糟：那会把一件本来对的也缩坏。
+     */
+    var PROP_SCALE = {
+      /* 木桶：录像 132-160 视频px 宽、182 高（两个深度的样本），本作 63x78。 */
+      barrel: 0.74,
       /*
-       * Which stage this run is. It owns the room pool, the gauntlet index and
-       * the boss index, so a run is one stage and nothing climbs between them
-       * (`docs/adr/0026`). Resolved here once, and every reader goes through it.
+       * 茅草屋：**2026-10-25 重新量**（25 房 316s、33 房 106s 两帧一致）：
+       * 录像里那座约 **130–140 画布px 宽**，客户端画布 222 → **0.38**
+       * （222 × 0.38 × 1.5775 = 133）。早先按 1.5 身位记的 0.70 落到 245px，
+       * 差不多是录像的两倍宽。
        */
-      stage: STAGES[options.stage] || STAGES[DEFAULT_STAGE],
-      rngState: 0,
-      time: 0,
-      /* 命中停顿的剩余秒数（`docs/adr/0061`）；0 就是世界照常推进。 */
-      hitStop: 0,
-      /* 停顿里按下、等解冻后兑现的技能（`{id, ttl}`）；没有就是 null。 */
-      skillBuffer: null,
-      /* 地牢与他在哪一格（`docs/adr/0030`）；一格就是过去的"一间房"。 */
-      dungeon: null,
-      cell: 0,
-      /* 他这一格是从哪个门进来的 —— 那扇门永远能走回去。开局没有。 */
-      entryDoor: null,
-      room: null,
+      hut: 0.38,
       /*
-       * 镜头：世界往哪一边挪（`docs/adr/0035`）。它在**世界**那一侧，屏幕上的
-       * HUD 不跟着动。跟着谁走、有没有死区、到不到边夹取，都还在量录像，见
-       * `updateCamera`。
+       * 门的倍率只在**侧门**上量到（录像 330 视频px 宽，本作 131 画布px → 0.80）；
+       * 上/下门与门板跟它同一族美术，按同一个数走，但**没单独量过**。
+       *
+       * **下门 2026-10-26 单独量了**（`ref/106.png`）：底部那道石拱的**外缘两端
+       * 尖刺之间 323 视频px**（画面里量到 387..710），本作烘出来 192 宽 ——
+       * 323 ÷ (192 × 3.155) = **0.533**。同一帧里它拱顶落在游戏 y 827（画布 413）。
+       * 早先跟侧门共用 0.80（比录像宽一半），而且底边写在 `ARENA.height` 上
+       * （世界 y 540 被纵向 zoom 拉到画布 603）—— 整扇在屏幕外面，录像里那道
+       * 「石轮」在本作从来没画出来过。`gateSpot` 里 S 的底边同时改成世界 y 482。
        */
-      camera: { x: 0, y: 0 },
-      /* 他正在打的那只怪（左上角那块条显示的就是它）；见 `setTarget`。 */
-      target: null,
-      player: null,
-      enemies: [],
-      projectiles: [],
-      pickups: [],
-      effects: [],
       /*
-       * **声音事件**（`docs/adr/0058`）：核心不碰 WebAudio，只在这里排队
-       * `{kind, type, skillId, x, z, id, t}`；`main.js` 每帧取走并播放。
-       * 队列有上限，测试/演示不消费也不会无限长。
+       * **上/下门与它们那一族的倍率（2026-10-27 在 00002 上量）**：
+       * - 下门（192x118）323 游戏px 宽 → 0.533（见上）；
+       * - 上门/深处的侧门（157x198）346（106s 北门）、330（22s 东门）游戏px 宽
+       *   → 346 ÷ (157 × 3.155) ≈ **0.70**、330 ÷ ... ≈ 0.67，取 **0.68**。
+       * 侧门（131x240，00001 上量的 0.80）不动：那是另一套美术、另一支录像。
        */
-      sounds: [],
-      /* Ground a skill opened and left burning: see spawnField. */
-      fields: [],
+      gate: 0.80, gateUp: 0.68, gateDown: 0.533,
+      gateBlock: 0.68, doorBlock: 0.68,
+      door: 0.80, doorUp: 0.68, doorDown: 0.533,
       /*
-       * A skill's own judgement that leaves him and flies - not to be confused
-       * with `projectiles`, which are the monsters' and travel the other way.
-       * See `spawnShot`; 十字斩's third cut is the only one so far.
+       * **石柱要两个数。** 录像里那根站着的是 **80x280 视频px = 0.30x1.06 身位**
+       * （t=150 那一帧，三根并排，取最左边那根 —— 顶上和脚下都看得见），本作烘出来是
+       * **44x111**。所以客户端把这一件**竖着拉长**了：横向 1.82 倍、纵向 2.52 倍。
+       *
+       * 所以这一张表允许**两个数**（`[横向, 纵向]`），一个数的意思就是两个轴同一个 ——
+       * 木桶与门量下来两轴基本一致，石柱不一致。别把"一个数"当成规矩。
        */
-      shots: [],
-      nextEnemyId: 1,
-      nextProjectileId: 1,
-      stats: {
-        hits: 0,
-        kills: 0,
-        damageDealt: 0,
-        damageTaken: 0,
-        /* The largest amount any single `damagePlayer` call landed (see it). */
-        maxHitTaken: 0,
-        airHits: 0,
-        bloodOrbs: 0,
-        rooms: 0,
-        barrels: 0,
-        /* 这一局从地上捡起来的东西与金币（`docs/adr/0042`）。 */
-        loot: 0,
-        gold: 0,
+      pillar: [0.58, 0.80],
+      pillarPale: [0.58, 0.80],
+      pillarDecor: [0.58, 0.80],
+      /*
+       * **三棵直树干**（直 / 弯 / 长苔）。录像里那棵的**上段**是 **190 视频px = 0.72 身位**宽
+       * （t=200 那一帧，树干两侧都看得清），而本作三棵的上段是 **1.40 / 0.82 / 0.93 身位** ——
+       * 平均下来偏大 **1.45 倍**，最粗那棵偏大 **1.95 倍**。
+       *
+       * **倍率 2026-10-26 重新量：0.45。** 13s 帧把树干放大到 4 倍逐格读：
+       * 上段 **45–50 画布px**（不是早先记的 95），本作三棵上段 1.40/0.82/0.93 身位、
+       * 按 0.70 画出来是 99 画布px —— 粗了近一倍。0.45 落回 63px 左右，与录像那棵
+       * 对得上；录像里只看得见一棵，认不出是哪棵，三棵同乘一个数。
+       *
+       * **只有横向**：树是**跑出画面顶**的（录像和本作都跑出去了），**高度量不到** ——
+       * 所以纵向留 1，等于把树画细。客户端自己就是两轴分开缩的（石柱那一件量过），
+       * 所以"只缩一个轴"不是歪门邪道。
+       */
+      trunkTall: [0.45, 1], trunkBent: [0.45, 1], trunkMossy: [0.45, 1],
+      /*
+       * **阔叶树**（t=88 那一帧，树冠左右、树顶、根脚四处都看得见）：
+       * 录像 **260x440 视频px = 0.98x1.66 身位**，本作烘的是 **153x203** ——
+       * 横向偏大 1.86 倍、纵向 1.46 倍。**又是"偏胖"**（本作 0.75 的宽高比对录像的 0.59）。
+       */
+      treeLeafy: [0.54, 0.69],
+      /*
+       * **高草换了那一件之后重新量的**（`docs/adr/0050` 追记三）：新那一件是 39x87，
+       * 录像里那一撮是 **95x170 视频px**，所以两轴都要缩：横向 0.77、纵向 0.62。
+       */
+      grass: [0.77, 0.62],
+      /*
+       * 宝箱/石碑：**2026-10-25 在 76s 帧上重新量**（`ref/76.png` 网格）：
+       * 两只并排的箱子各约 **100 画布px 宽**（350..452 / 465..555），客户端画布 86
+       * → **0.72**。早先按 130 视频px 记的 0.48 偏小，箱子看上去只有录像的六成。
+       * 两件都是实玩后可调的摆设，判定跟着这个倍率走（`propBox`）。
+       */
+      chest: 0.72,
+      tomb: 0.50,
+      /*
+       * **倒木/连根拔起的枯树**：客户端 226×340，2026-10-26 在 41 房 13s 帧量到
+       * 那段树桩约 **100 画布px 宽** → 0.30（226 × 0.30 × 1.5775 = 107）。
+       * 按 1.0 画出来是 356px，一整棵倒木盖住半个屏幕。
+       */
+      fallenTrunk: 0.30
+    };
+
+    /** 一件布景的倍率，拆成 `[横向, 纵向]`。 */
+    function propScale(piece) {
+      var entry = PROP_SCALE[piece];
+      if (entry === undefined) return [1, 1];
+      return typeof entry === "number" ? [entry, entry] : entry;
+    }
+
+    /*
+     * **没有碰撞盒的布景也有美术尺寸。**
+     *
+     * 门口净空要按**画面**比：花草不挡人，却能把门拱整个盖掉（业主 2026-10-17：
+     * 「有杂草盖住了门口」）。原来的 `blocksDoorway` 一拿到 `propBox` 为 null 就
+     * return，于是草和贴花在四扇门前全部免检；`blocksDoorLane` 又只查 N/S。
+     *
+     * 这里收的是它们烘出来的 ink 尺寸（与 `src/render.js` 的 `SCENE.pieces` 一致），
+     * **再乘 `propScale`**。摆位检查用的是前缘尺寸（不乘 `depthSize`），比实际画出来的
+     * 略大一点 —— 宁可多让一格，也别让草压住门。
+     */
+    var PROP_ART = {
+      grass: [39, 87],
+      grassFlower: [188, 78],
+      grassPatch: [110, 48],
+      sprout: [126, 66],
+      bush: [64, 59],
+      flower: [30, 55],
+      leaves: [126, 66],
+      leavesBroad: [126, 66],
+      leavesDense: [126, 66],
+      pebble: [24, 27]
+    };
+
+    /** 一件无盒布景的美术尺寸（已乘倍率）；有盒的走 `propBox().ink`。 */
+    function propArtSize(piece) {
+      var art = PROP_ART[piece];
+      if (!art) return null;
+      var scale = propScale(piece);
+      return [art[0] * scale[0], art[1] * scale[1]];
+    }
+
+    function propBox(piece) {
+      var box = BREAKABLE[piece] || SOLID[piece] || null;
+      if (!box) return box;
+      /*
+       * **盒子跟着美术一起缩。** 这是仓库里定过的规矩（`docs/adr/0032` / 0014）：
+       * 美术和判定必须是同一个数，不然会出现"看着能走、结果被挡住"。
+       */
+      var scale = propScale(piece);
+      if (box.box !== undefined) scale = [box.box, box.box];
+      if (scale[0] === 1 && scale[1] === 1) return box;
+      return {
+        width: box.width * scale[0],
+        depth: box.depth * scale[0],
+        height: (box.height || 0) * scale[1],
+        hp: box.hp,
+        dx: (box.dx || 0) * scale[0],
+        /* 门拱那一关按画出来的大小比，ink 也跟着缩。 */
+        ink: box.ink ? [box.ink[0] * scale[0], box.ink[1] * scale[1]] : box.ink
+      };
+    }
+
+    function nextRandom(state) {
+      var t = (state.rngState = (state.rngState + 0x6d2b79f5) >>> 0);
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    }
+
+    function createPlayer(x) {
+      return {
+        kind: "player",
+        x: x,
+        y: ARENA.groundY,
+        /* Depth: 0 is the front edge of the floor, which is the ground line. */
+        z: 0,
+        vx: 0,
+        vy: 0,
+        vz: 0,
+        width: PLAYER.width,
+        height: PLAYER.height,
+        facing: 1,
+        onGround: true,
+        hp: PLAYER.maxHp,
+        maxHp: PLAYER.maxHp,
+        mp: PLAYER.maxMp,
+        maxMp: PLAYER.maxMp,
+        level: 1,
+        xp: 0,
+        xpToNext: PROGRESSION.baseXpToNext,
+        attackBonus: 0,
+        mpRegen: PLAYER.mpRegenPerSecond,
+        skillPower: 1,
+        attackSpeed: PLAYER.attackSpeed,
+        attackTimer: 0,
+        attackDuration: PLAYER.attackDuration,
+        attackCycle: PLAYER.attackDuration + PLAYER.attackCooldown,
+        attackCooldown: 0,
+        /* 脚步的节拍（`docs/adr/0058`）：走起来每 0.3 秒发一条声音事件。 */
+        stepTimer: 0,
+        attackHitDone: false,
+        comboIndex: 0,
+        comboTimer: 0,
+        attackBuffer: 0,
+        jumpBuffer: 0,
+        skillId: null,
+        skillTimer: 0,
+        skillHitDone: false,
+        skillHitsDone: 0,
         /*
-         * 战斗评分要的四个读数（`docs/adr/0041`）。**它们数的是"他出手"，不是
-         * "怪挨打"** —— 一次挥砍扫中三只算**一次**出手，不然命中率会顶穿 100%。
+         * 嗜魂封魔斩's own clock. `channelReleasedAt` is null for as long as he is
+         * still holding, and the elapsed second he let go once he is; the vortex's
+         * ticks are counted off `channelTickAt` (docs/adr/0023).
          */
-        swings: 0,
-        swingsLanded: 0,
-        lastLandedSwing: -1,
-        hitsTaken: 0,
-        comboChains: 0,
-        comboHits: 0,
-        lastHitAt: -99
+        channelReleasedAt: null,
+        channelTickAt: 0,
+        airHitTimer: 0,
+        /*
+         * Self-buffs: 血之狂暴 (stance, no timer), 暴走 (timed) and 魔狱血刹's
+         * 持剑期 (fifty seconds, and the one state that has to survive a room
+         * change - see `startRoom`).
+         */
+        buffs: {},
+        /*
+         * How far 魔狱血刹's 血气之剑 has been forged, 1..8. It is next to the buff
+         * rather than inside it because `player.buffs` carries seconds and nothing
+         * else; **armed means `hellbenterTier > 0`**, and the sword is on his back
+         * while `buffs.hellbenter > 0`. The two disagree in the one frame that
+         * matters: the clock has run out but the sword has not come down yet, which
+         * is what tells the gate to bring it down on its own.
+         */
+        hellbenterTier: 0,
+        /*
+         * Hits landed towards the *next* tier, 0..hitsPerTier-1. The tier is what
+         * the sword is drawn from; this is only the part of the payment that has
+         * not bought anything yet, and it is why the sword steps every tenth hit
+         * instead of every hit (see growSword).
+         */
+        hellbenterCharge: 0,
+        /* How long until 血之狂暴 charges him again for keeping it up. */
+        stanceDrainTimer: 0,
+        /*
+         * The cast icon a buff flashes over his head, and its own clock. 暴走 is
+         * the only buff that shows one - 血之狂暴's own read is the red body and
+         * the lit hotbar slot, both of which are up the whole time it is.
+         */
+        buffIconTimer: 0,
+        buffIconId: null,
+        skillCooldowns: CASTABLE_SKILLS.reduce(function (map, skillId) {
+          map[skillId] = 0;
+          return map;
+        }, {}),
+        invuln: 0,
+        /* Invulnerability that does not blink (see drawPlayer): set by a leap. */
+        solidInvuln: 0,
+        hurtTimer: 0,
+        dead: false
+      };
+    }
+
+    function createEnemy(state, type, x, z, level) {
+      var spec = ENEMY_TYPES[type] || ENEMY_TYPES.grunt;
+      var jitter = (nextRandom(state) * 2 - 1) * 14;
+      return {
+        kind: "enemy",
+        id: state.nextEnemyId++,
+        type: type,
+        /*
+         * **怪的目标条等级可以逐间覆盖**：同一种哥布林在幽暗密林是 Lv4，在深处
+         * 那块条上写的是 Lv5/6。类型自己的 `level` 只是默认值；房间条目里的
+         * `level` 优先，和 `depth` 一样是这一间房的摆法，不是新兵种。
+         */
+        level: level || spec.level || 1,
+        x: clamp(x + jitter, roomLeft(state) + spec.width, roomRight(state) - spec.width),
+        y: ARENA.groundY,
+        /*
+         * A room may place a monster at a depth; without one it stands on the
+         * ground line, where every monster stood before there was a floor plane.
+         * The jitter above is drawn whether or not `z` is passed, so adding
+         * depths to a room cannot shift the deterministic stream.
+         */
+        z: z || 0,
+        vx: 0,
+        vy: 0,
+        vz: 0,
+        width: spec.width,
+        height: spec.height,
+        facing: -1,
+        onGround: true,
+        hp: spec.maxHp,
+        maxHp: spec.maxHp,
+        damage: spec.damage,
+        xp: spec.xp,
+        behavior: spec.behavior || "melee",
+        barColor: spec.barColor || null,
+        /* 冠军怪那一圈光环（`champdark` / `champfire`）；普通怪是 null。 */
+        champion: spec.champion || null,
+        /* 回避: copied per-enemy, like everything else off the type spec (0018). */
+        evasion: spec.evasion || 0,
+        speed: spec.speed,
+        attackRange: spec.attackRange,
+        keepRange: spec.keepRange || 0,
+        attackWindup: spec.attackWindup,
+        attackDuration: spec.attackDuration,
+        baseAttackWindup: spec.attackWindup,
+        baseAttackDuration: spec.attackDuration,
+        attackCooldownMax: spec.attackCooldown,
+        baseSpeed: spec.speed,
+        baseDamage: spec.damage,
+        baseAttackCooldownMax: spec.attackCooldown,
+        attackCooldown: 0.5,
+        /* 脚步的节拍（`docs/adr/0058`）：按 id 错开，免得一群怪同帧踏步。 */
+        stepTimer: (state.nextEnemyId % 5) * 0.07,
+        attackTimer: 0,
+        attackKind: "melee",
+        attackHitDone: false,
+        attackRecovered: false,
+        projectile: spec.projectile || null,
+        chargeSpeed: spec.chargeSpeed || 0,
+        chargeFrom: spec.chargeFrom || 0,
+        chargeTo: spec.chargeTo || 0,
+        chargeDir: -1,
+        /* Per-enemy copies: a phase change must never mutate the shared type spec. */
+        slam: spec.slam ? Object.assign({}, spec.slam) : null,
+        baseSlam: spec.slam ? Object.assign({}, spec.slam) : null,
+        slamCooldown: spec.slam ? spec.slam.cooldown * 0.5 : 0,
+        /*
+         * 猫 Boss 的扑击、低血交叉光束：和 slam/spin 一样逐只拷一份，不碰共享的
+         * ENEMY_TYPES。`lunge` 也允许一阶段就有（牛头巨兽把它放在 phase2.lunge 里，
+         * 所以下面两处都读）。
+         */
+        lunge: spec.lunge ? Object.assign({}, spec.lunge) : null,
+        beam: spec.beam ? Object.assign({}, spec.beam) : null,
+        beamCooldown: 0,
+        beamPulse: 0,
+        sweep: spec.sweep ? Object.assign({}, spec.sweep) : null,
+        baseSweep: spec.sweep ? Object.assign({}, spec.sweep) : null,
+        sweepCooldown: spec.sweep ? spec.sweep.cooldown * 0.5 : 0,
+        spinDash: spec.spinDash || null,
+        spinDir: -1,
+        spinCooldown: spec.spinDash ? spec.spinDash.cooldown * 0.4 : 0,
+        lungeCooldown: 0,
+        phase: 1,
+        phase2: spec.phase2 || null,
+        knockdown: 0,
+        stun: 0,
+        grabbed: 0,
+        bleed: null,
+        superArmor: false,
+        knockbackX: spec.knockbackX,
+        hurtTimer: 0,
+        dead: false
+      };
+    }
+
+    function clamp(value, min, max) {
+      if (value < min) return min;
+      if (value > max) return max;
+      return value;
+    }
+
+    function normalizeInput(input) {
+      input = input || {};
+      var skills = input.skills || {};
+      /*
+       * Built off SKILL_ORDER rather than listed by hand. A skill missing from
+       * this map is **silently uncastable** - the press never reaches the bar's
+       * own gate, so the move simply does nothing and there is no error - which is
+       * exactly what happened to 暴走 the first time it was added. 银光落刃 is not
+       * in SKILL_ORDER (it is the air half of the up-slash key), so it is not in
+       * here either; that key is read directly where the air case is decided.
+       *
+       * 魔狱血刹 is the second skill outside SKILL_ORDER and it *is* in here, so the
+       * list is spelled out rather than read off the bar: both of its halves come
+       * in on the one key, and which half the key means is decided in the gate (see
+       * `wantsHellbenter` there).
+       */
+      var pressed = {};
+      SKILL_ORDER.forEach(function (skillId) {
+        pressed[skillId] = !!skills[skillId];
+      });
+      pressed.hellbenter = !!skills.hellbenter;
+      return {
+        left: !!input.left,
+        right: !!input.right,
+        /* Walking into and out of the screen: the second ground axis. */
+        up: !!input.up,
+        down: !!input.down,
+        jump: !!input.jump,
+        attack: !!input.attack,
+        skills: pressed
+      };
+    }
+
+    /*
+     * **地上的掉落**（`docs/adr/0042`）。录像里怪一死，地上就摆出一块**写着物品名的
+     * 名牌**（深底圆角 + 浅青字），走过去**自动收**；收的那一刻三样一起发生：牌子没了、
+     * 原地浮一行绿色的 `+40 Exp`、左边日志加一行 `获得[X]1个`（外加点数与金币两行）。
+     *
+     * **经验是捡起来才给的**（业主 2026-10-14 定，Q12 选 a）—— 怪倒下的那一刻只把
+     * 牌子放出来。掉落点就是它倒下的地方，够得着。
+     *
+     * 名字全部来自录像那份日志里念过的那些；白名与青名是照录像分的两档颜色
+     * （`获得[哥布林毛皮]1个` 是白、`获得[最下级硬化剂]1个` 是青）。
+     */
+    var LOOT = {
+      /*
+       * 走过去就收的半径，按**身体间距**量（`CONTEXT.md`「身体间距」）—— 和"够不够
+       * 得着"同一把尺子。录像里精确半径量不出来（地上叠了好几件分不清哪件是哪件），
+       * 这是本作自己的数。
+       */
+      reach: 34,
+      /* 名牌在地上就一直摆着，换房才清 —— **录像里没量到存活上限**（`docs/adr/0042`）。 */
+      life: 1e9,
+      white: ["破旧的皮革", "碎片", "哥布林毛皮", "生锈的铁片", "煤尘", "哥布林手骨"],
+      cyan: ["最下级硬化剂", "炉岩炭", "冰冻水", "诺顿的新手HP药剂", "古老的法杖"]
+    };
+
+    /*
+     * 战斗评分那四个读数（`docs/adr/0041`）。**名字照录像，公式是本作自己的**：
+     * 录像里只读得出一个动静 —— 被击数从 4 变 5 的那一帧评分从 `SS` 掉成 `S`，
+     * 之后一直到 15 次都没再掉档。所以这里也让**被击数**占主导，用时与等级是配重。
+     * 这几个常数一个都没在录像里量到，实玩之后调的就是这一块。
+     */
+    var RATING = {
+      hitCost: 4,
+      hitCostCap: 50,
+      parSeconds: 300,
+      timeCost: 30,
+      levelBonus: 2,
+      levelBonusCap: 10,
+      comboBaseline: 6,
+      bands: [["S", 90], ["A", 75], ["B", 60], ["C", 0]]
+    };
+
+    /*
+     * **进副本那一串**（`docs/adr/0044`）。全部量自录像的 53.87-61.3 s：
+     *
+     *   三帧全黑 → 插画淡入 0.3 秒 → 保持 1.5 秒 → 淡出 0.24 秒 → 全黑 0.3 秒
+     *   → 房间淡入（很慢，约 2 秒才满亮）
+     *
+     * 两行关卡名（`幽暗密林` / `Gran-Floris 格兰之森`）跟房间一起淡入，
+     * **到 t=61.10 用 0.17 秒快速淡出**（不是被顶掉）。它画在**世界层**里 ——
+     * 录像里人挡在字前面、地图的近景石柱也压在字上。
+     *
+     * 录像里插画外面还有一圈 48 px 的金棕雕花木框，**这个客户端里没有**：过场图是
+     * 一张光板的 800x600（全客户端 639 张大图里没有框这种东西，`assets/import_dnf_ui.py`）。
+     * 所以照它**画的那张画**烘，框不自己画。
+     */
+    var INTRO = {
+      artIn: 0.3,
+      artHold: 1.5,
+      artOut: 0.24,
+      black: 0.3,
+      /* 关卡名从房间亮起来算起挂多久、以及淡出用多久。 */
+      title: 4.2,
+      titleOut: 0.17
+    };
+
+    function introLength() {
+      return INTRO.artIn + INTRO.artHold + INTRO.artOut + INTRO.black;
+    }
+
+    /** 进副本：把插画那一段挂上去。**只有真开局才要**，标题演示不从这里过。 */
+    function beginIntro(state) {
+      state.intro = { t: 0 };
+      state.titleT = 0;
+      return state;
+    }
+
+    /* 左边的日志栏能有几行 —— 录像里是 8 个固定槽位。 */
+    var LOG_LINES = 8;
+
+    function pushLog(state, text, tone) {
+      state.log.push({ text: text, tone: tone || "white" });
+      while (state.log.length > LOG_LINES) state.log.shift();
+    }
+
+    /*
+     * 一件掉落由 (种子, 怪的编号) 决定，**不走 `nextRandom`**：那一条是敌人抖动与
+     * 血球共用的，动它整段演示都会变（`docs/adr/0037` 在这一条上踩过一次）。
+     */
+    function hash32(a, b) {
+      var h = ((a >>> 0) ^ Math.imul(b >>> 0, 0x9e3779b1)) >>> 0;
+      h = Math.imul(h ^ (h >>> 15), 0x85ebca6b) >>> 0;
+      h = Math.imul(h ^ (h >>> 13), 0xc2b2ae35) >>> 0;
+      return (h ^ (h >>> 16)) >>> 0;
+    }
+
+    function lootFor(state, enemy) {
+      var h = hash32(state.seed, enemy.id || 0);
+      var rare = (h & 1) === 0;
+      var pool = rare ? LOOT.cyan : LOOT.white;
+      return {
+        name: pool[(h >>> 4) % pool.length],
+        tone: rare ? "cyan" : "white",
+        gold: 30 + ((h >>> 12) % 45)
+      };
+    }
+
+    /** 战斗评分那一行读数：操作 / 技巧 / 被击数 / 评分（`docs/adr/0041`）。 */
+    function ratingOf(state) {
+      var stats = state.stats || {};
+      var player = state.player || {};
+      var swings = stats.swings || 0;
+      var operation = swings > 0
+        ? Math.round(((stats.swingsLanded || 0) / swings) * 100)
+        : 100;
+      var chains = stats.comboChains || 0;
+      var technique = chains > 0
+        ? Math.round(Math.min(1, (stats.comboHits || 0) / chains / RATING.comboBaseline) * 100)
+        : 0;
+      var hits = stats.hitsTaken || 0;
+      var over = Math.max(0, (state.time - RATING.parSeconds) / RATING.parSeconds) * RATING.timeCost;
+      var score = 100
+        - Math.min(RATING.hitCostCap, hits * RATING.hitCost)
+        - over
+        + Math.min(RATING.levelBonusCap, Math.max(0, (player.level || 1) - 1) * RATING.levelBonus);
+      score = Math.max(0, Math.min(100, Math.round(score)));
+      var grade = "C";
+      for (var i = 0; i < RATING.bands.length; i += 1) {
+        if (score >= RATING.bands[i][1]) { grade = RATING.bands[i][0]; break; }
+      }
+      return { operation: operation, technique: technique, hits: hits, score: score, grade: grade };
+    }
+
+    /**
+     * **声音事件**（`docs/adr/0058`）：核心只排队，不播放。
+     *
+     * 每条是一个普通的对象，带 `kind` 和发生点的 `x`/`z`；`main.js` 按
+     * `kind` 查表、按屏幕 x 做声像并播放。事件**不参与模拟** —— 不消耗
+     * `nextRandom`，也不会因为没人消费而改变任何判定。
+     */
+    function pushSound(state, kind, data) {
+      if (!state.sounds) state.sounds = [];
+      /* 一帧最多几十条；测试和标题演示可能一直不取，所以封顶。 */
+      if (state.sounds.length >= 64) state.sounds.shift();
+      var event = data || {};
+      event.kind = kind;
+      event.t = state.time;
+      state.sounds.push(event);
+    }
+
+    /** 取走这一帧排下的声音事件（`main.js` 每步一次；测试也可以直接看）。 */
+    function drainSounds(state) {
+      var events = state.sounds || [];
+      state.sounds = [];
+      return events;
+    }
+
+    function createState(options) {
+      options = options || {};
+      var state = {
+        seed: typeof options.seed === "number" ? options.seed : DEFAULT_SEED,
+        /*
+         * Which stage this run is. It owns the room pool, the gauntlet index and
+         * the boss index, so a run is one stage and nothing climbs between them
+         * (`docs/adr/0026`). Resolved here once, and every reader goes through it.
+         */
+        stage: STAGES[options.stage] || STAGES[DEFAULT_STAGE],
+        rngState: 0,
+        time: 0,
+        /* 命中停顿的剩余秒数（`docs/adr/0061`）；0 就是世界照常推进。 */
+        hitStop: 0,
+        /* 停顿里按下、等解冻后兑现的技能（`{id, ttl}`）；没有就是 null。 */
+        skillBuffer: null,
+        /* 地牢与他在哪一格（`docs/adr/0030`）；一格就是过去的"一间房"。 */
+        dungeon: null,
+        cell: 0,
+        /* 他这一格是从哪个门进来的 —— 那扇门永远能走回去。开局没有。 */
+        entryDoor: null,
+        room: null,
+        /*
+         * 镜头：世界往哪一边挪（`docs/adr/0035`）。它在**世界**那一侧，屏幕上的
+         * HUD 不跟着动。跟着谁走、有没有死区、到不到边夹取，都还在量录像，见
+         * `updateCamera`。
+         */
+        camera: { x: 0, y: 0 },
+        /* 他正在打的那只怪（左上角那块条显示的就是它）；见 `setTarget`。 */
+        target: null,
+        player: null,
+        enemies: [],
+        projectiles: [],
+        pickups: [],
+        effects: [],
+        /*
+         * **声音事件**（`docs/adr/0058`）：核心不碰 WebAudio，只在这里排队
+         * `{kind, type, skillId, x, z, id, t}`；`main.js` 每帧取走并播放。
+         * 队列有上限，测试/演示不消费也不会无限长。
+         */
+        sounds: [],
+        /* Ground a skill opened and left burning: see spawnField. */
+        fields: [],
+        /*
+         * A skill's own judgement that leaves him and flies - not to be confused
+         * with `projectiles`, which are the monsters' and travel the other way.
+         * See `spawnShot`; 十字斩's third cut is the only one so far.
+         */
+        shots: [],
+        nextEnemyId: 1,
+        nextProjectileId: 1,
+        stats: {
+          hits: 0,
+          kills: 0,
+          /* `docs/adr/0065`：任务要按种类数击杀（猫妖 10 只），所以单独记一份。 */
+          killsByType: {},
+          damageDealt: 0,
+          damageTaken: 0,
+          /* The largest amount any single `damagePlayer` call landed (see it). */
+          maxHitTaken: 0,
+          airHits: 0,
+          bloodOrbs: 0,
+          rooms: 0,
+          barrels: 0,
+          /* 这一局从地上捡起来的东西与金币（`docs/adr/0042`）。 */
+          loot: 0,
+          gold: 0,
+          /*
+           * 战斗评分要的四个读数（`docs/adr/0041`）。**它们数的是"他出手"，不是
+           * "怪挨打"** —— 一次挥砍扫中三只算**一次**出手，不然命中率会顶穿 100%。
+           */
+          swings: 0,
+          swingsLanded: 0,
+          lastLandedSwing: -1,
+          hitsTaken: 0,
+          comboChains: 0,
+          comboHits: 0,
+          lastHitAt: -99
+        },
+        /*
+         * 左边那一栏事件日志（`docs/adr/0042`）：最多 8 行，满了挤掉最上面那行，
+         * **不淡出也不滚动**。它跨房间留着 —— 换房不清。
+         */
+        log: [],
+        /* 他挥出去的第几刀：只为了"这一刀算不算打中过"这一件事。 */
+        swingSeq: 0,
+        /* 第一次打中 Boss 那一刻才把目标条换成交战形态（`docs/adr/0043`）。 */
+        bossEngaged: null,
+        /* 进副本那一串（`docs/adr/0044`）：null = 已经在打了。 */
+        intro: null,
+        /* 关卡名还挂多久，0 = 不画。 */
+        titleT: 0,
+        /*
+         * 这一局**结束那一刻**的钟（`docs/adr/0045`）。结算那一页的每一行、开箱的每一下
+         * 都从它数起 —— 结束之后 `state.time` 还在走（战绩数字读的是快照），所以这个
+         * 时间戳是那一页唯一能用的表。
+         */
+        finishedAt: null,
+        /* 换房那一下的黑幕：从 TRANSITION.dur 数到 0，`1` 是全黑。 */
+        transition: 0,
+        victory: false,
+        /*
+         * **领主倒下到胜利页之间那一下死亡特效**（2026-10-18）：领主一死就
+         * 不再要求清剩下的怪，但先把它的白色剪影演完再进胜利页；这个数在
+         * `step` 里倒数，到 0 才把 `victory` 立起来。
+         */
+        victoryDelay: null,
+        defeat: false
+      };
+      state.rngState = state.seed >>> 0;
+      state.dungeon = dungeonFor(state.stage, state.seed);
+      state.cell = state.dungeon ? state.dungeon.entry : 0;
+      if (state.dungeon && typeof options.cell === "number") {
+        state.cell = clamp(options.cell, 0, state.dungeon.cells.length - 1);
+      }
+      state.player = createPlayer(options.startX || 110);
+      beginRoom(state, null);
+      state.transition = TRANSITION.dur;
+      return state;
+    }
+
+    /**
+     * 直接落在某一格上，不开场演出、不算"走过来的"。
+     *
+     * 这是给**测试和调试**用的：一局从哪一格开始是地牢自己的事（`dungeonFor` 的起点房），
+     * 玩家没有选择。所以它不算一条玩法入口，只算一个"把人放这儿"。
+     */
+    function goToCell(state, index) {
+      if (!state.dungeon) return state.room;
+      state.cell = clamp(index, 0, state.dungeon.cells.length - 1);
+      state.entryDoor = null;
+      markSeen(state);
+      return beginRoom(state, null);
+    }
+
+    /**
+     * **这一格他去过了。**
+     *
+     * 地图窗口画的是"他探过哪儿"，不是"整张图"（`docs/adr/0030` 当时把它读成后者 ——
+     * 那是**误读**：客户端的 `act1.img` 里本来就有一整族"已经去过"的亮图块，
+     * 我们只烘了暗的那一族，于是把"没去过"看成了"画满"）。业主 2026-10-15 实玩时
+     * 指出：「探索地图是现在这种颜色，没有探索过的是黑的」。
+     */
+    function markSeen(state) {
+      var cell = currentCell(state);
+      if (cell) cell.seen = true;
+    }
+
+    /**
+     * 走进一格：换的是"哪一格"，不是"第几关的第几间"。
+     *
+     * 进门之后他站在**进来那扇门**的位置（从东门进来就站在右边），这是"门口和地图方向一致"
+     * 最直接的那一半 —— 他往哪走进去的，就从那边出现在下一间。
+     */
+    function enterCell(state, dir) {
+      var cell = currentCell(state);
+      if (!cell || !state.dungeon) return state.room;
+      var at = doorNeighbour(state.dungeon, cell, dir);
+      if (at < 0) return state.room;
+      state.cell = at;
+      markSeen(state);
+      state.entryDoor = MINIMAP_STEPS[dir].back;
+      state.transition = TRANSITION.dur;
+      return beginRoom(state, state.entryDoor);
+    }
+
+    /*
+     * **一间房的布景要摆到录像那个密度。**
+     *
+     * 量自业主的幽暗密林录像：一间房 **50–90 件**、走位带 **75–95% 有东西**；
+     * 本作原来是 **4–8 件**、不到一成 —— **差十倍**（业主说的「场景素材少」就是这个）。
+     * 手写 60 件 × 12 间 = 700 多条 `{piece, x, depth}` 不现实，所以：
+     * **手写的那几件留着**（它们是这间房的地标：门口那两棵树、挡路的那块石头），
+     * 缺的那批**按种子撒**。
+     *
+     * **撒的只用不挡人的那几档**（矮贴花与高草）。立着的实心件仍然由人写 ——
+     * 怪不会绕路、会顶着它原地推（`docs/adr/0032`），几十块撒出来的石头会把它们顶死。
+     *
+     * 数量按录像折算：录像一屏 1440 视频像素 = 456 世界像素，我们一屏看得见 608，
+     * 所以一间 960 像素的房子大致就是录像的一间房，直接用它的每屏量乘开。
+     *
+     * **它走自己的一条随机流**（`layoutRandom`，和地牢洗牌同一个做法），
+     * 不碰 `nextRandom` —— 那一条是敌人抖动和掉落共用的，动它整段演示都会变。
+     */
+    var SCATTER = {
+      /* 矮草丛：录像一屏 8–16 丛，是场上最密的一样。三件轮着来，免得一间房全一个样。 */
+      low: {
+        /*
+         * 矮草丛与贴地平铺的叶片。后四件是 02 套里原来没取的那一批 ——
+         * 录像里满地的是它们，不是我们那三件轮着来。
+         */
+        pieces: [
+          "grassFlower", "sprout", "bush",
+          "grassPatch", "leaves", "leavesBroad", "leavesDense",
+          /* 一粒小石子：也是贴地的，混在草丛里。 */
+          "pebble"
+        ],
+        /*
+         * **34 → 28。** 一屏件的上限是量出来的（矮草一屏 8–16 丛），而石头那一档
+         * （`stones`）要占位置，所以从这一档最上面减下来 —— 28 ÷ 2.1 屏 = 一屏 13.3 丛，
+         * 仍在录像那一段里，一间房的布景总数也没顶到 90 的上限。
+         */
+        count: 28
+      },
+      /* 粉花：录像一屏 10–15 朵。 */
+      flowers: { pieces: ["flower"], count: 26 },
+      /*
+       * 高草：录像一屏 0–5 丛。它**挡画不挡路**（`CONTEXT.md`）。
+       * **Boss 房几乎没有它**（量到一屏 0–2 丛），所以那一间在自己的 `scatter` 里改这个数
+       * —— 这是这一张表第一次按房间分开（`docs/adr/0047`）。
+       */
+      tall: { pieces: ["grass"], count: 8 },
+      /*
+       * **立着的那批**（02 套剩下那 19 件里的 14 件：三棵杉苗、两种倒木、四截断桩、
+       * 两块岩壁、两棵枯树）。
+       *
+       * 它们**占地方、挡人**（`SOLID`），所以撒的时候必须躲开怪走的那条线 ——
+       * 怪不会绕路，会顶着它原地推（`docs/adr/0032`）。躲法不是"别撒"，是**撒在深处**：
+       * 本作的小怪站位最深到 depth 0.4（`stages.mirkwood.rooms` 里最大的那个），
+       * 所以从 **0.55 往后**撒，它们够不着（判定是 z 上差 32 像素就算让开）。
+       * 录像那边也是一样：大件都在带子靠里的那一半。
+       */
+      solid: {
+        pieces: [
+          "firSmall", "firMid", "firTall", "snagTall", "fallenTrunk",
+          "stumpBroken", "trunkHollow", "snagShort", "snagStub",
+          "ruinStone", "rockArch", "logMossy", "treeDead", "treeDeadTall"
+        ],
+        count: 6
       },
       /*
-       * 左边那一栏事件日志（`docs/adr/0042`）：最多 8 行，满了挤掉最上面那行，
-       * **不淡出也不滚动**。它跨房间留着 —— 换房不清。
+       * 木桶：录像**一间房 5 只**，散在**整条走位带**里（深度从贴后缘到贴前缘都有）、
+       * 彼此间隔 100-300 像素。它是唯一只有他能打碎的实心件（`CONTEXT.md`）。
+       *
+       * 原来那 0-3 只是**人手写**的，等于把"摆在哪"钉死在几处；这一档改成按种子撒，
+       * 总数才落到录像那一档。撒的位置要过「门口净空」（`docs/adr/0032`）——
+       * 桶是实心的，横在门前人和演示 bot 都出不去。
        */
-      log: [],
-      /* 他挥出去的第几刀：只为了"这一刀算不算打中过"这一件事。 */
-      swingSeq: 0,
-      /* 第一次打中 Boss 那一刻才把目标条换成交战形态（`docs/adr/0043`）。 */
-      bossEngaged: null,
-      /* 进副本那一串（`docs/adr/0044`）：null = 已经在打了。 */
-      intro: null,
-      /* 关卡名还挂多久，0 = 不画。 */
-      titleT: 0,
+      barrels: { pieces: ["barrel"], count: 5, from: 0.08, to: 0.92 },
       /*
-       * 这一局**结束那一刻**的钟（`docs/adr/0045`）。结算那一页的每一行、开箱的每一下
-       * 都从它数起 —— 结束之后 `state.time` 还在走（战绩数字读的是快照），所以这个
-       * 时间戳是那一页唯一能用的表。
+       * 石头：录像**一屏 2–7 块**，而且**成对、成 2–4 块的塌方堆**（不是均匀撒开）。
+       * 本作原来一屏只有 **0.8 块** —— 手写的那几块，加上 `solid` 那一档里的岩壁，
+       * 差三倍。它和木桶一样是实心的，所以从前摆不进走位带；怪会绕路之后可以了
+       * （`docs/adr/0048`）。
        */
-      finishedAt: null,
-      /* 换房那一下的黑幕：从 TRANSITION.dur 数到 0，`1` 是全黑。 */
-      transition: 0,
-      victory: false,
-      /*
-       * **领主倒下到胜利页之间那一下死亡特效**（2026-10-18）：领主一死就
-       * 不再要求清剩下的怪，但先把它的白色剪影演完再进胜利页；这个数在
-       * `step` 里倒数，到 0 才把 `victory` 立起来。
-       */
-      victoryDelay: null,
-      defeat: false
-    };
-    state.rngState = state.seed >>> 0;
-    state.dungeon = dungeonFor(state.stage, state.seed);
-    state.cell = state.dungeon ? state.dungeon.entry : 0;
-    if (state.dungeon && typeof options.cell === "number") {
-      state.cell = clamp(options.cell, 0, state.dungeon.cells.length - 1);
-    }
-    state.player = createPlayer(options.startX || 110);
-    beginRoom(state, null);
-    state.transition = TRANSITION.dur;
-    return state;
-  }
-
-  /**
-   * 直接落在某一格上，不开场演出、不算"走过来的"。
-   *
-   * 这是给**测试和调试**用的：一局从哪一格开始是地牢自己的事（`dungeonFor` 的起点房），
-   * 玩家没有选择。所以它不算一条玩法入口，只算一个"把人放这儿"。
-   */
-  function goToCell(state, index) {
-    if (!state.dungeon) return state.room;
-    state.cell = clamp(index, 0, state.dungeon.cells.length - 1);
-    state.entryDoor = null;
-    markSeen(state);
-    return beginRoom(state, null);
-  }
-
-  /**
-   * **这一格他去过了。**
-   *
-   * 地图窗口画的是"他探过哪儿"，不是"整张图"（`docs/adr/0030` 当时把它读成后者 ——
-   * 那是**误读**：客户端的 `act1.img` 里本来就有一整族"已经去过"的亮图块，
-   * 我们只烘了暗的那一族，于是把"没去过"看成了"画满"）。业主 2026-10-15 实玩时
-   * 指出：「探索地图是现在这种颜色，没有探索过的是黑的」。
-   */
-  function markSeen(state) {
-    var cell = currentCell(state);
-    if (cell) cell.seen = true;
-  }
-
-  /**
-   * 走进一格：换的是"哪一格"，不是"第几关的第几间"。
-   *
-   * 进门之后他站在**进来那扇门**的位置（从东门进来就站在右边），这是"门口和地图方向一致"
-   * 最直接的那一半 —— 他往哪走进去的，就从那边出现在下一间。
-   */
-  function enterCell(state, dir) {
-    var cell = currentCell(state);
-    if (!cell || !state.dungeon) return state.room;
-    var at = doorNeighbour(state.dungeon, cell, dir);
-    if (at < 0) return state.room;
-    state.cell = at;
-    markSeen(state);
-    state.entryDoor = MINIMAP_STEPS[dir].back;
-    state.transition = TRANSITION.dur;
-    return beginRoom(state, state.entryDoor);
-  }
-
-  /*
-   * **一间房的布景要摆到录像那个密度。**
-   *
-   * 量自业主的幽暗密林录像：一间房 **50–90 件**、走位带 **75–95% 有东西**；
-   * 本作原来是 **4–8 件**、不到一成 —— **差十倍**（业主说的「场景素材少」就是这个）。
-   * 手写 60 件 × 12 间 = 700 多条 `{piece, x, depth}` 不现实，所以：
-   * **手写的那几件留着**（它们是这间房的地标：门口那两棵树、挡路的那块石头），
-   * 缺的那批**按种子撒**。
-   *
-   * **撒的只用不挡人的那几档**（矮贴花与高草）。立着的实心件仍然由人写 ——
-   * 怪不会绕路、会顶着它原地推（`docs/adr/0032`），几十块撒出来的石头会把它们顶死。
-   *
-   * 数量按录像折算：录像一屏 1440 视频像素 = 456 世界像素，我们一屏看得见 608，
-   * 所以一间 960 像素的房子大致就是录像的一间房，直接用它的每屏量乘开。
-   *
-   * **它走自己的一条随机流**（`layoutRandom`，和地牢洗牌同一个做法），
-   * 不碰 `nextRandom` —— 那一条是敌人抖动和掉落共用的，动它整段演示都会变。
-   */
-  var SCATTER = {
-    /* 矮草丛：录像一屏 8–16 丛，是场上最密的一样。三件轮着来，免得一间房全一个样。 */
-    low: {
-      /*
-       * 矮草丛与贴地平铺的叶片。后四件是 02 套里原来没取的那一批 ——
-       * 录像里满地的是它们，不是我们那三件轮着来。
-       */
-      pieces: [
-        "grassFlower", "sprout", "bush",
-        "grassPatch", "leaves", "leavesBroad", "leavesDense",
-        /* 一粒小石子：也是贴地的，混在草丛里。 */
-        "pebble"
-      ],
-      /*
-       * **34 → 28。** 一屏件的上限是量出来的（矮草一屏 8–16 丛），而石头那一档
-       * （`stones`）要占位置，所以从这一档最上面减下来 —— 28 ÷ 2.1 屏 = 一屏 13.3 丛，
-       * 仍在录像那一段里，一间房的布景总数也没顶到 90 的上限。
-       */
-      count: 28
-    },
-    /* 粉花：录像一屏 10–15 朵。 */
-    flowers: { pieces: ["flower"], count: 26 },
-    /*
-     * 高草：录像一屏 0–5 丛。它**挡画不挡路**（`CONTEXT.md`）。
-     * **Boss 房几乎没有它**（量到一屏 0–2 丛），所以那一间在自己的 `scatter` 里改这个数
-     * —— 这是这一张表第一次按房间分开（`docs/adr/0047`）。
-     */
-    tall: { pieces: ["grass"], count: 8 },
-    /*
-     * **立着的那批**（02 套剩下那 19 件里的 14 件：三棵杉苗、两种倒木、四截断桩、
-     * 两块岩壁、两棵枯树）。
-     *
-     * 它们**占地方、挡人**（`SOLID`），所以撒的时候必须躲开怪走的那条线 ——
-     * 怪不会绕路，会顶着它原地推（`docs/adr/0032`）。躲法不是"别撒"，是**撒在深处**：
-     * 本作的小怪站位最深到 depth 0.4（`stages.mirkwood.rooms` 里最大的那个），
-     * 所以从 **0.55 往后**撒，它们够不着（判定是 z 上差 32 像素就算让开）。
-     * 录像那边也是一样：大件都在带子靠里的那一半。
-     */
-    solid: {
-      pieces: [
-        "firSmall", "firMid", "firTall", "snagTall", "fallenTrunk",
-        "stumpBroken", "trunkHollow", "snagShort", "snagStub",
-        "ruinStone", "rockArch", "logMossy", "treeDead", "treeDeadTall"
-      ],
-      count: 6
-    },
-    /*
-     * 木桶：录像**一间房 5 只**，散在**整条走位带**里（深度从贴后缘到贴前缘都有）、
-     * 彼此间隔 100-300 像素。它是唯一只有他能打碎的实心件（`CONTEXT.md`）。
-     *
-     * 原来那 0-3 只是**人手写**的，等于把"摆在哪"钉死在几处；这一档改成按种子撒，
-     * 总数才落到录像那一档。撒的位置要过「门口净空」（`docs/adr/0032`）——
-     * 桶是实心的，横在门前人和演示 bot 都出不去。
-     */
-    barrels: { pieces: ["barrel"], count: 5, from: 0.08, to: 0.92 },
-    /*
-     * 石头：录像**一屏 2–7 块**，而且**成对、成 2–4 块的塌方堆**（不是均匀撒开）。
-     * 本作原来一屏只有 **0.8 块** —— 手写的那几块，加上 `solid` 那一档里的岩壁，
-     * 差三倍。它和木桶一样是实心的，所以从前摆不进走位带；怪会绕路之后可以了
-     * （`docs/adr/0048`）。
-     */
-    stones: {
-      /* 只取**小**的两件：录像那一堆是几块石头，不是一堵墙（岩壁在 `solid` 那一档）。 */
-      pieces: ["rockSmall", "pillar"],
-      /*
-       * **一堆**，不是两堆。两堆那一版把一间房的实心件推到 17.9 件（一屏 8.5），
-       * 而带子是可以被实心件**封死**的：演示 bot 走不到 Boss 房（`tests/attract`），
-       * `routeStep` 在封死的房间里只会答 `[0, 0]`。一堆 2–4 块落在一屏 2.4 块，
-       * 仍落在录像 2–7 那一段里，而"带子走得通"这条底线还在。
-       */
-      piles: 1,
-      perPile: [2, 4],
-      /* 一堆里散布多宽（世界px）—— 量的是"成堆"，不是"排成一行"。 */
-      spread: 74,
-      from: 0.10,
-      to: 0.90
-    },
-    solidFrom: 0.55,
-    solidTo: 0.94,
-    /* 深度落在带子的哪一段：录像里布景基本都贴在走位带上。 */
-    depthFrom: 0.04,
-    depthTo: 0.96,
-    /* 离房间两头留的边距，别撒进墙里。 */
-    margin: 34
-  };
-
-  function scatterProps(state, next, alreadyPlaced) {
-    var out = [];
-    /*
-     * **撒出去的实心件之间也要查重。** 手写的那条路会挪开、不压已摆下的实心件；
-     * 撒的这条原来**只查门** —— 于是两件实心件可以叠在一起。判定上两个盒子都在，
-     * 叠着只是难看，但"叠起来的那一片"正是带子最容易被封死的地方：布景挡住的格
-     * 连成一片之后 `routeStep` 在整间房里只会答"没有路"（`docs/adr/0049`）。
-     *
-     * `alreadyPlaced` 是手写的那几件（它们在这之前就摆好了、而且过完门口净空了）。
-     */
-    var overlaps = function (x, z, box) {
-      var check = function (list) {
-        for (var i = 0; i < list.length; i += 1) {
-          var other = list[i];
-          if (!other.solid) continue;
-          var otherBox = propBox(other.piece);
-          if (!otherBox) continue;
-          if (Math.abs(x - other.x) < (box.width + otherBox.width) / 2 &&
-              Math.abs(z - other.z) < (box.depth + otherBox.depth) / 2) return true;
-        }
-        return false;
-      };
-      return check(out) || check(alreadyPlaced || []);
-    };
-    var left = roomLeft(state) + SCATTER.margin;
-    var right = roomRight(state) - SCATTER.margin;
-    var depth = bandDepth(state.band);
-    /*
-     * 每一档的件数可以被**这一间房**改写（`spec.scatter`）：录像里六间房不是一副样子，
-     * 量到的差别最大的是高草 —— Boss 房一屏 0–2 丛，别的房间 0–5。
-     */
-    var perRoom = state.room && state.room.scatter;
-    /*
-     * **路线 6 格要关掉实心/可破坏件的随机撒景**（业主 2026-10-21 的 Q9 选 A）：
-     * 录像里那几件桶/石/树是画出来的，随机撒会立刻长出不存在的件。矮草/花/高草
-     * 的密度随机保留；`solid/barrels/stones` 为 0 的房间只摆手测件。
-     */
-    var solidCount = perRoom && perRoom.solid !== undefined
-      ? perRoom.solid : SCATTER.solid.count;
-    var barrelCount = perRoom && perRoom.barrels !== undefined
-      ? perRoom.barrels : SCATTER.barrels.count;
-    var stonePiles = perRoom && perRoom.stones !== undefined
-      ? perRoom.stones : SCATTER.stones.piles;
-    [SCATTER.low, SCATTER.flowers, SCATTER.tall].forEach(function (group) {
-      var count = group.count;
-      if (perRoom) {
-        if (group === SCATTER.low && perRoom.low !== undefined) count = perRoom.low;
-        if (group === SCATTER.flowers && perRoom.flowers !== undefined) count = perRoom.flowers;
-        if (group === SCATTER.tall && perRoom.tall !== undefined) count = perRoom.tall;
-      }
-      for (var index = 0; index < count; index += 1) {
+      stones: {
+        /* 只取**小**的两件：录像那一堆是几块石头，不是一堵墙（岩壁在 `solid` 那一档）。 */
+        pieces: ["rockSmall", "pillar"],
         /*
-         * **贴花也别摆在门口**（业主 2026-10-15 实玩：「有的花丛遮挡住门口了」）。
-         * 它不挡人，但**画**上会盖住门拱 —— 和手写的那批同一条规矩，只是没有盒子、
-         * 所以不过"压到别的实心件"那一关。试几个位置，试不出来就少摆这一件。
+         * **一堆**，不是两堆。两堆那一版把一间房的实心件推到 17.9 件（一屏 8.5），
+         * 而带子是可以被实心件**封死**的：演示 bot 走不到 Boss 房（`tests/attract`），
+         * `routeStep` 在封死的房间里只会答 `[0, 0]`。一堆 2–4 块落在一屏 2.4 块，
+         * 仍落在录像 2–7 那一段里，而"带子走得通"这条底线还在。
          */
-        var decal = null;
-        for (var decalTry = 0; decalTry < 6 && decal === null; decalTry += 1) {
-          var spot = {
-            piece: group.pieces[Math.floor(next() * group.pieces.length)],
-            x: left + next() * (right - left),
-            depth: SCATTER.depthFrom + next() * (SCATTER.depthTo - SCATTER.depthFrom)
-          };
-          if (!blocksDoorway(state, currentCell(state), spot, depth) &&
-              !blocksDoorLane(state, currentCell(state), spot) &&
-              !coversLoot(state, spot, depth, spot.depth * depth,
-                alreadyPlaced.concat(out))) decal = spot;
+        piles: 1,
+        perPile: [2, 4],
+        /* 一堆里散布多宽（世界px）—— 量的是"成堆"，不是"排成一行"。 */
+        spread: 74,
+        from: 0.10,
+        to: 0.90
+      },
+      solidFrom: 0.55,
+      solidTo: 0.94,
+      /* 深度落在带子的哪一段：录像里布景基本都贴在走位带上。 */
+      depthFrom: 0.04,
+      depthTo: 0.96,
+      /* 离房间两头留的边距，别撒进墙里。 */
+      margin: 34
+    };
+
+    function scatterProps(state, next, alreadyPlaced) {
+      var out = [];
+      /*
+       * **撒出去的实心件之间也要查重。** 手写的那条路会挪开、不压已摆下的实心件；
+       * 撒的这条原来**只查门** —— 于是两件实心件可以叠在一起。判定上两个盒子都在，
+       * 叠着只是难看，但"叠起来的那一片"正是带子最容易被封死的地方：布景挡住的格
+       * 连成一片之后 `routeStep` 在整间房里只会答"没有路"（`docs/adr/0049`）。
+       *
+       * `alreadyPlaced` 是手写的那几件（它们在这之前就摆好了、而且过完门口净空了）。
+       */
+      var overlaps = function (x, z, box) {
+        var check = function (list) {
+          for (var i = 0; i < list.length; i += 1) {
+            var other = list[i];
+            if (!other.solid) continue;
+            var otherBox = propBox(other.piece);
+            if (!otherBox) continue;
+            if (Math.abs(x - other.x) < (box.width + otherBox.width) / 2 &&
+                Math.abs(z - other.z) < (box.depth + otherBox.depth) / 2) return true;
+          }
+          return false;
+        };
+        return check(out) || check(alreadyPlaced || []);
+      };
+      var left = roomLeft(state) + SCATTER.margin;
+      var right = roomRight(state) - SCATTER.margin;
+      var depth = bandDepth(state.band);
+      /*
+       * 每一档的件数可以被**这一间房**改写（`spec.scatter`）：录像里六间房不是一副样子，
+       * 量到的差别最大的是高草 —— Boss 房一屏 0–2 丛，别的房间 0–5。
+       */
+      var perRoom = state.room && state.room.scatter;
+      /*
+       * **路线 6 格要关掉实心/可破坏件的随机撒景**（业主 2026-10-21 的 Q9 选 A）：
+       * 录像里那几件桶/石/树是画出来的，随机撒会立刻长出不存在的件。矮草/花/高草
+       * 的密度随机保留；`solid/barrels/stones` 为 0 的房间只摆手测件。
+       */
+      var solidCount = perRoom && perRoom.solid !== undefined
+        ? perRoom.solid : SCATTER.solid.count;
+      var barrelCount = perRoom && perRoom.barrels !== undefined
+        ? perRoom.barrels : SCATTER.barrels.count;
+      var stonePiles = perRoom && perRoom.stones !== undefined
+        ? perRoom.stones : SCATTER.stones.piles;
+      [SCATTER.low, SCATTER.flowers, SCATTER.tall].forEach(function (group) {
+        var count = group.count;
+        if (perRoom) {
+          if (group === SCATTER.low && perRoom.low !== undefined) count = perRoom.low;
+          if (group === SCATTER.flowers && perRoom.flowers !== undefined) count = perRoom.flowers;
+          if (group === SCATTER.tall && perRoom.tall !== undefined) count = perRoom.tall;
         }
-        if (!decal) continue;
-        out.push({
-          piece: decal.piece,
-          x: decal.x,
-          z: decal.depth * depth,
-          /* 撒的这几档不挡人：没有盒子，也就没有血、打不碎。 */
-          solid: false,
-          /* 撒的（不是人写的）：测试与复核要能把两拨分开，见 `SCATTER` 那段。 */
-          scattered: true,
-          hp: 0,
-          broken: false,
-          brokenAt: -1
-        });
-      }
-    });
-    /*
-     * 立着的那一批：有盒子、挡人，所以只撒在带子深处（见上面那段），**而且要过
-     * 「门口净空」那一关**（`docs/adr/0032`：门口不能有石头和树木）。
-     *
-     * 手写的那几件在 `beginRoom` 里会过这一关（压门就挪、挪不开才丢），**撒的这一批
-     * 原来没走那条路** —— 于是那根 223 像素宽的倒木正好横在一扇门前，人和演示 bot
-     * 都出不去：浏览器证明没红，`tests/attract.test.js` **转满一核六分钟**卡在那儿
-     * （它那个 `while (!victory && seconds < 60)` 在"时间不推进"时是个死循环）。
-     * 这里跟手写的那条一个待遇：**换几个位置再试，试不出来就丢**。
-     */
-    for (var pile = 0; pile < stonePiles; pile += 1) {
-      var pileX = left + next() * (right - left);
-      var pileDepth = SCATTER.stones.from +
-        next() * (SCATTER.stones.to - SCATTER.stones.from);
-      var pileSize = SCATTER.stones.perPile[0] +
-        Math.floor(next() * (SCATTER.stones.perPile[1] - SCATTER.stones.perPile[0] + 1));
-      for (var rock = 0; rock < pileSize; rock += 1) {
-        var stonePiece = SCATTER.stones.pieces[
-          Math.floor(next() * SCATTER.stones.pieces.length)
-        ];
-        var stoneBox = propBox(stonePiece);
-        var stoneAt = null;
-        for (var stoneTry = 0; stoneTry < 8 && stoneAt === null; stoneTry += 1) {
-          var stone = {
+        for (var index = 0; index < count; index += 1) {
+          /*
+           * **贴花也别摆在门口**（业主 2026-10-15 实玩：「有的花丛遮挡住门口了」）。
+           * 它不挡人，但**画**上会盖住门拱 —— 和手写的那批同一条规矩，只是没有盒子、
+           * 所以不过"压到别的实心件"那一关。试几个位置，试不出来就少摆这一件。
+           */
+          var decal = null;
+          for (var decalTry = 0; decalTry < 6 && decal === null; decalTry += 1) {
+            var spot = {
+              piece: group.pieces[Math.floor(next() * group.pieces.length)],
+              x: left + next() * (right - left),
+              depth: SCATTER.depthFrom + next() * (SCATTER.depthTo - SCATTER.depthFrom)
+            };
+            if (!blocksDoorway(state, currentCell(state), spot, depth) &&
+                !blocksDoorLane(state, currentCell(state), spot) &&
+                !coversLoot(state, spot, depth, spot.depth * depth,
+                  alreadyPlaced.concat(out))) decal = spot;
+          }
+          if (!decal) continue;
+          out.push({
+            piece: decal.piece,
+            x: decal.x,
+            z: decal.depth * depth,
+            /* 撒的这几档不挡人：没有盒子，也就没有血、打不碎。 */
+            solid: false,
+            /* 撒的（不是人写的）：测试与复核要能把两拨分开，见 `SCATTER` 那段。 */
+            scattered: true,
+            hp: 0,
+            broken: false,
+            brokenAt: -1
+          });
+        }
+      });
+      /*
+       * 立着的那一批：有盒子、挡人，所以只撒在带子深处（见上面那段），**而且要过
+       * 「门口净空」那一关**（`docs/adr/0032`：门口不能有石头和树木）。
+       *
+       * 手写的那几件在 `beginRoom` 里会过这一关（压门就挪、挪不开才丢），**撒的这一批
+       * 原来没走那条路** —— 于是那根 223 像素宽的倒木正好横在一扇门前，人和演示 bot
+       * 都出不去：浏览器证明没红，`tests/attract.test.js` **转满一核六分钟**卡在那儿
+       * （它那个 `while (!victory && seconds < 60)` 在"时间不推进"时是个死循环）。
+       * 这里跟手写的那条一个待遇：**换几个位置再试，试不出来就丢**。
+       */
+      for (var pile = 0; pile < stonePiles; pile += 1) {
+        var pileX = left + next() * (right - left);
+        var pileDepth = SCATTER.stones.from +
+          next() * (SCATTER.stones.to - SCATTER.stones.from);
+        var pileSize = SCATTER.stones.perPile[0] +
+          Math.floor(next() * (SCATTER.stones.perPile[1] - SCATTER.stones.perPile[0] + 1));
+        for (var rock = 0; rock < pileSize; rock += 1) {
+          var stonePiece = SCATTER.stones.pieces[
+            Math.floor(next() * SCATTER.stones.pieces.length)
+          ];
+          var stoneBox = propBox(stonePiece);
+          var stoneAt = null;
+          for (var stoneTry = 0; stoneTry < 8 && stoneAt === null; stoneTry += 1) {
+            var stone = {
+              piece: stonePiece,
+              x: clamp(pileX + (next() - 0.5) * SCATTER.stones.spread, left, right),
+              depth: clamp(pileDepth + (next() - 0.5) * 0.08, 0, 1)
+            };
+            if (!blocksDoorway(state, currentCell(state), stone, depth) &&
+                !blocksDoorLane(state, currentCell(state), stone) &&
+                !overlaps(stone.x, stone.depth * depth, stoneBox) &&
+                !coversLoot(state, stone, depth, stone.depth * depth,
+                  alreadyPlaced.concat(out))) stoneAt = stone;
+          }
+          if (!stoneAt) continue;
+          out.push({
             piece: stonePiece,
-            x: clamp(pileX + (next() - 0.5) * SCATTER.stones.spread, left, right),
-            depth: clamp(pileDepth + (next() - 0.5) * 0.08, 0, 1)
-          };
-          if (!blocksDoorway(state, currentCell(state), stone, depth) &&
-              !blocksDoorLane(state, currentCell(state), stone) &&
-              !overlaps(stone.x, stone.depth * depth, stoneBox) &&
-              !coversLoot(state, stone, depth, stone.depth * depth,
-                alreadyPlaced.concat(out))) stoneAt = stone;
+            x: stoneAt.x,
+            z: stoneAt.depth * depth,
+            solid: true,
+            scattered: true,
+            hp: stoneBox && stoneBox.hp ? stoneBox.hp : 0,
+            broken: false,
+            brokenAt: -1
+          });
         }
-        if (!stoneAt) continue;
+      }
+      for (var b = 0; b < barrelCount; b += 1) {
+        var barrelPiece = SCATTER.barrels.pieces[0];
+        var barrelBox = propBox(barrelPiece);
+        var barrelAt = null;
+        for (var tryIndex = 0; tryIndex < 8 && barrelAt === null; tryIndex += 1) {
+          var barrel = {
+            piece: barrelPiece,
+            x: left + next() * (right - left),
+            depth: SCATTER.barrels.from +
+              next() * (SCATTER.barrels.to - SCATTER.barrels.from)
+          };
+          if (!blocksDoorway(state, currentCell(state), barrel, depth) &&
+              !blocksDoorLane(state, currentCell(state), barrel) &&
+              !overlaps(barrel.x, barrel.depth * depth, barrelBox) &&
+              !coversLoot(state, barrel, depth, barrel.depth * depth,
+                alreadyPlaced.concat(out))) barrelAt = barrel;
+        }
+        if (!barrelAt) continue;
         out.push({
-          piece: stonePiece,
-          x: stoneAt.x,
-          z: stoneAt.depth * depth,
+          piece: barrelPiece,
+          x: barrelAt.x,
+          z: barrelAt.depth * depth,
           solid: true,
           scattered: true,
-          hp: stoneBox && stoneBox.hp ? stoneBox.hp : 0,
+          hp: barrelBox && barrelBox.hp ? barrelBox.hp : 1,
           broken: false,
           brokenAt: -1
         });
       }
-    }
-    for (var b = 0; b < barrelCount; b += 1) {
-      var barrelPiece = SCATTER.barrels.pieces[0];
-      var barrelBox = propBox(barrelPiece);
-      var barrelAt = null;
-      for (var tryIndex = 0; tryIndex < 8 && barrelAt === null; tryIndex += 1) {
-        var barrel = {
-          piece: barrelPiece,
-          x: left + next() * (right - left),
-          depth: SCATTER.barrels.from +
-            next() * (SCATTER.barrels.to - SCATTER.barrels.from)
-        };
-        if (!blocksDoorway(state, currentCell(state), barrel, depth) &&
-            !blocksDoorLane(state, currentCell(state), barrel) &&
-            !overlaps(barrel.x, barrel.depth * depth, barrelBox) &&
-            !coversLoot(state, barrel, depth, barrel.depth * depth,
-              alreadyPlaced.concat(out))) barrelAt = barrel;
-      }
-      if (!barrelAt) continue;
-      out.push({
-        piece: barrelPiece,
-        x: barrelAt.x,
-        z: barrelAt.depth * depth,
-        solid: true,
-        scattered: true,
-        hp: barrelBox && barrelBox.hp ? barrelBox.hp : 1,
-        broken: false,
-        brokenAt: -1
-      });
-    }
-    for (var k = 0; k < solidCount; k += 1) {
-      var piece = SCATTER.solid.pieces[Math.floor(next() * SCATTER.solid.pieces.length)];
-      var box = propBox(piece);
-      var placed = null;
-      for (var attempt = 0; attempt < 8 && placed === null; attempt += 1) {
-        var candidate = {
+      for (var k = 0; k < solidCount; k += 1) {
+        var piece = SCATTER.solid.pieces[Math.floor(next() * SCATTER.solid.pieces.length)];
+        var box = propBox(piece);
+        var placed = null;
+        for (var attempt = 0; attempt < 8 && placed === null; attempt += 1) {
+          var candidate = {
+            piece: piece,
+            x: left + next() * (right - left),
+            depth: SCATTER.solidFrom + next() * (SCATTER.solidTo - SCATTER.solidFrom)
+          };
+          if (!box || (!blocksDoorway(state, currentCell(state), candidate, depth) &&
+              !blocksDoorLane(state, currentCell(state), candidate) &&
+              !overlaps(candidate.x, candidate.depth * depth, box) &&
+              !coversLoot(state, candidate, depth, candidate.depth * depth,
+                alreadyPlaced.concat(out)))) {
+            placed = candidate;
+          }
+        }
+        if (!placed) continue;
+        out.push({
           piece: piece,
-          x: left + next() * (right - left),
-          depth: SCATTER.solidFrom + next() * (SCATTER.solidTo - SCATTER.solidFrom)
-        };
-        if (!box || (!blocksDoorway(state, currentCell(state), candidate, depth) &&
-            !blocksDoorLane(state, currentCell(state), candidate) &&
-            !overlaps(candidate.x, candidate.depth * depth, box) &&
-            !coversLoot(state, candidate, depth, candidate.depth * depth,
-              alreadyPlaced.concat(out)))) {
-          placed = candidate;
-        }
-      }
-      if (!placed) continue;
-      out.push({
-        piece: piece,
-        x: placed.x,
-        z: placed.depth * depth,
-        solid: !!box,
-        scattered: true,
-        hp: box && box.hp ? box.hp : 0,
-        broken: false,
-        brokenAt: -1
-      });
-    }
-    return out;
-  }
-
-  /**
-   * 这件布景的**目标位置**合不合法：门框/门拱（`blocksDoorway`）和上下门那一列
-   * （`blocksDoorLane`，只对实心件）。
-   *
-   * **它只管“挪到哪儿”，不管“要不要挪”**：要不要挪看 `blocksDoorway`
-   * （`docs/adr/0059` 追记）。录像里量出来的布景本来就站在上下门那一列里 ——
-   * 那是录像的摆法，玩家绕着走；为了这条给撒景定的规矩把量出来的件推开，
-   * 只会离录像更远。**挪过的那几件**才要求落点离开那一列。
-   */
-  function propSpotBlocked(state, cell, entry, depth) {
-    if (blocksDoorway(state, cell, entry, depth)) return true;
-    return !!propBox(entry.piece) && blocksDoorLane(state, cell, entry);
-  }
-
-  /** 一件实心布景的盒子（x-z）和已摆下的实心件叠不叠 —— 两轴都查。 */
-  function overlapsSolid(list, x, z, box) {
-    for (var index = 0; index < list.length; index += 1) {
-      var other = list[index];
-      if (!other.solid) continue;
-      var otherBox = propBox(other.piece);
-      if (!otherBox) continue;
-      if (Math.abs(x - other.x) < (box.width + otherBox.width) / 2 &&
-          Math.abs(z - other.z) < (box.depth + otherBox.depth) / 2) return true;
-    }
-    return false;
-  }
-
-  /*
-   * **压门布景的最近空位**（`docs/adr/0032` 追记、`docs/adr/0059` 追记）。
-   *
-   * 先在同一深度上横着找：深度不动，画面里的前后关系就不变。那个深度一个合法位置都
-   * 没有，才按 x-z 平面找最近 —— 距离按世界像素算（`DEPTH.scale` 只在画的时候用，
-   * 这里 x 和 z 本来就是同一个单位），所以挪一档深度（约 32 世界px）和横着挪 32px
-   * 是同一个代价。找不到返回 null，调用方丢掉这一件。
-   *
-   * `lane` 说目标位置要不要避开上/下门那一列：先按 `true` 找一遍（能避开就避开），
-   * 找不到再按 `false` 找 —— **让不开也别丢件**，这是 `docs/adr/0059` 追记里的取舍。
-   */
-  function nearestClearPropSpot(state, cell, entry, depth, solids, lane) {
-    var box = propBox(entry.piece);
-    var art = box ? null : propArtSize(entry.piece);
-    var span = box ? box.width / 2 : (art ? art[0] / 2 : 0);
-    var left = roomLeft(state) + span;
-    var right = roomRight(state) - span;
-    var originShare = entry.depth === undefined ? 0 : entry.depth;
-    var originZ = originShare * depth;
-    var STEP = 6;
-    var clearAt = function (x, share, allowCover) {
-      var candidate = { piece: entry.piece, x: x, depth: share };
-      if (lane ? propSpotBlocked(state, cell, candidate, depth)
-               : blocksDoorway(state, cell, candidate, depth)) return false;
-      if (box && overlapsSolid(solids, x, share * depth, box)) return false;
-      return allowCover || !coversLoot(state, candidate, depth, share * depth, solids);
-    };
-    /* 先找不盖宝箱的位置；一个都没有才退回“盖就盖吧，别丢件”。 */
-    for (var pass = 0; pass < 2; pass += 1) {
-      var allowCover = pass === 1;
-      var best = null;
-      for (var x = left; x <= right; x += STEP) {
-        if (!clearAt(x, originShare, allowCover)) continue;
-        if (best === null || Math.abs(x - entry.x) < Math.abs(best - entry.x)) best = x;
-      }
-      if (best !== null) return { x: best, z: originZ };
-      var nearest = null;
-      var nearestScore = Infinity;
-      for (var share = 0; share <= 1.0001; share += 0.04) {
-        var dz = share * depth - originZ;
-        for (var along = left; along <= right; along += STEP) {
-          var dx = along - entry.x;
-          var score = dx * dx + dz * dz;
-          if (score >= nearestScore) continue;
-          if (!clearAt(along, share, allowCover)) continue;
-          nearestScore = score;
-          nearest = { x: along, z: share * depth };
-        }
-      }
-      if (nearest !== null) return nearest;
-    }
-    return null;
-  }
-
-  function beginRoom(state, entryDoor) {
-    /*
-     * **他人在这一格，这一格就是探过的** —— 挂在 `beginRoom` 上而不是挂在门上：
-     * 开局那一格不经 `goToCell`，从这儿走两条路都盖得到。
-     */
-    markSeen(state);
-    var cell = currentCell(state);
-    var spec = state.stage.rooms[cell.room];
-    /* 清过的房间不再刷怪：这是"能回头"的前提。 */
-    var cleared = !!cell.cleared;
-    state.room = {
-      name: spec.name,
-      total: spec.enemies.length,
-      cleared: cleared,
-      cell: state.cell,
-      /*
-       * 这一间房有多宽、两堵墙在哪（`docs/adr/0035`）。宽度写在房间上，没写的
-       * 房间就是 `ROOM.width` —— 与**世界窗口**无关：窗口收窄不缩房间。
-       */
-      width: spec.width || ROOM.width,
-      leftWall: ROOM.leftWall,
-      rightWall: (spec.width || ROOM.width) - (ROOM.width - ROOM.rightWall),
-      /*
-       * 这一间房自己改哪几档撒景的件数（`docs/adr/0047`）。没写的房间用 `SCATTER`
-       * 的默认值 —— 所以这一项不是"每间房都要写"，是**不default 的那几间才写**。
-       */
-      scatter: spec.scatter || null
-    };
-    /* 新的一间房：上一间那条"当前目标"不带进来。 */
-    state.target = null;
-    /*
-     * The floor this room is fought on; a room without one gets the default
-     * band. Read-only, like the room spec it comes from: `BAND` is a module
-     * constant and one room's band object can back several rooms.
-     */
-    state.band = spec.band || BAND;
-    /*
-     * A room entry is {type, x, depth?}: `depth` is a share of this room's floor
-     * - 0 is the front edge, 1 the far end - and it is turned into world units
-     * here, once, so a room can be written without knowing how deep its floor is
-     * and everything downstream only ever deals in `z`.
-     */
-    var depth = bandDepth(state.band);
-    /*
-     * **一间房分两批出**（业主 2026-10-19，`docs/adr/0037` 追记三）：
-     * `wave: 2` 的那几只开场不摆出来，等第一批剩 2 只（或开场 8 秒）再从房间
-     * 边缘 / 门口走进来。同一间房同一时刻最多 5 只；房间要等两批都死完才清。
-     *
-     * 第一批仍然用 `createEnemy` 的随机抖动，所以同 seed 的初始摆位与以前一样
-     * 只受新的 entry 影响；第二批在触发时走同一条流，输入相同则时机相同。
-     */
-    var firstWave = [];
-    var laterWave = [];
-    (spec.enemies || []).forEach(function (entry) {
-      var z = entry.depth === undefined ? 0 : entry.depth * depth;
-      var item = { type: entry.type, x: entry.x, z: z, level: entry.level };
-      if ((entry.wave || 1) === 2) laterWave.push(item);
-      else firstWave.push(item);
-    });
-    state.enemies = cleared
-      ? []
-      : firstWave.map(function (entry) {
-          return createEnemy(state, entry.type, entry.x, entry.z, entry.level);
-        });
-    state.room.pendingWave = cleared ? [] : laterWave;
-    state.room.enteredAt = state.time;
-    state.room.waveTriggered = false;
-    /* 同屏上限：Boss 房也是 5（Boss + 最多 3 只小兵）。 */
-    state.room.waveCap = 5;
-    /*
-     * Scenery, in the room's own words: `{piece, x, depth?}`, where `piece` is a
-     * name the bake produced (`assets/import_dnf_scene.py`) and `depth` is a
-     * share of this room's floor, exactly like an enemy's. Most props are art
-     * only; a piece in `BREAKABLE` (the barrel) also carries a box, blocks both
-     * fighters and can be smashed by the player alone.
-     */
-    /*
-     * **一格只摆一次。** 布景是这一格的记性，不是每次进门重铺一遍：木桶碎过就是
-     * 碎了 —— 「这一局不再回来」（业主 2026-10-10）。所以这批对象挂在 `cell` 上，
-     * 和 `cell.cleared` 一样活得比"进这一趟门"久；回头再走进来读到的是同一批对象，
-     * `broken` / `gone` 都还在。（怪不在其中：清过的房间根本不刷怪，没清的房间
-     * 重进时满血重来，那是另一回事。）
-     */
-    if (!cell.props) {
-      var built = [];
-      var makeProp = function (entry, x, z, box) {
-        return {
-          piece: entry.piece,
-          x: x,
-          z: z,
-          /* 桶和立着的布景（树、石头）才有盒子；花草贴花没有。碎了的桶只剩美术。 */
+          x: placed.x,
+          z: placed.depth * depth,
           solid: !!box,
+          scattered: true,
           hp: box && box.hp ? box.hp : 0,
           broken: false,
-          /* 碎片的钟：从 0 数到 `BREAK_ANIM`，这段时间放那 12 帧。 */
           brokenAt: -1
-        };
+        });
+      }
+      return out;
+    }
+
+    /**
+     * 这件布景的**目标位置**合不合法：门框/门拱（`blocksDoorway`）和上下门那一列
+     * （`blocksDoorLane`，只对实心件）。
+     *
+     * **它只管“挪到哪儿”，不管“要不要挪”**：要不要挪看 `blocksDoorway`
+     * （`docs/adr/0059` 追记）。录像里量出来的布景本来就站在上下门那一列里 ——
+     * 那是录像的摆法，玩家绕着走；为了这条给撒景定的规矩把量出来的件推开，
+     * 只会离录像更远。**挪过的那几件**才要求落点离开那一列。
+     */
+    function propSpotBlocked(state, cell, entry, depth) {
+      if (blocksDoorway(state, cell, entry, depth)) return true;
+      return !!propBox(entry.piece) && blocksDoorLane(state, cell, entry);
+    }
+
+    /** 一件实心布景的盒子（x-z）和已摆下的实心件叠不叠 —— 两轴都查。 */
+    function overlapsSolid(list, x, z, box) {
+      for (var index = 0; index < list.length; index += 1) {
+        var other = list[index];
+        if (!other.solid) continue;
+        var otherBox = propBox(other.piece);
+        if (!otherBox) continue;
+        if (Math.abs(x - other.x) < (box.width + otherBox.width) / 2 &&
+            Math.abs(z - other.z) < (box.depth + otherBox.depth) / 2) return true;
+      }
+      return false;
+    }
+
+    /*
+     * **压门布景的最近空位**（`docs/adr/0032` 追记、`docs/adr/0059` 追记）。
+     *
+     * 先在同一深度上横着找：深度不动，画面里的前后关系就不变。那个深度一个合法位置都
+     * 没有，才按 x-z 平面找最近 —— 距离按世界像素算（`DEPTH.scale` 只在画的时候用，
+     * 这里 x 和 z 本来就是同一个单位），所以挪一档深度（约 32 世界px）和横着挪 32px
+     * 是同一个代价。找不到返回 null，调用方丢掉这一件。
+     *
+     * `lane` 说目标位置要不要避开上/下门那一列：先按 `true` 找一遍（能避开就避开），
+     * 找不到再按 `false` 找 —— **让不开也别丢件**，这是 `docs/adr/0059` 追记里的取舍。
+     */
+    function nearestClearPropSpot(state, cell, entry, depth, solids, lane) {
+      var box = propBox(entry.piece);
+      var art = box ? null : propArtSize(entry.piece);
+      var span = box ? box.width / 2 : (art ? art[0] / 2 : 0);
+      var left = roomLeft(state) + span;
+      var right = roomRight(state) - span;
+      var originShare = entry.depth === undefined ? 0 : entry.depth;
+      var originZ = originShare * depth;
+      var STEP = 6;
+      var clearAt = function (x, share, allowCover) {
+        var candidate = { piece: entry.piece, x: x, depth: share };
+        if (lane ? propSpotBlocked(state, cell, candidate, depth)
+                 : blocksDoorway(state, cell, candidate, depth)) return false;
+        if (box && overlapsSolid(solids, x, share * depth, box)) return false;
+        return allowCover || !coversLoot(state, candidate, depth, share * depth, solids);
       };
-      /*
-       * 门口净空（`docs/adr/0032`，业主：「门口不能有石头和树木」）：压着门就**先往
-       * 旁边挪**（最近的空位），挪不开才丢掉 —— 直接丢会把一间房掏空一半（断桩隘口
-       * 的树桩正好站在上门那一条上）。
-       *
-       * 挪的位置要同时满足两条：离开**所有**门（判定区 + 门拱美术，`blocksDoorway`），
-       * 也不压到已经摆下的实心件。房间是按种子洗到格子上的，所以这一刀只能落在这儿 ——
-       * 写房间的人不知道它会落在哪一格。
-       *
-       * **贴花也在这套里了**（业主 2026-10-15 实玩：「有的花丛遮挡住门口了」）。
-       * 原来它们不管：判定上确实"不挡人也不挡门"，但**画**上会盖住门拱 ——
-       * 门口那一块是给人认路的，盖住就是盖住了。贴花没有盒子，所以让位时按 0 宽算。
-       *
-       * **路线格按“最近空位”重摆**（业主 2026-10-22 复看「和参考视频还是存在很大差异」，
-       * `docs/adr/0059` 追记）：旧版只在 x 上 ±12px 一格格试、先左后右，撞到已摆下的
-       * 实心件就再走一格 —— 实测 `(1,1)` 的桶从 121 被推到 706，`(1,3)` 的宝箱从
-       * 120 到 180，还有 8 件直接被丢。现在分三步：
-       *
-       * 1. 不压门的**原样不动**（录像量出来的 x/depth 就是最终位置）；
-       * 2. 压门的按“可用位置最少”的先摆，先在整个房间的同一深度里找离原位最近的合法 x；
-       *    同一深度没有，再按 x-z 平面找最近（深度变化也按世界像素算距离）；
-       * 3. 挪的目标先挑**不盖住宝箱/石碑**的（`coversLoot`，业主：「箱子好像没有」）；
-       *    一个都没有才允许盖；
-       * 4. 整个房间都找不到才丢。
-       *
-       * 实心件之间的让位同时查 x 和 z（旧版只查 x，隔着一整条带子也算撞上，把靠门的
-       * 几件推得更远）。**挪到哪儿**还要避开上/下门那一整列（`blocksDoorLane`，
-       * 2026-10-21 那条“门口那一路别横着实心件”的规矩，和撒景用的是同一条）：
-       * 只有**已经要挪**的件才受它约束 —— 录像里量出来的件本来就站在那一列里，
-       * 那是录像的摆法，为了这条规矩把它们再推开只会离录像更远。
-       */
-      var displaced = [];
-      (spec.props || []).forEach(function (entry) {
-        var share = entry.depth === undefined ? 0 : entry.depth;
-        var box = propBox(entry.piece);
-        if (blocksDoorway(state, cell, entry, depth)) {
-          displaced.push({ entry: entry, share: share, box: box });
-          return;
+      /* 先找不盖宝箱的位置；一个都没有才退回“盖就盖吧，别丢件”。 */
+      for (var pass = 0; pass < 2; pass += 1) {
+        var allowCover = pass === 1;
+        var best = null;
+        for (var x = left; x <= right; x += STEP) {
+          if (!clearAt(x, originShare, allowCover)) continue;
+          if (best === null || Math.abs(x - entry.x) < Math.abs(best - entry.x)) best = x;
         }
-        built.push(makeProp(entry, entry.x, share * depth, box));
-      });
-      /*
-       * 同一深度上有多少个合法 x —— 越少的那件越先摆，免得宽敞的那件把它唯一的位置
-       * 抢走。这一遍先不算“和实心件相撞”，只算门；相撞在真正落位时再筛一次。
-       * 每个 x 记两档：`strict` 连上下门那一列都避开，`relaxed` 只让开门框/门拱。
-       * 排位用 `strict` 的数量；一件严格位子都没有的，用 `relaxed` 的数量算它有多挤。
-       */
-      displaced.forEach(function (item) {
-        var box = item.box;
-        var art = box ? null : propArtSize(item.entry.piece);
-        var span = box ? box.width / 2 : (art ? art[0] / 2 : 0);
-        var left = roomLeft(state) + span;
-        var right = roomRight(state) - span;
-        var strict = [];
-        var relaxed = [];
-        for (var x = left; x <= right; x += 6) {
-          var candidate = { piece: item.entry.piece, x: x, depth: item.share };
-          if (blocksDoorway(state, cell, candidate, depth)) continue;
-          relaxed.push(x);
-          if (!box || !blocksDoorLane(state, cell, candidate)) strict.push(x);
-        }
-        item.strict = strict;
-        item.relaxed = relaxed;
-      });
-      displaced.sort(function (a, b) {
-        /* 宝箱/石碑先落位：挪景物的那几件要看得见它们，才能让开（`coversLoot`）。 */
-        var lootA = a.entry.piece === "chest" || a.entry.piece === "tomb" ? 0 : 1;
-        var lootB = b.entry.piece === "chest" || b.entry.piece === "tomb" ? 0 : 1;
-        var countA = a.strict.length || a.relaxed.length;
-        var countB = b.strict.length || b.relaxed.length;
-        return lootA - lootB || countA - countB || a.entry.x - b.entry.x;
-      });
-      displaced.forEach(function (item) {
-        var box = item.box;
-        var best = function (spots) {
-          for (var pass = 0; pass < 2; pass += 1) {
-            var found = null;
-            for (var index = 0; index < spots.length; index += 1) {
-              var x = spots[index];
-              if (box && overlapsSolid(built, x, item.share * depth, box)) continue;
-              if (pass === 0 && coversLoot(state,
-                  { piece: item.entry.piece, x: x, depth: item.share },
-                  depth, item.share * depth, built)) continue;
-              if (found === null || Math.abs(x - item.entry.x) < Math.abs(found - item.entry.x)) found = x;
-            }
-            if (found !== null) return found;
+        if (best !== null) return { x: best, z: originZ };
+        var nearest = null;
+        var nearestScore = Infinity;
+        for (var share = 0; share <= 1.0001; share += 0.04) {
+          var dz = share * depth - originZ;
+          for (var along = left; along <= right; along += STEP) {
+            var dx = along - entry.x;
+            var score = dx * dx + dz * dz;
+            if (score >= nearestScore) continue;
+            if (!clearAt(along, share, allowCover)) continue;
+            nearestScore = score;
+            nearest = { x: along, z: share * depth };
           }
-          return null;
-        };
-        var x = best(item.strict);
-        if (x === null) x = best(item.relaxed);
-        var spot = x === null
-          ? nearestClearPropSpot(state, cell, item.entry, depth, built, true)
-          : { x: x, z: item.share * depth };
-        if (!spot) spot = nearestClearPropSpot(state, cell, item.entry, depth, built, false);
-        /* 整个房间（连同换深度）都找不到才丢这一件。 */
-        if (!spot) return;
-        built.push(makeProp(item.entry, spot.x, spot.z, box));
+        }
+        if (nearest !== null) return nearest;
+      }
+      return null;
+    }
+
+    function beginRoom(state, entryDoor) {
+      /*
+       * **他人在这一格，这一格就是探过的** —— 挂在 `beginRoom` 上而不是挂在门上：
+       * 开局那一格不经 `goToCell`，从这儿走两条路都盖得到。
+       */
+      markSeen(state);
+      var cell = currentCell(state);
+      var spec = state.stage.rooms[cell.room];
+      /* 清过的房间不再刷怪：这是"能回头"的前提。 */
+      var cleared = !!cell.cleared;
+      state.room = {
+        name: spec.name,
+        total: spec.enemies.length,
+        cleared: cleared,
+        cell: state.cell,
+        /*
+         * 这一间房有多宽、两堵墙在哪（`docs/adr/0035`）。宽度写在房间上，没写的
+         * 房间就是 `ROOM.width` —— 与**世界窗口**无关：窗口收窄不缩房间。
+         */
+        width: spec.width || ROOM.width,
+        leftWall: ROOM.leftWall,
+        rightWall: (spec.width || ROOM.width) - (ROOM.width - ROOM.rightWall),
+        /*
+         * 这一间房自己改哪几档撒景的件数（`docs/adr/0047`）。没写的房间用 `SCATTER`
+         * 的默认值 —— 所以这一项不是"每间房都要写"，是**不default 的那几间才写**。
+         */
+        scatter: spec.scatter || null
+      };
+      /* 新的一间房：上一间那条"当前目标"不带进来。 */
+      state.target = null;
+      /*
+       * The floor this room is fought on; a room without one gets the default
+       * band. Read-only, like the room spec it comes from: `BAND` is a module
+       * constant and one room's band object can back several rooms.
+       */
+      state.band = spec.band || BAND;
+      /*
+       * A room entry is {type, x, depth?}: `depth` is a share of this room's floor
+       * - 0 is the front edge, 1 the far end - and it is turned into world units
+       * here, once, so a room can be written without knowing how deep its floor is
+       * and everything downstream only ever deals in `z`.
+       */
+      var depth = bandDepth(state.band);
+      /*
+       * **一间房分两批出**（业主 2026-10-19，`docs/adr/0037` 追记三）：
+       * `wave: 2` 的那几只开场不摆出来，等第一批剩 2 只（或开场 8 秒）再从房间
+       * 边缘 / 门口走进来。同一间房同一时刻最多 5 只；房间要等两批都死完才清。
+       *
+       * 第一批仍然用 `createEnemy` 的随机抖动，所以同 seed 的初始摆位与以前一样
+       * 只受新的 entry 影响；第二批在触发时走同一条流，输入相同则时机相同。
+       */
+      var firstWave = [];
+      var laterWaves = {};
+      (spec.enemies || []).forEach(function (entry) {
+        var z = entry.depth === undefined ? 0 : entry.depth * depth;
+        var item = { type: entry.type, x: entry.x, z: z, level: entry.level };
+        var wave = entry.wave || 1;
+        if (wave <= 1) firstWave.push(item);
+        else (laterWaves[wave] = laterWaves[wave] || []).push(item);
       });
+      var waveNumbers = Object.keys(laterWaves).map(Number).sort(function (a, b) {
+        return a - b;
+      });
+      state.enemies = cleared
+        ? []
+        : firstWave.map(function (entry) {
+            return createEnemy(state, entry.type, entry.x, entry.z, entry.level);
+          });
+      state.room.pendingWave = cleared || !waveNumbers.length
+        ? []
+        : laterWaves[waveNumbers[0]];
+      state.room.pendingWaves = cleared
+        ? []
+        : waveNumbers.slice(1).map(function (number) { return laterWaves[number]; });
+      state.room.enteredAt = state.time;
+      state.room.lastWaveAt = state.time;
+      state.room.waveTriggered = false;
+      /* 同屏上限：普通房 4、Boss 房 5（录像 `docs/adr/0063`）。 */
+      state.room.waveCap = spec.cap || 5;
+      /*
+       * Scenery, in the room's own words: `{piece, x, depth?}`, where `piece` is a
+       * name the bake produced (`assets/import_dnf_scene.py`) and `depth` is a
+       * share of this room's floor, exactly like an enemy's. Most props are art
+       * only; a piece in `BREAKABLE` (the barrel) also carries a box, blocks both
+       * fighters and can be smashed by the player alone.
+       */
+      /*
+       * **一格只摆一次。** 布景是这一格的记性，不是每次进门重铺一遍：木桶碎过就是
+       * 碎了 —— 「这一局不再回来」（业主 2026-10-10）。所以这批对象挂在 `cell` 上，
+       * 和 `cell.cleared` 一样活得比"进这一趟门"久；回头再走进来读到的是同一批对象，
+       * `broken` / `gone` 都还在。（怪不在其中：清过的房间根本不刷怪，没清的房间
+       * 重进时满血重来，那是另一回事。）
+       */
+      if (!cell.props) {
+        var built = [];
+        var makeProp = function (entry, x, z, box) {
+          return {
+            piece: entry.piece,
+            x: x,
+            z: z,
+            /*
+             * 逐件量出来的倍率（`[横向, 纵向]`）。门那一族原来靠它给同一件美术
+             * 按房改比例（`docs/adr/0063`）；门改成由 `drawGate` 画以后，这一项主要
+             * 给逐房量出来的石头等件用（41/43 房的 `rockFlat`）。
+             */
+            scale: entry.scale || null,
+            /*
+             * 只影响**画的前后**、不改落点的深度（`docs/adr/0063` 追记）。
+             */
+            sortZ: entry.sortZ === undefined ? null : entry.sortZ,
+            /* 桶和立着的布景（树、石头）才有盒子；花草贴花没有。碎了的桶只剩美术。 */
+            solid: !!box,
+            hp: box && box.hp ? box.hp : 0,
+            broken: false,
+            /* 碎片的钟：从 0 数到 `BREAK_ANIM`，这段时间放那 12 帧。 */
+            brokenAt: -1
+          };
+        };
+        /*
+         * **手摆的件原样落位 —— 门口净空不再动它们**（`docs/adr/0063` 追记，2026-10-27）。
+         *
+         * 这些 x/depth 是从业主录像上**逐件量**出来的：量在哪儿就摆哪儿。旧版对
+         * "压到门口"的件会挪到最近的合法位（业主 2026-10-17：「门口不能有石头和树木」，
+         * `docs/adr/0032`），代价实测有两个：
+         *
+         * 1. 33 房四根柱子（量出来的 276/302/330/352）被推到 198/534 —— 离录像更远；
+         * 2. 录像自己就把桶摆在下门拱旁边（33 房 x 162–168/206/314）、把桶摆在上门
+         *    跟前 35px —— 那条"门口净空"在录像里根本不存在。
+         *
+         * 所以**手摆件等于最终位置**；只有撒出来的那批（`SCATTER`，位置本来是随机的）
+         * 才让门、让上下门那一列、让宝箱（`scatterProps`）。丢掉的只会是撒出来的件。
+         *
+         * 门口被手摆件挡住时，走位交给玩家与机器人自己绕（机器人会打碎能打碎的，
+         * `tests/browser/playability.mjs`）；这条是业主"和录像一模一样"压过
+         * "门口自动清空"的结果。
+         */
+        if (state.stage && state.stage.propsAreMeasured) {
+          (spec.props || []).forEach(function (entry) {
+            var share = entry.depth === undefined ? 0 : entry.depth;
+            built.push(makeProp(entry, entry.x, share * depth, propBox(entry.piece)));
+          });
+        } else {
+        var displaced = [];
+        (spec.props || []).forEach(function (entry) {
+          var share = entry.depth === undefined ? 0 : entry.depth;
+          var box = propBox(entry.piece);
+          if (blocksDoorway(state, cell, entry, depth)) {
+            displaced.push({ entry: entry, share: share, box: box });
+            return;
+          }
+          built.push(makeProp(entry, entry.x, share * depth, box));
+        });
+        /*
+         * 同一深度上有多少个合法 x —— 越少的那件越先摆，免得宽敞的那件把它唯一的位置
+         * 抢走。这一遍先不算“和实心件相撞”，只算门；相撞在真正落位时再筛一次。
+         * 每个 x 记两档：`strict` 连上下门那一列都避开，`relaxed` 只让开门框/门拱。
+         * 排位用 `strict` 的数量；一件严格位子都没有的，用 `relaxed` 的数量算它有多挤。
+         */
+        displaced.forEach(function (item) {
+          var box = item.box;
+          var art = box ? null : propArtSize(item.entry.piece);
+          var span = box ? box.width / 2 : (art ? art[0] / 2 : 0);
+          var left = roomLeft(state) + span;
+          var right = roomRight(state) - span;
+          var strict = [];
+          var relaxed = [];
+          for (var x = left; x <= right; x += 6) {
+            var candidate = { piece: item.entry.piece, x: x, depth: item.share };
+            if (blocksDoorway(state, cell, candidate, depth)) continue;
+            relaxed.push(x);
+            if (!box || !blocksDoorLane(state, cell, candidate)) strict.push(x);
+          }
+          item.strict = strict;
+          item.relaxed = relaxed;
+        });
+        displaced.sort(function (a, b) {
+          /* 宝箱/石碑先落位：挪景物的那几件要看得见它们，才能让开（`coversLoot`）。 */
+          var lootA = a.entry.piece === "chest" || a.entry.piece === "tomb" ? 0 : 1;
+          var lootB = b.entry.piece === "chest" || b.entry.piece === "tomb" ? 0 : 1;
+          var countA = a.strict.length || a.relaxed.length;
+          var countB = b.strict.length || b.relaxed.length;
+          return lootA - lootB || countA - countB || a.entry.x - b.entry.x;
+        });
+        displaced.forEach(function (item) {
+          var box = item.box;
+          var best = function (spots) {
+            for (var pass = 0; pass < 2; pass += 1) {
+              var found = null;
+              for (var index = 0; index < spots.length; index += 1) {
+                var x = spots[index];
+                if (box && overlapsSolid(built, x, item.share * depth, box)) continue;
+                if (pass === 0 && coversLoot(state,
+                    { piece: item.entry.piece, x: x, depth: item.share },
+                    depth, item.share * depth, built)) continue;
+                if (found === null || Math.abs(x - item.entry.x) < Math.abs(found - item.entry.x)) found = x;
+              }
+              if (found !== null) return found;
+            }
+            return null;
+          };
+          var x = best(item.strict);
+          if (x === null) x = best(item.relaxed);
+          var spot = x === null
+            ? nearestClearPropSpot(state, cell, item.entry, depth, built, true)
+            : { x: x, z: item.share * depth };
+          if (!spot) spot = nearestClearPropSpot(state, cell, item.entry, depth, built, false);
+          /* 整个房间（连同换深度）都找不到才丢这一件。 */
+          if (!spot) return;
+          built.push(makeProp(item.entry, spot.x, spot.z, box));
+        });
+      }
       /*
        * 手写的那几件摆完，再把缺的那批**按种子撒**上去（`SCATTER`）。
        * 每格的种子不一样 —— 同一间房落在不同格子上不该长成同一副样子。
@@ -5131,6 +5439,13 @@
     state.player.skillHitsDone = 0;
     state.player.comboTimer = 0;
     /*
+     * **进门不带上一间房按下的那一下。** 普攻/技能有 0.5 秒输入缓冲，进门时
+     * 那一下如果还没兑现，会在新房里自己挥出来 —— 站在出生点上把旁边的箱子/
+     * 石碑打碎（2026-10-25 冒烟里撞到的就是这个）。
+     */
+    state.player.attackBuffer = 0;
+    state.player.skillBuffer = 0;
+    /*
      * **What is deliberately not cleared**: `player.buffs` and, riding with it,
      * `player.hellbenterTier` - 魔狱血刹's whole shape is that the sword outlives
      * the room it was raised in (docs/adr/0025). Every skill field above is about
@@ -5149,12 +5464,6 @@
      * this room is pushed below, after the clear.
      */
     state.effects = [];
-    state.effects.push({
-      kind: "banner",
-      text: spec.name,
-      life: 1.8,
-      maxLife: 1.8
-    });
     return state.room;
   }
 
@@ -5429,7 +5738,8 @@
         gold: 60 + ((h >>> 12) % 61),
         exp: 0,
         x: prop.x,
-        z: prop.z || 0,
+        /* 后场草沿上的箱子：掉在走位带能走到的最里面那一线（见下）。 */
+        z: Math.min(prop.z || 0, bandDepth(state.band)),
         life: LOOT.life
       };
     }
@@ -5440,7 +5750,7 @@
         tone: "gold",
         gold: 20 + ((h >>> 12) % 31),
         x: prop.x,
-        z: prop.z || 0,
+        z: Math.min(prop.z || 0, bandDepth(state.band)),
         life: LOOT.life
       };
     }
@@ -5906,13 +6216,27 @@
        * 炸成碎块（`docs/adr/0034`）。剪影就是这只怪自己（`enemy.silhouette`），
        * 所以它得留在名单里到数完为止 —— 收尸那一步看 `enemy.dying`。
        */
-      enemy.dying = deathLie(enemy) + smokeLife(enemy);
+      var burstDeath = enemy.deathStyle === "burst";
+      enemy.dying = burstDeath ? 0.20 : deathLie(enemy) + smokeLife(enemy);
+      if (burstDeath) {
+        /* 紫白爆光：只亮这一下，Boss 随即消失。 */
+        state.effects.push({
+          kind: "bossburst",
+          x: enemy.x,
+          z: enemy.z,
+          height: enemy.height,
+          seed: enemy.id,
+          life: 0.45,
+          maxLife: 0.45
+        });
+      }
       /*
        * **领主倒下的那一下光线**（业主 2026-10-18：「5:28秒的放光线的特效是
        * 结束特效」）：白剪影和红叉出现的同时，从它身上甩出一组细长的白/红光束。
        * 参考里它们一直亮到白团散掉（约 2 秒），不是 0.7 秒。
+       * 深处那只（`deathStyle: "burst"`）没有这一层，别把牛头的特效搬过来。
        */
-      if (isBossEnemy(enemy)) {
+      if (isBossEnemy(enemy) && !burstDeath) {
         state.effects.push({
           kind: "bossrays",
           x: enemy.x,
@@ -5931,6 +6255,9 @@
         });
       }
       state.stats.kills += 1;
+      state.stats.killsByType = state.stats.killsByType || {};
+      state.stats.killsByType[enemy.type] =
+        (state.stats.killsByType[enemy.type] || 0) + 1;
       /*
        * A kill is worth more blood than a hit is (docs/adr/0025): the whole body
        * empties into the sword, not one cut's worth. The strand is the same one -
@@ -5942,7 +6269,6 @@
        * **领主不弹 "Boss down!"**：参考里它倒下那几秒只有光/白团/魂球/肉块，
        * 没有这行大字；目标条上的红叉已经说了它倒下。杂兵仍保留。
        */
-      if (!isBossEnemy(enemy)) pushBanner(state, "Enemy down", 0.9);
       /*
        * **经验改成"捡起来才给"**（业主 2026-10-14，Q12 选 a）：这里只把名牌放到地上，
        * `grantXp` 挪到 `collectLoot` 里 —— 录像里那行 `+40 Exp` 就是名牌被收走那一刻
@@ -7336,6 +7662,15 @@
       enemy.vz = 0;
       return;
     }
+    /*
+     * 深处领主在后场压阵（录像 321–380s）：第一批小怪还在时它不冲上来，
+     * 等第二批触发（`waveTriggered`）才开始选招。
+     */
+    if (enemy.deathStyle === "burst" && state.room && !state.room.waveTriggered) {
+      enemy.vx = 0;
+      enemy.vz = 0;
+      return;
+    }
 
     /*
      * Monsters walk the second axis too, and this is the one line that makes the
@@ -7433,6 +7768,26 @@
       enemy.vx = 0;
       beginEnemyAttack(state, enemy, "slam", slam.windup, slam.windup + slam.recovery);
       pushTelegraph(state, enemy, "SLAM", slam.radius, slam.windup, 0);
+      return;
+    }
+
+    /*
+     * **低血交叉光束**（录像 381–385s，`docs/adr/0063`）：只在这只 Boss
+     * 血量掉到 `beam.hpRatio` 以下才放；起手 0.6s，随后三段横穿全屏。
+     */
+    var beam = enemy.beam;
+    if (
+      beam &&
+      enemy.beamCooldown <= 0 &&
+      enemy.attackCooldown <= 0 &&
+      enemy.hp <= enemy.maxHp * beam.hpRatio
+    ) {
+      enemy.vx = 0;
+      enemy.beamPulse = 0;
+      beginEnemyAttack(state, enemy, "beam", beam.windup, beam.windup + beam.duration);
+      enemy.beamCooldown = beam.cooldown;
+      enemy.attackCooldown = enemy.attackCooldownMax;
+      pushTelegraph(state, enemy, "BEAM", beam.range, beam.windup, enemy.facing);
       return;
     }
 
@@ -7537,6 +7892,38 @@
     }
 
     /*
+     * **交叉光束**（录像 381–385s）：起手结束后连打三段，每段一条横穿全屏的
+     * 粉白/红光；站在地上才吃，跳起来躲得掉（和横扫同一条 `onGround` 规则）。
+     */
+    if (enemy.attackKind === "beam") {
+      var beam = enemy.beam;
+      if (!beam) {
+        enemy.attackTimer = 0;
+        return;
+      }
+      var pulseAt = beam.windup + enemy.beamPulse * 0.18;
+      if (enemy.beamPulse < 3 && elapsed >= pulseAt) {
+        enemy.beamPulse += 1;
+        if (enemy.beamPulse === 1) {
+          state.effects.push({
+            kind: "bossbeam",
+            x: enemy.x,
+            z: enemy.z,
+            height: enemy.height,
+            seed: enemy.id,
+            beams: beam.beams,
+            life: beam.duration,
+            maxLife: beam.duration
+          });
+        }
+        var beamGround = player.y >= ARENA.groundY - 26;
+        if (!player.dead && beamGround) damagePlayer(state, beam.damage, enemy.x);
+      }
+      enemy.attackTimer = Math.max(0, enemy.attackTimer - dt);
+      return;
+    }
+
+    /*
      * **横扫**：圆心在身前，不是一个贴着自己的盘。玩家站在那颗圆里就吃一下；
      * 跳起来仍然躲得掉（和 slam 同一条 `onGround` 规则），因为这是一爪扫过
      * 地面高度的那一片。
@@ -7616,6 +8003,7 @@
       enemy.attackCooldown = Math.max(0, enemy.attackCooldown - dt);
       if (enemy.slam) enemy.slamCooldown = Math.max(0, enemy.slamCooldown - dt);
       if (enemy.sweep) enemy.sweepCooldown = Math.max(0, enemy.sweepCooldown - dt);
+      if (enemy.beam) enemy.beamCooldown = Math.max(0, enemy.beamCooldown - dt);
       enemy.spinCooldown = Math.max(0, enemy.spinCooldown - dt);
       enemy.lungeCooldown = Math.max(0, enemy.lungeCooldown - dt);
       enemy.knockdown = Math.max(0, enemy.knockdown - dt);
@@ -7811,12 +8199,26 @@
 
   function updateWaves(state) {
     var room = state.room;
-    if (!room || room.cleared || !room.pendingWave || !room.pendingWave.length) return;
+    if (!room || room.cleared) return;
     var alive = 0;
     state.enemies.forEach(function (enemy) {
       if (!enemy.dead) alive += 1;
     });
-    var elapsed = state.time - (room.enteredAt || 0);
+    /*
+     * **一至四批**（`docs/adr/0063`）：`pendingWave` 是当前这一批，
+     * `pendingWaves` 是还没轮到的那几批。当前一批出完、且场上剩 ≤2 只
+     * （或距上一批 8 秒）才放下一批；批内仍按同屏上限一只一只补。
+     */
+    if ((!room.pendingWave || !room.pendingWave.length) &&
+        room.pendingWaves && room.pendingWaves.length) {
+      var since = state.time - (room.lastWaveAt || room.enteredAt || 0);
+      if (alive > 2 && since < 8) return;
+      room.pendingWave = room.pendingWaves.shift();
+      room.lastWaveAt = state.time;
+      room.waveTriggered = false;
+    }
+    if (!room.pendingWave || !room.pendingWave.length) return;
+    var elapsed = state.time - (room.lastWaveAt || room.enteredAt || 0);
     if (!room.waveTriggered) {
       if (alive > 2 && elapsed < 8) return;
       room.waveTriggered = true;
@@ -7876,7 +8278,9 @@
            * 白剪影（0.9s）→ 蓝白魂球（0.3s）→ 大血块落地并留在场上（3s），
            * 参考里死亡到过关画面约 **4.3 秒**。
            */
-          state.victoryDelay = deathLie(boss) + smokeLife(boss) + DEATH.bossChunks + 0.35;
+          state.victoryDelay = boss.deathStyle === "burst"
+            ? 1.2
+            : deathLie(boss) + smokeLife(boss) + DEATH.bossChunks + 0.35;
           /*
            * **死亡特效演完之前不弹"通关"横幅**：参考里那几秒只有领主自己的光/魂球/
            * 血块，通关字样在结算页。这条横幅原来一倒下就盖在特效上（业主：「放光的
@@ -7888,7 +8292,6 @@
          * **清房没有强化卡**（业主 2026-10-17：「我不想要通关每一个房间给的加
          * buffer 的奖励」）。门在 `cell.cleared` 那一刻就开了，这里只说一声。
          */
-        pushBanner(state, "房间清空 · 门开了", 1.4);
       }
       return;
     }
@@ -7914,12 +8317,15 @@
     state.enemies.forEach(function (enemy) {
       if (!enemy.dead || !(enemy.dying > 0)) return;
       enemy.dying -= dt;
-      if (!enemy.silhouette && enemy.dying <= smokeLife(enemy)) enemy.silhouette = true;
+      if (enemy.deathStyle !== "burst" && !enemy.silhouette &&
+          enemy.dying <= smokeLife(enemy)) enemy.silhouette = true;
       if (enemy.dying > 0) return;
       enemy.dying = 0;
       enemy.silhouette = false;
       enemy.gone = true;
       buried = true;
+      /* 紫白爆光已经在死亡那一帧放过了；不要再补白剪影/碎块。 */
+      if (enemy.deathStyle === "burst") return;
       /*
        * 炸开：十几块**它自己的颜色**，飞出去、减速、落地、化掉（`DEATH.chunks`）。
        * **Boss 也炸**（参考 329.3–332.5s）：白剪影之后先亮一颗**短命的蓝白魂球**，
@@ -8013,7 +8419,8 @@
        */
       var boxed = propBox(prop.piece);
       if (!boxed) return;
-      var depthReach = (reach === undefined ? DEPTH_REACH.melee : reach) * SLAYER_HEIGHT;
+      /* 打碎布景用更宽的一档（`DEPTH_REACH.breakable`）：箱子坐在后场草沿上。 */
+      var depthReach = (reach === undefined ? DEPTH_REACH.breakable : reach) * SLAYER_HEIGHT;
       if (Math.abs((prop.z || 0) - state.player.z) > depthReach + boxed.depth / 2) return;
       /*
        * **这个盒子画在高度轴上，不是屏幕 y 上。** 它原来把桶的落脚点写成
@@ -8411,6 +8818,8 @@
     exitMode: exitMode,
     doorAt: doorAt,
     DOOR: DOOR,
+    /* 下门画在哪（世界 y 底边 + 美术倍率）—— 画法与门口净空共用，见 `GATE_DOWN`。 */
+    GATE_DOWN: GATE_DOWN,
     TRANSITION: TRANSITION,
     BREAKABLE: BREAKABLE,
     /* 一件布景画多大（`docs/adr/0050`）—— 怪有 `enemy.height`，布景有它。 */

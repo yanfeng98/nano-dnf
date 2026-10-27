@@ -2,12 +2,12 @@
  * Browser-level playability proof.
  *
  * Serves the real static build (index.html + src + assets) and drives it in
- * headless Chromium twice:
- *   1. keyboard pass - the DNF key layout, real key events
- *   2. touch pass    - pointer events on the on-screen controls (?touch=1)
+ * headless Chromium once:
+ *   keyboard pass - the DNF key layout, real key events
  *
- * Both passes must clear the dungeon with no console errors, page errors or
- * failed asset loads, and must initialise the WebAudio feedback path.
+ * `docs/adr/0064` removed the touch path; the pass must clear the dungeon with
+ * no console errors, page errors or failed asset loads, and must initialise the
+ * WebAudio feedback path.
  *
  *   npm run test:browser
  */
@@ -699,7 +699,6 @@ async function runPass(browser, baseUrl, options) {
   constants.bossCrossDir = 1;
   const visited = new Set();
   let loadout = constants.equipped.slice();
-  const touchMode = await page.evaluate(() => window.nanoDnf.isTouchMode());
   if (options.mode === "touch") {
     await page.screenshot({ path: path.join(ARTIFACTS, "playability-touch-start.png") });
   } else {
@@ -822,22 +821,23 @@ async function runPass(browser, baseUrl, options) {
    * itself is measured from a clean run.
    */
   /*
-   * Two commits, not one: off the title the game goes to the region map first
-   * and the run is entered from there (`main.js`: "into the hub, not straight
-   * into a run"). The map freezes the sim while it is up.
+   * Three commits: title → town → region map → run (`docs/adr/0065`).
+   * The town and the map both freeze the sim while they are up.
    */
   await page.keyboard.press("Enter");
   await page.waitForTimeout(80);
   /*
    * **开始画面那一首**（`docs/adr/0052`）：第一次手势之后该放 `title`，
-   * 而且放的是客户端文件（`intro.ogg`），不是合成器。地区地图还开着的时候
-   * 它就该在响；第二次 Enter 进副本、过场走完才切 `room`。
+   * 而且放的是客户端文件（`intro.ogg`），不是合成器。城镇与地区地图还开着的时候
+   * 它就该在响；最后一次 Enter 进副本、过场走完才切 `room`。
    */
   await page.waitForFunction(() => {
     const state = window.nanoDnf.getMusicState();
     return state.track === "title" && state.trackFiles.includes("title") && state.source === "file";
   }, null, { timeout: 15000 });
   const titleMusic = await page.evaluate(() => window.nanoDnf.getMusicState());
+  await page.evaluate(() => window.nanoDnf.leaveTown());
+  await page.waitForTimeout(80);
   await page.keyboard.press("Enter");
   /*
    * **进副本那一串要走完才轮得到他**（`docs/adr/0044`）：过场插画 2.04 秒 +
@@ -1960,7 +1960,6 @@ async function runPass(browser, baseUrl, options) {
     ),
     hints: { seen: [...hints.seen], cleared: hints.cleared },
     maxHit: constants.maxHit,
-    touchMode,
     state,
     damageLog,
     audio,
@@ -2490,15 +2489,6 @@ function problemsFor(pass) {
       `${pass.mode}: ambience loops missing (rain=${pass.audio.rain} forest=${pass.audio.forest})`
     );
   }
-  if (pass.mode === "touch") {
-    if (!pass.touchMode) problems.push("touch: on-screen controls were not enabled");
-    if (!pass.muteRoundTrip || pass.muteRoundTrip.afterFirstTap !== true) {
-      problems.push("touch: mute button did not toggle");
-    }
-    if (!pass.muteRoundTrip || pass.muteRoundTrip.afterSecondTap !== false) {
-      problems.push("touch: mute button did not toggle back");
-    }
-  }
   if (pass.mode === "keyboard") {
     const checks = pass.loadoutChecks;
     /* Slot Y (the last one) used to be empty; 暴走 lives there now. */
@@ -2540,7 +2530,8 @@ async function main() {
   const baseUrl = `http://127.0.0.1:${port}/index.html`;
   const passes = [];
   const only = process.env.PASSES;
-  const modes = ["keyboard", "touch"].filter((mode) => !only || only === mode);
+  /* `docs/adr/0064`：触屏路径已删，只跑键盘。 */
+  const modes = ["keyboard"].filter((mode) => !only || only === mode);
   for (const mode of modes) {
     /* A fresh browser per pass keeps the two runs from starving each other. */
     const browser = await chromium.launch(chromiumLaunchOptions());
@@ -2605,7 +2596,6 @@ async function main() {
     record: (pass.records.store.seeds || {})[String(pass.records.seed)] || null,
     recordText: (pass.records.summary || {}).recordText || null,
     storedRecord: !!pass.records.stored,
-    touchMode: pass.touchMode,
     audio: pass.audio,
     muteRoundTrip: pass.muteRoundTrip,
     loadoutChecks: pass.loadoutChecks,
@@ -2650,7 +2640,7 @@ async function main() {
     console.error(`browser playability FAILED: ${problems.join("; ")}`);
     process.exit(1);
   }
-  console.log("browser playability OK (keyboard + touch)");
+  console.log("browser playability OK (keyboard)");
 }
 
 /** Reuse a locally cached Chromium when the bundled revision is not installed. */

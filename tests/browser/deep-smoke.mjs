@@ -3,7 +3,7 @@
  *
  * 它不重跑整关：只证明四件事 ——
  *   1. 通关 幽暗密林 之后，地区地图上的「幽暗密林深处」真的进得去；
- *   2. 这一关的 4x4/15 格地牢、猫妖、投掷十夫长、宝箱/石碑都在页面上；
+ *   2. 这一关的 5x4/18 格地牢、猫妖、投掷十夫长、宝箱/石碑都在页面上；
  *   3. 暗咒猫妖半血进二阶段（金环、无横幅），被打死以后真的结算通关；
  *   4. 页面没有 console/page error，新素材（含 forest02.ogg）都是 200。
  *
@@ -87,9 +87,11 @@ async function main() {
     await page.goto(`http://127.0.0.1:${port}/index.html?seed=1`);
     await page.waitForFunction(() => window.nanoDnf && window.nanoDnf.getState);
 
-    /* 标题 → 地区地图 → 右移到深处 → 进关。 */
+    /* 标题 → 城镇 → 地区地图 → 右移到深处 → 进关。 */
     await page.keyboard.press("Enter");
     await page.waitForTimeout(350);
+    await page.evaluate(() => window.nanoDnf.leaveTown());
+    await page.waitForTimeout(250);
     await page.keyboard.press("ArrowRight");
     await page.waitForTimeout(250);
     await page.keyboard.press("Enter");
@@ -102,38 +104,43 @@ async function main() {
         stage: api.getStage(),
         room: state.room && state.room.name,
         cells: state.dungeon && state.dungeon.cells.length,
-        hole: state.dungeon
-          ? state.dungeon.cells.some((cell) => cell.col === 3 && cell.row === 2)
-          : true,
+        holes: state.dungeon
+          ? [
+              state.dungeon.cells.some((cell) => cell.col === 0 && cell.row === 1),
+              state.dungeon.cells.some((cell) => cell.col === 4 && cell.row === 2)
+            ]
+          : [true, true],
         entry: state.dungeon && state.dungeon.entry,
         boss: state.dungeon && state.dungeon.boss,
         types: state.enemies.map((enemy) => enemy.type),
         levels: state.enemies.map((enemy) => enemy.level),
         width: state.room && state.room.width,
         band: state.band && state.band.backY,
-        route: [[1, 1], [1, 3], [1, 2], [1, 0], [2, 0], [2, 1], [3, 1]].map(([col, row]) => {
+        route: [[0, 3], [1, 3], [2, 3], [2, 2], [2, 1], [2, 0], [3, 0], [3, 1], [4, 1]].map(([col, row]) => {
           const cell = state.dungeon.cells.find((at) => at.col === col && at.row === row);
           return `${col},${row}=${state.stage.rooms[cell.room].name}`;
         })
       };
     });
     if (entry.stage !== "mirkwooddeep") fail(`entered ${entry.stage}, not mirkwooddeep`);
-    if (entry.cells !== 15) fail(`dungeon has ${entry.cells} cells, not 15`);
-    if (entry.hole) fail("the (3,2) hole became a cell");
+    if (entry.cells !== 18) fail(`dungeon has ${entry.cells} cells, not 18`);
+    if (entry.holes[0]) fail("the (0,1) hole became a cell");
+    if (entry.holes[1]) fail("the (4,2) hole became a cell");
     if (entry.room !== "铁门入口") fail(`entry room is ${entry.room}`);
-    if (!entry.types.includes("cat")) fail("the entry room has no cat");
-    if (!entry.types.includes("throwerElite")) fail("the entry room has no throwing ten-captain");
-    if (!entry.types.includes("goblinBlue")) fail("the entry room has no recoloured goblin");
-    if (entry.width !== 1008) fail(`entry room width is ${entry.width}, not 1008`);
-    if (entry.band !== 256) fail(`entry band is ${entry.band}, not 256`);
+    if (!entry.types.includes("goblinRed")) fail("the entry room has no red goblin");
+    if (entry.types.includes("cat")) fail("the entry room should be red goblins, not cats");
+    if (entry.width !== 560) fail(`entry room width is ${entry.width}, not 560`);
+    if (entry.band !== 375) fail(`entry band is ${entry.band}, not 375`);
     const wantedRoute = [
-      "1,1=铁门入口",
+      "0,3=铁门入口",
       "1,3=宝箱浅沟",
-      "1,2=猫妖岔路",
-      "1,0=老树回廊",
-      "2,0=藤蔓窄道",
+      "2,3=猫妖岔路",
+      "2,2=藤蔓窄道",
       "2,1=投掷手坡",
-      "3,1=暗咒猫妖的林地"
+      "2,0=老树回廊",
+      "3,0=残柱祭坛",
+      "3,1=断墙营地",
+      "4,1=暗咒猫妖的林地"
     ];
     if (JSON.stringify(entry.route) !== JSON.stringify(wantedRoute)) {
       fail(`pinned route is ${JSON.stringify(entry.route)}`);
@@ -167,7 +174,7 @@ async function main() {
     await page.waitForTimeout(250);
     await page.screenshot({ path: path.join(ARTIFACTS, "deep-entry-cleared.png") });
 
-    /* 进 Boss 房：暗咒猫妖、半血金环、无横幅，然后打死结算。 */
+    /* 进 Boss 房：暗咒猫妖、一条血、无半血阶段，然后打死结算。 */
     const boss = await page.evaluate(() => {
       const Core = window.DNFCore;
       const api = window.nanoDnf;
@@ -192,8 +199,8 @@ async function main() {
       fail(`boss type/behavior is ${boss.type}/${boss.behavior}`);
     }
     if (!boss.tenCaptain) fail("the boss room has no deep ten-captain");
-    if (boss.width !== 960) fail(`boss room width is ${boss.width}, not 960`);
-    if (boss.band !== 256) fail(`boss band is ${boss.band}, not 256`);
+    if (boss.width !== 538) fail(`boss room width is ${boss.width}, not 538`);
+    if (boss.band !== 375) fail(`boss band is ${boss.band}, not 375`);
     await page.waitForTimeout(1200);
     await page.screenshot({ path: path.join(ARTIFACTS, "deep-boss.png") });
 
@@ -211,9 +218,9 @@ async function main() {
       const Core = window.DNFCore;
       const state = window.nanoDnf.getState();
       const cat = state.enemies.find((enemy) => Core.isBossEnemy(enemy));
-      /* 房间自己的名牌还挂在队列里；清掉它，只看半血那一下新增了什么。 */
+      /* 房间自己的名牌还挂在队列里；清掉它，只看半血前后有没有新东西。 */
       state.effects = [];
-      for (let hit = 0; hit < 50 && cat.phase < 2; hit += 1) {
+      for (let hit = 0; hit < 50 && cat.hp > cat.maxHp * 0.45; hit += 1) {
         Core.damageEnemy(state, cat, Math.ceil(cat.maxHp * 0.52), 0, state.player.x);
       }
       return {
@@ -222,10 +229,10 @@ async function main() {
         gold: state.effects.some((effect) => effect.kind === "shockwave" && effect.gold)
       };
     });
-    if (phase.phase !== 2) fail(`boss phase is ${phase.phase}, not 2`);
-    if (!phase.gold) fail("the phase-two gold ring is missing");
+    if (phase.phase !== 1) fail(`boss phase is ${phase.phase}, not 1 (the recording has one bar)`);
+    if (phase.gold) fail("the phase-two gold ring should not exist");
     if (phase.banners.some((text) => /暗咒|暴怒|enraged/i.test(text))) {
-      fail(`the phase-two banner should be silent, got ${JSON.stringify(phase.banners)}`);
+      fail(`the boss should not print a phase banner, got ${JSON.stringify(phase.banners)}`);
     }
 
     await page.evaluate(() => {
@@ -247,6 +254,12 @@ async function main() {
     });
     if (!end.victory) fail("the cat king died but the run did not reach victory");
     await page.screenshot({ path: path.join(ARTIFACTS, "deep-clear.png") });
+
+    /* F4 回城镇（`docs/adr/0065`）：任务/背包保留，副本进度清空。 */
+    await page.keyboard.press("F4");
+    await page.waitForTimeout(250);
+    const back = await page.evaluate(() => window.nanoDnf.getTown());
+    if (!back.open) fail("F4 did not return to town after victory");
 
     if (diagnostics.consoleErrors.length) {
       fail(`console errors: ${diagnostics.consoleErrors.join(" | ")}`);
