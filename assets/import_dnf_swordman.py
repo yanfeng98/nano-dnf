@@ -72,7 +72,10 @@ ROWS = ["idle", "run", "attack", "skill", "extras", "clips", "clips2", "bloodbla
         # the rest of the frames are dropped in silence. A row of their own was
         # cheaper than widening COLS again (the sheet grows 176px either way, and
         # widening would have renumbered every `first` in `SPRITE.skillClips`).
-        "awaken"]
+        "awaken",
+        # 城镇的**走路**（2026-10-27）。步行循环紧挨着待机帧（176-179），见
+        # CELLS["walk"]。放在最后一行，免得把前面每一行的编号都挪一遍。
+        "walk"]
 
 # Per-move body animations, picked by the owner off the body sheet next to each
 # skill's own client clip. Only the picked frames go in: widening them to their
@@ -314,6 +317,24 @@ OVERLAYS = [("eye", 2, 24, 20), ("blood", 0, 32, 24)]
 CELLS = {
     "idle": [176, 177, 178, 179] * 3,
     "run": list(range(105, 113)),
+    # **The walk, which is a different motion from the run** (2026-10-27). The
+    # client lays its locomotion out in two cycles back to back: the still stand
+    # 176-179, then this upright eight-frame walk 180-187 (two four-frame
+    # strides, arms down, no forward lean), and only much later the run 105-112
+    # - the crouched, forward-pitched stride the dungeons use. 105-112 was the
+    # only locomotion row we had, so the town was jogging; the owner read it
+    # immediately: 「城镇中应该是走路，不能跑」. 180-187 is the client's own town
+    # gait, not an invention: it sits directly after the stand it starts from,
+    # and its 174-175 neighbours are the arm-out cast pose, not more walking.
+    #
+    # **The shipped sheet carries this row appended to the previous bake**, not
+    # a full re-bake: the client installed today has a 210-frame body, while the
+    # sheet committed on 2026-10-20 still holds the 232-241 knockdown frames of
+    # the 242-frame body it was baked from. Re-baking everything blanks those
+    # (and 崩山击's last two cells) - see the warning `build` prints. The walk
+    # row is composed from 180-187 alone and composited onto the shipped sheet,
+    # so every other row stays byte-identical.
+    "walk": list(range(180, 188)),
     # The Slayer's real normal attack: four cuts, one per press. The client's
     # sheet holds six slash peaks (3, 13, 24, 36, 45, 54) but only *three*
     # directions: 13 and 24 are the same backward-low sweep (pixel-identical),
@@ -746,6 +767,16 @@ def build(client: pathlib.Path, force: bool) -> Image.Image:
     decoder = Decoder(client, force)
     layer_frames = [(key, decoder.frames(key)) for key in LAYERS]
     overlay_frames = [(decoder.frames(key), ref, max_w, max_h) for key, ref, max_w, max_h in OVERLAYS]
+    # A client update can shrink a layer under the frame numbers CELLS asks for,
+    # and the bake then writes an empty cell in silence (2026-10-27: the body
+    # went 242 -> 210 frames, which would blank the 232-241 knockdown cells and
+    # 崩山击's last two). Say it out loud.
+    body_len = len(dict(layer_frames)["body"])
+    missing = sorted({i for frames in CELLS.values() for i in frames if i >= body_len})
+    if missing:
+        print(f"  WARNING: the body layer has {body_len} frames; CELLS asks for "
+              f"{missing}, which are not in this client - those cells bake empty. "
+              "The shipped sheet still has them; see the CELLS['walk'] note.")
     sheet = Image.new("RGBA", (FRAME_W * COLS, FRAME_H * len(ROWS)), (0, 0, 0, 0))
     clip_row = 0
     clip_column = 0

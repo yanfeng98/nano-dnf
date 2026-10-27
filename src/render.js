@@ -121,7 +121,13 @@
              * `cols` is truncated in silence - see
              * assets/import_dnf_swordman.py ROWS.
              */
-            awaken: 11 },
+            awaken: 11,
+            /*
+             * **城镇的走路**（`docs/adr/0065` 补记）。客户端在待机 176-179 之后
+             * 紧跟一组直立八帧步行 180-187，和副本那条前倾的 run（105-112）
+             * 是两套动作。放在最后一行，前面每一行的编号不动。
+             */
+            walk: 12 },
     /* Frames the renderer actually plays per row; the rest of the row is spare art.
        The stand is a four-frame breath off the client's "still" frames, the attack
        is the whole normal-attack chain (see Core.ATTACK_STAGES). */
@@ -132,8 +138,14 @@
      * dash, not the run. At 15fps the 8-frame row is 0.533s = two 0.267s
      * strides, which is the recording's cadence; the first 30fps cut played
      * both strides in 0.267s and the owner read it as "hopping" (2026-10-20).
+     *
+     * **The walk is the client's 180-187, played at 10fps.** Same eight-frame
+     * shape (two four-frame strides) but upright - it is the client's own town
+     * gait, not the run slowed down. 10fps makes one cycle 0.8s = two 0.4s
+     * steps; at the town's 140px/s that is 56px of ground per step, which is
+     * about the stride the art itself takes, so the feet do not skate.
      */
-    frames: { idle: 4, run: 8, attack: 27, skill: 6, extras: 6 },
+    frames: { idle: 4, run: 8, walk: 8, attack: 27, skill: 6, extras: 6 },
     /*
      * The air slash, parked at the end of the attack row: the client's own jump
      * attack (sm_body0048 133-136, = 134-137 here). A press of X off the ground
@@ -7560,15 +7572,16 @@
       if (actor.kind === "player") {
         if (!sprites.slayer) return;
         /*
-         * **城镇里也要迈步**：这里原来固定画 (0,0)，即待机第一帧，业主 2026-10-27
-         * 报「城镇中没有走路动作」。走动时借副本那条跑动行（8 帧、15fps、0.533s
-         * 一圈，`assets/import_dnf_swordman.py` 的 105–112），站住时仍是待机第一帧；
+         * **城镇里是走路，不是跑**（业主 2026-10-27 两遍反馈：先「没有走路动作」，
+         * 再「应该是走路，不能跑」）。副本那条 run（105-112）是前倾的冲刺；
+         * 客户端自己的步行循环是紧跟在待机 176-179 后面的 180-187，直立摆臂。
+         * 走动时用 walk 行、10fps（一圈 0.8s）；站住回待机第一帧。
          * 相位来自 `townStep` 的 `town.walk`。
          */
         var walking = !!(town.moving && town.walk > 0);
-        var row = walking ? SPRITE.rows.run : SPRITE.rows.idle;
-        var frames = walking ? SPRITE.frames.run : 1;
-        var column = walking ? Math.floor(town.walk * 15) % frames : 0;
+        var row = walking ? SPRITE.rows.walk : SPRITE.rows.idle;
+        var frames = walking ? SPRITE.frames.walk : 1;
+        var column = walking ? Math.floor(town.walk * 10) % frames : 0;
         ctx.save();
         ctx.translate(sx, bottom);
         /* 城镇是 800×600 的客户端比例；他在这里比副本里画大一点，免得像小孩。 */

@@ -3070,7 +3070,10 @@ test("the shipped sprite sheet matches the frame grid the renderer expects", () 
     /* 魔狱血刹's two body motions, on a row of their own below the stance's:
      * `clips2` had three columns left and a clip that overruns `cols` is
      * truncated in silence (see assets/import_dnf_swordman.py ROWS). */
-    awaken: 11
+    awaken: 11,
+    /* The town's own gait: the client's upright eight-frame walk 180-187,
+     * which sits right after the stand 176-179 and is not the dungeon's run. */
+    walk: 12
   });
   /*
    * Every played frame has to exist inside its row. The run is the client's
@@ -3084,6 +3087,7 @@ test("the shipped sprite sheet matches the frame grid the renderer expects", () 
   });
   assert.ok(Render.SPRITE.frames.idle >= 4, "the idle loop needs real frames");
   assert.equal(Render.SPRITE.frames.run, 8, "the run is the client's eight-frame cycle at 30fps");
+  assert.equal(Render.SPRITE.frames.walk, 8, "the walk is the client's own eight-frame town gait");
   assert.ok(Render.SPRITE.frames.attack >= 4, "a cut needs wind-up, slash and recovery");
 
   const icons = fs.readFileSync(path.join(__dirname, "..", "assets", "skills.png"));
@@ -3105,7 +3109,7 @@ test("every frame the renderer plays fits inside its sprite cell", () => {
    * feet - sized for on purpose.
    */
   const plays = [];
-  ["idle", "run", "attack", "skill", "extras"].forEach((name) => {
+  ["idle", "run", "walk", "attack", "skill", "extras"].forEach((name) => {
     const row = Render.SPRITE.rows[name];
     if (name === "skill") {
       for (let col = 0; col < Render.SPRITE.frames.skill; col += 1) plays.push([row, col, `${name} ${col}`]);
@@ -6544,7 +6548,10 @@ test("魔狱血刹's 血气之剑 forms before it is a sword", () => {
   const state = Core.createState({ seed: 11 });
   const player = state.player;
   const sprites = {
-    slayer: { width: Render.SPRITE.frameW * Render.SPRITE.cols, height: Render.SPRITE.frameH * 12 },
+    slayer: {
+      width: Render.SPRITE.frameW * Render.SPRITE.cols,
+      height: Render.SPRITE.frameH * Object.keys(Render.SPRITE.rows).length
+    },
     skills: { width: 32 * Core.SKILL_ORDER.length, height: 64 },
     effects: {
       width: 5760,
@@ -8525,10 +8532,11 @@ test("nothing is printed inside the two orbs", () => {
   }
 });
 
-test("the town Slayer walks with the run row and stands on the idle frame", () => {
+test("the town Slayer walks on the walk row and stands on the idle frame", () => {
   /*
-   * 业主 2026-10-27 报「城镇中没有走路动作」：`drawTown` 原来固定画 (0,0)。
-   * 走动时要用副本那条跑动行（8 帧 15fps），站住时回到待机第一帧。
+   * 业主 2026-10-27 两遍反馈：先「城镇中没有走路动作」，再「应该是走路，不能跑」。
+   * 走动时要用客户端自己的步行循环（180-187，待机 176-179 的下一段），
+   * 不是副本那条前倾的 run（105-112）；站住时回到待机第一帧。
    */
   const slayer = { width: 208 };
   const sprites = { slayer, town: {}, npc: {} };
@@ -8546,17 +8554,18 @@ test("the town Slayer walks with the run row and stands on the idle frame", () =
   const { frameW, frameH, rows, frames } = Render.SPRITE;
 
   assert.deepEqual(draw({}), { column: 0, row: rows.idle * frameH }, "standing is the idle frame");
+  assert.notEqual(rows.walk, rows.run, "the town walks on its own row, not the dungeon's run");
   assert.deepEqual(
     draw({ moving: true, walk: 0.3 }),
-    { column: 4 * frameW, row: rows.run * frameH },
-    "0.3s into the walk is the fifth run frame"
+    { column: 3 * frameW, row: rows.walk * frameH },
+    "0.3s into the walk is the fourth walk frame"
   );
   assert.deepEqual(
-    draw({ moving: true, walk: 0.6 }),
-    { column: 1 * frameW, row: rows.run * frameH },
-    "the eight-frame run wraps after 0.533s"
+    draw({ moving: true, walk: 0.8 }),
+    { column: 0, row: rows.walk * frameH },
+    "the eight-frame walk wraps after 0.8s"
   );
-  assert.equal(frames.run, 8, "the run row is the client's eight frames");
+  assert.equal(frames.walk, 8, "the walk row is the client's eight frames");
 });
 
 test("the coaching line is gone from the HUD", () => {
