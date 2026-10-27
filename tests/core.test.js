@@ -8525,6 +8525,40 @@ test("nothing is printed inside the two orbs", () => {
   }
 });
 
+test("the town Slayer walks with the run row and stands on the idle frame", () => {
+  /*
+   * 业主 2026-10-27 报「城镇中没有走路动作」：`drawTown` 原来固定画 (0,0)。
+   * 走动时要用副本那条跑动行（8 帧 15fps），站住时回到待机第一帧。
+   */
+  const slayer = { width: 208 };
+  const sprites = { slayer, town: {}, npc: {} };
+  const draw = (patch) => {
+    const calls = [];
+    const town = Object.assign({
+      x: 250, z: 50, facing: 1, cameraX: 0, time: 1,
+      moving: false, walk: 0, npcs: [], near: null, dialogue: null, panel: null
+    }, patch);
+    Render.drawTown(recordingContext(calls), { town, sprites, player: {} });
+    const call = calls.find((entry) => entry[0] === "drawImage" && entry[1] === slayer);
+    assert.ok(call, "the town must draw the Slayer");
+    return { column: call[2], row: call[3] };
+  };
+  const { frameW, frameH, rows, frames } = Render.SPRITE;
+
+  assert.deepEqual(draw({}), { column: 0, row: rows.idle * frameH }, "standing is the idle frame");
+  assert.deepEqual(
+    draw({ moving: true, walk: 0.3 }),
+    { column: 4 * frameW, row: rows.run * frameH },
+    "0.3s into the walk is the fifth run frame"
+  );
+  assert.deepEqual(
+    draw({ moving: true, walk: 0.6 }),
+    { column: 1 * frameW, row: rows.run * frameH },
+    "the eight-frame run wraps after 0.533s"
+  );
+  assert.equal(frames.run, 8, "the run row is the client's eight frames");
+});
+
 test("the coaching line is gone from the HUD", () => {
   const hint = {
     id: "upgrade",

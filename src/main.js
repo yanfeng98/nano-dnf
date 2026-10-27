@@ -1630,6 +1630,9 @@
     facing: 1,
     cameraX: 0,
     time: 0,
+    /* 走动相位（`drawTown` 的跑动行用它，见 `townStep`）。 */
+    moving: false,
+    walk: 0,
     left: false,
     right: false,
     up: false,
@@ -1840,6 +1843,8 @@
     town.facing = 1;
     town.cameraX = 0;
     town.time = 0;
+    town.moving = false;
+    town.walk = 0;
     town.near = null;
     town.dialogue = null;
   }
@@ -1848,8 +1853,17 @@
     var dx = (town.right ? 1 : 0) - (town.left ? 1 : 0);
     var dz = (town.down ? 1 : 0) - (town.up ? 1 : 0);
     if (dx) town.facing = dx > 0 ? 1 : -1;
+    var wasX = town.x;
+    var wasZ = town.z;
     town.x = Math.max(80, Math.min(2440, town.x + dx * 140 * delta));
     town.z = Math.max(0, Math.min(100, town.z + dz * 80 * delta));
+    /*
+     * **真的挪动了才迈步**：`drawTown` 原来固定画待机第一帧，业主 2026-10-27 报
+     * 「城镇中没有走路动作」。这里只给渲染一条相位：走动时累加 `walk`，站住归零
+     * （下一次起步从第一帧开始）；顶着城镇边界按住方向键不算走动，不会原地踏步。
+     */
+    town.moving = town.x !== wasX || town.z !== wasZ;
+    town.walk = town.moving ? (town.walk || 0) + delta : 0;
     var target = Math.max(0, Math.min(2520 - Core.VIEW.width, town.x - Core.VIEW.width / 2));
     town.cameraX += (target - town.cameraX) * Math.min(1, delta * 8);
     town.time += delta;
@@ -2215,6 +2229,8 @@
         x: town.x,
         z: town.z,
         cameraX: town.cameraX,
+        moving: !!town.moving,
+        walk: town.walk || 0,
         npcCount: town.npcs.length,
         npcs: town.npcs.map(function (npc) { return npc.id; }),
         near: town.near

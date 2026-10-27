@@ -7559,12 +7559,25 @@
       var bottom = TOWN.groundY - (actor.z || 0) * Core.DEPTH.scale;
       if (actor.kind === "player") {
         if (!sprites.slayer) return;
+        /*
+         * **城镇里也要迈步**：这里原来固定画 (0,0)，即待机第一帧，业主 2026-10-27
+         * 报「城镇中没有走路动作」。走动时借副本那条跑动行（8 帧、15fps、0.533s
+         * 一圈，`assets/import_dnf_swordman.py` 的 105–112），站住时仍是待机第一帧；
+         * 相位来自 `townStep` 的 `town.walk`。
+         */
+        var walking = !!(town.moving && town.walk > 0);
+        var row = walking ? SPRITE.rows.run : SPRITE.rows.idle;
+        var frames = walking ? SPRITE.frames.run : 1;
+        var column = walking ? Math.floor(town.walk * 15) % frames : 0;
         ctx.save();
         ctx.translate(sx, bottom);
         /* 城镇是 800×600 的客户端比例；他在这里比副本里画大一点，免得像小孩。 */
         ctx.scale((town.facing < 0 ? -1 : 1) * 1.35, 1.35);
-        ctx.drawImage(sprites.slayer, 0, 0, SPRITE.frameW, SPRITE.frameH,
-                      -SPRITE.anchorX, -SPRITE.anchorY, SPRITE.frameW, SPRITE.frameH);
+        ctx.drawImage(sprites.slayer,
+                      column * SPRITE.frameW, row * SPRITE.frameH,
+                      SPRITE.frameW, SPRITE.frameH,
+                      -SPRITE.anchorX, -SPRITE.anchorY,
+                      SPRITE.frameW, SPRITE.frameH);
         ctx.restore();
         return;
       }
