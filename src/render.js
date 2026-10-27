@@ -7638,6 +7638,7 @@
     var maxMp = player.maxMp || 1;
     drawHudOrb(ctx, HUD_ORB.left, (player.hp || maxHp) / maxHp, "#da160f", "#8f0b08");
     drawHudOrb(ctx, HUD_ORB.right, (player.mp || maxMp) / maxMp, "#0079ed", "#0050ad");
+    drawLevelCard(ctx, player);
     drawItemSlots(ctx, sprites, 205, 500, 34.6, 36, 0, meta.progress);
     if (meta.state && meta.loadout) {
       drawSkillBar(ctx, meta.state, sprites, meta.loadout, true, false);
@@ -7727,27 +7728,14 @@
     /*
      * 任务条在录像里压在技能排**正上方**（local 465..489）；本作 6+6 的第二排
      * 正好占那一条，所以往上让一格（local 424..448），x 仍是录像的 445..605。
+     * **暂停时不画**：暂停页的「到达 走过 N 间」正好落在这一行上（2026-10-28 复核），
+     * 两行字叠在一起谁也读不清；暂停也不在玩，任务条没有信息价值。
      */
-    drawQuestTracker(ctx, state, sprites, 565, 424, 160, 24, meta.progress);
+    if (!meta.paused) drawQuestTracker(ctx, state, sprites, 565, 424, 160, 24, meta.progress);
     drawTargetPanel(ctx, state, sprites);
     drawRatingPanel(ctx, state);
     /* 等级卡：录像里 “Lv.6” 与绿经验条都在底条左侧，不是屏幕底下一条细线。 */
-    var xpX = 250;
-    var xpW = 65;
-    var xpY = 484;
-    ctx.save();
-    ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
-    ctx.fillRect(xpX, xpY, xpW, 10);
-    ctx.fillStyle = "#7ed26a";
-    ctx.fillRect(xpX, xpY, xpW * clamp01(player.xp / Math.max(1, player.xpToNext)), 10);
-    ctx.strokeStyle = "rgba(226, 191, 114, 0.55)";
-    ctx.lineWidth = 1;
-    ctx.strokeRect(xpX + 0.5, xpY + 0.5, xpW - 1, 9);
-    ctx.fillStyle = "#e8ecef";
-    ctx.font = "700 11px 'Segoe UI', system-ui, sans-serif";
-    ctx.textAlign = "left";
-    ctx.fillText("Lv." + player.level, 200, 493);
-    ctx.restore();
+    drawLevelCard(ctx, player);
     if (player.comboTimer > 0 && player.comboIndex > 0) {
       ctx.save();
       ctx.textAlign = "right";
@@ -7769,6 +7757,32 @@
     var r = block.frames[0];
     ctx.drawImage(sheet, r[0], r[1], r[2], r[3], x, y, w, h);
     return true;
+  }
+
+  /*
+   * **等级卡**（`docs/adr/0064`）：录像里「Lv.6」与绿经验条都在底条左侧，
+   * 不是屏幕底下一条细线。副本与城镇共用同一张卡 —— 城镇以前漏了它，
+   * 底条左边空一块（2026-10-28 复核）。
+   */
+  function drawLevelCard(ctx, player) {
+    var xpX = 250;
+    var xpW = 65;
+    var xpY = 484;
+    var xp = Math.max(0, (player && player.xp) || 0);
+    var next = Math.max(1, (player && player.xpToNext) || 1);
+    ctx.save();
+    ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
+    ctx.fillRect(xpX, xpY, xpW, 10);
+    ctx.fillStyle = "#7ed26a";
+    ctx.fillRect(xpX, xpY, xpW * clamp01(xp / next), 10);
+    ctx.strokeStyle = "rgba(226, 191, 114, 0.55)";
+    ctx.lineWidth = 1;
+    ctx.strokeRect(xpX + 0.5, xpY + 0.5, xpW - 1, 9);
+    ctx.fillStyle = "#e8ecef";
+    ctx.font = "700 11px 'Segoe UI', system-ui, sans-serif";
+    ctx.textAlign = "left";
+    ctx.fillText("Lv." + ((player && player.level) || 1), 200, 493);
+    ctx.restore();
   }
 
   /*
@@ -9712,14 +9726,26 @@
      * takes the corner the bar does not.
      */
     drawAwakening(ctx, state, sprites);
-    drawHudVideo(ctx, state, sprites, meta);
-    /* 录像左侧掉落/经验消息流；评分面板已在 `drawHudVideo` 里常驻。 */
-    if (!overlayOpen) drawLog(ctx, state);
-    /* The map belongs to live play and to the title demo, not to a full-screen overlay. */
-    if (!overlayOpen) drawMinimap(ctx, state, sprites, meta);
-    drawSkillBar(ctx, state, sprites, meta.loadout, true);
-    if (meta.loadoutOpen) drawLoadoutPanel(ctx, state, sprites, meta);
-    if (meta.progressPanel) drawProgressPanel(ctx, meta.progressPanel, meta.progress, sprites);
+    /*
+     * **结算页与选关页不画战斗 HUD**：这两块都是整屏的自己的一页，底下的任务条、
+     * 球和技能槽会从半透明黑幕里透出来，和「走过 6 间 / 图上 12 格」「本局链接」
+     * 「← → 选关」撞在同一行上（2026-10-28 复核时看到）。
+     * 暂停页不在此列 —— 那一页要玩家看着自己的血蓝做决定。
+     */
+    var hudHidden =
+      state.victory ||
+      state.defeat ||
+      !!(meta.region && meta.region.open);
+    if (!hudHidden) {
+      drawHudVideo(ctx, state, sprites, meta);
+      /* 录像左侧掉落/经验消息流；评分面板已在 `drawHudVideo` 里常驻。 */
+      if (!overlayOpen) drawLog(ctx, state);
+      /* The map belongs to live play and to the title demo, not to a full-screen overlay. */
+      if (!overlayOpen) drawMinimap(ctx, state, sprites, meta);
+      drawSkillBar(ctx, state, sprites, meta.loadout, true);
+      if (meta.loadoutOpen) drawLoadoutPanel(ctx, state, sprites, meta);
+      if (meta.progressPanel) drawProgressPanel(ctx, meta.progressPanel, meta.progress, sprites);
+    }
     drawOverlay(ctx, state, meta, sprites);
     /*
      * 换房那一下，**最后画、盖住所有东西**（连 HUD 一起）：录像里切过去是旧画面

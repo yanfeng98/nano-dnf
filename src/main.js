@@ -1630,7 +1630,7 @@
     facing: 1,
     cameraX: 0,
     time: 0,
-    /* 走动相位（`drawTown` 的跑动行用它，见 `townStep`）。 */
+    /* 走动相位（`drawTown` 的 walk 行用它，见 `townStep`）。 */
     moving: false,
     walk: 0,
     left: false,

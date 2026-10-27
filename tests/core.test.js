@@ -8532,6 +8532,83 @@ test("nothing is printed inside the two orbs", () => {
   }
 });
 
+test("the town HUD shows the level card the dungeon already has", () => {
+  /*
+   * 2026-10-28 复核：城镇底条左边空着一块 —— 副本画了「Lv.N + 绿经验条」，
+   * 城镇漏了。两边共用 `drawLevelCard`，这条钉住城镇也画。
+   */
+  const calls = [];
+  const town = {
+    x: 250, z: 50, facing: 1, cameraX: 0, time: 1,
+    moving: false, walk: 0, npcs: [], near: null, dialogue: null, panel: null
+  };
+  Render.drawTown(recordingContext(calls), {
+    town,
+    sprites: {},
+    player: { level: 7, xp: 30, xpToNext: 60, hp: 10, maxHp: 10, mp: 5, maxMp: 10 }
+  });
+  const texts = calls.filter((call) => call[0] === "fillText").map((call) => String(call[1]));
+  assert.ok(texts.includes("Lv.7"), `the town bar must carry the level card: ${texts.join(" / ")}`);
+  const bar = calls.find((call) => call[0] === "fillRect" && call[3] === 65 && call[4] === 10);
+  assert.ok(bar, "the XP bar is part of the card");
+});
+
+test("the clear screen draws no combat HUD behind its table", () => {
+  /*
+   * 2026-10-28 复核：通关页的半透明黑幕压不住底下的任务条与球 —— 「任务 通关
+   * 幽暗密林」和「走过 6 间 / 图上 12 格」「本局链接」撞在同一行。结算与翻牌
+   * 页现在整块不画战斗 HUD（暂停页仍要画，玩家得看着血蓝做决定）。
+   */
+  const hud = { width: 800 };
+  const state = Core.createState({ seed: Core.DEFAULT_SEED });
+  Core.goToCell(state, state.dungeon.boss);
+  state.victory = true;
+  const calls = [];
+  Render.render(recordingContext(calls), state, { sprites: { hud } });
+  assert.equal(
+    calls.some((call) => call[0] === "drawImage" && call[1] === hud),
+    false,
+    "the bar itself must not be under the results table"
+  );
+  const texts = calls.filter((call) => call[0] === "fillText").map((call) => String(call[1]));
+  assert.equal(
+    texts.some((text) => text.startsWith("任务")),
+    false,
+    `the quest tracker must not bleed through: ${texts.join(" / ")}`
+  );
+  /* And the pause screen still keeps it: that page is a readout of the live run. */
+  const paused = Core.createState({ seed: Core.DEFAULT_SEED });
+  const pausedCalls = [];
+  Render.render(recordingContext(pausedCalls), paused, { paused: true, sprites: { hud } });
+  assert.ok(
+    pausedCalls.some((call) => call[0] === "drawImage" && call[1] === hud),
+    "a paused frame still draws the HUD"
+  );
+  const pausedTexts = pausedCalls.filter((call) => call[0] === "fillText").map((call) => String(call[1]));
+  assert.equal(
+    pausedTexts.some((text) => text.startsWith("任务")),
+    false,
+    "the quest tracker must not sit inside the pause table"
+  );
+
+  /* The stage-select hub is its own screen too - its hint line sits where the bar is. */
+  const hub = Core.createState({ seed: Core.DEFAULT_SEED });
+  const hubCalls = [];
+  Render.render(recordingContext(hubCalls), hub, {
+    sprites: { hud },
+    region: {
+      open: true,
+      selected: 0,
+      list: [{ id: "mirkwood", name: "幽暗密林", slot: 0, built: true, open: true, cleared: false, note: "Lv 3-5" }]
+    }
+  });
+  assert.equal(
+    hubCalls.some((call) => call[0] === "drawImage" && call[1] === hud),
+    false,
+    "the stage-select hub must not show the combat bar behind its hint line"
+  );
+});
+
 test("the town Slayer walks on the walk row and stands on the idle frame", () => {
   /*
    * 业主 2026-10-27 两遍反馈：先「城镇中没有走路动作」，再「应该是走路，不能跑」。

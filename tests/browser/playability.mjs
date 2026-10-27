@@ -1236,20 +1236,53 @@ async function runPass(browser, baseUrl, options) {
           await page.keyboard.press(stance.code);
         }
       };
-      const hpBeforeStance = await page.evaluate(() => window.nanoDnf.getState().player.hp);
-      await castStance();
       /*
-       * The stance lands at the end of the cast's one beat, not at its start
-       * (docs/adr/0017: the reference's transform is 0.50s of burst and the
-       * state comes up as it finishes), so this has to outlast the cast. At
-       * 300ms it read "did not raise the stance" on a cast that was still
-       * playing.
+       * **Retry the cast until the stance is actually up.** The toggle costs 12
+       * MP and a cast is refused while he is rooted, so a single press on a
+       * fixed beat is a race with whichever the bot's last swing left behind -
+       * that is how this check read red on 2026-10-28 with nothing wrong in the
+       * game (`hpCost 0`, `raging false`). MP is topped up for the same reason:
+       * this check is about the toggle paying HP and coming up, not about
+       * whether the bot happened to be out of MP when the script reached it.
+       * Pressing again *after* the stance is up would toggle it off, so the
+       * loop stops the moment `isRaging()` turns true.
        */
-      await waitWatching(700);
-      const raised = await page.evaluate(() => ({
-        raging: window.nanoDnf.isRaging(),
-        hp: window.nanoDnf.getState().player.hp
-      }));
+      await page.evaluate(() => {
+        const p = window.nanoDnf.getState().player;
+        p.mp = p.maxMp;
+      });
+      let hpBeforeStance = 0;
+      let raised = { raging: false, hp: 0 };
+      for (let attempt = 0; attempt < 5 && !raised.raging; attempt += 1) {
+        await page.waitForFunction(
+          () => {
+            const p = window.nanoDnf.getState().player;
+            return (
+              p.skillTimer <= 0 &&
+              p.attackTimer <= 0 &&
+              (p.hurtTimer || 0) <= 0 &&
+              !p.dead &&
+              (p.skillCooldowns.frenzy || 0) <= 0
+            );
+          },
+          null,
+          { timeout: 20000 }
+        );
+        hpBeforeStance = await page.evaluate(() => window.nanoDnf.getState().player.hp);
+        await castStance();
+        /*
+         * The stance lands at the end of the cast's one beat, not at its start
+         * (docs/adr/0017: the reference's transform is 0.50s of burst and the
+         * state comes up as it finishes), so this has to outlast the cast. At
+         * 300ms it read "did not raise the stance" on a cast that was still
+         * playing.
+         */
+        await waitWatching(700);
+        raised = await page.evaluate(() => ({
+          raging: window.nanoDnf.isRaging(),
+          hp: window.nanoDnf.getState().player.hp
+        }));
+      }
       /* Nothing but a second cast shortens it, so waiting must not end it. */
       await waitWatching(2200);
       const stillUp = await page.evaluate(() => window.nanoDnf.isRaging());
