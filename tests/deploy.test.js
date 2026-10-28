@@ -262,3 +262,35 @@ test("a network blip is retried, while a real HTTP status is reported as-is", as
     globalThis.fetch = realFetch;
   }
 });
+
+test("a stalled transfer is abandoned instead of hanging the live check", async () => {
+  /*
+   * 2026-10-28: `npm run test:live` 在一台慢机器上挂了 15 分钟 —— 某个资源的
+   * 连接开着、一个字节都不来，而 `fetch` 没有超时。这条钉住"每次尝试都有上限"。
+   */
+  const { fetchBody } = await import("./deploy/deploy-contract.mjs");
+  const realFetch = globalThis.fetch;
+  try {
+    globalThis.fetch = (url, options) => {
+      const signal = options && options.signal;
+      return new Promise((resolve, reject) => {
+        /* 这个定时器同时充当"如果 abort 没来，测试自己会结束"的保险。 */
+        const guard = setTimeout(() => reject(new Error("the abort never arrived")), 2000);
+        signal.addEventListener("abort", () => {
+          clearTimeout(guard);
+          reject(signal.reason);
+        });
+      });
+    };
+    const started = Date.now();
+    const stalled = await fetchBody("https://example.test/", {
+      attempts: 1,
+      backoffMs: 0,
+      timeoutMs: 30
+    });
+    assert.equal(stalled.status, 0);
+    assert.ok(Date.now() - started < 5000, "the attempt must be bounded by the timeout");
+  } finally {
+    globalThis.fetch = realFetch;
+  }
+});

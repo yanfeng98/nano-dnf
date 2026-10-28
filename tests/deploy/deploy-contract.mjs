@@ -118,12 +118,25 @@ export function sha256(buffer) {
  *
  * A DNS or TLS blip must not fail a deploy check, while a real HTTP status -
  * including 404 - is returned as-is so a broken asset still fails loudly.
+ *
+ * **Each attempt is bounded.** On a slow line a transfer can stall with the
+ * socket open and no bytes coming (2026-10-28: `npm run test:live` sat for
+ * 15 minutes on one asset), and an unbounded `fetch` never returns - so the
+ * whole check hangs instead of reporting the lag or failing. 120s is well
+ * above a healthy fetch of the largest sheet (~1.9MB) and only bounds the
+ * broken case.
  */
-export async function fetchBody(target, { attempts = 3, backoffMs = 2000 } = {}) {
+export async function fetchBody(
+  target,
+  { attempts = 3, backoffMs = 2000, timeoutMs = 120000 } = {}
+) {
   let last = { status: 0, body: Buffer.alloc(0), error: "not attempted" };
   for (let attempt = 1; attempt <= attempts; attempt += 1) {
     try {
-      const response = await fetch(target, { redirect: "follow" });
+      const response = await fetch(target, {
+        redirect: "follow",
+        signal: AbortSignal.timeout(timeoutMs)
+      });
       return { status: response.status, body: Buffer.from(await response.arrayBuffer()) };
     } catch (error) {
       last = { status: 0, body: Buffer.alloc(0), error: String(error) };
