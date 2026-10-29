@@ -2853,11 +2853,13 @@
             { piece: "barrel", x: 493, depth: 0.38 },
           ]
         },
-        /* 8 —— 路线 43 (2,3)。录像 74–105s；房宽下界 684 世界px（8.14 身位）；石柱 5、桶 1、墙 2、树 4。 */
+        /* 8 — 路线 43 (2,3)。V2 74.25–105.25s；连续特征图约束镜头跨度1296屏幕px。
+         * 房宽取1280世界px（仍为下界）；原684漏掉大量镜头移动。见reference-video-audit。 */
         {
           name: "猫妖岔路",
           kind: "corr",
-          width: 684,
+          width: 1280,
+          northGateBottom: 316,
           band: { backY: 256 },
           enemies: [
             { type: "goblinRed", x: 300, level: 6 },
@@ -2867,24 +2869,31 @@
             { type: "goblinBlue", x: 650, wave: 2, level: 6 },
           ],
           cap: 4,
-          /*
-           * **43 房逐件量过**（76s 帧；`ref/76.png`）：两只宝箱并排坐在后场
-           * （底 272 → depth 1.82，世界 x 254 / 323）；灰石墙在箱子身后（底 265
-           * → 1.90，x 220）；两棵浅柱在右侧（底 270 / 282 → 1.84 / 1.71，
-           * x 361 / 397）；桶在右缘（底 360 → 0.81，x 435）；苔石在前缘
-           * （底 430 → 0，x 244）；倒木在左下（底 480 → -0.58，x 158）。
-           * 旧版按 ~900 宽写（柱 850、树 900），房间 684 宽时那几件在墙外。
+          /* V2 74.25s 才是贴左；76s 镜头已移207屏幕px。旧76s零镜头前提作废。
+           * 以720×540游戏区域计：两箱中心616/719，底295；北门全景中心1530，底250。
+           * 先修可对应的落点；平顶柱原件、其余植被与完整右半场仍列在审计待办。
            */
           props: [
-            { piece: "chest", x: 254, depth: 1.82 },
-            { piece: "chest", x: 323, depth: 1.82 },
-            { piece: "wallStone", x: 220, depth: 1.90 },
-            { piece: "pillarPale", x: 361, depth: 1.84 },
-            { piece: "pillarPale", x: 397, depth: 1.71 },
-            { piece: "barrel", x: 435, depth: 0.81 },
-            { piece: "rockFlat", x: 244, depth: 0, scale: [0.77, 0.77] },
-            { piece: "fallenTrunk", x: 158, depth: -0.58 },
+            { piece: "chest", x: 391, depth: 1.56 },
+            { piece: "chest", x: 456, depth: 1.56 },
+            { piece: "wallStone", x: 351, depth: 1.96, scale: [1, 0.75] },
+            { piece: "pillarPale", x: 493, depth: 1.56 },
+            { piece: "pillarPale", x: 532, depth: 1.15 },
+            { piece: "barrel", x: 567, depth: 0.62 },
+            { piece: "rockFlat", x: 375, depth: -0.18, scale: [0.77, 0.77] },
+            { piece: "fallenTrunk", x: 178, depth: -0.58 },
             { piece: "trunkTall", x: 40, depth: 2.03 },
+            /* Right half visible at V2 90.25/104.25s, camera 1200/1047px.
+             * These were outside the old, shortened 684px room entirely.
+             */
+            { piece: "barrel", x: 826, depth: 1.52 },
+            { piece: "wallStone", x: 847, depth: 2.10, scale: [1, 0.75] },
+            { piece: "wallStone", x: 1115, depth: 2.10, scale: [1, 0.75] },
+            { piece: "pillarPale", x: 677, depth: -0.24 },
+            { piece: "pillarPale", x: 870, depth: 0.74 },
+            { piece: "pillarPale", x: 894, depth: 0.44 },
+            { piece: "rockFlat", x: 768, depth: -0.22, scale: [0.77, 0.77] },
+            { piece: "rockFlat", x: 1070, depth: -0.22, scale: [0.77, 0.77] },
           ],
           scatter: {"solid":0,"barrels":0,"stones":0}
         },
@@ -3343,7 +3352,7 @@
      * 三帧的镜头都贴在左墙（他站在房间左三分之一），世界 x = 游戏 x ÷ 3.155。
      * 别的格没量到，仍按 0.5（中间）。
      */
-    northX: { "2,2": 0.24, "2,1": 0.16, "2,0": 0.20 },
+    northX: { "2,3": 970 / 1280, "2,2": 0.24, "2,1": 0.16, "2,0": 0.20 },
     /* 这一关的上/下门量到在同一条竖轴上（`doorX`）。别的关没有这个证据，不开。 */
     southSharesNorthX: true,
     /*
@@ -3401,7 +3410,7 @@
       1: 538,
       5: 529,
       6: 588,
-      8: 684,
+      8: 1280,
       9: 885,
       10: 520,
       12: 734,
@@ -3705,7 +3714,8 @@
           return { left: x - w / 2, right: x + w / 2, top: at - h, bottom: at };
         }
         var art = GATE_ART[dir];
-        var bottom = floorOf(depth) + 6;
+        var spec = state.stage.rooms[cell.room];
+        var bottom = spec.northGateBottom === undefined ? floorOf(depth) + 6 : spec.northGateBottom;
         return { left: x - art[0] / 2, right: x + art[0] / 2, top: bottom - art[1], bottom: bottom };
       }
       var side = GATE_ART.side;
@@ -3983,8 +3993,8 @@
       trunkMossy: { width: 100, dx: -18, ink: [160, 428] },
       treeLeafy:  { width: 84,  dx: -4,  ink: [153, 203] },
       stump:      { width: 74,  dx: -4,  ink: [105, 199] },
-      pillar:     { width: 43,  dx: 0,   ink: [44, 111] },
-      pillarPale: { width: 43,  dx: 0,   ink: [44, 111] },
+      pillar:     { width: 43,  dx: 0,   ink: [44, 133] },
+      pillarPale: { width: 43,  dx: 0,   ink: [44, 133] },
       wallStone:  { width: 163, dx: -1,  ink: [167, 125] },
       rockFlat:   { width: 92,  dx: -20, ink: [141, 89] },
       rockSmall:  { width: 42,  dx: 0,   ink: [42, 44] },
@@ -4151,9 +4161,11 @@
        * 所以这一张表允许**两个数**（`[横向, 纵向]`），一个数的意思就是两个轴同一个 ——
        * 木桶与门量下来两轴基本一致，石柱不一致。别把"一个数"当成规矩。
        */
-      pillar: [0.58, 0.80],
-      pillarPale: [0.58, 0.80],
-      pillarDecor: [0.58, 0.80],
+      pillar: [0.706, 0.715],
+      // V2 76s template: 49x150 screen px; source ink44x133, zoom1.5775.
+      // The old diagonal 01obj006 had a different outline and height.
+      pillarPale: [0.706, 0.715],
+      pillarDecor: [0.706, 0.715],
       /*
        * **三棵直树干**（直 / 弯 / 长苔）。录像里那棵的**上段**是 **190 视频px = 0.72 身位**宽
        * （t=200 那一帧，树干两侧都看得清），而本作三棵的上段是 **1.40 / 0.82 / 0.93 身位** ——
@@ -5207,6 +5219,7 @@
          * 房间就是 `ROOM.width` —— 与**世界窗口**无关：窗口收窄不缩房间。
          */
         width: spec.width || ROOM.width,
+        northGateBottom: spec.northGateBottom,
         leftWall: ROOM.leftWall,
         rightWall: (spec.width || ROOM.width) - (ROOM.width - ROOM.rightWall),
         /*
@@ -8232,7 +8245,7 @@
     }
   }
 
-  function resolveRoom(state) {
+  function resolveRoom(state, input) {
     var alive = state.enemies.filter(function (enemy) {
       return !enemy.dead;
     });
@@ -8261,7 +8274,10 @@
      */
     var bossDown = bossCell && boss && boss.dead;
     var pending = state.room.pendingWave ? state.room.pendingWave.length : 0;
-    /* 两批都清完（或领主倒下）才开房；第一批死光但第二批还没出场不算清。 */
+    (state.room.pendingWaves || []).forEach(function (wave) {
+      pending += wave.length;
+    });
+    /* 所有批次都清完（或领主倒下）才开房，包括尚未轮到的后续批次。 */
     if (((alive.length === 0 && pending === 0) || bossDown) && !state.room.cleared && !state.defeat) {
       state.room.cleared = true;
       var cell = currentCell(state);
@@ -8299,8 +8315,22 @@
     /* 死亡特效还在演：先别让他从门口走掉，等 `victoryDelay` 到 0。 */
     if (state.victoryDelay !== null && state.victoryDelay !== undefined) return;
     /* 出门：站在一扇开着的门里就换房。门清过房才全开，没清只有进来那扇能走回去。 */
-    if (!state.room.cleared || !state.dungeon) return;
+    // doorAt/exitMode also permit the entry door before a room is cleared.
+    // Do not advertise an open way back and then reject it here.
+    if (!state.dungeon) return;
     var dir = doorAt(state);
+    // Retreat requires walking out: spawning near the entry or being knocked
+    // into it during combat must not bounce the player into the previous room.
+    if (dir && !state.room.cleared && !(input &&
+        ((dir === "N" && input.up) || (dir === "S" && input.down) ||
+         (dir === "E" && input.right) || (dir === "W" && input.left)))) return;
+    if (dir && !state.room.cleared) {
+      var p = state.player;
+      var edge = dir === "N" ? bandDepth(state.band) - p.z :
+        dir === "S" ? p.z : dir === "E" ? roomRight(state) - p.x : p.x - roomLeft(state);
+      var margin = dir === "E" || dir === "W" ? p.width / 2 : 0;
+      if (edge > margin + 8) return;
+    }
     if (dir) enterCell(state, dir);
   }
 
@@ -8712,7 +8742,7 @@
     updateTarget(state, dt);
     updateBreakables(state);
     updatePickups(state, dt);
-    resolveRoom(state);
+    resolveRoom(state, input);
     /*
      * Last, and on purpose: the camera reads where everyone ended up this frame,
      * not where they were when it started - and `resolveRoom` may already have

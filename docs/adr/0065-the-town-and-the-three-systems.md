@@ -27,4 +27,12 @@
 0.8s 绕回第 1 帧、walk 行与 run 行不是同一行）。无头浏览器实跑：按住 → 时
 `moving=true`、`walk` 递增、截图可见直立迈步；松开后 `moving=false`、`walk=0`，无 pageerror。
 
+## 实玩修正（2026-10-28）：步行漏了另一只鞋和裤腿
+
+业主报告「走路有一个脚是光着的」。逐帧复核确认原烘焙只取
+`sm_shoes0000a.img` / `sm_pants0000a.img`，遗漏互补的 b 层；待机的 b 可为空，
+步行时却承载另一条腿。b 层必须叠在基础身体之后，否则裸身体会重新盖住鞋。
+补齐 b 层，局部重烘 idle/run/walk；像素比较确认只有 run、walk 两行实际改变，其余行保持原样。
+完整诊断与验证见 `../town-reference-review.md` 的本轮实玩修正记录。
+
 ## Consequences

@@ -1,0 +1,187 @@
+{
+  "normalization": "1920x1080 -> crop 1440x1080 at x240,y0 -> 720x540; seconds are exact seek positions",
+  "sources": [
+    {
+      "name": "00001-幽暗密林.mp4",
+      "bytes": 103229815,
+      "metadata": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "width": 1920,
+            "height": 1080,
+            "r_frame_rate": "30/1"
+          },
+          {
+            "r_frame_rate": "0/0"
+          }
+        ],
+        "format": {
+          "duration": "362.602333"
+        }
+      },
+      "frames": [
+        {
+          "seconds": 5,
+          "file": "00001-0005.00.jpg"
+        },
+        {
+          "seconds": 20,
+          "file": "00001-0020.00.jpg"
+        },
+        {
+          "seconds": 32,
+          "file": "00001-0032.00.jpg"
+        },
+        {
+          "seconds": 48,
+          "file": "00001-0048.00.jpg"
+        },
+        {
+          "seconds": 60,
+          "file": "00001-0060.00.jpg"
+        },
+        {
+          "seconds": 76,
+          "file": "00001-0076.00.jpg"
+        },
+        {
+          "seconds": 105,
+          "file": "00001-0105.00.jpg"
+        },
+        {
+          "seconds": 150,
+          "file": "00001-0150.00.jpg"
+        },
+        {
+          "seconds": 180,
+          "file": "00001-0180.00.jpg"
+        },
+        {
+          "seconds": 225,
+          "file": "00001-0225.00.jpg"
+        },
+        {
+          "seconds": 300,
+          "file": "00001-0300.00.jpg"
+        },
+        {
+          "seconds": 333,
+          "file": "00001-0333.00.jpg"
+        },
+        {
+          "seconds": 340,
+          "file": "00001-0340.00.jpg"
+        },
+        {
+          "seconds": 346,
+          "file": "00001-0346.00.jpg"
+        },
+        {
+          "seconds": 352,
+          "file": "00001-0352.00.jpg"
+        },
+        {
+          "seconds": 358,
+          "file": "00001-0358.00.jpg"
+        }
+      ]
+    },
+    {
+      "name": "00002-幽暗密林深处.mp4",
+      "bytes": 118906924,
+      "metadata": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "width": 1920,
+            "height": 1080,
+            "r_frame_rate": "30/1"
+          },
+          {
+            "r_frame_rate": "0/0"
+          }
+        ],
+        "format": {
+          "duration": "418.500000"
+        }
+      },
+      "frames": [
+        {
+          "seconds": 2,
+          "file": "00002-0002.00.jpg"
+        },
+        {
+          "seconds": 12,
+          "file": "00002-0012.00.jpg"
+        },
+        {
+          "seconds": 30,
+          "file": "00002-0030.00.jpg"
+        },
+        {
+          "seconds": 74.25,
+          "file": "00002-0074.25.jpg"
+        },
+        {
+          "seconds": 76,
+          "file": "00002-0076.00.jpg"
+        },
+        {
+          "seconds": 90,
+          "file": "00002-0090.00.jpg"
+        },
+        {
+          "seconds": 104,
+          "file": "00002-0104.00.jpg"
+        },
+        {
+          "seconds": 106,
+          "file": "00002-0106.00.jpg"
+        },
+        {
+          "seconds": 150,
+          "file": "00002-0150.00.jpg"
+        },
+        {
+          "seconds": 192,
+          "file": "00002-0192.00.jpg"
+        },
+        {
+          "seconds": 244,
+          "file": "00002-0244.00.jpg"
+        },
+        {
+          "seconds": 279,
+          "file": "00002-0279.00.jpg"
+        },
+        {
+          "seconds": 316,
+          "file": "00002-0316.00.jpg"
+        },
+        {
+          "seconds": 330,
+          "file": "00002-0330.00.jpg"
+        },
+        {
+          "seconds": 381,
+          "file": "00002-0381.00.jpg"
+        },
+        {
+          "seconds": 385,
+          "file": "00002-0385.00.jpg"
+        },
+        {
+          "seconds": 393,
+          "file": "00002-0393.00.jpg"
+        },
+        {
+          "seconds": 410,
+          "file": "00002-0410.00.jpg"
+        }
+      ]
+    }
+  ]
+}

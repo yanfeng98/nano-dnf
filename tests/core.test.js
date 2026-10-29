@@ -780,6 +780,66 @@ test("a cleared room opens its doors and lets him walk out", () => {
   assert.ok(state.transition > 0, "a room change fades in over BLACK (docs/adr/0030)");
 });
 
+test("a logically open door has no blocking panel even while the player is far away", () => {
+  for (const stage of ["mirkwood", "mirkwooddeep"]) {
+    const state = Core.createState({ seed: 1, stage });
+    state.room.cleared = true;
+    Core.currentCell(state).cleared = true;
+    const forest = {};
+    const calls = [];
+    Render.render(recordingContext(calls), state, { sprites: { forest } });
+    for (const name of ["door", "doorUp", "doorDown", "doorBlock"]) {
+      const rect = Render.SCENE.pieces[name];
+      if (!rect) continue;
+      const blocked = calls.some((c) => c[0] === "drawImage" && c[1] === forest &&
+        c[2] === rect[0] && c[3] === rect[1] && c[4] === rect[2] && c[5] === rect[3]);
+      assert.equal(blocked, false, `${stage}: an open door still draws ${name}`);
+    }
+  }
+});
+
+test("the open entry door lets him retreat before clearing the new room", () => {
+  for (const stage of ["mirkwood", "mirkwooddeep"]) {
+    const state = Core.createState({ seed: 1, stage });
+    clearRoom(state);
+    const previous = state.cell;
+    const dir = Core.MINIMAP_DIRS.find((d) => Core.exitMode(state, d) === "open");
+    assert.ok(walkToDoor(state, dir) >= 0);
+    const uncleared = state.cell;
+    assert.equal(state.room.cleared, false);
+    assert.ok(state.enemies.some((e) => !e.dead));
+    state.player.invuln = 60;
+    const back = state.entryDoor;
+    assert.equal(Core.exitMode(state, back), "open");
+    state.player.x = back === "E" ? Core.roomRight(state) - 5 :
+      back === "W" ? Core.roomLeft(state) + 5 : Core.doorX(state, Core.currentCell(state), back);
+    state.player.z = back === "N" ? Core.bandDepth(state.band) - 5 :
+      back === "S" ? 5 : state.player.z;
+    Core.step(state, {});
+    assert.equal(state.cell, uncleared, "standing near the entry must not cause an automatic retreat");
+    const outward = { N: "up", S: "down", E: "right", W: "left" }[back];
+    for (let frame = 0; frame < 30 && state.cell === uncleared; frame++) {
+      Core.step(state, { [outward]: true });
+    }
+    assert.equal(state.cell, previous);
+    assert.equal(state.dungeon.cells[uncleared].cleared, false, "retreat does not count as clearing");
+  }
+});
+
+test("queued later waves prevent clearing even across an empty batch", () => {
+  const state = Core.createState({ seed: 1 });
+  state.enemies = [];
+  state.room.pendingWave = [];
+  state.room.pendingWaves = [[], [{ type: "grunt", x: 200, z: 0 }]];
+  Core.step(state, {});
+  assert.equal(state.room.cleared, false, "a later queued enemy still belongs to this room");
+  Core.step(state, {});
+  assert.ok(state.enemies.some((e) => !e.dead), "the later batch can still enter");
+  killAll(state);
+  Core.step(state, {});
+  assert.equal(state.room.cleared, true, "the last batch dying opens the room");
+});
+
 /**
  * 摆到"这一局里摆着木桶、而且不是 Boss 房"的那一格上 —— 「打碎、出门、走回来」
  * 那条测试要找的就是它（Boss 房清完就通关了，走不出去）。
@@ -8487,28 +8547,25 @@ test("the title screen shows the seed record and a clear shows the result", () =
   );
 });
 
-test("the two orbs are capsules flush with the bar's two ends", () => {
-  /*
-   * 2026-10-27 业主实玩反馈「血条和蓝条和框没对齐」：旧版画的是两颗 38×72 的竖椭圆，
-   * 圆心 (146,496)/(814,496)，既比录像的胶囊窄一圈，又比球窝高 4px，还多画了数字。
-   * 录像里它们是竖直胶囊：外框各 91×161 录像px、左右各自贴住底条两端的球窝、
-   * 一直落到画面底边（`ref-13.png`：红 x9..100 / 蓝 x1341..1433，y5..166）。
-   */
-  const orb = Render.HUD_ORB;
-  const bar = { x: 120, y: 456, w: 720, h: 82 };
-  assert.deepEqual(orb.left, { x: 124.5, y: 458, w: 45.5, h: 80 }, "the HP capsule");
-  assert.deepEqual(orb.right, { x: 790, y: 458, w: 45.5, h: 80 }, "the MP capsule");
-  assert.equal(orb.left.x - bar.x, 4.5, "the HP capsule sits in the bar's left socket");
-  assert.equal(
-    bar.x + bar.w - (orb.right.x + orb.right.w),
-    orb.left.x - bar.x,
-    "the MP capsule mirrors it on the right"
-  );
-  assert.equal(orb.left.y + orb.left.h, 538, "both capsules reach the bar's bottom edge");
-  assert.ok(
-    orb.left.w < orb.left.h,
-    `a capsule, not a sphere: ${orb.left.w}x${orb.left.h}`
-  );
+test("HUD liquid fits its socket and the old round sockets are not also drawn", () => {
+  const hud = {};
+  const calls = [];
+  Render.drawTown(recordingContext(calls), {
+    town: { x: 250, z: 50, npcs: [] }, sprites: { hud },
+    player: { hp: 50, maxHp: 100, mp: 50, maxMp: 100 }
+  });
+  const images = calls.filter((c) => c[0] === "drawImage" && c[1] === hud);
+  assert.equal(images.some((c) => c[4] === 800 && c[5] === 91), false,
+    "drawing the entire old bar would reintroduce its round sockets");
+  for (const box of [Render.HUD_ORB.left, Render.HUD_ORB.right]) {
+    const socket = images.find((c) => c[6] < box.x && c[6] + c[8] > box.x + box.w
+      && c[7] < box.y && c[7] + c[9] > box.y + box.h && c[8] < 100);
+    assert.ok(socket, "each liquid has a surrounding client socket");
+    assert.ok(box.h > box.w * 1.7, "the liquid is a vertical capsule");
+    const clip = calls.find((c) => c[0] === "rect" && c[1] === box.x
+      && c[2] === box.y + box.h / 2 && c[3] === box.w && c[4] === box.h / 2);
+    assert.ok(clip, "half resources expose exactly half the liquid height");
+  }
 });
 
 test("nothing is printed inside the two orbs", () => {
@@ -8607,6 +8664,66 @@ test("the clear screen draws no combat HUD behind its table", () => {
     false,
     "the stage-select hub must not show the combat bar behind its hint line"
   );
+});
+
+test("town depth zero stays at the near edge without a position jump", () => {
+  const drawAt = (z) => {
+    const calls = [];
+    Render.drawTown(recordingContext(calls), {
+      town: { x: 250, z, facing: 1, cameraX: 0, npcs: [] },
+      sprites: { slayer: {} }, player: {}
+    });
+    return calls.find((c) => c[0] === "translate" && c[1] === 250)[2];
+  };
+  const zero = drawAt(0);
+  const one = drawAt(1);
+  assert.ok(zero > one, "depth zero is nearer than depth one");
+  assert.ok(zero - one < 3, "one depth unit cannot teleport the actor");
+});
+
+test("town zero HP and MP draw empty rather than full", () => {
+  const draw = (share) => {
+    const calls = [];
+    Render.drawTown(recordingContext(calls), {
+      town: { x: 250, z: 50, npcs: [] }, sprites: { hud: {} },
+      player: { hp: share * 100, maxHp: 100, mp: share * 100, maxMp: 100 }
+    });
+    return calls;
+  };
+  assert.notDeepEqual(draw(0), draw(1), "zero resources cannot look identical to full resources");
+  assert.notDeepEqual(draw(0.5), draw(1));
+});
+
+test("shop goods sit inside client grid cells and descriptions stay in its detail card", () => {
+  const calls = [];
+  const gui = {};
+  Render.drawTown(recordingContext(calls), {
+    town: { x: 1400, z: 50, npcs: [], panel: "shop" },
+    sprites: { gui }, progress: { gold: 90, items: {} }, player: {}
+  });
+  const goods = calls.filter((c) => c[0] === "drawImage" && c[1] === gui && c[8] === 26);
+  assert.equal(goods.length, 3, "all three products occupy their own native cell");
+  for (const c of goods) {
+    assert.ok(c[6] >= 360 && c[6] + c[8] <= 456 && c[7] >= 199 && c[7] + c[9] <= 231,
+      "goods cannot spill out of the first three grid cells");
+  }
+  const detail = calls.find((c) => c[0] === "fillText" && c[1] === "HP 药水");
+  assert.ok(detail && detail[3] < 170, "the name belongs in the upper card, not over a grid row");
+});
+
+test("every town walking frame has boots over both feet", () => {
+  const png = decodeRgbaPng(path.join(__dirname, "../assets/slayer.png"));
+  for (let col = 0; col < Render.SPRITE.frames.walk; col += 1) {
+    let exposedSkin = 0;
+    for (let y = 146; y < 160; y += 1) {
+      for (let x = 55; x < 130; x += 1) {
+        const offset = ((Render.SPRITE.rows.walk * 176 + y) * png.width + col * 208 + x) * 4;
+        const [r, g, b, a] = png.pixels.subarray(offset, offset + 4);
+        if (a > 200 && r > 160 && g > 65 && g < 190 && b < 130 && r > g * 1.3) exposedSkin += 1;
+      }
+    }
+    assert.ok(exposedSkin <= 5, `walk frame ${col}: ${exposedSkin} bare-foot pixels`);
+  }
 });
 
 test("the town Slayer walks on the walk row and stands on the idle frame", () => {
@@ -9046,48 +9163,21 @@ test("地图的领主格是牛头，没去过也露出来", () => {
   );
 });
 
-/*
- * **清房之后，邻接的未探索房间露一个「?」**（业主 2026-10-18）。它只在
- * "当前这间清了 + 那扇门真的通 + 那格没去过"三条同时成立时画。
- */
-test("清房后邻接的未探索房间在地图上变成问号", () => {
-  const state = Core.createState({ seed: Core.DEFAULT_SEED, stage: "mirkwood" });
-  const minimap = { width: 378, height: 122 };
-  const box = Render.minimapBox({});
-  const tile = Render.MINIMAP.tile;
-  const here = state.dungeon.cells[state.cell];
-  const dir = Core.MINIMAP_DIRS.find((name) => here.exits & Core.MINIMAP_STEPS[name].bit);
-  assert.ok(dir, "the entry room has an exit to question");
-  const next = Core.doorNeighbour(state.dungeon, here, dir);
-  assert.ok(next >= 0 && next !== state.dungeon.boss);
-  const nextCell = state.dungeon.cells[next];
-  assert.ok(!nextCell.seen, "the neighbour starts unseen");
-
-  const questionCalls = (sprites) => {
-    const calls = [];
-    Render.render(recordingContext(calls), state, {
-      sprites: { minimap: sprites },
-      map: { mode: "window" }
-    });
-    return calls.filter((call) =>
-      call[0] === "drawImage" && call[1] === sprites &&
-      call[2] === Render.MINIMAP.pieces.question[0] &&
-      call[3] === Render.MINIMAP.pieces.question[1]);
-  };
-
-  assert.equal(questionCalls(minimap).length, 0, "没清房之前不该有问号");
-
-  killAll(state);
-  Core.step(state, {});
-  assert.equal(here.cleared, true);
-  const marked = questionCalls(minimap);
-  assert.ok(marked.length >= 1, "清房后邻接的未探索房间要露问号");
-  assert.ok(
-    marked.some((call) =>
-      Math.abs(call[6] - (box.left + nextCell.col * tile)) <= tile &&
-      Math.abs(call[7] - (box.top + nextCell.row * tile)) <= tile),
-    "问号要落在邻接那一格上"
-  );
+test("the recorded map shows unvisited rooms without invented question markers", () => {
+  for (const stage of ["mirkwood", "mirkwooddeep"]) {
+    const state = Core.createState({ seed: 1, stage });
+    const minimap = {};
+    for (const cleared of [false, true]) {
+      state.room.cleared = Core.currentCell(state).cleared = cleared;
+      const calls = [];
+      Render.render(recordingContext(calls), state, { sprites: { minimap }, map: { mode: "window" } });
+      const shapes = calls.filter(c => c[0] === "drawImage" && c[1] === minimap && c[3] === 0 && c[4] === 18 && c[5] === 18);
+      assert.equal(shapes.length, state.dungeon.cells.length, `${stage}: every recorded room is visible before visiting`);
+      const q = Render.MINIMAP.pieces.question;
+      assert.equal(calls.filter(c => c[0] === "drawImage" && c[1] === minimap && c[2] === q[0] && c[3] === q[1]).length, 0,
+        "the reference's full map has no added next-room question marks");
+    }
+  }
 });
 
 test("the map window's markers land in the boss's cell and in the player's", () => {
@@ -10052,7 +10142,7 @@ test("the measured room widths and band are on the deep route", () => {
      */
     "0,3": 560,
     "1,3": 520,
-    "2,3": 684,
+    "2,3": 1280,
     "2,2": 734,
     "2,1": 885,
     "2,0": 524,
@@ -10285,4 +10375,66 @@ test("the deep route's nine cells can be walked through their own doors", () => 
     Core.runFrames(state, 40, {});
   }
   assert.equal(state.victory, true, "the deep route reaches the boss and clears it");
+});
+
+test("room 43 matches the recorded camera span and keeps its north gate beyond the chest cluster", () => {
+  const state = Core.createState({ stage: "mirkwooddeep", seed: 1 });
+  const cell = state.dungeon.cells.find(c => c.col === 2 && c.row === 3);
+  Core.goToCell(state, state.dungeon.cells.indexOf(cell));
+  // V2 74.25–105.25s, linked static-feature measurements, not a preview's width.
+  const span = 1296.06;
+  assert.ok(Core.roomWidth(state) * Core.CAMERA.zoom >= 720 + span - 3,
+    "the room must contain the recorded 720px view plus the camera travel");
+  const chests = state.props.filter(p => p.piece === "chest").sort((a, b) => a.x - b.x);
+  assert.ok(Math.abs(chests[0].x * Core.CAMERA.zoom - 616) < 8,
+    "the first chest belongs near x616 in the actual left-wall frame");
+  const gateX = Core.doorX(state, cell, "N");
+  assert.ok(Math.abs(gateX * Core.CAMERA.zoom - 1530) < 12,
+    "the north gate belongs near panorama x1530, beyond both chests");
+  const gate = Core.gateArtRect(state, cell, "N");
+  const bottom = Core.ARENA.groundY + (gate.bottom - Core.ARENA.groundY) * Core.CAMERA.zoom;
+  assert.ok(Math.abs(bottom - 250) < 5, "the back-wall gate ends at recorded y250");
+});
+
+test("deep gate runes use the arch scale and the recorded right-hand barrel exists", () => {
+  const s = Core.createState({ stage: "mirkwooddeep", seed: 1 });
+  const cell = s.dungeon.cells.find(c => c.col === 2 && c.row === 3);
+  Core.goToCell(s, s.dungeon.cells.indexOf(cell));
+  s.room.cleared = cell.cleared = true;
+  s.player.x = Core.doorX(s, cell, "N");
+  s.player.z = Core.bandDepth(s.band);
+  const gateBlock = {}, calls = [];
+  Render.render(recordingContext(calls), s, { sprites: { forest: {}, gateBlock } });
+  const r = Render.SCENE.pieces.gateLight;
+  const light = calls.find(c => c[0] === "drawImage" && c[1] === gateBlock && c[2] === r[0]);
+  assert.ok(light, "the approach draws the client's blue rune overlay");
+  assert.ok(Math.abs(light[9] - r[3] * Core.propScale("gateBlock")[1]) < 0.01,
+    "runes must fit the scaled arch instead of floating above it at native size");
+  assert.ok(s.props.some(p => p.piece === "barrel" && Math.abs(p.x * Core.CAMERA.zoom - 1047.41 - 255) < 12),
+    "V2 104.25s has a barrel left of the north door; this area cannot be empty");
+});
+
+test("the deep pillar has the recorded broad flat cap, not a diagonal broken tip", () => {
+  const png = decodeRgbaPng(path.join(__dirname, "../assets/pillar-pale.png"));
+  let cap = 0;
+  for (let x = 0; x < png.width; x++) {
+    if (png.pixels[(3 * png.width + x) * 4 + 3] > 180) cap++;
+  }
+  assert.ok(cap >= 24, `a flat elliptical cap spans the pillar: only ${cap} pixels`);
+  assert.equal(Render.SCENE.pieces.pillarPale[3], png.height, "the renderer must not crop off the pillar base");
+});
+
+test("the deep backdrop does not add an unrecorded repeating leafy tree band", () => {
+  const s = Core.createState({ stage: "mirkwooddeep", seed: 1 });
+  s.props = [];
+  const forest = {}, calls = [];
+  Render.render(recordingContext(calls), s, { sprites: { forest } });
+  const r = Render.SCENE.pieces.treeLeafy;
+  const leafy = calls.filter(c => c[0] === "drawImage" && c[1] === forest &&
+    c[2] === r[0] && c[3] === r[1] && c[4] === r[2] && c[5] === r[3]);
+  assert.equal(leafy.length, 0, "standing trees belong to measured props, not a synthetic canopy ribbon");
+  const mid = Render.SCENE.pieces.mid;
+  const trunkLayer = calls.find(c => c[0] === "drawImage" && c[1] === forest && c[2] === mid[0] && c[3] === mid[1]);
+  assert.equal(trunkLayer[7] + trunkLayer[9] - Render.SCENE.midSkirt, s.band.visualBackY,
+    "the trunk roots, not the bottom of the atlas grass skirt, meet the visible ground edge");
 });

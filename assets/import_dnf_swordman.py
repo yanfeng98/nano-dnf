@@ -271,7 +271,9 @@ WEAPON_INDEX = "5601"
 PACKS = {
     "body": ("sprite_character_swordman_equipment_avatar_skin.NPK", f"{AVATAR}/skin/sm_body0000.img"),
     "shoes": ("sprite_character_swordman_equipment_avatar_shoes.NPK", f"{AVATAR}/shoes/sm_shoes0000a.img"),
+    "shoes_b": ("sprite_character_swordman_equipment_avatar_shoes.NPK", f"{AVATAR}/shoes/sm_shoes0000b.img"),
     "pants": ("sprite_character_swordman_equipment_avatar_pants.NPK", f"{AVATAR}/pants/sm_pants0000a.img"),
+    "pants_b": ("sprite_character_swordman_equipment_avatar_pants.NPK", f"{AVATAR}/pants/sm_pants0000b.img"),
     "coat": ("sprite_character_swordman_equipment_avatar_coat.NPK", f"{AVATAR}/coat/sm_coat0000a.img"),
     "face": ("sprite_character_swordman_equipment_avatar_face.NPK", f"{AVATAR}/face/sm_face0000b.img"),
     "hair": ("sprite_character_swordman_equipment_avatar_hair.NPK", f"{AVATAR}/hair/sm_hair0000a.img"),
@@ -284,7 +286,10 @@ PACKS = {
     "weapon_c": ("sprite_character_swordman_equipment_weapon_katana.NPK", f"{WEAPON}/katana{WEAPON_INDEX}c.img"),
 }
 # bottom-to-top layer order for the character itself
-LAYERS = ["body", "shoes", "pants", "coat", "face", "hair", "weapon_b", "weapon_c"]
+# Equipment a/b are complementary pieces, not colour variants. In the walk
+# one boot/leg lives in b; idle's b can be a transparent stub. Both must cover
+# the base body's bare skin, so b belongs AFTER body, before its a counterpart.
+LAYERS = ["body", "shoes_b", "shoes", "pants_b", "pants", "coat", "face", "hair", "weapon_b", "weapon_c"]
 # The Berserker red-eye and blood-aura overlays are indexed by their own
 # animation list, which drifts out of step with the body animations, so they are
 # pinned to the head: (layer, reference frame that is known to line up, max size).
@@ -883,15 +888,40 @@ def preview(sheet: Image.Image, out: pathlib.Path, scale: int = 2) -> None:
     print(f"preview -> {out} {check.size}")
 
 
+def patch_movement_rows(client, force, target, rows):
+    """Rebake locomotion without changing established skill/knockdown cells."""
+    sheet = Image.open(target).convert("RGBA")
+    if sheet.size != (FRAME_W * COLS, FRAME_H * len(ROWS)):
+        raise SystemExit("existing sheet has a different layout; refusing a partial bake")
+    decoder = Decoder(client, force)
+    layers = [(key, decoder.frames(key)) for key in LAYERS]
+    overlays = [(decoder.frames(key), ref, w, h) for key, ref, w, h in OVERLAYS]
+    for name in rows:
+        row = ROWS.index(name)
+        strip = Image.new("RGBA", (FRAME_W * COLS, FRAME_H))
+        for col, index in enumerate(CELLS[name]):
+            if any(index >= len(frames) for _, frames in layers):
+                raise SystemExit(f"{name} {index}: a clothing layer is missing this frame")
+            frame, x, y, foot = composed_frame(layers, overlays, index)
+            cell = Image.new("RGBA", (FRAME_W, FRAME_H))
+            place(cell, frame, x, y, foot)
+            strip.alpha_composite(cell, (col * FRAME_W, 0))
+        sheet.paste(strip, (0, row * FRAME_H))
+    return sheet
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--client", type=pathlib.Path, default=DEFAULT_CLIENT)
     parser.add_argument("--out", type=pathlib.Path, default=ROOT / "assets" / "slayer.png")
     parser.add_argument("--preview", action="store_true", help="also write a labelled 2x check sheet")
     parser.add_argument("--force", action="store_true", help="re-extract .img files from the client")
+    parser.add_argument("--rows", nargs="+", choices=("idle", "run", "walk"),
+                        help="replace only these movement rows in an existing --out sheet")
     args = parser.parse_args()
 
-    sheet = build(args.client, args.force)
+    sheet = (patch_movement_rows(args.client, args.force, args.out, args.rows)
+             if args.rows else build(args.client, args.force))
     args.out.parent.mkdir(parents=True, exist_ok=True)
     sheet.save(args.out)
     print(f"baked {args.out} ({sheet.width}x{sheet.height})")

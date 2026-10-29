@@ -97,6 +97,13 @@ async function main() {
     await page.keyboard.press("Enter");
     await page.waitForTimeout(3400);
 
+    if (await page.evaluate(() => window.nanoDnf.getMap().mode) !== "radar") fail("recorded opening must default to radar");
+    await page.keyboard.press("Tab");
+    if (await page.evaluate(() => window.nanoDnf.getMap().mode) !== "window") fail("Tab must open whole dungeon");
+    await page.keyboard.press("Tab");
+    if (await page.evaluate(() => window.nanoDnf.getMap().mode) !== "radar") fail("Tab must restore radar");
+    await page.keyboard.press("Tab"); // Later recorded room views use the full map.
+
     const entry = await page.evaluate(() => {
       const api = window.nanoDnf;
       const state = api.getState();
@@ -173,6 +180,32 @@ async function main() {
     }
     await page.waitForTimeout(250);
     await page.screenshot({ path: path.join(ARTIFACTS, "deep-entry-cleared.png") });
+
+    // Use keyboard movement through the cleared door, then back through the
+    // still-uncleared room's entry. Clear status is never assigned by the test.
+    const travel = await page.evaluate(() => {
+      const C = window.DNFCore, s = window.nanoDnf.getState();
+      const dir = C.MINIMAP_DIRS.find(d => C.exitMode(s, d) === "open");
+      s.player.invuln = 60;
+      s.player.x = dir === "E" ? C.roomRight(s) - 65 : dir === "W" ? C.roomLeft(s) + 65 : C.doorX(s, C.currentCell(s), dir);
+      s.player.z = dir === "N" ? C.bandDepth(s.band) - 50 : dir === "S" ? 50 : s.player.z;
+      return { from: s.cell, dir };
+    });
+    const keys = { N: "ArrowUp", S: "ArrowDown", E: "ArrowRight", W: "ArrowLeft" };
+    await page.waitForTimeout(500);
+    await page.screenshot({ path: path.join(ARTIFACTS, "map-door-open.png") });
+    await page.keyboard.down(keys[travel.dir]);
+    await page.waitForFunction(from => window.nanoDnf.getState().cell !== from, travel.from);
+    await page.keyboard.up(keys[travel.dir]);
+    const next = await page.evaluate(() => {
+      const s = window.nanoDnf.getState();
+      return { cell: s.cell, back: s.entryDoor, cleared: s.room.cleared };
+    });
+    if (next.cleared) fail("new room unexpectedly cleared");
+    await page.keyboard.down(keys[next.back]);
+    await page.waitForFunction(from => window.nanoDnf.getState().cell !== from, next.cell);
+    await page.keyboard.up(keys[next.back]);
+    if (await page.evaluate(() => window.nanoDnf.getState().cell) !== travel.from) fail("entry retreat returned to wrong room");
 
     /* 进 Boss 房：暗咒猫妖、一条血、无半血阶段，然后打死结算。 */
     const boss = await page.evaluate(() => {

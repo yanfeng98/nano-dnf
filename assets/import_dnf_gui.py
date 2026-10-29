@@ -25,7 +25,7 @@ from import_dnf_scene import decode_at, shelf_pack  # noqa: E402
 from import_dnf_ui import cell, decode_run  # noqa: E402
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-DEFAULT_CLIENT = pathlib.Path("/home/luyanfeng/dnf-client/地下城与勇士")
+DEFAULT_CLIENT = pathlib.Path("/mnt/c/dnf/地下城与勇士")
 IFACE = "sprite_interface.NPK"
 DIGIT = "sprite_interface_digit.NPK"
 STACK = "sprite_item_stackable.NPK"
@@ -46,11 +46,13 @@ RUNS = [
 
 # (name, pack, entry, frame, note)
 ICONS = [
-    ("potion0", STACK, "sprite/item/stackable/consumption.img", 0, "消耗品图标候选 0"),
-    ("potion1", STACK, "sprite/item/stackable/consumption.img", 1, "消耗品图标候选 1"),
+    # The atlas explicitly labels f49 HP and f50 MP; use those readable client
+    # symbols instead of guessing that its first two unrelated items are potions.
+    ("potion0", STACK, "sprite/item/stackable/consumption.img", 49, "客户端明确标为 HP 的恢复图标"),
+    ("potion1", STACK, "sprite/item/stackable/consumption.img", 50, "客户端明确标为 MP 的恢复图标"),
     ("potion2", STACK, "sprite/item/stackable/consumption.img", 2, "消耗品图标候选 2"),
     ("potion3", STACK, "sprite/item/stackable/consumption.img", 3, "消耗品图标候选 3"),
-    ("mat0", STACK, "sprite/item/stackable/material.img", 0, "材料图标候选 0"),
+    ("mat0", STACK, "sprite/item/stackable/material.img", 49, "灰色材料块；不是 f0 的靴子。未声称是硬化剂 item-ID 映射"),
     ("mat1", STACK, "sprite/item/stackable/material.img", 1, "材料图标候选 1"),
     ("weapon0", ITEM, "sprite/item/iconweapon.img", 0, "武器图标候选 0"),
 ]
@@ -65,21 +67,26 @@ def main() -> None:
 
     art = []
     runs = {}
+    def source(pack):
+        if not (args.client / "ImagePacks2" / pack).exists() and (args.client / "ImagePacks2_70" / pack).exists():
+            return "../ImagePacks2_70/" + pack
+        return pack
+
     for name, pack, entry, first, note in RUNS:
-        frames = decode_run(args.client, pack, entry, first, 1)
+        frames = decode_run(args.client, source(pack), entry, first, 1)
         run, size, anchor, ink = cell(frames)
         for index, picture in enumerate(run):
             art.append((f"{name}{index}", picture))
         runs[name] = {
-            "pack": pack, "entry": entry, "first": first, "frames": len(run),
+            "pack": source(pack), "entry": entry, "first": first, "frames": len(run),
             "cell": list(size), "anchor": list(anchor), "ink": ink, "note": note,
         }
     icons = {}
     for name, pack, entry, index, note in ICONS:
-        picture, offset = decode_at(args.client, pack, entry, index)
+        picture, offset = decode_at(args.client, source(pack), entry, index)
         art.append((name, picture))
         icons[name] = {
-            "pack": pack, "entry": entry, "frame": index,
+            "pack": source(pack), "entry": entry, "frame": index,
             "size": list(picture.size), "offset": list(offset), "note": note,
         }
 

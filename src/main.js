@@ -8,6 +8,7 @@
 
   var Core = window.DNFCore;
   var Render = window.DNFRender;
+  var Town = Render.TOWN;
   var Loadout = window.DNFLoadout;
   var Records = window.DNFRecords;
   var Progress = window.DNFProgress || null;
@@ -326,7 +327,8 @@
   var paused = false;
   var showHelp = true;
   /* "window" (the whole dungeon) or "radar" (the disc round the room he is in). */
-  /* 录像开场到 74s 前右上角是圆形雷达，之后才切方形整图。 */
+  /* V1/V2 begin with the radar; the recorded player later opens the full map.
+     Tab switches views. Strict reference precedence supersedes ADR-0067. */
   var mapMode = "radar";
   var accumulator = 0;
   var lastTime = 0;
@@ -1266,6 +1268,21 @@
       return;
     }
     var point = canvasPoint(event);
+    if (townOpen) {
+      if (town.panel === "shop" && !progressPanel) {
+        var shopHit = Render.hitTestTownShop(point.x, point.y);
+        if (shopHit && shopHit.kind === "item") {
+          town.shopSelection = shopHit.index;
+          town.panelMessage = "";
+        } else if (shopHit && shopHit.kind === "trade") {
+          shopTrade();
+        } else if (shopHit && shopHit.kind === "close") {
+          town.panel = null;
+        }
+      }
+      event.preventDefault();
+      return;
+    }
     if (regionOpen) {
       event.preventDefault();
       ensureAudio();
@@ -1538,6 +1555,7 @@
     Object.keys(pressed).forEach(function (key) {
       pressed[key] = false;
     });
+    town.left = town.right = town.up = town.down = false;
   });
 
   function restart() {
@@ -1625,8 +1643,8 @@
   /* `null` / `"inventory"` / `"quests"` / `"equipment"`（`docs/adr/0065`）。 */
   var progressPanel = null;
   var town = {
-    x: 250,
-    z: 50,
+    x: Town.spawnX,
+    z: Town.spawnZ,
     facing: 1,
     cameraX: 0,
     time: 0,
@@ -1641,6 +1659,7 @@
     dialogue: null,
     panel: null,
     panelMessage: "",
+    shopSelection: 0,
     resetArmed: false,
     npcs: TOWN_NPCS
   };
@@ -1673,14 +1692,14 @@
   }
 
   function townNear() {
-    if (Math.abs(town.x - 2420) < 90 && town.z < 90) return { kind: "gate" };
+    if (Math.abs(town.x - Town.gateX) < 70 && Math.abs(town.z - 50) < 35) return { kind: "gate" };
     var best = null;
     var distance = 1e9;
     TOWN_NPCS.forEach(function (npc) {
-      var d = Math.abs(npc.x - town.x) + Math.abs(npc.z - town.z);
+      var d = Math.hypot(npc.x - town.x, (npc.z - town.z) * Town.depthScale);
       if (d < distance) { distance = d; best = npc; }
     });
-    if (best && Math.abs(best.x - town.x) < 90 && Math.abs(best.z - town.z) < 70) {
+    if (best && Math.abs(best.x - town.x) < 65 && Math.abs(best.z - town.z) * Town.depthScale < 45) {
       return { kind: "npc", npc: best };
     }
     return null;
@@ -1711,6 +1730,7 @@
       town.down = false;
       town.dialogue = null;
       town.panelMessage = "";
+      town.shopSelection = 0;
       town.resetArmed = false;
       town.panel = npc.id === "kanna" ? "shop"
         : npc.id === "brownie" ? "storage" : "craft";
@@ -1751,6 +1771,12 @@
     Progress.addItem(progress, id, 1);
     saveProgress();
     town.panelMessage = "买到 " + item.name;
+  }
+
+  function shopTrade() {
+    var entry = Render.TOWN_SHOP.items[town.shopSelection || 0];
+    if (entry.id === "material") sellMaterial();
+    else shopBuy(entry.id);
   }
 
   function sellMaterial() {
@@ -1802,9 +1828,13 @@
         return;
       }
       if (town.panel === "shop") {
-        if (event.code === "Digit1") shopBuy("hpPotion");
-        if (event.code === "Digit2") shopBuy("mpPotion");
-        if (event.code === "Digit3") sellMaterial();
+        if (/^Digit[1-3]$/.test(event.code)) {
+          town.shopSelection = Number(event.code.slice(-1)) - 1;
+          shopTrade();
+        } else if (event.code === "ArrowLeft" || event.code === "ArrowRight") {
+          town.shopSelection = ((town.shopSelection || 0) + (event.code === "ArrowRight" ? 1 : 2)) % 3;
+          town.panelMessage = "";
+        } else if (event.code === "Enter" || event.code === "Space") shopTrade();
       } else if (town.panel === "storage" && event.code === "KeyR") {
         resetProgressFromTown();
       } else if (town.panel === "craft" && event.code === "Digit1") {
@@ -1838,8 +1868,11 @@
     townOpen = true;
     showHelp = false;
     leaveTitle();
-    town.x = 250;
-    town.z = 50;
+    town.x = Town.spawnX;
+    town.z = Town.spawnZ;
+    town.left = town.right = town.up = town.down = false;
+    town.panel = null;
+    town.panelMessage = "";
     town.facing = 1;
     town.cameraX = 0;
     town.time = 0;
@@ -1851,12 +1884,14 @@
 
   function townStep(delta) {
     var dx = (town.right ? 1 : 0) - (town.left ? 1 : 0);
-    var dz = (town.down ? 1 : 0) - (town.up ? 1 : 0);
+    var dz = (town.up ? 1 : 0) - (town.down ? 1 : 0);
+    if (town.panel || town.dialogue || progressPanel) dx = dz = 0;
+    var diagonal = dx && dz ? Math.SQRT1_2 : 1;
     if (dx) town.facing = dx > 0 ? 1 : -1;
     var wasX = town.x;
     var wasZ = town.z;
-    town.x = Math.max(80, Math.min(2440, town.x + dx * 140 * delta));
-    town.z = Math.max(0, Math.min(100, town.z + dz * 80 * delta));
+    town.x = Math.max(Town.minX, Math.min(Town.maxX, town.x + dx * diagonal * Town.walkSpeed * delta));
+    town.z = Math.max(0, Math.min(100, town.z + dz * diagonal * Town.walkSpeed * Town.depthSpeedRatio / Town.depthScale * delta));
     /*
      * **真的挪动了才迈步**：`drawTown` 原来固定画待机第一帧，业主 2026-10-27 报
      * 「城镇中没有走路动作」。这里只给渲染一条相位：走动时累加 `walk`，站住归零
@@ -1864,8 +1899,8 @@
      */
     town.moving = town.x !== wasX || town.z !== wasZ;
     town.walk = town.moving ? (town.walk || 0) + delta : 0;
-    var target = Math.max(0, Math.min(2520 - Core.VIEW.width, town.x - Core.VIEW.width / 2));
-    town.cameraX += (target - town.cameraX) * Math.min(1, delta * 8);
+    var target = Math.max(0, Math.min(Town.width - Core.VIEW.width, town.x - Core.VIEW.width / 2));
+    town.cameraX += (target - town.cameraX) * (1 - Math.exp(-Town.cameraRate * delta));
     town.time += delta;
     town.near = townNear();
   }
@@ -2238,6 +2273,7 @@
           : null,
         dialogue: town.dialogue ? town.dialogue.id : null,
         panel: town.panel,
+        shopSelection: town.shopSelection,
         panelMessage: town.panelMessage
       };
     },
@@ -2258,9 +2294,9 @@
       return JSON.parse(JSON.stringify(progress));
     },
     setTownPosition: function (x, z) {
-      town.x = Math.max(80, Math.min(2440, x));
+      town.x = Math.max(Town.minX, Math.min(Town.maxX, x));
       town.z = Math.max(0, Math.min(100, z === undefined ? town.z : z));
-      town.cameraX = Math.max(0, Math.min(2520 - Core.VIEW.width,
+      town.cameraX = Math.max(0, Math.min(Town.width - Core.VIEW.width,
                                            town.x - Core.VIEW.width / 2));
       town.near = townNear();
       return townNear();
