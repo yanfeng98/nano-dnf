@@ -10438,3 +10438,23 @@ test("the deep backdrop does not add an unrecorded repeating leafy tree band", (
   assert.equal(trunkLayer[7] + trunkLayer[9] - Render.SCENE.midSkirt, s.band.visualBackY,
     "the trunk roots, not the bottom of the atlas grass skirt, meet the visible ground edge");
 });
+
+test("a gate stands between scenery behind and in front of its visible foot", () => {
+  const s = Core.createState({ stage: "mirkwooddeep", seed: 1 });
+  const cell = s.dungeon.cells.find(c => c.col === 2 && c.row === 3);
+  Core.goToCell(s, s.dungeon.cells.indexOf(cell));
+  const bottom = Core.gateArtRect(s, cell, "N").bottom;
+  const z = (Core.ARENA.groundY - bottom) / Core.DEPTH.scale;
+  const x = Core.doorX(s, cell, "N");
+  s.props = [{ piece: "chest", x, z: z + 60 }, { piece: "chest", x, z: z - 60 }];
+  const forest = {}, gateBlock = {}, calls = [];
+  Render.render(recordingContext(calls), s, { sprites: { forest, gateBlock } });
+  const chest = Render.SCENE.pieces.chest;
+  const boxes = calls.map((c, i) => c[0] === "drawImage" && c[1] === forest &&
+    c[2] === chest[0] && c[3] === chest[1] ? i : -1).filter(i => i >= 0);
+  const arch = Render.SCENE.pieces.gateUp;
+  const gate = calls.findIndex(c => c[0] === "drawImage" && c[1] === forest &&
+    c[2] === arch[0] && c[3] === arch[1]);
+  assert.equal(boxes.length, 2);
+  assert.ok(boxes[0] < gate && gate < boxes[1], `far chest → gate → near chest: ${boxes}, gate ${gate}, z ${z}`);
+});

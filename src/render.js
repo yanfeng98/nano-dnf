@@ -3059,12 +3059,12 @@
       Math.abs(player.x - spot.x) < Core.DOOR.span;
   }
 
-  function drawGate(ctx, state, sprites) {
+  function drawGate(ctx, state, sprites, onlyDir) {
     if (!sprites || !sprites.forest) {
       drawFallbackGate(ctx, state);
       return;
     }
-    Core.MINIMAP_DIRS.forEach(function (dir) {
+    (onlyDir ? [onlyDir] : Core.MINIMAP_DIRS).forEach(function (dir) {
       var spot = gateSpot(state, dir);
       if (!spot) return;
       var shape = gateShape(state, dir);
@@ -9205,6 +9205,19 @@
                        prop.z / Core.bandDepth(state.band));
       }
     });
+    // Gates share the standing-object queue. Use the visible art foot, not
+    // the travel trigger: room 43's arch is beyond the walkable back edge.
+    if (!sprites || !sprites.forest) {
+      drawFallbackGate(ctx, state);
+    } else {
+      Core.MINIMAP_DIRS.forEach(function (dir) {
+        var spot = gateSpot(state, dir);
+        if (!spot) return;
+        add((ARENA.groundY - spot.bottom) / DEPTH.scale, function () {
+          drawGate(ctx, state, sprites, dir);
+        });
+      });
+    }
     (state.props || []).forEach(function (prop) {
       if (SCENE.decals.indexOf(prop.piece) !== -1) return;
       /* `sortZ`：只换画的前后，不换站的位置（背景石门用，见 `core.js`）。 */
@@ -9561,7 +9574,6 @@
     ctx.translate(0, -ARENA.groundY);
     ctx.translate(-cameraX(state), 0);
     drawBackdrop(ctx, state, sprites);
-    drawGate(ctx, state, sprites);
     /*
      * **雨丝画在背景之后、人和布景之前**（`docs/adr/0057` 追记）。参考里雨是天气层，
      * 但我们的近层如果盖在人身上，跑动时会读成"人物在闪"（业主 2026-10-19 实玩）。
