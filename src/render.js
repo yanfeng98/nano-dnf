@@ -3796,7 +3796,7 @@
    * movedestinationmark 的六帧是从点扩成环再消失的落点动画。V2 75.25–78.25s
    * 连续样本保持约60–64px宽，不能循环缩回暗点；用原件完整亮环f3。
    */
-  var FOOT_MARK = { frame: 3, width: 130 / (265 / 84), height: 43 / (265 / 84), footShare: 0.25 };
+  var FOOT_MARK = { frame: 3, emissionPasses: 4, width: 130 / (265 / 84), height: 43 / (265 / 84), footShare: 0.25 };
 
   /*
    * 过场插画：客户端那张 800x600，铺满世界窗口（窗口正是 4:3，与它同形）。
@@ -3887,11 +3887,18 @@
     var h = FOOT_MARK.height;
     var feet = floorY(player.z);
     ctx.save();
-    ctx.drawImage(
-      sheet,
-      frame[0], frame[1], frame[2], frame[3],
-      player.x - w / 2, feet - h * FOOT_MARK.footShare, w, h
-    );
+    // The client ring is an emissive sprite. V2 76.25s reference highlights
+    // are RGB(203,254,81); normal alpha plus an overlaid shadow yielded
+    // (37,126,13). Four additive passes yield (212,236,64) after scene grading.
+    // This is a measured render gain, not a claim about the original engine.
+    ctx.globalCompositeOperation = "lighter";
+    for (var pass = 0; pass < FOOT_MARK.emissionPasses; pass++) {
+      ctx.drawImage(
+        sheet,
+        frame[0], frame[1], frame[2], frame[3],
+        player.x - w / 2, feet - h * FOOT_MARK.footShare, w, h
+      );
+    }
     ctx.restore();
   }
 
@@ -3915,6 +3922,8 @@
     ctx.ellipse(player.x, floorY(player.z) + 3, shadowW, 6, 0, 0, Math.PI * 2);
     ctx.fill();
     ctx.restore();
+    // Light sits above the ground shadow and below the player's boots.
+    drawFootMark(ctx, state, sprites);
 
     /*
      * The red sheet, for the stance and for **one move of its own**: 魔狱血刹's
@@ -9320,7 +9329,6 @@
       drawStageTitle(ctx, state, sprites);
     });
     add(playerZ, function () {
-      drawFootMark(ctx, state, sprites);
       drawPlayer(ctx, state, sprites);
     });
     add(playerZ - 0.01, function () {
