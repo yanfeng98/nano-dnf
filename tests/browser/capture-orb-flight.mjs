@@ -56,7 +56,13 @@ await page.evaluate(() => {
 
 /* The stance has to be up: it is what makes him red and the orbs his. */
 const rageKey = await page.evaluate(() => {
-  const index = window.nanoDnf.getLoadout().indexOf("frenzy");
+  let index = window.nanoDnf.getLoadout().indexOf("frenzy");
+    if (index === -1) {
+      const equipped = window.nanoDnf.getLoadout();
+      index = equipped.length - 1;
+      equipped[index] = "frenzy";
+      window.nanoDnf.setLoadout(equipped);
+    }
   return index === -1 ? null : `Key${window.DNFLoadout.SLOT_KEYS[index]}`;
 });
 await page.keyboard.press(rageKey);

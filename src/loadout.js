@@ -14,21 +14,12 @@
 })(typeof self !== "undefined" ? self : this, function () {
   "use strict";
 
-  /* DNF-style two-row quickbar: six slots per row. */
-  var SLOT_COUNT = 12;
+  // V1/V2 recordings show a single A–H row. The skill library is larger
+  // than the six equipped slots; B opens the library for reassignment.
+  var SLOT_COUNT = 6;
   var SLOT_ROW_SIZE = 6;
-  var SLOT_KEYS = ["A", "S", "D", "F", "G", "H", "Q", "W", "E", "R", "T", "Y"];
-  /*
-   * DNF's own default: the up-slash sits on Z, next to whichever quickbar slot
-   * also holds it. Keyed by keyboard code for the input layer, with a printable
-   * label the bar can draw.
-   */
-  /*
-   * `V` is 魔狱血刹's own key, next to Z's up-slash, and it is here for the same
-   * reason 上挑's is: the bar cannot hold it. The twelve slots are full and two
-   * rows of six is the shape of the bar, so the Berserker's 一觉 is a key rather
-   * than a tile (docs/adr/0025).
-   */
+  var SLOT_KEYS = ["A", "S", "D", "F", "G", "H"];
+  // Existing direct skill shortcuts remain separate from quickbar slots.
   var SKILL_KEYS = { KeyZ: "upSlash", KeyV: "hellbenter" };
   var SKILL_SHORTCUTS = { upSlash: "Z", hellbenter: "V" };
   var DEFAULT_SLOTS = [
@@ -37,13 +28,7 @@
     "crossSlash",
     "bloodSword",
     "graspHead",
-    "mountainRift",
-    "frenzy",
-    "bloodyRave",
-    "rageBurst",
-    "bloodSnatch",
-    "bloodEvil",
-    "berserk"
+    "mountainRift"
   ];
 
   function create(skillIds) {

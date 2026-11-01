@@ -7607,7 +7607,7 @@ test("the skill loadout assigns, swaps, clears and round-trips", () => {
   const Loadout = require("../src/loadout.js");
   const base = Loadout.create(Core.SKILL_ORDER);
   assert.equal(base.length, Loadout.SLOT_COUNT);
-  assert.equal(Loadout.SLOT_COUNT, 12, "DNF two-row quickbar");
+  assert.equal(Loadout.SLOT_COUNT, 6, "recorded single-row quickbar");
   assert.deepEqual(base, Loadout.DEFAULT_SLOTS);
 
   const moved = Loadout.assign(base, 0, "bloodSword");
@@ -7626,11 +7626,12 @@ test("the skill loadout assigns, swaps, clears and round-trips", () => {
   assert.deepEqual(Loadout.deserialize(text, Core.SKILL_ORDER), cleared);
   assert.deepEqual(
     Loadout.deserialize("bogus", Core.SKILL_ORDER),
-    new Array(12).fill(null),
+    new Array(6).fill(null),
     "unknown skill ids are rejected"
   );
   assert.equal(Loadout.slotForCode("KeyD"), 2);
-  assert.equal(Loadout.slotForCode("KeyT"), 10);
+  assert.equal(Loadout.slotForCode("KeyT"), -1);
+  assert.equal(Loadout.slotForCode("KeyQ"), -1);
   assert.equal(Loadout.slotForCode("ArrowLeft"), -1);
 });
 
@@ -7644,7 +7645,7 @@ test("the up-slash keeps DNF's default Z key next to its quickbar slot", () => {
     Loadout.DEFAULT_SLOTS.includes("upSlash"),
     "the default bar still ships the up-slash, so Z has something to cast"
   );
-  /* Z is a skill key, not a thirteenth slot: the two-row bar is untouched. */
+  /* Z is a direct skill shortcut, independent of the six equipped slots. */
   assert.equal(Loadout.SLOT_KEYS.includes("Z"), false);
   assert.equal(Loadout.slotForCode("KeyZ"), -1);
 });
@@ -7795,21 +7796,15 @@ test("the renderer picks the sprite row that matches the player state", () => {
   assert.equal(hurt[2], 0, "hurt uses the hurt column");
 });
 
-test("the hotbar exposes two rows of DNF slots and the panel exposes every skill", () => {
+test("the hotbar exposes the recorded single row and the panel exposes every skill", () => {
   const Loadout = require("../src/loadout.js");
   const slots = Render.skillBarButtons();
-  assert.equal(slots.length, Loadout.SLOT_COUNT, "A S D F G H / Q W E R T Y");
-  assert.equal(slots[0].y, slots[5].y, "the A row shares a baseline");
-  assert.equal(slots[6].y, slots[11].y, "and so does the Q row");
-  /*
-   * The bar mirrors the keyboard above it: the Q row is on top, the A row under
-   * it. It used to be the other way round, which the owner spotted.
-   */
-  assert.ok(slots[6].y < slots[0].y, "Q W E R T Y sits above A S D F G H");
-  const topRow = slots.filter((slot) => slot.y === slots[6].y).map((slot) => slot.index);
-  const bottomRow = slots.filter((slot) => slot.y === slots[0].y).map((slot) => slot.index);
-  assert.deepEqual(topRow, [6, 7, 8, 9, 10, 11], "Q W E R T Y is the top row");
-  assert.deepEqual(bottomRow, [0, 1, 2, 3, 4, 5], "A S D F G H is the bottom row");
+  assert.equal(slots.length, 6, "only A S D F G H");
+  assert.equal(slots.length, Loadout.SLOT_COUNT);
+  assert.deepEqual([...new Set(slots.map(slot => slot.y))], [500]);
+  assert.deepEqual(slots.map(slot => slot.index), [0, 1, 2, 3, 4, 5]);
+  assert.equal(Render.hitTestLoadout(slots[0].x + 10, 474, false), null,
+    "the removed upper row cannot intercept clicks in the task strip");
   slots.forEach((slot) => {
     assert.ok(slot.x + slot.w <= Core.ARENA.width);
     assert.ok(slot.y + slot.h <= Core.ARENA.height);
@@ -7835,7 +7830,7 @@ test("the hotbar exposes two rows of DNF slots and the panel exposes every skill
   );
 });
 
-test("the renderer draws both hotbar rows and the loadout panel", () => {
+test("the renderer draws one hotbar row and keeps every skill in the panel", () => {
   const calls = [];
   const ctx = new Proxy(
     {
@@ -7862,20 +7857,20 @@ test("the renderer draws both hotbar rows and the loadout panel", () => {
   const state = Core.createState({ seed: 11 });
   const sprites = { slayer: { width: 576, height: 480 }, skills: { width: 128, height: 32 } };
   const barY = Render.skillBarButtons()[0].y + 4;
-  const barY2 = Render.skillBarButtons()[6].y + 4;
+  const formerRowY = barY - 36;
   const tileYs = [...new Set(Render.loadoutPanelButtons().map((tile) => tile.y + 4))];
   const drawsAt = (destY) =>
     calls.filter(
       (call) => call[0] === "drawImage" && call[1] === sprites.skills && call[7] === destY
     ).length;
   const tileDraws = () => tileYs.reduce((total, destY) => total + drawsAt(destY), 0);
-  /* Eleven skills fill the two rows, leaving one empty slot on the second row. */
-  const loadout = Core.SKILL_ORDER.slice(0, 11).concat([null]);
+  /* Five equipped skills plus one empty slot; the library remains complete. */
+  const loadout = Core.SKILL_ORDER.slice(0, 5).concat([null]);
 
   calls.length = 0;
   Render.render(ctx, state, { sprites, loadout });
-  assert.equal(drawsAt(barY), 6, "six icons on the first row");
-  assert.equal(drawsAt(barY2), 5, "the empty slot draws no icon");
+  assert.equal(drawsAt(barY), 5, "the empty sixth slot draws no icon");
+  assert.equal(drawsAt(formerRowY), 0, "no invented upper row");
   assert.equal(tileDraws(), 0, "panel is closed");
 
   calls.length = 0;
@@ -7885,8 +7880,8 @@ test("the renderer draws both hotbar rows and the loadout panel", () => {
     loadoutOpen: true,
     drag: { skillId: "bloodyRave", x: 400, y: 300 }
   });
-  assert.equal(drawsAt(barY), 6, "the compact bar keeps its first row while arranging");
-  assert.equal(drawsAt(barY2), 5, "and its second row");
+  assert.equal(drawsAt(barY), 5, "the compact bar remains one row while arranging");
+  assert.equal(drawsAt(formerRowY), 0, "arranging does not restore the removed row");
   assert.equal(tileDraws(), Core.SKILL_ORDER.length, "every skill tile is drawn");
 });
 
@@ -10485,4 +10480,27 @@ test("the player's recorded foot ring stays full size throughout the animation c
     seen.push(mark.slice(6, 10));
   }
   seen.forEach(rect => assert.deepEqual(rect, seen[0], "time alone cannot shrink or move the ring"));
+});
+
+
+test("legacy twelve-slot loadouts keep the visible six slots without removing library skills", () => {
+  const L = require("../src/loadout.js");
+  const legacy = ["upSlash", null, "crossSlash", "bloodSword", "graspHead", "mountainRift",
+    "frenzy", "bloodyRave", "rageBurst", "bloodSnatch", "bloodEvil", "berserk"];
+  const migrated = L.deserialize(L.serialize(legacy), Core.SKILL_ORDER);
+  assert.deepEqual(migrated, legacy.slice(0, 6));
+  const equipped = L.assign(migrated, 5, "frenzy");
+  assert.equal(equipped.length, 6);
+  assert.equal(equipped[5], "frenzy", "a former upper-row skill can be equipped in the recorded row");
+  assert.ok(Render.loadoutPanelButtons().some(tile => tile.skillId === "frenzy"));
+});
+
+
+test("the task tracker returns to the recorded strip immediately above the six slots", () => {
+  const calls = [], state = Core.createState({ seed: 1 });
+  Render.render(recordingContext(calls), state, {});
+  const title = calls.find(c => c[0] === "fillText" && c[1] === "任务");
+  assert.deepEqual(title.slice(2), [580, 492], "V2 76.25s task label stays inside the measured y477..497 strip");
+  assert.ok(calls.some(c => c[0] === "rect" && c[1] === 612 && c[2] === 479 && c[3] === 130 && c[4] === 16),
+    "long live quest text must fit the measured strip rather than cover the HUD");
 });

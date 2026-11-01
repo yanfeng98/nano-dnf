@@ -118,7 +118,13 @@ if (depth > 0 || monster) {
  */
 if (process.env.RAGE === "1") {
   const rageKey = await page.evaluate(() => {
-    const index = window.nanoDnf.getLoadout().indexOf("frenzy");
+    let index = window.nanoDnf.getLoadout().indexOf("frenzy");
+    if (index === -1) {
+      const equipped = window.nanoDnf.getLoadout();
+      index = equipped.length - 1;
+      equipped[index] = "frenzy";
+      window.nanoDnf.setLoadout(equipped);
+    }
     return index === -1 ? null : `Key${window.DNFLoadout.SLOT_KEYS[index]}`;
   });
   if (!rageKey) throw new Error("血之狂暴 is not on the hotbar");
@@ -140,7 +146,13 @@ if (process.env.RAGE === "1") {
 }
 
 const slotKey = await page.evaluate((id) => {
-  const index = window.nanoDnf.getLoadout().indexOf(id);
+  let index = window.nanoDnf.getLoadout().indexOf(id);
+  if (index === -1) {
+    const equipped = window.nanoDnf.getLoadout();
+    index = 0;
+    equipped[index] = id;
+    window.nanoDnf.setLoadout(equipped);
+  }
   return index === -1 ? null : `Key${window.DNFLoadout.SLOT_KEYS[index]}`;
 }, skillId);
 if (!slotKey) throw new Error(`${skillId} is not on the hotbar`);

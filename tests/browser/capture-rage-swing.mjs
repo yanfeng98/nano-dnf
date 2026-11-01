@@ -68,7 +68,13 @@ await page.evaluate(() => {
 });
 
 const rageKey = await page.evaluate(() => {
-  const index = window.nanoDnf.getLoadout().indexOf("frenzy");
+  let index = window.nanoDnf.getLoadout().indexOf("frenzy");
+    if (index === -1) {
+      const equipped = window.nanoDnf.getLoadout();
+      index = equipped.length - 1;
+      equipped[index] = "frenzy";
+      window.nanoDnf.setLoadout(equipped);
+    }
   return index === -1 ? null : `Key${window.DNFLoadout.SLOT_KEYS[index]}`;
 });
 if (!rageKey) throw new Error("血之狂暴 is not on the hotbar");

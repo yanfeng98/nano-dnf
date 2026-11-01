@@ -153,7 +153,7 @@
    * All four arrows move, because the ground has two axes now: up walks into
    * the screen and down walks back towards the camera. That is the client's own
    * arrangement and it costs the up arrow its old job as a jump alias - jump is
-   * C, or Space. W and S are no substitute: they are hotbar slots 7 and 1.
+   * C, or Space. S is a quickbar slot, not a movement key.
    */
   var KEY_MAP = {
     ArrowLeft: "left",
@@ -162,20 +162,12 @@
     ArrowDown: "down",
     Space: "jump",
     KeyC: "jump",
-    KeyX: "attack",
-    KeyA: "slot0",
-    KeyS: "slot1",
-    KeyD: "slot2",
-    KeyF: "slot3",
-    KeyG: "slot4",
-    KeyH: "slot5",
-    KeyQ: "slot6",
-    KeyW: "slot7",
-    KeyE: "slot8",
-    KeyR: "slot9",
-    KeyT: "slot10",
-    KeyY: "slot11"
+    KeyX: "attack"
   };
+
+  Loadout.SLOT_KEYS.forEach(function (key, index) {
+    KEY_MAP["Key" + key] = "slot" + index;
+  });
 
   /* DNF's own default: Z fires the up-slash wherever it sits in the quickbar. */
   Object.keys(Loadout.SKILL_KEYS).forEach(function (code) {
@@ -2177,7 +2169,7 @@
     hint.textContent =
       "每一格的门口按地图上那一格的方向开：左右走墙边的门，上边走房间深处那扇，下边朝你面前走。" +
       "清空房间后门口会亮。走到领主那一格把它打掉就通关。" +
-      "键盘操作：方向键走，X 普攻，C 跳，A/S/D/F/G/H/Q/W/E/R/T/Y 技能，I/L/K 背包/任务/装备。";
+      "键盘操作：方向键走，X 普攻，C 跳，A/S/D/F/G/H 技能，B 配置技能，I/L/K 背包/任务/装备。";
   })();
 
   window.nanoDnf = {

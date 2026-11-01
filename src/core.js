@@ -923,8 +923,8 @@
      * room with the sword still on his back. A `skillTimer` would have dropped it
      * at the door.
      *
-     * It is not in SKILL_ORDER: that list is the twelve hotbar slots (two rows of
-     * six, all full) and it is also the row index of both baked sheets. Its key is
+     * It is not in SKILL_ORDER: that list is the skill library and the row index
+     * of both baked sheets, independent of the six equipped slots. Its key is
      * its own, the way 上挑's is - see `Loadout.SKILL_KEYS`.
      */
     hellbenter: {

@@ -41,20 +41,7 @@ const MIME = {
  */
 const MAX_SECONDS = 360;
 
-const SLOT_KEYS = [
-  "KeyA",
-  "KeyS",
-  "KeyD",
-  "KeyF",
-  "KeyG",
-  "KeyH",
-  "KeyQ",
-  "KeyW",
-  "KeyE",
-  "KeyR",
-  "KeyT",
-  "KeyY"
-];
+const SLOT_KEYS = ["KeyA", "KeyS", "KeyD", "KeyF", "KeyG", "KeyH"];
 /*
  * All four arrows move now: up walks into the screen and down walks back out.
  * Jump is C, which is also the only key the on-screen hint teaches - this map
@@ -1224,6 +1211,12 @@ async function runPass(browser, baseUrl, options) {
        * the pass's own input path (the slot key on the keyboard, the slot itself
        * on touch), give the fight a moment to draw blood, then take it down.
        */
+      // The recorded bar has six slots. Equip the stance through the same
+      // library drag a player uses, rather than relying on a hidden Q slot.
+      const beforeStance = await page.evaluate(() => window.nanoDnf.getLoadout()[5]);
+      await page.keyboard.press("KeyB");
+      await dragSkillToSlot(page, "frenzy", 5);
+      await page.keyboard.press("KeyB");
       const stance = await page.evaluate(() => {
         const slot = window.nanoDnf.getLoadout().indexOf("frenzy");
         return { slot, code: "Key" + window.DNFLoadout.SLOT_KEYS[slot] };
@@ -1374,6 +1367,10 @@ async function runPass(browser, baseUrl, options) {
         /* From the release loop above, so the two cannot disagree. */
         off: off
       };
+
+      await page.keyboard.press("KeyB");
+      await dragSkillToSlot(page, beforeStance, 5);
+      await page.keyboard.press("KeyB");
 
       /*
        * 魔狱血刹 is the kit's one key that is a *state* rather than a cast
@@ -2524,10 +2521,8 @@ function problemsFor(pass) {
   }
   if (pass.mode === "keyboard") {
     const checks = pass.loadoutChecks;
-    /* Slot Y (the last one) used to be empty; 暴走 lives there now. */
     const defaults =
-      "upSlash,mountainBreaker,crossSlash,bloodSword,graspHead,mountainRift," +
-      "frenzy,bloodyRave,rageBurst,bloodSnatch,bloodEvil,berserk";
+      "upSlash,mountainBreaker,crossSlash,bloodSword,graspHead,mountainRift";
     if (!checks || !checks.arranging) problems.push("keyboard: B did not open the arrange panel");
     if (!checks || checks.dragged.loadout[0] !== "bloodSnatch") {
       problems.push("keyboard: dragging 嗜血 into slot A did not apply");

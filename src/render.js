@@ -506,22 +506,12 @@
     extras: { hurt: 0, dead: 1, jump: 2, fall: 3 }
   };
 
-  /* Hotbar: DNF's two rows of six (A S D F G H / Q W E R T Y). */
-  var SLOT_COUNT = 12;
+  // Recorded V1/V2 row: local x430..647.5, y500..536 (720x540 view).
+  var SLOT_COUNT = 6;
   var SLOT_COLS = 6;
-  /*
-   * 录像的底部技能栏是**紧凑方槽**，不是本作原来的长条 + 技能名。
-   * 6 列 × 2 行（A S D F G H / Q W E R T Y），贴在窗口右下角；
-   * 位置先用 40px 槽估，等 HUD 原件量完再按录像px微调。
-   */
   var BAR = {
-    /*
-     * 录像 A–H 一排在**游戏画面 x860..1295**（band-316.png 逐格量），不是 166；
-     * y1000..1072、每格 ≈72×72。折半后 x430 → 画布 550，格宽 36.25。
-     * 第二排（Q–Y）按条目的 6+6 决定叠在上面，见 `slotButtons`。
-     */
     x: 120 + 430,
-    y: 540 - 76,
+    y: 500,
     slotW: 36.25,
     slotH: 36,
     gap: 0,
@@ -530,19 +520,11 @@
   function slotButtons(layout) {
     var buttons = [];
     for (var index = 0; index < SLOT_COUNT; index += 1) {
-      var column = index % SLOT_COLS;
-      /*
-       * The bar is laid out like the keyboard above it: the Q row (slots 6-11)
-       * sits on top and the A row (slots 0-5) underneath. The slot index still
-       * decides the key, so only the drawing flips - and hit testing uses this
-       * same table, so drag and drop follows the picture.
-       */
-      var row = index < SLOT_COLS ? 1 : 0;
       buttons.push({
         action: "slot" + index,
         index: index,
-        x: layout.x + column * (layout.slotW + layout.gap),
-        y: layout.y + row * (layout.slotH + layout.rowGap),
+        x: layout.x + index * (layout.slotW + layout.gap),
+        y: layout.y,
         w: layout.slotW,
         h: layout.slotH
       });
@@ -7639,7 +7621,7 @@
 
   /*
    * **录像 HUD**（`docs/adr/0064`）：左下红/蓝球、物品槽 1–6、任务条、
-   * 右下 6+6 紧凑技能槽、左上目标条、右侧常驻评分面板。
+   * 右下单排六个紧凑技能槽、左上目标条、右侧常驻评分面板。
    * 玩家卡/房间卡/节奏线/提示都撤掉；球与槽的位置先按录像比例估，
    * 客户端 HUD 原件回来后按录像px微调。
    */
@@ -7654,7 +7636,7 @@
      *   物品槽 1–6   x170..585   y1000..1072  每格 ≈69×72
      *   中央圆盘     x600..820   y912 以上伸出     C 按钮心 ≈(720, 958)
      *   技能槽 A–H   x860..1295  y1000..1072  每格 ≈72×72
-     *   任务条       x890..1210  y930..975
+     *   任务条       76.25s重新量到local x448..626、y477..497（见0072）
      *   等级卡       “Lv.6” x160..215，绿经验条 x260..390 / y969..989
      *
      * 折到本作 720×540（÷2，x 再加窗口左缘 120）就是下面这些数。
@@ -7670,12 +7652,10 @@
      * 反而是一个录像里没有的青色方块。底条自带的 SP 位先留着，找到原件再补。
      */
     /*
-     * 任务条在录像里压在技能排**正上方**（local 465..489）；本作 6+6 的第二排
-     * 正好占那一条，所以往上让一格（local 424..448），x 仍是录像的 445..605。
-     * **暂停时不画**：暂停页的「到达 走过 N 间」正好落在这一行上（2026-10-28 复核），
-     * 两行字叠在一起谁也读不清；暂停也不在玩，任务条没有信息价值。
+     * V2 76.25s原片外框约local x448..626、y477..497，重测替代旧y465估计。
+     * 暂停页有独立读数，仍暂时隐藏任务条。
      */
-    if (!meta.paused) drawQuestTracker(ctx, state, sprites, 565, 424, 160, 24, meta.progress);
+    if (!meta.paused) drawQuestTracker(ctx, state, sprites, 568, 477, 178, 20, meta.progress);
     drawTargetPanel(ctx, state, sprites);
     drawRatingPanel(ctx, state);
     /* 等级卡：录像里 “Lv.6” 与绿经验条都在底条左侧，不是屏幕底下一条细线。 */
@@ -7818,13 +7798,13 @@
      * 这个客户端版本里找不到对应原件 —— `mission.img` f0/f3/f5 是竖着的高面板，
      * `battledungeon.img` f0 写的是「戰場列表」，`quest_tag.img` 是任务类型标签
      * （史诗/主线/重复…）。与其拿错的底板充数，先画一条同位置的深色横条：
-     * 位置（x445..605、高 24）按 band-13.png 量，样式等原件找到再换。
+     * 外框按V2 76.25s重新量到local x448..626、y477..497，样式等原件找到再换。
      */
     panel(ctx, x, y, w, h, 5);
     ctx.fillStyle = "#e8d7a8";
-    ctx.font = "700 11px 'PingFang SC', 'Segoe UI', sans-serif";
+    ctx.font = "700 13px 'PingFang SC', 'Segoe UI', sans-serif";
     ctx.textAlign = "left";
-    ctx.fillText("任务", x + 8, y + 15);
+    ctx.fillText("任务", x + 12, y + 15);
     ctx.fillStyle = "rgba(225, 232, 240, 0.88)";
     ctx.font = "600 10px 'PingFang SC', 'Segoe UI', sans-serif";
     var name = state.stage && state.stage.name ? state.stage.name : "幽暗密林深处";
@@ -7841,7 +7821,10 @@
         break;
       }
     }
-    ctx.fillText(line, x + 38, y + 15);
+    ctx.beginPath();
+    ctx.rect(x + 44, y + 2, w - 48, h - 4);
+    ctx.clip();
+    ctx.fillText(line, x + 44, y + 15);
     ctx.restore();
   }
 
@@ -7995,7 +7978,7 @@
   function drawSkillBar(ctx, state, sprites, loadout, compact) {
     var player = state.player;
     var slots = loadout || [];
-    var keys = ["A", "S", "D", "F", "G", "H", "Q", "W", "E", "R", "T", "Y"];
+    var keys = ["A", "S", "D", "F", "G", "H"];
     var buttons = skillBarButtons();
     var iconIndex = {};
     Core.SKILL_ORDER.forEach(function (skillId, index) {
@@ -8127,9 +8110,9 @@
 
     /*
      * **魔狱血刹's key, drawn where this game says which keys exist.** It is not
-     * a slot - the twelve are the player's own arrangement and it is not in them
+     * a slot - the six are the player's own arrangement and it is not in them
      * (docs/adr/0025) - so it gets a tile of its own at the end of the bar rather
-     * than a thirteenth cell. The first cut of this slice had no tile at all, and
+     * than a seventh cell. The first cut of this slice had no tile at all, and
      * the owner played it and reported the only thing there was to report:
      * 「没看到技能」. A move the bar cannot show is a move nobody finds.
      *
@@ -8154,7 +8137,7 @@
         x: BAR.x + SLOT_COLS * (BAR.slotW + BAR.gap),
         y: BAR.y,
         w: BAR.slotW,
-        h: BAR.slotH * 2 + BAR.rowGap
+        h: BAR.slotH
       };
       ctx.save();
       ctx.fillStyle = swordUp
