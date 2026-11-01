@@ -1,0 +1,44 @@
+[
+  {
+    "mode": "town",
+    "share": 0,
+    "width": 0,
+    "left": 160,
+    "right": -1
+  },
+  {
+    "mode": "town",
+    "share": 0.5,
+    "width": 80,
+    "left": 0,
+    "right": 79
+  },
+  {
+    "mode": "town",
+    "share": 1,
+    "width": 158,
+    "left": 1,
+    "right": 158
+  },
+  {
+    "mode": "dungeon",
+    "share": 0,
+    "width": 0,
+    "left": 160,
+    "right": -1
+  },
+  {
+    "mode": "dungeon",
+    "share": 0.5,
+    "width": 80,
+    "left": 0,
+    "right": 79
+  },
+  {
+    "mode": "dungeon",
+    "share": 1,
+    "width": 158,
+    "left": 1,
+    "right": 158
+  }
+]

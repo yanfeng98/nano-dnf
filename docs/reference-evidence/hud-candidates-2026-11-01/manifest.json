@@ -1,0 +1,8406 @@
+[
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 0,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 1,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 2,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 3,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 4,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 5,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 6,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 7,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 8,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 9,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 10,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 11,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 12,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 13,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 14,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 15,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 16,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 17,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 18,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 19,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 20,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 21,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 22,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 23,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 24,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 25,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 26,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 27,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 28,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 29,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 30,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 31,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 32,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 33,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 34,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 35,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 36,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 37,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 38,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 39,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 40,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 41,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 42,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 43,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 44,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 45,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 46,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 47,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 48,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 49,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 50,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 51,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 52,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 53,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 54,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 55,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 56,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 57,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 58,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 59,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 60,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 61,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 62,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 63,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 64,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 65,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 66,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 67,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 68,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 69,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 70,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 71,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 72,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 73,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 74,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 75,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 76,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 77,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 78,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 79,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 80,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 81,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 82,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 83,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 84,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 85,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 86,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 87,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 88,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 89,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 90,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 91,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 92,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 93,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 94,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 95,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 96,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 97,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 98,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 99,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 100,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 101,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 102,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 103,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 104,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 105,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 106,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 107,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 108,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 109,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 110,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 111,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 112,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 113,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 114,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 115,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 116,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 117,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 118,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 119,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hpmp_vessel.img",
+    "frame": 120,
+    "size": [
+      59,
+      59
+    ],
+    "sheet": "new-hpmp_vessel.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 0,
+    "size": [
+      820,
+      81
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 1,
+    "size": [
+      56,
+      56
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 2,
+    "size": [
+      56,
+      56
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 3,
+    "size": [
+      150,
+      3
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 4,
+    "size": [
+      617,
+      3
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 5,
+    "size": [
+      24,
+      29
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 6,
+    "size": [
+      24,
+      29
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 7,
+    "size": [
+      24,
+      29
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 8,
+    "size": [
+      24,
+      29
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 9,
+    "size": [
+      24,
+      29
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 10,
+    "size": [
+      24,
+      29
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 11,
+    "size": [
+      24,
+      29
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 12,
+    "size": [
+      24,
+      29
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 13,
+    "size": [
+      24,
+      29
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 14,
+    "size": [
+      24,
+      29
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 15,
+    "size": [
+      24,
+      29
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 16,
+    "size": [
+      24,
+      29
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 17,
+    "size": [
+      24,
+      29
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 18,
+    "size": [
+      24,
+      29
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 19,
+    "size": [
+      24,
+      29
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 20,
+    "size": [
+      56,
+      56
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 21,
+    "size": [
+      81,
+      2
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 22,
+    "size": [
+      150,
+      3
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 23,
+    "size": [
+      150,
+      3
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 24,
+    "size": [
+      150,
+      3
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 25,
+    "size": [
+      150,
+      3
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 26,
+    "size": [
+      150,
+      3
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 27,
+    "size": [
+      617,
+      3
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 28,
+    "size": [
+      617,
+      3
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 29,
+    "size": [
+      617,
+      3
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 30,
+    "size": [
+      12,
+      13
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 31,
+    "size": [
+      12,
+      13
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 32,
+    "size": [
+      12,
+      13
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 33,
+    "size": [
+      12,
+      13
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 34,
+    "size": [
+      12,
+      13
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 35,
+    "size": [
+      12,
+      13
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 36,
+    "size": [
+      56,
+      56
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 37,
+    "size": [
+      27,
+      27
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 38,
+    "size": [
+      40,
+      55
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 39,
+    "size": [
+      13,
+      51
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 40,
+    "size": [
+      24,
+      13
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 41,
+    "size": [
+      19,
+      18
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 42,
+    "size": [
+      24,
+      27
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 43,
+    "size": [
+      14,
+      20
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 44,
+    "size": [
+      14,
+      5
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 45,
+    "size": [
+      448,
+      7
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 46,
+    "size": [
+      87,
+      1
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 47,
+    "size": [
+      35,
+      35
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 48,
+    "size": [
+      23,
+      23
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 49,
+    "size": [
+      29,
+      7
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 50,
+    "size": [
+      37,
+      15
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 51,
+    "size": [
+      218,
+      21
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 52,
+    "size": [
+      15,
+      32
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 53,
+    "size": [
+      15,
+      32
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 54,
+    "size": [
+      15,
+      32
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 55,
+    "size": [
+      15,
+      32
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 56,
+    "size": [
+      15,
+      32
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 57,
+    "size": [
+      15,
+      32
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 58,
+    "size": [
+      15,
+      32
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 59,
+    "size": [
+      15,
+      32
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 60,
+    "size": [
+      617,
+      3
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 61,
+    "size": [
+      50,
+      26
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 62,
+    "size": [
+      310,
+      42
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 63,
+    "size": [
+      131,
+      30
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 64,
+    "size": [
+      56,
+      56
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 65,
+    "size": [
+      29,
+      16
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 66,
+    "size": [
+      572,
+      27
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 67,
+    "size": [
+      23,
+      23
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 68,
+    "size": [
+      54,
+      29
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 69,
+    "size": [
+      54,
+      29
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 70,
+    "size": [
+      54,
+      29
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 71,
+    "size": [
+      54,
+      29
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 72,
+    "size": [
+      54,
+      29
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 73,
+    "size": [
+      54,
+      29
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 74,
+    "size": [
+      54,
+      29
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 75,
+    "size": [
+      54,
+      29
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 76,
+    "size": [
+      800,
+      23
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 77,
+    "size": [
+      35,
+      35
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 78,
+    "size": [
+      35,
+      35
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 79,
+    "size": [
+      35,
+      35
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 80,
+    "size": [
+      34,
+      35
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 81,
+    "size": [
+      211,
+      26
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 82,
+    "size": [
+      800,
+      24
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 83,
+    "size": [
+      29,
+      16
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 84,
+    "size": [
+      800,
+      43
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 85,
+    "size": [
+      27,
+      27
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 86,
+    "size": [
+      44,
+      44
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 87,
+    "size": [
+      27,
+      27
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 88,
+    "size": [
+      40,
+      40
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 89,
+    "size": [
+      40,
+      40
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 90,
+    "size": [
+      39,
+      40
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 91,
+    "size": [
+      40,
+      40
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 92,
+    "size": [
+      63,
+      22
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 93,
+    "size": [
+      24,
+      29
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 94,
+    "size": [
+      24,
+      29
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 95,
+    "size": [
+      24,
+      29
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 96,
+    "size": [
+      24,
+      29
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 97,
+    "size": [
+      24,
+      26
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 98,
+    "size": [
+      22,
+      24
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 99,
+    "size": [
+      51,
+      30
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 100,
+    "size": [
+      35,
+      14
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 101,
+    "size": [
+      22,
+      22
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 102,
+    "size": [
+      13,
+      13
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 103,
+    "size": [
+      25,
+      29
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 104,
+    "size": [
+      189,
+      98
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 105,
+    "size": [
+      115,
+      20
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 106,
+    "size": [
+      76,
+      76
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 107,
+    "size": [
+      50,
+      65
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 108,
+    "size": [
+      56,
+      71
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 109,
+    "size": [
+      25,
+      29
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 110,
+    "size": [
+      26,
+      17
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 111,
+    "size": [
+      61,
+      9
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 112,
+    "size": [
+      61,
+      9
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 113,
+    "size": [
+      61,
+      9
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 114,
+    "size": [
+      61,
+      9
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 115,
+    "size": [
+      27,
+      27
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 116,
+    "size": [
+      49,
+      74
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 117,
+    "size": [
+      56,
+      89
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 118,
+    "size": [
+      18,
+      17
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 119,
+    "size": [
+      800,
+      65
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 120,
+    "size": [
+      48,
+      48
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 121,
+    "size": [
+      48,
+      48
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 122,
+    "size": [
+      48,
+      48
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 123,
+    "size": [
+      48,
+      48
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 124,
+    "size": [
+      621,
+      32
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 125,
+    "size": [
+      617,
+      3
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 126,
+    "size": [
+      58,
+      39
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 127,
+    "size": [
+      52,
+      14
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 128,
+    "size": [
+      52,
+      9
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 129,
+    "size": [
+      4,
+      26
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 130,
+    "size": [
+      4,
+      26
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 131,
+    "size": [
+      4,
+      26
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 132,
+    "size": [
+      233,
+      75
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 133,
+    "size": [
+      233,
+      77
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 134,
+    "size": [
+      49,
+      46
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 135,
+    "size": [
+      197,
+      27
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 136,
+    "size": [
+      18,
+      18
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 137,
+    "size": [
+      18,
+      18
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 138,
+    "size": [
+      18,
+      18
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 139,
+    "size": [
+      18,
+      18
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 140,
+    "size": [
+      34,
+      34
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 141,
+    "size": [
+      41,
+      12
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 142,
+    "size": [
+      1067,
+      600
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 143,
+    "size": [
+      97,
+      25
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 144,
+    "size": [
+      22,
+      17
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 145,
+    "size": [
+      35,
+      35
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 146,
+    "size": [
+      23,
+      23
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/hud02.img",
+    "frame": 147,
+    "size": [
+      238,
+      27
+    ],
+    "sheet": "new-hud02.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 0,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 1,
+    "size": [
+      65,
+      65
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 2,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 3,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 4,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 5,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 6,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 7,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 8,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 9,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 10,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 11,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 12,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 13,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 14,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 15,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 16,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 17,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 18,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 19,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 20,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 21,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 22,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 23,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 24,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 25,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 26,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 27,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 28,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 29,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 30,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 31,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 32,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 33,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 34,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 35,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 36,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 37,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 38,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 39,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 40,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 41,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 42,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 43,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 44,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 45,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 46,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 47,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 48,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 49,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 50,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 51,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 52,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 53,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 54,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 55,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 56,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 57,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 58,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 59,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 60,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 61,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 62,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 63,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 64,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 65,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 66,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 67,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 68,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 69,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 70,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 71,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 72,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 73,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 74,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 75,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 76,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 77,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 78,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 79,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 80,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 81,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 82,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 83,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 84,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 85,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 86,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 87,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 88,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 89,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 90,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 91,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 92,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 93,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 94,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 95,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 96,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 97,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 98,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 99,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 100,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 101,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 102,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 103,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 104,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 105,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 106,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 107,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 108,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 109,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 110,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 111,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 112,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 113,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 114,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 115,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 116,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 117,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 118,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 119,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 120,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 121,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 122,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 123,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 124,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 125,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 126,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 127,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 128,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 129,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 130,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 131,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 132,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 133,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 134,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 135,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 136,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 137,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 138,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 139,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 140,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 141,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 142,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 143,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 144,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 145,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 146,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 147,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 148,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud.NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 149,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "new-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 0,
+    "size": [
+      800,
+      91
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 1,
+    "size": [
+      56,
+      56
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 2,
+    "size": [
+      56,
+      56
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 3,
+    "size": [
+      200,
+      3
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 4,
+    "size": [
+      625,
+      4
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 5,
+    "size": [
+      24,
+      26
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 6,
+    "size": [
+      24,
+      26
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 7,
+    "size": [
+      24,
+      26
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 8,
+    "size": [
+      24,
+      26
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 9,
+    "size": [
+      24,
+      26
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 10,
+    "size": [
+      24,
+      26
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 11,
+    "size": [
+      24,
+      26
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 12,
+    "size": [
+      24,
+      26
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 13,
+    "size": [
+      24,
+      26
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 14,
+    "size": [
+      24,
+      26
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 15,
+    "size": [
+      24,
+      26
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 16,
+    "size": [
+      24,
+      26
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 17,
+    "size": [
+      24,
+      26
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 18,
+    "size": [
+      24,
+      26
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 19,
+    "size": [
+      24,
+      26
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 20,
+    "size": [
+      56,
+      56
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 21,
+    "size": [
+      81,
+      2
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 22,
+    "size": [
+      200,
+      3
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 23,
+    "size": [
+      200,
+      3
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 24,
+    "size": [
+      200,
+      3
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 25,
+    "size": [
+      200,
+      3
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 26,
+    "size": [
+      200,
+      3
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 27,
+    "size": [
+      625,
+      4
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 28,
+    "size": [
+      625,
+      4
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 29,
+    "size": [
+      625,
+      4
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 30,
+    "size": [
+      12,
+      13
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 31,
+    "size": [
+      12,
+      13
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 32,
+    "size": [
+      12,
+      13
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 33,
+    "size": [
+      12,
+      13
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 34,
+    "size": [
+      12,
+      13
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 35,
+    "size": [
+      12,
+      13
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 36,
+    "size": [
+      56,
+      56
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 37,
+    "size": [
+      48,
+      48
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 38,
+    "size": [
+      40,
+      55
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 39,
+    "size": [
+      13,
+      51
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 40,
+    "size": [
+      24,
+      13
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 41,
+    "size": [
+      19,
+      18
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 42,
+    "size": [
+      24,
+      27
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 43,
+    "size": [
+      14,
+      20
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 44,
+    "size": [
+      14,
+      5
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 45,
+    "size": [
+      448,
+      7
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 46,
+    "size": [
+      87,
+      1
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 47,
+    "size": [
+      35,
+      35
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 48,
+    "size": [
+      23,
+      23
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 49,
+    "size": [
+      29,
+      7
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 50,
+    "size": [
+      37,
+      15
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 51,
+    "size": [
+      218,
+      21
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 52,
+    "size": [
+      14,
+      26
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 53,
+    "size": [
+      14,
+      26
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 54,
+    "size": [
+      14,
+      26
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 55,
+    "size": [
+      14,
+      26
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 56,
+    "size": [
+      14,
+      26
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 57,
+    "size": [
+      14,
+      26
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 58,
+    "size": [
+      14,
+      26
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 59,
+    "size": [
+      14,
+      26
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 60,
+    "size": [
+      625,
+      4
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 61,
+    "size": [
+      50,
+      26
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 62,
+    "size": [
+      310,
+      42
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 63,
+    "size": [
+      131,
+      30
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 64,
+    "size": [
+      56,
+      56
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 65,
+    "size": [
+      29,
+      16
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 66,
+    "size": [
+      572,
+      27
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 67,
+    "size": [
+      23,
+      23
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 68,
+    "size": [
+      51,
+      26
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 69,
+    "size": [
+      51,
+      26
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 70,
+    "size": [
+      51,
+      26
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 71,
+    "size": [
+      51,
+      26
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 72,
+    "size": [
+      50,
+      26
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 73,
+    "size": [
+      50,
+      26
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 74,
+    "size": [
+      50,
+      26
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 75,
+    "size": [
+      50,
+      26
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 76,
+    "size": [
+      800,
+      23
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 77,
+    "size": [
+      35,
+      35
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 78,
+    "size": [
+      35,
+      35
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 79,
+    "size": [
+      35,
+      35
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 80,
+    "size": [
+      34,
+      35
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 81,
+    "size": [
+      211,
+      26
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 82,
+    "size": [
+      800,
+      24
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 83,
+    "size": [
+      29,
+      16
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 84,
+    "size": [
+      800,
+      43
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 85,
+    "size": [
+      27,
+      27
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 86,
+    "size": [
+      44,
+      44
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 87,
+    "size": [
+      27,
+      27
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 88,
+    "size": [
+      63,
+      22
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 89,
+    "size": [
+      63,
+      22
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 90,
+    "size": [
+      62,
+      21
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 91,
+    "size": [
+      63,
+      22
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 92,
+    "size": [
+      63,
+      22
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 93,
+    "size": [
+      24,
+      26
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 94,
+    "size": [
+      24,
+      26
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 95,
+    "size": [
+      24,
+      26
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 96,
+    "size": [
+      24,
+      26
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 97,
+    "size": [
+      24,
+      26
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 98,
+    "size": [
+      22,
+      24
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 99,
+    "size": [
+      51,
+      30
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 100,
+    "size": [
+      35,
+      14
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 101,
+    "size": [
+      22,
+      22
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 102,
+    "size": [
+      13,
+      13
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 103,
+    "size": [
+      25,
+      29
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 104,
+    "size": [
+      189,
+      98
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 105,
+    "size": [
+      115,
+      20
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 106,
+    "size": [
+      76,
+      76
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 107,
+    "size": [
+      50,
+      65
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 108,
+    "size": [
+      56,
+      71
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 109,
+    "size": [
+      25,
+      29
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 110,
+    "size": [
+      26,
+      17
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 111,
+    "size": [
+      35,
+      23
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 112,
+    "size": [
+      35,
+      23
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/hud.img",
+    "frame": 113,
+    "size": [
+      35,
+      23
+    ],
+    "sheet": "ex-hud.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 0,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 1,
+    "size": [
+      65,
+      65
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 2,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 3,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 4,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 5,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 6,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 7,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 8,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 9,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 10,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 11,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 12,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 13,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 14,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 15,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 16,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 17,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 18,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 19,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 20,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 21,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 22,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 23,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 24,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 25,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 26,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 27,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 28,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 29,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 30,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 31,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 32,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 33,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 34,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 35,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 36,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 37,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 38,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 39,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 40,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 41,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 42,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 43,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 44,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 45,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 46,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 47,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 48,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 49,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 50,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 51,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 52,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 53,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 54,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 55,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 56,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 57,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 58,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 59,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 60,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 61,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 62,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 63,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 64,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 65,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 66,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 67,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 68,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 69,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 70,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 71,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 72,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 73,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 74,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 75,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 76,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 77,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 78,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 79,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 80,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 81,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 82,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 83,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 84,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 85,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 86,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 87,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 88,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 89,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 90,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 91,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 92,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 93,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 94,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 95,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 96,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 97,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 98,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 99,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 100,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 101,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 102,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 103,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 104,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 105,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 106,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 107,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 108,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2",
+    "pack": "sprite_interface2_hud(ex).NPK",
+    "entry": "sprite/interface2/hud/menu_icon.img",
+    "frame": 109,
+    "size": [
+      55,
+      55
+    ],
+    "sheet": "ex-menu_icon.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 0,
+    "size": [
+      640,
+      88
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 1,
+    "size": [
+      56,
+      56
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 2,
+    "size": [
+      56,
+      56
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 3,
+    "size": [
+      86,
+      3
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 4,
+    "size": [
+      497,
+      3
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 5,
+    "size": [
+      14,
+      24
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 6,
+    "size": [
+      14,
+      24
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 7,
+    "size": [
+      14,
+      24
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 8,
+    "size": [
+      14,
+      24
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 9,
+    "size": [
+      14,
+      24
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 10,
+    "size": [
+      14,
+      24
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 11,
+    "size": [
+      14,
+      24
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 12,
+    "size": [
+      14,
+      24
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 13,
+    "size": [
+      14,
+      24
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 14,
+    "size": [
+      14,
+      24
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 15,
+    "size": [
+      14,
+      24
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 16,
+    "size": [
+      14,
+      24
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 17,
+    "size": [
+      14,
+      24
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 18,
+    "size": [
+      14,
+      24
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 19,
+    "size": [
+      14,
+      24
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 20,
+    "size": [
+      56,
+      56
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 21,
+    "size": [
+      81,
+      2
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 22,
+    "size": [
+      86,
+      3
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 23,
+    "size": [
+      86,
+      3
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 24,
+    "size": [
+      86,
+      3
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 25,
+    "size": [
+      86,
+      3
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 26,
+    "size": [
+      86,
+      3
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 27,
+    "size": [
+      497,
+      3
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 28,
+    "size": [
+      497,
+      3
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 29,
+    "size": [
+      497,
+      3
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 30,
+    "size": [
+      7,
+      11
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 31,
+    "size": [
+      7,
+      11
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 32,
+    "size": [
+      7,
+      11
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 33,
+    "size": [
+      7,
+      11
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 34,
+    "size": [
+      7,
+      11
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 35,
+    "size": [
+      7,
+      11
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 36,
+    "size": [
+      56,
+      56
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 37,
+    "size": [
+      8,
+      20
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 38,
+    "size": [
+      8,
+      19
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 39,
+    "size": [
+      20,
+      19
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 40,
+    "size": [
+      20,
+      18
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 41,
+    "size": [
+      20,
+      19
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 42,
+    "size": [
+      20,
+      18
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 43,
+    "size": [
+      18,
+      19
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 44,
+    "size": [
+      18,
+      18
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 45,
+    "size": [
+      20,
+      19
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 46,
+    "size": [
+      20,
+      19
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 47,
+    "size": [
+      20,
+      19
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 48,
+    "size": [
+      20,
+      18
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 49,
+    "size": [
+      18,
+      18
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 50,
+    "size": [
+      18,
+      18
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 51,
+    "size": [
+      20,
+      19
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 52,
+    "size": [
+      20,
+      18
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 53,
+    "size": [
+      20,
+      20
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 54,
+    "size": [
+      89,
+      89
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 55,
+    "size": [
+      65,
+      42
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 56,
+    "size": [
+      39,
+      55
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 57,
+    "size": [
+      14,
+      51
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 58,
+    "size": [
+      25,
+      12
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 59,
+    "size": [
+      18,
+      16
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 60,
+    "size": [
+      24,
+      24
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 61,
+    "size": [
+      10,
+      20
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 62,
+    "size": [
+      12,
+      5
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 63,
+    "size": [
+      448,
+      7
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 64,
+    "size": [
+      20,
+      20
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 65,
+    "size": [
+      20,
+      20
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 66,
+    "size": [
+      87,
+      1
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 67,
+    "size": [
+      18,
+      20
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 68,
+    "size": [
+      18,
+      19
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 69,
+    "size": [
+      20,
+      19
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 70,
+    "size": [
+      20,
+      19
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 71,
+    "size": [
+      20,
+      19
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 72,
+    "size": [
+      20,
+      19
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 73,
+    "size": [
+      20,
+      19
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 74,
+    "size": [
+      20,
+      18
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 75,
+    "size": [
+      18,
+      20
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 76,
+    "size": [
+      18,
+      19
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 77,
+    "size": [
+      40,
+      39
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 78,
+    "size": [
+      23,
+      23
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 79,
+    "size": [
+      29,
+      7
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 80,
+    "size": [
+      37,
+      15
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 81,
+    "size": [
+      104,
+      21
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 82,
+    "size": [
+      19,
+      20
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 83,
+    "size": [
+      19,
+      19
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 84,
+    "size": [
+      16,
+      17
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 85,
+    "size": [
+      16,
+      17
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 86,
+    "size": [
+      8,
+      26
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 87,
+    "size": [
+      8,
+      26
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 88,
+    "size": [
+      8,
+      26
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 89,
+    "size": [
+      8,
+      26
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 90,
+    "size": [
+      8,
+      26
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 91,
+    "size": [
+      8,
+      26
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 92,
+    "size": [
+      8,
+      26
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 93,
+    "size": [
+      8,
+      26
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 94,
+    "size": [
+      497,
+      3
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 95,
+    "size": [
+      20,
+      19
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 96,
+    "size": [
+      20,
+      19
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 97,
+    "size": [
+      20,
+      20
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 98,
+    "size": [
+      20,
+      19
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 99,
+    "size": [
+      20,
+      20
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 100,
+    "size": [
+      20,
+      19
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 101,
+    "size": [
+      50,
+      26
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 102,
+    "size": [
+      18,
+      19
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 103,
+    "size": [
+      18,
+      19
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 104,
+    "size": [
+      18,
+      19
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 105,
+    "size": [
+      310,
+      42
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 106,
+    "size": [
+      134,
+      38
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 107,
+    "size": [
+      18,
+      18
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 108,
+    "size": [
+      18,
+      18
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 109,
+    "size": [
+      18,
+      18
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 110,
+    "size": [
+      18,
+      18
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 111,
+    "size": [
+      18,
+      18
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 112,
+    "size": [
+      18,
+      20
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 113,
+    "size": [
+      56,
+      56
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 114,
+    "size": [
+      20,
+      19
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 115,
+    "size": [
+      47,
+      15
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 116,
+    "size": [
+      572,
+      27
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 117,
+    "size": [
+      20,
+      18
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 118,
+    "size": [
+      19,
+      18
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 119,
+    "size": [
+      14,
+      18
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "pack": "sprite_interface.NPK",
+    "entry": "sprite/interface/mainhud.img",
+    "frame": 120,
+    "size": [
+      14,
+      18
+    ],
+    "sheet": "legacy-mainhud.jpg"
+  }
+]

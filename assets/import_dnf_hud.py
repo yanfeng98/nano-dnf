@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """Bake the combat HUD pieces out of the DNF client into `assets/hud.png`.
 
-The recording's HUD is the client's 800x600 layout at **x1.8** (measured
-2026-10-24: bottom bar 800x91 -> 1440x164, slot 40x39 -> 72x70, orb 56x56 ->
-~101 px).  We bake the client pieces at their own size and let `render.js`
-place them at the recording's rectangles.
+The installed client supplies round vessels and a different bottom bar from
+those in the recordings. Socket/liquid capsules remain an adaptation, not an
+identified matching HUD skin. The green progress texture (hud.img f22) is reused
+for the XP fill; its measured track geometry belongs to the renderer.
 
-    python3 assets/import_dnf_hud.py --client /home/luyanfeng/dnf-client/地下城与勇士
+    python3 assets/import_dnf_hud.py --client /mnt/c/dnf/地下城与勇士
     python3 assets/import_dnf_hud.py --table
 """
 
@@ -35,19 +35,21 @@ QUEST = "sprite_interface2_quest_mission.NPK"
 # (name, pack, entry, first frame, count, note)
 RUNS = [
     ("hudBar", HUD, "sprite/interface2/hud/hud.img", 0, 1,
-     "底部主 HUD 条 800x91（录像 1440x164 的来源）"),
+     "当前客户端底条800x91；并非已匹配的录像原皮肤"),
     ("orbRed", HUD, "sprite/interface2/hud/hud.img", 1, 1,
      "红 HP 球液体 56x56"),
     ("orbBlue", HUD, "sprite/interface2/hud/hud.img", 2, 1,
      "蓝 MP 球液体 56x56"),
     ("slotFrame", IFACE, "sprite/interface/mainhud.img", 77, 1,
-     "技能/物品槽框 40x39（录像 72x70）"),
+     "客户端镶嵌槽/绿珠框40x39；非战斗空槽，保留旧表兼容"),
     ("menu", HUD, "sprite/interface2/hud/menu_icon.img", 1, 1,
-     "中央圆形菜单 65x65（录像约 117px）"),
+     "菜单高亮方框65x65，非录像中央圆盘；保留旧表兼容"),
     ("quest", QUEST, "sprite/interface2/quest/mission/mission.img", 0, 1,
-     "任务追踪底板 154x52"),
+     "客户端mission面板，非录像横向任务条原件"),
     ("chat", IFACE, "sprite/interface/chatting.img", 0, 1,
      "旧式聊天框底板 317x146"),
+    ("xpFill", HUD, "sprite/interface2/hud/hud.img", 22, 1,
+     "客户端绿色进度纹理200x3；用于经验条，不声称整套皮肤与录像同版"),
 ]
 
 

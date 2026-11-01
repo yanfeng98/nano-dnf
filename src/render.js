@@ -2075,8 +2075,9 @@
     menu: { cell: [65, 65], anchor: [0, 0], ink: [1, 1, 63, 63], frames: [[992, 0, 65, 65]] },
     quest: { cell: [154, 52], anchor: [0, 0], ink: [0, 0, 154, 52], frames: [[1057, 0, 154, 52]] },
     chat: { cell: [317, 146], anchor: [0, 0], ink: [0, 0, 317, 146], frames: [[1211, 0, 317, 146]] },
-    socketLeft: { cell: [108, 176], anchor: [0, 0], ink: [0, 0, 108, 176], frames: [[0, 146, 108, 176]] },
-    socketRight: { cell: [108, 176], anchor: [0, 0], ink: [0, 0, 108, 176], frames: [[108, 146, 108, 176]] },
+    xpFill: { cell: [200, 3], anchor: [0, 0], ink: [0, 0, 200, 3], frames: [[0, 146, 200, 3]] },
+    socketLeft: { cell: [108, 176], anchor: [0, 0], ink: [0, 0, 108, 176], frames: [[200, 146, 108, 176]] },
+    socketRight: { cell: [108, 176], anchor: [0, 0], ink: [0, 0, 108, 176], frames: [[308, 146, 108, 176]] },
   };
 
   /*
@@ -7564,7 +7565,7 @@
     var maxMp = player.maxMp || 1;
     drawHudOrb(ctx, sprites, HUD_ORB.left, (player.hp === undefined ? maxHp : player.hp) / maxHp, HUD_UI.orbRed);
     drawHudOrb(ctx, sprites, HUD_ORB.right, (player.mp === undefined ? maxMp : player.mp) / maxMp, HUD_UI.orbBlue);
-    drawLevelCard(ctx, player);
+    drawLevelCard(ctx, player, sprites);
     drawItemSlots(ctx, sprites, 205, 500, 34.6, 36, 0, meta.progress);
     if (meta.state && meta.loadout) {
       drawSkillBar(ctx, meta.state, sprites, meta.loadout, true, false);
@@ -7637,7 +7638,7 @@
      *   中央圆盘     x600..820   y912 以上伸出     C 按钮心 ≈(720, 958)
      *   技能槽 A–H   x860..1295  y1000..1072  每格 ≈72×72
      *   任务条       76.25s重新量到local x448..626、y477..497（见0072）
-     *   等级卡       “Lv.6” x160..215，绿经验条 x260..390 / y969..989
+     *   等级卡       “Lv.6” x160..215，绿经验条填充区 local x134..294 / y485..493（第七批重测）
      *
      * 折到本作 720×540（÷2，x 再加窗口左缘 120）就是下面这些数。
      */
@@ -7659,7 +7660,7 @@
     drawTargetPanel(ctx, state, sprites);
     drawRatingPanel(ctx, state);
     /* 等级卡：录像里 “Lv.6” 与绿经验条都在底条左侧，不是屏幕底下一条细线。 */
-    drawLevelCard(ctx, player);
+    drawLevelCard(ctx, player, sprites);
     if (player.comboTimer > 0 && player.comboIndex > 0) {
       ctx.save();
       ctx.textAlign = "right";
@@ -7688,20 +7689,26 @@
    * 不是屏幕底下一条细线。副本与城镇共用同一张卡 —— 城镇以前漏了它，
    * 底条左边空一块（2026-10-28 复核）。
    */
-  function drawLevelCard(ctx, player) {
-    var xpX = 250;
-    var xpW = 65;
-    var xpY = 484;
+  function drawLevelCard(ctx, player, sprites) {
+    // V2 76.25s: the *whole* track is x134..294 at y485..493.
+    // The old 65px width covered only part of the visible track.
+    var xpX = 254;
+    var xpW = 160;
+    var xpY = 485;
     var xp = Math.max(0, (player && player.xp) || 0);
     var next = Math.max(1, (player && player.xpToNext) || 1);
+    var fillW = xpW * clamp01(xp / next);
     ctx.save();
     ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
-    ctx.fillRect(xpX, xpY, xpW, 10);
-    ctx.fillStyle = "#7ed26a";
-    ctx.fillRect(xpX, xpY, xpW * clamp01(xp / next), 10);
+    ctx.fillRect(xpX, xpY, xpW, 8);
+    if (fillW > 0 && !drawHudFrame(ctx, sprites, HUD_UI.xpFill, xpX, xpY, fillW, 8)) {
+      ctx.fillStyle = "#7ed26a";
+      ctx.fillRect(xpX, xpY, fillW, 8);
+    }
+    // The matching old HUD skin is still missing; this frame remains pending.
     ctx.strokeStyle = "rgba(226, 191, 114, 0.55)";
     ctx.lineWidth = 1;
-    ctx.strokeRect(xpX + 0.5, xpY + 0.5, xpW - 1, 9);
+    ctx.strokeRect(xpX - 1.5, xpY - 1.5, xpW + 3, 11);
     ctx.fillStyle = "#e8ecef";
     ctx.font = "700 11px 'Segoe UI', system-ui, sans-serif";
     ctx.textAlign = "left";

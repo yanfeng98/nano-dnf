@@ -8601,7 +8601,7 @@ test("the town HUD shows the level card the dungeon already has", () => {
   });
   const texts = calls.filter((call) => call[0] === "fillText").map((call) => String(call[1]));
   assert.ok(texts.includes("Lv.7"), `the town bar must carry the level card: ${texts.join(" / ")}`);
-  const bar = calls.find((call) => call[0] === "fillRect" && call[3] === 65 && call[4] === 10);
+  const bar = calls.find((call) => call[0] === "fillRect" && call[3] === 160 && call[4] === 8);
   assert.ok(bar, "the XP bar is part of the card");
 });
 
@@ -10503,4 +10503,27 @@ test("the task tracker returns to the recorded strip immediately above the six s
   assert.deepEqual(title.slice(2), [580, 492], "V2 76.25s task label stays inside the measured y477..497 strip");
   assert.ok(calls.some(c => c[0] === "rect" && c[1] === 612 && c[2] === 479 && c[3] === 130 && c[4] === 16),
     "long live quest text must fit the measured strip rather than cover the HUD");
+});
+
+
+test("the recorded XP track uses its full width and real progress in town and dungeon", () => {
+  const hud = {};
+  for (const [xp, width] of [[0, 0], [50, 80], [100, 160], [-10, 0], [120, 160]]) {
+    const state = Core.createState({ seed: 1 });
+    state.player.xp = xp; state.player.xpToNext = 100;
+    for (const mode of ["dungeon", "town"]) {
+      const calls = [], ctx = recordingContext(calls);
+      if (mode === "dungeon") Render.render(ctx, state, { sprites: { hud } });
+      else Render.drawTown(ctx, { town: { x: 250, z: 50, cameraX: 0, time: 0, npcs: [] },
+        sprites: { hud }, player: state.player });
+      const fills = calls.filter(c => c[0] === "drawImage" && c[1] === hud &&
+        c[4] === 200 && c[5] === 3 && c[6] === 254 && c[7] === 485);
+      if (!width) assert.equal(fills.length, 0, `${mode}: empty or negative XP has no green fill`);
+      else {
+        assert.equal(fills.length, 1);
+        assert.deepEqual(fills[0].slice(6), [254, 485, width, 8],
+          `${mode}: V2 full track x134..294, y485..493 inside the 720px view`);
+      }
+    }
+  }
 });
