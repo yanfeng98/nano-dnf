@@ -1,0 +1,310 @@
+{
+  "pack": "sprite_character_swordman_effect.NPK",
+  "entry": "sprite/character/swordman/effect/skillicon.img",
+  "atlas_frames": 690,
+  "references": [
+    {
+      "reference": "00001-0076.00.jpg",
+      "matches": [
+        {
+          "frame": 10,
+          "correlation": 0.7443,
+          "size_x_y": [
+            31,
+            429,
+            503
+          ]
+        },
+        {
+          "frame": 94,
+          "correlation": 0.7321,
+          "size_x_y": [
+            31,
+            464,
+            503
+          ]
+        },
+        {
+          "frame": 6,
+          "correlation": -0.0136,
+          "size_x_y": [
+            28,
+            498,
+            502
+          ]
+        }
+      ]
+    },
+    {
+      "reference": "00001-0150.00.jpg",
+      "matches": [
+        {
+          "frame": 10,
+          "correlation": 0.337,
+          "size_x_y": [
+            31,
+            429,
+            503
+          ]
+        },
+        {
+          "frame": 94,
+          "correlation": 0.2426,
+          "size_x_y": [
+            31,
+            464,
+            503
+          ]
+        },
+        {
+          "frame": 6,
+          "correlation": 0.0013,
+          "size_x_y": [
+            28,
+            498,
+            502
+          ]
+        }
+      ]
+    },
+    {
+      "reference": "00002-0012.00.jpg",
+      "matches": [
+        {
+          "frame": 10,
+          "correlation": 0.7481,
+          "size_x_y": [
+            31,
+            429,
+            503
+          ]
+        },
+        {
+          "frame": 94,
+          "correlation": 0.7325,
+          "size_x_y": [
+            31,
+            464,
+            503
+          ]
+        },
+        {
+          "frame": 6,
+          "correlation": 0.3382,
+          "size_x_y": [
+            32,
+            498,
+            503
+          ]
+        }
+      ]
+    },
+    {
+      "reference": "00002-0076.00.jpg",
+      "matches": [
+        {
+          "frame": 10,
+          "correlation": 0.748,
+          "size_x_y": [
+            31,
+            429,
+            503
+          ]
+        },
+        {
+          "frame": 94,
+          "correlation": 0.7399,
+          "size_x_y": [
+            31,
+            464,
+            503
+          ]
+        },
+        {
+          "frame": 6,
+          "correlation": 0.758,
+          "size_x_y": [
+            31,
+            499,
+            503
+          ]
+        }
+      ]
+    },
+    {
+      "reference": "00002-0104.00.jpg",
+      "matches": [
+        {
+          "frame": 10,
+          "correlation": 0.7451,
+          "size_x_y": [
+            31,
+            429,
+            503
+          ]
+        },
+        {
+          "frame": 94,
+          "correlation": 0.7439,
+          "size_x_y": [
+            31,
+            464,
+            503
+          ]
+        },
+        {
+          "frame": 6,
+          "correlation": 0.76,
+          "size_x_y": [
+            31,
+            499,
+            503
+          ]
+        }
+      ]
+    }
+  ],
+  "identification": [
+    [
+      {
+        "frame": 10,
+        "correlation": 0.748,
+        "size_x_y": [
+          31,
+          429,
+          503
+        ]
+      },
+      {
+        "frame": 11,
+        "correlation": 0.7134,
+        "size_x_y": [
+          31,
+          429,
+          503
+        ]
+      },
+      {
+        "frame": 227,
+        "correlation": 0.613,
+        "size_x_y": [
+          31,
+          429,
+          503
+        ]
+      },
+      {
+        "frame": 226,
+        "correlation": 0.6046,
+        "size_x_y": [
+          31,
+          429,
+          503
+        ]
+      },
+      {
+        "frame": 22,
+        "correlation": 0.5989,
+        "size_x_y": [
+          32,
+          428,
+          503
+        ]
+      }
+    ],
+    [
+      {
+        "frame": 94,
+        "correlation": 0.7399,
+        "size_x_y": [
+          31,
+          464,
+          503
+        ]
+      },
+      {
+        "frame": 95,
+        "correlation": 0.7086,
+        "size_x_y": [
+          31,
+          464,
+          503
+        ]
+      },
+      {
+        "frame": 301,
+        "correlation": 0.5814,
+        "size_x_y": [
+          31,
+          464,
+          503
+        ]
+      },
+      {
+        "frame": 104,
+        "correlation": 0.5389,
+        "size_x_y": [
+          33,
+          463,
+          500
+        ]
+      },
+      {
+        "frame": 510,
+        "correlation": 0.5315,
+        "size_x_y": [
+          28,
+          463,
+          502
+        ]
+      }
+    ],
+    [
+      {
+        "frame": 6,
+        "correlation": 0.758,
+        "size_x_y": [
+          31,
+          499,
+          503
+        ]
+      },
+      {
+        "frame": 7,
+        "correlation": 0.7011,
+        "size_x_y": [
+          31,
+          499,
+          503
+        ]
+      },
+      {
+        "frame": 186,
+        "correlation": 0.6977,
+        "size_x_y": [
+          31,
+          499,
+          503
+        ]
+      },
+      {
+        "frame": 187,
+        "correlation": 0.6764,
+        "size_x_y": [
+          31,
+          499,
+          503
+        ]
+      },
+      {
+        "frame": 243,
+        "correlation": 0.6602,
+        "size_x_y": [
+          31,
+          499,
+          503
+        ]
+      }
+    ]
+  ]
+}

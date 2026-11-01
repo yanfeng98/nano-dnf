@@ -13,13 +13,27 @@ SOURCES = [
     ('ImagePacks2', 'sprite_interface2_hud(ex).NPK', ['hud', 'menu_icon'], 'ex'),
     ('ImagePacks2_70', 'sprite_interface.NPK', ['mainhud'], 'legacy'),
 ]
+LAYER_SOURCES = []
+for folder, tag in [('ImagePacks2', 'new'), ('ImagePacks2_70', 'legacy')]:
+    LAYER_SOURCES.append((folder, 'sprite_interface2_hud_information_button.NPK',
+                          ['information_button', 'information_button_tw'], tag + '-info'))
+    for stem in ['community', 'contents', 'extrafeature', 'gameoption', 'myinfomenu', 'short_btn']:
+        LAYER_SOURCES.append((folder, 'sprite_interface2_global_navigation_' + stem + '.NPK',
+                              [stem, stem + '_cn'], tag + '-nav'))
+LAYER_SOURCES.extend([
+    ('ImagePacks2_70', 'sprite_interface_globalnavigation.NPK',
+     ['communitymenu', 'contentsmenu', 'myinfomenu', 'servicemenu', 'systemmenu'], 'legacy-global'),
+    ('ImagePacks2_70', 'sprite_interface_newstyle_windows_globalnavigation.NPK',
+     ['community', 'short_btn'], 'legacy-newstyle'),
+])
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--client', type=Path, default=Path('/mnt/c/dnf/地下城与勇士'))
 parser.add_argument('--out', type=Path, default=Path('/tmp/nano-hud-candidates'))
+parser.add_argument('--extended', action='store_true', help='inspect navigation/information layers instead of the initial six families')
 args = parser.parse_args()
 args.out.mkdir(parents=True, exist_ok=True)
 manifest = []
-for folder, pack, names, tag in SOURCES:
+for folder, pack, names, tag in (LAYER_SOURCES if args.extended else SOURCES):
     with (args.client / folder / pack).open('rb') as handle:
         for entry in NPK.open(handle).files:
             stem = Path(entry.name).stem
@@ -42,5 +56,5 @@ for folder, pack, names, tag in SOURCES:
                 board.alpha_composite(pic, (x + (110 - pic.width) // 2, y))
                 draw.text((x + 2, y + 83), f'{index} {native[0]}x{native[1]}', fill='white')
             board.convert('RGB').save(args.out / sheet_name)
-(args.out / 'manifest.json').write_text(json.dumps(manifest, ensure_ascii=False, indent=2))
+(args.out / 'manifest.json').write_text('[\n' + ',\n'.join(json.dumps(row, ensure_ascii=False) for row in manifest) + '\n]\n')
 print(f'{len(manifest)} candidate frames -> {args.out}')

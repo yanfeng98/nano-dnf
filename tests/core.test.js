@@ -7856,7 +7856,7 @@ test("the renderer draws one hotbar row and keeps every skill in the panel", () 
 
   const state = Core.createState({ seed: 11 });
   const sprites = { slayer: { width: 576, height: 480 }, skills: { width: 128, height: 32 } };
-  const barY = Render.skillBarButtons()[0].y + 4;
+  const barY = Render.skillBarButtons()[0].y + 3;
   const formerRowY = barY - 36;
   const tileYs = [...new Set(Render.loadoutPanelButtons().map((tile) => tile.y + 4))];
   const drawsAt = (destY) =>
@@ -10526,4 +10526,20 @@ test("the recorded XP track uses its full width and real progress in town and du
       }
     }
   }
+});
+
+
+test("skill icons and empty sockets follow the measured 31px icons and 35px pitch", () => {
+  const state = Core.createState({ seed: 1 }), calls = [], hud = {}, skills = { width: 384, height: 32 };
+  Render.render(recordingContext(calls), state, { sprites: { hud, skills },
+    loadout: [null, "upSlash", null, null, null, null] });
+  const icon = calls.find(c => c[0] === "drawImage" && c[1] === skills);
+  assert.deepEqual(icon.slice(6), [584, 503, 31, 31],
+    "V1 76s and V2 76/104s: atlas94 at local x464,y503,31px square");
+  const sockets = calls.filter(c => c[0] === "drawImage" && c[1] === hud &&
+    c[2] === 309 && c[3] === 50 && c[4] === 26 && c[5] === 28);
+  assert.deepEqual(sockets.map(c => c.slice(6)), [547, 582, 617, 652, 687, 722].map(x => [x, 500, 35, 36]),
+    "all six native empty sockets share the icon pitch");
+  assert.deepEqual(Render.hitTestLoadout(590, 515, false), { kind: "slot", index: 1 });
+  assert.equal(Render.hitTestLoadout(763, 515, false), null, "no stale hit area beyond the measured row");
 });

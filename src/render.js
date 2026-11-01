@@ -506,13 +506,13 @@
     extras: { hurt: 0, dead: 1, jump: 2, fall: 3 }
   };
 
-  // Recorded V1/V2 row: local x430..647.5, y500..536 (720x540 view).
+  // V1 76s / V2 76,104s: 31px icons at x429,464,499; 35px pitch.
   var SLOT_COUNT = 6;
   var SLOT_COLS = 6;
   var BAR = {
-    x: 120 + 430,
+    x: 120 + 427,
     y: 500,
-    slotW: 36.25,
+    slotW: 35,
     slotH: 36,
     gap: 0,
     rowGap: 0
@@ -2068,6 +2068,7 @@
    * 尺寸是客户端自己的，画的时候由 `drawHudFrame` 折到录像矩形。
    */
   var HUD_UI = {
+    skillSocket: { cell: [26, 28], anchor: [0, 0], ink: [0, 0, 26, 28], frames: [[309, 50, 26, 28]] },
     hudBar: { cell: [800, 91], anchor: [0, 1], ink: [0, 0, 800, 91], frames: [[0, 0, 800, 91]] },
     orbRed: { cell: [76, 144], anchor: [0, 0], ink: [0, 0, 76, 144], frames: [[800, 0, 76, 144]] },
     orbBlue: { cell: [76, 144], anchor: [0, 0], ink: [0, 0, 76, 144], frames: [[876, 0, 76, 144]] },
@@ -8012,7 +8013,8 @@
       );
 
       ctx.save();
-      /* 紧凑条（录像那条）不叠槽框：底条自己带凹槽，见 `drawItemSlots`。 */
+      if (compact) drawHudFrame(ctx, sprites, HUD_UI.skillSocket, slot.x, slot.y, slot.w, slot.h);
+      /* 复用客户端底条的空槽分片，避免图标跨在旧底条不同间距的格线上。 */
       var framed = compact;
       if (!framed) {
         ctx.fillStyle = stanceUp
@@ -8041,7 +8043,7 @@
       }
 
       if (skill && sprites && sprites.skills && sprites.skills.width) {
-        var iconSize = compact ? slot.w - 8 : 36;
+        var iconSize = compact ? 31 : 36;
         ctx.imageSmoothingEnabled = false;
         ctx.globalAlpha = ready ? 1 : 0.55;
         ctx.drawImage(
@@ -8050,8 +8052,8 @@
           0,
           32,
           32,
-          compact ? slot.x + 4 : slot.x + 5,
-          compact ? slot.y + 4 : slot.y + 2,
+          compact ? slot.x + 2 : slot.x + 5,
+          compact ? slot.y + 3 : slot.y + 2,
           iconSize,
           iconSize
         );
