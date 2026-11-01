@@ -3793,9 +3793,10 @@
    * 地面）、**130 x 43 视频px**（即 0.49 x 0.16 身位）、**脚落在它纵向的上 1/4 处**
    * —— 大部分铺在他的脚下方向。它在全片 110 次检出里尺寸恒定，**不随深度缩放**。
    *
-   * 客户端那 6 帧是脉动（帧 2-4 最亮），照它自己的帧序走；速度是本作自己的数。
+   * movedestinationmark 的六帧是从点扩成环再消失的落点动画。V2 75.25–78.25s
+   * 连续样本保持约60–64px宽，不能循环缩回暗点；用原件完整亮环f3。
    */
-  var FOOT_MARK = { fps: 8, width: 130 / (265 / 84), height: 43 / (265 / 84), footShare: 0.25 };
+  var FOOT_MARK = { frame: 3, width: 130 / (265 / 84), height: 43 / (265 / 84), footShare: 0.25 };
 
   /*
    * 过场插画：客户端那张 800x600，铺满世界窗口（窗口正是 4:3，与它同形）。
@@ -3880,7 +3881,7 @@
     var player = state.player;
     if (!run || !player || player.dead) return;
     var frames = run.frames;
-    var index = Math.floor(state.time * FOOT_MARK.fps) % frames.length;
+    var index = FOOT_MARK.frame;
     var frame = frames[index];
     var w = FOOT_MARK.width;
     var h = FOOT_MARK.height;

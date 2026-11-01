@@ -10458,3 +10458,31 @@ test("a gate stands between scenery behind and in front of its visible foot", ()
   assert.equal(boxes.length, 2);
   assert.ok(boxes[0] < gate && gate < boxes[1], `far chest → gate → near chest: ${boxes}, gate ${gate}, z ${z}`);
 });
+
+test("the player's recorded foot ring stays full size throughout the animation clock", () => {
+  const s = Core.createState({ stage: "mirkwooddeep", seed: 1 });
+  const ui = {}, run = Render.UI.dropMark;
+  const sheet = decodeRgbaPng(path.join(__dirname, "../assets/ui.png"));
+  const seen = [];
+  for (const time of [0, 0.125, 0.25, 0.375, 0.5, 0.625, 0.75]) {
+    s.time = time;
+    const calls = [];
+    Render.render(recordingContext(calls), s, { sprites: { ui } });
+    const mark = calls.find(c => c[0] === "drawImage" && c[1] === ui &&
+      run.frames.some(f => c[2] === f[0] && c[3] === f[1]));
+    assert.ok(mark, "the living player has a ground marker");
+    const frame = run.frames.findIndex(f => mark[2] === f[0] && mark[3] === f[1]);
+    const rect = run.frames[frame];
+    let left = rect[2], right = -1, green = 0;
+    for (let y = 0; y < rect[3]; y++) for (let x = 0; x < rect[2]; x++) {
+      const offset = ((rect[1] + y) * sheet.width + rect[0] + x) * 4;
+      if (sheet.pixels[offset + 3] < 180) continue;
+      left = Math.min(left, x); right = Math.max(right, x);
+      green = Math.max(green, sheet.pixels[offset + 1]);
+    }
+    assert.ok(right - left + 1 >= 75, "visible ring ink cannot collapse to a destination dot");
+    assert.ok(green >= 240, "the ring must retain the bright client frame");
+    seen.push(mark.slice(6, 10));
+  }
+  seen.forEach(rect => assert.deepEqual(rect, seen[0], "time alone cannot shrink or move the ring"));
+});
