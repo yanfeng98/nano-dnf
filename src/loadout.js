@@ -22,10 +22,9 @@
   // Existing direct skill shortcuts remain separate from quickbar slots.
   var SKILL_KEYS = { KeyZ: "upSlash", KeyV: "hellbenter" };
   var SKILL_SHORTCUTS = { upSlash: "Z", hellbenter: "V" };
-  // Only the recorded up-slash S position is confirmed here; other moves
-  // remain provisional until their reference animations are identified.
+  // Recorded A/S are ghost slash / up-slash. Remaining slots are provisional.
   var DEFAULT_SLOTS = [
-    "mountainBreaker",
+    "ghostSlash",
     "upSlash",
     "crossSlash",
     "bloodSword",

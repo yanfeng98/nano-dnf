@@ -84,6 +84,39 @@ try {
   assert.ok(ready.chroma > 25, 'the ready icon remains coloured');
   assert.ok(cooling.chroma < 12 && cooling.correlation > 0.6, 'cooldown has the recorded neutral glyph without a blue decimal overlay');
   assert.deepEqual(recovered.rgba, ready.rgba, 'real cooldown expiry restores the original coloured pixels');
+  // Default A must run the new move, including both registered effect layers.
+  await page.evaluate(() => {
+    const c = document.querySelector('#stage').getContext('2d'), draw = c.drawImage;
+    window.ghostDraws = [];
+    c.drawImage = function (...args) {
+      if (args.length === 9 && /\/(slayer|effects)\.png$/.test(args[0]?.src || '')) {
+        const source = (args[0].src || '').split('/').pop();
+        const entry = { source, sourceY: args[2], blend: this.globalCompositeOperation };
+        if (window.ghostDraws.length < 2000) window.ghostDraws.push(entry);
+      }
+      return draw.apply(this, args);
+    };
+  });
+  await page.keyboard.press('p');
+  await page.keyboard.press('KeyA');
+  await page.waitForFunction(() => {
+    const p = window.nanoDnf.getState().player;
+    return p.skillId === 'ghostSlash' && p.skillTimer < 0.75 && p.skillTimer > 0.5;
+  });
+  await page.keyboard.press('p');
+  const ghost = await page.evaluate(() => {
+    const s = window.nanoDnf.getState();
+    return { skillId: s.player.skillId, cooldown: s.player.skillCooldowns.ghostSlash,
+      frame: window.DNFRender.playerFrame(s, s.player), draws: window.ghostDraws };
+  });
+  assert.equal(ghost.skillId, 'ghostSlash'); assert.ok(ghost.cooldown > 0);
+  assert.equal(ghost.frame.row, 13);
+  assert.ok(ghost.draws.some(d => d.source === 'effects.png' && d.sourceY === 12 * 128 && d.blend === 'source-over'));
+  assert.ok(ghost.draws.some(d => d.source === 'effects.png' && d.sourceY === 29 * 128 && d.blend === 'lighter'));
+  const url = await page.locator('#stage').evaluate(c => c.toDataURL('image/png'));
+  fs.writeFileSync(`${out}/ghost-slash.png`, Buffer.from(url.split(',')[1], 'base64'));
+  fs.writeFileSync(`${out}/ghost-slash.json`, JSON.stringify(ghost, null, 2));
+  console.log('default A ghost slash OK', { ...ghost, draws: ghost.draws.length });
 } finally {
   await browser?.close();
   await new Promise(resolve => server.close(resolve));

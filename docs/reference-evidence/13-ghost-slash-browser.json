@@ -1,0 +1,125 @@
+{
+  "skillId": "ghostSlash",
+  "cooldown": 5.816666666666667,
+  "frame": {
+    "row": 13,
+    "col": 5
+  },
+  "draws": [
+    {
+      "source": "slayer.png",
+      "sourceY": 0,
+      "blend": "source-over"
+    },
+    {
+      "source": "slayer.png",
+      "sourceY": 0,
+      "blend": "source-over"
+    },
+    {
+      "source": "slayer.png",
+      "sourceY": 0,
+      "blend": "source-over"
+    },
+    {
+      "source": "slayer.png",
+      "sourceY": 2288,
+      "blend": "source-over"
+    },
+    {
+      "source": "slayer.png",
+      "sourceY": 2288,
+      "blend": "source-over"
+    },
+    {
+      "source": "slayer.png",
+      "sourceY": 2288,
+      "blend": "source-over"
+    },
+    {
+      "source": "slayer.png",
+      "sourceY": 2288,
+      "blend": "source-over"
+    },
+    {
+      "source": "slayer.png",
+      "sourceY": 2288,
+      "blend": "source-over"
+    },
+    {
+      "source": "slayer.png",
+      "sourceY": 2288,
+      "blend": "source-over"
+    },
+    {
+      "source": "slayer.png",
+      "sourceY": 2288,
+      "blend": "source-over"
+    },
+    {
+      "source": "slayer.png",
+      "sourceY": 2288,
+      "blend": "source-over"
+    },
+    {
+      "source": "effects.png",
+      "sourceY": 1536,
+      "blend": "source-over"
+    },
+    {
+      "source": "slayer.png",
+      "sourceY": 2288,
+      "blend": "source-over"
+    },
+    {
+      "source": "effects.png",
+      "sourceY": 3712,
+      "blend": "lighter"
+    },
+    {
+      "source": "effects.png",
+      "sourceY": 1536,
+      "blend": "source-over"
+    },
+    {
+      "source": "slayer.png",
+      "sourceY": 2288,
+      "blend": "source-over"
+    },
+    {
+      "source": "effects.png",
+      "sourceY": 3712,
+      "blend": "lighter"
+    },
+    {
+      "source": "effects.png",
+      "sourceY": 1536,
+      "blend": "source-over"
+    },
+    {
+      "source": "slayer.png",
+      "sourceY": 2288,
+      "blend": "source-over"
+    },
+    {
+      "source": "effects.png",
+      "sourceY": 3712,
+      "blend": "lighter"
+    },
+    {
+      "source": "effects.png",
+      "sourceY": 1536,
+      "blend": "source-over"
+    },
+    {
+      "source": "slayer.png",
+      "sourceY": 2288,
+      "blend": "source-over"
+    },
+    {
+      "source": "effects.png",
+      "sourceY": 3712,
+      "blend": "lighter"
+    }
+  ]
+}

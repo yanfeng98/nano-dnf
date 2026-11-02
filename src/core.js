@@ -478,6 +478,14 @@
    * a cooldown, and damage that grows with the skill level (here: character level).
    */
   var SKILLS = {
+    ghostSlash: {
+      id: "ghostSlash", name: "鬼斩", key: "A",
+      // MP/cooldown and 0.95s animation from local hardattack.skl/.ani.
+      // Damage/reach remain this game's provisional combat model.
+      mp: 17, cooldown: 6, damage: 26, growth: 0, duration: 0.95,
+      activeFrom: 0.15, activeTo: 0.45, reach: 100, heightPad: 16,
+      depthReach: 40, knockbackX: 160, launch: 0, radius: 0, hits: 1
+    },
     upSlash: {
       id: "upSlash",
       name: "上挑",
@@ -1575,7 +1583,8 @@
      * the row index of both baked sheets (assets/effects.png and skills.png):
      * appending keeps every existing row where the art already has it.
      */
-    "berserk"
+    "berserk",
+    "ghostSlash"
   ];
   /*
    * Every skill the Slayer can end up casting, in the order the cooldown table

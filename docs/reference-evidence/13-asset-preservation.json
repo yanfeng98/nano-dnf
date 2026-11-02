@@ -1,0 +1,10 @@
+{
+  "existing_body_rows_unchanged": true,
+  "existing_colour_and_buff_cells_unchanged": true,
+  "existing_disabled_cells_unchanged": true,
+  "existing_skill_effect_rows_unchanged": true,
+  "existing_auxiliary_rows_only_shifted": true,
+  "before_first_icon_correlation": 0.08931475703784096,
+  "after_first_icon_correlation": 0.7267584320065917,
+  "baseline_commit": "2094703"
+}

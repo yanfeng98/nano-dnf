@@ -85,6 +85,15 @@
    * that reaches 115px right of the feet and 120px above them), because a cell
    * that only fits the body crops the katana and the slash arc mid-blade.
    */
+  // hardattack.ani: 18 body frames; two 25ms cuts and a 150ms recovery.
+  var ghostSlashElapsed = 0;
+  var GHOST_SLASH_BEATS = [50, 50, 50, 25, 25, 50, 50, 50, 50,
+                         50, 50, 50, 50, 50, 50, 50, 50, 150].map(function (delay) {
+    var from = ghostSlashElapsed / 950;
+    ghostSlashElapsed += delay;
+    return { frames: 1, from: from, until: ghostSlashElapsed / 950 };
+  });
+
   var SPRITE = {
     frameW: 208,
     frameH: 176,
@@ -127,7 +136,7 @@
              * 紧跟一组直立八帧步行 180-187，和副本那条前倾的 run（105-112）
              * 是两套动作。放在最后一行，前面每一行的编号不动。
              */
-            walk: 12 },
+            walk: 12, ghostSlash: 13 },
     /* Frames the renderer actually plays per row; the rest of the row is spare art.
        The stand is a four-frame breath off the client's "still" frames, the attack
        is the whole normal-attack chain (see Core.ATTACK_STAGES). */
@@ -186,6 +195,7 @@
     skillClips: {
       /* 上挑 is the client's own 42-50 on the sm_body0048 sheet = 43-51 here. */
       upSlash: { row: 3, first: 6, frames: 9 },
+      ghostSlash: { row: 13, first: 0, frames: 18, beats: GHOST_SLASH_BEATS },
       /*
        * The client's own 崩山击, straight off its preview clip: 187 (the blade
        * still down and forward) and 194/203 (both hands up, the blade over the
@@ -537,7 +547,7 @@
   }
 
   /* Loadout panel: every skill as a draggable tile, shown while arranging. */
-  var PANEL = { x: HUD_LEFT + 16, y: ARENA.height - 330, w: 696, h: 160, tileW: 104, tileH: 56, gap: 8 };
+  var PANEL = { x: HUD_LEFT + 16, y: ARENA.height - 330, w: 696, h: 224, tileW: 104, tileH: 56, gap: 8 };
 
   function loadoutPanelButtons() {
     var buttons = [];
@@ -585,6 +595,7 @@
   var EFFECT = {
     cell: 128,
     rowFrames: {
+      ghostSlash: 6,
       upSlash: 9,
       mountainBreaker: 6,
       crossSlash: 34,
@@ -828,7 +839,7 @@
      * fire. The bake test reads this rather than a literal, so adding a row
      * cannot leave the shipped atlas and the grid disagreeing.
      */
-    extraRowCount: 16,
+    extraRowCount: 17,
     /*
      * 大蹦 is the one move whose art is drawn far bigger than a cell can hold:
      * its own row on assets/effects.png would be ~120x72 px of art stretched
@@ -856,8 +867,12 @@
      * why its draw entry also carries `front` - without that the row would be
      * painted twice, once behind him and once in front.
      */
-    frontFrames: { mountainRift: 45, mountainBreaker: 6 },
+    frontFrames: { mountainRift: 45, mountainBreaker: 6, ghostSlash: 6 },
+    frontRows: { ghostSlash: Core.SKILL_ORDER.length + 16 },
     draw: {
+      // 212-client-pixel window at body scale0.68; centre(56,-60)
+      // relative to nominal body feet(10,8), from hardattack ANI positions.
+      ghostSlash: { dx: 31.28, dy: -46.24, size: 144.16, copies: 1, spin: 0, frontBlend: "lighter" },
       upSlash: { dx: 34, dy: -56, size: 156, copies: 1, spin: 0 },
       /*
        * 崩山击 lands on a shockwave that covers half the arena. The row is baked
@@ -1152,6 +1167,7 @@
      * rift still glowing under the Slayer are drawn while he stands in them.
      */
     timing: {
+      ghostSlash: { from: 0.15 / 0.95, to: 0.45 / 0.95 },
       mountainRift: { from: 0, to: 0.99 },
       /*
        * 火山 is a **field's** row, and a field's progress is its own five seconds
@@ -1239,6 +1255,8 @@
      * keeping the fade on the last eighth is what the reference's own outro does.
      */
     fade: {
+      ghostSlash: { from: 0, to: 1, floor: 1 }, // native frames already carry their alpha
+
       mountainRift: { from: 0.92, to: 1, floor: 0.95 },
       /*
        * 火山's own last act is the smoke, and the row is already drawing it
@@ -1326,6 +1344,7 @@
 
   /* Short DNF-style effect tags shown in the loadout panel. */
   var EFFECT_LABEL = {
+    ghostSlash: "闇属性斩击",
     upSlash: "浮空",
     mountainBreaker: "跳劈 · 倒地",
     crossSlash: "十字 · 出血",
@@ -4893,7 +4912,10 @@
     var cell = EFFECT.cell;
     var row = Core.SKILL_ORDER.indexOf(skillId);
     var frames;
-    if (layer === "front") frames = EFFECT.frontFrames[skillId];
+    if (layer === "front") {
+      frames = EFFECT.frontFrames[skillId];
+      if (EFFECT.frontRows && EFFECT.frontRows[skillId] !== undefined) row = EFFECT.frontRows[skillId];
+    }
     if (rift) {
       if (!sprites.rift || !sprites.rift.width) return;
       sheet = sprites.rift;
@@ -5003,6 +5025,7 @@
      * also what makes the core go white the way the reference's does.
      */
     if (draw.blend) ctx.globalCompositeOperation = draw.blend;
+    if (layer === "front" && draw.frontBlend) ctx.globalCompositeOperation = draw.frontBlend;
     ctx.globalAlpha = frame.alpha * (source ? source.fade : 1);
     ctx.imageSmoothingEnabled = true;
     for (var copy = 0; copy < draw.copies; copy += 1) {

@@ -2522,7 +2522,7 @@ function problemsFor(pass) {
   if (pass.mode === "keyboard") {
     const checks = pass.loadoutChecks;
     const defaults =
-      "mountainBreaker,upSlash,crossSlash,bloodSword,graspHead,mountainRift";
+      "ghostSlash,upSlash,crossSlash,bloodSword,graspHead,mountainRift";
     if (!checks || !checks.arranging) problems.push("keyboard: B did not open the arrange panel");
     if (!checks || checks.dragged.loadout[0] !== "bloodSnatch") {
       problems.push("keyboard: dragging 嗜血 into slot A did not apply");

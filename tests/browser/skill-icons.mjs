@@ -53,6 +53,23 @@ try {
     a.forEach((n, i) => { const da = n - ma, db = b[i] - mb; covariance += da * db; va += da * da; vb += db * db; });
     return { correlation: covariance / Math.sqrt(va * vb), rect: [584, 503, 31, 31] };
   }, reference);
+  const firstReference = fs.readFileSync(new URL('../../docs/reference-evidence/13-ghost-slot-reference-076.00.png', import.meta.url)).toString('base64');
+  assert.equal(await page.evaluate(() => window.nanoDnf.getLoadout()[0]), 'ghostSlash');
+  const first = await page.locator('#stage').evaluate(async (canvas, reference) => {
+    const actual = canvas.getContext('2d').getImageData(549, 503, 31, 31).data;
+    const image = new Image(); image.src = 'data:image/png;base64,' + reference; await image.decode();
+    const c = document.createElement('canvas'); c.width = c.height = 31;
+    const ctx = c.getContext('2d'); ctx.drawImage(image, 0, 0);
+    const expected = ctx.getImageData(0, 0, 31, 31).data;
+    const a = [], b = [];
+    for (let i = 0; i < actual.length; i++) if (i % 4 !== 3) { a.push(actual[i]); b.push(expected[i]); }
+    const ma = a.reduce((s,n) => s+n,0)/a.length, mb = b.reduce((s,n) => s+n,0)/b.length;
+    let cov=0, va=0, vb=0;
+    a.forEach((v,i) => { const x=v-ma, y=b[i]-mb; cov+=x*y; va+=x*x; vb+=y*y; });
+    return { correlation: cov/Math.sqrt(va*vb), rect: [549,503,31,31] };
+  }, firstReference);
+  measured.ghostSlash = first;
+  assert.ok(first.correlation >= 0.65, 'default A icon must match the reference ghost slash');
   const known = await page.locator('#stage').evaluate(c => [...c.getContext('2d').getImageData(596, 503, 19, 8).data]);
   assert.equal(await page.evaluate(() => window.nanoDnf.getState().player.skillRanks?.upSlash), 1);
   await page.evaluate(() => { delete window.nanoDnf.getState().player.skillRanks.upSlash; });

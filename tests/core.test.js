@@ -3133,7 +3133,8 @@ test("the shipped sprite sheet matches the frame grid the renderer expects", () 
     awaken: 11,
     /* The town's own gait: the client's upright eight-frame walk 180-187,
      * which sits right after the stand 176-179 and is not the dungeon's run. */
-    walk: 12
+    walk: 12,
+    ghostSlash: 13
   });
   /*
    * Every played frame has to exist inside its row. The run is the client's
@@ -6055,10 +6056,10 @@ test("the stance paints him red, carries a second blade and draws nothing else",
   assert.equal(Render.EFFECT.rageSwipeRows, undefined, "no separate crescent rows out here");
   assert.equal(
     Render.EFFECT.extraRowCount,
-    16,
+    17,
     "the extra rows are the orb, the dive arc, the red fan, the two blades, the gathering, " +
       "嗜魂封魔斩's vortex, the fog at his hand, 魔狱血刹's sword, its white warning, its 血丝, " +
-      "its 成形, the ring that 成形 opens with, the star it opens into, and 大蹦's fire"
+      "its 成形, the ring that 成形 opens with, the star it opens into, 大蹦's fire and ghost slash's front blade"
   );
   state.player.comboIndex = 0;
   state.player.attackTimer = state.player.attackDuration * 0.5;
@@ -10627,4 +10628,47 @@ test("recorded up-slash occupies default S while saved arrangements retain their
   assert.equal(initial[Loadout.slotForCode("KeyS")], "upSlash");
   const previous = "upSlash,mountainBreaker,crossSlash,bloodSword,graspHead,mountainRift";
   assert.equal(Loadout.deserialize(previous, Core.SKILL_ORDER)[0], "upSlash");
+});
+
+// The recording's first icon is HardAttack (client frame 10), not 崩山击.
+test("default A casts ghost slash once in front, with its own MP and cooldown", () => {
+  const Loadout = require("../src/loadout.js");
+  const id = Loadout.create(Core.SKILL_ORDER)[Loadout.slotForCode("KeyA")];
+  assert.equal(id, "ghostSlash");
+  const state = lastRoomState(), p = state.player;
+  p.mp = p.maxMp; p.facing = 1; p.x = 300;
+  const near = Core.createEnemy(state, "brute", p.x + 60);
+  const behind = Core.createEnemy(state, "brute", p.x - 60);
+  for (const e of [near, behind]) { e.hp = e.maxHp = 1000; e.z = p.z; e.stun = 10; }
+  state.enemies = [near, behind];
+  const mp = p.mp;
+  Core.step(state, { skills: { [id]: true } });
+  assert.equal(p.skillId, "ghostSlash");
+  assert.ok(p.mp <= mp - Core.SKILLS.ghostSlash.mp + 1);
+  Core.runFrames(state, 70, {});
+  const damage = near.maxHp - near.hp;
+  assert.equal(damage, Math.round(Core.SKILLS.ghostSlash.damage + (p.level - 1) * Core.SKILLS.ghostSlash.growth + p.attackBonus));
+  assert.equal(behind.hp, behind.maxHp);
+  assert.ok(p.skillCooldowns.ghostSlash > 0);
+  Core.step(state, { skills: { ghostSlash: true } });
+  assert.equal(p.skillTimer, 0, "cooldown rejects immediate recast");
+});
+
+test("ghost slash follows native frame delays and refuses casts without MP", () => {
+  const evidence = JSON.parse(fs.readFileSync(path.join(__dirname, '../docs/reference-evidence/13-client-basic-skills.json')));
+  const frames = evidence.animations['character/swordman/animation/hardattack.ani'].frames;
+  const state = lastRoomState(), p = state.player;
+  assert.equal(frames.reduce((sum, f) => sum + f.delay_ms, 0) / 1000, Core.SKILLS.ghostSlash.duration);
+  p.skillId = 'ghostSlash';
+  let elapsed = 0;
+  frames.forEach((frame, index) => {
+    p.skillTimer = Core.SKILLS.ghostSlash.duration - (elapsed + frame.delay_ms / 2) / 1000;
+    assert.deepEqual(Render.playerFrame(state, p), { row: 13, col: index });
+    elapsed += frame.delay_ms;
+  });
+  assert.equal(Render.skillEffectFrame("ghostSlash", 0.44 / 0.95).alpha, 1, "do not fade native effect pixels a second time");
+  p.skillTimer = 0; p.mp = Core.SKILLS.ghostSlash.mp - 1;
+  Core.step(state, { skills: { ghostSlash: true } });
+  assert.equal(p.skillTimer, 0);
+  assert.equal(p.skillCooldowns.ghostSlash, 0);
 });

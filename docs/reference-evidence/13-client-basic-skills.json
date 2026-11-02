@@ -1,0 +1,407 @@
+{
+  "client_pvf": {
+    "file": "Script.pvf",
+    "bytes": 390145149,
+    "version": 66282
+  },
+  "skills": [
+    {
+      "path": "skill/swordman/hardattack.skl",
+      "[name]": [
+        "鬼斬"
+      ],
+      "[name2]": [
+        "鬼斬"
+      ],
+      "[icon]": [
+        "Character/Swordman/Effect/SkillIcon.img",
+        10,
+        "Character/Swordman/Effect/SkillIcon.img",
+        11
+      ],
+      "[consume MP]": [
+        17,
+        196
+      ],
+      "[cool time]": [
+        6000,
+        6000
+      ]
+    },
+    {
+      "path": "skill/swordman/upperslash.skl",
+      "[name]": [
+        "上挑"
+      ],
+      "[name2]": [
+        "Upper Slash"
+      ],
+      "[icon]": [
+        "Character/Swordman/Effect/SkillIcon.img",
+        94,
+        "Character/Swordman/Effect/SkillIcon.img",
+        95
+      ],
+      "[consume MP]": [
+        6,
+        40
+      ],
+      "[cool time]": [
+        2000,
+        2000
+      ]
+    },
+    {
+      "path": "skill/swordman/normalwave.skl",
+      "[name2]": [
+        "波動劍 地裂"
+      ],
+      "[icon]": [
+        "Character/Swordman/Effect/SkillIcon.img",
+        6,
+        "Character/Swordman/Effect/SkillIcon.img",
+        7
+      ],
+      "[consume MP]": [
+        17,
+        168
+      ],
+      "[cool time]": [
+        3000,
+        3000
+      ],
+      "[name]": [
+        "地裂 · 波動劍"
+      ]
+    }
+  ],
+  "animations": {
+    "character/swordman/animation/hardattack.ani": {
+      "paths": [
+        "Character/Swordman/Equipment/Avatar/skin/sm_body%04d.img"
+      ],
+      "frames": [
+        {
+          "image": 139,
+          "position": [
+            -232,
+            -333
+          ],
+          "delay_ms": 50,
+          "graphic_effect": null
+        },
+        {
+          "image": 140,
+          "position": [
+            -232,
+            -333
+          ],
+          "delay_ms": 50,
+          "graphic_effect": null
+        },
+        {
+          "image": 141,
+          "position": [
+            -232,
+            -333
+          ],
+          "delay_ms": 50,
+          "graphic_effect": null
+        },
+        {
+          "image": 142,
+          "position": [
+            -232,
+            -333
+          ],
+          "delay_ms": 25,
+          "graphic_effect": null
+        },
+        {
+          "image": 143,
+          "position": [
+            -232,
+            -333
+          ],
+          "delay_ms": 25,
+          "graphic_effect": null
+        },
+        {
+          "image": 144,
+          "position": [
+            -232,
+            -333
+          ],
+          "delay_ms": 50,
+          "graphic_effect": null
+        },
+        {
+          "image": 145,
+          "position": [
+            -232,
+            -333
+          ],
+          "delay_ms": 50,
+          "graphic_effect": null
+        },
+        {
+          "image": 146,
+          "position": [
+            -232,
+            -333
+          ],
+          "delay_ms": 50,
+          "graphic_effect": null
+        },
+        {
+          "image": 147,
+          "position": [
+            -232,
+            -333
+          ],
+          "delay_ms": 50,
+          "graphic_effect": null
+        },
+        {
+          "image": 148,
+          "position": [
+            -232,
+            -333
+          ],
+          "delay_ms": 50,
+          "graphic_effect": null
+        },
+        {
+          "image": 149,
+          "position": [
+            -232,
+            -333
+          ],
+          "delay_ms": 50,
+          "graphic_effect": null
+        },
+        {
+          "image": 150,
+          "position": [
+            -232,
+            -333
+          ],
+          "delay_ms": 50,
+          "graphic_effect": null
+        },
+        {
+          "image": 151,
+          "position": [
+            -232,
+            -333
+          ],
+          "delay_ms": 50,
+          "graphic_effect": null
+        },
+        {
+          "image": 152,
+          "position": [
+            -232,
+            -333
+          ],
+          "delay_ms": 50,
+          "graphic_effect": null
+        },
+        {
+          "image": 153,
+          "position": [
+            -232,
+            -333
+          ],
+          "delay_ms": 50,
+          "graphic_effect": null
+        },
+        {
+          "image": 154,
+          "position": [
+            -232,
+            -333
+          ],
+          "delay_ms": 50,
+          "graphic_effect": null
+        },
+        {
+          "image": 155,
+          "position": [
+            -232,
+            -333
+          ],
+          "delay_ms": 50,
+          "graphic_effect": null
+        },
+        {
+          "image": 156,
+          "position": [
+            -232,
+            -333
+          ],
+          "delay_ms": 150,
+          "graphic_effect": null
+        }
+      ]
+    },
+    "character/swordman/effect/animation/hardattack1.ani": {
+      "paths": [
+        "Character/Swordman/Effect/HardAttackBlade1.img"
+      ],
+      "frames": [
+        {
+          "image": null,
+          "position": [
+            -172,
+            -233
+          ],
+          "delay_ms": 150,
+          "graphic_effect": null
+        },
+        {
+          "image": 0,
+          "position": [
+            -172,
+            -233
+          ],
+          "delay_ms": 50,
+          "graphic_effect": null
+        },
+        {
+          "image": 1,
+          "position": [
+            -172,
+            -233
+          ],
+          "delay_ms": 50,
+          "graphic_effect": null
+        },
+        {
+          "image": 2,
+          "position": [
+            -172,
+            -233
+          ],
+          "delay_ms": 50,
+          "graphic_effect": null
+        },
+        {
+          "image": 3,
+          "position": [
+            -172,
+            -233
+          ],
+          "delay_ms": 50,
+          "graphic_effect": null
+        },
+        {
+          "image": 4,
+          "position": [
+            -172,
+            -233
+          ],
+          "delay_ms": 50,
+          "graphic_effect": null
+        },
+        {
+          "image": 5,
+          "position": [
+            -172,
+            -233
+          ],
+          "delay_ms": 50,
+          "graphic_effect": null
+        },
+        {
+          "image": null,
+          "position": [
+            -172,
+            -233
+          ],
+          "delay_ms": 100,
+          "graphic_effect": null
+        }
+      ]
+    },
+    "character/swordman/effect/animation/hardattack2.ani": {
+      "paths": [
+        "Character/Swordman/Effect/HardAttackBlade2.img"
+      ],
+      "frames": [
+        {
+          "image": null,
+          "position": [
+            -172,
+            -233
+          ],
+          "delay_ms": 150,
+          "graphic_effect": 2
+        },
+        {
+          "image": 0,
+          "position": [
+            -172,
+            -233
+          ],
+          "delay_ms": 50,
+          "graphic_effect": 2
+        },
+        {
+          "image": 1,
+          "position": [
+            -172,
+            -233
+          ],
+          "delay_ms": 50,
+          "graphic_effect": 2
+        },
+        {
+          "image": 2,
+          "position": [
+            -172,
+            -233
+          ],
+          "delay_ms": 50,
+          "graphic_effect": 2
+        },
+        {
+          "image": 3,
+          "position": [
+            -172,
+            -233
+          ],
+          "delay_ms": 50,
+          "graphic_effect": 2
+        },
+        {
+          "image": 4,
+          "position": [
+            -172,
+            -233
+          ],
+          "delay_ms": 50,
+          "graphic_effect": 2
+        },
+        {
+          "image": 5,
+          "position": [
+            -172,
+            -233
+          ],
+          "delay_ms": 50,
+          "graphic_effect": 2
+        },
+        {
+          "image": null,
+          "position": [
+            -172,
+            -233
+          ],
+          "delay_ms": 100,
+          "graphic_effect": 2
+        }
+      ]
+    }
+  }
+}

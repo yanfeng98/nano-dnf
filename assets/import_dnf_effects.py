@@ -79,7 +79,8 @@ EFFECTS = [
     # draws its flash cyan-white (05_暴走 #63-68) and no client board ships that;
     # the reference is measured, not copied (docs/adr/0005), so the row takes the
     # pack's own blood burst instead.
-    ("berserk", "sprite_character_swordman_effect_frenzy.NPK", "blood-start.img", f"{SLASH}/blood-start.img.js")
+    ("berserk", "sprite_character_swordman_effect_frenzy.NPK", "blood-start.img", f"{SLASH}/blood-start.img.js"),
+    ("ghostSlash", "sprite_character_swordman_effect.NPK", "hardattackblade1.img", "")
 ]
 
 FRAMES = 4
@@ -629,6 +630,7 @@ BURST_RAMP = [
 # so the ramp is gone and this table is what is left of it.
 
 PICKS = {
+    "ghostSlash": {"stack": [("", "hardattackblade1.img")]},
     "upSlash": {"stack": [("", "upperslash.img")]},
     # 崩山击: the client preview lands the smash on an orange fire column with a
     # blue-white flash through it and the ground spitting red spikes, and the
@@ -3679,6 +3681,9 @@ def main() -> None:
             origins[name],
             window=windows.get(name),
         )
+    # Ghost slash has a native second/front layer; patch both anchored rows.
+    from import_dnf_ghost_slash import patch_effect_sheet
+    sheet = patch_effect_sheet(sheet, args.client)
     sheet.save(ROOT / "effects.png")
     print(f"wrote {ROOT / 'effects.png'} ({sheet.width}x{sheet.height})")
 

@@ -1,6 +1,6 @@
 {
-  "colour_sha256": "4cbf467efe2a4b1697d1ecc53a5d0eba980be4bf08c99ca580ca6aa756d78ff2",
-  "disabled_sha256": "6eee49bbeeaad2a2e8d67e81d834ecd938b4dbf01d75d545950548d7117f429a",
+  "colour_sha256": "296e6744107a5b8dd456bfdd1b3c6a6b30599fc5f43d954b1f736982d5c99423",
+  "disabled_sha256": "8e7eea2379952816c5fcc297b701fbb10f445adec078fbac6a0f4a85043c6d9b",
   "icons": [
     {
       "skill": "upSlash",
@@ -150,6 +150,19 @@
       "pack": "sprite_character_swordman_effect.NPK",
       "entry": "sprite/character/swordman/effect/skillicon.img",
       "frame": 79,
+      "kind": "client-grey-twin"
+    },
+    {
+      "skill": "ghostSlash",
+      "rect": [
+        384,
+        0,
+        32,
+        32
+      ],
+      "pack": "sprite_character_swordman_effect.NPK",
+      "entry": "sprite/character/swordman/effect/skillicon.img",
+      "frame": 11,
       "kind": "client-grey-twin"
     }
   ]
