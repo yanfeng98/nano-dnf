@@ -4776,6 +4776,7 @@
       var initialLevel = { mirkwood: 3, mirkwooddeep: 6 }[state.stage.id];
       if (options.referenceProfile && initialLevel) {
         state.player.name = "阿努纳奇";
+        state.player.skillRanks = { upSlash: 1 };
         while (state.player.level < initialLevel) advancePlayerLevel(state.player);
         state.player.hp = state.player.maxHp;
         state.player.mp = state.player.maxMp;

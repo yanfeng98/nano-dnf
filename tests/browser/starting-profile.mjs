@@ -37,13 +37,13 @@ try {
     await page.keyboard.press('p');
     const actual = await page.evaluate(() => {
       const C = window.DNFCore, s = window.nanoDnf.getState(), p = s.player;
-      return { stage: s.stage.id, level: p.level, name: p.name, attackBonus: p.attackBonus,
+      return { stage: s.stage.id, level: p.level, name: p.name, upSlashRank: p.skillRanks?.upSlash, attackBonus: p.attackBonus,
         maxHp: p.maxHp, maxMp: p.maxMp, xpToNext: p.xpToNext,
         expectedHp: C.PLAYER.maxHp + (p.level - 1) * C.PROGRESSION.maxHpPerLevel,
         expectedMp: C.PLAYER.maxMp + (p.level - 1) * C.PROGRESSION.maxMpPerLevel };
     });
     assert.equal(actual.stage, stage); assert.equal(actual.level, level);
-    assert.equal(actual.name, '阿努纳奇');
+    assert.equal(actual.name, '阿努纳奇'); assert.equal(actual.upSlashRank, 1);
     assert.equal(actual.maxHp, actual.expectedHp); assert.equal(actual.maxMp, actual.expectedMp);
     assert.equal(actual.attackBonus, (level - 1) * 2);
     results.push(actual);

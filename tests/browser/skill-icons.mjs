@@ -53,6 +53,14 @@ try {
     a.forEach((n, i) => { const da = n - ma, db = b[i] - mb; covariance += da * db; va += da * da; vb += db * db; });
     return { correlation: covariance / Math.sqrt(va * vb), rect: [584, 503, 31, 31] };
   }, reference);
+  const known = await page.locator('#stage').evaluate(c => [...c.getContext('2d').getImageData(596, 503, 19, 8).data]);
+  assert.equal(await page.evaluate(() => window.nanoDnf.getState().player.skillRanks?.upSlash), 1);
+  await page.evaluate(() => { delete window.nanoDnf.getState().player.skillRanks.upSlash; });
+  await page.waitForTimeout(100);
+  const unknown = await page.locator('#stage').evaluate(c => [...c.getContext('2d').getImageData(596, 503, 19, 8).data]);
+  assert.ok(known.filter((v, i) => v !== unknown[i]).length > 8, 'known rank data must produce a visible label');
+  await page.evaluate(() => { window.nanoDnf.getState().player.skillRanks.upSlash = 1; });
+  await page.waitForTimeout(100);
   const url = await page.locator('#stage').evaluate(c => c.toDataURL('image/png'));
   fs.writeFileSync(`${out}/actual.png`, Buffer.from(url.split(',')[1], 'base64'));
   fs.writeFileSync(`${out}/measurement.json`, JSON.stringify(measured, null, 2));

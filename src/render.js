@@ -7983,6 +7983,20 @@
     ctx.restore();
   }
 
+  function drawKnownSkillRank(ctx, sprites, rank, right, top, grey) {
+    var sheet = sprites && sprites.skillRanks;
+    if (!sheet || !sheet.width || !Number.isInteger(rank) || rank < 1 || rank > 99) return;
+    var widths = [12, 8, 12, 12, 12, 12, 12, 12, 12, 12, 18];
+    var glyphs = [10].concat(String(rank).split("").map(Number));
+    var scale = 18 / 26;
+    var x = right - glyphs.reduce(function (sum, index) { return sum + widths[index] * scale; }, 0);
+    glyphs.forEach(function (index) {
+      var w = widths[index];
+      ctx.drawImage(sheet, index * 20, grey ? 12 : 0, w, 11, x, top, w * scale, 6);
+      x += w * scale;
+    });
+  }
+
   function drawSkillBar(ctx, state, sprites, loadout, compact) {
     var player = state.player;
     var slots = loadout || [];
@@ -8064,6 +8078,10 @@
         ctx.globalAlpha = 1;
       }
 
+      if (compact && skill && player.skillRanks) {
+        drawKnownSkillRank(ctx, sprites, player.skillRanks[skillId], slot.x + slot.w - 2,
+                          slot.y + 4, cooldown > 0);
+      }
       if (compact) {
         /*
          * 录像的键位字母在**槽底下正中**（A S D F G H，band-skills.png），

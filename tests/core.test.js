@@ -10599,3 +10599,23 @@ test("recording profiles initialise real level-dependent state without startup l
   }
   assert.equal(Core.createState().player.level, 1, "level-one simulation fixtures remain explicit model defaults");
 });
+
+
+test("reference up-slash rank is independent of character level and unknown ranks stay unlabelled", () => {
+  const s = Core.createState({ referenceProfile: true });
+  assert.equal(s.player.skillRanks?.upSlash, 1);
+  Core.grantXp(s, s.player.xpToNext);
+  assert.equal(s.player.level, 4);
+  assert.equal(s.player.skillRanks?.upSlash, 1);
+  assert.equal(s.player.skillRanks.bloodSword, undefined);
+  const sheet = { width: 220, height: 24 };
+  for (const cooldown of [0, 0.8]) {
+    s.player.skillCooldowns.upSlash = cooldown;
+    const calls = [];
+    Render.render(recordingContext(calls), s, { sprites: { skillRanks: sheet }, loadout: ["upSlash", "bloodSword", null, null, null, null] });
+    const labels = calls.filter(c => c[0] === "drawImage" && c[1] === sheet);
+    assert.equal(labels.length, 2, "only the known Lv prefix and digit 1 are drawn");
+    assert.deepEqual(labels.map(c => c[2]), [200, 20]);
+    assert.ok(labels.every(c => c[3] === (cooldown ? 12 : 0)));
+  }
+});

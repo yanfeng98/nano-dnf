@@ -54,6 +54,7 @@
     ["slayer", "./assets/slayer.png"],
     ["skills", "./assets/skills.png"],
     ["skillsDisabled", "./assets/skills-disabled.png"],
+    ["skillRanks", "./assets/skill-ranks.png"],
     ["effects", "./assets/effects.png"],
     ["rift", "./assets/rift.png"],
     /*
