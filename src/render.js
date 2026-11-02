@@ -8045,9 +8045,13 @@
       if (skill && sprites && sprites.skills && sprites.skills.width) {
         var iconSize = compact ? 31 : 36;
         ctx.imageSmoothingEnabled = false;
-        ctx.globalAlpha = ready ? 1 : 0.55;
+        // V1 148–153s shows neutral grey icons, not translucent gold with
+        // blue decimal text. Missing-MP appearance remains the prior fallback.
+        var greyCooldown = cooldown > 0 && sprites.skillsDisabled && sprites.skillsDisabled.width;
+        var iconSheet = greyCooldown ? sprites.skillsDisabled : sprites.skills;
+        ctx.globalAlpha = greyCooldown || ready ? 1 : 0.55;
         ctx.drawImage(
-          sprites.skills,
+          iconSheet,
           iconIndex[skillId] * 32,
           0,
           32,
@@ -8069,15 +8073,6 @@
         ctx.fillStyle = "rgba(232, 215, 168, 0.95)";
         ctx.font = "700 8px 'Segoe UI', system-ui, sans-serif";
         ctx.fillText(keys[slot.index], slot.x + slot.w / 2, slot.y + slot.h + 3);
-        if (cooldown > 0) {
-          ctx.fillStyle = "rgba(8, 10, 18, 0.62)";
-          roundRect(ctx, slot.x + 1, slot.y + 1, slot.w - 2, (slot.h - 2) * clamp01(cooldown / skill.cooldown), 5);
-          ctx.fill();
-          ctx.fillStyle = "#9ccbff";
-          ctx.font = "700 11px 'Segoe UI', system-ui, sans-serif";
-          ctx.textAlign = "center";
-          ctx.fillText(cooldown.toFixed(1), slot.x + slot.w / 2, slot.y + slot.h / 2 + 4);
-        }
         ctx.restore();
         return;
       }

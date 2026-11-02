@@ -1,0 +1,82 @@
+[
+  {
+    "sample_seconds_approx": 148.125,
+    "mean_chroma": 3.04
+  },
+  {
+    "sample_seconds_approx": 148.375,
+    "mean_chroma": 2.72
+  },
+  {
+    "sample_seconds_approx": 148.625,
+    "mean_chroma": 2.7
+  },
+  {
+    "sample_seconds_approx": 148.875,
+    "mean_chroma": 57.67
+  },
+  {
+    "sample_seconds_approx": 149.125,
+    "mean_chroma": 3.11
+  },
+  {
+    "sample_seconds_approx": 149.375,
+    "mean_chroma": 3.18
+  },
+  {
+    "sample_seconds_approx": 149.625,
+    "mean_chroma": 3.16
+  },
+  {
+    "sample_seconds_approx": 149.875,
+    "mean_chroma": 3.15
+  },
+  {
+    "sample_seconds_approx": 150.125,
+    "mean_chroma": 0.76
+  },
+  {
+    "sample_seconds_approx": 150.375,
+    "mean_chroma": 0.76
+  },
+  {
+    "sample_seconds_approx": 150.625,
+    "mean_chroma": 0.81
+  },
+  {
+    "sample_seconds_approx": 150.875,
+    "mean_chroma": 0.89
+  },
+  {
+    "sample_seconds_approx": 151.125,
+    "mean_chroma": 65.15
+  },
+  {
+    "sample_seconds_approx": 151.375,
+    "mean_chroma": 3.45
+  },
+  {
+    "sample_seconds_approx": 151.625,
+    "mean_chroma": 58.5
+  },
+  {
+    "sample_seconds_approx": 151.875,
+    "mean_chroma": 59.3
+  },
+  {
+    "sample_seconds_approx": 152.125,
+    "mean_chroma": 59.59
+  },
+  {
+    "sample_seconds_approx": 152.375,
+    "mean_chroma": 59.75
+  },
+  {
+    "sample_seconds_approx": 152.625,
+    "mean_chroma": 59.82
+  },
+  {
+    "sample_seconds_approx": 152.875,
+    "mean_chroma": 60.53
+  }
+]

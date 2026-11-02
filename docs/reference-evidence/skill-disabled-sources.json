@@ -1,0 +1,156 @@
+{
+  "colour_sha256": "4cbf467efe2a4b1697d1ecc53a5d0eba980be4bf08c99ca580ca6aa756d78ff2",
+  "disabled_sha256": "6eee49bbeeaad2a2e8d67e81d834ecd938b4dbf01d75d545950548d7117f429a",
+  "icons": [
+    {
+      "skill": "upSlash",
+      "rect": [
+        0,
+        0,
+        32,
+        32
+      ],
+      "pack": "sprite_character_swordman_effect.NPK",
+      "entry": "sprite/character/swordman/effect/skillicon.img",
+      "frame": 95,
+      "kind": "client-grey-twin"
+    },
+    {
+      "skill": "mountainBreaker",
+      "rect": [
+        32,
+        0,
+        32,
+        32
+      ],
+      "pack": "sprite_character_swordman_effect.NPK",
+      "entry": "sprite/character/swordman/effect/skillicon.img",
+      "frame": 155,
+      "kind": "client-grey-twin"
+    },
+    {
+      "skill": "crossSlash",
+      "rect": [
+        64,
+        0,
+        32,
+        32
+      ],
+      "pack": "sprite_character_swordman_effect.NPK",
+      "entry": "sprite/character/swordman/effect/skillicon.img",
+      "frame": 133,
+      "kind": "client-grey-twin"
+    },
+    {
+      "skill": "bloodSword",
+      "rect": [
+        96,
+        0,
+        32,
+        32
+      ],
+      "kind": "derived-grey-effect-thumbnail",
+      "note": "No selected atlas icon; desaturated existing client-effect thumbnail, not a verified recording icon."
+    },
+    {
+      "skill": "frenzy",
+      "rect": [
+        128,
+        0,
+        32,
+        32
+      ],
+      "pack": "sprite_character_swordman_effect.NPK",
+      "entry": "sprite/character/swordman/effect/skillicon.img",
+      "frame": 135,
+      "kind": "client-grey-twin"
+    },
+    {
+      "skill": "bloodyRave",
+      "rect": [
+        160,
+        0,
+        32,
+        32
+      ],
+      "pack": "sprite_character_swordman_effect.NPK",
+      "entry": "sprite/character/swordman/effect/skillicon.img",
+      "frame": 177,
+      "kind": "client-grey-twin"
+    },
+    {
+      "skill": "rageBurst",
+      "rect": [
+        192,
+        0,
+        32,
+        32
+      ],
+      "pack": "sprite_character_swordman_effect.NPK",
+      "entry": "sprite/character/swordman/effect/skillicon.img",
+      "frame": 49,
+      "kind": "client-grey-twin"
+    },
+    {
+      "skill": "bloodSnatch",
+      "rect": [
+        224,
+        0,
+        32,
+        32
+      ],
+      "kind": "derived-grey-effect-thumbnail",
+      "note": "No selected atlas icon; desaturated existing client-effect thumbnail, not a verified recording icon."
+    },
+    {
+      "skill": "graspHead",
+      "rect": [
+        256,
+        0,
+        32,
+        32
+      ],
+      "pack": "sprite_character_swordman_effect.NPK",
+      "entry": "sprite/character/swordman/effect/skillicon.img",
+      "frame": 99,
+      "kind": "client-grey-twin"
+    },
+    {
+      "skill": "bloodEvil",
+      "rect": [
+        288,
+        0,
+        32,
+        32
+      ],
+      "kind": "derived-grey-effect-thumbnail",
+      "note": "No selected atlas icon; desaturated existing client-effect thumbnail, not a verified recording icon."
+    },
+    {
+      "skill": "mountainRift",
+      "rect": [
+        320,
+        0,
+        32,
+        32
+      ],
+      "pack": "sprite_character_swordman_effect.NPK",
+      "entry": "sprite/character/swordman/effect/skillicon.img",
+      "frame": 173,
+      "kind": "client-grey-twin"
+    },
+    {
+      "skill": "berserk",
+      "rect": [
+        352,
+        0,
+        32,
+        32
+      ],
+      "pack": "sprite_character_swordman_effect.NPK",
+      "entry": "sprite/character/swordman/effect/skillicon.img",
+      "frame": 79,
+      "kind": "client-grey-twin"
+    }
+  ]
+}

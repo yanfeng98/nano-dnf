@@ -1,6 +1,6 @@
 # 两段副本录像对照审计与修复清单
 
-状态：更新至第八批（2026-11-01），待实玩验收。下方审计表保留初审基线，当前状态以本节和各批记录为准；不表示所有差异已穷尽。
+状态：更新至第九批（2026-11-02），待实玩验收。下方审计表保留初审基线，当前状态以本节和各批记录为准；不表示所有差异已穷尽。
 
 ## 当前状态入口
 
@@ -268,3 +268,14 @@ UI-01继续修正：V1 76s及V2 12/76/104s清晰样本的图标约31×31，前�
 
 
 第八批证据：[实际布局前后对照](reference-evidence/02-skill-layout-comparison.png)、[同一采样矩形的图标像素对照](reference-evidence/02-skill-icon-pixel-comparison.png)、[浏览器读回](reference-evidence/02-skill-icon-browser-measurement.json)、[新版43房全画面](reference-evidence/02-room43-batch8-076.png)。43房实际北门方向键转房也已通过。布局对照保留实际默认六招，图标像素对比另用受控第二槽上挑；两种配置不能混同为录像默认角色已还原。
+
+
+## 第九批：技能冷却灰图（2026-11-02，待实玩验收）
+
+V1 148–153秒连续取样确认图标在彩色和灰色之间切换，灰色图标上未见本作蓝色小数计时和纵向遮罩。本次将既有冷却分支改为灰色图标，移除常驻技能槽上的小数秒数和遮罩；不修改冷却时长、伤害或触发条件。缺蓝、动作锁定、技能等级标签和短暂黄亮的具体规则仍待核对，未从单帧反推。
+
+新增skills-disabled.png：九招取本地客户端skillicon.img的灰色孪生帧，三招尚无已选原图的特效缩略图采用去色回退，不能冒称已匹配录像图标。原skills.png的彩色与BUFF两行字节完全不变。来源与哈希见skill-disabled-sources.json；修改彩色图集后需重跑 `python3 assets/import_dnf_skill_states.py --manifest docs/reference-evidence/skill-disabled-sources.json`，单测会检查来源哈希与技能顺序。
+
+305项单元测试、七组浏览器检查通过。真实S键施放上挑后进入灰图，实际冷却结束后恢复的彩色像素与施放前完全一致。灰图主体取样排除录像等级字与键帽，色差通道跨度均值为0，亮度相关约0.785；旧7fa3f86同一回归色差约18.24、相关0.227，明确失败。该指标不表示等级字形或整套HUD完全一致。
+
+证据：[连续帧](reference-evidence/01-skill-state-sequence.jpg)、[前后对照](reference-evidence/01-skill-cooldown-comparison.png)、[真实按键读回](reference-evidence/01-skill-state-browser-measurement.json)、[实际冷却画面](reference-evidence/01-skill-state-cooldown-actual.png)。连续帧时间为4fps抽样的标称中心时刻，未据此确定原游戏冷却公式。新资源已加入加载清单和Pages显式发布列表。

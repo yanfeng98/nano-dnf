@@ -10543,3 +10543,42 @@ test("skill icons and empty sockets follow the measured 31px icons and 35px pitc
   assert.deepEqual(Render.hitTestLoadout(590, 515, false), { kind: "slot", index: 1 });
   assert.equal(Render.hitTestLoadout(763, 515, false), null, "no stale hit area beyond the measured row");
 });
+
+
+test("cooldown icons are neutral client art while the original ready icons keep their colour", () => {
+  const disabled = decodeRgbaPng(path.join(__dirname, "../assets/skills-disabled.png"));
+  const colour = decodeRgbaPng(path.join(__dirname, "../assets/skills.png"));
+  assert.equal(disabled.width, 32 * Core.SKILL_ORDER.length);
+  assert.equal(disabled.height, 32);
+  const provenance = JSON.parse(fs.readFileSync(path.join(__dirname, "../docs/reference-evidence/skill-disabled-sources.json")));
+  const hash = name => require("node:crypto").createHash("sha256").update(fs.readFileSync(path.join(__dirname, "../assets", name))).digest("hex");
+  assert.equal(provenance.colour_sha256, hash("skills.png"), "rebake cooldown icons after changing the colour atlas");
+  assert.equal(provenance.disabled_sha256, hash("skills-disabled.png"));
+  assert.deepEqual(provenance.icons.map(icon => icon.skill), Core.SKILL_ORDER);
+  for (let slot = 0; slot < Core.SKILL_ORDER.length; slot++) {
+    let chroma = 0, n = 0;
+    for (let y = 0; y < 32; y++) for (let x = 0; x < 32; x++) {
+      const o = (y * disabled.width + slot * 32 + x) * 4;
+      if (disabled.pixels[o + 3] < 200) continue;
+      const c = [...disabled.pixels.subarray(o, o + 3)];
+      chroma += Math.max(...c) - Math.min(...c); n++;
+    }
+    assert.ok(n > 100 && chroma / n < 12, `${Core.SKILL_ORDER[slot]} has a neutral cooldown icon`);
+  }
+  assert.equal(colour.height, 64, "the existing colour and buff rows are preserved");
+});
+
+test("the compact bar switches to grey during cooldown and restores colour without a decimal overlay", () => {
+  const state = Core.createState({ seed: 1 }), colour = { width: 384, height: 64 }, grey = { width: 384, height: 32 };
+  state.player.mp = state.player.maxMp;
+  for (const cooldown of [0, 0.8, 0]) {
+    state.player.skillCooldowns.upSlash = cooldown;
+    const calls = [];
+    Render.render(recordingContext(calls), state, { sprites: { skills: colour, skillsDisabled: grey },
+      loadout: [null, "upSlash", null, null, null, null] });
+    const icon = calls.find(c => c[0] === "drawImage" && (c[1] === colour || c[1] === grey));
+    assert.equal(icon[1], cooldown ? grey : colour);
+    assert.ok(!calls.some(c => c[0] === "fillText" && c[1] === "0.8"),
+      "the recorded compact icon has no invented decimal countdown");
+  }
+});

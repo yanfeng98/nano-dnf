@@ -1,0 +1,20 @@
+[
+  {
+    "name": "ready",
+    "chroma": 52.81336405529954,
+    "correlation": 0.8136824869591203,
+    "cooldown": 0
+  },
+  {
+    "name": "cooldown",
+    "chroma": 0,
+    "correlation": 0.7847622739769653,
+    "cooldown": 1.4833333333333334
+  },
+  {
+    "name": "recovered",
+    "chroma": 52.81336405529954,
+    "correlation": 0.8136824869591203,
+    "cooldown": 0
+  }
+]

@@ -53,6 +53,7 @@
   var ASSET_ENTRIES = [
     ["slayer", "./assets/slayer.png"],
     ["skills", "./assets/skills.png"],
+    ["skillsDisabled", "./assets/skills-disabled.png"],
     ["effects", "./assets/effects.png"],
     ["rift", "./assets/rift.png"],
     /*
