@@ -37,11 +37,12 @@ try {
     await page.keyboard.press('p');
     const actual = await page.evaluate(() => {
       const C = window.DNFCore, s = window.nanoDnf.getState(), p = s.player;
-      return { stage: s.stage.id, level: p.level, name: p.name, upSlashRank: p.skillRanks?.upSlash, attackBonus: p.attackBonus,
+      return { stage: s.stage.id, upSlashSlot: window.nanoDnf.getLoadout().indexOf("upSlash"), level: p.level, name: p.name, upSlashRank: p.skillRanks?.upSlash, attackBonus: p.attackBonus,
         maxHp: p.maxHp, maxMp: p.maxMp, xpToNext: p.xpToNext,
         expectedHp: C.PLAYER.maxHp + (p.level - 1) * C.PROGRESSION.maxHpPerLevel,
         expectedMp: C.PLAYER.maxMp + (p.level - 1) * C.PROGRESSION.maxMpPerLevel };
     });
+    assert.equal(actual.upSlashSlot, 1);
     assert.equal(actual.stage, stage); assert.equal(actual.level, level);
     assert.equal(actual.name, '阿努纳奇'); assert.equal(actual.upSlashRank, 1);
     assert.equal(actual.maxHp, actual.expectedHp); assert.equal(actual.maxMp, actual.expectedMp);
@@ -58,6 +59,17 @@ try {
     await page.evaluate(() => window.nanoDnf.restart());
     assert.equal(await page.evaluate(() => window.nanoDnf.getState().player.level), level);
   }
+  // A custom/saved bar is intentional: refreshing must not silently reorder it.
+  const custom = ['upSlash', 'mountainBreaker', null, 'bloodSword', null, null];
+  await page.evaluate(slots => window.nanoDnf.setLoadout(slots), custom);
+  await page.reload();
+  await page.waitForFunction(() => window.nanoDnf?.getAssetState().ready);
+  assert.deepEqual(await page.evaluate(() => window.nanoDnf.getLoadout()), custom);
+  const reset = await page.evaluate(() => window.nanoDnf.resetLoadout());
+  assert.equal(reset[1], 'upSlash');
+  await page.reload();
+  await page.waitForFunction(() => window.nanoDnf?.getAssetState().ready);
+  assert.deepEqual(await page.evaluate(() => window.nanoDnf.getLoadout()), reset);
   fs.writeFileSync(`${out}/measurement.json`, JSON.stringify(results, null, 2));
   console.log('starting profiles OK', results);
 } finally {

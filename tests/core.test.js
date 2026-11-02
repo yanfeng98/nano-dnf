@@ -7612,7 +7612,7 @@ test("the skill loadout assigns, swaps, clears and round-trips", () => {
 
   const moved = Loadout.assign(base, 0, "bloodSword");
   assert.equal(moved[0], "bloodSword");
-  assert.equal(moved[3], "upSlash", "the displaced skill swaps into the old slot");
+  assert.equal(moved[3], base[0], "the displaced skill swaps into the old slot");
 
   const cleared = Loadout.clearSlot(moved, 0);
   assert.equal(cleared[0], null);
@@ -10618,4 +10618,13 @@ test("reference up-slash rank is independent of character level and unknown rank
     assert.deepEqual(labels.map(c => c[2]), [200, 20]);
     assert.ok(labels.every(c => c[3] === (cooldown ? 12 : 0)));
   }
+});
+
+
+test("recorded up-slash occupies default S while saved arrangements retain their positions", () => {
+  const Loadout = require("../src/loadout.js");
+  const initial = Loadout.create(Core.SKILL_ORDER);
+  assert.equal(initial[Loadout.slotForCode("KeyS")], "upSlash");
+  const previous = "upSlash,mountainBreaker,crossSlash,bloodSword,graspHead,mountainRift";
+  assert.equal(Loadout.deserialize(previous, Core.SKILL_ORDER)[0], "upSlash");
 });

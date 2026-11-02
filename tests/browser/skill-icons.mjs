@@ -31,8 +31,8 @@ try {
   await page.keyboard.press('Enter');
   await page.waitForTimeout(3400);
   await page.keyboard.press('p');
+  assert.equal(await page.evaluate(() => window.nanoDnf.getLoadout()[1]), 'upSlash', 'reference up-slash must appear in default S slot');
   await page.evaluate(() => {
-    window.nanoDnf.setLoadout([null, 'upSlash', null, null, null, null]);
     const p = window.nanoDnf.getState().player;
     p.mp = p.maxMp; p.skillCooldowns.upSlash = 0;
     const render = window.DNFRender.render;

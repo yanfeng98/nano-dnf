@@ -35,7 +35,6 @@ try {
   });
   await page.keyboard.press('p');
   await page.evaluate(() => {
-    window.nanoDnf.setLoadout([null, 'upSlash', null, null, null, null]);
     const p = window.nanoDnf.getState().player;
     p.mp = p.maxMp;
     const render = window.DNFRender.render;
