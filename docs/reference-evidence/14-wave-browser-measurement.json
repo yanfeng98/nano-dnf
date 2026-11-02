@@ -1,0 +1,183 @@
+{
+  "icon": {
+    "correlation": 0.7079533734258571,
+    "rect": [
+      619,
+      503,
+      31,
+      31
+    ]
+  },
+  "snapshots": [
+    {
+      "name": "launch",
+      "casting": true,
+      "skillId": "normalWave",
+      "cooldown": 2.4333333333333353,
+      "playerX": 110,
+      "frame": {
+        "row": 14,
+        "col": 8
+      },
+      "shots": [
+        {
+          "x": 180,
+          "z": 0,
+          "life": 0.8166666666666664,
+          "facing": 1
+        }
+      ],
+      "draws": [
+        {
+          "sourceY": 3968,
+          "blend": "lighter"
+        },
+        {
+          "sourceY": 3968,
+          "blend": "lighter"
+        },
+        {
+          "sourceY": 3968,
+          "blend": "lighter"
+        },
+        {
+          "sourceY": 3968,
+          "blend": "lighter"
+        },
+        {
+          "sourceY": 3968,
+          "blend": "lighter"
+        },
+        {
+          "sourceY": 3968,
+          "blend": "lighter"
+        },
+        {
+          "sourceY": 3968,
+          "blend": "lighter"
+        }
+      ]
+    },
+    {
+      "name": "after-cast",
+      "casting": false,
+      "skillId": null,
+      "cooldown": 2.283333333333336,
+      "playerX": 110,
+      "frame": {
+        "row": 0,
+        "col": 1
+      },
+      "shots": [
+        {
+          "x": 234,
+          "z": 0,
+          "life": 0.666666666666666,
+          "facing": 1
+        }
+      ],
+      "draws": [
+        {
+          "sourceY": 3968,
+          "blend": "lighter"
+        },
+        {
+          "sourceY": 3968,
+          "blend": "lighter"
+        },
+        {
+          "sourceY": 3968,
+          "blend": "lighter"
+        },
+        {
+          "sourceY": 3968,
+          "blend": "lighter"
+        },
+        {
+          "sourceY": 3968,
+          "blend": "lighter"
+        },
+        {
+          "sourceY": 3968,
+          "blend": "lighter"
+        },
+        {
+          "sourceY": 3968,
+          "blend": "lighter"
+        },
+        {
+          "sourceY": 3968,
+          "blend": "lighter"
+        },
+        {
+          "sourceY": 3968,
+          "blend": "lighter"
+        },
+        {
+          "sourceY": 3968,
+          "blend": "lighter"
+        },
+        {
+          "sourceY": 3968,
+          "blend": "lighter"
+        },
+        {
+          "sourceY": 3968,
+          "blend": "lighter"
+        },
+        {
+          "sourceY": 3968,
+          "blend": "lighter"
+        },
+        {
+          "sourceY": 3968,
+          "blend": "lighter"
+        },
+        {
+          "sourceY": 3968,
+          "blend": "lighter"
+        },
+        {
+          "sourceY": 3968,
+          "blend": "lighter"
+        },
+        {
+          "sourceY": 3968,
+          "blend": "lighter"
+        },
+        {
+          "sourceY": 3968,
+          "blend": "lighter"
+        },
+        {
+          "sourceY": 3968,
+          "blend": "lighter"
+        },
+        {
+          "sourceY": 3968,
+          "blend": "lighter"
+        },
+        {
+          "sourceY": 3968,
+          "blend": "lighter"
+        },
+        {
+          "sourceY": 3968,
+          "blend": "lighter"
+        },
+        {
+          "sourceY": 3968,
+          "blend": "lighter"
+        },
+        {
+          "sourceY": 3968,
+          "blend": "lighter"
+        },
+        {
+          "sourceY": 3968,
+          "blend": "lighter"
+        }
+      ]
+    }
+  ]
+}

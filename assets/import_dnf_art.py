@@ -65,6 +65,7 @@ SKILL_IDS = [
     "mountainRift",
     "berserk",
     "ghostSlash",
+    "normalWave",
 ]
 
 # Official skill-icon frames the project owner picked from the labelled atlas
@@ -76,6 +77,8 @@ SKILL_IDS = [
 # All eleven frames were picked by the project owner from that sheet, so every
 # hotbar slot shows the real DNF icon for its skill.
 ICON_FRAMES = {
+    # Local normalwave.skl maps 地裂波动剑 to6/7; V2 third-slot crop matches6.
+    "normalWave": 6,
     # Local hardattack.skl names 鬼斩 and selects frame10 (disabled11);
     # V1/V2 first-slot crops independently match frame10.
     "ghostSlash": 10,

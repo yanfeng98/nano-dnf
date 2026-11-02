@@ -207,16 +207,21 @@
   /* ---------------------------------------------------------- skill bar */
   var LOADOUT_KEY = "nano-dnf-loadout";
   var loadout = Loadout.create(Core.SKILL_ORDER);
+  var loadoutCustomized = false;
   var loadoutOpen = false;
   var drag = null;
   try {
     var savedLoadout = window.localStorage.getItem(LOADOUT_KEY);
-    if (savedLoadout) loadout = Loadout.deserialize(savedLoadout, Core.SKILL_ORDER);
+    if (savedLoadout) {
+      loadout = Loadout.deserialize(savedLoadout, Core.SKILL_ORDER);
+      loadoutCustomized = true;
+    }
   } catch (error) {
     loadout = Loadout.create(Core.SKILL_ORDER);
   }
 
   function saveLoadout() {
+    loadoutCustomized = true;
     try {
       window.localStorage.setItem(LOADOUT_KEY, Loadout.serialize(loadout));
     } catch (error) {
@@ -1553,6 +1558,7 @@
   });
 
   function restart() {
+    if (!loadoutCustomized) loadout = Loadout.create(Core.SKILL_ORDER, currentStage);
     state = Core.createState({ seed: currentSeed, stage: currentStage, referenceProfile: true });
     paused = false;
     accumulator = 0;
@@ -2202,7 +2208,7 @@
       return loadout.slice();
     },
     resetLoadout: function () {
-      loadout = Loadout.create(Core.SKILL_ORDER);
+      loadout = Loadout.create(Core.SKILL_ORDER, currentStage);
       saveLoadout();
       return loadout.slice();
     },

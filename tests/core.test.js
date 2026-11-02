@@ -3134,7 +3134,8 @@ test("the shipped sprite sheet matches the frame grid the renderer expects", () 
     /* The town's own gait: the client's upright eight-frame walk 180-187,
      * which sits right after the stand 176-179 and is not the dungeon's run. */
     walk: 12,
-    ghostSlash: 13
+    ghostSlash: 13,
+    normalWave: 14
   });
   /*
    * Every played frame has to exist inside its row. The run is the client's
@@ -6056,10 +6057,10 @@ test("the stance paints him red, carries a second blade and draws nothing else",
   assert.equal(Render.EFFECT.rageSwipeRows, undefined, "no separate crescent rows out here");
   assert.equal(
     Render.EFFECT.extraRowCount,
-    17,
+    18,
     "the extra rows are the orb, the dive arc, the red fan, the two blades, the gathering, " +
       "嗜魂封魔斩's vortex, the fog at his hand, 魔狱血刹's sword, its white warning, its 血丝, " +
-      "its 成形, the ring that 成形 opens with, the star it opens into, 大蹦's fire and ghost slash's front blade"
+      "its 成形, the ring that 成形 opens with, the star it opens into, 大蹦's fire, ghost slash's front blade and ground-wave qi"
   );
   state.player.comboIndex = 0;
   state.player.attackTimer = state.player.attackDuration * 0.5;
@@ -10640,7 +10641,9 @@ test("default A casts ghost slash once in front, with its own MP and cooldown", 
   const near = Core.createEnemy(state, "brute", p.x + 60);
   const behind = Core.createEnemy(state, "brute", p.x - 60);
   for (const e of [near, behind]) { e.hp = e.maxHp = 1000; e.z = p.z; e.stun = 10; }
-  state.enemies = [near, behind];
+  const otherLane = Core.createEnemy(state, "grunt", p.x + 60);
+  otherLane.hp = otherLane.maxHp = 1000; otherLane.z = p.z + 120; otherLane.stun = 10;
+  state.enemies = [near, behind, otherLane];
   const mp = p.mp;
   Core.step(state, { skills: { [id]: true } });
   assert.equal(p.skillId, "ghostSlash");
@@ -10649,6 +10652,7 @@ test("default A casts ghost slash once in front, with its own MP and cooldown", 
   const damage = near.maxHp - near.hp;
   assert.equal(damage, Math.round(Core.SKILLS.ghostSlash.damage + (p.level - 1) * Core.SKILLS.ghostSlash.growth + p.attackBonus));
   assert.equal(behind.hp, behind.maxHp);
+  assert.equal(otherLane.hp, 1000, "ghost slash cannot hit another depth lane");
   assert.ok(p.skillCooldowns.ghostSlash > 0);
   Core.step(state, { skills: { ghostSlash: true } });
   assert.equal(p.skillTimer, 0, "cooldown rejects immediate recast");
@@ -10671,4 +10675,73 @@ test("ghost slash follows native frame delays and refuses casts without MP", () 
   Core.step(state, { skills: { ghostSlash: true } });
   assert.equal(p.skillTimer, 0);
   assert.equal(p.skillCooldowns.ghostSlash, 0);
+});
+
+test("deep reference D slot equips ground wave without rewriting saved or normal bars", () => {
+  const Loadout = require('../src/loadout.js');
+  assert.equal(Loadout.create(Core.SKILL_ORDER, 'mirkwooddeep')[Loadout.slotForCode('KeyD')], 'normalWave');
+  assert.equal(Loadout.create(Core.SKILL_ORDER, 'mirkwood')[2], 'crossSlash', 'normal third slot remains provisional, not inferred from the deep video');
+  const custom = ['ghostSlash', 'upSlash', 'bloodSword', null, null, null];
+  assert.deepEqual(Loadout.deserialize(Loadout.serialize(custom), Core.SKILL_ORDER), custom);
+});
+
+
+test("ground wave leaves the caster, survives recovery and pierces each aligned enemy once", () => {
+  for (const facing of [-1, 1]) {
+    const state = lastRoomState(), p = state.player, spec = Core.SKILLS.normalWave;
+    p.x = 320; p.facing = facing; p.mp = p.maxMp;
+    const originX = p.x, originZ = p.z;
+    const targets = [[120, 0], [220, 0], [-100, 0], [160, 120]].map(([dx,dz]) => {
+      const e = Core.createEnemy(state, 'grunt', originX + facing * dx);
+      e.x = originX + facing * dx; e.z = originZ + dz;
+      e.hp = e.maxHp = 1000; e.stun = 10; return e;
+    });
+    state.enemies = targets;
+    const mp = p.mp;
+    Core.step(state, { skills: { normalWave: true } });
+    assert.equal(p.skillId, 'normalWave');
+    assert.ok(p.mp <= mp - spec.mp + 1);
+    Core.runFrames(state, 20, {});
+    assert.equal(state.shots.length, 0, 'casting does not hit at key-down');
+    assert.ok(targets.every(e => e.hp === 1000));
+    for (let i = 0; !state.shots.length && i < 60; i++) Core.step(state, {});
+    assert.equal(state.shots.length, 1);
+    const qi = state.shots[0];
+    p.x -= facing * 80; p.facing = -facing;
+    while (p.skillTimer > 0) Core.step(state, {});
+    assert.ok(state.shots.includes(qi), 'qi remains after the body animation ends');
+    assert.equal(targets[1].hp, 1000, 'the distant target has not yet met the travelling qi');
+    assert.equal(qi.facing, facing, 'turning the player cannot turn an emitted wave');
+    assert.equal(qi.z, originZ);
+    Core.runFrames(state, 60, {});
+    const damage = Math.round(spec.damage + (p.level - 1) * spec.growth + p.attackBonus);
+    assert.equal(targets[0].hp, 1000 - damage);
+    assert.equal(targets[1].hp, 1000 - damage, 'a second target is hit beyond melee reach');
+    assert.equal(targets[2].hp, 1000, 'the enemy behind the cast origin is safe');
+    assert.equal(targets[3].hp, 1000, 'qi does not hit enemies in another depth lane');
+    assert.equal(state.shots.length, 0, 'qi expires');
+    Core.step(state, { skills: { normalWave: true } });
+    assert.equal(p.skillTimer, 0, 'cooldown rejects immediate recast');
+  }
+});
+
+test("ground wave uses the native casting hold and refuses insufficient MP or an air cast", () => {
+  const source = JSON.parse(fs.readFileSync(path.join(__dirname, '../docs/reference-evidence/14-client-wave-sources.json')));
+  const skill = source.skills.find(s => s.path === 'skill/swordman/normalwave.skl');
+  const frames = source.animations['character/swordman/animation/wave.ani'].frames;
+  assert.equal(frames[0].delay_ms, 10000, 'native first frame is a hold sentinel');
+  const delays = frames.map((f,i) => i === 0 ? skill['[casting time]'][0] : f.delay_ms);
+  assert.equal(delays.reduce((a,b) => a+b,0)/1000, Core.SKILLS.normalWave.duration);
+  const state = lastRoomState(), p = state.player;
+  p.skillId = 'normalWave'; let elapsed = 0;
+  delays.forEach((delay, index) => {
+    p.skillTimer = Core.SKILLS.normalWave.duration - (elapsed + delay / 2)/1000;
+    assert.deepEqual(Render.playerFrame(state, p), { row:14, col:index }); elapsed += delay;
+  });
+  p.skillTimer = 0; p.mp = Core.SKILLS.normalWave.mp - 1;
+  Core.step(state, { skills: { normalWave: true } });
+  assert.equal(p.skillTimer, 0); assert.equal(state.shots.length, 0);
+  p.mp = p.maxMp; p.onGround = false; p.y -= 80;
+  Core.step(state, { skills: { normalWave: true } });
+  assert.equal(p.skillTimer, 0); assert.equal(state.shots.length, 0);
 });

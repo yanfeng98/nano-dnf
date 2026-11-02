@@ -32,9 +32,12 @@
     "mountainRift"
   ];
 
-  function create(skillIds) {
+  function create(skillIds, stageId) {
     var valid = skillIds || [];
-    return DEFAULT_SLOTS.map(function (skillId) {
+    var defaults = DEFAULT_SLOTS.slice();
+    // Only V2 confirms frame6 in D; do not infer the normal route from it.
+    if (stageId === "mirkwooddeep") defaults[2] = "normalWave";
+    return defaults.map(function (skillId) {
       return valid.indexOf(skillId) === -1 ? null : skillId;
     });
   }

@@ -94,6 +94,14 @@
     return { frames: 1, from: from, until: ghostSlashElapsed / 950 };
   });
 
+  // wave.ani's 10000ms first frame is a casting hold; normalwave.skl sets200ms.
+  var normalWaveElapsed = 0;
+  var NORMAL_WAVE_BEATS = [200, 50, 50, 50, 50, 50, 50, 50, 150].map(function (delay) {
+    var from = normalWaveElapsed / 700;
+    normalWaveElapsed += delay;
+    return { frames: 1, from: from, until: normalWaveElapsed / 700 };
+  });
+
   var SPRITE = {
     frameW: 208,
     frameH: 176,
@@ -136,7 +144,7 @@
              * 紧跟一组直立八帧步行 180-187，和副本那条前倾的 run（105-112）
              * 是两套动作。放在最后一行，前面每一行的编号不动。
              */
-            walk: 12, ghostSlash: 13 },
+            walk: 12, ghostSlash: 13, normalWave: 14 },
     /* Frames the renderer actually plays per row; the rest of the row is spare art.
        The stand is a four-frame breath off the client's "still" frames, the attack
        is the whole normal-attack chain (see Core.ATTACK_STAGES). */
@@ -196,6 +204,7 @@
       /* 上挑 is the client's own 42-50 on the sm_body0048 sheet = 43-51 here. */
       upSlash: { row: 3, first: 6, frames: 9 },
       ghostSlash: { row: 13, first: 0, frames: 18, beats: GHOST_SLASH_BEATS },
+      normalWave: { row: 14, first: 0, frames: 9, beats: NORMAL_WAVE_BEATS },
       /*
        * The client's own 崩山击, straight off its preview clip: 187 (the blade
        * still down and forward) and 194/203 (both hands up, the blade over the
@@ -595,6 +604,7 @@
   var EFFECT = {
     cell: 128,
     rowFrames: {
+      normalWave: 6,
       ghostSlash: 6,
       upSlash: 9,
       mountainBreaker: 6,
@@ -839,7 +849,7 @@
      * fire. The bake test reads this rather than a literal, so adding a row
      * cannot leave the shipped atlas and the grid disagreeing.
      */
-    extraRowCount: 17,
+    extraRowCount: 18,
     /*
      * 大蹦 is the one move whose art is drawn far bigger than a cell can hold:
      * its own row on assets/effects.png would be ~120x72 px of art stretched
@@ -867,9 +877,14 @@
      * why its draw entry also carries `front` - without that the row would be
      * painted twice, once behind him and once in front.
      */
-    frontFrames: { mountainRift: 45, mountainBreaker: 6, ghostSlash: 6 },
+    frontFrames: { mountainRift: 45, mountainBreaker: 6, ghostSlash: 6, normalWave: 6 },
     frontRows: { ghostSlash: Core.SKILL_ORDER.length + 16 },
+    shotRows: {
+      normalWave: { row: Core.SKILL_ORDER.length + 17, frames: 4, frameSeconds: 0.05,
+                    size: 87.04, dy: -21.76, blend: "lighter" }
+    },
     draw: {
+      normalWave: { dx: 28.56, dy: -35.36, size: 149.6, copies: 1, spin: 0, front: true, blend: "lighter" },
       // 212-client-pixel window at body scale0.68; centre(56,-60)
       // relative to nominal body feet(10,8), from hardattack ANI positions.
       ghostSlash: { dx: 31.28, dy: -46.24, size: 144.16, copies: 1, spin: 0, frontBlend: "lighter" },
@@ -1167,6 +1182,7 @@
      * rift still glowing under the Slayer are drawn while he stands in them.
      */
     timing: {
+      normalWave: { from: 0.25 / 0.7, to: 0.55 / 0.7 },
       ghostSlash: { from: 0.15 / 0.95, to: 0.45 / 0.95 },
       mountainRift: { from: 0, to: 0.99 },
       /*
@@ -1255,6 +1271,7 @@
      * keeping the fade on the last eighth is what the reference's own outro does.
      */
     fade: {
+      normalWave: { from: 0, to: 1, floor: 1 },
       ghostSlash: { from: 0, to: 1, floor: 1 }, // native frames already carry their alpha
 
       mountainRift: { from: 0.92, to: 1, floor: 0.95 },
@@ -1344,6 +1361,7 @@
 
   /* Short DNF-style effect tags shown in the loadout panel. */
   var EFFECT_LABEL = {
+    normalWave: "贴地剑气 · 倒地",
     ghostSlash: "闇属性斩击",
     upSlash: "浮空",
     mountainBreaker: "跳劈 · 倒地",
@@ -4848,6 +4866,23 @@
       }
       ctx.restore();
     }
+  }
+
+  // Player sword qi owns its position and lifetime, independently of the caster.
+  function drawSwordQi(ctx, shot, sprites) {
+    var draw = EFFECT.shotRows[shot.skillId];
+    if (!draw || !sprites || !sprites.effects || !sprites.effects.width) return;
+    var age = Math.max(0, shot.maxLife - shot.life);
+    var column = Math.floor((age + 0.0000001) / draw.frameSeconds) % draw.frames;
+    ctx.save();
+    ctx.translate(shot.x, feetY(shot));
+    ctx.scale(shot.facing || 1, 1);
+    ctx.globalCompositeOperation = draw.blend;
+    ctx.imageSmoothingEnabled = true;
+    ctx.drawImage(sprites.effects, column * EFFECT.cell, draw.row * EFFECT.cell,
+                  EFFECT.cell, EFFECT.cell, -draw.size / 2, draw.dy - draw.size / 2,
+                  draw.size, draw.size);
+    ctx.restore();
   }
 
   function drawProjectile(ctx, state, shot) {
@@ -9319,6 +9354,11 @@
       add(shot.z, function () {
         drawProjectile(ctx, state, shot);
       });
+    });
+
+    (state.shots || []).forEach(function (shot) {
+      if (!EFFECT.shotRows[shot.skillId]) return;
+      add(shot.z, function () { drawSwordQi(ctx, shot, sprites); });
     });
 
     var behind = playerZ + LAYER_GAP;

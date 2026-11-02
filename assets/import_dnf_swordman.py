@@ -75,7 +75,7 @@ ROWS = ["idle", "run", "attack", "skill", "extras", "clips", "clips2", "bloodbla
         "awaken",
         # 城镇的**走路**（2026-10-27）。步行循环紧挨着待机帧（176-179），见
         # CELLS["walk"]。放在最后一行，免得把前面每一行的编号都挪一遍。
-        "walk", "ghostSlash"]
+        "walk", "ghostSlash", "normalWave"]
 
 # Per-move body animations, picked by the owner off the body sheet next to each
 # skill's own client clip. Only the picked frames go in: widening them to their
@@ -320,6 +320,8 @@ OVERLAYS = [("eye", 2, 24, 20), ("blood", 0, 32, 24)]
 # are left out. Cells past a row's frame count are spare art the renderer never
 # reaches, so the still stand repeats to fill its row instead of leaving blanks.
 CELLS = {
+    # wave.ani: casting hold frame42, then43–50.
+    "normalWave": list(range(42, 51)),
     # Native hardattack.ani, 18 timed frames; append so existing clips do not move.
     "ghostSlash": list(range(139, 157)),
     "idle": [176, 177, 178, 179] * 3,

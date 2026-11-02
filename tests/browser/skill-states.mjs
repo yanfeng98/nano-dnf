@@ -112,7 +112,7 @@ try {
   assert.equal(ghost.skillId, 'ghostSlash'); assert.ok(ghost.cooldown > 0);
   assert.equal(ghost.frame.row, 13);
   assert.ok(ghost.draws.some(d => d.source === 'effects.png' && d.sourceY === 12 * 128 && d.blend === 'source-over'));
-  assert.ok(ghost.draws.some(d => d.source === 'effects.png' && d.sourceY === 29 * 128 && d.blend === 'lighter'));
+  assert.ok(ghost.draws.some(d => d.source === 'effects.png' && d.sourceY === (14 + 16) * 128 && d.blend === 'lighter'));
   const url = await page.locator('#stage').evaluate(c => c.toDataURL('image/png'));
   fs.writeFileSync(`${out}/ghost-slash.png`, Buffer.from(url.split(',')[1], 'base64'));
   fs.writeFileSync(`${out}/ghost-slash.json`, JSON.stringify(ghost, null, 2));

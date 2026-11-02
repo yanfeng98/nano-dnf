@@ -1,0 +1,12 @@
+{
+  "baseline_commit": "d7e568c",
+  "existing_body_rows_unchanged": true,
+  "existing_colour_and_buff_cells_unchanged": true,
+  "existing_disabled_cells_unchanged": true,
+  "existing_skill_effect_rows_unchanged": true,
+  "existing_auxiliary_rows_only_shifted": true,
+  "before_D_icon_correlation": 0.3415316744509102,
+  "after_D_icon_correlation": 0.7079533734258603,
+  "full_bake_patch_handoff_preserves_atlas": true,
+  "both_importers_idempotent": true
+}

@@ -478,13 +478,23 @@
    * a cooldown, and damage that grows with the skill level (here: character level).
    */
   var SKILLS = {
+    normalWave: {
+      id: "normalWave", name: "地裂波动剑", key: "D",
+      // Local normalwave.skl: MP17, cooldown3s, casting hold200ms.
+      // Damage, flight speed/range and reaction magnitudes remain provisional.
+      mp: 17, cooldown: 3, damage: 18, growth: 0, duration: 0.7, groundOnly: true,
+      activeFrom: 0.5, activeTo: 0.55, reach: 70, heightPad: 0,
+      knockbackX: 160, knockdown: 0.75, launch: 0, radius: 0, hits: 1,
+      shot: { hit: 0, from: 0.5, ahead: 40, speed: 360, reach: 70,
+              height: 32, heightPad: 0, depthReach: 40 / SLAYER_HEIGHT, life: 0.9 }
+    },
     ghostSlash: {
       id: "ghostSlash", name: "鬼斩", key: "A",
       // MP/cooldown and 0.95s animation from local hardattack.skl/.ani.
       // Damage/reach remain this game's provisional combat model.
       mp: 17, cooldown: 6, damage: 26, growth: 0, duration: 0.95,
       activeFrom: 0.15, activeTo: 0.45, reach: 100, heightPad: 16,
-      depthReach: 40, knockbackX: 160, launch: 0, radius: 0, hits: 1
+      depthReach: 40 / SLAYER_HEIGHT, knockbackX: 160, launch: 0, radius: 0, hits: 1
     },
     upSlash: {
       id: "upSlash",
@@ -1584,7 +1594,8 @@
      * appending keeps every existing row where the art already has it.
      */
     "berserk",
-    "ghostSlash"
+    "ghostSlash",
+    "normalWave"
   ];
   /*
    * Every skill the Slayer can end up casting, in the order the cooldown table
@@ -5676,7 +5687,8 @@
       z: player.z || 0,
       facing: player.facing,
       y: player.y,
-      height: player.height,
+      height: shot.height === undefined ? player.height : shot.height,
+      depthReach: shot.depthReach,
       reach: shot.reach,
       heightPad: shot.heightPad,
       damage: damage,
@@ -5700,7 +5712,7 @@
       var box = shotBox(shot);
       state.enemies.forEach(function (enemy) {
         if (enemy.dead || shot.struck.indexOf(enemy.id) !== -1) return;
-        if (!inReachOf(enemy.z, shot.z, undefined)) return;
+        if (!inReachOf(enemy.z, shot.z, shot.depthReach)) return;
         if (!boxesOverlap(box, bodyBox(enemy))) return;
         shot.struck.push(enemy.id);
         applySkillHit(state, enemy, shot.damage, SKILLS[shot.skillId], shot.hitIndex);
@@ -6811,6 +6823,7 @@
       var spec = SKILLS[skillId];
       return (
         input.skills[skillId] &&
+        (!spec.groundOnly || player.onGround) &&
         player.skillTimer <= 0 &&
         (player.attackTimer <= 0 || attackRecovering) &&
         player.skillCooldowns[skillId] <= 0 &&

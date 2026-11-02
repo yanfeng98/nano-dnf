@@ -80,12 +80,12 @@ for name in ['skill/swordman/hardattack.skl','skill/swordman/upperslash.skl','sk
    elif val=='[/dungeon]':in_dungeon=False
   elif section in ['[name]','[name2]','[icon]']:
    record.setdefault(section,[]).append(val)
-  elif in_dungeon and section in ['[consume MP]','[cool time]']:
+  elif in_dungeon and section in ['[consume MP]','[cool time]','[casting time]','[static data]']:
    record.setdefault(section,[]).append(val)
  result['skills'].append(record)
-for name in ['character/swordman/animation/hardattack.ani','character/swordman/effect/animation/hardattack1.ani','character/swordman/effect/animation/hardattack2.ani']:
+for name in ['character/swordman/animation/hardattack.ani','character/swordman/effect/animation/hardattack1.ani','character/swordman/effect/animation/hardattack2.ani','character/swordman/animation/wave.ani','character/swordman/effect/animation/normalwave.ani','passiveobject/character/swordman/animation/normalwave.ani']:
  decoded=parse(read(name))
- result['animations'][name]={'paths':decoded['paths'],'frames':[
+ result['animations'][name]={'paths':decoded['paths'],'overall':decoded['overall'],'frames':[
   {'image':v['frame'],'position':v['xy'],'delay_ms':dict(v['props']).get(12),
    'graphic_effect':dict(v['props']).get(11)} for v in decoded['frames']]}
 args.out.parent.mkdir(parents=True,exist_ok=True)
