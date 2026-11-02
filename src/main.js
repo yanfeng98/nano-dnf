@@ -316,7 +316,7 @@
   /* 通关后的翻牌奖励：`Reward.create` 的纯状态，`src/reward.js`（`docs/adr/0055`）。 */
   var reward = null;
 
-  var state = Core.createState({ seed: currentSeed, stage: currentStage });
+  var state = Core.createState({ seed: currentSeed, stage: currentStage, referenceProfile: true });
   var paused = false;
   var showHelp = true;
   /* "window" (the whole dungeon) or "radar" (the disc round the room he is in). */
@@ -1552,7 +1552,7 @@
   });
 
   function restart() {
-    state = Core.createState({ seed: currentSeed, stage: currentStage });
+    state = Core.createState({ seed: currentSeed, stage: currentStage, referenceProfile: true });
     paused = false;
     accumulator = 0;
     attractAccumulator = 0;

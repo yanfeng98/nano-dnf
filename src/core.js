@@ -4772,6 +4772,14 @@
         state.cell = clamp(options.cell, 0, state.dungeon.cells.length - 1);
       }
       state.player = createPlayer(options.startX || 110);
+      // Opt-in recording starts; the pure level-one fixture remains available.
+      var initialLevel = { mirkwood: 3, mirkwooddeep: 6 }[state.stage.id];
+      if (options.referenceProfile && initialLevel) {
+        state.player.name = "阿努纳奇";
+        while (state.player.level < initialLevel) advancePlayerLevel(state.player);
+        state.player.hp = state.player.maxHp;
+        state.player.mp = state.player.maxMp;
+      }
       beginRoom(state, null);
       state.transition = TRANSITION.dur;
       return state;
@@ -5819,11 +5827,7 @@
       player.level < PROGRESSION.maxLevel
     ) {
       player.xp -= player.xpToNext;
-      player.level += 1;
-      player.xpToNext = Math.round(player.xpToNext * PROGRESSION.growth);
-      player.maxHp += PROGRESSION.maxHpPerLevel;
-      player.maxMp += PROGRESSION.maxMpPerLevel;
-      player.attackBonus += PROGRESSION.attackPerLevel;
+      advancePlayerLevel(player);
       player.hp = Math.min(player.maxHp, player.hp + PROGRESSION.healOnLevelUp);
       player.mp = Math.min(player.maxMp, player.mp + PROGRESSION.maxMpPerLevel);
       levels += 1;
@@ -5832,6 +5836,14 @@
       pushBanner(state, "LEVEL UP - Lv " + player.level, 1.4);
     }
     return levels;
+  }
+
+  function advancePlayerLevel(player) {
+    player.level += 1;
+    player.xpToNext = Math.round(player.xpToNext * PROGRESSION.growth);
+    player.maxHp += PROGRESSION.maxHpPerLevel;
+    player.maxMp += PROGRESSION.maxMpPerLevel;
+    player.attackBonus += PROGRESSION.attackPerLevel;
   }
 
   /** The blood 血之狂暴 pulls out of a monster it just hit. */

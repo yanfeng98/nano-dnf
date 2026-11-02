@@ -4654,7 +4654,7 @@
     ctx.lineWidth = Math.max(1, 2.5 * Core.VIDEO_PX);
     ctx.strokeStyle = "rgba(24, 4, 32, 0.92)";
     var y = feetY(player) - (player.height || 84) - MONSTER_NAME.lift;
-    var text = "Lv." + player.level + " 鬼剑士";
+    var text = "Lv." + player.level + " " + (player.name || "鬼剑士");
     ctx.strokeText(text, player.x, y);
     ctx.fillStyle = "#e6eef8";
     ctx.fillText(text, player.x, y);
@@ -7521,7 +7521,7 @@
         ctx.font = HUD_FONT(10);
         ctx.strokeStyle = "#181818";
         ctx.lineWidth = 2;
-        var name = "Lv." + (player.level || 1) + " 鬼剑士";
+        var name = "Lv." + (player.level || 1) + " " + (player.name || "鬼剑士");
         var nameY = bottom - 132.5 - 10;
         ctx.strokeText(name, sx, nameY);
         ctx.fillStyle = "#f2e7ce";
@@ -8439,7 +8439,7 @@
     drawUiFrame(ctx, sheet, UI.rewardChest, 0, box.x, box.y, box.w, box.h);
   }
 
-  function drawRewardPage(ctx, reward, sprites) {
+  function drawRewardPage(ctx, reward, sprites, playerName) {
     var sheet = sprites && sprites.ui;
     ctx.save();
     ctx.fillStyle = "rgba(4, 9, 22, 0.66)";
@@ -8574,7 +8574,7 @@
        * `ref_nameplate` 的 318 宽里名字中心约在 166 处。所以 center = +84；
        * 纵向在**橙底中线** +24（业主复看说 +30 还靠下，见 0055 追记四）。
        */
-      ctx.fillText("鬼剑士", plateX + 84, plateY + 24);
+      ctx.fillText(playerName || "鬼剑士", plateX + 84, plateY + 24);
       ctx.textBaseline = "alphabetic";
 
       var cardX = 130;
@@ -8629,7 +8629,7 @@
        * 翻牌与开奖都在那一页（`docs/adr/0055`）。失败页不变。
        */
       if (state.victory && meta && meta.reward && meta.reward.phase !== "stats") {
-        drawRewardPage(ctx, meta.reward, sprites);
+        drawRewardPage(ctx, meta.reward, sprites, state.player.name);
         return;
       }
       ctx.save();
