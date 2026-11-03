@@ -39,6 +39,14 @@ const waitSeconds = Number(
 );
 const IDLE_SECONDS = 5;
 
+// Make the actual failure visible in the public Actions check annotations.
+// Otherwise a failed smoke step exposes only "exit code 1" without log access.
+function reportCiError(message) {
+  if (!process.env.GITHUB_ACTIONS) return;
+  const escaped = String(message).replace(/%/g, "%25").replace(/\r/g, "%0D").replace(/\n/g, "%0A");
+  console.error(`::error title=Live deployment verification::${escaped}`);
+}
+
 function chromiumLaunchOptions() {
   const cached = [
     process.env.CHROMIUM_PATH,
@@ -162,6 +170,7 @@ async function main() {
   );
 
   if (problems.length) {
+    problems.forEach(reportCiError);
     console.error(`live smoke FAILED:\n- ${problems.join("\n- ")}`);
     process.exit(1);
   }
@@ -174,6 +183,7 @@ const invokedDirectly =
 
 if (invokedDirectly) {
   main().catch((error) => {
+    reportCiError(error.stack || error);
     console.error(error);
     process.exit(1);
   });
