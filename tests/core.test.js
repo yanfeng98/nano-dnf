@@ -3404,18 +3404,14 @@ test("崩山击 flashes yellow at the top of its hop, behind him", () => {
    * from behind him. A flash of light over him would also be the one thing the
    * stance's own tint could turn into a second red.
    */
-  const renderSource = fs.readFileSync(path.join(__dirname, "..", "src", "render.js"), "utf8");
-  const flareAt = renderSource.indexOf("var flare = flareFlash(player);");
-  const bodyAt = renderSource.indexOf(
-    "drawSpriteFrame(ctx, body, frame.col, frame.row, player.x, feetY(player), player.facing < 0);"
-  );
-  assert.ok(flareAt > 0, "drawPlayer draws the flash");
-  assert.ok(bodyAt > flareAt, "and draws it before the body, so it is behind him");
-  assert.match(
-    renderSource,
-    /drawSpriteFrame\(ctx, image, frame\.col, SPRITE\.rows\.flare, player\.x, feetY\(player\),\s*\n\s*player\.facing < 0, flare\.scale\);/,
-    "off the plain sheet, scaled by what the clip declares"
-  );
+  flashAt((flare.from + flare.until) / 2);
+  const slayer = {width:sheet.width,height:sheet.height}, calls = [];
+  Render.render(recordingContext(calls),state,{sprites:{slayer}});
+  const flareAt = calls.findIndex(c => c[0] === 'drawImage' && c[1] === slayer && c[3] === flareRow*176);
+  const bodyAt = calls.findIndex(c => c[0] === 'drawImage' && c[1] === slayer && c[3] === clip.row*176);
+  assert.ok(flareAt >= 0, 'the actual renderer draws the plain-sheet flash');
+  assert.ok(bodyAt > flareAt, 'the actual flash draw precedes the body');
+  assert.equal(calls[flareAt][8], Render.SPRITE.frameW * flare.scale);
 });
 
 test("血之狂暴's chain still comes round: its window scales with its slower swing", () => {
@@ -10744,4 +10740,53 @@ test("ground wave uses the native casting hold and refuses insufficient MP or an
   p.mp = p.maxMp; p.onGround = false; p.y -= 80;
   Core.step(state, { skills: { normalWave: true } });
   assert.equal(p.skillTimer, 0); assert.equal(state.shots.length, 0);
+});
+
+test("ground wave keeps the native animation root instead of switching between its two feet", () => {
+  // Native composed frame x and the existing bake's placement, independently
+  // measured from wave.ani / sm_body0000 and the installed equipment layers.
+  const sourceX = [108, 124, 240, 236, 236, 236, 236, 236, 236];
+  const bakedX = [25, 34, 43, 40, 40, 40, 40, 40, 40];
+  const delays = [200,50,50,50,50,50,50,50,150];
+  const state = lastRoomState(), p = state.player;
+  const slayer = {width:13312,height:2640};
+  p.skillId = 'normalWave'; p.onGround = true;
+  for (const facing of [-1,1]) {
+    p.facing = facing; let elapsed = 0;
+    delays.forEach((delay, col) => {
+      p.skillTimer = 0.7 - (elapsed + delay/2)/1000;
+      const calls = [];
+      Render.render(recordingContext(calls), state, {sprites:{slayer}});
+      const index = calls.findIndex(c => c[0] === 'drawImage' && c[1] === slayer &&
+        c[2] === col * 208 && c[3] === 14 * 176);
+      assert.ok(index >= 0, `wave body frame ${col} was drawn`);
+      const translate = calls.slice(0,index).findLast(c => c[0] === 'translate');
+      const nativeX = Math.round(88 + (sourceX[col] - 242) * 0.68);
+      assert.equal(translate[1], p.x + facing * (nativeX - bakedX[col]),
+        `frame${col} must retain its ANI root and the same root as the blade FX`);
+      elapsed += delay;
+    });
+  }
+});
+
+test("ground wave draws native body, slash and travelling qi without the shared atlas resize", () => {
+  const state = lastRoomState(), p = state.player;
+  p.skillId = 'normalWave'; p.skillTimer = 0.7 - 0.325;
+  const sprites = {slayer:{width:13312,height:2640}, effects:{width:5760,height:4096},
+    normalWaveBody:{width:3456,height:320}, normalWave:{width:1536,height:512}};
+  state.shots = [{skillId:'normalWave', x:p.x+80, y:p.y, z:p.z,
+    facing:1,maxLife:0.9,life:0.8}];
+  const calls = [];
+  Render.render(recordingContext(calls),state,{sprites});
+  const body = calls.find(c => c[0] === 'drawImage' && c[1] === sprites.normalWaveBody);
+  assert.ok(body, 'the native body is used by the real player rendering path');
+  assert.deepEqual(body.slice(2,6), [3*384,0,384,320]);
+  assert.deepEqual(body.slice(6), [-160*0.68,-240*0.68,384*0.68,320*0.68]);
+  const effects = calls.filter(c => c[0] === 'drawImage' && c[1] === sprites.normalWave);
+  assert.equal(effects.length, 2, 'one caster slash and one independent qi, each drawn once');
+  assert.deepEqual(effects.map(c => c[3]).sort((a,b) => a-b),[0,256]);
+  for (const effect of effects) {
+    assert.equal(effect[4],256); assert.equal(effect[5],256);
+    assert.equal(effect[8],256*0.68); assert.equal(effect[9],256*0.68);
+  }
 });

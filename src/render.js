@@ -204,7 +204,12 @@
       /* 上挑 is the client's own 42-50 on the sm_body0048 sheet = 43-51 here. */
       upSlash: { row: 3, first: 6, frames: 9 },
       ghostSlash: { row: 13, first: 0, frames: 18, beats: GHOST_SLASH_BEATS },
-      normalWave: { row: 14, first: 0, frames: 9, beats: NORMAL_WAVE_BEATS },
+      normalWave: { row: 14, first: 0, frames: 9, beats: NORMAL_WAVE_BEATS,
+        // wave.ani has one root (-232,-333). The old body bake recentres
+        // each frame on its lowest foot, which switches legs during the cut.
+        // Undo only that horizontal packing shift; blade FX keep this root.
+        // Derived from local composed x / ORIGIN(242,341), scale0.68.
+        rootX: [-28, -26, 44, 44, 44, 44, 44, 44, 44] },
       /*
        * The client's own 崩山击, straight off its preview clip: 187 (the blade
        * still down and forward) and 194/203 (both hands up, the blade over the
@@ -882,6 +887,12 @@
     shotRows: {
       normalWave: { row: Core.SKILL_ORDER.length + 17, frames: 4, frameSeconds: 0.05,
                     size: 87.04, dy: -21.76, blend: "lighter" }
+    },
+    // Native-size wave atlas: shared window[-64,-160,192,96], scale0.68.
+    // Keeps the 220px caster slash intact instead of reducing it to128px.
+    nativeRows: {
+      normalWave: { sprite: "normalWave", cell: 256, row: 0,
+                    dx: 36.72, dy: -27.2, size: 174.08 }
     },
     draw: {
       normalWave: { dx: 28.56, dy: -35.36, size: 149.6, copies: 1, spin: 0, front: true, blend: "lighter" },
@@ -3979,10 +3990,28 @@
      * composites against whatever already sits on the target canvas, so filling
      * the live frame would wash the arena red instead of the character.
      */
-    var body = raging && ragingSheet(image) ? ragingSheet(image) : image;
+    var nativeBody = player.skillTimer > 0 && player.skillId === "normalWave" &&
+      frame.row === SPRITE.rows.normalWave && sprites.normalWaveBody;
+    var bodyImage = nativeBody && nativeBody.width ? nativeBody : image;
+    var body = raging && ragingSheet(bodyImage) ? ragingSheet(bodyImage) : bodyImage;
     /* 血之狂暴 的红色本来就是这股劲的颜色，不跟"挨打"抢 —— 挨打不再画任何东西（见上）。 */
     if (raging && "filter" in ctx) ctx.filter = "saturate(1.2)";
-    drawSpriteFrame(ctx, body, frame.col, frame.row, player.x, feetY(player), player.facing < 0);
+    var bodyClip = SPRITE.skillClips[player.skillId];
+    var bodyOffset = player.skillTimer > 0 && bodyClip && bodyClip.rootX && frame.row === bodyClip.row
+      ? bodyClip.rootX[frame.col - bodyClip.first] || 0 : 0;
+    if (nativeBody && nativeBody.width) {
+      ctx.save();
+      ctx.translate(player.x, feetY(player));
+      if (player.facing < 0) ctx.scale(-1, 1);
+      ctx.imageSmoothingEnabled = false;
+      // Fixed ANI root, native384x320 cells; no foot-dependent repacking.
+      ctx.drawImage(body, frame.col * 384, 0, 384, 320,
+                    -160 * 0.68, -240 * 0.68, 384 * 0.68, 320 * 0.68);
+      ctx.restore();
+    } else {
+      drawSpriteFrame(ctx, body, frame.col, frame.row, player.x + player.facing * bodyOffset,
+                      feetY(player), player.facing < 0);
+    }
     /*
      * **The second sword's cream trail, and it is the client's own arc.** The body
      * sheet carries the client's slash arc alone on its own row (`ragearc`), one
@@ -4874,14 +4903,18 @@
     if (!draw || !sprites || !sprites.effects || !sprites.effects.width) return;
     var age = Math.max(0, shot.maxLife - shot.life);
     var column = Math.floor((age + 0.0000001) / draw.frameSeconds) % draw.frames;
+    var native = shot.skillId === "normalWave" && sprites.normalWave && sprites.normalWave.width;
+    var sheet = native ? sprites.normalWave : sprites.effects;
+    var cell = native ? 256 : EFFECT.cell;
+    var row = native ? 1 : draw.row;
+    var size = native ? 174.08 : draw.size;
     ctx.save();
     ctx.translate(shot.x, feetY(shot));
     ctx.scale(shot.facing || 1, 1);
     ctx.globalCompositeOperation = draw.blend;
     ctx.imageSmoothingEnabled = true;
-    ctx.drawImage(sprites.effects, column * EFFECT.cell, draw.row * EFFECT.cell,
-                  EFFECT.cell, EFFECT.cell, -draw.size / 2, draw.dy - draw.size / 2,
-                  draw.size, draw.size);
+    ctx.drawImage(sheet, column * cell, row * cell, cell, cell,
+                  (native ? 43.52 : 0) - size / 2, draw.dy - size / 2, size, size);
     ctx.restore();
   }
 
@@ -4956,6 +4989,11 @@
       sheet = sprites.rift;
       cell = EFFECT.riftCell;
       row = rift[layer === "front" ? "front" : "back"];
+    }
+    var native = EFFECT.nativeRows[skillId];
+    if (native && sprites[native.sprite] && sprites[native.sprite].width) {
+      sheet = sprites[native.sprite]; cell = native.cell; row = native.row;
+      draw = Object.assign({}, draw, {dx:native.dx, dy:native.dy, size:native.size});
     }
 
     /* A field carries its own clock; a live cast is read off the caster's timer. */

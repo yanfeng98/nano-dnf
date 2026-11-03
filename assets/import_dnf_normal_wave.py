@@ -5,7 +5,7 @@ wave.ani supplies body42–50. Its first frame is a casting hold, paced by the
 200ms casting time in normalwave.skl, not the ANI's 10000ms sentinel.
 NormalWave1 is the caster's slash; looping NormalWave2 belongs to moving qi.
 The local client also contains newer hadouken variants; these legacy entries
-match the selected recording/preview family and are not replaced by those.
+are retained here; their identity in the recording is still unconfirmed.
 """
 import argparse
 import io
@@ -65,12 +65,36 @@ def append_body(client):
     decoder = body.Decoder(client)
     layers = [(key, decoder.frames(key)) for key in body.LAYERS]
     overlays = [(decoder.frames(key), ref, w, h) for key, ref, w, h in body.OVERLAYS]
+    # Dedicated lossless native-size row. Unlike place(), this uses one ANI
+    # root for the entire motion, not the lowest foot of each individual frame.
+    native = Image.new('RGBA', (9 * 384, 320))
     for col, index in enumerate(range(42, 51)):
         pic, x, y, foot = body.composed_frame(layers, overlays, index)
+        px, py = x - round(body.ORIGIN[0]) + 160, y - round(body.ORIGIN[1]) + 240
+        if px < 0 or py < 0 or px + pic.width > 384 or py + pic.height > 320:
+            raise ValueError(f'Native wave body {index} would be clipped')
+        native.alpha_composite(pic, (col * 384 + px, py))
         cell = Image.new('RGBA', (body.FRAME_W, body.FRAME_H))
         body.place(cell, pic, x, y, foot)
         sheet.alpha_composite(cell, (col * body.FRAME_W, 14 * body.FRAME_H))
     sheet.save(path)
+    native.save(ROOT / 'assets/normal-wave-body.png')
+
+def native_effect_sheet(client):
+    """Keep source pixels: the shared atlas reduced the 220px slash to128px."""
+    sheet = Image.new('RGBA', (6 * 256, 2 * 256))
+    entries = native_entries(client)
+    for row, name, offset in [(0, 'normalwave1.img', (-43,-106)),
+                              (1, 'normalwave2.img', (-70,-54))]:
+        source = entries[name]
+        for col, frame in enumerate(source.images):
+            pic = source.build(frame).convert('RGBA')
+            # Shared native window [-64,-160,192,96]; no resize or per-frame crop.
+            x, y = frame.x + offset[0] + 64, frame.y + offset[1] + 160
+            if x < 0 or y < 0 or x + pic.width > 256 or y + pic.height > 256:
+                raise ValueError(f'Native wave effect {name} {col} would be clipped')
+            sheet.alpha_composite(pic, (col * 256 + x, row * 256 + y))
+    return sheet
 
 def append_icon(client):
     path = ROOT / 'assets/skills.png'; old = Image.open(path).convert('RGBA')
@@ -87,6 +111,7 @@ if __name__ == '__main__':
     p.add_argument('--client', type=Path, default=Path('/mnt/c/dnf/地下城与勇士'))
     args = p.parse_args()
     append_body(args.client); append_icon(args.client)
+    native_effect_sheet(args.client).save(ROOT / 'assets/normal-wave.png')
     path = ROOT / 'assets/effects.png'
     patch_wave_effects(Image.open(path).convert('RGBA'), args.client).save(path)
     print('Appended ground wave: nine body frames, icon6, six slash frames and four looping qi frames')

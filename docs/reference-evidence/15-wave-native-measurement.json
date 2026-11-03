@@ -1,0 +1,114 @@
+{
+  "source": "local client, wave.ani; ImagePacks2 skin/equipment and base swordman effect NPK",
+  "source_layer_sha256": {
+    "body": "5e5814d28f9b2de08669926b69cd5433775071fca1fc687e684b57ff8c859930",
+    "shoes_b": "974d048a9fcaf7dba510b25f58e308239f87ee737aa88664ad17e22e86efb69b",
+    "shoes": "af31575474d5131bf6a19a33feeff097c7a4f77c884b89eb2ef8976834c1ef61",
+    "pants_b": "31b0c96277414491eefb1fb22de7e24eb7d9b466cdb2d70911dc0f2b434d90f7",
+    "pants": "c5cd3c16a13eb71fe5d24db70d9861da1c004876815e4705bcd14ea55c4b2938",
+    "coat": "91f08262e3f3a544513e38cf272d45810099deac32f2991959f3172a006c6254",
+    "face": "cddb8d6225c022fec9a5060f18584baf23a529d794152eee6405363f36e2454d",
+    "hair": "c120bd19e99be7119f1e21922bd45b180012e0d4e583c1ce1c829b8aee409c35",
+    "weapon_b": "838566176b681c01c9f1b65b08e950f53f9bf71d8a242c8555326ef5c77349d7",
+    "weapon_c": "5091529fca99fe069e293bfd1ace3d82721505c64db91884eb9e2b18a0e1ed67",
+    "eye": "a743529a5b65597182939f11b708b8f22a3ddb1a3c9797cb3b07cac765077ecd",
+    "blood": "1aed4958202517f95a9e55450e2fb55d061d20599a5672149c1d16a91108d58b"
+  },
+  "body_origin": [
+    242,
+    341
+  ],
+  "body_cell": [
+    384,
+    320
+  ],
+  "body_root_in_cell": [
+    160,
+    240
+  ],
+  "effect_native_window": [
+    -64,
+    -160,
+    192,
+    96
+  ],
+  "world_scale": 0.68,
+  "body_native_pixel_match": true,
+  "effect_native_pixel_match": true,
+  "frames": [
+    {
+      "image": 42,
+      "source_composite_x": 108,
+      "packed_x": 25,
+      "native_x": -3,
+      "old_root_error_world_px": 28
+    },
+    {
+      "image": 43,
+      "source_composite_x": 124,
+      "packed_x": 34,
+      "native_x": 8,
+      "old_root_error_world_px": 26
+    },
+    {
+      "image": 44,
+      "source_composite_x": 240,
+      "packed_x": 43,
+      "native_x": 87,
+      "old_root_error_world_px": -44
+    },
+    {
+      "image": 45,
+      "source_composite_x": 236,
+      "packed_x": 40,
+      "native_x": 84,
+      "old_root_error_world_px": -44
+    },
+    {
+      "image": 46,
+      "source_composite_x": 236,
+      "packed_x": 40,
+      "native_x": 84,
+      "old_root_error_world_px": -44
+    },
+    {
+      "image": 47,
+      "source_composite_x": 236,
+      "packed_x": 40,
+      "native_x": 84,
+      "old_root_error_world_px": -44
+    },
+    {
+      "image": 48,
+      "source_composite_x": 236,
+      "packed_x": 40,
+      "native_x": 84,
+      "old_root_error_world_px": -44
+    },
+    {
+      "image": 49,
+      "source_composite_x": 236,
+      "packed_x": 40,
+      "native_x": 84,
+      "old_root_error_world_px": -44
+    },
+    {
+      "image": 50,
+      "source_composite_x": 236,
+      "packed_x": 40,
+      "native_x": 84,
+      "old_root_error_world_px": -44
+    }
+  ],
+  "old_frame43_to44_root_shift_world_px": -70,
+  "recording_cast_identity_confirmed": false,
+  "limits": "Checks installed-client animation geometry and pixels. Does not prove the recording used this animation/art variant, timing, rank or balance.",
+  "importer_idempotent": true,
+  "output_sha256": {
+    "assets/slayer.png": "398c0b7bf984f52ae762f94200cd449b684b942363427f516b7ec02a13193e95",
+    "assets/skills.png": "bcebc9be5bcbd986f09f2301472093f1f095b3645ee843154b979e86b8635046",
+    "assets/effects.png": "90281f24ad7e3059061186228fe285158972c0aa828321350167a0f3871d1e39",
+    "assets/normal-wave-body.png": "7a74a9b3d20d8bbdcaa1a79d45c50c93245300ab73a66c0ccfeea33447dcb580",
+    "assets/normal-wave.png": "88ba9253657a878c513edb4109774363eeb4b976e9debd1edbee674ea752654f"
+  }
+}

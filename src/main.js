@@ -32,7 +32,8 @@
    * in render.js).
    */
   var sprites = {
-    slayer: null, skills: null, effects: null, rift: null, awakening: null, region: null,
+    slayer: null, skills: null, effects: null, normalWave: null, normalWaveBody: null,
+    rift: null, awakening: null, region: null,
     monsters: null, forest: null, minimap: null, ui: null,
     /* The two portraits cut from the owner's reference recording (ADR 0054/0055). */
     bossPortrait: null, rewardAvatar: null
@@ -56,6 +57,8 @@
     ["skillsDisabled", "./assets/skills-disabled.png"],
     ["skillRanks", "./assets/skill-ranks.png"],
     ["effects", "./assets/effects.png"],
+    ["normalWave", "./assets/normal-wave.png"],
+    ["normalWaveBody", "./assets/normal-wave-body.png"],
     ["rift", "./assets/rift.png"],
     /*
      * The region map's stage cards: the client's own menu art, nine 168x73

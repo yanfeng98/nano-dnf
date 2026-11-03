@@ -3686,8 +3686,9 @@ def main() -> None:
     # Ghost slash has a native second/front layer; patch both anchored rows.
     from import_dnf_ghost_slash import patch_effect_sheet
     sheet = patch_effect_sheet(sheet, args.client, base_layout=True)
-    from import_dnf_normal_wave import patch_wave_effects
+    from import_dnf_normal_wave import patch_wave_effects, native_effect_sheet
     sheet = patch_wave_effects(sheet, args.client)
+    native_effect_sheet(args.client).save(ROOT / 'normal-wave.png')
     sheet.save(ROOT / "effects.png")
     print(f"wrote {ROOT / 'effects.png'} ({sheet.width}x{sheet.height})")
 

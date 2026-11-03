@@ -1,0 +1,119 @@
+{
+  "icon": {
+    "correlation": 0.7079533734258571,
+    "rect": [
+      619,
+      503,
+      31,
+      31
+    ]
+  },
+  "snapshots": [
+    {
+      "name": "launch",
+      "casting": true,
+      "skillId": "normalWave",
+      "cooldown": 2.5000000000000018,
+      "playerX": 110,
+      "frame": {
+        "row": 14,
+        "col": 7
+      },
+      "shots": [
+        {
+          "x": 156,
+          "z": 0,
+          "life": 0.8833333333333333,
+          "facing": 1
+        }
+      ],
+      "body_draw_count": 39,
+      "body_draw_samples": [
+        [
+          0,
+          0,
+          384,
+          320,
+          -108.80000000000001,
+          -163.20000000000002,
+          261.12,
+          217.60000000000002
+        ],
+        [
+          0,
+          0,
+          384,
+          320,
+          -108.80000000000001,
+          -163.20000000000002,
+          261.12,
+          217.60000000000002
+        ]
+      ],
+      "qi_draw_count": 9,
+      "qi_draw_samples": [
+        {
+          "sourceY": 256,
+          "blend": "lighter"
+        },
+        {
+          "sourceY": 256,
+          "blend": "lighter"
+        }
+      ]
+    },
+    {
+      "name": "after-cast",
+      "casting": false,
+      "skillId": null,
+      "cooldown": 2.316666666666669,
+      "playerX": 110,
+      "frame": {
+        "row": 0,
+        "col": 1
+      },
+      "shots": [
+        {
+          "x": 222,
+          "z": 0,
+          "life": 0.6999999999999994,
+          "facing": 1
+        }
+      ],
+      "body_draw_count": 53,
+      "body_draw_samples": [
+        [
+          0,
+          0,
+          384,
+          320,
+          -108.80000000000001,
+          -163.20000000000002,
+          261.12,
+          217.60000000000002
+        ],
+        [
+          0,
+          0,
+          384,
+          320,
+          -108.80000000000001,
+          -163.20000000000002,
+          261.12,
+          217.60000000000002
+        ]
+      ],
+      "qi_draw_count": 31,
+      "qi_draw_samples": [
+        {
+          "sourceY": 256,
+          "blend": "lighter"
+        },
+        {
+          "sourceY": 256,
+          "blend": "lighter"
+        }
+      ]
+    }
+  ]
+}
