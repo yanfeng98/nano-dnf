@@ -1,0 +1,224 @@
+{
+  "video": "00002-幽暗密林深处.mp4",
+  "poses": [
+    {
+      "native_body_frame": 42,
+      "time": "111.333333"
+    },
+    {
+      "native_body_frame": 46,
+      "time": "111.633333"
+    }
+  ],
+  "measured_recording_root": [
+    416,
+    420
+  ],
+  "results": {
+    "42": [
+      {
+        "entry": "sswd0000c.img",
+        "pack": "sprite_character_swordman_equipment_weapon_sswd.NPK",
+        "score": 0.9503004057679403,
+        "placement": [
+          1.1250000000000002,
+          314,
+          341
+        ]
+      },
+      {
+        "entry": "bswd0000c.img",
+        "pack": "sprite_character_swordman_equipment_weapon_boneswd.NPK",
+        "score": 0.8882390226684987,
+        "placement": [
+          1.1,
+          309,
+          337
+        ]
+      },
+      {
+        "entry": "lgswd0000c.img",
+        "pack": "sprite_character_swordman_equipment_weapon_lgswd.NPK",
+        "score": 0.880892439841607,
+        "placement": [
+          1.0750000000000002,
+          301,
+          338
+        ]
+      },
+      {
+        "entry": "katana0000c.img",
+        "pack": "sprite_character_swordman_equipment_weapon_katana.NPK",
+        "score": 0.8589769195093356,
+        "placement": [
+          1.0750000000000002,
+          315,
+          337
+        ]
+      },
+      {
+        "entry": "gemswd0000c.img",
+        "pack": "sprite_character_swordman_equipment_weapon_gemswd.NPK",
+        "score": 0.8493598676732482,
+        "placement": [
+          1.1500000000000004,
+          321,
+          344
+        ]
+      },
+      {
+        "entry": "club0000c.img",
+        "pack": "sprite_character_swordman_equipment_weapon_club.NPK",
+        "score": 0.8449758291747452,
+        "placement": [
+          1.0500000000000003,
+          317,
+          338
+        ]
+      },
+      {
+        "entry": "mswd0000c.img",
+        "pack": "sprite_character_swordman_equipment_weapon_mswd.NPK",
+        "score": 0.842956653706041,
+        "placement": [
+          1.0250000000000001,
+          309,
+          344
+        ]
+      },
+      {
+        "entry": "lkatana0000c.img",
+        "pack": "sprite_character_swordman_equipment_weapon_lkatana.NPK",
+        "score": 0.842655707602874,
+        "placement": [
+          1.1500000000000004,
+          286,
+          331
+        ]
+      },
+      {
+        "entry": "lswd0000c.img",
+        "pack": "sprite_character_swordman_equipment_weapon_lswd.NPK",
+        "score": 0.8327300346317557,
+        "placement": [
+          0.9750000000000001,
+          304,
+          343
+        ]
+      },
+      {
+        "entry": "katana5601c.img",
+        "pack": "sprite_character_swordman_equipment_weapon_katana.NPK",
+        "score": 0.8119467979740318,
+        "placement": [
+          0.9750000000000001,
+          292,
+          344
+        ]
+      }
+    ],
+    "46": [
+      {
+        "entry": "sswd0000c.img",
+        "pack": "sprite_character_swordman_equipment_weapon_sswd.NPK",
+        "score": 0.9452518626929497,
+        "placement": [
+          1.1,
+          479,
+          271
+        ]
+      },
+      {
+        "entry": "bswd0000c.img",
+        "pack": "sprite_character_swordman_equipment_weapon_boneswd.NPK",
+        "score": 0.9319996835088864,
+        "placement": [
+          1.0500000000000003,
+          487,
+          275
+        ]
+      },
+      {
+        "entry": "katana0000c.img",
+        "pack": "sprite_character_swordman_equipment_weapon_katana.NPK",
+        "score": 0.8664310963138058,
+        "placement": [
+          1.0,
+          491,
+          289
+        ]
+      },
+      {
+        "entry": "club0000c.img",
+        "pack": "sprite_character_swordman_equipment_weapon_club.NPK",
+        "score": 0.8623277340293055,
+        "placement": [
+          1.1,
+          492,
+          274
+        ]
+      },
+      {
+        "entry": "katana5601c.img",
+        "pack": "sprite_character_swordman_equipment_weapon_katana.NPK",
+        "score": 0.847558321485866,
+        "placement": [
+          0.85,
+          472,
+          275
+        ]
+      },
+      {
+        "entry": "lkatana0000c.img",
+        "pack": "sprite_character_swordman_equipment_weapon_lkatana.NPK",
+        "score": 0.8164373000880295,
+        "placement": [
+          0.9,
+          482,
+          288
+        ]
+      },
+      {
+        "entry": "lgswd0000c.img",
+        "pack": "sprite_character_swordman_equipment_weapon_lgswd.NPK",
+        "score": 0.7996696411597078,
+        "placement": [
+          1.0250000000000001,
+          486,
+          252
+        ]
+      },
+      {
+        "entry": "mswd0000c.img",
+        "pack": "sprite_character_swordman_equipment_weapon_mswd.NPK",
+        "score": 0.7945900664588422,
+        "placement": [
+          1.1,
+          493,
+          263
+        ]
+      },
+      {
+        "entry": "gemswd0000c.img",
+        "pack": "sprite_character_swordman_equipment_weapon_gemswd.NPK",
+        "score": 0.7687229730605599,
+        "placement": [
+          1.0750000000000002,
+          502,
+          270
+        ]
+      },
+      {
+        "entry": "lswd0000c.img",
+        "pack": "sprite_character_swordman_equipment_weapon_lswd.NPK",
+        "score": 0.7594724727254666,
+        "placement": [
+          1.0500000000000003,
+          483,
+          253
+        ]
+      }
+    ]
+  },
+  "limits": "Nine base weapon families plus the old katana5601. This is a visual-model comparison; exact inventory item, all skin variants and equipment stats are not inferred."
+}

@@ -1,0 +1,407 @@
+{
+  "character/swordman/effect/animation/normalwaveslash.ani": {
+    "paths": [
+      "Character/Swordman/Effect/hadouken_ken.img"
+    ],
+    "overall": [
+      [
+        1,
+        0
+      ]
+    ],
+    "frames": [
+      {
+        "frame": 0,
+        "xy": [
+          -108,
+          -234
+        ],
+        "props": [
+          [
+            11,
+            2
+          ],
+          [
+            12,
+            50
+          ]
+        ],
+        "boxes": []
+      },
+      {
+        "frame": 1,
+        "xy": [
+          -108,
+          -234
+        ],
+        "props": [
+          [
+            11,
+            2
+          ],
+          [
+            12,
+            50
+          ]
+        ],
+        "boxes": []
+      },
+      {
+        "frame": 2,
+        "xy": [
+          -108,
+          -234
+        ],
+        "props": [
+          [
+            11,
+            2
+          ],
+          [
+            12,
+            50
+          ]
+        ],
+        "boxes": []
+      },
+      {
+        "frame": 3,
+        "xy": [
+          -108,
+          -234
+        ],
+        "props": [
+          [
+            11,
+            2
+          ],
+          [
+            12,
+            50
+          ]
+        ],
+        "boxes": []
+      },
+      {
+        "frame": 4,
+        "xy": [
+          -108,
+          -234
+        ],
+        "props": [
+          [
+            11,
+            2
+          ],
+          [
+            12,
+            50
+          ]
+        ],
+        "boxes": []
+      }
+    ]
+  },
+  "common/etc/animation/endofcasting.ani": {
+    "paths": [
+      "Common/Etc/CastingGage.img"
+    ],
+    "overall": [
+      [
+        1,
+        0
+      ]
+    ],
+    "frames": [
+      {
+        "frame": 4,
+        "xy": [
+          -58,
+          -57
+        ],
+        "props": [
+          [
+            11,
+            2
+          ],
+          [
+            12,
+            80
+          ]
+        ],
+        "boxes": []
+      },
+      {
+        "frame": 5,
+        "xy": [
+          -58,
+          -57
+        ],
+        "props": [
+          [
+            11,
+            2
+          ],
+          [
+            12,
+            45
+          ]
+        ],
+        "boxes": []
+      },
+      {
+        "frame": 6,
+        "xy": [
+          -58,
+          -57
+        ],
+        "props": [
+          [
+            11,
+            2
+          ],
+          [
+            12,
+            45
+          ]
+        ],
+        "boxes": []
+      },
+      {
+        "frame": 7,
+        "xy": [
+          -58,
+          -57
+        ],
+        "props": [
+          [
+            11,
+            2
+          ],
+          [
+            12,
+            45
+          ]
+        ],
+        "boxes": []
+      },
+      {
+        "frame": 8,
+        "xy": [
+          -58,
+          -57
+        ],
+        "props": [
+          [
+            11,
+            2
+          ],
+          [
+            12,
+            45
+          ]
+        ],
+        "boxes": []
+      },
+      {
+        "frame": 9,
+        "xy": [
+          -58,
+          -57
+        ],
+        "props": [
+          [
+            11,
+            2
+          ],
+          [
+            12,
+            45
+          ]
+        ],
+        "boxes": []
+      }
+    ]
+  },
+  "installed_newer_blue_projectile": {
+    "paths": [
+      "Character/Swordman/Effect/light_hadouken_hadou.img"
+    ],
+    "overall": [
+      [
+        1,
+        0
+      ]
+    ],
+    "frames": [
+      {
+        "frame": 0,
+        "xy": [
+          -100,
+          -231
+        ],
+        "props": [
+          [
+            11,
+            2
+          ],
+          [
+            12,
+            65
+          ]
+        ],
+        "boxes": [
+          [
+            15,
+            [
+              11,
+              -20,
+              -18,
+              238,
+              40,
+              120
+            ]
+          ]
+        ]
+      },
+      {
+        "frame": 1,
+        "xy": [
+          -100,
+          -231
+        ],
+        "props": [
+          [
+            11,
+            2
+          ],
+          [
+            12,
+            65
+          ]
+        ],
+        "boxes": [
+          [
+            15,
+            [
+              14,
+              -20,
+              -19,
+              244,
+              40,
+              122
+            ]
+          ]
+        ]
+      },
+      {
+        "frame": 2,
+        "xy": [
+          -100,
+          -231
+        ],
+        "props": [
+          [
+            11,
+            2
+          ],
+          [
+            12,
+            65
+          ]
+        ],
+        "boxes": [
+          [
+            15,
+            [
+              19,
+              -20,
+              -22,
+              245,
+              40,
+              143
+            ]
+          ]
+        ]
+      },
+      {
+        "frame": 3,
+        "xy": [
+          -100,
+          -231
+        ],
+        "props": [
+          [
+            11,
+            2
+          ],
+          [
+            12,
+            65
+          ]
+        ],
+        "boxes": []
+      },
+      {
+        "frame": 4,
+        "xy": [
+          -100,
+          -231
+        ],
+        "props": [
+          [
+            11,
+            2
+          ],
+          [
+            12,
+            65
+          ]
+        ],
+        "boxes": []
+      }
+    ]
+  },
+  "recorded_orange_projectile": {
+    "image": "sprite/character/swordman/effect/hadouken_hadou.img",
+    "origin": [
+      -100,
+      -231
+    ],
+    "entity_native_centre_x": 180,
+    "frames": 5,
+    "frame_seconds": 0.06666666666666667,
+    "loops": false,
+    "speed_world": 360,
+    "speed_is_provisional": true
+  },
+  "recorded_phases": {
+    "start": 111.33333333333333,
+    "body_images": [
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50
+    ],
+    "body_seconds": [
+      0.06666666666666667,
+      0.06666666666666667,
+      0.06666666666666667,
+      0.06666666666666667,
+      0.06666666666666667,
+      0.06666666666666667,
+      0.06666666666666667,
+      0.06666666666666667,
+      0.2
+    ],
+    "slash_from": 0.06666666666666667,
+    "release_and_star_from": 0.26666666666666666,
+    "slash_to": 0.4,
+    "cast_end": 0.7333333333333333
+  }
+}

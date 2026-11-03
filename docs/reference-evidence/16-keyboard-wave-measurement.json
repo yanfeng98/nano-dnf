@@ -1,0 +1,165 @@
+{
+  "icon": {
+    "correlation": 0.7079533734258571,
+    "rect": [
+      619,
+      503,
+      31,
+      31
+    ]
+  },
+  "snapshots": [
+    {
+      "name": "launch",
+      "casting": true,
+      "skillId": "normalWave",
+      "cooldown": 2.7166666666666677,
+      "playerX": 110,
+      "frame": {
+        "row": 14,
+        "col": 4
+      },
+      "shots": [
+        {
+          "x": 244.4,
+          "z": 0,
+          "life": 0.3,
+          "facing": 1
+        }
+      ],
+      "draws": [
+        {
+          "sourceY": 320,
+          "blend": "lighter"
+        },
+        {
+          "sourceY": 320,
+          "blend": "lighter"
+        }
+      ],
+      "bodyDraws": [
+        [
+          0,
+          0,
+          384,
+          320,
+          -108.80000000000001,
+          -163.20000000000002,
+          261.12,
+          217.60000000000002
+        ],
+        [
+          0,
+          0,
+          384,
+          320,
+          -108.80000000000001,
+          -163.20000000000002,
+          261.12,
+          217.60000000000002
+        ]
+      ],
+      "draws_count": 10,
+      "bodyDraws_count": 26
+    },
+    {
+      "name": "in-flight",
+      "casting": true,
+      "skillId": "normalWave",
+      "cooldown": 2.616666666666668,
+      "playerX": 110,
+      "frame": {
+        "row": 14,
+        "col": 6
+      },
+      "shots": [
+        {
+          "x": 280.4,
+          "z": 0,
+          "life": 0.2,
+          "facing": 1
+        }
+      ],
+      "draws": [
+        {
+          "sourceY": 320,
+          "blend": "lighter"
+        },
+        {
+          "sourceY": 320,
+          "blend": "lighter"
+        }
+      ],
+      "bodyDraws": [
+        [
+          0,
+          0,
+          384,
+          320,
+          -108.80000000000001,
+          -163.20000000000002,
+          261.12,
+          217.60000000000002
+        ],
+        [
+          0,
+          0,
+          384,
+          320,
+          -108.80000000000001,
+          -163.20000000000002,
+          261.12,
+          217.60000000000002
+        ]
+      ],
+      "draws_count": 28,
+      "bodyDraws_count": 44
+    },
+    {
+      "name": "after-cast",
+      "casting": false,
+      "skillId": null,
+      "cooldown": 2.283333333333336,
+      "playerX": 110,
+      "frame": {
+        "row": 0,
+        "col": 1
+      },
+      "shots": [],
+      "draws": [
+        {
+          "sourceY": 320,
+          "blend": "lighter"
+        },
+        {
+          "sourceY": 320,
+          "blend": "lighter"
+        }
+      ],
+      "bodyDraws": [
+        [
+          0,
+          0,
+          384,
+          320,
+          -108.80000000000001,
+          -163.20000000000002,
+          261.12,
+          217.60000000000002
+        ],
+        [
+          0,
+          0,
+          384,
+          320,
+          -108.80000000000001,
+          -163.20000000000002,
+          261.12,
+          217.60000000000002
+        ]
+      ],
+      "draws_count": 44,
+      "bodyDraws_count": 68
+    }
+  ]
+}

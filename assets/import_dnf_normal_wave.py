@@ -1,11 +1,9 @@
 #!/usr/bin/env python3
-"""Append local legacy NormalWave art; keep all previous sprite/atlas cells.
+"""Bake the orange ground-wave family confirmed by V2 111.333–111.900.
 
-wave.ani supplies body42–50. Its first frame is a casting hold, paced by the
-200ms casting time in normalwave.skl, not the ANI's 10000ms sentinel.
-NormalWave1 is the caster's slash; looping NormalWave2 belongs to moving qi.
-The local client also contains newer hadouken variants; these legacy entries
-are retained here; their identity in the recording is still unconfirmed.
+Body42–50, normalwaveslash.ani / hadouken_ken, hadouken_hadou and the
+common CastingGage flash. Do not substitute legacy normalwave1/2 wedges
+or the installed client's newer blue light_hadouken variant.
 """
 import argparse
 import io
@@ -14,6 +12,7 @@ from PIL import Image, ImageDraw
 from pydnfex.npk import NPK
 from pydnfex.img.version import IMGFactory
 import import_dnf_swordman as body
+from import_dnf_reference_player import native_wave_body
 ROOT = Path(__file__).resolve().parent.parent
 
 def native_entries(client):
@@ -21,8 +20,11 @@ def native_entries(client):
         result = {}
         for entry in NPK.open(f).files:
             name = entry.name.rsplit('/', 1)[-1].lower()
-            if name in ['normalwave1.img', 'normalwave2.img', 'skillicon.img']:
+            if name in ['hadouken_ken.img', 'hadouken_hadou.img', 'skillicon.img']:
                 result[name] = IMGFactory.open(io.BytesIO(entry.data))
+    with (client / 'ImagePacks2/sprite_common_etc.NPK').open('rb') as f:
+        entry = next(e for e in NPK.open(f).files if e.name.lower().endswith('/castinggage.img'))
+        result['castinggage.img'] = IMGFactory.open(io.BytesIO(entry.data))
         return result
 
 def patch_wave_effects(sheet, client):
@@ -38,12 +40,12 @@ def patch_wave_effects(sheet, client):
     elif rows != 32:
         raise ValueError(f'Unexpected effects grid: {sheet.size}')
     entries = native_entries(client)
-    specs = [(13, 'normalwave1.img', (-43, -106), (-58, -154, 162, 66)),
-             (31, 'normalwave2.img', (-70, -54), (-64, -96, 64, 32))]
+    specs = [(13, 'hadouken_ken.img', (-108, -234), (-128, -192, 192, 128)),
+             (31, 'hadouken_hadou.img', (-280, -231), (-160, -160, 160, 160))]
     for row, name, offset, window in specs:
         sheet.paste((0, 0, 0, 0), (0, row * 128, sheet.width, (row + 1) * 128))
         source = entries[name]
-        expected = 6 if row == 13 else 4
+        expected = 5
         if len(source.images) != expected: raise ValueError(f'Unexpected {name} frame count')
         left, top, right, bottom = window
         for i, frame in enumerate(source.images):
@@ -65,35 +67,38 @@ def append_body(client):
     decoder = body.Decoder(client)
     layers = [(key, decoder.frames(key)) for key in body.LAYERS]
     overlays = [(decoder.frames(key), ref, w, h) for key, ref, w, h in body.OVERLAYS]
-    # Dedicated lossless native-size row. Unlike place(), this uses one ANI
-    # root for the entire motion, not the lowest foot of each individual frame.
-    native = Image.new('RGBA', (9 * 384, 320))
+    # Preserve the historical shared-sheet fallback. The dedicated native
+    # body below uses the recorded short sword and the common ANI root.
     for col, index in enumerate(range(42, 51)):
         pic, x, y, foot = body.composed_frame(layers, overlays, index)
-        px, py = x - round(body.ORIGIN[0]) + 160, y - round(body.ORIGIN[1]) + 240
-        if px < 0 or py < 0 or px + pic.width > 384 or py + pic.height > 320:
-            raise ValueError(f'Native wave body {index} would be clipped')
-        native.alpha_composite(pic, (col * 384 + px, py))
         cell = Image.new('RGBA', (body.FRAME_W, body.FRAME_H))
         body.place(cell, pic, x, y, foot)
         sheet.alpha_composite(cell, (col * body.FRAME_W, 14 * body.FRAME_H))
     sheet.save(path)
-    native.save(ROOT / 'assets/normal-wave-body.png')
+    native_wave_body(client).save(ROOT / 'assets/normal-wave-body.png')
 
 def native_effect_sheet(client):
-    """Keep source pixels: the shared atlas reduced the 220px slash to128px."""
-    sheet = Image.new('RGBA', (6 * 256, 2 * 256))
+    """Native fire slash / fire fan / casting flash / casting gauge rows."""
+    sheet = Image.new('RGBA', (6 * 320, 4 * 320))
     entries = native_entries(client)
-    for row, name, offset in [(0, 'normalwave1.img', (-43,-106)),
-                              (1, 'normalwave2.img', (-70,-54))]:
+    for row, name, offset, window in [
+        (0, 'hadouken_ken.img', (-108,-234), (-128,-192,192,128)),
+        # The moving record is centred on native x180; retain img offsets.
+        (1, 'hadouken_hadou.img', (-280,-231), (-160,-160,160,160)),
+        (2, 'castinggage.img', (-58,-167), (-160,-256,160,64))]:
         source = entries[name]
-        for col, frame in enumerate(source.images):
+        indices = range(4,10) if row == 2 else range(5)
+        for col, index in enumerate(indices):
+            frame = source.images[index]
             pic = source.build(frame).convert('RGBA')
-            # Shared native window [-64,-160,192,96]; no resize or per-frame crop.
-            x, y = frame.x + offset[0] + 64, frame.y + offset[1] + 160
-            if x < 0 or y < 0 or x + pic.width > 256 or y + pic.height > 256:
+            x, y = frame.x + offset[0] - window[0], frame.y + offset[1] - window[1]
+            if x < 0 or y < 0 or x + pic.width > 320 or y + pic.height > 320:
                 raise ValueError(f'Native wave effect {name} {col} would be clipped')
-            sheet.alpha_composite(pic, (col * 256 + x, row * 256 + y))
+            sheet.alpha_composite(pic, (col * 320 + x, row * 320 + y))
+    gauge = entries['castinggage.img']
+    for col, index, x, y in [(0,0,-26,-112),(1,1,-25,-111),(2,2,-29,-114)]:
+        f = gauge.images[index]
+        sheet.alpha_composite(gauge.build(f).convert('RGBA'), (col*320+x+160,3*320+y+256))
     return sheet
 
 def append_icon(client):
@@ -114,4 +119,4 @@ if __name__ == '__main__':
     native_effect_sheet(args.client).save(ROOT / 'assets/normal-wave.png')
     path = ROOT / 'assets/effects.png'
     patch_wave_effects(Image.open(path).convert('RGBA'), args.client).save(path)
-    print('Appended ground wave: nine body frames, icon6, six slash frames and four looping qi frames')
+    print('Ground wave: nine body poses, five fire slash/fan frames, casting flash and gauge')

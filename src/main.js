@@ -52,7 +52,7 @@
    */
   var assets = { total: 0, loaded: 0, failed: 0, ready: false };
   var ASSET_ENTRIES = [
-    ["slayer", "./assets/slayer.png"],
+    ["slayer", "./assets/slayer-reference.png"],
     ["skills", "./assets/skills.png"],
     ["skillsDisabled", "./assets/skills-disabled.png"],
     ["skillRanks", "./assets/skill-ranks.png"],

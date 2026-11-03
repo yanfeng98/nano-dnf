@@ -1,0 +1,51 @@
+{
+  "reference_white_core_pixels": 779,
+  "reference_roi": [
+    370,
+    280,
+    90,
+    44
+  ],
+  "actual_roi": [
+    390,
+    294,
+    90,
+    44
+  ],
+  "threshold_RGB": [
+    220,
+    235,
+    235
+  ],
+  "samples": [
+    {
+      "gain": 1,
+      "white_core_pixels": 145
+    },
+    {
+      "gain": 2,
+      "white_core_pixels": 657
+    },
+    {
+      "gain": 2.25,
+      "white_core_pixels": 729
+    },
+    {
+      "gain": 2.4,
+      "white_core_pixels": 777
+    },
+    {
+      "gain": 2.5,
+      "white_core_pixels": 798
+    },
+    {
+      "gain": 2.75,
+      "white_core_pixels": 869
+    },
+    {
+      "gain": 3,
+      "white_core_pixels": 929
+    }
+  ],
+  "selected_gain": 2.4
+}

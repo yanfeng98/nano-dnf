@@ -1,0 +1,122 @@
+{
+  "source": "local client, wave.ani; ImagePacks2 skin/equipment and base swordman effect NPK",
+  "source_layer_sha256": {
+    "body": "5e5814d28f9b2de08669926b69cd5433775071fca1fc687e684b57ff8c859930",
+    "shoes_b": "974d048a9fcaf7dba510b25f58e308239f87ee737aa88664ad17e22e86efb69b",
+    "shoes": "af31575474d5131bf6a19a33feeff097c7a4f77c884b89eb2ef8976834c1ef61",
+    "pants_b": "31b0c96277414491eefb1fb22de7e24eb7d9b466cdb2d70911dc0f2b434d90f7",
+    "pants": "c5cd3c16a13eb71fe5d24db70d9861da1c004876815e4705bcd14ea55c4b2938",
+    "coat": "91f08262e3f3a544513e38cf272d45810099deac32f2991959f3172a006c6254",
+    "face": "cddb8d6225c022fec9a5060f18584baf23a529d794152eee6405363f36e2454d",
+    "hair": "c120bd19e99be7119f1e21922bd45b180012e0d4e583c1ce1c829b8aee409c35",
+    "weapon_b": "52190c101f3679e74036246f1f414c4ab5eb59d4fc76d759135e484f8357f892",
+    "weapon_c": "f361ebdbb11216eab56b4bc7e29f04552aa9be6b9379c70bd1f4216d653d2dae",
+    "eye": "a743529a5b65597182939f11b708b8f22a3ddb1a3c9797cb3b07cac765077ecd",
+    "blood": "1aed4958202517f95a9e55450e2fb55d061d20599a5672149c1d16a91108d58b"
+  },
+  "body_origin": [
+    232,
+    333
+  ],
+  "body_cell": [
+    384,
+    320
+  ],
+  "body_root_in_cell": [
+    160,
+    240
+  ],
+  "effect_native_windows": {
+    "hadouken_ken.img": [
+      -128,
+      -192,
+      192,
+      128
+    ],
+    "hadouken_hadou.img": [
+      -160,
+      -160,
+      160,
+      160
+    ],
+    "castinggage.img": [
+      -160,
+      -256,
+      160,
+      64
+    ]
+  },
+  "world_scale": 0.68,
+  "body_native_pixel_match": true,
+  "effect_native_pixel_match": true,
+  "frames": [
+    {
+      "image": 42,
+      "source_composite_x": 144,
+      "packed_x": 49,
+      "native_x": 28,
+      "old_root_error_world_px": 21
+    },
+    {
+      "image": 43,
+      "source_composite_x": 158,
+      "packed_x": 57,
+      "native_x": 38,
+      "old_root_error_world_px": 19
+    },
+    {
+      "image": 44,
+      "source_composite_x": 240,
+      "packed_x": 43,
+      "native_x": 93,
+      "old_root_error_world_px": -50
+    },
+    {
+      "image": 45,
+      "source_composite_x": 236,
+      "packed_x": 40,
+      "native_x": 91,
+      "old_root_error_world_px": -51
+    },
+    {
+      "image": 46,
+      "source_composite_x": 236,
+      "packed_x": 40,
+      "native_x": 91,
+      "old_root_error_world_px": -51
+    },
+    {
+      "image": 47,
+      "source_composite_x": 236,
+      "packed_x": 40,
+      "native_x": 91,
+      "old_root_error_world_px": -51
+    },
+    {
+      "image": 48,
+      "source_composite_x": 236,
+      "packed_x": 40,
+      "native_x": 91,
+      "old_root_error_world_px": -51
+    },
+    {
+      "image": 49,
+      "source_composite_x": 236,
+      "packed_x": 40,
+      "native_x": 91,
+      "old_root_error_world_px": -51
+    },
+    {
+      "image": 50,
+      "source_composite_x": 236,
+      "packed_x": 40,
+      "native_x": 91,
+      "old_root_error_world_px": -51
+    }
+  ],
+  "old_frame43_to44_root_shift_world_px": -69,
+  "recording_cast_identity_confirmed": true,
+  "reference": "V2 111.333–111.900s; user image2 confirms orange ken/hadou family",
+  "legacy_flat_flame_rejected": true,
+  "limits": "Orange family and release sequence confirmed in V2. Projectile origin reconstructs the retained art with the common normalwavefire transform; installed default object now uses the newer blue art. Damage/rank/exact speed and global character equipment remain uncalibrated."
+}

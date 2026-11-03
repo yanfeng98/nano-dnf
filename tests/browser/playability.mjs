@@ -2495,8 +2495,8 @@ function problemsFor(pass) {
   if (pass.diagnostics.failedRequests.length) {
     problems.push(`${pass.mode}: failed requests: ${pass.diagnostics.failedRequests.join(" | ")}`);
   }
-  if (!pass.diagnostics.assets.some((line) => line.includes("slayer.png"))) {
-    problems.push(`${pass.mode}: slayer.png was never loaded`);
+  if (!pass.diagnostics.assets.some((line) => line.includes("slayer-reference.png"))) {
+    problems.push(`${pass.mode}: slayer-reference.png was never loaded`);
   }
   if (!pass.diagnostics.assets.some((line) => line.includes("skills.png"))) {
     problems.push(`${pass.mode}: skills.png was never loaded`);

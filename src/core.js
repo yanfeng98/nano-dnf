@@ -480,13 +480,16 @@
   var SKILLS = {
     normalWave: {
       id: "normalWave", name: "地裂波动剑", key: "D",
-      // Local normalwave.skl: MP17, cooldown3s, casting hold200ms.
-      // Damage, flight speed/range and reaction magnitudes remain provisional.
-      mp: 17, cooldown: 3, damage: 18, growth: 0, duration: 0.7, groundOnly: true,
-      activeFrom: 0.5, activeTo: 0.55, reach: 70, heightPad: 0,
+      // V2 111.333 wind-up ->111.600 release; 2 video frames per pose.
+      // MP/CD remain local-client values; damage/speed/reactions provisional.
+      mp: 17, cooldown: 3, damage: 18, growth: 0, duration: 11 / 15, groundOnly: true,
+      castingTime: 4 / 15,
+      activeFrom: 4 / 15, activeTo: 5 / 15, reach: 70, heightPad: 0,
       knockbackX: 160, knockdown: 0.75, launch: 0, radius: 0, hits: 1,
-      shot: { hit: 0, from: 0.5, ahead: 40, speed: 360, reach: 70,
-              height: 32, heightPad: 0, depthReach: 40 / SLAYER_HEIGHT, life: 0.9 }
+      // Centre the travelling entity on the first native fire fan (x~180).
+      // Its five eroding frames play once, rather than looping a floor wedge.
+      shot: { hit: 0, from: 4 / 15, ahead: 180 * 0.68, speed: 360, reach: 85,
+              height: 103, heightPad: 0, depthReach: 40 / SLAYER_HEIGHT, life: 5 / 15 }
     },
     ghostSlash: {
       id: "ghostSlash", name: "鬼斩", key: "A",

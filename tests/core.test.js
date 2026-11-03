@@ -3158,7 +3158,8 @@ test("the shipped sprite sheet matches the frame grid the renderer expects", () 
 });
 
 test("every frame the renderer plays fits inside its sprite cell", () => {
-  const sheet = decodeRgbaPng(path.join(__dirname, "..", "assets", "slayer.png"));
+  for (const file of ["slayer.png", "slayer-reference.png"]) {
+  const sheet = decodeRgbaPng(path.join(__dirname, "..", "assets", file));
   assert.equal(sheet.width, Render.SPRITE.frameW * Render.SPRITE.cols);
   assert.equal(sheet.height, Render.SPRITE.frameH * Object.keys(Render.SPRITE.rows).length);
 
@@ -3199,6 +3200,7 @@ test("every frame the renderer plays fits inside its sprite cell", () => {
       `${label} must not touch its cell border: ${JSON.stringify(box)}`
     );
   });
+  }
 });
 
 /*
@@ -10682,7 +10684,7 @@ test("deep reference D slot equips ground wave without rewriting saved or normal
 });
 
 
-test("ground wave leaves the caster, survives recovery and pierces each aligned enemy once", () => {
+test("ground wave leaves the caster, survives interruption and pierces each aligned enemy once", () => {
   for (const facing of [-1, 1]) {
     const state = lastRoomState(), p = state.player, spec = Core.SKILLS.normalWave;
     p.x = 320; p.facing = facing; p.mp = p.maxMp;
@@ -10697,15 +10699,16 @@ test("ground wave leaves the caster, survives recovery and pierces each aligned 
     Core.step(state, { skills: { normalWave: true } });
     assert.equal(p.skillId, 'normalWave');
     assert.ok(p.mp <= mp - spec.mp + 1);
-    Core.runFrames(state, 20, {});
+    Core.runFrames(state, 10, {});
     assert.equal(state.shots.length, 0, 'casting does not hit at key-down');
     assert.ok(targets.every(e => e.hp === 1000));
     for (let i = 0; !state.shots.length && i < 60; i++) Core.step(state, {});
     assert.equal(state.shots.length, 1);
     const qi = state.shots[0];
+    p.skillTimer = 0; p.skillId = null;
     p.x -= facing * 80; p.facing = -facing;
-    while (p.skillTimer > 0) Core.step(state, {});
-    assert.ok(state.shots.includes(qi), 'qi remains after the body animation ends');
+    Core.runFrames(state, 3, {});
+    assert.ok(state.shots.includes(qi), 'interrupting the caster does not cancel released fire');
     assert.equal(targets[1].hp, 1000, 'the distant target has not yet met the travelling qi');
     assert.equal(qi.facing, facing, 'turning the player cannot turn an emitted wave');
     assert.equal(qi.z, originZ);
@@ -10721,17 +10724,18 @@ test("ground wave leaves the caster, survives recovery and pierces each aligned 
   }
 });
 
-test("ground wave uses the native casting hold and refuses insufficient MP or an air cast", () => {
+test("ground wave uses recorded body timing and refuses insufficient MP or an air cast", () => {
   const source = JSON.parse(fs.readFileSync(path.join(__dirname, '../docs/reference-evidence/14-client-wave-sources.json')));
   const skill = source.skills.find(s => s.path === 'skill/swordman/normalwave.skl');
   const frames = source.animations['character/swordman/animation/wave.ani'].frames;
   assert.equal(frames[0].delay_ms, 10000, 'native first frame is a hold sentinel');
-  const delays = frames.map((f,i) => i === 0 ? skill['[casting time]'][0] : f.delay_ms);
-  assert.equal(delays.reduce((a,b) => a+b,0)/1000, Core.SKILLS.normalWave.duration);
+  assert.equal(skill['[casting time]'][0],200,'modern client timing is evidence, not the recording rule');
+  const delays = frames.map((f,i) => i === 8 ? 3/15 : 1/15);
+  assert.ok(Math.abs(delays.reduce((a,b) => a+b,0)-Core.SKILLS.normalWave.duration)<1e-9);
   const state = lastRoomState(), p = state.player;
   p.skillId = 'normalWave'; let elapsed = 0;
   delays.forEach((delay, index) => {
-    p.skillTimer = Core.SKILLS.normalWave.duration - (elapsed + delay / 2)/1000;
+    p.skillTimer = Core.SKILLS.normalWave.duration - (elapsed + delay / 2);
     assert.deepEqual(Render.playerFrame(state, p), { row:14, col:index }); elapsed += delay;
   });
   p.skillTimer = 0; p.mp = Core.SKILLS.normalWave.mp - 1;
@@ -10747,21 +10751,21 @@ test("ground wave keeps the native animation root instead of switching between i
   // measured from wave.ani / sm_body0000 and the installed equipment layers.
   const sourceX = [108, 124, 240, 236, 236, 236, 236, 236, 236];
   const bakedX = [25, 34, 43, 40, 40, 40, 40, 40, 40];
-  const delays = [200,50,50,50,50,50,50,50,150];
+  const delays = [1,1,1,1,1,1,1,1,3].map(n=>n/15);
   const state = lastRoomState(), p = state.player;
   const slayer = {width:13312,height:2640};
   p.skillId = 'normalWave'; p.onGround = true;
   for (const facing of [-1,1]) {
     p.facing = facing; let elapsed = 0;
     delays.forEach((delay, col) => {
-      p.skillTimer = 0.7 - (elapsed + delay/2)/1000;
+      p.skillTimer = Core.SKILLS.normalWave.duration - (elapsed + delay/2);
       const calls = [];
       Render.render(recordingContext(calls), state, {sprites:{slayer}});
       const index = calls.findIndex(c => c[0] === 'drawImage' && c[1] === slayer &&
         c[2] === col * 208 && c[3] === 14 * 176);
       assert.ok(index >= 0, `wave body frame ${col} was drawn`);
       const translate = calls.slice(0,index).findLast(c => c[0] === 'translate');
-      const nativeX = Math.round(88 + (sourceX[col] - 242) * 0.68);
+      const nativeX = Math.round(88 + (sourceX[col] - 232) * 0.68);
       assert.equal(translate[1], p.x + facing * (nativeX - bakedX[col]),
         `frame${col} must retain its ANI root and the same root as the blade FX`);
       elapsed += delay;
@@ -10771,22 +10775,79 @@ test("ground wave keeps the native animation root instead of switching between i
 
 test("ground wave draws native body, slash and travelling qi without the shared atlas resize", () => {
   const state = lastRoomState(), p = state.player;
-  p.skillId = 'normalWave'; p.skillTimer = 0.7 - 0.325;
+  p.skillId = 'normalWave'; p.skillTimer = Core.SKILLS.normalWave.duration - 0.325;
   const sprites = {slayer:{width:13312,height:2640}, effects:{width:5760,height:4096},
-    normalWaveBody:{width:3456,height:320}, normalWave:{width:1536,height:512}};
+    normalWaveBody:{width:3456,height:320}, normalWave:{width:1920,height:1280}};
   state.shots = [{skillId:'normalWave', x:p.x+80, y:p.y, z:p.z,
     facing:1,maxLife:0.9,life:0.8}];
   const calls = [];
   Render.render(recordingContext(calls),state,{sprites});
   const body = calls.find(c => c[0] === 'drawImage' && c[1] === sprites.normalWaveBody);
   assert.ok(body, 'the native body is used by the real player rendering path');
-  assert.deepEqual(body.slice(2,6), [3*384,0,384,320]);
+  assert.deepEqual(body.slice(2,6), [4*384,0,384,320]);
   assert.deepEqual(body.slice(6), [-160*0.68,-240*0.68,384*0.68,320*0.68]);
   const effects = calls.filter(c => c[0] === 'drawImage' && c[1] === sprites.normalWave);
-  assert.equal(effects.length, 2, 'one caster slash and one independent qi, each drawn once');
-  assert.deepEqual(effects.map(c => c[3]).sort((a,b) => a-b),[0,256]);
+  assert.equal(effects.filter(c=>c[3]===0).length,1,'one fire slash');
+  assert.equal(effects.filter(c=>c[3]===320).length,1,'one independent fire fan');
+  assert.equal(effects.filter(c=>c[3]===640).length,3,'native casting star has calibrated additive gain');
   for (const effect of effects) {
-    assert.equal(effect[4],256); assert.equal(effect[5],256);
-    assert.equal(effect[8],256*0.68); assert.equal(effect[9],256*0.68);
+    assert.equal(effect[4],320); assert.equal(effect[5],320);
+    assert.ok(Math.abs(effect[8]-320*0.68)<1e-8);
+    assert.ok(Math.abs(effect[9]-320*0.68)<1e-8);
   }
+});
+
+test("recorded ground wave releases with the casting flash rather than after the raised-sword hold", () => {
+  // V2 111.333: wind-up; 111.600: blue flash and travelling fire fan.
+  const state = lastRoomState(), p = state.player;
+  state.enemies = []; state.props = [];
+  Core.step(state,{skills:{normalWave:true}});
+  Core.runFrames(state,17,{});
+  assert.equal(state.shots.length,1,'fire fan must already exist at the recorded release beat');
+  p.skillId='normalWave';p.skillTimer=Core.SKILLS.normalWave.duration-0.10;
+  assert.equal(Render.playerFrame(state,p).col,1,'the body has left the first wind-up pose by 0.10s');
+});
+
+test("recorded ground wave art is a vertical fire fan, not the legacy flat white flame", () => {
+  const image=decodeRgbaPng(path.join(__dirname,'../assets/normal-wave.png'));
+  const cell=image.width/6;
+  let left=cell,top=cell,right=-1,bottom=-1;
+  for(let y=0;y<cell;y++) for(let x=0;x<cell;x++) {
+    const i=((y+cell)*image.width+x)*4;
+    if(image.pixels[i+3]>40 && image.pixels[i]>100 && image.pixels[i+1]>45) {
+      left=Math.min(left,x);right=Math.max(right,x);top=Math.min(top,y);bottom=Math.max(bottom,y);
+    }
+  }
+  assert.ok((bottom-top+1)/(right-left+1)>0.9,
+    `the recorded fire fan is tall; legacy wave ratio was ${(bottom-top+1)/(right-left+1)}`);
+});
+
+test("recorded ground wave gauge becomes a native blue star and the eroding fan never loops", () => {
+  const s=lastRoomState(),p=s.player;
+  const sprites={slayer:{width:13312},effects:{width:5760},normalWave:{width:1920,height:1280}};
+  p.skillId='normalWave';
+  function drawAt(elapsed,age) {
+    p.skillTimer=Core.SKILLS.normalWave.duration-elapsed;
+    s.shots=age===undefined?[]:[{skillId:'normalWave',x:p.x+140,y:p.y,z:p.z,facing:1,maxLife:1/3,life:1/3-age}];
+    const calls=[];Render.render(recordingContext(calls),s,{sprites});
+    return calls.filter(c=>c[0]==='drawImage' && c[1]===sprites.normalWave);
+  }
+  assert.ok(drawAt(.1).some(c=>c[3]===960),'native casting gauge is visible during wind-up');
+  const released=drawAt(4/15+.02, .02);
+  assert.ok(released.some(c=>c[2]===0 && c[3]===640),'first blue star begins at release');
+  assert.ok(!released.some(c=>c[3]===960),'gauge is gone after release');
+  const late=drawAt(.55,.28);
+  assert.ok(late.some(c=>c[2]===4*320 && c[3]===320),'the moving fire fan dissolves to its fifth frame');
+  assert.ok(!drawAt(.62,.35).some(c=>c[3]===320),'expired fan cannot wrap back to its first frame');
+  assert.ok(!drawAt(.62).some(c=>c[3]===640),'native casting star has finished');
+});
+
+test("player name sits above the casting star instead of covering its white core", () => {
+  const s=lastRoomState(),p=s.player;p.z=0;p.y=Core.ARENA.groundY;
+  p.skillId='normalWave';p.skillTimer=Core.SKILLS.normalWave.duration-.3;
+  const calls=[];
+  Render.render(recordingContext(calls),s,{sprites:{slayer:{width:13312},effects:{width:5760},normalWave:{width:1920}}});
+  const name=calls.find(c=>c[0]==='strokeText' && c[1].startsWith(`Lv.${p.level} `));
+  assert.ok(name && name[3]<p.y-110*.68-8,
+    'V2 name baseline is above the star; collision-body height must not position the label');
 });

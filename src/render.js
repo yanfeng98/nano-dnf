@@ -94,12 +94,12 @@
     return { frames: 1, from: from, until: ghostSlashElapsed / 950 };
   });
 
-  // wave.ani's 10000ms first frame is a casting hold; normalwave.skl sets200ms.
+  // V2 111.333–112.067: 2 recorded frames per pose, then held recovery.
   var normalWaveElapsed = 0;
-  var NORMAL_WAVE_BEATS = [200, 50, 50, 50, 50, 50, 50, 50, 150].map(function (delay) {
-    var from = normalWaveElapsed / 700;
+  var NORMAL_WAVE_BEATS = [1, 1, 1, 1, 1, 1, 1, 1, 3].map(function (delay) {
+    var from = normalWaveElapsed / 11;
     normalWaveElapsed += delay;
-    return { frames: 1, from: from, until: normalWaveElapsed / 700 };
+    return { frames: 1, from: from, until: normalWaveElapsed / 11 };
   });
 
   var SPRITE = {
@@ -208,8 +208,9 @@
         // wave.ani has one root (-232,-333). The old body bake recentres
         // each frame on its lowest foot, which switches legs during the cut.
         // Undo only that horizontal packing shift; blade FX keep this root.
-        // Derived from local composed x / ORIGIN(242,341), scale0.68.
-        rootX: [-28, -26, 44, 44, 44, 44, 44, 44, 44] },
+        // Restore the actual ANI root(232,333), not an inferred foot centre.
+        rootX: [-21, -19, 50, 51, 51, 51, 51, 51, 51],
+        rootY: [6, 6, 6, 5, 5, 5, 5, 5, 5] },
       /*
        * The client's own 崩山击, straight off its preview clip: 187 (the blade
        * still down and forward) and 194/203 (both hands up, the blade over the
@@ -607,9 +608,12 @@
    * the four-frame sample, and the sheet is as wide as its longest row.
    */
   var EFFECT = {
+    // V2 111.600 white core: one pass145px vs recording779px in the
+    // matched90x44 ROI. Native additive gain is calibrated separately.
+    castingStarGain: 2.4,
     cell: 128,
     rowFrames: {
-      normalWave: 6,
+      normalWave: 5,
       ghostSlash: 6,
       upSlash: 9,
       mountainBreaker: 6,
@@ -882,20 +886,19 @@
      * why its draw entry also carries `front` - without that the row would be
      * painted twice, once behind him and once in front.
      */
-    frontFrames: { mountainRift: 45, mountainBreaker: 6, ghostSlash: 6, normalWave: 6 },
+    frontFrames: { mountainRift: 45, mountainBreaker: 6, ghostSlash: 6, normalWave: 5 },
     frontRows: { ghostSlash: Core.SKILL_ORDER.length + 16 },
     shotRows: {
-      normalWave: { row: Core.SKILL_ORDER.length + 17, frames: 4, frameSeconds: 0.05,
-                    size: 87.04, dy: -21.76, blend: "lighter" }
+      normalWave: { row: Core.SKILL_ORDER.length + 17, frames: 5, frameSeconds: 1 / 15,
+                    loop: false, size: 217.6, dy: 0, blend: "lighter" }
     },
-    // Native-size wave atlas: shared window[-64,-160,192,96], scale0.68.
-    // Keeps the 220px caster slash intact instead of reducing it to128px.
+    // Recorded orange hadouken family, at native resolution and ANI anchors.
     nativeRows: {
-      normalWave: { sprite: "normalWave", cell: 256, row: 0,
-                    dx: 36.72, dy: -27.2, size: 174.08 }
+      normalWave: { sprite: "normalWave", cell: 320, row: 0,
+                    dx: 21.76, dy: -21.76, size: 217.6 }
     },
     draw: {
-      normalWave: { dx: 28.56, dy: -35.36, size: 149.6, copies: 1, spin: 0, front: true, blend: "lighter" },
+      normalWave: { dx: 21.76, dy: -21.76, size: 217.6, copies: 1, spin: 0, front: true, blend: "lighter" },
       // 212-client-pixel window at body scale0.68; centre(56,-60)
       // relative to nominal body feet(10,8), from hardattack ANI positions.
       ghostSlash: { dx: 31.28, dy: -46.24, size: 144.16, copies: 1, spin: 0, frontBlend: "lighter" },
@@ -1193,7 +1196,7 @@
      * rift still glowing under the Slayer are drawn while he stands in them.
      */
     timing: {
-      normalWave: { from: 0.25 / 0.7, to: 0.55 / 0.7 },
+      normalWave: { from: 1 / 11, to: 6 / 11 },
       ghostSlash: { from: 0.15 / 0.95, to: 0.45 / 0.95 },
       mountainRift: { from: 0, to: 0.99 },
       /*
@@ -3999,6 +4002,8 @@
     var bodyClip = SPRITE.skillClips[player.skillId];
     var bodyOffset = player.skillTimer > 0 && bodyClip && bodyClip.rootX && frame.row === bodyClip.row
       ? bodyClip.rootX[frame.col - bodyClip.first] || 0 : 0;
+    var bodyOffsetY = player.skillTimer > 0 && bodyClip && bodyClip.rootY && frame.row === bodyClip.row
+      ? bodyClip.rootY[frame.col - bodyClip.first] || 0 : 0;
     if (nativeBody && nativeBody.width) {
       ctx.save();
       ctx.translate(player.x, feetY(player));
@@ -4010,7 +4015,7 @@
       ctx.restore();
     } else {
       drawSpriteFrame(ctx, body, frame.col, frame.row, player.x + player.facing * bodyOffset,
-                      feetY(player), player.facing < 0);
+                      feetY(player) + bodyOffsetY, player.facing < 0);
     }
     /*
      * **The second sword's cream trail, and it is the client's own arc.** The body
@@ -4719,7 +4724,9 @@
     ctx.textAlign = "center";
     ctx.lineWidth = Math.max(1, 2.5 * Core.VIDEO_PX);
     ctx.strokeStyle = "rgba(24, 4, 32, 0.92)";
-    var y = feetY(player) - (player.height || 84) - MONSTER_NAME.lift;
+    // V2 name stays above the cast gauge/star. Collision height64 positioned
+    // it across the star's white core; use the visual body height84 instead.
+    var y = feetY(player) - SPRITE.bodyHeight - MONSTER_NAME.lift;
     var text = "Lv." + player.level + " " + (player.name || "鬼剑士");
     ctx.strokeText(text, player.x, y);
     ctx.fillStyle = "#e6eef8";
@@ -4898,23 +4905,59 @@
   }
 
   // Player sword qi owns its position and lifetime, independently of the caster.
+  function drawWaveCasting(ctx, state, sprites) {
+    var p = state.player, sheet = sprites && sprites.normalWave;
+    if (!sheet || !sheet.width || p.skillId !== "normalWave" || p.skillTimer <= 0) return;
+    var elapsed = Core.SKILLS.normalWave.duration - p.skillTimer;
+    var release = Core.SKILLS.normalWave.castingTime, size = 320 * 0.68;
+    ctx.save();
+    ctx.translate(p.x, feetY(p));
+    ctx.imageSmoothingEnabled = true;
+    if (elapsed < release) {
+      // Native gauge background and clipped native fill, left-to-right in both facings.
+      ctx.drawImage(sheet,0,3*320,320,320,-160*0.68,-256*0.68,size,size);
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(-25*0.68,-111*0.68,50*0.68*clamp01(elapsed/release),2*0.68);
+      ctx.clip();
+      ctx.drawImage(sheet,320,3*320,320,320,-160*0.68,-256*0.68,size,size);
+      ctx.restore();
+    } else {
+      // endofcasting.ani: first star80ms, then five45ms dissolving frames.
+      var age = elapsed - release, ends = [0.08,0.125,0.17,0.215,0.26,0.305];
+      var col = 0;
+      while (col < ends.length && age >= ends[col]) col += 1;
+      if (col < ends.length) {
+        ctx.globalCompositeOperation = "lighter";
+        var originalAlpha = ctx.globalAlpha;
+        for (var pass = 0; pass < Math.ceil(EFFECT.castingStarGain); pass += 1) {
+          ctx.globalAlpha = originalAlpha * Math.min(1, EFFECT.castingStarGain - pass);
+          ctx.drawImage(sheet,col*320,2*320,320,320,-160*0.68,-256*0.68,size,size);
+        }
+      }
+    }
+    ctx.restore();
+  }
+
   function drawSwordQi(ctx, shot, sprites) {
     var draw = EFFECT.shotRows[shot.skillId];
     if (!draw || !sprites || !sprites.effects || !sprites.effects.width) return;
     var age = Math.max(0, shot.maxLife - shot.life);
-    var column = Math.floor((age + 0.0000001) / draw.frameSeconds) % draw.frames;
+    var step = Math.floor((age + 0.0000001) / draw.frameSeconds);
+    if (draw.loop === false && step >= draw.frames) return;
+    var column = draw.loop === false ? step : step % draw.frames;
     var native = shot.skillId === "normalWave" && sprites.normalWave && sprites.normalWave.width;
     var sheet = native ? sprites.normalWave : sprites.effects;
-    var cell = native ? 256 : EFFECT.cell;
+    var cell = native ? 320 : EFFECT.cell;
     var row = native ? 1 : draw.row;
-    var size = native ? 174.08 : draw.size;
+    var size = native ? 217.6 : draw.size;
     ctx.save();
     ctx.translate(shot.x, feetY(shot));
     ctx.scale(shot.facing || 1, 1);
     ctx.globalCompositeOperation = draw.blend;
     ctx.imageSmoothingEnabled = true;
     ctx.drawImage(sheet, column * cell, row * cell, cell, cell,
-                  (native ? 43.52 : 0) - size / 2, draw.dy - size / 2, size, size);
+                  -size / 2, draw.dy - size / 2, size, size);
     ctx.restore();
   }
 
@@ -9442,6 +9485,7 @@
     });
     add(inFront, function () {
       drawSkillEffectFront(ctx, state, sprites);
+      drawWaveCasting(ctx, state, sprites);
     });
     /* 血之狂暴's blood blade passes in front of him as well as behind - see
        drawRageBlade for why it is the same blade twice and not two blades. */

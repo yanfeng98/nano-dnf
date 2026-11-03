@@ -58,6 +58,8 @@ try {
       return true;
     });
     await page.waitForTimeout(100);
+    assert.ok(await page.evaluate(()=>window.waveMeta.sprites.slayer.src.endsWith('/assets/slayer-reference.png')),
+      'playable character uses the complete reference short-sword sheet');
     const url = await page.locator('#stage').evaluate(c => c.toDataURL('image/png'));
     fs.writeFileSync(`${out}/${stage}.png`, Buffer.from(url.split(',')[1], 'base64'));
     if (deep) {
@@ -84,7 +86,7 @@ try {
         window.waveDraws = [];
         window.waveBodyDraws = [];
         ctx.drawImage = function (...args) {
-          if (args.length === 9 && /\/normal-wave\.png$/.test(args[0]?.src || '') && args[2] === 256) {
+          if (args.length === 9 && /\/normal-wave\.png$/.test(args[0]?.src || '') && args[2] === 320) {
             if (window.waveDraws.length < 500) window.waveDraws.push({ sourceY: args[2], blend: this.globalCompositeOperation });
           }
           if (args.length === 9 && /\/normal-wave-body\.png$/.test(args[0]?.src || '')) {
@@ -119,11 +121,19 @@ try {
       assert.ok(launched.bodyDraws.some(d => d[2] === 384 && d[3] === 320 && Math.abs(d[4] + 108.8) < 1e-8),
         'D uses the native-size body and its fixed ANI root');
       await page.keyboard.press('p');
+      await page.waitForFunction(x=>{
+        const s=window.nanoDnf.getState();
+        return s.shots.some(q=>q.skillId==='normalWave' && q.x>x+24);
+      },launched.shots[0].x);
+      await page.keyboard.press('p');
+      const flying=await captureWave('in-flight');
+      assert.equal(flying.casting,true,'recorded fire travels during the raised-sword recovery');
+      assert.ok(flying.shots[0].x>launched.shots[0].x,'fire owns its position');
+      await page.keyboard.press('p');
       await page.waitForFunction(() => window.nanoDnf.getState().player.skillTimer <= 0);
       await page.keyboard.press('p');
       const recovered = await captureWave('after-cast');
-      assert.equal(recovered.casting, false); assert.equal(recovered.shots.length, 1);
-      assert.ok(recovered.shots[0].x > launched.shots[0].x, 'the visible qi keeps moving after recovery');
+      assert.equal(recovered.casting, false); assert.equal(recovered.shots.length, 0);
       assert.ok(recovered.cooldown > 0);
       if (process.env.WAVE_POSES) {
         const poses = await page.evaluate(() => {
@@ -136,7 +146,7 @@ try {
           try {
             p.x = 200; p.skillId = 'normalWave';
             for (const facing of [-1,1]) for (const elapsed of [0.225,0.275,0.325,0.525]) {
-              p.facing = facing; p.skillTimer = 0.7 - elapsed;
+              p.facing = facing; p.skillTimer = window.DNFCore.SKILLS.normalWave.duration - elapsed;
               for (const mode of ['before','after']) {
                 const c = document.createElement('canvas'); c.width = 960; c.height = 540;
                 const meta = {...baseMeta, sprites:{...baseMeta.sprites}};

@@ -1,0 +1,18 @@
+{
+  "baseline": "4edbd0f",
+  "historical_slayer_preserved": true,
+  "unrelated_effect_rows_preserved": true,
+  "changed_effect_rows": [
+    13,
+    31
+  ],
+  "importers_idempotent": true,
+  "output_sha256": {
+    "slayer.png": "398c0b7bf984f52ae762f94200cd449b684b942363427f516b7ec02a13193e95",
+    "slayer-reference.png": "28fd3ff477e7ca87b59c6d803459a8b8477f9368e69e38b4b45e0b20b211c4b5",
+    "skills.png": "bcebc9be5bcbd986f09f2301472093f1f095b3645ee843154b979e86b8635046",
+    "effects.png": "e152d22f4301e3388c4376ba27cc921477821b6e0a8a497460862af634f4ff5d",
+    "normal-wave-body.png": "f8ebb16171e29fe5f367916edb08123aecfae5aa66777dda5028d6f4f7db3ac8",
+    "normal-wave.png": "25e4140ec3855bab8da4dd4b8aeed8e2d054685062d6002c5e8c135910c243e8"
+  }
+}
