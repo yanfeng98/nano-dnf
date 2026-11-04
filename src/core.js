@@ -5718,7 +5718,7 @@
         if (!inReachOf(enemy.z, shot.z, shot.depthReach)) return;
         if (!boxesOverlap(box, bodyBox(enemy))) return;
         shot.struck.push(enemy.id);
-        applySkillHit(state, enemy, shot.damage, SKILLS[shot.skillId], shot.hitIndex);
+        applySkillHit(state, enemy, shot.damage, SKILLS[shot.skillId], shot.hitIndex, shot);
       });
     });
     state.shots = state.shots.filter(function (shot) {
@@ -6204,7 +6204,8 @@
     if (enemy.superArmor && !opts.ignoreSuperArmor) {
       enemy.vx *= 0.6;
     } else {
-      var direction = enemy.x >= sourceX ? 1 : -1;
+      var direction = opts.knockbackDirection === 1 || opts.knockbackDirection === -1
+        ? opts.knockbackDirection : (enemy.x >= sourceX ? 1 : -1);
       enemy.vx = direction * knockbackX;
       enemy.hurtTimer = 0.18;
     }
@@ -7434,7 +7435,7 @@
     });
   }
 
-  function applySkillHit(state, enemy, damage, skill, hitIndex) {
+  function applySkillHit(state, enemy, damage, skill, hitIndex, source) {
     var options = {};
     var lastHit = hitIndex === (skill.hits || 1) - 1;
 
@@ -7467,7 +7468,8 @@
     var wasAirborne = !enemy.onGround;
     /* 技能命中停一下（`docs/adr/0061` 追记）：表在 `SKILL_HIT_STOP`。 */
     options.hitStop = skillHitStop(skill, hitIndex);
-    damageEnemy(state, enemy, damage, skill.knockbackX, state.player.x, options);
+    if (source) options.knockbackDirection = source.facing;
+    damageEnemy(state, enemy, damage, skill.knockbackX, source ? source.x : state.player.x, options);
     if (skill.drain && damage > 0) {
       var healed = Math.round(damage * skill.drain);
       state.player.hp = Math.min(state.player.maxHp, state.player.hp + healed);

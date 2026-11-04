@@ -10851,3 +10851,16 @@ test("player name sits above the casting star instead of covering its white core
   assert.ok(name && name[3]<p.y-110*.68-8,
     'V2 name baseline is above the star; collision-body height must not position the label');
 });
+
+test('released fire keeps its knockback direction when the caster crosses the target',()=>{
+ for(const facing of [-1,1]){
+  const s=lastRoomState(),p=s.player;p.x=320;p.facing=facing;s.props=[];
+  const e=Core.createEnemy(s,'grunt',320+facing*240);e.x=320+facing*240;e.z=p.z;e.hp=e.maxHp=1000;e.stun=10;s.enemies=[e];
+  Core.step(s,{skills:{normalWave:true}});
+  while(!s.shots.length)Core.step(s,{});
+  p.skillTimer=0;p.skillId=null;p.x=e.x+facing*120;p.facing=-facing;
+  for(let n=0;n<30&&e.hp===1000;n++)Core.step(s,{});
+  assert.ok(e.hp<1000,'travelling fire reaches the target');
+  assert.ok(e.vx*facing>0,'knockback follows emitted fire, not the caster current position');
+ }
+});
