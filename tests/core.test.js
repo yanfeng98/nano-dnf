@@ -10864,3 +10864,21 @@ test('released fire keeps its knockback direction when the caster crosses the ta
   assert.ok(e.vx*facing>0,'knockback follows emitted fire, not the caster current position');
  }
 });
+
+test('ground wave breaks props at its own moving depth and hits each prop once',()=>{
+ for(const facing of [-1,1]){
+  const s=lastRoomState(),p=s.player;p.x=400;p.z=0;p.facing=facing;s.enemies=[];
+  const prop=(dx,z,hp=1)=>({piece:'barrel',x:400+facing*dx,z,solid:true,broken:false,hp});
+  const near=prop(35,0),far=prop(240,0),durable=prop(180,0,3),other=prop(240,180);
+  s.props=[near,far,durable,other];
+  Core.step(s,{skills:{normalWave:true}});
+  while(!s.shots.length)Core.step(s,{});
+  assert.equal(near.hp,1,'no detached melee prop hit at release');
+  assert.equal(far.broken,false,'distant barrel waits for the wave');
+  p.skillTimer=0;p.skillId=null;p.x=400-facing*100;p.z=180;
+  Core.runFrames(s,40,{});
+  assert.equal(far.broken,true,'wave breaks distant barrel at its own depth');
+  assert.equal(durable.hp,2,'overlap across frames costs only one hit');
+  assert.equal(other.broken,false,'caster movement cannot move the wave to another depth');
+ }
+});

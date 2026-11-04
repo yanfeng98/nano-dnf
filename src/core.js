@@ -5697,6 +5697,7 @@
       damage: damage,
       hitIndex: hitIndex,
       struck: [],
+      struckProps: [],
       life: shot.life,
       maxLife: shot.life
     });
@@ -5713,6 +5714,7 @@
       shot.life -= dt;
       shot.x += shot.vx * dt;
       var box = shotBox(shot);
+      swingProps(state, box, shot.depthReach, shot, shot.struckProps);
       state.enemies.forEach(function (enemy) {
         if (enemy.dead || shot.struck.indexOf(enemy.id) !== -1) return;
         if (!inReachOf(enemy.z, shot.z, shot.depthReach)) return;
@@ -7146,7 +7148,9 @@
         player.skillHitDone = player.skillHitsDone >= hitCount;
 
         var skillBox = attackBox(player, active.reach, active.heightPad);
-        swingProps(state, skillBox, active.depthReach);
+        if (!(active.shot && hitIndex === active.shot.hit)) {
+          swingProps(state, skillBox, active.depthReach);
+        }
         if (active.buff) {
           /*
            * A buff skill pays its price and goes up; it does not swing.
@@ -8471,15 +8475,17 @@
 
   /**
    * 一团挥击扫过布景。**只有他挥出去的那几下走到这里** —— 怪的挥击、怪的身体都不碰桶
-   * （业主的话：「只有人能打碎，怪物打不碎」）。所以这个函数只在他那三条命中路径上
-   * （普攻连段、技能那一下、大蹦的冲击波）被叫，怪的命中路径上没有它。
+   * （业主的话：「只有人能打碎，怪物打不碎」）。所以这个函数只在玩家攻击的命中路径上
+   * （普攻连段、技能近身命中、独立剑气、大蹦的冲击波）被叫，怪的命中路径上没有它。
    *
    * 判定和打怪一样是"盒子碰上、深度够得着"，只是深度那一半要加上桶自己的厚度：桶不是
    * 一个点，它占了半格地。
    */
-  function swingProps(state, box, reach) {
+  function swingProps(state, box, reach, source, struckProps) {
+    source = source || state.player;
     (state.props || []).forEach(function (prop) {
       if (!prop.solid || prop.broken) return;
+      if (struckProps && struckProps.indexOf(prop) !== -1) return;
       var spec = breakableSpec(prop.piece);
       if (!spec) return;
       /*
@@ -8491,7 +8497,7 @@
       if (!boxed) return;
       /* 打碎布景用更宽的一档（`DEPTH_REACH.breakable`）：箱子坐在后场草沿上。 */
       var depthReach = (reach === undefined ? DEPTH_REACH.breakable : reach) * SLAYER_HEIGHT;
-      if (Math.abs((prop.z || 0) - state.player.z) > depthReach + boxed.depth / 2) return;
+      if (Math.abs((prop.z || 0) - (source.z || 0)) > depthReach + boxed.depth / 2) return;
       /*
        * **这个盒子画在高度轴上，不是屏幕 y 上。** 它原来把桶的落脚点写成
        * `groundY - depthLift(z)` —— 那是**画**它用的那一条（`docs/adr/0047`），
@@ -8508,6 +8514,7 @@
         top: foot - (boxed.height || spec.height)
       };
       if (!boxesOverlap(box, barrel)) return;
+      if (struckProps) struckProps.push(prop);
       prop.hp -= 1;
       if (prop.hp > 0) return;
       prop.broken = true;
