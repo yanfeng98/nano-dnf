@@ -159,8 +159,8 @@
      * **The walk is the client's 180-187, played at 10fps.** Same eight-frame
      * shape (two four-frame strides) but upright - it is the client's own town
      * gait, not the run slowed down. 10fps makes one cycle 0.8s = two 0.4s
-     * steps; at the town's 140px/s that is 56px of ground per step, which is
-     * about the stride the art itself takes, so the feet do not skate.
+     * steps. V2 1.467–2.233s confirms each pose lasts three 30fps video
+     * frames. The older 140px/s stride argument is not a recording measurement.
      */
     frames: { idle: 4, run: 8, walk: 8, attack: 27, skill: 6, extras: 6 },
     /*
@@ -7250,8 +7250,17 @@
     // 00002 at 2s: houses match at 2.25 video px/client px (0.5 here).
     artScale: 1.125, midY: 85, roadY: 233, frontY: 430,
     groundY: 425, depthScale: 1,
-    // 1.5..2.2s: actor shifts ~305 video px / .7s => ~218 canvas px/s.
+    // Initial estimate ~218px/s; V2 1.467..2.233s root fit ~223px/s.
+    // Keep 220: one cycle does not establish an exact global speed.
     walkSpeed: 220, walkFps: 10, playerScale: 132.5 / 84,
+    // Native (232,333) inside each historical packed cell, relative to its
+    // (88,156) anchor. Undo per-frame foot-centering only in town. Measured by
+    // scripts/measure-town-walk.py; V2 1.467–2.233s supports a common root.
+    bodyRoots: {
+      idle: [[8.48, -5.16], [9.16, -5.16], [9.16, -5.16], [9.16, -5.16]],
+      walk: [[-7.92, -5.52], [-4.56, -5.84], [2.12, -5.84], [-10.56, -5.52],
+             [-6.92, -5.52], [-2.96, -5.84], [5.36, -5.84], [9.04, -5.52]]
+    },
     // No pure depth/camera sample: these remain play-test calibration values.
     depthSpeedRatio: 0.56, cameraRate: 8,
     spawnX: 200, spawnZ: 20
@@ -7642,7 +7651,7 @@
          * **城镇里是走路，不是跑**（业主 2026-10-27 两遍反馈：先「没有走路动作」，
          * 再「应该是走路，不能跑」）。副本那条 run（105-112）是前倾的冲刺；
          * 客户端自己的步行循环是紧跟在待机 176-179 后面的 180-187，直立摆臂。
-         * 走动时用 walk 行、10fps（一圈 0.8s）；站住回待机第一帧。
+         * 录像逐姿势核对为10fps（一圈0.8s）；站住回待机第一帧。
          * 相位来自 `townStep` 的 `town.walk`。
          */
         var walking = !!(town.moving && town.walk > 0);
@@ -7652,9 +7661,14 @@
         drawUiFrame(ctx, sprites.ui, UI.dropMark,
                     Math.floor((town.time || 0) * 8) % UI.dropMark.frames.length,
                     sx - 32.5, bottom - 6, 65, 15);
-        // Shared sprite draw keeps nearest-neighbour sampling at town scale.
-        drawSpriteFrame(ctx, sprites.slayer, column, row, sx, bottom,
-                        town.facing < 0, TOWN.playerScale);
+        // The sprite packer centred each pose on a moving foot. Restore the
+        // same native root for both walking and standing before flipping.
+        var root = TOWN.bodyRoots[walking ? "walk" : "idle"][column];
+        var flip = town.facing < 0;
+        drawSpriteFrame(ctx, sprites.slayer, column, row,
+                        sx + (flip ? root[0] : -root[0]) * TOWN.playerScale,
+                        bottom - root[1] * TOWN.playerScale,
+                        flip, TOWN.playerScale);
         ctx.save();
         ctx.textAlign = "center";
         ctx.font = HUD_FONT(10);

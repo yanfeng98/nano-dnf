@@ -8664,11 +8664,16 @@ test("the clear screen draws no combat HUD behind its table", () => {
 test("town depth zero stays at the near edge without a position jump", () => {
   const drawAt = (z) => {
     const calls = [];
+    const slayer = {};
     Render.drawTown(recordingContext(calls), {
       town: { x: 250, z, facing: 1, cameraX: 0, npcs: [] },
-      sprites: { slayer: {} }, player: {}
+      sprites: { slayer }, player: {}
     });
-    return calls.find((c) => c[0] === "translate" && c[1] === 250)[2];
+    const actorDraw = calls.findIndex((c) => c[0] === "drawImage" && c[1] === slayer);
+    assert.ok(actorDraw >= 0, "the town player was drawn");
+    // Locate the actual actor transform: its native-root correction may shift
+    // x away from the logical position, independently of the depth under test.
+    return calls.slice(0, actorDraw).reverse().find((c) => c[0] === "translate")[2];
   };
   const zero = drawAt(0);
   const one = drawAt(1);

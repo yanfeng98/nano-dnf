@@ -1,0 +1,322 @@
+{
+  "video": "00002-幽暗密林深处.mp4",
+  "normalized_size": [
+    720,
+    540
+  ],
+  "window": [
+    1.4666666666666666,
+    2.2333333333333334
+  ],
+  "static_background_rms": 0.8165036685408956,
+  "pose_hold_video_frames": 3,
+  "samples": [
+    {
+      "frame": 180,
+      "scale": 1.1,
+      "rootX": 197.2,
+      "rootY": 398.1,
+      "left": 173,
+      "top": 276,
+      "sample": 9,
+      "score": 0.8906928300857544
+    },
+    {
+      "frame": 180,
+      "scale": 1.1,
+      "rootX": 192.2,
+      "rootY": 398.1,
+      "left": 168,
+      "top": 276,
+      "sample": 10,
+      "score": 0.8931300640106201
+    },
+    {
+      "frame": 180,
+      "scale": 1.1,
+      "rootX": 185.2,
+      "rootY": 398.1,
+      "left": 161,
+      "top": 276,
+      "sample": 11,
+      "score": 0.8889304399490356
+    },
+    {
+      "frame": 181,
+      "scale": 1.1,
+      "rootX": 173.0,
+      "rootY": 398.20000000000005,
+      "left": 151,
+      "top": 275,
+      "sample": 12,
+      "score": 0.8994521498680115
+    },
+    {
+      "frame": 181,
+      "scale": 1.1,
+      "rootX": 170.0,
+      "rootY": 398.20000000000005,
+      "left": 148,
+      "top": 275,
+      "sample": 13,
+      "score": 0.9030148983001709
+    },
+    {
+      "frame": 181,
+      "scale": 1.1,
+      "rootX": 162.0,
+      "rootY": 398.20000000000005,
+      "left": 140,
+      "top": 275,
+      "sample": 14,
+      "score": 0.9017326235771179
+    },
+    {
+      "frame": 182,
+      "scale": 1.1,
+      "rootX": 150.6,
+      "rootY": 398.20000000000005,
+      "left": 122,
+      "top": 275,
+      "sample": 15,
+      "score": 0.8916109800338745
+    },
+    {
+      "frame": 182,
+      "scale": 1.1,
+      "rootX": 148.6,
+      "rootY": 398.20000000000005,
+      "left": 120,
+      "top": 275,
+      "sample": 16,
+      "score": 0.8909639716148376
+    },
+    {
+      "frame": 182,
+      "scale": 1.1,
+      "rootX": 140.6,
+      "rootY": 398.20000000000005,
+      "left": 112,
+      "top": 275,
+      "sample": 17,
+      "score": 0.8913737535476685
+    },
+    {
+      "frame": 183,
+      "scale": 1.1,
+      "rootX": 129.2,
+      "rootY": 398.1,
+      "left": 105,
+      "top": 276,
+      "sample": 18,
+      "score": 0.8886950612068176
+    },
+    {
+      "frame": 183,
+      "scale": 1.1,
+      "rootX": 125.2,
+      "rootY": 398.1,
+      "left": 101,
+      "top": 276,
+      "sample": 19,
+      "score": 0.8868892788887024
+    },
+    {
+      "frame": 183,
+      "scale": 1.1,
+      "rootX": 117.2,
+      "rootY": 398.1,
+      "left": 93,
+      "top": 276,
+      "sample": 20,
+      "score": 0.8894740343093872
+    },
+    {
+      "frame": 184,
+      "scale": 1.1,
+      "rootX": 106.2,
+      "rootY": 398.1,
+      "left": 82,
+      "top": 276,
+      "sample": 21,
+      "score": 0.8928465247154236
+    },
+    {
+      "frame": 184,
+      "scale": 1.1,
+      "rootX": 102.2,
+      "rootY": 398.1,
+      "left": 78,
+      "top": 276,
+      "sample": 22,
+      "score": 0.8954422473907471
+    },
+    {
+      "frame": 184,
+      "scale": 1.1,
+      "rootX": 95.2,
+      "rootY": 398.1,
+      "left": 71,
+      "top": 276,
+      "sample": 23,
+      "score": 0.8891356587409973
+    },
+    {
+      "frame": 185,
+      "scale": 1.1,
+      "rootX": 84.5,
+      "rootY": 398.20000000000005,
+      "left": 57,
+      "top": 275,
+      "sample": 24,
+      "score": 0.8955700397491455
+    },
+    {
+      "frame": 185,
+      "scale": 1.1,
+      "rootX": 79.5,
+      "rootY": 398.20000000000005,
+      "left": 52,
+      "top": 275,
+      "sample": 25,
+      "score": 0.8950086832046509
+    },
+    {
+      "frame": 185,
+      "scale": 1.1,
+      "rootX": 73.5,
+      "rootY": 398.20000000000005,
+      "left": 46,
+      "top": 275,
+      "sample": 26,
+      "score": 0.890701949596405
+    },
+    {
+      "frame": 186,
+      "scale": 1.1,
+      "rootX": 60.800000000000004,
+      "rootY": 398.20000000000005,
+      "left": 30,
+      "top": 275,
+      "sample": 27,
+      "score": 0.8958972096443176
+    },
+    {
+      "frame": 186,
+      "scale": 1.1,
+      "rootX": 57.800000000000004,
+      "rootY": 398.20000000000005,
+      "left": 27,
+      "top": 275,
+      "sample": 28,
+      "score": 0.8924459218978882
+    },
+    {
+      "frame": 186,
+      "scale": 1.1,
+      "rootX": 50.800000000000004,
+      "rootY": 398.20000000000005,
+      "left": 20,
+      "top": 275,
+      "sample": 29,
+      "score": 0.8958572745323181
+    },
+    {
+      "frame": 187,
+      "scale": 1.1,
+      "rootX": 39.5,
+      "rootY": 398.1,
+      "left": 12,
+      "top": 276,
+      "sample": 30,
+      "score": 0.8975792527198792
+    },
+    {
+      "frame": 187,
+      "scale": 1.1,
+      "rootX": 35.5,
+      "rootY": 398.1,
+      "left": 8,
+      "top": 276,
+      "sample": 31,
+      "score": 0.8946819305419922
+    },
+    {
+      "frame": 187,
+      "scale": 1.1,
+      "rootX": 28.500000000000004,
+      "rootY": 398.1,
+      "left": 1,
+      "top": 276,
+      "sample": 32,
+      "score": 0.894223690032959
+    }
+  ],
+  "fixed_root_fit": {
+    "speed": -223.4060869565216,
+    "rms": 1.8771883204245083
+  },
+  "foot_center_fit": {
+    "speed": -192.737608695652,
+    "rms": 8.032835478100923
+  },
+  "native_root": [
+    232,
+    333
+  ],
+  "packed_roots": {
+    "idle": [
+      [
+        8.48,
+        -5.16
+      ],
+      [
+        9.16,
+        -5.16
+      ],
+      [
+        9.16,
+        -5.16
+      ],
+      [
+        9.16,
+        -5.16
+      ]
+    ],
+    "walk": [
+      [
+        -7.92,
+        -5.52
+      ],
+      [
+        -4.56,
+        -5.84
+      ],
+      [
+        2.12,
+        -5.84
+      ],
+      [
+        -10.56,
+        -5.52
+      ],
+      [
+        -6.92,
+        -5.52
+      ],
+      [
+        -2.96,
+        -5.84
+      ],
+      [
+        5.36,
+        -5.84
+      ],
+      [
+        9.04,
+        -5.52
+      ]
+    ]
+  },
+  "limits": "One leftward eight-pose cycle with static scenery. Template colours/equipment differ. Fits support anchor consistency and 10fps, not exact avatar scale, depth/diagonal speed or camera response."
+}
