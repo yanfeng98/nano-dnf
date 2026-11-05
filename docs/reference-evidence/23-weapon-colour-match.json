@@ -1,0 +1,218 @@
+{
+  "video": "00002-幽暗密林深处.mp4",
+  "selected": "0006",
+  "catalog_models": 111,
+  "candidates": 111,
+  "town_ranking": [
+    {
+      "model": "0006",
+      "frame": 185,
+      "score": 0.06148264557123184,
+      "scale": 1.1250000000000002,
+      "left": 56,
+      "top": 324
+    },
+    {
+      "model": "0001",
+      "frame": 185,
+      "score": 0.09697454422712326,
+      "scale": 1.1250000000000002,
+      "left": 56,
+      "top": 324
+    },
+    {
+      "model": "5800",
+      "frame": 185,
+      "score": 0.1379951387643814,
+      "scale": 1.2500000000000004,
+      "left": 30,
+      "top": 308
+    },
+    {
+      "model": "2003",
+      "frame": 185,
+      "score": 0.16601215302944183,
+      "scale": 1.2500000000000004,
+      "left": 30,
+      "top": 318
+    },
+    {
+      "model": "0004",
+      "frame": 185,
+      "score": 0.1718471199274063,
+      "scale": 1.1250000000000002,
+      "left": 56,
+      "top": 324
+    },
+    {
+      "model": "0000",
+      "frame": 185,
+      "score": 0.172269806265831,
+      "scale": 1.0750000000000002,
+      "left": 58,
+      "top": 325
+    },
+    {
+      "model": "0701",
+      "frame": 185,
+      "score": 0.17785395681858063,
+      "scale": 1.0250000000000001,
+      "left": 45,
+      "top": 335
+    },
+    {
+      "model": "0700",
+      "frame": 185,
+      "score": 0.18024879693984985,
+      "scale": 1.0250000000000001,
+      "left": 45,
+      "top": 335
+    },
+    {
+      "model": "0911",
+      "frame": 185,
+      "score": 0.18620559573173523,
+      "scale": 1.2000000000000002,
+      "left": 28,
+      "top": 314
+    },
+    {
+      "model": "0008",
+      "frame": 185,
+      "score": 0.19351455569267273,
+      "scale": 1.0750000000000002,
+      "left": 58,
+      "top": 325
+    },
+    {
+      "model": "1904",
+      "frame": 185,
+      "score": 0.20071916282176971,
+      "scale": 0.9750000000000001,
+      "left": 38,
+      "top": 344
+    },
+    {
+      "model": "0810",
+      "frame": 185,
+      "score": 0.20357303321361542,
+      "scale": 1.2500000000000004,
+      "left": 26,
+      "top": 313
+    },
+    {
+      "model": "0400",
+      "frame": 185,
+      "score": 0.20440302789211273,
+      "scale": 1.0250000000000001,
+      "left": 49,
+      "top": 330
+    },
+    {
+      "model": "0301",
+      "frame": 185,
+      "score": 0.2078024446964264,
+      "scale": 0.925,
+      "left": 74,
+      "top": 335
+    },
+    {
+      "model": "0902",
+      "frame": 185,
+      "score": 0.20802447199821472,
+      "scale": 0.9750000000000001,
+      "left": 38,
+      "top": 341
+    }
+  ],
+  "held_out_cast_poses": [
+    {
+      "model": "0000",
+      "frame": 42,
+      "score": 0.12153548002243042,
+      "scale": 1.1250000000000002,
+      "left": 314,
+      "top": 341
+    },
+    {
+      "model": "0000",
+      "frame": 46,
+      "score": 0.10515023022890091,
+      "scale": 1.1,
+      "left": 479,
+      "top": 271
+    },
+    {
+      "model": "0001",
+      "frame": 42,
+      "score": 0.06313358247280121,
+      "scale": 1.1250000000000002,
+      "left": 314,
+      "top": 341
+    },
+    {
+      "model": "0001",
+      "frame": 46,
+      "score": 0.08522528409957886,
+      "scale": 1.1,
+      "left": 479,
+      "top": 271
+    },
+    {
+      "model": "0006",
+      "frame": 42,
+      "score": 0.03226092457771301,
+      "scale": 1.1250000000000002,
+      "left": 314,
+      "top": 341
+    },
+    {
+      "model": "0006",
+      "frame": 46,
+      "score": 0.0848517194390297,
+      "scale": 1.1,
+      "left": 479,
+      "top": 270
+    }
+  ],
+  "normal_video": "00001-幽暗密林.mp4",
+  "held_out_normal_town": [
+    {
+      "model": "0000",
+      "frame": 185,
+      "score": 0.1943531632423401,
+      "scale": 1.0750000000000002,
+      "left": 280,
+      "top": 305
+    },
+    {
+      "model": "0001",
+      "frame": 185,
+      "score": 0.12346822023391724,
+      "scale": 1.0750000000000002,
+      "left": 280,
+      "top": 305
+    },
+    {
+      "model": "0006",
+      "frame": 185,
+      "score": 0.09946279227733612,
+      "scale": 1.0750000000000002,
+      "left": 280,
+      "top": 305
+    }
+  ],
+  "geometry": [
+    {
+      "part": "b",
+      "frames": 210,
+      "same_alpha_and_coordinates": true
+    },
+    {
+      "part": "c",
+      "frames": 210,
+      "same_alpha_and_coordinates": true
+    }
+  ],
+  "limits": "Masked normalized squared colour error, lower is better. Selection uses town frame185; frames42/46 are held out. Bright cast effects limit the last pose. Fitted scale/translation do not prove complete avatar geometry, exact inventory identity, stats or historical ownership."
+}

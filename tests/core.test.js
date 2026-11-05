@@ -10887,3 +10887,21 @@ test('ground wave breaks props at its own moving depth and hits each prop once',
   assert.equal(other.broken,false,'caster movement cannot move the wave to another depth');
  }
 });
+
+test('reference weapon keeps the recorded brown blade in the full and native cast sheets',()=>{
+  // V2 111.333s: an exposed blade region has mean RGB ~132/98/68.
+  // These boxes exclude the body and hand, so red skin cannot stand in for it.
+  for(const [name,box] of [
+    ['normal-wave-body.png',[72,171,108,183]],
+    ['slayer-reference.png',[48,14*176+102,75,14*176+111]]
+  ]){
+    const sheet=asset(name),sum=[0,0,0];let count=0;
+    for(let y=box[1];y<box[3];y++)for(let x=box[0];x<box[2];x++){
+      const i=(y*sheet.width+x)*4;if(sheet.pixels[i+3]<=160)continue;
+      count++;for(let c=0;c<3;c++)sum[c]+=sheet.pixels[i+c];
+    }
+    assert.ok(count>100,`${name}: the sampled blade must be present`);
+    assert.ok(sum[0]/sum[2]>1.5 && sum[0]/sum[1]>1.15,
+      `${name}: exposed blade is brown like the recording, RGB=${sum.map(v=>Math.round(v/count))}`);
+  }
+});

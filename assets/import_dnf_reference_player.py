@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Reference player's native short sword, identified in V2 111.333/111.633.
+"""Reference player's brown short sword, checked in town and two wave poses.
 
 Keep the historical katana sheet available; the playable reference profile
 uses this complete sheet so equipping the short sword does not change per move.
@@ -13,7 +13,7 @@ ROOT=Path(__file__).resolve().parents[1]
 
 def weapon_sources():
     return {f'weapon_{part}':('sprite_character_swordman_equipment_weapon_sswd.NPK',
-        f'sprite/character/swordman/equipment/weapon/sswd/sswd0000{part}.img') for part in ['b','c']}
+        f'sprite/character/swordman/equipment/weapon/sswd/sswd0006{part}.img') for part in ['b','c']}
 
 @contextmanager
 def reference_weapon():
@@ -44,4 +44,4 @@ if __name__=='__main__':
         sheet=body.build(args.client,False)
     sheet.save(ROOT/'assets/slayer-reference.png')
     native_wave_body(args.client).save(ROOT/'assets/normal-wave-body.png')
-    print('Reference short sword sswd0000: complete player sheet + native wave body')
+    print('Reference short sword sswd0006: complete player sheet + native wave body')

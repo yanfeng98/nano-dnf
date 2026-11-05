@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """Compare native base weapon art with two unscaled recording poses.
 
+This is the historical coarse family/geometry probe (0000 variants only).
+Use measure-reference-weapon-color.py for the selected brown 0006 appearance.
+
 Scores are masked RGB cosine similarities at the measured character root;
 they identify a visual model, not an inventory item or an item-stat snapshot.
 """

@@ -1,0 +1,20 @@
+[
+  {
+    "file": "slayer-reference.png",
+    "dimensions": [
+      13312,
+      2640
+    ],
+    "same_alpha": true,
+    "changed_visible_rgb": 129488
+  },
+  {
+    "file": "normal-wave-body.png",
+    "dimensions": [
+      3456,
+      320
+    ],
+    "same_alpha": true,
+    "changed_visible_rgb": 5513
+  }
+]
