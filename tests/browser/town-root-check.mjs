@@ -117,3 +117,34 @@ export async function checkTownCamera(page, measurement) {
   }
   console.log(`town camera OK: ${JSON.stringify({insideShift:inside.cameraX-start.cameraX,rightOffset,leftOffset,stopDrift:stopped.cameraX-right.cameraX})}`);
 }
+
+export async function checkTownDiagonal(page, measurement) {
+  const sample = async (keys) => {
+    await page.evaluate(() => window.nanoDnf.setTownPosition(1000, 50));
+    await page.waitForTimeout(80);
+    for (const key of keys) await page.keyboard.down(key);
+    // Measure only after all requested keys have reached a simulation frame.
+    await page.waitForTimeout(50);
+    const before = await page.evaluate(() => window.nanoDnf.getTown());
+    await page.waitForTimeout(200);
+    const after = await page.evaluate(() => window.nanoDnf.getTown());
+    for (const key of keys) await page.keyboard.up(key);
+    const elapsed = after.walk-before.walk;
+    if (!after.moving || elapsed <= 0 || after.z <= 0 || after.z >= 100) throw new Error('diagonal velocity sample hit an edge or stopped');
+    return { x:(after.x-before.x)/elapsed, z:(after.z-before.z)/elapsed };
+  };
+  const horizontal = await sample(['ArrowRight']);
+  const vertical = await sample(['ArrowUp']);
+  const [min,max] = measurement.axis_ratio_band;
+  const results = [];
+  for (const h of ['ArrowLeft','ArrowRight']) for (const v of ['ArrowUp','ArrowDown']) {
+    const speed = await sample([h,v]);
+    const xRatio = Math.abs(speed.x/horizontal.x), zRatio = Math.abs(speed.z/vertical.z);
+    if (Math.sign(speed.x) !== (h === 'ArrowLeft' ? -1 : 1) || Math.sign(speed.z) !== (v === 'ArrowUp' ? 1 : -1)) throw new Error('diagonal input reversed an axis');
+    if (xRatio < min || xRatio > max || zRatio < min || zRatio > max) {
+      throw new Error(`town diagonal loses cardinal axis speed: ${JSON.stringify({h,v,xRatio,zRatio,band:[min,max]})}`);
+    }
+    results.push({h,v,speed,xRatio,zRatio});
+  }
+  console.log(`town diagonal velocity OK: ${JSON.stringify(results)}`);
+}

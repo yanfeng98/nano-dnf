@@ -1889,12 +1889,13 @@
     var dx = (town.right ? 1 : 0) - (town.left ? 1 : 0);
     var dz = (town.up ? 1 : 0) - (town.down ? 1 : 0);
     if (town.panel || town.dialogue || progressPanel) dx = dz = 0;
-    var diagonal = dx && dz ? Math.SQRT1_2 : 1;
+    // V1 18.667..18.867s retains each cardinal axis speed while moving
+    // diagonally. Do not shorten both axes with a Euclidean input norm.
     if (dx) town.facing = dx > 0 ? 1 : -1;
     var wasX = town.x;
     var wasZ = town.z;
-    town.x = Math.max(Town.minX, Math.min(Town.maxX, town.x + dx * diagonal * Town.walkSpeed * delta));
-    town.z = Math.max(0, Math.min(100, town.z + dz * diagonal * Town.walkSpeed * Town.depthSpeedRatio / Town.depthScale * delta));
+    town.x = Math.max(Town.minX, Math.min(Town.maxX, town.x + dx * Town.walkSpeed * delta));
+    town.z = Math.max(0, Math.min(100, town.z + dz * Town.walkSpeed * Town.depthSpeedRatio / Town.depthScale * delta));
     /*
      * **真的挪动了才迈步**：`drawTown` 原来固定画待机第一帧，业主 2026-10-27 报
      * 「城镇中没有走路动作」。这里只给渲染一条相位：走动时累加 `walk`，站住归零
