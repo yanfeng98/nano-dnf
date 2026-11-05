@@ -4631,6 +4631,7 @@
 
     /** 战斗评分那一行读数：操作 / 技巧 / 被击数 / 评分（`docs/adr/0041`）。 */
     function ratingOf(state) {
+      if (state.resultRating) return state.resultRating;
       var stats = state.stats || {};
       var player = state.player || {};
       var swings = stats.swings || 0;
@@ -4777,6 +4778,7 @@
          * 时间戳是那一页唯一能用的表。
          */
         finishedAt: null,
+        resultRating: null,
         /* 换房那一下的黑幕：从 TRANSITION.dur 数到 0，`1` 是全黑。 */
         transition: 0,
         victory: false,
@@ -8739,6 +8741,7 @@
     }
     if (state.finishedAt === null && (state.victory || state.defeat)) {
       state.finishedAt = state.time;
+      state.resultRating = Object.freeze(ratingOf(state));
     }
     state.effects = state.effects
       .map(function (effect) {
@@ -8796,6 +8799,10 @@
      * begun the next room, which moves the walls it clamps against.
      */
     updateCamera(state);
+    if (state.finishedAt === null && (state.victory || state.defeat)) {
+      state.finishedAt = state.time;
+      state.resultRating = Object.freeze(ratingOf(state));
+    }
     return state;
   }
 

@@ -10905,3 +10905,26 @@ test('reference weapon keeps the recorded brown blade in the full and native cas
       `${name}: exposed blade is brown like the recording, RGB=${sum.map(v=>Math.round(v/count))}`);
   }
 });
+
+
+for (const outcome of ["victory", "defeat"]) {
+  test(`${outcome} keeps the result rating stable while presentation time advances`, () => {
+    const state = Core.createState({ seed: 24 });
+    state.time = 360;
+    state.stats.hitsTaken = 3;
+    state.stats.swings = 10;
+    state.stats.swingsLanded = 8;
+    state[outcome] = true;
+    Core.step(state, {});
+    const result = Core.ratingOf(state);
+    Core.runFrames(state, 600, {});
+    assert.deepEqual(Core.ratingOf(state), result, "waiting on results must not reduce the score");
+    state.stats.hitsTaken += 20;
+    state.stats.swings += 100;
+    state.player.level += 10;
+    assert.deepEqual(Core.ratingOf(state), result, "later world activity must not rewrite this run's result");
+    const fresh = Core.createState({ seed: 24 });
+    fresh.stats.hitsTaken = 10;
+    assert.notDeepEqual(Core.ratingOf(fresh), result, "a new run gets its own live rating");
+  });
+}
