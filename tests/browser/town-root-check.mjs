@@ -56,3 +56,24 @@ export async function checkTownRoots(page, measurement, out) {
   }
   console.log(`town fixed native root OK: ${result.length} idle/walk/facing/camera samples`);
 }
+
+export async function checkTownDepthSpeed(page, measurement) {
+  const speeds = {};
+  for (const key of ['ArrowRight', 'ArrowUp']) {
+    await page.evaluate(() => window.nanoDnf.setTownPosition(500, 20));
+    await page.waitForTimeout(80);
+    const before = await page.evaluate(() => window.nanoDnf.getTown());
+    await page.keyboard.down(key);
+    await page.waitForTimeout(300);
+    const after = await page.evaluate(() => window.nanoDnf.getTown());
+    await page.keyboard.up(key);
+    const elapsed = after.walk-before.walk;
+    if (!after.moving || elapsed <= 0 || after.z >= 100) throw new Error('town velocity sample did not stay in the road');
+    speeds[key] = key === 'ArrowRight' ? (after.x-before.x)/elapsed : (after.z-before.z)/elapsed;
+  }
+  const depthScale = await page.evaluate(() => window.DNFRender.TOWN.depthScale);
+  const ratio = speeds.ArrowUp*depthScale/speeds.ArrowRight;
+  const [min, max] = measurement.ratio_band;
+  if (ratio < min || ratio > max) throw new Error(`town vertical/horizontal speed ratio ${ratio} is outside recording band ${min}..${max}`);
+  console.log(`town keyboard velocity OK: ${JSON.stringify({speeds,ratio})}`);
+}

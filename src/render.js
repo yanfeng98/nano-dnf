@@ -7261,8 +7261,9 @@
       walk: [[-7.92, -5.52], [-4.56, -5.84], [2.12, -5.84], [-10.56, -5.52],
              [-6.92, -5.52], [-2.96, -5.84], [5.36, -5.84], [9.04, -5.52]]
     },
-    // No pure depth/camera sample: these remain play-test calibration values.
-    depthSpeedRatio: 0.56, cameraRate: 8,
+    // V1 12.2..12.5s and 13.0..13.2s: vertical/horizontal ~.496/.514.
+    // Camera response remains unmeasured; this ratio is town-only.
+    depthSpeedRatio: 0.5, cameraRate: 8,
     spawnX: 200, spawnZ: 20
   };
 
