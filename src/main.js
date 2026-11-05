@@ -1902,8 +1902,16 @@
      */
     town.moving = town.x !== wasX || town.z !== wasZ;
     town.walk = town.moving ? (town.walk || 0) + delta : 0;
-    var target = Math.max(0, Math.min(Town.width - Core.VIEW.width, town.x - Core.VIEW.width / 2));
-    town.cameraX += (target - town.cameraX) * (1 - Math.exp(-Town.cameraRate * delta));
+    // V1 left/right traces keep a ~112px central activity window. Move the
+    // camera only beyond its edge; stopping must not leave a trailing pan.
+    var center = Core.VIEW.width / 2;
+    var screenX = town.x - town.cameraX;
+    if (screenX < center - Town.cameraHalfWindow) {
+      town.cameraX = town.x - center + Town.cameraHalfWindow;
+    } else if (screenX > center + Town.cameraHalfWindow) {
+      town.cameraX = town.x - center - Town.cameraHalfWindow;
+    }
+    town.cameraX = Math.max(0, Math.min(Town.width - Core.VIEW.width, town.cameraX));
     town.time += delta;
     town.near = townNear();
   }

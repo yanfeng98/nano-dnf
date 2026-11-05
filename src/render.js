@@ -7262,8 +7262,10 @@
              [-6.92, -5.52], [-2.96, -5.84], [5.36, -5.84], [9.04, -5.52]]
     },
     // V1 12.2..12.5s and 13.0..13.2s: vertical/horizontal ~.496/.514.
-    // Camera response remains unmeasured; this ratio is town-only.
-    depthSpeedRatio: 0.5, cameraRate: 8,
+    depthSpeedRatio: 0.5,
+    // V1 left/right name anchors are 112px apart. Keep the viewport center;
+    // the cropped name template's absolute center is not the character root.
+    cameraHalfWindow: 56,
     spawnX: 200, spawnZ: 20
   };
 

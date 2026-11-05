@@ -3,7 +3,7 @@
  * 只证明这条流程与原件加载，不冒充城镇的视觉/手感验收。
  */
 import { chromium } from "playwright";
-import { checkTownRoots, checkTownDepthSpeed } from "./town-root-check.mjs";
+import { checkTownRoots, checkTownDepthSpeed, checkTownCamera } from "./town-root-check.mjs";
 import http from "node:http";
 import fs from "node:fs";
 import path from "node:path";
@@ -77,6 +77,9 @@ async function main() {
 
     await checkTownDepthSpeed(page,
       JSON.parse(fs.readFileSync(path.join(ROOT, "docs/reference-evidence/20-town-depth-measurement.json"), "utf8")));
+
+    await checkTownCamera(page,
+      JSON.parse(fs.readFileSync(path.join(ROOT, "docs/reference-evidence/21-town-camera-measurement.json"), "utf8")));
 
     /* Real keys: up goes into the road, down reaches depth zero continuously,
        holding against an edge stops the gait, blur releases held directions. */

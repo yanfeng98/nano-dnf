@@ -77,3 +77,43 @@ export async function checkTownDepthSpeed(page, measurement) {
   if (ratio < min || ratio > max) throw new Error(`town vertical/horizontal speed ratio ${ratio} is outside recording band ${min}..${max}`);
   console.log(`town keyboard velocity OK: ${JSON.stringify({speeds,ratio})}`);
 }
+
+export async function checkTownCamera(page, measurement) {
+  const get = () => page.evaluate(() => ({ ...window.nanoDnf.getTown(),
+    center: window.DNFCore.VIEW.width/2,
+    maxCamera: window.DNFRender.TOWN.width-window.DNFCore.VIEW.width }));
+  await page.evaluate(() => window.nanoDnf.setTownPosition(1000, 50));
+  await page.waitForTimeout(80);
+  const start = await get();
+  await page.keyboard.down('ArrowRight');
+  await page.waitForTimeout(120);
+  const inside = await get();
+  if (inside.x-start.x < 10 || inside.x-start.x > 48) throw new Error('camera interior sample left its intended window');
+  if (Math.abs(inside.cameraX-start.cameraX) > .1) {
+    await page.keyboard.up('ArrowRight');
+    throw new Error(`town camera moved inside the recording's activity window: ${inside.cameraX-start.cameraX}px`);
+  }
+  await page.waitForTimeout(600);
+  await page.keyboard.up('ArrowRight');
+  await page.waitForFunction(() => !window.nanoDnf.getTown().moving);
+  const right = await get();
+  await page.waitForTimeout(240);
+  const stopped = await get();
+  if (Math.abs(stopped.cameraX-right.cameraX) > .1) throw new Error('town camera kept drifting after horizontal movement stopped');
+  const [min,max] = measurement.camera_radius_band;
+  const rightOffset = right.x-right.cameraX-right.center;
+  if (rightOffset < min || rightOffset > max) throw new Error(`town right camera offset ${rightOffset} differs from recording band ${min}..${max}`);
+  await page.keyboard.down('ArrowLeft');
+  await page.waitForTimeout(850);
+  await page.keyboard.up('ArrowLeft');
+  await page.waitForFunction(() => !window.nanoDnf.getTown().moving);
+  const left = await get();
+  const leftOffset = left.center-(left.x-left.cameraX);
+  if (leftOffset < min || leftOffset > max) throw new Error(`town left camera offset ${leftOffset} differs from recording band ${min}..${max}`);
+  for (const [x,expected] of [[80,0],[2440,left.maxCamera]]) {
+    await page.evaluate(x => window.nanoDnf.setTownPosition(x,50), x);
+    await page.waitForTimeout(80);
+    if (Math.abs((await get()).cameraX-expected) > .1) throw new Error('town camera moved outside the panorama');
+  }
+  console.log(`town camera OK: ${JSON.stringify({insideShift:inside.cameraX-start.cameraX,rightOffset,leftOffset,stopDrift:stopped.cameraX-right.cameraX})}`);
+}
