@@ -34,7 +34,7 @@
   var sprites = {
     slayer: null, skills: null, effects: null, normalWave: null, normalWaveBody: null,
     rift: null, awakening: null, region: null,
-    monsters: null, forest: null, minimap: null, ui: null,
+    monsters: null, forest: null, minimap: null, ui: null, results: null,
     /* The two portraits cut from the owner's reference recording (ADR 0054/0055). */
     bossPortrait: null, rewardAvatar: null
   };
@@ -116,6 +116,7 @@
      * own panel (assets/import_dnf_minimap.py).
      */
     ["minimap", "./assets/minimap.png"],
+    ["results", "./assets/results-reference.png"],
     /*
      * 魔狱血刹's 觉醒插画, and the one piece of art in this folder that is not
      * baked from the client: the client has no 一觉 illustration to bake (see

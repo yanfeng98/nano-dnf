@@ -90,3 +90,21 @@ test("a card cannot be picked while the backs are still showing", () => {
   assert.equal(Reward.pick(reward, 2), true, "after the flip the third card is selectable");
   assert.equal(reward.picked, 2);
 });
+
+
+test("the shared result animation clock stays continuous across page changes", () => {
+  const reward = Reward.create({ seed: 25 });
+  Reward.step(reward, Reward.TIMES.stats);
+  assert.equal(reward.phase, "chest");
+  assert.equal(reward.elapsed, Reward.TIMES.stats);
+  Reward.step(reward, Reward.TIMES.chest);
+  assert.equal(reward.phase, "cards");
+  const elapsed = reward.elapsed;
+  Reward.step(reward, Reward.TIMES.flip);
+  assert.equal(Reward.pick(reward, 2), true);
+  assert.equal(reward.t, 0);
+  assert.equal(reward.elapsed, elapsed + Reward.TIMES.flip, "a pick cannot jump the circle back to its initial angle");
+  Reward.step(reward, Reward.TIMES.reveal);
+  assert.equal(reward.phase, "done");
+  assert.equal(Reward.snapshot(reward).elapsed, Math.round(reward.elapsed * 1000) / 1000);
+});

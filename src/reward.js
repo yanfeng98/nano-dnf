@@ -60,6 +60,8 @@
       gold: 500 + (h % 3000),
       phase: "stats",
       t: 0,
+      /* The shared result circle keeps turning across page transitions. */
+      elapsed: 0,
       /* 0..3：哪一张被选中；null = 还没选。 */
       picked: null,
       /* The cards are all the same face, as in the recording; this is the flip. */
@@ -103,6 +105,7 @@
     var span = Number(dt);
     if (!isFinite(span) || span <= 0) return reward;
     reward.t += span;
+    reward.elapsed += span;
 
     if (reward.phase === "stats") {
       if (reward.t >= TIMES.stats) {
@@ -138,6 +141,7 @@
       item: reward.item,
       gold: reward.gold,
       phase: reward.phase,
+      elapsed: Math.round(reward.elapsed * 1000) / 1000,
       t: Math.round(reward.t * 1000) / 1000,
       picked: reward.picked,
       faceUp: reward.faceUp,

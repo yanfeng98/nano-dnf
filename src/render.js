@@ -8563,8 +8563,7 @@
     cardH: 104,
     cardGap: 15,
     cardY: 190,
-    countdownY: 458,
-    hintY: 340
+    hintY: 354
   };
 
   function drawUiFrame(ctx, sheet, block, index, x, y, w, h) {
@@ -8613,48 +8612,80 @@
     drawUiFrame(ctx, sheet, UI.rewardChest, 0, box.x, box.y, box.w, box.h);
   }
 
+  /* Classic native result art; measured in normalized 720×540 reference pixels.
+   * V1 343.5..354s: native rotations 22,23,25,27,30,33,43 degrees;
+   * V2 397.5/400.5/401.5s: 21/27/29. Both give 2 degrees/s CCW.
+   * See docs/results-reference-review.md; the old rewardMagic is only a glow.
+   */
+  var RESULT_ART = {
+    magic: [0, 0, 420, 420], chest: [420, 0, 160, 142],
+    /* Native f62..71 rect + offset; display positions are independently
+     * measured below. A shared horizontal offset misplaces the narrow 1. */
+    digitPositions: { 1: [350, 418.5], 2: [330, 416.25], 3: [334.125, 415.125] },
+    digits: [
+      [580, 0, 36, 37, 4, 12],
+      [616, 0, 13, 38, 16, 12],
+      [629, 0, 32, 39, 7, 10],
+      [661, 0, 28, 47, 9, 9],
+      [689, 0, 39, 41, 4, 9],
+      [728, 0, 29, 47, 8, 9],
+      [757, 0, 30, 48, 8, 3],
+      [787, 0, 34, 50, 6, 6],
+      [821, 0, 29, 39, 8, 12],
+      [850, 0, 32, 48, 7, 7],
+    ]
+  };
+  function drawResultBackdrop(ctx, sprites, elapsed) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(Core.VIEW.left, 0, Core.VIEW.width, ARENA.height);
+    ctx.clip();
+    ctx.fillStyle = "rgba(4, 9, 22, 0.66)";
+    ctx.fillRect(Core.VIEW.left, 0, Core.VIEW.width, ARENA.height);
+    ctx.globalCompositeOperation = "lighter";
+    drawUiFrame(ctx, sprites && sprites.ui, UI.rewardMagic, 0, 120, 0, 720, 540);
+    if (sprites && sprites.results) {
+      ctx.translate(Core.VIEW.left + Core.VIEW.width / 2, 270);
+      ctx.rotate(-(elapsed || 0) * 2 * Math.PI / 180);
+      ctx.globalCompositeOperation = "lighter";
+      var r = RESULT_ART.magic;
+      ctx.drawImage(sprites.results, r[0], r[1], r[2], r[3],
+                    -236.25, -236.25, 472.5, 472.5);
+    }
+    ctx.restore();
+  }
+
   function drawRewardPage(ctx, reward, sprites, playerName) {
     var sheet = sprites && sprites.ui;
     ctx.save();
-    ctx.fillStyle = "rgba(4, 9, 22, 0.66)";
-    ctx.fillRect(0, 0, ARENA.width, ARENA.height);
-
-    /* 蓝色魔法阵铺满中央：800x600 的客户端设计图按 0.9 装进画布。 */
-    drawUiFrame(ctx, sheet, UI.rewardMagic, 0, 120, 0, 720, 540);
-    /*
-     * 客户端的深蓝面板（左边怪物列表、右边五芒星）压在上面，透明度压低一点：
-     * 参考里那圈魔法阵是亮蓝的，这一件只是它的底纹。
-     */
-    if (UI.rewardMagicPanel) {
-      ctx.save();
-      ctx.globalAlpha = 0.55;
-      drawUiFrame(ctx, sheet, UI.rewardMagicPanel, 0, 0, 24, 960, 492);
-      ctx.restore();
+    ctx.beginPath();
+    ctx.rect(Core.VIEW.left, 0, Core.VIEW.width, ARENA.height);
+    ctx.clip();
+    drawResultBackdrop(ctx, sprites, reward.elapsed);
+    /* The list panel is gone once the cards spread. Its measured outer box is
+     * (104,134)..(616,346), not the whole 960px canvas. Interior localization
+     * and list animation still need their separate reference reconstruction. */
+    if (reward.phase === "chest") {
+      drawUiFrame(ctx, sheet, UI.rewardMagicPanel, 0, 224, 134, 512, 212);
     }
 
     ctx.textAlign = "center";
     ctx.lineWidth = 5;
     ctx.strokeStyle = "rgba(6, 10, 24, 0.9)";
-    ctx.font = "800 38px 'PingFang SC', 'Segoe UI', system-ui, sans-serif";
-    ctx.strokeText("奖励", ARENA.width / 2, 100);
+    ctx.font = "800 32px 'PingFang SC', 'Segoe UI', system-ui, sans-serif";
+    ctx.strokeText("奖励", ARENA.width / 2, 118);
     ctx.fillStyle = "#f0d79a";
-    ctx.fillText("奖励", ARENA.width / 2, 100);
+    ctx.fillText("奖励", ARENA.width / 2, 118);
 
     /* 牌行只在"选牌"那一拍出现；选中之后参考把牌收走，只剩左边的领奖详情。 */
     var cardsUp = reward.phase === "cards";
-    if (reward.phase === "chest" || cardsUp) {
-      /*
-       * 中央红木宝箱：`chest` 里 0→1→2 开盖；进了牌局就停在打开的那一帧。
-       * 它画在牌后面，牌一盖上来就只露出边缘（录像里也是这样）。
-       */
-      var chest = UI.chestOpen;
-      /* `Reward.TIMES.chest` 是 1.2 秒；这里按同一个数分三帧（render 不引那个模块）。 */
-      var frame = reward.phase === "chest"
-        ? Math.min(2, Math.floor((reward.t / 1.2) * 3))
-        : 2;
-      var cw = 172;
-      var ch = 100;
-      drawUiFrame(ctx, sheet, chest, frame, ARENA.width / 2 - cw / 2, 210, cw, ch);
+    if (reward.phase === "chest" && sprites && sprites.results) {
+      /* Native reward f53 is the recorded closed red chest. f54/f55 are glow
+       * layers, not open-lid frames; do not animate the map chest in its place.
+       * V1 345s matches around (353,154), at native scale ~1.1..1.125. */
+      var chest = RESULT_ART.chest;
+      ctx.drawImage(sprites.results, chest[0], chest[1], chest[2], chest[3],
+                    473, 154, 180, 159.75);
     }
 
     if (cardsUp) {
@@ -8672,28 +8703,22 @@
       });
       if (reward.phase === "cards") {
         ctx.textAlign = "center";
-        ctx.font = "700 20px 'PingFang SC', 'Segoe UI', system-ui, sans-serif";
+        ctx.font = "700 26px 'PingFang SC', 'Segoe UI', system-ui, sans-serif";
         ctx.lineWidth = 4;
         ctx.strokeStyle = "rgba(6, 10, 24, 0.9)";
         ctx.strokeText("请选择奖励卡牌", ARENA.width / 2, REWARD_UI.hintY);
         ctx.fillStyle = "#f0d79a";
         ctx.fillText("请选择奖励卡牌", ARENA.width / 2, REWARD_UI.hintY);
         if (reward.faceUp) {
-          /*
-           * 倒计时用客户端自己的金色数字（`rewardDigit` 的帧 0–9），不是现画的字。
-           * 参考里 3→2→1 就是这个字形。
-           */
-          var digit = UI.rewardDigit ? UI.rewardDigit.frames[reward.countdown] : null;
-          if (digit) {
-            var dw = 60;
-            var dh = 35;
-            ctx.drawImage(sheet, digit[0], digit[1], digit[2], digit[3],
-                          ARENA.width / 2 - dw / 2, REWARD_UI.countdownY - dh + 10, dw, dh);
-          } else {
-            ctx.font = "800 42px 'Segoe UI', system-ui, sans-serif";
-            ctx.strokeText(String(reward.countdown), ARENA.width / 2, REWARD_UI.countdownY);
-            ctx.fillStyle = "#ffd66b";
-            ctx.fillText(String(reward.countdown), ARENA.width / 2, REWARD_UI.countdownY);
+          /* V1 349.6s and V2 402.4s match native f65 (3) at 1.125
+           * with NCC > .985; held-out 2 and 1 match both videos above .977.
+           * Use their measured positions, not a guessed common x origin. */
+          var digit = RESULT_ART.digits[reward.countdown];
+          var position = RESULT_ART.digitPositions[reward.countdown];
+          if (sprites && sprites.results && digit && position) {
+            ctx.drawImage(sprites.results, digit[0], digit[1], digit[2], digit[3],
+              Core.VIEW.left + position[0], position[1],
+              digit[2] * 1.125, digit[3] * 1.125);
           }
         }
       }
@@ -8807,8 +8832,12 @@
         return;
       }
       ctx.save();
-      ctx.fillStyle = "rgba(6, 8, 16, 0.74)";
-      ctx.fillRect(0, 0, ARENA.width, ARENA.height);
+      if (state.victory) {
+        drawResultBackdrop(ctx, sprites, meta.reward ? meta.reward.elapsed : state.time - state.finishedAt);
+      } else {
+        ctx.fillStyle = "rgba(6, 8, 16, 0.74)";
+        ctx.fillRect(0, 0, ARENA.width, ARENA.height);
+      }
       ctx.textAlign = "center";
       ctx.font = "bold 46px 'Segoe UI', system-ui, sans-serif";
       ctx.lineWidth = 6;
@@ -9873,6 +9902,7 @@
     /* The boss's two bars: green for the first half of the pool, red for the second. */
     bossBarShare: bossBarShare,
     UI: UI,
+    RESULT_ART: RESULT_ART,
     minimapBox: minimapBox,
     hitTestMinimap: hitTestMinimap,
     /* 魔狱血刹's two live-drawn numbers, so tests can pin them to the sheets. */

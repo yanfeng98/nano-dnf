@@ -1,0 +1,210 @@
+{
+  "native_frames": [
+    {
+      "name": "magic",
+      "rect": [
+        0,
+        0,
+        420,
+        420
+      ],
+      "pack": "sprite_interface_newresult.NPK",
+      "entry": "sprite/interface/newresult/result.img",
+      "frame": 1,
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "b5e02a38feafff2303734c7e9359ad1ff341695ae4cee1e72489b79689fd7002"
+    },
+    {
+      "name": "chest",
+      "rect": [
+        420,
+        0,
+        160,
+        142
+      ],
+      "pack": "sprite_interface2_reward_ver2.0.NPK",
+      "entry": "sprite/interface2/reward_ver2.0/reward_ver2.img",
+      "frame": 53,
+      "offset": [
+        78,
+        19
+      ],
+      "rgba_sha256": "9769d37186ef252cad2ec3e082c24c678ac31b5cbdbf448344a7611fd84f222a"
+    },
+    {
+      "name": "digit0",
+      "rect": [
+        580,
+        0,
+        36,
+        37
+      ],
+      "pack": "sprite_interface2_reward_ver2.0.NPK",
+      "entry": "sprite/interface2/reward_ver2.0/reward_ver2.img",
+      "frame": 62,
+      "offset": [
+        4,
+        12
+      ],
+      "rgba_sha256": "2a7a57acc6ab54fed273896970cb757720950763c27eddb0d88fbf96aeb9d008"
+    },
+    {
+      "name": "digit1",
+      "rect": [
+        616,
+        0,
+        13,
+        38
+      ],
+      "pack": "sprite_interface2_reward_ver2.0.NPK",
+      "entry": "sprite/interface2/reward_ver2.0/reward_ver2.img",
+      "frame": 63,
+      "offset": [
+        16,
+        12
+      ],
+      "rgba_sha256": "21e2cca7df9ca21a055cf767ab2cf91259bc846cb38e3a04a692c2f7202ff00a"
+    },
+    {
+      "name": "digit2",
+      "rect": [
+        629,
+        0,
+        32,
+        39
+      ],
+      "pack": "sprite_interface2_reward_ver2.0.NPK",
+      "entry": "sprite/interface2/reward_ver2.0/reward_ver2.img",
+      "frame": 64,
+      "offset": [
+        7,
+        10
+      ],
+      "rgba_sha256": "87c408ec15ba3d81609882874eba342e8c330b89e02367e86707ca7d8ebf954a"
+    },
+    {
+      "name": "digit3",
+      "rect": [
+        661,
+        0,
+        28,
+        47
+      ],
+      "pack": "sprite_interface2_reward_ver2.0.NPK",
+      "entry": "sprite/interface2/reward_ver2.0/reward_ver2.img",
+      "frame": 65,
+      "offset": [
+        9,
+        9
+      ],
+      "rgba_sha256": "bbe61b2bdb5333b0f14af8c5f8b0904d8e12d3bf9bb82904aaef0577c2bb1cc8"
+    },
+    {
+      "name": "digit4",
+      "rect": [
+        689,
+        0,
+        39,
+        41
+      ],
+      "pack": "sprite_interface2_reward_ver2.0.NPK",
+      "entry": "sprite/interface2/reward_ver2.0/reward_ver2.img",
+      "frame": 66,
+      "offset": [
+        4,
+        9
+      ],
+      "rgba_sha256": "78f68fd42fb03dec3869182353b656dfa7125ad570af20b6a657adc13a45119a"
+    },
+    {
+      "name": "digit5",
+      "rect": [
+        728,
+        0,
+        29,
+        47
+      ],
+      "pack": "sprite_interface2_reward_ver2.0.NPK",
+      "entry": "sprite/interface2/reward_ver2.0/reward_ver2.img",
+      "frame": 67,
+      "offset": [
+        8,
+        9
+      ],
+      "rgba_sha256": "1236f5490341d1eabf9e6441df67246853e74c03810712dd2235bc6effdc0dab"
+    },
+    {
+      "name": "digit6",
+      "rect": [
+        757,
+        0,
+        30,
+        48
+      ],
+      "pack": "sprite_interface2_reward_ver2.0.NPK",
+      "entry": "sprite/interface2/reward_ver2.0/reward_ver2.img",
+      "frame": 68,
+      "offset": [
+        8,
+        3
+      ],
+      "rgba_sha256": "592146458e774d02c11273fdd3a5c889fd88c891f0b85b7420e18d9f2835c45b"
+    },
+    {
+      "name": "digit7",
+      "rect": [
+        787,
+        0,
+        34,
+        50
+      ],
+      "pack": "sprite_interface2_reward_ver2.0.NPK",
+      "entry": "sprite/interface2/reward_ver2.0/reward_ver2.img",
+      "frame": 69,
+      "offset": [
+        6,
+        6
+      ],
+      "rgba_sha256": "8b4c9c4de89e7db0c8abbb222bd7b8d4566fd82523ec79e8199eb000cef4dcec"
+    },
+    {
+      "name": "digit8",
+      "rect": [
+        821,
+        0,
+        29,
+        39
+      ],
+      "pack": "sprite_interface2_reward_ver2.0.NPK",
+      "entry": "sprite/interface2/reward_ver2.0/reward_ver2.img",
+      "frame": 70,
+      "offset": [
+        8,
+        12
+      ],
+      "rgba_sha256": "b4216b2a3754e6048b869e8a50d0ec96555ceed4dd3f6adeafd5aa3088e8599c"
+    },
+    {
+      "name": "digit9",
+      "rect": [
+        850,
+        0,
+        32,
+        48
+      ],
+      "pack": "sprite_interface2_reward_ver2.0.NPK",
+      "entry": "sprite/interface2/reward_ver2.0/reward_ver2.img",
+      "frame": 71,
+      "offset": [
+        7,
+        7
+      ],
+      "rgba_sha256": "d7fcad9872726da89993f80f24118ca47af2b98f2071f7c8a4ef9a0d510ae501"
+    }
+  ],
+  "legacy_ui_preserved": true,
+  "legacy_ui_sha256": "f739e76c9e0fb7b97656d1412480bfb219eb60a63f0bb76fa3928bbfd56c481c"
+}

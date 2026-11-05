@@ -1,0 +1,24 @@
+{
+  "circleCorrelation": 0.8031806498061125,
+  "digits": [
+    {
+      "value": 1,
+      "cosine": 0.9860250139164781,
+      "pixels": 117
+    },
+    {
+      "value": 2,
+      "cosine": 0.990068592361417,
+      "pixels": 254
+    },
+    {
+      "value": 3,
+      "cosine": 0.995716325456153,
+      "pixels": 182
+    }
+  ],
+  "baseline": {
+    "circleCorrelation": 0.33481800071446344,
+    "digit3Cosine": 0.5638049901361604
+  }
+}

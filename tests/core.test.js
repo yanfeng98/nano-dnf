@@ -10928,3 +10928,25 @@ for (const outcome of ["victory", "defeat"]) {
     assert.notDeepEqual(Core.ratingOf(fresh), result, "a new run gets its own live rating");
   });
 }
+
+
+test("the actual result atlas preserves the client's circle, chest and countdown RGBA", () => {
+  const crypto = require("node:crypto");
+  const evidence = JSON.parse(fs.readFileSync(path.join(__dirname,
+    "../docs/reference-evidence/25-result-native-proof.json"), "utf8"));
+  const atlas = decodeRgbaPng(path.join(__dirname, "../assets/results-reference.png"));
+  for (const frame of evidence.native_frames) {
+    const rect = frame.name.startsWith("digit")
+      ? Render.RESULT_ART.digits[Number(frame.name.slice(5))].slice(0, 4)
+      : Render.RESULT_ART[frame.name];
+    assert.deepEqual(rect, frame.rect);
+    const [x, y, w, h] = rect;
+    const pixels = Buffer.alloc(w * h * 4);
+    for (let row = 0; row < h; row++) {
+      atlas.pixels.copy(pixels, row * w * 4, ((y + row) * atlas.width + x) * 4,
+        ((y + row) * atlas.width + x + w) * 4);
+    }
+    assert.equal(crypto.createHash("sha256").update(pixels).digest("hex"), frame.rgba_sha256,
+      `${frame.name} matches the independently decoded client frame`);
+  }
+});
