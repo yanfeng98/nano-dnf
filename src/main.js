@@ -255,15 +255,15 @@
   /* 跨局进度（`docs/adr/0065`）：和 records 分两本账。 */
   var progress = Progress ? Progress.load(window.localStorage) : null;
   var progressStats = { cats: 0, breaks: 0, eliteKills: 0, victory: false };
-  function saveProgress() {
+  function saveProfile() {
     if (Progress && progress) Progress.save(progress, window.localStorage);
   }
 
   /*
    * Which stages are open. A stage unlocks when the one before it in
    * `Core.REGION.stages` has been cleared, so the region is a ramp and not a
-   * menu - and the flag is the only thing about a run that outlives it
-   * (`docs/adr/0026`: no character, no carried levels).
+   * menu. Unlock flags have their own store, separate from inventory/quests
+   * and run records (`docs/adr/0026`, `0065`).
    */
   var PROGRESS_KEY = "nano-dnf-progress";
   var clearedStages = {};
@@ -279,7 +279,7 @@
     clearedStages = {};
   }
 
-  function saveProgress() {
+  function saveStageUnlocks() {
     try {
       window.localStorage.setItem(PROGRESS_KEY, JSON.stringify({ cleared: clearedStages }));
     } catch (error) {
@@ -301,7 +301,7 @@
     var spot = chain.indexOf(id);
     var next = spot >= 0 && spot + 1 < chain.length ? chain[spot + 1] : null;
     clearedStages[id] = true;
-    saveProgress();
+    saveStageUnlocks();
     if (next && Core.STAGES[next] && Core.STAGES[next].rooms.length) return next;
     return null;
   }
@@ -1097,7 +1097,7 @@
         changed = true;
       }
     }
-    if (changed) saveProgress();
+    if (changed) saveProfile();
   }
 
   function syncRecords() {
@@ -1697,7 +1697,7 @@
     });
     if (!id) return false;
     var ok = Progress.equip(progress, id);
-    if (ok) saveProgress();
+    if (ok) saveProfile();
     return ok;
   }
 
@@ -1708,7 +1708,7 @@
     var player = state.player;
     if (effect.hp) player.hp = Math.min(player.maxHp, player.hp + effect.hp);
     if (effect.mp) player.mp = Math.min(player.maxMp, player.mp + effect.mp);
-    saveProgress();
+    saveProfile();
     if (state.log) {
       state.log.push({ text: "使用" + Progress.ITEMS[id].name, tone: "white" });
       if (state.log.length > 8) state.log.shift();
@@ -1769,12 +1769,12 @@
       if (quest.state === "available") {
         Progress.accept(progress, questId);
         line = "任务已接：" + def.title;
-        saveProgress();
+        saveProfile();
       } else if (quest.state === "active" && quest.done) {
         var reward = Progress.turnIn(progress, questId);
         line = "任务完成：" + def.title +
           (reward ? "。奖励 " + reward.gold + " 金币" : "");
-        saveProgress();
+        saveProfile();
       } else if (quest.state === "active") {
         line = def.title + "：进度 " + quest.progress + " / " + def.goal;
       } else if (quest.state === "turnedIn") {
@@ -1794,7 +1794,7 @@
     }
     Progress.addGold(progress, -item.price);
     Progress.addItem(progress, id, 1);
-    saveProgress();
+    saveProfile();
     town.panelMessage = "买到 " + item.name;
   }
 
@@ -1812,7 +1812,7 @@
     }
     progress.items.material -= 1;
     Progress.addGold(progress, Progress.ITEMS.material.price);
-    saveProgress();
+    saveProfile();
     town.panelMessage = "卖出 1 个下级硬化剂";
   }
 
@@ -1840,7 +1840,7 @@
       return;
     }
     var result = Progress.salvage(progress, id);
-    saveProgress();
+    saveProfile();
     town.panelMessage = "分解 " + Progress.ITEMS[id].name +
       "：材料 +" + result.material + "，金币 +" + result.gold;
   }

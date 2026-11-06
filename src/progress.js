@@ -98,8 +98,10 @@
     if (!raw || typeof raw !== "object") return out;
     if (typeof raw.gold === "number" && raw.gold >= 0) out.gold = Math.floor(raw.gold);
     if (raw.items && typeof raw.items === "object") {
-      Object.keys(out.items).forEach(function (id) {
-        if (typeof raw.items[id] === "number" && raw.items[id] >= 0) {
+      // The empty bag only lists consumables/material. Restoring those keys
+      // alone discarded every unequipped weapon, armor and ring on reload.
+      Object.keys(ITEMS).forEach(function (id) {
+        if (typeof raw.items[id] === "number" && isFinite(raw.items[id]) && raw.items[id] >= 0) {
           out.items[id] = Math.floor(raw.items[id]);
         }
       });
@@ -107,7 +109,8 @@
     if (raw.equipment && typeof raw.equipment === "object") {
       EQUIP_SLOTS.forEach(function (slot) {
         var item = raw.equipment[slot];
-        if (typeof item === "string" && ITEMS[item]) out.equipment[slot] = item;
+        var spec = typeof item === "string" ? ITEMS[item] : null;
+        if (spec && spec.category === "equipment" && spec.slot === slot) out.equipment[slot] = item;
       });
     }
     if (raw.quests && typeof raw.quests === "object") {

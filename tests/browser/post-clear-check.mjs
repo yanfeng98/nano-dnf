@@ -85,5 +85,18 @@ export async function checkPostClear(page, out) {
   await page.waitForFunction(()=>!window.nanoDnf.getProgress().regionOpen);
   await finish();await click('town');
   await page.waitForFunction(()=>window.nanoDnf.getTown().open);
-  console.log('post-clear play + Continue retry/select/town OK');
+  const persisted=await page.evaluate(()=>({
+    profile:window.nanoDnf.getProgressState(), stages:window.nanoDnf.getProgress()
+  }));
+  await page.waitForLoadState('networkidle');
+  await page.reload();
+  await page.waitForFunction(()=>window.nanoDnf?.getAssetState().ready,null,{timeout:30000});
+  const restored=await page.evaluate(()=>({
+    profile:window.nanoDnf.getProgressState(), stages:window.nanoDnf.getProgress()
+  }));
+  assert.equal(restored.profile.gold,persisted.profile.gold,'clear and post-clear gold survive reload');
+  assert.deepEqual(restored.profile.cleared,persisted.profile.cleared,'profile clear history survives reload');
+  assert.deepEqual(restored.stages.cleared,persisted.stages.cleared,'stage unlock history has its own surviving store');
+  assert.deepEqual(restored.stages.open,persisted.stages.open,'the next stage remains open after reload');
+  console.log('post-clear play + Continue retry/select/town + profile/unlock persistence OK');
 }

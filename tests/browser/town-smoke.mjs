@@ -3,6 +3,7 @@
  * 只证明这条流程与原件加载，不冒充城镇的视觉/手感验收。
  */
 import { chromium } from "playwright";
+import { checkInventoryPersistence } from "./inventory-persistence-check.mjs";
 import { checkTownRoots, checkTownDepthSpeed, checkTownCamera, checkTownDiagonal } from "./town-root-check.mjs";
 import http from "node:http";
 import fs from "node:fs";
@@ -51,7 +52,7 @@ async function main() {
     if (message.type() === "error") diagnostics.consoleErrors.push(message.text());
   });
   page.on("pageerror", (error) => diagnostics.pageErrors.push(String(error)));
-  page.on("requestfailed", (request) => diagnostics.failedRequests.push(request.url()));
+  page.on("requestfailed", (request) => diagnostics.failedRequests.push(`${request.url()} (${request.failure()?.errorText})`));
 
   try {
     await page.goto(`http://127.0.0.1:${port}/index.html?seed=1`);
@@ -214,6 +215,8 @@ async function main() {
     }
     await clickCanvas(493, 408);
     if ((await page.evaluate(() => window.nanoDnf.getTown())).panel) fail("the visible close button did not close");
+
+    await checkInventoryPersistence(page);
 
     if (diagnostics.consoleErrors.length) {
       fail(`console errors: ${diagnostics.consoleErrors.join(" | ")}`);

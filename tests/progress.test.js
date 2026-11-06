@@ -99,3 +99,41 @@ test("reset clears progress but is a separate store from records", () => {
   assert.equal(fresh.quests.main.state, "available");
   assert.deepEqual(Progress.load(storage), fresh);
 });
+
+test("inventory gear survives storage reload and swapping equipment returns the old weapon", () => {
+  const storage = memoryStorage();
+  const profile = Progress.defaults();
+  Progress.addItem(profile, "rustyBlade", 2);
+  Progress.addItem(profile, "clothArmor", 1);
+  Progress.addItem(profile, "copperRing", 1);
+  Progress.addItem(profile, "starterBlade", 1);
+  Progress.equip(profile, "starterBlade");
+  Progress.save(profile, storage);
+  const loaded = Progress.load(storage);
+  assert.equal(loaded.items.rustyBlade, 2, "bag weapons survive a real save/load round trip");
+  assert.equal(loaded.items.clothArmor, 1);
+  assert.equal(loaded.items.copperRing, 1);
+  assert.equal(loaded.equipment.weapon, "starterBlade");
+  assert.equal(Progress.equip(loaded, "rustyBlade"), true, "reloaded gear remains usable");
+  Progress.save(loaded, storage);
+  const swapped = Progress.load(storage);
+  assert.equal(swapped.equipment.weapon, "rustyBlade");
+  assert.equal(swapped.items.rustyBlade, 1);
+  assert.equal(swapped.items.starterBlade, 1, "the replaced weapon survives in the bag too");
+  assert.equal(Progress.salvage(swapped, "clothArmor").material, 2);
+});
+
+test("normalization retains only catalog items with finite counts and matching equipment slots", () => {
+  const loaded = Progress.normalize({
+    items: { rustyBlade: 2.9, copperRing: -1, clothArmor: Infinity, unknown: 8, hpPotion: 3 },
+    equipment: { weapon: "hpPotion", ring: "clothArmor", top: "clothArmor" }
+  });
+  assert.equal(loaded.items.rustyBlade, 2);
+  assert.equal(loaded.items.copperRing, undefined);
+  assert.equal(loaded.items.clothArmor, undefined);
+  assert.equal(loaded.items.unknown, undefined);
+  assert.equal(loaded.items.hpPotion, 3);
+  assert.equal(loaded.equipment.weapon, null, "a potion cannot become an equipped weapon");
+  assert.equal(loaded.equipment.ring, null, "armor cannot occupy the ring slot");
+  assert.equal(loaded.equipment.top, "clothArmor", "valid equipped gear remains intact");
+});

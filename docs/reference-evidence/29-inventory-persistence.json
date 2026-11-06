@@ -1,0 +1,91 @@
+{
+  "before": {
+    "version": 1,
+    "gold": 0,
+    "items": {
+      "hpPotion": 0,
+      "mpPotion": 0,
+      "material": 0,
+      "rustyBlade": 2,
+      "clothArmor": 1,
+      "copperRing": 1
+    },
+    "equipment": {
+      "weapon": "starterBlade",
+      "top": null,
+      "bottom": null,
+      "shoulder": null,
+      "belt": null,
+      "shoes": null,
+      "necklace": null,
+      "bracelet": null,
+      "ring": null,
+      "support": null
+    },
+    "quests": {
+      "main": {
+        "state": "available",
+        "progress": 0,
+        "done": false
+      },
+      "cats": {
+        "state": "available",
+        "progress": 0,
+        "done": false
+      },
+      "breakables": {
+        "state": "available",
+        "progress": 0,
+        "done": false
+      }
+    },
+    "cleared": []
+  },
+  "after": {
+    "version": 1,
+    "gold": 0,
+    "items": {
+      "hpPotion": 0,
+      "mpPotion": 0,
+      "material": 0,
+      "starterBlade": 1,
+      "rustyBlade": 1,
+      "clothArmor": 1,
+      "copperRing": 1
+    },
+    "equipment": {
+      "weapon": "rustyBlade",
+      "top": null,
+      "bottom": null,
+      "shoulder": null,
+      "belt": null,
+      "shoes": null,
+      "necklace": null,
+      "bracelet": null,
+      "ring": null,
+      "support": null
+    },
+    "quests": {
+      "main": {
+        "state": "available",
+        "progress": 0,
+        "done": false
+      },
+      "cats": {
+        "state": "available",
+        "progress": 0,
+        "done": false
+      },
+      "breakables": {
+        "state": "available",
+        "progress": 0,
+        "done": false
+      }
+    },
+    "cleared": []
+  },
+  "displayedNames": [
+    "生锈的铁剑 × 1",
+    "锈蚀短剑 × 1"
+  ]
+}
