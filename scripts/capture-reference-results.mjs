@@ -29,15 +29,23 @@ try {
  await page.waitForFunction(()=>window.captureResults.meta);
  const reference={
   circle:fs.readFileSync(path.join(root,'docs/reference-evidence/25-reward-circle-reference.png')).toString('base64'),
+  blue:fs.readFileSync(path.join(root,'docs/reference-evidence/26-blue-card-reference.png')).toString('base64'),
+  gold:fs.readFileSync(path.join(root,'docs/reference-evidence/26-gold-card-reference.png')).toString('base64'),
   digits:[1,2,3].map(n=>fs.readFileSync(path.join(root,`docs/reference-evidence/25-countdown-${n===3?'three':n}-reference.png`)).toString('base64'))
  };
  const captured=await page.evaluate(async(reference)=>{
   const {original,meta}=window.captureResults;window.DNFRender.render=original;delete window.captureResults;
   const result=[],contexts={};
-  for(const [label,phase,t,elapsed,countdown=3] of [['chest','chest',.3,12.5],['cards','cards',1.5,16.5],['cards-2','cards',1.5,17.5,2],['cards-1','cards',1.5,18.5,1],['reveal','reveal',1.5,21.5]]){
+  for(const [label,phase,t,elapsed,countdown=3] of [['chest','chest',.3,12.5],['blue','cards',1.2,15.333333],['spread','cards',.6,14.733333],['preHint','cards',1.95,16],['hintOnly','cards',2.1,16.1],['cards','cards',1.5,16.5],['cards-2','cards',1.5,17.5,2],['cards-1','cards',1.5,18.5,1],['reveal','reveal',1.5,21.5]]){
    const state=window.DNFCore.createState({seed:24,referenceProfile:true});
    state.victory=true;state.finishedAt=0;state.time=elapsed;state.intro=null;state.transition=0;state.enemies=[];
-   const reward={...window.DNFReward.snapshot(window.DNFReward.create({seed:24})),phase,t,elapsed,countdown,faceUp:true,picked:phase==='reveal'?0:null};
+   const R=window.DNFReward,flow=R.create({seed:24});
+   const age=label.startsWith('cards') ? R.TIMES.countdownAt+(3-countdown)+.2 : t;
+   const total=phase==='chest' ? R.TIMES.stats+age
+     : phase==='cards' ? R.TIMES.stats+R.TIMES.chest+age
+     : R.TIMES.stats+R.TIMES.chest+R.TIMES.countdownAt+R.TIMES.countdown+age;
+   R.step(flow,total);
+   const reward={...R.snapshot(flow),elapsed};
    const c=document.createElement('canvas');c.width=960;c.height=540;
    contexts[label]=c.getContext('2d');
    original(contexts[label],state,{...meta,attract:false,showHelp:false,paused:false,region:null,run:null,reward});
@@ -68,11 +76,39 @@ try {
    }
    digits.push({value:n,cosine:dot/Math.sqrt(xx*yy),pixels:ink});
   }
-  return {images:result,measurement:{circleCorrelation:circle,digits}};
+  async function cardCosine(label,encoded){
+   const ref=await pixels(encoded),actual=contexts[label].getImageData(129,188,172,109).data;
+   let dot=0,a2=0,b2=0;
+   for(let i=0;i<ref.length;i+=4)for(let k=0;k<3;k++){
+    dot+=ref[i+k]*actual[i+k];a2+=ref[i+k]**2;b2+=actual[i+k]**2;
+   }
+   return dot/Math.sqrt(a2*b2);
+  }
+  const blue=await cardCosine('blue',reference.blue),gold=await cardCosine('cards',reference.gold);
+  const mid=contexts.spread.getImageData(120,190,720,110).data;let left=720,right=-1;
+  for(let x=0;x<720;x++){
+   let count=0;
+   for(let y=0;y<110;y++){const i=(y*720+x)*4;if(mid[i]>60&&mid[i+1]>180&&mid[i+2]>210)count++;}
+   if(count>20){left=Math.min(left,x);right=Math.max(right,x);}
+  }
+  function goldCount(label,x,y,w,h){
+   const im=contexts[label].getImageData(x,y,w,h).data;let count=0;
+   for(let i=0;i<im.length;i+=4)if(im[i]>100&&im[i+1]>60&&im[i]>.9*im[i+1]&&im[i+2]<.8*im[i+1])count++;
+   return count;
+  }
+  const promptBefore=goldCount('preHint',370,330,230,32),promptAfter=goldCount('hintOnly',370,330,230,32);
+  const counterBefore=goldCount('hintOnly',450,410,45,65),counterAfter=goldCount('cards',450,410,45,65);
+  return {images:result,measurement:{circleCorrelation:circle,digits,blueCardCosine:blue,goldCardCosine:gold,
+    spreadBounds:[left,right],promptBefore,promptAfter,counterBefore,counterAfter}};
  },reference);
  for(const c of captured.images)fs.writeFileSync(path.join(out,`${c.label}.png`),Buffer.from(c.url.split(',')[1],'base64'));
  fs.writeFileSync(path.join(out,'measurement.json'),JSON.stringify(captured.measurement,null,2)+'\n');
  console.log(`result poses: ${out}`,captured.measurement);
  assert.ok(captured.measurement.circleCorrelation>.7,'the native circle must match the recorded rotation and geometry');
  for(const d of captured.measurement.digits)assert.ok(d.pixels>50&&d.cosine>.97,`gold countdown ${d.value} must match the recorded glyph at its measured position`);
+ assert.ok(captured.measurement.blueCardCosine>.97,'the blue stage must retain the native treasure illustration and measured cyan light');
+ assert.ok(captured.measurement.goldCardCosine>.96,'the final card must match the recorded native scale and position');
+ assert.ok(captured.measurement.spreadBounds[0]>110&&captured.measurement.spreadBounds[0]<180&&captured.measurement.spreadBounds[1]>550&&captured.measurement.spreadBounds[1]<630,'the cards spread from the center before reaching their final positions');
+ assert.ok(captured.measurement.promptBefore<30&&captured.measurement.promptAfter>100,'the prompt waits for the recorded fade');
+ assert.ok(captured.measurement.counterBefore<30&&captured.measurement.counterAfter>80,'the counter starts after the prompt');
 } finally {await browser?.close();await new Promise(r=>server.close(r));}

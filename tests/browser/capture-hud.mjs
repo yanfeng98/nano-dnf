@@ -160,10 +160,10 @@ await page.evaluate(() => {
 /* 两拍：逐行刚出来那一下，与开箱之后。 */
 await page.waitForTimeout(600);
 await shot("08-victory-rows");
-await page.waitForTimeout(4200);
+await page.waitForFunction(() => window.nanoDnf.getReward()?.phase === "chest", { timeout: 15000 });
 await shot("09-victory-reward");
 /* 翻牌倒计时结束、自动选最左一张之后的领奖详情（`docs/adr/0055`）。 */
-await page.waitForTimeout(4000);
+await page.waitForFunction(() => window.nanoDnf.getReward()?.phase === "reveal", { timeout: 15000 });
 await shot("10-reward-reveal");
 
 await browser.close();

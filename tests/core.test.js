@@ -10935,7 +10935,9 @@ test("the actual result atlas preserves the client's circle, chest and countdown
   const evidence = JSON.parse(fs.readFileSync(path.join(__dirname,
     "../docs/reference-evidence/25-result-native-proof.json"), "utf8"));
   const atlas = decodeRgbaPng(path.join(__dirname, "../assets/results-reference.png"));
-  for (const frame of evidence.native_frames) {
+  const cardEvidence = JSON.parse(fs.readFileSync(path.join(__dirname,
+    "../docs/reference-evidence/26-result-native-proof.json"), "utf8"));
+  for (const frame of evidence.native_frames.concat(cardEvidence.native_frames)) {
     const rect = frame.name.startsWith("digit")
       ? Render.RESULT_ART.digits[Number(frame.name.slice(5))].slice(0, 4)
       : Render.RESULT_ART[frame.name];

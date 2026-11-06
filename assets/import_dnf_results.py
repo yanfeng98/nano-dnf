@@ -22,6 +22,10 @@ SOURCES = [
     (f'digit{i}', 'sprite_interface2_reward_ver2.0.NPK',
      'sprite/interface2/reward_ver2.0/reward_ver2.img', 62+i)
     for i in range(10)
+] + [
+    ('cardGold', 'sprite_interface2_reward_ver2.0.NPK', 'sprite/interface2/reward_ver2.0/reward_ver2.img', 36),
+    ('cardGlow', 'sprite_interface2_reward_ver2.0.NPK', 'sprite/interface2/reward_ver2.0/reward_ver2.img', 40),
+    ('cardBurst', 'sprite_interface2_reward_ver2.0.NPK', 'sprite/interface2/reward_ver2.0/reward_ver2.img', 58),
 ]
 
 def frames(client):

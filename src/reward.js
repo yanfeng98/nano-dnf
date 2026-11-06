@@ -7,7 +7,7 @@
  *
  * 参考录像（`dnf-dungeon-videos/00001-幽暗密林.mp4`，约 343.5–356s）：
  * 战绩页之后另起一页 `奖励`：蓝色魔法阵、中央红木宝箱打开、四张牌背、
- * 同时翻成金色宝箱面、`请选择奖励卡牌` + 3→2→1、超时自动选最左一张；
+ * 同步褪去青色光层成为金色牌面、`请选择奖励卡牌` + 3→2→1、超时自动选最左一张；
  * 选中后左侧出现玩家名条与物品卡（本局是「古老的法杖 ×1 + 3526 金币」）。
  */
 (function (root, factory) {
@@ -19,14 +19,20 @@
 })(typeof self !== "undefined" ? self : this, function (Core) {
   "use strict";
 
-  /*
-   * 参考的整段约 22.5 秒（牌背 1.5、翻面 0.5、选牌 3.5、领奖 2.5，加上前后）。
-   * 本作压到约 13 秒：翻牌的**内容与交互**照录像，节奏按本作已有的结算页压缩。
+  /* V1 346.63..352.13 / V2 399.2..404.7: 1.2s spread, then
+   * a shared cyan fade; prompt at 2s and the 3-second counter at 2.5s.
+   * The first card's separate V2 highlight is not a staggered flip.
+   * Stats lasts ~10s in both recordings. Chest/list and reveal timings are
+   * still pending their own event reconstruction; do not claim those match.
    */
   var TIMES = {
-    stats: 3.0,
+    stats: 10.0,
     chest: 1.2,
-    flip: 0.5,
+    spread: 1.2,
+    fadeStart: 1.2,
+    flip: 1.9,
+    prompt: 2.0,
+    countdownAt: 2.5,
     countdown: 3.0,
     reveal: 2.5
   };
@@ -71,19 +77,19 @@
     return reward;
   }
 
-  function toCards(reward) {
-    reward.phase = "cards";
-    reward.t = 0;
-    reward.faceUp = false;
-    reward.countdown = 3;
+  function clamp01(value) { return Math.max(0, Math.min(1, value)); }
+
+  function syncCards(reward) {
+    reward.faceUp = reward.t + 1e-9 >= TIMES.flip;
+    var left = TIMES.countdown - Math.max(0, reward.t - TIMES.countdownAt);
+    reward.countdown = Math.max(0, Math.ceil(left - 1e-9));
   }
 
   /**
    * 选一张牌（0..3）。只在一手牌还开着、而且**已经翻成金色牌面**之后算数。
    *
-   * 业主 2026-10-21：「我选择第三个，翻得不是」。原因是他点得比 `TIMES.flip`
-   * （0.5 秒）早：牌还是背面时 `pick` 就收下了，四张牌没有翻面就直接进了领奖页，
-   * 看起来像"选的不是第三张"。现在翻面之前不接受选择；0.5 秒后牌面亮出来再点。
+   * 业主 2026-10-21：「我选择第三个，翻得不是」。青光尚未褪去时不收选择，
+   * 避免没有展示金色牌面就直接跳进领奖。具体时刻现按两段录像重审。
    */
   function pick(reward, index) {
     if (!reward || reward.phase !== "cards" || reward.picked !== null) return false;
@@ -96,40 +102,35 @@
     return true;
   }
 
-  /**
-   * 走一帧。`stats` 走完进 `chest`（宝箱打开），再进 `cards`：0.5 秒后翻面，
-   * 然后 3→2→1；倒计时到点**自动选最左一张**（参考里就是这么收的）。
-   */
+  /** Advance across every elapsed event, preserving a delayed frame's remainder. */
   function step(reward, dt) {
     if (!reward) return null;
     var span = Number(dt);
     if (!isFinite(span) || span <= 0) return reward;
-    reward.t += span;
     reward.elapsed += span;
-
-    if (reward.phase === "stats") {
-      if (reward.t >= TIMES.stats) {
+    var remaining = span;
+    while (remaining > 0) {
+      var limit = reward.phase === "stats" ? TIMES.stats
+        : reward.phase === "chest" ? TIMES.chest
+        : reward.phase === "cards" ? TIMES.countdownAt + TIMES.countdown
+        : reward.phase === "reveal" ? TIMES.reveal : Infinity;
+      var advance = Math.min(remaining, Math.max(0, limit - reward.t));
+      reward.t += advance;
+      remaining -= advance;
+      if (reward.phase === "cards") syncCards(reward);
+      if (reward.t + 1e-9 < limit) break;
+      if (reward.phase === "stats") {
         reward.phase = "chest";
-        reward.t -= TIMES.stats;
-      }
-    }
-    if (reward.phase === "chest") {
-      if (reward.t >= TIMES.chest) {
-        toCards(reward);
-      }
-    }
-    if (reward.phase === "cards") {
-      if (!reward.faceUp && reward.t >= TIMES.flip) reward.faceUp = true;
-      if (reward.faceUp) {
-        var left = Math.max(0, TIMES.countdown - (reward.t - TIMES.flip));
-        reward.countdown = Math.max(0, Math.ceil(left));
-        if (reward.t - TIMES.flip >= TIMES.countdown) pick(reward, 0);
-      }
-    } else if (reward.phase === "reveal") {
-      if (reward.t >= TIMES.reveal) {
+      } else if (reward.phase === "chest") {
+        reward.phase = "cards";
+        reward.faceUp = false;
+        reward.countdown = 3;
+      } else if (reward.phase === "cards") {
+        pick(reward, 0);
+      } else if (reward.phase === "reveal") {
         reward.phase = "done";
-        reward.t = 0;
       }
+      reward.t = 0;
     }
     return reward;
   }
@@ -146,6 +147,12 @@
       picked: reward.picked,
       faceUp: reward.faceUp,
       countdown: reward.countdown,
+      spread: reward.phase === "cards" ? clamp01(reward.t / TIMES.spread) : 1,
+      blue: reward.phase === "cards"
+        ? 1 - clamp01((reward.t - TIMES.fadeStart) / (TIMES.flip - TIMES.fadeStart)) : 0,
+      promptVisible: reward.phase === "cards" && reward.t + 1e-9 >= TIMES.prompt,
+      countdownVisible: reward.phase === "cards" && reward.t + 1e-9 >= TIMES.countdownAt,
+      flash: reward.phase === "cards" ? 1 - clamp01(reward.t / 0.7) : 0,
       cards: CARD_COUNT
     };
   }

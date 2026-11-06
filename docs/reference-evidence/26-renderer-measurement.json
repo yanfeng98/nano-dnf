@@ -1,0 +1,30 @@
+{
+  "circleCorrelation": 0.8031806498061125,
+  "digits": [
+    {
+      "value": 1,
+      "cosine": 0.9860250139164781,
+      "pixels": 117
+    },
+    {
+      "value": 2,
+      "cosine": 0.990068592361417,
+      "pixels": 254
+    },
+    {
+      "value": 3,
+      "cosine": 0.995716325456153,
+      "pixels": 182
+    }
+  ],
+  "blueCardCosine": 0.9950387384409509,
+  "goldCardCosine": 0.9804585345264191,
+  "spreadBounds": [
+    143,
+    579
+  ],
+  "promptBefore": 0,
+  "promptAfter": 2253,
+  "counterBefore": 0,
+  "counterAfter": 198
+}

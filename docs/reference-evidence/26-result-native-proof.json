@@ -1,0 +1,61 @@
+{
+  "native_frames": [
+    {
+      "name": "cardGold",
+      "rect": [
+        882,
+        0,
+        153,
+        97
+      ],
+      "pack": "sprite_interface2_reward_ver2.0.NPK",
+      "entry": "sprite/interface2/reward_ver2.0/reward_ver2.img",
+      "frame": 36,
+      "offset": [
+        3,
+        3
+      ],
+      "rgba_sha256": "98123c24405ded77ee02abe50e776fadf6c66fadb2a4231045f2633d65f96c99"
+    },
+    {
+      "name": "cardGlow",
+      "rect": [
+        1035,
+        0,
+        162,
+        107
+      ],
+      "pack": "sprite_interface2_reward_ver2.0.NPK",
+      "entry": "sprite/interface2/reward_ver2.0/reward_ver2.img",
+      "frame": 40,
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "acac8a539d6f51adc519a16632620c29d2bec03f726220e9a0852b86c28d5d75"
+    },
+    {
+      "name": "cardBurst",
+      "rect": [
+        1197,
+        0,
+        402,
+        402
+      ],
+      "pack": "sprite_interface2_reward_ver2.0.NPK",
+      "entry": "sprite/interface2/reward_ver2.0/reward_ver2.img",
+      "frame": 58,
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "7b4b1f342a8dd779866c326e6d5b438e74310e5261f2c766b9907ce996f9441e"
+    }
+  ],
+  "previous_prefix_preserved": true,
+  "previous_size": [
+    882,
+    420
+  ],
+  "previous_rgba_sha256": "4816d591e890726b1951d56e8f784a1df389d220dbefb12d2aa94296345e15ca"
+}

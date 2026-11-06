@@ -8554,15 +8554,16 @@
    * **奖励页**（`docs/adr/0055`）：录像 343.5–356s 的那一页。蓝色魔法阵、中央
    * 红木宝箱、四张牌、`请选择奖励卡牌` + 3→2→1、选中后的玩家名条与物品卡。
    *
-   * 位置在参考的录像像素 / 2（`HUD_PX`）上取整：四张牌一行 `x 131..836`、
-   * y 190..294；标题在 y≈92；倒计时在 y≈458。牌背用客户端的青边外框 + 宝石纹样，
-   * 牌面用已经烘好的金币宝箱卡面（`rewardChest`）。
+   * 卡牌原件f36按1.125绘制，青光另叠f40，牌从中央向四个最终矩形展开。
+   * 它们并非把领奖物品框f41+42作为牌背。完整结算时序见复核文档。
    */
   var REWARD_UI = {
-    cardW: 167,
-    cardH: 104,
-    cardGap: 15,
-    cardY: 190,
+    /* Native f36 at 1.125: V1 349s fits 172×109 at (9,188), NCC .983. */
+    cardX: 129,
+    cardW: 172.125,
+    cardH: 109.125,
+    cardGap: 7.125,
+    cardY: 188,
     hintY: 354
   };
 
@@ -8574,8 +8575,7 @@
   }
 
   function rewardCardBoxes() {
-    var total = REWARD_UI.cardW * 4 + REWARD_UI.cardGap * 3;
-    var startX = (ARENA.width - total) / 2;
+    var startX = REWARD_UI.cardX;
     var boxes = [];
     for (var index = 0; index < 4; index += 1) {
       boxes.push({
@@ -8598,18 +8598,43 @@
     return null;
   }
 
-  function drawRewardCard(ctx, sheet, reward, box) {
-    var back = reward.faceUp ? false : true;
-    if (back) {
-      drawUiFrame(ctx, sheet, UI.rewardCardFrame, 0, box.x, box.y, box.w, box.h);
-      /* f42 的锚点是 (9,9)：按外框的同一个倍率放进内圈。 */
-      var ix = box.x + (9 / 153) * box.w;
-      var iy = box.y + (9 / 97) * box.h;
-      drawUiFrame(ctx, sheet, UI.rewardCardGem, 0, ix, iy,
-                  (141 / 153) * box.w, (61 / 97) * box.h);
-      return;
+  function drawRewardCards(ctx, sprites, reward) {
+    var sheet = sprites && sprites.results;
+    if (!sheet) return;
+    var spread = typeof reward.spread === "number" ? reward.spread : 1;
+    var blue = typeof reward.blue === "number" ? reward.blue : (reward.faceUp ? 0 : 1);
+    var center = Core.VIEW.left + Core.VIEW.width / 2;
+    var boxes = rewardCardBoxes().map(function (box) {
+      box.x = center - box.w / 2 + (box.x - center + box.w / 2) * spread;
+      return box;
+    });
+    var gold = RESULT_ART.cardGold;
+    boxes.forEach(function (box) {
+      ctx.drawImage(sheet, gold[0], gold[1], gold[2], gold[3], box.x, box.y, box.w, box.h);
+    });
+    /* The blue stage shows the same treasure illustration, with native f40
+     * added over it. f41+42 are a prize-item frame, not a blue card back.
+     * V1 347.833 / V2 400.4 fit a cyan addition of roughly .88. */
+    if (blue > 0) {
+      ctx.save();
+      ctx.globalCompositeOperation = "lighter";
+      ctx.globalAlpha *= blue * 0.88;
+      var glow = RESULT_ART.cardGlow;
+      boxes.forEach(function (box) {
+        ctx.drawImage(sheet, glow[0], glow[1], glow[2], glow[3],
+          box.x - 3.375, box.y - 3.375, 182.25, 120.375);
+      });
+      ctx.restore();
     }
-    drawUiFrame(ctx, sheet, UI.rewardChest, 0, box.x, box.y, box.w, box.h);
+    if (reward.flash > 0) {
+      ctx.save();
+      ctx.globalCompositeOperation = "lighter";
+      ctx.globalAlpha *= reward.flash;
+      var burst = RESULT_ART.cardBurst;
+      // The native hotspot is offset inside f58; it emerges at the chest.
+      ctx.drawImage(sheet, burst[0], burst[1], burst[2], burst[3], 425, 117.5, 201, 201);
+      ctx.restore();
+    }
   }
 
   /* Classic native result art; measured in normalized 720×540 reference pixels.
@@ -8619,6 +8644,9 @@
    */
   var RESULT_ART = {
     magic: [0, 0, 420, 420], chest: [420, 0, 160, 142],
+    cardGold: [882, 0, 153, 97],
+    cardGlow: [1035, 0, 162, 107],
+    cardBurst: [1197, 0, 402, 402],
     /* Native f62..71 rect + offset; display positions are independently
      * measured below. A shared horizontal offset misplaces the narrow 1. */
     digitPositions: { 1: [350, 418.5], 2: [330, 416.25], 3: [334.125, 415.125] },
@@ -8689,19 +8717,15 @@
     }
 
     if (cardsUp) {
-      /* 牌行背后的深色横带。 */
-      drawUiFrame(ctx, sheet, UI.rewardBand, 0, 114, 176,
-                  REWARD_UI.cardW * 4 + REWARD_UI.cardGap * 3, 110);
-      var boxes = rewardCardBoxes();
-      boxes.forEach(function (box) {
-        drawRewardCard(ctx, sheet, reward, box);
-        if (reward.picked === box.index) {
-          ctx.strokeStyle = "#ffe8a6";
-          ctx.lineWidth = 3;
-          ctx.strokeRect(box.x - 2, box.y - 2, box.w + 4, box.h + 4);
-        }
-      });
-      if (reward.phase === "cards") {
+      /* The band fades in after the spread starts; V1's exposed left patch
+       * stays unchanged until ~.4s, then darkens while the cards move out. */
+      ctx.save();
+      var spread = typeof reward.spread === "number" ? reward.spread : 1;
+      ctx.globalAlpha *= Math.max(0, Math.min(1, (spread - 1 / 3) * 1.5));
+      drawUiFrame(ctx, sheet, UI.rewardBand, 0, 120, 180, 720, 124);
+      ctx.restore();
+      drawRewardCards(ctx, sprites, reward);
+      if (reward.promptVisible) {
         ctx.textAlign = "center";
         ctx.font = "700 26px 'PingFang SC', 'Segoe UI', system-ui, sans-serif";
         ctx.lineWidth = 4;
@@ -8709,7 +8733,7 @@
         ctx.strokeText("请选择奖励卡牌", ARENA.width / 2, REWARD_UI.hintY);
         ctx.fillStyle = "#f0d79a";
         ctx.fillText("请选择奖励卡牌", ARENA.width / 2, REWARD_UI.hintY);
-        if (reward.faceUp) {
+        if (reward.countdownVisible) {
           /* V1 349.6s and V2 402.4s match native f65 (3) at 1.125
            * with NCC > .985; held-out 2 and 1 match both videos above .977.
            * Use their measured positions, not a guessed common x origin. */

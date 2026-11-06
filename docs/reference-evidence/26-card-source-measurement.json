@@ -1,0 +1,103 @@
+[
+  {
+    "video": 1,
+    "modeled_card_origin": 346.6333333333333,
+    "origin_note": "joint spread/prompt fit; not a hidden client formula",
+    "gold_threshold_events": [
+      {
+        "card": 0,
+        "thresholds": {
+          "0.05": 348.166667,
+          "0.15": 348.266667,
+          "0.3": 348.333333
+        }
+      },
+      {
+        "card": 1,
+        "thresholds": {
+          "0.05": 348.166667,
+          "0.15": 348.233333,
+          "0.3": 348.333333
+        }
+      },
+      {
+        "card": 2,
+        "thresholds": {
+          "0.05": 348.166667,
+          "0.15": 348.233333,
+          "0.3": 348.333333
+        }
+      },
+      {
+        "card": 3,
+        "thresholds": {
+          "0.05": 348.166667,
+          "0.15": 348.266667,
+          "0.3": 348.333333
+        }
+      }
+    ],
+    "prompt_first": 348.633333,
+    "counter_first": 349.133333,
+    "blue_addition_fit": {
+      "alpha": 0.88,
+      "rmse": 20.235705919137935
+    },
+    "gold_native_fit": {
+      "score": 0.9833380579948425,
+      "scale": 1.1250000000000018,
+      "left": 9,
+      "top": 188,
+      "size": [
+        172,
+        109
+      ]
+    }
+  },
+  {
+    "video": 2,
+    "modeled_card_origin": 399.2,
+    "origin_note": "joint spread/prompt fit; not a hidden client formula",
+    "gold_threshold_events": [
+      {
+        "card": 0,
+        "thresholds": {
+          "0.05": 400.7,
+          "0.15": 400.7,
+          "0.3": 400.7
+        }
+      },
+      {
+        "card": 1,
+        "thresholds": {
+          "0.05": 400.733333,
+          "0.15": 400.833333,
+          "0.3": 400.9
+        }
+      },
+      {
+        "card": 2,
+        "thresholds": {
+          "0.05": 400.766667,
+          "0.15": 400.833333,
+          "0.3": 400.9
+        }
+      },
+      {
+        "card": 3,
+        "thresholds": {
+          "0.05": 400.733333,
+          "0.15": 400.833333,
+          "0.3": 400.933333
+        }
+      }
+    ],
+    "prompt_first": 401.2,
+    "counter_first": 401.7,
+    "blue_addition_fit": {
+      "alpha": 0.87,
+      "rmse": 19.274646193896977
+    },
+    "gold_native_fit": null
+  }
+]
