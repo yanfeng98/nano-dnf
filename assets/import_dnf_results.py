@@ -26,18 +26,28 @@ SOURCES = [
     ('cardGold', 'sprite_interface2_reward_ver2.0.NPK', 'sprite/interface2/reward_ver2.0/reward_ver2.img', 36),
     ('cardGlow', 'sprite_interface2_reward_ver2.0.NPK', 'sprite/interface2/reward_ver2.0/reward_ver2.img', 40),
     ('cardBurst', 'sprite_interface2_reward_ver2.0.NPK', 'sprite/interface2/reward_ver2.0/reward_ver2.img', 58),
+] + [
+    (name, 'sprite_interface.NPK', f'sprite/interface/{entry}.img', index, 'ImagePacks2_70')
+    for name, entry, index in [
+        ('continueHeader', 'eplp', 0), ('continueBody', 'eplpnew', 1),
+        ('continueFooter', 'eplpnew', 2), ('continueHover', 'eplpnew', 3),
+        ('continueRetry', 'eplpnew', 5), ('continueSelect', 'eplpnew', 9),
+        ('continueTown', 'eplpnew', 13),
+    ]
 ]
 
 def frames(client):
-    for name, pack, entry, index in SOURCES:
-        with (client/'ImagePacks2'/pack).open('rb') as f:
+    for source in SOURCES:
+        name, pack, entry, index = source[:4]
+        folder = source[4] if len(source) > 4 else 'ImagePacks2'
+        with (client/folder/pack).open('rb') as f:
             item = next(e for e in NPK.open(f).files if e.name.replace('\\', '/') == entry)
             obj = IMGFactory.open(io.BytesIO(item.data))
             frame = obj.images[index]
             while type(frame).__name__ == 'ImageLink':
                 frame = obj.images[frame.index]
             image = obj.build(frame).convert('RGBA')
-            yield name, image, dict(pack=pack, entry=entry, frame=index,
+            yield name, image, dict(folder=folder, pack=pack, entry=entry, frame=index,
                 offset=[frame.x, frame.y], rgba_sha256=hashlib.sha256(image.tobytes()).hexdigest())
 
 def main():

@@ -4782,6 +4782,7 @@
         /* 换房那一下的黑幕：从 TRANSITION.dur 数到 0，`1` 是全黑。 */
         transition: 0,
         victory: false,
+        postClear: false,
         /*
          * **领主倒下到胜利页之间那一下死亡特效**（2026-10-18）：领主一死就
          * 不再要求清剩下的怪，但先把它的白色剪影演完再进胜利页；这个数在
@@ -8772,7 +8773,7 @@
      */
     updateDeaths(state, dt);
 
-    if (state.victory || state.defeat) return state;
+    if (state.defeat || (state.victory && !state.postClear)) return state;
 
     updatePlayer(state, input, dt);
     /*
@@ -8787,12 +8788,14 @@
      * the row's third stage starts flying on the very column it appears on.
      */
     updateShots(state, dt);
-    updateEnemies(state, dt);
-    updateWaves(state);
+    if (!state.postClear) {
+      updateEnemies(state, dt);
+      updateWaves(state);
+    }
     updateTarget(state, dt);
     updateBreakables(state);
     updatePickups(state, dt);
-    resolveRoom(state, input);
+    if (!state.postClear) resolveRoom(state, input);
     /*
      * Last, and on purpose: the camera reads where everyone ended up this frame,
      * not where they were when it started - and `resolveRoom` may already have
@@ -8804,6 +8807,14 @@
       state.resultRating = Object.freeze(ratingOf(state));
     }
     return state;
+  }
+
+  // V2 409..414s: the same cleared room accepts movement and prop attacks
+  // below Continue. Keep victory/result snapshots; never restart room resolution.
+  function resumeAfterClear(state) {
+    if (!state || !state.victory || state.defeat) return false;
+    state.postClear = true;
+    return true;
   }
 
   function runFrames(state, frames, inputForFrame) {
@@ -8943,6 +8954,7 @@
     updatePickups: updatePickups,
     nextRandom: nextRandom,
     step: step,
-    runFrames: runFrames
+    runFrames: runFrames,
+    resumeAfterClear: resumeAfterClear
   };
 });

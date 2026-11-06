@@ -1,6 +1,7 @@
 // Fixed reward poses through the actual renderer; reference crops are audit
 // evidence only. RESULT_OUT selects an evidence directory, never game assets.
 import {chromium} from 'playwright';
+import {checkPostClear} from '../tests/browser/post-clear-check.mjs';
 import fs from 'node:fs';
 import assert from 'node:assert/strict';
 import http from 'node:http';
@@ -111,4 +112,5 @@ try {
  assert.ok(captured.measurement.spreadBounds[0]>110&&captured.measurement.spreadBounds[0]<180&&captured.measurement.spreadBounds[1]>550&&captured.measurement.spreadBounds[1]<630,'the cards spread from the center before reaching their final positions');
  assert.ok(captured.measurement.promptBefore<30&&captured.measurement.promptAfter>100,'the prompt waits for the recorded fade');
  assert.ok(captured.measurement.counterBefore<30&&captured.measurement.counterAfter>80,'the counter starts after the prompt');
+ await checkPostClear(page,out);
 } finally {await browser?.close();await new Promise(r=>server.close(r));}

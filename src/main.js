@@ -325,6 +325,7 @@
   var finishedRun = null;
   /* 通关后的翻牌奖励：`Reward.create` 的纯状态，`src/reward.js`（`docs/adr/0055`）。 */
   var reward = null;
+  var continueHover = null;
 
   var state = Core.createState({ seed: currentSeed, stage: currentStage, referenceProfile: true });
   var paused = false;
@@ -901,7 +902,7 @@
     if (!audio.ctx || !sfx.loadStarted) return;
     if (!ensureAmbientBus()) return;
     var inRoom = !!(
-      state.room && !state.intro && !state.victory && !state.defeat &&
+      state.room && !state.intro && (!state.victory || state.postClear) && !state.defeat &&
       !showHelp && !regionOpen && !townOpen
     );
     if (inRoom) {
@@ -1081,11 +1082,20 @@
         changed = true;
       }
     }
-    if (state.victory && !progressStats.victory) {
-      Progress.addGold(progress, state.stats.gold || 0);
-      if (state.stage && state.stage.id) Progress.noteClear(progress, state.stage.id);
-      progressStats.victory = true;
-      changed = true;
+    if (state.victory) {
+      // V2 412..414s still permits prop loot after results. Bank only the new
+      // gold since the previous sync; Continue must never pay the run twice.
+      var goldDelta = (state.stats.gold || 0) - (progressStats.gold || 0);
+      if (goldDelta > 0) {
+        Progress.addGold(progress, goldDelta);
+        progressStats.gold = state.stats.gold;
+        changed = true;
+      }
+      if (!progressStats.victory) {
+        if (state.stage && state.stage.id) Progress.noteClear(progress, state.stage.id);
+        progressStats.victory = true;
+        changed = true;
+      }
     }
     if (changed) saveProgress();
   }
@@ -1271,6 +1281,16 @@
       return;
     }
     var point = canvasPoint(event);
+    if (state.postClear && !regionOpen && !townOpen && !paused && !progressPanel) {
+      var action = Render.hitTestContinue(point.x, point.y);
+      if (action) {
+        if (action === "retry") restart();
+        else if (action === "select") openRegion();
+        else returnToTown();
+        event.preventDefault();
+        return;
+      }
+    }
     if (townOpen) {
       if (town.panel === "shop" && !progressPanel) {
         var shopHit = Render.hitTestTownShop(point.x, point.y);
@@ -1346,8 +1366,9 @@
   }
 
   function pointerMove(event) {
-    if (!drag) return;
     var point = canvasPoint(event);
+    continueHover = state.postClear ? Render.hitTestContinue(point.x, point.y) : null;
+    if (!drag) return;
     drag.x = point.x;
     drag.y = point.y;
     event.preventDefault();
@@ -1409,7 +1430,7 @@
       event.preventDefault();
       return;
     }
-    if (!showHelp && !regionOpen && !state.victory && !state.defeat &&
+    if (!showHelp && !regionOpen && (!state.victory || state.postClear) && !state.defeat &&
         (event.code === "KeyI" || event.code === "KeyL" || event.code === "KeyK")) {
       /* 三页盖住城镇的 NPC 窗，别让对白/商店从底下露出来。 */
       if (townOpen) {
@@ -2078,6 +2099,7 @@
      */
     if (state.victory && reward && !paused && !regionOpen) {
       Reward.step(reward, delta);
+      if (reward.phase === "done") Core.resumeAfterClear(state);
     }
 
     /*
@@ -2120,6 +2142,7 @@
       },
       /* 通关后的翻牌奖励（`docs/adr/0055`）：没有通关时为 null。 */
       reward: reward && Reward ? Reward.snapshot(reward) : null,
+      continueHover: continueHover,
       /*
        * The region map, assembled here so render.js never reaches into the
        * storage or the stage table for it (`drawRegionMap`).

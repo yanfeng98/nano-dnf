@@ -1,0 +1,130 @@
+{
+  "native_frames": [
+    {
+      "name": "continueHeader",
+      "rect": [
+        1599,
+        0,
+        270,
+        160
+      ],
+      "folder": "ImagePacks2_70",
+      "pack": "sprite_interface.NPK",
+      "entry": "sprite/interface/eplp.img",
+      "frame": 0,
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "1557853f9bd6311115d9add54e7a360fbc1ce74ec6e21cd7b4467a4008d96ff1"
+    },
+    {
+      "name": "continueBody",
+      "rect": [
+        1869,
+        0,
+        270,
+        30
+      ],
+      "folder": "ImagePacks2_70",
+      "pack": "sprite_interface.NPK",
+      "entry": "sprite/interface/eplpnew.img",
+      "frame": 1,
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "d64f6ee8ae18906176977d0e4d7daa18c23a1358c7b56a34be4d918909986fc2"
+    },
+    {
+      "name": "continueFooter",
+      "rect": [
+        2139,
+        0,
+        268,
+        16
+      ],
+      "folder": "ImagePacks2_70",
+      "pack": "sprite_interface.NPK",
+      "entry": "sprite/interface/eplpnew.img",
+      "frame": 2,
+      "offset": [
+        1,
+        0
+      ],
+      "rgba_sha256": "4ae78617132c8ee5b683ef818c3b95377d01657c99aec6970bab02f4b4ad037c"
+    },
+    {
+      "name": "continueHover",
+      "rect": [
+        2407,
+        0,
+        270,
+        88
+      ],
+      "folder": "ImagePacks2_70",
+      "pack": "sprite_interface.NPK",
+      "entry": "sprite/interface/eplpnew.img",
+      "frame": 3,
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "ec45eddb8eecb5704a8a6e44899dc13048e6ddacb4193b362ab935592e4b6c22"
+    },
+    {
+      "name": "continueRetry",
+      "rect": [
+        2677,
+        0,
+        66,
+        19
+      ],
+      "folder": "ImagePacks2_70",
+      "pack": "sprite_interface.NPK",
+      "entry": "sprite/interface/eplpnew.img",
+      "frame": 5,
+      "offset": [
+        92,
+        2
+      ],
+      "rgba_sha256": "7bff647f0f401b4ab7adea9e4ee0ae94e44e92a8eb9932dc8f7f34b3061c0c41"
+    },
+    {
+      "name": "continueSelect",
+      "rect": [
+        2743,
+        0,
+        112,
+        19
+      ],
+      "folder": "ImagePacks2_70",
+      "pack": "sprite_interface.NPK",
+      "entry": "sprite/interface/eplpnew.img",
+      "frame": 9,
+      "offset": [
+        69,
+        2
+      ],
+      "rgba_sha256": "eee67bd572803991a87f090bb824710391d2520c158473f55914429e313ac30b"
+    },
+    {
+      "name": "continueTown",
+      "rect": [
+        2855,
+        0,
+        66,
+        19
+      ],
+      "folder": "ImagePacks2_70",
+      "pack": "sprite_interface.NPK",
+      "entry": "sprite/interface/eplpnew.img",
+      "frame": 13,
+      "offset": [
+        92,
+        2
+      ],
+      "rgba_sha256": "424d65434b2ad1f91e4928991559e1f19bf9e5316856de77e9e121ef27462c3f"
+    }
+  ]
+}

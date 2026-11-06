@@ -8644,6 +8644,13 @@
    */
   var RESULT_ART = {
     magic: [0, 0, 420, 420], chest: [420, 0, 160, 142],
+    continueHeader: [1599, 0, 270, 160],
+    continueBody: [1869, 0, 270, 30],
+    continueFooter: [2139, 0, 268, 16],
+    continueHover: [2407, 0, 270, 88],
+    continueRetry: [2677, 0, 66, 19],
+    continueSelect: [2743, 0, 112, 19],
+    continueTown: [2855, 0, 66, 19],
     cardGold: [882, 0, 153, 97],
     cardGlow: [1035, 0, 162, 107],
     cardBurst: [1197, 0, 402, 402],
@@ -8836,6 +8843,49 @@
     ctx.restore();
   }
 
+  // V1 356..358s / V2 409..414s: native 270x160 Continue at the top right,
+  // 1.125x like the rest of the result UI. Arrows keep moving the character.
+  var CONTINUE_UI = { x: 536.25, y: 0, scale: 1.125,
+    rows: [54, 85, 116], actions: ["retry", "select", "town"] };
+
+  function hitTestContinue(x, y) {
+    var ui = CONTINUE_UI;
+    if (x < ui.x || x >= ui.x + 270 * ui.scale) return null;
+    for (var i = 0; i < ui.rows.length; i += 1) {
+      if (y >= ui.rows[i] * ui.scale && y < (ui.rows[i] + 30) * ui.scale) return ui.actions[i];
+    }
+    return null;
+  }
+
+  function drawContinue(ctx, sprites, hover) {
+    var sheet = sprites && sprites.results;
+    if (!sheet) return;
+    var ui = CONTINUE_UI, scale = ui.scale;
+    function frame(name, x, y, w, h, cropH) {
+      var r = RESULT_ART[name];
+      ctx.drawImage(sheet, r[0], r[1], r[2], cropH || r[3],
+        ui.x + x * scale, ui.y + y * scale, (w || r[2]) * scale, (h || r[3]) * scale);
+    }
+    ctx.save();
+    ctx.imageSmoothingEnabled = false;
+    // Only the original English header: eplp's Korean disabled labels below
+    // it are replaced with eplpnew's native blank rows and Chinese glyphs.
+    frame("continueHeader", 0, 0, 270, 54, 54);
+    for (var i = 0; i < 3; i += 1) frame("continueBody", 0, 54 + 30 * i);
+    frame("continueFooter", 1, 144);
+    var selected = ui.actions.indexOf(hover);
+    if (selected >= 0) {
+      ctx.save();
+      ctx.globalCompositeOperation = "lighter";
+      frame("continueHover", 0, ui.rows[selected] - 29);
+      ctx.restore();
+    }
+    frame("continueRetry", 92, ui.rows[0] + 2);
+    frame("continueSelect", 69, ui.rows[1] + 2);
+    frame("continueTown", 92, ui.rows[2] + 2);
+    ctx.restore();
+  }
+
   function drawOverlay(ctx, state, meta, sprites) {
     /* The hub is a screen of its own: nothing else belongs behind it. */
     if (meta && meta.region && meta.region.open) {
@@ -8846,7 +8896,11 @@
       drawAttractTitle(ctx, state, meta);
       return;
     }
-    if (state.defeat || state.victory) {
+    if (state.postClear && !(meta && (meta.paused || meta.showHelp))) {
+      if (!(meta && meta.progressPanel)) drawContinue(ctx, sprites, meta && meta.continueHover);
+      return;
+    }
+    if (state.defeat || (state.victory && !state.postClear)) {
       /*
        * 通关后的第二页：战绩走完（`Reward` 的 `stats` 拍）就换成 `奖励` 页，
        * 翻牌与开奖都在那一页（`docs/adr/0055`）。失败页不变。
@@ -9625,7 +9679,7 @@
     if (!sheet || !sheet.width || !state.room || state.intro) return;
     /* 幽暗密林深处按 `00002` 不下雨（`docs/adr/0063`）。 */
     if (state.stage && state.stage.rain === false) return;
-    if (state.victory || state.defeat) return;
+    if ((state.victory && !state.postClear) || state.defeat) return;
     if (meta && (meta.paused || meta.showHelp || (meta.region && meta.region.open))) return;
     var left = Core.VIEW.left;
     var width = Core.VIEW.width;
@@ -9736,7 +9790,7 @@
      * it back and let it announce the room once play actually starts.
      */
     var overlayOpen = !!(
-      meta.paused || meta.showHelp || state.victory || state.defeat ||
+      meta.paused || meta.showHelp || (state.victory && !state.postClear) || state.defeat ||
       (meta.region && meta.region.open)
     );
     ctx.clearRect(0, 0, ARENA.width, ARENA.height);
@@ -9871,7 +9925,7 @@
      * 暂停页不在此列 —— 那一页要玩家看着自己的血蓝做决定。
      */
     var hudHidden =
-      state.victory ||
+      (state.victory && !state.postClear) ||
       state.defeat ||
       !!(meta.region && meta.region.open);
     if (!hudHidden) {
@@ -9879,7 +9933,7 @@
       /* 录像左侧掉落/经验消息流；评分面板已在 `drawHudVideo` 里常驻。 */
       if (!overlayOpen) drawLog(ctx, state);
       /* The map belongs to live play and to the title demo, not to a full-screen overlay. */
-      if (!overlayOpen) drawMinimap(ctx, state, sprites, meta);
+      if (!overlayOpen && !state.postClear) drawMinimap(ctx, state, sprites, meta);
       drawSkillBar(ctx, state, sprites, meta.loadout, true);
       if (meta.loadoutOpen) drawLoadoutPanel(ctx, state, sprites, meta);
       if (meta.progressPanel) drawProgressPanel(ctx, meta.progressPanel, meta.progress, sprites);
@@ -9942,6 +9996,8 @@
     loadoutPanelButtons: loadoutPanelButtons,
     hitTestLoadout: hitTestLoadout,
     hitTestRewardCard: hitTestRewardCard,
+    hitTestContinue: hitTestContinue,
+    CONTINUE_UI: CONTINUE_UI,
     REWARD_UI: REWARD_UI,
     hitTestRegion: hitTestRegion
   };

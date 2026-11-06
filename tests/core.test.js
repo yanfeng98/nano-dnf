@@ -10937,7 +10937,9 @@ test("the actual result atlas preserves the client's circle, chest and countdown
   const atlas = decodeRgbaPng(path.join(__dirname, "../assets/results-reference.png"));
   const cardEvidence = JSON.parse(fs.readFileSync(path.join(__dirname,
     "../docs/reference-evidence/26-result-native-proof.json"), "utf8"));
-  for (const frame of evidence.native_frames.concat(cardEvidence.native_frames)) {
+  const continueEvidence = JSON.parse(fs.readFileSync(path.join(__dirname,
+    "../docs/reference-evidence/27-continue-native-proof.json"), "utf8"));
+  for (const frame of evidence.native_frames.concat(cardEvidence.native_frames, continueEvidence.native_frames)) {
     const rect = frame.name.startsWith("digit")
       ? Render.RESULT_ART.digits[Number(frame.name.slice(5))].slice(0, 4)
       : Render.RESULT_ART[frame.name];
@@ -10951,4 +10953,51 @@ test("the actual result atlas preserves the client's circle, chest and countdown
     assert.equal(crypto.createHash("sha256").update(pixels).digest("hex"), frame.rgba_sha256,
       `${frame.name} matches the independently decoded client frame`);
   }
+});
+
+test("post-clear play resumes movement and attacks without reopening rooms or changing the result", () => {
+  const state = Core.createState({ seed: 27 });
+  state.enemies = [];
+  state.room.pendingWave = [];
+  state.room.pendingWaves = [];
+  state.room.cleared = true;
+  state.victory = true;
+  Core.step(state, {});
+  const result = Core.ratingOf(state);
+  const x = state.player.x;
+  Core.runFrames(state, 6, { right: true });
+  assert.equal(state.player.x, x, "the result presentation still owns input before it ends");
+  // The presentation signals its terminal phase; the core owns resumed world play.
+  if (Core.resumeAfterClear) Core.resumeAfterClear(state);
+  else state.postClear = true;
+  Core.runFrames(state, 12, { right: true });
+  assert.ok(state.player.x > x + 10, "the character can walk after rewards");
+  const swings = state.stats.swings;
+  Core.runFrames(state, 60, { attack: true });
+  assert.ok(state.stats.swings > swings, "attacks continue in the cleared room");
+  const barrel = state.props.find(prop => prop.piece === "barrel");
+  assert.ok(barrel);
+  smashBarrel(state, barrel);
+  assert.ok(barrel.broken, "post-clear attacks still break scene props");
+  const gold = state.stats.gold;
+  state.pickups.push({ kind: "gold", gold: 27, x: state.player.x, z: state.player.z, life: 30 });
+  Core.step(state, {});
+  assert.equal(state.stats.gold, gold + 27, "walking on post-clear loot still collects it");
+  const rooms = state.stats.rooms;
+  const cell = state.cell;
+  Core.currentCell(state).cleared = true;
+  const dir = ["N", "E", "S", "W"].find(one => Core.exitMode(state, one) === "open");
+  assert.ok(dir, "the finished room still has a physical exit");
+  const floor = Core.doorFloor(state, Core.currentCell(state), dir);
+  state.player.x = dir === "E" ? Core.roomRight(state) - state.player.width / 2
+    : dir === "W" ? Core.roomLeft(state) + state.player.width / 2 : Core.doorX(state, Core.currentCell(state), dir);
+  state.player.z = dir === "N" ? floor.z[1] : dir === "S" ? floor.z[0] : (floor.z[0] + floor.z[1]) / 2;
+  assert.equal(Core.doorAt(state), dir, "the character stands in an actual open doorway");
+  Core.runFrames(state, 60, {});
+  assert.equal(state.cell, cell, "Continue owns leaving this finished dungeon");
+  assert.equal(state.stats.rooms, rooms, "resuming does not clear the room twice");
+  assert.equal(state.victoryDelay, null, "resuming does not schedule a second result sequence");
+  assert.deepEqual(Core.ratingOf(state), result, "post-clear swings do not rewrite the frozen result");
+  const fresh = Core.createState({ seed: 27 });
+  assert.equal(Core.resumeAfterClear(fresh), false, "a live run cannot skip into post-clear play");
 });
