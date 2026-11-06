@@ -1,0 +1,336 @@
+{
+  "beforePrize": {
+    "version": 1,
+    "gold": 0,
+    "items": {
+      "hpPotion": 0,
+      "mpPotion": 0,
+      "material": 0
+    },
+    "equipment": {
+      "weapon": null,
+      "top": null,
+      "bottom": null,
+      "shoulder": null,
+      "belt": null,
+      "shoes": null,
+      "necklace": null,
+      "bracelet": null,
+      "ring": null,
+      "support": null
+    },
+    "quests": {
+      "main": {
+        "state": "available",
+        "progress": 0,
+        "done": false
+      },
+      "cats": {
+        "state": "available",
+        "progress": 0,
+        "done": false
+      },
+      "breakables": {
+        "state": "available",
+        "progress": 0,
+        "done": false
+      }
+    },
+    "cleared": []
+  },
+  "firstPrize": {
+    "profile": {
+      "version": 1,
+      "gold": 3526,
+      "items": {
+        "hpPotion": 0,
+        "mpPotion": 0,
+        "material": 0,
+        "ancientStaff": 1
+      },
+      "equipment": {
+        "weapon": null,
+        "top": null,
+        "bottom": null,
+        "shoulder": null,
+        "belt": null,
+        "shoes": null,
+        "necklace": null,
+        "bracelet": null,
+        "ring": null,
+        "support": null
+      },
+      "quests": {
+        "main": {
+          "state": "available",
+          "progress": 0,
+          "done": false
+        },
+        "cats": {
+          "state": "available",
+          "progress": 0,
+          "done": false
+        },
+        "breakables": {
+          "state": "available",
+          "progress": 0,
+          "done": false
+        }
+      },
+      "cleared": [
+        "mirkwood"
+      ]
+    },
+    "reward": {
+      "seed": 20260915,
+      "stage": "mirkwood",
+      "itemId": "ancientStaff",
+      "claimed": true,
+      "item": "古老的法杖",
+      "gold": 3526,
+      "phase": "done",
+      "elapsed": 20.517,
+      "t": 0.016,
+      "opacity": 0,
+      "picked": 0,
+      "faceUp": true,
+      "countdown": 0,
+      "spread": 1,
+      "blue": 0,
+      "promptVisible": false,
+      "countdownVisible": false,
+      "flash": 0,
+      "cards": 4
+    }
+  },
+  "beforeManual": {
+    "version": 1,
+    "gold": 3553,
+    "items": {
+      "hpPotion": 0,
+      "mpPotion": 0,
+      "material": 0,
+      "ancientStaff": 1
+    },
+    "equipment": {
+      "weapon": null,
+      "top": null,
+      "bottom": null,
+      "shoulder": null,
+      "belt": null,
+      "shoes": null,
+      "necklace": null,
+      "bracelet": null,
+      "ring": null,
+      "support": null
+    },
+    "quests": {
+      "main": {
+        "state": "available",
+        "progress": 0,
+        "done": false
+      },
+      "cats": {
+        "state": "available",
+        "progress": 0,
+        "done": false
+      },
+      "breakables": {
+        "state": "available",
+        "progress": 0,
+        "done": false
+      }
+    },
+    "cleared": [
+      "mirkwood"
+    ]
+  },
+  "manualPrize": {
+    "version": 1,
+    "gold": 7079,
+    "items": {
+      "hpPotion": 0,
+      "mpPotion": 0,
+      "material": 0,
+      "ancientStaff": 2
+    },
+    "equipment": {
+      "weapon": null,
+      "top": null,
+      "bottom": null,
+      "shoulder": null,
+      "belt": null,
+      "shoes": null,
+      "necklace": null,
+      "bracelet": null,
+      "ring": null,
+      "support": null
+    },
+    "quests": {
+      "main": {
+        "state": "available",
+        "progress": 0,
+        "done": false
+      },
+      "cats": {
+        "state": "available",
+        "progress": 0,
+        "done": false
+      },
+      "breakables": {
+        "state": "available",
+        "progress": 0,
+        "done": false
+      }
+    },
+    "cleared": [
+      "mirkwood"
+    ]
+  },
+  "beforeDeep": {
+    "version": 1,
+    "gold": 7079,
+    "items": {
+      "hpPotion": 0,
+      "mpPotion": 0,
+      "material": 0,
+      "ancientStaff": 2
+    },
+    "equipment": {
+      "weapon": null,
+      "top": null,
+      "bottom": null,
+      "shoulder": null,
+      "belt": null,
+      "shoes": null,
+      "necklace": null,
+      "bracelet": null,
+      "ring": null,
+      "support": null
+    },
+    "quests": {
+      "main": {
+        "state": "available",
+        "progress": 0,
+        "done": false
+      },
+      "cats": {
+        "state": "available",
+        "progress": 0,
+        "done": false
+      },
+      "breakables": {
+        "state": "available",
+        "progress": 0,
+        "done": false
+      }
+    },
+    "cleared": [
+      "mirkwood"
+    ]
+  },
+  "deepPrize": {
+    "version": 1,
+    "gold": 13173,
+    "items": {
+      "hpPotion": 0,
+      "mpPotion": 0,
+      "material": 0,
+      "ancientStaff": 2,
+      "kunicTotem": 1
+    },
+    "equipment": {
+      "weapon": null,
+      "top": null,
+      "bottom": null,
+      "shoulder": null,
+      "belt": null,
+      "shoes": null,
+      "necklace": null,
+      "bracelet": null,
+      "ring": null,
+      "support": null
+    },
+    "quests": {
+      "main": {
+        "state": "available",
+        "progress": 0,
+        "done": false
+      },
+      "cats": {
+        "state": "available",
+        "progress": 0,
+        "done": false
+      },
+      "breakables": {
+        "state": "available",
+        "progress": 0,
+        "done": false
+      }
+    },
+    "cleared": [
+      "mirkwood",
+      "mirkwooddeep"
+    ]
+  },
+  "restored": {
+    "profile": {
+      "version": 1,
+      "gold": 19267,
+      "items": {
+        "hpPotion": 0,
+        "mpPotion": 0,
+        "material": 0,
+        "ancientStaff": 2,
+        "kunicTotem": 2
+      },
+      "equipment": {
+        "weapon": null,
+        "top": null,
+        "bottom": null,
+        "shoulder": null,
+        "belt": null,
+        "shoes": null,
+        "necklace": null,
+        "bracelet": null,
+        "ring": null,
+        "support": null
+      },
+      "quests": {
+        "main": {
+          "state": "available",
+          "progress": 0,
+          "done": false
+        },
+        "cats": {
+          "state": "available",
+          "progress": 0,
+          "done": false
+        },
+        "breakables": {
+          "state": "available",
+          "progress": 0,
+          "done": false
+        }
+      },
+      "cleared": [
+        "mirkwood",
+        "mirkwooddeep"
+      ]
+    },
+    "stages": {
+      "current": "mirkwood",
+      "regionOpen": false,
+      "selected": "mirkwood",
+      "cleared": [
+        "mirkwood",
+        "mirkwooddeep"
+      ],
+      "open": [
+        "mirkwood",
+        "mirkwooddeep",
+        "sunderland"
+      ]
+    }
+  }
+}

@@ -34,7 +34,14 @@ SOURCES = [
         ('continueRetry', 'eplpnew', 5), ('continueSelect', 'eplpnew', 9),
         ('continueTown', 'eplpnew', 13),
     ]
-]
+] + [
+    (name, 'sprite_interface2_reward_ver2.0.NPK', 'sprite/interface2/reward_ver2.0/reward_ver2.img', index)
+    for name, index in [('prizeFrame', 41), ('prizePicture', 43)]
+] + [
+    ('staffIcon', 'sprite_item_weapon_mage.NPK', 'sprite/item/weapon/mage/staff.img', 1, 'ImagePacks2_70'),
+    ('totemIcon', 'sprite_item_weapon_priest.NPK', 'sprite/item/weapon/priest/totem.img', 2, 'ImagePacks2_70'),
+
+] + [('prizeBand', 'sprite_interface2_reward_ver2.0.NPK', 'sprite/interface2/reward_ver2.0/reward_ver2.img', 34)]
 
 def frames(client):
     for source in SOURCES:

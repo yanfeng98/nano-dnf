@@ -47,6 +47,17 @@
       id: "clothArmor", name: "粗布上衣", category: "equipment",
       slot: "top", price: 80, note: "精英掉落；本片装备加成为 0"
     },
+    // Script_70.pvf: staff_beginmage.equ / ttpole_ocunic.equ. The displayed
+    // totem name follows V2's localized label; job, level and icon use the client.
+    ancientStaff: {
+      id: "ancientStaff", name: "古老的法杖", category: "equipment", slot: "weapon",
+      price: 2100, minLevel: 3, jobs: ["mage", "at mage", "creator mage"],
+      icon: "staffIcon", note: "魔法师武器"
+    },
+    kunicTotem: {
+      id: "kunicTotem", name: "古老的库尼族图腾", category: "equipment", slot: "weapon",
+      price: 3500, minLevel: 5, jobs: ["priest"], icon: "totemIcon", note: "圣职者武器"
+    },
     copperRing: {
       id: "copperRing", name: "铜戒指", category: "equipment",
       slot: "ring", price: 70, note: "精英掉落；本片装备加成为 0"
@@ -183,10 +194,17 @@
     return { hp: item.hp || 0, mp: item.mp || 0 };
   }
 
-  function equip(profile, id) {
+  function canEquip(profile, id, character) {
     var item = ITEMS[id];
-    if (!item || item.category !== "equipment" || !item.slot) return false;
-    if ((profile.items[id] || 0) <= 0) return false;
+    if (!item || item.category !== "equipment" || !item.slot || (profile.items[id] || 0) <= 0) return false;
+    character = character || { job: "swordman", level: 1 };
+    if (item.jobs && item.jobs.indexOf(character.job || "swordman") < 0) return false;
+    return !item.minLevel || (character.level || 1) >= item.minLevel;
+  }
+
+  function equip(profile, id, character) {
+    if (!canEquip(profile, id, character)) return false;
+    var item = ITEMS[id];
     profile.items[id] -= 1;
     if (profile.items[id] <= 0) delete profile.items[id];
     var old = profile.equipment[item.slot];
@@ -270,6 +288,7 @@
     addItem: addItem,
     useItem: useItem,
     equip: equip,
+    canEquip: canEquip,
     salvage: salvage,
     accept: accept,
     noteKill: noteKill,

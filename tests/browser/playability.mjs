@@ -1632,7 +1632,8 @@ async function runPass(browser, baseUrl, options) {
       const state = window.nanoDnf.getReward();
       return {
         ...state,
-        itemInPool: window.DNFCore.LOOT.cyan.indexOf(state.item) !== -1
+        itemInPool: window.DNFProgress.ITEMS[state.itemId]?.name === state.item &&
+          window.DNFReward.REFERENCE_PRIZES[state.stage]?.itemId === state.itemId
       };
     });
     await page.screenshot({

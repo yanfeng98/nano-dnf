@@ -1,0 +1,94 @@
+{
+  "native_frames": [
+    {
+      "name": "prizeFrame",
+      "rect": [
+        2921,
+        0,
+        153,
+        97
+      ],
+      "folder": "ImagePacks2",
+      "pack": "sprite_interface2_reward_ver2.0.NPK",
+      "entry": "sprite/interface2/reward_ver2.0/reward_ver2.img",
+      "frame": 41,
+      "offset": [
+        3,
+        3
+      ],
+      "rgba_sha256": "df89d1d4d6164380928555e91b849ed7978855090ab503f51fb3a1de32f7bae0"
+    },
+    {
+      "name": "prizePicture",
+      "rect": [
+        3074,
+        0,
+        141,
+        61
+      ],
+      "folder": "ImagePacks2",
+      "pack": "sprite_interface2_reward_ver2.0.NPK",
+      "entry": "sprite/interface2/reward_ver2.0/reward_ver2.img",
+      "frame": 43,
+      "offset": [
+        9,
+        9
+      ],
+      "rgba_sha256": "c76f1672350fef8750eef93711d0d59b6526c9c92f450760d695f39cce116322"
+    },
+    {
+      "name": "staffIcon",
+      "rect": [
+        3215,
+        0,
+        28,
+        28
+      ],
+      "folder": "ImagePacks2_70",
+      "pack": "sprite_item_weapon_mage.NPK",
+      "entry": "sprite/item/weapon/mage/staff.img",
+      "frame": 1,
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "3c5438c2494e9f4a5f08bfda20e58a3ba11744e90a7a46e4172451ae1ece2a1a"
+    },
+    {
+      "name": "totemIcon",
+      "rect": [
+        3243,
+        0,
+        28,
+        28
+      ],
+      "folder": "ImagePacks2_70",
+      "pack": "sprite_item_weapon_priest.NPK",
+      "entry": "sprite/item/weapon/priest/totem.img",
+      "frame": 2,
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "4fbbcf65e0b1aab60bda0391e1e160db48f6187a39355c8811549f5e324f77af"
+    },
+    {
+      "name": "prizeBand",
+      "rect": [
+        3271,
+        0,
+        732,
+        110
+      ],
+      "folder": "ImagePacks2",
+      "pack": "sprite_interface2_reward_ver2.0.NPK",
+      "entry": "sprite/interface2/reward_ver2.0/reward_ver2.img",
+      "frame": 34,
+      "offset": [
+        0,
+        3
+      ],
+      "rgba_sha256": "3580ed37812d88a74b22bcfdb23c4aeedea0e5f77506fc320f951fa473afcb8e"
+    }
+  ]
+}

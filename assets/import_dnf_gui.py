@@ -4,8 +4,9 @@
 The town needs real windows rather than procedure-drawn boxes (`docs/adr/0065`).
 Entries are the old-style interface frames 2026-10-24 measured from
 `sprite_interface.NPK`; item icons are 28x28 frames from the stackable sheet.
-No item-ID -> frame table exists (Script.pvf is encrypted), so the icon frames
-below are a small hand-picked set, labelled by what they are used for.
+The generic UI icon frames below are hand-picked candidates. Recorded prize
+weapons now have verified Script_70.pvf links; see scripts/inspect-reference-prize-items.py
+and import_dnf_results.py. Do not treat the older candidates as verified item mappings.
 
     python3 assets/import_dnf_gui.py --client /home/luyanfeng/dnf-client/地下城与勇士
     python3 assets/import_dnf_gui.py --table

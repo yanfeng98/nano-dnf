@@ -32,22 +32,25 @@ try {
   circle:fs.readFileSync(path.join(root,'docs/reference-evidence/25-reward-circle-reference.png')).toString('base64'),
   blue:fs.readFileSync(path.join(root,'docs/reference-evidence/26-blue-card-reference.png')).toString('base64'),
   gold:fs.readFileSync(path.join(root,'docs/reference-evidence/26-gold-card-reference.png')).toString('base64'),
+  prizes:['staff','totem'].map(label=>fs.readFileSync(path.join(root,`docs/reference-evidence/30-${label}-prize-reference.png`)).toString('base64')),
   digits:[1,2,3].map(n=>fs.readFileSync(path.join(root,`docs/reference-evidence/25-countdown-${n===3?'three':n}-reference.png`)).toString('base64'))
  };
  const captured=await page.evaluate(async(reference)=>{
   const {original,meta}=window.captureResults;window.DNFRender.render=original;delete window.captureResults;
   const result=[],contexts={};
-  for(const [label,phase,t,elapsed,countdown=3] of [['chest','chest',.3,12.5],['blue','cards',1.2,15.333333],['spread','cards',.6,14.733333],['preHint','cards',1.95,16],['hintOnly','cards',2.1,16.1],['cards','cards',1.5,16.5],['cards-2','cards',1.5,17.5,2],['cards-1','cards',1.5,18.5,1],['reveal','reveal',1.5,21.5],['fade-start','fade',0,20],['fade-half','fade',.4,20],['fade-last','fade',.79,20],['world','done',.01,20]]){
-   const state=window.DNFCore.createState({seed:24,referenceProfile:true});
+  for(const [label,phase,t,elapsed,countdown=3] of [['chest','chest',.3,12.5],['blue','cards',1.2,15.333333],['spread','cards',.6,14.733333],['preHint','cards',1.95,16],['hintOnly','cards',2.1,16.1],['cards','cards',1.5,16.5],['cards-2','cards',1.5,17.5,2],['cards-1','cards',1.5,18.5,1],['reveal','reveal',1.5,21.5],['reveal-deep','reveal',1.5,21.5],['reveal-third','reveal',1.5,21.5],['fade-start','fade',0,20],['fade-half','fade',.4,20],['fade-last','fade',.79,20],['world','done',.01,20]]){
+   const state=window.DNFCore.createState({seed:24,referenceProfile:true,stage:label==='reveal-deep'?'mirkwooddeep':'mirkwood'});
    state.victory=true;state.finishedAt=0;state.time=elapsed;state.intro=null;state.transition=0;state.enemies=[];state.postClear=phase==='done';state.stage={...state.stage,rain:false};
-   const R=window.DNFReward,flow=R.create({seed:24});
+   const R=window.DNFReward,flow=R.create({seed:24,stage:state.stage.id});
    const age=label.startsWith('cards') ? R.TIMES.countdownAt+(3-countdown)+.2 : t;
    const total=phase==='chest' ? R.TIMES.stats+age
      : phase==='cards' ? R.TIMES.stats+R.TIMES.chest+age
      : R.TIMES.stats+R.TIMES.chest+R.TIMES.countdownAt+R.TIMES.countdown
        +(phase==='fade'||phase==='done' ? R.TIMES.reveal : 0)
        +(phase==='done' ? R.TIMES.fade : 0)+age;
-   R.step(flow,total);
+   if(label==='reveal-third'){
+    R.step(flow,R.TIMES.stats+R.TIMES.chest+R.TIMES.flip);R.pick(flow,2);R.step(flow,age);
+   }else R.step(flow,total);
    const reward={...R.snapshot(flow),elapsed};
    const c=document.createElement('canvas');c.width=960;c.height=540;
    contexts[label]=c.getContext('2d');
@@ -88,6 +91,22 @@ try {
    return dot/Math.sqrt(a2*b2);
   }
   const blue=await cardCosine('blue',reference.blue),gold=await cardCosine('cards',reference.gold);
+  const prizeCosines=[];
+  for(const [label,encoded] of [['reveal',reference.prizes[0]],['reveal-deep',reference.prizes[1]]]){
+   const ref=await pixels(encoded),actual=contexts[label].getImageData(129,188,172,109).data;
+   let dot=0,a2=0,b2=0;
+   // Texture and item socket only: system-font localization is still pending.
+   for(let y=6;y<50;y++)for(let x=6;x<164;x++)for(let k=0;k<3;k++){
+    const i=(y*172+x)*4+k;dot+=ref[i]*actual[i];a2+=ref[i]**2;b2+=actual[i]**2;
+   }
+   prizeCosines.push(dot/Math.sqrt(a2*b2));
+  }
+  function cyanCount(label,x){
+   const pixels=contexts[label].getImageData(x,188,172,109).data;let n=0;
+   for(let i=0;i<pixels.length;i+=4)if(pixels[i+1]>150&&pixels[i+2]>200&&pixels[i]<150)n++;
+   return n;
+  }
+  const thirdCardCyan=cyanCount('reveal-third',487),firstCardCyanAfterThird=cyanCount('reveal-third',129);
   const mid=contexts.spread.getImageData(120,190,720,110).data;let left=720,right=-1;
   for(let x=0;x<720;x++){
    let count=0;
@@ -115,12 +134,14 @@ try {
   const hudData=contexts.chest.getImageData(135,465,30,55).data;
   let hudChestRed=0;
   for(let i=0;i<hudData.length;i+=4)if(hudData[i]>50&&hudData[i]>2*hudData[i+1]&&hudData[i]>2*hudData[i+2])hudChestRed++;
-  return {images:result,measurement:{fadeHalfError,fadeLastError,hudChestRed,circleCorrelation:circle,digits,blueCardCosine:blue,goldCardCosine:gold,
+  return {images:result,measurement:{thirdCardCyan,firstCardCyanAfterThird,prizeCosines,fadeHalfError,fadeLastError,hudChestRed,circleCorrelation:circle,digits,blueCardCosine:blue,goldCardCosine:gold,
     spreadBounds:[left,right],promptBefore,promptAfter,counterBefore,counterAfter}};
  },reference);
  for(const c of captured.images)fs.writeFileSync(path.join(out,`${c.label}.png`),Buffer.from(c.url.split(',')[1],'base64'));
  fs.writeFileSync(path.join(out,'measurement.json'),JSON.stringify(captured.measurement,null,2)+'\n');
  console.log(`result poses: ${out}`,captured.measurement);
+ assert.ok(captured.measurement.thirdCardCyan>250&&captured.measurement.firstCardCyanAfterThird<50,'manual third-card selection reveals in column three instead of column one');
+ for(const cosine of captured.measurement.prizeCosines)assert.ok(cosine>.94,"the prize card texture and weapon socket match the reference region");
  assert.ok(captured.measurement.fadeHalfError<1&&captured.measurement.fadeLastError<1,'the complete result page fades into the same world without darkening overlapping layers twice');
  assert.ok(captured.measurement.hudChestRed>100,'the recorded bottom HUD remains visible under the result page');
  assert.ok(captured.measurement.circleCorrelation>.7,'the native circle must match the recorded rotation and geometry');

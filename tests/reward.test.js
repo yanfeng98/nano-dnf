@@ -11,7 +11,7 @@ test("the card reward is deterministic per seed", () => {
   const right = Reward.snapshot(Reward.create({ seed: Core.DEFAULT_SEED }));
   assert.deepEqual(right, left, "同一个种子要翻出同一张牌");
   assert.ok(left.item && left.item.length > 0);
-  assert.ok(left.gold >= 500 && left.gold < 3500, `gold ${left.gold}`);
+  assert.equal(left.gold, 3526, "the default reference stage uses its observed reward");
   assert.ok(left.cards === 4, "参考是四张牌");
 });
 
@@ -68,18 +68,19 @@ test("a pick outside the card phase does nothing", () => {
   assert.equal(Reward.pick(reward, 0), false, "宝箱还没开完也不能选");
 });
 
-test("different seeds do not all pay the same card", () => {
-  const paid = [1, 7, 42, 20260915, 5, 99, 1234].map((seed) => {
-    const reward = Reward.create({ seed });
-    return reward.item + ":" + reward.gold;
-  });
-  assert.ok(new Set(paid).size > 1, `the reward must vary: ${paid.join(" | ")}`);
+test("reference stage prizes stay tied to the recording across seeds", () => {
+  for (const seed of [1,7,42,20260915]) {
+    assert.equal(Reward.create({seed,stage:"mirkwood"}).itemId,"ancientStaff");
+    assert.equal(Reward.create({seed,stage:"mirkwooddeep"}).itemId,"kunicTotem");
+  }
+  assert.equal(Reward.create({stage:"unrecorded"}),null,"do not invent an observed prize for unknown stages");
 });
 
-test("the item is one of the client's own cyan loot names", () => {
-  const pool = Core.LOOT.cyan;
-  for (let seed = 1; seed <= 50; seed += 1) {
-    assert.ok(pool.includes(Reward.create({ seed }).item), `seed ${seed} paid an unknown item`);
+test("the selected prize name is the persistent catalog item's display name", () => {
+  const Progress = require("../src/progress.js");
+  for (const stage of ["mirkwood","mirkwooddeep"]) {
+    const reward = Reward.create({stage});
+    assert.equal(reward.item,Progress.ITEMS[reward.itemId].name);
   }
 });
 
@@ -188,4 +189,30 @@ test("the prize holds for three seconds then fades for eight tenths before Conti
   Reward.step(reward, .01);
   assert.equal(reward.phase, "done");
   assert.equal(Reward.snapshot(reward).opacity, 0);
+});
+
+test("recorded stage prizes use the observed weapon and gold rather than the unrelated loot pool", () => {
+  for (const [stage,id,item,gold] of [
+    ["mirkwood","ancientStaff","古老的法杖",3526],
+    ["mirkwooddeep","kunicTotem","古老的库尼族图腾",6094]
+  ]) {
+    const reward = Reward.create({ stage, seed: 30 });
+    assert.equal(reward.itemId,id);
+    assert.equal(reward.item,item);
+    assert.equal(reward.gold,gold);
+  }
+});
+
+test("a selected prize can be taken exactly once, including after a long frame crosses the reveal", () => {
+  const reward = Reward.create({ stage: "mirkwooddeep", seed: 30 });
+  assert.equal(typeof Reward.takePrize,"function");
+  assert.equal(Reward.takePrize(reward),null,"no payment before selection");
+  Reward.step(reward,30);
+  assert.deepEqual(Reward.takePrize(reward),{itemId:"kunicTotem",gold:6094});
+  assert.equal(Reward.takePrize(reward),null,"subsequent frames cannot pay the same selection again");
+  const manual = Reward.create({stage:"mirkwood"});
+  Reward.step(manual,Reward.TIMES.stats+Reward.TIMES.chest+Reward.TIMES.flip);
+  Reward.pick(manual,2);
+  assert.deepEqual(Reward.takePrize(manual),{itemId:"ancientStaff",gold:3526});
+  assert.equal(Reward.takePrize(manual),null);
 });

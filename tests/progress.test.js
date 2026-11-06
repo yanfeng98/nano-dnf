@@ -137,3 +137,28 @@ test("normalization retains only catalog items with finite counts and matching e
   assert.equal(loaded.equipment.ring, null, "armor cannot occupy the ring slot");
   assert.equal(loaded.equipment.top, "clothArmor", "valid equipped gear remains intact");
 });
+
+test("the recorded caster weapons persist in the bag and cannot be equipped by the Slayer", () => {
+  const profile = Progress.defaults(), storage = memoryStorage();
+  for (const id of ["ancientStaff","kunicTotem"]) {
+    assert.equal(Progress.addItem(profile,id,1),true);
+    assert.equal(Progress.equip(profile,id,{job:"swordman",level:99}),false);
+  }
+  Progress.save(profile,storage);
+  const restored = Progress.load(storage);
+  assert.equal(restored.items.ancientStaff,1);
+  assert.equal(restored.items.kunicTotem,1);
+  assert.equal(Progress.equip(restored,"ancientStaff",{job:"mage",level:2}),false);
+  assert.equal(Progress.equip(restored,"ancientStaff",{job:"mage",level:3}),true);
+  assert.equal(Progress.equip(restored,"kunicTotem",{job:"priest",level:5}),true);
+});
+
+
+test("recorded prize catalog attributes agree with the independently decoded local client entries", () => {
+  const evidence = require("../docs/reference-evidence/30-prize-item-metadata.json").items;
+  for (const id of ["ancientStaff","kunicTotem"]) {
+    assert.equal(Progress.ITEMS[id].minLevel,evidence[id].minLevel);
+    assert.equal(Progress.ITEMS[id].price,evidence[id].price);
+    assert.deepEqual(Progress.ITEMS[id].jobs,evidence[id].jobs);
+  }
+});

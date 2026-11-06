@@ -1,0 +1,39 @@
+{
+  "thirdCardCyan": 1328,
+  "firstCardCyanAfterThird": 0,
+  "prizeCosines": [
+    0.9715776247407962,
+    0.9724638782191705
+  ],
+  "fadeHalfError": 0.6141428571428571,
+  "fadeLastError": 0.6007870370371104,
+  "hudChestRed": 1004,
+  "circleCorrelation": 0.8033059978250859,
+  "digits": [
+    {
+      "value": 1,
+      "cosine": 0.9860250139164781,
+      "pixels": 117
+    },
+    {
+      "value": 2,
+      "cosine": 0.990068592361417,
+      "pixels": 254
+    },
+    {
+      "value": 3,
+      "cosine": 0.995716325456153,
+      "pixels": 182
+    }
+  ],
+  "blueCardCosine": 0.9950405950725524,
+  "goldCardCosine": 0.9805250125325515,
+  "spreadBounds": [
+    143,
+    579
+  ],
+  "promptBefore": 0,
+  "promptAfter": 2253,
+  "counterBefore": 0,
+  "counterAfter": 198
+}

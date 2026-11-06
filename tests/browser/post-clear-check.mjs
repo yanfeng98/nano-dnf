@@ -9,14 +9,17 @@ export async function checkPostClear(page, out) {
   await page.evaluate(() => window.nanoDnf.leaveTown());
   await page.keyboard.press('Enter');
   await page.waitForFunction(() => !window.nanoDnf.getProgress().regionOpen);
-  async function finish(pauseAtFade=false) {
-    await page.evaluate(pauseAtFade => {
+  async function finish(pauseAtFade=false, manual=false) {
+    await page.evaluate(({pauseAtFade,manual}) => {
       const C=window.DNFCore, api=window.nanoDnf, s=api.getState();
       s.intro=null;s.transition=0;s.enemies=[];s.props=[];
       s.room.pendingWave=[];s.room.pendingWaves=[];s.room.cleared=true;
       C.currentCell(s).cleared=true;s.victory=true;
       const R=window.DNFReward, original=R.step;
       R.step=(reward,dt)=>{
+        if (manual) {
+          R.step=original;return original(reward,R.TIMES.stats+R.TIMES.chest+R.TIMES.flip);
+        }
         if (pauseAtFade) {
           original(reward,R.TIMES.stats+R.TIMES.chest+R.TIMES.countdownAt+R.TIMES.countdown+R.TIMES.reveal+.4);
           R.step=()=>reward;
@@ -25,7 +28,11 @@ export async function checkPostClear(page, out) {
         }
         R.step=original;return original(reward,30);
       };
-    },pauseAtFade);
+    },{pauseAtFade,manual});
+    if (manual) {
+      await page.waitForFunction(()=>window.nanoDnf.getReward()?.phase==='cards'&&window.nanoDnf.getReward().faceUp);
+      return;
+    }
     if (pauseAtFade) {
       await page.waitForFunction(()=>window.nanoDnf.getReward()?.phase==='fade');
       assert.equal(await page.evaluate(()=>window.nanoDnf.getState().postClear),false,'Continue waits for the fade');
@@ -46,7 +53,12 @@ export async function checkPostClear(page, out) {
     },action);
     await page.mouse.click(box.x+point.x*box.width/960,box.y+point.y*box.height/540);
   }
+  const beforePrize=await page.evaluate(()=>window.nanoDnf.getProgressState());
   await finish(true);
+  const firstPrize=await page.evaluate(()=>({profile:window.nanoDnf.getProgressState(),reward:window.nanoDnf.getReward()}));
+  assert.equal(firstPrize.reward.claimed,true);
+  assert.equal(firstPrize.profile.gold,beforePrize.gold+3526);
+  assert.equal(firstPrize.profile.items.ancientStaff,(beforePrize.items.ancientStaff||0)+1);
   const x=await page.evaluate(()=>window.nanoDnf.getState().player.x);
   await page.keyboard.down('ArrowRight');
   await page.waitForFunction(x=>window.nanoDnf.getState().player.x>x+10,x);
@@ -79,7 +91,24 @@ export async function checkPostClear(page, out) {
   await page.waitForFunction(()=>!window.nanoDnf.getState().victory);
   assert.equal(await page.evaluate(()=>window.nanoDnf.getReward()),null,'retry creates a fresh reward flow');
   assert.equal(await page.evaluate(()=>window.nanoDnf.getState().postClear),false);
-  await finish();await click('select');
+  const beforeManual=await page.evaluate(()=>window.nanoDnf.getProgressState());
+  await finish(false,true);
+  await page.keyboard.press('Digit3');
+  await page.keyboard.press('F4');
+  await page.waitForFunction(()=>window.nanoDnf.getTown().open);
+  const manualPrize=await page.evaluate(()=>window.nanoDnf.getProgressState());
+  assert.equal(manualPrize.gold,beforeManual.gold+3526,'manual selection banks before immediate return to town');
+  assert.equal(manualPrize.items.ancientStaff,(beforeManual.items.ancientStaff||0)+1);
+  await page.evaluate(()=>window.nanoDnf.leaveTown());
+  await page.keyboard.press('ArrowRight');await page.keyboard.press('Enter');
+  await page.waitForFunction(()=>!window.nanoDnf.getProgress().regionOpen);
+  assert.equal(await page.evaluate(()=>window.nanoDnf.getStage()),'mirkwooddeep');
+  const beforeDeep=await page.evaluate(()=>window.nanoDnf.getProgressState());
+  await finish();
+  const deepPrize=await page.evaluate(()=>window.nanoDnf.getProgressState());
+  assert.equal(deepPrize.gold,beforeDeep.gold+6094);
+  assert.equal(deepPrize.items.kunicTotem,(beforeDeep.items.kunicTotem||0)+1);
+  await click('select');
   await page.waitForFunction(()=>window.nanoDnf.getProgress().regionOpen);
   await page.keyboard.press('Enter');
   await page.waitForFunction(()=>!window.nanoDnf.getProgress().regionOpen);
@@ -94,9 +123,14 @@ export async function checkPostClear(page, out) {
   const restored=await page.evaluate(()=>({
     profile:window.nanoDnf.getProgressState(), stages:window.nanoDnf.getProgress()
   }));
-  assert.equal(restored.profile.gold,persisted.profile.gold,'clear and post-clear gold survive reload');
+  assert.equal(restored.profile.gold,persisted.profile.gold,'clear, card and post-clear gold survive reload');
+  assert.equal(restored.profile.items.ancientStaff,persisted.profile.items.ancientStaff);
+  assert.equal(restored.profile.items.kunicTotem,persisted.profile.items.kunicTotem);
   assert.deepEqual(restored.profile.cleared,persisted.profile.cleared,'profile clear history survives reload');
   assert.deepEqual(restored.stages.cleared,persisted.stages.cleared,'stage unlock history has its own surviving store');
   assert.deepEqual(restored.stages.open,persisted.stages.open,'the next stage remains open after reload');
+  fs.writeFileSync(path.join(out,'prize-payment-measurement.json'),JSON.stringify({
+    beforePrize,firstPrize,beforeManual,manualPrize,beforeDeep,deepPrize,restored
+  },null,2)+'\n');
   console.log('post-clear play + Continue retry/select/town + profile/unlock persistence OK');
 }

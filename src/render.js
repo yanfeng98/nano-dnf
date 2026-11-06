@@ -7328,7 +7328,7 @@
         ctx.fillText((item ? item.name : id) + " × " + count, x + 18, lineY);
         ctx.fillStyle = "rgba(190, 205, 220, 0.7)";
         ctx.fillText(item && item.category === "consumable"
-          ? "1 / 2 使用" : (item ? item.category : ""), x + 170, lineY);
+          ? "1 / 2 使用" : (item && item.jobs ? item.note : ({equipment:"装备",material:"材料",quest:"任务物品"}[item && item.category] || "")), x + 170, lineY);
         lineY += 22;
       });
       ctx.fillStyle = "rgba(190, 205, 220, 0.8)";
@@ -8651,6 +8651,15 @@
     continueRetry: [2677, 0, 66, 19],
     continueSelect: [2743, 0, 112, 19],
     continueTown: [2855, 0, 66, 19],
+    prizeFrame: [2921, 0, 153, 97],
+    prizePicture: [3074, 0, 141, 61],
+    staffIcon: [3215, 0, 28, 28],
+    totemIcon: [3243, 0, 28, 28],
+    // Foreground silhouettes at V1 354/355s and V2 406/407s both support
+    // ~32px at (74,205). Whole-icon RGB fitting is biased by the noisy black
+    // texture and incorrectly suggests a smaller staff; do not use it alone.
+    prizeIconPositions: { staffIcon: [194.25, 204.875, 31.5, 31.5], totemIcon: [194.25, 204.875, 31.5, 31.5] },
+    prizeBand: [3271, 0, 732, 110],
     cardGold: [882, 0, 153, 97],
     cardGlow: [1035, 0, 162, 107],
     cardBurst: [1197, 0, 402, 402],
@@ -8688,6 +8697,14 @@
                     -236.25, -236.25, 472.5, 472.5);
     }
     ctx.restore();
+  }
+
+  function drawRewardBand(ctx, sprites) {
+    if (!sprites || !sprites.results) return;
+    var band = RESULT_ART.prizeBand;
+    // Native black gradient f34, not the later blue panel f103. The 732px
+    // gradient spans the 640px client window; 1.125x wings are clipped.
+    ctx.drawImage(sprites.results, band[0], band[1], band[2], band[3], 68.25, 180, 823.5, 123.75);
   }
 
   var rewardFadeCanvas = null;
@@ -8746,13 +8763,16 @@
                     473, 154, 180, 159.75);
     }
 
+    if (reward.phase === "reveal" || reward.phase === "fade" || reward.phase === "done") {
+      drawRewardBand(ctx, sprites);
+    }
     if (cardsUp) {
       /* The band fades in after the spread starts; V1's exposed left patch
        * stays unchanged until ~.4s, then darkens while the cards move out. */
       ctx.save();
       var spread = typeof reward.spread === "number" ? reward.spread : 1;
       ctx.globalAlpha *= Math.max(0, Math.min(1, (spread - 1 / 3) * 1.5));
-      drawUiFrame(ctx, sheet, UI.rewardBand, 0, 120, 180, 720, 124);
+      drawRewardBand(ctx, sprites);
       ctx.restore();
       drawRewardCards(ctx, sprites, reward);
       if (reward.promptVisible) {
@@ -8781,14 +8801,18 @@
     if (reward.phase === "reveal" || reward.phase === "fade" || reward.phase === "done") {
       /*
        * 领奖详情：左边玩家名条（f60）与物品卡（复用青边卡框）。录像的奖励是
-       * 「古老的法杖 ×1 + 3526 金币」；本作的物品名与金币由 `Reward` 按种子给。
+       * 两段录像的已知奖品由 Reward 的关卡参考记录提供。
        */
       /*
        * 名条（f60）左端那个黑方块是**玩家头像位**，右边整条橙底才是名字。
        * 名字要压在橙底里、和黑方块同一条水平中线；物品卡紧贴在名条箭头下面
        * （参考里两者只隔几像素，不是隔着一大块魔法阵）。
        */
-      var plateX = 130;
+      // Keep a manual selection in its own column; the recordings both pick
+      // column zero. The owner previously reported third-card selection moving
+      // to the wrong card, so all positions share the existing card pitch.
+      var prizeShift = (reward.picked || 0) * (REWARD_UI.cardW + REWARD_UI.cardGap);
+      var plateX = 130 + prizeShift;
       var plateY = 128;
       var plateW = 160;
       var plateH = 63;
@@ -8830,31 +8854,30 @@
       ctx.fillText(playerName || "鬼剑士", plateX + 84, plateY + 24);
       ctx.textBaseline = "alphabetic";
 
-      var cardX = 130;
-      var cardY = 193;
-      var cardW = 167;
-      var cardH = 104;
-      drawUiFrame(ctx, sheet, UI.rewardCardFrame, 0, cardX, cardY, cardW, cardH);
-      ctx.fillStyle = "rgba(8, 16, 30, 0.82)";
-      ctx.fillRect(cardX + 8, cardY + 8, cardW - 16, cardH - 16);
-      /*
-       * 物品名与金币行**居中**：参考里这两行都在物品卡的中线上，不是左对齐
-       * （业主 2026-10-18：「名字还是没对齐」）。金币图标放在文字左边。
-       */
+      // Native f41 includes the coin; f43 is the treasure texture and icon
+      // socket. V1 354s / V2 406s retain this same 1.125x card at approximately (8,188).
+      var cardX = 128.25 + prizeShift, cardY = 188;
+      if (sprites && sprites.results) {
+        var frame = RESULT_ART.prizeFrame, picture = RESULT_ART.prizePicture;
+        ctx.drawImage(sprites.results, frame[0], frame[1], frame[2], frame[3], cardX, cardY, 172.125, 109.125);
+        ctx.drawImage(sprites.results, picture[0], picture[1], picture[2], picture[3], cardX + 6.75, cardY + 6.75, 158.625, 68.625);
+        var item = Progress && Progress.ITEMS[reward.itemId];
+        var icon = item && RESULT_ART[item.icon];
+        var iconPosition = item && RESULT_ART.prizeIconPositions[item.icon];
+        if (icon && iconPosition) ctx.drawImage(sprites.results, icon[0], icon[1], icon[2], icon[3],
+          iconPosition[0] + prizeShift, iconPosition[1], iconPosition[2], iconPosition[3]);
+      }
       ctx.textAlign = "center";
-      ctx.font = "700 15px 'PingFang SC', 'Segoe UI', system-ui, sans-serif";
+      ctx.font = "700 14px 'PingFang SC', 'Segoe UI', system-ui, sans-serif";
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = "#07121c";
+      ctx.strokeText(reward.item, cardX + 86.0625, 255);
       ctx.fillStyle = "#f1f5f8";
-      ctx.fillText(reward.item, cardX + cardW / 2, cardY + 48);
-      var goldLabel = "+" + reward.gold + " 金币";
-      ctx.font = "700 13px 'PingFang SC', 'Segoe UI', system-ui, sans-serif";
-      var goldW = ctx.measureText(goldLabel).width;
-      var goldX = cardX + cardW / 2 + 7;
-      ctx.fillStyle = "#d8a83c";
-      ctx.beginPath();
-      ctx.arc(goldX - goldW / 2 - 5, cardY + 73, 7, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = "#ffe9a8";
-      ctx.fillText(goldLabel, goldX, cardY + 78);
+      ctx.fillText(reward.item, cardX + 86.0625, 255);
+      var goldLabel = "+" + reward.gold + "金币";
+      ctx.strokeText(goldLabel, cardX + 86.0625, 281);
+      ctx.fillStyle = "#f1f5f8";
+      ctx.fillText(goldLabel, cardX + 86.0625, 281);
 
       if (reward.phase === "done") {
         ctx.textAlign = "center";

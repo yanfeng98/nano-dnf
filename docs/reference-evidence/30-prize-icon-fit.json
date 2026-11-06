@@ -1,0 +1,150 @@
+[
+  {
+    "video": 1,
+    "time": 354,
+    "icon": "staffIcon",
+    "source": {
+      "folder": "ImagePacks2_70",
+      "pack": "sprite_item_weapon_mage.NPK",
+      "entry": "sprite/item/weapon/mage/staff.img",
+      "frame": 1,
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "3c5438c2494e9f4a5f08bfda20e58a3ba11744e90a7a46e4172451ae1ece2a1a"
+    },
+    "fit": {
+      "score": 0.8357189297676086,
+      "scale": 0.9650000000000002,
+      "x": 76,
+      "y": 207,
+      "size": [
+        27,
+        27
+      ]
+    },
+    "foreground_fit": {
+      "score": 0.8794615268707275,
+      "scale": 1.1400000000000003,
+      "x": 74,
+      "y": 205,
+      "size": [
+        32,
+        32
+      ]
+    },
+    "caution": "Whole-icon RGB fit includes black dithering; use foreground/held-out frames to judge size."
+  },
+  {
+    "video": 1,
+    "time": 355,
+    "icon": "staffIcon",
+    "source": {
+      "folder": "ImagePacks2_70",
+      "pack": "sprite_item_weapon_mage.NPK",
+      "entry": "sprite/item/weapon/mage/staff.img",
+      "frame": 1,
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "3c5438c2494e9f4a5f08bfda20e58a3ba11744e90a7a46e4172451ae1ece2a1a"
+    },
+    "fit": {
+      "score": 0.8328179121017456,
+      "scale": 0.9650000000000002,
+      "x": 76,
+      "y": 207,
+      "size": [
+        27,
+        27
+      ]
+    },
+    "foreground_fit": {
+      "score": 0.8895191550254822,
+      "scale": 1.1250000000000004,
+      "x": 74,
+      "y": 205,
+      "size": [
+        32,
+        32
+      ]
+    },
+    "caution": "Whole-icon RGB fit includes black dithering; use foreground/held-out frames to judge size."
+  },
+  {
+    "video": 2,
+    "time": 406,
+    "icon": "totemIcon",
+    "source": {
+      "folder": "ImagePacks2_70",
+      "pack": "sprite_item_weapon_priest.NPK",
+      "entry": "sprite/item/weapon/priest/totem.img",
+      "frame": 2,
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "4fbbcf65e0b1aab60bda0391e1e160db48f6187a39355c8811549f5e324f77af"
+    },
+    "fit": {
+      "score": 0.874382495880127,
+      "scale": 1.1200000000000003,
+      "x": 74,
+      "y": 205,
+      "size": [
+        31,
+        31
+      ]
+    },
+    "foreground_fit": {
+      "score": 0.7681339979171753,
+      "scale": 1.1250000000000004,
+      "x": 74,
+      "y": 205,
+      "size": [
+        32,
+        32
+      ]
+    },
+    "caution": "Whole-icon RGB fit includes black dithering; use foreground/held-out frames to judge size."
+  },
+  {
+    "video": 2,
+    "time": 407,
+    "icon": "totemIcon",
+    "source": {
+      "folder": "ImagePacks2_70",
+      "pack": "sprite_item_weapon_priest.NPK",
+      "entry": "sprite/item/weapon/priest/totem.img",
+      "frame": 2,
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "4fbbcf65e0b1aab60bda0391e1e160db48f6187a39355c8811549f5e324f77af"
+    },
+    "fit": {
+      "score": 0.8760910630226135,
+      "scale": 1.1200000000000003,
+      "x": 74,
+      "y": 205,
+      "size": [
+        31,
+        31
+      ]
+    },
+    "foreground_fit": {
+      "score": 0.7849269509315491,
+      "scale": 1.1250000000000004,
+      "x": 74,
+      "y": 205,
+      "size": [
+        32,
+        32
+      ]
+    },
+    "caution": "Whole-icon RGB fit includes black dithering; use foreground/held-out frames to judge size."
+  }
+]

@@ -1125,10 +1125,10 @@
    */
   function syncFinishedRun() {
     /*
-     * 通关那一帧起一张翻牌奖励（`docs/adr/0055`）。它按种子确定：同一个种子
-     * 给同一件物品与同一笔金币。
+     * 通关那一帧起一张翻牌奖励（`docs/adr/0055`）。奖品对应两段录像的已知
+     * 关卡参考结果；尚未从录像推导通用随机掉落公式。
      */
-    if (state.victory && !reward && Reward) reward = Reward.create({ seed: currentSeed });
+    if (state.victory && !reward && Reward) reward = Reward.create({ seed: currentSeed, stage: currentStage });
     if (finishedRun || (!state.victory && !state.defeat)) return;
     finishedRun = {
       seed: currentSeed,
@@ -1141,6 +1141,22 @@
       rooms: state.dungeon ? state.dungeon.cells.length : 0,
       victory: state.victory
     };
+  }
+
+  function syncRewardPrize() {
+    if (!Progress || !progress || !reward || !Progress.ITEMS[reward.itemId]) return;
+    var prize = Reward.takePrize(reward);
+    if (!prize) return;
+    Progress.addItem(progress, prize.itemId, 1);
+    Progress.addGold(progress, prize.gold);
+    saveProfile();
+  }
+
+  function chooseReward(index) {
+    if (!reward || !Reward || !Reward.pick(reward, index)) return false;
+    // Bank in the same input event, before F3/F4 can discard the presentation.
+    syncRewardPrize();
+    return true;
   }
 
   /* What the title and victory screens need, without leaking storage details. */
@@ -1322,7 +1338,7 @@
       if (rewardCard !== null) {
         event.preventDefault();
         ensureAudio();
-        Reward.pick(reward, rewardCard);
+        chooseReward(rewardCard);
         return;
       }
     }
@@ -1503,7 +1519,7 @@
     if (state.victory && reward && reward.phase === "cards") {
       var rewardCard = REWARD_KEYS[event.code];
       if (rewardCard !== undefined) {
-        Reward.pick(reward, rewardCard);
+        chooseReward(rewardCard);
         event.preventDefault();
         return;
       }
@@ -1693,10 +1709,10 @@
     if (!Progress || !progress) return false;
     var id = Object.keys(progress.items).find(function (key) {
       var item = Progress.ITEMS[key];
-      return item && item.category === "equipment" && progress.items[key] > 0;
+      return item && Progress.canEquip(progress, key, { job: "swordman", level: state.player.level });
     });
     if (!id) return false;
-    var ok = Progress.equip(progress, id);
+    var ok = Progress.equip(progress, id, { job: "swordman", level: state.player.level });
     if (ok) saveProfile();
     return ok;
   }
@@ -1833,7 +1849,7 @@
     if (!Progress || !progress) return;
     var id = Object.keys(progress.items).find(function (key) {
       var item = Progress.ITEMS[key];
-      return item && item.category === "equipment" && progress.items[key] > 0;
+      return item && Progress.canEquip(progress, key, { job: "swordman", level: state.player.level });
     });
     if (!id) {
       town.panelMessage = "没有可分解的装备";
@@ -2099,6 +2115,7 @@
      */
     if (state.victory && reward && !paused && !regionOpen) {
       Reward.step(reward, delta);
+      syncRewardPrize();
       if (reward.phase === "done") Core.resumeAfterClear(state);
     }
 
@@ -2367,7 +2384,7 @@
     },
     /* 证明里也用它直接选一张，和键盘/点击走同一个入口。 */
     pickReward: function (index) {
-      return !!(reward && Reward && Reward.pick(reward, index));
+      return chooseReward(index);
     },
     /* 加载屏的进度，浏览器证明用它等到标题演示真的开始。 */
     getAssetState: function () {

@@ -3,7 +3,7 @@
  *
  * 纯状态机 + 纯函数：它只说"现在该到哪一拍、选的是哪张、给什么"，不碰 DOM、
  * 不碰 canvas、也不碰存储。表现层在 `src/render.js`，输入在 `src/main.js`。
- * 这样翻牌的时序、倒计时自动选最左一张、以及"同一个种子给同一份奖励"都能单测。
+ * 这样翻牌时序、自动选择、录像参考奖品以及一次选牌只发一次奖都能单测。
  *
  * 参考录像（`dnf-dungeon-videos/00001-幽暗密林.mp4`，约 343.5–356s）：
  * 战绩页之后另起一页 `奖励`：蓝色魔法阵、中央红木宝箱打开、四张牌背、
@@ -12,11 +12,11 @@
  */
 (function (root, factory) {
   if (typeof module === "object" && module.exports) {
-    module.exports = factory(require("./core.js"));
+    module.exports = factory(require("./core.js"), require("./progress.js"));
   } else {
-    root.DNFReward = factory(root.DNFCore);
+    root.DNFReward = factory(root.DNFCore, root.DNFProgress);
   }
-})(typeof self !== "undefined" ? self : this, function (Core) {
+})(typeof self !== "undefined" ? self : this, function (Core, Progress) {
   "use strict";
 
   /* V1 346.63..352.13 / V2 399.2..404.7: 1.2s spread, then
@@ -40,32 +40,29 @@
   };
   var CARD_COUNT = 4;
 
-  /** A small deterministic mix of the run's seed: the same seed pays the same card. */
-  function hash(seed) {
-    var x = (Number(seed) >>> 0) ^ 0x9e3779b9;
-    x = Math.imul(x ^ (x >>> 16), 0x85ebca6b) >>> 0;
-    x = Math.imul(x ^ (x >>> 13), 0xc2b2ae35) >>> 0;
-    return (x ^ (x >>> 16)) >>> 0;
-  }
-
-  /** The item pool: the client's own cyan loot names (the recording's is 古老的法杖). */
-  function itemPool() {
-    var pool = Core.LOOT && Core.LOOT.cyan;
-    return pool && pool.length ? pool : ["古老的法杖"];
-  }
+  // Observed reference outcomes, not a reconstructed random-drop formula.
+  // V1 354s: staff +3526; V2 406s: green kunic totem +6094. The earlier
+  // seed-based material/potion pool had no evidence in either reward card.
+  var REFERENCE_PRIZES = {
+    mirkwood: { itemId: "ancientStaff", gold: 3526 },
+    mirkwooddeep: { itemId: "kunicTotem", gold: 6094 }
+  };
 
   function create(options) {
     options = options || {};
     var seed = Number(options.seed);
     if (!isFinite(seed)) seed = Core.DEFAULT_SEED;
     seed = seed >>> 0;
-    var h = hash(seed);
-    var pool = itemPool();
+    var stage = options.stage || Core.DEFAULT_STAGE;
+    var prize = REFERENCE_PRIZES[stage];
+    if (!prize) return null;
     var reward = {
       seed: seed,
-      item: pool[h % pool.length],
-      /* 参考里那张牌给 3526 金币；本作按种子给 500–3499，和地上捡的金币分开。 */
-      gold: 500 + (h % 3000),
+      stage: stage,
+      itemId: prize.itemId,
+      item: Progress.ITEMS[prize.itemId].name,
+      gold: prize.gold,
+      claimed: false,
       phase: "stats",
       t: 0,
       /* The shared result circle keeps turning across page transitions. */
@@ -140,10 +137,21 @@
     return reward;
   }
 
+  // Selection is the payment boundary; a delayed frame may already be done.
+  function takePrize(reward) {
+    if (!reward || reward.picked === null || reward.claimed) return null;
+    if (["reveal", "fade", "done"].indexOf(reward.phase) < 0) return null;
+    reward.claimed = true;
+    return { itemId: reward.itemId, gold: reward.gold };
+  }
+
   function snapshot(reward) {
     if (!reward) return null;
     return {
       seed: reward.seed,
+      stage: reward.stage,
+      itemId: reward.itemId,
+      claimed: reward.claimed,
       item: reward.item,
       gold: reward.gold,
       phase: reward.phase,
@@ -166,7 +174,8 @@
   return {
     TIMES: TIMES,
     CARD_COUNT: CARD_COUNT,
-    hash: hash,
+    REFERENCE_PRIZES: REFERENCE_PRIZES,
+    takePrize: takePrize,
     create: create,
     pick: pick,
     step: step,

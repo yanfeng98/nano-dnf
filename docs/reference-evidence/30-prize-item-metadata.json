@@ -1,0 +1,39 @@
+{
+  "source": {
+    "file": "Script_70.pvf",
+    "sha256": "bff413921447c048f02ef3aae82565a20275469213f3f2587675bf4d6102acae",
+    "header_version": 48984
+  },
+  "items": {
+    "ancientStaff": {
+      "entry": "equipment/character/mage/weapon/staff/staff_beginmage.equ",
+      "entry_sha256": "22522f7292f71722308dfa79e68af42cfc4f7386dcb18f007f4e9bd4b8304237",
+      "client_name": "古老的法杖",
+      "minLevel": 3,
+      "jobs": [
+        "mage",
+        "at mage",
+        "creator mage"
+      ],
+      "price": 2100,
+      "icon": {
+        "entry": "sprite/item/weapon/mage/staff.img",
+        "frame": 1
+      }
+    },
+    "kunicTotem": {
+      "entry": "equipment/character/priest/weapon/totem/ttpole_ocunic.equ",
+      "entry_sha256": "6659016d1212a012c0d254473a4d38e9efe3e627d69a884f999afbfd5c475cd4",
+      "client_name": "古老的庫尼圖騰",
+      "minLevel": 5,
+      "jobs": [
+        "priest"
+      ],
+      "price": 3500,
+      "icon": {
+        "entry": "sprite/item/weapon/priest/totem.img",
+        "frame": 2
+      }
+    }
+  }
+}
