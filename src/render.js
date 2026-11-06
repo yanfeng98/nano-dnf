@@ -8690,7 +8690,30 @@
     ctx.restore();
   }
 
+  var rewardFadeCanvas = null;
   function drawRewardPage(ctx, reward, sprites, playerName) {
+    // Fade the complete composited page once. Lowering each layer's alpha
+    // separately changes the overlap of the dimmer, additive circle and card.
+    if (reward.phase === "fade" && ctx.canvas && typeof document !== "undefined") {
+      if (!rewardFadeCanvas) {
+        rewardFadeCanvas = document.createElement("canvas");
+        rewardFadeCanvas.width = ARENA.width;
+        rewardFadeCanvas.height = ARENA.height;
+      }
+      var buffer = rewardFadeCanvas.getContext("2d");
+      buffer.clearRect(0, 0, ARENA.width, ARENA.height);
+      buffer.drawImage(ctx.canvas, 0, 0);
+      drawRewardPageContent(buffer, reward, sprites, playerName);
+      ctx.save();
+      ctx.globalAlpha *= typeof reward.opacity === "number" ? reward.opacity : 1;
+      ctx.drawImage(rewardFadeCanvas, 0, 0);
+      ctx.restore();
+      return;
+    }
+    drawRewardPageContent(ctx, reward, sprites, playerName);
+  }
+
+  function drawRewardPageContent(ctx, reward, sprites, playerName) {
     var sheet = sprites && sprites.ui;
     ctx.save();
     ctx.beginPath();
@@ -8755,7 +8778,7 @@
       }
     }
 
-    if (reward.phase === "reveal" || reward.phase === "done") {
+    if (reward.phase === "reveal" || reward.phase === "fade" || reward.phase === "done") {
       /*
        * 领奖详情：左边玩家名条（f60）与物品卡（复用青边卡框）。录像的奖励是
        * 「古老的法杖 ×1 + 3526 金币」；本作的物品名与金币由 `Reward` 按种子给。
@@ -9918,20 +9941,14 @@
      * takes the corner the bar does not.
      */
     drawAwakening(ctx, state, sprites);
-    /*
-     * **结算页与选关页不画战斗 HUD**：这两块都是整屏的自己的一页，底下的任务条、
-     * 球和技能槽会从半透明黑幕里透出来，和「走过 6 间 / 图上 12 格」「本局链接」
-     * 「← → 选关」撞在同一行上（2026-10-28 复核时看到）。
-     * 暂停页不在此列 —— 那一页要玩家看着自己的血蓝做决定。
-     */
-    var hudHidden =
-      (state.victory && !state.postClear) ||
-      state.defeat ||
-      !!(meta.region && meta.region.open);
+    /* V1 354..356 / V2 407.5..408.5 retain the bottom HUD below the
+     * result page and its fade. The older hide-on-victory rule was based on
+     * our custom result table overlapping it, not on the reference footage. */
+    var hudHidden = state.defeat || !!(meta.region && meta.region.open);
     if (!hudHidden) {
       drawHudVideo(ctx, state, sprites, meta);
       /* 录像左侧掉落/经验消息流；评分面板已在 `drawHudVideo` 里常驻。 */
-      if (!overlayOpen) drawLog(ctx, state);
+      if (!overlayOpen || state.victory) drawLog(ctx, state);
       /* The map belongs to live play and to the title demo, not to a full-screen overlay. */
       if (!overlayOpen && !state.postClear) drawMinimap(ctx, state, sprites, meta);
       drawSkillBar(ctx, state, sprites, meta.loadout, true);

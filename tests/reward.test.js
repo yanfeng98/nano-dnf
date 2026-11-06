@@ -41,6 +41,8 @@ test("the reward runs 战绩 → 宝箱 → 四张牌 → 领奖", () => {
   assert.equal(reward.picked, 0, "超时自动选最左一张");
 
   Reward.step(reward, Reward.TIMES.reveal);
+  assert.equal(reward.phase, "fade");
+  Reward.step(reward, Reward.TIMES.fade);
   assert.equal(reward.phase, "done");
 });
 
@@ -107,6 +109,8 @@ test("the shared result animation clock stays continuous across page changes", (
   assert.equal(reward.t, 0);
   assert.equal(reward.elapsed, elapsed + Reward.TIMES.flip, "a pick cannot jump the circle back to its initial angle");
   Reward.step(reward, Reward.TIMES.reveal);
+  assert.equal(reward.phase, "fade");
+  Reward.step(reward, Reward.TIMES.fade);
   assert.equal(reward.phase, "done");
   assert.equal(Reward.snapshot(reward).elapsed, Math.round(reward.elapsed * 1000) / 1000);
 });
@@ -165,4 +169,23 @@ test("a delayed frame preserves the same reward events as many short frames", ()
   assert.deepEqual(Reward.snapshot(one), Reward.snapshot(many));
   assert.equal(one.phase, "reveal");
   assert.ok(Math.abs(one.t - 0.1) < 1e-8);
+});
+
+test("the prize holds for three seconds then fades for eight tenths before Continue", () => {
+  const reward = Reward.create({ seed: 28 });
+  Reward.step(reward, Reward.TIMES.stats + Reward.TIMES.chest + 5.5);
+  assert.equal(reward.phase, "reveal");
+  Reward.step(reward, 2.9);
+  assert.equal(reward.phase, "reveal", "V1 355.03 / V2 407.6 still show the full prize");
+  Reward.step(reward, .1);
+  assert.equal(reward.phase, "fade", "both recordings start fading three seconds after automatic selection");
+  assert.equal(Reward.snapshot(reward).opacity, 1);
+  Reward.step(reward, .4);
+  assert.equal(reward.phase, "fade");
+  assert.ok(Math.abs(Reward.snapshot(reward).opacity - .5) < .001);
+  Reward.step(reward, .39);
+  assert.equal(reward.phase, "fade", "Continue must wait for the overlay to disappear");
+  Reward.step(reward, .01);
+  assert.equal(reward.phase, "done");
+  assert.equal(Reward.snapshot(reward).opacity, 0);
 });

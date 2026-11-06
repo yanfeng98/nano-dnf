@@ -22,8 +22,8 @@
   /* V1 346.63..352.13 / V2 399.2..404.7: 1.2s spread, then
    * a shared cyan fade; prompt at 2s and the 3-second counter at 2.5s.
    * The first card's separate V2 highlight is not a staggered flip.
-   * Stats lasts ~10s in both recordings. Chest/list and reveal timings are
-   * still pending their own event reconstruction; do not claim those match.
+   * V1 355.13..355.93 / V2 407.7..408.5: a shared .8s fade after
+   * 3s from selection. Chest/list and the prize flip itself remain pending.
    */
   var TIMES = {
     stats: 10.0,
@@ -34,7 +34,9 @@
     prompt: 2.0,
     countdownAt: 2.5,
     countdown: 3.0,
-    reveal: 2.5
+    // Automatic selection V1 352.133 / V2 404.7; fade starts ~3s later.
+    reveal: 3.0,
+    fade: 0.8
   };
   var CARD_COUNT = 4;
 
@@ -113,7 +115,8 @@
       var limit = reward.phase === "stats" ? TIMES.stats
         : reward.phase === "chest" ? TIMES.chest
         : reward.phase === "cards" ? TIMES.countdownAt + TIMES.countdown
-        : reward.phase === "reveal" ? TIMES.reveal : Infinity;
+        : reward.phase === "reveal" ? TIMES.reveal
+        : reward.phase === "fade" ? TIMES.fade : Infinity;
       var advance = Math.min(remaining, Math.max(0, limit - reward.t));
       reward.t += advance;
       remaining -= advance;
@@ -128,6 +131,8 @@
       } else if (reward.phase === "cards") {
         pick(reward, 0);
       } else if (reward.phase === "reveal") {
+        reward.phase = "fade";
+      } else if (reward.phase === "fade") {
         reward.phase = "done";
       }
       reward.t = 0;
@@ -144,6 +149,7 @@
       phase: reward.phase,
       elapsed: Math.round(reward.elapsed * 1000) / 1000,
       t: Math.round(reward.t * 1000) / 1000,
+      opacity: reward.phase === "done" ? 0 : reward.phase === "fade" ? 1 - clamp01(reward.t / TIMES.fade) : 1,
       picked: reward.picked,
       faceUp: reward.faceUp,
       countdown: reward.countdown,

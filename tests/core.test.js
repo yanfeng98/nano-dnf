@@ -8605,12 +8605,9 @@ test("the town HUD shows the level card the dungeon already has", () => {
   assert.ok(bar, "the XP bar is part of the card");
 });
 
-test("the clear screen draws no combat HUD behind its table", () => {
-  /*
-   * 2026-10-28 复核：通关页的半透明黑幕压不住底下的任务条与球 —— 「任务 通关
-   * 幽暗密林」和「走过 6 间 / 图上 12 格」「本局链接」撞在同一行。结算与翻牌
-   * 页现在整块不画战斗 HUD（暂停页仍要画，玩家得看着血蓝做决定）。
-   */
+test("the clear screen retains the recorded bottom HUD behind results", () => {
+  /* V1 355..356 / V2 407.5..408.5 show the bottom HUD throughout the fade.
+   * This supersedes the 2026-10-28 custom-table overlap workaround. */
   const hud = { width: 800 };
   const state = Core.createState({ seed: Core.DEFAULT_SEED });
   Core.goToCell(state, state.dungeon.boss);
@@ -8619,14 +8616,14 @@ test("the clear screen draws no combat HUD behind its table", () => {
   Render.render(recordingContext(calls), state, { sprites: { hud } });
   assert.equal(
     calls.some((call) => call[0] === "drawImage" && call[1] === hud),
-    false,
-    "the bar itself must not be under the results table"
+    true,
+    "the native bar remains below the recorded result overlay"
   );
   const texts = calls.filter((call) => call[0] === "fillText").map((call) => String(call[1]));
   assert.equal(
     texts.some((text) => text.startsWith("任务")),
-    false,
-    `the quest tracker must not bleed through: ${texts.join(" / ")}`
+    true,
+    `the task strip is retained with the bottom HUD: ${texts.join(" / ")}`
   );
   /* And the pause screen still keeps it: that page is a readout of the live run. */
   const paused = Core.createState({ seed: Core.DEFAULT_SEED });

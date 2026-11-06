@@ -9,15 +9,32 @@ export async function checkPostClear(page, out) {
   await page.evaluate(() => window.nanoDnf.leaveTown());
   await page.keyboard.press('Enter');
   await page.waitForFunction(() => !window.nanoDnf.getProgress().regionOpen);
-  async function finish() {
-    await page.evaluate(() => {
+  async function finish(pauseAtFade=false) {
+    await page.evaluate(pauseAtFade => {
       const C=window.DNFCore, api=window.nanoDnf, s=api.getState();
       s.intro=null;s.transition=0;s.enemies=[];s.props=[];
       s.room.pendingWave=[];s.room.pendingWaves=[];s.room.cleared=true;
       C.currentCell(s).cleared=true;s.victory=true;
       const R=window.DNFReward, original=R.step;
-      R.step=(reward,dt)=>{R.step=original;return original(reward,30);};
-    });
+      R.step=(reward,dt)=>{
+        if (pauseAtFade) {
+          original(reward,R.TIMES.stats+R.TIMES.chest+R.TIMES.countdownAt+R.TIMES.countdown+R.TIMES.reveal+.4);
+          R.step=()=>reward;
+          window.restoreRewardClock=()=>{R.step=original;delete window.restoreRewardClock;};
+          return reward;
+        }
+        R.step=original;return original(reward,30);
+      };
+    },pauseAtFade);
+    if (pauseAtFade) {
+      await page.waitForFunction(()=>window.nanoDnf.getReward()?.phase==='fade');
+      assert.equal(await page.evaluate(()=>window.nanoDnf.getState().postClear),false,'Continue waits for the fade');
+      const before=await page.evaluate(()=>window.nanoDnf.getState().player.x);
+      await page.keyboard.down('ArrowRight');await page.waitForTimeout(100);await page.keyboard.up('ArrowRight');
+      assert.equal(await page.evaluate(()=>window.nanoDnf.getState().player.x),before,'the result phase still owns movement');
+      assert.ok(Math.abs(await page.evaluate(()=>window.nanoDnf.getReward().opacity)-.5)<1e-9);
+      await page.evaluate(()=>window.restoreRewardClock());
+    }
     await page.waitForFunction(() => window.nanoDnf.getState().postClear);
     assert.equal(await page.evaluate(() => window.nanoDnf.getReward().phase),'done');
   }
@@ -29,7 +46,7 @@ export async function checkPostClear(page, out) {
     },action);
     await page.mouse.click(box.x+point.x*box.width/960,box.y+point.y*box.height/540);
   }
-  await finish();
+  await finish(true);
   const x=await page.evaluate(()=>window.nanoDnf.getState().player.x);
   await page.keyboard.down('ArrowRight');
   await page.waitForFunction(x=>window.nanoDnf.getState().player.x>x+10,x);

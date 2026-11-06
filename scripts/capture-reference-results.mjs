@@ -37,14 +37,16 @@ try {
  const captured=await page.evaluate(async(reference)=>{
   const {original,meta}=window.captureResults;window.DNFRender.render=original;delete window.captureResults;
   const result=[],contexts={};
-  for(const [label,phase,t,elapsed,countdown=3] of [['chest','chest',.3,12.5],['blue','cards',1.2,15.333333],['spread','cards',.6,14.733333],['preHint','cards',1.95,16],['hintOnly','cards',2.1,16.1],['cards','cards',1.5,16.5],['cards-2','cards',1.5,17.5,2],['cards-1','cards',1.5,18.5,1],['reveal','reveal',1.5,21.5]]){
+  for(const [label,phase,t,elapsed,countdown=3] of [['chest','chest',.3,12.5],['blue','cards',1.2,15.333333],['spread','cards',.6,14.733333],['preHint','cards',1.95,16],['hintOnly','cards',2.1,16.1],['cards','cards',1.5,16.5],['cards-2','cards',1.5,17.5,2],['cards-1','cards',1.5,18.5,1],['reveal','reveal',1.5,21.5],['fade-start','fade',0,20],['fade-half','fade',.4,20],['fade-last','fade',.79,20],['world','done',.01,20]]){
    const state=window.DNFCore.createState({seed:24,referenceProfile:true});
-   state.victory=true;state.finishedAt=0;state.time=elapsed;state.intro=null;state.transition=0;state.enemies=[];
+   state.victory=true;state.finishedAt=0;state.time=elapsed;state.intro=null;state.transition=0;state.enemies=[];state.postClear=phase==='done';state.stage={...state.stage,rain:false};
    const R=window.DNFReward,flow=R.create({seed:24});
    const age=label.startsWith('cards') ? R.TIMES.countdownAt+(3-countdown)+.2 : t;
    const total=phase==='chest' ? R.TIMES.stats+age
      : phase==='cards' ? R.TIMES.stats+R.TIMES.chest+age
-     : R.TIMES.stats+R.TIMES.chest+R.TIMES.countdownAt+R.TIMES.countdown+age;
+     : R.TIMES.stats+R.TIMES.chest+R.TIMES.countdownAt+R.TIMES.countdown
+       +(phase==='fade'||phase==='done' ? R.TIMES.reveal : 0)
+       +(phase==='done' ? R.TIMES.fade : 0)+age;
    R.step(flow,total);
    const reward={...R.snapshot(flow),elapsed};
    const c=document.createElement('canvas');c.width=960;c.height=540;
@@ -99,12 +101,28 @@ try {
   }
   const promptBefore=goldCount('preHint',370,330,230,32),promptAfter=goldCount('hintOnly',370,330,230,32);
   const counterBefore=goldCount('hintOnly',450,410,45,65),counterAfter=goldCount('cards',450,410,45,65);
-  return {images:result,measurement:{circleCorrelation:circle,digits,blueCardCosine:blue,goldCardCosine:gold,
+  function fadeError(label,alpha){
+   const start=contexts['fade-start'].getImageData(300,200,300,210).data;
+   const end=contexts.world.getImageData(300,200,300,210).data;
+   const actual=contexts[label].getImageData(300,200,300,210).data;
+   let error=0,count=0;
+   for(let i=0;i<actual.length;i+=4)for(let k=0;k<3;k++){
+    error+=Math.abs(actual[i+k]-(alpha*start[i+k]+(1-alpha)*end[i+k]));count++;
+   }
+   return error/count;
+  }
+  const fadeHalfError=fadeError('fade-half',.5),fadeLastError=fadeError('fade-last',.0125);
+  const hudData=contexts.chest.getImageData(135,465,30,55).data;
+  let hudChestRed=0;
+  for(let i=0;i<hudData.length;i+=4)if(hudData[i]>50&&hudData[i]>2*hudData[i+1]&&hudData[i]>2*hudData[i+2])hudChestRed++;
+  return {images:result,measurement:{fadeHalfError,fadeLastError,hudChestRed,circleCorrelation:circle,digits,blueCardCosine:blue,goldCardCosine:gold,
     spreadBounds:[left,right],promptBefore,promptAfter,counterBefore,counterAfter}};
  },reference);
  for(const c of captured.images)fs.writeFileSync(path.join(out,`${c.label}.png`),Buffer.from(c.url.split(',')[1],'base64'));
  fs.writeFileSync(path.join(out,'measurement.json'),JSON.stringify(captured.measurement,null,2)+'\n');
  console.log(`result poses: ${out}`,captured.measurement);
+ assert.ok(captured.measurement.fadeHalfError<1&&captured.measurement.fadeLastError<1,'the complete result page fades into the same world without darkening overlapping layers twice');
+ assert.ok(captured.measurement.hudChestRed>100,'the recorded bottom HUD remains visible under the result page');
  assert.ok(captured.measurement.circleCorrelation>.7,'the native circle must match the recorded rotation and geometry');
  for(const d of captured.measurement.digits)assert.ok(d.pixels>50&&d.cosine>.97,`gold countdown ${d.value} must match the recorded glyph at its measured position`);
  assert.ok(captured.measurement.blueCardCosine>.97,'the blue stage must retain the native treasure illustration and measured cyan light');
