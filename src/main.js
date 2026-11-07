@@ -34,8 +34,8 @@
   var sprites = {
     slayer: null, skills: null, effects: null, normalWave: null, normalWaveBody: null,
     rift: null, awakening: null, region: null,
-    monsters: null, forest: null, minimap: null, ui: null, results: null,
-    /* The two portraits cut from the owner's reference recording (ADR 0054/0055). */
+    monsters: null, throwerReference: null, forest: null, minimap: null, ui: null, results: null,
+    /* Native client UI faces and target frames; see reference batches 31–34. */
     portraits: null
   };
   /*
@@ -71,6 +71,7 @@
      * own order (assets/import_dnf_monsters.py).
      */
     ["monsters", "./assets/monsters.png"],
+    ["throwerReference", "./assets/thrower-reference.png"],
     /*
      * 幽暗密林's room art: the client's forest set 02 - far and mid layers, the
      * grass ground strips and the props a room scatters - each cropped to its
@@ -124,11 +125,7 @@
      * the owner handed over instead.
      */
     ["awakening", "./assets/awakening.png"],
-    /*
-     * 两张从业主参考录像里裁的人像：领主目标框的牛头正脸（t=250s）与通关
-     * 翻牌名条上的玩家头像（t=354s）。客户端里没有一个单独的正脸分件，
-     * 侧身战斗精灵在 40px 下对不上参考（`docs/adr/0054` 追记二、0055 追记）。
-     */
+    /* Native MonsterFace/defaultfaces and monster_hp UI parts. */
     ["portraits", "./assets/portraits-reference.png"]
   ];
   assets.total = ASSET_ENTRIES.length;

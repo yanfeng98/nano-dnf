@@ -10989,7 +10989,7 @@ test("runtime portraits use client frames instead of the old video crops", () =>
   const main = fs.readFileSync(path.join(__dirname,"../src/main.js"),"utf8");
   assert.doesNotMatch(main,/assets\/(boss_portrait|reward_avatar)\.png/,
     "video-derived portrait files must leave the runtime asset list");
-  const proof = require("../docs/reference-evidence/32-target-native-proof.json");
+  const proof = require("../docs/reference-evidence/34-target-native-proof.json");
   const atlas = decodeRgbaPng(path.join(__dirname,"../assets/portraits-reference.png"));
   const crypto = require("node:crypto");
   for (const frame of proof.frames) {
@@ -11141,4 +11141,74 @@ test('the first landed hit retains the pre-hit HP share for the white damage blo
  assert.equal(state.target,null);Core.damageEnemy(state,enemy,5,0,0,{});Core.step(state,{});
  assert.ok(state.target.ghost,'the first hit also has a lost-HP block');
  assert.equal(state.target.ghost.from,1);assert.equal(state.target.ghost.to,enemy.hp/enemy.maxHp);
+});
+
+test('the two deep captains use distinct native UI faces and native target frames',()=>{
+ const atlas={width:3200,height:58};
+ for(const type of ['deepElite','throwerElite']){
+  const state=Core.createState({stage:'mirkwooddeep',seed:34}),enemy=Core.createEnemy(state,type,600);
+  state.enemies=[enemy];state.target={enemy,dying:0,share:1};const calls=[];
+  Render.render(recordingContext(calls),state,{sprites:{portraits:atlas}});
+  const rect=Render.PORTRAITS[type];assert.ok(rect,`${type} must enter the native target path`);
+  assert.ok(calls.some(c=>c[0]==='drawImage'&&c[1]===atlas&&c.slice(2,6).every((v,i)=>v===rect[i])));
+ }
+ assert.notDeepEqual(Render.PORTRAITS.deepElite,Render.PORTRAITS.throwerElite);
+ const links=require('../docs/reference-evidence/34-monster-identities.json').faces;
+ assert.equal(links.throwerElite['[face image]'][1],6);
+ assert.equal(links.deepElite['[face image]'][1],2);
+});
+
+test('the throwing captain draws its brown native body instead of the blue sword captain',()=>{
+ const state=lastRoomState(34),enemy=Core.createEnemy(state,'throwerElite',600);
+ const old={width:13320,height:4620},body={width:6120,height:420};state.enemies=[enemy];
+ const calls=[];Render.render(recordingContext(calls),state,{sprites:{monsters:old,throwerReference:body}});
+ assert.ok(calls.some(c=>c[0]==='drawImage'&&c[1]===body),'living thrower uses body6 reference atlas');
+ assert.ok(!calls.some(c=>c[0]==='drawImage'&&c[1]===old),'the blue sword body is not the thrower');
+});
+
+test('observed target widths distinguish stage, monster and level',()=>{
+ const atlas={width:3200,height:58};
+ const cases=[['mirkwood','grunt',4,181],['mirkwood','goblinBlue',4,144],['mirkwood','goblinRed',4,144],
+  ['mirkwood','caster',4,144],['mirkwooddeep','grunt',4,116],['mirkwooddeep','goblinBlue',6,144],
+  ['mirkwooddeep','goblinRed',6,144],['mirkwooddeep','cat',6,162],['mirkwooddeep','throwerElite',6,162],
+  ['mirkwooddeep','throwerElite',7,196],['mirkwooddeep','deepElite',6,198],['mirkwooddeep','deepElite',7,240]];
+ for(const [stage,type,level,width] of cases){
+  const state=Core.createState({stage,seed:34}),enemy=Core.createEnemy(state,type,600);enemy.level=level;
+  state.enemies=[enemy];state.target={enemy,dying:0,share:1};const calls=[];
+  Render.render(recordingContext(calls),state,{sprites:{portraits:atlas}});
+  const rect=Render.PORTRAITS.normalFill;
+  const draw=calls.find(c=>c[0]==='drawImage'&&c[1]===atlas&&c.slice(2,6).every((v,i)=>v===rect[i]));
+  assert.ok(draw,`${stage}/${type}/${level} draws the native HP fill`);
+  assert.equal(draw[8],width,`${stage}/${type}/${level} should match its observed track`);
+ }
+});
+
+test('thrower body cells preserve the local native RGBA and the reference ground anchor',()=>{
+ const proof=require('../docs/reference-evidence/34-thrower-native-proof.json');
+ const atlas=decodeRgbaPng(path.join(__dirname,'../assets/thrower-reference.png'));
+ const crypto=require('node:crypto');assert.deepEqual([atlas.width,atlas.height],proof.sheet);
+ assert.equal(proof.stand,76);
+ assert.deepEqual(proof.anchor,[180,260]);
+ for(const f of proof.frames){
+  const [x,y,w,h]=f.rect,pixels=Buffer.alloc(w*h*4);
+  for(let row=0;row<h;row++)atlas.pixels.copy(pixels,row*w*4,((y+row)*atlas.width+x)*4,((y+row)*atlas.width+x+w)*4);
+  assert.equal(crypto.createHash('sha256').update(pixels).digest('hex'),f.cell_rgba_sha256,`native body6 frame ${f.frame}`);
+ }
+});
+
+test('captain throws stop at release frame4 and walk through the native 11..16 run',()=>{
+ const state=lastRoomState(34),enemy=Core.createEnemy(state,'throwerElite',600),body={width:6120,height:420};
+ state.enemies=[enemy];enemy.attackDuration=.85;enemy.attackWindup=.55;
+ function frame(){
+  const calls=[];Render.render(recordingContext(calls),state,{sprites:{throwerReference:body}});
+  const draw=calls.find(c=>c[0]==='drawImage'&&c[1]===body);
+  assert.ok(Math.abs(draw[8]/360-enemy.height/76)<1e-9,'runtime uses the measured body height');
+  assert.ok(Math.abs(draw[6]+180*enemy.height/76)<1e-9,'runtime keeps the native ground anchor');
+  return draw[2]/360;
+ }
+ for(const [elapsed,expected] of [[0,0],[.2,1],[.54,3],[.56,4],[.82,4]]){
+  enemy.attackTimer=.85-elapsed;assert.equal(frame(),expected,`throw at ${elapsed}s`);
+ }
+ enemy.attackTimer=0;enemy.vx=10;
+ for(const [time,expected] of [[0,11],[.1,12],[.5,16],[.6,11]]){state.time=time;assert.equal(frame(),expected);}
 });

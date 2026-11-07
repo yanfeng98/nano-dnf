@@ -1,0 +1,1469 @@
+{
+  "crop": "original (240,80,1200,100), widths normalized by /2",
+  "scope": "Per-caption observed profiles; border masks have compression/outlier error. No extrapolation to other levels/stages or demo maxHp.",
+  "rows": [
+    {
+      "video": "00001-幽暗密林.mp4",
+      "time": 95,
+      "type": "grunt",
+      "level": 4,
+      "frame": "normal",
+      "border_candidates": [
+        {
+          "y": 43,
+          "start": 71,
+          "end_exclusive": 442
+        },
+        {
+          "y": 44,
+          "start": 71,
+          "end_exclusive": 442
+        },
+        {
+          "y": 45,
+          "start": 71,
+          "end_exclusive": 442
+        },
+        {
+          "y": 72,
+          "start": 13,
+          "end_exclusive": 441
+        },
+        {
+          "y": 73,
+          "start": 14,
+          "end_exclusive": 440
+        }
+      ],
+      "right_edge_video_px": 442.0,
+      "estimated_canvas_fill_width": 181.25,
+      "reference_profile_width": 181
+    },
+    {
+      "video": "00001-幽暗密林.mp4",
+      "time": 125,
+      "type": "grunt",
+      "level": 4,
+      "frame": "normal",
+      "border_candidates": [
+        {
+          "y": 43,
+          "start": 71,
+          "end_exclusive": 442
+        },
+        {
+          "y": 44,
+          "start": 71,
+          "end_exclusive": 442
+        },
+        {
+          "y": 45,
+          "start": 71,
+          "end_exclusive": 442
+        }
+      ],
+      "right_edge_video_px": 442.0,
+      "estimated_canvas_fill_width": 181.25,
+      "reference_profile_width": 181
+    },
+    {
+      "video": "00001-幽暗密林.mp4",
+      "time": 130,
+      "type": "grunt",
+      "level": 4,
+      "frame": "normal",
+      "border_candidates": [
+        {
+          "y": 43,
+          "start": 71,
+          "end_exclusive": 441
+        },
+        {
+          "y": 44,
+          "start": 71,
+          "end_exclusive": 442
+        },
+        {
+          "y": 45,
+          "start": 71,
+          "end_exclusive": 442
+        },
+        {
+          "y": 72,
+          "start": 13,
+          "end_exclusive": 440
+        },
+        {
+          "y": 73,
+          "start": 13,
+          "end_exclusive": 440
+        }
+      ],
+      "right_edge_video_px": 441.0,
+      "estimated_canvas_fill_width": 180.75,
+      "reference_profile_width": 181
+    },
+    {
+      "video": "00001-幽暗密林.mp4",
+      "time": 110,
+      "type": "goblinBlue",
+      "level": 4,
+      "frame": "normal",
+      "border_candidates": [
+        {
+          "y": 43,
+          "start": 71,
+          "end_exclusive": 367
+        },
+        {
+          "y": 44,
+          "start": 71,
+          "end_exclusive": 367
+        },
+        {
+          "y": 45,
+          "start": 71,
+          "end_exclusive": 368
+        },
+        {
+          "y": 72,
+          "start": 13,
+          "end_exclusive": 367
+        },
+        {
+          "y": 73,
+          "start": 14,
+          "end_exclusive": 366
+        }
+      ],
+      "right_edge_video_px": 367.0,
+      "estimated_canvas_fill_width": 143.75,
+      "reference_profile_width": 144
+    },
+    {
+      "video": "00001-幽暗密林.mp4",
+      "time": 115,
+      "type": "goblinBlue",
+      "level": 4,
+      "frame": "normal",
+      "border_candidates": [
+        {
+          "y": 43,
+          "start": 71,
+          "end_exclusive": 367
+        },
+        {
+          "y": 44,
+          "start": 71,
+          "end_exclusive": 368
+        },
+        {
+          "y": 45,
+          "start": 71,
+          "end_exclusive": 368
+        },
+        {
+          "y": 72,
+          "start": 13,
+          "end_exclusive": 367
+        },
+        {
+          "y": 73,
+          "start": 13,
+          "end_exclusive": 366
+        }
+      ],
+      "right_edge_video_px": 367.0,
+      "estimated_canvas_fill_width": 143.75,
+      "reference_profile_width": 144
+    },
+    {
+      "video": "00001-幽暗密林.mp4",
+      "time": 150,
+      "type": "goblinBlue",
+      "level": 4,
+      "frame": "normal",
+      "border_candidates": [
+        {
+          "y": 43,
+          "start": 71,
+          "end_exclusive": 371
+        },
+        {
+          "y": 44,
+          "start": 71,
+          "end_exclusive": 371
+        },
+        {
+          "y": 45,
+          "start": 71,
+          "end_exclusive": 368
+        },
+        {
+          "y": 72,
+          "start": 13,
+          "end_exclusive": 368
+        },
+        {
+          "y": 73,
+          "start": 14,
+          "end_exclusive": 367
+        }
+      ],
+      "right_edge_video_px": 368.0,
+      "estimated_canvas_fill_width": 144.25,
+      "reference_profile_width": 144
+    },
+    {
+      "video": "00001-幽暗密林.mp4",
+      "time": 180,
+      "type": "goblinRed",
+      "level": 4,
+      "frame": "normal",
+      "border_candidates": [
+        {
+          "y": 43,
+          "start": 71,
+          "end_exclusive": 368
+        },
+        {
+          "y": 44,
+          "start": 71,
+          "end_exclusive": 367
+        },
+        {
+          "y": 45,
+          "start": 71,
+          "end_exclusive": 368
+        },
+        {
+          "y": 72,
+          "start": 13,
+          "end_exclusive": 367
+        },
+        {
+          "y": 73,
+          "start": 13,
+          "end_exclusive": 366
+        }
+      ],
+      "right_edge_video_px": 367.0,
+      "estimated_canvas_fill_width": 143.75,
+      "reference_profile_width": 144
+    },
+    {
+      "video": "00001-幽暗密林.mp4",
+      "time": 215,
+      "type": "goblinRed",
+      "level": 4,
+      "frame": "normal",
+      "border_candidates": [
+        {
+          "y": 43,
+          "start": 71,
+          "end_exclusive": 367
+        },
+        {
+          "y": 44,
+          "start": 71,
+          "end_exclusive": 368
+        },
+        {
+          "y": 45,
+          "start": 71,
+          "end_exclusive": 368
+        },
+        {
+          "y": 72,
+          "start": 13,
+          "end_exclusive": 367
+        },
+        {
+          "y": 73,
+          "start": 14,
+          "end_exclusive": 367
+        }
+      ],
+      "right_edge_video_px": 367.0,
+      "estimated_canvas_fill_width": 143.75,
+      "reference_profile_width": 144
+    },
+    {
+      "video": "00001-幽暗密林.mp4",
+      "time": 230,
+      "type": "goblinRed",
+      "level": 4,
+      "frame": "normal",
+      "border_candidates": [
+        {
+          "y": 43,
+          "start": 71,
+          "end_exclusive": 368
+        },
+        {
+          "y": 44,
+          "start": 71,
+          "end_exclusive": 274
+        },
+        {
+          "y": 45,
+          "start": 71,
+          "end_exclusive": 368
+        },
+        {
+          "y": 72,
+          "start": 13,
+          "end_exclusive": 368
+        },
+        {
+          "y": 73,
+          "start": 14,
+          "end_exclusive": 366
+        }
+      ],
+      "right_edge_video_px": 368.0,
+      "estimated_canvas_fill_width": 144.25,
+      "reference_profile_width": 144
+    },
+    {
+      "video": "00001-幽暗密林.mp4",
+      "time": 155,
+      "type": "caster",
+      "level": 4,
+      "frame": "normal",
+      "border_candidates": [
+        {
+          "y": 43,
+          "start": 71,
+          "end_exclusive": 367
+        },
+        {
+          "y": 44,
+          "start": 71,
+          "end_exclusive": 367
+        },
+        {
+          "y": 45,
+          "start": 71,
+          "end_exclusive": 367
+        },
+        {
+          "y": 46,
+          "start": 71,
+          "end_exclusive": 368
+        },
+        {
+          "y": 72,
+          "start": 0,
+          "end_exclusive": 367
+        },
+        {
+          "y": 73,
+          "start": 0,
+          "end_exclusive": 366
+        }
+      ],
+      "right_edge_video_px": 367.0,
+      "estimated_canvas_fill_width": 143.75,
+      "reference_profile_width": 144
+    },
+    {
+      "video": "00001-幽暗密林.mp4",
+      "time": 155.1,
+      "type": "caster",
+      "level": 4,
+      "frame": "normal",
+      "border_candidates": [
+        {
+          "y": 43,
+          "start": 71,
+          "end_exclusive": 367
+        },
+        {
+          "y": 44,
+          "start": 71,
+          "end_exclusive": 367
+        },
+        {
+          "y": 45,
+          "start": 71,
+          "end_exclusive": 367
+        },
+        {
+          "y": 46,
+          "start": 71,
+          "end_exclusive": 368
+        },
+        {
+          "y": 72,
+          "start": 0,
+          "end_exclusive": 367
+        },
+        {
+          "y": 73,
+          "start": 0,
+          "end_exclusive": 366
+        }
+      ],
+      "right_edge_video_px": 367.0,
+      "estimated_canvas_fill_width": 143.75,
+      "reference_profile_width": 144
+    },
+    {
+      "video": "00001-幽暗密林.mp4",
+      "time": 220,
+      "type": "burningThrower",
+      "level": 4,
+      "frame": "champion",
+      "border_candidates": [
+        {
+          "y": 45,
+          "start": 86,
+          "end_exclusive": 458
+        },
+        {
+          "y": 46,
+          "start": 76,
+          "end_exclusive": 527
+        },
+        {
+          "y": 47,
+          "start": 76,
+          "end_exclusive": 527
+        },
+        {
+          "y": 48,
+          "start": 76,
+          "end_exclusive": 527
+        },
+        {
+          "y": 49,
+          "start": 76,
+          "end_exclusive": 527
+        },
+        {
+          "y": 76,
+          "start": 85,
+          "end_exclusive": 527
+        },
+        {
+          "y": 77,
+          "start": 85,
+          "end_exclusive": 526
+        }
+      ],
+      "right_edge_video_px": 527.0,
+      "estimated_canvas_fill_width": 217.0,
+      "reference_profile_width": 217
+    },
+    {
+      "video": "00001-幽暗密林.mp4",
+      "time": 220.1,
+      "type": "burningThrower",
+      "level": 4,
+      "frame": "champion",
+      "border_candidates": [
+        {
+          "y": 45,
+          "start": 86,
+          "end_exclusive": 458
+        },
+        {
+          "y": 46,
+          "start": 76,
+          "end_exclusive": 527
+        },
+        {
+          "y": 47,
+          "start": 76,
+          "end_exclusive": 527
+        },
+        {
+          "y": 48,
+          "start": 76,
+          "end_exclusive": 527
+        },
+        {
+          "y": 49,
+          "start": 76,
+          "end_exclusive": 527
+        },
+        {
+          "y": 75,
+          "start": 85,
+          "end_exclusive": 527
+        },
+        {
+          "y": 76,
+          "start": 85,
+          "end_exclusive": 527
+        },
+        {
+          "y": 77,
+          "start": 85,
+          "end_exclusive": 526
+        }
+      ],
+      "right_edge_video_px": 527.0,
+      "estimated_canvas_fill_width": 217.0,
+      "reference_profile_width": 217
+    },
+    {
+      "video": "00002-幽暗密林深处.mp4",
+      "time": 239.9,
+      "type": "grunt",
+      "level": 4,
+      "frame": "normal",
+      "border_candidates": [
+        {
+          "y": 43,
+          "start": 71,
+          "end_exclusive": 311
+        },
+        {
+          "y": 44,
+          "start": 71,
+          "end_exclusive": 311
+        },
+        {
+          "y": 45,
+          "start": 71,
+          "end_exclusive": 311
+        },
+        {
+          "y": 46,
+          "start": 71,
+          "end_exclusive": 311
+        },
+        {
+          "y": 72,
+          "start": 13,
+          "end_exclusive": 311
+        },
+        {
+          "y": 73,
+          "start": 14,
+          "end_exclusive": 310
+        }
+      ],
+      "right_edge_video_px": 311.0,
+      "estimated_canvas_fill_width": 115.75,
+      "reference_profile_width": 116
+    },
+    {
+      "video": "00002-幽暗密林深处.mp4",
+      "time": 240,
+      "type": "grunt",
+      "level": 4,
+      "frame": "normal",
+      "border_candidates": [
+        {
+          "y": 43,
+          "start": 71,
+          "end_exclusive": 312
+        },
+        {
+          "y": 44,
+          "start": 71,
+          "end_exclusive": 311
+        },
+        {
+          "y": 45,
+          "start": 71,
+          "end_exclusive": 311
+        },
+        {
+          "y": 72,
+          "start": 13,
+          "end_exclusive": 311
+        },
+        {
+          "y": 73,
+          "start": 13,
+          "end_exclusive": 310
+        }
+      ],
+      "right_edge_video_px": 311.0,
+      "estimated_canvas_fill_width": 115.75,
+      "reference_profile_width": 116
+    },
+    {
+      "video": "00002-幽暗密林深处.mp4",
+      "time": 240.1,
+      "type": "grunt",
+      "level": 4,
+      "frame": "normal",
+      "border_candidates": [
+        {
+          "y": 43,
+          "start": 71,
+          "end_exclusive": 312
+        },
+        {
+          "y": 44,
+          "start": 71,
+          "end_exclusive": 311
+        },
+        {
+          "y": 45,
+          "start": 71,
+          "end_exclusive": 311
+        },
+        {
+          "y": 72,
+          "start": 13,
+          "end_exclusive": 311
+        },
+        {
+          "y": 73,
+          "start": 13,
+          "end_exclusive": 310
+        }
+      ],
+      "right_edge_video_px": 311.0,
+      "estimated_canvas_fill_width": 115.75,
+      "reference_profile_width": 116
+    },
+    {
+      "video": "00002-幽暗密林深处.mp4",
+      "time": 90,
+      "type": "goblinBlue",
+      "level": 6,
+      "frame": "normal",
+      "border_candidates": [
+        {
+          "y": 43,
+          "start": 71,
+          "end_exclusive": 368
+        },
+        {
+          "y": 44,
+          "start": 71,
+          "end_exclusive": 366
+        },
+        {
+          "y": 45,
+          "start": 71,
+          "end_exclusive": 366
+        },
+        {
+          "y": 72,
+          "start": 13,
+          "end_exclusive": 367
+        }
+      ],
+      "right_edge_video_px": 366.5,
+      "estimated_canvas_fill_width": 143.5,
+      "reference_profile_width": 144
+    },
+    {
+      "video": "00002-幽暗密林深处.mp4",
+      "time": 95,
+      "type": "goblinBlue",
+      "level": 6,
+      "frame": "normal",
+      "border_candidates": [
+        {
+          "y": 43,
+          "start": 71,
+          "end_exclusive": 367
+        },
+        {
+          "y": 44,
+          "start": 71,
+          "end_exclusive": 367
+        },
+        {
+          "y": 45,
+          "start": 71,
+          "end_exclusive": 367
+        },
+        {
+          "y": 46,
+          "start": 71,
+          "end_exclusive": 367
+        },
+        {
+          "y": 72,
+          "start": 13,
+          "end_exclusive": 367
+        },
+        {
+          "y": 73,
+          "start": 14,
+          "end_exclusive": 366
+        }
+      ],
+      "right_edge_video_px": 367.0,
+      "estimated_canvas_fill_width": 143.75,
+      "reference_profile_width": 144
+    },
+    {
+      "video": "00002-幽暗密林深处.mp4",
+      "time": 170,
+      "type": "goblinBlue",
+      "level": 6,
+      "frame": "normal",
+      "border_candidates": [
+        {
+          "y": 43,
+          "start": 71,
+          "end_exclusive": 368
+        },
+        {
+          "y": 45,
+          "start": 71,
+          "end_exclusive": 368
+        },
+        {
+          "y": 72,
+          "start": 13,
+          "end_exclusive": 368
+        },
+        {
+          "y": 73,
+          "start": 13,
+          "end_exclusive": 366
+        }
+      ],
+      "right_edge_video_px": 368.0,
+      "estimated_canvas_fill_width": 144.25,
+      "reference_profile_width": 144
+    },
+    {
+      "video": "00002-幽暗密林深处.mp4",
+      "time": 280,
+      "type": "goblinBlue",
+      "level": 6,
+      "frame": "normal",
+      "border_candidates": [
+        {
+          "y": 43,
+          "start": 71,
+          "end_exclusive": 367
+        },
+        {
+          "y": 44,
+          "start": 71,
+          "end_exclusive": 367
+        },
+        {
+          "y": 45,
+          "start": 71,
+          "end_exclusive": 368
+        },
+        {
+          "y": 72,
+          "start": 13,
+          "end_exclusive": 367
+        },
+        {
+          "y": 73,
+          "start": 48,
+          "end_exclusive": 366
+        }
+      ],
+      "right_edge_video_px": 367.0,
+      "estimated_canvas_fill_width": 143.75,
+      "reference_profile_width": 144
+    },
+    {
+      "video": "00002-幽暗密林深处.mp4",
+      "time": 80,
+      "type": "goblinRed",
+      "level": 6,
+      "frame": "normal",
+      "border_candidates": [
+        {
+          "y": 43,
+          "start": 71,
+          "end_exclusive": 367
+        },
+        {
+          "y": 44,
+          "start": 86,
+          "end_exclusive": 368
+        },
+        {
+          "y": 45,
+          "start": 86,
+          "end_exclusive": 368
+        },
+        {
+          "y": 72,
+          "start": 16,
+          "end_exclusive": 367
+        },
+        {
+          "y": 73,
+          "start": 16,
+          "end_exclusive": 366
+        }
+      ],
+      "right_edge_video_px": 367.0,
+      "estimated_canvas_fill_width": 143.75,
+      "reference_profile_width": 144
+    },
+    {
+      "video": "00002-幽暗密林深处.mp4",
+      "time": 85,
+      "type": "goblinRed",
+      "level": 6,
+      "frame": "normal",
+      "border_candidates": [
+        {
+          "y": 43,
+          "start": 71,
+          "end_exclusive": 368
+        },
+        {
+          "y": 44,
+          "start": 71,
+          "end_exclusive": 367
+        },
+        {
+          "y": 45,
+          "start": 71,
+          "end_exclusive": 368
+        },
+        {
+          "y": 72,
+          "start": 13,
+          "end_exclusive": 368
+        },
+        {
+          "y": 73,
+          "start": 14,
+          "end_exclusive": 366
+        }
+      ],
+      "right_edge_video_px": 368.0,
+      "estimated_canvas_fill_width": 144.25,
+      "reference_profile_width": 144
+    },
+    {
+      "video": "00002-幽暗密林深处.mp4",
+      "time": 140,
+      "type": "goblinRed",
+      "level": 6,
+      "frame": "normal",
+      "border_candidates": [
+        {
+          "y": 44,
+          "start": 71,
+          "end_exclusive": 368
+        },
+        {
+          "y": 45,
+          "start": 71,
+          "end_exclusive": 368
+        },
+        {
+          "y": 72,
+          "start": 13,
+          "end_exclusive": 367
+        }
+      ],
+      "right_edge_video_px": 368.0,
+      "estimated_canvas_fill_width": 144.25,
+      "reference_profile_width": 144
+    },
+    {
+      "video": "00002-幽暗密林深处.mp4",
+      "time": 150,
+      "type": "goblinRed",
+      "level": 6,
+      "frame": "normal",
+      "border_candidates": [
+        {
+          "y": 43,
+          "start": 71,
+          "end_exclusive": 373
+        },
+        {
+          "y": 44,
+          "start": 71,
+          "end_exclusive": 374
+        },
+        {
+          "y": 45,
+          "start": 71,
+          "end_exclusive": 374
+        },
+        {
+          "y": 72,
+          "start": 13,
+          "end_exclusive": 367
+        },
+        {
+          "y": 73,
+          "start": 13,
+          "end_exclusive": 306
+        }
+      ],
+      "right_edge_video_px": 373.0,
+      "estimated_canvas_fill_width": 146.75,
+      "reference_profile_width": 144
+    },
+    {
+      "video": "00002-幽暗密林深处.mp4",
+      "time": 160,
+      "type": "cat",
+      "level": 6,
+      "frame": "normal",
+      "border_candidates": [
+        {
+          "y": 43,
+          "start": 71,
+          "end_exclusive": 403
+        },
+        {
+          "y": 44,
+          "start": 71,
+          "end_exclusive": 403
+        },
+        {
+          "y": 45,
+          "start": 71,
+          "end_exclusive": 404
+        },
+        {
+          "y": 72,
+          "start": 13,
+          "end_exclusive": 403
+        },
+        {
+          "y": 73,
+          "start": 67,
+          "end_exclusive": 309
+        }
+      ],
+      "right_edge_video_px": 403.0,
+      "estimated_canvas_fill_width": 161.75,
+      "reference_profile_width": 162
+    },
+    {
+      "video": "00002-幽暗密林深处.mp4",
+      "time": 180,
+      "type": "cat",
+      "level": 6,
+      "frame": "normal",
+      "border_candidates": [
+        {
+          "y": 43,
+          "start": 71,
+          "end_exclusive": 403
+        },
+        {
+          "y": 44,
+          "start": 71,
+          "end_exclusive": 403
+        },
+        {
+          "y": 45,
+          "start": 71,
+          "end_exclusive": 403
+        },
+        {
+          "y": 72,
+          "start": 13,
+          "end_exclusive": 403
+        },
+        {
+          "y": 73,
+          "start": 14,
+          "end_exclusive": 402
+        }
+      ],
+      "right_edge_video_px": 403.0,
+      "estimated_canvas_fill_width": 161.75,
+      "reference_profile_width": 162
+    },
+    {
+      "video": "00002-幽暗密林深处.mp4",
+      "time": 334,
+      "type": "cat",
+      "level": 6,
+      "frame": "normal",
+      "border_candidates": [
+        {
+          "y": 43,
+          "start": 71,
+          "end_exclusive": 404
+        },
+        {
+          "y": 44,
+          "start": 71,
+          "end_exclusive": 403
+        },
+        {
+          "y": 45,
+          "start": 71,
+          "end_exclusive": 404
+        },
+        {
+          "y": 72,
+          "start": 13,
+          "end_exclusive": 403
+        }
+      ],
+      "right_edge_video_px": 403.5,
+      "estimated_canvas_fill_width": 162.0,
+      "reference_profile_width": 162
+    },
+    {
+      "video": "00002-幽暗密林深处.mp4",
+      "time": 65,
+      "type": "throwerElite",
+      "level": 6,
+      "frame": "normal",
+      "border_candidates": [
+        {
+          "y": 43,
+          "start": 71,
+          "end_exclusive": 402
+        },
+        {
+          "y": 44,
+          "start": 71,
+          "end_exclusive": 403
+        },
+        {
+          "y": 45,
+          "start": 71,
+          "end_exclusive": 403
+        },
+        {
+          "y": 72,
+          "start": 14,
+          "end_exclusive": 403
+        },
+        {
+          "y": 73,
+          "start": 14,
+          "end_exclusive": 402
+        }
+      ],
+      "right_edge_video_px": 403.0,
+      "estimated_canvas_fill_width": 161.75,
+      "reference_profile_width": 162
+    },
+    {
+      "video": "00002-幽暗密林深处.mp4",
+      "time": 70,
+      "type": "throwerElite",
+      "level": 6,
+      "frame": "normal",
+      "border_candidates": [
+        {
+          "y": 43,
+          "start": 71,
+          "end_exclusive": 402
+        },
+        {
+          "y": 44,
+          "start": 71,
+          "end_exclusive": 403
+        },
+        {
+          "y": 45,
+          "start": 71,
+          "end_exclusive": 404
+        },
+        {
+          "y": 72,
+          "start": 32,
+          "end_exclusive": 403
+        },
+        {
+          "y": 73,
+          "start": 16,
+          "end_exclusive": 402
+        }
+      ],
+      "right_edge_video_px": 403.0,
+      "estimated_canvas_fill_width": 161.75,
+      "reference_profile_width": 162
+    },
+    {
+      "video": "00002-幽暗密林深处.mp4",
+      "time": 260,
+      "type": "throwerElite",
+      "level": 6,
+      "frame": "normal",
+      "border_candidates": [
+        {
+          "y": 43,
+          "start": 71,
+          "end_exclusive": 404
+        },
+        {
+          "y": 44,
+          "start": 71,
+          "end_exclusive": 403
+        },
+        {
+          "y": 45,
+          "start": 71,
+          "end_exclusive": 404
+        },
+        {
+          "y": 72,
+          "start": 13,
+          "end_exclusive": 403
+        },
+        {
+          "y": 73,
+          "start": 14,
+          "end_exclusive": 403
+        }
+      ],
+      "right_edge_video_px": 403.0,
+      "estimated_canvas_fill_width": 161.75,
+      "reference_profile_width": 162
+    },
+    {
+      "video": "00002-幽暗密林深处.mp4",
+      "time": 310,
+      "type": "throwerElite",
+      "level": 6,
+      "frame": "normal",
+      "border_candidates": [
+        {
+          "y": 43,
+          "start": 71,
+          "end_exclusive": 403
+        },
+        {
+          "y": 44,
+          "start": 71,
+          "end_exclusive": 403
+        },
+        {
+          "y": 45,
+          "start": 71,
+          "end_exclusive": 404
+        },
+        {
+          "y": 72,
+          "start": 13,
+          "end_exclusive": 403
+        },
+        {
+          "y": 73,
+          "start": 13,
+          "end_exclusive": 402
+        }
+      ],
+      "right_edge_video_px": 403.0,
+      "estimated_canvas_fill_width": 161.75,
+      "reference_profile_width": 162
+    },
+    {
+      "video": "00002-幽暗密林深处.mp4",
+      "time": 354.9,
+      "type": "throwerElite",
+      "level": 7,
+      "frame": "normal",
+      "border_candidates": [
+        {
+          "y": 43,
+          "start": 71,
+          "end_exclusive": 471
+        },
+        {
+          "y": 44,
+          "start": 71,
+          "end_exclusive": 471
+        },
+        {
+          "y": 45,
+          "start": 71,
+          "end_exclusive": 471
+        },
+        {
+          "y": 46,
+          "start": 71,
+          "end_exclusive": 471
+        },
+        {
+          "y": 72,
+          "start": 13,
+          "end_exclusive": 470
+        },
+        {
+          "y": 73,
+          "start": 14,
+          "end_exclusive": 470
+        }
+      ],
+      "right_edge_video_px": 471.0,
+      "estimated_canvas_fill_width": 195.75,
+      "reference_profile_width": 196
+    },
+    {
+      "video": "00002-幽暗密林深处.mp4",
+      "time": 355,
+      "type": "throwerElite",
+      "level": 7,
+      "frame": "normal",
+      "border_candidates": [
+        {
+          "y": 43,
+          "start": 71,
+          "end_exclusive": 471
+        },
+        {
+          "y": 44,
+          "start": 71,
+          "end_exclusive": 471
+        },
+        {
+          "y": 45,
+          "start": 71,
+          "end_exclusive": 471
+        },
+        {
+          "y": 46,
+          "start": 71,
+          "end_exclusive": 471
+        },
+        {
+          "y": 72,
+          "start": 13,
+          "end_exclusive": 471
+        },
+        {
+          "y": 73,
+          "start": 13,
+          "end_exclusive": 469
+        }
+      ],
+      "right_edge_video_px": 471.0,
+      "estimated_canvas_fill_width": 195.75,
+      "reference_profile_width": 196
+    },
+    {
+      "video": "00002-幽暗密林深处.mp4",
+      "time": 355.1,
+      "type": "throwerElite",
+      "level": 7,
+      "frame": "normal",
+      "border_candidates": [
+        {
+          "y": 43,
+          "start": 71,
+          "end_exclusive": 471
+        },
+        {
+          "y": 44,
+          "start": 71,
+          "end_exclusive": 471
+        },
+        {
+          "y": 45,
+          "start": 71,
+          "end_exclusive": 471
+        },
+        {
+          "y": 46,
+          "start": 71,
+          "end_exclusive": 471
+        },
+        {
+          "y": 72,
+          "start": 13,
+          "end_exclusive": 471
+        },
+        {
+          "y": 73,
+          "start": 13,
+          "end_exclusive": 469
+        }
+      ],
+      "right_edge_video_px": 471.0,
+      "estimated_canvas_fill_width": 195.75,
+      "reference_profile_width": 196
+    },
+    {
+      "video": "00002-幽暗密林深处.mp4",
+      "time": 120,
+      "type": "deepElite",
+      "level": 6,
+      "frame": "normal",
+      "border_candidates": [
+        {
+          "y": 43,
+          "start": 71,
+          "end_exclusive": 474
+        },
+        {
+          "y": 44,
+          "start": 71,
+          "end_exclusive": 475
+        },
+        {
+          "y": 45,
+          "start": 71,
+          "end_exclusive": 476
+        },
+        {
+          "y": 72,
+          "start": 13,
+          "end_exclusive": 475
+        },
+        {
+          "y": 73,
+          "start": 13,
+          "end_exclusive": 475
+        }
+      ],
+      "right_edge_video_px": 475.0,
+      "estimated_canvas_fill_width": 197.75,
+      "reference_profile_width": 198
+    },
+    {
+      "video": "00002-幽暗密林深处.mp4",
+      "time": 220,
+      "type": "deepElite",
+      "level": 6,
+      "frame": "normal",
+      "border_candidates": [
+        {
+          "y": 43,
+          "start": 71,
+          "end_exclusive": 408
+        },
+        {
+          "y": 44,
+          "start": 71,
+          "end_exclusive": 475
+        },
+        {
+          "y": 45,
+          "start": 71,
+          "end_exclusive": 475
+        },
+        {
+          "y": 72,
+          "start": 12,
+          "end_exclusive": 475
+        }
+      ],
+      "right_edge_video_px": 475.0,
+      "estimated_canvas_fill_width": 197.75,
+      "reference_profile_width": 198
+    },
+    {
+      "video": "00002-幽暗密林深处.mp4",
+      "time": 345,
+      "type": "deepElite",
+      "level": 7,
+      "frame": "normal",
+      "border_candidates": [
+        {
+          "y": 43,
+          "start": 71,
+          "end_exclusive": 558
+        },
+        {
+          "y": 44,
+          "start": 71,
+          "end_exclusive": 559
+        },
+        {
+          "y": 45,
+          "start": 71,
+          "end_exclusive": 559
+        },
+        {
+          "y": 72,
+          "start": 13,
+          "end_exclusive": 559
+        },
+        {
+          "y": 73,
+          "start": 48,
+          "end_exclusive": 557
+        }
+      ],
+      "right_edge_video_px": 559.0,
+      "estimated_canvas_fill_width": 239.75,
+      "reference_profile_width": 240
+    },
+    {
+      "video": "00002-幽暗密林深处.mp4",
+      "time": 350,
+      "type": "deepElite",
+      "level": 7,
+      "frame": "normal",
+      "border_candidates": [
+        {
+          "y": 43,
+          "start": 71,
+          "end_exclusive": 558
+        },
+        {
+          "y": 44,
+          "start": 71,
+          "end_exclusive": 559
+        },
+        {
+          "y": 45,
+          "start": 71,
+          "end_exclusive": 559
+        },
+        {
+          "y": 72,
+          "start": 13,
+          "end_exclusive": 558
+        },
+        {
+          "y": 73,
+          "start": 77,
+          "end_exclusive": 557
+        }
+      ],
+      "right_edge_video_px": 558.0,
+      "estimated_canvas_fill_width": 239.25,
+      "reference_profile_width": 240
+    },
+    {
+      "video": "00002-幽暗密林深处.mp4",
+      "time": 360,
+      "type": "deepElite",
+      "level": 7,
+      "frame": "normal",
+      "border_candidates": [
+        {
+          "y": 43,
+          "start": 71,
+          "end_exclusive": 557
+        },
+        {
+          "y": 44,
+          "start": 71,
+          "end_exclusive": 559
+        },
+        {
+          "y": 45,
+          "start": 71,
+          "end_exclusive": 559
+        },
+        {
+          "y": 72,
+          "start": 13,
+          "end_exclusive": 558
+        },
+        {
+          "y": 73,
+          "start": 16,
+          "end_exclusive": 558
+        }
+      ],
+      "right_edge_video_px": 558.0,
+      "estimated_canvas_fill_width": 239.25,
+      "reference_profile_width": 240
+    }
+  ]
+}

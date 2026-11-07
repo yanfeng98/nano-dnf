@@ -1,0 +1,14 @@
+{
+  "old_monsters_sha256": "d81bc24b692ca2fca0d438e25a057627d5580d91d9323439090d591841b6c190",
+  "current_monsters_sha256": "d81bc24b692ca2fca0d438e25a057627d5580d91d9323439090d591841b6c190",
+  "monsters_bytes_unchanged": true,
+  "old_portrait_size": [
+    3101,
+    58
+  ],
+  "current_portrait_size": [
+    3125,
+    58
+  ],
+  "old_portrait_pixels_preserved": true
+}

@@ -1,0 +1,359 @@
+[
+  {
+    "label": "boss-green",
+    "atlas": 3125,
+    "throwerAtlas": 6120,
+    "barEnd": null,
+    "brown": 0,
+    "left": [
+      144,
+      201,
+      0
+    ],
+    "right": [
+      255,
+      132,
+      0
+    ]
+  },
+  {
+    "label": "boss-orange",
+    "atlas": 3125,
+    "throwerAtlas": 6120,
+    "barEnd": null,
+    "brown": 0,
+    "left": [
+      255,
+      132,
+      0
+    ],
+    "right": [
+      222,
+      0,
+      0
+    ]
+  },
+  {
+    "label": "boss-red",
+    "atlas": 3125,
+    "throwerAtlas": 6120,
+    "barEnd": null,
+    "brown": 0,
+    "left": [
+      222,
+      0,
+      0
+    ],
+    "right": [
+      0,
+      0,
+      0
+    ]
+  },
+  {
+    "label": "boss-dead",
+    "atlas": 3125,
+    "throwerAtlas": 6120,
+    "barEnd": null,
+    "brown": 0,
+    "left": [
+      0,
+      0,
+      0
+    ],
+    "right": [
+      0,
+      0,
+      0
+    ]
+  },
+  {
+    "label": "cat-orange",
+    "atlas": 3125,
+    "throwerAtlas": 6120,
+    "barEnd": null,
+    "brown": 75,
+    "left": [
+      255,
+      132,
+      0
+    ],
+    "right": [
+      222,
+      0,
+      0
+    ]
+  },
+  {
+    "label": "cat-red",
+    "atlas": 3125,
+    "throwerAtlas": 6120,
+    "barEnd": null,
+    "brown": 75,
+    "left": [
+      222,
+      0,
+      0
+    ],
+    "right": [
+      0,
+      0,
+      0
+    ]
+  },
+  {
+    "label": "cat-dead",
+    "atlas": 3125,
+    "throwerAtlas": 6120,
+    "barEnd": null,
+    "brown": 75,
+    "left": [
+      0,
+      0,
+      0
+    ],
+    "right": [
+      0,
+      0,
+      0
+    ]
+  },
+  {
+    "label": "grunt",
+    "atlas": 3125,
+    "throwerAtlas": 6120,
+    "barEnd": 341,
+    "brown": 0,
+    "left": [
+      0,
+      0,
+      0
+    ],
+    "right": [
+      57,
+      57,
+      72
+    ]
+  },
+  {
+    "label": "grunt-dead",
+    "atlas": 3125,
+    "throwerAtlas": 6120,
+    "barEnd": 341,
+    "brown": 0,
+    "left": [
+      0,
+      0,
+      0
+    ],
+    "right": [
+      57,
+      57,
+      72
+    ]
+  },
+  {
+    "label": "blue-goblin",
+    "atlas": 3125,
+    "throwerAtlas": 6120,
+    "barEnd": 304,
+    "brown": 0,
+    "left": [
+      0,
+      0,
+      0
+    ],
+    "right": [
+      57,
+      57,
+      72
+    ]
+  },
+  {
+    "label": "red-goblin",
+    "atlas": 3125,
+    "throwerAtlas": 6120,
+    "barEnd": 304,
+    "brown": 0,
+    "left": [
+      0,
+      0,
+      0
+    ],
+    "right": [
+      57,
+      57,
+      72
+    ]
+  },
+  {
+    "label": "ordinary-cat",
+    "atlas": 3125,
+    "throwerAtlas": 6120,
+    "barEnd": 322,
+    "brown": 75,
+    "left": [
+      0,
+      0,
+      0
+    ],
+    "right": [
+      12,
+      11,
+      39
+    ]
+  },
+  {
+    "label": "deep-captain6",
+    "atlas": 3125,
+    "throwerAtlas": 6120,
+    "barEnd": 358,
+    "brown": 94,
+    "left": [
+      0,
+      0,
+      0
+    ],
+    "right": [
+      12,
+      11,
+      39
+    ]
+  },
+  {
+    "label": "deep-captain7",
+    "atlas": 3125,
+    "throwerAtlas": 6120,
+    "barEnd": 400,
+    "brown": 94,
+    "left": [
+      0,
+      0,
+      0
+    ],
+    "right": [
+      12,
+      11,
+      39
+    ]
+  },
+  {
+    "label": "throw-captain6",
+    "atlas": 3125,
+    "throwerAtlas": 6120,
+    "barEnd": 322,
+    "brown": 1551,
+    "left": [
+      0,
+      0,
+      0
+    ],
+    "right": [
+      12,
+      11,
+      39
+    ]
+  },
+  {
+    "label": "throw-captain7",
+    "atlas": 3125,
+    "throwerAtlas": 6120,
+    "barEnd": 356,
+    "brown": 1551,
+    "left": [
+      0,
+      0,
+      0
+    ],
+    "right": [
+      12,
+      11,
+      39
+    ]
+  },
+  {
+    "label": "throw-before",
+    "atlas": 3125,
+    "throwerAtlas": 6120,
+    "barEnd": 356,
+    "brown": 1370,
+    "left": [
+      0,
+      0,
+      0
+    ],
+    "right": [
+      12,
+      11,
+      39
+    ]
+  },
+  {
+    "label": "throw-release",
+    "atlas": 3125,
+    "throwerAtlas": 6120,
+    "barEnd": 356,
+    "brown": 1331,
+    "left": [
+      0,
+      0,
+      0
+    ],
+    "right": [
+      12,
+      11,
+      39
+    ]
+  },
+  {
+    "label": "deep-grunt4",
+    "atlas": 3125,
+    "throwerAtlas": 6120,
+    "barEnd": 276,
+    "brown": 75,
+    "left": [
+      0,
+      0,
+      0
+    ],
+    "right": [
+      12,
+      11,
+      39
+    ]
+  },
+  {
+    "label": "caster4",
+    "atlas": 3125,
+    "throwerAtlas": 6120,
+    "barEnd": 304,
+    "brown": 0,
+    "left": [
+      0,
+      0,
+      0
+    ],
+    "right": [
+      57,
+      57,
+      72
+    ]
+  },
+  {
+    "label": "fire-champion4",
+    "atlas": 3125,
+    "throwerAtlas": 6120,
+    "barEnd": null,
+    "brown": 0,
+    "left": [
+      222,
+      0,
+      0
+    ],
+    "right": [
+      57,
+      57,
+      72
+    ]
+  }
+]

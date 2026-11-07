@@ -1,0 +1,415 @@
+{
+  "folder": "ImagePacks2",
+  "pack": "sprite_monster_goblin.NPK",
+  "entry": "sprite/monster/goblin/body6.img",
+  "sheet": [
+    6120,
+    420
+  ],
+  "cell": [
+    360,
+    420
+  ],
+  "anchor": [
+    180,
+    260
+  ],
+  "native_ground": [
+    100.0,
+    160
+  ],
+  "stand": 76,
+  "frames": [
+    {
+      "frame": 0,
+      "rect": [
+        0,
+        0,
+        360,
+        420
+      ],
+      "source_size": [
+        46,
+        76
+      ],
+      "native_xy": [
+        77,
+        84
+      ],
+      "paste_xy": [
+        157,
+        184
+      ],
+      "source_rgba_sha256": "3100ed466b1cec4c0335ba3ac3049ab650cd09f9696bc90191ad7e8f9993e99b",
+      "cell_rgba_sha256": "ee519f1fbac1ef6fb7779a1956986b5d646f2c332fe8f5e9e18bf9b1a7d5f7d6"
+    },
+    {
+      "frame": 1,
+      "rect": [
+        360,
+        0,
+        360,
+        420
+      ],
+      "source_size": [
+        60,
+        76
+      ],
+      "native_xy": [
+        70,
+        84
+      ],
+      "paste_xy": [
+        150,
+        184
+      ],
+      "source_rgba_sha256": "08394ce684364fabf0ca71ee0ef57eaaefcf90d6ea632215f029490ac060bce5",
+      "cell_rgba_sha256": "89c3cb8e9f20eebd7db64e71fa722b075d514db7c709906a7cc353dc7eee2c9f"
+    },
+    {
+      "frame": 2,
+      "rect": [
+        720,
+        0,
+        360,
+        420
+      ],
+      "source_size": [
+        55,
+        89
+      ],
+      "native_xy": [
+        65,
+        70
+      ],
+      "paste_xy": [
+        145,
+        170
+      ],
+      "source_rgba_sha256": "85ef90014220a1f65592c080b055784ec033b4f132db3666ca21a94d112a0c52",
+      "cell_rgba_sha256": "bf2adcabe5e9f5d3ecbc194adb722ef38d91733e312cf9c19487ef936c65806a"
+    },
+    {
+      "frame": 3,
+      "rect": [
+        1080,
+        0,
+        360,
+        420
+      ],
+      "source_size": [
+        61,
+        72
+      ],
+      "native_xy": [
+        71,
+        88
+      ],
+      "paste_xy": [
+        151,
+        188
+      ],
+      "source_rgba_sha256": "d69968d318bda4949b7696f329a68d00ae2207e823527720a38dac1873a7698d",
+      "cell_rgba_sha256": "fe672ca1d7568ddf61be6cf8481382110a59a0ff47ea8b1f9de57a623628d2c4"
+    },
+    {
+      "frame": 4,
+      "rect": [
+        1440,
+        0,
+        360,
+        420
+      ],
+      "source_size": [
+        54,
+        71
+      ],
+      "native_xy": [
+        74,
+        89
+      ],
+      "paste_xy": [
+        154,
+        189
+      ],
+      "source_rgba_sha256": "c5717d7508ab00e8d514e7034d676a34b19859fc4a8d43a53e144d454b25a28a",
+      "cell_rgba_sha256": "7eadb29d74e8293f0ef7a36acc11b22a5d80043e206632b456f42f607bc179a0"
+    },
+    {
+      "frame": 5,
+      "rect": [
+        1800,
+        0,
+        360,
+        420
+      ],
+      "source_size": [
+        53,
+        67
+      ],
+      "native_xy": [
+        72,
+        89
+      ],
+      "paste_xy": [
+        152,
+        189
+      ],
+      "source_rgba_sha256": "e30d708d4657d518038a0a30e9a5d92124e323ac49b2419ca6fb7eb2130b56e4",
+      "cell_rgba_sha256": "438daa4eaf17fe7f29ae9c0840993b856e006206d6dbce349866c3767e98e43e"
+    },
+    {
+      "frame": 6,
+      "rect": [
+        2160,
+        0,
+        360,
+        420
+      ],
+      "source_size": [
+        53,
+        72
+      ],
+      "native_xy": [
+        55,
+        84
+      ],
+      "paste_xy": [
+        135,
+        184
+      ],
+      "source_rgba_sha256": "95270a1682c0d01f1c131d5a0abea2d6c1522e04a4033bf42e385d22719c7d3c",
+      "cell_rgba_sha256": "6d989dc10b4f73c438ac10228c8e836efc1ea6c9027f042abe9c7d96d40067d7"
+    },
+    {
+      "frame": 7,
+      "rect": [
+        2520,
+        0,
+        360,
+        420
+      ],
+      "source_size": [
+        67,
+        53
+      ],
+      "native_xy": [
+        49,
+        108
+      ],
+      "paste_xy": [
+        129,
+        208
+      ],
+      "source_rgba_sha256": "8f8e1273f9d43a2b82a08466bc5b73dd5ae8e3f4f7dc29af7b83f47709228177",
+      "cell_rgba_sha256": "334f9ee1e1787f18cdadb552a3592ef439c46b3ac1696cc97b32bc333e8d63a1"
+    },
+    {
+      "frame": 8,
+      "rect": [
+        2880,
+        0,
+        360,
+        420
+      ],
+      "source_size": [
+        72,
+        53
+      ],
+      "native_xy": [
+        47,
+        113
+      ],
+      "paste_xy": [
+        127,
+        213
+      ],
+      "source_rgba_sha256": "e46223e4ae3acdc411b2f5a2b76cad3e1477eaab0aaabbeccf83895c8a88ee62",
+      "cell_rgba_sha256": "4e36e7a99b616f1ababe0bca60de95e4833b1159c1f558599fa6e3fe04262337"
+    },
+    {
+      "frame": 9,
+      "rect": [
+        3240,
+        0,
+        360,
+        420
+      ],
+      "source_size": [
+        93,
+        37
+      ],
+      "native_xy": [
+        35,
+        130
+      ],
+      "paste_xy": [
+        115,
+        230
+      ],
+      "source_rgba_sha256": "5a0780e0d50b6b54a41a7535a473193ee1e3d2570b6af3055f7af5544fb42bbb",
+      "cell_rgba_sha256": "2c1840343d8673706e6f1a77a3d505bf4af5d9c350852b40adc7cd42aed5ae39"
+    },
+    {
+      "frame": 10,
+      "rect": [
+        3600,
+        0,
+        360,
+        420
+      ],
+      "source_size": [
+        50,
+        57
+      ],
+      "native_xy": [
+        71,
+        97
+      ],
+      "paste_xy": [
+        151,
+        197
+      ],
+      "source_rgba_sha256": "8017febae71a5fcf470d6f39ca09f67544e92832ded0d92436516bf3fac5f89c",
+      "cell_rgba_sha256": "a2df48777616bdf68faeb3a9ec547f5cc5b34075c92673645d2011b786e9a397"
+    },
+    {
+      "frame": 11,
+      "rect": [
+        3960,
+        0,
+        360,
+        420
+      ],
+      "source_size": [
+        43,
+        72
+      ],
+      "native_xy": [
+        76,
+        84
+      ],
+      "paste_xy": [
+        156,
+        184
+      ],
+      "source_rgba_sha256": "19e66d56d197a348c462373d849555c52f43937129e70effc4fe9edacede3b47",
+      "cell_rgba_sha256": "cd56b3ff69aff2b3cf4d4f98f50abe30c25ceba69fce336bfd49585a141d5c36"
+    },
+    {
+      "frame": 12,
+      "rect": [
+        4320,
+        0,
+        360,
+        420
+      ],
+      "source_size": [
+        46,
+        72
+      ],
+      "native_xy": [
+        73,
+        84
+      ],
+      "paste_xy": [
+        153,
+        184
+      ],
+      "source_rgba_sha256": "eb4874c3e3441b329be594c5f7b9e0bacfef76a08ad2c08a3ddab5688b2e49ff",
+      "cell_rgba_sha256": "49fe12c562ac18fb27bc55c536a660087b396af8ca3d1d117db714349cfeccd7"
+    },
+    {
+      "frame": 13,
+      "rect": [
+        4680,
+        0,
+        360,
+        420
+      ],
+      "source_size": [
+        51,
+        68
+      ],
+      "native_xy": [
+        69,
+        88
+      ],
+      "paste_xy": [
+        149,
+        188
+      ],
+      "source_rgba_sha256": "f4c3a9f2bf390a0d9f5837625ce18b72925b2543260b54db862c9e62b8fc61f5",
+      "cell_rgba_sha256": "f5e118b1f2197052d52c8b3bce5d0b8037c90f69f56c20059771b3d2a61ecd61"
+    },
+    {
+      "frame": 14,
+      "rect": [
+        5040,
+        0,
+        360,
+        420
+      ],
+      "source_size": [
+        45,
+        72
+      ],
+      "native_xy": [
+        73,
+        85
+      ],
+      "paste_xy": [
+        153,
+        185
+      ],
+      "source_rgba_sha256": "a653598693cf6eb8c4c76bc4747d056fec009534596fca0a3715929beda85eb5",
+      "cell_rgba_sha256": "c8b76e9e07265863b7340303643f97092e0315a05a65dfa6d84e758ff5ed0d22"
+    },
+    {
+      "frame": 15,
+      "rect": [
+        5400,
+        0,
+        360,
+        420
+      ],
+      "source_size": [
+        52,
+        73
+      ],
+      "native_xy": [
+        74,
+        83
+      ],
+      "paste_xy": [
+        154,
+        183
+      ],
+      "source_rgba_sha256": "e7de3ab1ce19fa47581c59e25e8805d4d366685f73d637f35fe9cffbcf17921a",
+      "cell_rgba_sha256": "e39c7875b71121902fd7be8c749e93778434a72c01e0776b34b575ab066136d1"
+    },
+    {
+      "frame": 16,
+      "rect": [
+        5760,
+        0,
+        360,
+        420
+      ],
+      "source_size": [
+        61,
+        69
+      ],
+      "native_xy": [
+        66,
+        87
+      ],
+      "paste_xy": [
+        146,
+        187
+      ],
+      "source_rgba_sha256": "7c470fcb551b6a8869acd00620b4e42d9d733e6119b54b245fa2180af5e33043",
+      "cell_rgba_sha256": "fad167d1004bd23220d834bd895402bfa9678c0908555954805bf862c4629ba6"
+    }
+  ]
+}

@@ -3,6 +3,7 @@
 from pathlib import Path
 import struct, numpy as np
 import argparse,json,hashlib
+from client_animation import parse_animation
 a=argparse.ArgumentParser(description='Read native target-face links from local Script_70.pvf')
 a.add_argument('--client',type=Path,default=Path('/mnt/c/dnf/地下城与勇士'))
 a.add_argument('--out',type=Path,default=Path('/tmp/nano-target-faces.json'))
@@ -35,7 +36,7 @@ def tokens(name):
 
 links={'grunt':'goblin/goblin','coward':'goblin/cowardgoblin','caster':'goblin/goblinthrower',
  'goblinBlue':'goblin/seagab','goblinRed':'goblin/hillgab','elite':'goblin/kinol',
- 'throwerElite':'goblin/goblintaskmaster','brute':'tau/tauarmy','cat':'lugaru/lugaru',
+ 'throwerElite':'goblin/goblinthrowertaskmaster','deepElite':'goblin/goblintaskmaster','brute':'tau/tauarmy','cat':'lugaru/lugaru',
  'boss':'tau/taubeast','lugaruBoss':'lugaru/kurogaru'}
 out={}
 for key,short in links.items():
@@ -50,6 +51,16 @@ for key,short in links.items():
   for _ in range(path_count):
    length=u(data,pos);pos+=4;paths.append(data[pos:pos+length].decode());pos+=length
   record['waiting_animation']={'entry':motion,'frames':n,'paths':paths}
+ if key in ['throwerElite','deepElite']:
+  record['motions']={}
+  for tag in ['[waiting motion]','[move motion]','[down motion]','[attack motion]']:
+   at=ts.index((5,tag))+1
+   while at<len(ts) and ts[at][0]!=5:
+    value=ts[at][1];at+=1
+    if not isinstance(value,str) or not value.lower().endswith('.ani'):continue
+    entry='monster/goblin/'+value.lower();decoded=parse_animation(read(entry))
+    record['motions'][tag]={'entry':entry,'paths':decoded['paths'],
+     'frames':[{'frame':v['frame'],'delay_ms':dict(v['props']).get(12)} for v in decoded['frames']]}
  out[key]=record
 f.close();a.out.parent.mkdir(parents=True,exist_ok=True)
 a.out.write_text(json.dumps({'source':p.name,'faces':out},ensure_ascii=False,indent=2)+'\n')

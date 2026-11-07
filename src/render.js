@@ -4301,10 +4301,9 @@
    * `assets/import_dnf_monsters.py`. One row per archetype, frames in the
    * client's own order.
    *
-   * **Which frame is which action is not in the client** - it lives in the
-   * encrypted `Script.pvf` `.ani`. The ranges below were read off the owner's
-   * 幽暗密林 recording, by putting the video's frames next to the art's and
-   * matching poses (`assets/match_monster_motions.py`, `docs/granfloris-assets.md`).
+   * Legacy ranges were matched to the recording. The local PVF ANI reader
+   * now verifies the captain family directly (reference batch34); other
+   * families retain their older, separately documented pose evidence.
    *
    * The cell and the anchor belong to the bake, not to this file: the sheet puts
    * every monster's feet on `anchorY`, with the idle footprint centred on
@@ -4316,7 +4315,7 @@
    * 取一格、把 alpha 二值化成实心白、再在四周压一圈黑描边，缓存起来。
    * 参考里哥布林和领主的白团都有黑边（`docs/adr/0034` 追记二）。
    */
-  var silhouetteCache = {};
+  var silhouetteCache = new WeakMap();
 
   /*
    * 一张压暗的森林图，给碎块当"厚度"用（source-atop 压黑，整张烘一次、缓存）。
@@ -4355,10 +4354,9 @@
       grunt: 0, coward: 1, caster: 2, brute: 3, elite: 4, boss: 5,
       /* 换色的两具是后加的两行（`assets/import_dnf_monsters.py` 的 ROSTER 顺序）。 */
       goblinBlue: 6, goblinRed: 7,
-      /* 幽暗密林深处 的三只：猫妖、投掷十夫长、暗咒猫妖（ROSTER 顺序 8/9/10）。 */
-      cat: 8, throwerElite: 9, lugaruBoss: 10,
-      /* 深处的十夫长借投掷十夫长那一行（同一具 goblintaskmaster 美术）。 */
-      deepElite: 9,
+      /* Blue GoblinTaskmaster stays in row9. The brown throwing captain
+       * uses its independent body6 atlas, selected inside drawMonster. */
+      cat: 8, deepElite: 9, lugaruBoss: 10,
       /*
        * 冠军怪那两条**没有自己的行**：它们是同一个兵种加一层光环（`docs/adr/0046`），
        * 所以指回原来那一行 —— 咒之赤哥布林就是赤哥布林那张画，燃烧之投掷就是投掷
@@ -4385,7 +4383,7 @@
        * 猫妖/暗咒猫妖的 `.img` 是 73×75 的画布，站姿帧的墨高 75；投掷十夫长
        * 和十夫长同族，量出来 86。**烘焙后用 `--report` 复核**，不一致改这里。
        */
-      cat: 74, throwerElite: 75, lugaruBoss: 74,
+      cat: 74, throwerElite: 76, lugaruBoss: 74,
       deepElite: 75,
       cursedRed: 76, burningThrower: 78
     },
@@ -4451,6 +4449,9 @@
      * this table too. `body05` differs slightly and `body07` (牛头王) is another
      * body entirely; neither is in this stage.
      */
+    // Native Animation_Gero / Animation_Kinol2: walk 11..16 at 100ms;
+    // attacks 0..4. Frames 5/6 are damage/down poses, not the end of a throw.
+    captain: { idle:[0,0],attack:[0,4],down:[5,9],walk:[11,16],walkFps:10,windupAttack:true },
     tau: {
       idle: [0, 1],
       attack: [2, 6],
@@ -4479,8 +4480,8 @@
       brute: "tau",
       boss: "tau",
       cat: "lugaru",
-      throwerElite: "goblin",
-      deepElite: "goblin",
+      throwerElite: "captain",
+      deepElite: "captain",
       lugaruBoss: "lugaru",
       /*
        * 换色的那两具走的是**同一套十七帧动作**（客户端那一族本来就是同一画布换色，
@@ -4502,9 +4503,10 @@
    */
   function silhouetteCell(image, row, column) {
     if (typeof document === "undefined" || !document.createElement) return null;
+    var cells = silhouetteCache.get(image);
+    if (!cells) { cells = {}; silhouetteCache.set(image,cells); }
     var key = row + ":" + column;
-    var cached = silhouetteCache[key];
-    if (cached && cached.source === image) return cached.canvas;
+    if (cells[key]) return cells[key];
     var cw = MONSTER.cellW;
     var ch = MONSTER.cellH;
     var source = document.createElement("canvas");
@@ -4552,7 +4554,7 @@
       }
     }
     ob.drawImage(white, 0, 0);
-    silhouetteCache[key] = { source: image, canvas: out };
+    cells[key] = out;
     return out;
   }
 
@@ -4578,12 +4580,17 @@
     var first = range[0];
     var span = range[1] - range[0];
     if (span <= 0) return first;
+    if (pose === "attack" && table.windupAttack) {
+      var elapsed=(enemy.attackDuration || 1)-enemy.attackTimer;
+      if(elapsed>=enemy.attackWindup)return range[1];
+      return first+Math.min(span-1,Math.floor(Math.max(0,elapsed)/(enemy.attackWindup || 1)*span));
+    }
     if (pose === "attack" || pose === "sweep") {
       var progress = 1 - Math.max(0, enemy.attackTimer / (enemy.attackDuration || 1));
       return first + Math.min(span, Math.floor(progress * (span + 1)));
     }
     if (pose === "down") return range[1];
-    var beat = pose === "walk" ? 11 : 3.2;
+    var beat = pose === "walk" ? (table.walkFps || 11) : 3.2;
     return first + (Math.floor(state.time * beat) % (span + 1));
   }
 
@@ -4632,9 +4639,11 @@
 
   function drawMonster(ctx, state, enemy, sprites) {
     var sheet = sprites && sprites.monsters;
-    if (!sheet || !sheet.width) return false;
     var row = MONSTER.rows[enemy.type];
-    if (row === undefined) return false;
+    if (enemy.type === "throwerElite") {
+      sheet=sprites && sprites.throwerReference;row=0;
+    }
+    if (!sheet || !sheet.width || row === undefined) return false;
     var table = MONSTER[MONSTER.poses[enemy.type]];
     var column = monsterFrame(state, enemy, table || { idle: [0, 0] });
     /*
@@ -4840,18 +4849,8 @@
       ctx.restore();
     }
 
-    if (enemy.hp < enemy.maxHp) {
-      var barW = w + 12;
-      var ratio = Math.max(0, enemy.hp / enemy.maxHp);
-      ctx.save();
-      ctx.fillStyle = "rgba(0,0,0,0.62)";
-      roundRect(ctx, enemy.x - barW / 2, feetY(enemy) -h - 18, barW, 6, 3);
-      ctx.fill();
-      ctx.fillStyle = enemy.behavior === "boss" ? PALETTE.danger : "#ff9d5c";
-      roundRect(ctx, enemy.x - barW / 2 + 1, feetY(enemy) -h - 17, (barW - 2) * ratio, 4, 2);
-      ctx.fill();
-      ctx.restore();
-    }
+    // V2 70/355s: damage is shown in the selected target panel; the
+    // old orange per-monster overhead HP bars are absent from the recording.
 
     /* DNF-style status tells: bleeding ticks, grounded knockdowns, stunned targets. */
     if (enemy.bleed) {
@@ -6858,9 +6857,9 @@
 
   /** 把一张怪的脸画进头像框：取它站姿那一帧的**头部**那一段。 */
   function drawMonsterFace(ctx, sprites, type, box) {
-    var sheet = sprites && sprites.monsters;
-    var row = MONSTER.rows[type];
-    if (!sheet || row === undefined) return false;
+    var sheet = sprites && (type === "throwerElite" ? sprites.throwerReference : sprites.monsters);
+    var row = type === "throwerElite" ? 0 : MONSTER.rows[type];
+    if (!sheet || !sheet.width || row === undefined) return false;
     var face = MONSTER.face && MONSTER.face[type];
     if (face) {
       /* 这一只的头不按通用裁法长（牛头巨兽的侧身低头）：按量的矩形装进框里。 */
@@ -6942,7 +6941,7 @@
     goblinBlue: [375, 0, 24, 24],
     goblinRed: [399, 0, 24, 24],
     cat: [423, 0, 24, 24],
-    throwerElite: [447, 0, 24, 24],
+    deepElite: [447, 0, 24, 24],
     deathCross: [471, 0, 24, 24],
     normalFrame: [495, 0, 626, 32],
     normalFill: [1121, 0, 597, 9],
@@ -6954,6 +6953,7 @@
     alertRed: [2987, 0, 38, 26],
     alertOrange: [3025, 0, 38, 26],
     alertGreen: [3063, 0, 38, 26],
+    throwerElite: [3101, 0, 24, 24],
   };
   function drawBossPortrait(ctx, sprites, x, y, size, type) {
     var atlas = sprites && sprites.portraits;
@@ -7119,6 +7119,18 @@
     bossFillX: 38.25, bossFillY: 3.375,
     tileW: 42.75, tileH: 29.25
   };
+  // Observed reference profiles, not a formula derived from this demo's HP.
+  // No interpolation/extrapolation for unobserved stages or levels.
+  var TARGET_WIDTHS = {
+    mirkwood: {grunt:{4:181},goblinBlue:{4:144},goblinRed:{4:144},caster:{4:144},burningThrower:{4:217}},
+    mirkwooddeep: {grunt:{4:116},goblinBlue:{6:144},goblinRed:{6:144},cat:{6:162},
+      throwerElite:{6:162,7:196},deepElite:{6:198,7:240}}
+  };
+  function targetTrackWidth(state,enemy) {
+    var stage=TARGET_WIDTHS[state.stage && state.stage.id];
+    var profile=stage && stage[enemy.type],info=Core.monsterInfo(enemy.type);
+    return profile && profile[enemy.level || info.level] || TARGET_NATIVE.normalBar;
+  }
   var TARGET_FACES = {
     cursedRed: "goblinRed", burningThrower: "caster", charger: "grunt"
   };
@@ -7144,7 +7156,7 @@
     var fx=lord?5:champion?4:2,fy=lord?3:champion?4:2;
     var fillX=lord?x+a.bossFillX:x+(champion?34:29)*s;
     var fillY=lord?y+a.bossFillY:y+(champion?19:17)*s;
-    var fillW=lord?a.bossBar:a.normalBar,fillH=lord?a.tileH:9*s;
+    var fillW=lord?a.bossBar:targetTrackWidth(state,enemy),fillH=lord?a.tileH:9*s;
     var end=fillX+fillW;
     ctx.save();ctx.imageSmoothingEnabled=false;
     ctx.save();ctx.beginPath();ctx.rect(x,y,end-x,frame[3]*s);ctx.clip();
@@ -10071,6 +10083,7 @@
     RESULT_ART: RESULT_ART,
     PORTRAITS: PORTRAITS,
     TARGET_NATIVE: TARGET_NATIVE,
+    targetTrackWidth: targetTrackWidth,
     minimapBox: minimapBox,
     hitTestMinimap: hitTestMinimap,
     /* 魔狱血刹's two live-drawn numbers, so tests can pin them to the sheets. */

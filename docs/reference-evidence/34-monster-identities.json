@@ -1,0 +1,425 @@
+{
+  "source": "Script_70.pvf",
+  "faces": {
+    "grunt": {
+      "entry": "monster/goblin/goblin.mob",
+      "sha256": "ef155eb3f89319fca7dfc75b0e1fa4d98bdb6c723d6d286057d7a1775f3f9854",
+      "[face image]": [
+        "Monster/MonsterFace.img",
+        0
+      ],
+      "[waiting motion]": [
+        "Animation_Goblin2/Stay.ani"
+      ],
+      "waiting_animation": {
+        "entry": "monster/goblin/animation_goblin2/stay.ani",
+        "frames": 1,
+        "paths": [
+          "Monster/Goblin/Event/Goblin.img"
+        ]
+      }
+    },
+    "coward": {
+      "entry": "monster/goblin/cowardgoblin.mob",
+      "sha256": "4786b6d6ea6f51d32eba07bca21bf7769980878486426b11446c19a6536ee17f",
+      "[face image]": [
+        "Monster/MonsterFace.img",
+        1
+      ],
+      "[waiting motion]": [
+        "Animation_CowardGoblin2/Stay.ani"
+      ],
+      "waiting_animation": {
+        "entry": "monster/goblin/animation_cowardgoblin2/stay.ani",
+        "frames": 1,
+        "paths": [
+          "Monster/Goblin/Event/CowardGoblin.img"
+        ]
+      }
+    },
+    "caster": {
+      "entry": "monster/goblin/goblinthrower.mob",
+      "sha256": "12167f8807586926eedd002473d62c0e096e66bd0b67c07738cfb877fa969e2c",
+      "[face image]": [
+        "Monster/MonsterFace.img",
+        4
+      ],
+      "[waiting motion]": [
+        "Animation_Thrower/Stay.ani"
+      ],
+      "waiting_animation": {
+        "entry": "monster/goblin/animation_thrower/stay.ani",
+        "frames": 1,
+        "paths": [
+          "monster/goblin/body0.img"
+        ]
+      }
+    },
+    "goblinBlue": {
+      "entry": "monster/goblin/seagab.mob",
+      "sha256": "2ce9497a049b11f83555d76e646df411c12cc84a64b04a194309e9750a72d1d5",
+      "[face image]": [
+        "Monster/MonsterFace.img",
+        7
+      ],
+      "[waiting motion]": [
+        "Animation_IslandGoblin/Stay.ani"
+      ],
+      "waiting_animation": {
+        "entry": "monster/goblin/animation_islandgoblin/stay.ani",
+        "frames": 1,
+        "paths": [
+          "monster/goblin/body7.img"
+        ]
+      }
+    },
+    "goblinRed": {
+      "entry": "monster/goblin/hillgab.mob",
+      "sha256": "9261d4016da52ff014a1cfff015a57f9d813c65872a72dd7b2988f689c5876b9",
+      "[face image]": [
+        "Monster/MonsterFace.img",
+        9
+      ],
+      "[waiting motion]": [
+        "Animation_MountainGoblin/Stay.ani"
+      ],
+      "waiting_animation": {
+        "entry": "monster/goblin/animation_mountaingoblin/stay.ani",
+        "frames": 1,
+        "paths": [
+          "monster/goblin/body8.img"
+        ]
+      }
+    },
+    "elite": {
+      "entry": "monster/goblin/kinol.mob",
+      "sha256": "314bf985357f53a21f08487319c6581422cae2eb663e6611a3d80911d50248e1",
+      "[face image]": [
+        "Monster/MonsterFace.img",
+        3
+      ],
+      "[waiting motion]": [
+        "Animation_LightningKinol2/Stay.ani"
+      ],
+      "waiting_animation": {
+        "entry": "monster/goblin/animation_lightningkinol2/stay.ani",
+        "frames": 1,
+        "paths": [
+          "Monster/Goblin/Event/Kinol.img"
+        ]
+      }
+    },
+    "throwerElite": {
+      "entry": "monster/goblin/goblinthrowertaskmaster.mob",
+      "sha256": "a234743572cc79f55bb50ceb922ae51214e775f1cef635fdf05a998c0bbc2f40",
+      "[face image]": [
+        "Monster/MonsterFace.img",
+        6
+      ],
+      "[waiting motion]": [
+        "Animation_Gero/Stay.ani"
+      ],
+      "waiting_animation": {
+        "entry": "monster/goblin/animation_gero/stay.ani",
+        "frames": 1,
+        "paths": [
+          "monster/goblin/body6.img"
+        ]
+      },
+      "motions": {
+        "[waiting motion]": {
+          "entry": "monster/goblin/animation_gero/stay.ani",
+          "paths": [
+            "monster/goblin/body6.img"
+          ],
+          "frames": [
+            {
+              "frame": 0,
+              "delay_ms": 80
+            }
+          ]
+        },
+        "[move motion]": {
+          "entry": "monster/goblin/animation_gero/move.ani",
+          "paths": [
+            "monster/goblin/body6.img"
+          ],
+          "frames": [
+            {
+              "frame": 11,
+              "delay_ms": 100
+            },
+            {
+              "frame": 12,
+              "delay_ms": 100
+            },
+            {
+              "frame": 13,
+              "delay_ms": 100
+            },
+            {
+              "frame": 14,
+              "delay_ms": 100
+            },
+            {
+              "frame": 15,
+              "delay_ms": 100
+            },
+            {
+              "frame": 16,
+              "delay_ms": 100
+            }
+          ]
+        },
+        "[down motion]": {
+          "entry": "monster/goblin/animation_gero/down.ani",
+          "paths": [
+            "monster/goblin/body6.img"
+          ],
+          "frames": [
+            {
+              "frame": 5,
+              "delay_ms": 80
+            },
+            {
+              "frame": 6,
+              "delay_ms": 80
+            },
+            {
+              "frame": 7,
+              "delay_ms": 10000
+            },
+            {
+              "frame": 8,
+              "delay_ms": 10000
+            },
+            {
+              "frame": 9,
+              "delay_ms": 500
+            }
+          ]
+        },
+        "[attack motion]": {
+          "entry": "monster/goblin/animation_gero/throw.ani",
+          "paths": [
+            "monster/goblin/body6.img"
+          ],
+          "frames": [
+            {
+              "frame": 0,
+              "delay_ms": 80
+            },
+            {
+              "frame": 1,
+              "delay_ms": 80
+            },
+            {
+              "frame": 2,
+              "delay_ms": 80
+            },
+            {
+              "frame": 3,
+              "delay_ms": 80
+            },
+            {
+              "frame": 4,
+              "delay_ms": 200
+            }
+          ]
+        }
+      }
+    },
+    "deepElite": {
+      "entry": "monster/goblin/goblintaskmaster.mob",
+      "sha256": "fdf8ecb6ec61ce861b1726c32573d58ffffa89b823facd9163f52195d6de2631",
+      "[face image]": [
+        "Monster/MonsterFace.img",
+        2
+      ],
+      "[waiting motion]": [
+        "Animation_Kinol2/Stay.ani"
+      ],
+      "waiting_animation": {
+        "entry": "monster/goblin/animation_kinol2/stay.ani",
+        "frames": 1,
+        "paths": [
+          "Monster/Goblin/Event/GoblinTaskmaster.img"
+        ]
+      },
+      "motions": {
+        "[waiting motion]": {
+          "entry": "monster/goblin/animation_kinol2/stay.ani",
+          "paths": [
+            "Monster/Goblin/Event/GoblinTaskmaster.img"
+          ],
+          "frames": [
+            {
+              "frame": 0,
+              "delay_ms": 80
+            }
+          ]
+        },
+        "[move motion]": {
+          "entry": "monster/goblin/animation_kinol2/move.ani",
+          "paths": [
+            "Monster/Goblin/Event/GoblinTaskmaster.img"
+          ],
+          "frames": [
+            {
+              "frame": 11,
+              "delay_ms": 100
+            },
+            {
+              "frame": 12,
+              "delay_ms": 100
+            },
+            {
+              "frame": 13,
+              "delay_ms": 100
+            },
+            {
+              "frame": 14,
+              "delay_ms": 100
+            },
+            {
+              "frame": 15,
+              "delay_ms": 100
+            },
+            {
+              "frame": 16,
+              "delay_ms": 100
+            }
+          ]
+        },
+        "[down motion]": {
+          "entry": "monster/goblin/animation_kinol2/down.ani",
+          "paths": [
+            "Monster/Goblin/Event/GoblinTaskmaster.img"
+          ],
+          "frames": [
+            {
+              "frame": 5,
+              "delay_ms": 80
+            },
+            {
+              "frame": 6,
+              "delay_ms": 80
+            },
+            {
+              "frame": 7,
+              "delay_ms": 10000
+            },
+            {
+              "frame": 8,
+              "delay_ms": 10000
+            },
+            {
+              "frame": 9,
+              "delay_ms": 500
+            }
+          ]
+        },
+        "[attack motion]": {
+          "entry": "monster/goblin/animation_kinol2/attack1.ani",
+          "paths": [
+            "Monster/Goblin/Event/GoblinTaskmaster.img"
+          ],
+          "frames": [
+            {
+              "frame": 0,
+              "delay_ms": 80
+            },
+            {
+              "frame": 1,
+              "delay_ms": 80
+            },
+            {
+              "frame": 2,
+              "delay_ms": 80
+            },
+            {
+              "frame": 3,
+              "delay_ms": 80
+            },
+            {
+              "frame": 4,
+              "delay_ms": 200
+            }
+          ]
+        }
+      }
+    },
+    "brute": {
+      "entry": "monster/tau/tauarmy.mob",
+      "sha256": "d136e254f7fd0d2d92a476b96f484d27a75edda2df274f990d97c481b98eacff",
+      "[face image]": [
+        "Monster/MonsterFace.img",
+        15
+      ],
+      "[waiting motion]": [
+        "ArmyAnimation/Stay.ani"
+      ],
+      "waiting_animation": {
+        "entry": "monster/tau/armyanimation/stay.ani",
+        "frames": 1,
+        "paths": [
+          "Monster/Tau/Body01.img"
+        ]
+      }
+    },
+    "cat": {
+      "entry": "monster/lugaru/lugaru.mob",
+      "sha256": "11e2139d6b196f145718b00bacd1b407d6dcc9bc2e6cbe28ec753c189bc5f540",
+      "[face image]": [
+        "Monster/MonsterFace.img",
+        11
+      ],
+      "[waiting motion]": [
+        "Animation_Lugaru/Stay_2.ani"
+      ],
+      "waiting_animation": {
+        "entry": "monster/lugaru/animation_lugaru/stay_2.ani",
+        "frames": 4,
+        "paths": [
+          "Monster/Lugaru/Lugaru.img"
+        ]
+      }
+    },
+    "boss": {
+      "entry": "monster/tau/taubeast.mob",
+      "sha256": "ea36631a60e2c2c2fde26796a8b815445d7e2fc1dbdf9b8138ca657b0b18a5ba",
+      "[face image]": [
+        "Monster/MonsterFace.img",
+        16
+      ],
+      "[waiting motion]": [
+        "BeastAnimation/Stay.ani"
+      ],
+      "waiting_animation": {
+        "entry": "monster/tau/beastanimation/stay.ani",
+        "frames": 1,
+        "paths": [
+          "Monster/Tau/Body02.img"
+        ]
+      }
+    },
+    "lugaruBoss": {
+      "entry": "monster/lugaru/kurogaru.mob",
+      "sha256": "965ca745fc5a82c57575cbb882e9372d56584f2bf1ff56f051df2e08ddddbc00",
+      "[face image]": [
+        "Monster/MonsterFace.img",
+        13
+      ],
+      "[waiting motion]": [
+        "Animation_BlackLugaru/Stay_2.ani"
+      ],
+      "waiting_animation": {
+        "entry": "monster/lugaru/animation_blacklugaru/stay_2.ani",
+        "frames": 4,
+        "paths": [
+          "Monster/Lugaru/BlackLugaru.img"
+        ]
+      }
+    }
+  }
+}

@@ -23,13 +23,16 @@ SOURCES=[
 
 # MonsterFace links from Script_70.pvf; champion recolours reuse their base face.
 for name,index in [('grunt',0),('coward',1),('caster',4),('brute',15),('elite',3),
-                   ('goblinBlue',7),('goblinRed',9),('cat',11),('throwerElite',2)]:
+                   ('goblinBlue',7),('goblinRed',9),('cat',11),('deepElite',2)]:
  SOURCES.append((name,'ImagePacks2_70','sprite_monster.NPK','sprite/monster/monsterface.img',index,None))
 for name,index in [('deathCross',0),('normalFrame',1),('normalFill',2),('normalCap',8),
                    ('championFrame',9),('championCap',10),('bossFrame',11),('bossCap',12),
                    ('alertRed',13),('alertOrange',14),('alertGreen',15)]:
  SOURCES.append((name,'ImagePacks2_70','sprite_interface_newstyle_windows_monster_hp.NPK',
   'sprite/interface/newstyle/windows/monster_hp/monster_hp.img',index,None))
+
+# Preserve the old blue UI face at x447; append the corrected brown thrower.
+SOURCES.append(('throwerElite','ImagePacks2_70','sprite_monster.NPK','sprite/monster/monsterface.img',6,None))
 
 def frames(client):
  for name,folder,pack,entry,index,crop in SOURCES:

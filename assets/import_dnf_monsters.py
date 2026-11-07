@@ -3,10 +3,10 @@
 
 **What a monster's art is.** One `.img` is the whole monster: `goblin/body0.img`
 is seventeen frames holding stand, walk, attack, hurt and get-up in one run.
-Which range is which action **is not in the client** - it lives in the encrypted
-`Script.pvf` `.ani`, which cannot be read - so this script bakes every frame in
-the client's own order and the named ranges come from watching the recording
-(`docs/granfloris-assets.md`, `assets/match_monster_motions.py`).
+The original pose ranges came from video matching. The local PVF ANI reader
+can now verify native image links and timing; batch34 separates blue
+GoblinTaskmaster from the brown throwing captain (import_dnf_thrower.py).
+Other families still retain their separately documented pose evidence.
 
 **How a frame is placed.** Each frame carries its own size and its own offset
 `(x, y)`, and the offset is **where that frame's bitmap is drawn** - a position
@@ -75,9 +75,9 @@ ROSTER = [
     # 幽暗密林深处 - the cat family and the throwing ten-captain. `lugaru` is the
     # orange 猫妖 the recording names; `blacklugaru` is 库罗猫妖, the stage boss
     # (the recording calls it 领主 - 暗咒猫妖); `goblintaskmaster` is the
-    # recording's 投掷十夫长.
+    # recording's blue 十夫长; the brown thrower uses import_dnf_thrower.py.
     ("cat",          "sprite_monster_lugaru.NPK",       "lugaru/lugaru.img"),
-    ("throwerElite", "sprite_monster_goblin_event.NPK", "goblin/event/goblintaskmaster.img"),
+    ("deepElite",    "sprite_monster_goblin_event.NPK", "goblin/event/goblintaskmaster.img"),
     ("lugaruBoss",   "sprite_monster_lugaru.NPK",       "lugaru/blacklugaru.img"),
 ]
 

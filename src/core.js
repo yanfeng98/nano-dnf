@@ -2128,7 +2128,7 @@
 
     /*
      * **投掷十夫长**：录像那块条上的 `人型 Lv6 投掷十夫长`，客户端对应
-     * `goblin/event/goblintaskmaster.img`。它是十夫长的远程亲戚——站位更远、
+     * `goblin/body6.img`（Animation_Gero / MonsterFace f6）。它是十夫长的远程亲戚——站位更远、
      * 扔得更重，但仍走 `ranged` 那一套（保持距离、起手、扔出、收招），不是新行为。
      */
     throwerElite: {

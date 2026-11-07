@@ -28,6 +28,21 @@ try {
   window.DNFRender.render=(ctx,state,meta)=>{window.captureResults.meta=meta;return original(ctx,state,meta);};
  });
  await page.waitForFunction(()=>window.captureResults.meta);
+ const silhouetteReads=await page.evaluate(()=>{
+  const {original,meta}=window.captureResults,C=window.DNFCore;
+  const state=C.createState({stage:'mirkwooddeep',seed:34});state.intro=null;state.transition=0;
+  state.enemies=['grunt','throwerElite'].map((type,i)=>{
+   const e=C.createEnemy(state,type,220+i*100);e.z=0;e.silhouette=true;e.knockdown=1;return e;
+  });
+  const canvas=document.createElement('canvas');canvas.width=960;canvas.height=540;const ctx=canvas.getContext('2d');
+  const proto=CanvasRenderingContext2D.prototype,read=proto.getImageData;let count=0;
+  proto.getImageData=function(...args){if(args[2]===360&&args[3]===420)count++;return read.apply(this,args);};
+  try{for(let i=0;i<3;i++)original(ctx,state,{...meta,attract:false,showHelp:false,paused:false,region:null,run:null,reward:null});}
+  finally{proto.getImageData=read;}
+  return count;
+ });
+ assert.ok(silhouetteReads<=2,`two different atlas cells should each bake once, got ${silhouetteReads}`);
+ fs.writeFileSync(path.join(out,'silhouette-cache-reads.json'),JSON.stringify({renders:3,atlases:2,reads:silhouetteReads},null,2));
  const deathFrames=await page.evaluate(()=>{
   const {original,meta}=window.captureResults,Core=window.DNFCore,result=[];
   for(const type of ['grunt','boss']){
@@ -68,11 +83,19 @@ try {
    ['mirkwooddeep','lugaruBoss',.66,'cat-orange'],['mirkwooddeep','lugaruBoss',.2,'cat-red'],
    ['mirkwooddeep','lugaruBoss',0,'cat-dead'],['mirkwood','grunt',.5,'grunt'],
    ['mirkwood','grunt',0,'grunt-dead'],['mirkwood','goblinBlue',.5,'blue-goblin'],
-   ['mirkwood','goblinRed',.5,'red-goblin'],['mirkwooddeep','cat',.5,'ordinary-cat']];
-  return cases.map(([stage,type,hp,label])=>{
+   ['mirkwood','goblinRed',.5,'red-goblin'],['mirkwooddeep','cat',.5,'ordinary-cat',6],
+   ['mirkwooddeep','deepElite',.5,'deep-captain6',6],['mirkwooddeep','deepElite',.5,'deep-captain7',7],
+   ['mirkwooddeep','throwerElite',.5,'throw-captain6',6],['mirkwooddeep','throwerElite',.5,'throw-captain7',7],
+   ['mirkwooddeep','throwerElite',1,'throw-before',7,.54],['mirkwooddeep','throwerElite',1,'throw-release',7,.56],
+   ['mirkwooddeep','grunt',.5,'deep-grunt4',4],['mirkwood','caster',.5,'caster4',4],
+   ['mirkwood','burningThrower',.5,'fire-champion4',4]];
+  return cases.map(([stage,type,hp,label,level,elapsed])=>{
    const state=window.DNFCore.createState({stage,seed:32});
    const boss=window.DNFCore.createEnemy(state,type,600);
    boss.hp=boss.maxHp*hp;boss.dead=hp===0;state.enemies=[boss];
+   if(level)boss.level=level;
+   if(type==='deepElite'||type==='throwerElite'){boss.x=320;boss.z=0;}
+   if(elapsed!==undefined)boss.attackTimer=boss.attackDuration-elapsed;
    state.target={enemy:boss,dying:0,share:hp};state.bossEngaged=true;
    state.intro=null;state.transition=0;
    const canvas=document.createElement('canvas');canvas.width=960;canvas.height=540;
@@ -82,14 +105,30 @@ try {
    if(!facePixels.some((v,i)=>i%4!==3&&v>40))throw new Error('portrait capture is obscured');
    // Sample below the label, near either end of the HP strip.
    function sample(x){return [...ctx.getImageData(x,75,1,1).data].slice(0,3);}
-   return {label,url:canvas.toDataURL('image/png'),atlas:meta.sprites.portraits.width,left:sample(250),right:sample(680)};
+   const edgePixels=ctx.getImageData(180,76,400,1).data;let barEnd=null;
+   for(let i=0;i<400;i++){const r=edgePixels[i*4],g=edgePixels[i*4+1],b=edgePixels[i*4+2];
+    if(r>150&&g>125&&b>80&&r>g&&g>b*1.1)barEnd=180+i;
+   }
+   const bodyPixels=ctx.getImageData(590,330,70,100).data;let brown=0;
+   for(let i=0;i<bodyPixels.length;i+=4)if(bodyPixels[i]>80&&bodyPixels[i]>1.25*bodyPixels[i+1]&&bodyPixels[i]>1.2*bodyPixels[i+2])brown++;
+   return {label,url:canvas.toDataURL('image/png'),atlas:meta.sprites.portraits.width,
+    throwerAtlas:meta.sprites.throwerReference.width,barEnd,brown,left:sample(250),right:sample(680)};
   });
  });
  for(const shot of portraitShots){
-  assert.equal(shot.atlas,3101,'real browser loads native portrait atlas');
+  assert.equal(shot.atlas,3125,'real browser loads native portrait atlas');
+  assert.equal(shot.throwerAtlas,6120,'real browser loads the independent brown body');
   fs.writeFileSync(path.join(out,`target-${shot.label}.png`),Buffer.from(shot.url.split(',')[1],'base64'));
  }
  const byTarget=Object.fromEntries(portraitShots.map(s=>[s.label,s]));
+ assert.ok(byTarget['throw-captain7'].brown>byTarget['deep-captain7'].brown*3,'the brown thrower is visibly distinct from the blue sword captain');
+ for(const [label,end] of [['grunt',341],['blue-goblin',304],['red-goblin',304],['ordinary-cat',321.5],
+  ['deep-captain6',357.5],['deep-captain7',399.5],['throw-captain6',321.5],['throw-captain7',355.5],
+  ['deep-grunt4',275.5],['caster4',304]]){
+  assert.ok(Math.abs(byTarget[label].barEnd-end)<=3,`${label}: rendered border ends at ${byTarget[label].barEnd}, reference ${end}`);
+ }
+ fs.writeFileSync(path.join(out,'target-width-render.json'),JSON.stringify(portraitShots.map(({url,...s})=>s),null,2));
+
  assert.ok(byTarget['boss-green'].left[1]>byTarget['boss-green'].left[0],'green covers orange');
  assert.ok(byTarget['boss-orange'].left[0]>byTarget['boss-orange'].left[1]*1.5,'orange is another HP layer');
  assert.ok(byTarget['boss-orange'].right[0]>100&&byTarget['boss-orange'].right[1]<40,'red is visible under orange');
