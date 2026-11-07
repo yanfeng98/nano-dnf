@@ -30,24 +30,41 @@ try {
  await page.waitForFunction(()=>window.captureResults.meta);
  const portraitShots=await page.evaluate(()=>{
   const {original,meta}=window.captureResults;
-  return ['mirkwood','mirkwooddeep'].map(stage=>{
-   const state=window.DNFCore.createState({stage,seed:31});
-   window.DNFCore.goToCell(state,state.dungeon.boss);
-   const boss=state.enemies.find(e=>window.DNFCore.isBossEnemy(e));
-   state.target={enemy:boss,dying:0,share:1};state.bossEngaged=true;
+  const cases=[['mirkwood','boss',.753,'boss-green'],['mirkwood','boss',.553,'boss-orange'],
+   ['mirkwood','boss',.3,'boss-red'],['mirkwood','boss',0,'boss-dead'],
+   ['mirkwooddeep','lugaruBoss',.66,'cat-orange'],['mirkwooddeep','lugaruBoss',.2,'cat-red'],
+   ['mirkwooddeep','lugaruBoss',0,'cat-dead'],['mirkwood','grunt',.5,'grunt'],
+   ['mirkwood','grunt',0,'grunt-dead'],['mirkwood','goblinBlue',.5,'blue-goblin'],
+   ['mirkwood','goblinRed',.5,'red-goblin'],['mirkwooddeep','cat',.5,'ordinary-cat']];
+  return cases.map(([stage,type,hp,label])=>{
+   const state=window.DNFCore.createState({stage,seed:32});
+   const boss=window.DNFCore.createEnemy(state,type,600);
+   boss.hp=boss.maxHp*hp;boss.dead=hp===0;state.enemies=[boss];
+   state.target={enemy:boss,dying:0,share:hp};state.bossEngaged=true;
    state.intro=null;state.transition=0;
    const canvas=document.createElement('canvas');canvas.width=960;canvas.height=540;
    const ctx=canvas.getContext('2d');
    original(ctx,state,{...meta,attract:false,showHelp:false,paused:false,region:null,run:null,reward:null});
-   const facePixels=ctx.getImageData(131,48,26,26).data;
+   const facePixels=ctx.getImageData(128,48,28,28).data;
    if(!facePixels.some((v,i)=>i%4!==3&&v>40))throw new Error('portrait capture is obscured');
-   return {stage,url:canvas.toDataURL('image/png'),atlas:meta.sprites.portraits.width};
+   // Sample below the label, near either end of the HP strip.
+   function sample(x){return [...ctx.getImageData(x,75,1,1).data].slice(0,3);}
+   return {label,url:canvas.toDataURL('image/png'),atlas:meta.sprites.portraits.width,left:sample(250),right:sample(680)};
   });
  });
  for(const shot of portraitShots){
-  assert.equal(shot.atlas,255,'real browser loads native portrait atlas');
-  fs.writeFileSync(path.join(out,`portrait-${shot.stage}.png`),Buffer.from(shot.url.split(',')[1],'base64'));
+  assert.equal(shot.atlas,3101,'real browser loads native portrait atlas');
+  fs.writeFileSync(path.join(out,`target-${shot.label}.png`),Buffer.from(shot.url.split(',')[1],'base64'));
  }
+ const byTarget=Object.fromEntries(portraitShots.map(s=>[s.label,s]));
+ assert.ok(byTarget['boss-green'].left[1]>byTarget['boss-green'].left[0],'green covers orange');
+ assert.ok(byTarget['boss-orange'].left[0]>byTarget['boss-orange'].left[1]*1.5,'orange is another HP layer');
+ assert.ok(byTarget['boss-orange'].right[0]>100&&byTarget['boss-orange'].right[1]<40,'red is visible under orange');
+ assert.ok(byTarget['boss-red'].right.every(v=>v<30),'only the final red HP layer reveals black');
+ assert.ok(byTarget['cat-orange'].right[0]>100&&byTarget['cat-orange'].right[1]<40,'cat orange covers red');
+ assert.ok(byTarget['cat-red'].right.every(v=>v<30));
+ assert.ok(byTarget['boss-dead'].left.every(v=>v<30)&&byTarget['cat-dead'].left.every(v=>v<30));
+ fs.writeFileSync(path.join(out,'target-colors.json'),JSON.stringify(portraitShots.map(({url,...s})=>s),null,2));
  const reference={
   circle:fs.readFileSync(path.join(root,'docs/reference-evidence/25-reward-circle-reference.png')).toString('base64'),
   blue:fs.readFileSync(path.join(root,'docs/reference-evidence/26-blue-card-reference.png')).toString('base64'),

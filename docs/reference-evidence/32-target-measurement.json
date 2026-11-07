@@ -1,0 +1,191 @@
+{
+  "normalization": "crop 1440x1080 at (240,0), normalize to 720x540; game arena adds x=120",
+  "scope": "Visible layer ordering and artwork/geometry evidence. Color bins may include faded hit ghosts; inspect the sequence. Equal layer capacities and monster balance are not established by these frames.",
+  "rows": [
+    {
+      "video": "00001-幽暗密林.mp4",
+      "time": 95,
+      "target_kind": "ordinary"
+    },
+    {
+      "video": "00001-幽暗密林.mp4",
+      "time": 100,
+      "target_kind": "ordinary"
+    },
+    {
+      "video": "00001-幽暗密林.mp4",
+      "time": 130,
+      "target_kind": "ordinary"
+    },
+    {
+      "video": "00001-幽暗密林.mp4",
+      "time": 250,
+      "ALERT_repeat_best_video_px": [
+        {
+          "period": 86,
+          "mse": 35.9866810199257
+        },
+        {
+          "period": 85,
+          "mse": 36.64706068268015
+        },
+        {
+          "period": 87,
+          "mse": 55.309714116552485
+        }
+      ],
+      "target_kind": "boss",
+      "color_bins_columns": {
+        "green": 276,
+        "orange": 793,
+        "red": 1,
+        "black": 0
+      }
+    },
+    {
+      "video": "00001-幽暗密林.mp4",
+      "time": 260,
+      "target_kind": "boss",
+      "color_bins_columns": {
+        "green": 28,
+        "orange": 1041,
+        "red": 0,
+        "black": 0
+      }
+    },
+    {
+      "video": "00001-幽暗密林.mp4",
+      "time": 270,
+      "ALERT_repeat_best_video_px": [
+        {
+          "period": 86,
+          "mse": 36.60430574098798
+        },
+        {
+          "period": 85,
+          "mse": 37.25902547065338
+        },
+        {
+          "period": 87,
+          "mse": 84.23611111111111
+        }
+      ],
+      "target_kind": "boss",
+      "color_bins_columns": {
+        "green": 0,
+        "orange": 699,
+        "red": 345,
+        "black": 0
+      }
+    },
+    {
+      "video": "00001-幽暗密林.mp4",
+      "time": 280,
+      "target_kind": "boss",
+      "color_bins_columns": {
+        "green": 0,
+        "orange": 418,
+        "red": 621,
+        "black": 0
+      }
+    },
+    {
+      "video": "00001-幽暗密林.mp4",
+      "time": 290,
+      "target_kind": "boss",
+      "color_bins_columns": {
+        "green": 0,
+        "orange": 228,
+        "red": 842,
+        "black": 0
+      }
+    },
+    {
+      "video": "00001-幽暗密林.mp4",
+      "time": 300,
+      "target_kind": "boss",
+      "color_bins_columns": {
+        "green": 0,
+        "orange": 0,
+        "red": 964,
+        "black": 106
+      }
+    },
+    {
+      "video": "00001-幽暗密林.mp4",
+      "time": 310,
+      "target_kind": "boss",
+      "color_bins_columns": {
+        "green": 0,
+        "orange": 0,
+        "red": 601,
+        "black": 466
+      }
+    },
+    {
+      "video": "00001-幽暗密林.mp4",
+      "time": 328.5,
+      "target_kind": "boss",
+      "color_bins_columns": {
+        "green": 0,
+        "orange": 0,
+        "red": 0,
+        "black": 1060
+      }
+    },
+    {
+      "video": "00002-幽暗密林深处.mp4",
+      "time": 327,
+      "target_kind": "boss",
+      "color_bins_columns": {
+        "green": 0,
+        "orange": 344,
+        "red": 707,
+        "black": 0
+      }
+    },
+    {
+      "video": "00002-幽暗密林深处.mp4",
+      "time": 330,
+      "target_kind": "boss",
+      "color_bins_columns": {
+        "green": 0,
+        "orange": 241,
+        "red": 829,
+        "black": 0
+      }
+    },
+    {
+      "video": "00002-幽暗密林深处.mp4",
+      "time": 334,
+      "target_kind": "ordinary"
+    },
+    {
+      "video": "00002-幽暗密林深处.mp4",
+      "time": 350,
+      "target_kind": "ordinary"
+    },
+    {
+      "video": "00002-幽暗密林深处.mp4",
+      "time": 370,
+      "target_kind": "boss",
+      "color_bins_columns": {
+        "green": 0,
+        "orange": 14,
+        "red": 440,
+        "black": 545
+      }
+    },
+    {
+      "video": "00002-幽暗密林深处.mp4",
+      "time": 380,
+      "target_kind": "boss",
+      "color_bins_columns": {
+        "green": 0,
+        "orange": 0,
+        "red": 108,
+        "black": 960
+      }
+    }
+  ]
+}

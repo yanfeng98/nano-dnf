@@ -6818,8 +6818,8 @@
   }
 
   /*
-   * 那块条的尺寸，单位是**录像像素**（画的时候乘 `HUD_PX`）。除了血条长度，
-   * 每一个数都是从帧里量出来的。
+   * Legacy geometry for callers without an atlas. Production uses
+   * TARGET_NATIVE and the native target frames below.
    */
   var TARGET_PANEL = {
     x: HUD_LEFT + 8,
@@ -6891,8 +6891,8 @@
   }
 
   /*
-   * **倒下那一下：头像上打一个红叉**，闪三下、共约 1.2 秒（量出来的
-   * 0.25 秒亮 / 0.25 秒灭）。它闪完，整块才消失（`Core.TARGET.deathBlink`）。
+   * 倒下后红叉常亮，目标保留到 Core.TARGET.deathBlink 结束。
+   * 下方是无图集备用笔画；正式绘制使用客户端 monster_hp f0。
    */
   function drawDeathCross(ctx, enemy, target, x, y, w, h, px) {
     if (!enemy.dead) return;
@@ -6922,17 +6922,8 @@
     ctx.lineCap = "butt";
   }
 
-  /*
-   * **领主的目标条**（`docs/adr/0054`）—— 照录像重做的那一条：
-   *
-   *   头像 81×81 ｜ 一条 1068 长、59 高的条
-   *
-   * 绿色是 HP 填充，橙色 `ALERT!` 是**这条里没被填满的空槽**（不是另加的一条）；
-   * 绿条见底/翻脸之后换成红色。类别牌与名字画在条内。半血竖线和「· 狂暴」
-   * 录像里没有，这里也不画 —— 狂暴仍然是玩法，只是不写在条上。
-   *
-   * 位置：V1 250s / V2 330s 归一化后 y=43；撤回旧玩家卡避让位移。
-   */
+  // The no-atlas fallback below keeps a readable target for stripped-down
+  // callers. Production uses drawNativeTarget's client frame/face/track parts.
   // Native UI portraits, not video crops or the side-view combat body.
   var PORTRAITS = {
     player: [0, 0, 24, 26],
@@ -6940,6 +6931,26 @@
     lugaruBoss: [48, 0, 24, 24],
     frame: [72, 0, 36, 36],
     namePlate: [108, 0, 147, 58],
+    grunt: [255, 0, 24, 24],
+    coward: [279, 0, 24, 24],
+    caster: [303, 0, 24, 24],
+    brute: [327, 0, 24, 24],
+    elite: [351, 0, 24, 24],
+    goblinBlue: [375, 0, 24, 24],
+    goblinRed: [399, 0, 24, 24],
+    cat: [423, 0, 24, 24],
+    throwerElite: [447, 0, 24, 24],
+    deathCross: [471, 0, 24, 24],
+    normalFrame: [495, 0, 626, 32],
+    normalFill: [1121, 0, 597, 9],
+    normalCap: [1718, 0, 3, 17],
+    championFrame: [1721, 0, 628, 36],
+    championCap: [2349, 0, 4, 19],
+    bossFrame: [2353, 0, 630, 36],
+    bossCap: [2983, 0, 4, 36],
+    alertRed: [2987, 0, 38, 26],
+    alertOrange: [3025, 0, 38, 26],
+    alertGreen: [3063, 0, 38, 26],
   };
   function drawBossPortrait(ctx, sprites, x, y, size, type) {
     var atlas = sprites && sprites.portraits;
@@ -6955,28 +6966,20 @@
     return drawMonsterFace(ctx, sprites, type, { x: x, y: y, w: size, h: size }) ? "drawn" : false;
   }
 
-  /**
-   * **领主是两条血，不是一条变色**（业主 2026-10-18）。
-   *
-   * Core 里仍是一条 `maxHp` 池，但二阶段在 `hp <= maxHp * phase2.hpRatio`
-   * （当前 0.5）触发；所以条按两段画：
-   *
-   * - 一阶段（绿色）：从满血到 `maxHp * ratio`，这一段走完就空了；
-   * - 二阶段（红色）：从 `maxHp * ratio` 到 0，这一段从满格开始往下走。
-   *
-   * 两条各占整条 1068 的长度；颜色变化就是"换到第二条血"。
-   */
-  function bossBarShare(enemy) {
-    var ratio = enemy.phase2 && enemy.phase2.hpRatio !== undefined
-      ? enemy.phase2.hpRatio : 0.5;
-    var second = enemy.maxHp * ratio;
-    var first = enemy.maxHp - second;
-    var red = enemy.phase >= 2;
-    var span = red ? second : first;
-    if (!(span > 0)) return 0;
-    var value = red ? enemy.hp : enemy.hp - second;
-    return Math.max(0, Math.min(1, value / span));
+  // V1 250..310s: green over orange, orange over red, final red over black.
+  // V2 327..385s: orange over red, then final red over black. These layers
+  // are visual HP capacity, independent of the monster's attack-phase trigger.
+  var BOSS_HP_LAYERS = {
+    boss: ["alertRed", "alertOrange", "alertGreen"],
+    lugaruBoss: ["alertRed", "alertOrange"]
+  };
+  function bossHpLayers(enemy) {
+    var layers=BOSS_HP_LAYERS[enemy.type] || ["alertRed"];
+    var amount=enemy.maxHp>0?Math.max(0,Math.min(1,enemy.hp/enemy.maxHp))*layers.length:0;
+    var index=Math.max(0,Math.ceil(amount)-1);
+    return {layers:layers,index:index,share:amount-index,top:layers[index],bottom:index?layers[index-1]:null};
   }
+  function bossBarShare(enemy) { return bossHpLayers(enemy).share; }
 
   function drawBossTargetPanel(ctx, state, sprites, enemy, info) {
     var px = HUD_PX;
@@ -6988,10 +6991,9 @@
     var barH = TARGET_PANEL.bossBarH * px;
     var barY = y + (portrait - barH) / 2;
     var border = Math.max(1, 3 * px);
-    /* 两条血：绿条走完（到 50%）才换红条，红条从满格再走一遍。 */
-    var share = bossBarShare(enemy);
-    /* 深处领主从头就是红条（`docs/adr/0063`）；牛头仍走绿→红相位。 */
-    var red = enemy.barColor === "red" || enemy.phase >= 2;
+    /* HP layers are independent of the AI phase; see bossHpLayers. */
+    var hpLayer = bossHpLayers(enemy), share = hpLayer.share;
+    var red = hpLayer.top === "alertRed";
 
     ctx.save();
 
@@ -7040,11 +7042,12 @@
     var innerY = barY;
     var innerH = barH;
     /* 领主倒下那一刻，条要是**黑**的：参考 328.5s 那条橙色 ALERT 已经没了。 */
-    if (!red && state.bossEngaged && !enemy.dead) {
-      drawAlertStrip(ctx, innerX + innerW * share, innerX + innerW, innerY, innerH);
+    if (state.bossEngaged && !enemy.dead && hpLayer.bottom) {
+      if(hpLayer.bottom === "alertOrange")drawAlertStrip(ctx,innerX,innerX+innerW,innerY,innerH);
+      else {ctx.fillStyle="#db0000";ctx.fillRect(innerX,innerY,innerW,innerH);}
     }
 
-    ctx.fillStyle = red ? "#db0000" : "#8fc700";
+    ctx.fillStyle = red ? "#db0000" : hpLayer.top === "alertOrange" ? "#ff8400" : "#8fc700";
     ctx.fillRect(innerX, innerY, innerW * share, innerH);
 
     /*
@@ -7104,6 +7107,88 @@
     ctx.restore();
   }
 
+  // V1 250/270s: ALERT repetition is 85–86 video pixels (38 native pixels),
+  // supporting 1.125x in the normalized canvas. Face-only cosine fits can
+  // underestimate scale because the source includes a black/alpha margin.
+  var TARGET_NATIVE = {
+    x: HUD_LEFT + 6, y: 45.5, scale: 1.125,
+    normalBar: 181, bossBar: 534,
+    bossFillX: 38.25, bossFillY: 3.375,
+    tileW: 42.75, tileH: 29.25
+  };
+  var TARGET_FACES = {
+    cursedRed: "goblinRed", burningThrower: "caster", charger: "grunt"
+  };
+  function drawTargetArt(ctx, atlas, rect, x, y, w, h) {
+    ctx.drawImage(atlas, rect[0], rect[1], rect[2], rect[3], x, y, w, h);
+  }
+  function drawTargetTiles(ctx, atlas, rect, x, y, w, h, start, end) {
+    if (!(end > start)) return;
+    ctx.save();ctx.beginPath();ctx.rect(start,y,end-start,h);ctx.clip();
+    // Both colors share a fixed tile origin; damage must not restart the text.
+    for (var tx=x;tx<x+w;tx+=TARGET_NATIVE.tileW) {
+      drawTargetArt(ctx,atlas,rect,tx,y,TARGET_NATIVE.tileW,h);
+    }
+    ctx.restore();
+  }
+  function drawNativeTarget(ctx,state,atlas,enemy,info) {
+    var face=PORTRAITS[TARGET_FACES[enemy.type] || enemy.type];
+    if (!face) return false;
+    var lord=enemy.behavior === "boss", champion=!lord && !!enemy.champion;
+    var a=TARGET_NATIVE,s=a.scale,x=a.x,y=a.y;
+    var frame=lord?PORTRAITS.bossFrame:champion?PORTRAITS.championFrame:PORTRAITS.normalFrame;
+    var cap=lord?PORTRAITS.bossCap:champion?PORTRAITS.championCap:PORTRAITS.normalCap;
+    var fx=lord?5:champion?4:2,fy=lord?3:champion?4:2;
+    var fillX=lord?x+a.bossFillX:x+(champion?34:29)*s;
+    var fillY=lord?y+a.bossFillY:y+(champion?19:17)*s;
+    var fillW=lord?a.bossBar:a.normalBar,fillH=lord?a.tileH:9*s;
+    var end=fillX+fillW;
+    ctx.save();ctx.imageSmoothingEnabled=false;
+    ctx.save();ctx.beginPath();ctx.rect(x,y,end-x,frame[3]*s);ctx.clip();
+    drawTargetArt(ctx,atlas,frame,x,y,frame[2]*s,frame[3]*s);
+    ctx.restore();
+    drawTargetArt(ctx,atlas,cap,end,y+(lord?0:champion?16:15)*s,cap[2]*s,cap[3]*s);
+    drawTargetArt(ctx,atlas,face,x+fx*s,y+fy*s,24*s,24*s);
+    var hpLayer=lord?bossHpLayers(enemy):null;
+    var share=enemy.dead?0:lord?hpLayer.share:Math.max(0,Math.min(1,enemy.hp/enemy.maxHp));
+    if (!enemy.dead) {
+      if (lord) {
+        if(hpLayer.bottom)drawTargetTiles(ctx,atlas,PORTRAITS[hpLayer.bottom],fillX,fillY,fillW,fillH,fillX,end);
+        drawTargetTiles(ctx,atlas,PORTRAITS[hpLayer.top],
+          fillX,fillY,fillW,fillH,fillX,fillX+fillW*share);
+      } else if(share>0) {
+        ctx.save();ctx.beginPath();ctx.rect(fillX,fillY,fillW*share,fillH);ctx.clip();
+        drawTargetArt(ctx,atlas,PORTRAITS.normalFill,fillX,fillY,fillW,fillH);
+        ctx.restore();
+      }
+    }
+    if(state.target.ghost) {
+      var g=state.target.ghost,from=g.from,to=g.to;
+      if(lord){
+        from=from*hpLayer.layers.length-hpLayer.index;to=to*hpLayer.layers.length-hpLayer.index;
+      }
+      from=Math.max(0,Math.min(1,from));to=Math.max(0,Math.min(1,to));
+      ctx.save();ctx.globalAlpha=Math.max(0,1-g.t/Core.TARGET.ghostFade)*.95;
+      ctx.fillStyle="#f8ece5";ctx.fillRect(fillX+fillW*to,fillY,Math.max(0,fillW*(from-to)),fillH);ctx.restore();
+    }
+    if(enemy.dead){
+      var crossX=lord?x+5:x+1.5,crossY=lord?y+3:y+1;
+      drawTargetArt(ctx,atlas,PORTRAITS.deathCross,crossX,crossY,28,28);
+    }
+    // The source typeface/category label is still pending; remove the old
+    // invented full-width rounded nameplate while retaining readable labels.
+    var tagX=lord?x+44:x+(champion?36:32)*s;
+    var tagY=lord?fillY+7:y,tagW=34,tagH=14;
+    ctx.fillStyle="#000000";ctx.fillRect(tagX,tagY,tagW,tagH);
+    ctx.strokeStyle="#d88246";ctx.lineWidth=1.5;ctx.strokeRect(tagX,tagY,tagW,tagH);
+    ctx.font=HUD_FONT(13);ctx.textBaseline="middle";ctx.textAlign="center";ctx.fillStyle="#f38d4c";
+    ctx.fillText(info.race,tagX+tagW/2,tagY+tagH/2);
+    ctx.textAlign="left";ctx.lineWidth=1.5;ctx.strokeStyle="rgba(0,0,0,.9)";
+    var label="Lv"+(enemy.level||info.level)+" "+info.label;
+    ctx.strokeText(label,tagX+tagW+4,tagY+tagH/2);ctx.fillStyle="#e4edf7";ctx.fillText(label,tagX+tagW+4,tagY+tagH/2);
+    ctx.restore();return true;
+  }
+
   function drawTargetPanel(ctx, state, sprites) {
     var target = state.target;
     if (!target) return;
@@ -7111,6 +7196,7 @@
     var info = Core.monsterInfo(enemy.type);
     if (!info) return;
     var px = HUD_PX;
+    if (sprites && sprites.portraits && drawNativeTarget(ctx,state,sprites.portraits,enemy,info)) return;
     if (enemy.behavior === "boss") {
       drawBossTargetPanel(ctx, state, sprites, enemy, info);
       return;
@@ -9977,9 +10063,11 @@
     TARGET_PANEL: TARGET_PANEL,
     /* The boss's two bars: green for the first half of the pool, red for the second. */
     bossBarShare: bossBarShare,
+    bossHpLayers: bossHpLayers,
     UI: UI,
     RESULT_ART: RESULT_ART,
     PORTRAITS: PORTRAITS,
+    TARGET_NATIVE: TARGET_NATIVE,
     minimapBox: minimapBox,
     hitTestMinimap: hitTestMinimap,
     /* 魔狱血刹's two live-drawn numbers, so tests can pin them to the sheets. */

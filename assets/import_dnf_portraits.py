@@ -4,6 +4,8 @@
 Monster face links: taubeast.mob -> MonsterFace f16; kurogaru.mob -> f13.
 The reward avatar is the Swordman job's defaultfaces f0. The steel portrait
 frame is the first 36x36 of monster_hp f11; the name plate is reward f60.
+Appended frames preserve that first atlas section and add ordinary faces,
+full native target tracks/end caps, the death cross and three ALERT tiles.
 """
 import argparse,hashlib,io,json
 from pathlib import Path
@@ -18,6 +20,17 @@ SOURCES=[
  ('frame','ImagePacks2_70','sprite_interface_newstyle_windows_monster_hp.NPK','sprite/interface/newstyle/windows/monster_hp/monster_hp.img',11,(0,0,36,36)),
  ('namePlate','ImagePacks2','sprite_interface2_reward_ver2.0.NPK','sprite/interface2/reward_ver2.0/reward_ver2.img',60,None),
 ]
+
+# MonsterFace links from Script_70.pvf; champion recolours reuse their base face.
+for name,index in [('grunt',0),('coward',1),('caster',4),('brute',15),('elite',3),
+                   ('goblinBlue',7),('goblinRed',9),('cat',11),('throwerElite',2)]:
+ SOURCES.append((name,'ImagePacks2_70','sprite_monster.NPK','sprite/monster/monsterface.img',index,None))
+for name,index in [('deathCross',0),('normalFrame',1),('normalFill',2),('normalCap',8),
+                   ('championFrame',9),('championCap',10),('bossFrame',11),('bossCap',12),
+                   ('alertRed',13),('alertOrange',14),('alertGreen',15)]:
+ SOURCES.append((name,'ImagePacks2_70','sprite_interface_newstyle_windows_monster_hp.NPK',
+  'sprite/interface/newstyle/windows/monster_hp/monster_hp.img',index,None))
+
 def frames(client):
  for name,folder,pack,entry,index,crop in SOURCES:
   with (client/folder/pack).open('rb') as f:

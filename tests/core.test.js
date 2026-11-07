@@ -8415,29 +8415,13 @@ test("the renderer draws the elite's whirl while it spins", () => {
   );
 });
 
-/*
- * **领主是两条血**（业主 2026-10-18「原视频中是两条血，才换颜色的」）：
- * 绿色那条从满血走到 50% 见底，然后红色那条从满格再走到 0；不是同一条换颜色。
- */
-test("the lord's bar is two bars: green to half, then red from full", () => {
-  const state = lastRoomState();
-  const boss = Core.createEnemy(state, "boss", 600);
-  boss.maxHp = 160;
-  boss.hp = 160;
-  boss.phase = 1;
-  assert.equal(Render.bossBarShare(boss), 1, "phase one starts full");
-  boss.hp = 120;
-  assert.equal(Render.bossBarShare(boss), 0.5, "phase one is half spent at 120/160");
-  boss.hp = 80;
-  assert.equal(Render.bossBarShare(boss), 0, "phase one is empty at exactly half");
-
-  Core.enterPhase2(state, boss);
-  assert.equal(boss.phase, 2);
-  assert.equal(Render.bossBarShare(boss), 1, "the red bar starts full at 80/160");
-  boss.hp = 40;
-  assert.equal(Render.bossBarShare(boss), 0.5, "the red bar is half spent at 40/160");
-  boss.hp = 0;
-  assert.equal(Render.bossBarShare(boss), 0, "and empty at zero");
+// Superseded two-phase rule: V1 250..310s proves three HP layers.
+test("the lord's HP layers have exact boundaries and clamp invalid ranges",()=>{
+ const boss=Core.createEnemy(lastRoomState(),"boss",600);boss.maxHp=300;
+ for(const [hp,top,share] of [[300,'alertGreen',1],[250,'alertGreen',.5],[200,'alertOrange',1],
+    [150,'alertOrange',.5],[100,'alertRed',1],[50,'alertRed',.5],[0,'alertRed',0],[-10,'alertRed',0],[400,'alertGreen',1]]){
+  boss.hp=hp;assert.equal(Render.bossHpLayers(boss).top,top);assert.equal(Render.bossBarShare(boss),share);
+ }
 });
 
 test("the boss bar names the boss in both phases, and no longer writes 狂暴 on it", () => {
@@ -8485,8 +8469,8 @@ test("the boss bar names the boss in both phases, and no longer writes 狂暴 on
   );
   assert.equal(
     enragedTexts.includes("ALERT!"),
-    false,
-    "红相位不再画橙色 ALERT 空槽"
+    true,
+    "the attack phase does not discard the orange HP layer"
   );
   /*
    * 业主 2026-10-21：「领主的……脚底下的光环」不要了。半血不再加那圈持续
@@ -11005,7 +10989,7 @@ test("runtime portraits use client frames instead of the old video crops", () =>
   const main = fs.readFileSync(path.join(__dirname,"../src/main.js"),"utf8");
   assert.doesNotMatch(main,/assets\/(boss_portrait|reward_avatar)\.png/,
     "video-derived portrait files must leave the runtime asset list");
-  const proof = require("../docs/reference-evidence/31-portrait-native-proof.json");
+  const proof = require("../docs/reference-evidence/32-target-native-proof.json");
   const atlas = decodeRgbaPng(path.join(__dirname,"../assets/portraits-reference.png"));
   const crypto = require("node:crypto");
   for (const frame of proof.frames) {
@@ -11033,7 +11017,80 @@ test("both bosses draw their own native UI face inside the reference portrait fr
     const face = calls.find(c=>c[0]==="drawImage"&&c[1]===atlas&&
       c[2]===rect[0]&&c[3]===rect[1]&&c[4]===rect[2]&&c[5]===rect[3]);
     assert.ok(face,`${type} uses the UI portrait, not a combat-body crop`);
-    face.slice(6).forEach((value,i)=>assert.ok(Math.abs(value-[130.75,47.5,27,27][i])<1e-9));
+    face.slice(6).forEach((value,i)=>assert.ok(Math.abs(value-[131.625,48.875,27,27][i])<1e-9));
     assert.equal(Render.TARGET_PANEL.bossBarH,59,"the old thickened 70px bar is superseded by strict video matching");
   }
+});
+
+test('ordinary targets use their native UI faces and the client death cross',()=>{
+  const atlas={width:6000,height:58};
+  for(const [type,faceName] of [['grunt','grunt'],['goblinBlue','goblinBlue'],['goblinRed','goblinRed'],['coward','coward'],['caster','caster'],['cursedRed','goblinRed'],['burningThrower','caster'],['cat','cat']]){
+    const state=Core.createState({seed:32});
+    const enemy=Core.createEnemy(state,type,600);state.enemies=[enemy];
+    state.target={enemy,dying:0,share:.5};enemy.hp=enemy.maxHp*.5;
+    const calls=[];Render.render(recordingContext(calls),state,{sprites:{portraits:atlas}});
+    const rect=Render.PORTRAITS[faceName];
+    assert.ok(rect,`${type} needs a native UI face, not a cropped combat body`);
+    assert.ok(calls.some(c=>c[0]==='drawImage'&&c[1]===atlas&&c.slice(2,6).every((n,i)=>n===rect[i])),type);
+    calls.length=0;enemy.dead=true;enemy.hp=0;
+    Render.render(recordingContext(calls),state,{sprites:{portraits:atlas}});
+    const cross=Render.PORTRAITS.deathCross;assert.ok(cross,'use native pixel cross');
+    assert.ok(calls.some(c=>c[0]==='drawImage'&&c[1]===atlas&&c.slice(2,6).every((n,i)=>n===cross[i])));
+  }
+});
+
+test('native boss bars use textured ALERT tiles in both HP phases and black on death',()=>{
+ const atlas={width:6000,height:58};
+ for(const type of ['boss','lugaruBoss']){
+  const state=Core.createState({seed:32});const boss=Core.createEnemy(state,type,600);
+  state.enemies=[boss];state.bossEngaged=true;state.target={enemy:boss,dying:0,share:.6};
+  const cases=type==='boss'?[[.8,['alertGreen','alertOrange']],[.5,['alertOrange','alertRed']],[.2,['alertRed']]]:
+    [[.8,['alertOrange','alertRed']],[.2,['alertRed']]];
+  for(const [hp,tiles] of cases){
+   boss.hp=boss.maxHp*hp;
+   const calls=[];Render.render(recordingContext(calls),state,{sprites:{portraits:atlas}});
+   for(const name of ['bossFrame',...tiles]){
+    const rect=Render.PORTRAITS[name];assert.ok(rect,`${name} is client art`);
+    assert.ok(calls.some(c=>c[0]==='drawImage'&&c[1]===atlas&&c.slice(2,6).every((n,i)=>n===rect[i])),`${type}/${hp} draws ${name}`);
+   }
+   for(const name of ['alertGreen','alertOrange','alertRed'].filter(n=>!tiles.includes(n))){
+    const rect=Render.PORTRAITS[name];assert.ok(!calls.some(c=>c[0]==='drawImage'&&c[1]===atlas&&c.slice(2,6).every((n,i)=>n===rect[i])),`${name} must not reappear below the final red bar`);
+   }
+   assert.ok(!calls.some(c=>c[0]==='fillText'&&c[1]==='ALERT!'),'the lettering is part of the native tile');
+  }
+  boss.dead=true;boss.hp=0;const calls=[];Render.render(recordingContext(calls),state,{sprites:{portraits:atlas}});
+  for(const name of ['alertOrange','alertGreen','alertRed']){
+   const rect=Render.PORTRAITS[name];
+   assert.ok(!calls.some(c=>c[0]==='drawImage'&&c[1]===atlas&&c.slice(2,6).every((n,i)=>n===rect[i])),'a dead boss leaves the native black socket');
+  }
+ }
+});
+
+test('reference HP layers consume green then orange then red independently of attack phase',()=>{
+ const state=Core.createState({seed:32});
+ const boss=Core.createEnemy(state,'boss',600);boss.maxHp=300;boss.phase=1;
+ boss.hp=250;assert.equal(Render.bossBarShare(boss),.5,'250/300 means half of green above full orange and red');
+ boss.hp=150;assert.equal(Render.bossBarShare(boss),.5,'150/300 means half of orange above full red');
+ boss.phase=2;assert.equal(Render.bossBarShare(boss),.5,'an AI phase change does not reset the UI layer');
+ boss.hp=50;assert.equal(Render.bossBarShare(boss),.5,'50/300 means half of the final red bar');
+ const cat=Core.createEnemy(state,'lugaruBoss',600);cat.maxHp=200;cat.hp=150;
+ assert.equal(Render.bossBarShare(cat),.5,'the cat has orange and red, with no green layer');
+ cat.hp=50;assert.equal(Render.bossBarShare(cat),.5);
+});
+
+test('lost HP stays in the current layer when a hit crosses a color boundary',()=>{
+ const atlas={width:3101,height:58},state=Core.createState({seed:32});
+ const boss=Core.createEnemy(state,'boss',600);state.enemies=[boss];state.bossEngaged=true;
+ for(const [from,to] of [[.5,.4],[.7,.6],[.4,.3]]){
+  boss.hp=boss.maxHp*to;
+  state.target={enemy:boss,share:to,dying:0,ghost:{from,to,t:0}};
+  const layer=Render.bossHpLayers(boss),calls=[];
+  Render.render(recordingContext(calls),state,{sprites:{portraits:atlas}});
+  const start=Math.max(0,Math.min(1,to*3-layer.index));
+  const end=Math.max(0,Math.min(1,from*3-layer.index));
+  const ui=Render.TARGET_NATIVE;
+  const expected=[ui.x+ui.bossFillX+ui.bossBar*start,ui.y+ui.bossFillY,ui.bossBar*(end-start),ui.tileH];
+  assert.ok(calls.some(c=>c[0]==='fillRect'&&c.slice(1).every((v,i)=>Math.abs(v-expected[i])<1e-6)),
+    `the ghost for ${from} → ${to} belongs to layer ${layer.index}, not total-HP coordinates`);
+ }
 });

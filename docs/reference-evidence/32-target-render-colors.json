@@ -1,0 +1,170 @@
+[
+  {
+    "label": "boss-green",
+    "atlas": 3101,
+    "left": [
+      144,
+      201,
+      0
+    ],
+    "right": [
+      255,
+      132,
+      0
+    ]
+  },
+  {
+    "label": "boss-orange",
+    "atlas": 3101,
+    "left": [
+      255,
+      132,
+      0
+    ],
+    "right": [
+      222,
+      0,
+      0
+    ]
+  },
+  {
+    "label": "boss-red",
+    "atlas": 3101,
+    "left": [
+      222,
+      0,
+      0
+    ],
+    "right": [
+      0,
+      0,
+      0
+    ]
+  },
+  {
+    "label": "boss-dead",
+    "atlas": 3101,
+    "left": [
+      0,
+      0,
+      0
+    ],
+    "right": [
+      0,
+      0,
+      0
+    ]
+  },
+  {
+    "label": "cat-orange",
+    "atlas": 3101,
+    "left": [
+      255,
+      132,
+      0
+    ],
+    "right": [
+      222,
+      0,
+      0
+    ]
+  },
+  {
+    "label": "cat-red",
+    "atlas": 3101,
+    "left": [
+      222,
+      0,
+      0
+    ],
+    "right": [
+      0,
+      0,
+      0
+    ]
+  },
+  {
+    "label": "cat-dead",
+    "atlas": 3101,
+    "left": [
+      0,
+      0,
+      0
+    ],
+    "right": [
+      0,
+      0,
+      0
+    ]
+  },
+  {
+    "label": "grunt",
+    "atlas": 3101,
+    "left": [
+      0,
+      0,
+      0
+    ],
+    "right": [
+      57,
+      57,
+      72
+    ]
+  },
+  {
+    "label": "grunt-dead",
+    "atlas": 3101,
+    "left": [
+      0,
+      0,
+      0
+    ],
+    "right": [
+      57,
+      57,
+      72
+    ]
+  },
+  {
+    "label": "blue-goblin",
+    "atlas": 3101,
+    "left": [
+      0,
+      0,
+      0
+    ],
+    "right": [
+      57,
+      57,
+      72
+    ]
+  },
+  {
+    "label": "red-goblin",
+    "atlas": 3101,
+    "left": [
+      0,
+      0,
+      0
+    ],
+    "right": [
+      57,
+      57,
+      72
+    ]
+  },
+  {
+    "label": "ordinary-cat",
+    "atlas": 3101,
+    "left": [
+      0,
+      0,
+      0
+    ],
+    "right": [
+      12,
+      11,
+      39
+    ]
+  }
+]
