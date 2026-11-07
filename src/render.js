@@ -6891,15 +6891,18 @@
   }
 
   /*
-   * 倒下后红叉常亮，目标保留到 Core.TARGET.deathBlink 结束。
+   * 倒下后红叉按半秒周期闪烁，目标保留时间由 Core.TARGET 管理。
    * 下方是无图集备用笔画；正式绘制使用客户端 monster_hp f0。
    */
+  function deathCrossVisible(enemy,target) {
+    if (!enemy.dead) return false;
+    var age=target && target.dying || 0;
+    return (age+1e-9)%Core.TARGET.deathPeriod < Core.TARGET.deathOn;
+  }
   function drawDeathCross(ctx, enemy, target, x, y, w, h, px) {
-    if (!enemy.dead) return;
-    /*
-     * **参考 328.5–329.0s 那个红叉是常亮的**，不是本作原来的 0.25 秒闪三下；
-     * 而且它有黑描边、方头笔画（客户端那种像素叉）。这里先画粗黑叉再压红叉。
-     */
+    if (!deathCrossVisible(enemy,target)) return;
+    // No-atlas fallback only. V1 30fps strips confirm 0.25s on / 0.25s off;
+    // the previous still-frame "always lit" reading was wrong.
     var pen = Math.max(2, 9 * px);
     var inset = pen / 2;
     ctx.lineCap = "square";
@@ -7171,7 +7174,7 @@
       ctx.save();ctx.globalAlpha=Math.max(0,1-g.t/Core.TARGET.ghostFade)*.95;
       ctx.fillStyle="#f8ece5";ctx.fillRect(fillX+fillW*to,fillY,Math.max(0,fillW*(from-to)),fillH);ctx.restore();
     }
-    if(enemy.dead){
+    if(deathCrossVisible(enemy,state.target)){
       var crossX=lord?x+5:x+1.5,crossY=lord?y+3:y+1;
       drawTargetArt(ctx,atlas,PORTRAITS.deathCross,crossX,crossY,28,28);
     }

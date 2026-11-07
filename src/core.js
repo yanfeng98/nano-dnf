@@ -6059,7 +6059,7 @@
    *
    * - 那块条**每一只怪都会有** —— 它不是"精英专属"，是**当前目标**的读数；
    *   一帧里只有一块，换目标时**整块被换掉**（头像、类别、名字、血条一起换）。
-   * - 目标倒下时，头像上打一个**闪三下**的红叉（约 **1.2 秒**），然后整块一帧消失。
+   * - 目标倒下时，头像上打一个**闪三下**的红叉（普通样本约 **1.3 秒**），然后整块一帧消失。
    * - 录像里那条血条的**长度每只怪不一样**（哥布林量到 287 / 323 / 362 px，
    *   牛头巨兽 1068 px）—— 跟着怪变。是照最大血量还是照个头，量不出来。
    *
@@ -6069,8 +6069,12 @@
    * **打中即显示**，不搬那 0.7 秒。真要是固定延迟，加一个 `delay` 数就行。
    */
   var TARGET = {
-    /* 目标倒下之后红叉还要闪多久（秒）。量出来是闪 3 下、共约 1.2 秒。 */
-    deathBlink: 1.2,
+    // V1 99.867..101.167s: three 0.25s pulses at 0.5s spacing.
+    // The boss sample 328.30..329.23s ends sooner; keep its hold separate.
+    deathBlink: 1.3,
+    bossDeathHold: 1.0,
+    deathPeriod: 0.5,
+    deathOn: 0.25,
     /*
      * 掉血那一截**不是"慢慢追上来的条"**：量出来是一块**白色块**，占着刚失去的那一段，
      * 原地**由白褪到黑**（约 0.7–0.8 秒），途中经过粉 → 暗红 → `#860000` → 黑。
@@ -6079,31 +6083,25 @@
     ghostFade: 0.8
   };
 
-  /** 他打中谁，谁就是当前目标。换人时整块换掉（那 1.2 秒的红叉也是从这儿重新算）。 */
+  /** 他打中谁，谁就是当前目标。换人时整块换掉，死亡保留时间重新算。 */
   function setTarget(state, enemy) {
     if (!state.target || state.target.enemy.id !== enemy.id) {
-      state.target = { enemy: enemy, dying: 0 };
+      state.target = { enemy: enemy, dying: 0, share: enemy.maxHp>0 ? Math.max(0,enemy.hp/enemy.maxHp) : 0 };
     }
   }
 
   /**
    * 目标的存亡。**它握的是那只怪本身**，不是 id —— 目标倒下之后那只怪会被移出
-   * `state.enemies`，可红叉还得闪完 1.2 秒，所以这块条读的是它自己那一份。
+   * `state.enemies`，可红叉还要按自己的UI时钟闪完，所以这块条读的是它自己那一份。
    */
   function updateTarget(state, dt) {
     var target = state.target;
     if (!target) return;
-    if (target.enemy.dead) {
-      target.dying += dt;
-      if (target.dying >= TARGET.deathBlink) state.target = null;
-      return;
-    }
-    target.dying = 0;
     /*
      * **掉血那一截**（`TARGET.ghostFade`）：血掉下去的那一帧把"刚失去的那一段"
      * 记下来，渲染那边照着它画一块白块 —— 那条血条的读数因此永远不用自己去记历史。
      */
-    var share = target.enemy.maxHp > 0 ? target.enemy.hp / target.enemy.maxHp : 0;
+    var share = !target.enemy.dead && target.enemy.maxHp > 0 ? clamp(target.enemy.hp / target.enemy.maxHp,0,1) : 0;
     if (target.share === undefined) target.share = share;
     if (share < target.share - 1e-9) {
       target.ghost = { from: target.share, to: share, t: 0 };
@@ -6113,6 +6111,12 @@
       target.ghost.t += dt;
       if (target.ghost.t >= TARGET.ghostFade) target.ghost = null;
     }
+    // Commit/fade the fatal hit before advancing the panel's retention clock.
+    if (target.enemy.dead) {
+      target.dying = (target.dying || 0) + dt;
+      var hold = target.enemy.behavior === "boss" ? TARGET.bossDeathHold : TARGET.deathBlink;
+      if (target.dying + 1e-9 >= hold) state.target = null;
+    } else target.dying = 0;
   }
 
   function damageEnemy(state, enemy, amount, knockbackX, sourceX, options) {
@@ -8711,6 +8715,7 @@
       state.hitStop -= dt;
       /* 浮点余数（0.05 − 3×1/60 ≈ 5e−18）算零，不然会多冻一帧。 */
       if (state.hitStop < 1e-6) state.hitStop = 0;
+      updateTarget(state, dt);
       return state;
     }
     /*
@@ -8773,7 +8778,10 @@
      */
     updateDeaths(state, dt);
 
-    if (state.defeat || (state.victory && !state.postClear)) return state;
+    if (state.defeat || (state.victory && !state.postClear)) {
+      updateTarget(state, dt);
+      return state;
+    }
 
     updatePlayer(state, input, dt);
     /*

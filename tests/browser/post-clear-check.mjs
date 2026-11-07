@@ -15,6 +15,11 @@ export async function checkPostClear(page, out) {
       s.intro=null;s.transition=0;s.enemies=[];s.props=[];
       s.room.pendingWave=[];s.room.pendingWaves=[];s.room.cleared=true;
       C.currentCell(s).cleared=true;s.victory=true;
+      if(pauseAtFade){
+        const boss=C.createEnemy(s,'boss',600);boss.dead=true;boss.hp=0;
+        s.target={enemy:boss,dying:0,share:0,ghost:{from:.2,to:0,t:0}};
+        s.hitStop=.1;
+      }
       const R=window.DNFReward, original=R.step;
       R.step=(reward,dt)=>{
         if (manual) {
@@ -40,6 +45,11 @@ export async function checkPostClear(page, out) {
       await page.keyboard.down('ArrowRight');await page.waitForTimeout(100);await page.keyboard.up('ArrowRight');
       assert.equal(await page.evaluate(()=>window.nanoDnf.getState().player.x),before,'the result phase still owns movement');
       assert.ok(Math.abs(await page.evaluate(()=>window.nanoDnf.getReward().opacity)-.5)<1e-9);
+      const deathStart=await page.evaluate(()=>({time:window.nanoDnf.getState().time,dying:window.nanoDnf.getState().target?.dying}));
+      await page.waitForFunction(()=>window.nanoDnf.getState().target===null,null,{timeout:5000});
+      assert.equal(await page.evaluate(()=>window.nanoDnf.getState().postClear),false,'the target expires while the real result overlay still owns control');
+      fs.writeFileSync(path.join(out,'shell-target-death-clock.json'),JSON.stringify({start:deathStart,
+        end:await page.evaluate(()=>({time:window.nanoDnf.getState().time,target:window.nanoDnf.getState().target,reward:window.nanoDnf.getReward().phase}))},null,2));
       await page.evaluate(()=>window.restoreRewardClock());
     }
     await page.waitForFunction(() => window.nanoDnf.getState().postClear);

@@ -1,0 +1,100 @@
+[
+  {
+    "type": "grunt",
+    "age": 0.05,
+    "red": 275,
+    "present": true,
+    "ghost": true
+  },
+  {
+    "type": "grunt",
+    "age": 0.3,
+    "red": 0,
+    "present": true,
+    "ghost": true
+  },
+  {
+    "type": "grunt",
+    "age": 0.55,
+    "red": 275,
+    "present": true,
+    "ghost": true
+  },
+  {
+    "type": "grunt",
+    "age": 0.8,
+    "red": 0,
+    "present": true,
+    "ghost": false
+  },
+  {
+    "type": "grunt",
+    "age": 1.05,
+    "red": 275,
+    "present": true,
+    "ghost": false
+  },
+  {
+    "type": "grunt",
+    "age": 1.26,
+    "red": 0,
+    "present": true,
+    "ghost": false
+  },
+  {
+    "type": "grunt",
+    "age": 1.35,
+    "red": 0,
+    "present": false,
+    "ghost": false
+  },
+  {
+    "type": "boss",
+    "age": 0.05,
+    "red": 329,
+    "present": true,
+    "ghost": true
+  },
+  {
+    "type": "boss",
+    "age": 0.3,
+    "red": 11,
+    "present": true,
+    "ghost": true
+  },
+  {
+    "type": "boss",
+    "age": 0.55,
+    "red": 329,
+    "present": true,
+    "ghost": true
+  },
+  {
+    "type": "boss",
+    "age": 0.8,
+    "red": 11,
+    "present": true,
+    "ghost": false
+  },
+  {
+    "type": "boss",
+    "age": 1.05,
+    "red": 0,
+    "present": false,
+    "ghost": false
+  },
+  {
+    "type": "boss",
+    "age": 1.26,
+    "red": 0,
+    "present": false,
+    "ghost": false
+  },
+  {
+    "type": "boss",
+    "age": 1.35,
+    "red": 0,
+    "present": false,
+    "ghost": false
+  }
+]

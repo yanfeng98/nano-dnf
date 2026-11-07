@@ -11094,3 +11094,51 @@ test('lost HP stays in the current layer when a hit crosses a color boundary',()
     `the ghost for ${from} → ${to} belongs to layer ${layer.index}, not total-HP coordinates`);
  }
 });
+
+test('native death cross flashes on a half-second cycle instead of staying lit',()=>{
+ const state=lastRoomState(33),enemy=Core.createEnemy(state,'grunt',600),atlas={width:3101,height:58};
+ enemy.dead=true;enemy.hp=0;state.enemies=[];
+ for(const [age,on] of [[.05,true],[.24,true],[.26,false],[.45,false],[.55,true],[.74,true],[.76,false],[1.05,true],[1.24,true],[1.26,false]]){
+  state.target={enemy,dying:age,share:0};const calls=[];
+  Render.render(recordingContext(calls),state,{sprites:{portraits:atlas}});
+  const rect=Render.PORTRAITS.deathCross;
+  const actual=calls.some(c=>c[0]==='drawImage'&&c[1]===atlas&&c.slice(2,6).every((v,i)=>v===rect[i]));
+  assert.equal(actual,on,`cross at ${age}s`);
+ }
+});
+
+test('fatal damage replaces the previous HP ghost and still fades on the dead target',()=>{
+ const state=lastRoomState(33),enemy=Core.createEnemy(state,'grunt',600);
+ state.enemies=[enemy];state.intro=null;enemy.hp=enemy.maxHp;
+ state.target={enemy,dying:0,share:1};
+ Core.damageEnemy(state,enemy,5,0,0,{});Core.step(state,{});
+ const before=enemy.hp/enemy.maxHp;assert.ok(state.target.ghost);
+ Core.damageEnemy(state,enemy,9999,0,0,{});Core.step(state,{});
+ assert.equal(state.target.share,0,'the target commits the fatal hit even after enemy.dead');
+ assert.equal(state.target.ghost.from,before);assert.equal(state.target.ghost.to,0);
+ for(let i=0;i<Math.ceil(Core.TARGET.ghostFade/Core.DT)+2;i++)Core.step(state,{});
+ assert.ok(state.target,'the panel is still in its death hold');
+ assert.equal(state.target.ghost,null,'a death ghost must not freeze until the panel disappears');
+});
+
+test('the target UI clock keeps advancing during hitstop and victory',()=>{
+ for(const mode of ['hitstop','victory','defeat']){
+  const state=lastRoomState(33),enemy=Core.createEnemy(state,'grunt',600);
+  enemy.dead=true;enemy.hp=0;state.enemies=[];state.intro=null;
+  state.target={enemy,dying:0,share:0,ghost:{from:.4,to:0,t:0}};
+  if(mode==='hitstop')state.hitStop=.2;else state[mode]=true;
+  Core.step(state,{},.1);
+  assert.ok(state.target.dying>.09,`${mode} does not freeze the UI timer`);
+  assert.ok(state.target.ghost.t>.09,`${mode} does not freeze the lost-HP fade`);
+  state.hitStop=0;
+  for(let i=0;i<Math.ceil(1.5/Core.DT);i++)Core.step(state,{});
+  assert.equal(state.target,null,`${mode} cannot leave a dead boss target hanging over results`);
+ }
+});
+
+test('the first landed hit retains the pre-hit HP share for the white damage block',()=>{
+ const state=lastRoomState(33),enemy=Core.createEnemy(state,'grunt',600);state.enemies=[enemy];
+ assert.equal(state.target,null);Core.damageEnemy(state,enemy,5,0,0,{});Core.step(state,{});
+ assert.ok(state.target.ghost,'the first hit also has a lost-HP block');
+ assert.equal(state.target.ghost.from,1);assert.equal(state.target.ghost.to,enemy.hp/enemy.maxHp);
+});

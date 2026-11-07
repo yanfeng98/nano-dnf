@@ -28,6 +28,39 @@ try {
   window.DNFRender.render=(ctx,state,meta)=>{window.captureResults.meta=meta;return original(ctx,state,meta);};
  });
  await page.waitForFunction(()=>window.captureResults.meta);
+ const deathFrames=await page.evaluate(()=>{
+  const {original,meta}=window.captureResults,Core=window.DNFCore,result=[];
+  for(const type of ['grunt','boss']){
+   const state=Core.createState({seed:33});state.intro=null;state.transition=0;
+   state.room.cleared=true;state.dungeon.cells[state.cell].cleared=true;state.dungeon.cells[state.cell].exits=0;
+   const enemy=Core.createEnemy(state,type,600);enemy.evasion=0;state.enemies=[enemy];
+   Core.damageEnemy(state,enemy,5,0,0,{});Core.step(state,{});
+   Core.damageEnemy(state,enemy,99999,0,0,{});
+   // This is the actual stopped-world result branch, not a hand-aged target.
+   state.victory=true;state.hitStop=.1;let elapsed=0;
+   for(const age of [.05,.3,.55,.8,1.05,1.26,1.35]){
+    while(elapsed<age-1e-9){const dt=Math.min(1/60,age-elapsed);Core.step(state,{},dt);elapsed+=dt;}
+    const canvas=document.createElement('canvas');canvas.width=960;canvas.height=540;const ctx=canvas.getContext('2d');
+    // The simulation stays victorious; omit only the result-page overlay in
+    // this controlled render so pixel samples isolate the target itself.
+    original(ctx,{...state,victory:false},{...meta,attract:false,showHelp:false,paused:false,region:null,run:null,reward:null});
+    const pixels=ctx.getImageData(127,47,30,30).data;let red=0;
+    for(let i=0;i<pixels.length;i+=4)if(pixels[i]>150&&pixels[i]>pixels[i+1]*2.5&&pixels[i]>pixels[i+2]*2.5)red++;
+    result.push({type,age,red,present:!!state.target,ghost:!!state.target?.ghost,url:canvas.toDataURL('image/png')});
+   }
+  }
+  return result;
+ });
+ fs.writeFileSync(path.join(out,'target-death-clock.json'),JSON.stringify(deathFrames.map(({url,...f})=>f),null,2));
+ for(const frame of deathFrames){
+  fs.writeFileSync(path.join(out,`death-${frame.type}-${frame.age}.png`),Buffer.from(frame.url.split(',')[1],'base64'));
+  const hold=frame.type==='boss'?1:1.3;
+  assert.equal(frame.present,frame.age<hold,`${frame.type}: panel expires while victory stops the world`);
+  if(frame.present)assert.equal(frame.red>90,frame.age% .5<.25,`${frame.type}: cross blinks at ${frame.age}s`);
+  if(frame.age>=.8)assert.equal(frame.ghost,false,'the fatal HP block fades during the result delay');
+
+ }
+
  const portraitShots=await page.evaluate(()=>{
   const {original,meta}=window.captureResults;
   const cases=[['mirkwood','boss',.753,'boss-green'],['mirkwood','boss',.553,'boss-orange'],
