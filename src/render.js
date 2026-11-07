@@ -6848,19 +6848,12 @@
      * 战里绿色在 t=232s 还有 776。Boss 条因此按整条重做。
      */
     bossBar: 1068,
-    /*
-     * 录像里 Boss 头像 80×80、条高 59；本作把它放在玩家卡下面（见 bossY）。
-     * **条高 59 → 70**（2026-10-18 业主：「boss的血条应该是粗的」）：宽度仍是
-     * 录像的 1068，只把条加厚，让它读起来是一条实心的大条，而不是细带。
-     */
-    bossPortrait: 80,
-    bossBarH: 70,
-    /*
-     * **录像里这块条贴着屏幕最上沿（y≈97 视频px）**，本作左上角是玩家卡
-     * （y 14..110）与配速行（y 128），所以把它放在它们下面：内容与形状照录像，
-     * 绝对位置不照（`docs/adr/0054`）。
-     */
-    bossY: 25
+    // V1 250s / V2 330s: native 36px portrait canvas at 1.125x,
+    // bar height 59 video pixels / 2; restore the measured y=43 after the
+    // old custom player-card offset and thickened-bar rules were superseded.
+    bossPortrait: 81,
+    bossBarH: 59,
+    bossY: 43
   };
 
   /** 把一张怪的脸画进头像框：取它站姿那一帧的**头部**那一段。 */
@@ -6932,59 +6925,34 @@
   /*
    * **领主的目标条**（`docs/adr/0054`）—— 照录像重做的那一条：
    *
-   *   头像 80×80 ｜ 一条 1068 长、59 高的条
+   *   头像 81×81 ｜ 一条 1068 长、59 高的条
    *
    * 绿色是 HP 填充，橙色 `ALERT!` 是**这条里没被填满的空槽**（不是另加的一条）；
    * 绿条见底/翻脸之后换成红色。类别牌与名字画在条内。半血竖线和「· 狂暴」
    * 录像里没有，这里也不画 —— 狂暴仍然是玩法，只是不写在条上。
    *
-   * 位置：录像贴着屏幕左上角，本作左上角被玩家卡与配速行占着，所以整块挂在
-   * 它们下面（`TARGET_PANEL.bossY`）；条的长度与形状照录像。
+   * 位置：V1 250s / V2 330s 归一化后 y=43；撤回旧玩家卡避让位移。
    */
-  /**
-   * **领主的目标框头像**：用赛丽亚选关卡片上那张 **3/4 正脸**（`assets/region.png`
-   * 第 0 张卡，crop `[112,8,60,60]`），不是战斗精灵的侧身头 —— 侧脸在 40px 下
-   * 只剩肩膀，和参考录像的目标框对不上（业主 2026-10-18：「领主牛头的血条头像不对」）。
-   * 卡片自带的森林底用一圈暗角压掉，保留参考里那张脸。
-   */
+  // Native UI portraits, not video crops or the side-view combat body.
+  var PORTRAITS = {
+    player: [0, 0, 24, 26],
+    boss: [24, 0, 24, 24],
+    lugaruBoss: [48, 0, 24, 24],
+    frame: [72, 0, 36, 36],
+    namePlate: [108, 0, 147, 58],
+  };
   function drawBossPortrait(ctx, sprites, x, y, size, type) {
-    /*
-     * **每只领主自己的脸。** 牛头巨兽走参考录像裁的那张 80×80 正脸
-     * （`assets/boss_portrait.png`），它连金属框和四角红铆钉一起裁进来了；
-     * 暗咒猫妖没有这张现成裁图，就从它自己的战斗精灵里裁头，走"drawn"
-     * 那一路（目标框会替它画钢框和红铆钉）。
-     */
-    if (type === "lugaruBoss" &&
-        drawMonsterFace(ctx, sprites, type, { x: x, y: y, w: size, h: size })) {
-      return "drawn";
+    var atlas = sprites && sprites.portraits;
+    if (atlas && atlas.width) {
+      var frame = PORTRAITS.frame, face = PORTRAITS[type];
+      if (!face) return false;
+      ctx.drawImage(atlas, frame[0], frame[1], frame[2], frame[3], x, y, size, size);
+      var scale = size / 36;
+      ctx.drawImage(atlas, face[0], face[1], face[2], face[3],
+        x + 6 * scale, y + 4 * scale, 24 * scale, 24 * scale);
+      return "framed";
     }
-    /*
-     * **首选那张从参考录像里裁的 80×80 正脸**（`assets/boss_portrait.png`）——
-     * 没有它时才用选关卡片的正脸 / 战斗精灵兜底。
-     */
-    var baked = sprites && sprites.bossPortrait;
-    if (baked && baked.width) {
-      ctx.drawImage(baked, x, y, size, size);
-      return "baked";
-    }
-    var region = sprites && sprites.region;
-    if (region && region.width) {
-      ctx.save();
-      ctx.beginPath();
-      ctx.rect(x, y, size, size);
-      ctx.clip();
-      ctx.drawImage(region, 112, 8, 60, 60, x, y, size, size);
-      var shade = ctx.createRadialGradient(x + size * 0.5, y + size * 0.48, size * 0.18,
-                                           x + size * 0.5, y + size * 0.48, size * 0.78);
-      shade.addColorStop(0, "rgba(4, 9, 22, 0)");
-      shade.addColorStop(1, "rgba(4, 9, 22, 0.82)");
-      ctx.fillStyle = shade;
-      ctx.fillRect(x, y, size, size);
-      ctx.restore();
-      return "drawn";
-    }
-    return drawMonsterFace(ctx, sprites, "boss", { x: x, y: y, w: size, h: size })
-      ? "drawn" : false;
+    return drawMonsterFace(ctx, sprites, type, { x: x, y: y, w: size, h: size }) ? "drawn" : false;
   }
 
   /**
@@ -7028,14 +6996,16 @@
     ctx.save();
 
     /* 头像：深底 + 牛头自己的脸 + 深灰钢框 + 四角红铆钉。 */
-    ctx.fillStyle = "#0a0c14";
-    ctx.fillRect(x, y, portrait, portrait);
+    if (!(sprites && sprites.portraits)) {
+      ctx.fillStyle = "#0a0c14";
+      ctx.fillRect(x, y, portrait, portrait);
+    }
     var portraitMode = drawBossPortrait(ctx, sprites, x, y, portrait, enemy.type);
     if (!portraitMode) {
       ctx.fillStyle = "rgba(255, 255, 255, 0.06)";
       ctx.fillRect(x, y, portrait, portrait);
     }
-    if (portraitMode !== "baked") {
+    if (portraitMode !== "framed") {
       ctx.strokeStyle = "#3d3d35";
       ctx.lineWidth = Math.max(1, 2 * px);
       ctx.strokeRect(x + ctx.lineWidth / 2, y + ctx.lineWidth / 2,
@@ -7064,8 +7034,8 @@
     var innerX = barX + border;
     var innerW = barW - border * 2;
     /*
-     * **填满整条高度**（2026-10-18）：业主说 Boss 血条要粗。以前上下各留了
-     * `border`，59 高的条只填 53；现在条本身加高到 70，填充从顶到底。
+     * Fill the measured 59-video-pixel height. The old 70px thickening was
+     * a prior preference superseded by strict matching of both recordings.
      */
     var innerY = barY;
     var innerH = barH;
@@ -8812,30 +8782,18 @@
       // column zero. The owner previously reported third-card selection moving
       // to the wrong card, so all positions share the existing card pitch.
       var prizeShift = (reward.picked || 0) * (REWARD_UI.cardW + REWARD_UI.cardGap);
-      var plateX = 130 + prizeShift;
-      var plateY = 128;
-      var plateW = 160;
-      var plateH = 63;
-      drawUiFrame(ctx, sheet, UI.rewardNamePlate, 0, plateX, plateY, plateW, plateH);
-      if (sprites && sprites.rewardAvatar && sprites.rewardAvatar.width) {
-        /*
-         * 这张 52×60 的玩家头像直接从参考录像的名条上裁下来（`assets/
-         * import_reference_portraits.py`）：参考里那张脸朝左、白发尖角，
-         * 和游戏内待机头不是同一个裁法。黑方块在 f60 里的位置是
-         * `(9, 8, ~28, 40)`；头像放 26×30、居中，正好填满。
-         */
-        ctx.imageSmoothingEnabled = false;
-        /* 黑格上缘在 y=8；脸从 y=9 起，和参考一样顶到格子上沿。 */
-        ctx.drawImage(sprites.rewardAvatar, plateX + 11, plateY + 9, 26, 30);
-      } else if (sprites && sprites.slayer && sprites.slayer.width) {
-        /* 没有参考头像时的兜底：待机头的方裁，不压扁。 */
+      var plateX = 126 + prizeShift, plateY = 124;
+      var plateW = 165.375, plateH = 65.25;
+      var portraits = sprites && sprites.portraits;
+      if (portraits) {
+        var plate = PORTRAITS.namePlate, playerFace = PORTRAITS.player;
+        ctx.drawImage(portraits, plate[0], plate[1], plate[2], plate[3], plateX, plateY, plateW, plateH);
+        // The default face includes the left shoulder; the UI clips it to its
+        // black 24x24 portrait socket. Without this clip, matching is misleading.
         ctx.save();
-        ctx.beginPath();
-        ctx.rect(plateX + 9, plateY + 8, 30, 40);
-        ctx.clip();
-        ctx.imageSmoothingEnabled = false;
-        ctx.drawImage(sprites.slayer, SPRITE.anchorX - 12, 70, 44, 44,
-                      plateX + 10, plateY + 11, 28, 28);
+        ctx.beginPath();ctx.rect(plateX + 8, plateY + 8, 27, 27);ctx.clip();
+        ctx.drawImage(portraits, playerFace[0], playerFace[1], playerFace[2], playerFace[3],
+          plateX + 3, plateY + 10, 27, 29.25);
         ctx.restore();
       }
       ctx.textAlign = "center";
@@ -8848,10 +8806,10 @@
        */
       /*
        * 参考里那个名字的中心在整块名条的 ~52%（不是橙底的正中）：量的是
-       * `ref_nameplate` 的 318 宽里名字中心约在 166 处。所以 center = +84；
+       * `ref_nameplate` 的 318 宽里名字中心约在 166 处，暂保留52%比例；
        * 纵向在**橙底中线** +24（业主复看说 +30 还靠下，见 0055 追记四）。
        */
-      ctx.fillText(playerName || "鬼剑士", plateX + 84, plateY + 24);
+      ctx.fillText(playerName || "鬼剑士", plateX + plateW * 0.52, plateY + 24);
       ctx.textBaseline = "alphabetic";
 
       // Native f41 includes the coin; f43 is the treasure texture and icon
@@ -10021,6 +9979,7 @@
     bossBarShare: bossBarShare,
     UI: UI,
     RESULT_ART: RESULT_ART,
+    PORTRAITS: PORTRAITS,
     minimapBox: minimapBox,
     hitTestMinimap: hitTestMinimap,
     /* 魔狱血刹's two live-drawn numbers, so tests can pin them to the sheets. */

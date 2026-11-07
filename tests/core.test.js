@@ -11000,3 +11000,40 @@ test("post-clear play resumes movement and attacks without reopening rooms or ch
   const fresh = Core.createState({ seed: 27 });
   assert.equal(Core.resumeAfterClear(fresh), false, "a live run cannot skip into post-clear play");
 });
+
+test("runtime portraits use client frames instead of the old video crops", () => {
+  const main = fs.readFileSync(path.join(__dirname,"../src/main.js"),"utf8");
+  assert.doesNotMatch(main,/assets\/(boss_portrait|reward_avatar)\.png/,
+    "video-derived portrait files must leave the runtime asset list");
+  const proof = require("../docs/reference-evidence/31-portrait-native-proof.json");
+  const atlas = decodeRgbaPng(path.join(__dirname,"../assets/portraits-reference.png"));
+  const crypto = require("node:crypto");
+  for (const frame of proof.frames) {
+    const rect = Render.PORTRAITS[frame.name];
+    assert.deepEqual(rect,frame.rect);
+    const [x,y,w,h] = rect, pixels = Buffer.alloc(w*h*4);
+    for(let row=0;row<h;row++)atlas.pixels.copy(pixels,row*w*4,
+      ((y+row)*atlas.width+x)*4,((y+row)*atlas.width+x+w)*4);
+    assert.equal(crypto.createHash("sha256").update(pixels).digest("hex"),frame.rgba_sha256,
+      `${frame.name}: actual PNG preserves the declared local client pixels`);
+  }
+});
+
+test("both bosses draw their own native UI face inside the reference portrait frame", () => {
+  const atlas = { width:255, height:58 };
+  for (const [stage,type] of [["mirkwood","boss"],["mirkwooddeep","lugaruBoss"]]) {
+    const state = Core.createState({stage,seed:31});
+    Core.goToCell(state,state.dungeon.boss);
+    const boss = state.enemies.find(enemy=>Core.isBossEnemy(enemy));
+    assert.equal(boss.type,type);
+    state.target={enemy:boss,dying:0,share:1};state.bossEngaged=true;
+    const calls=[];
+    Render.render(recordingContext(calls),state,{sprites:{portraits:atlas}});
+    const rect = Render.PORTRAITS[type];
+    const face = calls.find(c=>c[0]==="drawImage"&&c[1]===atlas&&
+      c[2]===rect[0]&&c[3]===rect[1]&&c[4]===rect[2]&&c[5]===rect[3]);
+    assert.ok(face,`${type} uses the UI portrait, not a combat-body crop`);
+    face.slice(6).forEach((value,i)=>assert.ok(Math.abs(value-[130.75,47.5,27,27][i])<1e-9));
+    assert.equal(Render.TARGET_PANEL.bossBarH,59,"the old thickened 70px bar is superseded by strict video matching");
+  }
+});

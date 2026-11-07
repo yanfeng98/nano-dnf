@@ -36,7 +36,7 @@
     rift: null, awakening: null, region: null,
     monsters: null, forest: null, minimap: null, ui: null, results: null,
     /* The two portraits cut from the owner's reference recording (ADR 0054/0055). */
-    bossPortrait: null, rewardAvatar: null
+    portraits: null
   };
   /*
    * **素材没到齐之前，一帧游戏都不画。**
@@ -129,8 +129,7 @@
      * 翻牌名条上的玩家头像（t=354s）。客户端里没有一个单独的正脸分件，
      * 侧身战斗精灵在 40px 下对不上参考（`docs/adr/0054` 追记二、0055 追记）。
      */
-    ["bossPortrait", "./assets/boss_portrait.png"],
-    ["rewardAvatar", "./assets/reward_avatar.png"]
+    ["portraits", "./assets/portraits-reference.png"]
   ];
   assets.total = ASSET_ENTRIES.length;
   ASSET_ENTRIES.forEach(function (entry) {

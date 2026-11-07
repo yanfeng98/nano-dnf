@@ -276,3 +276,12 @@ Reward.takePrize只在已选中后返回一次奖品。网页手选在同一输�
 本批只对新加原件、已知奖品和支付路径提供证据，不表示整个结算或所有素材已还原。
 
 第三十批完整验证：337项单元测试、9组串行浏览器回归通过。实绘指标、手选/自动支付与刷新保留证据见`30-prize-renderer-measurement.json`、`30-prize-payment-measurement.json`和第三列开奖截图。
+
+
+### 第三十一批：头像恢复客户端分件（2026-11-07）
+
+历史录像裁片撤出运行资产，改用本地 defaultfaces f0、MonsterFace f16/f13、monster_hp f11钢框和
+reward_ver2 f60名条。撤回旧“客户端无正脸”的判断；血条70像素加厚与避让玩家卡的y=25规则
+服从严格录像要求，恢复59录像像素高与归一化y=43。领奖头像按原生孔裁剪，不再裁战斗身体。
+来源、坐标和限制见 reference-video-audit 第三十一批与31-portrait-native-proof.json。
+普通怪头像、死亡叉号、字体、完整血条与结算仍待处理，不表示整页还原。

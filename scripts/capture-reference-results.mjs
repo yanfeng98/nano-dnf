@@ -28,6 +28,26 @@ try {
   window.DNFRender.render=(ctx,state,meta)=>{window.captureResults.meta=meta;return original(ctx,state,meta);};
  });
  await page.waitForFunction(()=>window.captureResults.meta);
+ const portraitShots=await page.evaluate(()=>{
+  const {original,meta}=window.captureResults;
+  return ['mirkwood','mirkwooddeep'].map(stage=>{
+   const state=window.DNFCore.createState({stage,seed:31});
+   window.DNFCore.goToCell(state,state.dungeon.boss);
+   const boss=state.enemies.find(e=>window.DNFCore.isBossEnemy(e));
+   state.target={enemy:boss,dying:0,share:1};state.bossEngaged=true;
+   state.intro=null;state.transition=0;
+   const canvas=document.createElement('canvas');canvas.width=960;canvas.height=540;
+   const ctx=canvas.getContext('2d');
+   original(ctx,state,{...meta,attract:false,showHelp:false,paused:false,region:null,run:null,reward:null});
+   const facePixels=ctx.getImageData(131,48,26,26).data;
+   if(!facePixels.some((v,i)=>i%4!==3&&v>40))throw new Error('portrait capture is obscured');
+   return {stage,url:canvas.toDataURL('image/png'),atlas:meta.sprites.portraits.width};
+  });
+ });
+ for(const shot of portraitShots){
+  assert.equal(shot.atlas,255,'real browser loads native portrait atlas');
+  fs.writeFileSync(path.join(out,`portrait-${shot.stage}.png`),Buffer.from(shot.url.split(',')[1],'base64'));
+ }
  const reference={
   circle:fs.readFileSync(path.join(root,'docs/reference-evidence/25-reward-circle-reference.png')).toString('base64'),
   blue:fs.readFileSync(path.join(root,'docs/reference-evidence/26-blue-card-reference.png')).toString('base64'),

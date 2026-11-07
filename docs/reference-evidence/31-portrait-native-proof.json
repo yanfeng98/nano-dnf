@@ -1,0 +1,113 @@
+{
+  "sheet": [
+    255,
+    58
+  ],
+  "frames": [
+    {
+      "name": "player",
+      "rect": [
+        0,
+        0,
+        24,
+        26
+      ],
+      "folder": "ImagePacks2_70",
+      "pack": "sprite_character.NPK",
+      "entry": "sprite/character/defaultfaces.img",
+      "frame": 0,
+      "crop": null,
+      "source_size": [
+        24,
+        26
+      ],
+      "source_rgba_sha256": "90fc09b7aabf33277957008fd1467ac08701373a346145e768fc89f5ce3beb40",
+      "rgba_sha256": "90fc09b7aabf33277957008fd1467ac08701373a346145e768fc89f5ce3beb40"
+    },
+    {
+      "name": "boss",
+      "rect": [
+        24,
+        0,
+        24,
+        24
+      ],
+      "folder": "ImagePacks2_70",
+      "pack": "sprite_monster.NPK",
+      "entry": "sprite/monster/monsterface.img",
+      "frame": 16,
+      "crop": null,
+      "source_size": [
+        24,
+        24
+      ],
+      "source_rgba_sha256": "c1a09ef05e7ffb8b943582b8a594ae75a3de8ae94f09ef4cb0509347d0a0f561",
+      "rgba_sha256": "c1a09ef05e7ffb8b943582b8a594ae75a3de8ae94f09ef4cb0509347d0a0f561"
+    },
+    {
+      "name": "lugaruBoss",
+      "rect": [
+        48,
+        0,
+        24,
+        24
+      ],
+      "folder": "ImagePacks2_70",
+      "pack": "sprite_monster.NPK",
+      "entry": "sprite/monster/monsterface.img",
+      "frame": 13,
+      "crop": null,
+      "source_size": [
+        24,
+        24
+      ],
+      "source_rgba_sha256": "d8467cd0fcaea3b1b278107acab3eb111c4e2598058e1f4e8b6cf938ae8c6c3d",
+      "rgba_sha256": "d8467cd0fcaea3b1b278107acab3eb111c4e2598058e1f4e8b6cf938ae8c6c3d"
+    },
+    {
+      "name": "frame",
+      "rect": [
+        72,
+        0,
+        36,
+        36
+      ],
+      "folder": "ImagePacks2_70",
+      "pack": "sprite_interface_newstyle_windows_monster_hp.NPK",
+      "entry": "sprite/interface/newstyle/windows/monster_hp/monster_hp.img",
+      "frame": 11,
+      "crop": [
+        0,
+        0,
+        36,
+        36
+      ],
+      "source_size": [
+        630,
+        36
+      ],
+      "source_rgba_sha256": "7e42146b276be2ec953411a9eed46f6d87675c2bf6575ef5d4c6d45644404f61",
+      "rgba_sha256": "ecc958a326bc5dd1558be331666061951248c86f68a1a9cda7c9d6de1ab41458"
+    },
+    {
+      "name": "namePlate",
+      "rect": [
+        108,
+        0,
+        147,
+        58
+      ],
+      "folder": "ImagePacks2",
+      "pack": "sprite_interface2_reward_ver2.0.NPK",
+      "entry": "sprite/interface2/reward_ver2.0/reward_ver2.img",
+      "frame": 60,
+      "crop": null,
+      "source_size": [
+        147,
+        58
+      ],
+      "source_rgba_sha256": "c9dfaad62773784ffbc771571486609a90e1881bc03ca7163ffb880709c8b0eb",
+      "rgba_sha256": "c9dfaad62773784ffbc771571486609a90e1881bc03ca7163ffb880709c8b0eb"
+    }
+  ]
+}
