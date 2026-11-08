@@ -1,0 +1,26 @@
+[
+  {
+    "video": 1,
+    "final_frame": 341.0,
+    "base_observed": 1760,
+    "rank_S_addition_observed": 528,
+    "matched_channel_addition_observed": 88,
+    "total_observed": 2376,
+    "arithmetic_verified": true,
+    "rank_ratio": 0.3,
+    "channel_ratio": 0.05,
+    "limits": "Two S-ranked observed outcomes; other grades, event bonuses, base XP and payment timing are not reconstructed."
+  },
+  {
+    "video": 2,
+    "final_frame": 396.0,
+    "base_observed": 4680,
+    "rank_S_addition_observed": 1404,
+    "matched_channel_addition_observed": 234,
+    "total_observed": 6318,
+    "arithmetic_verified": true,
+    "rank_ratio": 0.3,
+    "channel_ratio": 0.05,
+    "limits": "Two S-ranked observed outcomes; other grades, event bonuses, base XP and payment timing are not reconstructed."
+  }
+]

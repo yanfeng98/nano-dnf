@@ -41,7 +41,23 @@ SOURCES = [
     ('staffIcon', 'sprite_item_weapon_mage.NPK', 'sprite/item/weapon/mage/staff.img', 1, 'ImagePacks2_70'),
     ('totemIcon', 'sprite_item_weapon_priest.NPK', 'sprite/item/weapon/priest/totem.img', 2, 'ImagePacks2_70'),
 
-] + [('prizeBand', 'sprite_interface2_reward_ver2.0.NPK', 'sprite/interface2/reward_ver2.0/reward_ver2.img', 34)]
+] + [('prizeBand', 'sprite_interface2_reward_ver2.0.NPK', 'sprite/interface2/reward_ver2.0/reward_ver2.img', 34)] + [
+    (name, 'sprite_interface2_reward_ver2.0.NPK', 'sprite/interface2/reward_ver2.0/reward_ver2.img', index)
+    for name, index in [('chestOutline', 54), ('chestGlow', 55)]
+] + [
+    (name, 'sprite_interface_newresult.NPK', 'sprite/interface/newresult/result.img', index)
+    for name, index in [('statsPanel', 0), ('rankCircle', 2)] +
+        [(f'resultRank{i}', i+3) for i in range(9)] +
+        [('statsBarFill', 23), ('statsBarFrame', 78)]
+] + [
+    (name, 'sprite_interface_newresult.NPK', 'sprite/interface/newresult/result.img', index)
+    for name, index in [('scoreSlash', 24), ('statsPercent', 26), ('statsMinus', 57)] +
+        [(f'{family}Digit{i}', first+i) for family, first in
+         [('total',27),('gold',47),('red',58),('percent',68)] for i in range(10)]
+] + [
+    (name, 'sprite_interface_newresult.NPK', 'sprite/interface/newresult/result2_mainhud.img', index)
+    for name, index in [('combatOperation',11),('combatTechnique',10),('combatHits',12),('combatRating',14)]
+]
 
 def frames(client):
     for source in SOURCES:

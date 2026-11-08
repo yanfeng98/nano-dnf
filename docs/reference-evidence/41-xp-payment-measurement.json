@@ -1,0 +1,30 @@
+[
+  {
+    "video": 1,
+    "sample_start": 332.5,
+    "sample_fps": 30,
+    "visible_transition_interval": [
+      332.6,
+      332.7
+    ],
+    "level_before": 4,
+    "level_after": 5,
+    "clear_total_observed": 2376,
+    "interpretation": "Total-XP float/level-up precedes the later result count-up; do not pay again for each displayed line.",
+    "limits": "Visible credit/level change; exact server transaction time and base-XP formula are not observed."
+  },
+  {
+    "video": 2,
+    "sample_start": 386.7,
+    "sample_fps": 30,
+    "visible_transition_interval": [
+      386.8,
+      386.9
+    ],
+    "level_before": 6,
+    "level_after": 7,
+    "clear_total_observed": 6318,
+    "interpretation": "Total-XP float/level-up precedes the later result count-up; do not pay again for each displayed line.",
+    "limits": "Visible credit/level change; exact server transaction time and base-XP formula are not observed."
+  }
+]

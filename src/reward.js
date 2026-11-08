@@ -23,11 +23,11 @@
    * a shared cyan fade; prompt at 2s and the 3-second counter at 2.5s.
    * The first card's separate V2 highlight is not a staggered flip.
    * V1 355.13..355.93 / V2 407.7..408.5: a shared .8s fade after
-   * 3s from selection. Chest/list and the prize flip itself remain pending.
+   * 3s from selection. List content, chest effects and the prize flip itself remain pending.
    */
   var TIMES = {
     stats: 10.0,
-    chest: 1.2,
+    chest: 115 / 30,
     spread: 1.2,
     fadeStart: 1.2,
     flip: 1.9,
@@ -39,6 +39,12 @@
     fade: 0.8
   };
   var CARD_COUNT = 4;
+
+  // Observed reward/list-to-spread intervals, not a formula for list length.
+  // V1 ~342.8..346.633; V2 ~397.0..399.2. Fade boundaries are approximate.
+  function chestDuration(reward) {
+    return reward && reward.stage === "mirkwooddeep" ? 66 / 30 : TIMES.chest;
+  }
 
   // Observed reference outcomes, not a reconstructed random-drop formula.
   // V1 354s: staff +3526; V2 406s: green kunic totem +6094. The earlier
@@ -110,7 +116,7 @@
     var remaining = span;
     while (remaining > 0) {
       var limit = reward.phase === "stats" ? TIMES.stats
-        : reward.phase === "chest" ? TIMES.chest
+        : reward.phase === "chest" ? chestDuration(reward)
         : reward.phase === "cards" ? TIMES.countdownAt + TIMES.countdown
         : reward.phase === "reveal" ? TIMES.reveal
         : reward.phase === "fade" ? TIMES.fade : Infinity;
@@ -173,6 +179,7 @@
 
   return {
     TIMES: TIMES,
+    chestDuration: chestDuration,
     CARD_COUNT: CARD_COUNT,
     REFERENCE_PRIZES: REFERENCE_PRIZES,
     takePrize: takePrize,

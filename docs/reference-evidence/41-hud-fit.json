@@ -1,0 +1,112 @@
+[
+  {
+    "video": 1,
+    "frame": 11,
+    "label": "operation",
+    "scale": 1.175,
+    "correlation": 0.8723097443580627,
+    "xy": [
+      676,
+      347
+    ]
+  },
+  {
+    "video": 1,
+    "frame": 10,
+    "label": "technique",
+    "scale": 1.125,
+    "correlation": 0.815054714679718,
+    "xy": [
+      678,
+      365
+    ]
+  },
+  {
+    "video": 1,
+    "frame": 12,
+    "label": "hits",
+    "scale": 1.125,
+    "correlation": 0.8286426663398743,
+    "xy": [
+      664,
+      383
+    ]
+  },
+  {
+    "video": 1,
+    "frame": 14,
+    "label": "rating",
+    "scale": 1.15,
+    "correlation": 0.7845557928085327,
+    "xy": [
+      677,
+      400
+    ]
+  },
+  {
+    "video": 1,
+    "frame": 3,
+    "label": "grade-S",
+    "scale": 0.875,
+    "correlation": 0.7375513315200806,
+    "xy": [
+      650,
+      403
+    ]
+  },
+  {
+    "video": 2,
+    "frame": 11,
+    "label": "operation",
+    "scale": 1.125,
+    "correlation": 0.8621582388877869,
+    "xy": [
+      677,
+      347
+    ]
+  },
+  {
+    "video": 2,
+    "frame": 10,
+    "label": "technique",
+    "scale": 1.125,
+    "correlation": 0.8164803981781006,
+    "xy": [
+      678,
+      365
+    ]
+  },
+  {
+    "video": 2,
+    "frame": 12,
+    "label": "hits",
+    "scale": 1.125,
+    "correlation": 0.8378308415412903,
+    "xy": [
+      664,
+      383
+    ]
+  },
+  {
+    "video": 2,
+    "frame": 14,
+    "label": "rating",
+    "scale": 1.15,
+    "correlation": 0.8128122687339783,
+    "xy": [
+      677,
+      400
+    ]
+  },
+  {
+    "video": 2,
+    "frame": 3,
+    "label": "grade-S",
+    "scale": 0.875,
+    "correlation": 0.7287561297416687,
+    "xy": [
+      650,
+      403
+    ]
+  }
+]

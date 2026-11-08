@@ -1,0 +1,42 @@
+{
+  "sheet": [
+    88,
+    133
+  ],
+  "frames": {
+    "pillarPale": {
+      "rect": [
+        0,
+        0,
+        44,
+        133
+      ],
+      "offset": [
+        2,
+        7
+      ],
+      "folder": "ImagePacks2",
+      "pack": "sprite_map_breakableobject_stonepillar.NPK",
+      "entry": "sprite/map/breakableobject/stonepillar/stonepillar.img",
+      "frame": 0,
+      "rgba_sha256": "f2d190e218cfd93f8ca94120e535607fab918e3a682236944f86629ac107c564"
+    },
+    "pillarDamagedDecor": {
+      "rect": [
+        44,
+        0,
+        44,
+        111
+      ],
+      "offset": [
+        3,
+        29
+      ],
+      "folder": "ImagePacks2",
+      "pack": "sprite_map_breakableobject_stonepillar.NPK",
+      "entry": "sprite/map/breakableobject/stonepillar/stonepillardamaged.img",
+      "frame": 0,
+      "rgba_sha256": "f3c236e19ab08fce2588e434111ff9670f8641c7ab451a41b610c43e5fa585b7"
+    }
+  }
+}

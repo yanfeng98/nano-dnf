@@ -259,7 +259,7 @@ function clearLaneX(state) {
   const props = (state.props || []).filter((prop) => prop.solid && !prop.broken);
   for (let x = Core.ROOM.leftWall + 40; x < Core.ROOM.rightWall - 40; x += 6) {
     const blocked = props.some((prop) => {
-      const box = Core.propBox(prop.piece);
+      const box = Core.propBox(prop.piece, prop.scale);
       return Math.abs(x - (prop.x + (box.dx || 0))) <= box.width / 2 + player.width / 2;
     });
     if (!blocked) return x;
@@ -1639,7 +1639,7 @@ test("门口那一块没有布景压着 —— 实心件挪开、花草也不许
   state.dungeon.cells.forEach((cell, index) => {
     Core.goToCell(state, index);
     const depth = Core.bandDepth(state.band);
-    const spec = (ROOMS[cell.room].props || []).filter((prop) => Core.propBox(prop.piece));
+    const spec = (ROOMS[cell.room].props || []).filter((prop) => Core.propBox(prop.piece, prop.scale));
     /* 只数**人写的**那一批：撒出来的实心件躲不开门时是**丢掉**的（`SCATTER` 那段）。 */
     const placed = state.props.filter((prop) => prop.solid && !prop.scattered);
     assert.equal(
@@ -1653,7 +1653,7 @@ test("门口那一块没有布景压着 —— 实心件挪开、花草也不许
      */
     state.props.forEach((prop) => {
       assert.equal(
-        Core.blocksDoorway(state, cell, { piece: prop.piece, x: prop.x, depth: prop.z / depth }, depth),
+        Core.blocksDoorway(state, cell, { piece: prop.piece, scale: prop.scale, x: prop.x, depth: prop.z / depth }, depth),
         false,
         `${state.room.name} 的 ${prop.piece} 压在门口上`
       );
@@ -1686,8 +1686,8 @@ test("业主报的那一格：东门门拱上不再有草", () => {
   assert.ok(cell.exits & Core.MINIMAP_STEPS.E.bit, "这一格要真的有东门");
   const gate = Core.gateArtRect(state, cell, "E");
   state.props.forEach((prop) => {
-    const art = Core.propArtSize(prop.piece);
-    const box = Core.propBox(prop.piece);
+    const art = Core.propArtSize(prop.piece, prop.scale);
+    const box = Core.propBox(prop.piece, prop.scale);
     const ink = art || (box && box.ink);
     if (!ink) return;
     const foot = Core.ARENA.groundY - Core.depthLift(prop.z);
@@ -2773,7 +2773,7 @@ function detourRow(state, input, stepZ) {
 function blockingProp(state, hit) {
   for (const prop of state.props || []) {
     if (!prop.solid || prop.broken) continue;
-    const spec = Core.propBox(prop.piece);
+    const spec = Core.propBox(prop.piece, prop.scale);
     if (!spec) continue;
     const centre = prop.x + (spec.dx || 0);
     if (hit(prop, spec, centre)) return { prop, spec, x: centre, z: prop.z };
@@ -3091,10 +3091,10 @@ test("renderer draws a live frame and both end-state overlays without throwing",
   const lost = renderCalls(state);
 
   const texts = live.concat(won, lost).filter((call) => call[0] === "fillText").map((call) => call[1]);
-  /* A clear names the stage it cleared; only a defeat is generic. */
+  /* The recorded victory page is headed 战绩; defeat retains its own page. */
   assert.ok(
-    texts.includes(STAGE.name + " 通关"),
-    `a clear must name the stage: ${texts.join(" / ")}`
+    texts.includes("战绩"),
+    `a clear must show the recorded stats heading: ${texts.join(" / ")}`
   );
   assert.ok(texts.includes("YOU DIED"));
 });
@@ -8515,14 +8515,14 @@ test("the title screen shows the seed record and a clear shows the result", () =
     run: { seed: 7, improved: true, resultText: "新纪录！ 0:44.4 · Lv 4", recordText: run.recordText }
   });
   const clearTexts = textsFrom(clearCalls);
-  assert.ok(clearTexts.includes(cleared.stage.name + " 通关"));
+  assert.ok(clearTexts.includes("战绩"));
   assert.ok(
-    clearTexts.some((text) => text.includes("新纪录！")),
-    `a record run must say so: ${clearTexts.join(" / ")}`
+    !clearTexts.some((text) => text.includes("新纪录！")),
+    "the custom record banner no longer overlays the reference result page"
   );
   assert.ok(
-    clearTexts.some((text) => text.includes("本种子最佳")),
-    "the clear screen must repeat the standing record"
+    !clearTexts.some((text) => text.includes("本种子最佳")),
+    "standing records remain on the title rather than replacing the reference stats layout"
   );
 });
 
@@ -10121,10 +10121,10 @@ test("the measured room widths and band are on the deep route", () => {
      * 41 房 **560**（不是下界 456，2026-10-27）：22s 帧房里还有活着的青哥布林，
      * 东门却已经画在右墙上 —— 反推房间至少 543 世界px（`docs/adr/0063`）。
      */
-    "0,3": 560,
-    "1,3": 520,
+    "0,3": 960,
+    "1,3": 1280,
     "2,3": 1280,
-    "2,2": 734,
+    "2,2": 1280,
     "2,1": 885,
     "2,0": 524,
     "3,0": 529,
@@ -10226,6 +10226,7 @@ test("路线格挪过的布景不许把宝箱/石碑盖住", () => {
       const depth = Core.bandDepth(state.band);
       const artOf = (prop) => Core.propArtRect(state, {
         piece: prop.piece,
+        scale: prop.scale,
         x: prop.x,
         depth: prop.z / depth
       }, depth);
@@ -10238,6 +10239,12 @@ test("路线格挪过的布景不许把宝箱/石碑盖住", () => {
              * **画在它前面**（z 更小，后画）时才会盖住它 —— 远的先画。
              */
             if (prop === loot) return;
+            // 手摆原位由上一条测试守住；相邻物体的美术矩形允许重叠。
+            // 这里检查的是自动挪位/撒布不能新增的遮挡。
+            const original = (state.stage.rooms[cell.room].props || []).some((entry) =>
+              entry.piece === prop.piece && Math.abs(entry.x - prop.x) < .001 &&
+              Math.abs((entry.depth || 0) * depth - prop.z) < .001);
+            if (original && !prop.scattered) return;
             if (prop.piece === "chest" || prop.piece === "tomb") return;
             if (prop.z > loot.z + 0.001) return;
             const art = artOf(prop);
@@ -10398,7 +10405,7 @@ test("deep gate runes use the arch scale and the recorded right-hand barrel exis
 test("the deep pillar has the recorded broad flat cap, not a diagonal broken tip", () => {
   const png = decodeRgbaPng(path.join(__dirname, "../assets/pillar-pale.png"));
   let cap = 0;
-  for (let x = 0; x < png.width; x++) {
+  for (let x = 0; x < Render.SCENE.pieces.pillarPale[2]; x++) {
     if (png.pixels[(3 * png.width + x) * 4 + 3] > 180) cap++;
   }
   assert.ok(cap >= 24, `a flat elliptical cap spans the pillar: only ${cap} pixels`);
@@ -10922,9 +10929,20 @@ test("the actual result atlas preserves the client's circle, chest and countdown
     "../docs/reference-evidence/27-continue-native-proof.json"), "utf8"));
   const prizeEvidence = JSON.parse(fs.readFileSync(path.join(__dirname,
     "../docs/reference-evidence/30-prize-native-proof.json"), "utf8"));
-  for (const frame of evidence.native_frames.concat(cardEvidence.native_frames, continueEvidence.native_frames, prizeEvidence.native_frames)) {
+  const chestEvidence = JSON.parse(fs.readFileSync(path.join(__dirname,
+    "../docs/reference-evidence/38-chest-native-proof.json"), "utf8"));
+  const statsEvidence = JSON.parse(fs.readFileSync(path.join(__dirname,
+    "../docs/reference-evidence/39-stats-native-proof.json"), "utf8"));
+  const numberEvidence = JSON.parse(fs.readFileSync(path.join(__dirname,
+    "../docs/reference-evidence/40-number-native-proof.json"), "utf8"));
+  const combatLabelEvidence = JSON.parse(fs.readFileSync(path.join(__dirname,
+    "../docs/reference-evidence/41-combat-label-native-proof.json"), "utf8"));
+  for (const frame of evidence.native_frames.concat(cardEvidence.native_frames, continueEvidence.native_frames, prizeEvidence.native_frames, chestEvidence.native_frames, statsEvidence.native_frames, numberEvidence.native_frames, combatLabelEvidence.native_frames)) {
+    const numberMatch = /^(total|gold|red|percent)Digit(\d)$/.exec(frame.name);
     const rect = frame.name.startsWith("digit")
       ? Render.RESULT_ART.digits[Number(frame.name.slice(5))].slice(0, 4)
+      : numberMatch ? Render.RESULT_ART.numberFonts[numberMatch[1]][Number(numberMatch[2])]
+      : frame.name.startsWith("resultRank") ? Render.RESULT_ART.resultRanks[Number(frame.name.slice(10))]
       : Render.RESULT_ART[frame.name];
     assert.deepEqual(rect, frame.rect);
     const [x, y, w, h] = rect;
@@ -11211,4 +11229,279 @@ test('captain throws stop at release frame4 and walk through the native 11..16 r
  }
  enemy.attackTimer=0;enemy.vx=10;
  for(const [time,expected] of [[0,11],[.1,12],[.5,16],[.6,11]]){state.time=time;assert.equal(frame(),expected);}
+});
+
+test("the recorded chest list shows native lord and champion portraits instead of empty rows", () => {
+  for (const [stage, labels, types] of [
+    ["mirkwood", ["领主- 牛头巨兽", "燃烧之赤哥布林", "燃烧之投掷哥布林"], ["boss", "goblinRed", "caster"]],
+    ["mirkwooddeep", ["领主- 暗咒猫妖"], ["lugaruBoss"]]
+  ]) {
+    const state = Core.createState({ stage, seed: 37 });
+    state.victory = true; state.finishedAt = 0; state.intro = null; state.transition = 0;
+    const calls = [], portraits = { width: 3125, height: 58 };
+    Render.render(recordingContext(calls), state, {
+      sprites: { portraits }, reward: { phase: "chest", stage, t: .5, elapsed: 10.5 }
+    });
+    const texts = calls.filter(c => c[0] === "fillText").map(c => c[1]);
+    for (const label of labels) assert.ok(texts.includes(label), label + " is visible in the reward list");
+    for (const type of types) {
+      const face = Render.PORTRAITS[type];
+      assert.ok(calls.some(c => c[0] === "drawImage" && c[1] === portraits && c[2] === face[0] && c[6] === 238),
+        type + " uses its native UI face at the measured list column");
+    }
+  }
+});
+
+test("the second champion list row rises into the consumed row before disappearing", () => {
+  const state = Core.createState({stage:"mirkwood",seed:37});
+  state.victory=true;state.finishedAt=0;state.intro=null;state.transition=0;
+  for (const t of [1,2]) {
+    const calls=[];
+    Render.render(recordingContext(calls),state,{reward:{phase:"chest",stage:"mirkwood",t,elapsed:10+t}});
+    const red=calls.find(c=>c[0]==="fillText"&&c[1]==="燃烧之赤哥布林");
+    const caster=calls.find(c=>c[0]==="fillText"&&c[1]==="燃烧之投掷哥布林");
+    assert.equal(red,undefined);
+    if(t===1)assert.ok(caster&&Math.abs(caster[3]-18-208)<2,"V1 343.8s caster face is near y208");
+    else assert.equal(caster,undefined,"both consumed champion rows have left the list");
+    assert.ok(calls.some(c=>c[0]==="fillText"&&c[1]==="领主- 牛头巨兽"));
+  }
+});
+
+test("the chest transforms into native cyan outline and growing light before the cards spread", () => {
+  for (const [stage,end] of [["mirkwood",115/30],["mirkwooddeep",2.2]]) {
+    const state=Core.createState({stage,seed:38});state.victory=true;state.finishedAt=0;state.intro=null;state.transition=0;
+    const results={width:4346,height:420};
+    for(const [t,expected] of [[.5,false],[end-.4,true]]){
+      const calls=[];
+      Render.render(recordingContext(calls),state,{sprites:{results},reward:{phase:"chest",stage,t,elapsed:10+t}});
+      const has=(x)=>calls.some(c=>c[0]==="drawImage"&&c[1]===results&&c[2]===x);
+      assert.equal(has(4003),expected,stage+" native cyan outline during the measured transformation");
+      assert.equal(has(4163),expected,stage+" native glow during the measured transformation");
+      assert.equal(has(1197),expected,stage+" native flash starts before card spread");
+    }
+  }
+});
+
+test("the growing chest flash keeps its hotspot and does not jump when cards start", () => {
+  const state=Core.createState({stage:"mirkwood",seed:38});state.victory=true;state.finishedAt=0;state.intro=null;state.transition=0;
+  const results={width:4346,height:420};
+  const draws=[];
+  for(const reward of [
+    {phase:"chest",stage:"mirkwood",t:115/30-1.2,elapsed:12.6},
+    {phase:"chest",stage:"mirkwood",t:115/30-1e-6,elapsed:13.8},
+    {phase:"cards",stage:"mirkwood",t:0,elapsed:13.8,flash:1,spread:0,blue:1}
+  ]){
+    const calls=[];
+    Render.render(recordingContext(calls),state,{sprites:{results},reward});
+    const burst=calls.find(c=>c[0]==="drawImage"&&c[1]===results&&c[2]===1197);
+    assert.ok(burst);draws.push(burst.slice(6));
+  }
+  assert.ok(draws[0][2]<draws[1][2],"the pre-card light grows");
+  for(const d of draws){
+    const scale=d[2]/402;
+    assert.ok(Math.abs(d[0]+216*scale-532)<.001,"horizontal hotspot stays at the lock");
+    assert.ok(Math.abs(d[1]+194*scale-227)<.001,"vertical hotspot stays at the lock");
+  }
+  for(let i=0;i<4;i++)assert.ok(Math.abs(draws[1][i]-draws[2][i])<.001,"card spread preserves flash bounds");
+});
+
+test("the recorded stats phase replaces the custom victory page with the upper table and circular rank", () => {
+  const state=Core.createState({stage:"mirkwood",seed:39});state.victory=true;state.finishedAt=0;state.time=6;state.intro=null;state.transition=0;
+  const calls=[],results={width:6619,height:420};
+  Render.render(recordingContext(calls),state,{sprites:{results},reward:{phase:"stats",stage:"mirkwood",t:6,elapsed:6},run:{resultText:"新纪录！",rows:[{label:"种子",value:"39"}],linkText:"seed link"}});
+  const texts=calls.filter(c=>c[0]==="fillText").map(c=>c[1]);
+  assert.ok(texts.includes("战绩"));
+  assert.ok(!texts.includes(state.stage.name+" 通关"));
+  assert.ok(!texts.includes("种子")&&!texts.includes("seed link")&&!texts.includes("新纪录！"));
+  assert.ok(calls.some(c=>c[0]==="drawImage"&&c[1]===results&&c[2]===5310&&c[6]===249&&c[7]===320),"S uses the native circular result badge at the recorded position");
+});
+
+test("the recorded stats rows count in sequence before the circular rank appears", () => {
+  const state=Core.createState({stage:"mirkwood",seed:39});state.victory=true;state.finishedAt=0;state.intro=null;state.transition=0;
+  const results={width:6619,height:420};
+  for(const [t,bars,badge] of [[.4,0,false],[1.7,1,false],[2.7,2,false],[3.5,2,false],[4.3,2,true]]){
+    const calls=[];
+    Render.render(recordingContext(calls),state,{sprites:{results},reward:{phase:"stats",stage:"mirkwood",t,elapsed:t}});
+    const draws=calls.filter(c=>c[0]==="drawImage"&&c[1]===results);
+    assert.equal(draws.filter(c=>c[2]===6456).length,bars,"observed operation then technique timing");
+    assert.equal(draws.some(c=>c[2]===5310),badge,"the result badge follows the hit-count row");
+  }
+});
+
+test("stats values use the native total gold red and percentage glyphs", () => {
+  const state=Core.createState({stage:"mirkwood",seed:40});state.victory=true;state.finishedAt=0;state.intro=null;state.transition=0;
+  state.resultRating={score:85,operation:85,technique:57,hits:15,grade:"S"};
+  const calls=[],results={width:7530,height:420};
+  Render.render(recordingContext(calls),state,{sprites:{results},reward:{phase:"stats",stage:"mirkwood",t:6,elapsed:6}});
+  const draws=calls.filter(c=>c[0]==="drawImage"&&c[1]===results);
+  for(const x of [6939,6619,7115,7076,7500,6651,6666])assert.ok(draws.some(c=>c[2]===x),"native glyph at atlas x"+x+" is actually rendered");
+  assert.ok(!calls.some(c=>c[0]==="fillText"&&c[2]<720&&c[3]<280&&["85/140","60","40","85%","57%","-15"].includes(c[1])),"system-font numbers are not painted over the native stats glyphs");
+});
+
+test("combat rating displays its letter grade rather than the numeric total", () => {
+  const state=Core.createState({stage:"mirkwood",seed:41});state.intro=null;state.transition=0;
+  state.resultRating={score:85,grade:"S",operation:85,technique:57,hits:15};
+  const calls=[];
+  Render.render(recordingContext(calls),state,{});
+  const values=calls.filter(c=>c[0]==="fillText"&&c[2]>740&&c[2]<800&&c[3]>395&&c[3]<425).map(c=>c[1]);
+  assert.ok(values.includes("S"));
+  assert.ok(!values.includes("85"),"the score belongs in the result total, not the combat grade field");
+});
+
+test("combat labels use the matched native Chinese UI pieces", () => {
+  const state=Core.createState({stage:"mirkwood",seed:41});state.intro=null;state.transition=0;
+  const calls=[],results={width:7662,height:420};
+  Render.render(recordingContext(calls),state,{sprites:{results}});
+  for(const x of [7530,7561,7592,7634])assert.ok(calls.some(c=>c[0]==="drawImage"&&c[1]===results&&c[2]===x),"native combat label at x"+x);
+});
+
+test("result totals distinguish points from the combat percentages in both recordings", () => {
+  for (const [hits,expected] of [[15,85],[23,77]]) {
+    const state=Core.createState({seed:44});
+    state.stats.swings=100;state.stats.swingsLanded=85;
+    state.stats.comboChains=50;state.stats.comboHits=171;
+    state.stats.hitsTaken=hits;
+    const rating=Core.ratingOf(state);
+    assert.equal(rating.operation,85);assert.equal(rating.technique,57);
+    assert.equal(rating.operationPoints,60);assert.equal(rating.techniquePoints,40);
+    assert.equal(rating.maxScore,140);assert.equal(rating.score,expected);
+    state.time=900;state.player.level=12;
+    assert.equal(Core.ratingOf(state).score,expected,"time and level do not add invented terms to the visible result sum");
+  }
+});
+
+test("the stats page paints points beside percent bars and a 140-point total", () => {
+  const state=Core.createState({seed:44});state.victory=true;state.finishedAt=0;state.intro=null;state.transition=0;
+  state.stats.swings=100;state.stats.swingsLanded=85;
+  state.stats.comboChains=50;state.stats.comboHits=171;state.stats.hitsTaken=15;
+  const calls=[];
+  Render.render(recordingContext(calls),state,{reward:{phase:"stats",stage:"mirkwood",t:6,elapsed:6}});
+  const text=calls.filter(c=>c[0]==="fillText"&&c[2]<720&&c[3]<280).map(c=>c[1]);
+  for(const value of ["85/140","60","40","85%","57%","-15"])assert.ok(text.includes(value),value);
+});
+
+test("combat percentages and hit counts share the measured native white digits", () => {
+  const state=Core.createState({seed:45});state.intro=null;state.transition=0;
+  state.resultRating={score:85,maxScore:140,operation:85,technique:57,operationPoints:60,techniquePoints:40,hits:15,grade:"S"};
+  const calls=[],results={width:7662,height:420};
+  Render.render(recordingContext(calls),state,{sprites:{results}});
+  const digits=calls.filter(c=>c[0]==="drawImage"&&c[1]===results&&c[7]>=349&&c[7]<390);
+  for(const x of [7500,7453,7484,6651,7396])assert.ok(digits.some(c=>c[2]===x),"native combat glyph at atlas x"+x);
+  assert.ok(!calls.some(c=>c[0]==="fillText"&&c[2]>740&&c[3]>=347&&c[3]<395&&["85%","57%","15"].includes(c[1])),"system digits do not overlay the native combat digits");
+  const fallback=[];Render.render(recordingContext(fallback),state,{});
+  for(const value of ["85%","57%","15"])assert.ok(fallback.some(c=>c[0]==="fillText"&&c[1]===value),"missing-atlas fallback still paints "+value);
+});
+
+test("deep room42 accommodates the independently tracked camera span", () => {
+  const s=Core.createState({stage:"mirkwooddeep",seed:1});
+  Core.goToCell(s,s.dungeon.cells.findIndex(c=>c.col===1&&c.row===3));
+  const camera=JSON.parse(fs.readFileSync(path.join(__dirname,"../docs/reference-evidence/46-room42-camera.json"),"utf8"));
+  const span=Math.max(...camera.map(c=>c.camera_px))-Math.min(...camera.map(c=>c.camera_px));
+  assert.ok(s.room.width*Core.CAMERA.zoom>=720+span,"28–73.5s span cannot fit in the old 520-world-pixel room");
+  assert.equal(s.props.filter(p=>p.piece.startsWith("pillar")).length,12,"twelve distinct measured pillar anchors");
+  assert.equal(s.props.filter(p=>p.piece==="chest").length,2,"both chests become visible as the camera moves right");
+  for(const [worldScreenX,bottom] of [[385.5,380],[505.5,477],[570.5,378],[987.8,431],[1539.6,455],[1632.6,396]]){
+    assert.ok(s.props.some(p=>p.piece.startsWith("pillar")&&Math.abs(p.x*Core.CAMERA.zoom-worldScreenX)<3&&Math.abs(430-Core.depthLift(p.z)*Core.CAMERA.zoom-bottom)<2),"measured pillar at panorama x"+worldScreenX);
+  }
+  for(const [worldX,bottom] of [[462,491],[800,405]])assert.ok(s.props.some(p=>p.piece==="chest"&&Math.abs(p.x-worldX)<2&&Math.abs(430-Core.depthLift(p.z)*Core.CAMERA.zoom-bottom)<2),"native chest anchor "+worldX);
+});
+
+test("flat and damaged pillars retain their distinct native RGBA frames", () => {
+  const crypto=require("node:crypto");
+  const proof=JSON.parse(fs.readFileSync(path.join(__dirname,"../docs/reference-evidence/46-pillar-native-proof.json"),"utf8"));
+  const image=decodeRgbaPng(path.join(__dirname,"../assets/pillar-pale.png"));
+  assert.deepEqual([image.width,image.height],proof.sheet);
+  for(const [name,meta] of Object.entries(proof.frames)){
+    assert.deepEqual(Render.SCENE.pieces[name],meta.rect);
+    const [x,y,w,h]=meta.rect,rgba=Buffer.alloc(w*h*4);
+    for(let row=0;row<h;row++)rgba.set(image.pixels.subarray(((y+row)*image.width+x)*4,((y+row)*image.width+x+w)*4),row*w*4);
+    assert.equal(crypto.createHash("sha256").update(rgba).digest("hex"),meta.rgba_sha256,name);
+  }
+});
+
+test("the deep entry accommodates foreground motion and both measured rocks", () => {
+  const s=Core.createState({stage:"mirkwooddeep",seed:1});
+  const cameras=JSON.parse(fs.readFileSync(path.join(__dirname,"../docs/reference-evidence/47-room41-camera.json"),"utf8"));
+  const span=Math.max(...cameras.map(c=>c.camera_px))-Math.min(...cameras.map(c=>c.camera_px));
+  assert.ok(s.room.width*Core.CAMERA.zoom>=720+span,"tree-layer aliases must not shorten the entrance room");
+  assert.equal(s.props.filter(p=>p.piece==="barrel").length,4,"preserve the two initially visible barrels that are later destroyed");
+  for(const [piece,x,bottom] of [["rockFlat",376,306],["rockFlat",669,423],["barrel",328,405],["barrel",498,489],["barrel",341,345],["barrel",444,289]]){
+    assert.ok(s.props.some(p=>p.piece===piece&&Math.abs(p.x-x)<2&&Math.abs(430-Core.depthLift(p.z)*Core.CAMERA.zoom-bottom)<2),"measured "+piece+" at "+x);
+  }
+});
+
+test("room42 starts with flat entry pillars before the later damaged view", () => {
+  const s=Core.createState({stage:"mirkwooddeep",seed:1});
+  Core.goToCell(s,s.dungeon.cells.findIndex(c=>c.col===1&&c.row===3));
+  const entry=s.props.filter(p=>p.piece.startsWith("pillar")&&p.x<400);
+  assert.equal(entry.length,3);
+  assert.ok(entry.every(p=>p.piece==="pillarDecor"),"V2 26–26.5s has flat tops; 28s is already a later state");
+});
+
+test("a scaled rock does not push the player through an invisible full-size wall", () => {
+  const state=Core.createState({seed:48});state.intro=null;state.transition=0;state.enemies=[];
+  state.props=[{piece:"rockFlat",x:300,z:120,scale:[.5,.5],solid:true,broken:false}];
+  state.player.x=245;state.player.z=120;state.player.vx=0;state.player.vz=0;
+  Core.step(state,{});
+  assert.equal(state.player.x,245,"the player's feet are outside the scaled rock footprint");
+});
+
+test("the scaled rock still stops contact at its actual footprint", () => {
+  const state=Core.createState({seed:48});state.intro=null;state.transition=0;state.enemies=[];
+  state.props=[{piece:"rockFlat",x:300,z:120,scale:[.5,.5],solid:true,broken:false}];
+  state.player.x=255;state.player.z=120;state.player.vx=0;state.player.vz=0;
+  Core.step(state,{});
+  assert.equal(state.player.x,250,"contact is resolved against the scaled width and scaled root offset");
+});
+
+test("navigation uses the same scaled rock footprint as walking", () => {
+  const state=Core.createState({seed:48});
+  state.props=[{piece:"rockFlat",x:300,z:120,scale:[.5,.5],solid:true,broken:false}];
+  state.player.x=228;state.player.z=120;
+  assert.deepEqual(Core.routeStep(state,228,400),[0,1],"the clear vertical lane does not require a detour around an invisible wall");
+});
+
+test("melee cannot break a scaled barrel across an empty gap", () => {
+  for(const [x,broken] of [[217,false],[220,true]]){
+    const state=Core.createState({seed:48});state.intro=null;state.transition=0;state.enemies=[];
+    state.room.waveQueue=[];state.room.pendingWaves=[];
+    const barrel={piece:"barrel",x:300,z:120,scale:[.5,.5],solid:true,broken:false,hp:1,brokenAt:-1};
+    state.props=[barrel];state.player.x=x;state.player.z=120;state.player.facing=1;
+    Core.runFrames(state,12,{attack:true});
+    assert.equal(barrel.broken,broken,"attack edge x"+(x+Core.PLAYER.attackReach)+" versus actual barrel edge x287");
+  }
+});
+
+test("prop art bounds follow instance scaling while legacy collision ratios stay proportional", () => {
+  const state=Core.createState({seed:48}),depth=Core.bandDepth(state.band);
+  const art=Core.propArtRect(state,{piece:"rockFlat",x:300,depth:.5,scale:[.5,.75]},depth);
+  assert.equal(art.right-art.left,Render.SCENE.pieces.rockFlat[2]*.5);
+  assert.equal(art.bottom-art.top,Render.SCENE.pieces.rockFlat[3]*.75);
+  const base=Core.propBox("chest"),small=Core.propBox("chest",[.36,.18]);
+  assert.ok(Math.abs(small.width-base.width/2)<1e-8);
+  assert.ok(Math.abs(small.height-base.height/4)<1e-8);
+  assert.ok(Math.abs(base.ink[0]-Render.SCENE.pieces.chest[2]*Core.propScale("chest")[0])<1e-8,"visual ink uses art scale rather than the legacy collision-only coefficient");
+});
+
+test("room33 contains its full camera span, both bunkers and the observed prop groups", () => {
+  const state=Core.createState({stage:"mirkwooddeep",seed:1});
+  Core.goToCell(state,state.dungeon.cells.findIndex(c=>c.col===2&&c.row===2));
+  const cameras=JSON.parse(fs.readFileSync(path.join(__dirname,"../docs/reference-evidence/50-room33-camera.json"),"utf8"));
+  const span=Math.max(...cameras.map(c=>c.camera_px))-Math.min(...cameras.map(c=>c.camera_px));
+  assert.ok(state.room.width*Core.CAMERA.zoom>=720+span,"the old 734-width room cannot contain the measured sweep");
+  assert.equal(state.props.filter(p=>p.piece==="pillarPale").length,12);
+  assert.equal(state.props.filter(p=>p.piece==="barrel").length,7);
+  assert.deepEqual(state.props.filter(p=>p.piece==="goblinBunker").map(p=>p.x),[424,842]);
+  assert.ok(Math.abs(Core.doorX(state,Core.currentCell(state),"N")-630)<.001);
+  assert.ok(Math.abs(Core.doorX(state,Core.currentCell(state),"S")-630)<.001);
+});
+
+test("the goblin bunker atlas preserves the imported four native idle phases", () => {
+  const crypto=require("node:crypto");
+  const proof=JSON.parse(fs.readFileSync(path.join(__dirname,"../docs/reference-evidence/50-bunker-native-proof.json"),"utf8"));
+  const image=decodeRgbaPng(path.join(__dirname,"../assets/goblin-bunker.png"));
+  assert.deepEqual([image.width,image.height],proof.sheet);
+  assert.equal(crypto.createHash("sha256").update(image.pixels).digest("hex"),proof.sheet_rgba_sha256);
+  assert.deepEqual(Render.SCENE.pieces.goblinBunker,[0,0,...proof.frame]);
+  assert.equal(proof.phase_ms,150);
 });

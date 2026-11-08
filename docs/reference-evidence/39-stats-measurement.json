@@ -1,0 +1,52 @@
+[
+  {
+    "video": 1,
+    "source": "00001-\u5e7d\u6697\u5bc6\u6797.mp4",
+    "held_frame": 339.0,
+    "table": [
+      104,
+      68,
+      512,
+      214
+    ],
+    "badge": [
+      129,
+      320,
+      159,
+      160
+    ],
+    "limits": "Manual display geometry, not a scoring formula. Phase anchors remain approximate.",
+    "relative_display_anchors": {
+      "total": 0.5,
+      "operation": 1.1,
+      "technique": 1.9,
+      "hits": 2.7,
+      "badge": 3.6
+    }
+  },
+  {
+    "video": 2,
+    "source": "00002-\u5e7d\u6697\u5bc6\u6797\u6df1\u5904.mp4",
+    "held_frame": 393.0,
+    "table": [
+      104,
+      68,
+      512,
+      214
+    ],
+    "badge": [
+      129,
+      320,
+      159,
+      160
+    ],
+    "limits": "Manual display geometry, not a scoring formula. Phase anchors remain approximate.",
+    "relative_display_anchors": {
+      "total": 0.5,
+      "operation": 1.1,
+      "technique": 1.9,
+      "hits": 2.7,
+      "badge": 3.6
+    }
+  }
+]

@@ -1,0 +1,248 @@
+{
+  "native_frames": [
+    {
+      "name": "statsPanel",
+      "rect": [
+        4346,
+        0,
+        455,
+        190
+      ],
+      "folder": "ImagePacks2",
+      "pack": "sprite_interface_newresult.NPK",
+      "entry": "sprite/interface/newresult/result.img",
+      "frame": 0,
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "fac5cb12f6da603eca51a0941881f6fcd75bddb399353a5c1edc20d01cd52602"
+    },
+    {
+      "name": "rankCircle",
+      "rect": [
+        4801,
+        0,
+        227,
+        227
+      ],
+      "folder": "ImagePacks2",
+      "pack": "sprite_interface_newresult.NPK",
+      "entry": "sprite/interface/newresult/result.img",
+      "frame": 2,
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "4f2bb79f204ec7ea922c35e59084b1de40e81a556d0a67fa4302648970f2819c"
+    },
+    {
+      "name": "resultRank0",
+      "rect": [
+        5028,
+        0,
+        141,
+        142
+      ],
+      "folder": "ImagePacks2",
+      "pack": "sprite_interface_newresult.NPK",
+      "entry": "sprite/interface/newresult/result.img",
+      "frame": 3,
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "78d8cf9573dabee744119f630c74a83d78a1778e67d52cbf5b9185581c314da9"
+    },
+    {
+      "name": "resultRank1",
+      "rect": [
+        5169,
+        0,
+        141,
+        142
+      ],
+      "folder": "ImagePacks2",
+      "pack": "sprite_interface_newresult.NPK",
+      "entry": "sprite/interface/newresult/result.img",
+      "frame": 4,
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "a8a1bc453686cc7e1d3c9f504b80993c4c6269b03022e0c07921463e4c351f00"
+    },
+    {
+      "name": "resultRank2",
+      "rect": [
+        5310,
+        0,
+        141,
+        142
+      ],
+      "folder": "ImagePacks2",
+      "pack": "sprite_interface_newresult.NPK",
+      "entry": "sprite/interface/newresult/result.img",
+      "frame": 5,
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "4853d2663971e23afaa23e599aac7d2410d925d980abea78f76dcb7193da3c1b"
+    },
+    {
+      "name": "resultRank3",
+      "rect": [
+        5451,
+        0,
+        141,
+        142
+      ],
+      "folder": "ImagePacks2",
+      "pack": "sprite_interface_newresult.NPK",
+      "entry": "sprite/interface/newresult/result.img",
+      "frame": 6,
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "621fdc395eeabc683e083ee859c607cd30bd2331f548755990a5281ca062d026"
+    },
+    {
+      "name": "resultRank4",
+      "rect": [
+        5592,
+        0,
+        141,
+        142
+      ],
+      "folder": "ImagePacks2",
+      "pack": "sprite_interface_newresult.NPK",
+      "entry": "sprite/interface/newresult/result.img",
+      "frame": 7,
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "6b4618a5939af9e9ade10aaa63779305df2b1575557cdda9a1f74df051b766c8"
+    },
+    {
+      "name": "resultRank5",
+      "rect": [
+        5733,
+        0,
+        141,
+        142
+      ],
+      "folder": "ImagePacks2",
+      "pack": "sprite_interface_newresult.NPK",
+      "entry": "sprite/interface/newresult/result.img",
+      "frame": 8,
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "f9f67ddfe6de2c8ca66279694b8481b6f1cf2fcffe385153da10978bf703f828"
+    },
+    {
+      "name": "resultRank6",
+      "rect": [
+        5874,
+        0,
+        141,
+        142
+      ],
+      "folder": "ImagePacks2",
+      "pack": "sprite_interface_newresult.NPK",
+      "entry": "sprite/interface/newresult/result.img",
+      "frame": 9,
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "182b416e1df77fcab8f7b610deab259d6f5013f0526be7a64082f0b45ebc3545"
+    },
+    {
+      "name": "resultRank7",
+      "rect": [
+        6015,
+        0,
+        141,
+        142
+      ],
+      "folder": "ImagePacks2",
+      "pack": "sprite_interface_newresult.NPK",
+      "entry": "sprite/interface/newresult/result.img",
+      "frame": 10,
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "4602cd01d6abb571cf083d3af7abf1f2b5236eab0fe31f4b11c933d51856eb95"
+    },
+    {
+      "name": "resultRank8",
+      "rect": [
+        6156,
+        0,
+        141,
+        142
+      ],
+      "folder": "ImagePacks2",
+      "pack": "sprite_interface_newresult.NPK",
+      "entry": "sprite/interface/newresult/result.img",
+      "frame": 11,
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "ba0b9defcbd795bff955936e7b40bca0e418a8ffe96775df157ef4506254b9c8"
+    },
+    {
+      "name": "statsBarFill",
+      "rect": [
+        6297,
+        0,
+        159,
+        18
+      ],
+      "folder": "ImagePacks2",
+      "pack": "sprite_interface_newresult.NPK",
+      "entry": "sprite/interface/newresult/result.img",
+      "frame": 23,
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "7a7764f869019be9c72bd83a37592b4a28e0ea3d293352dae69503230d80cfe1"
+    },
+    {
+      "name": "statsBarFrame",
+      "rect": [
+        6456,
+        0,
+        163,
+        22
+      ],
+      "folder": "ImagePacks2",
+      "pack": "sprite_interface_newresult.NPK",
+      "entry": "sprite/interface/newresult/result.img",
+      "frame": 78,
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "401cca647cb7a79d932b612dc00b181c5fe9e9de81cf71deb7b17840e0e6446d"
+    }
+  ],
+  "old_size": [
+    4346,
+    420
+  ],
+  "new_size": [
+    6619,
+    420
+  ],
+  "old_region_preserved": true,
+  "old_rgba_sha256": "8255d1803ac96b89a3da694c74376b2aac2cb2da4eb3327f8fe780fdb3f0f46f"
+}

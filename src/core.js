@@ -2606,23 +2606,16 @@
        */
       propsAreMeasured: true,
       rooms: [
-        /* 0 —— 路线 41 (0,3)。录像 11–26s；房宽下界 456 世界px（5.43 身位）；地面带暂 backY 256。 */
+        /* 0 —— 路线 41 (0,3)。V2 10.5–25.5s重测；前景镜头跨度约792px，房宽下界约959世界px。 */
         {
           name: "铁门入口",
           kind: "room",
-          /*
-           * **560，不是下界 456**（2026-10-27 从 22s 帧反推）：22s 房里还有活着的青哥布林，
-           * 东门却已经画在右墙上 —— 按它那一帧的屏幕位置反推，房间**至少 543 世界px**；
-           * 13s 镜头贴左墙时那扇门其实在窗口外面（画布 950 > 840），不是"没画"。
-           * 取 560（比 543 留一点余量）。摆位是绝对坐标，加宽只动右墙，手摆件不用动。
-           */
-          width: 560,
+          // Ground-only graph and independent native props reject the older
+          // tree-layer estimate. 960 contains the ~959-world-pixel bound.
+          // Do not stretch existing enemy/tree coordinates with the new width.
+          width: 960,
           band: { backY: 256 },
-          /*
-           * 怪按 560 宽重排：旧表（180/360/560/760 + 260/520/780）是按 ~960 宽的
-           * 房间写的，落到 560 之后后两只都被夹在右墙同一点（503/503）—— 叠成一只。
-           * 13s 帧里红哥布林聚在 world 380–430 一带，这里按整间铺开、把第二波错开。
-           */
+          // Enemy placement is still the older, unverified layout; no width-based stretching.
           enemies: [
             { type: "goblinRed", x: 150, level: 6 },
             { type: "goblinRed", x: 300, level: 6 },
@@ -2633,28 +2626,19 @@
             { type: "goblinBlue", x: 480, wave: 2, level: 6 },
           ],
           cap: 4,
-          /*
-           * **41 房逐件量过**（13s 帧，720×540 游戏坐标；`ref/13.png`）：
-           * 六棵直树的树干底边都落在 245–255 → depth ≈ 2.03（树在走位带**后面**，
-           * 不在带子边上）；苔石底 275 → 1.79；前桶底 390 → 0.46；右桶底 455 →
-           * -0.29；倒木底 480 → -0.58。
-           * 世界 x = 屏幕 x ÷ 1.5775：树 81/157/228/299/374/431、苔石 242、
-           * 桶 210/378、倒木 304。
-           * 旧的那组（120/450/800 + 桶 520/760）是按 ~960 宽的房间写的，房间只有
-           * 456 宽时后三件直接落在墙外、根本没画出来。
-           */
+          // V2 13.5/17.5/25.5s native rock/barrel locations after camera removal.
+          // Trees and the fallen log below remain older, unvalidated placements.
           props: [
-            /*
-             * **三棵，不是六棵。** 本作这三件树干的画幅比录像粗（枝杈铺开
-             * 144 画布px，录像那棵 65），六棵排下来把上沿的树冠带全挡住了；
-             * 录像里前面看得清的也就三大棵，其余是 mid 层的裸树干。
-             */
+            // These three tree placements still need independent layer/anchor evidence.
             { piece: "trunkTall", x: 81, depth: 2.03 },
             { piece: "trunkMossy", x: 228, depth: 2.03 },
             { piece: "trunkBent", x: 374, depth: 2.03 },
-            { piece: "rockFlat", x: 242, depth: 1.79, scale: [0.34, 0.34] },
-            { piece: "barrel", x: 210, depth: 0.46 },
-            { piece: "barrel", x: 378, depth: -0.29 },
+            { piece: "rockFlat", x: 376, depth: 1.429, scale: [0.70, 0.70] },
+            { piece: "rockFlat", x: 669, depth: 0.081, scale: [0.725, 0.725] },
+            { piece: "barrel", x: 341, depth: 0.980, scale: [0.725, 0.725] },
+            { piece: "barrel", x: 444, depth: 1.625, scale: [0.725, 0.725] },
+            { piece: "barrel", x: 328, depth: 0.288, scale: [0.725, 0.725] },
+            { piece: "barrel", x: 498, depth: -0.680, scale: [0.70, 0.70] },
             { piece: "fallenTrunk", x: 304, depth: -0.58 },
           ],
           scatter: {"solid":0,"barrels":0,"stones":0}
@@ -2965,11 +2949,11 @@
           ],
           scatter: {"solid":0,"barrels":0,"stones":0}
         },
-        /* 10 —— 路线 42 (1,3)。录像 27–73s；房宽下界 520 世界px（6.19 身位）；宝箱 2、石柱 5、墙 2、岩 1、桩 1、桶 1、树 4。 */
+        /* 10 — 路线42 (1,3)。28–73.5s重测：房宽下界约1278世界px，12柱落点与两箱。其余布景待核。 */
         {
           name: "宝箱浅沟",
           kind: "corr",
-          width: 520,
+          width: 1280,
           band: { backY: 256 },
           enemies: [
             { type: "throwerElite", x: 250, depth: 0.35, level: 6 },
@@ -2984,35 +2968,27 @@
             { type: "deepElite", x: 500, wave: 4, level: 6 },
           ],
           cap: 4,
+          // V2 28–73.5s: 945 static-feature graph constraints, 1296px camera span.
+          // See reference-video-audit batch46. Coordinates are world anchors,
+          // not positions stretched with the larger room width.
           props: [
-            /* 量自录像 30s：左树、右树、两根高石柱、中间岩块、宝箱、倒木。 */
-            /*
-             * 录像 30s 这一帧画面里**没有箱子**；门清空规则又会把左侧的箱子
-             * 推到画面中央，所以这一间先不放箱子（42 的箱子在 43 房那两只是录像证据）。
-             */
-            /*
-             * 录像 30s（`ref/30.png`，720×540 游戏坐标）三根柱子重新逐像素量：
-             *
-             *   左（十夫长身后）左缘 ≈445 底 ≈390 → 世界 x282  depth 0.461
-             *   中（最前）      左缘 497   底 455  → 世界 x315  depth -0.288
-             *   右              左缘 562   底 409  → 世界 x356  depth 0.242
-             *
-             * **屏幕 y 不是世界 y**：世界那一趟以地面线为轴按 `CAMERA.zoom`(1.5775)
-             * 伸缩（`drawWorld`），所以 一条 55 世界px 的带子画到屏幕上变 86.76px。
-             * 世界 x = 屏幕左缘 ÷ zoom；depth = (430 - 屏幕底边) ÷ (55 × 1.5775)。
-             * 早先只除以 55，柱子就整体画高了 ~23 画布px。
-             * 之前写的 245/318/360 与 -0.70/-0.70/1.31 是另一版读数，画出来三根
-             * 都在前缘、而且顺序反了（前两根离得远、第三根贴右），与录像对不上。
-             * 用 art-only 的 `pillarDecor`，不被门口净空挪走。
-             */
-            { piece: "pillarDecor", x: 254, depth: 0.173 },
-            { piece: "pillarDecor", x: 318, depth: -0.346 },
-            { piece: "pillarDecor", x: 363, depth: 0.230 },
-            /*
-             * 背景那座石门（不是出口）：30s 帧 25px 网格量 —— 右缘 110、
-             * 底 395、栅 0..65、拱约 150 宽 180 高。世界 x = 35 ÷ 1.5775 ≈ 22；
-             * depth = (430 - 395) ÷ 86.76 = 0.403。早先按 354 高画，是录像的两倍。
-             */
+            { piece: "pillarDecor", x: 244, depth: 0.576 },
+            { piece: "pillarDecor", x: 320, depth: -0.542 },
+            { piece: "pillarDecor", x: 362, depth: 0.599 },
+            { piece: "pillarDecor", x: 492, depth: -0.023 },
+            { piece: "pillarDamagedDecor", x: 543, depth: 0.841 },
+            { piece: "pillarDecor", x: 572, depth: -0.576 },
+            { piece: "pillarDecor", x: 626, depth: -0.012 },
+            { piece: "pillarDecor", x: 716, depth: 0.795 },
+            { piece: "pillarDamagedDecor", x: 825, depth: 0.772 },
+            { piece: "pillarDecor", x: 893, depth: -0.334 },
+            { piece: "pillarDecor", x: 976, depth: -0.288 },
+            { piece: "pillarDecor", x: 1035, depth: 0.392 },
+            // The front chest is partly behind a log/HUD; its upper-right
+            // native fragment stays at world x462 across independent views.
+            { piece: "chest", x: 462, depth: -0.703 },
+            { piece: "chest", x: 800, depth: 0.288 },
+            // These older tree/rock/log placements are not yet revalidated.
             { piece: "rockSmall", x: 140, depth: 0.45 },
             { piece: "trunkTall", x: 127, depth: 0.92 },
             { piece: "trunkMossy", x: 425, depth: 0.92 },
@@ -3046,11 +3022,11 @@
             { piece: "chest", x: 280, depth: 0.42 },
           ]
         },
-        /* 12 —— 路线 33 (2,2)。录像 106–147s；房宽下界 734 世界px（8.74 身位）；左右门、灌木 1、桩 1、树 4；无柱/箱/桶。 */
+        /* 12 —— 路线 33 (2,2)。录像106–147.5s；重测宽1280、12柱7桶2碉堡；动态受损仍待核。 */
         {
           name: "藤蔓窄道",
           kind: "room",
-          width: 734,
+          width: 1280,
           band: { backY: 256 },
           enemies: [
             { type: "goblinBlue", x: 300, level: 6 },
@@ -3061,29 +3037,33 @@
             { type: "goblinRed", x: 550, wave: 3, level: 6 },
           ],
           cap: 4,
-          /*
-           * **106s 帧按 25px 网格重量**（`ref/106.png`）。旧的那组把屏幕坐标当成了
-           * 世界坐标写（柱 320/350/380/410 画出来落在画布 505..647，录像里在
-           * 420..570）：柱心 435/477/520/555 → 世界 x 276/302/330/352，
-           * 底 305/340/370/390 → depth 1.44/1.04/0.69/0.46（四根**不在同一深度**，
-           * 是斜着一路往里）；茅草屋 x375 / −0.12；六只桶照帧里的两簇摆。
-           */
+          /* V2 106–147.5s: 84 connected two-axis camera samples, native cap/wall
+           * fits (50-room33-*). Entry camera is ~713 screen px right of the
+           * observed minimum. Width lower bound ~1270 world px; use 1280.
+           * Later-only damaged pillar states and bunker destruction remain
+           * unverified; preserve full initial forms rather than invent HP. */
           props: [
-            { piece: "barrel", x: 39, depth: 1.38 },
-            { piece: "barrel", x: 60, depth: 1.04 },
-            { piece: "barrel", x: 166, depth: 0.86 },
-            { piece: "barrel", x: 168, depth: 0.40 },
-            { piece: "barrel", x: 311, depth: 0.58 },
-            { piece: "barrel", x: 317, depth: 0.11 },
-            { piece: "pillarPale", x: 276, depth: 1.44 },
-            { piece: "pillarPale", x: 302, depth: 1.04 },
-            { piece: "pillarPale", x: 330, depth: 0.69 },
-            { piece: "pillarPale", x: 352, depth: 0.46 },
-            { piece: "hut", x: 375, depth: -0.12 },
-            /*
-             * 上门由 `drawGate` 画在 `northX` 那条竖轴上（0.24，world 176）——
-             * 106s 帧那道拱中心就在这儿。旧的静态装饰件 2026-10-27 删掉。
-             */
+            {"piece": "pillarPale", "x": 225, "depth": 1.588},
+            {"piece": "pillarPale", "x": 256, "depth": 1.22},
+            {"piece": "pillarPale", "x": 439, "depth": 0.265},
+            {"piece": "pillarPale", "x": 466, "depth": -0.069},
+            {"piece": "pillarPale", "x": 487, "depth": -0.46},
+            {"piece": "pillarPale", "x": 510, "depth": -0.829},
+            {"piece": "pillarPale", "x": 736, "depth": 1.6},
+            {"piece": "pillarPale", "x": 756, "depth": 1.243},
+            {"piece": "pillarPale", "x": 774, "depth": 0.863},
+            {"piece": "pillarPale", "x": 798, "depth": 0.506},
+            {"piece": "pillarPale", "x": 1009, "depth": -0.403},
+            {"piece": "pillarPale", "x": 1038, "depth": -0.748},
+            {"piece": "barrel", "x": 489, "depth": 1.6, "scale": [0.7, 0.7]},
+            {"piece": "barrel", "x": 509, "depth": 0.898, "scale": [0.7, 0.7]},
+            {"piece": "barrel", "x": 613, "depth": 0.483, "scale": [0.725, 0.725]},
+            {"piece": "barrel", "x": 658, "depth": 0.541, "scale": [0.7, 0.7]},
+            {"piece": "barrel", "x": 760, "depth": 0.173, "scale": [0.725, 0.725]},
+            {"piece": "barrel", "x": 768, "depth": -0.656, "scale": [0.7, 0.7]},
+            {"piece": "barrel", "x": 1085, "depth": -0.61, "scale": [0.7, 0.7]},
+            {"piece": "goblinBunker", "x": 424, "depth": 1.128, "scale": [0.7, 0.725]},
+            {"piece": "goblinBunker", "x": 842, "depth": -0.484, "scale": [0.725, 0.7]},
           ],
           scatter: {"solid":0,"barrels":0,"stones":0}
         },
@@ -3375,7 +3355,7 @@
      * 三帧的镜头都贴在左墙（他站在房间左三分之一），世界 x = 游戏 x ÷ 3.155。
      * 别的格没量到，仍按 0.5（中间）。
      */
-    northX: { "2,3": 970 / 1280, "2,2": 0.24, "2,1": 0.16, "2,0": 0.20 },
+    northX: { "2,3": 970 / 1280, "2,2": 630 / 1280, "2,1": 0.16, "2,0": 0.20 },
     /* 这一关的上/下门量到在同一条竖轴上（`doorX`）。别的关没有这个证据，不开。 */
     southSharesNorthX: true,
     /*
@@ -3429,14 +3409,14 @@
    */
   (function fitDeepRouteRooms() {
     var widths = {
-      0: 560,
+      0: 960,
       1: 538,
       5: 529,
       6: 588,
       8: 1280,
       9: 885,
-      10: 520,
-      12: 734,
+      10: 1280,
+      12: 1280,
       13: 524
     };
     Object.keys(widths).forEach(function (index) {
@@ -3779,12 +3759,12 @@
      * 无盒又无美术尺寸的件（不该有）返回 null。
      */
     function propArtRect(state, entry, depth) {
-      var box = propBox(entry.piece);
+      var box = propBox(entry.piece, entry.scale);
       var artSize = null;
       if (box) {
         artSize = box.ink ? box.ink : [box.width, box.width];
       } else {
-        artSize = propArtSize(entry.piece);
+        artSize = propArtSize(entry.piece, entry.scale);
         if (!artSize) return null;
       }
       var z = entry.depth === undefined ? 0 : entry.depth * depth;
@@ -3804,7 +3784,7 @@
 
     function blocksDoorway(state, cell, entry, depth) {
       if (!cell) return false;
-      var box = propBox(entry.piece);
+      var box = propBox(entry.piece, entry.scale);
       /*
        * **没有盒子的也要查门拱。** 花草贴花不挡路，但会盖住门拱；它们的美术尺寸
        * 从 `PROP_ART` 取（业主 2026-10-17：「有杂草盖住了门口」）。只有地面那一条
@@ -3859,6 +3839,7 @@
         if (z > other.z + 0.001) continue;
         var otherArt = propArtRect(state, {
           piece: other.piece,
+          scale: other.scale,
           x: other.x,
           depth: other.z / depth
         }, depth);
@@ -3888,11 +3869,11 @@
       var rows = Math.max(1, Math.floor(depth / step));
       var margin = step / 2;
       var solids = (state.props || []).filter(function (prop) {
-        return prop.solid && !prop.broken && propBox(prop.piece);
+        return prop.solid && !prop.broken && propBox(prop.piece, prop.scale);
       });
       var blocked = function (x, z) {
         return solids.some(function (prop) {
-          var box = propBox(prop.piece);
+          var box = propBox(prop.piece, prop.scale);
           var centre = prop.x + (box.dx || 0);
           return (
             Math.abs(x - centre) < half + box.width / 2 + margin &&
@@ -4155,6 +4136,7 @@
        * 差不多是录像的两倍宽。
        */
       hut: 0.38,
+      goblinBunker: 0.7,
       /*
        * 门的倍率只在**侧门**上量到（录像 330 视频px 宽，本作 131 画布px → 0.80）；
        * 上/下门与门板跟它同一族美术，按同一个数走，但**没单独量过**。
@@ -4189,6 +4171,7 @@
       // The old diagonal 01obj006 had a different outline and height.
       pillarPale: [0.706, 0.715],
       pillarDecor: [0.706, 0.715],
+      pillarDamagedDecor: [0.706, 0.715],
       /*
        * **三棵直树干**（直 / 弯 / 长苔）。录像里那棵的**上段**是 **190 视频px = 0.72 身位**宽
        * （t=200 那一帧，树干两侧都看得清），而本作三棵的上段是 **1.40 / 0.82 / 0.93 身位** ——
@@ -4255,6 +4238,7 @@
       grassPatch: [110, 48],
       sprout: [126, 66],
       bush: [64, 59],
+      goblinBunker: [142, 138],
       flower: [30, 55],
       leaves: [126, 66],
       leavesBroad: [126, 66],
@@ -4263,23 +4247,29 @@
     };
 
     /** 一件无盒布景的美术尺寸（已乘倍率）；有盒的走 `propBox().ink`。 */
-    function propArtSize(piece) {
+    function propArtSize(piece, scaleOverride) {
       var art = PROP_ART[piece];
       if (!art) return null;
-      var scale = propScale(piece);
+      var scale = scaleOverride || propScale(piece);
       return [art[0] * scale[0], art[1] * scale[1]];
     }
 
-    function propBox(piece) {
+    function propBox(piece, scaleOverride) {
       var box = BREAKABLE[piece] || SOLID[piece] || null;
       if (!box) return box;
       /*
        * **盒子跟着美术一起缩。** 这是仓库里定过的规矩（`docs/adr/0032` / 0014）：
        * 美术和判定必须是同一个数，不然会出现"看着能走、结果被挡住"。
        */
-      var scale = propScale(piece);
-      if (box.box !== undefined) scale = [box.box, box.box];
-      if (scale[0] === 1 && scale[1] === 1) return box;
+      var defaultScale = propScale(piece);
+      var visualScale = scaleOverride || defaultScale;
+      // 保留历史碰撞/美术比例，但逐件倍率必须同时作用于两者。
+      var scale = box.box === undefined ? visualScale : [
+        box.box * visualScale[0] / defaultScale[0],
+        box.box * visualScale[1] / defaultScale[1]
+      ];
+      if (scale[0] === 1 && scale[1] === 1 &&
+          visualScale[0] === 1 && visualScale[1] === 1) return box;
       return {
         width: box.width * scale[0],
         depth: box.depth * scale[0],
@@ -4287,7 +4277,7 @@
         hp: box.hp,
         dx: (box.dx || 0) * scale[0],
         /* 门拱那一关按画出来的大小比，ink 也跟着缩。 */
-        ink: box.ink ? [box.ink[0] * scale[0], box.ink[1] * scale[1]] : box.ink
+        ink: box.ink ? [box.ink[0] * visualScale[0], box.ink[1] * visualScale[1]] : box.ink
       };
     }
 
@@ -4551,9 +4541,15 @@
      * 战斗评分那四个读数（`docs/adr/0041`）。**名字照录像，公式是本作自己的**：
      * 录像里只读得出一个动静 —— 被击数从 4 变 5 的那一帧评分从 `SS` 掉成 `S`，
      * 之后一直到 15 次都没再掉档。所以这里也让**被击数**占主导，用时与等级是配重。
-     * 这几个常数一个都没在录像里量到，实玩之后调的就是这一块。
+     * 第四十四批把总分改为可见的分项点数减被击数，满分140；
+     * 旧用时/等级/被击配重现仅暂用于未还原的字母评级。
+     * 操作/技巧输入仍是本作代理算法，不把两片总分相合说成完整计分还原。
      */
     var RATING = {
+      // V1 339s / V2 393s: 60+40-hits = 85/140 or 77/140.
+      // A 70-point component cap explains the displayed 85% / 57%;
+      // the live component inputs below remain uncalibrated proxies.
+      componentMax: 70,
       hitCost: 4,
       hitCostCap: 50,
       parSeconds: 300,
@@ -4644,16 +4640,23 @@
         : 0;
       var hits = stats.hitsTaken || 0;
       var over = Math.max(0, (state.time - RATING.parSeconds) / RATING.parSeconds) * RATING.timeCost;
-      var score = 100
+      // Grade thresholds still use the old, explicitly unverified model.
+      // Keep that uncertainty separate from the observed result arithmetic.
+      var gradeScore = 100
         - Math.min(RATING.hitCostCap, hits * RATING.hitCost)
         - over
         + Math.min(RATING.levelBonusCap, Math.max(0, (player.level || 1) - 1) * RATING.levelBonus);
-      score = Math.max(0, Math.min(100, Math.round(score)));
+      gradeScore = Math.max(0, Math.min(100, Math.round(gradeScore)));
+      var operationPoints = Math.round(operation * RATING.componentMax / 100);
+      var techniquePoints = Math.round(technique * RATING.componentMax / 100);
+      var maxScore = 2 * RATING.componentMax;
+      var score = Math.max(0, Math.min(maxScore, operationPoints + techniquePoints - hits));
       var grade = "C";
       for (var i = 0; i < RATING.bands.length; i += 1) {
-        if (score >= RATING.bands[i][1]) { grade = RATING.bands[i][0]; break; }
+        if (gradeScore >= RATING.bands[i][1]) { grade = RATING.bands[i][0]; break; }
       }
-      return { operation: operation, technique: technique, hits: hits, score: score, grade: grade };
+      return { operation: operation, technique: technique, operationPoints: operationPoints,
+        techniquePoints: techniquePoints, maxScore: maxScore, hits: hits, score: score, grade: grade };
     }
 
     /**
@@ -4976,7 +4979,7 @@
           for (var i = 0; i < list.length; i += 1) {
             var other = list[i];
             if (!other.solid) continue;
-            var otherBox = propBox(other.piece);
+            var otherBox = propBox(other.piece, other.scale);
             if (!otherBox) continue;
             if (Math.abs(x - other.x) < (box.width + otherBox.width) / 2 &&
                 Math.abs(z - other.z) < (box.depth + otherBox.depth) / 2) return true;
@@ -5164,7 +5167,7 @@
      */
     function propSpotBlocked(state, cell, entry, depth) {
       if (blocksDoorway(state, cell, entry, depth)) return true;
-      return !!propBox(entry.piece) && blocksDoorLane(state, cell, entry);
+      return !!propBox(entry.piece, entry.scale) && blocksDoorLane(state, cell, entry);
     }
 
     /** 一件实心布景的盒子（x-z）和已摆下的实心件叠不叠 —— 两轴都查。 */
@@ -5172,7 +5175,7 @@
       for (var index = 0; index < list.length; index += 1) {
         var other = list[index];
         if (!other.solid) continue;
-        var otherBox = propBox(other.piece);
+        var otherBox = propBox(other.piece, other.scale);
         if (!otherBox) continue;
         if (Math.abs(x - other.x) < (box.width + otherBox.width) / 2 &&
             Math.abs(z - other.z) < (box.depth + otherBox.depth) / 2) return true;
@@ -5192,8 +5195,8 @@
      * 找不到再按 `false` 找 —— **让不开也别丢件**，这是 `docs/adr/0059` 追记里的取舍。
      */
     function nearestClearPropSpot(state, cell, entry, depth, solids, lane) {
-      var box = propBox(entry.piece);
-      var art = box ? null : propArtSize(entry.piece);
+      var box = propBox(entry.piece, entry.scale);
+      var art = box ? null : propArtSize(entry.piece, entry.scale);
       var span = box ? box.width / 2 : (art ? art[0] / 2 : 0);
       var left = roomLeft(state) + span;
       var right = roomRight(state) - span;
@@ -5201,7 +5204,7 @@
       var originZ = originShare * depth;
       var STEP = 6;
       var clearAt = function (x, share, allowCover) {
-        var candidate = { piece: entry.piece, x: x, depth: share };
+        var candidate = { piece: entry.piece, scale: entry.scale, x: x, depth: share };
         if (lane ? propSpotBlocked(state, cell, candidate, depth)
                  : blocksDoorway(state, cell, candidate, depth)) return false;
         if (box && overlapsSolid(solids, x, share * depth, box)) return false;
@@ -5374,13 +5377,13 @@
         if (state.stage && state.stage.propsAreMeasured) {
           (spec.props || []).forEach(function (entry) {
             var share = entry.depth === undefined ? 0 : entry.depth;
-            built.push(makeProp(entry, entry.x, share * depth, propBox(entry.piece)));
+            built.push(makeProp(entry, entry.x, share * depth, propBox(entry.piece, entry.scale)));
           });
         } else {
         var displaced = [];
         (spec.props || []).forEach(function (entry) {
           var share = entry.depth === undefined ? 0 : entry.depth;
-          var box = propBox(entry.piece);
+          var box = propBox(entry.piece, entry.scale);
           if (blocksDoorway(state, cell, entry, depth)) {
             displaced.push({ entry: entry, share: share, box: box });
             return;
@@ -5395,14 +5398,14 @@
          */
         displaced.forEach(function (item) {
           var box = item.box;
-          var art = box ? null : propArtSize(item.entry.piece);
+          var art = box ? null : propArtSize(item.entry.piece, item.entry.scale);
           var span = box ? box.width / 2 : (art ? art[0] / 2 : 0);
           var left = roomLeft(state) + span;
           var right = roomRight(state) - span;
           var strict = [];
           var relaxed = [];
           for (var x = left; x <= right; x += 6) {
-            var candidate = { piece: item.entry.piece, x: x, depth: item.share };
+            var candidate = { piece: item.entry.piece, scale: item.entry.scale, x: x, depth: item.share };
             if (blocksDoorway(state, cell, candidate, depth)) continue;
             relaxed.push(x);
             if (!box || !blocksDoorLane(state, cell, candidate)) strict.push(x);
@@ -5427,7 +5430,7 @@
                 var x = spots[index];
                 if (box && overlapsSolid(built, x, item.share * depth, box)) continue;
                 if (pass === 0 && coversLoot(state,
-                    { piece: item.entry.piece, x: x, depth: item.share },
+                    { piece: item.entry.piece, scale: item.entry.scale, x: x, depth: item.share },
                     depth, item.share * depth, built)) continue;
                 if (found === null || Math.abs(x - item.entry.x) < Math.abs(found - item.entry.x)) found = x;
               }
@@ -7617,7 +7620,7 @@
     for (var i = 0; i < props.length; i += 1) {
       var prop = props[i];
       if (!prop.solid || prop.broken) continue;
-      var box = propBox(prop.piece);
+      var box = propBox(prop.piece, prop.scale);
       if (!box) continue;
       var centre = prop.x + (box.dx || 0);
       if (Math.abs(x - centre) < halfWidth + box.width / 2 &&
@@ -8458,7 +8461,7 @@
   function blockProps(state, body, halfWidth, halfDepth) {
     (state.props || []).forEach(function (prop) {
       if (!prop.solid || prop.broken) return;
-      var box = propBox(prop.piece);
+      var box = propBox(prop.piece, prop.scale);
       if (!box) return;
       var centre = prop.x + (box.dx || 0);
       var spanX = halfWidth + box.width / 2;
@@ -8500,7 +8503,7 @@
        * 0.74 后的那个盒子（`docs/adr/0032`：美术与判定同一个数）；否则画面上看着
        * 还有一小段距离，刀却已经把它劈了。
        */
-      var boxed = propBox(prop.piece);
+      var boxed = propBox(prop.piece, prop.scale);
       if (!boxed) return;
       /* 打碎布景用更宽的一档（`DEPTH_REACH.breakable`）：箱子坐在后场草沿上。 */
       var depthReach = (reach === undefined ? DEPTH_REACH.breakable : reach) * SLAYER_HEIGHT;

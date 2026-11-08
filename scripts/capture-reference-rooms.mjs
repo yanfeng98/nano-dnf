@@ -1,0 +1,181 @@
+// Shared measured-camera room captures. Entry points select a room profile.
+import {chromium} from 'playwright';
+import fs from 'node:fs';
+import path from 'node:path';
+import assert from 'node:assert/strict';
+import http from 'node:http';
+import {fileURLToPath} from 'node:url';
+const room=process.env.CAPTURE_ROOM || '42';
+const profiles={
+ '33':{batch:50,col:2,row:2,out:'/tmp/nano-room50/render',times:[106,125,133,146],next:'投掷手坡',exit:'N',entryDoor:'S',
+  cases:[
+   ['back-first-cap',106,'pillar',0,0,44,133,424,141,49,150,30,300,.97],
+   ['back-second-cap',106,'pillar',0,0,44,133,456,172,49,150,30,300,.97],
+   ['back-third-cap',106,'pillar',0,0,44,133,484,205,49,150,30,300,.97],
+   ['back-fourth-cap',106,'pillar',0,0,44,133,522,236,49,150,30,300,.97],
+   ['left-front-cap',106,'pillar',0,0,44,133,30,320,49,150,30,300,.97],
+   ['left-back-cap',146,'pillar',0,0,44,133,219,142,49,150,30,300,.97],
+   ['front-bunker-wall',106,'bunker',0,0,142,138,535,320,162,152,152,500,.95,null,[17,88,68,127]],
+   ['back-bunker-wall',133,'bunker',0,0,142,138,36,174,157,158,158,500,.95,null,[16,91,65,131]]
+  ]},
+ '42':{batch:46,col:1,out:'/tmp/nano-room46/render',times:[26.5,28,44.5,66.5,72.5],next:'猫妖岔路',
+  cases:[
+   ['entry-flat',26.5,'pillar',0,0,44,133,360,230,49,150,80,1000,.97],
+   ['entry-front',28,'pillar',0,0,44,133,481,327,49,150,100,1000,.97],
+   ['entry-back',28,'pillar',0,0,44,133,546,228,49,150,100,1000,.97],
+   ['right-front',72.5,'pillar',0,0,44,133,351,305,49,150,100,1000,.97],
+   ['right-back',72.5,'pillar',0,0,44,133,444,246,49,150,100,1000,.97]
+  ]},
+ '41':{batch:47,col:0,out:'/tmp/nano-room47/render',times:[10.5,13.5,17.5,25.5],next:'宝箱浅沟',
+  cases:[
+   ['initial-back-barrel-cap',10.5,'forest',560,1874,63,78,502,256,72,89,22,100,.95],
+   ['initial-high-barrel-cap',10.5,'forest',560,1874,63,78,665,200,72,89,22,100,.95,50],
+   ['first-rock',17.5,'forest',585,803,141,89,87,208,156,98,80,1000,.97],
+   ['second-rock',25.5,'forest',585,803,141,89,183,321,161,102,80,1000,.97],
+   ['back-barrel-cap',13.5,'forest',560,1874,63,78,270,316,72,89,22,100,.95],
+   ['front-barrel-cap',17.5,'forest',560,1874,63,78,322,403,70,86,22,100,.95]
+  ]}
+};
+assert.ok(profiles[room],'unknown room capture profile');const profile=profiles[room];
+const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
+const out=process.env.CAPTURE_OUT || profile.out;fs.mkdirSync(out,{recursive:true});
+const cameras=JSON.parse(fs.readFileSync(path.join(root,`docs/reference-evidence/${profile.batch}-room${room}-camera.json`)));
+const server=http.createServer((req,res)=>{
+ const url=new URL(req.url,'http://localhost'),file=path.resolve(root,'.'+(url.pathname==='/'?'/index.html':url.pathname));
+ if(!file.startsWith(root+path.sep)||!fs.existsSync(file)||!fs.statSync(file).isFile()){res.writeHead(404).end();return;}
+ const mime={'.png':'image/png','.js':'text/javascript','.html':'text/html','.css':'text/css','.json':'application/json','.ogg':'audio/ogg'};
+ res.writeHead(200,{'content-type':mime[path.extname(file)]||'application/octet-stream'});
+ if(process.env.ROOM_BASELINE==='1'&&room==='41'&&file===path.join(root,'src/core.js')){
+  let source=fs.readFileSync(file,'utf8');const start=source.indexOf('/* 0 —— 路线 41'),end=source.indexOf('/* 1 —— 路线 25 Boss',start);
+  assert.ok(start>=0&&end>start);let entry=source.slice(start,end);
+  assert.ok(entry.includes('width: 960'));entry=entry.replace('width: 960','width: 560');
+  const a=entry.indexOf('          props: ['),b=entry.indexOf('          scatter:',a);assert.ok(a>=0&&b>a);
+  const oldProps=[{piece:'trunkTall',x:81,depth:2.03},{piece:'trunkMossy',x:228,depth:2.03},{piece:'trunkBent',x:374,depth:2.03},
+   {piece:'rockFlat',x:242,depth:1.79,scale:[.34,.34]},{piece:'barrel',x:210,depth:.46},{piece:'barrel',x:378,depth:-.29},{piece:'fallenTrunk',x:304,depth:-.58}];
+  entry=entry.slice(0,a)+'          props: '+JSON.stringify(oldProps)+',\n'+entry.slice(b);
+  source=source.slice(0,start)+entry+source.slice(end);
+  assert.equal(source.split('      0: 960,').length,2);source=source.replace('      0: 960,','      0: 560,');
+  fs.writeFileSync(path.join(out,'baseline-core.js'),source);res.end(source);return;
+ }
+ fs.createReadStream(file).pipe(res);
+});
+await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));let browser;
+try{
+ browser=await chromium.launch({headless:true});
+ const page=await browser.newPage({viewport:{width:1120,height:720}});
+ await page.addInitScript(()=>localStorage.setItem('nano-dnf-progress',JSON.stringify({cleared:{mirkwood:true}})));
+ await page.goto(process.env.CAPTURE_URL || `http://127.0.0.1:${server.address().port}/?seed=1`);
+ await page.waitForFunction(()=>window.nanoDnf?.getAssetState().ready);
+ await page.keyboard.press('Enter');await page.evaluate(()=>window.nanoDnf.leaveTown());
+ await page.keyboard.press('ArrowRight');await page.keyboard.press('Enter');
+ await page.waitForFunction(()=>window.nanoDnf.getState().stage.id==='mirkwooddeep'&&!window.nanoDnf.getState().intro);
+ await page.keyboard.press('p');
+ await page.evaluate(()=>{
+  const render=window.DNFRender.render;
+  window.DNFRender.render=(ctx,state,meta)=>render(ctx,state,{...meta,paused:false});
+ });
+ const records=[],images={},actions=[];let prepared=false;
+ for(const time of profile.times){
+  if(room==='41'&&time>10.5&&!prepared&&process.env.ROOM_BASELINE!=='1'){
+   const performed=await page.evaluate(()=>{
+    const C=window.DNFCore,s=window.nanoDnf.getState(),result=[];s.player.invuln=100;
+    // Build the observed post-hit state through real attacks, not flags/timers.
+    for(const [x,input] of [[341,{skills:{ghostSlash:true}}],[444,{attack:true}]]){
+     const prop=s.props.find(p=>p.piece==='barrel'&&p.x===x);if(!prop)throw new Error('missing initial barrel '+x);
+     const before={hp:prop.hp,broken:prop.broken};
+     s.player.x=prop.x-42;s.player.z=Math.min(prop.z,C.bandDepth(s.band));s.player.facing=1;
+     C.runFrames(s,50,input);C.runFrames(s,40,{});
+     if(!prop.broken)throw new Error('real attack did not break '+x);
+     result.push({x,input,before,after:{hp:prop.hp,broken:prop.broken,gone:!!prop.gone}});
+    }
+    const remaining=s.props.filter(p=>p.piece==='barrel'&&!p.broken).map(p=>p.x);
+    if(remaining.join(',')!=='328,498')throw new Error('wrong remaining barrels '+remaining);
+    return result;
+   });
+   actions.push(...performed);prepared=true;
+  }
+  const camera=time===26.5?0:cameras.find(c=>c.t===time).camera_px;
+  const record=await page.evaluate(({camera,time,col,row,entryDoor})=>{
+   const C=window.DNFCore,s=window.nanoDnf.getState();
+   C.goToCell(s,s.dungeon.cells.findIndex(c=>c.col===col&&c.row===row));
+   s.entryDoor=entryDoor===undefined?(col===0?null:'W'):entryDoor;s.titleT=0;s.intro=null;s.transition=0;
+   // Relocate the actor only to keep the sampled native faces unobscured.
+   s.player.x=(camera+(col===0?80:time<=28?240:200))/C.CAMERA.zoom;s.player.z=40;
+   s.player.hurtTimer=0;s.player.invuln=0;s.player.buffs={};
+   s.camera.x=camera/C.CAMERA.zoom;s.time=10;
+   window.nanoDnf.setMapMode('radar');
+   return {time,room:s.room.name,width:s.room.width,cameraPx:camera,
+    props:s.props.map(p=>({piece:p.piece,x:p.x,z:p.z,broken:p.broken,gone:!!p.gone,screenX:p.x*C.CAMERA.zoom-camera,bottom:430-C.depthLift(p.z)*C.CAMERA.zoom}))};
+  },{camera,time,col:profile.col,row:profile.row??3,entryDoor:profile.entryDoor});
+  await page.waitForTimeout(100);
+  const url=await page.locator('#stage').evaluate(c=>c.toDataURL('image/png'));
+  images[time]=url;
+  fs.writeFileSync(path.join(out,`${time}.png`),Buffer.from(url.split(',')[1],'base64'));
+  records.push(record);
+ }
+ fs.writeFileSync(path.join(out,'poses.json'),JSON.stringify(records,null,2)+'\n');
+ fs.writeFileSync(path.join(out,'fixture-actions.json'),JSON.stringify(actions,null,2)+'\n');
+ const refTimes=[...new Set(profile.cases.map(c=>c[1]))];
+ const reference=Object.fromEntries(refTimes.map(t=>{
+  const name=t===26.5?'47-room42-entry-reference.png':`${profile.batch}-room${room}-${t}-reference.png`;
+  return [t,fs.readFileSync(path.join(root,'docs/reference-evidence',name)).toString('base64')];
+ }));
+ const native=Object.fromEntries([['pillar','pillar-pale.png'],['forest','forest.png'],['bunker','goblin-bunker.png']].map(([key,name])=>[key,fs.readFileSync(path.join(root,'assets',name)).toString('base64')]));
+ const faces=await page.evaluate(async({reference,images,native,cases})=>{
+  async function picture(url){const im=new Image();im.src=url;await im.decode();return im;}
+  function canvas(w,h){const c=document.createElement('canvas');c.width=w;c.height=h;return c.getContext('2d');}
+  const atlases={},refs={},actuals={};
+  for(const [key,value] of Object.entries(native))atlases[key]=await picture('data:image/png;base64,'+value);
+  for(const t of Object.keys(reference)){
+   const r=canvas(720,540);r.drawImage(await picture('data:image/png;base64,'+reference[t]),0,0);refs[t]=r;
+   const a=canvas(960,540);a.drawImage(await picture(images[t]),0,0);actuals[t]=a;
+  }
+  const result=[];
+  for(const [label,time,sheet,sx,sy,sw,sh,x,y,w,h,cutoff,minPixels,threshold,maxX,maskBox] of cases){
+   const c=canvas(w,h);c.drawImage(atlases[sheet],sx,sy,sw,sh,0,0,w,h);
+   const mask=c.getImageData(0,0,w,h).data,ref=refs[time].getImageData(x,y,w,h).data;let best={cosine:0};
+   for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++){
+    const actual=actuals[time].getImageData(x+120+dx,y+dy,w,h).data;let dot=0,a2=0,b2=0,pixels=0;
+    for(let i=0;i<mask.length;i+=4){
+     const px=(i/4)%w,py=Math.floor(i/4/w);
+     if(maskBox&&(px<maskBox[0]||py<maskBox[1]||px>=maskBox[2]||py>=maskBox[3]))continue;
+     if((i/4)%w>=(maxX||w)||Math.floor(i/4/w)>=cutoff||mask[i+3]<=220||mask[i]<=70||mask[i+1]<=70||mask[i+2]<=45)continue;
+     pixels++;for(let k=0;k<3;k++){dot+=ref[i+k]*actual[i+k];a2+=ref[i+k]**2;b2+=actual[i+k]**2;}
+    }
+    const cosine=dot/Math.sqrt(a2*b2);if(cosine>best.cosine)best={cosine,dx,dy,pixels};
+   }
+   result.push({label,time,minPixels,threshold,nativeMask:{rows:cutoff,columns:maxX||w},...best});
+  }
+  return result;
+ },{reference,images,native,cases:profile.cases});
+ fs.writeFileSync(path.join(out,'browser-comparison.json'),JSON.stringify(faces,null,2)+'\n');
+ const span=Math.max(...cameras.map(c=>c.camera_px))-Math.min(...cameras.map(c=>c.camera_px));
+ assert.ok(records[0].width*265/168>=720+span,`room${room} must contain the independently observed camera span`);
+ if(room==='42')assert.equal(records[0].props.filter(p=>p.piece==='chest').length,2);
+ else if(room==='41'){
+  assert.equal(records[0].props.filter(p=>p.piece==='rockFlat').length,2);
+  assert.equal(records[0].props.filter(p=>p.piece==='barrel'&&!p.broken).length,4);
+  assert.equal(records[1].props.filter(p=>p.piece==='barrel'&&!p.broken).length,2);
+ }
+ for(const face of faces)assert.ok(face.pixels>face.minPixels&&face.cosine>face.threshold,`${face.label} native face matches its measured source anchor`);
+
+ // Clear through the real damage path, then leave the extended room by keyboard.
+ await page.evaluate(exit=>{
+  const C=window.DNFCore,s=window.nanoDnf.getState();
+  for(let n=0;n<12&&!s.room.cleared;n++){
+   s.enemies.slice().forEach(e=>{if(!e.dead)C.damageEnemy(s,e,99999,0,s.player.x);});C.runFrames(s,60,{});
+  }
+  if(!s.room.cleared)throw new Error('captured room did not clear');
+  if(exit==='N'){
+   s.player.x=C.doorX(s,C.currentCell(s),'N');s.player.z=C.bandDepth(s.band)-10;
+  }else{s.player.x=C.roomRight(s)-45;s.player.z=C.bandDepth(s.band)/2;}
+ },profile.exit||'E');
+ const key=profile.exit==='N'?'ArrowUp':'ArrowRight';
+ await page.keyboard.press('p');await page.keyboard.down(key);
+ await page.waitForFunction(({col,row,exit})=>{const s=window.nanoDnf.getState(),c=s.dungeon.cells[s.cell];return exit==='N'?c.col===col&&c.row===row-1:c.col===col+1&&c.row===row;},{col:profile.col,row:profile.row??3,exit:profile.exit});
+ await page.keyboard.up(key);
+ const travel=await page.evaluate(()=>({room:window.nanoDnf.getState().room.name}));
+ assert.equal(travel.room,profile.next);
+ fs.writeFileSync(path.join(out,'travel.json'),JSON.stringify(travel,null,2)+'\n');
+ console.log(`room${room} measured-camera captures + ${profile.exit||'E'} keyboard travel OK`,out);
+}finally{await browser?.close();await new Promise(resolve=>server.close(resolve));}

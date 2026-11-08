@@ -1,0 +1,218 @@
+{
+  "track": [
+    134,
+    486,
+    160,
+    7
+  ],
+  "endpoint_uncertainty_pixels": 2,
+  "reports": [
+    {
+      "video": 1,
+      "source": "00001-\u5e7d\u6697\u5bc6\u6797.mp4",
+      "observed_clear_credit": 2376,
+      "samples": [
+        {
+          "time": 332.5,
+          "level": 4,
+          "fill_pixels": 81,
+          "track_pixels": 160,
+          "fraction": 0.50625,
+          "fraction_interval": [
+            0.49375,
+            0.51875
+          ]
+        },
+        {
+          "time": 357,
+          "level": 5,
+          "fill_pixels": 18,
+          "track_pixels": 160,
+          "fraction": 0.1125,
+          "fraction_interval": [
+            0.1,
+            0.125
+          ]
+        }
+      ],
+      "local_table_hypotheses": [
+        {
+          "semantics": "per_level",
+          "table_index_for_current_level": 2,
+          "index_offset_from_level_minus_one": -1,
+          "current_threshold": 5543,
+          "next_threshold": 10575,
+          "required_credit_interval": [
+            3725.06875,
+            4128.018749999999
+          ],
+          "observed_credit_inside_interval": false
+        },
+        {
+          "semantics": "cumulative",
+          "table_index_for_current_level": 2,
+          "index_offset_from_level_minus_one": -1,
+          "current_threshold": 2890,
+          "next_threshold": 5032,
+          "required_credit_interval": [
+            1894.0124999999998,
+            2092.0625
+          ],
+          "observed_credit_inside_interval": false
+        },
+        {
+          "semantics": "per_level",
+          "table_index_for_current_level": 3,
+          "index_offset_from_level_minus_one": 0,
+          "current_threshold": 10575,
+          "next_threshold": 18509,
+          "required_credit_interval": [
+            6940.11875,
+            7667.21875
+          ],
+          "observed_credit_inside_interval": false
+        },
+        {
+          "semantics": "cumulative",
+          "table_index_for_current_level": 3,
+          "index_offset_from_level_minus_one": 0,
+          "current_threshold": 5032,
+          "next_threshold": 7934,
+          "required_credit_interval": [
+            3215.0499999999997,
+            3539.2
+          ],
+          "observed_credit_inside_interval": false
+        },
+        {
+          "semantics": "per_level",
+          "table_index_for_current_level": 4,
+          "index_offset_from_level_minus_one": 1,
+          "current_threshold": 18509,
+          "next_threshold": 30205,
+          "required_credit_interval": [
+            11927.95625,
+            13145.80625
+          ],
+          "observed_credit_inside_interval": false
+        },
+        {
+          "semantics": "cumulative",
+          "table_index_for_current_level": 4,
+          "index_offset_from_level_minus_one": 1,
+          "current_threshold": 7934,
+          "next_threshold": 11696,
+          "required_credit_interval": [
+            4987.8375,
+            5478.5875
+          ],
+          "observed_credit_inside_interval": false
+        }
+      ]
+    },
+    {
+      "video": 2,
+      "source": "00002-\u5e7d\u6697\u5bc6\u6797\u6df1\u5904.mp4",
+      "observed_clear_credit": 6318,
+      "samples": [
+        {
+          "time": 386.7,
+          "level": 6,
+          "fill_pixels": 125,
+          "track_pixels": 160,
+          "fraction": 0.78125,
+          "fraction_interval": [
+            0.76875,
+            0.79375
+          ]
+        },
+        {
+          "time": 410,
+          "level": 7,
+          "fill_pixels": 69,
+          "track_pixels": 160,
+          "fraction": 0.43125,
+          "fraction_interval": [
+            0.41875,
+            0.44375
+          ]
+        }
+      ],
+      "local_table_hypotheses": [
+        {
+          "semantics": "per_level",
+          "table_index_for_current_level": 4,
+          "index_offset_from_level_minus_one": -1,
+          "current_threshold": 18509,
+          "next_threshold": 30205,
+          "required_credit_interval": [
+            16465.825,
+            17683.675
+          ],
+          "observed_credit_inside_interval": false
+        },
+        {
+          "semantics": "cumulative",
+          "table_index_for_current_level": 4,
+          "index_offset_from_level_minus_one": -1,
+          "current_threshold": 7934,
+          "next_threshold": 11696,
+          "required_credit_interval": [
+            6534.0875,
+            7024.8375
+          ],
+          "observed_credit_inside_interval": false
+        },
+        {
+          "semantics": "per_level",
+          "table_index_for_current_level": 5,
+          "index_offset_from_level_minus_one": 0,
+          "current_threshold": 30205,
+          "next_threshold": 46627,
+          "required_credit_interval": [
+            25754.8375,
+            27675.6375
+          ],
+          "observed_credit_inside_interval": false
+        },
+        {
+          "semantics": "cumulative",
+          "table_index_for_current_level": 5,
+          "index_offset_from_level_minus_one": 0,
+          "current_threshold": 11696,
+          "next_threshold": 16422,
+          "required_credit_interval": [
+            9289.0125,
+            9991.9625
+          ],
+          "observed_credit_inside_interval": false
+        },
+        {
+          "semantics": "per_level",
+          "table_index_for_current_level": 6,
+          "index_offset_from_level_minus_one": 1,
+          "current_threshold": 46627,
+          "next_threshold": 68840,
+          "required_credit_interval": [
+            38443.568750000006,
+            41330.243749999994
+          ],
+          "observed_credit_inside_interval": false
+        },
+        {
+          "semantics": "cumulative",
+          "table_index_for_current_level": 6,
+          "index_offset_from_level_minus_one": 1,
+          "current_threshold": 16422,
+          "next_threshold": 22213,
+          "required_credit_interval": [
+            12688.73125,
+            13654.606249999999
+          ],
+          "observed_credit_inside_interval": false
+        }
+      ]
+    }
+  ],
+  "limits": "Tests only the listed index/threshold interpretations, assuming the visible clear total is the sole net credit between frames. Does not establish server scaling, a replacement formula, or absence of other XP events. Full-bar level-up animation is not residual XP."
+}

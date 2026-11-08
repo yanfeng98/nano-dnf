@@ -1,0 +1,28 @@
+[
+  {
+    "video": 1,
+    "source_reference": "39-v1-stats-reference.png",
+    "operation_points": 60,
+    "technique_points": 40,
+    "operation_percent": 85,
+    "technique_percent": 57,
+    "hits": 15,
+    "total": 85,
+    "maximum": 140,
+    "interpretation": "Visible points sum minus one per hit explains both totals. A shared 70-point component maximum is consistent with both truncated percentages and the 140-point total.",
+    "limits": "Only the two final outcomes are verified. Hidden inputs, other point values, percent rounding and grade thresholds remain unverified; do not call the full scoring algorithm restored."
+  },
+  {
+    "video": 2,
+    "source_reference": "39-v2-stats-reference.png",
+    "operation_points": 60,
+    "technique_points": 40,
+    "operation_percent": 85,
+    "technique_percent": 57,
+    "hits": 23,
+    "total": 77,
+    "maximum": 140,
+    "interpretation": "Visible points sum minus one per hit explains both totals. A shared 70-point component maximum is consistent with both truncated percentages and the 140-point total.",
+    "limits": "Only the two final outcomes are verified. Hidden inputs, other point values, percent rounding and grade thresholds remain unverified; do not call the full scoring algorithm restored."
+  }
+]

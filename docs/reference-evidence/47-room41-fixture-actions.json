@@ -1,0 +1,34 @@
+[
+  {
+    "x": 341,
+    "input": {
+      "skills": {
+        "ghostSlash": true
+      }
+    },
+    "before": {
+      "hp": 1,
+      "broken": false
+    },
+    "after": {
+      "hp": 0,
+      "broken": true,
+      "gone": true
+    }
+  },
+  {
+    "x": 444,
+    "input": {
+      "attack": true
+    },
+    "before": {
+      "hp": 1,
+      "broken": false
+    },
+    "after": {
+      "hp": 0,
+      "broken": true,
+      "gone": true
+    }
+  }
+]

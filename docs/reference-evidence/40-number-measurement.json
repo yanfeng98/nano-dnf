@@ -1,0 +1,398 @@
+[
+  {
+    "video": 1,
+    "frame": 35,
+    "label": "total-first",
+    "channel": 0,
+    "search_region": [
+      315,
+      85,
+      375,
+      135
+    ],
+    "scale": 1.15,
+    "correlation": 0.990298867225647,
+    "xy": [
+      326,
+      94
+    ]
+  },
+  {
+    "video": 1,
+    "frame": 32,
+    "label": "total-second",
+    "channel": 0,
+    "search_region": [
+      350,
+      85,
+      405,
+      135
+    ],
+    "scale": 1.1,
+    "correlation": 0.9702399373054504,
+    "xy": [
+      359,
+      95
+    ]
+  },
+  {
+    "video": 1,
+    "frame": 24,
+    "label": "slash",
+    "channel": 0,
+    "search_region": [
+      385,
+      85,
+      445,
+      140
+    ],
+    "scale": 1.1,
+    "correlation": 0.9754748344421387,
+    "xy": [
+      394,
+      95
+    ]
+  },
+  {
+    "video": 1,
+    "frame": 53,
+    "label": "operation-six",
+    "channel": 0,
+    "search_region": [
+      315,
+      147,
+      350,
+      177
+    ],
+    "scale": 1.125,
+    "correlation": 0.9885445237159729,
+    "xy": [
+      325,
+      153
+    ]
+  },
+  {
+    "video": 1,
+    "frame": 47,
+    "label": "operation-zero",
+    "channel": 0,
+    "search_region": [
+      340,
+      147,
+      375,
+      177
+    ],
+    "scale": 1.125,
+    "correlation": 0.9828576445579529,
+    "xy": [
+      342,
+      153
+    ]
+  },
+  {
+    "video": 1,
+    "frame": 76,
+    "label": "percent-eight",
+    "channel": 2,
+    "search_region": [
+      463,
+      152,
+      510,
+      178
+    ],
+    "scale": 1.075,
+    "correlation": 0.8713952302932739,
+    "xy": [
+      473,
+      158
+    ]
+  },
+  {
+    "video": 1,
+    "frame": 73,
+    "label": "percent-five",
+    "channel": 2,
+    "search_region": [
+      478,
+      152,
+      522,
+      178
+    ],
+    "scale": 1.075,
+    "correlation": 0.841476321220398,
+    "xy": [
+      485,
+      158
+    ]
+  },
+  {
+    "video": 1,
+    "frame": 26,
+    "label": "percent-sign",
+    "channel": 2,
+    "search_region": [
+      492,
+      152,
+      535,
+      178
+    ],
+    "scale": 1.05,
+    "correlation": 0.8516306281089783,
+    "xy": [
+      498,
+      158
+    ]
+  },
+  {
+    "video": 1,
+    "frame": 57,
+    "label": "hit-minus",
+    "channel": 0,
+    "search_region": [
+      312,
+      229,
+      342,
+      256
+    ],
+    "scale": 1.125,
+    "correlation": 0.9731132984161377,
+    "xy": [
+      322,
+      234
+    ]
+  },
+  {
+    "video": 1,
+    "frame": 59,
+    "label": "hit-first",
+    "channel": 0,
+    "search_region": [
+      325,
+      229,
+      355,
+      256
+    ],
+    "scale": 1.125,
+    "correlation": 0.9086129069328308,
+    "xy": [
+      332,
+      234
+    ]
+  },
+  {
+    "video": 1,
+    "frame": 63,
+    "label": "hit-second",
+    "channel": 0,
+    "search_region": [
+      340,
+      229,
+      375,
+      256
+    ],
+    "scale": 1.125,
+    "correlation": 0.9412611722946167,
+    "xy": [
+      342,
+      234
+    ]
+  },
+  {
+    "video": 2,
+    "frame": 34,
+    "label": "total-first",
+    "channel": 0,
+    "search_region": [
+      315,
+      85,
+      375,
+      135
+    ],
+    "scale": 1.175,
+    "correlation": 0.9858453273773193,
+    "xy": [
+      324,
+      94
+    ]
+  },
+  {
+    "video": 2,
+    "frame": 34,
+    "label": "total-second",
+    "channel": 0,
+    "search_region": [
+      350,
+      85,
+      405,
+      135
+    ],
+    "scale": 1.15,
+    "correlation": 0.9664705991744995,
+    "xy": [
+      360,
+      94
+    ]
+  },
+  {
+    "video": 2,
+    "frame": 24,
+    "label": "slash",
+    "channel": 0,
+    "search_region": [
+      385,
+      85,
+      445,
+      140
+    ],
+    "scale": 1.075,
+    "correlation": 0.9675837755203247,
+    "xy": [
+      396,
+      95
+    ]
+  },
+  {
+    "video": 2,
+    "frame": 53,
+    "label": "operation-six",
+    "channel": 0,
+    "search_region": [
+      315,
+      147,
+      350,
+      177
+    ],
+    "scale": 1.125,
+    "correlation": 0.9887344241142273,
+    "xy": [
+      325,
+      153
+    ]
+  },
+  {
+    "video": 2,
+    "frame": 47,
+    "label": "operation-zero",
+    "channel": 0,
+    "search_region": [
+      340,
+      147,
+      375,
+      177
+    ],
+    "scale": 1.125,
+    "correlation": 0.9823064208030701,
+    "xy": [
+      342,
+      153
+    ]
+  },
+  {
+    "video": 2,
+    "frame": 76,
+    "label": "percent-eight",
+    "channel": 2,
+    "search_region": [
+      463,
+      152,
+      510,
+      178
+    ],
+    "scale": 1.075,
+    "correlation": 0.8705340027809143,
+    "xy": [
+      473,
+      158
+    ]
+  },
+  {
+    "video": 2,
+    "frame": 73,
+    "label": "percent-five",
+    "channel": 2,
+    "search_region": [
+      478,
+      152,
+      522,
+      178
+    ],
+    "scale": 1.075,
+    "correlation": 0.8385539650917053,
+    "xy": [
+      485,
+      158
+    ]
+  },
+  {
+    "video": 2,
+    "frame": 26,
+    "label": "percent-sign",
+    "channel": 2,
+    "search_region": [
+      492,
+      152,
+      535,
+      178
+    ],
+    "scale": 1.05,
+    "correlation": 0.8542166948318481,
+    "xy": [
+      498,
+      158
+    ]
+  },
+  {
+    "video": 2,
+    "frame": 57,
+    "label": "hit-minus",
+    "channel": 0,
+    "search_region": [
+      312,
+      229,
+      342,
+      256
+    ],
+    "scale": 1.15,
+    "correlation": 0.9729421734809875,
+    "xy": [
+      315,
+      234
+    ]
+  },
+  {
+    "video": 2,
+    "frame": 60,
+    "label": "hit-first",
+    "channel": 0,
+    "search_region": [
+      325,
+      229,
+      355,
+      256
+    ],
+    "scale": 1.125,
+    "correlation": 0.9581226706504822,
+    "xy": [
+      325,
+      234
+    ]
+  },
+  {
+    "video": 2,
+    "frame": 61,
+    "label": "hit-second",
+    "channel": 0,
+    "search_region": [
+      340,
+      229,
+      375,
+      256
+    ],
+    "scale": 1.125,
+    "correlation": 0.941200852394104,
+    "xy": [
+      342,
+      234
+    ]
+  }
+]

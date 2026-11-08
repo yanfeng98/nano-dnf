@@ -1,0 +1,393 @@
+{
+  "zoom": 1.5773809523809523,
+  "pillars": [
+    {
+      "time": 28,
+      "kind": "flat",
+      "correlation": 0.9775413870811462,
+      "screen_rect": [
+        481,
+        327,
+        49,
+        150
+      ],
+      "panorama_center": 505.5,
+      "world_center": 320.4679245283019,
+      "bottom": 477
+    },
+    {
+      "time": 28,
+      "kind": "flat",
+      "correlation": 0.9466516971588135,
+      "screen_rect": [
+        546,
+        228,
+        49,
+        150
+      ],
+      "panorama_center": 570.5,
+      "world_center": 361.6754716981132,
+      "bottom": 378
+    },
+    {
+      "time": 28,
+      "kind": "damaged",
+      "correlation": 0.9215061068534851,
+      "screen_rect": [
+        361,
+        255,
+        49,
+        125
+      ],
+      "panorama_center": 385.5,
+      "world_center": 244.3924528301887,
+      "bottom": 380
+    },
+    {
+      "time": 44.5,
+      "kind": "flat",
+      "correlation": 0.9444314241409302,
+      "screen_rect": [
+        475,
+        282,
+        49,
+        150
+      ],
+      "panorama_center": 776.0799999999999,
+      "world_center": 492.00543396226414,
+      "bottom": 432
+    },
+    {
+      "time": 44.5,
+      "kind": "flat",
+      "correlation": 0.9416599869728088,
+      "screen_rect": [
+        204,
+        327,
+        49,
+        150
+      ],
+      "panorama_center": 505.08,
+      "world_center": 320.2016603773585,
+      "bottom": 477
+    },
+    {
+      "time": 44.5,
+      "kind": "damaged",
+      "correlation": 0.92305988073349,
+      "screen_rect": [
+        271,
+        253,
+        49,
+        125
+      ],
+      "panorama_center": 572.0799999999999,
+      "world_center": 362.67713207547166,
+      "bottom": 378
+    },
+    {
+      "time": 44.5,
+      "kind": "damaged",
+      "correlation": 0.9105691313743591,
+      "screen_rect": [
+        85,
+        255,
+        49,
+        125
+      ],
+      "panorama_center": 386.08,
+      "world_center": 244.7601509433962,
+      "bottom": 380
+    },
+    {
+      "time": 60,
+      "kind": "flat",
+      "correlation": 0.9800248742103577,
+      "screen_rect": [
+        517,
+        281,
+        49,
+        150
+      ],
+      "panorama_center": 987.9100000000001,
+      "world_center": 626.2976603773585,
+      "bottom": 431
+    },
+    {
+      "time": 60,
+      "kind": "flat",
+      "correlation": 0.940436065196991,
+      "screen_rect": [
+        305,
+        282,
+        49,
+        150
+      ],
+      "panorama_center": 775.9100000000001,
+      "world_center": 491.89766037735853,
+      "bottom": 432
+    },
+    {
+      "time": 60,
+      "kind": "flat",
+      "correlation": 0.894598662853241,
+      "screen_rect": [
+        657,
+        211,
+        49,
+        150
+      ],
+      "panorama_center": 1127.91,
+      "world_center": 715.0523773584906,
+      "bottom": 361
+    },
+    {
+      "time": 60,
+      "kind": "flat",
+      "correlation": 0.8543100953102112,
+      "screen_rect": [
+        34,
+        327,
+        49,
+        150
+      ],
+      "panorama_center": 504.91,
+      "world_center": 320.09388679245285,
+      "bottom": 477
+    },
+    {
+      "time": 60,
+      "kind": "flat",
+      "correlation": 0.8117555379867554,
+      "screen_rect": [
+        431,
+        330,
+        49,
+        150
+      ],
+      "panorama_center": 901.9100000000001,
+      "world_center": 571.7769056603775,
+      "bottom": 480
+    },
+    {
+      "time": 60,
+      "kind": "damaged",
+      "correlation": 0.9670407772064209,
+      "screen_rect": [
+        101,
+        253,
+        49,
+        125
+      ],
+      "panorama_center": 571.9100000000001,
+      "world_center": 362.5693584905661,
+      "bottom": 378
+    },
+    {
+      "time": 60,
+      "kind": "damaged",
+      "correlation": 0.8020948767662048,
+      "screen_rect": [
+        386,
+        232,
+        49,
+        125
+      ],
+      "panorama_center": 856.9100000000001,
+      "world_center": 543.2486037735849,
+      "bottom": 357
+    },
+    {
+      "time": 66.5,
+      "kind": "flat",
+      "correlation": 0.989103376865387,
+      "screen_rect": [
+        159,
+        281,
+        49,
+        150
+      ],
+      "panorama_center": 987.64,
+      "world_center": 626.1264905660378,
+      "bottom": 431
+    },
+    {
+      "time": 66.5,
+      "kind": "flat",
+      "correlation": 0.8094339966773987,
+      "screen_rect": [
+        73,
+        330,
+        49,
+        150
+      ],
+      "panorama_center": 901.64,
+      "world_center": 571.6057358490566,
+      "bottom": 480
+    },
+    {
+      "time": 66.5,
+      "kind": "flat",
+      "correlation": 0.8002938628196716,
+      "screen_rect": [
+        580,
+        309,
+        49,
+        150
+      ],
+      "panorama_center": 1408.6399999999999,
+      "world_center": 893.0246037735849,
+      "bottom": 459
+    },
+    {
+      "time": 66.5,
+      "kind": "damaged",
+      "correlation": 0.9476189613342285,
+      "screen_rect": [
+        28,
+        232,
+        49,
+        125
+      ],
+      "panorama_center": 856.64,
+      "world_center": 543.0774339622642,
+      "bottom": 357
+    },
+    {
+      "time": 66.5,
+      "kind": "damaged",
+      "correlation": 0.9371747374534607,
+      "screen_rect": [
+        302,
+        236,
+        49,
+        125
+      ],
+      "panorama_center": 1130.6399999999999,
+      "world_center": 716.7830943396226,
+      "bottom": 361
+    },
+    {
+      "time": 66.5,
+      "kind": "damaged",
+      "correlation": 0.8513941764831543,
+      "screen_rect": [
+        473,
+        238,
+        49,
+        125
+      ],
+      "panorama_center": 1301.6399999999999,
+      "world_center": 825.1906415094339,
+      "bottom": 363
+    },
+    {
+      "time": 72.5,
+      "kind": "flat",
+      "correlation": 0.9806875586509705,
+      "screen_rect": [
+        351,
+        305,
+        49,
+        150
+      ],
+      "panorama_center": 1539.62,
+      "world_center": 976.0609811320754,
+      "bottom": 455
+    },
+    {
+      "time": 72.5,
+      "kind": "flat",
+      "correlation": 0.957838237285614,
+      "screen_rect": [
+        444,
+        246,
+        49,
+        150
+      ],
+      "panorama_center": 1632.62,
+      "world_center": 1035.0194716981132,
+      "bottom": 396
+    },
+    {
+      "time": 72.5,
+      "kind": "flat",
+      "correlation": 0.833879292011261,
+      "screen_rect": [
+        220,
+        309,
+        49,
+        150
+      ],
+      "panorama_center": 1408.62,
+      "world_center": 893.0119245283018,
+      "bottom": 459
+    },
+    {
+      "time": 72.5,
+      "kind": "damaged",
+      "correlation": 0.8571050763130188,
+      "screen_rect": [
+        113,
+        238,
+        49,
+        125
+      ],
+      "panorama_center": 1301.62,
+      "world_center": 825.1779622641509,
+      "bottom": 363
+    }
+  ],
+  "chests": [
+    {
+      "time": 44.5,
+      "chest": 1,
+      "correlation": 0.9042255878448486,
+      "world_center": 461.8922264150943,
+      "bottom": 491,
+      "mask": "upper-right only"
+    },
+    {
+      "time": 48,
+      "chest": 1,
+      "correlation": 0.9077388644218445,
+      "world_center": 462.12045283018875,
+      "bottom": 491,
+      "mask": "upper-right only"
+    },
+    {
+      "time": 56,
+      "chest": 1,
+      "correlation": 0.9369496703147888,
+      "world_center": 462.1077735849057,
+      "bottom": 491,
+      "mask": "upper-right only"
+    },
+    {
+      "time": 60,
+      "chest": 1,
+      "correlation": 0.9603703022003174,
+      "world_center": 461.78445283018874,
+      "bottom": 491,
+      "mask": "upper-right only"
+    },
+    {
+      "time": 66.5,
+      "chest": 2,
+      "correlation": 0.9365776777267456,
+      "world_center": 799.5151698113207,
+      "bottom": 405,
+      "mask": "upper face"
+    },
+    {
+      "time": 72.5,
+      "chest": 2,
+      "correlation": 0.9263021945953369,
+      "world_center": 799.5024905660377,
+      "bottom": 405,
+      "mask": "upper face"
+    }
+  ],
+  "width_lower_bound_world": 1277.9221132075472,
+  "limits": "Static-feature motion and independent native-texture locations. Width remains a lower bound. Later first visibility does not identify an initial damage state. Collision, damage thresholds, foliage and background phase remain unverified."
+}

@@ -1,0 +1,44 @@
+{
+  "source": "../dnf-素材/00002-幽暗密林深处.mp4",
+  "source_fps": 30,
+  "normalization": "crop=1440:1080:240:0,scale=720:540",
+  "intervals": [
+    {
+      "start": 26.3,
+      "duration": 1.9,
+      "sample_every_frames": 3,
+      "flat_visible": 26.9,
+      "damaged_visible": 27.4,
+      "attack_effects_visible": [
+        27.0,
+        27.3
+      ],
+      "contact_sheet": "49-pillar-entry-contact.jpg"
+    },
+    {
+      "start": 40.8,
+      "duration": 2.4,
+      "sample_every_frames": 3,
+      "flat_visible": 41.9,
+      "damaged_visible": 42.1,
+      "attack_effects_visible": [
+        41.5,
+        42.3
+      ],
+      "contact_sheet": "49-pillar-middle-contact.jpg"
+    },
+    {
+      "start": 62.9,
+      "duration": 1.6,
+      "sample_every_frames": 3,
+      "flat_visible": 63.6,
+      "damaged_visible": 64.0,
+      "attack_effects_visible": [
+        63.7,
+        64.0
+      ],
+      "contact_sheet": "49-pillar-late-contact.jpg"
+    }
+  ],
+  "limits": "Visible-state brackets, not exact damage timestamps or counted effective hits. Camera motion, depth alignment, occluding actors and attack effects prevent a first-hit/HP conclusion. Native int-data array has no field names; it is preserved without interpretation."
+}

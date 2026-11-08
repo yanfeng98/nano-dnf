@@ -1,0 +1,52 @@
+{
+  "native_frames": [
+    {
+      "name": "chestOutline",
+      "rect": [
+        4003,
+        0,
+        160,
+        142
+      ],
+      "folder": "ImagePacks2",
+      "pack": "sprite_interface2_reward_ver2.0.NPK",
+      "entry": "sprite/interface2/reward_ver2.0/reward_ver2.img",
+      "frame": 54,
+      "offset": [
+        79,
+        18
+      ],
+      "rgba_sha256": "a19321d617dcdc81722006fedbe5cae137003ecb36d64d511f88798b19363cc6"
+    },
+    {
+      "name": "chestGlow",
+      "rect": [
+        4163,
+        0,
+        183,
+        164
+      ],
+      "folder": "ImagePacks2",
+      "pack": "sprite_interface2_reward_ver2.0.NPK",
+      "entry": "sprite/interface2/reward_ver2.0/reward_ver2.img",
+      "frame": 55,
+      "offset": [
+        67,
+        7
+      ],
+      "rgba_sha256": "8a76cc596fd5450747083e86cb229820ef54590fc4854a205f287fa0eedefad2"
+    }
+  ],
+  "preservation": {
+    "old_size": [
+      4003,
+      420
+    ],
+    "new_size": [
+      4346,
+      420
+    ],
+    "old_region_preserved": true,
+    "old_rgba_sha256": "c24233cf06a4cea42e6807c40277dc582cd0d5ced0f71114650f1168520b2a29"
+  }
+}

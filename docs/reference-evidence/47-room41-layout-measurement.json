@@ -1,0 +1,141 @@
+{
+  "matches": [
+    {
+      "kind": "rock",
+      "time": 12,
+      "scale": 0.725,
+      "correlation": 0.9059020280838013,
+      "screen_rect": [
+        461,
+        206,
+        161,
+        102
+      ],
+      "panorama_center": 592.02,
+      "bottom": 308,
+      "mask": "whole native rock"
+    },
+    {
+      "kind": "rock",
+      "time": 17.5,
+      "scale": 0.7,
+      "correlation": 0.9479040503501892,
+      "screen_rect": [
+        87,
+        208,
+        156,
+        98
+      ],
+      "panorama_center": 592.4,
+      "bottom": 306,
+      "mask": "whole native rock"
+    },
+    {
+      "kind": "rock",
+      "time": 22.5,
+      "scale": 0.725,
+      "correlation": 0.9533569812774658,
+      "screen_rect": [
+        192,
+        321,
+        161,
+        102
+      ],
+      "panorama_center": 1055.3200000000002,
+      "bottom": 423,
+      "mask": "whole native rock"
+    },
+    {
+      "kind": "rock",
+      "time": 25.5,
+      "scale": 0.725,
+      "correlation": 0.956868052482605,
+      "screen_rect": [
+        183,
+        321,
+        161,
+        102
+      ],
+      "panorama_center": 1055.42,
+      "bottom": 423,
+      "mask": "whole native rock"
+    },
+    {
+      "kind": "barrel-cap",
+      "time": 10.5,
+      "scale": 0.725,
+      "correlation": 0.9237324595451355,
+      "screen_rect": [
+        481,
+        316,
+        72,
+        89
+      ],
+      "panorama_center": 517.0,
+      "bottom": 405,
+      "mask": "native upper cap"
+    },
+    {
+      "kind": "barrel-cap",
+      "time": 13.5,
+      "scale": 0.7,
+      "correlation": 0.9573338031768799,
+      "screen_rect": [
+        540,
+        403,
+        70,
+        86
+      ],
+      "panorama_center": 785.27,
+      "bottom": 489,
+      "mask": "native upper cap"
+    },
+    {
+      "kind": "barrel-cap",
+      "time": 13.5,
+      "scale": 0.725,
+      "correlation": 0.8924229741096497,
+      "screen_rect": [
+        270,
+        316,
+        72,
+        89
+      ],
+      "panorama_center": 516.27,
+      "bottom": 405,
+      "mask": "native upper cap"
+    },
+    {
+      "kind": "barrel-cap",
+      "time": 17.5,
+      "scale": 0.7,
+      "correlation": 0.9580634832382202,
+      "screen_rect": [
+        322,
+        403,
+        70,
+        86
+      ],
+      "panorama_center": 784.4,
+      "bottom": 489,
+      "mask": "native upper cap"
+    },
+    {
+      "kind": "barrel-cap",
+      "time": 17.5,
+      "scale": 0.725,
+      "correlation": 0.9558680057525635,
+      "screen_rect": [
+        53,
+        316,
+        72,
+        89
+      ],
+      "panorama_center": 516.4,
+      "bottom": 405,
+      "mask": "native upper cap"
+    }
+  ],
+  "width_lower_bound_world": 958.5382641509434,
+  "limits": "Ground-band feature translation independently supported by stable native prop locations. Exact wall/door offsets, foliage, collision and hidden damage rules remain unverified. The 26.5s entry pillar is flat; 28s is already a later damaged state."
+}

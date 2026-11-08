@@ -1,0 +1,110 @@
+[
+  {
+    "reference": "v1",
+    "kind": "operation",
+    "text": "85%",
+    "scale": 1.125,
+    "overlap": 2.0,
+    "correlation": 0.9585070610046387,
+    "xy": [
+      624,
+      349
+    ]
+  },
+  {
+    "reference": "v1",
+    "kind": "technique",
+    "text": "57%",
+    "scale": 1.175,
+    "overlap": 2.0,
+    "correlation": 0.9538005590438843,
+    "xy": [
+      621,
+      367
+    ]
+  },
+  {
+    "reference": "v1",
+    "kind": "hits",
+    "text": "15",
+    "scale": 1.175,
+    "overlap": 1.5,
+    "correlation": 0.9651968479156494,
+    "xy": [
+      631,
+      385
+    ]
+  },
+  {
+    "reference": "v2",
+    "kind": "operation",
+    "text": "85%",
+    "scale": 1.125,
+    "overlap": 2.0,
+    "correlation": 0.9532914161682129,
+    "xy": [
+      624,
+      349
+    ]
+  },
+  {
+    "reference": "v2",
+    "kind": "technique",
+    "text": "57%",
+    "scale": 1.125,
+    "overlap": 1.5,
+    "correlation": 0.9516226053237915,
+    "xy": [
+      621,
+      367
+    ]
+  },
+  {
+    "reference": "v2",
+    "kind": "hits",
+    "text": "23",
+    "scale": 1.175,
+    "overlap": 3.0,
+    "correlation": 0.9515677690505981,
+    "xy": [
+      626,
+      385
+    ]
+  },
+  {
+    "reference": "early",
+    "kind": "operation",
+    "text": "85%",
+    "scale": 1.125,
+    "overlap": 2.0,
+    "correlation": 0.9545317888259888,
+    "xy": [
+      624,
+      349
+    ]
+  },
+  {
+    "reference": "early",
+    "kind": "technique",
+    "text": "57%",
+    "scale": 1.15,
+    "overlap": 1.5,
+    "correlation": 0.9500765204429626,
+    "xy": [
+      621,
+      367
+    ]
+  },
+  {
+    "reference": "early",
+    "kind": "hits",
+    "text": "0",
+    "scale": 1.175,
+    "overlap": 0.0,
+    "correlation": 0.9585884809494019,
+    "xy": [
+      644,
+      385
+    ]
+  }
+]

@@ -15,7 +15,41 @@ const server=http.createServer((req,res)=>{
  const file=path.resolve(root,'.'+url.pathname.replace(/^\/$/,'/index.html'));
  if(!file.startsWith(root+path.sep)||!fs.existsSync(file)||!fs.statSync(file).isFile()){res.writeHead(404).end();return;}
  const mime={'.png':'image/png','.js':'text/javascript','.html':'text/html','.json':'application/json','.ogg':'audio/ogg','.css':'text/css'};
- res.writeHead(200,{'content-type':mime[path.extname(file)]||'application/octet-stream'});fs.createReadStream(file).pipe(res);
+ res.writeHead(200,{'content-type':mime[path.extname(file)]||'application/octet-stream'});
+ if(process.env.RESULT_COMBAT_VALUE_FALLBACK==='1'&&file===path.join(root,'src/render.js')){
+  const source=fs.readFileSync(file,'utf8'),marker='if (index < 3 && sprites && sprites.results) {';
+  assert.equal(source.split(marker).length,2,'the combat-value baseline changes only the native numeric gate');
+  const modified=source.replace(marker,'if (false) {');
+  fs.writeFileSync(path.join(out,'combat-value-fallback.js'),modified);res.end(modified);return;
+ }
+ if(process.env.RESULT_SCORE_FALLBACK==='1'&&file===path.join(root,'src/render.js')){
+  let source=fs.readFileSync(file,'utf8');
+  for(const [before,after] of [
+   ['var maxScore = rating.maxScore || 2 * Core.RATING.componentMax;','var maxScore = 100;'],
+   ['drawStatsNumber(ctx,sheet,String(points),"gold"','drawStatsNumber(ctx,sheet,amount+"%","gold"']
+  ]){
+   assert.equal(source.split(before).length,2,'the score baseline replaces only the denominator and gold value');
+   source=source.replace(before,after);
+  }
+  fs.writeFileSync(path.join(out,'score-fallback.js'),source);res.end(source);return;
+ }
+ if(process.env.RESULT_NUMBER_FALLBACK==='1'&&file===path.join(root,'src/render.js')){
+  const source=fs.readFileSync(file,'utf8');
+  const marker='function drawStatsNumber(ctx, sheet, text, family, x, y, alignment) {\n    if (!sheet) return false;';
+  assert.equal(source.split(marker).length,2,'the numeric baseline must change exactly the native-number gate');
+  const modified=source.replace(marker,marker.replace('if (!sheet) return false;','return false;'));
+  fs.writeFileSync(path.join(out,'number-fallback.js'),modified);
+  res.end(modified);return;
+ }
+ if(process.env.RESULT_COMBAT_LABEL_FALLBACK==='1'&&file===path.join(root,'src/render.js')){
+  const source=fs.readFileSync(file,'utf8');
+  const marker='if (sprites && sprites.results) {\n        var native = RESULT_ART[labels[index]], position = labelPositions[index];';
+  assert.equal(source.split(marker).length,2,'the label baseline must change only the native combat-label gate');
+  const modified=source.replace(marker,marker.replace('if (sprites && sprites.results)','if (false)'));
+  fs.writeFileSync(path.join(out,'combat-label-fallback.js'),modified);
+  res.end(modified);return;
+ }
+ fs.createReadStream(file).pipe(res);
 });
 await new Promise(r=>server.listen(0,'127.0.0.1',r));let browser;
 try {
@@ -28,6 +62,16 @@ try {
   window.DNFRender.render=(ctx,state,meta)=>{window.captureResults.meta=meta;return original(ctx,state,meta);};
  });
  await page.waitForFunction(()=>window.captureResults.meta);
+ const fallbackDisplayAlpha=await page.evaluate(()=>{
+  const {original,meta}=window.captureResults,C=window.DNFCore;
+  const state=C.createState({stage:'mirkwood',seed:39});
+  state.victory=true;state.finishedAt=0;state.time=60;state.intro=null;state.transition=0;
+  const canvas=document.createElement('canvas');canvas.width=960;canvas.height=540;
+  const ctx=canvas.getContext('2d'),draw=ctx.fillText.bind(ctx);let alpha=0;
+  ctx.fillText=(...args)=>{if(args[0]==='战绩')alpha=ctx.globalAlpha;return draw(...args);};
+  original(ctx,state,{...meta,attract:false,region:null,run:null,reward:null,paused:false,showHelp:false});
+  return alpha;
+ });
  const silhouetteReads=await page.evaluate(()=>{
   const {original,meta}=window.captureResults,C=window.DNFCore;
   const state=C.createState({stage:'mirkwooddeep',seed:34});state.intro=null;state.transition=0;
@@ -138,6 +182,14 @@ try {
  assert.ok(byTarget['boss-dead'].left.every(v=>v<30)&&byTarget['cat-dead'].left.every(v=>v<30));
  fs.writeFileSync(path.join(out,'target-colors.json'),JSON.stringify(portraitShots.map(({url,...s})=>s),null,2));
  const reference={
+  combatValueRefs:["operation","technique","hits"].map(kind=>["v1","v2","early"].map(v=>fs.readFileSync(path.join(root,`docs/reference-evidence/45-${v}-${kind}-reference.png`)).toString("base64"))),
+  scorePartsRefs:['full-total','operation-points','technique-points'].map(kind=>[1,2].map(v=>fs.readFileSync(path.join(root,`docs/reference-evidence/44-v${v}-${kind}-reference.png`)).toString('base64'))),
+  combatLabelRefs:['operation','technique','hits','rating'].map(kind=>[1,2].map(v=>fs.readFileSync(path.join(root,`docs/reference-evidence/41-v${v}-${kind}-reference.png`)).toString('base64'))),
+  numberReferences:['total','percent','red'].map(kind=>[1,2].map(v=>fs.readFileSync(path.join(root,`docs/reference-evidence/40-v${v}-${kind}-reference.png`)).toString('base64'))),
+  statsRanks:[1,2].map(v=>fs.readFileSync(path.join(root,`docs/reference-evidence/39-v${v}-rank-reference.png`)).toString('base64')),
+  statsBars:[1,2].map(v=>fs.readFileSync(path.join(root,`docs/reference-evidence/39-v${v}-bar-reference.png`)).toString('base64')),
+  chestFx:[1,2].map(v=>fs.readFileSync(path.join(root,`docs/reference-evidence/38-chest-v${v}-reference.png`)).toString('base64')),
+  list:['v1-boss','v1-goblinRed','v1-caster','v2-lugaruBoss'].map(name=>fs.readFileSync(path.join(root,`docs/reference-evidence/37-list-${name}-reference.png`)).toString('base64')),
   circle:fs.readFileSync(path.join(root,'docs/reference-evidence/25-reward-circle-reference.png')).toString('base64'),
   blue:fs.readFileSync(path.join(root,'docs/reference-evidence/26-blue-card-reference.png')).toString('base64'),
   gold:fs.readFileSync(path.join(root,'docs/reference-evidence/26-gold-card-reference.png')).toString('base64'),
@@ -146,23 +198,44 @@ try {
  };
  const captured=await page.evaluate(async(reference)=>{
   const {original,meta}=window.captureResults;window.DNFRender.render=original;delete window.captureResults;
-  const result=[],contexts={};
-  for(const [label,phase,t,elapsed,countdown=3] of [['chest','chest',.3,12.5],['blue','cards',1.2,15.333333],['spread','cards',.6,14.733333],['preHint','cards',1.95,16],['hintOnly','cards',2.1,16.1],['cards','cards',1.5,16.5],['cards-2','cards',1.5,17.5,2],['cards-1','cards',1.5,18.5,1],['reveal','reveal',1.5,21.5],['reveal-deep','reveal',1.5,21.5],['reveal-third','reveal',1.5,21.5],['fade-start','fade',0,20],['fade-half','fade',.4,20],['fade-last','fade',.79,20],['world','done',.01,20]]){
-   const state=window.DNFCore.createState({seed:24,referenceProfile:true,stage:label==='reveal-deep'?'mirkwooddeep':'mirkwood'});
-   state.victory=true;state.finishedAt=0;state.time=elapsed;state.intro=null;state.transition=0;state.enemies=[];state.postClear=phase==='done';state.stage={...state.stage,rain:false};
+  const result=[],contexts={},chestDraws={},combatGrades={},scoreParts={};
+  for(const [label,phase,t,elapsed,countdown=3] of [['combat-rating','combat',6,6],['combat-rating-deep','combat',6,6],['combat-rating-ss','combat',6,6],['stats','stats',6,6],['stats-early','stats',1.5,1.5],['stats-deep','stats',6,6],['chest','chest',.3,12.5],['chest-fx','chest',3.5,13.5],['chest-fx-deep','chest',1.9,11.9],['chest-list','chest',.5,10.5],['chest-list-deep','chest',.5,10.5],['chest-slide','chest',1,11],['chest-late','chest',3,13],['chest-deep','chest',1.8,11.8],['blue','cards',1.2,15.333333],['spread','cards',.6,14.733333],['preHint','cards',1.95,16],['hintOnly','cards',2.1,16.1],['cards','cards',1.5,16.5],['cards-2','cards',1.5,17.5,2],['cards-1','cards',1.5,18.5,1],['reveal','reveal',1.5,21.5],['reveal-deep','reveal',1.5,21.5],['reveal-third','reveal',1.5,21.5],['fade-start','fade',0,20],['fade-half','fade',.4,20],['fade-last','fade',.79,20],['world','done',.01,20]]){
+   const state=window.DNFCore.createState({seed:24,referenceProfile:true,stage:label.endsWith('-deep')?'mirkwooddeep':'mirkwood'});
+   state.victory=phase!=='combat';state.finishedAt=phase==='combat'?null:0;state.time=elapsed;
+   if(phase==='stats'||phase==='combat'){
+    state.stats.swings=100;state.stats.swingsLanded=85;state.stats.comboChains=50;state.stats.comboHits=171;
+    state.stats.hitsTaken=label.endsWith('-deep')?23:label.endsWith('-ss')?0:15;
+    state.resultRating={...window.DNFCore.ratingOf(state),grade:label.endsWith('-ss')?'SS':'S'};
+    if(phase==='stats')scoreParts[label]=state.resultRating;
+   }state.intro=null;state.transition=0;state.enemies=[];state.postClear=phase==='done';state.stage={...state.stage,rain:false};
    const R=window.DNFReward,flow=R.create({seed:24,stage:state.stage.id});
    const age=label.startsWith('cards') ? R.TIMES.countdownAt+(3-countdown)+.2 : t;
-   const total=phase==='chest' ? R.TIMES.stats+age
-     : phase==='cards' ? R.TIMES.stats+R.TIMES.chest+age
-     : R.TIMES.stats+R.TIMES.chest+R.TIMES.countdownAt+R.TIMES.countdown
+   const total=phase==='combat' ? 0 : phase==='stats' ? age : phase==='chest' ? R.TIMES.stats+age
+     : phase==='cards' ? R.TIMES.stats+R.chestDuration(flow)+age
+     : R.TIMES.stats+R.chestDuration(flow)+R.TIMES.countdownAt+R.TIMES.countdown
        +(phase==='fade'||phase==='done' ? R.TIMES.reveal : 0)
        +(phase==='done' ? R.TIMES.fade : 0)+age;
    if(label==='reveal-third'){
-    R.step(flow,R.TIMES.stats+R.TIMES.chest+R.TIMES.flip);R.pick(flow,2);R.step(flow,age);
+    R.step(flow,R.TIMES.stats+R.chestDuration(flow)+R.TIMES.flip);R.pick(flow,2);R.step(flow,age);
    }else R.step(flow,total);
-   const reward={...R.snapshot(flow),elapsed};
+   const reward=phase==='combat'?null:{...R.snapshot(flow),elapsed};
    const c=document.createElement('canvas');c.width=960;c.height=540;
    contexts[label]=c.getContext('2d');
+   if(phase==='combat'){
+    const draw=contexts[label].fillText.bind(contexts[label]);combatGrades[label]=[];
+    contexts[label].fillText=(...args)=>{
+     if(args[1]>740&&args[1]<800&&args[2]>395&&args[2]<425)combatGrades[label].push(args[0]);
+     return draw(...args);
+    };
+   }
+   if(label==='chest-late'||label==='chest-deep'){
+    chestDraws[label]=0;
+    const draw=contexts[label].drawImage.bind(contexts[label]);
+    contexts[label].drawImage=(...args)=>{
+     if(args.length===9&&args[5]===473&&args[6]===154&&args[7]===180)chestDraws[label]++;
+     return draw(...args);
+    };
+   }
    original(contexts[label],state,{...meta,attract:false,showHelp:false,paused:false,region:null,run:null,reward});
    result.push({label,url:c.toDataURL('image/png')});
   }
@@ -198,6 +271,110 @@ try {
     dot+=ref[i+k]*actual[i+k];a2+=ref[i+k]**2;b2+=actual[i+k]**2;
    }
    return dot/Math.sqrt(a2*b2);
+  }
+  const combatLabels=[];
+  for(const [kindIndex,kind,x,y,w,h] of [[0,'operation',794,345,41,25],[1,'technique',795,362,40,25],[2,'hits',782,380,53,25],[3,'rating',795,397,37,25]]){
+   for(const [index,label] of [[0,'combat-rating'],[1,'combat-rating-deep']]){
+    const ref=await pixels(reference.combatLabelRefs[kindIndex][index]);let best={cosine:0};
+    for(let dy=-1;dy<=1;dy++)for(let dx=-2;dx<=2;dx++){
+     const actual=contexts[label].getImageData(x+dx,y+dy,w,h).data;let dot=0,a2=0,b2=0,count=0;
+     for(let i=0;i<ref.length;i+=4){
+      if(ref[i]<135||ref[i+1]<135||ref[i+2]<135)continue;count++;
+      for(let k=0;k<3;k++){dot+=ref[i+k]*actual[i+k];a2+=ref[i+k]**2;b2+=actual[i+k]**2;}
+     }
+     const cosine=dot/Math.sqrt(a2*b2);if(cosine>best.cosine)best={cosine,dx,dy,pixels:count};
+    }
+    combatLabels.push({kind,video:index+1,...best});
+   }
+  }
+  const combatValueMatches=[];
+  for(const [kindIndex,kind,x,y,w,h] of [[0,'operation',740,345,55,24],[1,'technique',740,362,55,24],[2,'hits',740,380,45,24]]){
+   for(const [index,label] of [[0,'combat-rating'],[1,'combat-rating-deep'],[2,'combat-rating-ss']]){
+    const ref=await pixels(reference.combatValueRefs[kindIndex][index]);let best={cosine:0};
+    for(let dy=-1;dy<=1;dy++)for(let dx=-2;dx<=2;dx++){
+     const actual=contexts[label].getImageData(x+dx,y+dy,w,h).data;
+     let dot=0,a2=0,b2=0,count=0,intersection=0,union=0;
+     for(let i=0;i<ref.length;i+=4){
+      const refInk=ref[i]>155&&ref[i+1]>155&&ref[i+2]>155;
+      const actualInk=actual[i]>155&&actual[i+1]>155&&actual[i+2]>155;
+      if(refInk||actualInk)union++;if(refInk&&actualInk)intersection++;
+      if(!refInk)continue;count++;
+      for(let k=0;k<3;k++){dot+=ref[i+k]*actual[i+k];a2+=ref[i+k]**2;b2+=actual[i+k]**2;}
+     }
+     const cosine=dot/Math.sqrt(a2*b2);
+     if(cosine>best.cosine)best={cosine,dx,dy,pixels:count,inkIoU:intersection/union};
+    }
+    combatValueMatches.push({kind,reference:index,...best});
+   }
+  }
+  const scorePartMatches=[];
+  for(const [kindIndex,kind,x,y,w,h] of [[0,'full-total',440,90,200,45],[1,'operation-points',440,147,55,30],[2,'technique-points',440,185,55,30]]){
+   for(const [index,label] of [[0,'stats'],[1,'stats-deep']]){
+    const ref=await pixels(reference.scorePartsRefs[kindIndex][index]);let best={cosine:0};
+    for(let dy=-1;dy<=1;dy++)for(let dx=-2;dx<=2;dx++){
+     const actual=contexts[label].getImageData(x+dx,y+dy,w,h).data;
+     let dot=0,a2=0,b2=0,count=0;
+     for(let i=0;i<ref.length;i+=4){
+      const ink=kind==='full-total' ? ref[i]>180&&ref[i+1]>180&&ref[i+2]>180 : ref[i]>140&&ref[i+1]>110&&ref[i]>ref[i+2]*1.4;
+      if(!ink)continue;count++;
+      for(let k=0;k<3;k++){dot+=ref[i+k]*actual[i+k];a2+=ref[i+k]**2;b2+=actual[i+k]**2;}
+     }
+     const cosine=dot/Math.sqrt(a2*b2);
+     if(cosine>best.cosine)best={cosine,dx,dy,pixels:count};
+    }
+    scorePartMatches.push({kind,video:index+1,...best});
+   }
+  }
+  const numberMatches=[];
+  for(const [kindIndex,kind,x,y,w,h] of [[0,'total',440,90,78,45],[1,'percent',590,154,52,24],[2,'red',430,230,65,28]]){
+   for(const [index,label] of [[0,'stats'],[1,'stats-deep']]){
+    const ref=await pixels(reference.numberReferences[kindIndex][index]);let best={cosine:0};
+    for(let dy=-1;dy<=1;dy++)for(let dx=-2;dx<=2;dx++){
+     const actual=contexts[label].getImageData(x+dx,y+dy,w,h).data;
+     let dot=0,a2=0,b2=0,count=0;
+     for(let i=0;i<ref.length;i+=4){
+      const ink=kind==='red' ? ref[i]>90&&ref[i]>ref[i+1]*1.4&&ref[i]>ref[i+2]*1.4 : ref[i]>180&&ref[i+1]>180&&ref[i+2]>180;
+      if(!ink)continue;count++;
+      for(let k=0;k<3;k++){dot+=ref[i+k]*actual[i+k];a2+=ref[i+k]**2;b2+=actual[i+k]**2;}
+     }
+     const cosine=dot/Math.sqrt(a2*b2);
+     if(cosine>best.cosine)best={cosine,dx,dy,pixels:count};
+    }
+    numberMatches.push({kind,video:index+1,...best});
+   }
+  }
+  const statsRanks=[],statsBars=[];
+  for(const [index,label] of [[0,'stats'],[1,'stats-deep']]){
+   const rankRef=await pixels(reference.statsRanks[index]),actual=contexts[label].getImageData(249,320,159,160).data;
+   let dot=0,a2=0,b2=0,count=0;
+   for(let i=0;i<rankRef.length;i+=4){
+    if(rankRef[i]<85||rankRef[i+1]<60||rankRef[i]<rankRef[i+2]*1.3)continue;
+    count++;
+    for(let k=0;k<3;k++){dot+=rankRef[i+k]*actual[i+k];a2+=rankRef[i+k]**2;b2+=actual[i+k]**2;}
+   }
+   statsRanks.push({cosine:dot/Math.sqrt(a2*b2),pixels:count});
+   const barRef=await pixels(reference.statsBars[index]),bar=contexts[label].getImageData(525,154,184,25).data;
+   dot=0;a2=0;b2=0;
+   for(let i=0;i<barRef.length;i+=4)for(let k=0;k<3;k++){dot+=barRef[i+k]*bar[i+k];a2+=barRef[i+k]**2;b2+=bar[i+k]**2;}
+   statsBars.push(dot/Math.sqrt(a2*b2));
+  }
+  const chestFx=[];
+  for(const [index,label] of [[0,'chest-fx'],[1,'chest-fx-deep']]){
+   const ref=await pixels(reference.chestFx[index]),actual=contexts[label].getImageData(450,135,200,200).data;
+   let dot=0,a2=0,b2=0;
+   for(let i=0;i<ref.length;i+=4)for(let k=0;k<3;k++){
+    dot+=ref[i+k]*actual[i+k];a2+=ref[i+k]**2;b2+=actual[i+k]**2;
+   }
+   chestFx.push(dot/Math.sqrt(a2*b2));
+  }
+  const listFaces=[];
+  for(const [index,label,y] of [[0,'chest-list',150],[1,'chest-list',200],[2,'chest-list',235],[3,'chest-list-deep',150]]){
+   const ref=await pixels(reference.list[index]),actual=contexts[label].getImageData(238,y,27,27).data;
+   let dot=0,a2=0,b2=0;
+   for(let i=0;i<ref.length;i+=4)for(let k=0;k<3;k++){
+    dot+=ref[i+k]*actual[i+k];a2+=ref[i+k]**2;b2+=actual[i+k]**2;
+   }
+   listFaces.push(dot/Math.sqrt(a2*b2));
   }
   const blue=await cardCosine('blue',reference.blue),gold=await cardCosine('cards',reference.gold);
   const prizeCosines=[];
@@ -243,12 +420,29 @@ try {
   const hudData=contexts.chest.getImageData(135,465,30,55).data;
   let hudChestRed=0;
   for(let i=0;i<hudData.length;i+=4)if(hudData[i]>50&&hudData[i]>2*hudData[i+1]&&hudData[i]>2*hudData[i+2])hudChestRed++;
-  return {images:result,measurement:{thirdCardCyan,firstCardCyanAfterThird,prizeCosines,fadeHalfError,fadeLastError,hudChestRed,circleCorrelation:circle,digits,blueCardCosine:blue,goldCardCosine:gold,
+  return {images:result,measurement:{combatValueMatches,scoreParts,scorePartMatches,combatLabels,combatGrades,numberMatches,statsRanks,statsBars,chestFx,listFaces,chestDraws,thirdCardCyan,firstCardCyanAfterThird,prizeCosines,fadeHalfError,fadeLastError,hudChestRed,circleCorrelation:circle,digits,blueCardCosine:blue,goldCardCosine:gold,
     spreadBounds:[left,right],promptBefore,promptAfter,counterBefore,counterAfter}};
  },reference);
+ captured.measurement.fallbackDisplayAlpha=fallbackDisplayAlpha;
  for(const c of captured.images)fs.writeFileSync(path.join(out,`${c.label}.png`),Buffer.from(c.url.split(',')[1],'base64'));
  fs.writeFileSync(path.join(out,'measurement.json'),JSON.stringify(captured.measurement,null,2)+'\n');
  console.log(`result poses: ${out}`,captured.measurement);
+ assert.deepEqual(captured.measurement.combatGrades,{'combat-rating':['S'],'combat-rating-deep':['S'],'combat-rating-ss':['SS']},'the actual combat panel paints grades rather than numeric scores');
+ for(const match of captured.measurement.combatValueMatches)assert.ok(match.pixels>15&&match.cosine>.95&&match.inkIoU>.4,`native combat ${match.kind} matches the observed numeric field ${match.reference}`);
+ for(const [label,total] of [['stats',85],['stats-deep',77]]){
+  const rating=captured.measurement.scoreParts[label];
+  assert.equal(rating.score,total);assert.equal(rating.maxScore,140);
+  assert.equal(rating.operationPoints,60);assert.equal(rating.techniquePoints,40);
+ }
+ for(const match of captured.measurement.scorePartMatches)assert.ok(match.pixels>100&&match.cosine>.98,`native ${match.kind} includes the observed point value or full /140 denominator for video ${match.video}`);
+ for(const label of captured.measurement.combatLabels)assert.ok(label.pixels>100&&label.cosine>.92,`native combat ${label.kind} label matches reference ${label.video}`);
+ for(const match of captured.measurement.numberMatches)assert.ok(match.pixels>100&&match.cosine>.95,`native ${match.kind} digits match reference ${match.video} within the measured two-pixel alignment range`);
+ assert.ok(captured.measurement.fallbackDisplayAlpha>.9,'a clear without a reward flow retains its stats instead of fading to an empty circle');
+ for(const rank of captured.measurement.statsRanks)assert.ok(rank.pixels>1000&&rank.cosine>.94,'the stats page uses the observed circular gold result badge at its measured position');
+ for(const bar of captured.measurement.statsBars)assert.ok(bar>.9,'the stats bars use the observed native texture and geometry');
+ for(const match of captured.measurement.chestFx)assert.ok(match>.94,'the chest becomes the measured native cyan outline and lock flash before card spread');
+ for(const match of captured.measurement.listFaces)assert.ok(match>.94,'list portraits match the observed native faces at their measured positions');
+ assert.deepEqual(captured.measurement.chestDraws,{'chest-late':1,'chest-deep':1},'native chest stays on screen through each recorded list interval');
  assert.ok(captured.measurement.thirdCardCyan>250&&captured.measurement.firstCardCyanAfterThird<50,'manual third-card selection reveals in column three instead of column one');
  for(const cosine of captured.measurement.prizeCosines)assert.ok(cosine>.94,"the prize card texture and weapon socket match the reference region");
  assert.ok(captured.measurement.fadeHalfError<1&&captured.measurement.fadeLastError<1,'the complete result page fades into the same world without darkening overlapping layers twice');

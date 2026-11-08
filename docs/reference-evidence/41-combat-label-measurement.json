@@ -1,0 +1,146 @@
+[
+  {
+    "video": 1,
+    "time": 332.5,
+    "label": "operation",
+    "native_frame": 11,
+    "search_region": [
+      665,
+      338,
+      720,
+      374
+    ],
+    "scale": 1.175,
+    "correlation": 0.8723097443580627,
+    "xy": [
+      676,
+      347
+    ]
+  },
+  {
+    "video": 1,
+    "time": 332.5,
+    "label": "technique",
+    "native_frame": 10,
+    "search_region": [
+      665,
+      355,
+      720,
+      392
+    ],
+    "scale": 1.125,
+    "correlation": 0.815054714679718,
+    "xy": [
+      678,
+      365
+    ]
+  },
+  {
+    "video": 1,
+    "time": 332.5,
+    "label": "hits",
+    "native_frame": 12,
+    "search_region": [
+      655,
+      372,
+      720,
+      409
+    ],
+    "scale": 1.125,
+    "correlation": 0.8286426663398743,
+    "xy": [
+      664,
+      383
+    ]
+  },
+  {
+    "video": 1,
+    "time": 332.5,
+    "label": "rating",
+    "native_frame": 14,
+    "search_region": [
+      665,
+      389,
+      720,
+      426
+    ],
+    "scale": 1.15,
+    "correlation": 0.7845557928085327,
+    "xy": [
+      677,
+      400
+    ]
+  },
+  {
+    "video": 2,
+    "time": 386.7,
+    "label": "operation",
+    "native_frame": 11,
+    "search_region": [
+      665,
+      338,
+      720,
+      374
+    ],
+    "scale": 1.125,
+    "correlation": 0.8621582388877869,
+    "xy": [
+      677,
+      347
+    ]
+  },
+  {
+    "video": 2,
+    "time": 386.7,
+    "label": "technique",
+    "native_frame": 10,
+    "search_region": [
+      665,
+      355,
+      720,
+      392
+    ],
+    "scale": 1.125,
+    "correlation": 0.8164803981781006,
+    "xy": [
+      678,
+      365
+    ]
+  },
+  {
+    "video": 2,
+    "time": 386.7,
+    "label": "hits",
+    "native_frame": 12,
+    "search_region": [
+      655,
+      372,
+      720,
+      409
+    ],
+    "scale": 1.125,
+    "correlation": 0.8378308415412903,
+    "xy": [
+      664,
+      383
+    ]
+  },
+  {
+    "video": 2,
+    "time": 386.7,
+    "label": "rating",
+    "native_frame": 14,
+    "search_region": [
+      665,
+      389,
+      720,
+      426
+    ],
+    "scale": 1.15,
+    "correlation": 0.8128122687339783,
+    "xy": [
+      677,
+      400
+    ]
+  }
+]

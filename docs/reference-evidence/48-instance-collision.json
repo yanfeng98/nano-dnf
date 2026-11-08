@@ -1,0 +1,63 @@
+{
+  "case": "Core.step with a rock at (300,120), player at (245,120)",
+  "beforeFix": {
+    "scales": [
+      0.5,
+      0.75,
+      1
+    ],
+    "afterX": [
+      217,
+      217,
+      217
+    ],
+    "withoutRock": 245
+  },
+  "afterFix": [
+    {
+      "scale": 0.5,
+      "beforeX": 245,
+      "afterX": 245,
+      "box": {
+        "width": 46,
+        "depth": 15.5,
+        "height": 0,
+        "dx": -10,
+        "ink": [
+          70.5,
+          44.5
+        ]
+      }
+    },
+    {
+      "scale": 0.75,
+      "beforeX": 245,
+      "afterX": 233.5,
+      "box": {
+        "width": 69,
+        "depth": 23.25,
+        "height": 0,
+        "dx": -15,
+        "ink": [
+          105.75,
+          66.75
+        ]
+      }
+    },
+    {
+      "scale": 1,
+      "beforeX": 245,
+      "afterX": 217,
+      "box": {
+        "width": 92,
+        "dx": -20,
+        "ink": [
+          141,
+          89
+        ],
+        "depth": 31
+      }
+    }
+  ],
+  "scope": "instance scale propagation, not reference-video collision constants"
+}

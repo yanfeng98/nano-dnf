@@ -1,0 +1,309 @@
+{
+  "limits": "Local client facts only; no runtime threshold or payout formula is inferred.",
+  "clients": [
+    {
+      "file": "Script_70.pvf",
+      "bytes": 204931297,
+      "header_version": 48984,
+      "entries": {
+        "character/exptable.tbl": {
+          "sha256": "290c55d3a47a001c342183eb44247e0e3c80c75e7e5f35b517889b83e9a4629d",
+          "raw_values": [
+            1000,
+            2653,
+            5543,
+            10575,
+            18509,
+            30205,
+            46627,
+            68840,
+            98012,
+            135412,
+            182411,
+            240483,
+            311203,
+            396249,
+            497399,
+            619844,
+            767003,
+            942667,
+            1150141,
+            1393864,
+            1677655,
+            2016592,
+            2419616,
+            2881880,
+            3410208,
+            4010357,
+            4690036,
+            5457538,
+            6319795,
+            7286075,
+            8364071,
+            9564081,
+            10897068,
+            12372076,
+            14001186,
+            15794305,
+            17764684,
+            19926329,
+            22290671,
+            24872971,
+            27685628,
+            30844672,
+            34385491,
+            38223728,
+            42379527,
+            46869144,
+            51714280,
+            56937632,
+            62557467,
+            68598134,
+            75079161,
+            82244762,
+            90154153,
+            98612376,
+            107650320,
+            117292652,
+            127572249,
+            138523258,
+            150172894,
+            162557394,
+            175705561,
+            190075639,
+            205759433,
+            222370655,
+            239953967,
+            258544759,
+            278190155,
+            298938852,
+            320829378,
+            343912998,
+            368230186,
+            394571074,
+            423070174,
+            453854220,
+            487070095,
+            522855717,
+            561371046,
+            602783706,
+            647250436,
+            694953116,
+            746061309,
+            801975949,
+            863016468,
+            929492724,
+            1001752659,
+            1080132233,
+            1165009430,
+            1256779605,
+            1355822224,
+            1462565224,
+            1577417727,
+            1700841882,
+            1833319630,
+            1975309387,
+            2127330010,
+            2289873348,
+            2463496902,
+            2648780537,
+            2846271542
+          ],
+          "interpretation": "Index/threshold semantics and recording-version agreement remain unverified."
+        },
+        "dungeon/act1/mirkwood.dgn": {
+          "sha256": "03c9a5385abbabecc42b0ad0bea47d4767c26348e88543c3b5b5d35e673bd3f0",
+          "experience_related_fields": {
+            "[minimum required level]": [
+              2
+            ],
+            "[basis level]": [
+              4
+            ],
+            "[experience increasing point]": [
+              1.0
+            ]
+          }
+        },
+        "dungeon/act1/mirkwooddeep.dgn": {
+          "sha256": "c74b990ea95f9ccdfe28b31b041d0026ac4734bda67ee9c41c1b8a40e2c36d0e",
+          "experience_related_fields": {
+            "[minimum required level]": [
+              3
+            ],
+            "[basis level]": [
+              6
+            ],
+            "[experience increasing point]": [
+              1.399999976158142
+            ]
+          }
+        },
+        "monster/goblin/goblin.mob": {
+          "sha256": "ef155eb3f89319fca7dfc75b0e1fa4d98bdb6c723d6d286057d7a1775f3f9854",
+          "experience_related_fields": {}
+        },
+        "monster/tau/taubeast.mob": {
+          "sha256": "ea36631a60e2c2c2fde26796a8b815445d7e2fc1dbdf9b8138ca657b0b18a5ba",
+          "experience_related_fields": {}
+        },
+        "monster/lugaru/kurogaru.mob": {
+          "sha256": "965ca745fc5a82c57575cbb882e9372d56584f2bf1ff56f051df2e08ddddbc00",
+          "experience_related_fields": {}
+        }
+      }
+    },
+    {
+      "file": "Script.pvf",
+      "bytes": 390145149,
+      "header_version": 66282,
+      "entries": {
+        "character/exptable.tbl": {
+          "sha256": "290c55d3a47a001c342183eb44247e0e3c80c75e7e5f35b517889b83e9a4629d",
+          "raw_values": [
+            1000,
+            2653,
+            5543,
+            10575,
+            18509,
+            30205,
+            46627,
+            68840,
+            98012,
+            135412,
+            182411,
+            240483,
+            311203,
+            396249,
+            497399,
+            619844,
+            767003,
+            942667,
+            1150141,
+            1393864,
+            1677655,
+            2016592,
+            2419616,
+            2881880,
+            3410208,
+            4010357,
+            4690036,
+            5457538,
+            6319795,
+            7286075,
+            8364071,
+            9564081,
+            10897068,
+            12372076,
+            14001186,
+            15794305,
+            17764684,
+            19926329,
+            22290671,
+            24872971,
+            27685628,
+            30844672,
+            34385491,
+            38223728,
+            42379527,
+            46869144,
+            51714280,
+            56937632,
+            62557467,
+            68598134,
+            75079161,
+            82244762,
+            90154153,
+            98612376,
+            107650320,
+            117292652,
+            127572249,
+            138523258,
+            150172894,
+            162557394,
+            175705561,
+            190075639,
+            205759433,
+            222370655,
+            239953967,
+            258544759,
+            278190155,
+            298938852,
+            320829378,
+            343912998,
+            368230186,
+            394571074,
+            423070174,
+            453854220,
+            487070095,
+            522855717,
+            561371046,
+            602783706,
+            647250436,
+            694953116,
+            746061309,
+            801975949,
+            863016468,
+            929492724,
+            1001752659,
+            1080132233,
+            1165009430,
+            1256779605,
+            1355822224,
+            1462565224,
+            1577417727,
+            1700841882,
+            1833319630,
+            1975309387,
+            2127330010,
+            2289873348,
+            2463496902,
+            2648780537,
+            2846271542
+          ],
+          "interpretation": "Index/threshold semantics and recording-version agreement remain unverified."
+        },
+        "dungeon/act1/mirkwood.dgn": {
+          "sha256": "721e949a8a038db6d26792531acd8935f136e433a5b2d1985a116dbcb0e8b226",
+          "experience_related_fields": {
+            "[minimum required level]": [
+              1
+            ],
+            "[basis level]": [
+              4
+            ],
+            "[experience increasing point]": [
+              1.0
+            ]
+          }
+        },
+        "dungeon/act1/mirkwooddeep.dgn": {
+          "sha256": "5625d75554913e41b87e5ccb4f7db65a6978f6808cebb6f4ac6377bf49a37688",
+          "experience_related_fields": {
+            "[minimum required level]": [
+              3
+            ],
+            "[basis level]": [
+              6
+            ],
+            "[experience increasing point]": [
+              1.399999976158142
+            ]
+          }
+        },
+        "monster/goblin/goblin.mob": {
+          "sha256": "1e8a78349acd28e3917c1f3eede1de7fdec4e0040b062998e977170c602c148c",
+          "experience_related_fields": {}
+        },
+        "monster/tau/taubeast.mob": {
+          "sha256": "648023e541366598db277f9393451a0a0ba036255e69d8742de8be2f0ed23c84",
+          "experience_related_fields": {}
+        },
+        "monster/lugaru/kurogaru.mob": {
+          "sha256": "bf751266f3b493989b4b14df7df26269710286085bf0bf4c88b5b340fabdd829",
+          "experience_related_fields": {}
+        }
+      }
+    }
+  ]
+}

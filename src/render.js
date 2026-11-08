@@ -1730,9 +1730,11 @@
       trunkMossy: [0, 803, 160, 428],
       treeLeafy: [160, 803, 153, 203],
       hut: [0, 0, 222, 198],
+      goblinBunker: [0, 0, 142, 138],
       pillarPale: [0, 0, 44, 133],
       /* Same art as pillarPale, but art-only: no collision / door clearance. */
       pillarDecor: [0, 0, 44, 133],
+      pillarDamagedDecor: [44, 0, 44, 111],
       gateBlock: [0, 0, 157, 198],
       doorBlock: [157, 0, 73, 132],
       /*
@@ -2665,9 +2667,10 @@
     return 1 - DEPTH_SIZE * Math.max(0, Math.min(1, zShare));
   }
 
-  function drawScenePiece(ctx, sprites, name, x, bottom, zShare, scaleOverride) {
-    var sheet = name === "hut" ? sprites && sprites.hut
-      : name === "pillar" || name === "pillarPale" || name === "pillarDecor"
+  function drawScenePiece(ctx, sprites, name, x, bottom, zShare, scaleOverride, time) {
+    var sheet = name === "goblinBunker" ? sprites && sprites.goblinBunker
+      : name === "hut" ? sprites && sprites.hut
+      : name === "pillar" || name === "pillarPale" || name === "pillarDecor" || name === "pillarDamagedDecor"
         ? sprites && sprites.pillarPale
         : name === "gateBlock" || name === "doorBlock" ||
           name === "gateLight" || name === "gateLight2"
@@ -2675,6 +2678,7 @@
           : sprites && sprites.forest;
     var rect = sceneRect(name);
     if (!sheet || !rect) return false;
+    if (name === "goblinBunker") rect = [Math.floor((time || 0) / 0.15) % 4 * 142, 0, 142, 138];
     /*
      * **画的尺寸乘那一件的倍率**（`Core.propScale`，`docs/adr/0050`）：
      * 烘出来的是客户端的**原始像素**，而录像里每一件按自己的倍率画。底边仍是落点，
@@ -7886,7 +7890,7 @@
      */
     if (!meta.paused) drawQuestTracker(ctx, state, sprites, 568, 477, 178, 20, meta.progress);
     drawTargetPanel(ctx, state, sprites);
-    drawRatingPanel(ctx, state);
+    drawRatingPanel(ctx, state, sprites);
     /* 等级卡：录像里 “Lv.6” 与绿经验条都在底条左侧，不是屏幕底下一条细线。 */
     drawLevelCard(ctx, player, sprites);
     if (player.comboTimer > 0 && player.comboIndex > 0) {
@@ -8190,7 +8194,7 @@
      */
     drawTargetPanel(ctx, state, sprites);
     /* 录像右侧那块常驻评分面板（`docs/adr/0064`）：不是结算页专属。 */
-    drawRatingPanel(ctx, state);
+    drawRatingPanel(ctx, state, sprites);
   }
 
   /** A short line of coaching, centred above the action but below the HUD. */
@@ -8703,7 +8707,7 @@
       ctx.globalAlpha *= reward.flash;
       var burst = RESULT_ART.cardBurst;
       // The native hotspot is offset inside f58; it emerges at the chest.
-      ctx.drawImage(sheet, burst[0], burst[1], burst[2], burst[3], 425, 117.5, 201, 201);
+      ctx.drawImage(sheet, burst[0], burst[1], burst[2], burst[3], 359.2, 71.8, 321.6, 321.6);
       ctx.restore();
     }
   }
@@ -8734,6 +8738,32 @@
     cardGold: [882, 0, 153, 97],
     cardGlow: [1035, 0, 162, 107],
     cardBurst: [1197, 0, 402, 402],
+    chestOutline: [4003, 0, 160, 142],
+    chestGlow: [4163, 0, 183, 164],
+    statsPanel: [4346, 0, 455, 190],
+    rankCircle: [4801, 0, 227, 227],
+    resultRanks: [[5028,0,141,142],[5169,0,141,142],[5310,0,141,142],
+      [5451,0,141,142],[5592,0,141,142],[5733,0,141,142],
+      [5874,0,141,142],[6015,0,141,142],[6156,0,141,142]],
+    statsBarFill: [6297, 0, 159, 18],
+    statsBarFrame: [6456, 0, 163, 22],
+    scoreSlash: [6619, 0, 32, 32],
+    statsPercent: [6651, 0, 15, 13],
+    statsMinus: [6666, 0, 13, 9],
+    combatOperation: [7530,0,31,18],
+    combatTechnique: [7561,0,31,18],
+    combatHits: [7592,0,42,18],
+    combatRating: [7634,0,28,18],
+    numberFonts: {
+      total: [[6679,0,32,29],[6711,0,22,29],[6733,0,34,29],[6767,0,33,29],[6800,0,34,29],
+        [6834,0,36,29],[6870,0,33,29],[6903,0,36,29],[6939,0,33,29],[6972,0,33,29]],
+      gold: [[7005,0,19,17],[7024,0,14,17],[7038,0,19,17],[7057,0,19,17],[7076,0,19,17],
+        [7095,0,20,17],[7115,0,19,17],[7134,0,21,17],[7155,0,19,17],[7174,0,19,17]],
+      red: [[7193,0,19,17],[7212,0,14,17],[7226,0,19,17],[7245,0,19,17],[7264,0,19,17],
+        [7283,0,20,17],[7303,0,19,17],[7322,0,21,17],[7343,0,19,17],[7362,0,19,17]],
+      percent: [[7381,0,15,13],[7396,0,11,13],[7407,0,16,13],[7423,0,15,13],[7438,0,15,13],
+        [7453,0,16,13],[7469,0,15,13],[7484,0,16,13],[7500,0,15,13],[7515,0,15,13]]
+    },
     /* Native f62..71 rect + offset; display positions are independently
      * measured below. A shared horizontal offset misplaces the narrow 1. */
     digitPositions: { 1: [350, 418.5], 2: [330, 416.25], 3: [334.125, 415.125] },
@@ -8801,6 +8831,42 @@
     drawRewardPageContent(ctx, reward, sprites, playerName);
   }
 
+  function drawRewardList(ctx, reward, sprites) {
+    // V1 343.3 / V2 397.3, normalized 720x540: native faces at
+    // (118,150), (118,200), (118,235), all 24px * 1.125.
+    // These are observed reference lists, not a champion/drop formula.
+    var deep = reward.stage === "mirkwooddeep";
+    var t = reward.t || 0;
+    var end = deep ? 2.2 : 115 / 30;
+    var rows = deep ? [["lugaruBoss", "领主- 暗咒猫妖", 150]] : [
+      ["boss", "领主- 牛头巨兽", 150],
+      ["goblinRed", "燃烧之赤哥布林", 200, 19 / 30],
+      ["caster", "燃烧之投掷哥布林", 235, 43 / 30]
+    ];
+    ctx.save();
+    ctx.font = "11.25px 'PingFang SC', 'Segoe UI', sans-serif";
+    ctx.textAlign = "left";
+    rows.forEach(function (row, index) {
+      var flying = row[3] === undefined ? 0 : clamp01((t - row[3]) / 0.3);
+      var alpha = clamp01(t / 0.3) * (1 - flying) * clamp01((end - t) / 0.5);
+      if (alpha <= 0) return;
+      var x = Core.VIEW.left + 118 + flying * 75;
+      var y = row[2];
+      // The third row rises into the vacated second row in ~.5s.
+      if (index === 2) y -= 35 * clamp01((t - 19 / 30) / 0.5);
+      ctx.globalAlpha = alpha;
+      var face = PORTRAITS[row[0]];
+      if (sprites && sprites.portraits) {
+        ctx.drawImage(sprites.portraits, face[0], face[1], face[2], face[3], x, y, 27, 27);
+      }
+      ctx.fillStyle = "#e6e7ed";
+      ctx.shadowColor = "#101729";
+      ctx.shadowBlur = 2;
+      ctx.fillText(row[1], x + 32, y + 18);
+    });
+    ctx.restore();
+  }
+
   function drawRewardPageContent(ctx, reward, sprites, playerName) {
     var sheet = sprites && sprites.ui;
     ctx.save();
@@ -8813,6 +8879,7 @@
      * and list animation still need their separate reference reconstruction. */
     if (reward.phase === "chest") {
       drawUiFrame(ctx, sheet, UI.rewardMagicPanel, 0, 224, 134, 512, 212);
+      drawRewardList(ctx, reward, sprites);
     }
 
     ctx.textAlign = "center";
@@ -8830,8 +8897,39 @@
        * layers, not open-lid frames; do not animate the map chest in its place.
        * V1 345s matches around (353,154), at native scale ~1.1..1.125. */
       var chest = RESULT_ART.chest;
+      // V1 ~345.03..346.63 / V2 ~397.6..399.2: the locked chest
+      // dissolves into f54/f55 before the cards, rather than opening a lid.
+      // Envelope is approximate; the source sequence constrains endpoints.
+      var chestEnd = reward.stage === "mirkwooddeep" ? 2.2 : 115 / 30;
+      var lightAge = Math.max(0, (reward.t || 0) - (chestEnd - 1.6));
+      ctx.save();
+      ctx.globalAlpha *= 1 - clamp01(lightAge);
       ctx.drawImage(sprites.results, chest[0], chest[1], chest[2], chest[3],
                     473, 154, 180, 159.75);
+      ctx.restore();
+      if (lightAge > 0) {
+        var outline = RESULT_ART.chestOutline, halo = RESULT_ART.chestGlow;
+        var cyan = clamp01((lightAge - 0.3) / 0.9);
+        ctx.save();
+        ctx.globalCompositeOperation = "lighter";
+        ctx.globalAlpha *= cyan;
+        ctx.drawImage(sprites.results, halo[0], halo[1], halo[2], halo[3],
+          458.5, 139.625, 205.875, 184.5);
+        ctx.drawImage(sprites.results, outline[0], outline[1], outline[2], outline[3],
+          472, 152, 180, 159.75);
+        ctx.restore();
+        var lightScale = 0.8 * clamp01(lightAge);
+        var flash = RESULT_ART.cardBurst;
+        ctx.save();
+        ctx.globalCompositeOperation = "lighter";
+        ctx.globalAlpha *= clamp01(lightAge / 0.2);
+        // Keep the native off-centre hotspot at the lock as it grows; at
+        // .8 scale this meets the card-spread burst at (359.2,71.8).
+        ctx.drawImage(sprites.results, flash[0], flash[1], flash[2], flash[3],
+          532 - 216 * lightScale, 227 - 194 * lightScale,
+          402 * lightScale, 402 * lightScale);
+        ctx.restore();
+      }
     }
 
     if (reward.phase === "reveal" || reward.phase === "fade" || reward.phase === "done") {
@@ -9016,21 +9114,24 @@
       }
       ctx.save();
       if (state.victory) {
-        drawResultBackdrop(ctx, sprites, meta.reward ? meta.reward.elapsed : state.time - state.finishedAt);
-      } else {
-        ctx.fillStyle = "rgba(6, 8, 16, 0.74)";
-        ctx.fillRect(0, 0, ARENA.width, ARENA.height);
+        var statsReward = meta && meta.reward || {
+          t: state.finishedAt === null ? 6 : Math.min(9, state.time - state.finishedAt),
+          elapsed: state.finishedAt === null ? 6 : state.time - state.finishedAt
+        };
+        drawResultBackdrop(ctx, sprites, statsReward.elapsed);
+        drawRecordedStats(ctx, state, statsReward, sprites);
+        ctx.restore();
+        return;
       }
+      ctx.fillStyle = "rgba(6, 8, 16, 0.74)";
+      ctx.fillRect(0, 0, ARENA.width, ARENA.height);
       ctx.textAlign = "center";
       ctx.font = "bold 46px 'Segoe UI', system-ui, sans-serif";
       ctx.lineWidth = 6;
       ctx.strokeStyle = "rgba(10, 12, 22, 0.9)";
-      /* Cleared means one stage, so the screen says which one (docs/adr/0026). */
-      var title = state.defeat
-        ? "YOU DIED"
-        : ((state.stage && state.stage.name) || "DUNGEON") + " 通关";
+      var title = "YOU DIED";
       ctx.strokeText(title, ARENA.width / 2, ARENA.height / 2 - 10);
-      ctx.fillStyle = state.defeat ? PALETTE.danger : PALETTE.gold;
+      ctx.fillStyle = PALETTE.danger;
       ctx.fillText(title, ARENA.width / 2, ARENA.height / 2 - 10);
       ctx.fillStyle = "rgba(230, 240, 255, 0.85)";
       ctx.font = "18px 'PingFang SC', 'Segoe UI', sans-serif";
@@ -9041,15 +9142,6 @@
        * `返回城镇 / 再次挑战 / 选择其他地下城` 三步里，本作对应的是**回选关那一步**。
        */
       ctx.fillText("按 F3 回到地区地图 · F4 回城镇", ARENA.width / 2, ARENA.height / 2 + 34);
-      if (meta && meta.run && meta.run.resultText && state.victory) {
-        ctx.font = "700 20px 'PingFang SC', 'Segoe UI', sans-serif";
-        ctx.fillStyle = meta.run.improved ? PALETTE.gold : PALETTE.textDim;
-        ctx.fillText(
-          meta.run.resultText,
-          ARENA.width / 2,
-          ARENA.height / 2 + 70
-        );
-      }
       if (meta && meta.run && meta.run.recordText) {
         ctx.font = "600 16px 'PingFang SC', 'Segoe UI', sans-serif";
         ctx.fillStyle = PALETTE.textDim;
@@ -9217,47 +9309,63 @@
    * **右边那一栏战斗评分**（`docs/adr/0041`、`docs/adr/0042`）。四条量出来的：
    *
    * - 包围盒 x 1454..1659、y 702..831（**右缘离游戏画面右缘 20 视频px**），
-   *   四行、行距 33 视频px —— 与日志同一套字号。
+   *   四行；第四十一批按原生标签原点重测为约17.5屏幕px步距。
    * - **进副本就有**，不是打完才出现：t≈57.2 跟房间一起淡入，到 t=330 一字不差。
    * - 数字**右对齐** x≈1575、标签**右对齐** x≈1656。
-   * - 全程 330 秒里只有被击数与评分动过（4 变 5 的那一帧 `SS` 掉成 `S`）；
-   *   操作 85% 与技巧 57% 一个字没动。
+   * - 本轮V1 60s显示SS，V1 332.5s / V2 386.7s显示S；85%与57%相同。
+   *   字段身份可确认，等级触发阈值与操作/技巧公式仍待校准。
    */
   var RATING_PANEL = {
     valueRight: (1575 - 240) / 2 + 120,
     labelRight: (1656 - 240) / 2 + 120,
-    top: 702 / 2 + 4,
-    row: 33 / 2,
+    top: 347,
+    row: 17.5,
     size: 26.5 / 2
   };
 
-  function drawRatingPanel(ctx, state) {
+  function drawRatingPanel(ctx, state, sprites) {
     var rating = Core.ratingOf(state);
     var rows = [
       [rating.operation + "%", "操作"],
       [rating.technique + "%", "技巧"],
       [String(rating.hits), "被击数"],
-      /*
-       * **评分那一行是数字不是字母**：录像四行量下来是 `85% 操作 / 57% 技巧 /
-       * 0 被击数 / 55 评分`（`band-13.png`），本作原来写的是 S/A/B 的档位。
-       * 档位留给结算页，跑图里照录像写 `score`。
-       */
-      [String(rating.score), "评分"]
+      // V1 60s shows SS; both late-run references show S. The old "55"
+      // reading confused the stylised letters with a numeric score.
+      [rating.grade, "评分"]
     ];
     ctx.save();
     ctx.textBaseline = "top";
     ctx.font = HUD_FONT(RATING_PANEL.size);
     ctx.lineWidth = 3;
     ctx.strokeStyle = "rgba(8, 10, 16, 0.9)";
+    var labels = ["combatOperation","combatTechnique","combatHits","combatRating"];
+    var labelPositions = [[677,347],[678,365],[664,383],[677,400]];
     rows.forEach(function (row, index) {
       var y = RATING_PANEL.top + index * RATING_PANEL.row;
       ctx.textAlign = "right";
-      ctx.strokeText(row[0], RATING_PANEL.valueRight, y);
-      ctx.strokeText(row[1], RATING_PANEL.labelRight, y);
-      ctx.fillStyle = index === 3 ? "#ffd98a" : "#cdc8c3";
-      ctx.fillText(row[0], RATING_PANEL.valueRight, y);
-      ctx.fillStyle = "#e8ecef";
-      ctx.fillText(row[1], RATING_PANEL.labelRight, y);
+      var valueX = RATING_PANEL.valueRight - (index===3 ? 7 : 0);
+      if (index < 3 && sprites && sprites.results) {
+        // V1 60/332.5s and V2 386.7s match the native white percent set.
+        // Its combat spacing is 2px overlap, wider than the result bars.
+        ctx.save();ctx.globalAlpha *= 0.8;
+        drawStatsNumber(ctx,sprites.results,row[0],"combat",Core.VIEW.left+(index===2?658.75:669),y+2,"right");
+        ctx.restore();
+      } else {
+        ctx.strokeText(row[0], valueX, y);
+        ctx.fillStyle = "#cdc8c3";
+        ctx.fillText(row[0], valueX, y);
+      }
+      if (sprites && sprites.results) {
+        var native = RESULT_ART[labels[index]], position = labelPositions[index];
+        ctx.save();ctx.globalAlpha *= 0.8;
+        ctx.drawImage(sprites.results,native[0],native[1],native[2],native[3],
+          Core.VIEW.left+position[0],position[1],native[2]*1.125,native[3]*1.125);
+        ctx.restore();
+      } else {
+        ctx.strokeText(row[1], RATING_PANEL.labelRight, y);
+        ctx.fillStyle = "#e8ecef";
+        ctx.fillText(row[1], RATING_PANEL.labelRight, y);
+      }
     });
     ctx.restore();
   }
@@ -9351,6 +9459,133 @@
    * `被击数` → `评分`，每行 0.45 秒；徽记跟"评分"同拍。三秒后由 `Reward`
    * 切到 `奖励` 页（`docs/adr/0055`）。
    */
+  function drawStatsNumber(ctx, sheet, text, family, x, y, alignment) {
+    if (!sheet) return false;
+    var font = RESULT_ART.numberFonts[family === "combat" ? "percent" : family], scale = 1.125;
+    var overlap = family === "combat" ? 2 : family === "total" ? 4.5 : 4;
+    var glyphs = String(text).split("").map(function (character) {
+      if (character === "/") return RESULT_ART.scoreSlash;
+      if (character === "%") return RESULT_ART.statsPercent;
+      if (character === "-") return RESULT_ART.statsMinus;
+      return font[Number(character)];
+    });
+    // The native italic glyphs overlap; two observed totals (85 and 77)
+    // support a common centre. Full /140 fitting refines total overlap to
+    // 4.5 native px; smaller result families retain 4px, while the
+    // combat panel uses the independently measured wider 2px overlap.
+    var width = glyphs.reduce(function (sum, glyph) { return sum + (glyph[2]-overlap)*scale; },0);
+    if (alignment === "right") x -= width;
+    else if (alignment) x -= width/2;
+    glyphs.forEach(function (glyph) {
+      var top = y;
+      if (family === "gold" && glyph === RESULT_ART.statsPercent) top += 2*scale;
+      ctx.drawImage(sheet,glyph[0],glyph[1],glyph[2],glyph[3],x,top,glyph[2]*scale,glyph[3]*scale);
+      x += (glyph[2]-overlap)*scale;
+    });
+    return true;
+  }
+
+  function drawRecordedStats(ctx, state, reward, sprites) {
+    var t = Math.max(0, reward.t || 0), rating = Core.ratingOf(state);
+    var sheet = sprites && sprites.results, panel = RESULT_ART.statsPanel;
+    var left = Core.VIEW.left;
+    ctx.save();
+    ctx.globalAlpha *= clamp01(t / 0.3) * clamp01((10 - t) / 0.7);
+    if (sheet) {
+      // Keep native corners/background; exclude the embedded Korean labels
+      // and old narrow Total box before assembling the observed wider box.
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(left + 104, 68, 511.875, 213.75);
+      ctx.rect(left + 127, 85, 465, 51.75);
+      ctx.rect(left + 117.5, 146.75, 65.25, 106.875);
+      ctx.clip("evenodd");
+      ctx.drawImage(sheet, panel[0], panel[1], panel[2], panel[3], left + 104, 68, 511.875, 213.75);
+      ctx.restore();
+      ctx.drawImage(sheet, panel[0] + 10, 80, 1, 1, left + 117.5, 146.75, 65.25, 106.875);
+      var sx = [76,79,431], sy = [15,18,58], sw = [3,352,3], sh = [3,40,3];
+      var dx = [left+127,left+130.375,left+588.625], dy = [85,88.375,133.375];
+      var dw = [3.375,458.25,3.375], dh = [3.375,45,3.375];
+      for (var row=0;row<3;row++) for (var col=0;col<3;col++) {
+        var center = row===1 && col===1;
+        ctx.drawImage(sheet, panel[0]+(center?200:sx[col]), center?30:sy[row],
+          center?1:sw[col], center?1:sh[row], dx[col],dy[row],dw[col],dh[row]);
+      }
+    }
+    ctx.textAlign = "center";
+    ctx.font = "bold 23px 'PingFang SC', 'Segoe UI', sans-serif";
+    ctx.fillStyle = "#f0d79a";
+    ctx.strokeStyle = "#0b101b"; ctx.lineWidth = 3;
+    ctx.strokeText("战绩",left+340,53); ctx.fillText("战绩",left+340,53);
+    ctx.textAlign = "right";
+    ctx.fillStyle = "#eef1f5";
+    ctx.font = "bold 17px 'PingFang SC', 'Segoe UI', sans-serif";
+    [["总分",120],["操作",173],["技巧",211],["被击数",250]].forEach(function (entry) {
+      ctx.fillText(entry[0],left+205,entry[1]);
+    });
+    ctx.save(); ctx.globalAlpha *= beatAlpha(t,0.5);
+    ctx.textAlign = "left"; ctx.font = "italic bold 30px 'Segoe UI', sans-serif";
+    // Gold rows show component points; only the bar labels are percentages.
+    // Source V1 339s / V2 393s: 60+40-15=85 and 60+40-23=77, /140.
+    var maxScore = rating.maxScore || 2 * Core.RATING.componentMax;
+    if (!drawStatsNumber(ctx,sheet,rating.score+"/"+maxScore,"total",left+417.125,94.75,true)) {
+      ctx.fillText(rating.score + "/"+maxScore,left+330,123);
+    }
+    ctx.restore();
+    [[rating.operation,1.1,154,rating.operationPoints],[rating.technique,1.9,192,rating.techniquePoints]].forEach(function (entry) {
+      var progress = clamp01((t-entry[1])/0.6), amount = Math.round(entry[0]*progress);
+      var points = Math.round((entry[3] === undefined ? entry[0]*Core.RATING.componentMax/100 : entry[3])*progress);
+      if (t < entry[1]) return;
+      ctx.save(); ctx.globalAlpha *= beatAlpha(t,entry[1]);
+      ctx.fillStyle = "#f3d755"; ctx.textAlign = "left";
+      ctx.font = "italic bold 18px 'Segoe UI', sans-serif";
+      if (!drawStatsNumber(ctx,sheet,String(points),"gold",left+325,entry[2]-1,false)) {
+        ctx.fillText(String(points),left+328,entry[2]+17);
+      }
+      if (sheet) {
+        var frame = RESULT_ART.statsBarFrame, fill = RESULT_ART.statsBarFill;
+        ctx.drawImage(sheet,frame[0],frame[1],frame[2],frame[3],left+405,entry[2],183.375,24.75);
+        var share = clamp01(amount/100);
+        if (share>0) ctx.drawImage(sheet,fill[0],fill[1],fill[2]*share,fill[3],
+          left+407.25,entry[2]+2.25,178.875*share,20.25);
+      }
+      ctx.fillStyle = "#fff"; ctx.strokeStyle = "#101010"; ctx.lineWidth = 3;
+      ctx.textAlign = "center"; ctx.font = "italic bold 14px 'Segoe UI', sans-serif";
+      if (!drawStatsNumber(ctx,sheet,amount+"%","percent",left+493,entry[2]+4,true)) {
+        ctx.strokeText(amount+"%",left+493,entry[2]+18); ctx.fillText(amount+"%",left+493,entry[2]+18);
+      }
+      ctx.restore();
+    });
+    if (t>=2.7) {
+      ctx.save(); ctx.globalAlpha *= beatAlpha(t,2.7);
+      ctx.textAlign = "left"; ctx.font = "italic bold 18px 'Segoe UI', sans-serif";
+      ctx.fillStyle = "#ff1810";
+      if (!drawStatsNumber(ctx,sheet,"-"+rating.hits,"red",left+360,234,"right")) {
+        ctx.fillText("-"+rating.hits,left+328,250);
+      }
+      ctx.restore();
+    }
+    if (sheet && t>=3.6) {
+      var zoom = 1+0.5*(1-clamp01((t-3.6)/0.4));
+      var grades = ["SSS","SS","S","A","B","C","D","E","F"];
+      var gradeIndex = grades.indexOf(rating.grade);
+      var rank = RESULT_ART.resultRanks[gradeIndex < 0 ? 8 : gradeIndex];
+      var circle = RESULT_ART.rankCircle;
+      ctx.save(); ctx.globalAlpha *= beatAlpha(t,3.9);
+      ctx.globalCompositeOperation = "lighter";
+      ctx.drawImage(sheet,circle[0],circle[1],circle[2],circle[3],left+81,274,255.375,255.375);
+      ctx.restore();
+      ctx.save();ctx.globalAlpha *= beatAlpha(t,3.6);
+      ctx.drawImage(sheet,rank[0],rank[1],rank[2],rank[3],
+        left+208.3125-79.3125*zoom,399.875-79.875*zoom,158.625*zoom,159.75*zoom);
+      ctx.textAlign = "left";ctx.font = "bold 20px 'PingFang SC', sans-serif";
+      ctx.fillStyle = "#fff";ctx.strokeStyle = "#0b101b";ctx.lineWidth = 3;
+      ctx.strokeText("评分",left+266,394);ctx.fillText("评分",left+266,394);
+      ctx.restore();
+    }
+    ctx.restore();
+  }
+
   var RESULT_BEATS = {
     rows: 0.45,
     badge: 1.8
@@ -9607,7 +9842,7 @@
       add(prop.sortZ === null || prop.sortZ === undefined ? prop.z : prop.sortZ, function () {
         if (!prop.broken) {
           drawScenePiece(ctx, sprites, prop.piece, prop.x, floorY(prop.z),
-                         undefined, prop.scale);
+                         undefined, prop.scale, state.time);
           return;
         }
         if (prop.gone) return;

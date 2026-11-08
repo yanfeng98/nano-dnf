@@ -1,0 +1,45 @@
+{
+  "observations": [
+    {
+      "time": 26.5,
+      "best_state": "flat",
+      "fits": {
+        "flat": {
+          "correlation": 0.9510365724563599,
+          "xy": [
+            359,
+            230
+          ]
+        },
+        "damaged": {
+          "correlation": 0.6221112608909607,
+          "xy": [
+            359,
+            255
+          ]
+        }
+      }
+    },
+    {
+      "time": 28,
+      "best_state": "damaged",
+      "fits": {
+        "flat": {
+          "correlation": 0.27009451389312744,
+          "xy": [
+            361,
+            231
+          ]
+        },
+        "damaged": {
+          "correlation": 0.9215735793113708,
+          "xy": [
+            361,
+            255
+          ]
+        }
+      }
+    }
+  ],
+  "limits": "Initial flat and later damaged appearances only. No HP or hit-count transition rule inferred."
+}

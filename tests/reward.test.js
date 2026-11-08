@@ -180,7 +180,8 @@ test("the prize holds for three seconds then fades for eight tenths before Conti
   assert.equal(reward.phase, "reveal", "V1 355.03 / V2 407.6 still show the full prize");
   Reward.step(reward, .1);
   assert.equal(reward.phase, "fade", "both recordings start fading three seconds after automatic selection");
-  assert.equal(Reward.snapshot(reward).opacity, 1);
+  assert.ok(Math.abs(Reward.snapshot(reward).opacity - 1) < 1e-9,
+    "fractional video-frame durations can leave machine-precision time residue");
   Reward.step(reward, .4);
   assert.equal(reward.phase, "fade");
   assert.ok(Math.abs(Reward.snapshot(reward).opacity - .5) < .001);
@@ -215,4 +216,22 @@ test("a selected prize can be taken exactly once, including after a long frame c
   Reward.pick(manual,2);
   assert.deepEqual(Reward.takePrize(manual),{itemId:"ancientStaff",gold:3526});
   assert.equal(Reward.takePrize(manual),null);
+});
+
+test("each reference stage keeps its chest list until the observed card spread", () => {
+  // V1 reward ~342.8 to spread 346.633; V2 ~397.0 to spread 399.2.
+  // Relative phase bounds, with one video frame of tolerance at the boundary.
+  for (const [stage, chestSeconds] of [["mirkwood", 115 / 30], ["mirkwooddeep", 66 / 30]]) {
+    const reward = Reward.create({ stage, seed: 36 });
+    Reward.step(reward, 10 + chestSeconds - 1 / 30);
+    assert.equal(reward.phase, "chest", stage + " list must remain visible before the recorded spread");
+    Reward.step(reward, 2 / 30);
+    assert.equal(reward.phase, "cards");
+    assert.ok(Math.abs(reward.t - 1 / 30) < 1e-8);
+    const delayed = Reward.create({ stage, seed: 36 });
+    Reward.step(delayed, 10 + chestSeconds + 5.5 + 3 + .8);
+    assert.equal(delayed.phase, "done");
+    assert.ok(Reward.takePrize(delayed));
+    assert.equal(Reward.takePrize(delayed), null);
+  }
 });

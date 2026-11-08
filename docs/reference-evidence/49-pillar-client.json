@@ -1,0 +1,1255 @@
+{
+  "limits": "Local client identity evidence; int-data semantics, recording HP, collision and trigger rules remain unverified.",
+  "clients": [
+    {
+      "file": "Script_70.pvf",
+      "header_version": 48984,
+      "entries": {
+        "map/mirkwooddeep/animation/stonepillar0.ani": {
+          "sha256": "0dc2b137e8c4c19a1e85a5dbed67da766a93f05e6ebdb77cf18ddcca168da632",
+          "animation": {
+            "paths": [
+              "Map/02obj006.img"
+            ],
+            "overall": [
+              [
+                1,
+                0
+              ]
+            ],
+            "frames": [
+              {
+                "frame": 0,
+                "xy": [
+                  -30,
+                  -103
+                ],
+                "props": [
+                  [
+                    12,
+                    50
+                  ]
+                ],
+                "boxes": []
+              }
+            ]
+          }
+        },
+        "map/mirkwooddeep/animation/stonepillar0f.ani": {
+          "sha256": "723c00f0d8f428dca06ed55580be50ac3502cfed00ccb4f0702f84eb060dcf2d",
+          "animation": {
+            "paths": [
+              "Map/02obj006f.img"
+            ],
+            "overall": [
+              [
+                1,
+                0
+              ]
+            ],
+            "frames": [
+              {
+                "frame": 0,
+                "xy": [
+                  -30,
+                  -103
+                ],
+                "props": [
+                  [
+                    12,
+                    50
+                  ]
+                ],
+                "boxes": []
+              }
+            ]
+          }
+        },
+        "map/mirkwooddeep/animation/stonepillar1.ani": {
+          "sha256": "a693808a83c338c8bc5e64c9f4e13d83061ad00012b816f8c697ab9be1eeb081",
+          "animation": {
+            "paths": [
+              "Map/02obj008.img"
+            ],
+            "overall": [
+              [
+                1,
+                0
+              ]
+            ],
+            "frames": [
+              {
+                "frame": 0,
+                "xy": [
+                  -88,
+                  -110
+                ],
+                "props": [
+                  [
+                    12,
+                    50
+                  ]
+                ],
+                "boxes": []
+              }
+            ]
+          }
+        },
+        "map/mirkwooddeep/animation/stonepillar1f.ani": {
+          "sha256": "93741014ec1d644391f3034ffa6dd49e8fae7cc46a3dd74c6cce94d9586c7194",
+          "animation": {
+            "paths": [
+              "Map/02obj008f.img"
+            ],
+            "overall": [
+              [
+                1,
+                0
+              ]
+            ],
+            "frames": [
+              {
+                "frame": 0,
+                "xy": [
+                  -88,
+                  -110
+                ],
+                "props": [
+                  [
+                    12,
+                    50
+                  ]
+                ],
+                "boxes": []
+              }
+            ]
+          }
+        },
+        "passiveobject/mapobject/breakableobject/actionstonepillar.obj": {
+          "sha256": "55ff808e45dff8407de65fc344c344c25945105bb5e32c37c8a48243261e503f",
+          "tokens": [
+            [
+              5,
+              "[width]"
+            ],
+            [
+              2,
+              58
+            ],
+            [
+              2,
+              20
+            ],
+            [
+              5,
+              "[floating height]"
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              5,
+              "[layer]"
+            ],
+            [
+              7,
+              "[normal]"
+            ],
+            [
+              5,
+              "[pass type]"
+            ],
+            [
+              7,
+              "[do not pass]"
+            ],
+            [
+              5,
+              "[basic motion]"
+            ],
+            [
+              7,
+              "Animation/StonePillar/StonePillar0.ani"
+            ],
+            [
+              5,
+              "[etc motion]"
+            ],
+            [
+              7,
+              "Animation/StonePillar/StonePillar1.ani"
+            ],
+            [
+              5,
+              "[/etc motion]"
+            ],
+            [
+              5,
+              "[int data]"
+            ],
+            [
+              2,
+              1
+            ],
+            [
+              2,
+              2
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              2,
+              5
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              2,
+              75
+            ],
+            [
+              2,
+              1
+            ],
+            [
+              5,
+              "[/int data]"
+            ],
+            [
+              5,
+              "[string data]"
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              7,
+              "Particle/StonePillarDamage.ptl"
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              7,
+              "TRAP_STONE_BREAK"
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              5,
+              "[/string data]"
+            ],
+            [
+              5,
+              "[name]"
+            ],
+            [
+              9,
+              9
+            ],
+            [
+              10,
+              "name_4690"
+            ]
+          ]
+        },
+        "passiveobject/mapobject/breakableobject/animation/stonepillar/stonepillar0.ani": {
+          "sha256": "1a74db6726726a4c88f03740d71df7211225d760a2fac7286f320b5429bf4816",
+          "animation": {
+            "paths": [
+              "Map/BreakableObject/StonePillar/StonePillar.img"
+            ],
+            "overall": [
+              [
+                0,
+                1
+              ]
+            ],
+            "frames": [
+              {
+                "frame": 0,
+                "xy": [
+                  -23,
+                  -127
+                ],
+                "props": [
+                  [
+                    12,
+                    600000000
+                  ]
+                ],
+                "boxes": [
+                  [
+                    14,
+                    [
+                      -20,
+                      -14,
+                      -4,
+                      42,
+                      26,
+                      120
+                    ]
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        "passiveobject/mapobject/breakableobject/animation/stonepillar/stonepillar1.ani": {
+          "sha256": "8c9c88f1dff87622de9c9e5beb12c48fe15cb06e0b79cd6e3d9ccfdd91ecced7",
+          "animation": {
+            "paths": [
+              "Map/BreakableObject/StonePillar/StonePillarDamaged.img"
+            ],
+            "overall": [
+              [
+                0,
+                1
+              ]
+            ],
+            "frames": [
+              {
+                "frame": 0,
+                "xy": [
+                  -22,
+                  -127
+                ],
+                "props": [
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -24,
+                  -127
+                ],
+                "props": [
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -22,
+                  -127
+                ],
+                "props": [
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -24,
+                  -127
+                ],
+                "props": [
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -22,
+                  -127
+                ],
+                "props": [
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -24,
+                  -127
+                ],
+                "props": [
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -22,
+                  -127
+                ],
+                "props": [
+                  [
+                    12,
+                    600000000
+                  ]
+                ],
+                "boxes": []
+              }
+            ]
+          }
+        },
+        "passiveobject/mapobject/breakableobject/animation/stonepillar/stonepillarparticle1.ani": {
+          "sha256": "091cdf4e154895de96e50c9f8cd79c232bb74dbd6709b46af68c4322c5942df3",
+          "animation": {
+            "paths": [
+              "Map/BreakableObject/StonePillar/StonePillarParticle1.img"
+            ],
+            "overall": [
+              [
+                0,
+                1
+              ]
+            ],
+            "frames": [
+              {
+                "frame": 0,
+                "xy": [
+                  -18,
+                  -21
+                ],
+                "props": [
+                  [
+                    10,
+                    1
+                  ],
+                  [
+                    12,
+                    2000
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -18,
+                  -21
+                ],
+                "props": [
+                  [
+                    8,
+                    6.248279094696045
+                  ]
+                ],
+                "boxes": []
+              }
+            ]
+          }
+        },
+        "passiveobject/mapobject/breakableobject/animation/stonepillar/stonepillarparticle2.ani": {
+          "sha256": "03869c102ee60cb6f9f94c8f4cd38c89e5c5535505bd4d676911ad602a0f134e",
+          "animation": {
+            "paths": [
+              "Map/BreakableObject/StonePillar/StonePillarParticle2.img"
+            ],
+            "overall": [
+              [
+                0,
+                1
+              ]
+            ],
+            "frames": [
+              {
+                "frame": 0,
+                "xy": [
+                  -11,
+                  -13
+                ],
+                "props": [
+                  [
+                    10,
+                    1
+                  ],
+                  [
+                    12,
+                    2000
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -11,
+                  -13
+                ],
+                "props": [
+                  [
+                    8,
+                    6.248279094696045
+                  ]
+                ],
+                "boxes": []
+              }
+            ]
+          }
+        },
+        "passiveobject/mapobject/breakableobject/animation/stonepillar/stonepillarparticle3.ani": {
+          "sha256": "54473b2ec6c20df91a0796f160497d0397b9f9e4ea9de75165590ddb70a560ec",
+          "animation": {
+            "paths": [
+              "Map/BreakableObject/StonePillar/StonePillarParticle3.img"
+            ],
+            "overall": [
+              [
+                0,
+                1
+              ]
+            ],
+            "frames": [
+              {
+                "frame": 0,
+                "xy": [
+                  -17,
+                  -16
+                ],
+                "props": [
+                  [
+                    10,
+                    1
+                  ],
+                  [
+                    12,
+                    2000
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -17,
+                  -16
+                ],
+                "props": [
+                  [
+                    8,
+                    6.248279094696045
+                  ]
+                ],
+                "boxes": []
+              }
+            ]
+          }
+        },
+        "passiveobject/mapobject/breakableobject/animation/stonepillar/stonepillarparticle4.ani": {
+          "sha256": "2b67839bcfb5608781c1c5020c071af28b18c37c661705496dcfa4586b9b28aa",
+          "animation": {
+            "paths": [
+              "Map/BreakableObject/StonePillar/StonePillarParticle4.img"
+            ],
+            "overall": [
+              [
+                0,
+                1
+              ]
+            ],
+            "frames": [
+              {
+                "frame": 0,
+                "xy": [
+                  -3,
+                  -3
+                ],
+                "props": [
+                  [
+                    10,
+                    1
+                  ],
+                  [
+                    12,
+                    2000
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -3,
+                  -3
+                ],
+                "props": [
+                  [
+                    8,
+                    6.248279094696045
+                  ]
+                ],
+                "boxes": []
+              }
+            ]
+          }
+        }
+      },
+      "list_matches": [
+        [
+          [
+            2,
+            231
+          ],
+          [
+            7,
+            "MapObject/BreakableObject/ActionStonePillar.obj"
+          ]
+        ]
+      ]
+    },
+    {
+      "file": "Script.pvf",
+      "header_version": 66282,
+      "entries": {
+        "map/mirkwooddeep/animation/stonepillar0.ani": {
+          "sha256": "0dc2b137e8c4c19a1e85a5dbed67da766a93f05e6ebdb77cf18ddcca168da632",
+          "animation": {
+            "paths": [
+              "Map/02obj006.img"
+            ],
+            "overall": [
+              [
+                1,
+                0
+              ]
+            ],
+            "frames": [
+              {
+                "frame": 0,
+                "xy": [
+                  -30,
+                  -103
+                ],
+                "props": [
+                  [
+                    12,
+                    50
+                  ]
+                ],
+                "boxes": []
+              }
+            ]
+          }
+        },
+        "map/mirkwooddeep/animation/stonepillar0f.ani": {
+          "sha256": "723c00f0d8f428dca06ed55580be50ac3502cfed00ccb4f0702f84eb060dcf2d",
+          "animation": {
+            "paths": [
+              "Map/02obj006f.img"
+            ],
+            "overall": [
+              [
+                1,
+                0
+              ]
+            ],
+            "frames": [
+              {
+                "frame": 0,
+                "xy": [
+                  -30,
+                  -103
+                ],
+                "props": [
+                  [
+                    12,
+                    50
+                  ]
+                ],
+                "boxes": []
+              }
+            ]
+          }
+        },
+        "map/mirkwooddeep/animation/stonepillar1.ani": {
+          "sha256": "a693808a83c338c8bc5e64c9f4e13d83061ad00012b816f8c697ab9be1eeb081",
+          "animation": {
+            "paths": [
+              "Map/02obj008.img"
+            ],
+            "overall": [
+              [
+                1,
+                0
+              ]
+            ],
+            "frames": [
+              {
+                "frame": 0,
+                "xy": [
+                  -88,
+                  -110
+                ],
+                "props": [
+                  [
+                    12,
+                    50
+                  ]
+                ],
+                "boxes": []
+              }
+            ]
+          }
+        },
+        "map/mirkwooddeep/animation/stonepillar1f.ani": {
+          "sha256": "93741014ec1d644391f3034ffa6dd49e8fae7cc46a3dd74c6cce94d9586c7194",
+          "animation": {
+            "paths": [
+              "Map/02obj008f.img"
+            ],
+            "overall": [
+              [
+                1,
+                0
+              ]
+            ],
+            "frames": [
+              {
+                "frame": 0,
+                "xy": [
+                  -88,
+                  -110
+                ],
+                "props": [
+                  [
+                    12,
+                    50
+                  ]
+                ],
+                "boxes": []
+              }
+            ]
+          }
+        },
+        "passiveobject/mapobject/breakableobject/actionstonepillar.obj": {
+          "sha256": "f0deb1138c3da80ab281d73aafc0b51b6fd3ab2063ba3010a7cd0de0a41121fb",
+          "tokens": [
+            [
+              5,
+              "[width]"
+            ],
+            [
+              2,
+              58
+            ],
+            [
+              2,
+              20
+            ],
+            [
+              5,
+              "[floating height]"
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              5,
+              "[layer]"
+            ],
+            [
+              7,
+              "[normal]"
+            ],
+            [
+              5,
+              "[pass type]"
+            ],
+            [
+              7,
+              "[do not pass]"
+            ],
+            [
+              5,
+              "[basic motion]"
+            ],
+            [
+              7,
+              "Animation/StonePillar/StonePillar0.ani"
+            ],
+            [
+              5,
+              "[etc motion]"
+            ],
+            [
+              7,
+              "Animation/StonePillar/StonePillar1.ani"
+            ],
+            [
+              5,
+              "[/etc motion]"
+            ],
+            [
+              5,
+              "[int data]"
+            ],
+            [
+              2,
+              1
+            ],
+            [
+              2,
+              2
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              2,
+              5
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              2,
+              75
+            ],
+            [
+              2,
+              1
+            ],
+            [
+              5,
+              "[/int data]"
+            ],
+            [
+              5,
+              "[string data]"
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              7,
+              "Particle/StonePillarDamage.ptl"
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              7,
+              "TRAP_STONE_BREAK"
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              5,
+              "[/string data]"
+            ],
+            [
+              5,
+              "[name]"
+            ],
+            [
+              7,
+              "可以破壞的石柱"
+            ]
+          ]
+        },
+        "passiveobject/mapobject/breakableobject/animation/stonepillar/stonepillar0.ani": {
+          "sha256": "1a74db6726726a4c88f03740d71df7211225d760a2fac7286f320b5429bf4816",
+          "animation": {
+            "paths": [
+              "Map/BreakableObject/StonePillar/StonePillar.img"
+            ],
+            "overall": [
+              [
+                0,
+                1
+              ]
+            ],
+            "frames": [
+              {
+                "frame": 0,
+                "xy": [
+                  -23,
+                  -127
+                ],
+                "props": [
+                  [
+                    12,
+                    600000000
+                  ]
+                ],
+                "boxes": [
+                  [
+                    14,
+                    [
+                      -20,
+                      -14,
+                      -4,
+                      42,
+                      26,
+                      120
+                    ]
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        "passiveobject/mapobject/breakableobject/animation/stonepillar/stonepillar1.ani": {
+          "sha256": "8c9c88f1dff87622de9c9e5beb12c48fe15cb06e0b79cd6e3d9ccfdd91ecced7",
+          "animation": {
+            "paths": [
+              "Map/BreakableObject/StonePillar/StonePillarDamaged.img"
+            ],
+            "overall": [
+              [
+                0,
+                1
+              ]
+            ],
+            "frames": [
+              {
+                "frame": 0,
+                "xy": [
+                  -22,
+                  -127
+                ],
+                "props": [
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -24,
+                  -127
+                ],
+                "props": [
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -22,
+                  -127
+                ],
+                "props": [
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -24,
+                  -127
+                ],
+                "props": [
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -22,
+                  -127
+                ],
+                "props": [
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -24,
+                  -127
+                ],
+                "props": [
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -22,
+                  -127
+                ],
+                "props": [
+                  [
+                    12,
+                    600000000
+                  ]
+                ],
+                "boxes": []
+              }
+            ]
+          }
+        },
+        "passiveobject/mapobject/breakableobject/animation/stonepillar/stonepillarparticle1.ani": {
+          "sha256": "091cdf4e154895de96e50c9f8cd79c232bb74dbd6709b46af68c4322c5942df3",
+          "animation": {
+            "paths": [
+              "Map/BreakableObject/StonePillar/StonePillarParticle1.img"
+            ],
+            "overall": [
+              [
+                0,
+                1
+              ]
+            ],
+            "frames": [
+              {
+                "frame": 0,
+                "xy": [
+                  -18,
+                  -21
+                ],
+                "props": [
+                  [
+                    10,
+                    1
+                  ],
+                  [
+                    12,
+                    2000
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -18,
+                  -21
+                ],
+                "props": [
+                  [
+                    8,
+                    6.248279094696045
+                  ]
+                ],
+                "boxes": []
+              }
+            ]
+          }
+        },
+        "passiveobject/mapobject/breakableobject/animation/stonepillar/stonepillarparticle2.ani": {
+          "sha256": "03869c102ee60cb6f9f94c8f4cd38c89e5c5535505bd4d676911ad602a0f134e",
+          "animation": {
+            "paths": [
+              "Map/BreakableObject/StonePillar/StonePillarParticle2.img"
+            ],
+            "overall": [
+              [
+                0,
+                1
+              ]
+            ],
+            "frames": [
+              {
+                "frame": 0,
+                "xy": [
+                  -11,
+                  -13
+                ],
+                "props": [
+                  [
+                    10,
+                    1
+                  ],
+                  [
+                    12,
+                    2000
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -11,
+                  -13
+                ],
+                "props": [
+                  [
+                    8,
+                    6.248279094696045
+                  ]
+                ],
+                "boxes": []
+              }
+            ]
+          }
+        },
+        "passiveobject/mapobject/breakableobject/animation/stonepillar/stonepillarparticle3.ani": {
+          "sha256": "54473b2ec6c20df91a0796f160497d0397b9f9e4ea9de75165590ddb70a560ec",
+          "animation": {
+            "paths": [
+              "Map/BreakableObject/StonePillar/StonePillarParticle3.img"
+            ],
+            "overall": [
+              [
+                0,
+                1
+              ]
+            ],
+            "frames": [
+              {
+                "frame": 0,
+                "xy": [
+                  -17,
+                  -16
+                ],
+                "props": [
+                  [
+                    10,
+                    1
+                  ],
+                  [
+                    12,
+                    2000
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -17,
+                  -16
+                ],
+                "props": [
+                  [
+                    8,
+                    6.248279094696045
+                  ]
+                ],
+                "boxes": []
+              }
+            ]
+          }
+        },
+        "passiveobject/mapobject/breakableobject/animation/stonepillar/stonepillarparticle4.ani": {
+          "sha256": "2b67839bcfb5608781c1c5020c071af28b18c37c661705496dcfa4586b9b28aa",
+          "animation": {
+            "paths": [
+              "Map/BreakableObject/StonePillar/StonePillarParticle4.img"
+            ],
+            "overall": [
+              [
+                0,
+                1
+              ]
+            ],
+            "frames": [
+              {
+                "frame": 0,
+                "xy": [
+                  -3,
+                  -3
+                ],
+                "props": [
+                  [
+                    10,
+                    1
+                  ],
+                  [
+                    12,
+                    2000
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -3,
+                  -3
+                ],
+                "props": [
+                  [
+                    8,
+                    6.248279094696045
+                  ]
+                ],
+                "boxes": []
+              }
+            ]
+          }
+        }
+      },
+      "list_matches": [
+        [
+          [
+            2,
+            231
+          ],
+          [
+            7,
+            "MapObject/BreakableObject/ActionStonePillar.obj"
+          ]
+        ]
+      ]
+    }
+  ]
+}

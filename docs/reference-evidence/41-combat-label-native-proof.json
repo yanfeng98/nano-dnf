@@ -1,0 +1,86 @@
+{
+  "native_frames": [
+    {
+      "name": "combatOperation",
+      "rect": [
+        7530,
+        0,
+        31,
+        18
+      ],
+      "folder": "ImagePacks2",
+      "pack": "sprite_interface_newresult.NPK",
+      "entry": "sprite/interface/newresult/result2_mainhud.img",
+      "frame": 11,
+      "offset": [
+        7,
+        0
+      ],
+      "rgba_sha256": "912955c18a59d50bed8bcc91afe8e3094c6f923c232824d4c038075f972b9936"
+    },
+    {
+      "name": "combatTechnique",
+      "rect": [
+        7561,
+        0,
+        31,
+        18
+      ],
+      "folder": "ImagePacks2",
+      "pack": "sprite_interface_newresult.NPK",
+      "entry": "sprite/interface/newresult/result2_mainhud.img",
+      "frame": 10,
+      "offset": [
+        6,
+        0
+      ],
+      "rgba_sha256": "7d76427b7f9a5f0cb7242259a1873b64b8526da1d77ca6f95a160f617ac57432"
+    },
+    {
+      "name": "combatHits",
+      "rect": [
+        7592,
+        0,
+        42,
+        18
+      ],
+      "folder": "ImagePacks2",
+      "pack": "sprite_interface_newresult.NPK",
+      "entry": "sprite/interface/newresult/result2_mainhud.img",
+      "frame": 12,
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "2891f3a7053d3cdde3f367234d54099e01df0a023238e97ceeb3e4d26f6392e6"
+    },
+    {
+      "name": "combatRating",
+      "rect": [
+        7634,
+        0,
+        28,
+        18
+      ],
+      "folder": "ImagePacks2",
+      "pack": "sprite_interface_newresult.NPK",
+      "entry": "sprite/interface/newresult/result2_mainhud.img",
+      "frame": 14,
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "e05c0313981aeb4fee9a59eb8b8935803ab35e80515f195431ad4f8a56964555"
+    }
+  ],
+  "old_size": [
+    7530,
+    420
+  ],
+  "new_size": [
+    7662,
+    420
+  ],
+  "old_region_preserved": true,
+  "old_rgba_sha256": "2356181f9aed1384c9f71ec55a32ad5af98d6ba1be12b4e556a9584728ec57a6"
+}

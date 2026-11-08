@@ -1,0 +1,47 @@
+{
+  "pillar_faces": [
+    {
+      "label": "entry-damaged",
+      "time": 28,
+      "cosine": 0.8784237194000902,
+      "dx": 2,
+      "dy": 2,
+      "pixels": 1664
+    },
+    {
+      "label": "entry-front",
+      "time": 28,
+      "cosine": 0.9589525295177971,
+      "dx": -2,
+      "dy": -2,
+      "pixels": 3562
+    },
+    {
+      "label": "entry-back",
+      "time": 28,
+      "cosine": 0.9140331907491633,
+      "dx": 0,
+      "dy": 2,
+      "pixels": 3562
+    },
+    {
+      "label": "right-front",
+      "time": 72.5,
+      "cosine": 0.8122703990976609,
+      "dx": 2,
+      "dy": -2,
+      "pixels": 3562
+    },
+    {
+      "label": "right-back",
+      "time": 72.5,
+      "cosine": 0.8325199724890329,
+      "dx": -1,
+      "dy": -2,
+      "pixels": 3562
+    }
+  ],
+  "width": 520,
+  "chests": 0,
+  "limits": "Five sampled faces only; background, flowers, trees, doors, collision and pillar damage triggers remain outside this comparison."
+}

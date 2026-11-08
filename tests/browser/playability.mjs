@@ -135,7 +135,7 @@ function decide(state, constants) {
     const target = player.x + stepX;
     for (const prop of state.props || []) {
       if (!prop.solid || prop.broken) continue;
-      const spec = Core.propBox(prop.piece);
+      const spec = Core.propBox(prop.piece, prop.scale);
       if (!spec) continue;
       const centre = prop.x + (spec.dx || 0);
       if (Math.abs(target - centre) > spec.width / 2 + player.width / 2) continue;
@@ -1563,10 +1563,10 @@ async function runPass(browser, baseUrl, options) {
   }
 
   /*
-   * A clear has to show this run's own numbers. Read the table the renderer
-   * draws and compare it with the run that was just played - the banked record
-   * for the clock, the live state for everything that cannot change after the
-   * last hit.
+   * The record API retains this run's numbers while the visible stats page
+   * follows the reference layout. Compare the API with the played run: the
+   * banked clock and the frozen combat statistics. Actual stats visuals are
+   * checked separately by capture-reference-results.mjs.
    */
   const victorySummary = await page.evaluate(() => {
     const state = window.nanoDnf.getState();
@@ -1616,6 +1616,12 @@ async function runPass(browser, baseUrl, options) {
   let rewardCards = null;
   let rewardReveal = null;
   if (rewardStart) {
+    // Observe the chest separately: V1's recorded stats + list + gold fade
+    // exceeds 15s in total. Each phase keeps its existing 15s watchdog.
+    await page.waitForFunction(() => {
+      const state = window.nanoDnf.getReward();
+      return state && state.phase === "chest";
+    }, null, { timeout: 15000 });
     await page.waitForFunction(() => {
       const state = window.nanoDnf.getReward();
       return state && state.phase === "cards" && state.faceUp;
@@ -2067,17 +2073,17 @@ function problemsFor(pass) {
   const upSlash = pass.upSlashKey;
   const summary = pass.victorySummary;
   if (!summary || !summary.victory) {
-    problems.push(`${pass.mode}: the clear screen was never reached to read its summary`);
+    problems.push(`${pass.mode}: the clear was never reached to read its record API`);
   } else {
     const rowIds = ["seed", "time", "level", "kills", "damage"];
     rowIds.forEach((id) => {
       if (summary.shown[id] === undefined) {
-        problems.push(`${pass.mode}: the clear screen has no ${id} row`);
+        problems.push(`${pass.mode}: the record API has no ${id} row`);
       }
     });
     if (summary.mismatches.length) {
       problems.push(
-        `${pass.mode}: the clear screen disagrees with the run it just played (${summary.mismatches
+        `${pass.mode}: the record API disagrees with the run it just played (${summary.mismatches
           .map((entry) => `${entry.id}: shown ${entry.shown} vs played ${entry.expected}`)
           .join("; ")})`
       );

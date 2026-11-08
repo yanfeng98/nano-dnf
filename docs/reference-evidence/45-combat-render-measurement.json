@@ -1,0 +1,360 @@
+{
+  "combatValueMatches": [
+    {
+      "kind": "operation",
+      "reference": 0,
+      "cosine": 0.992940737454334,
+      "dx": 0,
+      "dy": 0,
+      "pixels": 125,
+      "inkIoU": 0.6343283582089553
+    },
+    {
+      "kind": "operation",
+      "reference": 1,
+      "cosine": 0.9900129763379079,
+      "dx": 0,
+      "dy": 0,
+      "pixels": 126,
+      "inkIoU": 0.5869565217391305
+    },
+    {
+      "kind": "operation",
+      "reference": 2,
+      "cosine": 0.99253423527394,
+      "dx": 0,
+      "dy": 0,
+      "pixels": 114,
+      "inkIoU": 0.6124031007751938
+    },
+    {
+      "kind": "technique",
+      "reference": 0,
+      "cosine": 0.9807523126536771,
+      "dx": 1,
+      "dy": 0,
+      "pixels": 106,
+      "inkIoU": 0.5327868852459017
+    },
+    {
+      "kind": "technique",
+      "reference": 1,
+      "cosine": 0.974820101152398,
+      "dx": 1,
+      "dy": 0,
+      "pixels": 108,
+      "inkIoU": 0.5203252032520326
+    },
+    {
+      "kind": "technique",
+      "reference": 2,
+      "cosine": 0.9751171197888574,
+      "dx": 1,
+      "dy": 0,
+      "pixels": 114,
+      "inkIoU": 0.5116279069767442
+    },
+    {
+      "kind": "hits",
+      "reference": 0,
+      "cosine": 0.9878377852937043,
+      "dx": 1,
+      "dy": -1,
+      "pixels": 62,
+      "inkIoU": 0.4691358024691358
+    },
+    {
+      "kind": "hits",
+      "reference": 1,
+      "cosine": 0.9928938048342719,
+      "dx": 2,
+      "dy": -1,
+      "pixels": 88,
+      "inkIoU": 0.5841584158415841
+    },
+    {
+      "kind": "hits",
+      "reference": 2,
+      "cosine": 0.994762421939777,
+      "dx": 0,
+      "dy": -1,
+      "pixels": 40,
+      "inkIoU": 0.42424242424242425
+    }
+  ],
+  "scoreParts": {
+    "stats": {
+      "operation": 85,
+      "technique": 57,
+      "operationPoints": 60,
+      "techniquePoints": 40,
+      "maxScore": 140,
+      "hits": 15,
+      "score": 85,
+      "grade": "S"
+    },
+    "stats-early": {
+      "operation": 85,
+      "technique": 57,
+      "operationPoints": 60,
+      "techniquePoints": 40,
+      "maxScore": 140,
+      "hits": 15,
+      "score": 85,
+      "grade": "S"
+    },
+    "stats-deep": {
+      "operation": 85,
+      "technique": 57,
+      "operationPoints": 60,
+      "techniquePoints": 40,
+      "maxScore": 140,
+      "hits": 23,
+      "score": 77,
+      "grade": "S"
+    }
+  },
+  "scorePartMatches": [
+    {
+      "kind": "full-total",
+      "video": 1,
+      "cosine": 0.9853332220711374,
+      "dx": 0,
+      "dy": 0,
+      "pixels": 1833
+    },
+    {
+      "kind": "full-total",
+      "video": 2,
+      "cosine": 0.9842239533604902,
+      "dx": 1,
+      "dy": 0,
+      "pixels": 1554
+    },
+    {
+      "kind": "operation-points",
+      "video": 1,
+      "cosine": 0.9971033319341533,
+      "dx": 0,
+      "dy": 0,
+      "pixels": 169
+    },
+    {
+      "kind": "operation-points",
+      "video": 2,
+      "cosine": 0.99696022665661,
+      "dx": 0,
+      "dy": 0,
+      "pixels": 170
+    },
+    {
+      "kind": "technique-points",
+      "video": 1,
+      "cosine": 0.9917806835602343,
+      "dx": 0,
+      "dy": 0,
+      "pixels": 172
+    },
+    {
+      "kind": "technique-points",
+      "video": 2,
+      "cosine": 0.9919947933109826,
+      "dx": 0,
+      "dy": 0,
+      "pixels": 169
+    }
+  ],
+  "combatLabels": [
+    {
+      "kind": "operation",
+      "video": 1,
+      "cosine": 0.9711619856520737,
+      "dx": 0,
+      "dy": 0,
+      "pixels": 191
+    },
+    {
+      "kind": "operation",
+      "video": 2,
+      "cosine": 0.9720148819506723,
+      "dx": 0,
+      "dy": 0,
+      "pixels": 192
+    },
+    {
+      "kind": "technique",
+      "video": 1,
+      "cosine": 0.9524567530808936,
+      "dx": 0,
+      "dy": 0,
+      "pixels": 189
+    },
+    {
+      "kind": "technique",
+      "video": 2,
+      "cosine": 0.9520924367299834,
+      "dx": 0,
+      "dy": 0,
+      "pixels": 185
+    },
+    {
+      "kind": "hits",
+      "video": 1,
+      "cosine": 0.962157905506692,
+      "dx": 0,
+      "dy": 0,
+      "pixels": 330
+    },
+    {
+      "kind": "hits",
+      "video": 2,
+      "cosine": 0.9600015180673394,
+      "dx": 0,
+      "dy": 0,
+      "pixels": 339
+    },
+    {
+      "kind": "rating",
+      "video": 1,
+      "cosine": 0.92910745558495,
+      "dx": -1,
+      "dy": 0,
+      "pixels": 208
+    },
+    {
+      "kind": "rating",
+      "video": 2,
+      "cosine": 0.9303347926112819,
+      "dx": -1,
+      "dy": 0,
+      "pixels": 205
+    }
+  ],
+  "combatGrades": {
+    "combat-rating": [
+      "S"
+    ],
+    "combat-rating-deep": [
+      "S"
+    ],
+    "combat-rating-ss": [
+      "SS"
+    ]
+  },
+  "numberMatches": [
+    {
+      "kind": "total",
+      "video": 1,
+      "cosine": 0.9948863941302024,
+      "dx": 0,
+      "dy": 0,
+      "pixels": 825
+    },
+    {
+      "kind": "total",
+      "video": 2,
+      "cosine": 0.9964966339925102,
+      "dx": 0,
+      "dy": 0,
+      "pixels": 538
+    },
+    {
+      "kind": "percent",
+      "video": 1,
+      "cosine": 0.9793926406275102,
+      "dx": 2,
+      "dy": 0,
+      "pixels": 180
+    },
+    {
+      "kind": "percent",
+      "video": 2,
+      "cosine": 0.978584799737778,
+      "dx": 2,
+      "dy": 0,
+      "pixels": 181
+    },
+    {
+      "kind": "red",
+      "video": 1,
+      "cosine": 0.9647828423496216,
+      "dx": -1,
+      "dy": 0,
+      "pixels": 177
+    },
+    {
+      "kind": "red",
+      "video": 2,
+      "cosine": 0.9875858532652826,
+      "dx": 1,
+      "dy": 0,
+      "pixels": 231
+    }
+  ],
+  "statsRanks": [
+    {
+      "cosine": 0.973452088049363,
+      "pixels": 4801
+    },
+    {
+      "cosine": 0.973421944832985,
+      "pixels": 4692
+    }
+  ],
+  "statsBars": [
+    0.9454920850397706,
+    0.9457987833282232
+  ],
+  "chestFx": [
+    0.9578481756615702,
+    0.9622163508103789
+  ],
+  "listFaces": [
+    0.9731190928476936,
+    0.9421000081793192,
+    0.9631668824933216,
+    0.9809861463354445
+  ],
+  "chestDraws": {
+    "chest-late": 1,
+    "chest-deep": 1
+  },
+  "thirdCardCyan": 1057,
+  "firstCardCyanAfterThird": 0,
+  "prizeCosines": [
+    0.9789460675731804,
+    0.9795266384145279
+  ],
+  "fadeHalfError": 0.6141428571428571,
+  "fadeLastError": 0.6007870370371104,
+  "hudChestRed": 1004,
+  "circleCorrelation": 0.8033059978250859,
+  "digits": [
+    {
+      "value": 1,
+      "cosine": 0.9860250139164781,
+      "pixels": 117
+    },
+    {
+      "value": 2,
+      "cosine": 0.990068592361417,
+      "pixels": 254
+    },
+    {
+      "value": 3,
+      "cosine": 0.995716325456153,
+      "pixels": 182
+    }
+  ],
+  "blueCardCosine": 0.9950405950725524,
+  "goldCardCosine": 0.9805250125325515,
+  "spreadBounds": [
+    143,
+    579
+  ],
+  "promptBefore": 0,
+  "promptAfter": 2253,
+  "counterBefore": 0,
+  "counterAfter": 198,
+  "fallbackDisplayAlpha": 1
+}

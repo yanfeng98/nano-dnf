@@ -1,0 +1,12 @@
+{
+  "time": 10.5,
+  "correlation": 0.9469723105430603,
+  "scale": 0.725,
+  "screen_rect": [
+    665,
+    200,
+    72,
+    89
+  ],
+  "mask": "upper cap, left50 pixels; right edge clipped"
+}

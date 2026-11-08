@@ -1,0 +1,168 @@
+{
+  "pack": "sprite_map_trap_goblinbunker.NPK",
+  "sheet": [
+    568,
+    138
+  ],
+  "frame": [
+    142,
+    138
+  ],
+  "crop": [
+    14,
+    21,
+    156,
+    159
+  ],
+  "native_root_in_frame": [
+    63,
+    111
+  ],
+  "phase_ms": 150,
+  "layers": {
+    "floorgrass:0": {
+      "entry": "sprite/map/trap/goblinbunker/gobbunk_floorgrass.img",
+      "frame": 0,
+      "offset": [
+        14,
+        125
+      ],
+      "size": [
+        142,
+        34
+      ],
+      "rgba_sha256": "531a1af2ca22b546e6ee875f40b6d816fa34e17c65541d2baf5f44ed090bd337"
+    },
+    "body:0": {
+      "entry": "sprite/map/trap/goblinbunker/gobbunk_body.img",
+      "frame": 0,
+      "offset": [
+        18,
+        21
+      ],
+      "size": [
+        123,
+        129
+      ],
+      "rgba_sha256": "62a13d480da68b3a6437526e99f54a998a9d2a8031156d831b74e0af3eae167b"
+    },
+    "door:0": {
+      "entry": "sprite/map/trap/goblinbunker/gobbunk_door.img",
+      "frame": 0,
+      "offset": [
+        90,
+        57
+      ],
+      "size": [
+        39,
+        49
+      ],
+      "rgba_sha256": "f1e9fb4235f6c52b472445c529382804bb648aaf0d7f7ba90ddec5fbe890c964"
+    },
+    "flag:0": {
+      "entry": "sprite/map/trap/goblinbunker/gobbunk_flag.img",
+      "frame": 0,
+      "offset": [
+        30,
+        48
+      ],
+      "size": [
+        61,
+        57
+      ],
+      "rgba_sha256": "7199cfcaebc48ae0ff958f14a8f90f4b21952879d363c735be0e273ab482d0c0"
+    },
+    "flag:1": {
+      "entry": "sprite/map/trap/goblinbunker/gobbunk_flag.img",
+      "frame": 1,
+      "offset": [
+        30,
+        48
+      ],
+      "size": [
+        61,
+        57
+      ],
+      "rgba_sha256": "599665c6260f71d659950c2f1d6fe8089a4a09d78c8d1131937f14ed135a9d03"
+    },
+    "flag:2": {
+      "entry": "sprite/map/trap/goblinbunker/gobbunk_flag.img",
+      "frame": 2,
+      "offset": [
+        30,
+        48
+      ],
+      "size": [
+        61,
+        57
+      ],
+      "rgba_sha256": "346b2b9c0f381d17af556d73e569472c73a60ea249b69309635053492487f7ad"
+    },
+    "flag:3": {
+      "entry": "sprite/map/trap/goblinbunker/gobbunk_flag.img",
+      "frame": 3,
+      "offset": [
+        30,
+        48
+      ],
+      "size": [
+        61,
+        57
+      ],
+      "rgba_sha256": "957b7281142f07c060bd6155789f27e75b7d911a349bfa4eaab4cbf9d4163735"
+    },
+    "grass:0": {
+      "entry": "sprite/map/trap/goblinbunker/gobbunk_grass.img",
+      "frame": 0,
+      "offset": [
+        87,
+        41
+      ],
+      "size": [
+        26,
+        23
+      ],
+      "rgba_sha256": "04f0ab2e34489d4f3c61356cbbcccf15eaec56b3439f275cf893267cc4110ac5"
+    },
+    "grass:1": {
+      "entry": "sprite/map/trap/goblinbunker/gobbunk_grass.img",
+      "frame": 1,
+      "offset": [
+        87,
+        41
+      ],
+      "size": [
+        26,
+        23
+      ],
+      "rgba_sha256": "c2cd15316fab58232d5a2422effa8903dcfeff6b4fca3a2546ec0a7570abe0e4"
+    },
+    "grass:2": {
+      "entry": "sprite/map/trap/goblinbunker/gobbunk_grass.img",
+      "frame": 2,
+      "offset": [
+        87,
+        41
+      ],
+      "size": [
+        26,
+        23
+      ],
+      "rgba_sha256": "f78823ddf524f04a3c2841d59b100d5139b977bbdfec6778fdb5c4d89e829a5d"
+    },
+    "grass:3": {
+      "entry": "sprite/map/trap/goblinbunker/gobbunk_grass.img",
+      "frame": 3,
+      "offset": [
+        87,
+        41
+      ],
+      "size": [
+        26,
+        23
+      ],
+      "rgba_sha256": "52d3dbb06b619490769536c8fc976b9a76de403e70a0bcd8cbca9b335d67800c"
+    }
+  },
+  "sheet_rgba_sha256": "d215cde421582e2847f77fe06fee8bc29fb59959a127bb6907996bf560b300b2"
+}

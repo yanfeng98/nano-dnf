@@ -1,0 +1,2244 @@
+{
+  "passiveobject/mapobject/trap/goblinbunker/throwstone.obj": [
+    [
+      5,
+      "[width]"
+    ],
+    [
+      2,
+      1
+    ],
+    [
+      2,
+      1
+    ],
+    [
+      5,
+      "[floating height]"
+    ],
+    [
+      2,
+      1
+    ],
+    [
+      5,
+      "[layer]"
+    ],
+    [
+      7,
+      "[normal]"
+    ],
+    [
+      5,
+      "[pass type]"
+    ],
+    [
+      7,
+      "[pass all]"
+    ],
+    [
+      5,
+      "[piercing power]"
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      5,
+      "[basic motion]"
+    ],
+    [
+      7,
+      "../../../Monster/Goblin/Animation/ThrowStone.ani"
+    ],
+    [
+      5,
+      "[destroy particle]"
+    ],
+    [
+      7,
+      "../../../Monster/Goblin/Particle/ThrowStoneDestroy.ptl"
+    ],
+    [
+      5,
+      "[attack info]"
+    ],
+    [
+      7,
+      "AttackInfo/ThrowStone.atk"
+    ],
+    [
+      5,
+      "[name]"
+    ],
+    [
+      7,
+      "碉堡的投擲石"
+    ]
+  ],
+  "passiveobject/mapobject/trap/goblinbunker/ani/flag2_damage.ani": {
+    "paths": [
+      "Map/Trap/GoblinBunker/GobBunk_FlagDamaged.img"
+    ],
+    "overall": [
+      [
+        1,
+        0
+      ]
+    ],
+    "frames": [
+      {
+        "frame": 0,
+        "xy": [
+          -75,
+          -132
+        ],
+        "props": [
+          [
+            12,
+            50
+          ]
+        ],
+        "boxes": []
+      },
+      {
+        "frame": 0,
+        "xy": [
+          -79,
+          -132
+        ],
+        "props": [
+          [
+            12,
+            50
+          ]
+        ],
+        "boxes": []
+      },
+      {
+        "frame": 0,
+        "xy": [
+          -75,
+          -132
+        ],
+        "props": [
+          [
+            12,
+            50
+          ]
+        ],
+        "boxes": []
+      },
+      {
+        "frame": 0,
+        "xy": [
+          -79,
+          -132
+        ],
+        "props": [
+          [
+            12,
+            50
+          ]
+        ],
+        "boxes": []
+      },
+      {
+        "frame": 0,
+        "xy": [
+          -75,
+          -132
+        ],
+        "props": [
+          [
+            12,
+            50
+          ]
+        ],
+        "boxes": []
+      },
+      {
+        "frame": 0,
+        "xy": [
+          -77,
+          -132
+        ],
+        "props": [
+          [
+            12,
+            50
+          ]
+        ],
+        "boxes": []
+      }
+    ]
+  },
+  "passiveobject/mapobject/trap/goblinbunker/ani/flag.ani": {
+    "paths": [
+      "Map/Trap/GoblinBunker/GobBunk_Flag.img"
+    ],
+    "overall": [
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        0
+      ]
+    ],
+    "frames": [
+      {
+        "frame": 0,
+        "xy": [
+          -77,
+          -132
+        ],
+        "props": [
+          [
+            12,
+            150
+          ]
+        ],
+        "boxes": []
+      },
+      {
+        "frame": 1,
+        "xy": [
+          -77,
+          -132
+        ],
+        "props": [
+          [
+            12,
+            150
+          ]
+        ],
+        "boxes": []
+      },
+      {
+        "frame": 2,
+        "xy": [
+          -77,
+          -132
+        ],
+        "props": [
+          [
+            12,
+            150
+          ]
+        ],
+        "boxes": []
+      },
+      {
+        "frame": 3,
+        "xy": [
+          -77,
+          -132
+        ],
+        "props": [
+          [
+            12,
+            150
+          ]
+        ],
+        "boxes": []
+      }
+    ]
+  },
+  "passiveobject/mapobject/trap/goblinbunker/ani/body.ani": {
+    "paths": [
+      "Map/Trap/GoblinBunker/GobBunk_Body.img"
+    ],
+    "overall": [
+      [
+        0,
+        1
+      ]
+    ],
+    "frames": [
+      {
+        "frame": 0,
+        "xy": [
+          -77,
+          -132
+        ],
+        "props": [
+          [
+            12,
+            10000
+          ]
+        ],
+        "boxes": [
+          [
+            14,
+            [
+              -51,
+              -19,
+              -11,
+              109,
+              37,
+              94
+            ]
+          ]
+        ]
+      }
+    ]
+  },
+  "passiveobject/mapobject/trap/goblinbunker/ani/doorready.ani": {
+    "paths": [
+      "Map/Trap/GoblinBunker/GobBunk_Door.img"
+    ],
+    "overall": [
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        0
+      ]
+    ],
+    "frames": [
+      {
+        "frame": 0,
+        "xy": [
+          -77,
+          -132
+        ],
+        "props": [
+          [
+            12,
+            10000
+          ]
+        ],
+        "boxes": []
+      }
+    ]
+  },
+  "passiveobject/mapobject/trap/goblinbunker/ani/body2.ani": {
+    "paths": [
+      "Map/Trap/GoblinBunker/GobBunk_BodyDamaged.img"
+    ],
+    "overall": [
+      [
+        0,
+        1
+      ]
+    ],
+    "frames": [
+      {
+        "frame": 0,
+        "xy": [
+          -77,
+          -132
+        ],
+        "props": [
+          [
+            12,
+            10000
+          ]
+        ],
+        "boxes": [
+          [
+            14,
+            [
+              -51,
+              -19,
+              -11,
+              109,
+              37,
+              94
+            ]
+          ]
+        ]
+      }
+    ]
+  },
+  "passiveobject/mapobject/trap/goblinbunker/ani/body_damage.ani": {
+    "paths": [
+      "Map/Trap/GoblinBunker/GobBunk_Body.img"
+    ],
+    "overall": [],
+    "frames": [
+      {
+        "frame": 0,
+        "xy": [
+          -75,
+          -132
+        ],
+        "props": [
+          [
+            12,
+            50
+          ]
+        ],
+        "boxes": [
+          [
+            14,
+            [
+              -55,
+              -19,
+              -14,
+              109,
+              37,
+              94
+            ]
+          ]
+        ]
+      },
+      {
+        "frame": 0,
+        "xy": [
+          -79,
+          -132
+        ],
+        "props": [
+          [
+            12,
+            50
+          ]
+        ],
+        "boxes": [
+          [
+            14,
+            [
+              -55,
+              -19,
+              -14,
+              109,
+              37,
+              94
+            ]
+          ]
+        ]
+      },
+      {
+        "frame": 0,
+        "xy": [
+          -75,
+          -132
+        ],
+        "props": [
+          [
+            12,
+            50
+          ]
+        ],
+        "boxes": [
+          [
+            14,
+            [
+              -55,
+              -19,
+              -14,
+              109,
+              37,
+              94
+            ]
+          ]
+        ]
+      },
+      {
+        "frame": 0,
+        "xy": [
+          -79,
+          -132
+        ],
+        "props": [
+          [
+            12,
+            50
+          ]
+        ],
+        "boxes": [
+          [
+            14,
+            [
+              -55,
+              -19,
+              -14,
+              109,
+              37,
+              94
+            ]
+          ]
+        ]
+      },
+      {
+        "frame": 0,
+        "xy": [
+          -75,
+          -132
+        ],
+        "props": [
+          [
+            12,
+            50
+          ]
+        ],
+        "boxes": [
+          [
+            14,
+            [
+              -55,
+              -19,
+              -14,
+              109,
+              37,
+              94
+            ]
+          ]
+        ]
+      },
+      {
+        "frame": 0,
+        "xy": [
+          -77,
+          -132
+        ],
+        "props": [
+          [
+            12,
+            50
+          ]
+        ],
+        "boxes": [
+          [
+            14,
+            [
+              -55,
+              -19,
+              -14,
+              109,
+              37,
+              94
+            ]
+          ]
+        ]
+      }
+    ]
+  },
+  "passiveobject/mapobject/trap/goblinbunker/ani/destparticle1.ani": {
+    "paths": [
+      "Map/Trap/GoblinBunker/GobBunk_DestPieces.img"
+    ],
+    "overall": [
+      [
+        0,
+        1
+      ]
+    ],
+    "frames": [
+      {
+        "frame": 0,
+        "xy": [
+          -25,
+          -24
+        ],
+        "props": [
+          [
+            10,
+            1
+          ],
+          [
+            12,
+            2000
+          ]
+        ],
+        "boxes": []
+      },
+      {
+        "frame": 0,
+        "xy": [
+          -25,
+          -24
+        ],
+        "props": [
+          [
+            8,
+            6.248279094696045
+          ]
+        ],
+        "boxes": []
+      }
+    ]
+  },
+  "passiveobject/mapobject/trap/goblinbunker/ani/flag_damage.ani": {
+    "paths": [
+      "Map/Trap/GoblinBunker/GobBunk_Flag.img"
+    ],
+    "overall": [
+      [
+        1,
+        0
+      ]
+    ],
+    "frames": [
+      {
+        "frame": 0,
+        "xy": [
+          -75,
+          -132
+        ],
+        "props": [
+          [
+            12,
+            50
+          ]
+        ],
+        "boxes": []
+      },
+      {
+        "frame": 0,
+        "xy": [
+          -79,
+          -132
+        ],
+        "props": [
+          [
+            12,
+            50
+          ]
+        ],
+        "boxes": []
+      },
+      {
+        "frame": 0,
+        "xy": [
+          -75,
+          -132
+        ],
+        "props": [
+          [
+            12,
+            50
+          ]
+        ],
+        "boxes": []
+      },
+      {
+        "frame": 0,
+        "xy": [
+          -79,
+          -132
+        ],
+        "props": [
+          [
+            12,
+            50
+          ]
+        ],
+        "boxes": []
+      },
+      {
+        "frame": 0,
+        "xy": [
+          -75,
+          -132
+        ],
+        "props": [
+          [
+            12,
+            50
+          ]
+        ],
+        "boxes": []
+      },
+      {
+        "frame": 0,
+        "xy": [
+          -77,
+          -132
+        ],
+        "props": [
+          [
+            12,
+            50
+          ]
+        ],
+        "boxes": []
+      }
+    ]
+  },
+  "passiveobject/mapobject/trap/goblinbunker/ani/destparticle2.ani": {
+    "paths": [
+      "Map/Trap/GoblinBunker/GobBunk_DestPieces.img"
+    ],
+    "overall": [
+      [
+        0,
+        1
+      ]
+    ],
+    "frames": [
+      {
+        "frame": 1,
+        "xy": [
+          -25,
+          -24
+        ],
+        "props": [
+          [
+            10,
+            1
+          ],
+          [
+            12,
+            2000
+          ]
+        ],
+        "boxes": []
+      },
+      {
+        "frame": 1,
+        "xy": [
+          -25,
+          -24
+        ],
+        "props": [
+          [
+            8,
+            6.248279094696045
+          ]
+        ],
+        "boxes": []
+      }
+    ]
+  },
+  "passiveobject/mapobject/trap/goblinbunker/ani/destparticle3.ani": {
+    "paths": [
+      "Map/Trap/GoblinBunker/GobBunk_DestPieces.img"
+    ],
+    "overall": [
+      [
+        0,
+        1
+      ]
+    ],
+    "frames": [
+      {
+        "frame": 2,
+        "xy": [
+          -25,
+          -24
+        ],
+        "props": [
+          [
+            10,
+            1
+          ],
+          [
+            12,
+            2000
+          ]
+        ],
+        "boxes": []
+      },
+      {
+        "frame": 2,
+        "xy": [
+          -25,
+          -24
+        ],
+        "props": [
+          [
+            8,
+            6.248279094696045
+          ]
+        ],
+        "boxes": []
+      }
+    ]
+  },
+  "passiveobject/mapobject/trap/goblinbunker/ani/destparticle4.ani": {
+    "paths": [
+      "Map/Trap/GoblinBunker/GobBunk_DestPieces.img"
+    ],
+    "overall": [
+      [
+        0,
+        1
+      ]
+    ],
+    "frames": [
+      {
+        "frame": 3,
+        "xy": [
+          -25,
+          -24
+        ],
+        "props": [
+          [
+            10,
+            1
+          ],
+          [
+            12,
+            2000
+          ]
+        ],
+        "boxes": []
+      },
+      {
+        "frame": 3,
+        "xy": [
+          -25,
+          -24
+        ],
+        "props": [
+          [
+            8,
+            6.248279094696045
+          ]
+        ],
+        "boxes": []
+      }
+    ]
+  },
+  "passiveobject/mapobject/trap/goblinbunker/ani/destparticle5.ani": {
+    "paths": [
+      "Map/Trap/GoblinBunker/GobBunk_DestPieces.img"
+    ],
+    "overall": [
+      [
+        0,
+        1
+      ]
+    ],
+    "frames": [
+      {
+        "frame": 4,
+        "xy": [
+          -25,
+          -24
+        ],
+        "props": [
+          [
+            10,
+            1
+          ],
+          [
+            12,
+            2000
+          ]
+        ],
+        "boxes": []
+      },
+      {
+        "frame": 4,
+        "xy": [
+          -25,
+          -24
+        ],
+        "props": [
+          [
+            8,
+            6.248279094696045
+          ]
+        ],
+        "boxes": []
+      }
+    ]
+  },
+  "passiveobject/mapobject/trap/goblinbunker/ani/destparticle6.ani": {
+    "paths": [
+      "Map/Trap/GoblinBunker/GobBunk_DestPieces.img"
+    ],
+    "overall": [
+      [
+        0,
+        1
+      ]
+    ],
+    "frames": [
+      {
+        "frame": 5,
+        "xy": [
+          -25,
+          -24
+        ],
+        "props": [
+          [
+            10,
+            1
+          ],
+          [
+            12,
+            2000
+          ]
+        ],
+        "boxes": []
+      },
+      {
+        "frame": 5,
+        "xy": [
+          -25,
+          -24
+        ],
+        "props": [
+          [
+            8,
+            6.248279094696045
+          ]
+        ],
+        "boxes": []
+      }
+    ]
+  },
+  "passiveobject/mapobject/trap/goblinbunker/ani/destparticle7.ani": {
+    "paths": [
+      "Map/Trap/GoblinBunker/GobBunk_DestPieces.img"
+    ],
+    "overall": [
+      [
+        0,
+        1
+      ]
+    ],
+    "frames": [
+      {
+        "frame": 6,
+        "xy": [
+          -25,
+          -24
+        ],
+        "props": [
+          [
+            10,
+            1
+          ],
+          [
+            12,
+            2000
+          ]
+        ],
+        "boxes": []
+      },
+      {
+        "frame": 6,
+        "xy": [
+          -25,
+          -24
+        ],
+        "props": [
+          [
+            8,
+            6.248279094696045
+          ]
+        ],
+        "boxes": []
+      }
+    ]
+  },
+  "passiveobject/mapobject/trap/goblinbunker/ani/destparticle8.ani": {
+    "paths": [
+      "Map/Trap/GoblinBunker/GobBunk_DestPieces.img"
+    ],
+    "overall": [
+      [
+        0,
+        1
+      ]
+    ],
+    "frames": [
+      {
+        "frame": 7,
+        "xy": [
+          -25,
+          -24
+        ],
+        "props": [
+          [
+            10,
+            1
+          ],
+          [
+            12,
+            2000
+          ]
+        ],
+        "boxes": []
+      },
+      {
+        "frame": 7,
+        "xy": [
+          -25,
+          -24
+        ],
+        "props": [
+          [
+            8,
+            6.248279094696045
+          ]
+        ],
+        "boxes": []
+      }
+    ]
+  },
+  "passiveobject/mapobject/trap/goblinbunker/ani/destparticle9.ani": {
+    "paths": [
+      "Map/Trap/GoblinBunker/GobBunk_DestPieces.img"
+    ],
+    "overall": [
+      [
+        0,
+        1
+      ]
+    ],
+    "frames": [
+      {
+        "frame": 8,
+        "xy": [
+          -25,
+          -24
+        ],
+        "props": [
+          [
+            10,
+            1
+          ],
+          [
+            12,
+            2000
+          ]
+        ],
+        "boxes": []
+      },
+      {
+        "frame": 8,
+        "xy": [
+          -25,
+          -24
+        ],
+        "props": [
+          [
+            8,
+            6.248279094696045
+          ]
+        ],
+        "boxes": []
+      }
+    ]
+  },
+  "passiveobject/mapobject/trap/goblinbunker/im_goblinbunker.obj": [
+    [
+      5,
+      "[width]"
+    ],
+    [
+      2,
+      126
+    ],
+    [
+      2,
+      42
+    ],
+    [
+      5,
+      "[floating height]"
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      5,
+      "[layer]"
+    ],
+    [
+      7,
+      "[normal]"
+    ],
+    [
+      5,
+      "[pass type]"
+    ],
+    [
+      7,
+      "[pass only float type]"
+    ],
+    [
+      5,
+      "[piercing power]"
+    ],
+    [
+      2,
+      1000
+    ],
+    [
+      5,
+      "[basic motion]"
+    ],
+    [
+      7,
+      ""
+    ],
+    [
+      5,
+      "[etc motion]"
+    ],
+    [
+      7,
+      ""
+    ],
+    [
+      7,
+      ""
+    ],
+    [
+      7,
+      "Ani/Body.ani"
+    ],
+    [
+      7,
+      "Ani/Body_Damage.ani"
+    ],
+    [
+      7,
+      "Ani/Body2.ani"
+    ],
+    [
+      7,
+      "Ani/Body2_Damage.ani"
+    ],
+    [
+      7,
+      "Ani/DoorOpen.ani"
+    ],
+    [
+      7,
+      "Ani/DoorReady.ani"
+    ],
+    [
+      7,
+      "Ani/Door_Damage.ani"
+    ],
+    [
+      7,
+      "Ani/Door2Open.ani"
+    ],
+    [
+      7,
+      "Ani/Door2Ready.ani"
+    ],
+    [
+      7,
+      "Ani/Door2_Damage.ani"
+    ],
+    [
+      7,
+      "Ani/Flag.ani"
+    ],
+    [
+      7,
+      "Ani/Flag_Damage.ani"
+    ],
+    [
+      7,
+      "Ani/Flag2.ani"
+    ],
+    [
+      7,
+      "Ani/Flag2_Damage.ani"
+    ],
+    [
+      7,
+      "Ani/Grass.ani"
+    ],
+    [
+      7,
+      "Ani/Grass_Damage.ani"
+    ],
+    [
+      7,
+      "Ani/FloorGrass.ani"
+    ],
+    [
+      5,
+      "[/etc motion]"
+    ],
+    [
+      5,
+      "[destroy particle]"
+    ],
+    [
+      7,
+      "Particle/Destroy.ptl"
+    ],
+    [
+      5,
+      "[int data]"
+    ],
+    [
+      2,
+      1
+    ],
+    [
+      2,
+      1
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      2,
+      70000
+    ],
+    [
+      2,
+      80000
+    ],
+    [
+      2,
+      60
+    ],
+    [
+      2,
+      60
+    ],
+    [
+      5,
+      "[/int data]"
+    ],
+    [
+      5,
+      "[string data]"
+    ],
+    [
+      7,
+      ""
+    ],
+    [
+      7,
+      ""
+    ],
+    [
+      7,
+      ""
+    ],
+    [
+      7,
+      ""
+    ],
+    [
+      7,
+      ""
+    ],
+    [
+      7,
+      ""
+    ],
+    [
+      7,
+      "Particle/GetToDamageMode.ptl"
+    ],
+    [
+      5,
+      "[/string data]"
+    ],
+    [
+      5,
+      "[name]"
+    ],
+    [
+      7,
+      "不可能的碉堡"
+    ]
+  ],
+  "passiveobject/mapobject/trap/goblinbunker/ani/floorgrass.ani": {
+    "paths": [
+      "Map/Trap/GoblinBunker/GobBunk_FloorGrass.img"
+    ],
+    "overall": [
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        0
+      ]
+    ],
+    "frames": [
+      {
+        "frame": 0,
+        "xy": [
+          -77,
+          -132
+        ],
+        "props": [
+          [
+            12,
+            10000
+          ]
+        ],
+        "boxes": []
+      }
+    ]
+  },
+  "passiveobject/mapobject/trap/goblinbunker/ani/door2_damage.ani": {
+    "paths": [
+      "Map/Trap/GoblinBunker/GobBunk_Door2.img"
+    ],
+    "overall": [],
+    "frames": [
+      {
+        "frame": 0,
+        "xy": [
+          -75,
+          -132
+        ],
+        "props": [
+          [
+            12,
+            50
+          ]
+        ],
+        "boxes": []
+      },
+      {
+        "frame": 0,
+        "xy": [
+          -79,
+          -132
+        ],
+        "props": [
+          [
+            12,
+            50
+          ]
+        ],
+        "boxes": []
+      },
+      {
+        "frame": 0,
+        "xy": [
+          -75,
+          -132
+        ],
+        "props": [
+          [
+            12,
+            50
+          ]
+        ],
+        "boxes": []
+      },
+      {
+        "frame": 0,
+        "xy": [
+          -79,
+          -132
+        ],
+        "props": [
+          [
+            12,
+            50
+          ]
+        ],
+        "boxes": []
+      },
+      {
+        "frame": 0,
+        "xy": [
+          -75,
+          -132
+        ],
+        "props": [
+          [
+            12,
+            50
+          ]
+        ],
+        "boxes": []
+      },
+      {
+        "frame": 0,
+        "xy": [
+          -77,
+          -132
+        ],
+        "props": [
+          [
+            12,
+            50
+          ]
+        ],
+        "boxes": []
+      }
+    ]
+  },
+  "passiveobject/mapobject/trap/goblinbunker/ani/grass.ani": {
+    "paths": [
+      "Map/Trap/GoblinBunker/GobBunk_Grass.img"
+    ],
+    "overall": [
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        0
+      ]
+    ],
+    "frames": [
+      {
+        "frame": 0,
+        "xy": [
+          -77,
+          -132
+        ],
+        "props": [
+          [
+            12,
+            150
+          ]
+        ],
+        "boxes": []
+      },
+      {
+        "frame": 1,
+        "xy": [
+          -77,
+          -132
+        ],
+        "props": [
+          [
+            12,
+            150
+          ]
+        ],
+        "boxes": []
+      },
+      {
+        "frame": 2,
+        "xy": [
+          -77,
+          -132
+        ],
+        "props": [
+          [
+            12,
+            150
+          ]
+        ],
+        "boxes": []
+      },
+      {
+        "frame": 3,
+        "xy": [
+          -77,
+          -132
+        ],
+        "props": [
+          [
+            12,
+            150
+          ]
+        ],
+        "boxes": []
+      }
+    ]
+  },
+  "passiveobject/mapobject/trap/goblinbunker/goblinbunker.obj": [
+    [
+      5,
+      "[width]"
+    ],
+    [
+      2,
+      126
+    ],
+    [
+      2,
+      42
+    ],
+    [
+      5,
+      "[floating height]"
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      5,
+      "[layer]"
+    ],
+    [
+      7,
+      "[normal]"
+    ],
+    [
+      5,
+      "[pass type]"
+    ],
+    [
+      7,
+      "[pass only float type]"
+    ],
+    [
+      5,
+      "[piercing power]"
+    ],
+    [
+      2,
+      1000
+    ],
+    [
+      5,
+      "[basic motion]"
+    ],
+    [
+      7,
+      ""
+    ],
+    [
+      5,
+      "[etc motion]"
+    ],
+    [
+      7,
+      ""
+    ],
+    [
+      7,
+      ""
+    ],
+    [
+      7,
+      "Ani/Body.ani"
+    ],
+    [
+      7,
+      "Ani/Body_Damage.ani"
+    ],
+    [
+      7,
+      "Ani/Body2.ani"
+    ],
+    [
+      7,
+      "Ani/Body2_Damage.ani"
+    ],
+    [
+      7,
+      "Ani/DoorOpen.ani"
+    ],
+    [
+      7,
+      "Ani/DoorReady.ani"
+    ],
+    [
+      7,
+      "Ani/Door_Damage.ani"
+    ],
+    [
+      7,
+      "Ani/Door2Open.ani"
+    ],
+    [
+      7,
+      "Ani/Door2Ready.ani"
+    ],
+    [
+      7,
+      "Ani/Door2_Damage.ani"
+    ],
+    [
+      7,
+      "Ani/Flag.ani"
+    ],
+    [
+      7,
+      "Ani/Flag_Damage.ani"
+    ],
+    [
+      7,
+      "Ani/Flag2.ani"
+    ],
+    [
+      7,
+      "Ani/Flag2_Damage.ani"
+    ],
+    [
+      7,
+      "Ani/Grass.ani"
+    ],
+    [
+      7,
+      "Ani/Grass_Damage.ani"
+    ],
+    [
+      7,
+      "Ani/FloorGrass.ani"
+    ],
+    [
+      5,
+      "[/etc motion]"
+    ],
+    [
+      5,
+      "[destroy particle]"
+    ],
+    [
+      7,
+      "Particle/Destroy.ptl"
+    ],
+    [
+      5,
+      "[int data]"
+    ],
+    [
+      2,
+      1
+    ],
+    [
+      2,
+      1
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      2,
+      300
+    ],
+    [
+      2,
+      1000
+    ],
+    [
+      2,
+      4
+    ],
+    [
+      2,
+      4
+    ],
+    [
+      5,
+      "[/int data]"
+    ],
+    [
+      5,
+      "[string data]"
+    ],
+    [
+      7,
+      ""
+    ],
+    [
+      7,
+      ""
+    ],
+    [
+      7,
+      ""
+    ],
+    [
+      7,
+      ""
+    ],
+    [
+      7,
+      ""
+    ],
+    [
+      7,
+      ""
+    ],
+    [
+      7,
+      "Particle/GetToDamageMode.ptl"
+    ],
+    [
+      5,
+      "[/string data]"
+    ],
+    [
+      5,
+      "[name]"
+    ],
+    [
+      7,
+      "哥布林碉堡"
+    ]
+  ],
+  "passiveobject/mapobject/trap/goblinbunker/ani/flag2.ani": {
+    "paths": [
+      "Map/Trap/GoblinBunker/GobBunk_FlagDamaged.img"
+    ],
+    "overall": [
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        0
+      ]
+    ],
+    "frames": [
+      {
+        "frame": 0,
+        "xy": [
+          -77,
+          -132
+        ],
+        "props": [
+          [
+            12,
+            150
+          ]
+        ],
+        "boxes": []
+      },
+      {
+        "frame": 1,
+        "xy": [
+          -77,
+          -132
+        ],
+        "props": [
+          [
+            12,
+            150
+          ]
+        ],
+        "boxes": []
+      },
+      {
+        "frame": 2,
+        "xy": [
+          -77,
+          -132
+        ],
+        "props": [
+          [
+            12,
+            150
+          ]
+        ],
+        "boxes": []
+      },
+      {
+        "frame": 3,
+        "xy": [
+          -77,
+          -132
+        ],
+        "props": [
+          [
+            12,
+            150
+          ]
+        ],
+        "boxes": []
+      }
+    ]
+  },
+  "passiveobject/mapobject/trap/goblinbunker/ani/door2open.ani": {
+    "paths": [
+      "Map/Trap/GoblinBunker/GobBunk_Door2.img"
+    ],
+    "overall": [
+      [
+        1,
+        0
+      ]
+    ],
+    "frames": [
+      {
+        "frame": 1,
+        "xy": [
+          -77,
+          -132
+        ],
+        "props": [
+          [
+            12,
+            1000
+          ]
+        ],
+        "boxes": []
+      },
+      {
+        "frame": 1,
+        "xy": [
+          -77,
+          -132
+        ],
+        "props": [
+          [
+            12,
+            100
+          ]
+        ],
+        "boxes": []
+      }
+    ]
+  },
+  "passiveobject/mapobject/trap/goblinbunker/ani/door_damage.ani": {
+    "paths": [
+      "Map/Trap/GoblinBunker/GobBunk_Door.img"
+    ],
+    "overall": [],
+    "frames": [
+      {
+        "frame": 0,
+        "xy": [
+          -75,
+          -132
+        ],
+        "props": [
+          [
+            12,
+            50
+          ]
+        ],
+        "boxes": []
+      },
+      {
+        "frame": 0,
+        "xy": [
+          -79,
+          -132
+        ],
+        "props": [
+          [
+            12,
+            50
+          ]
+        ],
+        "boxes": []
+      },
+      {
+        "frame": 0,
+        "xy": [
+          -75,
+          -132
+        ],
+        "props": [
+          [
+            12,
+            50
+          ]
+        ],
+        "boxes": []
+      },
+      {
+        "frame": 0,
+        "xy": [
+          -79,
+          -132
+        ],
+        "props": [
+          [
+            12,
+            50
+          ]
+        ],
+        "boxes": []
+      },
+      {
+        "frame": 0,
+        "xy": [
+          -75,
+          -132
+        ],
+        "props": [
+          [
+            12,
+            50
+          ]
+        ],
+        "boxes": []
+      },
+      {
+        "frame": 0,
+        "xy": [
+          -77,
+          -132
+        ],
+        "props": [
+          [
+            12,
+            50
+          ]
+        ],
+        "boxes": []
+      }
+    ]
+  },
+  "passiveobject/mapobject/trap/goblinbunker/ani/grass_damage.ani": {
+    "paths": [
+      "Map/Trap/GoblinBunker/GobBunk_Grass.img"
+    ],
+    "overall": [
+      [
+        1,
+        0
+      ]
+    ],
+    "frames": [
+      {
+        "frame": 0,
+        "xy": [
+          -75,
+          -132
+        ],
+        "props": [
+          [
+            12,
+            50
+          ]
+        ],
+        "boxes": []
+      },
+      {
+        "frame": 0,
+        "xy": [
+          -79,
+          -132
+        ],
+        "props": [
+          [
+            12,
+            50
+          ]
+        ],
+        "boxes": []
+      },
+      {
+        "frame": 0,
+        "xy": [
+          -75,
+          -132
+        ],
+        "props": [
+          [
+            12,
+            50
+          ]
+        ],
+        "boxes": []
+      },
+      {
+        "frame": 0,
+        "xy": [
+          -79,
+          -132
+        ],
+        "props": [
+          [
+            12,
+            50
+          ]
+        ],
+        "boxes": []
+      },
+      {
+        "frame": 0,
+        "xy": [
+          -75,
+          -132
+        ],
+        "props": [
+          [
+            12,
+            50
+          ]
+        ],
+        "boxes": []
+      },
+      {
+        "frame": 0,
+        "xy": [
+          -77,
+          -132
+        ],
+        "props": [
+          [
+            12,
+            50
+          ]
+        ],
+        "boxes": []
+      }
+    ]
+  },
+  "passiveobject/mapobject/trap/goblinbunker/ani/door2ready.ani": {
+    "paths": [
+      "Map/Trap/GoblinBunker/GobBunk_Door2.img"
+    ],
+    "overall": [
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        0
+      ]
+    ],
+    "frames": [
+      {
+        "frame": 0,
+        "xy": [
+          -77,
+          -132
+        ],
+        "props": [
+          [
+            12,
+            10000
+          ]
+        ],
+        "boxes": []
+      }
+    ]
+  },
+  "passiveobject/mapobject/trap/goblinbunker/ani/dooropen.ani": {
+    "paths": [
+      "Map/Trap/GoblinBunker/GobBunk_Door.img"
+    ],
+    "overall": [
+      [
+        1,
+        0
+      ]
+    ],
+    "frames": [
+      {
+        "frame": 1,
+        "xy": [
+          -77,
+          -132
+        ],
+        "props": [
+          [
+            12,
+            1000
+          ]
+        ],
+        "boxes": []
+      },
+      {
+        "frame": 1,
+        "xy": [
+          -77,
+          -132
+        ],
+        "props": [
+          [
+            12,
+            100
+          ]
+        ],
+        "boxes": []
+      }
+    ]
+  },
+  "passiveobject/mapobject/trap/goblinbunker/ani/body2_damage.ani": {
+    "paths": [
+      "Map/Trap/GoblinBunker/GobBunk_BodyDamaged.img"
+    ],
+    "overall": [],
+    "frames": [
+      {
+        "frame": 0,
+        "xy": [
+          -75,
+          -132
+        ],
+        "props": [
+          [
+            12,
+            50
+          ]
+        ],
+        "boxes": [
+          [
+            14,
+            [
+              -55,
+              -19,
+              -14,
+              109,
+              37,
+              94
+            ]
+          ]
+        ]
+      },
+      {
+        "frame": 0,
+        "xy": [
+          -79,
+          -132
+        ],
+        "props": [
+          [
+            12,
+            50
+          ]
+        ],
+        "boxes": [
+          [
+            14,
+            [
+              -55,
+              -19,
+              -14,
+              109,
+              37,
+              94
+            ]
+          ]
+        ]
+      },
+      {
+        "frame": 0,
+        "xy": [
+          -75,
+          -132
+        ],
+        "props": [
+          [
+            12,
+            50
+          ]
+        ],
+        "boxes": [
+          [
+            14,
+            [
+              -55,
+              -19,
+              -14,
+              109,
+              37,
+              94
+            ]
+          ]
+        ]
+      },
+      {
+        "frame": 0,
+        "xy": [
+          -79,
+          -132
+        ],
+        "props": [
+          [
+            12,
+            50
+          ]
+        ],
+        "boxes": [
+          [
+            14,
+            [
+              -55,
+              -19,
+              -14,
+              109,
+              37,
+              94
+            ]
+          ]
+        ]
+      },
+      {
+        "frame": 0,
+        "xy": [
+          -75,
+          -132
+        ],
+        "props": [
+          [
+            12,
+            50
+          ]
+        ],
+        "boxes": [
+          [
+            14,
+            [
+              -55,
+              -19,
+              -14,
+              109,
+              37,
+              94
+            ]
+          ]
+        ]
+      },
+      {
+        "frame": 0,
+        "xy": [
+          -77,
+          -132
+        ],
+        "props": [
+          [
+            12,
+            50
+          ]
+        ],
+        "boxes": [
+          [
+            14,
+            [
+              -55,
+              -19,
+              -14,
+              109,
+              37,
+              94
+            ]
+          ]
+        ]
+      }
+    ]
+  }
+}

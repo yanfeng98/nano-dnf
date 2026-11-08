@@ -1,0 +1,29 @@
+[
+  {
+    "video": 1,
+    "time": 332.5,
+    "operation": "85%",
+    "technique": "57%",
+    "hits": 15,
+    "grade": "S",
+    "limits": "Visible numeric fields and letter identity only; no hidden scoring formula or exact letter bitmap inferred."
+  },
+  {
+    "video": 2,
+    "time": 386.7,
+    "operation": "85%",
+    "technique": "57%",
+    "hits": 23,
+    "grade": "S",
+    "limits": "Visible numeric fields and letter identity only; no hidden scoring formula or exact letter bitmap inferred."
+  },
+  {
+    "video": 1,
+    "time": 60,
+    "operation": "85%",
+    "technique": "57%",
+    "hits": 0,
+    "grade": "SS",
+    "limits": "Visible numeric fields and letter identity only; no hidden scoring formula or exact letter bitmap inferred."
+  }
+]

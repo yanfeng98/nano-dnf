@@ -1,0 +1,114 @@
+[
+  {
+    "label": "back-first-cap",
+    "time": 106,
+    "minPixels": 300,
+    "threshold": 0.97,
+    "nativeMask": {
+      "rows": 30,
+      "columns": 49
+    },
+    "cosine": 0.9961520049491375,
+    "dx": -1,
+    "dy": 1,
+    "pixels": 1046
+  },
+  {
+    "label": "back-second-cap",
+    "time": 106,
+    "minPixels": 300,
+    "threshold": 0.97,
+    "nativeMask": {
+      "rows": 30,
+      "columns": 49
+    },
+    "cosine": 0.9963786830811628,
+    "dx": -1,
+    "dy": 1,
+    "pixels": 1046
+  },
+  {
+    "label": "back-third-cap",
+    "time": 106,
+    "minPixels": 300,
+    "threshold": 0.97,
+    "nativeMask": {
+      "rows": 30,
+      "columns": 49
+    },
+    "cosine": 0.9958945777223057,
+    "dx": -1,
+    "dy": 0,
+    "pixels": 1046
+  },
+  {
+    "label": "back-fourth-cap",
+    "time": 106,
+    "minPixels": 300,
+    "threshold": 0.97,
+    "nativeMask": {
+      "rows": 30,
+      "columns": 49
+    },
+    "cosine": 0.996589518362531,
+    "dx": -1,
+    "dy": 0,
+    "pixels": 1046
+  },
+  {
+    "label": "left-front-cap",
+    "time": 106,
+    "minPixels": 300,
+    "threshold": 0.97,
+    "nativeMask": {
+      "rows": 30,
+      "columns": 49
+    },
+    "cosine": 0.9964828663262423,
+    "dx": 1,
+    "dy": 0,
+    "pixels": 1046
+  },
+  {
+    "label": "left-back-cap",
+    "time": 146,
+    "minPixels": 300,
+    "threshold": 0.97,
+    "nativeMask": {
+      "rows": 30,
+      "columns": 49
+    },
+    "cosine": 0.997586085252306,
+    "dx": 0,
+    "dy": 1,
+    "pixels": 1046
+  },
+  {
+    "label": "front-bunker-wall",
+    "time": 106,
+    "minPixels": 500,
+    "threshold": 0.95,
+    "nativeMask": {
+      "rows": 152,
+      "columns": 162
+    },
+    "cosine": 0.9929184820002984,
+    "dx": -1,
+    "dy": -1,
+    "pixels": 1438
+  },
+  {
+    "label": "back-bunker-wall",
+    "time": 133,
+    "minPixels": 500,
+    "threshold": 0.95,
+    "nativeMask": {
+      "rows": 158,
+      "columns": 157
+    },
+    "cosine": 0.9946829568086047,
+    "dx": 1,
+    "dy": 1,
+    "pixels": 1403
+  }
+]

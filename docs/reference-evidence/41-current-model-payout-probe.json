@@ -1,0 +1,34 @@
+{
+  "core_sha256": "d73a8d2f2a289e64252427377a090f5532bbbfdc01a4172f485e030988a9a219",
+  "limits": "Offline model probe at zero starting XP. These are not newly implemented rewards.",
+  "rows": [
+    {
+      "stage": "mirkwood",
+      "hypotheticalClearAward": 2376,
+      "before": {
+        "level": 4,
+        "xp": 0,
+        "xpToNext": 123
+      },
+      "after": {
+        "level": 9,
+        "xp": 431,
+        "xpToNext": 1290
+      }
+    },
+    {
+      "stage": "mirkwooddeep",
+      "hypotheticalClearAward": 6318,
+      "before": {
+        "level": 6,
+        "xp": 0,
+        "xpToNext": 315
+      },
+      "after": {
+        "level": 11,
+        "xp": 1339,
+        "xpToNext": 3302
+      }
+    }
+  ]
+}

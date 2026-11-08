@@ -3,9 +3,8 @@
  *
  *   CAPTURE_OUT=/tmp/deepcheck/ours node tests/browser/capture-deep-rooms.mjs
  *
- * 这是同机位对照的取数工具：录像的进门帧里镜头就在 0，本作把镜头也钉到 0，
- * 两张图并排看，柱/树/桶/箱的屏幕位置与深浅才比得出来（`docs/adr/0063` 的样板
- * 是 42 房）。房间跳转走 `Core.goToCell`，清房走 `Core.damageEnemy`，与浏览器
+ * 这是受控左镜头基线，不保证任一录像进门帧就是 camera=0；先独立测镜头再做同机位对照。
+ * 可用 CAPTURE_ONLY=42 只拍一间。房间跳转走 `Core.goToCell`，清房走 `Core.damageEnemy`，与浏览器
  * 冒烟同一条正规路径；输出是工作用参照，不进版本库。
  */
 
@@ -38,7 +37,6 @@ const server = http.createServer((req, res) => {
 });
 await new Promise((resolve) => server.listen(0, resolve));
 
-fs.rmSync(OUT, { recursive: true, force: true });
 fs.mkdirSync(OUT, { recursive: true });
 
 const browser = await chromium.launch();
@@ -65,6 +63,11 @@ await page.keyboard.press("ArrowRight");
 await page.waitForTimeout(250);
 await page.keyboard.press("Enter");
 await page.waitForTimeout(3400);
+await page.keyboard.press("p");
+await page.evaluate(() => {
+  const render = window.DNFRender.render;
+  window.DNFRender.render = (ctx, state, meta) => render(ctx, state, { ...meta, paused: false });
+});
 
 /*
  * [名字, 列, 行, 进来那扇门]。**第四个数不能省**：录像里的对照帧都拍在"刚走进这间房"
@@ -89,6 +92,7 @@ const canvas = await page.locator("#stage");
 /* 清房开关要在 Node 这一侧读，页面里没有 `process`。 */
 const clearRooms = process.env.CAPTURE_CLEAR === "1";
 for (const [name, col, row, entry] of ROOMS) {
+  if (process.env.CAPTURE_ONLY && !process.env.CAPTURE_ONLY.split(",").includes(name)) continue;
   const info = await page.evaluate(([col, row, clearRoom, entryDoor]) => {
     const Core = window.DNFCore;
     const state = window.nanoDnf.getState();
@@ -109,10 +113,10 @@ for (const [name, col, row, entry] of ROOMS) {
         Core.runFrames(state, 50, {});
       }
     }
-    state.camera.x = 0;
     /* 关卡名是进门那一下的过场；录像的对照帧都过了这一段，别让字压在布景上。 */
     state.titleT = 0;
     Core.runFrames(state, 2, {});
+    state.camera.x = 0;
     return {
       room: state.room.name,
       width: state.room.width,
@@ -122,11 +126,9 @@ for (const [name, col, row, entry] of ROOMS) {
       entryDoor: state.entryDoor
     };
   }, [col, row, clearRooms, entry]);
-  const box = await canvas.boundingBox();
-  await page.screenshot({
-    path: path.join(OUT, name + ".png"),
-    clip: { x: box.x, y: box.y, width: box.width, height: box.height }
-  });
+  await page.waitForTimeout(100);
+  const url = await canvas.evaluate(c => c.toDataURL("image/png"));
+  fs.writeFileSync(path.join(OUT, name + ".png"), Buffer.from(url.split(",")[1], "base64"));
   process.stdout.write(`${name} ${JSON.stringify(info)}\n`);
 }
 

@@ -1,0 +1,788 @@
+{
+  "native_frames": [
+    {
+      "name": "scoreSlash",
+      "rect": [
+        6619,
+        0,
+        32,
+        32
+      ],
+      "folder": "ImagePacks2",
+      "pack": "sprite_interface_newresult.NPK",
+      "entry": "sprite/interface/newresult/result.img",
+      "frame": 24,
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "a694157fea7eb2ea5aa6456a89d36f39c892809299b01664064d58596ec65650"
+    },
+    {
+      "name": "statsPercent",
+      "rect": [
+        6651,
+        0,
+        15,
+        13
+      ],
+      "folder": "ImagePacks2",
+      "pack": "sprite_interface_newresult.NPK",
+      "entry": "sprite/interface/newresult/result.img",
+      "frame": 26,
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "0af2922d0866b662747be5a107951c5f5694845d494d9250e7a83f658196d6c9"
+    },
+    {
+      "name": "statsMinus",
+      "rect": [
+        6666,
+        0,
+        13,
+        9
+      ],
+      "folder": "ImagePacks2",
+      "pack": "sprite_interface_newresult.NPK",
+      "entry": "sprite/interface/newresult/result.img",
+      "frame": 57,
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "e99933dcc2d3775979a0d5234a06d98cbe6f1657a9a873548563a28a1fe8a6b4"
+    },
+    {
+      "name": "totalDigit0",
+      "rect": [
+        6679,
+        0,
+        32,
+        29
+      ],
+      "folder": "ImagePacks2",
+      "pack": "sprite_interface_newresult.NPK",
+      "entry": "sprite/interface/newresult/result.img",
+      "frame": 27,
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "289429fd15b32b64ed0a9ad2f83862a27db3368031ba611d2d5023cfc8a51538"
+    },
+    {
+      "name": "totalDigit1",
+      "rect": [
+        6711,
+        0,
+        22,
+        29
+      ],
+      "folder": "ImagePacks2",
+      "pack": "sprite_interface_newresult.NPK",
+      "entry": "sprite/interface/newresult/result.img",
+      "frame": 28,
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "32185d8f76827a1a501b6684d5748619f967a94b707129c5b7debc66300c8546"
+    },
+    {
+      "name": "totalDigit2",
+      "rect": [
+        6733,
+        0,
+        34,
+        29
+      ],
+      "folder": "ImagePacks2",
+      "pack": "sprite_interface_newresult.NPK",
+      "entry": "sprite/interface/newresult/result.img",
+      "frame": 29,
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "c86ccef40c1aba37433a63e491a3672ddb378c5af8ea1bd0d016c866b7ca0e38"
+    },
+    {
+      "name": "totalDigit3",
+      "rect": [
+        6767,
+        0,
+        33,
+        29
+      ],
+      "folder": "ImagePacks2",
+      "pack": "sprite_interface_newresult.NPK",
+      "entry": "sprite/interface/newresult/result.img",
+      "frame": 30,
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "a04fe0165beadeaf371194c0abcc840c3e465e9f266fde4dab367e3f81ac03c2"
+    },
+    {
+      "name": "totalDigit4",
+      "rect": [
+        6800,
+        0,
+        34,
+        29
+      ],
+      "folder": "ImagePacks2",
+      "pack": "sprite_interface_newresult.NPK",
+      "entry": "sprite/interface/newresult/result.img",
+      "frame": 31,
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "8346039b73ac4e0dd02c7e6bc1b6c44ae1115c5a66cbd794c6a5517260abd284"
+    },
+    {
+      "name": "totalDigit5",
+      "rect": [
+        6834,
+        0,
+        36,
+        29
+      ],
+      "folder": "ImagePacks2",
+      "pack": "sprite_interface_newresult.NPK",
+      "entry": "sprite/interface/newresult/result.img",
+      "frame": 32,
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "f75241da9ff9d87ecdb8f9613e1e0a9401ef0c7b9b9b01f1182f5c2e5f225c95"
+    },
+    {
+      "name": "totalDigit6",
+      "rect": [
+        6870,
+        0,
+        33,
+        29
+      ],
+      "folder": "ImagePacks2",
+      "pack": "sprite_interface_newresult.NPK",
+      "entry": "sprite/interface/newresult/result.img",
+      "frame": 33,
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "f242019f89c4100b81faaf078f68ae7a3689684087c919c1231b6a0930717ced"
+    },
+    {
+      "name": "totalDigit7",
+      "rect": [
+        6903,
+        0,
+        36,
+        29
+      ],
+      "folder": "ImagePacks2",
+      "pack": "sprite_interface_newresult.NPK",
+      "entry": "sprite/interface/newresult/result.img",
+      "frame": 34,
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "a2548d44e9ca4f01cf3cc4bd2614562f06dd31cabb756ad966eb4744cc08b39a"
+    },
+    {
+      "name": "totalDigit8",
+      "rect": [
+        6939,
+        0,
+        33,
+        29
+      ],
+      "folder": "ImagePacks2",
+      "pack": "sprite_interface_newresult.NPK",
+      "entry": "sprite/interface/newresult/result.img",
+      "frame": 35,
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "2a88a94a00f35ac35d1b546e9f6f665bd275ddd7175774e6a7dc8c14b4f7edc8"
+    },
+    {
+      "name": "totalDigit9",
+      "rect": [
+        6972,
+        0,
+        33,
+        29
+      ],
+      "folder": "ImagePacks2",
+      "pack": "sprite_interface_newresult.NPK",
+      "entry": "sprite/interface/newresult/result.img",
+      "frame": 36,
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "80c11048c23d4daaf8110f534f476d352e58e4dcbab2143bf0b4b4275e1dc5ea"
+    },
+    {
+      "name": "goldDigit0",
+      "rect": [
+        7005,
+        0,
+        19,
+        17
+      ],
+      "folder": "ImagePacks2",
+      "pack": "sprite_interface_newresult.NPK",
+      "entry": "sprite/interface/newresult/result.img",
+      "frame": 47,
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "a9531ccc9638bc8bd4df69a6eb951db51f303fd9701ead026d8d342123ff65c9"
+    },
+    {
+      "name": "goldDigit1",
+      "rect": [
+        7024,
+        0,
+        14,
+        17
+      ],
+      "folder": "ImagePacks2",
+      "pack": "sprite_interface_newresult.NPK",
+      "entry": "sprite/interface/newresult/result.img",
+      "frame": 48,
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "7e6b15d063822465bdab8e7fc7d9c6600a5b1f61428158f51aee8806ef0ffe2d"
+    },
+    {
+      "name": "goldDigit2",
+      "rect": [
+        7038,
+        0,
+        19,
+        17
+      ],
+      "folder": "ImagePacks2",
+      "pack": "sprite_interface_newresult.NPK",
+      "entry": "sprite/interface/newresult/result.img",
+      "frame": 49,
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "9f97b833a1962a71d490a4fac6a0152eb844ddc0707c853abaaf79cc01281c1c"
+    },
+    {
+      "name": "goldDigit3",
+      "rect": [
+        7057,
+        0,
+        19,
+        17
+      ],
+      "folder": "ImagePacks2",
+      "pack": "sprite_interface_newresult.NPK",
+      "entry": "sprite/interface/newresult/result.img",
+      "frame": 50,
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "2707675dc4de9a6cace83b4b2da0f897fd0a7a86f8572a9c2cf0b06e68fd0aac"
+    },
+    {
+      "name": "goldDigit4",
+      "rect": [
+        7076,
+        0,
+        19,
+        17
+      ],
+      "folder": "ImagePacks2",
+      "pack": "sprite_interface_newresult.NPK",
+      "entry": "sprite/interface/newresult/result.img",
+      "frame": 51,
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "2fbbbb95e8fdadd2b72acb568b293bb23225431333b1fc45486301ad1b35b2aa"
+    },
+    {
+      "name": "goldDigit5",
+      "rect": [
+        7095,
+        0,
+        20,
+        17
+      ],
+      "folder": "ImagePacks2",
+      "pack": "sprite_interface_newresult.NPK",
+      "entry": "sprite/interface/newresult/result.img",
+      "frame": 52,
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "51511f8a2366af3e1973b32baaf0b14269e238bd99aa22944b84e7d45aac9ea6"
+    },
+    {
+      "name": "goldDigit6",
+      "rect": [
+        7115,
+        0,
+        19,
+        17
+      ],
+      "folder": "ImagePacks2",
+      "pack": "sprite_interface_newresult.NPK",
+      "entry": "sprite/interface/newresult/result.img",
+      "frame": 53,
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "92e1a875a92e3ccff21d28970238ec83cfd68eb9dc348883720e64235c199b67"
+    },
+    {
+      "name": "goldDigit7",
+      "rect": [
+        7134,
+        0,
+        21,
+        17
+      ],
+      "folder": "ImagePacks2",
+      "pack": "sprite_interface_newresult.NPK",
+      "entry": "sprite/interface/newresult/result.img",
+      "frame": 54,
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "680e3616b62683063d6b9c47581c07e0363679397732e93d6aa45c58f37fd692"
+    },
+    {
+      "name": "goldDigit8",
+      "rect": [
+        7155,
+        0,
+        19,
+        17
+      ],
+      "folder": "ImagePacks2",
+      "pack": "sprite_interface_newresult.NPK",
+      "entry": "sprite/interface/newresult/result.img",
+      "frame": 55,
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "64621854c267217bb0291d0c919b744ebd13409b270cdf96555d57667b8c099c"
+    },
+    {
+      "name": "goldDigit9",
+      "rect": [
+        7174,
+        0,
+        19,
+        17
+      ],
+      "folder": "ImagePacks2",
+      "pack": "sprite_interface_newresult.NPK",
+      "entry": "sprite/interface/newresult/result.img",
+      "frame": 56,
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "381efbfe88e40edd6fe364a9546697cb37e4f3c5a8b297af666a8a09033fffa5"
+    },
+    {
+      "name": "redDigit0",
+      "rect": [
+        7193,
+        0,
+        19,
+        17
+      ],
+      "folder": "ImagePacks2",
+      "pack": "sprite_interface_newresult.NPK",
+      "entry": "sprite/interface/newresult/result.img",
+      "frame": 58,
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "96f4aad3c09c644cba2a3aff76e1bf79b8db21628ae75c339cf6fbfff08d79da"
+    },
+    {
+      "name": "redDigit1",
+      "rect": [
+        7212,
+        0,
+        14,
+        17
+      ],
+      "folder": "ImagePacks2",
+      "pack": "sprite_interface_newresult.NPK",
+      "entry": "sprite/interface/newresult/result.img",
+      "frame": 59,
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "41f3b4a1ed5a329348fc2bda31729134b7ee8a672b01a48d8866d94062b7efbb"
+    },
+    {
+      "name": "redDigit2",
+      "rect": [
+        7226,
+        0,
+        19,
+        17
+      ],
+      "folder": "ImagePacks2",
+      "pack": "sprite_interface_newresult.NPK",
+      "entry": "sprite/interface/newresult/result.img",
+      "frame": 60,
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "9efcf5e4c7d0939825e520643fa056b174f9b0e5e449bf480733a57cbb977247"
+    },
+    {
+      "name": "redDigit3",
+      "rect": [
+        7245,
+        0,
+        19,
+        17
+      ],
+      "folder": "ImagePacks2",
+      "pack": "sprite_interface_newresult.NPK",
+      "entry": "sprite/interface/newresult/result.img",
+      "frame": 61,
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "282e3f53decbef6da1812d611d5e8599cdd474e1bc65cd7c6849bdbd26c8658d"
+    },
+    {
+      "name": "redDigit4",
+      "rect": [
+        7264,
+        0,
+        19,
+        17
+      ],
+      "folder": "ImagePacks2",
+      "pack": "sprite_interface_newresult.NPK",
+      "entry": "sprite/interface/newresult/result.img",
+      "frame": 62,
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "aa788ca8f2ded492124e43780ab509e61d667c6647eca8078f80ae95f3766e3f"
+    },
+    {
+      "name": "redDigit5",
+      "rect": [
+        7283,
+        0,
+        20,
+        17
+      ],
+      "folder": "ImagePacks2",
+      "pack": "sprite_interface_newresult.NPK",
+      "entry": "sprite/interface/newresult/result.img",
+      "frame": 63,
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "714b8af39fe1cd5c6c375d1f1d0c866891560c4a54ed3b21227c42566b3e71ff"
+    },
+    {
+      "name": "redDigit6",
+      "rect": [
+        7303,
+        0,
+        19,
+        17
+      ],
+      "folder": "ImagePacks2",
+      "pack": "sprite_interface_newresult.NPK",
+      "entry": "sprite/interface/newresult/result.img",
+      "frame": 64,
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "4e0166fd195b8d721c37027cd0507e6b02c15ad4b6bf254abcad9a45427ff3db"
+    },
+    {
+      "name": "redDigit7",
+      "rect": [
+        7322,
+        0,
+        21,
+        17
+      ],
+      "folder": "ImagePacks2",
+      "pack": "sprite_interface_newresult.NPK",
+      "entry": "sprite/interface/newresult/result.img",
+      "frame": 65,
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "83ad3e7516c9b6349caf9e0da07c5a29d363eddee492e47308b567893d60eb55"
+    },
+    {
+      "name": "redDigit8",
+      "rect": [
+        7343,
+        0,
+        19,
+        17
+      ],
+      "folder": "ImagePacks2",
+      "pack": "sprite_interface_newresult.NPK",
+      "entry": "sprite/interface/newresult/result.img",
+      "frame": 66,
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "2e284d7af2e262fe10f1cbdea59e6c3c7b996e6b35b37fe9e4616c6360ecbf8b"
+    },
+    {
+      "name": "redDigit9",
+      "rect": [
+        7362,
+        0,
+        19,
+        17
+      ],
+      "folder": "ImagePacks2",
+      "pack": "sprite_interface_newresult.NPK",
+      "entry": "sprite/interface/newresult/result.img",
+      "frame": 67,
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "43a13f3f672c0d47ca6cebd9f3c34079d3c685188f7ab252e6dc332ab60d4063"
+    },
+    {
+      "name": "percentDigit0",
+      "rect": [
+        7381,
+        0,
+        15,
+        13
+      ],
+      "folder": "ImagePacks2",
+      "pack": "sprite_interface_newresult.NPK",
+      "entry": "sprite/interface/newresult/result.img",
+      "frame": 68,
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "d5488c3c47a82dd0ae86de51202f0de49cdf814f96084a5cde14840177280263"
+    },
+    {
+      "name": "percentDigit1",
+      "rect": [
+        7396,
+        0,
+        11,
+        13
+      ],
+      "folder": "ImagePacks2",
+      "pack": "sprite_interface_newresult.NPK",
+      "entry": "sprite/interface/newresult/result.img",
+      "frame": 69,
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "687aabea8f4f5234f52af943fe23798eac9a166ce8ad446b775283c4c3e12d1e"
+    },
+    {
+      "name": "percentDigit2",
+      "rect": [
+        7407,
+        0,
+        16,
+        13
+      ],
+      "folder": "ImagePacks2",
+      "pack": "sprite_interface_newresult.NPK",
+      "entry": "sprite/interface/newresult/result.img",
+      "frame": 70,
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "c3695acbc5dd2417f2156429d78822d0a1e03515d56962ea1b96257ea466aa46"
+    },
+    {
+      "name": "percentDigit3",
+      "rect": [
+        7423,
+        0,
+        15,
+        13
+      ],
+      "folder": "ImagePacks2",
+      "pack": "sprite_interface_newresult.NPK",
+      "entry": "sprite/interface/newresult/result.img",
+      "frame": 71,
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "47da93b9d7fcec0fbf1f4c8b933e168396a87a64496761ef74163ac15b6bb034"
+    },
+    {
+      "name": "percentDigit4",
+      "rect": [
+        7438,
+        0,
+        15,
+        13
+      ],
+      "folder": "ImagePacks2",
+      "pack": "sprite_interface_newresult.NPK",
+      "entry": "sprite/interface/newresult/result.img",
+      "frame": 72,
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "509e33417a4ea82bd0817793902b84d662c0cda05177d7c488e986306f2db5f6"
+    },
+    {
+      "name": "percentDigit5",
+      "rect": [
+        7453,
+        0,
+        16,
+        13
+      ],
+      "folder": "ImagePacks2",
+      "pack": "sprite_interface_newresult.NPK",
+      "entry": "sprite/interface/newresult/result.img",
+      "frame": 73,
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "e9c6a9c7529abd7f13336f07a32430f0e2d615a4fa1ae08db4edb3632ed564e2"
+    },
+    {
+      "name": "percentDigit6",
+      "rect": [
+        7469,
+        0,
+        15,
+        13
+      ],
+      "folder": "ImagePacks2",
+      "pack": "sprite_interface_newresult.NPK",
+      "entry": "sprite/interface/newresult/result.img",
+      "frame": 74,
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "b92c8d6fc7ff27c211ca4395a18dbe0535491bda3d94af23bd367c44d4f61541"
+    },
+    {
+      "name": "percentDigit7",
+      "rect": [
+        7484,
+        0,
+        16,
+        13
+      ],
+      "folder": "ImagePacks2",
+      "pack": "sprite_interface_newresult.NPK",
+      "entry": "sprite/interface/newresult/result.img",
+      "frame": 75,
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "82d2f479d795d2996c1f54db278db082e952df44fba3b43527f25956023467c1"
+    },
+    {
+      "name": "percentDigit8",
+      "rect": [
+        7500,
+        0,
+        15,
+        13
+      ],
+      "folder": "ImagePacks2",
+      "pack": "sprite_interface_newresult.NPK",
+      "entry": "sprite/interface/newresult/result.img",
+      "frame": 76,
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "70e1d3a62ccd9d5760988173ecbdcbe28cfe550ae51085631e039b8eab932ab1"
+    },
+    {
+      "name": "percentDigit9",
+      "rect": [
+        7515,
+        0,
+        15,
+        13
+      ],
+      "folder": "ImagePacks2",
+      "pack": "sprite_interface_newresult.NPK",
+      "entry": "sprite/interface/newresult/result.img",
+      "frame": 77,
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "ce64e8f7980e4d2ba3c98948eadea3af8072534c4025e42fb26b7a7df81e4559"
+    }
+  ],
+  "old_size": [
+    6619,
+    420
+  ],
+  "new_size": [
+    7530,
+    420
+  ],
+  "old_region_preserved": true,
+  "old_rgba_sha256": "982d9aee0fe8dc4542215efcee61a5f9c93d27d473b04d82fee166433ba59030"
+}

@@ -1,0 +1,42 @@
+[
+  {
+    "video": 1,
+    "time": 346.3,
+    "scale": 1.125,
+    "cyan_structure_correlation": 0.23891529440879822,
+    "xy": [
+      352,
+      152
+    ]
+  },
+  {
+    "video": 1,
+    "time": 346.4,
+    "scale": 1.125,
+    "cyan_structure_correlation": 0.22839227318763733,
+    "xy": [
+      352,
+      152
+    ]
+  },
+  {
+    "video": 2,
+    "time": 398.9,
+    "scale": 1.125,
+    "cyan_structure_correlation": 0.2300696074962616,
+    "xy": [
+      352,
+      152
+    ]
+  },
+  {
+    "video": 2,
+    "time": 399.0,
+    "scale": 1.125,
+    "cyan_structure_correlation": 0.23869170248508453,
+    "xy": [
+      352,
+      152
+    ]
+  }
+]

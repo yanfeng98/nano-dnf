@@ -1,0 +1,34 @@
+[
+  {
+    "video": 1,
+    "limits": "Thresholded white-core bounds include compression and additive background; not an exact scale fit.",
+    "reference": [
+      378,
+      200,
+      442,
+      257
+    ],
+    "native": [
+      161,
+      163,
+      247,
+      227
+    ]
+  },
+  {
+    "video": 2,
+    "limits": "Thresholded white-core bounds include compression and additive background; not an exact scale fit.",
+    "reference": [
+      382,
+      199,
+      436,
+      255
+    ],
+    "native": [
+      161,
+      163,
+      247,
+      227
+    ]
+  }
+]

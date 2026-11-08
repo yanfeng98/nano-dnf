@@ -1,0 +1,20 @@
+[
+  {
+    "stage": "mirkwood",
+    "source": "00001-\u5e7d\u6697\u5bc6\u6797.mp4",
+    "reward_at": 342.8,
+    "spread_at": 346.6333333333333,
+    "list_seconds": 3.833333,
+    "uncertainty_seconds": 0.2,
+    "limits": "Manual phase anchors across fades; not exact first-visible pixels or a general list-length formula."
+  },
+  {
+    "stage": "mirkwooddeep",
+    "source": "00002-\u5e7d\u6697\u5bc6\u6797\u6df1\u5904.mp4",
+    "reward_at": 397.0,
+    "spread_at": 399.2,
+    "list_seconds": 2.2,
+    "uncertainty_seconds": 0.2,
+    "limits": "Manual phase anchors across fades; not exact first-visible pixels or a general list-length formula."
+  }
+]

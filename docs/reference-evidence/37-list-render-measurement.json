@@ -1,0 +1,49 @@
+{
+  "listFaces": [
+    0.9731190928476936,
+    0.9421000081793192,
+    0.9631668824933216,
+    0.9809861463354445
+  ],
+  "chestDraws": {
+    "chest-late": 1,
+    "chest-deep": 1
+  },
+  "thirdCardCyan": 1057,
+  "firstCardCyanAfterThird": 0,
+  "prizeCosines": [
+    0.9789460675731804,
+    0.9795266384145279
+  ],
+  "fadeHalfError": 0.6141428571428571,
+  "fadeLastError": 0.6007870370371104,
+  "hudChestRed": 1004,
+  "circleCorrelation": 0.8033059978250859,
+  "digits": [
+    {
+      "value": 1,
+      "cosine": 0.9860250139164781,
+      "pixels": 117
+    },
+    {
+      "value": 2,
+      "cosine": 0.990068592361417,
+      "pixels": 254
+    },
+    {
+      "value": 3,
+      "cosine": 0.995716325456153,
+      "pixels": 182
+    }
+  ],
+  "blueCardCosine": 0.9950405950725524,
+  "goldCardCosine": 0.9805250125325515,
+  "spreadBounds": [
+    143,
+    579
+  ],
+  "promptBefore": 0,
+  "promptAfter": 2253,
+  "counterBefore": 0,
+  "counterAfter": 198
+}

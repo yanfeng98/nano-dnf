@@ -1,0 +1,65 @@
+{
+  "endpoint_uncertainty_pixels": 2,
+  "reports": [
+    {
+      "video": 1,
+      "source": "00001-\u5e7d\u6697\u5bc6\u6797.mp4",
+      "level": 4,
+      "boss_credit_read_from_log": 280,
+      "samples": [
+        {
+          "time": 325,
+          "fill_pixels": 68
+        },
+        {
+          "time": 330,
+          "fill_pixels": 81
+        },
+        {
+          "time": 332.5,
+          "fill_pixels": 81
+        }
+      ],
+      "fill_delta_pixels": 13,
+      "current_level_threshold_interval": [
+        2635.294117647059,
+        4977.777777777777
+      ],
+      "next_level_threshold_interval": [
+        -1151.9999999999964,
+        11077.647058823528
+      ],
+      "limits": "Intervals assume boss credit is the sole XP change in the selected segment and clear total is the sole later net credit. Conservative independent extrema are used; negative lower bounds would be inconclusive. No exact threshold or global progression law is identified."
+    },
+    {
+      "video": 2,
+      "source": "00002-\u5e7d\u6697\u5bc6\u6797\u6df1\u5904.mp4",
+      "level": 6,
+      "boss_credit_read_from_log": 360,
+      "samples": [
+        {
+          "time": 385,
+          "fill_pixels": 117
+        },
+        {
+          "time": 386,
+          "fill_pixels": 125
+        },
+        {
+          "time": 386.7,
+          "fill_pixels": 125
+        }
+      ],
+      "fill_delta_pixels": 8,
+      "current_level_threshold_interval": [
+        4800.0,
+        14400.0
+      ],
+      "next_level_threshold_interval": [
+        6733.521126760565,
+        12723.58208955224
+      ],
+      "limits": "Intervals assume boss credit is the sole XP change in the selected segment and clear total is the sole later net credit. Conservative independent extrema are used; negative lower bounds would be inconclusive. No exact threshold or global progression law is identified."
+    }
+  ]
+}
