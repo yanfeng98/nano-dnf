@@ -1,0 +1,7 @@
+{
+  "room": "老树回廊",
+  "east": {
+    "room": "断墙营地",
+    "barrel713Broken": true
+  }
+}

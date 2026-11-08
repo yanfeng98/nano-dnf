@@ -1,0 +1,114 @@
+[
+  {
+    "label": "entry-right-back-cap",
+    "time": 148,
+    "minPixels": 300,
+    "threshold": 0.97,
+    "nativeMask": {
+      "rows": 30,
+      "columns": 49
+    },
+    "cosine": 0.9951837423525339,
+    "dx": 0,
+    "dy": 1,
+    "pixels": 1046
+  },
+  {
+    "label": "entry-right-front-cap",
+    "time": 148,
+    "minPixels": 300,
+    "threshold": 0.97,
+    "nativeMask": {
+      "rows": 30,
+      "columns": 49
+    },
+    "cosine": 0.9964221206082478,
+    "dx": 0,
+    "dy": 0,
+    "pixels": 1046
+  },
+  {
+    "label": "entry-back-barrel-cap",
+    "time": 148,
+    "minPixels": 100,
+    "threshold": 0.95,
+    "nativeMask": {
+      "rows": 22,
+      "columns": 72
+    },
+    "cosine": 0.9747366728415446,
+    "dx": 0,
+    "dy": 0,
+    "pixels": 468
+  },
+  {
+    "label": "entry-middle-barrel-cap",
+    "time": 148,
+    "minPixels": 100,
+    "threshold": 0.95,
+    "nativeMask": {
+      "rows": 22,
+      "columns": 70
+    },
+    "cosine": 0.9866458373466063,
+    "dx": 0,
+    "dy": -1,
+    "pixels": 471
+  },
+  {
+    "label": "front-barrel-left-cap",
+    "time": 150,
+    "minPixels": 100,
+    "threshold": 0.95,
+    "nativeMask": {
+      "rows": 22,
+      "columns": 35
+    },
+    "cosine": 0.9774294437527836,
+    "dx": -1,
+    "dy": -1,
+    "pixels": 215
+  },
+  {
+    "label": "left-first-cap",
+    "time": 180,
+    "minPixels": 300,
+    "threshold": 0.97,
+    "nativeMask": {
+      "rows": 30,
+      "columns": 49
+    },
+    "cosine": 0.9977466257917633,
+    "dx": 0,
+    "dy": 1,
+    "pixels": 1046
+  },
+  {
+    "label": "left-second-cap",
+    "time": 180,
+    "minPixels": 300,
+    "threshold": 0.97,
+    "nativeMask": {
+      "rows": 30,
+      "columns": 49
+    },
+    "cosine": 0.9977375082524077,
+    "dx": 0,
+    "dy": 0,
+    "pixels": 1046
+  },
+  {
+    "label": "left-barrel-cap",
+    "time": 180,
+    "minPixels": 100,
+    "threshold": 0.95,
+    "nativeMask": {
+      "rows": 22,
+      "columns": 70
+    },
+    "cosine": 0.9686502531411993,
+    "dx": 0,
+    "dy": 0,
+    "pixels": 471
+  }
+]

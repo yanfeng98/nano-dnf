@@ -2904,48 +2904,51 @@
           ],
           scatter: {"solid":0,"barrels":0,"stones":0}
         },
-        /* 9 —— 路线 23 (2,1)。录像 148–189s；房宽下界 725、TH100 885（这一间用 885，四扇门才放得下布景）；桶 3、岩 1、阔叶树 1、树 5。 */
+        /* 9 —— 路线 23 (2,1)。录像148–189.5s；重测宽1248、8柱6桶，上下门world604。 */
         {
           name: "投掷手坡",
           kind: "room",
-          width: 725,
+          width: 1248,
           band: { backY: 256 },
           enemies: [
-            { type: "goblinRed", x: 250, level: 6 },
-            { type: "goblinRed", x: 450, level: 6 },
-            { type: "cat", x: 300, wave: 2, level: 6 },
-            { type: "deepElite", x: 500, wave: 2, level: 6 },
-            { type: "goblinRed", x: 650, wave: 2, level: 6 },
-            { type: "goblinBlue", x: 800, wave: 2, level: 6 },
-            { type: "goblinBlue", x: 300, wave: 3, level: 6 },
-            { type: "goblinBlue", x: 500, wave: 3, level: 6 },
-            { type: "goblinBlue", x: 700, wave: 3, level: 6 },
-            { type: "goblinRed", x: 850, wave: 3, level: 6 },
-            { type: "cat", x: 600, wave: 4, level: 6 },
+            { type: "goblinRed", x: 305, level: 6 },
+            { type: "goblinRed", x: 549, level: 6 },
+            { type: "cat", x: 366, wave: 2, level: 6 },
+            { type: "deepElite", x: 610, wave: 2, level: 6 },
+            { type: "goblinRed", x: 793, wave: 2, level: 6 },
+            { type: "goblinBlue", x: 977, wave: 2, level: 6 },
+            { type: "goblinBlue", x: 366, wave: 3, level: 6 },
+            { type: "goblinBlue", x: 610, wave: 3, level: 6 },
+            { type: "goblinBlue", x: 854, wave: 3, level: 6 },
+            { type: "goblinRed", x: 1038, wave: 3, level: 6 },
+            { type: "cat", x: 732, wave: 4, level: 6 },
           ],
           cap: 4,
-          /*
-           * **150s 帧按 25px 网格重量**（`ref/150.png`）：桶 0..45 / 290..345 /
-           * 480..535（桶心 20/317/507 → 世界 13/201/321，底 330/355/355 →
-           * depth 1.15/0.86/0.86）；浅柱 375..420 / 545..585（世界 252/358）；
-           * 苔石 430..480（世界 288）。本房间宽在 `fitDeepRouteRooms` 里
-           * 725 → 885（×1.2207），所以 x 都按 authored = 世界 ÷ 1.2207 写。
-           */
+          /* V2 148–189.5s: 84-frame two-axis graph + independent gate strip.
+           * Observed camera span 1244px -> width lower bound 1245 world px;
+           * use 1248. Entry camera is ~601 screen px from observed minimum.
+           * Native caps identify 8 pillars and 6 barrels; the former rock was
+           * a damaged pillar. Unseen initial damage and enemy placements remain
+           * unverified; preserve existing enemy/tree world positions. */
           props: [
-            { piece: "barrel", x: 11, depth: 1.15 },
-            { piece: "barrel", x: 165, depth: 0.86 },
-            { piece: "barrel", x: 263, depth: 0.86 },
-            { piece: "rockFlat", x: 236, depth: 0.85, scale: [0.55, 0.55] },
-            { piece: "pillarPale", x: 206, depth: 1.00 },
-            { piece: "pillarPale", x: 293, depth: 0.75 },
-            { piece: "trunkTall", x: 100, depth: 2.03 },
-            { piece: "trunkMossy", x: 400, depth: 2.03 },
-            { piece: "trunkBent", x: 700, depth: 2.03 },
-            { piece: "trunkTall", x: 880, depth: 2.03 },
-            /*
-             * 上门由 `drawGate` 画在 `northX` 那条竖轴上（0.16，world 142）——
-             * 150s 帧那道拱中心就在这儿。旧的静态装饰件 2026-10-27 删掉。
-             */
+            { piece: "pillarPale", x: 200, depth: 1.588 },
+            { piece: "pillarPale", x: 231, depth: 1.22 },
+            { piece: "pillarPale", x: 410, depth: 0.748 },
+            { piece: "pillarPale", x: 442, depth: 0.345 },
+            { piece: "pillarPale", x: 737, depth: 0.748 },
+            { piece: "pillarPale", x: 768, depth: 0.345 },
+            { piece: "pillarPale", x: 936, depth: -0.368 },
+            { piece: "pillarPale", x: 966, depth: -0.748 },
+            { piece: "barrel", x: 376, depth: 1.6, scale: [0.7, 0.7] },
+            { piece: "barrel", x: 475, depth: -0.599, scale: [0.7, 0.7] },
+            { piece: "barrel", x: 488, depth: 0.46, scale: [0.725, 0.725] },
+            { piece: "barrel", x: 701, depth: 1.496, scale: [0.725, 0.725] },
+            { piece: "barrel", x: 713, depth: 0.437, scale: [0.7, 0.7] },
+            { piece: "barrel", x: 799, depth: -0.576, scale: [0.725, 0.725] },
+            { piece: "trunkTall", x: 122, depth: 2.03 },
+            { piece: "trunkMossy", x: 488, depth: 2.03 },
+            { piece: "trunkBent", x: 854, depth: 2.03 },
+            { piece: "trunkTall", x: 1074, depth: 2.03 },
           ],
           scatter: {"solid":0,"barrels":0,"stones":0}
         },
@@ -3347,15 +3350,11 @@
     boss: [4, 1],
     entryRoom: 0,
     bossRoom: 1,
-    /*
-     * **上下门的竖轴**，一格一个（占房宽几成），从录像上量的（2026-10-27）：
-     *   (2,2) 33 房：106s 帧上门拱中心 world 177、下门 174 → 176 ÷ 734 = **0.24**
-     *   (2,1) 23 房：150s 帧上门 137、下门 149 → 143 ÷ 885 = **0.16**
-     *   (2,0) 13 房：192s 帧下门 106 → **0.20**（这一格没有上门）
-     * 三帧的镜头都贴在左墙（他站在房间左三分之一），世界 x = 游戏 x ÷ 3.155。
-     * 别的格没量到，仍按 0.5（中间）。
+    /* 上下门轴按各房完整镜头轨迹换算，入场帧不等于camera=0。
+     * 43: world970（审计首批）；33: world630（第五十批）；23: world604（第五十一批）。
+     * 13仍沿用旧0.20，待独立重测；其他格缺证据时保留0.5。
      */
-    northX: { "2,3": 970 / 1280, "2,2": 630 / 1280, "2,1": 0.16, "2,0": 0.20 },
+    northX: { "2,3": 970 / 1280, "2,2": 630 / 1280, "2,1": 604 / 1248, "2,0": 0.20 },
     /* 这一关的上/下门量到在同一条竖轴上（`doorX`）。别的关没有这个证据，不开。 */
     southSharesNorthX: true,
     /*
@@ -3414,7 +3413,7 @@
       5: 529,
       6: 588,
       8: 1280,
-      9: 885,
+      9: 1248,
       10: 1280,
       12: 1280,
       13: 524

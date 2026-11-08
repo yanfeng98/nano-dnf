@@ -7,6 +7,17 @@ import http from 'node:http';
 import {fileURLToPath} from 'node:url';
 const room=process.env.CAPTURE_ROOM || '42';
 const profiles={
+ '23':{batch:51,col:2,row:1,out:'/tmp/nano-room51/render',times:[148,150,180],next:'老树回廊',exit:'N',entryDoor:'S',extraEast:true,
+  cases:[
+   ['entry-right-back-cap',148,'pillar',0,0,44,133,537,215,49,150,30,300,.97],
+   ['entry-right-front-cap',148,'pillar',0,0,44,133,585,250,49,150,30,300,.97],
+   ['entry-back-barrel-cap',148,'forest',560,1874,63,78,469,211,72,89,22,100,.95],
+   ['entry-middle-barrel-cap',148,'forest',560,1874,63,78,489,306,70,86,22,100,.95],
+   ['front-barrel-left-cap',150,'forest',560,1874,63,78,490,391,72,89,22,100,.95,35],
+   ['left-first-cap',180,'pillar',0,0,44,133,288,142,49,150,30,300,.97],
+   ['left-second-cap',180,'pillar',0,0,44,133,337,174,49,150,30,300,.97],
+   ['left-barrel-cap',180,'forest',560,1874,63,78,556,205,70,86,22,100,.95]
+  ]},
  '33':{batch:50,col:2,row:2,out:'/tmp/nano-room50/render',times:[106,125,133,146],next:'投掷手坡',exit:'N',entryDoor:'S',
   cases:[
    ['back-first-cap',106,'pillar',0,0,44,133,424,141,49,150,30,300,.97],
@@ -176,6 +187,34 @@ try{
  await page.keyboard.up(key);
  const travel=await page.evaluate(()=>({room:window.nanoDnf.getState().room.name}));
  assert.equal(travel.room,profile.next);
+ if(profile.extraEast){
+  await page.keyboard.press('p');
+  await page.evaluate(()=>{
+   const C=window.DNFCore,s=window.nanoDnf.getState();
+   C.goToCell(s,s.dungeon.cells.findIndex(c=>c.col===2&&c.row===1));
+   s.intro=null;s.transition=s.titleT=0;s.player.x=C.doorX(s,C.currentCell(s),'N');
+   s.player.z=C.bandDepth(s.band)/2;s.player.vx=s.player.vz=0;
+  });
+  await page.keyboard.press('p');await page.keyboard.down('ArrowRight');
+  await page.waitForFunction(()=>window.nanoDnf.getState().player.x>=640);
+  await page.keyboard.up('ArrowRight');await page.keyboard.press('x');
+  await page.waitForFunction(()=>window.nanoDnf.getState().props.find(p=>p.piece==='barrel'&&p.x===713)?.broken);
+  await page.keyboard.down('ArrowRight');
+  try{
+  await page.waitForFunction(()=>{const s=window.nanoDnf.getState(),c=s.dungeon.cells[s.cell];return c.col===3&&c.row===1;},null,{timeout:30000});
+  }catch(error){
+   const blocked=await page.evaluate(()=>{const s=window.nanoDnf.getState();return {cell:s.cell,room:s.room.name,cleared:s.room.cleared,transition:s.transition,player:s.player,props:s.props};});
+   fs.writeFileSync(path.join(out,'east-blocked.json'),JSON.stringify(blocked,null,2)+'\n');
+   await page.locator('#stage').screenshot({path:path.join(out,'east-blocked.png')});
+   throw error;
+  }
+  await page.keyboard.up('x');await page.keyboard.up('ArrowRight');
+  travel.east=await page.evaluate(()=>{
+   const s=window.nanoDnf.getState(),original=s.dungeon.cells.find(c=>c.col===2&&c.row===1);
+   return {room:s.room.name,barrel713Broken:!!original.props.find(p=>p.piece==='barrel'&&p.x===713)?.broken};
+  });
+  assert.equal(travel.east.room,'断墙营地');assert.equal(travel.east.barrel713Broken,true);
+ }
  fs.writeFileSync(path.join(out,'travel.json'),JSON.stringify(travel,null,2)+'\n');
  console.log(`room${room} measured-camera captures + ${profile.exit||'E'} keyboard travel OK`,out);
 }finally{await browser?.close();await new Promise(resolve=>server.close(resolve));}

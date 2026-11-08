@@ -241,6 +241,19 @@ function walkToDoor(state, dir, frames) {
     if (move[0] < 0) step.left = true;
     if (move[1] > 0) step.up = true;
     if (move[1] < 0) step.down = true;
+    // Cleared-room travel can smash a barrel that fills the safe lane between
+    // the vertical doors. Use real attack input, preserving prop/door geometry.
+    if (state.room.cleared && (dir === "E" || dir === "W")) {
+      const sign=dir === "E" ? 1 : -1;
+      const barrel=state.props.some(prop=>{
+        if(prop.broken || !Core.BREAKABLE[prop.piece])return false;
+        const box=Core.propBox(prop.piece,prop.scale);
+        const distance=sign*(prop.x+(box.dx||0)-player.x);
+        return distance>0 && distance<Core.PLAYER.attackReach+player.width+box.width/2 &&
+          Math.abs(prop.z-player.z)<player.width/2+box.depth/2+12;
+      });
+      if(barrel){step.attack=true;step.right=sign>0;step.left=sign<0;step.up=step.down=false;}
+    }
     const before = state.cell;
     Core.step(state, step);
     if (state.cell !== before) return frame;
@@ -10125,7 +10138,7 @@ test("the measured room widths and band are on the deep route", () => {
     "1,3": 1280,
     "2,3": 1280,
     "2,2": 1280,
-    "2,1": 885,
+    "2,1": 1248,
     "2,0": 524,
     "3,0": 529,
     "3,1": 588,
@@ -11504,4 +11517,16 @@ test("the goblin bunker atlas preserves the imported four native idle phases", (
   assert.equal(crypto.createHash("sha256").update(image.pixels).digest("hex"),proof.sheet_rgba_sha256);
   assert.deepEqual(Render.SCENE.pieces.goblinBunker,[0,0,...proof.frame]);
   assert.equal(proof.phase_ms,150);
+});
+
+test("room23 accommodates the observed sweep and retains both measured vertical doors", () => {
+  const state=Core.createState({stage:"mirkwooddeep",seed:1});
+  Core.goToCell(state,state.dungeon.cells.findIndex(c=>c.col===2&&c.row===1));
+  const camera=JSON.parse(fs.readFileSync(path.join(__dirname,"../docs/reference-evidence/51-room23-camera.json"),"utf8"));
+  const span=Math.max(...camera.map(c=>c.camera_px))-Math.min(...camera.map(c=>c.camera_px));
+  assert.ok(state.room.width*Core.CAMERA.zoom>=720+span,"old room width truncates the recorded sweep");
+  assert.equal(state.props.filter(p=>p.piece==="pillarPale").length,8);
+  assert.equal(state.props.filter(p=>p.piece==="barrel").length,6);
+  assert.equal(state.props.filter(p=>p.piece==="rockFlat").length,0,"the old rock was a damaged pillar");
+  for(const dir of ["N","S"])assert.ok(Math.abs(Core.doorX(state,Core.currentCell(state),dir)-604)<.001);
 });
