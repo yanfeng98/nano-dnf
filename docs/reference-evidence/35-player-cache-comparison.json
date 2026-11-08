@@ -1,0 +1,86 @@
+[
+  {
+    "folder": "ImagePacks2",
+    "key": "body",
+    "frames": 242,
+    "cache_equal": true,
+    "size": 399567
+  },
+  {
+    "folder": "ImagePacks2",
+    "key": "coat",
+    "frames": 242,
+    "cache_equal": true,
+    "size": 85552
+  },
+  {
+    "folder": "ImagePacks2",
+    "key": "hair",
+    "frames": 242,
+    "cache_equal": true,
+    "size": 60287
+  },
+  {
+    "folder": "ImagePacks2",
+    "key": "face",
+    "frames": 242,
+    "cache_equal": true,
+    "size": 28066
+  },
+  {
+    "folder": "ImagePacks2",
+    "key": "pants",
+    "frames": 242,
+    "cache_equal": true,
+    "size": 241575
+  },
+  {
+    "folder": "ImagePacks2",
+    "key": "shoes",
+    "frames": 242,
+    "cache_equal": true,
+    "size": 90262
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "key": "body",
+    "frames": 210,
+    "cache_equal": false,
+    "size": 306694
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "key": "coat",
+    "frames": 210,
+    "cache_equal": false,
+    "size": 74126
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "key": "hair",
+    "frames": 210,
+    "cache_equal": false,
+    "size": 45368
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "key": "face",
+    "frames": 210,
+    "cache_equal": false,
+    "size": 22242
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "key": "pants",
+    "frames": 210,
+    "cache_equal": false,
+    "size": 189022
+  },
+  {
+    "folder": "ImagePacks2_70",
+    "key": "shoes",
+    "frames": 210,
+    "cache_equal": false,
+    "size": 78728
+  }
+]
