@@ -7,6 +7,16 @@ import http from 'node:http';
 import {fileURLToPath} from 'node:url';
 const room=process.env.CAPTURE_ROOM || '42';
 const profiles={
+ '24':{batch:54,col:3,row:1,out:'/tmp/nano-room54/render',times:[277,281,293,307],actorScreenX:80,next:'暗咒猫妖的林地',exit:'E',entryDoor:'W',
+  cases:[
+   ['front-barrel',277,'forest',560,1874,63,78,472,370,72,89,22,100,.95],
+   ['middle-barrel',277,'forest',560,1874,63,78,428,296,70,86,22,100,.95],
+   ['back-barrel',277,'forest',560,1874,63,78,458,247,72,89,22,100,.95],
+   ['single-large-rock',277,'forest',585,803,141,89,496,286,156,98,60,1000,.97],
+   ['rock-after-pan',281,'forest',585,803,141,89,231,286,156,98,60,1000,.97],
+   ['first-green-tree',293,'tree',0,0,153,203,303,162,171,229,229,5000,.97,null,null,true],
+   ['second-green-tree',307,'tree',0,0,153,203,192,169,173,227,227,5000,.97,null,null,true]
+  ]},
  '14':{batch:53,col:3,row:0,out:'/tmp/nano-room53/render',times:[236.5,260,265.5],next:'老树回廊',exit:'W',entryDoor:'W',
   scope:'camera capacity and west-door keyboard only; tree and gate artwork remain unverified',cases:[]},
  '13':{batch:52,col:2,row:0,out:'/tmp/nano-room52/render',times:[190,210,235.5,268,271.5],next:'残柱祭坛',exit:'E',entryDoor:'S',extraSouth:true,
@@ -119,18 +129,18 @@ try{
    actions.push(...performed);prepared=true;
   }
   const camera=time===26.5?0:cameras.find(c=>c.t===time).camera_px;
-  const record=await page.evaluate(({camera,time,col,row,entryDoor})=>{
+  const record=await page.evaluate(({camera,time,col,row,entryDoor,actorScreenX})=>{
    const C=window.DNFCore,s=window.nanoDnf.getState();
    C.goToCell(s,s.dungeon.cells.findIndex(c=>c.col===col&&c.row===row));
    s.entryDoor=entryDoor===undefined?(col===0?null:'W'):entryDoor;s.titleT=0;s.intro=null;s.transition=0;
    // Relocate the actor only to keep the sampled native faces unobscured.
-   s.player.x=(camera+(col===0?80:time<=28?240:200))/C.CAMERA.zoom;s.player.z=40;
+   s.player.x=(camera+(actorScreenX??(col===0?80:time<=28?240:200)))/C.CAMERA.zoom;s.player.z=40;
    s.player.hurtTimer=0;s.player.invuln=0;s.player.buffs={};
    s.camera.x=camera/C.CAMERA.zoom;s.time=10;
    window.nanoDnf.setMapMode('radar');
    return {time,room:s.room.name,width:s.room.width,cameraPx:camera,
     props:s.props.map(p=>({piece:p.piece,x:p.x,z:p.z,broken:p.broken,gone:!!p.gone,screenX:p.x*C.CAMERA.zoom-camera,bottom:430-C.depthLift(p.z)*C.CAMERA.zoom}))};
-  },{camera,time,col:profile.col,row:profile.row??3,entryDoor:profile.entryDoor});
+  },{camera,time,col:profile.col,row:profile.row??3,entryDoor:profile.entryDoor,actorScreenX:profile.actorScreenX});
   await page.waitForTimeout(100);
   const url=await page.locator('#stage').evaluate(c=>c.toDataURL('image/png'));
   images[time]=url;
@@ -144,7 +154,7 @@ try{
   const name=t===26.5?'47-room42-entry-reference.png':`${profile.batch}-room${room}-${t}-reference.png`;
   return [t,fs.readFileSync(path.join(root,'docs/reference-evidence',name)).toString('base64')];
  }));
- const native=Object.fromEntries([['pillar','pillar-pale.png'],['forest','forest.png'],['bunker','goblin-bunker.png']].map(([key,name])=>[key,fs.readFileSync(path.join(root,'assets',name)).toString('base64')]));
+ const native=Object.fromEntries([['pillar','pillar-pale.png'],['forest','forest.png'],['bunker','goblin-bunker.png'],['tree','tree-reference.png']].map(([key,name])=>[key,fs.readFileSync(path.join(root,'assets',name)).toString('base64')]));
  const faces=await page.evaluate(async({reference,images,native,cases})=>{
   async function picture(url){const im=new Image();im.src=url;await im.decode();return im;}
   function canvas(w,h){const c=document.createElement('canvas');c.width=w;c.height=h;return c.getContext('2d');}
@@ -155,7 +165,7 @@ try{
    const a=canvas(960,540);a.drawImage(await picture(images[t]),0,0);actuals[t]=a;
   }
   const result=[];
-  for(const [label,time,sheet,sx,sy,sw,sh,x,y,w,h,cutoff,minPixels,threshold,maxX,maskBox] of cases){
+  for(const [label,time,sheet,sx,sy,sw,sh,x,y,w,h,cutoff,minPixels,threshold,maxX,maskBox,alphaOnly] of cases){
    const c=canvas(w,h);c.drawImage(atlases[sheet],sx,sy,sw,sh,0,0,w,h);
    const mask=c.getImageData(0,0,w,h).data,ref=refs[time].getImageData(x,y,w,h).data;let best={cosine:0};
    for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++){
@@ -163,12 +173,12 @@ try{
     for(let i=0;i<mask.length;i+=4){
      const px=(i/4)%w,py=Math.floor(i/4/w);
      if(maskBox&&(px<maskBox[0]||py<maskBox[1]||px>=maskBox[2]||py>=maskBox[3]))continue;
-     if((i/4)%w>=(maxX||w)||Math.floor(i/4/w)>=cutoff||mask[i+3]<=220||mask[i]<=70||mask[i+1]<=70||mask[i+2]<=45)continue;
+     if((i/4)%w>=(maxX||w)||Math.floor(i/4/w)>=cutoff||mask[i+3]<=220||(!alphaOnly&&(mask[i]<=70||mask[i+1]<=70||mask[i+2]<=45)))continue;
      pixels++;for(let k=0;k<3;k++){dot+=ref[i+k]*actual[i+k];a2+=ref[i+k]**2;b2+=actual[i+k]**2;}
     }
     const cosine=dot/Math.sqrt(a2*b2);if(cosine>best.cosine)best={cosine,dx,dy,pixels};
    }
-   result.push({label,time,minPixels,threshold,nativeMask:{rows:cutoff,columns:maxX||w},...best});
+   result.push({label,time,minPixels,threshold,nativeMask:{rows:cutoff,columns:maxX||w,alphaOnly:!!alphaOnly,box:maskBox||null},...best});
   }
   return result;
  },{reference,images,native,cases:profile.cases});

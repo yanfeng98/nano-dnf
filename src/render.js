@@ -1729,6 +1729,7 @@
       trunkBent: [1099, 380, 143, 423],
       trunkMossy: [0, 803, 160, 428],
       treeLeafy: [160, 803, 153, 203],
+      treeReference: [0, 0, 153, 203],
       hut: [0, 0, 222, 198],
       goblinBunker: [0, 0, 142, 138],
       pillarPale: [0, 0, 44, 133],
@@ -2668,7 +2669,8 @@
   }
 
   function drawScenePiece(ctx, sprites, name, x, bottom, zShare, scaleOverride, time) {
-    var sheet = name === "goblinBunker" ? sprites && sprites.goblinBunker
+    var sheet = name === "treeReference" ? sprites && sprites.treeReference
+      : name === "goblinBunker" ? sprites && sprites.goblinBunker
       : name === "hut" ? sprites && sprites.hut
       : name === "pillar" || name === "pillarPale" || name === "pillarDecor" || name === "pillarDamagedDecor"
         ? sprites && sprites.pillarPale

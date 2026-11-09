@@ -1,0 +1,16 @@
+{
+  "pack": "sprite_map.NPK",
+  "entry": "sprite/map/03obj300.img",
+  "frame": 0,
+  "offset": [
+    5,
+    0
+  ],
+  "size": [
+    153,
+    203
+  ],
+  "original_rgba_sha256": "353648772a720bd3adb575f69c1d69d1e41c97eb731566b17e24ffe24e2a3bb3",
+  "transform": "horizontal mirror only",
+  "rgba_sha256": "ede72d80078275e1fa5ba9021a9d67ab8b726a4d7df3522ffd5a98f1b52994c9"
+}

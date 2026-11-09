@@ -2800,11 +2800,11 @@
           ],
           scatter: {"solid":0,"barrels":0,"stones":0}
         },
-        /* 6 —— 路线 24 (3,1)。录像 277–313s；房宽下界 588 世界px（7.00 身位）；墙/桶/箱/碑。 */
+        /* 6 —— 路线 24 (3,1)。录像 277–313s；重测宽1120、三桶一岩及两处镜像绿树形态，动态待核。 */
         {
           name: "断墙营地",
           kind: "corr",
-          width: 588,
+          width: 1120,
           band: { backY: 256 },
           enemies: [
             { type: "goblinRed", x: 250, level: 6 },
@@ -2817,19 +2817,18 @@
             { type: "throwerElite", x: 950, depth: 0.35, wave: 3, level: 6 },
           ],
           cap: 4,
-          /*
-           * **24 房逐件量过**（279s 帧；`ref/279.png`）：三只桶从左下往右上斜排
-           * （x 134/155/170，底 350/300/435 → depth 0.92/1.50/-0.06）；
-           * 两块苔石（x 215/242，depth 0.81/0.69）；右边一棵果树（x 415，
-           * 底 330 → 1.15）。旧的那组 x 到 1000，房间 588 宽时全在墙外。
-           */
+          /* V2 277–311s: cut before the boss-room transition, dense camera
+           * fit + both gate strips. Width lower bound1118.33 -> use1120.
+           * Native cap/rock fits identify three barrels and one large rock.
+           * Two observed mirrored green trees replace the unrelated default;
+           * fruit/damage states and enemy placements remain unverified. */
           props: [
-            { piece: "barrel", x: 155, depth: 1.50 },
-            { piece: "barrel", x: 134, depth: 0.92 },
-            { piece: "barrel", x: 170, depth: -0.06 },
-            { piece: "rockFlat", x: 215, depth: 0.81, scale: [0.45, 0.45] },
-            { piece: "rockFlat", x: 242, depth: 0.69, scale: [0.45, 0.45] },
-            { piece: "treeLeafy", x: 415, depth: 1.15 },
+            {"piece": "barrel", "x": 294, "depth": 0.553, "scale": [0.7, 0.7]},
+            {"piece": "barrel", "x": 313, "depth": 1.082, "scale": [0.725, 0.725]},
+            {"piece": "barrel", "x": 322, "depth": -0.334, "scale": [0.725, 0.725]},
+            {"piece": "rockFlat", "x": 364, "depth": 0.529, "scale": [0.7, 0.7]},
+            {"piece": "treeReference", "x": 584, "depth": 0.449, "scale": [0.71, 0.715]},
+            {"piece": "treeReference", "x": 819, "depth": 0.391, "scale": [0.715, 0.71]},
             { piece: "trunkMossy", x: 20, depth: 2.03 },
             { piece: "trunkTall", x: 540, depth: 2.03 },
           ],
@@ -3423,7 +3422,7 @@
       0: 960,
       1: 538,
       5: 960,
-      6: 588,
+      6: 1120,
       8: 1280,
       9: 1248,
       10: 1280,
@@ -4011,6 +4010,7 @@
       trunkBent:  { width: 111, dx: 6,   ink: [143, 423] },
       trunkMossy: { width: 100, dx: -18, ink: [160, 428] },
       treeLeafy:  { width: 84,  dx: -4,  ink: [153, 203] },
+      treeReference: { width: 84, dx: 4, ink: [153, 203] },
       stump:      { width: 74,  dx: -4,  ink: [105, 199] },
       pillar:     { width: 43,  dx: 0,   ink: [44, 133] },
       pillarPale: { width: 43,  dx: 0,   ink: [44, 133] },
@@ -4208,6 +4208,7 @@
        * 横向偏大 1.86 倍、纵向 1.46 倍。**又是"偏胖"**（本作 0.75 的宽高比对录像的 0.59）。
        */
       treeLeafy: [0.54, 0.69],
+      treeReference: [0.71, 0.715],
       /*
        * **高草换了那一件之后重新量的**（`docs/adr/0050` 追记三）：新那一件是 39x87，
        * 录像里那一撮是 **95x170 视频px**，所以两轴都要缩：横向 0.77、纵向 0.62。

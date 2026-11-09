@@ -1,0 +1,192 @@
+{
+  "gate_checks": {
+    "west": [
+      {
+        "time": 277.0,
+        "score": 0.9964355230331421,
+        "observed_delta": 0,
+        "predicted_delta": 0.01,
+        "error_px": 0.01
+      },
+      {
+        "time": 277.1,
+        "score": 0.9971454739570618,
+        "observed_delta": 0,
+        "predicted_delta": 0.01,
+        "error_px": 0.01
+      },
+      {
+        "time": 277.2,
+        "score": 0.9972715973854065,
+        "observed_delta": 0,
+        "predicted_delta": 0.01,
+        "error_px": 0.01
+      },
+      {
+        "time": 277.3,
+        "score": 0.9981531500816345,
+        "observed_delta": 0,
+        "predicted_delta": 0.01,
+        "error_px": 0.01
+      },
+      {
+        "time": 277.4,
+        "score": 0.9991777539253235,
+        "observed_delta": 0,
+        "predicted_delta": 0.0,
+        "error_px": 0.0
+      },
+      {
+        "time": 277.5,
+        "score": 0.9999998211860657,
+        "observed_delta": 0,
+        "predicted_delta": 0.0,
+        "error_px": 0.0
+      },
+      {
+        "time": 277.6,
+        "score": 0.9995577931404114,
+        "observed_delta": 0,
+        "predicted_delta": 0.0,
+        "error_px": 0.0
+      },
+      {
+        "time": 277.7,
+        "score": 0.9991437792778015,
+        "observed_delta": 0,
+        "predicted_delta": 0.01,
+        "error_px": 0.01
+      },
+      {
+        "time": 277.8,
+        "score": 0.998999297618866,
+        "observed_delta": 0,
+        "predicted_delta": 0.0,
+        "error_px": 0.0
+      },
+      {
+        "time": 277.9,
+        "score": 0.9989949464797974,
+        "observed_delta": 0,
+        "predicted_delta": 0.01,
+        "error_px": 0.01
+      },
+      {
+        "time": 278.0,
+        "score": 0.9547711610794067,
+        "observed_delta": 2,
+        "predicted_delta": 2.24,
+        "error_px": 0.2400000000000002
+      },
+      {
+        "time": 278.1,
+        "score": 0.9434863924980164,
+        "observed_delta": 29,
+        "predicted_delta": 29.27,
+        "error_px": 0.2699999999999996
+      },
+      {
+        "time": 278.2,
+        "score": 0.9380695223808289,
+        "observed_delta": 57,
+        "predicted_delta": 57.41,
+        "error_px": 0.4099999999999966
+      }
+    ],
+    "east": [
+      {
+        "time": 307.0,
+        "score": 1.0,
+        "observed_delta": 0,
+        "predicted_delta": 0.0,
+        "error_px": 0.0
+      },
+      {
+        "time": 307.1,
+        "score": 0.9609065055847168,
+        "observed_delta": 3,
+        "predicted_delta": 3.3799999999999955,
+        "error_px": 0.37999999999999545
+      },
+      {
+        "time": 307.2,
+        "score": 0.9602780938148499,
+        "observed_delta": 3,
+        "predicted_delta": 3.3799999999999955,
+        "error_px": 0.37999999999999545
+      },
+      {
+        "time": 307.3,
+        "score": 0.9603280425071716,
+        "observed_delta": 3,
+        "predicted_delta": 3.3799999999999955,
+        "error_px": 0.37999999999999545
+      },
+      {
+        "time": 307.4,
+        "score": 0.9602342247962952,
+        "observed_delta": 3,
+        "predicted_delta": 3.3799999999999955,
+        "error_px": 0.37999999999999545
+      },
+      {
+        "time": 307.5,
+        "score": 0.9591955542564392,
+        "observed_delta": 3,
+        "predicted_delta": 3.3799999999999955,
+        "error_px": 0.37999999999999545
+      },
+      {
+        "time": 307.6,
+        "score": 0.9587914943695068,
+        "observed_delta": 3,
+        "predicted_delta": 3.3799999999999955,
+        "error_px": 0.37999999999999545
+      },
+      {
+        "time": 307.7,
+        "score": 0.9514561295509338,
+        "observed_delta": 3,
+        "predicted_delta": 3.3799999999999955,
+        "error_px": 0.37999999999999545
+      },
+      {
+        "time": 307.8,
+        "score": 0.9574922323226929,
+        "observed_delta": 3,
+        "predicted_delta": 3.3799999999999955,
+        "error_px": 0.37999999999999545
+      },
+      {
+        "time": 307.9,
+        "score": 0.9568765759468079,
+        "observed_delta": 3,
+        "predicted_delta": 3.3799999999999955,
+        "error_px": 0.37999999999999545
+      },
+      {
+        "time": 308.0,
+        "score": 0.9567227959632874,
+        "observed_delta": 3,
+        "predicted_delta": 3.3799999999999955,
+        "error_px": 0.37999999999999545
+      },
+      {
+        "time": 308.1,
+        "score": 0.9550632834434509,
+        "observed_delta": 3,
+        "predicted_delta": 3.3799999999999955,
+        "error_px": 0.37999999999999545
+      },
+      {
+        "time": 308.2,
+        "score": 0.9505764245986938,
+        "observed_delta": 3,
+        "predicted_delta": 3.3799999999999955,
+        "error_px": 0.37999999999999545
+      }
+    ]
+  },
+  "width_lower_bound_world": 1118.3284528301886,
+  "limits": "Camera span and gate texture identity only. Foreground tree identity, position, damage, enemies and exact wall offsets remain unverified."
+}

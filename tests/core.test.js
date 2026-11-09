@@ -213,7 +213,10 @@ function lastRoomState(seed) {
  * 所以这一路是**绕过去**的，不是"一直按着方向键"。
  */
 function walkToDoor(state, dir, frames) {
-  const budget = frames || 60 * 12;
+  // Bound traversal by configured width/speed plus one depth detour; keep the 12s minimum.
+  const travelSeconds=Core.roomWidth(state)/Core.PHYSICS.moveSpeed +
+    Core.bandDepth(state.band)/(Core.PHYSICS.moveSpeed*Core.PHYSICS.depthSpeedRatio);
+  const budget = frames || Math.max(60*12,Math.ceil(60*travelSeconds));
   const cell = Core.currentCell(state);
   const doorX = Core.doorX(state, cell, dir);
   const depth = Core.bandDepth(state.band);
@@ -10143,7 +10146,7 @@ test("the measured room widths and band are on the deep route", () => {
     "2,1": 1248,
     "2,0": 1264,
     "3,0": 960,
-    "3,1": 588,
+    "3,1": 1120,
     "4,1": 538
   };
   const state = Core.createState({ stage: "mirkwooddeep", seed: 7 });
@@ -11563,4 +11566,22 @@ test("room14 contains the dense camera sweep independently checked at both gates
  const c=JSON.parse(fs.readFileSync(path.join(__dirname,"../docs/reference-evidence/53-room14-camera.json"),"utf8"));
  const span=Math.max(...c.map(p=>p.camera_px))-Math.min(...c.map(p=>p.camera_px));
  assert.ok(s.room.width*Core.CAMERA.zoom>=720+span,"old529 width cannot contain the observed camera span");
+});
+
+
+test("room24 contains its own pre-boss camera span and measured prop groups",()=>{
+ const s=Core.createState({stage:"mirkwooddeep",seed:1});Core.goToCell(s,s.dungeon.cells.findIndex(c=>c.col===3&&c.row===1));
+ const c=JSON.parse(fs.readFileSync(path.join(__dirname,"../docs/reference-evidence/54-room24-camera.json"),"utf8"));
+ assert.equal(c[c.length-1].t,311,"boss-room frames must not inflate this room");
+ assert.ok(s.room.width*Core.CAMERA.zoom>=720+Math.max(...c.map(q=>q.camera_px))-Math.min(...c.map(q=>q.camera_px)));
+ assert.equal(s.props.filter(p=>p.piece==="barrel").length,3);
+ assert.equal(s.props.filter(p=>p.piece==="rockFlat").length,1);
+ assert.deepEqual(s.props.filter(p=>p.piece==="treeReference").map(p=>p.x),[584,819]);
+});
+
+test("the observed green tree preserves the mirrored native RGBA",()=>{
+ const proof=JSON.parse(fs.readFileSync(path.join(__dirname,"../docs/reference-evidence/54-tree-native-proof.json"),"utf8"));
+ const im=decodeRgbaPng(path.join(__dirname,"../assets/tree-reference.png"));
+ assert.deepEqual([im.width,im.height],proof.size);
+ assert.equal(require("node:crypto").createHash("sha256").update(im.pixels).digest("hex"),proof.rgba_sha256);
 });

@@ -107,6 +107,7 @@
     ["gui", "./assets/gui.png"],
     /* 深处 33 房与 Boss 房的茅草屋（`assets/import_dnf_hut.py`）。 */
     ["hut", "./assets/hut.png"],
+    ["treeReference", "./assets/tree-reference.png"],
     ["goblinBunker", "./assets/goblin-bunker.png"],
     /* 深处那批偏白的高石柱（`assets/import_dnf_pillar.py`）。 */
     ["pillarPale", "./assets/pillar-pale.png"],

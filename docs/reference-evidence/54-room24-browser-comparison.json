@@ -1,0 +1,114 @@
+[
+  {
+    "label": "front-barrel",
+    "time": 277,
+    "minPixels": 100,
+    "threshold": 0.95,
+    "nativeMask": {
+      "rows": 22,
+      "columns": 72,
+      "alphaOnly": false,
+      "box": null
+    },
+    "cosine": 0.9909016781869414,
+    "dx": 0,
+    "dy": 0,
+    "pixels": 468
+  },
+  {
+    "label": "middle-barrel",
+    "time": 277,
+    "minPixels": 100,
+    "threshold": 0.95,
+    "nativeMask": {
+      "rows": 22,
+      "columns": 70,
+      "alphaOnly": false,
+      "box": null
+    },
+    "cosine": 0.9927777251168486,
+    "dx": 1,
+    "dy": 0,
+    "pixels": 471
+  },
+  {
+    "label": "back-barrel",
+    "time": 277,
+    "minPixels": 100,
+    "threshold": 0.95,
+    "nativeMask": {
+      "rows": 22,
+      "columns": 72,
+      "alphaOnly": false,
+      "box": null
+    },
+    "cosine": 0.9915137836312691,
+    "dx": -1,
+    "dy": 0,
+    "pixels": 468
+  },
+  {
+    "label": "single-large-rock",
+    "time": 277,
+    "minPixels": 1000,
+    "threshold": 0.97,
+    "nativeMask": {
+      "rows": 60,
+      "columns": 156,
+      "alphaOnly": false,
+      "box": null
+    },
+    "cosine": 0.9839743512901986,
+    "dx": 1,
+    "dy": 0,
+    "pixels": 1994
+  },
+  {
+    "label": "rock-after-pan",
+    "time": 281,
+    "minPixels": 1000,
+    "threshold": 0.97,
+    "nativeMask": {
+      "rows": 60,
+      "columns": 156,
+      "alphaOnly": false,
+      "box": null
+    },
+    "cosine": 0.9850295457320589,
+    "dx": 1,
+    "dy": 0,
+    "pixels": 1994
+  },
+  {
+    "label": "first-green-tree",
+    "time": 293,
+    "minPixels": 5000,
+    "threshold": 0.97,
+    "nativeMask": {
+      "rows": 229,
+      "columns": 171,
+      "alphaOnly": true,
+      "box": null
+    },
+    "cosine": 0.9825717596638874,
+    "dx": 0,
+    "dy": 0,
+    "pixels": 19870
+  },
+  {
+    "label": "second-green-tree",
+    "time": 307,
+    "minPixels": 5000,
+    "threshold": 0.97,
+    "nativeMask": {
+      "rows": 227,
+      "columns": 173,
+      "alphaOnly": true,
+      "box": null
+    },
+    "cosine": 0.9759719283494895,
+    "dx": -1,
+    "dy": -1,
+    "pixels": 19941
+  }
+]
