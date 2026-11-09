@@ -3070,11 +3070,11 @@
           ],
           scatter: {"solid":0,"barrels":0,"stones":0}
         },
-        /* 13 —— 路线 13 (2,0)。录像 190–235 / 266–271s；房宽下界 524 世界px（6.24 身位）；石柱 8、桶 1、岩 2、树 5。 */
+        /* 13 —— 路线 13 (2,0)。录像 190–235 / 266–271s；联合重测宽1264、15柱4桶，南门world182。 */
         {
           name: "老树回廊",
           kind: "corr",
-          width: 524,
+          width: 1264,
           band: { backY: 256 },
           enemies: [
             { type: "goblinRed", x: 350, level: 6 },
@@ -3085,20 +3085,30 @@
             { type: "goblinRed", x: 850, wave: 3, level: 6 },
           ],
           cap: 4,
-          /*
-           * **13 房逐件量过**（192s 帧；`ref/192.png`）：左边一簇三根浅柱
-           * （左缘 240/275/300，底 330/335/345 → x 166/188/204、
-           * depth 1.15/1.09/0.98）；右边一簇两根（x 402/431，depth ≈1.0）+
-           * 一只桶（x 439，底 435 → depth -0.06）。
-           * 旧的那组 x 到 900，房间 524 宽时后面几根根本不在房里。
-           */
+          /* V2 190–235.5 and 266.5–271.5s: joint camera graph, 103 samples.
+           * Native caps identify 15 pillars and 4 barrels. Width lower bound
+           * 1248.85 world px -> use1264; south axis world182. Later damaged
+           * shapes do not establish initial states; SC-17 remains open. */
           props: [
-            { piece: "pillarPale", x: 166, depth: 1.15 },
-            { piece: "pillarPale", x: 188, depth: 1.09 },
-            { piece: "pillarPale", x: 204, depth: 0.98 },
-            { piece: "pillarPale", x: 402, depth: 1.00 },
-            { piece: "pillarPale", x: 431, depth: 0.95 },
-            { piece: "barrel", x: 439, depth: -0.06 },
+            { piece: "pillarPale", x: 243, depth: 1.462 },
+            { piece: "pillarPale", x: 270, depth: 1.036 },
+            { piece: "pillarPale", x: 303, depth: 0.679 },
+            { piece: "pillarPale", x: 438, depth: -0.783 },
+            { piece: "pillarPale", x: 465, depth: -0.357 },
+            { piece: "pillarPale", x: 495, depth: 0.012 },
+            { piece: "pillarPale", x: 614, depth: 0.863 },
+            { piece: "pillarPale", x: 641, depth: 1.163 },
+            { piece: "pillarPale", x: 670, depth: 1.542 },
+            { piece: "pillarPale", x: 772, depth: -0.84 },
+            { piece: "pillarPale", x: 804, depth: -0.334 },
+            { piece: "pillarPale", x: 836, depth: 0.127 },
+            { piece: "pillarPale", x: 943, depth: 1.128 },
+            { piece: "pillarPale", x: 970, depth: 1.37 },
+            { piece: "pillarPale", x: 997, depth: 1.658 },
+            { piece: "barrel", x: 349, depth: 0.334, scale: [0.7, 0.7] },
+            { piece: "barrel", x: 395, depth: -0.046, scale: [0.725, 0.725] },
+            { piece: "barrel", x: 531, depth: 0.288, scale: [0.725, 0.725] },
+            { piece: "barrel", x: 571, depth: 0.679, scale: [0.7, 0.7] },
             { piece: "trunkMossy", x: 30, depth: 2.03 },
             { piece: "trunkTall", x: 500, depth: 2.03 },
           ],
@@ -3352,9 +3362,9 @@
     bossRoom: 1,
     /* 上下门轴按各房完整镜头轨迹换算，入场帧不等于camera=0。
      * 43: world970（审计首批）；33: world630（第五十批）；23: world604（第五十一批）。
-     * 13仍沿用旧0.20，待独立重测；其他格缺证据时保留0.5。
+     * 13南门world182（第五十二批）；其他格缺证据时保留0.5。
      */
-    northX: { "2,3": 970 / 1280, "2,2": 630 / 1280, "2,1": 604 / 1248, "2,0": 0.20 },
+    northX: { "2,3": 970 / 1280, "2,2": 630 / 1280, "2,1": 604 / 1248, "2,0": 182 / 1264 },
     /* 这一关的上/下门量到在同一条竖轴上（`doorX`）。别的关没有这个证据，不开。 */
     southSharesNorthX: true,
     /*
@@ -3416,7 +3426,7 @@
       9: 1248,
       10: 1280,
       12: 1280,
-      13: 524
+      13: 1264
     };
     Object.keys(widths).forEach(function (index) {
       var room = STAGES.mirkwooddeep.rooms[Number(index)];
@@ -3859,7 +3869,7 @@
      * 一格 24 单位、整间房 38x22 格，一步 BFS 便宜到可以每帧算一次；布景按半格放大再判定，
      * 否则会有"格心在盒外、两格之间那段却在盒里"的缝。
      */
-    function routeStep(state, targetX, targetZ, fromX, fromZ) {
+    function routeStep(state, targetX, targetZ, fromX, fromZ, options) {
       var step = 24;
       var left = roomLeft(state);
       var half = (state.player && state.player.width ? state.player.width : 34) / 2;
@@ -3868,7 +3878,11 @@
       var rows = Math.max(1, Math.floor(depth / step));
       var margin = step / 2;
       var solids = (state.props || []).filter(function (prop) {
-        return prop.solid && !prop.broken && propBox(prop.piece, prop.scale);
+        // Only a controller that will issue real attacks may plan through
+        // breakable props. Physical collision and enemy routing stay unchanged.
+        return prop.solid && !prop.broken &&
+          !(options && options.breakProps && BREAKABLE[prop.piece]) &&
+          propBox(prop.piece, prop.scale);
       });
       var blocked = function (x, z) {
         return solids.some(function (prop) {

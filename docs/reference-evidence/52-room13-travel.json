@@ -1,0 +1,15 @@
+{
+  "room": "残柱祭坛",
+  "departure": {
+    "x": 1160,
+    "z": 125,
+    "exit": "E",
+    "sideThreshold": 60,
+    "depthThreshold": 46,
+    "sideDistance": 80,
+    "northDistance": 125
+  },
+  "south": {
+    "room": "投掷手坡"
+  }
+}

@@ -235,7 +235,9 @@ function walkToDoor(state, dir, frames) {
         : dir === "S"
           ? Core.DOOR.depth / 2
           : player.z;
-    const move = Core.routeStep(state, targetX, targetZ);
+    let move = Core.routeStep(state, targetX, targetZ);
+    const breakingRoute = state.room.cleared && move[0] === 0 && move[1] === 0;
+    if (breakingRoute) move = Core.routeStep(state, targetX, targetZ, undefined, undefined, {breakProps:true});
     const step = { ...input };
     if (move[0] > 0) step.right = true;
     if (move[0] < 0) step.left = true;
@@ -243,8 +245,8 @@ function walkToDoor(state, dir, frames) {
     if (move[1] < 0) step.down = true;
     // Cleared-room travel can smash a barrel that fills the safe lane between
     // the vertical doors. Use real attack input, preserving prop/door geometry.
-    if (state.room.cleared && (dir === "E" || dir === "W")) {
-      const sign=dir === "E" ? 1 : -1;
+    if (state.room.cleared && (dir === "E" || dir === "W" || breakingRoute)) {
+      const sign=dir === "E" ? 1 : dir === "W" ? -1 : Math.sign(targetX-player.x) || player.facing;
       const barrel=state.props.some(prop=>{
         if(prop.broken || !Core.BREAKABLE[prop.piece])return false;
         const box=Core.propBox(prop.piece,prop.scale);
@@ -10139,7 +10141,7 @@ test("the measured room widths and band are on the deep route", () => {
     "2,3": 1280,
     "2,2": 1280,
     "2,1": 1248,
-    "2,0": 524,
+    "2,0": 1264,
     "3,0": 529,
     "3,1": 588,
     "4,1": 538
@@ -11529,4 +11531,28 @@ test("room23 accommodates the observed sweep and retains both measured vertical 
   assert.equal(state.props.filter(p=>p.piece==="barrel").length,6);
   assert.equal(state.props.filter(p=>p.piece==="rockFlat").length,0,"the old rock was a damaged pillar");
   for(const dir of ["N","S"])assert.ok(Math.abs(Core.doorX(state,Core.currentCell(state),dir)-604)<.001);
+});
+
+test("room13 retains its measured sweep and complete pillar groups across a revisit", () => {
+ const s=Core.createState({stage:"mirkwooddeep",seed:1});
+ Core.goToCell(s,s.dungeon.cells.findIndex(c=>c.col===2&&c.row===0));
+ const camera=JSON.parse(fs.readFileSync(path.join(__dirname,"../docs/reference-evidence/52-room13-camera.json"),"utf8"));
+ const span=Math.max(...camera.map(c=>c.camera_px))-Math.min(...camera.map(c=>c.camera_px));
+ assert.ok(s.room.width*Core.CAMERA.zoom>=720+span,"old width524 truncates the recorded room");
+ assert.equal(s.props.filter(p=>p.piece==="pillarPale").length,15);
+ assert.equal(s.props.filter(p=>p.piece==="barrel").length,4);
+ assert.ok(Math.abs(Core.doorX(s,Core.currentCell(s),"S")-182)<.001);
+ const props=s.props;Core.goToCell(s,s.dungeon.cells.findIndex(c=>c.col===3&&c.row===0));
+ Core.goToCell(s,s.dungeon.cells.findIndex(c=>c.col===2&&c.row===0));assert.equal(s.props,props);
+});
+
+
+test("breakable-aware routes remain opt-in and do not remove physical barrels", () => {
+ const s=Core.createState({stage:"mirkwooddeep",seed:1});
+ Core.goToCell(s,s.dungeon.cells.findIndex(c=>c.col===2&&c.row===0));
+ s.player.x=182;s.player.z=125;
+ assert.deepEqual(Core.routeStep(s,1200,125),[0,0]);
+ assert.notDeepEqual(Core.routeStep(s,1200,125,undefined,undefined,{breakProps:true}),[0,0]);
+ assert.ok(s.props.filter(p=>p.piece==="barrel").every(p=>!p.broken&&p.solid));
+ assert.deepEqual(Core.routeStep(s,1200,125,182,125),[0,0],"enemy/default path has no breaking capability");
 });

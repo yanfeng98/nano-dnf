@@ -7,6 +7,17 @@ import http from 'node:http';
 import {fileURLToPath} from 'node:url';
 const room=process.env.CAPTURE_ROOM || '42';
 const profiles={
+ '13':{batch:52,col:2,row:0,out:'/tmp/nano-room52/render',times:[190,210,235.5,268,271.5],next:'残柱祭坛',exit:'E',entryDoor:'S',extraSouth:true,
+  cases:[
+   ['entry-back-cap',190,'pillar',0,0,44,133,358,153,49,150,30,300,.97],
+   ['entry-middle-cap',190,'pillar',0,0,44,133,402,190,49,150,30,300,.97],
+   ['entry-barrel',190,'forest',560,1874,63,78,515,315,70,86,22,100,.95],
+   ['central-cap',210,'pillar',0,0,44,133,490,179,49,150,30,300,.97],
+   ['east-cap',235.5,'pillar',0,0,44,133,298,136,49,150,30,300,.97],
+   ['return-east-cap',268,'pillar',0,0,44,133,478,136,49,150,30,300,.97],
+   ['return-front-cap',268,'pillar',0,0,44,133,123,353,49,150,30,300,.97],
+   ['return-entry-cap',271.5,'pillar',0,0,44,133,191,153,49,150,30,300,.97]
+  ]},
  '23':{batch:51,col:2,row:1,out:'/tmp/nano-room51/render',times:[148,150,180],next:'老树回廊',exit:'N',entryDoor:'S',extraEast:true,
   cases:[
    ['entry-right-back-cap',148,'pillar',0,0,44,133,537,215,49,150,30,300,.97],
@@ -171,21 +182,26 @@ try{
  for(const face of faces)assert.ok(face.pixels>face.minPixels&&face.cosine>face.threshold,`${face.label} native face matches its measured source anchor`);
 
  // Clear through the real damage path, then leave the extended room by keyboard.
- await page.evaluate(exit=>{
+ const departure=await page.evaluate(exit=>{
   const C=window.DNFCore,s=window.nanoDnf.getState();
+  // Keep the capture actor outside an open entry gate during forced clearing.
+  s.player.x=C.roomWidth(s)/2;s.player.z=C.bandDepth(s.band)/2;s.player.vx=s.player.vz=0;
   for(let n=0;n<12&&!s.room.cleared;n++){
    s.enemies.slice().forEach(e=>{if(!e.dead)C.damageEnemy(s,e,99999,0,s.player.x);});C.runFrames(s,60,{});
   }
   if(!s.room.cleared)throw new Error('captured room did not clear');
   if(exit==='N'){
-   s.player.x=C.doorX(s,C.currentCell(s),'N');s.player.z=C.bandDepth(s.band)-10;
-  }else{s.player.x=C.roomRight(s)-45;s.player.z=C.bandDepth(s.band)/2;}
+   s.player.x=C.doorX(s,C.currentCell(s),'N');s.player.z=C.bandDepth(s.band)-C.DOOR.depth-20;
+  }else{s.player.x=C.roomRight(s)-C.DOOR.side-20;s.player.z=C.bandDepth(s.band)/2;}
+  return {x:s.player.x,z:s.player.z,exit,sideThreshold:C.DOOR.side,depthThreshold:C.DOOR.depth,sideDistance:C.roomRight(s)-s.player.x,northDistance:C.bandDepth(s.band)-s.player.z};
  },profile.exit||'E');
+ assert.ok(departure.exit==='N'?departure.northDistance>departure.depthThreshold:departure.sideDistance>departure.sideThreshold,'departure starts outside the door trigger');
  const key=profile.exit==='N'?'ArrowUp':'ArrowRight';
  await page.keyboard.press('p');await page.keyboard.down(key);
  await page.waitForFunction(({col,row,exit})=>{const s=window.nanoDnf.getState(),c=s.dungeon.cells[s.cell];return exit==='N'?c.col===col&&c.row===row-1:c.col===col+1&&c.row===row;},{col:profile.col,row:profile.row??3,exit:profile.exit});
  await page.keyboard.up(key);
  const travel=await page.evaluate(()=>({room:window.nanoDnf.getState().room.name}));
+ travel.departure=departure;
  assert.equal(travel.room,profile.next);
  if(profile.extraEast){
   await page.keyboard.press('p');
@@ -214,6 +230,17 @@ try{
    return {room:s.room.name,barrel713Broken:!!original.props.find(p=>p.piece==='barrel'&&p.x===713)?.broken};
   });
   assert.equal(travel.east.room,'断墙营地');assert.equal(travel.east.barrel713Broken,true);
+ }
+ if(profile.extraSouth){
+  await page.keyboard.press('p');
+  await page.evaluate(()=>{
+   const C=window.DNFCore,s=window.nanoDnf.getState();C.goToCell(s,s.dungeon.cells.findIndex(c=>c.col===2&&c.row===0));
+   s.transition=s.titleT=0;s.intro=null;s.player.x=C.doorX(s,C.currentCell(s),'S');s.player.z=C.DOOR.depth+20;
+  });
+  await page.keyboard.press('p');await page.keyboard.down('ArrowDown');
+  await page.waitForFunction(()=>{const s=window.nanoDnf.getState(),c=s.dungeon.cells[s.cell];return c.col===2&&c.row===1;});
+  await page.keyboard.up('ArrowDown');travel.south=await page.evaluate(()=>({room:window.nanoDnf.getState().room.name}));
+  assert.equal(travel.south.room,'投掷手坡');
  }
  fs.writeFileSync(path.join(out,'travel.json'),JSON.stringify(travel,null,2)+'\n');
  console.log(`room${room} measured-camera captures + ${profile.exit||'E'} keyboard travel OK`,out);

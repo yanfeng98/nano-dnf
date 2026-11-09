@@ -19,6 +19,7 @@ parser.add_argument('--max-pair-gap',type=int,default=0,help='Limit comparisons 
 parser.add_argument('--spatial-consensus',action='store_true',help='Rank translation clusters by spatial coverage to reject a feature-rich moving actor')
 parser.add_argument('--normalize-min',action='store_true',help='Use the minimum observed horizontal camera as origin; does not prove an exact left wall')
 parser.add_argument('--track-y',action='store_true',help='Fit vertical translation too when the recording camera moves during jumps')
+parser.add_argument('--times',type=Path,help='JSON array of strictly increasing timestamps for nonuniform/revisited samples')
 parser.add_argument('--step',type=float,default=.5,help='Seconds between input samples')
 parser.add_argument('--diagnostics',type=Path,help='Save graph connectivity and residuals for independent review')
 parser.add_argument('--mask-top',type=int,default=100,help='First scene row used for features; raise to exclude parallax treetops')
@@ -28,6 +29,9 @@ fs=sorted(args.frames.glob('*.png'));s=cv2.SIFT_create(nfeatures=2200)
 if args.max_pair_gap<0:raise ValueError('Pair gap must not be negative')
 if args.spatial_consensus and not args.track_y:raise ValueError('Spatial consensus requires track-y')
 if len(fs)<2 or args.step<=0:raise ValueError('Need at least two frames and a positive sample step')
+times=json.loads(args.times.read_text()) if args.times else [round(args.start+i*args.step,6) for i in range(len(fs))]
+if len(times)!=len(fs) or not all(isinstance(t,(int,float)) and np.isfinite(t) for t in times):raise ValueError('Need one finite timestamp per input frame')
+if any(b<=a for a,b in zip(times,times[1:])):raise ValueError('Timestamps must be strictly increasing')
 if not 0<=args.mask_top<args.mask_bottom<=540:raise ValueError('Invalid scene mask bounds')
 mask=np.zeros((540,720),np.uint8);mask[args.mask_top:args.mask_bottom,:]=255;mask[:280,:185]=0;mask[:180,580:]=0;mask[350:,600:]=0
 features=[s.detectAndCompute(cv2.imread(str(f),0),mask) for f in fs]
@@ -96,16 +100,16 @@ if args.track_y:
  if not yr.success:raise RuntimeError('Vertical camera fit did not converge: '+yr.message)
  vertical=np.r_[0,yr.x]
 origin=float(c.min()) if args.normalize_min else 0
-records=[{'t':round(args.start+i*args.step,6),'camera_px':round(float(x-origin),2),
+records=[{'t':times[i],'camera_px':round(float(x-origin),2),
  **({'relative_camera_px':round(float(x),2)} if args.normalize_min else {}),
  **({'camera_y_px':round(float(vertical[i]),2)} if vertical is not None else {})} for i,x in enumerate(c)]
 args.out.write_text(json.dumps(records,indent=2)+'\n')
 if args.diagnostics:
  residual=[float(c[j]-c[i]-dx) for i,j,dx,_ in edges]
  args.diagnostics.parent.mkdir(parents=True,exist_ok=True)
- args.diagnostics.write_text(json.dumps({'frames':[f.name for f in fs],'start':args.start,'step':args.step,'feature_rows':[args.mask_top,args.mask_bottom],
+ args.diagnostics.write_text(json.dumps({'frames':[f.name for f in fs],'start':times[0],'step':args.step,'sample_times':times if args.times else None,'feature_rows':[args.mask_top,args.mask_bottom],
   'origin_relative_px':origin,'connected_frames':len(seen),'spatial_consensus':args.spatial_consensus,'max_pair_gap':args.max_pair_gap,'track_y':args.track_y,'vertical_edge_deltas_px':vertical_edges if args.track_y else None,'edges':edges,'edge_residuals_px':residual,
   'median_absolute_residual_px':float(np.median(np.abs(residual))),
   'span_px':float(c.max()-c.min()),'limits':'Relative translation from static-feature constraints; not absolute camera, exact room width, or proof of layer identity. Check matching world props independently.'},indent=2)+'\n')
 print('edges',len(edges),'residual',np.median(abs(err(r.x))),'range',c.min(),c.max())
-print([(round(args.start+i*args.step,3),round(float(c[i]),2)) for i in sorted(set([0,len(fs)-1]+list(range(0,len(fs),max(1,len(fs)//8)))))])
+print([(round(times[i],3),round(float(c[i]),2)) for i in sorted(set([0,len(fs)-1]+list(range(0,len(fs),max(1,len(fs)//8)))))])
