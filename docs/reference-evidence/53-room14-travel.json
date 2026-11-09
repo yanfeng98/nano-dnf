@@ -1,0 +1,13 @@
+{
+  "room": "老树回廊",
+  "departure": {
+    "x": 104,
+    "z": 125,
+    "exit": "W",
+    "sideThreshold": 60,
+    "depthThreshold": 46,
+    "sideDistance": 80,
+    "northDistance": 125
+  },
+  "validationScope": "camera capacity and west-door keyboard only; tree and gate artwork remain unverified"
+}

@@ -2772,11 +2772,13 @@
             { piece: "barrel", x: 824, depth: 0.38 },
           ]
         },
-        /* 5 —— 路线 14 (3,0)。录像 236–265s；房宽下界 529 世界px（6.30 身位）；石柱/碑/箱。 */
+        /* 5 —— 路线 14 (3,0)。录像 236–265s；密集取样双门核验下界约958，采用960；树/敌人仍待核。 */
         {
           name: "残柱祭坛",
           kind: "corr",
-          width: 529,
+          // 236.5–265.5s at 10Hz, 128 independent gate-texture checks.
+          // Keep authored tree/enemy coordinates: this is width calibration only.
+          width: 960,
           band: { backY: 256 },
           enemies: [
             { type: "deepElite", x: 350, level: 6 },
@@ -3420,7 +3422,7 @@
     var widths = {
       0: 960,
       1: 538,
-      5: 529,
+      5: 960,
       6: 588,
       8: 1280,
       9: 1248,

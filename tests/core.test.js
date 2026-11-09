@@ -10142,7 +10142,7 @@ test("the measured room widths and band are on the deep route", () => {
     "2,2": 1280,
     "2,1": 1248,
     "2,0": 1264,
-    "3,0": 529,
+    "3,0": 960,
     "3,1": 588,
     "4,1": 538
   };
@@ -11555,4 +11555,12 @@ test("breakable-aware routes remain opt-in and do not remove physical barrels", 
  assert.notDeepEqual(Core.routeStep(s,1200,125,undefined,undefined,{breakProps:true}),[0,0]);
  assert.ok(s.props.filter(p=>p.piece==="barrel").every(p=>!p.broken&&p.solid));
  assert.deepEqual(Core.routeStep(s,1200,125,182,125),[0,0],"enemy/default path has no breaking capability");
+});
+
+test("room14 contains the dense camera sweep independently checked at both gates", () => {
+ const s=Core.createState({stage:"mirkwooddeep",seed:1});
+ Core.goToCell(s,s.dungeon.cells.findIndex(c=>c.col===3&&c.row===0));
+ const c=JSON.parse(fs.readFileSync(path.join(__dirname,"../docs/reference-evidence/53-room14-camera.json"),"utf8"));
+ const span=Math.max(...c.map(p=>p.camera_px))-Math.min(...c.map(p=>p.camera_px));
+ assert.ok(s.room.width*Core.CAMERA.zoom>=720+span,"old529 width cannot contain the observed camera span");
 });

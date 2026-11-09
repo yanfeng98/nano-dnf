@@ -7,6 +7,8 @@ import http from 'node:http';
 import {fileURLToPath} from 'node:url';
 const room=process.env.CAPTURE_ROOM || '42';
 const profiles={
+ '14':{batch:53,col:3,row:0,out:'/tmp/nano-room53/render',times:[236.5,260,265.5],next:'老树回廊',exit:'W',entryDoor:'W',
+  scope:'camera capacity and west-door keyboard only; tree and gate artwork remain unverified',cases:[]},
  '13':{batch:52,col:2,row:0,out:'/tmp/nano-room52/render',times:[190,210,235.5,268,271.5],next:'残柱祭坛',exit:'E',entryDoor:'S',extraSouth:true,
   cases:[
    ['entry-back-cap',190,'pillar',0,0,44,133,358,153,49,150,30,300,.97],
@@ -192,16 +194,17 @@ try{
   if(!s.room.cleared)throw new Error('captured room did not clear');
   if(exit==='N'){
    s.player.x=C.doorX(s,C.currentCell(s),'N');s.player.z=C.bandDepth(s.band)-C.DOOR.depth-20;
-  }else{s.player.x=C.roomRight(s)-C.DOOR.side-20;s.player.z=C.bandDepth(s.band)/2;}
-  return {x:s.player.x,z:s.player.z,exit,sideThreshold:C.DOOR.side,depthThreshold:C.DOOR.depth,sideDistance:C.roomRight(s)-s.player.x,northDistance:C.bandDepth(s.band)-s.player.z};
+  }else{s.player.x=exit==='W'?C.roomLeft(s)+C.DOOR.side+20:C.roomRight(s)-C.DOOR.side-20;s.player.z=C.bandDepth(s.band)/2;}
+  return {x:s.player.x,z:s.player.z,exit,sideThreshold:C.DOOR.side,depthThreshold:C.DOOR.depth,sideDistance:exit==='W'?s.player.x-C.roomLeft(s):C.roomRight(s)-s.player.x,northDistance:C.bandDepth(s.band)-s.player.z};
  },profile.exit||'E');
  assert.ok(departure.exit==='N'?departure.northDistance>departure.depthThreshold:departure.sideDistance>departure.sideThreshold,'departure starts outside the door trigger');
- const key=profile.exit==='N'?'ArrowUp':'ArrowRight';
+ const key=profile.exit==='N'?'ArrowUp':profile.exit==='W'?'ArrowLeft':'ArrowRight';
  await page.keyboard.press('p');await page.keyboard.down(key);
- await page.waitForFunction(({col,row,exit})=>{const s=window.nanoDnf.getState(),c=s.dungeon.cells[s.cell];return exit==='N'?c.col===col&&c.row===row-1:c.col===col+1&&c.row===row;},{col:profile.col,row:profile.row??3,exit:profile.exit});
+ await page.waitForFunction(({col,row,exit})=>{const s=window.nanoDnf.getState(),c=s.dungeon.cells[s.cell];return exit==='N'?c.col===col&&c.row===row-1:exit==='W'?c.col===col-1&&c.row===row:c.col===col+1&&c.row===row;},{col:profile.col,row:profile.row??3,exit:profile.exit});
  await page.keyboard.up(key);
  const travel=await page.evaluate(()=>({room:window.nanoDnf.getState().room.name}));
  travel.departure=departure;
+ if(profile.scope)travel.validationScope=profile.scope;
  assert.equal(travel.room,profile.next);
  if(profile.extraEast){
   await page.keyboard.press('p');
