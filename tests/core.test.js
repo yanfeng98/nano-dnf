@@ -10147,7 +10147,7 @@ test("the measured room widths and band are on the deep route", () => {
     "2,0": 1264,
     "3,0": 960,
     "3,1": 1120,
-    "4,1": 538
+    "4,1": 1440
   };
   const state = Core.createState({ stage: "mirkwooddeep", seed: 7 });
   Object.keys(widths).forEach((key) => {
@@ -11584,4 +11584,15 @@ test("the observed green tree preserves the mirrored native RGBA",()=>{
  const im=decodeRgbaPng(path.join(__dirname,"../assets/tree-reference.png"));
  assert.deepEqual([im.width,im.height],proof.size);
  assert.equal(require("node:crypto").createHash("sha256").update(im.pixels).digest("hex"),proof.rgba_sha256);
+});
+
+test("boss room contains the full camera sweep independently checked against foreground props",()=>{
+ const s=Core.createState({stage:"mirkwooddeep",seed:1});
+ Core.goToCell(s,s.dungeon.cells.findIndex(c=>c.col===4&&c.row===1));
+ const c=JSON.parse(fs.readFileSync(path.join(__dirname,"../docs/reference-evidence/55-room25-camera.json"),"utf8"));
+ const span=Math.max(...c.map(q=>q.camera_px))-Math.min(...c.map(q=>q.camera_px));
+ assert.ok(s.room.width*Core.CAMERA.zoom>=720+span,"538 width truncates the observed boss arena");
+ s.intro=null;s.transition=0;s.player.invuln=100;s.player.x=1000;s.player.z=125;
+ Core.runFrames(s,300,{right:true});
+ assert.ok(s.camera.x*Core.CAMERA.zoom>=span,"normal movement reaches the observed far-right camera");
 });

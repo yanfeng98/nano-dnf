@@ -2643,11 +2643,11 @@
           ],
           scatter: {"solid":0,"barrels":0,"stones":0}
         },
-        /* 1 —— 路线 25 Boss (4,1)。录像 314–385s；房宽下界 538、TH100 752 世界px；骷髅袋/帐篷本作无对应件，不放。 */
+        /* 1 —— 路线 25 Boss (4,1)。V2 312–385s完整前景轨迹下界1438.27，采用1440；物件/敌人摆位仍待核。 */
         {
           name: "暗咒猫妖的林地",
           kind: "room",
-          width: 538,
+          width: 1440,
           band: { backY: 256 },
           enemies: [
             { type: "deepElite", x: 300, level: 7 },
@@ -3420,7 +3420,7 @@
   (function fitDeepRouteRooms() {
     var widths = {
       0: 960,
-      1: 538,
+      1: 1440,
       5: 960,
       6: 1120,
       8: 1280,
