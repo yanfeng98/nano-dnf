@@ -2614,6 +2614,7 @@
           // tree-layer estimate. 960 contains the ~959-world-pixel bound.
           // Do not stretch existing enemy/tree coordinates with the new width.
           width: 960,
+          closeback: "deepEntryCloseback",
           band: { backY: 256 },
           // Enemy placement is still the older, unverified layout; no width-based stretching.
           enemies: [
@@ -2627,12 +2628,8 @@
           ],
           cap: 4,
           // V2 13.5/17.5/25.5s native rock/barrel locations after camera removal.
-          // Trees and the fallen log below remain older, unvalidated placements.
+          // Rear trees use the native closeback list; the fallen log is still unverified.
           props: [
-            // These three tree placements still need independent layer/anchor evidence.
-            { piece: "trunkTall", x: 81, depth: 2.03 },
-            { piece: "trunkMossy", x: 228, depth: 2.03 },
-            { piece: "trunkBent", x: 374, depth: 2.03 },
             { piece: "rockFlat", x: 376, depth: 1.429, scale: [0.70, 0.70] },
             { piece: "rockFlat", x: 669, depth: 0.081, scale: [0.725, 0.725] },
             { piece: "barrel", x: 341, depth: 0.980, scale: [0.725, 0.725] },
@@ -2648,7 +2645,7 @@
           name: "暗咒猫妖的林地",
           kind: "room",
           width: 1440,
-          closeback: "deepBossReference",
+          closeback: "deepBossCloseback",
           band: { backY: 256 },
           enemies: [
             { type: "deepElite", x: 300, level: 7 },

@@ -11636,3 +11636,15 @@ test("the boss closeback draws its native reference plane without adding physica
  Render.render(recordingContext(other),normal,{sprites:{forest:{},deepBossCloseback:layer}});
  assert.ok(!other.some(c=>c[0]==="drawImage"&&c[1]===layer),"a boss map must not leak into the entry room");
 });
+
+test("the entry closeback projects its native map without duplicate physical trunks",()=>{
+ const proof=JSON.parse(fs.readFileSync(path.join(__dirname,"../docs/reference-evidence/59-closeback-native-proof.json"),"utf8"));
+ const s=Core.createState({stage:"mirkwooddeep",seed:1});
+ const layer={width:proof.size[0],height:proof.size[1]},calls=[];
+ Render.render(recordingContext(calls),s,{sprites:{forest:{},deepEntryCloseback:layer}});
+ const draw=calls.find(c=>c[0]==="drawImage"&&c[1]===layer);
+ assert.ok(draw,"missing the native entry-room rear tree row");
+ assert.ok(Math.abs(draw[4]*Core.CAMERA.zoom-proof.size[0]*proof.screen_native_scale)<.001);
+ assert.ok(Math.abs(430+(draw[3]-430)*Core.CAMERA.zoom-proof.screen_y)<.001);
+ assert.equal(s.props.filter(p=>["trunkTall","trunkBent","trunkMossy"].includes(p.piece)).length,0,"native rear decorations replace guessed standing trees");
+});

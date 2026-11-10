@@ -1,0 +1,13 @@
+{
+  "room": "宝箱浅沟",
+  "departure": {
+    "x": 856,
+    "z": 125,
+    "exit": "E",
+    "sideThreshold": 60,
+    "depthThreshold": 46,
+    "sideDistance": 80,
+    "northDistance": 125
+  },
+  "validationScope": "native entry closeback and measured phase at four cameras; fade, other layers and scenery lifecycle remain open"
+}

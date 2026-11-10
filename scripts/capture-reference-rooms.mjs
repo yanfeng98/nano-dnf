@@ -7,6 +7,14 @@ import http from 'node:http';
 import {fileURLToPath} from 'node:url';
 const room=process.env.CAPTURE_ROOM || '42';
 const profiles={
+ '41-closeback':{batch:59,col:0,row:3,out:'/tmp/nano-room59/render',times:[10.5,13.5,17.5,25.5],actorScreenX:80,next:'宝箱浅沟',
+  scope:'native entry closeback and measured phase at four cameras; fade, other layers and scenery lifecycle remain open',
+  cases:[
+   ['entry-west-wall',10.5,'entryCloseback',270/1.125,78/1.125,290/1.125,80/1.125,270,80,290,80,80,10000,.97,null,null,true],
+   ['entry-tree0',13.5,'entryCloseback',(270+210.27)/1.125,78/1.125,290/1.125,80/1.125,270,80,290,80,80,10000,.97,null,null,true],
+   ['entry-middle-wall',17.5,'entryCloseback',(270+427.4)/1.125,78/1.125,290/1.125,50/1.125,270,80,290,50,50,6000,.97,null,null,true],
+   ['entry-east-wall',25.5,'entryCloseback',(270+791.92)/1.125,78/1.125,240/1.125,50/1.125,270,80,240,50,50,5000,.97,null,null,true]
+  ]},
  '25-closeback':{batch:58,col:4,row:1,out:'/tmp/nano-room58/render',times:[312,314.5,319,330,370],actorScreenX:80,boss:true,
   scope:'native boss closeback list and measured phase at five cameras; far/mid motion, floor, foreground, actors and object lifecycle remain open',
   cases:[
@@ -139,7 +147,7 @@ try{
  });
  const records=[],images={},actions=[];let prepared=false;
  for(const time of profile.times){
-  if(room==='41'&&time>10.5&&!prepared&&process.env.ROOM_BASELINE!=='1'){
+  if((room==='41'||room==='41-closeback')&&time>10.5&&!prepared&&process.env.ROOM_BASELINE!=='1'){
    const performed=await page.evaluate(()=>{
     const C=window.DNFCore,s=window.nanoDnf.getState(),result=[];s.player.invuln=100;
     // Build the observed post-hit state through real attacks, not flags/timers.
@@ -183,7 +191,7 @@ try{
   const name=t===26.5?'47-room42-entry-reference.png':`${profile.batch}-room${room}-${t}-reference.png`;
   return [t,fs.readFileSync(path.join(root,'docs/reference-evidence',name)).toString('base64')];
  }));
- const native=Object.fromEntries([['pillar','pillar-pale.png'],['forest','forest.png'],['bunker','goblin-bunker.png'],['tree','tree-reference.png'],['fruitTree','tree-fruit-reference.png'],['closeback','deep-boss-closeback.png']].map(([key,name])=>[key,fs.readFileSync(path.join(root,'assets',name)).toString('base64')]));
+ const native=Object.fromEntries([['pillar','pillar-pale.png'],['forest','forest.png'],['bunker','goblin-bunker.png'],['tree','tree-reference.png'],['fruitTree','tree-fruit-reference.png'],['closeback','deep-boss-closeback.png'],['entryCloseback','deep-entry-closeback.png']].map(([key,name])=>[key,fs.readFileSync(path.join(root,'assets',name)).toString('base64')]));
  const faces=await page.evaluate(async({reference,images,native,cases})=>{
   async function picture(url){const im=new Image();im.src=url;await im.decode();return im;}
   function canvas(w,h){const c=document.createElement('canvas');c.width=w;c.height=h;return c.getContext('2d');}

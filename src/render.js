@@ -2878,11 +2878,10 @@
     ctx.fillStyle = "rgba(255, 226, 180, 0.10)";
     ctx.fillRect(0, ARENA.groundY, width, 2);
 
-    // Native b417 closeback list: 28 decorations, not physical standing props.
+    // Verified native room closeback lists are decorations, not standing props.
     // Reference calibration is 9/8 screen pixels per native pixel and screenY=2.
-    if (state.room && state.room.closeback === "deepBossReference" &&
-        sprites && sprites.deepBossCloseback) {
-      var closeback = sprites.deepBossCloseback;
+    var closeback = state.room && state.room.closeback && sprites && sprites[state.room.closeback];
+    if (closeback) {
       var scale = (VIEW.width / 640) / Core.CAMERA.zoom;
       var top = ARENA.groundY + (2 - ARENA.groundY) / Core.CAMERA.zoom;
       ctx.drawImage(closeback, 0, top, closeback.width * scale, closeback.height * scale);
