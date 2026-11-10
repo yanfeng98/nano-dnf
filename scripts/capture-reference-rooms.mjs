@@ -7,6 +7,13 @@ import http from 'node:http';
 import {fileURLToPath} from 'node:url';
 const room=process.env.CAPTURE_ROOM || '42';
 const profiles={
+ '43-closeback':{evidence:'02-room43',referenceNames:{74.25:'02-room43-074.25.png',90.25:'02-room43-090.25.png',104.25:'02-room43-104.25.png'},col:2,row:3,out:'/tmp/nano-room61/render',times:[74.25,90.25,104.25],actorScreenX:80,exit:'N',next:'藤蔓窄道',
+  scope:'native room 43 closeback at three measured cameras; physical props and other scenery layers remain open',
+  cases:[
+   ['west-tree',74.25,'room43Closeback',280/1.125,178/1.125,60/1.125,40/1.125,280,180,60,40,40,1500,.97,null,null,true],
+   ['east-wall',90.25,'room43Closeback',(520+1200.42)/1.125,138/1.125,60/1.125,40/1.125,520,140,60,40,40,1500,.97,null,null,true],
+   ['north-gate-tree',104.25,'room43Closeback',(100+1047.41)/1.125,58/1.125,60/1.125,40/1.125,100,60,60,40,40,1500,.97,null,null,true]
+  ]},
  '42-closeback':{batch:60,col:1,row:3,out:'/tmp/nano-room60/render',times:[28,72.5,73.5],actorScreenX:80,next:'猫妖岔路',
   scope:'native room 42 closeback at three measured cameras; physical props, other layers and scenery lifecycle remain open',
   cases:[
@@ -117,7 +124,8 @@ const profiles={
 assert.ok(profiles[room],'unknown room capture profile');const profile=profiles[room];
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const out=process.env.CAPTURE_OUT || profile.out;fs.mkdirSync(out,{recursive:true});
-const cameras=JSON.parse(fs.readFileSync(path.join(root,`docs/reference-evidence/${profile.batch}-room${room}-camera.json`)));
+const evidence=profile.evidence ?? `${profile.batch}-room${room}`;
+const cameras=JSON.parse(fs.readFileSync(path.join(root,`docs/reference-evidence/${evidence}-camera.json`)));
 const server=http.createServer((req,res)=>{
  const url=new URL(req.url,'http://localhost'),file=path.resolve(root,'.'+(url.pathname==='/'?'/index.html':url.pathname));
  if(!file.startsWith(root+path.sep)||!fs.existsSync(file)||!fs.statSync(file).isFile()){res.writeHead(404).end();return;}
@@ -195,10 +203,10 @@ try{
  fs.writeFileSync(path.join(out,'fixture-actions.json'),JSON.stringify(actions,null,2)+'\n');
  const refTimes=[...new Set(profile.cases.map(c=>c[1]))];
  const reference=Object.fromEntries(refTimes.map(t=>{
-  const name=t===26.5?'47-room42-entry-reference.png':`${profile.batch}-room${room}-${t}-reference.png`;
+  const name=t===26.5?'47-room42-entry-reference.png':(profile.referenceNames?.[t] ?? `${evidence}-${t}-reference.png`);
   return [t,fs.readFileSync(path.join(root,'docs/reference-evidence',name)).toString('base64')];
  }));
- const native=Object.fromEntries([['pillar','pillar-pale.png'],['forest','forest.png'],['bunker','goblin-bunker.png'],['tree','tree-reference.png'],['fruitTree','tree-fruit-reference.png'],['closeback','deep-boss-closeback.png'],['entryCloseback','deep-entry-closeback.png'],['room42Closeback','deep-room42-closeback.png']].map(([key,name])=>[key,fs.readFileSync(path.join(root,'assets',name)).toString('base64')]));
+ const native=Object.fromEntries([['pillar','pillar-pale.png'],['forest','forest.png'],['bunker','goblin-bunker.png'],['tree','tree-reference.png'],['fruitTree','tree-fruit-reference.png'],['closeback','deep-boss-closeback.png'],['entryCloseback','deep-entry-closeback.png'],['room42Closeback','deep-room42-closeback.png'],['room43Closeback','deep-room43-closeback.png']].map(([key,name])=>[key,fs.readFileSync(path.join(root,'assets',name)).toString('base64')]));
  const faces=await page.evaluate(async({reference,images,native,cases})=>{
   async function picture(url){const im=new Image();im.src=url;await im.decode();return im;}
   function canvas(w,h){const c=document.createElement('canvas');c.width=w;c.height=h;return c.getContext('2d');}

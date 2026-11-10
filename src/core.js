@@ -2862,6 +2862,7 @@
          * 房宽取1280世界px（仍为下界）；原684漏掉大量镜头移动。见reference-video-audit。 */
         {
           name: "猫妖岔路",
+          closeback: "deepRoom43Closeback",
           kind: "corr",
           width: 1280,
           northGateBottom: 316,
@@ -2881,19 +2882,15 @@
           props: [
             { piece: "chest", x: 391, depth: 1.56 },
             { piece: "chest", x: 456, depth: 1.56 },
-            { piece: "wallStone", x: 351, depth: 1.96, scale: [1, 0.75] },
             { piece: "pillarPale", x: 493, depth: 1.56 },
             { piece: "pillarPale", x: 532, depth: 1.15 },
             { piece: "barrel", x: 567, depth: 0.62 },
             { piece: "rockFlat", x: 375, depth: -0.18, scale: [0.77, 0.77] },
             { piece: "fallenTrunk", x: 178, depth: -0.58 },
-            { piece: "trunkTall", x: 40, depth: 2.03 },
             /* Right half visible at V2 90.25/104.25s, camera 1200/1047px.
              * These were outside the old, shortened 684px room entirely.
              */
             { piece: "barrel", x: 826, depth: 1.52 },
-            { piece: "wallStone", x: 847, depth: 2.10, scale: [1, 0.75] },
-            { piece: "wallStone", x: 1115, depth: 2.10, scale: [1, 0.75] },
             { piece: "pillarPale", x: 677, depth: -0.24 },
             { piece: "pillarPale", x: 870, depth: 0.74 },
             { piece: "pillarPale", x: 894, depth: 0.44 },

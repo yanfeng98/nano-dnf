@@ -1,0 +1,13 @@
+{
+  "room": "藤蔓窄道",
+  "departure": {
+    "x": 970,
+    "z": 184,
+    "exit": "N",
+    "sideThreshold": 60,
+    "depthThreshold": 46,
+    "sideDistance": 286,
+    "northDistance": 66
+  },
+  "validationScope": "native room 43 closeback at three measured cameras; physical props and other scenery layers remain open"
+}

@@ -1,0 +1,493 @@
+{
+  "pvf": "Script.pvf",
+  "version": 66282,
+  "map_entry": "map/mirkwooddeep/n423(2,3).map",
+  "map_sha256": "9aada19d4129d408ba6cbdf9f30a038925d077e8f7266eb46fde65bb3c781d15",
+  "tile_count": 8,
+  "animations": {
+    "Animation/Tree0.ani": {
+      "entry": "map/mirkwooddeep/animation/tree0.ani",
+      "sha256": "01db1815b4c1b87ed0d887ba2dd0ed611cf2137a9feae0e985aad6eadffcdf15",
+      "animation": {
+        "paths": [
+          "Map/02obj101.img"
+        ],
+        "overall": [
+          [
+            1,
+            0
+          ]
+        ],
+        "frames": [
+          {
+            "frame": 0,
+            "xy": [
+              -98,
+              -389
+            ],
+            "props": [
+              [
+                12,
+                50
+              ]
+            ],
+            "boxes": []
+          }
+        ]
+      }
+    },
+    "Animation/Tree1.ani": {
+      "entry": "map/mirkwooddeep/animation/tree1.ani",
+      "sha256": "9de48a95a67263f8a68b9ef960b5c7b7c4c17c3f31fc8df044742d7a0818d392",
+      "animation": {
+        "paths": [
+          "Map/02obj102.img"
+        ],
+        "overall": [
+          [
+            1,
+            0
+          ]
+        ],
+        "frames": [
+          {
+            "frame": 0,
+            "xy": [
+              -73,
+              -406
+            ],
+            "props": [
+              [
+                12,
+                50
+              ]
+            ],
+            "boxes": []
+          }
+        ]
+      }
+    },
+    "Animation/StonePillar1.ani": {
+      "entry": "map/mirkwooddeep/animation/stonepillar1.ani",
+      "sha256": "a693808a83c338c8bc5e64c9f4e13d83061ad00012b816f8c697ab9be1eeb081",
+      "animation": {
+        "paths": [
+          "Map/02obj008.img"
+        ],
+        "overall": [
+          [
+            1,
+            0
+          ]
+        ],
+        "frames": [
+          {
+            "frame": 0,
+            "xy": [
+              -88,
+              -110
+            ],
+            "props": [
+              [
+                12,
+                50
+              ]
+            ],
+            "boxes": []
+          }
+        ]
+      }
+    },
+    "Animation/Tree3.ani": {
+      "entry": "map/mirkwooddeep/animation/tree3.ani",
+      "sha256": "669eee38d80a2653a6ebe60d3efd804f8f47aa1e7bff48b12385cb6c0f7172e5",
+      "animation": {
+        "paths": [
+          "Map/02obj102.img"
+        ],
+        "overall": [
+          [
+            1,
+            0
+          ]
+        ],
+        "frames": [
+          {
+            "frame": 0,
+            "xy": [
+              -79,
+              -406
+            ],
+            "props": [
+              [
+                12,
+                50
+              ]
+            ],
+            "boxes": []
+          }
+        ]
+      }
+    },
+    "Animation/Tree4.ani": {
+      "entry": "map/mirkwooddeep/animation/tree4.ani",
+      "sha256": "011415c2e476fb606452cb8d17c96a3df58471fca0a2d14b5183d2621ad0b36d",
+      "animation": {
+        "paths": [
+          "Map/02obj101.img"
+        ],
+        "overall": [
+          [
+            1,
+            0
+          ]
+        ],
+        "frames": [
+          {
+            "frame": 0,
+            "xy": [
+              -101,
+              -386
+            ],
+            "props": [
+              [
+                12,
+                50
+              ]
+            ],
+            "boxes": []
+          }
+        ]
+      }
+    }
+  },
+  "size": [
+    1792,
+    480
+  ],
+  "map_native_width": 1792,
+  "raster_native_y_origin": 80,
+  "screen_y": 2,
+  "screen_native_scale": 1.125,
+  "order": "original closeback list; no sorting by Y",
+  "items": [
+    {
+      "animation": "Animation/Tree0.ani",
+      "source": "sprite/map/02obj101.img",
+      "frame": 0,
+      "pos": [
+        61,
+        134,
+        0
+      ],
+      "ani_xy": [
+        -98,
+        -389
+      ],
+      "img_offset": [
+        0,
+        0
+      ],
+      "size": [
+        203,
+        422
+      ],
+      "native_y_adjust": -16,
+      "left": -37,
+      "top": -191
+    },
+    {
+      "animation": "Animation/Tree0.ani",
+      "source": "sprite/map/02obj101.img",
+      "frame": 0,
+      "pos": [
+        150,
+        134,
+        0
+      ],
+      "ani_xy": [
+        -98,
+        -389
+      ],
+      "img_offset": [
+        0,
+        0
+      ],
+      "size": [
+        203,
+        422
+      ],
+      "native_y_adjust": -16,
+      "left": 52,
+      "top": -191
+    },
+    {
+      "animation": "Animation/Tree1.ani",
+      "source": "sprite/map/02obj102.img",
+      "frame": 0,
+      "pos": [
+        289,
+        134,
+        0
+      ],
+      "ani_xy": [
+        -73,
+        -406
+      ],
+      "img_offset": [
+        3,
+        0
+      ],
+      "size": [
+        143,
+        423
+      ],
+      "native_y_adjust": 0,
+      "left": 219,
+      "top": -192
+    },
+    {
+      "animation": "Animation/StonePillar1.ani",
+      "source": "sprite/map/02obj008.img",
+      "frame": 0,
+      "pos": [
+        606,
+        138,
+        0
+      ],
+      "ani_xy": [
+        -88,
+        -110
+      ],
+      "img_offset": [
+        2,
+        2
+      ],
+      "size": [
+        167,
+        125
+      ],
+      "native_y_adjust": 0,
+      "left": 520,
+      "top": 110
+    },
+    {
+      "animation": "Animation/StonePillar1.ani",
+      "source": "sprite/map/02obj008.img",
+      "frame": 0,
+      "pos": [
+        452,
+        141,
+        0
+      ],
+      "ani_xy": [
+        -88,
+        -110
+      ],
+      "img_offset": [
+        2,
+        2
+      ],
+      "size": [
+        167,
+        125
+      ],
+      "native_y_adjust": 0,
+      "left": 366,
+      "top": 113
+    },
+    {
+      "animation": "Animation/StonePillar1.ani",
+      "source": "sprite/map/02obj008.img",
+      "frame": 0,
+      "pos": [
+        780,
+        135,
+        0
+      ],
+      "ani_xy": [
+        -88,
+        -110
+      ],
+      "img_offset": [
+        2,
+        2
+      ],
+      "size": [
+        167,
+        125
+      ],
+      "native_y_adjust": 0,
+      "left": 694,
+      "top": 107
+    },
+    {
+      "animation": "Animation/Tree3.ani",
+      "source": "sprite/map/02obj102.img",
+      "frame": 0,
+      "pos": [
+        922,
+        134,
+        0
+      ],
+      "ani_xy": [
+        -79,
+        -406
+      ],
+      "img_offset": [
+        3,
+        0
+      ],
+      "size": [
+        143,
+        423
+      ],
+      "native_y_adjust": 0,
+      "left": 846,
+      "top": -192
+    },
+    {
+      "animation": "Animation/Tree4.ani",
+      "source": "sprite/map/02obj101.img",
+      "frame": 0,
+      "pos": [
+        1055,
+        134,
+        0
+      ],
+      "ani_xy": [
+        -101,
+        -386
+      ],
+      "img_offset": [
+        0,
+        0
+      ],
+      "size": [
+        203,
+        422
+      ],
+      "native_y_adjust": -16,
+      "left": 954,
+      "top": -188
+    },
+    {
+      "animation": "Animation/StonePillar1.ani",
+      "source": "sprite/map/02obj008.img",
+      "frame": 0,
+      "pos": [
+        1200,
+        129,
+        0
+      ],
+      "ani_xy": [
+        -88,
+        -110
+      ],
+      "img_offset": [
+        2,
+        2
+      ],
+      "size": [
+        167,
+        125
+      ],
+      "native_y_adjust": 0,
+      "left": 1114,
+      "top": 101
+    },
+    {
+      "animation": "Animation/StonePillar1.ani",
+      "source": "sprite/map/02obj008.img",
+      "frame": 0,
+      "pos": [
+        1532,
+        123,
+        0
+      ],
+      "ani_xy": [
+        -88,
+        -110
+      ],
+      "img_offset": [
+        2,
+        2
+      ],
+      "size": [
+        167,
+        125
+      ],
+      "native_y_adjust": 0,
+      "left": 1446,
+      "top": 95
+    },
+    {
+      "animation": "Animation/Tree1.ani",
+      "source": "sprite/map/02obj102.img",
+      "frame": 0,
+      "pos": [
+        1714,
+        134,
+        0
+      ],
+      "ani_xy": [
+        -73,
+        -406
+      ],
+      "img_offset": [
+        3,
+        0
+      ],
+      "size": [
+        143,
+        423
+      ],
+      "native_y_adjust": 0,
+      "left": 1644,
+      "top": -192
+    }
+  ],
+  "assets": [
+    {
+      "source": "sprite/map/02obj101.img",
+      "frame": 0,
+      "size": [
+        203,
+        422
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "d19a3a88225912462eab599b496045ddfea76927e4cc888fc6c7eae4e650cbf3"
+    },
+    {
+      "source": "sprite/map/02obj102.img",
+      "frame": 0,
+      "size": [
+        143,
+        423
+      ],
+      "offset": [
+        3,
+        0
+      ],
+      "rgba_sha256": "3a14462924c7b3bf9951f968d9c2424376d0afc327d3863e08a64655445dcd67"
+    },
+    {
+      "source": "sprite/map/02obj008.img",
+      "frame": 0,
+      "size": [
+        167,
+        125
+      ],
+      "offset": [
+        2,
+        2
+      ],
+      "rgba_sha256": "ef1df4381317d33bf4f0d89ed98e4a2ee6e4e1f53fcb6c39f6791d16b6151ad4"
+    }
+  ],
+  "rgba_sha256": "f6d4d645b624391357502b46a9338ddb717daa45c6c7fc0f89f47bb489965400",
+  "limits": "Selected room closeback only. Tree0/Tree4 Y must be checked against recording; other layers, rooms and lifecycle remain unverified."
+}

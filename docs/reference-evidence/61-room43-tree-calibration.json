@@ -1,0 +1,106 @@
+[
+  {
+    "tree": "Tree0",
+    "time": 74.25,
+    "roi": [
+      160,
+      60,
+      60,
+      120
+    ],
+    "native_y_offset": -24,
+    "pixels": 7200,
+    "cosine": 0.8905265838755818
+  },
+  {
+    "tree": "Tree0",
+    "time": 74.25,
+    "roi": [
+      160,
+      60,
+      60,
+      120
+    ],
+    "native_y_offset": -16,
+    "pixels": 7200,
+    "cosine": 0.9263598619367786
+  },
+  {
+    "tree": "Tree0",
+    "time": 74.25,
+    "roi": [
+      160,
+      60,
+      60,
+      120
+    ],
+    "native_y_offset": -8,
+    "pixels": 7200,
+    "cosine": 0.8854945383022299
+  },
+  {
+    "tree": "Tree0",
+    "time": 74.25,
+    "roi": [
+      160,
+      60,
+      60,
+      120
+    ],
+    "native_y_offset": 0,
+    "pixels": 7200,
+    "cosine": 0.8523224549621706
+  },
+  {
+    "tree": "Tree4",
+    "time": 104.25,
+    "roi": [
+      100,
+      60,
+      60,
+      40
+    ],
+    "native_y_offset": -24,
+    "pixels": 2400,
+    "cosine": 0.9641320652658338
+  },
+  {
+    "tree": "Tree4",
+    "time": 104.25,
+    "roi": [
+      100,
+      60,
+      60,
+      40
+    ],
+    "native_y_offset": -16,
+    "pixels": 2400,
+    "cosine": 0.9937515584282661
+  },
+  {
+    "tree": "Tree4",
+    "time": 104.25,
+    "roi": [
+      100,
+      60,
+      60,
+      40
+    ],
+    "native_y_offset": -8,
+    "pixels": 2400,
+    "cosine": 0.9650590055387699
+  },
+  {
+    "tree": "Tree4",
+    "time": 104.25,
+    "roi": [
+      100,
+      60,
+      60,
+      40
+    ],
+    "native_y_offset": 0,
+    "pixels": 2400,
+    "cosine": 0.937642758915381
+  }
+]
