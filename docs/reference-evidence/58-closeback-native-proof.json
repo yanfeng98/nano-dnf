@@ -1,0 +1,975 @@
+{
+  "pvf": "Script.pvf",
+  "version": 66282,
+  "map_entry": "map/mirkwooddeep/b417(4,1).map",
+  "map_sha256": "fee88af40d35fcc8d76a740d6d0a1a3b634543b67c623ccf0786754d4e856e18",
+  "tile_count": 9,
+  "animations": {
+    "Animation/Tree0.ani": {
+      "entry": "map/mirkwooddeep/animation/tree0.ani",
+      "sha256": "01db1815b4c1b87ed0d887ba2dd0ed611cf2137a9feae0e985aad6eadffcdf15",
+      "animation": {
+        "paths": [
+          "Map/02obj101.img"
+        ],
+        "overall": [
+          [
+            1,
+            0
+          ]
+        ],
+        "frames": [
+          {
+            "frame": 0,
+            "xy": [
+              -98,
+              -389
+            ],
+            "props": [
+              [
+                12,
+                50
+              ]
+            ],
+            "boxes": []
+          }
+        ]
+      }
+    },
+    "Animation/Tree2.ani": {
+      "entry": "map/mirkwooddeep/animation/tree2.ani",
+      "sha256": "f343211340787dc55676728873d54814b74742941b9f29aa1d2f2679a9e240da",
+      "animation": {
+        "paths": [
+          "Map/02obj103.img"
+        ],
+        "overall": [
+          [
+            1,
+            0
+          ]
+        ],
+        "frames": [
+          {
+            "frame": 0,
+            "xy": [
+              -79,
+              -407
+            ],
+            "props": [
+              [
+                12,
+                50
+              ]
+            ],
+            "boxes": []
+          }
+        ]
+      }
+    },
+    "Animation/Tree4.ani": {
+      "entry": "map/mirkwooddeep/animation/tree4.ani",
+      "sha256": "011415c2e476fb606452cb8d17c96a3df58471fca0a2d14b5183d2621ad0b36d",
+      "animation": {
+        "paths": [
+          "Map/02obj101.img"
+        ],
+        "overall": [
+          [
+            1,
+            0
+          ]
+        ],
+        "frames": [
+          {
+            "frame": 0,
+            "xy": [
+              -101,
+              -386
+            ],
+            "props": [
+              [
+                12,
+                50
+              ]
+            ],
+            "boxes": []
+          }
+        ]
+      }
+    },
+    "Animation/Tree1.ani": {
+      "entry": "map/mirkwooddeep/animation/tree1.ani",
+      "sha256": "9de48a95a67263f8a68b9ef960b5c7b7c4c17c3f31fc8df044742d7a0818d392",
+      "animation": {
+        "paths": [
+          "Map/02obj102.img"
+        ],
+        "overall": [
+          [
+            1,
+            0
+          ]
+        ],
+        "frames": [
+          {
+            "frame": 0,
+            "xy": [
+              -73,
+              -406
+            ],
+            "props": [
+              [
+                12,
+                50
+              ]
+            ],
+            "boxes": []
+          }
+        ]
+      }
+    },
+    "Animation/smallTree0.ani": {
+      "entry": "map/mirkwooddeep/animation/smalltree0.ani",
+      "sha256": "3be1589bd874c0bcf258236e1ec11a82143c43876299c079dc9c56d6348814c9",
+      "animation": {
+        "paths": [
+          "Map/02obj300.img"
+        ],
+        "overall": [
+          [
+            1,
+            0
+          ]
+        ],
+        "frames": [
+          {
+            "frame": 0,
+            "xy": [
+              -74,
+              -173
+            ],
+            "props": [
+              [
+                12,
+                70
+              ]
+            ],
+            "boxes": []
+          }
+        ]
+      }
+    },
+    "Animation/smallTree1.ani": {
+      "entry": "map/mirkwooddeep/animation/smalltree1.ani",
+      "sha256": "359070f8341c3816caf69111f3e39a8aac786e85afb5bb6c0c40951412ebb83d",
+      "animation": {
+        "paths": [
+          "Map/02obj400.img"
+        ],
+        "overall": [
+          [
+            1,
+            0
+          ]
+        ],
+        "frames": [
+          {
+            "frame": 0,
+            "xy": [
+              -75,
+              -189
+            ],
+            "props": [
+              [
+                12,
+                80
+              ]
+            ],
+            "boxes": []
+          }
+        ]
+      }
+    }
+  },
+  "size": [
+    2027,
+    480
+  ],
+  "map_native_width": 2016,
+  "raster_native_y_origin": 80,
+  "screen_y": 2,
+  "screen_native_scale": 1.125,
+  "order": "original closeback list; no sorting by Y",
+  "items": [
+    {
+      "animation": "Animation/Tree0.ani",
+      "source": "sprite/map/02obj101.img",
+      "frame": 0,
+      "pos": [
+        60,
+        163,
+        0
+      ],
+      "ani_xy": [
+        -98,
+        -389
+      ],
+      "img_offset": [
+        0,
+        0
+      ],
+      "size": [
+        203,
+        422
+      ],
+      "native_y_adjust": 0,
+      "left": -38,
+      "top": -146
+    },
+    {
+      "animation": "Animation/Tree2.ani",
+      "source": "sprite/map/02obj103.img",
+      "frame": 0,
+      "pos": [
+        273,
+        179,
+        0
+      ],
+      "ani_xy": [
+        -79,
+        -407
+      ],
+      "img_offset": [
+        0,
+        0
+      ],
+      "size": [
+        160,
+        428
+      ],
+      "native_y_adjust": 0,
+      "left": 194,
+      "top": -148
+    },
+    {
+      "animation": "Animation/Tree4.ani",
+      "source": "sprite/map/02obj101.img",
+      "frame": 0,
+      "pos": [
+        419,
+        171,
+        0
+      ],
+      "ani_xy": [
+        -101,
+        -386
+      ],
+      "img_offset": [
+        0,
+        0
+      ],
+      "size": [
+        203,
+        422
+      ],
+      "native_y_adjust": -16,
+      "left": 318,
+      "top": -151
+    },
+    {
+      "animation": "Animation/Tree2.ani",
+      "source": "sprite/map/02obj103.img",
+      "frame": 0,
+      "pos": [
+        663,
+        147,
+        0
+      ],
+      "ani_xy": [
+        -79,
+        -407
+      ],
+      "img_offset": [
+        0,
+        0
+      ],
+      "size": [
+        160,
+        428
+      ],
+      "native_y_adjust": 0,
+      "left": 584,
+      "top": -180
+    },
+    {
+      "animation": "Animation/Tree1.ani",
+      "source": "sprite/map/02obj102.img",
+      "frame": 0,
+      "pos": [
+        933,
+        151,
+        0
+      ],
+      "ani_xy": [
+        -73,
+        -406
+      ],
+      "img_offset": [
+        3,
+        0
+      ],
+      "size": [
+        143,
+        423
+      ],
+      "native_y_adjust": 0,
+      "left": 863,
+      "top": -175
+    },
+    {
+      "animation": "Animation/Tree1.ani",
+      "source": "sprite/map/02obj102.img",
+      "frame": 0,
+      "pos": [
+        1646,
+        153,
+        0
+      ],
+      "ani_xy": [
+        -73,
+        -406
+      ],
+      "img_offset": [
+        3,
+        0
+      ],
+      "size": [
+        143,
+        423
+      ],
+      "native_y_adjust": 0,
+      "left": 1576,
+      "top": -173
+    },
+    {
+      "animation": "Animation/Tree2.ani",
+      "source": "sprite/map/02obj103.img",
+      "frame": 0,
+      "pos": [
+        1802,
+        141,
+        0
+      ],
+      "ani_xy": [
+        -79,
+        -407
+      ],
+      "img_offset": [
+        0,
+        0
+      ],
+      "size": [
+        160,
+        428
+      ],
+      "native_y_adjust": 0,
+      "left": 1723,
+      "top": -186
+    },
+    {
+      "animation": "Animation/Tree2.ani",
+      "source": "sprite/map/02obj103.img",
+      "frame": 0,
+      "pos": [
+        1474,
+        155,
+        0
+      ],
+      "ani_xy": [
+        -79,
+        -407
+      ],
+      "img_offset": [
+        0,
+        0
+      ],
+      "size": [
+        160,
+        428
+      ],
+      "native_y_adjust": 0,
+      "left": 1395,
+      "top": -172
+    },
+    {
+      "animation": "Animation/Tree1.ani",
+      "source": "sprite/map/02obj102.img",
+      "frame": 0,
+      "pos": [
+        1218,
+        177,
+        0
+      ],
+      "ani_xy": [
+        -73,
+        -406
+      ],
+      "img_offset": [
+        3,
+        0
+      ],
+      "size": [
+        143,
+        423
+      ],
+      "native_y_adjust": 0,
+      "left": 1148,
+      "top": -149
+    },
+    {
+      "animation": "Animation/Tree4.ani",
+      "source": "sprite/map/02obj101.img",
+      "frame": 0,
+      "pos": [
+        791,
+        143,
+        0
+      ],
+      "ani_xy": [
+        -101,
+        -386
+      ],
+      "img_offset": [
+        0,
+        0
+      ],
+      "size": [
+        203,
+        422
+      ],
+      "native_y_adjust": -16,
+      "left": 690,
+      "top": -179
+    },
+    {
+      "animation": "Animation/Tree4.ani",
+      "source": "sprite/map/02obj101.img",
+      "frame": 0,
+      "pos": [
+        1069,
+        167,
+        0
+      ],
+      "ani_xy": [
+        -101,
+        -386
+      ],
+      "img_offset": [
+        0,
+        0
+      ],
+      "size": [
+        203,
+        422
+      ],
+      "native_y_adjust": -16,
+      "left": 968,
+      "top": -155
+    },
+    {
+      "animation": "Animation/Tree4.ani",
+      "source": "sprite/map/02obj101.img",
+      "frame": 0,
+      "pos": [
+        1375,
+        169,
+        0
+      ],
+      "ani_xy": [
+        -101,
+        -386
+      ],
+      "img_offset": [
+        0,
+        0
+      ],
+      "size": [
+        203,
+        422
+      ],
+      "native_y_adjust": -16,
+      "left": 1274,
+      "top": -153
+    },
+    {
+      "animation": "Animation/Tree2.ani",
+      "source": "sprite/map/02obj103.img",
+      "frame": 0,
+      "pos": [
+        159,
+        169,
+        0
+      ],
+      "ani_xy": [
+        -79,
+        -407
+      ],
+      "img_offset": [
+        0,
+        0
+      ],
+      "size": [
+        160,
+        428
+      ],
+      "native_y_adjust": 0,
+      "left": 80,
+      "top": -158
+    },
+    {
+      "animation": "Animation/Tree2.ani",
+      "source": "sprite/map/02obj103.img",
+      "frame": 0,
+      "pos": [
+        543,
+        161,
+        0
+      ],
+      "ani_xy": [
+        -79,
+        -407
+      ],
+      "img_offset": [
+        0,
+        0
+      ],
+      "size": [
+        160,
+        428
+      ],
+      "native_y_adjust": 0,
+      "left": 464,
+      "top": -166
+    },
+    {
+      "animation": "Animation/Tree1.ani",
+      "source": "sprite/map/02obj102.img",
+      "frame": 0,
+      "pos": [
+        1954,
+        145,
+        0
+      ],
+      "ani_xy": [
+        -73,
+        -406
+      ],
+      "img_offset": [
+        3,
+        0
+      ],
+      "size": [
+        143,
+        423
+      ],
+      "native_y_adjust": 0,
+      "left": 1884,
+      "top": -181
+    },
+    {
+      "animation": "Animation/smallTree0.ani",
+      "source": "sprite/map/02obj300.img",
+      "frame": 0,
+      "pos": [
+        108,
+        151,
+        0
+      ],
+      "ani_xy": [
+        -74,
+        -173
+      ],
+      "img_offset": [
+        5,
+        0
+      ],
+      "size": [
+        153,
+        203
+      ],
+      "native_y_adjust": 0,
+      "left": 39,
+      "top": 58
+    },
+    {
+      "animation": "Animation/smallTree1.ani",
+      "source": "sprite/map/02obj400.img",
+      "frame": 0,
+      "pos": [
+        361,
+        172,
+        0
+      ],
+      "ani_xy": [
+        -75,
+        -189
+      ],
+      "img_offset": [
+        26,
+        1
+      ],
+      "size": [
+        105,
+        199
+      ],
+      "native_y_adjust": 0,
+      "left": 312,
+      "top": 64
+    },
+    {
+      "animation": "Animation/smallTree1.ani",
+      "source": "sprite/map/02obj400.img",
+      "frame": 0,
+      "pos": [
+        593,
+        161,
+        0
+      ],
+      "ani_xy": [
+        -75,
+        -189
+      ],
+      "img_offset": [
+        26,
+        1
+      ],
+      "size": [
+        105,
+        199
+      ],
+      "native_y_adjust": 0,
+      "left": 544,
+      "top": 53
+    },
+    {
+      "animation": "Animation/smallTree1.ani",
+      "source": "sprite/map/02obj400.img",
+      "frame": 0,
+      "pos": [
+        647,
+        161,
+        0
+      ],
+      "ani_xy": [
+        -75,
+        -189
+      ],
+      "img_offset": [
+        26,
+        1
+      ],
+      "size": [
+        105,
+        199
+      ],
+      "native_y_adjust": 0,
+      "left": 598,
+      "top": 53
+    },
+    {
+      "animation": "Animation/smallTree0.ani",
+      "source": "sprite/map/02obj300.img",
+      "frame": 0,
+      "pos": [
+        261,
+        149,
+        0
+      ],
+      "ani_xy": [
+        -74,
+        -173
+      ],
+      "img_offset": [
+        5,
+        0
+      ],
+      "size": [
+        153,
+        203
+      ],
+      "native_y_adjust": 0,
+      "left": 192,
+      "top": 56
+    },
+    {
+      "animation": "Animation/smallTree0.ani",
+      "source": "sprite/map/02obj300.img",
+      "frame": 0,
+      "pos": [
+        465,
+        152,
+        0
+      ],
+      "ani_xy": [
+        -74,
+        -173
+      ],
+      "img_offset": [
+        5,
+        0
+      ],
+      "size": [
+        153,
+        203
+      ],
+      "native_y_adjust": 0,
+      "left": 396,
+      "top": 59
+    },
+    {
+      "animation": "Animation/smallTree1.ani",
+      "source": "sprite/map/02obj400.img",
+      "frame": 0,
+      "pos": [
+        850,
+        151,
+        0
+      ],
+      "ani_xy": [
+        -75,
+        -189
+      ],
+      "img_offset": [
+        26,
+        1
+      ],
+      "size": [
+        105,
+        199
+      ],
+      "native_y_adjust": 0,
+      "left": 801,
+      "top": 43
+    },
+    {
+      "animation": "Animation/smallTree1.ani",
+      "source": "sprite/map/02obj400.img",
+      "frame": 0,
+      "pos": [
+        940,
+        159,
+        0
+      ],
+      "ani_xy": [
+        -75,
+        -189
+      ],
+      "img_offset": [
+        26,
+        1
+      ],
+      "size": [
+        105,
+        199
+      ],
+      "native_y_adjust": 0,
+      "left": 891,
+      "top": 51
+    },
+    {
+      "animation": "Animation/smallTree1.ani",
+      "source": "sprite/map/02obj400.img",
+      "frame": 0,
+      "pos": [
+        1442,
+        160,
+        0
+      ],
+      "ani_xy": [
+        -75,
+        -189
+      ],
+      "img_offset": [
+        26,
+        1
+      ],
+      "size": [
+        105,
+        199
+      ],
+      "native_y_adjust": 0,
+      "left": 1393,
+      "top": 52
+    },
+    {
+      "animation": "Animation/smallTree1.ani",
+      "source": "sprite/map/02obj400.img",
+      "frame": 0,
+      "pos": [
+        1552,
+        150,
+        0
+      ],
+      "ani_xy": [
+        -75,
+        -189
+      ],
+      "img_offset": [
+        26,
+        1
+      ],
+      "size": [
+        105,
+        199
+      ],
+      "native_y_adjust": 0,
+      "left": 1503,
+      "top": 42
+    },
+    {
+      "animation": "Animation/smallTree0.ani",
+      "source": "sprite/map/02obj300.img",
+      "frame": 0,
+      "pos": [
+        1670,
+        132,
+        0
+      ],
+      "ani_xy": [
+        -74,
+        -173
+      ],
+      "img_offset": [
+        5,
+        0
+      ],
+      "size": [
+        153,
+        203
+      ],
+      "native_y_adjust": 0,
+      "left": 1601,
+      "top": 39
+    },
+    {
+      "animation": "Animation/smallTree0.ani",
+      "source": "sprite/map/02obj300.img",
+      "frame": 0,
+      "pos": [
+        1754,
+        140,
+        0
+      ],
+      "ani_xy": [
+        -74,
+        -173
+      ],
+      "img_offset": [
+        5,
+        0
+      ],
+      "size": [
+        153,
+        203
+      ],
+      "native_y_adjust": 0,
+      "left": 1685,
+      "top": 47
+    },
+    {
+      "animation": "Animation/smallTree0.ani",
+      "source": "sprite/map/02obj300.img",
+      "frame": 0,
+      "pos": [
+        1894,
+        148,
+        0
+      ],
+      "ani_xy": [
+        -74,
+        -173
+      ],
+      "img_offset": [
+        5,
+        0
+      ],
+      "size": [
+        153,
+        203
+      ],
+      "native_y_adjust": 0,
+      "left": 1825,
+      "top": 55
+    }
+  ],
+  "assets": [
+    {
+      "source": "sprite/map/02obj101.img",
+      "frame": 0,
+      "size": [
+        203,
+        422
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "d19a3a88225912462eab599b496045ddfea76927e4cc888fc6c7eae4e650cbf3"
+    },
+    {
+      "source": "sprite/map/02obj103.img",
+      "frame": 0,
+      "size": [
+        160,
+        428
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "b3aa8d61396406c34fd390b689afed75ec106d8c374d54cc85e09bd3ecce2f63"
+    },
+    {
+      "source": "sprite/map/02obj102.img",
+      "frame": 0,
+      "size": [
+        143,
+        423
+      ],
+      "offset": [
+        3,
+        0
+      ],
+      "rgba_sha256": "3a14462924c7b3bf9951f968d9c2424376d0afc327d3863e08a64655445dcd67"
+    },
+    {
+      "source": "sprite/map/02obj300.img",
+      "frame": 0,
+      "size": [
+        153,
+        203
+      ],
+      "offset": [
+        5,
+        0
+      ],
+      "rgba_sha256": "8a328a91e12d82c9516c7d6c6a48e80180dc7a4f8a0754cd57e8cada4d8efb9a"
+    },
+    {
+      "source": "sprite/map/02obj400.img",
+      "frame": 0,
+      "size": [
+        105,
+        199
+      ],
+      "offset": [
+        26,
+        1
+      ],
+      "rgba_sha256": "50233b2fa4431aea2c18157c6f3b56a76874e96495b97f58106178784c389dab"
+    }
+  ],
+  "rgba_sha256": "adec5f7f945368934c494e2eecb2afdb7c1d1b14a2bac9b3a17c0ea60d296b5a",
+  "limits": "Boss closeback only. Tree4 Y is measured, not native ANI. Other rooms, far/mid motion, floor and foreground layers remain unverified."
+}

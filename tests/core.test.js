@@ -11621,3 +11621,18 @@ test("boss-room tree forms project to the observed native crowns and roots",()=>
   assert.ok(Math.abs(430-Core.depthLift(p.z)*Core.CAMERA.zoom-row.bottom)<2,"wrong root for "+row.label);
  }
 });
+
+test("the boss closeback draws its native reference plane without adding physical trees",()=>{
+ const proof=JSON.parse(fs.readFileSync(path.join(__dirname,"../docs/reference-evidence/58-closeback-native-proof.json"),"utf8"));
+ const s=Core.createState({stage:"mirkwooddeep",seed:1});Core.goToCell(s,s.dungeon.boss);
+ const layer={width:proof.size[0],height:proof.size[1]},calls=[];
+ Render.render(recordingContext(calls),s,{sprites:{forest:{},deepBossCloseback:layer}});
+ const draw=calls.find(c=>c[0]==="drawImage"&&c[1]===layer);
+ assert.ok(draw,"missing the dense native closeback row");
+ assert.ok(Math.abs(draw[4]*Core.CAMERA.zoom-proof.size[0]*proof.screen_native_scale)<.001,"wrong native scale");
+ assert.ok(Math.abs(430+(draw[3]-430)*Core.CAMERA.zoom-proof.screen_y)<.001,"wrong reference vertical origin");
+ assert.equal(s.props.filter(p=>["trunkTall","trunkMossy"].includes(p.piece)).length,0,"remove guessed duplicate standing trunks");
+ const normal=Core.createState({stage:"mirkwooddeep",seed:1}),other=[];
+ Render.render(recordingContext(other),normal,{sprites:{forest:{},deepBossCloseback:layer}});
+ assert.ok(!other.some(c=>c[0]==="drawImage"&&c[1]===layer),"a boss map must not leak into the entry room");
+});

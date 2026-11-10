@@ -79,6 +79,7 @@
      */
     ["forest", "./assets/forest.png"],
     ["forestDeep", "./assets/forest-deep.png"],
+    ["deepBossCloseback", "./assets/deep-boss-closeback.png"],
     /*
      * 雨（`docs/adr/0057`）：客户端 `sprite/map/rain.img` / `raindrop.img`
      * 烘成的一张小图（`assets/import_dnf_weather.py`）。

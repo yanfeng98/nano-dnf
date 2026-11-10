@@ -1,0 +1,9 @@
+{
+  "commit": "f19688390c7a3a87e9aceb5823e2b3489f9b9466",
+  "url": "https://luyf-lemon-love.space/nano-dnf/",
+  "core_sha256": "c4a9ca98493665050c1a4e652117a907c924a5885347016a7f2619463415310f",
+  "render_sha256": "896a62a6ad88e229cd6b1902a84d108e0ac07f7df8a4b5798499adad9e8ed14f",
+  "online_bytes_match_git_head": true,
+  "result": "Expected failure: west-wall native face did not match its source anchor",
+  "scope": "same five measured cameras and regions as the fixed build"
+}

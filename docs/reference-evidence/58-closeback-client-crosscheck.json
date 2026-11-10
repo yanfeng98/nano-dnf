@@ -1,0 +1,19 @@
+{
+  "same_geometry_and_pixels": true,
+  "clients": [
+    {
+      "file": "Script.pvf",
+      "version": 66282,
+      "map_sha256": "fee88af40d35fcc8d76a740d6d0a1a3b634543b67c623ccf0786754d4e856e18",
+      "items_sha256": "bf7b76fb5d994e32e5d7e4062be0b4b3bb249293777289427560520333f18226",
+      "rgba_sha256": "adec5f7f945368934c494e2eecb2afdb7c1d1b14a2bac9b3a17c0ea60d296b5a"
+    },
+    {
+      "file": "Script_70.pvf",
+      "version": 48984,
+      "map_sha256": "aa40570dec83fd062224b950defd7edd9d8884dea2eaa6892d084da0680faec1",
+      "items_sha256": "bf7b76fb5d994e32e5d7e4062be0b4b3bb249293777289427560520333f18226",
+      "rgba_sha256": "adec5f7f945368934c494e2eecb2afdb7c1d1b14a2bac9b3a17c0ea60d296b5a"
+    }
+  ]
+}

@@ -2648,6 +2648,7 @@
           name: "暗咒猫妖的林地",
           kind: "room",
           width: 1440,
+          closeback: "deepBossReference",
           band: { backY: 256 },
           enemies: [
             { type: "deepElite", x: 300, level: 7 },
@@ -2668,13 +2669,11 @@
             { piece: "barrel", x: 1254, depth: 1.324, scale: [0.7, 0.725] },
             { piece: "goblinBunker", x: 494, depth: 0.633, scale: [0.69, 0.71] },
             { piece: "goblinBunker", x: 662, depth: -0.509, scale: [0.69, 0.715] },
-            { piece: "trunkTall", x: 120, depth: 0.95 },
             // Earliest visible forms are all fruited. Later depletion remains SC-19.
             {"piece": "treeBossFruit", "x": 789, "depth": 1.229, "scale": [0.715, 0.71]},
             {"piece": "treeBossFruit", "x": 838, "depth": 0.849, "scale": [0.715, 0.715]},
             {"piece": "treeBossFruit", "x": 970, "depth": -0.326, "scale": [0.71, 0.71]},
             {"piece": "treeBossFruit", "x": 1014, "depth": -0.809, "scale": [0.71, 0.715]},
-            { piece: "trunkMossy", x: 30, depth: 2.03 },
           ],
           scatter: {"tall":1,"solid":0,"barrels":0,"stones":0}
         },
@@ -5272,6 +5271,7 @@
          */
         width: spec.width || ROOM.width,
         northGateBottom: spec.northGateBottom,
+        closeback: spec.closeback || null,
         leftWall: ROOM.leftWall,
         rightWall: (spec.width || ROOM.width) - (ROOM.width - ROOM.rightWall),
         /*

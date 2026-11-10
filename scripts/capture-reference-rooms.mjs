@@ -7,6 +7,15 @@ import http from 'node:http';
 import {fileURLToPath} from 'node:url';
 const room=process.env.CAPTURE_ROOM || '42';
 const profiles={
+ '25-closeback':{batch:58,col:4,row:1,out:'/tmp/nano-room58/render',times:[312,314.5,319,330,370],actorScreenX:80,boss:true,
+  scope:'native boss closeback list and measured phase at five cameras; far/mid motion, floor, foreground, actors and object lifecycle remain open',
+  cases:[
+   ['west-wall',312,'closeback',185/1.125,78/1.125,395/1.125,200/1.125,185,80,395,200,200,30000,.97,null,null,true],
+   ['west-middle-wall',314.5,'closeback',(250+291.44)/1.125,78/1.125,300/1.125,90/1.125,250,80,300,90,90,10000,.97,null,null,true],
+   ['central-tree4',319,'closeback',(450+1047.05)/1.125,78/1.125,120/1.125,120/1.125,450,80,120,120,120,8000,.97,null,null,true],
+   ['east-wall',330,'closeback',(185+1547.69)/1.125,98/1.125,395/1.125,120/1.125,185,100,395,120,120,20000,.97,null,null,true],
+   ['east-wall-revisit',370,'closeback',(185+1453.32)/1.125,98/1.125,395/1.125,70/1.125,185,100,395,70,70,12000,.97,null,null,true]
+  ]},
  '25-trees':{batch:57,col:4,row:1,out:'/tmp/nano-room57/render',times:[316.5,317,319,320],actorScreenX:80,boss:true,
   scope:'four earliest visible fruit-tree forms and visible native regions; hidden roots, depletion trigger and fruit/hit lifecycle remain open',
   cases:[
@@ -174,7 +183,7 @@ try{
   const name=t===26.5?'47-room42-entry-reference.png':`${profile.batch}-room${room}-${t}-reference.png`;
   return [t,fs.readFileSync(path.join(root,'docs/reference-evidence',name)).toString('base64')];
  }));
- const native=Object.fromEntries([['pillar','pillar-pale.png'],['forest','forest.png'],['bunker','goblin-bunker.png'],['tree','tree-reference.png'],['fruitTree','tree-fruit-reference.png']].map(([key,name])=>[key,fs.readFileSync(path.join(root,'assets',name)).toString('base64')]));
+ const native=Object.fromEntries([['pillar','pillar-pale.png'],['forest','forest.png'],['bunker','goblin-bunker.png'],['tree','tree-reference.png'],['fruitTree','tree-fruit-reference.png'],['closeback','deep-boss-closeback.png']].map(([key,name])=>[key,fs.readFileSync(path.join(root,'assets',name)).toString('base64')]));
  const faces=await page.evaluate(async({reference,images,native,cases})=>{
   async function picture(url){const im=new Image();im.src=url;await im.decode();return im;}
   function canvas(w,h){const c=document.createElement('canvas');c.width=w;c.height=h;return c.getContext('2d');}
