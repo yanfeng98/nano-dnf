@@ -1,0 +1,37 @@
+[
+  {
+    "label": "first-front",
+    "kind": "grakkarak",
+    "pixels": 20116,
+    "rmse": 22.860391898007705,
+    "cosine": 0.97084035567288
+  },
+  {
+    "label": "first-front",
+    "kind": "lorien",
+    "pixels": 20109,
+    "rmse": 37.35480985209242,
+    "cosine": 0.976794376504602
+  },
+  {
+    "label": "first-front",
+    "kind": "mirkwood",
+    "pixels": 20116,
+    "rmse": 12.063000894799078,
+    "cosine": 0.9756200929249941
+  },
+  {
+    "label": "first-front",
+    "kind": "sunderland",
+    "pixels": 20116,
+    "rmse": 10.677094547755306,
+    "cosine": 0.9804534455475348
+  },
+  {
+    "label": "first-front",
+    "kind": "map03",
+    "pixels": 20109,
+    "rmse": 12.473391375233708,
+    "cosine": 0.9728924732755034
+  }
+]

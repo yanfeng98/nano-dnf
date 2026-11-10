@@ -1,0 +1,72 @@
+[
+  {
+    "label": "first-back",
+    "kind": "grakkarak",
+    "pixels": 5003,
+    "rmse": 17.21163334704707,
+    "cosine": 0.9689267315706523
+  },
+  {
+    "label": "first-back",
+    "kind": "lorien",
+    "pixels": 5003,
+    "rmse": 32.558001360573556,
+    "cosine": 0.9677089777911279
+  },
+  {
+    "label": "first-back",
+    "kind": "mirkwood",
+    "pixels": 5003,
+    "rmse": 9.583351655655747,
+    "cosine": 0.9733519689529658
+  },
+  {
+    "label": "first-back",
+    "kind": "sunderland",
+    "pixels": 5003,
+    "rmse": 9.244111342360643,
+    "cosine": 0.9749527183373563
+  },
+  {
+    "label": "first-back",
+    "kind": "map03",
+    "pixels": 5003,
+    "rmse": 10.862470745840659,
+    "cosine": 0.9650210862835652
+  },
+  {
+    "label": "second-back",
+    "kind": "grakkarak",
+    "pixels": 4870,
+    "rmse": 19.00170207441549,
+    "cosine": 0.9509214045229715
+  },
+  {
+    "label": "second-back",
+    "kind": "lorien",
+    "pixels": 4870,
+    "rmse": 33.17301419281266,
+    "cosine": 0.9534373701510497
+  },
+  {
+    "label": "second-back",
+    "kind": "mirkwood",
+    "pixels": 4870,
+    "rmse": 11.175490195460313,
+    "cosine": 0.9657957992958037
+  },
+  {
+    "label": "second-back",
+    "kind": "sunderland",
+    "pixels": 4870,
+    "rmse": 12.029873834599682,
+    "cosine": 0.9593780475384236
+  },
+  {
+    "label": "second-back",
+    "kind": "map03",
+    "pixels": 4870,
+    "rmse": 9.791949367523982,
+    "cosine": 0.9738481449073405
+  }
+]

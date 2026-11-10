@@ -107,6 +107,7 @@
     ["gui", "./assets/gui.png"],
     /* 深处原生镜像绿树与33/25房哥布林碉堡。 */
     ["treeReference", "./assets/tree-reference.png"],
+    ["treeFruitReference", "./assets/tree-fruit-reference.png"],
     ["goblinBunker", "./assets/goblin-bunker.png"],
     /* 深处那批偏白的高石柱（`assets/import_dnf_pillar.py`）。 */
     ["pillarPale", "./assets/pillar-pale.png"],

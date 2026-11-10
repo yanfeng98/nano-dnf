@@ -1,0 +1,8021 @@
+{
+  "limits": "Local client identity evidence; int-data semantics, recording HP, collision and trigger rules remain unverified.",
+  "clients": [
+    {
+      "file": "Script_70.pvf",
+      "header_version": 48984,
+      "entries": {
+        "passiveobject/mapobject/breakableobject/actiontree1grakkarak.obj": {
+          "sha256": "94f77e46523dce5efa1379ba3ec050e1db356bbeff5fa9e2ad0d4e7629bc3f70",
+          "tokens": [
+            [
+              5,
+              "[width]"
+            ],
+            [
+              2,
+              58
+            ],
+            [
+              2,
+              20
+            ],
+            [
+              5,
+              "[floating height]"
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              5,
+              "[layer]"
+            ],
+            [
+              7,
+              "[normal]"
+            ],
+            [
+              5,
+              "[pass type]"
+            ],
+            [
+              7,
+              "[do not pass]"
+            ],
+            [
+              5,
+              "[basic motion]"
+            ],
+            [
+              7,
+              "Animation/ActionTree/GrakKarak/ActionTree1-0.ani"
+            ],
+            [
+              5,
+              "[etc motion]"
+            ],
+            [
+              7,
+              "Animation/ActionTree/GrakKarak/ActionTree1-1.ani"
+            ],
+            [
+              5,
+              "[/etc motion]"
+            ],
+            [
+              5,
+              "[int data]"
+            ],
+            [
+              2,
+              1
+            ],
+            [
+              2,
+              2
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              2,
+              100
+            ],
+            [
+              2,
+              1
+            ],
+            [
+              5,
+              "[/int data]"
+            ],
+            [
+              5,
+              "[string data]"
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              7,
+              "Particle/ActionTreeGrakKarakDamage.ptl"
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              7,
+              "TREE_SHAKE"
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              5,
+              "[/string data]"
+            ],
+            [
+              5,
+              "[name]"
+            ],
+            [
+              9,
+              9
+            ],
+            [
+              10,
+              "name_4695"
+            ]
+          ]
+        },
+        "passiveobject/mapobject/breakableobject/actiontree1lorien.obj": {
+          "sha256": "206e49da236b3fc4a93e6ad142e4cc80a51d442cfed8bb5b9d7e206981411e45",
+          "tokens": [
+            [
+              5,
+              "[width]"
+            ],
+            [
+              2,
+              58
+            ],
+            [
+              2,
+              20
+            ],
+            [
+              5,
+              "[floating height]"
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              5,
+              "[layer]"
+            ],
+            [
+              7,
+              "[normal]"
+            ],
+            [
+              5,
+              "[pass type]"
+            ],
+            [
+              7,
+              "[do not pass]"
+            ],
+            [
+              5,
+              "[basic motion]"
+            ],
+            [
+              7,
+              "Animation/ActionTree/Lorien/ActionTree1-0.ani"
+            ],
+            [
+              5,
+              "[etc motion]"
+            ],
+            [
+              7,
+              "Animation/ActionTree/Lorien/ActionTree1-1.ani"
+            ],
+            [
+              5,
+              "[/etc motion]"
+            ],
+            [
+              5,
+              "[int data]"
+            ],
+            [
+              2,
+              1
+            ],
+            [
+              2,
+              2
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              2,
+              100
+            ],
+            [
+              2,
+              1
+            ],
+            [
+              5,
+              "[/int data]"
+            ],
+            [
+              5,
+              "[string data]"
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              7,
+              "Particle/ActionTreeLorienDamage.ptl"
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              7,
+              "TREE_SHAKE"
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              5,
+              "[/string data]"
+            ],
+            [
+              5,
+              "[name]"
+            ],
+            [
+              9,
+              9
+            ],
+            [
+              10,
+              "name_4695"
+            ]
+          ]
+        },
+        "passiveobject/mapobject/breakableobject/actiontree1mirkwood.obj": {
+          "sha256": "153a81267cb1e49f79294022a733d4a2eabfbdd94880943af73d49e9ede655da",
+          "tokens": [
+            [
+              5,
+              "[width]"
+            ],
+            [
+              2,
+              58
+            ],
+            [
+              2,
+              20
+            ],
+            [
+              5,
+              "[floating height]"
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              5,
+              "[layer]"
+            ],
+            [
+              7,
+              "[normal]"
+            ],
+            [
+              5,
+              "[pass type]"
+            ],
+            [
+              7,
+              "[do not pass]"
+            ],
+            [
+              5,
+              "[basic motion]"
+            ],
+            [
+              7,
+              "Animation/ActionTree/Mirkwood/ActionTree1-0.ani"
+            ],
+            [
+              5,
+              "[etc motion]"
+            ],
+            [
+              7,
+              "Animation/ActionTree/Mirkwood/ActionTree1-1.ani"
+            ],
+            [
+              5,
+              "[/etc motion]"
+            ],
+            [
+              5,
+              "[int data]"
+            ],
+            [
+              2,
+              1
+            ],
+            [
+              2,
+              2
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              2,
+              100
+            ],
+            [
+              2,
+              1
+            ],
+            [
+              5,
+              "[/int data]"
+            ],
+            [
+              5,
+              "[string data]"
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              7,
+              "Particle/ActionTreeMirkwoodDamage.ptl"
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              7,
+              "TREE_SHAKE"
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              5,
+              "[/string data]"
+            ],
+            [
+              5,
+              "[name]"
+            ],
+            [
+              9,
+              9
+            ],
+            [
+              10,
+              "name_4695"
+            ]
+          ]
+        },
+        "passiveobject/mapobject/breakableobject/actiontree1sunderland.obj": {
+          "sha256": "4ca7948f32e97aa3ba8751002b42ba652f572cb0627a04e3eb936c04c1f38f6c",
+          "tokens": [
+            [
+              5,
+              "[width]"
+            ],
+            [
+              2,
+              58
+            ],
+            [
+              2,
+              20
+            ],
+            [
+              5,
+              "[floating height]"
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              5,
+              "[layer]"
+            ],
+            [
+              7,
+              "[normal]"
+            ],
+            [
+              5,
+              "[pass type]"
+            ],
+            [
+              7,
+              "[do not pass]"
+            ],
+            [
+              5,
+              "[basic motion]"
+            ],
+            [
+              7,
+              "Animation/ActionTree/sunderland/ActionTree1-0.ani"
+            ],
+            [
+              5,
+              "[etc motion]"
+            ],
+            [
+              7,
+              "Animation/ActionTree/sunderland/ActionTree1-1.ani"
+            ],
+            [
+              5,
+              "[/etc motion]"
+            ],
+            [
+              5,
+              "[int data]"
+            ],
+            [
+              2,
+              1
+            ],
+            [
+              2,
+              2
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              2,
+              100
+            ],
+            [
+              2,
+              1
+            ],
+            [
+              5,
+              "[/int data]"
+            ],
+            [
+              5,
+              "[string data]"
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              7,
+              "Particle/ActionTreesunderlandDamage.ptl"
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              7,
+              "TREE_SHAKE"
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              5,
+              "[/string data]"
+            ],
+            [
+              5,
+              "[name]"
+            ],
+            [
+              9,
+              9
+            ],
+            [
+              10,
+              "name_4695"
+            ]
+          ]
+        },
+        "passiveobject/mapobject/breakableobject/actiontree2grakkarak.obj": {
+          "sha256": "a479ab197dbff0a880b2a495c6ef8f39565571d5877ac7a41901000ab24b6175",
+          "tokens": [
+            [
+              5,
+              "[width]"
+            ],
+            [
+              2,
+              58
+            ],
+            [
+              2,
+              20
+            ],
+            [
+              5,
+              "[floating height]"
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              5,
+              "[layer]"
+            ],
+            [
+              7,
+              "[normal]"
+            ],
+            [
+              5,
+              "[pass type]"
+            ],
+            [
+              7,
+              "[do not pass]"
+            ],
+            [
+              5,
+              "[basic motion]"
+            ],
+            [
+              7,
+              "Animation/ActionTree/GrakKarak/ActionTree2-0.ani"
+            ],
+            [
+              5,
+              "[etc motion]"
+            ],
+            [
+              7,
+              "Animation/ActionTree/GrakKarak/ActionTree2-1.ani"
+            ],
+            [
+              5,
+              "[/etc motion]"
+            ],
+            [
+              5,
+              "[int data]"
+            ],
+            [
+              2,
+              1
+            ],
+            [
+              2,
+              2
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              2,
+              100
+            ],
+            [
+              2,
+              1
+            ],
+            [
+              5,
+              "[/int data]"
+            ],
+            [
+              5,
+              "[string data]"
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              7,
+              "Particle/ActionTreeGrakKarakDamage.ptl"
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              7,
+              "TREE_SHAKE"
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              5,
+              "[/string data]"
+            ],
+            [
+              5,
+              "[name]"
+            ],
+            [
+              9,
+              9
+            ],
+            [
+              10,
+              "name_4695"
+            ]
+          ]
+        },
+        "passiveobject/mapobject/breakableobject/actiontree2lorien.obj": {
+          "sha256": "01d67ba3cb86449aa74d8ae8290461897944e11bd84081eee3214acf30843302",
+          "tokens": [
+            [
+              5,
+              "[width]"
+            ],
+            [
+              2,
+              58
+            ],
+            [
+              2,
+              20
+            ],
+            [
+              5,
+              "[floating height]"
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              5,
+              "[layer]"
+            ],
+            [
+              7,
+              "[normal]"
+            ],
+            [
+              5,
+              "[pass type]"
+            ],
+            [
+              7,
+              "[do not pass]"
+            ],
+            [
+              5,
+              "[basic motion]"
+            ],
+            [
+              7,
+              "Animation/ActionTree/Lorien/ActionTree2-0.ani"
+            ],
+            [
+              5,
+              "[etc motion]"
+            ],
+            [
+              7,
+              "Animation/ActionTree/Lorien/ActionTree2-1.ani"
+            ],
+            [
+              5,
+              "[/etc motion]"
+            ],
+            [
+              5,
+              "[int data]"
+            ],
+            [
+              2,
+              1
+            ],
+            [
+              2,
+              2
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              2,
+              100
+            ],
+            [
+              2,
+              1
+            ],
+            [
+              5,
+              "[/int data]"
+            ],
+            [
+              5,
+              "[string data]"
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              7,
+              "Particle/ActionTreeLorienDamage.ptl"
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              7,
+              "TREE_SHAKE"
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              5,
+              "[/string data]"
+            ],
+            [
+              5,
+              "[name]"
+            ],
+            [
+              9,
+              9
+            ],
+            [
+              10,
+              "name_4695"
+            ]
+          ]
+        },
+        "passiveobject/mapobject/breakableobject/actiontree2mirkwood.obj": {
+          "sha256": "cee0a0ea79293a98ac87355b7af932fa6a355870ed93104dba77cb44518471bb",
+          "tokens": [
+            [
+              5,
+              "[width]"
+            ],
+            [
+              2,
+              58
+            ],
+            [
+              2,
+              20
+            ],
+            [
+              5,
+              "[floating height]"
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              5,
+              "[layer]"
+            ],
+            [
+              7,
+              "[normal]"
+            ],
+            [
+              5,
+              "[pass type]"
+            ],
+            [
+              7,
+              "[do not pass]"
+            ],
+            [
+              5,
+              "[basic motion]"
+            ],
+            [
+              7,
+              "Animation/ActionTree/Mirkwood/ActionTree2-0.ani"
+            ],
+            [
+              5,
+              "[etc motion]"
+            ],
+            [
+              7,
+              "Animation/ActionTree/Mirkwood/ActionTree2-1.ani"
+            ],
+            [
+              5,
+              "[/etc motion]"
+            ],
+            [
+              5,
+              "[int data]"
+            ],
+            [
+              2,
+              1
+            ],
+            [
+              2,
+              2
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              2,
+              100
+            ],
+            [
+              2,
+              1
+            ],
+            [
+              5,
+              "[/int data]"
+            ],
+            [
+              5,
+              "[string data]"
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              7,
+              "Particle/ActionTreeMirkwoodDamage.ptl"
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              7,
+              "TREE_SHAKE"
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              5,
+              "[/string data]"
+            ],
+            [
+              5,
+              "[name]"
+            ],
+            [
+              9,
+              9
+            ],
+            [
+              10,
+              "name_4695"
+            ]
+          ]
+        },
+        "passiveobject/mapobject/breakableobject/actiontree2sunderland.obj": {
+          "sha256": "561dd6fd4fce47eba8c2fa5ce33d1b8c07a49f27715a3e4ecdac8d87a14b5b97",
+          "tokens": [
+            [
+              5,
+              "[width]"
+            ],
+            [
+              2,
+              58
+            ],
+            [
+              2,
+              20
+            ],
+            [
+              5,
+              "[floating height]"
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              5,
+              "[layer]"
+            ],
+            [
+              7,
+              "[normal]"
+            ],
+            [
+              5,
+              "[pass type]"
+            ],
+            [
+              7,
+              "[do not pass]"
+            ],
+            [
+              5,
+              "[basic motion]"
+            ],
+            [
+              7,
+              "Animation/ActionTree/SunderLand/ActionTree2-0.ani"
+            ],
+            [
+              5,
+              "[etc motion]"
+            ],
+            [
+              7,
+              "Animation/ActionTree/SunderLand/ActionTree2-1.ani"
+            ],
+            [
+              5,
+              "[/etc motion]"
+            ],
+            [
+              5,
+              "[int data]"
+            ],
+            [
+              2,
+              1
+            ],
+            [
+              2,
+              2
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              2,
+              100
+            ],
+            [
+              2,
+              1
+            ],
+            [
+              5,
+              "[/int data]"
+            ],
+            [
+              5,
+              "[string data]"
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              7,
+              "Particle/ActionTreeSunderLandDamage.ptl"
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              7,
+              "TREE_SHAKE"
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              5,
+              "[/string data]"
+            ],
+            [
+              5,
+              "[name]"
+            ],
+            [
+              9,
+              9
+            ],
+            [
+              10,
+              "name_4695"
+            ]
+          ]
+        },
+        "passiveobject/mapobject/breakableobject/animation/actiontree/grakkarak/actiontree1-0.ani": {
+          "sha256": "c381d4c443a816602513c212f5753f7ea8523f677aba2891383f2cd7e285a56b",
+          "animation": {
+            "paths": [
+              "Map/BreakableObject/ActionTreeRenew/ActionTree1-GrakKarak.img"
+            ],
+            "overall": [
+              [
+                0,
+                1
+              ]
+            ],
+            "frames": [
+              {
+                "frame": 0,
+                "xy": [
+                  -73,
+                  -188
+                ],
+                "props": [
+                  [
+                    12,
+                    200000
+                  ]
+                ],
+                "boxes": [
+                  [
+                    14,
+                    [
+                      -67,
+                      -19,
+                      81,
+                      144,
+                      38,
+                      98
+                    ]
+                  ],
+                  [
+                    14,
+                    [
+                      -29,
+                      -15,
+                      -8,
+                      62,
+                      30,
+                      89
+                    ]
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        "passiveobject/mapobject/breakableobject/animation/actiontree/grakkarak/actiontree1-1.ani": {
+          "sha256": "638e1f21e7c8ffe8c7632249a5c75a7e28c34f0e7df9d14a8614f607f2b541d1",
+          "animation": {
+            "paths": [
+              "Map/04obj300.img"
+            ],
+            "overall": [
+              [
+                0,
+                1
+              ]
+            ],
+            "frames": [
+              {
+                "frame": 0,
+                "xy": [
+                  -75,
+                  -188
+                ],
+                "props": [
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -71,
+                  -188
+                ],
+                "props": [
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -75,
+                  -188
+                ],
+                "props": [
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -71,
+                  -188
+                ],
+                "props": [
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -75,
+                  -188
+                ],
+                "props": [
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -71,
+                  -188
+                ],
+                "props": [
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -73,
+                  -188
+                ],
+                "props": [
+                  [
+                    12,
+                    600000000
+                  ]
+                ],
+                "boxes": []
+              }
+            ]
+          }
+        },
+        "passiveobject/mapobject/breakableobject/animation/actiontree/grakkarak/actiontree2-0.ani": {
+          "sha256": "5f7c1d4e956e3f843440bdf1c0b3515644192c072809b05f741943b54e7a4ebc",
+          "animation": {
+            "paths": [
+              "Map/BreakableObject/ActionTreeRenew/ActionTree1-GrakKarak.img"
+            ],
+            "overall": [
+              [
+                0,
+                1
+              ]
+            ],
+            "frames": [
+              {
+                "frame": 0,
+                "xy": [
+                  -73,
+                  -186
+                ],
+                "props": [
+                  [
+                    7,
+                    [
+                      -1.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    12,
+                    2000000
+                  ]
+                ],
+                "boxes": [
+                  [
+                    14,
+                    [
+                      -65,
+                      -19,
+                      70,
+                      144,
+                      38,
+                      111
+                    ]
+                  ],
+                  [
+                    14,
+                    [
+                      -15,
+                      -15,
+                      2,
+                      62,
+                      30,
+                      67
+                    ]
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        "passiveobject/mapobject/breakableobject/animation/actiontree/grakkarak/actiontree2-1.ani": {
+          "sha256": "69b8291f757b5178da46717ac9cc5c0bb45787d985585e5f128b6e6ee2e1f24d",
+          "animation": {
+            "paths": [
+              "Map/04obj300.img"
+            ],
+            "overall": [
+              [
+                0,
+                1
+              ]
+            ],
+            "frames": [
+              {
+                "frame": 0,
+                "xy": [
+                  -75,
+                  -188
+                ],
+                "props": [
+                  [
+                    7,
+                    [
+                      -1.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -71,
+                  -188
+                ],
+                "props": [
+                  [
+                    7,
+                    [
+                      -1.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -75,
+                  -188
+                ],
+                "props": [
+                  [
+                    7,
+                    [
+                      -1.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -71,
+                  -188
+                ],
+                "props": [
+                  [
+                    7,
+                    [
+                      -1.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -75,
+                  -188
+                ],
+                "props": [
+                  [
+                    7,
+                    [
+                      -1.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -71,
+                  -188
+                ],
+                "props": [
+                  [
+                    7,
+                    [
+                      -1.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -73,
+                  -188
+                ],
+                "props": [
+                  [
+                    7,
+                    [
+                      -1.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    12,
+                    600000000
+                  ]
+                ],
+                "boxes": []
+              }
+            ]
+          }
+        },
+        "passiveobject/mapobject/breakableobject/animation/actiontree/grakkarak/actiontreeparticle1.ani": {
+          "sha256": "5e8745d2738d65861a6773db77c57e2cf3288460cffc542ccd6693068718fd10",
+          "animation": {
+            "paths": [
+              "Map/BreakableObject/ActionTree/ActionTreeParticle-GrakKarak1.img"
+            ],
+            "overall": [
+              [
+                0,
+                1
+              ]
+            ],
+            "frames": [
+              {
+                "frame": 0,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 1,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 2,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 3,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 4,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 5,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 4,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 3,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 2,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 1,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              }
+            ]
+          }
+        },
+        "passiveobject/mapobject/breakableobject/animation/actiontree/grakkarak/actiontreeparticle2.ani": {
+          "sha256": "88b42f2e6726885bd225cb3952956dd580f7b88073c69e2d4314de4e319eeda3",
+          "animation": {
+            "paths": [
+              "Map/BreakableObject/ActionTree/ActionTreeParticle-GrakKarak2.img"
+            ],
+            "overall": [
+              [
+                0,
+                1
+              ]
+            ],
+            "frames": [
+              {
+                "frame": 0,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 1,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 2,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 3,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 4,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 5,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 4,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 3,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 2,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 1,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              }
+            ]
+          }
+        },
+        "passiveobject/mapobject/breakableobject/animation/actiontree/lorien/actiontree1-0.ani": {
+          "sha256": "5937381845e804d917850e30eb39ae7f4eb4cb2cfa5a59886f154352963b61b2",
+          "animation": {
+            "paths": [
+              "Map/BreakableObject/ActionTreeRenew/ActionTree1-Lorien.img"
+            ],
+            "overall": [
+              [
+                0,
+                1
+              ]
+            ],
+            "frames": [
+              {
+                "frame": 0,
+                "xy": [
+                  -73,
+                  -188
+                ],
+                "props": [
+                  [
+                    12,
+                    200000
+                  ]
+                ],
+                "boxes": [
+                  [
+                    14,
+                    [
+                      -67,
+                      -19,
+                      81,
+                      144,
+                      38,
+                      98
+                    ]
+                  ],
+                  [
+                    14,
+                    [
+                      -29,
+                      -15,
+                      -8,
+                      62,
+                      30,
+                      89
+                    ]
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        "passiveobject/mapobject/breakableobject/animation/actiontree/lorien/actiontree1-1.ani": {
+          "sha256": "9d5ebc5b35ebcddcc0104e2c762721837b357c0622e7b967b872959f0a6568b3",
+          "animation": {
+            "paths": [
+              "Map/01obj300.img"
+            ],
+            "overall": [
+              [
+                0,
+                1
+              ]
+            ],
+            "frames": [
+              {
+                "frame": 0,
+                "xy": [
+                  -75,
+                  -188
+                ],
+                "props": [
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -71,
+                  -188
+                ],
+                "props": [
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -75,
+                  -188
+                ],
+                "props": [
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -71,
+                  -188
+                ],
+                "props": [
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -75,
+                  -188
+                ],
+                "props": [
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -71,
+                  -188
+                ],
+                "props": [
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -73,
+                  -188
+                ],
+                "props": [
+                  [
+                    12,
+                    600000000
+                  ]
+                ],
+                "boxes": []
+              }
+            ]
+          }
+        },
+        "passiveobject/mapobject/breakableobject/animation/actiontree/lorien/actiontree2-0.ani": {
+          "sha256": "ac80da33178641f2d460187213cf20708bc09dc66a28d64ed26c1cd528ef5cf7",
+          "animation": {
+            "paths": [
+              "Map/BreakableObject/ActionTreeRenew/ActionTree1-Lorien.img"
+            ],
+            "overall": [
+              [
+                0,
+                1
+              ]
+            ],
+            "frames": [
+              {
+                "frame": 0,
+                "xy": [
+                  -73,
+                  -186
+                ],
+                "props": [
+                  [
+                    7,
+                    [
+                      -1.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    12,
+                    2000000
+                  ]
+                ],
+                "boxes": [
+                  [
+                    14,
+                    [
+                      -65,
+                      -19,
+                      70,
+                      144,
+                      38,
+                      111
+                    ]
+                  ],
+                  [
+                    14,
+                    [
+                      -15,
+                      -15,
+                      2,
+                      62,
+                      30,
+                      67
+                    ]
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        "passiveobject/mapobject/breakableobject/animation/actiontree/lorien/actiontree2-1.ani": {
+          "sha256": "881134e30b732743c47884c718923bac6b11ebea3b299b983bbe1ef984980385",
+          "animation": {
+            "paths": [
+              "Map/01obj300.img"
+            ],
+            "overall": [
+              [
+                0,
+                1
+              ]
+            ],
+            "frames": [
+              {
+                "frame": 0,
+                "xy": [
+                  -75,
+                  -188
+                ],
+                "props": [
+                  [
+                    7,
+                    [
+                      -1.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -71,
+                  -188
+                ],
+                "props": [
+                  [
+                    7,
+                    [
+                      -1.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -75,
+                  -188
+                ],
+                "props": [
+                  [
+                    7,
+                    [
+                      -1.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -71,
+                  -188
+                ],
+                "props": [
+                  [
+                    7,
+                    [
+                      -1.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -75,
+                  -188
+                ],
+                "props": [
+                  [
+                    7,
+                    [
+                      -1.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -71,
+                  -188
+                ],
+                "props": [
+                  [
+                    7,
+                    [
+                      -1.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -73,
+                  -188
+                ],
+                "props": [
+                  [
+                    7,
+                    [
+                      -1.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    12,
+                    600000000
+                  ]
+                ],
+                "boxes": []
+              }
+            ]
+          }
+        },
+        "passiveobject/mapobject/breakableobject/animation/actiontree/lorien/actiontreeparticle1.ani": {
+          "sha256": "bf7631b98c51148dbbfbad22f0ed8480afc4db2cbbf2e1a853985bd49e75f093",
+          "animation": {
+            "paths": [
+              "Map/BreakableObject/ActionTree/ActionTreeParticle-lorien1.img"
+            ],
+            "overall": [
+              [
+                0,
+                1
+              ]
+            ],
+            "frames": [
+              {
+                "frame": 0,
+                "xy": [
+                  -8,
+                  -5
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 1,
+                "xy": [
+                  -8,
+                  -5
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 2,
+                "xy": [
+                  -8,
+                  -5
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 3,
+                "xy": [
+                  -8,
+                  -5
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 4,
+                "xy": [
+                  -8,
+                  -5
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 5,
+                "xy": [
+                  -8,
+                  -5
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 4,
+                "xy": [
+                  -8,
+                  -5
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 3,
+                "xy": [
+                  -8,
+                  -5
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 2,
+                "xy": [
+                  -8,
+                  -5
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 1,
+                "xy": [
+                  -8,
+                  -5
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              }
+            ]
+          }
+        },
+        "passiveobject/mapobject/breakableobject/animation/actiontree/lorien/actiontreeparticle2.ani": {
+          "sha256": "c75f83647ece93e0c86e4018fff2f7a608c7fced5044b27841a6bfd24955c8f2",
+          "animation": {
+            "paths": [
+              "Map/BreakableObject/ActionTree/ActionTreeParticle-lorien2.img"
+            ],
+            "overall": [
+              [
+                0,
+                1
+              ]
+            ],
+            "frames": [
+              {
+                "frame": 0,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 1,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 2,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 3,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 4,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 5,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 4,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 3,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 2,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 1,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              }
+            ]
+          }
+        },
+        "passiveobject/mapobject/breakableobject/animation/actiontree/mirkwood/actiontree1-0.ani": {
+          "sha256": "44610ad5bc5e0d28e073913972d09a058606484994b4c3e4935cecd992d3fae0",
+          "animation": {
+            "paths": [
+              "Map/BreakableObject/ActionTreeRenew/ActionTree1-Mirkwood.img"
+            ],
+            "overall": [
+              [
+                0,
+                1
+              ]
+            ],
+            "frames": [
+              {
+                "frame": 0,
+                "xy": [
+                  -73,
+                  -188
+                ],
+                "props": [
+                  [
+                    12,
+                    200000
+                  ]
+                ],
+                "boxes": [
+                  [
+                    14,
+                    [
+                      -67,
+                      -19,
+                      81,
+                      144,
+                      38,
+                      98
+                    ]
+                  ],
+                  [
+                    14,
+                    [
+                      -29,
+                      -15,
+                      -8,
+                      62,
+                      30,
+                      89
+                    ]
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        "passiveobject/mapobject/breakableobject/animation/actiontree/mirkwood/actiontree1-1.ani": {
+          "sha256": "6a14d92698c0c048801d2d3cfc4cc5842b8f232a91a2c404f8339d66680b5cea",
+          "animation": {
+            "paths": [
+              "Map/02obj300.img"
+            ],
+            "overall": [
+              [
+                0,
+                1
+              ]
+            ],
+            "frames": [
+              {
+                "frame": 0,
+                "xy": [
+                  -75,
+                  -188
+                ],
+                "props": [
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -71,
+                  -188
+                ],
+                "props": [
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -75,
+                  -188
+                ],
+                "props": [
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -71,
+                  -188
+                ],
+                "props": [
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -75,
+                  -188
+                ],
+                "props": [
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -71,
+                  -188
+                ],
+                "props": [
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -73,
+                  -188
+                ],
+                "props": [
+                  [
+                    12,
+                    600000000
+                  ]
+                ],
+                "boxes": []
+              }
+            ]
+          }
+        },
+        "passiveobject/mapobject/breakableobject/animation/actiontree/mirkwood/actiontree2-0.ani": {
+          "sha256": "ab96d02222e3978c96690d7c2ea72e6469e63988637d859b7002843aa33cc2de",
+          "animation": {
+            "paths": [
+              "Map/BreakableObject/ActionTreeRenew/ActionTree1-Mirkwood.img"
+            ],
+            "overall": [
+              [
+                0,
+                1
+              ]
+            ],
+            "frames": [
+              {
+                "frame": 0,
+                "xy": [
+                  -73,
+                  -186
+                ],
+                "props": [
+                  [
+                    7,
+                    [
+                      -1.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    12,
+                    2000000
+                  ]
+                ],
+                "boxes": [
+                  [
+                    14,
+                    [
+                      -65,
+                      -19,
+                      70,
+                      144,
+                      38,
+                      111
+                    ]
+                  ],
+                  [
+                    14,
+                    [
+                      -15,
+                      -15,
+                      2,
+                      62,
+                      30,
+                      67
+                    ]
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        "passiveobject/mapobject/breakableobject/animation/actiontree/mirkwood/actiontree2-1.ani": {
+          "sha256": "32be5accb8aafc306bdabb46ea7f6eaac979958b40140411aceadd89bdf5e018",
+          "animation": {
+            "paths": [
+              "Map/02obj300.img"
+            ],
+            "overall": [
+              [
+                0,
+                1
+              ]
+            ],
+            "frames": [
+              {
+                "frame": 0,
+                "xy": [
+                  -75,
+                  -188
+                ],
+                "props": [
+                  [
+                    7,
+                    [
+                      -1.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -71,
+                  -188
+                ],
+                "props": [
+                  [
+                    7,
+                    [
+                      -1.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -75,
+                  -188
+                ],
+                "props": [
+                  [
+                    7,
+                    [
+                      -1.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -71,
+                  -188
+                ],
+                "props": [
+                  [
+                    7,
+                    [
+                      -1.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -75,
+                  -188
+                ],
+                "props": [
+                  [
+                    7,
+                    [
+                      -1.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -71,
+                  -188
+                ],
+                "props": [
+                  [
+                    7,
+                    [
+                      -1.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -73,
+                  -188
+                ],
+                "props": [
+                  [
+                    7,
+                    [
+                      -1.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    12,
+                    600000000
+                  ]
+                ],
+                "boxes": []
+              }
+            ]
+          }
+        },
+        "passiveobject/mapobject/breakableobject/animation/actiontree/mirkwood/actiontreeparticle1.ani": {
+          "sha256": "ed02534e5339d02c670f8c5a0f3ef2ac8b47c4d3eb64818aced932c039f50bbd",
+          "animation": {
+            "paths": [
+              "Map/BreakableObject/ActionTree/ActionTreeParticle-mirkwood1.img"
+            ],
+            "overall": [
+              [
+                0,
+                1
+              ]
+            ],
+            "frames": [
+              {
+                "frame": 0,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 1,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 2,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 3,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 4,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 5,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 4,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 3,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 2,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 1,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              }
+            ]
+          }
+        },
+        "passiveobject/mapobject/breakableobject/animation/actiontree/mirkwood/actiontreeparticle2.ani": {
+          "sha256": "4034738bce76c96921a40e9dbfa895ebf220e0202fedc01d496cf5ac746b1d37",
+          "animation": {
+            "paths": [
+              "Map/BreakableObject/ActionTree/ActionTreeParticle-mirkwood2.img"
+            ],
+            "overall": [
+              [
+                0,
+                1
+              ]
+            ],
+            "frames": [
+              {
+                "frame": 0,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 1,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 2,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 3,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 4,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 5,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 4,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 3,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 2,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 1,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              }
+            ]
+          }
+        },
+        "passiveobject/mapobject/breakableobject/animation/actiontree/sunderland/actiontree1-0.ani": {
+          "sha256": "602755a7f52e530ebcf1d8a43e670135f580d3c3f33db2caca5421ed62161baf",
+          "animation": {
+            "paths": [
+              "Map/BreakableObject/ActionTreeRenew/ActionTree1-sunderland.img"
+            ],
+            "overall": [
+              [
+                0,
+                1
+              ]
+            ],
+            "frames": [
+              {
+                "frame": 0,
+                "xy": [
+                  -73,
+                  -188
+                ],
+                "props": [
+                  [
+                    12,
+                    200000
+                  ]
+                ],
+                "boxes": [
+                  [
+                    14,
+                    [
+                      -67,
+                      -19,
+                      81,
+                      144,
+                      38,
+                      98
+                    ]
+                  ],
+                  [
+                    14,
+                    [
+                      -29,
+                      -15,
+                      -8,
+                      62,
+                      30,
+                      89
+                    ]
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        "passiveobject/mapobject/breakableobject/animation/actiontree/sunderland/actiontree1-1.ani": {
+          "sha256": "332766654c6bda9ad1c0c9e231a2a185a2ec832fcf62b57cf8fff83bf99478ea",
+          "animation": {
+            "paths": [
+              "Map/03obj300.img"
+            ],
+            "overall": [
+              [
+                0,
+                1
+              ]
+            ],
+            "frames": [
+              {
+                "frame": 0,
+                "xy": [
+                  -75,
+                  -188
+                ],
+                "props": [
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -71,
+                  -188
+                ],
+                "props": [
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -75,
+                  -188
+                ],
+                "props": [
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -71,
+                  -188
+                ],
+                "props": [
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -75,
+                  -188
+                ],
+                "props": [
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -71,
+                  -188
+                ],
+                "props": [
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -73,
+                  -188
+                ],
+                "props": [
+                  [
+                    12,
+                    600000000
+                  ]
+                ],
+                "boxes": []
+              }
+            ]
+          }
+        },
+        "passiveobject/mapobject/breakableobject/animation/actiontree/sunderland/actiontree2-0.ani": {
+          "sha256": "5f9c3617dfa7d3159c43335a3800d856728acea534c02b3cfc9cd352af846b91",
+          "animation": {
+            "paths": [
+              "Map/BreakableObject/ActionTreeRenew/ActionTree1-sunderland.img"
+            ],
+            "overall": [
+              [
+                0,
+                1
+              ]
+            ],
+            "frames": [
+              {
+                "frame": 0,
+                "xy": [
+                  -73,
+                  -186
+                ],
+                "props": [
+                  [
+                    7,
+                    [
+                      -1.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    12,
+                    2000000
+                  ]
+                ],
+                "boxes": [
+                  [
+                    14,
+                    [
+                      -65,
+                      -19,
+                      70,
+                      144,
+                      38,
+                      111
+                    ]
+                  ],
+                  [
+                    14,
+                    [
+                      -15,
+                      -15,
+                      2,
+                      62,
+                      30,
+                      67
+                    ]
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        "passiveobject/mapobject/breakableobject/animation/actiontree/sunderland/actiontree2-1.ani": {
+          "sha256": "0051e433ebb20166f5fa150d0bb35bc53c0598602faee630133f2c29130ce7ff",
+          "animation": {
+            "paths": [
+              "Map/03obj300.img"
+            ],
+            "overall": [
+              [
+                0,
+                1
+              ]
+            ],
+            "frames": [
+              {
+                "frame": 0,
+                "xy": [
+                  -75,
+                  -188
+                ],
+                "props": [
+                  [
+                    7,
+                    [
+                      -1.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -71,
+                  -188
+                ],
+                "props": [
+                  [
+                    7,
+                    [
+                      -1.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -75,
+                  -188
+                ],
+                "props": [
+                  [
+                    7,
+                    [
+                      -1.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -71,
+                  -188
+                ],
+                "props": [
+                  [
+                    7,
+                    [
+                      -1.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -75,
+                  -188
+                ],
+                "props": [
+                  [
+                    7,
+                    [
+                      -1.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -71,
+                  -188
+                ],
+                "props": [
+                  [
+                    7,
+                    [
+                      -1.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -73,
+                  -188
+                ],
+                "props": [
+                  [
+                    7,
+                    [
+                      -1.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    12,
+                    600000000
+                  ]
+                ],
+                "boxes": []
+              }
+            ]
+          }
+        },
+        "passiveobject/mapobject/breakableobject/animation/actiontree/sunderland/actiontreeparticle1.ani": {
+          "sha256": "1b6e38a889ba024fd0fc040931a4cb93d181fd424b34d660acf8e04fd8125da4",
+          "animation": {
+            "paths": [
+              "Map/BreakableObject/ActionTree/ActionTreeParticle-SunderLand1.img"
+            ],
+            "overall": [
+              [
+                0,
+                1
+              ]
+            ],
+            "frames": [
+              {
+                "frame": 0,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 1,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 2,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 3,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 4,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 5,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 4,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 3,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 2,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 1,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              }
+            ]
+          }
+        },
+        "passiveobject/mapobject/breakableobject/animation/actiontree/sunderland/actiontreeparticle2.ani": {
+          "sha256": "13c9d8235f71fbaf7a7fd417e85e2a5eec52f17afa2fcb756679cc9efcea9c56",
+          "animation": {
+            "paths": [
+              "Map/BreakableObject/ActionTree/ActionTreeParticle-SunderLand2.img"
+            ],
+            "overall": [
+              [
+                0,
+                1
+              ]
+            ],
+            "frames": [
+              {
+                "frame": 0,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 1,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 2,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 3,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 4,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 5,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 4,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 3,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 2,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 1,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              }
+            ]
+          }
+        }
+      },
+      "list_matches": [
+        [
+          [
+            2,
+            223
+          ],
+          [
+            7,
+            "MapObject/BreakableObject/ActionTree1Lorien.obj"
+          ]
+        ],
+        [
+          [
+            2,
+            224
+          ],
+          [
+            7,
+            "MapObject/BreakableObject/ActionTree2Lorien.obj"
+          ]
+        ],
+        [
+          [
+            2,
+            225
+          ],
+          [
+            7,
+            "MapObject/BreakableObject/ActionTree1Mirkwood.obj"
+          ]
+        ],
+        [
+          [
+            2,
+            226
+          ],
+          [
+            7,
+            "MapObject/BreakableObject/ActionTree2Mirkwood.obj"
+          ]
+        ],
+        [
+          [
+            2,
+            227
+          ],
+          [
+            7,
+            "MapObject/BreakableObject/ActionTree1Sunderland.obj"
+          ]
+        ],
+        [
+          [
+            2,
+            228
+          ],
+          [
+            7,
+            "MapObject/BreakableObject/ActionTree2Sunderland.obj"
+          ]
+        ],
+        [
+          [
+            2,
+            229
+          ],
+          [
+            7,
+            "MapObject/BreakableObject/ActionTree1GrakKarak.obj"
+          ]
+        ],
+        [
+          [
+            2,
+            230
+          ],
+          [
+            7,
+            "MapObject/BreakableObject/ActionTree2GrakKarak.obj"
+          ]
+        ]
+      ]
+    },
+    {
+      "file": "Script.pvf",
+      "header_version": 66282,
+      "entries": {
+        "passiveobject/mapobject/breakableobject/actiontree1grakkarak.obj": {
+          "sha256": "78eea8a0f329b9a091e30622763243193aa24bb9d7240d970d19fe8781684ab6",
+          "tokens": [
+            [
+              5,
+              "[width]"
+            ],
+            [
+              2,
+              58
+            ],
+            [
+              2,
+              20
+            ],
+            [
+              5,
+              "[floating height]"
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              5,
+              "[layer]"
+            ],
+            [
+              7,
+              "[normal]"
+            ],
+            [
+              5,
+              "[pass type]"
+            ],
+            [
+              7,
+              "[do not pass]"
+            ],
+            [
+              5,
+              "[basic motion]"
+            ],
+            [
+              7,
+              "Animation/ActionTree/GrakKarak/ActionTree1-0.ani"
+            ],
+            [
+              5,
+              "[etc motion]"
+            ],
+            [
+              7,
+              "Animation/ActionTree/GrakKarak/ActionTree1-1.ani"
+            ],
+            [
+              5,
+              "[/etc motion]"
+            ],
+            [
+              5,
+              "[int data]"
+            ],
+            [
+              2,
+              1
+            ],
+            [
+              2,
+              2
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              2,
+              100
+            ],
+            [
+              2,
+              1
+            ],
+            [
+              5,
+              "[/int data]"
+            ],
+            [
+              5,
+              "[string data]"
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              7,
+              "Particle/ActionTreeGrakKarakDamage.ptl"
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              7,
+              "TREE_SHAKE"
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              5,
+              "[/string data]"
+            ],
+            [
+              5,
+              "[name]"
+            ],
+            [
+              7,
+              "有被攻擊動作的樹"
+            ]
+          ]
+        },
+        "passiveobject/mapobject/breakableobject/actiontree1lorien.obj": {
+          "sha256": "d39f15530fd3ad30ade6cb5ae5f95a79e0f1b3a76b119edb51dd64f631bc4f46",
+          "tokens": [
+            [
+              5,
+              "[width]"
+            ],
+            [
+              2,
+              58
+            ],
+            [
+              2,
+              20
+            ],
+            [
+              5,
+              "[floating height]"
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              5,
+              "[layer]"
+            ],
+            [
+              7,
+              "[normal]"
+            ],
+            [
+              5,
+              "[pass type]"
+            ],
+            [
+              7,
+              "[do not pass]"
+            ],
+            [
+              5,
+              "[basic motion]"
+            ],
+            [
+              7,
+              "Animation/ActionTree/Lorien/ActionTree1-0.ani"
+            ],
+            [
+              5,
+              "[etc motion]"
+            ],
+            [
+              7,
+              "Animation/ActionTree/Lorien/ActionTree1-1.ani"
+            ],
+            [
+              5,
+              "[/etc motion]"
+            ],
+            [
+              5,
+              "[int data]"
+            ],
+            [
+              2,
+              1
+            ],
+            [
+              2,
+              2
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              2,
+              100
+            ],
+            [
+              2,
+              1
+            ],
+            [
+              5,
+              "[/int data]"
+            ],
+            [
+              5,
+              "[string data]"
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              7,
+              "Particle/ActionTreeLorienDamage.ptl"
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              7,
+              "TREE_SHAKE"
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              5,
+              "[/string data]"
+            ],
+            [
+              5,
+              "[name]"
+            ],
+            [
+              7,
+              "有被攻擊動作的樹"
+            ]
+          ]
+        },
+        "passiveobject/mapobject/breakableobject/actiontree1mirkwood.obj": {
+          "sha256": "c5768ee0b994a794ed3d0a7c5b499141a730f31c1182d6d0015f798c113efe66",
+          "tokens": [
+            [
+              5,
+              "[width]"
+            ],
+            [
+              2,
+              58
+            ],
+            [
+              2,
+              20
+            ],
+            [
+              5,
+              "[floating height]"
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              5,
+              "[layer]"
+            ],
+            [
+              7,
+              "[normal]"
+            ],
+            [
+              5,
+              "[pass type]"
+            ],
+            [
+              7,
+              "[do not pass]"
+            ],
+            [
+              5,
+              "[basic motion]"
+            ],
+            [
+              7,
+              "Animation/ActionTree/Mirkwood/ActionTree1-0.ani"
+            ],
+            [
+              5,
+              "[etc motion]"
+            ],
+            [
+              7,
+              "Animation/ActionTree/Mirkwood/ActionTree1-1.ani"
+            ],
+            [
+              5,
+              "[/etc motion]"
+            ],
+            [
+              5,
+              "[int data]"
+            ],
+            [
+              2,
+              1
+            ],
+            [
+              2,
+              2
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              2,
+              100
+            ],
+            [
+              2,
+              1
+            ],
+            [
+              5,
+              "[/int data]"
+            ],
+            [
+              5,
+              "[string data]"
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              7,
+              "Particle/ActionTreeMirkwoodDamage.ptl"
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              7,
+              "TREE_SHAKE"
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              5,
+              "[/string data]"
+            ],
+            [
+              5,
+              "[name]"
+            ],
+            [
+              7,
+              "有被攻擊動作的樹"
+            ]
+          ]
+        },
+        "passiveobject/mapobject/breakableobject/actiontree1sunderland.obj": {
+          "sha256": "5ca36f22532ad9977ad47514c4c947f4e699c6cd99c91770f6339e4dedf137b5",
+          "tokens": [
+            [
+              5,
+              "[width]"
+            ],
+            [
+              2,
+              58
+            ],
+            [
+              2,
+              20
+            ],
+            [
+              5,
+              "[floating height]"
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              5,
+              "[layer]"
+            ],
+            [
+              7,
+              "[normal]"
+            ],
+            [
+              5,
+              "[pass type]"
+            ],
+            [
+              7,
+              "[do not pass]"
+            ],
+            [
+              5,
+              "[basic motion]"
+            ],
+            [
+              7,
+              "Animation/ActionTree/sunderland/ActionTree1-0.ani"
+            ],
+            [
+              5,
+              "[etc motion]"
+            ],
+            [
+              7,
+              "Animation/ActionTree/sunderland/ActionTree1-1.ani"
+            ],
+            [
+              5,
+              "[/etc motion]"
+            ],
+            [
+              5,
+              "[int data]"
+            ],
+            [
+              2,
+              1
+            ],
+            [
+              2,
+              2
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              2,
+              100
+            ],
+            [
+              2,
+              1
+            ],
+            [
+              5,
+              "[/int data]"
+            ],
+            [
+              5,
+              "[string data]"
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              7,
+              "Particle/ActionTreesunderlandDamage.ptl"
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              7,
+              "TREE_SHAKE"
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              5,
+              "[/string data]"
+            ],
+            [
+              5,
+              "[name]"
+            ],
+            [
+              7,
+              "有被攻擊動作的樹"
+            ]
+          ]
+        },
+        "passiveobject/mapobject/breakableobject/actiontree2grakkarak.obj": {
+          "sha256": "bcd143afbb1a5083ac5cedac65a42fcca3fefbce9d015a6fe2e01163cff23c24",
+          "tokens": [
+            [
+              5,
+              "[width]"
+            ],
+            [
+              2,
+              58
+            ],
+            [
+              2,
+              20
+            ],
+            [
+              5,
+              "[floating height]"
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              5,
+              "[layer]"
+            ],
+            [
+              7,
+              "[normal]"
+            ],
+            [
+              5,
+              "[pass type]"
+            ],
+            [
+              7,
+              "[do not pass]"
+            ],
+            [
+              5,
+              "[basic motion]"
+            ],
+            [
+              7,
+              "Animation/ActionTree/GrakKarak/ActionTree2-0.ani"
+            ],
+            [
+              5,
+              "[etc motion]"
+            ],
+            [
+              7,
+              "Animation/ActionTree/GrakKarak/ActionTree2-1.ani"
+            ],
+            [
+              5,
+              "[/etc motion]"
+            ],
+            [
+              5,
+              "[int data]"
+            ],
+            [
+              2,
+              1
+            ],
+            [
+              2,
+              2
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              2,
+              100
+            ],
+            [
+              2,
+              1
+            ],
+            [
+              5,
+              "[/int data]"
+            ],
+            [
+              5,
+              "[string data]"
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              7,
+              "Particle/ActionTreeGrakKarakDamage.ptl"
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              7,
+              "TREE_SHAKE"
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              5,
+              "[/string data]"
+            ],
+            [
+              5,
+              "[name]"
+            ],
+            [
+              7,
+              "有被攻擊動作的樹"
+            ]
+          ]
+        },
+        "passiveobject/mapobject/breakableobject/actiontree2lorien.obj": {
+          "sha256": "56b758035f02da23804fe7e29561fc512dfa1faef8432c1568e255d3bd0c0c1a",
+          "tokens": [
+            [
+              5,
+              "[width]"
+            ],
+            [
+              2,
+              58
+            ],
+            [
+              2,
+              20
+            ],
+            [
+              5,
+              "[floating height]"
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              5,
+              "[layer]"
+            ],
+            [
+              7,
+              "[normal]"
+            ],
+            [
+              5,
+              "[pass type]"
+            ],
+            [
+              7,
+              "[do not pass]"
+            ],
+            [
+              5,
+              "[basic motion]"
+            ],
+            [
+              7,
+              "Animation/ActionTree/Lorien/ActionTree2-0.ani"
+            ],
+            [
+              5,
+              "[etc motion]"
+            ],
+            [
+              7,
+              "Animation/ActionTree/Lorien/ActionTree2-1.ani"
+            ],
+            [
+              5,
+              "[/etc motion]"
+            ],
+            [
+              5,
+              "[int data]"
+            ],
+            [
+              2,
+              1
+            ],
+            [
+              2,
+              2
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              2,
+              100
+            ],
+            [
+              2,
+              1
+            ],
+            [
+              5,
+              "[/int data]"
+            ],
+            [
+              5,
+              "[string data]"
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              7,
+              "Particle/ActionTreeLorienDamage.ptl"
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              7,
+              "TREE_SHAKE"
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              5,
+              "[/string data]"
+            ],
+            [
+              5,
+              "[name]"
+            ],
+            [
+              7,
+              "有被攻擊動作的樹"
+            ]
+          ]
+        },
+        "passiveobject/mapobject/breakableobject/actiontree2mirkwood.obj": {
+          "sha256": "38cecc8628c550828cf5b95438187fc17845ffdbac7217cbb7e2c3b353987716",
+          "tokens": [
+            [
+              5,
+              "[width]"
+            ],
+            [
+              2,
+              58
+            ],
+            [
+              2,
+              20
+            ],
+            [
+              5,
+              "[floating height]"
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              5,
+              "[layer]"
+            ],
+            [
+              7,
+              "[normal]"
+            ],
+            [
+              5,
+              "[pass type]"
+            ],
+            [
+              7,
+              "[do not pass]"
+            ],
+            [
+              5,
+              "[basic motion]"
+            ],
+            [
+              7,
+              "Animation/ActionTree/Mirkwood/ActionTree2-0.ani"
+            ],
+            [
+              5,
+              "[etc motion]"
+            ],
+            [
+              7,
+              "Animation/ActionTree/Mirkwood/ActionTree2-1.ani"
+            ],
+            [
+              5,
+              "[/etc motion]"
+            ],
+            [
+              5,
+              "[int data]"
+            ],
+            [
+              2,
+              1
+            ],
+            [
+              2,
+              2
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              2,
+              100
+            ],
+            [
+              2,
+              1
+            ],
+            [
+              5,
+              "[/int data]"
+            ],
+            [
+              5,
+              "[string data]"
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              7,
+              "Particle/ActionTreeMirkwoodDamage.ptl"
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              7,
+              "TREE_SHAKE"
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              5,
+              "[/string data]"
+            ],
+            [
+              5,
+              "[name]"
+            ],
+            [
+              7,
+              "有被攻擊動作的樹"
+            ]
+          ]
+        },
+        "passiveobject/mapobject/breakableobject/actiontree2sunderland.obj": {
+          "sha256": "211526240d55ee8178112f9d52ce742f8122cfe493687a3394fd2d19070c22cf",
+          "tokens": [
+            [
+              5,
+              "[width]"
+            ],
+            [
+              2,
+              58
+            ],
+            [
+              2,
+              20
+            ],
+            [
+              5,
+              "[floating height]"
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              5,
+              "[layer]"
+            ],
+            [
+              7,
+              "[normal]"
+            ],
+            [
+              5,
+              "[pass type]"
+            ],
+            [
+              7,
+              "[do not pass]"
+            ],
+            [
+              5,
+              "[basic motion]"
+            ],
+            [
+              7,
+              "Animation/ActionTree/SunderLand/ActionTree2-0.ani"
+            ],
+            [
+              5,
+              "[etc motion]"
+            ],
+            [
+              7,
+              "Animation/ActionTree/SunderLand/ActionTree2-1.ani"
+            ],
+            [
+              5,
+              "[/etc motion]"
+            ],
+            [
+              5,
+              "[int data]"
+            ],
+            [
+              2,
+              1
+            ],
+            [
+              2,
+              2
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              2,
+              0
+            ],
+            [
+              2,
+              100
+            ],
+            [
+              2,
+              1
+            ],
+            [
+              5,
+              "[/int data]"
+            ],
+            [
+              5,
+              "[string data]"
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              7,
+              "Particle/ActionTreeSunderLandDamage.ptl"
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              7,
+              "TREE_SHAKE"
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              5,
+              "[/string data]"
+            ],
+            [
+              5,
+              "[name]"
+            ],
+            [
+              7,
+              "有被攻擊動作的樹"
+            ]
+          ]
+        },
+        "passiveobject/mapobject/breakableobject/animation/actiontree/grakkarak/actiontree1-0.ani": {
+          "sha256": "c381d4c443a816602513c212f5753f7ea8523f677aba2891383f2cd7e285a56b",
+          "animation": {
+            "paths": [
+              "Map/BreakableObject/ActionTreeRenew/ActionTree1-GrakKarak.img"
+            ],
+            "overall": [
+              [
+                0,
+                1
+              ]
+            ],
+            "frames": [
+              {
+                "frame": 0,
+                "xy": [
+                  -73,
+                  -188
+                ],
+                "props": [
+                  [
+                    12,
+                    200000
+                  ]
+                ],
+                "boxes": [
+                  [
+                    14,
+                    [
+                      -67,
+                      -19,
+                      81,
+                      144,
+                      38,
+                      98
+                    ]
+                  ],
+                  [
+                    14,
+                    [
+                      -29,
+                      -15,
+                      -8,
+                      62,
+                      30,
+                      89
+                    ]
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        "passiveobject/mapobject/breakableobject/animation/actiontree/grakkarak/actiontree1-1.ani": {
+          "sha256": "638e1f21e7c8ffe8c7632249a5c75a7e28c34f0e7df9d14a8614f607f2b541d1",
+          "animation": {
+            "paths": [
+              "Map/04obj300.img"
+            ],
+            "overall": [
+              [
+                0,
+                1
+              ]
+            ],
+            "frames": [
+              {
+                "frame": 0,
+                "xy": [
+                  -75,
+                  -188
+                ],
+                "props": [
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -71,
+                  -188
+                ],
+                "props": [
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -75,
+                  -188
+                ],
+                "props": [
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -71,
+                  -188
+                ],
+                "props": [
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -75,
+                  -188
+                ],
+                "props": [
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -71,
+                  -188
+                ],
+                "props": [
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -73,
+                  -188
+                ],
+                "props": [
+                  [
+                    12,
+                    600000000
+                  ]
+                ],
+                "boxes": []
+              }
+            ]
+          }
+        },
+        "passiveobject/mapobject/breakableobject/animation/actiontree/grakkarak/actiontree2-0.ani": {
+          "sha256": "5f7c1d4e956e3f843440bdf1c0b3515644192c072809b05f741943b54e7a4ebc",
+          "animation": {
+            "paths": [
+              "Map/BreakableObject/ActionTreeRenew/ActionTree1-GrakKarak.img"
+            ],
+            "overall": [
+              [
+                0,
+                1
+              ]
+            ],
+            "frames": [
+              {
+                "frame": 0,
+                "xy": [
+                  -73,
+                  -186
+                ],
+                "props": [
+                  [
+                    7,
+                    [
+                      -1.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    12,
+                    2000000
+                  ]
+                ],
+                "boxes": [
+                  [
+                    14,
+                    [
+                      -65,
+                      -19,
+                      70,
+                      144,
+                      38,
+                      111
+                    ]
+                  ],
+                  [
+                    14,
+                    [
+                      -15,
+                      -15,
+                      2,
+                      62,
+                      30,
+                      67
+                    ]
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        "passiveobject/mapobject/breakableobject/animation/actiontree/grakkarak/actiontree2-1.ani": {
+          "sha256": "69b8291f757b5178da46717ac9cc5c0bb45787d985585e5f128b6e6ee2e1f24d",
+          "animation": {
+            "paths": [
+              "Map/04obj300.img"
+            ],
+            "overall": [
+              [
+                0,
+                1
+              ]
+            ],
+            "frames": [
+              {
+                "frame": 0,
+                "xy": [
+                  -75,
+                  -188
+                ],
+                "props": [
+                  [
+                    7,
+                    [
+                      -1.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -71,
+                  -188
+                ],
+                "props": [
+                  [
+                    7,
+                    [
+                      -1.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -75,
+                  -188
+                ],
+                "props": [
+                  [
+                    7,
+                    [
+                      -1.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -71,
+                  -188
+                ],
+                "props": [
+                  [
+                    7,
+                    [
+                      -1.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -75,
+                  -188
+                ],
+                "props": [
+                  [
+                    7,
+                    [
+                      -1.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -71,
+                  -188
+                ],
+                "props": [
+                  [
+                    7,
+                    [
+                      -1.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -73,
+                  -188
+                ],
+                "props": [
+                  [
+                    7,
+                    [
+                      -1.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    12,
+                    600000000
+                  ]
+                ],
+                "boxes": []
+              }
+            ]
+          }
+        },
+        "passiveobject/mapobject/breakableobject/animation/actiontree/grakkarak/actiontreeparticle1.ani": {
+          "sha256": "5e8745d2738d65861a6773db77c57e2cf3288460cffc542ccd6693068718fd10",
+          "animation": {
+            "paths": [
+              "Map/BreakableObject/ActionTree/ActionTreeParticle-GrakKarak1.img"
+            ],
+            "overall": [
+              [
+                0,
+                1
+              ]
+            ],
+            "frames": [
+              {
+                "frame": 0,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 1,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 2,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 3,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 4,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 5,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 4,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 3,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 2,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 1,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              }
+            ]
+          }
+        },
+        "passiveobject/mapobject/breakableobject/animation/actiontree/grakkarak/actiontreeparticle2.ani": {
+          "sha256": "88b42f2e6726885bd225cb3952956dd580f7b88073c69e2d4314de4e319eeda3",
+          "animation": {
+            "paths": [
+              "Map/BreakableObject/ActionTree/ActionTreeParticle-GrakKarak2.img"
+            ],
+            "overall": [
+              [
+                0,
+                1
+              ]
+            ],
+            "frames": [
+              {
+                "frame": 0,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 1,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 2,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 3,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 4,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 5,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 4,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 3,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 2,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 1,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              }
+            ]
+          }
+        },
+        "passiveobject/mapobject/breakableobject/animation/actiontree/lorien/actiontree1-0.ani": {
+          "sha256": "5937381845e804d917850e30eb39ae7f4eb4cb2cfa5a59886f154352963b61b2",
+          "animation": {
+            "paths": [
+              "Map/BreakableObject/ActionTreeRenew/ActionTree1-Lorien.img"
+            ],
+            "overall": [
+              [
+                0,
+                1
+              ]
+            ],
+            "frames": [
+              {
+                "frame": 0,
+                "xy": [
+                  -73,
+                  -188
+                ],
+                "props": [
+                  [
+                    12,
+                    200000
+                  ]
+                ],
+                "boxes": [
+                  [
+                    14,
+                    [
+                      -67,
+                      -19,
+                      81,
+                      144,
+                      38,
+                      98
+                    ]
+                  ],
+                  [
+                    14,
+                    [
+                      -29,
+                      -15,
+                      -8,
+                      62,
+                      30,
+                      89
+                    ]
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        "passiveobject/mapobject/breakableobject/animation/actiontree/lorien/actiontree1-1.ani": {
+          "sha256": "9d5ebc5b35ebcddcc0104e2c762721837b357c0622e7b967b872959f0a6568b3",
+          "animation": {
+            "paths": [
+              "Map/01obj300.img"
+            ],
+            "overall": [
+              [
+                0,
+                1
+              ]
+            ],
+            "frames": [
+              {
+                "frame": 0,
+                "xy": [
+                  -75,
+                  -188
+                ],
+                "props": [
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -71,
+                  -188
+                ],
+                "props": [
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -75,
+                  -188
+                ],
+                "props": [
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -71,
+                  -188
+                ],
+                "props": [
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -75,
+                  -188
+                ],
+                "props": [
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -71,
+                  -188
+                ],
+                "props": [
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -73,
+                  -188
+                ],
+                "props": [
+                  [
+                    12,
+                    600000000
+                  ]
+                ],
+                "boxes": []
+              }
+            ]
+          }
+        },
+        "passiveobject/mapobject/breakableobject/animation/actiontree/lorien/actiontree2-0.ani": {
+          "sha256": "ac80da33178641f2d460187213cf20708bc09dc66a28d64ed26c1cd528ef5cf7",
+          "animation": {
+            "paths": [
+              "Map/BreakableObject/ActionTreeRenew/ActionTree1-Lorien.img"
+            ],
+            "overall": [
+              [
+                0,
+                1
+              ]
+            ],
+            "frames": [
+              {
+                "frame": 0,
+                "xy": [
+                  -73,
+                  -186
+                ],
+                "props": [
+                  [
+                    7,
+                    [
+                      -1.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    12,
+                    2000000
+                  ]
+                ],
+                "boxes": [
+                  [
+                    14,
+                    [
+                      -65,
+                      -19,
+                      70,
+                      144,
+                      38,
+                      111
+                    ]
+                  ],
+                  [
+                    14,
+                    [
+                      -15,
+                      -15,
+                      2,
+                      62,
+                      30,
+                      67
+                    ]
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        "passiveobject/mapobject/breakableobject/animation/actiontree/lorien/actiontree2-1.ani": {
+          "sha256": "881134e30b732743c47884c718923bac6b11ebea3b299b983bbe1ef984980385",
+          "animation": {
+            "paths": [
+              "Map/01obj300.img"
+            ],
+            "overall": [
+              [
+                0,
+                1
+              ]
+            ],
+            "frames": [
+              {
+                "frame": 0,
+                "xy": [
+                  -75,
+                  -188
+                ],
+                "props": [
+                  [
+                    7,
+                    [
+                      -1.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -71,
+                  -188
+                ],
+                "props": [
+                  [
+                    7,
+                    [
+                      -1.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -75,
+                  -188
+                ],
+                "props": [
+                  [
+                    7,
+                    [
+                      -1.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -71,
+                  -188
+                ],
+                "props": [
+                  [
+                    7,
+                    [
+                      -1.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -75,
+                  -188
+                ],
+                "props": [
+                  [
+                    7,
+                    [
+                      -1.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -71,
+                  -188
+                ],
+                "props": [
+                  [
+                    7,
+                    [
+                      -1.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -73,
+                  -188
+                ],
+                "props": [
+                  [
+                    7,
+                    [
+                      -1.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    12,
+                    600000000
+                  ]
+                ],
+                "boxes": []
+              }
+            ]
+          }
+        },
+        "passiveobject/mapobject/breakableobject/animation/actiontree/lorien/actiontreeparticle1.ani": {
+          "sha256": "bf7631b98c51148dbbfbad22f0ed8480afc4db2cbbf2e1a853985bd49e75f093",
+          "animation": {
+            "paths": [
+              "Map/BreakableObject/ActionTree/ActionTreeParticle-lorien1.img"
+            ],
+            "overall": [
+              [
+                0,
+                1
+              ]
+            ],
+            "frames": [
+              {
+                "frame": 0,
+                "xy": [
+                  -8,
+                  -5
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 1,
+                "xy": [
+                  -8,
+                  -5
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 2,
+                "xy": [
+                  -8,
+                  -5
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 3,
+                "xy": [
+                  -8,
+                  -5
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 4,
+                "xy": [
+                  -8,
+                  -5
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 5,
+                "xy": [
+                  -8,
+                  -5
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 4,
+                "xy": [
+                  -8,
+                  -5
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 3,
+                "xy": [
+                  -8,
+                  -5
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 2,
+                "xy": [
+                  -8,
+                  -5
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 1,
+                "xy": [
+                  -8,
+                  -5
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              }
+            ]
+          }
+        },
+        "passiveobject/mapobject/breakableobject/animation/actiontree/lorien/actiontreeparticle2.ani": {
+          "sha256": "c75f83647ece93e0c86e4018fff2f7a608c7fced5044b27841a6bfd24955c8f2",
+          "animation": {
+            "paths": [
+              "Map/BreakableObject/ActionTree/ActionTreeParticle-lorien2.img"
+            ],
+            "overall": [
+              [
+                0,
+                1
+              ]
+            ],
+            "frames": [
+              {
+                "frame": 0,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 1,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 2,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 3,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 4,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 5,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 4,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 3,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 2,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 1,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              }
+            ]
+          }
+        },
+        "passiveobject/mapobject/breakableobject/animation/actiontree/mirkwood/actiontree1-0.ani": {
+          "sha256": "44610ad5bc5e0d28e073913972d09a058606484994b4c3e4935cecd992d3fae0",
+          "animation": {
+            "paths": [
+              "Map/BreakableObject/ActionTreeRenew/ActionTree1-Mirkwood.img"
+            ],
+            "overall": [
+              [
+                0,
+                1
+              ]
+            ],
+            "frames": [
+              {
+                "frame": 0,
+                "xy": [
+                  -73,
+                  -188
+                ],
+                "props": [
+                  [
+                    12,
+                    200000
+                  ]
+                ],
+                "boxes": [
+                  [
+                    14,
+                    [
+                      -67,
+                      -19,
+                      81,
+                      144,
+                      38,
+                      98
+                    ]
+                  ],
+                  [
+                    14,
+                    [
+                      -29,
+                      -15,
+                      -8,
+                      62,
+                      30,
+                      89
+                    ]
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        "passiveobject/mapobject/breakableobject/animation/actiontree/mirkwood/actiontree1-1.ani": {
+          "sha256": "6a14d92698c0c048801d2d3cfc4cc5842b8f232a91a2c404f8339d66680b5cea",
+          "animation": {
+            "paths": [
+              "Map/02obj300.img"
+            ],
+            "overall": [
+              [
+                0,
+                1
+              ]
+            ],
+            "frames": [
+              {
+                "frame": 0,
+                "xy": [
+                  -75,
+                  -188
+                ],
+                "props": [
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -71,
+                  -188
+                ],
+                "props": [
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -75,
+                  -188
+                ],
+                "props": [
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -71,
+                  -188
+                ],
+                "props": [
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -75,
+                  -188
+                ],
+                "props": [
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -71,
+                  -188
+                ],
+                "props": [
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -73,
+                  -188
+                ],
+                "props": [
+                  [
+                    12,
+                    600000000
+                  ]
+                ],
+                "boxes": []
+              }
+            ]
+          }
+        },
+        "passiveobject/mapobject/breakableobject/animation/actiontree/mirkwood/actiontree2-0.ani": {
+          "sha256": "ab96d02222e3978c96690d7c2ea72e6469e63988637d859b7002843aa33cc2de",
+          "animation": {
+            "paths": [
+              "Map/BreakableObject/ActionTreeRenew/ActionTree1-Mirkwood.img"
+            ],
+            "overall": [
+              [
+                0,
+                1
+              ]
+            ],
+            "frames": [
+              {
+                "frame": 0,
+                "xy": [
+                  -73,
+                  -186
+                ],
+                "props": [
+                  [
+                    7,
+                    [
+                      -1.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    12,
+                    2000000
+                  ]
+                ],
+                "boxes": [
+                  [
+                    14,
+                    [
+                      -65,
+                      -19,
+                      70,
+                      144,
+                      38,
+                      111
+                    ]
+                  ],
+                  [
+                    14,
+                    [
+                      -15,
+                      -15,
+                      2,
+                      62,
+                      30,
+                      67
+                    ]
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        "passiveobject/mapobject/breakableobject/animation/actiontree/mirkwood/actiontree2-1.ani": {
+          "sha256": "32be5accb8aafc306bdabb46ea7f6eaac979958b40140411aceadd89bdf5e018",
+          "animation": {
+            "paths": [
+              "Map/02obj300.img"
+            ],
+            "overall": [
+              [
+                0,
+                1
+              ]
+            ],
+            "frames": [
+              {
+                "frame": 0,
+                "xy": [
+                  -75,
+                  -188
+                ],
+                "props": [
+                  [
+                    7,
+                    [
+                      -1.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -71,
+                  -188
+                ],
+                "props": [
+                  [
+                    7,
+                    [
+                      -1.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -75,
+                  -188
+                ],
+                "props": [
+                  [
+                    7,
+                    [
+                      -1.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -71,
+                  -188
+                ],
+                "props": [
+                  [
+                    7,
+                    [
+                      -1.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -75,
+                  -188
+                ],
+                "props": [
+                  [
+                    7,
+                    [
+                      -1.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -71,
+                  -188
+                ],
+                "props": [
+                  [
+                    7,
+                    [
+                      -1.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -73,
+                  -188
+                ],
+                "props": [
+                  [
+                    7,
+                    [
+                      -1.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    12,
+                    600000000
+                  ]
+                ],
+                "boxes": []
+              }
+            ]
+          }
+        },
+        "passiveobject/mapobject/breakableobject/animation/actiontree/mirkwood/actiontreeparticle1.ani": {
+          "sha256": "ed02534e5339d02c670f8c5a0f3ef2ac8b47c4d3eb64818aced932c039f50bbd",
+          "animation": {
+            "paths": [
+              "Map/BreakableObject/ActionTree/ActionTreeParticle-mirkwood1.img"
+            ],
+            "overall": [
+              [
+                0,
+                1
+              ]
+            ],
+            "frames": [
+              {
+                "frame": 0,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 1,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 2,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 3,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 4,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 5,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 4,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 3,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 2,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 1,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              }
+            ]
+          }
+        },
+        "passiveobject/mapobject/breakableobject/animation/actiontree/mirkwood/actiontreeparticle2.ani": {
+          "sha256": "4034738bce76c96921a40e9dbfa895ebf220e0202fedc01d496cf5ac746b1d37",
+          "animation": {
+            "paths": [
+              "Map/BreakableObject/ActionTree/ActionTreeParticle-mirkwood2.img"
+            ],
+            "overall": [
+              [
+                0,
+                1
+              ]
+            ],
+            "frames": [
+              {
+                "frame": 0,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 1,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 2,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 3,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 4,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 5,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 4,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 3,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 2,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 1,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              }
+            ]
+          }
+        },
+        "passiveobject/mapobject/breakableobject/animation/actiontree/sunderland/actiontree1-0.ani": {
+          "sha256": "602755a7f52e530ebcf1d8a43e670135f580d3c3f33db2caca5421ed62161baf",
+          "animation": {
+            "paths": [
+              "Map/BreakableObject/ActionTreeRenew/ActionTree1-sunderland.img"
+            ],
+            "overall": [
+              [
+                0,
+                1
+              ]
+            ],
+            "frames": [
+              {
+                "frame": 0,
+                "xy": [
+                  -73,
+                  -188
+                ],
+                "props": [
+                  [
+                    12,
+                    200000
+                  ]
+                ],
+                "boxes": [
+                  [
+                    14,
+                    [
+                      -67,
+                      -19,
+                      81,
+                      144,
+                      38,
+                      98
+                    ]
+                  ],
+                  [
+                    14,
+                    [
+                      -29,
+                      -15,
+                      -8,
+                      62,
+                      30,
+                      89
+                    ]
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        "passiveobject/mapobject/breakableobject/animation/actiontree/sunderland/actiontree1-1.ani": {
+          "sha256": "332766654c6bda9ad1c0c9e231a2a185a2ec832fcf62b57cf8fff83bf99478ea",
+          "animation": {
+            "paths": [
+              "Map/03obj300.img"
+            ],
+            "overall": [
+              [
+                0,
+                1
+              ]
+            ],
+            "frames": [
+              {
+                "frame": 0,
+                "xy": [
+                  -75,
+                  -188
+                ],
+                "props": [
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -71,
+                  -188
+                ],
+                "props": [
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -75,
+                  -188
+                ],
+                "props": [
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -71,
+                  -188
+                ],
+                "props": [
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -75,
+                  -188
+                ],
+                "props": [
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -71,
+                  -188
+                ],
+                "props": [
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -73,
+                  -188
+                ],
+                "props": [
+                  [
+                    12,
+                    600000000
+                  ]
+                ],
+                "boxes": []
+              }
+            ]
+          }
+        },
+        "passiveobject/mapobject/breakableobject/animation/actiontree/sunderland/actiontree2-0.ani": {
+          "sha256": "5f9c3617dfa7d3159c43335a3800d856728acea534c02b3cfc9cd352af846b91",
+          "animation": {
+            "paths": [
+              "Map/BreakableObject/ActionTreeRenew/ActionTree1-sunderland.img"
+            ],
+            "overall": [
+              [
+                0,
+                1
+              ]
+            ],
+            "frames": [
+              {
+                "frame": 0,
+                "xy": [
+                  -73,
+                  -186
+                ],
+                "props": [
+                  [
+                    7,
+                    [
+                      -1.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    12,
+                    2000000
+                  ]
+                ],
+                "boxes": [
+                  [
+                    14,
+                    [
+                      -65,
+                      -19,
+                      70,
+                      144,
+                      38,
+                      111
+                    ]
+                  ],
+                  [
+                    14,
+                    [
+                      -15,
+                      -15,
+                      2,
+                      62,
+                      30,
+                      67
+                    ]
+                  ]
+                ]
+              }
+            ]
+          }
+        },
+        "passiveobject/mapobject/breakableobject/animation/actiontree/sunderland/actiontree2-1.ani": {
+          "sha256": "0051e433ebb20166f5fa150d0bb35bc53c0598602faee630133f2c29130ce7ff",
+          "animation": {
+            "paths": [
+              "Map/03obj300.img"
+            ],
+            "overall": [
+              [
+                0,
+                1
+              ]
+            ],
+            "frames": [
+              {
+                "frame": 0,
+                "xy": [
+                  -75,
+                  -188
+                ],
+                "props": [
+                  [
+                    7,
+                    [
+                      -1.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -71,
+                  -188
+                ],
+                "props": [
+                  [
+                    7,
+                    [
+                      -1.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -75,
+                  -188
+                ],
+                "props": [
+                  [
+                    7,
+                    [
+                      -1.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -71,
+                  -188
+                ],
+                "props": [
+                  [
+                    7,
+                    [
+                      -1.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -75,
+                  -188
+                ],
+                "props": [
+                  [
+                    7,
+                    [
+                      -1.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -71,
+                  -188
+                ],
+                "props": [
+                  [
+                    7,
+                    [
+                      -1.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    12,
+                    60
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 0,
+                "xy": [
+                  -73,
+                  -188
+                ],
+                "props": [
+                  [
+                    7,
+                    [
+                      -1.0,
+                      1.0
+                    ]
+                  ],
+                  [
+                    12,
+                    600000000
+                  ]
+                ],
+                "boxes": []
+              }
+            ]
+          }
+        },
+        "passiveobject/mapobject/breakableobject/animation/actiontree/sunderland/actiontreeparticle1.ani": {
+          "sha256": "1b6e38a889ba024fd0fc040931a4cb93d181fd424b34d660acf8e04fd8125da4",
+          "animation": {
+            "paths": [
+              "Map/BreakableObject/ActionTree/ActionTreeParticle-SunderLand1.img"
+            ],
+            "overall": [
+              [
+                0,
+                1
+              ]
+            ],
+            "frames": [
+              {
+                "frame": 0,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 1,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 2,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 3,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 4,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 5,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 4,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 3,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 2,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 1,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              }
+            ]
+          }
+        },
+        "passiveobject/mapobject/breakableobject/animation/actiontree/sunderland/actiontreeparticle2.ani": {
+          "sha256": "13c9d8235f71fbaf7a7fd417e85e2a5eec52f17afa2fcb756679cc9efcea9c56",
+          "animation": {
+            "paths": [
+              "Map/BreakableObject/ActionTree/ActionTreeParticle-SunderLand2.img"
+            ],
+            "overall": [
+              [
+                0,
+                1
+              ]
+            ],
+            "frames": [
+              {
+                "frame": 0,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 1,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 2,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 3,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 4,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 5,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 4,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 3,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 2,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              },
+              {
+                "frame": 1,
+                "xy": [
+                  -18,
+                  -3
+                ],
+                "props": [
+                  [
+                    12,
+                    70
+                  ]
+                ],
+                "boxes": []
+              }
+            ]
+          }
+        }
+      },
+      "list_matches": [
+        [
+          [
+            2,
+            223
+          ],
+          [
+            7,
+            "MapObject/BreakableObject/ActionTree1Lorien.obj"
+          ]
+        ],
+        [
+          [
+            2,
+            224
+          ],
+          [
+            7,
+            "MapObject/BreakableObject/ActionTree2Lorien.obj"
+          ]
+        ],
+        [
+          [
+            2,
+            225
+          ],
+          [
+            7,
+            "MapObject/BreakableObject/ActionTree1Mirkwood.obj"
+          ]
+        ],
+        [
+          [
+            2,
+            226
+          ],
+          [
+            7,
+            "MapObject/BreakableObject/ActionTree2Mirkwood.obj"
+          ]
+        ],
+        [
+          [
+            2,
+            227
+          ],
+          [
+            7,
+            "MapObject/BreakableObject/ActionTree1Sunderland.obj"
+          ]
+        ],
+        [
+          [
+            2,
+            228
+          ],
+          [
+            7,
+            "MapObject/BreakableObject/ActionTree2Sunderland.obj"
+          ]
+        ],
+        [
+          [
+            2,
+            229
+          ],
+          [
+            7,
+            "MapObject/BreakableObject/ActionTree1GrakKarak.obj"
+          ]
+        ],
+        [
+          [
+            2,
+            230
+          ],
+          [
+            7,
+            "MapObject/BreakableObject/ActionTree2GrakKarak.obj"
+          ]
+        ]
+      ]
+    }
+  ]
+}

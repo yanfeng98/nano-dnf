@@ -2669,7 +2669,11 @@
             { piece: "goblinBunker", x: 494, depth: 0.633, scale: [0.69, 0.71] },
             { piece: "goblinBunker", x: 662, depth: -0.509, scale: [0.69, 0.715] },
             { piece: "trunkTall", x: 120, depth: 0.95 },
-            { piece: "treeLeafy", x: 470, depth: 1.20 },
+            // Earliest visible forms are all fruited. Later depletion remains SC-19.
+            {"piece": "treeBossFruit", "x": 789, "depth": 1.229, "scale": [0.715, 0.71]},
+            {"piece": "treeBossFruit", "x": 838, "depth": 0.849, "scale": [0.715, 0.715]},
+            {"piece": "treeBossFruit", "x": 970, "depth": -0.326, "scale": [0.71, 0.71]},
+            {"piece": "treeBossFruit", "x": 1014, "depth": -0.809, "scale": [0.71, 0.715]},
             { piece: "trunkMossy", x: 30, depth: 2.03 },
           ],
           scatter: {"tall":1,"solid":0,"barrels":0,"stones":0}
@@ -4008,6 +4012,8 @@
       trunkMossy: { width: 100, dx: -18, ink: [160, 428] },
       treeLeafy:  { width: 84,  dx: -4,  ink: [153, 203] },
       treeReference: { width: 84, dx: 4, ink: [153, 203] },
+      /* 同族代理盒；ActionTree原生width58/depth20的映射仍待SC-19。 */
+      treeBossFruit: { width: 84, dx: -4, ink: [153, 203] },
       stump:      { width: 74,  dx: -4,  ink: [105, 199] },
       pillar:     { width: 43,  dx: 0,   ink: [44, 133] },
       pillarPale: { width: 43,  dx: 0,   ink: [44, 133] },
@@ -4141,12 +4147,7 @@
     var PROP_SCALE = {
       /* 木桶：录像 132-160 视频px 宽、182 高（两个深度的样本），本作 63x78。 */
       barrel: 0.74,
-      /*
-       * 茅草屋：**2026-10-25 重新量**（25 房 316s、33 房 106s 两帧一致）：
-       * 录像里那座约 **130–140 画布px 宽**，客户端画布 222 → **0.38**
-       * （222 × 0.38 × 1.5775 = 133）。早先按 1.5 身位记的 0.70 落到 245px，
-       * 差不多是录像的两倍宽。
-       */
+      /* 原生GoblinBunker为142×138；33/25房逐件尺度见50/56批源测量。 */
       goblinBunker: 0.7,
       /*
        * 门的倍率只在**侧门**上量到（录像 330 视频px 宽，本作 131 画布px → 0.80）；
@@ -4205,6 +4206,7 @@
        */
       treeLeafy: [0.54, 0.69],
       treeReference: [0.71, 0.715],
+      treeBossFruit: [0.715, 0.715],
       /*
        * **高草换了那一件之后重新量的**（`docs/adr/0050` 追记三）：新那一件是 39x87，
        * 录像里那一撮是 **95x170 视频px**，所以两轴都要缩：横向 0.77、纵向 0.62。

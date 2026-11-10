@@ -1,0 +1,15 @@
+{
+  "pack": "sprite_map_breakableobject_actiontreerenew.NPK",
+  "entry": "sprite/map/breakableobject/actiontreerenew/actiontree1-sunderland.img",
+  "frame": 0,
+  "offset": [
+    5,
+    0
+  ],
+  "size": [
+    153,
+    203
+  ],
+  "transform": "none; unchanged native RGBA",
+  "rgba_sha256": "c83cda409bd0be53cfd0c5b73809e4a657b9c58272698455644f51601b451621"
+}

@@ -11611,3 +11611,13 @@ test("boss room native props project onto the independently measured source anch
   assert.ok(Math.abs(bottom-q.bottom)<2,"wrong ground anchor for "+q.kind+" at "+q.time);
  }
 });
+
+test("boss-room tree forms project to the observed native crowns and roots",()=>{
+ const s=Core.createState({stage:"mirkwooddeep",seed:1});Core.goToCell(s,s.dungeon.boss);
+ const rows=JSON.parse(fs.readFileSync(path.join(__dirname,"../docs/reference-evidence/57-room25-tree-layout.json"),"utf8"));
+ for(const row of rows){
+  const p=s.props.find(p=>p.piece===row.piece&&Math.abs(p.x-row.world)<1);
+  assert.ok(p,"missing observed "+row.label+" form");
+  assert.ok(Math.abs(430-Core.depthLift(p.z)*Core.CAMERA.zoom-row.bottom)<2,"wrong root for "+row.label);
+ }
+});

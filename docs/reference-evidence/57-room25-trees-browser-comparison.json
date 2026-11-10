@@ -1,0 +1,66 @@
+[
+  {
+    "label": "first-back-fruit",
+    "time": 316.5,
+    "minPixels": 1000,
+    "threshold": 0.97,
+    "nativeMask": {
+      "rows": 190,
+      "columns": 62,
+      "alphaOnly": true,
+      "box": null
+    },
+    "cosine": 0.9723548428440862,
+    "dx": -1,
+    "dy": 0,
+    "pixels": 5003
+  },
+  {
+    "label": "first-front-fruit",
+    "time": 319,
+    "minPixels": 5000,
+    "threshold": 0.97,
+    "nativeMask": {
+      "rows": 229,
+      "columns": 173,
+      "alphaOnly": true,
+      "box": null
+    },
+    "cosine": 0.97812905420315,
+    "dx": 0,
+    "dy": 0,
+    "pixels": 20128
+  },
+  {
+    "label": "second-back-initial-fruit",
+    "time": 317,
+    "minPixels": 500,
+    "threshold": 0.97,
+    "nativeMask": {
+      "rows": 100,
+      "columns": 61,
+      "alphaOnly": true,
+      "box": null
+    },
+    "cosine": 0.9703069739449801,
+    "dx": 1,
+    "dy": 0,
+    "pixels": 3731
+  },
+  {
+    "label": "second-front-fruit",
+    "time": 320,
+    "minPixels": 5000,
+    "threshold": 0.97,
+    "nativeMask": {
+      "rows": 192,
+      "columns": 171,
+      "alphaOnly": true,
+      "box": null
+    },
+    "cosine": 0.9773959767172814,
+    "dx": 0,
+    "dy": 0,
+    "pixels": 17944
+  }
+]

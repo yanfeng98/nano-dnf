@@ -1,0 +1,114 @@
+[
+  {
+    "label": "first-back",
+    "kind": "sunderland",
+    "flip": false,
+    "time": 316.5,
+    "score": 0.9135469198226929,
+    "scale": [
+      0.715,
+      0.71
+    ],
+    "xy": [
+      494,
+      96
+    ],
+    "size": [
+      173,
+      227
+    ],
+    "mask_native": [
+      0,
+      0,
+      55,
+      170
+    ],
+    "world": 789.4288301886793,
+    "bottom": 323.19,
+    "piece": "treeBossFruit",
+    "geometry_form": "fruit"
+  },
+  {
+    "label": "first-front",
+    "time": 319,
+    "score": 0.9506881833076477,
+    "scale": [
+      0.715,
+      0.715
+    ],
+    "xy": [
+      188,
+      127
+    ],
+    "size": [
+      173,
+      229
+    ],
+    "mask_native": [
+      0,
+      0,
+      153,
+      203
+    ],
+    "world": 837.8128301886793,
+    "bottom": 356.23,
+    "piece": "treeBossFruit",
+    "geometry_form": "fruit"
+  },
+  {
+    "label": "second-back",
+    "kind": "03",
+    "flip": false,
+    "time": 320,
+    "score": 0.9034533500671387,
+    "scale": [
+      0.71,
+      0.71
+    ],
+    "xy": [
+      143,
+      231
+    ],
+    "size": [
+      171,
+      227
+    ],
+    "mask_native": [
+      0,
+      0,
+      55,
+      170
+    ],
+    "world": 969.8481509433963,
+    "bottom": 458.28,
+    "piece": "treeBossFruit",
+    "geometry_form": "plain"
+  },
+  {
+    "label": "second-front",
+    "time": 320,
+    "score": 0.9446146488189697,
+    "scale": [
+      0.71,
+      0.715
+    ],
+    "xy": [
+      213,
+      271
+    ],
+    "size": [
+      171,
+      229
+    ],
+    "mask_native": [
+      0,
+      0,
+      153,
+      170
+    ],
+    "world": 1014.2255094339622,
+    "bottom": 500.28,
+    "piece": "treeBossFruit",
+    "geometry_form": "fruit"
+  }
+]

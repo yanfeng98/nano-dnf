@@ -7,6 +7,14 @@ import http from 'node:http';
 import {fileURLToPath} from 'node:url';
 const room=process.env.CAPTURE_ROOM || '42';
 const profiles={
+ '25-trees':{batch:57,col:4,row:1,out:'/tmp/nano-room57/render',times:[316.5,317,319,320],actorScreenX:80,boss:true,
+  scope:'four earliest visible fruit-tree forms and visible native regions; hidden roots, depletion trigger and fruit/hit lifecycle remain open',
+  cases:[
+   ['first-back-fruit',316.5,'fruitTree',0,0,153,203,494,96,173,227,190,1000,.97,62,null,true],
+   ['first-front-fruit',319,'fruitTree',0,0,153,203,188,127,173,229,229,5000,.97,null,null,true],
+   ['second-back-initial-fruit',317,'fruitTree',0,0,153,203,638,231,171,227,100,500,.97,61,null,true],
+   ['second-front-fruit',320,'fruitTree',0,0,153,203,213,271,171,229,192,5000,.97,null,null,true]
+  ]},
  '25':{batch:56,col:4,row:1,out:'/tmp/nano-room56/render',times:[314,315,317,318,319,320,330],actorScreenX:360,boss:true,
   scope:'visible native barrel caps, chest fragments and bunker walls plus far-right keyboard movement; trees and object lifecycle remain open',
   cases:[
@@ -166,7 +174,7 @@ try{
   const name=t===26.5?'47-room42-entry-reference.png':`${profile.batch}-room${room}-${t}-reference.png`;
   return [t,fs.readFileSync(path.join(root,'docs/reference-evidence',name)).toString('base64')];
  }));
- const native=Object.fromEntries([['pillar','pillar-pale.png'],['forest','forest.png'],['bunker','goblin-bunker.png'],['tree','tree-reference.png']].map(([key,name])=>[key,fs.readFileSync(path.join(root,'assets',name)).toString('base64')]));
+ const native=Object.fromEntries([['pillar','pillar-pale.png'],['forest','forest.png'],['bunker','goblin-bunker.png'],['tree','tree-reference.png'],['fruitTree','tree-fruit-reference.png']].map(([key,name])=>[key,fs.readFileSync(path.join(root,'assets',name)).toString('base64')]));
  const faces=await page.evaluate(async({reference,images,native,cases})=>{
   async function picture(url){const im=new Image();im.src=url;await im.decode();return im;}
   function canvas(w,h){const c=document.createElement('canvas');c.width=w;c.height=h;return c.getContext('2d');}
