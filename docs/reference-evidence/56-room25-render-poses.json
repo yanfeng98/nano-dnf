@@ -1,0 +1,4216 @@
+[
+  {
+    "time": 314,
+    "room": "暗咒猫妖的林地",
+    "width": 1440,
+    "cameraPx": 149.64,
+    "props": [
+      {
+        "piece": "chest",
+        "x": 833,
+        "z": 342.5,
+        "broken": false,
+        "gone": false,
+        "screenX": 1164.3183333333332,
+        "bottom": 311.14434523809524
+      },
+      {
+        "piece": "chest",
+        "x": 1134,
+        "z": 342.5,
+        "broken": false,
+        "gone": false,
+        "screenX": 1639.1100000000001,
+        "bottom": 311.14434523809524
+      },
+      {
+        "piece": "chest",
+        "x": 1196,
+        "z": 342.5,
+        "broken": false,
+        "gone": false,
+        "screenX": 1736.907619047619,
+        "bottom": 311.14434523809524
+      },
+      {
+        "piece": "barrel",
+        "x": 593,
+        "z": 8.75,
+        "broken": false,
+        "gone": false,
+        "screenX": 785.7469047619047,
+        "bottom": 426.9635416666667
+      },
+      {
+        "piece": "barrel",
+        "x": 876,
+        "z": 82.25,
+        "broken": false,
+        "gone": false,
+        "screenX": 1232.1457142857143,
+        "bottom": 401.45729166666666
+      },
+      {
+        "piece": "barrel",
+        "x": 1254,
+        "z": 331,
+        "broken": false,
+        "gone": false,
+        "screenX": 1828.3957142857143,
+        "bottom": 315.135119047619
+      },
+      {
+        "piece": "goblinBunker",
+        "x": 494,
+        "z": 158.25,
+        "broken": false,
+        "gone": false,
+        "screenX": 629.5861904761905,
+        "bottom": 375.0834821428572
+      },
+      {
+        "piece": "goblinBunker",
+        "x": 662,
+        "z": -127.25,
+        "broken": false,
+        "gone": false,
+        "screenX": 894.5861904761904,
+        "bottom": 474.1587797619048
+      },
+      {
+        "piece": "trunkTall",
+        "x": 120,
+        "z": 237.5,
+        "broken": false,
+        "gone": false,
+        "screenX": 39.64571428571429,
+        "bottom": 347.58184523809524
+      },
+      {
+        "piece": "treeLeafy",
+        "x": 470,
+        "z": 300,
+        "broken": false,
+        "gone": false,
+        "screenX": 591.7290476190476,
+        "bottom": 325.89285714285717
+      },
+      {
+        "piece": "trunkMossy",
+        "x": 30,
+        "z": 507.49999999999994,
+        "broken": false,
+        "gone": false,
+        "screenX": -102.31857142857142,
+        "bottom": 253.88541666666669
+      },
+      {
+        "piece": "grassFlower",
+        "x": 402.62030318100005,
+        "z": 10.171515063848348,
+        "broken": false,
+        "gone": false,
+        "screenX": 485.4455972795537,
+        "bottom": 426.4702420939145
+      },
+      {
+        "piece": "grassPatch",
+        "x": 1355.721487798728,
+        "z": 154.5825962186791,
+        "broken": false,
+        "gone": false,
+        "screenX": 1988.8492515872795,
+        "bottom": 376.3561585741131
+      },
+      {
+        "piece": "pebble",
+        "x": 342.7729423325509,
+        "z": 234.01583414059132,
+        "broken": false,
+        "gone": false,
+        "screenX": 391.0435102269404,
+        "bottom": 348.79093374764005
+      },
+      {
+        "piece": "leavesBroad",
+        "x": 535.7176222680137,
+        "z": 30.424765839707103,
+        "broken": false,
+        "gone": false,
+        "screenX": 695.3907732203787,
+        "bottom": 419.441881854435
+      },
+      {
+        "piece": "bush",
+        "x": 1001.4362276131287,
+        "z": 44.52436302788555,
+        "broken": false,
+        "gone": false,
+        "screenX": 1430.0064304611851,
+        "bottom": 414.5489859254421
+      },
+      {
+        "piece": "leaves",
+        "x": 1316.3973834225908,
+        "z": 101.05235243914647,
+        "broken": false,
+        "gone": false,
+        "screenX": 1926.82015837492,
+        "bottom": 394.93242769522476
+      },
+      {
+        "piece": "bush",
+        "x": 970.1469161799178,
+        "z": 187.2522488469258,
+        "broken": false,
+        "gone": false,
+        "screenX": 1380.6512665933228,
+        "bottom": 365.01901126323946
+      },
+      {
+        "piece": "sprout",
+        "x": 612.8507864754647,
+        "z": 132.62078222585842,
+        "broken": false,
+        "gone": false,
+        "screenX": 817.0591572380841,
+        "bottom": 383.97743092995506
+      },
+      {
+        "piece": "bush",
+        "x": 720.8415611535311,
+        "z": 95.56103802751748,
+        "broken": false,
+        "gone": false,
+        "screenX": 987.4017482481294,
+        "bottom": 396.83804454164124
+      },
+      {
+        "piece": "leavesDense",
+        "x": 1377.5363658908755,
+        "z": 70.21569408243522,
+        "broken": false,
+        "gone": false,
+        "screenX": 2023.2596247683455,
+        "bottom": 405.6334823511549
+      },
+      {
+        "piece": "grassPatch",
+        "x": 398.0348080471158,
+        "z": 161.64667893899605,
+        "broken": false,
+        "gone": false,
+        "screenX": 478.2125245981291,
+        "bottom": 373.90475367771745
+      },
+      {
+        "piece": "pebble",
+        "x": 221.25455103628337,
+        "z": 98.20603096392004,
+        "broken": false,
+        "gone": false,
+        "screenX": 199.36271443223268,
+        "bottom": 395.9201690166873
+      },
+      {
+        "piece": "bush",
+        "x": 778.3802414610982,
+        "z": 21.3772196136415,
+        "broken": false,
+        "gone": false,
+        "screenX": 1078.1621665904227,
+        "bottom": 422.58159581264704
+      },
+      {
+        "piece": "pebble",
+        "x": 570.1099419910461,
+        "z": 88.81679252954198,
+        "broken": false,
+        "gone": false,
+        "screenX": 749.6405632596858,
+        "bottom": 399.1784583067125
+      },
+      {
+        "piece": "leavesBroad",
+        "x": 975.6596477879211,
+        "z": 128.36547778686509,
+        "broken": false,
+        "gone": false,
+        "screenX": 1389.3469444273755,
+        "bottom": 385.45412288705813
+      },
+      {
+        "piece": "grassPatch",
+        "x": 1332.5903223492205,
+        "z": 134.97394503094253,
+        "broken": false,
+        "gone": false,
+        "screenX": 1952.3625918008538,
+        "bottom": 383.16082740890505
+      },
+      {
+        "piece": "pebble",
+        "x": 145.7594191171229,
+        "z": 208.8139872974716,
+        "broken": false,
+        "gone": false,
+        "screenX": 80.2781313454617,
+        "bottom": 357.53657464617504
+      },
+      {
+        "piece": "sprout",
+        "x": 365.61903191916645,
+        "z": 162.49424160458148,
+        "broken": false,
+        "gone": false,
+        "screenX": 427.0804967772566,
+        "bottom": 373.61062925269584
+      },
+      {
+        "piece": "leaves",
+        "x": 916.9374445788562,
+        "z": 11.113387122750282,
+        "broken": false,
+        "gone": false,
+        "screenX": 1296.7196596035528,
+        "bottom": 426.14339006395033
+      },
+      {
+        "piece": "grassPatch",
+        "x": 812.9040919523686,
+        "z": 16.645218257326633,
+        "broken": false,
+        "gone": false,
+        "screenX": 1132.6194307582005,
+        "bottom": 424.22371294998726
+      },
+      {
+        "piece": "pebble",
+        "x": 676.0910592582077,
+        "z": 128.02120848791674,
+        "broken": false,
+        "gone": false,
+        "screenX": 916.8131589489586,
+        "bottom": 385.57359253068125
+      },
+      {
+        "piece": "grassFlower",
+        "x": 558.9433781420812,
+        "z": 81.79890647763385,
+        "broken": false,
+        "gone": false,
+        "screenX": 732.0266381407828,
+        "bottom": 401.6138318592497
+      },
+      {
+        "piece": "leaves",
+        "x": 1336.9994319044054,
+        "z": 211.16980232531205,
+        "broken": false,
+        "gone": false,
+        "screenX": 1959.3174372301633,
+        "bottom": 356.7190507406804
+      },
+      {
+        "piece": "pebble",
+        "x": 1094.4051140602678,
+        "z": 176.74510443815961,
+        "broken": false,
+        "gone": false,
+        "screenX": 1576.6537811069702,
+        "bottom": 368.6652405431863
+      },
+      {
+        "piece": "leavesBroad",
+        "x": 666.3848341386765,
+        "z": 208.48087444901466,
+        "broken": false,
+        "gone": false,
+        "screenX": 901.5027443258886,
+        "bottom": 357.6521727358479
+      },
+      {
+        "piece": "leavesBroad",
+        "x": 678.4233682155609,
+        "z": 56.652961305808276,
+        "broken": false,
+        "gone": false,
+        "screenX": 920.4920986733549,
+        "bottom": 410.34007354685343
+      },
+      {
+        "piece": "pebble",
+        "x": 1378.071272129193,
+        "z": 84.42293498199433,
+        "broken": false,
+        "gone": false,
+        "screenX": 2024.103375679977,
+        "bottom": 400.70323149136743
+      },
+      {
+        "piece": "bush",
+        "x": 170.6260710870847,
+        "z": 37.100123965647064,
+        "broken": false,
+        "gone": false,
+        "screenX": 119.50231451236579,
+        "bottom": 417.12537364763557
+      },
+      {
+        "piece": "flower",
+        "x": 648.8317293282598,
+        "z": 215.12790508801118,
+        "broken": false,
+        "gone": false,
+        "screenX": 873.8148111427907,
+        "bottom": 355.3454948414818
+      },
+      {
+        "piece": "flower",
+        "x": 577.1807455429807,
+        "z": 19.508926526177675,
+        "broken": false,
+        "gone": false,
+        "screenX": 760.7939141005351,
+        "bottom": 423.22993799716573
+      },
+      {
+        "piece": "flower",
+        "x": 735.2068319395185,
+        "z": 78.64596294704823,
+        "broken": false,
+        "gone": false,
+        "screenX": 1010.0612527617403,
+        "bottom": 402.707978334447
+      },
+      {
+        "piece": "flower",
+        "x": 987.628054337576,
+        "z": 216.0009709582664,
+        "broken": false,
+        "gone": false,
+        "screenX": 1408.2256809491528,
+        "bottom": 355.04252019722065
+      },
+      {
+        "piece": "flower",
+        "x": 908.8538143141195,
+        "z": 219.10023845266548,
+        "broken": false,
+        "gone": false,
+        "screenX": 1283.968695197867,
+        "bottom": 353.967000584581
+      },
+      {
+        "piece": "flower",
+        "x": 602.3186417091638,
+        "z": 98.37450047256424,
+        "broken": false,
+        "gone": false,
+        "screenX": 800.4459526960023,
+        "bottom": 395.86170608600895
+      },
+      {
+        "piece": "flower",
+        "x": 955.6809007115662,
+        "z": 28.77355531323701,
+        "broken": false,
+        "gone": false,
+        "screenX": 1357.8328493366967,
+        "bottom": 420.01489122165646
+      },
+      {
+        "piece": "flower",
+        "x": 715.7980368314311,
+        "z": 142.16634141746908,
+        "broken": false,
+        "gone": false,
+        "screenX": 979.4461890495787,
+        "bottom": 380.66489461524736
+      },
+      {
+        "piece": "flower",
+        "x": 1295.7485996969044,
+        "z": 188.8926402409561,
+        "broken": false,
+        "gone": false,
+        "screenX": 1894.2491602361883,
+        "bottom": 364.44975639257297
+      },
+      {
+        "piece": "flower",
+        "x": 459.25349068176,
+        "z": 56.43739097286016,
+        "broken": false,
+        "gone": false,
+        "screenX": 574.7777085158715,
+        "bottom": 410.4148815850134
+      },
+      {
+        "piece": "flower",
+        "x": 1095.9378044689074,
+        "z": 78.75147762941195,
+        "broken": false,
+        "gone": false,
+        "screenX": 1579.071417763455,
+        "bottom": 402.6713622274124
+      },
+      {
+        "piece": "flower",
+        "x": 1000.9918855139986,
+        "z": 144.81330160517246,
+        "broken": false,
+        "gone": false,
+        "screenX": 1429.3055336976763,
+        "bottom": 379.74633640725267
+      },
+      {
+        "piece": "flower",
+        "x": 284.6277424087748,
+        "z": 190.40726935490966,
+        "broken": false,
+        "gone": false,
+        "screenX": 299.32637939479355,
+        "bottom": 363.92414402743316
+      },
+      {
+        "piece": "flower",
+        "x": 626.717273532413,
+        "z": 68.53604918112978,
+        "broken": false,
+        "gone": false,
+        "screenX": 838.9318897981514,
+        "bottom": 406.2163591234532
+      },
+      {
+        "piece": "flower",
+        "x": 383.03717278316617,
+        "z": 167.29526678100228,
+        "broken": false,
+        "gone": false,
+        "screenX": 454.5555404020181,
+        "bottom": 371.9445592063546
+      },
+      {
+        "piece": "flower",
+        "x": 371.7066594939679,
+        "z": 37.610918923746794,
+        "broken": false,
+        "gone": false,
+        "screenX": 436.68300455893745,
+        "bottom": 416.94811563539025
+      },
+      {
+        "piece": "flower",
+        "x": 942.0666676312685,
+        "z": 54.712634454481304,
+        "broken": false,
+        "gone": false,
+        "screenX": 1336.3580173945602,
+        "bottom": 411.0134131625223
+      },
+      {
+        "piece": "flower",
+        "x": 910.8589176852256,
+        "z": 101.60641525173558,
+        "broken": false,
+        "gone": false,
+        "screenX": 1287.1315070630048,
+        "bottom": 394.7401547072846
+      },
+      {
+        "piece": "flower",
+        "x": 476.15736969187856,
+        "z": 151.64264807244763,
+        "broken": false,
+        "gone": false,
+        "screenX": 601.4415652877847,
+        "bottom": 377.3763905796209
+      },
+      {
+        "piece": "flower",
+        "x": 990.1209541577846,
+        "z": 88.06062720483168,
+        "broken": false,
+        "gone": false,
+        "screenX": 1412.1579336417435,
+        "bottom": 399.4408656783233
+      },
+      {
+        "piece": "flower",
+        "x": 261.7969709560275,
+        "z": 160.35728280199692,
+        "broken": false,
+        "gone": false,
+        "screenX": 263.3135553770672,
+        "bottom": 374.35220483716415
+      },
+      {
+        "piece": "flower",
+        "x": 368.38419815152884,
+        "z": 72.23767444724216,
+        "broken": false,
+        "gone": false,
+        "screenX": 431.442217322352,
+        "bottom": 404.9318070221773
+      },
+      {
+        "piece": "flower",
+        "x": 1062.2247278122231,
+        "z": 162.69259854219854,
+        "broken": false,
+        "gone": false,
+        "screenX": 1525.8930527990424,
+        "bottom": 373.54179467255847
+      },
+      {
+        "piece": "flower",
+        "x": 757.4715158687904,
+        "z": 37.827395715285085,
+        "broken": false,
+        "gone": false,
+        "screenX": 1045.1811411025565,
+        "bottom": 416.87299303451715
+      },
+      {
+        "piece": "flower",
+        "x": 910.8540217764676,
+        "z": 161.47195766679943,
+        "broken": false,
+        "gone": false,
+        "screenX": 1287.1237843497852,
+        "bottom": 373.96538611919993
+      },
+      {
+        "piece": "flower",
+        "x": 392.53427490312606,
+        "z": 23.449339878279712,
+        "broken": false,
+        "gone": false,
+        "screenX": 469.5360883888595,
+        "bottom": 421.8625207446208
+      },
+      {
+        "piece": "grass",
+        "x": 490.9026239728555,
+        "z": 55.83860269980505,
+        "broken": false,
+        "gone": false,
+        "screenX": 624.7004485286113,
+        "bottom": 410.62267537262716
+      }
+    ]
+  },
+  {
+    "time": 315,
+    "room": "暗咒猫妖的林地",
+    "width": 1440,
+    "cameraPx": 433.2,
+    "props": [
+      {
+        "piece": "chest",
+        "x": 833,
+        "z": 342.5,
+        "broken": false,
+        "gone": false,
+        "screenX": 880.7583333333332,
+        "bottom": 311.14434523809524
+      },
+      {
+        "piece": "chest",
+        "x": 1134,
+        "z": 342.5,
+        "broken": false,
+        "gone": false,
+        "screenX": 1355.55,
+        "bottom": 311.14434523809524
+      },
+      {
+        "piece": "chest",
+        "x": 1196,
+        "z": 342.5,
+        "broken": false,
+        "gone": false,
+        "screenX": 1453.347619047619,
+        "bottom": 311.14434523809524
+      },
+      {
+        "piece": "barrel",
+        "x": 593,
+        "z": 8.75,
+        "broken": false,
+        "gone": false,
+        "screenX": 502.1869047619047,
+        "bottom": 426.9635416666667
+      },
+      {
+        "piece": "barrel",
+        "x": 876,
+        "z": 82.25,
+        "broken": false,
+        "gone": false,
+        "screenX": 948.5857142857142,
+        "bottom": 401.45729166666666
+      },
+      {
+        "piece": "barrel",
+        "x": 1254,
+        "z": 331,
+        "broken": false,
+        "gone": false,
+        "screenX": 1544.8357142857142,
+        "bottom": 315.135119047619
+      },
+      {
+        "piece": "goblinBunker",
+        "x": 494,
+        "z": 158.25,
+        "broken": false,
+        "gone": false,
+        "screenX": 346.0261904761905,
+        "bottom": 375.0834821428572
+      },
+      {
+        "piece": "goblinBunker",
+        "x": 662,
+        "z": -127.25,
+        "broken": false,
+        "gone": false,
+        "screenX": 611.0261904761903,
+        "bottom": 474.1587797619048
+      },
+      {
+        "piece": "trunkTall",
+        "x": 120,
+        "z": 237.5,
+        "broken": false,
+        "gone": false,
+        "screenX": -243.9142857142857,
+        "bottom": 347.58184523809524
+      },
+      {
+        "piece": "treeLeafy",
+        "x": 470,
+        "z": 300,
+        "broken": false,
+        "gone": false,
+        "screenX": 308.1690476190476,
+        "bottom": 325.89285714285717
+      },
+      {
+        "piece": "trunkMossy",
+        "x": 30,
+        "z": 507.49999999999994,
+        "broken": false,
+        "gone": false,
+        "screenX": -385.87857142857143,
+        "bottom": 253.88541666666669
+      },
+      {
+        "piece": "grassFlower",
+        "x": 402.62030318100005,
+        "z": 10.171515063848348,
+        "broken": false,
+        "gone": false,
+        "screenX": 201.88559727955368,
+        "bottom": 426.4702420939145
+      },
+      {
+        "piece": "grassPatch",
+        "x": 1355.721487798728,
+        "z": 154.5825962186791,
+        "broken": false,
+        "gone": false,
+        "screenX": 1705.2892515872793,
+        "bottom": 376.3561585741131
+      },
+      {
+        "piece": "pebble",
+        "x": 342.7729423325509,
+        "z": 234.01583414059132,
+        "broken": false,
+        "gone": false,
+        "screenX": 107.48351022694038,
+        "bottom": 348.79093374764005
+      },
+      {
+        "piece": "leavesBroad",
+        "x": 535.7176222680137,
+        "z": 30.424765839707103,
+        "broken": false,
+        "gone": false,
+        "screenX": 411.8307732203787,
+        "bottom": 419.441881854435
+      },
+      {
+        "piece": "bush",
+        "x": 1001.4362276131287,
+        "z": 44.52436302788555,
+        "broken": false,
+        "gone": false,
+        "screenX": 1146.4464304611852,
+        "bottom": 414.5489859254421
+      },
+      {
+        "piece": "leaves",
+        "x": 1316.3973834225908,
+        "z": 101.05235243914647,
+        "broken": false,
+        "gone": false,
+        "screenX": 1643.26015837492,
+        "bottom": 394.93242769522476
+      },
+      {
+        "piece": "bush",
+        "x": 970.1469161799178,
+        "z": 187.2522488469258,
+        "broken": false,
+        "gone": false,
+        "screenX": 1097.0912665933226,
+        "bottom": 365.01901126323946
+      },
+      {
+        "piece": "sprout",
+        "x": 612.8507864754647,
+        "z": 132.62078222585842,
+        "broken": false,
+        "gone": false,
+        "screenX": 533.4991572380841,
+        "bottom": 383.97743092995506
+      },
+      {
+        "piece": "bush",
+        "x": 720.8415611535311,
+        "z": 95.56103802751748,
+        "broken": false,
+        "gone": false,
+        "screenX": 703.8417482481293,
+        "bottom": 396.83804454164124
+      },
+      {
+        "piece": "leavesDense",
+        "x": 1377.5363658908755,
+        "z": 70.21569408243522,
+        "broken": false,
+        "gone": false,
+        "screenX": 1739.6996247683453,
+        "bottom": 405.6334823511549
+      },
+      {
+        "piece": "grassPatch",
+        "x": 398.0348080471158,
+        "z": 161.64667893899605,
+        "broken": false,
+        "gone": false,
+        "screenX": 194.6525245981291,
+        "bottom": 373.90475367771745
+      },
+      {
+        "piece": "pebble",
+        "x": 221.25455103628337,
+        "z": 98.20603096392004,
+        "broken": false,
+        "gone": false,
+        "screenX": -84.19728556776732,
+        "bottom": 395.9201690166873
+      },
+      {
+        "piece": "bush",
+        "x": 778.3802414610982,
+        "z": 21.3772196136415,
+        "broken": false,
+        "gone": false,
+        "screenX": 794.6021665904227,
+        "bottom": 422.58159581264704
+      },
+      {
+        "piece": "pebble",
+        "x": 570.1099419910461,
+        "z": 88.81679252954198,
+        "broken": false,
+        "gone": false,
+        "screenX": 466.0805632596858,
+        "bottom": 399.1784583067125
+      },
+      {
+        "piece": "leavesBroad",
+        "x": 975.6596477879211,
+        "z": 128.36547778686509,
+        "broken": false,
+        "gone": false,
+        "screenX": 1105.7869444273756,
+        "bottom": 385.45412288705813
+      },
+      {
+        "piece": "grassPatch",
+        "x": 1332.5903223492205,
+        "z": 134.97394503094253,
+        "broken": false,
+        "gone": false,
+        "screenX": 1668.8025918008536,
+        "bottom": 383.16082740890505
+      },
+      {
+        "piece": "pebble",
+        "x": 145.7594191171229,
+        "z": 208.8139872974716,
+        "broken": false,
+        "gone": false,
+        "screenX": -203.2818686545383,
+        "bottom": 357.53657464617504
+      },
+      {
+        "piece": "sprout",
+        "x": 365.61903191916645,
+        "z": 162.49424160458148,
+        "broken": false,
+        "gone": false,
+        "screenX": 143.5204967772566,
+        "bottom": 373.61062925269584
+      },
+      {
+        "piece": "leaves",
+        "x": 916.9374445788562,
+        "z": 11.113387122750282,
+        "broken": false,
+        "gone": false,
+        "screenX": 1013.1596596035529,
+        "bottom": 426.14339006395033
+      },
+      {
+        "piece": "grassPatch",
+        "x": 812.9040919523686,
+        "z": 16.645218257326633,
+        "broken": false,
+        "gone": false,
+        "screenX": 849.0594307582005,
+        "bottom": 424.22371294998726
+      },
+      {
+        "piece": "pebble",
+        "x": 676.0910592582077,
+        "z": 128.02120848791674,
+        "broken": false,
+        "gone": false,
+        "screenX": 633.2531589489586,
+        "bottom": 385.57359253068125
+      },
+      {
+        "piece": "grassFlower",
+        "x": 558.9433781420812,
+        "z": 81.79890647763385,
+        "broken": false,
+        "gone": false,
+        "screenX": 448.4666381407828,
+        "bottom": 401.6138318592497
+      },
+      {
+        "piece": "leaves",
+        "x": 1336.9994319044054,
+        "z": 211.16980232531205,
+        "broken": false,
+        "gone": false,
+        "screenX": 1675.757437230163,
+        "bottom": 356.7190507406804
+      },
+      {
+        "piece": "pebble",
+        "x": 1094.4051140602678,
+        "z": 176.74510443815961,
+        "broken": false,
+        "gone": false,
+        "screenX": 1293.09378110697,
+        "bottom": 368.6652405431863
+      },
+      {
+        "piece": "leavesBroad",
+        "x": 666.3848341386765,
+        "z": 208.48087444901466,
+        "broken": false,
+        "gone": false,
+        "screenX": 617.9427443258885,
+        "bottom": 357.6521727358479
+      },
+      {
+        "piece": "leavesBroad",
+        "x": 678.4233682155609,
+        "z": 56.652961305808276,
+        "broken": false,
+        "gone": false,
+        "screenX": 636.9320986733549,
+        "bottom": 410.34007354685343
+      },
+      {
+        "piece": "pebble",
+        "x": 1378.071272129193,
+        "z": 84.42293498199433,
+        "broken": false,
+        "gone": false,
+        "screenX": 1740.5433756799769,
+        "bottom": 400.70323149136743
+      },
+      {
+        "piece": "bush",
+        "x": 170.6260710870847,
+        "z": 37.100123965647064,
+        "broken": false,
+        "gone": false,
+        "screenX": -164.05768548763422,
+        "bottom": 417.12537364763557
+      },
+      {
+        "piece": "flower",
+        "x": 648.8317293282598,
+        "z": 215.12790508801118,
+        "broken": false,
+        "gone": false,
+        "screenX": 590.2548111427907,
+        "bottom": 355.3454948414818
+      },
+      {
+        "piece": "flower",
+        "x": 577.1807455429807,
+        "z": 19.508926526177675,
+        "broken": false,
+        "gone": false,
+        "screenX": 477.23391410053506,
+        "bottom": 423.22993799716573
+      },
+      {
+        "piece": "flower",
+        "x": 735.2068319395185,
+        "z": 78.64596294704823,
+        "broken": false,
+        "gone": false,
+        "screenX": 726.5012527617403,
+        "bottom": 402.707978334447
+      },
+      {
+        "piece": "flower",
+        "x": 987.628054337576,
+        "z": 216.0009709582664,
+        "broken": false,
+        "gone": false,
+        "screenX": 1124.6656809491526,
+        "bottom": 355.04252019722065
+      },
+      {
+        "piece": "flower",
+        "x": 908.8538143141195,
+        "z": 219.10023845266548,
+        "broken": false,
+        "gone": false,
+        "screenX": 1000.408695197867,
+        "bottom": 353.967000584581
+      },
+      {
+        "piece": "flower",
+        "x": 602.3186417091638,
+        "z": 98.37450047256424,
+        "broken": false,
+        "gone": false,
+        "screenX": 516.8859526960023,
+        "bottom": 395.86170608600895
+      },
+      {
+        "piece": "flower",
+        "x": 955.6809007115662,
+        "z": 28.77355531323701,
+        "broken": false,
+        "gone": false,
+        "screenX": 1074.2728493366967,
+        "bottom": 420.01489122165646
+      },
+      {
+        "piece": "flower",
+        "x": 715.7980368314311,
+        "z": 142.16634141746908,
+        "broken": false,
+        "gone": false,
+        "screenX": 695.8861890495787,
+        "bottom": 380.66489461524736
+      },
+      {
+        "piece": "flower",
+        "x": 1295.7485996969044,
+        "z": 188.8926402409561,
+        "broken": false,
+        "gone": false,
+        "screenX": 1610.6891602361884,
+        "bottom": 364.44975639257297
+      },
+      {
+        "piece": "flower",
+        "x": 459.25349068176,
+        "z": 56.43739097286016,
+        "broken": false,
+        "gone": false,
+        "screenX": 291.2177085158715,
+        "bottom": 410.4148815850134
+      },
+      {
+        "piece": "flower",
+        "x": 1095.9378044689074,
+        "z": 78.75147762941195,
+        "broken": false,
+        "gone": false,
+        "screenX": 1295.511417763455,
+        "bottom": 402.6713622274124
+      },
+      {
+        "piece": "flower",
+        "x": 1000.9918855139986,
+        "z": 144.81330160517246,
+        "broken": false,
+        "gone": false,
+        "screenX": 1145.7455336976761,
+        "bottom": 379.74633640725267
+      },
+      {
+        "piece": "flower",
+        "x": 284.6277424087748,
+        "z": 190.40726935490966,
+        "broken": false,
+        "gone": false,
+        "screenX": 15.766379394793546,
+        "bottom": 363.92414402743316
+      },
+      {
+        "piece": "flower",
+        "x": 626.717273532413,
+        "z": 68.53604918112978,
+        "broken": false,
+        "gone": false,
+        "screenX": 555.3718897981514,
+        "bottom": 406.2163591234532
+      },
+      {
+        "piece": "flower",
+        "x": 383.03717278316617,
+        "z": 167.29526678100228,
+        "broken": false,
+        "gone": false,
+        "screenX": 170.9955404020181,
+        "bottom": 371.9445592063546
+      },
+      {
+        "piece": "flower",
+        "x": 371.7066594939679,
+        "z": 37.610918923746794,
+        "broken": false,
+        "gone": false,
+        "screenX": 153.12300455893745,
+        "bottom": 416.94811563539025
+      },
+      {
+        "piece": "flower",
+        "x": 942.0666676312685,
+        "z": 54.712634454481304,
+        "broken": false,
+        "gone": false,
+        "screenX": 1052.7980173945602,
+        "bottom": 411.0134131625223
+      },
+      {
+        "piece": "flower",
+        "x": 910.8589176852256,
+        "z": 101.60641525173558,
+        "broken": false,
+        "gone": false,
+        "screenX": 1003.5715070630047,
+        "bottom": 394.7401547072846
+      },
+      {
+        "piece": "flower",
+        "x": 476.15736969187856,
+        "z": 151.64264807244763,
+        "broken": false,
+        "gone": false,
+        "screenX": 317.88156528778467,
+        "bottom": 377.3763905796209
+      },
+      {
+        "piece": "flower",
+        "x": 990.1209541577846,
+        "z": 88.06062720483168,
+        "broken": false,
+        "gone": false,
+        "screenX": 1128.5979336417433,
+        "bottom": 399.4408656783233
+      },
+      {
+        "piece": "flower",
+        "x": 261.7969709560275,
+        "z": 160.35728280199692,
+        "broken": false,
+        "gone": false,
+        "screenX": -20.246444622932813,
+        "bottom": 374.35220483716415
+      },
+      {
+        "piece": "flower",
+        "x": 368.38419815152884,
+        "z": 72.23767444724216,
+        "broken": false,
+        "gone": false,
+        "screenX": 147.882217322352,
+        "bottom": 404.9318070221773
+      },
+      {
+        "piece": "flower",
+        "x": 1062.2247278122231,
+        "z": 162.69259854219854,
+        "broken": false,
+        "gone": false,
+        "screenX": 1242.3330527990424,
+        "bottom": 373.54179467255847
+      },
+      {
+        "piece": "flower",
+        "x": 757.4715158687904,
+        "z": 37.827395715285085,
+        "broken": false,
+        "gone": false,
+        "screenX": 761.6211411025563,
+        "bottom": 416.87299303451715
+      },
+      {
+        "piece": "flower",
+        "x": 910.8540217764676,
+        "z": 161.47195766679943,
+        "broken": false,
+        "gone": false,
+        "screenX": 1003.563784349785,
+        "bottom": 373.96538611919993
+      },
+      {
+        "piece": "flower",
+        "x": 392.53427490312606,
+        "z": 23.449339878279712,
+        "broken": false,
+        "gone": false,
+        "screenX": 185.97608838885952,
+        "bottom": 421.8625207446208
+      },
+      {
+        "piece": "grass",
+        "x": 490.9026239728555,
+        "z": 55.83860269980505,
+        "broken": false,
+        "gone": false,
+        "screenX": 341.14044852861133,
+        "bottom": 410.62267537262716
+      }
+    ]
+  },
+  {
+    "time": 317,
+    "room": "暗咒猫妖的林地",
+    "width": 1440,
+    "cameraPx": 806.17,
+    "props": [
+      {
+        "piece": "chest",
+        "x": 833,
+        "z": 342.5,
+        "broken": false,
+        "gone": false,
+        "screenX": 507.7883333333333,
+        "bottom": 311.14434523809524
+      },
+      {
+        "piece": "chest",
+        "x": 1134,
+        "z": 342.5,
+        "broken": false,
+        "gone": false,
+        "screenX": 982.58,
+        "bottom": 311.14434523809524
+      },
+      {
+        "piece": "chest",
+        "x": 1196,
+        "z": 342.5,
+        "broken": false,
+        "gone": false,
+        "screenX": 1080.3776190476192,
+        "bottom": 311.14434523809524
+      },
+      {
+        "piece": "barrel",
+        "x": 593,
+        "z": 8.75,
+        "broken": false,
+        "gone": false,
+        "screenX": 129.21690476190474,
+        "bottom": 426.9635416666667
+      },
+      {
+        "piece": "barrel",
+        "x": 876,
+        "z": 82.25,
+        "broken": false,
+        "gone": false,
+        "screenX": 575.6157142857143,
+        "bottom": 401.45729166666666
+      },
+      {
+        "piece": "barrel",
+        "x": 1254,
+        "z": 331,
+        "broken": false,
+        "gone": false,
+        "screenX": 1171.8657142857141,
+        "bottom": 315.135119047619
+      },
+      {
+        "piece": "goblinBunker",
+        "x": 494,
+        "z": 158.25,
+        "broken": false,
+        "gone": false,
+        "screenX": -26.943809523809477,
+        "bottom": 375.0834821428572
+      },
+      {
+        "piece": "goblinBunker",
+        "x": 662,
+        "z": -127.25,
+        "broken": false,
+        "gone": false,
+        "screenX": 238.0561904761904,
+        "bottom": 474.1587797619048
+      },
+      {
+        "piece": "trunkTall",
+        "x": 120,
+        "z": 237.5,
+        "broken": false,
+        "gone": false,
+        "screenX": -616.8842857142856,
+        "bottom": 347.58184523809524
+      },
+      {
+        "piece": "treeLeafy",
+        "x": 470,
+        "z": 300,
+        "broken": false,
+        "gone": false,
+        "screenX": -64.80095238095237,
+        "bottom": 325.89285714285717
+      },
+      {
+        "piece": "trunkMossy",
+        "x": 30,
+        "z": 507.49999999999994,
+        "broken": false,
+        "gone": false,
+        "screenX": -758.8485714285714,
+        "bottom": 253.88541666666669
+      },
+      {
+        "piece": "grassFlower",
+        "x": 402.62030318100005,
+        "z": 10.171515063848348,
+        "broken": false,
+        "gone": false,
+        "screenX": -171.0844027204463,
+        "bottom": 426.4702420939145
+      },
+      {
+        "piece": "grassPatch",
+        "x": 1355.721487798728,
+        "z": 154.5825962186791,
+        "broken": false,
+        "gone": false,
+        "screenX": 1332.3192515872793,
+        "bottom": 376.3561585741131
+      },
+      {
+        "piece": "pebble",
+        "x": 342.7729423325509,
+        "z": 234.01583414059132,
+        "broken": false,
+        "gone": false,
+        "screenX": -265.4864897730596,
+        "bottom": 348.79093374764005
+      },
+      {
+        "piece": "leavesBroad",
+        "x": 535.7176222680137,
+        "z": 30.424765839707103,
+        "broken": false,
+        "gone": false,
+        "screenX": 38.860773220378746,
+        "bottom": 419.441881854435
+      },
+      {
+        "piece": "bush",
+        "x": 1001.4362276131287,
+        "z": 44.52436302788555,
+        "broken": false,
+        "gone": false,
+        "screenX": 773.4764304611853,
+        "bottom": 414.5489859254421
+      },
+      {
+        "piece": "leaves",
+        "x": 1316.3973834225908,
+        "z": 101.05235243914647,
+        "broken": false,
+        "gone": false,
+        "screenX": 1270.2901583749199,
+        "bottom": 394.93242769522476
+      },
+      {
+        "piece": "bush",
+        "x": 970.1469161799178,
+        "z": 187.2522488469258,
+        "broken": false,
+        "gone": false,
+        "screenX": 724.1212665933227,
+        "bottom": 365.01901126323946
+      },
+      {
+        "piece": "sprout",
+        "x": 612.8507864754647,
+        "z": 132.62078222585842,
+        "broken": false,
+        "gone": false,
+        "screenX": 160.52915723808417,
+        "bottom": 383.97743092995506
+      },
+      {
+        "piece": "bush",
+        "x": 720.8415611535311,
+        "z": 95.56103802751748,
+        "broken": false,
+        "gone": false,
+        "screenX": 330.8717482481294,
+        "bottom": 396.83804454164124
+      },
+      {
+        "piece": "leavesDense",
+        "x": 1377.5363658908755,
+        "z": 70.21569408243522,
+        "broken": false,
+        "gone": false,
+        "screenX": 1366.7296247683453,
+        "bottom": 405.6334823511549
+      },
+      {
+        "piece": "grassPatch",
+        "x": 398.0348080471158,
+        "z": 161.64667893899605,
+        "broken": false,
+        "gone": false,
+        "screenX": -178.31747540187087,
+        "bottom": 373.90475367771745
+      },
+      {
+        "piece": "pebble",
+        "x": 221.25455103628337,
+        "z": 98.20603096392004,
+        "broken": false,
+        "gone": false,
+        "screenX": -457.1672855677673,
+        "bottom": 395.9201690166873
+      },
+      {
+        "piece": "bush",
+        "x": 778.3802414610982,
+        "z": 21.3772196136415,
+        "broken": false,
+        "gone": false,
+        "screenX": 421.6321665904228,
+        "bottom": 422.58159581264704
+      },
+      {
+        "piece": "pebble",
+        "x": 570.1099419910461,
+        "z": 88.81679252954198,
+        "broken": false,
+        "gone": false,
+        "screenX": 93.11056325968582,
+        "bottom": 399.1784583067125
+      },
+      {
+        "piece": "leavesBroad",
+        "x": 975.6596477879211,
+        "z": 128.36547778686509,
+        "broken": false,
+        "gone": false,
+        "screenX": 732.8169444273757,
+        "bottom": 385.45412288705813
+      },
+      {
+        "piece": "grassPatch",
+        "x": 1332.5903223492205,
+        "z": 134.97394503094253,
+        "broken": false,
+        "gone": false,
+        "screenX": 1295.8325918008536,
+        "bottom": 383.16082740890505
+      },
+      {
+        "piece": "pebble",
+        "x": 145.7594191171229,
+        "z": 208.8139872974716,
+        "broken": false,
+        "gone": false,
+        "screenX": -576.2518686545383,
+        "bottom": 357.53657464617504
+      },
+      {
+        "piece": "sprout",
+        "x": 365.61903191916645,
+        "z": 162.49424160458148,
+        "broken": false,
+        "gone": false,
+        "screenX": -229.44950322274337,
+        "bottom": 373.61062925269584
+      },
+      {
+        "piece": "leaves",
+        "x": 916.9374445788562,
+        "z": 11.113387122750282,
+        "broken": false,
+        "gone": false,
+        "screenX": 640.189659603553,
+        "bottom": 426.14339006395033
+      },
+      {
+        "piece": "grassPatch",
+        "x": 812.9040919523686,
+        "z": 16.645218257326633,
+        "broken": false,
+        "gone": false,
+        "screenX": 476.0894307582006,
+        "bottom": 424.22371294998726
+      },
+      {
+        "piece": "pebble",
+        "x": 676.0910592582077,
+        "z": 128.02120848791674,
+        "broken": false,
+        "gone": false,
+        "screenX": 260.28315894895866,
+        "bottom": 385.57359253068125
+      },
+      {
+        "piece": "grassFlower",
+        "x": 558.9433781420812,
+        "z": 81.79890647763385,
+        "broken": false,
+        "gone": false,
+        "screenX": 75.4966381407828,
+        "bottom": 401.6138318592497
+      },
+      {
+        "piece": "leaves",
+        "x": 1336.9994319044054,
+        "z": 211.16980232531205,
+        "broken": false,
+        "gone": false,
+        "screenX": 1302.787437230163,
+        "bottom": 356.7190507406804
+      },
+      {
+        "piece": "pebble",
+        "x": 1094.4051140602678,
+        "z": 176.74510443815961,
+        "broken": false,
+        "gone": false,
+        "screenX": 920.1237811069701,
+        "bottom": 368.6652405431863
+      },
+      {
+        "piece": "leavesBroad",
+        "x": 666.3848341386765,
+        "z": 208.48087444901466,
+        "broken": false,
+        "gone": false,
+        "screenX": 244.97274432588858,
+        "bottom": 357.6521727358479
+      },
+      {
+        "piece": "leavesBroad",
+        "x": 678.4233682155609,
+        "z": 56.652961305808276,
+        "broken": false,
+        "gone": false,
+        "screenX": 263.96209867335494,
+        "bottom": 410.34007354685343
+      },
+      {
+        "piece": "pebble",
+        "x": 1378.071272129193,
+        "z": 84.42293498199433,
+        "broken": false,
+        "gone": false,
+        "screenX": 1367.5733756799768,
+        "bottom": 400.70323149136743
+      },
+      {
+        "piece": "bush",
+        "x": 170.6260710870847,
+        "z": 37.100123965647064,
+        "broken": false,
+        "gone": false,
+        "screenX": -537.0276854876342,
+        "bottom": 417.12537364763557
+      },
+      {
+        "piece": "flower",
+        "x": 648.8317293282598,
+        "z": 215.12790508801118,
+        "broken": false,
+        "gone": false,
+        "screenX": 217.28481114279077,
+        "bottom": 355.3454948414818
+      },
+      {
+        "piece": "flower",
+        "x": 577.1807455429807,
+        "z": 19.508926526177675,
+        "broken": false,
+        "gone": false,
+        "screenX": 104.26391410053509,
+        "bottom": 423.22993799716573
+      },
+      {
+        "piece": "flower",
+        "x": 735.2068319395185,
+        "z": 78.64596294704823,
+        "broken": false,
+        "gone": false,
+        "screenX": 353.53125276174035,
+        "bottom": 402.707978334447
+      },
+      {
+        "piece": "flower",
+        "x": 987.628054337576,
+        "z": 216.0009709582664,
+        "broken": false,
+        "gone": false,
+        "screenX": 751.6956809491527,
+        "bottom": 355.04252019722065
+      },
+      {
+        "piece": "flower",
+        "x": 908.8538143141195,
+        "z": 219.10023845266548,
+        "broken": false,
+        "gone": false,
+        "screenX": 627.4386951978671,
+        "bottom": 353.967000584581
+      },
+      {
+        "piece": "flower",
+        "x": 602.3186417091638,
+        "z": 98.37450047256424,
+        "broken": false,
+        "gone": false,
+        "screenX": 143.91595269600236,
+        "bottom": 395.86170608600895
+      },
+      {
+        "piece": "flower",
+        "x": 955.6809007115662,
+        "z": 28.77355531323701,
+        "broken": false,
+        "gone": false,
+        "screenX": 701.3028493366968,
+        "bottom": 420.01489122165646
+      },
+      {
+        "piece": "flower",
+        "x": 715.7980368314311,
+        "z": 142.16634141746908,
+        "broken": false,
+        "gone": false,
+        "screenX": 322.91618904957875,
+        "bottom": 380.66489461524736
+      },
+      {
+        "piece": "flower",
+        "x": 1295.7485996969044,
+        "z": 188.8926402409561,
+        "broken": false,
+        "gone": false,
+        "screenX": 1237.7191602361886,
+        "bottom": 364.44975639257297
+      },
+      {
+        "piece": "flower",
+        "x": 459.25349068176,
+        "z": 56.43739097286016,
+        "broken": false,
+        "gone": false,
+        "screenX": -81.75229148412848,
+        "bottom": 410.4148815850134
+      },
+      {
+        "piece": "flower",
+        "x": 1095.9378044689074,
+        "z": 78.75147762941195,
+        "broken": false,
+        "gone": false,
+        "screenX": 922.5414177634551,
+        "bottom": 402.6713622274124
+      },
+      {
+        "piece": "flower",
+        "x": 1000.9918855139986,
+        "z": 144.81330160517246,
+        "broken": false,
+        "gone": false,
+        "screenX": 772.7755336976762,
+        "bottom": 379.74633640725267
+      },
+      {
+        "piece": "flower",
+        "x": 284.6277424087748,
+        "z": 190.40726935490966,
+        "broken": false,
+        "gone": false,
+        "screenX": -357.2036206052064,
+        "bottom": 363.92414402743316
+      },
+      {
+        "piece": "flower",
+        "x": 626.717273532413,
+        "z": 68.53604918112978,
+        "broken": false,
+        "gone": false,
+        "screenX": 182.4018897981514,
+        "bottom": 406.2163591234532
+      },
+      {
+        "piece": "flower",
+        "x": 383.03717278316617,
+        "z": 167.29526678100228,
+        "broken": false,
+        "gone": false,
+        "screenX": -201.97445959798188,
+        "bottom": 371.9445592063546
+      },
+      {
+        "piece": "flower",
+        "x": 371.7066594939679,
+        "z": 37.610918923746794,
+        "broken": false,
+        "gone": false,
+        "screenX": -219.84699544106252,
+        "bottom": 416.94811563539025
+      },
+      {
+        "piece": "flower",
+        "x": 942.0666676312685,
+        "z": 54.712634454481304,
+        "broken": false,
+        "gone": false,
+        "screenX": 679.8280173945603,
+        "bottom": 411.0134131625223
+      },
+      {
+        "piece": "flower",
+        "x": 910.8589176852256,
+        "z": 101.60641525173558,
+        "broken": false,
+        "gone": false,
+        "screenX": 630.6015070630048,
+        "bottom": 394.7401547072846
+      },
+      {
+        "piece": "flower",
+        "x": 476.15736969187856,
+        "z": 151.64264807244763,
+        "broken": false,
+        "gone": false,
+        "screenX": -55.0884347122153,
+        "bottom": 377.3763905796209
+      },
+      {
+        "piece": "flower",
+        "x": 990.1209541577846,
+        "z": 88.06062720483168,
+        "broken": false,
+        "gone": false,
+        "screenX": 755.6279336417434,
+        "bottom": 399.4408656783233
+      },
+      {
+        "piece": "flower",
+        "x": 261.7969709560275,
+        "z": 160.35728280199692,
+        "broken": false,
+        "gone": false,
+        "screenX": -393.2164446229328,
+        "bottom": 374.35220483716415
+      },
+      {
+        "piece": "flower",
+        "x": 368.38419815152884,
+        "z": 72.23767444724216,
+        "broken": false,
+        "gone": false,
+        "screenX": -225.08778267764797,
+        "bottom": 404.9318070221773
+      },
+      {
+        "piece": "flower",
+        "x": 1062.2247278122231,
+        "z": 162.69259854219854,
+        "broken": false,
+        "gone": false,
+        "screenX": 869.3630527990425,
+        "bottom": 373.54179467255847
+      },
+      {
+        "piece": "flower",
+        "x": 757.4715158687904,
+        "z": 37.827395715285085,
+        "broken": false,
+        "gone": false,
+        "screenX": 388.6511411025564,
+        "bottom": 416.87299303451715
+      },
+      {
+        "piece": "flower",
+        "x": 910.8540217764676,
+        "z": 161.47195766679943,
+        "broken": false,
+        "gone": false,
+        "screenX": 630.5937843497851,
+        "bottom": 373.96538611919993
+      },
+      {
+        "piece": "flower",
+        "x": 392.53427490312606,
+        "z": 23.449339878279712,
+        "broken": false,
+        "gone": false,
+        "screenX": -186.99391161114045,
+        "bottom": 421.8625207446208
+      },
+      {
+        "piece": "grass",
+        "x": 490.9026239728555,
+        "z": 55.83860269980505,
+        "broken": false,
+        "gone": false,
+        "screenX": -31.82955147138864,
+        "bottom": 410.62267537262716
+      }
+    ]
+  },
+  {
+    "time": 318,
+    "room": "暗咒猫妖的林地",
+    "width": 1440,
+    "cameraPx": 915.46,
+    "props": [
+      {
+        "piece": "chest",
+        "x": 833,
+        "z": 342.5,
+        "broken": false,
+        "gone": false,
+        "screenX": 398.4983333333332,
+        "bottom": 311.14434523809524
+      },
+      {
+        "piece": "chest",
+        "x": 1134,
+        "z": 342.5,
+        "broken": false,
+        "gone": false,
+        "screenX": 873.29,
+        "bottom": 311.14434523809524
+      },
+      {
+        "piece": "chest",
+        "x": 1196,
+        "z": 342.5,
+        "broken": false,
+        "gone": false,
+        "screenX": 971.087619047619,
+        "bottom": 311.14434523809524
+      },
+      {
+        "piece": "barrel",
+        "x": 593,
+        "z": 8.75,
+        "broken": false,
+        "gone": false,
+        "screenX": 19.926904761904666,
+        "bottom": 426.9635416666667
+      },
+      {
+        "piece": "barrel",
+        "x": 876,
+        "z": 82.25,
+        "broken": false,
+        "gone": false,
+        "screenX": 466.3257142857142,
+        "bottom": 401.45729166666666
+      },
+      {
+        "piece": "barrel",
+        "x": 1254,
+        "z": 331,
+        "broken": false,
+        "gone": false,
+        "screenX": 1062.5757142857142,
+        "bottom": 315.135119047619
+      },
+      {
+        "piece": "goblinBunker",
+        "x": 494,
+        "z": 158.25,
+        "broken": false,
+        "gone": false,
+        "screenX": -136.23380952380955,
+        "bottom": 375.0834821428572
+      },
+      {
+        "piece": "goblinBunker",
+        "x": 662,
+        "z": -127.25,
+        "broken": false,
+        "gone": false,
+        "screenX": 128.76619047619033,
+        "bottom": 474.1587797619048
+      },
+      {
+        "piece": "trunkTall",
+        "x": 120,
+        "z": 237.5,
+        "broken": false,
+        "gone": false,
+        "screenX": -726.1742857142858,
+        "bottom": 347.58184523809524
+      },
+      {
+        "piece": "treeLeafy",
+        "x": 470,
+        "z": 300,
+        "broken": false,
+        "gone": false,
+        "screenX": -174.09095238095244,
+        "bottom": 325.89285714285717
+      },
+      {
+        "piece": "trunkMossy",
+        "x": 30,
+        "z": 507.49999999999994,
+        "broken": false,
+        "gone": false,
+        "screenX": -868.1385714285715,
+        "bottom": 253.88541666666669
+      },
+      {
+        "piece": "grassFlower",
+        "x": 402.62030318100005,
+        "z": 10.171515063848348,
+        "broken": false,
+        "gone": false,
+        "screenX": -280.37440272044637,
+        "bottom": 426.4702420939145
+      },
+      {
+        "piece": "grassPatch",
+        "x": 1355.721487798728,
+        "z": 154.5825962186791,
+        "broken": false,
+        "gone": false,
+        "screenX": 1223.0292515872793,
+        "bottom": 376.3561585741131
+      },
+      {
+        "piece": "pebble",
+        "x": 342.7729423325509,
+        "z": 234.01583414059132,
+        "broken": false,
+        "gone": false,
+        "screenX": -374.77648977305967,
+        "bottom": 348.79093374764005
+      },
+      {
+        "piece": "leavesBroad",
+        "x": 535.7176222680137,
+        "z": 30.424765839707103,
+        "broken": false,
+        "gone": false,
+        "screenX": -70.42922677962133,
+        "bottom": 419.441881854435
+      },
+      {
+        "piece": "bush",
+        "x": 1001.4362276131287,
+        "z": 44.52436302788555,
+        "broken": false,
+        "gone": false,
+        "screenX": 664.1864304611852,
+        "bottom": 414.5489859254421
+      },
+      {
+        "piece": "leaves",
+        "x": 1316.3973834225908,
+        "z": 101.05235243914647,
+        "broken": false,
+        "gone": false,
+        "screenX": 1161.00015837492,
+        "bottom": 394.93242769522476
+      },
+      {
+        "piece": "bush",
+        "x": 970.1469161799178,
+        "z": 187.2522488469258,
+        "broken": false,
+        "gone": false,
+        "screenX": 614.8312665933227,
+        "bottom": 365.01901126323946
+      },
+      {
+        "piece": "sprout",
+        "x": 612.8507864754647,
+        "z": 132.62078222585842,
+        "broken": false,
+        "gone": false,
+        "screenX": 51.23915723808409,
+        "bottom": 383.97743092995506
+      },
+      {
+        "piece": "bush",
+        "x": 720.8415611535311,
+        "z": 95.56103802751748,
+        "broken": false,
+        "gone": false,
+        "screenX": 221.58174824812932,
+        "bottom": 396.83804454164124
+      },
+      {
+        "piece": "leavesDense",
+        "x": 1377.5363658908755,
+        "z": 70.21569408243522,
+        "broken": false,
+        "gone": false,
+        "screenX": 1257.4396247683453,
+        "bottom": 405.6334823511549
+      },
+      {
+        "piece": "grassPatch",
+        "x": 398.0348080471158,
+        "z": 161.64667893899605,
+        "broken": false,
+        "gone": false,
+        "screenX": -287.60747540187094,
+        "bottom": 373.90475367771745
+      },
+      {
+        "piece": "pebble",
+        "x": 221.25455103628337,
+        "z": 98.20603096392004,
+        "broken": false,
+        "gone": false,
+        "screenX": -566.4572855677674,
+        "bottom": 395.9201690166873
+      },
+      {
+        "piece": "bush",
+        "x": 778.3802414610982,
+        "z": 21.3772196136415,
+        "broken": false,
+        "gone": false,
+        "screenX": 312.3421665904227,
+        "bottom": 422.58159581264704
+      },
+      {
+        "piece": "pebble",
+        "x": 570.1099419910461,
+        "z": 88.81679252954198,
+        "broken": false,
+        "gone": false,
+        "screenX": -16.17943674031426,
+        "bottom": 399.1784583067125
+      },
+      {
+        "piece": "leavesBroad",
+        "x": 975.6596477879211,
+        "z": 128.36547778686509,
+        "broken": false,
+        "gone": false,
+        "screenX": 623.5269444273756,
+        "bottom": 385.45412288705813
+      },
+      {
+        "piece": "grassPatch",
+        "x": 1332.5903223492205,
+        "z": 134.97394503094253,
+        "broken": false,
+        "gone": false,
+        "screenX": 1186.5425918008536,
+        "bottom": 383.16082740890505
+      },
+      {
+        "piece": "pebble",
+        "x": 145.7594191171229,
+        "z": 208.8139872974716,
+        "broken": false,
+        "gone": false,
+        "screenX": -685.5418686545383,
+        "bottom": 357.53657464617504
+      },
+      {
+        "piece": "sprout",
+        "x": 365.61903191916645,
+        "z": 162.49424160458148,
+        "broken": false,
+        "gone": false,
+        "screenX": -338.73950322274345,
+        "bottom": 373.61062925269584
+      },
+      {
+        "piece": "leaves",
+        "x": 916.9374445788562,
+        "z": 11.113387122750282,
+        "broken": false,
+        "gone": false,
+        "screenX": 530.8996596035529,
+        "bottom": 426.14339006395033
+      },
+      {
+        "piece": "grassPatch",
+        "x": 812.9040919523686,
+        "z": 16.645218257326633,
+        "broken": false,
+        "gone": false,
+        "screenX": 366.7994307582005,
+        "bottom": 424.22371294998726
+      },
+      {
+        "piece": "pebble",
+        "x": 676.0910592582077,
+        "z": 128.02120848791674,
+        "broken": false,
+        "gone": false,
+        "screenX": 150.99315894895858,
+        "bottom": 385.57359253068125
+      },
+      {
+        "piece": "grassFlower",
+        "x": 558.9433781420812,
+        "z": 81.79890647763385,
+        "broken": false,
+        "gone": false,
+        "screenX": -33.79336185921727,
+        "bottom": 401.6138318592497
+      },
+      {
+        "piece": "leaves",
+        "x": 1336.9994319044054,
+        "z": 211.16980232531205,
+        "broken": false,
+        "gone": false,
+        "screenX": 1193.497437230163,
+        "bottom": 356.7190507406804
+      },
+      {
+        "piece": "pebble",
+        "x": 1094.4051140602678,
+        "z": 176.74510443815961,
+        "broken": false,
+        "gone": false,
+        "screenX": 810.83378110697,
+        "bottom": 368.6652405431863
+      },
+      {
+        "piece": "leavesBroad",
+        "x": 666.3848341386765,
+        "z": 208.48087444901466,
+        "broken": false,
+        "gone": false,
+        "screenX": 135.6827443258885,
+        "bottom": 357.6521727358479
+      },
+      {
+        "piece": "leavesBroad",
+        "x": 678.4233682155609,
+        "z": 56.652961305808276,
+        "broken": false,
+        "gone": false,
+        "screenX": 154.67209867335487,
+        "bottom": 410.34007354685343
+      },
+      {
+        "piece": "pebble",
+        "x": 1378.071272129193,
+        "z": 84.42293498199433,
+        "broken": false,
+        "gone": false,
+        "screenX": 1258.2833756799769,
+        "bottom": 400.70323149136743
+      },
+      {
+        "piece": "bush",
+        "x": 170.6260710870847,
+        "z": 37.100123965647064,
+        "broken": false,
+        "gone": false,
+        "screenX": -646.3176854876342,
+        "bottom": 417.12537364763557
+      },
+      {
+        "piece": "flower",
+        "x": 648.8317293282598,
+        "z": 215.12790508801118,
+        "broken": false,
+        "gone": false,
+        "screenX": 107.9948111427907,
+        "bottom": 355.3454948414818
+      },
+      {
+        "piece": "flower",
+        "x": 577.1807455429807,
+        "z": 19.508926526177675,
+        "broken": false,
+        "gone": false,
+        "screenX": -5.026085899464988,
+        "bottom": 423.22993799716573
+      },
+      {
+        "piece": "flower",
+        "x": 735.2068319395185,
+        "z": 78.64596294704823,
+        "broken": false,
+        "gone": false,
+        "screenX": 244.24125276174027,
+        "bottom": 402.707978334447
+      },
+      {
+        "piece": "flower",
+        "x": 987.628054337576,
+        "z": 216.0009709582664,
+        "broken": false,
+        "gone": false,
+        "screenX": 642.4056809491526,
+        "bottom": 355.04252019722065
+      },
+      {
+        "piece": "flower",
+        "x": 908.8538143141195,
+        "z": 219.10023845266548,
+        "broken": false,
+        "gone": false,
+        "screenX": 518.148695197867,
+        "bottom": 353.967000584581
+      },
+      {
+        "piece": "flower",
+        "x": 602.3186417091638,
+        "z": 98.37450047256424,
+        "broken": false,
+        "gone": false,
+        "screenX": 34.62595269600229,
+        "bottom": 395.86170608600895
+      },
+      {
+        "piece": "flower",
+        "x": 955.6809007115662,
+        "z": 28.77355531323701,
+        "broken": false,
+        "gone": false,
+        "screenX": 592.0128493366967,
+        "bottom": 420.01489122165646
+      },
+      {
+        "piece": "flower",
+        "x": 715.7980368314311,
+        "z": 142.16634141746908,
+        "broken": false,
+        "gone": false,
+        "screenX": 213.62618904957867,
+        "bottom": 380.66489461524736
+      },
+      {
+        "piece": "flower",
+        "x": 1295.7485996969044,
+        "z": 188.8926402409561,
+        "broken": false,
+        "gone": false,
+        "screenX": 1128.4291602361884,
+        "bottom": 364.44975639257297
+      },
+      {
+        "piece": "flower",
+        "x": 459.25349068176,
+        "z": 56.43739097286016,
+        "broken": false,
+        "gone": false,
+        "screenX": -191.04229148412855,
+        "bottom": 410.4148815850134
+      },
+      {
+        "piece": "flower",
+        "x": 1095.9378044689074,
+        "z": 78.75147762941195,
+        "broken": false,
+        "gone": false,
+        "screenX": 813.251417763455,
+        "bottom": 402.6713622274124
+      },
+      {
+        "piece": "flower",
+        "x": 1000.9918855139986,
+        "z": 144.81330160517246,
+        "broken": false,
+        "gone": false,
+        "screenX": 663.4855336976761,
+        "bottom": 379.74633640725267
+      },
+      {
+        "piece": "flower",
+        "x": 284.6277424087748,
+        "z": 190.40726935490966,
+        "broken": false,
+        "gone": false,
+        "screenX": -466.4936206052065,
+        "bottom": 363.92414402743316
+      },
+      {
+        "piece": "flower",
+        "x": 626.717273532413,
+        "z": 68.53604918112978,
+        "broken": false,
+        "gone": false,
+        "screenX": 73.11188979815131,
+        "bottom": 406.2163591234532
+      },
+      {
+        "piece": "flower",
+        "x": 383.03717278316617,
+        "z": 167.29526678100228,
+        "broken": false,
+        "gone": false,
+        "screenX": -311.26445959798195,
+        "bottom": 371.9445592063546
+      },
+      {
+        "piece": "flower",
+        "x": 371.7066594939679,
+        "z": 37.610918923746794,
+        "broken": false,
+        "gone": false,
+        "screenX": -329.1369954410626,
+        "bottom": 416.94811563539025
+      },
+      {
+        "piece": "flower",
+        "x": 942.0666676312685,
+        "z": 54.712634454481304,
+        "broken": false,
+        "gone": false,
+        "screenX": 570.5380173945603,
+        "bottom": 411.0134131625223
+      },
+      {
+        "piece": "flower",
+        "x": 910.8589176852256,
+        "z": 101.60641525173558,
+        "broken": false,
+        "gone": false,
+        "screenX": 521.3115070630047,
+        "bottom": 394.7401547072846
+      },
+      {
+        "piece": "flower",
+        "x": 476.15736969187856,
+        "z": 151.64264807244763,
+        "broken": false,
+        "gone": false,
+        "screenX": -164.37843471221538,
+        "bottom": 377.3763905796209
+      },
+      {
+        "piece": "flower",
+        "x": 990.1209541577846,
+        "z": 88.06062720483168,
+        "broken": false,
+        "gone": false,
+        "screenX": 646.3379336417433,
+        "bottom": 399.4408656783233
+      },
+      {
+        "piece": "flower",
+        "x": 261.7969709560275,
+        "z": 160.35728280199692,
+        "broken": false,
+        "gone": false,
+        "screenX": -502.50644462293286,
+        "bottom": 374.35220483716415
+      },
+      {
+        "piece": "flower",
+        "x": 368.38419815152884,
+        "z": 72.23767444724216,
+        "broken": false,
+        "gone": false,
+        "screenX": -334.37778267764804,
+        "bottom": 404.9318070221773
+      },
+      {
+        "piece": "flower",
+        "x": 1062.2247278122231,
+        "z": 162.69259854219854,
+        "broken": false,
+        "gone": false,
+        "screenX": 760.0730527990424,
+        "bottom": 373.54179467255847
+      },
+      {
+        "piece": "flower",
+        "x": 757.4715158687904,
+        "z": 37.827395715285085,
+        "broken": false,
+        "gone": false,
+        "screenX": 279.3611411025563,
+        "bottom": 416.87299303451715
+      },
+      {
+        "piece": "flower",
+        "x": 910.8540217764676,
+        "z": 161.47195766679943,
+        "broken": false,
+        "gone": false,
+        "screenX": 521.303784349785,
+        "bottom": 373.96538611919993
+      },
+      {
+        "piece": "flower",
+        "x": 392.53427490312606,
+        "z": 23.449339878279712,
+        "broken": false,
+        "gone": false,
+        "screenX": -296.2839116111405,
+        "bottom": 421.8625207446208
+      },
+      {
+        "piece": "grass",
+        "x": 490.9026239728555,
+        "z": 55.83860269980505,
+        "broken": false,
+        "gone": false,
+        "screenX": -141.11955147138872,
+        "bottom": 410.62267537262716
+      }
+    ]
+  },
+  {
+    "time": 319,
+    "room": "暗咒猫妖的林地",
+    "width": 1440,
+    "cameraPx": 1047.05,
+    "props": [
+      {
+        "piece": "chest",
+        "x": 833,
+        "z": 342.5,
+        "broken": false,
+        "gone": false,
+        "screenX": 266.9083333333333,
+        "bottom": 311.14434523809524
+      },
+      {
+        "piece": "chest",
+        "x": 1134,
+        "z": 342.5,
+        "broken": false,
+        "gone": false,
+        "screenX": 741.7,
+        "bottom": 311.14434523809524
+      },
+      {
+        "piece": "chest",
+        "x": 1196,
+        "z": 342.5,
+        "broken": false,
+        "gone": false,
+        "screenX": 839.4976190476191,
+        "bottom": 311.14434523809524
+      },
+      {
+        "piece": "barrel",
+        "x": 593,
+        "z": 8.75,
+        "broken": false,
+        "gone": false,
+        "screenX": -111.66309523809525,
+        "bottom": 426.9635416666667
+      },
+      {
+        "piece": "barrel",
+        "x": 876,
+        "z": 82.25,
+        "broken": false,
+        "gone": false,
+        "screenX": 334.73571428571427,
+        "bottom": 401.45729166666666
+      },
+      {
+        "piece": "barrel",
+        "x": 1254,
+        "z": 331,
+        "broken": false,
+        "gone": false,
+        "screenX": 930.9857142857143,
+        "bottom": 315.135119047619
+      },
+      {
+        "piece": "goblinBunker",
+        "x": 494,
+        "z": 158.25,
+        "broken": false,
+        "gone": false,
+        "screenX": -267.8238095238095,
+        "bottom": 375.0834821428572
+      },
+      {
+        "piece": "goblinBunker",
+        "x": 662,
+        "z": -127.25,
+        "broken": false,
+        "gone": false,
+        "screenX": -2.8238095238095866,
+        "bottom": 474.1587797619048
+      },
+      {
+        "piece": "trunkTall",
+        "x": 120,
+        "z": 237.5,
+        "broken": false,
+        "gone": false,
+        "screenX": -857.7642857142857,
+        "bottom": 347.58184523809524
+      },
+      {
+        "piece": "treeLeafy",
+        "x": 470,
+        "z": 300,
+        "broken": false,
+        "gone": false,
+        "screenX": -305.68095238095236,
+        "bottom": 325.89285714285717
+      },
+      {
+        "piece": "trunkMossy",
+        "x": 30,
+        "z": 507.49999999999994,
+        "broken": false,
+        "gone": false,
+        "screenX": -999.7285714285714,
+        "bottom": 253.88541666666669
+      },
+      {
+        "piece": "grassFlower",
+        "x": 402.62030318100005,
+        "z": 10.171515063848348,
+        "broken": false,
+        "gone": false,
+        "screenX": -411.9644027204463,
+        "bottom": 426.4702420939145
+      },
+      {
+        "piece": "grassPatch",
+        "x": 1355.721487798728,
+        "z": 154.5825962186791,
+        "broken": false,
+        "gone": false,
+        "screenX": 1091.4392515872794,
+        "bottom": 376.3561585741131
+      },
+      {
+        "piece": "pebble",
+        "x": 342.7729423325509,
+        "z": 234.01583414059132,
+        "broken": false,
+        "gone": false,
+        "screenX": -506.3664897730596,
+        "bottom": 348.79093374764005
+      },
+      {
+        "piece": "leavesBroad",
+        "x": 535.7176222680137,
+        "z": 30.424765839707103,
+        "broken": false,
+        "gone": false,
+        "screenX": -202.01922677962125,
+        "bottom": 419.441881854435
+      },
+      {
+        "piece": "bush",
+        "x": 1001.4362276131287,
+        "z": 44.52436302788555,
+        "broken": false,
+        "gone": false,
+        "screenX": 532.5964304611853,
+        "bottom": 414.5489859254421
+      },
+      {
+        "piece": "leaves",
+        "x": 1316.3973834225908,
+        "z": 101.05235243914647,
+        "broken": false,
+        "gone": false,
+        "screenX": 1029.41015837492,
+        "bottom": 394.93242769522476
+      },
+      {
+        "piece": "bush",
+        "x": 970.1469161799178,
+        "z": 187.2522488469258,
+        "broken": false,
+        "gone": false,
+        "screenX": 483.24126659332273,
+        "bottom": 365.01901126323946
+      },
+      {
+        "piece": "sprout",
+        "x": 612.8507864754647,
+        "z": 132.62078222585842,
+        "broken": false,
+        "gone": false,
+        "screenX": -80.35084276191583,
+        "bottom": 383.97743092995506
+      },
+      {
+        "piece": "bush",
+        "x": 720.8415611535311,
+        "z": 95.56103802751748,
+        "broken": false,
+        "gone": false,
+        "screenX": 89.9917482481294,
+        "bottom": 396.83804454164124
+      },
+      {
+        "piece": "leavesDense",
+        "x": 1377.5363658908755,
+        "z": 70.21569408243522,
+        "broken": false,
+        "gone": false,
+        "screenX": 1125.8496247683454,
+        "bottom": 405.6334823511549
+      },
+      {
+        "piece": "grassPatch",
+        "x": 398.0348080471158,
+        "z": 161.64667893899605,
+        "broken": false,
+        "gone": false,
+        "screenX": -419.19747540187086,
+        "bottom": 373.90475367771745
+      },
+      {
+        "piece": "pebble",
+        "x": 221.25455103628337,
+        "z": 98.20603096392004,
+        "broken": false,
+        "gone": false,
+        "screenX": -698.0472855677673,
+        "bottom": 395.9201690166873
+      },
+      {
+        "piece": "bush",
+        "x": 778.3802414610982,
+        "z": 21.3772196136415,
+        "broken": false,
+        "gone": false,
+        "screenX": 180.7521665904228,
+        "bottom": 422.58159581264704
+      },
+      {
+        "piece": "pebble",
+        "x": 570.1099419910461,
+        "z": 88.81679252954198,
+        "broken": false,
+        "gone": false,
+        "screenX": -147.76943674031418,
+        "bottom": 399.1784583067125
+      },
+      {
+        "piece": "leavesBroad",
+        "x": 975.6596477879211,
+        "z": 128.36547778686509,
+        "broken": false,
+        "gone": false,
+        "screenX": 491.9369444273757,
+        "bottom": 385.45412288705813
+      },
+      {
+        "piece": "grassPatch",
+        "x": 1332.5903223492205,
+        "z": 134.97394503094253,
+        "broken": false,
+        "gone": false,
+        "screenX": 1054.9525918008537,
+        "bottom": 383.16082740890505
+      },
+      {
+        "piece": "pebble",
+        "x": 145.7594191171229,
+        "z": 208.8139872974716,
+        "broken": false,
+        "gone": false,
+        "screenX": -817.1318686545383,
+        "bottom": 357.53657464617504
+      },
+      {
+        "piece": "sprout",
+        "x": 365.61903191916645,
+        "z": 162.49424160458148,
+        "broken": false,
+        "gone": false,
+        "screenX": -470.32950322274337,
+        "bottom": 373.61062925269584
+      },
+      {
+        "piece": "leaves",
+        "x": 916.9374445788562,
+        "z": 11.113387122750282,
+        "broken": false,
+        "gone": false,
+        "screenX": 399.309659603553,
+        "bottom": 426.14339006395033
+      },
+      {
+        "piece": "grassPatch",
+        "x": 812.9040919523686,
+        "z": 16.645218257326633,
+        "broken": false,
+        "gone": false,
+        "screenX": 235.2094307582006,
+        "bottom": 424.22371294998726
+      },
+      {
+        "piece": "pebble",
+        "x": 676.0910592582077,
+        "z": 128.02120848791674,
+        "broken": false,
+        "gone": false,
+        "screenX": 19.403158948958662,
+        "bottom": 385.57359253068125
+      },
+      {
+        "piece": "grassFlower",
+        "x": 558.9433781420812,
+        "z": 81.79890647763385,
+        "broken": false,
+        "gone": false,
+        "screenX": -165.3833618592172,
+        "bottom": 401.6138318592497
+      },
+      {
+        "piece": "leaves",
+        "x": 1336.9994319044054,
+        "z": 211.16980232531205,
+        "broken": false,
+        "gone": false,
+        "screenX": 1061.9074372301632,
+        "bottom": 356.7190507406804
+      },
+      {
+        "piece": "pebble",
+        "x": 1094.4051140602678,
+        "z": 176.74510443815961,
+        "broken": false,
+        "gone": false,
+        "screenX": 679.2437811069701,
+        "bottom": 368.6652405431863
+      },
+      {
+        "piece": "leavesBroad",
+        "x": 666.3848341386765,
+        "z": 208.48087444901466,
+        "broken": false,
+        "gone": false,
+        "screenX": 4.092744325888589,
+        "bottom": 357.6521727358479
+      },
+      {
+        "piece": "leavesBroad",
+        "x": 678.4233682155609,
+        "z": 56.652961305808276,
+        "broken": false,
+        "gone": false,
+        "screenX": 23.08209867335495,
+        "bottom": 410.34007354685343
+      },
+      {
+        "piece": "pebble",
+        "x": 1378.071272129193,
+        "z": 84.42293498199433,
+        "broken": false,
+        "gone": false,
+        "screenX": 1126.693375679977,
+        "bottom": 400.70323149136743
+      },
+      {
+        "piece": "bush",
+        "x": 170.6260710870847,
+        "z": 37.100123965647064,
+        "broken": false,
+        "gone": false,
+        "screenX": -777.9076854876341,
+        "bottom": 417.12537364763557
+      },
+      {
+        "piece": "flower",
+        "x": 648.8317293282598,
+        "z": 215.12790508801118,
+        "broken": false,
+        "gone": false,
+        "screenX": -23.595188857209223,
+        "bottom": 355.3454948414818
+      },
+      {
+        "piece": "flower",
+        "x": 577.1807455429807,
+        "z": 19.508926526177675,
+        "broken": false,
+        "gone": false,
+        "screenX": -136.6160858994649,
+        "bottom": 423.22993799716573
+      },
+      {
+        "piece": "flower",
+        "x": 735.2068319395185,
+        "z": 78.64596294704823,
+        "broken": false,
+        "gone": false,
+        "screenX": 112.65125276174035,
+        "bottom": 402.707978334447
+      },
+      {
+        "piece": "flower",
+        "x": 987.628054337576,
+        "z": 216.0009709582664,
+        "broken": false,
+        "gone": false,
+        "screenX": 510.8156809491527,
+        "bottom": 355.04252019722065
+      },
+      {
+        "piece": "flower",
+        "x": 908.8538143141195,
+        "z": 219.10023845266548,
+        "broken": false,
+        "gone": false,
+        "screenX": 386.5586951978671,
+        "bottom": 353.967000584581
+      },
+      {
+        "piece": "flower",
+        "x": 602.3186417091638,
+        "z": 98.37450047256424,
+        "broken": false,
+        "gone": false,
+        "screenX": -96.96404730399763,
+        "bottom": 395.86170608600895
+      },
+      {
+        "piece": "flower",
+        "x": 955.6809007115662,
+        "z": 28.77355531323701,
+        "broken": false,
+        "gone": false,
+        "screenX": 460.4228493366968,
+        "bottom": 420.01489122165646
+      },
+      {
+        "piece": "flower",
+        "x": 715.7980368314311,
+        "z": 142.16634141746908,
+        "broken": false,
+        "gone": false,
+        "screenX": 82.03618904957875,
+        "bottom": 380.66489461524736
+      },
+      {
+        "piece": "flower",
+        "x": 1295.7485996969044,
+        "z": 188.8926402409561,
+        "broken": false,
+        "gone": false,
+        "screenX": 996.8391602361885,
+        "bottom": 364.44975639257297
+      },
+      {
+        "piece": "flower",
+        "x": 459.25349068176,
+        "z": 56.43739097286016,
+        "broken": false,
+        "gone": false,
+        "screenX": -322.6322914841285,
+        "bottom": 410.4148815850134
+      },
+      {
+        "piece": "flower",
+        "x": 1095.9378044689074,
+        "z": 78.75147762941195,
+        "broken": false,
+        "gone": false,
+        "screenX": 681.6614177634551,
+        "bottom": 402.6713622274124
+      },
+      {
+        "piece": "flower",
+        "x": 1000.9918855139986,
+        "z": 144.81330160517246,
+        "broken": false,
+        "gone": false,
+        "screenX": 531.8955336976762,
+        "bottom": 379.74633640725267
+      },
+      {
+        "piece": "flower",
+        "x": 284.6277424087748,
+        "z": 190.40726935490966,
+        "broken": false,
+        "gone": false,
+        "screenX": -598.0836206052064,
+        "bottom": 363.92414402743316
+      },
+      {
+        "piece": "flower",
+        "x": 626.717273532413,
+        "z": 68.53604918112978,
+        "broken": false,
+        "gone": false,
+        "screenX": -58.47811020184861,
+        "bottom": 406.2163591234532
+      },
+      {
+        "piece": "flower",
+        "x": 383.03717278316617,
+        "z": 167.29526678100228,
+        "broken": false,
+        "gone": false,
+        "screenX": -442.8544595979819,
+        "bottom": 371.9445592063546
+      },
+      {
+        "piece": "flower",
+        "x": 371.7066594939679,
+        "z": 37.610918923746794,
+        "broken": false,
+        "gone": false,
+        "screenX": -460.7269954410625,
+        "bottom": 416.94811563539025
+      },
+      {
+        "piece": "flower",
+        "x": 942.0666676312685,
+        "z": 54.712634454481304,
+        "broken": false,
+        "gone": false,
+        "screenX": 438.94801739456034,
+        "bottom": 411.0134131625223
+      },
+      {
+        "piece": "flower",
+        "x": 910.8589176852256,
+        "z": 101.60641525173558,
+        "broken": false,
+        "gone": false,
+        "screenX": 389.72150706300476,
+        "bottom": 394.7401547072846
+      },
+      {
+        "piece": "flower",
+        "x": 476.15736969187856,
+        "z": 151.64264807244763,
+        "broken": false,
+        "gone": false,
+        "screenX": -295.9684347122153,
+        "bottom": 377.3763905796209
+      },
+      {
+        "piece": "flower",
+        "x": 990.1209541577846,
+        "z": 88.06062720483168,
+        "broken": false,
+        "gone": false,
+        "screenX": 514.7479336417434,
+        "bottom": 399.4408656783233
+      },
+      {
+        "piece": "flower",
+        "x": 261.7969709560275,
+        "z": 160.35728280199692,
+        "broken": false,
+        "gone": false,
+        "screenX": -634.0964446229327,
+        "bottom": 374.35220483716415
+      },
+      {
+        "piece": "flower",
+        "x": 368.38419815152884,
+        "z": 72.23767444724216,
+        "broken": false,
+        "gone": false,
+        "screenX": -465.96778267764796,
+        "bottom": 404.9318070221773
+      },
+      {
+        "piece": "flower",
+        "x": 1062.2247278122231,
+        "z": 162.69259854219854,
+        "broken": false,
+        "gone": false,
+        "screenX": 628.4830527990425,
+        "bottom": 373.54179467255847
+      },
+      {
+        "piece": "flower",
+        "x": 757.4715158687904,
+        "z": 37.827395715285085,
+        "broken": false,
+        "gone": false,
+        "screenX": 147.77114110255638,
+        "bottom": 416.87299303451715
+      },
+      {
+        "piece": "flower",
+        "x": 910.8540217764676,
+        "z": 161.47195766679943,
+        "broken": false,
+        "gone": false,
+        "screenX": 389.7137843497851,
+        "bottom": 373.96538611919993
+      },
+      {
+        "piece": "flower",
+        "x": 392.53427490312606,
+        "z": 23.449339878279712,
+        "broken": false,
+        "gone": false,
+        "screenX": -427.87391161114044,
+        "bottom": 421.8625207446208
+      },
+      {
+        "piece": "grass",
+        "x": 490.9026239728555,
+        "z": 55.83860269980505,
+        "broken": false,
+        "gone": false,
+        "screenX": -272.70955147138864,
+        "bottom": 410.62267537262716
+      }
+    ]
+  },
+  {
+    "time": 320,
+    "room": "暗咒猫妖的林地",
+    "width": 1440,
+    "cameraPx": 1301.32,
+    "props": [
+      {
+        "piece": "chest",
+        "x": 833,
+        "z": 342.5,
+        "broken": false,
+        "gone": false,
+        "screenX": 12.638333333333321,
+        "bottom": 311.14434523809524
+      },
+      {
+        "piece": "chest",
+        "x": 1134,
+        "z": 342.5,
+        "broken": false,
+        "gone": false,
+        "screenX": 487.43000000000006,
+        "bottom": 311.14434523809524
+      },
+      {
+        "piece": "chest",
+        "x": 1196,
+        "z": 342.5,
+        "broken": false,
+        "gone": false,
+        "screenX": 585.2276190476191,
+        "bottom": 311.14434523809524
+      },
+      {
+        "piece": "barrel",
+        "x": 593,
+        "z": 8.75,
+        "broken": false,
+        "gone": false,
+        "screenX": -365.93309523809523,
+        "bottom": 426.9635416666667
+      },
+      {
+        "piece": "barrel",
+        "x": 876,
+        "z": 82.25,
+        "broken": false,
+        "gone": false,
+        "screenX": 80.46571428571428,
+        "bottom": 401.45729166666666
+      },
+      {
+        "piece": "barrel",
+        "x": 1254,
+        "z": 331,
+        "broken": false,
+        "gone": false,
+        "screenX": 676.7157142857143,
+        "bottom": 315.135119047619
+      },
+      {
+        "piece": "goblinBunker",
+        "x": 494,
+        "z": 158.25,
+        "broken": false,
+        "gone": false,
+        "screenX": -522.0938095238095,
+        "bottom": 375.0834821428572
+      },
+      {
+        "piece": "goblinBunker",
+        "x": 662,
+        "z": -127.25,
+        "broken": false,
+        "gone": false,
+        "screenX": -257.09380952380957,
+        "bottom": 474.1587797619048
+      },
+      {
+        "piece": "trunkTall",
+        "x": 120,
+        "z": 237.5,
+        "broken": false,
+        "gone": false,
+        "screenX": -1112.0342857142857,
+        "bottom": 347.58184523809524
+      },
+      {
+        "piece": "treeLeafy",
+        "x": 470,
+        "z": 300,
+        "broken": false,
+        "gone": false,
+        "screenX": -559.9509523809523,
+        "bottom": 325.89285714285717
+      },
+      {
+        "piece": "trunkMossy",
+        "x": 30,
+        "z": 507.49999999999994,
+        "broken": false,
+        "gone": false,
+        "screenX": -1253.9985714285713,
+        "bottom": 253.88541666666669
+      },
+      {
+        "piece": "grassFlower",
+        "x": 402.62030318100005,
+        "z": 10.171515063848348,
+        "broken": false,
+        "gone": false,
+        "screenX": -666.2344027204463,
+        "bottom": 426.4702420939145
+      },
+      {
+        "piece": "grassPatch",
+        "x": 1355.721487798728,
+        "z": 154.5825962186791,
+        "broken": false,
+        "gone": false,
+        "screenX": 837.1692515872794,
+        "bottom": 376.3561585741131
+      },
+      {
+        "piece": "pebble",
+        "x": 342.7729423325509,
+        "z": 234.01583414059132,
+        "broken": false,
+        "gone": false,
+        "screenX": -760.6364897730596,
+        "bottom": 348.79093374764005
+      },
+      {
+        "piece": "leavesBroad",
+        "x": 535.7176222680137,
+        "z": 30.424765839707103,
+        "broken": false,
+        "gone": false,
+        "screenX": -456.28922677962123,
+        "bottom": 419.441881854435
+      },
+      {
+        "piece": "bush",
+        "x": 1001.4362276131287,
+        "z": 44.52436302788555,
+        "broken": false,
+        "gone": false,
+        "screenX": 278.3264304611853,
+        "bottom": 414.5489859254421
+      },
+      {
+        "piece": "leaves",
+        "x": 1316.3973834225908,
+        "z": 101.05235243914647,
+        "broken": false,
+        "gone": false,
+        "screenX": 775.14015837492,
+        "bottom": 394.93242769522476
+      },
+      {
+        "piece": "bush",
+        "x": 970.1469161799178,
+        "z": 187.2522488469258,
+        "broken": false,
+        "gone": false,
+        "screenX": 228.97126659332275,
+        "bottom": 365.01901126323946
+      },
+      {
+        "piece": "sprout",
+        "x": 612.8507864754647,
+        "z": 132.62078222585842,
+        "broken": false,
+        "gone": false,
+        "screenX": -334.6208427619158,
+        "bottom": 383.97743092995506
+      },
+      {
+        "piece": "bush",
+        "x": 720.8415611535311,
+        "z": 95.56103802751748,
+        "broken": false,
+        "gone": false,
+        "screenX": -164.27825175187058,
+        "bottom": 396.83804454164124
+      },
+      {
+        "piece": "leavesDense",
+        "x": 1377.5363658908755,
+        "z": 70.21569408243522,
+        "broken": false,
+        "gone": false,
+        "screenX": 871.5796247683454,
+        "bottom": 405.6334823511549
+      },
+      {
+        "piece": "grassPatch",
+        "x": 398.0348080471158,
+        "z": 161.64667893899605,
+        "broken": false,
+        "gone": false,
+        "screenX": -673.4674754018708,
+        "bottom": 373.90475367771745
+      },
+      {
+        "piece": "pebble",
+        "x": 221.25455103628337,
+        "z": 98.20603096392004,
+        "broken": false,
+        "gone": false,
+        "screenX": -952.3172855677673,
+        "bottom": 395.9201690166873
+      },
+      {
+        "piece": "bush",
+        "x": 778.3802414610982,
+        "z": 21.3772196136415,
+        "broken": false,
+        "gone": false,
+        "screenX": -73.51783340957718,
+        "bottom": 422.58159581264704
+      },
+      {
+        "piece": "pebble",
+        "x": 570.1099419910461,
+        "z": 88.81679252954198,
+        "broken": false,
+        "gone": false,
+        "screenX": -402.03943674031416,
+        "bottom": 399.1784583067125
+      },
+      {
+        "piece": "leavesBroad",
+        "x": 975.6596477879211,
+        "z": 128.36547778686509,
+        "broken": false,
+        "gone": false,
+        "screenX": 237.6669444273757,
+        "bottom": 385.45412288705813
+      },
+      {
+        "piece": "grassPatch",
+        "x": 1332.5903223492205,
+        "z": 134.97394503094253,
+        "broken": false,
+        "gone": false,
+        "screenX": 800.6825918008537,
+        "bottom": 383.16082740890505
+      },
+      {
+        "piece": "pebble",
+        "x": 145.7594191171229,
+        "z": 208.8139872974716,
+        "broken": false,
+        "gone": false,
+        "screenX": -1071.4018686545382,
+        "bottom": 357.53657464617504
+      },
+      {
+        "piece": "sprout",
+        "x": 365.61903191916645,
+        "z": 162.49424160458148,
+        "broken": false,
+        "gone": false,
+        "screenX": -724.5995032227434,
+        "bottom": 373.61062925269584
+      },
+      {
+        "piece": "leaves",
+        "x": 916.9374445788562,
+        "z": 11.113387122750282,
+        "broken": false,
+        "gone": false,
+        "screenX": 145.039659603553,
+        "bottom": 426.14339006395033
+      },
+      {
+        "piece": "grassPatch",
+        "x": 812.9040919523686,
+        "z": 16.645218257326633,
+        "broken": false,
+        "gone": false,
+        "screenX": -19.060569241799385,
+        "bottom": 424.22371294998726
+      },
+      {
+        "piece": "pebble",
+        "x": 676.0910592582077,
+        "z": 128.02120848791674,
+        "broken": false,
+        "gone": false,
+        "screenX": -234.86684105104132,
+        "bottom": 385.57359253068125
+      },
+      {
+        "piece": "grassFlower",
+        "x": 558.9433781420812,
+        "z": 81.79890647763385,
+        "broken": false,
+        "gone": false,
+        "screenX": -419.65336185921717,
+        "bottom": 401.6138318592497
+      },
+      {
+        "piece": "leaves",
+        "x": 1336.9994319044054,
+        "z": 211.16980232531205,
+        "broken": false,
+        "gone": false,
+        "screenX": 807.6374372301632,
+        "bottom": 356.7190507406804
+      },
+      {
+        "piece": "pebble",
+        "x": 1094.4051140602678,
+        "z": 176.74510443815961,
+        "broken": false,
+        "gone": false,
+        "screenX": 424.97378110697014,
+        "bottom": 368.6652405431863
+      },
+      {
+        "piece": "leavesBroad",
+        "x": 666.3848341386765,
+        "z": 208.48087444901466,
+        "broken": false,
+        "gone": false,
+        "screenX": -250.1772556741114,
+        "bottom": 357.6521727358479
+      },
+      {
+        "piece": "leavesBroad",
+        "x": 678.4233682155609,
+        "z": 56.652961305808276,
+        "broken": false,
+        "gone": false,
+        "screenX": -231.18790132664503,
+        "bottom": 410.34007354685343
+      },
+      {
+        "piece": "pebble",
+        "x": 1378.071272129193,
+        "z": 84.42293498199433,
+        "broken": false,
+        "gone": false,
+        "screenX": 872.423375679977,
+        "bottom": 400.70323149136743
+      },
+      {
+        "piece": "bush",
+        "x": 170.6260710870847,
+        "z": 37.100123965647064,
+        "broken": false,
+        "gone": false,
+        "screenX": -1032.177685487634,
+        "bottom": 417.12537364763557
+      },
+      {
+        "piece": "flower",
+        "x": 648.8317293282598,
+        "z": 215.12790508801118,
+        "broken": false,
+        "gone": false,
+        "screenX": -277.8651888572092,
+        "bottom": 355.3454948414818
+      },
+      {
+        "piece": "flower",
+        "x": 577.1807455429807,
+        "z": 19.508926526177675,
+        "broken": false,
+        "gone": false,
+        "screenX": -390.8860858994649,
+        "bottom": 423.22993799716573
+      },
+      {
+        "piece": "flower",
+        "x": 735.2068319395185,
+        "z": 78.64596294704823,
+        "broken": false,
+        "gone": false,
+        "screenX": -141.61874723825963,
+        "bottom": 402.707978334447
+      },
+      {
+        "piece": "flower",
+        "x": 987.628054337576,
+        "z": 216.0009709582664,
+        "broken": false,
+        "gone": false,
+        "screenX": 256.5456809491527,
+        "bottom": 355.04252019722065
+      },
+      {
+        "piece": "flower",
+        "x": 908.8538143141195,
+        "z": 219.10023845266548,
+        "broken": false,
+        "gone": false,
+        "screenX": 132.28869519786713,
+        "bottom": 353.967000584581
+      },
+      {
+        "piece": "flower",
+        "x": 602.3186417091638,
+        "z": 98.37450047256424,
+        "broken": false,
+        "gone": false,
+        "screenX": -351.2340473039976,
+        "bottom": 395.86170608600895
+      },
+      {
+        "piece": "flower",
+        "x": 955.6809007115662,
+        "z": 28.77355531323701,
+        "broken": false,
+        "gone": false,
+        "screenX": 206.15284933669682,
+        "bottom": 420.01489122165646
+      },
+      {
+        "piece": "flower",
+        "x": 715.7980368314311,
+        "z": 142.16634141746908,
+        "broken": false,
+        "gone": false,
+        "screenX": -172.23381095042123,
+        "bottom": 380.66489461524736
+      },
+      {
+        "piece": "flower",
+        "x": 1295.7485996969044,
+        "z": 188.8926402409561,
+        "broken": false,
+        "gone": false,
+        "screenX": 742.5691602361885,
+        "bottom": 364.44975639257297
+      },
+      {
+        "piece": "flower",
+        "x": 459.25349068176,
+        "z": 56.43739097286016,
+        "broken": false,
+        "gone": false,
+        "screenX": -576.9022914841285,
+        "bottom": 410.4148815850134
+      },
+      {
+        "piece": "flower",
+        "x": 1095.9378044689074,
+        "z": 78.75147762941195,
+        "broken": false,
+        "gone": false,
+        "screenX": 427.39141776345514,
+        "bottom": 402.6713622274124
+      },
+      {
+        "piece": "flower",
+        "x": 1000.9918855139986,
+        "z": 144.81330160517246,
+        "broken": false,
+        "gone": false,
+        "screenX": 277.62553369767625,
+        "bottom": 379.74633640725267
+      },
+      {
+        "piece": "flower",
+        "x": 284.6277424087748,
+        "z": 190.40726935490966,
+        "broken": false,
+        "gone": false,
+        "screenX": -852.3536206052064,
+        "bottom": 363.92414402743316
+      },
+      {
+        "piece": "flower",
+        "x": 626.717273532413,
+        "z": 68.53604918112978,
+        "broken": false,
+        "gone": false,
+        "screenX": -312.7481102018486,
+        "bottom": 406.2163591234532
+      },
+      {
+        "piece": "flower",
+        "x": 383.03717278316617,
+        "z": 167.29526678100228,
+        "broken": false,
+        "gone": false,
+        "screenX": -697.1244595979819,
+        "bottom": 371.9445592063546
+      },
+      {
+        "piece": "flower",
+        "x": 371.7066594939679,
+        "z": 37.610918923746794,
+        "broken": false,
+        "gone": false,
+        "screenX": -714.9969954410625,
+        "bottom": 416.94811563539025
+      },
+      {
+        "piece": "flower",
+        "x": 942.0666676312685,
+        "z": 54.712634454481304,
+        "broken": false,
+        "gone": false,
+        "screenX": 184.67801739456036,
+        "bottom": 411.0134131625223
+      },
+      {
+        "piece": "flower",
+        "x": 910.8589176852256,
+        "z": 101.60641525173558,
+        "broken": false,
+        "gone": false,
+        "screenX": 135.45150706300478,
+        "bottom": 394.7401547072846
+      },
+      {
+        "piece": "flower",
+        "x": 476.15736969187856,
+        "z": 151.64264807244763,
+        "broken": false,
+        "gone": false,
+        "screenX": -550.2384347122153,
+        "bottom": 377.3763905796209
+      },
+      {
+        "piece": "flower",
+        "x": 990.1209541577846,
+        "z": 88.06062720483168,
+        "broken": false,
+        "gone": false,
+        "screenX": 260.47793364174345,
+        "bottom": 399.4408656783233
+      },
+      {
+        "piece": "flower",
+        "x": 261.7969709560275,
+        "z": 160.35728280199692,
+        "broken": false,
+        "gone": false,
+        "screenX": -888.3664446229327,
+        "bottom": 374.35220483716415
+      },
+      {
+        "piece": "flower",
+        "x": 368.38419815152884,
+        "z": 72.23767444724216,
+        "broken": false,
+        "gone": false,
+        "screenX": -720.2377826776479,
+        "bottom": 404.9318070221773
+      },
+      {
+        "piece": "flower",
+        "x": 1062.2247278122231,
+        "z": 162.69259854219854,
+        "broken": false,
+        "gone": false,
+        "screenX": 374.21305279904254,
+        "bottom": 373.54179467255847
+      },
+      {
+        "piece": "flower",
+        "x": 757.4715158687904,
+        "z": 37.827395715285085,
+        "broken": false,
+        "gone": false,
+        "screenX": -106.4988588974436,
+        "bottom": 416.87299303451715
+      },
+      {
+        "piece": "flower",
+        "x": 910.8540217764676,
+        "z": 161.47195766679943,
+        "broken": false,
+        "gone": false,
+        "screenX": 135.44378434978512,
+        "bottom": 373.96538611919993
+      },
+      {
+        "piece": "flower",
+        "x": 392.53427490312606,
+        "z": 23.449339878279712,
+        "broken": false,
+        "gone": false,
+        "screenX": -682.1439116111404,
+        "bottom": 421.8625207446208
+      },
+      {
+        "piece": "grass",
+        "x": 490.9026239728555,
+        "z": 55.83860269980505,
+        "broken": false,
+        "gone": false,
+        "screenX": -526.9795514713886,
+        "bottom": 410.62267537262716
+      }
+    ]
+  },
+  {
+    "time": 330,
+    "room": "暗咒猫妖的林地",
+    "width": 1440,
+    "cameraPx": 1547.69,
+    "props": [
+      {
+        "piece": "chest",
+        "x": 833,
+        "z": 342.5,
+        "broken": false,
+        "gone": false,
+        "screenX": -233.7316666666668,
+        "bottom": 311.14434523809524
+      },
+      {
+        "piece": "chest",
+        "x": 1134,
+        "z": 342.5,
+        "broken": false,
+        "gone": false,
+        "screenX": 241.05999999999995,
+        "bottom": 311.14434523809524
+      },
+      {
+        "piece": "chest",
+        "x": 1196,
+        "z": 342.5,
+        "broken": false,
+        "gone": false,
+        "screenX": 338.857619047619,
+        "bottom": 311.14434523809524
+      },
+      {
+        "piece": "barrel",
+        "x": 593,
+        "z": 8.75,
+        "broken": false,
+        "gone": false,
+        "screenX": -612.3030952380954,
+        "bottom": 426.9635416666667
+      },
+      {
+        "piece": "barrel",
+        "x": 876,
+        "z": 82.25,
+        "broken": false,
+        "gone": false,
+        "screenX": -165.90428571428583,
+        "bottom": 401.45729166666666
+      },
+      {
+        "piece": "barrel",
+        "x": 1254,
+        "z": 331,
+        "broken": false,
+        "gone": false,
+        "screenX": 430.34571428571417,
+        "bottom": 315.135119047619
+      },
+      {
+        "piece": "goblinBunker",
+        "x": 494,
+        "z": 158.25,
+        "broken": false,
+        "gone": false,
+        "screenX": -768.4638095238096,
+        "bottom": 375.0834821428572
+      },
+      {
+        "piece": "goblinBunker",
+        "x": 662,
+        "z": -127.25,
+        "broken": false,
+        "gone": false,
+        "screenX": -503.4638095238097,
+        "bottom": 474.1587797619048
+      },
+      {
+        "piece": "trunkTall",
+        "x": 120,
+        "z": 237.5,
+        "broken": false,
+        "gone": false,
+        "screenX": -1358.4042857142858,
+        "bottom": 347.58184523809524
+      },
+      {
+        "piece": "treeLeafy",
+        "x": 470,
+        "z": 300,
+        "broken": false,
+        "gone": false,
+        "screenX": -806.3209523809525,
+        "bottom": 325.89285714285717
+      },
+      {
+        "piece": "trunkMossy",
+        "x": 30,
+        "z": 507.49999999999994,
+        "broken": false,
+        "gone": false,
+        "screenX": -1500.3685714285714,
+        "bottom": 253.88541666666669
+      },
+      {
+        "piece": "grassFlower",
+        "x": 402.62030318100005,
+        "z": 10.171515063848348,
+        "broken": false,
+        "gone": false,
+        "screenX": -912.6044027204464,
+        "bottom": 426.4702420939145
+      },
+      {
+        "piece": "grassPatch",
+        "x": 1355.721487798728,
+        "z": 154.5825962186791,
+        "broken": false,
+        "gone": false,
+        "screenX": 590.7992515872793,
+        "bottom": 376.3561585741131
+      },
+      {
+        "piece": "pebble",
+        "x": 342.7729423325509,
+        "z": 234.01583414059132,
+        "broken": false,
+        "gone": false,
+        "screenX": -1007.0064897730597,
+        "bottom": 348.79093374764005
+      },
+      {
+        "piece": "leavesBroad",
+        "x": 535.7176222680137,
+        "z": 30.424765839707103,
+        "broken": false,
+        "gone": false,
+        "screenX": -702.6592267796213,
+        "bottom": 419.441881854435
+      },
+      {
+        "piece": "bush",
+        "x": 1001.4362276131287,
+        "z": 44.52436302788555,
+        "broken": false,
+        "gone": false,
+        "screenX": 31.956430461185164,
+        "bottom": 414.5489859254421
+      },
+      {
+        "piece": "leaves",
+        "x": 1316.3973834225908,
+        "z": 101.05235243914647,
+        "broken": false,
+        "gone": false,
+        "screenX": 528.7701583749199,
+        "bottom": 394.93242769522476
+      },
+      {
+        "piece": "bush",
+        "x": 970.1469161799178,
+        "z": 187.2522488469258,
+        "broken": false,
+        "gone": false,
+        "screenX": -17.398733406677366,
+        "bottom": 365.01901126323946
+      },
+      {
+        "piece": "sprout",
+        "x": 612.8507864754647,
+        "z": 132.62078222585842,
+        "broken": false,
+        "gone": false,
+        "screenX": -580.9908427619159,
+        "bottom": 383.97743092995506
+      },
+      {
+        "piece": "bush",
+        "x": 720.8415611535311,
+        "z": 95.56103802751748,
+        "broken": false,
+        "gone": false,
+        "screenX": -410.6482517518707,
+        "bottom": 396.83804454164124
+      },
+      {
+        "piece": "leavesDense",
+        "x": 1377.5363658908755,
+        "z": 70.21569408243522,
+        "broken": false,
+        "gone": false,
+        "screenX": 625.2096247683453,
+        "bottom": 405.6334823511549
+      },
+      {
+        "piece": "grassPatch",
+        "x": 398.0348080471158,
+        "z": 161.64667893899605,
+        "broken": false,
+        "gone": false,
+        "screenX": -919.837475401871,
+        "bottom": 373.90475367771745
+      },
+      {
+        "piece": "pebble",
+        "x": 221.25455103628337,
+        "z": 98.20603096392004,
+        "broken": false,
+        "gone": false,
+        "screenX": -1198.6872855677675,
+        "bottom": 395.9201690166873
+      },
+      {
+        "piece": "bush",
+        "x": 778.3802414610982,
+        "z": 21.3772196136415,
+        "broken": false,
+        "gone": false,
+        "screenX": -319.8878334095773,
+        "bottom": 422.58159581264704
+      },
+      {
+        "piece": "pebble",
+        "x": 570.1099419910461,
+        "z": 88.81679252954198,
+        "broken": false,
+        "gone": false,
+        "screenX": -648.4094367403143,
+        "bottom": 399.1784583067125
+      },
+      {
+        "piece": "leavesBroad",
+        "x": 975.6596477879211,
+        "z": 128.36547778686509,
+        "broken": false,
+        "gone": false,
+        "screenX": -8.703055572624407,
+        "bottom": 385.45412288705813
+      },
+      {
+        "piece": "grassPatch",
+        "x": 1332.5903223492205,
+        "z": 134.97394503094253,
+        "broken": false,
+        "gone": false,
+        "screenX": 554.3125918008536,
+        "bottom": 383.16082740890505
+      },
+      {
+        "piece": "pebble",
+        "x": 145.7594191171229,
+        "z": 208.8139872974716,
+        "broken": false,
+        "gone": false,
+        "screenX": -1317.7718686545384,
+        "bottom": 357.53657464617504
+      },
+      {
+        "piece": "sprout",
+        "x": 365.61903191916645,
+        "z": 162.49424160458148,
+        "broken": false,
+        "gone": false,
+        "screenX": -970.9695032227435,
+        "bottom": 373.61062925269584
+      },
+      {
+        "piece": "leaves",
+        "x": 916.9374445788562,
+        "z": 11.113387122750282,
+        "broken": false,
+        "gone": false,
+        "screenX": -101.33034039644713,
+        "bottom": 426.14339006395033
+      },
+      {
+        "piece": "grassPatch",
+        "x": 812.9040919523686,
+        "z": 16.645218257326633,
+        "broken": false,
+        "gone": false,
+        "screenX": -265.4305692417995,
+        "bottom": 424.22371294998726
+      },
+      {
+        "piece": "pebble",
+        "x": 676.0910592582077,
+        "z": 128.02120848791674,
+        "broken": false,
+        "gone": false,
+        "screenX": -481.23684105104144,
+        "bottom": 385.57359253068125
+      },
+      {
+        "piece": "grassFlower",
+        "x": 558.9433781420812,
+        "z": 81.79890647763385,
+        "broken": false,
+        "gone": false,
+        "screenX": -666.0233618592173,
+        "bottom": 401.6138318592497
+      },
+      {
+        "piece": "leaves",
+        "x": 1336.9994319044054,
+        "z": 211.16980232531205,
+        "broken": false,
+        "gone": false,
+        "screenX": 561.2674372301631,
+        "bottom": 356.7190507406804
+      },
+      {
+        "piece": "pebble",
+        "x": 1094.4051140602678,
+        "z": 176.74510443815961,
+        "broken": false,
+        "gone": false,
+        "screenX": 178.60378110697002,
+        "bottom": 368.6652405431863
+      },
+      {
+        "piece": "leavesBroad",
+        "x": 666.3848341386765,
+        "z": 208.48087444901466,
+        "broken": false,
+        "gone": false,
+        "screenX": -496.5472556741115,
+        "bottom": 357.6521727358479
+      },
+      {
+        "piece": "leavesBroad",
+        "x": 678.4233682155609,
+        "z": 56.652961305808276,
+        "broken": false,
+        "gone": false,
+        "screenX": -477.55790132664515,
+        "bottom": 410.34007354685343
+      },
+      {
+        "piece": "pebble",
+        "x": 1378.071272129193,
+        "z": 84.42293498199433,
+        "broken": false,
+        "gone": false,
+        "screenX": 626.0533756799769,
+        "bottom": 400.70323149136743
+      },
+      {
+        "piece": "bush",
+        "x": 170.6260710870847,
+        "z": 37.100123965647064,
+        "broken": false,
+        "gone": false,
+        "screenX": -1278.5476854876342,
+        "bottom": 417.12537364763557
+      },
+      {
+        "piece": "flower",
+        "x": 648.8317293282598,
+        "z": 215.12790508801118,
+        "broken": false,
+        "gone": false,
+        "screenX": -524.2351888572093,
+        "bottom": 355.3454948414818
+      },
+      {
+        "piece": "flower",
+        "x": 577.1807455429807,
+        "z": 19.508926526177675,
+        "broken": false,
+        "gone": false,
+        "screenX": -637.256085899465,
+        "bottom": 423.22993799716573
+      },
+      {
+        "piece": "flower",
+        "x": 735.2068319395185,
+        "z": 78.64596294704823,
+        "broken": false,
+        "gone": false,
+        "screenX": -387.98874723825975,
+        "bottom": 402.707978334447
+      },
+      {
+        "piece": "flower",
+        "x": 987.628054337576,
+        "z": 216.0009709582664,
+        "broken": false,
+        "gone": false,
+        "screenX": 10.175680949152593,
+        "bottom": 355.04252019722065
+      },
+      {
+        "piece": "flower",
+        "x": 908.8538143141195,
+        "z": 219.10023845266548,
+        "broken": false,
+        "gone": false,
+        "screenX": -114.08130480213299,
+        "bottom": 353.967000584581
+      },
+      {
+        "piece": "flower",
+        "x": 602.3186417091638,
+        "z": 98.37450047256424,
+        "broken": false,
+        "gone": false,
+        "screenX": -597.6040473039977,
+        "bottom": 395.86170608600895
+      },
+      {
+        "piece": "flower",
+        "x": 955.6809007115662,
+        "z": 28.77355531323701,
+        "broken": false,
+        "gone": false,
+        "screenX": -40.2171506633033,
+        "bottom": 420.01489122165646
+      },
+      {
+        "piece": "flower",
+        "x": 715.7980368314311,
+        "z": 142.16634141746908,
+        "broken": false,
+        "gone": false,
+        "screenX": -418.60381095042135,
+        "bottom": 380.66489461524736
+      },
+      {
+        "piece": "flower",
+        "x": 1295.7485996969044,
+        "z": 188.8926402409561,
+        "broken": false,
+        "gone": false,
+        "screenX": 496.1991602361884,
+        "bottom": 364.44975639257297
+      },
+      {
+        "piece": "flower",
+        "x": 459.25349068176,
+        "z": 56.43739097286016,
+        "broken": false,
+        "gone": false,
+        "screenX": -823.2722914841286,
+        "bottom": 410.4148815850134
+      },
+      {
+        "piece": "flower",
+        "x": 1095.9378044689074,
+        "z": 78.75147762941195,
+        "broken": false,
+        "gone": false,
+        "screenX": 181.02141776345502,
+        "bottom": 402.6713622274124
+      },
+      {
+        "piece": "flower",
+        "x": 1000.9918855139986,
+        "z": 144.81330160517246,
+        "broken": false,
+        "gone": false,
+        "screenX": 31.255533697676128,
+        "bottom": 379.74633640725267
+      },
+      {
+        "piece": "flower",
+        "x": 284.6277424087748,
+        "z": 190.40726935490966,
+        "broken": false,
+        "gone": false,
+        "screenX": -1098.7236206052066,
+        "bottom": 363.92414402743316
+      },
+      {
+        "piece": "flower",
+        "x": 626.717273532413,
+        "z": 68.53604918112978,
+        "broken": false,
+        "gone": false,
+        "screenX": -559.1181102018487,
+        "bottom": 406.2163591234532
+      },
+      {
+        "piece": "flower",
+        "x": 383.03717278316617,
+        "z": 167.29526678100228,
+        "broken": false,
+        "gone": false,
+        "screenX": -943.494459597982,
+        "bottom": 371.9445592063546
+      },
+      {
+        "piece": "flower",
+        "x": 371.7066594939679,
+        "z": 37.610918923746794,
+        "broken": false,
+        "gone": false,
+        "screenX": -961.3669954410626,
+        "bottom": 416.94811563539025
+      },
+      {
+        "piece": "flower",
+        "x": 942.0666676312685,
+        "z": 54.712634454481304,
+        "broken": false,
+        "gone": false,
+        "screenX": -61.69198260543976,
+        "bottom": 411.0134131625223
+      },
+      {
+        "piece": "flower",
+        "x": 910.8589176852256,
+        "z": 101.60641525173558,
+        "broken": false,
+        "gone": false,
+        "screenX": -110.91849293699534,
+        "bottom": 394.7401547072846
+      },
+      {
+        "piece": "flower",
+        "x": 476.15736969187856,
+        "z": 151.64264807244763,
+        "broken": false,
+        "gone": false,
+        "screenX": -796.6084347122154,
+        "bottom": 377.3763905796209
+      },
+      {
+        "piece": "flower",
+        "x": 990.1209541577846,
+        "z": 88.06062720483168,
+        "broken": false,
+        "gone": false,
+        "screenX": 14.10793364174333,
+        "bottom": 399.4408656783233
+      },
+      {
+        "piece": "flower",
+        "x": 261.7969709560275,
+        "z": 160.35728280199692,
+        "broken": false,
+        "gone": false,
+        "screenX": -1134.7364446229328,
+        "bottom": 374.35220483716415
+      },
+      {
+        "piece": "flower",
+        "x": 368.38419815152884,
+        "z": 72.23767444724216,
+        "broken": false,
+        "gone": false,
+        "screenX": -966.6077826776481,
+        "bottom": 404.9318070221773
+      },
+      {
+        "piece": "flower",
+        "x": 1062.2247278122231,
+        "z": 162.69259854219854,
+        "broken": false,
+        "gone": false,
+        "screenX": 127.84305279904243,
+        "bottom": 373.54179467255847
+      },
+      {
+        "piece": "flower",
+        "x": 757.4715158687904,
+        "z": 37.827395715285085,
+        "broken": false,
+        "gone": false,
+        "screenX": -352.8688588974437,
+        "bottom": 416.87299303451715
+      },
+      {
+        "piece": "flower",
+        "x": 910.8540217764676,
+        "z": 161.47195766679943,
+        "broken": false,
+        "gone": false,
+        "screenX": -110.926215650215,
+        "bottom": 373.96538611919993
+      },
+      {
+        "piece": "flower",
+        "x": 392.53427490312606,
+        "z": 23.449339878279712,
+        "broken": false,
+        "gone": false,
+        "screenX": -928.5139116111405,
+        "bottom": 421.8625207446208
+      },
+      {
+        "piece": "grass",
+        "x": 490.9026239728555,
+        "z": 55.83860269980505,
+        "broken": false,
+        "gone": false,
+        "screenX": -773.3495514713887,
+        "bottom": 410.62267537262716
+      }
+    ]
+  }
+]

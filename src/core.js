@@ -2657,21 +2657,18 @@
             { type: "lugaruBoss", x: 800, level: 9 },
           ],
           cap: 5,
+          // V2 314..345s native caps/walls, camera from full312..385s trace.
+          // Third chest is partly hidden; scale comes from its two clear peers.
           props: [
-            { piece: "chest", x: 80, depth: 0.25 },
-            { piece: "chest", x: 250, depth: 0.25 },
-            { piece: "chest", x: 500, depth: 0.25 },
-            { piece: "barrel", x: 300, depth: 0.50 },
-            { piece: "barrel", x: 520, depth: 0.50 },
+            { piece: "chest", x: 833, depth: 1.370, scale: [0.7, 0.725] },
+            { piece: "chest", x: 1134, depth: 1.370, scale: [0.7, 0.725] },
+            { piece: "chest", x: 1196, depth: 1.370, scale: [0.7, 0.725] },
+            { piece: "barrel", x: 593, depth: 0.035, scale: [0.725, 0.7] },
+            { piece: "barrel", x: 876, depth: 0.329, scale: [0.725, 0.7] },
+            { piece: "barrel", x: 1254, depth: 1.324, scale: [0.7, 0.725] },
+            { piece: "goblinBunker", x: 494, depth: 0.633, scale: [0.69, 0.71] },
+            { piece: "goblinBunker", x: 662, depth: -0.509, scale: [0.69, 0.715] },
             { piece: "trunkTall", x: 120, depth: 0.95 },
-            /*
-             * **25 房按 316s 帧量**：两座茅草屋（不是一座）——
-             * 左 190..320 底 355 → x 162 / depth 0.86；
-             * 右 455..590 底 450 → x 331 / depth -0.23。
-             * 旧版一 Hut 在 120、另外三件树在 700/880 全在 538 宽的墙外。
-             */
-            { piece: "hut", x: 162, depth: 0.86 },
-            { piece: "hut", x: 331, depth: -0.23 },
             { piece: "treeLeafy", x: 470, depth: 1.20 },
             { piece: "trunkMossy", x: 30, depth: 2.03 },
           ],
@@ -4150,7 +4147,6 @@
        * （222 × 0.38 × 1.5775 = 133）。早先按 1.5 身位记的 0.70 落到 245px，
        * 差不多是录像的两倍宽。
        */
-      hut: 0.38,
       goblinBunker: 0.7,
       /*
        * 门的倍率只在**侧门**上量到（录像 330 视频px 宽，本作 131 画布px → 0.80）；

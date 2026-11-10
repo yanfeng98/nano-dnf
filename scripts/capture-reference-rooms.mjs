@@ -7,6 +7,18 @@ import http from 'node:http';
 import {fileURLToPath} from 'node:url';
 const room=process.env.CAPTURE_ROOM || '42';
 const profiles={
+ '25':{batch:56,col:4,row:1,out:'/tmp/nano-room56/render',times:[314,315,317,318,319,320,330],actorScreenX:360,boss:true,
+  scope:'visible native barrel caps, chest fragments and bunker walls plus far-right keyboard movement; trees and object lifecycle remain open',
+  cases:[
+   ['back-bunker-wall',314,'bunker',0,0,142,138,552,220,155,155,155,500,.95,null,[19,99,74,143]],
+   ['front-bunker-wall',318,'bunker',0,0,142,138,51,318,155,156,156,500,.95,null,[19,99,74,144]],
+   ['first-barrel-cap',315,'forest',560,1874,63,78,466,341,72,86,22,100,.95],
+   ['middle-barrel-cap',317,'forest',560,1874,63,78,539,315,72,86,22,100,.95],
+   ['right-barrel-cap',320,'forest',560,1874,63,78,642,226,70,89,22,100,.95],
+   ['left-chest-visible-cap',319,'forest',623,1874,86,56,220,247,95,64,31,100,.95,26],
+   ['right-chest-left',330,'forest',623,1874,86,56,194,247,95,64,22,100,.95],
+   ['right-chest-right',330,'forest',623,1874,86,56,291,247,95,64,22,100,.95]
+  ]},
  '24':{batch:54,col:3,row:1,out:'/tmp/nano-room54/render',times:[277,281,293,307],actorScreenX:80,next:'暗咒猫妖的林地',exit:'E',entryDoor:'W',
   cases:[
    ['front-barrel',277,'forest',560,1874,63,78,472,370,72,89,22,100,.95],
@@ -193,6 +205,16 @@ try{
  }
  for(const face of faces)assert.ok(face.pixels>face.minPixels&&face.cosine>face.threshold,`${face.label} native face matches its measured source anchor`);
 
+ if(profile.boss){
+  await page.evaluate(()=>{const s=window.nanoDnf.getState();s.player.x=1000;s.player.z=125;s.player.invuln=100;s.player.vx=s.player.vz=0;s.transition=0;s.intro=null;});
+  await page.keyboard.press('p');await page.keyboard.down('ArrowRight');
+  await page.waitForFunction(()=>{const s=window.nanoDnf.getState();return s.player.x>=window.DNFCore.roomRight(s)-s.player.width/2-2;},null,{timeout:15000});
+  await page.keyboard.up('ArrowRight');
+  const travel=await page.evaluate(()=>{const s=window.nanoDnf.getState();return {room:s.room.name,x:s.player.x,cameraPx:s.camera.x*window.DNFCore.CAMERA.zoom};});
+  assert.ok(travel.cameraPx>=span,'keyboard movement reaches observed far-right camera');travel.validationScope=profile.scope;
+  fs.writeFileSync(path.join(out,'travel.json'),JSON.stringify(travel,null,2)+'\n');
+  console.log(`room${room} native prop captures + far-right keyboard movement OK`,out);
+ }else{
  // Clear through the real damage path, then leave the extended room by keyboard.
  const departure=await page.evaluate(exit=>{
   const C=window.DNFCore,s=window.nanoDnf.getState();
@@ -257,4 +279,5 @@ try{
  }
  fs.writeFileSync(path.join(out,'travel.json'),JSON.stringify(travel,null,2)+'\n');
  console.log(`room${room} measured-camera captures + ${profile.exit||'E'} keyboard travel OK`,out);
+}
 }finally{await browser?.close();await new Promise(resolve=>server.close(resolve));}

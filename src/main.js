@@ -105,8 +105,7 @@
     ["npc", "./assets/npc.png"],
     /* 商店/任务/背包/对话窗与物品图标（`assets/import_dnf_gui.py`）。 */
     ["gui", "./assets/gui.png"],
-    /* 深处 33 房与 Boss 房的茅草屋（`assets/import_dnf_hut.py`）。 */
-    ["hut", "./assets/hut.png"],
+    /* 深处原生镜像绿树与33/25房哥布林碉堡。 */
     ["treeReference", "./assets/tree-reference.png"],
     ["goblinBunker", "./assets/goblin-bunker.png"],
     /* 深处那批偏白的高石柱（`assets/import_dnf_pillar.py`）。 */

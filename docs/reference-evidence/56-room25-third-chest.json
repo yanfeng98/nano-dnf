@@ -1,0 +1,25 @@
+{
+  "time": 319,
+  "score": 0.9350532293319702,
+  "scale": [
+    0.7,
+    0.725
+  ],
+  "xy": [
+    220,
+    247
+  ],
+  "size": [
+    95,
+    64
+  ],
+  "world": 833.3750943396226,
+  "bottom": 311.23,
+  "mask": [
+    0,
+    0,
+    26,
+    31
+  ],
+  "limits": "Partial cap only; scale borrowed from two unobscured same-native chests, lower edge obscured. No initial-state/lifecycle inference."
+}

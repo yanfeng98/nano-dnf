@@ -11596,3 +11596,18 @@ test("boss room contains the full camera sweep independently checked against for
  Core.runFrames(s,300,{right:true});
  assert.ok(s.camera.x*Core.CAMERA.zoom>=span,"normal movement reaches the observed far-right camera");
 });
+
+test("boss room native props project onto the independently measured source anchors",()=>{
+ const s=Core.createState({stage:"mirkwooddeep",seed:1});Core.goToCell(s,s.dungeon.boss);
+ const evidence=name=>JSON.parse(fs.readFileSync(path.join(__dirname,"../docs/reference-evidence/56-room25-"+name+".json"),"utf8"));
+ const measured=evidence("props-measurement").filter(q=>q.kind==="barrel"&&[315,317,320].includes(q.time)||q.kind==="chest"&&q.time===330);
+ measured.push(...evidence("partial-fit").filter(q=>q.kind.endsWith("bunker")).map(q=>({...q,kind:"goblinBunker"})));
+ measured.push({...evidence("third-chest"),kind:"chest"});
+ assert.equal(measured.length,8,"three barrels, three visible chest fragments and two native bunker walls");
+ for(const q of measured){
+  const p=s.props.find(p=>p.piece===q.kind&&Math.abs(p.x-q.world)<1);
+  assert.ok(p,"missing measured native "+q.kind+" at "+q.time);
+  const bottom=430-Core.depthLift(p.z)*Core.CAMERA.zoom;
+  assert.ok(Math.abs(bottom-q.bottom)<2,"wrong ground anchor for "+q.kind+" at "+q.time);
+ }
+});
