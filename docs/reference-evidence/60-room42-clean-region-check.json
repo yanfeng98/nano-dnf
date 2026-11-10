@@ -1,0 +1,39 @@
+{
+  "status": "Source-only verification; runtime not yet changed",
+  "checks": [
+    {
+      "time": 28,
+      "roi": [
+        270,
+        90,
+        180,
+        30
+      ],
+      "cosine": 0.9942071978613788,
+      "pixels": 3336
+    },
+    {
+      "time": 72.5,
+      "roi": [
+        270,
+        90,
+        180,
+        30
+      ],
+      "cosine": 0.988187031468597,
+      "pixels": 5107
+    },
+    {
+      "time": 73.5,
+      "roi": [
+        270,
+        90,
+        180,
+        30
+      ],
+      "cosine": 0.9921800949439059,
+      "pixels": 5400
+    }
+  ],
+  "excluded": "72.5s experience text y124+; 73.5s east-gate foreground x450+"
+}

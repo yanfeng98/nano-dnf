@@ -2953,6 +2953,7 @@
         /* 10 — 路线42 (1,3)。28–73.5s重测：房宽下界约1278世界px，12柱落点与两箱。其余布景待核。 */
         {
           name: "宝箱浅沟",
+          closeback: "deepRoom42Closeback",
           kind: "corr",
           width: 1280,
           band: { backY: 256 },
@@ -2989,11 +2990,8 @@
             // native fragment stays at world x462 across independent views.
             { piece: "chest", x: 462, depth: -0.703 },
             { piece: "chest", x: 800, depth: 0.288 },
-            // These older tree/rock/log placements are not yet revalidated.
+            // The remaining rock and log placements still need validation.
             { piece: "rockSmall", x: 140, depth: 0.45 },
-            { piece: "trunkTall", x: 127, depth: 0.92 },
-            { piece: "trunkMossy", x: 425, depth: 0.92 },
-            { piece: "trunkBent", x: 60, depth: 0.92 },
             { piece: "fallenTrunk", x: 480, depth: 0.45 },
           ],
           scatter: {"solid":0,"barrels":0,"stones":0}

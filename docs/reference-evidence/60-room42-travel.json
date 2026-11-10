@@ -1,0 +1,13 @@
+{
+  "room": "猫妖岔路",
+  "departure": {
+    "x": 1176,
+    "z": 125,
+    "exit": "E",
+    "sideThreshold": 60,
+    "depthThreshold": 46,
+    "sideDistance": 80,
+    "northDistance": 125
+  },
+  "validationScope": "native room 42 closeback at three measured cameras; physical props, other layers and scenery lifecycle remain open"
+}

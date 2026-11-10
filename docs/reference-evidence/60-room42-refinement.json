@@ -1,0 +1,23 @@
+{
+  "status": "Rejected: optimization fitted UI/foreground contamination; do not apply these offsets",
+  "candidate": {
+    "native_y": {
+      "Animation/Tree0.ani": -16,
+      "Animation/Tree1.ani": -24,
+      "Animation/Tree3.ani": 0,
+      "Animation/Tree4.ani": -16,
+      "Animation/Tree2.ani": 0,
+      "Animation/smallTree1.ani": 0,
+      "Animation/smallTree0.ani": 0,
+      "Animation/BurntTree4.ani": -22
+    },
+    "results": [
+      0.9797783157325416,
+      [
+        0.9941799863762691,
+        0.9752893579092723,
+        0.9698656029120836
+      ]
+    ]
+  }
+}

@@ -1,0 +1,50 @@
+[
+  {
+    "label": "west-wall",
+    "time": 28,
+    "minPixels": 2000,
+    "threshold": 0.97,
+    "nativeMask": {
+      "rows": 30,
+      "columns": 180,
+      "alphaOnly": true,
+      "box": null
+    },
+    "cosine": 0.9898183889045904,
+    "dx": 0,
+    "dy": 0,
+    "pixels": 3362
+  },
+  {
+    "label": "east-wall",
+    "time": 72.5,
+    "minPixels": 2000,
+    "threshold": 0.97,
+    "nativeMask": {
+      "rows": 30,
+      "columns": 180,
+      "alphaOnly": true,
+      "box": null
+    },
+    "cosine": 0.983578801752462,
+    "dx": 0,
+    "dy": 0,
+    "pixels": 5111
+  },
+  {
+    "label": "east-gate-wall",
+    "time": 73.5,
+    "minPixels": 2000,
+    "threshold": 0.97,
+    "nativeMask": {
+      "rows": 30,
+      "columns": 180,
+      "alphaOnly": true,
+      "box": null
+    },
+    "cosine": 0.9851519448500845,
+    "dx": 0,
+    "dy": 0,
+    "pixels": 5400
+  }
+]

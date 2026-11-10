@@ -7,6 +7,13 @@ import http from 'node:http';
 import {fileURLToPath} from 'node:url';
 const room=process.env.CAPTURE_ROOM || '42';
 const profiles={
+ '42-closeback':{batch:60,col:1,row:3,out:'/tmp/nano-room60/render',times:[28,72.5,73.5],actorScreenX:80,next:'猫妖岔路',
+  scope:'native room 42 closeback at three measured cameras; physical props, other layers and scenery lifecycle remain open',
+  cases:[
+   ['west-wall',28,'room42Closeback',270/1.125,88/1.125,180/1.125,30/1.125,270,90,180,30,30,2000,.97,null,null,true],
+   ['east-wall',72.5,'room42Closeback',(270+1164.12)/1.125,88/1.125,180/1.125,30/1.125,270,90,180,30,30,2000,.97,null,null,true],
+   ['east-gate-wall',73.5,'room42Closeback',(270+1295.73)/1.125,88/1.125,180/1.125,30/1.125,270,90,180,30,30,2000,.97,null,null,true]
+  ]},
  '41-closeback':{batch:59,col:0,row:3,out:'/tmp/nano-room59/render',times:[10.5,13.5,17.5,25.5],actorScreenX:80,next:'宝箱浅沟',
   scope:'native entry closeback and measured phase at four cameras; fade, other layers and scenery lifecycle remain open',
   cases:[
@@ -191,7 +198,7 @@ try{
   const name=t===26.5?'47-room42-entry-reference.png':`${profile.batch}-room${room}-${t}-reference.png`;
   return [t,fs.readFileSync(path.join(root,'docs/reference-evidence',name)).toString('base64')];
  }));
- const native=Object.fromEntries([['pillar','pillar-pale.png'],['forest','forest.png'],['bunker','goblin-bunker.png'],['tree','tree-reference.png'],['fruitTree','tree-fruit-reference.png'],['closeback','deep-boss-closeback.png'],['entryCloseback','deep-entry-closeback.png']].map(([key,name])=>[key,fs.readFileSync(path.join(root,'assets',name)).toString('base64')]));
+ const native=Object.fromEntries([['pillar','pillar-pale.png'],['forest','forest.png'],['bunker','goblin-bunker.png'],['tree','tree-reference.png'],['fruitTree','tree-fruit-reference.png'],['closeback','deep-boss-closeback.png'],['entryCloseback','deep-entry-closeback.png'],['room42Closeback','deep-room42-closeback.png']].map(([key,name])=>[key,fs.readFileSync(path.join(root,'assets',name)).toString('base64')]));
  const faces=await page.evaluate(async({reference,images,native,cases})=>{
   async function picture(url){const im=new Image();im.src=url;await im.decode();return im;}
   function canvas(w,h){const c=document.createElement('canvas');c.width=w;c.height=h;return c.getContext('2d');}
