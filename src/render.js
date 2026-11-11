@@ -2861,18 +2861,21 @@
     }
 
     if (nativeGround) {
-      // Verified ForestOver rooms use the native tile in every column. The
-      // 224-pixel native tiles on a 252-screen-pixel grid with the crop at y=233.
+      // Native ground tiles share the same bottom edge. Crop heights retain
+      // each tile's upper and lower ground contours.
       var groundSheet = sprites.forestNative || sprites.forest;
-      var tile = sceneRect(nativeGround.tile);
       var groundScale = (VIEW.width / 640) / Core.CAMERA.zoom;
       var nativeTop = ARENA.groundY + (nativeGround.screenY - ARENA.groundY) / Core.CAMERA.zoom;
-      var nativeWidth = tile[2] * groundScale;
+      var nativeBottom = nativeTop + sceneRect("tile3")[3] * groundScale;
+      var nativeWidth = 224 * groundScale;
       var nativeLeft = -(nativeGround.originX || 0) * groundScale;
-      for (var tileIndex = 0; tileIndex < nativeGround.columns; tileIndex += 1) {
+      var tiles = nativeGround.tiles || Array(nativeGround.columns).fill(nativeGround.tile);
+      tiles.forEach(function (name, tileIndex) {
+        var tile = sceneRect(name);
         ctx.drawImage(groundSheet, tile[0], tile[1], tile[2], tile[3],
-                      nativeLeft + tileIndex * nativeWidth, nativeTop, nativeWidth, tile[3] * groundScale);
-      }
+                      nativeLeft + tileIndex * nativeWidth, nativeBottom - tile[3] * groundScale,
+                      nativeWidth, tile[3] * groundScale);
+      });
     } else {
       // Repeat the fallback strips vertically to fill the area beneath the HUD.
       var strip = SCENE.pieces[SCENE.ground[0]];

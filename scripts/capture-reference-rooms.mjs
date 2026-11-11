@@ -78,7 +78,11 @@ const profiles={
   cases:[
    ['west-wall',28,'room42Closeback',270/1.125,88/1.125,180/1.125,30/1.125,270,90,180,30,30,2000,.97,null,null,true],
    ['east-wall',72.5,'room42Closeback',(270+1164.12)/1.125,88/1.125,180/1.125,30/1.125,270,90,180,30,30,2000,.97,null,null,true],
-   ['east-gate-wall',73.5,'room42Closeback',(270+1295.73)/1.125,88/1.125,180/1.125,30/1.125,270,90,180,30,30,2000,.97,null,null,true]
+   ['east-gate-wall',73.5,'room42Closeback',(270+1295.73)/1.125,88/1.125,180/1.125,30/1.125,270,90,180,30,30,2000,.97,null,null,true],
+   ['upper-floor',28,'forest',672+((144+0)/1.125)%224,380+(376-233)/1.125,36/1.125,24/1.125,144,376,36,24,24,800,.6,null,null,true,15],
+   ['transition-floor',28,'forest',448+((252+0)/1.125)%224,380+(416-235.25)/1.125,36/1.125,24/1.125,252,416,36,24,24,800,.6,null,null,true,15],
+   ['lower-floor',72.5,'forest',0+((552+1164.12)/1.125)%224,380+(408-269)/1.125,36/1.125,24/1.125,552,408,36,24,24,800,.6,null,null,true,15],
+   ['east-floor',73.5,'forest',0+((420+1295.73)/1.125)%224,380+(408-269)/1.125,36/1.125,24/1.125,420,408,36,24,24,800,.6,null,null,true,15]
   ]},
  '41-closeback':{batch:59,col:0,row:3,out:'/tmp/nano-room59/render',times:[10.5,13.5,17.5,25.5],actorScreenX:80,next:'宝箱浅沟',
   scope:'native entry closeback and measured phase at four cameras; fade, other layers and scenery lifecycle remain open',

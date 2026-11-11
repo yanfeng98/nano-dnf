@@ -2941,6 +2941,7 @@
         {
           name: "宝箱浅沟",
           closeback: "deepRoom42Closeback",
+          nativeGround: { tiles: ["tile3", "tile2", "tile0", "tile0", "tile0", "tile0", "tile0", "tile0"], screenY: 233 },
           kind: "corr",
           width: 1280,
           band: { backY: 256 },

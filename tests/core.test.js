@@ -11673,3 +11673,22 @@ for (const sample of [
     assert.equal(Core.doorX(state, Core.currentCell(state), "N"), sample.northX);
   });
 }
+
+
+test("room 42 draws the native upper, transition and lower floor tiles on a shared baseline", () => {
+  const state = Core.createState({ stage: "mirkwooddeep", seed: 7 });
+  Core.goToCell(state, state.dungeon.cells.findIndex(cell => cell.col === 1 && cell.row === 3));
+  const sheet = {};
+  const calls = [];
+  Render.render(recordingContext(calls), state, { sprites: { forest: sheet } });
+  const tiles = calls.filter(call => call[0] === "drawImage" && call[1] === sheet &&
+    call[3] === 380 && call[4] === 224 && [203, 233, 235].includes(call[5]));
+  assert.deepEqual(tiles.map(call => call[2]), [672, 448, 0, 0, 0, 0, 0, 0]);
+  const bottom = tiles[0][7] + tiles[0][9];
+  for (const tile of tiles) {
+    assert.ok(Math.abs(tile[7] + tile[9] - bottom) < .001);
+    assert.ok(Math.abs(tile[8] * Core.CAMERA.zoom - 252) < .001);
+  }
+  const lowerTop = 430 + (tiles[2][7] - 430) * Core.CAMERA.zoom;
+  assert.ok(Math.abs(lowerTop - 269) < .001);
+});
