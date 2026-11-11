@@ -114,10 +114,11 @@ export function sha256(buffer) {
 }
 
 /**
- * Fetch a URL, retrying network-level failures.
+ * Fetch a URL, retrying network failures and temporary gateway errors.
  *
- * A DNS or TLS blip must not fail a deploy check, while a real HTTP status -
- * including 404 - is returned as-is so a broken asset still fails loudly.
+ * DNS, TLS and temporary gateway failures share a bounded retry budget.
+ * Other HTTP responses, including 404, return immediately. Exhausted gateway
+ * failures preserve the final response so the deploy check still fails.
  *
  * **Each attempt is bounded.** On a slow line a transfer can stall with the
  * socket open and no bytes coming (2026-10-28: `npm run test:live` sat for
@@ -137,12 +138,13 @@ export async function fetchBody(
         redirect: "follow",
         signal: AbortSignal.timeout(timeoutMs)
       });
-      return { status: response.status, body: Buffer.from(await response.arrayBuffer()) };
+      last = { status: response.status, body: Buffer.from(await response.arrayBuffer()) };
+      if (![502, 503, 504].includes(response.status)) return last;
     } catch (error) {
       last = { status: 0, body: Buffer.alloc(0), error: String(error) };
-      if (attempt < attempts && backoffMs > 0) {
-        await new Promise((resolve) => setTimeout(resolve, attempt * backoffMs));
-      }
+    }
+    if (attempt < attempts && backoffMs > 0) {
+      await new Promise((resolve) => setTimeout(resolve, attempt * backoffMs));
     }
   }
   return last;

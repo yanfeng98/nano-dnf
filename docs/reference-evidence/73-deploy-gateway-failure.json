@@ -1,0 +1,6 @@
+[
+  {
+    "title": "Live deployment verification",
+    "message": "assets/forest-deep.png returned HTTP 503 - the deploy is missing a referenced asset"
+  }
+]

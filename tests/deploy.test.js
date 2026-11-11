@@ -294,3 +294,37 @@ test("a stalled transfer is abandoned instead of hanging the live check", async 
     globalThis.fetch = realFetch;
   }
 });
+
+test("the deployed asset fetch recovers from transient gateway errors and bounds persistent failures", async () => {
+  const { fetchBody } = await import("./deploy/deploy-contract.mjs");
+  const originalFetch = global.fetch;
+  try {
+    let calls = 0;
+    global.fetch = async () => {
+      calls += 1;
+      return calls === 1
+        ? new Response("temporarily unavailable", { status: 503 })
+        : new Response("asset bytes", { status: 200 });
+    };
+    const recovered = await fetchBody("https://example.test/forest-deep.png", { backoffMs: 0 });
+    assert.equal(recovered.status, 200);
+    assert.equal(recovered.body.toString(), "asset bytes");
+    assert.equal(calls, 2);
+
+    for (const status of [502, 503, 504]) {
+      calls = 0;
+      global.fetch = async () => {
+        calls += 1;
+        return new Response("still unavailable", { status });
+      };
+      const failed = await fetchBody("https://example.test/forest-deep.png", {
+        attempts: 3, backoffMs: 0
+      });
+      assert.equal(failed.status, status);
+      assert.equal(failed.body.toString(), "still unavailable");
+      assert.equal(calls, 3);
+    }
+  } finally {
+    global.fetch = originalFetch;
+  }
+});
