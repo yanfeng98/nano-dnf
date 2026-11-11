@@ -1,0 +1,12 @@
+{
+  "failedRun": "https://github.com/yanfeng98/nano-dnf/actions/runs/43058919196",
+  "failedJob": 130659462994,
+  "stage": "Chromium and system dependencies",
+  "cause": "Temporary failure resolving Ubuntu package mirrors while apt installs font dependencies; browser setup exits with code 100",
+  "runnerSource": "https://raw.githubusercontent.com/actions/runner-images/main/images/ubuntu/Ubuntu2604-Readme.md",
+  "playwrightSource": "https://playwright.dev/docs/browsers#google-chrome--microsoft-edge",
+  "change": "Use hosted runner Google Chrome at /usr/bin/google-chrome through CHROMIUM_PATH, shared between setup and the existing live smoke launcher; preserve explicit failure for broken configured browser",
+  "regression": "Old wrapper invokes failing npx even with a working configured runner browser. New wrapper checks runner browser, skips apt, preserves configured browser failures.",
+  "unitTests": 406,
+  "ciValidation": "pending"
+}

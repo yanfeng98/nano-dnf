@@ -1,8 +1,10 @@
 # 两段副本录像对照审计与修复清单
 
-状态：更新至第八十三批（2026-11-12），待实玩验收。下方审计表保留初审基线，当前状态以本节和各批记录为准；不表示所有差异已穷尽。
+状态：更新至第八十四批（2026-11-12），待实玩验收。下方审计表保留初审基线，当前状态以本节和各批记录为准；不表示所有差异已穷尽。
 
 ## 当前状态入口
+
+- 第八十四批：公开日志确认CI失败源于Ubuntu字体包源DNS，改用运行器已有Chrome并继续执行完整线上冒烟；406项单测通过，CI待核。
 
 - 第八十三批：入口41房中景按录像与原生地图恢复1.125屏幕倍、90%镜头滚动和纵向相位；三处实绘纹理及东门通过，404项单测、27组串行浏览器回归通过，部署待核。
 
@@ -1527,3 +1529,11 @@ b417地图九列依次为tile0、tile0、tile1、tile3、tile2、tile0、tile1�
 客户端入口地图的中景滚动为90%，mid1.ani引用02mid0。13.5、17.5、25.5s三处原生纹理独立支持1.125屏幕倍，周期相位展开拟合滚动.89960；原实现1.577倍且随前景同速，导致纹理和位移错位。此次只校准入口中景，纵向相位约-106.5屏幕像素，保留1像素取样不确定度。
 
 真实Canvas三处去均值纹理相关性由约.014/.578/非正升为.937/.816/.781，RGB误差约6–7，原有地面/后场及东门通行通过。404项单元测试及27组串行浏览器回归通过，部署待核。实绘截图见`reference-evidence/83-entry-mid-after.png`。取证见`reference-evidence/83-entry-mid-measurement.json`、`reference-evidence/83-entry-mid-before-after.json`。远景、其他房间中景、物件生命周期和实玩验收继续开放。
+
+## 第八十四批：CI复用运行器浏览器（2026-11-12）
+
+第八十二批的公开注释定位到`npx playwright install --with-deps chromium`调用apt安装字体包时，archive/security/azure Ubuntu源DNS解析失败，最终退出100。npm包安装成功，线上冒烟尚未执行；不是已测游戏逻辑失败。原始公开注释见`reference-evidence/84-browser-install-failure.json`。
+
+[GitHub Ubuntu26运行器清单](https://raw.githubusercontent.com/actions/runner-images/main/images/ubuntu/Ubuntu2604-Readme.md)包含预装Chrome；[Playwright支持已安装的Chrome](https://playwright.dev/docs/browsers#google-chrome--microsoft-edge)。verify任务将`CHROMIUM_PATH`设为`/usr/bin/google-chrome`，安装脚本核对该浏览器版本，后续线上冒烟沿用既有显式路径入口，避免重复apt安装。若配置浏览器不可用仍原样失败并输出注释；无显式浏览器的本地安装路径保留。
+
+新增两条回归先在旧脚本失败，再通过修正验证：可用运行器浏览器在npx失败时仍能准备成功、故障运行器浏览器保留自身失败且不偷偷换浏览器。406项单测通过。游戏代码沿用第八十三批已通过的27组串行浏览器回归；安装修复仍待真实CI/线上冒烟验收，所有游戏待办继续开放。

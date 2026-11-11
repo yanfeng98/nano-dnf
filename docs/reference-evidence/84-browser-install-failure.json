@@ -1,0 +1,38 @@
+[
+  {
+    "path": ".github",
+    "blob_href": "https://github.com/yanfeng98/nano-dnf/blob/ecba6b9e991056ce389b1fa325443e0f31b36c70/.github",
+    "start_line": 212,
+    "start_column": null,
+    "end_line": 212,
+    "end_column": null,
+    "annotation_level": "failure",
+    "title": "",
+    "message": "Process completed with exit code 1.",
+    "raw_details": ""
+  },
+  {
+    "path": ".github",
+    "blob_href": "https://github.com/yanfeng98/nano-dnf/blob/ecba6b9e991056ce389b1fa325443e0f31b36c70/.github",
+    "start_line": 192,
+    "start_column": null,
+    "end_line": 192,
+    "end_column": null,
+    "annotation_level": "failure",
+    "title": "Smoke browser installation: Chromium and system dependencies",
+    "message": "Exit 1: Err:9 https://security.ubuntu.com/ubuntu resolute/universe amd64v3 xfonts-cyrillic all 1:1.0.5+nmu1build1\n  Temporary failure resolving 'azure.archive.ubuntu.com'\n  Temporary failure resolving 'archive.ubuntu.com'\n  Temporary failure resolving 'security.ubuntu.com'\nErr:10 https://security.ubuntu.com/ubuntu resolute/universe amd64v3 xfonts-scalable all 1:1.0.3-1.3build1\n  Temporary failure resolving 'azure.archive.ubuntu.com'\n  Temporary failure resolving 'archive.ubuntu.com'\n  Temporary failure resolving 'security.ubuntu.com'\nE: Failed to fetch https://security.ubuntu.com/ubuntu/pool/universe/f/fonts-ipafont/fonts-ipafont-gothic_00303-23ubuntu1_all.deb  Temporary failure resolving 'security.ubuntu.com'\nE: Failed to fetch https://security.ubuntu.com/ubuntu/pool/main/f/fonts-freefont/fonts-freefont-ttf_20211204%2bsvn4273-4build1_all.deb  Temporary failure resolving 'security.ubuntu.com'\nE: Failed to fetch https://security.ubuntu.com/ubuntu/pool/universe/f/fonts-tlwg/fonts-tlwg-loma-otf_0.7.3-1build1_all.deb  Temporary failure resolving 'security.ubuntu.com'\nE: Failed to fetch https://security.ubuntu.com/ubuntu/pool/universe/u/unifont/fonts-unifont_16.0.04-1build1_all.deb  Temporary failure resolving 'security.ubuntu.com'\nE: Failed to fetch https://security.ubuntu.com/ubuntu/pool/universe/f/fonts-wqy-zenhei/fonts-wqy-zenhei_0.9.45-8build1_all.deb  Temporary failure resolving 'security.ubuntu.com'\nE: Failed to fetch https://security.ubuntu.com/ubuntu/pool/main/x/xfonts-encodings/xfonts-encodings_1.0.5-0ubuntu3_all.deb  Temporary failure resolving 'security.ubuntu.com'\nE: Failed to fetch https://security.ubuntu.com/ubuntu/pool/main/x/xfonts-utils/xfonts-utils_7.7%2b7build1_amd64v3.deb  Temporary failure resolving 'security.ubuntu.com'\nE: Failed to fetch https://security.ubuntu.com/ubuntu/pool/universe/x/xfonts-cyrillic/xfonts-cyrillic_1.0.5%2bnmu1build1_all.deb  Temporary failure resolving 'security.ubuntu.com'\nE: Failed to fetch https://security.ubuntu.com/ubuntu/pool/universe/x/xfonts-scalable/xfonts-scalable_1.0.3-1.3build1_all.deb  Temporary failure resolving 'security.ubuntu.com'\nE: Unable to fetch some archives, maybe run apt update or try with --fix-missing?\nFailed to install browsers\nError: Installation process exited with code: 100",
+    "raw_details": ""
+  },
+  {
+    "path": ".github",
+    "blob_href": "https://github.com/yanfeng98/nano-dnf/blob/ecba6b9e991056ce389b1fa325443e0f31b36c70/.github",
+    "start_line": 1,
+    "start_column": null,
+    "end_line": 1,
+    "end_column": null,
+    "annotation_level": "notice",
+    "title": "",
+    "message": "\"The ubuntu-latest label will migrate to Ubuntu 26 beginning October 19, 2026. For more information, see https://github.com/actions/runner-images/issues/14748\"",
+    "raw_details": ""
+  }
+]

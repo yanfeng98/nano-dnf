@@ -21,4 +21,10 @@ run_install_step() {
 }
 
 run_install_step "npm package" npm install --no-save --no-package-lock playwright@1.63.0
-run_install_step "Chromium and system dependencies" npx playwright install --with-deps chromium
+if [[ -n "${CHROMIUM_PATH:-}" ]]; then
+  # The hosted runner already includes Chrome and its system libraries. Use the
+  # same executable the live smoke launcher consumes instead of invoking apt.
+  run_install_step "configured runner browser" "$CHROMIUM_PATH" --version
+else
+  run_install_step "Chromium and system dependencies" npx playwright install --with-deps chromium
+fi

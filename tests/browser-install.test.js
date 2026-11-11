@@ -13,7 +13,7 @@ const installStep = workflow.match(/- name: Install the smoke-test browser\n\s*r
 assert.ok(installStep, "the published workflow must keep its browser installation step");
 const installCommands = installStep[1].split("\n").map(line => line.slice(10)).join("\n");
 
-function install(npmStatus, browserStatus) {
+function install(npmStatus, browserStatus, runnerBrowserStatus = null) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "nano-browser-install-"));
   try {
     for (const [name, status] of [["npm", npmStatus], ["npx", browserStatus]]) {
@@ -21,9 +21,16 @@ function install(npmStatus, browserStatus) {
         `#!/bin/bash\necho '${name} diagnostic: 50% complete'\necho 'second line'\nexit ${status}\n`,
         { mode: 0o755 });
     }
+    const runnerBrowser = path.join(dir, "runner-chrome");
+    if (runnerBrowserStatus !== null) {
+      fs.writeFileSync(runnerBrowser,
+        `#!/bin/bash\necho 'runner Chrome diagnostic'\nexit ${runnerBrowserStatus}\n`,
+        { mode: 0o755 });
+    }
     return spawnSync("bash", ["-eo", "pipefail", "-c", installCommands], {
       cwd: root,
-      env: { ...process.env, PATH: `${dir}:${process.env.PATH}` },
+      env: { ...process.env, PATH: `${dir}:${process.env.PATH}`,
+        CHROMIUM_PATH: runnerBrowserStatus === null ? "" : runnerBrowser },
       encoding: "utf8"
     });
   } finally {
@@ -50,4 +57,18 @@ test("Chromium install failure reports its own stage and preserves the exit code
   const result = install(0, 42);
   assert.equal(result.status, 42);
   assert.match(result.stdout, /::error title=Smoke browser installation: Chromium and system dependencies::Exit 42: npx diagnostic/);
+});
+
+test("an available runner browser avoids the failing apt dependency installation", () => {
+  const result = install(0, 42, 0);
+  assert.equal(result.status, 0, result.stdout + result.stderr);
+  assert.match(result.stdout, /runner Chrome diagnostic/);
+  assert.doesNotMatch(result.stdout, /npx diagnostic/);
+});
+
+test("a broken configured runner browser fails visibly without silently downloading another", () => {
+  const result = install(0, 42, 17);
+  assert.equal(result.status, 17, result.stdout + result.stderr);
+  assert.match(result.stdout, /::error title=Smoke browser installation: configured runner browser::Exit 17/);
+  assert.doesNotMatch(result.stdout, /npx diagnostic/);
 });

@@ -123,6 +123,9 @@ jobs:
     name: Verify the deployed build
     needs: deploy
     runs-on: ubuntu-latest
+    env:
+      # Supplied by the hosted runner; shared by setup and live-smoke.mjs.
+      CHROMIUM_PATH: /usr/bin/google-chrome
     steps:
       - name: Check out the repository
         uses: actions/checkout@v7
