@@ -19,6 +19,7 @@ p.add_argument('--pvf',default='Script.pvf')
 p.add_argument('--map',default='map/mirkwooddeep/b417(4,1).map')
 p.add_argument('--tree4-y',type=int,default=-16)
 p.add_argument('--tree0-y',type=int,default=0)
+p.add_argument('--origin-x',type=int,default=0,help='native X coordinate at the left edge of the measured room')
 p.add_argument('--out',type=Path)
 a=p.parse_args();entry=a.map.lower();items=[];images={};animations={}
 if a.out is None:
@@ -49,6 +50,9 @@ if entry=='map/mirkwooddeep/b417(4,1).map':assert len(items)==28
 map_width=proof['tile_count']*224;width=max(map_width,max(q['left']+q['size'][0]for q in items))
 canvas=Image.new('RGBA',(width,480))
 for q in items:canvas.alpha_composite(images[(q['source'],q['frame'])][0],(q['left'],q['top']))
+if a.origin_x:
+ canvas=canvas.crop((a.origin_x,0,width,canvas.height))
+ proof['raster_native_x_origin']=a.origin_x
 a.out.parent.mkdir(parents=True,exist_ok=True);canvas.save(a.out)
 proof.update(size=list(canvas.size),map_native_width=map_width,raster_native_y_origin=80,screen_y=2,screen_native_scale=1.125,order='original closeback list; no sorting by Y',items=items,assets=[dict(source=name,frame=frame,size=list(im.size),offset=list(offset),rgba_sha256=hashlib.sha256(im.tobytes()).hexdigest())for(name,frame),(im,offset)in images.items()],rgba_sha256=hashlib.sha256(canvas.tobytes()).hexdigest(),limits=('Boss closeback only. Tree4 Y is measured, not native ANI. Other rooms, far/mid motion, floor and foreground layers remain unverified.' if entry=='map/mirkwooddeep/b417(4,1).map' else 'Selected room closeback only. Tree0/Tree4 Y must be checked against recording; other layers, rooms and lifecycle remain unverified.'))
 print(json.dumps(proof,indent=2))

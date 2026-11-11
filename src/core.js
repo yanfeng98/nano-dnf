@@ -3021,6 +3021,7 @@
         /* 12 —— 路线 33 (2,2)。录像106–147.5s；重测宽1280、12柱7桶2碉堡；动态受损仍待核。 */
         {
           name: "藤蔓窄道",
+          closeback: "deepRoom33Closeback",
           kind: "room",
           width: 1280,
           band: { backY: 256 },

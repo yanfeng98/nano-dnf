@@ -1,0 +1,13 @@
+{
+  "room": "投掷手坡",
+  "departure": {
+    "x": 630,
+    "z": 184,
+    "exit": "N",
+    "sideThreshold": 60,
+    "depthThreshold": 46,
+    "sideDistance": 626,
+    "northDistance": 66
+  },
+  "validationScope": "native room 33 closeback at four measured cameras; props and other scenery layers remain open"
+}
