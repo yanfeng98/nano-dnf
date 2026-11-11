@@ -100,7 +100,7 @@ const profiles={
    ['entry-center-floor',17.5,'forest',672+((168+427.4)/1.125)%224,380+(420-233)/1.125,36/1.125,24/1.125,168,420,36,24,24,800,.6,null,null,true,14],
    ['entry-east-floor',25.5,'forest',672+((528+791.92)/1.125)%224,380+(404-233)/1.125,36/1.125,24/1.125,528,404,36,24,24,800,.6,null,null,true,14]
   ]},
- '25-closeback':{batch:58,col:4,row:1,out:'/tmp/nano-room58/render',times:[312,314.5,319,330,370],actorScreenX:80,boss:true,
+ '25-closeback':{cameraTolerance:1,batch:58,col:4,row:1,out:'/tmp/nano-room58/render',times:[312,314.5,319,330,370],actorScreenX:80,boss:true,
   scope:'native boss closeback list and measured phase at five cameras; far/mid motion, floor, foreground, actors and object lifecycle remain open',
   cases:[
    ['west-wall',312,'closeback',185/1.125,78/1.125,395/1.125,200/1.125,185,80,395,200,200,30000,.97,null,null,true],
@@ -114,7 +114,7 @@ const profiles={
    ['east-floor',330,'forest',672+((372+1547.69)/1.125)%224,380+(376-233)/1.125,36/1.125,24/1.125,372,376,36,24,24,800,.6,null,null,true,15],
    ['east-revisit-floor',370,'forest',224+((264+1453.32)/1.125)%224,380+(424-235.25)/1.125,36/1.125,24/1.125,264,424,36,24,24,800,.6,null,null,true,15]
   ]},
- '25-trees':{batch:57,col:4,row:1,out:'/tmp/nano-room57/render',times:[316.5,317,319,320],actorScreenX:80,boss:true,
+ '25-trees':{cameraTolerance:1,batch:57,col:4,row:1,out:'/tmp/nano-room57/render',times:[316.5,317,319,320],actorScreenX:80,boss:true,
   scope:'four earliest visible fruit-tree forms and visible native regions; hidden roots, depletion trigger and fruit/hit lifecycle remain open',
   cases:[
    ['first-back-fruit',316.5,'fruitTree',0,0,153,203,494,96,173,227,190,1000,.97,62,null,true],
@@ -122,7 +122,7 @@ const profiles={
    ['second-back-initial-fruit',317,'fruitTree',0,0,153,203,638,231,171,227,100,500,.97,61,null,true],
    ['second-front-fruit',320,'fruitTree',0,0,153,203,213,271,171,229,192,5000,.97,null,null,true]
   ]},
- '25':{batch:56,col:4,row:1,out:'/tmp/nano-room56/render',times:[314,315,317,318,319,320,330],actorScreenX:360,boss:true,
+ '25':{cameraTolerance:1,batch:56,col:4,row:1,out:'/tmp/nano-room56/render',times:[314,315,317,318,319,320,330],actorScreenX:360,boss:true,
   scope:'visible native barrel caps, chest fragments and bunker walls plus far-right keyboard movement; trees and object lifecycle remain open',
   cases:[
    ['back-bunker-wall',314,'bunker',0,0,142,138,552,220,155,155,155,500,.95,null,[19,99,74,143]],
@@ -342,7 +342,10 @@ try{
   await page.waitForFunction(()=>{const s=window.nanoDnf.getState();return s.player.x>=window.DNFCore.roomRight(s)-s.player.width/2-2;},null,{timeout:15000});
   await page.keyboard.up('ArrowRight');
   const travel=await page.evaluate(()=>{const s=window.nanoDnf.getState();return {room:s.room.name,x:s.player.x,cameraPx:s.camera.x*window.DNFCore.CAMERA.zoom};});
-  assert.ok(travel.cameraPx>=span,'keyboard movement reaches observed far-right camera');travel.validationScope=profile.scope;
+  // The measured boss maximum includes subpixel tracking error / death shake.
+  assert.ok(travel.cameraPx+(profile.cameraTolerance||0)>=span,'keyboard movement reaches observed far-right camera within measurement tolerance');
+  const nativeRight=9*224*1.125;
+  assert.ok(travel.cameraPx+720<=nativeRight,'rightmost viewport stays over the native boss floor');travel.validationScope=profile.scope;
   fs.writeFileSync(path.join(out,'travel.json'),JSON.stringify(travel,null,2)+'\n');
   console.log(`room${room} native prop captures + far-right keyboard movement OK`,out);
  }else{

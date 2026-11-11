@@ -2641,11 +2641,11 @@
           ],
           scatter: {"solid":0,"barrels":0,"stones":0}
         },
-        /* 1 —— 路线 25 Boss (4,1)。V2 312–385s完整前景轨迹下界1438.27，采用1440；物件/敌人摆位仍待核。 */
+        /* 1 —— 路线 25 Boss (4,1)。V2 366s稳定最右镜头1547.83px；九列原生地面终点2268px，宽1437.8（第80批）。 */
         {
           name: "暗咒猫妖的林地",
           kind: "room",
-          width: 1440,
+          width: 1437.8,
           closeback: "deepBossCloseback",
           nativeGround: { tiles: ["tile0", "tile0", "tile1", "tile3", "tile2", "tile0", "tile1", "tile3", "tile3"], screenY: 233 },
           band: { backY: 256 },
@@ -3407,7 +3407,7 @@
   (function fitDeepRouteRooms() {
     var widths = {
       0: 960,
-      1: 1440,
+      1: 1437.8,
       5: 960,
       6: 1120,
       8: 1280,

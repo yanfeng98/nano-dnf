@@ -233,7 +233,7 @@ async function main() {
       fail(`boss type/behavior is ${boss.type}/${boss.behavior}`);
     }
     if (!boss.tenCaptain) fail("the boss room has no deep ten-captain");
-    if (boss.width !== 1440) fail(`boss room width is ${boss.width}, not 1440`);
+    if (boss.width !== 1437.8) fail(`boss room width is ${boss.width}, not 1437.8`);
     if (boss.band !== 375) fail(`boss band is ${boss.band}, not 375`);
     await page.waitForTimeout(1200);
     await page.screenshot({ path: path.join(ARTIFACTS, "deep-boss.png") });

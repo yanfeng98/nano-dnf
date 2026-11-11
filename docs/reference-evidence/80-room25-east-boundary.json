@@ -1,0 +1,23 @@
+{
+  "referenceTime": 366,
+  "referenceCameraPx": 1547.83,
+  "referenceSource": "55-room25-camera.json",
+  "previousCameraPx": 1551.4285714285716,
+  "roomWidth": 1437.8,
+  "cameraPx": 1547.9583333333333,
+  "viewportRight": 2267.958333333333,
+  "nativeFloorRight": 2268,
+  "cameraMeasurementTolerancePx": 1,
+  "limits": "Stable 366s camera; 384s sample includes vertical shake and is not used as the exact boundary. Other scenery and object lifecycles remain open.",
+  "browserKeyboard": {
+    "room": "暗咒猫妖的林地",
+    "x": 1395.5,
+    "cameraPx": 1547.9583333333333,
+    "validationScope": "visible native barrel caps, chest fragments and bunker walls plus far-right keyboard movement; trees and object lifecycle remain open"
+  },
+  "verification": {
+    "unitTests": 395,
+    "unitFailures": 0,
+    "browserSuite": "npm run test:browser passed all 27 serial groups"
+  }
+}

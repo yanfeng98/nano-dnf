@@ -10147,7 +10147,7 @@ test("the measured room widths and band are on the deep route", () => {
     "2,0": 1248.75,
     "3,0": 960,
     "3,1": 1120,
-    "4,1": 1440
+    "4,1": 1437.8
   };
   const state = Core.createState({ stage: "mirkwooddeep", seed: 7 });
   Object.keys(widths).forEach((key) => {
@@ -11591,10 +11591,11 @@ test("boss room contains the full camera sweep independently checked against for
  Core.goToCell(s,s.dungeon.cells.findIndex(c=>c.col===4&&c.row===1));
  const c=JSON.parse(fs.readFileSync(path.join(__dirname,"../docs/reference-evidence/55-room25-camera.json"),"utf8"));
  const span=Math.max(...c.map(q=>q.camera_px))-Math.min(...c.map(q=>q.camera_px));
- assert.ok(s.room.width*Core.CAMERA.zoom>=720+span,"538 width truncates the observed boss arena");
+ // 384s includes camera shake; the native floor and stable 366s limit agree within 1px.
+ assert.ok(s.room.width*Core.CAMERA.zoom+1>=720+span,"room truncates the observed boss arena beyond tracking tolerance");
  s.intro=null;s.transition=0;s.player.invuln=100;s.player.x=1000;s.player.z=125;
  Core.runFrames(s,300,{right:true});
- assert.ok(s.camera.x*Core.CAMERA.zoom>=span,"normal movement reaches the observed far-right camera");
+ assert.ok(s.camera.x*Core.CAMERA.zoom+1>=span,"normal movement reaches the observed far-right camera within tracking tolerance");
 });
 
 test("boss room native props project onto the independently measured source anchors",()=>{
@@ -11653,11 +11654,12 @@ test("the entry closeback projects its native map without duplicate physical tru
 for (const sample of [
   { room: "33", row: 2, cameraPx: 1283.08, time: 127.5, northX: 630 },
   { room: "23", row: 1, cameraPx: 1244.36, time: 159.5, northX: 604 },
-  { room: "13", row: 0, cameraPx: 1249.91, time: 267, northX: 182 }
+  { room: "13", row: 0, cameraPx: 1249.91, time: 267, northX: 182 },
+  { room: "25", col: 4, row: 1, cameraPx: 1547.83, time: 366 }
 ]) {
   test(`room ${sample.room} right-edge camera matches the recording and stays over native ground`, () => {
     const state = Core.createState({ stage: "mirkwooddeep", seed: 7 });
-    const index = state.dungeon.cells.findIndex(cell => cell.col === 2 && cell.row === sample.row);
+    const index = state.dungeon.cells.findIndex(cell => cell.col === (sample.col ?? 2) && cell.row === sample.row);
     Core.goToCell(state, index);
     state.intro = null;
     state.transition = state.titleT = 0;
@@ -11668,9 +11670,11 @@ for (const sample of [
     const cameraPx = state.camera.x * Core.CAMERA.zoom;
     assert.ok(Math.abs(cameraPx - sample.cameraPx) < 1, `${sample.time}s measured eastern camera`);
     const ground = state.room.nativeGround;
-    const nativeRight = (ground.columns * 224 - ground.originX) * 1.125;
+    const nativeRight = ((ground.tiles ? ground.tiles.length : ground.columns) * 224 - (ground.originX || 0)) * 1.125;
     assert.ok(cameraPx + Core.VIEW.width <= nativeRight, "visible right edge has native ground");
-    assert.equal(Core.doorX(state, Core.currentCell(state), "N"), sample.northX);
+    if (sample.northX !== undefined) {
+      assert.equal(Core.doorX(state, Core.currentCell(state), "N"), sample.northX);
+    }
   });
 }
 
