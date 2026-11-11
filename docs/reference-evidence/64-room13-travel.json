@@ -1,0 +1,16 @@
+{
+  "room": "残柱祭坛",
+  "departure": {
+    "x": 1160,
+    "z": 125,
+    "exit": "E",
+    "sideThreshold": 60,
+    "depthThreshold": 46,
+    "sideDistance": 80,
+    "northDistance": 125
+  },
+  "validationScope": "native room 13 closeback at four measured cameras including a revisit; other scenery and physical props remain open",
+  "south": {
+    "room": "投掷手坡"
+  }
+}

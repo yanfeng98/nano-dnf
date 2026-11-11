@@ -1,0 +1,97 @@
+{
+  "map": "map/mirkwooddeep/n412(2,0).map",
+  "origin_native_x": 41,
+  "mean_absolute_delta_native": 0.9615520282186897,
+  "matches": [
+    {
+      "world_x": 243,
+      "native_pillar_x": 380,
+      "expected_native_x": 381.71428571428567,
+      "delta_native": -1.7142857142856656
+    },
+    {
+      "world_x": 270,
+      "native_pillar_x": 419,
+      "expected_native_x": 419.57142857142856,
+      "delta_native": -0.5714285714285552
+    },
+    {
+      "world_x": 303,
+      "native_pillar_x": 464,
+      "expected_native_x": 465.8412698412698,
+      "delta_native": -1.8412698412698205
+    },
+    {
+      "world_x": 438,
+      "native_pillar_x": 655,
+      "expected_native_x": 655.1269841269841,
+      "delta_native": -0.1269841269840981
+    },
+    {
+      "world_x": 465,
+      "native_pillar_x": 692,
+      "expected_native_x": 692.9841269841269,
+      "delta_native": -0.984126984126874
+    },
+    {
+      "world_x": 495,
+      "native_pillar_x": 735,
+      "expected_native_x": 735.047619047619,
+      "delta_native": -0.04761904761903679
+    },
+    {
+      "world_x": 614,
+      "native_pillar_x": 900,
+      "expected_native_x": 901.8994708994709,
+      "delta_native": -1.8994708994708844
+    },
+    {
+      "world_x": 641,
+      "native_pillar_x": 939,
+      "expected_native_x": 939.7566137566138,
+      "delta_native": -0.7566137566137741
+    },
+    {
+      "world_x": 670,
+      "native_pillar_x": 979,
+      "expected_native_x": 980.4179894179894,
+      "delta_native": -1.4179894179893608
+    },
+    {
+      "world_x": 772,
+      "native_pillar_x": 1122,
+      "expected_native_x": 1123.4338624338625,
+      "delta_native": -1.4338624338624868
+    },
+    {
+      "world_x": 804,
+      "native_pillar_x": 1168,
+      "expected_native_x": 1168.3015873015875,
+      "delta_native": -0.3015873015874604
+    },
+    {
+      "world_x": 836,
+      "native_pillar_x": 1213,
+      "expected_native_x": 1213.1693121693122,
+      "delta_native": -0.1693121693122066
+    },
+    {
+      "world_x": 943,
+      "native_pillar_x": 1362,
+      "expected_native_x": 1363.195767195767,
+      "delta_native": -1.1957671957670755
+    },
+    {
+      "world_x": 970,
+      "native_pillar_x": 1400,
+      "expected_native_x": 1401.0529100529102,
+      "delta_native": -1.0529100529101925
+    },
+    {
+      "world_x": 997,
+      "native_pillar_x": 1438,
+      "expected_native_x": 1438.9100529100529,
+      "delta_native": -0.9100529100528547
+    }
+  ]
+}

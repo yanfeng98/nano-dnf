@@ -3064,6 +3064,7 @@
         /* 13 —— 路线 13 (2,0)。录像 190–235 / 266–271s；联合重测宽1264、15柱4桶，南门world182。 */
         {
           name: "老树回廊",
+          closeback: "deepRoom13Closeback",
           kind: "corr",
           width: 1264,
           band: { backY: 256 },
@@ -3100,8 +3101,6 @@
             { piece: "barrel", x: 395, depth: -0.046, scale: [0.725, 0.725] },
             { piece: "barrel", x: 531, depth: 0.288, scale: [0.725, 0.725] },
             { piece: "barrel", x: 571, depth: 0.679, scale: [0.7, 0.7] },
-            { piece: "trunkMossy", x: 30, depth: 2.03 },
-            { piece: "trunkTall", x: 500, depth: 2.03 },
           ],
           scatter: {"solid":0,"barrels":0,"stones":0}
         },
