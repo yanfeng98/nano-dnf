@@ -11677,7 +11677,8 @@ for (const sample of [
 
 for (const layout of [
   { room: "42", col: 1, row: 3, tiles: [672, 448, 0, 0, 0, 0, 0, 0] },
-  { room: "24", col: 3, row: 1, tiles: [672, 448, 0, 0, 224, 672, 672] }
+  { room: "24", col: 3, row: 1, tiles: [672, 448, 0, 0, 224, 672, 672] },
+  { room: "25", col: 4, row: 1, tiles: [0, 0, 224, 672, 448, 0, 224, 672, 672], lowerIndex: 0 }
 ]) {
   test(`room ${layout.room} draws native mixed floor tiles on a shared baseline`, () => {
     const state = Core.createState({ stage: "mirkwooddeep", seed: 7 });
@@ -11693,7 +11694,8 @@ for (const layout of [
       assert.ok(Math.abs(tile[7] + tile[9] - bottom) < .001);
       assert.ok(Math.abs(tile[8] * Core.CAMERA.zoom - 252) < .001);
     }
-    const lowerTop = 430 + (tiles[2][7] - 430) * Core.CAMERA.zoom;
+    const lower = tiles[layout.lowerIndex ?? 2];
+    const lowerTop = 430 + (lower[7] - 430) * Core.CAMERA.zoom;
     assert.ok(Math.abs(lowerTop - 269) < .001);
   });
 }

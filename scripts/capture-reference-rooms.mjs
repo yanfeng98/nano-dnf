@@ -107,7 +107,12 @@ const profiles={
    ['west-middle-wall',314.5,'closeback',(250+291.44)/1.125,78/1.125,300/1.125,90/1.125,250,80,300,90,90,10000,.97,null,null,true],
    ['central-tree4',319,'closeback',(450+1047.05)/1.125,78/1.125,120/1.125,120/1.125,450,80,120,120,120,8000,.97,null,null,true],
    ['east-wall',330,'closeback',(185+1547.69)/1.125,98/1.125,395/1.125,120/1.125,185,100,395,120,120,20000,.97,null,null,true],
-   ['east-wall-revisit',370,'closeback',(185+1453.32)/1.125,98/1.125,395/1.125,70/1.125,185,100,395,70,70,12000,.97,null,null,true]
+   ['east-wall-revisit',370,'closeback',(185+1453.32)/1.125,98/1.125,395/1.125,70/1.125,185,100,395,70,70,12000,.97,null,null,true],
+   ['west-floor',312,'forest',0+((168+0.02)/1.125)%224,380+(352-269)/1.125,36/1.125,24/1.125,168,352,36,24,24,800,.6,null,null,true,15],
+   ['rising-floor',314.5,'forest',224+((336+291.44)/1.125)%224,380+(424-235.25)/1.125,36/1.125,24/1.125,336,424,36,24,24,800,.6,null,null,true,15],
+   ['descending-floor',319,'forest',448+((120+1047.05)/1.125)%224,380+(424-235.25)/1.125,36/1.125,24/1.125,120,424,36,24,24,800,.6,null,null,true,15],
+   ['east-floor',330,'forest',672+((372+1547.69)/1.125)%224,380+(376-233)/1.125,36/1.125,24/1.125,372,376,36,24,24,800,.6,null,null,true,15],
+   ['east-revisit-floor',370,'forest',224+((264+1453.32)/1.125)%224,380+(424-235.25)/1.125,36/1.125,24/1.125,264,424,36,24,24,800,.6,null,null,true,15]
   ]},
  '25-trees':{batch:57,col:4,row:1,out:'/tmp/nano-room57/render',times:[316.5,317,319,320],actorScreenX:80,boss:true,
   scope:'four earliest visible fruit-tree forms and visible native regions; hidden roots, depletion trigger and fruit/hit lifecycle remain open',

@@ -2647,6 +2647,7 @@
           kind: "room",
           width: 1440,
           closeback: "deepBossCloseback",
+          nativeGround: { tiles: ["tile0", "tile0", "tile1", "tile3", "tile2", "tile0", "tile1", "tile3", "tile3"], screenY: 233 },
           band: { backY: 256 },
           enemies: [
             { type: "deepElite", x: 300, level: 7 },
