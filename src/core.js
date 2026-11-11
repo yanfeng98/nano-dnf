@@ -2891,13 +2891,13 @@
           ],
           scatter: {"solid":0,"barrels":0,"stones":0}
         },
-        /* 9 —— 路线 23 (2,1)。录像148–189.5s；重测宽1248、8柱6桶，上下门world604。 */
+        /* 9 —— 路线 23 (2,1)。录像148–189.5s；重测宽1245.25、8柱6桶，上下门world604。 */
         {
           name: "投掷手坡",
           closeback: "deepRoom23Closeback",
           nativeGround: { tile: "tile3", columns: 8, screenY: 233, originX: 46 },
           kind: "room",
-          width: 1248,
+          width: 1245.25,
           band: { backY: 256 },
           enemies: [
             { type: "goblinRed", x: 305, level: 6 },
@@ -2915,7 +2915,7 @@
           cap: 4,
           /* V2 148–189.5s: 84-frame two-axis graph + independent gate strip.
            * Observed camera span 1244px -> width lower bound 1245 world px;
-           * use 1248. Entry camera is ~601 screen px from observed minimum.
+           * use 1245.25, matching the measured eastern camera. Entry camera is ~601 screen px from observed minimum.
            * Native caps identify 8 pillars and 6 barrels; the former rock was
            * a damaged pillar. Unseen initial damage and enemy placements remain
            * unverified; preserve existing enemy world positions. */
@@ -3348,7 +3348,7 @@
      * 43: world970（审计首批）；33: world630（第五十批）；23: world604（第五十一批）。
      * 13南门world182（第五十二批）；其他格缺证据时保留0.5。
      */
-    northX: { "2,3": 970 / 1280, "2,2": 630 / 1270, "2,1": 604 / 1248, "2,0": 182 / 1264 },
+    northX: { "2,3": 970 / 1280, "2,2": 630 / 1270, "2,1": 604 / 1245.25, "2,0": 182 / 1264 },
     /* 这一关的上/下门量到在同一条竖轴上（`doorX`）。别的关没有这个证据，不开。 */
     southSharesNorthX: true,
     /*
@@ -3407,7 +3407,7 @@
       5: 960,
       6: 1120,
       8: 1280,
-      9: 1248,
+      9: 1245.25,
       10: 1280,
       12: 1270,
       13: 1264

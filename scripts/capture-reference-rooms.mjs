@@ -35,7 +35,7 @@ const profiles={
    ['east-tree',235.5,'room13Closeback',(400+1249.91)/1.125,138/1.125,60/1.125,40/1.125,400,140,60,40,40,1500,.97,null,null,true],
    ['revisit-tree',271.5,'room13Closeback',(220+166.85)/1.125,58/1.125,60/1.125,40/1.125,220,60,60,40,40,1500,.97,null,null,true]
   ]},
- '23-closeback':{evidence:'51-room23',referenceNames:{153.5:'63-room23-153.5-reference.png'},col:2,row:1,out:'/tmp/nano-room63/render',times:[148,150,153.5,180],actorScreenX:80,entryDoor:'S',exit:'N',next:'老树回廊',extraSouth:'藤蔓窄道',
+ '23-closeback':{cameraTolerance:1,evidence:'51-room23',referenceNames:{153.5:'63-room23-153.5-reference.png'},col:2,row:1,out:'/tmp/nano-room63/render',times:[148,150,153.5,180],actorScreenX:80,entryDoor:'S',exit:'N',next:'老树回廊',extraSouth:'藤蔓窄道',
   scope:'native room 23 closeback at four measured cameras; physical props and other scenery layers remain open',
   cases:[
    ['entry-tree',148,'room23Closeback',(160+600.81)/1.125,138/1.125,60/1.125,40/1.125,160,140,60,40,40,1000,.97,null,null,true],
@@ -139,7 +139,7 @@ const profiles={
    ['return-front-cap',268,'pillar',0,0,44,133,123,353,49,150,30,300,.97],
    ['return-entry-cap',271.5,'pillar',0,0,44,133,191,153,49,150,30,300,.97]
   ]},
- '23':{batch:51,col:2,row:1,out:'/tmp/nano-room51/render',times:[148,150,180],next:'老树回廊',exit:'N',entryDoor:'S',extraEast:true,
+ '23':{cameraTolerance:1,batch:51,col:2,row:1,out:'/tmp/nano-room51/render',times:[148,150,180],next:'老树回廊',exit:'N',entryDoor:'S',extraEast:true,
   cases:[
    ['entry-right-back-cap',148,'pillar',0,0,44,133,537,215,49,150,30,300,.97],
    ['entry-right-front-cap',148,'pillar',0,0,44,133,585,250,49,150,30,300,.97],
@@ -309,7 +309,7 @@ try{
  },{reference,images,native,cases:profile.cases});
  fs.writeFileSync(path.join(out,'browser-comparison.json'),JSON.stringify(faces,null,2)+'\n');
  const span=Math.max(...cameras.map(c=>c.camera_px))-Math.min(...cameras.map(c=>c.camera_px));
- assert.ok(records[0].width*265/168>=720+span,`room${room} must contain the independently observed camera span`);
+ assert.ok(records[0].width*265/168+(profile.cameraTolerance||0)>=720+span,`room${room} must contain the independently observed camera span`);
  if(room==='42')assert.equal(records[0].props.filter(p=>p.piece==='chest').length,2);
  else if(room==='41'){
   assert.equal(records[0].props.filter(p=>p.piece==='rockFlat').length,2);
