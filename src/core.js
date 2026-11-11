@@ -2895,6 +2895,7 @@
         {
           name: "投掷手坡",
           closeback: "deepRoom23Closeback",
+          nativeGround: { tile: "tile3", columns: 8, screenY: 233, originX: 46 },
           kind: "room",
           width: 1248,
           band: { backY: 256 },
