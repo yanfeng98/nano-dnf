@@ -7,6 +7,14 @@ import http from 'node:http';
 import {fileURLToPath} from 'node:url';
 const room=process.env.CAPTURE_ROOM || '42';
 const profiles={
+ '23-closeback':{evidence:'51-room23',referenceNames:{153.5:'63-room23-153.5-reference.png'},col:2,row:1,out:'/tmp/nano-room63/render',times:[148,150,153.5,180],actorScreenX:80,entryDoor:'S',exit:'N',next:'老树回廊',extraSouth:'藤蔓窄道',
+  scope:'native room 23 closeback at four measured cameras; physical props and other scenery layers remain open',
+  cases:[
+   ['entry-tree',148,'room23Closeback',(160+600.81)/1.125,138/1.125,60/1.125,40/1.125,160,140,60,40,40,1000,.97,null,null,true],
+   ['center-tree',150,'room23Closeback',(520+734.75)/1.125,138/1.125,60/1.125,40/1.125,520,140,60,40,40,1500,.97,null,null,true],
+   ['east-tree',153.5,'room23Closeback',(460+1244.36)/1.125,178/1.125,60/1.125,40/1.125,460,180,60,40,40,1500,.97,null,null,true],
+   ['west-tree',180,'room23Closeback',(160+2.26)/1.125,178/1.125,60/1.125,40/1.125,160,180,60,40,40,1500,.97,null,null,true]
+  ]},
  '33-closeback':{evidence:'50-room33',col:2,row:2,out:'/tmp/nano-room62/render',times:[106,125,133,146],actorScreenX:80,entryDoor:'S',exit:'N',next:'投掷手坡',
   scope:'native room 33 closeback at four measured cameras; props and other scenery layers remain open',
   cases:[
@@ -78,7 +86,7 @@ const profiles={
   ]},
  '14':{batch:53,col:3,row:0,out:'/tmp/nano-room53/render',times:[236.5,260,265.5],next:'老树回廊',exit:'W',entryDoor:'W',
   scope:'camera capacity and west-door keyboard only; tree and gate artwork remain unverified',cases:[]},
- '13':{batch:52,col:2,row:0,out:'/tmp/nano-room52/render',times:[190,210,235.5,268,271.5],next:'残柱祭坛',exit:'E',entryDoor:'S',extraSouth:true,
+ '13':{batch:52,col:2,row:0,out:'/tmp/nano-room52/render',times:[190,210,235.5,268,271.5],next:'残柱祭坛',exit:'E',entryDoor:'S',extraSouth:'投掷手坡',
   cases:[
    ['entry-back-cap',190,'pillar',0,0,44,133,358,153,49,150,30,300,.97],
    ['entry-middle-cap',190,'pillar',0,0,44,133,402,190,49,150,30,300,.97],
@@ -214,7 +222,7 @@ try{
   const name=t===26.5?'47-room42-entry-reference.png':(profile.referenceNames?.[t] ?? `${evidence}-${t}-reference.png`);
   return [t,fs.readFileSync(path.join(root,'docs/reference-evidence',name)).toString('base64')];
  }));
- const native=Object.fromEntries([['pillar','pillar-pale.png'],['forest','forest.png'],['bunker','goblin-bunker.png'],['tree','tree-reference.png'],['fruitTree','tree-fruit-reference.png'],['closeback','deep-boss-closeback.png'],['entryCloseback','deep-entry-closeback.png'],['room42Closeback','deep-room42-closeback.png'],['room43Closeback','deep-room43-closeback.png'],['room33Closeback','deep-room33-closeback.png']].map(([key,name])=>[key,fs.readFileSync(path.join(root,'assets',name)).toString('base64')]));
+ const native=Object.fromEntries([['pillar','pillar-pale.png'],['forest','forest.png'],['bunker','goblin-bunker.png'],['tree','tree-reference.png'],['fruitTree','tree-fruit-reference.png'],['closeback','deep-boss-closeback.png'],['entryCloseback','deep-entry-closeback.png'],['room42Closeback','deep-room42-closeback.png'],['room43Closeback','deep-room43-closeback.png'],['room33Closeback','deep-room33-closeback.png'],['room23Closeback','deep-room23-closeback.png']].map(([key,name])=>[key,fs.readFileSync(path.join(root,'assets',name)).toString('base64')]));
  const faces=await page.evaluate(async({reference,images,native,cases})=>{
   async function picture(url){const im=new Image();im.src=url;await im.decode();return im;}
   function canvas(w,h){const c=document.createElement('canvas');c.width=w;c.height=h;return c.getContext('2d');}
@@ -316,14 +324,15 @@ try{
  }
  if(profile.extraSouth){
   await page.keyboard.press('p');
-  await page.evaluate(()=>{
-   const C=window.DNFCore,s=window.nanoDnf.getState();C.goToCell(s,s.dungeon.cells.findIndex(c=>c.col===2&&c.row===0));
+  const cell={col:profile.col,row:profile.row};
+  await page.evaluate(({col,row})=>{
+   const C=window.DNFCore,s=window.nanoDnf.getState();C.goToCell(s,s.dungeon.cells.findIndex(c=>c.col===col&&c.row===row));
    s.transition=s.titleT=0;s.intro=null;s.player.x=C.doorX(s,C.currentCell(s),'S');s.player.z=C.DOOR.depth+20;
-  });
+  },cell);
   await page.keyboard.press('p');await page.keyboard.down('ArrowDown');
-  await page.waitForFunction(()=>{const s=window.nanoDnf.getState(),c=s.dungeon.cells[s.cell];return c.col===2&&c.row===1;});
+  await page.waitForFunction(({col,row})=>{const s=window.nanoDnf.getState(),c=s.dungeon.cells[s.cell];return c.col===col&&c.row===row+1;},cell);
   await page.keyboard.up('ArrowDown');travel.south=await page.evaluate(()=>({room:window.nanoDnf.getState().room.name}));
-  assert.equal(travel.south.room,'投掷手坡');
+  assert.equal(travel.south.room,profile.extraSouth);
  }
  fs.writeFileSync(path.join(out,'travel.json'),JSON.stringify(travel,null,2)+'\n');
  console.log(`room${room} measured-camera captures + ${profile.exit||'E'} keyboard travel OK`,out);

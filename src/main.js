@@ -84,6 +84,7 @@
     ["deepRoom42Closeback", "./assets/deep-room42-closeback.png"],
     ["deepRoom43Closeback", "./assets/deep-room43-closeback.png"],
     ["deepRoom33Closeback", "./assets/deep-room33-closeback.png"],
+    ["deepRoom23Closeback", "./assets/deep-room23-closeback.png"],
     /*
      * 雨（`docs/adr/0057`）：客户端 `sprite/map/rain.img` / `raindrop.img`
      * 烘成的一张小图（`assets/import_dnf_weather.py`）。

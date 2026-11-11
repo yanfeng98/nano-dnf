@@ -2902,6 +2902,7 @@
         /* 9 —— 路线 23 (2,1)。录像148–189.5s；重测宽1248、8柱6桶，上下门world604。 */
         {
           name: "投掷手坡",
+          closeback: "deepRoom23Closeback",
           kind: "room",
           width: 1248,
           band: { backY: 256 },
@@ -2924,7 +2925,7 @@
            * use 1248. Entry camera is ~601 screen px from observed minimum.
            * Native caps identify 8 pillars and 6 barrels; the former rock was
            * a damaged pillar. Unseen initial damage and enemy placements remain
-           * unverified; preserve existing enemy/tree world positions. */
+           * unverified; preserve existing enemy world positions. */
           props: [
             { piece: "pillarPale", x: 200, depth: 1.588 },
             { piece: "pillarPale", x: 231, depth: 1.22 },
@@ -2940,10 +2941,6 @@
             { piece: "barrel", x: 701, depth: 1.496, scale: [0.725, 0.725] },
             { piece: "barrel", x: 713, depth: 0.437, scale: [0.7, 0.7] },
             { piece: "barrel", x: 799, depth: -0.576, scale: [0.725, 0.725] },
-            { piece: "trunkTall", x: 122, depth: 2.03 },
-            { piece: "trunkMossy", x: 488, depth: 2.03 },
-            { piece: "trunkBent", x: 854, depth: 2.03 },
-            { piece: "trunkTall", x: 1074, depth: 2.03 },
           ],
           scatter: {"solid":0,"barrels":0,"stones":0}
         },
