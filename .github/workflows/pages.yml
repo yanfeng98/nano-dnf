@@ -134,8 +134,7 @@ jobs:
 
       - name: Install the smoke-test browser
         run: |
-          npm install --no-save --no-package-lock playwright@1.63.0
-          npx playwright install --with-deps chromium
+          bash scripts/install-smoke-browser.sh
 
       # Runs against the URL this repo publishes in its README, so a deploy that
       # silently lags main or 404s a referenced asset turns the workflow red.

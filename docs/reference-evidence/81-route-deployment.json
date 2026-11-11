@@ -1,0 +1,11 @@
+{
+  "commit": "5ea030a",
+  "deployment": "https://github.com/yanfeng98/nano-dnf/actions/runs/43057827382",
+  "build": "success",
+  "deploy": "success",
+  "localLiveSmoke": "passed: published resources match checkout and page boots without problems",
+  "unitTests": 400,
+  "browserGroups": 27,
+  "ciPostDeploy": "browser installation still running at last observation",
+  "manualAcceptance": "pending"
+}

@@ -1,0 +1,19 @@
+{
+  "failedRun": "https://github.com/yanfeng98/nano-dnf/actions/runs/43055822571",
+  "failedJob": 130645488276,
+  "failedStep": "Install the smoke-test browser",
+  "publicAnnotation": "Process completed with exit code 1.",
+  "jobLogAccess": "403 Must have admin rights to Repository.",
+  "baselineReproduction": {
+    "baselineExit": 23,
+    "baselineOutput": "npm install failure detail\n",
+    "hasPublicErrorAnnotation": false
+  },
+  "regressions": [
+    "successful npm and npx installation",
+    "npm failure: escaped annotation, exit preserved, Chromium not invoked",
+    "Chromium/dependency failure: stage annotation and exit preserved"
+  ],
+  "unitTests": 403,
+  "limit": "Installation root cause remains unverified until a failing annotated run is observed; this change adds diagnosis and does not claim the installation failure fixed."
+}
