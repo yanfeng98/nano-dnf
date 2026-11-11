@@ -21,7 +21,11 @@ const profiles={
    ['entry-tree',236.5,'room14Closeback',(160+.15)/1.125,98/1.125,60/1.125,40/1.125,160,100,60,40,40,1500,.97,null,null,true],
    ['east-canopy',260,'room14Closeback',(280+756.61)/1.125,58/1.125,60/1.125,40/1.125,280,60,60,40,40,1500,.97,null,null,true],
    ['east-limit-tree',261.3,'room14Closeback',(280+791.6)/1.125,178/1.125,60/1.125,40/1.125,280,180,60,40,40,1500,.97,null,null,true],
-   ['return-tree',265.5,'room14Closeback',(460+.63)/1.125,178/1.125,60/1.125,40/1.125,460,180,60,40,40,1500,.97,null,null,true]
+   ['return-tree',265.5,'room14Closeback',(460+.63)/1.125,178/1.125,60/1.125,40/1.125,460,180,60,40,40,1500,.97,null,null,true],
+   ['entry-floor',236.5,'forest',672+(180+.15)/1.125,380+(376-233)/1.125,48/1.125,32/1.125,180,376,48,32,32,1400,.6,null,null,true,13],
+   ['east-floor',260,'forest',672+((460+756.61)/1.125)%224,380+(280-233)/1.125,42/1.125,32/1.125,460,280,42,32,32,1300,.55,null,null,true,13],
+   ['east-limit-floor',261.3,'forest',672+((420+791.6)/1.125)%224,380+(280-233)/1.125,48/1.125,32/1.125,420,280,48,32,32,1400,.55,null,null,true,13],
+   ['return-floor',265.5,'forest',672+(180+.63)/1.125,380+(376-233)/1.125,48/1.125,32/1.125,180,376,48,32,32,1400,.6,null,null,true,13]
   ]},
  '13-closeback':{evidence:'52-room13',col:2,row:0,out:'/tmp/nano-room64/render',times:[190,210,235.5,271.5],actorScreenX:80,entryDoor:'S',exit:'E',next:'残柱祭坛',extraSouth:'投掷手坡',
   scope:'native room 13 closeback at four measured cameras including a revisit; other scenery and physical props remain open',
@@ -257,18 +261,33 @@ try{
    const a=canvas(960,540);a.drawImage(await picture(images[t]),0,0);actuals[t]=a;
   }
   const result=[];
-  for(const [label,time,sheet,sx,sy,sw,sh,x,y,w,h,cutoff,minPixels,threshold,maxX,maskBox,alphaOnly] of cases){
+  for(const [label,time,sheet,sx,sy,sw,sh,x,y,w,h,cutoff,minPixels,threshold,maxX,maskBox,alphaOnly,maxError] of cases){
    const c=canvas(w,h);c.drawImage(atlases[sheet],sx,sy,sw,sh,0,0,w,h);
    const mask=c.getImageData(0,0,w,h).data,ref=refs[time].getImageData(x,y,w,h).data;let best={cosine:0};
    for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++){
     const actual=actuals[time].getImageData(x+120+dx,y+dy,w,h).data;let dot=0,a2=0,b2=0,pixels=0;
+    const sumsA=[0,0,0],sumsB=[0,0,0];
     for(let i=0;i<mask.length;i+=4){
      const px=(i/4)%w,py=Math.floor(i/4/w);
      if(maskBox&&(px<maskBox[0]||py<maskBox[1]||px>=maskBox[2]||py>=maskBox[3]))continue;
      if((i/4)%w>=(maxX||w)||Math.floor(i/4/w)>=cutoff||mask[i+3]<=220||(!alphaOnly&&(mask[i]<=70||mask[i+1]<=70||mask[i+2]<=45)))continue;
-     pixels++;for(let k=0;k<3;k++){dot+=ref[i+k]*actual[i+k];a2+=ref[i+k]**2;b2+=actual[i+k]**2;}
+     pixels++;
+    for(let k=0;k<3;k++){
+     const a=ref[i+k],b=actual[i+k];
+     dot+=a*b;a2+=a*a;b2+=b*b;
+     if(maxError){sumsA[k]+=a;sumsB[k]+=b;}
     }
-    const cosine=dot/Math.sqrt(a2*b2);if(cosine>best.cosine)best={cosine,dx,dy,pixels};
+    }
+    if(!pixels)continue;
+    const error=Math.sqrt((a2+b2-2*dot)/(3*pixels));
+    if(maxError){
+     for(let k=0;k<3;k++){
+      dot-=sumsA[k]*sumsB[k]/pixels;
+      a2-=sumsA[k]**2/pixels;b2-=sumsB[k]**2/pixels;
+     }
+    }
+    const cosine=dot/Math.sqrt(a2*b2);
+    if(cosine>best.cosine)best={cosine,dx,dy,pixels,...(maxError?{error,maxError}:{})};
    }
    result.push({label,time,minPixels,threshold,nativeMask:{rows:cutoff,columns:maxX||w,alphaOnly:!!alphaOnly,box:maskBox||null},...best});
   }
@@ -283,7 +302,7 @@ try{
   assert.equal(records[0].props.filter(p=>p.piece==='barrel'&&!p.broken).length,4);
   assert.equal(records[1].props.filter(p=>p.piece==='barrel'&&!p.broken).length,2);
  }
- for(const face of faces)assert.ok(face.pixels>face.minPixels&&face.cosine>face.threshold,`${face.label} native face matches its measured source anchor`);
+ for(const face of faces)assert.ok(face.pixels>face.minPixels&&face.cosine>face.threshold&&(!face.maxError||face.error<face.maxError),`${face.label} native face matches its measured source anchor`);
 
  if(profile.boss){
   await page.evaluate(()=>{const s=window.nanoDnf.getState();s.player.x=1000;s.player.z=125;s.player.invuln=100;s.player.vx=s.player.vz=0;s.transition=0;s.intro=null;});

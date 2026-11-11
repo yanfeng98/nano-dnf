@@ -2850,7 +2850,8 @@
      * 树根线按 midLift 对齐可见后缘；这里再将客户端草裙裁到地面接缝以下。
      * 地面不透明的地方盖住它，贴图顶沿的缺口透出草裙，避免未绘制的条纹。
      */
-    if (SCENE.midSkirt) {
+    var nativeGround = state.room && state.room.nativeGround;
+    if (SCENE.midSkirt && !nativeGround) {
       ctx.save();
       ctx.beginPath();
       ctx.rect(0, groundTop, width, ARENA.height - groundTop);
@@ -2859,24 +2860,34 @@
       ctx.restore();
     }
 
-    /*
-     * The ground, from its own top edge down to the bottom of the room. The
-     * strips are shorter than that, so each column repeats instead of stretching
-     * - grass that grew to fit would show it immediately.
-     */
-    var strip = SCENE.pieces[SCENE.ground[0]];
-    var column = 0;
-    for (var x = 0; x < width; x += strip[2]) {
-      var name = SCENE.ground[column % SCENE.ground.length];
-      var tall = sceneRect(name)[3];
-      for (var bottom = groundTop + tall; bottom - tall < ARENA.height; bottom += tall) {
-        drawScenePiece(ctx, sprites, name, x + strip[2] / 2, bottom);
+    if (nativeGround) {
+      // Room 14 uses ForestOver in every column. The recording puts the
+      // 224-pixel native tiles on a 252-screen-pixel grid with the crop at y=233.
+      var groundSheet = sprites.forestNative || sprites.forest;
+      var tile = sceneRect(nativeGround.tile);
+      var groundScale = (VIEW.width / 640) / Core.CAMERA.zoom;
+      var nativeTop = ARENA.groundY + (nativeGround.screenY - ARENA.groundY) / Core.CAMERA.zoom;
+      var nativeWidth = tile[2] * groundScale;
+      for (var tileIndex = 0; tileIndex < nativeGround.columns; tileIndex += 1) {
+        ctx.drawImage(groundSheet, tile[0], tile[1], tile[2], tile[3],
+                      tileIndex * nativeWidth, nativeTop, nativeWidth, tile[3] * groundScale);
       }
-      column += 1;
+    } else {
+      // Repeat the fallback strips vertically to fill the area beneath the HUD.
+      var strip = SCENE.pieces[SCENE.ground[0]];
+      var column = 0;
+      for (var x = 0; x < width; x += strip[2]) {
+        var name = SCENE.ground[column % SCENE.ground.length];
+        var tall = sceneRect(name)[3];
+        for (var bottom = groundTop + tall; bottom - tall < ARENA.height; bottom += tall) {
+          drawScenePiece(ctx, sprites, name, x + strip[2] / 2, bottom);
+        }
+        column += 1;
+      }
+      /* The front edge of the band: the one line everyone's feet stand on. */
+      ctx.fillStyle = "rgba(255, 226, 180, 0.10)";
+      ctx.fillRect(0, ARENA.groundY, width, 2);
     }
-    /* The front edge of the band: the one line everyone's feet stand on. */
-    ctx.fillStyle = "rgba(255, 226, 180, 0.10)";
-    ctx.fillRect(0, ARENA.groundY, width, 2);
 
     // Verified native room closeback lists are decorations, not standing props.
     // Reference calibration is 9/8 screen pixels per native pixel and screenY=2.
@@ -10133,7 +10144,7 @@
      */
     if (state.stage && state.stage.id === "mirkwooddeep" &&
         sprites && sprites.forestDeep) {
-      sprites = Object.assign({}, sprites, { forest: sprites.forestDeep });
+      sprites = Object.assign({}, sprites, { forest: sprites.forestDeep, forestNative: sprites.forest });
     }
     /*
      * A full-screen overlay owns the frame. The sim is frozen behind it, so the

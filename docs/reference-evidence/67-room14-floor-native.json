@@ -1,0 +1,26 @@
+{
+  "map": "map/mirkwooddeep/402.map",
+  "tiles": [
+    "Tile/ForestOver.til",
+    "Tile/ForestOver.til",
+    "Tile/ForestOver.til",
+    "Tile/ForestOver.til",
+    "Tile/ForestOver.til",
+    "Tile/ForestOver.til"
+  ],
+  "image": "sprite/map/02tile03.img",
+  "frame": 0,
+  "atlas": "assets/forest.png",
+  "atlas_rect": [
+    672,
+    380,
+    224,
+    235
+  ],
+  "source_offset": [
+    0,
+    245
+  ],
+  "screen_top": 233,
+  "screen_scale": 1.125
+}

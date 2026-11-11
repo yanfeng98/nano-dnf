@@ -1,0 +1,74 @@
+[
+  {
+    "label": "entry-floor",
+    "time": 236.5,
+    "minPixels": 1400,
+    "threshold": 0.6,
+    "nativeMask": {
+      "rows": 32,
+      "columns": 48,
+      "alphaOnly": true,
+      "box": null
+    },
+    "cosine": 0.7806190340621127,
+    "dx": 0,
+    "dy": 0,
+    "pixels": 1536,
+    "error": 8.998721938574265,
+    "maxError": 13
+  },
+  {
+    "label": "east-floor",
+    "time": 260,
+    "minPixels": 1300,
+    "threshold": 0.55,
+    "nativeMask": {
+      "rows": 32,
+      "columns": 42,
+      "alphaOnly": true,
+      "box": null
+    },
+    "cosine": 0.6737045973489959,
+    "dx": 0,
+    "dy": 0,
+    "pixels": 1344,
+    "error": 7.140160701361689,
+    "maxError": 13
+  },
+  {
+    "label": "east-limit-floor",
+    "time": 261.3,
+    "minPixels": 1400,
+    "threshold": 0.55,
+    "nativeMask": {
+      "rows": 32,
+      "columns": 48,
+      "alphaOnly": true,
+      "box": null
+    },
+    "cosine": 0.7094352354258229,
+    "dx": 0,
+    "dy": 0,
+    "pixels": 1536,
+    "error": 7.7676909419366345,
+    "maxError": 13
+  },
+  {
+    "label": "return-floor",
+    "time": 265.5,
+    "minPixels": 1400,
+    "threshold": 0.6,
+    "nativeMask": {
+      "rows": 32,
+      "columns": 48,
+      "alphaOnly": true,
+      "box": null
+    },
+    "cosine": 0.736182115262735,
+    "dx": -1,
+    "dy": 0,
+    "pixels": 1536,
+    "error": 10.610294153033124,
+    "maxError": 13
+  }
+]

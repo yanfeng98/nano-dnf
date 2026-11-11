@@ -2773,6 +2773,7 @@
         {
           name: "残柱祭坛",
           closeback: "deepRoom14Closeback",
+          nativeGround: { tile: "tile3", columns: 6, screenY: 233 },
           kind: "corr",
           // 236.5–265.5s at 10Hz, 128 independent gate-texture checks.
           width: 960,
@@ -5250,6 +5251,7 @@
         width: spec.width || ROOM.width,
         northGateBottom: spec.northGateBottom,
         closeback: spec.closeback || null,
+        nativeGround: spec.nativeGround,
         leftWall: ROOM.leftWall,
         rightWall: (spec.width || ROOM.width) - (ROOM.width - ROOM.rightWall),
         /*
