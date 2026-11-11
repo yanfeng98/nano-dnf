@@ -3059,6 +3059,7 @@
         {
           name: "老树回廊",
           closeback: "deepRoom13Closeback",
+          nativeGround: { tile: "tile3", columns: 8, screenY: 233, originX: 41 },
           kind: "corr",
           width: 1264,
           band: { backY: 256 },
