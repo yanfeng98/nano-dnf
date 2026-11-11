@@ -10430,8 +10430,9 @@ test("the deep pillar has the recorded broad flat cap, not a diagonal broken tip
   assert.equal(Render.SCENE.pieces.pillarPale[3], png.height, "the renderer must not crop off the pillar base");
 });
 
-test("the deep backdrop does not add an unrecorded repeating leafy tree band", () => {
+test("an unmeasured deep backdrop keeps its fallback roots without inventing a leafy band", () => {
   const s = Core.createState({ stage: "mirkwooddeep", seed: 1 });
+  Core.goToCell(s, s.dungeon.cells.findIndex(c => c.col === 1 && c.row === 3));
   s.props = [];
   const forest = {}, calls = [];
   Render.render(recordingContext(calls), s, { sprites: { forest } });
@@ -11708,3 +11709,23 @@ for (const layout of [
     assert.ok(Math.abs(lowerTop - 269) < .001);
   });
 }
+
+test("the measured entry midground uses native scale and ninety-percent camera scroll", () => {
+  const state = Core.createState({ stage: "mirkwooddeep", seed: 7 });
+  const forest = {}, graded = {};
+  function draws(camera) {
+    state.camera.x = camera;
+    const calls = [];
+    Render.render(recordingContext(calls), state, { sprites: { forest, forestDeep: graded } });
+    return calls.filter(c => c[0] === "drawImage" && c[1] === forest &&
+      c[2] === 640 && c[3] === 0 && c[4] === 640 && c[5] === 380);
+  }
+  const start = draws(0), moved = draws(200);
+  assert.ok(start.length > 1, "entry midground must use original client pixels");
+  assert.ok(Math.abs(start[0][8] * Core.CAMERA.zoom - 720) < 1e-8,
+    "a native 640px strip spans 720 screen pixels");
+  assert.ok(Math.abs(430 + (start[0][7] - 430) * Core.CAMERA.zoom + 106.5) < 1e-8,
+    "measured vertical phase is -106.5 screen pixels");
+  assert.ok(Math.abs(moved[0][6] - start[0][6] - 20) < 1e-8,
+    "compensate ten percent of the world camera so the midground scrolls at ninety percent");
+});

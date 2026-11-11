@@ -1,0 +1,114 @@
+{
+  "before": [
+    {
+      "label": "mid-west",
+      "time": 13.5,
+      "minPixels": 600,
+      "threshold": 0.65,
+      "nativeMask": {
+        "rows": 35,
+        "columns": 31,
+        "alphaOnly": true,
+        "box": null
+      },
+      "cosine": 0.01422624168812899,
+      "dx": -2,
+      "dy": 2,
+      "pixels": 1085,
+      "error": 23.4256676481569,
+      "maxError": 24
+    },
+    {
+      "label": "mid-center",
+      "time": 17.5,
+      "minPixels": 600,
+      "threshold": 0.65,
+      "nativeMask": {
+        "rows": 35,
+        "columns": 31,
+        "alphaOnly": true,
+        "box": null
+      },
+      "cosine": 0.5782961196074048,
+      "dx": 2,
+      "dy": 2,
+      "pixels": 636,
+      "error": 19.679001568305413,
+      "maxError": 24
+    },
+    {
+      "label": "mid-east",
+      "time": 25.5,
+      "minPixels": 600,
+      "threshold": 0.65,
+      "nativeMask": {
+        "rows": 35,
+        "columns": 31,
+        "alphaOnly": true,
+        "box": null
+      },
+      "cosine": 0
+    }
+  ],
+  "after": [
+    {
+      "label": "mid-west",
+      "time": 13.5,
+      "minPixels": 600,
+      "threshold": 0.65,
+      "nativeMask": {
+        "rows": 35,
+        "columns": 31,
+        "alphaOnly": true,
+        "box": null
+      },
+      "cosine": 0.9367000112191187,
+      "dx": 0,
+      "dy": -1,
+      "pixels": 1085,
+      "error": 6.171661115263782,
+      "maxError": 24
+    },
+    {
+      "label": "mid-center",
+      "time": 17.5,
+      "minPixels": 600,
+      "threshold": 0.65,
+      "nativeMask": {
+        "rows": 35,
+        "columns": 31,
+        "alphaOnly": true,
+        "box": null
+      },
+      "cosine": 0.8158308334218687,
+      "dx": 0,
+      "dy": 0,
+      "pixels": 636,
+      "error": 7.402192434014984,
+      "maxError": 24
+    },
+    {
+      "label": "mid-east",
+      "time": 25.5,
+      "minPixels": 600,
+      "threshold": 0.65,
+      "nativeMask": {
+        "rows": 35,
+        "columns": 31,
+        "alphaOnly": true,
+        "box": null
+      },
+      "cosine": 0.7812164422974293,
+      "dx": -1,
+      "dy": -1,
+      "pixels": 1064,
+      "error": 6.518409442044534,
+      "maxError": 24
+    }
+  ],
+  "limits": "Three independent visible midground bark regions only; complete room and far layer remain unverified.",
+  "verification": {
+    "unitTests": 404,
+    "browserGroups": 27
+  }
+}

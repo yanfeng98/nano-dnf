@@ -2840,7 +2840,23 @@
       drawStoneBackdrop(ctx, state);
       return;
     }
-    drawSceneStrip(ctx, sprites, "mid", visualBackY + SCENE.midLift, width);
+    var nativeMid = state.room && state.room.nativeMid;
+    if (nativeMid) {
+      var mid = sceneRect("mid");
+      var midScale = (VIEW.width / 640) / Core.CAMERA.zoom;
+      var midWidth = mid[2] * midScale;
+      var midTop = ARENA.groundY + (nativeMid.screenY - ARENA.groundY) / Core.CAMERA.zoom;
+      // The world pass already subtracts the camera. Compensate the remainder
+      // so this layer follows its independently measured scroll ratio.
+      var midOffset = cameraX(state) * (1 - nativeMid.scroll);
+      for (var midX = -midWidth; midX < width + midWidth; midX += midWidth) {
+        ctx.drawImage(sprites.forestNative || sprites.forest,
+          mid[0], mid[1], mid[2], mid[3],
+          midX + midOffset, midTop, midWidth, mid[3] * midScale);
+      }
+    } else {
+      drawSceneStrip(ctx, sprites, "mid", visualBackY + SCENE.midLift, width);
+    }
     // V1/V2 matched views show the blue trunk layer here. Standing leafy
     // trees are placed individually in props; do not invent a canopy ribbon.
 

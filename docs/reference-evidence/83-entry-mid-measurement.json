@@ -1,0 +1,89 @@
+{
+  "provenance": {
+    "map_entry": "map/mirkwooddeep/s419(0,3).map",
+    "map_sha256": "33da276fd07c18abca3e8d8fa9741688445be1b34bf43aec7e7d5c2b4a7540e2",
+    "animation_entry": "map/mirkwooddeep/animation/mid1.ani",
+    "animation": {
+      "paths": [
+        "Map/02mid0.img"
+      ],
+      "overall": [
+        [
+          1,
+          0
+        ]
+      ],
+      "frames": [
+        {
+          "frame": 0,
+          "xy": [
+            0,
+            -80
+          ],
+          "props": [
+            [
+              12,
+              20
+            ]
+          ],
+          "boxes": []
+        }
+      ]
+    },
+    "native_scroll": 0.9
+  },
+  "screen_scale": 1.125,
+  "screen_y": -106.5,
+  "fitted_scroll": 0.8995978854990067,
+  "samples": [
+    {
+      "time": 13.5,
+      "camera_px": 210.27,
+      "source_xy": [
+        560,
+        160
+      ],
+      "matched_xy": [
+        441,
+        74
+      ],
+      "correlation": 0.9737768769264221,
+      "unwrapped_x": -189.0,
+      "native_scroll_error_px": 0.24300000000002342,
+      "inferred_screen_y": -106.0
+    },
+    {
+      "time": 17.5,
+      "camera_px": 427.4,
+      "source_xy": [
+        65,
+        100
+      ],
+      "matched_xy": [
+        408,
+        6
+      ],
+      "correlation": 0.8755263090133667,
+      "unwrapped_x": -385.125,
+      "native_scroll_error_px": -0.46500000000003183,
+      "inferred_screen_y": -106.5
+    },
+    {
+      "time": 25.5,
+      "camera_px": 791.92,
+      "source_xy": [
+        395,
+        220
+      ],
+      "matched_xy": [
+        452,
+        142
+      ],
+      "correlation": 0.8894301056861877,
+      "unwrapped_x": -712.375,
+      "native_scroll_error_px": 0.3529999999999518,
+      "inferred_screen_y": -105.5
+    }
+  ],
+  "limits": "Entry midground only. Pixel sampling permits one-pixel vertical phase uncertainty. Far layer, other rooms and scenery interactions remain open."
+}

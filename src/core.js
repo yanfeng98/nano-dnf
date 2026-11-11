@@ -2615,6 +2615,8 @@
           // Do not stretch existing enemy/tree coordinates with the new width.
           width: 958.55,
           closeback: "deepEntryCloseback",
+          // V2 13.5/17.5/25.5s: native mid1.ani, 90% scroll and measured Y phase (batch83).
+          nativeMid: { scroll: 0.9, screenY: -106.5 },
           nativeGround: { tile: "tile3", columns: 6, screenY: 233 },
           band: { backY: 256 },
           // Enemy placement is still the older, unverified layout; no width-based stretching.
@@ -5260,6 +5262,7 @@
         northGateBottom: spec.northGateBottom,
         closeback: spec.closeback || null,
         nativeGround: spec.nativeGround,
+        nativeMid: spec.nativeMid,
         leftWall: ROOM.leftWall,
         rightWall: (spec.width || ROOM.width) - (ROOM.width - ROOM.rightWall),
         /*
