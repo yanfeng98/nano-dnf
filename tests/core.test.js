@@ -10142,7 +10142,7 @@ test("the measured room widths and band are on the deep route", () => {
     "0,3": 960,
     "1,3": 1280,
     "2,3": 1280,
-    "2,2": 1280,
+    "2,2": 1270,
     "2,1": 1248,
     "2,0": 1264,
     "3,0": 960,
@@ -11647,4 +11647,23 @@ test("the entry closeback projects its native map without duplicate physical tru
  assert.ok(Math.abs(draw[4]*Core.CAMERA.zoom-proof.size[0]*proof.screen_native_scale)<.001);
  assert.ok(Math.abs(430+(draw[3]-430)*Core.CAMERA.zoom-proof.screen_y)<.001);
  assert.equal(s.props.filter(p=>["trunkTall","trunkBent","trunkMossy"].includes(p.piece)).length,0,"native rear decorations replace guessed standing trees");
+});
+
+
+test("room 33 right-edge camera matches the recording and stays over native ground", () => {
+  const state = Core.createState({ stage: "mirkwooddeep", seed: 7 });
+  const index = state.dungeon.cells.findIndex(cell => cell.col === 2 && cell.row === 2);
+  Core.goToCell(state, index);
+  state.intro = null;
+  state.transition = state.titleT = 0;
+  state.player.x = Core.roomRight(state) - state.player.width / 2;
+  state.player.z = 125;
+  state.player.invuln = 999;
+  Core.runFrames(state, 2, {});
+  const cameraPx = state.camera.x * Core.CAMERA.zoom;
+  assert.ok(Math.abs(cameraPx - 1283.08) < 1, "127.5s measured eastern camera");
+  const ground = state.room.nativeGround;
+  const nativeRight = (ground.columns * 224 - ground.originX) * 1.125;
+  assert.ok(cameraPx + Core.VIEW.width <= nativeRight, "visible right edge has native ground");
+  assert.equal(Core.doorX(state, Core.currentCell(state), "N"), 630);
 });

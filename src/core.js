@@ -3007,13 +3007,13 @@
             { piece: "chest", x: 280, depth: 0.42 },
           ]
         },
-        /* 12 —— 路线 33 (2,2)。录像106–147.5s；重测宽1280、12柱7桶2碉堡；动态受损仍待核。 */
+        /* 12 —— 路线 33 (2,2)。录像106–147.5s；重测宽1270、12柱7桶2碉堡；动态受损仍待核。 */
         {
           name: "藤蔓窄道",
           closeback: "deepRoom33Closeback",
           nativeGround: { tile: "tile3", columns: 8, screenY: 233, originX: 11 },
           kind: "room",
-          width: 1280,
+          width: 1270,
           band: { backY: 256 },
           enemies: [
             { type: "goblinBlue", x: 300, level: 6 },
@@ -3026,7 +3026,7 @@
           cap: 4,
           /* V2 106–147.5s: 84 connected two-axis camera samples, native cap/wall
            * fits (50-room33-*). Entry camera is ~713 screen px right of the
-           * observed minimum. Width lower bound ~1270 world px; use 1280.
+           * observed minimum. Right-limit camera 1283.08 screen px and native floor end support width1270.
            * Later-only damaged pillar states and bunker destruction remain
            * unverified; preserve full initial forms rather than invent HP. */
           props: [
@@ -3347,7 +3347,7 @@
      * 43: world970（审计首批）；33: world630（第五十批）；23: world604（第五十一批）。
      * 13南门world182（第五十二批）；其他格缺证据时保留0.5。
      */
-    northX: { "2,3": 970 / 1280, "2,2": 630 / 1280, "2,1": 604 / 1248, "2,0": 182 / 1264 },
+    northX: { "2,3": 970 / 1280, "2,2": 630 / 1270, "2,1": 604 / 1248, "2,0": 182 / 1264 },
     /* 这一关的上/下门量到在同一条竖轴上（`doorX`）。别的关没有这个证据，不开。 */
     southSharesNorthX: true,
     /*
@@ -3408,7 +3408,7 @@
       8: 1280,
       9: 1248,
       10: 1280,
-      12: 1280,
+      12: 1270,
       13: 1264
     };
     Object.keys(widths).forEach(function (index) {
