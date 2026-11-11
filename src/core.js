@@ -2790,6 +2790,7 @@
         /* 6 —— 路线 24 (3,1)。录像 277–313s；重测宽1120、三桶一岩及两处镜像绿树形态，动态待核。 */
         {
           name: "断墙营地",
+          closeback: "deepRoom24Closeback",
           kind: "corr",
           width: 1120,
           band: { backY: 256 },
@@ -2816,8 +2817,6 @@
             {"piece": "rockFlat", "x": 364, "depth": 0.529, "scale": [0.7, 0.7]},
             {"piece": "treeReference", "x": 584, "depth": 0.449, "scale": [0.71, 0.715]},
             {"piece": "treeReference", "x": 819, "depth": 0.391, "scale": [0.715, 0.71]},
-            { piece: "trunkMossy", x: 20, depth: 2.03 },
-            { piece: "trunkTall", x: 540, depth: 2.03 },
           ],
           scatter: {"solid":0,"barrels":0,"stones":0}
         },

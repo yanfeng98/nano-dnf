@@ -7,6 +7,14 @@ import http from 'node:http';
 import {fileURLToPath} from 'node:url';
 const room=process.env.CAPTURE_ROOM || '42';
 const profiles={
+ '24-closeback':{evidence:'54-room24',col:3,row:1,out:'/tmp/nano-room66/render',times:[277,281,293,307],actorScreenX:80,entryDoor:'W',exit:'E',next:'暗咒猫妖的林地',
+  scope:'native room 24 closeback at four measured cameras; other scenery and physical props remain open',
+  cases:[
+   ['entry-tree',277,'room24Closeback',(340+.01)/1.125,178/1.125,60/1.125,40/1.125,340,180,60,40,40,1500,.97,null,null,true],
+   ['west-tree',281,'room24Closeback',(340+264.35)/1.125,178/1.125,60/1.125,40/1.125,340,180,60,40,40,1500,.97,null,null,true],
+   ['center-tree',293,'room24Closeback',(520+533.25)/1.125,178/1.125,60/1.125,40/1.125,520,180,60,40,40,1500,.97,null,null,true],
+   ['east-tree',307,'room24Closeback',(400+1013.63)/1.125,138/1.125,60/1.125,40/1.125,400,140,60,40,40,1500,.97,null,null,true]
+  ]},
  '14-closeback':{evidence:'53-room14',referenceNames:{261.3:'53-room14-maximum-camera-reference.png'},col:3,row:0,out:'/tmp/nano-room65/render',times:[236.5,260,261.3,265.5],actorScreenX:80,entryDoor:'W',exit:'W',next:'老树回廊',
   scope:'native room 14 closeback at four measured cameras including the eastern limit; other scenery and physical props remain open',
   cases:[
@@ -238,7 +246,7 @@ try{
   const name=t===26.5?'47-room42-entry-reference.png':(profile.referenceNames?.[t] ?? `${evidence}-${t}-reference.png`);
   return [t,fs.readFileSync(path.join(root,'docs/reference-evidence',name)).toString('base64')];
  }));
- const native=Object.fromEntries([['pillar','pillar-pale.png'],['forest','forest.png'],['bunker','goblin-bunker.png'],['tree','tree-reference.png'],['fruitTree','tree-fruit-reference.png'],['closeback','deep-boss-closeback.png'],['entryCloseback','deep-entry-closeback.png'],['room42Closeback','deep-room42-closeback.png'],['room43Closeback','deep-room43-closeback.png'],['room33Closeback','deep-room33-closeback.png'],['room23Closeback','deep-room23-closeback.png'],['room13Closeback','deep-room13-closeback.png'],['room14Closeback','deep-room14-closeback.png']].map(([key,name])=>[key,fs.readFileSync(path.join(root,'assets',name)).toString('base64')]));
+ const native=Object.fromEntries([['pillar','pillar-pale.png'],['forest','forest.png'],['bunker','goblin-bunker.png'],['tree','tree-reference.png'],['fruitTree','tree-fruit-reference.png'],['closeback','deep-boss-closeback.png'],['entryCloseback','deep-entry-closeback.png'],['room42Closeback','deep-room42-closeback.png'],['room43Closeback','deep-room43-closeback.png'],['room33Closeback','deep-room33-closeback.png'],['room23Closeback','deep-room23-closeback.png'],['room13Closeback','deep-room13-closeback.png'],['room14Closeback','deep-room14-closeback.png'],['room24Closeback','deep-room24-closeback.png']].map(([key,name])=>[key,fs.readFileSync(path.join(root,'assets',name)).toString('base64')]));
  const faces=await page.evaluate(async({reference,images,native,cases})=>{
   async function picture(url){const im=new Image();im.src=url;await im.decode();return im;}
   function canvas(w,h){const c=document.createElement('canvas');c.width=w;c.height=h;return c.getContext('2d');}

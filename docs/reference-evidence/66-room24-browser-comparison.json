@@ -1,0 +1,66 @@
+[
+  {
+    "label": "entry-tree",
+    "time": 277,
+    "minPixels": 1500,
+    "threshold": 0.97,
+    "nativeMask": {
+      "rows": 40,
+      "columns": 60,
+      "alphaOnly": true,
+      "box": null
+    },
+    "cosine": 0.9922459453598086,
+    "dx": 0,
+    "dy": 0,
+    "pixels": 2400
+  },
+  {
+    "label": "west-tree",
+    "time": 281,
+    "minPixels": 1500,
+    "threshold": 0.97,
+    "nativeMask": {
+      "rows": 40,
+      "columns": 60,
+      "alphaOnly": true,
+      "box": null
+    },
+    "cosine": 0.9937367828517398,
+    "dx": 0,
+    "dy": 0,
+    "pixels": 2180
+  },
+  {
+    "label": "center-tree",
+    "time": 293,
+    "minPixels": 1500,
+    "threshold": 0.97,
+    "nativeMask": {
+      "rows": 40,
+      "columns": 60,
+      "alphaOnly": true,
+      "box": null
+    },
+    "cosine": 0.9940302536506749,
+    "dx": 0,
+    "dy": 0,
+    "pixels": 1898
+  },
+  {
+    "label": "east-tree",
+    "time": 307,
+    "minPixels": 1500,
+    "threshold": 0.97,
+    "nativeMask": {
+      "rows": 40,
+      "columns": 60,
+      "alphaOnly": true,
+      "box": null
+    },
+    "cosine": 0.9878008721102874,
+    "dx": 0,
+    "dy": 0,
+    "pixels": 2400
+  }
+]

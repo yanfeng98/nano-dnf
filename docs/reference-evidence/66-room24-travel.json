@@ -1,0 +1,13 @@
+{
+  "room": "暗咒猫妖的林地",
+  "departure": {
+    "x": 1016,
+    "z": 125,
+    "exit": "E",
+    "sideThreshold": 60,
+    "depthThreshold": 46,
+    "sideDistance": 80,
+    "northDistance": 125
+  },
+  "validationScope": "native room 24 closeback at four measured cameras; other scenery and physical props remain open"
+}
