@@ -3055,13 +3055,13 @@
           ],
           scatter: {"solid":0,"barrels":0,"stones":0}
         },
-        /* 13 —— 路线 13 (2,0)。录像 190–235 / 266–271s；联合重测宽1264、15柱4桶，南门world182。 */
+        /* 13 —— 路线 13 (2,0)。录像 190–235 / 266–271s；联合重测宽1248.75、15柱4桶，南门world182。 */
         {
           name: "老树回廊",
           closeback: "deepRoom13Closeback",
           nativeGround: { tile: "tile3", columns: 8, screenY: 233, originX: 41 },
           kind: "corr",
-          width: 1264,
+          width: 1248.75,
           band: { backY: 256 },
           enemies: [
             { type: "goblinRed", x: 350, level: 6 },
@@ -3074,7 +3074,7 @@
           cap: 4,
           /* V2 190–235.5 and 266.5–271.5s: joint camera graph, 103 samples.
            * Native caps identify 15 pillars and 4 barrels. Width lower bound
-           * 1248.85 world px -> use1264; south axis world182. Later damaged
+           * 1248.85 world px; native ground and right camera support1248.75; south axis world182. Later damaged
            * shapes do not establish initial states; SC-17 remains open. */
           props: [
             { piece: "pillarPale", x: 243, depth: 1.462 },
@@ -3349,7 +3349,7 @@
      * 43: world970（审计首批）；33: world630（第五十批）；23: world604（第五十一批）。
      * 13南门world182（第五十二批）；其他格缺证据时保留0.5。
      */
-    northX: { "2,3": 970 / 1280, "2,2": 630 / 1270, "2,1": 604 / 1245.25, "2,0": 182 / 1264 },
+    northX: { "2,3": 970 / 1280, "2,2": 630 / 1270, "2,1": 604 / 1245.25, "2,0": 182 / 1248.75 },
     /* 这一关的上/下门量到在同一条竖轴上（`doorX`）。别的关没有这个证据，不开。 */
     southSharesNorthX: true,
     /*
@@ -3411,7 +3411,7 @@
       9: 1245.25,
       10: 1280,
       12: 1270,
-      13: 1264
+      13: 1248.75
     };
     Object.keys(widths).forEach(function (index) {
       var room = STAGES.mirkwooddeep.rooms[Number(index)];

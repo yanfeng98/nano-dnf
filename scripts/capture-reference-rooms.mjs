@@ -27,7 +27,7 @@ const profiles={
    ['east-limit-floor',261.3,'forest',672+((420+791.6)/1.125)%224,380+(280-233)/1.125,48/1.125,32/1.125,420,280,48,32,32,1400,.55,null,null,true,13],
    ['return-floor',265.5,'forest',672+(180+.63)/1.125,380+(376-233)/1.125,48/1.125,32/1.125,180,376,48,32,32,1400,.6,null,null,true,13]
   ]},
- '13-closeback':{evidence:'52-room13',col:2,row:0,out:'/tmp/nano-room64/render',times:[190,210,235.5,271.5],actorScreenX:80,entryDoor:'S',exit:'E',next:'残柱祭坛',extraSouth:'投掷手坡',
+ '13-closeback':{cameraTolerance:1,evidence:'52-room13',col:2,row:0,out:'/tmp/nano-room64/render',times:[190,210,235.5,271.5],actorScreenX:80,entryDoor:'S',exit:'E',next:'残柱祭坛',extraSouth:'投掷手坡',
   scope:'native room 13 closeback at four measured cameras including a revisit; other scenery and physical props remain open',
   cases:[
    ['entry-tree',190,'room13Closeback',520/1.125,178/1.125,60/1.125,40/1.125,520,180,60,40,40,1500,.97,null,null,true],
@@ -132,7 +132,7 @@ const profiles={
   ]},
  '14':{batch:53,col:3,row:0,out:'/tmp/nano-room53/render',times:[236.5,260,265.5],next:'老树回廊',exit:'W',entryDoor:'W',
   scope:'camera capacity and west-door keyboard only; tree and gate artwork remain unverified',cases:[]},
- '13':{batch:52,col:2,row:0,out:'/tmp/nano-room52/render',times:[190,210,235.5,268,271.5],next:'残柱祭坛',exit:'E',entryDoor:'S',extraSouth:'投掷手坡',
+ '13':{cameraTolerance:1,batch:52,col:2,row:0,out:'/tmp/nano-room52/render',times:[190,210,235.5,268,271.5],next:'残柱祭坛',exit:'E',entryDoor:'S',extraSouth:'投掷手坡',
   cases:[
    ['entry-back-cap',190,'pillar',0,0,44,133,358,153,49,150,30,300,.97],
    ['entry-middle-cap',190,'pillar',0,0,44,133,402,190,49,150,30,300,.97],

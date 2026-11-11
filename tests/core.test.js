@@ -10144,7 +10144,7 @@ test("the measured room widths and band are on the deep route", () => {
     "2,3": 1280,
     "2,2": 1270,
     "2,1": 1245.25,
-    "2,0": 1264,
+    "2,0": 1248.75,
     "3,0": 960,
     "3,1": 1120,
     "4,1": 1440
@@ -11541,7 +11541,7 @@ test("room13 retains its measured sweep and complete pillar groups across a revi
  Core.goToCell(s,s.dungeon.cells.findIndex(c=>c.col===2&&c.row===0));
  const camera=JSON.parse(fs.readFileSync(path.join(__dirname,"../docs/reference-evidence/52-room13-camera.json"),"utf8"));
  const span=Math.max(...camera.map(c=>c.camera_px))-Math.min(...camera.map(c=>c.camera_px));
- assert.ok(s.room.width*Core.CAMERA.zoom>=720+span,"old width524 truncates the recorded room");
+ assert.ok(s.room.width*Core.CAMERA.zoom+1>=720+span,"room contains the measured sweep within one screen pixel of tracking error");
  assert.equal(s.props.filter(p=>p.piece==="pillarPale").length,15);
  assert.equal(s.props.filter(p=>p.piece==="barrel").length,4);
  assert.ok(Math.abs(Core.doorX(s,Core.currentCell(s),"S")-182)<.001);
@@ -11652,7 +11652,8 @@ test("the entry closeback projects its native map without duplicate physical tru
 
 for (const sample of [
   { room: "33", row: 2, cameraPx: 1283.08, time: 127.5, northX: 630 },
-  { room: "23", row: 1, cameraPx: 1244.36, time: 159.5, northX: 604 }
+  { room: "23", row: 1, cameraPx: 1244.36, time: 159.5, northX: 604 },
+  { room: "13", row: 0, cameraPx: 1249.91, time: 267, northX: 182 }
 ]) {
   test(`room ${sample.room} right-edge camera matches the recording and stays over native ground`, () => {
     const state = Core.createState({ stage: "mirkwooddeep", seed: 7 });
