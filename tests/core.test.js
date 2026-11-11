@@ -10139,14 +10139,14 @@ test("the measured room widths and band are on the deep route", () => {
      * 41 房 **560**（不是下界 456，2026-10-27）：22s 帧房里还有活着的青哥布林，
      * 东门却已经画在右墙上 —— 反推房间至少 543 世界px（`docs/adr/0063`）。
      */
-    "0,3": 960,
-    "1,3": 1280,
-    "2,3": 1280,
+    "0,3": 958.55,
+    "1,3": 1278.06,
+    "2,3": 1278.06,
     "2,2": 1270,
     "2,1": 1245.25,
     "2,0": 1248.75,
-    "3,0": 960,
-    "3,1": 1120,
+    "3,0": 958.55,
+    "3,1": 1118.3,
     "4,1": 1437.8
   };
   const state = Core.createState({ stage: "mirkwooddeep", seed: 7 });
@@ -11573,7 +11573,7 @@ test("room24 contains its own pre-boss camera span and measured prop groups",()=
  const s=Core.createState({stage:"mirkwooddeep",seed:1});Core.goToCell(s,s.dungeon.cells.findIndex(c=>c.col===3&&c.row===1));
  const c=JSON.parse(fs.readFileSync(path.join(__dirname,"../docs/reference-evidence/54-room24-camera.json"),"utf8"));
  assert.equal(c[c.length-1].t,311,"boss-room frames must not inflate this room");
- assert.ok(s.room.width*Core.CAMERA.zoom>=720+Math.max(...c.map(q=>q.camera_px))-Math.min(...c.map(q=>q.camera_px)));
+ assert.ok(s.room.width*Core.CAMERA.zoom+1>=720+Math.max(...c.map(q=>q.camera_px))-Math.min(...c.map(q=>q.camera_px)), "camera sweep within one screen pixel of tracking error");
  assert.equal(s.props.filter(p=>p.piece==="barrel").length,3);
  assert.equal(s.props.filter(p=>p.piece==="rockFlat").length,1);
  assert.deepEqual(s.props.filter(p=>p.piece==="treeReference").map(p=>p.x),[584,819]);
@@ -11655,7 +11655,12 @@ for (const sample of [
   { room: "33", row: 2, cameraPx: 1283.08, time: 127.5, northX: 630 },
   { room: "23", row: 1, cameraPx: 1244.36, time: 159.5, northX: 604 },
   { room: "13", row: 0, cameraPx: 1249.91, time: 267, northX: 182 },
-  { room: "25", col: 4, row: 1, cameraPx: 1547.83, time: 366 }
+  { room: "25", col: 4, row: 1, cameraPx: 1547.83, time: 366 },
+  { room: "41", col: 0, row: 3, cameraPx: 791.92, time: 25.5 },
+  { room: "42", col: 1, row: 3, cameraPx: 1295.73, time: 73.5 },
+  { room: "43", col: 2, row: 3, cameraPx: 1296.06, time: 87.75, northX: 970 },
+  { room: "14", col: 3, row: 0, cameraPx: 791.6, time: 261.3 },
+  { room: "24", col: 3, row: 1, cameraPx: 1044.03, time: 309.2 }
 ]) {
   test(`room ${sample.room} right-edge camera matches the recording and stays over native ground`, () => {
     const state = Core.createState({ stage: "mirkwooddeep", seed: 7 });

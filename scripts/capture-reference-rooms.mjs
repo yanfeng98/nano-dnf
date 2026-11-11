@@ -7,7 +7,7 @@ import http from 'node:http';
 import {fileURLToPath} from 'node:url';
 const room=process.env.CAPTURE_ROOM || '42';
 const profiles={
- '24-closeback':{evidence:'54-room24',col:3,row:1,out:'/tmp/nano-room66/render',times:[277,281,293,307],actorScreenX:80,entryDoor:'W',exit:'E',next:'暗咒猫妖的林地',
+ '24-closeback':{cameraTolerance:1,evidence:'54-room24',col:3,row:1,out:'/tmp/nano-room66/render',times:[277,281,293,307],actorScreenX:80,entryDoor:'W',exit:'E',next:'暗咒猫妖的林地',
   scope:'native room 24 closeback at four measured cameras; other scenery and physical props remain open',
   cases:[
    ['entry-tree',277,'room24Closeback',(340+.01)/1.125,178/1.125,60/1.125,40/1.125,340,180,60,40,40,1500,.97,null,null,true],
@@ -68,7 +68,7 @@ const profiles={
    ['center-floor',133,'forest',672+((540+554.49+12.375)/1.125)%224,380+(396-233)/1.125,36/1.125,24/1.125,540,396,36,24,24,800,.6,null,null,true,14],
    ['west-floor',146,'forest',672+((180+111.38+12.375)/1.125)%224,380+(396-233)/1.125,36/1.125,24/1.125,180,396,36,24,24,800,.6,null,null,true,14]
   ]},
- '43-closeback':{evidence:'02-room43',referenceNames:{74.25:'02-room43-074.25.png',90.25:'02-room43-090.25.png',104.25:'02-room43-104.25.png'},col:2,row:3,out:'/tmp/nano-room61/render',times:[74.25,90.25,104.25],actorScreenX:80,exit:'N',next:'藤蔓窄道',
+ '43-closeback':{cameraTolerance:1,evidence:'02-room43',referenceNames:{74.25:'02-room43-074.25.png',90.25:'02-room43-090.25.png',104.25:'02-room43-104.25.png'},col:2,row:3,out:'/tmp/nano-room61/render',times:[74.25,90.25,104.25],actorScreenX:80,exit:'N',next:'藤蔓窄道',
   scope:'native room 43 closeback at three measured cameras; physical props and other scenery layers remain open',
   cases:[
    ['west-tree',74.25,'room43Closeback',280/1.125,178/1.125,60/1.125,40/1.125,280,180,60,40,40,1500,.97,null,null,true],
@@ -134,7 +134,7 @@ const profiles={
    ['right-chest-left',330,'forest',623,1874,86,56,194,247,95,64,22,100,.95],
    ['right-chest-right',330,'forest',623,1874,86,56,291,247,95,64,22,100,.95]
   ]},
- '24':{batch:54,col:3,row:1,out:'/tmp/nano-room54/render',times:[277,281,293,307],actorScreenX:80,next:'暗咒猫妖的林地',exit:'E',entryDoor:'W',
+ '24':{cameraTolerance:1,batch:54,col:3,row:1,out:'/tmp/nano-room54/render',times:[277,281,293,307],actorScreenX:80,next:'暗咒猫妖的林地',exit:'E',entryDoor:'W',
   cases:[
    ['front-barrel',277,'forest',560,1874,63,78,472,370,72,89,22,100,.95],
    ['middle-barrel',277,'forest',560,1874,63,78,428,296,70,86,22,100,.95],
@@ -210,13 +210,13 @@ const server=http.createServer((req,res)=>{
  if(process.env.ROOM_BASELINE==='1'&&room==='41'&&file===path.join(root,'src/core.js')){
   let source=fs.readFileSync(file,'utf8');const start=source.indexOf('/* 0 —— 路线 41'),end=source.indexOf('/* 1 —— 路线 25 Boss',start);
   assert.ok(start>=0&&end>start);let entry=source.slice(start,end);
-  assert.ok(entry.includes('width: 960'));entry=entry.replace('width: 960','width: 560');
+  assert.ok(entry.includes('width: 958.55'));entry=entry.replace('width: 958.55','width: 560');
   const a=entry.indexOf('          props: ['),b=entry.indexOf('          scatter:',a);assert.ok(a>=0&&b>a);
   const oldProps=[{piece:'trunkTall',x:81,depth:2.03},{piece:'trunkMossy',x:228,depth:2.03},{piece:'trunkBent',x:374,depth:2.03},
    {piece:'rockFlat',x:242,depth:1.79,scale:[.34,.34]},{piece:'barrel',x:210,depth:.46},{piece:'barrel',x:378,depth:-.29},{piece:'fallenTrunk',x:304,depth:-.58}];
   entry=entry.slice(0,a)+'          props: '+JSON.stringify(oldProps)+',\n'+entry.slice(b);
   source=source.slice(0,start)+entry+source.slice(end);
-  assert.equal(source.split('      0: 960,').length,2);source=source.replace('      0: 960,','      0: 560,');
+  assert.equal(source.split('      0: 958.55,').length,2);source=source.replace('      0: 958.55,','      0: 560,');
   fs.writeFileSync(path.join(out,'baseline-core.js'),source);res.end(source);return;
  }
  fs.createReadStream(file).pipe(res);
@@ -336,6 +336,23 @@ try{
  }
  for(const face of faces)assert.ok(face.pixels>face.minPixels&&face.cosine>face.threshold&&(!face.maxError||face.error<face.maxError),`${face.label} native face matches its measured source anchor`);
 
+ // Drive the normal camera at the eastern limit, then verify the rendered
+ // viewport is wholly backed by the finite native tile row (batch81).
+ const edge=await page.evaluate(()=>{
+  const C=window.DNFCore,s=window.nanoDnf.getState();
+  s.intro=null;s.transition=s.titleT=0;s.player.invuln=999;
+  s.player.x=C.roomRight(s)-s.player.width/2;s.player.z=125;
+  s.player.vx=s.player.vz=0;C.runFrames(s,2,{});
+  const g=s.room.nativeGround;
+  const nativeRight=((g.tiles?g.tiles.length:g.columns)*224-(g.originX||0))*1.125;
+  return {room:s.room.name,width:s.room.width,cameraPx:s.camera.x*C.CAMERA.zoom,
+   viewportRight:s.camera.x*C.CAMERA.zoom+C.VIEW.width,nativeRight};
+ });
+ assert.ok(edge.viewportRight<=edge.nativeRight,'eastern viewport must stay on native ground');
+ assert.ok(Math.abs(edge.cameraPx-Math.max(...cameras.map(c=>c.camera_px)))<=1,'eastern camera matches reference within one pixel');
+ await page.waitForTimeout(100);
+ await page.locator('#stage').screenshot({path:path.join(out,'right-edge.png')});
+ fs.writeFileSync(path.join(out,'right-edge.json'),JSON.stringify(edge,null,2)+'\n');
  if(profile.boss){
   await page.evaluate(()=>{const s=window.nanoDnf.getState();s.player.x=1000;s.player.z=125;s.player.invuln=100;s.player.vx=s.player.vz=0;s.transition=0;s.intro=null;});
   await page.keyboard.press('p');await page.keyboard.down('ArrowRight');

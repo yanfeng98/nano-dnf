@@ -2611,9 +2611,9 @@
           name: "铁门入口",
           kind: "room",
           // Ground-only graph and independent native props reject the older
-          // tree-layer estimate. 960 contains the ~959-world-pixel bound.
+          // tree-layer estimate. Six native columns end at 1512 screen px; width 958.55 (batch81).
           // Do not stretch existing enemy/tree coordinates with the new width.
-          width: 960,
+          width: 958.55,
           closeback: "deepEntryCloseback",
           nativeGround: { tile: "tile3", columns: 6, screenY: 233 },
           band: { backY: 256 },
@@ -2771,14 +2771,14 @@
             { piece: "barrel", x: 824, depth: 0.38 },
           ]
         },
-        /* 5 —— 路线 14 (3,0)。录像 236–265s；密集取样双门核验下界约958，采用960；树/敌人仍待核。 */
+        /* 5 —— 路线 14 (3,0)。录像 236–265s；密集取样双门核验，六列原生地面校准宽958.55（第81批）；树/敌人仍待核。 */
         {
           name: "残柱祭坛",
           closeback: "deepRoom14Closeback",
           nativeGround: { tile: "tile3", columns: 6, screenY: 233 },
           kind: "corr",
           // 236.5–265.5s at 10Hz, 128 independent gate-texture checks.
-          width: 960,
+          width: 958.55,
           band: { backY: 256 },
           enemies: [
             { type: "deepElite", x: 350, level: 6 },
@@ -2790,13 +2790,13 @@
           props: [],
           scatter: {"solid":0,"barrels":0,"stones":0}
         },
-        /* 6 —— 路线 24 (3,1)。录像 277–313s；重测宽1120、三桶一岩及两处镜像绿树形态，动态待核。 */
+        /* 6 —— 路线 24 (3,1)。录像 277–313s；七列原生地面校准宽1118.3（第81批）、三桶一岩及两处镜像绿树形态，动态待核。 */
         {
           name: "断墙营地",
           closeback: "deepRoom24Closeback",
           nativeGround: { tiles: ["tile3", "tile2", "tile0", "tile0", "tile1", "tile3", "tile3"], screenY: 233 },
           kind: "corr",
-          width: 1120,
+          width: 1118.3,
           band: { backY: 256 },
           enemies: [
             { type: "goblinRed", x: 250, level: 6 },
@@ -2852,13 +2852,13 @@
           ]
         },
         /* 8 — 路线 43 (2,3)。V2 74.25–105.25s；连续特征图约束镜头跨度1296屏幕px。
-         * 房宽取1280世界px（仍为下界）；原684漏掉大量镜头移动。见reference-video-audit。 */
+         * 原生八列地面终点2016屏幕px，房宽校准为1278.06世界px（第81批）；原684漏掉大量镜头移动。见reference-video-audit。 */
         {
           name: "猫妖岔路",
           closeback: "deepRoom43Closeback",
           nativeGround: { tile: "tile3", columns: 8, screenY: 233 },
           kind: "corr",
-          width: 1280,
+          width: 1278.06,
           northGateBottom: 316,
           band: { backY: 256 },
           enemies: [
@@ -2939,13 +2939,13 @@
           ],
           scatter: {"solid":0,"barrels":0,"stones":0}
         },
-        /* 10 — 路线42 (1,3)。28–73.5s重测：房宽下界约1278世界px，12柱落点与两箱。其余布景待核。 */
+        /* 10 — 路线42 (1,3)。28–73.5s重测，原生八列地面校准房宽1278.06（第81批），12柱落点与两箱。其余布景待核。 */
         {
           name: "宝箱浅沟",
           closeback: "deepRoom42Closeback",
           nativeGround: { tiles: ["tile3", "tile2", "tile0", "tile0", "tile0", "tile0", "tile0", "tile0"], screenY: 233 },
           kind: "corr",
-          width: 1280,
+          width: 1278.06,
           band: { backY: 256 },
           enemies: [
             { type: "throwerElite", x: 250, depth: 0.35, level: 6 },
@@ -3352,7 +3352,7 @@
      * 43: world970（审计首批）；33: world630（第五十批）；23: world604（第五十一批）。
      * 13南门world182（第五十二批）；其他格缺证据时保留0.5。
      */
-    northX: { "2,3": 970 / 1280, "2,2": 630 / 1270, "2,1": 604 / 1245.25, "2,0": 182 / 1248.75 },
+    northX: { "2,3": 970 / 1278.06, "2,2": 630 / 1270, "2,1": 604 / 1245.25, "2,0": 182 / 1248.75 },
     /* 这一关的上/下门量到在同一条竖轴上（`doorX`）。别的关没有这个证据，不开。 */
     southSharesNorthX: true,
     /*
@@ -3406,13 +3406,13 @@
    */
   (function fitDeepRouteRooms() {
     var widths = {
-      0: 960,
+      0: 958.55,
       1: 1437.8,
-      5: 960,
-      6: 1120,
-      8: 1280,
+      5: 958.55,
+      6: 1118.3,
+      8: 1278.06,
       9: 1245.25,
-      10: 1280,
+      10: 1278.06,
       12: 1270,
       13: 1248.75
     };

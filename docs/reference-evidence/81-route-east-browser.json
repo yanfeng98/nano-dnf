@@ -1,0 +1,78 @@
+{
+  "unitTests": 400,
+  "browserGroups": 27,
+  "rows": [
+    {
+      "roomId": "41",
+      "room": "铁门入口",
+      "width": 958.55,
+      "cameraPx": 791.9985119047617,
+      "viewportRight": 1511.9985119047617,
+      "nativeRight": 1512
+    },
+    {
+      "roomId": "42",
+      "room": "宝箱浅沟",
+      "width": 1278.06,
+      "cameraPx": 1295.9874999999997,
+      "viewportRight": 2015.9874999999997,
+      "nativeRight": 2016
+    },
+    {
+      "roomId": "43",
+      "room": "猫妖岔路",
+      "width": 1278.06,
+      "cameraPx": 1295.9874999999997,
+      "viewportRight": 2015.9874999999997,
+      "nativeRight": 2016
+    },
+    {
+      "roomId": "33",
+      "room": "藤蔓窄道",
+      "width": 1270,
+      "cameraPx": 1283.2738095238094,
+      "viewportRight": 2003.2738095238094,
+      "nativeRight": 2003.625
+    },
+    {
+      "roomId": "23",
+      "room": "投掷手坡",
+      "width": 1245.25,
+      "cameraPx": 1244.2336309523807,
+      "viewportRight": 1964.2336309523807,
+      "nativeRight": 1964.25
+    },
+    {
+      "roomId": "13",
+      "room": "老树回廊",
+      "width": 1248.75,
+      "cameraPx": 1249.7544642857142,
+      "viewportRight": 1969.7544642857142,
+      "nativeRight": 1969.875
+    },
+    {
+      "roomId": "14",
+      "room": "残柱祭坛",
+      "width": 958.55,
+      "cameraPx": 791.9985119047617,
+      "viewportRight": 1511.9985119047617,
+      "nativeRight": 1512
+    },
+    {
+      "roomId": "24",
+      "room": "断墙营地",
+      "width": 1118.3,
+      "cameraPx": 1043.9851190476188,
+      "viewportRight": 1763.9851190476188,
+      "nativeRight": 1764
+    },
+    {
+      "roomId": "25",
+      "room": "暗咒猫妖的林地",
+      "width": 1437.8,
+      "cameraPx": 1547.9583333333333,
+      "viewportRight": 2267.958333333333,
+      "nativeRight": 2268
+    }
+  ]
+}

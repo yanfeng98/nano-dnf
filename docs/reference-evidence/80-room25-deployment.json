@@ -1,0 +1,12 @@
+{
+  "commit": "2fb979b",
+  "deployment": "https://github.com/yanfeng98/nano-dnf/actions/runs/43055822571",
+  "playUrl": "https://luyf-lemon-love.space/nano-dnf/",
+  "build": "success",
+  "deploy": "success",
+  "localLiveSmoke": "passed: deployed bytes match checkout, page boots, no problems",
+  "unitTests": 395,
+  "browserGroups": 27,
+  "manualAcceptance": "pending",
+  "remaining": "Other room boundaries, SC-17/18/19, character, combat, experience/results, HUD/town/audio and coverage remain open."
+}

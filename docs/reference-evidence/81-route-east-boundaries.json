@@ -1,0 +1,81 @@
+{
+  "cameraMeasurementTolerancePx": 1,
+  "rows": [
+    {
+      "room": "41",
+      "referenceSource": "47-room41-camera.json",
+      "referenceMaximum": {
+        "t": 25.5,
+        "camera_px": 791.92
+      },
+      "previousWidth": 960,
+      "previousCameraPx": 794.2857142857142,
+      "width": 958.55,
+      "cameraPx": 791.9985119047617,
+      "viewportRight": 1511.9985119047617,
+      "nativeFloorRight": 1512
+    },
+    {
+      "room": "42",
+      "referenceSource": "46-room42-camera.json",
+      "referenceMaximum": {
+        "t": 73.5,
+        "camera_px": 1295.73
+      },
+      "previousWidth": 1280,
+      "previousCameraPx": 1299.047619047619,
+      "width": 1278.06,
+      "cameraPx": 1295.9874999999997,
+      "viewportRight": 2015.9874999999997,
+      "nativeFloorRight": 2016
+    },
+    {
+      "room": "43",
+      "referenceSource": "02-room43-camera.json",
+      "referenceMaximum": {
+        "t": 87.75,
+        "camera_px": 1296.06
+      },
+      "previousWidth": 1280,
+      "previousCameraPx": 1299.047619047619,
+      "width": 1278.06,
+      "cameraPx": 1295.9874999999997,
+      "viewportRight": 2015.9874999999997,
+      "nativeFloorRight": 2016,
+      "northDoorX": 970
+    },
+    {
+      "room": "14",
+      "referenceSource": "53-room14-camera.json",
+      "referenceMaximum": {
+        "t": 261.3,
+        "camera_px": 791.6,
+        "relative_camera_px": 791.45,
+        "camera_y_px": 0.68
+      },
+      "previousWidth": 960,
+      "previousCameraPx": 794.2857142857142,
+      "width": 958.55,
+      "cameraPx": 791.9985119047617,
+      "viewportRight": 1511.9985119047617,
+      "nativeFloorRight": 1512
+    },
+    {
+      "room": "24",
+      "referenceSource": "54-room24-camera.json",
+      "referenceMaximum": {
+        "t": 309.2,
+        "camera_px": 1044.03,
+        "relative_camera_px": 1044.02,
+        "camera_y_px": 0.12
+      },
+      "previousWidth": 1120,
+      "previousCameraPx": 1046.6666666666665,
+      "width": 1118.3,
+      "cameraPx": 1043.9851190476188,
+      "viewportRight": 1763.9851190476188,
+      "nativeFloorRight": 1764
+    }
+  ],
+  "limits": "Camera capacity and finite native floor coverage only. Other scenery, interactions, actors and combat remain open."
+}

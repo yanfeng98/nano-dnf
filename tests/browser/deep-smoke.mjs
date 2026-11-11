@@ -137,7 +137,7 @@ async function main() {
     if (!entry.types.includes("goblinRed")) fail("the entry room has no red goblin");
     if (entry.types.includes("cat")) fail("the entry room should be red goblins, not cats");
     // Batch47: foreground tracking across the full entry/exit segment gives ~959 lower bound.
-    if (entry.width !== 960) fail(`entry room width is ${entry.width}, not 960`);
+    if (entry.width !== 958.55) fail(`entry room width is ${entry.width}, not 958.55`);
     if (entry.band !== 375) fail(`entry band is ${entry.band}, not 375`);
     const wantedRoute = [
       "0,3=铁门入口",
