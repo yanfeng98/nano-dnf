@@ -56,7 +56,10 @@ const profiles={
   cases:[
    ['west-tree',74.25,'room43Closeback',280/1.125,178/1.125,60/1.125,40/1.125,280,180,60,40,40,1500,.97,null,null,true],
    ['east-wall',90.25,'room43Closeback',(520+1200.42)/1.125,138/1.125,60/1.125,40/1.125,520,140,60,40,40,1500,.97,null,null,true],
-   ['north-gate-tree',104.25,'room43Closeback',(100+1047.41)/1.125,58/1.125,60/1.125,40/1.125,100,60,60,40,40,1500,.97,null,null,true]
+   ['north-gate-tree',104.25,'room43Closeback',(100+1047.41)/1.125,58/1.125,60/1.125,40/1.125,100,60,60,40,40,1500,.97,null,null,true],
+   ['west-floor',74.25,'forest',672+216/1.125,380+(420-233)/1.125,36/1.125,24/1.125,216,420,36,24,24,800,.6,null,null,true,14],
+   ['east-floor',90.25,'forest',672+((372+1200.42)/1.125)%224,380+(388-233)/1.125,36/1.125,24/1.125,372,388,36,24,24,800,.6,null,null,true,14],
+   ['return-floor',104.25,'forest',672+((528+1047.41)/1.125)%224,380+(388-233)/1.125,36/1.125,24/1.125,528,388,36,24,24,800,.6,null,null,true,14]
   ]},
  '42-closeback':{batch:60,col:1,row:3,out:'/tmp/nano-room60/render',times:[28,72.5,73.5],actorScreenX:80,next:'猫妖岔路',
   scope:'native room 42 closeback at three measured cameras; physical props, other layers and scenery lifecycle remain open',

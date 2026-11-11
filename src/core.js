@@ -2854,6 +2854,7 @@
         {
           name: "猫妖岔路",
           closeback: "deepRoom43Closeback",
+          nativeGround: { tile: "tile3", columns: 8, screenY: 233 },
           kind: "corr",
           width: 1280,
           northGateBottom: 316,

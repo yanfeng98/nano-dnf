@@ -1,0 +1,56 @@
+[
+  {
+    "label": "west-floor",
+    "time": 74.25,
+    "minPixels": 800,
+    "threshold": 0.6,
+    "nativeMask": {
+      "rows": 24,
+      "columns": 36,
+      "alphaOnly": true,
+      "box": null
+    },
+    "cosine": 0.7810827326979681,
+    "dx": 0,
+    "dy": 0,
+    "pixels": 864,
+    "error": 9.316722155801099,
+    "maxError": 14
+  },
+  {
+    "label": "east-floor",
+    "time": 90.25,
+    "minPixels": 800,
+    "threshold": 0.6,
+    "nativeMask": {
+      "rows": 24,
+      "columns": 36,
+      "alphaOnly": true,
+      "box": null
+    },
+    "cosine": 0.8734662345629435,
+    "dx": 0,
+    "dy": 0,
+    "pixels": 864,
+    "error": 7.276797007705933,
+    "maxError": 14
+  },
+  {
+    "label": "return-floor",
+    "time": 104.25,
+    "minPixels": 800,
+    "threshold": 0.6,
+    "nativeMask": {
+      "rows": 24,
+      "columns": 36,
+      "alphaOnly": true,
+      "box": null
+    },
+    "cosine": 0.8880214672976449,
+    "dx": 0,
+    "dy": 0,
+    "pixels": 864,
+    "error": 8.01226394078416,
+    "maxError": 14
+  }
+]
