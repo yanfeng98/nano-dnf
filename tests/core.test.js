@@ -11729,3 +11729,30 @@ test("the measured entry midground uses native scale and ninety-percent camera s
   assert.ok(Math.abs(moved[0][6] - start[0][6] - 20) < 1e-8,
     "compensate ten percent of the world camera so the midground scrolls at ninety percent");
 });
+
+test('the reference deep forest is not darkened by the custom vignette', () => {
+  function darkMasks(stage) {
+    const state = Core.createState({ stage, seed: 7 });
+    const ctx = recordingContext([]);
+    let count = 0;
+    ctx.createRadialGradient = () => ({ stops: [], addColorStop(position, color) {
+      this.stops.push(color);
+    } });
+    ctx.fillRect = (x, y, width, height) => {
+      const fill = ctx.fillStyle;
+      if (x > Core.VIEW.left || y > 0 || width < Core.VIEW.width || height < Core.VIEW.height ||
+          !fill || !fill.stops) return;
+      const dark = fill.stops.some(color => {
+        const rgba = color.match(/^rgba\(([^)]+)\)$/);
+        if (!rgba) return false;
+        const values = rgba[1].split(',').map(Number);
+        return Math.max(...values.slice(0, 3)) < 16 && values[3] > 0;
+      });
+      if (dark) count++;
+    };
+    Render.render(ctx, state, { sprites: { forest: {} } });
+    return count;
+  }
+  assert.equal(darkMasks('mirkwooddeep'), 0);
+  assert.equal(darkMasks('mirkwood'), 1, 'retain the unrelated renderer behavior');
+});

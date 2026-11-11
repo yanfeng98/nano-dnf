@@ -1,0 +1,9 @@
+{
+  "commit": "67bf5ee",
+  "deployment": "https://github.com/yanfeng98/nano-dnf/actions/runs/43062055404",
+  "unitTests": 404,
+  "browserGroups": 27,
+  "localLiveSmoke": "passed: published resources match checkout, page boots without problems",
+  "ciPostDeploy": "passed: workflow 43062055404 completed success",
+  "manualAcceptance": "pending"
+}

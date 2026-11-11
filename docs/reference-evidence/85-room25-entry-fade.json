@@ -1,0 +1,66 @@
+{
+  "time": 312,
+  "stableTime": 312.5,
+  "blackOpacity": 0.264,
+  "regions": [
+    {
+      "name": "left-frame",
+      "roi": [
+        0,
+        455,
+        34,
+        85
+      ],
+      "pixels": 2248,
+      "brightness_scale": 0.7373545138414358,
+      "rmse": 2.5842855126127677
+    },
+    {
+      "name": "right-frame",
+      "roi": [
+        686,
+        455,
+        34,
+        85
+      ],
+      "pixels": 2576,
+      "brightness_scale": 0.7350113231909126,
+      "rmse": 2.530155645320389
+    },
+    {
+      "name": "center-frame",
+      "roi": [
+        300,
+        477,
+        95,
+        63
+      ],
+      "pixels": 4481,
+      "brightness_scale": 0.7263596161669869,
+      "rmse": 4.962070109431114
+    },
+    {
+      "name": "map-frame",
+      "roi": [
+        591,
+        29,
+        115,
+        12
+      ],
+      "pixels": 879,
+      "brightness_scale": 0.7381350387207801,
+      "rmse": 2.853227823838347
+    }
+  ],
+  "sources": [
+    {
+      "file": "58-room25-closeback-312-reference.png",
+      "sha256": "df73523e6b6fd12df225b79b4f9acb37e5f50b617d71986d19661cd96e645609"
+    },
+    {
+      "file": "85-room25-312.5-fade-reference.png",
+      "sha256": "0e5b7d0e30099f49d84a9c8ac598c448e1e2e2c4ea652942bd477900cbf71144"
+    }
+  ],
+  "limits": "Recorded entry fade only. This calibrates the captured reference state, not a permanent world tint or a change to transition duration."
+}

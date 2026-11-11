@@ -1,0 +1,8 @@
+{
+  "unitTests": 407,
+  "browserGroups": 27,
+  "baseline": "Original unconditional world vignette fails the semantic canvas-mask regression; conditional deep-stage behavior passes.",
+  "entryFade": "312s captured with independently measured black opacity .264; transition timing unchanged.",
+  "isolation": "No new room midground configurations are included in this commit.",
+  "manualAcceptance": "pending"
+}

@@ -260,10 +260,11 @@ try{
    actions.push(...performed);prepared=true;
   }
   const camera=time===26.5?0:cameras.find(c=>c.t===time).camera_px;
-  const record=await page.evaluate(({camera,time,col,row,entryDoor,actorScreenX})=>{
+  const fade=room==='25-closeback'&&time===312?JSON.parse(fs.readFileSync(path.join(root,'docs/reference-evidence/85-room25-entry-fade.json'),'utf8')).blackOpacity:0;
+  const record=await page.evaluate(({camera,time,col,row,entryDoor,actorScreenX,fade})=>{
    const C=window.DNFCore,s=window.nanoDnf.getState();
    C.goToCell(s,s.dungeon.cells.findIndex(c=>c.col===col&&c.row===row));
-   s.entryDoor=entryDoor===undefined?(col===0?null:'W'):entryDoor;s.titleT=0;s.intro=null;s.transition=0;
+   s.entryDoor=entryDoor===undefined?(col===0?null:'W'):entryDoor;s.titleT=0;s.intro=null;s.transition=fade*C.TRANSITION.dur;
    // Relocate the actor only to keep the sampled native faces unobscured.
    s.player.x=(camera+(actorScreenX??(col===0?80:time<=28?240:200)))/C.CAMERA.zoom;s.player.z=40;
    s.player.hurtTimer=0;s.player.invuln=0;s.player.buffs={};
@@ -271,7 +272,7 @@ try{
    window.nanoDnf.setMapMode('radar');
    return {time,room:s.room.name,width:s.room.width,cameraPx:camera,
     props:s.props.map(p=>({piece:p.piece,x:p.x,z:p.z,broken:p.broken,gone:!!p.gone,screenX:p.x*C.CAMERA.zoom-camera,bottom:430-C.depthLift(p.z)*C.CAMERA.zoom}))};
-  },{camera,time,col:profile.col,row:profile.row??3,entryDoor:profile.entryDoor,actorScreenX:profile.actorScreenX});
+  },{camera,time,col:profile.col,row:profile.row??3,entryDoor:profile.entryDoor,actorScreenX:profile.actorScreenX,fade});
   await page.waitForTimeout(100);
   const url=await page.locator('#stage').evaluate(c=>c.toDataURL('image/png'));
   images[time]=url;

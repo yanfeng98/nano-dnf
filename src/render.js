@@ -10293,7 +10293,8 @@
     ctx.fillRect(VIEW.left, 0, VIEW.width, VIEW.height);
     ctx.restore();
 
-    drawVignette(ctx, state);
+    // Native deep-room pixel comparisons reject the added radial dark mask (batch85).
+    if (!deepStage) drawVignette(ctx, state);
     /*
      * 魔狱血刹's 觉醒插画 goes over the room and under the HUD: the reference
      * paints its own bar over the picture, and so does this one - the illustration
