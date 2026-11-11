@@ -1,0 +1,14 @@
+{
+  "map": "map/mirkwooddeep/n410(3,0).map",
+  "tiles": [
+    "Tile/ForestOver.til",
+    "Tile/ForestOverUnder.til",
+    "Tile/ForestUnder.til",
+    "Tile/ForestUnder.til",
+    "Tile/ForestUnderOver.til",
+    "Tile/ForestOver.til",
+    "Tile/ForestOver.til"
+  ],
+  "screen_top": 233,
+  "screen_scale": 1.125
+}

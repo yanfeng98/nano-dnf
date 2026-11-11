@@ -13,7 +13,12 @@ const profiles={
    ['entry-tree',277,'room24Closeback',(340+.01)/1.125,178/1.125,60/1.125,40/1.125,340,180,60,40,40,1500,.97,null,null,true],
    ['west-tree',281,'room24Closeback',(340+264.35)/1.125,178/1.125,60/1.125,40/1.125,340,180,60,40,40,1500,.97,null,null,true],
    ['center-tree',293,'room24Closeback',(520+533.25)/1.125,178/1.125,60/1.125,40/1.125,520,180,60,40,40,1500,.97,null,null,true],
-   ['east-tree',307,'room24Closeback',(400+1013.63)/1.125,138/1.125,60/1.125,40/1.125,400,140,60,40,40,1500,.97,null,null,true]
+   ['east-tree',307,'room24Closeback',(400+1013.63)/1.125,138/1.125,60/1.125,40/1.125,400,140,60,40,40,1500,.97,null,null,true],
+   ['upper-floor',277,'forest',672+((144+0.01)/1.125)%224,380+(376-233)/1.125,36/1.125,24/1.125,144,376,36,24,24,800,.6,null,null,true,15],
+   ['descending-floor',277,'forest',448+((336+0.01)/1.125)%224,380+(416-235.25)/1.125,36/1.125,24/1.125,336,416,36,24,24,800,.6,null,null,true,15],
+   ['lower-floor',281,'forest',0+((288+264.35)/1.125)%224,380+(424-269)/1.125,36/1.125,24/1.125,288,424,36,24,24,800,.6,null,null,true,15],
+   ['ascending-floor',293,'forest',224+((612+533.25)/1.125)%224,380+(400-235.25)/1.125,36/1.125,24/1.125,612,400,36,24,24,800,.6,null,null,true,15],
+   ['east-floor',307,'forest',672+((576+1013.63)/1.125)%224,380+(384-233)/1.125,36/1.125,24/1.125,576,384,36,24,24,800,.6,null,null,true,15]
   ]},
  '14-closeback':{evidence:'53-room14',referenceNames:{261.3:'53-room14-maximum-camera-reference.png'},col:3,row:0,out:'/tmp/nano-room65/render',times:[236.5,260,261.3,265.5],actorScreenX:80,entryDoor:'W',exit:'W',next:'老树回廊',
   scope:'native room 14 closeback at four measured cameras including the eastern limit; other scenery and physical props remain open',

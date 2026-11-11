@@ -2793,6 +2793,7 @@
         {
           name: "断墙营地",
           closeback: "deepRoom24Closeback",
+          nativeGround: { tiles: ["tile3", "tile2", "tile0", "tile0", "tile1", "tile3", "tile3"], screenY: 233 },
           kind: "corr",
           width: 1120,
           band: { backY: 256 },
