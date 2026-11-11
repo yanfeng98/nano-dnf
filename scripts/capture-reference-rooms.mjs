@@ -71,7 +71,10 @@ const profiles={
    ['entry-west-wall',10.5,'entryCloseback',270/1.125,78/1.125,290/1.125,80/1.125,270,80,290,80,80,10000,.97,null,null,true],
    ['entry-tree0',13.5,'entryCloseback',(270+210.27)/1.125,78/1.125,290/1.125,80/1.125,270,80,290,80,80,10000,.97,null,null,true],
    ['entry-middle-wall',17.5,'entryCloseback',(270+427.4)/1.125,78/1.125,290/1.125,50/1.125,270,80,290,50,50,6000,.97,null,null,true],
-   ['entry-east-wall',25.5,'entryCloseback',(270+791.92)/1.125,78/1.125,240/1.125,50/1.125,270,80,240,50,50,5000,.97,null,null,true]
+   ['entry-east-wall',25.5,'entryCloseback',(270+791.92)/1.125,78/1.125,240/1.125,50/1.125,270,80,240,50,50,5000,.97,null,null,true],
+   ['entry-west-floor',13.5,'forest',672+((384+210.27)/1.125)%224,380+(420-233)/1.125,36/1.125,24/1.125,384,420,36,24,24,800,.6,null,null,true,14],
+   ['entry-center-floor',17.5,'forest',672+((168+427.4)/1.125)%224,380+(420-233)/1.125,36/1.125,24/1.125,168,420,36,24,24,800,.6,null,null,true,14],
+   ['entry-east-floor',25.5,'forest',672+((528+791.92)/1.125)%224,380+(404-233)/1.125,36/1.125,24/1.125,528,404,36,24,24,800,.6,null,null,true,14]
   ]},
  '25-closeback':{batch:58,col:4,row:1,out:'/tmp/nano-room58/render',times:[312,314.5,319,330,370],actorScreenX:80,boss:true,
   scope:'native boss closeback list and measured phase at five cameras; far/mid motion, floor, foreground, actors and object lifecycle remain open',

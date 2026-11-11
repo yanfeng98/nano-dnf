@@ -2615,6 +2615,7 @@
           // Do not stretch existing enemy/tree coordinates with the new width.
           width: 960,
           closeback: "deepEntryCloseback",
+          nativeGround: { tile: "tile3", columns: 6, screenY: 233 },
           band: { backY: 256 },
           // Enemy placement is still the older, unverified layout; no width-based stretching.
           enemies: [
