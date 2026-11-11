@@ -2772,9 +2772,9 @@
         /* 5 —— 路线 14 (3,0)。录像 236–265s；密集取样双门核验下界约958，采用960；树/敌人仍待核。 */
         {
           name: "残柱祭坛",
+          closeback: "deepRoom14Closeback",
           kind: "corr",
           // 236.5–265.5s at 10Hz, 128 independent gate-texture checks.
-          // Keep authored tree/enemy coordinates: this is width calibration only.
           width: 960,
           band: { backY: 256 },
           enemies: [
@@ -2784,17 +2784,7 @@
             { type: "goblinRed", x: 700, wave: 2, level: 6 },
           ],
           cap: 4,
-          props: [
-            { piece: "trunkTall", x: 100, depth: 0.95 },
-            { piece: "trunkMossy", x: 300, depth: 0.95 },
-            { piece: "trunkBent", x: 500, depth: 0.95 },
-            { piece: "trunkTall", x: 700, depth: 0.95 },
-            { piece: "trunkMossy", x: 880, depth: 0.95 },
-            /*
-             * 西侧那道石门现在由 `drawGate` 自己画（从西门进来时它从进门那一刻就在，
-             * 清房后仍带栅）—— 旧的静态装饰件 2026-10-27 删掉，不再两扇叠着。
-             */
-          ],
+          props: [],
           scatter: {"solid":0,"barrels":0,"stones":0}
         },
         /* 6 —— 路线 24 (3,1)。录像 277–313s；重测宽1120、三桶一岩及两处镜像绿树形态，动态待核。 */
