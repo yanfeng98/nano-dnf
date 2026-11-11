@@ -2861,16 +2861,17 @@
     }
 
     if (nativeGround) {
-      // Room 14 uses ForestOver in every column. The recording puts the
+      // Verified ForestOver rooms use the native tile in every column. The
       // 224-pixel native tiles on a 252-screen-pixel grid with the crop at y=233.
       var groundSheet = sprites.forestNative || sprites.forest;
       var tile = sceneRect(nativeGround.tile);
       var groundScale = (VIEW.width / 640) / Core.CAMERA.zoom;
       var nativeTop = ARENA.groundY + (nativeGround.screenY - ARENA.groundY) / Core.CAMERA.zoom;
       var nativeWidth = tile[2] * groundScale;
+      var nativeLeft = -(nativeGround.originX || 0) * groundScale;
       for (var tileIndex = 0; tileIndex < nativeGround.columns; tileIndex += 1) {
         ctx.drawImage(groundSheet, tile[0], tile[1], tile[2], tile[3],
-                      tileIndex * nativeWidth, nativeTop, nativeWidth, tile[3] * groundScale);
+                      nativeLeft + tileIndex * nativeWidth, nativeTop, nativeWidth, tile[3] * groundScale);
       }
     } else {
       // Repeat the fallback strips vertically to fill the area beneath the HUD.

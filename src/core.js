@@ -3011,6 +3011,7 @@
         {
           name: "藤蔓窄道",
           closeback: "deepRoom33Closeback",
+          nativeGround: { tile: "tile3", columns: 8, screenY: 233, originX: 11 },
           kind: "room",
           width: 1280,
           band: { backY: 256 },

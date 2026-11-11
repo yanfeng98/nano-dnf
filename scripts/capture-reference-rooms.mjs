@@ -49,7 +49,11 @@ const profiles={
    ['entry-tree',106,'room33Closeback',(580+712.56)/1.125,178/1.125,60/1.125,40/1.125,580,180,60,40,40,1500,.97,null,null,true],
    ['east-tree',125,'room33Closeback',(580+906)/1.125,178/1.125,60/1.125,40/1.125,580,180,60,40,40,1500,.97,null,null,true],
    ['center-tree',133,'room33Closeback',(160+554.49)/1.125,138/1.125,60/1.125,40/1.125,160,140,60,40,40,1000,.97,null,null,true],
-   ['west-tree',146,'room33Closeback',(340+111.38)/1.125,138/1.125,60/1.125,40/1.125,340,140,60,40,40,900,.97,null,null,true]
+   ['west-tree',146,'room33Closeback',(340+111.38)/1.125,138/1.125,60/1.125,40/1.125,340,140,60,40,40,900,.97,null,null,true],
+   ['entry-floor',106,'forest',672+((132+712.56+12.375)/1.125)%224,380+(380-233)/1.125,36/1.125,24/1.125,132,380,36,24,24,800,.6,null,null,true,14],
+   ['east-floor',125,'forest',672+((192+906+12.375)/1.125)%224,380+(396-233)/1.125,36/1.125,24/1.125,192,396,36,24,24,800,.6,null,null,true,14],
+   ['center-floor',133,'forest',672+((540+554.49+12.375)/1.125)%224,380+(396-233)/1.125,36/1.125,24/1.125,540,396,36,24,24,800,.6,null,null,true,14],
+   ['west-floor',146,'forest',672+((180+111.38+12.375)/1.125)%224,380+(396-233)/1.125,36/1.125,24/1.125,180,396,36,24,24,800,.6,null,null,true,14]
   ]},
  '43-closeback':{evidence:'02-room43',referenceNames:{74.25:'02-room43-074.25.png',90.25:'02-room43-090.25.png',104.25:'02-room43-104.25.png'},col:2,row:3,out:'/tmp/nano-room61/render',times:[74.25,90.25,104.25],actorScreenX:80,exit:'N',next:'藤蔓窄道',
   scope:'native room 43 closeback at three measured cameras; physical props and other scenery layers remain open',
