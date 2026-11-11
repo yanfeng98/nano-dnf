@@ -2649,6 +2649,8 @@
           kind: "room",
           width: 1437.8,
           closeback: "deepBossCloseback",
+          // Native mid1.ani and measured crop origin/parallax (reference batch86).
+          nativeMid: { scroll: 0.9, screenY: -106.5, originX: 0 },
           nativeGround: { tiles: ["tile0", "tile0", "tile1", "tile3", "tile2", "tile0", "tile1", "tile3", "tile3"], screenY: 233 },
           band: { backY: 256 },
           enemies: [
@@ -2777,6 +2779,8 @@
         {
           name: "残柱祭坛",
           closeback: "deepRoom14Closeback",
+          // Native mid1.ani and measured crop origin/parallax (reference batch86).
+          nativeMid: { scroll: 0.9, screenY: -106.5, originX: 0 },
           nativeGround: { tile: "tile3", columns: 6, screenY: 233 },
           kind: "corr",
           // 236.5–265.5s at 10Hz, 128 independent gate-texture checks.
@@ -2796,6 +2800,8 @@
         {
           name: "断墙营地",
           closeback: "deepRoom24Closeback",
+          // Native mid1.ani and measured crop origin/parallax (reference batch86).
+          nativeMid: { scroll: 0.9, screenY: -106.5, originX: 0 },
           nativeGround: { tiles: ["tile3", "tile2", "tile0", "tile0", "tile1", "tile3", "tile3"], screenY: 233 },
           kind: "corr",
           width: 1118.3,
@@ -2858,6 +2864,8 @@
         {
           name: "猫妖岔路",
           closeback: "deepRoom43Closeback",
+          // Native mid1.ani and measured crop origin/parallax (reference batch86).
+          nativeMid: { scroll: 0.9, screenY: -106.5, originX: 0 },
           nativeGround: { tile: "tile3", columns: 8, screenY: 233 },
           kind: "corr",
           width: 1278.06,
@@ -2899,6 +2907,8 @@
         {
           name: "投掷手坡",
           closeback: "deepRoom23Closeback",
+          // Native mid1.ani and measured crop origin/parallax (reference batch86).
+          nativeMid: { scroll: 0.9, screenY: -106.5, originX: 46 },
           nativeGround: { tile: "tile3", columns: 8, screenY: 233, originX: 46 },
           kind: "room",
           width: 1245.25,
@@ -2945,6 +2955,8 @@
         {
           name: "宝箱浅沟",
           closeback: "deepRoom42Closeback",
+          // Native mid1.ani and measured crop origin/parallax (reference batch86).
+          nativeMid: { scroll: 0.9, screenY: -106.5, originX: 0 },
           nativeGround: { tiles: ["tile3", "tile2", "tile0", "tile0", "tile0", "tile0", "tile0", "tile0"], screenY: 233 },
           kind: "corr",
           width: 1278.06,
@@ -3017,6 +3029,8 @@
         {
           name: "藤蔓窄道",
           closeback: "deepRoom33Closeback",
+          // Native mid1.ani and measured crop origin/parallax (reference batch86).
+          nativeMid: { scroll: 0.9, screenY: -106.5, originX: 11 },
           nativeGround: { tile: "tile3", columns: 8, screenY: 233, originX: 11 },
           kind: "room",
           width: 1270,
@@ -3064,6 +3078,8 @@
         {
           name: "老树回廊",
           closeback: "deepRoom13Closeback",
+          // Native mid1.ani and measured crop origin/parallax (reference batch86).
+          nativeMid: { scroll: 0.9, screenY: -106.5, originX: 41 },
           nativeGround: { tile: "tile3", columns: 8, screenY: 233, originX: 41 },
           kind: "corr",
           width: 1248.75,

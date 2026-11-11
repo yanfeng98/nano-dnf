@@ -1,0 +1,9 @@
+{
+  "commit": "2a89d8e",
+  "workflow": "https://github.com/yanfeng98/nano-dnf/actions/runs/43068502165",
+  "ci": "success: build, deploy and live smoke all passed",
+  "localLiveSmoke": "passed from isolated lighting worktree; published resources match that checkout and page boots without errors",
+  "unitTests": 407,
+  "browserGroups": 27,
+  "manualAcceptance": "pending"
+}

@@ -1,0 +1,657 @@
+{
+  "animation_entry": "map/mirkwooddeep/animation/mid1.ani",
+  "animation": {
+    "paths": [
+      "Map/02mid0.img"
+    ],
+    "overall": [
+      [
+        1,
+        0
+      ]
+    ],
+    "frames": [
+      {
+        "frame": 0,
+        "xy": [
+          0,
+          -80
+        ],
+        "props": [
+          [
+            12,
+            20
+          ]
+        ],
+        "boxes": []
+      }
+    ]
+  },
+  "rooms": [
+    {
+      "room": "42",
+      "col": 1,
+      "row": 3,
+      "originX": 0,
+      "map_entry": "map/mirkwooddeep/h434(1,2).map",
+      "map_sha256": "3083751495ee70025df8ec9157d1cd8c134a38c588ca76bcc879c61199736e7d",
+      "scroll": 0.9,
+      "screenY": -106.5,
+      "screenScale": 1.125,
+      "samples": [
+        {
+          "time": 28,
+          "camera_px": 0.0,
+          "reference": "46-room42-28-reference.png",
+          "source_rect": [
+            450,
+            100,
+            28,
+            32
+          ],
+          "roi": [
+            506,
+            7,
+            31,
+            35
+          ],
+          "correlation": 0.8919683694839478,
+          "native_scroll_error_px": -0.25,
+          "inferred_screen_y": -105.5
+        },
+        {
+          "time": 72.5,
+          "camera_px": 1164.12,
+          "reference": "46-room42-72.5-reference.png",
+          "source_rect": [
+            65,
+            100,
+            28,
+            32
+          ],
+          "roi": [
+            466,
+            7,
+            31,
+            35
+          ],
+          "correlation": 0.9090389609336853,
+          "native_scroll_error_px": 0.5829999999998563,
+          "inferred_screen_y": -105.5
+        },
+        {
+          "time": 73.5,
+          "camera_px": 1295.73,
+          "reference": "46-room42-73.5-reference.png",
+          "source_rect": [
+            65,
+            100,
+            28,
+            32
+          ],
+          "roi": [
+            347,
+            7,
+            31,
+            35
+          ],
+          "correlation": 0.9192519187927246,
+          "native_scroll_error_px": 0.032000000000152795,
+          "inferred_screen_y": -105.5
+        }
+      ]
+    },
+    {
+      "room": "43",
+      "col": 2,
+      "row": 3,
+      "originX": 0,
+      "map_entry": "map/mirkwooddeep/n423(2,3).map",
+      "map_sha256": "9aada19d4129d408ba6cbdf9f30a038925d077e8f7266eb46fde65bb3c781d15",
+      "scroll": 0.9,
+      "screenY": -106.5,
+      "screenScale": 1.125,
+      "samples": [
+        {
+          "time": 74.25,
+          "camera_px": 0.0,
+          "reference": "02-room43-074.25.png",
+          "source_rect": [
+            450,
+            160,
+            28,
+            32
+          ],
+          "roi": [
+            506,
+            74,
+            31,
+            35
+          ],
+          "correlation": 0.9175143837928772,
+          "native_scroll_error_px": -0.25,
+          "inferred_screen_y": -106.0
+        },
+        {
+          "time": 90.25,
+          "camera_px": 1200.42,
+          "reference": "02-room43-090.25.png",
+          "source_rect": [
+            175,
+            160,
+            28,
+            32
+          ],
+          "roi": [
+            557,
+            74,
+            31,
+            35
+          ],
+          "correlation": 0.9495559334754944,
+          "native_scroll_error_px": 0.5030000000001564,
+          "inferred_screen_y": -106.0
+        },
+        {
+          "time": 104.25,
+          "camera_px": 1047.41,
+          "reference": "02-room43-104.25.png",
+          "source_rect": [
+            450,
+            100,
+            28,
+            32
+          ],
+          "roi": [
+            285,
+            7,
+            31,
+            35
+          ],
+          "correlation": 0.9084100127220154,
+          "native_scroll_error_px": 1.4190000000000964,
+          "inferred_screen_y": -105.5
+        }
+      ]
+    },
+    {
+      "room": "33",
+      "col": 2,
+      "row": 2,
+      "originX": 11,
+      "map_entry": "map/mirkwooddeep/n433(2,2).map",
+      "map_sha256": "fbaffc340e870177ca7920d8b5ccb8e71555d656c8bea2de607b377c1f122057",
+      "scroll": 0.9,
+      "screenY": -106.5,
+      "screenScale": 1.125,
+      "samples": [
+        {
+          "time": 125,
+          "camera_px": 906.0,
+          "reference": "50-room33-125-reference.png",
+          "source_rect": [
+            450,
+            100,
+            28,
+            32
+          ],
+          "roi": [
+            401,
+            7,
+            31,
+            35
+          ],
+          "correlation": 0.9246155023574829,
+          "native_scroll_error_px": 1.2875000000000227,
+          "inferred_screen_y": -105.5
+        },
+        {
+          "time": 133,
+          "camera_px": 554.49,
+          "reference": "50-room33-133-reference.png",
+          "source_rect": [
+            10,
+            100,
+            28,
+            32
+          ],
+          "roi": [
+            222,
+            7,
+            31,
+            35
+          ],
+          "correlation": 0.9678890109062195,
+          "native_scroll_error_px": 0.9285000000000423,
+          "inferred_screen_y": -105.5
+        },
+        {
+          "time": 146,
+          "camera_px": 111.38,
+          "reference": "50-room33-146-reference.png",
+          "source_rect": [
+            450,
+            100,
+            28,
+            32
+          ],
+          "roi": [
+            395,
+            7,
+            31,
+            35
+          ],
+          "correlation": 0.9459311366081238,
+          "native_scroll_error_px": 0.12949999999999307,
+          "inferred_screen_y": -105.5
+        }
+      ]
+    },
+    {
+      "room": "23",
+      "col": 2,
+      "row": 1,
+      "originX": 46,
+      "map_entry": "map/mirkwooddeep/n432(2,2).map",
+      "map_sha256": "78962294b98f0e576bfc56741d4116aded403538692b4acdc5d52da6d2a7c1b8",
+      "scroll": 0.9,
+      "screenY": -106.5,
+      "screenScale": 1.125,
+      "samples": [
+        {
+          "time": 150,
+          "camera_px": 734.75,
+          "reference": "51-room23-150-reference.png",
+          "source_rect": [
+            505,
+            220,
+            28,
+            32
+          ],
+          "roi": [
+            581,
+            142,
+            31,
+            35
+          ],
+          "correlation": 0.8994269371032715,
+          "native_scroll_error_px": 0.7250000000000227,
+          "inferred_screen_y": -105.5
+        },
+        {
+          "time": 180,
+          "camera_px": 2.26,
+          "reference": "51-room23-180-reference.png",
+          "source_rect": [
+            450,
+            100,
+            28,
+            32
+          ],
+          "roi": [
+            458,
+            7,
+            31,
+            35
+          ],
+          "correlation": 0.9437670707702637,
+          "native_scroll_error_px": 0.35900000000000176,
+          "inferred_screen_y": -105.5
+        }
+      ]
+    },
+    {
+      "room": "13",
+      "col": 2,
+      "row": 0,
+      "originX": 41,
+      "map_entry": "map/mirkwooddeep/n412(2,0).map",
+      "map_sha256": "9a940976ef6ccb74215dfe182a0e19daafe4977b3cadd114234bd1ee7f45222a",
+      "scroll": 0.9,
+      "screenY": -106.5,
+      "screenScale": 1.125,
+      "samples": [
+        {
+          "time": 190,
+          "camera_px": 0.0,
+          "reference": "52-room13-190-reference.png",
+          "source_rect": [
+            340,
+            100,
+            28,
+            32
+          ],
+          "roi": [
+            342,
+            7,
+            31,
+            35
+          ],
+          "correlation": 0.9149715900421143,
+          "native_scroll_error_px": 1.0125000000000028,
+          "inferred_screen_y": -105.5
+        },
+        {
+          "time": 210,
+          "camera_px": 497.23,
+          "reference": "52-room13-210-reference.png",
+          "source_rect": [
+            10,
+            100,
+            28,
+            32
+          ],
+          "roi": [
+            243,
+            7,
+            31,
+            35
+          ],
+          "correlation": 0.9816578030586243,
+          "native_scroll_error_px": 0.7695000000000505,
+          "inferred_screen_y": -105.5
+        },
+        {
+          "time": 235.5,
+          "camera_px": 1249.91,
+          "reference": "52-room13-235.5-reference.png",
+          "source_rect": [
+            10,
+            100,
+            28,
+            32
+          ],
+          "roi": [
+            286,
+            7,
+            31,
+            35
+          ],
+          "correlation": 0.9709494709968567,
+          "native_scroll_error_px": 1.1815000000001419,
+          "inferred_screen_y": -105.5
+        },
+        {
+          "time": 271.5,
+          "camera_px": 166.85,
+          "reference": "52-room13-271.5-reference.png",
+          "source_rect": [
+            340,
+            100,
+            28,
+            32
+          ],
+          "roi": [
+            191,
+            7,
+            31,
+            35
+          ],
+          "correlation": 0.9099992513656616,
+          "native_scroll_error_px": 0.1775000000000091,
+          "inferred_screen_y": -105.5
+        }
+      ]
+    },
+    {
+      "room": "14",
+      "col": 3,
+      "row": 0,
+      "originX": 0,
+      "map_entry": "map/mirkwooddeep/402.map",
+      "map_sha256": "0457448c828da90c773062f36dd60a32c1e341d1d4f1c136b7083859698e92f5",
+      "scroll": 0.9,
+      "screenY": -106.5,
+      "screenScale": 1.125,
+      "samples": [
+        {
+          "time": 260,
+          "camera_px": 756.61,
+          "reference": "53-room14-260-reference.png",
+          "source_rect": [
+            330,
+            100,
+            20,
+            24
+          ],
+          "roi": [
+            411,
+            7,
+            21,
+            26
+          ],
+          "correlation": 0.9309945106506348,
+          "native_scroll_error_px": 0.6990000000000691,
+          "inferred_screen_y": -105.5
+        },
+        {
+          "time": 261.3,
+          "camera_px": 791.6,
+          "reference": "53-room14-maximum-camera-reference.png",
+          "source_rect": [
+            330,
+            100,
+            20,
+            24
+          ],
+          "roi": [
+            379,
+            7,
+            21,
+            26
+          ],
+          "correlation": 0.9534446597099304,
+          "native_scroll_error_px": 0.19000000000005457,
+          "inferred_screen_y": -105.5
+        }
+      ]
+    },
+    {
+      "room": "24",
+      "col": 3,
+      "row": 1,
+      "originX": 0,
+      "map_entry": "map/mirkwooddeep/n410(3,0).map",
+      "map_sha256": "7ef38276143ee082a6a9b43e79274f1f934a845ccbba22d08ffaedc820e70397",
+      "scroll": 0.9,
+      "screenY": -106.5,
+      "screenScale": 1.125,
+      "samples": [
+        {
+          "time": 277,
+          "camera_px": 0.01,
+          "reference": "54-room24-277-reference.png",
+          "source_rect": [
+            450,
+            160,
+            28,
+            32
+          ],
+          "roi": [
+            506,
+            74,
+            31,
+            35
+          ],
+          "correlation": 0.8964991569519043,
+          "native_scroll_error_px": -0.241,
+          "inferred_screen_y": -106.0
+        },
+        {
+          "time": 281,
+          "camera_px": 264.35,
+          "reference": "54-room24-281-reference.png",
+          "source_rect": [
+            395,
+            220,
+            28,
+            32
+          ],
+          "roi": [
+            207,
+            142,
+            31,
+            35
+          ],
+          "correlation": 0.8914172053337097,
+          "native_scroll_error_px": 0.5400000000000205,
+          "inferred_screen_y": -105.5
+        },
+        {
+          "time": 293,
+          "camera_px": 533.25,
+          "reference": "54-room24-293-reference.png",
+          "source_rect": [
+            10,
+            100,
+            28,
+            32
+          ],
+          "roi": [
+            252,
+            7,
+            31,
+            35
+          ],
+          "correlation": 0.9850674867630005,
+          "native_scroll_error_px": 0.6750000000000114,
+          "inferred_screen_y": -105.5
+        },
+        {
+          "time": 307,
+          "camera_px": 1013.63,
+          "reference": "54-room24-307-reference.png",
+          "source_rect": [
+            450,
+            160,
+            28,
+            32
+          ],
+          "roi": [
+            315,
+            74,
+            31,
+            35
+          ],
+          "correlation": 0.9460049867630005,
+          "native_scroll_error_px": 1.0170000000000528,
+          "inferred_screen_y": -106.0
+        }
+      ]
+    },
+    {
+      "room": "25",
+      "col": 4,
+      "row": 1,
+      "originX": 0,
+      "map_entry": "map/mirkwooddeep/b417(4,1).map",
+      "map_sha256": "fee88af40d35fcc8d76a740d6d0a1a3b634543b67c623ccf0786754d4e856e18",
+      "scroll": 0.9,
+      "screenY": -106.5,
+      "screenScale": 1.125,
+      "samples": [
+        {
+          "time": 312,
+          "camera_px": 0.02,
+          "reference": "58-room25-closeback-312-reference.png",
+          "source_rect": [
+            210,
+            100,
+            20,
+            24
+          ],
+          "roi": [
+            236,
+            7,
+            21,
+            26
+          ],
+          "correlation": 0.9238405227661133,
+          "native_scroll_error_px": -0.23199999999999998,
+          "inferred_screen_y": -105.5
+        },
+        {
+          "time": 314.5,
+          "camera_px": 291.44,
+          "reference": "58-room25-closeback-314.5-reference.png",
+          "source_rect": [
+            570,
+            100,
+            20,
+            24
+          ],
+          "roi": [
+            379,
+            6,
+            21,
+            26
+          ],
+          "correlation": 0.8852599859237671,
+          "native_scroll_error_px": 0.04599999999999227,
+          "inferred_screen_y": -106.5
+        },
+        {
+          "time": 319,
+          "camera_px": 1047.05,
+          "reference": "58-room25-closeback-319-reference.png",
+          "source_rect": [
+            550,
+            130,
+            20,
+            24
+          ],
+          "roi": [
+            397,
+            41,
+            21,
+            26
+          ],
+          "correlation": 0.9010992050170898,
+          "native_scroll_error_px": 0.5950000000000273,
+          "inferred_screen_y": -105.25
+        },
+        {
+          "time": 330,
+          "camera_px": 1547.69,
+          "reference": "58-room25-closeback-330-reference.png",
+          "source_rect": [
+            270,
+            100,
+            20,
+            24
+          ],
+          "roi": [
+            351,
+            7,
+            21,
+            26
+          ],
+          "correlation": 0.9431943893432617,
+          "native_scroll_error_px": 0.1710000000000491,
+          "inferred_screen_y": -105.5
+        },
+        {
+          "time": 370,
+          "camera_px": 1453.32,
+          "reference": "58-room25-closeback-370-reference.png",
+          "source_rect": [
+            150,
+            100,
+            20,
+            24
+          ],
+          "roi": [
+            302,
+            7,
+            21,
+            26
+          ],
+          "correlation": 0.9578346610069275,
+          "native_scroll_error_px": 1.2380000000000564,
+          "inferred_screen_y": -105.5
+        }
+      ]
+    }
+  ],
+  "limits": "Visible midground regions only. Room 14 has two nearby eastern cameras; its scroll ratio is declared by the client map. Vertical phase permits 1.5px sampling uncertainty. Far layer, props and interactions remain open."
+}

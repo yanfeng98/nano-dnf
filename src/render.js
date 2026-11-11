@@ -2848,7 +2848,8 @@
       var midTop = ARENA.groundY + (nativeMid.screenY - ARENA.groundY) / Core.CAMERA.zoom;
       // The world pass already subtracts the camera. Compensate the remainder
       // so this layer follows its independently measured scroll ratio.
-      var midOffset = cameraX(state) * (1 - nativeMid.scroll);
+      var midOffset = cameraX(state) * (1 - nativeMid.scroll) -
+        (nativeMid.originX || 0) * midScale * nativeMid.scroll;
       for (var midX = -midWidth; midX < width + midWidth; midX += midWidth) {
         ctx.drawImage(sprites.forestNative || sprites.forest,
           mid[0], mid[1], mid[2], mid[3],

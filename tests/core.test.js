@@ -10432,7 +10432,8 @@ test("the deep pillar has the recorded broad flat cap, not a diagonal broken tip
 
 test("an unmeasured deep backdrop keeps its fallback roots without inventing a leafy band", () => {
   const s = Core.createState({ stage: "mirkwooddeep", seed: 1 });
-  Core.goToCell(s, s.dungeon.cells.findIndex(c => c.col === 1 && c.row === 3));
+  Core.goToCell(s, s.dungeon.cells.findIndex(c => c.col === 0 && c.row === 0));
+  assert.equal(s.room.nativeMid, undefined, "side rooms keep their unmeasured fallback");
   s.props = [];
   const forest = {}, calls = [];
   Render.render(recordingContext(calls), s, { sprites: { forest } });
@@ -11729,6 +11730,31 @@ test("the measured entry midground uses native scale and ninety-percent camera s
   assert.ok(Math.abs(moved[0][6] - start[0][6] - 20) < 1e-8,
     "compensate ten percent of the world camera so the midground scrolls at ninety percent");
 });
+
+for (const measured of JSON.parse(fs.readFileSync(path.join(__dirname,
+  '../docs/reference-evidence/86-deep-mid-measurement.json'), 'utf8')).rooms) {
+  test(`room ${measured.room} midground preserves native scale, camera scroll and map origin`, () => {
+    const state = Core.createState({ stage: 'mirkwooddeep', seed: 7 });
+    Core.goToCell(state, state.dungeon.cells.findIndex(c => c.col === measured.col && c.row === measured.row));
+    const forest = {}, graded = {};
+    function strips(camera) {
+      state.camera.x = camera;
+      const calls = [];
+      Render.render(recordingContext(calls), state, { sprites: { forest, forestDeep: graded } });
+      return calls.filter(c => c[0] === 'drawImage' && c[1] === forest &&
+        c[2] === 640 && c[3] === 0 && c[4] === 640 && c[5] === 380);
+    }
+    const first = strips(0), moved = strips(200);
+    assert.ok(first.length > 1, 'use the original native midground pixels');
+    assert.ok(Math.abs(first[0][8] * Core.CAMERA.zoom - 720) < 1e-8);
+    assert.ok(Math.abs(430 + (first[0][7] - 430) * Core.CAMERA.zoom - measured.screenY) < 1e-8);
+    const expectedLeft = -720 - measured.originX * 1.125 * measured.scroll;
+    assert.ok(Math.abs(first[0][6] * Core.CAMERA.zoom - expectedLeft) < 1e-8,
+      'the cropped native map origin also shifts its background');
+    assert.ok(Math.abs(moved[0][6] - first[0][6] - 20) < 1e-8,
+      'compensate ten percent of the world camera');
+  });
+}
 
 test('the reference deep forest is not darkened by the custom vignette', () => {
   function darkMasks(stage) {

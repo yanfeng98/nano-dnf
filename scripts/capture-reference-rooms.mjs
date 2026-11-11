@@ -202,6 +202,15 @@ const profiles={
 };
 assert.ok(profiles[room],'unknown room capture profile');const profile=profiles[room];
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
+// Fixed native bark regions independently measured from the recording.
+const measuredMid=JSON.parse(fs.readFileSync(path.join(root,'docs/reference-evidence/86-deep-mid-measurement.json'),'utf8')).rooms.find(r=>room===`${r.room}-closeback`);
+if(measuredMid){
+ for(const sample of measuredMid.samples){
+  const [x,y,w,h]=sample.roi;
+  const phase=((x+(sample.camera_px+measuredMid.originX*1.125)*measuredMid.scroll)%720+720)%720;
+  profile.cases.push([`mid-${measuredMid.room}-${sample.time}`,sample.time,'forest',640+phase/1.125,(y-measuredMid.screenY)/1.125,w/1.125,h/1.125,x,y,w,h,h,Math.floor(w*h*.55),.7,null,null,true,12]);
+ }
+}
 const out=process.env.CAPTURE_OUT || profile.out;fs.mkdirSync(out,{recursive:true});
 const evidence=profile.evidence ?? `${profile.batch}-room${room}`;
 const cameras=JSON.parse(fs.readFileSync(path.join(root,`docs/reference-evidence/${evidence}-camera.json`)));
