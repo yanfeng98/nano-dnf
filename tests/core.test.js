@@ -11806,3 +11806,29 @@ test('native far projection follows map scroll and crop origin across the record
       `room ${room.room} must compensate the remaining world-camera motion`);
   }
 });
+
+test("room42 pillars occlude bodies around their native physical anchor, not the bitmap bottom", () => {
+  const state=Core.createState({stage:"mirkwooddeep",seed:1});
+  Core.goToCell(state,state.dungeon.cells.findIndex(c=>c.col===1&&c.row===3));
+  state.intro=null;state.transition=0;state.enemies=[];
+  const evidence=JSON.parse(fs.readFileSync(path.join(__dirname,"../docs/reference-evidence/88-pillar-anchors.json"),"utf8"));
+  const pillars=state.props.filter(p=>p.piece.startsWith("pillar"));
+  const pillarPale={width:88,height:133},slayer={width:13312,height:1936};
+  const anchors=evidence.nativePillars.map(p=>({nativeXY:p.record.slice(1,3),
+    observedCenterBottom:[(p.record[1]+1)*1.125],groundAnchorScreen:[p.record[1]*1.125,p.record[2]*1.125+92]}));
+  for(const prop of pillars){
+    const observed=anchors.reduce((best,m)=>Math.abs(m.observedCenterBottom[0]-prop.x*Core.CAMERA.zoom)<Math.abs(best.observedCenterBottom[0]-prop.x*Core.CAMERA.zoom)?m:best);
+    const groundZ=(Core.ARENA.groundY-observed.groundAnchorScreen[1])/(Core.CAMERA.zoom*Core.DEPTH.scale);
+    assert.ok(groundZ>prop.z+30,"physical anchor lies behind the bitmap bottom");
+    state.props=[prop];state.player.x=prop.x;
+    // The near probe is between the physical anchor and the old bitmap-bottom plane.
+    for(const [z,pillarBeforePlayer] of [[groundZ-10,true],[groundZ+10,false]]){
+      state.player.z=z;
+      const calls=[];Render.render(recordingContext(calls),state,{sprites:{pillarPale,slayer}});
+      const pillarIndex=calls.findIndex(c=>c[0]==="drawImage"&&c[1]===pillarPale);
+      const bodyIndex=calls.findIndex(c=>c[0]==="drawImage"&&c[1]===slayer);
+      assert.ok(pillarIndex>=0&&bodyIndex>=0,"both native pillar and player are actually painted");
+      assert.equal(pillarIndex<bodyIndex,pillarBeforePlayer,`native anchor ${observed.nativeXY} with player z${z}`);
+    }
+  }
+});

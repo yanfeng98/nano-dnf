@@ -1,0 +1,29 @@
+{
+  "scope": "Room42 native physical anchor controls standing-object depth ordering for twelve video-identified pillars.",
+  "source": "88-pillar-anchors.json; native map record y and independently verified screen origin92/scale1.125",
+  "reproduction": "node --test --test-name-pattern=\"room42 pillars occlude\" tests/core.test.js",
+  "before": "fails: native anchor340,243; player z176.226415; pillar incorrectly paints after player",
+  "after": "passes: two actual drawImage-order checks for each of twelve pillars (24 comparisons)",
+  "unitTests": 417,
+  "browserGroups": 27,
+  "limits": "Art position, size, existing initial damaged states, walk collision, hit threshold, missing native records and persistent damage remain separate unresolved items.",
+  "realCanvasProbe": [
+    {
+      "name": "front",
+      "z": 182.71012006861065,
+      "order": [
+        "pillar",
+        "body"
+      ]
+    },
+    {
+      "name": "behind",
+      "z": 202.71012006861065,
+      "order": [
+        "body",
+        "pillar"
+      ]
+    }
+  ],
+  "realCanvasCommand": "npm run serve; node scripts/capture-reference-pillar-order.mjs"
+}

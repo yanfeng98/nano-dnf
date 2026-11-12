@@ -1,0 +1,9 @@
+{
+  "commit": "2bde751",
+  "workflow": "https://github.com/yanfeng98/nano-dnf/actions/runs/43125458769",
+  "ci": "completed success: test/stage, Pages deploy and deployed-build smoke passed",
+  "measurement": "python3 scripts/measure-reference-pillar-anchors.py passed: 14 native records, 12 matched locations, 22 unclipped observations",
+  "runtimeChanges": false,
+  "manualAcceptance": "pending",
+  "remaining": "SC-17 dynamic damage, collisions and persistence remain open; this commit records anchor evidence only."
+}

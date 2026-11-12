@@ -2256,6 +2256,13 @@
     ]
   };
 
+  // Room42 native object anchor, verified against 22 unclipped video matches
+  // (audit batches88/89). Bitmap bottom is 13 native pixels below this plane.
+  function room42PillarSortZ(nativeY) {
+    return (ARENA.groundY - (nativeY * (VIEW.width / 640) + 92)) /
+      (CAMERA.zoom * DEPTH.scale);
+  }
+
   var STAGES = {
     mirkwood: {
       id: "mirkwood",
@@ -2992,18 +2999,18 @@
           // See reference-video-audit batch46. Coordinates are world anchors,
           // not positions stretched with the larger room width.
           props: [
-            { piece: "pillarDecor", x: 244, depth: 0.576 },
-            { piece: "pillarDecor", x: 320, depth: -0.542 },
-            { piece: "pillarDecor", x: 362, depth: 0.599 },
-            { piece: "pillarDecor", x: 492, depth: -0.023 },
-            { piece: "pillarDamagedDecor", x: 543, depth: 0.841 },
-            { piece: "pillarDecor", x: 572, depth: -0.576 },
-            { piece: "pillarDecor", x: 626, depth: -0.012 },
-            { piece: "pillarDecor", x: 716, depth: 0.795 },
-            { piece: "pillarDamagedDecor", x: 825, depth: 0.772 },
-            { piece: "pillarDecor", x: 893, depth: -0.334 },
-            { piece: "pillarDecor", x: 976, depth: -0.288 },
-            { piece: "pillarDecor", x: 1035, depth: 0.392 },
+            { piece: "pillarDecor", x: 244, depth: 0.576, sortZ: room42PillarSortZ(243) },
+            { piece: "pillarDecor", x: 320, depth: -0.542, sortZ: room42PillarSortZ(329) },
+            { piece: "pillarDecor", x: 362, depth: 0.599, sortZ: room42PillarSortZ(241) },
+            { piece: "pillarDecor", x: 492, depth: -0.023, sortZ: room42PillarSortZ(289) },
+            { piece: "pillarDamagedDecor", x: 543, depth: 0.841, sortZ: room42PillarSortZ(222) },
+            { piece: "pillarDecor", x: 572, depth: -0.576, sortZ: room42PillarSortZ(334) },
+            { piece: "pillarDecor", x: 626, depth: -0.012, sortZ: room42PillarSortZ(288) },
+            { piece: "pillarDecor", x: 716, depth: 0.795, sortZ: room42PillarSortZ(226) },
+            { piece: "pillarDamagedDecor", x: 825, depth: 0.772, sortZ: room42PillarSortZ(228) },
+            { piece: "pillarDecor", x: 893, depth: -0.334, sortZ: room42PillarSortZ(313) },
+            { piece: "pillarDecor", x: 976, depth: -0.288, sortZ: room42PillarSortZ(309) },
+            { piece: "pillarDecor", x: 1035, depth: 0.392, sortZ: room42PillarSortZ(257) },
             // The front chest is partly behind a log/HUD; its upper-right
             // native fragment stays at world x462 across independent views.
             { piece: "chest", x: 462, depth: -0.703 },
