@@ -26,6 +26,30 @@ try {
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
   await page.addInitScript(() => localStorage.setItem('nano-dnf-progress', JSON.stringify({ cleared: { mirkwood: true } })));
+  await page.addInitScript(() => {
+    const bytesToUrl = new WeakMap(), buffersToUrl = new WeakMap();
+    window.stoneAudioSources = [];
+    window.stoneAudioDecoded = false;
+    const arrayBuffer = Response.prototype.arrayBuffer;
+    Response.prototype.arrayBuffer = function (...args) {
+      return arrayBuffer.apply(this, args).then(bytes => { bytesToUrl.set(bytes, this.url); return bytes; });
+    };
+    const decode = BaseAudioContext.prototype.decodeAudioData;
+    BaseAudioContext.prototype.decodeAudioData = function (bytes, ...args) {
+      return decode.call(this, bytes, ...args).then(buffer => {
+        const url = bytesToUrl.get(bytes) || '';
+        buffersToUrl.set(buffer, url);
+        if (url.endsWith('/tstone_break.ogg')) window.stoneAudioDecoded = true;
+        return buffer;
+      });
+    };
+    const start = AudioBufferSourceNode.prototype.start;
+    AudioBufferSourceNode.prototype.start = function (...args) {
+      const url = buffersToUrl.get(this.buffer) || '';
+      if (url.endsWith('/tstone_break.ogg')) window.stoneAudioSources.push({ url, duration: this.buffer.duration, rate: this.playbackRate.value });
+      return start.apply(this, args);
+    };
+  });
   await page.goto(process.env.PILLAR_DAMAGE_URL || `http://127.0.0.1:${server.address().port}/?seed=1`);
   await page.waitForFunction(() => window.nanoDnf?.getAssetState().ready);
   await page.keyboard.press('Enter');
@@ -33,6 +57,7 @@ try {
   await page.keyboard.press('ArrowRight');
   await page.keyboard.press('Enter');
   await page.waitForFunction(() => window.nanoDnf.getState().stage.id === 'mirkwooddeep' && !window.nanoDnf.getState().intro);
+  await page.waitForFunction(() => window.stoneAudioDecoded);
   await page.keyboard.press('p');
   await page.evaluate(() => {
     const C = window.DNFCore, s = window.nanoDnf.getState();
@@ -42,7 +67,7 @@ try {
     s.room.cleared = true; C.currentCell(s).cleared = true;
     const p = s.props.find(p => p.nativePillar?.x === 506);
     if (!p || p.nativePillar.damagedAt !== -1) throw new Error('missing intact native pillar');
-    s.player.x = 506 * 1.125 / C.CAMERA.zoom - 30;
+    s.player.x = 506 * 1.125 / C.CAMERA.zoom - 20;
     s.player.z = 0; s.player.facing = 1; s.player.invuln = 100;
     s.player.mp = Math.max(s.player.mp, 100); s.camera.x = 80;
   });
@@ -55,6 +80,7 @@ try {
   await page.waitForTimeout(650);
   const missed = await state();
   assert.equal(missed.damagedAt, -1, 'wrong-depth keyboard swing misses');
+  assert.equal(await page.evaluate(() => window.stoneAudioSources.length), 0, 'miss does not play the native break cue');
   await page.keyboard.press('p');
   await page.evaluate(() => {
     const C = window.DNFCore, s = window.nanoDnf.getState(), p = s.props.find(p => p.nativePillar?.x === 506);
@@ -65,6 +91,7 @@ try {
   await page.keyboard.press('d');
   await page.waitForFunction(() => window.nanoDnf.getState().props.find(p => p.nativePillar?.x === 506)?.nativePillar.damagedAt >= 0, null, { timeout: 4000 });
   const hit = await state();
+  await page.waitForFunction(() => window.stoneAudioSources.length === 1);
   await page.waitForTimeout(850);
   const settled = await state();
   assert.equal(settled.piece, 'pillarDamagedDecor');
@@ -90,7 +117,12 @@ try {
   assert.equal(revisited.damagedAt, hit.damagedAt);
   assert.equal(revisited.piece, 'pillarDamagedDecor');
   assert.deepEqual(errors, []);
-  const result = { missed, hit, settled, revisited, native: render, errors };
+  const audio = await page.evaluate(() => ({ sources: window.stoneAudioSources, runtime: window.nanoDnf.getAudioState() }));
+  assert.equal(audio.sources.length, 1, 'settling and revisiting do not replay the cue');
+  assert.equal(audio.sources[0].rate, 1, 'retain the native sample pitch');
+  assert.equal(audio.runtime.state, 'running');
+  assert.equal(audio.runtime.muted, false);
+  const result = { missed, hit, settled, revisited, native: render, audio, errors };
   fs.writeFileSync(`${out}/verification.json`, JSON.stringify(result, null, 2) + '\n');
   console.log('native pillar keyboard miss + wave hit + persistent stump OK', result);
 } finally {

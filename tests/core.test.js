@@ -11896,3 +11896,23 @@ test("native pillar damage shakes for six 60ms frames then holds without jumping
     assert.ok(Math.abs(call[7]+call[9]-expectedBottom)<.51,"both states retain the native ground-relative bottom");
   }
 });
+
+test("the native pillar break cue occurs once at the real hit, never on a miss or revisit", () => {
+  const s=Core.createState({stage:"mirkwooddeep",seed:1});
+  const cell=s.dungeon.cells.findIndex(c=>c.col===1&&c.row===3);
+  Core.goToCell(s,cell);s.intro=null;s.transition=0;s.enemies=[];
+  const p=s.props.find(p=>p.nativePillar?.x===506);
+  s.props=[p];s.player.x=506*1.125/Core.CAMERA.zoom-30;s.player.z=0;s.player.facing=1;
+  Core.drainSounds(s);Core.runFrames(s,ATTACK_HIT_FRAMES+3,{attack:true});
+  assert.equal(Core.drainSounds(s).filter(e=>e.kind==="stonePillarBreak").length,0);
+  Core.runFrames(s,45,{});Core.drainSounds(s);s.player.z=p.sortZ;
+  Core.runFrames(s,ATTACK_HIT_FRAMES+3,{attack:true});
+  const cues=Core.drainSounds(s).filter(e=>e.kind==="stonePillarBreak");
+  assert.equal(cues.length,1,"one native break cue at the successful contact");
+  assert.equal(cues[0].t,p.nativePillar.damagedAt);
+  assert.equal(cues[0].x,506*1.125/Core.CAMERA.zoom);
+  assert.equal(cues[0].z,p.sortZ);
+  Core.runFrames(s,90,{attack:true});
+  Core.goToCell(s,s.dungeon.entry);Core.goToCell(s,cell);
+  assert.equal(Core.drainSounds(s).filter(e=>e.kind==="stonePillarBreak").length,0);
+});

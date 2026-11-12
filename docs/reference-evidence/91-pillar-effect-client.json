@@ -1,0 +1,897 @@
+{
+  "clients": [
+    {
+      "file": "Script.pvf",
+      "particlePath": "passiveobject/mapobject/breakableobject/particle/stonepillardamage.ptl",
+      "particleSha256": "5b393ed10d6f5ead3d93bd18eda06439a1849b66d4acf6c5f386e22f7c9ecb17",
+      "particleTokens": [
+        [
+          5,
+          "[random range]"
+        ],
+        [
+          2,
+          40
+        ],
+        [
+          5,
+          "[gravity]"
+        ],
+        [
+          2,
+          1200
+        ],
+        [
+          5,
+          "[x axis]"
+        ],
+        [
+          5,
+          "[move type]"
+        ],
+        [
+          7,
+          "[straight line]"
+        ],
+        [
+          5,
+          "[move variable 1]"
+        ],
+        [
+          2,
+          200
+        ],
+        [
+          2,
+          200
+        ],
+        [
+          5,
+          "[z axis]"
+        ],
+        [
+          5,
+          "[move type]"
+        ],
+        [
+          7,
+          "[straight line]"
+        ],
+        [
+          5,
+          "[move variable 1]"
+        ],
+        [
+          2,
+          70
+        ],
+        [
+          2,
+          70
+        ],
+        [
+          5,
+          "[rotation angle range type]"
+        ],
+        [
+          7,
+          "[circle]"
+        ],
+        [
+          5,
+          "[rotation angle variable]"
+        ],
+        [
+          2,
+          50
+        ],
+        [
+          2,
+          50
+        ],
+        [
+          5,
+          "[rotation angle]"
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          70
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          5,
+          "[creation frequency]"
+        ],
+        [
+          2,
+          4294967295
+        ],
+        [
+          5,
+          "[maximum create number]"
+        ],
+        [
+          2,
+          8
+        ],
+        [
+          5,
+          "[maximum create time]"
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          5,
+          "[object type]"
+        ],
+        [
+          7,
+          "[animation]"
+        ],
+        [
+          5,
+          "[object]"
+        ],
+        [
+          7,
+          "../Animation/StonePillar/StonePillarParticle1.ani"
+        ],
+        [
+          2,
+          4294967295
+        ],
+        [
+          7,
+          "../Animation/StonePillar/StonePillarParticle2.ani"
+        ],
+        [
+          2,
+          4294967295
+        ],
+        [
+          7,
+          "../Animation/StonePillar/StonePillarParticle3.ani"
+        ],
+        [
+          2,
+          4294967295
+        ],
+        [
+          7,
+          "../Animation/StonePillar/StonePillarParticle4.ani"
+        ],
+        [
+          2,
+          4294967295
+        ],
+        [
+          5,
+          "[/object]"
+        ],
+        [
+          5,
+          "[life time]"
+        ],
+        [
+          2,
+          500
+        ],
+        [
+          5,
+          "[landing type]"
+        ],
+        [
+          7,
+          "[vanish]"
+        ],
+        [
+          5,
+          "[create area size]"
+        ],
+        [
+          2,
+          50
+        ],
+        [
+          2,
+          30
+        ],
+        [
+          2,
+          10
+        ],
+        [
+          5,
+          "[display effect rate]"
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          50
+        ],
+        [
+          2,
+          100
+        ]
+      ],
+      "animations": {
+        "stonepillarparticle1.ani": {
+          "paths": [
+            "Map/BreakableObject/StonePillar/StonePillarParticle1.img"
+          ],
+          "overall": [
+            [
+              0,
+              1
+            ]
+          ],
+          "frames": [
+            {
+              "frame": 0,
+              "xy": [
+                -18,
+                -21
+              ],
+              "props": [
+                [
+                  10,
+                  1
+                ],
+                [
+                  12,
+                  2000
+                ]
+              ],
+              "boxes": []
+            },
+            {
+              "frame": 0,
+              "xy": [
+                -18,
+                -21
+              ],
+              "props": [
+                [
+                  8,
+                  6.248279094696045
+                ]
+              ],
+              "boxes": []
+            }
+          ]
+        },
+        "stonepillarparticle2.ani": {
+          "paths": [
+            "Map/BreakableObject/StonePillar/StonePillarParticle2.img"
+          ],
+          "overall": [
+            [
+              0,
+              1
+            ]
+          ],
+          "frames": [
+            {
+              "frame": 0,
+              "xy": [
+                -11,
+                -13
+              ],
+              "props": [
+                [
+                  10,
+                  1
+                ],
+                [
+                  12,
+                  2000
+                ]
+              ],
+              "boxes": []
+            },
+            {
+              "frame": 0,
+              "xy": [
+                -11,
+                -13
+              ],
+              "props": [
+                [
+                  8,
+                  6.248279094696045
+                ]
+              ],
+              "boxes": []
+            }
+          ]
+        },
+        "stonepillarparticle3.ani": {
+          "paths": [
+            "Map/BreakableObject/StonePillar/StonePillarParticle3.img"
+          ],
+          "overall": [
+            [
+              0,
+              1
+            ]
+          ],
+          "frames": [
+            {
+              "frame": 0,
+              "xy": [
+                -17,
+                -16
+              ],
+              "props": [
+                [
+                  10,
+                  1
+                ],
+                [
+                  12,
+                  2000
+                ]
+              ],
+              "boxes": []
+            },
+            {
+              "frame": 0,
+              "xy": [
+                -17,
+                -16
+              ],
+              "props": [
+                [
+                  8,
+                  6.248279094696045
+                ]
+              ],
+              "boxes": []
+            }
+          ]
+        },
+        "stonepillarparticle4.ani": {
+          "paths": [
+            "Map/BreakableObject/StonePillar/StonePillarParticle4.img"
+          ],
+          "overall": [
+            [
+              0,
+              1
+            ]
+          ],
+          "frames": [
+            {
+              "frame": 0,
+              "xy": [
+                -3,
+                -3
+              ],
+              "props": [
+                [
+                  10,
+                  1
+                ],
+                [
+                  12,
+                  2000
+                ]
+              ],
+              "boxes": []
+            },
+            {
+              "frame": 0,
+              "xy": [
+                -3,
+                -3
+              ],
+              "props": [
+                [
+                  8,
+                  6.248279094696045
+                ]
+              ],
+              "boxes": []
+            }
+          ]
+        }
+      }
+    },
+    {
+      "file": "Script_70.pvf",
+      "particlePath": "passiveobject/mapobject/breakableobject/particle/stonepillardamage.ptl",
+      "particleSha256": "ddb69b5959cd3e5d831581895baf41e885b12f31ab11adb925444d4c6cede64a",
+      "particleTokens": [
+        [
+          5,
+          "[random range]"
+        ],
+        [
+          2,
+          40
+        ],
+        [
+          5,
+          "[gravity]"
+        ],
+        [
+          2,
+          1200
+        ],
+        [
+          5,
+          "[x axis]"
+        ],
+        [
+          5,
+          "[move type]"
+        ],
+        [
+          7,
+          "[straight line]"
+        ],
+        [
+          5,
+          "[move variable 1]"
+        ],
+        [
+          2,
+          200
+        ],
+        [
+          2,
+          200
+        ],
+        [
+          5,
+          "[z axis]"
+        ],
+        [
+          5,
+          "[move type]"
+        ],
+        [
+          7,
+          "[straight line]"
+        ],
+        [
+          5,
+          "[move variable 1]"
+        ],
+        [
+          2,
+          70
+        ],
+        [
+          2,
+          70
+        ],
+        [
+          5,
+          "[rotation angle range type]"
+        ],
+        [
+          7,
+          "[circle]"
+        ],
+        [
+          5,
+          "[rotation angle variable]"
+        ],
+        [
+          2,
+          50
+        ],
+        [
+          2,
+          50
+        ],
+        [
+          5,
+          "[rotation angle]"
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          70
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          5,
+          "[creation frequency]"
+        ],
+        [
+          2,
+          4294967295
+        ],
+        [
+          5,
+          "[maximum create number]"
+        ],
+        [
+          2,
+          8
+        ],
+        [
+          5,
+          "[maximum create time]"
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          5,
+          "[object type]"
+        ],
+        [
+          7,
+          "[animation]"
+        ],
+        [
+          5,
+          "[object]"
+        ],
+        [
+          7,
+          "../Animation/StonePillar/StonePillarParticle1.ani"
+        ],
+        [
+          2,
+          4294967295
+        ],
+        [
+          7,
+          "../Animation/StonePillar/StonePillarParticle2.ani"
+        ],
+        [
+          2,
+          4294967295
+        ],
+        [
+          7,
+          "../Animation/StonePillar/StonePillarParticle3.ani"
+        ],
+        [
+          2,
+          4294967295
+        ],
+        [
+          7,
+          "../Animation/StonePillar/StonePillarParticle4.ani"
+        ],
+        [
+          2,
+          4294967295
+        ],
+        [
+          5,
+          "[/object]"
+        ],
+        [
+          5,
+          "[life time]"
+        ],
+        [
+          2,
+          500
+        ],
+        [
+          5,
+          "[landing type]"
+        ],
+        [
+          7,
+          "[vanish]"
+        ],
+        [
+          5,
+          "[create area size]"
+        ],
+        [
+          2,
+          50
+        ],
+        [
+          2,
+          30
+        ],
+        [
+          2,
+          10
+        ],
+        [
+          5,
+          "[display effect rate]"
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          50
+        ],
+        [
+          2,
+          100
+        ]
+      ],
+      "animations": {
+        "stonepillarparticle1.ani": {
+          "paths": [
+            "Map/BreakableObject/StonePillar/StonePillarParticle1.img"
+          ],
+          "overall": [
+            [
+              0,
+              1
+            ]
+          ],
+          "frames": [
+            {
+              "frame": 0,
+              "xy": [
+                -18,
+                -21
+              ],
+              "props": [
+                [
+                  10,
+                  1
+                ],
+                [
+                  12,
+                  2000
+                ]
+              ],
+              "boxes": []
+            },
+            {
+              "frame": 0,
+              "xy": [
+                -18,
+                -21
+              ],
+              "props": [
+                [
+                  8,
+                  6.248279094696045
+                ]
+              ],
+              "boxes": []
+            }
+          ]
+        },
+        "stonepillarparticle2.ani": {
+          "paths": [
+            "Map/BreakableObject/StonePillar/StonePillarParticle2.img"
+          ],
+          "overall": [
+            [
+              0,
+              1
+            ]
+          ],
+          "frames": [
+            {
+              "frame": 0,
+              "xy": [
+                -11,
+                -13
+              ],
+              "props": [
+                [
+                  10,
+                  1
+                ],
+                [
+                  12,
+                  2000
+                ]
+              ],
+              "boxes": []
+            },
+            {
+              "frame": 0,
+              "xy": [
+                -11,
+                -13
+              ],
+              "props": [
+                [
+                  8,
+                  6.248279094696045
+                ]
+              ],
+              "boxes": []
+            }
+          ]
+        },
+        "stonepillarparticle3.ani": {
+          "paths": [
+            "Map/BreakableObject/StonePillar/StonePillarParticle3.img"
+          ],
+          "overall": [
+            [
+              0,
+              1
+            ]
+          ],
+          "frames": [
+            {
+              "frame": 0,
+              "xy": [
+                -17,
+                -16
+              ],
+              "props": [
+                [
+                  10,
+                  1
+                ],
+                [
+                  12,
+                  2000
+                ]
+              ],
+              "boxes": []
+            },
+            {
+              "frame": 0,
+              "xy": [
+                -17,
+                -16
+              ],
+              "props": [
+                [
+                  8,
+                  6.248279094696045
+                ]
+              ],
+              "boxes": []
+            }
+          ]
+        },
+        "stonepillarparticle4.ani": {
+          "paths": [
+            "Map/BreakableObject/StonePillar/StonePillarParticle4.img"
+          ],
+          "overall": [
+            [
+              0,
+              1
+            ]
+          ],
+          "frames": [
+            {
+              "frame": 0,
+              "xy": [
+                -3,
+                -3
+              ],
+              "props": [
+                [
+                  10,
+                  1
+                ],
+                [
+                  12,
+                  2000
+                ]
+              ],
+              "boxes": []
+            },
+            {
+              "frame": 0,
+              "xy": [
+                -3,
+                -3
+              ],
+              "props": [
+                [
+                  8,
+                  6.248279094696045
+                ]
+              ],
+              "boxes": []
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "particleImages": [
+    {
+      "entry": "sprite/map/breakableobject/stonepillar/stonepillarparticle1.img",
+      "frame": 0,
+      "size": [
+        19,
+        15
+      ],
+      "imgOffset": [
+        0,
+        0
+      ],
+      "rgbaSha256": "65a4274f14f2ff2f9a95fe702c49a4d9ce66d537e646e02685350e0bcedb9698"
+    },
+    {
+      "entry": "sprite/map/breakableobject/stonepillar/stonepillarparticle2.img",
+      "frame": 0,
+      "size": [
+        15,
+        20
+      ],
+      "imgOffset": [
+        0,
+        0
+      ],
+      "rgbaSha256": "b566c7b71b9e81ec6bb2e2daf2de00011a73bd9392e9de4cbca095b14accc0e7"
+    },
+    {
+      "entry": "sprite/map/breakableobject/stonepillar/stonepillarparticle3.img",
+      "frame": 0,
+      "size": [
+        26,
+        24
+      ],
+      "imgOffset": [
+        0,
+        0
+      ],
+      "rgbaSha256": "db359c18c9fad90842599df03603c10f5f583162ac01d2a5af3e114134c15e9b"
+    },
+    {
+      "entry": "sprite/map/breakableobject/stonepillar/stonepillarparticle4.img",
+      "frame": 0,
+      "size": [
+        8,
+        8
+      ],
+      "imgOffset": [
+        0,
+        0
+      ],
+      "rgbaSha256": "79a8589e03a98a5ce0c4dd3fb20bb2d5a36cb33035f7ffa4afc79386c9fd0bd2"
+    }
+  ],
+  "sound": {
+    "effectId": "TRAP_STONE_BREAK",
+    "xmlElement": "<EFFECT ID=\"TRAP_STONE_BREAK\" FILE=\"sounds\\effect\\amb\\Tstone_break.ogg\"/>",
+    "entry": "sounds/effect/amb/tstone_break.ogg",
+    "packs": [
+      {
+        "folder": "SoundPacks",
+        "pack": "sounds_effect_amb.npk",
+        "bytes": 20937,
+        "sha256": "887b2982fd12af6020851171c7f6c7d13a0febbd81876f56ffd3e84c49b62105"
+      },
+      {
+        "folder": "SoundPacks_70",
+        "pack": "sounds_effect_amb.npk",
+        "bytes": 20937,
+        "sha256": "887b2982fd12af6020851171c7f6c7d13a0febbd81876f56ffd3e84c49b62105"
+      }
+    ],
+    "shippedSha256": "887b2982fd12af6020851171c7f6c7d13a0febbd81876f56ffd3e84c49b62105"
+  },
+  "limits": "PTL maximum count8, life500ms, gravity1200 and four source images are named data. Emission-angle semantics, random-range interpretation and rotation pivot remain unresolved. Video texture tracks support rotating native fragments but do not prove those missing semantics. Audio sample identity is proven; exact reference mix and capture latency are not."
+}

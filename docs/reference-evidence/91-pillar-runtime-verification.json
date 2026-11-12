@@ -1,0 +1,64 @@
+{
+  "unitTests": 421,
+  "browserGroups": 28,
+  "before": "real aligned hit emitted0 stonePillarBreak cues, expected1",
+  "after": "one cue at the hit time/physical position; misses, settling, repeated swings and revisits do not emit another",
+  "keyboardAndWebAudio": {
+    "missed": {
+      "time": 0.7000000000000005,
+      "piece": "pillarDecor",
+      "damagedAt": -1,
+      "gone": false,
+      "broken": false
+    },
+    "hit": {
+      "time": 1.0000000000000013,
+      "piece": "pillarDamagedDecor",
+      "damagedAt": 1.0000000000000013,
+      "gone": false,
+      "broken": false
+    },
+    "settled": {
+      "time": 1.8499999999999983,
+      "piece": "pillarDamagedDecor",
+      "damagedAt": 1.0000000000000013,
+      "gone": false,
+      "broken": false
+    },
+    "revisited": {
+      "time": 1.866666666666665,
+      "piece": "pillarDamagedDecor",
+      "damagedAt": 1.0000000000000013,
+      "gone": false,
+      "broken": false
+    },
+    "native": {
+      "x": 506,
+      "y": 241,
+      "damagedAt": 1.0000000000000013
+    },
+    "audio": {
+      "sources": [
+        {
+          "url": "http://127.0.0.1:39733/assets/sfx/tstone_break.ogg",
+          "duration": 1.4149659863945578,
+          "rate": 1
+        }
+      ],
+      "runtime": {
+        "created": true,
+        "muted": false,
+        "state": "running",
+        "sfxLoaded": 69,
+        "sfxTotal": 69,
+        "sfxPlayed": 4,
+        "rain": true,
+        "forest": true
+      }
+    },
+    "errors": []
+  },
+  "sourceRepeat": "independent client PTL/ANI/audio provenance extraction repeated byte-identically; PTL token/ANI structures equal across two client versions",
+  "particleMeasurement": "36 selected matches across4 candidate tracks; fixed179deg/s residual2.72..4.33degrees within10degree template bins; both rotation-pivot hypotheses remain viable",
+  "limits": "Native cue identity and one-time playback verified. Exact gain/reference A/V delay, weaker-hit/HP semantics, walk collision, visible particle emission and other rooms remain open."
+}

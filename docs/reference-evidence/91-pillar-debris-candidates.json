@@ -1,0 +1,1125 @@
+[
+  {
+    "t": 63.6667,
+    "center": 578.625,
+    "matches": [
+      {
+        "kind": 1,
+        "angle": 40,
+        "score": 0.8899,
+        "xy": [
+          577,
+          295
+        ],
+        "relativeCenter": [
+          12.875,
+          -37.75
+        ]
+      },
+      {
+        "kind": 2,
+        "angle": 300,
+        "score": 0.8887,
+        "xy": [
+          454,
+          181
+        ],
+        "relativeCenter": [
+          -110.125,
+          -152.25
+        ]
+      }
+    ]
+  },
+  {
+    "t": 63.7,
+    "center": 578.625,
+    "matches": [
+      {
+        "kind": 2,
+        "angle": 0,
+        "score": 0.941,
+        "xy": [
+          556,
+          243
+        ],
+        "relativeCenter": [
+          -14.125,
+          -92.25
+        ]
+      },
+      {
+        "kind": 1,
+        "angle": 40,
+        "score": 0.8899,
+        "xy": [
+          577,
+          295
+        ],
+        "relativeCenter": [
+          12.875,
+          -37.75
+        ]
+      },
+      {
+        "kind": 2,
+        "angle": 300,
+        "score": 0.8887,
+        "xy": [
+          454,
+          181
+        ],
+        "relativeCenter": [
+          -110.125,
+          -152.25
+        ]
+      },
+      {
+        "kind": 1,
+        "angle": 180,
+        "score": 0.8639,
+        "xy": [
+          553,
+          223
+        ],
+        "relativeCenter": [
+          -15.125,
+          -114.75
+        ]
+      }
+    ]
+  },
+  {
+    "t": 63.7333,
+    "center": 573.625,
+    "matches": [
+      {
+        "kind": 2,
+        "angle": 10,
+        "score": 0.9597,
+        "xy": [
+          551,
+          237
+        ],
+        "relativeCenter": [
+          -12.125,
+          -96.25
+        ]
+      },
+      {
+        "kind": 2,
+        "angle": 10,
+        "score": 0.9496,
+        "xy": [
+          576,
+          247
+        ],
+        "relativeCenter": [
+          12.875,
+          -86.25
+        ]
+      },
+      {
+        "kind": 1,
+        "angle": 10,
+        "score": 0.9453,
+        "xy": [
+          538,
+          217
+        ],
+        "relativeCenter": [
+          -23.125,
+          -118.75
+        ]
+      },
+      {
+        "kind": 2,
+        "angle": 300,
+        "score": 0.8936,
+        "xy": [
+          449,
+          181
+        ],
+        "relativeCenter": [
+          -110.125,
+          -152.25
+        ]
+      },
+      {
+        "kind": 1,
+        "angle": 40,
+        "score": 0.8847,
+        "xy": [
+          572,
+          295
+        ],
+        "relativeCenter": [
+          12.875,
+          -37.75
+        ]
+      }
+    ]
+  },
+  {
+    "t": 63.7667,
+    "center": 560.625,
+    "matches": [
+      {
+        "kind": 1,
+        "angle": 20,
+        "score": 0.9363,
+        "xy": [
+          521,
+          208
+        ],
+        "relativeCenter": [
+          -26.125,
+          -125.75
+        ]
+      },
+      {
+        "kind": 2,
+        "angle": 20,
+        "score": 0.9322,
+        "xy": [
+          540,
+          233
+        ],
+        "relativeCenter": [
+          -8.125,
+          -99.25
+        ]
+      },
+      {
+        "kind": 2,
+        "angle": 20,
+        "score": 0.9276,
+        "xy": [
+          563,
+          238
+        ],
+        "relativeCenter": [
+          14.875,
+          -94.25
+        ]
+      },
+      {
+        "kind": 2,
+        "angle": 300,
+        "score": 0.8903,
+        "xy": [
+          436,
+          181
+        ],
+        "relativeCenter": [
+          -110.125,
+          -152.25
+        ]
+      }
+    ]
+  },
+  {
+    "t": 63.8,
+    "center": 555.625,
+    "matches": [
+      {
+        "kind": 2,
+        "angle": 20,
+        "score": 0.951,
+        "xy": [
+          536,
+          232
+        ],
+        "relativeCenter": [
+          -7.125,
+          -100.25
+        ]
+      },
+      {
+        "kind": 2,
+        "angle": 20,
+        "score": 0.9457,
+        "xy": [
+          560,
+          237
+        ],
+        "relativeCenter": [
+          16.875,
+          -95.25
+        ]
+      },
+      {
+        "kind": 1,
+        "angle": 20,
+        "score": 0.94,
+        "xy": [
+          516,
+          206
+        ],
+        "relativeCenter": [
+          -26.125,
+          -127.75
+        ]
+      },
+      {
+        "kind": 2,
+        "angle": 300,
+        "score": 0.8809,
+        "xy": [
+          431,
+          180
+        ],
+        "relativeCenter": [
+          -110.125,
+          -153.25
+        ]
+      }
+    ]
+  },
+  {
+    "t": 63.8333,
+    "center": 546.625,
+    "matches": [
+      {
+        "kind": 2,
+        "angle": 20,
+        "score": 0.9434,
+        "xy": [
+          529,
+          233
+        ],
+        "relativeCenter": [
+          -5.125,
+          -99.25
+        ]
+      },
+      {
+        "kind": 1,
+        "angle": 20,
+        "score": 0.9417,
+        "xy": [
+          504,
+          204
+        ],
+        "relativeCenter": [
+          -29.125,
+          -129.75
+        ]
+      }
+    ]
+  },
+  {
+    "t": 63.8667,
+    "center": 533.625,
+    "matches": [
+      {
+        "kind": 1,
+        "angle": 30,
+        "score": 0.9313,
+        "xy": [
+          489,
+          202
+        ],
+        "relativeCenter": [
+          -31.125,
+          -130.75
+        ]
+      },
+      {
+        "kind": 2,
+        "angle": 40,
+        "score": 0.9273,
+        "xy": [
+          518,
+          237
+        ],
+        "relativeCenter": [
+          -1.125,
+          -95.25
+        ]
+      },
+      {
+        "kind": 1,
+        "angle": 40,
+        "score": 0.8979,
+        "xy": [
+          550,
+          195
+        ],
+        "relativeCenter": [
+          30.875,
+          -137.75
+        ]
+      },
+      {
+        "kind": 2,
+        "angle": 170,
+        "score": 0.8817,
+        "xy": [
+          550,
+          228
+        ],
+        "relativeCenter": [
+          26.875,
+          -105.25
+        ]
+      }
+    ]
+  },
+  {
+    "t": 63.9,
+    "center": 526.625,
+    "matches": [
+      {
+        "kind": 1,
+        "angle": 40,
+        "score": 0.9391,
+        "xy": [
+          480,
+          204
+        ],
+        "relativeCenter": [
+          -32.125,
+          -128.75
+        ]
+      },
+      {
+        "kind": 1,
+        "angle": 40,
+        "score": 0.9375,
+        "xy": [
+          544,
+          196
+        ],
+        "relativeCenter": [
+          31.875,
+          -136.75
+        ]
+      },
+      {
+        "kind": 2,
+        "angle": 40,
+        "score": 0.9237,
+        "xy": [
+          512,
+          239
+        ],
+        "relativeCenter": [
+          -0.125,
+          -93.25
+        ]
+      },
+      {
+        "kind": 2,
+        "angle": 190,
+        "score": 0.89,
+        "xy": [
+          543,
+          228
+        ],
+        "relativeCenter": [
+          26.875,
+          -105.25
+        ]
+      },
+      {
+        "kind": 1,
+        "angle": 190,
+        "score": 0.8848,
+        "xy": [
+          434,
+          331
+        ],
+        "relativeCenter": [
+          -80.125,
+          -4.75
+        ]
+      },
+      {
+        "kind": 2,
+        "angle": 200,
+        "score": 0.8606,
+        "xy": [
+          493,
+          144
+        ],
+        "relativeCenter": [
+          -21.125,
+          -188.25
+        ]
+      }
+    ]
+  },
+  {
+    "t": 63.9333,
+    "center": 517.625,
+    "matches": [
+      {
+        "kind": 2,
+        "angle": 50,
+        "score": 0.9503,
+        "xy": [
+          507,
+          245
+        ],
+        "relativeCenter": [
+          3.875,
+          -87.25
+        ]
+      },
+      {
+        "kind": 1,
+        "angle": 50,
+        "score": 0.9382,
+        "xy": [
+          539,
+          198
+        ],
+        "relativeCenter": [
+          34.875,
+          -133.75
+        ]
+      },
+      {
+        "kind": 1,
+        "angle": 40,
+        "score": 0.9322,
+        "xy": [
+          470,
+          206
+        ],
+        "relativeCenter": [
+          -33.125,
+          -126.75
+        ]
+      },
+      {
+        "kind": 2,
+        "angle": 220,
+        "score": 0.8665,
+        "xy": [
+          530,
+          229
+        ],
+        "relativeCenter": [
+          26.875,
+          -103.25
+        ]
+      },
+      {
+        "kind": 2,
+        "angle": 300,
+        "score": 0.8648,
+        "xy": [
+          383,
+          197
+        ],
+        "relativeCenter": [
+          -120.125,
+          -136.25
+        ]
+      }
+    ]
+  },
+  {
+    "t": 63.9667,
+    "center": 502.625,
+    "matches": [
+      {
+        "kind": 1,
+        "angle": 60,
+        "score": 0.9464,
+        "xy": [
+          529,
+          206
+        ],
+        "relativeCenter": [
+          39.875,
+          -126.75
+        ]
+      },
+      {
+        "kind": 1,
+        "angle": 50,
+        "score": 0.939,
+        "xy": [
+          455,
+          213
+        ],
+        "relativeCenter": [
+          -34.125,
+          -118.75
+        ]
+      },
+      {
+        "kind": 2,
+        "angle": 50,
+        "score": 0.9082,
+        "xy": [
+          496,
+          255
+        ],
+        "relativeCenter": [
+          7.875,
+          -77.25
+        ]
+      },
+      {
+        "kind": 2,
+        "angle": 180,
+        "score": 0.8693,
+        "xy": [
+          504,
+          232
+        ],
+        "relativeCenter": [
+          9.875,
+          -103.25
+        ]
+      },
+      {
+        "kind": 2,
+        "angle": 200,
+        "score": 0.8619,
+        "xy": [
+          470,
+          144
+        ],
+        "relativeCenter": [
+          -20.125,
+          -188.25
+        ]
+      },
+      {
+        "kind": 2,
+        "angle": 240,
+        "score": 0.8593,
+        "xy": [
+          517,
+          236
+        ],
+        "relativeCenter": [
+          28.875,
+          -97.25
+        ]
+      },
+      {
+        "kind": 2,
+        "angle": 340,
+        "score": 0.8556,
+        "xy": [
+          463,
+          190
+        ],
+        "relativeCenter": [
+          -27.125,
+          -142.25
+        ]
+      }
+    ]
+  },
+  {
+    "t": 64.0,
+    "center": 499.625,
+    "matches": [
+      {
+        "kind": 1,
+        "angle": 60,
+        "score": 0.9485,
+        "xy": [
+          527,
+          208
+        ],
+        "relativeCenter": [
+          40.875,
+          -124.75
+        ]
+      },
+      {
+        "kind": 2,
+        "angle": 60,
+        "score": 0.9149,
+        "xy": [
+          494,
+          259
+        ],
+        "relativeCenter": [
+          8.875,
+          -74.25
+        ]
+      },
+      {
+        "kind": 2,
+        "angle": 240,
+        "score": 0.8626,
+        "xy": [
+          514,
+          238
+        ],
+        "relativeCenter": [
+          28.875,
+          -95.25
+        ]
+      },
+      {
+        "kind": 2,
+        "angle": 170,
+        "score": 0.8533,
+        "xy": [
+          499,
+          234
+        ],
+        "relativeCenter": [
+          9.875,
+          -99.25
+        ]
+      }
+    ]
+  },
+  {
+    "t": 64.0333,
+    "center": 489.625,
+    "matches": [
+      {
+        "kind": 2,
+        "angle": 60,
+        "score": 0.9415,
+        "xy": [
+          508,
+          250
+        ],
+        "relativeCenter": [
+          32.875,
+          -83.25
+        ]
+      },
+      {
+        "kind": 1,
+        "angle": 60,
+        "score": 0.9371,
+        "xy": [
+          520,
+          215
+        ],
+        "relativeCenter": [
+          43.875,
+          -117.75
+        ]
+      },
+      {
+        "kind": 2,
+        "angle": 60,
+        "score": 0.8974,
+        "xy": [
+          487,
+          270
+        ],
+        "relativeCenter": [
+          11.875,
+          -63.25
+        ]
+      },
+      {
+        "kind": 2,
+        "angle": 200,
+        "score": 0.8602,
+        "xy": [
+          456,
+          144
+        ],
+        "relativeCenter": [
+          -21.125,
+          -188.25
+        ]
+      },
+      {
+        "kind": 1,
+        "angle": 40,
+        "score": 0.8508,
+        "xy": [
+          466,
+          239
+        ],
+        "relativeCenter": [
+          -9.125,
+          -93.75
+        ]
+      }
+    ]
+  },
+  {
+    "t": 64.0667,
+    "center": 476.625,
+    "matches": [
+      {
+        "kind": 1,
+        "angle": 70,
+        "score": 0.9372,
+        "xy": [
+          513,
+          229
+        ],
+        "relativeCenter": [
+          48.875,
+          -103.75
+        ]
+      },
+      {
+        "kind": 2,
+        "angle": 70,
+        "score": 0.9372,
+        "xy": [
+          501,
+          263
+        ],
+        "relativeCenter": [
+          37.875,
+          -71.25
+        ]
+      },
+      {
+        "kind": 2,
+        "angle": 70,
+        "score": 0.9039,
+        "xy": [
+          480,
+          287
+        ],
+        "relativeCenter": [
+          16.875,
+          -47.25
+        ]
+      },
+      {
+        "kind": 2,
+        "angle": 300,
+        "score": 0.8842,
+        "xy": [
+          352,
+          181
+        ],
+        "relativeCenter": [
+          -110.125,
+          -152.25
+        ]
+      },
+      {
+        "kind": 1,
+        "angle": 200,
+        "score": 0.8769,
+        "xy": [
+          432,
+          308
+        ],
+        "relativeCenter": [
+          -31.125,
+          -25.75
+        ]
+      },
+      {
+        "kind": 2,
+        "angle": 350,
+        "score": 0.8674,
+        "xy": [
+          373,
+          224
+        ],
+        "relativeCenter": [
+          -93.125,
+          -109.25
+        ]
+      },
+      {
+        "kind": 2,
+        "angle": 200,
+        "score": 0.8529,
+        "xy": [
+          444,
+          144
+        ],
+        "relativeCenter": [
+          -20.125,
+          -188.25
+        ]
+      },
+      {
+        "kind": 2,
+        "angle": 210,
+        "score": 0.8516,
+        "xy": [
+          540,
+          333
+        ],
+        "relativeCenter": [
+          76.875,
+          0.75
+        ]
+      }
+    ]
+  },
+  {
+    "t": 64.1,
+    "center": 476.625,
+    "matches": [
+      {
+        "kind": 2,
+        "angle": 80,
+        "score": 0.951,
+        "xy": [
+          503,
+          270
+        ],
+        "relativeCenter": [
+          38.875,
+          -65.25
+        ]
+      },
+      {
+        "kind": 2,
+        "angle": 70,
+        "score": 0.941,
+        "xy": [
+          481,
+          294
+        ],
+        "relativeCenter": [
+          17.875,
+          -40.25
+        ]
+      },
+      {
+        "kind": 1,
+        "angle": 70,
+        "score": 0.9388,
+        "xy": [
+          516,
+          236
+        ],
+        "relativeCenter": [
+          51.875,
+          -96.75
+        ]
+      },
+      {
+        "kind": 2,
+        "angle": 300,
+        "score": 0.8796,
+        "xy": [
+          353,
+          181
+        ],
+        "relativeCenter": [
+          -109.125,
+          -152.25
+        ]
+      },
+      {
+        "kind": 2,
+        "angle": 310,
+        "score": 0.8583,
+        "xy": [
+          513,
+          213
+        ],
+        "relativeCenter": [
+          50.875,
+          -119.25
+        ]
+      },
+      {
+        "kind": 2,
+        "angle": 200,
+        "score": 0.852,
+        "xy": [
+          444,
+          144
+        ],
+        "relativeCenter": [
+          -20.125,
+          -188.25
+        ]
+      },
+      {
+        "kind": 2,
+        "angle": 210,
+        "score": 0.8513,
+        "xy": [
+          540,
+          333
+        ],
+        "relativeCenter": [
+          76.875,
+          0.75
+        ]
+      }
+    ]
+  },
+  {
+    "t": 64.1333,
+    "center": 476.625,
+    "matches": [
+      {
+        "kind": 2,
+        "angle": 80,
+        "score": 0.953,
+        "xy": [
+          505,
+          278
+        ],
+        "relativeCenter": [
+          40.875,
+          -57.25
+        ]
+      },
+      {
+        "kind": 2,
+        "angle": 80,
+        "score": 0.9464,
+        "xy": [
+          485,
+          307
+        ],
+        "relativeCenter": [
+          20.875,
+          -28.25
+        ]
+      },
+      {
+        "kind": 1,
+        "angle": 270,
+        "score": 0.8899,
+        "xy": [
+          520,
+          242
+        ],
+        "relativeCenter": [
+          51.875,
+          -93.75
+        ]
+      },
+      {
+        "kind": 2,
+        "angle": 300,
+        "score": 0.8796,
+        "xy": [
+          353,
+          181
+        ],
+        "relativeCenter": [
+          -109.125,
+          -152.25
+        ]
+      },
+      {
+        "kind": 2,
+        "angle": 310,
+        "score": 0.8597,
+        "xy": [
+          513,
+          213
+        ],
+        "relativeCenter": [
+          50.875,
+          -119.25
+        ]
+      },
+      {
+        "kind": 2,
+        "angle": 200,
+        "score": 0.8538,
+        "xy": [
+          444,
+          144
+        ],
+        "relativeCenter": [
+          -20.125,
+          -188.25
+        ]
+      },
+      {
+        "kind": 2,
+        "angle": 210,
+        "score": 0.8512,
+        "xy": [
+          540,
+          333
+        ],
+        "relativeCenter": [
+          76.875,
+          0.75
+        ]
+      }
+    ]
+  },
+  {
+    "t": 64.1667,
+    "center": 476.625,
+    "matches": [
+      {
+        "kind": 2,
+        "angle": 90,
+        "score": 0.9414,
+        "xy": [
+          511,
+          302
+        ],
+        "relativeCenter": [
+          45.375,
+          -35.75
+        ]
+      },
+      {
+        "kind": 2,
+        "angle": 300,
+        "score": 0.8796,
+        "xy": [
+          353,
+          181
+        ],
+        "relativeCenter": [
+          -109.125,
+          -152.25
+        ]
+      },
+      {
+        "kind": 2,
+        "angle": 90,
+        "score": 0.8698,
+        "xy": [
+          492,
+          336
+        ],
+        "relativeCenter": [
+          26.375,
+          -1.75
+        ]
+      },
+      {
+        "kind": 2,
+        "angle": 310,
+        "score": 0.8561,
+        "xy": [
+          513,
+          213
+        ],
+        "relativeCenter": [
+          50.875,
+          -119.25
+        ]
+      },
+      {
+        "kind": 2,
+        "angle": 200,
+        "score": 0.8527,
+        "xy": [
+          444,
+          144
+        ],
+        "relativeCenter": [
+          -20.125,
+          -188.25
+        ]
+      }
+    ]
+  }
+]

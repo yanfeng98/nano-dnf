@@ -8559,6 +8559,7 @@
     // This is an observed hit response, not a decoded native HP value.
     native.damagedAt = state.time;
     prop.piece = "pillarDamagedDecor";
+    pushSound(state, "stonePillarBreak", { x: native.x * scale, z: groundZ });
   }
 
   /**

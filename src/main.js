@@ -811,6 +811,9 @@
     } else if (event.kind === "playerSkill") {
       playSfx("player_skill_" + event.skillId, { gain: 0.45, pan: pan });
       duckMusic(360);
+    } else if (event.kind === "stonePillarBreak") {
+      // Native actionstonepillar.obj cue; use the existing SFX mix and pan.
+      playSfx("stone_pillar_break", { pan: pan });
     } else if (event.kind === "playerHurt") {
       if (!sfxReady("playerHurt", undefined, 0.18)) return;
       playSfx("player_hurt", { gain: 0.44, pan: pan });

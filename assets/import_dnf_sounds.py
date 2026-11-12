@@ -82,6 +82,9 @@ SOUNDS = {
     "player_skill_hellbenter": [(SWORDMAN, "sounds/char/swordman/sm_ancient.ogg")],
     "player_skill_silverFall": [(SWORDMAN, "sounds/char/swordman/sm_wave.ogg")],
 
+    # actionstonepillar.obj -> TRAP_STONE_BREAK -> audio.xml; native file, no synthesis.
+    "stone_pillar_break": [(AMB_EFFECT, "sounds/effect/amb/tstone_break.ogg")],
+
     # ---- goblin family ---------------------------------------------------
     "goblin_attack": [
         (MON_ACT1, "sounds/mon/act1/gbn_comm.ogg"),

@@ -68,7 +68,8 @@
     "tau_dmg_03.ogg",
     "tau_roar.ogg",
     "tau_rush.ogg",
-    "tau_talk_01.ogg"
+    "tau_talk_01.ogg",
+    "tstone_break.ogg"
   ],
   "map": {
     "player_attack": [
@@ -137,6 +138,9 @@
     ],
     "player_skill_silverFall": [
       "sm_wave.ogg"
+    ],
+    "stone_pillar_break": [
+      "tstone_break.ogg"
     ],
     "goblin_attack": [
       "gbn_comm.ogg",

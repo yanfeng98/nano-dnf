@@ -1,0 +1,104 @@
+{
+  "sample": "assets/sfx/tstone_break.ogg",
+  "sampleSecondsFfmpeg": 1.3989569160997732,
+  "sampleRate": 22050,
+  "intervals": [
+    {
+      "interval": "entry",
+      "start": 25,
+      "duration": 6,
+      "peaks": [
+        {
+          "prefixSeconds": 0.2,
+          "time": 25.74721088435374,
+          "correlation": 0.2702680239586139
+        },
+        {
+          "prefixSeconds": 0.3,
+          "time": 25.74716553287982,
+          "correlation": 0.20882549822690438
+        },
+        {
+          "prefixSeconds": 0.4,
+          "time": 26.807981859410432,
+          "correlation": 0.18787918424302139
+        },
+        {
+          "prefixSeconds": 0.6,
+          "time": 26.356190476190477,
+          "correlation": 0.16416926812862906
+        },
+        {
+          "prefixSeconds": 1.3989569160997732,
+          "time": 27.21609977324263,
+          "correlation": 0.11685008727061319
+        }
+      ]
+    },
+    {
+      "interval": "middle",
+      "start": 40,
+      "duration": 6,
+      "peaks": [
+        {
+          "prefixSeconds": 0.2,
+          "time": 42.10675736961451,
+          "correlation": 0.27485835598940467
+        },
+        {
+          "prefixSeconds": 0.3,
+          "time": 42.106802721088435,
+          "correlation": 0.2589697895629667
+        },
+        {
+          "prefixSeconds": 0.4,
+          "time": 42.1069387755102,
+          "correlation": 0.2332689035315285
+        },
+        {
+          "prefixSeconds": 0.6,
+          "time": 42.1069387755102,
+          "correlation": 0.22594999270230953
+        },
+        {
+          "prefixSeconds": 1.3989569160997732,
+          "time": 42.10671201814059,
+          "correlation": 0.15739170301441524
+        }
+      ]
+    },
+    {
+      "interval": "late",
+      "start": 62,
+      "duration": 6,
+      "peaks": [
+        {
+          "prefixSeconds": 0.2,
+          "time": 63.888390022675736,
+          "correlation": 0.3178094691472255
+        },
+        {
+          "prefixSeconds": 0.3,
+          "time": 63.888390022675736,
+          "correlation": 0.3822736218485326
+        },
+        {
+          "prefixSeconds": 0.4,
+          "time": 63.888390022675736,
+          "correlation": 0.3765944193609913
+        },
+        {
+          "prefixSeconds": 0.6,
+          "time": 63.888390022675736,
+          "correlation": 0.34049220269951097
+        },
+        {
+          "prefixSeconds": 1.3989569160997732,
+          "time": 63.8881179138322,
+          "correlation": 0.25514040075568184
+        }
+      ]
+    }
+  ],
+  "limits": "Mixed audio has music, attacks and voices. Late/middle long-prefix peaks are consistent in location but correlations are partial; entry short-prefix peaks are unstable. This does not establish exact mix gain or a fixed game-side delay. No audio offset is added to runtime."
+}

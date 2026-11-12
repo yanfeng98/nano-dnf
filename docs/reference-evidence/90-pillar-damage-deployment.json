@@ -1,0 +1,47 @@
+{
+  "commit": "f5d0c16",
+  "workflow": "https://github.com/yanfeng98/nano-dnf/actions/runs/43129967644",
+  "ci": "completed success: regression tests, Pages deploy, deployed-build smoke",
+  "unitTests": 420,
+  "browserGroups": 28,
+  "localLiveSmoke": "passed: deployed resources match checkout and page boots cleanly",
+  "deployedKeyboardProbe": {
+    "missed": {
+      "time": 0.6666666666666671,
+      "piece": "pillarDecor",
+      "damagedAt": -1,
+      "gone": false,
+      "broken": false
+    },
+    "hit": {
+      "time": 0.9500000000000013,
+      "piece": "pillarDamagedDecor",
+      "damagedAt": 0.9500000000000013,
+      "gone": false,
+      "broken": false
+    },
+    "settled": {
+      "time": 1.7999999999999985,
+      "piece": "pillarDamagedDecor",
+      "damagedAt": 0.9500000000000013,
+      "gone": false,
+      "broken": false
+    },
+    "revisited": {
+      "time": 1.7999999999999985,
+      "piece": "pillarDamagedDecor",
+      "damagedAt": 0.9500000000000013,
+      "gone": false,
+      "broken": false
+    },
+    "native": {
+      "x": 506,
+      "y": 241,
+      "damagedAt": 0.9500000000000013
+    },
+    "errors": []
+  },
+  "site": "https://luyf-lemon-love.space/nano-dnf/",
+  "manualAcceptance": "pending",
+  "remaining": "Native HP/weak-hit semantics, walking collision before/after damage, stone particles/audio/damage text and other rooms remain unresolved, together with the broader audit."
+}
