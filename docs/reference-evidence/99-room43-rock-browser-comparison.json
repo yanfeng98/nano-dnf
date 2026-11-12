@@ -1,0 +1,50 @@
+[
+  {
+    "label": "native-rock-519",
+    "time": 76.25,
+    "minPixels": 2000,
+    "threshold": 0.97,
+    "nativeMask": {
+      "rows": 60,
+      "columns": 159,
+      "alphaOnly": false,
+      "box": null
+    },
+    "cosine": 0.9973106495496442,
+    "dx": 0,
+    "dy": -1,
+    "pixels": 2061
+  },
+  {
+    "label": "native-rock-1045",
+    "time": 82.25,
+    "minPixels": 1500,
+    "threshold": 0.97,
+    "nativeMask": {
+      "rows": 55,
+      "columns": 159,
+      "alphaOnly": false,
+      "box": null
+    },
+    "cosine": 0.996593624192579,
+    "dx": 0,
+    "dy": 0,
+    "pixels": 1874
+  },
+  {
+    "label": "native-rock-1490",
+    "time": 87.75,
+    "minPixels": 1500,
+    "threshold": 0.97,
+    "nativeMask": {
+      "rows": 55,
+      "columns": 159,
+      "alphaOnly": false,
+      "box": null
+    },
+    "cosine": 0.9960390054357658,
+    "dx": 1,
+    "dy": -1,
+    "pixels": 1874
+  }
+]

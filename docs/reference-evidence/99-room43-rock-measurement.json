@@ -1,0 +1,1511 @@
+{
+  "source": {
+    "objectListRecord": [
+      286,
+      "MapObject/Obstacle/StoneHead1.obj"
+    ],
+    "map": "map/mirkwooddeep/n423(2,3).map",
+    "mapSha256": "9aada19d4129d408ba6cbdf9f30a038925d077e8f7266eb46fde65bb3c781d15",
+    "object": "passiveobject/mapobject/obstacle/stonehead1.obj",
+    "objectSha256": "a4a6c644eae31869daeba91bce8221983b13771491e8e2aff893895f5bc70513",
+    "width": [
+      140,
+      28
+    ],
+    "passType": "[do not pass]",
+    "animation": {
+      "paths": [
+        "Map/02obj009.img"
+      ],
+      "overall": [
+        [
+          1,
+          0
+        ]
+      ],
+      "frames": [
+        {
+          "frame": 0,
+          "xy": [
+            -59,
+            -81
+          ],
+          "props": [
+            [
+              12,
+              50
+            ]
+          ],
+          "boxes": []
+        }
+      ]
+    },
+    "records": [
+      [
+        286,
+        519,
+        309,
+        0
+      ],
+      [
+        286,
+        1045,
+        346,
+        0
+      ],
+      [
+        286,
+        1490,
+        347,
+        0
+      ]
+    ],
+    "imageSize": [
+      141,
+      89
+    ],
+    "imageOffset": [
+      0,
+      7
+    ],
+    "rgbaSha256": "336f5d4dcf46b9ef605ffa4a4ffe694f74ae1ecdca5fe5c4ad120b9955e17a95"
+  },
+  "screenScale": 1.125,
+  "screenYPhase": 92,
+  "gate": {
+    "score": 0.94,
+    "positionResidualPx": 2
+  },
+  "observations": [
+    {
+      "frame": 1,
+      "time": 74.25,
+      "native": [
+        519,
+        309
+      ],
+      "score": 0.8881780505180359,
+      "templateHeight": 99,
+      "expectedTopLeft": [
+        517.5,
+        356.375
+      ],
+      "measuredTopLeft": [
+        517,
+        357
+      ],
+      "residual": [
+        -0.5,
+        0.625
+      ],
+      "accepted": false
+    },
+    {
+      "frame": 2,
+      "time": 74.75,
+      "native": [
+        519,
+        309
+      ],
+      "score": 0.8904046416282654,
+      "templateHeight": 99,
+      "expectedTopLeft": [
+        517.39,
+        356.375
+      ],
+      "measuredTopLeft": [
+        517,
+        357
+      ],
+      "residual": [
+        -0.38999999999998636,
+        0.625
+      ],
+      "accepted": false
+    },
+    {
+      "frame": 3,
+      "time": 75.25,
+      "native": [
+        519,
+        309
+      ],
+      "score": 0.8939529061317444,
+      "templateHeight": 99,
+      "expectedTopLeft": [
+        516.35,
+        356.375
+      ],
+      "measuredTopLeft": [
+        516,
+        357
+      ],
+      "residual": [
+        -0.35000000000002274,
+        0.625
+      ],
+      "accepted": false
+    },
+    {
+      "frame": 4,
+      "time": 75.75,
+      "native": [
+        519,
+        309
+      ],
+      "score": 0.9700039625167847,
+      "templateHeight": 99,
+      "expectedTopLeft": [
+        374.6,
+        356.375
+      ],
+      "measuredTopLeft": [
+        375,
+        357
+      ],
+      "residual": [
+        0.39999999999997726,
+        0.625
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 5,
+      "time": 76.25,
+      "native": [
+        519,
+        309
+      ],
+      "score": 0.9699004888534546,
+      "templateHeight": 99,
+      "expectedTopLeft": [
+        310.5,
+        356.375
+      ],
+      "measuredTopLeft": [
+        310,
+        357
+      ],
+      "residual": [
+        -0.5,
+        0.625
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 6,
+      "time": 76.75,
+      "native": [
+        519,
+        309
+      ],
+      "score": 0.9788586497306824,
+      "templateHeight": 99,
+      "expectedTopLeft": [
+        218.18,
+        356.375
+      ],
+      "measuredTopLeft": [
+        218,
+        357
+      ],
+      "residual": [
+        -0.18000000000000682,
+        0.625
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 7,
+      "time": 77.25,
+      "native": [
+        519,
+        309
+      ],
+      "score": 0.9790599942207336,
+      "templateHeight": 99,
+      "expectedTopLeft": [
+        186.75,
+        356.375
+      ],
+      "measuredTopLeft": [
+        187,
+        357
+      ],
+      "residual": [
+        0.25,
+        0.625
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 8,
+      "time": 77.75,
+      "native": [
+        519,
+        309
+      ],
+      "score": 0.9787812829017639,
+      "templateHeight": 99,
+      "expectedTopLeft": [
+        146.23000000000002,
+        356.375
+      ],
+      "measuredTopLeft": [
+        146,
+        357
+      ],
+      "residual": [
+        -0.2300000000000182,
+        0.625
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 9,
+      "time": 78.25,
+      "native": [
+        519,
+        309
+      ],
+      "score": 0.9814690947532654,
+      "templateHeight": 99,
+      "expectedTopLeft": [
+        91.11000000000001,
+        356.375
+      ],
+      "measuredTopLeft": [
+        91,
+        357
+      ],
+      "residual": [
+        -0.11000000000001364,
+        0.625
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 10,
+      "time": 78.75,
+      "native": [
+        519,
+        309
+      ],
+      "score": 0.9765448570251465,
+      "templateHeight": 99,
+      "expectedTopLeft": [
+        66.32,
+        356.375
+      ],
+      "measuredTopLeft": [
+        66,
+        357
+      ],
+      "residual": [
+        -0.3199999999999932,
+        0.625
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 13,
+      "time": 80.25,
+      "native": [
+        1045,
+        346
+      ],
+      "score": 0.9843092560768127,
+      "templateHeight": 58,
+      "expectedTopLeft": [
+        515.14,
+        398.0
+      ],
+      "measuredTopLeft": [
+        515,
+        398
+      ],
+      "residual": [
+        -0.13999999999998636,
+        0.0
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 14,
+      "time": 80.75,
+      "native": [
+        1045,
+        346
+      ],
+      "score": 0.9856078028678894,
+      "templateHeight": 58,
+      "expectedTopLeft": [
+        484.87,
+        398.0
+      ],
+      "measuredTopLeft": [
+        485,
+        398
+      ],
+      "residual": [
+        0.12999999999999545,
+        0.0
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 15,
+      "time": 81.25,
+      "native": [
+        1045,
+        346
+      ],
+      "score": 0.979080319404602,
+      "templateHeight": 58,
+      "expectedTopLeft": [
+        464.58000000000004,
+        398.0
+      ],
+      "measuredTopLeft": [
+        465,
+        398
+      ],
+      "residual": [
+        0.4199999999999591,
+        0.0
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 16,
+      "time": 81.75,
+      "native": [
+        1045,
+        346
+      ],
+      "score": 0.9812593460083008,
+      "templateHeight": 58,
+      "expectedTopLeft": [
+        403.89,
+        398.0
+      ],
+      "measuredTopLeft": [
+        404,
+        398
+      ],
+      "residual": [
+        0.11000000000001364,
+        0.0
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 17,
+      "time": 82.25,
+      "native": [
+        1045,
+        346
+      ],
+      "score": 0.9765266180038452,
+      "templateHeight": 58,
+      "expectedTopLeft": [
+        354.35,
+        398.0
+      ],
+      "measuredTopLeft": [
+        354,
+        398
+      ],
+      "residual": [
+        -0.35000000000002274,
+        0.0
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 18,
+      "time": 82.75,
+      "native": [
+        1045,
+        346
+      ],
+      "score": 0.9736541509628296,
+      "templateHeight": 58,
+      "expectedTopLeft": [
+        320.61,
+        398.0
+      ],
+      "measuredTopLeft": [
+        321,
+        398
+      ],
+      "residual": [
+        0.38999999999998636,
+        0.0
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 19,
+      "time": 83.25,
+      "native": [
+        1045,
+        346
+      ],
+      "score": 0.9848918318748474,
+      "templateHeight": 58,
+      "expectedTopLeft": [
+        314.99,
+        398.0
+      ],
+      "measuredTopLeft": [
+        315,
+        398
+      ],
+      "residual": [
+        0.009999999999990905,
+        0.0
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 20,
+      "time": 83.75,
+      "native": [
+        1045,
+        346
+      ],
+      "score": 0.9764153361320496,
+      "templateHeight": 58,
+      "expectedTopLeft": [
+        302.62,
+        398.0
+      ],
+      "measuredTopLeft": [
+        303,
+        398
+      ],
+      "residual": [
+        0.37999999999999545,
+        0.0
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 21,
+      "time": 84.25,
+      "native": [
+        1045,
+        346
+      ],
+      "score": 0.9847203493118286,
+      "templateHeight": 58,
+      "expectedTopLeft": [
+        268.86,
+        398.0
+      ],
+      "measuredTopLeft": [
+        269,
+        398
+      ],
+      "residual": [
+        0.13999999999998636,
+        0.0
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 22,
+      "time": 84.75,
+      "native": [
+        1045,
+        346
+      ],
+      "score": 0.9770336151123047,
+      "templateHeight": 58,
+      "expectedTopLeft": [
+        201.39999999999998,
+        398.0
+      ],
+      "measuredTopLeft": [
+        201,
+        398
+      ],
+      "residual": [
+        -0.39999999999997726,
+        0.0
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 23,
+      "time": 85.25,
+      "native": [
+        1045,
+        346
+      ],
+      "score": 0.9853004217147827,
+      "templateHeight": 58,
+      "expectedTopLeft": [
+        178.86,
+        398.0
+      ],
+      "measuredTopLeft": [
+        179,
+        398
+      ],
+      "residual": [
+        0.13999999999998636,
+        0.0
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 24,
+      "time": 85.75,
+      "native": [
+        1045,
+        346
+      ],
+      "score": 0.9744864702224731,
+      "templateHeight": 58,
+      "expectedTopLeft": [
+        175.48000000000002,
+        398.0
+      ],
+      "measuredTopLeft": [
+        176,
+        398
+      ],
+      "residual": [
+        0.5199999999999818,
+        0.0
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 25,
+      "time": 86.25,
+      "native": [
+        1045,
+        346
+      ],
+      "score": 0.9800550937652588,
+      "templateHeight": 58,
+      "expectedTopLeft": [
+        59.57999999999993,
+        398.0
+      ],
+      "measuredTopLeft": [
+        60,
+        398
+      ],
+      "residual": [
+        0.42000000000007276,
+        0.0
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 26,
+      "time": 86.75,
+      "native": [
+        1490,
+        347
+      ],
+      "score": 0.9639424085617065,
+      "templateHeight": 56,
+      "expectedTopLeft": [
+        418.385,
+        399.125
+      ],
+      "measuredTopLeft": [
+        419,
+        399
+      ],
+      "residual": [
+        0.6150000000000091,
+        -0.125
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 27,
+      "time": 87.25,
+      "native": [
+        1490,
+        347
+      ],
+      "score": 0.9725729823112488,
+      "templateHeight": 56,
+      "expectedTopLeft": [
+        313.82500000000005,
+        399.125
+      ],
+      "measuredTopLeft": [
+        314,
+        399
+      ],
+      "residual": [
+        0.17499999999995453,
+        -0.125
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 28,
+      "time": 87.75,
+      "native": [
+        1490,
+        347
+      ],
+      "score": 0.9798802137374878,
+      "templateHeight": 56,
+      "expectedTopLeft": [
+        313.81500000000005,
+        399.125
+      ],
+      "measuredTopLeft": [
+        314,
+        399
+      ],
+      "residual": [
+        0.18499999999994543,
+        -0.125
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 29,
+      "time": 88.25,
+      "native": [
+        1490,
+        347
+      ],
+      "score": 0.9789343476295471,
+      "templateHeight": 56,
+      "expectedTopLeft": [
+        313.81500000000005,
+        399.125
+      ],
+      "measuredTopLeft": [
+        314,
+        399
+      ],
+      "residual": [
+        0.18499999999994543,
+        -0.125
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 30,
+      "time": 88.75,
+      "native": [
+        1490,
+        347
+      ],
+      "score": 0.9725918769836426,
+      "templateHeight": 56,
+      "expectedTopLeft": [
+        399.32500000000005,
+        399.125
+      ],
+      "measuredTopLeft": [
+        399,
+        399
+      ],
+      "residual": [
+        -0.3250000000000455,
+        -0.125
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 31,
+      "time": 89.25,
+      "native": [
+        1490,
+        347
+      ],
+      "score": 0.9724084734916687,
+      "templateHeight": 56,
+      "expectedTopLeft": [
+        399.32500000000005,
+        399.125
+      ],
+      "measuredTopLeft": [
+        399,
+        399
+      ],
+      "residual": [
+        -0.3250000000000455,
+        -0.125
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 32,
+      "time": 89.75,
+      "native": [
+        1490,
+        347
+      ],
+      "score": 0.9734477996826172,
+      "templateHeight": 56,
+      "expectedTopLeft": [
+        399.32500000000005,
+        399.125
+      ],
+      "measuredTopLeft": [
+        399,
+        399
+      ],
+      "residual": [
+        -0.3250000000000455,
+        -0.125
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 33,
+      "time": 90.25,
+      "native": [
+        1490,
+        347
+      ],
+      "score": 0.9717317819595337,
+      "templateHeight": 56,
+      "expectedTopLeft": [
+        409.4549999999999,
+        399.125
+      ],
+      "measuredTopLeft": [
+        410,
+        399
+      ],
+      "residual": [
+        0.5450000000000728,
+        -0.125
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 34,
+      "time": 90.75,
+      "native": [
+        1045,
+        346
+      ],
+      "score": 0.9772611260414124,
+      "templateHeight": 58,
+      "expectedTopLeft": [
+        46.11999999999989,
+        398.0
+      ],
+      "measuredTopLeft": [
+        46,
+        398
+      ],
+      "residual": [
+        -0.11999999999989086,
+        0.0
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 34,
+      "time": 90.75,
+      "native": [
+        1490,
+        347
+      ],
+      "score": 0.948149561882019,
+      "templateHeight": 56,
+      "expectedTopLeft": [
+        546.7449999999999,
+        399.125
+      ],
+      "measuredTopLeft": [
+        547,
+        399
+      ],
+      "residual": [
+        0.25500000000010914,
+        -0.125
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 35,
+      "time": 91.25,
+      "native": [
+        1045,
+        346
+      ],
+      "score": 0.9725749492645264,
+      "templateHeight": 58,
+      "expectedTopLeft": [
+        96.69000000000005,
+        398.0
+      ],
+      "measuredTopLeft": [
+        97,
+        398
+      ],
+      "residual": [
+        0.30999999999994543,
+        0.0
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 36,
+      "time": 91.75,
+      "native": [
+        1045,
+        346
+      ],
+      "score": 0.9803926944732666,
+      "templateHeight": 58,
+      "expectedTopLeft": [
+        146.19000000000005,
+        398.0
+      ],
+      "measuredTopLeft": [
+        146,
+        398
+      ],
+      "residual": [
+        -0.19000000000005457,
+        0.0
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 37,
+      "time": 92.25,
+      "native": [
+        1045,
+        346
+      ],
+      "score": 0.9717106819152832,
+      "templateHeight": 58,
+      "expectedTopLeft": [
+        148.45000000000005,
+        398.0
+      ],
+      "measuredTopLeft": [
+        149,
+        398
+      ],
+      "residual": [
+        0.5499999999999545,
+        0.0
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 38,
+      "time": 92.75,
+      "native": [
+        1045,
+        346
+      ],
+      "score": 0.9686225652694702,
+      "templateHeight": 58,
+      "expectedTopLeft": [
+        189.01,
+        398.0
+      ],
+      "measuredTopLeft": [
+        189,
+        398
+      ],
+      "residual": [
+        -0.009999999999990905,
+        0.0
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 39,
+      "time": 93.25,
+      "native": [
+        1045,
+        346
+      ],
+      "score": 0.9745489954948425,
+      "templateHeight": 58,
+      "expectedTopLeft": [
+        248.53999999999996,
+        398.0
+      ],
+      "measuredTopLeft": [
+        249,
+        398
+      ],
+      "residual": [
+        0.4600000000000364,
+        0.0
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 40,
+      "time": 93.75,
+      "native": [
+        1045,
+        346
+      ],
+      "score": 0.9686142206192017,
+      "templateHeight": 58,
+      "expectedTopLeft": [
+        290.22,
+        398.0
+      ],
+      "measuredTopLeft": [
+        290,
+        398
+      ],
+      "residual": [
+        -0.22000000000002728,
+        0.0
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 41,
+      "time": 94.25,
+      "native": [
+        1045,
+        346
+      ],
+      "score": 0.9257707595825195,
+      "templateHeight": 58,
+      "expectedTopLeft": [
+        291.32000000000005,
+        398.0
+      ],
+      "measuredTopLeft": [
+        291,
+        398
+      ],
+      "residual": [
+        -0.32000000000005,
+        0.0
+      ],
+      "accepted": false
+    },
+    {
+      "frame": 42,
+      "time": 94.75,
+      "native": [
+        1045,
+        346
+      ],
+      "score": 0.974719226360321,
+      "templateHeight": 58,
+      "expectedTopLeft": [
+        291.34000000000003,
+        398.0
+      ],
+      "measuredTopLeft": [
+        291,
+        398
+      ],
+      "residual": [
+        -0.34000000000003183,
+        0.0
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 43,
+      "time": 95.25,
+      "native": [
+        1045,
+        346
+      ],
+      "score": 0.9727146625518799,
+      "templateHeight": 58,
+      "expectedTopLeft": [
+        291.35,
+        398.0
+      ],
+      "measuredTopLeft": [
+        291,
+        398
+      ],
+      "residual": [
+        -0.35000000000002274,
+        0.0
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 44,
+      "time": 95.75,
+      "native": [
+        1045,
+        346
+      ],
+      "score": 0.9729466438293457,
+      "templateHeight": 58,
+      "expectedTopLeft": [
+        345.34000000000003,
+        398.0
+      ],
+      "measuredTopLeft": [
+        345,
+        398
+      ],
+      "residual": [
+        -0.34000000000003183,
+        0.0
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 45,
+      "time": 96.25,
+      "native": [
+        1045,
+        346
+      ],
+      "score": 0.9841252565383911,
+      "templateHeight": 58,
+      "expectedTopLeft": [
+        487.1,
+        398.0
+      ],
+      "measuredTopLeft": [
+        487,
+        398
+      ],
+      "residual": [
+        -0.10000000000002274,
+        0.0
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 46,
+      "time": 96.75,
+      "native": [
+        1045,
+        346
+      ],
+      "score": 0.9728789925575256,
+      "templateHeight": 58,
+      "expectedTopLeft": [
+        517.48,
+        398.0
+      ],
+      "measuredTopLeft": [
+        518,
+        398
+      ],
+      "residual": [
+        0.5199999999999818,
+        0.0
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 47,
+      "time": 97.25,
+      "native": [
+        1045,
+        346
+      ],
+      "score": 0.9750493168830872,
+      "templateHeight": 58,
+      "expectedTopLeft": [
+        517.5,
+        398.0
+      ],
+      "measuredTopLeft": [
+        518,
+        398
+      ],
+      "residual": [
+        0.5,
+        0.0
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 48,
+      "time": 97.75,
+      "native": [
+        1045,
+        346
+      ],
+      "score": 0.9750843644142151,
+      "templateHeight": 58,
+      "expectedTopLeft": [
+        517.49,
+        398.0
+      ],
+      "measuredTopLeft": [
+        518,
+        398
+      ],
+      "residual": [
+        0.5099999999999909,
+        0.0
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 49,
+      "time": 98.25,
+      "native": [
+        519,
+        309
+      ],
+      "score": 0.9761671423912048,
+      "templateHeight": 99,
+      "expectedTopLeft": [
+        24.769999999999982,
+        356.375
+      ],
+      "measuredTopLeft": [
+        25,
+        357
+      ],
+      "residual": [
+        0.2300000000000182,
+        0.625
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 50,
+      "time": 98.75,
+      "native": [
+        519,
+        309
+      ],
+      "score": 0.979247510433197,
+      "templateHeight": 99,
+      "expectedTopLeft": [
+        161.95,
+        356.375
+      ],
+      "measuredTopLeft": [
+        162,
+        357
+      ],
+      "residual": [
+        0.05000000000001137,
+        0.625
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 51,
+      "time": 99.25,
+      "native": [
+        519,
+        309
+      ],
+      "score": 0.9690297842025757,
+      "templateHeight": 99,
+      "expectedTopLeft": [
+        193.51,
+        356.375
+      ],
+      "measuredTopLeft": [
+        193,
+        357
+      ],
+      "residual": [
+        -0.5099999999999909,
+        0.625
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 52,
+      "time": 99.75,
+      "native": [
+        519,
+        309
+      ],
+      "score": 0.9691120386123657,
+      "templateHeight": 99,
+      "expectedTopLeft": [
+        193.51,
+        356.375
+      ],
+      "measuredTopLeft": [
+        193,
+        357
+      ],
+      "residual": [
+        -0.5099999999999909,
+        0.625
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 53,
+      "time": 100.25,
+      "native": [
+        519,
+        309
+      ],
+      "score": 0.9685155153274536,
+      "templateHeight": 99,
+      "expectedTopLeft": [
+        193.51,
+        356.375
+      ],
+      "measuredTopLeft": [
+        193,
+        357
+      ],
+      "residual": [
+        -0.5099999999999909,
+        0.625
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 54,
+      "time": 100.75,
+      "native": [
+        519,
+        309
+      ],
+      "score": 0.9771713614463806,
+      "templateHeight": 99,
+      "expectedTopLeft": [
+        78.75,
+        356.375
+      ],
+      "measuredTopLeft": [
+        79,
+        357
+      ],
+      "residual": [
+        0.25,
+        0.625
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 55,
+      "time": 101.25,
+      "native": [
+        1045,
+        346
+      ],
+      "score": 0.9797593951225281,
+      "templateHeight": 58,
+      "expectedTopLeft": [
+        528.77,
+        398.0
+      ],
+      "measuredTopLeft": [
+        529,
+        398
+      ],
+      "residual": [
+        0.2300000000000182,
+        0.0
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 56,
+      "time": 101.75,
+      "native": [
+        1045,
+        346
+      ],
+      "score": 0.9821639657020569,
+      "templateHeight": 58,
+      "expectedTopLeft": [
+        385.89,
+        398.0
+      ],
+      "measuredTopLeft": [
+        386,
+        398
+      ],
+      "residual": [
+        0.11000000000001364,
+        0.0
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 57,
+      "time": 102.25,
+      "native": [
+        1045,
+        346
+      ],
+      "score": 0.9828497767448425,
+      "templateHeight": 58,
+      "expectedTopLeft": [
+        244.16999999999996,
+        398.0
+      ],
+      "measuredTopLeft": [
+        244,
+        398
+      ],
+      "residual": [
+        -0.16999999999995907,
+        0.0
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 58,
+      "time": 102.75,
+      "native": [
+        1045,
+        346
+      ],
+      "score": 0.9828152656555176,
+      "templateHeight": 58,
+      "expectedTopLeft": [
+        101.21000000000004,
+        398.0
+      ],
+      "measuredTopLeft": [
+        101,
+        398
+      ],
+      "residual": [
+        -0.21000000000003638,
+        0.0
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 59,
+      "time": 103.25,
+      "native": [
+        1045,
+        346
+      ],
+      "score": 0.9861947894096375,
+      "templateHeight": 58,
+      "expectedTopLeft": [
+        61.84999999999991,
+        398.0
+      ],
+      "measuredTopLeft": [
+        62,
+        398
+      ],
+      "residual": [
+        0.15000000000009095,
+        0.0
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 60,
+      "time": 103.75,
+      "native": [
+        1045,
+        346
+      ],
+      "score": 0.9879476428031921,
+      "templateHeight": 58,
+      "expectedTopLeft": [
+        61.84999999999991,
+        398.0
+      ],
+      "measuredTopLeft": [
+        62,
+        398
+      ],
+      "residual": [
+        0.15000000000009095,
+        0.0
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 61,
+      "time": 104.25,
+      "native": [
+        1045,
+        346
+      ],
+      "score": 0.9870511889457703,
+      "templateHeight": 58,
+      "expectedTopLeft": [
+        61.83999999999992,
+        398.0
+      ],
+      "measuredTopLeft": [
+        62,
+        398
+      ],
+      "residual": [
+        0.16000000000008185,
+        0.0
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 62,
+      "time": 104.75,
+      "native": [
+        1045,
+        346
+      ],
+      "score": 0.9885770678520203,
+      "templateHeight": 58,
+      "expectedTopLeft": [
+        61.84999999999991,
+        398.0
+      ],
+      "measuredTopLeft": [
+        62,
+        398
+      ],
+      "residual": [
+        0.15000000000009095,
+        0.0
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 63,
+      "time": 105.25,
+      "native": [
+        1045,
+        346
+      ],
+      "score": 0.9870621562004089,
+      "templateHeight": 58,
+      "expectedTopLeft": [
+        61.84999999999991,
+        398.0
+      ],
+      "measuredTopLeft": [
+        62,
+        398
+      ],
+      "residual": [
+        0.15000000000009095,
+        0.0
+      ],
+      "accepted": true
+    }
+  ],
+  "limits": [
+    "Occluded observations are retained as exclusions, not evidence of a different position.",
+    "Native static pass flag does not alone prove all engine collision behavior."
+  ]
+}

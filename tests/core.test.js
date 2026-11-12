@@ -12063,3 +12063,26 @@ test("room43 native pillars use the native physical anchors for blocking and hit
   assert.equal(s.props.find(q=>q.nativePillar?.x===1250),p);
   assert.ok(p.nativePillar.damagedAt>=0);
 });
+
+test("room43 rocks retain native bitmap offsets and independent walk footprints", () => {
+  const s=Core.createState({stage:"mirkwooddeep",seed:1});
+  Core.goToCell(s,s.dungeon.cells.findIndex(c=>c.col===2&&c.row===3));
+  const rocks=s.props.filter(p=>p.piece==="rockFlat");
+  assert.equal(rocks.length,3);
+  const scale=1.125/Core.CAMERA.zoom;
+  for(const [i,[x,y]] of [[519,309],[1045,346],[1490,347]].entries()) {
+    const p=rocks[i],body=Core.propObstacle(p);
+    assert.ok(Math.abs(body.x-x*scale)<1e-7,"collision uses the native anchor");
+    assert.ok(Math.abs(body.width-140*scale)<1e-7);
+    assert.ok(Math.abs(body.depth-28*scale/Core.DEPTH.scale)<1e-7);
+    assert.ok(Math.abs(p.x-(x+11.5)*scale)<1e-7,"bitmap centre includes ANI and IMG offsets");
+    assert.ok(Math.abs((p.z-body.z)+15*scale/Core.DEPTH.scale)<1e-7);
+    assert.equal(p.sortZ,body.z);
+    assert.ok(Math.abs(p.scale[0]-scale)<1e-9);
+  }
+  const p=rocks[0],body=Core.propObstacle(p);
+  s.props=[p];s.enemies=[];s.intro=null;s.transition=0;s.room.cleared=true;s.player.invuln=999;
+  s.player.x=body.x-120;s.player.z=0;
+  Core.runFrames(s,120,{right:true});
+  assert.ok(Math.abs(s.player.x-(body.x-(140+40)*scale/2))<1e-7,"real movement stops at native rock plus player footprint");
+});

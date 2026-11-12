@@ -68,6 +68,13 @@ const profiles={
    ['center-floor',133,'forest',672+((540+554.49+12.375)/1.125)%224,380+(396-233)/1.125,36/1.125,24/1.125,540,396,36,24,24,800,.6,null,null,true,14],
    ['west-floor',146,'forest',672+((180+111.38+12.375)/1.125)%224,380+(396-233)/1.125,36/1.125,24/1.125,180,396,36,24,24,800,.6,null,null,true,14]
   ]},
+ '43-rocks':{cameraTolerance:1,evidence:'99-room43',col:2,row:3,out:'/tmp/nano-room99/render',times:[76.25,82.25,87.75],actorScreenX:80,exit:'N',next:'藤蔓窄道',
+  scope:'three native room43 StoneHead bitmaps; other scenery and native engine collision semantics remain open',
+  cases:[
+   ['native-rock-519',76.25,'forest',585,803,141,89,310,357,159,100,60,2000,.97],
+   ['native-rock-1045',82.25,'forest',585,803,141,89,354,398,159,100,55,1500,.97],
+   ['native-rock-1490',87.75,'forest',585,803,141,89,314,399,159,100,55,1500,.97]
+  ]},
  '43-pillars':{cameraTolerance:1,evidence:'97-room43',col:2,row:3,out:'/tmp/nano-room97/render',times:[76.25,79.25,82.25],actorScreenX:80,exit:'N',next:'藤蔓窄道',
   scope:'six independently identified room43 native pillars at three measured cameras; other scenery remains open',
   cases:[

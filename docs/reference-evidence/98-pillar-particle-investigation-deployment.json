@@ -1,0 +1,17 @@
+{
+  "commit": "384f787",
+  "workflow": "https://github.com/yanfeng98/nano-dnf/actions/runs/43205620687",
+  "ci": "Success: public workflow page verifies commit and three executed jobs",
+  "site": "https://luyf-lemon-love.space/nano-dnf/",
+  "runtimeChanges": false,
+  "runtimeBaseline": {
+    "commit": "7e21aaf",
+    "unitTests": 428,
+    "browserGroups": 33,
+    "manualAcceptance": "pending"
+  },
+  "newChecks": "Independent room43 HD measurement CLI passed native image hashes, six full360 identities, alternate large-template margins, pre-burst controls and bounded initial-angle diagnostics; clock comparison CLI passed same42-point accounting and independent source review",
+  "localLiveSmoke": "passed: deployed runtime resources match checkout and boot without problems",
+  "decision": "Investigation published; no guessed particle emitter, pivot, native clock or count was added",
+  "remaining": "Actual debris effect, emitter count/distribution/pivot/native timing, PTL40/50/70 and int75 semantics and all other open audit requirements remain unresolved."
+}

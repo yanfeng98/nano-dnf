@@ -2259,9 +2259,9 @@
     ]
   };
 
-  // Native object anchor, verified against room42/33 video matches
-  // (audit batches88/89). Bitmap bottom is 13 native pixels below this plane.
-  function nativePillarSortZ(nativeY) {
+  // Native physical ground plane, shared by pillars and rocks (audit88/89/99).
+  // Bitmap offsets belong to each object animation, not this conversion.
+  function nativeGroundZ(nativeY) {
     return (ARENA.groundY - (nativeY * (VIEW.width / 640) + 92)) /
       (CAMERA.zoom * DEPTH.scale);
   }
@@ -2906,21 +2906,21 @@
           props: [
             { piece: "chest", x: 391, depth: 1.56 },
             { piece: "chest", x: 456, depth: 1.56 },
-            { piece: "pillarPale", x: 499.958491, depth: 1.484048, sortZ: nativePillarSortZ(173), nativePillar: [700, 173] },
-            { piece: "pillarPale", x: 532.766038, depth: 1.043156, sortZ: nativePillarSortZ(207), nativePillar: [746, 207] },
-            { piece: "pillarPale", x: 656.864151, depth: -0.331389, sortZ: nativePillarSortZ(313), nativePillar: [920, 313] },
-            { piece: "pillarPale", x: 689.671698, depth: -0.798216, sortZ: nativePillarSortZ(349), nativePillar: [966, 349] },
-            { piece: "pillarPale", x: 862.267925, depth: 0.641166, sortZ: nativePillarSortZ(238), nativePillar: [1208, 238] },
-            { piece: "pillarPale", x: 892.222642, depth: 0.291046, sortZ: nativePillarSortZ(265), nativePillar: [1250, 265] },
+            { piece: "pillarPale", x: 499.958491, depth: 1.484048, sortZ: nativeGroundZ(173), nativePillar: [700, 173] },
+            { piece: "pillarPale", x: 532.766038, depth: 1.043156, sortZ: nativeGroundZ(207), nativePillar: [746, 207] },
+            { piece: "pillarPale", x: 656.864151, depth: -0.331389, sortZ: nativeGroundZ(313), nativePillar: [920, 313] },
+            { piece: "pillarPale", x: 689.671698, depth: -0.798216, sortZ: nativeGroundZ(349), nativePillar: [966, 349] },
+            { piece: "pillarPale", x: 862.267925, depth: 0.641166, sortZ: nativeGroundZ(238), nativePillar: [1208, 238] },
+            { piece: "pillarPale", x: 892.222642, depth: 0.291046, sortZ: nativeGroundZ(265), nativePillar: [1250, 265] },
             { piece: "barrel", x: 567, depth: 0.62 },
-            { piece: "rockFlat", x: 375, depth: -0.18, scale: [0.77, 0.77] },
+            { piece: "rockFlat", nativeRock: [519, 309] },
             { piece: "fallenTrunk", x: 178, depth: -0.58 },
             /* Right half visible at V2 90.25/104.25s, camera 1200/1047px.
              * These were outside the old, shortened 684px room entirely.
              */
             { piece: "barrel", x: 826, depth: 1.52 },
-            { piece: "rockFlat", x: 768, depth: -0.22, scale: [0.77, 0.77] },
-            { piece: "rockFlat", x: 1070, depth: -0.22, scale: [0.77, 0.77] },
+            { piece: "rockFlat", nativeRock: [1045, 346] },
+            { piece: "rockFlat", nativeRock: [1490, 347] },
           ],
           scatter: {"solid":0,"barrels":0,"stones":0}
         },
@@ -2957,14 +2957,14 @@
            * Native caps also identify6 barrels; the former rock was a damaged pillar. Unseen initial damage and enemy placements remain
            * unverified; preserve existing enemy world positions. */
           props: [
-            { piece: "pillarPale", x: 200, depth: 1.588, sortZ: nativePillarSortZ(164), nativePillar: [325, 164, 46] },
-            { piece: "pillarPale", x: 231, depth: 1.22, sortZ: nativePillarSortZ(193), nativePillar: [368, 193, 46] },
-            { piece: "pillarPale", x: 410, depth: 0.748, sortZ: nativePillarSortZ(229), nativePillar: [620, 229, 46] },
-            { piece: "pillarPale", x: 442, depth: 0.345, sortZ: nativePillarSortZ(260), nativePillar: [663, 260, 46] },
-            { piece: "pillarPale", x: 737, depth: 0.748, sortZ: nativePillarSortZ(229), nativePillar: [1078, 229, 46] },
-            { piece: "pillarPale", x: 768, depth: 0.345, sortZ: nativePillarSortZ(260), nativePillar: [1121, 260, 46] },
-            { piece: "pillarPale", x: 936, depth: -0.368, sortZ: nativePillarSortZ(316), nativePillar: [1355, 316, 46] },
-            { piece: "pillarPale", x: 966, depth: -0.748, sortZ: nativePillarSortZ(345), nativePillar: [1398, 345, 46] },
+            { piece: "pillarPale", x: 200, depth: 1.588, sortZ: nativeGroundZ(164), nativePillar: [325, 164, 46] },
+            { piece: "pillarPale", x: 231, depth: 1.22, sortZ: nativeGroundZ(193), nativePillar: [368, 193, 46] },
+            { piece: "pillarPale", x: 410, depth: 0.748, sortZ: nativeGroundZ(229), nativePillar: [620, 229, 46] },
+            { piece: "pillarPale", x: 442, depth: 0.345, sortZ: nativeGroundZ(260), nativePillar: [663, 260, 46] },
+            { piece: "pillarPale", x: 737, depth: 0.748, sortZ: nativeGroundZ(229), nativePillar: [1078, 229, 46] },
+            { piece: "pillarPale", x: 768, depth: 0.345, sortZ: nativeGroundZ(260), nativePillar: [1121, 260, 46] },
+            { piece: "pillarPale", x: 936, depth: -0.368, sortZ: nativeGroundZ(316), nativePillar: [1355, 316, 46] },
+            { piece: "pillarPale", x: 966, depth: -0.748, sortZ: nativeGroundZ(345), nativePillar: [1398, 345, 46] },
             { piece: "barrel", x: 376, depth: 1.6, scale: [0.7, 0.7] },
             { piece: "barrel", x: 475, depth: -0.599, scale: [0.7, 0.7] },
             { piece: "barrel", x: 488, depth: 0.46, scale: [0.725, 0.725] },
@@ -3003,18 +3003,18 @@
           // See reference-video-audit batch46. Coordinates are world anchors,
           // not positions stretched with the larger room width.
           props: [
-            { piece: "pillarDecor", x: 244, depth: 0.576, sortZ: nativePillarSortZ(243), nativePillar: [340, 243] },
-            { piece: "pillarDecor", x: 320, depth: -0.542, sortZ: nativePillarSortZ(329), nativePillar: [448, 329] },
-            { piece: "pillarDecor", x: 362, depth: 0.599, sortZ: nativePillarSortZ(241), nativePillar: [506, 241] },
-            { piece: "pillarDecor", x: 492, depth: -0.023, sortZ: nativePillarSortZ(289), nativePillar: [689, 289] },
-            { piece: "pillarDecor", x: 543, depth: 0.841, sortZ: nativePillarSortZ(222), nativePillar: [759, 222] },
-            { piece: "pillarDecor", x: 572, depth: -0.576, sortZ: nativePillarSortZ(334), nativePillar: [801, 334] },
-            { piece: "pillarDecor", x: 626, depth: -0.012, sortZ: nativePillarSortZ(288), nativePillar: [877, 288] },
-            { piece: "pillarDecor", x: 716, depth: 0.795, sortZ: nativePillarSortZ(226), nativePillar: [1002, 226] },
-            { piece: "pillarDecor", x: 825, depth: 0.772, sortZ: nativePillarSortZ(228), nativePillar: [1154, 228] },
-            { piece: "pillarDecor", x: 893, depth: -0.334, sortZ: nativePillarSortZ(313), nativePillar: [1251, 313] },
-            { piece: "pillarDecor", x: 976, depth: -0.288, sortZ: nativePillarSortZ(309), nativePillar: [1368, 309] },
-            { piece: "pillarDecor", x: 1035, depth: 0.392, sortZ: nativePillarSortZ(257), nativePillar: [1450, 257] },
+            { piece: "pillarDecor", x: 244, depth: 0.576, sortZ: nativeGroundZ(243), nativePillar: [340, 243] },
+            { piece: "pillarDecor", x: 320, depth: -0.542, sortZ: nativeGroundZ(329), nativePillar: [448, 329] },
+            { piece: "pillarDecor", x: 362, depth: 0.599, sortZ: nativeGroundZ(241), nativePillar: [506, 241] },
+            { piece: "pillarDecor", x: 492, depth: -0.023, sortZ: nativeGroundZ(289), nativePillar: [689, 289] },
+            { piece: "pillarDecor", x: 543, depth: 0.841, sortZ: nativeGroundZ(222), nativePillar: [759, 222] },
+            { piece: "pillarDecor", x: 572, depth: -0.576, sortZ: nativeGroundZ(334), nativePillar: [801, 334] },
+            { piece: "pillarDecor", x: 626, depth: -0.012, sortZ: nativeGroundZ(288), nativePillar: [877, 288] },
+            { piece: "pillarDecor", x: 716, depth: 0.795, sortZ: nativeGroundZ(226), nativePillar: [1002, 226] },
+            { piece: "pillarDecor", x: 825, depth: 0.772, sortZ: nativeGroundZ(228), nativePillar: [1154, 228] },
+            { piece: "pillarDecor", x: 893, depth: -0.334, sortZ: nativeGroundZ(313), nativePillar: [1251, 313] },
+            { piece: "pillarDecor", x: 976, depth: -0.288, sortZ: nativeGroundZ(309), nativePillar: [1368, 309] },
+            { piece: "pillarDecor", x: 1035, depth: 0.392, sortZ: nativeGroundZ(257), nativePillar: [1450, 257] },
             // The front chest is partly behind a log/HUD; its upper-right
             // native fragment stays at world x462 across independent views.
             { piece: "chest", x: 462, depth: -0.703 },
@@ -3078,18 +3078,18 @@
            * Later-only damage is not initial damage; bunker destruction and
            * exact native HP/loot semantics remain unverified. */
           props: [
-            {"piece": "pillarPale", "x": 225, "depth": 1.588, "sortZ": nativePillarSortZ(164), "nativePillar": [325, 164, 11]},
-            {"piece": "pillarPale", "x": 256, "depth": 1.22, "sortZ": nativePillarSortZ(193), "nativePillar": [368, 193, 11]},
-            {"piece": "pillarPale", "x": 439, "depth": 0.265, "sortZ": nativePillarSortZ(267), "nativePillar": [624, 267, 11]},
-            {"piece": "pillarPale", "x": 466, "depth": -0.069, "sortZ": nativePillarSortZ(292), "nativePillar": [661, 292, 11]},
-            {"piece": "pillarPale", "x": 487, "depth": -0.46, "sortZ": nativePillarSortZ(322), "nativePillar": [691, 322, 11]},
-            {"piece": "pillarPale", "x": 510, "depth": -0.829, "sortZ": nativePillarSortZ(351), "nativePillar": [725, 351, 11]},
-            {"piece": "pillarPale", "x": 736, "depth": 1.6, "sortZ": nativePillarSortZ(163), "nativePillar": [1042, 163, 11]},
-            {"piece": "pillarPale", "x": 756, "depth": 1.243, "sortZ": nativePillarSortZ(191), "nativePillar": [1070, 191, 11]},
-            {"piece": "pillarPale", "x": 774, "depth": 0.863, "sortZ": nativePillarSortZ(220), "nativePillar": [1095, 220, 11]},
-            {"piece": "pillarPale", "x": 798, "depth": 0.506, "sortZ": nativePillarSortZ(248), "nativePillar": [1129, 248, 11]},
-            {"piece": "pillarPale", "x": 1009, "depth": -0.403, "sortZ": nativePillarSortZ(318), "nativePillar": [1423, 318, 11]},
-            {"piece": "pillarPale", "x": 1038, "depth": -0.748, "sortZ": nativePillarSortZ(345), "nativePillar": [1466, 345, 11]},
+            {"piece": "pillarPale", "x": 225, "depth": 1.588, "sortZ": nativeGroundZ(164), "nativePillar": [325, 164, 11]},
+            {"piece": "pillarPale", "x": 256, "depth": 1.22, "sortZ": nativeGroundZ(193), "nativePillar": [368, 193, 11]},
+            {"piece": "pillarPale", "x": 439, "depth": 0.265, "sortZ": nativeGroundZ(267), "nativePillar": [624, 267, 11]},
+            {"piece": "pillarPale", "x": 466, "depth": -0.069, "sortZ": nativeGroundZ(292), "nativePillar": [661, 292, 11]},
+            {"piece": "pillarPale", "x": 487, "depth": -0.46, "sortZ": nativeGroundZ(322), "nativePillar": [691, 322, 11]},
+            {"piece": "pillarPale", "x": 510, "depth": -0.829, "sortZ": nativeGroundZ(351), "nativePillar": [725, 351, 11]},
+            {"piece": "pillarPale", "x": 736, "depth": 1.6, "sortZ": nativeGroundZ(163), "nativePillar": [1042, 163, 11]},
+            {"piece": "pillarPale", "x": 756, "depth": 1.243, "sortZ": nativeGroundZ(191), "nativePillar": [1070, 191, 11]},
+            {"piece": "pillarPale", "x": 774, "depth": 0.863, "sortZ": nativeGroundZ(220), "nativePillar": [1095, 220, 11]},
+            {"piece": "pillarPale", "x": 798, "depth": 0.506, "sortZ": nativeGroundZ(248), "nativePillar": [1129, 248, 11]},
+            {"piece": "pillarPale", "x": 1009, "depth": -0.403, "sortZ": nativeGroundZ(318), "nativePillar": [1423, 318, 11]},
+            {"piece": "pillarPale", "x": 1038, "depth": -0.748, "sortZ": nativeGroundZ(345), "nativePillar": [1466, 345, 11]},
             {"piece": "barrel", "x": 489, "depth": 1.6, "scale": [0.7, 0.7]},
             {"piece": "barrel", "x": 509, "depth": 0.898, "scale": [0.7, 0.7]},
             {"piece": "barrel", "x": 613, "depth": 0.483, "scale": [0.725, 0.725]},
@@ -3129,21 +3129,21 @@
            * 1248.85 world px; native ground and right camera support1248.75; south axis world182. Later damaged
            * shapes do not establish initial states; SC-17 remains open. */
           props: [
-            { piece: "pillarPale", x: 243, depth: 1.462, sortZ: nativePillarSortZ(174), nativePillar: [380, 174, 41] },
-            { piece: "pillarPale", x: 270, depth: 1.036, sortZ: nativePillarSortZ(207), nativePillar: [419, 207, 41] },
-            { piece: "pillarPale", x: 303, depth: 0.679, sortZ: nativePillarSortZ(234), nativePillar: [464, 234, 41] },
-            { piece: "pillarPale", x: 438, depth: -0.783, sortZ: nativePillarSortZ(347), nativePillar: [655, 347, 41] },
-            { piece: "pillarPale", x: 465, depth: -0.357, sortZ: nativePillarSortZ(314), nativePillar: [692, 314, 41] },
-            { piece: "pillarPale", x: 495, depth: 0.012, sortZ: nativePillarSortZ(286), nativePillar: [735, 286, 41] },
-            { piece: "pillarPale", x: 614, depth: 0.863, sortZ: nativePillarSortZ(220), nativePillar: [900, 220, 41] },
-            { piece: "pillarPale", x: 641, depth: 1.163, sortZ: nativePillarSortZ(197), nativePillar: [939, 197, 41] },
-            { piece: "pillarPale", x: 670, depth: 1.542, sortZ: nativePillarSortZ(168), nativePillar: [979, 168, 41] },
-            { piece: "pillarPale", x: 772, depth: -0.84, sortZ: nativePillarSortZ(352), nativePillar: [1122, 352, 41] },
-            { piece: "pillarPale", x: 804, depth: -0.334, sortZ: nativePillarSortZ(313), nativePillar: [1168, 313, 41] },
-            { piece: "pillarPale", x: 836, depth: 0.127, sortZ: nativePillarSortZ(277), nativePillar: [1213, 277, 41] },
-            { piece: "pillarPale", x: 943, depth: 1.128, sortZ: nativePillarSortZ(200), nativePillar: [1362, 200, 41] },
-            { piece: "pillarPale", x: 970, depth: 1.37, sortZ: nativePillarSortZ(181), nativePillar: [1400, 181, 41] },
-            { piece: "pillarPale", x: 997, depth: 1.658, sortZ: nativePillarSortZ(159), nativePillar: [1438, 159, 41] },
+            { piece: "pillarPale", x: 243, depth: 1.462, sortZ: nativeGroundZ(174), nativePillar: [380, 174, 41] },
+            { piece: "pillarPale", x: 270, depth: 1.036, sortZ: nativeGroundZ(207), nativePillar: [419, 207, 41] },
+            { piece: "pillarPale", x: 303, depth: 0.679, sortZ: nativeGroundZ(234), nativePillar: [464, 234, 41] },
+            { piece: "pillarPale", x: 438, depth: -0.783, sortZ: nativeGroundZ(347), nativePillar: [655, 347, 41] },
+            { piece: "pillarPale", x: 465, depth: -0.357, sortZ: nativeGroundZ(314), nativePillar: [692, 314, 41] },
+            { piece: "pillarPale", x: 495, depth: 0.012, sortZ: nativeGroundZ(286), nativePillar: [735, 286, 41] },
+            { piece: "pillarPale", x: 614, depth: 0.863, sortZ: nativeGroundZ(220), nativePillar: [900, 220, 41] },
+            { piece: "pillarPale", x: 641, depth: 1.163, sortZ: nativeGroundZ(197), nativePillar: [939, 197, 41] },
+            { piece: "pillarPale", x: 670, depth: 1.542, sortZ: nativeGroundZ(168), nativePillar: [979, 168, 41] },
+            { piece: "pillarPale", x: 772, depth: -0.84, sortZ: nativeGroundZ(352), nativePillar: [1122, 352, 41] },
+            { piece: "pillarPale", x: 804, depth: -0.334, sortZ: nativeGroundZ(313), nativePillar: [1168, 313, 41] },
+            { piece: "pillarPale", x: 836, depth: 0.127, sortZ: nativeGroundZ(277), nativePillar: [1213, 277, 41] },
+            { piece: "pillarPale", x: 943, depth: 1.128, sortZ: nativeGroundZ(200), nativePillar: [1362, 200, 41] },
+            { piece: "pillarPale", x: 970, depth: 1.37, sortZ: nativeGroundZ(181), nativePillar: [1400, 181, 41] },
+            { piece: "pillarPale", x: 997, depth: 1.658, sortZ: nativeGroundZ(159), nativePillar: [1438, 159, 41] },
             { piece: "barrel", x: 349, depth: 0.334, scale: [0.7, 0.7] },
             { piece: "barrel", x: 395, depth: -0.046, scale: [0.725, 0.725] },
             { piece: "barrel", x: 531, depth: 0.288, scale: [0.725, 0.725] },
@@ -3487,6 +3487,17 @@
    */
   STAGES.mirkwooddeep.rooms.forEach(function (room) {
     room.band = { backY: 375, visualBackY: 320 };
+    // StoneHead.ani(-59,-81) + IMG(0,7), bitmap141×89: centre/bottom(+11.5,+15).
+    // Native object footprint140×28 remains independent of bitmap offsets (audit99).
+    room.props.forEach(function (entry) {
+      if (!entry.nativeRock) return;
+      var scale = (VIEW.width / 640) / CAMERA.zoom;
+      var floorDepth = (ARENA.groundY - room.band.backY) / DEPTH.scale;
+      entry.x = (entry.nativeRock[0] + 11.5) * scale;
+      entry.depth = nativeGroundZ(entry.nativeRock[1] + 15) / floorDepth;
+      entry.sortZ = nativeGroundZ(entry.nativeRock[1]);
+      entry.scale = [scale, scale];
+    });
   });
 
   /* North, east, south, west - the same bits `assets/import_dnf_minimap.py` uses. */
@@ -4338,12 +4349,12 @@
     function propObstacle(prop, body) {
       if (!prop || !prop.solid || prop.broken || prop.gone) return null;
       var obstacle;
-      if (prop.nativePillar) {
-        var native = prop.nativePillar;
+      if (prop.nativePillar || prop.nativeFootprint) {
+        var native = prop.nativePillar || prop.nativeFootprint;
         var scale = (VIEW.width / 640) / CAMERA.zoom;
-        // actionstonepillar.obj: [do not pass], [width]58 20.
-        obstacle = { x: (native.x - (native.originX || 0)) * scale, z: nativePillarSortZ(native.y),
-          width: 58 * scale, depth: 20 * scale / DEPTH.scale };
+        // Static native [do not pass] widths: pillar58×20, StoneHead140×28.
+        obstacle = { x: (native.x - (native.originX || 0)) * scale, z: nativeGroundZ(native.y),
+          width: (native.width || 58) * scale, depth: (native.depth || 20) * scale / DEPTH.scale };
       } else {
         var box = propBox(prop.piece, prop.scale);
         if (!box) return null;
@@ -5421,6 +5432,9 @@
             // Keep the damaged stump in cell.props; it does not use barrel removal.
             nativePillar: entry.nativePillar ? {
               x: entry.nativePillar[0], y: entry.nativePillar[1], originX: entry.nativePillar[2] || 0, damagedAt: -1
+            } : null,
+            nativeFootprint: entry.nativeRock ? {
+              x: entry.nativeRock[0], y: entry.nativeRock[1], width: 140, depth: 28
             } : null,
             x: x,
             z: z,
