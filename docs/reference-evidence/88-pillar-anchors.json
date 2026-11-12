@@ -1,0 +1,676 @@
+{
+  "source": "map/mirkwooddeep/h434(1,2).map",
+  "sha256": "3083751495ee70025df8ec9157d1cd8c134a38c588ca76bcc879c61199736e7d",
+  "nativePillars": [
+    {
+      "section": "[passive object]",
+      "record": [
+        231,
+        759,
+        222,
+        0
+      ]
+    },
+    {
+      "section": "[passive object]",
+      "record": [
+        231,
+        1002,
+        226,
+        0
+      ]
+    },
+    {
+      "section": "[passive object]",
+      "record": [
+        231,
+        1348,
+        227,
+        0
+      ]
+    },
+    {
+      "section": "[passive object]",
+      "record": [
+        231,
+        1154,
+        228,
+        0
+      ]
+    },
+    {
+      "section": "[passive object]",
+      "record": [
+        231,
+        506,
+        241,
+        0
+      ]
+    },
+    {
+      "section": "[passive object]",
+      "record": [
+        231,
+        340,
+        243,
+        0
+      ]
+    },
+    {
+      "section": "[passive object]",
+      "record": [
+        231,
+        1450,
+        257,
+        0
+      ]
+    },
+    {
+      "section": "[passive object]",
+      "record": [
+        231,
+        877,
+        288,
+        0
+      ]
+    },
+    {
+      "section": "[passive object]",
+      "record": [
+        231,
+        1368,
+        309,
+        0
+      ]
+    },
+    {
+      "section": "[passive object]",
+      "record": [
+        231,
+        448,
+        329,
+        0
+      ]
+    },
+    {
+      "section": "[passive object]",
+      "record": [
+        231,
+        801,
+        334,
+        0
+      ]
+    },
+    {
+      "section": "[passive object]",
+      "record": [
+        231,
+        1057,
+        342,
+        0
+      ]
+    },
+    {
+      "section": "[special passive object]",
+      "record": [
+        231,
+        689,
+        289,
+        0,
+        1,
+        "[item]",
+        1,
+        2,
+        4294967295,
+        4294967295,
+        4294967295
+      ]
+    },
+    {
+      "section": "[special passive object]",
+      "record": [
+        231,
+        1251,
+        313,
+        0,
+        1,
+        "[item]",
+        1,
+        2,
+        4294967295,
+        4294967295,
+        4294967295
+      ]
+    }
+  ],
+  "nativeCount": 14,
+  "observedUniqueCount": 12,
+  "unmatchedNativeRecords": [
+    {
+      "section": "[passive object]",
+      "record": [
+        231,
+        1348,
+        227,
+        0
+      ]
+    },
+    {
+      "section": "[passive object]",
+      "record": [
+        231,
+        1057,
+        342,
+        0
+      ]
+    }
+  ],
+  "bitmapOffsetsFromGroundAnchorNative": {
+    "flat": {
+      "centerX": 1.0,
+      "bottomY": 13
+    },
+    "damaged": {
+      "centerX": 3.0,
+      "bottomY": 13
+    }
+  },
+  "transform": {
+    "scale": 1.125,
+    "groundOriginScreenY": 92,
+    "fittedBitmapBottomSlope": 1.1263295534458508,
+    "fittedBitmapBottomIntercept": 106.51880054500711,
+    "predictedBitmapBottomIntercept": 106.625
+  },
+  "observations": [
+    {
+      "time": 28,
+      "kind": "flat",
+      "nativeXY": [
+        448,
+        329
+      ],
+      "observedCenterBottom": [
+        505.5,
+        477
+      ],
+      "groundAnchorScreen": [
+        504.0,
+        462.125
+      ],
+      "residualXY": [
+        0.375,
+        0.25
+      ]
+    },
+    {
+      "time": 28,
+      "kind": "flat",
+      "nativeXY": [
+        506,
+        241
+      ],
+      "observedCenterBottom": [
+        570.5,
+        378
+      ],
+      "groundAnchorScreen": [
+        569.25,
+        363.125
+      ],
+      "residualXY": [
+        0.125,
+        0.25
+      ]
+    },
+    {
+      "time": 28,
+      "kind": "damaged",
+      "nativeXY": [
+        340,
+        243
+      ],
+      "observedCenterBottom": [
+        385.5,
+        380
+      ],
+      "groundAnchorScreen": [
+        382.5,
+        365.375
+      ],
+      "residualXY": [
+        -0.375,
+        0.0
+      ]
+    },
+    {
+      "time": 44.5,
+      "kind": "flat",
+      "nativeXY": [
+        689,
+        289
+      ],
+      "observedCenterBottom": [
+        776.0799999999999,
+        432
+      ],
+      "groundAnchorScreen": [
+        775.125,
+        417.125
+      ],
+      "residualXY": [
+        -0.17000000000007276,
+        0.25
+      ]
+    },
+    {
+      "time": 44.5,
+      "kind": "flat",
+      "nativeXY": [
+        448,
+        329
+      ],
+      "observedCenterBottom": [
+        505.08,
+        477
+      ],
+      "groundAnchorScreen": [
+        504.0,
+        462.125
+      ],
+      "residualXY": [
+        -0.045000000000015916,
+        0.25
+      ]
+    },
+    {
+      "time": 44.5,
+      "kind": "damaged",
+      "nativeXY": [
+        506,
+        241
+      ],
+      "observedCenterBottom": [
+        572.0799999999999,
+        378
+      ],
+      "groundAnchorScreen": [
+        569.25,
+        363.125
+      ],
+      "residualXY": [
+        -0.5450000000000728,
+        0.25
+      ]
+    },
+    {
+      "time": 44.5,
+      "kind": "damaged",
+      "nativeXY": [
+        340,
+        243
+      ],
+      "observedCenterBottom": [
+        386.08,
+        380
+      ],
+      "groundAnchorScreen": [
+        382.5,
+        365.375
+      ],
+      "residualXY": [
+        0.20499999999998408,
+        0.0
+      ]
+    },
+    {
+      "time": 60,
+      "kind": "flat",
+      "nativeXY": [
+        877,
+        288
+      ],
+      "observedCenterBottom": [
+        987.9100000000001,
+        431
+      ],
+      "groundAnchorScreen": [
+        986.625,
+        416.0
+      ],
+      "residualXY": [
+        0.16000000000008185,
+        0.375
+      ]
+    },
+    {
+      "time": 60,
+      "kind": "flat",
+      "nativeXY": [
+        689,
+        289
+      ],
+      "observedCenterBottom": [
+        775.9100000000001,
+        432
+      ],
+      "groundAnchorScreen": [
+        775.125,
+        417.125
+      ],
+      "residualXY": [
+        -0.33999999999991815,
+        0.25
+      ]
+    },
+    {
+      "time": 60,
+      "kind": "flat",
+      "nativeXY": [
+        1002,
+        226
+      ],
+      "observedCenterBottom": [
+        1127.91,
+        361
+      ],
+      "groundAnchorScreen": [
+        1127.25,
+        346.25
+      ],
+      "residualXY": [
+        -0.46499999999991815,
+        0.125
+      ]
+    },
+    {
+      "time": 60,
+      "kind": "flat",
+      "nativeXY": [
+        448,
+        329
+      ],
+      "observedCenterBottom": [
+        504.91,
+        477
+      ],
+      "groundAnchorScreen": [
+        504.0,
+        462.125
+      ],
+      "residualXY": [
+        -0.214999999999975,
+        0.25
+      ]
+    },
+    {
+      "time": 60,
+      "kind": "damaged",
+      "nativeXY": [
+        506,
+        241
+      ],
+      "observedCenterBottom": [
+        571.9100000000001,
+        378
+      ],
+      "groundAnchorScreen": [
+        569.25,
+        363.125
+      ],
+      "residualXY": [
+        -0.7149999999999181,
+        0.25
+      ]
+    },
+    {
+      "time": 60,
+      "kind": "damaged",
+      "nativeXY": [
+        759,
+        222
+      ],
+      "observedCenterBottom": [
+        856.9100000000001,
+        357
+      ],
+      "groundAnchorScreen": [
+        853.875,
+        341.75
+      ],
+      "residualXY": [
+        -0.33999999999991815,
+        0.625
+      ]
+    },
+    {
+      "time": 66.5,
+      "kind": "flat",
+      "nativeXY": [
+        877,
+        288
+      ],
+      "observedCenterBottom": [
+        987.64,
+        431
+      ],
+      "groundAnchorScreen": [
+        986.625,
+        416.0
+      ],
+      "residualXY": [
+        -0.11000000000001364,
+        0.375
+      ]
+    },
+    {
+      "time": 66.5,
+      "kind": "flat",
+      "nativeXY": [
+        1251,
+        313
+      ],
+      "observedCenterBottom": [
+        1408.6399999999999,
+        459
+      ],
+      "groundAnchorScreen": [
+        1407.375,
+        444.125
+      ],
+      "residualXY": [
+        0.13999999999987267,
+        0.25
+      ]
+    },
+    {
+      "time": 66.5,
+      "kind": "damaged",
+      "nativeXY": [
+        759,
+        222
+      ],
+      "observedCenterBottom": [
+        856.64,
+        357
+      ],
+      "groundAnchorScreen": [
+        853.875,
+        341.75
+      ],
+      "residualXY": [
+        -0.6100000000000136,
+        0.625
+      ]
+    },
+    {
+      "time": 66.5,
+      "kind": "damaged",
+      "nativeXY": [
+        1002,
+        226
+      ],
+      "observedCenterBottom": [
+        1130.6399999999999,
+        361
+      ],
+      "groundAnchorScreen": [
+        1127.25,
+        346.25
+      ],
+      "residualXY": [
+        0.01499999999987267,
+        0.125
+      ]
+    },
+    {
+      "time": 66.5,
+      "kind": "damaged",
+      "nativeXY": [
+        1154,
+        228
+      ],
+      "observedCenterBottom": [
+        1301.6399999999999,
+        363
+      ],
+      "groundAnchorScreen": [
+        1298.25,
+        348.5
+      ],
+      "residualXY": [
+        0.01499999999987267,
+        -0.125
+      ]
+    },
+    {
+      "time": 72.5,
+      "kind": "flat",
+      "nativeXY": [
+        1368,
+        309
+      ],
+      "observedCenterBottom": [
+        1539.62,
+        455
+      ],
+      "groundAnchorScreen": [
+        1539.0,
+        439.625
+      ],
+      "residualXY": [
+        -0.5050000000001091,
+        0.75
+      ]
+    },
+    {
+      "time": 72.5,
+      "kind": "flat",
+      "nativeXY": [
+        1450,
+        257
+      ],
+      "observedCenterBottom": [
+        1632.62,
+        396
+      ],
+      "groundAnchorScreen": [
+        1631.25,
+        381.125
+      ],
+      "residualXY": [
+        0.24499999999989086,
+        0.25
+      ]
+    },
+    {
+      "time": 72.5,
+      "kind": "flat",
+      "nativeXY": [
+        1251,
+        313
+      ],
+      "observedCenterBottom": [
+        1408.62,
+        459
+      ],
+      "groundAnchorScreen": [
+        1407.375,
+        444.125
+      ],
+      "residualXY": [
+        0.11999999999989086,
+        0.25
+      ]
+    },
+    {
+      "time": 72.5,
+      "kind": "damaged",
+      "nativeXY": [
+        1154,
+        228
+      ],
+      "observedCenterBottom": [
+        1301.62,
+        363
+      ],
+      "groundAnchorScreen": [
+        1298.25,
+        348.5
+      ],
+      "residualXY": [
+        -0.005000000000109139,
+        -0.125
+      ]
+    }
+  ],
+  "boundaryClippedObservations": [
+    {
+      "observation": {
+        "time": 60,
+        "kind": "flat",
+        "correlation": 0.8117555379867554,
+        "screen_rect": [
+          431,
+          330,
+          49,
+          150
+        ],
+        "panorama_center": 901.9100000000001,
+        "world_center": 571.7769056603775,
+        "bottom": 480
+      },
+      "nativeXY": [
+        801,
+        334
+      ],
+      "reason": "Touches the batch46 search ROI bottom at y480; not an independent bottom measurement."
+    },
+    {
+      "observation": {
+        "time": 66.5,
+        "kind": "flat",
+        "correlation": 0.8094339966773987,
+        "screen_rect": [
+          73,
+          330,
+          49,
+          150
+        ],
+        "panorama_center": 901.64,
+        "world_center": 571.6057358490566,
+        "bottom": 480
+      },
+      "nativeXY": [
+        801,
+        334
+      ],
+      "reason": "Touches the batch46 search ROI bottom at y480; not an independent bottom measurement."
+    }
+  ],
+  "maxAbsResidualXY": [
+    0.7149999999999181,
+    0.75
+  ],
+  "limits": "24 prior video texture matches (two bottom-clipped) identify 12 of 14 native records. Unmatched records do not prove additional visible pillars. Bitmap bottom is 13 native pixels below the physical anchor. HP, first effective hit, walk-box width semantics and damaged collision remain unverified."
+}

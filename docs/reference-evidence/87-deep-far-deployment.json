@@ -1,0 +1,11 @@
+{
+  "commit": "dede998",
+  "workflow": "https://github.com/yanfeng98/nano-dnf/actions/runs/43124680390",
+  "ci": "completed success: build, deploy and live smoke passed",
+  "localLiveSmoke": "passed: deployed resources match checkout and page boots without errors",
+  "unitTests": 416,
+  "browserGroups": 27,
+  "farRegions": 7,
+  "manualAcceptance": "pending",
+  "remaining": "Four rooms lack informative exposed far texture; color residuals and all other audit items remain open."
+}
