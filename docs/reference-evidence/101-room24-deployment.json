@@ -1,0 +1,22 @@
+{
+  "commit": "dc17735",
+  "workflow": "https://github.com/yanfeng98/nano-dnf/actions/runs/43256468154",
+  "ci": "Success; public page contains commit and three executed job links",
+  "site": "https://luyf-lemon-love.space/nano-dnf/",
+  "unitTests": 432,
+  "browserGroups": 34,
+  "localLiveSmoke": "passed: all deployed runtime bytes, including native-flora.png, match checkout; clean boot",
+  "onlineDirectedChecks": {
+    "nativeRockRegions": 2,
+    "rockMinimumCosine": 0.9962873155624263,
+    "nativeBushRegions": 2,
+    "bushMinimumCosine": 0.9879765083899272,
+    "originalFullTreeMasks": 2,
+    "treeMinimumCosine": 0.9766952473829835,
+    "barrelRegions": 3,
+    "eastKeyboardTravel": "passed: 暗咒猫妖的林地"
+  },
+  "sourceChecks": "Client rebake PNG byte-identical and source proof structurally identical; default ANI-reader old43 report identical; video PNG raw-RGB normalization independently byte-identical",
+  "manualAcceptance": "pending",
+  "remaining": "Six authored flora entries lack full-image video confirmation; native animation initial/revisit phase, close-layer foreground trees, fruit-tree lifecycle, other props/rooms, pillars/debris/HP/drop/pass semantics, characters/combat, HUD/results/XP/audio, ordinary route/unseen content and manual acceptance remain open."
+}

@@ -9837,6 +9837,16 @@
    * and the bodies go into the list before he does, which is what keeps a
    * monster he is standing on top of from hiding his sprite.
    */
+  function drawNativeForeground(ctx, state, sprites) {
+    var spec = state.room && state.room.nativeForeground;
+    var image = spec && sprites && sprites[spec.sprite];
+    if (!image) return;
+    var scale = (VIEW.width / 640) / Core.CAMERA.zoom;
+    var x = (1 - spec.scroll) * cameraX(state);
+    var top = ARENA.groundY + (spec.screenY - ARENA.groundY) / Core.CAMERA.zoom;
+    ctx.drawImage(image, x, top, image.width * scale, image.height * scale);
+  }
+
   function drawNativeDecoration(ctx, state, sprites, prop) {
     if (!sprites || !sprites.nativeFlora) return;
     var frames = prop.nativeDecoration.frames;
@@ -10324,6 +10334,8 @@
         sprites
       );
     });
+    // The authored close layer covers world bodies/effects; HUD stays above it.
+    drawNativeForeground(ctx, state, sprites);
     ctx.restore();
 
     /*

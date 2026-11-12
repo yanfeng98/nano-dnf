@@ -1,0 +1,521 @@
+{
+  "map": "map/mirkwooddeep/n410(3,0).map",
+  "mapSha256": "7ef38276143ee082a6a9b43e79274f1f934a845ccbba22d08ffaedc820e70397",
+  "scroll": 1.1,
+  "animations": {
+    "Animation/BurntTree4.ani": {
+      "entry": "map/mirkwooddeep/animation/burnttree4.ani",
+      "sha256": "cf6ba7c014ab65f3acdacda42a8add0abdd0fc758040ddf20ea51bf83821a73e",
+      "data": {
+        "paths": [
+          "Map/02obj111.img"
+        ],
+        "overall": [
+          [
+            1,
+            0
+          ]
+        ],
+        "frames": [
+          {
+            "frame": 0,
+            "xy": [
+              -216,
+              -223
+            ],
+            "props": [
+              [
+                12,
+                50
+              ]
+            ],
+            "boxes": [],
+            "image": 0
+          }
+        ]
+      }
+    },
+    "Animation/smallTree1.ani": {
+      "entry": "map/mirkwooddeep/animation/smalltree1.ani",
+      "sha256": "359070f8341c3816caf69111f3e39a8aac786e85afb5bb6c0c40951412ebb83d",
+      "data": {
+        "paths": [
+          "Map/02obj400.img"
+        ],
+        "overall": [
+          [
+            1,
+            0
+          ]
+        ],
+        "frames": [
+          {
+            "frame": 0,
+            "xy": [
+              -75,
+              -189
+            ],
+            "props": [
+              [
+                12,
+                80
+              ]
+            ],
+            "boxes": [],
+            "image": 0
+          }
+        ]
+      }
+    },
+    "Animation/smallTree0.ani": {
+      "entry": "map/mirkwooddeep/animation/smalltree0.ani",
+      "sha256": "3be1589bd874c0bcf258236e1ec11a82143c43876299c079dc9c56d6348814c9",
+      "data": {
+        "paths": [
+          "Map/02obj300.img"
+        ],
+        "overall": [
+          [
+            1,
+            0
+          ]
+        ],
+        "frames": [
+          {
+            "frame": 0,
+            "xy": [
+              -74,
+              -173
+            ],
+            "props": [
+              [
+                12,
+                70
+              ]
+            ],
+            "boxes": [],
+            "image": 0
+          }
+        ]
+      }
+    }
+  },
+  "items": [
+    {
+      "animation": "Animation/BurntTree4.ani",
+      "native": [
+        344,
+        443,
+        0
+      ],
+      "image": "sprite/map/02obj111.img",
+      "frame": 0,
+      "aniXY": [
+        -216,
+        -223
+      ],
+      "imageOffset": [
+        11,
+        80
+      ],
+      "size": [
+        317,
+        175
+      ],
+      "left": 139,
+      "top": 300
+    },
+    {
+      "animation": "Animation/smallTree1.ani",
+      "native": [
+        887,
+        470,
+        0
+      ],
+      "image": "sprite/map/02obj400.img",
+      "frame": 0,
+      "aniXY": [
+        -75,
+        -189
+      ],
+      "imageOffset": [
+        26,
+        1
+      ],
+      "size": [
+        105,
+        199
+      ],
+      "left": 838,
+      "top": 282
+    },
+    {
+      "animation": "Animation/smallTree0.ani",
+      "native": [
+        1024,
+        459,
+        0
+      ],
+      "image": "sprite/map/02obj300.img",
+      "frame": 0,
+      "aniXY": [
+        -74,
+        -173
+      ],
+      "imageOffset": [
+        5,
+        0
+      ],
+      "size": [
+        153,
+        203
+      ],
+      "left": 955,
+      "top": 286
+    },
+    {
+      "animation": "Animation/smallTree0.ani",
+      "native": [
+        1108,
+        469,
+        0
+      ],
+      "image": "sprite/map/02obj300.img",
+      "frame": 0,
+      "aniXY": [
+        -74,
+        -173
+      ],
+      "imageOffset": [
+        5,
+        0
+      ],
+      "size": [
+        153,
+        203
+      ],
+      "left": 1039,
+      "top": 296
+    },
+    {
+      "animation": "Animation/smallTree0.ani",
+      "native": [
+        656,
+        440,
+        0
+      ],
+      "image": "sprite/map/02obj300.img",
+      "frame": 0,
+      "aniXY": [
+        -74,
+        -173
+      ],
+      "imageOffset": [
+        5,
+        0
+      ],
+      "size": [
+        153,
+        203
+      ],
+      "left": 587,
+      "top": 267
+    },
+    {
+      "animation": "Animation/smallTree1.ani",
+      "native": [
+        485,
+        494,
+        0
+      ],
+      "image": "sprite/map/02obj400.img",
+      "frame": 0,
+      "aniXY": [
+        -75,
+        -189
+      ],
+      "imageOffset": [
+        26,
+        1
+      ],
+      "size": [
+        105,
+        199
+      ],
+      "left": 436,
+      "top": 306
+    },
+    {
+      "animation": "Animation/smallTree1.ani",
+      "native": [
+        775,
+        462,
+        0
+      ],
+      "image": "sprite/map/02obj400.img",
+      "frame": 0,
+      "aniXY": [
+        -75,
+        -189
+      ],
+      "imageOffset": [
+        26,
+        1
+      ],
+      "size": [
+        105,
+        199
+      ],
+      "left": 726,
+      "top": 274
+    },
+    {
+      "animation": "Animation/smallTree0.ani",
+      "native": [
+        1485,
+        451,
+        0
+      ],
+      "image": "sprite/map/02obj300.img",
+      "frame": 0,
+      "aniXY": [
+        -74,
+        -173
+      ],
+      "imageOffset": [
+        5,
+        0
+      ],
+      "size": [
+        153,
+        203
+      ],
+      "left": 1416,
+      "top": 278
+    },
+    {
+      "animation": "Animation/smallTree0.ani",
+      "native": [
+        1560,
+        469,
+        0
+      ],
+      "image": "sprite/map/02obj300.img",
+      "frame": 0,
+      "aniXY": [
+        -74,
+        -173
+      ],
+      "imageOffset": [
+        5,
+        0
+      ],
+      "size": [
+        153,
+        203
+      ],
+      "left": 1491,
+      "top": 296
+    },
+    {
+      "animation": "Animation/smallTree1.ani",
+      "native": [
+        392,
+        458,
+        0
+      ],
+      "image": "sprite/map/02obj400.img",
+      "frame": 0,
+      "aniXY": [
+        -75,
+        -189
+      ],
+      "imageOffset": [
+        26,
+        1
+      ],
+      "size": [
+        105,
+        199
+      ],
+      "left": 343,
+      "top": 270
+    },
+    {
+      "animation": "Animation/smallTree1.ani",
+      "native": [
+        559,
+        465,
+        0
+      ],
+      "image": "sprite/map/02obj400.img",
+      "frame": 0,
+      "aniXY": [
+        -75,
+        -189
+      ],
+      "imageOffset": [
+        26,
+        1
+      ],
+      "size": [
+        105,
+        199
+      ],
+      "left": 510,
+      "top": 277
+    },
+    {
+      "animation": "Animation/smallTree0.ani",
+      "native": [
+        1203,
+        462,
+        0
+      ],
+      "image": "sprite/map/02obj300.img",
+      "frame": 0,
+      "aniXY": [
+        -74,
+        -173
+      ],
+      "imageOffset": [
+        5,
+        0
+      ],
+      "size": [
+        153,
+        203
+      ],
+      "left": 1134,
+      "top": 289
+    },
+    {
+      "animation": "Animation/smallTree0.ani",
+      "native": [
+        1286,
+        470,
+        0
+      ],
+      "image": "sprite/map/02obj300.img",
+      "frame": 0,
+      "aniXY": [
+        -74,
+        -173
+      ],
+      "imageOffset": [
+        5,
+        0
+      ],
+      "size": [
+        153,
+        203
+      ],
+      "left": 1217,
+      "top": 297
+    },
+    {
+      "animation": "Animation/smallTree0.ani",
+      "native": [
+        1382,
+        465,
+        0
+      ],
+      "image": "sprite/map/02obj300.img",
+      "frame": 0,
+      "aniXY": [
+        -74,
+        -173
+      ],
+      "imageOffset": [
+        5,
+        0
+      ],
+      "size": [
+        153,
+        203
+      ],
+      "left": 1313,
+      "top": 292
+    },
+    {
+      "animation": "Animation/BurntTree4.ani",
+      "native": [
+        203,
+        456,
+        0
+      ],
+      "image": "sprite/map/02obj111.img",
+      "frame": 0,
+      "aniXY": [
+        -216,
+        -223
+      ],
+      "imageOffset": [
+        11,
+        80
+      ],
+      "size": [
+        317,
+        175
+      ],
+      "left": -2,
+      "top": 313
+    }
+  ],
+  "nativeXOrigin": 0,
+  "nativeYOrigin": 250,
+  "screenY": 373.25,
+  "screenScale": 1.125,
+  "order": "original close-layer list",
+  "size": [
+    1644,
+    255
+  ],
+  "rgbaSha256": "ff9691e8f701b8962c87e4ef47b156ac30868c8e96b91d7148e6649ff7cfbbe2",
+  "images": [
+    {
+      "path": "sprite/map/02obj111.img",
+      "frame": 0,
+      "size": [
+        317,
+        175
+      ],
+      "offset": [
+        11,
+        80
+      ],
+      "rgbaSha256": "e2dfd3057991d7dad7c5ef4023004eef8814f6d79c9b64277a2805062e42d8b0"
+    },
+    {
+      "path": "sprite/map/02obj400.img",
+      "frame": 0,
+      "size": [
+        105,
+        199
+      ],
+      "offset": [
+        26,
+        1
+      ],
+      "rgbaSha256": "50233b2fa4431aea2c18157c6f3b56a76874e96495b97f58106178784c389dab"
+    },
+    {
+      "path": "sprite/map/02obj300.img",
+      "frame": 0,
+      "size": [
+        153,
+        203
+      ],
+      "offset": [
+        5,
+        0
+      ],
+      "rgbaSha256": "8a328a91e12d82c9516c7d6c6a48e80180dc7a4f8a0754cd57e8cada4d8efb9a"
+    }
+  ],
+  "limits": [
+    "Only seven objects have high-score individual video matches in the initial measurement; remaining objects are not claimed as visually verified.",
+    "This exports only the map close layer. Additional unmatched foreground features and other layers remain open.",
+    "No collision is inferred from these render-only map records."
+  ]
+}

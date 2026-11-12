@@ -2816,6 +2816,8 @@
         /* 6 —— 路线 24 (3,1)。录像 277–313s；七列原生地面校准宽1118.3（第81批）、三桶一岩及两处镜像绿树形态，动态待核。 */
         {
           name: "断墙营地",
+          // Native [close] list, 110% near scroll; crop starts at nativeY250 (audit102).
+          nativeForeground: { sprite: "deepRoom24Foreground", scroll: 1.1, screenY: 373.25 },
           closeback: "deepRoom24Closeback",
           // Native far0.ani, 56% scroll and visible-gap phase (reference batch87).
           nativeFar: { scroll: 0.56, screenY: -102, originX: 0 },
@@ -5361,6 +5363,7 @@
         width: spec.width || ROOM.width,
         northGateBottom: spec.northGateBottom,
         closeback: spec.closeback || null,
+        nativeForeground: spec.nativeForeground,
         nativeGround: spec.nativeGround,
         nativeMid: spec.nativeMid,
         nativeFar: spec.nativeFar,

@@ -1,0 +1,8034 @@
+{
+  "source": "102-room24-foreground-source.json",
+  "screenScale": 1.125,
+  "screenYPhase": 92,
+  "mapNearScroll": 1.1,
+  "gate": {
+    "texture": 0.94,
+    "geometryPx": 2
+  },
+  "coverage": [
+    {
+      "object": 0,
+      "native": [
+        344,
+        443,
+        0
+      ],
+      "animation": "Animation/BurntTree4.ani",
+      "accepted": 3,
+      "observed": 3,
+      "bestScore": 0.9606413245201111
+    },
+    {
+      "object": 1,
+      "native": [
+        887,
+        470,
+        0
+      ],
+      "animation": "Animation/smallTree1.ani",
+      "accepted": 4,
+      "observed": 45,
+      "bestScore": 0.9452186226844788
+    },
+    {
+      "object": 2,
+      "native": [
+        1024,
+        459,
+        0
+      ],
+      "animation": "Animation/smallTree0.ani",
+      "accepted": 0,
+      "observed": 47,
+      "bestScore": 0.9241646528244019
+    },
+    {
+      "object": 3,
+      "native": [
+        1108,
+        469,
+        0
+      ],
+      "animation": "Animation/smallTree0.ani",
+      "accepted": 0,
+      "observed": 27,
+      "bestScore": 0.8699670433998108
+    },
+    {
+      "object": 4,
+      "native": [
+        656,
+        440,
+        0
+      ],
+      "animation": "Animation/smallTree0.ani",
+      "accepted": 37,
+      "observed": 39,
+      "bestScore": 0.9592334032058716
+    },
+    {
+      "object": 5,
+      "native": [
+        485,
+        494,
+        0
+      ],
+      "animation": "Animation/smallTree1.ani",
+      "accepted": 0,
+      "observed": 12,
+      "bestScore": 0.8818386793136597
+    },
+    {
+      "object": 6,
+      "native": [
+        775,
+        462,
+        0
+      ],
+      "animation": "Animation/smallTree1.ani",
+      "accepted": 11,
+      "observed": 41,
+      "bestScore": 0.9476249814033508
+    },
+    {
+      "object": 7,
+      "native": [
+        1485,
+        451,
+        0
+      ],
+      "animation": "Animation/smallTree0.ani",
+      "accepted": 0,
+      "observed": 12,
+      "bestScore": 0.8613392114639282
+    },
+    {
+      "object": 8,
+      "native": [
+        1560,
+        469,
+        0
+      ],
+      "animation": "Animation/smallTree0.ani",
+      "accepted": 0,
+      "observed": 4,
+      "bestScore": 0.7904397249221802
+    },
+    {
+      "object": 9,
+      "native": [
+        392,
+        458,
+        0
+      ],
+      "animation": "Animation/smallTree1.ani",
+      "accepted": 6,
+      "observed": 11,
+      "bestScore": 0.9580300450325012
+    },
+    {
+      "object": 10,
+      "native": [
+        559,
+        465,
+        0
+      ],
+      "animation": "Animation/smallTree1.ani",
+      "accepted": 13,
+      "observed": 22,
+      "bestScore": 0.9661006331443787
+    },
+    {
+      "object": 11,
+      "native": [
+        1203,
+        462,
+        0
+      ],
+      "animation": "Animation/smallTree0.ani",
+      "accepted": 0,
+      "observed": 25,
+      "bestScore": 0.8917756080627441
+    },
+    {
+      "object": 12,
+      "native": [
+        1286,
+        470,
+        0
+      ],
+      "animation": "Animation/smallTree0.ani",
+      "accepted": 0,
+      "observed": 24,
+      "bestScore": 0.8868740797042847
+    },
+    {
+      "object": 13,
+      "native": [
+        1382,
+        465,
+        0
+      ],
+      "animation": "Animation/smallTree0.ani",
+      "accepted": 12,
+      "observed": 14,
+      "bestScore": 0.9717589616775513
+    },
+    {
+      "object": 14,
+      "native": [
+        203,
+        456,
+        0
+      ],
+      "animation": "Animation/BurntTree4.ani",
+      "accepted": 0,
+      "observed": 0,
+      "bestScore": null
+    }
+  ],
+  "observations": [
+    {
+      "object": 0,
+      "native": [
+        344,
+        443
+      ],
+      "time": 277.0,
+      "cameraPx": 0.01,
+      "score": 0.9448269605636597,
+      "height": 30,
+      "expected": [
+        156.364,
+        429.5
+      ],
+      "measured": [
+        157,
+        430
+      ],
+      "residual": [
+        0.6359999999999957,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "object": 5,
+      "native": [
+        485,
+        494
+      ],
+      "time": 277.0,
+      "cameraPx": 0.01,
+      "score": 0.8448958992958069,
+      "height": 23,
+      "expected": [
+        490.489,
+        436.25
+      ],
+      "measured": [
+        491,
+        436
+      ],
+      "residual": [
+        0.5110000000000241,
+        -0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 9,
+      "native": [
+        392,
+        458
+      ],
+      "time": 277.0,
+      "cameraPx": 0.01,
+      "score": 0.9265918731689453,
+      "height": 64,
+      "expected": [
+        385.864,
+        395.75
+      ],
+      "measured": [
+        386,
+        396
+      ],
+      "residual": [
+        0.1360000000000241,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 10,
+      "native": [
+        559,
+        465
+      ],
+      "time": 277.0,
+      "cameraPx": 0.01,
+      "score": 0.6902181506156921,
+      "height": 56,
+      "expected": [
+        573.739,
+        403.625
+      ],
+      "measured": [
+        574,
+        403
+      ],
+      "residual": [
+        0.26099999999996726,
+        -0.625
+      ],
+      "accepted": false
+    },
+    {
+      "object": 0,
+      "native": [
+        344,
+        443
+      ],
+      "time": 277.5,
+      "cameraPx": 0.0,
+      "score": 0.9606413245201111,
+      "height": 30,
+      "expected": [
+        156.375,
+        429.5
+      ],
+      "measured": [
+        157,
+        430
+      ],
+      "residual": [
+        0.625,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "object": 5,
+      "native": [
+        485,
+        494
+      ],
+      "time": 277.5,
+      "cameraPx": 0.0,
+      "score": 0.8670475482940674,
+      "height": 23,
+      "expected": [
+        490.5,
+        436.25
+      ],
+      "measured": [
+        491,
+        436
+      ],
+      "residual": [
+        0.5,
+        -0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 9,
+      "native": [
+        392,
+        458
+      ],
+      "time": 277.5,
+      "cameraPx": 0.0,
+      "score": 0.9477282762527466,
+      "height": 64,
+      "expected": [
+        385.875,
+        395.75
+      ],
+      "measured": [
+        386,
+        396
+      ],
+      "residual": [
+        0.125,
+        0.25
+      ],
+      "accepted": true
+    },
+    {
+      "object": 10,
+      "native": [
+        559,
+        465
+      ],
+      "time": 277.5,
+      "cameraPx": 0.0,
+      "score": 0.7101421356201172,
+      "height": 56,
+      "expected": [
+        573.75,
+        403.625
+      ],
+      "measured": [
+        574,
+        403
+      ],
+      "residual": [
+        0.25,
+        -0.625
+      ],
+      "accepted": false
+    },
+    {
+      "object": 0,
+      "native": [
+        344,
+        443
+      ],
+      "time": 278.0,
+      "cameraPx": 2.24,
+      "score": 0.9547518491744995,
+      "height": 30,
+      "expected": [
+        153.911,
+        429.5
+      ],
+      "measured": [
+        155,
+        430
+      ],
+      "residual": [
+        1.0889999999999986,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "object": 5,
+      "native": [
+        485,
+        494
+      ],
+      "time": 278.0,
+      "cameraPx": 2.24,
+      "score": 0.8772653341293335,
+      "height": 23,
+      "expected": [
+        488.036,
+        436.25
+      ],
+      "measured": [
+        488,
+        437
+      ],
+      "residual": [
+        -0.036000000000001364,
+        0.75
+      ],
+      "accepted": false
+    },
+    {
+      "object": 9,
+      "native": [
+        392,
+        458
+      ],
+      "time": 278.0,
+      "cameraPx": 2.24,
+      "score": 0.8946306705474854,
+      "height": 64,
+      "expected": [
+        383.411,
+        395.75
+      ],
+      "measured": [
+        384,
+        396
+      ],
+      "residual": [
+        0.5889999999999986,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 10,
+      "native": [
+        559,
+        465
+      ],
+      "time": 278.0,
+      "cameraPx": 2.24,
+      "score": 0.7658045291900635,
+      "height": 56,
+      "expected": [
+        571.286,
+        403.625
+      ],
+      "measured": [
+        571,
+        404
+      ],
+      "residual": [
+        -0.2859999999999445,
+        0.375
+      ],
+      "accepted": false
+    },
+    {
+      "object": 4,
+      "native": [
+        656,
+        440
+      ],
+      "time": 278.5,
+      "cameraPx": 144.04,
+      "score": 0.8611117005348206,
+      "height": 67,
+      "expected": [
+        501.931,
+        392.375
+      ],
+      "measured": [
+        503,
+        392
+      ],
+      "residual": [
+        1.0690000000000168,
+        -0.375
+      ],
+      "accepted": false
+    },
+    {
+      "object": 5,
+      "native": [
+        485,
+        494
+      ],
+      "time": 278.5,
+      "cameraPx": 144.04,
+      "score": 0.8770561814308167,
+      "height": 23,
+      "expected": [
+        332.056,
+        436.25
+      ],
+      "measured": [
+        333,
+        437
+      ],
+      "residual": [
+        0.9440000000000168,
+        0.75
+      ],
+      "accepted": false
+    },
+    {
+      "object": 9,
+      "native": [
+        392,
+        458
+      ],
+      "time": 278.5,
+      "cameraPx": 144.04,
+      "score": 0.9236699938774109,
+      "height": 64,
+      "expected": [
+        227.43099999999998,
+        395.75
+      ],
+      "measured": [
+        228,
+        396
+      ],
+      "residual": [
+        0.5690000000000168,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 10,
+      "native": [
+        559,
+        465
+      ],
+      "time": 278.5,
+      "cameraPx": 144.04,
+      "score": 0.9318957328796387,
+      "height": 56,
+      "expected": [
+        415.306,
+        403.625
+      ],
+      "measured": [
+        416,
+        404
+      ],
+      "residual": [
+        0.6940000000000168,
+        0.375
+      ],
+      "accepted": false
+    },
+    {
+      "object": 4,
+      "native": [
+        656,
+        440
+      ],
+      "time": 279.0,
+      "cameraPx": 246.4,
+      "score": 0.9298362135887146,
+      "height": 67,
+      "expected": [
+        389.335,
+        392.375
+      ],
+      "measured": [
+        390,
+        393
+      ],
+      "residual": [
+        0.6650000000000205,
+        0.625
+      ],
+      "accepted": false
+    },
+    {
+      "object": 5,
+      "native": [
+        485,
+        494
+      ],
+      "time": 279.0,
+      "cameraPx": 246.4,
+      "score": 0.8595808744430542,
+      "height": 23,
+      "expected": [
+        219.45999999999998,
+        436.25
+      ],
+      "measured": [
+        221,
+        436
+      ],
+      "residual": [
+        1.5400000000000205,
+        -0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 6,
+      "native": [
+        775,
+        462
+      ],
+      "time": 279.0,
+      "cameraPx": 246.4,
+      "score": 0.926445722579956,
+      "height": 59,
+      "expected": [
+        545.71,
+        400.25
+      ],
+      "measured": [
+        547,
+        400
+      ],
+      "residual": [
+        1.2899999999999636,
+        -0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 9,
+      "native": [
+        392,
+        458
+      ],
+      "time": 279.0,
+      "cameraPx": 246.4,
+      "score": 0.9560454487800598,
+      "height": 64,
+      "expected": [
+        114.83499999999998,
+        395.75
+      ],
+      "measured": [
+        116,
+        396
+      ],
+      "residual": [
+        1.1650000000000205,
+        0.25
+      ],
+      "accepted": true
+    },
+    {
+      "object": 10,
+      "native": [
+        559,
+        465
+      ],
+      "time": 279.0,
+      "cameraPx": 246.4,
+      "score": 0.9518972039222717,
+      "height": 56,
+      "expected": [
+        302.71,
+        403.625
+      ],
+      "measured": [
+        304,
+        404
+      ],
+      "residual": [
+        1.2900000000000205,
+        0.375
+      ],
+      "accepted": true
+    },
+    {
+      "object": 4,
+      "native": [
+        656,
+        440
+      ],
+      "time": 279.5,
+      "cameraPx": 264.37,
+      "score": 0.9478011727333069,
+      "height": 67,
+      "expected": [
+        369.568,
+        392.375
+      ],
+      "measured": [
+        370,
+        393
+      ],
+      "residual": [
+        0.43200000000001637,
+        0.625
+      ],
+      "accepted": true
+    },
+    {
+      "object": 5,
+      "native": [
+        485,
+        494
+      ],
+      "time": 279.5,
+      "cameraPx": 264.37,
+      "score": 0.8656880855560303,
+      "height": 23,
+      "expected": [
+        199.69299999999998,
+        436.25
+      ],
+      "measured": [
+        200,
+        437
+      ],
+      "residual": [
+        0.30700000000001637,
+        0.75
+      ],
+      "accepted": false
+    },
+    {
+      "object": 6,
+      "native": [
+        775,
+        462
+      ],
+      "time": 279.5,
+      "cameraPx": 264.37,
+      "score": 0.9117131233215332,
+      "height": 59,
+      "expected": [
+        525.943,
+        400.25
+      ],
+      "measured": [
+        527,
+        400
+      ],
+      "residual": [
+        1.0570000000000164,
+        -0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 9,
+      "native": [
+        392,
+        458
+      ],
+      "time": 279.5,
+      "cameraPx": 264.37,
+      "score": 0.941650390625,
+      "height": 64,
+      "expected": [
+        95.06799999999998,
+        395.75
+      ],
+      "measured": [
+        96,
+        396
+      ],
+      "residual": [
+        0.9320000000000164,
+        0.25
+      ],
+      "accepted": true
+    },
+    {
+      "object": 10,
+      "native": [
+        559,
+        465
+      ],
+      "time": 279.5,
+      "cameraPx": 264.37,
+      "score": 0.9226887822151184,
+      "height": 56,
+      "expected": [
+        282.943,
+        403.625
+      ],
+      "measured": [
+        284,
+        404
+      ],
+      "residual": [
+        1.0570000000000164,
+        0.375
+      ],
+      "accepted": false
+    },
+    {
+      "object": 4,
+      "native": [
+        656,
+        440
+      ],
+      "time": 280.0,
+      "cameraPx": 264.37,
+      "score": 0.9507579803466797,
+      "height": 67,
+      "expected": [
+        369.568,
+        392.375
+      ],
+      "measured": [
+        370,
+        393
+      ],
+      "residual": [
+        0.43200000000001637,
+        0.625
+      ],
+      "accepted": true
+    },
+    {
+      "object": 5,
+      "native": [
+        485,
+        494
+      ],
+      "time": 280.0,
+      "cameraPx": 264.37,
+      "score": 0.8707873821258545,
+      "height": 23,
+      "expected": [
+        199.69299999999998,
+        436.25
+      ],
+      "measured": [
+        200,
+        437
+      ],
+      "residual": [
+        0.30700000000001637,
+        0.75
+      ],
+      "accepted": false
+    },
+    {
+      "object": 6,
+      "native": [
+        775,
+        462
+      ],
+      "time": 280.0,
+      "cameraPx": 264.37,
+      "score": 0.9047922492027283,
+      "height": 59,
+      "expected": [
+        525.943,
+        400.25
+      ],
+      "measured": [
+        526,
+        401
+      ],
+      "residual": [
+        0.05700000000001637,
+        0.75
+      ],
+      "accepted": false
+    },
+    {
+      "object": 9,
+      "native": [
+        392,
+        458
+      ],
+      "time": 280.0,
+      "cameraPx": 264.37,
+      "score": 0.9410041570663452,
+      "height": 64,
+      "expected": [
+        95.06799999999998,
+        395.75
+      ],
+      "measured": [
+        96,
+        396
+      ],
+      "residual": [
+        0.9320000000000164,
+        0.25
+      ],
+      "accepted": true
+    },
+    {
+      "object": 10,
+      "native": [
+        559,
+        465
+      ],
+      "time": 280.0,
+      "cameraPx": 264.37,
+      "score": 0.9216168522834778,
+      "height": 56,
+      "expected": [
+        282.943,
+        403.625
+      ],
+      "measured": [
+        284,
+        404
+      ],
+      "residual": [
+        1.0570000000000164,
+        0.375
+      ],
+      "accepted": false
+    },
+    {
+      "object": 4,
+      "native": [
+        656,
+        440
+      ],
+      "time": 280.5,
+      "cameraPx": 264.35,
+      "score": 0.9529423713684082,
+      "height": 67,
+      "expected": [
+        369.59,
+        392.375
+      ],
+      "measured": [
+        370,
+        393
+      ],
+      "residual": [
+        0.410000000000025,
+        0.625
+      ],
+      "accepted": true
+    },
+    {
+      "object": 5,
+      "native": [
+        485,
+        494
+      ],
+      "time": 280.5,
+      "cameraPx": 264.35,
+      "score": 0.8794501423835754,
+      "height": 23,
+      "expected": [
+        199.71499999999997,
+        436.25
+      ],
+      "measured": [
+        200,
+        437
+      ],
+      "residual": [
+        0.285000000000025,
+        0.75
+      ],
+      "accepted": false
+    },
+    {
+      "object": 6,
+      "native": [
+        775,
+        462
+      ],
+      "time": 280.5,
+      "cameraPx": 264.35,
+      "score": 0.9098807573318481,
+      "height": 59,
+      "expected": [
+        525.9649999999999,
+        400.25
+      ],
+      "measured": [
+        527,
+        400
+      ],
+      "residual": [
+        1.0350000000000819,
+        -0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 9,
+      "native": [
+        392,
+        458
+      ],
+      "time": 280.5,
+      "cameraPx": 264.35,
+      "score": 0.9415278434753418,
+      "height": 64,
+      "expected": [
+        95.08999999999997,
+        395.75
+      ],
+      "measured": [
+        96,
+        396
+      ],
+      "residual": [
+        0.910000000000025,
+        0.25
+      ],
+      "accepted": true
+    },
+    {
+      "object": 10,
+      "native": [
+        559,
+        465
+      ],
+      "time": 280.5,
+      "cameraPx": 264.35,
+      "score": 0.9245370030403137,
+      "height": 56,
+      "expected": [
+        282.965,
+        403.625
+      ],
+      "measured": [
+        284,
+        404
+      ],
+      "residual": [
+        1.035000000000025,
+        0.375
+      ],
+      "accepted": false
+    },
+    {
+      "object": 4,
+      "native": [
+        656,
+        440
+      ],
+      "time": 281.0,
+      "cameraPx": 264.35,
+      "score": 0.9535855650901794,
+      "height": 67,
+      "expected": [
+        369.59,
+        392.375
+      ],
+      "measured": [
+        370,
+        393
+      ],
+      "residual": [
+        0.410000000000025,
+        0.625
+      ],
+      "accepted": true
+    },
+    {
+      "object": 5,
+      "native": [
+        485,
+        494
+      ],
+      "time": 281.0,
+      "cameraPx": 264.35,
+      "score": 0.8796744346618652,
+      "height": 23,
+      "expected": [
+        199.71499999999997,
+        436.25
+      ],
+      "measured": [
+        200,
+        437
+      ],
+      "residual": [
+        0.285000000000025,
+        0.75
+      ],
+      "accepted": false
+    },
+    {
+      "object": 6,
+      "native": [
+        775,
+        462
+      ],
+      "time": 281.0,
+      "cameraPx": 264.35,
+      "score": 0.9092430472373962,
+      "height": 59,
+      "expected": [
+        525.9649999999999,
+        400.25
+      ],
+      "measured": [
+        526,
+        401
+      ],
+      "residual": [
+        0.035000000000081855,
+        0.75
+      ],
+      "accepted": false
+    },
+    {
+      "object": 9,
+      "native": [
+        392,
+        458
+      ],
+      "time": 281.0,
+      "cameraPx": 264.35,
+      "score": 0.9390983581542969,
+      "height": 64,
+      "expected": [
+        95.08999999999997,
+        395.75
+      ],
+      "measured": [
+        96,
+        396
+      ],
+      "residual": [
+        0.910000000000025,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 10,
+      "native": [
+        559,
+        465
+      ],
+      "time": 281.0,
+      "cameraPx": 264.35,
+      "score": 0.9224029779434204,
+      "height": 56,
+      "expected": [
+        282.965,
+        403.625
+      ],
+      "measured": [
+        284,
+        404
+      ],
+      "residual": [
+        1.035000000000025,
+        0.375
+      ],
+      "accepted": false
+    },
+    {
+      "object": 4,
+      "native": [
+        656,
+        440
+      ],
+      "time": 281.5,
+      "cameraPx": 298.06,
+      "score": 0.9533817172050476,
+      "height": 67,
+      "expected": [
+        332.50899999999996,
+        392.375
+      ],
+      "measured": [
+        333,
+        393
+      ],
+      "residual": [
+        0.4910000000000423,
+        0.625
+      ],
+      "accepted": true
+    },
+    {
+      "object": 5,
+      "native": [
+        485,
+        494
+      ],
+      "time": 281.5,
+      "cameraPx": 298.06,
+      "score": 0.8818386793136597,
+      "height": 23,
+      "expected": [
+        162.63399999999996,
+        436.25
+      ],
+      "measured": [
+        163,
+        437
+      ],
+      "residual": [
+        0.3660000000000423,
+        0.75
+      ],
+      "accepted": false
+    },
+    {
+      "object": 6,
+      "native": [
+        775,
+        462
+      ],
+      "time": 281.5,
+      "cameraPx": 298.06,
+      "score": 0.9279945492744446,
+      "height": 59,
+      "expected": [
+        488.88399999999996,
+        400.25
+      ],
+      "measured": [
+        489,
+        401
+      ],
+      "residual": [
+        0.11600000000004229,
+        0.75
+      ],
+      "accepted": false
+    },
+    {
+      "object": 9,
+      "native": [
+        392,
+        458
+      ],
+      "time": 281.5,
+      "cameraPx": 298.06,
+      "score": 0.9327077865600586,
+      "height": 64,
+      "expected": [
+        58.00899999999996,
+        395.75
+      ],
+      "measured": [
+        59,
+        396
+      ],
+      "residual": [
+        0.9910000000000423,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 10,
+      "native": [
+        559,
+        465
+      ],
+      "time": 281.5,
+      "cameraPx": 298.06,
+      "score": 0.9451193809509277,
+      "height": 56,
+      "expected": [
+        245.88399999999996,
+        403.625
+      ],
+      "measured": [
+        246,
+        404
+      ],
+      "residual": [
+        0.11600000000004229,
+        0.375
+      ],
+      "accepted": true
+    },
+    {
+      "object": 1,
+      "native": [
+        887,
+        470
+      ],
+      "time": 282.0,
+      "cameraPx": 326.23,
+      "score": 0.48613056540489197,
+      "height": 50,
+      "expected": [
+        583.8969999999999,
+        409.25
+      ],
+      "measured": [
+        584,
+        408
+      ],
+      "residual": [
+        0.10300000000006548,
+        -1.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 4,
+      "native": [
+        656,
+        440
+      ],
+      "time": 282.0,
+      "cameraPx": 326.23,
+      "score": 0.9442785978317261,
+      "height": 67,
+      "expected": [
+        301.52199999999993,
+        392.375
+      ],
+      "measured": [
+        302,
+        393
+      ],
+      "residual": [
+        0.4780000000000655,
+        0.625
+      ],
+      "accepted": true
+    },
+    {
+      "object": 5,
+      "native": [
+        485,
+        494
+      ],
+      "time": 282.0,
+      "cameraPx": 326.23,
+      "score": 0.86960369348526,
+      "height": 23,
+      "expected": [
+        131.64699999999993,
+        436.25
+      ],
+      "measured": [
+        132,
+        436
+      ],
+      "residual": [
+        0.3530000000000655,
+        -0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 6,
+      "native": [
+        775,
+        462
+      ],
+      "time": 282.0,
+      "cameraPx": 326.23,
+      "score": 0.9433466196060181,
+      "height": 59,
+      "expected": [
+        457.89699999999993,
+        400.25
+      ],
+      "measured": [
+        458,
+        400
+      ],
+      "residual": [
+        0.10300000000006548,
+        -0.25
+      ],
+      "accepted": true
+    },
+    {
+      "object": 9,
+      "native": [
+        392,
+        458
+      ],
+      "time": 282.0,
+      "cameraPx": 326.23,
+      "score": 0.9580300450325012,
+      "height": 64,
+      "expected": [
+        27.021999999999935,
+        395.75
+      ],
+      "measured": [
+        27,
+        396
+      ],
+      "residual": [
+        -0.021999999999934516,
+        0.25
+      ],
+      "accepted": true
+    },
+    {
+      "object": 10,
+      "native": [
+        559,
+        465
+      ],
+      "time": 282.0,
+      "cameraPx": 326.23,
+      "score": 0.9632740616798401,
+      "height": 56,
+      "expected": [
+        214.89699999999993,
+        403.625
+      ],
+      "measured": [
+        215,
+        404
+      ],
+      "residual": [
+        0.10300000000006548,
+        0.375
+      ],
+      "accepted": true
+    },
+    {
+      "object": 1,
+      "native": [
+        887,
+        470
+      ],
+      "time": 282.5,
+      "cameraPx": 370.06,
+      "score": 0.9069382548332214,
+      "height": 50,
+      "expected": [
+        535.684,
+        409.25
+      ],
+      "measured": [
+        537,
+        409
+      ],
+      "residual": [
+        1.316000000000031,
+        -0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 4,
+      "native": [
+        656,
+        440
+      ],
+      "time": 282.5,
+      "cameraPx": 370.06,
+      "score": 0.9461107850074768,
+      "height": 67,
+      "expected": [
+        253.30899999999997,
+        392.375
+      ],
+      "measured": [
+        254,
+        393
+      ],
+      "residual": [
+        0.6910000000000309,
+        0.625
+      ],
+      "accepted": true
+    },
+    {
+      "object": 5,
+      "native": [
+        485,
+        494
+      ],
+      "time": 282.5,
+      "cameraPx": 370.06,
+      "score": 0.8135566711425781,
+      "height": 23,
+      "expected": [
+        83.43399999999997,
+        436.25
+      ],
+      "measured": [
+        84,
+        437
+      ],
+      "residual": [
+        0.5660000000000309,
+        0.75
+      ],
+      "accepted": false
+    },
+    {
+      "object": 6,
+      "native": [
+        775,
+        462
+      ],
+      "time": 282.5,
+      "cameraPx": 370.06,
+      "score": 0.9342575073242188,
+      "height": 59,
+      "expected": [
+        409.68399999999997,
+        400.25
+      ],
+      "measured": [
+        411,
+        400
+      ],
+      "residual": [
+        1.316000000000031,
+        -0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 10,
+      "native": [
+        559,
+        465
+      ],
+      "time": 282.5,
+      "cameraPx": 370.06,
+      "score": 0.9523383378982544,
+      "height": 56,
+      "expected": [
+        166.68399999999997,
+        403.625
+      ],
+      "measured": [
+        168,
+        404
+      ],
+      "residual": [
+        1.316000000000031,
+        0.375
+      ],
+      "accepted": true
+    },
+    {
+      "object": 1,
+      "native": [
+        887,
+        470
+      ],
+      "time": 283.0,
+      "cameraPx": 460.14,
+      "score": 0.924706757068634,
+      "height": 50,
+      "expected": [
+        436.59599999999995,
+        409.25
+      ],
+      "measured": [
+        438,
+        409
+      ],
+      "residual": [
+        1.4040000000000532,
+        -0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 4,
+      "native": [
+        656,
+        440
+      ],
+      "time": 283.0,
+      "cameraPx": 460.14,
+      "score": 0.9509338140487671,
+      "height": 67,
+      "expected": [
+        154.22099999999995,
+        392.375
+      ],
+      "measured": [
+        155,
+        393
+      ],
+      "residual": [
+        0.7790000000000532,
+        0.625
+      ],
+      "accepted": true
+    },
+    {
+      "object": 6,
+      "native": [
+        775,
+        462
+      ],
+      "time": 283.0,
+      "cameraPx": 460.14,
+      "score": 0.8406079411506653,
+      "height": 59,
+      "expected": [
+        310.59599999999995,
+        400.25
+      ],
+      "measured": [
+        312,
+        401
+      ],
+      "residual": [
+        1.4040000000000532,
+        0.75
+      ],
+      "accepted": false
+    },
+    {
+      "object": 10,
+      "native": [
+        559,
+        465
+      ],
+      "time": 283.0,
+      "cameraPx": 460.14,
+      "score": 0.9408765435218811,
+      "height": 56,
+      "expected": [
+        67.59599999999995,
+        403.625
+      ],
+      "measured": [
+        69,
+        404
+      ],
+      "residual": [
+        1.4040000000000532,
+        0.375
+      ],
+      "accepted": true
+    },
+    {
+      "object": 1,
+      "native": [
+        887,
+        470
+      ],
+      "time": 283.5,
+      "cameraPx": 484.92,
+      "score": 0.9017632007598877,
+      "height": 50,
+      "expected": [
+        409.33799999999997,
+        409.25
+      ],
+      "measured": [
+        410,
+        409
+      ],
+      "residual": [
+        0.6620000000000346,
+        -0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 2,
+      "native": [
+        1024,
+        459
+      ],
+      "time": 283.5,
+      "cameraPx": 484.92,
+      "score": 0.5399715900421143,
+      "height": 46,
+      "expected": [
+        540.963,
+        413.75
+      ],
+      "measured": [
+        541,
+        413
+      ],
+      "residual": [
+        0.03700000000003456,
+        -0.75
+      ],
+      "accepted": false
+    },
+    {
+      "object": 4,
+      "native": [
+        656,
+        440
+      ],
+      "time": 283.5,
+      "cameraPx": 484.92,
+      "score": 0.9534384608268738,
+      "height": 67,
+      "expected": [
+        126.96299999999997,
+        392.375
+      ],
+      "measured": [
+        127,
+        393
+      ],
+      "residual": [
+        0.03700000000003456,
+        0.625
+      ],
+      "accepted": true
+    },
+    {
+      "object": 6,
+      "native": [
+        775,
+        462
+      ],
+      "time": 283.5,
+      "cameraPx": 484.92,
+      "score": 0.9234048128128052,
+      "height": 59,
+      "expected": [
+        283.33799999999997,
+        400.25
+      ],
+      "measured": [
+        284,
+        400
+      ],
+      "residual": [
+        0.6620000000000346,
+        -0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 10,
+      "native": [
+        559,
+        465
+      ],
+      "time": 283.5,
+      "cameraPx": 484.92,
+      "score": 0.9220361709594727,
+      "height": 56,
+      "expected": [
+        40.337999999999965,
+        403.625
+      ],
+      "measured": [
+        41,
+        404
+      ],
+      "residual": [
+        0.6620000000000346,
+        0.375
+      ],
+      "accepted": false
+    },
+    {
+      "object": 1,
+      "native": [
+        887,
+        470
+      ],
+      "time": 284.0,
+      "cameraPx": 532.18,
+      "score": 0.8771211504936218,
+      "height": 50,
+      "expected": [
+        357.352,
+        409.25
+      ],
+      "measured": [
+        358,
+        410
+      ],
+      "residual": [
+        0.6480000000000246,
+        0.75
+      ],
+      "accepted": false
+    },
+    {
+      "object": 2,
+      "native": [
+        1024,
+        459
+      ],
+      "time": 284.0,
+      "cameraPx": 532.18,
+      "score": 0.8981126546859741,
+      "height": 46,
+      "expected": [
+        488.977,
+        413.75
+      ],
+      "measured": [
+        489,
+        414
+      ],
+      "residual": [
+        0.023000000000024556,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 4,
+      "native": [
+        656,
+        440
+      ],
+      "time": 284.0,
+      "cameraPx": 532.18,
+      "score": 0.9434528946876526,
+      "height": 67,
+      "expected": [
+        74.97699999999998,
+        392.375
+      ],
+      "measured": [
+        76,
+        393
+      ],
+      "residual": [
+        1.0230000000000246,
+        0.625
+      ],
+      "accepted": true
+    },
+    {
+      "object": 6,
+      "native": [
+        775,
+        462
+      ],
+      "time": 284.0,
+      "cameraPx": 532.18,
+      "score": 0.9370269775390625,
+      "height": 59,
+      "expected": [
+        231.35199999999998,
+        400.25
+      ],
+      "measured": [
+        232,
+        400
+      ],
+      "residual": [
+        0.6480000000000246,
+        -0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 1,
+      "native": [
+        887,
+        470
+      ],
+      "time": 284.5,
+      "cameraPx": 536.67,
+      "score": 0.9308375716209412,
+      "height": 50,
+      "expected": [
+        352.413,
+        409.25
+      ],
+      "measured": [
+        353,
+        410
+      ],
+      "residual": [
+        0.5869999999999891,
+        0.75
+      ],
+      "accepted": false
+    },
+    {
+      "object": 2,
+      "native": [
+        1024,
+        459
+      ],
+      "time": 284.5,
+      "cameraPx": 536.67,
+      "score": 0.9193422198295593,
+      "height": 46,
+      "expected": [
+        484.038,
+        413.75
+      ],
+      "measured": [
+        485,
+        414
+      ],
+      "residual": [
+        0.9619999999999891,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 4,
+      "native": [
+        656,
+        440
+      ],
+      "time": 284.5,
+      "cameraPx": 536.67,
+      "score": 0.9568990468978882,
+      "height": 67,
+      "expected": [
+        70.03800000000001,
+        392.375
+      ],
+      "measured": [
+        71,
+        393
+      ],
+      "residual": [
+        0.9619999999999891,
+        0.625
+      ],
+      "accepted": true
+    },
+    {
+      "object": 6,
+      "native": [
+        775,
+        462
+      ],
+      "time": 284.5,
+      "cameraPx": 536.67,
+      "score": 0.9347671270370483,
+      "height": 59,
+      "expected": [
+        226.413,
+        400.25
+      ],
+      "measured": [
+        227,
+        401
+      ],
+      "residual": [
+        0.5869999999999891,
+        0.75
+      ],
+      "accepted": false
+    },
+    {
+      "object": 1,
+      "native": [
+        887,
+        470
+      ],
+      "time": 285.0,
+      "cameraPx": 536.78,
+      "score": 0.9119720458984375,
+      "height": 50,
+      "expected": [
+        352.29200000000003,
+        409.25
+      ],
+      "measured": [
+        353,
+        410
+      ],
+      "residual": [
+        0.70799999999997,
+        0.75
+      ],
+      "accepted": false
+    },
+    {
+      "object": 2,
+      "native": [
+        1024,
+        459
+      ],
+      "time": 285.0,
+      "cameraPx": 536.78,
+      "score": 0.9175183773040771,
+      "height": 46,
+      "expected": [
+        483.91700000000003,
+        413.75
+      ],
+      "measured": [
+        485,
+        414
+      ],
+      "residual": [
+        1.08299999999997,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 4,
+      "native": [
+        656,
+        440
+      ],
+      "time": 285.0,
+      "cameraPx": 536.78,
+      "score": 0.9413970708847046,
+      "height": 67,
+      "expected": [
+        69.91700000000003,
+        392.375
+      ],
+      "measured": [
+        70,
+        393
+      ],
+      "residual": [
+        0.08299999999996999,
+        0.625
+      ],
+      "accepted": true
+    },
+    {
+      "object": 6,
+      "native": [
+        775,
+        462
+      ],
+      "time": 285.0,
+      "cameraPx": 536.78,
+      "score": 0.9377168416976929,
+      "height": 59,
+      "expected": [
+        226.29200000000003,
+        400.25
+      ],
+      "measured": [
+        227,
+        401
+      ],
+      "residual": [
+        0.70799999999997,
+        0.75
+      ],
+      "accepted": false
+    },
+    {
+      "object": 1,
+      "native": [
+        887,
+        470
+      ],
+      "time": 285.5,
+      "cameraPx": 538.92,
+      "score": 0.9407325983047485,
+      "height": 50,
+      "expected": [
+        349.938,
+        409.25
+      ],
+      "measured": [
+        351,
+        409
+      ],
+      "residual": [
+        1.0620000000000118,
+        -0.25
+      ],
+      "accepted": true
+    },
+    {
+      "object": 2,
+      "native": [
+        1024,
+        459
+      ],
+      "time": 285.5,
+      "cameraPx": 538.92,
+      "score": 0.905857264995575,
+      "height": 46,
+      "expected": [
+        481.563,
+        413.75
+      ],
+      "measured": [
+        483,
+        414
+      ],
+      "residual": [
+        1.4370000000000118,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 4,
+      "native": [
+        656,
+        440
+      ],
+      "time": 285.5,
+      "cameraPx": 538.92,
+      "score": 0.944876492023468,
+      "height": 67,
+      "expected": [
+        67.56299999999999,
+        392.375
+      ],
+      "measured": [
+        69,
+        393
+      ],
+      "residual": [
+        1.4370000000000118,
+        0.625
+      ],
+      "accepted": true
+    },
+    {
+      "object": 6,
+      "native": [
+        775,
+        462
+      ],
+      "time": 285.5,
+      "cameraPx": 538.92,
+      "score": 0.9467229247093201,
+      "height": 59,
+      "expected": [
+        223.938,
+        400.25
+      ],
+      "measured": [
+        225,
+        400
+      ],
+      "residual": [
+        1.0620000000000118,
+        -0.25
+      ],
+      "accepted": true
+    },
+    {
+      "object": 1,
+      "native": [
+        887,
+        470
+      ],
+      "time": 286.0,
+      "cameraPx": 517.52,
+      "score": 0.9015340209007263,
+      "height": 50,
+      "expected": [
+        373.47799999999995,
+        409.25
+      ],
+      "measured": [
+        374,
+        409
+      ],
+      "residual": [
+        0.5220000000000482,
+        -0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 2,
+      "native": [
+        1024,
+        459
+      ],
+      "time": 286.0,
+      "cameraPx": 517.52,
+      "score": 0.8478202819824219,
+      "height": 46,
+      "expected": [
+        505.10299999999995,
+        413.75
+      ],
+      "measured": [
+        505,
+        414
+      ],
+      "residual": [
+        -0.1029999999999518,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 4,
+      "native": [
+        656,
+        440
+      ],
+      "time": 286.0,
+      "cameraPx": 517.52,
+      "score": 0.9522625207901001,
+      "height": 67,
+      "expected": [
+        91.10299999999995,
+        392.375
+      ],
+      "measured": [
+        91,
+        393
+      ],
+      "residual": [
+        -0.1029999999999518,
+        0.625
+      ],
+      "accepted": true
+    },
+    {
+      "object": 6,
+      "native": [
+        775,
+        462
+      ],
+      "time": 286.0,
+      "cameraPx": 517.52,
+      "score": 0.9111267924308777,
+      "height": 59,
+      "expected": [
+        247.47799999999995,
+        400.25
+      ],
+      "measured": [
+        247,
+        401
+      ],
+      "residual": [
+        -0.4779999999999518,
+        0.75
+      ],
+      "accepted": false
+    },
+    {
+      "object": 1,
+      "native": [
+        887,
+        470
+      ],
+      "time": 286.5,
+      "cameraPx": 516.4,
+      "score": 0.9269552826881409,
+      "height": 50,
+      "expected": [
+        374.7099999999999,
+        409.25
+      ],
+      "measured": [
+        376,
+        409
+      ],
+      "residual": [
+        1.2900000000000773,
+        -0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 2,
+      "native": [
+        1024,
+        459
+      ],
+      "time": 286.5,
+      "cameraPx": 516.4,
+      "score": 0.8219007253646851,
+      "height": 46,
+      "expected": [
+        506.3349999999999,
+        413.75
+      ],
+      "measured": [
+        507,
+        414
+      ],
+      "residual": [
+        0.6650000000000773,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 4,
+      "native": [
+        656,
+        440
+      ],
+      "time": 286.5,
+      "cameraPx": 516.4,
+      "score": 0.9436060190200806,
+      "height": 67,
+      "expected": [
+        92.33499999999992,
+        392.375
+      ],
+      "measured": [
+        93,
+        393
+      ],
+      "residual": [
+        0.6650000000000773,
+        0.625
+      ],
+      "accepted": true
+    },
+    {
+      "object": 6,
+      "native": [
+        775,
+        462
+      ],
+      "time": 286.5,
+      "cameraPx": 516.4,
+      "score": 0.9302956461906433,
+      "height": 59,
+      "expected": [
+        248.70999999999992,
+        400.25
+      ],
+      "measured": [
+        250,
+        400
+      ],
+      "residual": [
+        1.2900000000000773,
+        -0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 1,
+      "native": [
+        887,
+        470
+      ],
+      "time": 287.0,
+      "cameraPx": 504.03,
+      "score": 0.9357126355171204,
+      "height": 50,
+      "expected": [
+        388.317,
+        409.25
+      ],
+      "measured": [
+        389,
+        410
+      ],
+      "residual": [
+        0.6829999999999927,
+        0.75
+      ],
+      "accepted": false
+    },
+    {
+      "object": 2,
+      "native": [
+        1024,
+        459
+      ],
+      "time": 287.0,
+      "cameraPx": 504.03,
+      "score": 0.756423830986023,
+      "height": 46,
+      "expected": [
+        519.942,
+        413.75
+      ],
+      "measured": [
+        521,
+        414
+      ],
+      "residual": [
+        1.0579999999999927,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 4,
+      "native": [
+        656,
+        440
+      ],
+      "time": 287.0,
+      "cameraPx": 504.03,
+      "score": 0.9557009935379028,
+      "height": 67,
+      "expected": [
+        105.94200000000001,
+        392.375
+      ],
+      "measured": [
+        107,
+        393
+      ],
+      "residual": [
+        1.0579999999999927,
+        0.625
+      ],
+      "accepted": true
+    },
+    {
+      "object": 6,
+      "native": [
+        775,
+        462
+      ],
+      "time": 287.0,
+      "cameraPx": 504.03,
+      "score": 0.9402745962142944,
+      "height": 59,
+      "expected": [
+        262.317,
+        400.25
+      ],
+      "measured": [
+        263,
+        401
+      ],
+      "residual": [
+        0.6829999999999927,
+        0.75
+      ],
+      "accepted": true
+    },
+    {
+      "object": 10,
+      "native": [
+        559,
+        465
+      ],
+      "time": 287.0,
+      "cameraPx": 504.03,
+      "score": 0.9531059861183167,
+      "height": 56,
+      "expected": [
+        19.317000000000007,
+        403.625
+      ],
+      "measured": [
+        20,
+        404
+      ],
+      "residual": [
+        0.6829999999999927,
+        0.375
+      ],
+      "accepted": true
+    },
+    {
+      "object": 1,
+      "native": [
+        887,
+        470
+      ],
+      "time": 287.5,
+      "cameraPx": 504.02,
+      "score": 0.935913622379303,
+      "height": 50,
+      "expected": [
+        388.328,
+        409.25
+      ],
+      "measured": [
+        389,
+        410
+      ],
+      "residual": [
+        0.6720000000000255,
+        0.75
+      ],
+      "accepted": false
+    },
+    {
+      "object": 2,
+      "native": [
+        1024,
+        459
+      ],
+      "time": 287.5,
+      "cameraPx": 504.02,
+      "score": 0.7586629986763,
+      "height": 46,
+      "expected": [
+        519.953,
+        413.75
+      ],
+      "measured": [
+        521,
+        414
+      ],
+      "residual": [
+        1.0470000000000255,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 4,
+      "native": [
+        656,
+        440
+      ],
+      "time": 287.5,
+      "cameraPx": 504.02,
+      "score": 0.9563626646995544,
+      "height": 67,
+      "expected": [
+        105.95299999999997,
+        392.375
+      ],
+      "measured": [
+        107,
+        393
+      ],
+      "residual": [
+        1.0470000000000255,
+        0.625
+      ],
+      "accepted": true
+    },
+    {
+      "object": 6,
+      "native": [
+        775,
+        462
+      ],
+      "time": 287.5,
+      "cameraPx": 504.02,
+      "score": 0.9398974180221558,
+      "height": 59,
+      "expected": [
+        262.328,
+        400.25
+      ],
+      "measured": [
+        263,
+        401
+      ],
+      "residual": [
+        0.6720000000000255,
+        0.75
+      ],
+      "accepted": false
+    },
+    {
+      "object": 10,
+      "native": [
+        559,
+        465
+      ],
+      "time": 287.5,
+      "cameraPx": 504.02,
+      "score": 0.9537695050239563,
+      "height": 56,
+      "expected": [
+        19.327999999999975,
+        403.625
+      ],
+      "measured": [
+        20,
+        404
+      ],
+      "residual": [
+        0.6720000000000255,
+        0.375
+      ],
+      "accepted": true
+    },
+    {
+      "object": 1,
+      "native": [
+        887,
+        470
+      ],
+      "time": 288.0,
+      "cameraPx": 504.02,
+      "score": 0.9354723691940308,
+      "height": 50,
+      "expected": [
+        388.328,
+        409.25
+      ],
+      "measured": [
+        389,
+        410
+      ],
+      "residual": [
+        0.6720000000000255,
+        0.75
+      ],
+      "accepted": false
+    },
+    {
+      "object": 2,
+      "native": [
+        1024,
+        459
+      ],
+      "time": 288.0,
+      "cameraPx": 504.02,
+      "score": 0.7607933878898621,
+      "height": 46,
+      "expected": [
+        519.953,
+        413.75
+      ],
+      "measured": [
+        521,
+        414
+      ],
+      "residual": [
+        1.0470000000000255,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 4,
+      "native": [
+        656,
+        440
+      ],
+      "time": 288.0,
+      "cameraPx": 504.02,
+      "score": 0.9570921063423157,
+      "height": 67,
+      "expected": [
+        105.95299999999997,
+        392.375
+      ],
+      "measured": [
+        107,
+        393
+      ],
+      "residual": [
+        1.0470000000000255,
+        0.625
+      ],
+      "accepted": true
+    },
+    {
+      "object": 6,
+      "native": [
+        775,
+        462
+      ],
+      "time": 288.0,
+      "cameraPx": 504.02,
+      "score": 0.9400589466094971,
+      "height": 59,
+      "expected": [
+        262.328,
+        400.25
+      ],
+      "measured": [
+        263,
+        401
+      ],
+      "residual": [
+        0.6720000000000255,
+        0.75
+      ],
+      "accepted": true
+    },
+    {
+      "object": 10,
+      "native": [
+        559,
+        465
+      ],
+      "time": 288.0,
+      "cameraPx": 504.02,
+      "score": 0.9533681273460388,
+      "height": 56,
+      "expected": [
+        19.327999999999975,
+        403.625
+      ],
+      "measured": [
+        20,
+        404
+      ],
+      "residual": [
+        0.6720000000000255,
+        0.375
+      ],
+      "accepted": true
+    },
+    {
+      "object": 1,
+      "native": [
+        887,
+        470
+      ],
+      "time": 288.5,
+      "cameraPx": 504.02,
+      "score": 0.934690535068512,
+      "height": 50,
+      "expected": [
+        388.328,
+        409.25
+      ],
+      "measured": [
+        389,
+        410
+      ],
+      "residual": [
+        0.6720000000000255,
+        0.75
+      ],
+      "accepted": false
+    },
+    {
+      "object": 2,
+      "native": [
+        1024,
+        459
+      ],
+      "time": 288.5,
+      "cameraPx": 504.02,
+      "score": 0.7587533593177795,
+      "height": 46,
+      "expected": [
+        519.953,
+        413.75
+      ],
+      "measured": [
+        521,
+        414
+      ],
+      "residual": [
+        1.0470000000000255,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 4,
+      "native": [
+        656,
+        440
+      ],
+      "time": 288.5,
+      "cameraPx": 504.02,
+      "score": 0.9592334032058716,
+      "height": 67,
+      "expected": [
+        105.95299999999997,
+        392.375
+      ],
+      "measured": [
+        107,
+        393
+      ],
+      "residual": [
+        1.0470000000000255,
+        0.625
+      ],
+      "accepted": true
+    },
+    {
+      "object": 6,
+      "native": [
+        775,
+        462
+      ],
+      "time": 288.5,
+      "cameraPx": 504.02,
+      "score": 0.9425795078277588,
+      "height": 59,
+      "expected": [
+        262.328,
+        400.25
+      ],
+      "measured": [
+        263,
+        401
+      ],
+      "residual": [
+        0.6720000000000255,
+        0.75
+      ],
+      "accepted": true
+    },
+    {
+      "object": 10,
+      "native": [
+        559,
+        465
+      ],
+      "time": 288.5,
+      "cameraPx": 504.02,
+      "score": 0.9542189836502075,
+      "height": 56,
+      "expected": [
+        19.327999999999975,
+        403.625
+      ],
+      "measured": [
+        20,
+        404
+      ],
+      "residual": [
+        0.6720000000000255,
+        0.375
+      ],
+      "accepted": true
+    },
+    {
+      "object": 1,
+      "native": [
+        887,
+        470
+      ],
+      "time": 289.0,
+      "cameraPx": 504.02,
+      "score": 0.9339221715927124,
+      "height": 50,
+      "expected": [
+        388.328,
+        409.25
+      ],
+      "measured": [
+        389,
+        410
+      ],
+      "residual": [
+        0.6720000000000255,
+        0.75
+      ],
+      "accepted": false
+    },
+    {
+      "object": 2,
+      "native": [
+        1024,
+        459
+      ],
+      "time": 289.0,
+      "cameraPx": 504.02,
+      "score": 0.7595549821853638,
+      "height": 46,
+      "expected": [
+        519.953,
+        413.75
+      ],
+      "measured": [
+        521,
+        414
+      ],
+      "residual": [
+        1.0470000000000255,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 4,
+      "native": [
+        656,
+        440
+      ],
+      "time": 289.0,
+      "cameraPx": 504.02,
+      "score": 0.9591161012649536,
+      "height": 67,
+      "expected": [
+        105.95299999999997,
+        392.375
+      ],
+      "measured": [
+        107,
+        393
+      ],
+      "residual": [
+        1.0470000000000255,
+        0.625
+      ],
+      "accepted": true
+    },
+    {
+      "object": 6,
+      "native": [
+        775,
+        462
+      ],
+      "time": 289.0,
+      "cameraPx": 504.02,
+      "score": 0.9417782425880432,
+      "height": 59,
+      "expected": [
+        262.328,
+        400.25
+      ],
+      "measured": [
+        263,
+        401
+      ],
+      "residual": [
+        0.6720000000000255,
+        0.75
+      ],
+      "accepted": true
+    },
+    {
+      "object": 10,
+      "native": [
+        559,
+        465
+      ],
+      "time": 289.0,
+      "cameraPx": 504.02,
+      "score": 0.9544507265090942,
+      "height": 56,
+      "expected": [
+        19.327999999999975,
+        403.625
+      ],
+      "measured": [
+        20,
+        404
+      ],
+      "residual": [
+        0.6720000000000255,
+        0.375
+      ],
+      "accepted": true
+    },
+    {
+      "object": 1,
+      "native": [
+        887,
+        470
+      ],
+      "time": 289.5,
+      "cameraPx": 504.02,
+      "score": 0.9332523941993713,
+      "height": 50,
+      "expected": [
+        388.328,
+        409.25
+      ],
+      "measured": [
+        389,
+        410
+      ],
+      "residual": [
+        0.6720000000000255,
+        0.75
+      ],
+      "accepted": false
+    },
+    {
+      "object": 2,
+      "native": [
+        1024,
+        459
+      ],
+      "time": 289.5,
+      "cameraPx": 504.02,
+      "score": 0.7597250938415527,
+      "height": 46,
+      "expected": [
+        519.953,
+        413.75
+      ],
+      "measured": [
+        521,
+        414
+      ],
+      "residual": [
+        1.0470000000000255,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 4,
+      "native": [
+        656,
+        440
+      ],
+      "time": 289.5,
+      "cameraPx": 504.02,
+      "score": 0.9588292837142944,
+      "height": 67,
+      "expected": [
+        105.95299999999997,
+        392.375
+      ],
+      "measured": [
+        107,
+        393
+      ],
+      "residual": [
+        1.0470000000000255,
+        0.625
+      ],
+      "accepted": true
+    },
+    {
+      "object": 6,
+      "native": [
+        775,
+        462
+      ],
+      "time": 289.5,
+      "cameraPx": 504.02,
+      "score": 0.9404826760292053,
+      "height": 59,
+      "expected": [
+        262.328,
+        400.25
+      ],
+      "measured": [
+        263,
+        401
+      ],
+      "residual": [
+        0.6720000000000255,
+        0.75
+      ],
+      "accepted": true
+    },
+    {
+      "object": 10,
+      "native": [
+        559,
+        465
+      ],
+      "time": 289.5,
+      "cameraPx": 504.02,
+      "score": 0.9546520709991455,
+      "height": 56,
+      "expected": [
+        19.327999999999975,
+        403.625
+      ],
+      "measured": [
+        20,
+        404
+      ],
+      "residual": [
+        0.6720000000000255,
+        0.375
+      ],
+      "accepted": true
+    },
+    {
+      "object": 1,
+      "native": [
+        887,
+        470
+      ],
+      "time": 290.0,
+      "cameraPx": 513.01,
+      "score": 0.9439059495925903,
+      "height": 50,
+      "expected": [
+        378.43899999999996,
+        409.25
+      ],
+      "measured": [
+        379,
+        409
+      ],
+      "residual": [
+        0.5610000000000355,
+        -0.25
+      ],
+      "accepted": true
+    },
+    {
+      "object": 2,
+      "native": [
+        1024,
+        459
+      ],
+      "time": 290.0,
+      "cameraPx": 513.01,
+      "score": 0.8105034232139587,
+      "height": 46,
+      "expected": [
+        510.06399999999996,
+        413.75
+      ],
+      "measured": [
+        511,
+        414
+      ],
+      "residual": [
+        0.9360000000000355,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 4,
+      "native": [
+        656,
+        440
+      ],
+      "time": 290.0,
+      "cameraPx": 513.01,
+      "score": 0.9549437761306763,
+      "height": 67,
+      "expected": [
+        96.06399999999996,
+        392.375
+      ],
+      "measured": [
+        97,
+        393
+      ],
+      "residual": [
+        0.9360000000000355,
+        0.625
+      ],
+      "accepted": true
+    },
+    {
+      "object": 6,
+      "native": [
+        775,
+        462
+      ],
+      "time": 290.0,
+      "cameraPx": 513.01,
+      "score": 0.9473797678947449,
+      "height": 59,
+      "expected": [
+        252.43899999999996,
+        400.25
+      ],
+      "measured": [
+        253,
+        401
+      ],
+      "residual": [
+        0.5610000000000355,
+        0.75
+      ],
+      "accepted": true
+    },
+    {
+      "object": 10,
+      "native": [
+        559,
+        465
+      ],
+      "time": 290.0,
+      "cameraPx": 513.01,
+      "score": 0.9661006331443787,
+      "height": 56,
+      "expected": [
+        9.438999999999965,
+        403.625
+      ],
+      "measured": [
+        10,
+        404
+      ],
+      "residual": [
+        0.5610000000000355,
+        0.375
+      ],
+      "accepted": true
+    },
+    {
+      "object": 1,
+      "native": [
+        887,
+        470
+      ],
+      "time": 290.5,
+      "cameraPx": 513.01,
+      "score": 0.9452186226844788,
+      "height": 50,
+      "expected": [
+        378.43899999999996,
+        409.25
+      ],
+      "measured": [
+        379,
+        409
+      ],
+      "residual": [
+        0.5610000000000355,
+        -0.25
+      ],
+      "accepted": true
+    },
+    {
+      "object": 2,
+      "native": [
+        1024,
+        459
+      ],
+      "time": 290.5,
+      "cameraPx": 513.01,
+      "score": 0.8093428015708923,
+      "height": 46,
+      "expected": [
+        510.06399999999996,
+        413.75
+      ],
+      "measured": [
+        511,
+        414
+      ],
+      "residual": [
+        0.9360000000000355,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 4,
+      "native": [
+        656,
+        440
+      ],
+      "time": 290.5,
+      "cameraPx": 513.01,
+      "score": 0.9553621411323547,
+      "height": 67,
+      "expected": [
+        96.06399999999996,
+        392.375
+      ],
+      "measured": [
+        97,
+        393
+      ],
+      "residual": [
+        0.9360000000000355,
+        0.625
+      ],
+      "accepted": true
+    },
+    {
+      "object": 6,
+      "native": [
+        775,
+        462
+      ],
+      "time": 290.5,
+      "cameraPx": 513.01,
+      "score": 0.9476249814033508,
+      "height": 59,
+      "expected": [
+        252.43899999999996,
+        400.25
+      ],
+      "measured": [
+        253,
+        400
+      ],
+      "residual": [
+        0.5610000000000355,
+        -0.25
+      ],
+      "accepted": true
+    },
+    {
+      "object": 10,
+      "native": [
+        559,
+        465
+      ],
+      "time": 290.5,
+      "cameraPx": 513.01,
+      "score": 0.965025782585144,
+      "height": 56,
+      "expected": [
+        9.438999999999965,
+        403.625
+      ],
+      "measured": [
+        10,
+        404
+      ],
+      "residual": [
+        0.5610000000000355,
+        0.375
+      ],
+      "accepted": true
+    },
+    {
+      "object": 1,
+      "native": [
+        887,
+        470
+      ],
+      "time": 291.0,
+      "cameraPx": 533.26,
+      "score": 0.9257532358169556,
+      "height": 50,
+      "expected": [
+        356.164,
+        409.25
+      ],
+      "measured": [
+        357,
+        409
+      ],
+      "residual": [
+        0.8360000000000127,
+        -0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 2,
+      "native": [
+        1024,
+        459
+      ],
+      "time": 291.0,
+      "cameraPx": 533.26,
+      "score": 0.9142125248908997,
+      "height": 46,
+      "expected": [
+        487.789,
+        413.75
+      ],
+      "measured": [
+        488,
+        414
+      ],
+      "residual": [
+        0.21100000000001273,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 4,
+      "native": [
+        656,
+        440
+      ],
+      "time": 291.0,
+      "cameraPx": 533.26,
+      "score": 0.9519290924072266,
+      "height": 67,
+      "expected": [
+        73.78899999999999,
+        392.375
+      ],
+      "measured": [
+        74,
+        393
+      ],
+      "residual": [
+        0.21100000000001273,
+        0.625
+      ],
+      "accepted": true
+    },
+    {
+      "object": 6,
+      "native": [
+        775,
+        462
+      ],
+      "time": 291.0,
+      "cameraPx": 533.26,
+      "score": 0.9341480135917664,
+      "height": 59,
+      "expected": [
+        230.164,
+        400.25
+      ],
+      "measured": [
+        231,
+        400
+      ],
+      "residual": [
+        0.8360000000000127,
+        -0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 1,
+      "native": [
+        887,
+        470
+      ],
+      "time": 291.5,
+      "cameraPx": 533.26,
+      "score": 0.9253499507904053,
+      "height": 50,
+      "expected": [
+        356.164,
+        409.25
+      ],
+      "measured": [
+        357,
+        409
+      ],
+      "residual": [
+        0.8360000000000127,
+        -0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 2,
+      "native": [
+        1024,
+        459
+      ],
+      "time": 291.5,
+      "cameraPx": 533.26,
+      "score": 0.9135578274726868,
+      "height": 46,
+      "expected": [
+        487.789,
+        413.75
+      ],
+      "measured": [
+        488,
+        414
+      ],
+      "residual": [
+        0.21100000000001273,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 4,
+      "native": [
+        656,
+        440
+      ],
+      "time": 291.5,
+      "cameraPx": 533.26,
+      "score": 0.9521671533584595,
+      "height": 67,
+      "expected": [
+        73.78899999999999,
+        392.375
+      ],
+      "measured": [
+        74,
+        393
+      ],
+      "residual": [
+        0.21100000000001273,
+        0.625
+      ],
+      "accepted": true
+    },
+    {
+      "object": 6,
+      "native": [
+        775,
+        462
+      ],
+      "time": 291.5,
+      "cameraPx": 533.26,
+      "score": 0.933624267578125,
+      "height": 59,
+      "expected": [
+        230.164,
+        400.25
+      ],
+      "measured": [
+        231,
+        400
+      ],
+      "residual": [
+        0.8360000000000127,
+        -0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 1,
+      "native": [
+        887,
+        470
+      ],
+      "time": 292.0,
+      "cameraPx": 533.26,
+      "score": 0.9260748624801636,
+      "height": 50,
+      "expected": [
+        356.164,
+        409.25
+      ],
+      "measured": [
+        357,
+        409
+      ],
+      "residual": [
+        0.8360000000000127,
+        -0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 2,
+      "native": [
+        1024,
+        459
+      ],
+      "time": 292.0,
+      "cameraPx": 533.26,
+      "score": 0.9134732484817505,
+      "height": 46,
+      "expected": [
+        487.789,
+        413.75
+      ],
+      "measured": [
+        488,
+        414
+      ],
+      "residual": [
+        0.21100000000001273,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 4,
+      "native": [
+        656,
+        440
+      ],
+      "time": 292.0,
+      "cameraPx": 533.26,
+      "score": 0.9522521495819092,
+      "height": 67,
+      "expected": [
+        73.78899999999999,
+        392.375
+      ],
+      "measured": [
+        74,
+        393
+      ],
+      "residual": [
+        0.21100000000001273,
+        0.625
+      ],
+      "accepted": true
+    },
+    {
+      "object": 6,
+      "native": [
+        775,
+        462
+      ],
+      "time": 292.0,
+      "cameraPx": 533.26,
+      "score": 0.9322160482406616,
+      "height": 59,
+      "expected": [
+        230.164,
+        400.25
+      ],
+      "measured": [
+        231,
+        400
+      ],
+      "residual": [
+        0.8360000000000127,
+        -0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 1,
+      "native": [
+        887,
+        470
+      ],
+      "time": 292.5,
+      "cameraPx": 533.26,
+      "score": 0.9250079989433289,
+      "height": 50,
+      "expected": [
+        356.164,
+        409.25
+      ],
+      "measured": [
+        357,
+        409
+      ],
+      "residual": [
+        0.8360000000000127,
+        -0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 2,
+      "native": [
+        1024,
+        459
+      ],
+      "time": 292.5,
+      "cameraPx": 533.26,
+      "score": 0.9131771326065063,
+      "height": 46,
+      "expected": [
+        487.789,
+        413.75
+      ],
+      "measured": [
+        488,
+        414
+      ],
+      "residual": [
+        0.21100000000001273,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 4,
+      "native": [
+        656,
+        440
+      ],
+      "time": 292.5,
+      "cameraPx": 533.26,
+      "score": 0.9527823328971863,
+      "height": 67,
+      "expected": [
+        73.78899999999999,
+        392.375
+      ],
+      "measured": [
+        74,
+        393
+      ],
+      "residual": [
+        0.21100000000001273,
+        0.625
+      ],
+      "accepted": true
+    },
+    {
+      "object": 6,
+      "native": [
+        775,
+        462
+      ],
+      "time": 292.5,
+      "cameraPx": 533.26,
+      "score": 0.9308198094367981,
+      "height": 59,
+      "expected": [
+        230.164,
+        400.25
+      ],
+      "measured": [
+        231,
+        400
+      ],
+      "residual": [
+        0.8360000000000127,
+        -0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 1,
+      "native": [
+        887,
+        470
+      ],
+      "time": 293.0,
+      "cameraPx": 533.25,
+      "score": 0.925854504108429,
+      "height": 50,
+      "expected": [
+        356.17499999999995,
+        409.25
+      ],
+      "measured": [
+        357,
+        409
+      ],
+      "residual": [
+        0.8250000000000455,
+        -0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 2,
+      "native": [
+        1024,
+        459
+      ],
+      "time": 293.0,
+      "cameraPx": 533.25,
+      "score": 0.9128859639167786,
+      "height": 46,
+      "expected": [
+        487.79999999999995,
+        413.75
+      ],
+      "measured": [
+        488,
+        414
+      ],
+      "residual": [
+        0.20000000000004547,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 4,
+      "native": [
+        656,
+        440
+      ],
+      "time": 293.0,
+      "cameraPx": 533.25,
+      "score": 0.9523854851722717,
+      "height": 67,
+      "expected": [
+        73.79999999999995,
+        392.375
+      ],
+      "measured": [
+        74,
+        393
+      ],
+      "residual": [
+        0.20000000000004547,
+        0.625
+      ],
+      "accepted": true
+    },
+    {
+      "object": 6,
+      "native": [
+        775,
+        462
+      ],
+      "time": 293.0,
+      "cameraPx": 533.25,
+      "score": 0.9275535345077515,
+      "height": 59,
+      "expected": [
+        230.17499999999995,
+        400.25
+      ],
+      "measured": [
+        231,
+        400
+      ],
+      "residual": [
+        0.8250000000000455,
+        -0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 1,
+      "native": [
+        887,
+        470
+      ],
+      "time": 293.5,
+      "cameraPx": 533.25,
+      "score": 0.9255194664001465,
+      "height": 50,
+      "expected": [
+        356.17499999999995,
+        409.25
+      ],
+      "measured": [
+        357,
+        409
+      ],
+      "residual": [
+        0.8250000000000455,
+        -0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 2,
+      "native": [
+        1024,
+        459
+      ],
+      "time": 293.5,
+      "cameraPx": 533.25,
+      "score": 0.9143239259719849,
+      "height": 46,
+      "expected": [
+        487.79999999999995,
+        413.75
+      ],
+      "measured": [
+        488,
+        414
+      ],
+      "residual": [
+        0.20000000000004547,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 4,
+      "native": [
+        656,
+        440
+      ],
+      "time": 293.5,
+      "cameraPx": 533.25,
+      "score": 0.9511152505874634,
+      "height": 67,
+      "expected": [
+        73.79999999999995,
+        392.375
+      ],
+      "measured": [
+        74,
+        393
+      ],
+      "residual": [
+        0.20000000000004547,
+        0.625
+      ],
+      "accepted": true
+    },
+    {
+      "object": 6,
+      "native": [
+        775,
+        462
+      ],
+      "time": 293.5,
+      "cameraPx": 533.25,
+      "score": 0.9301139712333679,
+      "height": 59,
+      "expected": [
+        230.17499999999995,
+        400.25
+      ],
+      "measured": [
+        231,
+        400
+      ],
+      "residual": [
+        0.8250000000000455,
+        -0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 1,
+      "native": [
+        887,
+        470
+      ],
+      "time": 294.0,
+      "cameraPx": 533.25,
+      "score": 0.9234833121299744,
+      "height": 50,
+      "expected": [
+        356.17499999999995,
+        409.25
+      ],
+      "measured": [
+        357,
+        409
+      ],
+      "residual": [
+        0.8250000000000455,
+        -0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 2,
+      "native": [
+        1024,
+        459
+      ],
+      "time": 294.0,
+      "cameraPx": 533.25,
+      "score": 0.9140408635139465,
+      "height": 46,
+      "expected": [
+        487.79999999999995,
+        413.75
+      ],
+      "measured": [
+        488,
+        414
+      ],
+      "residual": [
+        0.20000000000004547,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 4,
+      "native": [
+        656,
+        440
+      ],
+      "time": 294.0,
+      "cameraPx": 533.25,
+      "score": 0.951749324798584,
+      "height": 67,
+      "expected": [
+        73.79999999999995,
+        392.375
+      ],
+      "measured": [
+        74,
+        393
+      ],
+      "residual": [
+        0.20000000000004547,
+        0.625
+      ],
+      "accepted": true
+    },
+    {
+      "object": 6,
+      "native": [
+        775,
+        462
+      ],
+      "time": 294.0,
+      "cameraPx": 533.25,
+      "score": 0.9300668835639954,
+      "height": 59,
+      "expected": [
+        230.17499999999995,
+        400.25
+      ],
+      "measured": [
+        231,
+        400
+      ],
+      "residual": [
+        0.8250000000000455,
+        -0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 1,
+      "native": [
+        887,
+        470
+      ],
+      "time": 294.5,
+      "cameraPx": 533.25,
+      "score": 0.9222849607467651,
+      "height": 50,
+      "expected": [
+        356.17499999999995,
+        409.25
+      ],
+      "measured": [
+        357,
+        409
+      ],
+      "residual": [
+        0.8250000000000455,
+        -0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 2,
+      "native": [
+        1024,
+        459
+      ],
+      "time": 294.5,
+      "cameraPx": 533.25,
+      "score": 0.914529025554657,
+      "height": 46,
+      "expected": [
+        487.79999999999995,
+        413.75
+      ],
+      "measured": [
+        488,
+        414
+      ],
+      "residual": [
+        0.20000000000004547,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 4,
+      "native": [
+        656,
+        440
+      ],
+      "time": 294.5,
+      "cameraPx": 533.25,
+      "score": 0.9519902467727661,
+      "height": 67,
+      "expected": [
+        73.79999999999995,
+        392.375
+      ],
+      "measured": [
+        74,
+        393
+      ],
+      "residual": [
+        0.20000000000004547,
+        0.625
+      ],
+      "accepted": true
+    },
+    {
+      "object": 6,
+      "native": [
+        775,
+        462
+      ],
+      "time": 294.5,
+      "cameraPx": 533.25,
+      "score": 0.9308318495750427,
+      "height": 59,
+      "expected": [
+        230.17499999999995,
+        400.25
+      ],
+      "measured": [
+        231,
+        400
+      ],
+      "residual": [
+        0.8250000000000455,
+        -0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 1,
+      "native": [
+        887,
+        470
+      ],
+      "time": 295.0,
+      "cameraPx": 533.25,
+      "score": 0.9204263687133789,
+      "height": 50,
+      "expected": [
+        356.17499999999995,
+        409.25
+      ],
+      "measured": [
+        357,
+        409
+      ],
+      "residual": [
+        0.8250000000000455,
+        -0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 2,
+      "native": [
+        1024,
+        459
+      ],
+      "time": 295.0,
+      "cameraPx": 533.25,
+      "score": 0.9168111085891724,
+      "height": 46,
+      "expected": [
+        487.79999999999995,
+        413.75
+      ],
+      "measured": [
+        488,
+        414
+      ],
+      "residual": [
+        0.20000000000004547,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 4,
+      "native": [
+        656,
+        440
+      ],
+      "time": 295.0,
+      "cameraPx": 533.25,
+      "score": 0.9531876444816589,
+      "height": 67,
+      "expected": [
+        73.79999999999995,
+        392.375
+      ],
+      "measured": [
+        74,
+        393
+      ],
+      "residual": [
+        0.20000000000004547,
+        0.625
+      ],
+      "accepted": true
+    },
+    {
+      "object": 6,
+      "native": [
+        775,
+        462
+      ],
+      "time": 295.0,
+      "cameraPx": 533.25,
+      "score": 0.9305431246757507,
+      "height": 59,
+      "expected": [
+        230.17499999999995,
+        400.25
+      ],
+      "measured": [
+        231,
+        400
+      ],
+      "residual": [
+        0.8250000000000455,
+        -0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 1,
+      "native": [
+        887,
+        470
+      ],
+      "time": 295.5,
+      "cameraPx": 533.25,
+      "score": 0.9208254814147949,
+      "height": 50,
+      "expected": [
+        356.17499999999995,
+        409.25
+      ],
+      "measured": [
+        357,
+        409
+      ],
+      "residual": [
+        0.8250000000000455,
+        -0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 2,
+      "native": [
+        1024,
+        459
+      ],
+      "time": 295.5,
+      "cameraPx": 533.25,
+      "score": 0.916678786277771,
+      "height": 46,
+      "expected": [
+        487.79999999999995,
+        413.75
+      ],
+      "measured": [
+        488,
+        414
+      ],
+      "residual": [
+        0.20000000000004547,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 4,
+      "native": [
+        656,
+        440
+      ],
+      "time": 295.5,
+      "cameraPx": 533.25,
+      "score": 0.9531203508377075,
+      "height": 67,
+      "expected": [
+        73.79999999999995,
+        392.375
+      ],
+      "measured": [
+        74,
+        393
+      ],
+      "residual": [
+        0.20000000000004547,
+        0.625
+      ],
+      "accepted": true
+    },
+    {
+      "object": 6,
+      "native": [
+        775,
+        462
+      ],
+      "time": 295.5,
+      "cameraPx": 533.25,
+      "score": 0.9303747415542603,
+      "height": 59,
+      "expected": [
+        230.17499999999995,
+        400.25
+      ],
+      "measured": [
+        231,
+        400
+      ],
+      "residual": [
+        0.8250000000000455,
+        -0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 1,
+      "native": [
+        887,
+        470
+      ],
+      "time": 296.0,
+      "cameraPx": 533.25,
+      "score": 0.9208775162696838,
+      "height": 50,
+      "expected": [
+        356.17499999999995,
+        409.25
+      ],
+      "measured": [
+        357,
+        409
+      ],
+      "residual": [
+        0.8250000000000455,
+        -0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 2,
+      "native": [
+        1024,
+        459
+      ],
+      "time": 296.0,
+      "cameraPx": 533.25,
+      "score": 0.916716456413269,
+      "height": 46,
+      "expected": [
+        487.79999999999995,
+        413.75
+      ],
+      "measured": [
+        488,
+        414
+      ],
+      "residual": [
+        0.20000000000004547,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 4,
+      "native": [
+        656,
+        440
+      ],
+      "time": 296.0,
+      "cameraPx": 533.25,
+      "score": 0.9531749486923218,
+      "height": 67,
+      "expected": [
+        73.79999999999995,
+        392.375
+      ],
+      "measured": [
+        74,
+        393
+      ],
+      "residual": [
+        0.20000000000004547,
+        0.625
+      ],
+      "accepted": true
+    },
+    {
+      "object": 6,
+      "native": [
+        775,
+        462
+      ],
+      "time": 296.0,
+      "cameraPx": 533.25,
+      "score": 0.9302557706832886,
+      "height": 59,
+      "expected": [
+        230.17499999999995,
+        400.25
+      ],
+      "measured": [
+        231,
+        400
+      ],
+      "residual": [
+        0.8250000000000455,
+        -0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 1,
+      "native": [
+        887,
+        470
+      ],
+      "time": 296.5,
+      "cameraPx": 533.25,
+      "score": 0.9205002188682556,
+      "height": 50,
+      "expected": [
+        356.17499999999995,
+        409.25
+      ],
+      "measured": [
+        357,
+        409
+      ],
+      "residual": [
+        0.8250000000000455,
+        -0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 2,
+      "native": [
+        1024,
+        459
+      ],
+      "time": 296.5,
+      "cameraPx": 533.25,
+      "score": 0.9166362285614014,
+      "height": 46,
+      "expected": [
+        487.79999999999995,
+        413.75
+      ],
+      "measured": [
+        488,
+        414
+      ],
+      "residual": [
+        0.20000000000004547,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 4,
+      "native": [
+        656,
+        440
+      ],
+      "time": 296.5,
+      "cameraPx": 533.25,
+      "score": 0.9531573057174683,
+      "height": 67,
+      "expected": [
+        73.79999999999995,
+        392.375
+      ],
+      "measured": [
+        74,
+        393
+      ],
+      "residual": [
+        0.20000000000004547,
+        0.625
+      ],
+      "accepted": true
+    },
+    {
+      "object": 6,
+      "native": [
+        775,
+        462
+      ],
+      "time": 296.5,
+      "cameraPx": 533.25,
+      "score": 0.930347740650177,
+      "height": 59,
+      "expected": [
+        230.17499999999995,
+        400.25
+      ],
+      "measured": [
+        231,
+        400
+      ],
+      "residual": [
+        0.8250000000000455,
+        -0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 1,
+      "native": [
+        887,
+        470
+      ],
+      "time": 297.0,
+      "cameraPx": 544.47,
+      "score": 0.9072538018226624,
+      "height": 50,
+      "expected": [
+        343.83299999999997,
+        409.25
+      ],
+      "measured": [
+        345,
+        409
+      ],
+      "residual": [
+        1.16700000000003,
+        -0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 2,
+      "native": [
+        1024,
+        459
+      ],
+      "time": 297.0,
+      "cameraPx": 544.47,
+      "score": 0.9081664085388184,
+      "height": 46,
+      "expected": [
+        475.45799999999997,
+        413.75
+      ],
+      "measured": [
+        476,
+        414
+      ],
+      "residual": [
+        0.54200000000003,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 4,
+      "native": [
+        656,
+        440
+      ],
+      "time": 297.0,
+      "cameraPx": 544.47,
+      "score": 0.945029079914093,
+      "height": 67,
+      "expected": [
+        61.45799999999997,
+        392.375
+      ],
+      "measured": [
+        62,
+        393
+      ],
+      "residual": [
+        0.54200000000003,
+        0.625
+      ],
+      "accepted": true
+    },
+    {
+      "object": 6,
+      "native": [
+        775,
+        462
+      ],
+      "time": 297.0,
+      "cameraPx": 544.47,
+      "score": 0.9339163303375244,
+      "height": 59,
+      "expected": [
+        217.83299999999997,
+        400.25
+      ],
+      "measured": [
+        218,
+        401
+      ],
+      "residual": [
+        0.16700000000003,
+        0.75
+      ],
+      "accepted": false
+    },
+    {
+      "object": 1,
+      "native": [
+        887,
+        470
+      ],
+      "time": 297.5,
+      "cameraPx": 564.76,
+      "score": 0.937410295009613,
+      "height": 50,
+      "expected": [
+        321.514,
+        409.25
+      ],
+      "measured": [
+        322,
+        409
+      ],
+      "residual": [
+        0.48599999999999,
+        -0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 2,
+      "native": [
+        1024,
+        459
+      ],
+      "time": 297.5,
+      "cameraPx": 564.76,
+      "score": 0.909365177154541,
+      "height": 46,
+      "expected": [
+        453.139,
+        413.75
+      ],
+      "measured": [
+        453,
+        414
+      ],
+      "residual": [
+        -0.13900000000001,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 4,
+      "native": [
+        656,
+        440
+      ],
+      "time": 297.5,
+      "cameraPx": 564.76,
+      "score": 0.9444276094436646,
+      "height": 67,
+      "expected": [
+        39.13900000000001,
+        392.375
+      ],
+      "measured": [
+        39,
+        393
+      ],
+      "residual": [
+        -0.13900000000001,
+        0.625
+      ],
+      "accepted": true
+    },
+    {
+      "object": 6,
+      "native": [
+        775,
+        462
+      ],
+      "time": 297.5,
+      "cameraPx": 564.76,
+      "score": 0.9445626139640808,
+      "height": 59,
+      "expected": [
+        195.514,
+        400.25
+      ],
+      "measured": [
+        196,
+        400
+      ],
+      "residual": [
+        0.48599999999999,
+        -0.25
+      ],
+      "accepted": true
+    },
+    {
+      "object": 1,
+      "native": [
+        887,
+        470
+      ],
+      "time": 298.0,
+      "cameraPx": 633.38,
+      "score": 0.9142563343048096,
+      "height": 50,
+      "expected": [
+        246.03199999999993,
+        409.25
+      ],
+      "measured": [
+        246,
+        410
+      ],
+      "residual": [
+        -0.03199999999992542,
+        0.75
+      ],
+      "accepted": false
+    },
+    {
+      "object": 2,
+      "native": [
+        1024,
+        459
+      ],
+      "time": 298.0,
+      "cameraPx": 633.38,
+      "score": 0.9239819049835205,
+      "height": 46,
+      "expected": [
+        377.6569999999999,
+        413.75
+      ],
+      "measured": [
+        378,
+        414
+      ],
+      "residual": [
+        0.3430000000000746,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 3,
+      "native": [
+        1108,
+        469
+      ],
+      "time": 298.0,
+      "cameraPx": 633.38,
+      "score": 0.8422701954841614,
+      "height": 35,
+      "expected": [
+        472.1569999999999,
+        425.0
+      ],
+      "measured": [
+        472,
+        425
+      ],
+      "residual": [
+        -0.15699999999992542,
+        0.0
+      ],
+      "accepted": false
+    },
+    {
+      "object": 6,
+      "native": [
+        775,
+        462
+      ],
+      "time": 298.0,
+      "cameraPx": 633.38,
+      "score": 0.9217046499252319,
+      "height": 59,
+      "expected": [
+        120.03199999999993,
+        400.25
+      ],
+      "measured": [
+        120,
+        401
+      ],
+      "residual": [
+        -0.03199999999992542,
+        0.75
+      ],
+      "accepted": false
+    },
+    {
+      "object": 1,
+      "native": [
+        887,
+        470
+      ],
+      "time": 298.5,
+      "cameraPx": 663.74,
+      "score": 0.9266971349716187,
+      "height": 50,
+      "expected": [
+        212.63599999999997,
+        409.25
+      ],
+      "measured": [
+        213,
+        409
+      ],
+      "residual": [
+        0.36400000000003274,
+        -0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 2,
+      "native": [
+        1024,
+        459
+      ],
+      "time": 298.5,
+      "cameraPx": 663.74,
+      "score": 0.8902240991592407,
+      "height": 46,
+      "expected": [
+        344.26099999999997,
+        413.75
+      ],
+      "measured": [
+        344,
+        414
+      ],
+      "residual": [
+        -0.26099999999996726,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 3,
+      "native": [
+        1108,
+        469
+      ],
+      "time": 298.5,
+      "cameraPx": 663.74,
+      "score": 0.854652464389801,
+      "height": 35,
+      "expected": [
+        438.76099999999997,
+        425.0
+      ],
+      "measured": [
+        439,
+        425
+      ],
+      "residual": [
+        0.23900000000003274,
+        0.0
+      ],
+      "accepted": false
+    },
+    {
+      "object": 6,
+      "native": [
+        775,
+        462
+      ],
+      "time": 298.5,
+      "cameraPx": 663.74,
+      "score": 0.9373143315315247,
+      "height": 59,
+      "expected": [
+        86.63599999999997,
+        400.25
+      ],
+      "measured": [
+        87,
+        400
+      ],
+      "residual": [
+        0.36400000000003274,
+        -0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 1,
+      "native": [
+        887,
+        470
+      ],
+      "time": 299.0,
+      "cameraPx": 725.62,
+      "score": 0.9403203725814819,
+      "height": 50,
+      "expected": [
+        144.56799999999998,
+        409.25
+      ],
+      "measured": [
+        145,
+        409
+      ],
+      "residual": [
+        0.43200000000001637,
+        -0.25
+      ],
+      "accepted": true
+    },
+    {
+      "object": 2,
+      "native": [
+        1024,
+        459
+      ],
+      "time": 299.0,
+      "cameraPx": 725.62,
+      "score": 0.9151927828788757,
+      "height": 46,
+      "expected": [
+        276.193,
+        413.75
+      ],
+      "measured": [
+        277,
+        414
+      ],
+      "residual": [
+        0.8070000000000164,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 3,
+      "native": [
+        1108,
+        469
+      ],
+      "time": 299.0,
+      "cameraPx": 725.62,
+      "score": 0.8599262833595276,
+      "height": 35,
+      "expected": [
+        370.693,
+        425.0
+      ],
+      "measured": [
+        371,
+        425
+      ],
+      "residual": [
+        0.30700000000001637,
+        0.0
+      ],
+      "accepted": false
+    },
+    {
+      "object": 6,
+      "native": [
+        775,
+        462
+      ],
+      "time": 299.0,
+      "cameraPx": 725.62,
+      "score": 0.9423792362213135,
+      "height": 59,
+      "expected": [
+        18.567999999999984,
+        400.25
+      ],
+      "measured": [
+        19,
+        400
+      ],
+      "residual": [
+        0.43200000000001637,
+        -0.25
+      ],
+      "accepted": true
+    },
+    {
+      "object": 11,
+      "native": [
+        1203,
+        462
+      ],
+      "time": 299.0,
+      "cameraPx": 725.62,
+      "score": 0.8879490494728088,
+      "height": 42,
+      "expected": [
+        477.568,
+        417.125
+      ],
+      "measured": [
+        478,
+        417
+      ],
+      "residual": [
+        0.43200000000001637,
+        -0.125
+      ],
+      "accepted": false
+    },
+    {
+      "object": 1,
+      "native": [
+        887,
+        470
+      ],
+      "time": 299.5,
+      "cameraPx": 771.83,
+      "score": 0.9137475490570068,
+      "height": 50,
+      "expected": [
+        93.73699999999985,
+        409.25
+      ],
+      "measured": [
+        94,
+        410
+      ],
+      "residual": [
+        0.26300000000014734,
+        0.75
+      ],
+      "accepted": false
+    },
+    {
+      "object": 2,
+      "native": [
+        1024,
+        459
+      ],
+      "time": 299.5,
+      "cameraPx": 771.83,
+      "score": 0.919730007648468,
+      "height": 46,
+      "expected": [
+        225.36199999999985,
+        413.75
+      ],
+      "measured": [
+        226,
+        414
+      ],
+      "residual": [
+        0.6380000000001473,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 3,
+      "native": [
+        1108,
+        469
+      ],
+      "time": 299.5,
+      "cameraPx": 771.83,
+      "score": 0.8521369695663452,
+      "height": 35,
+      "expected": [
+        319.86199999999985,
+        425.0
+      ],
+      "measured": [
+        320,
+        425
+      ],
+      "residual": [
+        0.13800000000014734,
+        0.0
+      ],
+      "accepted": false
+    },
+    {
+      "object": 11,
+      "native": [
+        1203,
+        462
+      ],
+      "time": 299.5,
+      "cameraPx": 771.83,
+      "score": 0.8724386692047119,
+      "height": 42,
+      "expected": [
+        426.73699999999985,
+        417.125
+      ],
+      "measured": [
+        427,
+        417
+      ],
+      "residual": [
+        0.26300000000014734,
+        -0.125
+      ],
+      "accepted": false
+    },
+    {
+      "object": 12,
+      "native": [
+        1286,
+        470
+      ],
+      "time": 299.5,
+      "cameraPx": 771.83,
+      "score": 0.7917294502258301,
+      "height": 33,
+      "expected": [
+        520.1119999999999,
+        426.125
+      ],
+      "measured": [
+        521,
+        426
+      ],
+      "residual": [
+        0.8880000000001473,
+        -0.125
+      ],
+      "accepted": false
+    },
+    {
+      "object": 1,
+      "native": [
+        887,
+        470
+      ],
+      "time": 300.0,
+      "cameraPx": 803.32,
+      "score": 0.9089479446411133,
+      "height": 50,
+      "expected": [
+        59.09799999999984,
+        409.25
+      ],
+      "measured": [
+        60,
+        409
+      ],
+      "residual": [
+        0.9020000000001573,
+        -0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 2,
+      "native": [
+        1024,
+        459
+      ],
+      "time": 300.0,
+      "cameraPx": 803.32,
+      "score": 0.9177197217941284,
+      "height": 46,
+      "expected": [
+        190.72299999999984,
+        413.75
+      ],
+      "measured": [
+        191,
+        414
+      ],
+      "residual": [
+        0.27700000000015734,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 3,
+      "native": [
+        1108,
+        469
+      ],
+      "time": 300.0,
+      "cameraPx": 803.32,
+      "score": 0.8398486971855164,
+      "height": 35,
+      "expected": [
+        285.22299999999984,
+        425.0
+      ],
+      "measured": [
+        286,
+        425
+      ],
+      "residual": [
+        0.7770000000001573,
+        0.0
+      ],
+      "accepted": false
+    },
+    {
+      "object": 11,
+      "native": [
+        1203,
+        462
+      ],
+      "time": 300.0,
+      "cameraPx": 803.32,
+      "score": 0.8654643893241882,
+      "height": 42,
+      "expected": [
+        392.09799999999984,
+        417.125
+      ],
+      "measured": [
+        392,
+        417
+      ],
+      "residual": [
+        -0.09799999999984266,
+        -0.125
+      ],
+      "accepted": false
+    },
+    {
+      "object": 12,
+      "native": [
+        1286,
+        470
+      ],
+      "time": 300.0,
+      "cameraPx": 803.32,
+      "score": 0.8832926750183105,
+      "height": 33,
+      "expected": [
+        485.47299999999984,
+        426.125
+      ],
+      "measured": [
+        486,
+        426
+      ],
+      "residual": [
+        0.5270000000001573,
+        -0.125
+      ],
+      "accepted": false
+    },
+    {
+      "object": 1,
+      "native": [
+        887,
+        470
+      ],
+      "time": 300.5,
+      "cameraPx": 812.29,
+      "score": 0.9120739698410034,
+      "height": 50,
+      "expected": [
+        49.230999999999995,
+        409.25
+      ],
+      "measured": [
+        50,
+        409
+      ],
+      "residual": [
+        0.7690000000000055,
+        -0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 2,
+      "native": [
+        1024,
+        459
+      ],
+      "time": 300.5,
+      "cameraPx": 812.29,
+      "score": 0.9226675629615784,
+      "height": 46,
+      "expected": [
+        180.856,
+        413.75
+      ],
+      "measured": [
+        181,
+        414
+      ],
+      "residual": [
+        0.14400000000000546,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 3,
+      "native": [
+        1108,
+        469
+      ],
+      "time": 300.5,
+      "cameraPx": 812.29,
+      "score": 0.8506067991256714,
+      "height": 35,
+      "expected": [
+        275.356,
+        425.0
+      ],
+      "measured": [
+        276,
+        425
+      ],
+      "residual": [
+        0.6440000000000055,
+        0.0
+      ],
+      "accepted": false
+    },
+    {
+      "object": 11,
+      "native": [
+        1203,
+        462
+      ],
+      "time": 300.5,
+      "cameraPx": 812.29,
+      "score": 0.868240237236023,
+      "height": 42,
+      "expected": [
+        382.231,
+        417.125
+      ],
+      "measured": [
+        382,
+        417
+      ],
+      "residual": [
+        -0.23099999999999454,
+        -0.125
+      ],
+      "accepted": false
+    },
+    {
+      "object": 12,
+      "native": [
+        1286,
+        470
+      ],
+      "time": 300.5,
+      "cameraPx": 812.29,
+      "score": 0.8775768876075745,
+      "height": 33,
+      "expected": [
+        475.606,
+        426.125
+      ],
+      "measured": [
+        476,
+        426
+      ],
+      "residual": [
+        0.39400000000000546,
+        -0.125
+      ],
+      "accepted": false
+    },
+    {
+      "object": 1,
+      "native": [
+        887,
+        470
+      ],
+      "time": 301.0,
+      "cameraPx": 812.26,
+      "score": 0.9000736474990845,
+      "height": 50,
+      "expected": [
+        49.263999999999896,
+        409.25
+      ],
+      "measured": [
+        50,
+        409
+      ],
+      "residual": [
+        0.7360000000001037,
+        -0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 2,
+      "native": [
+        1024,
+        459
+      ],
+      "time": 301.0,
+      "cameraPx": 812.26,
+      "score": 0.9221861958503723,
+      "height": 46,
+      "expected": [
+        180.8889999999999,
+        413.75
+      ],
+      "measured": [
+        181,
+        414
+      ],
+      "residual": [
+        0.11100000000010368,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 3,
+      "native": [
+        1108,
+        469
+      ],
+      "time": 301.0,
+      "cameraPx": 812.26,
+      "score": 0.8413742780685425,
+      "height": 35,
+      "expected": [
+        275.3889999999999,
+        425.0
+      ],
+      "measured": [
+        276,
+        425
+      ],
+      "residual": [
+        0.6110000000001037,
+        0.0
+      ],
+      "accepted": false
+    },
+    {
+      "object": 11,
+      "native": [
+        1203,
+        462
+      ],
+      "time": 301.0,
+      "cameraPx": 812.26,
+      "score": 0.8624222278594971,
+      "height": 42,
+      "expected": [
+        382.2639999999999,
+        417.125
+      ],
+      "measured": [
+        382,
+        417
+      ],
+      "residual": [
+        -0.2639999999998963,
+        -0.125
+      ],
+      "accepted": false
+    },
+    {
+      "object": 12,
+      "native": [
+        1286,
+        470
+      ],
+      "time": 301.0,
+      "cameraPx": 812.26,
+      "score": 0.8814679980278015,
+      "height": 33,
+      "expected": [
+        475.6389999999999,
+        426.125
+      ],
+      "measured": [
+        476,
+        426
+      ],
+      "residual": [
+        0.3610000000001037,
+        -0.125
+      ],
+      "accepted": false
+    },
+    {
+      "object": 1,
+      "native": [
+        887,
+        470
+      ],
+      "time": 301.5,
+      "cameraPx": 812.26,
+      "score": 0.9006168842315674,
+      "height": 50,
+      "expected": [
+        49.263999999999896,
+        409.25
+      ],
+      "measured": [
+        50,
+        409
+      ],
+      "residual": [
+        0.7360000000001037,
+        -0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 2,
+      "native": [
+        1024,
+        459
+      ],
+      "time": 301.5,
+      "cameraPx": 812.26,
+      "score": 0.9222831130027771,
+      "height": 46,
+      "expected": [
+        180.8889999999999,
+        413.75
+      ],
+      "measured": [
+        181,
+        414
+      ],
+      "residual": [
+        0.11100000000010368,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 3,
+      "native": [
+        1108,
+        469
+      ],
+      "time": 301.5,
+      "cameraPx": 812.26,
+      "score": 0.8445518612861633,
+      "height": 35,
+      "expected": [
+        275.3889999999999,
+        425.0
+      ],
+      "measured": [
+        276,
+        425
+      ],
+      "residual": [
+        0.6110000000001037,
+        0.0
+      ],
+      "accepted": false
+    },
+    {
+      "object": 11,
+      "native": [
+        1203,
+        462
+      ],
+      "time": 301.5,
+      "cameraPx": 812.26,
+      "score": 0.8646869659423828,
+      "height": 42,
+      "expected": [
+        382.2639999999999,
+        417.125
+      ],
+      "measured": [
+        382,
+        417
+      ],
+      "residual": [
+        -0.2639999999998963,
+        -0.125
+      ],
+      "accepted": false
+    },
+    {
+      "object": 12,
+      "native": [
+        1286,
+        470
+      ],
+      "time": 301.5,
+      "cameraPx": 812.26,
+      "score": 0.8845670819282532,
+      "height": 33,
+      "expected": [
+        475.6389999999999,
+        426.125
+      ],
+      "measured": [
+        476,
+        426
+      ],
+      "residual": [
+        0.3610000000001037,
+        -0.125
+      ],
+      "accepted": false
+    },
+    {
+      "object": 1,
+      "native": [
+        887,
+        470
+      ],
+      "time": 302.0,
+      "cameraPx": 812.26,
+      "score": 0.9006437063217163,
+      "height": 50,
+      "expected": [
+        49.263999999999896,
+        409.25
+      ],
+      "measured": [
+        50,
+        409
+      ],
+      "residual": [
+        0.7360000000001037,
+        -0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 2,
+      "native": [
+        1024,
+        459
+      ],
+      "time": 302.0,
+      "cameraPx": 812.26,
+      "score": 0.9241646528244019,
+      "height": 46,
+      "expected": [
+        180.8889999999999,
+        413.75
+      ],
+      "measured": [
+        181,
+        414
+      ],
+      "residual": [
+        0.11100000000010368,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 3,
+      "native": [
+        1108,
+        469
+      ],
+      "time": 302.0,
+      "cameraPx": 812.26,
+      "score": 0.8469165563583374,
+      "height": 35,
+      "expected": [
+        275.3889999999999,
+        425.0
+      ],
+      "measured": [
+        276,
+        425
+      ],
+      "residual": [
+        0.6110000000001037,
+        0.0
+      ],
+      "accepted": false
+    },
+    {
+      "object": 11,
+      "native": [
+        1203,
+        462
+      ],
+      "time": 302.0,
+      "cameraPx": 812.26,
+      "score": 0.8676468729972839,
+      "height": 42,
+      "expected": [
+        382.2639999999999,
+        417.125
+      ],
+      "measured": [
+        382,
+        417
+      ],
+      "residual": [
+        -0.2639999999998963,
+        -0.125
+      ],
+      "accepted": false
+    },
+    {
+      "object": 12,
+      "native": [
+        1286,
+        470
+      ],
+      "time": 302.0,
+      "cameraPx": 812.26,
+      "score": 0.8848645687103271,
+      "height": 33,
+      "expected": [
+        475.6389999999999,
+        426.125
+      ],
+      "measured": [
+        476,
+        426
+      ],
+      "residual": [
+        0.3610000000001037,
+        -0.125
+      ],
+      "accepted": false
+    },
+    {
+      "object": 1,
+      "native": [
+        887,
+        470
+      ],
+      "time": 302.5,
+      "cameraPx": 812.26,
+      "score": 0.8994603157043457,
+      "height": 50,
+      "expected": [
+        49.263999999999896,
+        409.25
+      ],
+      "measured": [
+        50,
+        409
+      ],
+      "residual": [
+        0.7360000000001037,
+        -0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 2,
+      "native": [
+        1024,
+        459
+      ],
+      "time": 302.5,
+      "cameraPx": 812.26,
+      "score": 0.9239388704299927,
+      "height": 46,
+      "expected": [
+        180.8889999999999,
+        413.75
+      ],
+      "measured": [
+        181,
+        414
+      ],
+      "residual": [
+        0.11100000000010368,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 3,
+      "native": [
+        1108,
+        469
+      ],
+      "time": 302.5,
+      "cameraPx": 812.26,
+      "score": 0.8497294783592224,
+      "height": 35,
+      "expected": [
+        275.3889999999999,
+        425.0
+      ],
+      "measured": [
+        276,
+        425
+      ],
+      "residual": [
+        0.6110000000001037,
+        0.0
+      ],
+      "accepted": false
+    },
+    {
+      "object": 11,
+      "native": [
+        1203,
+        462
+      ],
+      "time": 302.5,
+      "cameraPx": 812.26,
+      "score": 0.8675563931465149,
+      "height": 42,
+      "expected": [
+        382.2639999999999,
+        417.125
+      ],
+      "measured": [
+        382,
+        417
+      ],
+      "residual": [
+        -0.2639999999998963,
+        -0.125
+      ],
+      "accepted": false
+    },
+    {
+      "object": 12,
+      "native": [
+        1286,
+        470
+      ],
+      "time": 302.5,
+      "cameraPx": 812.26,
+      "score": 0.8851850032806396,
+      "height": 33,
+      "expected": [
+        475.6389999999999,
+        426.125
+      ],
+      "measured": [
+        476,
+        426
+      ],
+      "residual": [
+        0.3610000000001037,
+        -0.125
+      ],
+      "accepted": false
+    },
+    {
+      "object": 1,
+      "native": [
+        887,
+        470
+      ],
+      "time": 303.0,
+      "cameraPx": 812.26,
+      "score": 0.898959755897522,
+      "height": 50,
+      "expected": [
+        49.263999999999896,
+        409.25
+      ],
+      "measured": [
+        50,
+        409
+      ],
+      "residual": [
+        0.7360000000001037,
+        -0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 2,
+      "native": [
+        1024,
+        459
+      ],
+      "time": 303.0,
+      "cameraPx": 812.26,
+      "score": 0.9240783452987671,
+      "height": 46,
+      "expected": [
+        180.8889999999999,
+        413.75
+      ],
+      "measured": [
+        181,
+        414
+      ],
+      "residual": [
+        0.11100000000010368,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 3,
+      "native": [
+        1108,
+        469
+      ],
+      "time": 303.0,
+      "cameraPx": 812.26,
+      "score": 0.8501479625701904,
+      "height": 35,
+      "expected": [
+        275.3889999999999,
+        425.0
+      ],
+      "measured": [
+        276,
+        425
+      ],
+      "residual": [
+        0.6110000000001037,
+        0.0
+      ],
+      "accepted": false
+    },
+    {
+      "object": 11,
+      "native": [
+        1203,
+        462
+      ],
+      "time": 303.0,
+      "cameraPx": 812.26,
+      "score": 0.8677961230278015,
+      "height": 42,
+      "expected": [
+        382.2639999999999,
+        417.125
+      ],
+      "measured": [
+        382,
+        417
+      ],
+      "residual": [
+        -0.2639999999998963,
+        -0.125
+      ],
+      "accepted": false
+    },
+    {
+      "object": 12,
+      "native": [
+        1286,
+        470
+      ],
+      "time": 303.0,
+      "cameraPx": 812.26,
+      "score": 0.8861464858055115,
+      "height": 33,
+      "expected": [
+        475.6389999999999,
+        426.125
+      ],
+      "measured": [
+        476,
+        426
+      ],
+      "residual": [
+        0.3610000000001037,
+        -0.125
+      ],
+      "accepted": false
+    },
+    {
+      "object": 1,
+      "native": [
+        887,
+        470
+      ],
+      "time": 303.5,
+      "cameraPx": 812.25,
+      "score": 0.9076983332633972,
+      "height": 50,
+      "expected": [
+        49.27499999999998,
+        409.25
+      ],
+      "measured": [
+        49,
+        412
+      ],
+      "residual": [
+        -0.27499999999997726,
+        2.75
+      ],
+      "accepted": false
+    },
+    {
+      "object": 2,
+      "native": [
+        1024,
+        459
+      ],
+      "time": 303.5,
+      "cameraPx": 812.25,
+      "score": 0.9193850755691528,
+      "height": 46,
+      "expected": [
+        180.89999999999998,
+        413.75
+      ],
+      "measured": [
+        181,
+        416
+      ],
+      "residual": [
+        0.10000000000002274,
+        2.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 3,
+      "native": [
+        1108,
+        469
+      ],
+      "time": 303.5,
+      "cameraPx": 812.25,
+      "score": 0.8186982274055481,
+      "height": 35,
+      "expected": [
+        275.4,
+        425.0
+      ],
+      "measured": [
+        276,
+        427
+      ],
+      "residual": [
+        0.6000000000000227,
+        2.0
+      ],
+      "accepted": false
+    },
+    {
+      "object": 11,
+      "native": [
+        1203,
+        462
+      ],
+      "time": 303.5,
+      "cameraPx": 812.25,
+      "score": 0.8611080646514893,
+      "height": 42,
+      "expected": [
+        382.275,
+        417.125
+      ],
+      "measured": [
+        382,
+        420
+      ],
+      "residual": [
+        -0.27499999999997726,
+        2.875
+      ],
+      "accepted": false
+    },
+    {
+      "object": 12,
+      "native": [
+        1286,
+        470
+      ],
+      "time": 303.5,
+      "cameraPx": 812.25,
+      "score": 0.8479790091514587,
+      "height": 33,
+      "expected": [
+        475.65,
+        426.125
+      ],
+      "measured": [
+        476,
+        429
+      ],
+      "residual": [
+        0.35000000000002274,
+        2.875
+      ],
+      "accepted": false
+    },
+    {
+      "object": 1,
+      "native": [
+        887,
+        470
+      ],
+      "time": 304.0,
+      "cameraPx": 820.18,
+      "score": 0.9127458333969116,
+      "height": 50,
+      "expected": [
+        40.55200000000002,
+        409.25
+      ],
+      "measured": [
+        42,
+        412
+      ],
+      "residual": [
+        1.447999999999979,
+        2.75
+      ],
+      "accepted": false
+    },
+    {
+      "object": 2,
+      "native": [
+        1024,
+        459
+      ],
+      "time": 304.0,
+      "cameraPx": 820.18,
+      "score": 0.9127559065818787,
+      "height": 46,
+      "expected": [
+        172.17700000000002,
+        413.75
+      ],
+      "measured": [
+        173,
+        416
+      ],
+      "residual": [
+        0.8229999999999791,
+        2.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 3,
+      "native": [
+        1108,
+        469
+      ],
+      "time": 304.0,
+      "cameraPx": 820.18,
+      "score": 0.813914954662323,
+      "height": 35,
+      "expected": [
+        266.677,
+        425.0
+      ],
+      "measured": [
+        268,
+        427
+      ],
+      "residual": [
+        1.322999999999979,
+        2.0
+      ],
+      "accepted": false
+    },
+    {
+      "object": 11,
+      "native": [
+        1203,
+        462
+      ],
+      "time": 304.0,
+      "cameraPx": 820.18,
+      "score": 0.8705984950065613,
+      "height": 42,
+      "expected": [
+        373.552,
+        417.125
+      ],
+      "measured": [
+        375,
+        420
+      ],
+      "residual": [
+        1.447999999999979,
+        2.875
+      ],
+      "accepted": false
+    },
+    {
+      "object": 12,
+      "native": [
+        1286,
+        470
+      ],
+      "time": 304.0,
+      "cameraPx": 820.18,
+      "score": 0.885150134563446,
+      "height": 33,
+      "expected": [
+        466.927,
+        426.125
+      ],
+      "measured": [
+        468,
+        429
+      ],
+      "residual": [
+        1.072999999999979,
+        2.875
+      ],
+      "accepted": false
+    },
+    {
+      "object": 2,
+      "native": [
+        1024,
+        459
+      ],
+      "time": 304.5,
+      "cameraPx": 853.88,
+      "score": 0.9086523652076721,
+      "height": 46,
+      "expected": [
+        135.10699999999997,
+        413.75
+      ],
+      "measured": [
+        136,
+        416
+      ],
+      "residual": [
+        0.8930000000000291,
+        2.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 3,
+      "native": [
+        1108,
+        469
+      ],
+      "time": 304.5,
+      "cameraPx": 853.88,
+      "score": 0.8041282892227173,
+      "height": 35,
+      "expected": [
+        229.60699999999997,
+        425.0
+      ],
+      "measured": [
+        230,
+        427
+      ],
+      "residual": [
+        0.3930000000000291,
+        2.0
+      ],
+      "accepted": false
+    },
+    {
+      "object": 11,
+      "native": [
+        1203,
+        462
+      ],
+      "time": 304.5,
+      "cameraPx": 853.88,
+      "score": 0.8420328497886658,
+      "height": 42,
+      "expected": [
+        336.48199999999997,
+        417.125
+      ],
+      "measured": [
+        337,
+        420
+      ],
+      "residual": [
+        0.5180000000000291,
+        2.875
+      ],
+      "accepted": false
+    },
+    {
+      "object": 12,
+      "native": [
+        1286,
+        470
+      ],
+      "time": 304.5,
+      "cameraPx": 853.88,
+      "score": 0.8579913377761841,
+      "height": 33,
+      "expected": [
+        429.85699999999997,
+        426.125
+      ],
+      "measured": [
+        431,
+        429
+      ],
+      "residual": [
+        1.143000000000029,
+        2.875
+      ],
+      "accepted": false
+    },
+    {
+      "object": 13,
+      "native": [
+        1382,
+        465
+      ],
+      "time": 304.5,
+      "cameraPx": 853.88,
+      "score": 0.5377267003059387,
+      "height": 39,
+      "expected": [
+        537.857,
+        420.5
+      ],
+      "measured": [
+        539,
+        423
+      ],
+      "residual": [
+        1.143000000000029,
+        2.5
+      ],
+      "accepted": false
+    },
+    {
+      "object": 2,
+      "native": [
+        1024,
+        459
+      ],
+      "time": 305.0,
+      "cameraPx": 891.02,
+      "score": 0.8905380368232727,
+      "height": 46,
+      "expected": [
+        94.25299999999993,
+        413.75
+      ],
+      "measured": [
+        95,
+        416
+      ],
+      "residual": [
+        0.7470000000000709,
+        2.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 3,
+      "native": [
+        1108,
+        469
+      ],
+      "time": 305.0,
+      "cameraPx": 891.02,
+      "score": 0.8444270491600037,
+      "height": 35,
+      "expected": [
+        188.75299999999993,
+        425.0
+      ],
+      "measured": [
+        189,
+        427
+      ],
+      "residual": [
+        0.24700000000007094,
+        2.0
+      ],
+      "accepted": false
+    },
+    {
+      "object": 11,
+      "native": [
+        1203,
+        462
+      ],
+      "time": 305.0,
+      "cameraPx": 891.02,
+      "score": 0.8594648241996765,
+      "height": 42,
+      "expected": [
+        295.62799999999993,
+        417.125
+      ],
+      "measured": [
+        296,
+        420
+      ],
+      "residual": [
+        0.37200000000007094,
+        2.875
+      ],
+      "accepted": false
+    },
+    {
+      "object": 12,
+      "native": [
+        1286,
+        470
+      ],
+      "time": 305.0,
+      "cameraPx": 891.02,
+      "score": 0.8734490871429443,
+      "height": 33,
+      "expected": [
+        389.00299999999993,
+        426.125
+      ],
+      "measured": [
+        389,
+        429
+      ],
+      "residual": [
+        -0.0029999999999290594,
+        2.875
+      ],
+      "accepted": false
+    },
+    {
+      "object": 13,
+      "native": [
+        1382,
+        465
+      ],
+      "time": 305.0,
+      "cameraPx": 891.02,
+      "score": 0.8044099807739258,
+      "height": 39,
+      "expected": [
+        497.00299999999993,
+        420.5
+      ],
+      "measured": [
+        497,
+        423
+      ],
+      "residual": [
+        -0.0029999999999290594,
+        2.5
+      ],
+      "accepted": false
+    },
+    {
+      "object": 2,
+      "native": [
+        1024,
+        459
+      ],
+      "time": 305.5,
+      "cameraPx": 959.63,
+      "score": 0.8029029965400696,
+      "height": 46,
+      "expected": [
+        18.781999999999925,
+        413.75
+      ],
+      "measured": [
+        19,
+        414
+      ],
+      "residual": [
+        0.21800000000007458,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 3,
+      "native": [
+        1108,
+        469
+      ],
+      "time": 305.5,
+      "cameraPx": 959.63,
+      "score": 0.8354314565658569,
+      "height": 35,
+      "expected": [
+        113.28199999999993,
+        425.0
+      ],
+      "measured": [
+        114,
+        425
+      ],
+      "residual": [
+        0.7180000000000746,
+        0.0
+      ],
+      "accepted": false
+    },
+    {
+      "object": 7,
+      "native": [
+        1485,
+        451
+      ],
+      "time": 305.5,
+      "cameraPx": 959.63,
+      "score": 0.6205512285232544,
+      "height": 55,
+      "expected": [
+        537.4069999999999,
+        404.75
+      ],
+      "measured": [
+        538,
+        404
+      ],
+      "residual": [
+        0.5930000000000746,
+        -0.75
+      ],
+      "accepted": false
+    },
+    {
+      "object": 11,
+      "native": [
+        1203,
+        462
+      ],
+      "time": 305.5,
+      "cameraPx": 959.63,
+      "score": 0.8593534231185913,
+      "height": 42,
+      "expected": [
+        220.15699999999993,
+        417.125
+      ],
+      "measured": [
+        220,
+        417
+      ],
+      "residual": [
+        -0.15699999999992542,
+        -0.125
+      ],
+      "accepted": false
+    },
+    {
+      "object": 12,
+      "native": [
+        1286,
+        470
+      ],
+      "time": 305.5,
+      "cameraPx": 959.63,
+      "score": 0.8723898530006409,
+      "height": 33,
+      "expected": [
+        313.5319999999999,
+        426.125
+      ],
+      "measured": [
+        314,
+        426
+      ],
+      "residual": [
+        0.4680000000000746,
+        -0.125
+      ],
+      "accepted": false
+    },
+    {
+      "object": 13,
+      "native": [
+        1382,
+        465
+      ],
+      "time": 305.5,
+      "cameraPx": 959.63,
+      "score": 0.9591692686080933,
+      "height": 39,
+      "expected": [
+        421.5319999999999,
+        420.5
+      ],
+      "measured": [
+        422,
+        421
+      ],
+      "residual": [
+        0.4680000000000746,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "object": 2,
+      "native": [
+        1024,
+        459
+      ],
+      "time": 306.0,
+      "cameraPx": 959.64,
+      "score": 0.8052331209182739,
+      "height": 46,
+      "expected": [
+        18.770999999999958,
+        413.75
+      ],
+      "measured": [
+        19,
+        414
+      ],
+      "residual": [
+        0.22900000000004184,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 3,
+      "native": [
+        1108,
+        469
+      ],
+      "time": 306.0,
+      "cameraPx": 959.64,
+      "score": 0.8383015394210815,
+      "height": 35,
+      "expected": [
+        113.27099999999996,
+        425.0
+      ],
+      "measured": [
+        114,
+        425
+      ],
+      "residual": [
+        0.7290000000000418,
+        0.0
+      ],
+      "accepted": false
+    },
+    {
+      "object": 7,
+      "native": [
+        1485,
+        451
+      ],
+      "time": 306.0,
+      "cameraPx": 959.64,
+      "score": 0.6227013468742371,
+      "height": 55,
+      "expected": [
+        537.396,
+        404.75
+      ],
+      "measured": [
+        538,
+        404
+      ],
+      "residual": [
+        0.6040000000000418,
+        -0.75
+      ],
+      "accepted": false
+    },
+    {
+      "object": 11,
+      "native": [
+        1203,
+        462
+      ],
+      "time": 306.0,
+      "cameraPx": 959.64,
+      "score": 0.8667517900466919,
+      "height": 42,
+      "expected": [
+        220.14599999999996,
+        417.125
+      ],
+      "measured": [
+        220,
+        417
+      ],
+      "residual": [
+        -0.14599999999995816,
+        -0.125
+      ],
+      "accepted": false
+    },
+    {
+      "object": 12,
+      "native": [
+        1286,
+        470
+      ],
+      "time": 306.0,
+      "cameraPx": 959.64,
+      "score": 0.8756206035614014,
+      "height": 33,
+      "expected": [
+        313.52099999999996,
+        426.125
+      ],
+      "measured": [
+        314,
+        426
+      ],
+      "residual": [
+        0.47900000000004184,
+        -0.125
+      ],
+      "accepted": false
+    },
+    {
+      "object": 13,
+      "native": [
+        1382,
+        465
+      ],
+      "time": 306.0,
+      "cameraPx": 959.64,
+      "score": 0.9639980792999268,
+      "height": 39,
+      "expected": [
+        421.52099999999996,
+        420.5
+      ],
+      "measured": [
+        422,
+        421
+      ],
+      "residual": [
+        0.47900000000004184,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "object": 2,
+      "native": [
+        1024,
+        459
+      ],
+      "time": 306.5,
+      "cameraPx": 959.64,
+      "score": 0.8051732778549194,
+      "height": 46,
+      "expected": [
+        18.770999999999958,
+        413.75
+      ],
+      "measured": [
+        19,
+        414
+      ],
+      "residual": [
+        0.22900000000004184,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 3,
+      "native": [
+        1108,
+        469
+      ],
+      "time": 306.5,
+      "cameraPx": 959.64,
+      "score": 0.8413087725639343,
+      "height": 35,
+      "expected": [
+        113.27099999999996,
+        425.0
+      ],
+      "measured": [
+        114,
+        425
+      ],
+      "residual": [
+        0.7290000000000418,
+        0.0
+      ],
+      "accepted": false
+    },
+    {
+      "object": 7,
+      "native": [
+        1485,
+        451
+      ],
+      "time": 306.5,
+      "cameraPx": 959.64,
+      "score": 0.6253066658973694,
+      "height": 55,
+      "expected": [
+        537.396,
+        404.75
+      ],
+      "measured": [
+        538,
+        404
+      ],
+      "residual": [
+        0.6040000000000418,
+        -0.75
+      ],
+      "accepted": false
+    },
+    {
+      "object": 11,
+      "native": [
+        1203,
+        462
+      ],
+      "time": 306.5,
+      "cameraPx": 959.64,
+      "score": 0.8644461035728455,
+      "height": 42,
+      "expected": [
+        220.14599999999996,
+        417.125
+      ],
+      "measured": [
+        220,
+        417
+      ],
+      "residual": [
+        -0.14599999999995816,
+        -0.125
+      ],
+      "accepted": false
+    },
+    {
+      "object": 12,
+      "native": [
+        1286,
+        470
+      ],
+      "time": 306.5,
+      "cameraPx": 959.64,
+      "score": 0.8425673246383667,
+      "height": 33,
+      "expected": [
+        313.52099999999996,
+        426.125
+      ],
+      "measured": [
+        314,
+        427
+      ],
+      "residual": [
+        0.47900000000004184,
+        0.875
+      ],
+      "accepted": false
+    },
+    {
+      "object": 13,
+      "native": [
+        1382,
+        465
+      ],
+      "time": 306.5,
+      "cameraPx": 959.64,
+      "score": 0.9676679372787476,
+      "height": 39,
+      "expected": [
+        421.52099999999996,
+        420.5
+      ],
+      "measured": [
+        422,
+        421
+      ],
+      "residual": [
+        0.47900000000004184,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "object": 3,
+      "native": [
+        1108,
+        469
+      ],
+      "time": 307.0,
+      "cameraPx": 1013.63,
+      "score": 0.8699670433998108,
+      "height": 35,
+      "expected": [
+        53.881999999999834,
+        425.0
+      ],
+      "measured": [
+        54,
+        425
+      ],
+      "residual": [
+        0.11800000000016553,
+        0.0
+      ],
+      "accepted": false
+    },
+    {
+      "object": 7,
+      "native": [
+        1485,
+        451
+      ],
+      "time": 307.0,
+      "cameraPx": 1013.63,
+      "score": 0.8589898347854614,
+      "height": 55,
+      "expected": [
+        478.00699999999983,
+        404.75
+      ],
+      "measured": [
+        478,
+        405
+      ],
+      "residual": [
+        -0.006999999999834472,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 11,
+      "native": [
+        1203,
+        462
+      ],
+      "time": 307.0,
+      "cameraPx": 1013.63,
+      "score": 0.889951765537262,
+      "height": 42,
+      "expected": [
+        160.75699999999983,
+        417.125
+      ],
+      "measured": [
+        161,
+        417
+      ],
+      "residual": [
+        0.24300000000016553,
+        -0.125
+      ],
+      "accepted": false
+    },
+    {
+      "object": 12,
+      "native": [
+        1286,
+        470
+      ],
+      "time": 307.0,
+      "cameraPx": 1013.63,
+      "score": 0.8782837986946106,
+      "height": 33,
+      "expected": [
+        254.13199999999983,
+        426.125
+      ],
+      "measured": [
+        254,
+        426
+      ],
+      "residual": [
+        -0.13199999999983447,
+        -0.125
+      ],
+      "accepted": false
+    },
+    {
+      "object": 13,
+      "native": [
+        1382,
+        465
+      ],
+      "time": 307.0,
+      "cameraPx": 1013.63,
+      "score": 0.9588199853897095,
+      "height": 39,
+      "expected": [
+        362.13199999999983,
+        420.5
+      ],
+      "measured": [
+        362,
+        421
+      ],
+      "residual": [
+        -0.13199999999983447,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "object": 3,
+      "native": [
+        1108,
+        469
+      ],
+      "time": 307.5,
+      "cameraPx": 1017.01,
+      "score": 0.8439705967903137,
+      "height": 35,
+      "expected": [
+        50.16399999999999,
+        425.0
+      ],
+      "measured": [
+        51,
+        425
+      ],
+      "residual": [
+        0.8360000000000127,
+        0.0
+      ],
+      "accepted": false
+    },
+    {
+      "object": 7,
+      "native": [
+        1485,
+        451
+      ],
+      "time": 307.5,
+      "cameraPx": 1017.01,
+      "score": 0.8588846921920776,
+      "height": 55,
+      "expected": [
+        474.289,
+        404.75
+      ],
+      "measured": [
+        475,
+        405
+      ],
+      "residual": [
+        0.7110000000000127,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 11,
+      "native": [
+        1203,
+        462
+      ],
+      "time": 307.5,
+      "cameraPx": 1017.01,
+      "score": 0.8690609931945801,
+      "height": 42,
+      "expected": [
+        157.039,
+        417.125
+      ],
+      "measured": [
+        157,
+        417
+      ],
+      "residual": [
+        -0.03899999999998727,
+        -0.125
+      ],
+      "accepted": false
+    },
+    {
+      "object": 12,
+      "native": [
+        1286,
+        470
+      ],
+      "time": 307.5,
+      "cameraPx": 1017.01,
+      "score": 0.8850570321083069,
+      "height": 33,
+      "expected": [
+        250.414,
+        426.125
+      ],
+      "measured": [
+        251,
+        426
+      ],
+      "residual": [
+        0.5860000000000127,
+        -0.125
+      ],
+      "accepted": false
+    },
+    {
+      "object": 13,
+      "native": [
+        1382,
+        465
+      ],
+      "time": 307.5,
+      "cameraPx": 1017.01,
+      "score": 0.9686461687088013,
+      "height": 39,
+      "expected": [
+        358.414,
+        420.5
+      ],
+      "measured": [
+        359,
+        421
+      ],
+      "residual": [
+        0.5860000000000127,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "object": 3,
+      "native": [
+        1108,
+        469
+      ],
+      "time": 308.0,
+      "cameraPx": 1017.01,
+      "score": 0.8462149500846863,
+      "height": 35,
+      "expected": [
+        50.16399999999999,
+        425.0
+      ],
+      "measured": [
+        51,
+        425
+      ],
+      "residual": [
+        0.8360000000000127,
+        0.0
+      ],
+      "accepted": false
+    },
+    {
+      "object": 7,
+      "native": [
+        1485,
+        451
+      ],
+      "time": 308.0,
+      "cameraPx": 1017.01,
+      "score": 0.8605446815490723,
+      "height": 55,
+      "expected": [
+        474.289,
+        404.75
+      ],
+      "measured": [
+        475,
+        405
+      ],
+      "residual": [
+        0.7110000000000127,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 11,
+      "native": [
+        1203,
+        462
+      ],
+      "time": 308.0,
+      "cameraPx": 1017.01,
+      "score": 0.8703486323356628,
+      "height": 42,
+      "expected": [
+        157.039,
+        417.125
+      ],
+      "measured": [
+        157,
+        417
+      ],
+      "residual": [
+        -0.03899999999998727,
+        -0.125
+      ],
+      "accepted": false
+    },
+    {
+      "object": 12,
+      "native": [
+        1286,
+        470
+      ],
+      "time": 308.0,
+      "cameraPx": 1017.01,
+      "score": 0.8868740797042847,
+      "height": 33,
+      "expected": [
+        250.414,
+        426.125
+      ],
+      "measured": [
+        251,
+        426
+      ],
+      "residual": [
+        0.5860000000000127,
+        -0.125
+      ],
+      "accepted": false
+    },
+    {
+      "object": 13,
+      "native": [
+        1382,
+        465
+      ],
+      "time": 308.0,
+      "cameraPx": 1017.01,
+      "score": 0.9717499017715454,
+      "height": 39,
+      "expected": [
+        358.414,
+        420.5
+      ],
+      "measured": [
+        359,
+        421
+      ],
+      "residual": [
+        0.5860000000000127,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "object": 3,
+      "native": [
+        1108,
+        469
+      ],
+      "time": 308.5,
+      "cameraPx": 1017.01,
+      "score": 0.8464861512184143,
+      "height": 35,
+      "expected": [
+        50.16399999999999,
+        425.0
+      ],
+      "measured": [
+        51,
+        425
+      ],
+      "residual": [
+        0.8360000000000127,
+        0.0
+      ],
+      "accepted": false
+    },
+    {
+      "object": 7,
+      "native": [
+        1485,
+        451
+      ],
+      "time": 308.5,
+      "cameraPx": 1017.01,
+      "score": 0.8613392114639282,
+      "height": 55,
+      "expected": [
+        474.289,
+        404.75
+      ],
+      "measured": [
+        475,
+        405
+      ],
+      "residual": [
+        0.7110000000000127,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 11,
+      "native": [
+        1203,
+        462
+      ],
+      "time": 308.5,
+      "cameraPx": 1017.01,
+      "score": 0.8705413341522217,
+      "height": 42,
+      "expected": [
+        157.039,
+        417.125
+      ],
+      "measured": [
+        157,
+        417
+      ],
+      "residual": [
+        -0.03899999999998727,
+        -0.125
+      ],
+      "accepted": false
+    },
+    {
+      "object": 12,
+      "native": [
+        1286,
+        470
+      ],
+      "time": 308.5,
+      "cameraPx": 1017.01,
+      "score": 0.8851511478424072,
+      "height": 33,
+      "expected": [
+        250.414,
+        426.125
+      ],
+      "measured": [
+        251,
+        426
+      ],
+      "residual": [
+        0.5860000000000127,
+        -0.125
+      ],
+      "accepted": false
+    },
+    {
+      "object": 13,
+      "native": [
+        1382,
+        465
+      ],
+      "time": 308.5,
+      "cameraPx": 1017.01,
+      "score": 0.9717589616775513,
+      "height": 39,
+      "expected": [
+        358.414,
+        420.5
+      ],
+      "measured": [
+        359,
+        421
+      ],
+      "residual": [
+        0.5860000000000127,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "object": 3,
+      "native": [
+        1108,
+        469
+      ],
+      "time": 309.0,
+      "cameraPx": 1023.78,
+      "score": 0.8563141822814941,
+      "height": 35,
+      "expected": [
+        42.71699999999987,
+        425.0
+      ],
+      "measured": [
+        43,
+        425
+      ],
+      "residual": [
+        0.28300000000012915,
+        0.0
+      ],
+      "accepted": false
+    },
+    {
+      "object": 7,
+      "native": [
+        1485,
+        451
+      ],
+      "time": 309.0,
+      "cameraPx": 1023.78,
+      "score": 0.8611090183258057,
+      "height": 55,
+      "expected": [
+        466.84199999999987,
+        404.75
+      ],
+      "measured": [
+        467,
+        405
+      ],
+      "residual": [
+        0.15800000000012915,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 11,
+      "native": [
+        1203,
+        462
+      ],
+      "time": 309.0,
+      "cameraPx": 1023.78,
+      "score": 0.8795716762542725,
+      "height": 42,
+      "expected": [
+        149.59199999999987,
+        417.125
+      ],
+      "measured": [
+        150,
+        417
+      ],
+      "residual": [
+        0.40800000000012915,
+        -0.125
+      ],
+      "accepted": false
+    },
+    {
+      "object": 12,
+      "native": [
+        1286,
+        470
+      ],
+      "time": 309.0,
+      "cameraPx": 1023.78,
+      "score": 0.8789090514183044,
+      "height": 33,
+      "expected": [
+        242.96699999999987,
+        426.125
+      ],
+      "measured": [
+        243,
+        426
+      ],
+      "residual": [
+        0.03300000000012915,
+        -0.125
+      ],
+      "accepted": false
+    },
+    {
+      "object": 13,
+      "native": [
+        1382,
+        465
+      ],
+      "time": 309.0,
+      "cameraPx": 1023.78,
+      "score": 0.9659430980682373,
+      "height": 39,
+      "expected": [
+        350.96699999999987,
+        420.5
+      ],
+      "measured": [
+        351,
+        421
+      ],
+      "residual": [
+        0.03300000000012915,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "object": 3,
+      "native": [
+        1108,
+        469
+      ],
+      "time": 309.5,
+      "cameraPx": 1044.01,
+      "score": 0.7915499210357666,
+      "height": 35,
+      "expected": [
+        20.463999999999942,
+        425.0
+      ],
+      "measured": [
+        21,
+        425
+      ],
+      "residual": [
+        0.5360000000000582,
+        0.0
+      ],
+      "accepted": false
+    },
+    {
+      "object": 7,
+      "native": [
+        1485,
+        451
+      ],
+      "time": 309.5,
+      "cameraPx": 1044.01,
+      "score": 0.8467468023300171,
+      "height": 55,
+      "expected": [
+        444.58899999999994,
+        404.75
+      ],
+      "measured": [
+        446,
+        405
+      ],
+      "residual": [
+        1.4110000000000582,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 8,
+      "native": [
+        1560,
+        469
+      ],
+      "time": 309.5,
+      "cameraPx": 1044.01,
+      "score": 0.7792969942092896,
+      "height": 35,
+      "expected": [
+        528.9639999999999,
+        425.0
+      ],
+      "measured": [
+        530,
+        425
+      ],
+      "residual": [
+        1.0360000000000582,
+        0.0
+      ],
+      "accepted": false
+    },
+    {
+      "object": 11,
+      "native": [
+        1203,
+        462
+      ],
+      "time": 309.5,
+      "cameraPx": 1044.01,
+      "score": 0.887261688709259,
+      "height": 42,
+      "expected": [
+        127.33899999999994,
+        417.125
+      ],
+      "measured": [
+        128,
+        417
+      ],
+      "residual": [
+        0.6610000000000582,
+        -0.125
+      ],
+      "accepted": false
+    },
+    {
+      "object": 12,
+      "native": [
+        1286,
+        470
+      ],
+      "time": 309.5,
+      "cameraPx": 1044.01,
+      "score": 0.8617968559265137,
+      "height": 33,
+      "expected": [
+        220.71399999999994,
+        426.125
+      ],
+      "measured": [
+        222,
+        426
+      ],
+      "residual": [
+        1.2860000000000582,
+        -0.125
+      ],
+      "accepted": false
+    },
+    {
+      "object": 13,
+      "native": [
+        1382,
+        465
+      ],
+      "time": 309.5,
+      "cameraPx": 1044.01,
+      "score": 0.9571604132652283,
+      "height": 39,
+      "expected": [
+        328.71399999999994,
+        420.5
+      ],
+      "measured": [
+        330,
+        421
+      ],
+      "residual": [
+        1.2860000000000582,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "object": 3,
+      "native": [
+        1108,
+        469
+      ],
+      "time": 310.0,
+      "cameraPx": 1044.01,
+      "score": 0.7968992590904236,
+      "height": 35,
+      "expected": [
+        20.463999999999942,
+        425.0
+      ],
+      "measured": [
+        21,
+        425
+      ],
+      "residual": [
+        0.5360000000000582,
+        0.0
+      ],
+      "accepted": false
+    },
+    {
+      "object": 7,
+      "native": [
+        1485,
+        451
+      ],
+      "time": 310.0,
+      "cameraPx": 1044.01,
+      "score": 0.843437135219574,
+      "height": 55,
+      "expected": [
+        444.58899999999994,
+        404.75
+      ],
+      "measured": [
+        446,
+        405
+      ],
+      "residual": [
+        1.4110000000000582,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 8,
+      "native": [
+        1560,
+        469
+      ],
+      "time": 310.0,
+      "cameraPx": 1044.01,
+      "score": 0.7852758169174194,
+      "height": 35,
+      "expected": [
+        528.9639999999999,
+        425.0
+      ],
+      "measured": [
+        530,
+        425
+      ],
+      "residual": [
+        1.0360000000000582,
+        0.0
+      ],
+      "accepted": false
+    },
+    {
+      "object": 11,
+      "native": [
+        1203,
+        462
+      ],
+      "time": 310.0,
+      "cameraPx": 1044.01,
+      "score": 0.8883948922157288,
+      "height": 42,
+      "expected": [
+        127.33899999999994,
+        417.125
+      ],
+      "measured": [
+        128,
+        417
+      ],
+      "residual": [
+        0.6610000000000582,
+        -0.125
+      ],
+      "accepted": false
+    },
+    {
+      "object": 12,
+      "native": [
+        1286,
+        470
+      ],
+      "time": 310.0,
+      "cameraPx": 1044.01,
+      "score": 0.8614406585693359,
+      "height": 33,
+      "expected": [
+        220.71399999999994,
+        426.125
+      ],
+      "measured": [
+        222,
+        426
+      ],
+      "residual": [
+        1.2860000000000582,
+        -0.125
+      ],
+      "accepted": false
+    },
+    {
+      "object": 13,
+      "native": [
+        1382,
+        465
+      ],
+      "time": 310.0,
+      "cameraPx": 1044.01,
+      "score": 0.9537709951400757,
+      "height": 39,
+      "expected": [
+        328.71399999999994,
+        420.5
+      ],
+      "measured": [
+        330,
+        421
+      ],
+      "residual": [
+        1.2860000000000582,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "object": 3,
+      "native": [
+        1108,
+        469
+      ],
+      "time": 310.5,
+      "cameraPx": 1044.01,
+      "score": 0.8022477030754089,
+      "height": 35,
+      "expected": [
+        20.463999999999942,
+        425.0
+      ],
+      "measured": [
+        21,
+        425
+      ],
+      "residual": [
+        0.5360000000000582,
+        0.0
+      ],
+      "accepted": false
+    },
+    {
+      "object": 7,
+      "native": [
+        1485,
+        451
+      ],
+      "time": 310.5,
+      "cameraPx": 1044.01,
+      "score": 0.8451876640319824,
+      "height": 55,
+      "expected": [
+        444.58899999999994,
+        404.75
+      ],
+      "measured": [
+        446,
+        405
+      ],
+      "residual": [
+        1.4110000000000582,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 8,
+      "native": [
+        1560,
+        469
+      ],
+      "time": 310.5,
+      "cameraPx": 1044.01,
+      "score": 0.7891835570335388,
+      "height": 35,
+      "expected": [
+        528.9639999999999,
+        425.0
+      ],
+      "measured": [
+        530,
+        425
+      ],
+      "residual": [
+        1.0360000000000582,
+        0.0
+      ],
+      "accepted": false
+    },
+    {
+      "object": 11,
+      "native": [
+        1203,
+        462
+      ],
+      "time": 310.5,
+      "cameraPx": 1044.01,
+      "score": 0.8917756080627441,
+      "height": 42,
+      "expected": [
+        127.33899999999994,
+        417.125
+      ],
+      "measured": [
+        128,
+        417
+      ],
+      "residual": [
+        0.6610000000000582,
+        -0.125
+      ],
+      "accepted": false
+    },
+    {
+      "object": 12,
+      "native": [
+        1286,
+        470
+      ],
+      "time": 310.5,
+      "cameraPx": 1044.01,
+      "score": 0.8625808954238892,
+      "height": 33,
+      "expected": [
+        220.71399999999994,
+        426.125
+      ],
+      "measured": [
+        222,
+        426
+      ],
+      "residual": [
+        1.2860000000000582,
+        -0.125
+      ],
+      "accepted": false
+    },
+    {
+      "object": 13,
+      "native": [
+        1382,
+        465
+      ],
+      "time": 310.5,
+      "cameraPx": 1044.01,
+      "score": 0.9550862908363342,
+      "height": 39,
+      "expected": [
+        328.71399999999994,
+        420.5
+      ],
+      "measured": [
+        330,
+        421
+      ],
+      "residual": [
+        1.2860000000000582,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "object": 3,
+      "native": [
+        1108,
+        469
+      ],
+      "time": 311.0,
+      "cameraPx": 1044.01,
+      "score": 0.7980705499649048,
+      "height": 35,
+      "expected": [
+        20.463999999999942,
+        425.0
+      ],
+      "measured": [
+        21,
+        425
+      ],
+      "residual": [
+        0.5360000000000582,
+        0.0
+      ],
+      "accepted": false
+    },
+    {
+      "object": 7,
+      "native": [
+        1485,
+        451
+      ],
+      "time": 311.0,
+      "cameraPx": 1044.01,
+      "score": 0.8441748023033142,
+      "height": 55,
+      "expected": [
+        444.58899999999994,
+        404.75
+      ],
+      "measured": [
+        446,
+        405
+      ],
+      "residual": [
+        1.4110000000000582,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "object": 8,
+      "native": [
+        1560,
+        469
+      ],
+      "time": 311.0,
+      "cameraPx": 1044.01,
+      "score": 0.7904397249221802,
+      "height": 35,
+      "expected": [
+        528.9639999999999,
+        425.0
+      ],
+      "measured": [
+        530,
+        425
+      ],
+      "residual": [
+        1.0360000000000582,
+        0.0
+      ],
+      "accepted": false
+    },
+    {
+      "object": 11,
+      "native": [
+        1203,
+        462
+      ],
+      "time": 311.0,
+      "cameraPx": 1044.01,
+      "score": 0.8912844061851501,
+      "height": 42,
+      "expected": [
+        127.33899999999994,
+        417.125
+      ],
+      "measured": [
+        128,
+        417
+      ],
+      "residual": [
+        0.6610000000000582,
+        -0.125
+      ],
+      "accepted": false
+    },
+    {
+      "object": 12,
+      "native": [
+        1286,
+        470
+      ],
+      "time": 311.0,
+      "cameraPx": 1044.01,
+      "score": 0.8635868430137634,
+      "height": 33,
+      "expected": [
+        220.71399999999994,
+        426.125
+      ],
+      "measured": [
+        222,
+        426
+      ],
+      "residual": [
+        1.2860000000000582,
+        -0.125
+      ],
+      "accepted": false
+    },
+    {
+      "object": 13,
+      "native": [
+        1382,
+        465
+      ],
+      "time": 311.0,
+      "cameraPx": 1044.01,
+      "score": 0.9548584818840027,
+      "height": 39,
+      "expected": [
+        328.71399999999994,
+        420.5
+      ],
+      "measured": [
+        330,
+        421
+      ],
+      "residual": [
+        1.2860000000000582,
+        0.5
+      ],
+      "accepted": true
+    }
+  ],
+  "independentCameraFit": {
+    "native": [
+      656,
+      440
+    ],
+    "samples": 37,
+    "scroll": 1.1000611925270556,
+    "intercept": 660.9243019558043,
+    "expectedIntercept": 660.375,
+    "rmsePx": 0.40000590156237126
+  },
+  "limits": [
+    "Seven objects have accepted individual observations; eight others are clipped, overlapped, below the UI or insufficiently correlated in this method, not visually verified.",
+    "Native list order is preserved by the compositor; this measurement does not independently verify every overlap.",
+    "Additional unmatched foreground features are not inferred from this map."
+  ]
+}

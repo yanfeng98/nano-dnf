@@ -12170,3 +12170,24 @@ test("room24 native flora preserves authored layers, animation frames and nonblo
     assert.ok(calls.some(c=>c[0]==="drawImage"&&c[1]===nativeFlora&&c[2]===atlasX),"all four native ANI image indices play at120ms");
   }
 });
+
+test("room24 native foreground keeps110 percent parallax above bodies and below HUD", () => {
+  const s=Core.createState({stage:"mirkwooddeep",seed:1});
+  Core.goToCell(s,s.dungeon.cells.findIndex(c=>c.col===3&&c.row===1));
+  assert.deepEqual(s.room.nativeForeground,{sprite:"deepRoom24Foreground",scroll:1.1,screenY:373.25});
+  s.intro=null;s.transition=0;s.enemies=[];s.effects=[];
+  const foreground={width:1644,height:255},slayer={width:13312,height:1936},hud={width:2048,height:2048};
+  for(const camera of [100,300]) {
+    s.camera.x=camera;
+    const calls=[];Render.render(recordingContext(calls),s,{sprites:{deepRoom24Foreground:foreground,slayer,hud}});
+    const i=calls.findIndex(c=>c[0]==="drawImage"&&c[1]===foreground);
+    const body=calls.findIndex(c=>c[0]==="drawImage"&&c[1]===slayer);
+    const ui=calls.findIndex(c=>c[0]==="drawImage"&&c[1]===hud);
+    assert.ok(i>body&&body>=0&&ui>i,"foreground is actually painted over the body and below interface art");
+    const call=calls[i],scale=1.125/Core.CAMERA.zoom;
+    assert.ok(Math.abs(call[2]+camera*.1)<1e-9,"world camera plus additional10 percent yields native110 percent scroll");
+    assert.ok(Math.abs(call[3]-(430+(373.25-430)/Core.CAMERA.zoom))<1e-9);
+    assert.ok(Math.abs(call[4]-1644*scale)<1e-9);
+    assert.ok(Math.abs(call[5]-255*scale)<1e-9);
+  }
+});
