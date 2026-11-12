@@ -9845,9 +9845,9 @@
     var aniX = damaged ? (age < 0.36 && Math.floor(age / 0.06) % 2 ? -24 : -22) : -23;
     var imgX = damaged ? 3 : 2;
     var scale = (VIEW.width / 640) / Core.CAMERA.zoom;
-    var x = (native.x + aniX + imgX + 22) * scale;
-    var groundZ = (ARENA.groundY - (native.y * (VIEW.width / 640) + 92)) /
-      (Core.CAMERA.zoom * DEPTH.scale);
+    var anchor = Core.propObstacle(prop);
+    var x = anchor.x + (aniX + imgX + 22) * scale;
+    var groundZ = anchor.z;
     // Both native ANI/IMG combinations end 13 native pixels below ground.
     drawScenePiece(ctx, sprites, damaged ? "pillarDamagedDecor" : "pillarDecor",
       x, floorY(groundZ) + 13 * scale, undefined, [scale, scale], state.time);

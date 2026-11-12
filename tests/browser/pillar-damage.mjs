@@ -6,6 +6,8 @@ import http from 'node:http';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
+const room33 = process.env.PILLAR_DAMAGE_ROOM === '33';
+const probe = room33 ? { col: 2, row: 2, nativeX: 1129 } : { col: 1, row: 3, nativeX: 506 };
 const out = process.env.PILLAR_DAMAGE_OUT || '/tmp/nano-pillar-damage';
 fs.mkdirSync(out, { recursive: true });
 const mime = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.png': 'image/png', '.ogg': 'audio/ogg' };
@@ -24,6 +26,7 @@ try {
   browser = await chromium.launch({ headless: true });
   const page = await browser.newPage({ viewport: { width: 1120, height: 720 } });
   const errors = [];
+  await page.addInitScript(value => { window.pillarProbe = value; }, probe);
   page.on('pageerror', error => errors.push(error.message));
   await page.addInitScript(() => localStorage.setItem('nano-dnf-progress', JSON.stringify({ cleared: { mirkwood: true } })));
   await page.addInitScript(() => {
@@ -61,13 +64,13 @@ try {
   await page.keyboard.press('p');
   await page.evaluate(() => {
     const C = window.DNFCore, s = window.nanoDnf.getState();
-    C.goToCell(s, s.dungeon.cells.findIndex(c => c.col === 1 && c.row === 3));
+    C.goToCell(s, s.dungeon.cells.findIndex(c => c.col === window.pillarProbe.col && c.row === window.pillarProbe.row));
     s.intro = null; s.transition = s.titleT = 0;
     s.enemies = []; s.shots = []; s.fields = []; s.pickups = [];
     s.room.cleared = true; C.currentCell(s).cleared = true;
-    const p = s.props.find(p => p.nativePillar?.x === 506);
+    const p = s.props.find(p => p.nativePillar?.x === window.pillarProbe.nativeX);
     if (!p || p.nativePillar.damagedAt !== -1) throw new Error('missing intact native pillar');
-    s.player.x = 506 * 1.125 / C.CAMERA.zoom - 20;
+    s.player.x = C.propObstacle(p).x - 20;
     s.player.z = 0; s.player.facing = 1; s.player.invuln = 100;
     s.player.mp = Math.max(s.player.mp, 100); s.camera.x = 80;
   });
@@ -75,7 +78,7 @@ try {
   const walkPastPillar = async () => {
     const geometry = await page.evaluate(() => {
       const C = window.DNFCore, s = window.nanoDnf.getState();
-      const p = s.props.find(p => p.nativePillar?.x === 506);
+      const p = s.props.find(p => p.nativePillar?.x === window.pillarProbe.nativeX);
       const box = C.propObstacle(p, s.player);
       s.enemies = []; s.shots = []; s.fields = []; s.pickups = [];
       s.intro = null; s.transition = s.titleT = 0;
@@ -107,11 +110,12 @@ try {
   const intactCollision = await walkPastPillar();
   await page.evaluate(() => {
     const C = window.DNFCore, s = window.nanoDnf.getState();
-    s.player.x = 506 * 1.125 / C.CAMERA.zoom - 20;
+    const p = s.props.find(p => p.nativePillar?.x === window.pillarProbe.nativeX);
+    s.player.x = C.propObstacle(p).x - 20;
     s.player.z = 0; s.player.facing = 1;
   });
   const state = () => page.evaluate(() => {
-    const s = window.nanoDnf.getState(), p = s.props.find(p => p.nativePillar?.x === 506);
+    const s = window.nanoDnf.getState(), p = s.props.find(p => p.nativePillar?.x === window.pillarProbe.nativeX);
     return { time: s.time, piece: p.piece, damagedAt: p.nativePillar.damagedAt, gone: !!p.gone, broken: p.broken };
   });
   await page.keyboard.press('p');
@@ -122,13 +126,13 @@ try {
   assert.equal(await page.evaluate(() => window.stoneAudioSources.length), 0, 'miss does not play the native break cue');
   await page.keyboard.press('p');
   await page.evaluate(() => {
-    const C = window.DNFCore, s = window.nanoDnf.getState(), p = s.props.find(p => p.nativePillar?.x === 506);
-    s.player.x = 506 * 1.125 / C.CAMERA.zoom - 130;
+    const C = window.DNFCore, s = window.nanoDnf.getState(), p = s.props.find(p => p.nativePillar?.x === window.pillarProbe.nativeX);
+    s.player.x = C.propObstacle(p).x - 130;
     s.player.z = p.sortZ; s.player.facing = 1;
   });
   await page.keyboard.press('p');
   await page.keyboard.press('d');
-  await page.waitForFunction(() => window.nanoDnf.getState().props.find(p => p.nativePillar?.x === 506)?.nativePillar.damagedAt >= 0, null, { timeout: 4000 });
+  await page.waitForFunction(() => window.nanoDnf.getState().props.find(p => p.nativePillar?.x === window.pillarProbe.nativeX)?.nativePillar.damagedAt >= 0, null, { timeout: 4000 });
   const hit = await state();
   await page.waitForFunction(() => window.stoneAudioSources.length === 1);
   await page.waitForTimeout(850);
@@ -142,14 +146,14 @@ try {
     const s = window.nanoDnf.getState();
     const original = window.DNFRender.render;
     window.DNFRender.render = (ctx, state, meta) => original(ctx, state, { ...meta, paused: false });
-    return s.props.find(p => p.nativePillar?.x === 506).nativePillar;
+    return s.props.find(p => p.nativePillar?.x === window.pillarProbe.nativeX).nativePillar;
   });
   await page.waitForTimeout(80);
   const image = await page.locator('#stage').evaluate(c => c.toDataURL('image/png'));
   fs.writeFileSync(`${out}/settled.png`, Buffer.from(image.split(',')[1], 'base64'));
   await page.evaluate(() => {
     const C = window.DNFCore, s = window.nanoDnf.getState();
-    const cell = s.dungeon.cells.findIndex(c => c.col === 1 && c.row === 3);
+    const cell = s.dungeon.cells.findIndex(c => c.col === window.pillarProbe.col && c.row === window.pillarProbe.row);
     C.goToCell(s, s.dungeon.entry); C.goToCell(s, cell);
   });
   const revisited = await state();
@@ -162,7 +166,7 @@ try {
   assert.equal(audio.sources[0].rate, 1, 'retain the native sample pitch');
   assert.equal(audio.runtime.state, 'running');
   assert.equal(audio.runtime.muted, false);
-  const result = { missed, hit, settled, revisited, native: render, intactCollision, damagedCollision, audio, errors };
+  const result = { room: room33 ? 33 : 42, missed, hit, settled, revisited, native: render, intactCollision, damagedCollision, audio, errors };
   fs.writeFileSync(`${out}/verification.json`, JSON.stringify(result, null, 2) + '\n');
   console.log('native pillar keyboard miss + wave hit + persistent stump OK', result);
 } finally {

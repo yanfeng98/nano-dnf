@@ -2259,9 +2259,9 @@
     ]
   };
 
-  // Room42 native object anchor, verified against 22 unclipped video matches
+  // Native object anchor, verified against room42/33 video matches
   // (audit batches88/89). Bitmap bottom is 13 native pixels below this plane.
-  function room42PillarSortZ(nativeY) {
+  function nativePillarSortZ(nativeY) {
     return (ARENA.groundY - (nativeY * (VIEW.width / 640) + 92)) /
       (CAMERA.zoom * DEPTH.scale);
   }
@@ -3002,18 +3002,18 @@
           // See reference-video-audit batch46. Coordinates are world anchors,
           // not positions stretched with the larger room width.
           props: [
-            { piece: "pillarDecor", x: 244, depth: 0.576, sortZ: room42PillarSortZ(243), nativePillar: [340, 243] },
-            { piece: "pillarDecor", x: 320, depth: -0.542, sortZ: room42PillarSortZ(329), nativePillar: [448, 329] },
-            { piece: "pillarDecor", x: 362, depth: 0.599, sortZ: room42PillarSortZ(241), nativePillar: [506, 241] },
-            { piece: "pillarDecor", x: 492, depth: -0.023, sortZ: room42PillarSortZ(289), nativePillar: [689, 289] },
-            { piece: "pillarDecor", x: 543, depth: 0.841, sortZ: room42PillarSortZ(222), nativePillar: [759, 222] },
-            { piece: "pillarDecor", x: 572, depth: -0.576, sortZ: room42PillarSortZ(334), nativePillar: [801, 334] },
-            { piece: "pillarDecor", x: 626, depth: -0.012, sortZ: room42PillarSortZ(288), nativePillar: [877, 288] },
-            { piece: "pillarDecor", x: 716, depth: 0.795, sortZ: room42PillarSortZ(226), nativePillar: [1002, 226] },
-            { piece: "pillarDecor", x: 825, depth: 0.772, sortZ: room42PillarSortZ(228), nativePillar: [1154, 228] },
-            { piece: "pillarDecor", x: 893, depth: -0.334, sortZ: room42PillarSortZ(313), nativePillar: [1251, 313] },
-            { piece: "pillarDecor", x: 976, depth: -0.288, sortZ: room42PillarSortZ(309), nativePillar: [1368, 309] },
-            { piece: "pillarDecor", x: 1035, depth: 0.392, sortZ: room42PillarSortZ(257), nativePillar: [1450, 257] },
+            { piece: "pillarDecor", x: 244, depth: 0.576, sortZ: nativePillarSortZ(243), nativePillar: [340, 243] },
+            { piece: "pillarDecor", x: 320, depth: -0.542, sortZ: nativePillarSortZ(329), nativePillar: [448, 329] },
+            { piece: "pillarDecor", x: 362, depth: 0.599, sortZ: nativePillarSortZ(241), nativePillar: [506, 241] },
+            { piece: "pillarDecor", x: 492, depth: -0.023, sortZ: nativePillarSortZ(289), nativePillar: [689, 289] },
+            { piece: "pillarDecor", x: 543, depth: 0.841, sortZ: nativePillarSortZ(222), nativePillar: [759, 222] },
+            { piece: "pillarDecor", x: 572, depth: -0.576, sortZ: nativePillarSortZ(334), nativePillar: [801, 334] },
+            { piece: "pillarDecor", x: 626, depth: -0.012, sortZ: nativePillarSortZ(288), nativePillar: [877, 288] },
+            { piece: "pillarDecor", x: 716, depth: 0.795, sortZ: nativePillarSortZ(226), nativePillar: [1002, 226] },
+            { piece: "pillarDecor", x: 825, depth: 0.772, sortZ: nativePillarSortZ(228), nativePillar: [1154, 228] },
+            { piece: "pillarDecor", x: 893, depth: -0.334, sortZ: nativePillarSortZ(313), nativePillar: [1251, 313] },
+            { piece: "pillarDecor", x: 976, depth: -0.288, sortZ: nativePillarSortZ(309), nativePillar: [1368, 309] },
+            { piece: "pillarDecor", x: 1035, depth: 0.392, sortZ: nativePillarSortZ(257), nativePillar: [1450, 257] },
             // The front chest is partly behind a log/HUD; its upper-right
             // native fragment stays at world x462 across independent views.
             { piece: "chest", x: 462, depth: -0.703 },
@@ -3073,21 +3073,22 @@
           /* V2 106–147.5s: 84 connected two-axis camera samples, native cap/wall
            * fits (50-room33-*). Entry camera is ~713 screen px right of the
            * observed minimum. Right-limit camera 1283.08 screen px and native floor end support width1270.
-           * Later-only damaged pillar states and bunker destruction remain
-           * unverified; preserve full initial forms rather than invent HP. */
+           * Batch94 maps all12 pillars to native231 objects, with the11px map crop.
+           * Later-only damage is not initial damage; bunker destruction and
+           * exact native HP/loot semantics remain unverified. */
           props: [
-            {"piece": "pillarPale", "x": 225, "depth": 1.588},
-            {"piece": "pillarPale", "x": 256, "depth": 1.22},
-            {"piece": "pillarPale", "x": 439, "depth": 0.265},
-            {"piece": "pillarPale", "x": 466, "depth": -0.069},
-            {"piece": "pillarPale", "x": 487, "depth": -0.46},
-            {"piece": "pillarPale", "x": 510, "depth": -0.829},
-            {"piece": "pillarPale", "x": 736, "depth": 1.6},
-            {"piece": "pillarPale", "x": 756, "depth": 1.243},
-            {"piece": "pillarPale", "x": 774, "depth": 0.863},
-            {"piece": "pillarPale", "x": 798, "depth": 0.506},
-            {"piece": "pillarPale", "x": 1009, "depth": -0.403},
-            {"piece": "pillarPale", "x": 1038, "depth": -0.748},
+            {"piece": "pillarPale", "x": 225, "depth": 1.588, "sortZ": nativePillarSortZ(164), "nativePillar": [325, 164, 11]},
+            {"piece": "pillarPale", "x": 256, "depth": 1.22, "sortZ": nativePillarSortZ(193), "nativePillar": [368, 193, 11]},
+            {"piece": "pillarPale", "x": 439, "depth": 0.265, "sortZ": nativePillarSortZ(267), "nativePillar": [624, 267, 11]},
+            {"piece": "pillarPale", "x": 466, "depth": -0.069, "sortZ": nativePillarSortZ(292), "nativePillar": [661, 292, 11]},
+            {"piece": "pillarPale", "x": 487, "depth": -0.46, "sortZ": nativePillarSortZ(322), "nativePillar": [691, 322, 11]},
+            {"piece": "pillarPale", "x": 510, "depth": -0.829, "sortZ": nativePillarSortZ(351), "nativePillar": [725, 351, 11]},
+            {"piece": "pillarPale", "x": 736, "depth": 1.6, "sortZ": nativePillarSortZ(163), "nativePillar": [1042, 163, 11]},
+            {"piece": "pillarPale", "x": 756, "depth": 1.243, "sortZ": nativePillarSortZ(191), "nativePillar": [1070, 191, 11]},
+            {"piece": "pillarPale", "x": 774, "depth": 0.863, "sortZ": nativePillarSortZ(220), "nativePillar": [1095, 220, 11]},
+            {"piece": "pillarPale", "x": 798, "depth": 0.506, "sortZ": nativePillarSortZ(248), "nativePillar": [1129, 248, 11]},
+            {"piece": "pillarPale", "x": 1009, "depth": -0.403, "sortZ": nativePillarSortZ(318), "nativePillar": [1423, 318, 11]},
+            {"piece": "pillarPale", "x": 1038, "depth": -0.748, "sortZ": nativePillarSortZ(345), "nativePillar": [1466, 345, 11]},
             {"piece": "barrel", "x": 489, "depth": 1.6, "scale": [0.7, 0.7]},
             {"piece": "barrel", "x": 509, "depth": 0.898, "scale": [0.7, 0.7]},
             {"piece": "barrel", "x": 613, "depth": 0.483, "scale": [0.725, 0.725]},
@@ -4339,7 +4340,7 @@
         var native = prop.nativePillar;
         var scale = (VIEW.width / 640) / CAMERA.zoom;
         // actionstonepillar.obj: [do not pass], [width]58 20.
-        obstacle = { x: native.x * scale, z: room42PillarSortZ(native.y),
+        obstacle = { x: (native.x - (native.originX || 0)) * scale, z: nativePillarSortZ(native.y),
           width: 58 * scale, depth: 20 * scale / DEPTH.scale };
       } else {
         var box = propBox(prop.piece, prop.scale);
@@ -5417,7 +5418,7 @@
             // Native object coordinates are distinct from the bitmap-bottom position.
             // Keep the damaged stump in cell.props; it does not use barrel removal.
             nativePillar: entry.nativePillar ? {
-              x: entry.nativePillar[0], y: entry.nativePillar[1], damagedAt: -1
+              x: entry.nativePillar[0], y: entry.nativePillar[1], originX: entry.nativePillar[2] || 0, damagedAt: -1
             } : null,
             x: x,
             z: z,
@@ -8567,14 +8568,15 @@
     var scale = (VIEW.width / 640) / CAMERA.zoom;
     // ANI hurt box [-20,-14,-4,42,26,120], in native x/depth/height.
     // Native depth projects directly to screen y; clone z uses DEPTH.scale.
-    var groundZ = room42PillarSortZ(native.y);
+    var anchor = propObstacle(prop);
+    var groundZ = anchor.z;
     var nearZ = groundZ - 12 * scale / DEPTH.scale;
     var farZ = groundZ + 14 * scale / DEPTH.scale;
     var depthReach = (reach === undefined ? DEPTH_REACH.melee : reach) * SLAYER_HEIGHT;
     if ((source.z || 0) < nearZ - depthReach || (source.z || 0) > farZ + depthReach) return;
     var target = {
-      left: (native.x - 20) * scale,
-      right: (native.x + 22) * scale,
+      left: anchor.x - 20 * scale,
+      right: anchor.x + 22 * scale,
       top: ARENA.groundY - 116 * scale,
       bottom: ARENA.groundY + 4 * scale
     };
@@ -8584,7 +8586,7 @@
     // This is an observed hit response, not a decoded native HP value.
     native.damagedAt = state.time;
     prop.piece = "pillarDamagedDecor";
-    pushSound(state, "stonePillarBreak", { x: native.x * scale, z: groundZ });
+    pushSound(state, "stonePillarBreak", { x: anchor.x, z: groundZ });
   }
 
   /**

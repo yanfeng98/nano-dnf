@@ -11975,3 +11975,25 @@ test("monster routing and collision share the native pillar footprint", () => {
   }
   assert.ok(enemy.x>x+30,"the monster routes around the column rather than remaining stuck");
 });
+
+test("room33 native pillars use the cropped map origin for blocking and hits", () => {
+  const s=Core.createState({stage:"mirkwooddeep",seed:1});
+  Core.goToCell(s,s.dungeon.cells.findIndex(c=>c.col===2&&c.row===2));
+  const pillars=s.props.filter(p=>p.nativePillar);
+  assert.equal(pillars.length,12,"all twelve video-identified native columns participate");
+  const p=pillars.find(p=>p.nativePillar.x===1129);
+  const scale=1.125/Core.CAMERA.zoom, box=Core.propObstacle(p);
+  assert.ok(Math.abs(box.x-(1129-11)*scale)<1e-9,"the map crop shifts physics as well as art");
+  assert.equal(box.z,p.sortZ);
+  assert.ok(pillars.every(p=>p.nativePillar.damagedAt===-1),"later observed damage is not an initial state");
+  s.props=[p];s.enemies=[];s.intro=null;s.transition=0;s.room.cleared=true;s.player.invuln=999;
+  s.player.x=box.x-70;s.player.z=box.z;
+  Core.runFrames(s,120,{right:true});
+  assert.ok(Math.abs(s.player.x-(box.x-(58+40)*scale/2))<1e-7);
+  s.player.x=box.x-60;s.player.facing=1;
+  Core.runFrames(s,50,{attack:true});
+  assert.equal(p.piece,"pillarDamagedDecor","real attack uses the same crop-adjusted physical centre");
+  const cell=s.cell;Core.goToCell(s,s.dungeon.entry);Core.goToCell(s,cell);
+  assert.equal(s.props.find(q=>q.nativePillar?.x===1129),p);
+  assert.ok(p.nativePillar.damagedAt>=0);
+});

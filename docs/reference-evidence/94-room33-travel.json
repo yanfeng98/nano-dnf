@@ -1,0 +1,12 @@
+{
+  "room": "投掷手坡",
+  "departure": {
+    "x": 630,
+    "z": 184,
+    "exit": "N",
+    "sideThreshold": 60,
+    "depthThreshold": 46,
+    "sideDistance": 616,
+    "northDistance": 66
+  }
+}

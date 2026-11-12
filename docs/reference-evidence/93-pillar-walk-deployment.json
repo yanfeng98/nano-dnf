@@ -1,0 +1,12 @@
+{
+  "commit": "7b5cdce",
+  "workflow": "https://github.com/yanfeng98/nano-dnf/actions/runs/43162331160",
+  "ci": "completed success: regression tests, Pages deploy, deployed-build smoke",
+  "site": "https://luyf-lemon-love.space/nano-dnf/",
+  "unitTests": 424,
+  "serialBrowserGroups": 28,
+  "localLiveSmoke": "passed: deployed resources match checkout, no startup problems",
+  "onlineKeyboard": "passed: intact/damaged physical contact, clear-lane bypass, native cue once, revisit state retained",
+  "manualAcceptance": "pending",
+  "remaining": "Exact native damaged-state pass semantics, debris, other-room pillars, and all other open audit requirements remain unresolved."
+}
