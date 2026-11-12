@@ -3123,25 +3123,26 @@
           ],
           cap: 4,
           /* V2 190–235.5 and 266.5–271.5s: joint camera graph, 103 samples.
-           * Native caps identify 15 pillars and 4 barrels. Width lower bound
+           * Batch96 maps all15 native231 pillars with the41px crop.
+           * Native caps also identify4 barrels. Width lower bound
            * 1248.85 world px; native ground and right camera support1248.75; south axis world182. Later damaged
            * shapes do not establish initial states; SC-17 remains open. */
           props: [
-            { piece: "pillarPale", x: 243, depth: 1.462 },
-            { piece: "pillarPale", x: 270, depth: 1.036 },
-            { piece: "pillarPale", x: 303, depth: 0.679 },
-            { piece: "pillarPale", x: 438, depth: -0.783 },
-            { piece: "pillarPale", x: 465, depth: -0.357 },
-            { piece: "pillarPale", x: 495, depth: 0.012 },
-            { piece: "pillarPale", x: 614, depth: 0.863 },
-            { piece: "pillarPale", x: 641, depth: 1.163 },
-            { piece: "pillarPale", x: 670, depth: 1.542 },
-            { piece: "pillarPale", x: 772, depth: -0.84 },
-            { piece: "pillarPale", x: 804, depth: -0.334 },
-            { piece: "pillarPale", x: 836, depth: 0.127 },
-            { piece: "pillarPale", x: 943, depth: 1.128 },
-            { piece: "pillarPale", x: 970, depth: 1.37 },
-            { piece: "pillarPale", x: 997, depth: 1.658 },
+            { piece: "pillarPale", x: 243, depth: 1.462, sortZ: nativePillarSortZ(174), nativePillar: [380, 174, 41] },
+            { piece: "pillarPale", x: 270, depth: 1.036, sortZ: nativePillarSortZ(207), nativePillar: [419, 207, 41] },
+            { piece: "pillarPale", x: 303, depth: 0.679, sortZ: nativePillarSortZ(234), nativePillar: [464, 234, 41] },
+            { piece: "pillarPale", x: 438, depth: -0.783, sortZ: nativePillarSortZ(347), nativePillar: [655, 347, 41] },
+            { piece: "pillarPale", x: 465, depth: -0.357, sortZ: nativePillarSortZ(314), nativePillar: [692, 314, 41] },
+            { piece: "pillarPale", x: 495, depth: 0.012, sortZ: nativePillarSortZ(286), nativePillar: [735, 286, 41] },
+            { piece: "pillarPale", x: 614, depth: 0.863, sortZ: nativePillarSortZ(220), nativePillar: [900, 220, 41] },
+            { piece: "pillarPale", x: 641, depth: 1.163, sortZ: nativePillarSortZ(197), nativePillar: [939, 197, 41] },
+            { piece: "pillarPale", x: 670, depth: 1.542, sortZ: nativePillarSortZ(168), nativePillar: [979, 168, 41] },
+            { piece: "pillarPale", x: 772, depth: -0.84, sortZ: nativePillarSortZ(352), nativePillar: [1122, 352, 41] },
+            { piece: "pillarPale", x: 804, depth: -0.334, sortZ: nativePillarSortZ(313), nativePillar: [1168, 313, 41] },
+            { piece: "pillarPale", x: 836, depth: 0.127, sortZ: nativePillarSortZ(277), nativePillar: [1213, 277, 41] },
+            { piece: "pillarPale", x: 943, depth: 1.128, sortZ: nativePillarSortZ(200), nativePillar: [1362, 200, 41] },
+            { piece: "pillarPale", x: 970, depth: 1.37, sortZ: nativePillarSortZ(181), nativePillar: [1400, 181, 41] },
+            { piece: "pillarPale", x: 997, depth: 1.658, sortZ: nativePillarSortZ(159), nativePillar: [1438, 159, 41] },
             { piece: "barrel", x: 349, depth: 0.334, scale: [0.7, 0.7] },
             { piece: "barrel", x: 395, depth: -0.046, scale: [0.725, 0.725] },
             { piece: "barrel", x: 531, depth: 0.288, scale: [0.725, 0.725] },

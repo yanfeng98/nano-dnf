@@ -10,7 +10,8 @@ const room = Number(process.env.PILLAR_DAMAGE_ROOM || 42);
 const probe = {
   42: { col: 1, row: 3, nativeX: 506 },
   33: { col: 2, row: 2, nativeX: 1129 },
-  23: { col: 2, row: 1, nativeX: 1121 }
+  23: { col: 2, row: 1, nativeX: 1121 },
+  13: { col: 2, row: 0, nativeX: 464 }
 }[room];
 assert.ok(probe, 'unsupported pillar probe room');
 const out = process.env.PILLAR_DAMAGE_OUT || '/tmp/nano-pillar-damage';

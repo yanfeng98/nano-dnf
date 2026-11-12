@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""Match room33/23 native pillars to prior observations and independent raw-frame caps.
+"""Match room33/23/13 native pillars to prior observations and independent raw-frame caps.
 
 Input: ffmpeg -ss 106 -i V2.mp4 -vf
 'select=not(mod(n\\,15)),crop=1440:1080:(iw-1440)/2:0,scale=720:540'
 -vsync 0 -frames:v 84 frames/%03d.png
-For --room 23 use -ss 148 instead of 106.
+For --room 23 use -ss 148; for --room 13 use -ss 190 and 164 frames
+to include the independent return visit through 271.5s.
 The 1920x1080 source contains a centred 1440x1080 game viewport.
 """
 import argparse
@@ -18,12 +19,12 @@ from client_pvf import PvfArchive
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--client', type=Path, default=Path('/mnt/c/dnf/地下城与勇士'))
-parser.add_argument('--room', choices=['33', '23'], default='33')
-parser.add_argument('--frames', type=Path, required=True, help='V2 room interval from 106s (33) or 148s (23), every 15th 30fps frame at 720x540')
+parser.add_argument('--room', choices=['33', '23', '13'], default='33')
+parser.add_argument('--frames', type=Path, required=True, help='V2 room interval from 106s (33) , 148s (23), or 190s (13, include return through 271.5s), every 15th 30fps frame at 720x540')
 parser.add_argument('--out', type=Path, default=None)
 args = parser.parse_args()
 root = Path(__file__).resolve().parents[1]
-profile = {'33': (106, 50, 11, 12, 'n433(2,2)', 94), '23': (148, 51, 46, 8, 'n432(2,2)', 95)}[args.room]
+profile = {'33': (106, 50, 11, 12, 'n433(2,2)', 94), '23': (148, 51, 46, 8, 'n432(2,2)', 95), '13': (190, 52, 41, 15, 'n412(2,0)', 96)}[args.room]
 start_time, batch, origin_x, expected_count, map_name, evidence_batch = profile
 source = f'map/mirkwooddeep/{map_name}.map'
 if args.out is None:
@@ -86,19 +87,29 @@ for observed in observations:
         scores = np.nan_to_num(scores, nan=-1, posinf=-1, neginf=-1)
         _, score, _, (x, y) = cv2.minMaxLoc(scores)
         direct = {'score': score, 'residualTopLeft': [x+x0-left, y+y0-top]}
+    exclusion = None
+    # Raster templates start at the nearest integer pixel, as in the fit search.
+    if round(left) < 0 or round(left) + template.shape[1] > frame.shape[1] or round(top) < 0:
+        exclusion = 'Native cap crosses the recording viewport edge; a full template cannot fit.'
+    if args.room == '13' and t == 271.5 and [nx, ny] == [419, 207]:
+        exclusion = 'Purple loot-message glyphs cross the cap at screen y208; independently inspected raw frame.'
     measurements.append({'time': t, 'kind': observed['kind'], 'nativeXY': [nx, ny],
-                         'priorResidualCenterBottom': [dx, dy], 'rawFrameCap': direct})
+                         'priorResidualCenterBottom': [dx, dy], 'rawFrameCap': direct, **({'excludedReason': exclusion} if exclusion else {})})
 assert len(seen) == expected_count
-valid = [m for m in measurements if m['rawFrameCap'] and m['rawFrameCap']['score'] >= .94]
-assert len(valid) == len(measurements), 'All prior cap observations must reproduce in raw frames'
-assert all(max(map(abs, m['rawFrameCap']['residualTopLeft'])) < 1.5 for m in valid)
+excluded = [m for m in measurements if m.get('excludedReason')]
+valid = [m for m in measurements if not m.get('excludedReason') and m['rawFrameCap'] and m['rawFrameCap']['score'] >= .94]
 report = {'source': source, 'sha256': hashlib.sha256(raw).hexdigest(), 'nativePillars': records,
           'sectionCounts': section_counts, 'identifiedCount': len(seen), 'observations': measurements,
-          'rawCapCountAbove094': len(valid),
+          'rawCapCountAbove094': len(valid), **({'excludedObservations': excluded} if excluded else {}),
           'transform': {'screenScale': 1.125, 'originXNative': origin_x, 'groundOriginScreenY': 92},
           'limits': ['Prior cap templates used approximate scales: center/bottom residuals are bounded by 1.1/1.6px, not subpixel engine measurements.',
                      'Raw-frame cap scores diagnose direct asset alignment; occlusion and sampling can reduce them.',
                      'Later damage is not an initial state; exact hit threshold, debris, loot, and damaged-state pass semantics remain open.']}
 args.out.parent.mkdir(parents=True, exist_ok=True)
 args.out.write_text(json.dumps(report, ensure_ascii=False, indent=2)+'\n')
+assert len(valid) + len(excluded) == len(measurements), 'Every unoccluded, full-width cap must reproduce in raw frames'
+assert len({tuple(m['nativeXY']) for m in valid}) == expected_count, 'Every native object needs an independent full-cap match'
+if args.room == '13':
+    assert len(excluded) == 2 and any(m['time'] >= 266.5 for m in valid), 'Retain return-visit evidence and explicit exclusions'
+assert all(max(map(abs, m['rawFrameCap']['residualTopLeft'])) < 1.5 for m in valid)
 print(json.dumps({'identifiedCount': len(seen), 'observations': len(measurements), 'rawCapCountAbove094': len(valid)}, indent=2))
