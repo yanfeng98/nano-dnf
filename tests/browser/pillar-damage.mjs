@@ -71,6 +71,45 @@ try {
     s.player.z = 0; s.player.facing = 1; s.player.invuln = 100;
     s.player.mp = Math.max(s.player.mp, 100); s.camera.x = 80;
   });
+  // Start from real free ground; only direction keys drive contact and bypass.
+  const walkPastPillar = async () => {
+    const geometry = await page.evaluate(() => {
+      const C = window.DNFCore, s = window.nanoDnf.getState();
+      const p = s.props.find(p => p.nativePillar?.x === 506);
+      const box = C.propObstacle(p, s.player);
+      s.enemies = []; s.shots = []; s.fields = []; s.pickups = [];
+      s.intro = null; s.transition = s.titleT = 0;
+      s.player.x = box.x - 70; s.player.z = box.z;
+      s.player.vx = s.player.vz = 0; s.player.invuln = 100;
+      return box;
+    });
+    await page.keyboard.press('p');
+    await page.keyboard.down('ArrowRight');
+    await page.waitForTimeout(1000);
+    await page.keyboard.up('ArrowRight');
+    await page.keyboard.press('p');
+    const contact = await page.evaluate(() => window.nanoDnf.getState().player.x);
+    assert.ok(Math.abs(contact - (geometry.x - geometry.width / 2)) < 0.05,
+      'right key stops at the physical footprint');
+    await page.evaluate(() => {
+      const s = window.nanoDnf.getState();
+      s.player.z = 0;
+    });
+    await page.keyboard.press('p');
+    await page.keyboard.down('ArrowRight');
+    await page.waitForTimeout(1000);
+    await page.keyboard.up('ArrowRight');
+    await page.keyboard.press('p');
+    const bypass = await page.evaluate(() => window.nanoDnf.getState().player.x);
+    assert.ok(bypass > geometry.x + geometry.width / 2, 'a clear depth lane permits walking past');
+    return { geometry, contact, bypass };
+  };
+  const intactCollision = await walkPastPillar();
+  await page.evaluate(() => {
+    const C = window.DNFCore, s = window.nanoDnf.getState();
+    s.player.x = 506 * 1.125 / C.CAMERA.zoom - 20;
+    s.player.z = 0; s.player.facing = 1;
+  });
   const state = () => page.evaluate(() => {
     const s = window.nanoDnf.getState(), p = s.props.find(p => p.nativePillar?.x === 506);
     return { time: s.time, piece: p.piece, damagedAt: p.nativePillar.damagedAt, gone: !!p.gone, broken: p.broken };
@@ -116,13 +155,14 @@ try {
   const revisited = await state();
   assert.equal(revisited.damagedAt, hit.damagedAt);
   assert.equal(revisited.piece, 'pillarDamagedDecor');
+  const damagedCollision = await walkPastPillar();
   assert.deepEqual(errors, []);
   const audio = await page.evaluate(() => ({ sources: window.stoneAudioSources, runtime: window.nanoDnf.getAudioState() }));
   assert.equal(audio.sources.length, 1, 'settling and revisiting do not replay the cue');
   assert.equal(audio.sources[0].rate, 1, 'retain the native sample pitch');
   assert.equal(audio.runtime.state, 'running');
   assert.equal(audio.runtime.muted, false);
-  const result = { missed, hit, settled, revisited, native: render, audio, errors };
+  const result = { missed, hit, settled, revisited, native: render, intactCollision, damagedCollision, audio, errors };
   fs.writeFileSync(`${out}/verification.json`, JSON.stringify(result, null, 2) + '\n');
   console.log('native pillar keyboard miss + wave hit + persistent stump OK', result);
 } finally {

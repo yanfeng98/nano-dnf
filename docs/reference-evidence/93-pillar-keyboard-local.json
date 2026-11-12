@@ -1,0 +1,75 @@
+{
+  "missed": {
+    "time": 2.7333333333333285,
+    "piece": "pillarDecor",
+    "damagedAt": -1,
+    "gone": false,
+    "broken": false
+  },
+  "hit": {
+    "time": 3.016666666666661,
+    "piece": "pillarDamagedDecor",
+    "damagedAt": 3.016666666666661,
+    "gone": false,
+    "broken": false
+  },
+  "settled": {
+    "time": 3.866666666666658,
+    "piece": "pillarDamagedDecor",
+    "damagedAt": 3.016666666666661,
+    "gone": false,
+    "broken": false
+  },
+  "revisited": {
+    "time": 3.866666666666658,
+    "piece": "pillarDamagedDecor",
+    "damagedAt": 3.016666666666661,
+    "gone": false,
+    "broken": false
+  },
+  "native": {
+    "x": 506,
+    "y": 241,
+    "damagedAt": 3.016666666666661
+  },
+  "intactCollision": {
+    "geometry": {
+      "x": 360.88301886792453,
+      "z": 192.71012006861065,
+      "width": 69.89433962264152,
+      "depth": 97.25557461406518
+    },
+    "contact": 325.9358490566038,
+    "bypass": 430.9358490566038
+  },
+  "damagedCollision": {
+    "geometry": {
+      "x": 360.88301886792453,
+      "z": 192.71012006861065,
+      "width": 69.89433962264152,
+      "depth": 97.25557461406518
+    },
+    "contact": 325.9358490566038,
+    "bypass": 430.9358490566038
+  },
+  "audio": {
+    "sources": [
+      {
+        "url": "http://127.0.0.1:38943/assets/sfx/tstone_break.ogg",
+        "duration": 1.4149659863945578,
+        "rate": 1
+      }
+    ],
+    "runtime": {
+      "created": true,
+      "muted": false,
+      "state": "running",
+      "sfxLoaded": 69,
+      "sfxTotal": 69,
+      "sfxPlayed": 16,
+      "rain": true,
+      "forest": true
+    }
+  },
+  "errors": []
+}

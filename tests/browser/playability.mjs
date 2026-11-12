@@ -134,13 +134,11 @@ function decide(state, constants) {
     if (alongZ) return;
     const target = player.x + stepX;
     for (const prop of state.props || []) {
-      if (!prop.solid || prop.broken) continue;
-      const spec = Core.propBox(prop.piece, prop.scale);
+      const spec = Core.propObstacle(prop, player);
       if (!spec) continue;
-      const centre = prop.x + (spec.dx || 0);
-      if (Math.abs(target - centre) > spec.width / 2 + player.width / 2) continue;
-      if (Math.abs((player.z || 0) - prop.z) > spec.depth / 2 + player.width / 2) continue;
-      want.add((player.z || 0) <= prop.z ? "down" : "up");
+      if (Math.abs(target - spec.x) > spec.width / 2) continue;
+      if (Math.abs((player.z || 0) - spec.z) > spec.depth / 2) continue;
+      want.add((player.z || 0) <= spec.z ? "down" : "up");
       return;
     }
   };

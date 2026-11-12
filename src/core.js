@@ -359,6 +359,9 @@
     maxHp: 240,
     maxMp: 100,
     width: 34,
+    // swordman.chr [width]40 10: walking footprint, separate from hurt width.
+    walkWidth: 40 * (VIEW.width / 640) / CAMERA.zoom,
+    walkDepth: 10 * (VIEW.width / 640) / CAMERA.zoom / DEPTH.scale,
     height: 64,
     /*
      * One cut at attack speed 1: the swing itself, then a recovery the player is
@@ -3897,32 +3900,26 @@
      * 五只木桶、哥布林照样一路走到他面前，而本作原来是"没有人绕路"（`blockProps` 那一节
      * 写着这条规矩），于是怪会被一件布景**永久钉住**。
      *
-     * 一格 24 单位、整间房 38x22 格，一步 BFS 便宜到可以每帧算一次；布景按半格放大再判定，
+     * 一格 12 单位；24 单位网格会封住原生石柱与倒木之间的可走窄缝。布景按半格放大再判定，
      * 否则会有"格心在盒外、两格之间那段却在盒里"的缝。
      */
+    var ROUTE_GRID_STEP = 12;
     function routeStep(state, targetX, targetZ, fromX, fromZ, options) {
-      var step = 24;
+      var step = ROUTE_GRID_STEP;
       var left = roomLeft(state);
-      var half = (state.player && state.player.width ? state.player.width : 34) / 2;
+      var actor = options && options.body || state.player;
       var depth = bandDepth(state.band);
       var cols = Math.max(1, Math.floor((roomRight(state) - left) / step));
       var rows = Math.max(1, Math.floor(depth / step));
       var margin = step / 2;
       var solids = (state.props || []).filter(function (prop) {
-        // Only a controller that will issue real attacks may plan through
-        // breakable props. Physical collision and enemy routing stay unchanged.
-        return prop.solid && !prop.broken &&
-          !(options && options.breakProps && BREAKABLE[prop.piece]) &&
-          propBox(prop.piece, prop.scale);
-      });
+        // A break-planning controller may pass generic removable objects only.
+        return !(options && options.breakProps && BREAKABLE[prop.piece]);
+      }).map(function (prop) { return propObstacle(prop, actor); }).filter(Boolean);
       var blocked = function (x, z) {
-        return solids.some(function (prop) {
-          var box = propBox(prop.piece, prop.scale);
-          var centre = prop.x + (box.dx || 0);
-          return (
-            Math.abs(x - centre) < half + box.width / 2 + margin &&
-            Math.abs(z - prop.z) < half + box.depth / 2 + margin
-          );
+        return solids.some(function (box) {
+          return Math.abs(x - box.x) < box.width / 2 + margin &&
+            Math.abs(z - box.z) < box.depth / 2 + margin;
         });
       };
       var cellX = function (x) {
@@ -4324,6 +4321,40 @@
       };
     }
 
+    function walkFootprint(body) {
+      return {
+        width: body && body.walkWidth !== undefined ? body.walkWidth : (body && body.width || 34),
+        depth: body && body.walkDepth !== undefined ? body.walkDepth : (body && body.width || 34)
+      };
+    }
+
+    /** Instanced prop's blocking rectangle in world x/z; null when nonblocking.
+     * Supplying a body expands it to the forbidden region for that body's centre.
+     * Native coordinate/scale conversion belongs here, not in controllers.
+     */
+    function propObstacle(prop, body) {
+      if (!prop || !prop.solid || prop.broken || prop.gone) return null;
+      var obstacle;
+      if (prop.nativePillar) {
+        var native = prop.nativePillar;
+        var scale = (VIEW.width / 640) / CAMERA.zoom;
+        // actionstonepillar.obj: [do not pass], [width]58 20.
+        obstacle = { x: native.x * scale, z: room42PillarSortZ(native.y),
+          width: 58 * scale, depth: 20 * scale / DEPTH.scale };
+      } else {
+        var box = propBox(prop.piece, prop.scale);
+        if (!box) return null;
+        obstacle = { x: prop.x + (box.dx || 0), z: prop.z || 0,
+          width: box.width, depth: box.depth };
+      }
+      if (body) {
+        var footprint = walkFootprint(body);
+        obstacle.width += footprint.width;
+        obstacle.depth += footprint.depth;
+      }
+      return obstacle;
+    }
+
     function nextRandom(state) {
       var t = (state.rngState = (state.rngState + 0x6d2b79f5) >>> 0);
       t = Math.imul(t ^ (t >>> 15), t | 1);
@@ -4342,6 +4373,8 @@
         vy: 0,
         vz: 0,
         width: PLAYER.width,
+        walkWidth: PLAYER.walkWidth,
+        walkDepth: PLAYER.walkDepth,
         height: PLAYER.height,
         facing: 1,
         onGround: true,
@@ -5021,11 +5054,10 @@
         var check = function (list) {
           for (var i = 0; i < list.length; i += 1) {
             var other = list[i];
-            if (!other.solid) continue;
-            var otherBox = propBox(other.piece, other.scale);
+            var otherBox = propObstacle(other);
             if (!otherBox) continue;
-            if (Math.abs(x - other.x) < (box.width + otherBox.width) / 2 &&
-                Math.abs(z - other.z) < (box.depth + otherBox.depth) / 2) return true;
+            if (Math.abs(x - otherBox.x) < (box.width + otherBox.width) / 2 &&
+                Math.abs(z - otherBox.z) < (box.depth + otherBox.depth) / 2) return true;
           }
           return false;
         };
@@ -5217,11 +5249,10 @@
     function overlapsSolid(list, x, z, box) {
       for (var index = 0; index < list.length; index += 1) {
         var other = list[index];
-        if (!other.solid) continue;
-        var otherBox = propBox(other.piece, other.scale);
+        var otherBox = propObstacle(other);
         if (!otherBox) continue;
-        if (Math.abs(x - other.x) < (box.width + otherBox.width) / 2 &&
-            Math.abs(z - other.z) < (box.depth + otherBox.depth) / 2) return true;
+        if (Math.abs(x - otherBox.x) < (box.width + otherBox.width) / 2 &&
+            Math.abs(z - otherBox.z) < (box.depth + otherBox.depth) / 2) return true;
       }
       return false;
     }
@@ -5401,7 +5432,7 @@
              */
             sortZ: entry.sortZ === undefined ? null : entry.sortZ,
             /* 桶和立着的布景（树、石头）才有盒子；花草贴花没有。碎了的桶只剩美术。 */
-            solid: !!box,
+            solid: !!box || !!entry.nativePillar,
             hp: box && box.hp ? box.hp : 0,
             broken: false,
             /* 碎片的钟：从 0 数到 `BREAK_ANIM`，这段时间放那 12 帧。 */
@@ -6787,8 +6818,8 @@
     }
     player.x = clamp(
       player.x,
-      roomLeft(state) + player.width / 2,
-      roomRight(state) - player.width / 2
+      roomLeft(state) + walkFootprint(player).width / 2,
+      roomRight(state) - walkFootprint(player).width / 2
     );
     /*
      * And the band's two edges stop him the way the walls do. The front edge is
@@ -6797,10 +6828,9 @@
      */
     player.z = clamp(player.z, 0, bandDepth(state.band));
     /*
-     * 实心布景（木桶）最后说话：它推人，墙推不动它。纵深那一半用 `width / 2`，
-     * 和 `separateEnemies` 同一个读法 —— 一个身体"占多深"就是"占多宽"。
+     * 实心布景按行走占地推人；行走尺寸独立于战斗受击宽度。
      */
-    blockProps(state, player, player.width / 2, player.width / 2);
+    blockProps(state, player);
 
     /*
      * 脚步声（`docs/adr/0058`）：走起来每 0.3 秒一条；停下来就把节拍清零，
@@ -7667,16 +7697,12 @@
    * 一个身体接下来那一步会不会踩进实心布景里。**这一问要便宜** —— 它每帧每个怪都跑，
    * 而 `routeStep` 那套 BFS 只在答"会"的时候才去查。
    */
-  function propBlocksAt(state, x, z, halfWidth, halfDepth) {
+  function propBlocksAt(state, x, z, body, margin) {
     var props = state.props || [];
     for (var i = 0; i < props.length; i += 1) {
-      var prop = props[i];
-      if (!prop.solid || prop.broken) continue;
-      var box = propBox(prop.piece, prop.scale);
-      if (!box) continue;
-      var centre = prop.x + (box.dx || 0);
-      if (Math.abs(x - centre) < halfWidth + box.width / 2 &&
-          Math.abs(z - prop.z) < halfDepth + box.depth / 2) return true;
+      var box = propObstacle(props[i], body);
+      if (box && Math.abs(x - box.x) < box.width / 2 + (margin || 0) &&
+          Math.abs(z - box.z) < box.depth / 2 + (margin || 0)) return true;
     }
     return false;
   }
@@ -7692,13 +7718,12 @@
      * 一帧答挡、一帧答不挡，人就看着怪在桶前面原地抖。六帧是十来个像素，
      * 足够在真正贴上之前就决定绕。
      */
-    var half = enemy.width / 2;
     var aheadX = enemy.x + enemy.facing * speed * DT * 6;
-    if (!propBlocksAt(state, aheadX, enemy.z || 0, half, half)) {
+    if (!propBlocksAt(state, aheadX, enemy.z || 0, enemy, ROUTE_GRID_STEP / 2)) {
       enemy.vx = enemy.facing * speed;
       return;
     }
-    var route = routeStep(state, player.x, player.z || 0, enemy.x, enemy.z || 0);
+    var route = routeStep(state, player.x, player.z || 0, enemy.x, enemy.z || 0, { body: enemy });
     enemy.vx = route[0] * speed;
     /*
      * 路网给的是**世界**方向；深度那一轴要换成屏幕速度那一把尺子（`depthSpeedFor`），
@@ -8222,7 +8247,7 @@
       /* The band's edges stop it the way the walls do, and it is the room's band. */
       enemy.z = clamp(enemy.z, 0, bandDepth(state.band));
       /* 木桶也挡怪（业主："人和怪都撞得到它"）—— 它只是打不碎。 */
-      blockProps(state, enemy, enemy.width / 2, enemy.width / 2);
+      blockProps(state, enemy);
       /*
        * 怪物脚步（`docs/adr/0058`）：每只按自己的节拍走一步出一声，音量在
        * `main.js` 里压得很低、并按屏幕位置做声像；同屏五只也不会糊成一片。
@@ -8510,16 +8535,16 @@
    * **没有人绕路**：怪也是这么被挡住的（业主："人和怪都撞得到它"）。所以摆布景的规矩是
    * **别把它摆在小怪必经的直线上**，也别摆进门里（同一条 ADR）。
    */
-  function blockProps(state, body, halfWidth, halfDepth) {
+  function blockProps(state, body) {
+    var halfWidth = walkFootprint(body).width / 2;
     (state.props || []).forEach(function (prop) {
-      if (!prop.solid || prop.broken) return;
-      var box = propBox(prop.piece, prop.scale);
+      var box = propObstacle(prop, body);
       if (!box) return;
-      var centre = prop.x + (box.dx || 0);
-      var spanX = halfWidth + box.width / 2;
-      var spanZ = halfDepth + box.depth / 2;
+      var centre = box.x;
+      var spanX = box.width / 2;
+      var spanZ = box.depth / 2;
       var dx = body.x - centre;
-      var dz = (body.z || 0) - prop.z;
+      var dz = (body.z || 0) - box.z;
       if (Math.abs(dx) >= spanX || Math.abs(dz) >= spanZ) return;
       /* 推出去走最浅的那条路：哪个轴压得少就推哪个。 */
       var pushX = spanX - Math.abs(dx);
@@ -8529,7 +8554,7 @@
         body.x = clamp(body.x, roomLeft(state) + halfWidth, roomRight(state) - halfWidth);
         body.vx = 0;
       } else {
-        body.z = clamp(prop.z + (dz < 0 ? -spanZ : spanZ), 0, bandDepth(state.band));
+        body.z = clamp(box.z + (dz < 0 ? -spanZ : spanZ), 0, bandDepth(state.band));
         body.vz = 0;
       }
     });
@@ -9023,6 +9048,7 @@
     doorFloor: doorFloor,
     routeStep: routeStep,
     propBox: propBox,
+    propObstacle: propObstacle,
     BREAK_ANIM: BREAK_ANIM,
     DEATH: DEATH,
     DEFAULT_SEED: DEFAULT_SEED,

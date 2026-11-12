@@ -277,8 +277,8 @@ function clearLaneX(state) {
   const props = (state.props || []).filter((prop) => prop.solid && !prop.broken);
   for (let x = Core.ROOM.leftWall + 40; x < Core.ROOM.rightWall - 40; x += 6) {
     const blocked = props.some((prop) => {
-      const box = Core.propBox(prop.piece, prop.scale);
-      return Math.abs(x - (prop.x + (box.dx || 0))) <= box.width / 2 + player.width / 2;
+      const box = Core.propObstacle(prop, player);
+      return box && Math.abs(x - box.x) <= box.width / 2;
     });
     if (!blocked) return x;
   }
@@ -316,7 +316,7 @@ test("player runs right and is clamped by the arena wall", () => {
 
   Core.runFrames(state, 60, { right: true });
 
-  assert.equal(state.player.x, Core.ROOM.rightWall - state.player.width / 2);
+  assert.equal(state.player.x, Core.ROOM.rightWall - state.player.walkWidth / 2);
   assert.equal(state.player.facing, 1);
 });
 
@@ -2736,7 +2736,7 @@ function detour(state, input, stepX) {
   const half = player.width / 2 + 8;
   const blocker = blockingProp(state, (prop, spec, centre) =>
     Math.abs(target - centre) < spec.width / 2 + half &&
-    Math.abs((player.z || 0) - prop.z) < spec.depth / 2 + half);
+    Math.abs((player.z || 0) - spec.z) < spec.depth / 2 + half);
   if (!blocker) return input;
   /*
    * **挡路的是桶就砸它。** 桶是全场唯一**只有他打得碎**的东西（`CONTEXT.md`「木桶」），
@@ -2772,7 +2772,7 @@ function detourRow(state, input, stepZ) {
   const half = player.width / 2 + 8;
   const blocker = blockingProp(state, (prop, spec, centre) =>
     Math.abs(player.x - centre) < spec.width / 2 + half &&
-    Math.abs((player.z || 0) + stepZ - prop.z) < spec.depth / 2 + half);
+    Math.abs((player.z || 0) + stepZ - spec.z) < spec.depth / 2 + half);
   const out = { ...input };
   if (!blocker) {
     if (stepZ > 0) out.up = true;
@@ -2791,10 +2791,10 @@ function detourRow(state, input, stepZ) {
 function blockingProp(state, hit) {
   for (const prop of state.props || []) {
     if (!prop.solid || prop.broken) continue;
-    const spec = Core.propBox(prop.piece, prop.scale);
+    const spec = Core.propObstacle(prop);
     if (!spec) continue;
-    const centre = prop.x + (spec.dx || 0);
-    if (hit(prop, spec, centre)) return { prop, spec, x: centre, z: prop.z };
+    const centre = spec.x;
+    if (hit(prop, spec, centre)) return { prop, spec, x: centre, z: spec.z };
   }
   return null;
 }
@@ -2857,7 +2857,7 @@ function kitingBot(state) {
      */
     const blockedRow = blockingProp(state, (prop, spec, centre) =>
       Math.abs(player.x - centre) < spec.width / 2 + player.width / 2 + 8 &&
-      Math.abs((player.z || 0) + stepZ - prop.z) < spec.depth / 2 + player.width / 2 + 8);
+      Math.abs((player.z || 0) + stepZ - spec.z) < spec.depth / 2 + player.width / 2 + 8);
     if (blockedRow) return detourRow(state, input, stepZ);
     const doorX = Core.doorX(state, Core.currentCell(state), dir);
     if (Math.abs(doorX - player.x) > 20) {
@@ -11472,7 +11472,7 @@ test("the scaled rock still stops contact at its actual footprint", () => {
   state.props=[{piece:"rockFlat",x:300,z:120,scale:[.5,.5],solid:true,broken:false}];
   state.player.x=255;state.player.z=120;state.player.vx=0;state.player.vz=0;
   Core.step(state,{});
-  assert.equal(state.player.x,250,"contact is resolved against the scaled width and scaled root offset");
+  assert.equal(state.player.x,267-state.player.walkWidth/2,"contact uses the scaled rock root and the independent walking footprint");
 });
 
 test("navigation uses the same scaled rock footprint as walking", () => {
@@ -11556,6 +11556,10 @@ test("room13 retains its measured sweep and complete pillar groups across a revi
 test("breakable-aware routes remain opt-in and do not remove physical barrels", () => {
  const s=Core.createState({stage:"mirkwooddeep",seed:1});
  Core.goToCell(s,s.dungeon.cells.findIndex(c=>c.col===2&&c.row===0));
+ // A deliberate continuous wall tests breaking capability independently of
+ // the measured room's walkable gaps and the planner's grid resolution.
+ const barrel=s.props.find(p=>p.piece==="barrel");
+ s.props=Array.from({length:11},(_,i)=>({...barrel,x:350,z:i*25}));
  s.player.x=182;s.player.z=125;
  assert.deepEqual(Core.routeStep(s,1200,125),[0,0]);
  assert.notDeepEqual(Core.routeStep(s,1200,125,undefined,undefined,{breakProps:true}),[0,0]);
@@ -11915,4 +11919,59 @@ test("the native pillar break cue occurs once at the real hit, never on a miss o
   Core.runFrames(s,90,{attack:true});
   Core.goToCell(s,s.dungeon.entry);Core.goToCell(s,cell);
   assert.equal(Core.drainSounds(s).filter(e=>e.kind==="stonePillarBreak").length,0);
+});
+
+test("native room42 stone pillars stop grounded walking at their physical footprint", () => {
+  const s=Core.createState({stage:"mirkwooddeep",seed:1});
+  Core.goToCell(s,s.dungeon.cells.findIndex(c=>c.col===1&&c.row===3));
+  s.intro=null;s.transition=0;s.enemies=[];s.room.cleared=true;s.player.invuln=999;
+  const p=s.props.find(p=>p.nativePillar?.x===506);s.props=[p];
+  const scale=1.125/Core.CAMERA.zoom,physicalX=506*scale;
+  s.player.x=physicalX-70;s.player.z=p.sortZ;
+  Core.runFrames(s,120,{right:true});
+  const expectedStop=physicalX-(58+40)*scale/2;
+  assert.ok(Math.abs(s.player.x-expectedStop)<1e-7,`walked through native pillar: x${s.player.x}, expected${expectedStop}`);
+  assert.equal(p.nativePillar.damagedAt,-1,"walking does not damage the pillar");
+  s.player.x=physicalX-70;s.player.z=0;
+  Core.runFrames(s,120,{right:true});
+  assert.ok(s.player.x>physicalX+50,"a clear depth lane remains traversable");
+});
+
+test("native prop obstacles expose physical geometry and retain the object's static pass flag", () => {
+  const s=Core.createState({stage:"mirkwooddeep",seed:1});
+  Core.goToCell(s,s.dungeon.cells.findIndex(c=>c.col===1&&c.row===3));
+  s.intro=null;s.transition=0;s.enemies=[];s.room.cleared=true;
+  const p=s.props.find(p=>p.nativePillar?.x===506);s.props=[p];
+  const scale=1.125/Core.CAMERA.zoom,box=Core.propObstacle(p),expanded=Core.propObstacle(p,s.player);
+  assert.ok(Math.abs(box.x-506*scale)<1e-10);
+  assert.equal(box.z,p.sortZ);
+  assert.ok(Math.abs(box.z-p.z)>30,"the bitmap bottom is not the walk anchor");
+  assert.ok(Math.abs(box.width-58*scale)<1e-10);
+  assert.ok(Math.abs(box.depth-20*scale/Core.DEPTH.scale)<1e-10);
+  assert.ok(Math.abs(expanded.width-(58+40)*scale)<1e-10);
+  assert.ok(Math.abs(expanded.depth-(20+10)*scale/Core.DEPTH.scale)<1e-10);
+  s.player.x=box.x-60;s.player.z=box.z;s.player.facing=1;
+  Core.runFrames(s,50,{attack:true});
+  assert.equal(p.piece,"pillarDamagedDecor");
+  assert.deepEqual(Core.propObstacle(p),box,"a damaged ANI does not silently delete the separate walk footprint");
+  const barrel={piece:"barrel",x:300,z:120,solid:true,scale:[.5,.5]};
+  const old=Core.propBox(barrel.piece,barrel.scale);
+  assert.deepEqual(Core.propObstacle(barrel),{x:300+(old.dx||0),z:120,width:old.width,depth:old.depth});
+  barrel.broken=true;assert.equal(Core.propObstacle(barrel),null,"generic broken barrels remain nonblocking");
+});
+
+test("monster routing and collision share the native pillar footprint", () => {
+  const s=Core.createState({stage:"mirkwooddeep",seed:1});
+  Core.goToCell(s,s.dungeon.cells.findIndex(c=>c.col===1&&c.row===3));
+  s.intro=null;s.transition=0;s.room.cleared=true;s.player.invuln=999;
+  const p=s.props.find(p=>p.nativePillar?.x===506);s.props=[p];
+  const x=506*1.125/Core.CAMERA.zoom;
+  s.player.x=x+110;s.player.z=p.sortZ;
+  const enemy=Core.createEnemy(s,"goblinRed",x-110,p.sortZ,6);s.enemies=[enemy];
+  for(let frame=0;frame<600;frame++){
+    Core.step(s,{});
+    const forbidden=Core.propObstacle(p,enemy);
+    assert.ok(!(Math.abs(enemy.x-forbidden.x)<forbidden.width/2-1e-7&&Math.abs(enemy.z-forbidden.z)<forbidden.depth/2-1e-7),"monster entered a native blocker");
+  }
+  assert.ok(enemy.x>x+30,"the monster routes around the column rather than remaining stuck");
 });

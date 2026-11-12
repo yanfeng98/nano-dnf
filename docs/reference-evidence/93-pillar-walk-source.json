@@ -1,0 +1,55 @@
+{
+  "clients": [
+    {
+      "file": "Script.pvf",
+      "entries": {
+        "character/swordman/swordman.chr": {
+          "sha256": "cc4d4408f1e519ba77bc42cc87235baeed1e5d8a929f59a82c3005e55f5de709",
+          "width": [
+            40,
+            10
+          ]
+        },
+        "passiveobject/mapobject/breakableobject/actionstonepillar.obj": {
+          "sha256": "f0deb1138c3da80ab281d73aafc0b51b6fd3ab2063ba3010a7cd0de0a41121fb",
+          "width": [
+            58,
+            20
+          ],
+          "passType": "[do not pass]"
+        }
+      }
+    },
+    {
+      "file": "Script_70.pvf",
+      "entries": {
+        "character/swordman/swordman.chr": {
+          "sha256": "9e21cc1472b9966fff37eb289958a26a2bb51e860c72de388031d84373ad8eae",
+          "width": [
+            40,
+            10
+          ]
+        },
+        "passiveobject/mapobject/breakableobject/actionstonepillar.obj": {
+          "sha256": "55ff808e45dff8407de65fc344c344c25945105bb5e32c37c8a48243261e503f",
+          "width": [
+            58,
+            20
+          ],
+          "passType": "[do not pass]"
+        }
+      }
+    }
+  ],
+  "mapping": {
+    "nativeToWorldX": "(720/640)/CAMERA.zoom",
+    "nativeToWorldDepth": "(720/640)/CAMERA.zoom/DEPTH.scale",
+    "pillarCenter": "native physical anchor, not bitmap bottom",
+    "dimensionInterpretation": "full extents; consistent with independent video contact check"
+  },
+  "limits": [
+    "The static object pass flag is retained after damage; exact native engine post-hit changes remain unproved.",
+    "Enemy native footprints remain unknown; existing enemy width fallback is retained.",
+    "Only 12 video-identified room42 pillars are enabled; two unmatched map records are not added."
+  ]
+}

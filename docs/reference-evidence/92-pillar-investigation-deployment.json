@@ -1,0 +1,16 @@
+{
+  "commit": "2425ef6",
+  "workflow": "https://github.com/yanfeng98/nano-dnf/actions/runs/43158513965",
+  "ci": "completed success: regression tests, Pages deploy, deployed-build smoke",
+  "localLiveSmoke": "passed: deployed resources match checkout and page boots cleanly",
+  "runtimeChanges": false,
+  "runtimeBaseline": {
+    "commit": "1802813",
+    "unitTests": 421,
+    "browserGroups": 28
+  },
+  "measurements": "both original-resolution CLIs passed; 36 late correspondences and6 independent entry type3 matches; preburst type4 counterexample retained",
+  "manualAcceptance": "pending",
+  "remaining": "Native debris emitter/pivot/count and walking collision remain unresolved. Other audit requirements retain full scope.",
+  "nextEvidence": "Use the independent entry tracks to constrain launch and visibility; the best current pivot advantage0.211HD pixels does not establish unique semantics. Native [do not pass] behavior also remains a separate unmet gameplay requirement."
+}

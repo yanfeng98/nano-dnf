@@ -1,0 +1,100 @@
+{
+  "source": "V2 28.0–30.6s, normalized 720x540",
+  "observations": [
+    {
+      "t": 29.2,
+      "components": [
+        [
+          293,
+          341,
+          66,
+          21,
+          689
+        ]
+      ]
+    },
+    {
+      "t": 29.2333,
+      "components": [
+        [
+          293,
+          341,
+          66,
+          21,
+          691
+        ]
+      ]
+    },
+    {
+      "t": 29.2667,
+      "components": [
+        [
+          293,
+          341,
+          66,
+          21,
+          695
+        ]
+      ]
+    },
+    {
+      "t": 29.3,
+      "components": [
+        [
+          294,
+          341,
+          65,
+          21,
+          696
+        ]
+      ]
+    },
+    {
+      "t": 29.3333,
+      "components": [
+        [
+          294,
+          341,
+          65,
+          21,
+          701
+        ]
+      ]
+    },
+    {
+      "t": 29.3667,
+      "components": [
+        [
+          294,
+          341,
+          65,
+          21,
+          703
+        ]
+      ]
+    },
+    {
+      "t": 29.4,
+      "components": [
+        [
+          294,
+          341,
+          65,
+          21,
+          703
+        ]
+      ]
+    }
+  ],
+  "pillarPhysicalScreenXY": [
+    382.5,
+    365.375
+  ],
+  "predictedLeftContactX": 327.375,
+  "observedRingCenterX": [
+    326,
+    326.5,
+    326.5
+  ],
+  "limits": "Consistency check only: ring is not an engine collider and player input is unknown. Does not prove exact native damaged-state collision."
+}
