@@ -1,0 +1,15 @@
+{
+  "scope": "First full-browser run after native collision was added, before the east-travel controller detour was updated",
+  "player": {
+    "x": 731.7509433962265,
+    "z": 125
+  },
+  "blockingNativePillar": {
+    "x": 1121,
+    "y": 260,
+    "originX": 46,
+    "damagedAt": -1
+  },
+  "expectedLeftContactX": 731.7509433962265,
+  "finding": "Old keyboard controller kept walking right at z125 into the intact native pillar. Preserve collision and use real direction keys to go outside the south-door trigger, then along the clear front lane."
+}

@@ -2952,18 +2952,18 @@
           /* V2 148–189.5s: 84-frame two-axis graph + independent gate strip.
            * Observed camera span 1244px -> width lower bound 1245 world px;
            * use 1245.25, matching the measured eastern camera. Entry camera is ~601 screen px from observed minimum.
-           * Native caps identify 8 pillars and 6 barrels; the former rock was
-           * a damaged pillar. Unseen initial damage and enemy placements remain
+           * Batch95 maps all8 pillars to native231 objects with the46px map crop.
+           * Native caps also identify6 barrels; the former rock was a damaged pillar. Unseen initial damage and enemy placements remain
            * unverified; preserve existing enemy world positions. */
           props: [
-            { piece: "pillarPale", x: 200, depth: 1.588 },
-            { piece: "pillarPale", x: 231, depth: 1.22 },
-            { piece: "pillarPale", x: 410, depth: 0.748 },
-            { piece: "pillarPale", x: 442, depth: 0.345 },
-            { piece: "pillarPale", x: 737, depth: 0.748 },
-            { piece: "pillarPale", x: 768, depth: 0.345 },
-            { piece: "pillarPale", x: 936, depth: -0.368 },
-            { piece: "pillarPale", x: 966, depth: -0.748 },
+            { piece: "pillarPale", x: 200, depth: 1.588, sortZ: nativePillarSortZ(164), nativePillar: [325, 164, 46] },
+            { piece: "pillarPale", x: 231, depth: 1.22, sortZ: nativePillarSortZ(193), nativePillar: [368, 193, 46] },
+            { piece: "pillarPale", x: 410, depth: 0.748, sortZ: nativePillarSortZ(229), nativePillar: [620, 229, 46] },
+            { piece: "pillarPale", x: 442, depth: 0.345, sortZ: nativePillarSortZ(260), nativePillar: [663, 260, 46] },
+            { piece: "pillarPale", x: 737, depth: 0.748, sortZ: nativePillarSortZ(229), nativePillar: [1078, 229, 46] },
+            { piece: "pillarPale", x: 768, depth: 0.345, sortZ: nativePillarSortZ(260), nativePillar: [1121, 260, 46] },
+            { piece: "pillarPale", x: 936, depth: -0.368, sortZ: nativePillarSortZ(316), nativePillar: [1355, 316, 46] },
+            { piece: "pillarPale", x: 966, depth: -0.748, sortZ: nativePillarSortZ(345), nativePillar: [1398, 345, 46] },
             { piece: "barrel", x: 376, depth: 1.6, scale: [0.7, 0.7] },
             { piece: "barrel", x: 475, depth: -0.599, scale: [0.7, 0.7] },
             { piece: "barrel", x: 488, depth: 0.46, scale: [0.725, 0.725] },

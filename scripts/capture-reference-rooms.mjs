@@ -438,6 +438,29 @@ try{
   await page.waitForFunction(()=>window.nanoDnf.getState().player.x>=640);
   await page.keyboard.up('ArrowRight');await page.keyboard.press('x');
   await page.waitForFunction(()=>window.nanoDnf.getState().props.find(p=>p.piece==='barrel'&&p.x===713)?.broken);
+  // First leave the south door's horizontal trigger span before going down.
+  await page.keyboard.down('ArrowRight');
+  await page.waitForFunction(()=>{
+   const C=window.DNFCore,s=window.nanoDnf.getState();
+   return s.player.x>C.doorX(s,C.currentCell(s),'S')+C.DOOR.span+10;
+  });
+  // The native1121 pillar blocks this row. Walk around its front instead of
+  // treating a correctly solid column as a failed exit or reducing its box.
+  const frontLaneClear=await page.evaluate(()=>{
+   const C=window.DNFCore,s=window.nanoDnf.getState();
+   return s.props.every(p=>{
+    const b=C.propObstacle(p,s.player);
+    return !b || b.x+b.width/2<s.player.x || Math.abs(b.z)>=b.depth/2;
+   });
+  });
+  assert.ok(frontLaneClear,'the measured front lane is physically clear to the east');
+  await page.keyboard.down('ArrowDown');
+  await page.waitForFunction(()=>{
+   const s=window.nanoDnf.getState(),c=s.dungeon.cells[s.cell];
+   if(c.col!==2||c.row!==1)throw new Error('front detour entered an unintended door');
+   return s.player.z<=1;
+  });
+  await page.keyboard.up('ArrowDown');
   await page.keyboard.down('ArrowRight');
   try{
   await page.waitForFunction(()=>{const s=window.nanoDnf.getState(),c=s.dungeon.cells[s.cell];return c.col===3&&c.row===1;},null,{timeout:30000});

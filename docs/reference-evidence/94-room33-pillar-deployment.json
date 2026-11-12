@@ -1,0 +1,13 @@
+{
+  "commit": "c019bc1",
+  "workflow": "https://github.com/yanfeng98/nano-dnf/actions/runs/43164402600",
+  "ci": "completed success: regression tests, Pages deployment and deployed-build smoke",
+  "site": "https://luyf-lemon-love.space/nano-dnf/",
+  "unitTests": 425,
+  "serialBrowserGroups": 29,
+  "nativeEvidence": "12 objects, 41 raw-frame cap matches >=0.9463; six actual Canvas cap comparisons >=0.9954",
+  "localLiveSmoke": "passed: online resources match checkout and page boots cleanly",
+  "onlineRoom33Keyboard": "passed: intact/damaged contact, clear-lane bypass, wrong-depth miss, aligned D hit, native cue once, revisit state retained",
+  "manualAcceptance": "pending",
+  "remaining": "Other-room pillars, native HP/loot, debris, exact damaged-state pass rules, boundary-background pillar accessibility, and all other open audit requirements remain unresolved."
+}

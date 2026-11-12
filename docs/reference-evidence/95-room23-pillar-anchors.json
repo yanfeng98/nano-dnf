@@ -1,0 +1,561 @@
+{
+  "source": "map/mirkwooddeep/n432(2,2).map",
+  "sha256": "78962294b98f0e576bfc56741d4116aded403538692b4acdc5d52da6d2a7c1b8",
+  "nativePillars": [
+    {
+      "section": "[passive object]",
+      "record": [
+        231,
+        325,
+        164,
+        0
+      ]
+    },
+    {
+      "section": "[passive object]",
+      "record": [
+        231,
+        663,
+        260,
+        0
+      ]
+    },
+    {
+      "section": "[passive object]",
+      "record": [
+        231,
+        1121,
+        260,
+        0
+      ]
+    },
+    {
+      "section": "[passive object]",
+      "record": [
+        231,
+        1355,
+        316,
+        0
+      ]
+    },
+    {
+      "section": "[special passive object]",
+      "record": [
+        231,
+        368,
+        193,
+        0,
+        1,
+        "[item]",
+        1,
+        1,
+        4294967295,
+        4294967295,
+        4294967295
+      ]
+    },
+    {
+      "section": "[special passive object]",
+      "record": [
+        231,
+        620,
+        229,
+        0,
+        1,
+        "[item]",
+        1,
+        1,
+        4294967295,
+        4294967295,
+        4294967295
+      ]
+    },
+    {
+      "section": "[special passive object]",
+      "record": [
+        231,
+        1078,
+        229,
+        0,
+        1,
+        "[item]",
+        1,
+        1,
+        4294967295,
+        4294967295,
+        4294967295
+      ]
+    },
+    {
+      "section": "[special passive object]",
+      "record": [
+        231,
+        1398,
+        345,
+        0,
+        1,
+        "[item]",
+        1,
+        1,
+        4294967295,
+        4294967295,
+        4294967295
+      ]
+    }
+  ],
+  "sectionCounts": {
+    "[passive object]": 25,
+    "[special passive object]": 10
+  },
+  "identifiedCount": 8,
+  "observations": [
+    {
+      "time": 148,
+      "kind": "flat",
+      "nativeXY": [
+        1078,
+        229
+      ],
+      "priorResidualCenterBottom": [
+        0.18499999999994543,
+        0.75
+      ],
+      "rawFrameCap": {
+        "score": 0.9699797630310059,
+        "residualTopLeft": [
+          0.43499999999994543,
+          0.375
+        ]
+      }
+    },
+    {
+      "time": 148,
+      "kind": "flat",
+      "nativeXY": [
+        663,
+        260
+      ],
+      "priorResidualCenterBottom": [
+        0.06000000000005912,
+        0.875
+      ],
+      "rawFrameCap": {
+        "score": 0.9706416130065918,
+        "residualTopLeft": [
+          0.30999999999994543,
+          0.5
+        ]
+      }
+    },
+    {
+      "time": 148,
+      "kind": "flat",
+      "nativeXY": [
+        1121,
+        260
+      ],
+      "priorResidualCenterBottom": [
+        -0.19000000000005457,
+        0.875
+      ],
+      "rawFrameCap": {
+        "score": 0.9692592024803162,
+        "residualTopLeft": [
+          0.05999999999994543,
+          0.5
+        ]
+      }
+    },
+    {
+      "time": 150,
+      "kind": "flat",
+      "nativeXY": [
+        1078,
+        229
+      ],
+      "priorResidualCenterBottom": [
+        0.125,
+        0.7099999999999795
+      ],
+      "rawFrameCap": {
+        "score": 0.9854606986045837,
+        "residualTopLeft": [
+          0.375,
+          0.33500000000000796
+        ]
+      }
+    },
+    {
+      "time": 150,
+      "kind": "damaged",
+      "nativeXY": [
+        1121,
+        260
+      ],
+      "priorResidualCenterBottom": [
+        -0.5,
+        -0.16500000000002046
+      ],
+      "rawFrameCap": {
+        "score": 0.9676543474197388,
+        "residualTopLeft": [
+          -0.25,
+          -0.29000000000002046
+        ]
+      }
+    },
+    {
+      "time": 153,
+      "kind": "flat",
+      "nativeXY": [
+        1398,
+        345
+      ],
+      "priorResidualCenterBottom": [
+        -0.28500000000008185,
+        0.2300000000000182
+      ],
+      "rawFrameCap": {
+        "score": 0.9757763147354126,
+        "residualTopLeft": [
+          -0.035000000000081855,
+          -0.1449999999999818
+        ]
+      }
+    },
+    {
+      "time": 153,
+      "kind": "damaged",
+      "nativeXY": [
+        1355,
+        316
+      ],
+      "priorResidualCenterBottom": [
+        -0.16000000000008185,
+        -0.1449999999999818
+      ],
+      "rawFrameCap": {
+        "score": 0.9621948003768921,
+        "residualTopLeft": [
+          0.08999999999991815,
+          -0.2699999999999818
+        ]
+      }
+    },
+    {
+      "time": 163,
+      "kind": "damaged",
+      "nativeXY": [
+        1398,
+        345
+      ],
+      "priorResidualCenterBottom": [
+        0.47499999999990905,
+        0.22000000000002728
+      ],
+      "rawFrameCap": {
+        "score": 0.9606600403785706,
+        "residualTopLeft": [
+          0.724999999999909,
+          0.09500000000002728
+        ]
+      }
+    },
+    {
+      "time": 172,
+      "kind": "flat",
+      "nativeXY": [
+        1078,
+        229
+      ],
+      "priorResidualCenterBottom": [
+        -0.6950000000001637,
+        0.8000000000000114
+      ],
+      "rawFrameCap": {
+        "score": 0.9841862320899963,
+        "residualTopLeft": [
+          -0.44500000000005,
+          0.42500000000001137
+        ]
+      }
+    },
+    {
+      "time": 172,
+      "kind": "damaged",
+      "nativeXY": [
+        1121,
+        260
+      ],
+      "priorResidualCenterBottom": [
+        -0.3200000000001637,
+        -0.07499999999998863
+      ],
+      "rawFrameCap": {
+        "score": 0.9647576808929443,
+        "residualTopLeft": [
+          -0.07000000000005002,
+          0.8000000000000114
+        ]
+      }
+    },
+    {
+      "time": 176,
+      "kind": "flat",
+      "nativeXY": [
+        620,
+        229
+      ],
+      "priorResidualCenterBottom": [
+        0.014999999999986358,
+        0.8100000000000023
+      ],
+      "rawFrameCap": {
+        "score": 0.9818196892738342,
+        "residualTopLeft": [
+          0.26499999999998636,
+          0.4350000000000023
+        ]
+      }
+    },
+    {
+      "time": 180,
+      "kind": "flat",
+      "nativeXY": [
+        620,
+        229
+      ],
+      "priorResidualCenterBottom": [
+        -0.1150000000000091,
+        0.839999999999975
+      ],
+      "rawFrameCap": {
+        "score": 0.9899287819862366,
+        "residualTopLeft": [
+          0.1349999999999909,
+          0.4650000000000034
+        ]
+      }
+    },
+    {
+      "time": 180,
+      "kind": "flat",
+      "nativeXY": [
+        325,
+        164
+      ],
+      "priorResidualCenterBottom": [
+        -0.2400000000000091,
+        0.964999999999975
+      ],
+      "rawFrameCap": {
+        "score": 0.986118733882904,
+        "residualTopLeft": [
+          0.009999999999990905,
+          0.5900000000000034
+        ]
+      }
+    },
+    {
+      "time": 180,
+      "kind": "flat",
+      "nativeXY": [
+        368,
+        193
+      ],
+      "priorResidualCenterBottom": [
+        0.3849999999999909,
+        0.339999999999975
+      ],
+      "rawFrameCap": {
+        "score": 0.9757024645805359,
+        "residualTopLeft": [
+          -0.3650000000000091,
+          -0.03499999999999659
+        ]
+      }
+    },
+    {
+      "time": 180,
+      "kind": "damaged",
+      "nativeXY": [
+        663,
+        260
+      ],
+      "priorResidualCenterBottom": [
+        0.2599999999999909,
+        0.964999999999975
+      ],
+      "rawFrameCap": {
+        "score": 0.9632717370986938,
+        "residualTopLeft": [
+          -0.4900000000000091,
+          -0.160000000000025
+        ]
+      }
+    },
+    {
+      "time": 184,
+      "kind": "flat",
+      "nativeXY": [
+        620,
+        229
+      ],
+      "priorResidualCenterBottom": [
+        -0.1150000000000091,
+        0.839999999999975
+      ],
+      "rawFrameCap": {
+        "score": 0.9894964694976807,
+        "residualTopLeft": [
+          0.1349999999999909,
+          0.4650000000000034
+        ]
+      }
+    },
+    {
+      "time": 184,
+      "kind": "flat",
+      "nativeXY": [
+        325,
+        164
+      ],
+      "priorResidualCenterBottom": [
+        -0.2400000000000091,
+        0.964999999999975
+      ],
+      "rawFrameCap": {
+        "score": 0.9861593246459961,
+        "residualTopLeft": [
+          0.009999999999990905,
+          0.5900000000000034
+        ]
+      }
+    },
+    {
+      "time": 184,
+      "kind": "flat",
+      "nativeXY": [
+        368,
+        193
+      ],
+      "priorResidualCenterBottom": [
+        0.3849999999999909,
+        0.339999999999975
+      ],
+      "rawFrameCap": {
+        "score": 0.9765210151672363,
+        "residualTopLeft": [
+          -0.3650000000000091,
+          -0.03499999999999659
+        ]
+      }
+    },
+    {
+      "time": 184,
+      "kind": "damaged",
+      "nativeXY": [
+        663,
+        260
+      ],
+      "priorResidualCenterBottom": [
+        0.2599999999999909,
+        -0.03500000000002501
+      ],
+      "rawFrameCap": {
+        "score": 0.9653709530830383,
+        "residualTopLeft": [
+          -0.4900000000000091,
+          -0.160000000000025
+        ]
+      }
+    },
+    {
+      "time": 188,
+      "kind": "flat",
+      "nativeXY": [
+        325,
+        164
+      ],
+      "priorResidualCenterBottom": [
+        0.01999999999998181,
+        0.9549999999999841
+      ],
+      "rawFrameCap": {
+        "score": 0.9846116304397583,
+        "residualTopLeft": [
+          0.2699999999999818,
+          0.5800000000000125
+        ]
+      }
+    },
+    {
+      "time": 188,
+      "kind": "damaged",
+      "nativeXY": [
+        620,
+        229
+      ],
+      "priorResidualCenterBottom": [
+        -0.10500000000001819,
+        0.8299999999999841
+      ],
+      "rawFrameCap": {
+        "score": 0.9835403561592102,
+        "residualTopLeft": [
+          0.1449999999999818,
+          0.7050000000000125
+        ]
+      }
+    },
+    {
+      "time": 188,
+      "kind": "damaged",
+      "nativeXY": [
+        368,
+        193
+      ],
+      "priorResidualCenterBottom": [
+        0.3949999999999818,
+        0.3299999999999841
+      ],
+      "rawFrameCap": {
+        "score": 0.9816717505455017,
+        "residualTopLeft": [
+          -0.3550000000000182,
+          0.2050000000000125
+        ]
+      }
+    },
+    {
+      "time": 188,
+      "kind": "damaged",
+      "nativeXY": [
+        663,
+        260
+      ],
+      "priorResidualCenterBottom": [
+        -0.4800000000000182,
+        -0.045000000000015916
+      ],
+      "rawFrameCap": {
+        "score": 0.9731836318969727,
+        "residualTopLeft": [
+          -0.2300000000000182,
+          0.8299999999999841
+        ]
+      }
+    }
+  ],
+  "rawCapCountAbove094": 23,
+  "transform": {
+    "screenScale": 1.125,
+    "originXNative": 46,
+    "groundOriginScreenY": 92
+  },
+  "limits": [
+    "Prior cap templates used approximate scales: center/bottom residuals are bounded by 1.1/1.6px, not subpixel engine measurements.",
+    "Raw-frame cap scores diagnose direct asset alignment; occlusion and sampling can reduce them.",
+    "Later damage is not an initial state; exact hit threshold, debris, loot, and damaged-state pass semantics remain open."
+  ]
+}

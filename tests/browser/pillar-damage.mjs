@@ -6,8 +6,13 @@ import http from 'node:http';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
-const room33 = process.env.PILLAR_DAMAGE_ROOM === '33';
-const probe = room33 ? { col: 2, row: 2, nativeX: 1129 } : { col: 1, row: 3, nativeX: 506 };
+const room = Number(process.env.PILLAR_DAMAGE_ROOM || 42);
+const probe = {
+  42: { col: 1, row: 3, nativeX: 506 },
+  33: { col: 2, row: 2, nativeX: 1129 },
+  23: { col: 2, row: 1, nativeX: 1121 }
+}[room];
+assert.ok(probe, 'unsupported pillar probe room');
 const out = process.env.PILLAR_DAMAGE_OUT || '/tmp/nano-pillar-damage';
 fs.mkdirSync(out, { recursive: true });
 const mime = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.png': 'image/png', '.ogg': 'audio/ogg' };
@@ -166,7 +171,7 @@ try {
   assert.equal(audio.sources[0].rate, 1, 'retain the native sample pitch');
   assert.equal(audio.runtime.state, 'running');
   assert.equal(audio.runtime.muted, false);
-  const result = { room: room33 ? 33 : 42, missed, hit, settled, revisited, native: render, intactCollision, damagedCollision, audio, errors };
+  const result = { room, missed, hit, settled, revisited, native: render, intactCollision, damagedCollision, audio, errors };
   fs.writeFileSync(`${out}/verification.json`, JSON.stringify(result, null, 2) + '\n');
   console.log('native pillar keyboard miss + wave hit + persistent stump OK', result);
 } finally {

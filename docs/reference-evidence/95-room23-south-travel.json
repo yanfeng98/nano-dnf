@@ -1,0 +1,16 @@
+{
+  "room": "老树回廊",
+  "departure": {
+    "x": 604,
+    "z": 184,
+    "exit": "N",
+    "sideThreshold": 60,
+    "depthThreshold": 46,
+    "sideDistance": 617.25,
+    "northDistance": 66
+  },
+  "validationScope": "native room 23 closeback at four measured cameras; physical props and other scenery layers remain open",
+  "south": {
+    "room": "藤蔓窄道"
+  }
+}

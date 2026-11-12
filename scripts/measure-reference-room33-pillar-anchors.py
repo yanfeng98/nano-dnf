@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Match room33 native pillars to prior observations and independent raw-frame caps.
+"""Match room33/23 native pillars to prior observations and independent raw-frame caps.
 
 Input: ffmpeg -ss 106 -i V2.mp4 -vf
 'select=not(mod(n\\,15)),crop=1440:1080:(iw-1440)/2:0,scale=720:540'
 -vsync 0 -frames:v 84 frames/%03d.png
+For --room 23 use -ss 148 instead of 106.
 The 1920x1080 source contains a centred 1440x1080 game viewport.
 """
 import argparse
@@ -17,11 +18,16 @@ from client_pvf import PvfArchive
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--client', type=Path, default=Path('/mnt/c/dnf/地下城与勇士'))
-parser.add_argument('--frames', type=Path, required=True, help='V2 106..147.5s, every 15th 30fps frame at 720x540')
-parser.add_argument('--out', type=Path, default=Path('docs/reference-evidence/94-room33-pillar-anchors.json'))
+parser.add_argument('--room', choices=['33', '23'], default='33')
+parser.add_argument('--frames', type=Path, required=True, help='V2 room interval from 106s (33) or 148s (23), every 15th 30fps frame at 720x540')
+parser.add_argument('--out', type=Path, default=None)
 args = parser.parse_args()
 root = Path(__file__).resolve().parents[1]
-source = 'map/mirkwooddeep/n433(2,2).map'
+profile = {'33': (106, 50, 11, 12, 'n433(2,2)', 94), '23': (148, 51, 46, 8, 'n432(2,2)', 95)}[args.room]
+start_time, batch, origin_x, expected_count, map_name, evidence_batch = profile
+source = f'map/mirkwooddeep/{map_name}.map'
+if args.out is None:
+    args.out = root / f'docs/reference-evidence/{evidence_batch}-room{args.room}-pillar-anchors.json'
 with PvfArchive(args.client / 'Script.pvf') as archive:
     raw = archive.read(source)
     tokens = archive.tokens(source)
@@ -44,9 +50,9 @@ for section in ['[passive object]', '[special passive object]']:
         i += length
     assert tokens[i][0] == 5
     section_counts[section] = count
-assert len(records) == 12
-observations = json.loads((root / 'docs/reference-evidence/50-room33-layout-measurement.json').read_text())['pillars']
-cameras = {c['t']: c for c in json.loads((root / 'docs/reference-evidence/50-room33-camera.json').read_text())}
+assert len(records) == expected_count
+observations = json.loads((root / f'docs/reference-evidence/{batch}-room{args.room}-layout-measurement.json').read_text())['pillars']
+cameras = {c['t']: c for c in json.loads((root / f'docs/reference-evidence/{batch}-room{args.room}-camera.json').read_text())}
 atlas = np.array(Image.open(root / 'assets/pillar-pale.png').convert('RGBA'))
 seen = set()
 measurements = []
@@ -54,7 +60,7 @@ for observed in observations:
     damaged = observed['kind'] == 'damaged'
     center_offset = 3 if damaged else 1
     def predicted_center(p):
-        return (p['record'][1] - 11 + center_offset) * 1.125
+        return (p['record'][1] - origin_x + center_offset) * 1.125
     native = min(records, key=lambda p: abs(predicted_center(p) - observed['world'] * 265 / 168))
     record = native['record']
     nx, ny = record[1:3]
@@ -64,13 +70,13 @@ for observed in observations:
     seen.add((nx, ny))
     t = observed['time']
     camera = cameras[t]
-    frame = cv2.imread(str(args.frames / f'{round((t-106)*2)+1:03d}.png'), cv2.IMREAD_GRAYSCALE)
+    frame = cv2.imread(str(args.frames / f'{round((t-start_time)*2)+1:03d}.png'), cv2.IMREAD_GRAYSCALE)
     assert frame is not None
     bitmap = atlas[:111, 44:88] if damaged else atlas[:133, :44]
     template = cv2.resize(bitmap, None, fx=1.125, fy=1.125)[:30]
     mask = (template[:, :, 3] > 200).astype(np.uint8) * 255
     gray = cv2.cvtColor(template[:, :, :3], cv2.COLOR_RGB2GRAY)
-    left = (nx - 11 + (-19 if damaged else -21)) * 1.125 - camera['camera_px']
+    left = (nx - origin_x + (-19 if damaged else -21)) * 1.125 - camera['camera_px']
     top = 92 + (ny + (-98 if damaged else -120)) * 1.125 - camera['camera_y_px']
     x0, y0 = max(0, round(left)-5), max(0, round(top)-5)
     roi = frame[y0:min(540, round(top)+35), x0:min(720, round(left)+55)]
@@ -82,14 +88,14 @@ for observed in observations:
         direct = {'score': score, 'residualTopLeft': [x+x0-left, y+y0-top]}
     measurements.append({'time': t, 'kind': observed['kind'], 'nativeXY': [nx, ny],
                          'priorResidualCenterBottom': [dx, dy], 'rawFrameCap': direct})
-assert len(seen) == 12
+assert len(seen) == expected_count
 valid = [m for m in measurements if m['rawFrameCap'] and m['rawFrameCap']['score'] >= .94]
 assert len(valid) == len(measurements), 'All prior cap observations must reproduce in raw frames'
 assert all(max(map(abs, m['rawFrameCap']['residualTopLeft'])) < 1.5 for m in valid)
 report = {'source': source, 'sha256': hashlib.sha256(raw).hexdigest(), 'nativePillars': records,
           'sectionCounts': section_counts, 'identifiedCount': len(seen), 'observations': measurements,
           'rawCapCountAbove094': len(valid),
-          'transform': {'screenScale': 1.125, 'originXNative': 11, 'groundOriginScreenY': 92},
+          'transform': {'screenScale': 1.125, 'originXNative': origin_x, 'groundOriginScreenY': 92},
           'limits': ['Prior cap templates used approximate scales: center/bottom residuals are bounded by 1.1/1.6px, not subpixel engine measurements.',
                      'Raw-frame cap scores diagnose direct asset alignment; occlusion and sampling can reduce them.',
                      'Later damage is not an initial state; exact hit threshold, debris, loot, and damaged-state pass semantics remain open.']}
