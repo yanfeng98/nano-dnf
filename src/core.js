@@ -2901,13 +2901,17 @@
           cap: 4,
           /* V2 74.25s 才是贴左；76s 镜头已移207屏幕px。旧76s零镜头前提作废。
            * 以720×540游戏区域计：两箱中心616/719，底295；北门全景中心1530，底250。
-           * 先修可对应的落点；平顶柱原件、其余植被与完整右半场仍列在审计待办。
+           * 第97批以178处原生柱帽匹配重建6柱，撤销旧5柱估摆；其他物件/植被仍待核。
            */
           props: [
             { piece: "chest", x: 391, depth: 1.56 },
             { piece: "chest", x: 456, depth: 1.56 },
-            { piece: "pillarPale", x: 493, depth: 1.56 },
-            { piece: "pillarPale", x: 532, depth: 1.15 },
+            { piece: "pillarPale", x: 499.958491, depth: 1.484048, sortZ: nativePillarSortZ(173), nativePillar: [700, 173] },
+            { piece: "pillarPale", x: 532.766038, depth: 1.043156, sortZ: nativePillarSortZ(207), nativePillar: [746, 207] },
+            { piece: "pillarPale", x: 656.864151, depth: -0.331389, sortZ: nativePillarSortZ(313), nativePillar: [920, 313] },
+            { piece: "pillarPale", x: 689.671698, depth: -0.798216, sortZ: nativePillarSortZ(349), nativePillar: [966, 349] },
+            { piece: "pillarPale", x: 862.267925, depth: 0.641166, sortZ: nativePillarSortZ(238), nativePillar: [1208, 238] },
+            { piece: "pillarPale", x: 892.222642, depth: 0.291046, sortZ: nativePillarSortZ(265), nativePillar: [1250, 265] },
             { piece: "barrel", x: 567, depth: 0.62 },
             { piece: "rockFlat", x: 375, depth: -0.18, scale: [0.77, 0.77] },
             { piece: "fallenTrunk", x: 178, depth: -0.58 },
@@ -2915,9 +2919,6 @@
              * These were outside the old, shortened 684px room entirely.
              */
             { piece: "barrel", x: 826, depth: 1.52 },
-            { piece: "pillarPale", x: 677, depth: -0.24 },
-            { piece: "pillarPale", x: 870, depth: 0.74 },
-            { piece: "pillarPale", x: 894, depth: 0.44 },
             { piece: "rockFlat", x: 768, depth: -0.22, scale: [0.77, 0.77] },
             { piece: "rockFlat", x: 1070, depth: -0.22, scale: [0.77, 0.77] },
           ],

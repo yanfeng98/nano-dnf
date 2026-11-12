@@ -12041,3 +12041,25 @@ test("room13 native pillars use the cropped map origin for blocking and hits", (
   assert.equal(s.props.find(q=>q.nativePillar?.x===464),p);
   assert.ok(p.nativePillar.damagedAt>=0);
 });
+
+test("room43 native pillars use the native physical anchors for blocking and hits", () => {
+  const s=Core.createState({stage:"mirkwooddeep",seed:1});
+  Core.goToCell(s,s.dungeon.cells.findIndex(c=>c.col===2&&c.row===3));
+  const pillars=s.props.filter(p=>p.nativePillar);
+  assert.equal(pillars.length,6,"all six video-identified native columns participate");
+  const p=pillars.find(p=>p.nativePillar.x===1250);
+  const scale=1.125/Core.CAMERA.zoom, box=Core.propObstacle(p);
+  assert.ok(Math.abs(box.x-1250*scale)<1e-9,"the uncropped native origin is shared by physics and art");
+  assert.equal(box.z,p.sortZ);
+  assert.ok(pillars.every(p=>p.nativePillar.damagedAt===-1),"later observed damage is not an initial state");
+  s.props=[p];s.enemies=[];s.intro=null;s.transition=0;s.room.cleared=true;s.player.invuln=999;
+  s.player.x=box.x-70;s.player.z=box.z;
+  Core.runFrames(s,120,{right:true});
+  assert.ok(Math.abs(s.player.x-(box.x-(58+40)*scale/2))<1e-7);
+  s.player.x=box.x-60;s.player.facing=1;
+  Core.runFrames(s,50,{attack:true});
+  assert.equal(p.piece,"pillarDamagedDecor","real attack uses the same native physical centre");
+  const cell=s.cell;Core.goToCell(s,s.dungeon.entry);Core.goToCell(s,cell);
+  assert.equal(s.props.find(q=>q.nativePillar?.x===1250),p);
+  assert.ok(p.nativePillar.damagedAt>=0);
+});

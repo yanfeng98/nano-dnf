@@ -1,0 +1,77 @@
+{
+  "room": 13,
+  "missed": {
+    "time": 4.766666666666655,
+    "piece": "pillarPale",
+    "damagedAt": -1,
+    "gone": false,
+    "broken": false
+  },
+  "hit": {
+    "time": 5.049999999999987,
+    "piece": "pillarDamagedDecor",
+    "damagedAt": 5.049999999999987,
+    "gone": false,
+    "broken": false
+  },
+  "settled": {
+    "time": 5.899999999999984,
+    "piece": "pillarDamagedDecor",
+    "damagedAt": 5.049999999999987,
+    "gone": false,
+    "broken": false
+  },
+  "revisited": {
+    "time": 5.899999999999984,
+    "piece": "pillarDamagedDecor",
+    "damagedAt": 5.049999999999987,
+    "gone": false,
+    "broken": false
+  },
+  "native": {
+    "x": 464,
+    "y": 234,
+    "originX": 41,
+    "damagedAt": 5.049999999999987
+  },
+  "intactCollision": {
+    "geometry": {
+      "x": 301.6867924528302,
+      "z": 215.40308747855917,
+      "width": 69.89433962264152,
+      "depth": 97.25557461406518
+    },
+    "contact": 266.73962264150947,
+    "bypass": 361.8858490566038
+  },
+  "damagedCollision": {
+    "geometry": {
+      "x": 301.6867924528302,
+      "z": 215.40308747855917,
+      "width": 69.89433962264152,
+      "depth": 97.25557461406518
+    },
+    "contact": 266.73962264150947,
+    "bypass": 361.8858490566038
+  },
+  "audio": {
+    "sources": [
+      {
+        "url": "https://luyf-lemon-love.space/nano-dnf/assets/sfx/tstone_break.ogg",
+        "duration": 1.4149659863945578,
+        "rate": 1
+      }
+    ],
+    "runtime": {
+      "created": true,
+      "muted": false,
+      "state": "running",
+      "sfxLoaded": 69,
+      "sfxTotal": 69,
+      "sfxPlayed": 26,
+      "rain": true,
+      "forest": true
+    }
+  },
+  "errors": []
+}

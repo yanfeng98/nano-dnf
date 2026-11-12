@@ -1,0 +1,77 @@
+{
+  "room": 43,
+  "missed": {
+    "time": 2.6999999999999953,
+    "piece": "pillarPale",
+    "damagedAt": -1,
+    "gone": false,
+    "broken": false
+  },
+  "hit": {
+    "time": 2.9999999999999942,
+    "piece": "pillarDamagedDecor",
+    "damagedAt": 2.9999999999999942,
+    "gone": false,
+    "broken": false
+  },
+  "settled": {
+    "time": 3.849999999999991,
+    "piece": "pillarDamagedDecor",
+    "damagedAt": 2.9999999999999942,
+    "gone": false,
+    "broken": false
+  },
+  "revisited": {
+    "time": 3.849999999999991,
+    "piece": "pillarDamagedDecor",
+    "damagedAt": 2.9999999999999942,
+    "gone": false,
+    "broken": false
+  },
+  "native": {
+    "x": 1250,
+    "y": 265,
+    "originX": 0,
+    "damagedAt": 2.9999999999999942
+  },
+  "intactCollision": {
+    "geometry": {
+      "x": 891.5094339622642,
+      "z": 114.9056603773585,
+      "width": 69.89433962264152,
+      "depth": 97.25557461406518
+    },
+    "contact": 856.5622641509434,
+    "bypass": 961.5622641509434
+  },
+  "damagedCollision": {
+    "geometry": {
+      "x": 891.5094339622642,
+      "z": 114.9056603773585,
+      "width": 69.89433962264152,
+      "depth": 97.25557461406518
+    },
+    "contact": 856.5622641509434,
+    "bypass": 961.5622641509434
+  },
+  "audio": {
+    "sources": [
+      {
+        "url": "http://127.0.0.1:43833/assets/sfx/tstone_break.ogg",
+        "duration": 1.4149659863945578,
+        "rate": 1
+      }
+    ],
+    "runtime": {
+      "created": true,
+      "muted": false,
+      "state": "running",
+      "sfxLoaded": 69,
+      "sfxTotal": 69,
+      "sfxPlayed": 16,
+      "rain": true,
+      "forest": true
+    }
+  },
+  "errors": []
+}

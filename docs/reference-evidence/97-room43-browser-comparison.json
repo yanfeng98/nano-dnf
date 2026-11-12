@@ -1,0 +1,98 @@
+[
+  {
+    "label": "native-700-cap",
+    "time": 76.25,
+    "minPixels": 300,
+    "threshold": 0.97,
+    "nativeMask": {
+      "rows": 30,
+      "columns": 50,
+      "alphaOnly": false,
+      "box": null
+    },
+    "cosine": 0.9959787677661409,
+    "dx": 0,
+    "dy": 1,
+    "pixels": 1060
+  },
+  {
+    "label": "native-746-cap",
+    "time": 76.25,
+    "minPixels": 300,
+    "threshold": 0.97,
+    "nativeMask": {
+      "rows": 30,
+      "columns": 50,
+      "alphaOnly": false,
+      "box": null
+    },
+    "cosine": 0.997871600385401,
+    "dx": 0,
+    "dy": 0,
+    "pixels": 1060
+  },
+  {
+    "label": "native-920-cap",
+    "time": 79.25,
+    "minPixels": 300,
+    "threshold": 0.97,
+    "nativeMask": {
+      "rows": 30,
+      "columns": 50,
+      "alphaOnly": false,
+      "box": null
+    },
+    "cosine": 0.9950669175614002,
+    "dx": 0,
+    "dy": -1,
+    "pixels": 1060
+  },
+  {
+    "label": "native-966-cap",
+    "time": 79.25,
+    "minPixels": 300,
+    "threshold": 0.97,
+    "nativeMask": {
+      "rows": 30,
+      "columns": 50,
+      "alphaOnly": false,
+      "box": null
+    },
+    "cosine": 0.9969291127476556,
+    "dx": 0,
+    "dy": 0,
+    "pixels": 1060
+  },
+  {
+    "label": "native-1208-cap",
+    "time": 82.25,
+    "minPixels": 300,
+    "threshold": 0.97,
+    "nativeMask": {
+      "rows": 30,
+      "columns": 50,
+      "alphaOnly": false,
+      "box": null
+    },
+    "cosine": 0.9974218931957418,
+    "dx": 1,
+    "dy": 0,
+    "pixels": 1060
+  },
+  {
+    "label": "native-1250-cap",
+    "time": 82.25,
+    "minPixels": 300,
+    "threshold": 0.97,
+    "nativeMask": {
+      "rows": 30,
+      "columns": 50,
+      "alphaOnly": false,
+      "box": null
+    },
+    "cosine": 0.9965293429661815,
+    "dx": 1,
+    "dy": 0,
+    "pixels": 1060
+  }
+]

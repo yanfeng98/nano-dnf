@@ -68,6 +68,16 @@ const profiles={
    ['center-floor',133,'forest',672+((540+554.49+12.375)/1.125)%224,380+(396-233)/1.125,36/1.125,24/1.125,540,396,36,24,24,800,.6,null,null,true,14],
    ['west-floor',146,'forest',672+((180+111.38+12.375)/1.125)%224,380+(396-233)/1.125,36/1.125,24/1.125,180,396,36,24,24,800,.6,null,null,true,14]
   ]},
+ '43-pillars':{cameraTolerance:1,evidence:'97-room43',col:2,row:3,out:'/tmp/nano-room97/render',times:[76.25,79.25,82.25],actorScreenX:80,exit:'N',next:'藤蔓窄道',
+  scope:'six independently identified room43 native pillars at three measured cameras; other scenery remains open',
+  cases:[
+   ['native-700-cap',76.25,'pillar',0,0,44,133,557,152,50,150,30,300,.97],
+   ['native-746-cap',76.25,'pillar',0,0,44,133,609,190,50,150,30,300,.97],
+   ['native-920-cap',79.25,'pillar',0,0,44,133,496,309,50,150,30,300,.97],
+   ['native-966-cap',79.25,'pillar',0,0,44,133,548,350,50,150,30,300,.97],
+   ['native-1208-cap',82.25,'pillar',0,0,44,133,581,225,50,150,30,300,.97],
+   ['native-1250-cap',82.25,'pillar',0,0,44,133,628,255,50,150,30,300,.97]
+  ]},
  '43-closeback':{cameraTolerance:1,evidence:'02-room43',referenceNames:{74.25:'02-room43-074.25.png',90.25:'02-room43-090.25.png',104.25:'02-room43-104.25.png'},col:2,row:3,out:'/tmp/nano-room61/render',times:[74.25,90.25,104.25],actorScreenX:80,exit:'N',next:'藤蔓窄道',
   scope:'native room 43 closeback at three measured cameras; physical props and other scenery layers remain open',
   cases:[
