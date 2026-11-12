@@ -1,0 +1,22 @@
+{
+  "runtimeChanges": false,
+  "nativeInstancesLowerBound": 2,
+  "hdCorrespondences": 6,
+  "minimumHdCorrelation": 0.946539044380188,
+  "maximumPreburstControlCorrelation": 0.6401854157447815,
+  "conditional50or70OffsetMaximumCorrelation": 0.8232724666595459,
+  "sameObservationClockComparison": {
+    "points": 42,
+    "tracks": 6,
+    "videoClockAniOriginAdvantageHdPixels": 0.17248175338594773,
+    "angleClockAniOriginAdvantageHdPixels": 0.022424391987900805
+  },
+  "decision": "The independent burst verifies native types1/3 and rejects only an explicit positive sprite-initial-offset50/70 model. Timebase sensitivity makes pivot selection less identifiable; no guessed emitter or engine clock is introduced.",
+  "runtimeBaseline": {
+    "commit": "7e21aaf",
+    "unitTests": 428,
+    "browserGroups": 33,
+    "manualAcceptance": "pending"
+  },
+  "remaining": "Emitter count/distribution, pivot, native timing, PTL40/50/70 and obj int75 meanings, debris runtime, and all other open audit requirements."
+}

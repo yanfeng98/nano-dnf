@@ -1,0 +1,189 @@
+{
+  "points": 42,
+  "tracks": 6,
+  "gravityHypothesis": 1200,
+  "angularSpeedHypothesis": 179,
+  "models": {
+    "video-imageCenter": {
+      "rmseHdPixels": 2.7718786115183573,
+      "tracks": {
+        "mid": {
+          "points": 13,
+          "rmseHdPixels": 3.0527162796105154
+        },
+        "left": {
+          "points": 8,
+          "rmseHdPixels": 1.7481558025511597
+        },
+        "right": {
+          "points": 7,
+          "rmseHdPixels": 2.682973299210418
+        },
+        "midright": {
+          "points": 8,
+          "rmseHdPixels": 3.6423022180534517
+        },
+        "room43-type1": {
+          "points": 3,
+          "rmseHdPixels": 1.5365907428821044
+        },
+        "room43-type3": {
+          "points": 3,
+          "rmseHdPixels": 2.1213203435602144
+        }
+      }
+    },
+    "video-aniOrigin": {
+      "rmseHdPixels": 2.5993968581324096,
+      "tracks": {
+        "mid": {
+          "points": 13,
+          "rmseHdPixels": 2.796290193856823
+        },
+        "left": {
+          "points": 8,
+          "rmseHdPixels": 1.5537179884383334
+        },
+        "right": {
+          "points": 7,
+          "rmseHdPixels": 2.1360299338543234
+        },
+        "midright": {
+          "points": 8,
+          "rmseHdPixels": 3.6531469489278416
+        },
+        "room43-type1": {
+          "points": 3,
+          "rmseHdPixels": 1.4867626937773903
+        },
+        "room43-type3": {
+          "points": 3,
+          "rmseHdPixels": 2.414694546035963
+        }
+      }
+    },
+    "video-imageTopLeft": {
+      "rmseHdPixels": 3.36349627302545,
+      "tracks": {
+        "mid": {
+          "points": 13,
+          "rmseHdPixels": 4.090597809229651
+        },
+        "left": {
+          "points": 8,
+          "rmseHdPixels": 2.3111505817577367
+        },
+        "right": {
+          "points": 7,
+          "rmseHdPixels": 3.2280364606020173
+        },
+        "midright": {
+          "points": 8,
+          "rmseHdPixels": 3.9970015856984813
+        },
+        "room43-type1": {
+          "points": 3,
+          "rmseHdPixels": 1.7934091646930126
+        },
+        "room43-type3": {
+          "points": 3,
+          "rmseHdPixels": 1.2236055042726965
+        }
+      }
+    },
+    "angle-imageCenter": {
+      "rmseHdPixels": 2.2258251261662862,
+      "tracks": {
+        "mid": {
+          "points": 13,
+          "rmseHdPixels": 2.7280474232718364
+        },
+        "left": {
+          "points": 8,
+          "rmseHdPixels": 1.3347901407269214
+        },
+        "right": {
+          "points": 7,
+          "rmseHdPixels": 1.0766927473390637
+        },
+        "midright": {
+          "points": 8,
+          "rmseHdPixels": 3.3227951881484614
+        },
+        "room43-type1": {
+          "points": 3,
+          "rmseHdPixels": 0.4310636901896474
+        },
+        "room43-type3": {
+          "points": 3,
+          "rmseHdPixels": 0.16120352652162645
+        }
+      }
+    },
+    "angle-aniOrigin": {
+      "rmseHdPixels": 2.2034007341783854,
+      "tracks": {
+        "mid": {
+          "points": 13,
+          "rmseHdPixels": 2.6765318774589444
+        },
+        "left": {
+          "points": 8,
+          "rmseHdPixels": 1.253124544046179
+        },
+        "right": {
+          "points": 7,
+          "rmseHdPixels": 1.0729379660231877
+        },
+        "midright": {
+          "points": 8,
+          "rmseHdPixels": 3.3440118266221015
+        },
+        "room43-type1": {
+          "points": 3,
+          "rmseHdPixels": 0.45584652276339566
+        },
+        "room43-type3": {
+          "points": 3,
+          "rmseHdPixels": 0.1587395737775494
+        }
+      }
+    },
+    "angle-imageTopLeft": {
+      "rmseHdPixels": 2.6432734379954232,
+      "tracks": {
+        "mid": {
+          "points": 13,
+          "rmseHdPixels": 3.372561123030435
+        },
+        "left": {
+          "points": 8,
+          "rmseHdPixels": 1.7612863856777616
+        },
+        "right": {
+          "points": 7,
+          "rmseHdPixels": 1.1508285556102822
+        },
+        "midright": {
+          "points": 8,
+          "rmseHdPixels": 3.7234693303720565
+        },
+        "room43-type1": {
+          "points": 3,
+          "rmseHdPixels": 0.40585159069908205
+        },
+        "room43-type3": {
+          "points": 3,
+          "rmseHdPixels": 0.17277827832373358
+        }
+      }
+    }
+  },
+  "limits": [
+    "Both clocks are hypotheses. Lower residual does not identify a native engine clock or prove hit-stop.",
+    "Angles and positions come from the same image fits and have correlated uncertainty; angle-derived time is not independent ground truth.",
+    "The same42 observations and initial-position/velocity fitting rules are used across all six models.",
+    "The two short room43 tracks each have only three points; their low errors cannot select a pivot.",
+    "Native gravity units, update integration and exact timing remain conditional; no runtime rule is changed."
+  ]
+}

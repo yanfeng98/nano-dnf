@@ -1,0 +1,14 @@
+{
+  "repository": "https://gitgud.io/16ww/servers5a3.git",
+  "commit": "6ab71b72ad4e2e7c8a200cc9956087025c7d57a6",
+  "pathListSha256": "128960875ed6d41e85c34fc784c648406c595d19ee5421e89fcf244677f6bed2",
+  "pathCount": 7874,
+  "caseInsensitivePathPattern": "particle|stonepillar",
+  "matchingPaths": [],
+  "reviewedFiles": [
+    "changelog.d/20261104-client-upstream-exe-tracking.docs.md",
+    "scripts/client/local-patches/UPSTREAM.md"
+  ],
+  "reproducePathList": "git ls-tree -r --name-only 6ab71b72ad4e2e7c8a200cc9956087025c7d57a6",
+  "limits": "Path-name scan and two document reads only; not an exhaustive content scan and not proof of compatibility with the local client."
+}

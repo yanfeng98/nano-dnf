@@ -1,0 +1,1312 @@
+{
+  "source": {
+    "video": "V2",
+    "startSeconds": 83.5,
+    "fps": 30,
+    "crop": [
+      1440,
+      1080,
+      240,
+      0
+    ],
+    "nativeTarget": [
+      920,
+      313
+    ],
+    "nativeAnchor": [
+      966,
+      349
+    ],
+    "nativeScale": 2.25
+  },
+  "cameraAnchors": [
+    {
+      "frame": 1,
+      "time": 83.5,
+      "groundHd": [
+        456.75,
+        889.0
+      ],
+      "anchorScore": 0.9893336296081543
+    },
+    {
+      "frame": 2,
+      "time": 83.53333333333333,
+      "groundHd": [
+        456.75,
+        889.0
+      ],
+      "anchorScore": 0.9890435338020325
+    },
+    {
+      "frame": 3,
+      "time": 83.56666666666666,
+      "groundHd": [
+        456.75,
+        889.0
+      ],
+      "anchorScore": 0.986663281917572
+    },
+    {
+      "frame": 4,
+      "time": 83.6,
+      "groundHd": [
+        456.75,
+        889.0
+      ],
+      "anchorScore": 0.9874698519706726
+    },
+    {
+      "frame": 5,
+      "time": 83.63333333333334,
+      "groundHd": [
+        456.75,
+        889.0
+      ],
+      "anchorScore": 0.989438533782959
+    },
+    {
+      "frame": 6,
+      "time": 83.66666666666667,
+      "groundHd": [
+        456.75,
+        889.0
+      ],
+      "anchorScore": 0.9869312047958374
+    },
+    {
+      "frame": 7,
+      "time": 83.7,
+      "groundHd": [
+        456.75,
+        889.0
+      ],
+      "anchorScore": 0.9862247705459595
+    },
+    {
+      "frame": 8,
+      "time": 83.73333333333333,
+      "groundHd": [
+        456.75,
+        889.0
+      ],
+      "anchorScore": 0.9869564771652222
+    },
+    {
+      "frame": 9,
+      "time": 83.76666666666667,
+      "groundHd": [
+        456.75,
+        889.0
+      ],
+      "anchorScore": 0.9878371357917786
+    },
+    {
+      "frame": 10,
+      "time": 83.8,
+      "groundHd": [
+        456.75,
+        889.0
+      ],
+      "anchorScore": 0.9887093305587769
+    },
+    {
+      "frame": 11,
+      "time": 83.83333333333333,
+      "groundHd": [
+        457.75,
+        889.0
+      ],
+      "anchorScore": 0.9743291139602661
+    },
+    {
+      "frame": 12,
+      "time": 83.86666666666666,
+      "groundHd": [
+        457.75,
+        889.0
+      ],
+      "anchorScore": 0.9746954441070557
+    },
+    {
+      "frame": 13,
+      "time": 83.9,
+      "groundHd": [
+        452.75,
+        889.0
+      ],
+      "anchorScore": 0.9814878106117249
+    },
+    {
+      "frame": 14,
+      "time": 83.93333333333334,
+      "groundHd": [
+        436.75,
+        889.0
+      ],
+      "anchorScore": 0.9765511155128479
+    },
+    {
+      "frame": 15,
+      "time": 83.96666666666667,
+      "groundHd": [
+        418.75,
+        889.0
+      ],
+      "anchorScore": 0.9751670360565186
+    },
+    {
+      "frame": 16,
+      "time": 84.0,
+      "groundHd": [
+        409.75,
+        889.0
+      ],
+      "anchorScore": 0.9754567742347717
+    },
+    {
+      "frame": 17,
+      "time": 84.03333333333333,
+      "groundHd": [
+        409.75,
+        889.0
+      ],
+      "anchorScore": 0.9744781851768494
+    },
+    {
+      "frame": 18,
+      "time": 84.06666666666666,
+      "groundHd": [
+        409.75,
+        889.0
+      ],
+      "anchorScore": 0.9672759175300598
+    },
+    {
+      "frame": 19,
+      "time": 84.1,
+      "groundHd": [
+        407.75,
+        889.0
+      ],
+      "anchorScore": 0.9833438992500305
+    },
+    {
+      "frame": 20,
+      "time": 84.13333333333334,
+      "groundHd": [
+        393.75,
+        889.0
+      ],
+      "anchorScore": 0.9825565218925476
+    },
+    {
+      "frame": 21,
+      "time": 84.16666666666667,
+      "groundHd": [
+        389.75,
+        889.0
+      ],
+      "anchorScore": 0.9803522825241089
+    },
+    {
+      "frame": 22,
+      "time": 84.2,
+      "groundHd": [
+        389.75,
+        889.0
+      ],
+      "anchorScore": 0.9820950031280518
+    },
+    {
+      "frame": 23,
+      "time": 84.23333333333333,
+      "groundHd": [
+        389.75,
+        889.0
+      ],
+      "anchorScore": 0.9811369180679321
+    },
+    {
+      "frame": 24,
+      "time": 84.26666666666667,
+      "groundHd": [
+        375.75,
+        889.0
+      ],
+      "anchorScore": 0.9738299250602722
+    },
+    {
+      "frame": 25,
+      "time": 84.3,
+      "groundHd": [
+        371.75,
+        889.0
+      ],
+      "anchorScore": 0.9854669570922852
+    },
+    {
+      "frame": 26,
+      "time": 84.33333333333333,
+      "groundHd": [
+        359.75,
+        889.0
+      ],
+      "anchorScore": 0.970897376537323
+    },
+    {
+      "frame": 27,
+      "time": 84.36666666666666,
+      "groundHd": [
+        339.75,
+        889.0
+      ],
+      "anchorScore": 0.985156238079071
+    },
+    {
+      "frame": 28,
+      "time": 84.4,
+      "groundHd": [
+        332.75,
+        889.0
+      ],
+      "anchorScore": 0.9835991859436035
+    },
+    {
+      "frame": 29,
+      "time": 84.43333333333334,
+      "groundHd": [
+        319.75,
+        889.0
+      ],
+      "anchorScore": 0.9862272143363953
+    },
+    {
+      "frame": 30,
+      "time": 84.46666666666667,
+      "groundHd": [
+        312.75,
+        889.0
+      ],
+      "anchorScore": 0.9879310131072998
+    },
+    {
+      "frame": 31,
+      "time": 84.5,
+      "groundHd": [
+        312.75,
+        889.0
+      ],
+      "anchorScore": 0.9881907105445862
+    },
+    {
+      "frame": 32,
+      "time": 84.53333333333333,
+      "groundHd": [
+        312.75,
+        889.0
+      ],
+      "anchorScore": 0.9877102971076965
+    }
+  ],
+  "verified": [
+    {
+      "kind": 3,
+      "angle": 5,
+      "score": 0.9530525803565979,
+      "maskPixels": 2330,
+      "rectHd": [
+        385,
+        678,
+        64,
+        60
+      ],
+      "centerHd": [
+        417.0,
+        708.0
+      ],
+      "frame": 11,
+      "time": 83.83333333333333,
+      "nativeCenter": [
+        -18.11111111111111,
+        -80.44444444444444
+      ],
+      "alternatives": [
+        {
+          "kind": 1,
+          "angle": -158,
+          "score": 0.8490527272224426,
+          "maskPixels": 977,
+          "rectHd": [
+            433,
+            659,
+            53,
+            48
+          ],
+          "centerHd": [
+            459.5,
+            683.0
+          ]
+        },
+        {
+          "kind": 2,
+          "angle": -126,
+          "score": 0.8305062055587769,
+          "maskPixels": 1027,
+          "rectHd": [
+            368,
+            718,
+            58,
+            55
+          ],
+          "centerHd": [
+            397.0,
+            745.5
+          ]
+        },
+        {
+          "kind": 3,
+          "angle": 6,
+          "score": 0.9526495337486267,
+          "maskPixels": 2320,
+          "rectHd": [
+            385,
+            678,
+            64,
+            60
+          ],
+          "centerHd": [
+            417.0,
+            708.0
+          ]
+        },
+        {
+          "kind": 4,
+          "angle": 52,
+          "score": 0.9215837717056274,
+          "maskPixels": 246,
+          "rectHd": [
+            391,
+            627,
+            26,
+            26
+          ],
+          "centerHd": [
+            404.0,
+            640.0
+          ]
+        }
+      ],
+      "angleScoreLevelSet": {
+        "scoreDrop": 0.01,
+        "min": 3,
+        "max": 7
+      },
+      "conditionalInitialAngleModels": {
+        "0": {
+          "positiveDegreesPerSecond": 179,
+          "maximumAgeSeconds": 0.5,
+          "bestTextureScoreWithinAllowedAngles": 0.9530525803565979
+        },
+        "50": {
+          "positiveDegreesPerSecond": 179,
+          "maximumAgeSeconds": 0.5,
+          "bestTextureScoreWithinAllowedAngles": 0.5701625347137451
+        },
+        "70": {
+          "positiveDegreesPerSecond": 179,
+          "maximumAgeSeconds": 0.5,
+          "bestTextureScoreWithinAllowedAngles": 0.5629238486289978
+        }
+      },
+      "largeTemplateIdentityMargin": 0.10399985313415527,
+      "preburstControl": {
+        "kind": 3,
+        "angle": 5,
+        "score": 0.6017142534255981,
+        "maskPixels": 2330,
+        "rectHd": [
+          433,
+          703,
+          64,
+          60
+        ],
+        "centerHd": [
+          465.0,
+          733.0
+        ]
+      }
+    },
+    {
+      "kind": 3,
+      "angle": 15,
+      "score": 0.946539044380188,
+      "maskPixels": 2323,
+      "rectHd": [
+        393,
+        661,
+        70,
+        68
+      ],
+      "centerHd": [
+        428.0,
+        695.0
+      ],
+      "frame": 12,
+      "time": 83.86666666666666,
+      "nativeCenter": [
+        -13.222222222222221,
+        -86.22222222222223
+      ],
+      "alternatives": [
+        {
+          "kind": 1,
+          "angle": -134,
+          "score": 0.853002667427063,
+          "maskPixels": 981,
+          "rectHd": [
+            443,
+            703,
+            55,
+            56
+          ],
+          "centerHd": [
+            470.5,
+            731.0
+          ]
+        },
+        {
+          "kind": 2,
+          "angle": -84,
+          "score": 0.8260969519615173,
+          "maskPixels": 1027,
+          "rectHd": [
+            434,
+            717,
+            50,
+            39
+          ],
+          "centerHd": [
+            459.0,
+            736.5
+          ]
+        },
+        {
+          "kind": 3,
+          "angle": 14,
+          "score": 0.9435398578643799,
+          "maskPixels": 2325,
+          "rectHd": [
+            393,
+            661,
+            70,
+            68
+          ],
+          "centerHd": [
+            428.0,
+            695.0
+          ]
+        },
+        {
+          "kind": 4,
+          "angle": -118,
+          "score": 0.9259638786315918,
+          "maskPixels": 247,
+          "rectHd": [
+            397,
+            653,
+            26,
+            26
+          ],
+          "centerHd": [
+            410.0,
+            666.0
+          ]
+        }
+      ],
+      "angleScoreLevelSet": {
+        "scoreDrop": 0.01,
+        "min": 13,
+        "max": 17
+      },
+      "conditionalInitialAngleModels": {
+        "0": {
+          "positiveDegreesPerSecond": 179,
+          "maximumAgeSeconds": 0.5,
+          "bestTextureScoreWithinAllowedAngles": 0.946539044380188
+        },
+        "50": {
+          "positiveDegreesPerSecond": 179,
+          "maximumAgeSeconds": 0.5,
+          "bestTextureScoreWithinAllowedAngles": 0.5612425804138184
+        },
+        "70": {
+          "positiveDegreesPerSecond": 179,
+          "maximumAgeSeconds": 0.5,
+          "bestTextureScoreWithinAllowedAngles": 0.5612425804138184
+        }
+      },
+      "largeTemplateIdentityMargin": 0.093536376953125,
+      "preburstControl": {
+        "kind": 3,
+        "angle": 15,
+        "score": 0.6064238548278809,
+        "maskPixels": 2323,
+        "rectHd": [
+          430,
+          697,
+          70,
+          68
+        ],
+        "centerHd": [
+          465.0,
+          731.0
+        ]
+      }
+    },
+    {
+      "kind": 3,
+      "angle": 17,
+      "score": 0.95362389087677,
+      "maskPixels": 2327,
+      "rectHd": [
+        389,
+        659,
+        72,
+        70
+      ],
+      "centerHd": [
+        425.0,
+        694.0
+      ],
+      "frame": 13,
+      "time": 83.9,
+      "nativeCenter": [
+        -12.333333333333334,
+        -86.66666666666667
+      ],
+      "alternatives": [
+        {
+          "kind": 1,
+          "angle": -26,
+          "score": 0.8412256836891174,
+          "maskPixels": 986,
+          "rectHd": [
+            395,
+            674,
+            55,
+            50
+          ],
+          "centerHd": [
+            422.5,
+            699.0
+          ]
+        },
+        {
+          "kind": 2,
+          "angle": 80,
+          "score": 0.830204963684082,
+          "maskPixels": 1027,
+          "rectHd": [
+            425,
+            615,
+            52,
+            43
+          ],
+          "centerHd": [
+            451.0,
+            636.5
+          ]
+        },
+        {
+          "kind": 3,
+          "angle": 16,
+          "score": 0.9525933265686035,
+          "maskPixels": 2326,
+          "rectHd": [
+            389,
+            660,
+            72,
+            68
+          ],
+          "centerHd": [
+            425.0,
+            694.0
+          ]
+        },
+        {
+          "kind": 4,
+          "angle": 58,
+          "score": 0.9246069192886353,
+          "maskPixels": 247,
+          "rectHd": [
+            428,
+            623,
+            26,
+            26
+          ],
+          "centerHd": [
+            441.0,
+            636.0
+          ]
+        }
+      ],
+      "angleScoreLevelSet": {
+        "scoreDrop": 0.01,
+        "min": 15,
+        "max": 18
+      },
+      "conditionalInitialAngleModels": {
+        "0": {
+          "positiveDegreesPerSecond": 179,
+          "maximumAgeSeconds": 0.5,
+          "bestTextureScoreWithinAllowedAngles": 0.95362389087677
+        },
+        "50": {
+          "positiveDegreesPerSecond": 179,
+          "maximumAgeSeconds": 0.5,
+          "bestTextureScoreWithinAllowedAngles": 0.5620395541191101
+        },
+        "70": {
+          "positiveDegreesPerSecond": 179,
+          "maximumAgeSeconds": 0.5,
+          "bestTextureScoreWithinAllowedAngles": 0.5620395541191101
+        }
+      },
+      "largeTemplateIdentityMargin": 0.11239820718765259,
+      "preburstControl": {
+        "kind": 3,
+        "angle": 17,
+        "score": 0.6013690233230591,
+        "maskPixels": 2327,
+        "rectHd": [
+          429,
+          696,
+          72,
+          70
+        ],
+        "centerHd": [
+          465.0,
+          731.0
+        ]
+      }
+    },
+    {
+      "kind": 1,
+      "angle": 23,
+      "score": 0.9509840607643127,
+      "maskPixels": 977,
+      "rectHd": [
+        412,
+        665,
+        53,
+        50
+      ],
+      "centerHd": [
+        438.5,
+        690.0
+      ],
+      "frame": 14,
+      "time": 83.93333333333334,
+      "nativeCenter": [
+        0.7777777777777778,
+        -88.44444444444444
+      ],
+      "alternatives": [
+        {
+          "kind": 1,
+          "angle": 22,
+          "score": 0.9509730935096741,
+          "maskPixels": 977,
+          "rectHd": [
+            412,
+            666,
+            53,
+            48
+          ],
+          "centerHd": [
+            438.5,
+            690.0
+          ]
+        },
+        {
+          "kind": 2,
+          "angle": 78,
+          "score": 0.8617225885391235,
+          "maskPixels": 1024,
+          "rectHd": [
+            423,
+            616,
+            52,
+            43
+          ],
+          "centerHd": [
+            449.0,
+            637.5
+          ]
+        },
+        {
+          "kind": 3,
+          "angle": 22,
+          "score": 0.7275436520576477,
+          "maskPixels": 2328,
+          "rectHd": [
+            377,
+            652,
+            76,
+            72
+          ],
+          "centerHd": [
+            415.0,
+            688.0
+          ]
+        },
+        {
+          "kind": 4,
+          "angle": -128,
+          "score": 0.9361197352409363,
+          "maskPixels": 246,
+          "rectHd": [
+            422,
+            619,
+            26,
+            26
+          ],
+          "centerHd": [
+            435.0,
+            632.0
+          ]
+        }
+      ],
+      "angleScoreLevelSet": {
+        "scoreDrop": 0.01,
+        "min": 21,
+        "max": 28
+      },
+      "conditionalInitialAngleModels": {
+        "0": {
+          "positiveDegreesPerSecond": 179,
+          "maximumAgeSeconds": 0.5,
+          "bestTextureScoreWithinAllowedAngles": 0.9509840607643127
+        },
+        "50": {
+          "positiveDegreesPerSecond": 179,
+          "maximumAgeSeconds": 0.5,
+          "bestTextureScoreWithinAllowedAngles": 0.8232724666595459
+        },
+        "70": {
+          "positiveDegreesPerSecond": 179,
+          "maximumAgeSeconds": 0.5,
+          "bestTextureScoreWithinAllowedAngles": 0.8232724666595459
+        }
+      },
+      "largeTemplateIdentityMargin": 0.08926147222518921,
+      "preburstControl": {
+        "kind": 1,
+        "angle": 23,
+        "score": 0.6105717420578003,
+        "maskPixels": 977,
+        "rectHd": [
+          440,
+          721,
+          53,
+          50
+        ],
+        "centerHd": [
+          466.5,
+          746.0
+        ]
+      }
+    },
+    {
+      "kind": 1,
+      "angle": 31,
+      "score": 0.9554875493049622,
+      "maskPixels": 979,
+      "rectHd": [
+        400,
+        674,
+        55,
+        52
+      ],
+      "centerHd": [
+        427.5,
+        700.0
+      ],
+      "frame": 15,
+      "time": 83.96666666666667,
+      "nativeCenter": [
+        3.888888888888889,
+        -84.0
+      ],
+      "alternatives": [
+        {
+          "kind": 1,
+          "angle": 30,
+          "score": 0.9552462697029114,
+          "maskPixels": 982,
+          "rectHd": [
+            400,
+            674,
+            55,
+            52
+          ],
+          "centerHd": [
+            427.5,
+            700.0
+          ]
+        },
+        {
+          "kind": 2,
+          "angle": -106,
+          "score": 0.8245429396629333,
+          "maskPixels": 1023,
+          "rectHd": [
+            424,
+            698,
+            54,
+            47
+          ],
+          "centerHd": [
+            451.0,
+            721.5
+          ]
+        },
+        {
+          "kind": 3,
+          "angle": 26,
+          "score": 0.7122483849525452,
+          "maskPixels": 2329,
+          "rectHd": [
+            369,
+            653,
+            76,
+            74
+          ],
+          "centerHd": [
+            407.0,
+            690.0
+          ]
+        },
+        {
+          "kind": 4,
+          "angle": -142,
+          "score": 0.9349813461303711,
+          "maskPixels": 246,
+          "rectHd": [
+            470,
+            654,
+            26,
+            26
+          ],
+          "centerHd": [
+            483.0,
+            667.0
+          ]
+        }
+      ],
+      "angleScoreLevelSet": {
+        "scoreDrop": 0.01,
+        "min": 27,
+        "max": 34
+      },
+      "conditionalInitialAngleModels": {
+        "0": {
+          "positiveDegreesPerSecond": 179,
+          "maximumAgeSeconds": 0.5,
+          "bestTextureScoreWithinAllowedAngles": 0.9554875493049622
+        },
+        "50": {
+          "positiveDegreesPerSecond": 179,
+          "maximumAgeSeconds": 0.5,
+          "bestTextureScoreWithinAllowedAngles": 0.8221593499183655
+        },
+        "70": {
+          "positiveDegreesPerSecond": 179,
+          "maximumAgeSeconds": 0.5,
+          "bestTextureScoreWithinAllowedAngles": 0.8010460734367371
+        }
+      },
+      "largeTemplateIdentityMargin": 0.1309446096420288,
+      "preburstControl": {
+        "kind": 1,
+        "angle": 31,
+        "score": 0.6401854157447815,
+        "maskPixels": 979,
+        "rectHd": [
+          439,
+          723,
+          55,
+          52
+        ],
+        "centerHd": [
+          466.5,
+          749.0
+        ]
+      }
+    },
+    {
+      "kind": 1,
+      "angle": 34,
+      "score": 0.9518668055534363,
+      "maskPixels": 978,
+      "rectHd": [
+        392,
+        679,
+        55,
+        54
+      ],
+      "centerHd": [
+        419.5,
+        706.0
+      ],
+      "frame": 16,
+      "time": 84.0,
+      "nativeCenter": [
+        4.333333333333333,
+        -81.33333333333333
+      ],
+      "alternatives": [
+        {
+          "kind": 1,
+          "angle": 34,
+          "score": 0.9518668055534363,
+          "maskPixels": 978,
+          "rectHd": [
+            392,
+            679,
+            55,
+            54
+          ],
+          "centerHd": [
+            419.5,
+            706.0
+          ]
+        },
+        {
+          "kind": 2,
+          "angle": -110,
+          "score": 0.8448399901390076,
+          "maskPixels": 1028,
+          "rectHd": [
+            417,
+            700,
+            54,
+            49
+          ],
+          "centerHd": [
+            444.0,
+            724.5
+          ]
+        },
+        {
+          "kind": 3,
+          "angle": 36,
+          "score": 0.7103339433670044,
+          "maskPixels": 2324,
+          "rectHd": [
+            364,
+            652,
+            80,
+            78
+          ],
+          "centerHd": [
+            404.0,
+            691.0
+          ]
+        },
+        {
+          "kind": 4,
+          "angle": -144,
+          "score": 0.9443745017051697,
+          "maskPixels": 246,
+          "rectHd": [
+            466,
+            658,
+            26,
+            26
+          ],
+          "centerHd": [
+            479.0,
+            671.0
+          ]
+        }
+      ],
+      "angleScoreLevelSet": {
+        "scoreDrop": 0.01,
+        "min": 30,
+        "max": 37
+      },
+      "conditionalInitialAngleModels": {
+        "0": {
+          "positiveDegreesPerSecond": 179,
+          "maximumAgeSeconds": 0.5,
+          "bestTextureScoreWithinAllowedAngles": 0.9518668055534363
+        },
+        "50": {
+          "positiveDegreesPerSecond": 179,
+          "maximumAgeSeconds": 0.5,
+          "bestTextureScoreWithinAllowedAngles": 0.8104587197303772
+        },
+        "70": {
+          "positiveDegreesPerSecond": 179,
+          "maximumAgeSeconds": 0.5,
+          "bestTextureScoreWithinAllowedAngles": 0.7968862056732178
+        }
+      },
+      "largeTemplateIdentityMargin": 0.10702681541442871,
+      "preburstControl": {
+        "kind": 1,
+        "angle": 34,
+        "score": 0.617877185344696,
+        "maskPixels": 978,
+        "rectHd": [
+          439,
+          722,
+          55,
+          54
+        ],
+        "centerHd": [
+          466.5,
+          749.0
+        ]
+      }
+    }
+  ],
+  "rotationPhaseDiagnostic": {
+    "assumedAniDegreesPerSecond": 179,
+    "bestPhaseOriginSeconds": 83.80027932960894,
+    "rmsAngularResidualDegrees": 1.657614305315472,
+    "maximumAbsoluteAngularResidualDegrees": 3.1166666666682517
+  },
+  "coarseVisibleLargeCandidates": [
+    {
+      "frame": 1,
+      "time": 83.5,
+      "matches": []
+    },
+    {
+      "frame": 2,
+      "time": 83.53333333333333,
+      "matches": []
+    },
+    {
+      "frame": 3,
+      "time": 83.56666666666666,
+      "matches": []
+    },
+    {
+      "frame": 4,
+      "time": 83.6,
+      "matches": []
+    },
+    {
+      "frame": 5,
+      "time": 83.63333333333334,
+      "matches": []
+    },
+    {
+      "frame": 6,
+      "time": 83.66666666666667,
+      "matches": []
+    },
+    {
+      "frame": 7,
+      "time": 83.7,
+      "matches": []
+    },
+    {
+      "frame": 8,
+      "time": 83.73333333333333,
+      "matches": []
+    },
+    {
+      "frame": 9,
+      "time": 83.76666666666667,
+      "matches": []
+    },
+    {
+      "frame": 10,
+      "time": 83.8,
+      "matches": []
+    },
+    {
+      "frame": 11,
+      "time": 83.83333333333333,
+      "matches": [
+        {
+          "kind": 3,
+          "angle": 5,
+          "score": 0.9495083093643188,
+          "xy": [
+            208.5,
+            353.5
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 12,
+      "time": 83.86666666666666,
+      "matches": [
+        {
+          "kind": 3,
+          "angle": 15,
+          "score": 0.9374707937240601,
+          "xy": [
+            213.5,
+            347.5
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 13,
+      "time": 83.9,
+      "matches": [
+        {
+          "kind": 3,
+          "angle": 15,
+          "score": 0.9428687691688538,
+          "xy": [
+            212.5,
+            346.5
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 14,
+      "time": 83.93333333333334,
+      "matches": [
+        {
+          "kind": 1,
+          "angle": 25,
+          "score": 0.9432041049003601,
+          "xy": [
+            219.5,
+            345.5
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 15,
+      "time": 83.96666666666667,
+      "matches": [
+        {
+          "kind": 1,
+          "angle": 25,
+          "score": 0.9370046257972717,
+          "xy": [
+            213.5,
+            349.5
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 16,
+      "time": 84.0,
+      "matches": [
+        {
+          "kind": 1,
+          "angle": 35,
+          "score": 0.9397711753845215,
+          "xy": [
+            209.5,
+            352.5
+          ]
+        }
+      ]
+    },
+    {
+      "frame": 17,
+      "time": 84.03333333333333,
+      "matches": []
+    },
+    {
+      "frame": 18,
+      "time": 84.06666666666666,
+      "matches": []
+    },
+    {
+      "frame": 19,
+      "time": 84.1,
+      "matches": []
+    },
+    {
+      "frame": 20,
+      "time": 84.13333333333334,
+      "matches": []
+    },
+    {
+      "frame": 21,
+      "time": 84.16666666666667,
+      "matches": []
+    },
+    {
+      "frame": 22,
+      "time": 84.2,
+      "matches": []
+    },
+    {
+      "frame": 23,
+      "time": 84.23333333333333,
+      "matches": []
+    },
+    {
+      "frame": 24,
+      "time": 84.26666666666667,
+      "matches": []
+    },
+    {
+      "frame": 25,
+      "time": 84.3,
+      "matches": []
+    },
+    {
+      "frame": 26,
+      "time": 84.33333333333333,
+      "matches": []
+    },
+    {
+      "frame": 27,
+      "time": 84.36666666666666,
+      "matches": []
+    },
+    {
+      "frame": 28,
+      "time": 84.4,
+      "matches": []
+    },
+    {
+      "frame": 29,
+      "time": 84.43333333333334,
+      "matches": []
+    },
+    {
+      "frame": 30,
+      "time": 84.46666666666667,
+      "matches": []
+    },
+    {
+      "frame": 31,
+      "time": 84.5,
+      "matches": []
+    },
+    {
+      "frame": 32,
+      "time": 84.53333333333333,
+      "matches": []
+    }
+  ],
+  "limits": [
+    "Two independently identified instances provide a visible-count lower bound, not an exact emitter count.",
+    "Coarse seeds search a limited range; all four HD alternatives cover a full360degrees.",
+    "Type4 is not accepted as an identity/count from its high small-template correlations.",
+    "Phase fit and score-level sets are diagnostics, not a birth-time confidence interval or angle accuracy.",
+    "Six short, partly occluded observations do not select a rotation pivot or emission distribution.",
+    "Initial-angle models are conditional tests of direct positive sprite offsets within0.5s, not decoding of PTL40/50/70 or object int75; no runtime emitter is added."
+  ]
+}
