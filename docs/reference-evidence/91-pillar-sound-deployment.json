@@ -1,0 +1,67 @@
+{
+  "commit": "1802813",
+  "workflow": "https://github.com/yanfeng98/nano-dnf/actions/runs/43133257654",
+  "ci": "completed success: regression tests, Pages deploy, deployed-build smoke",
+  "unitTests": 421,
+  "browserGroups": 28,
+  "localLiveSmoke": "passed: deployed resources match checkout and page boots cleanly",
+  "deployedKeyboardAndAudio": {
+    "missed": {
+      "time": 2.6833333333333287,
+      "piece": "pillarDecor",
+      "damagedAt": -1,
+      "gone": false,
+      "broken": false
+    },
+    "hit": {
+      "time": 2.9833333333333276,
+      "piece": "pillarDamagedDecor",
+      "damagedAt": 2.9833333333333276,
+      "gone": false,
+      "broken": false
+    },
+    "settled": {
+      "time": 3.8333333333333246,
+      "piece": "pillarDamagedDecor",
+      "damagedAt": 2.9833333333333276,
+      "gone": false,
+      "broken": false
+    },
+    "revisited": {
+      "time": 3.8333333333333246,
+      "piece": "pillarDamagedDecor",
+      "damagedAt": 2.9833333333333276,
+      "gone": false,
+      "broken": false
+    },
+    "native": {
+      "x": 506,
+      "y": 241,
+      "damagedAt": 2.9833333333333276
+    },
+    "audio": {
+      "sources": [
+        {
+          "url": "https://luyf-lemon-love.space/nano-dnf/assets/sfx/tstone_break.ogg",
+          "duration": 1.4149659863945578,
+          "rate": 1
+        }
+      ],
+      "runtime": {
+        "created": true,
+        "muted": false,
+        "state": "running",
+        "sfxLoaded": 69,
+        "sfxTotal": 69,
+        "sfxPlayed": 14,
+        "rain": true,
+        "forest": true
+      }
+    },
+    "errors": []
+  },
+  "site": "https://luyf-lemon-love.space/nano-dnf/",
+  "manualAcceptance": "pending",
+  "remaining": "Visible debris emission/pivot, walking collision, native HP/weak-hit semantics, exact audio mix/A-V latency and the broader audit remain open.",
+  "nextParticleEvidence": "Use the original1440x1080 game crop and finer rotation templates to distinguish pivot models and recover the occluded small fragments before implementing an emission distribution."
+}

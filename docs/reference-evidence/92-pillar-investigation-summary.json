@@ -1,0 +1,26 @@
+{
+  "runtimeChanges": false,
+  "hdCorrespondences": 36,
+  "minimumCorrelation": 0.9162240028381348,
+  "maximumCorrelation": 0.9637777805328369,
+  "angleScoreLevelSetWidthsDegrees": {
+    "minimum": 5,
+    "median": 7.0,
+    "maximum": 10,
+    "boundaryHits": 0
+  },
+  "pivotModelRmsHdPixels": {
+    "imageCenter": 2.896912773493934,
+    "aniOrigin": 2.685685562798587,
+    "imageTopLeft": 3.5785235973221097
+  },
+  "independentType3Matches": 6,
+  "type4PreburstFalsePositiveScore": 0.9394604563713074,
+  "decision": "No unique pivot or total count established; no guessed emitter is added. Type3 is now independently verified and type4 correlation-only counting is falsified by a preburst control.",
+  "runtimeBaseline": {
+    "commit": "1802813",
+    "unitTests": 421,
+    "browserGroups": 28,
+    "manualAcceptance": "pending"
+  }
+}
