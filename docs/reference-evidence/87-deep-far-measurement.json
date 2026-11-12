@@ -1,0 +1,239 @@
+{
+  "animation_entry": "map/mirkwooddeep/animation/far0.ani",
+  "animation": {
+    "paths": [
+      "Map/02far0.img"
+    ],
+    "overall": [
+      [
+        1,
+        0
+      ]
+    ],
+    "frames": [
+      {
+        "frame": 0,
+        "xy": [
+          0,
+          -80
+        ],
+        "props": [
+          [
+            12,
+            20
+          ]
+        ],
+        "boxes": []
+      }
+    ]
+  },
+  "rooms": [
+    {
+      "room": "41",
+      "col": 0,
+      "row": 3,
+      "originX": 0,
+      "scroll": 0.56,
+      "screenY": -102,
+      "screenScale": 1.125,
+      "map_entry": "map/mirkwooddeep/s419(0,3).map",
+      "map_sha256": "33da276fd07c18abca3e8d8fa9741688445be1b34bf43aec7e7d5c2b4a7540e2"
+    },
+    {
+      "room": "42",
+      "col": 1,
+      "row": 3,
+      "originX": 0,
+      "scroll": 0.56,
+      "screenY": -102,
+      "screenScale": 1.125,
+      "map_entry": "map/mirkwooddeep/h434(1,2).map",
+      "map_sha256": "3083751495ee70025df8ec9157d1cd8c134a38c588ca76bcc879c61199736e7d"
+    },
+    {
+      "room": "43",
+      "col": 2,
+      "row": 3,
+      "originX": 0,
+      "scroll": 0.56,
+      "screenY": -102,
+      "screenScale": 1.125,
+      "map_entry": "map/mirkwooddeep/n423(2,3).map",
+      "map_sha256": "9aada19d4129d408ba6cbdf9f30a038925d077e8f7266eb46fde65bb3c781d15"
+    },
+    {
+      "room": "33",
+      "col": 2,
+      "row": 2,
+      "originX": 11,
+      "scroll": 0.56,
+      "screenY": -102,
+      "screenScale": 1.125,
+      "map_entry": "map/mirkwooddeep/n433(2,2).map",
+      "map_sha256": "fbaffc340e870177ca7920d8b5ccb8e71555d656c8bea2de607b377c1f122057"
+    },
+    {
+      "room": "23",
+      "col": 2,
+      "row": 1,
+      "originX": 46,
+      "scroll": 0.56,
+      "screenY": -102,
+      "screenScale": 1.125,
+      "map_entry": "map/mirkwooddeep/n432(2,2).map",
+      "map_sha256": "78962294b98f0e576bfc56741d4116aded403538692b4acdc5d52da6d2a7c1b8"
+    },
+    {
+      "room": "13",
+      "col": 2,
+      "row": 0,
+      "originX": 41,
+      "scroll": 0.56,
+      "screenY": -102,
+      "screenScale": 1.125,
+      "map_entry": "map/mirkwooddeep/n412(2,0).map",
+      "map_sha256": "9a940976ef6ccb74215dfe182a0e19daafe4977b3cadd114234bd1ee7f45222a"
+    },
+    {
+      "room": "14",
+      "col": 3,
+      "row": 0,
+      "originX": 0,
+      "scroll": 0.56,
+      "screenY": -102,
+      "screenScale": 1.125,
+      "map_entry": "map/mirkwooddeep/402.map",
+      "map_sha256": "0457448c828da90c773062f36dd60a32c1e341d1d4f1c136b7083859698e92f5"
+    },
+    {
+      "room": "24",
+      "col": 3,
+      "row": 1,
+      "originX": 0,
+      "scroll": 0.56,
+      "screenY": -102,
+      "screenScale": 1.125,
+      "map_entry": "map/mirkwooddeep/n410(3,0).map",
+      "map_sha256": "7ef38276143ee082a6a9b43e79274f1f934a845ccbba22d08ffaedc820e70397"
+    },
+    {
+      "room": "25",
+      "col": 4,
+      "row": 1,
+      "originX": 0,
+      "scroll": 0.56,
+      "screenY": -102,
+      "screenScale": 1.125,
+      "map_entry": "map/mirkwooddeep/b417(4,1).map",
+      "map_sha256": "fee88af40d35fcc8d76a740d6d0a1a3b634543b67c623ccf0786754d4e856e18"
+    }
+  ],
+  "samples": [
+    {
+      "room": "41",
+      "time": 17.5,
+      "camera_px": 427.4,
+      "reference": "47-room41-17.5-reference.png",
+      "mask": "87-far-masks/41-17.5.png",
+      "pixels": 691,
+      "source_correlation": 0.9101801514625549,
+      "matched_source_xy": [
+        239,
+        102
+      ],
+      "expected_source_x": 239.34400000000002,
+      "x_error_px": -0.34400000000005093
+    },
+    {
+      "room": "33",
+      "time": 125,
+      "camera_px": 906.0,
+      "reference": "50-room33-125-reference.png",
+      "mask": "87-far-masks/33-125.png",
+      "pixels": 828,
+      "source_correlation": 0.7817674279212952,
+      "matched_source_xy": [
+        513,
+        102
+      ],
+      "expected_source_x": 514.2900000000001,
+      "x_error_px": -1.2900000000000773
+    },
+    {
+      "room": "33",
+      "time": 146,
+      "camera_px": 111.38,
+      "reference": "50-room33-146-reference.png",
+      "mask": "87-far-masks/33-146.png",
+      "pixels": 1215,
+      "source_correlation": 0.8052421808242798,
+      "matched_source_xy": [
+        69,
+        102
+      ],
+      "expected_source_x": 69.3028,
+      "x_error_px": -0.30279999999999063
+    },
+    {
+      "room": "23",
+      "time": 180,
+      "camera_px": 2.26,
+      "reference": "51-room23-180-reference.png",
+      "mask": "87-far-masks/23-180.png",
+      "pixels": 1458,
+      "source_correlation": 0.8000755906105042,
+      "matched_source_xy": [
+        29,
+        103
+      ],
+      "expected_source_x": 30.245600000000003,
+      "x_error_px": -1.2456000000000245
+    },
+    {
+      "room": "13",
+      "time": 190,
+      "camera_px": 0.0,
+      "reference": "52-room13-190-reference.png",
+      "mask": "87-far-masks/13-190.png",
+      "pixels": 659,
+      "source_correlation": 0.8014623522758484,
+      "matched_source_xy": [
+        24,
+        102
+      ],
+      "expected_source_x": 25.830000000000002,
+      "x_error_px": -1.829999999999984
+    },
+    {
+      "room": "25",
+      "time": 319,
+      "camera_px": 1047.05,
+      "reference": "58-room25-closeback-319-reference.png",
+      "mask": "87-far-masks/25-319.png",
+      "pixels": 1248,
+      "source_correlation": 0.8868921399116516,
+      "matched_source_xy": [
+        586,
+        102
+      ],
+      "expected_source_x": 586.3480000000001,
+      "x_error_px": -0.34800000000007003
+    },
+    {
+      "room": "25",
+      "time": 370,
+      "camera_px": 1453.32,
+      "reference": "58-room25-closeback-370-reference.png",
+      "mask": "87-far-masks/25-370.png",
+      "pixels": 348,
+      "source_correlation": 0.8768855929374695,
+      "matched_source_xy": [
+        92,
+        102
+      ],
+      "expected_source_x": 93.85919999999999,
+      "x_error_px": -1.859199999999987
+    }
+  ],
+  "limits": "Seven informative masked regions in five rooms support geometry. Four other rooms use the same native animation/scroll metadata; their far layer is obscured or lacks discriminating texture. Colour differences remain separately measurable; no whole-scene equivalence is claimed."
+}

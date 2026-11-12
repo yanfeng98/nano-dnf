@@ -2615,6 +2615,8 @@
           // Do not stretch existing enemy/tree coordinates with the new width.
           width: 958.55,
           closeback: "deepEntryCloseback",
+          // Native far0.ani, 56% scroll and visible-gap phase (reference batch87).
+          nativeFar: { scroll: 0.56, screenY: -102, originX: 0 },
           // V2 13.5/17.5/25.5s: native mid1.ani, 90% scroll and measured Y phase (batch83).
           nativeMid: { scroll: 0.9, screenY: -106.5 },
           nativeGround: { tile: "tile3", columns: 6, screenY: 233 },
@@ -2649,6 +2651,8 @@
           kind: "room",
           width: 1437.8,
           closeback: "deepBossCloseback",
+          // Native far0.ani, 56% scroll and visible-gap phase (reference batch87).
+          nativeFar: { scroll: 0.56, screenY: -102, originX: 0 },
           // Native mid1.ani and measured crop origin/parallax (reference batch86).
           nativeMid: { scroll: 0.9, screenY: -106.5, originX: 0 },
           nativeGround: { tiles: ["tile0", "tile0", "tile1", "tile3", "tile2", "tile0", "tile1", "tile3", "tile3"], screenY: 233 },
@@ -2779,6 +2783,8 @@
         {
           name: "残柱祭坛",
           closeback: "deepRoom14Closeback",
+          // Native far0.ani, 56% scroll and visible-gap phase (reference batch87).
+          nativeFar: { scroll: 0.56, screenY: -102, originX: 0 },
           // Native mid1.ani and measured crop origin/parallax (reference batch86).
           nativeMid: { scroll: 0.9, screenY: -106.5, originX: 0 },
           nativeGround: { tile: "tile3", columns: 6, screenY: 233 },
@@ -2800,6 +2806,8 @@
         {
           name: "断墙营地",
           closeback: "deepRoom24Closeback",
+          // Native far0.ani, 56% scroll and visible-gap phase (reference batch87).
+          nativeFar: { scroll: 0.56, screenY: -102, originX: 0 },
           // Native mid1.ani and measured crop origin/parallax (reference batch86).
           nativeMid: { scroll: 0.9, screenY: -106.5, originX: 0 },
           nativeGround: { tiles: ["tile3", "tile2", "tile0", "tile0", "tile1", "tile3", "tile3"], screenY: 233 },
@@ -2864,6 +2872,8 @@
         {
           name: "猫妖岔路",
           closeback: "deepRoom43Closeback",
+          // Native far0.ani, 56% scroll and visible-gap phase (reference batch87).
+          nativeFar: { scroll: 0.56, screenY: -102, originX: 0 },
           // Native mid1.ani and measured crop origin/parallax (reference batch86).
           nativeMid: { scroll: 0.9, screenY: -106.5, originX: 0 },
           nativeGround: { tile: "tile3", columns: 8, screenY: 233 },
@@ -2907,6 +2917,8 @@
         {
           name: "投掷手坡",
           closeback: "deepRoom23Closeback",
+          // Native far0.ani, 56% scroll and visible-gap phase (reference batch87).
+          nativeFar: { scroll: 0.56, screenY: -102, originX: 46 },
           // Native mid1.ani and measured crop origin/parallax (reference batch86).
           nativeMid: { scroll: 0.9, screenY: -106.5, originX: 46 },
           nativeGround: { tile: "tile3", columns: 8, screenY: 233, originX: 46 },
@@ -2955,6 +2967,8 @@
         {
           name: "宝箱浅沟",
           closeback: "deepRoom42Closeback",
+          // Native far0.ani, 56% scroll and visible-gap phase (reference batch87).
+          nativeFar: { scroll: 0.56, screenY: -102, originX: 0 },
           // Native mid1.ani and measured crop origin/parallax (reference batch86).
           nativeMid: { scroll: 0.9, screenY: -106.5, originX: 0 },
           nativeGround: { tiles: ["tile3", "tile2", "tile0", "tile0", "tile0", "tile0", "tile0", "tile0"], screenY: 233 },
@@ -3029,6 +3043,8 @@
         {
           name: "藤蔓窄道",
           closeback: "deepRoom33Closeback",
+          // Native far0.ani, 56% scroll and visible-gap phase (reference batch87).
+          nativeFar: { scroll: 0.56, screenY: -102, originX: 11 },
           // Native mid1.ani and measured crop origin/parallax (reference batch86).
           nativeMid: { scroll: 0.9, screenY: -106.5, originX: 11 },
           nativeGround: { tile: "tile3", columns: 8, screenY: 233, originX: 11 },
@@ -3078,6 +3094,8 @@
         {
           name: "老树回廊",
           closeback: "deepRoom13Closeback",
+          // Native far0.ani, 56% scroll and visible-gap phase (reference batch87).
+          nativeFar: { scroll: 0.56, screenY: -102, originX: 41 },
           // Native mid1.ani and measured crop origin/parallax (reference batch86).
           nativeMid: { scroll: 0.9, screenY: -106.5, originX: 41 },
           nativeGround: { tile: "tile3", columns: 8, screenY: 233, originX: 41 },
@@ -5279,6 +5297,7 @@
         closeback: spec.closeback || null,
         nativeGround: spec.nativeGround,
         nativeMid: spec.nativeMid,
+        nativeFar: spec.nativeFar,
         leftWall: ROOM.leftWall,
         rightWall: (spec.width || ROOM.width) - (ROOM.width - ROOM.rightWall),
         /*

@@ -1,0 +1,162 @@
+{
+  "beforeEntry": [
+    {
+      "label": "far-41-17.5",
+      "time": 17.5,
+      "minPixels": 656,
+      "threshold": 0.65,
+      "nativeMask": {
+        "rows": 120,
+        "columns": 720,
+        "alphaOnly": true,
+        "box": null
+      },
+      "cosine": 0.04965912281808415,
+      "dx": 2,
+      "dy": 0,
+      "pixels": 691,
+      "error": 26.980321928136355,
+      "maxError": 20
+    }
+  ],
+  "after": [
+    {
+      "room": "41",
+      "label": "far-41-17.5",
+      "time": 17.5,
+      "minPixels": 656,
+      "threshold": 0.65,
+      "nativeMask": {
+        "rows": 120,
+        "columns": 720,
+        "alphaOnly": true,
+        "box": null
+      },
+      "cosine": 0.9109434960022796,
+      "dx": -1,
+      "dy": 0,
+      "pixels": 691,
+      "error": 7.193185658859166,
+      "maxError": 20
+    },
+    {
+      "room": "33",
+      "label": "far-33-125",
+      "time": 125,
+      "minPixels": 786,
+      "threshold": 0.65,
+      "nativeMask": {
+        "rows": 120,
+        "columns": 720,
+        "alphaOnly": true,
+        "box": null
+      },
+      "cosine": 0.7799414935717084,
+      "dx": -1,
+      "dy": 0,
+      "pixels": 828,
+      "error": 11.064333902322968,
+      "maxError": 20
+    },
+    {
+      "room": "33",
+      "label": "far-33-146",
+      "time": 146,
+      "minPixels": 1154,
+      "threshold": 0.65,
+      "nativeMask": {
+        "rows": 120,
+        "columns": 720,
+        "alphaOnly": true,
+        "box": null
+      },
+      "cosine": 0.7930332613048616,
+      "dx": -1,
+      "dy": 1,
+      "pixels": 1215,
+      "error": 7.154401409874042,
+      "maxError": 20
+    },
+    {
+      "room": "23",
+      "label": "far-23-180",
+      "time": 180,
+      "minPixels": 1385,
+      "threshold": 0.65,
+      "nativeMask": {
+        "rows": 120,
+        "columns": 720,
+        "alphaOnly": true,
+        "box": null
+      },
+      "cosine": 0.8004991977605873,
+      "dx": -1,
+      "dy": 1,
+      "pixels": 1458,
+      "error": 16.020662812305474,
+      "maxError": 20
+    },
+    {
+      "room": "13",
+      "label": "far-13-190",
+      "time": 190,
+      "minPixels": 626,
+      "threshold": 0.65,
+      "nativeMask": {
+        "rows": 120,
+        "columns": 720,
+        "alphaOnly": true,
+        "box": null
+      },
+      "cosine": 0.8019758540178126,
+      "dx": -1,
+      "dy": 0,
+      "pixels": 659,
+      "error": 8.868368025830804,
+      "maxError": 20
+    },
+    {
+      "room": "25",
+      "label": "far-25-319",
+      "time": 319,
+      "minPixels": 1185,
+      "threshold": 0.65,
+      "nativeMask": {
+        "rows": 120,
+        "columns": 720,
+        "alphaOnly": true,
+        "box": null
+      },
+      "cosine": 0.8827850490588779,
+      "dx": -1,
+      "dy": 0,
+      "pixels": 1248,
+      "error": 6.118640951552648,
+      "maxError": 20
+    },
+    {
+      "room": "25",
+      "label": "far-25-370",
+      "time": 370,
+      "minPixels": 330,
+      "threshold": 0.65,
+      "nativeMask": {
+        "rows": 120,
+        "columns": 720,
+        "alphaOnly": true,
+        "box": null
+      },
+      "cosine": 0.8726595350653771,
+      "dx": -2,
+      "dy": 0,
+      "pixels": 348,
+      "error": 5.7027250325554775,
+      "maxError": 20
+    }
+  ],
+  "limits": "Geometry verification through seven native alpha masks. Residual far-layer colour differences remain; no whole-room equivalence is claimed.",
+  "verification": {
+    "unitTests": 416,
+    "browserGroups": 27
+  }
+}

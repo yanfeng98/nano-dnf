@@ -9586,7 +9586,7 @@ test("一间房里的怪是分组聚着的，不是一字排开", () => {
 });
 
 /*
- * **远景钉在屏幕上，不跟着房间滚。**
+ * **普通关保留旧固定远景；深处由原生视差回归另行约束。**
  *
  * 量自录像：画面上方那片远墙与远树干**整场一像素都不动**，跟着镜头动的只有它下面
  * 那一层。所以这条两头发力：镜头挪过之后 **`far` 落在屏幕上的位置必须一模一样**，
@@ -9650,7 +9650,7 @@ function drawScreenXs(cameraX) {
   return { far: at(Render.SCENE.pieces.far), mid: at(Render.SCENE.pieces.mid) };
 }
 
-test("镜头挪了，远景不动、中景跟着动", () => {
+test("普通关镜头移动时保留固定远景，中景跟随", () => {
   const still = drawScreenXs(0);
   const shifted = drawScreenXs(300);
   assert.ok(still.far.length > 0, "远景要真的画出来");
@@ -11781,4 +11781,28 @@ test('the reference deep forest is not darkened by the custom vignette', () => {
   }
   assert.equal(darkMasks('mirkwooddeep'), 0);
   assert.equal(darkMasks('mirkwood'), 1, 'retain the unrelated renderer behavior');
+});
+
+test('native far projection follows map scroll and crop origin across the recorded deep route', () => {
+  const measured = JSON.parse(fs.readFileSync(path.join(__dirname,
+    '../docs/reference-evidence/87-deep-far-measurement.json'), 'utf8'));
+  for (const room of measured.rooms) {
+    const state = Core.createState({ stage: 'mirkwooddeep', seed: 7 });
+    Core.goToCell(state, state.dungeon.cells.findIndex(c => c.col === room.col && c.row === room.row));
+    const forest = {}, graded = {};
+    const at = camera => {
+      state.camera.x = camera;
+      const calls = [];
+      Render.render(recordingContext(calls), state, { sprites: { forest, forestDeep: graded } });
+      return calls.filter(c => c[0] === 'drawImage' && c[1] === forest &&
+        c[2] === 0 && c[3] === 0 && c[4] === 640 && c[5] === 375);
+    };
+    const first = at(0), moved = at(200);
+    assert.ok(first.length > 1, `room ${room.room} must draw native far pixels`);
+    assert.ok(Math.abs(first[0][8] * Core.CAMERA.zoom - 720) < 1e-8);
+    assert.ok(Math.abs(430 + (first[0][7] - 430) * Core.CAMERA.zoom - room.screenY) < 1e-8);
+    assert.ok(Math.abs(first[0][6] * Core.CAMERA.zoom + 720 + room.originX * 1.125 * room.scroll) < 1e-8);
+    assert.ok(Math.abs(moved[0][6] - first[0][6] - 200 * (1 - room.scroll)) < 1e-8,
+      `room ${room.room} must compensate the remaining world-camera motion`);
+  }
 });

@@ -211,6 +211,10 @@ if(measuredMid){
   profile.cases.push([`mid-${measuredMid.room}-${sample.time}`,sample.time,'forest',640+phase/1.125,(y-measuredMid.screenY)/1.125,w/1.125,h/1.125,x,y,w,h,h,Math.floor(w*h*.55),.7,null,null,true,12]);
  }
 }
+const farSamples=JSON.parse(fs.readFileSync(path.join(root,'docs/reference-evidence/87-deep-far-measurement.json'),'utf8')).samples.filter(s=>room===`${s.room}-closeback`);
+for(const sample of farSamples){
+ profile.cases.push([`far-${sample.room}-${sample.time}`,sample.time,`far-mask-${sample.room}-${sample.time}`,0,0,720,120,0,0,720,120,120,Math.floor(sample.pixels*.95),.65,null,null,true,20]);
+}
 const out=process.env.CAPTURE_OUT || profile.out;fs.mkdirSync(out,{recursive:true});
 const evidence=profile.evidence ?? `${profile.batch}-room${room}`;
 const cameras=JSON.parse(fs.readFileSync(path.join(root,`docs/reference-evidence/${evidence}-camera.json`)));
@@ -296,6 +300,7 @@ try{
   return [t,fs.readFileSync(path.join(root,'docs/reference-evidence',name)).toString('base64')];
  }));
  const native=Object.fromEntries([['pillar','pillar-pale.png'],['forest','forest.png'],['bunker','goblin-bunker.png'],['tree','tree-reference.png'],['fruitTree','tree-fruit-reference.png'],['closeback','deep-boss-closeback.png'],['entryCloseback','deep-entry-closeback.png'],['room42Closeback','deep-room42-closeback.png'],['room43Closeback','deep-room43-closeback.png'],['room33Closeback','deep-room33-closeback.png'],['room23Closeback','deep-room23-closeback.png'],['room13Closeback','deep-room13-closeback.png'],['room14Closeback','deep-room14-closeback.png'],['room24Closeback','deep-room24-closeback.png']].map(([key,name])=>[key,fs.readFileSync(path.join(root,'assets',name)).toString('base64')]));
+ for(const sample of farSamples)native[`far-mask-${sample.room}-${sample.time}`]=fs.readFileSync(path.join(root,'docs/reference-evidence',sample.mask)).toString('base64');
  const faces=await page.evaluate(async({reference,images,native,cases})=>{
   async function picture(url){const im=new Image();im.src=url;await im.decode();return im;}
   function canvas(w,h){const c=document.createElement('canvas');c.width=w;c.height=h;return c.getContext('2d');}
@@ -310,6 +315,7 @@ try{
    const c=canvas(w,h);c.drawImage(atlases[sheet],sx,sy,sw,sh,0,0,w,h);
    const mask=c.getImageData(0,0,w,h).data,ref=refs[time].getImageData(x,y,w,h).data;let best={cosine:0};
    for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++){
+    if(y+dy<0)continue; // Keep top-edge comparisons inside the real canvas.
     const actual=actuals[time].getImageData(x+120+dx,y+dy,w,h).data;let dot=0,a2=0,b2=0,pixels=0;
     const sumsA=[0,0,0],sumsB=[0,0,0];
     for(let i=0;i<mask.length;i+=4){

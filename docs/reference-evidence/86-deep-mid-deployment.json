@@ -1,0 +1,13 @@
+{
+  "commit": "d75d95d",
+  "workflow": "https://github.com/yanfeng98/nano-dnf/actions/runs/43069107295",
+  "ci": "completed success: build, deploy and live smoke passed",
+  "localLiveSmoke": "passed: deployed resources match checkout and page boots without errors",
+  "unitTests": 415,
+  "browserGroups": 27,
+  "midgroundRegions": 26,
+  "minimumCenteredCorrelation": 0.7889482774470348,
+  "maximumRgbRmse": 10.56496978892282,
+  "manualAcceptance": "pending",
+  "remaining": "Far background, foreground vegetation, object lifecycles, character/combat/HUD/results/audio and unrecorded coverage remain open."
+}

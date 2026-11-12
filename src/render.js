@@ -2799,6 +2799,25 @@
     return true;
   }
 
+  /** Native 640px viewport projection: originX is native; screenY is projected. */
+  function drawNativeSceneStrip(ctx, state, sprites, name, layer, width) {
+    var sheet = sprites && (sprites.forestNative || sprites.forest);
+    var rect = sceneRect(name);
+    if (!sheet || !rect) return false;
+    var scale = (VIEW.width / 640) / Core.CAMERA.zoom;
+    var tileWidth = rect[2] * scale;
+    var top = ARENA.groundY + (layer.screenY - ARENA.groundY) / Core.CAMERA.zoom;
+    // The world pass already subtracts the camera. Compensate its remainder
+    // and apply the cropped native map origin in the same coordinate system.
+    var offset = cameraX(state) * (1 - layer.scroll) -
+      (layer.originX || 0) * scale * layer.scroll;
+    for (var x = -tileWidth; x < width + tileWidth; x += tileWidth) {
+      ctx.drawImage(sheet, rect[0], rect[1], rect[2], rect[3],
+        x + offset, top, tileWidth, rect[3] * scale);
+    }
+    return true;
+  }
+
   function drawBackdrop(ctx, state, sprites) {
     /*
      * The room 幽暗密林 is fought in: the client's own forest, painted in the
@@ -2824,37 +2843,24 @@
     ctx.fillStyle = sky;
     ctx.fillRect(0, 0, width, visualBackY);
 
-    /*
-     * **远景钉在屏幕上，不跟着房间滚。**
-     *
-     * 量自录像：画面上方那片远墙与远树干**整场一像素都不动**，跟着镜头动的只有它
-     * 下面那一层（中景树干、地面、前景一起平移，位移量完全相同）。所以这一层把镜头
-     * **加回来**，把世界那一趟的平移抵掉 —— 它就跟着屏幕走，房间再宽背景也不跟着跑。
-     * 纵向仍然在世界里（它坐在 `backY` 上，得跟地面带对齐）。
-     */
-    ctx.save();
-    ctx.translate(cameraX(state), 0);
-    var farDrawn = drawSceneStrip(ctx, sprites, "far", visualBackY, width);
-    ctx.restore();
+    var nativeFar = state.room && state.room.nativeFar;
+    var farDrawn;
+    if (nativeFar) {
+      farDrawn = drawNativeSceneStrip(ctx, state, sprites, "far", nativeFar, width);
+    } else {
+      // Preserve the older screen-fixed fallback outside the measured route.
+      ctx.save();
+      ctx.translate(cameraX(state), 0);
+      farDrawn = drawSceneStrip(ctx, sprites, "far", visualBackY, width);
+      ctx.restore();
+    }
     if (!farDrawn) {
       drawStoneBackdrop(ctx, state);
       return;
     }
     var nativeMid = state.room && state.room.nativeMid;
     if (nativeMid) {
-      var mid = sceneRect("mid");
-      var midScale = (VIEW.width / 640) / Core.CAMERA.zoom;
-      var midWidth = mid[2] * midScale;
-      var midTop = ARENA.groundY + (nativeMid.screenY - ARENA.groundY) / Core.CAMERA.zoom;
-      // The world pass already subtracts the camera. Compensate the remainder
-      // so this layer follows its independently measured scroll ratio.
-      var midOffset = cameraX(state) * (1 - nativeMid.scroll) -
-        (nativeMid.originX || 0) * midScale * nativeMid.scroll;
-      for (var midX = -midWidth; midX < width + midWidth; midX += midWidth) {
-        ctx.drawImage(sprites.forestNative || sprites.forest,
-          mid[0], mid[1], mid[2], mid[3],
-          midX + midOffset, midTop, midWidth, mid[3] * midScale);
-      }
+      drawNativeSceneStrip(ctx, state, sprites, "mid", nativeMid, width);
     } else {
       drawSceneStrip(ctx, sprites, "mid", visualBackY + SCENE.midLift, width);
     }
