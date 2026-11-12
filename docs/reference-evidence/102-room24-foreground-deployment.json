@@ -1,0 +1,35 @@
+{
+  "commit": "08788c8",
+  "workflow": "https://github.com/yanfeng98/nano-dnf/actions/runs/43261503044",
+  "ci": "Success; public run page contains commit and three executed job links",
+  "site": "https://luyf-lemon-love.space/nano-dnf/",
+  "unitTests": 433,
+  "browserGroups": 35,
+  "localLiveSmoke": "passed: deployed runtime files and new foreground atlas match checkout; clean boot",
+  "onlineDirectedChecks": {
+    "foregroundRegions": 4,
+    "minimumCosine": 0.9822925482251539,
+    "bestTranslations": [
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        0
+      ]
+    ],
+    "eastKeyboardTravel": "passed: 暗咒猫妖的林地"
+  },
+  "sourceChecks": "Foreground bitmap byte-identical and native source proof structurally identical on client rebake;86 accepted observations cover7 objects;37-point camera fit1.100061 supports native110 percent near scroll",
+  "manualAcceptance": "pending",
+  "remaining": "Eight authored close objects not individually visually verified; additional unmatched entry foreground feature, other-room foreground/vegetation and object lifecycle, particles/native clocks/HP/drop/pass semantics, characters/combat, HUD/results/XP/audio, ordinary route/unseen rooms and manual acceptance remain open."
+}

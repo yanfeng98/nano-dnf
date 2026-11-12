@@ -1,0 +1,66 @@
+[
+  {
+    "label": "close-fallen-log",
+    "time": 277,
+    "minPixels": 100,
+    "threshold": 0.97,
+    "nativeMask": {
+      "rows": 25,
+      "columns": 357,
+      "alphaOnly": true,
+      "box": null
+    },
+    "cosine": 0.9863487139777903,
+    "dx": 0,
+    "dy": 0,
+    "pixels": 2454
+  },
+  {
+    "label": "close-canopy-west",
+    "time": 281,
+    "minPixels": 2000,
+    "threshold": 0.97,
+    "nativeMask": {
+      "rows": 60,
+      "columns": 172,
+      "alphaOnly": true,
+      "box": null
+    },
+    "cosine": 0.9822925482251539,
+    "dx": 0,
+    "dy": 0,
+    "pixels": 6675
+  },
+  {
+    "label": "close-canopy-return",
+    "time": 293,
+    "minPixels": 2000,
+    "threshold": 0.97,
+    "nativeMask": {
+      "rows": 60,
+      "columns": 172,
+      "alphaOnly": true,
+      "box": null
+    },
+    "cosine": 0.9844012765233182,
+    "dx": 0,
+    "dy": 0,
+    "pixels": 6675
+  },
+  {
+    "label": "close-canopy-east",
+    "time": 307,
+    "minPixels": 1000,
+    "threshold": 0.97,
+    "nativeMask": {
+      "rows": 35,
+      "columns": 172,
+      "alphaOnly": true,
+      "box": null
+    },
+    "cosine": 0.9896853959096839,
+    "dx": 0,
+    "dy": 0,
+    "pixels": 4233
+  }
+]

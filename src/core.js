@@ -2816,6 +2816,17 @@
         /* 6 —— 路线 24 (3,1)。录像 277–313s；七列原生地面校准宽1118.3（第81批）、三桶一岩及两处镜像绿树形态，动态待核。 */
         {
           name: "断墙营地",
+          // Source pathgate371 and its mirrored ANI offsets, audit103.
+          nativePathGates: { W: {
+            anchor: [16, 244],
+            parts: {
+              under: {"rect":[0,0,233,234],"offset":[-150.0,-223]},
+              frame: {"rect":[233,0,131,240],"offset":[-36,-193]},
+              door: {"rect":[364,0,50,171],"offset":[-6,-145]},
+              light: {"rect":[414,0,89,205],"offset":[-24,-177]},
+              over: {"rect":[0,0,233,234],"offset":[-67.0,-11]},
+            }
+          } },
           // Native [close] list, 110% near scroll; crop starts at nativeY250 (audit102).
           nativeForeground: { sprite: "deepRoom24Foreground", scroll: 1.1, screenY: 373.25 },
           closeback: "deepRoom24Closeback",
@@ -3502,6 +3513,11 @@
    */
   STAGES.mirkwooddeep.rooms.forEach(function (room) {
     room.band = { backY: 375, visualBackY: 320 };
+    Object.keys(room.nativePathGates || {}).forEach(function (dir) {
+      var gate = room.nativePathGates[dir];
+      gate.x = gate.anchor[0] * (VIEW.width / 640) / CAMERA.zoom;
+      gate.z = nativeGroundZ(gate.anchor[1]);
+    });
     // StoneHead.ani(-59,-81) + IMG(0,7), bitmap141×89: centre/bottom(+11.5,+15).
     // Native object footprint140×28 remains independent of bitmap offsets (audit99).
     room.props.forEach(function (entry) {
@@ -3777,6 +3793,15 @@
 
     /** 一扇门**拱**自己的美术盒子（画在哪、多大）—— 门口净空里那条"别把门画糊"的判据。 */
     function gateArtRect(state, cell, dir) {
+      var spec = state.stage.rooms[cell.room];
+      var native = spec.nativePathGates && spec.nativePathGates[dir];
+      if (native) {
+        var scale = (VIEW.width / 640) / CAMERA.zoom, frame = native.parts.frame;
+        var left = native.x + frame.offset[0] * scale;
+        var top = ARENA.groundY - depthLift(native.z) + frame.offset[1] * scale;
+        return { left: left, right: left + frame.rect[2] * scale,
+          top: top, bottom: top + frame.rect[3] * scale };
+      }
       var depth = bandDepth(state.band);
       var floorOf = function (z) { return ARENA.groundY - depthLift(z); };
       if (dir === "N" || dir === "S") {
@@ -5364,6 +5389,7 @@
         northGateBottom: spec.northGateBottom,
         closeback: spec.closeback || null,
         nativeForeground: spec.nativeForeground,
+        nativePathGates: spec.nativePathGates,
         nativeGround: spec.nativeGround,
         nativeMid: spec.nativeMid,
         nativeFar: spec.nativeFar,

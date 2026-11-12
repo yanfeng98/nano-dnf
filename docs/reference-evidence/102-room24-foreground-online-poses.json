@@ -1,0 +1,614 @@
+[
+  {
+    "time": 277,
+    "room": "断墙营地",
+    "width": 1118.3,
+    "cameraPx": 0.01,
+    "pillarActions": [],
+    "props": [
+      {
+        "piece": "barrel",
+        "x": 294,
+        "z": 138.25,
+        "broken": false,
+        "gone": false,
+        "screenX": 463.74,
+        "bottom": 382.0239583333333
+      },
+      {
+        "piece": "barrel",
+        "x": 313,
+        "z": 270.5,
+        "broken": false,
+        "gone": false,
+        "screenX": 493.7102380952381,
+        "bottom": 336.13005952380956
+      },
+      {
+        "piece": "barrel",
+        "x": 322,
+        "z": -83.5,
+        "broken": false,
+        "gone": false,
+        "screenX": 507.90666666666664,
+        "bottom": 458.9764880952381
+      },
+      {
+        "piece": "rockFlat",
+        "x": 363.3792452830189,
+        "z": 127.8730703259005,
+        "broken": false,
+        "gone": false,
+        "screenX": 573.1775000000001,
+        "bottom": 385.625
+      },
+      {
+        "piece": "treeReference",
+        "x": 584,
+        "z": 112.25,
+        "broken": false,
+        "gone": false,
+        "screenX": 921.1804761904762,
+        "bottom": 391.0465773809524
+      },
+      {
+        "piece": "treeReference",
+        "x": 819,
+        "z": 97.75,
+        "broken": false,
+        "gone": false,
+        "screenX": 1291.865,
+        "bottom": 396.0784226190476
+      },
+      {
+        "piece": "nativeFlora",
+        "x": 632.6150943396227,
+        "z": -73.12178387650086,
+        "broken": false,
+        "gone": false,
+        "screenX": 997.8650000000001,
+        "bottom": 455.375
+      },
+      {
+        "piece": "nativeFlora",
+        "x": 865.1207547169812,
+        "z": 30.617495711835335,
+        "broken": false,
+        "gone": false,
+        "screenX": 1364.615,
+        "bottom": 419.375
+      },
+      {
+        "piece": "nativeFlora",
+        "x": 325.9358490566038,
+        "z": 50.06861063464837,
+        "broken": false,
+        "gone": false,
+        "screenX": 514.115,
+        "bottom": 412.625
+      },
+      {
+        "piece": "nativeFlora",
+        "x": 850.856603773585,
+        "z": 131.11492281303603,
+        "broken": false,
+        "gone": false,
+        "screenX": 1342.115,
+        "bottom": 384.5
+      },
+      {
+        "piece": "nativeFlora",
+        "x": 484.98113207547175,
+        "z": 276.9982847341338,
+        "broken": false,
+        "gone": false,
+        "screenX": 764.99,
+        "bottom": 333.875
+      },
+      {
+        "piece": "nativeFlora",
+        "x": 422.21886792452835,
+        "z": 345.07718696397944,
+        "broken": false,
+        "gone": false,
+        "screenX": 665.9900000000001,
+        "bottom": 310.25
+      },
+      {
+        "piece": "nativeFlora",
+        "x": 810.9169811320755,
+        "z": 383.9794168096055,
+        "broken": false,
+        "gone": false,
+        "screenX": 1279.115,
+        "bottom": 296.75
+      },
+      {
+        "piece": "nativeFlora",
+        "x": 462.15849056603776,
+        "z": 33.85934819897084,
+        "broken": false,
+        "gone": false,
+        "screenX": 728.99,
+        "bottom": 418.25
+      },
+      {
+        "piece": "nativeFlora",
+        "x": 642.6,
+        "z": 186.22641509433964,
+        "broken": false,
+        "gone": false,
+        "screenX": 1013.615,
+        "bottom": 365.375
+      },
+      {
+        "piece": "nativeFlora",
+        "x": 244.6301886792453,
+        "z": 157.04974271012009,
+        "broken": false,
+        "gone": false,
+        "screenX": 385.865,
+        "bottom": 375.5
+      }
+    ]
+  },
+  {
+    "time": 281,
+    "room": "断墙营地",
+    "width": 1118.3,
+    "cameraPx": 264.35,
+    "pillarActions": [],
+    "props": [
+      {
+        "piece": "barrel",
+        "x": 294,
+        "z": 138.25,
+        "broken": false,
+        "gone": false,
+        "screenX": 199.39999999999998,
+        "bottom": 382.0239583333333
+      },
+      {
+        "piece": "barrel",
+        "x": 313,
+        "z": 270.5,
+        "broken": false,
+        "gone": false,
+        "screenX": 229.37023809523805,
+        "bottom": 336.13005952380956
+      },
+      {
+        "piece": "barrel",
+        "x": 322,
+        "z": -83.5,
+        "broken": false,
+        "gone": false,
+        "screenX": 243.5666666666666,
+        "bottom": 458.9764880952381
+      },
+      {
+        "piece": "rockFlat",
+        "x": 363.3792452830189,
+        "z": 127.8730703259005,
+        "broken": false,
+        "gone": false,
+        "screenX": 308.8375000000001,
+        "bottom": 385.625
+      },
+      {
+        "piece": "treeReference",
+        "x": 584,
+        "z": 112.25,
+        "broken": false,
+        "gone": false,
+        "screenX": 656.8404761904761,
+        "bottom": 391.0465773809524
+      },
+      {
+        "piece": "treeReference",
+        "x": 819,
+        "z": 97.75,
+        "broken": false,
+        "gone": false,
+        "screenX": 1027.525,
+        "bottom": 396.0784226190476
+      },
+      {
+        "piece": "nativeFlora",
+        "x": 632.6150943396227,
+        "z": -73.12178387650086,
+        "broken": false,
+        "gone": false,
+        "screenX": 733.5250000000001,
+        "bottom": 455.375
+      },
+      {
+        "piece": "nativeFlora",
+        "x": 865.1207547169812,
+        "z": 30.617495711835335,
+        "broken": false,
+        "gone": false,
+        "screenX": 1100.275,
+        "bottom": 419.375
+      },
+      {
+        "piece": "nativeFlora",
+        "x": 325.9358490566038,
+        "z": 50.06861063464837,
+        "broken": false,
+        "gone": false,
+        "screenX": 249.77499999999998,
+        "bottom": 412.625
+      },
+      {
+        "piece": "nativeFlora",
+        "x": 850.856603773585,
+        "z": 131.11492281303603,
+        "broken": false,
+        "gone": false,
+        "screenX": 1077.775,
+        "bottom": 384.5
+      },
+      {
+        "piece": "nativeFlora",
+        "x": 484.98113207547175,
+        "z": 276.9982847341338,
+        "broken": false,
+        "gone": false,
+        "screenX": 500.65,
+        "bottom": 333.875
+      },
+      {
+        "piece": "nativeFlora",
+        "x": 422.21886792452835,
+        "z": 345.07718696397944,
+        "broken": false,
+        "gone": false,
+        "screenX": 401.6500000000001,
+        "bottom": 310.25
+      },
+      {
+        "piece": "nativeFlora",
+        "x": 810.9169811320755,
+        "z": 383.9794168096055,
+        "broken": false,
+        "gone": false,
+        "screenX": 1014.775,
+        "bottom": 296.75
+      },
+      {
+        "piece": "nativeFlora",
+        "x": 462.15849056603776,
+        "z": 33.85934819897084,
+        "broken": false,
+        "gone": false,
+        "screenX": 464.65,
+        "bottom": 418.25
+      },
+      {
+        "piece": "nativeFlora",
+        "x": 642.6,
+        "z": 186.22641509433964,
+        "broken": false,
+        "gone": false,
+        "screenX": 749.275,
+        "bottom": 365.375
+      },
+      {
+        "piece": "nativeFlora",
+        "x": 244.6301886792453,
+        "z": 157.04974271012009,
+        "broken": false,
+        "gone": false,
+        "screenX": 121.52499999999998,
+        "bottom": 375.5
+      }
+    ]
+  },
+  {
+    "time": 293,
+    "room": "断墙营地",
+    "width": 1118.3,
+    "cameraPx": 533.25,
+    "pillarActions": [],
+    "props": [
+      {
+        "piece": "barrel",
+        "x": 294,
+        "z": 138.25,
+        "broken": false,
+        "gone": false,
+        "screenX": -69.5,
+        "bottom": 382.0239583333333
+      },
+      {
+        "piece": "barrel",
+        "x": 313,
+        "z": 270.5,
+        "broken": false,
+        "gone": false,
+        "screenX": -39.529761904761926,
+        "bottom": 336.13005952380956
+      },
+      {
+        "piece": "barrel",
+        "x": 322,
+        "z": -83.5,
+        "broken": false,
+        "gone": false,
+        "screenX": -25.33333333333337,
+        "bottom": 458.9764880952381
+      },
+      {
+        "piece": "rockFlat",
+        "x": 363.3792452830189,
+        "z": 127.8730703259005,
+        "broken": false,
+        "gone": false,
+        "screenX": 39.937500000000114,
+        "bottom": 385.625
+      },
+      {
+        "piece": "treeReference",
+        "x": 584,
+        "z": 112.25,
+        "broken": false,
+        "gone": false,
+        "screenX": 387.94047619047615,
+        "bottom": 391.0465773809524
+      },
+      {
+        "piece": "treeReference",
+        "x": 819,
+        "z": 97.75,
+        "broken": false,
+        "gone": false,
+        "screenX": 758.625,
+        "bottom": 396.0784226190476
+      },
+      {
+        "piece": "nativeFlora",
+        "x": 632.6150943396227,
+        "z": -73.12178387650086,
+        "broken": false,
+        "gone": false,
+        "screenX": 464.6250000000001,
+        "bottom": 455.375
+      },
+      {
+        "piece": "nativeFlora",
+        "x": 865.1207547169812,
+        "z": 30.617495711835335,
+        "broken": false,
+        "gone": false,
+        "screenX": 831.375,
+        "bottom": 419.375
+      },
+      {
+        "piece": "nativeFlora",
+        "x": 325.9358490566038,
+        "z": 50.06861063464837,
+        "broken": false,
+        "gone": false,
+        "screenX": -19.125,
+        "bottom": 412.625
+      },
+      {
+        "piece": "nativeFlora",
+        "x": 850.856603773585,
+        "z": 131.11492281303603,
+        "broken": false,
+        "gone": false,
+        "screenX": 808.875,
+        "bottom": 384.5
+      },
+      {
+        "piece": "nativeFlora",
+        "x": 484.98113207547175,
+        "z": 276.9982847341338,
+        "broken": false,
+        "gone": false,
+        "screenX": 231.75,
+        "bottom": 333.875
+      },
+      {
+        "piece": "nativeFlora",
+        "x": 422.21886792452835,
+        "z": 345.07718696397944,
+        "broken": false,
+        "gone": false,
+        "screenX": 132.7500000000001,
+        "bottom": 310.25
+      },
+      {
+        "piece": "nativeFlora",
+        "x": 810.9169811320755,
+        "z": 383.9794168096055,
+        "broken": false,
+        "gone": false,
+        "screenX": 745.875,
+        "bottom": 296.75
+      },
+      {
+        "piece": "nativeFlora",
+        "x": 462.15849056603776,
+        "z": 33.85934819897084,
+        "broken": false,
+        "gone": false,
+        "screenX": 195.75,
+        "bottom": 418.25
+      },
+      {
+        "piece": "nativeFlora",
+        "x": 642.6,
+        "z": 186.22641509433964,
+        "broken": false,
+        "gone": false,
+        "screenX": 480.375,
+        "bottom": 365.375
+      },
+      {
+        "piece": "nativeFlora",
+        "x": 244.6301886792453,
+        "z": 157.04974271012009,
+        "broken": false,
+        "gone": false,
+        "screenX": -147.375,
+        "bottom": 375.5
+      }
+    ]
+  },
+  {
+    "time": 307,
+    "room": "断墙营地",
+    "width": 1118.3,
+    "cameraPx": 1013.63,
+    "pillarActions": [],
+    "props": [
+      {
+        "piece": "barrel",
+        "x": 294,
+        "z": 138.25,
+        "broken": false,
+        "gone": false,
+        "screenX": -549.88,
+        "bottom": 382.0239583333333
+      },
+      {
+        "piece": "barrel",
+        "x": 313,
+        "z": 270.5,
+        "broken": false,
+        "gone": false,
+        "screenX": -519.9097619047619,
+        "bottom": 336.13005952380956
+      },
+      {
+        "piece": "barrel",
+        "x": 322,
+        "z": -83.5,
+        "broken": false,
+        "gone": false,
+        "screenX": -505.71333333333337,
+        "bottom": 458.9764880952381
+      },
+      {
+        "piece": "rockFlat",
+        "x": 363.3792452830189,
+        "z": 127.8730703259005,
+        "broken": false,
+        "gone": false,
+        "screenX": -440.4424999999999,
+        "bottom": 385.625
+      },
+      {
+        "piece": "treeReference",
+        "x": 584,
+        "z": 112.25,
+        "broken": false,
+        "gone": false,
+        "screenX": -92.43952380952385,
+        "bottom": 391.0465773809524
+      },
+      {
+        "piece": "treeReference",
+        "x": 819,
+        "z": 97.75,
+        "broken": false,
+        "gone": false,
+        "screenX": 278.245,
+        "bottom": 396.0784226190476
+      },
+      {
+        "piece": "nativeFlora",
+        "x": 632.6150943396227,
+        "z": -73.12178387650086,
+        "broken": false,
+        "gone": false,
+        "screenX": -15.754999999999882,
+        "bottom": 455.375
+      },
+      {
+        "piece": "nativeFlora",
+        "x": 865.1207547169812,
+        "z": 30.617495711835335,
+        "broken": false,
+        "gone": false,
+        "screenX": 350.995,
+        "bottom": 419.375
+      },
+      {
+        "piece": "nativeFlora",
+        "x": 325.9358490566038,
+        "z": 50.06861063464837,
+        "broken": false,
+        "gone": false,
+        "screenX": -499.505,
+        "bottom": 412.625
+      },
+      {
+        "piece": "nativeFlora",
+        "x": 850.856603773585,
+        "z": 131.11492281303603,
+        "broken": false,
+        "gone": false,
+        "screenX": 328.495,
+        "bottom": 384.5
+      },
+      {
+        "piece": "nativeFlora",
+        "x": 484.98113207547175,
+        "z": 276.9982847341338,
+        "broken": false,
+        "gone": false,
+        "screenX": -248.63,
+        "bottom": 333.875
+      },
+      {
+        "piece": "nativeFlora",
+        "x": 422.21886792452835,
+        "z": 345.07718696397944,
+        "broken": false,
+        "gone": false,
+        "screenX": -347.6299999999999,
+        "bottom": 310.25
+      },
+      {
+        "piece": "nativeFlora",
+        "x": 810.9169811320755,
+        "z": 383.9794168096055,
+        "broken": false,
+        "gone": false,
+        "screenX": 265.495,
+        "bottom": 296.75
+      },
+      {
+        "piece": "nativeFlora",
+        "x": 462.15849056603776,
+        "z": 33.85934819897084,
+        "broken": false,
+        "gone": false,
+        "screenX": -284.63,
+        "bottom": 418.25
+      },
+      {
+        "piece": "nativeFlora",
+        "x": 642.6,
+        "z": 186.22641509433964,
+        "broken": false,
+        "gone": false,
+        "screenX": -0.0049999999999954525,
+        "bottom": 365.375
+      },
+      {
+        "piece": "nativeFlora",
+        "x": 244.6301886792453,
+        "z": 157.04974271012009,
+        "broken": false,
+        "gone": false,
+        "screenX": -627.755,
+        "bottom": 375.5
+      }
+    ]
+  }
+]

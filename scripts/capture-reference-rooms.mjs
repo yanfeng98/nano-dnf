@@ -154,6 +154,15 @@ const profiles={
    ['right-chest-left',330,'forest',623,1874,86,56,194,247,95,64,22,100,.95],
    ['right-chest-right',330,'forest',623,1874,86,56,291,247,95,64,22,100,.95]
   ]},
+ '24-west-gate':{cameraTolerance:1,evidence:'54-room24',col:3,row:1,out:'/tmp/nano-room103/render',times:[277,277.5,278],actorScreenX:210,exit:'W',next:'投掷手坡',entryDoor:'W',
+  referenceNames:{277.5:'103-room24-277.5-reference.png',278:'103-room24-278-reference.png'},
+  scope:'native west frame/bush geometry; existing exitMode retained, leaf-state discrepancy and native fade/light timing remain open',
+  cases:[
+   ['west-frame-post',277,'nativePathGate',233+117/1.125,100/1.125,30/1.125,70/1.125,94,249,30,70,70,100,.97,null,null,true],
+   ['west-frame-post-later',278,'nativePathGate',233+117/1.125,100/1.125,30/1.125,70/1.125,92,249,30,70,70,100,.97,null,null,true],
+   ['west-over-bush',277.5,'nativePathGate',60/1.125,35/1.125,60/1.125,45/1.125,3,389,60,45,45,500,.97,null,null,true],
+   ['west-over-bush-later',278,'nativePathGate',60/1.125,35/1.125,60/1.125,45/1.125,1,389,60,45,45,500,.97,null,null,true]
+  ]},
  '24-foreground':{cameraTolerance:1,evidence:'54-room24',col:3,row:1,out:'/tmp/nano-room102/render',times:[277,281,293,307],actorScreenX:40,next:'暗咒猫妖的林地',exit:'E',entryDoor:'W',
   scope:'native close-layer texture and110% camera motion; unmatched objects/features and other scene requirements remain open',
   cases:[
@@ -347,7 +356,7 @@ try{
   const name=t===26.5?'47-room42-entry-reference.png':(profile.referenceNames?.[t] ?? `${evidence}-${t}-reference.png`);
   return [t,fs.readFileSync(path.join(root,'docs/reference-evidence',name)).toString('base64')];
  }));
- const native=Object.fromEntries([['pillar','pillar-pale.png'],['forest','forest.png'],['nativeFlora','native-flora.png'],['bunker','goblin-bunker.png'],['tree','tree-reference.png'],['fruitTree','tree-fruit-reference.png'],['closeback','deep-boss-closeback.png'],['entryCloseback','deep-entry-closeback.png'],['room42Closeback','deep-room42-closeback.png'],['room43Closeback','deep-room43-closeback.png'],['room33Closeback','deep-room33-closeback.png'],['room23Closeback','deep-room23-closeback.png'],['room13Closeback','deep-room13-closeback.png'],['room14Closeback','deep-room14-closeback.png'],['room24Closeback','deep-room24-closeback.png'],['room24Foreground','deep-room24-foreground.png']].map(([key,name])=>[key,fs.readFileSync(path.join(root,'assets',name)).toString('base64')]));
+ const native=Object.fromEntries([['pillar','pillar-pale.png'],['forest','forest.png'],['nativeFlora','native-flora.png'],['nativePathGate','native-pathgate.png'],['bunker','goblin-bunker.png'],['tree','tree-reference.png'],['fruitTree','tree-fruit-reference.png'],['closeback','deep-boss-closeback.png'],['entryCloseback','deep-entry-closeback.png'],['room42Closeback','deep-room42-closeback.png'],['room43Closeback','deep-room43-closeback.png'],['room33Closeback','deep-room33-closeback.png'],['room23Closeback','deep-room23-closeback.png'],['room13Closeback','deep-room13-closeback.png'],['room14Closeback','deep-room14-closeback.png'],['room24Closeback','deep-room24-closeback.png'],['room24Foreground','deep-room24-foreground.png']].map(([key,name])=>[key,fs.readFileSync(path.join(root,'assets',name)).toString('base64')]));
  for(const sample of farSamples)native[`far-mask-${sample.room}-${sample.time}`]=fs.readFileSync(path.join(root,'docs/reference-evidence',sample.mask)).toString('base64');
  const faces=await page.evaluate(async({reference,images,native,cases})=>{
   async function picture(url,videoPixels=false){

@@ -1,0 +1,1251 @@
+{
+  "source": "103-room24-west-gate-source.json",
+  "screenScale": 1.125,
+  "screenYPhase": 92,
+  "gate": {
+    "texture": 0.94,
+    "geometryPx": 2
+  },
+  "coverage": {
+    "frame": {
+      "observed": 14,
+      "accepted": 14
+    },
+    "over": {
+      "observed": 11,
+      "accepted": 10
+    },
+    "door": {
+      "observed": 11,
+      "accepted": 1
+    }
+  },
+  "observations": [
+    {
+      "part": "frame",
+      "time": 277.0,
+      "cameraPx": 0.01,
+      "patch": [
+        117,
+        100,
+        30,
+        70
+      ],
+      "score": 0.9600574374198914,
+      "rgbRmse": 12.880628741558132,
+      "bitmapExpected": [
+        -22.51,
+        149.375
+      ],
+      "bitmapMeasured": [
+        -23,
+        150
+      ],
+      "residual": [
+        -0.4899999999999949,
+        0.625
+      ],
+      "accepted": true
+    },
+    {
+      "part": "over",
+      "time": 277.0,
+      "cameraPx": 0.01,
+      "patch": [
+        60,
+        35,
+        60,
+        45
+      ],
+      "score": 0.9391432404518127,
+      "rgbRmse": 9.798129073110506,
+      "bitmapExpected": [
+        -57.385,
+        354.125
+      ],
+      "bitmapMeasured": [
+        -57,
+        354
+      ],
+      "residual": [
+        0.384999999999998,
+        -0.125
+      ],
+      "accepted": false
+    },
+    {
+      "part": "door",
+      "time": 277.0,
+      "cameraPx": 0.01,
+      "patch": [
+        0,
+        65,
+        56,
+        75
+      ],
+      "score": 0.9175116419792175,
+      "rgbRmse": 18.935304099087535,
+      "bitmapExpected": [
+        11.24,
+        203.375
+      ],
+      "bitmapMeasured": [
+        11,
+        204
+      ],
+      "residual": [
+        -0.2400000000000002,
+        0.625
+      ],
+      "accepted": false
+    },
+    {
+      "part": "frame",
+      "time": 277.1,
+      "cameraPx": 0.01,
+      "patch": [
+        117,
+        100,
+        30,
+        70
+      ],
+      "score": 0.9755879640579224,
+      "rgbRmse": 10.722302855923731,
+      "bitmapExpected": [
+        -22.51,
+        149.375
+      ],
+      "bitmapMeasured": [
+        -22,
+        150
+      ],
+      "residual": [
+        0.5100000000000051,
+        0.625
+      ],
+      "accepted": true
+    },
+    {
+      "part": "over",
+      "time": 277.1,
+      "cameraPx": 0.01,
+      "patch": [
+        60,
+        35,
+        60,
+        45
+      ],
+      "score": 0.9438560009002686,
+      "rgbRmse": 9.384574945812956,
+      "bitmapExpected": [
+        -57.385,
+        354.125
+      ],
+      "bitmapMeasured": [
+        -57,
+        354
+      ],
+      "residual": [
+        0.384999999999998,
+        -0.125
+      ],
+      "accepted": true
+    },
+    {
+      "part": "door",
+      "time": 277.1,
+      "cameraPx": 0.01,
+      "patch": [
+        0,
+        65,
+        56,
+        75
+      ],
+      "score": 0.918118953704834,
+      "rgbRmse": 18.876394292320363,
+      "bitmapExpected": [
+        11.24,
+        203.375
+      ],
+      "bitmapMeasured": [
+        11,
+        204
+      ],
+      "residual": [
+        -0.2400000000000002,
+        0.625
+      ],
+      "accepted": false
+    },
+    {
+      "part": "frame",
+      "time": 277.2,
+      "cameraPx": 0.01,
+      "patch": [
+        117,
+        100,
+        30,
+        70
+      ],
+      "score": 0.9773069024085999,
+      "rgbRmse": 10.50592234678637,
+      "bitmapExpected": [
+        -22.51,
+        149.375
+      ],
+      "bitmapMeasured": [
+        -22,
+        150
+      ],
+      "residual": [
+        0.5100000000000051,
+        0.625
+      ],
+      "accepted": true
+    },
+    {
+      "part": "over",
+      "time": 277.2,
+      "cameraPx": 0.01,
+      "patch": [
+        60,
+        35,
+        60,
+        45
+      ],
+      "score": 0.9483537077903748,
+      "rgbRmse": 9.032403942896615,
+      "bitmapExpected": [
+        -57.385,
+        354.125
+      ],
+      "bitmapMeasured": [
+        -57,
+        354
+      ],
+      "residual": [
+        0.384999999999998,
+        -0.125
+      ],
+      "accepted": true
+    },
+    {
+      "part": "door",
+      "time": 277.2,
+      "cameraPx": 0.01,
+      "patch": [
+        0,
+        65,
+        56,
+        75
+      ],
+      "score": 0.918174147605896,
+      "rgbRmse": 18.87725771252754,
+      "bitmapExpected": [
+        11.24,
+        203.375
+      ],
+      "bitmapMeasured": [
+        11,
+        204
+      ],
+      "residual": [
+        -0.2400000000000002,
+        0.625
+      ],
+      "accepted": false
+    },
+    {
+      "part": "frame",
+      "time": 277.3,
+      "cameraPx": 0.01,
+      "patch": [
+        117,
+        100,
+        30,
+        70
+      ],
+      "score": 0.9774125218391418,
+      "rgbRmse": 10.503405824936207,
+      "bitmapExpected": [
+        -22.51,
+        149.375
+      ],
+      "bitmapMeasured": [
+        -22,
+        150
+      ],
+      "residual": [
+        0.5100000000000051,
+        0.625
+      ],
+      "accepted": true
+    },
+    {
+      "part": "over",
+      "time": 277.3,
+      "cameraPx": 0.01,
+      "patch": [
+        60,
+        35,
+        60,
+        45
+      ],
+      "score": 0.9501321911811829,
+      "rgbRmse": 8.92466411858898,
+      "bitmapExpected": [
+        -57.385,
+        354.125
+      ],
+      "bitmapMeasured": [
+        -57,
+        354
+      ],
+      "residual": [
+        0.384999999999998,
+        -0.125
+      ],
+      "accepted": true
+    },
+    {
+      "part": "door",
+      "time": 277.3,
+      "cameraPx": 0.01,
+      "patch": [
+        0,
+        65,
+        56,
+        75
+      ],
+      "score": 0.9196754693984985,
+      "rgbRmse": 18.754198034538348,
+      "bitmapExpected": [
+        11.24,
+        203.375
+      ],
+      "bitmapMeasured": [
+        11,
+        204
+      ],
+      "residual": [
+        -0.2400000000000002,
+        0.625
+      ],
+      "accepted": false
+    },
+    {
+      "part": "frame",
+      "time": 277.4,
+      "cameraPx": 0.0,
+      "patch": [
+        117,
+        100,
+        30,
+        70
+      ],
+      "score": 0.9775074124336243,
+      "rgbRmse": 10.487396132939503,
+      "bitmapExpected": [
+        -22.5,
+        149.375
+      ],
+      "bitmapMeasured": [
+        -22,
+        150
+      ],
+      "residual": [
+        0.5,
+        0.625
+      ],
+      "accepted": true
+    },
+    {
+      "part": "over",
+      "time": 277.4,
+      "cameraPx": 0.0,
+      "patch": [
+        60,
+        35,
+        60,
+        45
+      ],
+      "score": 0.9512053728103638,
+      "rgbRmse": 8.84426297971295,
+      "bitmapExpected": [
+        -57.375,
+        354.125
+      ],
+      "bitmapMeasured": [
+        -57,
+        354
+      ],
+      "residual": [
+        0.375,
+        -0.125
+      ],
+      "accepted": true
+    },
+    {
+      "part": "door",
+      "time": 277.4,
+      "cameraPx": 0.0,
+      "patch": [
+        0,
+        65,
+        56,
+        75
+      ],
+      "score": 0.9200021028518677,
+      "rgbRmse": 18.631129797906578,
+      "bitmapExpected": [
+        11.25,
+        203.375
+      ],
+      "bitmapMeasured": [
+        11,
+        204
+      ],
+      "residual": [
+        -0.25,
+        0.625
+      ],
+      "accepted": false
+    },
+    {
+      "part": "frame",
+      "time": 277.5,
+      "cameraPx": 0.0,
+      "patch": [
+        117,
+        100,
+        30,
+        70
+      ],
+      "score": 0.9784716367721558,
+      "rgbRmse": 10.16801223858666,
+      "bitmapExpected": [
+        -22.5,
+        149.375
+      ],
+      "bitmapMeasured": [
+        -22,
+        150
+      ],
+      "residual": [
+        0.5,
+        0.625
+      ],
+      "accepted": true
+    },
+    {
+      "part": "over",
+      "time": 277.5,
+      "cameraPx": 0.0,
+      "patch": [
+        60,
+        35,
+        60,
+        45
+      ],
+      "score": 0.9540378451347351,
+      "rgbRmse": 8.580727759863315,
+      "bitmapExpected": [
+        -57.375,
+        354.125
+      ],
+      "bitmapMeasured": [
+        -57,
+        354
+      ],
+      "residual": [
+        0.375,
+        -0.125
+      ],
+      "accepted": true
+    },
+    {
+      "part": "door",
+      "time": 277.5,
+      "cameraPx": 0.0,
+      "patch": [
+        0,
+        65,
+        56,
+        75
+      ],
+      "score": 0.9206048250198364,
+      "rgbRmse": 18.521877251199925,
+      "bitmapExpected": [
+        11.25,
+        203.375
+      ],
+      "bitmapMeasured": [
+        11,
+        204
+      ],
+      "residual": [
+        -0.25,
+        0.625
+      ],
+      "accepted": false
+    },
+    {
+      "part": "frame",
+      "time": 277.6,
+      "cameraPx": 0.0,
+      "patch": [
+        117,
+        100,
+        30,
+        70
+      ],
+      "score": 0.9791833758354187,
+      "rgbRmse": 9.96607588180827,
+      "bitmapExpected": [
+        -22.5,
+        149.375
+      ],
+      "bitmapMeasured": [
+        -22,
+        150
+      ],
+      "residual": [
+        0.5,
+        0.625
+      ],
+      "accepted": true
+    },
+    {
+      "part": "over",
+      "time": 277.6,
+      "cameraPx": 0.0,
+      "patch": [
+        60,
+        35,
+        60,
+        45
+      ],
+      "score": 0.9549018144607544,
+      "rgbRmse": 8.419304683762471,
+      "bitmapExpected": [
+        -57.375,
+        354.125
+      ],
+      "bitmapMeasured": [
+        -57,
+        354
+      ],
+      "residual": [
+        0.375,
+        -0.125
+      ],
+      "accepted": true
+    },
+    {
+      "part": "door",
+      "time": 277.6,
+      "cameraPx": 0.0,
+      "patch": [
+        0,
+        65,
+        56,
+        75
+      ],
+      "score": 0.9213191270828247,
+      "rgbRmse": 18.388298257140345,
+      "bitmapExpected": [
+        11.25,
+        203.375
+      ],
+      "bitmapMeasured": [
+        11,
+        204
+      ],
+      "residual": [
+        -0.25,
+        0.625
+      ],
+      "accepted": false
+    },
+    {
+      "part": "frame",
+      "time": 277.7,
+      "cameraPx": 0.01,
+      "patch": [
+        117,
+        100,
+        30,
+        70
+      ],
+      "score": 0.9793350696563721,
+      "rgbRmse": 9.913799107932302,
+      "bitmapExpected": [
+        -22.51,
+        149.375
+      ],
+      "bitmapMeasured": [
+        -22,
+        150
+      ],
+      "residual": [
+        0.5100000000000051,
+        0.625
+      ],
+      "accepted": true
+    },
+    {
+      "part": "over",
+      "time": 277.7,
+      "cameraPx": 0.01,
+      "patch": [
+        60,
+        35,
+        60,
+        45
+      ],
+      "score": 0.9551587104797363,
+      "rgbRmse": 8.421591884943322,
+      "bitmapExpected": [
+        -57.385,
+        354.125
+      ],
+      "bitmapMeasured": [
+        -57,
+        354
+      ],
+      "residual": [
+        0.384999999999998,
+        -0.125
+      ],
+      "accepted": true
+    },
+    {
+      "part": "door",
+      "time": 277.7,
+      "cameraPx": 0.01,
+      "patch": [
+        0,
+        65,
+        56,
+        75
+      ],
+      "score": 0.9217075705528259,
+      "rgbRmse": 18.346706717793076,
+      "bitmapExpected": [
+        11.24,
+        203.375
+      ],
+      "bitmapMeasured": [
+        11,
+        204
+      ],
+      "residual": [
+        -0.2400000000000002,
+        0.625
+      ],
+      "accepted": false
+    },
+    {
+      "part": "frame",
+      "time": 277.8,
+      "cameraPx": 0.0,
+      "patch": [
+        117,
+        100,
+        30,
+        70
+      ],
+      "score": 0.9792886972427368,
+      "rgbRmse": 9.92927108729224,
+      "bitmapExpected": [
+        -22.5,
+        149.375
+      ],
+      "bitmapMeasured": [
+        -22,
+        150
+      ],
+      "residual": [
+        0.5,
+        0.625
+      ],
+      "accepted": true
+    },
+    {
+      "part": "over",
+      "time": 277.8,
+      "cameraPx": 0.0,
+      "patch": [
+        60,
+        35,
+        60,
+        45
+      ],
+      "score": 0.9552307724952698,
+      "rgbRmse": 8.426376870309909,
+      "bitmapExpected": [
+        -57.375,
+        354.125
+      ],
+      "bitmapMeasured": [
+        -57,
+        354
+      ],
+      "residual": [
+        0.375,
+        -0.125
+      ],
+      "accepted": true
+    },
+    {
+      "part": "door",
+      "time": 277.8,
+      "cameraPx": 0.0,
+      "patch": [
+        0,
+        65,
+        56,
+        75
+      ],
+      "score": 0.92206209897995,
+      "rgbRmse": 18.288517061031026,
+      "bitmapExpected": [
+        11.25,
+        203.375
+      ],
+      "bitmapMeasured": [
+        11,
+        204
+      ],
+      "residual": [
+        -0.25,
+        0.625
+      ],
+      "accepted": false
+    },
+    {
+      "part": "frame",
+      "time": 277.9,
+      "cameraPx": 0.01,
+      "patch": [
+        117,
+        100,
+        30,
+        70
+      ],
+      "score": 0.9792798757553101,
+      "rgbRmse": 9.899300101550981,
+      "bitmapExpected": [
+        -22.51,
+        149.375
+      ],
+      "bitmapMeasured": [
+        -22,
+        150
+      ],
+      "residual": [
+        0.5100000000000051,
+        0.625
+      ],
+      "accepted": true
+    },
+    {
+      "part": "over",
+      "time": 277.9,
+      "cameraPx": 0.01,
+      "patch": [
+        60,
+        35,
+        60,
+        45
+      ],
+      "score": 0.9545881748199463,
+      "rgbRmse": 8.414735752106406,
+      "bitmapExpected": [
+        -57.385,
+        354.125
+      ],
+      "bitmapMeasured": [
+        -57,
+        354
+      ],
+      "residual": [
+        0.384999999999998,
+        -0.125
+      ],
+      "accepted": true
+    },
+    {
+      "part": "door",
+      "time": 277.9,
+      "cameraPx": 0.01,
+      "patch": [
+        0,
+        65,
+        56,
+        75
+      ],
+      "score": 0.92206209897995,
+      "rgbRmse": 18.288517061031026,
+      "bitmapExpected": [
+        11.24,
+        203.375
+      ],
+      "bitmapMeasured": [
+        11,
+        204
+      ],
+      "residual": [
+        -0.2400000000000002,
+        0.625
+      ],
+      "accepted": false
+    },
+    {
+      "part": "frame",
+      "time": 278.0,
+      "cameraPx": 2.24,
+      "patch": [
+        117,
+        100,
+        30,
+        70
+      ],
+      "score": 0.9738030433654785,
+      "rgbRmse": 10.934931422276655,
+      "bitmapExpected": [
+        -24.740000000000002,
+        149.375
+      ],
+      "bitmapMeasured": [
+        -24,
+        150
+      ],
+      "residual": [
+        0.7400000000000091,
+        0.625
+      ],
+      "accepted": true
+    },
+    {
+      "part": "over",
+      "time": 278.0,
+      "cameraPx": 2.24,
+      "patch": [
+        60,
+        35,
+        60,
+        45
+      ],
+      "score": 0.9545504450798035,
+      "rgbRmse": 8.538605142397543,
+      "bitmapExpected": [
+        -59.615,
+        354.125
+      ],
+      "bitmapMeasured": [
+        -60,
+        354
+      ],
+      "residual": [
+        -0.384999999999998,
+        -0.125
+      ],
+      "accepted": true
+    },
+    {
+      "part": "door",
+      "time": 278.0,
+      "cameraPx": 2.24,
+      "patch": [
+        0,
+        65,
+        56,
+        75
+      ],
+      "score": 0.9648678302764893,
+      "rgbRmse": 13.63185147708503,
+      "bitmapExpected": [
+        9.01,
+        203.375
+      ],
+      "bitmapMeasured": [
+        9,
+        204
+      ],
+      "residual": [
+        -0.009999999999999787,
+        0.625
+      ],
+      "accepted": true
+    },
+    {
+      "part": "frame",
+      "time": 278.1,
+      "cameraPx": 29.27,
+      "patch": [
+        117,
+        100,
+        30,
+        70
+      ],
+      "score": 0.9747373461723328,
+      "rgbRmse": 10.418560526726248,
+      "bitmapExpected": [
+        -51.769999999999996,
+        149.375
+      ],
+      "bitmapMeasured": [
+        -51,
+        150
+      ],
+      "residual": [
+        0.769999999999996,
+        0.625
+      ],
+      "accepted": true
+    },
+    {
+      "part": "frame",
+      "time": 278.2,
+      "cameraPx": 57.41,
+      "patch": [
+        117,
+        100,
+        30,
+        70
+      ],
+      "score": 0.9766139388084412,
+      "rgbRmse": 10.179097363960942,
+      "bitmapExpected": [
+        -79.91,
+        149.375
+      ],
+      "bitmapMeasured": [
+        -80,
+        150
+      ],
+      "residual": [
+        -0.09000000000000341,
+        0.625
+      ],
+      "accepted": true
+    },
+    {
+      "part": "frame",
+      "time": 278.3,
+      "cameraPx": 86.7,
+      "patch": [
+        117,
+        100,
+        30,
+        70
+      ],
+      "score": 0.9789690375328064,
+      "rgbRmse": 9.620965024645182,
+      "bitmapExpected": [
+        -109.2,
+        149.375
+      ],
+      "bitmapMeasured": [
+        -109,
+        150
+      ],
+      "residual": [
+        0.20000000000000284,
+        0.625
+      ],
+      "accepted": true
+    }
+  ],
+  "materialControlsAtIdenticalPose": [
+    {
+      "time": 277.0,
+      "material": 1,
+      "rgbRmseAtSamePose": 46.70765527971186
+    },
+    {
+      "time": 277.0,
+      "material": 2,
+      "rgbRmseAtSamePose": 9.798129073110506
+    },
+    {
+      "time": 277.0,
+      "material": 3,
+      "rgbRmseAtSamePose": 10.111398042326806
+    },
+    {
+      "time": 277.0,
+      "material": 4,
+      "rgbRmseAtSamePose": 49.66865519260588
+    },
+    {
+      "time": 277.0,
+      "material": 5,
+      "rgbRmseAtSamePose": 132.65903337429557
+    },
+    {
+      "time": 277.1,
+      "material": 1,
+      "rgbRmseAtSamePose": 45.63013272329677
+    },
+    {
+      "time": 277.1,
+      "material": 2,
+      "rgbRmseAtSamePose": 9.384574945812956
+    },
+    {
+      "time": 277.1,
+      "material": 3,
+      "rgbRmseAtSamePose": 9.856056607581547
+    },
+    {
+      "time": 277.1,
+      "material": 4,
+      "rgbRmseAtSamePose": 49.268563587998905
+    },
+    {
+      "time": 277.1,
+      "material": 5,
+      "rgbRmseAtSamePose": 131.8936220249645
+    },
+    {
+      "time": 277.2,
+      "material": 1,
+      "rgbRmseAtSamePose": 45.55880611709239
+    },
+    {
+      "time": 277.2,
+      "material": 2,
+      "rgbRmseAtSamePose": 9.032403942896615
+    },
+    {
+      "time": 277.2,
+      "material": 3,
+      "rgbRmseAtSamePose": 9.738285143230517
+    },
+    {
+      "time": 277.2,
+      "material": 4,
+      "rgbRmseAtSamePose": 49.03127245964912
+    },
+    {
+      "time": 277.2,
+      "material": 5,
+      "rgbRmseAtSamePose": 132.01577861175966
+    },
+    {
+      "time": 277.3,
+      "material": 1,
+      "rgbRmseAtSamePose": 45.560506506034585
+    },
+    {
+      "time": 277.3,
+      "material": 2,
+      "rgbRmseAtSamePose": 8.92466411858898
+    },
+    {
+      "time": 277.3,
+      "material": 3,
+      "rgbRmseAtSamePose": 9.71358981841903
+    },
+    {
+      "time": 277.3,
+      "material": 4,
+      "rgbRmseAtSamePose": 48.93579441787619
+    },
+    {
+      "time": 277.3,
+      "material": 5,
+      "rgbRmseAtSamePose": 132.05374794256699
+    },
+    {
+      "time": 277.4,
+      "material": 1,
+      "rgbRmseAtSamePose": 45.58577588418303
+    },
+    {
+      "time": 277.4,
+      "material": 2,
+      "rgbRmseAtSamePose": 8.84426297971295
+    },
+    {
+      "time": 277.4,
+      "material": 3,
+      "rgbRmseAtSamePose": 9.691615314662846
+    },
+    {
+      "time": 277.4,
+      "material": 4,
+      "rgbRmseAtSamePose": 48.92389529528692
+    },
+    {
+      "time": 277.4,
+      "material": 5,
+      "rgbRmseAtSamePose": 132.13664457487246
+    },
+    {
+      "time": 277.5,
+      "material": 1,
+      "rgbRmseAtSamePose": 45.47886770146556
+    },
+    {
+      "time": 277.5,
+      "material": 2,
+      "rgbRmseAtSamePose": 8.580727759863315
+    },
+    {
+      "time": 277.5,
+      "material": 3,
+      "rgbRmseAtSamePose": 9.541138995598656
+    },
+    {
+      "time": 277.5,
+      "material": 4,
+      "rgbRmseAtSamePose": 48.79066268695373
+    },
+    {
+      "time": 277.5,
+      "material": 5,
+      "rgbRmseAtSamePose": 132.10214996241112
+    },
+    {
+      "time": 277.6,
+      "material": 1,
+      "rgbRmseAtSamePose": 45.428872637737804
+    },
+    {
+      "time": 277.6,
+      "material": 2,
+      "rgbRmseAtSamePose": 8.419304683762471
+    },
+    {
+      "time": 277.6,
+      "material": 3,
+      "rgbRmseAtSamePose": 9.424606616540725
+    },
+    {
+      "time": 277.6,
+      "material": 4,
+      "rgbRmseAtSamePose": 48.73980931790438
+    },
+    {
+      "time": 277.6,
+      "material": 5,
+      "rgbRmseAtSamePose": 132.09098529067654
+    },
+    {
+      "time": 277.7,
+      "material": 1,
+      "rgbRmseAtSamePose": 45.399738945243904
+    },
+    {
+      "time": 277.7,
+      "material": 2,
+      "rgbRmseAtSamePose": 8.421591884943322
+    },
+    {
+      "time": 277.7,
+      "material": 3,
+      "rgbRmseAtSamePose": 9.440495906622859
+    },
+    {
+      "time": 277.7,
+      "material": 4,
+      "rgbRmseAtSamePose": 48.72150259192357
+    },
+    {
+      "time": 277.7,
+      "material": 5,
+      "rgbRmseAtSamePose": 132.06522892630755
+    },
+    {
+      "time": 277.8,
+      "material": 1,
+      "rgbRmseAtSamePose": 45.476249397452065
+    },
+    {
+      "time": 277.8,
+      "material": 2,
+      "rgbRmseAtSamePose": 8.426376870309909
+    },
+    {
+      "time": 277.8,
+      "material": 3,
+      "rgbRmseAtSamePose": 9.496945577849857
+    },
+    {
+      "time": 277.8,
+      "material": 4,
+      "rgbRmseAtSamePose": 48.72313061360203
+    },
+    {
+      "time": 277.8,
+      "material": 5,
+      "rgbRmseAtSamePose": 132.18119017862202
+    },
+    {
+      "time": 277.9,
+      "material": 1,
+      "rgbRmseAtSamePose": 45.17201826980837
+    },
+    {
+      "time": 277.9,
+      "material": 2,
+      "rgbRmseAtSamePose": 8.414735752106406
+    },
+    {
+      "time": 277.9,
+      "material": 3,
+      "rgbRmseAtSamePose": 9.40244911619925
+    },
+    {
+      "time": 277.9,
+      "material": 4,
+      "rgbRmseAtSamePose": 48.647477190878426
+    },
+    {
+      "time": 277.9,
+      "material": 5,
+      "rgbRmseAtSamePose": 131.82291385523214
+    },
+    {
+      "time": 278.0,
+      "material": 1,
+      "rgbRmseAtSamePose": 45.159269586981026
+    },
+    {
+      "time": 278.0,
+      "material": 2,
+      "rgbRmseAtSamePose": 8.538605142397543
+    },
+    {
+      "time": 278.0,
+      "material": 3,
+      "rgbRmseAtSamePose": 9.475328588067638
+    },
+    {
+      "time": 278.0,
+      "material": 4,
+      "rgbRmseAtSamePose": 48.71210714715644
+    },
+    {
+      "time": 278.0,
+      "material": 5,
+      "rgbRmseAtSamePose": 131.79871343908306
+    }
+  ],
+  "frameCameraFit": {
+    "samples": 14,
+    "cameraSpanPx": 86.7,
+    "intercept": -22.04805790858115,
+    "scroll": 1.0036839098352905,
+    "rmsePx": 0.30428175999501783
+  },
+  "limits": [
+    "Grayscale leaf texture alone cannot discriminate the green material variants;02 is selected using the object material data, with colour controls retained.",
+    "Video text, actors and partial clipping prevent full-gate image verification.",
+    "The door image observation is retained as a state discrepancy: entry exitMode is currently open; video bars do not prove passability on their own.",
+    "This does not establish native open/fade/light timing."
+  ]
+}

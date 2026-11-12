@@ -3115,6 +3115,9 @@
     var cell = Core.currentCell(state);
     if (!cell || !state.dungeon) return null;
     if (Core.exitMode(state, dir) === "none") return null;
+    var native = state.room.nativePathGates && state.room.nativePathGates[dir];
+    // Authored physical anchor controls sorting; bitmap bottom is a different plane.
+    if (native) return { x: native.x, bottom: floorY(native.z) };
     if (dir === "E") return { x: worldWidth(state) - 34, bottom: ARENA.groundY + 4 };
     if (dir === "W") return { x: 34, bottom: ARENA.groundY + 4 };
     var x = Core.doorX(state, cell, dir);
@@ -3147,6 +3150,31 @@
       Math.abs(player.x - spot.x) < Core.DOOR.span;
   }
 
+  function drawNativePathGate(ctx, state, sprites, dir, spot) {
+    var gate = state.room.nativePathGates && state.room.nativePathGates[dir];
+    var sheet = sprites && sprites.nativePathGate;
+    if (!gate || !sheet) return false;
+    var scale = (VIEW.width / 640) / Core.CAMERA.zoom;
+    function part(name) {
+      var p = gate.parts[name], r = p.rect;
+      ctx.drawImage(sheet, r[0], r[1], r[2], r[3],
+        gate.x + p.offset[0] * scale, floorY(gate.z) + p.offset[1] * scale,
+        r[2] * scale, r[3] * scale);
+    }
+    part("under");part("frame");
+    var open = Core.exitMode(state, dir) === "open";
+    if (!open) part("door");
+    // Retain the existing clear/approach pulse policy; native fade timing is unverified.
+    var cell = Core.currentCell(state);
+    if (open && cell.cleared && inDoorway(state, dir, spot)) {
+      ctx.save();ctx.globalCompositeOperation = "lighter";
+      ctx.globalAlpha = 0.62 + 0.2 * (0.5 + 0.5 * Math.sin((state.time || 0) * 3.2));
+      part("light");ctx.restore();
+    }
+    part("over");
+    return true;
+  }
+
   function drawGate(ctx, state, sprites, onlyDir) {
     if (!sprites || !sprites.forest) {
       drawFallbackGate(ctx, state);
@@ -3155,6 +3183,7 @@
     (onlyDir ? [onlyDir] : Core.MINIMAP_DIRS).forEach(function (dir) {
       var spot = gateSpot(state, dir);
       if (!spot) return;
+      if (drawNativePathGate(ctx, state, sprites, dir, spot)) return;
       var shape = gateShape(state, dir);
       var open = Core.exitMode(state, dir) === "open";
       /*

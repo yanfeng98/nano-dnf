@@ -12191,3 +12191,37 @@ test("room24 native foreground keeps110 percent parallax above bodies and below 
     assert.ok(Math.abs(call[5]-255*scale)<1e-9);
   }
 });
+
+test("room24 west gate uses native frame and mirrored bushes while sharing exitMode", () => {
+  const s=Core.createState({stage:"mirkwooddeep",seed:1});
+  Core.goToCell(s,s.dungeon.cells.findIndex(c=>c.col===3&&c.row===1));
+  const gate=s.room.nativePathGates?.W;
+  assert.ok(gate,"the source-backed left gate must replace the unrelated up-gate drawing");
+  const scale=1.125/Core.CAMERA.zoom;
+  assert.deepEqual(gate.anchor,[16,244]);
+  assert.ok(Math.abs(gate.x-16*scale)<1e-9);
+  assert.deepEqual(gate.parts.over.offset,[-67,-11]);
+  const art=Core.gateArtRect(s,Core.currentCell(s),"W");
+  assert.ok(Math.abs(art.left-(16-36)*scale)<1e-9);
+  assert.ok(Math.abs(art.top-(430-gate.z*Core.DEPTH.scale-193*scale))<1e-9);
+  assert.ok(Math.abs(art.right-art.left-131*scale)<1e-9);
+  assert.ok(Math.abs(art.bottom-art.top-240*scale)<1e-9);
+  s.intro=null;s.transition=0;s.enemies=[];s.props=[];s.effects=[];
+  const atlas={width:503,height:240},forest={width:1280,height:2000},slayer={width:13312,height:1936};
+  const paint=()=>{const calls=[];Render.render(recordingContext(calls),s,{sprites:{nativePathGate:atlas,forest,slayer}});return calls;};
+  s.entryDoor="W";
+  for(const [z,frameBeforeBody] of [[gate.z-10,true],[gate.z+10,false]]) {
+    s.player.z=z;
+    const calls=paint(),frame=calls.findIndex(c=>c[0]==="drawImage"&&c[1]===atlas&&c[2]===233),body=calls.findIndex(c=>c[0]==="drawImage"&&c[1]===slayer);
+    assert.ok(frame>=0&&body>=0);
+    assert.equal(frame<body,frameBeforeBody,"native normal-layer depth determines body occlusion");
+    const bush=calls.find(c=>c[0]==="drawImage"&&c[1]===atlas&&c[2]===0&&Math.abs(c[6]-(16-67)*scale)<1e-7);
+    assert.ok(bush,"negative native graphic size must reflect the image and its ANI offset together");
+    assert.ok(Math.abs(bush[7]-(430-gate.z*Core.DEPTH.scale-11*scale))<1e-9);
+    assert.equal(calls.some(c=>c[0]==="drawImage"&&c[1]===atlas&&c[2]===364),false,"open means the leaf is absent under the existing travel contract");
+  }
+  s.entryDoor="E";
+  const closed=paint();
+  assert.ok(closed.some(c=>c[0]==="drawImage"&&c[1]===atlas&&c[2]===233),"native locked-side frame stays visible");
+  assert.ok(closed.some(c=>c[0]==="drawImage"&&c[1]===atlas&&c[2]===364),"locked means the native closed leaf is drawn");
+});
