@@ -1,0 +1,133 @@
+{
+  "room42": [
+    {
+      "time": 26.5,
+      "actions": []
+    },
+    {
+      "time": 28,
+      "actions": [
+        {
+          "nativeXY": [
+            340,
+            243
+          ],
+          "observedBy": 28,
+          "action": "aligned normal swing",
+          "piece": "pillarDamagedDecor"
+        }
+      ]
+    },
+    {
+      "time": 44.5,
+      "actions": [
+        {
+          "nativeXY": [
+            506,
+            241
+          ],
+          "observedBy": 44.5,
+          "action": "aligned normal swing",
+          "piece": "pillarDamagedDecor"
+        }
+      ]
+    },
+    {
+      "time": 66.5,
+      "actions": [
+        {
+          "nativeXY": [
+            759,
+            222
+          ],
+          "observedBy": 60,
+          "action": "aligned normal swing",
+          "piece": "pillarDamagedDecor"
+        },
+        {
+          "nativeXY": [
+            1002,
+            226
+          ],
+          "observedBy": 66.5,
+          "action": "aligned normal swing",
+          "piece": "pillarDamagedDecor"
+        },
+        {
+          "nativeXY": [
+            1154,
+            228
+          ],
+          "observedBy": 66.5,
+          "action": "aligned normal swing",
+          "piece": "pillarDamagedDecor"
+        }
+      ]
+    },
+    {
+      "time": 72.5,
+      "actions": []
+    }
+  ],
+  "room42-closeback": [
+    {
+      "time": 28,
+      "actions": [
+        {
+          "nativeXY": [
+            340,
+            243
+          ],
+          "observedBy": 28,
+          "action": "aligned normal swing",
+          "piece": "pillarDamagedDecor"
+        }
+      ]
+    },
+    {
+      "time": 72.5,
+      "actions": [
+        {
+          "nativeXY": [
+            506,
+            241
+          ],
+          "observedBy": 44.5,
+          "action": "aligned normal swing",
+          "piece": "pillarDamagedDecor"
+        },
+        {
+          "nativeXY": [
+            759,
+            222
+          ],
+          "observedBy": 60,
+          "action": "aligned normal swing",
+          "piece": "pillarDamagedDecor"
+        },
+        {
+          "nativeXY": [
+            1002,
+            226
+          ],
+          "observedBy": 66.5,
+          "action": "aligned normal swing",
+          "piece": "pillarDamagedDecor"
+        },
+        {
+          "nativeXY": [
+            1154,
+            228
+          ],
+          "observedBy": 66.5,
+          "action": "aligned normal swing",
+          "piece": "pillarDamagedDecor"
+        }
+      ]
+    },
+    {
+      "time": 73.5,
+      "actions": []
+    }
+  ]
+}

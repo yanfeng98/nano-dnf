@@ -2999,18 +2999,18 @@
           // See reference-video-audit batch46. Coordinates are world anchors,
           // not positions stretched with the larger room width.
           props: [
-            { piece: "pillarDecor", x: 244, depth: 0.576, sortZ: room42PillarSortZ(243) },
-            { piece: "pillarDecor", x: 320, depth: -0.542, sortZ: room42PillarSortZ(329) },
-            { piece: "pillarDecor", x: 362, depth: 0.599, sortZ: room42PillarSortZ(241) },
-            { piece: "pillarDecor", x: 492, depth: -0.023, sortZ: room42PillarSortZ(289) },
-            { piece: "pillarDamagedDecor", x: 543, depth: 0.841, sortZ: room42PillarSortZ(222) },
-            { piece: "pillarDecor", x: 572, depth: -0.576, sortZ: room42PillarSortZ(334) },
-            { piece: "pillarDecor", x: 626, depth: -0.012, sortZ: room42PillarSortZ(288) },
-            { piece: "pillarDecor", x: 716, depth: 0.795, sortZ: room42PillarSortZ(226) },
-            { piece: "pillarDamagedDecor", x: 825, depth: 0.772, sortZ: room42PillarSortZ(228) },
-            { piece: "pillarDecor", x: 893, depth: -0.334, sortZ: room42PillarSortZ(313) },
-            { piece: "pillarDecor", x: 976, depth: -0.288, sortZ: room42PillarSortZ(309) },
-            { piece: "pillarDecor", x: 1035, depth: 0.392, sortZ: room42PillarSortZ(257) },
+            { piece: "pillarDecor", x: 244, depth: 0.576, sortZ: room42PillarSortZ(243), nativePillar: [340, 243] },
+            { piece: "pillarDecor", x: 320, depth: -0.542, sortZ: room42PillarSortZ(329), nativePillar: [448, 329] },
+            { piece: "pillarDecor", x: 362, depth: 0.599, sortZ: room42PillarSortZ(241), nativePillar: [506, 241] },
+            { piece: "pillarDecor", x: 492, depth: -0.023, sortZ: room42PillarSortZ(289), nativePillar: [689, 289] },
+            { piece: "pillarDecor", x: 543, depth: 0.841, sortZ: room42PillarSortZ(222), nativePillar: [759, 222] },
+            { piece: "pillarDecor", x: 572, depth: -0.576, sortZ: room42PillarSortZ(334), nativePillar: [801, 334] },
+            { piece: "pillarDecor", x: 626, depth: -0.012, sortZ: room42PillarSortZ(288), nativePillar: [877, 288] },
+            { piece: "pillarDecor", x: 716, depth: 0.795, sortZ: room42PillarSortZ(226), nativePillar: [1002, 226] },
+            { piece: "pillarDecor", x: 825, depth: 0.772, sortZ: room42PillarSortZ(228), nativePillar: [1154, 228] },
+            { piece: "pillarDecor", x: 893, depth: -0.334, sortZ: room42PillarSortZ(313), nativePillar: [1251, 313] },
+            { piece: "pillarDecor", x: 976, depth: -0.288, sortZ: room42PillarSortZ(309), nativePillar: [1368, 309] },
+            { piece: "pillarDecor", x: 1035, depth: 0.392, sortZ: room42PillarSortZ(257), nativePillar: [1450, 257] },
             // The front chest is partly behind a log/HUD; its upper-right
             // native fragment stays at world x462 across independent views.
             { piece: "chest", x: 462, depth: -0.703 },
@@ -5383,6 +5383,11 @@
         var makeProp = function (entry, x, z, box) {
           return {
             piece: entry.piece,
+            // Native object coordinates are distinct from the bitmap-bottom position.
+            // Keep the damaged stump in cell.props; it does not use barrel removal.
+            nativePillar: entry.nativePillar ? {
+              x: entry.nativePillar[0], y: entry.nativePillar[1], damagedAt: -1
+            } : null,
             x: x,
             z: z,
             /*
@@ -8530,6 +8535,32 @@
     });
   }
 
+  // Native damage response is independent of solid scenery and barrel lifetime.
+  function hitNativePillar(state, prop, box, reach, source, struckProps) {
+    var native = prop.nativePillar;
+    if (native.damagedAt >= 0 || (struckProps && struckProps.indexOf(prop) !== -1)) return;
+    var scale = (VIEW.width / 640) / CAMERA.zoom;
+    // ANI hurt box [-20,-14,-4,42,26,120], in native x/depth/height.
+    // Native depth projects directly to screen y; clone z uses DEPTH.scale.
+    var groundZ = room42PillarSortZ(native.y);
+    var nearZ = groundZ - 12 * scale / DEPTH.scale;
+    var farZ = groundZ + 14 * scale / DEPTH.scale;
+    var depthReach = (reach === undefined ? DEPTH_REACH.melee : reach) * SLAYER_HEIGHT;
+    if ((source.z || 0) < nearZ - depthReach || (source.z || 0) > farZ + depthReach) return;
+    var target = {
+      left: (native.x - 20) * scale,
+      right: (native.x + 22) * scale,
+      top: ARENA.groundY - 116 * scale,
+      bottom: ARENA.groundY + 4 * scale
+    };
+    if (!boxesOverlap(box, target)) return;
+    if (struckProps) struckProps.push(prop);
+    // V2 entry wave and 63.667s visible 9-damage contact cause this response.
+    // This is an observed hit response, not a decoded native HP value.
+    native.damagedAt = state.time;
+    prop.piece = "pillarDamagedDecor";
+  }
+
   /**
    * 一团挥击扫过布景。**只有他挥出去的那几下走到这里** —— 怪的挥击、怪的身体都不碰桶
    * （业主的话：「只有人能打碎，怪物打不碎」）。所以这个函数只在玩家攻击的命中路径上
@@ -8541,6 +8572,10 @@
   function swingProps(state, box, reach, source, struckProps) {
     source = source || state.player;
     (state.props || []).forEach(function (prop) {
+      if (prop.nativePillar) {
+        hitNativePillar(state, prop, box, reach, source, struckProps);
+        return;
+      }
       if (!prop.solid || prop.broken) return;
       if (struckProps && struckProps.indexOf(prop) !== -1) return;
       var spec = breakableSpec(prop.piece);

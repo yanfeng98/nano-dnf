@@ -9007,6 +9007,7 @@ test("every prop a room scatters names a piece the bake produced", () => {
    "chunk_boss0", "chunk_boss1", "chunk_boss2",
    "barrel1", "barrel2", "barrel3", "barrel4", "barrel5", "barrel6",
    "barrel7", "barrel8", "barrel9", "barrel10", "barrel11", "barrel12",
+   "pillarDamagedDecor", // reached through the native pillar hit lifecycle
    "chest1", "chest2", "tomb1", "tomb2", "tomb3", "tomb4", "tomb5", "tomb6", "tomb7",
    "boss", "marker", "blank", "tl", "top", "tr", "left", "centre", "right",
    "bl", "bottom", "br"].forEach((reserved) => used.add(reserved));
@@ -11830,5 +11831,68 @@ test("room42 pillars occlude bodies around their native physical anchor, not the
       assert.ok(pillarIndex>=0&&bodyIndex>=0,"both native pillar and player are actually painted");
       assert.equal(pillarIndex<bodyIndex,pillarBeforePlayer,`native anchor ${observed.nativeXY} with player z${z}`);
     }
+  }
+});
+
+test("a real ground-wave hit leaves the native room42 pillar damaged and persistent", () => {
+  const s=Core.createState({stage:"mirkwooddeep",seed:1});
+  const cell=s.dungeon.cells.findIndex(c=>c.col===1&&c.row===3);
+  Core.goToCell(s,cell);s.intro=null;s.transition=0;s.enemies=[];
+  const p=s.props.find(p=>p.x===362&&p.piece==="pillarDecor");
+  const groundZ=(430-(241*1.125+92))/(Core.CAMERA.zoom*Core.DEPTH.scale);
+  s.player.x=p.x-130;s.player.z=groundZ;s.player.facing=1;s.player.mp=999;
+  Core.runFrames(s,50,{skills:{normalWave:true}});
+  assert.equal(p.piece,"pillarDamagedDecor","the travelling wave must actually change the pillar state");
+  assert.ok(p.nativePillar.damagedAt>=0);
+  assert.equal(p.broken,false,"the retained stump is not a disappearing barrel");
+  const at=p.nativePillar.damagedAt;
+  Core.runFrames(s,120,{});
+  assert.ok(!p.gone,"damage animation settling must retain the stump");
+  Core.goToCell(s,s.dungeon.entry);Core.goToCell(s,cell);
+  assert.equal(s.props.find(v=>v===p),p);
+  assert.equal(p.nativePillar.damagedAt,at,"revisiting does not replay the hit animation");
+});
+
+test("native pillars start intact and a depth-misaligned normal swing cannot damage them", () => {
+  const s=Core.createState({stage:"mirkwooddeep",seed:1});
+  Core.goToCell(s,s.dungeon.cells.findIndex(c=>c.col===1&&c.row===3));
+  s.intro=null;s.transition=0;s.enemies=[];
+  assert.equal(s.props.filter(p=>p.nativePillar).length,12);
+  assert.ok(s.props.filter(p=>p.nativePillar).every(p=>p.piece==="pillarDecor"&&p.nativePillar.damagedAt===-1));
+  const p=s.props.find(p=>p.x===362&&p.nativePillar);
+  s.props=[p];s.player.x=p.nativePillar.x*1.125/Core.CAMERA.zoom-30;s.player.z=0;s.player.facing=1;
+  Core.runFrames(s,ATTACK_HIT_FRAMES+3,{attack:true});
+  assert.equal(p.nativePillar.damagedAt,-1,"bitmap overlap cannot bypass native depth extent");
+  Core.runFrames(s,45,{});
+  s.player.z=p.sortZ;
+  Core.runFrames(s,ATTACK_HIT_FRAMES+3,{attack:true});
+  assert.ok(p.nativePillar.damagedAt>=0,"the aligned normal swing uses the same real hit path");
+  const at=p.nativePillar.damagedAt;
+  Core.runFrames(s,80,{attack:true});
+  assert.equal(p.nativePillar.damagedAt,at,"repeated swings do not restart a damaged pillar");
+});
+
+test("native pillar damage shakes for six 60ms frames then holds without jumping its ground anchor", () => {
+  const s=Core.createState({stage:"mirkwooddeep",seed:1});
+  Core.goToCell(s,s.dungeon.cells.findIndex(c=>c.col===1&&c.row===3));
+  s.intro=null;s.transition=0;s.enemies=[];
+  const p=s.props.find(p=>p.x===362&&p.nativePillar);s.props=[p];
+  s.player.x=p.x-30;s.player.z=p.sortZ;s.player.facing=1;
+  Core.runFrames(s,ATTACK_HIT_FRAMES+3,{attack:true});
+  assert.ok(p.nativePillar.damagedAt>=0);
+  const sheet={width:88,height:133},scale=1.125/Core.CAMERA.zoom;
+  const frame=age=>{
+    s.time=p.nativePillar.damagedAt+age;
+    const calls=[];Render.render(recordingContext(calls),s,{sprites:{pillarPale:sheet}});
+    return calls.find(c=>c[0]==="drawImage"&&c[1]===sheet);
+  };
+  const frames=[0,.061,.121,.181,.241,.301,.361,.8].map(frame);
+  for(let i=0;i<frames.length;i++){
+    const call=frames[i],offset=i<6&&i%2?1:3;
+    assert.equal(call[2],44,"native damaged frame, not a cropped intact pillar");
+    assert.equal(call[6],Math.round((p.nativePillar.x+offset-22)*scale));
+    assert.ok(Math.abs(call[9]-111*scale)<1e-10);
+    const expectedBottom=430-Core.depthLift(p.sortZ)+13*scale;
+    assert.ok(Math.abs(call[7]+call[9]-expectedBottom)<.51,"both states retain the native ground-relative bottom");
   }
 });

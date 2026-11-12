@@ -1,0 +1,43 @@
+{
+  "before": "real ground-wave replay fails on the old implementation: pillarDecor remains unchanged",
+  "unitTests": 420,
+  "keyboard": {
+    "missed": {
+      "time": 0.6833333333333338,
+      "piece": "pillarDecor",
+      "damagedAt": -1,
+      "gone": false,
+      "broken": false
+    },
+    "hit": {
+      "time": 0.966666666666668,
+      "piece": "pillarDamagedDecor",
+      "damagedAt": 0.966666666666668,
+      "gone": false,
+      "broken": false
+    },
+    "settled": {
+      "time": 1.816666666666665,
+      "piece": "pillarDamagedDecor",
+      "damagedAt": 0.966666666666668,
+      "gone": false,
+      "broken": false
+    },
+    "revisited": {
+      "time": 1.816666666666665,
+      "piece": "pillarDamagedDecor",
+      "damagedAt": 0.966666666666668,
+      "gone": false,
+      "broken": false
+    },
+    "native": {
+      "x": 506,
+      "y": 241,
+      "damagedAt": 0.966666666666668
+    },
+    "errors": []
+  },
+  "browserGroups": 28,
+  "fixtureFailureAndFix": "The first complete browser attempt passed ordinary flow but room42 eastern-bound check auto-entered room43 because damage preparation cleared enemies. Preparation now preserves enemy references and temporarily holds room/cell clear progression; room42 exact camera and E keyboard checks passed without changing thresholds.",
+  "limits": "Recorded effective-hit response only; native integer HP, weaker attack rules, walk collision, stone particles/audio/damage-number rendering and other rooms remain open."
+}

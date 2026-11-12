@@ -1,0 +1,358 @@
+{
+  "source": "V2 62..64.5 seconds, 30fps, normalized720x540",
+  "targetNativeXY": [
+    1002,
+    226
+  ],
+  "cameraAnchorNativeXY": [
+    877,
+    288
+  ],
+  "lastClearFlat": 63.6333,
+  "firstClearDamaged": 64.0333,
+  "manuallyInspectedImpact": {
+    "time": 63.6667,
+    "previousFrameIntact": 63.6333,
+    "damageText": "9",
+    "effect": "white hit flash with stone particles at the tracked pillar"
+  },
+  "samples": [
+    {
+      "t": 63.2,
+      "anchorScore": 0.97,
+      "anchorXY": [
+        413,
+        281
+      ],
+      "capScores": {
+        "flat": 0.977,
+        "damaged": 0.16
+      }
+    },
+    {
+      "t": 63.2333,
+      "anchorScore": 0.97,
+      "anchorXY": [
+        413,
+        281
+      ],
+      "capScores": {
+        "flat": 0.977,
+        "damaged": 0.16
+      }
+    },
+    {
+      "t": 63.2667,
+      "anchorScore": 0.965,
+      "anchorXY": [
+        413,
+        281
+      ],
+      "capScores": {
+        "flat": 0.977,
+        "damaged": 0.16
+      }
+    },
+    {
+      "t": 63.3,
+      "anchorScore": 0.968,
+      "anchorXY": [
+        413,
+        281
+      ],
+      "capScores": {
+        "flat": 0.977,
+        "damaged": 0.16
+      }
+    },
+    {
+      "t": 63.3333,
+      "anchorScore": 0.97,
+      "anchorXY": [
+        413,
+        281
+      ],
+      "capScores": {
+        "flat": 0.977,
+        "damaged": 0.16
+      }
+    },
+    {
+      "t": 63.3667,
+      "anchorScore": 0.97,
+      "anchorXY": [
+        413,
+        281
+      ],
+      "capScores": {
+        "flat": 0.975,
+        "damaged": 0.161
+      }
+    },
+    {
+      "t": 63.4,
+      "anchorScore": 0.967,
+      "anchorXY": [
+        413,
+        281
+      ],
+      "capScores": {
+        "flat": 0.971,
+        "damaged": 0.16
+      }
+    },
+    {
+      "t": 63.4333,
+      "anchorScore": 0.967,
+      "anchorXY": [
+        413,
+        281
+      ],
+      "capScores": {
+        "flat": 0.976,
+        "damaged": 0.166
+      }
+    },
+    {
+      "t": 63.4667,
+      "anchorScore": 0.966,
+      "anchorXY": [
+        413,
+        281
+      ],
+      "capScores": {
+        "flat": 0.967,
+        "damaged": 0.173
+      }
+    },
+    {
+      "t": 63.5,
+      "anchorScore": 0.966,
+      "anchorXY": [
+        413,
+        281
+      ],
+      "capScores": {
+        "flat": 0.97,
+        "damaged": 0.155
+      }
+    },
+    {
+      "t": 63.5333,
+      "anchorScore": 0.971,
+      "anchorXY": [
+        413,
+        281
+      ],
+      "capScores": {
+        "flat": 0.972,
+        "damaged": 0.156
+      }
+    },
+    {
+      "t": 63.5667,
+      "anchorScore": 0.97,
+      "anchorXY": [
+        413,
+        281
+      ],
+      "capScores": {
+        "flat": 0.976,
+        "damaged": 0.161
+      }
+    },
+    {
+      "t": 63.6,
+      "anchorScore": 0.969,
+      "anchorXY": [
+        413,
+        281
+      ],
+      "capScores": {
+        "flat": 0.977,
+        "damaged": 0.16
+      }
+    },
+    {
+      "t": 63.6333,
+      "anchorScore": 0.969,
+      "anchorXY": [
+        413,
+        281
+      ],
+      "capScores": {
+        "flat": 0.977,
+        "damaged": 0.161
+      }
+    },
+    {
+      "t": 63.6667,
+      "anchorScore": 0.969,
+      "anchorXY": [
+        413,
+        281
+      ],
+      "capScores": {
+        "flat": 0.218,
+        "damaged": 0.549
+      }
+    },
+    {
+      "t": 63.7,
+      "anchorScore": 0.969,
+      "anchorXY": [
+        413,
+        281
+      ],
+      "capScores": {
+        "flat": 0.083,
+        "damaged": 0.526
+      }
+    },
+    {
+      "t": 63.7333,
+      "anchorScore": 0.975,
+      "anchorXY": [
+        408,
+        281
+      ],
+      "capScores": {
+        "flat": 0.114,
+        "damaged": 0.567
+      }
+    },
+    {
+      "t": 63.7667,
+      "anchorScore": 0.954,
+      "anchorXY": [
+        395,
+        281
+      ],
+      "capScores": {
+        "flat": 0.077,
+        "damaged": 0.205
+      }
+    },
+    {
+      "t": 63.8,
+      "anchorScore": 0.968,
+      "anchorXY": [
+        390,
+        281
+      ],
+      "capScores": {
+        "flat": 0.071,
+        "damaged": 0.148
+      }
+    },
+    {
+      "t": 63.8333,
+      "anchorScore": 0.978,
+      "anchorXY": [
+        381,
+        281
+      ],
+      "capScores": {
+        "flat": 0.128,
+        "damaged": 0.106
+      }
+    },
+    {
+      "t": 63.8667,
+      "anchorScore": 0.966,
+      "anchorXY": [
+        368,
+        281
+      ],
+      "capScores": {
+        "flat": 0.089,
+        "damaged": 0.594
+      }
+    },
+    {
+      "t": 63.9,
+      "anchorScore": 0.978,
+      "anchorXY": [
+        361,
+        281
+      ],
+      "capScores": {
+        "flat": 0.093,
+        "damaged": 0.629
+      }
+    },
+    {
+      "t": 63.9333,
+      "anchorScore": 0.981,
+      "anchorXY": [
+        352,
+        281
+      ],
+      "capScores": {
+        "flat": 0.148,
+        "damaged": 0.755
+      }
+    },
+    {
+      "t": 63.9667,
+      "anchorScore": 0.98,
+      "anchorXY": [
+        337,
+        281
+      ],
+      "capScores": {
+        "flat": 0.173,
+        "damaged": 0.697
+      }
+    },
+    {
+      "t": 64.0,
+      "anchorScore": 0.982,
+      "anchorXY": [
+        334,
+        281
+      ],
+      "capScores": {
+        "flat": 0.124,
+        "damaged": 0.654
+      }
+    },
+    {
+      "t": 64.0333,
+      "anchorScore": 0.973,
+      "anchorXY": [
+        324,
+        281
+      ],
+      "capScores": {
+        "flat": 0.052,
+        "damaged": 0.854
+      }
+    },
+    {
+      "t": 64.0667,
+      "anchorScore": 0.966,
+      "anchorXY": [
+        311,
+        281
+      ],
+      "capScores": {
+        "flat": -0.123,
+        "damaged": 0.922
+      }
+    },
+    {
+      "t": 64.1,
+      "anchorScore": 0.966,
+      "anchorXY": [
+        311,
+        281
+      ],
+      "capScores": {
+        "flat": 0.225,
+        "damaged": 0.934
+      }
+    }
+  ],
+  "limits": "Texture bounds do not equate low correlation with damage. Prior visible footage56..63.633 was inspected; no earlier hit at this pillar was identified. Native integer HP semantics, weaker attack response, particle physics and walk collision remain unverified."
+}

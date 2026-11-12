@@ -9837,6 +9837,22 @@
    * and the bodies go into the list before he does, which is what keeps a
    * monster he is standing on top of from hiding his sprite.
    */
+  function drawNativePillar(ctx, state, sprites, prop) {
+    var native = prop.nativePillar;
+    var damaged = native.damagedAt >= 0;
+    var age = Math.max(0, state.time - native.damagedAt);
+    // Native ANI: six alternating 60ms frames, then hold x=-22.
+    var aniX = damaged ? (age < 0.36 && Math.floor(age / 0.06) % 2 ? -24 : -22) : -23;
+    var imgX = damaged ? 3 : 2;
+    var scale = (VIEW.width / 640) / Core.CAMERA.zoom;
+    var x = (native.x + aniX + imgX + 22) * scale;
+    var groundZ = (ARENA.groundY - (native.y * (VIEW.width / 640) + 92)) /
+      (Core.CAMERA.zoom * DEPTH.scale);
+    // Both native ANI/IMG combinations end 13 native pixels below ground.
+    drawScenePiece(ctx, sprites, damaged ? "pillarDamagedDecor" : "pillarDecor",
+      x, floorY(groundZ) + 13 * scale, undefined, [scale, scale], state.time);
+  }
+
   function drawWorld(ctx, state, sprites) {
     var player = state.player;
     var playerZ = (player && player.z) || 0;
@@ -9889,6 +9905,10 @@
       if (SCENE.decals.indexOf(prop.piece) !== -1) return;
       /* `sortZ`：只换画的前后，不换站的位置（背景石门用，见 `core.js`）。 */
       add(prop.sortZ === null || prop.sortZ === undefined ? prop.z : prop.sortZ, function () {
+        if (prop.nativePillar) {
+          drawNativePillar(ctx, state, sprites, prop);
+          return;
+        }
         if (!prop.broken) {
           drawScenePiece(ctx, sprites, prop.piece, prop.x, floorY(prop.z),
                          undefined, prop.scale, state.time);

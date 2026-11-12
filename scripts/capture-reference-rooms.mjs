@@ -211,6 +211,8 @@ if(measuredMid){
   profile.cases.push([`mid-${measuredMid.room}-${sample.time}`,sample.time,'forest',640+phase/1.125,(y-measuredMid.screenY)/1.125,w/1.125,h/1.125,x,y,w,h,h,Math.floor(w*h*.55),.7,null,null,true,12]);
  }
 }
+const pillarDamageObservations = room==='42'||room==='42-closeback'
+ ? JSON.parse(fs.readFileSync(path.join(root,'docs/reference-evidence/88-pillar-anchors.json'),'utf8')).observations.filter(o=>o.kind==='damaged') : [];
 const farSamples=JSON.parse(fs.readFileSync(path.join(root,'docs/reference-evidence/87-deep-far-measurement.json'),'utf8')).samples.filter(s=>room===`${s.room}-closeback`);
 for(const sample of farSamples){
  profile.cases.push([`far-${sample.room}-${sample.time}`,sample.time,`far-mask-${sample.room}-${sample.time}`,0,0,720,120,0,0,720,120,120,Math.floor(sample.pixels*.95),.65,null,null,true,20]);
@@ -274,18 +276,34 @@ try{
   }
   const camera=time===26.5?0:cameras.find(c=>c.t===time).camera_px;
   const fade=room==='25-closeback'&&time===312?JSON.parse(fs.readFileSync(path.join(root,'docs/reference-evidence/85-room25-entry-fade.json'),'utf8')).blackOpacity:0;
-  const record=await page.evaluate(({camera,time,col,row,entryDoor,actorScreenX,fade})=>{
+  const record=await page.evaluate(({camera,time,col,row,entryDoor,actorScreenX,fade,pillarDamageObservations})=>{
    const C=window.DNFCore,s=window.nanoDnf.getState();
    C.goToCell(s,s.dungeon.cells.findIndex(c=>c.col===col&&c.row===row));
+   const pillarActions=[];
+   for(const observed of pillarDamageObservations){
+    if(observed.time>time)continue;
+    const prop=s.props.find(p=>p.nativePillar&&p.nativePillar.x===observed.nativeXY[0]);
+    if(!prop||prop.nativePillar.damagedAt>=0)continue;
+    const enemies=s.enemies,cell=C.currentCell(s),roomCleared=s.room.cleared,cellCleared=cell.cleared;
+    // Isolate the prop hit without clearing the room and auto-entering its exit.
+    s.intro=null;s.transition=0;s.enemies=[];s.room.cleared=cell.cleared=true;s.player.invuln=100;
+    C.runFrames(s,45,{});
+    s.player.x=prop.nativePillar.x*1.125/C.CAMERA.zoom-30;
+    s.player.z=Math.min(prop.sortZ,C.bandDepth(s.band));s.player.facing=1;
+    C.runFrames(s,35,{attack:true});C.runFrames(s,30,{});
+    s.enemies=enemies;s.room.cleared=roomCleared;cell.cleared=cellCleared;
+    if(prop.nativePillar.damagedAt<0)throw new Error('real fixture hit missed pillar '+prop.nativePillar.x);
+    pillarActions.push({nativeXY:observed.nativeXY,observedBy:observed.time,action:'aligned normal swing',piece:prop.piece});
+   }
    s.entryDoor=entryDoor===undefined?(col===0?null:'W'):entryDoor;s.titleT=0;s.intro=null;s.transition=fade*C.TRANSITION.dur;
    // Relocate the actor only to keep the sampled native faces unobscured.
    s.player.x=(camera+(actorScreenX??(col===0?80:time<=28?240:200)))/C.CAMERA.zoom;s.player.z=40;
    s.player.hurtTimer=0;s.player.invuln=0;s.player.buffs={};
-   s.camera.x=camera/C.CAMERA.zoom;s.time=10;
+   s.camera.x=camera/C.CAMERA.zoom;s.time=pillarDamageObservations.length?Math.max(10,s.time):10;
    window.nanoDnf.setMapMode('radar');
-   return {time,room:s.room.name,width:s.room.width,cameraPx:camera,
+   return {time,room:s.room.name,width:s.room.width,cameraPx:camera,pillarActions,
     props:s.props.map(p=>({piece:p.piece,x:p.x,z:p.z,broken:p.broken,gone:!!p.gone,screenX:p.x*C.CAMERA.zoom-camera,bottom:430-C.depthLift(p.z)*C.CAMERA.zoom}))};
-  },{camera,time,col:profile.col,row:profile.row??3,entryDoor:profile.entryDoor,actorScreenX:profile.actorScreenX,fade});
+  },{camera,time,col:profile.col,row:profile.row??3,entryDoor:profile.entryDoor,actorScreenX:profile.actorScreenX,fade,pillarDamageObservations});
   await page.waitForTimeout(100);
   const url=await page.locator('#stage').evaluate(c=>c.toDataURL('image/png'));
   images[time]=url;
@@ -368,7 +386,7 @@ try{
    viewportRight:s.camera.x*C.CAMERA.zoom+C.VIEW.width,nativeRight};
  });
  assert.ok(edge.viewportRight<=edge.nativeRight,'eastern viewport must stay on native ground');
- assert.ok(Math.abs(edge.cameraPx-Math.max(...cameras.map(c=>c.camera_px)))<=1,'eastern camera matches reference within one pixel');
+ assert.ok(Math.abs(edge.cameraPx-Math.max(...cameras.map(c=>c.camera_px)))<=1,'eastern camera matches reference within one pixel: '+JSON.stringify(edge));
  await page.waitForTimeout(100);
  await page.locator('#stage').screenshot({path:path.join(out,'right-edge.png')});
  fs.writeFileSync(path.join(out,'right-edge.json'),JSON.stringify(edge,null,2)+'\n');

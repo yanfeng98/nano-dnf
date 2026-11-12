@@ -1,0 +1,29 @@
+{
+  "commit": "7454803",
+  "workflow": "https://github.com/yanfeng98/nano-dnf/actions/runs/43126974521",
+  "ci": "completed success: regression tests, Pages deploy and live smoke",
+  "unitTests": 417,
+  "browserGroups": 27,
+  "localLiveSmoke": "passed: deployed assets match checkout and page boots cleanly",
+  "deployedCanvasProbe": [
+    {
+      "name": "front",
+      "z": 182.71012006861065,
+      "order": [
+        "pillar",
+        "body"
+      ]
+    },
+    {
+      "name": "behind",
+      "z": 202.71012006861065,
+      "order": [
+        "body",
+        "pillar"
+      ]
+    }
+  ],
+  "site": "https://luyf-lemon-love.space/nano-dnf/",
+  "manualAcceptance": "pending",
+  "remaining": "Stone pillar hit thresholds, damage transition, walk collision and persistence remain unresolved; all other audit items retain their statuses."
+}
