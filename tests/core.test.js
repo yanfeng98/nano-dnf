@@ -8972,6 +8972,15 @@ test("every prop a room scatters names a piece the bake produced", () => {
   Object.keys(Core.STAGES).forEach((id) => {
     (Core.STAGES[id].rooms || []).forEach((room) => {
       (room.props || []).forEach((prop) => {
+        if (prop.nativeDecoration) {
+          assert.equal(prop.piece,"nativeFlora");
+          const atlas=decodeRgbaPng(path.join(__dirname,"../assets/native-flora.png"));
+          for(const frame of prop.nativeDecoration.frames) {
+            const [x,y,w,h]=frame.rect;
+            assert.ok(x>=0&&y>=0&&w>0&&h>0&&x+w<=atlas.width&&y+h<=atlas.height,"native decoration rect must address actual baked pixels");
+          }
+          return;
+        }
         assert.ok(
           known.includes(prop.piece),
           `${id} / ${room.name} scatters "${prop.piece}", which has no rect in SCENE.pieces`
@@ -12109,4 +12118,55 @@ test("room41 native rocks block at their physical anchors and allow the front la
   s.player.x=body.x-100;s.player.z=0;
   Core.runFrames(s,120,{right:true});
   assert.ok(s.player.x>body.x+90,"front lane bypasses without shrinking the rock");
+});
+
+test("room24 rock uses native ground depth for contact and front-lane bypass", () => {
+  const s=Core.createState({stage:"mirkwooddeep",seed:1});
+  Core.goToCell(s,s.dungeon.cells.findIndex(c=>c.col===3&&c.row===1));
+  const rocks=s.props.filter(p=>p.piece==="rockFlat");
+  assert.equal(rocks.length,1);
+  const p=rocks[0],body=Core.propObstacle(p),scale=1.125/Core.CAMERA.zoom;
+  assert.ok(Math.abs(body.x-498*scale)<1e-7,"native physical anchor replaces bitmap-bottom collision");
+  assert.ok(Math.abs(body.z-(430-(246*1.125+92))/(Core.CAMERA.zoom*Core.DEPTH.scale))<1e-7);
+  assert.ok(Math.abs(body.width-140*scale)<1e-7);
+  assert.ok(Math.abs(body.depth-28*scale/Core.DEPTH.scale)<1e-7);
+  assert.ok(Math.abs(p.x-(498+11.5)*scale)<1e-7);
+  assert.ok(Math.abs(p.z-body.z+15*scale/Core.DEPTH.scale)<1e-7);
+  assert.equal(p.sortZ,body.z);
+  s.props=[p];s.enemies=[];s.intro=null;s.transition=0;s.room.cleared=true;s.player.invuln=999;
+  s.player.x=body.x-120;s.player.z=body.z;
+  Core.runFrames(s,120,{right:true});
+  assert.ok(Math.abs(s.player.x-(body.x-180*scale/2))<1e-7,"aligned walking contacts the native footprint");
+  s.player.x=body.x-100;s.player.z=0;
+  Core.runFrames(s,120,{right:true});
+  assert.ok(s.player.x>body.x+90,"front lane remains passable with the full native footprint");
+});
+
+test("room24 native flora preserves authored layers, animation frames and nonblocking occupancy", () => {
+  const s=Core.createState({stage:"mirkwooddeep",seed:1});
+  Core.goToCell(s,s.dungeon.cells.findIndex(c=>c.col===3&&c.row===1));
+  const flora=s.props.filter(p=>p.nativeDecoration);
+  assert.equal(flora.length,10,"native map has seven normal and three bottom decorations");
+  assert.equal(flora.filter(p=>p.nativeDecoration.layer==="[normal]").length,7);
+  assert.equal(flora.filter(p=>p.nativeDecoration.layer==="[bottom]").length,3);
+  assert.equal(s.props.filter(p=>p.scattered).length,0,"guessed foliage must not obscure authored landmarks");
+  assert.ok(flora.every(p=>!p.solid&&Core.propObstacle(p)===null));
+  const normal=flora.find(p=>p.nativeDecoration.x===457),bottom=flora.find(p=>p.nativeDecoration.x===343);
+  s.props=[normal,bottom];s.enemies=[];s.intro=null;s.transition=0;
+  const nativeFlora={width:1024,height:80},slayer={width:13312,height:1936};
+  for(const [z,normalBeforeBody] of [[normal.z-10,true],[normal.z+10,false]]) {
+    s.player.z=z;s.time=bottom.nativeAnimationStartedAt+.001;
+    const calls=[];Render.render(recordingContext(calls),s,{sprites:{nativeFlora,slayer}});
+    const normalIndex=calls.findIndex(c=>c[0]==="drawImage"&&c[1]===nativeFlora&&c[2]===0);
+    const bottomIndex=calls.findIndex(c=>c[0]==="drawImage"&&c[1]===nativeFlora&&c[2]===384);
+    const actorIndex=calls.findIndex(c=>c[0]==="drawImage"&&c[1]===slayer);
+    assert.ok(normalIndex>=0&&bottomIndex>=0&&actorIndex>=0);
+    assert.equal(normalIndex<actorIndex,normalBeforeBody,"normal flowers share physical depth sorting");
+    assert.ok(bottomIndex<actorIndex&&bottomIndex<normalIndex,"bottom foliage is laid under standing objects");
+  }
+  for(const [age,atlasX] of [[.001,384],[.121,512],[.241,640],[.361,768],[.481,384]]) {
+    s.time=bottom.nativeAnimationStartedAt+age;
+    const calls=[];Render.render(recordingContext(calls),s,{sprites:{nativeFlora}});
+    assert.ok(calls.some(c=>c[0]==="drawImage"&&c[1]===nativeFlora&&c[2]===atlasX),"all four native ANI image indices play at120ms");
+  }
 });

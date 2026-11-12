@@ -1,0 +1,232 @@
+{
+  "scope": "Failed comparison controls; not the current verification result. No production pixels were changed to fix the PNG decoder.",
+  "legacyDecoderAfterNativeFlora": [
+    {
+      "label": "front-barrel",
+      "time": 277,
+      "minPixels": 100,
+      "threshold": 0.95,
+      "nativeMask": {
+        "rows": 22,
+        "columns": 72,
+        "alphaOnly": false,
+        "box": null
+      },
+      "cosine": 0.9890908609776692,
+      "dx": 0,
+      "dy": 0,
+      "pixels": 468
+    },
+    {
+      "label": "middle-barrel",
+      "time": 277,
+      "minPixels": 100,
+      "threshold": 0.95,
+      "nativeMask": {
+        "rows": 22,
+        "columns": 70,
+        "alphaOnly": false,
+        "box": null
+      },
+      "cosine": 0.9911643393979862,
+      "dx": 1,
+      "dy": 0,
+      "pixels": 471
+    },
+    {
+      "label": "back-barrel",
+      "time": 277,
+      "minPixels": 100,
+      "threshold": 0.95,
+      "nativeMask": {
+        "rows": 22,
+        "columns": 72,
+        "alphaOnly": false,
+        "box": null
+      },
+      "cosine": 0.9896290148030157,
+      "dx": -1,
+      "dy": 0,
+      "pixels": 468
+    },
+    {
+      "label": "single-large-rock",
+      "time": 277,
+      "minPixels": 1000,
+      "threshold": 0.97,
+      "nativeMask": {
+        "rows": 60,
+        "columns": 159,
+        "alphaOnly": false,
+        "box": null
+      },
+      "cosine": 0.9961590552628341,
+      "dx": 0,
+      "dy": -1,
+      "pixels": 2061
+    },
+    {
+      "label": "rock-after-pan",
+      "time": 281,
+      "minPixels": 1000,
+      "threshold": 0.97,
+      "nativeMask": {
+        "rows": 60,
+        "columns": 159,
+        "alphaOnly": false,
+        "box": null
+      },
+      "cosine": 0.9977203918562756,
+      "dx": 0,
+      "dy": -1,
+      "pixels": 2061
+    },
+    {
+      "label": "first-green-tree",
+      "time": 293,
+      "minPixels": 5000,
+      "threshold": 0.97,
+      "nativeMask": {
+        "rows": 229,
+        "columns": 171,
+        "alphaOnly": true,
+        "box": null
+      },
+      "cosine": 0.9610168309507034,
+      "dx": 0,
+      "dy": 0,
+      "pixels": 19870
+    },
+    {
+      "label": "second-green-tree",
+      "time": 307,
+      "minPixels": 5000,
+      "threshold": 0.97,
+      "nativeMask": {
+        "rows": 227,
+        "columns": 173,
+        "alphaOnly": true,
+        "box": null
+      },
+      "cosine": 0.9567801032336654,
+      "dx": -1,
+      "dy": -1,
+      "pixels": 19941
+    }
+  ],
+  "legacyDecoderWithOlderBrowser": [
+    {
+      "label": "front-barrel",
+      "time": 277,
+      "minPixels": 100,
+      "threshold": 0.95,
+      "nativeMask": {
+        "rows": 22,
+        "columns": 72,
+        "alphaOnly": false,
+        "box": null
+      },
+      "cosine": 0.9890908609776692,
+      "dx": 0,
+      "dy": 0,
+      "pixels": 468
+    },
+    {
+      "label": "middle-barrel",
+      "time": 277,
+      "minPixels": 100,
+      "threshold": 0.95,
+      "nativeMask": {
+        "rows": 22,
+        "columns": 70,
+        "alphaOnly": false,
+        "box": null
+      },
+      "cosine": 0.9911643393979862,
+      "dx": 1,
+      "dy": 0,
+      "pixels": 471
+    },
+    {
+      "label": "back-barrel",
+      "time": 277,
+      "minPixels": 100,
+      "threshold": 0.95,
+      "nativeMask": {
+        "rows": 22,
+        "columns": 72,
+        "alphaOnly": false,
+        "box": null
+      },
+      "cosine": 0.9896290148030157,
+      "dx": -1,
+      "dy": 0,
+      "pixels": 468
+    },
+    {
+      "label": "single-large-rock",
+      "time": 277,
+      "minPixels": 1000,
+      "threshold": 0.97,
+      "nativeMask": {
+        "rows": 60,
+        "columns": 159,
+        "alphaOnly": false,
+        "box": null
+      },
+      "cosine": 0.9961590552628341,
+      "dx": 0,
+      "dy": -1,
+      "pixels": 2061
+    },
+    {
+      "label": "rock-after-pan",
+      "time": 281,
+      "minPixels": 1000,
+      "threshold": 0.97,
+      "nativeMask": {
+        "rows": 60,
+        "columns": 159,
+        "alphaOnly": false,
+        "box": null
+      },
+      "cosine": 0.9977203918562756,
+      "dx": 0,
+      "dy": -1,
+      "pixels": 2061
+    },
+    {
+      "label": "first-green-tree",
+      "time": 293,
+      "minPixels": 5000,
+      "threshold": 0.97,
+      "nativeMask": {
+        "rows": 229,
+        "columns": 171,
+        "alphaOnly": true,
+        "box": null
+      },
+      "cosine": 0.9610168309507034,
+      "dx": 0,
+      "dy": 0,
+      "pixels": 19870
+    },
+    {
+      "label": "second-green-tree",
+      "time": 307,
+      "minPixels": 5000,
+      "threshold": 0.97,
+      "nativeMask": {
+        "rows": 227,
+        "columns": 173,
+        "alphaOnly": true,
+        "box": null
+      },
+      "cosine": 0.9567801032336654,
+      "dx": -1,
+      "dy": -1,
+      "pixels": 19941
+    }
+  ],
+  "videoColorPolicy": "See101-video-color-comparison.json; direct H264 playback is closer to raw decoded video bytes than implicit PNG gamma conversion. Full original tree masks and score gates are restored in the final checks."
+}

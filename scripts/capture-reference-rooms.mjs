@@ -154,13 +154,15 @@ const profiles={
    ['right-chest-left',330,'forest',623,1874,86,56,194,247,95,64,22,100,.95],
    ['right-chest-right',330,'forest',623,1874,86,56,291,247,95,64,22,100,.95]
   ]},
- '24':{cameraTolerance:1,batch:54,col:3,row:1,out:'/tmp/nano-room54/render',times:[277,281,293,307],actorScreenX:80,next:'暗咒猫妖的林地',exit:'E',entryDoor:'W',
+ '24':{cameraTolerance:1,batch:54,col:3,row:1,out:'/tmp/nano-room54/render',times:[277,281,293,307],actorScreenX:40,next:'暗咒猫妖的林地',exit:'E',entryDoor:'W',
   cases:[
    ['front-barrel',277,'forest',560,1874,63,78,472,370,72,89,22,100,.95],
    ['middle-barrel',277,'forest',560,1874,63,78,428,296,70,86,22,100,.95],
    ['back-barrel',277,'forest',560,1874,63,78,458,247,72,89,22,100,.95],
-   ['single-large-rock',277,'forest',585,803,141,89,496,286,156,98,60,1000,.97],
-   ['rock-after-pan',281,'forest',585,803,141,89,231,286,156,98,60,1000,.97],
+   ['native-bush-592',293,'nativeFlora',256,0,64,59,98,250,72,66,66,1000,.97,null,null,true],
+   ['native-bush-680',293,'nativeFlora',256,0,64,59,197,273,72,66,66,1000,.97,null,null,true],
+   ['single-large-rock',277,'forest',585,803,141,89,494,286,159,100,60,1000,.97],
+   ['rock-after-pan',281,'forest',585,803,141,89,230,286,159,100,60,1000,.97],
    ['first-green-tree',293,'tree',0,0,153,203,303,162,171,229,229,5000,.97,null,null,true],
    ['second-green-tree',307,'tree',0,0,153,203,192,169,173,227,227,5000,.97,null,null,true]
   ]},
@@ -337,15 +339,19 @@ try{
   const name=t===26.5?'47-room42-entry-reference.png':(profile.referenceNames?.[t] ?? `${evidence}-${t}-reference.png`);
   return [t,fs.readFileSync(path.join(root,'docs/reference-evidence',name)).toString('base64')];
  }));
- const native=Object.fromEntries([['pillar','pillar-pale.png'],['forest','forest.png'],['bunker','goblin-bunker.png'],['tree','tree-reference.png'],['fruitTree','tree-fruit-reference.png'],['closeback','deep-boss-closeback.png'],['entryCloseback','deep-entry-closeback.png'],['room42Closeback','deep-room42-closeback.png'],['room43Closeback','deep-room43-closeback.png'],['room33Closeback','deep-room33-closeback.png'],['room23Closeback','deep-room23-closeback.png'],['room13Closeback','deep-room13-closeback.png'],['room14Closeback','deep-room14-closeback.png'],['room24Closeback','deep-room24-closeback.png']].map(([key,name])=>[key,fs.readFileSync(path.join(root,'assets',name)).toString('base64')]));
+ const native=Object.fromEntries([['pillar','pillar-pale.png'],['forest','forest.png'],['nativeFlora','native-flora.png'],['bunker','goblin-bunker.png'],['tree','tree-reference.png'],['fruitTree','tree-fruit-reference.png'],['closeback','deep-boss-closeback.png'],['entryCloseback','deep-entry-closeback.png'],['room42Closeback','deep-room42-closeback.png'],['room43Closeback','deep-room43-closeback.png'],['room33Closeback','deep-room33-closeback.png'],['room23Closeback','deep-room23-closeback.png'],['room13Closeback','deep-room13-closeback.png'],['room14Closeback','deep-room14-closeback.png'],['room24Closeback','deep-room24-closeback.png']].map(([key,name])=>[key,fs.readFileSync(path.join(root,'assets',name)).toString('base64')]));
  for(const sample of farSamples)native[`far-mask-${sample.room}-${sample.time}`]=fs.readFileSync(path.join(root,'docs/reference-evidence',sample.mask)).toString('base64');
  const faces=await page.evaluate(async({reference,images,native,cases})=>{
-  async function picture(url){const im=new Image();im.src=url;await im.decode();return im;}
+  async function picture(url,videoPixels=false){
+   // ffmpeg PNG gamma tags otherwise alter the decoded video pixels (audit101).
+   if(videoPixels)return createImageBitmap(await(await fetch(url)).blob(),{colorSpaceConversion:'none'});
+   const im=new Image();im.src=url;await im.decode();return im;
+  }
   function canvas(w,h){const c=document.createElement('canvas');c.width=w;c.height=h;return c.getContext('2d');}
   const atlases={},refs={},actuals={};
   for(const [key,value] of Object.entries(native))atlases[key]=await picture('data:image/png;base64,'+value);
   for(const t of Object.keys(reference)){
-   const r=canvas(720,540);r.drawImage(await picture('data:image/png;base64,'+reference[t]),0,0);refs[t]=r;
+   const r=canvas(720,540);r.drawImage(await picture('data:image/png;base64,'+reference[t],true),0,0);refs[t]=r;
    const a=canvas(960,540);a.drawImage(await picture(images[t]),0,0);actuals[t]=a;
   }
   const result=[];

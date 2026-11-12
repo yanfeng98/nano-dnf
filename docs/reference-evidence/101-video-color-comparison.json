@@ -1,0 +1,26 @@
+{
+  "time": 293,
+  "roi": [
+    330,
+    170,
+    100,
+    60
+  ],
+  "rawVideoPixels": {
+    "meanAbsoluteError": 2.1998333333333333,
+    "rmse": 2.7909874795690346,
+    "maxError": 15
+  },
+  "pngColorConversion": {
+    "meanAbsoluteError": 12.969222222222223,
+    "rmse": 13.285940772945747,
+    "maxError": 27
+  },
+  "source": {
+    "video": "00002-幽暗密林深处.mp4",
+    "bytes": 118906924,
+    "reference": "54-room24-293-reference.png",
+    "browser": "153.0.8010.12"
+  },
+  "scope": "Static room24 crown at293s. Confirms PNG decoding policy; does not establish game-wide grading, animation phase or every video frame."
+}

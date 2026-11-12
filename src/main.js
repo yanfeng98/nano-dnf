@@ -34,7 +34,7 @@
   var sprites = {
     slayer: null, skills: null, effects: null, normalWave: null, normalWaveBody: null,
     rift: null, awakening: null, region: null,
-    monsters: null, throwerReference: null, forest: null, minimap: null, ui: null, results: null,
+    monsters: null, throwerReference: null, nativeFlora: null, forest: null, minimap: null, ui: null, results: null,
     /* Native client UI faces and target frames; see reference batches 31–34. */
     portraits: null
   };
@@ -78,6 +78,7 @@
      * own ink (assets/import_dnf_scene.py, docs/adr/0028).
      */
     ["forest", "./assets/forest.png"],
+    ["nativeFlora", "./assets/native-flora.png"],
     ["forestDeep", "./assets/forest-deep.png"],
     ["deepBossCloseback", "./assets/deep-boss-closeback.png"],
     ["deepEntryCloseback", "./assets/deep-entry-closeback.png"],

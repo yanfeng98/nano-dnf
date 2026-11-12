@@ -1,0 +1,723 @@
+{
+  "map": "map/mirkwooddeep/n410(3,0).map",
+  "mapSha256": "7ef38276143ee082a6a9b43e79274f1f934a845ccbba22d08ffaedc820e70397",
+  "animations": {
+    "Animation/Flower2.ani": {
+      "entry": "map/mirkwooddeep/animation/flower2.ani",
+      "sha256": "0dc493878fe5e5b833c990fa14e1a487c198bdb5c9f5cfa02fad335cac24af84",
+      "animation": {
+        "paths": [
+          "Map/02obj002.img"
+        ],
+        "overall": [
+          [
+            1,
+            0
+          ]
+        ],
+        "frames": [
+          {
+            "frame": 0,
+            "xy": [
+              -11,
+              -50
+            ],
+            "props": [
+              [
+                12,
+                50
+              ]
+            ],
+            "boxes": [],
+            "image": 0
+          }
+        ]
+      }
+    },
+    "Animation/Flower1.ani": {
+      "entry": "map/mirkwooddeep/animation/flower1.ani",
+      "sha256": "0dc493878fe5e5b833c990fa14e1a487c198bdb5c9f5cfa02fad335cac24af84",
+      "animation": {
+        "paths": [
+          "Map/02obj002.img"
+        ],
+        "overall": [
+          [
+            1,
+            0
+          ]
+        ],
+        "frames": [
+          {
+            "frame": 0,
+            "xy": [
+              -11,
+              -50
+            ],
+            "props": [
+              [
+                12,
+                50
+              ]
+            ],
+            "boxes": [],
+            "image": 0
+          }
+        ]
+      }
+    },
+    "Animation/Stone0.ani": {
+      "entry": "map/mirkwooddeep/animation/stone0.ani",
+      "sha256": "5b4df64f908371b574a4aee46f00ebbc334cdd31d66672f574f9cd9f86978323",
+      "animation": {
+        "paths": [
+          "Map/02obj007.img"
+        ],
+        "overall": [
+          [
+            1,
+            0
+          ]
+        ],
+        "frames": [
+          {
+            "frame": 0,
+            "xy": [
+              -21,
+              -31
+            ],
+            "props": [
+              [
+                12,
+                50
+              ]
+            ],
+            "boxes": [],
+            "image": 0
+          }
+        ]
+      }
+    },
+    "Animation/Flower0.ani": {
+      "entry": "map/mirkwooddeep/animation/flower0.ani",
+      "sha256": "063a87734ff2d9125a9d87eb1998866e2f64cb7b7e71d4ebdf383bd6faade7b9",
+      "animation": {
+        "paths": [
+          "Map/02obj001.img"
+        ],
+        "overall": [
+          [
+            1,
+            0
+          ]
+        ],
+        "frames": [
+          {
+            "frame": 0,
+            "xy": [
+              -32,
+              -55
+            ],
+            "props": [
+              [
+                12,
+                50
+              ]
+            ],
+            "boxes": [],
+            "image": 0
+          }
+        ]
+      }
+    },
+    "Animation/aniFlower.ani": {
+      "entry": "map/mirkwooddeep/animation/aniflower.ani",
+      "sha256": "b9a2335a93ac29aca112e7d391af55edb192fc2bbdbac8773268960ad04faa64",
+      "animation": {
+        "paths": [
+          "Map/02obj500.img",
+          "Map/02obj501.img",
+          "Map/02obj502.img",
+          "Map/02obj503.img"
+        ],
+        "overall": [
+          [
+            0,
+            1
+          ],
+          [
+            1,
+            0
+          ]
+        ],
+        "frames": [
+          {
+            "frame": 0,
+            "xy": [
+              -64,
+              -47
+            ],
+            "props": [
+              [
+                12,
+                120
+              ]
+            ],
+            "boxes": [],
+            "image": 0
+          },
+          {
+            "frame": 0,
+            "xy": [
+              -64,
+              -47
+            ],
+            "props": [
+              [
+                12,
+                120
+              ]
+            ],
+            "boxes": [],
+            "image": 1
+          },
+          {
+            "frame": 0,
+            "xy": [
+              -64,
+              -47
+            ],
+            "props": [
+              [
+                12,
+                120
+              ]
+            ],
+            "boxes": [],
+            "image": 2
+          },
+          {
+            "frame": 0,
+            "xy": [
+              -64,
+              -47
+            ],
+            "props": [
+              [
+                12,
+                120
+              ]
+            ],
+            "boxes": [],
+            "image": 3
+          }
+        ]
+      }
+    },
+    "Animation/Grass0.ani": {
+      "entry": "map/mirkwooddeep/animation/grass0.ani",
+      "sha256": "be0fdf510af09ee812c3a27d1cb1319f57efa9e50b6ccdf8d5f7a753d8eab055",
+      "animation": {
+        "paths": [
+          "Map/02obj201.img"
+        ],
+        "overall": [
+          [
+            1,
+            0
+          ]
+        ],
+        "frames": [
+          {
+            "frame": 0,
+            "xy": [
+              -67,
+              -43
+            ],
+            "props": [
+              [
+                12,
+                50
+              ]
+            ],
+            "boxes": [],
+            "image": 0
+          }
+        ]
+      }
+    }
+  },
+  "entries": [
+    {
+      "piece": "nativeFlora",
+      "nativeDecoration": {
+        "x": 887,
+        "y": 323,
+        "layer": "[normal]",
+        "frames": [
+          {
+            "rect": [
+              0,
+              0,
+              30,
+              55
+            ],
+            "offset": [
+              -10,
+              -47
+            ],
+            "delay": 50
+          }
+        ]
+      }
+    },
+    {
+      "piece": "nativeFlora",
+      "nativeDecoration": {
+        "x": 1213,
+        "y": 291,
+        "layer": "[normal]",
+        "frames": [
+          {
+            "rect": [
+              0,
+              0,
+              30,
+              55
+            ],
+            "offset": [
+              -10,
+              -47
+            ],
+            "delay": 50
+          }
+        ]
+      }
+    },
+    {
+      "piece": "nativeFlora",
+      "nativeDecoration": {
+        "x": 457,
+        "y": 285,
+        "layer": "[normal]",
+        "frames": [
+          {
+            "rect": [
+              0,
+              0,
+              30,
+              55
+            ],
+            "offset": [
+              -10,
+              -47
+            ],
+            "delay": 50
+          }
+        ]
+      }
+    },
+    {
+      "piece": "nativeFlora",
+      "nativeDecoration": {
+        "x": 1193,
+        "y": 260,
+        "layer": "[normal]",
+        "frames": [
+          {
+            "rect": [
+              128,
+              0,
+              24,
+              27
+            ],
+            "offset": [
+              -11,
+              -11
+            ],
+            "delay": 50
+          }
+        ]
+      }
+    },
+    {
+      "piece": "nativeFlora",
+      "nativeDecoration": {
+        "x": 680,
+        "y": 215,
+        "layer": "[normal]",
+        "frames": [
+          {
+            "rect": [
+              256,
+              0,
+              64,
+              59
+            ],
+            "offset": [
+              -31,
+              -54
+            ],
+            "delay": 50
+          }
+        ]
+      }
+    },
+    {
+      "piece": "nativeFlora",
+      "nativeDecoration": {
+        "x": 592,
+        "y": 194,
+        "layer": "[normal]",
+        "frames": [
+          {
+            "rect": [
+              256,
+              0,
+              64,
+              59
+            ],
+            "offset": [
+              -31,
+              -54
+            ],
+            "delay": 50
+          }
+        ]
+      }
+    },
+    {
+      "piece": "nativeFlora",
+      "nativeDecoration": {
+        "x": 1137,
+        "y": 182,
+        "layer": "[normal]",
+        "frames": [
+          {
+            "rect": [
+              0,
+              0,
+              30,
+              55
+            ],
+            "offset": [
+              -10,
+              -47
+            ],
+            "delay": 50
+          }
+        ]
+      }
+    },
+    {
+      "piece": "nativeFlora",
+      "nativeDecoration": {
+        "x": 648,
+        "y": 290,
+        "layer": "[bottom]",
+        "frames": [
+          {
+            "rect": [
+              384,
+              0,
+              126,
+              66
+            ],
+            "offset": [
+              -64,
+              -47
+            ],
+            "delay": 120
+          },
+          {
+            "rect": [
+              512,
+              0,
+              126,
+              66
+            ],
+            "offset": [
+              -64,
+              -47
+            ],
+            "delay": 120
+          },
+          {
+            "rect": [
+              640,
+              0,
+              126,
+              66
+            ],
+            "offset": [
+              -64,
+              -47
+            ],
+            "delay": 120
+          },
+          {
+            "rect": [
+              768,
+              0,
+              126,
+              66
+            ],
+            "offset": [
+              -64,
+              -47
+            ],
+            "delay": 120
+          }
+        ]
+      }
+    },
+    {
+      "piece": "nativeFlora",
+      "nativeDecoration": {
+        "x": 901,
+        "y": 243,
+        "layer": "[bottom]",
+        "frames": [
+          {
+            "rect": [
+              896,
+              0,
+              127,
+              66
+            ],
+            "offset": [
+              -56,
+              -38
+            ],
+            "delay": 50
+          }
+        ]
+      }
+    },
+    {
+      "piece": "nativeFlora",
+      "nativeDecoration": {
+        "x": 343,
+        "y": 252,
+        "layer": "[bottom]",
+        "frames": [
+          {
+            "rect": [
+              384,
+              0,
+              126,
+              66
+            ],
+            "offset": [
+              -64,
+              -47
+            ],
+            "delay": 120
+          },
+          {
+            "rect": [
+              512,
+              0,
+              126,
+              66
+            ],
+            "offset": [
+              -64,
+              -47
+            ],
+            "delay": 120
+          },
+          {
+            "rect": [
+              640,
+              0,
+              126,
+              66
+            ],
+            "offset": [
+              -64,
+              -47
+            ],
+            "delay": 120
+          },
+          {
+            "rect": [
+              768,
+              0,
+              126,
+              66
+            ],
+            "offset": [
+              -64,
+              -47
+            ],
+            "delay": 120
+          }
+        ]
+      }
+    }
+  ],
+  "images": [
+    {
+      "path": "sprite/map/02obj002.img",
+      "frame": 0,
+      "offset": [
+        1,
+        3
+      ],
+      "size": [
+        30,
+        55
+      ],
+      "rect": [
+        0,
+        0,
+        30,
+        55
+      ],
+      "rgbaSha256": "14192b45b92b8966c4854f15216e2e7bec9fd4919266c9bd96bea30bccaaee6c"
+    },
+    {
+      "path": "sprite/map/02obj007.img",
+      "frame": 0,
+      "offset": [
+        10,
+        20
+      ],
+      "size": [
+        24,
+        27
+      ],
+      "rect": [
+        128,
+        0,
+        24,
+        27
+      ],
+      "rgbaSha256": "ddf701f105ce4941cd87214e953fb325e8a16cbd0d6a07bdec316001b9ff0fda"
+    },
+    {
+      "path": "sprite/map/02obj001.img",
+      "frame": 0,
+      "offset": [
+        1,
+        1
+      ],
+      "size": [
+        64,
+        59
+      ],
+      "rect": [
+        256,
+        0,
+        64,
+        59
+      ],
+      "rgbaSha256": "47d8d351a53f71097c3b2f44fcb09540392a667a7f8e46a5670a0e33eddb2e5b"
+    },
+    {
+      "path": "sprite/map/02obj500.img",
+      "frame": 0,
+      "offset": [
+        0,
+        0
+      ],
+      "size": [
+        126,
+        66
+      ],
+      "rect": [
+        384,
+        0,
+        126,
+        66
+      ],
+      "rgbaSha256": "4897b10a8738b5deb96e8b9a4db6c9033e02e093040910007dfaba739379191e"
+    },
+    {
+      "path": "sprite/map/02obj501.img",
+      "frame": 0,
+      "offset": [
+        0,
+        0
+      ],
+      "size": [
+        126,
+        66
+      ],
+      "rect": [
+        512,
+        0,
+        126,
+        66
+      ],
+      "rgbaSha256": "6aeecbb19426a219048133abffa91709082a73bfb9f6d79c1e64a7742745a323"
+    },
+    {
+      "path": "sprite/map/02obj502.img",
+      "frame": 0,
+      "offset": [
+        0,
+        0
+      ],
+      "size": [
+        126,
+        66
+      ],
+      "rect": [
+        640,
+        0,
+        126,
+        66
+      ],
+      "rgbaSha256": "e0e60422f6adef0e684463a7de32029b5785fb269e8b0382d960df8e25a4ab22"
+    },
+    {
+      "path": "sprite/map/02obj503.img",
+      "frame": 0,
+      "offset": [
+        0,
+        0
+      ],
+      "size": [
+        126,
+        66
+      ],
+      "rect": [
+        768,
+        0,
+        126,
+        66
+      ],
+      "rgbaSha256": "1bb91a3bf8170a42047f47ccf0b67341e1f6bf98a48969debacdcd1834305038"
+    },
+    {
+      "path": "sprite/map/02obj201.img",
+      "frame": 0,
+      "offset": [
+        11,
+        5
+      ],
+      "size": [
+        127,
+        66
+      ],
+      "rect": [
+        896,
+        0,
+        127,
+        66
+      ],
+      "rgbaSha256": "f317f4c7f5459c2cd964f1847d5128b58c1c8ef3a31345d608bfe9ddb42c94b1"
+    }
+  ],
+  "atlasSize": [
+    1024,
+    80
+  ],
+  "atlasRgbaSha256": "0abbc87b353eaf6dd66863c8851f94139d2f3886fd7371c7fec67be49da5d193",
+  "limits": [
+    "Foreground close-layer trees remain outside this export.",
+    "Native initial animation phase and phase across revisits require separate video evidence."
+  ]
+}

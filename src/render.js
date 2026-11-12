@@ -9837,6 +9837,23 @@
    * and the bodies go into the list before he does, which is what keeps a
    * monster he is standing on top of from hiding his sprite.
    */
+  function drawNativeDecoration(ctx, state, sprites, prop) {
+    if (!sprites || !sprites.nativeFlora) return;
+    var frames = prop.nativeDecoration.frames;
+    var period = frames.reduce(function (total, frame) { return total + frame.delay; }, 0);
+    var phase = Math.max(0, (state.time - prop.nativeAnimationStartedAt) * 1000) % period;
+    var frame = frames[frames.length - 1];
+    for (var i = 0; i < frames.length; i += 1) {
+      if (phase < frames[i].delay) { frame = frames[i]; break; }
+      phase -= frames[i].delay;
+    }
+    var scale = (VIEW.width / 640) / Core.CAMERA.zoom;
+    var rect = frame.rect;
+    ctx.drawImage(sprites.nativeFlora, rect[0], rect[1], rect[2], rect[3],
+      prop.x + frame.offset[0] * scale, floorY(prop.z) + frame.offset[1] * scale,
+      rect[2] * scale, rect[3] * scale);
+  }
+
   function drawNativePillar(ctx, state, sprites, prop) {
     var native = prop.nativePillar;
     var damaged = native.damagedAt >= 0;
@@ -9882,6 +9899,10 @@
      * 不对」就是这一处不对称。人/怪/抛射物谁盖谁另有规矩（见下面 body 那一段）。
      */
     (state.props || []).forEach(function (prop) {
+      if (prop.nativeDecoration) {
+        if (prop.nativeDecoration.layer === "[bottom]") drawNativeDecoration(ctx, state, sprites, prop);
+        return;
+      }
       if (SCENE.decals.indexOf(prop.piece) !== -1) {
         /* 贴花按它自己在带子里的深浅缩小 —— 带子于是读起来是一块**往里退的面**。 */
         drawScenePiece(ctx, sprites, prop.piece, prop.x, floorY(prop.z),
@@ -9902,9 +9923,14 @@
       });
     }
     (state.props || []).forEach(function (prop) {
+      if (prop.nativeDecoration && prop.nativeDecoration.layer === "[bottom]") return;
       if (SCENE.decals.indexOf(prop.piece) !== -1) return;
       /* `sortZ`：只换画的前后，不换站的位置（背景石门用，见 `core.js`）。 */
       add(prop.sortZ === null || prop.sortZ === undefined ? prop.z : prop.sortZ, function () {
+        if (prop.nativeDecoration) {
+          drawNativeDecoration(ctx, state, sprites, prop);
+          return;
+        }
         if (prop.nativePillar) {
           drawNativePillar(ctx, state, sprites, prop);
           return;

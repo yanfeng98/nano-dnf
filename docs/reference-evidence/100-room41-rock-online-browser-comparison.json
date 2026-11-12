@@ -1,0 +1,130 @@
+[
+  {
+    "label": "initial-back-barrel-cap",
+    "time": 10.5,
+    "minPixels": 100,
+    "threshold": 0.95,
+    "nativeMask": {
+      "rows": 22,
+      "columns": 72,
+      "alphaOnly": false,
+      "box": null
+    },
+    "cosine": 0.9830829206320189,
+    "dx": -1,
+    "dy": 0,
+    "pixels": 468
+  },
+  {
+    "label": "initial-high-barrel-cap",
+    "time": 10.5,
+    "minPixels": 100,
+    "threshold": 0.95,
+    "nativeMask": {
+      "rows": 22,
+      "columns": 50,
+      "alphaOnly": false,
+      "box": null
+    },
+    "cosine": 0.986679033291887,
+    "dx": -1,
+    "dy": 0,
+    "pixels": 350
+  },
+  {
+    "label": "first-rock",
+    "time": 17.5,
+    "minPixels": 1000,
+    "threshold": 0.97,
+    "nativeMask": {
+      "rows": 80,
+      "columns": 159,
+      "alphaOnly": false,
+      "box": null
+    },
+    "cosine": 0.9931428920277517,
+    "dx": 0,
+    "dy": -1,
+    "pixels": 2529
+  },
+  {
+    "label": "first-rock-unoccluded",
+    "time": 15.5,
+    "minPixels": 1000,
+    "threshold": 0.97,
+    "nativeMask": {
+      "rows": 80,
+      "columns": 159,
+      "alphaOnly": false,
+      "box": null
+    },
+    "cosine": 0.9966753267556936,
+    "dx": 0,
+    "dy": -1,
+    "pixels": 2529
+  },
+  {
+    "label": "second-rock",
+    "time": 25.5,
+    "minPixels": 1000,
+    "threshold": 0.97,
+    "nativeMask": {
+      "rows": 80,
+      "columns": 159,
+      "alphaOnly": false,
+      "box": null
+    },
+    "cosine": 0.996792489127804,
+    "dx": 0,
+    "dy": -1,
+    "pixels": 2529
+  },
+  {
+    "label": "second-rock-west-camera",
+    "time": 21,
+    "minPixels": 1000,
+    "threshold": 0.97,
+    "nativeMask": {
+      "rows": 80,
+      "columns": 159,
+      "alphaOnly": false,
+      "box": null
+    },
+    "cosine": 0.9967085576529835,
+    "dx": 0,
+    "dy": -1,
+    "pixels": 2529
+  },
+  {
+    "label": "back-barrel-cap",
+    "time": 13.5,
+    "minPixels": 100,
+    "threshold": 0.95,
+    "nativeMask": {
+      "rows": 22,
+      "columns": 72,
+      "alphaOnly": false,
+      "box": null
+    },
+    "cosine": 0.9831695638375108,
+    "dx": 0,
+    "dy": 1,
+    "pixels": 468
+  },
+  {
+    "label": "front-barrel-cap",
+    "time": 17.5,
+    "minPixels": 100,
+    "threshold": 0.95,
+    "nativeMask": {
+      "rows": 22,
+      "columns": 70,
+      "alphaOnly": false,
+      "box": null
+    },
+    "cosine": 0.9864406160750487,
+    "dx": 1,
+    "dy": 0,
+    "pixels": 471
+  }
+]

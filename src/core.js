@@ -2839,17 +2839,29 @@
           /* V2 277–311s: cut before the boss-room transition, dense camera
            * fit + both gate strips. Width lower bound1118.33 -> use1120.
            * Native cap/rock fits identify three barrels and one large rock.
+           * Rock native anchor/footprint: n410(3,0).map, audit101.
            * Two observed mirrored green trees replace the unrelated default;
            * fruit/damage states and enemy placements remain unverified. */
           props: [
             {"piece": "barrel", "x": 294, "depth": 0.553, "scale": [0.7, 0.7]},
             {"piece": "barrel", "x": 313, "depth": 1.082, "scale": [0.725, 0.725]},
             {"piece": "barrel", "x": 322, "depth": -0.334, "scale": [0.725, 0.725]},
-            {"piece": "rockFlat", "x": 364, "depth": 0.529, "scale": [0.7, 0.7]},
+            { piece: "rockFlat", nativeRock: [498, 246] },
             {"piece": "treeReference", "x": 584, "depth": 0.449, "scale": [0.71, 0.715]},
             {"piece": "treeReference", "x": 819, "depth": 0.391, "scale": [0.715, 0.71]},
+            // n410 authored normal/bottom layers; no procedural foliage (audit101).
+            {"piece":"nativeFlora","nativeDecoration":{"x":887,"y":323,"layer":"[normal]","frames":[{"rect":[0,0,30,55],"offset":[-10,-47],"delay":50}]}},
+            {"piece":"nativeFlora","nativeDecoration":{"x":1213,"y":291,"layer":"[normal]","frames":[{"rect":[0,0,30,55],"offset":[-10,-47],"delay":50}]}},
+            {"piece":"nativeFlora","nativeDecoration":{"x":457,"y":285,"layer":"[normal]","frames":[{"rect":[0,0,30,55],"offset":[-10,-47],"delay":50}]}},
+            {"piece":"nativeFlora","nativeDecoration":{"x":1193,"y":260,"layer":"[normal]","frames":[{"rect":[128,0,24,27],"offset":[-11,-11],"delay":50}]}},
+            {"piece":"nativeFlora","nativeDecoration":{"x":680,"y":215,"layer":"[normal]","frames":[{"rect":[256,0,64,59],"offset":[-31,-54],"delay":50}]}},
+            {"piece":"nativeFlora","nativeDecoration":{"x":592,"y":194,"layer":"[normal]","frames":[{"rect":[256,0,64,59],"offset":[-31,-54],"delay":50}]}},
+            {"piece":"nativeFlora","nativeDecoration":{"x":1137,"y":182,"layer":"[normal]","frames":[{"rect":[0,0,30,55],"offset":[-10,-47],"delay":50}]}},
+            {"piece":"nativeFlora","nativeDecoration":{"x":648,"y":290,"layer":"[bottom]","frames":[{"rect":[384,0,126,66],"offset":[-64,-47],"delay":120},{"rect":[512,0,126,66],"offset":[-64,-47],"delay":120},{"rect":[640,0,126,66],"offset":[-64,-47],"delay":120},{"rect":[768,0,126,66],"offset":[-64,-47],"delay":120}]}},
+            {"piece":"nativeFlora","nativeDecoration":{"x":901,"y":243,"layer":"[bottom]","frames":[{"rect":[896,0,127,66],"offset":[-56,-38],"delay":50}]}},
+            {"piece":"nativeFlora","nativeDecoration":{"x":343,"y":252,"layer":"[bottom]","frames":[{"rect":[384,0,126,66],"offset":[-64,-47],"delay":120},{"rect":[512,0,126,66],"offset":[-64,-47],"delay":120},{"rect":[640,0,126,66],"offset":[-64,-47],"delay":120},{"rect":[768,0,126,66],"offset":[-64,-47],"delay":120}]}},
           ],
-          scatter: {"solid":0,"barrels":0,"stones":0}
+          scatter: {"solid":0,"barrels":0,"stones":0,"low":0,"flowers":0,"tall":0}
         },
         /* 7 —— 侧 9 格（推断）：苔柱夹道；石柱/树/箱。 */
         {
@@ -3491,12 +3503,13 @@
     // StoneHead.ani(-59,-81) + IMG(0,7), bitmap141×89: centre/bottom(+11.5,+15).
     // Native object footprint140×28 remains independent of bitmap offsets (audit99).
     room.props.forEach(function (entry) {
-      if (!entry.nativeRock) return;
+      if (!entry.nativeRock && !entry.nativeDecoration) return;
       var scale = (VIEW.width / 640) / CAMERA.zoom;
       var floorDepth = (ARENA.groundY - room.band.backY) / DEPTH.scale;
-      entry.x = (entry.nativeRock[0] + 11.5) * scale;
-      entry.depth = nativeGroundZ(entry.nativeRock[1] + 15) / floorDepth;
-      entry.sortZ = nativeGroundZ(entry.nativeRock[1]);
+      var native = entry.nativeDecoration;
+      entry.x = (native ? native.x : entry.nativeRock[0] + 11.5) * scale;
+      entry.depth = nativeGroundZ(native ? native.y : entry.nativeRock[1] + 15) / floorDepth;
+      entry.sortZ = nativeGroundZ(native ? native.y : entry.nativeRock[1]);
       entry.scale = [scale, scale];
     });
   });
@@ -5434,6 +5447,8 @@
             nativePillar: entry.nativePillar ? {
               x: entry.nativePillar[0], y: entry.nativePillar[1], originX: entry.nativePillar[2] || 0, damagedAt: -1
             } : null,
+            nativeDecoration: entry.nativeDecoration || null,
+            nativeAnimationStartedAt: entry.nativeDecoration ? state.time : 0,
             nativeFootprint: entry.nativeRock ? {
               x: entry.nativeRock[0], y: entry.nativeRock[1], width: 140, depth: 28
             } : null,

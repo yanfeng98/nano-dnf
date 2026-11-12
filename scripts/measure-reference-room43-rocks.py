@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""Match native StoneHead bitmap against normalized V2 room41/43 frames.
+"""Match native StoneHead bitmap against normalized V2 room24/41/43 frames.
 
 Frames: V2 crop1440:1080:240:0, scale720:540, fps2 starting74s;
 001 corresponds74.25s. With --room 41 use exact10.5..25.5s frames at0.5s.
+With --room 24 use exact277..311s frames at0.1s.
 Camera is independently tracked, never fitted here.
 """
 import argparse, hashlib, json, sys
@@ -12,7 +13,7 @@ import numpy as np
 from client_pvf import PvfArchive
 from client_animation import parse_animation
 p=argparse.ArgumentParser(description=__doc__)
-p.add_argument('--room',choices=['41','43'],default='43')
+p.add_argument('--room',choices=['24','41','43'],default='43')
 p.add_argument('--frames',type=Path,required=True)
 p.add_argument('--client',type=Path,default=Path('/mnt/c/dnf/地下城与勇士'))
 p.add_argument('--out',type=Path,default=Path('/tmp/room43-rocks.json'))
@@ -22,7 +23,8 @@ from import_dnf_scene import decode_at
 cv2.setNumThreads(1)
 obj='passiveobject/mapobject/obstacle/stonehead1.obj'
 ani='map/mirkwood/animation/stonehead.ani'
-profile={'41':('s419(0,3).map','47-room41',[[286,515,176,0],[286,927,278,0]]),
+profile={'24':('n410(3,0).map','54-room24',[[286,498,246,0]]),
+         '41':('s419(0,3).map','47-room41',[[286,515,176,0],[286,927,278,0]]),
          '43':('n423(2,3).map','02-room43',[[286,519,309,0],[286,1045,346,0],[286,1490,347,0]])}[a.room]
 mapname='map/mirkwooddeep/'+profile[0]
 with PvfArchive(a.client/'Script.pvf') as pvf:

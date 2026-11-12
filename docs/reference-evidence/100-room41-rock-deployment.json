@@ -1,0 +1,17 @@
+{
+  "commit": "9aae7a5",
+  "workflow": "https://github.com/yanfeng98/nano-dnf/actions/runs/43214858736",
+  "ci": "Success; public page includes commit and three executed job links",
+  "site": "https://luyf-lemon-love.space/nano-dnf/",
+  "unitTests": 430,
+  "browserGroups": 34,
+  "localLiveSmoke": "passed: deployed runtime bytes match checkout, boot without problems",
+  "onlineDirectedChecks": {
+    "nativeRockRegions": 4,
+    "minimumCosine": 0.9931428920277517,
+    "eastKeyboardTravel": "passed: 宝箱浅沟",
+    "barrelFixture": "existing real attacks and two remaining barrels verified"
+  },
+  "manualAcceptance": "pending",
+  "remaining": "Other scene objects/lifecycle and rooms, pillar debris/HP/drop/pass semantics, character/combat fidelity, HUD/results/XP/audio, ordinary route/unseen content and manual acceptance remain open."
+}

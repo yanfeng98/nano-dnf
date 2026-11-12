@@ -1,7 +1,7 @@
 """Small reader for the local client's binary ANI properties (audit tools)."""
 import struct
 
-def parse_animation(data):
+def parse_animation(data, include_image=False):
  pos=0
  def take(fmt):
   nonlocal pos
@@ -29,7 +29,9 @@ def parse_animation(data):
   for _ in range(take('H')):boxes.append((take('H'),take('6i')))
   img=take('h');idx=take('H') if img!=-1 else None
   xy=take('2i');props=[prop() for _ in range(take('H'))]
-  out.append({'frame':idx,'xy':xy,'props':props,'boxes':boxes})
+  record={'frame':idx,'xy':xy,'props':props,'boxes':boxes}
+  if include_image:record['image']=img
+  out.append(record)
  assert pos==len(data),(pos,len(data))
  return {'paths':paths,'overall':overall,'frames':out}
 

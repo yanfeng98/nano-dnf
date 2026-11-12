@@ -1,0 +1,146 @@
+[
+  {
+    "label": "front-barrel",
+    "time": 277,
+    "minPixels": 100,
+    "threshold": 0.95,
+    "nativeMask": {
+      "rows": 22,
+      "columns": 72,
+      "alphaOnly": false,
+      "box": null
+    },
+    "cosine": 0.9908808328728279,
+    "dx": 0,
+    "dy": 0,
+    "pixels": 468
+  },
+  {
+    "label": "middle-barrel",
+    "time": 277,
+    "minPixels": 100,
+    "threshold": 0.95,
+    "nativeMask": {
+      "rows": 22,
+      "columns": 70,
+      "alphaOnly": false,
+      "box": null
+    },
+    "cosine": 0.9927450929638412,
+    "dx": 1,
+    "dy": 0,
+    "pixels": 471
+  },
+  {
+    "label": "back-barrel",
+    "time": 277,
+    "minPixels": 100,
+    "threshold": 0.95,
+    "nativeMask": {
+      "rows": 22,
+      "columns": 72,
+      "alphaOnly": false,
+      "box": null
+    },
+    "cosine": 0.9915518736514601,
+    "dx": -1,
+    "dy": 0,
+    "pixels": 468
+  },
+  {
+    "label": "native-bush-592",
+    "time": 293,
+    "minPixels": 1000,
+    "threshold": 0.97,
+    "nativeMask": {
+      "rows": 66,
+      "columns": 72,
+      "alphaOnly": true,
+      "box": null
+    },
+    "cosine": 0.9879765083899272,
+    "dx": 0,
+    "dy": 0,
+    "pixels": 1404
+  },
+  {
+    "label": "native-bush-680",
+    "time": 293,
+    "minPixels": 1000,
+    "threshold": 0.97,
+    "nativeMask": {
+      "rows": 66,
+      "columns": 72,
+      "alphaOnly": true,
+      "box": null
+    },
+    "cosine": 0.9887054258688893,
+    "dx": 0,
+    "dy": 0,
+    "pixels": 1404
+  },
+  {
+    "label": "single-large-rock",
+    "time": 277,
+    "minPixels": 1000,
+    "threshold": 0.97,
+    "nativeMask": {
+      "rows": 60,
+      "columns": 159,
+      "alphaOnly": false,
+      "box": null
+    },
+    "cosine": 0.9962873155624263,
+    "dx": 0,
+    "dy": -1,
+    "pixels": 2061
+  },
+  {
+    "label": "rock-after-pan",
+    "time": 281,
+    "minPixels": 1000,
+    "threshold": 0.97,
+    "nativeMask": {
+      "rows": 60,
+      "columns": 159,
+      "alphaOnly": false,
+      "box": null
+    },
+    "cosine": 0.9973070316273474,
+    "dx": 0,
+    "dy": -1,
+    "pixels": 2061
+  },
+  {
+    "label": "first-green-tree",
+    "time": 293,
+    "minPixels": 5000,
+    "threshold": 0.97,
+    "nativeMask": {
+      "rows": 229,
+      "columns": 171,
+      "alphaOnly": true,
+      "box": null
+    },
+    "cosine": 0.9829911360968231,
+    "dx": 0,
+    "dy": 0,
+    "pixels": 19870
+  },
+  {
+    "label": "second-green-tree",
+    "time": 307,
+    "minPixels": 5000,
+    "threshold": 0.97,
+    "nativeMask": {
+      "rows": 227,
+      "columns": 173,
+      "alphaOnly": true,
+      "box": null
+    },
+    "cosine": 0.9766952473829835,
+    "dx": -1,
+    "dy": -1,
+    "pixels": 19941
+  }
+]
