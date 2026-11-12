@@ -207,12 +207,15 @@ const profiles={
    ['right-front',72.5,'pillar',0,0,44,133,351,305,49,150,100,1000,.97],
    ['right-back',72.5,'pillar',0,0,44,133,444,246,49,150,100,1000,.97]
   ]},
- '41':{batch:47,col:0,out:'/tmp/nano-room47/render',times:[10.5,13.5,17.5,25.5],next:'宝箱浅沟',
+ '41':{batch:47,col:0,out:'/tmp/nano-room47/render',times:[10.5,13.5,15.5,17.5,21,25.5],next:'宝箱浅沟',
+  referenceNames:{15.5:'100-room41-15.5-reference.png',21:'100-room41-21-reference.png'},
   cases:[
    ['initial-back-barrel-cap',10.5,'forest',560,1874,63,78,502,256,72,89,22,100,.95],
    ['initial-high-barrel-cap',10.5,'forest',560,1874,63,78,665,200,72,89,22,100,.95,50],
-   ['first-rock',17.5,'forest',585,803,141,89,87,208,156,98,80,1000,.97],
-   ['second-rock',25.5,'forest',585,803,141,89,183,321,161,102,80,1000,.97],
+   ['first-rock',17.5,'forest',585,803,141,89,86,207,159,100,80,1000,.97],
+   ['first-rock-unoccluded',15.5,'forest',585,803,141,89,126,207,159,100,80,1000,.97],
+   ['second-rock',25.5,'forest',585,803,141,89,185,322,159,100,80,1000,.97],
+   ['second-rock-west-camera',21,'forest',585,803,141,89,299,322,159,100,80,1000,.97],
    ['back-barrel-cap',13.5,'forest',560,1874,63,78,270,316,72,89,22,100,.95],
    ['front-barrel-cap',17.5,'forest',560,1874,63,78,322,403,70,86,22,100,.95]
   ]}

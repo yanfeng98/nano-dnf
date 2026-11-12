@@ -2643,10 +2643,11 @@
           ],
           cap: 4,
           // V2 13.5/17.5/25.5s native rock/barrel locations after camera removal.
+          // Rocks use s419 native StoneHead anchors/footprints (audit100).
           // Rear trees use the native closeback list; the fallen log is still unverified.
           props: [
-            { piece: "rockFlat", x: 376, depth: 1.429, scale: [0.70, 0.70] },
-            { piece: "rockFlat", x: 669, depth: 0.081, scale: [0.725, 0.725] },
+            { piece: "rockFlat", nativeRock: [515, 176] },
+            { piece: "rockFlat", nativeRock: [927, 278] },
             { piece: "barrel", x: 341, depth: 0.980, scale: [0.725, 0.725] },
             { piece: "barrel", x: 444, depth: 1.625, scale: [0.725, 0.725] },
             { piece: "barrel", x: 328, depth: 0.288, scale: [0.725, 0.725] },

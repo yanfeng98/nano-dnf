@@ -1,0 +1,815 @@
+{
+  "source": {
+    "objectListRecord": [
+      286,
+      "MapObject/Obstacle/StoneHead1.obj"
+    ],
+    "map": "map/mirkwooddeep/s419(0,3).map",
+    "mapSha256": "33da276fd07c18abca3e8d8fa9741688445be1b34bf43aec7e7d5c2b4a7540e2",
+    "object": "passiveobject/mapobject/obstacle/stonehead1.obj",
+    "objectSha256": "a4a6c644eae31869daeba91bce8221983b13771491e8e2aff893895f5bc70513",
+    "width": [
+      140,
+      28
+    ],
+    "passType": "[do not pass]",
+    "animation": {
+      "paths": [
+        "Map/02obj009.img"
+      ],
+      "overall": [
+        [
+          1,
+          0
+        ]
+      ],
+      "frames": [
+        {
+          "frame": 0,
+          "xy": [
+            -59,
+            -81
+          ],
+          "props": [
+            [
+              12,
+              50
+            ]
+          ],
+          "boxes": []
+        }
+      ]
+    },
+    "records": [
+      [
+        286,
+        515,
+        176,
+        0
+      ],
+      [
+        286,
+        927,
+        278,
+        0
+      ]
+    ],
+    "imageSize": [
+      141,
+      89
+    ],
+    "imageOffset": [
+      0,
+      7
+    ],
+    "rgbaSha256": "336f5d4dcf46b9ef605ffa4a4ffe694f74ae1ecdca5fe5c4ad120b9955e17a95"
+  },
+  "screenScale": 1.125,
+  "screenYPhase": 92,
+  "gate": {
+    "score": 0.94,
+    "positionResidualPx": 2
+  },
+  "observations": [
+    {
+      "frame": 1,
+      "time": 10.5,
+      "native": [
+        515,
+        176
+      ],
+      "score": 0.5414420366287231,
+      "templateHeight": 100,
+      "expectedTopLeft": [
+        513.0,
+        206.75
+      ],
+      "measuredTopLeft": [
+        513,
+        207
+      ],
+      "residual": [
+        0.0,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "frame": 2,
+      "time": 11.0,
+      "native": [
+        515,
+        176
+      ],
+      "score": 0.64151531457901,
+      "templateHeight": 100,
+      "expectedTopLeft": [
+        513.06,
+        206.75
+      ],
+      "measuredTopLeft": [
+        513,
+        207
+      ],
+      "residual": [
+        -0.05999999999994543,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "frame": 3,
+      "time": 11.5,
+      "native": [
+        515,
+        176
+      ],
+      "score": 0.22052092850208282,
+      "templateHeight": 100,
+      "expectedTopLeft": [
+        481.56,
+        206.75
+      ],
+      "measuredTopLeft": [
+        482,
+        207
+      ],
+      "residual": [
+        0.4399999999999977,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "frame": 4,
+      "time": 12.0,
+      "native": [
+        515,
+        176
+      ],
+      "score": 0.9250847697257996,
+      "templateHeight": 100,
+      "expectedTopLeft": [
+        462.48,
+        206.75
+      ],
+      "measuredTopLeft": [
+        462,
+        207
+      ],
+      "residual": [
+        -0.4800000000000182,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "frame": 5,
+      "time": 12.5,
+      "native": [
+        515,
+        176
+      ],
+      "score": 0.49423202872276306,
+      "templateHeight": 100,
+      "expectedTopLeft": [
+        377.01,
+        206.75
+      ],
+      "measuredTopLeft": [
+        377,
+        207
+      ],
+      "residual": [
+        -0.009999999999990905,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "frame": 6,
+      "time": 13.0,
+      "native": [
+        515,
+        176
+      ],
+      "score": 0.4802703559398651,
+      "templateHeight": 100,
+      "expectedTopLeft": [
+        327.49,
+        206.75
+      ],
+      "measuredTopLeft": [
+        327,
+        207
+      ],
+      "residual": [
+        -0.4900000000000091,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "frame": 7,
+      "time": 13.5,
+      "native": [
+        515,
+        176
+      ],
+      "score": 0.535975992679596,
+      "templateHeight": 100,
+      "expectedTopLeft": [
+        302.73,
+        206.75
+      ],
+      "measuredTopLeft": [
+        303,
+        207
+      ],
+      "residual": [
+        0.2699999999999818,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "frame": 8,
+      "time": 14.0,
+      "native": [
+        515,
+        176
+      ],
+      "score": 0.8346304893493652,
+      "templateHeight": 100,
+      "expectedTopLeft": [
+        232.99,
+        206.75
+      ],
+      "measuredTopLeft": [
+        233,
+        207
+      ],
+      "residual": [
+        0.009999999999990905,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "frame": 9,
+      "time": 14.5,
+      "native": [
+        515,
+        176
+      ],
+      "score": 0.8223149180412292,
+      "templateHeight": 100,
+      "expectedTopLeft": [
+        196.97000000000003,
+        206.75
+      ],
+      "measuredTopLeft": [
+        197,
+        207
+      ],
+      "residual": [
+        0.029999999999972715,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "frame": 10,
+      "time": 15.0,
+      "native": [
+        515,
+        176
+      ],
+      "score": 0.9852918982505798,
+      "templateHeight": 100,
+      "expectedTopLeft": [
+        162.13,
+        206.75
+      ],
+      "measuredTopLeft": [
+        162,
+        207
+      ],
+      "residual": [
+        -0.12999999999999545,
+        0.25
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 11,
+      "time": 15.5,
+      "native": [
+        515,
+        176
+      ],
+      "score": 0.9855402112007141,
+      "templateHeight": 100,
+      "expectedTopLeft": [
+        126.11000000000001,
+        206.75
+      ],
+      "measuredTopLeft": [
+        126,
+        207
+      ],
+      "residual": [
+        -0.11000000000001364,
+        0.25
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 12,
+      "time": 16.0,
+      "native": [
+        515,
+        176
+      ],
+      "score": 0.9823136329650879,
+      "templateHeight": 100,
+      "expectedTopLeft": [
+        110.37,
+        206.75
+      ],
+      "measuredTopLeft": [
+        110,
+        207
+      ],
+      "residual": [
+        -0.37000000000000455,
+        0.25
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 13,
+      "time": 16.5,
+      "native": [
+        515,
+        176
+      ],
+      "score": 0.9842631816864014,
+      "templateHeight": 100,
+      "expectedTopLeft": [
+        110.38999999999999,
+        206.75
+      ],
+      "measuredTopLeft": [
+        110,
+        207
+      ],
+      "residual": [
+        -0.38999999999998636,
+        0.25
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 14,
+      "time": 17.0,
+      "native": [
+        515,
+        176
+      ],
+      "score": 0.9854622483253479,
+      "templateHeight": 100,
+      "expectedTopLeft": [
+        110.38999999999999,
+        206.75
+      ],
+      "measuredTopLeft": [
+        110,
+        207
+      ],
+      "residual": [
+        -0.38999999999998636,
+        0.25
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 15,
+      "time": 17.5,
+      "native": [
+        515,
+        176
+      ],
+      "score": 0.9683895707130432,
+      "templateHeight": 100,
+      "expectedTopLeft": [
+        85.60000000000002,
+        206.75
+      ],
+      "measuredTopLeft": [
+        86,
+        207
+      ],
+      "residual": [
+        0.39999999999997726,
+        0.25
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 16,
+      "time": 18.0,
+      "native": [
+        515,
+        176
+      ],
+      "score": 0.9118759036064148,
+      "templateHeight": 100,
+      "expectedTopLeft": [
+        60.860000000000014,
+        206.75
+      ],
+      "measuredTopLeft": [
+        61,
+        207
+      ],
+      "residual": [
+        0.13999999999998636,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "frame": 16,
+      "time": 18.0,
+      "native": [
+        927,
+        278
+      ],
+      "score": 0.7632157206535339,
+      "templateHeight": 100,
+      "expectedTopLeft": [
+        524.36,
+        321.5
+      ],
+      "measuredTopLeft": [
+        524,
+        322
+      ],
+      "residual": [
+        -0.36000000000001364,
+        0.5
+      ],
+      "accepted": false
+    },
+    {
+      "frame": 17,
+      "time": 18.5,
+      "native": [
+        927,
+        278
+      ],
+      "score": 0.978868842124939,
+      "templateHeight": 100,
+      "expectedTopLeft": [
+        461.30999999999995,
+        321.5
+      ],
+      "measuredTopLeft": [
+        461,
+        322
+      ],
+      "residual": [
+        -0.30999999999994543,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 18,
+      "time": 19.0,
+      "native": [
+        927,
+        278
+      ],
+      "score": 0.9766486883163452,
+      "templateHeight": 100,
+      "expectedTopLeft": [
+        417.38,
+        321.5
+      ],
+      "measuredTopLeft": [
+        417,
+        322
+      ],
+      "residual": [
+        -0.37999999999999545,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 19,
+      "time": 19.5,
+      "native": [
+        927,
+        278
+      ],
+      "score": 0.9763814210891724,
+      "templateHeight": 100,
+      "expectedTopLeft": [
+        389.24,
+        321.5
+      ],
+      "measuredTopLeft": [
+        389,
+        322
+      ],
+      "residual": [
+        -0.2400000000000091,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 20,
+      "time": 20.0,
+      "native": [
+        927,
+        278
+      ],
+      "score": 0.9795815944671631,
+      "templateHeight": 100,
+      "expectedTopLeft": [
+        371.38,
+        321.5
+      ],
+      "measuredTopLeft": [
+        371,
+        322
+      ],
+      "residual": [
+        -0.37999999999999545,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 21,
+      "time": 20.5,
+      "native": [
+        927,
+        278
+      ],
+      "score": 0.9767018556594849,
+      "templateHeight": 100,
+      "expectedTopLeft": [
+        363.42999999999995,
+        321.5
+      ],
+      "measuredTopLeft": [
+        363,
+        322
+      ],
+      "residual": [
+        -0.42999999999995,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 22,
+      "time": 21.0,
+      "native": [
+        927,
+        278
+      ],
+      "score": 0.9808350801467896,
+      "templateHeight": 100,
+      "expectedTopLeft": [
+        299.29999999999995,
+        321.5
+      ],
+      "measuredTopLeft": [
+        299,
+        322
+      ],
+      "residual": [
+        -0.2999999999999545,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 23,
+      "time": 21.5,
+      "native": [
+        927,
+        278
+      ],
+      "score": 0.9726736545562744,
+      "templateHeight": 100,
+      "expectedTopLeft": [
+        247.57000000000005,
+        321.5
+      ],
+      "measuredTopLeft": [
+        247,
+        322
+      ],
+      "residual": [
+        -0.57000000000005,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 24,
+      "time": 22.0,
+      "native": [
+        927,
+        278
+      ],
+      "score": 0.9760429263114929,
+      "templateHeight": 100,
+      "expectedTopLeft": [
+        221.72000000000003,
+        321.5
+      ],
+      "measuredTopLeft": [
+        222,
+        322
+      ],
+      "residual": [
+        0.2799999999999727,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 25,
+      "time": 22.5,
+      "native": [
+        927,
+        278
+      ],
+      "score": 0.9696850776672363,
+      "templateHeight": 100,
+      "expectedTopLeft": [
+        193.67999999999995,
+        321.5
+      ],
+      "measuredTopLeft": [
+        194,
+        322
+      ],
+      "residual": [
+        0.32000000000005,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 26,
+      "time": 23.0,
+      "native": [
+        927,
+        278
+      ],
+      "score": 0.9683579802513123,
+      "templateHeight": 100,
+      "expectedTopLeft": [
+        193.63,
+        321.5
+      ],
+      "measuredTopLeft": [
+        194,
+        322
+      ],
+      "residual": [
+        0.37000000000000455,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 27,
+      "time": 23.5,
+      "native": [
+        927,
+        278
+      ],
+      "score": 0.9722699522972107,
+      "templateHeight": 100,
+      "expectedTopLeft": [
+        193.55999999999995,
+        321.5
+      ],
+      "measuredTopLeft": [
+        193,
+        322
+      ],
+      "residual": [
+        -0.5599999999999454,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 28,
+      "time": 24.0,
+      "native": [
+        927,
+        278
+      ],
+      "score": 0.9723599553108215,
+      "templateHeight": 100,
+      "expectedTopLeft": [
+        193.55999999999995,
+        321.5
+      ],
+      "measuredTopLeft": [
+        194,
+        322
+      ],
+      "residual": [
+        0.44000000000005457,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 29,
+      "time": 24.5,
+      "native": [
+        927,
+        278
+      ],
+      "score": 0.9729205965995789,
+      "templateHeight": 100,
+      "expectedTopLeft": [
+        193.53999999999996,
+        321.5
+      ],
+      "measuredTopLeft": [
+        194,
+        322
+      ],
+      "residual": [
+        0.4600000000000364,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 30,
+      "time": 25.0,
+      "native": [
+        927,
+        278
+      ],
+      "score": 0.9726176857948303,
+      "templateHeight": 100,
+      "expectedTopLeft": [
+        193.58000000000004,
+        321.5
+      ],
+      "measuredTopLeft": [
+        193,
+        322
+      ],
+      "residual": [
+        -0.5800000000000409,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "frame": 31,
+      "time": 25.5,
+      "native": [
+        927,
+        278
+      ],
+      "score": 0.9729424118995667,
+      "templateHeight": 100,
+      "expectedTopLeft": [
+        184.58000000000004,
+        321.5
+      ],
+      "measuredTopLeft": [
+        185,
+        322
+      ],
+      "residual": [
+        0.4199999999999591,
+        0.5
+      ],
+      "accepted": true
+    }
+  ],
+  "limits": [
+    "Occluded observations are retained as exclusions, not evidence of a different position.",
+    "Native static pass flag does not alone prove all engine collision behavior."
+  ]
+}

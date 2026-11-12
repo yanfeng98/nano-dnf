@@ -1,0 +1,12 @@
+{
+  "commit": "ea135d1",
+  "workflow": "https://github.com/yanfeng98/nano-dnf/actions/runs/43212788820",
+  "ci": "Success; commit present, three executed jobs",
+  "site": "https://luyf-lemon-love.space/nano-dnf/",
+  "unitTests": 429,
+  "browserGroups": 34,
+  "localLiveSmoke": "passed: deployed runtime bytes match checkout, boot cleanly",
+  "onlineDirectedChecks": "three native rock Canvas regions and real keyboard north exit passed",
+  "manualAcceptance": "pending",
+  "remaining": "Other scene objects and lifecycle, pillars/debris/HP/drop semantics, characters/combat, HUD/results/XP/audio, ordinary route/unseen rooms and manual acceptance remain open."
+}

@@ -12086,3 +12086,27 @@ test("room43 rocks retain native bitmap offsets and independent walk footprints"
   Core.runFrames(s,120,{right:true});
   assert.ok(Math.abs(s.player.x-(body.x-(140+40)*scale/2))<1e-7,"real movement stops at native rock plus player footprint");
 });
+
+test("room41 native rocks block at their physical anchors and allow the front lane", () => {
+  const s=Core.createState({stage:"mirkwooddeep",seed:1});
+  const rocks=s.props.filter(p=>p.piece==="rockFlat");
+  assert.equal(rocks.length,2);
+  const scale=1.125/Core.CAMERA.zoom;
+  for(const [i,[x,y]] of [[515,176],[927,278]].entries()) {
+    const p=rocks[i],body=Core.propObstacle(p);
+    assert.ok(Math.abs(body.x-x*scale)<1e-7,"native physical anchor drives collision");
+    assert.ok(Math.abs(body.width-140*scale)<1e-7);
+    assert.ok(Math.abs(body.depth-28*scale/Core.DEPTH.scale)<1e-7);
+    assert.ok(Math.abs(p.x-(x+11.5)*scale)<1e-7);
+    assert.ok(Math.abs(p.z-body.z+15*scale/Core.DEPTH.scale)<1e-7);
+    assert.equal(p.sortZ,body.z);
+  }
+  const p=rocks[1],body=Core.propObstacle(p);
+  s.props=[p];s.enemies=[];s.intro=null;s.transition=0;s.room.cleared=true;s.player.invuln=999;
+  s.player.x=body.x-120;s.player.z=body.z;
+  Core.runFrames(s,120,{right:true});
+  assert.ok(Math.abs(s.player.x-(body.x-180*scale/2))<1e-7,"aligned real movement contacts the native rectangle");
+  s.player.x=body.x-100;s.player.z=0;
+  Core.runFrames(s,120,{right:true});
+  assert.ok(s.player.x>body.x+90,"front lane bypasses without shrinking the rock");
+});

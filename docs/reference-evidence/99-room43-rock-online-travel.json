@@ -1,0 +1,13 @@
+{
+  "room": "藤蔓窄道",
+  "departure": {
+    "x": 970,
+    "z": 184,
+    "exit": "N",
+    "sideThreshold": 60,
+    "depthThreshold": 46,
+    "sideDistance": 284.05999999999995,
+    "northDistance": 66
+  },
+  "validationScope": "three native room43 StoneHead bitmaps; other scenery and native engine collision semantics remain open"
+}
