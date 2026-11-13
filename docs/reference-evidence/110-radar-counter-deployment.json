@@ -1,0 +1,26 @@
+{
+  "commit": "f07adb4",
+  "actions": "https://github.com/yanfeng98/nano-dnf/actions/runs/43385938292",
+  "status": "Success",
+  "jobs": 3,
+  "unitTests": 440,
+  "browserGroups": 42,
+  "liveSmoke": "deployed source/asset bytes match checkout; clean boot",
+  "onlineComponentChecks": 15,
+  "onlineMinimumCosine": 0.9769838495377293,
+  "onlineRealDeathOnce": true,
+  "onlineWindowPartialHeader": {
+    "stage": "mirkwood",
+    "time": 76,
+    "part": "bag-window-left",
+    "cosine": 0.9797228580603257,
+    "pixels": 452,
+    "minPixels": 350,
+    "threshold": 0.97,
+    "translation": [
+      0,
+      0
+    ]
+  },
+  "remaining": "precise receipt/death phase, increment flash, blue map button and other global issues; manual acceptance pending"
+}

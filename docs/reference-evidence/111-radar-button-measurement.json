@@ -1,0 +1,316 @@
+{
+  "source": {
+    "pack": "sprite_map_minimap.NPK",
+    "entry": "sprite/map/minimap/minimap.img",
+    "nativeRect": [
+      268,
+      245,
+      24,
+      24
+    ],
+    "packedRect": [
+      589,
+      18,
+      24,
+      24
+    ],
+    "nativeRgbaEqualPacked": true,
+    "rgbaSha256": "cc0271401b5122d68acad68baede2439a89184be61f2a0a12441025ce48de9d2"
+  },
+  "fixedVisibleRoi": [
+    676,
+    40,
+    36,
+    16
+  ],
+  "fit": {
+    "frame": [
+      "00002",
+      15.5
+    ],
+    "partCandidates": {
+      "first": [
+        268,
+        245,
+        24,
+        24
+      ],
+      "third": [
+        327,
+        244,
+        24,
+        24
+      ]
+    },
+    "scales": [
+      1,
+      1.125,
+      1.25
+    ],
+    "xSearch": [
+      677,
+      683,
+      0.25
+    ],
+    "ySearch": [
+      25,
+      30,
+      0.25
+    ],
+    "bestByPartAndScale": [
+      {
+        "part": "first",
+        "scale": 1,
+        "x": 682.5,
+        "y": 28.5,
+        "ncc": 0.8456260849545078,
+        "pixels": 212
+      },
+      {
+        "part": "first",
+        "scale": 1.125,
+        "x": 680.5,
+        "y": 25.75,
+        "ncc": 0.9721999999534023,
+        "pixels": 242
+      },
+      {
+        "part": "first",
+        "scale": 1.25,
+        "x": 680.75,
+        "y": 25.0,
+        "ncc": 0.42609526278877535,
+        "pixels": 325
+      },
+      {
+        "part": "third",
+        "scale": 1,
+        "x": 682.5,
+        "y": 27.75,
+        "ncc": 0.7703003687934294,
+        "pixels": 203
+      },
+      {
+        "part": "third",
+        "scale": 1.125,
+        "x": 680.75,
+        "y": 25.5,
+        "ncc": 0.9105062887041663,
+        "pixels": 237
+      },
+      {
+        "part": "third",
+        "scale": 1.25,
+        "x": 681.0,
+        "y": 25.0,
+        "ncc": 0.42822419163547915,
+        "pixels": 328
+      }
+    ],
+    "top15": [
+      {
+        "part": "first",
+        "scale": 1.125,
+        "x": 680.5,
+        "y": 25.75,
+        "ncc": 0.9721999999534023,
+        "pixels": 242
+      },
+      {
+        "part": "first",
+        "scale": 1.125,
+        "x": 680.75,
+        "y": 25.75,
+        "ncc": 0.9670144684389451,
+        "pixels": 241
+      },
+      {
+        "part": "first",
+        "scale": 1.125,
+        "x": 680.5,
+        "y": 26.0,
+        "ncc": 0.9643083667849485,
+        "pixels": 254
+      },
+      {
+        "part": "first",
+        "scale": 1.125,
+        "x": 680.75,
+        "y": 26.0,
+        "ncc": 0.9642501890178519,
+        "pixels": 251
+      },
+      {
+        "part": "first",
+        "scale": 1.125,
+        "x": 680.25,
+        "y": 25.75,
+        "ncc": 0.9381551747915516,
+        "pixels": 241
+      },
+      {
+        "part": "first",
+        "scale": 1.125,
+        "x": 680.5,
+        "y": 25.5,
+        "ncc": 0.932689735664607,
+        "pixels": 240
+      },
+      {
+        "part": "first",
+        "scale": 1.125,
+        "x": 681.0,
+        "y": 26.0,
+        "ncc": 0.9304429306674981,
+        "pixels": 245
+      },
+      {
+        "part": "first",
+        "scale": 1.125,
+        "x": 681.0,
+        "y": 25.75,
+        "ncc": 0.9284217677827028,
+        "pixels": 240
+      },
+      {
+        "part": "first",
+        "scale": 1.125,
+        "x": 680.75,
+        "y": 26.25,
+        "ncc": 0.9277020429638636,
+        "pixels": 261
+      },
+      {
+        "part": "first",
+        "scale": 1.125,
+        "x": 680.25,
+        "y": 26.0,
+        "ncc": 0.9232453063754562,
+        "pixels": 251
+      },
+      {
+        "part": "first",
+        "scale": 1.125,
+        "x": 680.5,
+        "y": 26.25,
+        "ncc": 0.9222821800343913,
+        "pixels": 258
+      },
+      {
+        "part": "first",
+        "scale": 1.125,
+        "x": 680.75,
+        "y": 25.5,
+        "ncc": 0.9221624915577196,
+        "pixels": 237
+      },
+      {
+        "part": "third",
+        "scale": 1.125,
+        "x": 680.75,
+        "y": 25.5,
+        "ncc": 0.9105062887041663,
+        "pixels": 237
+      },
+      {
+        "part": "first",
+        "scale": 1.125,
+        "x": 680.25,
+        "y": 25.5,
+        "ncc": 0.9058073572436929,
+        "pixels": 237
+      },
+      {
+        "part": "third",
+        "scale": 1.125,
+        "x": 680.5,
+        "y": 25.5,
+        "ncc": 0.9047557869741031,
+        "pixels": 240
+      }
+    ]
+  },
+  "adopted": {
+    "screenBox": [
+      680.5,
+      25.75,
+      27,
+      27
+    ],
+    "nativeScale": 1.125
+  },
+  "gate": {
+    "ncc": 0.94
+  },
+  "observations": [
+    {
+      "video": "00001",
+      "time": 60,
+      "referenceSha256": "05a006f6da508271a7ede8f65aa0a8e46f26c06189817d958c0e785cf2ed23d6",
+      "clearSample": true,
+      "ncc": 0.9726770347800989,
+      "pixels": 242
+    },
+    {
+      "video": "00001",
+      "time": 74,
+      "referenceSha256": "9f577feac20684f9a90d49c19adeebfdc5a2e8775c723c51529c67f3f97f868d",
+      "clearSample": true,
+      "ncc": 0.9716785087364351,
+      "pixels": 242
+    },
+    {
+      "video": "00002",
+      "time": 10.5,
+      "referenceSha256": "0fd624554a0dcb7f7cb99490cbad0ae06905e20515254c2f73807c718a6e9fad",
+      "clearSample": true,
+      "ncc": 0.9699796336925303,
+      "pixels": 242
+    },
+    {
+      "video": "00002",
+      "time": 15.5,
+      "referenceSha256": "bbbcd2d98aecdee172c5710f603799d4c6fd125aa4e3171483840e4ccdbf868d",
+      "clearSample": true,
+      "ncc": 0.9721999999534023,
+      "pixels": 242
+    },
+    {
+      "video": "00002",
+      "time": 25.5,
+      "referenceSha256": "63d0cde80e2c74bd793141732b788109eee3aa02c1fdba2daa1be52271c72ed7",
+      "clearSample": true,
+      "ncc": 0.9730922280758575,
+      "pixels": 242
+    },
+    {
+      "video": "00002",
+      "time": 40,
+      "referenceSha256": "3ea5407c94ba720fa253ca26d87db7258d9abcb97bfe1285313481119021aa1d",
+      "clearSample": true,
+      "ncc": 0.9721042869570042,
+      "pixels": 242
+    },
+    {
+      "video": "00002",
+      "time": 60,
+      "referenceSha256": "f5903c10c031fcefa68717daac749c2344c2401509f1083fdc355e66fb66b06e",
+      "clearSample": true,
+      "ncc": 0.963894750150094,
+      "pixels": 242
+    },
+    {
+      "video": "00002",
+      "time": 72.5,
+      "referenceSha256": "c49fbeb7dda9950f89ef662053dfc042d4670621a42c348ce5f3a70d5e623b43",
+      "clearSample": false,
+      "ncc": 0.6627579667197537,
+      "pixels": 242
+    }
+  ],
+  "limits": [
+    "Only the fixed lower strip below FPS is verified; the upper composite is occluded.",
+    "72.5s increment flash is retained as an occluded negative control, not a material mismatch.",
+    "No hover/pressed-state meaning is assigned to the alternative native variants; their engine states remain unknown."
+  ]
+}

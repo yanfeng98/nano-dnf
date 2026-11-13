@@ -267,6 +267,8 @@ def main() -> None:
             [263, 282, 298, 319, 339, 360, 385, 407, 426, 446],
             [11, 7, 11, 11, 11, 11, 11, 11, 11, 11])):
         specials.append(("radarDigit" + str(digit), cut(atlas, x, 154, width, 13)))
+    # First native magnifier; the second outlined variant differs (audit111).
+    specials.append(("radarButton", cut(atlas, 268, 245, 24, 24)))
 
     gap = 4
     tiles_w = TILE * len(order)

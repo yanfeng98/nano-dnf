@@ -9113,7 +9113,7 @@ test("the map's button is what a tap has to hit, not the window", () => {
 test("the map draws the whole dungeon, and blanks only what is not there", () => {
   const state = Core.createState({ seed: 1, stage: "mirkwood" });
   const calls = [];
-  const sheet = { width: 585, height: 122 };
+  const sheet = { width: 613, height: 122 };
   Render.render(recordingContext(calls), state, {
     sprites: { minimap: sheet },
     map: { mode: "window" }
@@ -9149,7 +9149,7 @@ test("地图的领主格是牛头，没去过也露出来", () => {
   assert.ok(!boss.seen, "这一条要从没去过的领主房开始");
 
   const calls = [];
-  const minimap = { width: 585, height: 122 };
+  const minimap = { width: 613, height: 122 };
   Render.render(recordingContext(calls), state, {
     sprites: { minimap },
     map: { mode: "window" }
@@ -9194,7 +9194,7 @@ test("the map window's markers land in the boss's cell and in the player's", () 
   /* 站到地图上第四格，好让"他在哪"和"Boss 在哪"是两个地方。 */
   Core.goToCell(state, 3);
   const calls = [];
-  const sheet = { width: 585, height: 122 };
+  const sheet = { width: 613, height: 122 };
   Render.render(recordingContext(calls), state, {
     sprites: { minimap: sheet },
     map: { mode: "window" }
@@ -12312,7 +12312,7 @@ test("native gate clear event fades its leaf over the authored500ms and does not
 });
 
 test("recorded radar keeps a fixed native frame and content geometry across dungeon sizes", () => {
-  const sheet={width:585,height:122};
+  const sheet={width:613,height:122};
   for(const stage of ["mirkwood","mirkwooddeep"]) {
     const s=Core.createState({stage,seed:1,referenceProfile:true}),calls=[];
     Render.render(recordingContext(calls),s,{sprites:{minimap:sheet},map:{mode:"radar"}});
@@ -12337,7 +12337,7 @@ test("recorded radar keeps a fixed native frame and content geometry across dung
 
 test("window map uses the recorded20.25px grid and keeps input on its enlarged frame", () => {
   for(const stage of ["mirkwood","mirkwooddeep"]) {
-    const state=Core.createState({stage,seed:1}),calls=[],sheet={width:585,height:122};
+    const state=Core.createState({stage,seed:1}),calls=[],sheet={width:613,height:122};
     const meta={map:{mode:"window",cols:state.dungeon.cols,rows:state.dungeon.rows},sprites:{minimap:sheet}};
     Render.render(recordingContext(calls),state,meta);
     const box=Render.minimapBox(meta),cols=state.dungeon.cols,rows=state.dungeon.rows;
@@ -12357,10 +12357,10 @@ test("window map uses the recorded20.25px grid and keeps input on its enlarged f
 });
 
 test("radar counter uses native fractional glyphs, counts a real death once and sits below the window", () => {
-  const s=Core.createState({stage:"mirkwooddeep",seed:1}),sheet={width:585,height:122};
+  const s=Core.createState({stage:"mirkwooddeep",seed:1}),sheet={width:613,height:122};
   const callsFor=mode=>{const calls=[];Render.render(recordingContext(calls),s,{sprites:{minimap:sheet},map:{mode}});return calls;};
   let calls=callsFor("radar");
-  const digitCalls=cs=>cs.filter(c=>c[0]==="drawImage"&&c[1]===sheet&&c[2]>=443&&c[3]===18);
+  const digitCalls=cs=>cs.filter(c=>c[0]==="drawImage"&&c[1]===sheet&&c[2]>=443&&c[2]<=574&&c[3]===18);
   assert.deepEqual(digitCalls(calls).map(c=>c.slice(2)),[[443,18,11,13,Core.VIEW.left+633.25,32.5,12.375,14.625]]);
   const enemy=s.enemies.find(e=>e.hp>0);Core.damageEnemy(s,enemy,999999,0,s.player.x);Core.damageEnemy(s,enemy,999999,0,s.player.x);
   assert.equal(s.stats.kills,1);
@@ -12373,4 +12373,18 @@ test("radar counter uses native fractional glyphs, counts a real death once and 
   ]);
   const windowCalls=callsFor("window"),bag=windowCalls.findIndex(c=>c[0]==="drawImage"&&c[1]===sheet&&c[2]===385),panel=windowCalls.findIndex(c=>c[0]==="drawImage"&&c[1]===sheet&&c[2]===190);
   assert.ok(bag>=0&&panel>bag,"the full map covers the shared bag header as in the recording");
+});
+
+
+test("native radar magnifier draws at its measured anchor and its visible circle accepts input", () => {
+  const state=Core.createState({stage:"mirkwooddeep",seed:1}),sheet={width:613,height:122};
+  for(const mode of ["radar","window"]) {
+    const calls=[];Render.render(recordingContext(calls),state,{sprites:{minimap:sheet},map:{mode}});
+    const button=calls.find(c=>c[0]==="drawImage"&&c[1]===sheet&&c[2]===589);
+    assert.deepEqual(button.slice(2),[589,18,24,24,Core.VIEW.left+680.5,25.75,27,27]);
+    if(mode==="window")assert.ok(calls.indexOf(button)<calls.findIndex(c=>c[0]==="drawImage"&&c[1]===sheet&&c[2]===190));
+  }
+  const meta={map:{mode:"radar"}};
+  assert.equal(Render.hitTestMinimap(Core.VIEW.left+694,39.25,meta),"map","the magnifier centre lies outside the old radar-disc hit target");
+  assert.equal(Render.hitTestMinimap(Core.VIEW.left+681.5,26.75,meta),null,"the corner outside the painted circle does not answer");
 });

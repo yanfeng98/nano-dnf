@@ -1,0 +1,215 @@
+{
+  "evidence": [
+    {
+      "stage": "mirkwood",
+      "time": 60,
+      "kills": 0,
+      "part": "bag",
+      "cosine": 0.9846358901286382,
+      "pixels": 660,
+      "minPixels": 500,
+      "threshold": 0.97,
+      "translation": [
+        0,
+        0
+      ]
+    },
+    {
+      "stage": "mirkwood",
+      "time": 60,
+      "kills": 0,
+      "part": "digits-lower",
+      "cosine": 0.9833334800844031,
+      "pixels": 93,
+      "minPixels": 40,
+      "threshold": 0.97,
+      "translation": [
+        0,
+        0
+      ]
+    },
+    {
+      "stage": "mirkwood",
+      "time": 74,
+      "kills": 4,
+      "part": "bag",
+      "cosine": 0.9851370180784778,
+      "pixels": 660,
+      "minPixels": 500,
+      "threshold": 0.97,
+      "translation": [
+        0,
+        0
+      ]
+    },
+    {
+      "stage": "mirkwood",
+      "time": 74,
+      "kills": 4,
+      "part": "digits-lower",
+      "cosine": 0.987944647196167,
+      "pixels": 82,
+      "minPixels": 40,
+      "threshold": 0.97,
+      "translation": [
+        0,
+        0
+      ]
+    },
+    {
+      "stage": "mirkwood",
+      "time": 76,
+      "part": "bag-window-left",
+      "cosine": 0.9797228580603257,
+      "pixels": 452,
+      "minPixels": 350,
+      "threshold": 0.97,
+      "translation": [
+        0,
+        0
+      ]
+    },
+    {
+      "stage": "mirkwooddeep",
+      "time": 10.5,
+      "kills": 0,
+      "part": "bag",
+      "cosine": 0.9790656208545476,
+      "pixels": 660,
+      "minPixels": 500,
+      "threshold": 0.97,
+      "translation": [
+        0,
+        0
+      ]
+    },
+    {
+      "stage": "mirkwooddeep",
+      "time": 10.5,
+      "kills": 0,
+      "part": "digits-lower",
+      "cosine": 0.9769838495377293,
+      "pixels": 93,
+      "minPixels": 40,
+      "threshold": 0.97,
+      "translation": [
+        0,
+        0
+      ]
+    },
+    {
+      "stage": "mirkwooddeep",
+      "time": 15.5,
+      "kills": 0,
+      "part": "bag",
+      "cosine": 0.9839220321803887,
+      "pixels": 660,
+      "minPixels": 500,
+      "threshold": 0.97,
+      "translation": [
+        0,
+        0
+      ]
+    },
+    {
+      "stage": "mirkwooddeep",
+      "time": 15.5,
+      "kills": 0,
+      "part": "digits-lower",
+      "cosine": 0.9817843289854228,
+      "pixels": 93,
+      "minPixels": 40,
+      "threshold": 0.97,
+      "translation": [
+        0,
+        0
+      ]
+    },
+    {
+      "stage": "mirkwooddeep",
+      "time": 25.5,
+      "kills": 7,
+      "part": "bag",
+      "cosine": 0.9847499879002232,
+      "pixels": 660,
+      "minPixels": 500,
+      "threshold": 0.97,
+      "translation": [
+        0,
+        0
+      ]
+    },
+    {
+      "stage": "mirkwooddeep",
+      "time": 25.5,
+      "kills": 7,
+      "part": "digits-lower",
+      "cosine": 0.9808619636959067,
+      "pixels": 55,
+      "minPixels": 40,
+      "threshold": 0.97,
+      "translation": [
+        0,
+        0
+      ]
+    },
+    {
+      "stage": "mirkwooddeep",
+      "time": 40,
+      "kills": 8,
+      "part": "bag",
+      "cosine": 0.9869814792616938,
+      "pixels": 660,
+      "minPixels": 500,
+      "threshold": 0.97,
+      "translation": [
+        0,
+        0
+      ]
+    },
+    {
+      "stage": "mirkwooddeep",
+      "time": 40,
+      "kills": 8,
+      "part": "digits-lower",
+      "cosine": 0.988451733373407,
+      "pixels": 93,
+      "minPixels": 40,
+      "threshold": 0.97,
+      "translation": [
+        0,
+        0
+      ]
+    },
+    {
+      "stage": "mirkwooddeep",
+      "time": 60,
+      "kills": 14,
+      "part": "bag",
+      "cosine": 0.9822226483199643,
+      "pixels": 660,
+      "minPixels": 500,
+      "threshold": 0.97,
+      "translation": [
+        0,
+        0
+      ]
+    },
+    {
+      "stage": "mirkwooddeep",
+      "time": 60,
+      "kills": 14,
+      "part": "digits-lower",
+      "cosine": 0.9833042270957381,
+      "pixels": 135,
+      "minPixels": 40,
+      "threshold": 0.97,
+      "translation": [
+        0,
+        0
+      ]
+    }
+  ],
+  "realDeathOnce": true,
+  "errors": []
+}

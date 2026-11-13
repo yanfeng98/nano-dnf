@@ -2220,6 +2220,7 @@
       ring: [82, 18, 104, 104],
       radarBackground: [307, 18, 74, 74],
       radarCounter: [385, 18, 54, 23],
+      radarButton: [589, 18, 24, 24],
       radarDigit0: [443, 18, 11, 13],
       radarDigit1: [458, 18, 7, 13],
       radarDigit2: [469, 18, 11, 13],
@@ -2305,6 +2306,12 @@
       centre: { x: x + MINIMAP.radarCircleCentre[0] * scale, y: y + MINIMAP.radarCircleCentre[1] * scale },
       content: { x: x + MINIMAP.radarContentOffset[0], y: y + MINIMAP.radarContentOffset[1] },
       radius: MINIMAP.radarRadius * scale };
+  }
+
+  // Fixed native magnifier, independent of the dungeon dimensions (audit111).
+  function radarButtonBox() {
+    var piece = MINIMAP.pieces.radarButton, scale = MINIMAP.radarFrameScale;
+    return { x: HUD_RIGHT - 39.5, y: 25.75, w: piece[2] * scale, h: piece[3] * scale };
   }
 
   function exitsName(exits) {
@@ -2468,10 +2475,9 @@
   /**
    * The ⊘ in the title bar - the button the recording's map has.
    *
-   * **This one is drawn, not baked**: the client has the button's face as a flat
-   * tile and no glyph to put on it (`assets/dnf_src/granfloris-probe/mirkmap/`,
-   * where every frame of the interface packs was scanned for it), so the circle
-   * and its slash are two arcs here.
+   * This full-window slash button remains a fallback: the searched native
+   * candidates have not identified its glyph. The radar magnifier is a
+   * different, verified original piece (audit111).
    */
   function drawMinimapButton(ctx, box) {
     var x = box.x + box.w - 19;
@@ -2493,7 +2499,7 @@
   }
 
   // V1/V2 fixed header: native glyphs retain fractional dimensions and positions.
-  function drawRadarCounter(ctx, state, sprites) {
+  function drawMinimapHeader(ctx, state, sprites) {
     var scale = MINIMAP.radarFrameScale, piece = MINIMAP.pieces.radarCounter;
     ctx.save();
     ctx.imageSmoothingEnabled = true;
@@ -2510,6 +2516,9 @@
                     x, 32.5, digit[2] * scale, digit[3] * scale);
       x += (digit[2] + 1) * scale;
     }
+    var button = radarButtonBox(), buttonPiece = MINIMAP.pieces.radarButton;
+    ctx.drawImage(sprites.minimap, buttonPiece[0], buttonPiece[1], buttonPiece[2], buttonPiece[3],
+                  button.x, button.y, button.w, button.h);
     ctx.restore();
   }
 
@@ -2570,12 +2579,12 @@
       var ring = MINIMAP.pieces.ring;
       ctx.drawImage(sprites.minimap, ring[0], ring[1], ring[2], ring[3],
                     radar.x, radar.y, radar.w, radar.h);
-      drawRadarCounter(ctx, state, sprites);
+      drawMinimapHeader(ctx, state, sprites);
       ctx.restore();
       return;
     }
 
-    drawRadarCounter(ctx, state, sprites);
+    drawMinimapHeader(ctx, state, sprites);
     drawMinimapWindow(ctx, sprites, box);
 
     ctx.fillStyle = "rgba(255, 248, 226, 0.96)";
@@ -2618,6 +2627,9 @@
     var box = minimapBox(meta);
     var mode = (meta && meta.map && meta.map.mode) || "window";
     if (mode === "radar") {
+      var button = radarButtonBox();
+      var bx = x - (button.x + button.w / 2), by = y - (button.y + button.h / 2);
+      if (bx * bx + by * by <= button.w * button.w / 4) return "map";
       var radar = radarBox(meta);
       var dx = x - radar.centre.x;
       var dy = y - radar.centre.y;
