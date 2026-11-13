@@ -1,0 +1,3876 @@
+{
+  "source": "104-room24-east-gate-source.json",
+  "screenScale": 1.125,
+  "screenYPhase": 92,
+  "gate": {
+    "texture": 0.94,
+    "geometryPx": 2
+  },
+  "coverage": {
+    "frame": {
+      "observed": 20,
+      "accepted": 17
+    },
+    "under": {
+      "observed": 61,
+      "accepted": 26
+    },
+    "over": {
+      "observed": 20,
+      "accepted": 0
+    },
+    "door": {
+      "observed": 41,
+      "accepted": 18
+    }
+  },
+  "observations": [
+    {
+      "part": "under",
+      "time": 305.0,
+      "cameraPx": 891.02,
+      "patch": [
+        25,
+        240,
+        70,
+        80
+      ],
+      "score": 0.43148157000541687,
+      "pixels": 2463,
+      "rgbRmse": 49.76876833718082,
+      "expectedPatch": [
+        635.855,
+        111.5
+      ],
+      "measuredPatch": [
+        635,
+        117
+      ],
+      "residual": [
+        -0.8550000000000182,
+        5.5
+      ],
+      "accepted": false
+    },
+    {
+      "part": "under",
+      "time": 305.1,
+      "cameraPx": 906.72,
+      "patch": [
+        25,
+        240,
+        70,
+        80
+      ],
+      "score": 0.49394291639328003,
+      "pixels": 2463,
+      "rgbRmse": 27.02765209066767,
+      "expectedPatch": [
+        620.155,
+        111.5
+      ],
+      "measuredPatch": [
+        620,
+        114
+      ],
+      "residual": [
+        -0.15499999999997272,
+        2.5
+      ],
+      "accepted": false
+    },
+    {
+      "part": "under",
+      "time": 305.2,
+      "cameraPx": 919.14,
+      "patch": [
+        25,
+        240,
+        70,
+        80
+      ],
+      "score": 0.4873078763484955,
+      "pixels": 2463,
+      "rgbRmse": 26.95656471264562,
+      "expectedPatch": [
+        607.735,
+        111.5
+      ],
+      "measuredPatch": [
+        608,
+        114
+      ],
+      "residual": [
+        0.26499999999998636,
+        2.5
+      ],
+      "accepted": false
+    },
+    {
+      "part": "under",
+      "time": 305.3,
+      "cameraPx": 934.86,
+      "patch": [
+        25,
+        240,
+        70,
+        80
+      ],
+      "score": 0.23079296946525574,
+      "pixels": 2463,
+      "rgbRmse": 49.23551989165158,
+      "expectedPatch": [
+        592.015,
+        111.5
+      ],
+      "measuredPatch": [
+        592,
+        114
+      ],
+      "residual": [
+        -0.014999999999986358,
+        2.5
+      ],
+      "accepted": false
+    },
+    {
+      "part": "under",
+      "time": 305.4,
+      "cameraPx": 948.37,
+      "patch": [
+        25,
+        240,
+        70,
+        80
+      ],
+      "score": 0.1749342679977417,
+      "pixels": 2463,
+      "rgbRmse": 46.20450782673292,
+      "expectedPatch": [
+        578.505,
+        111.5
+      ],
+      "measuredPatch": [
+        578,
+        113
+      ],
+      "residual": [
+        -0.5049999999999955,
+        1.5
+      ],
+      "accepted": false
+    },
+    {
+      "part": "under",
+      "time": 305.5,
+      "cameraPx": 959.63,
+      "patch": [
+        25,
+        240,
+        70,
+        80
+      ],
+      "score": 0.21936121582984924,
+      "pixels": 2463,
+      "rgbRmse": 42.0930485885449,
+      "expectedPatch": [
+        567.245,
+        111.5
+      ],
+      "measuredPatch": [
+        567,
+        113
+      ],
+      "residual": [
+        -0.24500000000000455,
+        1.5
+      ],
+      "accepted": false
+    },
+    {
+      "part": "under",
+      "time": 305.6,
+      "cameraPx": 959.64,
+      "patch": [
+        25,
+        240,
+        70,
+        80
+      ],
+      "score": 0.30266904830932617,
+      "pixels": 2463,
+      "rgbRmse": 35.49920655818462,
+      "expectedPatch": [
+        567.235,
+        111.5
+      ],
+      "measuredPatch": [
+        567,
+        112
+      ],
+      "residual": [
+        -0.23500000000001364,
+        0.5
+      ],
+      "accepted": false
+    },
+    {
+      "part": "under",
+      "time": 305.7,
+      "cameraPx": 959.64,
+      "patch": [
+        25,
+        240,
+        70,
+        80
+      ],
+      "score": 0.45216938853263855,
+      "pixels": 2463,
+      "rgbRmse": 28.64342503625486,
+      "expectedPatch": [
+        567.235,
+        111.5
+      ],
+      "measuredPatch": [
+        567,
+        112
+      ],
+      "residual": [
+        -0.23500000000001364,
+        0.5
+      ],
+      "accepted": false
+    },
+    {
+      "part": "under",
+      "time": 305.8,
+      "cameraPx": 959.64,
+      "patch": [
+        25,
+        240,
+        70,
+        80
+      ],
+      "score": 0.5103046894073486,
+      "pixels": 2463,
+      "rgbRmse": 26.6423457911329,
+      "expectedPatch": [
+        567.235,
+        111.5
+      ],
+      "measuredPatch": [
+        567,
+        112
+      ],
+      "residual": [
+        -0.23500000000001364,
+        0.5
+      ],
+      "accepted": false
+    },
+    {
+      "part": "under",
+      "time": 305.9,
+      "cameraPx": 959.64,
+      "patch": [
+        25,
+        240,
+        70,
+        80
+      ],
+      "score": 0.5104010701179504,
+      "pixels": 2463,
+      "rgbRmse": 26.660641828535056,
+      "expectedPatch": [
+        567.235,
+        111.5
+      ],
+      "measuredPatch": [
+        567,
+        112
+      ],
+      "residual": [
+        -0.23500000000001364,
+        0.5
+      ],
+      "accepted": false
+    },
+    {
+      "part": "under",
+      "time": 306.0,
+      "cameraPx": 959.64,
+      "patch": [
+        25,
+        240,
+        70,
+        80
+      ],
+      "score": 0.5110048651695251,
+      "pixels": 2463,
+      "rgbRmse": 26.628667607623836,
+      "expectedPatch": [
+        567.235,
+        111.5
+      ],
+      "measuredPatch": [
+        567,
+        112
+      ],
+      "residual": [
+        -0.23500000000001364,
+        0.5
+      ],
+      "accepted": false
+    },
+    {
+      "part": "under",
+      "time": 306.1,
+      "cameraPx": 959.64,
+      "patch": [
+        25,
+        240,
+        70,
+        80
+      ],
+      "score": 0.5118978023529053,
+      "pixels": 2463,
+      "rgbRmse": 26.615780722381654,
+      "expectedPatch": [
+        567.235,
+        111.5
+      ],
+      "measuredPatch": [
+        567,
+        112
+      ],
+      "residual": [
+        -0.23500000000001364,
+        0.5
+      ],
+      "accepted": false
+    },
+    {
+      "part": "under",
+      "time": 306.2,
+      "cameraPx": 959.64,
+      "patch": [
+        25,
+        240,
+        70,
+        80
+      ],
+      "score": 0.5056395530700684,
+      "pixels": 2463,
+      "rgbRmse": 26.733771637138624,
+      "expectedPatch": [
+        567.235,
+        111.5
+      ],
+      "measuredPatch": [
+        567,
+        112
+      ],
+      "residual": [
+        -0.23500000000001364,
+        0.5
+      ],
+      "accepted": false
+    },
+    {
+      "part": "under",
+      "time": 306.3,
+      "cameraPx": 959.64,
+      "patch": [
+        25,
+        240,
+        70,
+        80
+      ],
+      "score": 0.5161941647529602,
+      "pixels": 2463,
+      "rgbRmse": 26.567405597741082,
+      "expectedPatch": [
+        567.235,
+        111.5
+      ],
+      "measuredPatch": [
+        567,
+        112
+      ],
+      "residual": [
+        -0.23500000000001364,
+        0.5
+      ],
+      "accepted": false
+    },
+    {
+      "part": "under",
+      "time": 306.4,
+      "cameraPx": 959.63,
+      "patch": [
+        25,
+        240,
+        70,
+        80
+      ],
+      "score": 0.518979012966156,
+      "pixels": 2463,
+      "rgbRmse": 26.538728317125805,
+      "expectedPatch": [
+        567.245,
+        111.5
+      ],
+      "measuredPatch": [
+        567,
+        112
+      ],
+      "residual": [
+        -0.24500000000000455,
+        0.5
+      ],
+      "accepted": false
+    },
+    {
+      "part": "under",
+      "time": 306.5,
+      "cameraPx": 959.64,
+      "patch": [
+        25,
+        240,
+        70,
+        80
+      ],
+      "score": 0.5197169780731201,
+      "pixels": 2463,
+      "rgbRmse": 26.55888948936131,
+      "expectedPatch": [
+        567.235,
+        111.5
+      ],
+      "measuredPatch": [
+        567,
+        112
+      ],
+      "residual": [
+        -0.23500000000001364,
+        0.5
+      ],
+      "accepted": false
+    },
+    {
+      "part": "under",
+      "time": 306.6,
+      "cameraPx": 959.63,
+      "patch": [
+        25,
+        240,
+        70,
+        80
+      ],
+      "score": 0.5184236168861389,
+      "pixels": 2463,
+      "rgbRmse": 26.583268900019533,
+      "expectedPatch": [
+        567.245,
+        111.5
+      ],
+      "measuredPatch": [
+        567,
+        112
+      ],
+      "residual": [
+        -0.24500000000000455,
+        0.5
+      ],
+      "accepted": false
+    },
+    {
+      "part": "under",
+      "time": 306.7,
+      "cameraPx": 959.64,
+      "patch": [
+        25,
+        240,
+        70,
+        80
+      ],
+      "score": 0.5141128301620483,
+      "pixels": 2463,
+      "rgbRmse": 26.623251808882113,
+      "expectedPatch": [
+        567.235,
+        111.5
+      ],
+      "measuredPatch": [
+        567,
+        112
+      ],
+      "residual": [
+        -0.23500000000001364,
+        0.5
+      ],
+      "accepted": false
+    },
+    {
+      "part": "under",
+      "time": 306.8,
+      "cameraPx": 959.64,
+      "patch": [
+        25,
+        240,
+        70,
+        80
+      ],
+      "score": 0.5128526091575623,
+      "pixels": 2463,
+      "rgbRmse": 26.661649446813932,
+      "expectedPatch": [
+        567.235,
+        111.5
+      ],
+      "measuredPatch": [
+        567,
+        112
+      ],
+      "residual": [
+        -0.23500000000001364,
+        0.5
+      ],
+      "accepted": false
+    },
+    {
+      "part": "under",
+      "time": 306.9,
+      "cameraPx": 985.52,
+      "patch": [
+        25,
+        240,
+        70,
+        80
+      ],
+      "score": 0.6397838592529297,
+      "pixels": 2463,
+      "rgbRmse": 19.840049255807433,
+      "expectedPatch": [
+        541.355,
+        111.5
+      ],
+      "measuredPatch": [
+        541,
+        112
+      ],
+      "residual": [
+        -0.3550000000000182,
+        0.5
+      ],
+      "accepted": false
+    },
+    {
+      "part": "under",
+      "time": 307.0,
+      "cameraPx": 1013.63,
+      "patch": [
+        25,
+        240,
+        70,
+        80
+      ],
+      "score": 0.9574268460273743,
+      "pixels": 2463,
+      "rgbRmse": 9.152095975181656,
+      "expectedPatch": [
+        513.245,
+        111.5
+      ],
+      "measuredPatch": [
+        513,
+        112
+      ],
+      "residual": [
+        -0.24500000000000455,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "part": "door",
+      "time": 307.0,
+      "cameraPx": 1013.63,
+      "patch": [
+        0,
+        65,
+        56,
+        75
+      ],
+      "score": 0.7603572607040405,
+      "pixels": 1902,
+      "rgbRmse": 26.258028331830612,
+      "expectedPatch": [
+        632.245,
+        242.5
+      ],
+      "measuredPatch": [
+        632,
+        243
+      ],
+      "residual": [
+        -0.24500000000000455,
+        0.5
+      ],
+      "accepted": false
+    },
+    {
+      "part": "under",
+      "time": 307.1,
+      "cameraPx": 1017.01,
+      "patch": [
+        25,
+        240,
+        70,
+        80
+      ],
+      "score": 0.9679436087608337,
+      "pixels": 2463,
+      "rgbRmse": 8.784182501954048,
+      "expectedPatch": [
+        509.865,
+        111.5
+      ],
+      "measuredPatch": [
+        510,
+        112
+      ],
+      "residual": [
+        0.1349999999999909,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "part": "door",
+      "time": 307.1,
+      "cameraPx": 1017.01,
+      "patch": [
+        0,
+        65,
+        56,
+        75
+      ],
+      "score": 0.7875344157218933,
+      "pixels": 1902,
+      "rgbRmse": 24.746637636409236,
+      "expectedPatch": [
+        628.865,
+        242.5
+      ],
+      "measuredPatch": [
+        629,
+        243
+      ],
+      "residual": [
+        0.1349999999999909,
+        0.5
+      ],
+      "accepted": false
+    },
+    {
+      "part": "under",
+      "time": 307.2,
+      "cameraPx": 1017.01,
+      "patch": [
+        25,
+        240,
+        70,
+        80
+      ],
+      "score": 0.9696484208106995,
+      "pixels": 2463,
+      "rgbRmse": 8.841432562682064,
+      "expectedPatch": [
+        509.865,
+        111.5
+      ],
+      "measuredPatch": [
+        510,
+        112
+      ],
+      "residual": [
+        0.1349999999999909,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "part": "door",
+      "time": 307.2,
+      "cameraPx": 1017.01,
+      "patch": [
+        0,
+        65,
+        56,
+        75
+      ],
+      "score": 0.7891262769699097,
+      "pixels": 1902,
+      "rgbRmse": 24.528029989585313,
+      "expectedPatch": [
+        628.865,
+        242.5
+      ],
+      "measuredPatch": [
+        629,
+        243
+      ],
+      "residual": [
+        0.1349999999999909,
+        0.5
+      ],
+      "accepted": false
+    },
+    {
+      "part": "under",
+      "time": 307.3,
+      "cameraPx": 1017.01,
+      "patch": [
+        25,
+        240,
+        70,
+        80
+      ],
+      "score": 0.9687759876251221,
+      "pixels": 2463,
+      "rgbRmse": 8.548437771546917,
+      "expectedPatch": [
+        509.865,
+        111.5
+      ],
+      "measuredPatch": [
+        510,
+        112
+      ],
+      "residual": [
+        0.1349999999999909,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "part": "door",
+      "time": 307.3,
+      "cameraPx": 1017.01,
+      "patch": [
+        0,
+        65,
+        56,
+        75
+      ],
+      "score": 0.7891638278961182,
+      "pixels": 1902,
+      "rgbRmse": 24.763571834663015,
+      "expectedPatch": [
+        628.865,
+        242.5
+      ],
+      "measuredPatch": [
+        629,
+        243
+      ],
+      "residual": [
+        0.1349999999999909,
+        0.5
+      ],
+      "accepted": false
+    },
+    {
+      "part": "under",
+      "time": 307.4,
+      "cameraPx": 1017.01,
+      "patch": [
+        25,
+        240,
+        70,
+        80
+      ],
+      "score": 0.9667436480522156,
+      "pixels": 2463,
+      "rgbRmse": 8.424647892339067,
+      "expectedPatch": [
+        509.865,
+        111.5
+      ],
+      "measuredPatch": [
+        510,
+        112
+      ],
+      "residual": [
+        0.1349999999999909,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "part": "door",
+      "time": 307.4,
+      "cameraPx": 1017.01,
+      "patch": [
+        0,
+        65,
+        56,
+        75
+      ],
+      "score": 0.7894086241722107,
+      "pixels": 1902,
+      "rgbRmse": 24.563019374359058,
+      "expectedPatch": [
+        628.865,
+        242.5
+      ],
+      "measuredPatch": [
+        629,
+        243
+      ],
+      "residual": [
+        0.1349999999999909,
+        0.5
+      ],
+      "accepted": false
+    },
+    {
+      "part": "under",
+      "time": 307.5,
+      "cameraPx": 1017.01,
+      "patch": [
+        25,
+        240,
+        70,
+        80
+      ],
+      "score": 0.9714152812957764,
+      "pixels": 2463,
+      "rgbRmse": 8.0112081453443,
+      "expectedPatch": [
+        509.865,
+        111.5
+      ],
+      "measuredPatch": [
+        510,
+        112
+      ],
+      "residual": [
+        0.1349999999999909,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "part": "door",
+      "time": 307.5,
+      "cameraPx": 1017.01,
+      "patch": [
+        0,
+        65,
+        56,
+        75
+      ],
+      "score": 0.789364755153656,
+      "pixels": 1902,
+      "rgbRmse": 24.592921279847204,
+      "expectedPatch": [
+        628.865,
+        242.5
+      ],
+      "measuredPatch": [
+        629,
+        243
+      ],
+      "residual": [
+        0.1349999999999909,
+        0.5
+      ],
+      "accepted": false
+    },
+    {
+      "part": "under",
+      "time": 307.6,
+      "cameraPx": 1017.01,
+      "patch": [
+        25,
+        240,
+        70,
+        80
+      ],
+      "score": 0.9558855295181274,
+      "pixels": 2463,
+      "rgbRmse": 8.588642820140299,
+      "expectedPatch": [
+        509.865,
+        111.5
+      ],
+      "measuredPatch": [
+        510,
+        112
+      ],
+      "residual": [
+        0.1349999999999909,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "part": "door",
+      "time": 307.6,
+      "cameraPx": 1017.01,
+      "patch": [
+        0,
+        65,
+        56,
+        75
+      ],
+      "score": 0.7895295023918152,
+      "pixels": 1902,
+      "rgbRmse": 24.613987998443527,
+      "expectedPatch": [
+        628.865,
+        242.5
+      ],
+      "measuredPatch": [
+        629,
+        243
+      ],
+      "residual": [
+        0.1349999999999909,
+        0.5
+      ],
+      "accepted": false
+    },
+    {
+      "part": "under",
+      "time": 307.7,
+      "cameraPx": 1017.01,
+      "patch": [
+        25,
+        240,
+        70,
+        80
+      ],
+      "score": 0.9668045043945312,
+      "pixels": 2463,
+      "rgbRmse": 8.210050319073,
+      "expectedPatch": [
+        509.865,
+        111.5
+      ],
+      "measuredPatch": [
+        510,
+        112
+      ],
+      "residual": [
+        0.1349999999999909,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "part": "door",
+      "time": 307.7,
+      "cameraPx": 1017.01,
+      "patch": [
+        0,
+        65,
+        56,
+        75
+      ],
+      "score": 0.7884253859519958,
+      "pixels": 1902,
+      "rgbRmse": 24.621989693074084,
+      "expectedPatch": [
+        628.865,
+        242.5
+      ],
+      "measuredPatch": [
+        629,
+        243
+      ],
+      "residual": [
+        0.1349999999999909,
+        0.5
+      ],
+      "accepted": false
+    },
+    {
+      "part": "under",
+      "time": 307.8,
+      "cameraPx": 1017.01,
+      "patch": [
+        25,
+        240,
+        70,
+        80
+      ],
+      "score": 0.9726386666297913,
+      "pixels": 2463,
+      "rgbRmse": 8.08795873289519,
+      "expectedPatch": [
+        509.865,
+        111.5
+      ],
+      "measuredPatch": [
+        510,
+        112
+      ],
+      "residual": [
+        0.1349999999999909,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "part": "door",
+      "time": 307.8,
+      "cameraPx": 1017.01,
+      "patch": [
+        0,
+        65,
+        56,
+        75
+      ],
+      "score": 0.7896444201469421,
+      "pixels": 1902,
+      "rgbRmse": 24.432737055599006,
+      "expectedPatch": [
+        628.865,
+        242.5
+      ],
+      "measuredPatch": [
+        629,
+        243
+      ],
+      "residual": [
+        0.1349999999999909,
+        0.5
+      ],
+      "accepted": false
+    },
+    {
+      "part": "under",
+      "time": 307.9,
+      "cameraPx": 1017.01,
+      "patch": [
+        25,
+        240,
+        70,
+        80
+      ],
+      "score": 0.9547784924507141,
+      "pixels": 2463,
+      "rgbRmse": 8.823712193500603,
+      "expectedPatch": [
+        509.865,
+        111.5
+      ],
+      "measuredPatch": [
+        510,
+        112
+      ],
+      "residual": [
+        0.1349999999999909,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "part": "door",
+      "time": 307.9,
+      "cameraPx": 1017.01,
+      "patch": [
+        0,
+        65,
+        56,
+        75
+      ],
+      "score": 0.7909591197967529,
+      "pixels": 1902,
+      "rgbRmse": 24.306724572558043,
+      "expectedPatch": [
+        628.865,
+        242.5
+      ],
+      "measuredPatch": [
+        629,
+        243
+      ],
+      "residual": [
+        0.1349999999999909,
+        0.5
+      ],
+      "accepted": false
+    },
+    {
+      "part": "under",
+      "time": 308.0,
+      "cameraPx": 1017.01,
+      "patch": [
+        25,
+        240,
+        70,
+        80
+      ],
+      "score": 0.9734431505203247,
+      "pixels": 2463,
+      "rgbRmse": 7.964573407122962,
+      "expectedPatch": [
+        509.865,
+        111.5
+      ],
+      "measuredPatch": [
+        510,
+        112
+      ],
+      "residual": [
+        0.1349999999999909,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "part": "door",
+      "time": 308.0,
+      "cameraPx": 1017.01,
+      "patch": [
+        0,
+        65,
+        56,
+        75
+      ],
+      "score": 0.7929688096046448,
+      "pixels": 1902,
+      "rgbRmse": 24.136735879721698,
+      "expectedPatch": [
+        628.865,
+        242.5
+      ],
+      "measuredPatch": [
+        629,
+        243
+      ],
+      "residual": [
+        0.1349999999999909,
+        0.5
+      ],
+      "accepted": false
+    },
+    {
+      "part": "under",
+      "time": 308.1,
+      "cameraPx": 1017.01,
+      "patch": [
+        25,
+        240,
+        70,
+        80
+      ],
+      "score": 0.9731033444404602,
+      "pixels": 2463,
+      "rgbRmse": 7.975288332191775,
+      "expectedPatch": [
+        509.865,
+        111.5
+      ],
+      "measuredPatch": [
+        510,
+        112
+      ],
+      "residual": [
+        0.1349999999999909,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "part": "door",
+      "time": 308.1,
+      "cameraPx": 1017.01,
+      "patch": [
+        0,
+        65,
+        56,
+        75
+      ],
+      "score": 0.7936513423919678,
+      "pixels": 1902,
+      "rgbRmse": 24.121148982810997,
+      "expectedPatch": [
+        628.865,
+        242.5
+      ],
+      "measuredPatch": [
+        629,
+        243
+      ],
+      "residual": [
+        0.1349999999999909,
+        0.5
+      ],
+      "accepted": false
+    },
+    {
+      "part": "under",
+      "time": 308.2,
+      "cameraPx": 1017.01,
+      "patch": [
+        25,
+        240,
+        70,
+        80
+      ],
+      "score": 0.9560565948486328,
+      "pixels": 2463,
+      "rgbRmse": 8.626315383347402,
+      "expectedPatch": [
+        509.865,
+        111.5
+      ],
+      "measuredPatch": [
+        510,
+        112
+      ],
+      "residual": [
+        0.1349999999999909,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "part": "door",
+      "time": 308.2,
+      "cameraPx": 1017.01,
+      "patch": [
+        0,
+        65,
+        56,
+        75
+      ],
+      "score": 0.7947609424591064,
+      "pixels": 1902,
+      "rgbRmse": 24.04869315537953,
+      "expectedPatch": [
+        628.865,
+        242.5
+      ],
+      "measuredPatch": [
+        629,
+        243
+      ],
+      "residual": [
+        0.1349999999999909,
+        0.5
+      ],
+      "accepted": false
+    },
+    {
+      "part": "under",
+      "time": 308.3,
+      "cameraPx": 1017.01,
+      "patch": [
+        25,
+        240,
+        70,
+        80
+      ],
+      "score": 0.9576969146728516,
+      "pixels": 2463,
+      "rgbRmse": 8.51963889219671,
+      "expectedPatch": [
+        509.865,
+        111.5
+      ],
+      "measuredPatch": [
+        510,
+        112
+      ],
+      "residual": [
+        0.1349999999999909,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "part": "door",
+      "time": 308.3,
+      "cameraPx": 1017.01,
+      "patch": [
+        0,
+        65,
+        56,
+        75
+      ],
+      "score": 0.9572768807411194,
+      "pixels": 1902,
+      "rgbRmse": 11.136425771741388,
+      "expectedPatch": [
+        628.865,
+        242.5
+      ],
+      "measuredPatch": [
+        629,
+        243
+      ],
+      "residual": [
+        0.1349999999999909,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "part": "under",
+      "time": 308.4,
+      "cameraPx": 1017.01,
+      "patch": [
+        25,
+        240,
+        70,
+        80
+      ],
+      "score": 0.9321991205215454,
+      "pixels": 2463,
+      "rgbRmse": 9.85093252265191,
+      "expectedPatch": [
+        509.865,
+        111.5
+      ],
+      "measuredPatch": [
+        510,
+        112
+      ],
+      "residual": [
+        0.1349999999999909,
+        0.5
+      ],
+      "accepted": false
+    },
+    {
+      "part": "door",
+      "time": 308.4,
+      "cameraPx": 1017.01,
+      "patch": [
+        0,
+        65,
+        56,
+        75
+      ],
+      "score": 0.41154950857162476,
+      "pixels": 1902,
+      "rgbRmse": 53.520316611739325,
+      "expectedPatch": [
+        628.865,
+        242.5
+      ],
+      "measuredPatch": [
+        629,
+        243
+      ],
+      "residual": [
+        0.1349999999999909,
+        0.5
+      ],
+      "accepted": false
+    },
+    {
+      "part": "under",
+      "time": 308.5,
+      "cameraPx": 1017.01,
+      "patch": [
+        25,
+        240,
+        70,
+        80
+      ],
+      "score": 0.8049488663673401,
+      "pixels": 2463,
+      "rgbRmse": 15.192222583056358,
+      "expectedPatch": [
+        509.865,
+        111.5
+      ],
+      "measuredPatch": [
+        510,
+        112
+      ],
+      "residual": [
+        0.1349999999999909,
+        0.5
+      ],
+      "accepted": false
+    },
+    {
+      "part": "door",
+      "time": 308.5,
+      "cameraPx": 1017.01,
+      "patch": [
+        0,
+        65,
+        56,
+        75
+      ],
+      "score": 0.5961979627609253,
+      "pixels": 1902,
+      "rgbRmse": 41.38832795428845,
+      "expectedPatch": [
+        628.865,
+        242.5
+      ],
+      "measuredPatch": [
+        629,
+        243
+      ],
+      "residual": [
+        0.1349999999999909,
+        0.5
+      ],
+      "accepted": false
+    },
+    {
+      "part": "under",
+      "time": 308.6,
+      "cameraPx": 1017.01,
+      "patch": [
+        25,
+        240,
+        70,
+        80
+      ],
+      "score": 0.9718313217163086,
+      "pixels": 2463,
+      "rgbRmse": 7.764212015764444,
+      "expectedPatch": [
+        509.865,
+        111.5
+      ],
+      "measuredPatch": [
+        510,
+        112
+      ],
+      "residual": [
+        0.1349999999999909,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "part": "door",
+      "time": 308.6,
+      "cameraPx": 1017.01,
+      "patch": [
+        0,
+        65,
+        56,
+        75
+      ],
+      "score": 0.9617981910705566,
+      "pixels": 1902,
+      "rgbRmse": 10.12794075895117,
+      "expectedPatch": [
+        628.865,
+        242.5
+      ],
+      "measuredPatch": [
+        629,
+        243
+      ],
+      "residual": [
+        0.1349999999999909,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "part": "under",
+      "time": 308.7,
+      "cameraPx": 1017.01,
+      "patch": [
+        25,
+        240,
+        70,
+        80
+      ],
+      "score": 0.975287675857544,
+      "pixels": 2463,
+      "rgbRmse": 7.560814924130708,
+      "expectedPatch": [
+        509.865,
+        111.5
+      ],
+      "measuredPatch": [
+        510,
+        112
+      ],
+      "residual": [
+        0.1349999999999909,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "part": "door",
+      "time": 308.7,
+      "cameraPx": 1017.01,
+      "patch": [
+        0,
+        65,
+        56,
+        75
+      ],
+      "score": 0.9710718989372253,
+      "pixels": 1902,
+      "rgbRmse": 9.086838141495871,
+      "expectedPatch": [
+        628.865,
+        242.5
+      ],
+      "measuredPatch": [
+        629,
+        243
+      ],
+      "residual": [
+        0.1349999999999909,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "part": "under",
+      "time": 308.8,
+      "cameraPx": 1017.01,
+      "patch": [
+        25,
+        240,
+        70,
+        80
+      ],
+      "score": 0.9666425585746765,
+      "pixels": 2463,
+      "rgbRmse": 7.858893949026388,
+      "expectedPatch": [
+        509.865,
+        111.5
+      ],
+      "measuredPatch": [
+        510,
+        112
+      ],
+      "residual": [
+        0.1349999999999909,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "part": "door",
+      "time": 308.8,
+      "cameraPx": 1017.01,
+      "patch": [
+        0,
+        65,
+        56,
+        75
+      ],
+      "score": 0.9585219025611877,
+      "pixels": 1902,
+      "rgbRmse": 10.166136580964526,
+      "expectedPatch": [
+        628.865,
+        242.5
+      ],
+      "measuredPatch": [
+        629,
+        243
+      ],
+      "residual": [
+        0.1349999999999909,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "part": "under",
+      "time": 308.9,
+      "cameraPx": 1017.01,
+      "patch": [
+        25,
+        240,
+        70,
+        80
+      ],
+      "score": 0.9638984203338623,
+      "pixels": 2463,
+      "rgbRmse": 8.115196126669593,
+      "expectedPatch": [
+        509.865,
+        111.5
+      ],
+      "measuredPatch": [
+        510,
+        112
+      ],
+      "residual": [
+        0.1349999999999909,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "part": "door",
+      "time": 308.9,
+      "cameraPx": 1017.01,
+      "patch": [
+        0,
+        65,
+        56,
+        75
+      ],
+      "score": 0.863926112651825,
+      "pixels": 1902,
+      "rgbRmse": 16.650575828762577,
+      "expectedPatch": [
+        628.865,
+        242.5
+      ],
+      "measuredPatch": [
+        629,
+        243
+      ],
+      "residual": [
+        0.1349999999999909,
+        0.5
+      ],
+      "accepted": false
+    },
+    {
+      "part": "under",
+      "time": 309.0,
+      "cameraPx": 1023.78,
+      "patch": [
+        25,
+        240,
+        70,
+        80
+      ],
+      "score": 0.9728668332099915,
+      "pixels": 2463,
+      "rgbRmse": 7.802760372299498,
+      "expectedPatch": [
+        503.095,
+        111.5
+      ],
+      "measuredPatch": [
+        503,
+        112
+      ],
+      "residual": [
+        -0.09500000000002728,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "part": "door",
+      "time": 309.0,
+      "cameraPx": 1023.78,
+      "patch": [
+        0,
+        65,
+        56,
+        75
+      ],
+      "score": 0.8512069582939148,
+      "pixels": 1902,
+      "rgbRmse": 17.750574503323467,
+      "expectedPatch": [
+        622.095,
+        242.5
+      ],
+      "measuredPatch": [
+        622,
+        243
+      ],
+      "residual": [
+        -0.09500000000002728,
+        0.5
+      ],
+      "accepted": false
+    },
+    {
+      "part": "frame",
+      "time": 309.1,
+      "cameraPx": 1044.01,
+      "patch": [
+        100,
+        120,
+        30,
+        70
+      ],
+      "score": 0.979413628578186,
+      "pixels": 2100,
+      "rgbRmse": 7.48569005206304,
+      "expectedPatch": [
+        668.115,
+        243.5
+      ],
+      "measuredPatch": [
+        668,
+        244
+      ],
+      "residual": [
+        -0.1150000000000091,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "part": "under",
+      "time": 309.1,
+      "cameraPx": 1044.01,
+      "patch": [
+        25,
+        240,
+        70,
+        80
+      ],
+      "score": 0.9748539924621582,
+      "pixels": 2463,
+      "rgbRmse": 7.591887600721895,
+      "expectedPatch": [
+        482.865,
+        111.5
+      ],
+      "measuredPatch": [
+        483,
+        112
+      ],
+      "residual": [
+        0.1349999999999909,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "part": "over",
+      "time": 309.1,
+      "cameraPx": 1044.01,
+      "patch": [
+        40,
+        95,
+        35,
+        45
+      ],
+      "score": 0.18378190696239471,
+      "pixels": 1508,
+      "rgbRmse": 50.3064108146659,
+      "expectedPatch": [
+        673.365,
+        400.75
+      ],
+      "measuredPatch": [
+        674,
+        401
+      ],
+      "residual": [
+        0.6349999999999909,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "part": "door",
+      "time": 309.1,
+      "cameraPx": 1044.01,
+      "patch": [
+        0,
+        65,
+        56,
+        75
+      ],
+      "score": 0.8659078478813171,
+      "pixels": 1902,
+      "rgbRmse": 16.9188129618024,
+      "expectedPatch": [
+        601.865,
+        242.5
+      ],
+      "measuredPatch": [
+        602,
+        243
+      ],
+      "residual": [
+        0.1349999999999909,
+        0.5
+      ],
+      "accepted": false
+    },
+    {
+      "part": "frame",
+      "time": 309.2,
+      "cameraPx": 1044.03,
+      "patch": [
+        100,
+        120,
+        30,
+        70
+      ],
+      "score": 0.9781796336174011,
+      "pixels": 2100,
+      "rgbRmse": 7.721727744817177,
+      "expectedPatch": [
+        668.095,
+        243.5
+      ],
+      "measuredPatch": [
+        668,
+        244
+      ],
+      "residual": [
+        -0.09500000000002728,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "part": "under",
+      "time": 309.2,
+      "cameraPx": 1044.03,
+      "patch": [
+        25,
+        240,
+        70,
+        80
+      ],
+      "score": 0.9701712131500244,
+      "pixels": 2463,
+      "rgbRmse": 7.736106297194611,
+      "expectedPatch": [
+        482.845,
+        111.5
+      ],
+      "measuredPatch": [
+        483,
+        112
+      ],
+      "residual": [
+        0.15499999999997272,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "part": "over",
+      "time": 309.2,
+      "cameraPx": 1044.03,
+      "patch": [
+        40,
+        95,
+        35,
+        45
+      ],
+      "score": 0.18167634308338165,
+      "pixels": 1508,
+      "rgbRmse": 50.301170768929644,
+      "expectedPatch": [
+        673.345,
+        400.75
+      ],
+      "measuredPatch": [
+        674,
+        401
+      ],
+      "residual": [
+        0.6549999999999727,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "part": "door",
+      "time": 309.2,
+      "cameraPx": 1044.03,
+      "patch": [
+        0,
+        65,
+        56,
+        75
+      ],
+      "score": 0.8639012575149536,
+      "pixels": 1902,
+      "rgbRmse": 16.991977653930043,
+      "expectedPatch": [
+        601.845,
+        242.5
+      ],
+      "measuredPatch": [
+        602,
+        243
+      ],
+      "residual": [
+        0.15499999999997272,
+        0.5
+      ],
+      "accepted": false
+    },
+    {
+      "part": "frame",
+      "time": 309.3,
+      "cameraPx": 1044.01,
+      "patch": [
+        100,
+        120,
+        30,
+        70
+      ],
+      "score": 0.9810368418693542,
+      "pixels": 2100,
+      "rgbRmse": 6.959999087757649,
+      "expectedPatch": [
+        668.115,
+        243.5
+      ],
+      "measuredPatch": [
+        668,
+        244
+      ],
+      "residual": [
+        -0.1150000000000091,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "part": "under",
+      "time": 309.3,
+      "cameraPx": 1044.01,
+      "patch": [
+        25,
+        240,
+        70,
+        80
+      ],
+      "score": 0.9720519185066223,
+      "pixels": 2463,
+      "rgbRmse": 7.5732092565591,
+      "expectedPatch": [
+        482.865,
+        111.5
+      ],
+      "measuredPatch": [
+        483,
+        112
+      ],
+      "residual": [
+        0.1349999999999909,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "part": "over",
+      "time": 309.3,
+      "cameraPx": 1044.01,
+      "patch": [
+        40,
+        95,
+        35,
+        45
+      ],
+      "score": 0.19267305731773376,
+      "pixels": 1508,
+      "rgbRmse": 49.68148993424663,
+      "expectedPatch": [
+        673.365,
+        400.75
+      ],
+      "measuredPatch": [
+        674,
+        401
+      ],
+      "residual": [
+        0.6349999999999909,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "part": "door",
+      "time": 309.3,
+      "cameraPx": 1044.01,
+      "patch": [
+        0,
+        65,
+        56,
+        75
+      ],
+      "score": 0.8661847710609436,
+      "pixels": 1902,
+      "rgbRmse": 16.401908662752724,
+      "expectedPatch": [
+        601.865,
+        242.5
+      ],
+      "measuredPatch": [
+        602,
+        243
+      ],
+      "residual": [
+        0.1349999999999909,
+        0.5
+      ],
+      "accepted": false
+    },
+    {
+      "part": "frame",
+      "time": 309.4,
+      "cameraPx": 1044.01,
+      "patch": [
+        100,
+        120,
+        30,
+        70
+      ],
+      "score": 0.9809485077857971,
+      "pixels": 2100,
+      "rgbRmse": 6.980551213055831,
+      "expectedPatch": [
+        668.115,
+        243.5
+      ],
+      "measuredPatch": [
+        668,
+        244
+      ],
+      "residual": [
+        -0.1150000000000091,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "part": "under",
+      "time": 309.4,
+      "cameraPx": 1044.01,
+      "patch": [
+        25,
+        240,
+        70,
+        80
+      ],
+      "score": 0.9784482717514038,
+      "pixels": 2463,
+      "rgbRmse": 7.159097212088754,
+      "expectedPatch": [
+        482.865,
+        111.5
+      ],
+      "measuredPatch": [
+        483,
+        112
+      ],
+      "residual": [
+        0.1349999999999909,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "part": "over",
+      "time": 309.4,
+      "cameraPx": 1044.01,
+      "patch": [
+        40,
+        95,
+        35,
+        45
+      ],
+      "score": 0.1920565962791443,
+      "pixels": 1508,
+      "rgbRmse": 49.68092265688011,
+      "expectedPatch": [
+        673.365,
+        400.75
+      ],
+      "measuredPatch": [
+        674,
+        401
+      ],
+      "residual": [
+        0.6349999999999909,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "part": "door",
+      "time": 309.4,
+      "cameraPx": 1044.01,
+      "patch": [
+        0,
+        65,
+        56,
+        75
+      ],
+      "score": 0.9714792370796204,
+      "pixels": 1902,
+      "rgbRmse": 8.929750760829963,
+      "expectedPatch": [
+        601.865,
+        242.5
+      ],
+      "measuredPatch": [
+        602,
+        243
+      ],
+      "residual": [
+        0.1349999999999909,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "part": "frame",
+      "time": 309.5,
+      "cameraPx": 1044.01,
+      "patch": [
+        100,
+        120,
+        30,
+        70
+      ],
+      "score": 0.980907678604126,
+      "pixels": 2100,
+      "rgbRmse": 6.99149142751047,
+      "expectedPatch": [
+        668.115,
+        243.5
+      ],
+      "measuredPatch": [
+        668,
+        244
+      ],
+      "residual": [
+        -0.1150000000000091,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "part": "under",
+      "time": 309.5,
+      "cameraPx": 1044.01,
+      "patch": [
+        25,
+        240,
+        70,
+        80
+      ],
+      "score": 0.9651725888252258,
+      "pixels": 2463,
+      "rgbRmse": 7.821444230433194,
+      "expectedPatch": [
+        482.865,
+        111.5
+      ],
+      "measuredPatch": [
+        483,
+        112
+      ],
+      "residual": [
+        0.1349999999999909,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "part": "over",
+      "time": 309.5,
+      "cameraPx": 1044.01,
+      "patch": [
+        40,
+        95,
+        35,
+        45
+      ],
+      "score": 0.192009836435318,
+      "pixels": 1508,
+      "rgbRmse": 49.6848289532802,
+      "expectedPatch": [
+        673.365,
+        400.75
+      ],
+      "measuredPatch": [
+        674,
+        401
+      ],
+      "residual": [
+        0.6349999999999909,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "part": "door",
+      "time": 309.5,
+      "cameraPx": 1044.01,
+      "patch": [
+        0,
+        65,
+        56,
+        75
+      ],
+      "score": 0.9715315699577332,
+      "pixels": 1902,
+      "rgbRmse": 8.89515201711815,
+      "expectedPatch": [
+        601.865,
+        242.5
+      ],
+      "measuredPatch": [
+        602,
+        243
+      ],
+      "residual": [
+        0.1349999999999909,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "part": "frame",
+      "time": 309.6,
+      "cameraPx": 1044.01,
+      "patch": [
+        100,
+        120,
+        30,
+        70
+      ],
+      "score": 0.9809333682060242,
+      "pixels": 2100,
+      "rgbRmse": 6.986835694065878,
+      "expectedPatch": [
+        668.115,
+        243.5
+      ],
+      "measuredPatch": [
+        668,
+        244
+      ],
+      "residual": [
+        -0.1150000000000091,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "part": "under",
+      "time": 309.6,
+      "cameraPx": 1044.01,
+      "patch": [
+        25,
+        240,
+        70,
+        80
+      ],
+      "score": 0.9688010215759277,
+      "pixels": 2463,
+      "rgbRmse": 7.60841255024422,
+      "expectedPatch": [
+        482.865,
+        111.5
+      ],
+      "measuredPatch": [
+        483,
+        112
+      ],
+      "residual": [
+        0.1349999999999909,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "part": "over",
+      "time": 309.6,
+      "cameraPx": 1044.01,
+      "patch": [
+        40,
+        95,
+        35,
+        45
+      ],
+      "score": 0.19447161257266998,
+      "pixels": 1508,
+      "rgbRmse": 49.71176202690495,
+      "expectedPatch": [
+        673.365,
+        400.75
+      ],
+      "measuredPatch": [
+        674,
+        401
+      ],
+      "residual": [
+        0.6349999999999909,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "part": "door",
+      "time": 309.6,
+      "cameraPx": 1044.01,
+      "patch": [
+        0,
+        65,
+        56,
+        75
+      ],
+      "score": 0.9714929461479187,
+      "pixels": 1902,
+      "rgbRmse": 8.921631773087652,
+      "expectedPatch": [
+        601.865,
+        242.5
+      ],
+      "measuredPatch": [
+        602,
+        243
+      ],
+      "residual": [
+        0.1349999999999909,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "part": "frame",
+      "time": 309.7,
+      "cameraPx": 1044.01,
+      "patch": [
+        100,
+        120,
+        30,
+        70
+      ],
+      "score": 0.9809504151344299,
+      "pixels": 2100,
+      "rgbRmse": 6.98167669860253,
+      "expectedPatch": [
+        668.115,
+        243.5
+      ],
+      "measuredPatch": [
+        668,
+        244
+      ],
+      "residual": [
+        -0.1150000000000091,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "part": "under",
+      "time": 309.7,
+      "cameraPx": 1044.01,
+      "patch": [
+        25,
+        240,
+        70,
+        80
+      ],
+      "score": 0.9769520163536072,
+      "pixels": 2463,
+      "rgbRmse": 7.232952666555161,
+      "expectedPatch": [
+        482.865,
+        111.5
+      ],
+      "measuredPatch": [
+        483,
+        112
+      ],
+      "residual": [
+        0.1349999999999909,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "part": "over",
+      "time": 309.7,
+      "cameraPx": 1044.01,
+      "patch": [
+        40,
+        95,
+        35,
+        45
+      ],
+      "score": 0.19347956776618958,
+      "pixels": 1508,
+      "rgbRmse": 49.59880153852868,
+      "expectedPatch": [
+        673.365,
+        400.75
+      ],
+      "measuredPatch": [
+        674,
+        401
+      ],
+      "residual": [
+        0.6349999999999909,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "part": "door",
+      "time": 309.7,
+      "cameraPx": 1044.01,
+      "patch": [
+        0,
+        65,
+        56,
+        75
+      ],
+      "score": 0.9714519381523132,
+      "pixels": 1902,
+      "rgbRmse": 8.918665076724691,
+      "expectedPatch": [
+        601.865,
+        242.5
+      ],
+      "measuredPatch": [
+        602,
+        243
+      ],
+      "residual": [
+        0.1349999999999909,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "part": "frame",
+      "time": 309.8,
+      "cameraPx": 1044.01,
+      "patch": [
+        100,
+        120,
+        30,
+        70
+      ],
+      "score": 0.8175742030143738,
+      "pixels": 2100,
+      "rgbRmse": 28.63810315612667,
+      "expectedPatch": [
+        668.115,
+        243.5
+      ],
+      "measuredPatch": [
+        668,
+        244
+      ],
+      "residual": [
+        -0.1150000000000091,
+        0.5
+      ],
+      "accepted": false
+    },
+    {
+      "part": "under",
+      "time": 309.8,
+      "cameraPx": 1044.01,
+      "patch": [
+        25,
+        240,
+        70,
+        80
+      ],
+      "score": 0.41292622685432434,
+      "pixels": 2463,
+      "rgbRmse": 31.38728391490755,
+      "expectedPatch": [
+        482.865,
+        111.5
+      ],
+      "measuredPatch": [
+        483,
+        112
+      ],
+      "residual": [
+        0.1349999999999909,
+        0.5
+      ],
+      "accepted": false
+    },
+    {
+      "part": "over",
+      "time": 309.8,
+      "cameraPx": 1044.01,
+      "patch": [
+        40,
+        95,
+        35,
+        45
+      ],
+      "score": 0.19839245080947876,
+      "pixels": 1508,
+      "rgbRmse": 49.55700082410974,
+      "expectedPatch": [
+        673.365,
+        400.75
+      ],
+      "measuredPatch": [
+        674,
+        401
+      ],
+      "residual": [
+        0.6349999999999909,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "part": "door",
+      "time": 309.8,
+      "cameraPx": 1044.01,
+      "patch": [
+        0,
+        65,
+        56,
+        75
+      ],
+      "score": 0.35506531596183777,
+      "pixels": 1902,
+      "rgbRmse": 66.79103016483722,
+      "expectedPatch": [
+        601.865,
+        242.5
+      ],
+      "measuredPatch": [
+        602,
+        243
+      ],
+      "residual": [
+        0.1349999999999909,
+        0.5
+      ],
+      "accepted": false
+    },
+    {
+      "part": "frame",
+      "time": 309.9,
+      "cameraPx": 1044.01,
+      "patch": [
+        100,
+        120,
+        30,
+        70
+      ],
+      "score": 0.9181954860687256,
+      "pixels": 2100,
+      "rgbRmse": 18.74408689829392,
+      "expectedPatch": [
+        668.115,
+        243.5
+      ],
+      "measuredPatch": [
+        668,
+        244
+      ],
+      "residual": [
+        -0.1150000000000091,
+        0.5
+      ],
+      "accepted": false
+    },
+    {
+      "part": "under",
+      "time": 309.9,
+      "cameraPx": 1044.01,
+      "patch": [
+        25,
+        240,
+        70,
+        80
+      ],
+      "score": 0.312549352645874,
+      "pixels": 2463,
+      "rgbRmse": 36.81792519473195,
+      "expectedPatch": [
+        482.865,
+        111.5
+      ],
+      "measuredPatch": [
+        483,
+        112
+      ],
+      "residual": [
+        0.1349999999999909,
+        0.5
+      ],
+      "accepted": false
+    },
+    {
+      "part": "over",
+      "time": 309.9,
+      "cameraPx": 1044.01,
+      "patch": [
+        40,
+        95,
+        35,
+        45
+      ],
+      "score": 0.1929260790348053,
+      "pixels": 1508,
+      "rgbRmse": 49.55107930867186,
+      "expectedPatch": [
+        673.365,
+        400.75
+      ],
+      "measuredPatch": [
+        674,
+        401
+      ],
+      "residual": [
+        0.6349999999999909,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "part": "door",
+      "time": 309.9,
+      "cameraPx": 1044.01,
+      "patch": [
+        0,
+        65,
+        56,
+        75
+      ],
+      "score": 0.7812365889549255,
+      "pixels": 1902,
+      "rgbRmse": 26.814753774349104,
+      "expectedPatch": [
+        601.865,
+        242.5
+      ],
+      "measuredPatch": [
+        602,
+        243
+      ],
+      "residual": [
+        0.1349999999999909,
+        0.5
+      ],
+      "accepted": false
+    },
+    {
+      "part": "frame",
+      "time": 310.0,
+      "cameraPx": 1044.01,
+      "patch": [
+        100,
+        120,
+        30,
+        70
+      ],
+      "score": 0.9760994911193848,
+      "pixels": 2100,
+      "rgbRmse": 7.987877720407998,
+      "expectedPatch": [
+        668.115,
+        243.5
+      ],
+      "measuredPatch": [
+        668,
+        244
+      ],
+      "residual": [
+        -0.1150000000000091,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "part": "under",
+      "time": 310.0,
+      "cameraPx": 1044.01,
+      "patch": [
+        25,
+        240,
+        70,
+        80
+      ],
+      "score": 0.16046862304210663,
+      "pixels": 2463,
+      "rgbRmse": 47.26229851880124,
+      "expectedPatch": [
+        482.865,
+        111.5
+      ],
+      "measuredPatch": [
+        483,
+        112
+      ],
+      "residual": [
+        0.1349999999999909,
+        0.5
+      ],
+      "accepted": false
+    },
+    {
+      "part": "over",
+      "time": 310.0,
+      "cameraPx": 1044.01,
+      "patch": [
+        40,
+        95,
+        35,
+        45
+      ],
+      "score": 0.19196122884750366,
+      "pixels": 1508,
+      "rgbRmse": 49.592778042294164,
+      "expectedPatch": [
+        673.365,
+        400.75
+      ],
+      "measuredPatch": [
+        674,
+        401
+      ],
+      "residual": [
+        0.6349999999999909,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "part": "door",
+      "time": 310.0,
+      "cameraPx": 1044.01,
+      "patch": [
+        0,
+        65,
+        56,
+        75
+      ],
+      "score": 0.9642974734306335,
+      "pixels": 1902,
+      "rgbRmse": 9.824484960132068,
+      "expectedPatch": [
+        601.865,
+        242.5
+      ],
+      "measuredPatch": [
+        602,
+        243
+      ],
+      "residual": [
+        0.1349999999999909,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "part": "frame",
+      "time": 310.1,
+      "cameraPx": 1044.01,
+      "patch": [
+        100,
+        120,
+        30,
+        70
+      ],
+      "score": 0.979762613773346,
+      "pixels": 2100,
+      "rgbRmse": 7.262788392765911,
+      "expectedPatch": [
+        668.115,
+        243.5
+      ],
+      "measuredPatch": [
+        668,
+        244
+      ],
+      "residual": [
+        -0.1150000000000091,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "part": "under",
+      "time": 310.1,
+      "cameraPx": 1044.01,
+      "patch": [
+        25,
+        240,
+        70,
+        80
+      ],
+      "score": 0.01745591312646866,
+      "pixels": 2463,
+      "rgbRmse": 57.39845016611911,
+      "expectedPatch": [
+        482.865,
+        111.5
+      ],
+      "measuredPatch": [
+        483,
+        111
+      ],
+      "residual": [
+        0.1349999999999909,
+        -0.5
+      ],
+      "accepted": false
+    },
+    {
+      "part": "over",
+      "time": 310.1,
+      "cameraPx": 1044.01,
+      "patch": [
+        40,
+        95,
+        35,
+        45
+      ],
+      "score": 0.19248446822166443,
+      "pixels": 1508,
+      "rgbRmse": 49.61376017738418,
+      "expectedPatch": [
+        673.365,
+        400.75
+      ],
+      "measuredPatch": [
+        674,
+        401
+      ],
+      "residual": [
+        0.6349999999999909,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "part": "door",
+      "time": 310.1,
+      "cameraPx": 1044.01,
+      "patch": [
+        0,
+        65,
+        56,
+        75
+      ],
+      "score": 0.9687716960906982,
+      "pixels": 1902,
+      "rgbRmse": 9.3931443181857,
+      "expectedPatch": [
+        601.865,
+        242.5
+      ],
+      "measuredPatch": [
+        602,
+        243
+      ],
+      "residual": [
+        0.1349999999999909,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "part": "frame",
+      "time": 310.2,
+      "cameraPx": 1044.01,
+      "patch": [
+        100,
+        120,
+        30,
+        70
+      ],
+      "score": 0.9797701239585876,
+      "pixels": 2100,
+      "rgbRmse": 7.25665540170178,
+      "expectedPatch": [
+        668.115,
+        243.5
+      ],
+      "measuredPatch": [
+        668,
+        244
+      ],
+      "residual": [
+        -0.1150000000000091,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "part": "under",
+      "time": 310.2,
+      "cameraPx": 1044.01,
+      "patch": [
+        25,
+        240,
+        70,
+        80
+      ],
+      "score": -0.058880116790533066,
+      "pixels": 2463,
+      "rgbRmse": 60.97215429969541,
+      "expectedPatch": [
+        482.865,
+        111.5
+      ],
+      "measuredPatch": [
+        483,
+        111
+      ],
+      "residual": [
+        0.1349999999999909,
+        -0.5
+      ],
+      "accepted": false
+    },
+    {
+      "part": "over",
+      "time": 310.2,
+      "cameraPx": 1044.01,
+      "patch": [
+        40,
+        95,
+        35,
+        45
+      ],
+      "score": 0.1933487206697464,
+      "pixels": 1508,
+      "rgbRmse": 49.641203811216165,
+      "expectedPatch": [
+        673.365,
+        400.75
+      ],
+      "measuredPatch": [
+        674,
+        401
+      ],
+      "residual": [
+        0.6349999999999909,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "part": "door",
+      "time": 310.2,
+      "cameraPx": 1044.01,
+      "patch": [
+        0,
+        65,
+        56,
+        75
+      ],
+      "score": 0.19849836826324463,
+      "pixels": 1902,
+      "rgbRmse": 81.41707497903806,
+      "expectedPatch": [
+        601.865,
+        242.5
+      ],
+      "measuredPatch": [
+        602,
+        243
+      ],
+      "residual": [
+        0.1349999999999909,
+        0.5
+      ],
+      "accepted": false
+    },
+    {
+      "part": "frame",
+      "time": 310.3,
+      "cameraPx": 1044.01,
+      "patch": [
+        100,
+        120,
+        30,
+        70
+      ],
+      "score": 0.7662755250930786,
+      "pixels": 2100,
+      "rgbRmse": 34.04314256286507,
+      "expectedPatch": [
+        668.115,
+        243.5
+      ],
+      "measuredPatch": [
+        668,
+        244
+      ],
+      "residual": [
+        -0.1150000000000091,
+        0.5
+      ],
+      "accepted": false
+    },
+    {
+      "part": "under",
+      "time": 310.3,
+      "cameraPx": 1044.01,
+      "patch": [
+        25,
+        240,
+        70,
+        80
+      ],
+      "score": -0.011645027436316013,
+      "pixels": 2463,
+      "rgbRmse": 58.36368098704037,
+      "expectedPatch": [
+        482.865,
+        111.5
+      ],
+      "measuredPatch": [
+        483,
+        111
+      ],
+      "residual": [
+        0.1349999999999909,
+        -0.5
+      ],
+      "accepted": false
+    },
+    {
+      "part": "over",
+      "time": 310.3,
+      "cameraPx": 1044.01,
+      "patch": [
+        40,
+        95,
+        35,
+        45
+      ],
+      "score": 0.20537874102592468,
+      "pixels": 1508,
+      "rgbRmse": 49.71894482791304,
+      "expectedPatch": [
+        673.365,
+        400.75
+      ],
+      "measuredPatch": [
+        674,
+        401
+      ],
+      "residual": [
+        0.6349999999999909,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "part": "door",
+      "time": 310.3,
+      "cameraPx": 1044.01,
+      "patch": [
+        0,
+        65,
+        56,
+        75
+      ],
+      "score": 0.9699053168296814,
+      "pixels": 1902,
+      "rgbRmse": 9.124724810873342,
+      "expectedPatch": [
+        601.865,
+        242.5
+      ],
+      "measuredPatch": [
+        602,
+        243
+      ],
+      "residual": [
+        0.1349999999999909,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "part": "frame",
+      "time": 310.4,
+      "cameraPx": 1044.01,
+      "patch": [
+        100,
+        120,
+        30,
+        70
+      ],
+      "score": 0.9801397919654846,
+      "pixels": 2100,
+      "rgbRmse": 7.19455261302517,
+      "expectedPatch": [
+        668.115,
+        243.5
+      ],
+      "measuredPatch": [
+        668,
+        244
+      ],
+      "residual": [
+        -0.1150000000000091,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "part": "under",
+      "time": 310.4,
+      "cameraPx": 1044.01,
+      "patch": [
+        25,
+        240,
+        70,
+        80
+      ],
+      "score": -0.009878932498395443,
+      "pixels": 2463,
+      "rgbRmse": 61.9871046010782,
+      "expectedPatch": [
+        482.865,
+        111.5
+      ],
+      "measuredPatch": [
+        483,
+        112
+      ],
+      "residual": [
+        0.1349999999999909,
+        0.5
+      ],
+      "accepted": false
+    },
+    {
+      "part": "over",
+      "time": 310.4,
+      "cameraPx": 1044.01,
+      "patch": [
+        40,
+        95,
+        35,
+        45
+      ],
+      "score": 0.19319108128547668,
+      "pixels": 1508,
+      "rgbRmse": 49.634394983120394,
+      "expectedPatch": [
+        673.365,
+        400.75
+      ],
+      "measuredPatch": [
+        674,
+        401
+      ],
+      "residual": [
+        0.6349999999999909,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "part": "door",
+      "time": 310.4,
+      "cameraPx": 1044.01,
+      "patch": [
+        0,
+        65,
+        56,
+        75
+      ],
+      "score": 0.969059944152832,
+      "pixels": 1902,
+      "rgbRmse": 9.122794352409501,
+      "expectedPatch": [
+        601.865,
+        242.5
+      ],
+      "measuredPatch": [
+        602,
+        243
+      ],
+      "residual": [
+        0.1349999999999909,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "part": "frame",
+      "time": 310.5,
+      "cameraPx": 1044.01,
+      "patch": [
+        100,
+        120,
+        30,
+        70
+      ],
+      "score": 0.9801543354988098,
+      "pixels": 2100,
+      "rgbRmse": 7.195104155571607,
+      "expectedPatch": [
+        668.115,
+        243.5
+      ],
+      "measuredPatch": [
+        668,
+        244
+      ],
+      "residual": [
+        -0.1150000000000091,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "part": "under",
+      "time": 310.5,
+      "cameraPx": 1044.01,
+      "patch": [
+        25,
+        240,
+        70,
+        80
+      ],
+      "score": 0.04700637608766556,
+      "pixels": 2463,
+      "rgbRmse": 59.0084464456449,
+      "expectedPatch": [
+        482.865,
+        111.5
+      ],
+      "measuredPatch": [
+        483,
+        112
+      ],
+      "residual": [
+        0.1349999999999909,
+        0.5
+      ],
+      "accepted": false
+    },
+    {
+      "part": "over",
+      "time": 310.5,
+      "cameraPx": 1044.01,
+      "patch": [
+        40,
+        95,
+        35,
+        45
+      ],
+      "score": 0.19411525130271912,
+      "pixels": 1508,
+      "rgbRmse": 49.695529653589965,
+      "expectedPatch": [
+        673.365,
+        400.75
+      ],
+      "measuredPatch": [
+        674,
+        401
+      ],
+      "residual": [
+        0.6349999999999909,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "part": "door",
+      "time": 310.5,
+      "cameraPx": 1044.01,
+      "patch": [
+        0,
+        65,
+        56,
+        75
+      ],
+      "score": 0.9696879386901855,
+      "pixels": 1902,
+      "rgbRmse": 9.1073263321204,
+      "expectedPatch": [
+        601.865,
+        242.5
+      ],
+      "measuredPatch": [
+        602,
+        243
+      ],
+      "residual": [
+        0.1349999999999909,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "part": "frame",
+      "time": 310.6,
+      "cameraPx": 1044.01,
+      "patch": [
+        100,
+        120,
+        30,
+        70
+      ],
+      "score": 0.9801505208015442,
+      "pixels": 2100,
+      "rgbRmse": 7.182430061427788,
+      "expectedPatch": [
+        668.115,
+        243.5
+      ],
+      "measuredPatch": [
+        668,
+        244
+      ],
+      "residual": [
+        -0.1150000000000091,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "part": "under",
+      "time": 310.6,
+      "cameraPx": 1044.01,
+      "patch": [
+        25,
+        240,
+        70,
+        80
+      ],
+      "score": 0.031540218740701675,
+      "pixels": 2463,
+      "rgbRmse": 56.91021674826305,
+      "expectedPatch": [
+        482.865,
+        111.5
+      ],
+      "measuredPatch": [
+        483,
+        112
+      ],
+      "residual": [
+        0.1349999999999909,
+        0.5
+      ],
+      "accepted": false
+    },
+    {
+      "part": "over",
+      "time": 310.6,
+      "cameraPx": 1044.01,
+      "patch": [
+        40,
+        95,
+        35,
+        45
+      ],
+      "score": 0.1932235211133957,
+      "pixels": 1508,
+      "rgbRmse": 49.67716066541231,
+      "expectedPatch": [
+        673.365,
+        400.75
+      ],
+      "measuredPatch": [
+        674,
+        401
+      ],
+      "residual": [
+        0.6349999999999909,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "part": "door",
+      "time": 310.6,
+      "cameraPx": 1044.01,
+      "patch": [
+        0,
+        65,
+        56,
+        75
+      ],
+      "score": 0.970327615737915,
+      "pixels": 1902,
+      "rgbRmse": 8.99133048188977,
+      "expectedPatch": [
+        601.865,
+        242.5
+      ],
+      "measuredPatch": [
+        602,
+        243
+      ],
+      "residual": [
+        0.1349999999999909,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "part": "frame",
+      "time": 310.7,
+      "cameraPx": 1044.01,
+      "patch": [
+        100,
+        120,
+        30,
+        70
+      ],
+      "score": 0.9804368019104004,
+      "pixels": 2100,
+      "rgbRmse": 7.136937229363379,
+      "expectedPatch": [
+        668.115,
+        243.5
+      ],
+      "measuredPatch": [
+        668,
+        244
+      ],
+      "residual": [
+        -0.1150000000000091,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "part": "under",
+      "time": 310.7,
+      "cameraPx": 1044.01,
+      "patch": [
+        25,
+        240,
+        70,
+        80
+      ],
+      "score": 0.031938012689352036,
+      "pixels": 2463,
+      "rgbRmse": 56.87016908791673,
+      "expectedPatch": [
+        482.865,
+        111.5
+      ],
+      "measuredPatch": [
+        483,
+        112
+      ],
+      "residual": [
+        0.1349999999999909,
+        0.5
+      ],
+      "accepted": false
+    },
+    {
+      "part": "over",
+      "time": 310.7,
+      "cameraPx": 1044.01,
+      "patch": [
+        40,
+        95,
+        35,
+        45
+      ],
+      "score": 0.19518443942070007,
+      "pixels": 1508,
+      "rgbRmse": 49.687073377601166,
+      "expectedPatch": [
+        673.365,
+        400.75
+      ],
+      "measuredPatch": [
+        674,
+        401
+      ],
+      "residual": [
+        0.6349999999999909,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "part": "door",
+      "time": 310.7,
+      "cameraPx": 1044.01,
+      "patch": [
+        0,
+        65,
+        56,
+        75
+      ],
+      "score": 0.9706799387931824,
+      "pixels": 1902,
+      "rgbRmse": 8.96487088135591,
+      "expectedPatch": [
+        601.865,
+        242.5
+      ],
+      "measuredPatch": [
+        602,
+        243
+      ],
+      "residual": [
+        0.1349999999999909,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "part": "frame",
+      "time": 310.8,
+      "cameraPx": 1044.01,
+      "patch": [
+        100,
+        120,
+        30,
+        70
+      ],
+      "score": 0.9803276062011719,
+      "pixels": 2100,
+      "rgbRmse": 7.159287452351443,
+      "expectedPatch": [
+        668.115,
+        243.5
+      ],
+      "measuredPatch": [
+        668,
+        244
+      ],
+      "residual": [
+        -0.1150000000000091,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "part": "under",
+      "time": 310.8,
+      "cameraPx": 1044.01,
+      "patch": [
+        25,
+        240,
+        70,
+        80
+      ],
+      "score": 0.039267685264348984,
+      "pixels": 2463,
+      "rgbRmse": 56.95333617107098,
+      "expectedPatch": [
+        482.865,
+        111.5
+      ],
+      "measuredPatch": [
+        483,
+        112
+      ],
+      "residual": [
+        0.1349999999999909,
+        0.5
+      ],
+      "accepted": false
+    },
+    {
+      "part": "over",
+      "time": 310.8,
+      "cameraPx": 1044.01,
+      "patch": [
+        40,
+        95,
+        35,
+        45
+      ],
+      "score": 0.19667832553386688,
+      "pixels": 1508,
+      "rgbRmse": 49.65787236924771,
+      "expectedPatch": [
+        673.365,
+        400.75
+      ],
+      "measuredPatch": [
+        674,
+        401
+      ],
+      "residual": [
+        0.6349999999999909,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "part": "door",
+      "time": 310.8,
+      "cameraPx": 1044.01,
+      "patch": [
+        0,
+        65,
+        56,
+        75
+      ],
+      "score": 0.9714258313179016,
+      "pixels": 1902,
+      "rgbRmse": 8.894669299970403,
+      "expectedPatch": [
+        601.865,
+        242.5
+      ],
+      "measuredPatch": [
+        602,
+        243
+      ],
+      "residual": [
+        0.1349999999999909,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "part": "frame",
+      "time": 310.9,
+      "cameraPx": 1044.01,
+      "patch": [
+        100,
+        120,
+        30,
+        70
+      ],
+      "score": 0.980330765247345,
+      "pixels": 2100,
+      "rgbRmse": 7.172113102092461,
+      "expectedPatch": [
+        668.115,
+        243.5
+      ],
+      "measuredPatch": [
+        668,
+        244
+      ],
+      "residual": [
+        -0.1150000000000091,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "part": "under",
+      "time": 310.9,
+      "cameraPx": 1044.01,
+      "patch": [
+        25,
+        240,
+        70,
+        80
+      ],
+      "score": 0.707348644733429,
+      "pixels": 2463,
+      "rgbRmse": 18.747775615789514,
+      "expectedPatch": [
+        482.865,
+        111.5
+      ],
+      "measuredPatch": [
+        483,
+        112
+      ],
+      "residual": [
+        0.1349999999999909,
+        0.5
+      ],
+      "accepted": false
+    },
+    {
+      "part": "over",
+      "time": 310.9,
+      "cameraPx": 1044.01,
+      "patch": [
+        40,
+        95,
+        35,
+        45
+      ],
+      "score": 0.20018473267555237,
+      "pixels": 1508,
+      "rgbRmse": 49.69908788770702,
+      "expectedPatch": [
+        673.365,
+        400.75
+      ],
+      "measuredPatch": [
+        674,
+        401
+      ],
+      "residual": [
+        0.6349999999999909,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "part": "door",
+      "time": 310.9,
+      "cameraPx": 1044.01,
+      "patch": [
+        0,
+        65,
+        56,
+        75
+      ],
+      "score": 0.9678693413734436,
+      "pixels": 1902,
+      "rgbRmse": 9.367651343477446,
+      "expectedPatch": [
+        601.865,
+        242.5
+      ],
+      "measuredPatch": [
+        602,
+        243
+      ],
+      "residual": [
+        0.1349999999999909,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "part": "frame",
+      "time": 311.0,
+      "cameraPx": 1044.01,
+      "patch": [
+        100,
+        120,
+        30,
+        70
+      ],
+      "score": 0.9786567091941833,
+      "pixels": 2100,
+      "rgbRmse": 7.477574940054228,
+      "expectedPatch": [
+        668.115,
+        243.5
+      ],
+      "measuredPatch": [
+        668,
+        244
+      ],
+      "residual": [
+        -0.1150000000000091,
+        0.5
+      ],
+      "accepted": true
+    },
+    {
+      "part": "under",
+      "time": 311.0,
+      "cameraPx": 1044.01,
+      "patch": [
+        25,
+        240,
+        70,
+        80
+      ],
+      "score": 0.9157488942146301,
+      "pixels": 2463,
+      "rgbRmse": 10.278237728055531,
+      "expectedPatch": [
+        482.865,
+        111.5
+      ],
+      "measuredPatch": [
+        483,
+        112
+      ],
+      "residual": [
+        0.1349999999999909,
+        0.5
+      ],
+      "accepted": false
+    },
+    {
+      "part": "over",
+      "time": 311.0,
+      "cameraPx": 1044.01,
+      "patch": [
+        40,
+        95,
+        35,
+        45
+      ],
+      "score": 0.19483570754528046,
+      "pixels": 1508,
+      "rgbRmse": 49.81392875280534,
+      "expectedPatch": [
+        673.365,
+        400.75
+      ],
+      "measuredPatch": [
+        674,
+        401
+      ],
+      "residual": [
+        0.6349999999999909,
+        0.25
+      ],
+      "accepted": false
+    },
+    {
+      "part": "door",
+      "time": 311.0,
+      "cameraPx": 1044.01,
+      "patch": [
+        0,
+        65,
+        56,
+        75
+      ],
+      "score": 0.9717453718185425,
+      "pixels": 1902,
+      "rgbRmse": 8.88436837383688,
+      "expectedPatch": [
+        601.865,
+        242.5
+      ],
+      "measuredPatch": [
+        602,
+        243
+      ],
+      "residual": [
+        0.1349999999999909,
+        0.5
+      ],
+      "accepted": true
+    }
+  ],
+  "underTreeCameraFit": {
+    "samples": 26,
+    "cameraSpanPx": 30.399999999999977,
+    "intercept": 1500.717171998132,
+    "scroll": 0.9987601300091739,
+    "rmsePx": 0.0828729499178012
+  },
+  "limits": [
+    "Boss neighbour selects native375 object;06 frame/door,02 vegetation and red02 light are retained.",
+    "Video UI, text, actors, effects and clipping cause rejected observations, all retained.",
+    "Native bottom layer comes from the object; these texture matches do not independently prove every occlusion relationship.",
+    "Static pose only: native leaf transitions, light/fade clock, passability and tile collision semantics remain unverified."
+  ]
+}

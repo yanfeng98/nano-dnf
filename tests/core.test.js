@@ -12225,3 +12225,34 @@ test("room24 west gate uses native frame and mirrored bushes while sharing exitM
   assert.ok(closed.some(c=>c[0]==="drawImage"&&c[1]===atlas&&c[2]===233),"native locked-side frame stays visible");
   assert.ok(closed.some(c=>c[0]==="drawImage"&&c[1]===atlas&&c[2]===364),"locked means the native closed leaf is drawn");
 });
+
+test("room24 east boss gate uses native bottom layer before bodies at every depth", () => {
+  const s=Core.createState({stage:"mirkwooddeep",seed:1});
+  Core.goToCell(s,s.dungeon.cells.findIndex(c=>c.col===3&&c.row===1));
+  const gate=s.room.nativePathGates?.E;
+  assert.ok(gate,"the boss-side gate must use the native375 object rather than the old generic arch");
+  assert.deepEqual(gate.anchor,[1553,240]);
+  assert.equal(gate.layer,"[bottom]");
+  assert.equal(gate.sprite,"nativePathGateEast");
+  const scale=1.125/Core.CAMERA.zoom;
+  assert.ok(Math.abs(gate.x-1553*scale)<1e-9);
+  const art=Core.gateArtRect(s,Core.currentCell(s),"E");
+  assert.ok(Math.abs(art.left-(1553-120)*scale)<1e-9);
+  assert.ok(Math.abs(art.top-(430-gate.z*Core.DEPTH.scale-212*scale))<1e-9);
+  s.intro=null;s.transition=0;s.enemies=[];s.props=[];s.effects=[];s.entryDoor="W";
+  const atlas={width:726,height:395},forest={width:1280,height:2000},slayer={width:13312,height:1936};
+  const paint=()=>{const calls=[];Render.render(recordingContext(calls),s,{sprites:{nativePathGateEast:atlas,forest,slayer}});return calls;};
+  for(const z of [gate.z-10,gate.z+10]) {
+    s.player.z=z;
+    const calls=paint(),body=calls.findIndex(c=>c[0]==="drawImage"&&c[1]===slayer);
+    const parts=calls.map((c,i)=>({c,i})).filter(({c})=>c[0]==="drawImage"&&c[1]===atlas);
+    assert.equal(parts.length,4,"locked native gate draws tree, frame, leaf and bush");
+    assert.ok(parts.every(({i})=>i<body),"native bottom layer remains behind the body on both sides of its anchor");
+    const frame=parts.find(({c})=>c[2]===223).c;
+    assert.ok(Math.abs(frame[6]-(1553-120)*scale)<1e-9);
+    const tree=parts.find(({c})=>c[2]===0).c;
+    assert.ok(Math.abs(tree[7]-(430-gate.z*Core.DEPTH.scale-436*scale))<1e-9);
+  }
+  Core.currentCell(s).cleared=true;s.room.cleared=true;
+  assert.equal(paint().some(c=>c[0]==="drawImage"&&c[1]===atlas&&c[2]===354),false,"existing open contract removes the native leaf");
+});

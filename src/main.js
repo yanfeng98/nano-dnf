@@ -80,6 +80,7 @@
     ["forest", "./assets/forest.png"],
     ["nativeFlora", "./assets/native-flora.png"],
     ["nativePathGate", "./assets/native-pathgate.png"],
+    ["nativePathGateEast", "./assets/native-pathgate-east.png"],
     ["forestDeep", "./assets/forest-deep.png"],
     ["deepBossCloseback", "./assets/deep-boss-closeback.png"],
     ["deepEntryCloseback", "./assets/deep-entry-closeback.png"],

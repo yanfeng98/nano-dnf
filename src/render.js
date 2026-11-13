@@ -3152,7 +3152,7 @@
 
   function drawNativePathGate(ctx, state, sprites, dir, spot) {
     var gate = state.room.nativePathGates && state.room.nativePathGates[dir];
-    var sheet = sprites && sprites.nativePathGate;
+    var sheet = sprites && sprites[gate && gate.sprite || "nativePathGate"];
     if (!gate || !sheet) return false;
     var scale = (VIEW.width / 640) / Core.CAMERA.zoom;
     function part(name) {
@@ -9956,6 +9956,11 @@
       Core.MINIMAP_DIRS.forEach(function (dir) {
         var spot = gateSpot(state, dir);
         if (!spot) return;
+        var native = state.room.nativePathGates && state.room.nativePathGates[dir];
+        if (native && native.layer === "[bottom]") {
+          drawGate(ctx, state, sprites, dir);
+          return;
+        }
         add((ARENA.groundY - spot.bottom) / DEPTH.scale, function () {
           drawGate(ctx, state, sprites, dir);
         });

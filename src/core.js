@@ -2826,6 +2826,16 @@
               light: {"rect":[414,0,89,205],"offset":[-24,-177]},
               over: {"rect":[0,0,233,234],"offset":[-67.0,-11]},
             }
+          }, E: {
+            // Native375 boss-side gate:06 frame/leaf,02 vegetation/red light (audit104).
+            anchor: [1553, 240], layer: "[bottom]", sprite: "nativePathGateEast",
+            parts: {
+              under: {rect:[0,0,223,395], offset:[-218,-436]},
+              frame: {rect:[223,0,131,240], offset:[-120,-212]},
+              door: {rect:[354,0,50,171], offset:[-90,-164]},
+              light: {rect:[404,0,89,205], offset:[-108,-196]},
+              over: {rect:[493,0,233,234], offset:[-62,-50]}
+            }
           } },
           // Native [close] list, 110% near scroll; crop starts at nativeY250 (audit102).
           nativeForeground: { sprite: "deepRoom24Foreground", scroll: 1.1, screenY: 373.25 },
