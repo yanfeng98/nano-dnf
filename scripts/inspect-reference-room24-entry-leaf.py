@@ -4,7 +4,7 @@
 References are normalized720x540 raw video frames277..278s, every3 raw30fps
 frames. Actual #stage screenshots include120px side margins at960x540;
 normalize that viewport explicitly before comparing the same game region.
---require-match intentionally exits1 while the leaf discrepancy remains.
+--require-match exits1 when the current rendered leaf does not match.
 """
 import argparse,hashlib,json,sys
 from pathlib import Path
@@ -37,7 +37,7 @@ for r,tile in zip(rows,tiles):
 actual,_,raw=observe(a.renders/'278.png')
 assert rows[-1]['passesNativeIdentity'],'native door identity must be established in the reference'
 assert min(r['temporalNccAgainst278'] for r in rows)>=.97,'the claimed persistence must survive the full fixed one-second series'
-result={'nativeSource':'103-room24-west-gate-source.json','nativePatchAfterFullResize':[0,65,56,75],'nativeIdentityGate':.94,'referenceTemporalGate':.97,'referenceObservations':rows,'runtime278':actual,'minimumTemporalNcc':min(r['temporalNccAgainst278'] for r in rows),'minimumTemporalContrastSlope':min(r['temporalContrastSlope'] for r in rows),'maximumTemporalContrastSlope':max(r['temporalContrastSlope'] for r in rows),'limits':['Native identity passes at278s; earlier native comparisons below.94 are retained, not called native-identity matches.','The already-identified leaf patch persists across277..278s; this contradicts only an immediate500ms entry fade in that interval. It does not establish the opening trigger or general fade law.','Temporal contrast slope is an image regression, not an alpha estimate; scene fade, compression and subpixel sampling remain confounders.','Visible bars and this diagnostic do not establish passability, so no travel rule is changed.','The runtime leaf-state discrepancy remains intentionally unresolved.']}
+result={'nativeSource':'103-room24-west-gate-source.json','nativePatchAfterFullResize':[0,65,56,75],'nativeIdentityGate':.94,'referenceTemporalGate':.97,'referenceObservations':rows,'runtime278':actual,'minimumTemporalNcc':min(r['temporalNccAgainst278'] for r in rows),'minimumTemporalContrastSlope':min(r['temporalContrastSlope'] for r in rows),'maximumTemporalContrastSlope':max(r['temporalContrastSlope'] for r in rows),'limits':['Native identity passes at278s; earlier native comparisons below.94 are retained, not called native-identity matches.','The already-identified leaf patch persists across277..278s; this contradicts only an immediate500ms entry fade in that interval. It does not establish the opening trigger or general fade law.','Temporal contrast slope is an image regression, not an alpha estimate; scene fade, compression and subpixel sampling remain confounders.','Visible bars and this diagnostic do not establish passability, so no travel rule is changed.',('The runtime leaf identity now matches; opening/light clocks and passability remain unverified.' if actual['passesNativeIdentity'] else 'The runtime leaf-state discrepancy remains intentionally unresolved.')]}
 a.out.write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n')
 print('reference native',round(rows[-1]['nativeNcc'],6),'runtime native',round(actual['nativeNcc'],6),'temporal min',round(result['minimumTemporalNcc'],6))
 if a.require_match and not actual['passesNativeIdentity']:raise SystemExit('entry leaf mismatch: the current runtime does not show the reference leaf')

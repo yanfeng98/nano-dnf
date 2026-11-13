@@ -1,0 +1,82 @@
+[
+  {
+    "label": "west-entry-leaf",
+    "time": 278,
+    "minPixels": 500,
+    "threshold": 0.97,
+    "nativeMask": {
+      "rows": 75,
+      "columns": 56,
+      "alphaOnly": true,
+      "box": null
+    },
+    "cosine": 0.9958611884832783,
+    "dx": 0,
+    "dy": 0,
+    "pixels": 1906
+  },
+  {
+    "label": "west-frame-post",
+    "time": 277,
+    "minPixels": 100,
+    "threshold": 0.97,
+    "nativeMask": {
+      "rows": 70,
+      "columns": 30,
+      "alphaOnly": true,
+      "box": null
+    },
+    "cosine": 0.9837198017742653,
+    "dx": 0,
+    "dy": 0,
+    "pixels": 1469
+  },
+  {
+    "label": "west-frame-post-later",
+    "time": 278,
+    "minPixels": 100,
+    "threshold": 0.97,
+    "nativeMask": {
+      "rows": 70,
+      "columns": 30,
+      "alphaOnly": true,
+      "box": null
+    },
+    "cosine": 0.9883420465594492,
+    "dx": 0,
+    "dy": 0,
+    "pixels": 1469
+  },
+  {
+    "label": "west-over-bush",
+    "time": 277.5,
+    "minPixels": 500,
+    "threshold": 0.97,
+    "nativeMask": {
+      "rows": 45,
+      "columns": 60,
+      "alphaOnly": true,
+      "box": null
+    },
+    "cosine": 0.984088406017059,
+    "dx": 0,
+    "dy": 0,
+    "pixels": 2700
+  },
+  {
+    "label": "west-over-bush-later",
+    "time": 278,
+    "minPixels": 500,
+    "threshold": 0.97,
+    "nativeMask": {
+      "rows": 45,
+      "columns": 60,
+      "alphaOnly": true,
+      "box": null
+    },
+    "cosine": 0.9849603264126879,
+    "dx": 0,
+    "dy": 0,
+    "pixels": 2700
+  }
+]

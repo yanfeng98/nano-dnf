@@ -5401,6 +5401,8 @@
         name: spec.name,
         total: spec.enemies.length,
         cleared: cleared,
+        // Native leaf opening is a visual event; a cleared revisit stays open.
+        nativeGateOpenedAt: null,
         cell: state.cell,
         /*
          * 这一间房有多宽、两堵墙在哪（`docs/adr/0035`）。宽度写在房间上，没写的
@@ -8494,6 +8496,7 @@
     /* 所有批次都清完（或领主倒下）才开房，包括尚未轮到的后续批次。 */
     if (((alive.length === 0 && pending === 0) || bossDown) && !state.room.cleared && !state.defeat) {
       state.room.cleared = true;
+      if (state.room.nativePathGates) state.room.nativeGateOpenedAt = state.time;
       var cell = currentCell(state);
       if (cell) cell.cleared = true;
       state.stats.rooms += 1;

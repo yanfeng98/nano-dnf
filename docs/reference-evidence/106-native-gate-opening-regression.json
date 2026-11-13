@@ -1,0 +1,18 @@
+{
+  "clear": {
+    "time": 0.03333333333333333,
+    "openedAt": 0.03333333333333333,
+    "mode": "open"
+  },
+  "firstVsClosed": 0,
+  "closedVsOpen": 39.089876543209876,
+  "halfVsPixelMixture": 0.28814814814814815,
+  "pausedTime": 0.2833333333333333,
+  "revisitVsOpen": 0,
+  "keyboardTravel": {
+    "room": "暗咒猫妖的林地",
+    "time": 0.6500000000000004,
+    "secondsAfterClear": 0.050000000000000155
+  },
+  "errors": []
+}

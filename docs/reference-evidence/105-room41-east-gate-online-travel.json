@@ -1,0 +1,13 @@
+{
+  "room": "宝箱浅沟",
+  "departure": {
+    "x": 854.55,
+    "z": 125,
+    "exit": "E",
+    "sideThreshold": 60,
+    "depthThreshold": 46,
+    "sideDistance": 80,
+    "northDistance": 125
+  },
+  "validationScope": "native normal east gate frame/tree static geometry and bottom layer; unverified leaf/bush and native clocks remain open"
+}

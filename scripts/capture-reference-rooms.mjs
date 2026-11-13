@@ -174,8 +174,9 @@ const profiles={
   ]},
  '24-west-gate':{cameraTolerance:1,evidence:'54-room24',col:3,row:1,out:'/tmp/nano-room103/render',times:[277,277.5,278],actorScreenX:210,exit:'W',next:'投掷手坡',entryDoor:'W',
   referenceNames:{277.5:'103-room24-277.5-reference.png',278:'103-room24-278-reference.png'},
-  scope:'native west frame/bush geometry; existing exitMode retained, leaf-state discrepancy and native fade/light timing remain open',
+  scope:'native west frame/bush and uncleared-entry leaf geometry;500ms declared opening duration; native clock/trigger/light and passability remain open',
   cases:[
+   ['west-entry-leaf',278,'nativePathGate',364,65/1.125,56/1.125,75/1.125,9,269,56,75,75,500,.97,null,null,true],
    ['west-frame-post',277,'nativePathGate',233+117/1.125,100/1.125,30/1.125,70/1.125,94,249,30,70,70,100,.97,null,null,true],
    ['west-frame-post-later',278,'nativePathGate',233+117/1.125,100/1.125,30/1.125,70/1.125,92,249,30,70,70,100,.97,null,null,true],
    ['west-over-bush',277.5,'nativePathGate',60/1.125,35/1.125,60/1.125,45/1.125,3,389,60,45,45,500,.97,null,null,true],

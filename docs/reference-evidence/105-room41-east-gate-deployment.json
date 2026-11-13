@@ -1,0 +1,37 @@
+{
+  "commit": "534e145",
+  "workflow": "https://github.com/yanfeng98/nano-dnf/actions/runs/43338833912",
+  "ci": "Success; public run page contains commit and three executed job links",
+  "site": "https://luyf-lemon-love.space/nano-dnf/",
+  "unitTests": 436,
+  "browserGroups": 38,
+  "localLiveSmoke": "passed; deployed runtime and normal east-gate atlas match checkout, clean boot",
+  "onlineDirectedChecks": {
+    "firstAttempt": "page.goto waiting for load timed out at30000ms before comparison; process exited1; raw failure retained in105-room41-east-gate-online-first-attempt.txt",
+    "retry": "passed, a separate single serial run after confirmed first-process termination",
+    "staticFrameAndTreeRegions": 4,
+    "minimumCosine": 0.9777407745715007,
+    "bestTranslations": [
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        0
+      ]
+    ],
+    "eastKeyboardTravel": "passed: 宝箱浅沟"
+  },
+  "sourceChecks": "Three gate atlas/source re-exports identical; old room24 complete measurement report unchanged; room41 observations/fit unchanged after material-description sync; different-map missing-output guard exits2 before export",
+  "manualAcceptance": "pending",
+  "remaining": "Entry normal gate leaf/bush/extra tree-trunk patch not visually matched; accepted camera span insufficient to identify scroll. Native fade/light/opening triggers, entry leaf discrepancy and tile collision/passability semantics remain unverified. Other scenery/lifecycle, particles/HP/drop/pass, characters/combat, HUD/results/XP/audio, ordinary route/unseen rooms and manual acceptance remain open."
+}

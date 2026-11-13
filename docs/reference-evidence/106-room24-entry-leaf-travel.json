@@ -1,0 +1,13 @@
+{
+  "room": "投掷手坡",
+  "departure": {
+    "x": 104,
+    "z": 125,
+    "exit": "W",
+    "sideThreshold": 60,
+    "depthThreshold": 46,
+    "sideDistance": 80,
+    "northDistance": 125
+  },
+  "validationScope": "native west frame/bush and uncleared-entry leaf geometry;500ms declared opening duration; native clock/trigger/light and passability remain open"
+}

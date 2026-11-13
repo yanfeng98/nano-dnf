@@ -1,0 +1,126 @@
+{
+  "left": {
+    "entry": "passiveobject/mapobject/pathgate/act1/animation/granflorisleftopendoor.ani",
+    "sha256": "1512d82f06769ff7f9b4ebd41b6047ea20cc90a827911718467042a30f32b948",
+    "data": {
+      "paths": [
+        "Map/PathGate/GranFlorisSideDoor%d%d.img"
+      ],
+      "overall": [
+        [
+          1,
+          0
+        ]
+      ],
+      "frames": [
+        {
+          "frame": 0,
+          "xy": [
+            -44,
+            -200
+          ],
+          "props": [
+            [
+              10,
+              1
+            ],
+            [
+              12,
+              500
+            ]
+          ],
+          "boxes": [],
+          "image": 0
+        },
+        {
+          "frame": 0,
+          "xy": [
+            -44,
+            -200
+          ],
+          "props": [
+            [
+              9,
+              [
+                255,
+                255,
+                255,
+                0
+              ]
+            ],
+            [
+              12,
+              600
+            ]
+          ],
+          "boxes": [],
+          "image": 0
+        }
+      ]
+    }
+  },
+  "right": {
+    "entry": "passiveobject/mapobject/pathgate/act1/animation/granflorisrightopendoor.ani",
+    "sha256": "5760ab40fcf418fb06f308255bf962f08120d211d00eedd45252c7638d88f3f5",
+    "data": {
+      "paths": [
+        "Map/PathGate/GranFlorisSideDoor%d%d.img"
+      ],
+      "overall": [
+        [
+          1,
+          0
+        ]
+      ],
+      "frames": [
+        {
+          "frame": 0,
+          "xy": [
+            -128,
+            -219
+          ],
+          "props": [
+            [
+              10,
+              1
+            ],
+            [
+              12,
+              500
+            ]
+          ],
+          "boxes": [],
+          "image": 0
+        },
+        {
+          "frame": 0,
+          "xy": [
+            -128,
+            -219
+          ],
+          "props": [
+            [
+              9,
+              [
+                255,
+                255,
+                255,
+                0
+              ]
+            ],
+            [
+              12,
+              600
+            ]
+          ],
+          "boxes": [],
+          "image": 0
+        }
+      ]
+    }
+  },
+  "limits": [
+    "The raw interpolation flag is retained, not assigned an undocumented opcode name.",
+    "The500ms source field supports the chosen duration; the recording does not establish an exact engine clock or clear-event trigger."
+  ]
+}

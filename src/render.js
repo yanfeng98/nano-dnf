@@ -3163,8 +3163,16 @@
     }
     part("under");part("frame");
     var open = Core.exitMode(state, dir) === "open";
-    if (!open) part("door");
-    // Retain the existing clear/approach pulse policy; native fade timing is unverified.
+    // Video277..278 retains the uncleared entry leaf. Travel permission is
+    // independent of that picture; native Left/RightOpenDoor declares500ms
+    // before its transparent frame (audit106). Exact engine clock is unproved.
+    var openedAt = state.room.nativeGateOpenedAt;
+    var leafAlpha = !state.room.cleared ? 1 :
+      typeof openedAt === "number" ? Math.max(0, Math.min(1, 1 - (state.time - openedAt) / 0.5)) : 0;
+    if (leafAlpha > 0) {
+      ctx.save();ctx.globalAlpha = leafAlpha;part("door");ctx.restore();
+    }
+    // Native light clock/trigger remain unverified; retain the existing pulse.
     var cell = Core.currentCell(state);
     if (open && cell.cleared && inDoorway(state, dir, spot)) {
       ctx.save();ctx.globalCompositeOperation = "lighter";

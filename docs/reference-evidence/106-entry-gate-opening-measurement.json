@@ -1,0 +1,852 @@
+{
+  "nativeSource": "106-native-gate-open-source.json",
+  "normalization": "exact raw30fps, crop1440:1080:240:0 scale720:540; no fps resampling",
+  "controlPatchAfterFullResize": [
+    130,
+    90,
+    12,
+    70
+  ],
+  "leafPatchAfterFullResize": [
+    38,
+    75,
+    15,
+    45
+  ],
+  "nativeOpaqueLeafPixels": 347,
+  "nativeLightMaskOverlapPixels": 0,
+  "closedEndpointTimes": [
+    24.5,
+    24.9
+  ],
+  "openEndpointTimes": [
+    25.7,
+    25.9
+  ],
+  "controlGate": {
+    "ncc": 0.94,
+    "verticalResidualPx": 2
+  },
+  "acceptedControls": 39,
+  "observations": [
+    {
+      "time": 24.5,
+      "frameSha256": "1f71ab64736e2c829cda5cda1580a180604f8aaf2a9821f0472db23ab26dd4a1",
+      "controlNcc": 0.952565610408783,
+      "controlAccepted": true,
+      "frameBitmap": [
+        576,
+        121
+      ],
+      "leafPatch": [
+        648,
+        250,
+        15,
+        45
+      ],
+      "mixtureProxy": 1.029902399788544,
+      "rgbResidual": 4.225860128025187
+    },
+    {
+      "time": 24.533333333333335,
+      "frameSha256": "b2befb568a824f70d1b3e80e6215e9188b162325d21570be50db2d2e8a93776d",
+      "controlNcc": 0.9527481198310852,
+      "controlAccepted": true,
+      "frameBitmap": [
+        576,
+        121
+      ],
+      "leafPatch": [
+        648,
+        250,
+        15,
+        45
+      ],
+      "mixtureProxy": 1.03138524191552,
+      "rgbResidual": 3.813506161018612
+    },
+    {
+      "time": 24.566666666666666,
+      "frameSha256": "838a93fcfada46a33e24e88176e70f51af15a638796854c1846b70558e5281c9",
+      "controlNcc": 0.95252525806427,
+      "controlAccepted": true,
+      "frameBitmap": [
+        576,
+        121
+      ],
+      "leafPatch": [
+        648,
+        250,
+        15,
+        45
+      ],
+      "mixtureProxy": 1.0296709145881762,
+      "rgbResidual": 3.263730353780758
+    },
+    {
+      "time": 24.6,
+      "frameSha256": "2509e41329dd2c4248d6b555422c9dbce92de786215321d206382b8f2fbac666",
+      "controlNcc": 0.952751100063324,
+      "controlAccepted": true,
+      "frameBitmap": [
+        576,
+        121
+      ],
+      "leafPatch": [
+        648,
+        250,
+        15,
+        45
+      ],
+      "mixtureProxy": 1.0267548343057313,
+      "rgbResidual": 2.996123702675406
+    },
+    {
+      "time": 24.633333333333333,
+      "frameSha256": "728651bafe90a475f4cfa1091250698047ee0d5b35e021e70f3d10aee66d2d2f",
+      "controlNcc": 0.9527853727340698,
+      "controlAccepted": true,
+      "frameBitmap": [
+        576,
+        121
+      ],
+      "leafPatch": [
+        648,
+        250,
+        15,
+        45
+      ],
+      "mixtureProxy": 1.0169354760216396,
+      "rgbResidual": 2.831348531890126
+    },
+    {
+      "time": 24.666666666666668,
+      "frameSha256": "55d850c8b37d2f1492f8bd416369a65b62b76455002cbd03e1b6d16f07fff85b",
+      "controlNcc": 0.9532328844070435,
+      "controlAccepted": true,
+      "frameBitmap": [
+        576,
+        121
+      ],
+      "leafPatch": [
+        648,
+        250,
+        15,
+        45
+      ],
+      "mixtureProxy": 1.0198474519565601,
+      "rgbResidual": 5.331905916963542
+    },
+    {
+      "time": 24.7,
+      "frameSha256": "fc5a6c15de2d5a4855d861571e10d1ac2233e618e2c25bf684ddb5cc53fad4f1",
+      "controlNcc": 0.9531288743019104,
+      "controlAccepted": true,
+      "frameBitmap": [
+        576,
+        121
+      ],
+      "leafPatch": [
+        648,
+        250,
+        15,
+        45
+      ],
+      "mixtureProxy": 1.0150789037358123,
+      "rgbResidual": 4.3905260072997025
+    },
+    {
+      "time": 24.733333333333334,
+      "frameSha256": "d9cb20ed885ff683bc9cde1e8df00faaaa81ea2e4d5e67edafab571e6d7b6849",
+      "controlNcc": 0.9527297019958496,
+      "controlAccepted": true,
+      "frameBitmap": [
+        576,
+        121
+      ],
+      "leafPatch": [
+        648,
+        250,
+        15,
+        45
+      ],
+      "mixtureProxy": 0.9908678267585399,
+      "rgbResidual": 3.239085272024201
+    },
+    {
+      "time": 24.766666666666666,
+      "frameSha256": "84f33e015f07a16d2c253c65e1526853f2da0e694a9a1f65dbf2cebf37a9ab3b",
+      "controlNcc": 0.9474301338195801,
+      "controlAccepted": true,
+      "frameBitmap": [
+        576,
+        121
+      ],
+      "leafPatch": [
+        648,
+        250,
+        15,
+        45
+      ],
+      "mixtureProxy": 0.9794264303328638,
+      "rgbResidual": 2.8184808981021408
+    },
+    {
+      "time": 24.8,
+      "frameSha256": "c98ab08351dba724afc3131157676e26f9b94d7f397d9db2ff15c33073ac0fc1",
+      "controlNcc": 0.9497345089912415,
+      "controlAccepted": true,
+      "frameBitmap": [
+        576,
+        121
+      ],
+      "leafPatch": [
+        648,
+        250,
+        15,
+        45
+      ],
+      "mixtureProxy": 0.9784433804672694,
+      "rgbResidual": 2.857377396388972
+    },
+    {
+      "time": 24.833333333333332,
+      "frameSha256": "0e58e0d0b4ee75073fbc03285da531fed750d43fba231b3833cc61d6c6821156",
+      "controlNcc": 0.9505736231803894,
+      "controlAccepted": true,
+      "frameBitmap": [
+        576,
+        121
+      ],
+      "leafPatch": [
+        648,
+        250,
+        15,
+        45
+      ],
+      "mixtureProxy": 0.9761572588962613,
+      "rgbResidual": 3.0478561903647767
+    },
+    {
+      "time": 24.866666666666667,
+      "frameSha256": "4590c03c95dcba3bab5bc2337fb9f98010141fb1f4b800b8f81f6182725cfa62",
+      "controlNcc": 0.9505870342254639,
+      "controlAccepted": true,
+      "frameBitmap": [
+        576,
+        121
+      ],
+      "leafPatch": [
+        648,
+        250,
+        15,
+        45
+      ],
+      "mixtureProxy": 0.9706067738386074,
+      "rgbResidual": 3.267828374105304
+    },
+    {
+      "time": 24.9,
+      "frameSha256": "73b189ca397a30be4193adf4c97ff186242b5c392ddcea98083f6725d868d981",
+      "controlNcc": 0.9506288766860962,
+      "controlAccepted": true,
+      "frameBitmap": [
+        576,
+        121
+      ],
+      "leafPatch": [
+        648,
+        250,
+        15,
+        45
+      ],
+      "mixtureProxy": 0.966734380583012,
+      "rgbResidual": 3.662176362937976
+    },
+    {
+      "time": 24.933333333333334,
+      "frameSha256": "1c62b01f3358dbd5f65d97de8aa9e2699bc2bdb73c96ea9dc33a9896f5603d42",
+      "controlNcc": 0.9506025910377502,
+      "controlAccepted": true,
+      "frameBitmap": [
+        576,
+        121
+      ],
+      "leafPatch": [
+        648,
+        250,
+        15,
+        45
+      ],
+      "mixtureProxy": 0.9631630119015524,
+      "rgbResidual": 4.092991334581521
+    },
+    {
+      "time": 24.966666666666665,
+      "frameSha256": "e1909b3fc5fe17ee42571a4b65d69109eed495cb22fb8fa3c6769d01ff169051",
+      "controlNcc": 0.9505519270896912,
+      "controlAccepted": true,
+      "frameBitmap": [
+        576,
+        121
+      ],
+      "leafPatch": [
+        648,
+        250,
+        15,
+        45
+      ],
+      "mixtureProxy": 0.9585562922403323,
+      "rgbResidual": 4.651469860500406
+    },
+    {
+      "time": 25.0,
+      "frameSha256": "4c7d4523668976a96d465b2eb8d3fe7301f47c475a0d2a78092a884a93c93eed",
+      "controlNcc": 0.950598418712616,
+      "controlAccepted": true,
+      "frameBitmap": [
+        576,
+        121
+      ],
+      "leafPatch": [
+        648,
+        250,
+        15,
+        45
+      ],
+      "mixtureProxy": 0.9375062664591665,
+      "rgbResidual": 6.81517804504574
+    },
+    {
+      "time": 25.033333333333335,
+      "frameSha256": "d5c68dbeb682dffd0246a34ebe399bfe7703466b43575a7112c006fcd1a62626",
+      "controlNcc": 0.9500581622123718,
+      "controlAccepted": true,
+      "frameBitmap": [
+        576,
+        121
+      ],
+      "leafPatch": [
+        648,
+        250,
+        15,
+        45
+      ],
+      "mixtureProxy": 0.9379046227031631,
+      "rgbResidual": 6.913434395273723
+    },
+    {
+      "time": 25.066666666666666,
+      "frameSha256": "37db83345e37d168258f3a90fe85a0431a1ee819c8bdba97e3f957d0cd23c80d",
+      "controlNcc": 0.9515008926391602,
+      "controlAccepted": true,
+      "frameBitmap": [
+        568,
+        121
+      ],
+      "leafPatch": [
+        640,
+        250,
+        15,
+        45
+      ],
+      "mixtureProxy": 0.9282864947148317,
+      "rgbResidual": 8.448142255409477
+    },
+    {
+      "time": 25.1,
+      "frameSha256": "a7d5a7c70cfc2a36fbd0b027cb09ae2bb81a2a5a6f8228f6f3b27af35ebdf988",
+      "controlNcc": 0.9512455463409424,
+      "controlAccepted": true,
+      "frameBitmap": [
+        567,
+        121
+      ],
+      "leafPatch": [
+        639,
+        250,
+        15,
+        45
+      ],
+      "mixtureProxy": 0.9317149148353752,
+      "rgbResidual": 9.41560020152436
+    },
+    {
+      "time": 25.133333333333333,
+      "frameSha256": "5318f95cc345c12da8264a2a276762925ff32079318bc9b1c1662a100901a14b",
+      "controlNcc": 0.9485238194465637,
+      "controlAccepted": true,
+      "frameBitmap": [
+        567,
+        121
+      ],
+      "leafPatch": [
+        639,
+        250,
+        15,
+        45
+      ],
+      "mixtureProxy": 0.9224363922879075,
+      "rgbResidual": 12.444664672484352
+    },
+    {
+      "time": 25.166666666666668,
+      "frameSha256": "956974371f760db5f79e28f2c769594a9796eb647cfe863a909028f661579368",
+      "controlNcc": 0.9482033848762512,
+      "controlAccepted": true,
+      "frameBitmap": [
+        567,
+        121
+      ],
+      "leafPatch": [
+        639,
+        250,
+        15,
+        45
+      ],
+      "mixtureProxy": 0.9405656471037437,
+      "rgbResidual": 28.042302790231123
+    },
+    {
+      "time": 25.2,
+      "frameSha256": "a6fb3d54812155240a830510a3a7bf8e3adc3e24f61ea9a5f52d0bf97b6f9775",
+      "controlNcc": 0.9477375149726868,
+      "controlAccepted": true,
+      "frameBitmap": [
+        567,
+        121
+      ],
+      "leafPatch": [
+        639,
+        250,
+        15,
+        45
+      ],
+      "mixtureProxy": 0.8267849250364379,
+      "rgbResidual": 13.223933487951054
+    },
+    {
+      "time": 25.233333333333334,
+      "frameSha256": "d426ec551a7d1e4e66c93856b2790cf5c8f01b125ed0678a804d60965ab1409b",
+      "controlNcc": 0.9479127526283264,
+      "controlAccepted": true,
+      "frameBitmap": [
+        567,
+        121
+      ],
+      "leafPatch": [
+        639,
+        250,
+        15,
+        45
+      ],
+      "mixtureProxy": 0.6537761228527373,
+      "rgbResidual": 10.455850293470847
+    },
+    {
+      "time": 25.266666666666666,
+      "frameSha256": "df0dbdda12f278558e760a9e189ad9bfaf17eac555dd2edbd8db3cefca5db2b6",
+      "controlNcc": 0.9467470645904541,
+      "controlAccepted": true,
+      "frameBitmap": [
+        567,
+        121
+      ],
+      "leafPatch": [
+        639,
+        250,
+        15,
+        45
+      ],
+      "mixtureProxy": 0.6183492712965505,
+      "rgbResidual": 9.368652764091044
+    },
+    {
+      "time": 25.3,
+      "frameSha256": "e4636860bf4ae1ede6c43de1fc5d121ce1eab9dcd9a6c0b38df38d08175a1fcd",
+      "controlNcc": 0.947017252445221,
+      "controlAccepted": true,
+      "frameBitmap": [
+        567,
+        121
+      ],
+      "leafPatch": [
+        639,
+        250,
+        15,
+        45
+      ],
+      "mixtureProxy": 0.5783024488999938,
+      "rgbResidual": 8.808620109558268
+    },
+    {
+      "time": 25.333333333333332,
+      "frameSha256": "a8ee14c430300fc17721a48f6ccc84c51aecd52cfd2642845c7955fc4e018a0d",
+      "controlNcc": 0.9475809931755066,
+      "controlAccepted": true,
+      "frameBitmap": [
+        567,
+        121
+      ],
+      "leafPatch": [
+        639,
+        250,
+        15,
+        45
+      ],
+      "mixtureProxy": 0.5162103550811764,
+      "rgbResidual": 15.714978130044969
+    },
+    {
+      "time": 25.366666666666667,
+      "frameSha256": "3677c36077b5d16e18fd4427e2597eebfafcf6269b3f51e0186bcddcd0efa801",
+      "controlNcc": 0.9478782415390015,
+      "controlAccepted": true,
+      "frameBitmap": [
+        567,
+        121
+      ],
+      "leafPatch": [
+        639,
+        250,
+        15,
+        45
+      ],
+      "mixtureProxy": 0.45717306849112344,
+      "rgbResidual": 32.48036413520431
+    },
+    {
+      "time": 25.4,
+      "frameSha256": "95b2e6ea656a9be477f45d74313b1fe4f3c2e72bffdfa8878de40f078bb8927c",
+      "controlNcc": 0.9484609961509705,
+      "controlAccepted": true,
+      "frameBitmap": [
+        567,
+        121
+      ],
+      "leafPatch": [
+        639,
+        250,
+        15,
+        45
+      ],
+      "mixtureProxy": 0.42628374902360505,
+      "rgbResidual": 33.76134456768366
+    },
+    {
+      "time": 25.433333333333334,
+      "frameSha256": "77de2280fd255f1c05809ab197ca4ab689e281a3fa7dc6e36d8e0acd63dfac91",
+      "controlNcc": 0.9391433000564575,
+      "controlAccepted": false,
+      "frameBitmap": [
+        567,
+        121
+      ],
+      "leafPatch": [
+        639,
+        250,
+        15,
+        45
+      ],
+      "mixtureProxy": 0.2925153235814818,
+      "rgbResidual": 7.730260025934962
+    },
+    {
+      "time": 25.466666666666665,
+      "frameSha256": "5b45871dd2dca72ef4a0dd64f01dc7b08ac3be2aac4222d3d31186b8d315cda9",
+      "controlNcc": 0.9482626914978027,
+      "controlAccepted": true,
+      "frameBitmap": [
+        567,
+        121
+      ],
+      "leafPatch": [
+        639,
+        250,
+        15,
+        45
+      ],
+      "mixtureProxy": 0.24735976118795297,
+      "rgbResidual": 21.74106402017401
+    },
+    {
+      "time": 25.5,
+      "frameSha256": "63d0cde80e2c74bd793141732b788109eee3aa02c1fdba2daa1be52271c72ed7",
+      "controlNcc": 0.9480388164520264,
+      "controlAccepted": true,
+      "frameBitmap": [
+        567,
+        121
+      ],
+      "leafPatch": [
+        639,
+        250,
+        15,
+        45
+      ],
+      "mixtureProxy": 0.22479253402767949,
+      "rgbResidual": 23.570176399340976
+    },
+    {
+      "time": 25.533333333333335,
+      "frameSha256": "8ca9f8f8cc7a99b4280908729f879580904b8fd8adae52b25849ac0544340802",
+      "controlNcc": 0.8334305286407471,
+      "controlAccepted": false,
+      "frameBitmap": [
+        570,
+        122
+      ],
+      "leafPatch": [
+        642,
+        251,
+        15,
+        45
+      ],
+      "mixtureProxy": 0.11658739217146134,
+      "rgbResidual": 17.761179817367566
+    },
+    {
+      "time": 25.566666666666666,
+      "frameSha256": "2bcd975f86617fa864d8c65637076b63f68c573c1008927dec1047a9aadc2bf0",
+      "controlNcc": 0.9120991230010986,
+      "controlAccepted": false,
+      "frameBitmap": [
+        566,
+        121
+      ],
+      "leafPatch": [
+        638,
+        250,
+        15,
+        45
+      ],
+      "mixtureProxy": 0.02378621837497624,
+      "rgbResidual": 8.725521601668742
+    },
+    {
+      "time": 25.6,
+      "frameSha256": "28c70c4fa9bd20eddee4eef78c42b9db2e8d69fd59b8273a5e06cf75627c78e2",
+      "controlNcc": 0.9481019377708435,
+      "controlAccepted": true,
+      "frameBitmap": [
+        567,
+        121
+      ],
+      "leafPatch": [
+        639,
+        250,
+        15,
+        45
+      ],
+      "mixtureProxy": 0.11407400701468172,
+      "rgbResidual": 25.109158692827517
+    },
+    {
+      "time": 25.633333333333333,
+      "frameSha256": "65947c058fa054028cacb6a64c2ca1dcc869d332ffb2ee144a36ab273ce3b819",
+      "controlNcc": 0.9482763409614563,
+      "controlAccepted": true,
+      "frameBitmap": [
+        567,
+        121
+      ],
+      "leafPatch": [
+        639,
+        250,
+        15,
+        45
+      ],
+      "mixtureProxy": 0.04695279754086259,
+      "rgbResidual": 14.423586307378505
+    },
+    {
+      "time": 25.666666666666668,
+      "frameSha256": "65dab9a247f4a14d6125d113f4bf85167d266467e6d1c197c9ac4e913d96031e",
+      "controlNcc": 0.9493853449821472,
+      "controlAccepted": true,
+      "frameBitmap": [
+        567,
+        121
+      ],
+      "leafPatch": [
+        639,
+        250,
+        15,
+        45
+      ],
+      "mixtureProxy": 0.00024672991974358853,
+      "rgbResidual": 1.1763278638519963
+    },
+    {
+      "time": 25.7,
+      "frameSha256": "3df95f9af5fcea749a73b55bcb32fec1cabc223bda07f89524799d11a97dac10",
+      "controlNcc": 0.9345455765724182,
+      "controlAccepted": false,
+      "frameBitmap": [
+        567,
+        121
+      ],
+      "leafPatch": [
+        639,
+        250,
+        15,
+        45
+      ],
+      "mixtureProxy": 0.0002145987419823037,
+      "rgbResidual": 1.1710596383460092
+    },
+    {
+      "time": 25.733333333333334,
+      "frameSha256": "377133749450c4a6f42170d13a08551469670781b875201e994e499dbe599380",
+      "controlNcc": 0.9518805742263794,
+      "controlAccepted": true,
+      "frameBitmap": [
+        567,
+        121
+      ],
+      "leafPatch": [
+        639,
+        250,
+        15,
+        45
+      ],
+      "mixtureProxy": 0.0004846648090780662,
+      "rgbResidual": 0.8521864743552581
+    },
+    {
+      "time": 25.766666666666666,
+      "frameSha256": "a58782e5d0eea5874d179b8a1b0b0cb31c290456f01edaf77d763be36e842a66",
+      "controlNcc": 0.9522517323493958,
+      "controlAccepted": true,
+      "frameBitmap": [
+        567,
+        121
+      ],
+      "leafPatch": [
+        639,
+        250,
+        15,
+        45
+      ],
+      "mixtureProxy": -3.3421115554621065e-05,
+      "rgbResidual": 0.061913724655658725
+    },
+    {
+      "time": 25.8,
+      "frameSha256": "639f2b3de2d72dcaf3310efdcc1d2c2d89de405f146221379b5fa088ba74ecea",
+      "controlNcc": 0.9522517323493958,
+      "controlAccepted": true,
+      "frameBitmap": [
+        567,
+        121
+      ],
+      "leafPatch": [
+        639,
+        250,
+        15,
+        45
+      ],
+      "mixtureProxy": 0.0,
+      "rgbResidual": 0.0
+    },
+    {
+      "time": 25.833333333333332,
+      "frameSha256": "3c3b2bc53e59e244bc5ee457aaf1fe6f40c1a444f83dacafbbdf3fe7ffa348d1",
+      "controlNcc": 0.9522517323493958,
+      "controlAccepted": true,
+      "frameBitmap": [
+        567,
+        121
+      ],
+      "leafPatch": [
+        639,
+        250,
+        15,
+        45
+      ],
+      "mixtureProxy": 0.0,
+      "rgbResidual": 0.0
+    },
+    {
+      "time": 25.866666666666667,
+      "frameSha256": "ce1ed1546bb1bee167ec7f490e2f6c1daa64f6134a16f7b3fff910b86a0b7fbd",
+      "controlNcc": 0.9522517323493958,
+      "controlAccepted": true,
+      "frameBitmap": [
+        567,
+        121
+      ],
+      "leafPatch": [
+        639,
+        250,
+        15,
+        45
+      ],
+      "mixtureProxy": 0.0,
+      "rgbResidual": 0.0
+    },
+    {
+      "time": 25.9,
+      "frameSha256": "28cf8b2109dc4dd221d8bf36d400550ce266c8627ea3b3dc4c4486f6965212dd",
+      "controlNcc": 0.9522517323493958,
+      "controlAccepted": true,
+      "frameBitmap": [
+        567,
+        121
+      ],
+      "leafPatch": [
+        639,
+        250,
+        15,
+        45
+      ],
+      "mixtureProxy": 0.0,
+      "rgbResidual": 0.0
+    }
+  ],
+  "candidateModels": [
+    {
+      "duration": 0,
+      "start": 25.334000000000408,
+      "meanAbsoluteProxyError": 0.1054149522859678,
+      "proxyRmse": 0.17996853277666655
+    },
+    {
+      "duration": 0.3,
+      "start": 25.174000000000213,
+      "meanAbsoluteProxyError": 0.052115198415486466,
+      "proxyRmse": 0.07724913028418623
+    },
+    {
+      "duration": 0.4,
+      "start": 25.14000000000017,
+      "meanAbsoluteProxyError": 0.03612772051351016,
+      "proxyRmse": 0.04905747488997316
+    },
+    {
+      "duration": 0.5,
+      "start": 25.092000000000112,
+      "meanAbsoluteProxyError": 0.028958227665803794,
+      "proxyRmse": 0.03934896682046451
+    },
+    {
+      "duration": 0.6,
+      "start": 25.047000000000057,
+      "meanAbsoluteProxyError": 0.027535115476912654,
+      "proxyRmse": 0.0386668972770162
+    },
+    {
+      "duration": 0.7,
+      "start": 25.0,
+      "meanAbsoluteProxyError": 0.03297385750971743,
+      "proxyRmse": 0.04952819817891444
+    }
+  ],
+  "adoptedDurationSeconds": 0.5,
+  "limits": [
+    "Endpoint mixture fractions are image regressions, not measured engine alpha. Effects, sampling phase and background changes remain confounders; all control rejections and RGB residuals are retained.",
+    "The native500ms model beats instant disappearance, but600ms fits slightly better here; this does not resolve the exact native clock.",
+    "The fitted visual start is not a measured enemy-death or room-clear event.",
+    "Native light trigger/clock, hit-stop behavior and uncleared entry passability remain unverified."
+  ]
+}

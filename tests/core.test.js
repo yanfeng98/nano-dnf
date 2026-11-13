@@ -12192,7 +12192,7 @@ test("room24 native foreground keeps110 percent parallax above bodies and below 
   }
 });
 
-test("room24 west gate uses native frame and mirrored bushes while sharing exitMode", () => {
+test("room24 west gate retains its native leaf on an uncleared entry", () => {
   const s=Core.createState({stage:"mirkwooddeep",seed:1});
   Core.goToCell(s,s.dungeon.cells.findIndex(c=>c.col===3&&c.row===1));
   const gate=s.room.nativePathGates?.W;
@@ -12210,6 +12210,7 @@ test("room24 west gate uses native frame and mirrored bushes while sharing exitM
   const atlas={width:503,height:240},forest={width:1280,height:2000},slayer={width:13312,height:1936};
   const paint=()=>{const calls=[];Render.render(recordingContext(calls),s,{sprites:{nativePathGate:atlas,forest,slayer}});return calls;};
   s.entryDoor="W";
+  assert.equal(Core.exitMode(s,"W"),"open","visual restoration does not invent an entry blocking rule");
   for(const [z,frameBeforeBody] of [[gate.z-10,true],[gate.z+10,false]]) {
     s.player.z=z;
     const calls=paint(),frame=calls.findIndex(c=>c[0]==="drawImage"&&c[1]===atlas&&c[2]===233),body=calls.findIndex(c=>c[0]==="drawImage"&&c[1]===slayer);
@@ -12218,7 +12219,7 @@ test("room24 west gate uses native frame and mirrored bushes while sharing exitM
     const bush=calls.find(c=>c[0]==="drawImage"&&c[1]===atlas&&c[2]===0&&Math.abs(c[6]-(16-67)*scale)<1e-7);
     assert.ok(bush,"negative native graphic size must reflect the image and its ANI offset together");
     assert.ok(Math.abs(bush[7]-(430-gate.z*Core.DEPTH.scale-11*scale))<1e-9);
-    assert.equal(calls.some(c=>c[0]==="drawImage"&&c[1]===atlas&&c[2]===364),false,"open means the leaf is absent under the existing travel contract");
+    assert.equal(calls.some(c=>c[0]==="drawImage"&&c[1]===atlas&&c[2]===364),true,"video277..278 keeps the entry leaf visible independently of travel permission");
   }
   s.entryDoor="E";
   const closed=paint();
@@ -12254,7 +12255,7 @@ test("room24 east boss gate uses native bottom layer before bodies at every dept
     assert.ok(Math.abs(tree[7]-(430-gate.z*Core.DEPTH.scale-436*scale))<1e-9);
   }
   Core.currentCell(s).cleared=true;s.room.cleared=true;
-  assert.equal(paint().some(c=>c[0]==="drawImage"&&c[1]===atlas&&c[2]===354),false,"existing open contract removes the native leaf");
+  assert.equal(paint().some(c=>c[0]==="drawImage"&&c[1]===atlas&&c[2]===354),false,"a cleared fixture without an opening event has no new fade to replay");
 });
 
 test("room41 east gate uses the native normal material and authored entry-map anchor", () => {
@@ -12275,4 +12276,37 @@ test("room41 east gate uses the native normal material and authored entry-map an
   const parts=calls.map((c,i)=>({c,i})).filter(({c})=>c[0]==="drawImage"&&c[1]===atlas);
   assert.equal(parts.length,4,"normal native tree/frame/closed leaf/bush are drawn from their own sheet");
   assert.ok(parts.every(({i})=>i<calls.findIndex(c=>c[0]==="drawImage"&&c[1]===slayer)),"native bottom layer remains behind the body");
+});
+
+test("native gate clear event fades its leaf over the authored500ms and does not replay on revisit", () => {
+  const s=Core.createState({stage:"mirkwooddeep",seed:1});
+  s.intro=null;s.transition=0;s.player.invuln=999;s.player.x=Core.roomWidth(s)/2;
+  for(let n=0;n<1200&&!s.room.cleared;n++) {
+    s.enemies.slice().forEach(e=>{if(!e.dead)Core.damageEnemy(s,e,99999,0,s.player.x);});
+    Core.runFrames(s,1,{});
+  }
+  assert.equal(s.room.cleared,true);
+  assert.equal(s.room.nativeGateOpenedAt,s.time,"first clear records an event; the renderer never manufactures it");
+  const at=s.room.nativeGateOpenedAt;
+  const atlas={width:726,height:395},forest={width:1280,height:2000},slayer={width:13312,height:1936};
+  const leafAlpha=()=>{
+    const calls=[],ctx=recordingContext(calls),stack=[],leaves=[];
+    ctx.globalAlpha=1;
+    ctx.save=()=>stack.push(ctx.globalAlpha);ctx.restore=()=>{ctx.globalAlpha=stack.pop();};
+    ctx.drawImage=(...args)=>{if(args[0]===atlas&&args[1]===354)leaves.push(ctx.globalAlpha);};
+    Render.render(ctx,s,{sprites:{nativePathGateEastNormal:atlas,forest,slayer}});
+    assert.ok(stack.length===0,"renderer balances save/restore");
+    return leaves;
+  };
+  assert.deepEqual(leafAlpha(),[1],"the first open frame still contains the source leaf");
+  Core.runFrames(s,15,{});
+  assert.ok(Math.abs(s.time-at-.25)<1e-8);
+  assert.ok(Math.abs(leafAlpha()[0]-.5)<1e-8,"the real leaf draw has half opacity after250ms");
+  Core.runFrames(s,16,{});
+  assert.deepEqual(leafAlpha(),[],"the fully faded leaf is not drawn");
+  const entry=s.cell,next=s.dungeon.cells.findIndex(c=>c.col===1&&c.row===3);
+  Core.goToCell(s,next);Core.goToCell(s,entry);
+  assert.equal(s.room.cleared,true);
+  assert.equal(s.room.nativeGateOpenedAt,null,"a cleared revisit has no new opening event");
+  assert.deepEqual(leafAlpha(),[]);
 });
