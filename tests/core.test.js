@@ -12388,3 +12388,14 @@ test("native radar magnifier draws at its measured anchor and its visible circle
   assert.equal(Render.hitTestMinimap(Core.VIEW.left+694,39.25,meta),"map","the magnifier centre lies outside the old radar-disc hit target");
   assert.equal(Render.hitTestMinimap(Core.VIEW.left+681.5,26.75,meta),null,"the corner outside the painted circle does not answer");
 });
+
+test("full map retains the measured native radar rim behind its panel", () => {
+  for(const stage of ["mirkwood","mirkwooddeep"]) {
+    const state=Core.createState({stage,seed:1}),sheet={width:613,height:122},calls=[];
+    Render.render(recordingContext(calls),state,{sprites:{minimap:sheet},map:{mode:"window"}});
+    const rim=calls.findIndex(c=>c[0]==="drawImage"&&c[1]===sheet&&c[2]===82&&c[3]===18&&c[4]===104);
+    const panel=calls.findIndex(c=>c[0]==="drawImage"&&c[1]===sheet&&c[2]===190);
+    assert.ok(rim>=0&&panel>rim);
+    assert.deepEqual(calls[rim].slice(6),[Core.VIEW.left+594,23.5,117,117]);
+  }
+});

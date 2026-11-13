@@ -2584,6 +2584,11 @@
       return;
     }
 
+    // V1 full-window samples retain the native radar rim behind the panel.
+    // Only the exposed rim is established; do not invent underlying grid content.
+    var underlay = radarBox(meta), underlayRing = MINIMAP.pieces.ring;
+    ctx.drawImage(sprites.minimap, underlayRing[0], underlayRing[1], underlayRing[2], underlayRing[3],
+                  underlay.x, underlay.y, underlay.w, underlay.h);
     drawMinimapHeader(ctx, state, sprites);
     drawMinimapWindow(ctx, sprites, box);
 

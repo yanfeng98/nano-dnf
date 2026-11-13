@@ -1,0 +1,27 @@
+{
+  "commit": "6ae095c",
+  "actions": "https://github.com/yanfeng98/nano-dnf/actions/runs/43388302246",
+  "status": "Success",
+  "jobs": 3,
+  "unitTests": 441,
+  "browserGroups": 43,
+  "liveSmoke": "resource equality and clean boot passed",
+  "onlineChecks": 7,
+  "minimumCosine": 0.9764828722207581,
+  "inputs": [
+    {
+      "stage": "mirkwood",
+      "corner": "radar",
+      "centre": "window",
+      "afterTab": "radar"
+    },
+    {
+      "stage": "mirkwooddeep",
+      "corner": "radar",
+      "centre": "window",
+      "afterTab": "radar"
+    }
+  ],
+  "firstAttempt": "asset-ready wait timeout; terminal exit1; serial retry passed",
+  "manualAcceptance": "pending"
+}

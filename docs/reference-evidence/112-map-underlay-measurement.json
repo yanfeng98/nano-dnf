@@ -1,0 +1,145 @@
+{
+  "source": "existing native ring at packed82,18,104,104; native identity established in107",
+  "model": [
+    594,
+    23.5,
+    117,
+    117
+  ],
+  "observations": [
+    {
+      "time": 76,
+      "part": "left",
+      "roi": [
+        594,
+        55,
+        18,
+        63
+      ],
+      "pixels": 333,
+      "ncc": 0.9858267281375666,
+      "referenceSha256": "2347f4bbfb201170ed6fbe914925fe65af328fefede7d05d0d3e9b8178291431"
+    },
+    {
+      "time": 76,
+      "part": "bottom",
+      "roi": [
+        620,
+        122,
+        70,
+        12
+      ],
+      "pixels": 440,
+      "ncc": 0.9824045886870075,
+      "referenceSha256": "2347f4bbfb201170ed6fbe914925fe65af328fefede7d05d0d3e9b8178291431"
+    },
+    {
+      "time": 100,
+      "part": "left",
+      "roi": [
+        594,
+        55,
+        18,
+        63
+      ],
+      "pixels": 333,
+      "ncc": 0.9506474494209959,
+      "referenceSha256": "a99b8afe5b0b126384855b7762ba8195eda7108945018720969d6449a5ec6c34"
+    },
+    {
+      "time": 100,
+      "part": "bottom",
+      "roi": [
+        620,
+        122,
+        70,
+        12
+      ],
+      "pixels": 440,
+      "ncc": 0.9826981926749123,
+      "referenceSha256": "a99b8afe5b0b126384855b7762ba8195eda7108945018720969d6449a5ec6c34"
+    },
+    {
+      "time": 160,
+      "part": "left",
+      "roi": [
+        594,
+        55,
+        18,
+        63
+      ],
+      "pixels": 333,
+      "ncc": 0.9888616694216982,
+      "referenceSha256": "3fd2903260ef7e9e7874ca2da5df66b4494df3606e9679c03f9d3d2662d64e7f"
+    },
+    {
+      "time": 160,
+      "part": "bottom",
+      "roi": [
+        620,
+        122,
+        70,
+        12
+      ],
+      "pixels": 440,
+      "ncc": 0.9857890436796618,
+      "referenceSha256": "3fd2903260ef7e9e7874ca2da5df66b4494df3606e9679c03f9d3d2662d64e7f"
+    },
+    {
+      "time": 220,
+      "part": "left",
+      "roi": [
+        594,
+        55,
+        18,
+        63
+      ],
+      "pixels": 333,
+      "ncc": 0.9891222203695796,
+      "referenceSha256": "d1ffb4143375bf73ef38c12f6487d2761098b3fe05ffe98df35b155df589dcf3"
+    },
+    {
+      "time": 220,
+      "part": "bottom",
+      "roi": [
+        620,
+        122,
+        70,
+        12
+      ],
+      "pixels": 440,
+      "ncc": 0.9859403665941217,
+      "referenceSha256": "d1ffb4143375bf73ef38c12f6487d2761098b3fe05ffe98df35b155df589dcf3"
+    },
+    {
+      "time": 280,
+      "part": "left",
+      "roi": [
+        594,
+        55,
+        18,
+        63
+      ],
+      "pixels": 333,
+      "ncc": 0.9879330835763623,
+      "referenceSha256": "07f398a967f2bea37e6cdec5a00e1a6bb398cb10349e0ee416f11d74543ec3d0"
+    },
+    {
+      "time": 280,
+      "part": "bottom",
+      "roi": [
+        620,
+        122,
+        70,
+        12
+      ],
+      "pixels": 440,
+      "ncc": 0.9854305333026806,
+      "referenceSha256": "07f398a967f2bea37e6cdec5a00e1a6bb398cb10349e0ee416f11d74543ec3d0"
+    }
+  ],
+  "limits": [
+    "Only exposed rim portions outside the ordinary window are checked.",
+    "This does not establish underlying map-content centre, full-window skin, opacity or switching animation."
+  ]
+}

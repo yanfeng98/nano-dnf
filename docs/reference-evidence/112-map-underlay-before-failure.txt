@@ -1,0 +1,16 @@
+[{"stage":"mirkwood","video":"00001","time":76,"cellRoi":[594,55,18,63],"threshold":0.97,"cosine":0.8013316551572179,"dx":-2,"dy":-2,"pixels":333},{"stage":"mirkwood","video":"00001","time":100,"cellRoi":[594,55,18,63],"threshold":0.97,"cosine":0.8507266180118767,"dx":-2,"dy":-2,"pixels":333},{"stage":"mirkwood","video":"00001","time":160,"cellRoi":[594,55,18,63],"threshold":0.97,"cosine":0.7997153487989496,"dx":-2,"dy":-2,"pixels":333},{"stage":"mirkwood","video":"00001","time":220,"cellRoi":[594,55,18,63],"threshold":0.97,"cosine":0.7964582576901577,"dx":-2,"dy":-2,"pixels":333},{"stage":"mirkwood","video":"00001","time":280,"cellRoi":[594,55,18,63],"threshold":0.97,"cosine":0.8016916004263422,"dx":-2,"dy":-2,"pixels":333}]
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: {"stage":"mirkwood","video":"00001","time":76,"cellRoi":[594,55,18,63],"threshold":0.97,"cosine":0.8013316551572179,"dx":-2,"dy":-2,"pixels":333}
+    at file:///home/luyanfeng/luyanfeng/nano-dnf/scripts/inspect-reference-map-underlay.mjs:55:120 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v24.21.0

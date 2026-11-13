@@ -1,0 +1,152 @@
+{
+  "evidence": [
+    {
+      "stage": "mirkwood",
+      "time": 60,
+      "part": "button-lower",
+      "roi": [
+        676,
+        40,
+        36,
+        16
+      ],
+      "cosine": 0.9842676980228678,
+      "pixels": 245,
+      "minPixels": 200,
+      "threshold": 0.97,
+      "translation": [
+        0,
+        0
+      ]
+    },
+    {
+      "stage": "mirkwood",
+      "time": 74,
+      "part": "button-lower",
+      "roi": [
+        676,
+        40,
+        36,
+        16
+      ],
+      "cosine": 0.9845164354877484,
+      "pixels": 245,
+      "minPixels": 200,
+      "threshold": 0.97,
+      "translation": [
+        0,
+        0
+      ]
+    },
+    {
+      "stage": "mirkwooddeep",
+      "time": 10.5,
+      "part": "button-lower",
+      "roi": [
+        676,
+        40,
+        36,
+        16
+      ],
+      "cosine": 0.9782193856292158,
+      "pixels": 245,
+      "minPixels": 200,
+      "threshold": 0.97,
+      "translation": [
+        0,
+        0
+      ]
+    },
+    {
+      "stage": "mirkwooddeep",
+      "time": 15.5,
+      "part": "button-lower",
+      "roi": [
+        676,
+        40,
+        36,
+        16
+      ],
+      "cosine": 0.9841290649114284,
+      "pixels": 245,
+      "minPixels": 200,
+      "threshold": 0.97,
+      "translation": [
+        0,
+        0
+      ]
+    },
+    {
+      "stage": "mirkwooddeep",
+      "time": 25.5,
+      "part": "button-lower",
+      "roi": [
+        676,
+        40,
+        36,
+        16
+      ],
+      "cosine": 0.9844293366298015,
+      "pixels": 245,
+      "minPixels": 200,
+      "threshold": 0.97,
+      "translation": [
+        0,
+        0
+      ]
+    },
+    {
+      "stage": "mirkwooddeep",
+      "time": 40,
+      "part": "button-lower",
+      "roi": [
+        676,
+        40,
+        36,
+        16
+      ],
+      "cosine": 0.9861750498785256,
+      "pixels": 245,
+      "minPixels": 200,
+      "threshold": 0.97,
+      "translation": [
+        0,
+        0
+      ]
+    },
+    {
+      "stage": "mirkwooddeep",
+      "time": 60,
+      "part": "button-lower",
+      "roi": [
+        676,
+        40,
+        36,
+        16
+      ],
+      "cosine": 0.9764828722207581,
+      "pixels": 245,
+      "minPixels": 200,
+      "threshold": 0.97,
+      "translation": [
+        0,
+        0
+      ]
+    }
+  ],
+  "inputs": [
+    {
+      "stage": "mirkwood",
+      "corner": "radar",
+      "centre": "window",
+      "afterTab": "radar"
+    },
+    {
+      "stage": "mirkwooddeep",
+      "corner": "radar",
+      "centre": "window",
+      "afterTab": "radar"
+    }
+  ],
+  "errors": []
+}
