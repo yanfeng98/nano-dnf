@@ -189,6 +189,8 @@ def exits_name(exits: int) -> str:
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--client", type=pathlib.Path, default=DEFAULT_CLIENT)
+    ap.add_argument("--out", type=pathlib.Path, default=OUT)
+    ap.add_argument("--meta", type=pathlib.Path, default=META)
     ap.add_argument("--preview", action="store_true")
     ap.add_argument("--table", action="store_true")
     args = ap.parse_args()
@@ -257,6 +259,8 @@ def main() -> None:
     window = decode(args.client, window_folder, WINDOW_PACK, WINDOW_ENTRY)
     for offset, name in enumerate(WINDOW_SLICES):
         specials.append((name, window[WINDOW_FIRST + offset]))
+    # Native radial brown material; the radar used to fill this area solid green.
+    specials.append(("radarBackground", cut(atlas, 350, 0, 74, 74)))
 
     gap = 4
     tiles_w = TILE * len(order)
@@ -290,11 +294,12 @@ def main() -> None:
         print(f"preview -> {target} ({back.size[0]}x{back.size[1]})")
         return
 
-    sheet.save(OUT)
-    META.parent.mkdir(parents=True, exist_ok=True)
-    META.write_text(json.dumps({"tile": TILE, "columns": layout, "pieces": places},
+    args.out.parent.mkdir(parents=True, exist_ok=True)
+    sheet.save(args.out)
+    args.meta.parent.mkdir(parents=True, exist_ok=True)
+    args.meta.write_text(json.dumps({"tile": TILE, "columns": layout, "pieces": places},
                                ensure_ascii=False, indent=2), encoding="utf-8")
-    print(f"{len(order)} tiles + {len(specials)} pieces -> {OUT} "
+    print(f"{len(order)} tiles + {len(specials)} pieces -> {args.out} "
           f"({sheet.size[0]}x{sheet.size[1]})")
 
 

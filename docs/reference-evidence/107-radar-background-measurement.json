@@ -1,0 +1,327 @@
+{
+  "source": {
+    "pack": "sprite_map_minimap.NPK",
+    "entry": "sprite/map/minimap/minimap.img",
+    "nativeRect": [
+      350,
+      0,
+      74,
+      74
+    ],
+    "packedRect": [
+      307,
+      18,
+      74,
+      74
+    ],
+    "rgbaSha256": "bf9c10cfea4172c6b0cc97aabf911c7ecc31a35df0a489abc1dc5ecd8f1eaf4c",
+    "nativeCropIdenticalToPackedAsset": true
+  },
+  "frameModel": [
+    594,
+    23.5,
+    117,
+    117
+  ],
+  "fit": {
+    "reference": [
+      "00002",
+      15.5
+    ],
+    "rois": [
+      [
+        615,
+        75,
+        18,
+        25
+      ],
+      [
+        636,
+        108,
+        32,
+        14
+      ],
+      [
+        620,
+        102,
+        14,
+        14
+      ],
+      [
+        626,
+        59,
+        8,
+        14
+      ]
+    ],
+    "sizeSearch": [
+      76,
+      115,
+      1
+    ],
+    "centreXSearch": [
+      653,
+      658,
+      0.5
+    ],
+    "centreYSearch": [
+      78,
+      83,
+      0.5
+    ],
+    "top10": [
+      {
+        "rgbMae": 3.1887111284535927,
+        "size": 91.0,
+        "centre": [
+          655.5,
+          81.0
+        ]
+      },
+      {
+        "rgbMae": 3.1893191992109173,
+        "size": 90.0,
+        "centre": [
+          655.5,
+          81.5
+        ]
+      },
+      {
+        "rgbMae": 3.193874852317931,
+        "size": 93.0,
+        "centre": [
+          656.5,
+          80.5
+        ]
+      },
+      {
+        "rgbMae": 3.1961933253124357,
+        "size": 92.0,
+        "centre": [
+          656.0,
+          80.5
+        ]
+      },
+      {
+        "rgbMae": 3.1982321507928764,
+        "size": 92.0,
+        "centre": [
+          656.0,
+          81.0
+        ]
+      },
+      {
+        "rgbMae": 3.1989518637748082,
+        "size": 91.0,
+        "centre": [
+          656.0,
+          81.0
+        ]
+      },
+      {
+        "rgbMae": 3.2003154163821415,
+        "size": 89.0,
+        "centre": [
+          655.0,
+          81.5
+        ]
+      },
+      {
+        "rgbMae": 3.202569938976143,
+        "size": 90.0,
+        "centre": [
+          655.5,
+          81.0
+        ]
+      },
+      {
+        "rgbMae": 3.2032332888932245,
+        "size": 90.0,
+        "centre": [
+          655.0,
+          81.5
+        ]
+      },
+      {
+        "rgbMae": 3.209196934716396,
+        "size": 89.0,
+        "centre": [
+          655.0,
+          82.0
+        ]
+      }
+    ]
+  },
+  "adopted": {
+    "screenBox": [
+      610,
+      35.5,
+      92,
+      92
+    ],
+    "fitRgbMae": 3.2376017515906304
+  },
+  "observations": [
+    {
+      "video": "00002",
+      "time": 15.5,
+      "kind": "fit",
+      "rois": [
+        [
+          615,
+          75,
+          18,
+          25
+        ],
+        [
+          636,
+          108,
+          32,
+          14
+        ],
+        [
+          620,
+          102,
+          14,
+          14
+        ],
+        [
+          626,
+          59,
+          8,
+          14
+        ]
+      ],
+      "pixels": 1206,
+      "referenceSha256": "bbbcd2d98aecdee172c5710f603799d4c6fd125aa4e3171483840e4ccdbf868d",
+      "nativeBackgroundRgbMae": 3.2376017515906304,
+      "legacyGreenRgbMae": 13.6710098743754
+    },
+    {
+      "video": "00002",
+      "time": 25.5,
+      "kind": "holdout",
+      "rois": [
+        [
+          615,
+          75,
+          18,
+          25
+        ],
+        [
+          636,
+          108,
+          32,
+          14
+        ],
+        [
+          620,
+          102,
+          14,
+          14
+        ],
+        [
+          626,
+          59,
+          8,
+          14
+        ]
+      ],
+      "pixels": 1206,
+      "referenceSha256": "63d0cde80e2c74bd793141732b788109eee3aa02c1fdba2daa1be52271c72ed7",
+      "nativeBackgroundRgbMae": 3.283926771371899,
+      "legacyGreenRgbMae": 13.961478012985182
+    },
+    {
+      "video": "00001",
+      "time": 60,
+      "kind": "holdout",
+      "rois": [
+        [
+          636,
+          114,
+          32,
+          10
+        ]
+      ],
+      "pixels": 320,
+      "referenceSha256": "05a006f6da508271a7ede8f65aa0a8e46f26c06189817d958c0e785cf2ed23d6",
+      "nativeBackgroundRgbMae": 4.728639705882354,
+      "legacyGreenRgbMae": 10.65220179738562
+    },
+    {
+      "video": "00001",
+      "time": 74,
+      "kind": "holdout",
+      "rois": [
+        [
+          636,
+          114,
+          32,
+          10
+        ]
+      ],
+      "pixels": 320,
+      "referenceSha256": "9f577feac20684f9a90d49c19adeebfdc5a2e8775c723c51529c67f3f97f868d",
+      "nativeBackgroundRgbMae": 4.656348039215686,
+      "legacyGreenRgbMae": 10.147532679738562
+    },
+    {
+      "video": "00002",
+      "time": 40,
+      "kind": "holdout",
+      "rois": [
+        [
+          636,
+          108,
+          32,
+          14
+        ]
+      ],
+      "pixels": 448,
+      "referenceSha256": "3ea5407c94ba720fa253ca26d87db7258d9abcb97bfe1285313481119021aa1d",
+      "nativeBackgroundRgbMae": 2.8178688141923436,
+      "legacyGreenRgbMae": 13.753979925303454
+    },
+    {
+      "video": "00002",
+      "time": 60,
+      "kind": "holdout",
+      "rois": [
+        [
+          636,
+          108,
+          32,
+          14
+        ]
+      ],
+      "pixels": 448,
+      "referenceSha256": "f5903c10c031fcefa68717daac749c2344c2401509f1083fdc355e66fb66b06e",
+      "nativeBackgroundRgbMae": 2.65140639589169,
+      "legacyGreenRgbMae": 13.122869981325865
+    },
+    {
+      "video": "00002",
+      "time": 72.5,
+      "kind": "holdout",
+      "rois": [
+        [
+          636,
+          108,
+          32,
+          14
+        ]
+      ],
+      "pixels": 448,
+      "referenceSha256": "c49fbeb7dda9950f89ef662053dfc042d4670621a42c348ce5f3a70d5e623b43",
+      "nativeBackgroundRgbMae": 3.5781804388422036,
+      "legacyGreenRgbMae": 14.154779411764707
+    }
+  ],
+  "limits": [
+    "The radial material is a native bitmap, not a sampled replacement colour.",
+    "Neighboring size/centre fits have very similar residuals; the adopted near-optimal box does not establish an exact engine-authored rectangle.",
+    "Ring composition is modeled with bilinear sampling; source compression, subpixel sampling and unverified clip geometry remain residuals.",
+    "Counter, blue button and full-window skin/layout remain unverified."
+  ]
+}

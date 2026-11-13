@@ -1,0 +1,308 @@
+{
+  "nativeSource": "103-room24-west-gate-source.json",
+  "nativePatchAfterFullResize": [
+    0,
+    65,
+    56,
+    75
+  ],
+  "nativeIdentityGate": 0.94,
+  "referenceTemporalGate": 0.97,
+  "referenceObservations": [
+    {
+      "sha256": "91e393d35e2b3092c4ad09ababc1e07db35156a6f6d827fcb3a041382560c766",
+      "inputHeightWidth": [
+        540,
+        720
+      ],
+      "viewportCrop": [
+        0,
+        0,
+        720,
+        540
+      ],
+      "nativeNcc": 0.9175116419792175,
+      "matchedPatch": [
+        11,
+        269,
+        56,
+        75
+      ],
+      "passesNativeIdentity": false,
+      "time": 277.0,
+      "temporalNccAgainst278": 0.9832983982335133,
+      "temporalContrastSlope": 0.937135385319511
+    },
+    {
+      "sha256": "5e555599edc2b892e632ab8bf2c9f802d3e80ee47e1b5c3d310da20ea9575473",
+      "inputHeightWidth": [
+        540,
+        720
+      ],
+      "viewportCrop": [
+        0,
+        0,
+        720,
+        540
+      ],
+      "nativeNcc": 0.918118953704834,
+      "matchedPatch": [
+        11,
+        269,
+        56,
+        75
+      ],
+      "passesNativeIdentity": false,
+      "time": 277.1,
+      "temporalNccAgainst278": 0.983368539397274,
+      "temporalContrastSlope": 0.9666995025684388
+    },
+    {
+      "sha256": "7eb7dff30a683828e192807dd39291d92f98841e74691bf3662741db585c14b4",
+      "inputHeightWidth": [
+        540,
+        720
+      ],
+      "viewportCrop": [
+        0,
+        0,
+        720,
+        540
+      ],
+      "nativeNcc": 0.918174147605896,
+      "matchedPatch": [
+        11,
+        269,
+        56,
+        75
+      ],
+      "passesNativeIdentity": false,
+      "time": 277.2,
+      "temporalNccAgainst278": 0.9833731835915343,
+      "temporalContrastSlope": 0.9669126113532764
+    },
+    {
+      "sha256": "3d09191c6c6c61c4e3e3ad1dc8ba697336aef910a579381581423f1655331cb3",
+      "inputHeightWidth": [
+        540,
+        720
+      ],
+      "viewportCrop": [
+        0,
+        0,
+        720,
+        540
+      ],
+      "nativeNcc": 0.9196754693984985,
+      "matchedPatch": [
+        11,
+        269,
+        56,
+        75
+      ],
+      "passesNativeIdentity": false,
+      "time": 277.3,
+      "temporalNccAgainst278": 0.9839588415020696,
+      "temporalContrastSlope": 0.9699882803716078
+    },
+    {
+      "sha256": "6854249e6f07162f0578691cd99a499d76d021519b1739c6391b775305df1784",
+      "inputHeightWidth": [
+        540,
+        720
+      ],
+      "viewportCrop": [
+        0,
+        0,
+        720,
+        540
+      ],
+      "nativeNcc": 0.9200021028518677,
+      "matchedPatch": [
+        11,
+        269,
+        56,
+        75
+      ],
+      "passesNativeIdentity": false,
+      "time": 277.4,
+      "temporalNccAgainst278": 0.984287713166594,
+      "temporalContrastSlope": 0.9737152583013539
+    },
+    {
+      "sha256": "1ef36cabefc71e6d0dcf656a0d9e45c99d849779094c2ca9ef477cb36c91fd25",
+      "inputHeightWidth": [
+        540,
+        720
+      ],
+      "viewportCrop": [
+        0,
+        0,
+        720,
+        540
+      ],
+      "nativeNcc": 0.9206048250198364,
+      "matchedPatch": [
+        11,
+        269,
+        56,
+        75
+      ],
+      "passesNativeIdentity": false,
+      "time": 277.5,
+      "temporalNccAgainst278": 0.9848001879340942,
+      "temporalContrastSlope": 0.979394988581986
+    },
+    {
+      "sha256": "226ab71d2efbd1c49ac6e121a2c9b95dc89595bb0b3cdb390ebf1775d278fe68",
+      "inputHeightWidth": [
+        540,
+        720
+      ],
+      "viewportCrop": [
+        0,
+        0,
+        720,
+        540
+      ],
+      "nativeNcc": 0.9213191270828247,
+      "matchedPatch": [
+        11,
+        269,
+        56,
+        75
+      ],
+      "passesNativeIdentity": false,
+      "time": 277.6,
+      "temporalNccAgainst278": 0.9851066786940957,
+      "temporalContrastSlope": 0.9827727916819287
+    },
+    {
+      "sha256": "9ba0b3bcc59ccd9d97ef837583b1dd28657176797050299fa80c98ab415f177a",
+      "inputHeightWidth": [
+        540,
+        720
+      ],
+      "viewportCrop": [
+        0,
+        0,
+        720,
+        540
+      ],
+      "nativeNcc": 0.9217075705528259,
+      "matchedPatch": [
+        11,
+        269,
+        56,
+        75
+      ],
+      "passesNativeIdentity": false,
+      "time": 277.7,
+      "temporalNccAgainst278": 0.9852677866195985,
+      "temporalContrastSlope": 0.9852220876473206
+    },
+    {
+      "sha256": "86962bd3dcec8c1e2289731ce4b15d8c81eb9ed484ab89949842a03d5337b4a1",
+      "inputHeightWidth": [
+        540,
+        720
+      ],
+      "viewportCrop": [
+        0,
+        0,
+        720,
+        540
+      ],
+      "nativeNcc": 0.92206209897995,
+      "matchedPatch": [
+        11,
+        269,
+        56,
+        75
+      ],
+      "passesNativeIdentity": false,
+      "time": 277.8,
+      "temporalNccAgainst278": 0.9853207414205096,
+      "temporalContrastSlope": 0.9859615751750921
+    },
+    {
+      "sha256": "1f03a41a81838028fb8a85739da423c530b394cae3dbb4a9cb33dc90970b32d9",
+      "inputHeightWidth": [
+        540,
+        720
+      ],
+      "viewportCrop": [
+        0,
+        0,
+        720,
+        540
+      ],
+      "nativeNcc": 0.92206209897995,
+      "matchedPatch": [
+        11,
+        269,
+        56,
+        75
+      ],
+      "passesNativeIdentity": false,
+      "time": 277.9,
+      "temporalNccAgainst278": 0.9853207414205096,
+      "temporalContrastSlope": 0.9859615751750921
+    },
+    {
+      "sha256": "aa6b1053457f519dc3394bfc625def131b861c4688d469afcafdf5c9fd1f9d69",
+      "inputHeightWidth": [
+        540,
+        720
+      ],
+      "viewportCrop": [
+        0,
+        0,
+        720,
+        540
+      ],
+      "nativeNcc": 0.9648678302764893,
+      "matchedPatch": [
+        9,
+        269,
+        56,
+        75
+      ],
+      "passesNativeIdentity": true,
+      "time": 278.0,
+      "temporalNccAgainst278": 1.0,
+      "temporalContrastSlope": 1.0
+    }
+  ],
+  "runtime278": {
+    "sha256": "edfabf36d3f17ec6a926d9e2bb19fa05f6c5557f3b4e29cdcaae8fef21decb91",
+    "inputHeightWidth": [
+      540,
+      960
+    ],
+    "viewportCrop": [
+      120,
+      0,
+      720,
+      540
+    ],
+    "nativeNcc": 0.96665358543396,
+    "matchedPatch": [
+      9,
+      268,
+      56,
+      75
+    ],
+    "passesNativeIdentity": true
+  },
+  "minimumTemporalNcc": 0.9832983982335133,
+  "minimumTemporalContrastSlope": 0.937135385319511,
+  "maximumTemporalContrastSlope": 1.0,
+  "limits": [
+    "Native identity passes at278s; earlier native comparisons below.94 are retained, not called native-identity matches.",
+    "The already-identified leaf patch persists across277..278s; this contradicts only an immediate500ms entry fade in that interval. It does not establish the opening trigger or general fade law.",
+    "Temporal contrast slope is an image regression, not an alpha estimate; scene fade, compression and subpixel sampling remain confounders.",
+    "Visible bars and this diagnostic do not establish passability, so no travel rule is changed.",
+    "The runtime leaf identity now matches; opening/light clocks and passability remain unverified."
+  ]
+}

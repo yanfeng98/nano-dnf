@@ -1,0 +1,156 @@
+[
+  {
+    "stage": "mirkwooddeep",
+    "time": 40,
+    "label": "lower-ring",
+    "minPixels": 500,
+    "threshold": 0.97,
+    "cosine": 0.9729788409293268,
+    "dx": 0,
+    "dy": 1,
+    "pixels": 1794
+  },
+  {
+    "stage": "mirkwooddeep",
+    "time": 40,
+    "label": "player-marker",
+    "minPixels": 40,
+    "threshold": 0.97,
+    "cosine": 0.980415987750058,
+    "dx": 0,
+    "dy": 0,
+    "pixels": 47
+  },
+  {
+    "stage": "mirkwooddeep",
+    "time": 60,
+    "label": "lower-ring",
+    "minPixels": 500,
+    "threshold": 0.97,
+    "cosine": 0.9724379204130805,
+    "dx": 0,
+    "dy": 1,
+    "pixels": 1794
+  },
+  {
+    "stage": "mirkwooddeep",
+    "time": 60,
+    "label": "player-marker",
+    "minPixels": 40,
+    "threshold": 0.97,
+    "cosine": 0.976560754776575,
+    "dx": 0,
+    "dy": 0,
+    "pixels": 47
+  },
+  {
+    "stage": "mirkwooddeep",
+    "time": 10.5,
+    "label": "lower-ring",
+    "minPixels": 500,
+    "threshold": 0.97,
+    "cosine": 0.9702262476638486,
+    "dx": 0,
+    "dy": 0,
+    "pixels": 1794
+  },
+  {
+    "stage": "mirkwooddeep",
+    "time": 10.5,
+    "label": "player-marker",
+    "minPixels": 40,
+    "threshold": 0.97,
+    "cosine": 0.9687625276126035,
+    "dx": 0,
+    "dy": 0,
+    "pixels": 47
+  },
+  {
+    "stage": "mirkwooddeep",
+    "time": 15.5,
+    "label": "lower-ring",
+    "minPixels": 500,
+    "threshold": 0.97,
+    "cosine": 0.9733237662186329,
+    "dx": 0,
+    "dy": 1,
+    "pixels": 1794
+  },
+  {
+    "stage": "mirkwooddeep",
+    "time": 15.5,
+    "label": "player-marker",
+    "minPixels": 40,
+    "threshold": 0.97,
+    "cosine": 0.9735403941600489,
+    "dx": 0,
+    "dy": 0,
+    "pixels": 47
+  },
+  {
+    "stage": "mirkwooddeep",
+    "time": 15.5,
+    "label": "neighbor-tile",
+    "minPixels": 400,
+    "threshold": 0.97,
+    "cosine": 0.9931847245748597,
+    "dx": 0,
+    "dy": 0,
+    "pixels": 376
+  },
+  {
+    "stage": "mirkwooddeep",
+    "time": 25.5,
+    "label": "lower-ring",
+    "minPixels": 500,
+    "threshold": 0.97,
+    "cosine": 0.9730652246409315,
+    "dx": 0,
+    "dy": 1,
+    "pixels": 1794
+  },
+  {
+    "stage": "mirkwooddeep",
+    "time": 25.5,
+    "label": "player-marker",
+    "minPixels": 40,
+    "threshold": 0.97,
+    "cosine": 0.9770921236561457,
+    "dx": 0,
+    "dy": 0,
+    "pixels": 47
+  },
+  {
+    "stage": "mirkwooddeep",
+    "time": 25.5,
+    "label": "neighbor-tile",
+    "minPixels": 400,
+    "threshold": 0.97,
+    "cosine": 0.9930615336650653,
+    "dx": 0,
+    "dy": 0,
+    "pixels": 376
+  },
+  {
+    "stage": "mirkwooddeep",
+    "time": 72.5,
+    "label": "lower-ring",
+    "minPixels": 500,
+    "threshold": 0.97,
+    "cosine": 0.9725922658735622,
+    "dx": 0,
+    "dy": 1,
+    "pixels": 1794
+  },
+  {
+    "stage": "mirkwooddeep",
+    "time": 72.5,
+    "label": "player-marker",
+    "minPixels": 40,
+    "threshold": 0.97,
+    "cosine": 0.9768053572475033,
+    "dx": 0,
+    "dy": 0,
+    "pixels": 47
+  }
+]

@@ -9113,7 +9113,7 @@ test("the map's button is what a tap has to hit, not the window", () => {
 test("the map draws the whole dungeon, and blanks only what is not there", () => {
   const state = Core.createState({ seed: 1, stage: "mirkwood" });
   const calls = [];
-  const sheet = { width: 378, height: 122 };
+  const sheet = { width: 381, height: 122 };
   Render.render(recordingContext(calls), state, {
     sprites: { minimap: sheet },
     map: { mode: "window" }
@@ -9149,7 +9149,7 @@ test("地图的领主格是牛头，没去过也露出来", () => {
   assert.ok(!boss.seen, "这一条要从没去过的领主房开始");
 
   const calls = [];
-  const minimap = { width: 378, height: 122 };
+  const minimap = { width: 381, height: 122 };
   Render.render(recordingContext(calls), state, {
     sprites: { minimap },
     map: { mode: "window" }
@@ -9194,7 +9194,7 @@ test("the map window's markers land in the boss's cell and in the player's", () 
   /* 站到地图上第四格，好让"他在哪"和"Boss 在哪"是两个地方。 */
   Core.goToCell(state, 3);
   const calls = [];
-  const sheet = { width: 378, height: 122 };
+  const sheet = { width: 381, height: 122 };
   Render.render(recordingContext(calls), state, {
     sprites: { minimap: sheet },
     map: { mode: "window" }
@@ -12309,4 +12309,27 @@ test("native gate clear event fades its leaf over the authored500ms and does not
   assert.equal(s.room.cleared,true);
   assert.equal(s.room.nativeGateOpenedAt,null,"a cleared revisit has no new opening event");
   assert.deepEqual(leafAlpha(),[]);
+});
+
+test("recorded radar keeps a fixed native frame and content geometry across dungeon sizes", () => {
+  const sheet={width:381,height:122};
+  for(const stage of ["mirkwood","mirkwooddeep"]) {
+    const s=Core.createState({stage,seed:1,referenceProfile:true}),calls=[];
+    Render.render(recordingContext(calls),s,{sprites:{minimap:sheet},map:{mode:"radar"}});
+    const ring=calls.find(c=>c[0]==="drawImage"&&c[1]===sheet&&c[2]===82&&c[3]===18&&c[4]===104);
+    assert.ok(ring);
+    const background=calls.find(c=>c[0]==="drawImage"&&c[1]===sheet&&c[2]===307&&c[3]===18&&c[4]===74);
+    assert.ok(background,"the empty disc uses the native brown gradient rather than a solid green fill");
+    assert.deepEqual(background.slice(6),[Core.VIEW.left+610,35.5,92,92]);
+    assert.deepEqual(ring.slice(6),[Core.VIEW.left+594,23.5,117,117],"both recordings place the same1.125x ring at594,23.5");
+    const tiles=calls.filter(c=>c[0]==="drawImage"&&c[1]===sheet&&c[3]===0&&c[4]===18&&c[5]===18);
+    assert.ok(tiles.length>=s.dungeon.cells.length);
+    assert.ok(tiles.every(c=>c[8]===20.25&&c[9]===20.25),"radar cells keep the native20.25px pitch rather than doubling it");
+    const marker=calls.find(c=>c[0]==="drawImage"&&c[1]===sheet&&c[2]===64&&c[3]===18&&c[4]===14&&c[5]===19);
+    assert.deepEqual(marker.slice(6),[Core.VIEW.left+649.25,69.75,16,21],"the player glyph uses rounded native1.125x dimensions and its measured pivot");
+    const meta={map:{mode:"radar",cols:s.dungeon.cols,rows:s.dungeon.rows}};
+    const cx=Core.VIEW.left+594+54.5*1.125,cy=23.5+49.5*1.125;
+    assert.equal(Render.hitTestMinimap(cx+50,cy,meta),"map","the visible scaled rim must answer pointer input");
+    assert.equal(Render.hitTestMinimap(cx+60,cy,meta),null,"outside the measured circle is not the map");
+  }
 });

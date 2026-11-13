@@ -1,0 +1,46 @@
+[
+  {
+    "stage": "mirkwood",
+    "time": 60,
+    "label": "lower-ring",
+    "minPixels": 500,
+    "threshold": 0.97,
+    "cosine": 0.9737890305802499,
+    "dx": 0,
+    "dy": 1,
+    "pixels": 1794
+  },
+  {
+    "stage": "mirkwood",
+    "time": 60,
+    "label": "player-marker",
+    "minPixels": 40,
+    "threshold": 0.97,
+    "cosine": 0.974528187910137,
+    "dx": 0,
+    "dy": 0,
+    "pixels": 47
+  },
+  {
+    "stage": "mirkwood",
+    "time": 74,
+    "label": "lower-ring",
+    "minPixels": 500,
+    "threshold": 0.97,
+    "cosine": 0.9731134073491756,
+    "dx": 0,
+    "dy": 1,
+    "pixels": 1794
+  },
+  {
+    "stage": "mirkwood",
+    "time": 74,
+    "label": "player-marker",
+    "minPixels": 40,
+    "threshold": 0.97,
+    "cosine": 0.9766484152346838,
+    "dx": 0,
+    "dy": 0,
+    "pixels": 47
+  }
+]

@@ -2215,6 +2215,7 @@
       boss: [44, 18, 16, 14],
       marker: [64, 18, 14, 19],
       ring: [82, 18, 104, 104],
+      radarBackground: [307, 18, 74, 74],
       tl: [190, 18, 5, 5],
       top: [199, 18, 18, 5],
       tr: [221, 18, 4, 5],
@@ -2265,19 +2266,32 @@
     /* The two colours the hand-drawn fallbacks use, sampled off the recording. */
     boss: "#e94a00",
     marker: "#19c2ff",
-    /*
-     * The round "radar" form: the same tiles, clipped into a disc and centred on
-     * the room the player is in, at twice the scale - which is what the
-     * recording shows for the first twenty seconds of a run. The radius is the
-     * client's disc read from the inside: the ring is 104 across and its hole
-     * measures 93 (`--hole`), so the map is clipped just inside that and the
-     * ring's own band covers the edge.
-     */
-    radarZoom: 2,
+    /* V1 60/74s and V2 10.5..72.5s: native ring1.125x near594,24; half-pixel refinement594,23.5.
+       Content pitch20.25px and native player pivot(6,10), audit107.
+       The radar has its own fixed anchor, independent of dungeon rows/cols. */
+    radarFrameScale: 1.125,
+    radarRight: 9,
+    radarTop: 23.5,
+    radarCircleCentre: [54.5, 49.5],
+    radarContentOffset: [62, 57.5],
+    radarMarkerPivot: [6, 10],
+    radarBackgroundBox: [16, 12, 92, 92],
+    radarZoom: 1.125,
     radarRadius: 45
   };
 
   var MINIMAP_DIRS = [["N", 1], ["E", 2], ["S", 4], ["W", 8]];
+
+  function radarBox(meta) {
+    var scale = MINIMAP.radarFrameScale, ring = MINIMAP.pieces.ring;
+    var w = ring[2] * scale, h = ring[3] * scale;
+    var x = HUD_RIGHT - MINIMAP.radarRight - w;
+    var y = MINIMAP.radarTop + (meta && meta.touch && meta.touch.enabled ? MINIMAP.touchTop - MINIMAP.top : 0);
+    return { x: x, y: y, w: w, h: h,
+      centre: { x: x + MINIMAP.radarCircleCentre[0] * scale, y: y + MINIMAP.radarCircleCentre[1] * scale },
+      content: { x: x + MINIMAP.radarContentOffset[0], y: y + MINIMAP.radarContentOffset[1] },
+      radius: MINIMAP.radarRadius * scale };
+  }
 
   function exitsName(exits) {
     var name = "";
@@ -2485,21 +2499,21 @@
 
     ctx.save();
     if (mode === "radar") {
-      /* The disc, centred on the room he is in, twice the scale. */
-      var centre = {
-        x: box.x + box.w / 2,
-        y: box.y + box.h / 2 + 4
-      };
-      var radius = MINIMAP.radarRadius;
+      var radar = radarBox(meta), centre = radar.centre;
+      // Match the recorded fractional UI scale; do not inherit HUD pixel-art sampling.
+      ctx.imageSmoothingEnabled = true;
+      var radius = radar.radius;
       ctx.save();
       ctx.beginPath();
       ctx.arc(centre.x, centre.y, radius, 0, Math.PI * 2);
       ctx.clip();
-      ctx.fillStyle = "#20340a";
-      ctx.fillRect(centre.x - radius, centre.y - radius, radius * 2, radius * 2);
+      var bg = MINIMAP.pieces.radarBackground, bgBox = MINIMAP.radarBackgroundBox;
+      // Native radial material, fitted to independent empty-disc regions (audit107).
+      ctx.drawImage(sprites.minimap, bg[0], bg[1], bg[2], bg[3],
+                    radar.x + bgBox[0], radar.y + bgBox[1], bgBox[2], bgBox[3]);
       var zoom = MINIMAP.radarZoom;
-      var originX = centre.x - (here.col + 0.5) * tile * zoom;
-      var originY = centre.y - (here.row + 0.5) * tile * zoom;
+      var originX = radar.content.x - (here.col + 0.5) * tile * zoom;
+      var originY = radar.content.y - (here.row + 0.5) * tile * zoom;
       drawMinimapGrid(ctx, sprites, originX, originY, zoom, map);
       map.cells.forEach(function (cell) {
         drawMinimapTile(ctx, sprites, minimapTileName(cell),
@@ -2508,13 +2522,19 @@
       });
       drawMapBoss(ctx, sprites, originX + boss.col * tile * zoom,
                   originY + boss.row * tile * zoom, tile * zoom);
-      drawMapMarker(ctx, sprites, originX + here.col * tile * zoom,
-                    originY + here.row * tile * zoom, tile * zoom, state.time);
+      // Round icon dimensions14x19 ->16x21, retaining the fractional pivot position.
+      // Its native pivot, rather than the bitmap midpoint, centres the player.
+      var marker = MINIMAP.pieces.marker, markerScale = MINIMAP.radarFrameScale;
+      ctx.drawImage(sprites.minimap, marker[0], marker[1], marker[2], marker[3],
+                    radar.content.x - MINIMAP.radarMarkerPivot[0] * markerScale,
+                    radar.content.y - MINIMAP.radarMarkerPivot[1] * markerScale,
+                    Math.round(marker[2] * markerScale), Math.round(marker[3] * markerScale));
       ctx.restore();
       /* The client's own disc, over the top: an overlay, not a frame - the map
          shows through the middle of it, which is why it is not a clip. */
       var ring = MINIMAP.pieces.ring;
-      drawMinimapPiece(ctx, sprites, "ring", centre.x - ring[2] / 2, centre.y - ring[3] / 2);
+      ctx.drawImage(sprites.minimap, ring[0], ring[1], ring[2], ring[3],
+                    radar.x, radar.y, radar.w, radar.h);
       ctx.restore();
       return;
     }
@@ -2560,9 +2580,10 @@
     var box = minimapBox(meta);
     var mode = (meta && meta.map && meta.map.mode) || "window";
     if (mode === "radar") {
-      var dx = x - (box.x + box.w / 2);
-      var dy = y - (box.y + box.h / 2 + 4);
-      return Math.sqrt(dx * dx + dy * dy) <= MINIMAP.radarRadius + 3 ? "map" : null;
+      var radar = radarBox(meta);
+      var dx = x - radar.centre.x;
+      var dy = y - radar.centre.y;
+      return Math.sqrt(dx * dx + dy * dy) <= radar.radius + 3 ? "map" : null;
     }
     if (x < box.x || x > box.x + box.w || y < box.y || y > box.y + box.h) return null;
     if (x >= box.x + box.w - 21 && y <= box.y + 16) return "map";

@@ -1,0 +1,1244 @@
+{
+  "source": {
+    "pack": "sprite_map_minimap.NPK",
+    "atlas": "sprite/map/minimap/minimap.img",
+    "atlasSize": [
+      974,
+      943
+    ],
+    "atlasOffset": [
+      31,
+      16
+    ],
+    "ringRect": [
+      549,
+      28,
+      104,
+      104
+    ],
+    "markerRect": [
+      272,
+      44,
+      14,
+      19
+    ],
+    "tileEntry": "sprite/map/minimap/act1.img",
+    "tileFrame": 0,
+    "packedAsset": "assets/minimap.png",
+    "packedAssetSha256": "5f3dff79534a07b3b0eaed1efcead8a71fbca576acaea1fe478911943fa183c3",
+    "nativeOpaqueCutsIdenticalToPackedAsset": true,
+    "rgbaCutChecks": {
+      "ring": {
+        "differingPixels": 0,
+        "maximumAlphaInDifferences": 0,
+        "opaquePixelsIdentical": true,
+        "nativeRgbaSha256": "0612cd05cca1797dcd50797b01f10f3787f27f122e1cdc6215b3842243cef6bf",
+        "packedRgbaSha256": "0612cd05cca1797dcd50797b01f10f3787f27f122e1cdc6215b3842243cef6bf"
+      },
+      "marker": {
+        "differingPixels": 0,
+        "maximumAlphaInDifferences": 0,
+        "opaquePixelsIdentical": true,
+        "nativeRgbaSha256": "9ac42124538951e736772f104abc72cdb9e7ced23bb2bde526ded1b2b01e4f84",
+        "packedRgbaSha256": "9ac42124538951e736772f104abc72cdb9e7ced23bb2bde526ded1b2b01e4f84"
+      }
+    }
+  },
+  "gate": {
+    "texture": 0.94,
+    "requiredBitmapForRing": [
+      594,
+      24
+    ]
+  },
+  "entryFade": {
+    "time": 10.5,
+    "fullBrightnessReference": 15.5,
+    "controls": [
+      {
+        "label": "stageTitle",
+        "roi": [
+          590,
+          3,
+          110,
+          14
+        ],
+        "goldPixels": 351,
+        "blackOpacity": 0.5668872228051349,
+        "rgbResidual": 4.3065323493853125
+      },
+      {
+        "label": "hpBorder",
+        "roi": [
+          3,
+          465,
+          12,
+          55
+        ],
+        "goldPixels": 36,
+        "blackOpacity": 0.5507492687630375,
+        "rgbResidual": 4.66300315602922
+      }
+    ],
+    "adoptedBlackOpacity": 0.5588182457840862,
+    "limits": "State alignment for geometry comparison only; no native transition start/duration is inferred. The radar itself is not used to estimate this opacity."
+  },
+  "ringCoverage": {
+    "accepted": 8,
+    "observedRadarFrames": 8,
+    "negativeFrames": 5
+  },
+  "observations": [
+    {
+      "part": "ring",
+      "video": "00001",
+      "time": 60,
+      "referenceSha256": "05a006f6da508271a7ede8f65aa0a8e46f26c06189817d958c0e785cf2ed23d6",
+      "radarSample": true,
+      "scale": 1,
+      "fixedVisiblePatchAfterResize": [
+        0,
+        54,
+        104,
+        50
+      ],
+      "score": 0.48559245467185974,
+      "bitmap": [
+        603,
+        35
+      ],
+      "pixels": 1473,
+      "accepted": false
+    },
+    {
+      "part": "ring",
+      "video": "00001",
+      "time": 60,
+      "referenceSha256": "05a006f6da508271a7ede8f65aa0a8e46f26c06189817d958c0e785cf2ed23d6",
+      "radarSample": true,
+      "scale": 1.125,
+      "fixedVisiblePatchAfterResize": [
+        0,
+        61,
+        117,
+        56
+      ],
+      "score": 0.9464717507362366,
+      "bitmap": [
+        594,
+        24
+      ],
+      "pixels": 1785,
+      "accepted": true
+    },
+    {
+      "part": "marker",
+      "video": "00001",
+      "time": 60,
+      "scale": 1,
+      "score": 0.9192193746566772,
+      "bitmap": [
+        650,
+        71
+      ],
+      "pixels": 40,
+      "accepted": false
+    },
+    {
+      "part": "marker",
+      "video": "00001",
+      "time": 60,
+      "scale": 1.125,
+      "score": 0.9529573917388916,
+      "bitmap": [
+        649,
+        70
+      ],
+      "pixels": 47,
+      "accepted": true
+    },
+    {
+      "part": "marker",
+      "video": "00001",
+      "time": 60,
+      "scale": 2,
+      "score": 0.5000649690628052,
+      "bitmap": [
+        662,
+        77
+      ],
+      "pixels": 136,
+      "accepted": false
+    },
+    {
+      "part": "marker",
+      "video": "00001",
+      "time": 60,
+      "scale": 2.25,
+      "score": 0.5000579357147217,
+      "bitmap": [
+        636,
+        53
+      ],
+      "pixels": 184,
+      "accepted": false
+    },
+    {
+      "part": "ring",
+      "video": "00001",
+      "time": 74,
+      "referenceSha256": "9f577feac20684f9a90d49c19adeebfdc5a2e8775c723c51529c67f3f97f868d",
+      "radarSample": true,
+      "scale": 1,
+      "fixedVisiblePatchAfterResize": [
+        0,
+        54,
+        104,
+        50
+      ],
+      "score": 0.49835407733917236,
+      "bitmap": [
+        603,
+        35
+      ],
+      "pixels": 1473,
+      "accepted": false
+    },
+    {
+      "part": "ring",
+      "video": "00001",
+      "time": 74,
+      "referenceSha256": "9f577feac20684f9a90d49c19adeebfdc5a2e8775c723c51529c67f3f97f868d",
+      "radarSample": true,
+      "scale": 1.125,
+      "fixedVisiblePatchAfterResize": [
+        0,
+        61,
+        117,
+        56
+      ],
+      "score": 0.9457809925079346,
+      "bitmap": [
+        594,
+        24
+      ],
+      "pixels": 1785,
+      "accepted": true
+    },
+    {
+      "part": "marker",
+      "video": "00001",
+      "time": 74,
+      "scale": 1,
+      "score": 0.9315909147262573,
+      "bitmap": [
+        650,
+        71
+      ],
+      "pixels": 40,
+      "accepted": false
+    },
+    {
+      "part": "marker",
+      "video": "00001",
+      "time": 74,
+      "scale": 1.125,
+      "score": 0.9582076072692871,
+      "bitmap": [
+        649,
+        70
+      ],
+      "pixels": 47,
+      "accepted": true
+    },
+    {
+      "part": "marker",
+      "video": "00001",
+      "time": 74,
+      "scale": 2,
+      "score": 0.5075692534446716,
+      "bitmap": [
+        662,
+        77
+      ],
+      "pixels": 136,
+      "accepted": false
+    },
+    {
+      "part": "marker",
+      "video": "00001",
+      "time": 74,
+      "scale": 2.25,
+      "score": 0.5010321736335754,
+      "bitmap": [
+        636,
+        53
+      ],
+      "pixels": 184,
+      "accepted": false
+    },
+    {
+      "part": "ring",
+      "video": "00002",
+      "time": 10.5,
+      "referenceSha256": "0fd624554a0dcb7f7cb99490cbad0ae06905e20515254c2f73807c718a6e9fad",
+      "radarSample": true,
+      "scale": 1,
+      "fixedVisiblePatchAfterResize": [
+        0,
+        54,
+        104,
+        50
+      ],
+      "score": 0.4674352705478668,
+      "bitmap": [
+        603,
+        35
+      ],
+      "pixels": 1473,
+      "accepted": false
+    },
+    {
+      "part": "ring",
+      "video": "00002",
+      "time": 10.5,
+      "referenceSha256": "0fd624554a0dcb7f7cb99490cbad0ae06905e20515254c2f73807c718a6e9fad",
+      "radarSample": true,
+      "scale": 1.125,
+      "fixedVisiblePatchAfterResize": [
+        0,
+        61,
+        117,
+        56
+      ],
+      "score": 0.9406798481941223,
+      "bitmap": [
+        594,
+        24
+      ],
+      "pixels": 1785,
+      "accepted": true
+    },
+    {
+      "part": "marker",
+      "video": "00002",
+      "time": 10.5,
+      "scale": 1,
+      "score": 0.9223078489303589,
+      "bitmap": [
+        650,
+        71
+      ],
+      "pixels": 40,
+      "accepted": false
+    },
+    {
+      "part": "marker",
+      "video": "00002",
+      "time": 10.5,
+      "scale": 1.125,
+      "score": 0.952197253704071,
+      "bitmap": [
+        649,
+        70
+      ],
+      "pixels": 47,
+      "accepted": true
+    },
+    {
+      "part": "marker",
+      "video": "00002",
+      "time": 10.5,
+      "scale": 2,
+      "score": 0.5277654528617859,
+      "bitmap": [
+        647,
+        61
+      ],
+      "pixels": 136,
+      "accepted": false
+    },
+    {
+      "part": "marker",
+      "video": "00002",
+      "time": 10.5,
+      "scale": 2.25,
+      "score": 0.5305744409561157,
+      "bitmap": [
+        646,
+        58
+      ],
+      "pixels": 184,
+      "accepted": false
+    },
+    {
+      "part": "neighborTile",
+      "video": "00002",
+      "time": 10.5,
+      "scale": 1,
+      "score": 0.8996389508247375,
+      "bitmap": [
+        647,
+        52
+      ],
+      "pixels": 306,
+      "accepted": false
+    },
+    {
+      "part": "neighborTile",
+      "video": "00002",
+      "time": 10.5,
+      "scale": 1.125,
+      "score": 0.9394828677177429,
+      "bitmap": [
+        646,
+        51
+      ],
+      "pixels": 377,
+      "accepted": false
+    },
+    {
+      "part": "neighborTile",
+      "video": "00002",
+      "time": 10.5,
+      "scale": 2,
+      "score": 0.7014662623405457,
+      "bitmap": [
+        637,
+        63
+      ],
+      "pixels": 1213,
+      "accepted": false
+    },
+    {
+      "part": "neighborTile",
+      "video": "00002",
+      "time": 10.5,
+      "scale": 2.25,
+      "score": 0.637146532535553,
+      "bitmap": [
+        635,
+        61
+      ],
+      "pixels": 1507,
+      "accepted": false
+    },
+    {
+      "part": "ring",
+      "video": "00002",
+      "time": 15.5,
+      "referenceSha256": "bbbcd2d98aecdee172c5710f603799d4c6fd125aa4e3171483840e4ccdbf868d",
+      "radarSample": true,
+      "scale": 1,
+      "fixedVisiblePatchAfterResize": [
+        0,
+        54,
+        104,
+        50
+      ],
+      "score": 0.49073565006256104,
+      "bitmap": [
+        603,
+        35
+      ],
+      "pixels": 1473,
+      "accepted": false
+    },
+    {
+      "part": "ring",
+      "video": "00002",
+      "time": 15.5,
+      "referenceSha256": "bbbcd2d98aecdee172c5710f603799d4c6fd125aa4e3171483840e4ccdbf868d",
+      "radarSample": true,
+      "scale": 1.125,
+      "fixedVisiblePatchAfterResize": [
+        0,
+        61,
+        117,
+        56
+      ],
+      "score": 0.9449828267097473,
+      "bitmap": [
+        594,
+        24
+      ],
+      "pixels": 1785,
+      "accepted": true
+    },
+    {
+      "part": "marker",
+      "video": "00002",
+      "time": 15.5,
+      "scale": 1,
+      "score": 0.9325630068778992,
+      "bitmap": [
+        650,
+        71
+      ],
+      "pixels": 40,
+      "accepted": false
+    },
+    {
+      "part": "marker",
+      "video": "00002",
+      "time": 15.5,
+      "scale": 1.125,
+      "score": 0.9541420936584473,
+      "bitmap": [
+        649,
+        70
+      ],
+      "pixels": 47,
+      "accepted": true
+    },
+    {
+      "part": "marker",
+      "video": "00002",
+      "time": 15.5,
+      "scale": 2,
+      "score": 0.5319225192070007,
+      "bitmap": [
+        647,
+        61
+      ],
+      "pixels": 136,
+      "accepted": false
+    },
+    {
+      "part": "marker",
+      "video": "00002",
+      "time": 15.5,
+      "scale": 2.25,
+      "score": 0.534098207950592,
+      "bitmap": [
+        646,
+        58
+      ],
+      "pixels": 184,
+      "accepted": false
+    },
+    {
+      "part": "neighborTile",
+      "video": "00002",
+      "time": 15.5,
+      "scale": 1,
+      "score": 0.9312532544136047,
+      "bitmap": [
+        647,
+        52
+      ],
+      "pixels": 306,
+      "accepted": false
+    },
+    {
+      "part": "neighborTile",
+      "video": "00002",
+      "time": 15.5,
+      "scale": 1.125,
+      "score": 0.9760230183601379,
+      "bitmap": [
+        646,
+        51
+      ],
+      "pixels": 377,
+      "accepted": true
+    },
+    {
+      "part": "neighborTile",
+      "video": "00002",
+      "time": 15.5,
+      "scale": 2,
+      "score": 0.7511769533157349,
+      "bitmap": [
+        637,
+        63
+      ],
+      "pixels": 1213,
+      "accepted": false
+    },
+    {
+      "part": "neighborTile",
+      "video": "00002",
+      "time": 15.5,
+      "scale": 2.25,
+      "score": 0.6855431795120239,
+      "bitmap": [
+        635,
+        61
+      ],
+      "pixels": 1507,
+      "accepted": false
+    },
+    {
+      "part": "ring",
+      "video": "00002",
+      "time": 25.5,
+      "referenceSha256": "63d0cde80e2c74bd793141732b788109eee3aa02c1fdba2daa1be52271c72ed7",
+      "radarSample": true,
+      "scale": 1,
+      "fixedVisiblePatchAfterResize": [
+        0,
+        54,
+        104,
+        50
+      ],
+      "score": 0.48562461137771606,
+      "bitmap": [
+        603,
+        35
+      ],
+      "pixels": 1473,
+      "accepted": false
+    },
+    {
+      "part": "ring",
+      "video": "00002",
+      "time": 25.5,
+      "referenceSha256": "63d0cde80e2c74bd793141732b788109eee3aa02c1fdba2daa1be52271c72ed7",
+      "radarSample": true,
+      "scale": 1.125,
+      "fixedVisiblePatchAfterResize": [
+        0,
+        61,
+        117,
+        56
+      ],
+      "score": 0.9451145529747009,
+      "bitmap": [
+        594,
+        24
+      ],
+      "pixels": 1785,
+      "accepted": true
+    },
+    {
+      "part": "marker",
+      "video": "00002",
+      "time": 25.5,
+      "scale": 1,
+      "score": 0.9436224102973938,
+      "bitmap": [
+        650,
+        71
+      ],
+      "pixels": 40,
+      "accepted": false
+    },
+    {
+      "part": "marker",
+      "video": "00002",
+      "time": 25.5,
+      "scale": 1.125,
+      "score": 0.9580966830253601,
+      "bitmap": [
+        649,
+        70
+      ],
+      "pixels": 47,
+      "accepted": true
+    },
+    {
+      "part": "marker",
+      "video": "00002",
+      "time": 25.5,
+      "scale": 2,
+      "score": 0.5482333302497864,
+      "bitmap": [
+        647,
+        61
+      ],
+      "pixels": 136,
+      "accepted": false
+    },
+    {
+      "part": "marker",
+      "video": "00002",
+      "time": 25.5,
+      "scale": 2.25,
+      "score": 0.5522473454475403,
+      "bitmap": [
+        646,
+        58
+      ],
+      "pixels": 184,
+      "accepted": false
+    },
+    {
+      "part": "neighborTile",
+      "video": "00002",
+      "time": 25.5,
+      "scale": 1,
+      "score": 0.9336725473403931,
+      "bitmap": [
+        647,
+        52
+      ],
+      "pixels": 306,
+      "accepted": false
+    },
+    {
+      "part": "neighborTile",
+      "video": "00002",
+      "time": 25.5,
+      "scale": 1.125,
+      "score": 0.9723714590072632,
+      "bitmap": [
+        646,
+        51
+      ],
+      "pixels": 377,
+      "accepted": true
+    },
+    {
+      "part": "neighborTile",
+      "video": "00002",
+      "time": 25.5,
+      "scale": 2,
+      "score": 0.7515860795974731,
+      "bitmap": [
+        637,
+        63
+      ],
+      "pixels": 1213,
+      "accepted": false
+    },
+    {
+      "part": "neighborTile",
+      "video": "00002",
+      "time": 25.5,
+      "scale": 2.25,
+      "score": 0.6882448792457581,
+      "bitmap": [
+        635,
+        61
+      ],
+      "pixels": 1507,
+      "accepted": false
+    },
+    {
+      "part": "ring",
+      "video": "00002",
+      "time": 40,
+      "referenceSha256": "3ea5407c94ba720fa253ca26d87db7258d9abcb97bfe1285313481119021aa1d",
+      "radarSample": true,
+      "scale": 1,
+      "fixedVisiblePatchAfterResize": [
+        0,
+        54,
+        104,
+        50
+      ],
+      "score": 0.48963725566864014,
+      "bitmap": [
+        603,
+        35
+      ],
+      "pixels": 1473,
+      "accepted": false
+    },
+    {
+      "part": "ring",
+      "video": "00002",
+      "time": 40,
+      "referenceSha256": "3ea5407c94ba720fa253ca26d87db7258d9abcb97bfe1285313481119021aa1d",
+      "radarSample": true,
+      "scale": 1.125,
+      "fixedVisiblePatchAfterResize": [
+        0,
+        61,
+        117,
+        56
+      ],
+      "score": 0.9477454423904419,
+      "bitmap": [
+        594,
+        24
+      ],
+      "pixels": 1785,
+      "accepted": true
+    },
+    {
+      "part": "marker",
+      "video": "00002",
+      "time": 40,
+      "scale": 1,
+      "score": 0.9393715858459473,
+      "bitmap": [
+        650,
+        71
+      ],
+      "pixels": 40,
+      "accepted": false
+    },
+    {
+      "part": "marker",
+      "video": "00002",
+      "time": 40,
+      "scale": 1.125,
+      "score": 0.9699939489364624,
+      "bitmap": [
+        649,
+        70
+      ],
+      "pixels": 47,
+      "accepted": true
+    },
+    {
+      "part": "marker",
+      "video": "00002",
+      "time": 40,
+      "scale": 2,
+      "score": 0.6230654716491699,
+      "bitmap": [
+        636,
+        61
+      ],
+      "pixels": 136,
+      "accepted": false
+    },
+    {
+      "part": "marker",
+      "video": "00002",
+      "time": 40,
+      "scale": 2.25,
+      "score": 0.6007280349731445,
+      "bitmap": [
+        621,
+        56
+      ],
+      "pixels": 184,
+      "accepted": false
+    },
+    {
+      "part": "ring",
+      "video": "00002",
+      "time": 60,
+      "referenceSha256": "f5903c10c031fcefa68717daac749c2344c2401509f1083fdc355e66fb66b06e",
+      "radarSample": true,
+      "scale": 1,
+      "fixedVisiblePatchAfterResize": [
+        0,
+        54,
+        104,
+        50
+      ],
+      "score": 0.4883183538913727,
+      "bitmap": [
+        603,
+        35
+      ],
+      "pixels": 1473,
+      "accepted": false
+    },
+    {
+      "part": "ring",
+      "video": "00002",
+      "time": 60,
+      "referenceSha256": "f5903c10c031fcefa68717daac749c2344c2401509f1083fdc355e66fb66b06e",
+      "radarSample": true,
+      "scale": 1.125,
+      "fixedVisiblePatchAfterResize": [
+        0,
+        61,
+        117,
+        56
+      ],
+      "score": 0.9465495944023132,
+      "bitmap": [
+        594,
+        24
+      ],
+      "pixels": 1785,
+      "accepted": true
+    },
+    {
+      "part": "marker",
+      "video": "00002",
+      "time": 60,
+      "scale": 1,
+      "score": 0.933222234249115,
+      "bitmap": [
+        650,
+        71
+      ],
+      "pixels": 40,
+      "accepted": false
+    },
+    {
+      "part": "marker",
+      "video": "00002",
+      "time": 60,
+      "scale": 1.125,
+      "score": 0.9617120623588562,
+      "bitmap": [
+        649,
+        70
+      ],
+      "pixels": 47,
+      "accepted": true
+    },
+    {
+      "part": "marker",
+      "video": "00002",
+      "time": 60,
+      "scale": 2,
+      "score": 0.6033257246017456,
+      "bitmap": [
+        636,
+        61
+      ],
+      "pixels": 136,
+      "accepted": false
+    },
+    {
+      "part": "marker",
+      "video": "00002",
+      "time": 60,
+      "scale": 2.25,
+      "score": 0.6408065557479858,
+      "bitmap": [
+        621,
+        56
+      ],
+      "pixels": 184,
+      "accepted": false
+    },
+    {
+      "part": "ring",
+      "video": "00002",
+      "time": 72.5,
+      "referenceSha256": "c49fbeb7dda9950f89ef662053dfc042d4670621a42c348ce5f3a70d5e623b43",
+      "radarSample": true,
+      "scale": 1,
+      "fixedVisiblePatchAfterResize": [
+        0,
+        54,
+        104,
+        50
+      ],
+      "score": 0.490536093711853,
+      "bitmap": [
+        603,
+        35
+      ],
+      "pixels": 1473,
+      "accepted": false
+    },
+    {
+      "part": "ring",
+      "video": "00002",
+      "time": 72.5,
+      "referenceSha256": "c49fbeb7dda9950f89ef662053dfc042d4670621a42c348ce5f3a70d5e623b43",
+      "radarSample": true,
+      "scale": 1.125,
+      "fixedVisiblePatchAfterResize": [
+        0,
+        61,
+        117,
+        56
+      ],
+      "score": 0.9468204975128174,
+      "bitmap": [
+        594,
+        24
+      ],
+      "pixels": 1785,
+      "accepted": true
+    },
+    {
+      "part": "marker",
+      "video": "00002",
+      "time": 72.5,
+      "scale": 1,
+      "score": 0.9251209497451782,
+      "bitmap": [
+        650,
+        71
+      ],
+      "pixels": 40,
+      "accepted": false
+    },
+    {
+      "part": "marker",
+      "video": "00002",
+      "time": 72.5,
+      "scale": 1.125,
+      "score": 0.9539028406143188,
+      "bitmap": [
+        649,
+        70
+      ],
+      "pixels": 47,
+      "accepted": true
+    },
+    {
+      "part": "marker",
+      "video": "00002",
+      "time": 72.5,
+      "scale": 2,
+      "score": 0.6263046860694885,
+      "bitmap": [
+        636,
+        61
+      ],
+      "pixels": 136,
+      "accepted": false
+    },
+    {
+      "part": "marker",
+      "video": "00002",
+      "time": 72.5,
+      "scale": 2.25,
+      "score": 0.6198889017105103,
+      "bitmap": [
+        621,
+        56
+      ],
+      "pixels": 184,
+      "accepted": false
+    },
+    {
+      "part": "ring",
+      "video": "00001",
+      "time": 20,
+      "referenceSha256": "6bf563a7caaed1c34a57a59e7e2f0f9902cd4a10b95416286554ee1ac002f82c",
+      "radarSample": false,
+      "scale": 1,
+      "fixedVisiblePatchAfterResize": [
+        0,
+        54,
+        104,
+        50
+      ],
+      "score": 0.2887857258319855,
+      "bitmap": [
+        611,
+        11
+      ],
+      "pixels": 1473,
+      "accepted": false
+    },
+    {
+      "part": "ring",
+      "video": "00001",
+      "time": 20,
+      "referenceSha256": "6bf563a7caaed1c34a57a59e7e2f0f9902cd4a10b95416286554ee1ac002f82c",
+      "radarSample": false,
+      "scale": 1.125,
+      "fixedVisiblePatchAfterResize": [
+        0,
+        61,
+        117,
+        56
+      ],
+      "score": 0.24755920469760895,
+      "bitmap": [
+        603,
+        27
+      ],
+      "pixels": 1785,
+      "accepted": false
+    },
+    {
+      "part": "ring",
+      "video": "00001",
+      "time": 40,
+      "referenceSha256": "a40084f3018536380eafab3cdca7398d910662b97db536e1e590fa9d1ace50ae",
+      "radarSample": false,
+      "scale": 1,
+      "fixedVisiblePatchAfterResize": [
+        0,
+        54,
+        104,
+        50
+      ],
+      "score": 0.2141343206167221,
+      "bitmap": [
+        562,
+        -20
+      ],
+      "pixels": 1473,
+      "accepted": false
+    },
+    {
+      "part": "ring",
+      "video": "00001",
+      "time": 40,
+      "referenceSha256": "a40084f3018536380eafab3cdca7398d910662b97db536e1e590fa9d1ace50ae",
+      "radarSample": false,
+      "scale": 1.125,
+      "fixedVisiblePatchAfterResize": [
+        0,
+        61,
+        117,
+        56
+      ],
+      "score": 0.1993667483329773,
+      "bitmap": [
+        589,
+        -60
+      ],
+      "pixels": 1785,
+      "accepted": false
+    },
+    {
+      "part": "ring",
+      "video": "00001",
+      "time": 76,
+      "referenceSha256": "2347f4bbfb201170ed6fbe914925fe65af328fefede7d05d0d3e9b8178291431",
+      "radarSample": false,
+      "scale": 1,
+      "fixedVisiblePatchAfterResize": [
+        0,
+        54,
+        104,
+        50
+      ],
+      "score": 0.3451540470123291,
+      "bitmap": [
+        600,
+        36
+      ],
+      "pixels": 1473,
+      "accepted": false
+    },
+    {
+      "part": "ring",
+      "video": "00001",
+      "time": 76,
+      "referenceSha256": "2347f4bbfb201170ed6fbe914925fe65af328fefede7d05d0d3e9b8178291431",
+      "radarSample": false,
+      "scale": 1.125,
+      "fixedVisiblePatchAfterResize": [
+        0,
+        61,
+        117,
+        56
+      ],
+      "score": 0.5283386707305908,
+      "bitmap": [
+        594,
+        24
+      ],
+      "pixels": 1785,
+      "accepted": false
+    },
+    {
+      "part": "ring",
+      "video": "00002",
+      "time": 74.25,
+      "referenceSha256": "3661c279aa933216639802e4a21ab4834d12815b485a303528ee24e9bb9b1001",
+      "radarSample": false,
+      "scale": 1,
+      "fixedVisiblePatchAfterResize": [
+        0,
+        54,
+        104,
+        50
+      ],
+      "score": 0.1880722939968109,
+      "bitmap": [
+        599,
+        46
+      ],
+      "pixels": 1473,
+      "accepted": false
+    },
+    {
+      "part": "ring",
+      "video": "00002",
+      "time": 74.25,
+      "referenceSha256": "3661c279aa933216639802e4a21ab4834d12815b485a303528ee24e9bb9b1001",
+      "radarSample": false,
+      "scale": 1.125,
+      "fixedVisiblePatchAfterResize": [
+        0,
+        61,
+        117,
+        56
+      ],
+      "score": 0.24800531566143036,
+      "bitmap": [
+        589,
+        34
+      ],
+      "pixels": 1785,
+      "accepted": false
+    },
+    {
+      "part": "ring",
+      "video": "00002",
+      "time": 277,
+      "referenceSha256": "91e393d35e2b3092c4ad09ababc1e07db35156a6f6d827fcb3a041382560c766",
+      "radarSample": false,
+      "scale": 1,
+      "fixedVisiblePatchAfterResize": [
+        0,
+        54,
+        104,
+        50
+      ],
+      "score": 0.18515032529830933,
+      "bitmap": [
+        598,
+        46
+      ],
+      "pixels": 1473,
+      "accepted": false
+    },
+    {
+      "part": "ring",
+      "video": "00002",
+      "time": 277,
+      "referenceSha256": "91e393d35e2b3092c4ad09ababc1e07db35156a6f6d827fcb3a041382560c766",
+      "radarSample": false,
+      "scale": 1.125,
+      "fixedVisiblePatchAfterResize": [
+        0,
+        61,
+        117,
+        56
+      ],
+      "score": 0.24764899909496307,
+      "bitmap": [
+        589,
+        34
+      ],
+      "pixels": 1785,
+      "accepted": false
+    }
+  ],
+  "adopted": {
+    "ringScale": 1.125,
+    "ringBitmap": [
+      594,
+      23.5,
+      117,
+      117
+    ],
+    "contentCentre": [
+      656,
+      81
+    ],
+    "tileScale": 1.125,
+    "tilePitch": 20.25,
+    "playerBitmap": [
+      649.25,
+      69.75,
+      16,
+      21
+    ],
+    "playerScale": 1.125,
+    "playerPivot": [
+      6,
+      10
+    ]
+  },
+  "limits": [
+    "Only the fixed lower ring half is identified against the video; badge/FPS/button occlusions do not validate the whole radar skin.",
+    "Marker candidates use explicitly rounded destination dimensions, matching drawMinimapPiece; fractional-factor resize is not equivalent for this small glyph. Rejected scale controls are retained.",
+    "Tile identity checks the E-room above the current entry, not a fabricated alternate map.",
+    "Integer template search locates the coarse frame at594,24; retained browser integer/fractional controls refine its runtime top to23.5. Native background material is independently verified in107-radar-background-measurement.json; exact background placement, counter semantics, blue button, full-window geometry and edge clipping remain open.",
+    "The atlas white point is present in the recording and is not removed. The regenerated packed cuts preserve native RGBA; prior packed differences affected six ring pixels and one marker pixel with alpha no greater than4."
+  ]
+}

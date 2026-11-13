@@ -1,0 +1,61 @@
+{
+  "commit": "e5d4f12",
+  "workflow": "https://github.com/yanfeng98/nano-dnf/actions/runs/43343258415",
+  "ci": "Success; public run page contains commit and three executed job links",
+  "site": "https://luyf-lemon-love.space/nano-dnf/",
+  "unitTests": 437,
+  "browserGroups": 39,
+  "publish": "First SSH push handshake was closed; retry succeeded with534e145..e5d4f12, then deployment verified",
+  "localLiveSmoke": "passed; deployed core/render bytes match checkout and boot cleanly",
+  "onlineDirectedChecks": {
+    "regions": 5,
+    "entryLeafCosine": 0.9958611884832783,
+    "minimumCosine": 0.9837198017742653,
+    "bestTranslations": [
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        0
+      ]
+    ],
+    "entryLeafNativeNcc": 0.966654,
+    "westKeyboardTravel": "passed: 投掷手坡",
+    "openingLifecycle": {
+      "clear": {
+        "time": 0.03333333333333333,
+        "openedAt": 0.03333333333333333,
+        "mode": "open"
+      },
+      "firstVsClosed": 0,
+      "closedVsOpen": 39.089876543209876,
+      "halfVsPixelMixture": 0.28814814814814815,
+      "pausedTime": 0.2833333333333333,
+      "revisitVsOpen": 0,
+      "keyboardTravel": {
+        "room": "暗咒猫妖的林地",
+        "time": 0.6833333333333338,
+        "secondsAfterClear": 0.08333333333333359
+      },
+      "errors": []
+    }
+  },
+  "sourceChecks": "Left/right native OpenDoor source and43-frame opening measurement repeat structurally identical; raw25.5 reference pixel-identical to existing47 baseline; no art or threshold changes",
+  "policyRevision": "Latest strict-video objective supersedes old ADR0067 immediate leaf removal for authored native gates. Passage permission remains separately unresolved for uncleared entry.",
+  "manualAcceptance": "pending",
+  "remaining": "Exact native clear/open trigger and clock, light behavior, hit-stop interaction and uncleared entry passage/tile collision remain unverified;600ms fits the recording slightly better than the adopted native500ms declaration. Other gates, scenery/lifecycle, characters/combat, HUD/results/XP/audio, ordinary route/unseen rooms and manual acceptance remain open."
+}
