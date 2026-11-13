@@ -2620,6 +2620,17 @@
         {
           name: "铁门入口",
           kind: "room",
+          // Native374 normal east gate, s419 anchor; bottom layer (audit105).
+          nativePathGates: { E: {
+            anchor: [1328, 238], layer: "[bottom]", sprite: "nativePathGateEastNormal",
+            parts: {
+              under: {rect:[0,0,223,395], offset:[-218,-436]},
+              frame: {rect:[223,0,131,240], offset:[-120,-212]},
+              door: {rect:[354,0,50,171], offset:[-90,-164]},
+              light: {rect:[404,0,89,205], offset:[-108,-196]},
+              over: {rect:[493,0,233,234], offset:[-62,-50]}
+            }
+          } },
           // Ground-only graph and independent native props reject the older
           // tree-layer estimate. Six native columns end at 1512 screen px; width 958.55 (batch81).
           // Do not stretch existing enemy/tree coordinates with the new width.

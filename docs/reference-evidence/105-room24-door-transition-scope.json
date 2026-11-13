@@ -1,0 +1,43 @@
+{
+  "video": "00002-幽暗密林深处.mp4",
+  "streamFps": "30/1",
+  "clipStart": 310.5,
+  "clipDuration": 2,
+  "normalization": "crop1440:1080:240:0,scale720:540; preserve all raw frames, no fps filter",
+  "reproduction": "ffmpeg -ss 310.5 -i <V2.mp4> -t 2 -vf crop=1440:1080:240:0,scale=720:540 -vsync 0 <out>/%03d.png",
+  "exactBaselineChecks": [
+    {
+      "sample": 16,
+      "reference": "/tmp/nano54/room24/341.png",
+      "maxPixelDifference": 0
+    },
+    {
+      "sample": 46,
+      "reference": "docs/reference-evidence/54-next-room-312-reference.png",
+      "maxPixelDifference": 0
+    }
+  ],
+  "archivedFrames": [
+    {
+      "time": 311.7,
+      "sample": 37,
+      "artifact": "105-room24-311.7-door-reference.png",
+      "sha256": "c4a772ffc4e540343b2761b507ce2ec73a28eee6bce38f248d0158a691bc3989"
+    },
+    {
+      "time": 312.0,
+      "sample": 46,
+      "artifact": "105-room24-312-door-reference.png",
+      "sha256": "df73523e6b6fd12df225b79b4f9acb37e5f50b617d71986d19661cd96e645609"
+    }
+  ],
+  "observations": [
+    "At311.7s the room24 gate leaf is still visible while the player and death effects partially occlude it.",
+    "The312s frame is byte-for-byte pixel-identical to the already audited next-room reference."
+  ],
+  "limits": [
+    "This is a visual transition bracket, not a measured room-clear time.",
+    "No native fade curve, light trigger or passability law is inferred from these two frames.",
+    "Native ANI500ms field alone cannot resolve the occluded animation timing. Existing ADR0067 policy remains unchanged."
+  ]
+}

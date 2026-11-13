@@ -1,0 +1,424 @@
+{
+  "dungeon": "dungeon/act1/mirkwooddeep.dgn",
+  "dungeonSha256": "5625d75554913e41b87e5ccb4f7db65a6978f6808cebb6f4ac6377bf49a37688",
+  "map": "map/mirkwooddeep/s419(0,3).map",
+  "mapSha256": "33da276fd07c18abca3e8d8fa9741688445be1b34bf43aec7e7d5c2b4a7540e2",
+  "object": "passiveobject/mapobject/pathgate/act1/mirkwoodrightnormal.obj",
+  "objectSha256": "f239af84d87d7b9be7a48ba0875f1c87744f9b6ac9620a5e59edb3abc5c6105e",
+  "objectTokens": [
+    "[layer]",
+    "[bottom]",
+    "[string data]",
+    "Animation/GranFlorisRightU1.ani",
+    "Animation/GranFlorisRightGate.ani",
+    "Animation/GranFlorisRightCloseDoor.ani",
+    "Animation/GranFlorisRightOpenDoor.ani",
+    "Animation/GranFlorisRightLight.ani",
+    "Animation/GranFlorisRightO1.ani",
+    "Tile/RightDoor.til",
+    "[/string data]",
+    "[int data]",
+    0,
+    2,
+    0,
+    2,
+    1,
+    2,
+    2,
+    2,
+    2,
+    1,
+    0,
+    2,
+    13,
+    19,
+    "[/int data]",
+    "[name]",
+    "洛蘭的右側門"
+  ],
+  "animations": {
+    "under": {
+      "entry": "passiveobject/mapobject/pathgate/act1/animation/granflorisrightu1.ani",
+      "sha256": "4a63d9e595f0ab242b91184d6e7c55d1ee5b33f3793e7280daf11eee5afe603d",
+      "data": {
+        "paths": [
+          "Map/PathGate/GranFlorisTree%d%d.img"
+        ],
+        "overall": [
+          [
+            1,
+            0
+          ]
+        ],
+        "frames": [
+          {
+            "frame": 0,
+            "xy": [
+              -218,
+              -436
+            ],
+            "props": [
+              [
+                12,
+                600
+              ]
+            ],
+            "boxes": [],
+            "image": 0
+          }
+        ]
+      },
+      "concreteImage": "sprite/map/pathgate/granfloristree02.img",
+      "material": "02"
+    },
+    "frame": {
+      "entry": "passiveobject/mapobject/pathgate/act1/animation/granflorisrightgate.ani",
+      "sha256": "0571c7cade54772708df24b4a59b23880aa4410e536e056f82109db38063b624",
+      "data": {
+        "paths": [
+          "Map/PathGate/GranFlorisSideGate%d%d.img"
+        ],
+        "overall": [
+          [
+            1,
+            0
+          ]
+        ],
+        "frames": [
+          {
+            "frame": 0,
+            "xy": [
+              -128,
+              -219
+            ],
+            "props": [
+              [
+                12,
+                600
+              ]
+            ],
+            "boxes": [],
+            "image": 0
+          }
+        ]
+      },
+      "concreteImage": "sprite/map/pathgate/granflorissidegate02.img",
+      "material": "02"
+    },
+    "door": {
+      "entry": "passiveobject/mapobject/pathgate/act1/animation/granflorisrightclosedoor.ani",
+      "sha256": "cfc621b39bc229e647c7bee18823ace5a2e2c4eec85aa59032e49f45865feb39",
+      "data": {
+        "paths": [
+          "Map/PathGate/GranFlorisSideDoor%d%d.img"
+        ],
+        "overall": [
+          [
+            1,
+            0
+          ]
+        ],
+        "frames": [
+          {
+            "frame": 0,
+            "xy": [
+              -128,
+              -219
+            ],
+            "props": [
+              [
+                12,
+                600
+              ]
+            ],
+            "boxes": [],
+            "image": 0
+          }
+        ]
+      },
+      "concreteImage": "sprite/map/pathgate/granflorissidedoor02.img",
+      "material": "02"
+    },
+    "light": {
+      "entry": "passiveobject/mapobject/pathgate/act1/animation/granflorisrightlight.ani",
+      "sha256": "ad5cea376ccf3a268b5377347b6232cd0d24b0ea3f4bb4bb76d448a217b793bd",
+      "data": {
+        "paths": [
+          "Map/PathGate/GranFlorisSideLight%d%d.img"
+        ],
+        "overall": [
+          [
+            0,
+            1
+          ],
+          [
+            1,
+            0
+          ]
+        ],
+        "frames": [
+          {
+            "frame": 0,
+            "xy": [
+              -128,
+              -219
+            ],
+            "props": [
+              [
+                9,
+                [
+                  255,
+                  255,
+                  255,
+                  0
+                ]
+              ],
+              [
+                10,
+                1
+              ],
+              [
+                11,
+                2
+              ],
+              [
+                12,
+                500
+              ]
+            ],
+            "boxes": [],
+            "image": 0
+          },
+          {
+            "frame": 0,
+            "xy": [
+              -128,
+              -219
+            ],
+            "props": [
+              [
+                10,
+                1
+              ],
+              [
+                11,
+                2
+              ],
+              [
+                12,
+                500
+              ]
+            ],
+            "boxes": [],
+            "image": 0
+          }
+        ]
+      },
+      "concreteImage": "sprite/map/pathgate/granflorissidelight01.img",
+      "material": "01"
+    },
+    "over": {
+      "entry": "passiveobject/mapobject/pathgate/act1/animation/granflorisrighto1.ani",
+      "sha256": "49cc64a5011106b9380d1dc8197db1825b7112f5c9e7f2c6c27474e61f85986d",
+      "data": {
+        "paths": [
+          "Map/PathGate/GranFlorisBush%d%d.img"
+        ],
+        "overall": [
+          [
+            1,
+            0
+          ]
+        ],
+        "frames": [
+          {
+            "frame": 0,
+            "xy": [
+              -62,
+              -50
+            ],
+            "props": [
+              [
+                12,
+                600
+              ]
+            ],
+            "boxes": [],
+            "image": 0
+          }
+        ]
+      },
+      "concreteImage": "sprite/map/pathgate/granflorisbush02.img",
+      "material": "02"
+    }
+  },
+  "gate": {
+    "anchor": [
+      1328,
+      238
+    ],
+    "parts": {
+      "under": {
+        "rect": [
+          0,
+          0,
+          223,
+          395
+        ],
+        "offset": [
+          -218,
+          -436
+        ]
+      },
+      "frame": {
+        "rect": [
+          223,
+          0,
+          131,
+          240
+        ],
+        "offset": [
+          -120,
+          -212
+        ]
+      },
+      "door": {
+        "rect": [
+          354,
+          0,
+          50,
+          171
+        ],
+        "offset": [
+          -90,
+          -164
+        ]
+      },
+      "light": {
+        "rect": [
+          404,
+          0,
+          89,
+          205
+        ],
+        "offset": [
+          -108,
+          -196
+        ]
+      },
+      "over": {
+        "rect": [
+          493,
+          0,
+          233,
+          234
+        ],
+        "offset": [
+          -62,
+          -50
+        ]
+      }
+    },
+    "layer": "[bottom]",
+    "sprite": "nativePathGateEastNormal"
+  },
+  "screenScale": 1.125,
+  "screenYPhase": 92,
+  "atlasSize": [
+    726,
+    395
+  ],
+  "atlasRgbaSha256": "10bb272455ed3e27cf5689a35c3ba9f9326c47d2b86ec919d530b128c8a978a1",
+  "images": [
+    {
+      "path": "sprite/map/pathgate/granfloristree02.img",
+      "frame": 0,
+      "flipX": false,
+      "offset": [
+        0,
+        0
+      ],
+      "rect": [
+        0,
+        0,
+        223,
+        395
+      ],
+      "originalRgbaSha256": "d6c25a36948142ca95468aa9b744ca52bd94d5714b70e2b637bf2b67d4de4d41",
+      "bakedRgbaSha256": "d6c25a36948142ca95468aa9b744ca52bd94d5714b70e2b637bf2b67d4de4d41"
+    },
+    {
+      "path": "sprite/map/pathgate/granflorissidegate02.img",
+      "frame": 0,
+      "flipX": false,
+      "offset": [
+        8,
+        7
+      ],
+      "rect": [
+        223,
+        0,
+        131,
+        240
+      ],
+      "originalRgbaSha256": "068bdaba3f73b1512feff032060f0e60a151f58359d9d650d20f5a1fa7527ab9",
+      "bakedRgbaSha256": "068bdaba3f73b1512feff032060f0e60a151f58359d9d650d20f5a1fa7527ab9"
+    },
+    {
+      "path": "sprite/map/pathgate/granflorissidedoor02.img",
+      "frame": 0,
+      "flipX": false,
+      "offset": [
+        38,
+        55
+      ],
+      "rect": [
+        354,
+        0,
+        50,
+        171
+      ],
+      "originalRgbaSha256": "1d37f7b6f5c5b3ea05e4d8d12025195f48504a7ceecad0706ffdea3ba16508b7",
+      "bakedRgbaSha256": "1d37f7b6f5c5b3ea05e4d8d12025195f48504a7ceecad0706ffdea3ba16508b7"
+    },
+    {
+      "path": "sprite/map/pathgate/granflorissidelight01.img",
+      "frame": 0,
+      "flipX": false,
+      "offset": [
+        20,
+        23
+      ],
+      "rect": [
+        404,
+        0,
+        89,
+        205
+      ],
+      "originalRgbaSha256": "6e9330242ed037963d0f41920e1d353559da50f4ad718785f7c1abc2a3c32a3c",
+      "bakedRgbaSha256": "6e9330242ed037963d0f41920e1d353559da50f4ad718785f7c1abc2a3c32a3c"
+    },
+    {
+      "path": "sprite/map/pathgate/granflorisbush02.img",
+      "frame": 0,
+      "flipX": false,
+      "offset": [
+        0,
+        0
+      ],
+      "rect": [
+        493,
+        0,
+        233,
+        234
+      ],
+      "originalRgbaSha256": "aaa42054ac0c4b325c790affbc4e17f10112977ef1446799ff2b3adc6745cb79",
+      "bakedRgbaSha256": "aaa42054ac0c4b325c790affbc4e17f10112977ef1446799ff2b3adc6745cb79"
+    }
+  ],
+  "limits": [
+    "Static east gate pose and bottom layer come from the native map/object/ANI/IMG chain.",
+    "Open/fade/light timing and passability remain unresolved.",
+    "Native RightDoor tile collision semantics and other gates remain unverified."
+  ]
+}

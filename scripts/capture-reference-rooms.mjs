@@ -154,6 +154,15 @@ const profiles={
    ['right-chest-left',330,'forest',623,1874,86,56,194,247,95,64,22,100,.95],
    ['right-chest-right',330,'forest',623,1874,86,56,291,247,95,64,22,100,.95]
   ]},
+ '41-east-gate':{cameraTolerance:1,evidence:'47-room41',col:0,row:3,out:'/tmp/nano-room105/render',times:[22.5,24.5],actorScreenX:120,exit:'E',next:'宝箱浅沟',entryDoor:null,
+  referenceNames:{22.5:'105-room41-22.5-reference.png',24.5:'105-room41-24.5-reference.png'},
+  scope:'native normal east gate frame/tree static geometry and bottom layer; unverified leaf/bush and native clocks remain open',
+  cases:[
+   ['entry-east-frame',22.5,'nativePathGateEastNormal',223+100/1.125,120/1.125,30/1.125,70/1.125,676,241,30,70,70,100,.97,null,null,true],
+   ['entry-east-frame-later',24.5,'nativePathGateEastNormal',223+100/1.125,120/1.125,30/1.125,70/1.125,676,241,30,70,70,100,.97,null,null,true],
+   ['entry-east-tree',22.5,'nativePathGateEastNormal',25/1.125,240/1.125,70/1.125,80/1.125,491,109,70,80,80,500,.97,null,null,true],
+   ['entry-east-tree-later',24.5,'nativePathGateEastNormal',25/1.125,240/1.125,70/1.125,80/1.125,491,110,70,80,80,500,.97,null,null,true]
+  ]},
  '24-east-gate':{cameraTolerance:1,evidence:'54-room24',col:3,row:1,out:'/tmp/nano-room104/render',times:[307,308,310],actorScreenX:120,exit:'E',next:'暗咒猫妖的林地',entryDoor:'W',
   referenceNames:{308:'104-room24-308-reference.png',310:'104-room24-310-reference.png'},
   scope:'native boss-side east static tree/frame/closed leaf geometry; native bottom layer; fade/light timing and entry retreat remain open',
@@ -365,7 +374,7 @@ try{
   const name=t===26.5?'47-room42-entry-reference.png':(profile.referenceNames?.[t] ?? `${evidence}-${t}-reference.png`);
   return [t,fs.readFileSync(path.join(root,'docs/reference-evidence',name)).toString('base64')];
  }));
- const native=Object.fromEntries([['pillar','pillar-pale.png'],['forest','forest.png'],['nativeFlora','native-flora.png'],['nativePathGate','native-pathgate.png'],['nativePathGateEast','native-pathgate-east.png'],['bunker','goblin-bunker.png'],['tree','tree-reference.png'],['fruitTree','tree-fruit-reference.png'],['closeback','deep-boss-closeback.png'],['entryCloseback','deep-entry-closeback.png'],['room42Closeback','deep-room42-closeback.png'],['room43Closeback','deep-room43-closeback.png'],['room33Closeback','deep-room33-closeback.png'],['room23Closeback','deep-room23-closeback.png'],['room13Closeback','deep-room13-closeback.png'],['room14Closeback','deep-room14-closeback.png'],['room24Closeback','deep-room24-closeback.png'],['room24Foreground','deep-room24-foreground.png']].map(([key,name])=>[key,fs.readFileSync(path.join(root,'assets',name)).toString('base64')]));
+ const native=Object.fromEntries([['pillar','pillar-pale.png'],['forest','forest.png'],['nativeFlora','native-flora.png'],['nativePathGate','native-pathgate.png'],['nativePathGateEast','native-pathgate-east.png'],['nativePathGateEastNormal','native-pathgate-east-normal.png'],['bunker','goblin-bunker.png'],['tree','tree-reference.png'],['fruitTree','tree-fruit-reference.png'],['closeback','deep-boss-closeback.png'],['entryCloseback','deep-entry-closeback.png'],['room42Closeback','deep-room42-closeback.png'],['room43Closeback','deep-room43-closeback.png'],['room33Closeback','deep-room33-closeback.png'],['room23Closeback','deep-room23-closeback.png'],['room13Closeback','deep-room13-closeback.png'],['room14Closeback','deep-room14-closeback.png'],['room24Closeback','deep-room24-closeback.png'],['room24Foreground','deep-room24-foreground.png']].map(([key,name])=>[key,fs.readFileSync(path.join(root,'assets',name)).toString('base64')]));
  for(const sample of farSamples)native[`far-mask-${sample.room}-${sample.time}`]=fs.readFileSync(path.join(root,'docs/reference-evidence',sample.mask)).toString('base64');
  const faces=await page.evaluate(async({reference,images,native,cases})=>{
   async function picture(url,videoPixels=false){

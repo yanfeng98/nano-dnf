@@ -1,0 +1,36 @@
+{
+  "commit": "7c452ff",
+  "workflow": "https://github.com/yanfeng98/nano-dnf/actions/runs/43336208985",
+  "ci": "Success; public run page contains commit and three executed job links",
+  "site": "https://luyf-lemon-love.space/nano-dnf/",
+  "unitTests": 435,
+  "browserGroups": 37,
+  "localLiveSmoke": "passed; deployed runtime and native east-gate atlas match checkout, clean boot",
+  "onlineDirectedChecks": {
+    "staticRegions": 4,
+    "minimumCosine": 0.9801144651923784,
+    "bestTranslations": [
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        0
+      ]
+    ],
+    "eastKeyboardTravel": "passed: 暗咒猫妖的林地"
+  },
+  "sourceChecks": "West and east atlas re-exports byte-identical and source proofs structurally identical; fixed native east measurement rerun identical",
+  "entryLeafDiagnostic": "Expected failure retained; reference278 nativeNcc.964868 versus runtime.140840; temporal persistence is not a passability or alpha measurement",
+  "manualAcceptance": "pending",
+  "remaining": "East bush has zero accepted visual observations; entry leaf mismatch, native fade/light/opening trigger and tile collision semantics remain unverified. Other scenery/lifecycle, particle clocks/HP/drop/pass, characters/combat, HUD/results/XP/audio, ordinary route/unseen rooms and manual acceptance remain open."
+}

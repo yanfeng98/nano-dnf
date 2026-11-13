@@ -12256,3 +12256,23 @@ test("room24 east boss gate uses native bottom layer before bodies at every dept
   Core.currentCell(s).cleared=true;s.room.cleared=true;
   assert.equal(paint().some(c=>c[0]==="drawImage"&&c[1]===atlas&&c[2]===354),false,"existing open contract removes the native leaf");
 });
+
+test("room41 east gate uses the native normal material and authored entry-map anchor", () => {
+  const s=Core.createState({stage:"mirkwooddeep",seed:1});
+  const gate=s.room.nativePathGates?.E;
+  assert.ok(gate,"entry room east gate must use native374 rather than the generic up-gate");
+  assert.deepEqual(gate.anchor,[1328,238]);
+  assert.equal(gate.sprite,"nativePathGateEastNormal");
+  assert.equal(gate.layer,"[bottom]");
+  const scale=1.125/Core.CAMERA.zoom;
+  assert.ok(Math.abs(gate.x-1328*scale)<1e-9);
+  const art=Core.gateArtRect(s,Core.currentCell(s),"E");
+  assert.ok(Math.abs(art.left-(1328-120)*scale)<1e-9);
+  assert.ok(Math.abs(art.top-(430-gate.z*Core.DEPTH.scale-212*scale))<1e-9);
+  s.intro=null;s.transition=0;s.enemies=[];s.props=[];s.effects=[];s.player.z=gate.z+10;
+  const atlas={width:726,height:395},forest={width:1280,height:2000},slayer={width:13312,height:1936},calls=[];
+  Render.render(recordingContext(calls),s,{sprites:{nativePathGateEastNormal:atlas,forest,slayer}});
+  const parts=calls.map((c,i)=>({c,i})).filter(({c})=>c[0]==="drawImage"&&c[1]===atlas);
+  assert.equal(parts.length,4,"normal native tree/frame/closed leaf/bush are drawn from their own sheet");
+  assert.ok(parts.every(({i})=>i<calls.findIndex(c=>c[0]==="drawImage"&&c[1]===slayer)),"native bottom layer remains behind the body");
+});

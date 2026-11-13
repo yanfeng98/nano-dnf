@@ -1,0 +1,66 @@
+[
+  {
+    "label": "east-under-tree",
+    "time": 307,
+    "minPixels": 500,
+    "threshold": 0.97,
+    "nativeMask": {
+      "rows": 80,
+      "columns": 70,
+      "alphaOnly": true,
+      "box": null
+    },
+    "cosine": 0.9801144651923784,
+    "dx": 0,
+    "dy": 0,
+    "pixels": 2468
+  },
+  {
+    "label": "east-under-tree-later",
+    "time": 308,
+    "minPixels": 500,
+    "threshold": 0.97,
+    "nativeMask": {
+      "rows": 80,
+      "columns": 70,
+      "alphaOnly": true,
+      "box": null
+    },
+    "cosine": 0.9804353513685521,
+    "dx": 0,
+    "dy": 0,
+    "pixels": 2468
+  },
+  {
+    "label": "east-frame-post",
+    "time": 310,
+    "minPixels": 100,
+    "threshold": 0.97,
+    "nativeMask": {
+      "rows": 70,
+      "columns": 30,
+      "alphaOnly": true,
+      "box": null
+    },
+    "cosine": 0.9870146727183481,
+    "dx": 0,
+    "dy": 0,
+    "pixels": 2100
+  },
+  {
+    "label": "east-closed-leaf",
+    "time": 310,
+    "minPixels": 500,
+    "threshold": 0.97,
+    "nativeMask": {
+      "rows": 75,
+      "columns": 56,
+      "alphaOnly": true,
+      "box": null
+    },
+    "cosine": 0.9928429194368641,
+    "dx": 0,
+    "dy": 0,
+    "pixels": 1906
+  }
+]
