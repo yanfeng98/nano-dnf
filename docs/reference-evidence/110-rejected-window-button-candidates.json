@@ -1,0 +1,302 @@
+[
+  {
+    "entry": "sprite/interface/windowcommon.img",
+    "frame": 52,
+    "scale": 1.125,
+    "score": 0.8951459527015686,
+    "pos": [
+      681,
+      37
+    ],
+    "size": [
+      13,
+      13
+    ],
+    "pixels": 53
+  },
+  {
+    "entry": "sprite/interface/windowcommon.img",
+    "frame": 52,
+    "scale": 1,
+    "score": 0.7924301624298096,
+    "pos": [
+      683,
+      38
+    ],
+    "size": [
+      13,
+      13
+    ],
+    "pixels": 56
+  },
+  {
+    "entry": "sprite/interface/windowcommon.img",
+    "frame": 49,
+    "scale": 1,
+    "score": 0.772052526473999,
+    "pos": [
+      684,
+      38
+    ],
+    "size": [
+      12,
+      13
+    ],
+    "pixels": 56
+  },
+  {
+    "entry": "sprite/interface/windowcommon.img",
+    "frame": 50,
+    "scale": 1,
+    "score": 0.7601757049560547,
+    "pos": [
+      683,
+      38
+    ],
+    "size": [
+      12,
+      13
+    ],
+    "pixels": 70
+  },
+  {
+    "entry": "sprite/interface/windowcommon.img",
+    "frame": 49,
+    "scale": 1.125,
+    "score": 0.7299872636795044,
+    "pos": [
+      683,
+      37
+    ],
+    "size": [
+      12,
+      13
+    ],
+    "pixels": 62
+  },
+  {
+    "entry": "sprite/interface/windowcommon.img",
+    "frame": 51,
+    "scale": 1,
+    "score": 0.6877775192260742,
+    "pos": [
+      682,
+      38
+    ],
+    "size": [
+      16,
+      15
+    ],
+    "pixels": 88
+  },
+  {
+    "entry": "sprite/interface/windowcommon.img",
+    "frame": 50,
+    "scale": 1.125,
+    "score": 0.6763206720352173,
+    "pos": [
+      683,
+      37
+    ],
+    "size": [
+      12,
+      13
+    ],
+    "pixels": 102
+  },
+  {
+    "entry": "sprite/interface/windowcommon.img",
+    "frame": 51,
+    "scale": 1.125,
+    "score": 0.6711611747741699,
+    "pos": [
+      680,
+      38
+    ],
+    "size": [
+      16,
+      15
+    ],
+    "pixels": 78
+  },
+  {
+    "entry": "sprite/interface/windowcommon.img",
+    "frame": 52,
+    "scale": 2,
+    "score": 0.6284725069999695,
+    "pos": [
+      679,
+      29
+    ],
+    "size": [
+      13,
+      13
+    ],
+    "pixels": 188
+  },
+  {
+    "entry": "sprite/interface/windowcommon.img",
+    "frame": 49,
+    "scale": 2,
+    "score": 0.6153712272644043,
+    "pos": [
+      680,
+      29
+    ],
+    "size": [
+      12,
+      13
+    ],
+    "pixels": 206
+  },
+  {
+    "entry": "sprite/interface/windowcommon.img",
+    "frame": 52,
+    "scale": 1.5,
+    "score": 0.6078836917877197,
+    "pos": [
+      676,
+      38
+    ],
+    "size": [
+      13,
+      13
+    ],
+    "pixels": 116
+  },
+  {
+    "entry": "sprite/interface/windowcommon.img",
+    "frame": 49,
+    "scale": 2.25,
+    "score": 0.5811347365379333,
+    "pos": [
+      677,
+      29
+    ],
+    "size": [
+      12,
+      13
+    ],
+    "pixels": 242
+  },
+  {
+    "entry": "sprite/interface/windowcommon.img",
+    "frame": 51,
+    "scale": 1.5,
+    "score": 0.5686250925064087,
+    "pos": [
+      676,
+      36
+    ],
+    "size": [
+      16,
+      15
+    ],
+    "pixels": 153
+  },
+  {
+    "entry": "sprite/interface/windowcommon.img",
+    "frame": 49,
+    "scale": 1.5,
+    "score": 0.5675927996635437,
+    "pos": [
+      670,
+      34
+    ],
+    "size": [
+      12,
+      13
+    ],
+    "pixels": 116
+  },
+  {
+    "entry": "sprite/interface/windowcommon.img",
+    "frame": 52,
+    "scale": 2.25,
+    "score": 0.5426746010780334,
+    "pos": [
+      676,
+      29
+    ],
+    "size": [
+      13,
+      13
+    ],
+    "pixels": 225
+  },
+  {
+    "entry": "sprite/interface/windowcommon.img",
+    "frame": 51,
+    "scale": 2,
+    "score": 0.5349277853965759,
+    "pos": [
+      670,
+      31
+    ],
+    "size": [
+      16,
+      15
+    ],
+    "pixels": 284
+  },
+  {
+    "entry": "sprite/interface/windowcommon.img",
+    "frame": 50,
+    "scale": 1.5,
+    "score": 0.4730019271373749,
+    "pos": [
+      683,
+      37
+    ],
+    "size": [
+      12,
+      13
+    ],
+    "pixels": 170
+  },
+  {
+    "entry": "sprite/interface/windowcommon.img",
+    "frame": 50,
+    "scale": 2,
+    "score": 0.46638309955596924,
+    "pos": [
+      680,
+      29
+    ],
+    "size": [
+      12,
+      13
+    ],
+    "pixels": 284
+  },
+  {
+    "entry": "sprite/interface/windowcommon.img",
+    "frame": 50,
+    "scale": 2.25,
+    "score": 0.4153248071670532,
+    "pos": [
+      679,
+      29
+    ],
+    "size": [
+      12,
+      13
+    ],
+    "pixels": 353
+  },
+  {
+    "entry": "sprite/interface/windowcommon.img",
+    "frame": 51,
+    "scale": 2.25,
+    "score": 0.3815733790397644,
+    "pos": [
+      670,
+      27
+    ],
+    "size": [
+      16,
+      15
+    ],
+    "pixels": 386
+  }
+]

@@ -2219,6 +2219,17 @@
       marker: [64, 18, 14, 19],
       ring: [82, 18, 104, 104],
       radarBackground: [307, 18, 74, 74],
+      radarCounter: [385, 18, 54, 23],
+      radarDigit0: [443, 18, 11, 13],
+      radarDigit1: [458, 18, 7, 13],
+      radarDigit2: [469, 18, 11, 13],
+      radarDigit3: [484, 18, 11, 13],
+      radarDigit4: [499, 18, 11, 13],
+      radarDigit5: [514, 18, 11, 13],
+      radarDigit6: [529, 18, 11, 13],
+      radarDigit7: [544, 18, 11, 13],
+      radarDigit8: [559, 18, 11, 13],
+      radarDigit9: [574, 18, 11, 13],
       tl: [190, 18, 5, 5],
       top: [199, 18, 18, 5],
       tr: [221, 18, 4, 5],
@@ -2481,6 +2492,27 @@
     ctx.restore();
   }
 
+  // V1/V2 fixed header: native glyphs retain fractional dimensions and positions.
+  function drawRadarCounter(ctx, state, sprites) {
+    var scale = MINIMAP.radarFrameScale, piece = MINIMAP.pieces.radarCounter;
+    ctx.save();
+    ctx.imageSmoothingEnabled = true;
+    ctx.drawImage(sprites.minimap, piece[0], piece[1], piece[2], piece[3],
+                  HUD_RIGHT - 128.25, 27, piece[2] * scale, piece[3] * scale);
+    var text = String(Math.max(0, Math.floor(state.stats && state.stats.kills || 0)));
+    var width = 0;
+    for (var i = 0; i < text.length; i++) width += MINIMAP.pieces["radarDigit" + text[i]][2];
+    width += text.length - 1;
+    var x = HUD_RIGHT - 74.375 - width * scale;
+    for (var j = 0; j < text.length; j++) {
+      var digit = MINIMAP.pieces["radarDigit" + text[j]];
+      ctx.drawImage(sprites.minimap, digit[0], digit[1], digit[2], digit[3],
+                    x, 32.5, digit[2] * scale, digit[3] * scale);
+      x += (digit[2] + 1) * scale;
+    }
+    ctx.restore();
+  }
+
   /**
    * The map, in whichever of its two forms the player asked for.
    *
@@ -2538,10 +2570,12 @@
       var ring = MINIMAP.pieces.ring;
       ctx.drawImage(sprites.minimap, ring[0], ring[1], ring[2], ring[3],
                     radar.x, radar.y, radar.w, radar.h);
+      drawRadarCounter(ctx, state, sprites);
       ctx.restore();
       return;
     }
 
+    drawRadarCounter(ctx, state, sprites);
     drawMinimapWindow(ctx, sprites, box);
 
     ctx.fillStyle = "rgba(255, 248, 226, 0.96)";

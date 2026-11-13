@@ -15,10 +15,10 @@ is a green with a much lower blue), the four edge midpoints say which ways out a
 cell has, and a wide row of ink says room rather than corridor. The table it
 prints is what `--table` hands to `src/render.js` MINIMAP.
 
-The reference for the whole drawing is the owner's 幽暗密林 recording
-(`assets/dnf_src/bilibili/BV1d24y1P74G.mp4`), where the map window is in the
-top-right from 76s on and the round "radar" form sits there for the twenty
-seconds before it (`docs/adr/0029`).
+The references are the owner's two recordings, `00001-幽暗密林.mp4` and
+`00002-幽暗密林深处.mp4`, kept outside the repository. Both start in radar
+form and later switch to a full window; their timings differ. See the
+reference-video audit for measured geometry and remaining skin/timing limits.
 
     python3 assets/import_dnf_minimap.py            # write assets/minimap.png
     python3 assets/import_dnf_minimap.py --table    # the frame table, as JS
@@ -58,8 +58,8 @@ MARKERS = [
 ]
 
 # The window itself is nine pieces of the client's own panel - an ordinary
-# 9-slice, and the recording's window is exactly it: a pale hairline edge round a
-# dark interior, with the title painted on the top strip. It lives in the older
+# 9-slice. Its exact sampling/title/skin remain under review (audits108–109);
+# original pieces alone do not establish full-window fidelity. It lives in the older
 # client's interface pack; the current one has no `sprite_interface.NPK`.
 WINDOW_FOLDER = "ImagePacks2_70"
 WINDOW_PACK = "sprite_interface.NPK"
@@ -261,6 +261,12 @@ def main() -> None:
         specials.append((name, window[WINDOW_FIRST + offset]))
     # Native radial brown material; the radar used to fill this area solid green.
     specials.append(("radarBackground", cut(atlas, 350, 0, 74, 74)))
+    # Native bag-shaped counter and original digits, audit110 (no drawn glyphs).
+    specials.append(("radarCounter", cut(atlas, 277, 115, 54, 23)))
+    for digit, (x, width) in enumerate(zip(
+            [263, 282, 298, 319, 339, 360, 385, 407, 426, 446],
+            [11, 7, 11, 11, 11, 11, 11, 11, 11, 11])):
+        specials.append(("radarDigit" + str(digit), cut(atlas, x, 154, width, 13)))
 
     gap = 4
     tiles_w = TILE * len(order)

@@ -1,0 +1,329 @@
+{
+  "catalog": "108-map-window-source-catalog.json",
+  "scope": "45 named minimap entries; exclude act/helixlab/chaoshikong cells; native frames8..35px in both dimensions, scaled candidates fit28x29; fixed reference00002-277 ROI675,31,30,30; minimum40 opaque pixels",
+  "testedCandidates": 4425,
+  "maximumNcc": 0.8367076516151428,
+  "top20": [
+    {
+      "pack": "ImagePacks2_70/sprite_interface.NPK",
+      "entry": "sprite/interface/minimap.img",
+      "frame": 183,
+      "scale": 1,
+      "score": 0.8367076516151428,
+      "pos": [
+        684,
+        43
+      ],
+      "size": [
+        11,
+        11
+      ],
+      "pixels": 45
+    },
+    {
+      "pack": "ImagePacks2_70/sprite_interface.NPK",
+      "entry": "sprite/interface/minimap.img",
+      "frame": 184,
+      "scale": 1,
+      "score": 0.8367076516151428,
+      "pos": [
+        684,
+        43
+      ],
+      "size": [
+        11,
+        11
+      ],
+      "pixels": 45
+    },
+    {
+      "pack": "ImagePacks2_70/sprite_interface2_minimap_dungeon.NPK",
+      "entry": "sprite/interface2/minimap/dungeon/minimap.img",
+      "frame": 183,
+      "scale": 1,
+      "score": 0.8367076516151428,
+      "pos": [
+        684,
+        43
+      ],
+      "size": [
+        11,
+        11
+      ],
+      "pixels": 45
+    },
+    {
+      "pack": "ImagePacks2_70/sprite_interface2_minimap_dungeon.NPK",
+      "entry": "sprite/interface2/minimap/dungeon/minimap.img",
+      "frame": 184,
+      "scale": 1,
+      "score": 0.8367076516151428,
+      "pos": [
+        684,
+        43
+      ],
+      "size": [
+        11,
+        11
+      ],
+      "pixels": 45
+    },
+    {
+      "pack": "ImagePacks2/sprite_interface2_minimap_dungeon.NPK",
+      "entry": "sprite/interface2/minimap/dungeon/minimap.img",
+      "frame": 183,
+      "scale": 1,
+      "score": 0.8367076516151428,
+      "pos": [
+        684,
+        43
+      ],
+      "size": [
+        11,
+        11
+      ],
+      "pixels": 45
+    },
+    {
+      "pack": "ImagePacks2/sprite_interface2_minimap_dungeon.NPK",
+      "entry": "sprite/interface2/minimap/dungeon/minimap.img",
+      "frame": 184,
+      "scale": 1,
+      "score": 0.8367076516151428,
+      "pos": [
+        684,
+        43
+      ],
+      "size": [
+        11,
+        11
+      ],
+      "pixels": 45
+    },
+    {
+      "pack": "ImagePacks2_70/sprite_interface.NPK",
+      "entry": "sprite/interface/minimap.img",
+      "frame": 180,
+      "scale": 1,
+      "score": 0.8266710638999939,
+      "pos": [
+        684,
+        45
+      ],
+      "size": [
+        11,
+        11
+      ],
+      "pixels": 45
+    },
+    {
+      "pack": "ImagePacks2_70/sprite_interface2_minimap_dungeon.NPK",
+      "entry": "sprite/interface2/minimap/dungeon/minimap.img",
+      "frame": 180,
+      "scale": 1,
+      "score": 0.8266710638999939,
+      "pos": [
+        684,
+        45
+      ],
+      "size": [
+        11,
+        11
+      ],
+      "pixels": 45
+    },
+    {
+      "pack": "ImagePacks2/sprite_interface2_minimap_dungeon.NPK",
+      "entry": "sprite/interface2/minimap/dungeon/minimap.img",
+      "frame": 180,
+      "scale": 1,
+      "score": 0.8266710638999939,
+      "pos": [
+        684,
+        45
+      ],
+      "size": [
+        11,
+        11
+      ],
+      "pixels": 45
+    },
+    {
+      "pack": "ImagePacks2_70/sprite_interface.NPK",
+      "entry": "sprite/interface/minimap.img",
+      "frame": 181,
+      "scale": 1,
+      "score": 0.8180058002471924,
+      "pos": [
+        684,
+        43
+      ],
+      "size": [
+        11,
+        11
+      ],
+      "pixels": 49
+    },
+    {
+      "pack": "ImagePacks2_70/sprite_interface2_minimap_dungeon.NPK",
+      "entry": "sprite/interface2/minimap/dungeon/minimap.img",
+      "frame": 181,
+      "scale": 1,
+      "score": 0.8180058002471924,
+      "pos": [
+        684,
+        43
+      ],
+      "size": [
+        11,
+        11
+      ],
+      "pixels": 49
+    },
+    {
+      "pack": "ImagePacks2/sprite_interface2_minimap_dungeon.NPK",
+      "entry": "sprite/interface2/minimap/dungeon/minimap.img",
+      "frame": 181,
+      "scale": 1,
+      "score": 0.8180058002471924,
+      "pos": [
+        684,
+        43
+      ],
+      "size": [
+        11,
+        11
+      ],
+      "pixels": 49
+    },
+    {
+      "pack": "ImagePacks2_70/sprite_interface.NPK",
+      "entry": "sprite/interface/minimap.img",
+      "frame": 179,
+      "scale": 1,
+      "score": 0.8099925518035889,
+      "pos": [
+        684,
+        45
+      ],
+      "size": [
+        11,
+        11
+      ],
+      "pixels": 49
+    },
+    {
+      "pack": "ImagePacks2_70/sprite_interface2_minimap_dungeon.NPK",
+      "entry": "sprite/interface2/minimap/dungeon/minimap.img",
+      "frame": 179,
+      "scale": 1,
+      "score": 0.8099925518035889,
+      "pos": [
+        684,
+        45
+      ],
+      "size": [
+        11,
+        11
+      ],
+      "pixels": 49
+    },
+    {
+      "pack": "ImagePacks2/sprite_interface2_minimap_dungeon.NPK",
+      "entry": "sprite/interface2/minimap/dungeon/minimap.img",
+      "frame": 179,
+      "scale": 1,
+      "score": 0.8099925518035889,
+      "pos": [
+        684,
+        45
+      ],
+      "size": [
+        11,
+        11
+      ],
+      "pixels": 49
+    },
+    {
+      "pack": "ImagePacks2/sprite_interface2_minimap_town.NPK",
+      "entry": "sprite/interface2/minimap/town/minimap_npcicon.img",
+      "frame": 15,
+      "scale": 1.125,
+      "score": 0.8029111623764038,
+      "pos": [
+        681,
+        36
+      ],
+      "size": [
+        17,
+        17
+      ],
+      "pixels": 289
+    },
+    {
+      "pack": "ImagePacks2_70/sprite_interface.NPK",
+      "entry": "sprite/interface/minimap_minimap_npc_icon.img",
+      "frame": 15,
+      "scale": 1.125,
+      "score": 0.8027793169021606,
+      "pos": [
+        681,
+        36
+      ],
+      "size": [
+        17,
+        17
+      ],
+      "pixels": 289
+    },
+    {
+      "pack": "ImagePacks2_70/sprite_interface2_minimap_town.NPK",
+      "entry": "sprite/interface2/minimap/town/minimap_npcicon.img",
+      "frame": 15,
+      "scale": 1.125,
+      "score": 0.8027793169021606,
+      "pos": [
+        681,
+        36
+      ],
+      "size": [
+        17,
+        17
+      ],
+      "pixels": 289
+    },
+    {
+      "pack": "ImagePacks2_70/sprite_interface.NPK",
+      "entry": "sprite/interface/minimap.img",
+      "frame": 183,
+      "scale": 1.125,
+      "score": 0.7953809499740601,
+      "pos": [
+        684,
+        46
+      ],
+      "size": [
+        12,
+        12
+      ],
+      "pixels": 56
+    },
+    {
+      "pack": "ImagePacks2_70/sprite_interface.NPK",
+      "entry": "sprite/interface/minimap.img",
+      "frame": 184,
+      "scale": 1.125,
+      "score": 0.7953809499740601,
+      "pos": [
+        684,
+        46
+      ],
+      "size": [
+        12,
+        12
+      ],
+      "pixels": 56
+    }
+  ],
+  "limits": "No candidate reaches.94; this is not an exhaustive whole-client image/atlas search."
+}

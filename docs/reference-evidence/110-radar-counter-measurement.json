@@ -1,0 +1,414 @@
+{
+  "source": {
+    "pack": "sprite_map_minimap.NPK",
+    "entry": "sprite/map/minimap/minimap.img",
+    "nativeCutsEqualPackedAsset": true,
+    "cuts": [
+      {
+        "name": "bag",
+        "nativeRect": [
+          277,
+          115,
+          54,
+          23
+        ],
+        "packedRect": [
+          385,
+          18,
+          54,
+          23
+        ],
+        "rgbaSha256": "81fc1e9f9bf8f1ea4fcd1980c7630a782641f4a266f6a48258d6caf0f7fe1235"
+      },
+      {
+        "name": "0",
+        "nativeRect": [
+          263,
+          154,
+          11,
+          13
+        ],
+        "packedRect": [
+          443,
+          18,
+          11,
+          13
+        ],
+        "rgbaSha256": "b7209bf810215b416c7c18c711831c0a4e4197a0ffe917c42daffcc9aa83dbdc"
+      },
+      {
+        "name": "1",
+        "nativeRect": [
+          282,
+          154,
+          7,
+          13
+        ],
+        "packedRect": [
+          458,
+          18,
+          7,
+          13
+        ],
+        "rgbaSha256": "29d2fbf1deb54bd94f43bab03359810988545ac106b45f5825ddae8b78a6d377"
+      },
+      {
+        "name": "2",
+        "nativeRect": [
+          298,
+          154,
+          11,
+          13
+        ],
+        "packedRect": [
+          469,
+          18,
+          11,
+          13
+        ],
+        "rgbaSha256": "3c8843869fe82c4e537bd1d3de95e33b403cca8e92fa9240cc10c3e24f341ee8"
+      },
+      {
+        "name": "3",
+        "nativeRect": [
+          319,
+          154,
+          11,
+          13
+        ],
+        "packedRect": [
+          484,
+          18,
+          11,
+          13
+        ],
+        "rgbaSha256": "1aa8eb81da52ae95fabde36080f086a595e26d958a27ebc2e982d7a3cc12d67e"
+      },
+      {
+        "name": "4",
+        "nativeRect": [
+          339,
+          154,
+          11,
+          13
+        ],
+        "packedRect": [
+          499,
+          18,
+          11,
+          13
+        ],
+        "rgbaSha256": "a08727b3ba85fe2c8b009bd7499cedd46bc5968ac5c82a71faa0ea2eb03bed07"
+      },
+      {
+        "name": "5",
+        "nativeRect": [
+          360,
+          154,
+          11,
+          13
+        ],
+        "packedRect": [
+          514,
+          18,
+          11,
+          13
+        ],
+        "rgbaSha256": "9d585bdd5e4a14b2b8adcd1f99359448920fcdd5e6d367eb4a29a239d9de9bcd"
+      },
+      {
+        "name": "6",
+        "nativeRect": [
+          385,
+          154,
+          11,
+          13
+        ],
+        "packedRect": [
+          529,
+          18,
+          11,
+          13
+        ],
+        "rgbaSha256": "316b08e3a26cdc7e0770409e8c7a5e8809210cb981c43d8ac143e80146c5c6f3"
+      },
+      {
+        "name": "7",
+        "nativeRect": [
+          407,
+          154,
+          11,
+          13
+        ],
+        "packedRect": [
+          544,
+          18,
+          11,
+          13
+        ],
+        "rgbaSha256": "deefe9d1761fc48a73af0571c8df5a2e5ba3e7e17c96390ed526908d06a8c152"
+      },
+      {
+        "name": "8",
+        "nativeRect": [
+          426,
+          154,
+          11,
+          13
+        ],
+        "packedRect": [
+          559,
+          18,
+          11,
+          13
+        ],
+        "rgbaSha256": "147523e6f9272368a69ab6f4702fd8fb59977f1f4056e4238e5229c4d6f8887a"
+      },
+      {
+        "name": "9",
+        "nativeRect": [
+          446,
+          154,
+          11,
+          13
+        ],
+        "packedRect": [
+          574,
+          18,
+          11,
+          13
+        ],
+        "rgbaSha256": "ebc517adacfff7cff72360c431e36bb44a2eaf6bd116269d8c5dd8c7de644868"
+      }
+    ]
+  },
+  "model": {
+    "scale": 1.125,
+    "bagPosition": [
+      591.75,
+      27
+    ],
+    "digitRight": 645.625,
+    "digitTop": 32.5,
+    "nativeDigitGap": 1,
+    "fixedDigitVisibleRows": [
+      38,
+      49
+    ],
+    "fitFrame": [
+      "00002",
+      15.5
+    ],
+    "holdouts": "other frames; no per-frame pose fit"
+  },
+  "gate": {
+    "ncc": 0.94
+  },
+  "observations": [
+    {
+      "video": "00001",
+      "time": 60,
+      "part": "bag",
+      "referenceSha256": "05a006f6da508271a7ede8f65aa0a8e46f26c06189817d958c0e785cf2ed23d6",
+      "ncc": 0.9786465526587841,
+      "pixels": 643
+    },
+    {
+      "video": "00001",
+      "time": 60,
+      "part": "digit-lower",
+      "digit": 0,
+      "position": [
+        633.25,
+        32.5
+      ],
+      "roi": [
+        632,
+        38,
+        15,
+        11
+      ],
+      "ncc": 0.9819303064506473,
+      "pixels": 93
+    },
+    {
+      "video": "00001",
+      "time": 74,
+      "part": "bag",
+      "referenceSha256": "9f577feac20684f9a90d49c19adeebfdc5a2e8775c723c51529c67f3f97f868d",
+      "ncc": 0.9799093010214882,
+      "pixels": 643
+    },
+    {
+      "video": "00001",
+      "time": 74,
+      "part": "digit-lower",
+      "digit": 4,
+      "position": [
+        633.25,
+        32.5
+      ],
+      "roi": [
+        632,
+        38,
+        15,
+        11
+      ],
+      "ncc": 0.9846509045277557,
+      "pixels": 79
+    },
+    {
+      "video": "00002",
+      "time": 10.5,
+      "part": "bag",
+      "referenceSha256": "0fd624554a0dcb7f7cb99490cbad0ae06905e20515254c2f73807c718a6e9fad",
+      "ncc": 0.9799109157158395,
+      "pixels": 643
+    },
+    {
+      "video": "00002",
+      "time": 10.5,
+      "part": "digit-lower",
+      "digit": 0,
+      "position": [
+        633.25,
+        32.5
+      ],
+      "roi": [
+        632,
+        38,
+        15,
+        11
+      ],
+      "ncc": 0.9833378589289029,
+      "pixels": 93
+    },
+    {
+      "video": "00002",
+      "time": 15.5,
+      "part": "bag",
+      "referenceSha256": "bbbcd2d98aecdee172c5710f603799d4c6fd125aa4e3171483840e4ccdbf868d",
+      "ncc": 0.9784939689699108,
+      "pixels": 643
+    },
+    {
+      "video": "00002",
+      "time": 15.5,
+      "part": "digit-lower",
+      "digit": 0,
+      "position": [
+        633.25,
+        32.5
+      ],
+      "roi": [
+        632,
+        38,
+        15,
+        11
+      ],
+      "ncc": 0.9793579674117203,
+      "pixels": 93
+    },
+    {
+      "video": "00002",
+      "time": 25.5,
+      "part": "bag",
+      "referenceSha256": "63d0cde80e2c74bd793141732b788109eee3aa02c1fdba2daa1be52271c72ed7",
+      "ncc": 0.9780656294391976,
+      "pixels": 643
+    },
+    {
+      "video": "00002",
+      "time": 25.5,
+      "part": "digit-lower",
+      "digit": 7,
+      "position": [
+        633.25,
+        32.5
+      ],
+      "roi": [
+        632,
+        38,
+        15,
+        11
+      ],
+      "ncc": 0.9805541515240159,
+      "pixels": 55
+    },
+    {
+      "video": "00002",
+      "time": 40,
+      "part": "bag",
+      "referenceSha256": "3ea5407c94ba720fa253ca26d87db7258d9abcb97bfe1285313481119021aa1d",
+      "ncc": 0.9804027080245855,
+      "pixels": 643
+    },
+    {
+      "video": "00002",
+      "time": 40,
+      "part": "digit-lower",
+      "digit": 8,
+      "position": [
+        633.25,
+        32.5
+      ],
+      "roi": [
+        632,
+        38,
+        15,
+        11
+      ],
+      "ncc": 0.9821772138882203,
+      "pixels": 93
+    },
+    {
+      "video": "00002",
+      "time": 60,
+      "part": "bag",
+      "referenceSha256": "f5903c10c031fcefa68717daac749c2344c2401509f1083fdc355e66fb66b06e",
+      "ncc": 0.9763647447942452,
+      "pixels": 643
+    },
+    {
+      "video": "00002",
+      "time": 60,
+      "part": "digit-lower",
+      "digit": 1,
+      "position": [
+        624.25,
+        32.5
+      ],
+      "roi": [
+        623,
+        38,
+        11,
+        11
+      ],
+      "ncc": 0.9907265778530706,
+      "pixels": 53
+    },
+    {
+      "video": "00002",
+      "time": 60,
+      "part": "digit-lower",
+      "digit": 4,
+      "position": [
+        633.25,
+        32.5
+      ],
+      "roi": [
+        632,
+        38,
+        15,
+        11
+      ],
+      "ncc": 0.9790069344774307,
+      "pixels": 79
+    }
+  ],
+  "limits": [
+    "FPS occludes the upper digits; this fixed lower strip does not prove the upper glyph composite.",
+    "Pixel matching establishes art/position, not counter semantics or native event timing.",
+    "Counter flashes and the blue map button are not identified or implemented here."
+  ]
+}

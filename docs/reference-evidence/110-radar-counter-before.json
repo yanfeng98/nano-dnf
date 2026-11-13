@@ -1,0 +1,202 @@
+{
+  "evidence": [
+    {
+      "stage": "mirkwood",
+      "time": 60,
+      "kills": 0,
+      "part": "bag",
+      "cosine": 0.565086575621409,
+      "pixels": 660,
+      "minPixels": 500,
+      "threshold": 0.97,
+      "translation": [
+        0,
+        0
+      ]
+    },
+    {
+      "stage": "mirkwood",
+      "time": 60,
+      "kills": 0,
+      "part": "digits-lower",
+      "cosine": 0.5564249803156281,
+      "pixels": 93,
+      "minPixels": 40,
+      "threshold": 0.97,
+      "translation": [
+        0,
+        0
+      ]
+    },
+    {
+      "stage": "mirkwood",
+      "time": 74,
+      "kills": 4,
+      "part": "bag",
+      "cosine": 0.5778152705840434,
+      "pixels": 660,
+      "minPixels": 500,
+      "threshold": 0.97,
+      "translation": [
+        0,
+        0
+      ]
+    },
+    {
+      "stage": "mirkwood",
+      "time": 74,
+      "kills": 4,
+      "part": "digits-lower",
+      "cosine": 0.5474107679202734,
+      "pixels": 82,
+      "minPixels": 40,
+      "threshold": 0.97,
+      "translation": [
+        0,
+        0
+      ]
+    },
+    {
+      "stage": "mirkwooddeep",
+      "time": 10.5,
+      "kills": 0,
+      "part": "bag",
+      "cosine": 0.6351662979262394,
+      "pixels": 660,
+      "minPixels": 500,
+      "threshold": 0.97,
+      "translation": [
+        0,
+        0
+      ]
+    },
+    {
+      "stage": "mirkwooddeep",
+      "time": 10.5,
+      "kills": 0,
+      "part": "digits-lower",
+      "cosine": 0.5303194482619707,
+      "pixels": 93,
+      "minPixels": 40,
+      "threshold": 0.97,
+      "translation": [
+        0,
+        0
+      ]
+    },
+    {
+      "stage": "mirkwooddeep",
+      "time": 15.5,
+      "kills": 0,
+      "part": "bag",
+      "cosine": 0.6244838689078899,
+      "pixels": 660,
+      "minPixels": 500,
+      "threshold": 0.97,
+      "translation": [
+        0,
+        0
+      ]
+    },
+    {
+      "stage": "mirkwooddeep",
+      "time": 15.5,
+      "kills": 0,
+      "part": "digits-lower",
+      "cosine": 0.5546209001337552,
+      "pixels": 93,
+      "minPixels": 40,
+      "threshold": 0.97,
+      "translation": [
+        0,
+        0
+      ]
+    },
+    {
+      "stage": "mirkwooddeep",
+      "time": 25.5,
+      "kills": 7,
+      "part": "bag",
+      "cosine": 0.6240437546850987,
+      "pixels": 660,
+      "minPixels": 500,
+      "threshold": 0.97,
+      "translation": [
+        0,
+        0
+      ]
+    },
+    {
+      "stage": "mirkwooddeep",
+      "time": 25.5,
+      "kills": 7,
+      "part": "digits-lower",
+      "cosine": 0.4329090241278644,
+      "pixels": 55,
+      "minPixels": 40,
+      "threshold": 0.97,
+      "translation": [
+        0,
+        0
+      ]
+    },
+    {
+      "stage": "mirkwooddeep",
+      "time": 40,
+      "kills": 8,
+      "part": "bag",
+      "cosine": 0.6206486512672019,
+      "pixels": 660,
+      "minPixels": 500,
+      "threshold": 0.97,
+      "translation": [
+        0,
+        0
+      ]
+    },
+    {
+      "stage": "mirkwooddeep",
+      "time": 40,
+      "kills": 8,
+      "part": "digits-lower",
+      "cosine": 0.5527523772544283,
+      "pixels": 93,
+      "minPixels": 40,
+      "threshold": 0.97,
+      "translation": [
+        0,
+        0
+      ]
+    },
+    {
+      "stage": "mirkwooddeep",
+      "time": 60,
+      "kills": 14,
+      "part": "bag",
+      "cosine": 0.624557891357567,
+      "pixels": 660,
+      "minPixels": 500,
+      "threshold": 0.97,
+      "translation": [
+        0,
+        0
+      ]
+    },
+    {
+      "stage": "mirkwooddeep",
+      "time": 60,
+      "kills": 14,
+      "part": "digits-lower",
+      "cosine": 0.530691800374549,
+      "pixels": 135,
+      "minPixels": 40,
+      "threshold": 0.97,
+      "translation": [
+        0,
+        0
+      ]
+    }
+  ],
+  "realDeathOnce": true,
+  "errors": []
+}

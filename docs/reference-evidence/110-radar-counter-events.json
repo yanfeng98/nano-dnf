@@ -1,0 +1,107 @@
+{
+  "sampling": "exact30fps raw frames, fixed select every3 after71s(V1) /15s(V2); normalize centred1440x1080 game area to720x540, no fps filter",
+  "frames": [
+    {
+      "video": "00001",
+      "time": 71.1,
+      "counter": 2,
+      "file": "110-00001-71.1-counter-event.png",
+      "sha256": "104f52b130d8f5391eb7a54a2be7e9a9fb1a7330525483cf73d447a6f05b1c73"
+    },
+    {
+      "video": "00001",
+      "time": 71.3,
+      "counter": 3,
+      "file": "110-00001-71.3-counter-event.png",
+      "sha256": "66154411807ee44c561c03b6368a803d39b2cb8cb6068437e0439f5a0dacba20"
+    },
+    {
+      "video": "00001",
+      "time": 73.1,
+      "counter": 3,
+      "file": "110-00001-73.1-counter-event.png",
+      "sha256": "b1f7d02e81a142514f9c0cb76f7e75e04ca40c8365aeb55fa1b36b8f51ebfc64"
+    },
+    {
+      "video": "00001",
+      "time": 73.3,
+      "counter": 4,
+      "file": "110-00001-73.3-counter-event.png",
+      "sha256": "db6ec2885a27f9c0784308b1f0c19a206a0ceedcc54e9562893f6ba7baf97f6c"
+    },
+    {
+      "video": "00002",
+      "time": 15.6,
+      "counter": 0,
+      "file": "110-00002-15.6-counter-event.png",
+      "sha256": "b57012c4efa34170f2e861a43a2d2f321fad038afa8d0c44277bd635642d44c4"
+    },
+    {
+      "video": "00002",
+      "time": 15.8,
+      "counter": 1,
+      "file": "110-00002-15.8-counter-event.png",
+      "sha256": "e26e7f53a0093063fb9da3b75935954eb005e77ab1a4494bbb80f064781700ea"
+    }
+  ],
+  "events": [
+    {
+      "before": [
+        "00001",
+        71.1,
+        2
+      ],
+      "after": [
+        "00001",
+        71.3,
+        3
+      ],
+      "observation": "champion death crosses to80EXP receipt; counter increases by1; floor loot remains visible"
+    },
+    {
+      "before": [
+        "00001",
+        71.3,
+        3
+      ],
+      "after": [
+        "00001",
+        73.1,
+        3
+      ],
+      "observation": "hardener pickup message and49gold receipt appear while counter remains3; reject total currency and pickup-count models"
+    },
+    {
+      "before": [
+        "00001",
+        73.1,
+        3
+      ],
+      "after": [
+        "00001",
+        73.3,
+        4
+      ],
+      "observation": "next goblin death crosses to40EXP receipt; counter increases by1"
+    },
+    {
+      "before": [
+        "00002",
+        15.6,
+        0
+      ],
+      "after": [
+        "00002",
+        15.8,
+        1
+      ],
+      "observation": "first goblin death crosses to50EXP receipt; counter increases by1; no gold/item pickup message"
+    }
+  ],
+  "adopted": "cumulative enemy-kill count for the run; render existing stats.kills, not inventory.gold or pickup history",
+  "limits": [
+    "These0.1s samples bound event ordering, not an exact engine frame.",
+    "Counter receipt can lag a death/white silhouette; exact native timing, hit-stop clock and counter flash remain unimplemented/unverified.",
+    "No claim that the native red bag asset name itself encodes kill semantics."
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "previousAssetCommit": "a256536",
+  "oldSize": [
+    381,
+    122
+  ],
+  "newSize": [
+    585,
+    122
+  ],
+  "oldRegionRgbaDifferences": 0,
+  "rebakePngByteIdentical": true,
+  "counterMeasurementRepeatIdentical": true,
+  "rawEventSamplingControls": "V1 74s and V2 15.5s pixels equal independently extracted107frames",
+  "assetSha256": "7d36f3b2b97923344fa94935a079b1c701177804263cb63f4ad1fefec187e8b7"
+}

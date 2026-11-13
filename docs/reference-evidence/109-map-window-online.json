@@ -1,0 +1,193 @@
+{
+  "results": [
+    {
+      "stage": "mirkwood",
+      "video": "00001",
+      "time": 76,
+      "cellRoi": [
+        619,
+        54,
+        20,
+        20
+      ],
+      "threshold": 0.97,
+      "cosine": 0.9921012025674724,
+      "dx": 1,
+      "dy": 0,
+      "pixels": 376
+    },
+    {
+      "stage": "mirkwood",
+      "video": "00001",
+      "time": 100,
+      "cellRoi": [
+        619,
+        54,
+        20,
+        20
+      ],
+      "threshold": 0.97,
+      "cosine": 0.9943760289277566,
+      "dx": 1,
+      "dy": 0,
+      "pixels": 376
+    },
+    {
+      "stage": "mirkwood",
+      "video": "00001",
+      "time": 160,
+      "cellRoi": [
+        619,
+        54,
+        20,
+        20
+      ],
+      "threshold": 0.97,
+      "cosine": 0.9954068230963148,
+      "dx": 1,
+      "dy": 0,
+      "pixels": 376
+    },
+    {
+      "stage": "mirkwood",
+      "video": "00001",
+      "time": 220,
+      "cellRoi": [
+        619,
+        54,
+        20,
+        20
+      ],
+      "threshold": 0.97,
+      "cosine": 0.996163848699164,
+      "dx": 1,
+      "dy": 0,
+      "pixels": 376
+    },
+    {
+      "stage": "mirkwood",
+      "video": "00001",
+      "time": 280,
+      "cellRoi": [
+        619,
+        54,
+        20,
+        20
+      ],
+      "threshold": 0.97,
+      "cosine": 0.9951098090787487,
+      "dx": 1,
+      "dy": 0,
+      "pixels": 376
+    },
+    {
+      "stage": "mirkwooddeep",
+      "video": "00002",
+      "time": 74.25,
+      "cellRoi": [
+        599,
+        95,
+        20,
+        20
+      ],
+      "threshold": 0.97,
+      "cosine": 0.9877328164154349,
+      "dx": 0,
+      "dy": 0,
+      "pixels": 376
+    },
+    {
+      "stage": "mirkwooddeep",
+      "video": "00002",
+      "time": 100,
+      "cellRoi": [
+        599,
+        95,
+        20,
+        20
+      ],
+      "threshold": 0.97,
+      "cosine": 0.9894710228776241,
+      "dx": 0,
+      "dy": 1,
+      "pixels": 376
+    },
+    {
+      "stage": "mirkwooddeep",
+      "video": "00002",
+      "time": 150,
+      "cellRoi": [
+        599,
+        95,
+        20,
+        20
+      ],
+      "threshold": 0.97,
+      "cosine": 0.9882651659925636,
+      "dx": 0,
+      "dy": 1,
+      "pixels": 376
+    },
+    {
+      "stage": "mirkwooddeep",
+      "video": "00002",
+      "time": 200,
+      "cellRoi": [
+        599,
+        95,
+        20,
+        20
+      ],
+      "threshold": 0.97,
+      "cosine": 0.9899029178129919,
+      "dx": 0,
+      "dy": 1,
+      "pixels": 376
+    },
+    {
+      "stage": "mirkwooddeep",
+      "video": "00002",
+      "time": 277,
+      "cellRoi": [
+        599,
+        95,
+        20,
+        20
+      ],
+      "threshold": 0.97,
+      "cosine": 0.9893064893374118,
+      "dx": 0,
+      "dy": 1,
+      "pixels": 376
+    },
+    {
+      "stage": "mirkwooddeep",
+      "video": "00002",
+      "time": 300,
+      "cellRoi": [
+        599,
+        95,
+        20,
+        20
+      ],
+      "threshold": 0.97,
+      "cosine": 0.9901317191146021,
+      "dx": 0,
+      "dy": 1,
+      "pixels": 376
+    }
+  ],
+  "inputs": [
+    {
+      "stage": "mirkwood",
+      "windowButton": "radar",
+      "tab": "window"
+    },
+    {
+      "stage": "mirkwooddeep",
+      "windowButton": "radar",
+      "tab": "window"
+    }
+  ],
+  "errors": []
+}

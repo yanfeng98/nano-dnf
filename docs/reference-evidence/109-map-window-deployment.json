@@ -1,0 +1,27 @@
+{
+  "commit": "a256536",
+  "actions": "https://github.com/yanfeng98/nano-dnf/actions/runs/43381581802",
+  "status": "Success",
+  "jobs": 3,
+  "unitTests": 439,
+  "browserGroups": 41,
+  "liveSmoke": "deployed resource equality and clean boot passed",
+  "onlineReferenceFrames": 11,
+  "onlineMinimumCosine": {
+    "mirkwood": 0.9921012025674724,
+    "mirkwooddeep": 0.9877328164154349
+  },
+  "onlineInputs": [
+    {
+      "stage": "mirkwood",
+      "windowButton": "radar",
+      "tab": "window"
+    },
+    {
+      "stage": "mirkwooddeep",
+      "windowButton": "radar",
+      "tab": "window"
+    }
+  ],
+  "limits": "selected grid cells and input geometry verified; border skin, title glyph/button materials and complete window fidelity remain open; manual acceptance pending"
+}
