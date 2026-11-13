@@ -2198,10 +2198,13 @@
      */
     cols: 4,
     rows: 3,
-    titleH: 16,
+    /* Window grid: audit108 fixed E/W cells, native18 ->20.25px.
+       Border/title skin remains separately under review. */
+    titleH: 18,
+    windowScale: 1.125,
     /* Right and top margins, matching the rest of this game's HUD. */
-    margin: 16,
-    top: 14,
+    margin: 15,
+    top: 28.5,
     touchTop: 74,
     /*
      * The window is not drawn by hand: it is the client's own panel as a
@@ -2546,24 +2549,25 @@
     ctx.textAlign = "center";
     ctx.fillText("地图", box.x + box.w / 2 + 3, box.y + 13);
 
-    drawMinimapGrid(ctx, sprites, box.left, box.top, 1, map);
+    var windowScale = MINIMAP.windowScale, cellPitch = tile * windowScale;
+    drawMinimapGrid(ctx, sprites, box.left, box.top, windowScale, map);
     map.cells.forEach(function (cell) {
       drawMinimapTile(ctx, sprites, minimapTileName(cell),
-                      box.left + cell.col * tile, box.top + cell.row * tile, 1);
+                      box.left + cell.col * cellPitch, box.top + cell.row * cellPitch, windowScale);
     });
     /*
      * 他在的那格压的是蓝柱子先画，Boss 那张红脸后画 —— 顺序是有意的：录像里他走进
      * Boss 房之后**蓝柱子一个像素都看不见**（226s 起整张图里蓝色像素归零），红牛头
      * 比蓝柱子大，正好把它盖住。所以这里的先后不是"谁重要"，是"照录像画"。
      */
-    drawMapMarker(ctx, sprites, here.col * tile + box.left, box.top + here.row * tile,
-                  tile, state.time);
+    drawMapMarker(ctx, sprites, here.col * cellPitch + box.left, box.top + here.row * cellPitch,
+                  cellPitch, state.time);
     /*
      * 领主房那一格**不吃迷雾**：牛头从第一帧就画，底下的格子没去过仍是黑的。
      * 等他走进去才画的话，这张图就只在他已经站在里面时才告诉他 Boss 在哪。
      * 这条改了 `docs/adr/0051` 里「Boss 红脸也只在去过之后才画」那半条。
      */
-    drawMapBoss(ctx, sprites, box.left + boss.col * tile, box.top + boss.row * tile, tile);
+    drawMapBoss(ctx, sprites, box.left + boss.col * cellPitch, box.top + boss.row * cellPitch, cellPitch);
 
     drawMinimapButton(ctx, box);
     ctx.restore();
@@ -2599,13 +2603,13 @@
   /** How wide the window is, the frame included - the HUD lays out around it. */
   function minimapWidth(cols) {
     var columns = cols || MINIMAP.cols;
-    return columns * MINIMAP.tile + MINIMAP.pieces.left[2] + MINIMAP.pieces.right[2];
+    return (columns * MINIMAP.tile + MINIMAP.pieces.left[2] + MINIMAP.pieces.right[2]) * MINIMAP.windowScale;
   }
 
   function minimapBox(meta, map) {
     /*
      * **窗口的行列跟着这一关的副本图走**，不是一张固定的 4x3。幽暗密林是 4x3，
-     * 幽暗密林深处是 4x4（`docs/adr/0059`）；`meta.map` 在 `mapMeta()` 里带着
+     * 幽暗密林深处是 5x4（`docs/adr/0059`）；`meta.map` 在 `mapMeta()` 里带着
      * 当前地牢的 cols/rows，绘制这一路直接拿 `state.dungeon`。
      */
     var cols = (map && map.cols) || (meta && meta.map && meta.map.cols) || MINIMAP.cols;
@@ -2614,6 +2618,7 @@
     var width = minimapWidth(cols);
     var height = rows * MINIMAP.tile + MINIMAP.titleH +
                  MINIMAP.pieces.top[3] + MINIMAP.pieces.bottom[3];
+    height *= MINIMAP.windowScale;
     var x = HUD_RIGHT - width - MINIMAP.margin;
     var y = touch ? MINIMAP.touchTop : MINIMAP.top;
     return {
@@ -2621,8 +2626,8 @@
       y: y,
       w: width,
       h: height,
-      left: x + MINIMAP.pieces.left[2],
-      top: y + MINIMAP.titleH + MINIMAP.pieces.top[3],
+      left: x + MINIMAP.pieces.left[2] * MINIMAP.windowScale,
+      top: y + (MINIMAP.titleH + MINIMAP.pieces.top[3]) * MINIMAP.windowScale,
       centre: { x: x + width / 2, y: y + height / 2 }
     };
   }
@@ -2650,16 +2655,17 @@
    */
   function drawMinimapWindow(ctx, sprites, box) {
     var corners = MINIMAP.pieces;
-    var l = corners.left[2];
-    var r = corners.right[2];
-    var t = corners.top[3];
-    var b = corners.bottom[3];
+    var scale = MINIMAP.windowScale;
+    var l = corners.left[2] * scale;
+    var r = corners.right[2] * scale;
+    var t = corners.top[3] * scale;
+    var b = corners.bottom[3] * scale;
     ctx.fillStyle = MINIMAP.panel;
     ctx.fillRect(box.x, box.y, box.w, box.h);
-    drawMinimapPiece(ctx, sprites, "tl", box.x, box.y);
-    drawMinimapPiece(ctx, sprites, "tr", box.x + box.w - r, box.y);
-    drawMinimapPiece(ctx, sprites, "bl", box.x, box.y + box.h - b);
-    drawMinimapPiece(ctx, sprites, "br", box.x + box.w - r, box.y + box.h - b);
+    drawMinimapPiece(ctx, sprites, "tl", box.x, box.y, l, t);
+    drawMinimapPiece(ctx, sprites, "tr", box.x + box.w - r, box.y, r, t);
+    drawMinimapPiece(ctx, sprites, "bl", box.x, box.y + box.h - b, l, b);
+    drawMinimapPiece(ctx, sprites, "br", box.x + box.w - r, box.y + box.h - b, r, b);
     drawMinimapPiece(ctx, sprites, "top", box.x + l, box.y, box.w - l - r, t);
     drawMinimapPiece(ctx, sprites, "bottom", box.x + l, box.y + box.h - b, box.w - l - r, b);
     drawMinimapPiece(ctx, sprites, "left", box.x, box.y + t, l, box.h - t - b);

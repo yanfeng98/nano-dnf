@@ -1,0 +1,12 @@
+{
+  "commit": "ef16d80",
+  "actions": "https://github.com/yanfeng98/nano-dnf/actions/runs/43380100107",
+  "status": "Success",
+  "jobs": 3,
+  "runtimeUnchangedFrom": "8775d33",
+  "measurementRepeat": "28 accepted cell observations; JSON identical",
+  "borderControlRepeat": "identical output; no accepted candidate",
+  "browserDiagnosis": "expected require-match exit1, ordinary.774681/deep.746063",
+  "liveSmoke": "resource equality and clean boot passed",
+  "scope": "investigation only; window repair and all other goal items remain open"
+}

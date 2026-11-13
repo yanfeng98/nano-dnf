@@ -9156,7 +9156,7 @@ test("地图的领主格是牛头，没去过也露出来", () => {
   });
 
   const box = Render.minimapBox({});
-  const cell = Render.MINIMAP.tile;
+  const cell = Render.MINIMAP.tile * Render.MINIMAP.windowScale;
   const face = Render.MINIMAP.pieces.boss;
   const heads = calls.filter((call) =>
     call[0] === "drawImage" &&
@@ -9202,7 +9202,7 @@ test("the map window's markers land in the boss's cell and in the player's", () 
   const box = Render.minimapBox({});
   const placed = calls.filter((call) => call[0] === "drawImage" && call[1] === sheet)
     .map((call) => ({ sx: call[3], sy: call[4], dx: call[6], dy: call[7] }));
-  const cell = Render.MINIMAP.tile;
+  const cell = Render.MINIMAP.tile * Render.MINIMAP.windowScale;
   const at = (col, row) => placed.some((spot) =>
     Math.abs(spot.dx - (box.left + col * cell)) < cell &&
     Math.abs(spot.dy - (box.top + row * cell)) < cell);
@@ -12331,5 +12331,27 @@ test("recorded radar keeps a fixed native frame and content geometry across dung
     const cx=Core.VIEW.left+594+54.5*1.125,cy=23.5+49.5*1.125;
     assert.equal(Render.hitTestMinimap(cx+50,cy,meta),"map","the visible scaled rim must answer pointer input");
     assert.equal(Render.hitTestMinimap(cx+60,cy,meta),null,"outside the measured circle is not the map");
+  }
+});
+
+
+test("window map uses the recorded20.25px grid and keeps input on its enlarged frame", () => {
+  for(const stage of ["mirkwood","mirkwooddeep"]) {
+    const state=Core.createState({stage,seed:1}),calls=[],sheet={width:381,height:122};
+    const meta={map:{mode:"window",cols:state.dungeon.cols,rows:state.dungeon.rows},sprites:{minimap:sheet}};
+    Render.render(recordingContext(calls),state,meta);
+    const box=Render.minimapBox(meta),cols=state.dungeon.cols,rows=state.dungeon.rows;
+    assert.equal(box.left,Core.VIEW.left+(stage==="mirkwood"?619.5:599.25));
+    assert.equal(box.top,54.375);
+    const tiles=calls.filter(c=>c[0]==="drawImage"&&c[1]===sheet&&c[3]===0&&c[4]===18&&c[5]===18);
+    assert.equal(tiles.length,state.dungeon.cells.length);
+    for(const cell of state.dungeon.cells) {
+      assert.ok(tiles.some(c=>c[6]===Math.round(box.left+cell.col*20.25)&&c[7]===Math.round(box.top+cell.row*20.25)&&c[8]===20.25&&c[9]===20.25));
+    }
+    assert.equal(box.w,(cols*18+9)*1.125);
+    assert.equal(box.h,(rows*18+27)*1.125);
+    assert.equal(Render.hitTestMinimap(box.x+box.w-10,box.y+8,meta),"map");
+    assert.equal(Render.hitTestMinimap(box.x+box.w+1,box.y+8,meta),null);
+    assert.equal(Render.hitTestMinimap(box.left+10,box.top+10,meta),null);
   }
 });
