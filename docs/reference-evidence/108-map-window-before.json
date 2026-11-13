@@ -1,0 +1,37 @@
+{
+  "results": [
+    {
+      "stage": "mirkwood",
+      "video": "00001",
+      "time": 100,
+      "cellRoi": [
+        619,
+        54,
+        20,
+        20
+      ],
+      "threshold": 0.97,
+      "cosine": 0.7746814557200986,
+      "dx": 2,
+      "dy": -2,
+      "pixels": 376
+    },
+    {
+      "stage": "mirkwooddeep",
+      "video": "00002",
+      "time": 277,
+      "cellRoi": [
+        599,
+        95,
+        20,
+        20
+      ],
+      "threshold": 0.97,
+      "cosine": 0.7460631912728697,
+      "dx": -2,
+      "dy": 2,
+      "pixels": 376
+    }
+  ],
+  "errors": []
+}

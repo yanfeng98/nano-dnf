@@ -1,0 +1,3172 @@
+{
+  "source": {
+    "packedAsset": "assets/minimap.png",
+    "sha256": "5f3dff79534a07b3b0eaed1efcead8a71fbca576acaea1fe478911943fa183c3",
+    "nativePack": "sprite_map_minimap.NPK",
+    "nativeEntry": "sprite/map/minimap/act1.img",
+    "nativeTileSize": 18,
+    "tileIdentityProof": "107-radar-measurement.json"
+  },
+  "gate": {
+    "ncc": 0.94,
+    "requiresPredeterminedBitmap": true
+  },
+  "windowFrames": 11,
+  "acceptedNativeScaleObservations": 28,
+  "gridGeometry": {
+    "nativeScale": 1.125,
+    "pitch": 20.25,
+    "ordinaryFirstCellCoarseBitmap": [
+      619,
+      54
+    ],
+    "deepFirstColumnBottomCellCoarseBitmap": [
+      599,
+      115
+    ]
+  },
+  "observations": [
+    {
+      "video": "00001",
+      "time": 76,
+      "referenceSha256": "2347f4bbfb201170ed6fbe914925fe65af328fefede7d05d0d3e9b8178291431",
+      "cell": "E",
+      "sourceRect": [
+        252,
+        0,
+        18,
+        18
+      ],
+      "scale": 1,
+      "dimensions": [
+        18,
+        18
+      ],
+      "score": 0.925929844379425,
+      "bitmap": [
+        620,
+        55
+      ],
+      "expectedBitmap": [
+        619,
+        54
+      ],
+      "pixels": 306,
+      "accepted": false
+    },
+    {
+      "video": "00001",
+      "time": 76,
+      "referenceSha256": "2347f4bbfb201170ed6fbe914925fe65af328fefede7d05d0d3e9b8178291431",
+      "cell": "E",
+      "sourceRect": [
+        252,
+        0,
+        18,
+        18
+      ],
+      "scale": 1.125,
+      "dimensions": [
+        20,
+        20
+      ],
+      "score": 0.9857407212257385,
+      "bitmap": [
+        619,
+        54
+      ],
+      "expectedBitmap": [
+        619,
+        54
+      ],
+      "pixels": 376,
+      "accepted": true
+    },
+    {
+      "video": "00001",
+      "time": 76,
+      "referenceSha256": "2347f4bbfb201170ed6fbe914925fe65af328fefede7d05d0d3e9b8178291431",
+      "cell": "E",
+      "sourceRect": [
+        252,
+        0,
+        18,
+        18
+      ],
+      "scale": 1.25,
+      "dimensions": [
+        22,
+        22
+      ],
+      "score": 0.962283194065094,
+      "bitmap": [
+        618,
+        53
+      ],
+      "expectedBitmap": [
+        619,
+        54
+      ],
+      "pixels": 448,
+      "accepted": false
+    },
+    {
+      "video": "00001",
+      "time": 76,
+      "referenceSha256": "2347f4bbfb201170ed6fbe914925fe65af328fefede7d05d0d3e9b8178291431",
+      "cell": "E",
+      "sourceRect": [
+        252,
+        0,
+        18,
+        18
+      ],
+      "scale": 2,
+      "dimensions": [
+        36,
+        36
+      ],
+      "score": 0.10368941724300385,
+      "bitmap": [
+        616,
+        51
+      ],
+      "expectedBitmap": [
+        619,
+        54
+      ],
+      "pixels": 1213,
+      "accepted": false
+    },
+    {
+      "video": "00001",
+      "time": 76,
+      "referenceSha256": "2347f4bbfb201170ed6fbe914925fe65af328fefede7d05d0d3e9b8178291431",
+      "cell": "W",
+      "sourceRect": [
+        306,
+        0,
+        18,
+        18
+      ],
+      "scale": 1,
+      "dimensions": [
+        18,
+        18
+      ],
+      "score": 0.9161659479141235,
+      "bitmap": [
+        660,
+        96
+      ],
+      "expectedBitmap": [
+        659,
+        95
+      ],
+      "pixels": 306,
+      "accepted": false
+    },
+    {
+      "video": "00001",
+      "time": 76,
+      "referenceSha256": "2347f4bbfb201170ed6fbe914925fe65af328fefede7d05d0d3e9b8178291431",
+      "cell": "W",
+      "sourceRect": [
+        306,
+        0,
+        18,
+        18
+      ],
+      "scale": 1.125,
+      "dimensions": [
+        20,
+        20
+      ],
+      "score": 0.9560778141021729,
+      "bitmap": [
+        659,
+        95
+      ],
+      "expectedBitmap": [
+        659,
+        95
+      ],
+      "pixels": 376,
+      "accepted": true
+    },
+    {
+      "video": "00001",
+      "time": 76,
+      "referenceSha256": "2347f4bbfb201170ed6fbe914925fe65af328fefede7d05d0d3e9b8178291431",
+      "cell": "W",
+      "sourceRect": [
+        306,
+        0,
+        18,
+        18
+      ],
+      "scale": 1.25,
+      "dimensions": [
+        22,
+        22
+      ],
+      "score": 0.9352781176567078,
+      "bitmap": [
+        658,
+        93
+      ],
+      "expectedBitmap": [
+        659,
+        95
+      ],
+      "pixels": 448,
+      "accepted": false
+    },
+    {
+      "video": "00001",
+      "time": 76,
+      "referenceSha256": "2347f4bbfb201170ed6fbe914925fe65af328fefede7d05d0d3e9b8178291431",
+      "cell": "W",
+      "sourceRect": [
+        306,
+        0,
+        18,
+        18
+      ],
+      "scale": 2,
+      "dimensions": [
+        36,
+        36
+      ],
+      "score": -0.09683875739574432,
+      "bitmap": [
+        662,
+        98
+      ],
+      "expectedBitmap": [
+        659,
+        95
+      ],
+      "pixels": 1213,
+      "accepted": false
+    },
+    {
+      "video": "00001",
+      "time": 100,
+      "referenceSha256": "a99b8afe5b0b126384855b7762ba8195eda7108945018720969d6449a5ec6c34",
+      "cell": "E",
+      "sourceRect": [
+        252,
+        0,
+        18,
+        18
+      ],
+      "scale": 1,
+      "dimensions": [
+        18,
+        18
+      ],
+      "score": 0.9281581044197083,
+      "bitmap": [
+        620,
+        55
+      ],
+      "expectedBitmap": [
+        619,
+        54
+      ],
+      "pixels": 306,
+      "accepted": false
+    },
+    {
+      "video": "00001",
+      "time": 100,
+      "referenceSha256": "a99b8afe5b0b126384855b7762ba8195eda7108945018720969d6449a5ec6c34",
+      "cell": "E",
+      "sourceRect": [
+        252,
+        0,
+        18,
+        18
+      ],
+      "scale": 1.125,
+      "dimensions": [
+        20,
+        20
+      ],
+      "score": 0.9875727295875549,
+      "bitmap": [
+        619,
+        54
+      ],
+      "expectedBitmap": [
+        619,
+        54
+      ],
+      "pixels": 376,
+      "accepted": true
+    },
+    {
+      "video": "00001",
+      "time": 100,
+      "referenceSha256": "a99b8afe5b0b126384855b7762ba8195eda7108945018720969d6449a5ec6c34",
+      "cell": "E",
+      "sourceRect": [
+        252,
+        0,
+        18,
+        18
+      ],
+      "scale": 1.25,
+      "dimensions": [
+        22,
+        22
+      ],
+      "score": 0.9623848795890808,
+      "bitmap": [
+        618,
+        53
+      ],
+      "expectedBitmap": [
+        619,
+        54
+      ],
+      "pixels": 448,
+      "accepted": false
+    },
+    {
+      "video": "00001",
+      "time": 100,
+      "referenceSha256": "a99b8afe5b0b126384855b7762ba8195eda7108945018720969d6449a5ec6c34",
+      "cell": "E",
+      "sourceRect": [
+        252,
+        0,
+        18,
+        18
+      ],
+      "scale": 2,
+      "dimensions": [
+        36,
+        36
+      ],
+      "score": 0.10030610114336014,
+      "bitmap": [
+        616,
+        51
+      ],
+      "expectedBitmap": [
+        619,
+        54
+      ],
+      "pixels": 1213,
+      "accepted": false
+    },
+    {
+      "video": "00001",
+      "time": 100,
+      "referenceSha256": "a99b8afe5b0b126384855b7762ba8195eda7108945018720969d6449a5ec6c34",
+      "cell": "W",
+      "sourceRect": [
+        306,
+        0,
+        18,
+        18
+      ],
+      "scale": 1,
+      "dimensions": [
+        18,
+        18
+      ],
+      "score": 0.9138786196708679,
+      "bitmap": [
+        660,
+        96
+      ],
+      "expectedBitmap": [
+        659,
+        95
+      ],
+      "pixels": 306,
+      "accepted": false
+    },
+    {
+      "video": "00001",
+      "time": 100,
+      "referenceSha256": "a99b8afe5b0b126384855b7762ba8195eda7108945018720969d6449a5ec6c34",
+      "cell": "W",
+      "sourceRect": [
+        306,
+        0,
+        18,
+        18
+      ],
+      "scale": 1.125,
+      "dimensions": [
+        20,
+        20
+      ],
+      "score": 0.9699809551239014,
+      "bitmap": [
+        659,
+        95
+      ],
+      "expectedBitmap": [
+        659,
+        95
+      ],
+      "pixels": 376,
+      "accepted": true
+    },
+    {
+      "video": "00001",
+      "time": 100,
+      "referenceSha256": "a99b8afe5b0b126384855b7762ba8195eda7108945018720969d6449a5ec6c34",
+      "cell": "W",
+      "sourceRect": [
+        306,
+        0,
+        18,
+        18
+      ],
+      "scale": 1.25,
+      "dimensions": [
+        22,
+        22
+      ],
+      "score": 0.9392595291137695,
+      "bitmap": [
+        658,
+        94
+      ],
+      "expectedBitmap": [
+        659,
+        95
+      ],
+      "pixels": 448,
+      "accepted": false
+    },
+    {
+      "video": "00001",
+      "time": 100,
+      "referenceSha256": "a99b8afe5b0b126384855b7762ba8195eda7108945018720969d6449a5ec6c34",
+      "cell": "W",
+      "sourceRect": [
+        306,
+        0,
+        18,
+        18
+      ],
+      "scale": 2,
+      "dimensions": [
+        36,
+        36
+      ],
+      "score": -0.03133028373122215,
+      "bitmap": [
+        662,
+        98
+      ],
+      "expectedBitmap": [
+        659,
+        95
+      ],
+      "pixels": 1213,
+      "accepted": false
+    },
+    {
+      "video": "00001",
+      "time": 160,
+      "referenceSha256": "3fd2903260ef7e9e7874ca2da5df66b4494df3606e9679c03f9d3d2662d64e7f",
+      "cell": "E",
+      "sourceRect": [
+        252,
+        0,
+        18,
+        18
+      ],
+      "scale": 1,
+      "dimensions": [
+        18,
+        18
+      ],
+      "score": 0.9270527958869934,
+      "bitmap": [
+        620,
+        55
+      ],
+      "expectedBitmap": [
+        619,
+        54
+      ],
+      "pixels": 306,
+      "accepted": false
+    },
+    {
+      "video": "00001",
+      "time": 160,
+      "referenceSha256": "3fd2903260ef7e9e7874ca2da5df66b4494df3606e9679c03f9d3d2662d64e7f",
+      "cell": "E",
+      "sourceRect": [
+        252,
+        0,
+        18,
+        18
+      ],
+      "scale": 1.125,
+      "dimensions": [
+        20,
+        20
+      ],
+      "score": 0.9905712604522705,
+      "bitmap": [
+        619,
+        54
+      ],
+      "expectedBitmap": [
+        619,
+        54
+      ],
+      "pixels": 376,
+      "accepted": true
+    },
+    {
+      "video": "00001",
+      "time": 160,
+      "referenceSha256": "3fd2903260ef7e9e7874ca2da5df66b4494df3606e9679c03f9d3d2662d64e7f",
+      "cell": "E",
+      "sourceRect": [
+        252,
+        0,
+        18,
+        18
+      ],
+      "scale": 1.25,
+      "dimensions": [
+        22,
+        22
+      ],
+      "score": 0.9646685719490051,
+      "bitmap": [
+        618,
+        53
+      ],
+      "expectedBitmap": [
+        619,
+        54
+      ],
+      "pixels": 448,
+      "accepted": false
+    },
+    {
+      "video": "00001",
+      "time": 160,
+      "referenceSha256": "3fd2903260ef7e9e7874ca2da5df66b4494df3606e9679c03f9d3d2662d64e7f",
+      "cell": "E",
+      "sourceRect": [
+        252,
+        0,
+        18,
+        18
+      ],
+      "scale": 2,
+      "dimensions": [
+        36,
+        36
+      ],
+      "score": 0.11752038449048996,
+      "bitmap": [
+        616,
+        51
+      ],
+      "expectedBitmap": [
+        619,
+        54
+      ],
+      "pixels": 1213,
+      "accepted": false
+    },
+    {
+      "video": "00001",
+      "time": 160,
+      "referenceSha256": "3fd2903260ef7e9e7874ca2da5df66b4494df3606e9679c03f9d3d2662d64e7f",
+      "cell": "W",
+      "sourceRect": [
+        306,
+        0,
+        18,
+        18
+      ],
+      "scale": 1,
+      "dimensions": [
+        18,
+        18
+      ],
+      "score": 0.9107480049133301,
+      "bitmap": [
+        660,
+        96
+      ],
+      "expectedBitmap": [
+        659,
+        95
+      ],
+      "pixels": 306,
+      "accepted": false
+    },
+    {
+      "video": "00001",
+      "time": 160,
+      "referenceSha256": "3fd2903260ef7e9e7874ca2da5df66b4494df3606e9679c03f9d3d2662d64e7f",
+      "cell": "W",
+      "sourceRect": [
+        306,
+        0,
+        18,
+        18
+      ],
+      "scale": 1.125,
+      "dimensions": [
+        20,
+        20
+      ],
+      "score": 0.9690455794334412,
+      "bitmap": [
+        659,
+        95
+      ],
+      "expectedBitmap": [
+        659,
+        95
+      ],
+      "pixels": 376,
+      "accepted": true
+    },
+    {
+      "video": "00001",
+      "time": 160,
+      "referenceSha256": "3fd2903260ef7e9e7874ca2da5df66b4494df3606e9679c03f9d3d2662d64e7f",
+      "cell": "W",
+      "sourceRect": [
+        306,
+        0,
+        18,
+        18
+      ],
+      "scale": 1.25,
+      "dimensions": [
+        22,
+        22
+      ],
+      "score": 0.9403465390205383,
+      "bitmap": [
+        658,
+        93
+      ],
+      "expectedBitmap": [
+        659,
+        95
+      ],
+      "pixels": 448,
+      "accepted": false
+    },
+    {
+      "video": "00001",
+      "time": 160,
+      "referenceSha256": "3fd2903260ef7e9e7874ca2da5df66b4494df3606e9679c03f9d3d2662d64e7f",
+      "cell": "W",
+      "sourceRect": [
+        306,
+        0,
+        18,
+        18
+      ],
+      "scale": 2,
+      "dimensions": [
+        36,
+        36
+      ],
+      "score": -0.09368383884429932,
+      "bitmap": [
+        656,
+        92
+      ],
+      "expectedBitmap": [
+        659,
+        95
+      ],
+      "pixels": 1213,
+      "accepted": false
+    },
+    {
+      "video": "00001",
+      "time": 220,
+      "referenceSha256": "d1ffb4143375bf73ef38c12f6487d2761098b3fe05ffe98df35b155df589dcf3",
+      "cell": "E",
+      "sourceRect": [
+        252,
+        0,
+        18,
+        18
+      ],
+      "scale": 1,
+      "dimensions": [
+        18,
+        18
+      ],
+      "score": 0.9288781881332397,
+      "bitmap": [
+        620,
+        55
+      ],
+      "expectedBitmap": [
+        619,
+        54
+      ],
+      "pixels": 306,
+      "accepted": false
+    },
+    {
+      "video": "00001",
+      "time": 220,
+      "referenceSha256": "d1ffb4143375bf73ef38c12f6487d2761098b3fe05ffe98df35b155df589dcf3",
+      "cell": "E",
+      "sourceRect": [
+        252,
+        0,
+        18,
+        18
+      ],
+      "scale": 1.125,
+      "dimensions": [
+        20,
+        20
+      ],
+      "score": 0.9929966926574707,
+      "bitmap": [
+        619,
+        54
+      ],
+      "expectedBitmap": [
+        619,
+        54
+      ],
+      "pixels": 376,
+      "accepted": true
+    },
+    {
+      "video": "00001",
+      "time": 220,
+      "referenceSha256": "d1ffb4143375bf73ef38c12f6487d2761098b3fe05ffe98df35b155df589dcf3",
+      "cell": "E",
+      "sourceRect": [
+        252,
+        0,
+        18,
+        18
+      ],
+      "scale": 1.25,
+      "dimensions": [
+        22,
+        22
+      ],
+      "score": 0.9649617671966553,
+      "bitmap": [
+        618,
+        53
+      ],
+      "expectedBitmap": [
+        619,
+        54
+      ],
+      "pixels": 448,
+      "accepted": false
+    },
+    {
+      "video": "00001",
+      "time": 220,
+      "referenceSha256": "d1ffb4143375bf73ef38c12f6487d2761098b3fe05ffe98df35b155df589dcf3",
+      "cell": "E",
+      "sourceRect": [
+        252,
+        0,
+        18,
+        18
+      ],
+      "scale": 2,
+      "dimensions": [
+        36,
+        36
+      ],
+      "score": 0.09642741084098816,
+      "bitmap": [
+        616,
+        51
+      ],
+      "expectedBitmap": [
+        619,
+        54
+      ],
+      "pixels": 1213,
+      "accepted": false
+    },
+    {
+      "video": "00001",
+      "time": 220,
+      "referenceSha256": "d1ffb4143375bf73ef38c12f6487d2761098b3fe05ffe98df35b155df589dcf3",
+      "cell": "W",
+      "sourceRect": [
+        306,
+        0,
+        18,
+        18
+      ],
+      "scale": 1,
+      "dimensions": [
+        18,
+        18
+      ],
+      "score": 0.919384777545929,
+      "bitmap": [
+        660,
+        96
+      ],
+      "expectedBitmap": [
+        659,
+        95
+      ],
+      "pixels": 306,
+      "accepted": false
+    },
+    {
+      "video": "00001",
+      "time": 220,
+      "referenceSha256": "d1ffb4143375bf73ef38c12f6487d2761098b3fe05ffe98df35b155df589dcf3",
+      "cell": "W",
+      "sourceRect": [
+        306,
+        0,
+        18,
+        18
+      ],
+      "scale": 1.125,
+      "dimensions": [
+        20,
+        20
+      ],
+      "score": 0.9705304503440857,
+      "bitmap": [
+        659,
+        95
+      ],
+      "expectedBitmap": [
+        659,
+        95
+      ],
+      "pixels": 376,
+      "accepted": true
+    },
+    {
+      "video": "00001",
+      "time": 220,
+      "referenceSha256": "d1ffb4143375bf73ef38c12f6487d2761098b3fe05ffe98df35b155df589dcf3",
+      "cell": "W",
+      "sourceRect": [
+        306,
+        0,
+        18,
+        18
+      ],
+      "scale": 1.25,
+      "dimensions": [
+        22,
+        22
+      ],
+      "score": 0.93855881690979,
+      "bitmap": [
+        658,
+        94
+      ],
+      "expectedBitmap": [
+        659,
+        95
+      ],
+      "pixels": 448,
+      "accepted": false
+    },
+    {
+      "video": "00001",
+      "time": 220,
+      "referenceSha256": "d1ffb4143375bf73ef38c12f6487d2761098b3fe05ffe98df35b155df589dcf3",
+      "cell": "W",
+      "sourceRect": [
+        306,
+        0,
+        18,
+        18
+      ],
+      "scale": 2,
+      "dimensions": [
+        36,
+        36
+      ],
+      "score": -0.10024203360080719,
+      "bitmap": [
+        656,
+        92
+      ],
+      "expectedBitmap": [
+        659,
+        95
+      ],
+      "pixels": 1213,
+      "accepted": false
+    },
+    {
+      "video": "00001",
+      "time": 280,
+      "referenceSha256": "07f398a967f2bea37e6cdec5a00e1a6bb398cb10349e0ee416f11d74543ec3d0",
+      "cell": "E",
+      "sourceRect": [
+        252,
+        0,
+        18,
+        18
+      ],
+      "scale": 1,
+      "dimensions": [
+        18,
+        18
+      ],
+      "score": 0.9293343424797058,
+      "bitmap": [
+        620,
+        55
+      ],
+      "expectedBitmap": [
+        619,
+        54
+      ],
+      "pixels": 306,
+      "accepted": false
+    },
+    {
+      "video": "00001",
+      "time": 280,
+      "referenceSha256": "07f398a967f2bea37e6cdec5a00e1a6bb398cb10349e0ee416f11d74543ec3d0",
+      "cell": "E",
+      "sourceRect": [
+        252,
+        0,
+        18,
+        18
+      ],
+      "scale": 1.125,
+      "dimensions": [
+        20,
+        20
+      ],
+      "score": 0.9908408522605896,
+      "bitmap": [
+        619,
+        54
+      ],
+      "expectedBitmap": [
+        619,
+        54
+      ],
+      "pixels": 376,
+      "accepted": true
+    },
+    {
+      "video": "00001",
+      "time": 280,
+      "referenceSha256": "07f398a967f2bea37e6cdec5a00e1a6bb398cb10349e0ee416f11d74543ec3d0",
+      "cell": "E",
+      "sourceRect": [
+        252,
+        0,
+        18,
+        18
+      ],
+      "scale": 1.25,
+      "dimensions": [
+        22,
+        22
+      ],
+      "score": 0.9649674892425537,
+      "bitmap": [
+        618,
+        53
+      ],
+      "expectedBitmap": [
+        619,
+        54
+      ],
+      "pixels": 448,
+      "accepted": false
+    },
+    {
+      "video": "00001",
+      "time": 280,
+      "referenceSha256": "07f398a967f2bea37e6cdec5a00e1a6bb398cb10349e0ee416f11d74543ec3d0",
+      "cell": "E",
+      "sourceRect": [
+        252,
+        0,
+        18,
+        18
+      ],
+      "scale": 2,
+      "dimensions": [
+        36,
+        36
+      ],
+      "score": 0.09814311563968658,
+      "bitmap": [
+        616,
+        51
+      ],
+      "expectedBitmap": [
+        619,
+        54
+      ],
+      "pixels": 1213,
+      "accepted": false
+    },
+    {
+      "video": "00001",
+      "time": 280,
+      "referenceSha256": "07f398a967f2bea37e6cdec5a00e1a6bb398cb10349e0ee416f11d74543ec3d0",
+      "cell": "W",
+      "sourceRect": [
+        306,
+        0,
+        18,
+        18
+      ],
+      "scale": 1,
+      "dimensions": [
+        18,
+        18
+      ],
+      "score": 0.914252758026123,
+      "bitmap": [
+        660,
+        96
+      ],
+      "expectedBitmap": [
+        659,
+        95
+      ],
+      "pixels": 306,
+      "accepted": false
+    },
+    {
+      "video": "00001",
+      "time": 280,
+      "referenceSha256": "07f398a967f2bea37e6cdec5a00e1a6bb398cb10349e0ee416f11d74543ec3d0",
+      "cell": "W",
+      "sourceRect": [
+        306,
+        0,
+        18,
+        18
+      ],
+      "scale": 1.125,
+      "dimensions": [
+        20,
+        20
+      ],
+      "score": 0.9695335626602173,
+      "bitmap": [
+        659,
+        95
+      ],
+      "expectedBitmap": [
+        659,
+        95
+      ],
+      "pixels": 376,
+      "accepted": true
+    },
+    {
+      "video": "00001",
+      "time": 280,
+      "referenceSha256": "07f398a967f2bea37e6cdec5a00e1a6bb398cb10349e0ee416f11d74543ec3d0",
+      "cell": "W",
+      "sourceRect": [
+        306,
+        0,
+        18,
+        18
+      ],
+      "scale": 1.25,
+      "dimensions": [
+        22,
+        22
+      ],
+      "score": 0.9389733672142029,
+      "bitmap": [
+        658,
+        94
+      ],
+      "expectedBitmap": [
+        659,
+        95
+      ],
+      "pixels": 448,
+      "accepted": false
+    },
+    {
+      "video": "00001",
+      "time": 280,
+      "referenceSha256": "07f398a967f2bea37e6cdec5a00e1a6bb398cb10349e0ee416f11d74543ec3d0",
+      "cell": "W",
+      "sourceRect": [
+        306,
+        0,
+        18,
+        18
+      ],
+      "scale": 2,
+      "dimensions": [
+        36,
+        36
+      ],
+      "score": -0.09679518640041351,
+      "bitmap": [
+        662,
+        92
+      ],
+      "expectedBitmap": [
+        659,
+        95
+      ],
+      "pixels": 1213,
+      "accepted": false
+    },
+    {
+      "video": "00002",
+      "time": 74.25,
+      "referenceSha256": "3661c279aa933216639802e4a21ab4834d12815b485a303528ee24e9bb9b1001",
+      "cell": "E",
+      "sourceRect": [
+        252,
+        0,
+        18,
+        18
+      ],
+      "scale": 1,
+      "dimensions": [
+        18,
+        18
+      ],
+      "score": 0.919254720211029,
+      "bitmap": [
+        600,
+        116
+      ],
+      "expectedBitmap": [
+        599,
+        115
+      ],
+      "pixels": 306,
+      "accepted": false
+    },
+    {
+      "video": "00002",
+      "time": 74.25,
+      "referenceSha256": "3661c279aa933216639802e4a21ab4834d12815b485a303528ee24e9bb9b1001",
+      "cell": "E",
+      "sourceRect": [
+        252,
+        0,
+        18,
+        18
+      ],
+      "scale": 1.125,
+      "dimensions": [
+        20,
+        20
+      ],
+      "score": 0.9810502529144287,
+      "bitmap": [
+        599,
+        115
+      ],
+      "expectedBitmap": [
+        599,
+        115
+      ],
+      "pixels": 376,
+      "accepted": true
+    },
+    {
+      "video": "00002",
+      "time": 74.25,
+      "referenceSha256": "3661c279aa933216639802e4a21ab4834d12815b485a303528ee24e9bb9b1001",
+      "cell": "E",
+      "sourceRect": [
+        252,
+        0,
+        18,
+        18
+      ],
+      "scale": 1.25,
+      "dimensions": [
+        22,
+        22
+      ],
+      "score": 0.9628795981407166,
+      "bitmap": [
+        598,
+        114
+      ],
+      "expectedBitmap": [
+        599,
+        115
+      ],
+      "pixels": 448,
+      "accepted": false
+    },
+    {
+      "video": "00002",
+      "time": 74.25,
+      "referenceSha256": "3661c279aa933216639802e4a21ab4834d12815b485a303528ee24e9bb9b1001",
+      "cell": "E",
+      "sourceRect": [
+        252,
+        0,
+        18,
+        18
+      ],
+      "scale": 2,
+      "dimensions": [
+        36,
+        36
+      ],
+      "score": 0.22333869338035583,
+      "bitmap": [
+        596,
+        112
+      ],
+      "expectedBitmap": [
+        599,
+        115
+      ],
+      "pixels": 1213,
+      "accepted": false
+    },
+    {
+      "video": "00002",
+      "time": 74.25,
+      "referenceSha256": "3661c279aa933216639802e4a21ab4834d12815b485a303528ee24e9bb9b1001",
+      "cell": "W-top",
+      "sourceRect": [
+        306,
+        0,
+        18,
+        18
+      ],
+      "scale": 1,
+      "dimensions": [
+        18,
+        18
+      ],
+      "score": 0.9147656559944153,
+      "bitmap": [
+        681,
+        55
+      ],
+      "expectedBitmap": [
+        680,
+        54
+      ],
+      "pixels": 306,
+      "accepted": false
+    },
+    {
+      "video": "00002",
+      "time": 74.25,
+      "referenceSha256": "3661c279aa933216639802e4a21ab4834d12815b485a303528ee24e9bb9b1001",
+      "cell": "W-top",
+      "sourceRect": [
+        306,
+        0,
+        18,
+        18
+      ],
+      "scale": 1.125,
+      "dimensions": [
+        20,
+        20
+      ],
+      "score": 0.9762639403343201,
+      "bitmap": [
+        680,
+        54
+      ],
+      "expectedBitmap": [
+        680,
+        54
+      ],
+      "pixels": 376,
+      "accepted": true
+    },
+    {
+      "video": "00002",
+      "time": 74.25,
+      "referenceSha256": "3661c279aa933216639802e4a21ab4834d12815b485a303528ee24e9bb9b1001",
+      "cell": "W-top",
+      "sourceRect": [
+        306,
+        0,
+        18,
+        18
+      ],
+      "scale": 1.25,
+      "dimensions": [
+        22,
+        22
+      ],
+      "score": 0.9604415893554688,
+      "bitmap": [
+        678,
+        53
+      ],
+      "expectedBitmap": [
+        680,
+        54
+      ],
+      "pixels": 448,
+      "accepted": false
+    },
+    {
+      "video": "00002",
+      "time": 74.25,
+      "referenceSha256": "3661c279aa933216639802e4a21ab4834d12815b485a303528ee24e9bb9b1001",
+      "cell": "W-top",
+      "sourceRect": [
+        306,
+        0,
+        18,
+        18
+      ],
+      "scale": 2,
+      "dimensions": [
+        36,
+        36
+      ],
+      "score": 0.05036595091223717,
+      "bitmap": [
+        680,
+        51
+      ],
+      "expectedBitmap": [
+        680,
+        54
+      ],
+      "pixels": 1213,
+      "accepted": false
+    },
+    {
+      "video": "00002",
+      "time": 74.25,
+      "referenceSha256": "3661c279aa933216639802e4a21ab4834d12815b485a303528ee24e9bb9b1001",
+      "cell": "W-bottom",
+      "sourceRect": [
+        306,
+        0,
+        18,
+        18
+      ],
+      "scale": 1,
+      "dimensions": [
+        18,
+        18
+      ],
+      "score": 0.9258323907852173,
+      "bitmap": [
+        681,
+        116
+      ],
+      "expectedBitmap": [
+        680,
+        115
+      ],
+      "pixels": 306,
+      "accepted": false
+    },
+    {
+      "video": "00002",
+      "time": 74.25,
+      "referenceSha256": "3661c279aa933216639802e4a21ab4834d12815b485a303528ee24e9bb9b1001",
+      "cell": "W-bottom",
+      "sourceRect": [
+        306,
+        0,
+        18,
+        18
+      ],
+      "scale": 1.125,
+      "dimensions": [
+        20,
+        20
+      ],
+      "score": 0.9818218946456909,
+      "bitmap": [
+        680,
+        115
+      ],
+      "expectedBitmap": [
+        680,
+        115
+      ],
+      "pixels": 376,
+      "accepted": true
+    },
+    {
+      "video": "00002",
+      "time": 74.25,
+      "referenceSha256": "3661c279aa933216639802e4a21ab4834d12815b485a303528ee24e9bb9b1001",
+      "cell": "W-bottom",
+      "sourceRect": [
+        306,
+        0,
+        18,
+        18
+      ],
+      "scale": 1.25,
+      "dimensions": [
+        22,
+        22
+      ],
+      "score": 0.9599933624267578,
+      "bitmap": [
+        679,
+        114
+      ],
+      "expectedBitmap": [
+        680,
+        115
+      ],
+      "pixels": 448,
+      "accepted": false
+    },
+    {
+      "video": "00002",
+      "time": 74.25,
+      "referenceSha256": "3661c279aa933216639802e4a21ab4834d12815b485a303528ee24e9bb9b1001",
+      "cell": "W-bottom",
+      "sourceRect": [
+        306,
+        0,
+        18,
+        18
+      ],
+      "scale": 2,
+      "dimensions": [
+        36,
+        36
+      ],
+      "score": 0.10620331019163132,
+      "bitmap": [
+        679,
+        112
+      ],
+      "expectedBitmap": [
+        680,
+        115
+      ],
+      "pixels": 1213,
+      "accepted": false
+    },
+    {
+      "video": "00002",
+      "time": 100,
+      "referenceSha256": "c2b573ebeea6304d9bc28724af8989067f0aa24209482c47b074a40b80732cea",
+      "cell": "E",
+      "sourceRect": [
+        252,
+        0,
+        18,
+        18
+      ],
+      "scale": 1,
+      "dimensions": [
+        18,
+        18
+      ],
+      "score": 0.9203898906707764,
+      "bitmap": [
+        600,
+        116
+      ],
+      "expectedBitmap": [
+        599,
+        115
+      ],
+      "pixels": 306,
+      "accepted": false
+    },
+    {
+      "video": "00002",
+      "time": 100,
+      "referenceSha256": "c2b573ebeea6304d9bc28724af8989067f0aa24209482c47b074a40b80732cea",
+      "cell": "E",
+      "sourceRect": [
+        252,
+        0,
+        18,
+        18
+      ],
+      "scale": 1.125,
+      "dimensions": [
+        20,
+        20
+      ],
+      "score": 0.985321581363678,
+      "bitmap": [
+        599,
+        115
+      ],
+      "expectedBitmap": [
+        599,
+        115
+      ],
+      "pixels": 376,
+      "accepted": true
+    },
+    {
+      "video": "00002",
+      "time": 100,
+      "referenceSha256": "c2b573ebeea6304d9bc28724af8989067f0aa24209482c47b074a40b80732cea",
+      "cell": "E",
+      "sourceRect": [
+        252,
+        0,
+        18,
+        18
+      ],
+      "scale": 1.25,
+      "dimensions": [
+        22,
+        22
+      ],
+      "score": 0.9680798053741455,
+      "bitmap": [
+        598,
+        114
+      ],
+      "expectedBitmap": [
+        599,
+        115
+      ],
+      "pixels": 448,
+      "accepted": false
+    },
+    {
+      "video": "00002",
+      "time": 100,
+      "referenceSha256": "c2b573ebeea6304d9bc28724af8989067f0aa24209482c47b074a40b80732cea",
+      "cell": "E",
+      "sourceRect": [
+        252,
+        0,
+        18,
+        18
+      ],
+      "scale": 2,
+      "dimensions": [
+        36,
+        36
+      ],
+      "score": 0.22353589534759521,
+      "bitmap": [
+        596,
+        112
+      ],
+      "expectedBitmap": [
+        599,
+        115
+      ],
+      "pixels": 1213,
+      "accepted": false
+    },
+    {
+      "video": "00002",
+      "time": 100,
+      "referenceSha256": "c2b573ebeea6304d9bc28724af8989067f0aa24209482c47b074a40b80732cea",
+      "cell": "W-top",
+      "sourceRect": [
+        306,
+        0,
+        18,
+        18
+      ],
+      "scale": 1,
+      "dimensions": [
+        18,
+        18
+      ],
+      "score": 0.9347149133682251,
+      "bitmap": [
+        681,
+        55
+      ],
+      "expectedBitmap": [
+        680,
+        54
+      ],
+      "pixels": 306,
+      "accepted": false
+    },
+    {
+      "video": "00002",
+      "time": 100,
+      "referenceSha256": "c2b573ebeea6304d9bc28724af8989067f0aa24209482c47b074a40b80732cea",
+      "cell": "W-top",
+      "sourceRect": [
+        306,
+        0,
+        18,
+        18
+      ],
+      "scale": 1.125,
+      "dimensions": [
+        20,
+        20
+      ],
+      "score": 0.9854334592819214,
+      "bitmap": [
+        680,
+        54
+      ],
+      "expectedBitmap": [
+        680,
+        54
+      ],
+      "pixels": 376,
+      "accepted": true
+    },
+    {
+      "video": "00002",
+      "time": 100,
+      "referenceSha256": "c2b573ebeea6304d9bc28724af8989067f0aa24209482c47b074a40b80732cea",
+      "cell": "W-top",
+      "sourceRect": [
+        306,
+        0,
+        18,
+        18
+      ],
+      "scale": 1.25,
+      "dimensions": [
+        22,
+        22
+      ],
+      "score": 0.9540364146232605,
+      "bitmap": [
+        678,
+        53
+      ],
+      "expectedBitmap": [
+        680,
+        54
+      ],
+      "pixels": 448,
+      "accepted": false
+    },
+    {
+      "video": "00002",
+      "time": 100,
+      "referenceSha256": "c2b573ebeea6304d9bc28724af8989067f0aa24209482c47b074a40b80732cea",
+      "cell": "W-top",
+      "sourceRect": [
+        306,
+        0,
+        18,
+        18
+      ],
+      "scale": 2,
+      "dimensions": [
+        36,
+        36
+      ],
+      "score": 0.048529017716646194,
+      "bitmap": [
+        679,
+        51
+      ],
+      "expectedBitmap": [
+        680,
+        54
+      ],
+      "pixels": 1213,
+      "accepted": false
+    },
+    {
+      "video": "00002",
+      "time": 100,
+      "referenceSha256": "c2b573ebeea6304d9bc28724af8989067f0aa24209482c47b074a40b80732cea",
+      "cell": "W-bottom",
+      "sourceRect": [
+        306,
+        0,
+        18,
+        18
+      ],
+      "scale": 1,
+      "dimensions": [
+        18,
+        18
+      ],
+      "score": 0.9270768165588379,
+      "bitmap": [
+        681,
+        116
+      ],
+      "expectedBitmap": [
+        680,
+        115
+      ],
+      "pixels": 306,
+      "accepted": false
+    },
+    {
+      "video": "00002",
+      "time": 100,
+      "referenceSha256": "c2b573ebeea6304d9bc28724af8989067f0aa24209482c47b074a40b80732cea",
+      "cell": "W-bottom",
+      "sourceRect": [
+        306,
+        0,
+        18,
+        18
+      ],
+      "scale": 1.125,
+      "dimensions": [
+        20,
+        20
+      ],
+      "score": 0.9828991889953613,
+      "bitmap": [
+        680,
+        115
+      ],
+      "expectedBitmap": [
+        680,
+        115
+      ],
+      "pixels": 376,
+      "accepted": true
+    },
+    {
+      "video": "00002",
+      "time": 100,
+      "referenceSha256": "c2b573ebeea6304d9bc28724af8989067f0aa24209482c47b074a40b80732cea",
+      "cell": "W-bottom",
+      "sourceRect": [
+        306,
+        0,
+        18,
+        18
+      ],
+      "scale": 1.25,
+      "dimensions": [
+        22,
+        22
+      ],
+      "score": 0.9527827501296997,
+      "bitmap": [
+        679,
+        114
+      ],
+      "expectedBitmap": [
+        680,
+        115
+      ],
+      "pixels": 448,
+      "accepted": false
+    },
+    {
+      "video": "00002",
+      "time": 100,
+      "referenceSha256": "c2b573ebeea6304d9bc28724af8989067f0aa24209482c47b074a40b80732cea",
+      "cell": "W-bottom",
+      "sourceRect": [
+        306,
+        0,
+        18,
+        18
+      ],
+      "scale": 2,
+      "dimensions": [
+        36,
+        36
+      ],
+      "score": 0.26594239473342896,
+      "bitmap": [
+        679,
+        112
+      ],
+      "expectedBitmap": [
+        680,
+        115
+      ],
+      "pixels": 1213,
+      "accepted": false
+    },
+    {
+      "video": "00002",
+      "time": 150,
+      "referenceSha256": "86f5447d71fa40cb56434f10735a154901a7df64d0f6aaa19c6d50273c427d45",
+      "cell": "E",
+      "sourceRect": [
+        252,
+        0,
+        18,
+        18
+      ],
+      "scale": 1,
+      "dimensions": [
+        18,
+        18
+      ],
+      "score": 0.9237440824508667,
+      "bitmap": [
+        600,
+        116
+      ],
+      "expectedBitmap": [
+        599,
+        115
+      ],
+      "pixels": 306,
+      "accepted": false
+    },
+    {
+      "video": "00002",
+      "time": 150,
+      "referenceSha256": "86f5447d71fa40cb56434f10735a154901a7df64d0f6aaa19c6d50273c427d45",
+      "cell": "E",
+      "sourceRect": [
+        252,
+        0,
+        18,
+        18
+      ],
+      "scale": 1.125,
+      "dimensions": [
+        20,
+        20
+      ],
+      "score": 0.9845814108848572,
+      "bitmap": [
+        599,
+        115
+      ],
+      "expectedBitmap": [
+        599,
+        115
+      ],
+      "pixels": 376,
+      "accepted": true
+    },
+    {
+      "video": "00002",
+      "time": 150,
+      "referenceSha256": "86f5447d71fa40cb56434f10735a154901a7df64d0f6aaa19c6d50273c427d45",
+      "cell": "E",
+      "sourceRect": [
+        252,
+        0,
+        18,
+        18
+      ],
+      "scale": 1.25,
+      "dimensions": [
+        22,
+        22
+      ],
+      "score": 0.9655544757843018,
+      "bitmap": [
+        598,
+        114
+      ],
+      "expectedBitmap": [
+        599,
+        115
+      ],
+      "pixels": 448,
+      "accepted": false
+    },
+    {
+      "video": "00002",
+      "time": 150,
+      "referenceSha256": "86f5447d71fa40cb56434f10735a154901a7df64d0f6aaa19c6d50273c427d45",
+      "cell": "E",
+      "sourceRect": [
+        252,
+        0,
+        18,
+        18
+      ],
+      "scale": 2,
+      "dimensions": [
+        36,
+        36
+      ],
+      "score": 0.22442050278186798,
+      "bitmap": [
+        596,
+        112
+      ],
+      "expectedBitmap": [
+        599,
+        115
+      ],
+      "pixels": 1213,
+      "accepted": false
+    },
+    {
+      "video": "00002",
+      "time": 150,
+      "referenceSha256": "86f5447d71fa40cb56434f10735a154901a7df64d0f6aaa19c6d50273c427d45",
+      "cell": "W-top",
+      "sourceRect": [
+        306,
+        0,
+        18,
+        18
+      ],
+      "scale": 1,
+      "dimensions": [
+        18,
+        18
+      ],
+      "score": 0.9281841516494751,
+      "bitmap": [
+        681,
+        55
+      ],
+      "expectedBitmap": [
+        680,
+        54
+      ],
+      "pixels": 306,
+      "accepted": false
+    },
+    {
+      "video": "00002",
+      "time": 150,
+      "referenceSha256": "86f5447d71fa40cb56434f10735a154901a7df64d0f6aaa19c6d50273c427d45",
+      "cell": "W-top",
+      "sourceRect": [
+        306,
+        0,
+        18,
+        18
+      ],
+      "scale": 1.125,
+      "dimensions": [
+        20,
+        20
+      ],
+      "score": 0.9826734066009521,
+      "bitmap": [
+        680,
+        54
+      ],
+      "expectedBitmap": [
+        680,
+        54
+      ],
+      "pixels": 376,
+      "accepted": true
+    },
+    {
+      "video": "00002",
+      "time": 150,
+      "referenceSha256": "86f5447d71fa40cb56434f10735a154901a7df64d0f6aaa19c6d50273c427d45",
+      "cell": "W-top",
+      "sourceRect": [
+        306,
+        0,
+        18,
+        18
+      ],
+      "scale": 1.25,
+      "dimensions": [
+        22,
+        22
+      ],
+      "score": 0.9558379650115967,
+      "bitmap": [
+        678,
+        53
+      ],
+      "expectedBitmap": [
+        680,
+        54
+      ],
+      "pixels": 448,
+      "accepted": false
+    },
+    {
+      "video": "00002",
+      "time": 150,
+      "referenceSha256": "86f5447d71fa40cb56434f10735a154901a7df64d0f6aaa19c6d50273c427d45",
+      "cell": "W-top",
+      "sourceRect": [
+        306,
+        0,
+        18,
+        18
+      ],
+      "scale": 2,
+      "dimensions": [
+        36,
+        36
+      ],
+      "score": -0.013386727310717106,
+      "bitmap": [
+        679,
+        51
+      ],
+      "expectedBitmap": [
+        680,
+        54
+      ],
+      "pixels": 1213,
+      "accepted": false
+    },
+    {
+      "video": "00002",
+      "time": 150,
+      "referenceSha256": "86f5447d71fa40cb56434f10735a154901a7df64d0f6aaa19c6d50273c427d45",
+      "cell": "W-bottom",
+      "sourceRect": [
+        306,
+        0,
+        18,
+        18
+      ],
+      "scale": 1,
+      "dimensions": [
+        18,
+        18
+      ],
+      "score": 0.9320886731147766,
+      "bitmap": [
+        681,
+        116
+      ],
+      "expectedBitmap": [
+        680,
+        115
+      ],
+      "pixels": 306,
+      "accepted": false
+    },
+    {
+      "video": "00002",
+      "time": 150,
+      "referenceSha256": "86f5447d71fa40cb56434f10735a154901a7df64d0f6aaa19c6d50273c427d45",
+      "cell": "W-bottom",
+      "sourceRect": [
+        306,
+        0,
+        18,
+        18
+      ],
+      "scale": 1.125,
+      "dimensions": [
+        20,
+        20
+      ],
+      "score": 0.9841789603233337,
+      "bitmap": [
+        680,
+        115
+      ],
+      "expectedBitmap": [
+        680,
+        115
+      ],
+      "pixels": 376,
+      "accepted": true
+    },
+    {
+      "video": "00002",
+      "time": 150,
+      "referenceSha256": "86f5447d71fa40cb56434f10735a154901a7df64d0f6aaa19c6d50273c427d45",
+      "cell": "W-bottom",
+      "sourceRect": [
+        306,
+        0,
+        18,
+        18
+      ],
+      "scale": 1.25,
+      "dimensions": [
+        22,
+        22
+      ],
+      "score": 0.9551533460617065,
+      "bitmap": [
+        679,
+        114
+      ],
+      "expectedBitmap": [
+        680,
+        115
+      ],
+      "pixels": 448,
+      "accepted": false
+    },
+    {
+      "video": "00002",
+      "time": 150,
+      "referenceSha256": "86f5447d71fa40cb56434f10735a154901a7df64d0f6aaa19c6d50273c427d45",
+      "cell": "W-bottom",
+      "sourceRect": [
+        306,
+        0,
+        18,
+        18
+      ],
+      "scale": 2,
+      "dimensions": [
+        36,
+        36
+      ],
+      "score": 0.2857728898525238,
+      "bitmap": [
+        679,
+        112
+      ],
+      "expectedBitmap": [
+        680,
+        115
+      ],
+      "pixels": 1213,
+      "accepted": false
+    },
+    {
+      "video": "00002",
+      "time": 200,
+      "referenceSha256": "5822f774bbe3db9d22bcc59c177ef8ebbfe06fc9fc1f03580275589bb9be541e",
+      "cell": "E",
+      "sourceRect": [
+        252,
+        0,
+        18,
+        18
+      ],
+      "scale": 1,
+      "dimensions": [
+        18,
+        18
+      ],
+      "score": 0.9255993366241455,
+      "bitmap": [
+        600,
+        116
+      ],
+      "expectedBitmap": [
+        599,
+        115
+      ],
+      "pixels": 306,
+      "accepted": false
+    },
+    {
+      "video": "00002",
+      "time": 200,
+      "referenceSha256": "5822f774bbe3db9d22bcc59c177ef8ebbfe06fc9fc1f03580275589bb9be541e",
+      "cell": "E",
+      "sourceRect": [
+        252,
+        0,
+        18,
+        18
+      ],
+      "scale": 1.125,
+      "dimensions": [
+        20,
+        20
+      ],
+      "score": 0.9851228594779968,
+      "bitmap": [
+        599,
+        115
+      ],
+      "expectedBitmap": [
+        599,
+        115
+      ],
+      "pixels": 376,
+      "accepted": true
+    },
+    {
+      "video": "00002",
+      "time": 200,
+      "referenceSha256": "5822f774bbe3db9d22bcc59c177ef8ebbfe06fc9fc1f03580275589bb9be541e",
+      "cell": "E",
+      "sourceRect": [
+        252,
+        0,
+        18,
+        18
+      ],
+      "scale": 1.25,
+      "dimensions": [
+        22,
+        22
+      ],
+      "score": 0.9591690897941589,
+      "bitmap": [
+        598,
+        114
+      ],
+      "expectedBitmap": [
+        599,
+        115
+      ],
+      "pixels": 448,
+      "accepted": false
+    },
+    {
+      "video": "00002",
+      "time": 200,
+      "referenceSha256": "5822f774bbe3db9d22bcc59c177ef8ebbfe06fc9fc1f03580275589bb9be541e",
+      "cell": "E",
+      "sourceRect": [
+        252,
+        0,
+        18,
+        18
+      ],
+      "scale": 2,
+      "dimensions": [
+        36,
+        36
+      ],
+      "score": 0.30367177724838257,
+      "bitmap": [
+        596,
+        112
+      ],
+      "expectedBitmap": [
+        599,
+        115
+      ],
+      "pixels": 1213,
+      "accepted": false
+    },
+    {
+      "video": "00002",
+      "time": 200,
+      "referenceSha256": "5822f774bbe3db9d22bcc59c177ef8ebbfe06fc9fc1f03580275589bb9be541e",
+      "cell": "W-top",
+      "sourceRect": [
+        306,
+        0,
+        18,
+        18
+      ],
+      "scale": 1,
+      "dimensions": [
+        18,
+        18
+      ],
+      "score": 0.9256377220153809,
+      "bitmap": [
+        681,
+        55
+      ],
+      "expectedBitmap": [
+        680,
+        54
+      ],
+      "pixels": 306,
+      "accepted": false
+    },
+    {
+      "video": "00002",
+      "time": 200,
+      "referenceSha256": "5822f774bbe3db9d22bcc59c177ef8ebbfe06fc9fc1f03580275589bb9be541e",
+      "cell": "W-top",
+      "sourceRect": [
+        306,
+        0,
+        18,
+        18
+      ],
+      "scale": 1.125,
+      "dimensions": [
+        20,
+        20
+      ],
+      "score": 0.9855383038520813,
+      "bitmap": [
+        680,
+        54
+      ],
+      "expectedBitmap": [
+        680,
+        54
+      ],
+      "pixels": 376,
+      "accepted": true
+    },
+    {
+      "video": "00002",
+      "time": 200,
+      "referenceSha256": "5822f774bbe3db9d22bcc59c177ef8ebbfe06fc9fc1f03580275589bb9be541e",
+      "cell": "W-top",
+      "sourceRect": [
+        306,
+        0,
+        18,
+        18
+      ],
+      "scale": 1.25,
+      "dimensions": [
+        22,
+        22
+      ],
+      "score": 0.9557403326034546,
+      "bitmap": [
+        678,
+        53
+      ],
+      "expectedBitmap": [
+        680,
+        54
+      ],
+      "pixels": 448,
+      "accepted": false
+    },
+    {
+      "video": "00002",
+      "time": 200,
+      "referenceSha256": "5822f774bbe3db9d22bcc59c177ef8ebbfe06fc9fc1f03580275589bb9be541e",
+      "cell": "W-top",
+      "sourceRect": [
+        306,
+        0,
+        18,
+        18
+      ],
+      "scale": 2,
+      "dimensions": [
+        36,
+        36
+      ],
+      "score": 0.03253750130534172,
+      "bitmap": [
+        680,
+        51
+      ],
+      "expectedBitmap": [
+        680,
+        54
+      ],
+      "pixels": 1213,
+      "accepted": false
+    },
+    {
+      "video": "00002",
+      "time": 200,
+      "referenceSha256": "5822f774bbe3db9d22bcc59c177ef8ebbfe06fc9fc1f03580275589bb9be541e",
+      "cell": "W-bottom",
+      "sourceRect": [
+        306,
+        0,
+        18,
+        18
+      ],
+      "scale": 1,
+      "dimensions": [
+        18,
+        18
+      ],
+      "score": 0.9248939156532288,
+      "bitmap": [
+        681,
+        116
+      ],
+      "expectedBitmap": [
+        680,
+        115
+      ],
+      "pixels": 306,
+      "accepted": false
+    },
+    {
+      "video": "00002",
+      "time": 200,
+      "referenceSha256": "5822f774bbe3db9d22bcc59c177ef8ebbfe06fc9fc1f03580275589bb9be541e",
+      "cell": "W-bottom",
+      "sourceRect": [
+        306,
+        0,
+        18,
+        18
+      ],
+      "scale": 1.125,
+      "dimensions": [
+        20,
+        20
+      ],
+      "score": 0.9841182827949524,
+      "bitmap": [
+        680,
+        115
+      ],
+      "expectedBitmap": [
+        680,
+        115
+      ],
+      "pixels": 376,
+      "accepted": true
+    },
+    {
+      "video": "00002",
+      "time": 200,
+      "referenceSha256": "5822f774bbe3db9d22bcc59c177ef8ebbfe06fc9fc1f03580275589bb9be541e",
+      "cell": "W-bottom",
+      "sourceRect": [
+        306,
+        0,
+        18,
+        18
+      ],
+      "scale": 1.25,
+      "dimensions": [
+        22,
+        22
+      ],
+      "score": 0.9538283944129944,
+      "bitmap": [
+        678,
+        114
+      ],
+      "expectedBitmap": [
+        680,
+        115
+      ],
+      "pixels": 448,
+      "accepted": false
+    },
+    {
+      "video": "00002",
+      "time": 200,
+      "referenceSha256": "5822f774bbe3db9d22bcc59c177ef8ebbfe06fc9fc1f03580275589bb9be541e",
+      "cell": "W-bottom",
+      "sourceRect": [
+        306,
+        0,
+        18,
+        18
+      ],
+      "scale": 2,
+      "dimensions": [
+        36,
+        36
+      ],
+      "score": 0.1856600046157837,
+      "bitmap": [
+        679,
+        112
+      ],
+      "expectedBitmap": [
+        680,
+        115
+      ],
+      "pixels": 1213,
+      "accepted": false
+    },
+    {
+      "video": "00002",
+      "time": 277,
+      "referenceSha256": "91e393d35e2b3092c4ad09ababc1e07db35156a6f6d827fcb3a041382560c766",
+      "cell": "E",
+      "sourceRect": [
+        252,
+        0,
+        18,
+        18
+      ],
+      "scale": 1,
+      "dimensions": [
+        18,
+        18
+      ],
+      "score": 0.9209567904472351,
+      "bitmap": [
+        600,
+        116
+      ],
+      "expectedBitmap": [
+        599,
+        115
+      ],
+      "pixels": 306,
+      "accepted": false
+    },
+    {
+      "video": "00002",
+      "time": 277,
+      "referenceSha256": "91e393d35e2b3092c4ad09ababc1e07db35156a6f6d827fcb3a041382560c766",
+      "cell": "E",
+      "sourceRect": [
+        252,
+        0,
+        18,
+        18
+      ],
+      "scale": 1.125,
+      "dimensions": [
+        20,
+        20
+      ],
+      "score": 0.9800537824630737,
+      "bitmap": [
+        599,
+        115
+      ],
+      "expectedBitmap": [
+        599,
+        115
+      ],
+      "pixels": 376,
+      "accepted": true
+    },
+    {
+      "video": "00002",
+      "time": 277,
+      "referenceSha256": "91e393d35e2b3092c4ad09ababc1e07db35156a6f6d827fcb3a041382560c766",
+      "cell": "E",
+      "sourceRect": [
+        252,
+        0,
+        18,
+        18
+      ],
+      "scale": 1.25,
+      "dimensions": [
+        22,
+        22
+      ],
+      "score": 0.9664539694786072,
+      "bitmap": [
+        598,
+        114
+      ],
+      "expectedBitmap": [
+        599,
+        115
+      ],
+      "pixels": 448,
+      "accepted": false
+    },
+    {
+      "video": "00002",
+      "time": 277,
+      "referenceSha256": "91e393d35e2b3092c4ad09ababc1e07db35156a6f6d827fcb3a041382560c766",
+      "cell": "E",
+      "sourceRect": [
+        252,
+        0,
+        18,
+        18
+      ],
+      "scale": 2,
+      "dimensions": [
+        36,
+        36
+      ],
+      "score": 0.1790541261434555,
+      "bitmap": [
+        596,
+        112
+      ],
+      "expectedBitmap": [
+        599,
+        115
+      ],
+      "pixels": 1213,
+      "accepted": false
+    },
+    {
+      "video": "00002",
+      "time": 277,
+      "referenceSha256": "91e393d35e2b3092c4ad09ababc1e07db35156a6f6d827fcb3a041382560c766",
+      "cell": "W-top",
+      "sourceRect": [
+        306,
+        0,
+        18,
+        18
+      ],
+      "scale": 1,
+      "dimensions": [
+        18,
+        18
+      ],
+      "score": 0.9175745844841003,
+      "bitmap": [
+        681,
+        55
+      ],
+      "expectedBitmap": [
+        680,
+        54
+      ],
+      "pixels": 306,
+      "accepted": false
+    },
+    {
+      "video": "00002",
+      "time": 277,
+      "referenceSha256": "91e393d35e2b3092c4ad09ababc1e07db35156a6f6d827fcb3a041382560c766",
+      "cell": "W-top",
+      "sourceRect": [
+        306,
+        0,
+        18,
+        18
+      ],
+      "scale": 1.125,
+      "dimensions": [
+        20,
+        20
+      ],
+      "score": 0.975092887878418,
+      "bitmap": [
+        680,
+        54
+      ],
+      "expectedBitmap": [
+        680,
+        54
+      ],
+      "pixels": 376,
+      "accepted": true
+    },
+    {
+      "video": "00002",
+      "time": 277,
+      "referenceSha256": "91e393d35e2b3092c4ad09ababc1e07db35156a6f6d827fcb3a041382560c766",
+      "cell": "W-top",
+      "sourceRect": [
+        306,
+        0,
+        18,
+        18
+      ],
+      "scale": 1.25,
+      "dimensions": [
+        22,
+        22
+      ],
+      "score": 0.9557565450668335,
+      "bitmap": [
+        678,
+        53
+      ],
+      "expectedBitmap": [
+        680,
+        54
+      ],
+      "pixels": 448,
+      "accepted": false
+    },
+    {
+      "video": "00002",
+      "time": 277,
+      "referenceSha256": "91e393d35e2b3092c4ad09ababc1e07db35156a6f6d827fcb3a041382560c766",
+      "cell": "W-top",
+      "sourceRect": [
+        306,
+        0,
+        18,
+        18
+      ],
+      "scale": 2,
+      "dimensions": [
+        36,
+        36
+      ],
+      "score": 0.033994365483522415,
+      "bitmap": [
+        680,
+        51
+      ],
+      "expectedBitmap": [
+        680,
+        54
+      ],
+      "pixels": 1213,
+      "accepted": false
+    },
+    {
+      "video": "00002",
+      "time": 277,
+      "referenceSha256": "91e393d35e2b3092c4ad09ababc1e07db35156a6f6d827fcb3a041382560c766",
+      "cell": "W-bottom",
+      "sourceRect": [
+        306,
+        0,
+        18,
+        18
+      ],
+      "scale": 1,
+      "dimensions": [
+        18,
+        18
+      ],
+      "score": 0.9201177954673767,
+      "bitmap": [
+        681,
+        116
+      ],
+      "expectedBitmap": [
+        680,
+        115
+      ],
+      "pixels": 306,
+      "accepted": false
+    },
+    {
+      "video": "00002",
+      "time": 277,
+      "referenceSha256": "91e393d35e2b3092c4ad09ababc1e07db35156a6f6d827fcb3a041382560c766",
+      "cell": "W-bottom",
+      "sourceRect": [
+        306,
+        0,
+        18,
+        18
+      ],
+      "scale": 1.125,
+      "dimensions": [
+        20,
+        20
+      ],
+      "score": 0.9771218299865723,
+      "bitmap": [
+        680,
+        115
+      ],
+      "expectedBitmap": [
+        680,
+        115
+      ],
+      "pixels": 376,
+      "accepted": true
+    },
+    {
+      "video": "00002",
+      "time": 277,
+      "referenceSha256": "91e393d35e2b3092c4ad09ababc1e07db35156a6f6d827fcb3a041382560c766",
+      "cell": "W-bottom",
+      "sourceRect": [
+        306,
+        0,
+        18,
+        18
+      ],
+      "scale": 1.25,
+      "dimensions": [
+        22,
+        22
+      ],
+      "score": 0.952977180480957,
+      "bitmap": [
+        678,
+        114
+      ],
+      "expectedBitmap": [
+        680,
+        115
+      ],
+      "pixels": 448,
+      "accepted": false
+    },
+    {
+      "video": "00002",
+      "time": 277,
+      "referenceSha256": "91e393d35e2b3092c4ad09ababc1e07db35156a6f6d827fcb3a041382560c766",
+      "cell": "W-bottom",
+      "sourceRect": [
+        306,
+        0,
+        18,
+        18
+      ],
+      "scale": 2,
+      "dimensions": [
+        36,
+        36
+      ],
+      "score": 0.15884216129779816,
+      "bitmap": [
+        679,
+        112
+      ],
+      "expectedBitmap": [
+        680,
+        115
+      ],
+      "pixels": 1213,
+      "accepted": false
+    },
+    {
+      "video": "00002",
+      "time": 300,
+      "referenceSha256": "2deaa11157ddb6f027db7e0575f5747885fea1605fc2f6a742bf79a9f929d98d",
+      "cell": "E",
+      "sourceRect": [
+        252,
+        0,
+        18,
+        18
+      ],
+      "scale": 1,
+      "dimensions": [
+        18,
+        18
+      ],
+      "score": 0.9240522384643555,
+      "bitmap": [
+        600,
+        116
+      ],
+      "expectedBitmap": [
+        599,
+        115
+      ],
+      "pixels": 306,
+      "accepted": false
+    },
+    {
+      "video": "00002",
+      "time": 300,
+      "referenceSha256": "2deaa11157ddb6f027db7e0575f5747885fea1605fc2f6a742bf79a9f929d98d",
+      "cell": "E",
+      "sourceRect": [
+        252,
+        0,
+        18,
+        18
+      ],
+      "scale": 1.125,
+      "dimensions": [
+        20,
+        20
+      ],
+      "score": 0.985461413860321,
+      "bitmap": [
+        599,
+        115
+      ],
+      "expectedBitmap": [
+        599,
+        115
+      ],
+      "pixels": 376,
+      "accepted": true
+    },
+    {
+      "video": "00002",
+      "time": 300,
+      "referenceSha256": "2deaa11157ddb6f027db7e0575f5747885fea1605fc2f6a742bf79a9f929d98d",
+      "cell": "E",
+      "sourceRect": [
+        252,
+        0,
+        18,
+        18
+      ],
+      "scale": 1.25,
+      "dimensions": [
+        22,
+        22
+      ],
+      "score": 0.9641438126564026,
+      "bitmap": [
+        598,
+        114
+      ],
+      "expectedBitmap": [
+        599,
+        115
+      ],
+      "pixels": 448,
+      "accepted": false
+    },
+    {
+      "video": "00002",
+      "time": 300,
+      "referenceSha256": "2deaa11157ddb6f027db7e0575f5747885fea1605fc2f6a742bf79a9f929d98d",
+      "cell": "E",
+      "sourceRect": [
+        252,
+        0,
+        18,
+        18
+      ],
+      "scale": 2,
+      "dimensions": [
+        36,
+        36
+      ],
+      "score": 0.3022818863391876,
+      "bitmap": [
+        596,
+        113
+      ],
+      "expectedBitmap": [
+        599,
+        115
+      ],
+      "pixels": 1213,
+      "accepted": false
+    },
+    {
+      "video": "00002",
+      "time": 300,
+      "referenceSha256": "2deaa11157ddb6f027db7e0575f5747885fea1605fc2f6a742bf79a9f929d98d",
+      "cell": "W-top",
+      "sourceRect": [
+        306,
+        0,
+        18,
+        18
+      ],
+      "scale": 1,
+      "dimensions": [
+        18,
+        18
+      ],
+      "score": 0.9343588948249817,
+      "bitmap": [
+        681,
+        55
+      ],
+      "expectedBitmap": [
+        680,
+        54
+      ],
+      "pixels": 306,
+      "accepted": false
+    },
+    {
+      "video": "00002",
+      "time": 300,
+      "referenceSha256": "2deaa11157ddb6f027db7e0575f5747885fea1605fc2f6a742bf79a9f929d98d",
+      "cell": "W-top",
+      "sourceRect": [
+        306,
+        0,
+        18,
+        18
+      ],
+      "scale": 1.125,
+      "dimensions": [
+        20,
+        20
+      ],
+      "score": 0.9858439564704895,
+      "bitmap": [
+        680,
+        54
+      ],
+      "expectedBitmap": [
+        680,
+        54
+      ],
+      "pixels": 376,
+      "accepted": true
+    },
+    {
+      "video": "00002",
+      "time": 300,
+      "referenceSha256": "2deaa11157ddb6f027db7e0575f5747885fea1605fc2f6a742bf79a9f929d98d",
+      "cell": "W-top",
+      "sourceRect": [
+        306,
+        0,
+        18,
+        18
+      ],
+      "scale": 1.25,
+      "dimensions": [
+        22,
+        22
+      ],
+      "score": 0.9547587037086487,
+      "bitmap": [
+        679,
+        53
+      ],
+      "expectedBitmap": [
+        680,
+        54
+      ],
+      "pixels": 448,
+      "accepted": false
+    },
+    {
+      "video": "00002",
+      "time": 300,
+      "referenceSha256": "2deaa11157ddb6f027db7e0575f5747885fea1605fc2f6a742bf79a9f929d98d",
+      "cell": "W-top",
+      "sourceRect": [
+        306,
+        0,
+        18,
+        18
+      ],
+      "scale": 2,
+      "dimensions": [
+        36,
+        36
+      ],
+      "score": 0.1530046910047531,
+      "bitmap": [
+        680,
+        51
+      ],
+      "expectedBitmap": [
+        680,
+        54
+      ],
+      "pixels": 1213,
+      "accepted": false
+    },
+    {
+      "video": "00002",
+      "time": 300,
+      "referenceSha256": "2deaa11157ddb6f027db7e0575f5747885fea1605fc2f6a742bf79a9f929d98d",
+      "cell": "W-bottom",
+      "sourceRect": [
+        306,
+        0,
+        18,
+        18
+      ],
+      "scale": 1,
+      "dimensions": [
+        18,
+        18
+      ],
+      "score": 0.9326470494270325,
+      "bitmap": [
+        681,
+        116
+      ],
+      "expectedBitmap": [
+        680,
+        115
+      ],
+      "pixels": 306,
+      "accepted": false
+    },
+    {
+      "video": "00002",
+      "time": 300,
+      "referenceSha256": "2deaa11157ddb6f027db7e0575f5747885fea1605fc2f6a742bf79a9f929d98d",
+      "cell": "W-bottom",
+      "sourceRect": [
+        306,
+        0,
+        18,
+        18
+      ],
+      "scale": 1.125,
+      "dimensions": [
+        20,
+        20
+      ],
+      "score": 0.9846904277801514,
+      "bitmap": [
+        680,
+        115
+      ],
+      "expectedBitmap": [
+        680,
+        115
+      ],
+      "pixels": 376,
+      "accepted": true
+    },
+    {
+      "video": "00002",
+      "time": 300,
+      "referenceSha256": "2deaa11157ddb6f027db7e0575f5747885fea1605fc2f6a742bf79a9f929d98d",
+      "cell": "W-bottom",
+      "sourceRect": [
+        306,
+        0,
+        18,
+        18
+      ],
+      "scale": 1.25,
+      "dimensions": [
+        22,
+        22
+      ],
+      "score": 0.9527568221092224,
+      "bitmap": [
+        678,
+        114
+      ],
+      "expectedBitmap": [
+        680,
+        115
+      ],
+      "pixels": 448,
+      "accepted": false
+    },
+    {
+      "video": "00002",
+      "time": 300,
+      "referenceSha256": "2deaa11157ddb6f027db7e0575f5747885fea1605fc2f6a742bf79a9f929d98d",
+      "cell": "W-bottom",
+      "sourceRect": [
+        306,
+        0,
+        18,
+        18
+      ],
+      "scale": 2,
+      "dimensions": [
+        36,
+        36
+      ],
+      "score": 0.2122579663991928,
+      "bitmap": [
+        679,
+        112
+      ],
+      "expectedBitmap": [
+        680,
+        115
+      ],
+      "pixels": 1213,
+      "accepted": false
+    }
+  ],
+  "limits": [
+    "Cell templates locate coarse integer bitmaps; fractional runtime placement is not yet established.",
+    "Alternative-scale high scores are retained and do not alone establish geometry; compare all cells and predetermined positions.",
+    "Some W cells are covered by the blue player glyph; rejected observations remain in the report.",
+    "No panel skin, border thickness, title height, button material, counter or compositing order is proven by these cell controls."
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "commit": "8775d33",
+  "actions": "https://github.com/yanfeng98/nano-dnf/actions/runs/43378710104",
+  "status": "Success",
+  "jobs": 3,
+  "url": "https://luyf-lemon-love.space/nano-dnf/",
+  "unitTests": 438,
+  "browserGroups": 40,
+  "liveSmoke": "deployed resources match checkout; clean boot; no problems",
+  "radarOnline": "both stages:18 pixel checks, real pointer outside/rim, Tab passed",
+  "minimumCosine": {
+    "mirkwood": 0.9774747138970441,
+    "mirkwooddeep": 0.9708554371882978
+  },
+  "manualAcceptance": "pending"
+}

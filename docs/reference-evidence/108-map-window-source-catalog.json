@@ -1,0 +1,185 @@
+{
+  "scope": "544 local NPK files with interface/minimap in their filenames in ImagePacks2 and ImagePacks2_70; not an exhaustive search of all client packages",
+  "entries": [
+    {
+      "pack": "ImagePacks2_70/sprite_interface.NPK",
+      "entry": "sprite/interface/minimap.img"
+    },
+    {
+      "pack": "ImagePacks2_70/sprite_interface.NPK",
+      "entry": "sprite/interface/minimapbg1.img"
+    },
+    {
+      "pack": "ImagePacks2_70/sprite_interface.NPK",
+      "entry": "sprite/interface/minimapsightblinder.img"
+    },
+    {
+      "pack": "ImagePacks2_70/sprite_interface.NPK",
+      "entry": "sprite/interface/minimap_jp.img"
+    },
+    {
+      "pack": "ImagePacks2_70/sprite_interface.NPK",
+      "entry": "sprite/interface/minimap_mark.img"
+    },
+    {
+      "pack": "ImagePacks2_70/sprite_interface.NPK",
+      "entry": "sprite/interface/minimap_minimap_npc_icon.img"
+    },
+    {
+      "pack": "ImagePacks2_70/sprite_interface.NPK",
+      "entry": "sprite/interface/minimap_minimap_npc_icon_jp.img"
+    },
+    {
+      "pack": "ImagePacks2_70/sprite_interface.NPK",
+      "entry": "sprite/interface/minimap_minimap_town.img"
+    },
+    {
+      "pack": "ImagePacks2_70/sprite_interface2_event_event_map.NPK",
+      "entry": "sprite/interface2/event/event_map/eventmap_minimap.img"
+    },
+    {
+      "pack": "ImagePacks2_70/sprite_interface2_dualraid_dualraid_minimap.NPK",
+      "entry": "sprite/interface2/dualraid/dualraid_minimap/dualminimap_tile.img"
+    },
+    {
+      "pack": "ImagePacks2_70/sprite_interface2_dualraid_dualraid_minimap.NPK",
+      "entry": "sprite/interface2/dualraid/dualraid_minimap/dualraid_minimap.img"
+    },
+    {
+      "pack": "ImagePacks2_70/sprite_interface2_minimap_town.NPK",
+      "entry": "sprite/interface2/minimap/town/minimap_minimap_town.img"
+    },
+    {
+      "pack": "ImagePacks2_70/sprite_interface2_minimap_town.NPK",
+      "entry": "sprite/interface2/minimap/town/minimap_npcicon.img"
+    },
+    {
+      "pack": "ImagePacks2_70/sprite_interface2_minimap_town.NPK",
+      "entry": "sprite/interface2/minimap/town/minimap_npcicon_cn.img"
+    },
+    {
+      "pack": "ImagePacks2_70/sprite_interface2_minimap_town(简体补丁).NPK",
+      "entry": "sprite/interface2/minimap/town/minimap_minimap_town.img"
+    },
+    {
+      "pack": "ImagePacks2_70/sprite_interface2_minimap_dungeon_champion_gage_fire_eff.NPK",
+      "entry": "sprite/interface2/minimap/dungeon/champion_gage/fire_eff/fire_eff.img"
+    },
+    {
+      "pack": "ImagePacks2_70/sprite_interface2_minimap_dungeon_champion_gage.NPK",
+      "entry": "sprite/interface2/minimap/dungeon/champion_gage/champion_gage.img"
+    },
+    {
+      "pack": "ImagePacks2_70/sprite_interface2_minimap_dungeon.NPK",
+      "entry": "sprite/interface2/minimap/dungeon/clock_minimap.img"
+    },
+    {
+      "pack": "ImagePacks2_70/sprite_interface2_minimap_dungeon.NPK",
+      "entry": "sprite/interface2/minimap/dungeon/minimap.img"
+    },
+    {
+      "pack": "ImagePacks2_70/sprite_interface2_minimap_dungeon.NPK",
+      "entry": "sprite/interface2/minimap/dungeon/mission_minimap.img"
+    },
+    {
+      "pack": "ImagePacks2_70/sprite_interface2_minimap_dungeon.NPK",
+      "entry": "sprite/interface2/minimap/dungeon/randommonstersminimap.img"
+    },
+    {
+      "pack": "ImagePacks2_70/sprite_interface2_minimap_dungeon.NPK",
+      "entry": "sprite/interface2/minimap/dungeon/zombie_minimap.img"
+    },
+    {
+      "pack": "ImagePacks2_70/sprite_interface_scheduledungeonquest.NPK",
+      "entry": "sprite/interface/scheduledungeonquest/minimapmark.img"
+    },
+    {
+      "pack": "ImagePacks2_70/sprite_map_minimap.NPK",
+      "entry": "sprite/map/minimap/act1.img"
+    },
+    {
+      "pack": "ImagePacks2_70/sprite_map_minimap.NPK",
+      "entry": "sprite/map/minimap/act2.img"
+    },
+    {
+      "pack": "ImagePacks2_70/sprite_map_minimap.NPK",
+      "entry": "sprite/map/minimap/act3.img"
+    },
+    {
+      "pack": "ImagePacks2_70/sprite_map_minimap.NPK",
+      "entry": "sprite/map/minimap/act6.img"
+    },
+    {
+      "pack": "ImagePacks2_70/sprite_map_minimap.NPK",
+      "entry": "sprite/map/minimap/helixlab.img"
+    },
+    {
+      "pack": "ImagePacks2_70/sprite_map_minimap.NPK",
+      "entry": "sprite/map/minimap/minimap.img"
+    },
+    {
+      "pack": "ImagePacks2/sprite_interface2_dualraid_dualraid_minimap.NPK",
+      "entry": "sprite/interface2/dualraid/dualraid_minimap/dualraid_minimap.img"
+    },
+    {
+      "pack": "ImagePacks2/sprite_interface2_event_event_map.NPK",
+      "entry": "sprite/interface2/event/event_map/eventmap_minimap.img"
+    },
+    {
+      "pack": "ImagePacks2/sprite_interface2_minimap_town.NPK",
+      "entry": "sprite/interface2/minimap/town/minimap_npcicon.img"
+    },
+    {
+      "pack": "ImagePacks2/sprite_interface2_minimap_town.NPK",
+      "entry": "sprite/interface2/minimap/town/minimap_minimap_town.img"
+    },
+    {
+      "pack": "ImagePacks2/sprite_interface2_minimap_dungeon.NPK",
+      "entry": "sprite/interface2/minimap/dungeon/clock_minimap.img"
+    },
+    {
+      "pack": "ImagePacks2/sprite_interface2_minimap_dungeon.NPK",
+      "entry": "sprite/interface2/minimap/dungeon/randommonstersminimap.img"
+    },
+    {
+      "pack": "ImagePacks2/sprite_interface2_minimap_dungeon.NPK",
+      "entry": "sprite/interface2/minimap/dungeon/minimap.img"
+    },
+    {
+      "pack": "ImagePacks2/sprite_interface_scheduledungeonquest.NPK",
+      "entry": "sprite/interface/scheduledungeonquest/minimapmark.img"
+    },
+    {
+      "pack": "ImagePacks2/sprite_map_minimap.NPK",
+      "entry": "sprite/map/minimap/minimap.img"
+    },
+    {
+      "pack": "ImagePacks2/sprite_map_minimap.NPK",
+      "entry": "sprite/map/minimap/act2.img"
+    },
+    {
+      "pack": "ImagePacks2/sprite_map_minimap.NPK",
+      "entry": "sprite/map/minimap/act1.img"
+    },
+    {
+      "pack": "ImagePacks2/sprite_map_minimap.NPK",
+      "entry": "sprite/map/minimap/act3.img"
+    },
+    {
+      "pack": "ImagePacks2/sprite_map_minimap.NPK",
+      "entry": "sprite/map/minimap/act6.img"
+    },
+    {
+      "pack": "ImagePacks2/sprite_map_minimap.NPK",
+      "entry": "sprite/map/minimap/act7.img"
+    },
+    {
+      "pack": "ImagePacks2/sprite_map_minimap.NPK",
+      "entry": "sprite/map/minimap/chaoshikong.img"
+    },
+    {
+      "pack": "ImagePacks2/sprite_map_minimap.NPK",
+      "entry": "sprite/map/minimap/helixlab.img"
+    }
+  ]
+}

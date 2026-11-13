@@ -1928,3 +1928,15 @@ Core只在真实首次清房时记录nativeGateOpenedAt，渲染不创建/修改
 撤销旧绿色实心填充，改用同一客户端minimap.img的(350,0,74,74)原生径向底色。导出器增加显式输出参数，并将该片追加到旧图集，不移动已有切片。旧图集与重导版的既有不透明像素全部一致，仅7个alpha不超过4的边缘像素随客户端重导恢复；不是手工调色。底色多位置/尺寸拟合存在近似解，采用92像素近似，精确位置仍开放；独立保留原生底色与旧绿色块的多帧比较。
 
 证据见107-radar-measurement.json、107-radar-background-measurement.json、107-integer-frame-control.json、107-fractional-frame-model.json及8幅参考裁片；复算scripts/measure-reference-radar.py和measure-reference-radar-background.py。实际默认代码不带测量覆盖参数的浏览器检查通过18项像素比较，两关最低相似度分别.977475/.970855，真实鼠标圈内/外点击与Tab切换通过，见107-radar-local.json。438项单测通过，完整40组浏览器回归通过，发布待核。顶部计数/按钮、展开方图、圆缘裁切、底色精确落点及所有其他全局待办继续开放，实玩未验收。
+
+第107批发布记录：8775d33已推送，Actions43378710104公开Success，三个任务均执行。线上资源与本地一致、启动无错误；两关18项像素对照与圆框内/外真实鼠标、Tab切换均通过，最低相似度分别.977475/.970855，与本地一致。见107-radar-deployment.json及107-radar-online.json。顶部计数、蓝按钮、展开方图、圆缘裁切、底色精确落点及其余全局待办保留，实玩未验收。
+
+## 第一百零八批调查：展开方图格距与旧版失败对照（2026-11-13，尚未修复运行时）
+
+11幅精确原帧覆盖V1 76/100/160/220/280秒、V2 74.25/100/150/200/277/300秒，均先裁1440×1080游戏区再缩720×540，不使用fps重采样。固定E/W格子小范围原件匹配得到28处1.125倍、预定落点且NCC≥.94的观测；每幅E格均通过。普通首格粗定位(619,54)，深处首列末行(599,115)，支持20.25格距，反对运行时仍用18格距。1/1.25/2倍对照与被玩家标记遮挡的W格失败全部保留；部分替代尺度也有高分，不能只凭单个最大NCC断言比例。来源108-map-window-cell-measurement.json，复算scripts/measure-reference-map-window.py --frames <精确原帧目录> --out <JSON>。
+
+真实浏览器经城镇/选关/Tab进入方图，无几何覆盖参数。普通E格和深处入口上方E格实际Canvas与录像相似度仅.774681/.746063，376个原件不透明像素，原门槛.97，±2像素搜索；--require-match退出1，完整失败保存108-map-window-before-failure.txt，诊断108-map-window-before.json。复现scripts/inspect-reference-map-window.mjs --require-match，需要本地8080服务与MAP_WINDOW_FRAMES精确原帧目录。首次运行因8080服务已停止报连接拒绝，不作为画面失败；重启后确认上述画面症状。
+
+边框仍未建立正确采样模型：既有27–35九分片先合成再整体整数缩放、不同标题高度的候选均未达到.94，不能从格距直接推断整窗尺寸和边框已还原。源目录扫描限定544个文件名含interface/minimap的NPK，共45条minimap名称记录，见108-map-window-source-catalog.json；独立sprite_interface2_minimap_dungeon.NPK的186–194亦未选作替换。此范围不是全部客户端穷尽检索。保留108-map-window-border-controls.json，复算scripts/measure-reference-map-window-border.py --frames <目录>。分片各自采样、预乘透明度与半像素位置继续检验，不靠调色或降低门槛匹配。
+
+本批只新增测量器、诊断器与证据，运行资源仍为8775d33；438项单测/40组完整浏览器及线上验证沿用第107批，不把调查叫作方图修复。方图几何/边框/字形/按钮与雷达顶部计数及其他全局待办继续开放，实玩未验收。

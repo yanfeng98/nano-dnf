@@ -1,0 +1,275 @@
+{
+  "packedAssetSha256": "5f3dff79534a07b3b0eaed1efcead8a71fbca576acaea1fe478911943fa183c3",
+  "source": "existing interface/minimap.img frames27..35",
+  "method": "compose native nine slices before integer resizing; opaque alpha>220 border mask; grayscale NCC over game ROI570,0,150,155",
+  "titleHeightSearch": [
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22
+  ],
+  "observations": [
+    {
+      "video": "00001",
+      "scale": 1,
+      "best": [
+        {
+          "scale": 1,
+          "title": 14,
+          "score": 0.631860613822937,
+          "box": [
+            626,
+            22,
+            81,
+            77
+          ],
+          "pixels": 896
+        },
+        {
+          "scale": 1,
+          "title": 15,
+          "score": 0.6170644164085388,
+          "box": [
+            626,
+            22,
+            81,
+            78
+          ],
+          "pixels": 902
+        },
+        {
+          "scale": 1,
+          "title": 16,
+          "score": 0.597240149974823,
+          "box": [
+            625,
+            22,
+            81,
+            79
+          ],
+          "pixels": 908
+        }
+      ]
+    },
+    {
+      "video": "00001",
+      "scale": 1.125,
+      "best": [
+        {
+          "scale": 1.125,
+          "title": 21,
+          "score": 0.5929610729217529,
+          "box": [
+            616,
+            22,
+            91,
+            94
+          ],
+          "pixels": 1054
+        },
+        {
+          "scale": 1.125,
+          "title": 16,
+          "score": 0.5833749771118164,
+          "box": [
+            616,
+            27,
+            91,
+            89
+          ],
+          "pixels": 1022
+        },
+        {
+          "scale": 1.125,
+          "title": 20,
+          "score": 0.5805609226226807,
+          "box": [
+            616,
+            22,
+            91,
+            93
+          ],
+          "pixels": 1048
+        }
+      ]
+    },
+    {
+      "video": "00001",
+      "scale": 1.25,
+      "best": [
+        {
+          "scale": 1.25,
+          "title": 14,
+          "score": 0.7392377853393555,
+          "box": [
+            612,
+            21,
+            101,
+            96
+          ],
+          "pixels": 1294
+        },
+        {
+          "scale": 1.25,
+          "title": 17,
+          "score": 0.7219454050064087,
+          "box": [
+            612,
+            21,
+            101,
+            100
+          ],
+          "pixels": 1322
+        },
+        {
+          "scale": 1.25,
+          "title": 16,
+          "score": 0.6723849177360535,
+          "box": [
+            612,
+            21,
+            101,
+            99
+          ],
+          "pixels": 1315
+        }
+      ]
+    },
+    {
+      "video": "00002",
+      "scale": 1,
+      "best": [
+        {
+          "scale": 1,
+          "title": 16,
+          "score": 0.6247596740722656,
+          "box": [
+            608,
+            22,
+            99,
+            97
+          ],
+          "pixels": 1124
+        },
+        {
+          "scale": 1,
+          "title": 15,
+          "score": 0.6237499117851257,
+          "box": [
+            608,
+            22,
+            99,
+            96
+          ],
+          "pixels": 1118
+        },
+        {
+          "scale": 1,
+          "title": 14,
+          "score": 0.6221767067909241,
+          "box": [
+            608,
+            22,
+            99,
+            95
+          ],
+          "pixels": 1112
+        }
+      ]
+    },
+    {
+      "video": "00002",
+      "scale": 1.125,
+      "best": [
+        {
+          "scale": 1.125,
+          "title": 21,
+          "score": 0.6029095649719238,
+          "box": [
+            596,
+            22,
+            111,
+            115
+          ],
+          "pixels": 1299
+        },
+        {
+          "scale": 1.125,
+          "title": 20,
+          "score": 0.5958845019340515,
+          "box": [
+            596,
+            22,
+            111,
+            114
+          ],
+          "pixels": 1293
+        },
+        {
+          "scale": 1.125,
+          "title": 17,
+          "score": 0.5885542035102844,
+          "box": [
+            596,
+            27,
+            111,
+            110
+          ],
+          "pixels": 1270
+        }
+      ]
+    },
+    {
+      "video": "00002",
+      "scale": 1.25,
+      "best": [
+        {
+          "scale": 1.25,
+          "title": 18,
+          "score": 0.7705351114273071,
+          "box": [
+            592,
+            21,
+            124,
+            124
+          ],
+          "pixels": 1651
+        },
+        {
+          "scale": 1.25,
+          "title": 19,
+          "score": 0.7557153701782227,
+          "box": [
+            592,
+            21,
+            124,
+            125
+          ],
+          "pixels": 1658
+        },
+        {
+          "scale": 1.25,
+          "title": 15,
+          "score": 0.7519145607948303,
+          "box": [
+            592,
+            21,
+            124,
+            120
+          ],
+          "pixels": 1623
+        }
+      ]
+    }
+  ],
+  "limits": [
+    "No candidate reaches.94. This rejects these integer whole-panel models; it does not prove the native slices are wrong.",
+    "Fractional positioning, premultiplied sampling and per-slice rasterization remain distinct unverified hypotheses.",
+    "Other interface2 dungeon frames186..194 were inspected but not accepted as replacements."
+  ]
+}
