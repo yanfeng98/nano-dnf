@@ -4,6 +4,37 @@ const test = require("node:test");
 const assert = require("node:assert/strict");
 const Core = require("../src/core.js");
 
+test('deep entry preserves recorded Lv5 red / Lv6 blue goblin credits across spawning', () => {
+  const Render = require('../src/render.js');
+  for (const seed of [1, 2, 7, 123]) {
+    const state = Core.createState({stage: 'mirkwooddeep', seed, referenceProfile: true});
+    state.player.xpToNext = 100000;
+    state.player.invuln = Infinity;
+    state.transition = 0;
+    const observed = new Map();
+    for (let frame = 0; frame < 900 && !state.room.cleared; frame++) {
+      for (const enemy of state.enemies) {
+        if (observed.has(enemy.id)) continue;
+        observed.set(enemy.id, enemy.type);
+        const red = enemy.type === 'goblinRed';
+        assert.ok(red || enemy.type === 'goblinBlue');
+        assert.equal(enemy.level, red ? 5 : 6);
+        assert.equal(enemy.xp, red ? 50 : 60);
+        assert.equal(Render.targetTrackWidth(state, enemy), red ? 116 : 144);
+        for (let hit = 0; hit < 50 && !enemy.dead; hit++) {
+          Core.damageEnemy(state, enemy, enemy.hp + 1, 0, state.player.x);
+        }
+      }
+      Core.step(state, {});
+    }
+    assert.ok(state.room.cleared);
+    assert.equal([...observed.values()].filter(type => type === 'goblinRed').length, 4);
+    assert.equal([...observed.values()].filter(type => type === 'goblinBlue').length, 3);
+    assert.equal(state.stats.kills, 7);
+    assert.equal(state.player.xp, 380, 'four50 and three60 credits in the entry logs');
+  }
+});
+
 test('ordinary entry deaths pay the four recorded credits, independently of loot', () => {
   for (const seed of [1, 2, 7, 123]) {
     const state = Core.createState({ stage: 'mirkwood', seed, referenceProfile: true });

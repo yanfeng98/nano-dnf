@@ -23,7 +23,24 @@
       "sha256": "cf51b52bea8ffce421dde5b10dc51cc61b5c0429f1c8491c4f543d8377fa345f"
     }
   ],
-  "fullBrowser": "Running in independent supervisor; /tmp/nano135-regression-result.json will record exit and source hashes.",
+  "fullBrowser": {
+    "pid": 493468,
+    "started": 1794675947.8317575,
+    "finished": 1794676433.4574623,
+    "unitExitCode": 0,
+    "browserExitCode": 0,
+    "inputs": {
+      "src/core.js": "f0b989e16ee1e32cb11683e8bf2cf0c69d4fa2141a809e410f3450cf5a5d0be2",
+      "src/render.js": "9ebee902d1330e5884f77b6c5bf4e709715ef78251166bd023ff9130330793ba",
+      "src/main.js": "4bb0066760c37e103e0d36fd227531045f931e82ab06f621576b536843e86b26",
+      "package.json": "e69bc4ceecd8666209c8a582e4be14e9c4e626b14c3c7d2801b0696b2d1eb933",
+      "tests/browser/keyboard-policy.cjs": "ff172471c06816cb872711207475e65c94acd8bd87718442ea39c4b241f1117f",
+      "tests/browser/playability.mjs": "61b1859366317fafbaed8eeb2416d8cae7b2dd14393f0dc42a77d2793de75b0c",
+      "tests/browser-keyboard-policy.test.js": "531db0bff42af8da1468a2173b01f8adc9197903e66e381144bd179022d6ec5c",
+      "tests/browser-pass-selection.test.js": "cf51b52bea8ffce421dde5b10dc51cc61b5c0429f1c8491c4f543d8377fa345f"
+    },
+    "inputsUnchanged": true
+  },
   "limits": [
     "No game source or numerical rules changed.",
     "Full recording fidelity and human acceptance remain open."

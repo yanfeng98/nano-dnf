@@ -2659,13 +2659,15 @@
           band: { backY: 256 },
           // Enemy placement is still the older, unverified layout; no width-based stretching.
           enemies: [
-            { type: "goblinRed", x: 150, level: 6 },
-            { type: "goblinRed", x: 300, level: 6 },
-            { type: "goblinRed", x: 430, level: 6 },
-            { type: "goblinRed", x: 500, level: 6 },
-            { type: "goblinBlue", x: 220, wave: 2, level: 6 },
-            { type: "goblinBlue", x: 360, wave: 2, level: 6 },
-            { type: "goblinBlue", x: 480, wave: 2, level: 6 },
+            // V2 12–25.5s: four Lv5 red50 and three Lv6 blue60 deaths.
+            // Positions and the entry mechanism still need their own evidence.
+            { type: "goblinRed", x: 150, level: 5, xp: 50 },
+            { type: "goblinRed", x: 300, level: 5, xp: 50 },
+            { type: "goblinRed", x: 430, level: 5, xp: 50 },
+            { type: "goblinRed", x: 500, level: 5, xp: 50 },
+            { type: "goblinBlue", x: 220, wave: 2, level: 6, xp: 60 },
+            { type: "goblinBlue", x: 360, wave: 2, level: 6, xp: 60 },
+            { type: "goblinBlue", x: 480, wave: 2, level: 6, xp: 60 },
           ],
           cap: 4,
           // V2 13.5/17.5/25.5s native rock/barrel locations after camera removal.

@@ -7334,7 +7334,7 @@
   // No interpolation/extrapolation for unobserved stages or levels.
   var TARGET_WIDTHS = {
     mirkwood: {grunt:{4:181},goblinBlue:{4:144},goblinRed:{4:144},caster:{4:144},burningThrower:{4:217}},
-    mirkwooddeep: {grunt:{4:116},goblinBlue:{6:144},goblinRed:{6:144},cat:{6:162},
+    mirkwooddeep: {grunt:{4:116},goblinBlue:{6:144},goblinRed:{5:116,6:144},cat:{6:162},
       throwerElite:{6:162,7:196},deepElite:{6:198,7:240}}
   };
   function targetTrackWidth(state,enemy) {

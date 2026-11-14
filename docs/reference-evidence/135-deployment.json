@@ -1,0 +1,183 @@
+{
+  "commit": "027743070f30eb226fdc5a84c2ba8b60f7ab17bc",
+  "workflow": {
+    "id": 43619299240,
+    "status": "completed",
+    "conclusion": "success",
+    "head_sha": "027743070f30eb226fdc5a84c2ba8b60f7ab17bc",
+    "html_url": "https://github.com/yanfeng98/nano-dnf/actions/runs/43619299240"
+  },
+  "localRegression": {
+    "pid": 493468,
+    "started": 1794675947.8317575,
+    "finished": 1794676433.4574623,
+    "unitExitCode": 0,
+    "browserExitCode": 0,
+    "inputs": {
+      "src/core.js": "f0b989e16ee1e32cb11683e8bf2cf0c69d4fa2141a809e410f3450cf5a5d0be2",
+      "src/render.js": "9ebee902d1330e5884f77b6c5bf4e709715ef78251166bd023ff9130330793ba",
+      "src/main.js": "4bb0066760c37e103e0d36fd227531045f931e82ab06f621576b536843e86b26",
+      "package.json": "e69bc4ceecd8666209c8a582e4be14e9c4e626b14c3c7d2801b0696b2d1eb933",
+      "tests/browser/keyboard-policy.cjs": "ff172471c06816cb872711207475e65c94acd8bd87718442ea39c4b241f1117f",
+      "tests/browser/playability.mjs": "61b1859366317fafbaed8eeb2416d8cae7b2dd14393f0dc42a77d2793de75b0c",
+      "tests/browser-keyboard-policy.test.js": "531db0bff42af8da1468a2173b01f8adc9197903e66e381144bd179022d6ec5c",
+      "tests/browser-pass-selection.test.js": "cf51b52bea8ffce421dde5b10dc51cc61b5c0429f1c8491c4f543d8377fa345f"
+    },
+    "inputsUnchanged": true
+  },
+  "onlineChecks": {
+    "checks": [
+      {
+        "name": "live-smoke",
+        "exitCode": 0
+      },
+      {
+        "name": "reference",
+        "exitCode": 0
+      }
+    ],
+    "finished": 1794676525.4455318
+  },
+  "servedReference": {
+    "url": "https://luyf-lemon-love.space/nano-dnf/",
+    "rows": [
+      {
+        "stage": "mirkwood",
+        "level": 3,
+        "roster": [
+          {
+            "type": "grunt",
+            "level": 4,
+            "xp": 40
+          },
+          {
+            "type": "caster",
+            "level": 4,
+            "xp": 40
+          },
+          {
+            "type": "coward",
+            "level": 4,
+            "xp": 40
+          },
+          {
+            "type": "cursedRed",
+            "level": 4,
+            "xp": 80
+          }
+        ],
+        "bossCredits": [
+          280,
+          360
+        ],
+        "entryDeaths": {
+          "kills": 4,
+          "xp": 200,
+          "floorItems": 4,
+          "itemsCollected": 0
+        }
+      },
+      {
+        "stage": "mirkwooddeep",
+        "level": 6,
+        "roster": [
+          {
+            "type": "goblinRed",
+            "level": 6,
+            "xp": 10
+          },
+          {
+            "type": "goblinRed",
+            "level": 6,
+            "xp": 10
+          },
+          {
+            "type": "goblinRed",
+            "level": 6,
+            "xp": 10
+          },
+          {
+            "type": "goblinRed",
+            "level": 6,
+            "xp": 10
+          }
+        ],
+        "bossCredits": [
+          280,
+          360
+        ]
+      }
+    ],
+    "errors": [],
+    "limits": [
+      "Death credit fixture isolates the unresolved growth table.",
+      "This does not prove full recording fidelity or human acceptance."
+    ]
+  },
+  "bytes": {
+    "problems": [],
+    "refs": [
+      "assets/favicon.png",
+      "src/core.js",
+      "src/loadout.js",
+      "src/music.js",
+      "src/hints.js",
+      "src/records.js",
+      "src/progress.js",
+      "src/summary.js",
+      "src/reward.js",
+      "src/attract.js",
+      "src/render.js",
+      "src/main.js",
+      "assets/slayer-reference.png",
+      "assets/skills.png",
+      "assets/skills-disabled.png",
+      "assets/skill-ranks.png",
+      "assets/effects.png",
+      "assets/normal-wave.png",
+      "assets/normal-wave-body.png",
+      "assets/rift.png",
+      "assets/region.png",
+      "assets/monsters.png",
+      "assets/thrower-reference.png",
+      "assets/forest.png",
+      "assets/native-flora.png",
+      "assets/native-pathgate.png",
+      "assets/native-pathgate-east.png",
+      "assets/native-pathgate-east-normal.png",
+      "assets/forest-deep.png",
+      "assets/deep-boss-closeback.png",
+      "assets/deep-entry-closeback.png",
+      "assets/deep-room42-closeback.png",
+      "assets/deep-room43-closeback.png",
+      "assets/deep-room33-closeback.png",
+      "assets/deep-room23-closeback.png",
+      "assets/deep-room13-closeback.png",
+      "assets/deep-room14-closeback.png",
+      "assets/deep-room24-closeback.png",
+      "assets/deep-room24-foreground.png",
+      "assets/weather.png",
+      "assets/bossdeath.png",
+      "assets/ui.png",
+      "assets/hud.png",
+      "assets/town.png",
+      "assets/npc.png",
+      "assets/gui.png",
+      "assets/tree-reference.png",
+      "assets/tree-fruit-reference.png",
+      "assets/goblin-bunker.png",
+      "assets/pillar-pale.png",
+      "assets/gate-block.png",
+      "assets/minimap.png",
+      "assets/results-reference.png",
+      "assets/experience-digits.png",
+      "assets/awakening.png",
+      "assets/portraits-reference.png"
+    ],
+    "lagging": []
+  },
+  "limits": [
+    "Verified deployment and these named checks only; no whole-recording or human acceptance claim.",
+    "Deep entry enemy identities, levels, positions and credits still require reference audit."
+  ]
+}

@@ -1,0 +1,206 @@
+{
+  "method": "original (240,80,1200,100), widths normalized by /2",
+  "rows": [
+    {
+      "video": "00002-幽暗密林深处.mp4",
+      "time": 12,
+      "type": "goblinRed",
+      "level": 5,
+      "frame": "normal",
+      "border_candidates": [
+        {
+          "y": 43,
+          "start": 71,
+          "end_exclusive": 313
+        },
+        {
+          "y": 44,
+          "start": 71,
+          "end_exclusive": 313
+        },
+        {
+          "y": 45,
+          "start": 71,
+          "end_exclusive": 313
+        },
+        {
+          "y": 72,
+          "start": 12,
+          "end_exclusive": 208
+        },
+        {
+          "y": 73,
+          "start": 13,
+          "end_exclusive": 208
+        }
+      ],
+      "right_edge_video_px": 313.0,
+      "estimated_canvas_fill_width": 116.75,
+      "reference_profile_width": 116,
+      "cropFile": "136-v2-12-target-crop.png"
+    },
+    {
+      "video": "00002-幽暗密林深处.mp4",
+      "time": 13.5,
+      "type": "goblinRed",
+      "level": 5,
+      "frame": "normal",
+      "border_candidates": [
+        {
+          "y": 43,
+          "start": 71,
+          "end_exclusive": 312
+        },
+        {
+          "y": 44,
+          "start": 71,
+          "end_exclusive": 314
+        },
+        {
+          "y": 45,
+          "start": 71,
+          "end_exclusive": 314
+        },
+        {
+          "y": 72,
+          "start": 13,
+          "end_exclusive": 313
+        },
+        {
+          "y": 73,
+          "start": 14,
+          "end_exclusive": 280
+        }
+      ],
+      "right_edge_video_px": 313.0,
+      "estimated_canvas_fill_width": 116.75,
+      "reference_profile_width": 116,
+      "cropFile": "136-v2-13.5-target-crop.png"
+    },
+    {
+      "video": "00002-幽暗密林深处.mp4",
+      "time": 15.8,
+      "type": "goblinRed",
+      "level": 5,
+      "frame": "normal",
+      "border_candidates": [
+        {
+          "y": 44,
+          "start": 71,
+          "end_exclusive": 313
+        },
+        {
+          "y": 45,
+          "start": 71,
+          "end_exclusive": 313
+        },
+        {
+          "y": 46,
+          "start": 71,
+          "end_exclusive": 313
+        },
+        {
+          "y": 72,
+          "start": 13,
+          "end_exclusive": 313
+        },
+        {
+          "y": 73,
+          "start": 14,
+          "end_exclusive": 312
+        }
+      ],
+      "right_edge_video_px": 313.0,
+      "estimated_canvas_fill_width": 116.75,
+      "reference_profile_width": 116,
+      "cropFile": "136-v2-15.8-target-crop.png"
+    },
+    {
+      "video": "00002-幽暗密林深处.mp4",
+      "time": 18,
+      "type": "goblinRed",
+      "level": 5,
+      "frame": "normal",
+      "border_candidates": [
+        {
+          "y": 43,
+          "start": 71,
+          "end_exclusive": 313
+        },
+        {
+          "y": 44,
+          "start": 71,
+          "end_exclusive": 313
+        },
+        {
+          "y": 45,
+          "start": 71,
+          "end_exclusive": 313
+        },
+        {
+          "y": 72,
+          "start": 13,
+          "end_exclusive": 313
+        },
+        {
+          "y": 73,
+          "start": 14,
+          "end_exclusive": 312
+        }
+      ],
+      "right_edge_video_px": 313.0,
+      "estimated_canvas_fill_width": 116.75,
+      "reference_profile_width": 116,
+      "cropFile": "136-v2-18-target-crop.png"
+    },
+    {
+      "video": "00002-幽暗密林深处.mp4",
+      "time": 20.5,
+      "type": "goblinRed",
+      "level": 5,
+      "frame": "normal",
+      "border_candidates": [
+        {
+          "y": 43,
+          "start": 71,
+          "end_exclusive": 313
+        },
+        {
+          "y": 44,
+          "start": 71,
+          "end_exclusive": 314
+        },
+        {
+          "y": 45,
+          "start": 71,
+          "end_exclusive": 314
+        },
+        {
+          "y": 46,
+          "start": 71,
+          "end_exclusive": 314
+        },
+        {
+          "y": 72,
+          "start": 13,
+          "end_exclusive": 313
+        },
+        {
+          "y": 73,
+          "start": 14,
+          "end_exclusive": 312
+        }
+      ],
+      "right_edge_video_px": 313.5,
+      "estimated_canvas_fill_width": 117.0,
+      "reference_profile_width": 116,
+      "cropFile": "136-v2-20.5-target-crop.png"
+    }
+  ],
+  "runtimeProfile": 116,
+  "limits": [
+    "Measured frame right endpoints include endcap/raster/compression error: estimated fill widths116.75–117.0.",
+    "Runtime profile116 uses the existing native-frame calibration also applied to the observed deep Lv4 grunt116 profile.",
+    "No interpolation to other levels, HP or other rooms."
+  ]
+}

@@ -1,0 +1,84 @@
+{
+  "video": "00002-幽暗密林深处.mp4",
+  "sourceFps": 30,
+  "sampleStart": 12,
+  "strideFrames": 15,
+  "sampleCount": 28,
+  "method": "Manual target-name/level/log/counter reading; extraction is reproducible, not OCR",
+  "selectedFrames": [
+    {
+      "time": 12.0,
+      "frame": "136-v2-12-entry.png",
+      "sha256": "4aa1544bf6c703dd8dcf053e6a7f2c35e2773ee9a0077edc8a6b09dfbe866232"
+    },
+    {
+      "time": 15.5,
+      "frame": "136-v2-15.5-entry.png",
+      "sha256": "6af9cfdd563dcb20a0cb739dcfedac9c3688198342e4abba63ccbfc470291177"
+    },
+    {
+      "time": 17.5,
+      "frame": "136-v2-17.5-entry.png",
+      "sha256": "fdad3db7f7cca2134c66c0135891bec34e7e0970ab464633be4e7e813b582aac"
+    },
+    {
+      "time": 20.5,
+      "frame": "136-v2-20.5-entry.png",
+      "sha256": "77d8a5ba948b02cce188e68e22329f291202bc90ec0574c22b9d664b3efa0b7f"
+    },
+    {
+      "time": 21.0,
+      "frame": "136-v2-21-entry.png",
+      "sha256": "253efa20714577db8a8a4281bb7f8bfbc5028aacc22cc9938fa79704dfef08ee"
+    },
+    {
+      "time": 23.5,
+      "frame": "136-v2-23.5-entry.png",
+      "sha256": "bc558341894a6007e1eab06f97b61420b36f8ba98ad1deae006c4e63884f378e"
+    },
+    {
+      "time": 25.5,
+      "frame": "136-v2-25.5-entry.png",
+      "sha256": "804fceeb28a600f3e17385efc9a9a7d36ce344c3ed93a9dddf086b09a44e476d"
+    }
+  ],
+  "observations": [
+    {
+      "type": "goblinRed",
+      "label": "赤哥布林",
+      "level": 5,
+      "count": 4,
+      "creditEach": 50,
+      "targetTimes": [
+        12,
+        13.5,
+        15.5,
+        18,
+        20.5
+      ],
+      "logEvidenceTime": 21
+    },
+    {
+      "type": "goblinBlue",
+      "label": "青哥布林",
+      "level": 6,
+      "count": 3,
+      "creditEach": 60,
+      "targetTimes": [
+        21,
+        22.5,
+        25.5
+      ],
+      "logEvidenceTime": 25.5
+    }
+  ],
+  "clearCounter": 7,
+  "totalDeathCredit": 380,
+  "limits": [
+    "Four50 logs are readable at21s, three60 logs at25.5s; the cumulative counter reaches7.",
+    "No numeric enemy HP, AI, physical position or exact entry/spawn timing is inferred.",
+    "A blue goblin is visible before the later blue target selection; the old wave trigger is not validated.",
+    "These credits are room-specific observations, not a global monster-level formula.",
+    "Player starting XP and progression thresholds remain uncalibrated."
+  ]
+}

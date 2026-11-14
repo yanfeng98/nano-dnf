@@ -11227,7 +11227,7 @@ test('observed target widths distinguish stage, monster and level',()=>{
  const atlas={width:3200,height:58};
  const cases=[['mirkwood','grunt',4,181],['mirkwood','goblinBlue',4,144],['mirkwood','goblinRed',4,144],
   ['mirkwood','caster',4,144],['mirkwooddeep','grunt',4,116],['mirkwooddeep','goblinBlue',6,144],
-  ['mirkwooddeep','goblinRed',6,144],['mirkwooddeep','cat',6,162],['mirkwooddeep','throwerElite',6,162],
+  ['mirkwooddeep','goblinRed',5,116],['mirkwooddeep','goblinRed',6,144],['mirkwooddeep','cat',6,162],['mirkwooddeep','throwerElite',6,162],
   ['mirkwooddeep','throwerElite',7,196],['mirkwooddeep','deepElite',6,198],['mirkwooddeep','deepElite',7,240]];
  for(const [stage,type,level,width] of cases){
   const state=Core.createState({stage,seed:34}),enemy=Core.createEnemy(state,type,600);enemy.level=level;

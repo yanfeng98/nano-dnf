@@ -1,0 +1,191 @@
+{
+  "reproduce": [
+    "node --test tests/recording-entry.test.js",
+    "node tests/browser/starting-profile.mjs"
+  ],
+  "unitResult": {
+    "count": 466,
+    "exitCode": 0,
+    "log": "/tmp/nano136-unit.log"
+  },
+  "menuResult": {
+    "profiles": [
+      {
+        "stage": "mirkwood",
+        "upSlashSlot": 1,
+        "thirdSlot": "crossSlash",
+        "level": 3,
+        "name": "阿努纳奇",
+        "upSlashRank": 1,
+        "attackBonus": 4,
+        "maxHp": 264,
+        "maxMp": 110,
+        "xpToNext": 77,
+        "entryRoster": [
+          {
+            "type": "grunt",
+            "level": 4,
+            "xp": 40,
+            "label": "哥布林",
+            "champion": null,
+            "targetWidth": 181
+          },
+          {
+            "type": "caster",
+            "level": 4,
+            "xp": 40,
+            "label": "投掷哥布林",
+            "champion": null,
+            "targetWidth": 144
+          },
+          {
+            "type": "coward",
+            "level": 4,
+            "xp": 40,
+            "label": "胆小哥布林",
+            "champion": null,
+            "targetWidth": 181
+          },
+          {
+            "type": "cursedRed",
+            "level": 4,
+            "xp": 80,
+            "label": "诅咒之赤哥布林",
+            "champion": "dark",
+            "targetWidth": 181
+          }
+        ],
+        "pendingRoster": [],
+        "expectedHp": 264,
+        "expectedMp": 110,
+        "fireChampion": {
+          "level": 4,
+          "champion": "fire",
+          "configuredTrack": 217,
+          "fillStart": 164.25,
+          "caps": [
+            381.25,
+            381.25,
+            381.25
+          ],
+          "labels": [
+            "Lv4 燃烧之投掷哥布林",
+            "Lv4 燃烧之投掷哥布林",
+            "Lv4 燃烧之投掷哥布林"
+          ]
+        }
+      },
+      {
+        "stage": "mirkwooddeep",
+        "upSlashSlot": 1,
+        "thirdSlot": "normalWave",
+        "level": 6,
+        "name": "阿努纳奇",
+        "upSlashRank": 1,
+        "attackBonus": 10,
+        "maxHp": 300,
+        "maxMp": 125,
+        "xpToNext": 315,
+        "entryRoster": [
+          {
+            "type": "goblinRed",
+            "level": 5,
+            "xp": 50,
+            "label": "赤哥布林",
+            "champion": null,
+            "targetWidth": 116
+          },
+          {
+            "type": "goblinRed",
+            "level": 5,
+            "xp": 50,
+            "label": "赤哥布林",
+            "champion": null,
+            "targetWidth": 116
+          },
+          {
+            "type": "goblinRed",
+            "level": 5,
+            "xp": 50,
+            "label": "赤哥布林",
+            "champion": null,
+            "targetWidth": 116
+          },
+          {
+            "type": "goblinRed",
+            "level": 5,
+            "xp": 50,
+            "label": "赤哥布林",
+            "champion": null,
+            "targetWidth": 116
+          }
+        ],
+        "pendingRoster": [
+          {
+            "type": "goblinBlue",
+            "level": 6,
+            "xp": 60
+          },
+          {
+            "type": "goblinBlue",
+            "level": 6,
+            "xp": 60
+          },
+          {
+            "type": "goblinBlue",
+            "level": 6,
+            "xp": 60
+          }
+        ],
+        "expectedHp": 300,
+        "expectedMp": 125
+      }
+    ],
+    "pageErrors": [],
+    "log": "/tmp/nano136-browser-full.log: starting profiles OK"
+  },
+  "inputs": [
+    {
+      "file": "src/core.js",
+      "sha256": "4df5e71851f3a8462df3015caece46200f2081c69e77339f9c1fed30b5a89ef2"
+    },
+    {
+      "file": "src/render.js",
+      "sha256": "92dde93ed60c231e37a2f05cefa217da173cb21f4ce1dc6e87c738fa0f097d01"
+    },
+    {
+      "file": "tests/recording-entry.test.js",
+      "sha256": "18e887a567d20d27602e805269a033b5639d1648bedf0219b49e2dfd48d99817"
+    },
+    {
+      "file": "tests/browser/starting-profile.mjs",
+      "sha256": "1224629f8890c852d6f008c604705344058f9d3aeaddd57de3d736f4ad7511b0"
+    }
+  ],
+  "fullBrowser": {
+    "pid": 513965,
+    "started": 1794676957.0242236,
+    "finished": 1794677426.4381247,
+    "unitExitCode": 0,
+    "browserExitCode": 0,
+    "inputs": {
+      "src/core.js": "4df5e71851f3a8462df3015caece46200f2081c69e77339f9c1fed30b5a89ef2",
+      "src/render.js": "92dde93ed60c231e37a2f05cefa217da173cb21f4ce1dc6e87c738fa0f097d01",
+      "src/main.js": "4bb0066760c37e103e0d36fd227531045f931e82ab06f621576b536843e86b26",
+      "package.json": "e69bc4ceecd8666209c8a582e4be14e9c4e626b14c3c7d2801b0696b2d1eb933",
+      "tests/browser/keyboard-policy.cjs": "ff172471c06816cb872711207475e65c94acd8bd87718442ea39c4b241f1117f",
+      "tests/browser/playability.mjs": "61b1859366317fafbaed8eeb2416d8cae7b2dd14393f0dc42a77d2793de75b0c",
+      "tests/browser-keyboard-policy.test.js": "531db0bff42af8da1468a2173b01f8adc9197903e66e381144bd179022d6ec5c",
+      "tests/browser-pass-selection.test.js": "cf51b52bea8ffce421dde5b10dc51cc61b5c0429f1c8491c4f543d8377fa345f",
+      "tests/browser/starting-profile.mjs": "1224629f8890c852d6f008c604705344058f9d3aeaddd57de3d736f4ad7511b0",
+      "tests/recording-entry.test.js": "18e887a567d20d27602e805269a033b5639d1648bedf0219b49e2dfd48d99817",
+      "tests/core.test.js": "964250c4763a34fd3e1d9a83efd801a016cfc9094705c7c5370dbe089f13040c"
+    },
+    "inputsUnchanged": true,
+    "groups": 45
+  },
+  "limits": [
+    "Player maxHP/MP/attack and XP thresholds in these snapshots are current model values, not newly calibrated facts.",
+    "Exact positions/spawn timing, growth and human acceptance remain open."
+  ]
+}

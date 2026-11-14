@@ -40,7 +40,9 @@ try {
       const C = window.DNFCore, s = window.nanoDnf.getState(), p = s.player;
       return { stage: s.stage.id, upSlashSlot: window.nanoDnf.getLoadout().indexOf("upSlash"), thirdSlot: window.nanoDnf.getLoadout()[2], level: p.level, name: p.name, upSlashRank: p.skillRanks?.upSlash, attackBonus: p.attackBonus,
         maxHp: p.maxHp, maxMp: p.maxMp, xpToNext: p.xpToNext,
-        entryRoster: s.enemies.map(e => ({type:e.type,level:e.level,label:C.ENEMY_TYPES[e.type].label,champion:e.champion})),
+        entryRoster: s.enemies.map(e => ({type:e.type,level:e.level,xp:e.xp,label:C.ENEMY_TYPES[e.type].label,champion:e.champion,
+          targetWidth:window.DNFRender.targetTrackWidth(s,e)})),
+        pendingRoster: s.room.pendingWave.map(e => ({type:e.type,level:e.level,xp:e.xp})),
         expectedHp: C.PLAYER.maxHp + (p.level - 1) * C.PROGRESSION.maxHpPerLevel,
         expectedMp: C.PLAYER.maxMp + (p.level - 1) * C.PROGRESSION.maxMpPerLevel };
     });
@@ -54,6 +56,11 @@ try {
       assert.deepEqual(actual.entryRoster.map(e=>e.type).sort(),['caster','coward','cursedRed','grunt']);
       assert.ok(actual.entryRoster.every(e=>e.level===4));
       assert.equal(actual.entryRoster.find(e=>e.type==='cursedRed').label,'诅咒之赤哥布林');
+    } else {
+      assert.equal(actual.entryRoster.length,4);
+      assert.ok(actual.entryRoster.every(e=>e.type==='goblinRed'&&e.level===5&&e.xp===50&&e.targetWidth===116));
+      assert.equal(actual.pendingRoster.length,3);
+      assert.ok(actual.pendingRoster.every(e=>e.type==='goblinBlue'&&e.level===6&&e.xp===60));
     }
     results.push(actual);
     const render = await page.evaluate(() => {
