@@ -1,0 +1,31 @@
+{
+  "bug": "Invalid PASSES CLI check imports Playwright before argument validation, breaking the dependency-free npm test CI gate.",
+  "reproduce": "node --test tests/browser-pass-selection.test.js; third case copies the real entry, policy and Core to an isolated checkout without node_modules.",
+  "before": "ERR_MODULE_NOT_FOUND: Cannot find package playwright imported from the isolated checkout playability.mjs (/tmp/nano135-red.log).",
+  "after": "All3 CLI tests passed; all465 unit tests passed with exit0 (/tmp/nano135-unit.log).",
+  "change": "Load Playwright dynamically only after accepting PASSES; browser execution and invalid-argument rejection remain enabled.",
+  "ciObserved": {
+    "run": 43618942422,
+    "url": "https://github.com/yanfeng98/nano-dnf/actions/runs/43618942422",
+    "commit": "9be5a60e75c01429506d67cc59675f4de5342b89",
+    "build": "failure",
+    "deploy": "skipped",
+    "verify": "skipped",
+    "limits": "Public job status observed; private step log was not retrieved. Root cause reproduced from the dependency-free workflow layout locally."
+  },
+  "inputs": [
+    {
+      "file": "tests/browser/playability.mjs",
+      "sha256": "61b1859366317fafbaed8eeb2416d8cae7b2dd14393f0dc42a77d2793de75b0c"
+    },
+    {
+      "file": "tests/browser-pass-selection.test.js",
+      "sha256": "cf51b52bea8ffce421dde5b10dc51cc61b5c0429f1c8491c4f543d8377fa345f"
+    }
+  ],
+  "fullBrowser": "Running in independent supervisor; /tmp/nano135-regression-result.json will record exit and source hashes.",
+  "limits": [
+    "No game source or numerical rules changed.",
+    "Full recording fidelity and human acceptance remain open."
+  ]
+}

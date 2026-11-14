@@ -12,7 +12,6 @@
  *   npm run test:browser
  */
 
-import { chromium } from "playwright";
 import decide from "./keyboard-policy.cjs";
 import http from "node:http";
 import fs from "node:fs";
@@ -2183,6 +2182,9 @@ async function main() {
   if (only && only !== "keyboard") {
     throw new Error(`Unsupported PASSES=${JSON.stringify(only)}; supported pass: keyboard`);
   }
+  // The dependency-free npm test gate exercises invalid CLI arguments too.
+  // Only a valid browser run needs Playwright installed.
+  const { chromium } = await import("playwright");
   fs.mkdirSync(ARTIFACTS, { recursive: true });
   const { server, port } = await startServer();
   const baseUrl = `http://127.0.0.1:${port}/index.html`;

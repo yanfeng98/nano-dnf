@@ -1,0 +1,137 @@
+{
+  "video": "00001-\u5e7d\u6697\u5bc6\u6797.mp4",
+  "sourceFps": 30,
+  "sampleStart": 76,
+  "strideFrames": 15,
+  "selectedSamples": [
+    {
+      "time": 82.5,
+      "frame": "134-v1-82.5-second-room.png",
+      "connectedGreenPixels": 157,
+      "sha256": "01d0bf332f91bdf26b118c59313640d1afc2d038f20ff29c215d3332f08150d5",
+      "credit": null,
+      "level": null
+    },
+    {
+      "time": 83.5,
+      "frame": "134-v1-83.5-second-room.png",
+      "connectedGreenPixels": 160,
+      "sha256": "f84d7d0c459c528f9479784f089f06e3b503de4962e0226a79f5362907c7e4a1",
+      "credit": null,
+      "level": null
+    },
+    {
+      "time": 96.5,
+      "frame": "134-v1-96.5-second-room.png",
+      "connectedGreenPixels": 160,
+      "sha256": "9707964d90c352824a10d0057123dfc42292f7951b1a7dca720353fb5f3f068b",
+      "credit": null,
+      "level": null
+    },
+    {
+      "time": 98.0,
+      "frame": "134-v1-98-second-room.png",
+      "connectedGreenPixels": 2,
+      "sha256": "7f5cf25bc7a68981c8c726a30e7321b30890c8f19621125790e989fdb617fd91",
+      "credit": null,
+      "level": null
+    }
+  ],
+  "secondRoomConstraint": {
+    "method": "Manual new40/40 log readings and Lv3 classification, combined with audit121 bar constraints",
+    "addedObservations": [
+      {
+        "time": 82.5,
+        "credit": 240,
+        "level": 3,
+        "frame": "134-v1-82.5-second-room.png",
+        "sha256": "01d0bf332f91bdf26b118c59313640d1afc2d038f20ff29c215d3332f08150d5",
+        "fractionInterval": [
+          0.96875,
+          0.99375
+        ]
+      },
+      {
+        "time": 83.5,
+        "credit": 280,
+        "level": 3,
+        "frame": "134-v1-83.5-second-room.png",
+        "sha256": "f84d7d0c459c528f9479784f089f06e3b503de4962e0226a79f5362907c7e4a1",
+        "fractionInterval": [
+          0.9875,
+          1
+        ]
+      },
+      {
+        "time": 96.5,
+        "credit": 280,
+        "level": 3,
+        "frame": "134-v1-96.5-second-room.png",
+        "sha256": "9707964d90c352824a10d0057123dfc42292f7951b1a7dca720353fb5f3f068b",
+        "fractionInterval": [
+          0.9875,
+          1
+        ]
+      }
+    ],
+    "thresholdIntegerInterval": [
+      1730,
+      2240
+    ],
+    "endpointInitialXpIntervals": [
+      {
+        "threshold": 1730,
+        "initialXpIntegerInterval": [
+          1449,
+          1449
+        ]
+      },
+      {
+        "threshold": 2240,
+        "initialXpIntegerInterval": [
+          1932,
+          1932
+        ]
+      }
+    ],
+    "priorScaledModels": [
+      {
+        "semantics": "cumulative",
+        "indexOffset": 0,
+        "clearEndpointErrorPixels": 2,
+        "impliedLv3ThresholdInterval": [
+          1940.1672694394215,
+          1965.6578134651018
+        ],
+        "compatibleWithSecondRoom": true
+      },
+      {
+        "semantics": "cumulative",
+        "indexOffset": 1,
+        "clearEndpointErrorPixels": 2,
+        "impliedLv3ThresholdInterval": [
+          2328.311444352341,
+          2397.0371929719045
+        ],
+        "compatibleWithSecondRoom": false
+      }
+    ],
+    "inputHashes": {
+      "121-entry-xp.json": "d2d2a5f99d9e7cb3f59da0549995a4b07e422b177ce254fe1acc8fe5d18a0280",
+      "128-experience-scale-constraints.json": "f162016a5f9269ef79a2cbfe53029738382b46625b90ad657299857333642c3d"
+    },
+    "limits": [
+      "Assumes the listed XP credits are the only changes before the first upgrade.",
+      "The full-looking Lv3 bar is a clipped endpoint observation, not a level-up event.",
+      "The upgrade animation at97s is excluded from balance constraints.",
+      "Eliminating a scaled-table candidate does not prove the remaining curve is the server rule.",
+      "No midpoint, exact threshold, initial balance or runtime growth table is adopted."
+    ]
+  },
+  "reproduce": "python3 scripts/measure-reference-second-room-experience.py",
+  "limits": [
+    "No XP ledger or level classification is inferred automatically.",
+    "Connected green width can be contaminated by upgrade flashes.",
+    "Manual log reading and event ordering are required before using a balance constraint."
+  ]
+}
