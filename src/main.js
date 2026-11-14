@@ -36,7 +36,7 @@
     rift: null, awakening: null, region: null,
     monsters: null, throwerReference: null, nativeFlora: null, forest: null, minimap: null, ui: null, results: null,
     /* Native client UI faces and target frames; see reference batches 31–34. */
-    portraits: null
+    portraits: null, experienceDigits: null
   };
   /*
    * **素材没到齐之前，一帧游戏都不画。**
@@ -134,6 +134,7 @@
      */
     ["minimap", "./assets/minimap.png"],
     ["results", "./assets/results-reference.png"],
+    ["experienceDigits", "./assets/experience-digits.png"],
     /*
      * 魔狱血刹's 觉醒插画, and the one piece of art in this folder that is not
      * baked from the client: the client has no 一觉 illustration to bake (see

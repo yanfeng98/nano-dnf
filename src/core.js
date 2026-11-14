@@ -1621,6 +1621,13 @@
     "hellbenterSlam"
   ]);
 
+  // Both recordings: nine 30fps intervals of rise, 24 visible frames total.
+  // Pixels refer to the original 1080-high recording, not the 540-high viewport.
+  var EXPERIENCE_FLOAT = {
+    duration: 24 / 30, riseTime: 9 / 30, riseVideoPixels: 66,
+    headGap: 18 // Retained placement estimate; exact native offset is still unverified.
+  };
+
   var PROGRESSION = {
     baseXpToNext: 30,
     growth: 1.6,
@@ -1850,8 +1857,9 @@
      */
     cursedRed: {
       /* 录像：`人型 Lv4 咒之赤哥布林`（(2,1) 那一间，身上一圈紫光）。 */
-      label: "咒之赤哥布林",
+      label: "诅咒之赤哥布林",
       race: "人型",
+      level: 4,
       behavior: "melee",
       champion: "dark",
       maxHp: 40,
@@ -1870,6 +1878,7 @@
       /* 录像那块条上念到过的名字；行为就是投掷哥布林那一套，加一圈火光。 */
       label: "燃烧之投掷哥布林",
       race: "人型",
+      level: 4,
       behavior: "ranged",
       champion: "fire",
       maxHp: 34,
@@ -2032,7 +2041,8 @@
        * （`docs/adr/0053` 追记）。
        */
       maxHp: 90,
-      xp: 80,
+      // V1 330s death log: 获得280点经验值 (43-boss-xp-contact.png).
+      xp: 280,
       /*
        * **172x201 → 138x168**（`docs/adr/0050` 追记）。录像里它站着是 355x530 视频px；
        * 高度那一边是硬的（265 视频px = 1 身位，530 就是 **2.00 身位**），本作画出来
@@ -2180,7 +2190,8 @@
       barColor: "red",
       evasion: 0.10,
       maxHp: 150,
-      xp: 120,
+      // V2 386s death log: 获得360点经验值 (43-boss-xp-contact.png).
+      xp: 360,
       /*
        * 录像量到的是一只**低伏四足兽**：高 0.31–0.37 身位（26–31 世界px）、
        * 长 0.79–0.91（66–76）；不是原来的 88×68。
@@ -2288,12 +2299,16 @@
           /* 起点房：地牢一进来就是它（`MIRKWOOD_DUNGEON.entryRoom`）。 */
           kind: "room",
           enemies: [
-            { type: "grunt", x: 430 },
-            { type: "grunt", x: 489 },
-            { type: "grunt", x: 370 },
-            { type: "goblinBlue", x: 548 },
-            { type: "goblinBlue", x: 700, wave: 2 },
-            { type: "grunt", x: 759, wave: 2 }
+            // V1 69.6–73.6s: three ordinary 40XP deaths and the 80XP champion.
+            // These are room observations, not a global type/level XP formula.
+            { type: "grunt", x: 430, xp: 40 },
+            // V1 target names at 62s and 65.5s establish the other two types.
+            { type: "caster", x: 489, xp: 40 },
+            { type: "coward", x: 370, xp: 40 },
+            // V1 entry0 -> clear4 cumulative kills (audits110/116).
+            // The older two-enemy reinforcement had no recording support.
+            // V1 71.3s: Lv4 cursed-red target, dark champion aura (audit119).
+            { type: "cursedRed", x: 548, xp: 80 }
           ],
           props: [
             { piece: "trunkTall", x: 150, depth: 1 },
@@ -4531,7 +4546,7 @@
       };
     }
 
-    function createEnemy(state, type, x, z, level) {
+    function createEnemy(state, type, x, z, level, xp) {
       var spec = ENEMY_TYPES[type] || ENEMY_TYPES.grunt;
       var jitter = (nextRandom(state) * 2 - 1) * 14;
       return {
@@ -4563,7 +4578,8 @@
         hp: spec.maxHp,
         maxHp: spec.maxHp,
         damage: spec.damage,
-        xp: spec.xp,
+        // A measured room credit overrides the still uncalibrated type default.
+        xp: xp === undefined ? spec.xp : xp,
         behavior: spec.behavior || "melee",
         barColor: spec.barColor || null,
         /* 冠军怪那一圈光环（`champdark` / `champfire`）；普通怪是 null。 */
@@ -4666,15 +4682,9 @@
     }
 
     /*
-     * **地上的掉落**（`docs/adr/0042`）。录像里怪一死，地上就摆出一块**写着物品名的
-     * 名牌**（深底圆角 + 浅青字），走过去**自动收**；收的那一刻三样一起发生：牌子没了、
-     * 原地浮一行绿色的 `+40 Exp`、左边日志加一行 `获得[X]1个`（外加点数与金币两行）。
-     *
-     * **经验是捡起来才给的**（业主 2026-10-14 定，Q12 选 a）—— 怪倒下的那一刻只把
-     * 牌子放出来。掉落点就是它倒下的地方，够得着。
-     *
-     * 名字全部来自录像那份日志里念过的那些；白名与青名是照录像分的两档颜色
-     * （`获得[哥布林毛皮]1个` 是白、`获得[最下级硬化剂]1个` 是青）。
+     * Item labels stay on the floor until collected (ADR0042). Collection adds
+     * item/gold logs; death XP is independent (ADR0068, audits110/117).
+     * White/cyan names still come from the recording's observed item lists.
      */
     var LOOT = {
       /*
@@ -5451,7 +5461,7 @@
       var laterWaves = {};
       (spec.enemies || []).forEach(function (entry) {
         var z = entry.depth === undefined ? 0 : entry.depth * depth;
-        var item = { type: entry.type, x: entry.x, z: z, level: entry.level };
+        var item = { type: entry.type, x: entry.x, z: z, level: entry.level, xp: entry.xp };
         var wave = entry.wave || 1;
         if (wave <= 1) firstWave.push(item);
         else (laterWaves[wave] = laterWaves[wave] || []).push(item);
@@ -5462,7 +5472,7 @@
       state.enemies = cleared
         ? []
         : firstWave.map(function (entry) {
-            return createEnemy(state, entry.type, entry.x, entry.z, entry.level);
+            return createEnemy(state, entry.type, entry.x, entry.z, entry.level, entry.xp);
           });
       state.room.pendingWave = cleared || !waveNumbers.length
         ? []
@@ -5930,7 +5940,7 @@
       name: loot.name,
       tone: loot.tone,
       gold: loot.gold,
-      exp: enemy.xp,
+      exp: 0,
       x: enemy.x,
       z: enemy.z || 0,
       life: LOOT.life
@@ -5942,7 +5952,7 @@
    *
    * - **宝箱**：一件青名物品 + 60–120 金币；
    * - **石碑**：20–50 金币；
-   * - 两样都**不给经验** —— 经验挂在怪倒下/捡起上，不该让砸石头也能升级。
+   * - 两样都**不给经验** —— 怪物死亡发经验，不该让砸石头也能升级。
    *
    * 掉落点的哈希仍走 `hash32`（不走 `nextRandom`），所以同一 seed 下宝箱开出的
    * 东西与位置是确定的，和怪物的掉落互不干扰。
@@ -5984,31 +5994,30 @@
     if (drop) state.pickups.push(drop);
   }
 
-  /** 走过去把它收掉：经验、金币、日志三行、原地一行 `+N Exp`（`docs/adr/0042`）。 */
+  /** Item and gold collection is separate from death XP (audits110/117). */
   function collectLoot(state, drop) {
     state.stats.loot += 1;
     state.stats.gold += drop.gold;
-    /*
-     * **经验挂在"捡"上，不挂在"杀"上**（业主 2026-10-14，Q12 选 a）。录像里那三行
-     * 日志（`获得[X]1个` / `获得40点经验值` / `获得38金币`）也是同一刻一起出来的。
-     *
-     * 可破坏布景的掉落 `exp` 是 0：那就只写物品与金币两行，不写"获得0点经验值"，
-     * 也不浮 `+0 Exp`。
-     */
     pushLog(state, "获得[" + drop.name + "]1个", drop.tone);
-    if (drop.exp > 0) {
-      grantXp(state, drop.exp);
-      pushLog(state, "获得" + drop.exp + "点经验值", "gold");
-      state.effects.push({
-        kind: "pickupText",
-        text: "+" + drop.exp + " Exp",
-        x: drop.x,
-        y: ARENA.groundY - depthLift(drop.z || 0) - 18,
-        life: 0.9,
-        maxLife: 0.9
-      });
-    }
     pushLog(state, "获得" + drop.gold + "金币", "gold");
+  }
+
+  // Death pays XP even when its item stays on the floor. Exact native death
+  // phase and XP amounts remain unverified; use the existing single death event.
+  function awardEnemyExperience(state, enemy) {
+    if (!(enemy.xp > 0) || state.player.dead) return;
+    grantXp(state, enemy.xp);
+    pushLog(state, "获得" + enemy.xp + "点经验值", "gold");
+    state.effects.push({
+      kind: "pickupText",
+      text: enemy.xp + " Exp",
+      anchor: "player",
+      x: state.player.x,
+      // Initial fallback position; the live caption follows its owner's body.
+      y: state.player.y - depthLift(state.player.z || 0) - ART_HEIGHT - EXPERIENCE_FLOAT.headGap,
+      life: EXPERIENCE_FLOAT.duration,
+      maxLife: EXPERIENCE_FLOAT.duration
+    });
   }
 
   /** 石碑只掉金币：不写物品行、不给经验。 */
@@ -6034,7 +6043,7 @@
       levels += 1;
     }
     if (levels > 0) {
-      pushBanner(state, "LEVEL UP - Lv " + player.level, 1.4);
+      pushLog(state, "[" + (player.name || "鬼剑士") + "]已达到Lv" + player.level, "gold");
     }
     return levels;
   }
@@ -6500,11 +6509,8 @@
        * **领主不弹 "Boss down!"**：参考里它倒下那几秒只有光/白团/魂球/肉块，
        * 没有这行大字；目标条上的红叉已经说了它倒下。杂兵仍保留。
        */
-      /*
-       * **经验改成"捡起来才给"**（业主 2026-10-14，Q12 选 a）：这里只把名牌放到地上，
-       * `grantXp` 挪到 `collectLoot` 里 —— 录像里那行 `+40 Exp` 就是名牌被收走那一刻
-       * 浮出来的，不是怪倒下的时候。
-       */
+      // ADR0068 supersedes the pickup-bound XP decision in ADR0042.
+      awardEnemyExperience(state, enemy);
       dropLoot(state, enemy);
     } else if (enemy.phase2 && enemy.phase < 2 && enemy.hp <= enemy.maxHp * enemy.phase2.hpRatio) {
       enterPhase2(state, enemy);
@@ -8413,7 +8419,7 @@
     else side = entry.x <= left + roomWidth(state) / 2 ? -1 : 1;
     var spawnX = side < 0 ? left + spec.width : right - spec.width;
     var toX = clamp(entry.x, left + spec.width, right - spec.width);
-    var enemy = createEnemy(state, entry.type, spawnX, entry.z, entry.level);
+    var enemy = createEnemy(state, entry.type, spawnX, entry.z, entry.level, entry.xp);
     /* `createEnemy` 会加一个 ±14 的随机抖动；进场要从**边缘**开始，所以钉回去。 */
     enemy.x = spawnX;
     enemy.facing = toX >= spawnX ? 1 : -1;
@@ -9059,6 +9065,7 @@
     SKILL_ORDER: SKILL_ORDER,
     CASTABLE_SKILLS: CASTABLE_SKILLS,
     PROGRESSION: PROGRESSION,
+    EXPERIENCE_FLOAT: EXPERIENCE_FLOAT,
     /* 地上的掉落与它那几个数（`docs/adr/0042`），和左边那栏日志的行数上限。 */
     LOOT: LOOT,
     LOG_LINES: LOG_LINES,

@@ -1,0 +1,93 @@
+{
+  "method": "real damageEnemy then real step collection; no direct XP credit assignment",
+  "reproduce": "node --test tests/combat-experience.test.js",
+  "coreSha256": "1c3811505563c12ca04ee9b949e7ef389926d2a21c9ce192e42302e2983094e3",
+  "rows": [
+    {
+      "stage": "mirkwood",
+      "type": "grunt",
+      "configuredXp": 10,
+      "death": {
+        "xp": 10,
+        "items": 0,
+        "gold": 0,
+        "floorItems": 1
+      },
+      "collection": {
+        "xp": 10,
+        "items": 1,
+        "gold": 72
+      },
+      "creditCount": 1
+    },
+    {
+      "stage": "mirkwood",
+      "type": "cursedRed",
+      "configuredXp": 14,
+      "death": {
+        "xp": 14,
+        "items": 0,
+        "gold": 0,
+        "floorItems": 1
+      },
+      "collection": {
+        "xp": 14,
+        "items": 1,
+        "gold": 72
+      },
+      "creditCount": 1
+    },
+    {
+      "stage": "mirkwood",
+      "type": "boss",
+      "configuredXp": 80,
+      "death": {
+        "xp": 80,
+        "items": 0,
+        "gold": 0,
+        "floorItems": 1
+      },
+      "collection": {
+        "xp": 80,
+        "items": 1,
+        "gold": 72
+      },
+      "creditCount": 1
+    },
+    {
+      "stage": "mirkwooddeep",
+      "type": "goblinRed",
+      "configuredXp": 10,
+      "death": {
+        "xp": 10,
+        "items": 0,
+        "gold": 0,
+        "floorItems": 1
+      },
+      "collection": {
+        "xp": 10,
+        "items": 1,
+        "gold": 72
+      },
+      "creditCount": 1
+    },
+    {
+      "stage": "mirkwooddeep",
+      "type": "lugaruBoss",
+      "configuredXp": 120,
+      "death": {
+        "xp": 120,
+        "items": 0,
+        "gold": 0,
+        "floorItems": 1
+      },
+      "collection": {
+        "xp": 120,
+        "items": 1,
+        "gold": 72
+      },
+      "creditCount": 1
+    }
+  ],
+  "limits": "Configured XP amounts and exact native death phase remain unverified."
+}

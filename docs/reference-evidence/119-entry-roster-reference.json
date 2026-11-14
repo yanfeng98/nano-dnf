@@ -1,0 +1,77 @@
+{
+  "source": "00001-幽暗密林.mp4",
+  "normalization": "crop centred1440x1080 at x240; scale720x540",
+  "method": "manual target-name/portrait reading; extraction is reproducible, not automated OCR",
+  "observations": [
+    {
+      "time": 62,
+      "type": "coward",
+      "label": "胆小哥布林",
+      "level": 4,
+      "category": "人型",
+      "file": "119-entry-62-reference.png",
+      "frameSha256": "96f6d2e6b874a9b1566012b6de174c59dc6e105b9253770bf08a9a74d4f18aa8",
+      "roi": [
+        0,
+        43,
+        360,
+        42
+      ],
+      "roiRgbSha256": "1665098d058fff4d29790f6ae47936397960b6fcb1fdbb763ea5e08c41dc69d4"
+    },
+    {
+      "time": 64,
+      "type": "cursedRed",
+      "label": "诅咒之赤哥布林",
+      "level": 4,
+      "category": "人型",
+      "file": "119-entry-64-reference.png",
+      "frameSha256": "16fe06a57f4a0b541adba05bdc0d3db61c22dbd33aee20d68ffb4f2f119d5221",
+      "roi": [
+        0,
+        43,
+        360,
+        42
+      ],
+      "roiRgbSha256": "b242af711a3bd458521039d8d7772bb988e391416902b8023b33437ae21b6ee9"
+    },
+    {
+      "time": 65.5,
+      "type": "caster",
+      "label": "投掷哥布林",
+      "level": 4,
+      "category": "人型",
+      "file": "119-entry-65.5-reference.png",
+      "frameSha256": "4f766aa19eb5d39fb926625aedfa3a3704e107f7ff74a302344d3633d0fd1604",
+      "roi": [
+        0,
+        43,
+        360,
+        42
+      ],
+      "roiRgbSha256": "5f87ebafb715c297949a39ebfbbfd803bbe9ef4ddf8de47b9f758802726fa7d3"
+    },
+    {
+      "time": 66.5,
+      "type": "grunt",
+      "label": "哥布林",
+      "level": 4,
+      "category": "人型",
+      "file": "119-entry-66.5-reference.png",
+      "frameSha256": "26304f3c9bde67e1fc277ad96239577f97f366e5de1564740efa77199cb78c7d",
+      "roi": [
+        0,
+        43,
+        360,
+        42
+      ],
+      "roiRgbSha256": "a2c885864803bc03aada412d86295ad954c9e91b92328fd07f1039c116c60234"
+    }
+  ],
+  "countEvidence": "audits110/115: counter0 before combat and4 before leaving cleared entry",
+  "limits": [
+    "No exact spawn coordinates, AI, HP or XP formula is established here.",
+    "Four distinct types plus four total kills support one of each in this recorded room.",
+    "Initial placement of the four runtime slots is retained pending separate measurement."
+  ]
+}

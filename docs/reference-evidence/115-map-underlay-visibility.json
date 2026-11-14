@@ -1,0 +1,67 @@
+{
+  "model": "batch107 radar background/rim and109 full-window rectangle; ideal hard window/disc boundaries",
+  "windowEdgeSensitivityPixels": [
+    -2,
+    -1,
+    0,
+    1,
+    2
+  ],
+  "observations": [
+    {
+      "windowLeftAndBottomShift": -2,
+      "effectiveBackgroundPixels": 17.735305786132812,
+      "pixelsOver20PercentContribution": 37,
+      "pixelsOver50PercentContribution": 6,
+      "supportBounds": [
+        645,
+        118,
+        666,
+        119
+      ]
+    },
+    {
+      "windowLeftAndBottomShift": -1,
+      "effectiveBackgroundPixels": 7.05599308013916,
+      "pixelsOver20PercentContribution": 15,
+      "pixelsOver50PercentContribution": 0,
+      "supportBounds": [
+        646,
+        119,
+        662,
+        119
+      ]
+    },
+    {
+      "windowLeftAndBottomShift": 0,
+      "effectiveBackgroundPixels": 1.9023396968841553,
+      "pixelsOver20PercentContribution": 0,
+      "pixelsOver50PercentContribution": 0,
+      "supportBounds": null
+    },
+    {
+      "windowLeftAndBottomShift": 1,
+      "effectiveBackgroundPixels": 0.44998854398727417,
+      "pixelsOver20PercentContribution": 0,
+      "pixelsOver50PercentContribution": 0,
+      "supportBounds": null
+    },
+    {
+      "windowLeftAndBottomShift": 2,
+      "effectiveBackgroundPixels": 3.6080918312072754,
+      "pixelsOver20PercentContribution": 5,
+      "pixelsOver50PercentContribution": 0,
+      "supportBounds": [
+        615,
+        78,
+        615,
+        83
+      ]
+    }
+  ],
+  "limits": [
+    "Window shadow/soft edges and exact native window bounds remain unverified.",
+    "Effective pixel counts are support weights, not texture identity evidence.",
+    "Do not fit material or colour from a sparse or geometry-sensitive support."
+  ]
+}

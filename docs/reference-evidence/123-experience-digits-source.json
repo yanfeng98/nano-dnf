@@ -1,0 +1,193 @@
+{
+  "folder": "ImagePacks2",
+  "pack": "sprite_common_etc.NPK",
+  "entry": "sprite/common/etc/expup.img",
+  "cell": [
+    16,
+    16
+  ],
+  "glyphs": [
+    {
+      "character": "0",
+      "frame": 0,
+      "rect": [
+        0,
+        2,
+        11,
+        12
+      ],
+      "offset": [
+        0,
+        2
+      ],
+      "advance": 12,
+      "rgbaSha256": "31836068a19b98a7f8e191f32b523369919e92a5def3f4411930db5e8bf54402"
+    },
+    {
+      "character": "1",
+      "frame": 1,
+      "rect": [
+        16,
+        2,
+        6,
+        12
+      ],
+      "offset": [
+        0,
+        2
+      ],
+      "advance": 7,
+      "rgbaSha256": "85894103669906d976b2a2c6ee5b83d02fda41ba9f4264bbe941b28f2b840c12"
+    },
+    {
+      "character": "2",
+      "frame": 2,
+      "rect": [
+        32,
+        1,
+        10,
+        13
+      ],
+      "offset": [
+        0,
+        1
+      ],
+      "advance": 11,
+      "rgbaSha256": "f5ac1fc354e3855ce7219dfca72f1c0e4431a621e8de83996c417591369e2c25"
+    },
+    {
+      "character": "3",
+      "frame": 3,
+      "rect": [
+        48,
+        1,
+        10,
+        15
+      ],
+      "offset": [
+        0,
+        1
+      ],
+      "advance": 11,
+      "rgbaSha256": "c6c8b7d193d7686077286c03ab40af0fe3c0383b2904ece4bcca83229deb11ec"
+    },
+    {
+      "character": "4",
+      "frame": 4,
+      "rect": [
+        64,
+        1,
+        10,
+        13
+      ],
+      "offset": [
+        0,
+        1
+      ],
+      "advance": 11,
+      "rgbaSha256": "10893f5dd9adb77875cb93c633509f56d3d9580fadaf4511ab14c6e0a0200d39"
+    },
+    {
+      "character": "5",
+      "frame": 5,
+      "rect": [
+        80,
+        2,
+        9,
+        14
+      ],
+      "offset": [
+        0,
+        2
+      ],
+      "advance": 10,
+      "rgbaSha256": "bb882ced23bb95ce255e5852383c825ab5fa41a45f2328ffc0693389da74369e"
+    },
+    {
+      "character": "6",
+      "frame": 6,
+      "rect": [
+        96,
+        0,
+        10,
+        15
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "advance": 11,
+      "rgbaSha256": "83e4ac465d35cc4bea5b6c6a0ac51a73fa158a3762b17d01ad726e35ecb83fa4"
+    },
+    {
+      "character": "7",
+      "frame": 7,
+      "rect": [
+        112,
+        2,
+        10,
+        14
+      ],
+      "offset": [
+        0,
+        2
+      ],
+      "advance": 11,
+      "rgbaSha256": "3e1b3bbd1b60c9c016068f2d106267f92560dd59f2976c4e5ff5535cb61c7691"
+    },
+    {
+      "character": "8",
+      "frame": 8,
+      "rect": [
+        128,
+        2,
+        10,
+        12
+      ],
+      "offset": [
+        0,
+        2
+      ],
+      "advance": 11,
+      "rgbaSha256": "4517d8b50e73042ceb0d8735021d9e2598083d0edbd6df7c9865118897319c2e"
+    },
+    {
+      "character": "9",
+      "frame": 9,
+      "rect": [
+        144,
+        2,
+        10,
+        14
+      ],
+      "offset": [
+        0,
+        2
+      ],
+      "advance": 11,
+      "rgbaSha256": "237933ff892e0e0d69c5a589d5b8df201ff77514ad8cf35c7c4f9528d92f3128"
+    },
+    {
+      "character": "+",
+      "frame": 11,
+      "rect": [
+        160,
+        3,
+        9,
+        10
+      ],
+      "offset": [
+        0,
+        3
+      ],
+      "advance": 10,
+      "rgbaSha256": "1aea38556fbcc641d89b33679f9dd18258b25664aa519e789e46e18b1f05bfcd"
+    }
+  ],
+  "atlasRgbaSha256": "794949c2c142844b6877e4c70cae89d6dad787650104fd057798aaf9ec01d62a",
+  "limits": [
+    "Original pixels, no recoloring, scaling, keying or font painting.",
+    "Native frame10 says Chinese experience and is not exported; the English suffix is still a fallback.",
+    "Advances follow glyph width plus one; exact engine kerning remains unverified."
+  ]
+}

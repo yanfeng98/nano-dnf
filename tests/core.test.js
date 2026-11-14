@@ -2357,7 +2357,7 @@ test("a kill leaves no health on the floor", () => {
    * `0017` said the stance's price was buying (docs/adr/0021).
    *
    * **地上现在有东西了，可它不是血**（`docs/adr/0042`）：怪一死摆出来的是一块
-   * 掉落名牌，收掉它给经验与金币，血条一分都不涨 —— 这一条要的正是后者。
+   * 掉落名牌，死亡给经验，收掉名牌给物品与金币，血条一分都不涨 —— 这一条要的正是后者。
    */
   const state = lastRoomState();
   state.player.buffs.bloodRage = 0;
@@ -2373,7 +2373,7 @@ test("a kill leaves no health on the floor", () => {
     "no heal orbs, from any rank"
   );
   /*
-   * 走过去把两块名牌收掉：经验金币进账，**血一点不动** —— 唯一的例外是升级本身
+   * 走过去把两块名牌收掉：物品金币进账，**血一点不动** —— 唯一的例外是升级本身
    * 回的那一口（`PROGRESSION.healOnLevelUp`），那是等级的账，不是掉落的。
    */
   const levelBefore = state.player.level;
@@ -2474,8 +2474,7 @@ test("everything placed on the floor comes up the screen by exactly the lift", (
 });
 
 /*
- * **经验是捡起来才给的**（业主 2026-10-14，Q12 选 a）：怪倒下的那一刻只把掉落
- * 名牌放到地上，走进去收掉才进账（`docs/adr/0042`）。
+ * Item/gold collection remains independent from death XP (audit117).
  */
 function pickUpEverything(state) {
   state.pickups.slice().forEach((drop) => {
@@ -2495,8 +2494,10 @@ test("defeating enemies grants XP and levels the player up", () => {
   Core.damageEnemy(state, first, 9999, 0, state.player.x);
   Core.damageEnemy(state, second, 9999, 0, state.player.x);
 
-  assert.equal(state.player.xp, 0, "倒下那一刻还不给经验");
+  assert.equal(state.player.level, levelBefore + 1, "death XP levels up before item pickup");
+  const xpAfterDeath = state.player.xp;
   pickUpEverything(state);
+  assert.equal(state.player.xp, xpAfterDeath, "item pickup does not repeat death XP");
 
   assert.equal(state.player.level, levelBefore + 1);
   assert.ok(state.player.attackBonus > 0);
@@ -2535,6 +2536,7 @@ test("bosses pay out in experience, not in health", () => {
   state.enemies = [boss];
   state.player.hp = 30;
   const xpBefore = state.player.xp;
+  const levelBefore = state.player.level;
 
   Core.damageEnemy(state, boss, 9999, 0, state.player.x);
 
@@ -2542,11 +2544,14 @@ test("bosses pay out in experience, not in health", () => {
     state.pickups.every((drop) => drop.kind === "loot"),
     "the kill itself drops no health"
   );
-  assert.equal(state.player.xp, xpBefore, "倒下那一刻还不给经验");
+  assert.ok(state.player.xp > xpBefore, "boss XP arrives before item pickup");
+  const xpAfterDeath = state.player.xp;
   pickUpEverything(state);
+  assert.equal(state.player.xp, xpAfterDeath, "boss item cannot repeat its XP");
 
   assert.ok(
-    state.player.hp <= 30 + Core.PROGRESSION.healOnLevelUp * 3,
+    state.player.hp === Math.min(state.player.maxHp,
+      30 + Core.PROGRESSION.healOnLevelUp * (state.player.level - levelBefore)),
     "and the only health it hands back is the level-up heal, not an orb"
   );
   assert.ok(state.player.xp > xpBefore, "the reward for a boss is the level");
@@ -8252,6 +8257,8 @@ function routeToBoss(state) {
  */
 test("清房不发强化卡：门直接开，玩家的数值不变", () => {
   const state = Core.createState({ seed: Core.DEFAULT_SEED, stage: "mirkwood" });
+  // Isolate room rewards from the legitimate level-up caused by death XP.
+  state.player.xpToNext = 100000;
   const read = () => ({
     attackBonus: state.player.attackBonus,
     maxHp: state.player.maxHp,
@@ -9989,6 +9996,8 @@ test("the deep stage names its new monsters the way the recording does", () => {
 
 test("the deep boss has no phase two and dies into victory", () => {
   const state = Core.createState({ stage: "mirkwooddeep", seed: 3 });
+  // This checks boss phase banners, independently from a legitimate level-up.
+  state.player.xpToNext = 100000;
   Core.goToCell(state, state.dungeon.boss);
   const boss = state.enemies.find((enemy) => Core.isBossEnemy(enemy));
   assert.ok(boss, "the boss cell fields the cat king");
@@ -12397,5 +12406,22 @@ test("full map retains the measured native radar rim behind its panel", () => {
     const panel=calls.findIndex(c=>c[0]==="drawImage"&&c[1]===sheet&&c[2]===190);
     assert.ok(rim>=0&&panel>rim);
     assert.deepEqual(calls[rim].slice(6),[Core.VIEW.left+594,23.5,117,117]);
+  }
+});
+
+test("ordinary entry clears after the four recorded kills without an invented extra wave", () => {
+  for(const seed of [1,2,7,123]) {
+    const state=Core.createState({stage:"mirkwood",seed,referenceProfile:true}),seen=new Set();
+    for(let frame=0;frame<900&&!state.room.cleared;frame++) {
+      for(const enemy of state.enemies) {
+        seen.add(enemy.id);
+        for(let hit=0;hit<50&&!enemy.dead;hit++)Core.damageEnemy(state,enemy,999999,0,state.player.x);
+      }
+      Core.step(state,{});
+    }
+    assert.ok(state.room.cleared);
+    assert.equal(seen.size,4,"V1 starts at0 and leaves the first room with4 cumulative kills");
+    assert.equal(state.stats.kills,4);
+    assert.equal(state.room.waveSpawned||0,0);
   }
 });

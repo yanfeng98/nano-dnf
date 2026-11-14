@@ -6748,6 +6748,34 @@
     ctx.restore();
   }
 
+  function drawExperienceText(ctx, sheet, text, x, baseline) {
+    var match = /^(\+?\d+) Exp$/.exec(text);
+    if (!sheet || !match) return false;
+    // Original expup.img glyphs in sixteen-pixel cells. The Chinese suffix
+    // is excluded; the unmatched English suffix remains a system-font fallback.
+    var advances = [12, 7, 11, 11, 11, 10, 11, 11, 11, 11, 10];
+    var slots = match[1].split("").map(function (character) {
+      return character === "+" ? 10 : Number(character);
+    });
+    var scale = (VIEW.width / 640) / Core.CAMERA.zoom;
+    ctx.font = "italic 700 7px Arial, sans-serif";
+    ctx.textAlign = "left";
+    var numberWidth = slots.reduce(function (sum, slot) { return sum + advances[slot]; }, 0) * scale;
+    var gap = scale;
+    var left = x - (numberWidth + gap + ctx.measureText("Exp").width) / 2;
+    slots.forEach(function (slot) {
+      ctx.drawImage(sheet, slot * 16, 0, 16, 16,
+        left, baseline - 16 * scale, 16 * scale, 16 * scale);
+      left += advances[slot] * scale;
+    });
+    ctx.lineWidth = 1.4;
+    ctx.strokeStyle = "rgba(10, 18, 8, 0.9)";
+    ctx.strokeText("Exp", left + gap, baseline);
+    ctx.fillStyle = "#69c62e";
+    ctx.fillText("Exp", left + gap, baseline);
+    return true;
+  }
+
   function drawEffect(ctx, state, effect, bannerOrdinal, sprites) {
     var alpha = clamp01(effect.life / effect.maxLife);
     /*
@@ -6820,20 +6848,35 @@
       ctx.restore();
     } else if (effect.kind === "pickupText") {
       /*
-       * `+40 Exp`（`docs/adr/0042`）：亮绿 (105,198,46) 带黑描边，**上浮 66 视频px
-       * 用 0.3 秒**（约 220 px/s）然后停住，整串活不到 1 秒。它是"这一件收进来了"的
-       * 读数，所以钉在**掉落点**上，不跟人走。
+       * Audits124/125: no plus; rise66 original-video pixels over0.3s,
+       * then hold opaque until the0.8s lifetime expires. Elapsed seconds,
+       * rather than the remaining-life fraction, drive the rise.
        */
-      var climb = Math.min(1, (1 - alpha) / 0.3) * (66 / (265 / 84));
+      if (effect.life <= 0) return;
+      var age = Math.max(0, effect.maxLife - effect.life);
+      var climb = Math.min(1, age / Core.EXPERIENCE_FLOAT.riseTime) *
+        Core.EXPERIENCE_FLOAT.riseVideoPixels * Core.VIDEO_PX;
+      // V1 73.2..73.8: a stationary background, moving name and matching
+      // caption displacement establish the owner anchor independently of pan.
+      var owner = effect.anchor === "player" && state.player;
+      var floatX = owner ? owner.x : effect.x;
+      var floatY = owner
+        ? feetY(owner) - SPRITE.bodyHeight - Core.EXPERIENCE_FLOAT.headGap
+        : ey;
       ctx.save();
-      ctx.globalAlpha = alpha;
+      ctx.globalAlpha = 1;
+      if (drawExperienceText(ctx, sprites && sprites.experienceDigits,
+        effect.text, floatX, floatY - climb)) {
+        ctx.restore();
+        return;
+      }
       ctx.font = "700 11px 'Segoe UI', system-ui, sans-serif";
       ctx.textAlign = "center";
       ctx.lineWidth = 2.6;
       ctx.strokeStyle = "rgba(10, 18, 8, 0.9)";
-      ctx.strokeText(effect.text, effect.x, ey - climb);
+      ctx.strokeText(effect.text, floatX, floatY - climb);
       ctx.fillStyle = "#69c62e";
-      ctx.fillText(effect.text, effect.x, ey - climb);
+      ctx.fillText(effect.text, floatX, floatY - climb);
       ctx.restore();
     } else if (effect.kind === "bloodStrand") {
       drawBloodStrand(ctx, state, effect, sprites);
@@ -9433,14 +9476,9 @@
    */
   var LOG_STYLE = {
     x: (285 - 240) / 2 + 120,
-    /*
-     * **比录像低 44 px。** 录像的首行在 y 204 视频px（画布 102），因为它那一栏上面
-     * 只有一块目标条、再没有别的东西；本作那一带是**玩家卡（14..110）与它下面那行
-     * 配速字（128）**，照录像摆会压在它们身上（第一版抓帧就是这样，见
-     * `tests/browser/capture-hud.mjs`）。组织是本作自己的（`docs/adr/0041` Q13 选 b），
-     * 所以首行让到它们**与"当前目标"条**下面，**左右边距仍是量的那个**。
-     */
-    top: 70,
+    // V1/V2 first row near y204 in the original1080-high gameplay crop.
+    // The older player card is gone; y70 overlapped the target HP bar.
+    top: 102,
     row: 33.7 / 2,
     size: 26.5 / 2,
     tones: {

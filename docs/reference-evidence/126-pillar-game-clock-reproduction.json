@@ -1,0 +1,17 @@
+{
+  "before": {
+    "command": "PILLAR_DAMAGE_ROOM=43 strace -ff ... node tests/browser/pillar-damage.mjs",
+    "exitCode": 1,
+    "failure": "a clear depth lane permits walking past",
+    "log": "/tmp/nano125-pillar-signal.log"
+  },
+  "after": {
+    "command": "same strace scope, after replacing wall-clock movement waits with game-time/position predicates",
+    "exitCode": 0,
+    "log": "/tmp/nano126-pillar-signal.log"
+  },
+  "limits": [
+    "This isolates a slow-browser timing defect; it does not identify the earlier full-suite143 termination origin.",
+    "Browser descendant SIGTERM during normal close does not imply the Node parent was terminated."
+  ]
+}

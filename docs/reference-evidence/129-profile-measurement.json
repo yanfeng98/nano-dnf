@@ -1,0 +1,98 @@
+[
+  {
+    "stage": "mirkwood",
+    "upSlashSlot": 1,
+    "thirdSlot": "crossSlash",
+    "level": 3,
+    "name": "阿努纳奇",
+    "upSlashRank": 1,
+    "attackBonus": 4,
+    "maxHp": 264,
+    "maxMp": 110,
+    "xpToNext": 77,
+    "entryRoster": [
+      {
+        "type": "grunt",
+        "level": 4,
+        "label": "哥布林",
+        "champion": null
+      },
+      {
+        "type": "caster",
+        "level": 4,
+        "label": "投掷哥布林",
+        "champion": null
+      },
+      {
+        "type": "coward",
+        "level": 4,
+        "label": "胆小哥布林",
+        "champion": null
+      },
+      {
+        "type": "cursedRed",
+        "level": 4,
+        "label": "诅咒之赤哥布林",
+        "champion": "dark"
+      }
+    ],
+    "expectedHp": 264,
+    "expectedMp": 110,
+    "fireChampion": {
+      "level": 4,
+      "champion": "fire",
+      "configuredTrack": 217,
+      "fillStart": 164.25,
+      "caps": [
+        381.25,
+        381.25,
+        381.25
+      ],
+      "labels": [
+        "Lv4 燃烧之投掷哥布林",
+        "Lv4 燃烧之投掷哥布林",
+        "Lv4 燃烧之投掷哥布林"
+      ]
+    }
+  },
+  {
+    "stage": "mirkwooddeep",
+    "upSlashSlot": 1,
+    "thirdSlot": "normalWave",
+    "level": 6,
+    "name": "阿努纳奇",
+    "upSlashRank": 1,
+    "attackBonus": 10,
+    "maxHp": 300,
+    "maxMp": 125,
+    "xpToNext": 315,
+    "entryRoster": [
+      {
+        "type": "goblinRed",
+        "level": 6,
+        "label": "赤哥布林",
+        "champion": null
+      },
+      {
+        "type": "goblinRed",
+        "level": 6,
+        "label": "赤哥布林",
+        "champion": null
+      },
+      {
+        "type": "goblinRed",
+        "level": 6,
+        "label": "赤哥布林",
+        "champion": null
+      },
+      {
+        "type": "goblinRed",
+        "level": 6,
+        "label": "赤哥布林",
+        "champion": null
+      }
+    ],
+    "expectedHp": 300,
+    "expectedMp": 125
+  }
+]

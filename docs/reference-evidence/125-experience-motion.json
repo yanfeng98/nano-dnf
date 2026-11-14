@@ -1,0 +1,801 @@
+{
+  "template": "native expup.img frame0, scale1.125; alpha>200 mask",
+  "reports": [
+    {
+      "video": 2,
+      "source": "00002-\u5e7d\u6697\u5bc6\u6797\u6df1\u5904.mp4",
+      "searchBox": [
+        401,
+        60,
+        419,
+        170
+      ],
+      "samples": [
+        {
+          "index": 0,
+          "time": 15.6,
+          "correlation": 0.4953749477863312,
+          "x": 407,
+          "y": 156,
+          "rgbSha256": "2ac78c68e9adca243221e28a03a7dfa24ba94222ec98ce94620b1f111e6c6ee6"
+        },
+        {
+          "index": 1,
+          "time": 15.633333,
+          "correlation": 0.9186425805091858,
+          "x": 404,
+          "y": 142,
+          "rgbSha256": "aa6c341850fc218ee465fff08e7ab888a335f3b97cb77938a312c51a9fd8f242"
+        },
+        {
+          "index": 2,
+          "time": 15.666667,
+          "correlation": 0.92805415391922,
+          "x": 404,
+          "y": 136,
+          "rgbSha256": "74cbefff92de2fc1c742303e87f11632a6b9fd76f98595b69ab1cf46cde164e2"
+        },
+        {
+          "index": 3,
+          "time": 15.7,
+          "correlation": 0.9270781874656677,
+          "x": 404,
+          "y": 134,
+          "rgbSha256": "04bc41b2c2e04b869bc381a37f474d826d843c32338c75833ce58eabbc3647e7"
+        },
+        {
+          "index": 4,
+          "time": 15.733333,
+          "correlation": 0.8939711451530457,
+          "x": 404,
+          "y": 129,
+          "rgbSha256": "703616ec7ffa9950c8c8906cefd6369bc05b4be5116d9a4ff24d72f3d5e467ef"
+        },
+        {
+          "index": 5,
+          "time": 15.766667,
+          "correlation": 0.9065024852752686,
+          "x": 404,
+          "y": 124,
+          "rgbSha256": "6e9f6a24e000f1d7f7e86812b5a75b16440f35287ed3cbdf16ea5e44983ba3a3"
+        },
+        {
+          "index": 6,
+          "time": 15.8,
+          "correlation": 0.8937593698501587,
+          "x": 404,
+          "y": 123,
+          "rgbSha256": "0fed9a0746d5ff9335363725d46d202e7d0b9b69dbf7c2628967d646946ec71e"
+        },
+        {
+          "index": 7,
+          "time": 15.833333,
+          "correlation": 0.9125708341598511,
+          "x": 404,
+          "y": 119,
+          "rgbSha256": "c57b528c9141ec2557976d79bc7e08f4eee3189358acfc5c59f335cf82b8bc09"
+        },
+        {
+          "index": 8,
+          "time": 15.866667,
+          "correlation": 0.861430823802948,
+          "x": 404,
+          "y": 114,
+          "rgbSha256": "2e5e914455468dd253b4f5ea634efaf3d34b73237b3313a8ce2eb8119461e331"
+        },
+        {
+          "index": 9,
+          "time": 15.9,
+          "correlation": 0.9201479554176331,
+          "x": 404,
+          "y": 111,
+          "rgbSha256": "587d8c760b07f33bb4876b8ecadd05df65ecdaf683b52c28b12fd00d391e9d43"
+        },
+        {
+          "index": 10,
+          "time": 15.933333,
+          "correlation": 0.9434760808944702,
+          "x": 404,
+          "y": 109,
+          "rgbSha256": "c42074dc03cef08f0b535939189ffd988de718db2250de7db013898c7cb803ca"
+        },
+        {
+          "index": 11,
+          "time": 15.966667,
+          "correlation": 0.9459302425384521,
+          "x": 404,
+          "y": 109,
+          "rgbSha256": "b310e49aca4956e273ee3d27ecdd250ce7aba083c363e7bf8b1047db21481c84"
+        },
+        {
+          "index": 12,
+          "time": 16.0,
+          "correlation": 0.9461948275566101,
+          "x": 404,
+          "y": 109,
+          "rgbSha256": "82cc68e17fc1043f80348bb8739a6d2d82d1e2bb4de26416761a09a26f961294"
+        },
+        {
+          "index": 13,
+          "time": 16.033333,
+          "correlation": 0.9459762573242188,
+          "x": 404,
+          "y": 109,
+          "rgbSha256": "5f00031089004aaa9a88d300aab60ab4d70e66ad5b2292f3dec54061185a1a96"
+        },
+        {
+          "index": 14,
+          "time": 16.066667,
+          "correlation": 0.9458592534065247,
+          "x": 404,
+          "y": 109,
+          "rgbSha256": "fa342c025facb22763d2f06a1c391229f3b47ab6edbde42f57c0e783f31f49cf"
+        },
+        {
+          "index": 15,
+          "time": 16.1,
+          "correlation": 0.9422126412391663,
+          "x": 404,
+          "y": 109,
+          "rgbSha256": "af2846b35914eb7fdfe6a64bf68768f5c7994b2be5215b25bed6d89f4ff877e6"
+        },
+        {
+          "index": 16,
+          "time": 16.133333,
+          "correlation": 0.945452868938446,
+          "x": 404,
+          "y": 109,
+          "rgbSha256": "14ecebdd52fe13aef297914d003e5847a54df32f00ee64a2698321aeac27f811"
+        },
+        {
+          "index": 17,
+          "time": 16.166667,
+          "correlation": 0.9444195628166199,
+          "x": 404,
+          "y": 109,
+          "rgbSha256": "faa3f46d06c33b9c708e3a8bb61e9fb39c3e652ce7d513c5fe3979e296f0e9f4"
+        },
+        {
+          "index": 18,
+          "time": 16.2,
+          "correlation": 0.9439845681190491,
+          "x": 404,
+          "y": 109,
+          "rgbSha256": "9f4e27e266ee54d3a27494d23afe2cddbfdd0b77de2ec671ff2c7e489abc6e21"
+        },
+        {
+          "index": 19,
+          "time": 16.233333,
+          "correlation": 0.9439446926116943,
+          "x": 404,
+          "y": 109,
+          "rgbSha256": "6a1a32e5604dcc4541f5e352664322ffde31c1432c8c04d2f1465848a8f71706"
+        },
+        {
+          "index": 20,
+          "time": 16.266667,
+          "correlation": 0.9439446926116943,
+          "x": 404,
+          "y": 109,
+          "rgbSha256": "65eb26ca01271ae0a5cc76ab6f282509e27a666133447b9c80a18bbe369cb687"
+        },
+        {
+          "index": 21,
+          "time": 16.3,
+          "correlation": 0.9439126253128052,
+          "x": 404,
+          "y": 109,
+          "rgbSha256": "e073c7e793fcf8c2d417267a87d57f5086a20c129a26a70409e6de90685e9859"
+        },
+        {
+          "index": 22,
+          "time": 16.333333,
+          "correlation": 0.9439409971237183,
+          "x": 404,
+          "y": 109,
+          "rgbSha256": "3438f8f50252cb6091e02a379933a4c40e807d4301febd41c6de104470dc9145"
+        },
+        {
+          "index": 23,
+          "time": 16.366667,
+          "correlation": 0.944303572177887,
+          "x": 404,
+          "y": 109,
+          "rgbSha256": "a17f0499ab59312b66803628826c1ecc2a3021c6d393e8ac3d5ddc76b683579b"
+        },
+        {
+          "index": 24,
+          "time": 16.4,
+          "correlation": 0.9453462362289429,
+          "x": 404,
+          "y": 109,
+          "rgbSha256": "084913042772e89afb9416d923a911ea985b5f2407336a267b5d625623e8205f"
+        },
+        {
+          "index": 25,
+          "time": 16.433333,
+          "correlation": 0.4927941560745239,
+          "x": 407,
+          "y": 156,
+          "rgbSha256": "a0c86a5142f319b604c20890f3c756c8c36e7fb1bb087001da3fdb92a52eb083"
+        },
+        {
+          "index": 26,
+          "time": 16.466667,
+          "correlation": 0.49241888523101807,
+          "x": 407,
+          "y": 156,
+          "rgbSha256": "4cb6f74d68ed122118bd21912e236ffef7212a67424f14501356a243bcbc859f"
+        },
+        {
+          "index": 27,
+          "time": 16.5,
+          "correlation": 0.49252817034721375,
+          "x": 407,
+          "y": 156,
+          "rgbSha256": "5dfbda267041a81593a10f35ce76b2550bfe1ac4e640c1b83d1b875d45474160"
+        },
+        {
+          "index": 28,
+          "time": 16.533333,
+          "correlation": 0.492478609085083,
+          "x": 407,
+          "y": 156,
+          "rgbSha256": "a9c15e5aa85679efb07e7aa2bab86b66912f3e6cf678bf01ed12a5937eec9a07"
+        },
+        {
+          "index": 29,
+          "time": 16.566667,
+          "correlation": 0.49233418703079224,
+          "x": 407,
+          "y": 156,
+          "rgbSha256": "9c12f0e1462ea9587356a39e7413fc2ee8afbe40c984c926b35696e787b8b5cc"
+        },
+        {
+          "index": 30,
+          "time": 16.6,
+          "correlation": 0.4924027919769287,
+          "x": 407,
+          "y": 156,
+          "rgbSha256": "a0edd36c8159ab962b38019590bc0b090e48f688fa290111140e928f285c1619"
+        },
+        {
+          "index": 31,
+          "time": 16.633333,
+          "correlation": 0.492976576089859,
+          "x": 407,
+          "y": 156,
+          "rgbSha256": "e3bf9ff7473b57cd27d374f8bc520aa210ff3d4b35655658fe7b6b430911fcc9"
+        },
+        {
+          "index": 32,
+          "time": 16.666667,
+          "correlation": 0.49293017387390137,
+          "x": 407,
+          "y": 156,
+          "rgbSha256": "363d07af01cca2711f6763978b0f78e168f35cc2ac6cb358691248d22cabeba5"
+        },
+        {
+          "index": 33,
+          "time": 16.7,
+          "correlation": 0.49282845854759216,
+          "x": 407,
+          "y": 156,
+          "rgbSha256": "f1c1a58aa0b83182ce04b2aefcf27710ea8e92821fd3bed9e4443739462b0bee"
+        },
+        {
+          "index": 34,
+          "time": 16.733333,
+          "correlation": 0.49275949597358704,
+          "x": 407,
+          "y": 156,
+          "rgbSha256": "df8a59659c0790cfcd11a1c10db73310c78c1fb01bd79850a2e4666674794f12"
+        },
+        {
+          "index": 35,
+          "time": 16.766667,
+          "correlation": 0.4927012324333191,
+          "x": 407,
+          "y": 156,
+          "rgbSha256": "c306d702eb6db0d431b4f598da9be56c2e4f08620049d0600de28bdfd22e1397"
+        },
+        {
+          "index": 36,
+          "time": 16.8,
+          "correlation": 0.4926801919937134,
+          "x": 407,
+          "y": 156,
+          "rgbSha256": "b00c6a1db6aad65ca926e200396f2a087e6e6984443baf1099c71f334dacdc6a"
+        },
+        {
+          "index": 37,
+          "time": 16.833333,
+          "correlation": 0.49274471402168274,
+          "x": 407,
+          "y": 156,
+          "rgbSha256": "ef29758f3b457feb39512c9e711e782e16d4934181f1a7807e1e178e463dfb49"
+        },
+        {
+          "index": 38,
+          "time": 16.866667,
+          "correlation": 0.4928003251552582,
+          "x": 407,
+          "y": 156,
+          "rgbSha256": "e3ddbdc54bea231f09f49e9ef1790c5dbe161a2c5b2d0877ebc9f9a73bb3a41f"
+        },
+        {
+          "index": 39,
+          "time": 16.9,
+          "correlation": 0.4927961528301239,
+          "x": 407,
+          "y": 156,
+          "rgbSha256": "c69ff59dd6277c8d59be9de4744ab70af7ae59d9c310d38a1ab6b3970e6c7737"
+        },
+        {
+          "index": 40,
+          "time": 16.933333,
+          "correlation": 0.49272093176841736,
+          "x": 407,
+          "y": 156,
+          "rgbSha256": "4c37173699299620620ed4199452c30268c409379e53a08bf14ce5299706f0d0"
+        },
+        {
+          "index": 41,
+          "time": 16.966667,
+          "correlation": 0.4929313361644745,
+          "x": 407,
+          "y": 156,
+          "rgbSha256": "465c9232b65e812ad38fb577a07c7f96235d9037062db3b47c98a8375765fdb4"
+        }
+      ],
+      "visibilityThreshold": 0.85,
+      "firstVisible": 15.633333,
+      "lastVisible": 16.4,
+      "visibleSpanSeconds": 0.8,
+      "lifetimeInterval": [
+        0.7666666666666667,
+        0.8333333333333334
+      ],
+      "firstPlateau": 15.933333,
+      "riseSeconds": 0.3,
+      "riseScreenPixels": 33,
+      "plateauGlyphOrigin": [
+        404,
+        109
+      ],
+      "opacityPixelCount": 20,
+      "relativeOpacitySamples": [
+        {
+          "time": 16.0,
+          "relativeOpacity": 1.0,
+          "meanGreen": 201.7,
+          "backgroundControlMae": 0.0
+        },
+        {
+          "time": 16.1,
+          "relativeOpacity": 1.0005911659858762,
+          "meanGreen": 201.8,
+          "backgroundControlMae": 0.5317460317460317
+        },
+        {
+          "time": 16.2,
+          "relativeOpacity": 0.9981997927357809,
+          "meanGreen": 201.4,
+          "backgroundControlMae": 0.8365079365079365
+        },
+        {
+          "time": 16.3,
+          "relativeOpacity": 0.9979878989034939,
+          "meanGreen": 201.35,
+          "backgroundControlMae": 0.8555555555555555
+        },
+        {
+          "time": 16.4,
+          "relativeOpacity": 0.998767810655945,
+          "meanGreen": 201.5,
+          "backgroundControlMae": 0.9809523809523809
+        },
+        {
+          "time": 16.5,
+          "relativeOpacity": 0.0,
+          "meanGreen": 35.3,
+          "backgroundControlMae": 1.0380952380952382
+        }
+      ],
+      "brightnessInferenceAccepted": true,
+      "approximateAbsoluteOpacity": 1.027190190904174
+    },
+    {
+      "video": 1,
+      "source": "00001-\u5e7d\u6697\u5bc6\u6797.mp4",
+      "searchBox": [
+        401,
+        170,
+        420,
+        270
+      ],
+      "samples": [
+        {
+          "index": 0,
+          "time": 71.1,
+          "correlation": 0.5607094764709473,
+          "x": 407,
+          "y": 255,
+          "rgbSha256": "31657c13bdd592da446218b7cffd1d19d383759b1985cf71ea4a07b9c0e445a7"
+        },
+        {
+          "index": 1,
+          "time": 71.133333,
+          "correlation": 0.5608012676239014,
+          "x": 407,
+          "y": 255,
+          "rgbSha256": "8d19afd780abfef91a9bd20024165516a8d1c7bbbcafec49d6c0f039e4d6562c"
+        },
+        {
+          "index": 2,
+          "time": 71.166667,
+          "correlation": 0.8882312178611755,
+          "x": 404,
+          "y": 239,
+          "rgbSha256": "b48611a9240a01cd9faa595c19bc77449a4b2972b232b3b8bb31410a81b6f4ee"
+        },
+        {
+          "index": 3,
+          "time": 71.2,
+          "correlation": 0.9175507426261902,
+          "x": 404,
+          "y": 236,
+          "rgbSha256": "2f3b9a420585f01cc1a3da8cdaf835479f846ca1e3be116e322f5d999e9de10e"
+        },
+        {
+          "index": 4,
+          "time": 71.233333,
+          "correlation": 0.9288212656974792,
+          "x": 404,
+          "y": 233,
+          "rgbSha256": "b0d7540f1564b4c73e2717e41f1f9aff7f5811311b318a05727e4192a7e353cf"
+        },
+        {
+          "index": 5,
+          "time": 71.266667,
+          "correlation": 0.9202597141265869,
+          "x": 404,
+          "y": 227,
+          "rgbSha256": "441b6714c5a9813a65bb9cc6a58eef0d14e7fe6fca3a099087b83d421010633d"
+        },
+        {
+          "index": 6,
+          "time": 71.3,
+          "correlation": 0.9353324174880981,
+          "x": 404,
+          "y": 225,
+          "rgbSha256": "7822081bc67dd8b56f7ebdc4dd140768fb13767096693295bee70a44d0802909"
+        },
+        {
+          "index": 7,
+          "time": 71.333333,
+          "correlation": 0.9055497646331787,
+          "x": 404,
+          "y": 222,
+          "rgbSha256": "213e543d8cdd77176a0f9a4c4b2be3534ee7c1bd7fbc1fc7640ad117e3ab6b61"
+        },
+        {
+          "index": 8,
+          "time": 71.366667,
+          "correlation": 0.9239836931228638,
+          "x": 404,
+          "y": 215,
+          "rgbSha256": "5e95a28583106c571738e8f50aa1a37a3dbff61dca55068c2c1864b4627e5fc7"
+        },
+        {
+          "index": 9,
+          "time": 71.4,
+          "correlation": 0.9128077030181885,
+          "x": 404,
+          "y": 214,
+          "rgbSha256": "4bd5eb4b3e92b22098d8bb768065f0c17e2de2323c41c0a3044c374203afb506"
+        },
+        {
+          "index": 10,
+          "time": 71.433333,
+          "correlation": 0.8786370158195496,
+          "x": 404,
+          "y": 210,
+          "rgbSha256": "f67a406428fa4433c385c8d1edaededf490f0f02112ecb2807a9225e06a98287"
+        },
+        {
+          "index": 11,
+          "time": 71.466667,
+          "correlation": 0.9133003354072571,
+          "x": 404,
+          "y": 205,
+          "rgbSha256": "be570f9632d54c6dc7a35078fc57a9ec00f98ccf1eb342e61f9dbc65bd1156a4"
+        },
+        {
+          "index": 12,
+          "time": 71.5,
+          "correlation": 0.9315853714942932,
+          "x": 404,
+          "y": 205,
+          "rgbSha256": "6ad388c413be77ae6b3410325080686bef76e76328ea4719417e50516926d9e8"
+        },
+        {
+          "index": 13,
+          "time": 71.533333,
+          "correlation": 0.9288271069526672,
+          "x": 404,
+          "y": 205,
+          "rgbSha256": "82cc2906c6845ed15af76babfa363b4cbda4636b4c5323e903ad58fc2b07ab40"
+        },
+        {
+          "index": 14,
+          "time": 71.566667,
+          "correlation": 0.9227810502052307,
+          "x": 404,
+          "y": 205,
+          "rgbSha256": "b9a443e5fceef2941085c8af69481b9379d26d6ef54d7d55ebd54d151d21e28c"
+        },
+        {
+          "index": 15,
+          "time": 71.6,
+          "correlation": 0.9200023412704468,
+          "x": 404,
+          "y": 205,
+          "rgbSha256": "928a5881d3093af623e0fb8675988800f5b45b25cb68b7f4fc67c67a6ee2706d"
+        },
+        {
+          "index": 16,
+          "time": 71.633333,
+          "correlation": 0.8532167077064514,
+          "x": 404,
+          "y": 205,
+          "rgbSha256": "61cfa81e13e91c0bef894be2944a6aece725346604234513308f026e9d6f6de3"
+        },
+        {
+          "index": 17,
+          "time": 71.666667,
+          "correlation": 0.7375187277793884,
+          "x": 404,
+          "y": 205,
+          "rgbSha256": "17250018e967d3465d3c2561d624e2e8bc702d54f58545b7f3d97ac2381cbe24"
+        },
+        {
+          "index": 18,
+          "time": 71.7,
+          "correlation": 0.6455122232437134,
+          "x": 404,
+          "y": 205,
+          "rgbSha256": "4fb397721f87ba8ddc8f69b5d16b27ba2ff0d57f7ee82dd8daa95e432edc3b85"
+        },
+        {
+          "index": 19,
+          "time": 71.733333,
+          "correlation": 0.5977266430854797,
+          "x": 402,
+          "y": 232,
+          "rgbSha256": "29ddfb2b5932d77e4efff574009c12306486eeab8ff32b91d0c5a16e137ccff7"
+        },
+        {
+          "index": 20,
+          "time": 71.766667,
+          "correlation": 0.632416307926178,
+          "x": 404,
+          "y": 205,
+          "rgbSha256": "4e1dad1f93bc215e9cca3f1cf52231392c7d3668f112c8e3c1a93d3006877cea"
+        },
+        {
+          "index": 21,
+          "time": 71.8,
+          "correlation": 0.7026539444923401,
+          "x": 404,
+          "y": 205,
+          "rgbSha256": "1ce29723b531c238c2763145cfa95966055860e9a53a5b0c6fc8f5d7152f263e"
+        },
+        {
+          "index": 22,
+          "time": 71.833333,
+          "correlation": 0.7528421878814697,
+          "x": 404,
+          "y": 204,
+          "rgbSha256": "1202d817ae514dcc2653d8b9728ab38a4ab520d716a349ad240df1d897cee91e"
+        },
+        {
+          "index": 23,
+          "time": 71.866667,
+          "correlation": 0.9241656064987183,
+          "x": 404,
+          "y": 205,
+          "rgbSha256": "babb6204de7df5cb9c91e588c940eaeb0ee77ff2ad6d59a822540cb0de5c6e83"
+        },
+        {
+          "index": 24,
+          "time": 71.9,
+          "correlation": 0.9248114228248596,
+          "x": 404,
+          "y": 205,
+          "rgbSha256": "d80334fcf81a94599208d502902cbb4cde0337d71b4d5b338311633f1e99df26"
+        },
+        {
+          "index": 25,
+          "time": 71.933333,
+          "correlation": 0.9252573847770691,
+          "x": 404,
+          "y": 205,
+          "rgbSha256": "7d4ae5c27476ec4d5e009281133994ed7ee556dd264734ed1a8df617ff21bb93"
+        },
+        {
+          "index": 26,
+          "time": 71.966667,
+          "correlation": 0.5663406252861023,
+          "x": 407,
+          "y": 255,
+          "rgbSha256": "01db02ac2292f5bfae071addc52c3f76c4912cdaa37ffc53ff49f8efc0ece2f2"
+        },
+        {
+          "index": 27,
+          "time": 72.0,
+          "correlation": 0.5662713646888733,
+          "x": 407,
+          "y": 255,
+          "rgbSha256": "010a192516e07ecc220fc03a5c17f5ae5317b18e5a8f6cfe532cbc8922c6133c"
+        },
+        {
+          "index": 28,
+          "time": 72.033333,
+          "correlation": 0.5662335157394409,
+          "x": 407,
+          "y": 255,
+          "rgbSha256": "4af0a1cbf64e3613e6ea8081c11e2eabac507c1d0cb849713d77fb41a4324472"
+        },
+        {
+          "index": 29,
+          "time": 72.066667,
+          "correlation": 0.5662335157394409,
+          "x": 407,
+          "y": 255,
+          "rgbSha256": "6f8215077e4aeebbb30fc40323f7b0defa9dd125a3844c265f13fcf111f30352"
+        },
+        {
+          "index": 30,
+          "time": 72.1,
+          "correlation": 0.5660800337791443,
+          "x": 407,
+          "y": 255,
+          "rgbSha256": "611e87e15b1a0206da4540e79b37037797f3bc95c44f9b96edf571320ecd51e9"
+        },
+        {
+          "index": 31,
+          "time": 72.133333,
+          "correlation": 0.5655608177185059,
+          "x": 407,
+          "y": 255,
+          "rgbSha256": "6dfbb3420d25a753aa1cb4192503207005ed768a84bd5d1e19c3983ed2acfccf"
+        },
+        {
+          "index": 32,
+          "time": 72.166667,
+          "correlation": 0.566078245639801,
+          "x": 407,
+          "y": 255,
+          "rgbSha256": "966abb6c783d8be968dc300e5a12007648beecdd1311b3261a5dc0d31aa8d6b7"
+        },
+        {
+          "index": 33,
+          "time": 72.2,
+          "correlation": 0.5655681490898132,
+          "x": 407,
+          "y": 255,
+          "rgbSha256": "9dcd9eb8d819653d41727b2bec2f6338e5d9cd9726b890f18d9956f402a2866c"
+        },
+        {
+          "index": 34,
+          "time": 72.233333,
+          "correlation": 0.5656183958053589,
+          "x": 407,
+          "y": 255,
+          "rgbSha256": "5fc32a583600a3e36f714bb56e63e0b92e9c8b50d9d588f3664b9d8feb84ddc6"
+        },
+        {
+          "index": 35,
+          "time": 72.266667,
+          "correlation": 0.5656851530075073,
+          "x": 407,
+          "y": 255,
+          "rgbSha256": "704fe7a03f3ca92d6d4d5a948299db2b13d6407c118806379b33dbb9b0713d9b"
+        },
+        {
+          "index": 36,
+          "time": 72.3,
+          "correlation": 0.56564861536026,
+          "x": 407,
+          "y": 255,
+          "rgbSha256": "dc06ed3f17a316bafa4f7711f99c015b0a7fccea7f75116428bb4bf343063c46"
+        },
+        {
+          "index": 37,
+          "time": 72.333333,
+          "correlation": 0.565207302570343,
+          "x": 407,
+          "y": 255,
+          "rgbSha256": "f30175dc4a93bb3a5f34c15c6b4a9bfe0f39178275ec3a1d6fdbb213d9a73991"
+        },
+        {
+          "index": 38,
+          "time": 72.366667,
+          "correlation": 0.565207302570343,
+          "x": 407,
+          "y": 255,
+          "rgbSha256": "ee08e4a112c76627546592f55a23825816fe1d1ae6c04acf50073823cfceeec5"
+        },
+        {
+          "index": 39,
+          "time": 72.4,
+          "correlation": 0.565207302570343,
+          "x": 407,
+          "y": 255,
+          "rgbSha256": "02660826f88e95fb403580a1ec6197adeda1ce16858cf3d95486c348912c6b4a"
+        },
+        {
+          "index": 40,
+          "time": 72.433333,
+          "correlation": 0.5649290680885315,
+          "x": 407,
+          "y": 255,
+          "rgbSha256": "72b3acfb30ce5df6168a87b483249d4d28811e41f8afb3bcbdb74ff5d3b9787b"
+        },
+        {
+          "index": 41,
+          "time": 72.466667,
+          "correlation": 0.5650103688240051,
+          "x": 407,
+          "y": 255,
+          "rgbSha256": "9116c1ee3e39c77c416b95cd1a5b191dcb9f3f2110b0b6d55e11e2d7f42c0c73"
+        }
+      ],
+      "visibilityThreshold": 0.85,
+      "firstVisible": 71.166667,
+      "lastVisible": 71.933333,
+      "visibleSpanSeconds": 0.8,
+      "lifetimeInterval": [
+        0.7666666666666667,
+        0.8333333333333334
+      ],
+      "firstPlateau": 71.466667,
+      "riseSeconds": 0.3,
+      "riseScreenPixels": 34,
+      "plateauGlyphOrigin": [
+        404,
+        205
+      ],
+      "opacityPixelCount": 20,
+      "relativeOpacitySamples": [
+        {
+          "time": 71.5,
+          "relativeOpacity": 1.0,
+          "meanGreen": 192.0,
+          "backgroundControlMae": 0.0
+        },
+        {
+          "time": 71.9,
+          "relativeOpacity": 1.018786519907596,
+          "meanGreen": 193.6,
+          "backgroundControlMae": 33.112698412698414
+        },
+        {
+          "time": 72.0,
+          "relativeOpacity": 0.0,
+          "meanGreen": 93.6,
+          "backgroundControlMae": 32.37619047619047
+        }
+      ],
+      "brightnessInferenceAccepted": false,
+      "approximateAbsoluteOpacity": null
+    }
+  ],
+  "limits": [
+    "Visibility may be interrupted by an item label; only first/last reidentified glyphs bound the span.",
+    "Lifetime/rise boundaries have one-frame sampling uncertainty; position endpoints permit one screen pixel error.",
+    "V2 opacity uses a stable bark control and20 bright glyph pixels; absolute fit also depends on raster phase/compression. V1 control is unstable, so its brightness inference is rejected.",
+    "Native death phase, origin offset and interaction with combat hit-stop are not identified by this measurement."
+  ]
+}

@@ -24,6 +24,7 @@ try {
   browser = await chromium.launch({ headless: true });
 
   const page = await browser.newPage({ viewport: { width: 1120, height: 720 } });
+  const pageErrors=[];page.on('pageerror',error=>pageErrors.push(String(error)));
   await page.addInitScript(() => localStorage.setItem('nano-dnf-progress', JSON.stringify({ cleared: { mirkwood: true } })));
   const results = [];
   for (const [stage, level, deep] of [['mirkwood', 3, false], ['mirkwooddeep', 6, true]]) {
@@ -39,6 +40,7 @@ try {
       const C = window.DNFCore, s = window.nanoDnf.getState(), p = s.player;
       return { stage: s.stage.id, upSlashSlot: window.nanoDnf.getLoadout().indexOf("upSlash"), thirdSlot: window.nanoDnf.getLoadout()[2], level: p.level, name: p.name, upSlashRank: p.skillRanks?.upSlash, attackBonus: p.attackBonus,
         maxHp: p.maxHp, maxMp: p.maxMp, xpToNext: p.xpToNext,
+        entryRoster: s.enemies.map(e => ({type:e.type,level:e.level,label:C.ENEMY_TYPES[e.type].label,champion:e.champion})),
         expectedHp: C.PLAYER.maxHp + (p.level - 1) * C.PROGRESSION.maxHpPerLevel,
         expectedMp: C.PLAYER.maxMp + (p.level - 1) * C.PROGRESSION.maxMpPerLevel };
     });
@@ -48,6 +50,11 @@ try {
     assert.equal(actual.name, '阿努纳奇'); assert.equal(actual.upSlashRank, 1);
     assert.equal(actual.maxHp, actual.expectedHp); assert.equal(actual.maxMp, actual.expectedMp);
     assert.equal(actual.attackBonus, (level - 1) * 2);
+    if (!deep) {
+      assert.deepEqual(actual.entryRoster.map(e=>e.type).sort(),['caster','coward','cursedRed','grunt']);
+      assert.ok(actual.entryRoster.every(e=>e.level===4));
+      assert.equal(actual.entryRoster.find(e=>e.type==='cursedRed').label,'诅咒之赤哥布林');
+    }
     results.push(actual);
     const render = await page.evaluate(() => {
       const original = window.DNFRender.render;
@@ -168,6 +175,48 @@ try {
       fs.writeFileSync(`${out}/wave-measurement.json`, JSON.stringify({icon,snapshots:wave}, null, 2));
       console.log('deep default D wave OK', {icon, snapshots:wave.map(({draws,...m}) => ({...m,draws:draws.length}))});
     }
+    if (!deep) {
+      await page.evaluate(() => {
+        const C=window.DNFCore,R=window.DNFRender,s=window.nanoDnf.getState();
+        C.goToCell(s,s.dungeon.cells.findIndex(c=>s.stage.rooms[c.room].name==='投石坡'));
+        s.transition=s.titleT=0;s.player.invuln=100000;s.player.xpToNext=100000;
+        for(const enemy of s.enemies) {
+          for(let hit=0;hit<20&&!enemy.dead;hit++) C.damageEnemy(s,enemy,enemy.hp+1,0,s.player.x);
+        }
+        for(let frame=0;frame<600&&!s.enemies.some(e=>e.type==='burningThrower');frame++) C.step(s,{},C.DT);
+        const fire=s.enemies.find(e=>e.type==='burningThrower');
+        if(!fire || fire.dead) throw new Error('live fire champion reinforcement did not spawn');
+        C.damageEnemy(s,fire,1,0,s.player.x);s.shake=0;
+        window.fireChampionProbe={level:fire.level,champion:fire.champion,
+          configuredTrack:R.targetTrackWidth(s,fire),fillStart:R.TARGET_NATIVE.x+34*R.TARGET_NATIVE.scale,
+          caps:[],labels:[]};
+        const ctx=document.querySelector('#stage').getContext('2d');
+        const originalImage=ctx.drawImage,originalText=ctx.fillText,cap=R.PORTRAITS.championCap;
+        window.restoreFireProbe=()=>{ctx.drawImage=originalImage;ctx.fillText=originalText;};
+        ctx.drawImage=function(...args){
+          if(args[0]?.src?.endsWith('/portraits-reference.png') && cap.every((v,i)=>args[i+1]===v)) {
+            const m=this.getTransform();if(window.fireChampionProbe.caps.length<4)
+              window.fireChampionProbe.caps.push(m.a*args[5]+m.c*args[6]+m.e);
+          }
+          return originalImage.apply(this,args);
+        };
+        ctx.fillText=function(value,x,y,...args){
+          if(String(value).includes('燃烧之投掷哥布林') && window.fireChampionProbe.labels.length<4)
+            window.fireChampionProbe.labels.push(String(value));
+          return originalText.call(this,value,x,y,...args);
+        };
+      });
+      await page.waitForFunction(()=>window.fireChampionProbe.caps.length && window.fireChampionProbe.labels.length);
+      const fire=await page.evaluate(()=>window.fireChampionProbe);
+      assert.equal(fire.level,4);assert.equal(fire.champion,'fire');assert.equal(fire.configuredTrack,217);
+      assert.ok(fire.labels.every(label=>label==='Lv4 燃烧之投掷哥布林'));
+      assert.ok(fire.caps.every(x=>Math.abs(x-fire.fillStart-217)<.1),
+        'the real default reinforcement draws its measured217px gold target track');
+      actual.fireChampion=fire;
+      const image=await page.locator('#stage').evaluate(canvas=>canvas.toDataURL('image/png'));
+      fs.writeFileSync(`${out}/fire-champion.png`,Buffer.from(image.split(',')[1],'base64'));
+      await page.evaluate(()=>window.restoreFireProbe());
+    }
     await page.evaluate(() => window.nanoDnf.restart());
     assert.equal(await page.evaluate(() => window.nanoDnf.getState().player.level), level);
     assert.equal(await page.evaluate(() => window.nanoDnf.getLoadout()[2]), deep ? "normalWave" : "crossSlash");
@@ -183,6 +232,7 @@ try {
   await page.reload();
   await page.waitForFunction(() => window.nanoDnf?.getAssetState().ready);
   assert.deepEqual(await page.evaluate(() => window.nanoDnf.getLoadout()), reset);
+  assert.deepEqual(pageErrors,[]);
   fs.writeFileSync(`${out}/measurement.json`, JSON.stringify(results, null, 2));
   console.log('starting profiles OK', results);
 } finally {

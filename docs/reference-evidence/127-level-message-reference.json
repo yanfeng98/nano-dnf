@@ -1,0 +1,69 @@
+{
+  "source": "00001-幽暗密林.mp4",
+  "method": "Manual reading; extraction is reproducible and is not OCR",
+  "samples": [
+    {
+      "time": 96.8,
+      "frame": "127-v1-96.8-level-message.png",
+      "sha256": "448e9c65a1d34c5d0d6a0695cac575cdb9d21c2781997aadf27bb1fa6a044dec",
+      "manualLevel": 3,
+      "manualMessage": null,
+      "logRoi": [
+        15,
+        90,
+        250,
+        245
+      ],
+      "genericBannerObserved": false
+    },
+    {
+      "time": 97,
+      "frame": "127-v1-97-level-message.png",
+      "sha256": "5e3a5e72e417f198aa65d684ac917152956ebf3973c3916f64bf7b6336dae31f",
+      "manualLevel": 4,
+      "manualMessage": "[阿努纳奇]已达到Lv4",
+      "logRoi": [
+        15,
+        90,
+        250,
+        245
+      ],
+      "genericBannerObserved": false
+    },
+    {
+      "time": 97.6,
+      "frame": "127-v1-97.6-level-message.png",
+      "sha256": "852381736ba0faa5f25ce5ccc76ffda5055cac4addd12124bdd7dd4bd02501a5",
+      "manualLevel": 4,
+      "manualMessage": "[阿努纳奇]已达到Lv4",
+      "logRoi": [
+        15,
+        90,
+        250,
+        245
+      ],
+      "genericBannerObserved": false
+    },
+    {
+      "time": 98,
+      "frame": "127-v1-98-level-message.png",
+      "sha256": "f68f7d28a4c496bf366cd811d65b5b92bed522e1695201e5878167920e389e16",
+      "manualLevel": 4,
+      "manualMessage": "[阿努纳奇]已达到Lv4",
+      "logRoi": [
+        15,
+        90,
+        250,
+        245
+      ],
+      "genericBannerObserved": false
+    }
+  ],
+  "firstLogRowApproximateY": 102,
+  "limits": [
+    "The central generic LEVEL UP - Lv banner is not the native word near the character.",
+    "Native level-up light pillar/word art and timing are not reconstructed by this message check.",
+    "Font rasterization and exact text ink bounds remain uncalibrated; y102 is the row anchor used for layout.",
+    "The observed upgrade time does not establish the numeric XP threshold or hidden character build."
+  ]
+}

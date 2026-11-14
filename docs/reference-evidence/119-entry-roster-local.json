@@ -1,0 +1,122 @@
+{
+  "method": "real createState entry; coordinates retained, types/level/name checked",
+  "reproduce": "node --test tests/recording-entry.test.js",
+  "rows": [
+    {
+      "seed": 1,
+      "enemies": [
+        {
+          "type": "grunt",
+          "level": 4,
+          "label": "哥布林",
+          "champion": null
+        },
+        {
+          "type": "caster",
+          "level": 4,
+          "label": "投掷哥布林",
+          "champion": null
+        },
+        {
+          "type": "coward",
+          "level": 4,
+          "label": "胆小哥布林",
+          "champion": null
+        },
+        {
+          "type": "cursedRed",
+          "level": 4,
+          "label": "诅咒之赤哥布林",
+          "champion": "dark"
+        }
+      ]
+    },
+    {
+      "seed": 2,
+      "enemies": [
+        {
+          "type": "grunt",
+          "level": 4,
+          "label": "哥布林",
+          "champion": null
+        },
+        {
+          "type": "caster",
+          "level": 4,
+          "label": "投掷哥布林",
+          "champion": null
+        },
+        {
+          "type": "coward",
+          "level": 4,
+          "label": "胆小哥布林",
+          "champion": null
+        },
+        {
+          "type": "cursedRed",
+          "level": 4,
+          "label": "诅咒之赤哥布林",
+          "champion": "dark"
+        }
+      ]
+    },
+    {
+      "seed": 7,
+      "enemies": [
+        {
+          "type": "grunt",
+          "level": 4,
+          "label": "哥布林",
+          "champion": null
+        },
+        {
+          "type": "caster",
+          "level": 4,
+          "label": "投掷哥布林",
+          "champion": null
+        },
+        {
+          "type": "coward",
+          "level": 4,
+          "label": "胆小哥布林",
+          "champion": null
+        },
+        {
+          "type": "cursedRed",
+          "level": 4,
+          "label": "诅咒之赤哥布林",
+          "champion": "dark"
+        }
+      ]
+    },
+    {
+      "seed": 123,
+      "enemies": [
+        {
+          "type": "grunt",
+          "level": 4,
+          "label": "哥布林",
+          "champion": null
+        },
+        {
+          "type": "caster",
+          "level": 4,
+          "label": "投掷哥布林",
+          "champion": null
+        },
+        {
+          "type": "coward",
+          "level": 4,
+          "label": "胆小哥布林",
+          "champion": null
+        },
+        {
+          "type": "cursedRed",
+          "level": 4,
+          "label": "诅咒之赤哥布林",
+          "champion": "dark"
+        }
+      ]
+    }
+  ]
+}

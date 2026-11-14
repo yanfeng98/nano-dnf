@@ -1,0 +1,1784 @@
+{
+  "roi": [
+    636,
+    114,
+    32,
+    14
+  ],
+  "fitFrame": [
+    "00001",
+    76
+  ],
+  "rowOpacityFitScope": "one scalar black overlay per row fitted once; no held-out refit",
+  "observations": [
+    {
+      "mode": "window",
+      "time": 76,
+      "y": 114,
+      "pixels": 32,
+      "ringAlphaMean": 0.20213887095451355,
+      "nativeModelRgbMae": 26.51432702814539,
+      "fitBlackOpacity": 0.623926442925014,
+      "fixedShadowModelRgbMae": 8.117614746609014,
+      "opaque": {
+        "pixels": 0,
+        "rgbMae": null
+      },
+      "translucent": {
+        "pixels": 32,
+        "rgbMae": 26.51432702814539
+      }
+    },
+    {
+      "mode": "window",
+      "time": 76,
+      "y": 115,
+      "pixels": 32,
+      "ringAlphaMean": 0.28700166940689087,
+      "nativeModelRgbMae": 29.236566349864006,
+      "fitBlackOpacity": 0.7564859715506912,
+      "fixedShadowModelRgbMae": 4.804681475327043,
+      "opaque": {
+        "pixels": 0,
+        "rgbMae": null
+      },
+      "translucent": {
+        "pixels": 32,
+        "rgbMae": 29.236566349864006
+      }
+    },
+    {
+      "mode": "window",
+      "time": 76,
+      "y": 116,
+      "pixels": 32,
+      "ringAlphaMean": 0.3825121223926544,
+      "nativeModelRgbMae": 22.607256063570578,
+      "fitBlackOpacity": 0.649382062772692,
+      "fixedShadowModelRgbMae": 6.1982966640175645,
+      "opaque": {
+        "pixels": 0,
+        "rgbMae": null
+      },
+      "translucent": {
+        "pixels": 32,
+        "rgbMae": 22.607256063570578
+      }
+    },
+    {
+      "mode": "window",
+      "time": 76,
+      "y": 117,
+      "pixels": 32,
+      "ringAlphaMean": 0.5786123275756836,
+      "nativeModelRgbMae": 40.044586987545095,
+      "fitBlackOpacity": 0.0,
+      "fixedShadowModelRgbMae": 40.044586987545095,
+      "opaque": {
+        "pixels": 5,
+        "rgbMae": 55.4607022802035
+      },
+      "translucent": {
+        "pixels": 27,
+        "rgbMae": 37.18975082223798
+      }
+    },
+    {
+      "mode": "window",
+      "time": 76,
+      "y": 118,
+      "pixels": 32,
+      "ringAlphaMean": 0.6773313283920288,
+      "nativeModelRgbMae": 129.9467961744716,
+      "fitBlackOpacity": 0.0,
+      "fixedShadowModelRgbMae": 129.9467961744716,
+      "opaque": {
+        "pixels": 9,
+        "rgbMae": 142.45928198099136
+      },
+      "translucent": {
+        "pixels": 23,
+        "rgbMae": 125.05060607626818
+      }
+    },
+    {
+      "mode": "window",
+      "time": 76,
+      "y": 119,
+      "pixels": 32,
+      "ringAlphaMean": 0.8403981924057007,
+      "nativeModelRgbMae": 84.48623058386147,
+      "fitBlackOpacity": 0.0,
+      "fixedShadowModelRgbMae": 84.48623058386147,
+      "opaque": {
+        "pixels": 14,
+        "rgbMae": 90.32790238374756
+      },
+      "translucent": {
+        "pixels": 18,
+        "rgbMae": 79.94270807283895
+      }
+    },
+    {
+      "mode": "window",
+      "time": 76,
+      "y": 120,
+      "pixels": 32,
+      "ringAlphaMean": 0.9483299255371094,
+      "nativeModelRgbMae": 16.025468324000638,
+      "fitBlackOpacity": 0.7330593189605776,
+      "fixedShadowModelRgbMae": 11.211357592874107,
+      "opaque": {
+        "pixels": 31,
+        "rgbMae": 16.347881453011624
+      },
+      "translucent": {
+        "pixels": 1,
+        "rgbMae": 6.030661324659984
+      }
+    },
+    {
+      "mode": "window",
+      "time": 76,
+      "y": 121,
+      "pixels": 32,
+      "ringAlphaMean": 0.9922219514846802,
+      "nativeModelRgbMae": 7.633421768123905,
+      "fitBlackOpacity": 0.26911101358822687,
+      "fixedShadowModelRgbMae": 5.6709502197636565,
+      "opaque": {
+        "pixels": 32,
+        "rgbMae": 7.633421768123905
+      },
+      "translucent": {
+        "pixels": 0,
+        "rgbMae": null
+      }
+    },
+    {
+      "mode": "window",
+      "time": 76,
+      "y": 122,
+      "pixels": 32,
+      "ringAlphaMean": 1.0,
+      "nativeModelRgbMae": 8.423014322916666,
+      "fitBlackOpacity": 0.0,
+      "fixedShadowModelRgbMae": 8.423014322916666,
+      "opaque": {
+        "pixels": 32,
+        "rgbMae": 8.423014322916666
+      },
+      "translucent": {
+        "pixels": 0,
+        "rgbMae": null
+      }
+    },
+    {
+      "mode": "window",
+      "time": 76,
+      "y": 123,
+      "pixels": 32,
+      "ringAlphaMean": 1.0,
+      "nativeModelRgbMae": 11.875081380208334,
+      "fitBlackOpacity": 0.0,
+      "fixedShadowModelRgbMae": 11.875081380208334,
+      "opaque": {
+        "pixels": 32,
+        "rgbMae": 11.875081380208334
+      },
+      "translucent": {
+        "pixels": 0,
+        "rgbMae": null
+      }
+    },
+    {
+      "mode": "window",
+      "time": 76,
+      "y": 124,
+      "pixels": 32,
+      "ringAlphaMean": 1.0,
+      "nativeModelRgbMae": 10.393117268880209,
+      "fitBlackOpacity": 0.0,
+      "fixedShadowModelRgbMae": 10.393117268880209,
+      "opaque": {
+        "pixels": 32,
+        "rgbMae": 10.393117268880209
+      },
+      "translucent": {
+        "pixels": 0,
+        "rgbMae": null
+      }
+    },
+    {
+      "mode": "window",
+      "time": 76,
+      "y": 125,
+      "pixels": 32,
+      "ringAlphaMean": 1.0,
+      "nativeModelRgbMae": 11.577972412109375,
+      "fitBlackOpacity": 0.0,
+      "fixedShadowModelRgbMae": 11.577972412109375,
+      "opaque": {
+        "pixels": 32,
+        "rgbMae": 11.577972412109375
+      },
+      "translucent": {
+        "pixels": 0,
+        "rgbMae": null
+      }
+    },
+    {
+      "mode": "window",
+      "time": 76,
+      "y": 126,
+      "pixels": 32,
+      "ringAlphaMean": 1.0,
+      "nativeModelRgbMae": 15.671610514322916,
+      "fitBlackOpacity": 0.0,
+      "fixedShadowModelRgbMae": 15.671610514322916,
+      "opaque": {
+        "pixels": 32,
+        "rgbMae": 15.671610514322916
+      },
+      "translucent": {
+        "pixels": 0,
+        "rgbMae": null
+      }
+    },
+    {
+      "mode": "window",
+      "time": 76,
+      "y": 127,
+      "pixels": 32,
+      "ringAlphaMean": 1.0,
+      "nativeModelRgbMae": 19.00445556640625,
+      "fitBlackOpacity": 0.010004264404637642,
+      "fixedShadowModelRgbMae": 18.980546652693288,
+      "opaque": {
+        "pixels": 32,
+        "rgbMae": 19.00445556640625
+      },
+      "translucent": {
+        "pixels": 0,
+        "rgbMae": null
+      }
+    },
+    {
+      "mode": "window",
+      "time": 100,
+      "y": 114,
+      "pixels": 32,
+      "ringAlphaMean": 0.20213887095451355,
+      "nativeModelRgbMae": 26.389307850350935,
+      "fitBlackOpacity": 0.623926442925014,
+      "fixedShadowModelRgbMae": 9.384304179584968,
+      "opaque": {
+        "pixels": 0,
+        "rgbMae": null
+      },
+      "translucent": {
+        "pixels": 32,
+        "rgbMae": 26.389307850350935
+      }
+    },
+    {
+      "mode": "window",
+      "time": 100,
+      "y": 115,
+      "pixels": 32,
+      "ringAlphaMean": 0.28700166940689087,
+      "nativeModelRgbMae": 28.101149683197338,
+      "fitBlackOpacity": 0.7564859715506912,
+      "fixedShadowModelRgbMae": 2.398558978929681,
+      "opaque": {
+        "pixels": 0,
+        "rgbMae": null
+      },
+      "translucent": {
+        "pixels": 32,
+        "rgbMae": 28.101149683197338
+      }
+    },
+    {
+      "mode": "window",
+      "time": 100,
+      "y": 116,
+      "pixels": 32,
+      "ringAlphaMean": 0.3825121223926544,
+      "nativeModelRgbMae": 21.97933403526743,
+      "fitBlackOpacity": 0.649382062772692,
+      "fixedShadowModelRgbMae": 5.70050549716236,
+      "opaque": {
+        "pixels": 0,
+        "rgbMae": null
+      },
+      "translucent": {
+        "pixels": 32,
+        "rgbMae": 21.97933403526743
+      }
+    },
+    {
+      "mode": "window",
+      "time": 100,
+      "y": 117,
+      "pixels": 32,
+      "ringAlphaMean": 0.5786123275756836,
+      "nativeModelRgbMae": 36.36750365421176,
+      "fitBlackOpacity": 0.0,
+      "fixedShadowModelRgbMae": 36.36750365421176,
+      "opaque": {
+        "pixels": 5,
+        "rgbMae": 55.52736894687017
+      },
+      "translucent": {
+        "pixels": 27,
+        "rgbMae": 32.81938045186761
+      }
+    },
+    {
+      "mode": "window",
+      "time": 100,
+      "y": 118,
+      "pixels": 32,
+      "ringAlphaMean": 0.6773313283920288,
+      "nativeModelRgbMae": 126.66554617447157,
+      "fitBlackOpacity": 0.0,
+      "fixedShadowModelRgbMae": 126.66554617447157,
+      "opaque": {
+        "pixels": 9,
+        "rgbMae": 141.08891161062098
+      },
+      "translucent": {
+        "pixels": 23,
+        "rgbMae": 121.0216205690218
+      }
+    },
+    {
+      "mode": "window",
+      "time": 100,
+      "y": 119,
+      "pixels": 32,
+      "ringAlphaMean": 0.8403981924057007,
+      "nativeModelRgbMae": 85.20498058386147,
+      "fitBlackOpacity": 0.0,
+      "fixedShadowModelRgbMae": 85.20498058386147,
+      "opaque": {
+        "pixels": 14,
+        "rgbMae": 88.94695000279518
+      },
+      "translucent": {
+        "pixels": 18,
+        "rgbMae": 82.29455992469082
+      }
+    },
+    {
+      "mode": "window",
+      "time": 100,
+      "y": 120,
+      "pixels": 32,
+      "ringAlphaMean": 0.9483299255371094,
+      "nativeModelRgbMae": 20.364906610921025,
+      "fitBlackOpacity": 0.7330593189605776,
+      "fixedShadowModelRgbMae": 16.494686638065616,
+      "opaque": {
+        "pixels": 31,
+        "rgbMae": 20.655258609402566
+      },
+      "translucent": {
+        "pixels": 1,
+        "rgbMae": 11.363994657993317
+      }
+    },
+    {
+      "mode": "window",
+      "time": 100,
+      "y": 121,
+      "pixels": 32,
+      "ringAlphaMean": 0.9922219514846802,
+      "nativeModelRgbMae": 6.144528043145935,
+      "fitBlackOpacity": 0.26911101358822687,
+      "fixedShadowModelRgbMae": 3.6924443159167395,
+      "opaque": {
+        "pixels": 32,
+        "rgbMae": 6.144528043145935
+      },
+      "translucent": {
+        "pixels": 0,
+        "rgbMae": null
+      }
+    },
+    {
+      "mode": "window",
+      "time": 100,
+      "y": 122,
+      "pixels": 32,
+      "ringAlphaMean": 1.0,
+      "nativeModelRgbMae": 5.196126302083333,
+      "fitBlackOpacity": 0.0,
+      "fixedShadowModelRgbMae": 5.196126302083333,
+      "opaque": {
+        "pixels": 32,
+        "rgbMae": 5.196126302083333
+      },
+      "translucent": {
+        "pixels": 0,
+        "rgbMae": null
+      }
+    },
+    {
+      "mode": "window",
+      "time": 100,
+      "y": 123,
+      "pixels": 32,
+      "ringAlphaMean": 1.0,
+      "nativeModelRgbMae": 11.43896484375,
+      "fitBlackOpacity": 0.0,
+      "fixedShadowModelRgbMae": 11.43896484375,
+      "opaque": {
+        "pixels": 32,
+        "rgbMae": 11.43896484375
+      },
+      "translucent": {
+        "pixels": 0,
+        "rgbMae": null
+      }
+    },
+    {
+      "mode": "window",
+      "time": 100,
+      "y": 124,
+      "pixels": 32,
+      "ringAlphaMean": 1.0,
+      "nativeModelRgbMae": 10.961619059244791,
+      "fitBlackOpacity": 0.0,
+      "fixedShadowModelRgbMae": 10.961619059244791,
+      "opaque": {
+        "pixels": 32,
+        "rgbMae": 10.961619059244791
+      },
+      "translucent": {
+        "pixels": 0,
+        "rgbMae": null
+      }
+    },
+    {
+      "mode": "window",
+      "time": 100,
+      "y": 125,
+      "pixels": 32,
+      "ringAlphaMean": 1.0,
+      "nativeModelRgbMae": 11.277150472005209,
+      "fitBlackOpacity": 0.0,
+      "fixedShadowModelRgbMae": 11.277150472005209,
+      "opaque": {
+        "pixels": 32,
+        "rgbMae": 11.277150472005209
+      },
+      "translucent": {
+        "pixels": 0,
+        "rgbMae": null
+      }
+    },
+    {
+      "mode": "window",
+      "time": 100,
+      "y": 126,
+      "pixels": 32,
+      "ringAlphaMean": 1.0,
+      "nativeModelRgbMae": 16.78765869140625,
+      "fitBlackOpacity": 0.0,
+      "fixedShadowModelRgbMae": 16.78765869140625,
+      "opaque": {
+        "pixels": 32,
+        "rgbMae": 16.78765869140625
+      },
+      "translucent": {
+        "pixels": 0,
+        "rgbMae": null
+      }
+    },
+    {
+      "mode": "window",
+      "time": 100,
+      "y": 127,
+      "pixels": 32,
+      "ringAlphaMean": 1.0,
+      "nativeModelRgbMae": 18.083028157552082,
+      "fitBlackOpacity": 0.010004264404637642,
+      "fixedShadowModelRgbMae": 18.175401740906704,
+      "opaque": {
+        "pixels": 32,
+        "rgbMae": 18.083028157552082
+      },
+      "translucent": {
+        "pixels": 0,
+        "rgbMae": null
+      }
+    },
+    {
+      "mode": "window",
+      "time": 160,
+      "y": 114,
+      "pixels": 32,
+      "ringAlphaMean": 0.20213887095451355,
+      "nativeModelRgbMae": 25.628910361478727,
+      "fitBlackOpacity": 0.623926442925014,
+      "fixedShadowModelRgbMae": 6.679002337683674,
+      "opaque": {
+        "pixels": 0,
+        "rgbMae": null
+      },
+      "translucent": {
+        "pixels": 32,
+        "rgbMae": 25.628910361478727
+      }
+    },
+    {
+      "mode": "window",
+      "time": 160,
+      "y": 115,
+      "pixels": 32,
+      "ringAlphaMean": 0.28700166940689087,
+      "nativeModelRgbMae": 29.309483016530674,
+      "fitBlackOpacity": 0.7564859715506912,
+      "fixedShadowModelRgbMae": 2.2948727048646336,
+      "opaque": {
+        "pixels": 0,
+        "rgbMae": null
+      },
+      "translucent": {
+        "pixels": 32,
+        "rgbMae": 29.309483016530674
+      }
+    },
+    {
+      "mode": "window",
+      "time": 160,
+      "y": 116,
+      "pixels": 32,
+      "ringAlphaMean": 0.3825121223926544,
+      "nativeModelRgbMae": 20.5933754692475,
+      "fitBlackOpacity": 0.649382062772692,
+      "fixedShadowModelRgbMae": 5.9477235760348774,
+      "opaque": {
+        "pixels": 0,
+        "rgbMae": null
+      },
+      "translucent": {
+        "pixels": 32,
+        "rgbMae": 20.5933754692475
+      }
+    },
+    {
+      "mode": "window",
+      "time": 160,
+      "y": 117,
+      "pixels": 32,
+      "ringAlphaMean": 0.5786123275756836,
+      "nativeModelRgbMae": 35.80500365421176,
+      "fitBlackOpacity": 0.0,
+      "fixedShadowModelRgbMae": 35.80500365421176,
+      "opaque": {
+        "pixels": 5,
+        "rgbMae": 54.727368946870165
+      },
+      "translucent": {
+        "pixels": 27,
+        "rgbMae": 32.30086193334909
+      }
+    },
+    {
+      "mode": "window",
+      "time": 160,
+      "y": 118,
+      "pixels": 32,
+      "ringAlphaMean": 0.6773313283920288,
+      "nativeModelRgbMae": 126.58221284113824,
+      "fitBlackOpacity": 0.0,
+      "fixedShadowModelRgbMae": 126.58221284113824,
+      "opaque": {
+        "pixels": 9,
+        "rgbMae": 143.08891161062098
+      },
+      "translucent": {
+        "pixels": 23,
+        "rgbMae": 120.12306984438412
+      }
+    },
+    {
+      "mode": "window",
+      "time": 160,
+      "y": 119,
+      "pixels": 32,
+      "ringAlphaMean": 0.8403981924057007,
+      "nativeModelRgbMae": 79.45498058386147,
+      "fitBlackOpacity": 0.0,
+      "fixedShadowModelRgbMae": 79.45498058386147,
+      "opaque": {
+        "pixels": 14,
+        "rgbMae": 84.20885476469994
+      },
+      "translucent": {
+        "pixels": 18,
+        "rgbMae": 75.75752288765378
+      }
+    },
+    {
+      "mode": "window",
+      "time": 160,
+      "y": 120,
+      "pixels": 32,
+      "ringAlphaMean": 0.9483299255371094,
+      "nativeModelRgbMae": 18.12894249645372,
+      "fitBlackOpacity": 0.7330593189605776,
+      "fixedShadowModelRgbMae": 14.137238457694805,
+      "opaque": {
+        "pixels": 31,
+        "rgbMae": 18.507756256288097
+      },
+      "translucent": {
+        "pixels": 1,
+        "rgbMae": 6.385715941588084
+      }
+    },
+    {
+      "mode": "window",
+      "time": 160,
+      "y": 121,
+      "pixels": 32,
+      "ringAlphaMean": 0.9922219514846802,
+      "nativeModelRgbMae": 6.257967161014676,
+      "fitBlackOpacity": 0.26911101358822687,
+      "fixedShadowModelRgbMae": 4.961801378306436,
+      "opaque": {
+        "pixels": 32,
+        "rgbMae": 6.257967161014676
+      },
+      "translucent": {
+        "pixels": 0,
+        "rgbMae": null
+      }
+    },
+    {
+      "mode": "window",
+      "time": 160,
+      "y": 122,
+      "pixels": 32,
+      "ringAlphaMean": 1.0,
+      "nativeModelRgbMae": 5.048665364583333,
+      "fitBlackOpacity": 0.0,
+      "fixedShadowModelRgbMae": 5.048665364583333,
+      "opaque": {
+        "pixels": 32,
+        "rgbMae": 5.048665364583333
+      },
+      "translucent": {
+        "pixels": 0,
+        "rgbMae": null
+      }
+    },
+    {
+      "mode": "window",
+      "time": 160,
+      "y": 123,
+      "pixels": 32,
+      "ringAlphaMean": 1.0,
+      "nativeModelRgbMae": 9.642903645833334,
+      "fitBlackOpacity": 0.0,
+      "fixedShadowModelRgbMae": 9.642903645833334,
+      "opaque": {
+        "pixels": 32,
+        "rgbMae": 9.642903645833334
+      },
+      "translucent": {
+        "pixels": 0,
+        "rgbMae": null
+      }
+    },
+    {
+      "mode": "window",
+      "time": 160,
+      "y": 124,
+      "pixels": 32,
+      "ringAlphaMean": 1.0,
+      "nativeModelRgbMae": 9.945363362630209,
+      "fitBlackOpacity": 0.0,
+      "fixedShadowModelRgbMae": 9.945363362630209,
+      "opaque": {
+        "pixels": 32,
+        "rgbMae": 9.945363362630209
+      },
+      "translucent": {
+        "pixels": 0,
+        "rgbMae": null
+      }
+    },
+    {
+      "mode": "window",
+      "time": 160,
+      "y": 125,
+      "pixels": 32,
+      "ringAlphaMean": 1.0,
+      "nativeModelRgbMae": 8.656646728515625,
+      "fitBlackOpacity": 0.0,
+      "fixedShadowModelRgbMae": 8.656646728515625,
+      "opaque": {
+        "pixels": 32,
+        "rgbMae": 8.656646728515625
+      },
+      "translucent": {
+        "pixels": 0,
+        "rgbMae": null
+      }
+    },
+    {
+      "mode": "window",
+      "time": 160,
+      "y": 126,
+      "pixels": 32,
+      "ringAlphaMean": 1.0,
+      "nativeModelRgbMae": 14.867167154947916,
+      "fitBlackOpacity": 0.0,
+      "fixedShadowModelRgbMae": 14.867167154947916,
+      "opaque": {
+        "pixels": 32,
+        "rgbMae": 14.867167154947916
+      },
+      "translucent": {
+        "pixels": 0,
+        "rgbMae": null
+      }
+    },
+    {
+      "mode": "window",
+      "time": 160,
+      "y": 127,
+      "pixels": 32,
+      "ringAlphaMean": 1.0,
+      "nativeModelRgbMae": 16.022806803385418,
+      "fitBlackOpacity": 0.010004264404637642,
+      "fixedShadowModelRgbMae": 15.857646981371426,
+      "opaque": {
+        "pixels": 32,
+        "rgbMae": 16.022806803385418
+      },
+      "translucent": {
+        "pixels": 0,
+        "rgbMae": null
+      }
+    },
+    {
+      "mode": "window",
+      "time": 220,
+      "y": 114,
+      "pixels": 32,
+      "ringAlphaMean": 0.20213887095451355,
+      "nativeModelRgbMae": 25.51432702814539,
+      "fitBlackOpacity": 0.623926442925014,
+      "fixedShadowModelRgbMae": 7.170261314874909,
+      "opaque": {
+        "pixels": 0,
+        "rgbMae": null
+      },
+      "translucent": {
+        "pixels": 32,
+        "rgbMae": 25.51432702814539
+      }
+    },
+    {
+      "mode": "window",
+      "time": 220,
+      "y": 115,
+      "pixels": 32,
+      "ringAlphaMean": 0.28700166940689087,
+      "nativeModelRgbMae": 32.30948301653067,
+      "fitBlackOpacity": 0.7564859715506912,
+      "fixedShadowModelRgbMae": 4.962899769929371,
+      "opaque": {
+        "pixels": 0,
+        "rgbMae": null
+      },
+      "translucent": {
+        "pixels": 32,
+        "rgbMae": 32.30948301653067
+      }
+    },
+    {
+      "mode": "window",
+      "time": 220,
+      "y": 116,
+      "pixels": 32,
+      "ringAlphaMean": 0.3825121223926544,
+      "nativeModelRgbMae": 21.532489718248446,
+      "fitBlackOpacity": 0.649382062772692,
+      "fixedShadowModelRgbMae": 2.7300545411743387,
+      "opaque": {
+        "pixels": 0,
+        "rgbMae": null
+      },
+      "translucent": {
+        "pixels": 32,
+        "rgbMae": 21.532489718248446
+      }
+    },
+    {
+      "mode": "window",
+      "time": 220,
+      "y": 117,
+      "pixels": 32,
+      "ringAlphaMean": 0.5786123275756836,
+      "nativeModelRgbMae": 36.065420320878424,
+      "fitBlackOpacity": 0.0,
+      "fixedShadowModelRgbMae": 36.065420320878424,
+      "opaque": {
+        "pixels": 5,
+        "rgbMae": 53.12736894687017
+      },
+      "translucent": {
+        "pixels": 27,
+        "rgbMae": 32.905800204954026
+      }
+    },
+    {
+      "mode": "window",
+      "time": 220,
+      "y": 118,
+      "pixels": 32,
+      "ringAlphaMean": 0.6773313283920288,
+      "nativeModelRgbMae": 125.44679617447157,
+      "fitBlackOpacity": 0.0,
+      "fixedShadowModelRgbMae": 125.44679617447157,
+      "opaque": {
+        "pixels": 9,
+        "rgbMae": 139.53335605506544
+      },
+      "translucent": {
+        "pixels": 23,
+        "rgbMae": 119.93466404728268
+      }
+    },
+    {
+      "mode": "window",
+      "time": 220,
+      "y": 119,
+      "pixels": 32,
+      "ringAlphaMean": 0.8403981924057007,
+      "nativeModelRgbMae": 83.0383139171948,
+      "fitBlackOpacity": 0.0,
+      "fixedShadowModelRgbMae": 83.0383139171948,
+      "opaque": {
+        "pixels": 14,
+        "rgbMae": 88.30409285993804
+      },
+      "translucent": {
+        "pixels": 18,
+        "rgbMae": 78.94270807283895
+      }
+    },
+    {
+      "mode": "window",
+      "time": 220,
+      "y": 120,
+      "pixels": 32,
+      "ringAlphaMean": 0.9483299255371094,
+      "nativeModelRgbMae": 19.34970328398049,
+      "fitBlackOpacity": 0.7330593189605776,
+      "fixedShadowModelRgbMae": 15.030100547219797,
+      "opaque": {
+        "pixels": 31,
+        "rgbMae": 19.69262760685336
+      },
+      "translucent": {
+        "pixels": 1,
+        "rgbMae": 8.719049274921417
+      }
+    },
+    {
+      "mode": "window",
+      "time": 220,
+      "y": 121,
+      "pixels": 32,
+      "ringAlphaMean": 0.9922219514846802,
+      "nativeModelRgbMae": 6.081316562369466,
+      "fitBlackOpacity": 0.26911101358822687,
+      "fixedShadowModelRgbMae": 4.754706539133845,
+      "opaque": {
+        "pixels": 32,
+        "rgbMae": 6.081316562369466
+      },
+      "translucent": {
+        "pixels": 0,
+        "rgbMae": null
+      }
+    },
+    {
+      "mode": "window",
+      "time": 220,
+      "y": 122,
+      "pixels": 32,
+      "ringAlphaMean": 1.0,
+      "nativeModelRgbMae": 4.502115885416667,
+      "fitBlackOpacity": 0.0,
+      "fixedShadowModelRgbMae": 4.502115885416667,
+      "opaque": {
+        "pixels": 32,
+        "rgbMae": 4.502115885416667
+      },
+      "translucent": {
+        "pixels": 0,
+        "rgbMae": null
+      }
+    },
+    {
+      "mode": "window",
+      "time": 220,
+      "y": 123,
+      "pixels": 32,
+      "ringAlphaMean": 1.0,
+      "nativeModelRgbMae": 8.767171223958334,
+      "fitBlackOpacity": 0.0,
+      "fixedShadowModelRgbMae": 8.767171223958334,
+      "opaque": {
+        "pixels": 32,
+        "rgbMae": 8.767171223958334
+      },
+      "translucent": {
+        "pixels": 0,
+        "rgbMae": null
+      }
+    },
+    {
+      "mode": "window",
+      "time": 220,
+      "y": 124,
+      "pixels": 32,
+      "ringAlphaMean": 1.0,
+      "nativeModelRgbMae": 9.794158935546875,
+      "fitBlackOpacity": 0.0,
+      "fixedShadowModelRgbMae": 9.794158935546875,
+      "opaque": {
+        "pixels": 32,
+        "rgbMae": 9.794158935546875
+      },
+      "translucent": {
+        "pixels": 0,
+        "rgbMae": null
+      }
+    },
+    {
+      "mode": "window",
+      "time": 220,
+      "y": 125,
+      "pixels": 32,
+      "ringAlphaMean": 1.0,
+      "nativeModelRgbMae": 9.216949462890625,
+      "fitBlackOpacity": 0.0,
+      "fixedShadowModelRgbMae": 9.216949462890625,
+      "opaque": {
+        "pixels": 32,
+        "rgbMae": 9.216949462890625
+      },
+      "translucent": {
+        "pixels": 0,
+        "rgbMae": null
+      }
+    },
+    {
+      "mode": "window",
+      "time": 220,
+      "y": 126,
+      "pixels": 32,
+      "ringAlphaMean": 1.0,
+      "nativeModelRgbMae": 15.335550944010416,
+      "fitBlackOpacity": 0.0,
+      "fixedShadowModelRgbMae": 15.335550944010416,
+      "opaque": {
+        "pixels": 32,
+        "rgbMae": 15.335550944010416
+      },
+      "translucent": {
+        "pixels": 0,
+        "rgbMae": null
+      }
+    },
+    {
+      "mode": "window",
+      "time": 220,
+      "y": 127,
+      "pixels": 32,
+      "ringAlphaMean": 1.0,
+      "nativeModelRgbMae": 15.220601399739584,
+      "fitBlackOpacity": 0.010004264404637642,
+      "fixedShadowModelRgbMae": 15.297067192633975,
+      "opaque": {
+        "pixels": 32,
+        "rgbMae": 15.220601399739584
+      },
+      "translucent": {
+        "pixels": 0,
+        "rgbMae": null
+      }
+    },
+    {
+      "mode": "window",
+      "time": 280,
+      "y": 114,
+      "pixels": 32,
+      "ringAlphaMean": 0.20213887095451355,
+      "nativeModelRgbMae": 25.41014118368427,
+      "fitBlackOpacity": 0.623926442925014,
+      "fixedShadowModelRgbMae": 6.984939252321905,
+      "opaque": {
+        "pixels": 0,
+        "rgbMae": null
+      },
+      "translucent": {
+        "pixels": 32,
+        "rgbMae": 25.41014118368427
+      }
+    },
+    {
+      "mode": "window",
+      "time": 280,
+      "y": 115,
+      "pixels": 32,
+      "ringAlphaMean": 0.28700166940689087,
+      "nativeModelRgbMae": 31.403233016530674,
+      "fitBlackOpacity": 0.7564859715506912,
+      "fixedShadowModelRgbMae": 4.547705924959041,
+      "opaque": {
+        "pixels": 0,
+        "rgbMae": null
+      },
+      "translucent": {
+        "pixels": 32,
+        "rgbMae": 31.403233016530674
+      }
+    },
+    {
+      "mode": "window",
+      "time": 280,
+      "y": 116,
+      "pixels": 32,
+      "ringAlphaMean": 0.3825121223926544,
+      "nativeModelRgbMae": 22.745948570470016,
+      "fitBlackOpacity": 0.649382062772692,
+      "fixedShadowModelRgbMae": 2.421338185931269,
+      "opaque": {
+        "pixels": 0,
+        "rgbMae": null
+      },
+      "translucent": {
+        "pixels": 32,
+        "rgbMae": 22.745948570470016
+      }
+    },
+    {
+      "mode": "window",
+      "time": 280,
+      "y": 117,
+      "pixels": 32,
+      "ringAlphaMean": 0.5786123275756836,
+      "nativeModelRgbMae": 35.982086987545095,
+      "fitBlackOpacity": 0.0,
+      "fixedShadowModelRgbMae": 35.982086987545095,
+      "opaque": {
+        "pixels": 5,
+        "rgbMae": 51.12736894687017
+      },
+      "translucent": {
+        "pixels": 27,
+        "rgbMae": 33.177405143225634
+      }
+    },
+    {
+      "mode": "window",
+      "time": 280,
+      "y": 118,
+      "pixels": 32,
+      "ringAlphaMean": 0.6773313283920288,
+      "nativeModelRgbMae": 127.29054617447157,
+      "fitBlackOpacity": 0.0,
+      "fixedShadowModelRgbMae": 127.29054617447157,
+      "opaque": {
+        "pixels": 9,
+        "rgbMae": 142.12594864765802
+      },
+      "translucent": {
+        "pixels": 23,
+        "rgbMae": 121.48538868496384
+      }
+    },
+    {
+      "mode": "window",
+      "time": 280,
+      "y": 119,
+      "pixels": 32,
+      "ringAlphaMean": 0.8403981924057007,
+      "nativeModelRgbMae": 83.6320639171948,
+      "fitBlackOpacity": 0.0,
+      "fixedShadowModelRgbMae": 83.6320639171948,
+      "opaque": {
+        "pixels": 14,
+        "rgbMae": 89.35171190755707
+      },
+      "translucent": {
+        "pixels": 18,
+        "rgbMae": 79.1834488135797
+      }
+    },
+    {
+      "mode": "window",
+      "time": 280,
+      "y": 120,
+      "pixels": 32,
+      "ringAlphaMean": 0.9483299255371094,
+      "nativeModelRgbMae": 20.61493654238681,
+      "fitBlackOpacity": 0.7330593189605776,
+      "fixedShadowModelRgbMae": 16.472131472151425,
+      "opaque": {
+        "pixels": 31,
+        "rgbMae": 20.913354022528537
+      },
+      "translucent": {
+        "pixels": 1,
+        "rgbMae": 11.363994657993317
+      }
+    },
+    {
+      "mode": "window",
+      "time": 280,
+      "y": 121,
+      "pixels": 32,
+      "ringAlphaMean": 0.9922219514846802,
+      "nativeModelRgbMae": 6.343255591268341,
+      "fitBlackOpacity": 0.26911101358822687,
+      "fixedShadowModelRgbMae": 4.648957039683114,
+      "opaque": {
+        "pixels": 32,
+        "rgbMae": 6.343255591268341
+      },
+      "translucent": {
+        "pixels": 0,
+        "rgbMae": null
+      }
+    },
+    {
+      "mode": "window",
+      "time": 280,
+      "y": 122,
+      "pixels": 32,
+      "ringAlphaMean": 1.0,
+      "nativeModelRgbMae": 4.196126302083333,
+      "fitBlackOpacity": 0.0,
+      "fixedShadowModelRgbMae": 4.196126302083333,
+      "opaque": {
+        "pixels": 32,
+        "rgbMae": 4.196126302083333
+      },
+      "translucent": {
+        "pixels": 0,
+        "rgbMae": null
+      }
+    },
+    {
+      "mode": "window",
+      "time": 280,
+      "y": 123,
+      "pixels": 32,
+      "ringAlphaMean": 1.0,
+      "nativeModelRgbMae": 10.798421223958334,
+      "fitBlackOpacity": 0.0,
+      "fixedShadowModelRgbMae": 10.798421223958334,
+      "opaque": {
+        "pixels": 32,
+        "rgbMae": 10.798421223958334
+      },
+      "translucent": {
+        "pixels": 0,
+        "rgbMae": null
+      }
+    },
+    {
+      "mode": "window",
+      "time": 280,
+      "y": 124,
+      "pixels": 32,
+      "ringAlphaMean": 1.0,
+      "nativeModelRgbMae": 8.952178955078125,
+      "fitBlackOpacity": 0.0,
+      "fixedShadowModelRgbMae": 8.952178955078125,
+      "opaque": {
+        "pixels": 32,
+        "rgbMae": 8.952178955078125
+      },
+      "translucent": {
+        "pixels": 0,
+        "rgbMae": null
+      }
+    },
+    {
+      "mode": "window",
+      "time": 280,
+      "y": 125,
+      "pixels": 32,
+      "ringAlphaMean": 1.0,
+      "nativeModelRgbMae": 9.571909586588541,
+      "fitBlackOpacity": 0.0,
+      "fixedShadowModelRgbMae": 9.571909586588541,
+      "opaque": {
+        "pixels": 32,
+        "rgbMae": 9.571909586588541
+      },
+      "translucent": {
+        "pixels": 0,
+        "rgbMae": null
+      }
+    },
+    {
+      "mode": "window",
+      "time": 280,
+      "y": 126,
+      "pixels": 32,
+      "ringAlphaMean": 1.0,
+      "nativeModelRgbMae": 15.28057861328125,
+      "fitBlackOpacity": 0.0,
+      "fixedShadowModelRgbMae": 15.28057861328125,
+      "opaque": {
+        "pixels": 32,
+        "rgbMae": 15.28057861328125
+      },
+      "translucent": {
+        "pixels": 0,
+        "rgbMae": null
+      }
+    },
+    {
+      "mode": "window",
+      "time": 280,
+      "y": 127,
+      "pixels": 32,
+      "ringAlphaMean": 1.0,
+      "nativeModelRgbMae": 16.67181396484375,
+      "fitBlackOpacity": 0.010004264404637642,
+      "fixedShadowModelRgbMae": 16.44326527300908,
+      "opaque": {
+        "pixels": 32,
+        "rgbMae": 16.67181396484375
+      },
+      "translucent": {
+        "pixels": 0,
+        "rgbMae": null
+      }
+    },
+    {
+      "mode": "radar-control",
+      "time": 60,
+      "y": 114,
+      "pixels": 32,
+      "ringAlphaMean": 0.20213887095451355,
+      "nativeModelRgbMae": 3.7634337892134986,
+      "fitBlackOpacity": 0.623926442925014,
+      "fixedShadowModelRgbMae": 27.806277368326374,
+      "opaque": {
+        "pixels": 0,
+        "rgbMae": null
+      },
+      "translucent": {
+        "pixels": 32,
+        "rgbMae": 3.7634337892134986
+      }
+    },
+    {
+      "mode": "radar-control",
+      "time": 60,
+      "y": 115,
+      "pixels": 32,
+      "ringAlphaMean": 0.28700166940689087,
+      "nativeModelRgbMae": 4.556990350286166,
+      "fitBlackOpacity": 0.7564859715506912,
+      "fixedShadowModelRgbMae": 31.689338673152957,
+      "opaque": {
+        "pixels": 0,
+        "rgbMae": null
+      },
+      "translucent": {
+        "pixels": 32,
+        "rgbMae": 4.556990350286166
+      }
+    },
+    {
+      "mode": "radar-control",
+      "time": 60,
+      "y": 116,
+      "pixels": 32,
+      "ringAlphaMean": 0.3825121223926544,
+      "nativeModelRgbMae": 3.9190505941708884,
+      "fitBlackOpacity": 0.649382062772692,
+      "fixedShadowModelRgbMae": 23.49556041392785,
+      "opaque": {
+        "pixels": 0,
+        "rgbMae": null
+      },
+      "translucent": {
+        "pixels": 32,
+        "rgbMae": 3.9190505941708884
+      }
+    },
+    {
+      "mode": "radar-control",
+      "time": 60,
+      "y": 117,
+      "pixels": 32,
+      "ringAlphaMean": 0.5786123275756836,
+      "nativeModelRgbMae": 4.111121920247872,
+      "fitBlackOpacity": 0.0,
+      "fixedShadowModelRgbMae": 4.111121920247872,
+      "opaque": {
+        "pixels": 5,
+        "rgbMae": 1.92896169424057
+      },
+      "translucent": {
+        "pixels": 27,
+        "rgbMae": 4.51522566580478
+      }
+    },
+    {
+      "mode": "radar-control",
+      "time": 60,
+      "y": 118,
+      "pixels": 32,
+      "ringAlphaMean": 0.6773313283920288,
+      "nativeModelRgbMae": 2.614225403095285,
+      "fitBlackOpacity": 0.0,
+      "fixedShadowModelRgbMae": 2.614225403095285,
+      "opaque": {
+        "pixels": 9,
+        "rgbMae": 1.9542192684279547
+      },
+      "translucent": {
+        "pixels": 23,
+        "rgbMae": 2.8724886731825015
+      }
+    },
+    {
+      "mode": "radar-control",
+      "time": 60,
+      "y": 119,
+      "pixels": 32,
+      "ringAlphaMean": 0.8403981924057007,
+      "nativeModelRgbMae": 3.6435097263505063,
+      "fitBlackOpacity": 0.0,
+      "fixedShadowModelRgbMae": 3.6435097263505063,
+      "opaque": {
+        "pixels": 14,
+        "rgbMae": 3.1280978336220695
+      },
+      "translucent": {
+        "pixels": 18,
+        "rgbMae": 4.044385642917068
+      }
+    },
+    {
+      "mode": "radar-control",
+      "time": 60,
+      "y": 120,
+      "pixels": 32,
+      "ringAlphaMean": 0.9483299255371094,
+      "nativeModelRgbMae": 5.254774320249756,
+      "fitBlackOpacity": 0.7330593189605776,
+      "fixedShadowModelRgbMae": 14.75682068856487,
+      "opaque": {
+        "pixels": 31,
+        "rgbMae": 5.347324590529165
+      },
+      "translucent": {
+        "pixels": 1,
+        "rgbMae": 2.3857159415880838
+      }
+    },
+    {
+      "mode": "radar-control",
+      "time": 60,
+      "y": 121,
+      "pixels": 32,
+      "ringAlphaMean": 0.9922219514846802,
+      "nativeModelRgbMae": 4.725435139611363,
+      "fitBlackOpacity": 0.26911101358822687,
+      "fixedShadowModelRgbMae": 8.635188681410005,
+      "opaque": {
+        "pixels": 32,
+        "rgbMae": 4.725435139611363
+      },
+      "translucent": {
+        "pixels": 0,
+        "rgbMae": null
+      }
+    },
+    {
+      "mode": "radar-control",
+      "time": 60,
+      "y": 122,
+      "pixels": 32,
+      "ringAlphaMean": 1.0,
+      "nativeModelRgbMae": 5.02099609375,
+      "fitBlackOpacity": 0.0,
+      "fixedShadowModelRgbMae": 5.02099609375,
+      "opaque": {
+        "pixels": 32,
+        "rgbMae": 5.02099609375
+      },
+      "translucent": {
+        "pixels": 0,
+        "rgbMae": null
+      }
+    },
+    {
+      "mode": "radar-control",
+      "time": 60,
+      "y": 123,
+      "pixels": 32,
+      "ringAlphaMean": 1.0,
+      "nativeModelRgbMae": 9.73046875,
+      "fitBlackOpacity": 0.0,
+      "fixedShadowModelRgbMae": 9.73046875,
+      "opaque": {
+        "pixels": 32,
+        "rgbMae": 9.73046875
+      },
+      "translucent": {
+        "pixels": 0,
+        "rgbMae": null
+      }
+    },
+    {
+      "mode": "radar-control",
+      "time": 60,
+      "y": 124,
+      "pixels": 32,
+      "ringAlphaMean": 1.0,
+      "nativeModelRgbMae": 9.835520426432291,
+      "fitBlackOpacity": 0.0,
+      "fixedShadowModelRgbMae": 9.835520426432291,
+      "opaque": {
+        "pixels": 32,
+        "rgbMae": 9.835520426432291
+      },
+      "translucent": {
+        "pixels": 0,
+        "rgbMae": null
+      }
+    },
+    {
+      "mode": "radar-control",
+      "time": 60,
+      "y": 125,
+      "pixels": 32,
+      "ringAlphaMean": 1.0,
+      "nativeModelRgbMae": 9.836354573567709,
+      "fitBlackOpacity": 0.0,
+      "fixedShadowModelRgbMae": 9.836354573567709,
+      "opaque": {
+        "pixels": 32,
+        "rgbMae": 9.836354573567709
+      },
+      "translucent": {
+        "pixels": 0,
+        "rgbMae": null
+      }
+    },
+    {
+      "mode": "radar-control",
+      "time": 60,
+      "y": 126,
+      "pixels": 32,
+      "ringAlphaMean": 1.0,
+      "nativeModelRgbMae": 16.03912353515625,
+      "fitBlackOpacity": 0.0,
+      "fixedShadowModelRgbMae": 16.03912353515625,
+      "opaque": {
+        "pixels": 32,
+        "rgbMae": 16.03912353515625
+      },
+      "translucent": {
+        "pixels": 0,
+        "rgbMae": null
+      }
+    },
+    {
+      "mode": "radar-control",
+      "time": 60,
+      "y": 127,
+      "pixels": 32,
+      "ringAlphaMean": 1.0,
+      "nativeModelRgbMae": 18.322408040364582,
+      "fitBlackOpacity": 0.010004264404637642,
+      "fixedShadowModelRgbMae": 17.903532947756332,
+      "opaque": {
+        "pixels": 32,
+        "rgbMae": 18.322408040364582
+      },
+      "translucent": {
+        "pixels": 0,
+        "rgbMae": null
+      }
+    },
+    {
+      "mode": "radar-control",
+      "time": 74,
+      "y": 114,
+      "pixels": 32,
+      "ringAlphaMean": 0.20213887095451355,
+      "nativeModelRgbMae": 3.9654982586701712,
+      "fitBlackOpacity": 0.623926442925014,
+      "fixedShadowModelRgbMae": 27.639610701659706,
+      "opaque": {
+        "pixels": 0,
+        "rgbMae": null
+      },
+      "translucent": {
+        "pixels": 32,
+        "rgbMae": 3.9654982586701712
+      }
+    },
+    {
+      "mode": "radar-control",
+      "time": 74,
+      "y": 115,
+      "pixels": 32,
+      "ringAlphaMean": 0.28700166940689087,
+      "nativeModelRgbMae": 3.2489040779570737,
+      "fitBlackOpacity": 0.7564859715506912,
+      "fixedShadowModelRgbMae": 29.17892200648629,
+      "opaque": {
+        "pixels": 0,
+        "rgbMae": null
+      },
+      "translucent": {
+        "pixels": 32,
+        "rgbMae": 3.2489040779570737
+      }
+    },
+    {
+      "mode": "radar-control",
+      "time": 74,
+      "y": 116,
+      "pixels": 32,
+      "ringAlphaMean": 0.3825121223926544,
+      "nativeModelRgbMae": 3.8064701904853186,
+      "fitBlackOpacity": 0.649382062772692,
+      "fixedShadowModelRgbMae": 21.32323789205635,
+      "opaque": {
+        "pixels": 0,
+        "rgbMae": null
+      },
+      "translucent": {
+        "pixels": 32,
+        "rgbMae": 3.8064701904853186
+      }
+    },
+    {
+      "mode": "radar-control",
+      "time": 74,
+      "y": 117,
+      "pixels": 32,
+      "ringAlphaMean": 0.5786123275756836,
+      "nativeModelRgbMae": 3.944726704309384,
+      "fitBlackOpacity": 0.0,
+      "fixedShadowModelRgbMae": 3.944726704309384,
+      "opaque": {
+        "pixels": 5,
+        "rgbMae": 3.0607022802035013
+      },
+      "translucent": {
+        "pixels": 27,
+        "rgbMae": 4.108434930995658
+      }
+    },
+    {
+      "mode": "radar-control",
+      "time": 74,
+      "y": 118,
+      "pixels": 32,
+      "ringAlphaMean": 0.6773313283920288,
+      "nativeModelRgbMae": 3.29193475159506,
+      "fitBlackOpacity": 0.0,
+      "fixedShadowModelRgbMae": 3.29193475159506,
+      "opaque": {
+        "pixels": 9,
+        "rgbMae": 3.095760921637217
+      },
+      "translucent": {
+        "pixels": 23,
+        "rgbMae": 3.3686984241872593
+      }
+    },
+    {
+      "mode": "radar-control",
+      "time": 74,
+      "y": 119,
+      "pixels": 32,
+      "ringAlphaMean": 0.8403981924057007,
+      "nativeModelRgbMae": 3.8373415352155766,
+      "fitBlackOpacity": 0.0,
+      "fixedShadowModelRgbMae": 3.8373415352155766,
+      "opaque": {
+        "pixels": 14,
+        "rgbMae": 3.9661468111333393
+      },
+      "translucent": {
+        "pixels": 18,
+        "rgbMae": 3.7371596539462053
+      }
+    },
+    {
+      "mode": "radar-control",
+      "time": 74,
+      "y": 120,
+      "pixels": 32,
+      "ringAlphaMean": 0.9483299255371094,
+      "nativeModelRgbMae": 5.998158089195688,
+      "fitBlackOpacity": 0.7330593189605776,
+      "fixedShadowModelRgbMae": 16.08990247394252,
+      "opaque": {
+        "pixels": 31,
+        "rgbMae": 6.072378414933399
+      },
+      "translucent": {
+        "pixels": 1,
+        "rgbMae": 3.69732799132665
+      }
+    },
+    {
+      "mode": "radar-control",
+      "time": 74,
+      "y": 121,
+      "pixels": 32,
+      "ringAlphaMean": 0.9922219514846802,
+      "nativeModelRgbMae": 5.74545362778008,
+      "fitBlackOpacity": 0.26911101358822687,
+      "fixedShadowModelRgbMae": 9.585383228345451,
+      "opaque": {
+        "pixels": 32,
+        "rgbMae": 5.74545362778008
+      },
+      "translucent": {
+        "pixels": 0,
+        "rgbMae": null
+      }
+    },
+    {
+      "mode": "radar-control",
+      "time": 74,
+      "y": 122,
+      "pixels": 32,
+      "ringAlphaMean": 1.0,
+      "nativeModelRgbMae": 4.82470703125,
+      "fitBlackOpacity": 0.0,
+      "fixedShadowModelRgbMae": 4.82470703125,
+      "opaque": {
+        "pixels": 32,
+        "rgbMae": 4.82470703125
+      },
+      "translucent": {
+        "pixels": 0,
+        "rgbMae": null
+      }
+    },
+    {
+      "mode": "radar-control",
+      "time": 74,
+      "y": 123,
+      "pixels": 32,
+      "ringAlphaMean": 1.0,
+      "nativeModelRgbMae": 7.92138671875,
+      "fitBlackOpacity": 0.0,
+      "fixedShadowModelRgbMae": 7.92138671875,
+      "opaque": {
+        "pixels": 32,
+        "rgbMae": 7.92138671875
+      },
+      "translucent": {
+        "pixels": 0,
+        "rgbMae": null
+      }
+    },
+    {
+      "mode": "radar-control",
+      "time": 74,
+      "y": 124,
+      "pixels": 32,
+      "ringAlphaMean": 1.0,
+      "nativeModelRgbMae": 11.106597900390625,
+      "fitBlackOpacity": 0.0,
+      "fixedShadowModelRgbMae": 11.106597900390625,
+      "opaque": {
+        "pixels": 32,
+        "rgbMae": 11.106597900390625
+      },
+      "translucent": {
+        "pixels": 0,
+        "rgbMae": null
+      }
+    },
+    {
+      "mode": "radar-control",
+      "time": 74,
+      "y": 125,
+      "pixels": 32,
+      "ringAlphaMean": 1.0,
+      "nativeModelRgbMae": 10.668426513671875,
+      "fitBlackOpacity": 0.0,
+      "fixedShadowModelRgbMae": 10.668426513671875,
+      "opaque": {
+        "pixels": 32,
+        "rgbMae": 10.668426513671875
+      },
+      "translucent": {
+        "pixels": 0,
+        "rgbMae": null
+      }
+    },
+    {
+      "mode": "radar-control",
+      "time": 74,
+      "y": 126,
+      "pixels": 32,
+      "ringAlphaMean": 1.0,
+      "nativeModelRgbMae": 14.56597900390625,
+      "fitBlackOpacity": 0.0,
+      "fixedShadowModelRgbMae": 14.56597900390625,
+      "opaque": {
+        "pixels": 32,
+        "rgbMae": 14.56597900390625
+      },
+      "translucent": {
+        "pixels": 0,
+        "rgbMae": null
+      }
+    },
+    {
+      "mode": "radar-control",
+      "time": 74,
+      "y": 127,
+      "pixels": 32,
+      "ringAlphaMean": 1.0,
+      "nativeModelRgbMae": 19.058492024739582,
+      "fitBlackOpacity": 0.010004264404637642,
+      "fixedShadowModelRgbMae": 19.28080918243832,
+      "opaque": {
+        "pixels": 32,
+        "rgbMae": 19.058492024739582
+      },
+      "translucent": {
+        "pixels": 0,
+        "rgbMae": null
+      }
+    }
+  ],
+  "limits": [
+    "Lower residual after fitting does not identify a shadow layer or justify runtime recolouring.",
+    "Rows114..120 intersect the full-window panel; they cannot identify exposed background.",
+    "The original radial background rectangle remains approximate; translucent pixels depend on unverified underlying layers."
+  ]
+}

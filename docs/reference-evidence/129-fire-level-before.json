@@ -1,0 +1,37 @@
+{
+  "scope": "Real default room reinforcement; no explicit enemy-level override.",
+  "rows": [
+    {
+      "seed": 1,
+      "frames": 1,
+      "type": "burningThrower",
+      "level": 1,
+      "champion": "fire",
+      "trackWidth": 181
+    },
+    {
+      "seed": 2,
+      "frames": 1,
+      "type": "burningThrower",
+      "level": 1,
+      "champion": "fire",
+      "trackWidth": 181
+    },
+    {
+      "seed": 7,
+      "frames": 1,
+      "type": "burningThrower",
+      "level": 1,
+      "champion": "fire",
+      "trackWidth": 181
+    },
+    {
+      "seed": 123,
+      "frames": 1,
+      "type": "burningThrower",
+      "level": 1,
+      "champion": "fire",
+      "trackWidth": 181
+    }
+  ]
+}

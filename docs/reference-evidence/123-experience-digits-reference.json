@@ -1,0 +1,129 @@
+{
+  "samples": [
+    {
+      "frame": "110-00001-71.3-counter-event.png",
+      "frameSha256": "66154411807ee44c561c03b6368a803d39b2cb8cb6068437e0439f5a0dacba20",
+      "digit": 8,
+      "sourceFrame": 8,
+      "scale": 1.125,
+      "searchBox": [
+        385,
+        216,
+        445,
+        245
+      ],
+      "screenRect": [
+        393,
+        225,
+        11,
+        14
+      ],
+      "correlation": 0.9323461055755615
+    },
+    {
+      "frame": "110-00001-71.3-counter-event.png",
+      "frameSha256": "66154411807ee44c561c03b6368a803d39b2cb8cb6068437e0439f5a0dacba20",
+      "digit": 0,
+      "sourceFrame": 0,
+      "scale": 1.125,
+      "searchBox": [
+        385,
+        216,
+        445,
+        245
+      ],
+      "screenRect": [
+        404,
+        225,
+        12,
+        14
+      ],
+      "correlation": 0.9353324174880981
+    },
+    {
+      "frame": "121-v2-15.8-entry-xp.png",
+      "frameSha256": "e26e7f53a0093063fb9da3b75935954eb005e77ab1a4494bbb80f064781700ea",
+      "digit": 5,
+      "sourceFrame": 5,
+      "scale": 1.125,
+      "searchBox": [
+        385,
+        117,
+        442,
+        145
+      ],
+      "screenRect": [
+        394,
+        123,
+        10,
+        16
+      ],
+      "correlation": 0.8734638690948486
+    },
+    {
+      "frame": "121-v2-15.8-entry-xp.png",
+      "frameSha256": "e26e7f53a0093063fb9da3b75935954eb005e77ab1a4494bbb80f064781700ea",
+      "digit": 0,
+      "sourceFrame": 0,
+      "scale": 1.125,
+      "searchBox": [
+        385,
+        117,
+        442,
+        145
+      ],
+      "screenRect": [
+        404,
+        123,
+        12,
+        14
+      ],
+      "correlation": 0.8937593698501587
+    },
+    {
+      "frame": "121-v1-73.6-entry-xp.png",
+      "frameSha256": "07de19ff68d0933c12dd6fbac21830f93901bc78c86776ecaaef4bcd3e82aae1",
+      "digit": 4,
+      "sourceFrame": 4,
+      "scale": 1.125,
+      "searchBox": [
+        340,
+        194,
+        405,
+        225
+      ],
+      "screenRect": [
+        352,
+        205,
+        11,
+        15
+      ],
+      "correlation": 0.9072034955024719
+    },
+    {
+      "frame": "121-v1-73.6-entry-xp.png",
+      "frameSha256": "07de19ff68d0933c12dd6fbac21830f93901bc78c86776ecaaef4bcd3e82aae1",
+      "digit": 0,
+      "sourceFrame": 0,
+      "scale": 1.125,
+      "searchBox": [
+        340,
+        194,
+        405,
+        225
+      ],
+      "screenRect": [
+        363,
+        205,
+        12,
+        14
+      ],
+      "correlation": 0.8990544080734253
+    }
+  ],
+  "limits": [
+    "Known float-text ROIs only; transparent pixels are excluded, native dark outline is retained.",
+    "Only the observed 0/4/5/8 glyphs are tested. Other numerals share the native run but have no independent sample here.",
+    "Correlations do not establish exact raster phase, kerning, English suffix, plus visibility, motion or amount rules."
+  ]
+}

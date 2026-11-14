@@ -1,0 +1,48 @@
+{
+  "bug": "Keyboard bot retreats toward the physical wall, crossing an open entry trigger60 units before it; uncompleted room repeatedly resets.",
+  "reproduce": "node --test tests/browser-keyboard-policy.test.js",
+  "before": "/tmp/nano133-red.log: retreating right would leave the live boss room",
+  "after": "3 passed: E/W live combat with 100ms decision steps, plus cleared-room routing",
+  "change": "Only the test controller combat boundaries include open E/W entry trigger margins; game geometry, stats and permission rules unchanged.",
+  "inputs": [
+    {
+      "file": "src/core.js",
+      "sha256": "f0b989e16ee1e32cb11683e8bf2cf0c69d4fa2141a809e410f3450cf5a5d0be2"
+    },
+    {
+      "file": "tests/browser/keyboard-policy.cjs",
+      "sha256": "ff172471c06816cb872711207475e65c94acd8bd87718442ea39c4b241f1117f"
+    },
+    {
+      "file": "tests/browser/playability.mjs",
+      "sha256": "b3b61bcca006e97e07f219aedf3ad0ef485867971146e1ae678b5214c2fca1e8"
+    },
+    {
+      "file": "tests/browser-keyboard-policy.test.js",
+      "sha256": "531db0bff42af8da1468a2173b01f8adc9197903e66e381144bd179022d6ec5c"
+    }
+  ],
+  "validation": {
+    "pid": 482481,
+    "started": 1794674153.151608,
+    "finished": 1794674618.094088,
+    "unitExitCode": 0,
+    "browserExitCode": 0,
+    "inputs": {
+      "src/core.js": "f0b989e16ee1e32cb11683e8bf2cf0c69d4fa2141a809e410f3450cf5a5d0be2",
+      "src/render.js": "9ebee902d1330e5884f77b6c5bf4e709715ef78251166bd023ff9130330793ba",
+      "src/main.js": "4bb0066760c37e103e0d36fd227531045f931e82ab06f621576b536843e86b26",
+      "package.json": "e69bc4ceecd8666209c8a582e4be14e9c4e626b14c3c7d2801b0696b2d1eb933",
+      "tests/browser/keyboard-policy.cjs": "ff172471c06816cb872711207475e65c94acd8bd87718442ea39c4b241f1117f",
+      "tests/browser/playability.mjs": "b3b61bcca006e97e07f219aedf3ad0ef485867971146e1ae678b5214c2fca1e8",
+      "tests/browser-keyboard-policy.test.js": "531db0bff42af8da1468a2173b01f8adc9197903e66e381144bd179022d6ec5c"
+    },
+    "inputsUnchanged": true,
+    "unitCount": 464,
+    "browserGroups": 45,
+    "parentTraceTail": "00:43:38.086508 wait4(482811, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], WNOHANG, NULL) = 482811\n00:43:38.092339 exit_group(0)           = ?\n00:43:38.093829 +++ exited with 0 +++"
+  },
+  "limits": [
+    "This does not validate unknown recording entrance/return rules or explain previous wrapper143 signals."
+  ]
+}

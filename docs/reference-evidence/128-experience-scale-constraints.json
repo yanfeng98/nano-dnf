@@ -1,0 +1,909 @@
+{
+  "inputs": [
+    {
+      "file": "41-client-experience.json",
+      "sha256": "db99bad4693d03178adc1041314fe1c126a4f7433dab18102ecb1ea0368ed714"
+    },
+    {
+      "file": "42-xp-stable-bars.json",
+      "sha256": "e1889ea3e072703af044b5f771c1afabc48f2c780fb8c2e4172989be28a0ee6c"
+    },
+    {
+      "file": "43-boss-xp-measurement.json",
+      "sha256": "b074e79513e423ab86298e66cf15f7d04d0680305a431e3116cb6633b8c011cd"
+    },
+    {
+      "file": "121-entry-xp.json",
+      "sha256": "d2d2a5f99d9e7cb3f59da0549995a4b07e422b177ce254fe1acc8fe5d18a0280"
+    }
+  ],
+  "models": [
+    {
+      "clearEndpointErrorPixels": 2,
+      "semantics": "per_level",
+      "indexOffset": -1,
+      "clearConstraints": [
+        {
+          "video": 1,
+          "level": 4,
+          "unscaledThresholds": [
+            5543,
+            10575
+          ],
+          "unscaledRequiredCreditInterval": [
+            3725.06875,
+            4128.018749999999
+          ],
+          "scaleInterval": [
+            0.575578780983008,
+            0.6378405767678784
+          ]
+        },
+        {
+          "video": 2,
+          "level": 6,
+          "unscaledThresholds": [
+            18509,
+            30205
+          ],
+          "unscaledRequiredCreditInterval": [
+            16465.825,
+            17683.675
+          ],
+          "scaleInterval": [
+            0.3572786765194452,
+            0.38370382291807426
+          ]
+        }
+      ],
+      "clearFitScaleInterval": [
+        0.575578780983008,
+        0.38370382291807426
+      ],
+      "clearFitFeasible": false,
+      "heldOutConstraints": [
+        {
+          "source": "V1 boss",
+          "scaleInterval": [
+            0.475427407116554,
+            0.898029546775713
+          ]
+        },
+        {
+          "source": "V2 boss",
+          "scaleInterval": [
+            0.2593332973148198,
+            0.7779998919444594
+          ]
+        },
+        {
+          "source": "V1 entry Lv3",
+          "scaleInterval": [
+            0.5744440256313608,
+            0.9276290991330569
+          ]
+        }
+      ],
+      "jointScaleInterval": [
+        0.575578780983008,
+        0.38370382291807426
+      ],
+      "jointFeasible": false
+    },
+    {
+      "clearEndpointErrorPixels": 2,
+      "semantics": "cumulative",
+      "indexOffset": -1,
+      "clearConstraints": [
+        {
+          "video": 1,
+          "level": 4,
+          "unscaledThresholds": [
+            2890,
+            5032
+          ],
+          "unscaledRequiredCreditInterval": [
+            1894.0124999999998,
+            2092.0625
+          ],
+          "scaleInterval": [
+            1.1357213276372002,
+            1.2544795770883246
+          ]
+        },
+        {
+          "video": 2,
+          "level": 6,
+          "unscaledThresholds": [
+            7934,
+            11696
+          ],
+          "unscaledRequiredCreditInterval": [
+            6534.0875,
+            7024.8375
+          ],
+          "scaleInterval": [
+            0.899380234774114,
+            0.966929200136974
+          ]
+        }
+      ],
+      "clearFitScaleInterval": [
+        1.1357213276372002,
+        0.966929200136974
+      ],
+      "clearFitFeasible": false,
+      "heldOutConstraints": [
+        {
+          "source": "V1 boss",
+          "scaleInterval": [
+            0.9118664766944841,
+            1.7224144559784698
+          ]
+        },
+        {
+          "source": "V2 boss",
+          "scaleInterval": [
+            0.604991177211999,
+            1.814973531635997
+          ]
+        },
+        {
+          "source": "V1 entry Lv3",
+          "scaleInterval": [
+            0.9219600725952813,
+            1.4888082274652148
+          ]
+        }
+      ],
+      "jointScaleInterval": [
+        1.1357213276372002,
+        0.966929200136974
+      ],
+      "jointFeasible": false
+    },
+    {
+      "clearEndpointErrorPixels": 2,
+      "semantics": "per_level",
+      "indexOffset": 0,
+      "clearConstraints": [
+        {
+          "video": 1,
+          "level": 4,
+          "unscaledThresholds": [
+            10575,
+            18509
+          ],
+          "unscaledRequiredCreditInterval": [
+            6940.11875,
+            7667.21875
+          ],
+          "scaleInterval": [
+            0.309890727977469,
+            0.3423572543337245
+          ]
+        },
+        {
+          "video": 2,
+          "level": 6,
+          "unscaledThresholds": [
+            30205,
+            46627
+          ],
+          "unscaledRequiredCreditInterval": [
+            25754.8375,
+            27675.6375
+          ],
+          "scaleInterval": [
+            0.22828742427342458,
+            0.24531313777460254
+          ]
+        }
+      ],
+      "clearFitScaleInterval": [
+        0.309890727977469,
+        0.24531313777460254
+      ],
+      "clearFitFeasible": false,
+      "heldOutConstraints": [
+        {
+          "source": "V1 boss",
+          "scaleInterval": [
+            0.24920038937560843,
+            0.4707118465983714
+          ]
+        },
+        {
+          "source": "V2 boss",
+          "scaleInterval": [
+            0.15891408707167687,
+            0.4767422612150306
+          ]
+        },
+        {
+          "source": "V1 entry Lv3",
+          "scaleInterval": [
+            0.2749413674905286,
+            0.44398340248962653
+          ]
+        }
+      ],
+      "jointScaleInterval": [
+        0.309890727977469,
+        0.24531313777460254
+      ],
+      "jointFeasible": false
+    },
+    {
+      "clearEndpointErrorPixels": 2,
+      "semantics": "cumulative",
+      "indexOffset": 0,
+      "clearConstraints": [
+        {
+          "video": 1,
+          "level": 4,
+          "unscaledThresholds": [
+            5032,
+            7934
+          ],
+          "unscaledRequiredCreditInterval": [
+            3215.0499999999997,
+            3539.2
+          ],
+          "scaleInterval": [
+            0.6713381555153708,
+            0.739024276449822
+          ]
+        },
+        {
+          "video": 2,
+          "level": 6,
+          "unscaledThresholds": [
+            11696,
+            16422
+          ],
+          "unscaledRequiredCreditInterval": [
+            9289.0125,
+            9991.9625
+          ],
+          "scaleInterval": [
+            0.6323082177300006,
+            0.680158412963703
+          ]
+        }
+      ],
+      "clearFitScaleInterval": [
+        0.6713381555153708,
+        0.680158412963703
+      ],
+      "clearFitFeasible": true,
+      "heldOutConstraints": [
+        {
+          "source": "V1 boss",
+          "scaleInterval": [
+            0.5237070981015618,
+            0.9892245186362832
+          ]
+        },
+        {
+          "source": "V2 boss",
+          "scaleInterval": [
+            0.4103967168262654,
+            1.231190150478796
+          ]
+        },
+        {
+          "source": "V1 entry Lv3",
+          "scaleInterval": [
+            0.5273356401384083,
+            0.8515570934256055
+          ]
+        }
+      ],
+      "jointScaleInterval": [
+        0.6713381555153708,
+        0.680158412963703
+      ],
+      "jointFeasible": true,
+      "illustrativeMidpointNotRuntimeValue": 0.6757482842395369,
+      "illustrativeLevel3to7Thresholds": {
+        "3": 1952.9125414522616,
+        "4": 3400.36536629335,
+        "5": 5361.3868871564855,
+        "6": 7903.551932465623,
+        "7": 11097.138323781675
+      }
+    },
+    {
+      "clearEndpointErrorPixels": 2,
+      "semantics": "per_level",
+      "indexOffset": 1,
+      "clearConstraints": [
+        {
+          "video": 1,
+          "level": 4,
+          "unscaledThresholds": [
+            18509,
+            30205
+          ],
+          "unscaledRequiredCreditInterval": [
+            11927.95625,
+            13145.80625
+          ],
+          "scaleInterval": [
+            0.18074205224194598,
+            0.19919590164492765
+          ]
+        },
+        {
+          "video": 2,
+          "level": 6,
+          "unscaledThresholds": [
+            46627,
+            68840
+          ],
+          "unscaledRequiredCreditInterval": [
+            38443.568750000006,
+            41330.243749999994
+          ],
+          "scaleInterval": [
+            0.15286626515479965,
+            0.16434478393736532
+          ]
+        }
+      ],
+      "clearFitScaleInterval": [
+        0.18074205224194598,
+        0.16434478393736532
+      ],
+      "clearFitFeasible": false,
+      "heldOutConstraints": [
+        {
+          "source": "V1 boss",
+          "scaleInterval": [
+            0.1423790651924501,
+            0.2689382342524057
+          ]
+        },
+        {
+          "source": "V2 boss",
+          "scaleInterval": [
+            0.10294464580607803,
+            0.30883393741823406
+          ]
+        },
+        {
+          "source": "V1 entry Lv3",
+          "scaleInterval": [
+            0.14411347517730497,
+            0.23271867612293143
+          ]
+        }
+      ],
+      "jointScaleInterval": [
+        0.18074205224194598,
+        0.16434478393736532
+      ],
+      "jointFeasible": false
+    },
+    {
+      "clearEndpointErrorPixels": 2,
+      "semantics": "cumulative",
+      "indexOffset": 1,
+      "clearConstraints": [
+        {
+          "video": 1,
+          "level": 4,
+          "unscaledThresholds": [
+            7934,
+            11696
+          ],
+          "unscaledRequiredCreditInterval": [
+            4987.8375,
+            5478.5875
+          ],
+          "scaleInterval": [
+            0.433688427902265,
+            0.47635874264147543
+          ]
+        },
+        {
+          "video": 2,
+          "level": 6,
+          "unscaledThresholds": [
+            16422,
+            22213
+          ],
+          "unscaledRequiredCreditInterval": [
+            12688.73125,
+            13654.606249999999
+          ],
+          "scaleInterval": [
+            0.46270100245475776,
+            0.49792212282847426
+          ]
+        }
+      ],
+      "clearFitScaleInterval": [
+        0.46270100245475776,
+        0.47635874264147543
+      ],
+      "clearFitFeasible": true,
+      "heldOutConstraints": [
+        {
+          "source": "V1 boss",
+          "scaleInterval": [
+            0.33215201886148965,
+            0.6273982578494803
+          ]
+        },
+        {
+          "source": "V2 boss",
+          "scaleInterval": [
+            0.2922908293752284,
+            0.8768724881256851
+          ]
+        },
+        {
+          "source": "V1 entry Lv3",
+          "scaleInterval": [
+            0.30286168521462636,
+            0.4890699523052464
+          ]
+        }
+      ],
+      "jointScaleInterval": [
+        0.46270100245475776,
+        0.47635874264147543
+      ],
+      "jointFeasible": true,
+      "illustrativeMidpointNotRuntimeValue": 0.4695298725481166,
+      "illustrativeLevel3to7Thresholds": {
+        "3": 2362.674318662123,
+        "4": 3725.2500087967574,
+        "5": 5491.621389322772,
+        "6": 7710.619566985171,
+        "7": 10429.667058911315
+      }
+    },
+    {
+      "clearEndpointErrorPixels": 1,
+      "semantics": "per_level",
+      "indexOffset": -1,
+      "clearConstraints": [
+        {
+          "video": 1,
+          "level": 4,
+          "unscaledThresholds": [
+            5543,
+            10575
+          ],
+          "unscaledRequiredCreditInterval": [
+            3825.80625,
+            4027.28125
+          ],
+          "scaleInterval": [
+            0.5899761780978172,
+            0.621045563925251
+          ]
+        },
+        {
+          "video": 2,
+          "level": 6,
+          "unscaledThresholds": [
+            18509,
+            30205
+          ],
+          "unscaledRequiredCreditInterval": [
+            16770.2875,
+            17379.2125
+          ],
+          "scaleInterval": [
+            0.3635377609888825,
+            0.3767377273645428
+          ]
+        }
+      ],
+      "clearFitScaleInterval": [
+        0.5899761780978172,
+        0.3767377273645428
+      ],
+      "clearFitFeasible": false,
+      "heldOutConstraints": [
+        {
+          "source": "V1 boss",
+          "scaleInterval": [
+            0.475427407116554,
+            0.898029546775713
+          ]
+        },
+        {
+          "source": "V2 boss",
+          "scaleInterval": [
+            0.2593332973148198,
+            0.7779998919444594
+          ]
+        },
+        {
+          "source": "V1 entry Lv3",
+          "scaleInterval": [
+            0.5744440256313608,
+            0.9276290991330569
+          ]
+        }
+      ],
+      "jointScaleInterval": [
+        0.5899761780978172,
+        0.3767377273645428
+      ],
+      "jointFeasible": false
+    },
+    {
+      "clearEndpointErrorPixels": 1,
+      "semantics": "cumulative",
+      "indexOffset": -1,
+      "clearConstraints": [
+        {
+          "video": 1,
+          "level": 4,
+          "unscaledThresholds": [
+            2890,
+            5032
+          ],
+          "unscaledRequiredCreditInterval": [
+            1943.525,
+            2042.55
+          ],
+          "scaleInterval": [
+            1.163251817580965,
+            1.2225209348992165
+          ]
+        },
+        {
+          "video": 2,
+          "level": 6,
+          "unscaledThresholds": [
+            7934,
+            11696
+          ],
+          "unscaledRequiredCreditInterval": [
+            6656.775000000001,
+            6902.15
+          ],
+          "scaleInterval": [
+            0.9153669508776251,
+            0.9491082393501357
+          ]
+        }
+      ],
+      "clearFitScaleInterval": [
+        1.163251817580965,
+        0.9491082393501357
+      ],
+      "clearFitFeasible": false,
+      "heldOutConstraints": [
+        {
+          "source": "V1 boss",
+          "scaleInterval": [
+            0.9118664766944841,
+            1.7224144559784698
+          ]
+        },
+        {
+          "source": "V2 boss",
+          "scaleInterval": [
+            0.604991177211999,
+            1.814973531635997
+          ]
+        },
+        {
+          "source": "V1 entry Lv3",
+          "scaleInterval": [
+            0.9219600725952813,
+            1.4888082274652148
+          ]
+        }
+      ],
+      "jointScaleInterval": [
+        1.163251817580965,
+        0.9491082393501357
+      ],
+      "jointFeasible": false
+    },
+    {
+      "clearEndpointErrorPixels": 1,
+      "semantics": "per_level",
+      "indexOffset": 0,
+      "clearConstraints": [
+        {
+          "video": 1,
+          "level": 4,
+          "unscaledThresholds": [
+            10575,
+            18509
+          ],
+          "unscaledRequiredCreditInterval": [
+            7121.893750000001,
+            7485.44375
+          ],
+          "scaleInterval": [
+            0.31741605165358433,
+            0.3336191304454661
+          ]
+        },
+        {
+          "video": 2,
+          "level": 6,
+          "unscaledThresholds": [
+            30205,
+            46627
+          ],
+          "unscaledRequiredCreditInterval": [
+            26235.0375,
+            27195.4375
+          ],
+          "scaleInterval": [
+            0.23231838061071824,
+            0.24082298338624447
+          ]
+        }
+      ],
+      "clearFitScaleInterval": [
+        0.31741605165358433,
+        0.24082298338624447
+      ],
+      "clearFitFeasible": false,
+      "heldOutConstraints": [
+        {
+          "source": "V1 boss",
+          "scaleInterval": [
+            0.24920038937560843,
+            0.4707118465983714
+          ]
+        },
+        {
+          "source": "V2 boss",
+          "scaleInterval": [
+            0.15891408707167687,
+            0.4767422612150306
+          ]
+        },
+        {
+          "source": "V1 entry Lv3",
+          "scaleInterval": [
+            0.2749413674905286,
+            0.44398340248962653
+          ]
+        }
+      ],
+      "jointScaleInterval": [
+        0.31741605165358433,
+        0.24082298338624447
+      ],
+      "jointFeasible": false
+    },
+    {
+      "clearEndpointErrorPixels": 1,
+      "semantics": "cumulative",
+      "indexOffset": 0,
+      "clearConstraints": [
+        {
+          "video": 1,
+          "level": 4,
+          "unscaledThresholds": [
+            5032,
+            7934
+          ],
+          "unscaledRequiredCreditInterval": [
+            3296.0875000000005,
+            3458.1625
+          ],
+          "scaleInterval": [
+            0.6870700841848815,
+            0.7208546496414309
+          ]
+        },
+        {
+          "video": 2,
+          "level": 6,
+          "unscaledThresholds": [
+            11696,
+            16422
+          ],
+          "unscaledRequiredCreditInterval": [
+            9464.75,
+            9816.225
+          ],
+          "scaleInterval": [
+            0.6436282786916558,
+            0.6675295174199002
+          ]
+        }
+      ],
+      "clearFitScaleInterval": [
+        0.6870700841848815,
+        0.6675295174199002
+      ],
+      "clearFitFeasible": false,
+      "heldOutConstraints": [
+        {
+          "source": "V1 boss",
+          "scaleInterval": [
+            0.5237070981015618,
+            0.9892245186362832
+          ]
+        },
+        {
+          "source": "V2 boss",
+          "scaleInterval": [
+            0.4103967168262654,
+            1.231190150478796
+          ]
+        },
+        {
+          "source": "V1 entry Lv3",
+          "scaleInterval": [
+            0.5273356401384083,
+            0.8515570934256055
+          ]
+        }
+      ],
+      "jointScaleInterval": [
+        0.6870700841848815,
+        0.6675295174199002
+      ],
+      "jointFeasible": false
+    },
+    {
+      "clearEndpointErrorPixels": 1,
+      "semantics": "per_level",
+      "indexOffset": 1,
+      "clearConstraints": [
+        {
+          "video": 1,
+          "level": 4,
+          "unscaledThresholds": [
+            18509,
+            30205
+          ],
+          "unscaledRequiredCreditInterval": [
+            12232.41875,
+            12841.34375
+          ],
+          "scaleInterval": [
+            0.18502736522414176,
+            0.19423795477897615
+          ]
+        },
+        {
+          "video": 2,
+          "level": 6,
+          "unscaledThresholds": [
+            46627,
+            68840
+          ],
+          "unscaledRequiredCreditInterval": [
+            39165.2375,
+            40608.575
+          ],
+          "scaleInterval": [
+            0.15558290336462188,
+            0.16131652463488827
+          ]
+        }
+      ],
+      "clearFitScaleInterval": [
+        0.18502736522414176,
+        0.16131652463488827
+      ],
+      "clearFitFeasible": false,
+      "heldOutConstraints": [
+        {
+          "source": "V1 boss",
+          "scaleInterval": [
+            0.1423790651924501,
+            0.2689382342524057
+          ]
+        },
+        {
+          "source": "V2 boss",
+          "scaleInterval": [
+            0.10294464580607803,
+            0.30883393741823406
+          ]
+        },
+        {
+          "source": "V1 entry Lv3",
+          "scaleInterval": [
+            0.14411347517730497,
+            0.23271867612293143
+          ]
+        }
+      ],
+      "jointScaleInterval": [
+        0.18502736522414176,
+        0.16131652463488827
+      ],
+      "jointFeasible": false
+    },
+    {
+      "clearEndpointErrorPixels": 1,
+      "semantics": "cumulative",
+      "indexOffset": 1,
+      "clearConstraints": [
+        {
+          "video": 1,
+          "level": 4,
+          "unscaledThresholds": [
+            7934,
+            11696
+          ],
+          "unscaledRequiredCreditInterval": [
+            5110.525000000001,
+            5355.9
+          ],
+          "scaleInterval": [
+            0.4436229205175601,
+            0.46492287974327484
+          ]
+        },
+        {
+          "video": 2,
+          "level": 6,
+          "unscaledThresholds": [
+            16422,
+            22213
+          ],
+          "unscaledRequiredCreditInterval": [
+            12930.2,
+            13413.1375
+          ],
+          "scaleInterval": [
+            0.4710307338607391,
+            0.48862353250529766
+          ]
+        }
+      ],
+      "clearFitScaleInterval": [
+        0.4710307338607391,
+        0.46492287974327484
+      ],
+      "clearFitFeasible": false,
+      "heldOutConstraints": [
+        {
+          "source": "V1 boss",
+          "scaleInterval": [
+            0.33215201886148965,
+            0.6273982578494803
+          ]
+        },
+        {
+          "source": "V2 boss",
+          "scaleInterval": [
+            0.2922908293752284,
+            0.8768724881256851
+          ]
+        },
+        {
+          "source": "V1 entry Lv3",
+          "scaleInterval": [
+            0.30286168521462636,
+            0.4890699523052464
+          ]
+        }
+      ],
+      "jointScaleInterval": [
+        0.4710307338607391,
+        0.46492287974327484
+      ],
+      "jointFeasible": false
+    }
+  ],
+  "limits": [
+    "Clear intervals assume the displayed clear total is the only XP credit and exactly one level is crossed.",
+    "No scale, index convention or cumulative-table interpretation is established as the original server rule.",
+    "The \u00b11px sensitivity analysis changes only clear-bar uncertainty, not the independently derived holdout intervals.",
+    "Feasible intervals can rely on opposite endpoint errors in the two recordings; they are weaker than a unique central-value fit.",
+    "No runtime initial XP, enemy payout, threshold, clear-credit or asset data is changed by this script."
+  ]
+}

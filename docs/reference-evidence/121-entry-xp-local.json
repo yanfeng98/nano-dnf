@@ -1,0 +1,19 @@
+{
+  "scope": "Current referenceProfile starts; no runtime values changed by this evidence probe.",
+  "rows": [
+    {
+      "stage": "mirkwood",
+      "level": 3,
+      "xp": 0,
+      "xpToNext": 77,
+      "fillPixels": 0
+    },
+    {
+      "stage": "mirkwooddeep",
+      "level": 6,
+      "xp": 0,
+      "xpToNext": 315,
+      "fillPixels": 0
+    }
+  ]
+}

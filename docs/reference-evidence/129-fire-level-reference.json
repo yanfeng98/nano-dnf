@@ -1,0 +1,17 @@
+{
+  "video": "00001-幽暗密林.mp4",
+  "time": 220,
+  "normalization": "crop=1440:1080:240:0,scale=720:540",
+  "frame": "129-fire-level-reference.png",
+  "frameSha256": "d1ffb4143375bf73ef38c12f6487d2761098b3fe05ffe98df35b155df589dcf3",
+  "method": "manual target reading, not OCR",
+  "observed": {
+    "race": "人型",
+    "level": 4,
+    "label": "燃烧之投掷哥布林"
+  },
+  "widthEvidence": "audit34 measured Lv4 champion track217px; see34-width-measurement.json",
+  "limits": [
+    "No spawn location, reinforcement timing, HP, XP or AI rule is measured here."
+  ]
+}

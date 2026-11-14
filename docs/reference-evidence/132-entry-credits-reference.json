@@ -1,0 +1,49 @@
+{
+  "method": "Manual log readings in original-frame extracts, not OCR",
+  "video": "00001-幽暗密林.mp4",
+  "samples": [
+    {
+      "time": 69.6,
+      "frame": "130-v1-69.6-follow.png",
+      "sha256": "e5ea4baac346951df1d0867b641e0a97c578043505b08857cbcf786d0b7b03c2",
+      "manualCredit": 40,
+      "cumulativeCredit": 40
+    },
+    {
+      "time": 69.8,
+      "frame": "130-v1-69.8-follow.png",
+      "sha256": "7b7ca75928ca9f49aa1ac5c6f05b78bfa002357027f659cde5b1b4a4131969ac",
+      "manualCredit": 40,
+      "cumulativeCredit": 80
+    },
+    {
+      "time": 71.3,
+      "frame": "130-v1-71.3-follow.png",
+      "sha256": "66154411807ee44c561c03b6368a803d39b2cb8cb6068437e0439f5a0dacba20",
+      "manualCredit": 80,
+      "cumulativeCredit": 160
+    },
+    {
+      "time": 73.6,
+      "frame": "130-v1-73.6-follow.png",
+      "sha256": "07de19ff68d0933c12dd6fbac21830f93901bc78c86776ecaaef4bcd3e82aae1",
+      "manualCredit": 40,
+      "cumulativeCredit": 200
+    }
+  ],
+  "entryRosterSource": "119-entry-roster-reference.json",
+  "entryCountSource": "115-entry-enemy-configuration.json referenceOrdinary: 0 -> 4",
+  "runtimeCredits": {
+    "grunt": 40,
+    "coward": 40,
+    "caster": 40,
+    "cursedRed": 80
+  },
+  "total": 200,
+  "limits": [
+    "The target/portrait and purple aura identify the 80-credit cursed-red death.",
+    "The other three roster members each pay 40; first-pair order is not identified.",
+    "Room observations do not establish credits in other rooms or another stage.",
+    "Initial XP, thresholds, exact death phase and clear rewards remain separate questions."
+  ]
+}

@@ -1,0 +1,30 @@
+[
+  {
+    "seed": 1,
+    "spawned": 6,
+    "kills": 6,
+    "cleared": true,
+    "waveSpawned": 2
+  },
+  {
+    "seed": 2,
+    "spawned": 6,
+    "kills": 6,
+    "cleared": true,
+    "waveSpawned": 2
+  },
+  {
+    "seed": 7,
+    "spawned": 6,
+    "kills": 6,
+    "cleared": true,
+    "waveSpawned": 2
+  },
+  {
+    "seed": 123,
+    "spawned": 6,
+    "kills": 6,
+    "cleared": true,
+    "waveSpawned": 2
+  }
+]

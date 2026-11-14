@@ -94,8 +94,12 @@ try {
       return box;
     });
     await page.keyboard.press('p');
+    const contactStart = await page.evaluate(() => window.nanoDnf.getState().time);
     await page.keyboard.down('ArrowRight');
-    await page.waitForTimeout(1000);
+    await page.waitForFunction(({ start, edge }) => {
+      const s = window.nanoDnf.getState();
+      return s.time >= start + 1 && Math.abs(s.player.x - edge) < 0.05;
+    }, { start: contactStart, edge: geometry.x - geometry.width / 2 }, { timeout: 15000 });
     await page.keyboard.up('ArrowRight');
     await page.keyboard.press('p');
     const contact = await page.evaluate(() => window.nanoDnf.getState().player.x);
@@ -107,7 +111,8 @@ try {
     });
     await page.keyboard.press('p');
     await page.keyboard.down('ArrowRight');
-    await page.waitForTimeout(1000);
+    await page.waitForFunction(edge => window.nanoDnf.getState().player.x > edge,
+      geometry.x + geometry.width / 2, { timeout: 15000 });
     await page.keyboard.up('ArrowRight');
     await page.keyboard.press('p');
     const bypass = await page.evaluate(() => window.nanoDnf.getState().player.x);

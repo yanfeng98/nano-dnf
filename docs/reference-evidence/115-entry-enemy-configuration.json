@@ -1,0 +1,67 @@
+{
+  "runtimeCommit": "f9ea3f9",
+  "rooms": [
+    {
+      "stage": "mirkwood",
+      "initial": [
+        "grunt",
+        "grunt",
+        "grunt",
+        "goblinBlue"
+      ],
+      "pendingWave": [
+        {
+          "type": "goblinBlue",
+          "x": 700,
+          "z": 0
+        },
+        {
+          "type": "grunt",
+          "x": 759,
+          "z": 0
+        }
+      ],
+      "configuredTotal": 6
+    },
+    {
+      "stage": "mirkwooddeep",
+      "initial": [
+        "goblinRed",
+        "goblinRed",
+        "goblinRed",
+        "goblinRed"
+      ],
+      "pendingWave": [
+        {
+          "type": "goblinBlue",
+          "x": 220,
+          "z": 0,
+          "level": 6
+        },
+        {
+          "type": "goblinBlue",
+          "x": 360,
+          "z": 0,
+          "level": 6
+        },
+        {
+          "type": "goblinBlue",
+          "x": 480,
+          "z": 0,
+          "level": 6
+        }
+      ],
+      "configuredTotal": 7
+    }
+  ],
+  "referenceOrdinary": {
+    "entryCount": 0,
+    "clearCount": 4,
+    "referenceFrames": [
+      "107-00001-60-radar-reference.png",
+      "107-00001-74-radar-reference.png",
+      "110-00001-73.3-counter-event.png"
+    ],
+    "limits": "Cumulative-count evidence supports total4 before leaving first room; enemy type/placement and exact spawn timing require separate verification."
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "method": "real damageEnemy with distant target; player XP rollover isolated",
+  "coreSha256": "5a58346b1e7a74226e4d083bed7ae9bc67244dd8431de40b3fa29a3e7b285f53",
+  "referenceFiles": [
+    {
+      "name": "110-00001-71.3-counter-event.png",
+      "sha256": "66154411807ee44c561c03b6368a803d39b2cb8cb6068437e0439f5a0dacba20"
+    },
+    {
+      "name": "110-00001-73.1-counter-event.png",
+      "sha256": "b1f7d02e81a142514f9c0cb76f7e75e04ca40c8365aeb55fa1b36b8f51ebfc64"
+    },
+    {
+      "name": "110-00002-15.8-counter-event.png",
+      "sha256": "e26e7f53a0093063fb9da3b75935954eb005e77ab1a4494bbb80f064781700ea"
+    }
+  ],
+  "rows": [
+    {
+      "stage": "mirkwood",
+      "type": "grunt",
+      "xp": 10,
+      "receivedXp": 0,
+      "uncollectedItems": 1,
+      "kills": 1
+    },
+    {
+      "stage": "mirkwood",
+      "type": "cursedRed",
+      "xp": 14,
+      "receivedXp": 0,
+      "uncollectedItems": 1,
+      "kills": 1
+    },
+    {
+      "stage": "mirkwood",
+      "type": "boss",
+      "xp": 80,
+      "receivedXp": 0,
+      "uncollectedItems": 1,
+      "kills": 1
+    },
+    {
+      "stage": "mirkwooddeep",
+      "type": "goblinRed",
+      "xp": 10,
+      "receivedXp": 0,
+      "uncollectedItems": 1,
+      "kills": 1
+    },
+    {
+      "stage": "mirkwooddeep",
+      "type": "lugaruBoss",
+      "xp": 120,
+      "receivedXp": 0,
+      "uncollectedItems": 1,
+      "kills": 1
+    }
+  ],
+  "limits": "Enemy XP amounts and exact native credit phase are not identified by event separation."
+}

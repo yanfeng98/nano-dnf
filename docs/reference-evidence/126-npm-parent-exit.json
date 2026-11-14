@@ -1,0 +1,6 @@
+{
+  "scope": "npm parent only, full45 browser chain after game-time wait fix",
+  "trace": "15:29:28.735194 wait4(204094, [{WIFEXITED(s) && WEXITSTATUS(s) == 0}], WNOHANG, NULL) = 204094\n15:29:28.744351 exit_group(0)           = ?\n15:29:28.746180 +++ exited with 0 +++\n",
+  "exitCode": 0,
+  "limits": "Successful rerun does not identify the earlier143 cause."
+}

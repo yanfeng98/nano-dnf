@@ -1,0 +1,286 @@
+{
+  "video": "00001-\u5e7d\u6697\u5bc6\u6797.mp4",
+  "templateSource": "110-00001-71.3-counter-event.png",
+  "templateSourceSha256": "66154411807ee44c561c03b6368a803d39b2cb8cb6068437e0439f5a0dacba20",
+  "templateRects": {
+    "suffix": [
+      417,
+      225,
+      24,
+      17
+    ],
+    "name": [
+      368,
+      255,
+      91,
+      19
+    ],
+    "nativeBarkAtlas": [
+      1090,
+      160,
+      28,
+      32
+    ]
+  },
+  "samples": [
+    {
+      "time": 60,
+      "frame": "130-v1-60-follow.png",
+      "sha256": "05a006f6da508271a7ede8f65aa0a8e46f26c06189817d958c0e785cf2ed23d6",
+      "suffixMaxScore": 0.6194770932197571,
+      "suffixPeaks": [],
+      "name": {
+        "score": 0.8012665510177612,
+        "x": 255,
+        "y": 208
+      },
+      "bark": {
+        "score": 0.8659014701843262,
+        "x": 264,
+        "y": 74
+      },
+      "reliableName": true,
+      "reliableBark": true
+    },
+    {
+      "time": 69.6,
+      "frame": "130-v1-69.6-follow.png",
+      "sha256": "e5ea4baac346951df1d0867b641e0a97c578043505b08857cbcf786d0b7b03c2",
+      "suffixMaxScore": 0.8696988821029663,
+      "suffixPeaks": [
+        {
+          "score": 0.8696988821029663,
+          "x": 334,
+          "y": 227
+        }
+      ],
+      "name": {
+        "score": 0.9234011769294739,
+        "x": 285,
+        "y": 255
+      },
+      "bark": {
+        "score": 0.944374680519104,
+        "x": 506,
+        "y": 74
+      },
+      "reliableName": true,
+      "reliableBark": true
+    },
+    {
+      "time": 69.8,
+      "frame": "130-v1-69.8-follow.png",
+      "sha256": "7b7ca75928ca9f49aa1ac5c6f05b78bfa002357027f659cde5b1b4a4131969ac",
+      "suffixMaxScore": 0.9236375093460083,
+      "suffixPeaks": [
+        {
+          "score": 0.9236375093460083,
+          "x": 363,
+          "y": 205
+        },
+        {
+          "score": 0.8978472352027893,
+          "x": 363,
+          "y": 235
+        }
+      ],
+      "name": {
+        "score": 0.42264407873153687,
+        "x": 289,
+        "y": 251
+      },
+      "bark": {
+        "score": 0.5355783700942993,
+        "x": 274,
+        "y": 70
+      },
+      "reliableName": false,
+      "reliableBark": false
+    },
+    {
+      "time": 70.3,
+      "frame": "130-v1-70.3-follow.png",
+      "sha256": "e09a191440b3b5b07493bda40ef54fce6c1051475deeced60d3cf5bd6dbf510e",
+      "suffixMaxScore": 0.9475265145301819,
+      "suffixPeaks": [
+        {
+          "score": 0.9475265145301819,
+          "x": 417,
+          "y": 205
+        }
+      ],
+      "name": {
+        "score": 0.7889578342437744,
+        "x": 368,
+        "y": 255
+      },
+      "bark": {
+        "score": 0.9446067810058594,
+        "x": 497,
+        "y": 74
+      },
+      "reliableName": true,
+      "reliableBark": true
+    },
+    {
+      "time": 71.1,
+      "frame": "130-v1-71.1-follow.png",
+      "sha256": "104f52b130d8f5391eb7a54a2be7e9a9fb1a7330525483cf73d447a6f05b1c73",
+      "suffixMaxScore": 0.6011385917663574,
+      "suffixPeaks": [],
+      "name": {
+        "score": 0.9984521865844727,
+        "x": 368,
+        "y": 255
+      },
+      "bark": {
+        "score": 0.9540442824363708,
+        "x": 440,
+        "y": 74
+      },
+      "reliableName": true,
+      "reliableBark": true
+    },
+    {
+      "time": 71.3,
+      "frame": "130-v1-71.3-follow.png",
+      "sha256": "66154411807ee44c561c03b6368a803d39b2cb8cb6068437e0439f5a0dacba20",
+      "suffixMaxScore": 0.9999998807907104,
+      "suffixPeaks": [
+        {
+          "score": 0.9999998807907104,
+          "x": 417,
+          "y": 225
+        }
+      ],
+      "name": {
+        "score": 1.0,
+        "x": 368,
+        "y": 255
+      },
+      "bark": {
+        "score": 0.9514455199241638,
+        "x": 440,
+        "y": 74
+      },
+      "reliableName": true,
+      "reliableBark": true
+    },
+    {
+      "time": 73.2,
+      "frame": "130-v1-73.2-follow.png",
+      "sha256": "28578a4fa02c7efcb1acc7cdc39ba2c9cd1eedb5c76070033ed280ec5b67115c",
+      "suffixMaxScore": 0.9205322861671448,
+      "suffixPeaks": [
+        {
+          "score": 0.9205322861671448,
+          "x": 417,
+          "y": 245
+        }
+      ],
+      "name": {
+        "score": 0.9586642384529114,
+        "x": 368,
+        "y": 263
+      },
+      "bark": {
+        "score": 0.9430668950080872,
+        "x": 366,
+        "y": 74
+      },
+      "reliableName": true,
+      "reliableBark": true
+    },
+    {
+      "time": 73.6,
+      "frame": "130-v1-73.6-follow.png",
+      "sha256": "07de19ff68d0933c12dd6fbac21830f93901bc78c86776ecaaef4bcd3e82aae1",
+      "suffixMaxScore": 0.892146646976471,
+      "suffixPeaks": [
+        {
+          "score": 0.892146646976471,
+          "x": 377,
+          "y": 205
+        }
+      ],
+      "name": {
+        "score": 0.8444893956184387,
+        "x": 327,
+        "y": 255
+      },
+      "bark": {
+        "score": 0.9427151679992676,
+        "x": 366,
+        "y": 74
+      },
+      "reliableName": true,
+      "reliableBark": true
+    },
+    {
+      "time": 73.8,
+      "frame": "130-v1-73.8-follow.png",
+      "sha256": "0a98ab3f0fecacc31b12118d0f0ff891161a0a5e5d07eb20713c725d4025bc44",
+      "suffixMaxScore": 0.8625569939613342,
+      "suffixPeaks": [
+        {
+          "score": 0.8625569939613342,
+          "x": 321,
+          "y": 193
+        }
+      ],
+      "name": {
+        "score": 0.8718948364257812,
+        "x": 271,
+        "y": 243
+      },
+      "bark": {
+        "score": 0.924072802066803,
+        "x": 366,
+        "y": 74
+      },
+      "reliableName": true,
+      "reliableBark": true
+    }
+  ],
+  "stationaryCameraPairs": [
+    {
+      "before": 73.2,
+      "after": 73.6,
+      "suffixDelta": [
+        -40,
+        -40
+      ],
+      "nameDelta": [
+        -41,
+        -8
+      ],
+      "barkDelta": [
+        0,
+        0
+      ]
+    },
+    {
+      "before": 73.6,
+      "after": 73.8,
+      "suffixDelta": [
+        -56,
+        -12
+      ],
+      "nameDelta": [
+        -56,
+        -12
+      ],
+      "barkDelta": [
+        0,
+        0
+      ]
+    }
+  ],
+  "limits": [
+    "Coordinates are template origins; relative movement is measured, not an absolute baseline or head gap.",
+    "The low-confidence name/bark at69.8 are not used to infer camera movement.",
+    "The two early40XP captions can overlap after reaching the same plateau; a single visual footprint cannot prove a single kill.",
+    "The71.3 source match is not an independent validation. Primary motion pairs use73.2/73.6/73.8.",
+    "These fixed samples and controls do not prove a complete automatic XP ledger or general detector recall."
+  ]
+}

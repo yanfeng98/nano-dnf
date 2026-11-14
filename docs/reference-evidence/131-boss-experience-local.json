@@ -1,0 +1,44 @@
+{
+  "source": "V1 330s / V2 386s readable death logs in 43-boss-xp-contact.png",
+  "changes": [
+    {
+      "type": "boss",
+      "before": 80,
+      "after": 280
+    },
+    {
+      "type": "lugaruBoss",
+      "before": 120,
+      "after": 360
+    }
+  ],
+  "red": "/tmp/nano131-red.log: 80 != 280 and 120 != 360",
+  "checks": {
+    "targeted": "node --test tests/combat-experience.test.js: 9 passed",
+    "unit": "npm test: 459 passed, exit 0 (/tmp/nano131-unit.log)",
+    "deep": "node tests/browser/deep-smoke.mjs: exit 0 (/tmp/nano131-deep.log)",
+    "playability": "All assertions printed pass, but wrapper exit143; not a normal successful run. /tmp/nano131-playability.log"
+  },
+  "inputs": [
+    {
+      "file": "src/core.js",
+      "sha256": "43c131c318aaf3d7b8acb73acf5632338a5871365801e71110bc3070fcda6b8f"
+    },
+    {
+      "file": "tests/combat-experience.test.js",
+      "sha256": "69d58cd8cc3ed1b9c715ca354c8aeb5513b7c57caadfe7ec52b07336541161c1"
+    },
+    {
+      "file": "docs/reference-evidence/43-boss-xp-contact.png",
+      "sha256": "3a8cad86a6ea7e326385afcb0a7107ab340388912e2de67fa0892881c6b5128a"
+    },
+    {
+      "file": "docs/reference-evidence/43-boss-xp-measurement.json",
+      "sha256": "b074e79513e423ab86298e66cf15f7d04d0680305a431e3116cb6633b8c011cd"
+    }
+  ],
+  "limits": [
+    "Initial XP, progression thresholds, other enemy credits and clear rewards remain uncalibrated.",
+    "No deployment or complete reference-fidelity acceptance claimed."
+  ]
+}

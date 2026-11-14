@@ -1,0 +1,77 @@
+{
+  "method": "real damageEnemy plus step; no direct kill-stat or clear-flag assignment",
+  "rows": [
+    {
+      "stage": "mirkwood",
+      "seed": 1,
+      "spawned": 4,
+      "kills": 4,
+      "cleared": true,
+      "waveSpawned": 0,
+      "expected": 4
+    },
+    {
+      "stage": "mirkwood",
+      "seed": 2,
+      "spawned": 4,
+      "kills": 4,
+      "cleared": true,
+      "waveSpawned": 0,
+      "expected": 4
+    },
+    {
+      "stage": "mirkwood",
+      "seed": 7,
+      "spawned": 4,
+      "kills": 4,
+      "cleared": true,
+      "waveSpawned": 0,
+      "expected": 4
+    },
+    {
+      "stage": "mirkwood",
+      "seed": 123,
+      "spawned": 4,
+      "kills": 4,
+      "cleared": true,
+      "waveSpawned": 0,
+      "expected": 4
+    },
+    {
+      "stage": "mirkwooddeep",
+      "seed": 1,
+      "spawned": 7,
+      "kills": 7,
+      "cleared": true,
+      "waveSpawned": 3,
+      "expected": 7
+    },
+    {
+      "stage": "mirkwooddeep",
+      "seed": 2,
+      "spawned": 7,
+      "kills": 7,
+      "cleared": true,
+      "waveSpawned": 3,
+      "expected": 7
+    },
+    {
+      "stage": "mirkwooddeep",
+      "seed": 7,
+      "spawned": 7,
+      "kills": 7,
+      "cleared": true,
+      "waveSpawned": 3,
+      "expected": 7
+    },
+    {
+      "stage": "mirkwooddeep",
+      "seed": 123,
+      "spawned": 7,
+      "kills": 7,
+      "cleared": true,
+      "waveSpawned": 3,
+      "expected": 7
+    }
+  ]
+}

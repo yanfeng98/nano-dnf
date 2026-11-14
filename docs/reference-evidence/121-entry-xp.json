@@ -1,0 +1,99 @@
+{
+  "track": [
+    134,
+    486,
+    160,
+    7
+  ],
+  "endpointUncertaintyPixels": 2,
+  "samples": [
+    {
+      "video": 1,
+      "time": 60,
+      "level": 3,
+      "credit": 0,
+      "fill": 136,
+      "fractionInterval": [
+        0.8375,
+        0.8625
+      ],
+      "frame": "121-v1-60-entry-xp.png",
+      "sha256": "05a006f6da508271a7ede8f65aa0a8e46f26c06189817d958c0e785cf2ed23d6"
+    },
+    {
+      "video": 1,
+      "time": 70.8,
+      "level": 3,
+      "credit": 80,
+      "fill": 143,
+      "fractionInterval": [
+        0.88125,
+        0.90625
+      ],
+      "frame": "121-v1-70.8-entry-xp.png",
+      "sha256": "17c06512d38cc421f1ba2f96cce02b892be1384874472fd75a9874473adc334f"
+    },
+    {
+      "video": 1,
+      "time": 71.5,
+      "level": 3,
+      "credit": 160,
+      "fill": 150,
+      "fractionInterval": [
+        0.925,
+        0.95
+      ],
+      "frame": "121-v1-71.5-entry-xp.png",
+      "sha256": "f45cfa4e7fa7296d502979ab90669a94751e22e82872d94e93dc2cf7d9f67b3c"
+    },
+    {
+      "video": 1,
+      "time": 73.6,
+      "level": 3,
+      "credit": 200,
+      "fill": 153,
+      "fractionInterval": [
+        0.94375,
+        0.96875
+      ],
+      "frame": "121-v1-73.6-entry-xp.png",
+      "sha256": "07de19ff68d0933c12dd6fbac21830f93901bc78c86776ecaaef4bcd3e82aae1"
+    },
+    {
+      "video": 2,
+      "time": 15.5,
+      "level": 6,
+      "credit": 0,
+      "fill": 22,
+      "fractionInterval": [
+        0.125,
+        0.15
+      ],
+      "frame": "121-v2-15.5-entry-xp.png",
+      "sha256": "bbbcd2d98aecdee172c5710f603799d4c6fd125aa4e3171483840e4ccdbf868d"
+    },
+    {
+      "video": 2,
+      "time": 15.8,
+      "level": 6,
+      "credit": 50,
+      "fill": 23,
+      "fractionInterval": [
+        0.13125,
+        0.15625
+      ],
+      "frame": "121-v2-15.8-entry-xp.png",
+      "sha256": "e26e7f53a0093063fb9da3b75935954eb005e77ab1a4494bbb80f064781700ea"
+    }
+  ],
+  "v1ThresholdIntegerInterval": [
+    1524,
+    2461
+  ],
+  "limits": [
+    "Assumes listed credits are the only XP changes; all V1 samples remain Lv3.",
+    "Intervals bound a threshold; they do not uniquely identify it or the initial XP integer.",
+    "Deep entry is measured separately and supplies no global level-scaling formula.",
+    "Manual credit readings must be checked against the accompanying full frames/logs."
+  ]
+}

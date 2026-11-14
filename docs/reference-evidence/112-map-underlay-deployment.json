@@ -1,0 +1,19 @@
+{
+  "commit": "f9ea3f9",
+  "actions": "https://github.com/yanfeng98/nano-dnf/actions/runs/43415068901",
+  "status": "Success",
+  "jobs": 3,
+  "unitTests": 442,
+  "browserGroups": 44,
+  "liveSmoke": "resource equality and clean boot passed",
+  "onlineFrames": 5,
+  "minimumCosine": 0.9717018762199899,
+  "inputs": [
+    {
+      "stage": "mirkwood",
+      "windowButton": "radar",
+      "tab": "window"
+    }
+  ],
+  "manualAcceptance": "pending"
+}

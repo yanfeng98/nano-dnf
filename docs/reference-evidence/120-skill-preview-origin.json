@@ -1,0 +1,17 @@
+{
+  "description": "Live screenshot fixture omits updatePlayer cast initialization; no normal-input gameplay defect demonstrated by this reproducer.",
+  "cases": [
+    {
+      "withOrigin": false,
+      "origin": 110,
+      "finiteX": false,
+      "x": "NaN"
+    },
+    {
+      "withOrigin": true,
+      "origin": 110,
+      "finiteX": true,
+      "x": "110"
+    }
+  ]
+}

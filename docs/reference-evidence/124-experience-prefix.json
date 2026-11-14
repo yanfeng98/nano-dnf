@@ -1,0 +1,175 @@
+{
+  "method": "Manual reading of consecutive original frames, not OCR",
+  "samples": [
+    {
+      "video": 1,
+      "time": 71.3,
+      "frame": "124-v1-71.3-experience-prefix.png",
+      "frameSha256": "66154411807ee44c561c03b6368a803d39b2cb8cb6068437e0439f5a0dacba20",
+      "roi": [
+        370,
+        205,
+        455,
+        250
+      ],
+      "manualAmount": "80",
+      "manualVisiblePlus": false,
+      "limitation": "Manual float-caption reading; digit4 checked against native glyph in audit123"
+    },
+    {
+      "video": 1,
+      "time": 71.5,
+      "frame": "124-v1-71.5-experience-prefix.png",
+      "frameSha256": "f45cfa4e7fa7296d502979ab90669a94751e22e82872d94e93dc2cf7d9f67b3c",
+      "roi": [
+        370,
+        190,
+        455,
+        235
+      ],
+      "manualAmount": "80",
+      "manualVisiblePlus": false,
+      "limitation": "Manual float-caption reading; digit4 checked against native glyph in audit123"
+    },
+    {
+      "video": 1,
+      "time": 71.7,
+      "frame": "124-v1-71.7-experience-prefix.png",
+      "frameSha256": "cfdf657eba768f0233b02a80e016b25f460ee6c65c3c7f9387bc7692dbe44615",
+      "roi": [
+        370,
+        190,
+        455,
+        235
+      ],
+      "manualAmount": "80",
+      "manualVisiblePlus": null,
+      "limitation": "Occluded by item label; no prefix conclusion"
+    },
+    {
+      "video": 2,
+      "time": 15.8,
+      "frame": "124-v2-15.8-experience-prefix.png",
+      "frameSha256": "e26e7f53a0093063fb9da3b75935954eb005e77ab1a4494bbb80f064781700ea",
+      "roi": [
+        370,
+        105,
+        455,
+        150
+      ],
+      "manualAmount": "50",
+      "manualVisiblePlus": false,
+      "limitation": "Manual float-caption reading; digit4 checked against native glyph in audit123"
+    },
+    {
+      "video": 2,
+      "time": 16,
+      "frame": "124-v2-16-experience-prefix.png",
+      "frameSha256": "6963c1919db31dfaf61812bc7b2df0b0113da804c6d3c00b61898b8659edc326",
+      "roi": [
+        370,
+        85,
+        455,
+        130
+      ],
+      "manualAmount": "50",
+      "manualVisiblePlus": false,
+      "limitation": "Manual float-caption reading; digit4 checked against native glyph in audit123"
+    },
+    {
+      "video": 2,
+      "time": 16.2,
+      "frame": "124-v2-16.2-experience-prefix.png",
+      "frameSha256": "2d9ba25fd72c3d7e3bf52af9f4f7d3b3275562799b8363cb82932c04698eb9ab",
+      "roi": [
+        370,
+        85,
+        455,
+        130
+      ],
+      "manualAmount": "50",
+      "manualVisiblePlus": false,
+      "limitation": "Manual float-caption reading; digit4 checked against native glyph in audit123"
+    },
+    {
+      "video": 1,
+      "time": 73.6,
+      "frame": "124-v1-73.6-experience-prefix.png",
+      "frameSha256": "07de19ff68d0933c12dd6fbac21830f93901bc78c86776ecaaef4bcd3e82aae1",
+      "roi": [
+        330,
+        180,
+        415,
+        225
+      ],
+      "manualAmount": "40",
+      "manualVisiblePlus": false,
+      "limitation": "Manual float-caption reading; digit4 checked against native glyph in audit123"
+    },
+    {
+      "video": 1,
+      "time": 73.8,
+      "frame": "124-v1-73.8-experience-prefix.png",
+      "frameSha256": "0a98ab3f0fecacc31b12118d0f0ff891161a0a5e5d07eb20713c725d4025bc44",
+      "roi": [
+        275,
+        175,
+        360,
+        220
+      ],
+      "manualAmount": "40",
+      "manualVisiblePlus": false,
+      "limitation": "Manual float-caption reading; digit4 checked against native glyph in audit123"
+    },
+    {
+      "video": 1,
+      "time": 74,
+      "frame": "124-v1-74-experience-prefix.png",
+      "frameSha256": "9f577feac20684f9a90d49c19adeebfdc5a2e8775c723c51529c67f3f97f868d",
+      "roi": [
+        275,
+        175,
+        360,
+        220
+      ],
+      "manualAmount": "40",
+      "manualVisiblePlus": null,
+      "limitation": "Text no longer visible; no prefix conclusion"
+    }
+  ],
+  "limits": [
+    "Only these three death events are established here; clear rewards and other floating messages are separate.",
+    "The old +40 description confused the italic 4 with a plus. Native glyph matching is in audit123."
+  ],
+  "clientSearch": {
+    "scope": "Common and interface pack indices only, not a whole-client absence proof",
+    "packsChecked": 585,
+    "matches": [
+      {
+        "folder": "ImagePacks2",
+        "pack": "sprite_common_etc.NPK",
+        "entry": "sprite/common/etc/expup.img"
+      },
+      {
+        "folder": "ImagePacks2",
+        "pack": "sprite_common_etc.NPK",
+        "entry": "sprite/common/etc/partyexpup.img"
+      },
+      {
+        "folder": "ImagePacks2_70",
+        "pack": "sprite_common_etc.NPK",
+        "entry": "sprite/common/etc/expup.img"
+      },
+      {
+        "folder": "ImagePacks2_70",
+        "pack": "sprite_common_etc.NPK",
+        "entry": "sprite/common/etc/expup_cn.img"
+      },
+      {
+        "folder": "ImagePacks2_70",
+        "pack": "sprite_common_etc.NPK",
+        "entry": "sprite/common/etc/partyexpup.img"
+      }
+    ]
+  }
+}

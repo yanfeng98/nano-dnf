@@ -1,0 +1,85 @@
+{
+  "backgroundIdentifiable": false,
+  "effectiveBackgroundWeight": 0.0,
+  "interpretation": "ROI is fully opaque rim; its error cannot constrain background or establish a shadow.",
+  "source": "existing native radial material and ring; identities verified in107",
+  "roi": [
+    636,
+    122,
+    32,
+    4
+  ],
+  "backgroundBox": [
+    610,
+    35.5,
+    92,
+    92
+  ],
+  "ringBox": [
+    594,
+    23.5,
+    117,
+    117
+  ],
+  "observations": [
+    {
+      "time": 76,
+      "referenceSha256": "2347f4bbfb201170ed6fbe914925fe65af328fefede7d05d0d3e9b8178291431",
+      "pixels": 128,
+      "nativeBackgroundRgbMae": 10.567296346028646,
+      "referenceMeanRgb": [
+        55.1796875,
+        55.3515625,
+        41.359375
+      ]
+    },
+    {
+      "time": 100,
+      "referenceSha256": "a99b8afe5b0b126384855b7762ba8195eda7108945018720969d6449a5ec6c34",
+      "pixels": 128,
+      "nativeBackgroundRgbMae": 9.718465169270834,
+      "referenceMeanRgb": [
+        58.4609375,
+        55.53125,
+        46.15625
+      ]
+    },
+    {
+      "time": 160,
+      "referenceSha256": "3fd2903260ef7e9e7874ca2da5df66b4494df3606e9679c03f9d3d2662d64e7f",
+      "pixels": 128,
+      "nativeBackgroundRgbMae": 8.323394775390625,
+      "referenceMeanRgb": [
+        59.734375,
+        53.4765625,
+        40.28125
+      ]
+    },
+    {
+      "time": 220,
+      "referenceSha256": "d1ffb4143375bf73ef38c12f6487d2761098b3fe05ffe98df35b155df589dcf3",
+      "pixels": 128,
+      "nativeBackgroundRgbMae": 8.070098876953125,
+      "referenceMeanRgb": [
+        57.6640625,
+        55.2109375,
+        41.15625
+      ]
+    },
+    {
+      "time": 280,
+      "referenceSha256": "07f398a967f2bea37e6cdec5a00e1a6bb398cb10349e0ee416f11d74543ec3d0",
+      "pixels": 128,
+      "nativeBackgroundRgbMae": 8.379659016927084,
+      "referenceMeanRgb": [
+        59.734375,
+        52.7890625,
+        41.984375
+      ]
+    }
+  ],
+  "limits": [
+    "This ROI has zero background contribution under the verified ring model. Do not fit background or shadow from its RGB residual.",
+    "No new fitting; original background placement is approximate and retains107 limits."
+  ]
+}
