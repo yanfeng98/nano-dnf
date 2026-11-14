@@ -1,0 +1,3356 @@
+{
+  "video": "00002-幽暗密林深处.mp4",
+  "sourceFps": 30,
+  "sampleStart": 236,
+  "strideFrames": 15,
+  "samples": 60,
+  "selectedFrames": [
+    {
+      "time": 237.5,
+      "frame": "137-v2-237.5-room14.png",
+      "sha256": "9de6a20530282ad22e9b7c816823cda8a2e8c8fc2af9ff969568427a2501f499"
+    },
+    {
+      "time": 240.5,
+      "frame": "137-v2-240.5-room14.png",
+      "sha256": "a1184ff694a7b3568e51205748809cd7ae9668857042bf35449ec8a04d9f7aa7"
+    },
+    {
+      "time": 241.5,
+      "frame": "137-v2-241.5-room14.png",
+      "sha256": "e24b2440f80ba2d9cf46837f80e2b84d3b1223f31e68aa65d6121f2b89746cbf"
+    },
+    {
+      "time": 245.5,
+      "frame": "137-v2-245.5-room14.png",
+      "sha256": "ff177f2d0c7ad3434cc29220cec6a7ee8be5fb6f17d1b349971cb8d820da0809"
+    },
+    {
+      "time": 248.5,
+      "frame": "137-v2-248.5-room14.png",
+      "sha256": "1358f06453a66b41f9eefa7bb4f6be3ff7aa3d2851f1e0e982303f6bc3416574"
+    },
+    {
+      "time": 252.5,
+      "frame": "137-v2-252.5-room14.png",
+      "sha256": "ab273ebaf0071b5b97f1576a1ab14e8b4d84c08d3bc0ce9474ae4cbf5ff3df39"
+    },
+    {
+      "time": 254.5,
+      "frame": "137-v2-254.5-room14.png",
+      "sha256": "3a44c8b32e516f2104e8bcea67913fca6e738367179c44e423a51a98b3245536"
+    },
+    {
+      "time": 257.5,
+      "frame": "137-v2-257.5-room14.png",
+      "sha256": "a9324bbaed4c808d92c86b14ae4efc16e08319fe7db9bc6e265e41531756e63e"
+    },
+    {
+      "time": 259.0,
+      "frame": "137-v2-259-room14.png",
+      "sha256": "d7ec4dac8f46b53694f4e5f8fa8b6dfafef2d064d1609b1b3b77fc6244479c8e"
+    },
+    {
+      "time": 263.0,
+      "frame": "137-v2-263-room14.png",
+      "sha256": "de350b1fff92bd72347ff7382b0dddccb636cd68ff67229f4d40bb7e5ef308df"
+    }
+  ],
+  "clients": [
+    {
+      "file": "Script_70.pvf",
+      "version": 48984,
+      "monsterIndexSha256": "fb0a7f5ebef570f960afd9bf3a70dba6190cfb7b8433615d27f048e02995c47d",
+      "rooms": [
+        {
+          "room": "41",
+          "entry": "map/mirkwooddeep/s419(0,3).map",
+          "sha256": "6bc3a48992af851658d382658ffdce5c65e4161edf6913e02117a04abee8559b",
+          "records": [
+            {
+              "monsterId": 4,
+              "monsterPath": "Goblin/HillGab.mob",
+              "levelFields": [
+                0,
+                5
+              ],
+              "nativeXYZ": [
+                756,
+                176,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 3,
+              "monsterPath": "Goblin/SeaGab.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                928,
+                196,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 3,
+              "monsterPath": "Goblin/SeaGab.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                994,
+                198,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 3,
+              "monsterPath": "Goblin/SeaGab.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1070,
+                198,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 4,
+              "monsterPath": "Goblin/HillGab.mob",
+              "levelFields": [
+                0,
+                5
+              ],
+              "nativeXYZ": [
+                752,
+                239,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 4,
+              "monsterPath": "Goblin/HillGab.mob",
+              "levelFields": [
+                0,
+                5
+              ],
+              "nativeXYZ": [
+                577,
+                246,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 4,
+              "monsterPath": "Goblin/HillGab.mob",
+              "levelFields": [
+                0,
+                5
+              ],
+              "nativeXYZ": [
+                784,
+                302,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            }
+          ]
+        },
+        {
+          "room": "42",
+          "entry": "map/mirkwooddeep/h434(1,2).map",
+          "sha256": "2a246a9fae1cd999007f4d7ad85cf7273e12435bc2ca615535ac837c8ef211b9",
+          "records": [
+            {
+              "monsterId": 5,
+              "monsterPath": "Goblin/GoblinTaskmaster.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                824,
+                200,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5,
+              "monsterPath": "Goblin/GoblinTaskmaster.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                419,
+                225,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5001,
+              "monsterPath": "Lugaru/Lugaru.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                626,
+                231,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5001,
+              "monsterPath": "Lugaru/Lugaru.mob",
+              "levelFields": [
+                1,
+                1
+              ],
+              "nativeXYZ": [
+                756,
+                261,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 6,
+              "monsterPath": "Goblin/GoblinThrowerTaskmaster.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                286,
+                297,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 6,
+              "monsterPath": "Goblin/GoblinThrowerTaskmaster.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                506,
+                307,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 6,
+              "monsterPath": "Goblin/GoblinThrowerTaskmaster.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1115,
+                311,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5001,
+              "monsterPath": "Lugaru/Lugaru.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                890,
+                335,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            }
+          ]
+        },
+        {
+          "room": "43",
+          "entry": "map/mirkwooddeep/n423(2,3).map",
+          "sha256": "4f2766553e2d83f965f2812c6b8bbfe0a207557ca330d511f6b0249c99545cde",
+          "records": [
+            {
+              "monsterId": 5,
+              "monsterPath": "Goblin/GoblinTaskmaster.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                911,
+                183,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 4,
+              "monsterPath": "Goblin/HillGab.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1125,
+                241,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5,
+              "monsterPath": "Goblin/GoblinTaskmaster.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1031,
+                244,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 6,
+              "monsterPath": "Goblin/GoblinThrowerTaskmaster.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1380,
+                244,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5,
+              "monsterPath": "Goblin/GoblinTaskmaster.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1498,
+                248,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 4,
+              "monsterPath": "Goblin/HillGab.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                700,
+                273,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 3,
+              "monsterPath": "Goblin/SeaGab.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                758,
+                324,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 3,
+              "monsterPath": "Goblin/SeaGab.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1210,
+                325,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            }
+          ]
+        },
+        {
+          "room": "33",
+          "entry": "map/mirkwooddeep/n433(2,2).map",
+          "sha256": "9cf2edbfc64c1b9040210a325f91a93308bb1de199a9e41ac3e3d6848fb6f8ce",
+          "records": [
+            {
+              "monsterId": 3,
+              "monsterPath": "Goblin/SeaGab.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1397,
+                195,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 3,
+              "monsterPath": "Goblin/SeaGab.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1231,
+                223,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5,
+              "monsterPath": "Goblin/GoblinTaskmaster.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1508,
+                233,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 4,
+              "monsterPath": "Goblin/HillGab.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                406,
+                237,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 4,
+              "monsterPath": "Goblin/HillGab.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                503,
+                257,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 6,
+              "monsterPath": "Goblin/GoblinThrowerTaskmaster.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                272,
+                267,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 3,
+              "monsterPath": "Goblin/SeaGab.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1323,
+                273,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 4,
+              "monsterPath": "Goblin/HillGab.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                432,
+                313,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            }
+          ]
+        },
+        {
+          "room": "23",
+          "entry": "map/mirkwooddeep/n432(2,2).map",
+          "sha256": "d42b13ed16b39026230be7618bccf77fdad79b8d72d8f2d6b4150cadda561d21",
+          "records": [
+            {
+              "monsterId": 4,
+              "monsterPath": "Goblin/HillGab.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1173,
+                203,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5001,
+              "monsterPath": "Lugaru/Lugaru.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1433,
+                215,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 3,
+              "monsterPath": "Goblin/SeaGab.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                517,
+                217,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5001,
+              "monsterPath": "Lugaru/Lugaru.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                312,
+                241,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 3,
+              "monsterPath": "Goblin/SeaGab.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                565,
+                257,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5001,
+              "monsterPath": "Lugaru/Lugaru.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                454,
+                259,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 4,
+              "monsterPath": "Goblin/HillGab.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1219,
+                261,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5001,
+              "monsterPath": "Lugaru/Lugaru.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1503,
+                301,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 4,
+              "monsterPath": "Goblin/HillGab.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1279,
+                307,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5001,
+              "monsterPath": "Lugaru/Lugaru.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                352,
+                307,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 3,
+              "monsterPath": "Goblin/SeaGab.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                621,
+                331,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            }
+          ]
+        },
+        {
+          "room": "13",
+          "entry": "map/mirkwooddeep/n412(2,0).map",
+          "sha256": "b6f8bbffbe3744611e7c41aaf694a1d838e16444684b6cd5a64f1b61aa027f8c",
+          "records": [
+            {
+              "monsterId": 3,
+              "monsterPath": "Goblin/SeaGab.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                678,
+                174,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 4,
+              "monsterPath": "Goblin/HillGab.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                601,
+                187,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 4,
+              "monsterPath": "Goblin/HillGab.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1109,
+                192,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5001,
+              "monsterPath": "Lugaru/Lugaru.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1057,
+                238,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5,
+              "monsterPath": "Goblin/GoblinTaskmaster.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1366,
+                251,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 6,
+              "monsterPath": "Goblin/GoblinThrowerTaskmaster.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1508,
+                288,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5001,
+              "monsterPath": "Lugaru/Lugaru.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                968,
+                314,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 3,
+              "monsterPath": "Goblin/SeaGab.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                829,
+                322,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5,
+              "monsterPath": "Goblin/GoblinTaskmaster.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1403,
+                331,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            }
+          ]
+        },
+        {
+          "room": "14",
+          "entry": "map/mirkwooddeep/402.map",
+          "sha256": "a22d8a8b9b9d9594fb544935281c36bb6a44dfc75e83cc394a6325820274a8ba",
+          "records": [
+            {
+              "monsterId": 6,
+              "monsterPath": "Goblin/GoblinThrowerTaskmaster.mob",
+              "levelFields": [
+                0,
+                6
+              ],
+              "nativeXYZ": [
+                662,
+                187,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 1,
+              "monsterPath": "Goblin/Goblin.mob",
+              "levelFields": [
+                0,
+                4
+              ],
+              "nativeXYZ": [
+                503,
+                192,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 1,
+              "monsterPath": "Goblin/Goblin.mob",
+              "levelFields": [
+                0,
+                4
+              ],
+              "nativeXYZ": [
+                362,
+                201,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 1,
+              "monsterPath": "Goblin/Goblin.mob",
+              "levelFields": [
+                0,
+                4
+              ],
+              "nativeXYZ": [
+                400,
+                232,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 1,
+              "monsterPath": "Goblin/Goblin.mob",
+              "levelFields": [
+                0,
+                4
+              ],
+              "nativeXYZ": [
+                412,
+                256,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 1,
+              "monsterPath": "Goblin/Goblin.mob",
+              "levelFields": [
+                0,
+                4
+              ],
+              "nativeXYZ": [
+                544,
+                272,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5,
+              "monsterPath": "Goblin/GoblinTaskmaster.mob",
+              "levelFields": [
+                0,
+                6
+              ],
+              "nativeXYZ": [
+                645,
+                278,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5,
+              "monsterPath": "Goblin/GoblinTaskmaster.mob",
+              "levelFields": [
+                0,
+                6
+              ],
+              "nativeXYZ": [
+                504,
+                280,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 6,
+              "monsterPath": "Goblin/GoblinThrowerTaskmaster.mob",
+              "levelFields": [
+                0,
+                6
+              ],
+              "nativeXYZ": [
+                615,
+                281,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            }
+          ]
+        },
+        {
+          "room": "24",
+          "entry": "map/mirkwooddeep/n410(3,0).map",
+          "sha256": "c54c43dfe92a44fe4a843dbee448e13108937c1a1e1150120ee41de00bb6f23d",
+          "records": [
+            {
+              "monsterId": 4,
+              "monsterPath": "Goblin/HillGab.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1067,
+                215,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 4,
+              "monsterPath": "Goblin/HillGab.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                672,
+                222,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 3,
+              "monsterPath": "Goblin/SeaGab.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                934,
+                230,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 6,
+              "monsterPath": "Goblin/GoblinThrowerTaskmaster.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1296,
+                246,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 3,
+              "monsterPath": "Goblin/SeaGab.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                599,
+                258,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5,
+              "monsterPath": "Goblin/GoblinTaskmaster.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                747,
+                260,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 3,
+              "monsterPath": "Goblin/SeaGab.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1065,
+                301,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5,
+              "monsterPath": "Goblin/GoblinTaskmaster.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1223,
+                306,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 3,
+              "monsterPath": "Goblin/SeaGab.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                670,
+                309,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 4,
+              "monsterPath": "Goblin/HillGab.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                872,
+                321,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            }
+          ]
+        },
+        {
+          "room": "25",
+          "entry": "map/mirkwooddeep/b417(4,1).map",
+          "sha256": "aa40570dec83fd062224b950defd7edd9d8884dea2eaa6892d084da0680faec1",
+          "records": [
+            {
+              "monsterId": 5001,
+              "monsterPath": "Lugaru/Lugaru.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                942,
+                201,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5001,
+              "monsterPath": "Lugaru/Lugaru.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1420,
+                204,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5001,
+              "monsterPath": "Lugaru/Lugaru.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1030,
+                243,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5,
+              "monsterPath": "Goblin/GoblinTaskmaster.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                583,
+                244,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5001,
+              "monsterPath": "Lugaru/Lugaru.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1622,
+                245,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5001,
+              "monsterPath": "Lugaru/Lugaru.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1485,
+                261,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5002,
+              "monsterPath": "Lugaru/Kurogaru.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1734,
+                274,
+                0
+              ],
+              "tailFields": [
+                2,
+                2,
+                "[fixed]",
+                "[boss]"
+              ]
+            },
+            {
+              "monsterId": 5001,
+              "monsterPath": "Lugaru/Lugaru.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1554,
+                290,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 6,
+              "monsterPath": "Goblin/GoblinThrowerTaskmaster.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1183,
+                312,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5001,
+              "monsterPath": "Lugaru/Lugaru.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                525,
+                313,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5001,
+              "monsterPath": "Lugaru/Lugaru.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1094,
+                322,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5,
+              "monsterPath": "Goblin/GoblinTaskmaster.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                771,
+                328,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "Script.pvf",
+      "version": 66282,
+      "monsterIndexSha256": "8fdf2e35adb51576c0447dc292c57c858a7c886bc2aeb4ebbd1ca25108017653",
+      "rooms": [
+        {
+          "room": "41",
+          "entry": "map/mirkwooddeep/s419(0,3).map",
+          "sha256": "33da276fd07c18abca3e8d8fa9741688445be1b34bf43aec7e7d5c2b4a7540e2",
+          "records": [
+            {
+              "monsterId": 4,
+              "monsterPath": "Goblin/HillGab.mob",
+              "levelFields": [
+                0,
+                5
+              ],
+              "nativeXYZ": [
+                756,
+                176,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 3,
+              "monsterPath": "Goblin/SeaGab.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                928,
+                196,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 3,
+              "monsterPath": "Goblin/SeaGab.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                994,
+                198,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 3,
+              "monsterPath": "Goblin/SeaGab.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1070,
+                198,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 4,
+              "monsterPath": "Goblin/HillGab.mob",
+              "levelFields": [
+                0,
+                5
+              ],
+              "nativeXYZ": [
+                752,
+                239,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 4,
+              "monsterPath": "Goblin/HillGab.mob",
+              "levelFields": [
+                0,
+                5
+              ],
+              "nativeXYZ": [
+                577,
+                246,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 4,
+              "monsterPath": "Goblin/HillGab.mob",
+              "levelFields": [
+                0,
+                5
+              ],
+              "nativeXYZ": [
+                784,
+                302,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            }
+          ]
+        },
+        {
+          "room": "42",
+          "entry": "map/mirkwooddeep/h434(1,2).map",
+          "sha256": "3083751495ee70025df8ec9157d1cd8c134a38c588ca76bcc879c61199736e7d",
+          "records": [
+            {
+              "monsterId": 5,
+              "monsterPath": "Goblin/GoblinTaskmaster.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                824,
+                200,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5,
+              "monsterPath": "Goblin/GoblinTaskmaster.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                419,
+                225,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5001,
+              "monsterPath": "Lugaru/Lugaru.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                626,
+                231,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5001,
+              "monsterPath": "Lugaru/Lugaru.mob",
+              "levelFields": [
+                1,
+                1
+              ],
+              "nativeXYZ": [
+                756,
+                261,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 6,
+              "monsterPath": "Goblin/GoblinThrowerTaskmaster.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                286,
+                297,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 6,
+              "monsterPath": "Goblin/GoblinThrowerTaskmaster.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                506,
+                307,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 6,
+              "monsterPath": "Goblin/GoblinThrowerTaskmaster.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1115,
+                311,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5001,
+              "monsterPath": "Lugaru/Lugaru.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                890,
+                335,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            }
+          ]
+        },
+        {
+          "room": "43",
+          "entry": "map/mirkwooddeep/n423(2,3).map",
+          "sha256": "9aada19d4129d408ba6cbdf9f30a038925d077e8f7266eb46fde65bb3c781d15",
+          "records": [
+            {
+              "monsterId": 5,
+              "monsterPath": "Goblin/GoblinTaskmaster.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                911,
+                183,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 4,
+              "monsterPath": "Goblin/HillGab.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1125,
+                241,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5,
+              "monsterPath": "Goblin/GoblinTaskmaster.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1031,
+                244,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 6,
+              "monsterPath": "Goblin/GoblinThrowerTaskmaster.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1380,
+                244,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5,
+              "monsterPath": "Goblin/GoblinTaskmaster.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1498,
+                248,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 4,
+              "monsterPath": "Goblin/HillGab.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                700,
+                273,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 3,
+              "monsterPath": "Goblin/SeaGab.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                758,
+                324,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 3,
+              "monsterPath": "Goblin/SeaGab.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1210,
+                325,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            }
+          ]
+        },
+        {
+          "room": "33",
+          "entry": "map/mirkwooddeep/n433(2,2).map",
+          "sha256": "fbaffc340e870177ca7920d8b5ccb8e71555d656c8bea2de607b377c1f122057",
+          "records": [
+            {
+              "monsterId": 3,
+              "monsterPath": "Goblin/SeaGab.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1397,
+                195,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 3,
+              "monsterPath": "Goblin/SeaGab.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1231,
+                223,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5,
+              "monsterPath": "Goblin/GoblinTaskmaster.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1508,
+                233,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 4,
+              "monsterPath": "Goblin/HillGab.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                406,
+                237,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 4,
+              "monsterPath": "Goblin/HillGab.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                503,
+                257,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 6,
+              "monsterPath": "Goblin/GoblinThrowerTaskmaster.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                272,
+                267,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 3,
+              "monsterPath": "Goblin/SeaGab.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1323,
+                273,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 4,
+              "monsterPath": "Goblin/HillGab.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                432,
+                313,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            }
+          ]
+        },
+        {
+          "room": "23",
+          "entry": "map/mirkwooddeep/n432(2,2).map",
+          "sha256": "78962294b98f0e576bfc56741d4116aded403538692b4acdc5d52da6d2a7c1b8",
+          "records": [
+            {
+              "monsterId": 4,
+              "monsterPath": "Goblin/HillGab.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1173,
+                203,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5001,
+              "monsterPath": "Lugaru/Lugaru.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1433,
+                215,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 3,
+              "monsterPath": "Goblin/SeaGab.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                517,
+                217,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5001,
+              "monsterPath": "Lugaru/Lugaru.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                312,
+                241,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 3,
+              "monsterPath": "Goblin/SeaGab.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                565,
+                257,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5001,
+              "monsterPath": "Lugaru/Lugaru.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                454,
+                259,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 4,
+              "monsterPath": "Goblin/HillGab.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1219,
+                261,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5001,
+              "monsterPath": "Lugaru/Lugaru.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1503,
+                301,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 4,
+              "monsterPath": "Goblin/HillGab.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1279,
+                307,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5001,
+              "monsterPath": "Lugaru/Lugaru.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                352,
+                307,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 3,
+              "monsterPath": "Goblin/SeaGab.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                621,
+                331,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            }
+          ]
+        },
+        {
+          "room": "13",
+          "entry": "map/mirkwooddeep/n412(2,0).map",
+          "sha256": "9a940976ef6ccb74215dfe182a0e19daafe4977b3cadd114234bd1ee7f45222a",
+          "records": [
+            {
+              "monsterId": 3,
+              "monsterPath": "Goblin/SeaGab.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                678,
+                174,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 4,
+              "monsterPath": "Goblin/HillGab.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                601,
+                187,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 4,
+              "monsterPath": "Goblin/HillGab.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1109,
+                192,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5001,
+              "monsterPath": "Lugaru/Lugaru.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1057,
+                238,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5,
+              "monsterPath": "Goblin/GoblinTaskmaster.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1366,
+                251,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 6,
+              "monsterPath": "Goblin/GoblinThrowerTaskmaster.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1508,
+                288,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5001,
+              "monsterPath": "Lugaru/Lugaru.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                968,
+                314,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 3,
+              "monsterPath": "Goblin/SeaGab.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                829,
+                322,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5,
+              "monsterPath": "Goblin/GoblinTaskmaster.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1403,
+                331,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            }
+          ]
+        },
+        {
+          "room": "14",
+          "entry": "map/mirkwooddeep/402.map",
+          "sha256": "0457448c828da90c773062f36dd60a32c1e341d1d4f1c136b7083859698e92f5",
+          "records": [
+            {
+              "monsterId": 6,
+              "monsterPath": "Goblin/GoblinThrowerTaskmaster.mob",
+              "levelFields": [
+                0,
+                6
+              ],
+              "nativeXYZ": [
+                662,
+                187,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 1,
+              "monsterPath": "Goblin/Goblin.mob",
+              "levelFields": [
+                0,
+                4
+              ],
+              "nativeXYZ": [
+                503,
+                192,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 1,
+              "monsterPath": "Goblin/Goblin.mob",
+              "levelFields": [
+                0,
+                4
+              ],
+              "nativeXYZ": [
+                362,
+                201,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 1,
+              "monsterPath": "Goblin/Goblin.mob",
+              "levelFields": [
+                0,
+                4
+              ],
+              "nativeXYZ": [
+                400,
+                232,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 1,
+              "monsterPath": "Goblin/Goblin.mob",
+              "levelFields": [
+                0,
+                4
+              ],
+              "nativeXYZ": [
+                412,
+                256,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 1,
+              "monsterPath": "Goblin/Goblin.mob",
+              "levelFields": [
+                0,
+                4
+              ],
+              "nativeXYZ": [
+                544,
+                272,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5,
+              "monsterPath": "Goblin/GoblinTaskmaster.mob",
+              "levelFields": [
+                0,
+                6
+              ],
+              "nativeXYZ": [
+                645,
+                278,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5,
+              "monsterPath": "Goblin/GoblinTaskmaster.mob",
+              "levelFields": [
+                0,
+                6
+              ],
+              "nativeXYZ": [
+                504,
+                280,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 6,
+              "monsterPath": "Goblin/GoblinThrowerTaskmaster.mob",
+              "levelFields": [
+                0,
+                6
+              ],
+              "nativeXYZ": [
+                615,
+                281,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            }
+          ]
+        },
+        {
+          "room": "24",
+          "entry": "map/mirkwooddeep/n410(3,0).map",
+          "sha256": "7ef38276143ee082a6a9b43e79274f1f934a845ccbba22d08ffaedc820e70397",
+          "records": [
+            {
+              "monsterId": 4,
+              "monsterPath": "Goblin/HillGab.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1067,
+                215,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 4,
+              "monsterPath": "Goblin/HillGab.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                672,
+                222,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 3,
+              "monsterPath": "Goblin/SeaGab.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                934,
+                230,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 6,
+              "monsterPath": "Goblin/GoblinThrowerTaskmaster.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1296,
+                246,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 3,
+              "monsterPath": "Goblin/SeaGab.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                599,
+                258,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5,
+              "monsterPath": "Goblin/GoblinTaskmaster.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                747,
+                260,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 3,
+              "monsterPath": "Goblin/SeaGab.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1065,
+                301,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5,
+              "monsterPath": "Goblin/GoblinTaskmaster.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1223,
+                306,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 3,
+              "monsterPath": "Goblin/SeaGab.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                670,
+                309,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 4,
+              "monsterPath": "Goblin/HillGab.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                872,
+                321,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            }
+          ]
+        },
+        {
+          "room": "25",
+          "entry": "map/mirkwooddeep/b417(4,1).map",
+          "sha256": "fee88af40d35fcc8d76a740d6d0a1a3b634543b67c623ccf0786754d4e856e18",
+          "records": [
+            {
+              "monsterId": 5001,
+              "monsterPath": "Lugaru/Lugaru.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                942,
+                201,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5001,
+              "monsterPath": "Lugaru/Lugaru.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1420,
+                204,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5001,
+              "monsterPath": "Lugaru/Lugaru.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1030,
+                243,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5,
+              "monsterPath": "Goblin/GoblinTaskmaster.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                583,
+                244,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5001,
+              "monsterPath": "Lugaru/Lugaru.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1622,
+                245,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5001,
+              "monsterPath": "Lugaru/Lugaru.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1485,
+                261,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5002,
+              "monsterPath": "Lugaru/Kurogaru.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1734,
+                274,
+                0
+              ],
+              "tailFields": [
+                2,
+                2,
+                "[fixed]",
+                "[boss]"
+              ]
+            },
+            {
+              "monsterId": 5001,
+              "monsterPath": "Lugaru/Lugaru.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1554,
+                290,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 6,
+              "monsterPath": "Goblin/GoblinThrowerTaskmaster.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1183,
+                312,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5001,
+              "monsterPath": "Lugaru/Lugaru.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                525,
+                313,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5001,
+              "monsterPath": "Lugaru/Lugaru.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1094,
+                322,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5,
+              "monsterPath": "Goblin/GoblinTaskmaster.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                771,
+                328,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "manualRoster": [
+    {
+      "type": "grunt",
+      "level": 4,
+      "count": 5,
+      "creditEach": 40
+    },
+    {
+      "type": "deepElite",
+      "level": 6,
+      "count": 2,
+      "creditEach": 60
+    },
+    {
+      "type": "throwerElite",
+      "level": 6,
+      "count": 2,
+      "creditEach": 60
+    }
+  ],
+  "manualCreditSequence": [
+    40,
+    40,
+    40,
+    40,
+    40,
+    60,
+    60,
+    60,
+    60
+  ],
+  "totalCredit": 440,
+  "limits": [
+    "All three kinds are visible before the first death; the old staged type introduction is contradicted.",
+    "The monster counts agree with native402 records; other native rooms still need independent review.",
+    "Native X projection does not prove exact actor anchors, random jitter, floor depth, AI or activation rules.",
+    "Level mode and other raw record fields are retained without asserting a general server schema.",
+    "No global XP or level rule is inferred from these room-specific credits."
+  ]
+}

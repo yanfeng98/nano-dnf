@@ -4,6 +4,36 @@ const test = require("node:test");
 const assert = require("node:assert/strict");
 const Core = require("../src/core.js");
 
+test('deep room14 includes the five recorded green goblins and both captain pairs at entry', () => {
+  const Render = require('../src/render.js');
+  for (const seed of [1, 2, 7, 123]) {
+    const state = Core.createState({stage: 'mirkwooddeep', seed, referenceProfile: true});
+    const cell = state.dungeon.cells.findIndex(spot => spot.col === 3 && spot.row === 0);
+    Core.goToCell(state, cell);
+    state.player.xpToNext = 100000;
+    state.player.invuln = Infinity;
+    state.transition = 0;
+    assert.equal(state.enemies.length, 9, 'map402 and the nine visible death credits');
+    assert.equal(state.room.pendingWave.length, 0, 'all three kinds are already visible before the first kill');
+    assert.equal(state.room.pendingWaves.length, 0);
+    const expected = {grunt: [5, 4, 40, 116], deepElite: [2, 6, 60, 198], throwerElite: [2, 6, 60, 162]};
+    for (const [type, [count, level, xp, width]] of Object.entries(expected)) {
+      const enemies = state.enemies.filter(enemy => enemy.type === type);
+      assert.equal(enemies.length, count, type);
+      for (const enemy of enemies) {
+        assert.equal(enemy.level, level);
+        assert.equal(enemy.xp, xp);
+        assert.equal(Render.targetTrackWidth(state, enemy), width);
+        for (let hit = 0; hit < 50 && !enemy.dead; hit++) Core.damageEnemy(state, enemy, enemy.hp + 1, 0, state.player.x);
+      }
+    }
+    assert.equal(state.stats.kills, 9);
+    assert.equal(state.player.xp, 440, 'five40 and four60 recorded credits');
+    Core.runFrames(state, 3, {});
+    assert.ok(state.room.cleared);
+  }
+});
+
 test('deep entry preserves recorded Lv5 red / Lv6 blue goblin credits across spawning', () => {
   const Render = require('../src/render.js');
   for (const seed of [1, 2, 7, 123]) {

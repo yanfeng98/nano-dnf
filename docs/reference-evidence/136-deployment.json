@@ -1,0 +1,160 @@
+{
+  "commit": "4febb5dbfe8d9dbb26cfe1aca621842bdfe89692",
+  "workflow": {
+    "id": 43621857860,
+    "status": "completed",
+    "conclusion": "success",
+    "head_sha": "4febb5dbfe8d9dbb26cfe1aca621842bdfe89692",
+    "html_url": "https://github.com/yanfeng98/nano-dnf/actions/runs/43621857860"
+  },
+  "localRegression": {
+    "pid": 513965,
+    "started": 1794676957.0242236,
+    "finished": 1794677426.4381247,
+    "unitExitCode": 0,
+    "browserExitCode": 0,
+    "inputs": {
+      "src/core.js": "4df5e71851f3a8462df3015caece46200f2081c69e77339f9c1fed30b5a89ef2",
+      "src/render.js": "92dde93ed60c231e37a2f05cefa217da173cb21f4ce1dc6e87c738fa0f097d01",
+      "src/main.js": "4bb0066760c37e103e0d36fd227531045f931e82ab06f621576b536843e86b26",
+      "package.json": "e69bc4ceecd8666209c8a582e4be14e9c4e626b14c3c7d2801b0696b2d1eb933",
+      "tests/browser/keyboard-policy.cjs": "ff172471c06816cb872711207475e65c94acd8bd87718442ea39c4b241f1117f",
+      "tests/browser/playability.mjs": "61b1859366317fafbaed8eeb2416d8cae7b2dd14393f0dc42a77d2793de75b0c",
+      "tests/browser-keyboard-policy.test.js": "531db0bff42af8da1468a2173b01f8adc9197903e66e381144bd179022d6ec5c",
+      "tests/browser-pass-selection.test.js": "cf51b52bea8ffce421dde5b10dc51cc61b5c0429f1c8491c4f543d8377fa345f",
+      "tests/browser/starting-profile.mjs": "1224629f8890c852d6f008c604705344058f9d3aeaddd57de3d736f4ad7511b0",
+      "tests/recording-entry.test.js": "18e887a567d20d27602e805269a033b5639d1648bedf0219b49e2dfd48d99817",
+      "tests/core.test.js": "964250c4763a34fd3e1d9a83efd801a016cfc9094705c7c5370dbe089f13040c"
+    },
+    "inputsUnchanged": true
+  },
+  "online": {
+    "url": "https://luyf-lemon-love.space/nano-dnf/",
+    "rows": [
+      {
+        "stage": "mirkwood",
+        "level": 3,
+        "roster": [
+          {
+            "type": "grunt",
+            "level": 4,
+            "xp": 40
+          },
+          {
+            "type": "caster",
+            "level": 4,
+            "xp": 40
+          },
+          {
+            "type": "coward",
+            "level": 4,
+            "xp": 40
+          },
+          {
+            "type": "cursedRed",
+            "level": 4,
+            "xp": 80
+          }
+        ],
+        "bossCredits": [
+          280,
+          360
+        ],
+        "entryDeaths": {
+          "kills": 4,
+          "xp": 200,
+          "floorItems": 4,
+          "itemsCollected": 0
+        }
+      },
+      {
+        "stage": "mirkwooddeep",
+        "level": 6,
+        "roster": [
+          {
+            "type": "goblinRed",
+            "level": 5,
+            "xp": 50
+          },
+          {
+            "type": "goblinRed",
+            "level": 5,
+            "xp": 50
+          },
+          {
+            "type": "goblinRed",
+            "level": 5,
+            "xp": 50
+          },
+          {
+            "type": "goblinRed",
+            "level": 5,
+            "xp": 50
+          }
+        ],
+        "bossCredits": [
+          280,
+          360
+        ],
+        "deepEntry": {
+          "roster": [
+            {
+              "type": "goblinRed",
+              "level": 5,
+              "xp": 50,
+              "width": 116
+            },
+            {
+              "type": "goblinRed",
+              "level": 5,
+              "xp": 50,
+              "width": 116
+            },
+            {
+              "type": "goblinRed",
+              "level": 5,
+              "xp": 50,
+              "width": 116
+            },
+            {
+              "type": "goblinRed",
+              "level": 5,
+              "xp": 50,
+              "width": 116
+            },
+            {
+              "type": "goblinBlue",
+              "level": 6,
+              "xp": 60,
+              "width": 144
+            },
+            {
+              "type": "goblinBlue",
+              "level": 6,
+              "xp": 60,
+              "width": 144
+            },
+            {
+              "type": "goblinBlue",
+              "level": 6,
+              "xp": 60,
+              "width": 144
+            }
+          ],
+          "xp": 380,
+          "kills": 7,
+          "cleared": true
+        }
+      }
+    ],
+    "errors": [],
+    "limits": [
+      "Death credit fixture isolates the unresolved growth table.",
+      "This does not prove full recording fidelity or human acceptance."
+    ]
+  },
+  "limits": [
+    "XP-threshold override isolates the observed death amounts from the unresolved growth model.",
+    "Only the named deployment/menu/roster/credit checks are claimed; not full recording fidelity or human acceptance."
+  ]
+}

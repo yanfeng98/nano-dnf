@@ -2272,6 +2272,10 @@
 
   // Native physical ground plane, shared by pillars and rocks (audit88/89/99).
   // Bitmap offsets belong to each object animation, not this conversion.
+  function nativeGroundX(nativeX) {
+    return nativeX * (VIEW.width / 640) / CAMERA.zoom;
+  }
+
   function nativeGroundZ(nativeY) {
     return (ARENA.groundY - (nativeY * (VIEW.width / 640) + 92)) /
       (CAMERA.zoom * DEPTH.scale);
@@ -2818,7 +2822,7 @@
             { piece: "barrel", x: 824, depth: 0.38 },
           ]
         },
-        /* 5 —— 路线 14 (3,0)。录像 236–265s；密集取样双门核验，六列原生地面校准宽958.55（第81批）；树/敌人仍待核。 */
+        /* 5 —— 路线14：native402地图；第137批恢复九只名册，精确纵深/AI仍待核。 */
         {
           name: "残柱祭坛",
           closeback: "deepRoom14Closeback",
@@ -2832,12 +2836,20 @@
           width: 958.55,
           band: { backY: 256 },
           enemies: [
-            { type: "deepElite", x: 350, level: 6 },
-            { type: "deepElite", x: 600, level: 6 },
-            { type: "deepElite", x: 250, wave: 2, level: 6 },
-            { type: "goblinRed", x: 700, wave: 2, level: 6 },
+            // V2 237.5s already shows green goblins and both captain kinds.
+            // Five40 + four60 deaths corroborate all nine native402 records.
+            // Project native X; floor depth and the existing jitter remain provisional.
+            { type: "throwerElite", x: nativeGroundX(662), level: 6, xp: 60 },
+            { type: "grunt", x: nativeGroundX(503), level: 4, xp: 40 },
+            { type: "grunt", x: nativeGroundX(362), level: 4, xp: 40 },
+            { type: "grunt", x: nativeGroundX(400), level: 4, xp: 40 },
+            { type: "grunt", x: nativeGroundX(412), level: 4, xp: 40 },
+            { type: "grunt", x: nativeGroundX(544), level: 4, xp: 40 },
+            { type: "deepElite", x: nativeGroundX(645), level: 6, xp: 60 },
+            { type: "deepElite", x: nativeGroundX(504), level: 6, xp: 60 },
+            { type: "throwerElite", x: nativeGroundX(615), level: 6, xp: 60 },
           ],
-          cap: 4,
+          cap: 9,
           props: [],
           scatter: {"solid":0,"barrels":0,"stones":0}
         },

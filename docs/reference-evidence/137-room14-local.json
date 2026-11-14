@@ -1,0 +1,26 @@
+{
+  "pid": 525022,
+  "started": 1794678511.471405,
+  "finished": 1794678978.7534213,
+  "unitExitCode": 0,
+  "browserExitCode": 0,
+  "inputs": {
+    "src/core.js": "5f40bafc9e3cea220c84c6fe2ff85444750e0cce6cea2b98eec68f177003a8a5",
+    "src/render.js": "92dde93ed60c231e37a2f05cefa217da173cb21f4ce1dc6e87c738fa0f097d01",
+    "src/main.js": "4bb0066760c37e103e0d36fd227531045f931e82ab06f621576b536843e86b26",
+    "package.json": "e69bc4ceecd8666209c8a582e4be14e9c4e626b14c3c7d2801b0696b2d1eb933",
+    "tests/browser/keyboard-policy.cjs": "ff172471c06816cb872711207475e65c94acd8bd87718442ea39c4b241f1117f",
+    "tests/browser/playability.mjs": "61b1859366317fafbaed8eeb2416d8cae7b2dd14393f0dc42a77d2793de75b0c",
+    "tests/browser-keyboard-policy.test.js": "531db0bff42af8da1468a2173b01f8adc9197903e66e381144bd179022d6ec5c",
+    "tests/browser-pass-selection.test.js": "cf51b52bea8ffce421dde5b10dc51cc61b5c0429f1c8491c4f543d8377fa345f",
+    "tests/browser/starting-profile.mjs": "1224629f8890c852d6f008c604705344058f9d3aeaddd57de3d736f4ad7511b0",
+    "tests/recording-entry.test.js": "aee184a7d827eceff508d0e8229868f4b41f13cc999946cc9ad4b9ecc9c277d2",
+    "tests/core.test.js": "964250c4763a34fd3e1d9a83efd801a016cfc9094705c7c5370dbe089f13040c"
+  },
+  "inputsUnchanged": true,
+  "unitCount": 467,
+  "browserGroups": 45,
+  "limits": [
+    "Roster/credit/travel regression only; exact X anchors, native Y projection, jitter, AI, other rooms and human acceptance remain open."
+  ]
+}
