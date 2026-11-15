@@ -1,0 +1,29 @@
+{
+  "pid": 27235,
+  "started": 1794748409.092021,
+  "finished": 1794748902.206429,
+  "unitExitCode": 0,
+  "browserExitCode": 0,
+  "inputs": {
+    "src/core.js": "122b916e360b4a78a88b51bdd0427b11336bafcccbe4ca92bcf1253f8971fd74",
+    "src/render.js": "eb3f0f0b6b1afa99fdf63a37e2da766be70cf892b79b4819f7eb687ca9109fce",
+    "src/main.js": "4bb0066760c37e103e0d36fd227531045f931e82ab06f621576b536843e86b26",
+    "package.json": "bbe9b53fe25803e35e39e8b17a088d038b7f2b278aaf885d497f681d1fe54001",
+    "tests/browser/keyboard-policy.cjs": "ff172471c06816cb872711207475e65c94acd8bd87718442ea39c4b241f1117f",
+    "tests/browser/playability.mjs": "a2c6e2118faaf72e8ae9a215b9bab7b096b012b745087d4d143051d567394641",
+    "tests/browser-keyboard-policy.test.js": "531db0bff42af8da1468a2173b01f8adc9197903e66e381144bd179022d6ec5c",
+    "tests/browser-pass-selection.test.js": "cf51b52bea8ffce421dde5b10dc51cc61b5c0429f1c8491c4f543d8377fa345f",
+    "tests/browser/starting-profile.mjs": "1224629f8890c852d6f008c604705344058f9d3aeaddd57de3d736f4ad7511b0",
+    "tests/recording-entry.test.js": "635496725a5ffbabcc51dd3daec7f67ff2924dd9c89f73a439dad5dae3f931e0",
+    "tests/core.test.js": "7e4a13828709db95fcc363b314cd89efbb55f800a99b80b785a0af61972f2ca8",
+    "tests/browser/room42-roster.mjs": "746843e247d689ab4743b86b84afabeeb4459d96e18dbfc708db892254c4bd1f",
+    "tests/browser/recorded-roster.mjs": "579ec7c1df09695f22be7a0d9baa2ca5ddfdf781b456b15451c957fbe3babce0",
+    "tests/browser/room43-roster.mjs": "07c083417a3f4eec1944ba82bb26ba1ea0b1a7a1313a8fce0d4269646539bbd0",
+    "tests/browser/room33-roster.mjs": "a619616571a5fd2cb119722718d2b6e369772d8124bc90615658fb1e8da95aee",
+    "tests/browser/room23-roster.mjs": "a22ad86672a7ef0bfe93f6ccf3217e37f0484a42d914e75cb7634b4c641d8106",
+    "tests/browser/room13-roster.mjs": "60b5123734d5346b41383e1fe5cc41df357e1ef240cc530b2664f7e7292bc24c",
+    "tests/browser/room24-roster.mjs": "9175b624daf3e694e8bff3e0c4485517655d6b4d87a1a9a4cf6f663297e3381f",
+    "scripts/capture-reference-rooms.mjs": "fc686dfb7ce7e527414874b20b972d383110b68c8264eefe42615d3f1d9dd7eb"
+  },
+  "inputsUnchanged": true
+}

@@ -93,6 +93,36 @@ test('deep room13 restores nine recorded actors and nine60 credits', () => {
   }
 });
 
+test('deep room24 restores ten recorded actors and ten60 credits', () => {
+  const Render = require('../src/render.js');
+  for (const seed of [1, 2, 7, 123]) {
+    const state = Core.createState({stage: 'mirkwooddeep', seed, referenceProfile: true});
+    Core.goToCell(state, state.dungeon.cells.findIndex(spot => spot.col === 3 && spot.row === 1));
+    state.transition = 0;
+    state.player.xpToNext = 100000;
+    state.player.invuln = Infinity;
+    const seen = new Map();
+    for (let frame = 0; frame < 1200 && !state.room.cleared; frame++) {
+      for (const enemy of state.enemies) {
+        if (seen.has(enemy.id)) continue;
+        seen.set(enemy.id, [enemy.type, enemy.level, enemy.xp]);
+        const width = enemy.type === 'deepElite' ? 198 : enemy.type === 'throwerElite' ? 162 : 144;
+        assert.equal(Render.targetTrackWidth(state, enemy), width);
+        for (let hit = 0; hit < 50 && !enemy.dead; hit++) Core.damageEnemy(state, enemy, enemy.hp + 1, 0, state.player.x);
+      }
+      Core.step(state, {});
+    }
+    assert.equal(seen.size, 10, 'ten new60 credits corroborate the native n410 roster');
+    assert.deepEqual([...seen.values()].map(row => row.join(':')).sort(), [
+      'goblinRed:6:60', 'goblinRed:6:60', 'goblinRed:6:60',
+      'goblinBlue:6:60', 'goblinBlue:6:60', 'goblinBlue:6:60',
+      'goblinBlue:6:60', 'deepElite:6:60', 'deepElite:6:60', 'throwerElite:6:60'
+    ].sort());
+    assert.equal(state.player.xp, 600);
+    assert.ok(state.room.cleared);
+  }
+});
+
 test('deep room33 restores both captain kinds and all eight recorded60 credits', () => {
   const Render = require('../src/render.js');
   for (const seed of [1, 2, 7, 123]) {

@@ -8,6 +8,11 @@ import { fileURLToPath } from 'node:url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const room = process.env.ROSTER_ROOM || '42';
 const probes = {
+  '24': {col:3,row:1,targetType:'deepElite',targetLevel:6,targetWidth:198,xp:600,expected:[
+    'goblinRed:6:60','goblinRed:6:60','goblinRed:6:60',
+    'goblinBlue:6:60','goblinBlue:6:60','goblinBlue:6:60','goblinBlue:6:60',
+    'deepElite:6:60','deepElite:6:60','throwerElite:6:60'
+  ]},
   '13': {col:2,row:0,targetType:'deepElite',targetLevel:6,targetWidth:198,xp:540,expected:[
     'goblinRed:6:60','goblinRed:6:60','goblinBlue:6:60','goblinBlue:6:60',
     'cat:6:60','cat:6:60','deepElite:6:60','deepElite:6:60','throwerElite:6:60'

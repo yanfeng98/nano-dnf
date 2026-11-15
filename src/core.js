@@ -2889,16 +2889,20 @@
           width: 1118.3,
           band: { backY: 256 },
           enemies: [
-            { type: "goblinRed", x: 250, level: 6 },
-            { type: "goblinRed", x: 450, level: 6 },
-            { type: "goblinBlue", x: 650, level: 6 },
-            { type: "goblinBlue", x: 850, level: 6 },
-            { type: "deepElite", x: 350, wave: 2, level: 6 },
-            { type: "goblinBlue", x: 550, wave: 2, level: 6 },
-            { type: "goblinBlue", x: 750, wave: 2, level: 6 },
-            { type: "throwerElite", x: 950, depth: 0.35, wave: 3, level: 6 },
+            // V2 277..311.5s: ten new60 credits match both native n410 rosters.
+            // Native X projection; depth/jitter/activation remain provisional.
+            { type: "goblinRed", x: nativeGroundX(1067), level: 6, xp: 60 },
+            { type: "goblinRed", x: nativeGroundX(672), level: 6, xp: 60 },
+            { type: "goblinBlue", x: nativeGroundX(934), level: 6, xp: 60 },
+            { type: "throwerElite", x: nativeGroundX(1296), level: 6, xp: 60 },
+            { type: "goblinBlue", x: nativeGroundX(599), level: 6, xp: 60 },
+            { type: "deepElite", x: nativeGroundX(747), level: 6, xp: 60 },
+            { type: "goblinBlue", x: nativeGroundX(1065), level: 6, xp: 60 },
+            { type: "deepElite", x: nativeGroundX(1223), level: 6, xp: 60 },
+            { type: "goblinBlue", x: nativeGroundX(670), level: 6, xp: 60 },
+            { type: "goblinRed", x: nativeGroundX(872), level: 6, xp: 60 },
           ],
-          cap: 4,
+          cap: 10,
           /* V2 277–311s: cut before the boss-room transition, dense camera
            * fit + both gate strips. Width lower bound1118.33 -> use1120.
            * Native cap/rock fits identify three barrels and one large rock.

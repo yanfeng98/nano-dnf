@@ -1,0 +1,561 @@
+{
+  "video": "00002-幽暗密林深处.mp4",
+  "sourceFps": 30,
+  "start": 277,
+  "strideFrames": 15,
+  "samples": 70,
+  "selectedFrames": [
+    {
+      "time": 277.5,
+      "file": "143-v2-277.5-room24.png",
+      "sha256": "5fa1bc36908be147c4a51def350f04e410a46471e1847facd0b5f2c486667bcc"
+    },
+    {
+      "time": 280,
+      "file": "143-v2-280-room24.png",
+      "sha256": "bb8a93f84cb327dec20dd0af45ca5af972dfcafdf81c0dcf2d952536b1cb7bf0"
+    },
+    {
+      "time": 285,
+      "file": "143-v2-285-room24.png",
+      "sha256": "6c35933ae5af0c184fff98a9d6a8009d5bc029617cc20c5d210c321e01bb5569"
+    },
+    {
+      "time": 285.5,
+      "file": "143-v2-285.5-room24.png",
+      "sha256": "b948ba1b9401e87b53052733389182fa8aedcdedd5486c0b7884bfbd425eb46f"
+    },
+    {
+      "time": 286,
+      "file": "143-v2-286-room24.png",
+      "sha256": "7dee55d40400b76986b8c45f06ec15c050dd690a2ba9c42d0fb697cf41e1fb82"
+    },
+    {
+      "time": 290,
+      "file": "143-v2-290-room24.png",
+      "sha256": "7de88e19320bc23a398f08d52aa6b8d7012a6b9e93fa474d8b72dd6e4c8aa62a"
+    },
+    {
+      "time": 292,
+      "file": "143-v2-292-room24.png",
+      "sha256": "fd53cc11982f602ccdde93f6533a10aa35d5edc643521c6fd86d896c16d76ef3"
+    },
+    {
+      "time": 292.5,
+      "file": "143-v2-292.5-room24.png",
+      "sha256": "9f416ea683804a46e8998e2f47bae8bccc6a5273b8f536270dd39126c60af08f"
+    },
+    {
+      "time": 295,
+      "file": "143-v2-295-room24.png",
+      "sha256": "131146c86786f5746f85127d16e1257753e88336c6be06feb9a17e5a84728b76"
+    },
+    {
+      "time": 300,
+      "file": "143-v2-300-room24.png",
+      "sha256": "dde132166012b50d8f948a5213d8c827366180c5da07ef54cf6c9bcfa7367bb5"
+    },
+    {
+      "time": 300.5,
+      "file": "143-v2-300.5-room24.png",
+      "sha256": "036c357f5e512fa22eb7a7401f70c1aadebf9c08a072fd296576f119f3fae57c"
+    },
+    {
+      "time": 301,
+      "file": "143-v2-301-room24.png",
+      "sha256": "1c277e5c5a7d5d5fc9cc9d62d064c7f19c6970908a27e551aed8dd26666af9a5"
+    },
+    {
+      "time": 302,
+      "file": "143-v2-302-room24.png",
+      "sha256": "56648f73e3f119e622a95bede69a020b416868f588d8b90c7d60e178fe61635b"
+    },
+    {
+      "time": 302.5,
+      "file": "143-v2-302.5-room24.png",
+      "sha256": "6a24238ea47af5a7dcf67ce7a2ff7a616c0b8de6ddd896f047933944c5ec7483"
+    },
+    {
+      "time": 304.5,
+      "file": "143-v2-304.5-room24.png",
+      "sha256": "0bd99e2e73cd7e9290783aae077fbd01a9c42545407eeb6c36b90a1bfbbc33e4"
+    },
+    {
+      "time": 305,
+      "file": "143-v2-305-room24.png",
+      "sha256": "486a657603c80bbb099521cd654cc88e7e2aa7bed808f95f152302f48a3b2a99"
+    },
+    {
+      "time": 310,
+      "file": "143-v2-310-room24.png",
+      "sha256": "f33ead3a4e10ea41510cdbc0926be9508bc135de1aa1fc0f82bc0700689d67b2"
+    },
+    {
+      "time": 311,
+      "file": "143-v2-311-room24.png",
+      "sha256": "16e1d17b0b9aa561de35b21d8fc4dde1cc1243adaa52df8a8453eeb316353396"
+    },
+    {
+      "time": 311.5,
+      "file": "143-v2-311.5-room24.png",
+      "sha256": "fed0d6d21f4de2e3c74d3b71fdf03aa5c1043360f41c41dea512fdaf898a4779"
+    }
+  ],
+  "clients": [
+    {
+      "file": "Script_70.pvf",
+      "rooms": [
+        {
+          "room": "24",
+          "entry": "map/mirkwooddeep/n410(3,0).map",
+          "sha256": "c54c43dfe92a44fe4a843dbee448e13108937c1a1e1150120ee41de00bb6f23d",
+          "records": [
+            {
+              "monsterId": 4,
+              "monsterPath": "Goblin/HillGab.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1067,
+                215,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 4,
+              "monsterPath": "Goblin/HillGab.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                672,
+                222,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 3,
+              "monsterPath": "Goblin/SeaGab.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                934,
+                230,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 6,
+              "monsterPath": "Goblin/GoblinThrowerTaskmaster.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1296,
+                246,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 3,
+              "monsterPath": "Goblin/SeaGab.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                599,
+                258,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5,
+              "monsterPath": "Goblin/GoblinTaskmaster.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                747,
+                260,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 3,
+              "monsterPath": "Goblin/SeaGab.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1065,
+                301,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5,
+              "monsterPath": "Goblin/GoblinTaskmaster.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1223,
+                306,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 3,
+              "monsterPath": "Goblin/SeaGab.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                670,
+                309,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 4,
+              "monsterPath": "Goblin/HillGab.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                872,
+                321,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "Script.pvf",
+      "rooms": [
+        {
+          "room": "24",
+          "entry": "map/mirkwooddeep/n410(3,0).map",
+          "sha256": "7ef38276143ee082a6a9b43e79274f1f934a845ccbba22d08ffaedc820e70397",
+          "records": [
+            {
+              "monsterId": 4,
+              "monsterPath": "Goblin/HillGab.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1067,
+                215,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 4,
+              "monsterPath": "Goblin/HillGab.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                672,
+                222,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 3,
+              "monsterPath": "Goblin/SeaGab.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                934,
+                230,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 6,
+              "monsterPath": "Goblin/GoblinThrowerTaskmaster.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1296,
+                246,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 3,
+              "monsterPath": "Goblin/SeaGab.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                599,
+                258,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5,
+              "monsterPath": "Goblin/GoblinTaskmaster.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                747,
+                260,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 3,
+              "monsterPath": "Goblin/SeaGab.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1065,
+                301,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5,
+              "monsterPath": "Goblin/GoblinTaskmaster.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1223,
+                306,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 3,
+              "monsterPath": "Goblin/SeaGab.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                670,
+                309,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 4,
+              "monsterPath": "Goblin/HillGab.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                872,
+                321,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "limits": [
+    "Manual caption/log annotations, not automatic OCR.",
+    "The window map occludes the kill counter; no independently readable counter delta is claimed.",
+    "Native map counts alone do not prove the recorded total or spawn timing.",
+    "No runtime XP formula, actor depth or AI is inferred by extraction."
+  ],
+  "manualCreditWindows": [
+    {
+      "start": 285.5,
+      "end": 286,
+      "new60Credits": 3
+    },
+    {
+      "start": 292,
+      "end": 292.5,
+      "new60Credits": 3
+    },
+    {
+      "start": 300.5,
+      "end": 301,
+      "new60Credits": 1
+    },
+    {
+      "start": 302,
+      "end": 302.5,
+      "new60Credits": 1
+    },
+    {
+      "start": 304.5,
+      "end": 305,
+      "new60Credits": 1
+    },
+    {
+      "start": 311,
+      "end": 311.5,
+      "new60Credits": 1
+    }
+  ],
+  "manualCreditTotal": 600,
+  "manualRoster": {
+    "goblinRed": 3,
+    "goblinBlue": 4,
+    "deepElite": 2,
+    "throwerElite": 1
+  },
+  "manualTargetReadings": {
+    "279.5": "Lv6 red",
+    "280": "Lv6 blue",
+    "286.5": "Lv6 melee captain",
+    "308.5": "Lv6 throwing captain"
+  }
+}
