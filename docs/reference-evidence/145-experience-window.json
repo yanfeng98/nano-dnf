@@ -1,0 +1,121 @@
+{
+  "legacyRoi": [
+    134,
+    486,
+    160,
+    7
+  ],
+  "widerScan": [
+    124,
+    486,
+    187,
+    7
+  ],
+  "samples": [
+    {
+      "frame": "121-v1-60-entry-xp.png",
+      "sha256": "05a006f6da508271a7ede8f65aa0a8e46f26c06189817d958c0e785cf2ed23d6",
+      "phase": "stable",
+      "greenRunsExclusive": [
+        [
+          132,
+          270
+        ]
+      ],
+      "legacyConnectedPixels": 136,
+      "greenColumnsLeftOfLegacy": 2,
+      "greenColumnsRightOfLegacy": 0
+    },
+    {
+      "frame": "134-v1-82.5-second-room.png",
+      "sha256": "01d0bf332f91bdf26b118c59313640d1afc2d038f20ff29c215d3332f08150d5",
+      "phase": "stable",
+      "greenRunsExclusive": [
+        [
+          133,
+          291
+        ]
+      ],
+      "legacyConnectedPixels": 157,
+      "greenColumnsLeftOfLegacy": 1,
+      "greenColumnsRightOfLegacy": 0
+    },
+    {
+      "frame": "134-v1-83.5-second-room.png",
+      "sha256": "f84d7d0c459c528f9479784f089f06e3b503de4962e0226a79f5362907c7e4a1",
+      "phase": "stable",
+      "greenRunsExclusive": [
+        [
+          133,
+          296
+        ]
+      ],
+      "legacyConnectedPixels": 160,
+      "greenColumnsLeftOfLegacy": 1,
+      "greenColumnsRightOfLegacy": 2
+    },
+    {
+      "frame": "134-v1-96.5-second-room.png",
+      "sha256": "9707964d90c352824a10d0057123dfc42292f7951b1a7dca720353fb5f3f068b",
+      "phase": "stable",
+      "greenRunsExclusive": [
+        [
+          132,
+          296
+        ]
+      ],
+      "legacyConnectedPixels": 160,
+      "greenColumnsLeftOfLegacy": 2,
+      "greenColumnsRightOfLegacy": 2
+    },
+    {
+      "frame": "127-v1-97-level-message.png",
+      "sha256": "5e3a5e72e417f198aa65d684ac917152956ebf3973c3916f64bf7b6336dae31f",
+      "phase": "upgrade-animation",
+      "greenRunsExclusive": [
+        [
+          132,
+          298
+        ]
+      ],
+      "legacyConnectedPixels": 160,
+      "greenColumnsLeftOfLegacy": 2,
+      "greenColumnsRightOfLegacy": 4
+    },
+    {
+      "frame": "134-v1-98-second-room.png",
+      "sha256": "7f5cf25bc7a68981c8c726a30e7321b30890c8f19621125790e989fdb617fd91",
+      "phase": "stable",
+      "greenRunsExclusive": [
+        [
+          133,
+          136
+        ]
+      ],
+      "legacyConnectedPixels": 2,
+      "greenColumnsLeftOfLegacy": 1,
+      "greenColumnsRightOfLegacy": 0
+    },
+    {
+      "frame": "121-v2-15.5-entry-xp.png",
+      "sha256": "bbbcd2d98aecdee172c5710f603799d4c6fd125aa4e3171483840e4ccdbf868d",
+      "phase": "stable",
+      "greenRunsExclusive": [
+        [
+          132,
+          156
+        ]
+      ],
+      "legacyConnectedPixels": 22,
+      "greenColumnsLeftOfLegacy": 2,
+      "greenColumnsRightOfLegacy": 0
+    }
+  ],
+  "interpretation": "The old ROI omits green pixels on the left and clips stable near-full samples on the right.",
+  "limits": [
+    "Green-mask extent is not automatically the physical gauge width: frame clipping, glow and rasterization must be separated.",
+    "The97s full-width pulse is an animation control, not a stable balance measurement.",
+    "Nominal160 width and prior growth fits remain assumptions requiring independent frame/clip calibration.",
+    "No new nominal width, initial XP, threshold or runtime growth rule is adopted."
+  ]
+}

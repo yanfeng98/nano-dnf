@@ -2700,11 +2700,13 @@
           nativeMid: { scroll: 0.9, screenY: -106.5, originX: 0 },
           nativeGround: { tiles: ["tile0", "tile0", "tile1", "tile3", "tile2", "tile0", "tile1", "tile3", "tile3"], screenY: 233 },
           band: { backY: 256 },
+          // V2 337–364s: Lv6 cats pay60, Lv7 captains pay70.
+          // Roster total/spawn timing remain unresolved against native b417.
           enemies: [
-            { type: "deepElite", x: 300, level: 7 },
-            { type: "throwerElite", x: 520, depth: 0.35, level: 7 },
-            { type: "cat", x: 420, wave: 2, level: 6 },
-            { type: "cat", x: 600, wave: 2, level: 6 },
+            { type: "deepElite", x: 300, level: 7, xp: 70 },
+            { type: "throwerElite", x: 520, depth: 0.35, level: 7, xp: 70 },
+            { type: "cat", x: 420, wave: 2, level: 6, xp: 60 },
+            { type: "cat", x: 600, wave: 2, level: 6, xp: 60 },
             { type: "lugaruBoss", x: 800, level: 9 },
           ],
           cap: 5,

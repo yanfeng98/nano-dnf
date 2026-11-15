@@ -332,3 +332,29 @@ test('a room can explicitly override the fire champion level', () => {
   const fire = Core.createEnemy(state, 'burningThrower', 300, 0, 7);
   assert.equal(fire.level, 7);
 });
+
+
+test('deep lord room ordinary deaths pay the observed level-specific credits', () => {
+  for (const seed of [1, 2, 7, 123]) {
+    const state = Core.createState({stage:'mirkwooddeep', seed, referenceProfile:true});
+    Core.goToCell(state, state.dungeon.cells.findIndex(c => c.col === 4 && c.row === 1));
+    state.transition = 0;
+    state.player.invuln = Infinity;
+    state.player.xpToNext = 100000;
+    const observed = new Set();
+    let expectedXP = 0;
+    for (let frame = 0; frame < 1200 && !state.room.cleared; frame++) {
+      for (const enemy of state.enemies) {
+        if (observed.has(enemy.id)) continue;
+        observed.add(enemy.id);
+        const expected = enemy.type === 'lugaruBoss' ? 360 : enemy.type === 'cat' ? 60 : 70;
+        assert.equal(enemy.xp, expected, `${enemy.type}: V2 lord room death logs`);
+        expectedXP += expected;
+        for (let hit = 0; hit < 50 && !enemy.dead; hit++) Core.damageEnemy(state, enemy, enemy.hp + 1, 0, state.player.x);
+      }
+      Core.step(state, {});
+    }
+    assert.ok(state.room.cleared);
+    assert.equal(state.player.xp, expectedXP);
+  }
+});

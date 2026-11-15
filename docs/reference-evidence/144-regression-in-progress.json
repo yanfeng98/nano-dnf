@@ -1,0 +1,20 @@
+{
+  "unitExitCode": 0,
+  "browserStatus": "completed",
+  "browserLog": "/tmp/nano144-final-browser-full.log",
+  "inputs": {
+    "src/core.js": "73b92881b4e81e4ece62c7a7287fddb4a2836aa934a27ee5922e60a356f7c6ee",
+    "src/render.js": "eb3f0f0b6b1afa99fdf63a37e2da766be70cf892b79b4819f7eb687ca9109fce",
+    "src/main.js": "4bb0066760c37e103e0d36fd227531045f931e82ab06f621576b536843e86b26",
+    "package.json": "bbe9b53fe25803e35e39e8b17a088d038b7f2b278aaf885d497f681d1fe54001",
+    "tests/recording-entry.test.js": "6339c543573299e9cf6e455df87842f294c195f052e03e3cb464690634cf9166"
+  },
+  "supervisor": {
+    "pid": 136672,
+    "runner": "/tmp/nano144-final-regression-runner.py"
+  },
+  "resultPath": "/tmp/nano144-final-regression-result.json",
+  "inputsStillMatch": true,
+  "browserExitCode": 0,
+  "finalEvidence": "144-final-regression.json"
+}

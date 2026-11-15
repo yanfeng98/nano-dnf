@@ -1,0 +1,145 @@
+{
+  "id": 43719636456,
+  "head_sha": "910f2db8c9c5e8af9665fb29304c507c2d3d0cb4",
+  "status": "completed",
+  "conclusion": "success",
+  "html_url": "https://github.com/yanfeng98/nano-dnf/actions/runs/43719636456",
+  "updated_at": "2026-11-15T13:35:49Z",
+  "jobs": [
+    {
+      "id": 132828602836,
+      "name": "Test and stage the playable build",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/yanfeng98/nano-dnf/actions/runs/43719636456/job/132828602836"
+    },
+    {
+      "id": 132828867773,
+      "name": "Deploy to GitHub Pages",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/yanfeng98/nano-dnf/actions/runs/43719636456/job/132828867773"
+    },
+    {
+      "id": 132828926865,
+      "name": "Verify the deployed build",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/yanfeng98/nano-dnf/actions/runs/43719636456/job/132828926865"
+    }
+  ],
+  "independentLiveSmoke": {
+    "exitCode": 0,
+    "log": "/tmp/nano143-live-current.log",
+    "result": "published bytes match checkout; boots cleanly"
+  },
+  "previousOnlineRoom24Probe": {
+    "url": "https://luyf-lemon-love.space/nano-dnf/",
+    "portraitDraws": [
+      [
+        495,
+        0,
+        626,
+        32,
+        126,
+        45.5,
+        704.25,
+        36
+      ],
+      [
+        1718,
+        0,
+        3,
+        17,
+        356.625,
+        62.375,
+        3.375,
+        19.125
+      ],
+      [
+        447,
+        0,
+        24,
+        24,
+        128.25,
+        47.75,
+        27,
+        27
+      ],
+      [
+        1121,
+        0,
+        597,
+        9,
+        158.625,
+        64.625,
+        198,
+        10.125
+      ]
+    ],
+    "stage": "mirkwooddeep",
+    "roster": [
+      {
+        "type": "goblinRed",
+        "level": 6,
+        "xp": 60
+      },
+      {
+        "type": "goblinRed",
+        "level": 6,
+        "xp": 60
+      },
+      {
+        "type": "goblinBlue",
+        "level": 6,
+        "xp": 60
+      },
+      {
+        "type": "throwerElite",
+        "level": 6,
+        "xp": 60
+      },
+      {
+        "type": "goblinBlue",
+        "level": 6,
+        "xp": 60
+      },
+      {
+        "type": "deepElite",
+        "level": 6,
+        "xp": 60
+      },
+      {
+        "type": "goblinBlue",
+        "level": 6,
+        "xp": 60
+      },
+      {
+        "type": "deepElite",
+        "level": 6,
+        "xp": 60
+      },
+      {
+        "type": "goblinBlue",
+        "level": 6,
+        "xp": 60
+      },
+      {
+        "type": "goblinRed",
+        "level": 6,
+        "xp": 60
+      }
+    ],
+    "pending": 0,
+    "xp": 600,
+    "kills": 10,
+    "cleared": true,
+    "errors": []
+  },
+  "previousOnlineRoom24ProbeProvenance": {
+    "resultSha256": "7680ec34255de179e83829e9d57886e9e064054bdcf0f1840efec2dac2e8afbc",
+    "screenshot": "143-room24-captain-online.png",
+    "screenshotSha256": "1dc56aaaa8d0dd2ee7dd903ef06770df5ebe9d1959fcc9c067842f567c0e24b6",
+    "note": "Recovered existing /tmp/nano143-online-room24 probe and completion log; this is an earlier run, not a new run."
+  }
+}
