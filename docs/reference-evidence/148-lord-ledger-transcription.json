@@ -1,0 +1,202 @@
+{
+  "video": "00002-幽暗密林深处.mp4",
+  "method": "Manual transcription of8 visible rows, normalized tokens; no OCR. Review147 source log sheets and148 enlarged contact.",
+  "snapshots": [
+    {
+      "time": 337,
+      "frame": "144-v2-337-room25.png",
+      "sha256": "38a44abf2986d0b2e3db67752cc1f90fd0e6c97728f9f15dc77293b4b8ca0d37",
+      "lines": [
+        "coin:66",
+        "sp:1",
+        "xp:60",
+        "coin:60",
+        "item:captain-mark",
+        "item:blue-fruit",
+        "coin:61",
+        "xp:60"
+      ]
+    },
+    {
+      "time": 345,
+      "frame": "144-v2-345-room25.png",
+      "sha256": "a29c9070f1bddb0d29fea7f1c196efeed7b7a435818f10ffc0ab0cb16dea27d6",
+      "lines": [
+        "sp:1",
+        "xp:60",
+        "coin:60",
+        "item:captain-mark",
+        "item:blue-fruit",
+        "coin:61",
+        "xp:60",
+        "xp:60"
+      ]
+    },
+    {
+      "time": 345.5,
+      "frame": "144-v2-345.5-room25.png",
+      "sha256": "e3ed12216bb85365e1205808ea83fa0f96fc5dda0f1fc5846b19658e89e3b000",
+      "lines": [
+        "xp:60",
+        "coin:60",
+        "item:captain-mark",
+        "item:blue-fruit",
+        "coin:61",
+        "xp:60",
+        "xp:60",
+        "xp:60"
+      ]
+    },
+    {
+      "time": 349,
+      "frame": "144-v2-349-room25.png",
+      "sha256": "90e7757e6560332b463f874e5381360f42c8bd14b36eb6d6a74ee68140e3bb7c",
+      "lines": [
+        "item:captain-mark",
+        "item:blue-fruit",
+        "coin:61",
+        "xp:60",
+        "xp:60",
+        "xp:60",
+        "sp:1",
+        "xp:60"
+      ]
+    },
+    {
+      "time": 349.5,
+      "frame": "144-v2-349.5-room25.png",
+      "sha256": "d7b4af21dc6e4bba2fe00db43b1c0a778c752199e3ef44f27e1fe10996c2fb8d",
+      "lines": [
+        "item:blue-fruit",
+        "coin:61",
+        "xp:60",
+        "xp:60",
+        "xp:60",
+        "sp:1",
+        "xp:60",
+        "xp:60"
+      ]
+    },
+    {
+      "time": 351,
+      "frame": "144-v2-351-room25.png",
+      "sha256": "c39f356a52bb2c9a3cb72b972fc6de4f7639a05dc61982f794b697e968b9a175",
+      "lines": [
+        "item:blue-fruit",
+        "coin:61",
+        "xp:60",
+        "xp:60",
+        "xp:60",
+        "sp:1",
+        "xp:60",
+        "xp:60"
+      ]
+    },
+    {
+      "time": 352,
+      "frame": "144-v2-352-room25.png",
+      "sha256": "03dfcae2641ab0282763710e01cca3bb9eb8094d2be1eb23a7be44d1b1876967",
+      "lines": [
+        "coin:61",
+        "xp:60",
+        "xp:60",
+        "xp:60",
+        "sp:1",
+        "xp:60",
+        "xp:60",
+        "xp:70"
+      ]
+    },
+    {
+      "time": 354,
+      "frame": "144-v2-354-room25.png",
+      "sha256": "5f954c594337908844ea8ab9efb778e4f6628b2d1bca999ea62749fa170e7bd3",
+      "lines": [
+        "xp:60",
+        "xp:60",
+        "xp:60",
+        "sp:1",
+        "xp:60",
+        "xp:60",
+        "xp:70",
+        "item:cat-claw"
+      ]
+    },
+    {
+      "time": 354.5,
+      "frame": "144-v2-354.5-room25.png",
+      "sha256": "dc1be0cf990bfaea93707515d6f6b148397fe6a52ceb4c03f60cb784499d05c5",
+      "lines": [
+        "xp:60",
+        "sp:1",
+        "xp:60",
+        "xp:60",
+        "xp:70",
+        "item:cat-claw",
+        "sp:1",
+        "xp:70"
+      ]
+    },
+    {
+      "time": 363,
+      "frame": "144-v2-363-room25.png",
+      "sha256": "a68f59e679f6e9b4952b5e63ed55ad39ceb38bb477dfb182b7740d9c149e976d",
+      "lines": [
+        "xp:60",
+        "xp:60",
+        "xp:70",
+        "item:cat-claw",
+        "sp:1",
+        "xp:70",
+        "coin:52",
+        "message:cooldown"
+      ]
+    },
+    {
+      "time": 363.5,
+      "frame": "144-v2-363.5-room25.png",
+      "sha256": "8be69b43a12888a88abcc062a135388590699b6273f44216d82d3d41d88a0b4c",
+      "lines": [
+        "xp:70",
+        "item:cat-claw",
+        "sp:1",
+        "xp:70",
+        "coin:52",
+        "message:cooldown",
+        "xp:70",
+        "message:cooldown"
+      ]
+    },
+    {
+      "time": 385,
+      "frame": "144-v2-385-room25.png",
+      "sha256": "a4cc0a29da512d7e62e5d21c03e57532037d0e0854f2944abfaae4b2d1cd6ea3",
+      "lines": [
+        "coin:52",
+        "message:cooldown",
+        "xp:70",
+        "message:cooldown",
+        "item:branch",
+        "message:cooldown",
+        "message:cooldown",
+        "message:cooldown"
+      ]
+    },
+    {
+      "time": 385.5,
+      "frame": "144-v2-385.5-room25.png",
+      "sha256": "9b2ed0951d17dcae918dbdc3225d2c68c35dcc495d6f1b1bb1cea8378b117dcc",
+      "lines": [
+        "xp:70",
+        "message:cooldown",
+        "item:branch",
+        "message:cooldown",
+        "message:cooldown",
+        "message:cooldown",
+        "sp:2",
+        "xp:360"
+      ]
+    }
+  ],
+  "correction": "The144/147 five60 and9/870 annotations are withdrawn. 351s repeats349.5s; first new60 is338s, not337.5s. Only4 new60 credits follow the337s baseline."
+}

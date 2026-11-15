@@ -133,5 +133,6 @@
     "No XP ledger or level classification is inferred automatically.",
     "Connected green width can be contaminated by upgrade flashes.",
     "Manual log reading and event ordering are required before using a balance constraint."
-  ]
+  ],
+  "status": "Withdrawn growth constraint:83.5/96.5 cumulative credit should be320, not280; see148-v1-early-ledger-alignment.json. Source frames retained."
 }

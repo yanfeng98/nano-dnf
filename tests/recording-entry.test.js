@@ -339,10 +339,14 @@ test('deep lord room ordinary deaths pay the observed level-specific credits', (
     const state = Core.createState({stage:'mirkwooddeep', seed, referenceProfile:true});
     Core.goToCell(state, state.dungeon.cells.findIndex(c => c.col === 4 && c.row === 1));
     state.transition = 0;
+    assert.equal(state.enemies.length, 8);
+    assert.equal(state.room.pendingWave.length, 0, 'cats precede the first recorded death');
+    assert.equal(state.room.pendingWaves.length, 0);
     state.player.invuln = Infinity;
     state.player.xpToNext = 100000;
     const observed = new Set();
     const observedTypes = new Set();
+    const typeCounts = {};
     let expectedXP = 0;
     for (let frame = 0; frame < 1200 && !state.room.cleared; frame++) {
       for (const enemy of state.enemies) {
@@ -352,6 +356,8 @@ test('deep lord room ordinary deaths pay the observed level-specific credits', (
             state.room.pendingWaves.length || state.enemies.some(other => other !== enemy && !other.dead))) continue;
         observed.add(enemy.id);
         observedTypes.add(enemy.type);
+        typeCounts[enemy.type] = (typeCounts[enemy.type] || 0) + 1;
+        assert.equal(enemy.level, enemy.type === 'cat' ? 6 : enemy.type === 'lugaruBoss' ? 9 : 7);
         const expected = enemy.type === 'lugaruBoss' ? 360 : enemy.type === 'cat' ? 60 : 70;
         assert.equal(enemy.xp, expected, `${enemy.type}: V2 lord room death logs`);
         expectedXP += expected;
@@ -359,6 +365,9 @@ test('deep lord room ordinary deaths pay the observed level-specific credits', (
       }
       Core.step(state, {});
     }
+    assert.deepEqual(typeCounts, {deepElite:2, throwerElite:1, cat:4, lugaruBoss:1});
+    assert.equal(observed.size, 8, 'four60, three70 and one360 death credits');
+    assert.equal(state.player.xp, 810);
     assert.ok(state.room.cleared);
     assert.equal(state.player.xp, expectedXP);
     assert.deepEqual([...observedTypes].sort(), ['cat', 'deepElite', 'lugaruBoss', 'throwerElite']);

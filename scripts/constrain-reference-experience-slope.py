@@ -17,9 +17,9 @@ p = argparse.ArgumentParser(description=__doc__)
 p.add_argument('--out', type=Path, default=Path('/tmp/nano145-experience-slope.json'))
 a = p.parse_args()
 entry = ROOT / 'docs/reference-evidence/121-entry-xp.json'
-second = ROOT / 'docs/reference-evidence/134-second-room-constraint.json'
+second = ROOT / 'docs/reference-evidence/148-v1-early-ledger-transcription.json'
 observations = [r for r in json.loads(entry.read_text())['samples'] if r['video'] == 1]
-observations += json.loads(second.read_text())['secondRoomConstraint']['addedObservations']
+observations += json.loads(second.read_text())['addedObservations']
 rows = []
 for r in observations:
     path = ROOT / 'docs/reference-evidence' / r['frame']

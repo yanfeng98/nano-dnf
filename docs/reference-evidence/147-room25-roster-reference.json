@@ -1,0 +1,695 @@
+{
+  "video": "00002-幽暗密林深处.mp4",
+  "sourceFps": 30,
+  "start": 312,
+  "strideFrames": 15,
+  "samples": 152,
+  "selectedFrames": [
+    {
+      "time": 312.5,
+      "file": "144-v2-312.5-room25.png",
+      "sha256": "88b9de6d152b431809ce75d81a43a2fe451c29faf3057e246b2f2e73f4db168c"
+    },
+    {
+      "time": 320.0,
+      "file": "144-v2-320-room25.png",
+      "sha256": "c71c2a3ed62ecc2d18fb3ffca0f7fd893805e2e1f1dd5e422d45d108822a2e16"
+    },
+    {
+      "time": 325.0,
+      "file": "144-v2-325-room25.png",
+      "sha256": "8eeb9cd238b8c39ba082b3e7b94ebf13c3b583ecc932e93a4b157be5c8b39cbe"
+    },
+    {
+      "time": 330.0,
+      "file": "144-v2-330-room25.png",
+      "sha256": "38701e47b765f7fa2220f914fa7de28c6cffe8b42de2896e4293c54a543c14fb"
+    },
+    {
+      "time": 340.0,
+      "file": "144-v2-340-room25.png",
+      "sha256": "8572696aeca113dc79db9af8b24af56e36737b7208fce1f7d408b30fa1106a8c"
+    },
+    {
+      "time": 350.0,
+      "file": "144-v2-350-room25.png",
+      "sha256": "85f95b09070b3d51a099e582669974c91b37ad6b71eedf4a0dcba7d8c447d03d"
+    },
+    {
+      "time": 360.0,
+      "file": "144-v2-360-room25.png",
+      "sha256": "077585fc0c7664db9dfec75381a018d2948cae3216617eb74149270e72dfd968"
+    },
+    {
+      "time": 370.0,
+      "file": "144-v2-370-room25.png",
+      "sha256": "8aabc89d96b5e44742fb7ad7823a8415e61eb6c60b01a62b91c1351c00ee504b"
+    },
+    {
+      "time": 380.0,
+      "file": "144-v2-380-room25.png",
+      "sha256": "4ff57939db1ed41002a5d7aa4e6bc9d11841362dcc044b1f39b1b212c00a3877"
+    },
+    {
+      "time": 386.0,
+      "file": "144-v2-386-room25.png",
+      "sha256": "c3e36d70dd658f95c405ab234d560127074c441fb7f2a598d2e3977e3592c5e5"
+    },
+    {
+      "time": 387.5,
+      "file": "144-v2-387.5-room25.png",
+      "sha256": "cc3984f52f8063b618c580185293be6a15e162f52a48cf9a9e3a6f9aa4d68cf6"
+    }
+  ],
+  "clients": [
+    {
+      "file": "Script_70.pvf",
+      "rooms": [
+        {
+          "room": "25",
+          "entry": "map/mirkwooddeep/b417(4,1).map",
+          "sha256": "aa40570dec83fd062224b950defd7edd9d8884dea2eaa6892d084da0680faec1",
+          "records": [
+            {
+              "monsterId": 5001,
+              "monsterPath": "Lugaru/Lugaru.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                942,
+                201,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5001,
+              "monsterPath": "Lugaru/Lugaru.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1420,
+                204,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5001,
+              "monsterPath": "Lugaru/Lugaru.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1030,
+                243,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5,
+              "monsterPath": "Goblin/GoblinTaskmaster.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                583,
+                244,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5001,
+              "monsterPath": "Lugaru/Lugaru.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1622,
+                245,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5001,
+              "monsterPath": "Lugaru/Lugaru.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1485,
+                261,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5002,
+              "monsterPath": "Lugaru/Kurogaru.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1734,
+                274,
+                0
+              ],
+              "tailFields": [
+                2,
+                2,
+                "[fixed]",
+                "[boss]"
+              ]
+            },
+            {
+              "monsterId": 5001,
+              "monsterPath": "Lugaru/Lugaru.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1554,
+                290,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 6,
+              "monsterPath": "Goblin/GoblinThrowerTaskmaster.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1183,
+                312,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5001,
+              "monsterPath": "Lugaru/Lugaru.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                525,
+                313,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5001,
+              "monsterPath": "Lugaru/Lugaru.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1094,
+                322,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5,
+              "monsterPath": "Goblin/GoblinTaskmaster.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                771,
+                328,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "Script.pvf",
+      "rooms": [
+        {
+          "room": "25",
+          "entry": "map/mirkwooddeep/b417(4,1).map",
+          "sha256": "fee88af40d35fcc8d76a740d6d0a1a3b634543b67c623ccf0786754d4e856e18",
+          "records": [
+            {
+              "monsterId": 5001,
+              "monsterPath": "Lugaru/Lugaru.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                942,
+                201,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5001,
+              "monsterPath": "Lugaru/Lugaru.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1420,
+                204,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5001,
+              "monsterPath": "Lugaru/Lugaru.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1030,
+                243,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5,
+              "monsterPath": "Goblin/GoblinTaskmaster.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                583,
+                244,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5001,
+              "monsterPath": "Lugaru/Lugaru.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1622,
+                245,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5001,
+              "monsterPath": "Lugaru/Lugaru.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1485,
+                261,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5002,
+              "monsterPath": "Lugaru/Kurogaru.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1734,
+                274,
+                0
+              ],
+              "tailFields": [
+                2,
+                2,
+                "[fixed]",
+                "[boss]"
+              ]
+            },
+            {
+              "monsterId": 5001,
+              "monsterPath": "Lugaru/Lugaru.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1554,
+                290,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 6,
+              "monsterPath": "Goblin/GoblinThrowerTaskmaster.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1183,
+                312,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5001,
+              "monsterPath": "Lugaru/Lugaru.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                525,
+                313,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5001,
+              "monsterPath": "Lugaru/Lugaru.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1094,
+                322,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5,
+              "monsterPath": "Goblin/GoblinTaskmaster.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                771,
+                328,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "limits": [
+    "Manual caption/log annotations, not automatic OCR.",
+    "The window map occludes the kill counter; no independently readable counter delta is claimed.",
+    "Native map counts alone do not prove the recorded total or spawn timing.",
+    "No runtime XP formula, actor depth or AI is inferred by extraction."
+  ],
+  "manualReview": {
+    "deathCredits": [
+      {
+        "window": [
+          337,
+          337.5
+        ],
+        "xp": 60
+      },
+      {
+        "window": [
+          345,
+          345.5
+        ],
+        "xp": 60
+      },
+      {
+        "window": [
+          346.5,
+          347
+        ],
+        "xp": 60
+      },
+      {
+        "window": [
+          349,
+          349.5
+        ],
+        "xp": 60
+      },
+      {
+        "window": [
+          350.5,
+          351
+        ],
+        "xp": 60
+      },
+      {
+        "window": [
+          351.5,
+          352
+        ],
+        "xp": 70
+      },
+      {
+        "window": [
+          354,
+          354.5
+        ],
+        "xp": 70
+      },
+      {
+        "window": [
+          363,
+          363.5
+        ],
+        "xp": 70
+      },
+      {
+        "window": [
+          385,
+          385.5
+        ],
+        "xp": 360
+      }
+    ],
+    "targetCaptions": {
+      "catLv6": [
+        339,
+        347,
+        348
+      ],
+      "deepEliteLv7": [
+        342.5,
+        350,
+        359.5
+      ],
+      "throwerEliteLv7": [
+        337,
+        352.5,
+        354
+      ],
+      "lordLv9": [
+        336,
+        356.5
+      ]
+    },
+    "conflict": "Nine readable death credits versus twelve native initial actor records. Exact total and timing remain unresolved; do not adopt native count or infer missing deaths.",
+    "runtimeScope": "Only explicit room-local XP overrides for existing Lv6 cats and Lv7 captains; no global XP formula or roster change."
+  },
+  "reviewedLogPages": [
+    {
+      "file": "144-room25-logs-0.jpg",
+      "sha256": "318da66a5d670fa078ed048cdc7cf4da1b72649f98a7413bebeda099264a0af9"
+    },
+    {
+      "file": "144-room25-logs-1.jpg",
+      "sha256": "dbe4ebd61ed8f43b9cb7fbb6390783ef03b16eb35ef3f8531bfc3020bda2e05c"
+    },
+    {
+      "file": "144-room25-logs-2.jpg",
+      "sha256": "f24c161a6beb4b9b845117fe6202e6ea99ce71d6c362bf95a638f01a0df13670"
+    },
+    {
+      "file": "144-room25-logs-3.jpg",
+      "sha256": "58d747e39125c304f6f3bef293d616c28550d2d386ff88b4735b465f4ce24d04"
+    },
+    {
+      "file": "144-room25-logs-4.jpg",
+      "sha256": "ab2160a62c290b7094fedefb895c5cfd720a550610521760036e562cb0c1d2a9"
+    },
+    {
+      "file": "144-room25-logs-5.jpg",
+      "sha256": "dcbd57291b296334d9fca7b7a1f68e2b84eaf3b3aecd6d0690be282413e26e96"
+    },
+    {
+      "file": "144-room25-logs-6.jpg",
+      "sha256": "01fe08155e0223c50852505b352fb83c6bec28f17d4924a19ce461cf56216098"
+    }
+  ],
+  "restoration147": {
+    "creditedRoster": {
+      "cat:6:60": 5,
+      "deepElite:7:70": 2,
+      "throwerElite:7:70": 1,
+      "lugaruBoss:9:360": 1
+    },
+    "totalXP": 870,
+    "visualLowerBound": {
+      "time": 330,
+      "ordinaryCatsAtLeast": 4
+    },
+    "preDeathCatsVisibleAt": 318,
+    "firstNewDeathCreditAt": 337.5,
+    "oldRuntime": "5 actors; only2 cats and1 melee captain; cats deferred to death-triggered wave",
+    "newRuntime": "9 initial actors matching the9 credited death events; no unsupported death-triggered wave",
+    "limits": [
+      "Native b41712-record roster differs; no claim that its8cat initial population is the recorded population.",
+      "Added actor X uses native candidates771,942,1030,1094, without identified recorded individuals. Existing positions retained. Precise spatial layout and activation remain provisional.",
+      "Counts/credits do not validate damage, HP, AI or progression."
+    ]
+  },
+  "manualCountStatus": "Withdrawn: five60/9actors/870XP misread; use148-lord-ledger-alignment.json (four60/8actors/810XP). Per-type60/70/360 credits remain valid."
+}

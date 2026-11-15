@@ -1,0 +1,178 @@
+{
+  "source": "148-lord-ledger-transcription.json",
+  "sourceSha256": "5dbf81d3412351751099f15198853262758758dd79ec0f260204615e449c696e",
+  "transitions": [
+    {
+      "times": [
+        337,
+        345
+      ],
+      "retainedRows": 7,
+      "newLines": [
+        "xp:60"
+      ],
+      "newXPCredits": [
+        60
+      ]
+    },
+    {
+      "times": [
+        345,
+        345.5
+      ],
+      "retainedRows": 7,
+      "newLines": [
+        "xp:60"
+      ],
+      "newXPCredits": [
+        60
+      ]
+    },
+    {
+      "times": [
+        345.5,
+        349
+      ],
+      "retainedRows": 6,
+      "newLines": [
+        "sp:1",
+        "xp:60"
+      ],
+      "newXPCredits": [
+        60
+      ]
+    },
+    {
+      "times": [
+        349,
+        349.5
+      ],
+      "retainedRows": 7,
+      "newLines": [
+        "xp:60"
+      ],
+      "newXPCredits": [
+        60
+      ]
+    },
+    {
+      "times": [
+        349.5,
+        351
+      ],
+      "retainedRows": 8,
+      "newLines": [],
+      "newXPCredits": []
+    },
+    {
+      "times": [
+        351,
+        352
+      ],
+      "retainedRows": 7,
+      "newLines": [
+        "xp:70"
+      ],
+      "newXPCredits": [
+        70
+      ]
+    },
+    {
+      "times": [
+        352,
+        354
+      ],
+      "retainedRows": 7,
+      "newLines": [
+        "item:cat-claw"
+      ],
+      "newXPCredits": []
+    },
+    {
+      "times": [
+        354,
+        354.5
+      ],
+      "retainedRows": 6,
+      "newLines": [
+        "sp:1",
+        "xp:70"
+      ],
+      "newXPCredits": [
+        70
+      ]
+    },
+    {
+      "times": [
+        354.5,
+        363
+      ],
+      "retainedRows": 6,
+      "newLines": [
+        "coin:52",
+        "message:cooldown"
+      ],
+      "newXPCredits": []
+    },
+    {
+      "times": [
+        363,
+        363.5
+      ],
+      "retainedRows": 6,
+      "newLines": [
+        "xp:70",
+        "message:cooldown"
+      ],
+      "newXPCredits": [
+        70
+      ]
+    },
+    {
+      "times": [
+        363.5,
+        385
+      ],
+      "retainedRows": 4,
+      "newLines": [
+        "item:branch",
+        "message:cooldown",
+        "message:cooldown",
+        "message:cooldown"
+      ],
+      "newXPCredits": []
+    },
+    {
+      "times": [
+        385,
+        385.5
+      ],
+      "retainedRows": 6,
+      "newLines": [
+        "sp:2",
+        "xp:360"
+      ],
+      "newXPCredits": [
+        360
+      ]
+    }
+  ],
+  "credits": [
+    60,
+    60,
+    60,
+    60,
+    70,
+    70,
+    70,
+    360
+  ],
+  "creditedDeaths": 8,
+  "totalXP": 810,
+  "limits": [
+    "Input is manual transcription, not OCR; source frames must be reviewed.",
+    "Identical snapshots add no events; XP rows already present in the baseline are excluded.",
+    "Uniquely retained non-XP anchors rule out counting repeated unchanged XP lines as new.",
+    "This does not infer actor identity, position, AI, difficulty or a global XP formula."
+  ]
+}

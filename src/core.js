@@ -2700,16 +2700,24 @@
           nativeMid: { scroll: 0.9, screenY: -106.5, originX: 0 },
           nativeGround: { tiles: ["tile0", "tile0", "tile1", "tile3", "tile2", "tile0", "tile1", "tile3", "tile3"], screenY: 233 },
           band: { backY: 256 },
-          // V2 337–364s: Lv6 cats pay60, Lv7 captains pay70.
-          // Roster total/spawn timing remain unresolved against native b417.
+          // V2 337–385.5s: four60 cat credits, three70 captain credits,
+          // and the360 lord credit. Native b417 has more cats; do not copy
+          // its12-actor total over the recorded eight credited deaths.
+          // Cats are visible at318s, before the first338s death credit.
+          // Remove the unsupported death-triggered wave. Added actors
+          // use candidate native X anchors; their recorded identities/depth
+          // and activation timing are not established by this count repair.
           enemies: [
             { type: "deepElite", x: 300, level: 7, xp: 70 },
+            { type: "deepElite", x: nativeGroundX(771), level: 7, xp: 70 },
             { type: "throwerElite", x: 520, depth: 0.35, level: 7, xp: 70 },
-            { type: "cat", x: 420, wave: 2, level: 6, xp: 60 },
-            { type: "cat", x: 600, wave: 2, level: 6, xp: 60 },
+            { type: "cat", x: 420, level: 6, xp: 60 },
+            { type: "cat", x: 600, level: 6, xp: 60 },
+            { type: "cat", x: nativeGroundX(942), level: 6, xp: 60 },
+            { type: "cat", x: nativeGroundX(1030), level: 6, xp: 60 },
             { type: "lugaruBoss", x: 800, level: 9 },
           ],
-          cap: 5,
+          cap: 8,
           // V2 314..345s native caps/walls, camera from full312..385s trace.
           // Third chest is partly hidden; scale comes from its two clear peers.
           props: [

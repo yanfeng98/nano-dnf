@@ -1,0 +1,284 @@
+{
+  "inputs": [
+    {
+      "file": "121-entry-xp.json",
+      "sha256": "d2d2a5f99d9e7cb3f59da0549995a4b07e422b177ce254fe1acc8fe5d18a0280"
+    },
+    {
+      "file": "148-v1-early-ledger-transcription.json",
+      "sha256": "6e643251f7fc48d17da38eb230de704047795a7f87a1051df2ed6d7a889854e3"
+    }
+  ],
+  "endpointErrorPixels": 2,
+  "samples": [
+    {
+      "frame": "121-v1-60-entry-xp.png",
+      "sha256": "05a006f6da508271a7ede8f65aa0a8e46f26c06189817d958c0e785cf2ed23d6",
+      "time": 60,
+      "credit": 0,
+      "greenStart": 132,
+      "greenEndExclusive": 270
+    },
+    {
+      "frame": "121-v1-70.8-entry-xp.png",
+      "sha256": "17c06512d38cc421f1ba2f96cce02b892be1384874472fd75a9874473adc334f",
+      "time": 70.8,
+      "credit": 80,
+      "greenStart": 133,
+      "greenEndExclusive": 277
+    },
+    {
+      "frame": "121-v1-71.5-entry-xp.png",
+      "sha256": "f45cfa4e7fa7296d502979ab90669a94751e22e82872d94e93dc2cf7d9f67b3c",
+      "time": 71.5,
+      "credit": 160,
+      "greenStart": 133,
+      "greenEndExclusive": 284
+    },
+    {
+      "frame": "121-v1-73.6-entry-xp.png",
+      "sha256": "07de19ff68d0933c12dd6fbac21830f93901bc78c86776ecaaef4bcd3e82aae1",
+      "time": 73.6,
+      "credit": 200,
+      "greenStart": 133,
+      "greenEndExclusive": 287
+    },
+    {
+      "frame": "134-v1-82.5-second-room.png",
+      "sha256": "01d0bf332f91bdf26b118c59313640d1afc2d038f20ff29c215d3332f08150d5",
+      "time": 82.5,
+      "credit": 240,
+      "greenStart": 133,
+      "greenEndExclusive": 291
+    },
+    {
+      "frame": "134-v1-83.5-second-room.png",
+      "sha256": "f84d7d0c459c528f9479784f089f06e3b503de4962e0226a79f5362907c7e4a1",
+      "time": 83.5,
+      "credit": 320,
+      "greenStart": 133,
+      "greenEndExclusive": 296
+    },
+    {
+      "frame": "134-v1-96.5-second-room.png",
+      "sha256": "9707964d90c352824a10d0057123dfc42292f7951b1a7dca720353fb5f3f068b",
+      "time": 96.5,
+      "credit": 320,
+      "greenStart": 132,
+      "greenEndExclusive": 296
+    }
+  ],
+  "constraints": [
+    {
+      "times": [
+        60,
+        70.8
+      ],
+      "credit": 80,
+      "endpointDelta": 7,
+      "xpPerPixelLower": 7.2727272727272725,
+      "xpPerPixelUpper": 26.666666666666668
+    },
+    {
+      "times": [
+        60,
+        71.5
+      ],
+      "credit": 160,
+      "endpointDelta": 14,
+      "xpPerPixelLower": 8.88888888888889,
+      "xpPerPixelUpper": 16.0
+    },
+    {
+      "times": [
+        60,
+        73.6
+      ],
+      "credit": 200,
+      "endpointDelta": 17,
+      "xpPerPixelLower": 9.523809523809524,
+      "xpPerPixelUpper": 15.384615384615385
+    },
+    {
+      "times": [
+        60,
+        82.5
+      ],
+      "credit": 240,
+      "endpointDelta": 21,
+      "xpPerPixelLower": 9.6,
+      "xpPerPixelUpper": 14.117647058823529
+    },
+    {
+      "times": [
+        60,
+        83.5
+      ],
+      "credit": 320,
+      "endpointDelta": 26,
+      "xpPerPixelLower": 10.666666666666666,
+      "xpPerPixelUpper": 14.545454545454545
+    },
+    {
+      "times": [
+        60,
+        96.5
+      ],
+      "credit": 320,
+      "endpointDelta": 26,
+      "xpPerPixelLower": 10.666666666666666,
+      "xpPerPixelUpper": 14.545454545454545
+    },
+    {
+      "times": [
+        70.8,
+        71.5
+      ],
+      "credit": 80,
+      "endpointDelta": 7,
+      "xpPerPixelLower": 7.2727272727272725,
+      "xpPerPixelUpper": 26.666666666666668
+    },
+    {
+      "times": [
+        70.8,
+        73.6
+      ],
+      "credit": 120,
+      "endpointDelta": 10,
+      "xpPerPixelLower": 8.571428571428571,
+      "xpPerPixelUpper": 20.0
+    },
+    {
+      "times": [
+        70.8,
+        82.5
+      ],
+      "credit": 160,
+      "endpointDelta": 14,
+      "xpPerPixelLower": 8.88888888888889,
+      "xpPerPixelUpper": 16.0
+    },
+    {
+      "times": [
+        70.8,
+        83.5
+      ],
+      "credit": 240,
+      "endpointDelta": 19,
+      "xpPerPixelLower": 10.434782608695652,
+      "xpPerPixelUpper": 16.0
+    },
+    {
+      "times": [
+        70.8,
+        96.5
+      ],
+      "credit": 240,
+      "endpointDelta": 19,
+      "xpPerPixelLower": 10.434782608695652,
+      "xpPerPixelUpper": 16.0
+    },
+    {
+      "times": [
+        71.5,
+        73.6
+      ],
+      "credit": 40,
+      "endpointDelta": 3,
+      "xpPerPixelLower": 5.714285714285714,
+      "xpPerPixelUpper": null
+    },
+    {
+      "times": [
+        71.5,
+        82.5
+      ],
+      "credit": 80,
+      "endpointDelta": 7,
+      "xpPerPixelLower": 7.2727272727272725,
+      "xpPerPixelUpper": 26.666666666666668
+    },
+    {
+      "times": [
+        71.5,
+        83.5
+      ],
+      "credit": 160,
+      "endpointDelta": 12,
+      "xpPerPixelLower": 10.0,
+      "xpPerPixelUpper": 20.0
+    },
+    {
+      "times": [
+        71.5,
+        96.5
+      ],
+      "credit": 160,
+      "endpointDelta": 12,
+      "xpPerPixelLower": 10.0,
+      "xpPerPixelUpper": 20.0
+    },
+    {
+      "times": [
+        73.6,
+        82.5
+      ],
+      "credit": 40,
+      "endpointDelta": 4,
+      "xpPerPixelLower": 5.0,
+      "xpPerPixelUpper": null
+    },
+    {
+      "times": [
+        73.6,
+        83.5
+      ],
+      "credit": 120,
+      "endpointDelta": 9,
+      "xpPerPixelLower": 9.23076923076923,
+      "xpPerPixelUpper": 24.0
+    },
+    {
+      "times": [
+        73.6,
+        96.5
+      ],
+      "credit": 120,
+      "endpointDelta": 9,
+      "xpPerPixelLower": 9.23076923076923,
+      "xpPerPixelUpper": 24.0
+    },
+    {
+      "times": [
+        82.5,
+        83.5
+      ],
+      "credit": 80,
+      "endpointDelta": 5,
+      "xpPerPixelLower": 8.88888888888889,
+      "xpPerPixelUpper": 80.0
+    },
+    {
+      "times": [
+        82.5,
+        96.5
+      ],
+      "credit": 80,
+      "endpointDelta": 5,
+      "xpPerPixelLower": 8.88888888888889,
+      "xpPerPixelUpper": 80.0
+    }
+  ],
+  "xpPerVisiblePixelInterval": [
+    10.666666666666666,
+    14.117647058823529
+  ],
+  "feasible": true,
+  "limits": [
+    "Assumes a fixed same-level linear gauge, stable glow offset, and the manual XP ledger.",
+    "This is a ratio of threshold to track width, not an identified threshold.",
+    "No physical gauge width, initial balance, XP formula or runtime value is adopted.",
+    "Upgrade flashes and frames after the level change are excluded."
+  ]
+}

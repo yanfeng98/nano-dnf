@@ -1,0 +1,15 @@
+{
+  "pid": 163280,
+  "started": 1794760843.8656113,
+  "runner": "/tmp/nano148-final-regression-runner.py",
+  "resultPath": "/tmp/nano148-final-regression-result.json",
+  "unitLog": "/tmp/nano148-final-unit.log",
+  "browserLog": "/tmp/nano148-final-browser-full.log",
+  "artifactBackup": "/tmp/nano148-existing-artifacts",
+  "status": "completed",
+  "firstResult": "148-first-regression.json",
+  "resultMustMatchSupervisorPID": true,
+  "unitExitCode": 0,
+  "browserExitCode": 0,
+  "finalEvidence": "148-final-regression.json"
+}

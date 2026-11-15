@@ -1,0 +1,20 @@
+[
+  {
+    "case": "unchanged",
+    "exitCode": 0,
+    "expectedXP": 0,
+    "passed": true
+  },
+  {
+    "case": "two_new_credits",
+    "exitCode": 0,
+    "expectedXP": 80,
+    "passed": true
+  },
+  {
+    "case": "ambiguous_repeated_rows",
+    "exitCode": 1,
+    "expectedXP": null,
+    "passed": true
+  }
+]

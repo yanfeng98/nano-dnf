@@ -1,0 +1,93 @@
+{
+  "video": "00001-\u5e7d\u6697\u5bc6\u6797.mp4",
+  "method": "Manual8-row transcription, not OCR; anchors hardener/coal retained across early transitions. Entry200 credit baseline comes from independently verified4 deaths.",
+  "snapshots": [
+    {
+      "time": 76,
+      "frame": "134-v1-76-second-room.png",
+      "sha256": "6e389de500ef0fe61f52bcb5b04351cd3a87471a28bf8f837144226e4ce5d328",
+      "lines": [
+        "xp:40",
+        "sp:1",
+        "xp:80",
+        "coin:49",
+        "sp:1",
+        "xp:40",
+        "item:hardener",
+        "item:coal"
+      ]
+    },
+    {
+      "time": 82.5,
+      "frame": "134-v1-82.5-second-room.png",
+      "sha256": "01d0bf332f91bdf26b118c59313640d1afc2d038f20ff29c215d3332f08150d5",
+      "lines": [
+        "xp:80",
+        "coin:49",
+        "sp:1",
+        "xp:40",
+        "item:hardener",
+        "item:coal",
+        "sp:1",
+        "xp:40"
+      ]
+    },
+    {
+      "time": 83.5,
+      "frame": "134-v1-83.5-second-room.png",
+      "sha256": "f84d7d0c459c528f9479784f089f06e3b503de4962e0226a79f5362907c7e4a1",
+      "lines": [
+        "xp:40",
+        "item:hardener",
+        "item:coal",
+        "sp:1",
+        "xp:40",
+        "xp:40",
+        "sp:1",
+        "xp:40"
+      ]
+    },
+    {
+      "time": 96.5,
+      "frame": "134-v1-96.5-second-room.png",
+      "sha256": "9707964d90c352824a10d0057123dfc42292f7951b1a7dca720353fb5f3f068b",
+      "lines": [
+        "xp:40",
+        "item:hardener",
+        "item:coal",
+        "sp:1",
+        "xp:40",
+        "xp:40",
+        "sp:1",
+        "xp:40"
+      ]
+    }
+  ],
+  "addedObservations": [
+    {
+      "time": 82.5,
+      "frame": "134-v1-82.5-second-room.png",
+      "sha256": "01d0bf332f91bdf26b118c59313640d1afc2d038f20ff29c215d3332f08150d5",
+      "credit": 240,
+      "level": 3
+    },
+    {
+      "time": 83.5,
+      "frame": "134-v1-83.5-second-room.png",
+      "sha256": "f84d7d0c459c528f9479784f089f06e3b503de4962e0226a79f5362907c7e4a1",
+      "credit": 320,
+      "level": 3
+    },
+    {
+      "time": 96.5,
+      "frame": "134-v1-96.5-second-room.png",
+      "sha256": "9707964d90c352824a10d0057123dfc42292f7951b1a7dca720353fb5f3f068b",
+      "credit": 320,
+      "level": 3
+    }
+  ],
+  "limits": [
+    "Only early events through96.5s; no claim to full second-room count.",
+    "97s upgrade segment needs finer frames because repeated XP/SP rows alone do not uniquely anchor a scroll."
+  ]
+}

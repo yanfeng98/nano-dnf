@@ -1,0 +1,298 @@
+[
+  {
+    "label": "west-wall",
+    "time": 312,
+    "minPixels": 30000,
+    "threshold": 0.97,
+    "nativeMask": {
+      "rows": 200,
+      "columns": 395,
+      "alphaOnly": true,
+      "box": null
+    },
+    "cosine": 0.9836790757733745,
+    "dx": 0,
+    "dy": 0,
+    "pixels": 75770
+  },
+  {
+    "label": "west-middle-wall",
+    "time": 314.5,
+    "minPixels": 10000,
+    "threshold": 0.97,
+    "nativeMask": {
+      "rows": 90,
+      "columns": 300,
+      "alphaOnly": true,
+      "box": null
+    },
+    "cosine": 0.9839215482455551,
+    "dx": 0,
+    "dy": 0,
+    "pixels": 24833
+  },
+  {
+    "label": "central-tree4",
+    "time": 319,
+    "minPixels": 8000,
+    "threshold": 0.97,
+    "nativeMask": {
+      "rows": 120,
+      "columns": 120,
+      "alphaOnly": true,
+      "box": null
+    },
+    "cosine": 0.985322777160042,
+    "dx": 0,
+    "dy": 0,
+    "pixels": 13646
+  },
+  {
+    "label": "east-wall",
+    "time": 330,
+    "minPixels": 20000,
+    "threshold": 0.97,
+    "nativeMask": {
+      "rows": 120,
+      "columns": 395,
+      "alphaOnly": true,
+      "box": null
+    },
+    "cosine": 0.9829105317271383,
+    "dx": 0,
+    "dy": 0,
+    "pixels": 42177
+  },
+  {
+    "label": "east-wall-revisit",
+    "time": 370,
+    "minPixels": 12000,
+    "threshold": 0.97,
+    "nativeMask": {
+      "rows": 70,
+      "columns": 395,
+      "alphaOnly": true,
+      "box": null
+    },
+    "cosine": 0.9830459811972326,
+    "dx": 0,
+    "dy": 0,
+    "pixels": 24496
+  },
+  {
+    "label": "west-floor",
+    "time": 312,
+    "minPixels": 800,
+    "threshold": 0.6,
+    "nativeMask": {
+      "rows": 24,
+      "columns": 36,
+      "alphaOnly": true,
+      "box": null
+    },
+    "cosine": 0.8261644548360153,
+    "dx": 0,
+    "dy": 0,
+    "pixels": 864,
+    "error": 5.454532886723269,
+    "maxError": 15
+  },
+  {
+    "label": "rising-floor",
+    "time": 314.5,
+    "minPixels": 800,
+    "threshold": 0.6,
+    "nativeMask": {
+      "rows": 24,
+      "columns": 36,
+      "alphaOnly": true,
+      "box": null
+    },
+    "cosine": 0.37324473076502623,
+    "dx": 0,
+    "dy": 1,
+    "pixels": 864,
+    "error": 23.04835898392447,
+    "maxError": 15
+  },
+  {
+    "label": "descending-floor",
+    "time": 319,
+    "minPixels": 800,
+    "threshold": 0.6,
+    "nativeMask": {
+      "rows": 24,
+      "columns": 36,
+      "alphaOnly": true,
+      "box": null
+    },
+    "cosine": 0.5832403738847828,
+    "dx": 0,
+    "dy": 0,
+    "pixels": 864,
+    "error": 17.054571542370308,
+    "maxError": 15
+  },
+  {
+    "label": "east-floor",
+    "time": 330,
+    "minPixels": 800,
+    "threshold": 0.6,
+    "nativeMask": {
+      "rows": 24,
+      "columns": 36,
+      "alphaOnly": true,
+      "box": null
+    },
+    "cosine": 0.7899121913106353,
+    "dx": 0,
+    "dy": 0,
+    "pixels": 864,
+    "error": 9.508747597039136,
+    "maxError": 15
+  },
+  {
+    "label": "east-revisit-floor",
+    "time": 370,
+    "minPixels": 800,
+    "threshold": 0.6,
+    "nativeMask": {
+      "rows": 24,
+      "columns": 36,
+      "alphaOnly": true,
+      "box": null
+    },
+    "cosine": 0.835720220732646,
+    "dx": 0,
+    "dy": 0,
+    "pixels": 864,
+    "error": 8.150044497341225,
+    "maxError": 15
+  },
+  {
+    "label": "mid-25-312",
+    "time": 312,
+    "minPixels": 300,
+    "threshold": 0.7,
+    "nativeMask": {
+      "rows": 26,
+      "columns": 21,
+      "alphaOnly": true,
+      "box": null
+    },
+    "cosine": 0.9129564703110892,
+    "dx": 0,
+    "dy": -1,
+    "pixels": 544,
+    "error": 4.703200829139203,
+    "maxError": 12
+  },
+  {
+    "label": "mid-25-314.5",
+    "time": 314.5,
+    "minPixels": 300,
+    "threshold": 0.7,
+    "nativeMask": {
+      "rows": 26,
+      "columns": 21,
+      "alphaOnly": true,
+      "box": null
+    },
+    "cosine": 0.8491552958863654,
+    "dx": 0,
+    "dy": -1,
+    "pixels": 546,
+    "error": 6.742245579766096,
+    "maxError": 12
+  },
+  {
+    "label": "mid-25-319",
+    "time": 319,
+    "minPixels": 300,
+    "threshold": 0.7,
+    "nativeMask": {
+      "rows": 26,
+      "columns": 21,
+      "alphaOnly": true,
+      "box": null
+    },
+    "cosine": 0.8915718948138316,
+    "dx": -1,
+    "dy": -1,
+    "pixels": 546,
+    "error": 6.345948492626006,
+    "maxError": 12
+  },
+  {
+    "label": "mid-25-330",
+    "time": 330,
+    "minPixels": 300,
+    "threshold": 0.7,
+    "nativeMask": {
+      "rows": 26,
+      "columns": 21,
+      "alphaOnly": true,
+      "box": null
+    },
+    "cosine": 0.8713115819485073,
+    "dx": 0,
+    "dy": -1,
+    "pixels": 397,
+    "error": 6.211159751415082,
+    "maxError": 12
+  },
+  {
+    "label": "mid-25-370",
+    "time": 370,
+    "minPixels": 300,
+    "threshold": 0.7,
+    "nativeMask": {
+      "rows": 26,
+      "columns": 21,
+      "alphaOnly": true,
+      "box": null
+    },
+    "cosine": 0.9439824210390799,
+    "dx": -1,
+    "dy": -1,
+    "pixels": 546,
+    "error": 6.140897549269383,
+    "maxError": 12
+  },
+  {
+    "label": "far-25-319",
+    "time": 319,
+    "minPixels": 1185,
+    "threshold": 0.65,
+    "nativeMask": {
+      "rows": 120,
+      "columns": 720,
+      "alphaOnly": true,
+      "box": null
+    },
+    "cosine": 0.8812695651722693,
+    "dx": -1,
+    "dy": 0,
+    "pixels": 1248,
+    "error": 5.940701453589783,
+    "maxError": 20
+  },
+  {
+    "label": "far-25-370",
+    "time": 370,
+    "minPixels": 330,
+    "threshold": 0.65,
+    "nativeMask": {
+      "rows": 120,
+      "columns": 720,
+      "alphaOnly": true,
+      "box": null
+    },
+    "cosine": 0.8759267412097512,
+    "dx": -2,
+    "dy": 0,
+    "pixels": 348,
+    "error": 5.546995320722977,
+    "maxError": 20
+  }
+]

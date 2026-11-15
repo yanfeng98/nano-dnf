@@ -1,0 +1,12 @@
+{
+  "pid": 150359,
+  "started": 1794759800.5333815,
+  "runner": "/tmp/nano147-final-regression-runner.py",
+  "resultPath": "/tmp/nano147-final-regression-result.json",
+  "unitLog": "/tmp/nano147-final-unit.log",
+  "browserLog": "/tmp/nano147-final-browser-full.log",
+  "artifactBackup": "/tmp/nano147-existing-artifacts",
+  "status": "cancelled by agent: corrected manual death ledger before release",
+  "cancelledAt": 1794759999.6580224,
+  "reason": "Duplicate unchanged log states were counted as new60 events; restore4 cats, not5."
+}

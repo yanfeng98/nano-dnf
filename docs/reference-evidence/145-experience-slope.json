@@ -280,5 +280,6 @@
     "This is a ratio of threshold to track width, not an identified threshold.",
     "No physical gauge width, initial balance, XP formula or runtime value is adopted.",
     "Upgrade flashes and frames after the level change are excluded."
-  ]
+  ],
+  "status": "Superseded by148-experience-slope.json:134 manual ledger undercounted the83.5s double40 event."
 }

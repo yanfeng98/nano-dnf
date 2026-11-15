@@ -1,0 +1,58 @@
+{
+  "source": "148-v1-early-ledger-transcription.json",
+  "sourceSha256": "6e643251f7fc48d17da38eb230de704047795a7f87a1051df2ed6d7a889854e3",
+  "transitions": [
+    {
+      "times": [
+        76,
+        82.5
+      ],
+      "retainedRows": 6,
+      "newLines": [
+        "sp:1",
+        "xp:40"
+      ],
+      "newXPCredits": [
+        40
+      ]
+    },
+    {
+      "times": [
+        82.5,
+        83.5
+      ],
+      "retainedRows": 5,
+      "newLines": [
+        "xp:40",
+        "sp:1",
+        "xp:40"
+      ],
+      "newXPCredits": [
+        40,
+        40
+      ]
+    },
+    {
+      "times": [
+        83.5,
+        96.5
+      ],
+      "retainedRows": 8,
+      "newLines": [],
+      "newXPCredits": []
+    }
+  ],
+  "credits": [
+    40,
+    40,
+    40
+  ],
+  "creditedDeaths": 3,
+  "totalXP": 120,
+  "limits": [
+    "Input is manual transcription, not OCR; source frames must be reviewed.",
+    "Identical snapshots add no events; XP rows already present in the baseline are excluded.",
+    "Uniquely retained non-XP anchors rule out counting repeated unchanged XP lines as new.",
+    "This does not infer actor identity, position, AI, difficulty or a global XP formula."
+  ]
+}
