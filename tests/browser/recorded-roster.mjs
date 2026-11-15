@@ -8,6 +8,11 @@ import { fileURLToPath } from 'node:url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const room = process.env.ROSTER_ROOM || '42';
 const probes = {
+  '23': {col:2,row:1,targetType:'cat',targetLevel:6,targetWidth:162,xp:660,expected:[
+    'goblinRed:6:60','goblinRed:6:60','goblinRed:6:60',
+    'goblinBlue:6:60','goblinBlue:6:60','goblinBlue:6:60',
+    'cat:6:60','cat:6:60','cat:6:60','cat:6:60','cat:6:60'
+  ]},
   '33': {col:2,row:2,targetType:'throwerElite',targetLevel:6,targetWidth:162,xp:480,expected:[
     'goblinBlue:6:60','goblinBlue:6:60','goblinBlue:6:60',
     'goblinRed:6:60','goblinRed:6:60','goblinRed:6:60',
@@ -88,7 +93,7 @@ try {
     `actual native ${probe.targetType} Lv${probe.targetLevel} fill draws at${probe.targetWidth}px`);
   fs.writeFileSync(path.join(out,room==='42'?'cat7-target.png':'captain-target.png'),Buffer.from(result.targetPng.split(',')[1],'base64'));
   delete result.targetPng;
-  assert.equal(result.pending,0);assert.equal(result.kills,8);assert.equal(result.xp,probe.xp);assert.equal(result.cleared,true);
+  assert.equal(result.pending,0);assert.equal(result.kills,probe.expected.length);assert.equal(result.xp,probe.xp);assert.equal(result.cleared,true);
   await page.screenshot({path:path.join(out,'room42-clear.png')});
   assert.deepEqual(errors,[]);
   fs.writeFileSync(path.join(out,'result.json'),JSON.stringify({url,...result,errors},null,2)+'\n');

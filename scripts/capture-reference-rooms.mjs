@@ -44,7 +44,7 @@ const profiles={
    ['east-floor',235.5,'forest',672+((348+1249.91+46.125)/1.125)%224,380+(396-233)/1.125,36/1.125,24/1.125,348,396,36,24,24,800,.6,null,null,true,14],
    ['revisit-floor',271.5,'forest',672+((192+166.85+46.125)/1.125)%224,380+(316-233)/1.125,36/1.125,24/1.125,192,316,36,24,24,800,.6,null,null,true,14]
   ]},
- '23-closeback':{cameraTolerance:1,evidence:'51-room23',referenceNames:{153.5:'63-room23-153.5-reference.png'},col:2,row:1,out:'/tmp/nano-room63/render',times:[148,150,153.5,180],actorScreenX:80,entryDoor:'S',exit:'N',next:'老树回廊',extraSouth:'藤蔓窄道',
+ '23-closeback':{sceneryOnly:true,cameraTolerance:1,evidence:'51-room23',referenceNames:{153.5:'63-room23-153.5-reference.png'},col:2,row:1,out:'/tmp/nano-room63/render',times:[148,150,153.5,180],actorScreenX:80,entryDoor:'S',exit:'N',next:'老树回廊',extraSouth:'藤蔓窄道',
   scope:'native room 23 closeback at four measured cameras; physical props and other scenery layers remain open',
   cases:[
    ['entry-tree',148,'room23Closeback',(160+600.81)/1.125,138/1.125,60/1.125,40/1.125,160,140,60,40,40,1000,.97,null,null,true],

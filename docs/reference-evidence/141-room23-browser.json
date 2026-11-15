@@ -1,0 +1,108 @@
+{
+  "url": "http://127.0.0.1:34869/?seed=1",
+  "portraitDraws": [
+    [
+      495,
+      0,
+      626,
+      32,
+      126,
+      45.5,
+      704.25,
+      36
+    ],
+    [
+      1718,
+      0,
+      3,
+      17,
+      320.625,
+      62.375,
+      3.375,
+      19.125
+    ],
+    [
+      423,
+      0,
+      24,
+      24,
+      128.25,
+      47.75,
+      27,
+      27
+    ],
+    [
+      1121,
+      0,
+      597,
+      9,
+      158.625,
+      64.625,
+      162,
+      10.125
+    ]
+  ],
+  "stage": "mirkwooddeep",
+  "roster": [
+    {
+      "type": "goblinRed",
+      "level": 6,
+      "xp": 60
+    },
+    {
+      "type": "cat",
+      "level": 6,
+      "xp": 60
+    },
+    {
+      "type": "goblinBlue",
+      "level": 6,
+      "xp": 60
+    },
+    {
+      "type": "cat",
+      "level": 6,
+      "xp": 60
+    },
+    {
+      "type": "goblinBlue",
+      "level": 6,
+      "xp": 60
+    },
+    {
+      "type": "cat",
+      "level": 6,
+      "xp": 60
+    },
+    {
+      "type": "goblinRed",
+      "level": 6,
+      "xp": 60
+    },
+    {
+      "type": "cat",
+      "level": 6,
+      "xp": 60
+    },
+    {
+      "type": "goblinRed",
+      "level": 6,
+      "xp": 60
+    },
+    {
+      "type": "cat",
+      "level": 6,
+      "xp": 60
+    },
+    {
+      "type": "goblinBlue",
+      "level": 6,
+      "xp": 60
+    }
+  ],
+  "pending": 0,
+  "xp": 660,
+  "kills": 11,
+  "cleared": true,
+  "errors": []
+}

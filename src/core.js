@@ -3020,19 +3020,21 @@
           width: 1245.25,
           band: { backY: 256 },
           enemies: [
-            { type: "goblinRed", x: 305, level: 6 },
-            { type: "goblinRed", x: 549, level: 6 },
-            { type: "cat", x: 366, wave: 2, level: 6 },
-            { type: "deepElite", x: 610, wave: 2, level: 6 },
-            { type: "goblinRed", x: 793, wave: 2, level: 6 },
-            { type: "goblinBlue", x: 977, wave: 2, level: 6 },
-            { type: "goblinBlue", x: 366, wave: 3, level: 6 },
-            { type: "goblinBlue", x: 610, wave: 3, level: 6 },
-            { type: "goblinBlue", x: 854, wave: 3, level: 6 },
-            { type: "goblinRed", x: 1038, wave: 3, level: 6 },
-            { type: "cat", x: 732, wave: 4, level: 6 },
+            // V2 148..189.5s: eleven new60 credits and both native n432 rosters.
+            // Native X minus the46px crop; depth/jitter/activation remain provisional.
+            { type: "goblinRed", x: nativeGroundX(1173 - 46), level: 6, xp: 60 },
+            { type: "cat", x: nativeGroundX(1433 - 46), level: 6, xp: 60 },
+            { type: "goblinBlue", x: nativeGroundX(517 - 46), level: 6, xp: 60 },
+            { type: "cat", x: nativeGroundX(312 - 46), level: 6, xp: 60 },
+            { type: "goblinBlue", x: nativeGroundX(565 - 46), level: 6, xp: 60 },
+            { type: "cat", x: nativeGroundX(454 - 46), level: 6, xp: 60 },
+            { type: "goblinRed", x: nativeGroundX(1219 - 46), level: 6, xp: 60 },
+            { type: "cat", x: nativeGroundX(1503 - 46), level: 6, xp: 60 },
+            { type: "goblinRed", x: nativeGroundX(1279 - 46), level: 6, xp: 60 },
+            { type: "cat", x: nativeGroundX(352 - 46), level: 6, xp: 60 },
+            { type: "goblinBlue", x: nativeGroundX(621 - 46), level: 6, xp: 60 },
           ],
-          cap: 4,
+          cap: 11,
           /* V2 148–189.5s: 84-frame two-axis graph + independent gate strip.
            * Observed camera span 1244px -> width lower bound 1245 world px;
            * use 1245.25, matching the measured eastern camera. Entry camera is ~601 screen px from observed minimum.
