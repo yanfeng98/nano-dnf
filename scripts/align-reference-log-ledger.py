@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Align manually transcribed scrolling logs; never infer OCR from image pixels.
 
-Repeated XP rows alone cannot identify a scroll. Require a non-XP token that
-occurs once in both snapshots inside the retained overlap. This makes each
-count independently reviewable against the cited source frames.
+Repeated XP rows alone cannot identify a scroll. Require a retained context
+containing a non-XP row and occurring once in each snapshot. A compound SP/XP
+pattern can be unique even when no individual SP row is unique.
 """
 import argparse
 import hashlib
@@ -27,8 +27,12 @@ for before, after in zip(rows, rows[1:]):
             overlap = old[-size:]
             if overlap != new[:size]:
                 continue
-            anchored = any(not token.startswith('xp:') and old.count(token) == new.count(token) == 1
-                           for token in overlap)
+            # Count the whole ordered block, not only individual row labels.
+            # Pure XP runs remain insufficient even when their length is unique.
+            def occurrences(lines):
+                return sum(lines[i:i+size] == overlap for i in range(len(lines)-size+1))
+            anchored = (any(not token.startswith('xp:') for token in overlap)
+                        and occurrences(old) == occurrences(new) == 1)
             if anchored:
                 candidates.append(size)
         if not candidates:
@@ -43,7 +47,7 @@ result = dict(source=a.ledger.name, sourceSha256=hashlib.sha256(a.ledger.read_by
               transitions=transitions, credits=credits, creditedDeaths=len(credits), totalXP=sum(credits),
               limits=['Input is manual transcription, not OCR; source frames must be reviewed.',
                       'Identical snapshots add no events; XP rows already present in the baseline are excluded.',
-                      'Uniquely retained non-XP anchors rule out counting repeated unchanged XP lines as new.',
+                      'A unique retained context including non-XP rows identifies the maximal retained block; repeated XP runs alone are rejected.',
                       'This does not infer actor identity, position, AI, difficulty or a global XP formula.'])
 a.out.parent.mkdir(parents=True, exist_ok=True)
 a.out.write_text(json.dumps(result, indent=2) + '\n')

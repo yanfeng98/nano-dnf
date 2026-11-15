@@ -1,0 +1,58 @@
+{
+  "url": "http://127.0.0.1:38779/?seed=1",
+  "stage": "mirkwood",
+  "initialCount": 6,
+  "initialPending": 0,
+  "deaths": [
+    {
+      "type": "caster",
+      "level": 4,
+      "configuredXP": 40,
+      "paidXP": 40,
+      "dead": true
+    },
+    {
+      "type": "grunt",
+      "level": 4,
+      "configuredXP": 40,
+      "paidXP": 40,
+      "dead": true
+    },
+    {
+      "type": "grunt",
+      "level": 4,
+      "configuredXP": 40,
+      "paidXP": 40,
+      "dead": true
+    },
+    {
+      "type": "goblinRed",
+      "level": 4,
+      "configuredXP": 40,
+      "paidXP": 40,
+      "dead": true
+    },
+    {
+      "type": "grunt",
+      "level": 4,
+      "configuredXP": 40,
+      "paidXP": 40,
+      "dead": true
+    },
+    {
+      "type": "grunt",
+      "level": 4,
+      "configuredXP": 40,
+      "paidXP": 40,
+      "dead": true
+    }
+  ],
+  "totalPaidXP": 240,
+  "cleared": true,
+  "victory": false,
+  "pending": 0,
+  "errors": [],
+  "limits": [
+    "Six credited deaths restored; existing positions, activation timing, AI and progression are not validated by this probe."
+  ]
+}

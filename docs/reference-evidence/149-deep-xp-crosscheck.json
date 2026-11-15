@@ -1,0 +1,664 @@
+{
+  "manifest": "149-deep-xp-crosscheck-inputs.json",
+  "manifestSha256": "ce48aeda115039a4745204bd7f7253d5fa3a10256fd2bb584d81352381d7307e",
+  "samples": [
+    {
+      "time": 15.5,
+      "cumulativeXP": 0,
+      "frame": "/home/luyanfeng/luyanfeng/nano-dnf/docs/reference-evidence/121-v2-15.5-entry-xp.png",
+      "sourceAudit": "121",
+      "sha256": "bbbcd2d98aecdee172c5710f603799d4c6fd125aa4e3171483840e4ccdbf868d",
+      "greenStart": 132,
+      "greenEndExclusive": 156
+    },
+    {
+      "time": 25.5,
+      "cumulativeXP": 380,
+      "frame": "/tmp/nano136-deep-entry/136-v2-25.5-entry.png",
+      "sourceAudit": "136",
+      "sha256": "804fceeb28a600f3e17385efc9a9a7d36ce344c3ed93a9dddf086b09a44e476d",
+      "greenStart": 132,
+      "greenEndExclusive": 163
+    },
+    {
+      "time": 73.5,
+      "cumulativeXP": 870,
+      "frame": "/tmp/nano138-room42-evidence/138-v2-73.5-room42.png",
+      "sourceAudit": "138",
+      "sha256": "1fc4f76a71efdef064c7bfa84f42b082d9bc860dfba7318ecf00da58948d0864",
+      "greenStart": 133,
+      "greenEndExclusive": 174
+    },
+    {
+      "time": 105.5,
+      "cumulativeXP": 1350,
+      "frame": "/tmp/nano139-room43/139-v2-105.5-room43.png",
+      "sourceAudit": "139",
+      "sha256": "c72ab40cc8426a95abf958ced5bb49c44dfc8974664508172bf1c0c6d78c29c0",
+      "greenStart": 132,
+      "greenEndExclusive": 184
+    },
+    {
+      "time": 147.5,
+      "cumulativeXP": 1830,
+      "frame": "/tmp/nano140-room33/140-v2-147.5-room33.png",
+      "sourceAudit": "140",
+      "sha256": "b47f6b60553053de5e17a3eecb0bbe56c66f0e48b96d7084515c8be4a1e87114",
+      "greenStart": 132,
+      "greenEndExclusive": 194
+    },
+    {
+      "time": 189.5,
+      "cumulativeXP": 2490,
+      "frame": "/tmp/nano141-room23/141-v2-189.5-room23.png",
+      "sourceAudit": "141",
+      "sha256": "1b7bf0336cb91fae3e9ac6662291eb73d1e05569da74e275e5ae4aa2375dcbc0",
+      "greenStart": 132,
+      "greenEndExclusive": 208
+    },
+    {
+      "time": 235.5,
+      "cumulativeXP": 3030,
+      "frame": "/tmp/nano142-room13/142-v2-235.5-room13.png",
+      "sourceAudit": "142",
+      "sha256": "2045acd9b66aab05619539742addf8eb51731e6e6993ea4b1869964e58f84517",
+      "greenStart": 133,
+      "greenEndExclusive": 220
+    },
+    {
+      "time": 265.5,
+      "cumulativeXP": 3470,
+      "frame": "/tmp/nano137-room14/137-v2-265.5-room14.png",
+      "sourceAudit": "137",
+      "sha256": "a194a658b897fc937d68b28e700a7d464632c79e0934d89a16ff1f230040ddb2",
+      "greenStart": 132,
+      "greenEndExclusive": 229
+    },
+    {
+      "time": 314.5,
+      "cumulativeXP": 4070,
+      "frame": "/tmp/nano144-room25/144-v2-314.5-room25.png",
+      "sourceAudit": "143",
+      "sha256": "d62dda0cfbac22de2f79d47155a5d0ced8103b30e279fc1168ddddd04cc7cd04",
+      "greenStart": 133,
+      "greenEndExclusive": 242
+    },
+    {
+      "time": 386.5,
+      "cumulativeXP": 4880,
+      "frame": "/tmp/nano144-room25/144-v2-386.5-room25.png",
+      "sourceAudit": "148",
+      "sha256": "5da7e3f7e55ce4ac48192d5e773e5f48bb0320a466e8b556754cc60f7bece899",
+      "greenStart": 133,
+      "greenEndExclusive": 259
+    }
+  ],
+  "endpointErrorPixels": 2,
+  "pairConstraints": [
+    {
+      "times": [
+        15.5,
+        25.5
+      ],
+      "xpDelta": 380,
+      "endpointDelta": 7,
+      "interval": [
+        34.54545454545455,
+        126.66666666666667
+      ]
+    },
+    {
+      "times": [
+        15.5,
+        73.5
+      ],
+      "xpDelta": 870,
+      "endpointDelta": 18,
+      "interval": [
+        39.54545454545455,
+        62.142857142857146
+      ]
+    },
+    {
+      "times": [
+        15.5,
+        105.5
+      ],
+      "xpDelta": 1350,
+      "endpointDelta": 28,
+      "interval": [
+        42.1875,
+        56.25
+      ]
+    },
+    {
+      "times": [
+        15.5,
+        147.5
+      ],
+      "xpDelta": 1830,
+      "endpointDelta": 38,
+      "interval": [
+        43.57142857142857,
+        53.8235294117647
+      ]
+    },
+    {
+      "times": [
+        15.5,
+        189.5
+      ],
+      "xpDelta": 2490,
+      "endpointDelta": 52,
+      "interval": [
+        44.464285714285715,
+        51.875
+      ]
+    },
+    {
+      "times": [
+        15.5,
+        235.5
+      ],
+      "xpDelta": 3030,
+      "endpointDelta": 64,
+      "interval": [
+        44.55882352941177,
+        50.5
+      ]
+    },
+    {
+      "times": [
+        15.5,
+        265.5
+      ],
+      "xpDelta": 3470,
+      "endpointDelta": 73,
+      "interval": [
+        45.064935064935064,
+        50.289855072463766
+      ]
+    },
+    {
+      "times": [
+        15.5,
+        314.5
+      ],
+      "xpDelta": 4070,
+      "endpointDelta": 86,
+      "interval": [
+        45.22222222222222,
+        49.63414634146341
+      ]
+    },
+    {
+      "times": [
+        15.5,
+        386.5
+      ],
+      "xpDelta": 4880,
+      "endpointDelta": 103,
+      "interval": [
+        45.60747663551402,
+        49.292929292929294
+      ]
+    },
+    {
+      "times": [
+        25.5,
+        73.5
+      ],
+      "xpDelta": 490,
+      "endpointDelta": 11,
+      "interval": [
+        32.666666666666664,
+        70.0
+      ]
+    },
+    {
+      "times": [
+        25.5,
+        105.5
+      ],
+      "xpDelta": 970,
+      "endpointDelta": 21,
+      "interval": [
+        38.8,
+        57.05882352941177
+      ]
+    },
+    {
+      "times": [
+        25.5,
+        147.5
+      ],
+      "xpDelta": 1450,
+      "endpointDelta": 31,
+      "interval": [
+        41.42857142857143,
+        53.7037037037037
+      ]
+    },
+    {
+      "times": [
+        25.5,
+        189.5
+      ],
+      "xpDelta": 2110,
+      "endpointDelta": 45,
+      "interval": [
+        43.06122448979592,
+        51.46341463414634
+      ]
+    },
+    {
+      "times": [
+        25.5,
+        235.5
+      ],
+      "xpDelta": 2650,
+      "endpointDelta": 57,
+      "interval": [
+        43.442622950819676,
+        50.0
+      ]
+    },
+    {
+      "times": [
+        25.5,
+        265.5
+      ],
+      "xpDelta": 3090,
+      "endpointDelta": 66,
+      "interval": [
+        44.142857142857146,
+        49.83870967741935
+      ]
+    },
+    {
+      "times": [
+        25.5,
+        314.5
+      ],
+      "xpDelta": 3690,
+      "endpointDelta": 79,
+      "interval": [
+        44.45783132530121,
+        49.2
+      ]
+    },
+    {
+      "times": [
+        25.5,
+        386.5
+      ],
+      "xpDelta": 4500,
+      "endpointDelta": 96,
+      "interval": [
+        45.0,
+        48.91304347826087
+      ]
+    },
+    {
+      "times": [
+        73.5,
+        105.5
+      ],
+      "xpDelta": 480,
+      "endpointDelta": 10,
+      "interval": [
+        34.285714285714285,
+        80.0
+      ]
+    },
+    {
+      "times": [
+        73.5,
+        147.5
+      ],
+      "xpDelta": 960,
+      "endpointDelta": 20,
+      "interval": [
+        40.0,
+        60.0
+      ]
+    },
+    {
+      "times": [
+        73.5,
+        189.5
+      ],
+      "xpDelta": 1620,
+      "endpointDelta": 34,
+      "interval": [
+        42.63157894736842,
+        54.0
+      ]
+    },
+    {
+      "times": [
+        73.5,
+        235.5
+      ],
+      "xpDelta": 2160,
+      "endpointDelta": 46,
+      "interval": [
+        43.2,
+        51.42857142857143
+      ]
+    },
+    {
+      "times": [
+        73.5,
+        265.5
+      ],
+      "xpDelta": 2600,
+      "endpointDelta": 55,
+      "interval": [
+        44.067796610169495,
+        50.98039215686274
+      ]
+    },
+    {
+      "times": [
+        73.5,
+        314.5
+      ],
+      "xpDelta": 3200,
+      "endpointDelta": 68,
+      "interval": [
+        44.44444444444444,
+        50.0
+      ]
+    },
+    {
+      "times": [
+        73.5,
+        386.5
+      ],
+      "xpDelta": 4010,
+      "endpointDelta": 85,
+      "interval": [
+        45.056179775280896,
+        49.50617283950617
+      ]
+    },
+    {
+      "times": [
+        105.5,
+        147.5
+      ],
+      "xpDelta": 480,
+      "endpointDelta": 10,
+      "interval": [
+        34.285714285714285,
+        80.0
+      ]
+    },
+    {
+      "times": [
+        105.5,
+        189.5
+      ],
+      "xpDelta": 1140,
+      "endpointDelta": 24,
+      "interval": [
+        40.714285714285715,
+        57.0
+      ]
+    },
+    {
+      "times": [
+        105.5,
+        235.5
+      ],
+      "xpDelta": 1680,
+      "endpointDelta": 36,
+      "interval": [
+        42.0,
+        52.5
+      ]
+    },
+    {
+      "times": [
+        105.5,
+        265.5
+      ],
+      "xpDelta": 2120,
+      "endpointDelta": 45,
+      "interval": [
+        43.265306122448976,
+        51.707317073170735
+      ]
+    },
+    {
+      "times": [
+        105.5,
+        314.5
+      ],
+      "xpDelta": 2720,
+      "endpointDelta": 58,
+      "interval": [
+        43.87096774193548,
+        50.370370370370374
+      ]
+    },
+    {
+      "times": [
+        105.5,
+        386.5
+      ],
+      "xpDelta": 3530,
+      "endpointDelta": 75,
+      "interval": [
+        44.68354430379747,
+        49.71830985915493
+      ]
+    },
+    {
+      "times": [
+        147.5,
+        189.5
+      ],
+      "xpDelta": 660,
+      "endpointDelta": 14,
+      "interval": [
+        36.666666666666664,
+        66.0
+      ]
+    },
+    {
+      "times": [
+        147.5,
+        235.5
+      ],
+      "xpDelta": 1200,
+      "endpointDelta": 26,
+      "interval": [
+        40.0,
+        54.54545454545455
+      ]
+    },
+    {
+      "times": [
+        147.5,
+        265.5
+      ],
+      "xpDelta": 1640,
+      "endpointDelta": 35,
+      "interval": [
+        42.05128205128205,
+        52.903225806451616
+      ]
+    },
+    {
+      "times": [
+        147.5,
+        314.5
+      ],
+      "xpDelta": 2240,
+      "endpointDelta": 48,
+      "interval": [
+        43.07692307692308,
+        50.90909090909091
+      ]
+    },
+    {
+      "times": [
+        147.5,
+        386.5
+      ],
+      "xpDelta": 3050,
+      "endpointDelta": 65,
+      "interval": [
+        44.20289855072464,
+        50.0
+      ]
+    },
+    {
+      "times": [
+        189.5,
+        235.5
+      ],
+      "xpDelta": 540,
+      "endpointDelta": 12,
+      "interval": [
+        33.75,
+        67.5
+      ]
+    },
+    {
+      "times": [
+        189.5,
+        265.5
+      ],
+      "xpDelta": 980,
+      "endpointDelta": 21,
+      "interval": [
+        39.2,
+        57.64705882352941
+      ]
+    },
+    {
+      "times": [
+        189.5,
+        314.5
+      ],
+      "xpDelta": 1580,
+      "endpointDelta": 34,
+      "interval": [
+        41.578947368421055,
+        52.666666666666664
+      ]
+    },
+    {
+      "times": [
+        189.5,
+        386.5
+      ],
+      "xpDelta": 2390,
+      "endpointDelta": 51,
+      "interval": [
+        43.45454545454545,
+        50.851063829787236
+      ]
+    },
+    {
+      "times": [
+        235.5,
+        265.5
+      ],
+      "xpDelta": 440,
+      "endpointDelta": 9,
+      "interval": [
+        33.84615384615385,
+        88.0
+      ]
+    },
+    {
+      "times": [
+        235.5,
+        314.5
+      ],
+      "xpDelta": 1040,
+      "endpointDelta": 22,
+      "interval": [
+        40.0,
+        57.77777777777778
+      ]
+    },
+    {
+      "times": [
+        235.5,
+        386.5
+      ],
+      "xpDelta": 1850,
+      "endpointDelta": 39,
+      "interval": [
+        43.02325581395349,
+        52.857142857142854
+      ]
+    },
+    {
+      "times": [
+        265.5,
+        314.5
+      ],
+      "xpDelta": 600,
+      "endpointDelta": 13,
+      "interval": [
+        35.294117647058826,
+        66.66666666666667
+      ]
+    },
+    {
+      "times": [
+        265.5,
+        386.5
+      ],
+      "xpDelta": 1410,
+      "endpointDelta": 30,
+      "interval": [
+        41.470588235294116,
+        54.23076923076923
+      ]
+    },
+    {
+      "times": [
+        314.5,
+        386.5
+      ],
+      "xpDelta": 810,
+      "endpointDelta": 17,
+      "interval": [
+        38.57142857142857,
+        62.30769230769231
+      ]
+    }
+  ],
+  "xpPerVisiblePixelInterval": [
+    45.60747663551402,
+    48.91304347826087
+  ],
+  "feasible": true,
+  "leastSquaresXPPerPixel": 47.110681054880935,
+  "leastSquaresEndpointIntercept": 155.41607597449,
+  "residualPixels": [
+    0.5839240255099867,
+    -0.4821873422565659,
+    0.11677431509707503,
+    -0.07199793892385742,
+    -0.26077019294478987,
+    -0.27033204222354357,
+    0.2672991720029074,
+    -0.07240872751629013,
+    0.19162595495757273,
+    -0.00192722370275078
+  ],
+  "limits": [
+    "Manual cumulative credits come from prior room audits, not from the runtime.",
+    "Assumes no level change, no unlisted XP event and a fixed same-level linear fill/glow relationship.",
+    "Small residuals support ledger consistency; they do not independently prove each death count or timing.",
+    "No physical track width, initial XP integer, threshold, scaling formula or runtime value is adopted."
+  ]
+}

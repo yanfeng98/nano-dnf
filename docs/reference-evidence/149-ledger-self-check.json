@@ -1,0 +1,26 @@
+[
+  {
+    "case": "unchanged",
+    "exitCode": 0,
+    "expectedXP": 0,
+    "passed": true
+  },
+  {
+    "case": "two_new",
+    "exitCode": 0,
+    "expectedXP": 80,
+    "passed": true
+  },
+  {
+    "case": "ambiguous_xp_only",
+    "exitCode": 1,
+    "expectedXP": null,
+    "passed": true
+  },
+  {
+    "case": "compound_sp_context",
+    "exitCode": 0,
+    "expectedXP": 80,
+    "passed": true
+  }
+]

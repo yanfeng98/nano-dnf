@@ -1,0 +1,67 @@
+{
+  "video": "00002-\u5e7d\u6697\u5bc6\u6797\u6df1\u5904.mp4",
+  "level": 6,
+  "method": "Manual room XP totals from cited audits, compared with stable post-room frames. Source frames can be reproduced with the respective extraction scripts.",
+  "samples": [
+    {
+      "time": 15.5,
+      "cumulativeXP": 0,
+      "frame": "/home/luyanfeng/luyanfeng/nano-dnf/docs/reference-evidence/121-v2-15.5-entry-xp.png",
+      "sourceAudit": "121"
+    },
+    {
+      "time": 25.5,
+      "cumulativeXP": 380,
+      "frame": "/tmp/nano136-deep-entry/136-v2-25.5-entry.png",
+      "sourceAudit": "136"
+    },
+    {
+      "time": 73.5,
+      "cumulativeXP": 870,
+      "frame": "/tmp/nano138-room42-evidence/138-v2-73.5-room42.png",
+      "sourceAudit": "138"
+    },
+    {
+      "time": 105.5,
+      "cumulativeXP": 1350,
+      "frame": "/tmp/nano139-room43/139-v2-105.5-room43.png",
+      "sourceAudit": "139"
+    },
+    {
+      "time": 147.5,
+      "cumulativeXP": 1830,
+      "frame": "/tmp/nano140-room33/140-v2-147.5-room33.png",
+      "sourceAudit": "140"
+    },
+    {
+      "time": 189.5,
+      "cumulativeXP": 2490,
+      "frame": "/tmp/nano141-room23/141-v2-189.5-room23.png",
+      "sourceAudit": "141"
+    },
+    {
+      "time": 235.5,
+      "cumulativeXP": 3030,
+      "frame": "/tmp/nano142-room13/142-v2-235.5-room13.png",
+      "sourceAudit": "142"
+    },
+    {
+      "time": 265.5,
+      "cumulativeXP": 3470,
+      "frame": "/tmp/nano137-room14/137-v2-265.5-room14.png",
+      "sourceAudit": "137"
+    },
+    {
+      "time": 314.5,
+      "cumulativeXP": 4070,
+      "frame": "/tmp/nano144-room25/144-v2-314.5-room25.png",
+      "sourceAudit": "143"
+    },
+    {
+      "time": 386.5,
+      "cumulativeXP": 4880,
+      "frame": "/tmp/nano144-room25/144-v2-386.5-room25.png",
+      "sourceAudit": "148"
+    }
+  ]
+}

@@ -1,0 +1,110 @@
+[
+  {
+    "seed": 1,
+    "room": "苔石夹道",
+    "initial": [
+      {
+        "type": "grunt",
+        "level": 4,
+        "xp": 10
+      },
+      {
+        "type": "caster",
+        "level": 4,
+        "xp": 14
+      },
+      {
+        "type": "grunt",
+        "level": 4,
+        "xp": 10
+      },
+      {
+        "type": "burningThrower",
+        "level": 4,
+        "xp": 18
+      }
+    ],
+    "pending": 2
+  },
+  {
+    "seed": 2,
+    "room": "雾林岔口",
+    "initial": [
+      {
+        "type": "caster",
+        "level": 4,
+        "xp": 14
+      },
+      {
+        "type": "grunt",
+        "level": 4,
+        "xp": 10
+      },
+      {
+        "type": "grunt",
+        "level": 4,
+        "xp": 10
+      },
+      {
+        "type": "goblinBlue",
+        "level": 4,
+        "xp": 10
+      }
+    ],
+    "pending": 2
+  },
+  {
+    "seed": 7,
+    "room": "藤蔓窄道",
+    "initial": [
+      {
+        "type": "coward",
+        "level": 4,
+        "xp": 8
+      },
+      {
+        "type": "coward",
+        "level": 4,
+        "xp": 8
+      },
+      {
+        "type": "coward",
+        "level": 4,
+        "xp": 8
+      },
+      {
+        "type": "coward",
+        "level": 4,
+        "xp": 8
+      }
+    ],
+    "pending": 2
+  },
+  {
+    "seed": 123,
+    "room": "倒木小径",
+    "initial": [
+      {
+        "type": "grunt",
+        "level": 4,
+        "xp": 10
+      },
+      {
+        "type": "coward",
+        "level": 4,
+        "xp": 8
+      },
+      {
+        "type": "coward",
+        "level": 4,
+        "xp": 8
+      },
+      {
+        "type": "goblinBlue",
+        "level": 4,
+        "xp": 10
+      }
+    ],
+    "pending": 2
+  }
+]

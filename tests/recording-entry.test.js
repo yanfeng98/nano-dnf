@@ -373,3 +373,31 @@ test('deep lord room ordinary deaths pay the observed level-specific credits', (
     assert.deepEqual([...observedTypes].sort(), ['cat', 'deepElite', 'lugaruBoss', 'throwerElite']);
   }
 });
+
+test('ordinary second cell keeps the recorded six Lv4 actors and six40 credits across seeds', () => {
+  for (const seed of [1, 2, 7, 123]) {
+    const state = Core.createState({stage:'mirkwood', seed, referenceProfile:true});
+    Core.goToCell(state, state.dungeon.cells.findIndex(cell => cell.col === 2 && cell.row === 0));
+    state.transition = 0;
+    state.player.x = Core.roomWidth(state) / 2;
+    state.player.z = Core.bandDepth(state.band) / 2;
+    state.player.xpToNext = 100000; // Growth remains a separate unresolved measurement.
+    state.player.invuln = Infinity;
+    assert.equal(state.enemies.length, 6);
+    assert.equal(state.room.pendingWave.length, 0, 'all six actors precede the first recorded death');
+    assert.equal(state.room.pendingWaves.length, 0);
+    assert.deepEqual(state.enemies.map(enemy => enemy.type).sort(),
+      ['caster', 'goblinRed', 'grunt', 'grunt', 'grunt', 'grunt']);
+    const before = state.player.xp;
+    for (const enemy of state.enemies) {
+      assert.equal(enemy.level, 4);
+      assert.equal(enemy.xp, 40);
+      for (let hit = 0; hit < 50 && !enemy.dead; hit++) Core.damageEnemy(state, enemy, enemy.hp + 1, 0, state.player.x);
+      assert.ok(enemy.dead);
+    }
+    Core.runFrames(state, 3, {});
+    assert.equal(state.stats.kills, 6);
+    assert.equal(state.player.xp - before, 240);
+    assert.ok(state.room.cleared);
+  }
+});

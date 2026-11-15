@@ -2541,16 +2541,21 @@
           ]
         },
         {
+          // V1 recorded second cell(2,0), before82.5s first death:
+          // four ordinary goblins, one thrower and one red goblin, allLv4.
+          // Six40 credits finish at100s. Existing slot positions remain
+          // provisional; do not infer native map identity or activation rules.
           name: "雾林岔口",
           kind: "corr",
           enemies: [
-            { type: "caster", x: 420, depth: 0.38 },
-            { type: "grunt", x: 479 },
-            { type: "grunt", x: 700 },
-            { type: "goblinBlue", x: 759 },
-            { type: "grunt", x: 70, wave: 2 },
-            { type: "caster", x: 900, wave: 2 }
+            { type: "caster", x: 420, depth: 0.38, level: 4, xp: 40 },
+            { type: "grunt", x: 479, level: 4, xp: 40 },
+            { type: "grunt", x: 700, level: 4, xp: 40 },
+            { type: "goblinRed", x: 759, level: 4, xp: 40 },
+            { type: "grunt", x: 70, level: 4, xp: 40 },
+            { type: "grunt", x: 900, level: 4, xp: 40 }
           ],
+          cap: 6,
           props: [
             { piece: "trunkMossy", x: 260, depth: 1 },
             { piece: "pillar", x: 470, depth: 0.66 },
@@ -3449,11 +3454,13 @@
     cols: 4,
     rows: 3,
     shape: ["RCCC", "RCRC", "RCRR"],
-    /* 起点房与 Boss 房钉死；别的格子由种子洗牌（见 `dungeonFor`）。 */
+    /* 起点/Boss及已核录像格钉死；其余未核内容暂沿用种子洗牌。 */
     entry: [2, 1],
     boss: [0, 2],
     entryRoom: 0,
     bossRoom: 5,
+    // V1 76–100s second cell: fixed credited roster, independent of seed.
+    pins: { "2,0": 9 },
     northX: { "1,1": 0.492, "1,2": 0.469, "2,1": 0.673, "3,1": 0.5 },
     links: [
       [[0, 0], [1, 0]],
@@ -3690,8 +3697,8 @@
     });
     var next = layoutRandom(seed ^ 0x5bf03635);
     /*
-     * **钉死的格子**（`dun.pins`）：录像里走过的 7 格永远拿到它量出来的那间房，
-     * 不参与洗牌。没写 `pins` 的关卡（幽暗密林）完全保持原来的发牌。
+     * **钉死的格子**（`dun.pins`）：已核准的录像格永远拿到它量出来的那间房，
+     * 不参与洗牌；没写入 `pins` 的格子暂沿用原来的发牌。
      */
     var pins = dun.pins || {};
     var pinned = {};

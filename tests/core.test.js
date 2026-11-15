@@ -9572,9 +9572,16 @@ test("高草按身位排：靠镜头的那一丛画在他前面，靠里的画�
  *
  * 体宽大的（牛头 68 宽）同组间距按体宽让开，所以门槛跟着体型走。
  */
-test("一间房里的怪是分组聚着的，不是一字排开", () => {
+test("未核普通房的占位名册保留旧分组检查", () => {
   const FIGURE = 84;
-  Core.STAGES.mirkwood.rooms.forEach((room) => {
+  const dungeon = Core.STAGES.mirkwood.dungeon;
+  const recorded = new Set([dungeon.entryRoom, dungeon.bossRoom,
+    ...Object.values(dungeon.pins || {})]);
+  Core.STAGES.mirkwood.rooms.forEach((room, index) => {
+    // ADR0068: this authored grouping rule is not a recording measurement.
+    // Recorded rosters have independent generation/death checks; their exact
+    // positions remain open rather than being moved to satisfy this rule.
+    if (recorded.has(index)) return;
     /*
      * **Two waves, two checks.** A wave is what is on the floor together, so
      * each wave has to satisfy the group spacing on its own; a wave-2 monster

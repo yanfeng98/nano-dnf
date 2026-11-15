@@ -1,0 +1,91 @@
+{
+  "source": "149-v1-second-room-ledger-transcription.json",
+  "sourceSha256": "29c0b9400794400299993dc12acf2cee2ebb4ea57314449934c0ef2ab849d02a",
+  "transitions": [
+    {
+      "times": [
+        76,
+        82.5
+      ],
+      "retainedRows": 6,
+      "newLines": [
+        "sp:1",
+        "xp:40"
+      ],
+      "newXPCredits": [
+        40
+      ]
+    },
+    {
+      "times": [
+        82.5,
+        83.5
+      ],
+      "retainedRows": 5,
+      "newLines": [
+        "xp:40",
+        "sp:1",
+        "xp:40"
+      ],
+      "newXPCredits": [
+        40,
+        40
+      ]
+    },
+    {
+      "times": [
+        83.5,
+        96.5
+      ],
+      "retainedRows": 8,
+      "newLines": [],
+      "newXPCredits": []
+    },
+    {
+      "times": [
+        96.5,
+        96.86666666666667
+      ],
+      "retainedRows": 5,
+      "newLines": [
+        "message:level4",
+        "xp:40",
+        "xp:40"
+      ],
+      "newXPCredits": [
+        40,
+        40
+      ]
+    },
+    {
+      "times": [
+        96.86666666666667,
+        100
+      ],
+      "retainedRows": 6,
+      "newLines": [
+        "sp:1",
+        "xp:40"
+      ],
+      "newXPCredits": [
+        40
+      ]
+    }
+  ],
+  "credits": [
+    40,
+    40,
+    40,
+    40,
+    40,
+    40
+  ],
+  "creditedDeaths": 6,
+  "totalXP": 240,
+  "limits": [
+    "Input is manual transcription, not OCR; source frames must be reviewed.",
+    "Identical snapshots add no events; XP rows already present in the baseline are excluded.",
+    "A unique retained context including non-XP rows identifies the maximal retained block; repeated XP runs alone are rejected.",
+    "This does not infer actor identity, position, AI, difficulty or a global XP formula."
+  ]
+}

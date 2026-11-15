@@ -1,0 +1,821 @@
+{
+  "clients": [
+    {
+      "file": "Script_70.pvf",
+      "version": 48984,
+      "rooms": [
+        {
+          "entry": "map/mirkwood/n201.map",
+          "sha256": "03a4b5ad46e245e7d95f6bab8c3e5c22c2ba9b3e6a14f6e0a45faccf0fb3fc5c",
+          "counts": {
+            "Goblin/HillGab.mob": 1,
+            "Goblin/CowardGoblin.mob": 1,
+            "Goblin/Goblin.mob": 3,
+            "Goblin/SeaGab.mob": 1,
+            "Goblin/GoblinThrower.mob": 1
+          }
+        },
+        {
+          "entry": "map/mirkwood/n202.map",
+          "sha256": "603e46cb329af9f02e41fc181b4d666292a1f83595de5a77a1fbf6f4f9e7261d",
+          "counts": {
+            "Goblin/HillGab.mob": 1,
+            "Goblin/Goblin.mob": 3,
+            "Goblin/GoblinThrower.mob": 1,
+            "Goblin/SeaGab.mob": 1
+          }
+        },
+        {
+          "entry": "map/mirkwood/n203.map",
+          "sha256": "75c7b844b460a6700759950cd4046d3b2391976fc4394abd4032ea9d963fb7b2",
+          "counts": {
+            "Goblin/GoblinThrower.mob": 2,
+            "Goblin/Goblin.mob": 2,
+            "Goblin/SeaGab.mob": 1,
+            "Goblin/HillGab.mob": 1
+          }
+        },
+        {
+          "entry": "map/mirkwood/n204.map",
+          "sha256": "f4c9e45e5d45855416847056fc15d073bab47f85630ec90508b4158189f47ed8",
+          "counts": {
+            "Goblin/Goblin.mob": 4,
+            "Goblin/SeaGab.mob": 1,
+            "Goblin/HillGab.mob": 1,
+            "Goblin/GoblinThrower.mob": 1
+          }
+        },
+        {
+          "entry": "map/mirkwood/n205.map",
+          "sha256": "adeec31418e50a7f610b12cde1a92698ebd5627963c1cf5d9a575f7b89a48ce8",
+          "counts": {
+            "Goblin/SeaGab.mob": 2,
+            "Goblin/HillGab.mob": 1,
+            "Goblin/Goblin.mob": 5,
+            "Goblin/CowardGoblin.mob": 1,
+            "Goblin/GoblinTaskmaster.mob": 1
+          }
+        },
+        {
+          "entry": "map/mirkwood/n206.map",
+          "sha256": "af268ce221ce5f395b0d40e689b0f8ade68fe0dae8926a9aba915d2e0a16973c",
+          "counts": {
+            "Goblin/Goblin.mob": 4,
+            "Goblin/SeaGab.mob": 1,
+            "Goblin/GoblinThrower.mob": 2,
+            "Goblin/HillGab.mob": 1
+          }
+        },
+        {
+          "entry": "map/mirkwood/n207.map",
+          "sha256": "3d35b883eed24279ad0a0c991528dccde9f0c9373b7220aa407a699d7f7e5003",
+          "counts": {
+            "Goblin/Goblin.mob": 4,
+            "Goblin/GoblinThrower.mob": 3,
+            "Goblin/SeaGab.mob": 1,
+            "Goblin/HillGab.mob": 1
+          }
+        },
+        {
+          "entry": "map/mirkwood/n208.map",
+          "sha256": "442428e2f646f673ddba347ea6a3b6779a68f9d498e8505881820aea4e78cb46",
+          "counts": {
+            "Goblin/CowardGoblin.mob": 1,
+            "Goblin/GoblinThrower.mob": 1,
+            "Goblin/GoblinTaskmaster.mob": 1,
+            "Goblin/SeaGab.mob": 2,
+            "Goblin/HillGab.mob": 1,
+            "Goblin/Goblin.mob": 1
+          }
+        },
+        {
+          "entry": "map/mirkwood/n209.map",
+          "sha256": "156fc3d7617a64d7329cb8a13c721f0dc985954f525da863dabf56a9f72f078f",
+          "counts": {
+            "Goblin/GoblinThrower.mob": 4,
+            "Goblin/Goblin.mob": 1,
+            "Goblin/HillGab.mob": 1,
+            "Goblin/CowardGoblin.mob": 1,
+            "Goblin/SeaGab.mob": 1,
+            "Goblin/GoblinTaskmaster.mob": 1
+          }
+        },
+        {
+          "entry": "map/mirkwood/202.map",
+          "sha256": "3b2e2eabd800008826cc779358dec6aa93346fa653c20cd5fd828bc639716bcc",
+          "counts": {
+            "Goblin/Goblin.mob": 6
+          }
+        },
+        {
+          "entry": "map/mirkwood/h201.map",
+          "sha256": "2615f4742710547b6f0d4ef9a0d7d70990c05d4b10c1105eb9c2c9ecc7b5602a",
+          "counts": {
+            "Goblin/SeaGab.mob": 2,
+            "Goblin/Goblin.mob": 3,
+            "Goblin/HillGab.mob": 2
+          }
+        },
+        {
+          "entry": "map/mirkwood/203.map",
+          "sha256": "2016c9a968e13a089929c6a548d2bb3ac5e5464362ff85b78df5145ab0252982",
+          "counts": {
+            "Goblin/Goblin.mob": 4,
+            "Goblin/GoblinThrower.mob": 2,
+            "Goblin/SeaGab.mob": 1
+          }
+        },
+        {
+          "entry": "map/mirkwood/s201.map",
+          "sha256": "24596f0d9f56ad29c20d2a36cef08e60f4dfb15b1f547329830557514e7ca1ec",
+          "counts": {
+            "Tau/TauArmy.mob": 2,
+            "Goblin/GoblinThrower.mob": 2,
+            "Goblin/Goblin.mob": 4
+          }
+        },
+        {
+          "entry": "map/mirkwood/204.map",
+          "sha256": "fbcb2954252e7b61946695fadca1f427d95902319dce856543c11c40878af2f8",
+          "counts": {
+            "Goblin/Goblin.mob": 4
+          }
+        },
+        {
+          "entry": "map/mirkwood/s202.map",
+          "sha256": "6f5d64c92e7fdaf3aa337bf4b315150e305941ea9e85864d899590e3fe471e22",
+          "counts": {
+            "Goblin/Goblin.mob": 4,
+            "Goblin/GoblinThrower.mob": 2,
+            "Tau/TauArmy.mob": 2
+          }
+        },
+        {
+          "entry": "map/mirkwood/205.map",
+          "sha256": "3a6490f3ec1b415905a38247c81373b393fb6da97f23a81d4d8d6a93125db830",
+          "counts": {
+            "Goblin/Goblin.mob": 4
+          }
+        },
+        {
+          "entry": "map/mirkwood/s203.map",
+          "sha256": "3650a18919fd5cb07d52b3bcf557d8908406eddd8e7bb3e9c27b8189f023398f",
+          "counts": {
+            "Tau/TauArmy.mob": 2,
+            "Goblin/CowardGoblin.mob": 1,
+            "Goblin/Goblin.mob": 1,
+            "Goblin/HillGab.mob": 1
+          }
+        },
+        {
+          "entry": "map/mirkwood/s204.map",
+          "sha256": "37f1ea256714bf5d561282eff77bc63d47fd9aef55f6cc47c0f060d4d069e859",
+          "counts": {
+            "Tau/TauArmy.mob": 2,
+            "Goblin/Goblin.mob": 1,
+            "Goblin/CowardGoblin.mob": 1,
+            "Goblin/HillGab.mob": 1,
+            "Goblin/GoblinThrower.mob": 1
+          }
+        },
+        {
+          "entry": "map/mirkwood/207.map",
+          "sha256": "2b8fca58254d51e54ebcaef07a798db0ed6055f4e965fd97bf4ebdb3fbf346cd",
+          "counts": {
+            "Goblin/GoblinThrower.mob": 1,
+            "Goblin/Goblin.mob": 2,
+            "Goblin/SeaGab.mob": 1,
+            "Goblin/HillGab.mob": 1
+          }
+        },
+        {
+          "entry": "map/mirkwood/208.map",
+          "sha256": "a8f038127b68f0a88cf181688969b7f57799c7267b5af451cb53e1e6156246ec",
+          "counts": {
+            "Goblin/SeaGab.mob": 2,
+            "Goblin/Goblin.mob": 4
+          }
+        },
+        {
+          "entry": "map/mirkwood/209.map",
+          "sha256": "c86d80032831e4e60d3a718fea185440a3e96f16f1ba18a095086fec3c94e099",
+          "counts": {
+            "Goblin/GoblinThrower.mob": 2,
+            "Goblin/SeaGab.mob": 1,
+            "Goblin/Goblin.mob": 2,
+            "Goblin/HillGab.mob": 1
+          }
+        },
+        {
+          "entry": "map/mirkwood/b201.map",
+          "sha256": "5df745b721a46acce8f89696f53235ae449db9b3d73ec37e2a258b3e8541a9e8",
+          "counts": {
+            "Tau/TauArmy.mob": 2,
+            "Goblin/Goblin.mob": 3,
+            "Goblin/GoblinTaskmaster.mob": 2,
+            "Goblin/SeaGab.mob": 1,
+            "Tau/TauBeast.mob": 1,
+            "Goblin/HillGab.mob": 1
+          }
+        },
+        {
+          "entry": "map/mirkwood/210.map",
+          "sha256": "8dade8ad202d5d740703811b6c28e88980d7539d7441511e6b71aab0f8a1abee",
+          "counts": {
+            "Goblin/Goblin.mob": 4,
+            "Goblin/SeaGab.mob": 1,
+            "Goblin/GoblinThrower.mob": 2,
+            "Goblin/HillGab.mob": 1
+          }
+        },
+        {
+          "entry": "map/mirkwood/b202.map",
+          "sha256": "f202276ce65523bd4863a3f3d6092009d09d86d269577c976968b11da303c196",
+          "counts": {
+            "Tau/TauArmy.mob": 4,
+            "Goblin/SeaGab.mob": 1,
+            "Tau/TauBeast.mob": 1,
+            "Goblin/GoblinTaskmaster.mob": 1,
+            "Goblin/Goblin.mob": 1,
+            "Goblin/HillGab.mob": 1
+          }
+        },
+        {
+          "entry": "map/mirkwood/211.map",
+          "sha256": "a88a0425d0a77378f216a4c20a66782f025d5145c7b5b5217e6ffb8a08caf2ea",
+          "counts": {
+            "Goblin/GoblinThrower.mob": 3,
+            "Goblin/SeaGab.mob": 1,
+            "Goblin/Goblin.mob": 3,
+            "Goblin/HillGab.mob": 1
+          }
+        },
+        {
+          "entry": "map/mirkwood/b203.map",
+          "sha256": "8b0f44a8f01f2af1979720d85a380e402e0e36ee090ae9262cb44a7fdb513cf5",
+          "counts": {
+            "Goblin/SeaGab.mob": 2,
+            "Tau/TauArmy.mob": 2,
+            "Goblin/Goblin.mob": 2,
+            "Goblin/GoblinThrower.mob": 2,
+            "Goblin/HillGab.mob": 2,
+            "Tau/TauBeast.mob": 1
+          }
+        },
+        {
+          "entry": "map/mirkwood/212.map",
+          "sha256": "2fa632490fed6e2e5cff082e613bedf13e89bf3f44f24c31a9410e1776ba25df",
+          "counts": {
+            "Goblin/SeaGab.mob": 2,
+            "Goblin/Goblin.mob": 4,
+            "Goblin/HillGab.mob": 2
+          }
+        },
+        {
+          "entry": "map/mirkwood/b204.map",
+          "sha256": "8ba2612963afb7960b02d70772deacab16be94a0af808b90aafd3c17fdf44913",
+          "counts": {
+            "Goblin/GoblinThrower.mob": 1,
+            "Goblin/Goblin.mob": 1,
+            "Goblin/GoblinTaskmaster.mob": 1,
+            "Tau/TauArmy.mob": 2,
+            "Goblin/HillGab.mob": 1,
+            "Tau/TauBeast.mob": 1
+          }
+        },
+        {
+          "entry": "map/mirkwood/213.map",
+          "sha256": "87d6a41a032a62e274654f82b6a09b6cfa87f3fd8db3c2fe2c857f74aeb3aee1",
+          "counts": {
+            "Goblin/GoblinThrower.mob": 3,
+            "Goblin/Goblin.mob": 2,
+            "Goblin/HillGab.mob": 1
+          }
+        },
+        {
+          "entry": "map/mirkwood/214.map",
+          "sha256": "58168f13c3a88394af20dea060b9af65e5104bdb3c121eb6dce4f0104bb9a880",
+          "counts": {
+            "Goblin/HillGab.mob": 2,
+            "Goblin/SeaGab.mob": 2,
+            "Goblin/Goblin.mob": 3
+          }
+        },
+        {
+          "entry": "map/mirkwood/mirkwooddeepsample.map",
+          "sha256": "aec7566ff91fe62fca8a1f2619fdca5a295d6258ad8f8382ce3bee2cdf2c4e1c",
+          "counts": {}
+        },
+        {
+          "entry": "map/mirkwood/215.map",
+          "sha256": "a3d8f0cc5ab757e5a6462356a6e0eae31a45fc772dab75a7249383db97c77543",
+          "counts": {
+            "Goblin/Goblin.mob": 2,
+            "Goblin/HillGab.mob": 2,
+            "Goblin/SeaGab.mob": 2,
+            "Goblin/GoblinThrower.mob": 2,
+            "Goblin/GoblinTaskmaster.mob": 1
+          }
+        },
+        {
+          "entry": "map/mirkwood/216.map",
+          "sha256": "d4f25a3abdf47f739b39b796ad9e89806acef671e961121d31d70e9e3624b37a",
+          "counts": {
+            "Goblin/Goblin.mob": 3,
+            "Goblin/SeaGab.mob": 1,
+            "Goblin/GoblinTaskmaster.mob": 2,
+            "Goblin/GoblinThrower.mob": 1,
+            "Goblin/HillGab.mob": 1
+          }
+        },
+        {
+          "entry": "map/mirkwood/218.map",
+          "sha256": "14aa07644b7992af56bc68a7d73539b9f4243aeba3eb131771f705abe65b8632",
+          "counts": {
+            "Goblin/GoblinThrower.mob": 2,
+            "Goblin/Goblin.mob": 2,
+            "Goblin/SeaGab.mob": 1,
+            "Tau/TauArmy.mob": 2,
+            "Goblin/GoblinTaskmaster.mob": 1,
+            "Goblin/HillGab.mob": 1
+          }
+        },
+        {
+          "entry": "map/mirkwood/219.map",
+          "sha256": "21cbeceb48d2c674bf9440ea71a802e4559ba09719e99e4537914ec8e85c0286",
+          "counts": {
+            "Goblin/SeaGab.mob": 2,
+            "Tau/TauArmy.mob": 2,
+            "Goblin/HillGab.mob": 2
+          }
+        },
+        {
+          "entry": "map/mirkwood/221.map",
+          "sha256": "56690dc6ee15abd30d4958775dae767c44cc1125d17ef3b0e666883c75f1f465",
+          "counts": {
+            "Tau/TauArmy.mob": 3,
+            "Goblin/SeaGab.mob": 2,
+            "Goblin/GoblinTaskmaster.mob": 1,
+            "Goblin/HillGab.mob": 2
+          }
+        },
+        {
+          "entry": "map/mirkwood/222.map",
+          "sha256": "20d98058ef0182a41371b63dccd25b3c744d912d59410dbfbe78964d7df90c8c",
+          "counts": {
+            "Tau/TauArmy.mob": 6
+          }
+        },
+        {
+          "entry": "map/mirkwood/e201.map",
+          "sha256": "ef9aa501f02879a7e959fb35db4d4f05b819a322abe8746546bc93533996157d",
+          "counts": {
+            "Goblin/Goblin.mob": 3,
+            "Goblin/SeaGab.mob": 1,
+            "Goblin/HillGab.mob": 1
+          }
+        },
+        {
+          "entry": "map/mirkwood/e202.map",
+          "sha256": "8243c1428a16bb62a9c63fffb83407f0d9b2d51771ccb939daaec2c5e4e370fa",
+          "counts": {
+            "Goblin/SeaGab.mob": 1,
+            "Goblin/Goblin.mob": 2,
+            "Goblin/GoblinThrower.mob": 1,
+            "Goblin/HillGab.mob": 1
+          }
+        },
+        {
+          "entry": "map/mirkwood/e203.map",
+          "sha256": "dd6ac24aaed22e68a865a8264c0614ff81758ed619375c9db924ba1a9616eecd",
+          "counts": {
+            "Goblin/Goblin.mob": 5,
+            "Goblin/HillGab.mob": 1,
+            "Goblin/GoblinThrower.mob": 1,
+            "Goblin/SeaGab.mob": 1
+          }
+        },
+        {
+          "entry": "map/mirkwood/e204.map",
+          "sha256": "489d32cd966b9e8af829956272fea94a96ad678947d1175b40d86ffec8eacf68",
+          "counts": {
+            "Goblin/SeaGab.mob": 1,
+            "Goblin/Goblin.mob": 2,
+            "Goblin/GoblinThrower.mob": 1,
+            "Goblin/HillGab.mob": 1
+          }
+        }
+      ]
+    },
+    {
+      "file": "Script.pvf",
+      "version": 66282,
+      "rooms": [
+        {
+          "entry": "map/mirkwood/n201.map",
+          "sha256": "43091b0f695ab95b844a3c46a23a54a94565f6f3c3e7fa68d5c674fbf4e5d884",
+          "counts": {
+            "Goblin/HillGab.mob": 1,
+            "Goblin/CowardGoblin.mob": 1,
+            "Goblin/Goblin.mob": 3,
+            "Goblin/SeaGab.mob": 1,
+            "Goblin/GoblinThrower.mob": 1
+          }
+        },
+        {
+          "entry": "map/mirkwood/n202.map",
+          "sha256": "0c38f936a54d415784c9e09d9897d2450fc4ffd681c27fd5324124458739a6b9",
+          "counts": {
+            "Goblin/HillGab.mob": 1,
+            "Goblin/Goblin.mob": 3,
+            "Goblin/GoblinThrower.mob": 1,
+            "Goblin/SeaGab.mob": 1
+          }
+        },
+        {
+          "entry": "map/mirkwood/n203.map",
+          "sha256": "3cfac618ae6cf4b02dc93137a158441f5548d04c022b561d213439dd83296ed0",
+          "counts": {
+            "Goblin/GoblinThrower.mob": 2,
+            "Goblin/Goblin.mob": 2,
+            "Goblin/SeaGab.mob": 1,
+            "Goblin/HillGab.mob": 1
+          }
+        },
+        {
+          "entry": "map/mirkwood/n204.map",
+          "sha256": "d73798c65566f98349964dd3020f705041b7a3c5ede6b85c14f515c102d6cee7",
+          "counts": {
+            "Goblin/Goblin.mob": 4,
+            "Goblin/SeaGab.mob": 1,
+            "Goblin/HillGab.mob": 1,
+            "Goblin/GoblinThrower.mob": 1
+          }
+        },
+        {
+          "entry": "map/mirkwood/n205.map",
+          "sha256": "9d1243ad065f03ec51902f2992c188d6431c91722cd25658eef42f9211be82e9",
+          "counts": {
+            "Goblin/SeaGab.mob": 2,
+            "Goblin/HillGab.mob": 1,
+            "Goblin/Goblin.mob": 5,
+            "Goblin/CowardGoblin.mob": 1,
+            "Goblin/GoblinTaskmaster.mob": 1
+          }
+        },
+        {
+          "entry": "map/mirkwood/n206.map",
+          "sha256": "6dca8da7b1006682d15785c4c5881a7b7c829221cb35d7c9ac7d7e4ddd10aa6f",
+          "counts": {
+            "Goblin/Goblin.mob": 4,
+            "Goblin/SeaGab.mob": 1,
+            "Goblin/GoblinThrower.mob": 2,
+            "Goblin/HillGab.mob": 1
+          }
+        },
+        {
+          "entry": "map/mirkwood/n207.map",
+          "sha256": "a4f1a936a8024aad21e5fb7e3af4e2f94d3a96fbbb378dd293e15a131ee7cd36",
+          "counts": {
+            "Goblin/Goblin.mob": 4,
+            "Goblin/GoblinThrower.mob": 3,
+            "Goblin/SeaGab.mob": 1,
+            "Goblin/HillGab.mob": 1
+          }
+        },
+        {
+          "entry": "map/mirkwood/n208.map",
+          "sha256": "a8913b6b47e679135f64bbb7530bcf192cc1c7c64dcbb4e7c5d6db405c1815f1",
+          "counts": {
+            "Goblin/CowardGoblin.mob": 1,
+            "Goblin/GoblinThrower.mob": 1,
+            "Goblin/GoblinTaskmaster.mob": 1,
+            "Goblin/SeaGab.mob": 2,
+            "Goblin/HillGab.mob": 1,
+            "Goblin/Goblin.mob": 1
+          }
+        },
+        {
+          "entry": "map/mirkwood/n209.map",
+          "sha256": "5043a3848ffe8e8810759ff51cc744e9abd62b04410aae5ef0b710caa0148555",
+          "counts": {
+            "Goblin/GoblinThrower.mob": 4,
+            "Goblin/Goblin.mob": 1,
+            "Goblin/HillGab.mob": 1,
+            "Goblin/CowardGoblin.mob": 1,
+            "Goblin/SeaGab.mob": 1,
+            "Goblin/GoblinTaskmaster.mob": 1
+          }
+        },
+        {
+          "entry": "map/mirkwood/202.map",
+          "sha256": "5e147429a073062f6bb09407b9b46ec633c6e9e430c21aaefbbead92d19c5c07",
+          "counts": {
+            "Goblin/Goblin.mob": 6
+          }
+        },
+        {
+          "entry": "map/mirkwood/h201.map",
+          "sha256": "880227a27a2bad9069838a0ba1a16b7d3c5fb4ba08153739ab8b9ea53155f9f5",
+          "counts": {
+            "Goblin/SeaGab.mob": 2,
+            "Goblin/Goblin.mob": 3,
+            "Goblin/HillGab.mob": 2
+          }
+        },
+        {
+          "entry": "map/mirkwood/203.map",
+          "sha256": "5f8fc55b1f34eeca84561b19f12df497f27cdfea6e87f62ff7d598e7191ac6e6",
+          "counts": {
+            "Goblin/Goblin.mob": 4,
+            "Goblin/GoblinThrower.mob": 2,
+            "Goblin/SeaGab.mob": 1
+          }
+        },
+        {
+          "entry": "map/mirkwood/s201.map",
+          "sha256": "1de7acf861eee5fba1fd19791faf9bf5adb5c0851f6b8a2e2b0bb7ad6b683ca2",
+          "counts": {
+            "Tau/TauArmy.mob": 2,
+            "Goblin/GoblinThrower.mob": 2,
+            "Goblin/Goblin.mob": 4
+          }
+        },
+        {
+          "entry": "map/mirkwood/204.map",
+          "sha256": "83d68fa51439709ab95677076ea51cefceae3e38cf1323a39dbdc541af280963",
+          "counts": {
+            "Goblin/Goblin.mob": 4
+          }
+        },
+        {
+          "entry": "map/mirkwood/s202.map",
+          "sha256": "df3cdd58a18d4ae0ba26dede75e72edd561f67f64cf2ce3f7ef3c6ca564b8389",
+          "counts": {
+            "Goblin/Goblin.mob": 4,
+            "Goblin/GoblinThrower.mob": 2,
+            "Tau/TauArmy.mob": 2
+          }
+        },
+        {
+          "entry": "map/mirkwood/205.map",
+          "sha256": "5ed1878a197338b6c363cf0751dfd6f7177aaf0cf065f0e3b2bc67d030d5911c",
+          "counts": {
+            "Goblin/Goblin.mob": 4
+          }
+        },
+        {
+          "entry": "map/mirkwood/s203.map",
+          "sha256": "91f9a3ee75e5835d6e201e6f791c75ab1033cf703d5a3c12de55d36c1292995b",
+          "counts": {
+            "Tau/TauArmy.mob": 2,
+            "Goblin/CowardGoblin.mob": 1,
+            "Goblin/Goblin.mob": 1,
+            "Goblin/HillGab.mob": 1
+          }
+        },
+        {
+          "entry": "map/mirkwood/s204.map",
+          "sha256": "0626efab16ef71136b89a1754808068305b370609a8af7c807bc08a1c1b3842c",
+          "counts": {
+            "Tau/TauArmy.mob": 2,
+            "Goblin/Goblin.mob": 1,
+            "Goblin/CowardGoblin.mob": 1,
+            "Goblin/HillGab.mob": 1,
+            "Goblin/GoblinThrower.mob": 1
+          }
+        },
+        {
+          "entry": "map/mirkwood/207.map",
+          "sha256": "5142a70550d70debdbc87af527b76fc1615136ec1ea226366b7f882bad97cb07",
+          "counts": {
+            "Goblin/GoblinThrower.mob": 1,
+            "Goblin/Goblin.mob": 2,
+            "Goblin/SeaGab.mob": 1,
+            "Goblin/HillGab.mob": 1
+          }
+        },
+        {
+          "entry": "map/mirkwood/208.map",
+          "sha256": "298d6a1a24e922b6150dbc3da4f5d6587d5aeba2e82eefab5fd1864e4f0971c1",
+          "counts": {
+            "Goblin/SeaGab.mob": 2,
+            "Goblin/Goblin.mob": 4
+          }
+        },
+        {
+          "entry": "map/mirkwood/209.map",
+          "sha256": "d0aadc3cb44503bea98cb7a45ecbf571a33455d6f16855025be4c0e38e184862",
+          "counts": {
+            "Goblin/GoblinThrower.mob": 2,
+            "Goblin/SeaGab.mob": 1,
+            "Goblin/Goblin.mob": 2,
+            "Goblin/HillGab.mob": 1
+          }
+        },
+        {
+          "entry": "map/mirkwood/b201.map",
+          "sha256": "92b7b866c0db53f7de23ebfc0357b418d095c9e1c079af74e573ce20d2c0d39a",
+          "counts": {
+            "Tau/TauArmy.mob": 2,
+            "Goblin/Goblin.mob": 3,
+            "Goblin/GoblinTaskmaster.mob": 2,
+            "Goblin/SeaGab.mob": 1,
+            "Tau/TauBeast.mob": 1,
+            "Goblin/HillGab.mob": 1
+          }
+        },
+        {
+          "entry": "map/mirkwood/210.map",
+          "sha256": "cbd0bfe497c0ed2fc997c756f4fc441c7fbebbeb908b45bc13e9e1d62b4412ed",
+          "counts": {
+            "Goblin/Goblin.mob": 4,
+            "Goblin/SeaGab.mob": 1,
+            "Goblin/GoblinThrower.mob": 2,
+            "Goblin/HillGab.mob": 1
+          }
+        },
+        {
+          "entry": "map/mirkwood/b202.map",
+          "sha256": "afc5e38196500a020fc4bd5c60a8b170ef165c3ca307425d0644be81cdadeee4",
+          "counts": {
+            "Tau/TauArmy.mob": 4,
+            "Goblin/SeaGab.mob": 1,
+            "Tau/TauBeast.mob": 1,
+            "Goblin/GoblinTaskmaster.mob": 1,
+            "Goblin/Goblin.mob": 1,
+            "Goblin/HillGab.mob": 1
+          }
+        },
+        {
+          "entry": "map/mirkwood/211.map",
+          "sha256": "198a70f9a4e39d898b6e7c428ab0a92e0be187264667f08dd1ae62f87d795982",
+          "counts": {
+            "Goblin/GoblinThrower.mob": 3,
+            "Goblin/SeaGab.mob": 1,
+            "Goblin/Goblin.mob": 3,
+            "Goblin/HillGab.mob": 1
+          }
+        },
+        {
+          "entry": "map/mirkwood/b203.map",
+          "sha256": "55e9e5cda7cdaf183c02da708095e980878852fe31df2b7412d125f53091a8b2",
+          "counts": {
+            "Goblin/SeaGab.mob": 2,
+            "Tau/TauArmy.mob": 2,
+            "Goblin/Goblin.mob": 2,
+            "Goblin/GoblinThrower.mob": 2,
+            "Goblin/HillGab.mob": 2,
+            "Tau/TauBeast.mob": 1
+          }
+        },
+        {
+          "entry": "map/mirkwood/212.map",
+          "sha256": "c319315dc7abd4b812798c96bc65e548fa592dd1b8c263e1ad618b0167eb211a",
+          "counts": {
+            "Goblin/SeaGab.mob": 2,
+            "Goblin/Goblin.mob": 4,
+            "Goblin/HillGab.mob": 2
+          }
+        },
+        {
+          "entry": "map/mirkwood/b204.map",
+          "sha256": "1035157e98b9fb82133acd16927bff0fd8edbb7ab958f8cdf6088491ae7e71fe",
+          "counts": {
+            "Goblin/GoblinThrower.mob": 1,
+            "Goblin/Goblin.mob": 1,
+            "Goblin/GoblinTaskmaster.mob": 1,
+            "Tau/TauArmy.mob": 2,
+            "Goblin/HillGab.mob": 1,
+            "Tau/TauBeast.mob": 1
+          }
+        },
+        {
+          "entry": "map/mirkwood/213.map",
+          "sha256": "29621048ded533da2fa9b043ed8f035f08b1f1f1dc48074eb6407c4b7a96cde1",
+          "counts": {
+            "Goblin/GoblinThrower.mob": 3,
+            "Goblin/Goblin.mob": 2,
+            "Goblin/HillGab.mob": 1
+          }
+        },
+        {
+          "entry": "map/mirkwood/214.map",
+          "sha256": "e52f416d0f5a4dad4ba58f818a1b8df9d555548f083e15f505a62f30b8020371",
+          "counts": {
+            "Goblin/HillGab.mob": 2,
+            "Goblin/SeaGab.mob": 2,
+            "Goblin/Goblin.mob": 3
+          }
+        },
+        {
+          "entry": "map/mirkwood/mirkwooddeepsample.map",
+          "sha256": "932087c8e7e81f582afdb3739c67dfa1dcd8db4cb81d5a70b070fe1bca795f85",
+          "counts": {}
+        },
+        {
+          "entry": "map/mirkwood/215.map",
+          "sha256": "2fd17e1b04390bc6c3578c6382fcc7ce08b359b83e511d9e2f4d49ce2915eaac",
+          "counts": {
+            "Goblin/Goblin.mob": 2,
+            "Goblin/HillGab.mob": 2,
+            "Goblin/SeaGab.mob": 2,
+            "Goblin/GoblinThrower.mob": 2,
+            "Goblin/GoblinTaskmaster.mob": 1
+          }
+        },
+        {
+          "entry": "map/mirkwood/216.map",
+          "sha256": "cab6d51ed69d6094b6b95e5df7e34411df43a67d6ae8a4bc17a58705447bb1dd",
+          "counts": {
+            "Goblin/Goblin.mob": 3,
+            "Goblin/SeaGab.mob": 1,
+            "Goblin/GoblinTaskmaster.mob": 2,
+            "Goblin/GoblinThrower.mob": 1,
+            "Goblin/HillGab.mob": 1
+          }
+        },
+        {
+          "entry": "map/mirkwood/218.map",
+          "sha256": "b8ec46eeb35ef55c805084d2866d9264260dfd7e72683ae0453885bf0014a1d7",
+          "counts": {
+            "Goblin/GoblinThrower.mob": 2,
+            "Goblin/Goblin.mob": 2,
+            "Goblin/SeaGab.mob": 1,
+            "Tau/TauArmy.mob": 2,
+            "Goblin/GoblinTaskmaster.mob": 1,
+            "Goblin/HillGab.mob": 1
+          }
+        },
+        {
+          "entry": "map/mirkwood/219.map",
+          "sha256": "30ab76079cca048ca0ffef136a679a18ef369f6169ef7764712e8057964ee68e",
+          "counts": {
+            "Goblin/SeaGab.mob": 2,
+            "Tau/TauArmy.mob": 2,
+            "Goblin/HillGab.mob": 2
+          }
+        },
+        {
+          "entry": "map/mirkwood/221.map",
+          "sha256": "d1410937d59bf78c95b3f0ed52bde825ef754381b420b28cdb5b20a214c27206",
+          "counts": {
+            "Tau/TauArmy.mob": 3,
+            "Goblin/SeaGab.mob": 2,
+            "Goblin/GoblinTaskmaster.mob": 1,
+            "Goblin/HillGab.mob": 2
+          }
+        },
+        {
+          "entry": "map/mirkwood/222.map",
+          "sha256": "7ce9791f2c135726421210047c29559ad601c8c3d35b725393c7d1d2e61f1a85",
+          "counts": {
+            "Tau/TauArmy.mob": 6
+          }
+        },
+        {
+          "entry": "map/mirkwood/e201.map",
+          "sha256": "0e10d9a20c92750bc5f5e7d1e03807de4d5d32456ebf57bd72522d1daebdc818",
+          "counts": {
+            "Goblin/Goblin.mob": 3,
+            "Goblin/SeaGab.mob": 1,
+            "Goblin/HillGab.mob": 1
+          }
+        },
+        {
+          "entry": "map/mirkwood/e202.map",
+          "sha256": "20e39839c428e954d2fa693618cd95b7fac568cfaae3264a8af025be16fea92e",
+          "counts": {
+            "Goblin/SeaGab.mob": 1,
+            "Goblin/Goblin.mob": 2,
+            "Goblin/GoblinThrower.mob": 1,
+            "Goblin/HillGab.mob": 1
+          }
+        },
+        {
+          "entry": "map/mirkwood/e203.map",
+          "sha256": "4a509bdd030740c476628655e3fcdc71ccbb8c6f22144c7733e64ed66fcf5687",
+          "counts": {
+            "Goblin/Goblin.mob": 5,
+            "Goblin/HillGab.mob": 1,
+            "Goblin/GoblinThrower.mob": 1,
+            "Goblin/SeaGab.mob": 1
+          }
+        },
+        {
+          "entry": "map/mirkwood/e204.map",
+          "sha256": "25f6983e4afb8d4c070ad87781ad3e8ce05647ddf7be2597c619322fec7af50b",
+          "counts": {
+            "Goblin/SeaGab.mob": 1,
+            "Goblin/Goblin.mob": 2,
+            "Goblin/GoblinThrower.mob": 1,
+            "Goblin/HillGab.mob": 1
+          }
+        }
+      ]
+    }
+  ],
+  "limits": [
+    "Catalogued native candidates, not an identified recorded map. No native actor coordinates are adopted."
+  ]
+}

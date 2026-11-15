@@ -1,0 +1,193 @@
+{
+  "video": "00001-\u5e7d\u6697\u5bc6\u6797.mp4",
+  "sourceFps": 30,
+  "start": 96.4,
+  "strideFrames": 1,
+  "samples": [
+    {
+      "time": 96.4,
+      "frame": "149-v1-96.4-second-room.png",
+      "sha256": "b7515323c9ebdd437c1df46a069039e886a44aeea3f2484d168f1028a1e6fba8"
+    },
+    {
+      "time": 96.43333333333334,
+      "frame": "149-v1-96.4333-second-room.png",
+      "sha256": "e3d084204e337b4d8b070b9fd2144d81750492258841c37ca4ee6d6dfcfd8a4d"
+    },
+    {
+      "time": 96.46666666666667,
+      "frame": "149-v1-96.4667-second-room.png",
+      "sha256": "526f0f4d0c4b851730cb9db1a5c4bfede60e9bb902b4000254aecaf66224d18a"
+    },
+    {
+      "time": 96.5,
+      "frame": "149-v1-96.5-second-room.png",
+      "sha256": "9707964d90c352824a10d0057123dfc42292f7951b1a7dca720353fb5f3f068b"
+    },
+    {
+      "time": 96.53333333333335,
+      "frame": "149-v1-96.5333-second-room.png",
+      "sha256": "abb91e1a6373240bff0e024c9904a1cb58c655ebe4a4f380b3c8a28b039e1eda"
+    },
+    {
+      "time": 96.56666666666668,
+      "frame": "149-v1-96.5667-second-room.png",
+      "sha256": "501bf6d0e296e079cfe4e5eef925b2cfaa98e4174091601364961fa9adff5a70"
+    },
+    {
+      "time": 96.60000000000001,
+      "frame": "149-v1-96.6-second-room.png",
+      "sha256": "dced40fdab9afe476a21967e3a1b75d3b68f539c6308aa25bbed9fc718af0a42"
+    },
+    {
+      "time": 96.63333333333334,
+      "frame": "149-v1-96.6333-second-room.png",
+      "sha256": "1cc68fc42033917d2e109c69144a505fd5e3f33d8f5616d2de21e400198afe0a"
+    },
+    {
+      "time": 96.66666666666667,
+      "frame": "149-v1-96.6667-second-room.png",
+      "sha256": "2be63c99ca317b49716f2221ed9a2c6a56beb686b2907ff32cacc1e7ec2e72ff"
+    },
+    {
+      "time": 96.7,
+      "frame": "149-v1-96.7-second-room.png",
+      "sha256": "65655ed82a600e4d6bbec490858309189e818b78e450d386adbcca0076e983ba"
+    },
+    {
+      "time": 96.73333333333333,
+      "frame": "149-v1-96.7333-second-room.png",
+      "sha256": "2ac6dcc96e672be7ef1cf89e06c3b2e6d11e44866ff43e4769860fb2aca884d7"
+    },
+    {
+      "time": 96.76666666666667,
+      "frame": "149-v1-96.7667-second-room.png",
+      "sha256": "be4c72d5d1b21a8d764fe85d08a16669d24773522413484b7064452b46763633"
+    },
+    {
+      "time": 96.80000000000001,
+      "frame": "149-v1-96.8-second-room.png",
+      "sha256": "919ab7714397d77894a0c20d06676a0b925960a13df8ec61053dfc5bfb024921"
+    },
+    {
+      "time": 96.83333333333334,
+      "frame": "149-v1-96.8333-second-room.png",
+      "sha256": "0b1977647b75b1292bee9ac3f069eba6be5b44571c66a79127916a0747046360"
+    },
+    {
+      "time": 96.86666666666667,
+      "frame": "149-v1-96.8667-second-room.png",
+      "sha256": "0452104ac746cb05a87b84155cd43ab9dc0d7082b113f5af81e0831d7439cf89"
+    },
+    {
+      "time": 96.9,
+      "frame": "149-v1-96.9-second-room.png",
+      "sha256": "fb3ab61863c5fb1d5593bc6ee42298b54e94e6eab4556b657179acc71462e386"
+    },
+    {
+      "time": 96.93333333333334,
+      "frame": "149-v1-96.9333-second-room.png",
+      "sha256": "74a1c759f87b388020d8fe4c5daeb62db245be092a4db8000b8611fe282b5660"
+    },
+    {
+      "time": 96.96666666666667,
+      "frame": "149-v1-96.9667-second-room.png",
+      "sha256": "4a33c79f5bec7e9f660163e5711ecb3ab8f9d68d93760b7d63415bc9d095f757"
+    },
+    {
+      "time": 97.0,
+      "frame": "149-v1-97-second-room.png",
+      "sha256": "5d4ca21c08a256698477332b90e6fea77624fb0a0faca85388a065dfbd939b40"
+    },
+    {
+      "time": 97.03333333333335,
+      "frame": "149-v1-97.0333-second-room.png",
+      "sha256": "642f6b3b6baf84a9fcb294a1eec3ca0a50864dc9285f914385794ceab125437b"
+    },
+    {
+      "time": 97.06666666666668,
+      "frame": "149-v1-97.0667-second-room.png",
+      "sha256": "f0ccea7b4be4fb64cd5d5a02f467cdbc558b7a623c5bd165188c91f0762a382e"
+    },
+    {
+      "time": 97.10000000000001,
+      "frame": "149-v1-97.1-second-room.png",
+      "sha256": "4b71aa7a28550e03a544ae7e9680e3e0b7e0b054a9b75c31b8848158dce58895"
+    },
+    {
+      "time": 97.13333333333334,
+      "frame": "149-v1-97.1333-second-room.png",
+      "sha256": "0055938b42c64368a25a190ac1afa67f23f9e7cfee039a1e639a0dcfdc45ff98"
+    },
+    {
+      "time": 97.16666666666667,
+      "frame": "149-v1-97.1667-second-room.png",
+      "sha256": "93c6f5e99af89828b74c014e5356addfe2e3711cfc6cc16a247f969f5df98c25"
+    },
+    {
+      "time": 97.2,
+      "frame": "149-v1-97.2-second-room.png",
+      "sha256": "72f14ba1cb5832b6d9078b4d050e0d25a45f881cd3f224d57c3503ed7d870794"
+    },
+    {
+      "time": 97.23333333333333,
+      "frame": "149-v1-97.2333-second-room.png",
+      "sha256": "3ed624f9a1b1d7780e342fec0c5f97b0d0a28fac6ed3ff61f9b69ed6f31173e8"
+    },
+    {
+      "time": 97.26666666666667,
+      "frame": "149-v1-97.2667-second-room.png",
+      "sha256": "8e918cba2370a45eb0c4490ac52f4330d740e3f8e9cdc466d4e0f877e28b488a"
+    },
+    {
+      "time": 97.30000000000001,
+      "frame": "149-v1-97.3-second-room.png",
+      "sha256": "a28f0a112657448c7e4def7383bdc0af62740ed60b7ad50191c0b311df352fb9"
+    },
+    {
+      "time": 97.33333333333334,
+      "frame": "149-v1-97.3333-second-room.png",
+      "sha256": "57172e7dc10c652e8581e0d01c494e51304fda79247185d85c25a837c69bf5b4"
+    },
+    {
+      "time": 97.36666666666667,
+      "frame": "149-v1-97.3667-second-room.png",
+      "sha256": "2b5fb56e259eb00db91ae2df9903e6992290c3478e20b74ef07844f4f3b9bd50"
+    },
+    {
+      "time": 97.4,
+      "frame": "149-v1-97.4-second-room.png",
+      "sha256": "5dc8ce252ca1bcfc62bb3e742505ccfa2578257b8f05170b1203167932ca049d"
+    },
+    {
+      "time": 97.43333333333334,
+      "frame": "149-v1-97.4333-second-room.png",
+      "sha256": "930cc845abf653c035703d58b66cdc89174bbad9ee1af8c84617ace14e5d0f53"
+    },
+    {
+      "time": 97.46666666666667,
+      "frame": "149-v1-97.4667-second-room.png",
+      "sha256": "06474b1fe2a6dee851bca718becc7ec4336afbe7fad505faeea1356d916a7b8a"
+    },
+    {
+      "time": 97.5,
+      "frame": "149-v1-97.5-second-room.png",
+      "sha256": "4e04501759f062e42b161d013d5a80836e3903fe6377af93a38e22af9b58c0b8"
+    },
+    {
+      "time": 97.53333333333335,
+      "frame": "149-v1-97.5333-second-room.png",
+      "sha256": "1a73181550628a5889392dfdc470a6b82366a232b5a2bc129a22e4df8fc81218"
+    },
+    {
+      "time": 97.56666666666668,
+      "frame": "149-v1-97.5667-second-room.png",
+      "sha256": "952dc8ce7f998d0e33a389cdb121a3063b922221d3acac6268fcc8ff6599dd68"
+    }
+  ],
+  "limits": [
+    "Manual log/target review required; extraction does not infer a roster or event count.",
+    "The97s upgrade segment may need finer temporal samples to resolve repeated XP/SP rows.",
+    "No runtime room assignment, enemy behavior or progression value is changed."
+  ]
+}

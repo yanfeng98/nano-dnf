@@ -1,0 +1,111 @@
+{
+  "id": 43737791454,
+  "head_sha": "a6b09053b75245a8af56409eb09b2f1da3f72f02",
+  "status": "completed",
+  "conclusion": "success",
+  "html_url": "https://github.com/yanfeng98/nano-dnf/actions/runs/43737791454",
+  "updated_at": "2026-11-15T16:53:28Z",
+  "localRegression": "148-final-regression.json",
+  "onlineVerification": "completed",
+  "jobs": [
+    {
+      "id": 132884117339,
+      "name": "Test and stage the playable build",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/yanfeng98/nano-dnf/actions/runs/43737791454/job/132884117339"
+    },
+    {
+      "id": 132884426677,
+      "name": "Deploy to GitHub Pages",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/yanfeng98/nano-dnf/actions/runs/43737791454/job/132884426677"
+    },
+    {
+      "id": 132884505397,
+      "name": "Verify the deployed build",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/yanfeng98/nano-dnf/actions/runs/43737791454/job/132884505397"
+    }
+  ],
+  "independentLiveSmoke": {
+    "exitCode": 0,
+    "log": "/tmp/nano148-live.log",
+    "result": "published bytes match checkout; boots cleanly"
+  },
+  "onlineLordRoom": {
+    "url": "https://luyf-lemon-love.space/nano-dnf/?seed=1",
+    "stage": "mirkwooddeep",
+    "initialCount": 8,
+    "initialPending": 0,
+    "deaths": [
+      {
+        "type": "deepElite",
+        "level": 7,
+        "configuredXP": 70,
+        "paidXP": 70,
+        "dead": true
+      },
+      {
+        "type": "deepElite",
+        "level": 7,
+        "configuredXP": 70,
+        "paidXP": 70,
+        "dead": true
+      },
+      {
+        "type": "throwerElite",
+        "level": 7,
+        "configuredXP": 70,
+        "paidXP": 70,
+        "dead": true
+      },
+      {
+        "type": "cat",
+        "level": 6,
+        "configuredXP": 60,
+        "paidXP": 60,
+        "dead": true
+      },
+      {
+        "type": "cat",
+        "level": 6,
+        "configuredXP": 60,
+        "paidXP": 60,
+        "dead": true
+      },
+      {
+        "type": "cat",
+        "level": 6,
+        "configuredXP": 60,
+        "paidXP": 60,
+        "dead": true
+      },
+      {
+        "type": "cat",
+        "level": 6,
+        "configuredXP": 60,
+        "paidXP": 60,
+        "dead": true
+      },
+      {
+        "type": "lugaruBoss",
+        "level": 9,
+        "configuredXP": 360,
+        "paidXP": 360,
+        "dead": true
+      }
+    ],
+    "totalPaidXP": 810,
+    "cleared": true,
+    "victory": false,
+    "pending": 0,
+    "errors": [],
+    "limits": [
+      "Eight credited deaths restored; candidate positions, activation timing, AI and progression are not validated by this probe."
+    ]
+  },
+  "probeSha256": "3aa50397eab59d5059818e46244e147febe4b4cbb14e5031e709e8fa90dbb84a"
+}

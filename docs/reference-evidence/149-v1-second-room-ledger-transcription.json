@@ -1,0 +1,105 @@
+{
+  "video": "00001-\u5e7d\u6697\u5bc6\u6797.mp4",
+  "method": "Manual eight-row transcription, with source frames. Upgrade jump retains the unique SP/40/40/SP/40 block, even though no individual SP token is unique.",
+  "snapshots": [
+    {
+      "time": 76,
+      "frame": "134-v1-76-second-room.png",
+      "sha256": "6e389de500ef0fe61f52bcb5b04351cd3a87471a28bf8f837144226e4ce5d328",
+      "lines": [
+        "xp:40",
+        "sp:1",
+        "xp:80",
+        "coin:49",
+        "sp:1",
+        "xp:40",
+        "item:hardener",
+        "item:coal"
+      ]
+    },
+    {
+      "time": 82.5,
+      "frame": "134-v1-82.5-second-room.png",
+      "sha256": "01d0bf332f91bdf26b118c59313640d1afc2d038f20ff29c215d3332f08150d5",
+      "lines": [
+        "xp:80",
+        "coin:49",
+        "sp:1",
+        "xp:40",
+        "item:hardener",
+        "item:coal",
+        "sp:1",
+        "xp:40"
+      ]
+    },
+    {
+      "time": 83.5,
+      "frame": "134-v1-83.5-second-room.png",
+      "sha256": "f84d7d0c459c528f9479784f089f06e3b503de4962e0226a79f5362907c7e4a1",
+      "lines": [
+        "xp:40",
+        "item:hardener",
+        "item:coal",
+        "sp:1",
+        "xp:40",
+        "xp:40",
+        "sp:1",
+        "xp:40"
+      ]
+    },
+    {
+      "time": 96.5,
+      "frame": "134-v1-96.5-second-room.png",
+      "sha256": "9707964d90c352824a10d0057123dfc42292f7951b1a7dca720353fb5f3f068b",
+      "lines": [
+        "xp:40",
+        "item:hardener",
+        "item:coal",
+        "sp:1",
+        "xp:40",
+        "xp:40",
+        "sp:1",
+        "xp:40"
+      ]
+    },
+    {
+      "time": 96.86666666666667,
+      "frame": "149-v1-96.8667-second-room.png",
+      "sha256": "0452104ac746cb05a87b84155cd43ab9dc0d7082b113f5af81e0831d7439cf89",
+      "lines": [
+        "sp:1",
+        "xp:40",
+        "xp:40",
+        "sp:1",
+        "xp:40",
+        "message:level4",
+        "xp:40",
+        "xp:40"
+      ]
+    },
+    {
+      "time": 100,
+      "frame": "149-v1-100-second-room.png",
+      "sha256": "034bf3d335f5420fb4529cb70e8ae6ec9f4e104f579eb28cd50cce00382134ca",
+      "lines": [
+        "xp:40",
+        "sp:1",
+        "xp:40",
+        "message:level4",
+        "xp:40",
+        "xp:40",
+        "sp:1",
+        "xp:40"
+      ]
+    }
+  ],
+  "crossChecks": [
+    "96.8/96.8667 frames show two nearby ordinary goblins entering death sequence while one remains alive.",
+    "100s final ordinary goblin target is crossed out and logs append SP+40.",
+    "78s target red goblinLv4;80s throwerLv4;96s ordinary goblinLv4."
+  ],
+  "limits": [
+    "A unique compound retained context is required; repeated XP lines alone do not anchor a scroll.",
+    "No physical coordinates, HP, AI, reward formula or progression threshold is inferred."
+  ]
+}
