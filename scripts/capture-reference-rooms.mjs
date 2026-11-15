@@ -56,7 +56,7 @@ const profiles={
    ['east-floor',153.5,'forest',672+((552+1244.36+51.75)/1.125)%224,380+(388-233)/1.125,36/1.125,24/1.125,552,388,36,24,24,800,.6,null,null,true,14],
    ['west-floor',180,'forest',672+((324+2.26+51.75)/1.125)%224,380+(396-233)/1.125,36/1.125,24/1.125,324,396,36,24,24,800,.6,null,null,true,14]
   ]},
- '33-closeback':{evidence:'50-room33',col:2,row:2,out:'/tmp/nano-room62/render',times:[106,125,133,146],actorScreenX:80,entryDoor:'S',exit:'N',next:'投掷手坡',
+ '33-closeback':{sceneryOnly:true,evidence:'50-room33',col:2,row:2,out:'/tmp/nano-room62/render',times:[106,125,133,146],actorScreenX:80,entryDoor:'S',exit:'N',next:'投掷手坡',
   scope:'native room 33 closeback at four measured cameras; props and other scenery layers remain open',
   cases:[
    ['entry-tree',106,'room33Closeback',(580+712.56)/1.125,178/1.125,60/1.125,40/1.125,580,180,60,40,40,1500,.97,null,null,true],
@@ -308,10 +308,13 @@ try{
  await page.keyboard.press('ArrowRight');await page.keyboard.press('Enter');
  await page.waitForFunction(()=>window.nanoDnf.getState().stage.id==='mirkwooddeep'&&!window.nanoDnf.getState().intro);
  await page.keyboard.press('p');
- await page.evaluate(()=>{
+ await page.evaluate((sceneryOnly)=>{
   const render=window.DNFRender.render;
-  window.DNFRender.render=(ctx,state,meta)=>render(ctx,state,{...meta,paused:false});
- });
+  // Static scenery samples must not be occluded by the current enemy roster.
+  // Use a render-only view; actual actors stay alive for real keyboard travel.
+  window.DNFRender.render=(ctx,state,meta)=>render(ctx,
+   sceneryOnly?{...state,enemies:[]}:state,{...meta,paused:false});
+ },!!profile.sceneryOnly);
  const records=[],images={},actions=[];let prepared=false;
  for(const time of profile.times){
   if((room==='41'||room==='41-closeback')&&time>10.5&&!prepared&&process.env.ROOM_BASELINE!=='1'){

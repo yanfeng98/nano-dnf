@@ -3148,14 +3148,18 @@
           width: 1270,
           band: { backY: 256 },
           enemies: [
-            { type: "goblinBlue", x: 300, level: 6 },
-            { type: "deepElite", x: 400, wave: 2, level: 6 },
-            { type: "goblinRed", x: 250, wave: 3, level: 6 },
-            { type: "goblinRed", x: 350, wave: 3, level: 6 },
-            { type: "goblinRed", x: 450, wave: 3, level: 6 },
-            { type: "goblinRed", x: 550, wave: 3, level: 6 },
+            // V2 106..147.5s: eight new60 credits; both native n433 rosters agree.
+            // Native X minus the11px crop; depth/jitter/activation remain provisional.
+            { type: "goblinBlue", x: nativeGroundX(1397 - 11), level: 6, xp: 60 },
+            { type: "goblinBlue", x: nativeGroundX(1231 - 11), level: 6, xp: 60 },
+            { type: "deepElite", x: nativeGroundX(1508 - 11), level: 6, xp: 60 },
+            { type: "goblinRed", x: nativeGroundX(406 - 11), level: 6, xp: 60 },
+            { type: "goblinRed", x: nativeGroundX(503 - 11), level: 6, xp: 60 },
+            { type: "throwerElite", x: nativeGroundX(272 - 11), level: 6, xp: 60 },
+            { type: "goblinBlue", x: nativeGroundX(1323 - 11), level: 6, xp: 60 },
+            { type: "goblinRed", x: nativeGroundX(432 - 11), level: 6, xp: 60 },
           ],
-          cap: 4,
+          cap: 8,
           /* V2 106–147.5s: 84 connected two-axis camera samples, native cap/wall
            * fits (50-room33-*). Entry camera is ~713 screen px right of the
            * observed minimum. Right-limit camera 1283.08 screen px and native floor end support width1270.

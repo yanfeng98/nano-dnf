@@ -43,13 +43,30 @@ for page in range(4):
         ld.text((x, y), f'V2 {time:g}s', fill='white')
         logs.paste(frame.crop((12, 95, 252, 345)), (x, y + 16))
         logs.paste(frame.crop((595, 25, 660, 50)), (x, y + 270))
-        if time in [106.5, 110, 118, 125, 133, 138, 142, 146]:
+        if time in [106.5, 110, 118, 125, 133, 138, 142, 146, 112, 112.5, 124.5, 128, 128.5, 140.5, 141, 142.5, 144, 144.5]:
             name = f'140-v2-{time:g}-room33.png'
             selected.append(dict(time=time, file=name, sha256=hashlib.sha256((a.out / name).read_bytes()).hexdigest()))
     targets.save(a.out / f'140-room33-targets-{page}.jpg', quality=95)
     logs.save(a.out / f'140-room33-logs-{page}.jpg', quality=95)
+# Number the eight visible log rows so manual shift alignments can be audited.
+numbered = Image.new('RGB', (1000, 900), '#181818')
+nd = ImageDraw.Draw(numbered)
+for i, time in enumerate([106, 112.5, 125, 128.5, 139, 141, 142.5, 144.5]):
+    x, y = i % 4 * 250, i // 4 * 450
+    frame = Image.fromarray(frames[round((time - 106) * 2)])
+    nd.text((x, y), str(time), fill='white')
+    for row in range(8):
+        numbered.paste(frame.crop((20, 101 + row * 17, 220, 116 + row * 17)).resize((220, 30)),
+                       (x + 20, y + 30 + row * 45))
+        nd.text((x, y + 30 + row * 45), str(row + 1), fill='white')
+numbered.save(a.out / '140-room33-numbered-logs.png')
 native = json.loads((ROOT / 'docs/reference-evidence/137-room14-roster-reference.json').read_text())
-report = dict(video=a.video.name, sourceFps=30, start=106, strideFrames=15, samples=84,
+# Manual readings are declared separately from the automated extraction.
+credit_windows = [(112,112.5,1),(124.5,125,1),(128,128.5,2),
+                  (140.5,141,1),(142,142.5,2),(144,144.5,1)]
+report = dict(manualCreditWindows=[dict(start=a,end=b,new60Credits=n) for a,b,n in credit_windows],
+              manualCreditTotal=480,
+              video=a.video.name, sourceFps=30, start=106, strideFrames=15, samples=84,
               selectedFrames=selected,
               clients=[dict(file=c['file'], rooms=[r for r in c['rooms'] if r['room'] == '33']) for c in native['clients']],
               limits=['Manual caption/log annotations, not automatic OCR.',
@@ -57,4 +74,4 @@ report = dict(video=a.video.name, sourceFps=30, start=106, strideFrames=15, samp
                       'Native map counts alone do not prove the recorded total or spawn timing.',
                       'No runtime XP formula, actor depth or AI is inferred by extraction.'])
 (a.out / '140-room33-roster-reference.json').write_text(json.dumps(report, ensure_ascii=False, indent=2) + '\n')
-print('Room33: 84 half-second frames extracted; manual roster, death credits and bunker spawns remain to review.')
+print('Room33: 84 half-second frames extracted; declared manual credit windows total eight60 credits. Activation/AI/bunker semantics remain unverified.')

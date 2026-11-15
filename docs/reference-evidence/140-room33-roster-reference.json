@@ -401,5 +401,39 @@
       "Dense late red/captain group and both bunkers require spawn/death provenance.",
       "Opaque bunker int data is not a decoded spawning contract."
     ]
-  }
+  },
+  "manualCreditWindows": [
+    {
+      "from": 112,
+      "to": 112.5,
+      "new60Credits": 1
+    },
+    {
+      "from": 124.5,
+      "to": 125,
+      "new60Credits": 1
+    },
+    {
+      "from": 128,
+      "to": 128.5,
+      "new60Credits": 2
+    },
+    {
+      "from": 140.5,
+      "to": 141,
+      "new60Credits": 1
+    },
+    {
+      "from": 142,
+      "to": 142.5,
+      "new60Credits": 2
+    },
+    {
+      "from": 144,
+      "to": 144.5,
+      "new60Credits": 1
+    }
+  ],
+  "creditTotal": 480,
+  "interpretation": "Eight credits corroborate eight native initial actors; no independently established extra bunker-spawn deaths in this window."
 }
