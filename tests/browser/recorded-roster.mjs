@@ -8,6 +8,10 @@ import { fileURLToPath } from 'node:url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const room = process.env.ROSTER_ROOM || '42';
 const probes = {
+  '13': {col:2,row:0,targetType:'deepElite',targetLevel:6,targetWidth:198,xp:540,expected:[
+    'goblinRed:6:60','goblinRed:6:60','goblinBlue:6:60','goblinBlue:6:60',
+    'cat:6:60','cat:6:60','deepElite:6:60','deepElite:6:60','throwerElite:6:60'
+  ]},
   '23': {col:2,row:1,targetType:'cat',targetLevel:6,targetWidth:162,xp:660,expected:[
     'goblinRed:6:60','goblinRed:6:60','goblinRed:6:60',
     'goblinBlue:6:60','goblinBlue:6:60','goblinBlue:6:60',
@@ -80,6 +84,9 @@ try {
     };
     window.DNFRender.render(ctx,s,{...window.rosterMeta,paused:false,region:null});
     const targetPng=canvas.toDataURL('image/png');
+    // Clear while safely inside the room, away from an opening entry trigger.
+    s.player.x=C.roomWidth(s)/2;s.player.z=C.bandDepth(s.band)/2;
+    s.player.vx=s.player.vz=0;
     const before={xp:s.player.xp,kills:s.stats.kills};
     for (const e of s.enemies) {
       for (let hit=0;hit<50 && !e.dead;hit++) C.damageEnemy(s,e,e.hp+1,0,s.player.x);

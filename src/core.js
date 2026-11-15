@@ -3206,14 +3206,19 @@
           width: 1248.75,
           band: { backY: 256 },
           enemies: [
-            { type: "goblinRed", x: 350, level: 6 },
-            { type: "goblinRed", x: 650, level: 6 },
-            { type: "cat", x: 500, wave: 2, level: 6 },
-            { type: "throwerElite", x: 300, depth: 0.35, wave: 3, level: 6 },
-            { type: "deepElite", x: 600, wave: 3, level: 6 },
-            { type: "goblinRed", x: 850, wave: 3, level: 6 },
+            // V2 190..235.5s: nine new60 credits match both native n412 rosters.
+            // Native X minus the41px crop; depth/jitter/activation remain provisional.
+            { type: "goblinBlue", x: nativeGroundX(678 - 41), level: 6, xp: 60 },
+            { type: "goblinRed", x: nativeGroundX(601 - 41), level: 6, xp: 60 },
+            { type: "goblinRed", x: nativeGroundX(1109 - 41), level: 6, xp: 60 },
+            { type: "cat", x: nativeGroundX(1057 - 41), level: 6, xp: 60 },
+            { type: "deepElite", x: nativeGroundX(1366 - 41), level: 6, xp: 60 },
+            { type: "throwerElite", x: nativeGroundX(1508 - 41), level: 6, xp: 60 },
+            { type: "cat", x: nativeGroundX(968 - 41), level: 6, xp: 60 },
+            { type: "goblinBlue", x: nativeGroundX(829 - 41), level: 6, xp: 60 },
+            { type: "deepElite", x: nativeGroundX(1403 - 41), level: 6, xp: 60 },
           ],
-          cap: 4,
+          cap: 9,
           /* V2 190–235.5 and 266.5–271.5s: joint camera graph, 103 samples.
            * Batch96 maps all15 native231 pillars with the41px crop.
            * Native caps also identify4 barrels. Width lower bound
