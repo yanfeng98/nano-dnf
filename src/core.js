@@ -3063,18 +3063,20 @@
           width: 1278.06,
           band: { backY: 256 },
           enemies: [
-            { type: "throwerElite", x: 250, depth: 0.35, level: 6 },
-            { type: "cat", x: 400, level: 6 },
-            { type: "goblinRed", x: 550, level: 6 },
-            { type: "deepElite", x: 300, wave: 2, level: 6 },
-            { type: "throwerElite", x: 450, depth: 0.35, wave: 2, level: 6 },
-            { type: "cat", x: 600, wave: 2, level: 6 },
-            { type: "goblinRed", x: 200, wave: 2, level: 6 },
-            { type: "deepElite", x: 400, wave: 3, level: 6 },
-            { type: "cat", x: 550, wave: 3, level: 6 },
-            { type: "deepElite", x: 500, wave: 4, level: 6 },
+            // V2 counter7 ->15, seven60 credits and one70 (Lv7 cat at58s).
+            // Native h434 has two captains, three throwers and three cats, no reds.
+            // Map records are initial actors; later target selection is not spawning.
+            // Native X is projected; exact floor depth/jitter and AI remain unverified.
+            { type: "deepElite", x: nativeGroundX(824), level: 6, xp: 60 },
+            { type: "deepElite", x: nativeGroundX(419), level: 6, xp: 60 },
+            { type: "cat", x: nativeGroundX(626), level: 6, xp: 60 },
+            { type: "cat", x: nativeGroundX(756), level: 7, xp: 70 },
+            { type: "throwerElite", x: nativeGroundX(286), level: 6, xp: 60 },
+            { type: "throwerElite", x: nativeGroundX(506), level: 6, xp: 60 },
+            { type: "throwerElite", x: nativeGroundX(1115), level: 6, xp: 60 },
+            { type: "cat", x: nativeGroundX(890), level: 6, xp: 60 },
           ],
-          cap: 4,
+          cap: 8,
           // V2 28–73.5s: 945 static-feature graph constraints, 1296px camera span.
           // See reference-video-audit batch46. Coordinates are world anchors,
           // not positions stretched with the larger room width.
@@ -7824,7 +7826,17 @@
      * 足够在真正贴上之前就决定绕。
      */
     var aheadX = enemy.x + enemy.facing * speed * DT * 6;
-    if (!propBlocksAt(state, aheadX, enemy.z || 0, enemy, ROUTE_GRID_STEP / 2)) {
+    // Keep routing while the horizontal corridor is blocked. Looking only six
+    // frames ahead drops the detour as soon as BFS steps away from a column,
+    // then direct pursuit steps back into the same cell forever.
+    var corridorBlocked = (state.props || []).some(function (prop) {
+      var box = propObstacle(prop, enemy);
+      if (!box || Math.abs((enemy.z || 0) - box.z) >= box.depth / 2 + ROUTE_GRID_STEP / 2) return false;
+      var halfWidth = box.width / 2 + ROUTE_GRID_STEP / 2;
+      return Math.max(enemy.x, player.x) > box.x - halfWidth &&
+        Math.min(enemy.x, player.x) < box.x + halfWidth;
+    });
+    if (!corridorBlocked && !propBlocksAt(state, aheadX, enemy.z || 0, enemy, ROUTE_GRID_STEP / 2)) {
       enemy.vx = enemy.facing * speed;
       return;
     }

@@ -570,6 +570,20 @@ async function runPass(browser, baseUrl, options) {
         const up = (code) => window.dispatchEvent(new KeyboardEvent("keyup", { code: code, bubbles: true }));
         const player = () => window.nanoDnf.getState().player;
         const out = {};
+        const waitForAction = async (predicate, label) => {
+          const deadline = performance.now() + 1000;
+          while (!predicate()) {
+            if (performance.now() >= deadline) {
+              const state = window.nanoDnf.getState();
+              throw new Error(`${label} did not start: ${JSON.stringify({
+                time: state.time, hitStop: state.hitStop, skillBuffer: state.skillBuffer,
+                attackTimer: player().attackTimer, attackBuffer: player().attackBuffer,
+                skillId: player().skillId, hurtTimer: player().hurtTimer
+              })}`);
+            }
+            await nextFrame();
+          }
+        };
 
         const original = window.nanoDnf.getLoadout();
         window.nanoDnf.setLoadout(
@@ -580,8 +594,7 @@ async function runPass(browser, baseUrl, options) {
         player().mp = player().maxMp;
         player().skillCooldowns.upSlash = 0;
         down("KeyZ");
-        await nextFrame();
-        await nextFrame();
+        await waitForAction(() => player().skillTimer > 0 && player().skillId === "upSlash", "ground Z");
         out.groundZ = player().skillId;
         up("KeyZ");
         await nextFrame();
@@ -595,8 +608,7 @@ async function runPass(browser, baseUrl, options) {
         player().y = window.DNFCore.ARENA.groundY - 130;
         player().vy = -60;
         down("KeyZ");
-        await nextFrame();
-        await nextFrame();
+        await waitForAction(() => player().skillTimer > 0 && player().skillId === "silverFall", "air Z");
         out.airZ = player().skillId;
         out.diveRow = window.DNFRender.SPRITE.skillClips.silverFall.row;
         out.airZRow = window.DNFRender.playerFrame(window.nanoDnf.getState(), player()).row;
@@ -610,9 +622,12 @@ async function runPass(browser, baseUrl, options) {
         player().onGround = false;
         player().y = window.DNFCore.ARENA.groundY - 110;
         player().vy = -170;
+        // Hit-stop can buffer X for several simulation ticks; RAF count is
+        // not evidence that the attack has begun. Keep the real key held and
+        // capture its first actual attack, retaining the original pose checks.
+        out.airXBefore = { time: window.nanoDnf.getState().time, hitStop: window.nanoDnf.getState().hitStop };
         down("KeyX");
-        await nextFrame();
-        await nextFrame();
+        await waitForAction(() => player().attackTimer > 0, "air X");
         const frame = window.DNFRender.playerFrame(window.nanoDnf.getState(), player());
         out.airX = { row: frame.row, col: frame.col };
         const air = window.DNFRender.SPRITE.airAttack;

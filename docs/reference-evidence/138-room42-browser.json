@@ -1,0 +1,93 @@
+{
+  "url": "http://127.0.0.1:46569/?seed=1",
+  "portraitDraws": [
+    [
+      495,
+      0,
+      626,
+      32,
+      126,
+      45.5,
+      704.25,
+      36
+    ],
+    [
+      1718,
+      0,
+      3,
+      17,
+      354.625,
+      62.375,
+      3.375,
+      19.125
+    ],
+    [
+      423,
+      0,
+      24,
+      24,
+      128.25,
+      47.75,
+      27,
+      27
+    ],
+    [
+      1121,
+      0,
+      597,
+      9,
+      158.625,
+      64.625,
+      196,
+      10.125
+    ]
+  ],
+  "stage": "mirkwooddeep",
+  "roster": [
+    {
+      "type": "deepElite",
+      "level": 6,
+      "xp": 60
+    },
+    {
+      "type": "deepElite",
+      "level": 6,
+      "xp": 60
+    },
+    {
+      "type": "cat",
+      "level": 6,
+      "xp": 60
+    },
+    {
+      "type": "cat",
+      "level": 7,
+      "xp": 70
+    },
+    {
+      "type": "throwerElite",
+      "level": 6,
+      "xp": 60
+    },
+    {
+      "type": "throwerElite",
+      "level": 6,
+      "xp": 60
+    },
+    {
+      "type": "throwerElite",
+      "level": 6,
+      "xp": 60
+    },
+    {
+      "type": "cat",
+      "level": 6,
+      "xp": 60
+    }
+  ],
+  "pending": 0,
+  "xp": 490,
+  "kills": 8,
+  "cleared": true,
+  "errors": []
+}

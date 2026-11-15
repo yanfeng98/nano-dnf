@@ -1,0 +1,21 @@
+{
+  "pid": 627328,
+  "started": 1794712311.4176939,
+  "finished": 1794712541.2129865,
+  "unitExitCode": 0,
+  "browserExitCode": 1,
+  "inputs": {
+    "src/core.js": "706eea59a61798201b2af9df1366cfc3d6defc6fd0c8f981bede5e923b9a03f0",
+    "src/render.js": "92dde93ed60c231e37a2f05cefa217da173cb21f4ce1dc6e87c738fa0f097d01",
+    "src/main.js": "4bb0066760c37e103e0d36fd227531045f931e82ab06f621576b536843e86b26",
+    "package.json": "e69bc4ceecd8666209c8a582e4be14e9c4e626b14c3c7d2801b0696b2d1eb933",
+    "tests/browser/keyboard-policy.cjs": "ff172471c06816cb872711207475e65c94acd8bd87718442ea39c4b241f1117f",
+    "tests/browser/playability.mjs": "61b1859366317fafbaed8eeb2416d8cae7b2dd14393f0dc42a77d2793de75b0c",
+    "tests/browser-keyboard-policy.test.js": "531db0bff42af8da1468a2173b01f8adc9197903e66e381144bd179022d6ec5c",
+    "tests/browser-pass-selection.test.js": "cf51b52bea8ffce421dde5b10dc51cc61b5c0429f1c8491c4f543d8377fa345f",
+    "tests/browser/starting-profile.mjs": "1224629f8890c852d6f008c604705344058f9d3aeaddd57de3d736f4ad7511b0",
+    "tests/recording-entry.test.js": "37fbda65e594f4f28eb7838f6e6bca71a8f75e69e4bec03af97d201f180a8553",
+    "tests/core.test.js": "7e4a13828709db95fcc363b314cd89efbb55f800a99b80b785a0af61972f2ca8"
+  },
+  "inputsUnchanged": true
+}

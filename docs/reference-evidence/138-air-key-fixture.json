@@ -1,0 +1,111 @@
+{
+  "scope": "Extracted real browser key fixture. Artificial hitStop demonstrates the same symptom; original full-run cause was not recorded and remains unproven.",
+  "forcedHitStopSeconds": 0.1,
+  "beforeWaitFix": [
+    {
+      "forced": false,
+      "hasUpSlashInBar": false,
+      "groundZ": "upSlash",
+      "airZ": "silverFall",
+      "diveRow": 6,
+      "airZRow": 6,
+      "beforeX": {
+        "hitStop": 0,
+        "hurt": 0,
+        "skillBuffer": null,
+        "time": 0.4333333333333333
+      },
+      "airX": {
+        "row": 2,
+        "col": 23,
+        "hitStop": 0,
+        "attackTimer": 0.18666666666666668,
+        "attackBuffer": 0.5,
+        "hurt": 0,
+        "time": 0.4666666666666666
+      },
+      "airAttack": {
+        "row": 2,
+        "first": 23,
+        "frames": 4
+      },
+      "restored": true
+    },
+    {
+      "forced": true,
+      "hasUpSlashInBar": false,
+      "groundZ": "upSlash",
+      "airZ": "silverFall",
+      "diveRow": 6,
+      "airZRow": 6,
+      "beforeX": {
+        "hitStop": 0,
+        "hurt": 0,
+        "skillBuffer": null,
+        "time": 0.4333333333333333
+      },
+      "airX": {
+        "row": 6,
+        "col": 16,
+        "hitStop": 0.06666666666666668,
+        "attackTimer": 0,
+        "attackBuffer": 0.5,
+        "hurt": 0,
+        "time": 0.4666666666666666
+      },
+      "airAttack": {
+        "row": 2,
+        "first": 23,
+        "frames": 4
+      },
+      "restored": true
+    }
+  ],
+  "afterWaitFix": [
+    {
+      "forced": false,
+      "hasUpSlashInBar": false,
+      "groundZ": "upSlash",
+      "airZ": "silverFall",
+      "diveRow": 6,
+      "airZRow": 6,
+      "airXBefore": {
+        "time": 0.44999999999999996,
+        "hitStop": 0
+      },
+      "airX": {
+        "row": 2,
+        "col": 23
+      },
+      "airAttack": {
+        "row": 2,
+        "first": 23,
+        "frames": 4
+      },
+      "restored": true
+    },
+    {
+      "forced": true,
+      "hasUpSlashInBar": false,
+      "groundZ": "upSlash",
+      "airZ": "silverFall",
+      "diveRow": 6,
+      "airZRow": 6,
+      "airXBefore": {
+        "time": 0.39999999999999997,
+        "hitStop": 0
+      },
+      "airX": {
+        "row": 2,
+        "col": 23
+      },
+      "airAttack": {
+        "row": 2,
+        "first": 23,
+        "frames": 4
+      },
+      "restored": true
+    }
+  ],
+  "assertionsUnchanged": "Ground Z upSlash, air Z silverFall, air X row2 columns23..26."
+}

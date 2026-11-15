@@ -34,6 +34,37 @@ test('deep room14 includes the five recorded green goblins and both captain pair
   }
 });
 
+test('deep room42 matches eight recorded deaths, including the Lv7 cat', () => {
+  const Render = require('../src/render.js');
+  for (const seed of [1, 2, 7, 123]) {
+    const state = Core.createState({stage: 'mirkwooddeep', seed, referenceProfile: true});
+    Core.goToCell(state, state.dungeon.cells.findIndex(spot => spot.col === 1 && spot.row === 3));
+    state.player.xpToNext = 100000;
+    state.player.invuln = Infinity;
+    state.transition = 0;
+    const seen = new Map();
+    for (let frame = 0; frame < 1200 && !state.room.cleared; frame++) {
+      for (const enemy of state.enemies) {
+        if (seen.has(enemy.id)) continue;
+        seen.set(enemy.id, [enemy.type, enemy.level, enemy.xp]);
+        const width = enemy.type === 'deepElite' ? 198 : enemy.level === 7 ? 196 : 162;
+        assert.equal(Render.targetTrackWidth(state, enemy), width, `${enemy.type} Lv${enemy.level} recorded track`);
+        for (let hit = 0; hit < 50 && !enemy.dead; hit++) Core.damageEnemy(state, enemy, enemy.hp + 1, 0, state.player.x);
+      }
+      Core.step(state, {});
+    }
+    assert.equal(seen.size, 8, 'V2 counter7 at entry and15 at exit');
+    const roster = [...seen.values()].map(row => row.join(':')).sort();
+    assert.deepEqual(roster, [
+      'deepElite:6:60', 'deepElite:6:60',
+      'throwerElite:6:60', 'throwerElite:6:60', 'throwerElite:6:60',
+      'cat:6:60', 'cat:6:60', 'cat:7:70'
+    ].sort());
+    assert.equal(state.player.xp, 490, 'seven60 credits and the Lv7 cat70');
+    assert.ok(state.room.cleared);
+  }
+});
+
 test('deep entry preserves recorded Lv5 red / Lv6 blue goblin credits across spawning', () => {
   const Render = require('../src/render.js');
   for (const seed of [1, 2, 7, 123]) {

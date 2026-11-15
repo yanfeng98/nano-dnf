@@ -11979,19 +11979,21 @@ test("native prop obstacles expose physical geometry and retain the object's sta
 });
 
 test("monster routing and collision share the native pillar footprint", () => {
-  const s=Core.createState({stage:"mirkwooddeep",seed:1});
+  for (const seed of [1, 2, 7, 123]) for (const direction of [-1, 1]) {
+  const s=Core.createState({stage:"mirkwooddeep",seed});
   Core.goToCell(s,s.dungeon.cells.findIndex(c=>c.col===1&&c.row===3));
   s.intro=null;s.transition=0;s.room.cleared=true;s.player.invuln=999;
   const p=s.props.find(p=>p.nativePillar?.x===506);s.props=[p];
   const x=506*1.125/Core.CAMERA.zoom;
-  s.player.x=x+110;s.player.z=p.sortZ;
-  const enemy=Core.createEnemy(s,"goblinRed",x-110,p.sortZ,6);s.enemies=[enemy];
+  s.player.x=x+direction*110;s.player.z=p.sortZ;
+  const enemy=Core.createEnemy(s,"goblinRed",x-direction*110,p.sortZ,6);s.enemies=[enemy];
   for(let frame=0;frame<600;frame++){
     Core.step(s,{});
     const forbidden=Core.propObstacle(p,enemy);
     assert.ok(!(Math.abs(enemy.x-forbidden.x)<forbidden.width/2-1e-7&&Math.abs(enemy.z-forbidden.z)<forbidden.depth/2-1e-7),"monster entered a native blocker");
   }
-  assert.ok(enemy.x>x+30,"the monster routes around the column rather than remaining stuck");
+  assert.ok((enemy.x-x)*direction>30,`seed${seed} direction${direction}: the monster routes around the column rather than remaining stuck`);
+  }
 });
 
 test("room33 native pillars use the cropped map origin for blocking and hits", () => {

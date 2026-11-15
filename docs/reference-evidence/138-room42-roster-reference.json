@@ -1,0 +1,515 @@
+{
+  "video": "00002-幽暗密林深处.mp4",
+  "sourceFps": 30,
+  "start": 26,
+  "strideFrames": 15,
+  "samples": 96,
+  "selectedFrames": [
+    {
+      "time": 27.5,
+      "file": "138-v2-27.5-room42.png",
+      "sha256": "44f971d7c2a675deb7bfdf4af6ac7f6cfc611b763c78e102d5e212bf8486430e"
+    },
+    {
+      "time": 35.5,
+      "file": "138-v2-35.5-room42.png",
+      "sha256": "36aee4c9bc7c3cedc5285c6744c27afccdd99e4a4ca4e86fce460559b663823e"
+    },
+    {
+      "time": 40.5,
+      "file": "138-v2-40.5-room42.png",
+      "sha256": "fcfcfd34b7573b212355299df1f8c82336c69efa9cf7e44ffd66f7ab7486cc2c"
+    },
+    {
+      "time": 41.0,
+      "file": "138-v2-41-room42.png",
+      "sha256": "b2febf5e2eeab38217bb002b7e37067427989db2d8062ac67bd05835d9408546"
+    },
+    {
+      "time": 44.0,
+      "file": "138-v2-44-room42.png",
+      "sha256": "870d4be8276fac78273223dfda327d52bb4c7de1c17d019fd54f9137a308ee26"
+    },
+    {
+      "time": 45.5,
+      "file": "138-v2-45.5-room42.png",
+      "sha256": "ddcacaf5645321767359efc0f42acbdbab878af05886f50768bb4df536179827"
+    },
+    {
+      "time": 49.0,
+      "file": "138-v2-49-room42.png",
+      "sha256": "859f0ff36dfd477b18b2ccaddf595b5c12fe702c6363f25da3acfd068d837b43"
+    },
+    {
+      "time": 52.0,
+      "file": "138-v2-52-room42.png",
+      "sha256": "e3a56160637418bed10a0c8a0bb930db2474bb56f1c1b58f6efd153dada6e091"
+    },
+    {
+      "time": 58.0,
+      "file": "138-v2-58-room42.png",
+      "sha256": "5effa3a624d74f8365e40494fdf60a10cc6bb92b114fb2e79bc778fb59820e91"
+    },
+    {
+      "time": 59.5,
+      "file": "138-v2-59.5-room42.png",
+      "sha256": "b869f5c18615fe1464d1c05b28c5ea2acff3ecbe52e4e8202d8bdfd9627802ce"
+    },
+    {
+      "time": 65.0,
+      "file": "138-v2-65-room42.png",
+      "sha256": "b5d4fba2e56c26e2866f8c0c3fe1724e347d6227b6b639069f02811c266bdf30"
+    },
+    {
+      "time": 73.5,
+      "file": "138-v2-73.5-room42.png",
+      "sha256": "1fc4f76a71efdef064c7bfa84f42b082d9bc860dfba7318ecf00da58948d0864"
+    }
+  ],
+  "clients": [
+    {
+      "file": "Script_70.pvf",
+      "rooms": [
+        {
+          "room": "42",
+          "entry": "map/mirkwooddeep/h434(1,2).map",
+          "sha256": "2a246a9fae1cd999007f4d7ad85cf7273e12435bc2ca615535ac837c8ef211b9",
+          "records": [
+            {
+              "monsterId": 5,
+              "monsterPath": "Goblin/GoblinTaskmaster.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                824,
+                200,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5,
+              "monsterPath": "Goblin/GoblinTaskmaster.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                419,
+                225,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5001,
+              "monsterPath": "Lugaru/Lugaru.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                626,
+                231,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5001,
+              "monsterPath": "Lugaru/Lugaru.mob",
+              "levelFields": [
+                1,
+                1
+              ],
+              "nativeXYZ": [
+                756,
+                261,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 6,
+              "monsterPath": "Goblin/GoblinThrowerTaskmaster.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                286,
+                297,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 6,
+              "monsterPath": "Goblin/GoblinThrowerTaskmaster.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                506,
+                307,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 6,
+              "monsterPath": "Goblin/GoblinThrowerTaskmaster.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1115,
+                311,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5001,
+              "monsterPath": "Lugaru/Lugaru.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                890,
+                335,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "Script.pvf",
+      "rooms": [
+        {
+          "room": "42",
+          "entry": "map/mirkwooddeep/h434(1,2).map",
+          "sha256": "3083751495ee70025df8ec9157d1cd8c134a38c588ca76bcc879c61199736e7d",
+          "records": [
+            {
+              "monsterId": 5,
+              "monsterPath": "Goblin/GoblinTaskmaster.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                824,
+                200,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5,
+              "monsterPath": "Goblin/GoblinTaskmaster.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                419,
+                225,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5001,
+              "monsterPath": "Lugaru/Lugaru.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                626,
+                231,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5001,
+              "monsterPath": "Lugaru/Lugaru.mob",
+              "levelFields": [
+                1,
+                1
+              ],
+              "nativeXYZ": [
+                756,
+                261,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 6,
+              "monsterPath": "Goblin/GoblinThrowerTaskmaster.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                286,
+                297,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 6,
+              "monsterPath": "Goblin/GoblinThrowerTaskmaster.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                506,
+                307,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 6,
+              "monsterPath": "Goblin/GoblinThrowerTaskmaster.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                1115,
+                311,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            },
+            {
+              "monsterId": 5001,
+              "monsterPath": "Lugaru/Lugaru.mob",
+              "levelFields": [
+                1,
+                0
+              ],
+              "nativeXYZ": [
+                890,
+                335,
+                0
+              ],
+              "tailFields": [
+                1,
+                1,
+                "[fixed]",
+                "[normal]"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "manualObservations": [
+    {
+      "time": 27.5,
+      "counter": 7,
+      "target": "throwerElite",
+      "level": 6
+    },
+    {
+      "time": 40.5,
+      "target": "deepElite",
+      "level": 6
+    },
+    {
+      "time": 49,
+      "target": "cat",
+      "level": 7
+    },
+    {
+      "time": 58,
+      "target": "cat",
+      "level": 7,
+      "floatingCredit": 70
+    },
+    {
+      "time": 73.5,
+      "counter": 15
+    }
+  ],
+  "manualRoster": [
+    {
+      "type": "deepElite",
+      "level": 6,
+      "count": 2,
+      "creditEach": 60
+    },
+    {
+      "type": "throwerElite",
+      "level": 6,
+      "count": 3,
+      "creditEach": 60
+    },
+    {
+      "type": "cat",
+      "level": 6,
+      "count": 2,
+      "creditEach": 60
+    },
+    {
+      "type": "cat",
+      "level": 7,
+      "count": 1,
+      "creditEach": 70
+    }
+  ],
+  "totalCredit": 490,
+  "cat7TargetWidths": [
+    {
+      "time": 49.0,
+      "borderRightExclusive": [
+        235,
+        235,
+        235
+      ],
+      "estimatedFillWidth": 195.25,
+      "referenceProfileWidth": 196
+    },
+    {
+      "time": 53.5,
+      "borderRightExclusive": [
+        236,
+        235,
+        235
+      ],
+      "estimatedFillWidth": 195.25,
+      "referenceProfileWidth": 196
+    },
+    {
+      "time": 54.0,
+      "borderRightExclusive": [
+        236,
+        235,
+        235
+      ],
+      "estimatedFillWidth": 195.25,
+      "referenceProfileWidth": 196
+    },
+    {
+      "time": 55.0,
+      "borderRightExclusive": [
+        235,
+        234,
+        232
+      ],
+      "estimatedFillWidth": 194.25,
+      "referenceProfileWidth": 196
+    },
+    {
+      "time": 58.0,
+      "borderRightExclusive": [
+        235,
+        235,
+        235
+      ],
+      "estimatedFillWidth": 195.25,
+      "referenceProfileWidth": 196
+    }
+  ],
+  "targetWidthMethod": "Gold border endpoints at normalized rows62/75/76, fill origin39.75; compression tolerance2px. Observed profile, not HP formula.",
+  "limits": [
+    "Manual readings, not automatic OCR.",
+    "Full log crops are necessary: new credits append below the first two lines.",
+    "Native map records corroborate the count and types, not a general server level formula.",
+    "Later target selection does not establish later spawning; old death-triggered waves lack evidence.",
+    "Native X projection does not establish exact depth, jitter, activation or AI.",
+    "Global progression and the other rooms remain unresolved."
+  ]
+}
