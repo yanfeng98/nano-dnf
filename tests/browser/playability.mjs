@@ -1004,7 +1004,8 @@ async function runPass(browser, baseUrl, options) {
        * layout or the one-shot rule that stops a held key walking him through
        * the whole move.
        */
-      const castAwakening = async () => {
+      const awakeningInputs = [];
+      const castAwakening = async (phase) => {
         /*
          * **Wait for a frame he is free on.** The key is edge-triggered (a held
          * key would walk him raise-fall-raise), so a press that lands inside a
@@ -1026,6 +1027,16 @@ async function runPass(browser, baseUrl, options) {
           null,
           { timeout: 20000 }
         );
+        // The accepted cast may settle while this helper waits for recovery.
+        // Re-read before sending an edge: another V reverses the intended state.
+        const before = await page.evaluate(() => {
+          const s = window.nanoDnf.getState(), p = s.player;
+          return { time:s.time, tier:p.hellbenterTier, buff:p.buffs.hellbenter || 0,
+            skillId:p.skillId, skillTimer:p.skillTimer, hitStop:s.hitStop };
+        });
+        const settled = phase === "raise" ? before.tier >= 1 && before.buff > 0 : before.tier === 0;
+        awakeningInputs.push({phase, before, inputSent:!settled});
+        if (settled) return;
         if (options.mode === "touch") {
           await touchAction(page, "skill:hellbenter", true);
           await touchAction(page, "skill:hellbenter", false);
@@ -1043,7 +1054,7 @@ async function runPass(browser, baseUrl, options) {
        */
       let swordUp = { tier: 0, buff: 0 };
       for (let attempt = 0; attempt < 4 && !(swordUp.tier >= 1); attempt += 1) {
-        await castAwakening();
+        await castAwakening("raise");
         /* The cast is its own second, and the sword lands inside it. */
         await waitWatching(1500);
         swordUp = await page.evaluate(() => {
@@ -1065,7 +1076,7 @@ async function runPass(browser, baseUrl, options) {
       const fallMs = await page.evaluate(() => window.DNFCore.SKILLS.hellbenterSlam.duration * 1000);
       let swordDown = null;
       for (let attempt = 0; attempt < 3 && !(swordDown && swordDown.tier === 0); attempt += 1) {
-        await castAwakening();
+        await castAwakening("fall");
         await waitWatching(Math.ceil(fallMs) + 400);
         swordDown = await page.evaluate(() => {
           const player = window.nanoDnf.getState().player;
@@ -1075,7 +1086,8 @@ async function runPass(browser, baseUrl, options) {
       awakeningReadout = {
         tier: swordUp.tier,
         buff: Number(swordUp.buff.toFixed(1)),
-        afterSecondPress: swordDown.tier
+        afterSecondPress: swordDown.tier,
+        inputs: awakeningInputs
       };
 
       /*

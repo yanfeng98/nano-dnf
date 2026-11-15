@@ -1,0 +1,126 @@
+{
+  "id": 43673265978,
+  "head_sha": "e24bde88261b5e198b0f66aff105ca49e1cd876e",
+  "status": "completed",
+  "conclusion": "success",
+  "html_url": "https://github.com/yanfeng98/nano-dnf/actions/runs/43673265978",
+  "updated_at": "2026-11-15T03:40:05Z",
+  "jobs": [
+    {
+      "id": 132687762907,
+      "name": "Test and stage the playable build",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/yanfeng98/nano-dnf/actions/runs/43673265978/job/132687762907"
+    },
+    {
+      "id": 132687926794,
+      "name": "Deploy to GitHub Pages",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/yanfeng98/nano-dnf/actions/runs/43673265978/job/132687926794"
+    },
+    {
+      "id": 132687998620,
+      "name": "Verify the deployed build",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/yanfeng98/nano-dnf/actions/runs/43673265978/job/132687998620"
+    }
+  ],
+  "onlineRoom42": {
+    "url": "https://luyf-lemon-love.space/nano-dnf/",
+    "portraitDraws": [
+      [
+        495,
+        0,
+        626,
+        32,
+        126,
+        45.5,
+        704.25,
+        36
+      ],
+      [
+        1718,
+        0,
+        3,
+        17,
+        354.625,
+        62.375,
+        3.375,
+        19.125
+      ],
+      [
+        423,
+        0,
+        24,
+        24,
+        128.25,
+        47.75,
+        27,
+        27
+      ],
+      [
+        1121,
+        0,
+        597,
+        9,
+        158.625,
+        64.625,
+        196,
+        10.125
+      ]
+    ],
+    "stage": "mirkwooddeep",
+    "roster": [
+      {
+        "type": "deepElite",
+        "level": 6,
+        "xp": 60
+      },
+      {
+        "type": "deepElite",
+        "level": 6,
+        "xp": 60
+      },
+      {
+        "type": "cat",
+        "level": 6,
+        "xp": 60
+      },
+      {
+        "type": "cat",
+        "level": 7,
+        "xp": 70
+      },
+      {
+        "type": "throwerElite",
+        "level": 6,
+        "xp": 60
+      },
+      {
+        "type": "throwerElite",
+        "level": 6,
+        "xp": 60
+      },
+      {
+        "type": "throwerElite",
+        "level": 6,
+        "xp": 60
+      },
+      {
+        "type": "cat",
+        "level": 6,
+        "xp": 60
+      }
+    ],
+    "pending": 0,
+    "xp": 490,
+    "kills": 8,
+    "cleared": true,
+    "errors": []
+  },
+  "independentLiveSmokeExitCode": 0,
+  "runtimeAssetsMatch": true
+}

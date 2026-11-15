@@ -1,0 +1,49 @@
+{
+  "scope": "A retry enters while a real keyboard raise is pending; this reproduces the same symptom, not proof of the original full-run timing.",
+  "rows": [
+    {
+      "guarded": false,
+      "early": {
+        "tier": 0,
+        "buff": 0,
+        "skillId": "hellbenter",
+        "timer": 0.9833333333333333
+      },
+      "beforeRetry": {
+        "tier": 1,
+        "buff": 49.516666666666694,
+        "skillId": null,
+        "timer": 0
+      },
+      "inputSent": true,
+      "after": {
+        "tier": 1,
+        "buff": 0,
+        "skillId": "hellbenterSlam",
+        "timer": 4.050000000000005
+      }
+    },
+    {
+      "guarded": true,
+      "early": {
+        "tier": 0,
+        "buff": 0,
+        "skillId": "hellbenter",
+        "timer": 0.9833333333333333
+      },
+      "beforeRetry": {
+        "tier": 1,
+        "buff": 49.516666666666694,
+        "skillId": null,
+        "timer": 0
+      },
+      "inputSent": false,
+      "after": {
+        "tier": 1,
+        "buff": 48.01666666666678,
+        "skillId": null,
+        "timer": 0
+      }
+    }
+  ]
+}

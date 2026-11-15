@@ -2968,13 +2968,20 @@
           northGateBottom: 316,
           band: { backY: 256 },
           enemies: [
-            { type: "goblinRed", x: 300, level: 6 },
-            { type: "goblinBlue", x: 500, level: 6 },
-            { type: "goblinBlue", x: 700, level: 6 },
-            { type: "goblinRed", x: 350, wave: 2, level: 6 },
-            { type: "goblinBlue", x: 650, wave: 2, level: 6 },
+            // V2 74..105.5s: eight new60 credits, all four target kinds at Lv6.
+            // Both native n423 maps agree: three captains, one thrower, two red/blue.
+            // Later selection/entry into view does not prove death-triggered waves.
+            // Native X projection only; floor depth, jitter and activation remain provisional.
+            { type: "deepElite", x: nativeGroundX(911), level: 6, xp: 60 },
+            { type: "goblinRed", x: nativeGroundX(1125), level: 6, xp: 60 },
+            { type: "deepElite", x: nativeGroundX(1031), level: 6, xp: 60 },
+            { type: "throwerElite", x: nativeGroundX(1380), level: 6, xp: 60 },
+            { type: "deepElite", x: nativeGroundX(1498), level: 6, xp: 60 },
+            { type: "goblinRed", x: nativeGroundX(700), level: 6, xp: 60 },
+            { type: "goblinBlue", x: nativeGroundX(758), level: 6, xp: 60 },
+            { type: "goblinBlue", x: nativeGroundX(1210), level: 6, xp: 60 },
           ],
-          cap: 4,
+          cap: 8,
           /* V2 74.25s 才是贴左；76s 镜头已移207屏幕px。旧76s零镜头前提作废。
            * 以720×540游戏区域计：两箱中心616/719，底295；北门全景中心1530，底250。
            * 第97批以178处原生柱帽匹配重建6柱，撤销旧5柱估摆；其他物件/植被仍待核。
@@ -5466,12 +5473,12 @@
        */
       var depth = bandDepth(state.band);
       /*
-       * **一间房分两批出**（业主 2026-10-19，`docs/adr/0037` 追记三）：
-       * `wave: 2` 的那几只开场不摆出来，等第一批剩 2 只（或开场 8 秒）再从房间
-       * 边缘 / 门口走进来。同一间房同一时刻最多 5 只；房间要等两批都死完才清。
-       *
-       * 第一批仍然用 `createEnemy` 的随机抖动，所以同 seed 的初始摆位与以前一样
-       * 只受新的 entry 影响；第二批在触发时走同一条流，输入相同则时机相同。
+       * Deferred groups are explicit per-room configuration. An entry without
+       * `wave` exists at entry; `cap` limits deferred spawning, not initial actors
+       * or a global simultaneous count (reference audits137..139).
+       * Old death/time-triggered groups remain provisional in unreviewed rooms.
+       * Initial actors retain createEnemy jitter; deferred actors consume that
+       * same deterministic stream when their configured group is triggered.
        */
       var firstWave = [];
       var laterWaves = {};
@@ -5499,7 +5506,7 @@
       state.room.enteredAt = state.time;
       state.room.lastWaveAt = state.time;
       state.room.waveTriggered = false;
-      /* 同屏上限：普通房 4、Boss 房 5（录像 `docs/adr/0063`）。 */
+      /* Per-room deferred-spawn cap; initial actors are not trimmed by this value. */
       state.room.waveCap = spec.cap || 5;
       /*
        * Scenery, in the room's own words: `{piece, x, depth?}`, where `piece` is a
