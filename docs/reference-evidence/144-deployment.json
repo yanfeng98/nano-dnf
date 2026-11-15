@@ -1,0 +1,102 @@
+{
+  "id": 43734071368,
+  "head_sha": "88cd793e8f8cb4a415e3d6a1ec2060db78c4cd42",
+  "status": "completed",
+  "conclusion": "success",
+  "html_url": "https://github.com/yanfeng98/nano-dnf/actions/runs/43734071368",
+  "updated_at": "2026-11-15T16:13:41Z",
+  "localRegression": "144-final-regression.json",
+  "independentLiveSmoke": {
+    "exitCode": 0,
+    "log": "/tmp/nano144-live.log",
+    "result": "published bytes match checkout; boots cleanly"
+  },
+  "onlineLordCredits": {
+    "url": "https://luyf-lemon-love.space/nano-dnf/?seed=1",
+    "stage": "mirkwooddeep",
+    "deaths": [
+      {
+        "type": "deepElite",
+        "level": 7,
+        "configuredXP": 70,
+        "paidXP": 70,
+        "dead": true
+      },
+      {
+        "type": "throwerElite",
+        "level": 7,
+        "configuredXP": 70,
+        "paidXP": 70,
+        "dead": true
+      },
+      {
+        "type": "cat",
+        "level": 6,
+        "configuredXP": 60,
+        "paidXP": 60,
+        "dead": true
+      },
+      {
+        "type": "cat",
+        "level": 6,
+        "configuredXP": 60,
+        "paidXP": 60,
+        "dead": true
+      },
+      {
+        "type": "lugaruBoss",
+        "level": 9,
+        "configuredXP": 360,
+        "paidXP": 360,
+        "dead": true
+      }
+    ],
+    "totalPaidXP": 620,
+    "cleared": true,
+    "victory": false,
+    "pending": 0,
+    "errors": [],
+    "limits": [
+      "Checks the existing partial runtime roster, not the unresolved recorded total, AI, spawn timing or progression."
+    ]
+  },
+  "jobs": [
+    {
+      "id": 132872677825,
+      "name": "Test and stage the playable build",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/yanfeng98/nano-dnf/actions/runs/43734071368/job/132872677825"
+    },
+    {
+      "id": 132872990616,
+      "name": "Deploy to GitHub Pages",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/yanfeng98/nano-dnf/actions/runs/43734071368/job/132872990616"
+    },
+    {
+      "id": 132873055440,
+      "name": "Verify the deployed build",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/yanfeng98/nano-dnf/actions/runs/43734071368/job/132873055440"
+    }
+  ],
+  "onlineLordCreditsFailures": [
+    {
+      "attempt": 1,
+      "result": "Missing cat type: killing lord before deferred wave ends run; isolated probe ordering issue."
+    },
+    {
+      "attempt": 2,
+      "result": "page.goto exceeded30000ms before gameplay; no death-credit result obtained."
+    },
+    {
+      "attempt": 3,
+      "result": "page.goto load timeout30000ms; no gameplay result"
+    }
+  ],
+  "onlineLordCreditsProbeSha256": "74bceed8ce0fb7004965bc4eea5d197edecd97c272588d52f807ad00c978bd8d",
+  "onlineLordCreditsNavigation": "domcontentloaded plus game asset ready; same entry readiness as live smoke"
+}

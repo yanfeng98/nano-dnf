@@ -342,11 +342,16 @@ test('deep lord room ordinary deaths pay the observed level-specific credits', (
     state.player.invuln = Infinity;
     state.player.xpToNext = 100000;
     const observed = new Set();
+    const observedTypes = new Set();
     let expectedXP = 0;
     for (let frame = 0; frame < 1200 && !state.room.cleared; frame++) {
       for (const enemy of state.enemies) {
         if (observed.has(enemy.id)) continue;
+        // Lord death ends the run; first exercise the real deferred cat wave.
+        if (enemy.type === 'lugaruBoss' && (state.room.pendingWave.length ||
+            state.room.pendingWaves.length || state.enemies.some(other => other !== enemy && !other.dead))) continue;
         observed.add(enemy.id);
+        observedTypes.add(enemy.type);
         const expected = enemy.type === 'lugaruBoss' ? 360 : enemy.type === 'cat' ? 60 : 70;
         assert.equal(enemy.xp, expected, `${enemy.type}: V2 lord room death logs`);
         expectedXP += expected;
@@ -356,5 +361,6 @@ test('deep lord room ordinary deaths pay the observed level-specific credits', (
     }
     assert.ok(state.room.cleared);
     assert.equal(state.player.xp, expectedXP);
+    assert.deepEqual([...observedTypes].sort(), ['cat', 'deepElite', 'lugaruBoss', 'throwerElite']);
   }
 });

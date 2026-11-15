@@ -1,0 +1,49 @@
+{
+  "url": "https://luyf-lemon-love.space/nano-dnf/?seed=1",
+  "stage": "mirkwooddeep",
+  "deaths": [
+    {
+      "type": "deepElite",
+      "level": 7,
+      "configuredXP": 70,
+      "paidXP": 70,
+      "dead": true
+    },
+    {
+      "type": "throwerElite",
+      "level": 7,
+      "configuredXP": 70,
+      "paidXP": 70,
+      "dead": true
+    },
+    {
+      "type": "cat",
+      "level": 6,
+      "configuredXP": 60,
+      "paidXP": 60,
+      "dead": true
+    },
+    {
+      "type": "cat",
+      "level": 6,
+      "configuredXP": 60,
+      "paidXP": 60,
+      "dead": true
+    },
+    {
+      "type": "lugaruBoss",
+      "level": 9,
+      "configuredXP": 360,
+      "paidXP": 360,
+      "dead": true
+    }
+  ],
+  "totalPaidXP": 620,
+  "cleared": true,
+  "victory": false,
+  "pending": 0,
+  "errors": [],
+  "limits": [
+    "Checks the existing partial runtime roster, not the unresolved recorded total, AI, spawn timing or progression."
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "unitExitCode": 0,
+  "unitCount": 474,
+  "unitLog": "/tmp/nano146-unit.log",
+  "testSha256": "12a9a0efadbf6794500df5656474e31510f23a5a49d3e12a9693e9084869a7a8",
+  "runtimeSha256": "73b92881b4e81e4ece62c7a7287fddb4a2836aa934a27ee5922e60a356f7c6ee",
+  "scope": "New four-type presence assertion fails before boss-last fixture fix, passes afterward for four seeds. Full unit suite passes. Runtime unchanged from deployed88cd793; earlier complete browser evidence144-final-regression.json remains historical, not a run of the modified test."
+}
