@@ -3209,3 +3209,5 @@ npm run test:live         # 当前线上资源与本地匹配、真实线上启�
 逐项编号、已经解决的部分和剩余限制见[录像审计当前状态入口](docs/reference-video-audit.md#当前状态入口)。
 
 第139批最终本地核验：469项完整单测与完整47组浏览器串行回归均正常退出0，当前输入逐项SHA256与监督记录一致，见docs/reference-evidence/139-final-regression.json。重试helper修复后保留一觉挂剑及二次落剑断言；本批准备发布，精确位置/激活/AI及其余全局差异和用户实玩验收继续开放。
+
+第139批最终发布：dc88c6b已推送；Actions43679931562完成Success。独立npm run test:live退出0，线上引用资源与当前运行时代码一致、启动无错误；独立线上真实菜单43房确认8只/480经验、198像素十夫长目标条和清房，见139-deployment.json及139-room43-captain-online.png。精确空间/激活/AI与其余五类差异继续开放，用户实玩未验收。

@@ -1,0 +1,106 @@
+{
+  "id": 43679931562,
+  "head_sha": "dc88c6bd1ea002a3bb7fbbde2a9edef7a9f37af5",
+  "status": "completed",
+  "conclusion": "success",
+  "html_url": "https://github.com/yanfeng98/nano-dnf/actions/runs/43679931562",
+  "updated_at": "2026-11-15T05:12:25Z",
+  "onlineRoom43": {
+    "url": "https://luyf-lemon-love.space/nano-dnf/",
+    "portraitDraws": [
+      [
+        495,
+        0,
+        626,
+        32,
+        126,
+        45.5,
+        704.25,
+        36
+      ],
+      [
+        1718,
+        0,
+        3,
+        17,
+        356.625,
+        62.375,
+        3.375,
+        19.125
+      ],
+      [
+        447,
+        0,
+        24,
+        24,
+        128.25,
+        47.75,
+        27,
+        27
+      ],
+      [
+        1121,
+        0,
+        597,
+        9,
+        158.625,
+        64.625,
+        198,
+        10.125
+      ]
+    ],
+    "stage": "mirkwooddeep",
+    "roster": [
+      {
+        "type": "deepElite",
+        "level": 6,
+        "xp": 60
+      },
+      {
+        "type": "goblinRed",
+        "level": 6,
+        "xp": 60
+      },
+      {
+        "type": "deepElite",
+        "level": 6,
+        "xp": 60
+      },
+      {
+        "type": "throwerElite",
+        "level": 6,
+        "xp": 60
+      },
+      {
+        "type": "deepElite",
+        "level": 6,
+        "xp": 60
+      },
+      {
+        "type": "goblinRed",
+        "level": 6,
+        "xp": 60
+      },
+      {
+        "type": "goblinBlue",
+        "level": 6,
+        "xp": 60
+      },
+      {
+        "type": "goblinBlue",
+        "level": 6,
+        "xp": 60
+      }
+    ],
+    "pending": 0,
+    "xp": 480,
+    "kills": 8,
+    "cleared": true,
+    "errors": []
+  },
+  "independentLiveSmoke": {
+    "exitCode": 0,
+    "log": "/tmp/nano139-live.log",
+    "result": "deployed referenced bytes match checkout; boots cleanly"
+  }
+}
