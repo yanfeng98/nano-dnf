@@ -5165,7 +5165,26 @@
     ctx.restore();
   }
 
-  function drawProjectile(ctx, state, shot) {
+  function drawProjectile(ctx, state, shot, sprites) {
+    if (shot.nativeObject === 30001) {
+      var stone = sprites && sprites.goblinStone;
+      if (!stone || !stone.width) return;
+      // Object30001 -> ThrowStone.ani: native frame0,(-8,-8),150ms,
+      // terminal angle6.28. Use projectile lifetime, so pause freezes its phase.
+      // Bitmap projection follows the existing native world plane; visible size
+      // and spin phase still need an independent recording match.
+      var scale = (Core.VIEW.width / 640) / Core.CAMERA.zoom;
+      var age = Math.max(0, shot.maxLife - shot.life);
+      ctx.save();
+      ctx.translate(shot.x, feetY(shot));
+      ctx.rotate(((age / 0.15) % 1) * 6.28000020980835);
+      ctx.imageSmoothingEnabled = true;
+      ctx.drawImage(stone, 0, 0, 32, 32, -16 * scale, -16 * scale, 32 * scale, 32 * scale);
+      ctx.restore();
+      return;
+    }
+    // Unverified captain projectile remains a documented placeholder. Its
+    // int-data30021 candidate has not been matched to the recording.
     var pulse = 0.85 + 0.15 * Math.sin(state.time * 24 + shot.x);
     ctx.save();
     var glow = ctx.createRadialGradient(shot.x, feetY(shot), 1, shot.x, feetY(shot), shot.radius * 3.2 * pulse);
@@ -10199,7 +10218,7 @@
     });
     (state.projectiles || []).forEach(function (shot) {
       add(shot.z, function () {
-        drawProjectile(ctx, state, shot);
+        drawProjectile(ctx, state, shot, sprites);
       });
     });
 

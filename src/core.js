@@ -1893,7 +1893,7 @@
       attackDuration: 0.8,
       attackCooldown: 1.9,
       knockbackX: 130,
-      projectile: { speed: 215, radius: 9, life: 1.4, maxDistance: 300, height: 34 }
+      projectile: { nativeObject: 30001, speed: 215, radius: 9, life: 1.4, maxDistance: 300, height: 34 }
     },
     brute: {
       /*
@@ -1937,6 +1937,7 @@
       attackCooldown: 1.9,
       knockbackX: 130,
       projectile: {
+        nativeObject: 30001,
         speed: 215,
         radius: 9,
         life: 1.4,
@@ -7780,6 +7781,9 @@
     var length = Math.sqrt(dx * dx + dy * dy) || 1;
     var shot = {
       kind: "enemy_projectile",
+      // Native identity is appearance metadata; trajectory/impact still need
+      // independent recording calibration. Unverified captain objects stay null.
+      nativeObject: spec.nativeObject || null,
       id: state.nextProjectileId++,
       x: originX,
       y: originY,

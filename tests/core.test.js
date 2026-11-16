@@ -11347,6 +11347,50 @@ test('caster displays the declared native throw frame when Core emits the real s
  assert.equal(draw[2]/360,9,'cell9 is attack ordinal2 from the native throw-frame field');
 });
 
+for(const type of ['caster','burningThrower']){
+ test(`${type}: real shots retain the native stone identity and draw the client bitmap`,()=>{
+  const state=lastRoomState(34),enemy=Core.createEnemy(state,type,600),sheet={width:32,height:32};
+  state.intro=null;state.transition=state.hitStop=0;state.enemies=[enemy];state.projectiles=[];
+  state.player.x=300;state.player.invuln=Infinity;enemy.z=state.player.z;
+  enemy.attackKind='shoot';enemy.attackTimer=enemy.attackDuration=.8;enemy.attackWindup=.5;enemy.attackHitDone=false;
+  for(let i=0;i<40&&!state.projectiles.length;i++)Core.step(state,{});
+  const shot=state.projectiles[0];assert.ok(shot);assert.equal(shot.nativeObject,30001);
+  const proof=require('../assets/goblin-stone.json');
+  for(const age of [0,.075,.15]){
+   shot.life=shot.maxLife-age;shot.radius=99;state.time=1234;
+   const calls=[];Render.render(recordingContext(calls),state,{sprites:{goblinStone:sheet}});
+   const index=calls.findIndex(c=>c[0]==='drawImage'&&c[1]===sheet);assert.ok(index>=0,'real projectile uses native stone art');
+   const draw=calls[index],scale=(Core.VIEW.width/640)/Core.CAMERA.zoom;
+   assert.deepEqual(draw.slice(2,6),[0,0,32,32]);
+   assert.deepEqual(draw.slice(6),[-16*scale,-16*scale,32*scale,32*scale],'native art size does not follow placeholder collision radius');
+   const rotation=calls.slice(0,index).reverse().find(c=>c[0]==='rotate');assert.ok(rotation);
+   const difference=Math.abs(rotation[1]-((age/.15)%1)*proof.endAngleRadians);
+   assert.ok(Math.min(difference,Math.abs(difference-proof.endAngleRadians))<1e-10,
+    'rotation follows projectile age, with equivalent start/end at the native loop boundary');
+  }
+ });
+}
+
+test('native stone atlas preserves the original source RGBA and ANI origin',()=>{
+ const proof=require('../assets/goblin-stone.json'),crypto=require('node:crypto');
+ const atlas=decodeRgbaPng(path.join(__dirname,'../assets/goblin-stone.png'));
+ assert.deepEqual([atlas.width,atlas.height],[32,32]);assert.equal(proof.objectId,30001);
+ assert.equal(crypto.createHash('sha256').update(atlas.pixels).digest('hex'),proof.cellRGBAsha256);
+ const pixels=Buffer.alloc(17*17*4);
+ for(let y=0;y<17;y++)atlas.pixels.copy(pixels,y*17*4,((y+8)*32+8)*4,((y+8)*32+25)*4);
+ assert.equal(crypto.createHash('sha256').update(pixels).digest('hex'),proof.sourceRGBAsha256);
+ assert.deepEqual(proof.animationData.frames[0].xy,[-8,-8]);assert.equal(proof.periodMilliseconds,150);
+});
+
+test('the unverified captain int-data object is not silently mapped to a caster stone',()=>{
+ const state=lastRoomState(34),enemy=Core.createEnemy(state,'throwerElite',600);
+ state.intro=null;state.transition=state.hitStop=0;state.enemies=[enemy];state.projectiles=[];
+ state.player.x=300;state.player.invuln=Infinity;enemy.z=state.player.z;
+ enemy.attackKind='shoot';enemy.attackTimer=enemy.attackDuration=.85;enemy.attackWindup=.55;enemy.attackHitDone=false;
+ for(let i=0;i<45&&!state.projectiles.length;i++)Core.step(state,{});
+ assert.equal(state.projectiles.length,1);assert.notEqual(state.projectiles[0].nativeObject,30001);
+});
+
 test('observed target widths distinguish stage, monster and level',()=>{
  const atlas={width:3200,height:58};
  const cases=[['mirkwood','grunt',4,181],['mirkwood','goblinBlue',4,144],['mirkwood','goblinRed',4,144],

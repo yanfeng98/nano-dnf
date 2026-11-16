@@ -1,0 +1,15 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: uses existing native world-plane projection: 35.99999870444244
+    at file:///home/luyanfeng/luyanfeng/nano-dnf/tests/browser/goblin-stone.mjs:58:11 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v24.21.0

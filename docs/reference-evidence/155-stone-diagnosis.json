@@ -1,0 +1,55 @@
+{
+  "before": {
+    "exitCode": 1,
+    "failedChecks": 3,
+    "log": "155-stone-before-unit.txt"
+  },
+  "after": {
+    "targetedTests": 4,
+    "exitCode": 0,
+    "log": "155-stone-after-unit.txt",
+    "browser": "155-stone-browser.json",
+    "emissions": 2,
+    "clockSamples": 8,
+    "pauseStable": true
+  },
+  "fixtureCorrections": [
+    {
+      "log": "155-stone-first-after-unit.txt",
+      "cause": "native loop endpoint vs start at150ms differs through floating-point subtraction; compare wrapped native phase instead of unwrapped scalar"
+    },
+    {
+      "log": "155-stone-diagnostic-browser.txt",
+      "sample": "155-stone-first-browser-sample.json",
+      "cause": "Canvas transform quantization:36px measured35.99999870444244px",
+      "change": "geometry tolerance1e-5px, angle1e-6rad; no game geometry or image threshold changes"
+    }
+  ],
+  "native": "assets/goblin-stone.json",
+  "reimport": "PNG and JSON byte-identical",
+  "captainCandidate": {
+    "trials": "155-bomb-candidate-trials.json",
+    "trialCount": 960,
+    "maximum": {
+      "t": 27.0,
+      "scale": 1.125,
+      "angle": 120,
+      "score": 0.6025691032409668,
+      "rmse": 53.31306293713166,
+      "xy": [
+        301,
+        270
+      ],
+      "wh": [
+        28,
+        28
+      ]
+    },
+    "adopted": false
+  },
+  "limits": [
+    "Native bitmap/age loop use recorded client data; video size and rotation phase remain unmatched.",
+    "Origin, flight, collision, impact and damage unchanged and still require verification.",
+    "Captain placeholder remains unresolved."
+  ]
+}

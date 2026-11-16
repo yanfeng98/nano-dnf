@@ -1,0 +1,239 @@
+{
+  "objectId": 30001,
+  "mob": "monster/goblin/goblinthrower.mob",
+  "mobSHA256": "12167f8807586926eedd002473d62c0e096e66bd0b67c07738cfb877fa969e2c",
+  "object": "passiveobject/monster/goblin/throwstone.obj",
+  "objectSHA256": "8bdcd1f6e057ae7e5978739bb051d907bc2a0cd6214295aaede456c52fe3007f",
+  "objectTokens": [
+    [
+      5,
+      "[width]"
+    ],
+    [
+      2,
+      1
+    ],
+    [
+      2,
+      1
+    ],
+    [
+      5,
+      "[floating height]"
+    ],
+    [
+      2,
+      1
+    ],
+    [
+      5,
+      "[layer]"
+    ],
+    [
+      7,
+      "[normal]"
+    ],
+    [
+      5,
+      "[pass type]"
+    ],
+    [
+      7,
+      "[pass all]"
+    ],
+    [
+      5,
+      "[piercing power]"
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      5,
+      "[basic motion]"
+    ],
+    [
+      7,
+      "Animation/ThrowStone.ani"
+    ],
+    [
+      5,
+      "[destroy particle]"
+    ],
+    [
+      7,
+      "Particle/ThrowStoneDestroy.ptl"
+    ],
+    [
+      5,
+      "[attack info]"
+    ],
+    [
+      7,
+      "AttackInfo/ThrowStone.atk"
+    ],
+    [
+      5,
+      "[name]"
+    ],
+    [
+      9,
+      9
+    ],
+    [
+      10,
+      "name_6145"
+    ]
+  ],
+  "animation": "passiveobject/monster/goblin/animation/throwstone.ani",
+  "aniSHA256": "50ca3f2ecc48edcca12539cf8cd9141597cae4d538acbca133fcc4d2e95441ce",
+  "animationData": {
+    "paths": [
+      "Monster/Goblin/PassiveObject/ThrowStone.img"
+    ],
+    "overall": [
+      [
+        0,
+        1
+      ]
+    ],
+    "frames": [
+      {
+        "frame": 0,
+        "xy": [
+          -8,
+          -8
+        ],
+        "props": [
+          [
+            10,
+            1
+          ],
+          [
+            12,
+            150
+          ]
+        ],
+        "boxes": [
+          [
+            15,
+            [
+              -10,
+              -10,
+              -10,
+              20,
+              20,
+              20
+            ]
+          ]
+        ],
+        "image": 0
+      },
+      {
+        "frame": 0,
+        "xy": [
+          -8,
+          -8
+        ],
+        "props": [
+          [
+            8,
+            6.28000020980835
+          ]
+        ],
+        "boxes": [
+          [
+            15,
+            [
+              -10,
+              -10,
+              -10,
+              20,
+              20,
+              20
+            ]
+          ]
+        ],
+        "image": 0
+      }
+    ]
+  },
+  "particle": "monster/goblin/particle/throwstone.ptl",
+  "particleTokens": [
+    [
+      5,
+      "[x axis]"
+    ],
+    [
+      5,
+      "[move type]"
+    ],
+    [
+      7,
+      "[straight line]"
+    ],
+    [
+      5,
+      "[move variable 1]"
+    ],
+    [
+      2,
+      250
+    ],
+    [
+      2,
+      250
+    ],
+    [
+      5,
+      "[life time]"
+    ],
+    [
+      2,
+      1200
+    ],
+    [
+      5,
+      "[landing type]"
+    ],
+    [
+      7,
+      "[vanish]"
+    ]
+  ],
+  "periodMilliseconds": 150,
+  "endAngleRadians": 6.28000020980835,
+  "pack": "/mnt/c/dnf/地下城与勇士/ImagePacks2/sprite_monster_goblin_passiveobject.NPK",
+  "entry": "sprite/monster/goblin/passiveobject/throwstone.img",
+  "imgSHA256": "d835a1b83a00077cc1e203b66d90b5dcaecb708a6b4eba7e554923a229aedaab",
+  "sourceSize": [
+    17,
+    17
+  ],
+  "sourceOffset": [
+    0,
+    0
+  ],
+  "sourceRGBAsha256": "0c7d8569bc9c7d8bbd306750c8981874f87666c7902b4b32cdc5da8244c5ae64",
+  "cell": [
+    32,
+    32
+  ],
+  "anchor": [
+    16,
+    16
+  ],
+  "pasteXY": [
+    8,
+    8
+  ],
+  "cellRGBAsha256": "b9c34f9d565bf70b9b2a1a4d023c443c1d874140f83ae32feec512ef1cb22bde",
+  "transparency": "Original native RGBA preserved; no colour key or recolouring.",
+  "limits": [
+    "150ms/angle endpoint are native data; rotation is rendered as a loop between the native endpoints.",
+    "Native world-plane projection follows existing scene scale; video size/phase are not independently measured.",
+    "Trajectory, impact/explosion, damage and absolute flight timing remain separate open work.",
+    "The throwing captain is not assigned this stone object."
+  ]
+}

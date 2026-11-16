@@ -1,0 +1,48 @@
+✖ caster: real shots retain the native stone identity and draw the client bitmap (18.001029ms)
+✖ burningThrower: real shots retain the native stone identity and draw the client bitmap (3.824843ms)
+✔ native stone atlas preserves the original source RGBA and ANI origin (5.022444ms)
+✔ the unverified captain int-data object is not silently mapped to a caster stone (2.243087ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 2
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 100.251769
+
+✖ failing tests:
+
+test at tests/core.test.js:11351:2
+✖ caster: real shots retain the native stone identity and draw the client bitmap (18.001029ms)
+  AssertionError [ERR_ASSERTION]: rotation follows projectile age, not global time
+      at TestContext.<anonymous> (/home/luyanfeng/luyanfeng/nano-dnf/tests/core.test.js:11367:11)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/core.test.js:11351:2
+✖ burningThrower: real shots retain the native stone identity and draw the client bitmap (3.824843ms)
+  AssertionError [ERR_ASSERTION]: rotation follows projectile age, not global time
+      at TestContext.<anonymous> (/home/luyanfeng/luyanfeng/nano-dnf/tests/core.test.js:11367:11)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
