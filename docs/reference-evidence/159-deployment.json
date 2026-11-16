@@ -1,0 +1,3537 @@
+{
+  "commit": "1a1f3980e5da6e2952772f0738acaa89fdfbd65a",
+  "workflow": "https://github.com/yanfeng98/nano-dnf/actions/runs/43833681630",
+  "jobs": [
+    {
+      "id": 133184897757,
+      "run_id": 43833681630,
+      "workflow_name": "Deploy playable build to GitHub Pages",
+      "head_branch": "main",
+      "run_url": "https://api.github.com/repos/yanfeng98/nano-dnf/actions/runs/43833681630",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOUaq1_s8AAAAfAnBC3Q",
+      "head_sha": "1a1f3980e5da6e2952772f0738acaa89fdfbd65a",
+      "url": "https://api.github.com/repos/yanfeng98/nano-dnf/actions/jobs/133184897757",
+      "html_url": "https://github.com/yanfeng98/nano-dnf/actions/runs/43833681630/job/133184897757",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-16T08:44:24Z",
+      "started_at": "2026-11-16T08:44:26Z",
+      "completed_at": "2026-11-16T08:45:08Z",
+      "name": "Test and stage the playable build",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-16T08:44:27Z",
+          "completed_at": "2026-11-16T08:44:29Z"
+        },
+        {
+          "name": "Check out the repository",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-16T08:44:29Z",
+          "completed_at": "2026-11-16T08:44:39Z"
+        },
+        {
+          "name": "Set up Node.js",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-16T08:44:39Z",
+          "completed_at": "2026-11-16T08:44:39Z"
+        },
+        {
+          "name": "Run regression tests",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-11-16T08:44:39Z",
+          "completed_at": "2026-11-16T08:45:01Z"
+        },
+        {
+          "name": "Stage the static site",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-11-16T08:45:01Z",
+          "completed_at": "2026-11-16T08:45:01Z"
+        },
+        {
+          "name": "Verify every referenced asset was staged",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-11-16T08:45:01Z",
+          "completed_at": "2026-11-16T08:45:01Z"
+        },
+        {
+          "name": "Configure GitHub Pages",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-11-16T08:45:01Z",
+          "completed_at": "2026-11-16T08:45:02Z"
+        },
+        {
+          "name": "Upload the staged site",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8,
+          "started_at": "2026-11-16T08:45:02Z",
+          "completed_at": "2026-11-16T08:45:05Z"
+        },
+        {
+          "name": "Post Set up Node.js",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 15,
+          "started_at": "2026-11-16T08:45:05Z",
+          "completed_at": "2026-11-16T08:45:05Z"
+        },
+        {
+          "name": "Post Check out the repository",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 16,
+          "started_at": "2026-11-16T08:45:05Z",
+          "completed_at": "2026-11-16T08:45:05Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 17,
+          "started_at": "2026-11-16T08:45:05Z",
+          "completed_at": "2026-11-16T08:45:05Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/yanfeng98/nano-dnf/check-runs/133184897757",
+      "labels": [
+        "ubuntu-latest"
+      ],
+      "runner_id": 1000021187,
+      "runner_name": "GitHub Actions 1000021187",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 133185232071,
+      "run_id": 43833681630,
+      "workflow_name": "Deploy playable build to GitHub Pages",
+      "head_branch": "main",
+      "run_url": "https://api.github.com/repos/yanfeng98/nano-dnf/actions/runs/43833681630",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOUaq1_s8AAAAfAnVcxw",
+      "head_sha": "1a1f3980e5da6e2952772f0738acaa89fdfbd65a",
+      "url": "https://api.github.com/repos/yanfeng98/nano-dnf/actions/jobs/133185232071",
+      "html_url": "https://github.com/yanfeng98/nano-dnf/actions/runs/43833681630/job/133185232071",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-16T08:45:08Z",
+      "started_at": "2026-11-16T08:45:12Z",
+      "completed_at": "2026-11-16T08:45:27Z",
+      "name": "Deploy to GitHub Pages",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-16T08:45:12Z",
+          "completed_at": "2026-11-16T08:45:13Z"
+        },
+        {
+          "name": "Deploy the artifact",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-16T08:45:13Z",
+          "completed_at": "2026-11-16T08:45:25Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-16T08:45:25Z",
+          "completed_at": "2026-11-16T08:45:25Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/yanfeng98/nano-dnf/check-runs/133185232071",
+      "labels": [
+        "ubuntu-latest"
+      ],
+      "runner_id": 1000021189,
+      "runner_name": "GitHub Actions 1000021189",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 133185384065,
+      "run_id": 43833681630,
+      "workflow_name": "Deploy playable build to GitHub Pages",
+      "head_branch": "main",
+      "run_url": "https://api.github.com/repos/yanfeng98/nano-dnf/actions/runs/43833681630",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOUaq1_s8AAAAfAneugQ",
+      "head_sha": "1a1f3980e5da6e2952772f0738acaa89fdfbd65a",
+      "url": "https://api.github.com/repos/yanfeng98/nano-dnf/actions/jobs/133185384065",
+      "html_url": "https://github.com/yanfeng98/nano-dnf/actions/runs/43833681630/job/133185384065",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-16T08:45:27Z",
+      "started_at": "2026-11-16T08:45:29Z",
+      "completed_at": "2026-11-16T08:46:03Z",
+      "name": "Verify the deployed build",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-16T08:45:29Z",
+          "completed_at": "2026-11-16T08:45:31Z"
+        },
+        {
+          "name": "Check out the repository",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-16T08:45:31Z",
+          "completed_at": "2026-11-16T08:45:41Z"
+        },
+        {
+          "name": "Set up Node.js",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-16T08:45:41Z",
+          "completed_at": "2026-11-16T08:45:45Z"
+        },
+        {
+          "name": "Install the smoke-test browser",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-11-16T08:45:45Z",
+          "completed_at": "2026-11-16T08:45:49Z"
+        },
+        {
+          "name": "Smoke-test the live build",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-11-16T08:45:49Z",
+          "completed_at": "2026-11-16T08:46:01Z"
+        },
+        {
+          "name": "Post Set up Node.js",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-11-16T08:46:01Z",
+          "completed_at": "2026-11-16T08:46:01Z"
+        },
+        {
+          "name": "Post Check out the repository",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10,
+          "started_at": "2026-11-16T08:46:01Z",
+          "completed_at": "2026-11-16T08:46:01Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11,
+          "started_at": "2026-11-16T08:46:01Z",
+          "completed_at": "2026-11-16T08:46:01Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/yanfeng98/nano-dnf/check-runs/133185384065",
+      "labels": [
+        "ubuntu-latest"
+      ],
+      "runner_id": 1000021190,
+      "runner_name": "GitHub Actions 1000021190",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    }
+  ],
+  "independentLive": {
+    "command": "npm run test:live",
+    "exitCode": 0,
+    "log": "\n> nano-dnf@0.1.0 test:live\n> node tests/deploy/live-smoke.mjs\n\nlive smoke against https://luyf-lemon-love.space/nano-dnf/ (deploy lag budget 300s)\n{\n  \"url\": \"https://luyf-lemon-love.space/nano-dnf/\",\n  \"referencedAssets\": [\n    \"assets/favicon.png\",\n    \"src/core.js\",\n    \"src/loadout.js\",\n    \"src/music.js\",\n    \"src/hints.js\",\n    \"src/records.js\",\n    \"src/progress.js\",\n    \"src/summary.js\",\n    \"src/reward.js\",\n    \"src/attract.js\",\n    \"src/render.js\",\n    \"src/main.js\",\n    \"assets/slayer-reference.png\",\n    \"assets/skills.png\",\n    \"assets/skills-disabled.png\",\n    \"assets/skill-ranks.png\",\n    \"assets/effects.png\",\n    \"assets/normal-wave.png\",\n    \"assets/normal-wave-body.png\",\n    \"assets/rift.png\",\n    \"assets/region.png\",\n    \"assets/monsters.png\",\n    \"assets/thrower-reference.png\",\n    \"assets/goblin-reference.png\",\n    \"assets/caster-reference.png\",\n    \"assets/goblin-stone.png\",\n    \"assets/goblin-ice.png\",\n    \"assets/goblin-fire.png\",\n    \"assets/forest.png\",\n    \"assets/native-flora.png\",\n    \"assets/native-pathgate.png\",\n    \"assets/native-pathgate-east.png\",\n    \"assets/native-pathgate-east-normal.png\",\n    \"assets/forest-deep.png\",\n    \"assets/deep-boss-closeback.png\",\n    \"assets/deep-entry-closeback.png\",\n    \"assets/deep-room42-closeback.png\",\n    \"assets/deep-room43-closeback.png\",\n    \"assets/deep-room33-closeback.png\",\n    \"assets/deep-room23-closeback.png\",\n    \"assets/deep-room13-closeback.png\",\n    \"assets/deep-room14-closeback.png\",\n    \"assets/deep-room24-closeback.png\",\n    \"assets/deep-room24-foreground.png\",\n    \"assets/weather.png\",\n    \"assets/bossdeath.png\",\n    \"assets/ui.png\",\n    \"assets/hud.png\",\n    \"assets/town.png\",\n    \"assets/npc.png\",\n    \"assets/gui.png\",\n    \"assets/tree-reference.png\",\n    \"assets/tree-fruit-reference.png\",\n    \"assets/goblin-bunker.png\",\n    \"assets/pillar-pale.png\",\n    \"assets/gate-block.png\",\n    \"assets/minimap.png\",\n    \"assets/results-reference.png\",\n    \"assets/experience-digits.png\",\n    \"assets/awakening.png\",\n    \"assets/portraits-reference.png\"\n  ],\n  \"idle\": {\n    \"seed\": 20260915,\n    \"hp\": 264,\n    \"maxHp\": 264,\n    \"damageTaken\": 0,\n    \"time\": 0,\n    \"defeat\": false,\n    \"room\": \"林间空地\"\n  },\n  \"problems\": []\n}\nlive smoke OK: the deployed build matches the checkout and boots cleanly\n"
+  },
+  "independentFire": {
+    "command": "FIRE_URL=https://luyf-lemon-love.space/nano-dnf/ FIRE_OUT=/tmp/nano159-fire-online node tests/browser/goblin-fire.mjs",
+    "exitCode": 0,
+    "result": {
+      "url": "https://luyf-lemon-love.space/nano-dnf/",
+      "emissions": [
+        {
+          "type": "goblinRed",
+          "count": 1,
+          "nativeObject": 30047,
+          "maxLife": 3,
+          "facing": -1,
+          "kind": "shoot",
+          "hitDone": true,
+          "sourceX": -20.000000000000046,
+          "sourceHeight": 59.99999999999989
+        },
+        {
+          "type": "goblinRed",
+          "count": 1,
+          "nativeObject": 30047,
+          "maxLife": 3,
+          "facing": 1,
+          "kind": "shoot",
+          "hitDone": true,
+          "sourceX": 20.000000000000046,
+          "sourceHeight": 59.99999999999989
+        },
+        {
+          "type": "cursedRed",
+          "count": 1,
+          "nativeObject": 30047,
+          "maxLife": 3,
+          "facing": -1,
+          "kind": "shoot",
+          "hitDone": true,
+          "sourceX": -20.000000000000046,
+          "sourceHeight": 59.99999999999989
+        },
+        {
+          "type": "cursedRed",
+          "count": 1,
+          "nativeObject": 30047,
+          "maxLife": 3,
+          "facing": 1,
+          "kind": "shoot",
+          "hitDone": true,
+          "sourceX": 20.000000000000046,
+          "sourceHeight": 59.99999999999989
+        }
+      ],
+      "samples": [
+        {
+          "type": "goblinRed",
+          "facing": -1,
+          "age": 0,
+          "draws": [
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 641.3670601999729,
+              "y": 362.50000697047653
+            }
+          ]
+        },
+        {
+          "type": "goblinRed",
+          "facing": -1,
+          "age": 0.1,
+          "draws": [
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 641.3670601999729,
+              "y": 362.50000697047653
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 634.6170272005293,
+              "y": 361.3548076447114
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 627.8670423389303,
+              "y": 360.29957795071823
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 621.1170574773314,
+              "y": 359.33436602634174
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 614.3670244778878,
+              "y": 358.45917187158193
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 607.6170396162888,
+              "y": 357.6739473485941
+            }
+          ]
+        },
+        {
+          "type": "goblinRed",
+          "facing": -1,
+          "age": 0.25,
+          "draws": [
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                128,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 0.39215686274509803,
+              "x": 641.3670601999729,
+              "y": 362.50000697047653
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                128,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 0.39215686274509803,
+              "x": 634.6170272005293,
+              "y": 361.3548076447114
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 627.8670423389303,
+              "y": 360.29957795071823
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 621.1170574773314,
+              "y": 359.33436602634174
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 614.3670244778878,
+              "y": 358.45917187158193
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 607.6170396162888,
+              "y": 357.6739473485941
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 600.8670547546899,
+              "y": 356.9787405952229
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 594.117069893091,
+              "y": 356.37355161146843
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 587.3670368936473,
+              "y": 355.8583322594859
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 580.6170520320484,
+              "y": 355.43313067712006
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 573.8670671704494,
+              "y": 355.0979468643709
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 567.1170341710058,
+              "y": 354.8527326833937
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 560.3670493094069,
+              "y": 354.6975362720332
+            }
+          ]
+        },
+        {
+          "type": "goblinRed",
+          "facing": -1,
+          "age": 0.3,
+          "draws": [
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                128,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 0.39215686274509803,
+              "x": 641.3670601999729,
+              "y": 362.50000697047653
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                128,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 0.39215686274509803,
+              "x": 634.6170272005293,
+              "y": 361.3548076447114
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                128,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 0.39215686274509803,
+              "x": 627.8670423389303,
+              "y": 360.29957795071823
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                128,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 0.39215686274509803,
+              "x": 621.1170574773314,
+              "y": 359.33436602634174
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 614.3670244778878,
+              "y": 358.45917187158193
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 607.6170396162888,
+              "y": 357.6739473485941
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 600.8670547546899,
+              "y": 356.9787405952229
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 594.117069893091,
+              "y": 356.37355161146843
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 587.3670368936473,
+              "y": 355.8583322594859
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 580.6170520320484,
+              "y": 355.43313067712006
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 573.8670671704494,
+              "y": 355.0979468643709
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 567.1170341710058,
+              "y": 354.8527326833937
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 560.3670493094069,
+              "y": 354.6975362720332
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 553.6170644478079,
+              "y": 354.6323094924446
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 546.8670314483643,
+              "y": 354.65710048247274
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 540.1170465867654,
+              "y": 354.77190924211754
+            }
+          ]
+        },
+        {
+          "type": "goblinRed",
+          "facing": -1,
+          "age": 0.4,
+          "draws": [
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                128,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 0.39215686274509803,
+              "x": 621.1170574773314,
+              "y": 359.33436602634174
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                128,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 0.39215686274509803,
+              "x": 614.3670244778878,
+              "y": 358.45917187158193
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                128,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 0.39215686274509803,
+              "x": 607.6170396162888,
+              "y": 357.6739473485941
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                128,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 0.39215686274509803,
+              "x": 600.8670547546899,
+              "y": 356.9787405952229
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                128,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 0.39215686274509803,
+              "x": 594.117069893091,
+              "y": 356.37355161146843
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                128,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 0.39215686274509803,
+              "x": 587.3670368936473,
+              "y": 355.8583322594859
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 580.6170520320484,
+              "y": 355.43313067712006
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 573.8670671704494,
+              "y": 355.0979468643709
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 567.1170341710058,
+              "y": 354.8527326833937
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 560.3670493094069,
+              "y": 354.6975362720332
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 553.6170644478079,
+              "y": 354.6323094924446
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 546.8670314483643,
+              "y": 354.65710048247274
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 540.1170465867654,
+              "y": 354.77190924211754
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 533.3670617251664,
+              "y": 354.9766876335343
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 526.6170287257228,
+              "y": 355.27148379456776
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 519.8670438641238,
+              "y": 355.6562977252179
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 513.1170590025249,
+              "y": 356.13108128764
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 506.36702600308126,
+              "y": 356.69588261967874
+            }
+          ]
+        },
+        {
+          "type": "goblinRed",
+          "facing": 1,
+          "age": 0,
+          "draws": [
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 318.63292160909623,
+              "y": 362.50000697047653
+            }
+          ]
+        },
+        {
+          "type": "goblinRed",
+          "facing": 1,
+          "age": 0.1,
+          "draws": [
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 318.63292160909623,
+              "y": 362.50000697047653
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 325.3829546085399,
+              "y": 361.3548076447114
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 332.1329394701388,
+              "y": 360.29957795071823
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 338.88297246958246,
+              "y": 359.33436602634174
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 345.6329573311814,
+              "y": 358.45917187158193
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 352.3829421927803,
+              "y": 357.6739473485941
+            }
+          ]
+        },
+        {
+          "type": "goblinRed",
+          "facing": 1,
+          "age": 0.25,
+          "draws": [
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                128,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 0.39215686274509803,
+              "x": 318.63292160909623,
+              "y": 362.50000697047653
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                128,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 0.39215686274509803,
+              "x": 325.3829546085399,
+              "y": 361.3548076447114
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 332.1329394701388,
+              "y": 360.29957795071823
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 338.88297246958246,
+              "y": 359.33436602634174
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 345.6329573311814,
+              "y": 358.45917187158193
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 352.3829421927803,
+              "y": 357.6739473485941
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 359.13292705437925,
+              "y": 356.9787405952229
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 365.8829119159782,
+              "y": 356.37355161146843
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 372.6328967775771,
+              "y": 355.8583322594859
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 379.3829779148655,
+              "y": 355.43313067712006
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 386.1329627764644,
+              "y": 355.0979468643709
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 392.88294763806334,
+              "y": 354.8527326833937
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 399.6329324996623,
+              "y": 354.6975362720332
+            }
+          ]
+        },
+        {
+          "type": "goblinRed",
+          "facing": 1,
+          "age": 0.3,
+          "draws": [
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                128,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 0.39215686274509803,
+              "x": 318.63292160909623,
+              "y": 362.50000697047653
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                128,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 0.39215686274509803,
+              "x": 325.3829546085399,
+              "y": 361.3548076447114
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                128,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 0.39215686274509803,
+              "x": 332.1329394701388,
+              "y": 360.29957795071823
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                128,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 0.39215686274509803,
+              "x": 338.88297246958246,
+              "y": 359.33436602634174
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 345.6329573311814,
+              "y": 358.45917187158193
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 352.3829421927803,
+              "y": 357.6739473485941
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 359.13292705437925,
+              "y": 356.9787405952229
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 365.8829119159782,
+              "y": 356.37355161146843
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 372.6328967775771,
+              "y": 355.8583322594859
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 379.3829779148655,
+              "y": 355.43313067712006
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 386.1329627764644,
+              "y": 355.0979468643709
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 392.88294763806334,
+              "y": 354.8527326833937
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 399.6329324996623,
+              "y": 354.6975362720332
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 406.3829173612612,
+              "y": 354.6323094924446
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 413.13290222286014,
+              "y": 354.65710048247274
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 419.8829833601485,
+              "y": 354.77190924211754
+            }
+          ]
+        },
+        {
+          "type": "goblinRed",
+          "facing": 1,
+          "age": 0.4,
+          "draws": [
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                128,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 0.39215686274509803,
+              "x": 338.88297246958246,
+              "y": 359.33436602634174
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                128,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 0.39215686274509803,
+              "x": 345.6329573311814,
+              "y": 358.45917187158193
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                128,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 0.39215686274509803,
+              "x": 352.3829421927803,
+              "y": 357.6739473485941
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                128,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 0.39215686274509803,
+              "x": 359.13292705437925,
+              "y": 356.9787405952229
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                128,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 0.39215686274509803,
+              "x": 365.8829119159782,
+              "y": 356.37355161146843
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                128,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 0.39215686274509803,
+              "x": 372.6328967775771,
+              "y": 355.8583322594859
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 379.3829779148655,
+              "y": 355.43313067712006
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 386.1329627764644,
+              "y": 355.0979468643709
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 392.88294763806334,
+              "y": 354.8527326833937
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 399.6329324996623,
+              "y": 354.6975362720332
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 406.3829173612612,
+              "y": 354.6323094924446
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 413.13290222286014,
+              "y": 354.65710048247274
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 419.8829833601485,
+              "y": 354.77190924211754
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 426.63296822174743,
+              "y": 354.9766876335343
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 433.38295308334637,
+              "y": 355.27148379456776
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 440.1329379449453,
+              "y": 355.6562977252179
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 446.88292280654423,
+              "y": 356.13108128764
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 453.63290766814316,
+              "y": 356.69588261967874
+            }
+          ]
+        },
+        {
+          "type": "cursedRed",
+          "facing": -1,
+          "age": 0,
+          "draws": [
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 641.3670601999729,
+              "y": 362.50000697047653
+            }
+          ]
+        },
+        {
+          "type": "cursedRed",
+          "facing": -1,
+          "age": 0.1,
+          "draws": [
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 641.3670601999729,
+              "y": 362.50000697047653
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 634.6170272005293,
+              "y": 361.3548076447114
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 627.8670423389303,
+              "y": 360.29957795071823
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 621.1170574773314,
+              "y": 359.33436602634174
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 614.3670244778878,
+              "y": 358.45917187158193
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 607.6170396162888,
+              "y": 357.6739473485941
+            }
+          ]
+        },
+        {
+          "type": "cursedRed",
+          "facing": -1,
+          "age": 0.25,
+          "draws": [
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                128,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 0.39215686274509803,
+              "x": 641.3670601999729,
+              "y": 362.50000697047653
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                128,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 0.39215686274509803,
+              "x": 634.6170272005293,
+              "y": 361.3548076447114
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 627.8670423389303,
+              "y": 360.29957795071823
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 621.1170574773314,
+              "y": 359.33436602634174
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 614.3670244778878,
+              "y": 358.45917187158193
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 607.6170396162888,
+              "y": 357.6739473485941
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 600.8670547546899,
+              "y": 356.9787405952229
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 594.117069893091,
+              "y": 356.37355161146843
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 587.3670368936473,
+              "y": 355.8583322594859
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 580.6170520320484,
+              "y": 355.43313067712006
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 573.8670671704494,
+              "y": 355.0979468643709
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 567.1170341710058,
+              "y": 354.8527326833937
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 560.3670493094069,
+              "y": 354.6975362720332
+            }
+          ]
+        },
+        {
+          "type": "cursedRed",
+          "facing": -1,
+          "age": 0.3,
+          "draws": [
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                128,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 0.39215686274509803,
+              "x": 641.3670601999729,
+              "y": 362.50000697047653
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                128,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 0.39215686274509803,
+              "x": 634.6170272005293,
+              "y": 361.3548076447114
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                128,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 0.39215686274509803,
+              "x": 627.8670423389303,
+              "y": 360.29957795071823
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                128,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 0.39215686274509803,
+              "x": 621.1170574773314,
+              "y": 359.33436602634174
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 614.3670244778878,
+              "y": 358.45917187158193
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 607.6170396162888,
+              "y": 357.6739473485941
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 600.8670547546899,
+              "y": 356.9787405952229
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 594.117069893091,
+              "y": 356.37355161146843
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 587.3670368936473,
+              "y": 355.8583322594859
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 580.6170520320484,
+              "y": 355.43313067712006
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 573.8670671704494,
+              "y": 355.0979468643709
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 567.1170341710058,
+              "y": 354.8527326833937
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 560.3670493094069,
+              "y": 354.6975362720332
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 553.6170644478079,
+              "y": 354.6323094924446
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 546.8670314483643,
+              "y": 354.65710048247274
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 540.1170465867654,
+              "y": 354.77190924211754
+            }
+          ]
+        },
+        {
+          "type": "cursedRed",
+          "facing": -1,
+          "age": 0.4,
+          "draws": [
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                128,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 0.39215686274509803,
+              "x": 621.1170574773314,
+              "y": 359.33436602634174
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                128,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 0.39215686274509803,
+              "x": 614.3670244778878,
+              "y": 358.45917187158193
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                128,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 0.39215686274509803,
+              "x": 607.6170396162888,
+              "y": 357.6739473485941
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                128,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 0.39215686274509803,
+              "x": 600.8670547546899,
+              "y": 356.9787405952229
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                128,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 0.39215686274509803,
+              "x": 594.117069893091,
+              "y": 356.37355161146843
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                128,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 0.39215686274509803,
+              "x": 587.3670368936473,
+              "y": 355.8583322594859
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 580.6170520320484,
+              "y": 355.43313067712006
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 573.8670671704494,
+              "y": 355.0979468643709
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 567.1170341710058,
+              "y": 354.8527326833937
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 560.3670493094069,
+              "y": 354.6975362720332
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 553.6170644478079,
+              "y": 354.6323094924446
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 546.8670314483643,
+              "y": 354.65710048247274
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 540.1170465867654,
+              "y": 354.77190924211754
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 533.3670617251664,
+              "y": 354.9766876335343
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 526.6170287257228,
+              "y": 355.27148379456776
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 519.8670438641238,
+              "y": 355.6562977252179
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 513.1170590025249,
+              "y": 356.13108128764
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": -1,
+              "alpha": 1,
+              "x": 506.367074140926,
+              "y": 356.69588261967874
+            }
+          ]
+        },
+        {
+          "type": "cursedRed",
+          "facing": 1,
+          "age": 0,
+          "draws": [
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 318.63296974694094,
+              "y": 362.50000697047653
+            }
+          ]
+        },
+        {
+          "type": "cursedRed",
+          "facing": 1,
+          "age": 0.1,
+          "draws": [
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 318.63296974694094,
+              "y": 362.50000697047653
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 325.3829546085399,
+              "y": 361.3548076447114
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 332.1329394701388,
+              "y": 360.29957795071823
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 338.88292433173774,
+              "y": 359.33436602634174
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 345.6329091933367,
+              "y": 358.45917187158193
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 352.38299033062503,
+              "y": 357.6739473485941
+            }
+          ]
+        },
+        {
+          "type": "cursedRed",
+          "facing": 1,
+          "age": 0.25,
+          "draws": [
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                128,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 0.39215686274509803,
+              "x": 318.63296974694094,
+              "y": 362.50000697047653
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                128,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 0.39215686274509803,
+              "x": 325.3829546085399,
+              "y": 361.3548076447114
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 332.1329394701388,
+              "y": 360.29957795071823
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 338.88292433173774,
+              "y": 359.33436602634174
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 345.6329091933367,
+              "y": 358.45917187158193
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 352.38299033062503,
+              "y": 357.6739473485941
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 359.13297519222397,
+              "y": 356.9787405952229
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 365.8829600538229,
+              "y": 356.37355161146843
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 372.63294491542183,
+              "y": 355.8583322594859
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 379.38292977702076,
+              "y": 355.43313067712006
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 386.1329146386197,
+              "y": 355.0979468643709
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 392.8828995002186,
+              "y": 354.8527326833937
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 399.632980637507,
+              "y": 354.6975362720332
+            }
+          ]
+        },
+        {
+          "type": "cursedRed",
+          "facing": 1,
+          "age": 0.3,
+          "draws": [
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                128,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 0.39215686274509803,
+              "x": 318.63296974694094,
+              "y": 362.50000697047653
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                128,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 0.39215686274509803,
+              "x": 325.3829546085399,
+              "y": 361.3548076447114
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                128,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 0.39215686274509803,
+              "x": 332.1329394701388,
+              "y": 360.29957795071823
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                128,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 0.39215686274509803,
+              "x": 338.88292433173774,
+              "y": 359.33436602634174
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 345.6329091933367,
+              "y": 358.45917187158193
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 352.38299033062503,
+              "y": 357.6739473485941
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 359.13297519222397,
+              "y": 356.9787405952229
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 365.8829600538229,
+              "y": 356.37355161146843
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 372.63294491542183,
+              "y": 355.8583322594859
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 379.38292977702076,
+              "y": 355.43313067712006
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 386.1329146386197,
+              "y": 355.0979468643709
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 392.8828995002186,
+              "y": 354.8527326833937
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 399.632980637507,
+              "y": 354.6975362720332
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 406.3829654991059,
+              "y": 354.6323094924446
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 413.13295036070485,
+              "y": 354.65710048247274
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 419.8829352223038,
+              "y": 354.77190924211754
+            }
+          ]
+        },
+        {
+          "type": "cursedRed",
+          "facing": 1,
+          "age": 0.4,
+          "draws": [
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                128,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 0.39215686274509803,
+              "x": 338.88292433173774,
+              "y": 359.33436602634174
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                128,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 0.39215686274509803,
+              "x": 345.6329091933367,
+              "y": 358.45917187158193
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                128,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 0.39215686274509803,
+              "x": 352.38299033062503,
+              "y": 357.6739473485941
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                128,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 0.39215686274509803,
+              "x": 359.13297519222397,
+              "y": 356.9787405952229
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                128,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 0.39215686274509803,
+              "x": 365.8829600538229,
+              "y": 356.37355161146843
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                128,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 0.39215686274509803,
+              "x": 372.63294491542183,
+              "y": 355.8583322594859
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 379.38292977702076,
+              "y": 355.43313067712006
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 386.1329146386197,
+              "y": 355.0979468643709
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 392.8828995002186,
+              "y": 354.8527326833937
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 399.632980637507,
+              "y": 354.6975362720332
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 406.3829654991059,
+              "y": 354.6323094924446
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 413.13295036070485,
+              "y": 354.65710048247274
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 419.8829352223038,
+              "y": 354.77190924211754
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 426.6329200839027,
+              "y": 354.9766876335343
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 433.38290494550165,
+              "y": 355.27148379456776
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 440.13298608279,
+              "y": 355.6562977252179
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 446.88297094438894,
+              "y": 356.13108128764
+            },
+            {
+              "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-fire.png",
+              "source": [
+                0,
+                0,
+                128,
+                128
+              ],
+              "screenWidth": 100.79999465582513,
+              "facing": 1,
+              "alpha": 1,
+              "x": 453.6329558059879,
+              "y": 356.69588261967874
+            }
+          ]
+        }
+      ],
+      "flights": [
+        {
+          "type": "goblinRed",
+          "facing": -1,
+          "screenSpeed": 337.50000000000216,
+          "screenGravity": 224.99999999999997,
+          "analyticalError": 1.509903313490213e-14,
+          "remaining": 1
+        },
+        {
+          "type": "goblinRed",
+          "facing": 1,
+          "screenSpeed": 337.49999999999767,
+          "screenGravity": 224.99999999999997,
+          "analyticalError": 1.509903313490213e-14,
+          "remaining": 1
+        },
+        {
+          "type": "cursedRed",
+          "facing": -1,
+          "screenSpeed": 337.50000000000216,
+          "screenGravity": 224.99999999999997,
+          "analyticalError": 1.509903313490213e-14,
+          "remaining": 1
+        },
+        {
+          "type": "cursedRed",
+          "facing": 1,
+          "screenSpeed": 337.49999999999767,
+          "screenGravity": 224.99999999999997,
+          "analyticalError": 1.509903313490213e-14,
+          "remaining": 1
+        }
+      ],
+      "errors": [],
+      "limits": [
+        "Natural fire emission, primary trail bitmaps, clock and measured-compatible constant gravity checked.",
+        "Trail cadence/lifetime use candidate PTL declarations; parent-child binding, other variants/light particles, blend/interpolation/rotation and landing are not fully calibrated.",
+        "Launch10deg is a native-angle interpretation, not an independently measured unique launch angle.",
+        "AI spacing/cadence and collision remain provisional."
+      ]
+    }
+  },
+  "unitTests": 500,
+  "browserGroups": 59,
+  "all58TestedInputsStillMatch": true,
+  "original40DirtyArtifactsStillMatch": true,
+  "ownerPlayAcceptance": "pending",
+  "verifiedAt": "2026-11-16T10:52:12.714587+00:00"
+}

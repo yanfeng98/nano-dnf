@@ -1,0 +1,83 @@
+# 开发交接 · 2026-11-16
+
+整体目标仍是解决与两段参考录像的全部差异，**尚未完成，业主实玩验收待确认**。本次按业主要求整理交接并 push，后续由下一位接手；不要把下述局部修复当成整体验收。
+
+## 接手顺序
+
+1. 先看 `git status --short` 和最近提交，再读 [CLAUDE.md](CLAUDE.md)、[CONTEXT.md](CONTEXT.md) 与 [ADR0068](docs/adr/0068-reference-videos-take-precedence.md)。以当前文件、真实进程和远端状态重新核实本页快照。
+2. 保护下面列出的41个用户改动；确认资源路径与测试进程，再选一个有证据支撑的问题继续。通过条件是能指出旧实现的具体错误及可重复的验证路径。
+3. 动手前按问题查 [录像审计总账](docs/reference-video-audit.md) 的最新批次及对应证据。历史结论有撤回，优先读后面的更正。
+4. 每项修复完成本地回归、独立提交/push/部署和线上核验，再处理下一项。业主已授权这些推送和部署；整体完成还需要业主实际玩过并认可。
+
+## 当前已验证基点
+
+游戏运行时提交：`1a1f3980e5da6e2952772f0738acaa89fdfbd65a`。本交接提交只补文档和发布证明，不改运行时。
+
+| 内容 | 当前证据与限制 |
+| --- | --- |
+| 普通投掷及燃烧变体 | 原生装备合成、石块纹理、水平速度和逆时针旋转已接入；碰撞/伤害/绝对AI仍待核。 |
+| 青哥布林 | 已由近战改为远程，实际AI发射30057主冰弹，原生八帧/50ms循环；Z-sine、附属粒子、穿透和AI参数未完成。 |
+| 赤、诅咒赤哥布林 | 已由近战改为远程，实际AI发射30047，使用客户端火焰主尾迹与常重力弹道；不是完整粒子引擎还原。 |
+| 本地回归 | 500项单测、59组浏览器串行检查全部退出0；58项输入哈希一致。见 [159-final-regression.json](docs/reference-evidence/159-final-regression.json)。 |
+| 发布 | [Actions43833681630](https://github.com/yanfeng98/nano-dnf/actions/runs/43833681630) 的build/deploy/verify全部成功。 |
+| 独立线上核验 | 资源匹配/启动、两类赤左右四次自然发射、20个主尾迹样本、弹道/暂停通过，页面错误为空。见 [159-deployment.json](docs/reference-evidence/159-deployment.json) 和 [线上截图](docs/reference-evidence/159-fire-online.png)。 |
+
+线上：[主入口](https://luyf-lemon-love.space/nano-dnf/) / [备用Pages](https://yanfeng98.github.io/nano-dnf/)。方向键移动，X普攻，C跳跃，A/S/D/F/G/H技能。普通关入口房有诅咒赤，第二格有赤、青；拉开距离可观察投射物。
+
+本机交接时 `npm run serve` 仍在运行，父进程PID315550，日志 `/tmp/nano158-serve.log`，端口8080。接手时重新检查；远端8080需要VS Code端口转发或SSH转发才能在业主本机打开，服务端200不等于实玩验收。
+
+## 用户未提交改动：保留原样
+
+以下是开始本轮前就存在的用户编辑，**不属于本次修复**：
+
+- `scripts/probe-reference-hair.py`。
+- `tests/browser/artifacts/` 下40张已跟踪PNG。
+
+具体路径及交接时SHA256在 [用户工作区清单](docs/reference-evidence/handoff-user-worktree-2026-11-16.json)。本次交接提交不含其内容。
+
+完整浏览器回归会覆盖这些PNG。运行前单独备份全部原有脏文件；结束后先保存新产物到 `/tmp`，恢复原本干净的已跟踪产物，再将备份中的40张**全部**写回并逐项核对哈希，包括测试后碰巧变成干净状态的文件。明确列出自己的暂存路径，保留用户编辑在工作区。
+
+本次最后一份备份在 `/tmp/nano159-existing-artifacts/manifest.json`，测试新产物在 `/tmp/nano159-generated-artifacts/`；临时目录可能消失，接手后自己建立新的备份。
+
+## 下一步优先处理的差异
+
+1. **火/冰投射物继续还原。** 火弹主尾迹仍过于规则；光粒子、随机区域、完整混合/插值/属性继承、落地stop、脱离弹体后的尾迹未知。冰弹Z-sine公式、IceMissile2用途及水粒子未接入。读取下一节后再修改参数。
+2. **远程AI与战斗规则。** 当前青/赤/诅咒赤借用现有ranged间距，保留旧攻击持续/冷却；这些不是录像原值。碰撞半径9、通用落地销毁及伤害仍是待核代理。投掷十夫长仍使用发光占位物，30021/FlyBomb候选尚未可靠匹配录像。
+3. **经验成长。** 初始经验、升级阈值、经验条轨道/比例和结算仍待统一校准；目前普通关Lv3阈值77与录像斜率明显不符。第145/150批记录了约束，尚无唯一公式，不能取区间中点冒充原值。
+4. **房间内容与空间。** 还有未核普通房使用占位名册；已校正数量的房间，精确X/纵深/激活/波次/AI也未全部证明。普通第二格最终为8只/320经验（151批），深处领主房最终为8只/810经验（148批）；149批6/240、147批9/870均被后续证据推翻。
+5. **其余全局差异。** 冠军光环尺寸、人物外观/技能与战斗时序、场景物件生命周期/碎片、城镇/NPC、HUD/字体/皮肤/中央圆盘、逐事件音效等继续开放。完整范围以录像审计总账为准，本清单不是缩小后的完成标准。
+
+## 火弹取证与实现边界
+
+相关实现：`src/core.js` 的 `goblinFireProjectile` / `spawnProjectile` / `updateProjectiles`，`src/render.js` 的 `nativeThrowGoblin` / `drawProjectile`，`assets/import_dnf_goblin_fire.py`，`tests/browser/goblin-fire.mjs`。
+
+- **录像实测：** V1入口房61.2–61.5秒的十个火尾前端，按固定石柱校正镜头，再按位移拟合y(x)，避免重复/追帧。曲率约`.0009583883`；X337.5屏幕px/s、重力225屏幕px/s²的候选模型最大残差1.590px。其他重力也可能相容，不是唯一参数证明。见 [159-fire-curve.json](docs/reference-evidence/159-fire-curve.json) 与 [原帧裁片](docs/reference-evidence/159-fire-curve-crops.png)。
+- **客户端声明：** hillgab→30047→HillGabSizzle，主PTL的X300、gravity200、角度[0,10,0]、life3000，以及MOB出生偏移(20,0,60)。原生场景投影1.125折算为屏幕值；Core世界坐标还要除镜头zoom。客户端z是高度，Core.z是地面纵深，不能混用。
+- **实现解释：** 目前将10解释为向上10度；解析常加速度步进已验证不同dt分割一致。原片尚未唯一确认出生角、出生点和完整寿命。
+- **图片候选：** 主FireMissile.ani无图，FireMissileParticle1是名称候选入口，未找到原生引擎的显式调用证明。Fire.img首帧在四个隔离前端ROI匹配约.875–.882；运行表现采用61.2秒的scale.7/PIL180度匹配，不等于已解码ANI40.0。
+- **发射频率候选：** 当前把creation frequency50解释为50Hz，候选寿命350ms。两幅简化橙色剖面50Hz得分.800/.818，20Hz得分.746/.682；这是有限模型比较，不是引擎语义证明。见 [频率比较](docs/reference-evidence/159-fire-frequency.json)。
+- **混合/插值：** 普通/加色及alpha插值模型残差都大，保留为未确认；没有仅凭GRAPHIC EFFECT2采用加色。见 [比较结果](docs/reference-evidence/159-fire-compositing.json) 和 [原始源码调研的未知项](docs/reference-evidence/157-native-particle-format-review.md)。
+
+青弹的V1 107–115.9秒搜索最高NCC仅.673，没有可靠连续飞行匹配；这不证明原片没有冰弹。见 [158-ice-video-search.json](docs/reference-evidence/158-ice-video-search.json)。
+
+## 资源、脚本和验证入口
+
+本机实际客户端是 `/mnt/c/dnf/地下城与勇士`，参考视频是仓库外的 `/home/luyanfeng/luyanfeng/dnf-素材/00001-幽暗密林.mp4`、`00002-幽暗密林深处.mp4`。`CLAUDE.md` 关于云端客户端 `/home/luyanfeng/dnf-client` 的补充段已过时；使用前核实路径，运行旧导入器时显式传 `--client`。美术继续只用业主本机客户端资源。
+
+改火弹轨迹时，先用以下脚本复算证据；命令参数见各自 `--help`：
+
+- `scripts/inspect-reference-v1-second-room.py`：通用V1归一化提帧，历史149文件名前缀不代表实际房间；本次60.9秒/1秒/stride1实际是入口房。
+- `scripts/measure-reference-goblin-fire-curve.py`：十点轨迹与固定曲率候选。
+- `scripts/inspect-reference-fire-candidate.py`：原始位图模板候选。
+- `scripts/compare-reference-fire-frequency.py`、`compare-reference-fire-compositing.py`：有限表现模型比较，保留其限制。
+- `assets/import_dnf_goblin_fire.py`、`import_dnf_goblin_ice.py`、`import_dnf_goblin_stone.py`：直接导出原图和来源参数；重复导出应逐字节一致。
+
+临时原帧缓存：`/tmp/nano156-v1-entry`（58–67.9秒/stride3）、`/tmp/nano159-fire-fine`（60.9–61.9秒/stride1）、`/tmp/nano158-v1-blue`（107–115.9秒/stride3）。缺失时从仓库外视频重提，录像画面用于证据，不作游戏素材。
+
+验证命令以 [package.json](package.json) 与 [发布工作流](.github/workflows/pages.yml) 为准。按 `CLAUDE.md`，一次只跑一个本地重任务：完整单测、完整浏览器、独立线上浏览器、ffmpeg/CV顺序排队。
+
+修复后的完整链为 `npm test` → `npm run test:browser` → push并检查对应提交的部署 → `npm run test:live` → 对应功能的独立线上探针。火弹探针接受 `FIRE_URL`/`FIRE_OUT`，冰弹接受 `ICE_URL`/`ICE_OUT`，石块接受 `STONE_URL`/`STONE_OUT`。核验期间保持待核版本的游戏源码和资源不变。
+
+长回归曾多次遭遇退出143。沿用独立监督、真实PID、退出码和输入哈希记录；观察超时后继续查同一进程，确认终止后才重启。本次监督脚本在 `/tmp/nano159-final-regression-runner.py`，最终结果已提交到证据目录；临时脚本若丢失，按此要求重建。最新本地回归PID338892已正常结束，交接时没有本轮待收尾测试。
+
+`git push origin main` 的SSH认证可用；`gh` 当前未认证，Actions状态可通过GitHub公开REST API读取。发布证明和功能截图已经补入本交接提交。后续恢复工作时以新提交及真实线上结果继续记录，不复用旧绿灯证明新的改动。
