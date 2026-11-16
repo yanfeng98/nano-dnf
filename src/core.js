@@ -1803,18 +1803,27 @@
       label: "青哥布林",
       race: "人型",
       level: 4,
-      behavior: "melee",
+      // seagab.mob is range combat, object30057 (audit157/158).
+      behavior: "ranged",
       maxHp: 32,
       xp: 10,
       width: 33,
       height: 53,
       speed: 62,
       damage: 6,
-      attackRange: 14,
+      // Existing ranged AI spacing is provisional; not a native AI calibration.
+      attackRange: 178,
+      keepRange: 118,
       attackWindup: 0.28,
       attackDuration: 0.5,
       attackCooldown: 1.05,
-      knockbackX: 150
+      knockbackX: 150,
+      // Explicit native X200, origin(20,0,60), life1500ms. Restore primary
+      // ice flight first. The PTL's Z-sine and child emitters remain uncalibrated;
+      // do not invent a sine formula, freeze status or piercing count.
+      projectile: { nativeObject: 30057, speed: nativeGroundX(200), radius: 9,
+        life: 1.5, maxDistance: nativeGroundX(300),
+        originX: nativeGroundX(20), height: nativeGroundX(60), horizontal: true }
     },
     goblinRed: {
       label: "赤哥布林",

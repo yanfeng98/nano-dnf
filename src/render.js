@@ -4599,6 +4599,10 @@
       idle: [0, 0], attack: [0, 4], down: [5, 9], rise: [10, 10],
       walk: [11, 16], walkFps: 10, attackMilliseconds: [80, 80, 80, 80, 200]
     },
+    nativeIceGoblin: {
+      idle: [0, 0], attack: [0, 4], down: [5, 9], rise: [10, 10],
+      walk: [11, 16], walkFps: 10, attackMilliseconds: [80, 80, 80, 80, 200], releaseFrame: 2
+    },
     // goblinthrower MOB -> body0 plus four EQU records. Separate pose cells
     // preserve the extra attack layer400; source body frames are not cell IDs.
     // Align declared throw ordinal2 with the existing Core emission event.
@@ -4667,7 +4671,7 @@
       lugaruBoss: "lugaru",
       // seagab/hillgab explicitly link the 0..4 attack and11..16 walk runs.
       // Champion overlay does not replace the red goblin's body animation.
-      goblinBlue: "nativeGoblin",
+      goblinBlue: "nativeIceGoblin",
       goblinRed: "nativeGoblin",
       cursedRed: "nativeGoblin"
     }
@@ -5166,6 +5170,21 @@
   }
 
   function drawProjectile(ctx, state, shot, sprites) {
+    if (shot.nativeObject === 30057) {
+      var ice = sprites && sprites.goblinIce;
+      if (!ice || !ice.width) return;
+      var iceScale = (Core.VIEW.width / 640) / Core.CAMERA.zoom;
+      var iceAge = Math.max(0, shot.maxLife - shot.life);
+      var iceFrame = Math.floor((iceAge + 0.0000001) / 0.05) % 8;
+      ctx.save();
+      ctx.translate(shot.x, feetY(shot));
+      ctx.scale(shot.vx < 0 ? -1 : 1, 1);
+      ctx.imageSmoothingEnabled = true;
+      ctx.drawImage(ice, iceFrame * 64, 0, 64, 64,
+        -32 * iceScale, -32 * iceScale, 64 * iceScale, 64 * iceScale);
+      ctx.restore();
+      return;
+    }
     if (shot.nativeObject === 30001) {
       var stone = sprites && sprites.goblinStone;
       if (!stone || !stone.width) return;

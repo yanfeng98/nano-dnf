@@ -1,0 +1,271 @@
+{
+  "url": "http://127.0.0.1:45715/?seed=1",
+  "emissions": [
+    {
+      "count": 1,
+      "nativeObject": 30057,
+      "maxLife": 1.5,
+      "facing": -1,
+      "kind": "shoot",
+      "hitDone": true,
+      "sourceX": -19.999999999999964,
+      "sourceHeight": 59.99999999999997
+    },
+    {
+      "count": 1,
+      "nativeObject": 30057,
+      "maxLife": 1.5,
+      "facing": 1,
+      "kind": "shoot",
+      "hitDone": true,
+      "sourceX": 19.999999999999964,
+      "sourceHeight": 59.99999999999997
+    }
+  ],
+  "samples": [
+    {
+      "facing": -1,
+      "frame": 0,
+      "src": "http://127.0.0.1:45715/assets/goblin-ice.png",
+      "source": [
+        0,
+        0,
+        64,
+        64
+      ],
+      "screenWidth": 71.99999740888488,
+      "x": 637.6170258210004,
+      "y": 362.50000697047653
+    },
+    {
+      "facing": -1,
+      "frame": 1,
+      "src": "http://127.0.0.1:45715/assets/goblin-ice.png",
+      "source": [
+        64,
+        0,
+        64,
+        64
+      ],
+      "screenWidth": 71.99999740888488,
+      "x": 637.6170258210004,
+      "y": 362.50000697047653
+    },
+    {
+      "facing": -1,
+      "frame": 2,
+      "src": "http://127.0.0.1:45715/assets/goblin-ice.png",
+      "source": [
+        128,
+        0,
+        64,
+        64
+      ],
+      "screenWidth": 71.99999740888488,
+      "x": 637.6170258210004,
+      "y": 362.50000697047653
+    },
+    {
+      "facing": -1,
+      "frame": 3,
+      "src": "http://127.0.0.1:45715/assets/goblin-ice.png",
+      "source": [
+        192,
+        0,
+        64,
+        64
+      ],
+      "screenWidth": 71.99999740888488,
+      "x": 637.6170258210004,
+      "y": 362.50000697047653
+    },
+    {
+      "facing": -1,
+      "frame": 4,
+      "src": "http://127.0.0.1:45715/assets/goblin-ice.png",
+      "source": [
+        256,
+        0,
+        64,
+        64
+      ],
+      "screenWidth": 71.99999740888488,
+      "x": 637.6170258210004,
+      "y": 362.50000697047653
+    },
+    {
+      "facing": -1,
+      "frame": 5,
+      "src": "http://127.0.0.1:45715/assets/goblin-ice.png",
+      "source": [
+        320,
+        0,
+        64,
+        64
+      ],
+      "screenWidth": 71.99999740888488,
+      "x": 637.6170258210004,
+      "y": 362.50000697047653
+    },
+    {
+      "facing": -1,
+      "frame": 6,
+      "src": "http://127.0.0.1:45715/assets/goblin-ice.png",
+      "source": [
+        384,
+        0,
+        64,
+        64
+      ],
+      "screenWidth": 71.99999740888488,
+      "x": 637.6170258210004,
+      "y": 362.50000697047653
+    },
+    {
+      "facing": -1,
+      "frame": 7,
+      "src": "http://127.0.0.1:45715/assets/goblin-ice.png",
+      "source": [
+        448,
+        0,
+        64,
+        64
+      ],
+      "screenWidth": 71.99999740888488,
+      "x": 637.6170258210004,
+      "y": 362.50000697047653
+    },
+    {
+      "facing": 1,
+      "frame": 0,
+      "src": "http://127.0.0.1:45715/assets/goblin-ice.png",
+      "source": [
+        0,
+        0,
+        64,
+        64
+      ],
+      "screenWidth": 71.99999740888488,
+      "x": 322.382907850224,
+      "y": 362.50000697047653
+    },
+    {
+      "facing": 1,
+      "frame": 1,
+      "src": "http://127.0.0.1:45715/assets/goblin-ice.png",
+      "source": [
+        64,
+        0,
+        64,
+        64
+      ],
+      "screenWidth": 71.99999740888488,
+      "x": 322.382907850224,
+      "y": 362.50000697047653
+    },
+    {
+      "facing": 1,
+      "frame": 2,
+      "src": "http://127.0.0.1:45715/assets/goblin-ice.png",
+      "source": [
+        128,
+        0,
+        64,
+        64
+      ],
+      "screenWidth": 71.99999740888488,
+      "x": 322.382907850224,
+      "y": 362.50000697047653
+    },
+    {
+      "facing": 1,
+      "frame": 3,
+      "src": "http://127.0.0.1:45715/assets/goblin-ice.png",
+      "source": [
+        192,
+        0,
+        64,
+        64
+      ],
+      "screenWidth": 71.99999740888488,
+      "x": 322.382907850224,
+      "y": 362.50000697047653
+    },
+    {
+      "facing": 1,
+      "frame": 4,
+      "src": "http://127.0.0.1:45715/assets/goblin-ice.png",
+      "source": [
+        256,
+        0,
+        64,
+        64
+      ],
+      "screenWidth": 71.99999740888488,
+      "x": 322.382907850224,
+      "y": 362.50000697047653
+    },
+    {
+      "facing": 1,
+      "frame": 5,
+      "src": "http://127.0.0.1:45715/assets/goblin-ice.png",
+      "source": [
+        320,
+        0,
+        64,
+        64
+      ],
+      "screenWidth": 71.99999740888488,
+      "x": 322.382907850224,
+      "y": 362.50000697047653
+    },
+    {
+      "facing": 1,
+      "frame": 6,
+      "src": "http://127.0.0.1:45715/assets/goblin-ice.png",
+      "source": [
+        384,
+        0,
+        64,
+        64
+      ],
+      "screenWidth": 71.99999740888488,
+      "x": 322.382907850224,
+      "y": 362.50000697047653
+    },
+    {
+      "facing": 1,
+      "frame": 7,
+      "src": "http://127.0.0.1:45715/assets/goblin-ice.png",
+      "source": [
+        448,
+        0,
+        64,
+        64
+      ],
+      "screenWidth": 71.99999740888488,
+      "x": 322.382907850224,
+      "y": 362.50000697047653
+    }
+  ],
+  "flights": [
+    {
+      "facing": -1,
+      "screenSpeed": 225.00000000000142,
+      "frames": 91,
+      "remaining": 0
+    },
+    {
+      "facing": 1,
+      "screenSpeed": 225.00000000000142,
+      "frames": 91,
+      "remaining": 0
+    }
+  ],
+  "errors": [],
+  "limits": [
+    "Primary object identity, native frames, offset, declared X speed/lifetime and pause checked.",
+    "Z-sine, particle children, IceMissile2 semantics, collision/piercing and video timing remain open.",
+    "Current ranged spacing and cooldown are provisional."
+  ]
+}

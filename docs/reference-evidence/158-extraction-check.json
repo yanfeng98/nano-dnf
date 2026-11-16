@@ -1,0 +1,14 @@
+{
+  "assetExtraction": [
+    {
+      "file": "goblin-ice.png",
+      "sha256": "b8c971c9292b2ae435b117429d58f747ea03b79752824b5319b443aec22703e0",
+      "independentRepeatByteIdentical": true
+    },
+    {
+      "file": "goblin-ice.json",
+      "sha256": "b932ec040c6c52dc9b551341cad629b5aa7d0d5678eaad7ac65cd04a3c3ef025",
+      "independentRepeatByteIdentical": true
+    }
+  ]
+}

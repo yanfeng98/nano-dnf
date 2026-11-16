@@ -1,0 +1,274 @@
+{
+  "commit": "489b54d5718e670f03275e040a187a49597430a2",
+  "workflow": "https://github.com/yanfeng98/nano-dnf/actions/runs/43820061242",
+  "jobs": [
+    {
+      "id": 133140858585,
+      "run_id": 43820061242,
+      "workflow_name": "Deploy playable build to GitHub Pages",
+      "head_branch": "main",
+      "run_url": "https://api.github.com/repos/yanfeng98/nano-dnf/actions/runs/43820061242",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOUaq1_s8AAAAe_9BG2Q",
+      "head_sha": "489b54d5718e670f03275e040a187a49597430a2",
+      "url": "https://api.github.com/repos/yanfeng98/nano-dnf/actions/jobs/133140858585",
+      "html_url": "https://github.com/yanfeng98/nano-dnf/actions/runs/43820061242/job/133140858585",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-16T06:54:56Z",
+      "started_at": "2026-11-16T06:54:58Z",
+      "completed_at": "2026-11-16T06:56:01Z",
+      "name": "Test and stage the playable build",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-16T06:54:59Z",
+          "completed_at": "2026-11-16T06:55:00Z"
+        },
+        {
+          "name": "Check out the repository",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-16T06:55:00Z",
+          "completed_at": "2026-11-16T06:55:24Z"
+        },
+        {
+          "name": "Set up Node.js",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-16T06:55:24Z",
+          "completed_at": "2026-11-16T06:55:25Z"
+        },
+        {
+          "name": "Run regression tests",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-11-16T06:55:25Z",
+          "completed_at": "2026-11-16T06:55:55Z"
+        },
+        {
+          "name": "Stage the static site",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-11-16T06:55:55Z",
+          "completed_at": "2026-11-16T06:55:55Z"
+        },
+        {
+          "name": "Verify every referenced asset was staged",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-11-16T06:55:55Z",
+          "completed_at": "2026-11-16T06:55:55Z"
+        },
+        {
+          "name": "Configure GitHub Pages",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-11-16T06:55:55Z",
+          "completed_at": "2026-11-16T06:55:56Z"
+        },
+        {
+          "name": "Upload the staged site",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8,
+          "started_at": "2026-11-16T06:55:56Z",
+          "completed_at": "2026-11-16T06:55:59Z"
+        },
+        {
+          "name": "Post Set up Node.js",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 15,
+          "started_at": "2026-11-16T06:55:59Z",
+          "completed_at": "2026-11-16T06:55:59Z"
+        },
+        {
+          "name": "Post Check out the repository",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 16,
+          "started_at": "2026-11-16T06:55:59Z",
+          "completed_at": "2026-11-16T06:55:59Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 17,
+          "started_at": "2026-11-16T06:55:59Z",
+          "completed_at": "2026-11-16T06:55:59Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/yanfeng98/nano-dnf/check-runs/133140858585",
+      "labels": [
+        "ubuntu-latest"
+      ],
+      "runner_id": 1000021178,
+      "runner_name": "GitHub Actions 1000021178",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 133141256869,
+      "run_id": 43820061242,
+      "workflow_name": "Deploy playable build to GitHub Pages",
+      "head_branch": "main",
+      "run_url": "https://api.github.com/repos/yanfeng98/nano-dnf/actions/runs/43820061242",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOUaq1_s8AAAAe_9ZapQ",
+      "head_sha": "489b54d5718e670f03275e040a187a49597430a2",
+      "url": "https://api.github.com/repos/yanfeng98/nano-dnf/actions/jobs/133141256869",
+      "html_url": "https://github.com/yanfeng98/nano-dnf/actions/runs/43820061242/job/133141256869",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-16T06:56:01Z",
+      "started_at": "2026-11-16T06:56:06Z",
+      "completed_at": "2026-11-16T06:56:16Z",
+      "name": "Deploy to GitHub Pages",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-16T06:56:06Z",
+          "completed_at": "2026-11-16T06:56:07Z"
+        },
+        {
+          "name": "Deploy the artifact",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-16T06:56:07Z",
+          "completed_at": "2026-11-16T06:56:14Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-16T06:56:14Z",
+          "completed_at": "2026-11-16T06:56:14Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/yanfeng98/nano-dnf/check-runs/133141256869",
+      "labels": [
+        "ubuntu-latest"
+      ],
+      "runner_id": 1000021179,
+      "runner_name": "GitHub Actions 1000021179",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 133141349505,
+      "run_id": 43820061242,
+      "workflow_name": "Deploy playable build to GitHub Pages",
+      "head_branch": "main",
+      "run_url": "https://api.github.com/repos/yanfeng98/nano-dnf/actions/runs/43820061242",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOUaq1_s8AAAAe_9fEgQ",
+      "head_sha": "489b54d5718e670f03275e040a187a49597430a2",
+      "url": "https://api.github.com/repos/yanfeng98/nano-dnf/actions/jobs/133141349505",
+      "html_url": "https://github.com/yanfeng98/nano-dnf/actions/runs/43820061242/job/133141349505",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-16T06:56:16Z",
+      "started_at": "2026-11-16T06:56:18Z",
+      "completed_at": "2026-11-16T06:57:09Z",
+      "name": "Verify the deployed build",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-16T06:56:19Z",
+          "completed_at": "2026-11-16T06:56:19Z"
+        },
+        {
+          "name": "Check out the repository",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-16T06:56:19Z",
+          "completed_at": "2026-11-16T06:56:43Z"
+        },
+        {
+          "name": "Set up Node.js",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-16T06:56:43Z",
+          "completed_at": "2026-11-16T06:56:43Z"
+        },
+        {
+          "name": "Install the smoke-test browser",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-11-16T06:56:43Z",
+          "completed_at": "2026-11-16T06:56:47Z"
+        },
+        {
+          "name": "Smoke-test the live build",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-11-16T06:56:47Z",
+          "completed_at": "2026-11-16T06:57:07Z"
+        },
+        {
+          "name": "Post Set up Node.js",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-11-16T06:57:07Z",
+          "completed_at": "2026-11-16T06:57:07Z"
+        },
+        {
+          "name": "Post Check out the repository",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10,
+          "started_at": "2026-11-16T06:57:07Z",
+          "completed_at": "2026-11-16T06:57:07Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11,
+          "started_at": "2026-11-16T06:57:07Z",
+          "completed_at": "2026-11-16T06:57:07Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/yanfeng98/nano-dnf/check-runs/133141349505",
+      "labels": [
+        "ubuntu-latest"
+      ],
+      "runner_id": 1000021180,
+      "runner_name": "GitHub Actions 1000021180",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    }
+  ],
+  "independentLive": {
+    "command": "npm run test:live",
+    "exitCode": 0,
+    "logSHA256": "899fd134e572aaea723dfaac6870b138b069209e2c4c69273229268aa02f1870",
+    "log": "\n> nano-dnf@0.1.0 test:live\n> node tests/deploy/live-smoke.mjs\n\nlive smoke against https://luyf-lemon-love.space/nano-dnf/ (deploy lag budget 300s)\n{\n  \"url\": \"https://luyf-lemon-love.space/nano-dnf/\",\n  \"referencedAssets\": [\n    \"assets/favicon.png\",\n    \"src/core.js\",\n    \"src/loadout.js\",\n    \"src/music.js\",\n    \"src/hints.js\",\n    \"src/records.js\",\n    \"src/progress.js\",\n    \"src/summary.js\",\n    \"src/reward.js\",\n    \"src/attract.js\",\n    \"src/render.js\",\n    \"src/main.js\",\n    \"assets/slayer-reference.png\",\n    \"assets/skills.png\",\n    \"assets/skills-disabled.png\",\n    \"assets/skill-ranks.png\",\n    \"assets/effects.png\",\n    \"assets/normal-wave.png\",\n    \"assets/normal-wave-body.png\",\n    \"assets/rift.png\",\n    \"assets/region.png\",\n    \"assets/monsters.png\",\n    \"assets/thrower-reference.png\",\n    \"assets/goblin-reference.png\",\n    \"assets/caster-reference.png\",\n    \"assets/goblin-stone.png\",\n    \"assets/forest.png\",\n    \"assets/native-flora.png\",\n    \"assets/native-pathgate.png\",\n    \"assets/native-pathgate-east.png\",\n    \"assets/native-pathgate-east-normal.png\",\n    \"assets/forest-deep.png\",\n    \"assets/deep-boss-closeback.png\",\n    \"assets/deep-entry-closeback.png\",\n    \"assets/deep-room42-closeback.png\",\n    \"assets/deep-room43-closeback.png\",\n    \"assets/deep-room33-closeback.png\",\n    \"assets/deep-room23-closeback.png\",\n    \"assets/deep-room13-closeback.png\",\n    \"assets/deep-room14-closeback.png\",\n    \"assets/deep-room24-closeback.png\",\n    \"assets/deep-room24-foreground.png\",\n    \"assets/weather.png\",\n    \"assets/bossdeath.png\",\n    \"assets/ui.png\",\n    \"assets/hud.png\",\n    \"assets/town.png\",\n    \"assets/npc.png\",\n    \"assets/gui.png\",\n    \"assets/tree-reference.png\",\n    \"assets/tree-fruit-reference.png\",\n    \"assets/goblin-bunker.png\",\n    \"assets/pillar-pale.png\",\n    \"assets/gate-block.png\",\n    \"assets/minimap.png\",\n    \"assets/results-reference.png\",\n    \"assets/experience-digits.png\",\n    \"assets/awakening.png\",\n    \"assets/portraits-reference.png\"\n  ],\n  \"idle\": {\n    \"seed\": 20260915,\n    \"hp\": 264,\n    \"maxHp\": 264,\n    \"damageTaken\": 0,\n    \"time\": 0,\n    \"defeat\": false,\n    \"room\": \"林间空地\"\n  },\n  \"problems\": []\n}\nlive smoke OK: the deployed build matches the checkout and boots cleanly\n"
+  },
+  "scope": "Research scripts and evidence only; shipped game files unchanged from8354532. No new fire/ice gameplay fix or owner acceptance claimed.",
+  "verifiedAt": "2026-11-16T06:58:29.388820+00:00"
+}

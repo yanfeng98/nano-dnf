@@ -50,6 +50,7 @@ try{
    await page.evaluate(({type,name,time,elapsed})=>{
     const C=window.DNFCore,s=window.nanoDnf.getState(),e=C.createEnemy(s,type,500+200/C.CAMERA.zoom);s.enemies=[e];
     e.z=s.player.z;e.facing=-1;e.attackDuration=.52;e.attackTimer=elapsed===null?0:.52-elapsed;
+    if(type==='goblinBlue')e.attackWindup=.16; // Native pose-only release; real emission covered by ice probe.
     e.vx=name.startsWith('walk')?10:0;e.vz=0;e.knockdown=name==='down'?.5:0;s.time=time;
    },{type,name,time,elapsed});
    await page.waitForTimeout(80);const draws=await page.evaluate(()=>window.motionDraws);assert.equal(draws.length,1,`${type}/${name}`);

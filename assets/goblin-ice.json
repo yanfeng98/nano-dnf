@@ -1,0 +1,1308 @@
+{
+  "objectId": 30057,
+  "mob": "monster/goblin/seagab.mob",
+  "object": "passiveobject/monster/goblin/seagabicicle.obj",
+  "animation": "passiveobject/common/animation/icemissile1.ani",
+  "particle": "passiveobject/common/particle/icemissile.ptl",
+  "sourceSHA256": {
+    "monster/goblin/seagab.mob": "2ce9497a049b11f83555d76e646df411c12cc84a64b04a194309e9750a72d1d5",
+    "passiveobject/monster/goblin/seagabicicle.obj": "96f661d10016b8bd6ce99b0d1203527e5d8df8cb30c5c6bb03c22924009a42df",
+    "passiveobject/common/animation/icemissile1.ani": "4bf41a68af7f78abd691f8e01a290a4d9ec65888affdc9b044680b0c586f0540",
+    "passiveobject/common/particle/icemissile.ptl": "990e803217f093b0d8187d41aaf96e4354491f70723b61e472a8bb977c225e13"
+  },
+  "mobTokens": [
+    [
+      5,
+      "[width]"
+    ],
+    [
+      2,
+      40
+    ],
+    [
+      2,
+      10
+    ],
+    [
+      5,
+      "[common champion elemental property]"
+    ],
+    [
+      7,
+      "[water element]"
+    ],
+    [
+      5,
+      "[/common champion elemental property]"
+    ],
+    [
+      5,
+      "[ability category]"
+    ],
+    [
+      7,
+      "[HP MAX]"
+    ],
+    [
+      7,
+      "*"
+    ],
+    [
+      2,
+      70
+    ],
+    [
+      7,
+      "[EQUIPMENT_PHYSICAL_ATTACK]"
+    ],
+    [
+      7,
+      "*"
+    ],
+    [
+      2,
+      70
+    ],
+    [
+      7,
+      "[EQUIPMENT_PHYSICAL_DEFENSE]"
+    ],
+    [
+      7,
+      "*"
+    ],
+    [
+      2,
+      70
+    ],
+    [
+      7,
+      "[EQUIPMENT_MAGICAL_ATTACK]"
+    ],
+    [
+      7,
+      "*"
+    ],
+    [
+      2,
+      80
+    ],
+    [
+      7,
+      "[EQUIPMENT_MAGICAL_DEFENSE]"
+    ],
+    [
+      7,
+      "*"
+    ],
+    [
+      2,
+      100
+    ],
+    [
+      5,
+      "[/ability category]"
+    ],
+    [
+      5,
+      "[category]"
+    ],
+    [
+      7,
+      "[human]"
+    ],
+    [
+      7,
+      "[goblin]"
+    ],
+    [
+      7,
+      "[range combat]"
+    ],
+    [
+      7,
+      "[close-passive]"
+    ],
+    [
+      5,
+      "[/category]"
+    ],
+    [
+      5,
+      "[level]"
+    ],
+    [
+      2,
+      10
+    ],
+    [
+      2,
+      15
+    ],
+    [
+      5,
+      "[fire resistance]"
+    ],
+    [
+      2,
+      4294967266
+    ],
+    [
+      2,
+      4294967266
+    ],
+    [
+      5,
+      "[water resistance]"
+    ],
+    [
+      2,
+      30
+    ],
+    [
+      2,
+      30
+    ],
+    [
+      5,
+      "[move speed]"
+    ],
+    [
+      2,
+      400
+    ],
+    [
+      2,
+      400
+    ],
+    [
+      5,
+      "[attack speed]"
+    ],
+    [
+      2,
+      300
+    ],
+    [
+      2,
+      300
+    ],
+    [
+      5,
+      "[cast speed]"
+    ],
+    [
+      2,
+      730
+    ],
+    [
+      2,
+      820
+    ],
+    [
+      5,
+      "[hit recovery]"
+    ],
+    [
+      2,
+      600
+    ],
+    [
+      2,
+      600
+    ],
+    [
+      5,
+      "[weight]"
+    ],
+    [
+      2,
+      45000
+    ],
+    [
+      2,
+      45000
+    ],
+    [
+      5,
+      "[sight]"
+    ],
+    [
+      2,
+      300
+    ],
+    [
+      5,
+      "[targeting nearest]"
+    ],
+    [
+      2,
+      1
+    ],
+    [
+      5,
+      "[warlike]"
+    ],
+    [
+      2,
+      30
+    ],
+    [
+      5,
+      "[attack delay]"
+    ],
+    [
+      2,
+      3000
+    ],
+    [
+      5,
+      "[stuckbonus on damage]"
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      5,
+      "[item]"
+    ],
+    [
+      2,
+      1062
+    ],
+    [
+      2,
+      50
+    ],
+    [
+      2,
+      1065
+    ],
+    [
+      2,
+      100
+    ],
+    [
+      2,
+      1047
+    ],
+    [
+      2,
+      200
+    ],
+    [
+      5,
+      "[/item]"
+    ],
+    [
+      5,
+      "[common champion drop item]"
+    ],
+    [
+      5,
+      "[/common champion drop item]"
+    ],
+    [
+      5,
+      "[attack kind]"
+    ],
+    [
+      4,
+      10.0
+    ],
+    [
+      4,
+      5.0
+    ],
+    [
+      4,
+      1.0
+    ],
+    [
+      2,
+      1
+    ],
+    [
+      2,
+      300
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      2,
+      15
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      2,
+      15
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      5,
+      "[/attack kind]"
+    ],
+    [
+      5,
+      "[die effect]"
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      2,
+      7
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      5,
+      "[face image]"
+    ],
+    [
+      7,
+      "Monster/MonsterFace.img"
+    ],
+    [
+      2,
+      7
+    ],
+    [
+      5,
+      "[waiting motion]"
+    ],
+    [
+      7,
+      "Animation_IslandGoblin/Stay.ani"
+    ],
+    [
+      5,
+      "[move motion]"
+    ],
+    [
+      7,
+      "Animation_IslandGoblin/Move.ani"
+    ],
+    [
+      5,
+      "[sit motion]"
+    ],
+    [
+      7,
+      "Animation_IslandGoblin/Sit.ani"
+    ],
+    [
+      5,
+      "[damage motion 1]"
+    ],
+    [
+      7,
+      "Animation_IslandGoblin/Damage1.ani"
+    ],
+    [
+      5,
+      "[damage motion 2]"
+    ],
+    [
+      7,
+      "Animation_IslandGoblin/Damage2.ani"
+    ],
+    [
+      5,
+      "[down motion]"
+    ],
+    [
+      7,
+      "Animation_IslandGoblin/Down.ani"
+    ],
+    [
+      5,
+      "[overturn motion]"
+    ],
+    [
+      7,
+      "Animation_IslandGoblin/Overturn.ani"
+    ],
+    [
+      5,
+      "[attack motion]"
+    ],
+    [
+      7,
+      "Animation_IslandGoblin/Throw.ani"
+    ],
+    [
+      5,
+      "[/attack motion]"
+    ],
+    [
+      5,
+      "[attack info]"
+    ],
+    [
+      7,
+      ""
+    ],
+    [
+      5,
+      "[/attack info]"
+    ],
+    [
+      5,
+      "[int data]"
+    ],
+    [
+      2,
+      3
+    ],
+    [
+      2,
+      6
+    ],
+    [
+      5,
+      "[/int data]"
+    ],
+    [
+      5,
+      "[name]"
+    ],
+    [
+      7,
+      "青哥布林"
+    ],
+    [
+      5,
+      "[speech on situation]"
+    ],
+    [
+      7,
+      "[on revenge]"
+    ],
+    [
+      7,
+      "有人砸場子啦！！"
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      7,
+      "[on revenge]"
+    ],
+    [
+      7,
+      "兄弟們抄家伙啊！"
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      7,
+      "[on etc]"
+    ],
+    [
+      7,
+      "哼！ 好哥布林不吃眼前虧！"
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      7,
+      "[on etc]"
+    ],
+    [
+      7,
+      "只剩我了? 撤！"
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      5,
+      "[/speech on situation]"
+    ],
+    [
+      5,
+      "[throw attack]"
+    ],
+    [
+      7,
+      "[attack index]"
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      7,
+      "[passive object number]"
+    ],
+    [
+      2,
+      1
+    ],
+    [
+      7,
+      "[passive object filename]"
+    ],
+    [
+      7,
+      "PassiveObject/Common/Particle/IceMissile.ptl"
+    ],
+    [
+      7,
+      "[object type]"
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      7,
+      "[passive object index]"
+    ],
+    [
+      2,
+      30057
+    ],
+    [
+      7,
+      "[power]"
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      7,
+      "[throw frame]"
+    ],
+    [
+      2,
+      2
+    ],
+    [
+      7,
+      "[passive object start x cood]"
+    ],
+    [
+      2,
+      20
+    ],
+    [
+      7,
+      "[passive object start y cood]"
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      7,
+      "[passive object start z cood]"
+    ],
+    [
+      2,
+      60
+    ],
+    [
+      7,
+      "[attack number]"
+    ],
+    [
+      2,
+      1
+    ],
+    [
+      7,
+      "[throw sound]"
+    ],
+    [
+      7,
+      ""
+    ],
+    [
+      5,
+      "[/throw attack]"
+    ],
+    [
+      5,
+      "[equipment]"
+    ],
+    [
+      2,
+      5
+    ],
+    [
+      7,
+      "Monster/Goblin/acc4.equ"
+    ],
+    [
+      7,
+      "Monster/Goblin/Hcc2.equ"
+    ],
+    [
+      7,
+      "Monster/Goblin/gcc1-3.equ"
+    ],
+    [
+      7,
+      "Monster/Goblin/tcc1-2.equ"
+    ],
+    [
+      7,
+      "Monster/Goblin/bcc1-2.equ"
+    ],
+    [
+      5,
+      "[/equipment]"
+    ]
+  ],
+  "objectTokens": [
+    [
+      5,
+      "[width]"
+    ],
+    [
+      2,
+      1
+    ],
+    [
+      2,
+      1
+    ],
+    [
+      5,
+      "[floating height]"
+    ],
+    [
+      2,
+      1
+    ],
+    [
+      5,
+      "[layer]"
+    ],
+    [
+      7,
+      "[normal]"
+    ],
+    [
+      5,
+      "[pass type]"
+    ],
+    [
+      7,
+      "[pass all]"
+    ],
+    [
+      5,
+      "[piercing power]"
+    ],
+    [
+      2,
+      50
+    ],
+    [
+      5,
+      "[basic motion]"
+    ],
+    [
+      7,
+      "../../Common/Animation/IceMissile1.ani"
+    ],
+    [
+      5,
+      "[etc motion]"
+    ],
+    [
+      7,
+      "../../Common/Animation/IceMissile2.ani"
+    ],
+    [
+      5,
+      "[/etc motion]"
+    ],
+    [
+      5,
+      "[attack info]"
+    ],
+    [
+      7,
+      "AttackInfo/SeaGabIcicle.atk"
+    ],
+    [
+      5,
+      "[int data]"
+    ],
+    [
+      2,
+      40
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      5,
+      "[/int data]"
+    ],
+    [
+      5,
+      "[name]"
+    ],
+    [
+      9,
+      9
+    ],
+    [
+      10,
+      "name_6135"
+    ]
+  ],
+  "particleTokens": [
+    [
+      5,
+      "[x axis]"
+    ],
+    [
+      5,
+      "[move type]"
+    ],
+    [
+      7,
+      "[straight line]"
+    ],
+    [
+      5,
+      "[move variable 1]"
+    ],
+    [
+      2,
+      200
+    ],
+    [
+      2,
+      200
+    ],
+    [
+      5,
+      "[z axis]"
+    ],
+    [
+      5,
+      "[move type]"
+    ],
+    [
+      7,
+      "[sin]"
+    ],
+    [
+      5,
+      "[move variable 1]"
+    ],
+    [
+      2,
+      5
+    ],
+    [
+      2,
+      5
+    ],
+    [
+      5,
+      "[move variable 2]"
+    ],
+    [
+      2,
+      1600
+    ],
+    [
+      2,
+      1600
+    ],
+    [
+      5,
+      "[changing term]"
+    ],
+    [
+      2,
+      1000
+    ],
+    [
+      5,
+      "[changing type]"
+    ],
+    [
+      7,
+      "[ping pong]"
+    ],
+    [
+      5,
+      "[life time]"
+    ],
+    [
+      2,
+      1500
+    ]
+  ],
+  "animationData": {
+    "paths": [
+      "Common/CommonEffect/IceMissile1.img"
+    ],
+    "overall": [
+      [
+        0,
+        1
+      ]
+    ],
+    "frames": [
+      {
+        "frame": 0,
+        "xy": [
+          -203,
+          -145
+        ],
+        "props": [
+          [
+            12,
+            50
+          ]
+        ],
+        "boxes": [
+          [
+            15,
+            [
+              -22,
+              -8,
+              -10,
+              49,
+              16,
+              20
+            ]
+          ]
+        ],
+        "image": 0
+      },
+      {
+        "frame": 1,
+        "xy": [
+          -203,
+          -145
+        ],
+        "props": [
+          [
+            12,
+            50
+          ]
+        ],
+        "boxes": [
+          [
+            15,
+            [
+              -22,
+              -8,
+              -10,
+              49,
+              16,
+              20
+            ]
+          ]
+        ],
+        "image": 0
+      },
+      {
+        "frame": 2,
+        "xy": [
+          -203,
+          -145
+        ],
+        "props": [
+          [
+            12,
+            50
+          ]
+        ],
+        "boxes": [
+          [
+            15,
+            [
+              -22,
+              -8,
+              -10,
+              49,
+              16,
+              20
+            ]
+          ]
+        ],
+        "image": 0
+      },
+      {
+        "frame": 3,
+        "xy": [
+          -203,
+          -145
+        ],
+        "props": [
+          [
+            12,
+            50
+          ]
+        ],
+        "boxes": [
+          [
+            15,
+            [
+              -22,
+              -8,
+              -10,
+              49,
+              16,
+              20
+            ]
+          ]
+        ],
+        "image": 0
+      },
+      {
+        "frame": 4,
+        "xy": [
+          -203,
+          -145
+        ],
+        "props": [
+          [
+            12,
+            50
+          ]
+        ],
+        "boxes": [
+          [
+            15,
+            [
+              -22,
+              -8,
+              -10,
+              49,
+              16,
+              20
+            ]
+          ]
+        ],
+        "image": 0
+      },
+      {
+        "frame": 5,
+        "xy": [
+          -203,
+          -145
+        ],
+        "props": [
+          [
+            12,
+            50
+          ]
+        ],
+        "boxes": [
+          [
+            15,
+            [
+              -22,
+              -8,
+              -10,
+              49,
+              16,
+              20
+            ]
+          ]
+        ],
+        "image": 0
+      },
+      {
+        "frame": 6,
+        "xy": [
+          -203,
+          -145
+        ],
+        "props": [
+          [
+            12,
+            50
+          ]
+        ],
+        "boxes": [
+          [
+            15,
+            [
+              -22,
+              -8,
+              -10,
+              49,
+              16,
+              20
+            ]
+          ]
+        ],
+        "image": 0
+      },
+      {
+        "frame": 7,
+        "xy": [
+          -203,
+          -145
+        ],
+        "props": [
+          [
+            12,
+            50
+          ]
+        ],
+        "boxes": [
+          [
+            15,
+            [
+              -22,
+              -8,
+              -10,
+              49,
+              16,
+              20
+            ]
+          ]
+        ],
+        "image": 0
+      }
+    ]
+  },
+  "cell": [
+    64,
+    64
+  ],
+  "anchor": [
+    32,
+    32
+  ],
+  "frames": [
+    {
+      "ordinal": 0,
+      "offset": [
+        181,
+        133
+      ],
+      "aniXY": [
+        -203,
+        -145
+      ],
+      "size": [
+        49,
+        25
+      ],
+      "pasteXY": [
+        10,
+        20
+      ],
+      "sourceRGBAsha256": "072f03528d42553d0ee8fea674ee866dcce0093a5df948e51ca9257aef59674e",
+      "cellRGBAsha256": "2bd93587327e7e02628d92b7dc052b22e9bbefdb440a7e4e34f9a7562f6027d0"
+    },
+    {
+      "ordinal": 1,
+      "offset": [
+        181,
+        134
+      ],
+      "aniXY": [
+        -203,
+        -145
+      ],
+      "size": [
+        49,
+        24
+      ],
+      "pasteXY": [
+        10,
+        21
+      ],
+      "sourceRGBAsha256": "ebcd7be6fe6e6caf9d2c023bfb55ca5839014bad4399e84a7c1073f54c108f48",
+      "cellRGBAsha256": "5fb0fca7d1d776fb3954dd900c3a1e2cb965c827e8a75495f32f017ba626633d"
+    },
+    {
+      "ordinal": 2,
+      "offset": [
+        181,
+        133
+      ],
+      "aniXY": [
+        -203,
+        -145
+      ],
+      "size": [
+        48,
+        24
+      ],
+      "pasteXY": [
+        10,
+        20
+      ],
+      "sourceRGBAsha256": "3940454277783604a5637dd604ed5e061e035696f635449c2673cf078832d66b",
+      "cellRGBAsha256": "061daddb8b4f32871ed1aa2e64bfcdfd858b105bf13d75c543f9cc7814619893"
+    },
+    {
+      "ordinal": 3,
+      "offset": [
+        181,
+        132
+      ],
+      "aniXY": [
+        -203,
+        -145
+      ],
+      "size": [
+        48,
+        25
+      ],
+      "pasteXY": [
+        10,
+        19
+      ],
+      "sourceRGBAsha256": "56ac1ba14eaf847e181712fa94205bb837560bd032eb15ec6486880c3ae9fc33",
+      "cellRGBAsha256": "2d40270fe4f20765fe935d445484bf88fe6fe6d70fcbe259bad307f4d0fc1374"
+    },
+    {
+      "ordinal": 4,
+      "offset": [
+        181,
+        133
+      ],
+      "aniXY": [
+        -203,
+        -145
+      ],
+      "size": [
+        49,
+        26
+      ],
+      "pasteXY": [
+        10,
+        20
+      ],
+      "sourceRGBAsha256": "89e47997791bbecfcad55d3387c8727e96115d5ea76f9da34fd03aa7d854d363",
+      "cellRGBAsha256": "feadf34fe6072d4f32f7b218b29566a8213d3b9b684bd176f7185a4d5449fe87"
+    },
+    {
+      "ordinal": 5,
+      "offset": [
+        181,
+        134
+      ],
+      "aniXY": [
+        -203,
+        -145
+      ],
+      "size": [
+        49,
+        24
+      ],
+      "pasteXY": [
+        10,
+        21
+      ],
+      "sourceRGBAsha256": "8c5b74674eb6bc6040722754e257be157806bd85a722f5f69e83b57a288b8229",
+      "cellRGBAsha256": "8da817317d4b9fdec928c9194dd80f13a79ab50cf65f7a1735d8460757f2758f"
+    },
+    {
+      "ordinal": 6,
+      "offset": [
+        181,
+        134
+      ],
+      "aniXY": [
+        -203,
+        -145
+      ],
+      "size": [
+        48,
+        24
+      ],
+      "pasteXY": [
+        10,
+        21
+      ],
+      "sourceRGBAsha256": "25dca9372fef6d4ccd3f71db8d66c7d8276444bfd75eec7dc2ace551a4bde2ca",
+      "cellRGBAsha256": "3a9ea8ad7823c74888fb2540010f7ddd4ff9e36ed6a03ce6de3e1e3834796eb6"
+    },
+    {
+      "ordinal": 7,
+      "offset": [
+        181,
+        133
+      ],
+      "aniXY": [
+        -203,
+        -145
+      ],
+      "size": [
+        49,
+        26
+      ],
+      "pasteXY": [
+        10,
+        20
+      ],
+      "sourceRGBAsha256": "6c5a6c916c3f268feafd114e0803dacbe5d43a6b29b7935e0b6c614a2403ff32",
+      "cellRGBAsha256": "d41d5a14d0965195e9b88d69199d529d58f50a69dbd765de2848f9d0850d29cb"
+    }
+  ],
+  "pack": "/mnt/c/dnf/地下城与勇士/ImagePacks2/sprite_common_commoneffect.NPK",
+  "entry": "sprite/common/commoneffect/icemissile1.img",
+  "imgSHA256": "41b41e474f01993d3507820bd82f442c3aa02b8f067afcf4241a8e45bdf98c6e",
+  "atlasRGBAsha256": "37495ec0b2f3c65b7e2441347378aab534af5708a37dd2c58c4c65121aa1efeb",
+  "limits": [
+    "Native primary motion only; IceMissile2 and particle children are not baked into this atlas.",
+    "No colour key or recolouring; original RGBA and native offset+ANI positioning preserved.",
+    "Vertical sine semantics, piercing-power interpretation, impact and AI timing remain open.",
+    "Native declarations are not independent video motion or appearance calibration."
+  ]
+}

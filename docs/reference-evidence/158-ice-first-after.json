@@ -1,0 +1,6 @@
+{
+  "originalLog": "158-ice-first-after.log",
+  "rawSHA256": "3736a182ee612ec2c45a3f8ecae83ea5e9ac897e6e6f7a08bc009d9b765eabf5",
+  "exitCode": 1,
+  "stdout": "✖ goblinBlue: native attack excludes damage poses and walking includes frame11 (15.561035ms)\n✔ blue goblin naturally emits its native ice object at throwing ordinal2 (5.324811ms)\n✔ ice projectile uses the eight native bitmap frames and preserves ANI offsets (4.311212ms)\nℹ tests 3\nℹ suites 0\nℹ pass 2\nℹ fail 1\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 104.47688\n\n✖ failing tests:\n\ntest at tests/core.test.js:11271:2\n✖ goblinBlue: native attack excludes damage poses and walking includes frame11 (15.561035ms)\n  AssertionError [ERR_ASSERTION]: goblinBlue attack at 0.081\n  \n  0 !== 1\n  \n      at TestContext.<anonymous> (/home/luyanfeng/luyanfeng/nano-dnf/tests/core.test.js:11285:41)\n      at Test.runInAsyncScope (node:async_hooks:227:14)\n      at Test.run (node:internal/test_runner/test:1402:25)\n      at Test.start (node:internal/test_runner/test:1262:17)\n      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {\n    generatedMessage: false,\n    code: 'ERR_ASSERTION',\n    actual: 0,\n    expected: 1,\n    operator: 'strictEqual',\n    diff: 'simple'\n  }\n"
+}

@@ -110,3 +110,18 @@ charger 的预警冲锋 / elite 的霸体旋风 / boss 的两阶段）与**沉�
 - **"哪一号身体＝哪一名 BOSS"这一层没有客户端文本证实**（`Script.pvf` 加密），
   靠的是造型比对 + `SoundPacks/sounds_mon_act1.npk` 里 `b_kinol / b_kurogaru / b_penril /
   b_shauta / b_taubeast` 这批**音效名与美术命名空间一一对得上**。这条证据很强，但不是文件级绑定。
+
+
+## 2026-11-16：青哥布林不是近战换色
+
+原先“哥布林 = melee”的概括不能覆盖所有换色类型。第157/158批直接读取
+seagab.mob，原生分类为range combat，throw attack明确引用30057及IceMissile.ptl；
+30057对象的basic motion为IceMissile1.ani（8帧、每帧50ms）。青哥布林因此改用
+现有ranged原型，发射原生主冰弹，并将声明的throw frame2对齐实际Core发射事件。
+源数据、像素哈希与原生属性见assets/goblin-ice.json及录像审计第158批。
+
+这次只纠正“不发射冰弹”：原生声明X200、出生偏移(20,0,60)、1500ms生命周期
+分别接入现有原生平面投影；原生Z-sine执行公式、附属粒子、IceMissile2用途、
+碰撞/穿透与绝对AI时序仍未确认。当前ranged间距借用现有原型，攻击持续/冷却
+保留旧值，均是待校准参数，不能称为录像原值；不添加无ATK声明的冻结状态。
+赤及诅咒赤的同类分类问题继续开放，不因本次青哥布林修正而视为已解决。

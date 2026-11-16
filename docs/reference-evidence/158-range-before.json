@@ -1,0 +1,30 @@
+{
+  "commit": "489b54d5718e670f03275e040a187a49597430a2",
+  "rows": [
+    {
+      "type": "goblinRed",
+      "behavior": "melee",
+      "hasProjectileSpec": false,
+      "actualSpawnObject": null
+    },
+    {
+      "type": "goblinBlue",
+      "behavior": "melee",
+      "hasProjectileSpec": false,
+      "actualSpawnObject": null
+    },
+    {
+      "type": "cursedRed",
+      "behavior": "melee",
+      "hasProjectileSpec": false,
+      "actualSpawnObject": null
+    },
+    {
+      "type": "caster",
+      "behavior": "ranged",
+      "hasProjectileSpec": true,
+      "actualSpawnObject": 30001
+    }
+  ],
+  "unresolved": true
+}

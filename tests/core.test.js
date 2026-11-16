@@ -11275,6 +11275,8 @@ for(const [type,row] of [['coward',1],['goblinBlue',6],['goblinRed',7],['cursedR
   assert.deepEqual(source.motions.attack.frames,[0,1,2,3,4]);
   assert.deepEqual(source.motions.walk.frames,[11,12,13,14,15,16]);
   state.enemies=[enemy];enemy.attackDuration=.52;
+  // Pose-only fixture uses native160ms release; real Core timing is checked separately.
+  if(type==='goblinBlue')enemy.attackWindup=.16;
   function frame(){
    const calls=[];Render.render(recordingContext(calls),state,{sprites:{monsters:sheet}});
    const draw=calls.find(c=>c[0]==='drawImage'&&c[1]===sheet&&c[4]===360&&c[5]===420);
@@ -12622,4 +12624,44 @@ test("ordinary entry clears after the four recorded kills without an invented ex
     assert.equal(state.stats.kills,4);
     assert.equal(state.room.waveSpawned||0,0);
   }
+});
+
+
+test('blue goblin naturally emits its native ice object at throwing ordinal2',()=>{
+ const state=lastRoomState(34),enemy=Core.createEnemy(state,'goblinBlue',500),body={width:13320,height:4620};
+ state.intro=null;state.transition=state.hitStop=0;state.props=[];state.enemies=[enemy];state.projectiles=[];
+ state.room.pendingWave=[];state.room.pendingWaves=[];state.player.x=650;state.player.invuln=Infinity;
+ enemy.z=state.player.z;enemy.attackCooldown=0;
+ for(let i=0;i<60&&!state.projectiles.length;i++)Core.step(state,{});
+ assert.equal(state.projectiles.length,1,'AI shoots without forcing attackKind or calling spawnProjectile');
+ const shot=state.projectiles[0];assert.equal(shot.nativeObject,30057);assert.equal(shot.maxLife,1.5);
+ assert.ok(Math.abs(shot.vx*Core.CAMERA.zoom-225)<1e-9,'declared X200 projects to225px/s');
+ const calls=[];Render.render(recordingContext(calls),state,{sprites:{monsters:body}});
+ const draw=calls.find(c=>c[0]==='drawImage'&&c[1]===body);assert.ok(draw);assert.equal(draw[2]/360,2);
+});
+
+test('ice projectile uses the eight native bitmap frames and preserves ANI offsets',()=>{
+ const state=lastRoomState(34),enemy=Core.createEnemy(state,'goblinBlue',500),sheet={width:512,height:64};
+ state.enemies=[];enemy.facing=-1;const shot=Core.spawnProjectile(state,enemy);assert.ok(shot,'blue projectile exists');
+ const scale=(Core.VIEW.width/640)/Core.CAMERA.zoom;state.player.x=10000;
+ for(const age of [0,.05,.1,.15,.2,.25,.3,.35,.4]){
+  shot.life=shot.maxLife-age;state.time=1000;const calls=[];
+  Render.render(recordingContext(calls),state,{sprites:{goblinIce:sheet}});
+  const draw=calls.find(c=>c[0]==='drawImage'&&c[1]===sheet);assert.ok(draw,'native ice art drawn');
+  assert.deepEqual(draw.slice(2,6),[Math.floor((age+1e-7)/.05)%8*64,0,64,64]);
+  assert.deepEqual(draw.slice(6),[-32*scale,-32*scale,64*scale,64*scale]);
+ }
+});
+
+
+test('ice atlas preserves all eight native frame pixels without clipping',()=>{
+ const proof=require('../assets/goblin-ice.json'),crypto=require('node:crypto');
+ const atlas=decodeRgbaPng(path.join(__dirname,'../assets/goblin-ice.png'));
+ assert.deepEqual([atlas.width,atlas.height],[512,64]);assert.equal(proof.objectId,30057);
+ for(const f of proof.frames){
+  const pixels=Buffer.alloc(64*64*4);
+  for(let y=0;y<64;y++)atlas.pixels.copy(pixels,y*64*4,(y*512+f.ordinal*64)*4,(y*512+(f.ordinal+1)*64)*4);
+  assert.equal(crypto.createHash('sha256').update(pixels).digest('hex'),f.cellRGBAsha256);
+  assert.deepEqual(f.pasteXY,f.offset.map((v,i)=>32+v+f.aniXY[i]));
+ }
 });
