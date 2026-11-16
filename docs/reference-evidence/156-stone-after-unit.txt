@@ -1,0 +1,14 @@
+✔ casters keep their firing range and telegraph a shot (17.785258ms)
+✔ enemy projectiles expire after their fixed travel budget (3.061038ms)
+✔ caster: real shots retain the native stone identity and draw the client bitmap (8.55033ms)
+✔ burningThrower: real shots retain the native stone identity and draw the client bitmap (3.494497ms)
+✔ caster: stones follow the recorded horizontal speed and declared native launch/lifetime (5.784523ms)
+✔ burningThrower: stones follow the recorded horizontal speed and declared native launch/lifetime (4.968287ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 116.780997

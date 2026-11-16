@@ -45,10 +45,17 @@ def main():
         duration = next(v for k, v in first["props"] if k == 12)
         angle = next(v for k, v in last["props"] if k == 8)
         particle = "monster/goblin/particle/throwstone.ptl"
+        particle_tokens = archive.tokens(particle)
+        origin = [next(tokens[i + 1][1] for i, t in enumerate(tokens)
+                       if t[1] == f"[passive object start {axis} cood]") for axis in ["x", "y", "z"]]
+        speed_index = next(i for i, t in enumerate(particle_tokens) if t[1] == "[move variable 1]")
+        life = next(particle_tokens[i + 1][1] for i, t in enumerate(particle_tokens) if t[1] == "[life time]")
         report = {"objectId": object_id, "mob": mob, "mobSHA256": hashlib.sha256(archive.read(mob)).hexdigest(),
                   "object": obj, "objectSHA256": hashlib.sha256(archive.read(obj)).hexdigest(),
                   "objectTokens": obj_tokens, "animation": ani_path, "aniSHA256": hashlib.sha256(raw).hexdigest(),
-                  "animationData": ani, "particle": particle, "particleTokens": archive.tokens(particle),
+                  "animationData": ani, "particle": particle, "particleTokens": particle_tokens,
+                  "launchOriginNative": origin, "speedRangeNative": [particle_tokens[speed_index + 1][1], particle_tokens[speed_index + 2][1]],
+                  "lifeTimeMilliseconds": life,
                   "periodMilliseconds": duration, "endAngleRadians": angle}
     entry = "sprite/" + ani["paths"][first["image"]].lower()
     pack = args.client / "ImagePacks2/sprite_monster_goblin_passiveobject.NPK"
@@ -69,7 +76,7 @@ def main():
                   sourceSize=list(picture.size), sourceOffset=list(offset), sourceRGBAsha256=hashlib.sha256(picture.tobytes()).hexdigest(),
                   cell=[32, 32], anchor=[16, 16], pasteXY=paste, cellRGBAsha256=hashlib.sha256(cell.tobytes()).hexdigest(),
                   transparency="Original native RGBA preserved; no colour key or recolouring.",
-                  limits=["150ms/angle endpoint are native data; rotation is rendered as a loop between the native endpoints.",
+                  limits=["150ms/angle endpoint are native data; Canvas rotation direction must be calibrated against the recording.",
                           "Native world-plane projection follows existing scene scale; video size/phase are not independently measured.",
                           "Trajectory, impact/explosion, damage and absolute flight timing remain separate open work.",
                           "The throwing captain is not assigned this stone object."])

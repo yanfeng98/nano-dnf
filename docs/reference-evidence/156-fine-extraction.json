@@ -1,0 +1,103 @@
+{
+  "video": "00001-\u5e7d\u6697\u5bc6\u6797.mp4",
+  "sourceFps": 30,
+  "start": 60.6,
+  "strideFrames": 1,
+  "samples": [
+    {
+      "time": 60.6,
+      "frame": "149-v1-60.6-second-room.png",
+      "sha256": "068bfab05cf633e86c3e0af1ef223151ba8d7a92a6767b26f32a188f37f77916"
+    },
+    {
+      "time": 60.63333333333333,
+      "frame": "149-v1-60.6333-second-room.png",
+      "sha256": "6ac8569f621304ef01e68e6482406a764be7e2953ecc8d719f6c7fe105bdfe2a"
+    },
+    {
+      "time": 60.66666666666667,
+      "frame": "149-v1-60.6667-second-room.png",
+      "sha256": "f0bf41061321d82a805100cc619028c336421fb86082a85e3b78bde75ec908e3"
+    },
+    {
+      "time": 60.7,
+      "frame": "149-v1-60.7-second-room.png",
+      "sha256": "062f6c948148bae56a58756ce8b94e122c0ad5b164fcf620ab7d97d3e48e3ebf"
+    },
+    {
+      "time": 60.733333333333334,
+      "frame": "149-v1-60.7333-second-room.png",
+      "sha256": "abb4191f5f2335737a911deaf5e7ba596c881a43cfd0ba06cf064e75f04dfb1b"
+    },
+    {
+      "time": 60.766666666666666,
+      "frame": "149-v1-60.7667-second-room.png",
+      "sha256": "76daf25c012dba8c478d0a2999abe81f886f01bda9d1db80249af75ea616d601"
+    },
+    {
+      "time": 60.800000000000004,
+      "frame": "149-v1-60.8-second-room.png",
+      "sha256": "a1e9ba3984fbf7976e16ce90d9a4f99afcc8b0234ca3dc92dea3e94aca7aa12c"
+    },
+    {
+      "time": 60.833333333333336,
+      "frame": "149-v1-60.8333-second-room.png",
+      "sha256": "4fa42dd2b0d0546db97b6ad25385c9db355d28cb5b00bcae3577b278bd8f11b1"
+    },
+    {
+      "time": 60.86666666666667,
+      "frame": "149-v1-60.8667-second-room.png",
+      "sha256": "91b86814f62f7c2edbc01b77bae1beee7fe298696fa165d25b5de5bfd0854ae2"
+    },
+    {
+      "time": 60.9,
+      "frame": "149-v1-60.9-second-room.png",
+      "sha256": "84e6638a16164c86725934c8b26d858a9bbc9e54361714c62c87c1b0720459f4"
+    },
+    {
+      "time": 60.93333333333334,
+      "frame": "149-v1-60.9333-second-room.png",
+      "sha256": "1fad6c9e4a0c86fc234dc43fd765d8159df456cbc9ce7292ba4bf679ebda1b2a"
+    },
+    {
+      "time": 60.96666666666667,
+      "frame": "149-v1-60.9667-second-room.png",
+      "sha256": "9379cf24a9c81ddbf36eac2b6e35816a1d9bef40de91ab14a8f79fa50a3a27ce"
+    },
+    {
+      "time": 61.0,
+      "frame": "149-v1-61-second-room.png",
+      "sha256": "473cc6de7f63e274721c1768b8dab3d0ef5a9f18d43ba5ee05fade17ad5871b3"
+    },
+    {
+      "time": 61.03333333333333,
+      "frame": "149-v1-61.0333-second-room.png",
+      "sha256": "708fc7ee04a9c5da7e13f292817a60bc2e14c7ae79060e914dfd90cb6e820c63"
+    },
+    {
+      "time": 61.06666666666667,
+      "frame": "149-v1-61.0667-second-room.png",
+      "sha256": "d562f0b5fb734e2faac3227c3ca710b60e49a4670ff07b6daf423fcffc815827"
+    },
+    {
+      "time": 61.1,
+      "frame": "149-v1-61.1-second-room.png",
+      "sha256": "4755b8b9dd3f20be6e4cfb0e9f84306f402b84aefeaf57c53f6750e880f4c581"
+    },
+    {
+      "time": 61.13333333333333,
+      "frame": "149-v1-61.1333-second-room.png",
+      "sha256": "bf5cca9002d463e76a51285216b161d1cace191d32c6a5f5cbe9d02064caab21"
+    },
+    {
+      "time": 61.16666666666667,
+      "frame": "149-v1-61.1667-second-room.png",
+      "sha256": "a24e1053c5f7ac6bd423cb7dc386b54a512a8f5f09db0f150eda2919c8ac08c6"
+    }
+  ],
+  "limits": [
+    "Manual log/target review required; extraction does not infer a roster or event count.",
+    "The97s upgrade segment may need finer temporal samples to resolve repeated XP/SP rows.",
+    "No runtime room assignment, enemy behavior or progression value is changed."
+  ]
+}

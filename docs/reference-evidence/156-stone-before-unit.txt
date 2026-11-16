@@ -1,0 +1,86 @@
+✖ caster: real shots retain the native stone identity and draw the client bitmap (18.712466ms)
+✖ burningThrower: real shots retain the native stone identity and draw the client bitmap (4.029532ms)
+✖ caster: stones follow the recorded horizontal speed and declared native launch/lifetime (2.018531ms)
+✖ burningThrower: stones follow the recorded horizontal speed and declared native launch/lifetime (2.082678ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 0
+ℹ fail 4
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 110.111025
+
+✖ failing tests:
+
+test at tests/core.test.js:11351:2
+✖ caster: real shots retain the native stone identity and draw the client bitmap (18.712466ms)
+  AssertionError [ERR_ASSERTION]: rotation follows projectile age, with equivalent start/end at the native loop boundary
+      at TestContext.<anonymous> (/home/luyanfeng/luyanfeng/nano-dnf/tests/core.test.js:11369:11)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/core.test.js:11351:2
+✖ burningThrower: real shots retain the native stone identity and draw the client bitmap (4.029532ms)
+  AssertionError [ERR_ASSERTION]: rotation follows projectile age, with equivalent start/end at the native loop boundary
+      at TestContext.<anonymous> (/home/luyanfeng/luyanfeng/nano-dnf/tests/core.test.js:11369:11)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/core.test.js:11387:2
+✖ caster: stones follow the recorded horizontal speed and declared native launch/lifetime (2.018531ms)
+  AssertionError [ERR_ASSERTION]: launch X uses the declared object offset
+      at TestContext.<anonymous> (/home/luyanfeng/luyanfeng/nano-dnf/tests/core.test.js:11394:11)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at node:internal/test_runner/test:1305:31
+      at node:internal/process/task_queues:151:7
+      at AsyncResource.runInAsyncScope (node:async_hooks:227:14)
+      at AsyncResource.runMicrotask (node:internal/process/task_queues:148:8) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/core.test.js:11387:2
+✖ burningThrower: stones follow the recorded horizontal speed and declared native launch/lifetime (2.082678ms)
+  AssertionError [ERR_ASSERTION]: launch X uses the declared object offset
+      at TestContext.<anonymous> (/home/luyanfeng/luyanfeng/nano-dnf/tests/core.test.js:11394:11)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

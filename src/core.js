@@ -1758,6 +1758,17 @@
    * 录像里没有、名字只能照着客户端总表读的两个（都标在它们自己那一条上）：
    * `brute` 与 `elite`。
    */
+  function goblinStoneProjectile() {
+    // MOB origin(20,0,60); PTL straight X250/lifetime1200ms. Audit156
+    // measures272..288 screen px/s, consistent with250*1.125=281.25.
+    // Collision radius remains the existing unverified proxy, not an ANI box.
+    var speed = nativeGroundX(250);
+    var life = 1.2;
+    return { nativeObject: 30001, speed: speed, radius: 9, life: life,
+      maxDistance: speed * life, originX: nativeGroundX(20),
+      height: nativeGroundX(60), horizontal: true };
+  }
+
   var ENEMY_TYPES = {
     grunt: {
       /* 录像里出现最多的那一只：`人型 Lv4 哥布林`。 */
@@ -1893,7 +1904,7 @@
       attackDuration: 0.8,
       attackCooldown: 1.9,
       knockbackX: 130,
-      projectile: { nativeObject: 30001, speed: 215, radius: 9, life: 1.4, maxDistance: 300, height: 34 }
+      projectile: goblinStoneProjectile()
     },
     brute: {
       /*
@@ -1936,14 +1947,7 @@
       attackDuration: 0.8,
       attackCooldown: 1.9,
       knockbackX: 130,
-      projectile: {
-        nativeObject: 30001,
-        speed: 215,
-        radius: 9,
-        life: 1.4,
-        maxDistance: 300,
-        height: 34
-      }
+      projectile: goblinStoneProjectile()
     },
     charger: {
       /*
@@ -7774,15 +7778,15 @@
     var spec = enemy.projectile;
     if (!spec) return null;
     var target = state.player;
-    var originX = enemy.x + enemy.facing * (enemy.width / 2 + 2);
+    var originX = enemy.x + enemy.facing * (spec.originX !== undefined ? spec.originX : enemy.width / 2 + 2);
     var originY = enemy.y - spec.height;
     var dx = target.x - originX;
     var dy = target.y - target.height / 2 - originY;
     var length = Math.sqrt(dx * dx + dy * dy) || 1;
     var shot = {
       kind: "enemy_projectile",
-      // Native identity is appearance metadata; trajectory/impact still need
-      // independent recording calibration. Unverified captain objects stay null.
+      // Identity selects art; movement is declared separately in the profile.
+      // Unverified captain objects stay null.
       nativeObject: spec.nativeObject || null,
       id: state.nextProjectileId++,
       x: originX,
@@ -7793,8 +7797,8 @@
        * height and a body's depth are different questions.
        */
       z: enemy.z || 0,
-      vx: (dx / length) * spec.speed,
-      vy: (dy / length) * spec.speed,
+      vx: (spec.horizontal ? enemy.facing : dx / length) * spec.speed,
+      vy: spec.horizontal ? 0 : (dy / length) * spec.speed,
       radius: spec.radius,
       damage: enemy.damage,
       life: spec.life,

@@ -1,0 +1,713 @@
+{
+  "video": "00001-幽暗密林.mp4",
+  "sourceFPS": 30,
+  "pillarTemplate": [
+    408,
+    345,
+    26,
+    76
+  ],
+  "pillarSearch": [
+    360,
+    310,
+    150,
+    160
+  ],
+  "stoneSearch": [
+    0,
+    "355+pillarDy",
+    500,
+    40
+  ],
+  "spriteSHA256": "085982ac6fd221ee278d5885b65212b85ad339c42ebc1e96249a7aa9a03dc472",
+  "coarse": [
+    {
+      "t": 60.6,
+      "frame": "149-v1-60.6-second-room.png",
+      "frameSHA256": "068bfab05cf633e86c3e0af1ef223151ba8d7a92a6767b26f32a188f37f77916",
+      "pillarNCC": 0.9998703002929688,
+      "pillarShift": [
+        0,
+        0
+      ],
+      "score": 0.9081965088844299,
+      "xy": [
+        81.0,
+        376.0
+      ],
+      "wh": [
+        28,
+        28
+      ],
+      "scale": 1.1,
+      "anglePILccw": 220,
+      "topLeft": [
+        67,
+        362
+      ],
+      "correctedXY": [
+        81.0,
+        376.0
+      ]
+    },
+    {
+      "t": 60.7,
+      "frame": "149-v1-60.7-second-room.png",
+      "frameSHA256": "062f6c948148bae56a58756ce8b94e122c0ad5b164fcf620ab7d97d3e48e3ebf",
+      "pillarNCC": 1.0,
+      "pillarShift": [
+        0,
+        0
+      ],
+      "score": 0.9668964147567749,
+      "xy": [
+        109.5,
+        375.5
+      ],
+      "wh": [
+        23,
+        23
+      ],
+      "scale": 1.1,
+      "anglePILccw": 80,
+      "topLeft": [
+        98,
+        364
+      ],
+      "correctedXY": [
+        109.5,
+        375.5
+      ]
+    },
+    {
+      "t": 60.8,
+      "frame": "149-v1-60.8-second-room.png",
+      "frameSHA256": "a1e9ba3984fbf7976e16ce90d9a4f99afcc8b0234ca3dc92dea3e94aca7aa12c",
+      "pillarNCC": 0.9982529282569885,
+      "pillarShift": [
+        0,
+        0
+      ],
+      "score": 0.9383156299591064,
+      "xy": [
+        136.0,
+        377.0
+      ],
+      "wh": [
+        30,
+        30
+      ],
+      "scale": 1.2,
+      "anglePILccw": 320,
+      "topLeft": [
+        121,
+        362
+      ],
+      "correctedXY": [
+        136.0,
+        377.0
+      ]
+    },
+    {
+      "t": 60.9,
+      "frame": "149-v1-60.9-second-room.png",
+      "frameSHA256": "84e6638a16164c86725934c8b26d858a9bbc9e54361714c62c87c1b0720459f4",
+      "pillarNCC": 0.9993404746055603,
+      "pillarShift": [
+        0,
+        0
+      ],
+      "score": 0.9409691095352173,
+      "xy": [
+        165.0,
+        376.0
+      ],
+      "wh": [
+        28,
+        28
+      ],
+      "scale": 1.1,
+      "anglePILccw": 210,
+      "topLeft": [
+        151,
+        362
+      ],
+      "correctedXY": [
+        165.0,
+        376.0
+      ]
+    },
+    {
+      "t": 61,
+      "frame": "149-v1-61-second-room.png",
+      "frameSHA256": "473cc6de7f63e274721c1768b8dab3d0ef5a9f18d43ba5ee05fade17ad5871b3",
+      "pillarNCC": 0.9960606694221497,
+      "pillarShift": [
+        0,
+        0
+      ],
+      "score": 0.9595115780830383,
+      "xy": [
+        193.0,
+        375.0
+      ],
+      "wh": [
+        24,
+        24
+      ],
+      "scale": 1.125,
+      "anglePILccw": 80,
+      "topLeft": [
+        181,
+        363
+      ],
+      "correctedXY": [
+        193.0,
+        375.0
+      ]
+    },
+    {
+      "t": 61.1,
+      "frame": "149-v1-61.1-second-room.png",
+      "frameSHA256": "4755b8b9dd3f20be6e4cfb0e9f84306f402b84aefeaf57c53f6750e880f4c581",
+      "pillarNCC": 0.9857522249221802,
+      "pillarShift": [
+        15,
+        0
+      ],
+      "score": 0.9429174661636353,
+      "xy": [
+        236.0,
+        377.0
+      ],
+      "wh": [
+        30,
+        30
+      ],
+      "scale": 1.2,
+      "anglePILccw": 320,
+      "topLeft": [
+        221,
+        362
+      ],
+      "correctedXY": [
+        221.0,
+        377.0
+      ]
+    }
+  ],
+  "fine": [
+    {
+      "t": 60.6,
+      "frame": "149-v1-60.6-second-room.png",
+      "frameSHA256": "068bfab05cf633e86c3e0af1ef223151ba8d7a92a6767b26f32a188f37f77916",
+      "pillarNCC": 0.9998703002929688,
+      "pillarShift": [
+        0,
+        0
+      ],
+      "score": 0.9081965088844299,
+      "xy": [
+        81.0,
+        376.0
+      ],
+      "wh": [
+        28,
+        28
+      ],
+      "scale": 1.1,
+      "anglePILccw": 220,
+      "topLeft": [
+        67,
+        362
+      ],
+      "correctedXY": [
+        81.0,
+        376.0
+      ]
+    },
+    {
+      "t": 60.63333333333333,
+      "frame": "149-v1-60.6333-second-room.png",
+      "frameSHA256": "6ac8569f621304ef01e68e6482406a764be7e2953ecc8d719f6c7fe105bdfe2a",
+      "pillarNCC": 0.9999022483825684,
+      "pillarShift": [
+        0,
+        0
+      ],
+      "score": 0.9660206437110901,
+      "xy": [
+        88.5,
+        376.5
+      ],
+      "wh": [
+        19,
+        19
+      ],
+      "scale": 1.1,
+      "anglePILccw": 270,
+      "topLeft": [
+        79,
+        367
+      ],
+      "correctedXY": [
+        88.5,
+        376.5
+      ]
+    },
+    {
+      "t": 60.66666666666667,
+      "frame": "149-v1-60.6667-second-room.png",
+      "frameSHA256": "f0bf41061321d82a805100cc619028c336421fb86082a85e3b78bde75ec908e3",
+      "pillarNCC": 0.9999799132347107,
+      "pillarShift": [
+        0,
+        0
+      ],
+      "score": 0.9313976168632507,
+      "xy": [
+        106.0,
+        376.0
+      ],
+      "wh": [
+        30,
+        30
+      ],
+      "scale": 1.2,
+      "anglePILccw": 50,
+      "topLeft": [
+        91,
+        361
+      ],
+      "correctedXY": [
+        106.0,
+        376.0
+      ]
+    },
+    {
+      "t": 60.7,
+      "frame": "149-v1-60.7-second-room.png",
+      "frameSHA256": "062f6c948148bae56a58756ce8b94e122c0ad5b164fcf620ab7d97d3e48e3ebf",
+      "pillarNCC": 1.0,
+      "pillarShift": [
+        0,
+        0
+      ],
+      "score": 0.9668964147567749,
+      "xy": [
+        109.5,
+        375.5
+      ],
+      "wh": [
+        23,
+        23
+      ],
+      "scale": 1.1,
+      "anglePILccw": 80,
+      "topLeft": [
+        98,
+        364
+      ],
+      "correctedXY": [
+        109.5,
+        375.5
+      ]
+    },
+    {
+      "t": 60.733333333333334,
+      "frame": "149-v1-60.7333-second-room.png",
+      "frameSHA256": "abb4191f5f2335737a911deaf5e7ba596c881a43cfd0ba06cf064e75f04dfb1b",
+      "pillarNCC": 0.9996950626373291,
+      "pillarShift": [
+        0,
+        0
+      ],
+      "score": 0.9523568749427795,
+      "xy": [
+        117.5,
+        375.5
+      ],
+      "wh": [
+        23,
+        23
+      ],
+      "scale": 1.1,
+      "anglePILccw": 170,
+      "topLeft": [
+        106,
+        364
+      ],
+      "correctedXY": [
+        117.5,
+        375.5
+      ]
+    },
+    {
+      "t": 60.766666666666666,
+      "frame": "149-v1-60.7667-second-room.png",
+      "frameSHA256": "76daf25c012dba8c478d0a2999abe81f886f01bda9d1db80249af75ea616d601",
+      "pillarNCC": 0.9915063381195068,
+      "pillarShift": [
+        0,
+        0
+      ],
+      "score": 0.9515127539634705,
+      "xy": [
+        132.5,
+        376.5
+      ],
+      "wh": [
+        23,
+        23
+      ],
+      "scale": 1.1,
+      "anglePILccw": 280,
+      "topLeft": [
+        121,
+        365
+      ],
+      "correctedXY": [
+        132.5,
+        376.5
+      ]
+    },
+    {
+      "t": 60.800000000000004,
+      "frame": "149-v1-60.8-second-room.png",
+      "frameSHA256": "a1e9ba3984fbf7976e16ce90d9a4f99afcc8b0234ca3dc92dea3e94aca7aa12c",
+      "pillarNCC": 0.9982529282569885,
+      "pillarShift": [
+        0,
+        0
+      ],
+      "score": 0.9383156299591064,
+      "xy": [
+        136.0,
+        377.0
+      ],
+      "wh": [
+        30,
+        30
+      ],
+      "scale": 1.2,
+      "anglePILccw": 320,
+      "topLeft": [
+        121,
+        362
+      ],
+      "correctedXY": [
+        136.0,
+        377.0
+      ]
+    },
+    {
+      "t": 60.833333333333336,
+      "frame": "149-v1-60.8333-second-room.png",
+      "frameSHA256": "4fa42dd2b0d0546db97b6ad25385c9db355d28cb5b00bcae3577b278bd8f11b1",
+      "pillarNCC": 0.9993917346000671,
+      "pillarShift": [
+        0,
+        0
+      ],
+      "score": 0.9640277028083801,
+      "xy": [
+        147.0,
+        376.0
+      ],
+      "wh": [
+        28,
+        28
+      ],
+      "scale": 1.1,
+      "anglePILccw": 40,
+      "topLeft": [
+        133,
+        362
+      ],
+      "correctedXY": [
+        147.0,
+        376.0
+      ]
+    },
+    {
+      "t": 60.86666666666667,
+      "frame": "149-v1-60.8667-second-room.png",
+      "frameSHA256": "91b86814f62f7c2edbc01b77bae1beee7fe298696fa165d25b5de5bfd0854ae2",
+      "pillarNCC": 0.9993829727172852,
+      "pillarShift": [
+        0,
+        0
+      ],
+      "score": 0.9254631996154785,
+      "xy": [
+        159.5,
+        375.5
+      ],
+      "wh": [
+        25,
+        25
+      ],
+      "scale": 1.1,
+      "anglePILccw": 160,
+      "topLeft": [
+        147,
+        363
+      ],
+      "correctedXY": [
+        159.5,
+        375.5
+      ]
+    },
+    {
+      "t": 60.9,
+      "frame": "149-v1-60.9-second-room.png",
+      "frameSHA256": "84e6638a16164c86725934c8b26d858a9bbc9e54361714c62c87c1b0720459f4",
+      "pillarNCC": 0.9993404746055603,
+      "pillarShift": [
+        0,
+        0
+      ],
+      "score": 0.9409691095352173,
+      "xy": [
+        165.0,
+        376.0
+      ],
+      "wh": [
+        28,
+        28
+      ],
+      "scale": 1.1,
+      "anglePILccw": 210,
+      "topLeft": [
+        151,
+        362
+      ],
+      "correctedXY": [
+        165.0,
+        376.0
+      ]
+    },
+    {
+      "t": 60.93333333333334,
+      "frame": "149-v1-60.9333-second-room.png",
+      "frameSHA256": "1fad6c9e4a0c86fc234dc43fd765d8159df456cbc9ce7292ba4bf679ebda1b2a",
+      "pillarNCC": 0.9968258738517761,
+      "pillarShift": [
+        0,
+        0
+      ],
+      "score": 0.9299691319465637,
+      "xy": [
+        175.0,
+        376.0
+      ],
+      "wh": [
+        26,
+        26
+      ],
+      "scale": 1.125,
+      "anglePILccw": 290,
+      "topLeft": [
+        162,
+        363
+      ],
+      "correctedXY": [
+        175.0,
+        376.0
+      ]
+    },
+    {
+      "t": 60.96666666666667,
+      "frame": "149-v1-60.9667-second-room.png",
+      "frameSHA256": "9379cf24a9c81ddbf36eac2b6e35816a1d9bef40de91ab14a8f79fa50a3a27ce",
+      "pillarNCC": 0.9973750114440918,
+      "pillarShift": [
+        0,
+        0
+      ],
+      "score": 0.9485439658164978,
+      "xy": [
+        190.0,
+        376.0
+      ],
+      "wh": [
+        28,
+        28
+      ],
+      "scale": 1.1,
+      "anglePILccw": 50,
+      "topLeft": [
+        176,
+        362
+      ],
+      "correctedXY": [
+        190.0,
+        376.0
+      ]
+    },
+    {
+      "t": 61.0,
+      "frame": "149-v1-61-second-room.png",
+      "frameSHA256": "473cc6de7f63e274721c1768b8dab3d0ef5a9f18d43ba5ee05fade17ad5871b3",
+      "pillarNCC": 0.9960606694221497,
+      "pillarShift": [
+        0,
+        0
+      ],
+      "score": 0.9595115780830383,
+      "xy": [
+        193.0,
+        375.0
+      ],
+      "wh": [
+        24,
+        24
+      ],
+      "scale": 1.125,
+      "anglePILccw": 80,
+      "topLeft": [
+        181,
+        363
+      ],
+      "correctedXY": [
+        193.0,
+        375.0
+      ]
+    },
+    {
+      "t": 61.03333333333333,
+      "frame": "149-v1-61.0333-second-room.png",
+      "frameSHA256": "708fc7ee04a9c5da7e13f292817a60bc2e14c7ae79060e914dfd90cb6e820c63",
+      "pillarNCC": 0.9956245422363281,
+      "pillarShift": [
+        0,
+        0
+      ],
+      "score": 0.9603323936462402,
+      "xy": [
+        193.0,
+        375.0
+      ],
+      "wh": [
+        24,
+        24
+      ],
+      "scale": 1.125,
+      "anglePILccw": 80,
+      "topLeft": [
+        181,
+        363
+      ],
+      "correctedXY": [
+        193.0,
+        375.0
+      ]
+    },
+    {
+      "t": 61.06666666666667,
+      "frame": "149-v1-61.0667-second-room.png",
+      "frameSHA256": "d562f0b5fb734e2faac3227c3ca710b60e49a4670ff07b6daf423fcffc815827",
+      "pillarNCC": 0.9933896660804749,
+      "pillarShift": [
+        0,
+        0
+      ],
+      "score": 0.9606793522834778,
+      "xy": [
+        193.0,
+        375.0
+      ],
+      "wh": [
+        24,
+        24
+      ],
+      "scale": 1.125,
+      "anglePILccw": 80,
+      "topLeft": [
+        181,
+        363
+      ],
+      "correctedXY": [
+        193.0,
+        375.0
+      ]
+    },
+    {
+      "t": 61.1,
+      "frame": "149-v1-61.1-second-room.png",
+      "frameSHA256": "4755b8b9dd3f20be6e4cfb0e9f84306f402b84aefeaf57c53f6750e880f4c581",
+      "pillarNCC": 0.9857522249221802,
+      "pillarShift": [
+        15,
+        0
+      ],
+      "score": 0.9429174661636353,
+      "xy": [
+        236.0,
+        377.0
+      ],
+      "wh": [
+        30,
+        30
+      ],
+      "scale": 1.2,
+      "anglePILccw": 320,
+      "topLeft": [
+        221,
+        362
+      ],
+      "correctedXY": [
+        221.0,
+        377.0
+      ]
+    }
+  ],
+  "velocityScreenPxPerSecond": 279.8571428571434,
+  "velocityIntervalAssuming2pxPerPoint": [
+    272.0,
+    288.0
+  ],
+  "maxResidualX": 0.9238095238086714,
+  "verticalSlopeScreenPxPerSecond": 0.7142857142856113,
+  "verticalRangePx": 2.0,
+  "phaseFitIndices": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+  ],
+  "unwrappedPILccwDegrees": [
+    220.0,
+    270.0,
+    410.0,
+    440.0,
+    530.0,
+    640.0,
+    680.0,
+    760.0,
+    880.0,
+    930.0,
+    1010.0000000000001,
+    1130.0,
+    1160.0
+  ],
+  "rotationDegreesPerScreenPx": 8.49544537506878,
+  "rotationMaxResidualDegrees": 11.565032143377266,
+  "estimatedPeriodSeconds": 0.15141885333269825,
+  "canvasRotationSign": -1,
+  "limits": [
+    "The speed interval is an assumed pixel-error bound, not a statistical confidence interval.",
+    "Uneven/held frames invalidate fitting every frame's wall-clock displacement directly; coarse groups measure mean speed.",
+    "Scale/phase template search does not uniquely establish all bitmap sizing or the birth time.",
+    "Launch origin/lifetime, collision and damage are not independently measured here."
+  ]
+}

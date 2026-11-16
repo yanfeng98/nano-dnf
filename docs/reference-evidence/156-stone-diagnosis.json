@@ -1,0 +1,78 @@
+{
+  "source": "156-stone-measurement.json",
+  "method": "six three-frame groups for mean speed; sixteen fine frames and first13 rotation-vs-distance samples for sign/period; fixed pillar removes camera motion",
+  "before": {
+    "oldProjectedSpeed": 339.13690476190476,
+    "oldCanvasDirection": "positive/clockwise",
+    "redExitCode": 1,
+    "redChecks": 4,
+    "log": "156-stone-before-unit.txt"
+  },
+  "measurements": {
+    "velocityScreenPxPerSecond": 279.8571428571434,
+    "velocityIntervalAssuming2pxPerPoint": [
+      272.0,
+      288.0
+    ],
+    "rotationDegreesPerScreenPx": 8.49544537506878,
+    "estimatedPeriodSeconds": 0.15141885333269825,
+    "canvasRotationSign": -1,
+    "verticalRangePx": 2.0
+  },
+  "nativeDeclarations": {
+    "launchOriginNative": [
+      20,
+      0,
+      60
+    ],
+    "speedRangeNative": [
+      250,
+      250
+    ],
+    "lifeTimeMilliseconds": 1200
+  },
+  "after": {
+    "targetedExitCode": 0,
+    "targetedTests": 6,
+    "log": "156-stone-after-unit.txt",
+    "browser": "156-stone-browser.json",
+    "flights": [
+      {
+        "type": "caster",
+        "elapsed": 0.3,
+        "screenSpeed": 281.2500000000045,
+        "verticalPixels": 0,
+        "remaining": 1
+      },
+      {
+        "type": "burningThrower",
+        "elapsed": 0.3,
+        "screenSpeed": 281.2500000000045,
+        "verticalPixels": 0,
+        "remaining": 1
+      }
+    ]
+  },
+  "fixtureCorrections": [
+    {
+      "log": "156-stone-first-after-unit.txt",
+      "cause": "budget fixture bypassed AI and defaulted to left-facing; horizontal launch hit the player behind it",
+      "change": "set intended right-facing launch explicitly"
+    },
+    {
+      "log": "156-stone-second-after-unit.txt",
+      "cause": "213.9622641509432 accumulated distance vs213.9622641509434 cap",
+      "change": "1e-9 world-unit numeric assertion slack; runtime distance unchanged"
+    },
+    {
+      "log": "156-stone-diagnostic-browser.txt",
+      "sample": "156-stone-first-browser-emission.json",
+      "cause": "Core integrates new projectiles on their emission tick; observed native X offset24.1667 includes250/60 motion",
+      "change": "recover birth position from actual age/velocity before comparing the declared20 offset"
+    }
+  ],
+  "limits": [
+    "Observed speed/direction and rotation are measured; origin/lifetime adopt explicit client declarations, not unique video birth/lifetime measurements.",
+    "Collision proxy radius9, impact, damage, absolute birth phase and captain projectile remain uncalibrated."
+  ]
+}

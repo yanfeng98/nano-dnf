@@ -6,7 +6,8 @@ import http from 'node:http';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../..');
-const out=process.env.STONE_OUT||'/tmp/nano155-stone-browser';fs.mkdirSync(out,{recursive:true});
+const out=process.env.STONE_OUT||'/tmp/nano156-stone-browser';fs.mkdirSync(out,{recursive:true});
+const calibration=JSON.parse(fs.readFileSync(path.join(root,'docs/reference-evidence/156-stone-measurement.json'),'utf8'));
 const server=http.createServer((request,response)=>{
  const pathname=new URL(request.url,'http://localhost').pathname,file=path.resolve(root,'.'+(pathname==='/'?'/index.html':pathname));
  if(!file.startsWith(root+path.sep)||!fs.existsSync(file)||!fs.statSync(file).isFile()){response.writeHead(404).end();return;}
@@ -38,7 +39,7 @@ try{
    try{return original(ctx,state,{...meta,paused:false});}finally{ctx.drawImage=draw;}
   };
  });
- const emissions=[],samples=[];
+ const emissions=[],samples=[],flights=[];
  for(const type of ['caster','burningThrower']){
   const emitted=await page.evaluate(type=>{
    const C=window.DNFCore,s=window.nanoDnf.getState(),e=C.createEnemy(s,type,500+200/C.CAMERA.zoom);
@@ -46,9 +47,18 @@ try{
    e.attackKind='shoot';e.attackTimer=e.attackDuration=.8;e.attackWindup=.5;e.attackHitDone=false;
    for(let i=0;i<40&&!s.projectiles.length;i++)C.step(s,{});
    const shot=s.projectiles[0];s.enemies=[];
-   return {type,count:s.projectiles.length,nativeObject:shot?.nativeObject,hitDone:e.attackHitDone};
+   const worldPerNative=(C.VIEW.width/640)/C.CAMERA.zoom;
+   // Core advances a newly emitted projectile during the same tick. Recover
+   // its birth position from the observed age/velocity before checking origin.
+   const integratedAge=shot.maxLife-shot.life;
+   return {type,count:s.projectiles.length,nativeObject:shot?.nativeObject,hitDone:e.attackHitDone,
+    originNativeX:(shot.x-shot.vx*integratedAge-e.x)/worldPerNative,
+    originNativeHeight:(e.y-shot.y+shot.vy*integratedAge)/worldPerNative,
+    observedNativeX:(shot.x-e.x)/worldPerNative,integratedAge,facing:e.facing,maxLife:shot.maxLife};
   },type);
-  assert.equal(emitted.count,1);assert.equal(emitted.nativeObject,30001);assert.ok(emitted.hitDone);emissions.push(emitted);
+  fs.writeFileSync(path.join(out,'latest-emission.json'),JSON.stringify(emitted,null,2)+'\n');
+  assert.equal(emitted.count,1);assert.equal(emitted.nativeObject,30001);assert.ok(emitted.hitDone);
+  assert.ok(Math.abs(emitted.originNativeX-emitted.facing*20)<1e-9);assert.ok(Math.abs(emitted.originNativeHeight-60)<1e-9);assert.equal(emitted.maxLife,1.2);emissions.push(emitted);
   for(const age of [0,.0375,.075,.151]){
    await page.evaluate(age=>{const s=window.nanoDnf.getState();s.time=1234;s.projectiles[0].life=s.projectiles[0].maxLife-age;},age);
    await page.waitForTimeout(80);const draws=await page.evaluate(()=>window.stoneDraws);assert.equal(draws.length,1);
@@ -56,14 +66,21 @@ try{
    fs.writeFileSync(path.join(out,'latest-sample.json'),JSON.stringify({type,age,draw},null,2)+'\n');
    // Canvas matrices quantize transforms: observed36px as35.9999987044px.
    // Bounds remain far below one pixel; game geometry and texture are unchanged.
-   const angle=((age/.15)%1)*6.28000020980835;assert.ok(Math.abs(Math.atan2(Math.sin(draw.angle-angle),Math.cos(draw.angle-angle)))<1e-6);
+   const angle=calibration.canvasRotationSign*((age/.15)%1)*6.28000020980835;assert.ok(Math.abs(Math.atan2(Math.sin(draw.angle-angle),Math.cos(draw.angle-angle)))<1e-6);
    assert.ok(Math.abs(draw.cellScreenWidth-36)<1e-5,`uses existing native world-plane projection: ${draw.cellScreenWidth}`);
    const b=draw.inkBounds;assert.ok(b[0]>=0&&b[2]<=720&&b[1]>=0&&b[3]<480,'native stone is visible');
-   samples.push({type,age,...draw});if(age===0||age===.075)await page.screenshot({path:path.join(out,`${type}-${age}.png`)});
+   samples.push({type,age,...draw});if(age===0||age===.0375||age===.075)await page.screenshot({path:path.join(out,`${type}-${age}.png`)});
   }
   const before=await page.evaluate(()=>({draw:window.stoneDraws,life:window.nanoDnf.getState().projectiles[0].life}));
   await page.waitForTimeout(180);const after=await page.evaluate(()=>({draw:window.stoneDraws,life:window.nanoDnf.getState().projectiles[0].life}));assert.deepEqual(after,before,'pause freezes projectile phase and life');
+  const flight=await page.evaluate(()=>{
+   const C=window.DNFCore,s=window.nanoDnf.getState(),shot=s.projectiles[0],start={x:shot.x,y:shot.y};shot.life=shot.maxLife;
+   for(let i=0;i<18;i++)C.updateProjectiles(s,C.DT);
+   return {elapsed:18*C.DT,screenSpeed:Math.abs(shot.x-start.x)*C.CAMERA.zoom/(18*C.DT),verticalPixels:Math.abs(shot.y-start.y)*C.CAMERA.zoom,remaining:s.projectiles.length};
+  });
+  assert.equal(flight.remaining,1);assert.ok(flight.screenSpeed>=calibration.velocityIntervalAssuming2pxPerPoint[0]&&flight.screenSpeed<=calibration.velocityIntervalAssuming2pxPerPoint[1]);
+  assert.ok(flight.verticalPixels<=calibration.verticalRangePx);flights.push({type,...flight});
  }
- assert.deepEqual(errors,[]);fs.writeFileSync(path.join(out,'result.json'),JSON.stringify({url:page.url(),emissions,samples,errors,limits:['Isolated native bitmap/clock checks do not validate video flight size/phase, origin, trajectory, impact or damage.','Unverified captain projectile is not assigned the caster stone.']},null,2)+'\n');
- console.log('two real stone emissions, eight native bitmap/clock samples and pause stability OK');
+ assert.deepEqual(errors,[]);fs.writeFileSync(path.join(out,'result.json'),JSON.stringify({url:page.url(),emissions,samples,flights,errors,limits:['Visible bitmap/direction, measured mean speed/horizontal flight and declared native origin/lifetime are checked; video absolute birth phase/size, collision/impact and damage remain open.','Unverified captain projectile is not assigned the caster stone.']},null,2)+'\n');
+ console.log('two real stone emissions, eight calibrated bitmap/clock samples, horizontal flight and pause stability OK');
 }finally{if(browser)await browser.close();await new Promise(resolve=>server.close(resolve));}

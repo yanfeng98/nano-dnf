@@ -2584,6 +2584,9 @@ test("enemy projectiles expire after their fixed travel budget", () => {
   const state = lastRoomState();
   state.player.x = 500;
   const caster = Core.createEnemy(state, "caster", 200);
+  // This fixture bypasses beginEnemyAttack; declare the launch direction.
+  // Native stones keep it instead of retargeting a player behind the caster.
+  caster.facing = 1;
   state.enemies = [caster];
 
   const shot = Core.spawnProjectile(state, caster);
@@ -2595,7 +2598,7 @@ test("enemy projectiles expire after their fixed travel budget", () => {
   }
 
   assert.equal(state.projectiles.length, 0);
-  assert.ok(shot.traveled >= shot.maxDistance, `traveled=${shot.traveled}`);
+  assert.ok(shot.traveled + 1e-9 >= shot.maxDistance, `traveled=${shot.traveled}`);
   assert.equal(state.stats.damageTaken, 0);
 });
 
@@ -11356,7 +11359,8 @@ for(const type of ['caster','burningThrower']){
   for(let i=0;i<40&&!state.projectiles.length;i++)Core.step(state,{});
   const shot=state.projectiles[0];assert.ok(shot);assert.equal(shot.nativeObject,30001);
   const proof=require('../assets/goblin-stone.json');
-  for(const age of [0,.075,.15]){
+  const calibration=require('../docs/reference-evidence/156-stone-measurement.json');
+  for(const age of [0,.0375,.075,.1125,.15]){
    shot.life=shot.maxLife-age;shot.radius=99;state.time=1234;
    const calls=[];Render.render(recordingContext(calls),state,{sprites:{goblinStone:sheet}});
    const index=calls.findIndex(c=>c[0]==='drawImage'&&c[1]===sheet);assert.ok(index>=0,'real projectile uses native stone art');
@@ -11364,7 +11368,7 @@ for(const type of ['caster','burningThrower']){
    assert.deepEqual(draw.slice(2,6),[0,0,32,32]);
    assert.deepEqual(draw.slice(6),[-16*scale,-16*scale,32*scale,32*scale],'native art size does not follow placeholder collision radius');
    const rotation=calls.slice(0,index).reverse().find(c=>c[0]==='rotate');assert.ok(rotation);
-   const difference=Math.abs(rotation[1]-((age/.15)%1)*proof.endAngleRadians);
+   const difference=Math.abs(rotation[1]-calibration.canvasRotationSign*((age/.15)%1)*proof.endAngleRadians);
    assert.ok(Math.min(difference,Math.abs(difference-proof.endAngleRadians))<1e-10,
     'rotation follows projectile age, with equivalent start/end at the native loop boundary');
   }
@@ -11381,6 +11385,30 @@ test('native stone atlas preserves the original source RGBA and ANI origin',()=>
  assert.equal(crypto.createHash('sha256').update(pixels).digest('hex'),proof.sourceRGBAsha256);
  assert.deepEqual(proof.animationData.frames[0].xy,[-8,-8]);assert.equal(proof.periodMilliseconds,150);
 });
+
+for(const type of ['caster','burningThrower']){
+ test(`${type}: stones follow the recorded horizontal speed and declared native launch/lifetime`,()=>{
+  const evidence=require('../docs/reference-evidence/156-stone-measurement.json');
+  const native=require('../assets/goblin-stone.json'),scale=(Core.VIEW.width/640)/Core.CAMERA.zoom;
+  for(const facing of [-1,1])for(const jump of [0,100]){
+   const state=lastRoomState(34),enemy=Core.createEnemy(state,type,500);
+   enemy.facing=facing;state.enemies=[enemy];state.player.x=500+facing*300;state.player.y=Core.ARENA.groundY-jump;
+   const shot=Core.spawnProjectile(state,enemy),startX=shot.x,startY=shot.y;
+   assert.ok(Math.abs((shot.x-enemy.x)-facing*native.launchOriginNative[0]*scale)<1e-9,'launch X uses the declared object offset');
+   assert.ok(Math.abs((enemy.y-shot.y)-native.launchOriginNative[2]*scale)<1e-9,'launch height uses the declared object offset');
+   state.player.x=10000;
+   let frames=0;
+   for(;frames<18;frames++)Core.updateProjectiles(state,Core.DT);
+   const screenSpeed=Math.abs(shot.x-startX)*Core.CAMERA.zoom/(18*Core.DT);
+   const [lo,hi]=evidence.velocityIntervalAssuming2pxPerPoint;
+   assert.ok(screenSpeed>=lo&&screenSpeed<=hi,`${type}/${facing}/${jump} speed${screenSpeed} must fit measured[${lo},${hi}]`);
+   assert.ok(Math.abs(shot.y-startY)*Core.CAMERA.zoom<=evidence.verticalRangePx,'flight remains horizontal when the target jumps');
+   while(state.projectiles.length&&frames<180){Core.updateProjectiles(state,Core.DT);frames++;}
+   const nativeDuration=native.lifeTimeMilliseconds/1000;
+   assert.equal(state.projectiles.length,0);assert.ok(Math.abs(frames*Core.DT-nativeDuration)<=Core.DT,'expires at the declared particle lifetime');
+  }
+ });
+}
 
 test('the unverified captain int-data object is not silently mapped to a caster stone',()=>{
  const state=lastRoomState(34),enemy=Core.createEnemy(state,'throwerElite',600);

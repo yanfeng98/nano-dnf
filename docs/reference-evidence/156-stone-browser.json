@@ -1,0 +1,204 @@
+{
+  "url": "http://127.0.0.1:34603/?seed=1",
+  "emissions": [
+    {
+      "type": "caster",
+      "count": 1,
+      "nativeObject": 30001,
+      "hitDone": true,
+      "originNativeX": -20.000000000000124,
+      "originNativeHeight": 59.99999999999997,
+      "observedNativeX": -24.166666666666696,
+      "integratedAge": 0.016666666666666607,
+      "facing": -1,
+      "maxLife": 1.2
+    },
+    {
+      "type": "burningThrower",
+      "count": 1,
+      "nativeObject": 30001,
+      "hitDone": true,
+      "originNativeX": -20.000000000000124,
+      "originNativeHeight": 59.99999999999997,
+      "observedNativeX": -24.166666666666696,
+      "integratedAge": 0.016666666666666607,
+      "facing": -1,
+      "maxLife": 1.2
+    }
+  ],
+  "samples": [
+    {
+      "type": "caster",
+      "age": 0,
+      "src": "http://127.0.0.1:34603/assets/goblin-stone.png",
+      "source": [
+        0,
+        0,
+        32,
+        32
+      ],
+      "angle": 0,
+      "cellScreenWidth": 35.99999870444244,
+      "inkBounds": [
+        608.4991858749128,
+        353.5000072943659,
+        627.6241851866479,
+        372.62500660610095
+      ]
+    },
+    {
+      "type": "caster",
+      "age": 0.0375,
+      "src": "http://127.0.0.1:34603/assets/goblin-stone.png",
+      "source": [
+        0,
+        0,
+        32,
+        32
+      ],
+      "angle": -1.5700000524520912,
+      "cellScreenWidth": 35.99999870444243,
+      "inkBounds": [
+        608.4920222600803,
+        352.36784407667426,
+        627.6322442533344,
+        371.5080660699284
+      ]
+    },
+    {
+      "type": "caster",
+      "age": 0.075,
+      "src": "http://127.0.0.1:34603/assets/goblin-stone.png",
+      "source": [
+        0,
+        0,
+        32,
+        32
+      ],
+      "angle": -3.140000104904173,
+      "cellScreenWidth": 35.99999870444243,
+      "inkBounds": [
+        607.3598658233693,
+        352.35889562637294,
+        626.5152983622316,
+        371.51432816523527
+      ]
+    },
+    {
+      "type": "caster",
+      "age": 0.151,
+      "src": "http://127.0.0.1:34603/assets/goblin-stone.png",
+      "source": [
+        0,
+        0,
+        32,
+        32
+      ],
+      "angle": -0.04186666806538997,
+      "cellScreenWidth": 35.99999870444244,
+      "inkBounds": [
+        608.1303824713727,
+        353.0841176493619,
+        628.0390890156305,
+        372.99282419361964
+      ]
+    },
+    {
+      "type": "burningThrower",
+      "age": 0,
+      "src": "http://127.0.0.1:34603/assets/goblin-stone.png",
+      "source": [
+        0,
+        0,
+        32,
+        32
+      ],
+      "angle": 0,
+      "cellScreenWidth": 35.99999870444244,
+      "inkBounds": [
+        578.1445200303425,
+        353.5000072943659,
+        597.2695193420776,
+        372.62500660610095
+      ]
+    },
+    {
+      "type": "burningThrower",
+      "age": 0.0375,
+      "src": "http://127.0.0.1:34603/assets/goblin-stone.png",
+      "source": [
+        0,
+        0,
+        32,
+        32
+      ],
+      "angle": -1.5700000524520912,
+      "cellScreenWidth": 35.99999870444243,
+      "inkBounds": [
+        578.13735641551,
+        352.36784407667426,
+        597.2775784087642,
+        371.5080660699284
+      ]
+    },
+    {
+      "type": "burningThrower",
+      "age": 0.075,
+      "src": "http://127.0.0.1:34603/assets/goblin-stone.png",
+      "source": [
+        0,
+        0,
+        32,
+        32
+      ],
+      "angle": -3.140000104904173,
+      "cellScreenWidth": 35.99999870444243,
+      "inkBounds": [
+        577.005199978799,
+        352.35889562637294,
+        596.1606325176614,
+        371.51432816523527
+      ]
+    },
+    {
+      "type": "burningThrower",
+      "age": 0.151,
+      "src": "http://127.0.0.1:34603/assets/goblin-stone.png",
+      "source": [
+        0,
+        0,
+        32,
+        32
+      ],
+      "angle": -0.04186666806538997,
+      "cellScreenWidth": 35.99999870444244,
+      "inkBounds": [
+        577.7757166268025,
+        353.0841176493619,
+        597.6844231710602,
+        372.99282419361964
+      ]
+    }
+  ],
+  "flights": [
+    {
+      "type": "caster",
+      "elapsed": 0.3,
+      "screenSpeed": 281.2500000000045,
+      "verticalPixels": 0,
+      "remaining": 1
+    },
+    {
+      "type": "burningThrower",
+      "elapsed": 0.3,
+      "screenSpeed": 281.2500000000045,
+      "verticalPixels": 0,
+      "remaining": 1
+    }
+  ],
+  "errors": [],
+  "limits": [
+    "Visible bitmap/direction, measured mean speed/horizontal flight and declared native origin/lifetime are checked; video absolute birth phase/size, collision/impact and damage remain open.",
+    "Unverified captain projectile is not assigned the caster stone."
+  ]
+}

@@ -1,0 +1,34 @@
+✔ casters keep their firing range and telegraph a shot (17.266714ms)
+✖ enemy projectiles expire after their fixed travel budget (2.831255ms)
+✔ caster: real shots retain the native stone identity and draw the client bitmap (8.345489ms)
+✔ burningThrower: real shots retain the native stone identity and draw the client bitmap (3.573776ms)
+✔ caster: stones follow the recorded horizontal speed and declared native launch/lifetime (6.010337ms)
+✔ burningThrower: stones follow the recorded horizontal speed and declared native launch/lifetime (5.121115ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 5
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 118.44017
+
+✖ failing tests:
+
+test at tests/core.test.js:2583:1
+✖ enemy projectiles expire after their fixed travel budget (2.831255ms)
+  AssertionError [ERR_ASSERTION]: traveled=213.9622641509432
+      at TestContext.<anonymous> (/home/luyanfeng/luyanfeng/nano-dnf/tests/core.test.js:2601:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

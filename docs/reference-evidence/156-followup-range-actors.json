@@ -1,0 +1,33 @@
+{
+  "reference": "156-range-actor-observation.png",
+  "videoTime": 61.6,
+  "observation": "orange flying effect emitted from the cursed-red actor area; current Core cursedRed remains melee",
+  "native": {
+    "goblinRed": {
+      "mob": "monster/goblin/hillgab.mob",
+      "mobSHA256": "9261d4016da52ff014a1cfff015a57f9d813c65872a72dd7b2988f689c5876b9",
+      "category": "range combat",
+      "declaredObjectType": 0,
+      "declaredObjectIndex": 30047,
+      "particle": "passiveobject/common/particle/firemissilegerocenter.ptl"
+    },
+    "goblinBlue": {
+      "mob": "monster/goblin/seagab.mob",
+      "mobSHA256": "2ce9497a049b11f83555d76e646df411c12cc84a64b04a194309e9750a72d1d5",
+      "category": "range combat",
+      "declaredObjectType": 0,
+      "declaredObjectIndex": 30057,
+      "particle": "passiveobject/common/particle/icemissile.ptl"
+    }
+  },
+  "status": "open; classification/object graph must be restored separately; no behavior changes in batch156",
+  "candidateVariantCheck": {
+    "flybombIMGsha256": "41b87a1d60c2a8c5515675dd52b52f1427513c85e03e9e4763c977036a87c1f4",
+    "throwstoneIMGsha256": "d835a1b83a00077cc1e203b66d90b5dcaecb708a6b4eba7e554923a229aedaab",
+    "folders": [
+      "ImagePacks2",
+      "ImagePacks2_70"
+    ],
+    "result": "Both IMG entries are byte-identical across the two folders; this does not resolve the captain candidate video match."
+  }
+}

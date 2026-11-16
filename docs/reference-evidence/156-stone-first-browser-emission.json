@@ -1,0 +1,10 @@
+{
+  "type": "caster",
+  "count": 1,
+  "nativeObject": 30001,
+  "hitDone": true,
+  "originNativeX": -24.166666666666696,
+  "originNativeHeight": 59.99999999999997,
+  "facing": -1,
+  "maxLife": 1.2
+}

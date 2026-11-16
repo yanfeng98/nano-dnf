@@ -202,6 +202,16 @@
       "[vanish]"
     ]
   ],
+  "launchOriginNative": [
+    20,
+    0,
+    60
+  ],
+  "speedRangeNative": [
+    250,
+    250
+  ],
+  "lifeTimeMilliseconds": 1200,
   "periodMilliseconds": 150,
   "endAngleRadians": 6.28000020980835,
   "pack": "/mnt/c/dnf/地下城与勇士/ImagePacks2/sprite_monster_goblin_passiveobject.NPK",
@@ -231,7 +241,7 @@
   "cellRGBAsha256": "b9c34f9d565bf70b9b2a1a4d023c443c1d874140f83ae32feec512ef1cb22bde",
   "transparency": "Original native RGBA preserved; no colour key or recolouring.",
   "limits": [
-    "150ms/angle endpoint are native data; rotation is rendered as a loop between the native endpoints.",
+    "150ms/angle endpoint are native data; Canvas rotation direction must be calibrated against the recording.",
     "Native world-plane projection follows existing scene scale; video size/phase are not independently measured.",
     "Trajectory, impact/explosion, damage and absolute flight timing remain separate open work.",
     "The throwing captain is not assigned this stone object."

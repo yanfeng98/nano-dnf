@@ -5177,7 +5177,9 @@
       var age = Math.max(0, shot.maxLife - shot.life);
       ctx.save();
       ctx.translate(shot.x, feetY(shot));
-      ctx.rotate(((age / 0.15) % 1) * 6.28000020980835);
+      // Audit156 fine frames rotate counterclockwise: native/PIL-positive
+      // orientation is Canvas-negative, not the old raw-angle assumption.
+      ctx.rotate(-((age / 0.15) % 1) * 6.28000020980835);
       ctx.imageSmoothingEnabled = true;
       ctx.drawImage(stone, 0, 0, 32, 32, -16 * scale, -16 * scale, 32 * scale, 32 * scale);
       ctx.restore();
