@@ -1,0 +1,1590 @@
+{
+  "objectId": 30047,
+  "mob": "monster/goblin/hillgab.mob",
+  "object": "passiveobject/monster/goblin/hillgabsizzle.obj",
+  "animation": "passiveobject/common/animation/firemissileparticle1.ani",
+  "particle": "passiveobject/common/particle/firemissilegerocenter.ptl",
+  "candidateParticle": "passiveobject/common/particle/firemissileparticle.ptl",
+  "candidateParticleTokens": [
+    [
+      5,
+      "[rotation angle]"
+    ],
+    [
+      2,
+      4294967116
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      2,
+      4294967278
+    ],
+    [
+      5,
+      "[life time]"
+    ],
+    [
+      2,
+      350
+    ],
+    [
+      5,
+      "[creation frequency]"
+    ],
+    [
+      2,
+      50
+    ],
+    [
+      5,
+      "[create area size]"
+    ],
+    [
+      2,
+      3
+    ],
+    [
+      2,
+      3
+    ],
+    [
+      2,
+      3
+    ],
+    [
+      5,
+      "[rotation angle range type]"
+    ],
+    [
+      7,
+      "[rectangle]"
+    ],
+    [
+      5,
+      "[rotation angle variable]"
+    ],
+    [
+      2,
+      8
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      5,
+      "[random range]"
+    ],
+    [
+      2,
+      69
+    ],
+    [
+      5,
+      "[create pos correct]"
+    ],
+    [
+      2,
+      1
+    ],
+    [
+      5,
+      "[object type]"
+    ],
+    [
+      7,
+      "[animation]"
+    ],
+    [
+      5,
+      "[object]"
+    ],
+    [
+      7,
+      "../Animation/FireMissileParticle1.ani"
+    ],
+    [
+      2,
+      4294967295
+    ],
+    [
+      7,
+      "../Animation/FireMissileParticle2.ani"
+    ],
+    [
+      2,
+      4294967295
+    ],
+    [
+      7,
+      "../Animation/FireMissileParticle3.ani"
+    ],
+    [
+      2,
+      4294967295
+    ],
+    [
+      5,
+      "[/object]"
+    ],
+    [
+      5,
+      "[display effect rate]"
+    ],
+    [
+      2,
+      50
+    ],
+    [
+      2,
+      75
+    ],
+    [
+      2,
+      100
+    ]
+  ],
+  "sourceSHA256": {
+    "monster/goblin/hillgab.mob": "9261d4016da52ff014a1cfff015a57f9d813c65872a72dd7b2988f689c5876b9",
+    "passiveobject/monster/goblin/hillgabsizzle.obj": "1b1ead7bab7e5ea4ec59f91acb1a2916fd2d7d4f3c51d0645ef0059e63dc9c42",
+    "passiveobject/common/animation/firemissileparticle1.ani": "4e2922a7af2c8603c2f53358c3e092a2362c5421b58ee9eeaa5058f4dbb1254b",
+    "passiveobject/common/particle/firemissilegerocenter.ptl": "49bde623f26c36dbd55af79276aa2851b3fcb3a8bbed6112ce67cf9a29ace009",
+    "passiveobject/common/particle/firemissileparticle.ptl": "9a8e652a0ba313a585d705c33133a74f2a21e0365837dc1d320c184e1e2e1ce5"
+  },
+  "mobTokens": [
+    [
+      5,
+      "[width]"
+    ],
+    [
+      2,
+      40
+    ],
+    [
+      2,
+      10
+    ],
+    [
+      5,
+      "[common champion elemental property]"
+    ],
+    [
+      7,
+      "[fire element]"
+    ],
+    [
+      5,
+      "[/common champion elemental property]"
+    ],
+    [
+      5,
+      "[ability category]"
+    ],
+    [
+      7,
+      "[HP MAX]"
+    ],
+    [
+      7,
+      "*"
+    ],
+    [
+      2,
+      70
+    ],
+    [
+      7,
+      "[EQUIPMENT_PHYSICAL_ATTACK]"
+    ],
+    [
+      7,
+      "*"
+    ],
+    [
+      2,
+      70
+    ],
+    [
+      7,
+      "[EQUIPMENT_PHYSICAL_DEFENSE]"
+    ],
+    [
+      7,
+      "*"
+    ],
+    [
+      2,
+      70
+    ],
+    [
+      7,
+      "[EQUIPMENT_MAGICAL_ATTACK]"
+    ],
+    [
+      7,
+      "*"
+    ],
+    [
+      2,
+      70
+    ],
+    [
+      7,
+      "[EQUIPMENT_MAGICAL_DEFENSE]"
+    ],
+    [
+      7,
+      "*"
+    ],
+    [
+      2,
+      100
+    ],
+    [
+      5,
+      "[/ability category]"
+    ],
+    [
+      5,
+      "[category]"
+    ],
+    [
+      7,
+      "[human]"
+    ],
+    [
+      7,
+      "[goblin]"
+    ],
+    [
+      7,
+      "[range combat]"
+    ],
+    [
+      7,
+      "[close-passive]"
+    ],
+    [
+      5,
+      "[/category]"
+    ],
+    [
+      5,
+      "[level]"
+    ],
+    [
+      2,
+      3
+    ],
+    [
+      2,
+      9
+    ],
+    [
+      5,
+      "[fire resistance]"
+    ],
+    [
+      2,
+      30
+    ],
+    [
+      2,
+      30
+    ],
+    [
+      5,
+      "[water resistance]"
+    ],
+    [
+      2,
+      4294967266
+    ],
+    [
+      2,
+      4294967266
+    ],
+    [
+      5,
+      "[move speed]"
+    ],
+    [
+      2,
+      400
+    ],
+    [
+      2,
+      400
+    ],
+    [
+      5,
+      "[attack speed]"
+    ],
+    [
+      2,
+      300
+    ],
+    [
+      2,
+      300
+    ],
+    [
+      5,
+      "[cast speed]"
+    ],
+    [
+      2,
+      600
+    ],
+    [
+      2,
+      600
+    ],
+    [
+      5,
+      "[hit recovery]"
+    ],
+    [
+      2,
+      600
+    ],
+    [
+      2,
+      600
+    ],
+    [
+      5,
+      "[weight]"
+    ],
+    [
+      2,
+      45000
+    ],
+    [
+      2,
+      45000
+    ],
+    [
+      5,
+      "[sight]"
+    ],
+    [
+      2,
+      300
+    ],
+    [
+      5,
+      "[targeting nearest]"
+    ],
+    [
+      2,
+      1
+    ],
+    [
+      5,
+      "[warlike]"
+    ],
+    [
+      2,
+      30
+    ],
+    [
+      5,
+      "[attack delay]"
+    ],
+    [
+      2,
+      3000
+    ],
+    [
+      5,
+      "[stuckbonus on damage]"
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      5,
+      "[item]"
+    ],
+    [
+      2,
+      1062
+    ],
+    [
+      2,
+      50
+    ],
+    [
+      2,
+      1065
+    ],
+    [
+      2,
+      100
+    ],
+    [
+      2,
+      1047
+    ],
+    [
+      2,
+      200
+    ],
+    [
+      5,
+      "[/item]"
+    ],
+    [
+      5,
+      "[common champion drop item]"
+    ],
+    [
+      5,
+      "[/common champion drop item]"
+    ],
+    [
+      5,
+      "[attack kind]"
+    ],
+    [
+      4,
+      20.0
+    ],
+    [
+      4,
+      5.0
+    ],
+    [
+      4,
+      1.0
+    ],
+    [
+      2,
+      1
+    ],
+    [
+      2,
+      300
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      2,
+      15
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      2,
+      15
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      5,
+      "[/attack kind]"
+    ],
+    [
+      5,
+      "[die effect]"
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      2,
+      8
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      5,
+      "[face image]"
+    ],
+    [
+      7,
+      "Monster/MonsterFace.img"
+    ],
+    [
+      2,
+      9
+    ],
+    [
+      5,
+      "[waiting motion]"
+    ],
+    [
+      7,
+      "Animation_MountainGoblin/Stay.ani"
+    ],
+    [
+      5,
+      "[move motion]"
+    ],
+    [
+      7,
+      "Animation_MountainGoblin/Move.ani"
+    ],
+    [
+      5,
+      "[sit motion]"
+    ],
+    [
+      7,
+      "Animation_MountainGoblin/Sit.ani"
+    ],
+    [
+      5,
+      "[damage motion 1]"
+    ],
+    [
+      7,
+      "Animation_MountainGoblin/Damage1.ani"
+    ],
+    [
+      5,
+      "[damage motion 2]"
+    ],
+    [
+      7,
+      "Animation_MountainGoblin/Damage2.ani"
+    ],
+    [
+      5,
+      "[down motion]"
+    ],
+    [
+      7,
+      "Animation_MountainGoblin/Down.ani"
+    ],
+    [
+      5,
+      "[overturn motion]"
+    ],
+    [
+      7,
+      "Animation_MountainGoblin/Overturn.ani"
+    ],
+    [
+      5,
+      "[attack motion]"
+    ],
+    [
+      7,
+      "Animation_MountainGoblin/Throw.ani"
+    ],
+    [
+      5,
+      "[/attack motion]"
+    ],
+    [
+      5,
+      "[attack info]"
+    ],
+    [
+      7,
+      ""
+    ],
+    [
+      5,
+      "[/attack info]"
+    ],
+    [
+      5,
+      "[int data]"
+    ],
+    [
+      2,
+      3
+    ],
+    [
+      2,
+      6
+    ],
+    [
+      5,
+      "[/int data]"
+    ],
+    [
+      5,
+      "[name]"
+    ],
+    [
+      7,
+      "赤哥布林"
+    ],
+    [
+      5,
+      "[speech on situation]"
+    ],
+    [
+      7,
+      "[on revenge]"
+    ],
+    [
+      7,
+      "有人砸場子啦！！"
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      7,
+      "[on revenge]"
+    ],
+    [
+      7,
+      "兄弟們抄家伙啊！"
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      7,
+      "[on etc]"
+    ],
+    [
+      7,
+      "哼！ 好哥布林不吃眼前虧！"
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      7,
+      "[on etc]"
+    ],
+    [
+      7,
+      "只剩我了? 撤！"
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      5,
+      "[/speech on situation]"
+    ],
+    [
+      5,
+      "[throw attack]"
+    ],
+    [
+      7,
+      "[attack index]"
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      7,
+      "[passive object number]"
+    ],
+    [
+      2,
+      1
+    ],
+    [
+      7,
+      "[passive object filename]"
+    ],
+    [
+      7,
+      "PassiveObject/Common/Particle/FireMissileGeroCenter.ptl"
+    ],
+    [
+      7,
+      "[object type]"
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      7,
+      "[passive object index]"
+    ],
+    [
+      2,
+      30047
+    ],
+    [
+      7,
+      "[power]"
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      7,
+      "[throw frame]"
+    ],
+    [
+      2,
+      2
+    ],
+    [
+      7,
+      "[passive object start x cood]"
+    ],
+    [
+      2,
+      20
+    ],
+    [
+      7,
+      "[passive object start y cood]"
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      7,
+      "[passive object start z cood]"
+    ],
+    [
+      2,
+      60
+    ],
+    [
+      7,
+      "[attack number]"
+    ],
+    [
+      2,
+      1
+    ],
+    [
+      7,
+      "[throw sound]"
+    ],
+    [
+      7,
+      ""
+    ],
+    [
+      5,
+      "[/throw attack]"
+    ],
+    [
+      5,
+      "[equipment]"
+    ],
+    [
+      2,
+      5
+    ],
+    [
+      7,
+      "Monster/Goblin/acc4-2.equ"
+    ],
+    [
+      7,
+      "Monster/Goblin/Hcc2-2.equ"
+    ],
+    [
+      7,
+      "Monster/Goblin/gcc1-3.equ"
+    ],
+    [
+      7,
+      "Monster/Goblin/tcc1-2.equ"
+    ],
+    [
+      7,
+      "Monster/Goblin/bcc1-2.equ"
+    ],
+    [
+      5,
+      "[/equipment]"
+    ]
+  ],
+  "objectTokens": [
+    [
+      5,
+      "[width]"
+    ],
+    [
+      2,
+      1
+    ],
+    [
+      2,
+      1
+    ],
+    [
+      5,
+      "[floating height]"
+    ],
+    [
+      2,
+      1
+    ],
+    [
+      5,
+      "[layer]"
+    ],
+    [
+      7,
+      "[normal]"
+    ],
+    [
+      5,
+      "[pass type]"
+    ],
+    [
+      7,
+      "[pass all]"
+    ],
+    [
+      5,
+      "[basic motion]"
+    ],
+    [
+      7,
+      "../../Common/Animation/FireMissile.ani"
+    ],
+    [
+      5,
+      "[attack info]"
+    ],
+    [
+      7,
+      "AttackInfo/HillGabSizzle.atk"
+    ],
+    [
+      5,
+      "[int data]"
+    ],
+    [
+      2,
+      40
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      5,
+      "[/int data]"
+    ],
+    [
+      5,
+      "[name]"
+    ],
+    [
+      9,
+      9
+    ],
+    [
+      10,
+      "name_6095"
+    ]
+  ],
+  "particleTokens": [
+    [
+      5,
+      "[x axis]"
+    ],
+    [
+      5,
+      "[move type]"
+    ],
+    [
+      7,
+      "[straight line]"
+    ],
+    [
+      5,
+      "[move variable 1]"
+    ],
+    [
+      2,
+      300
+    ],
+    [
+      2,
+      300
+    ],
+    [
+      5,
+      "[gravity]"
+    ],
+    [
+      2,
+      200
+    ],
+    [
+      5,
+      "[rotation angle]"
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      2,
+      10
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      5,
+      "[life time]"
+    ],
+    [
+      2,
+      3000
+    ],
+    [
+      5,
+      "[landing type]"
+    ],
+    [
+      7,
+      "[stop]"
+    ]
+  ],
+  "primaryAnimation": "passiveobject/common/animation/firemissile.ani",
+  "primaryAnimationSHA256": "0a1b9f3fde087517abd50f3a3cd9254bba676c97d417314c5421f4540e6e5b14",
+  "primaryAnimationData": {
+    "paths": [],
+    "overall": [
+      [
+        1,
+        0
+      ]
+    ],
+    "frames": [
+      {
+        "frame": null,
+        "xy": [
+          0,
+          0
+        ],
+        "props": [
+          [
+            12,
+            1000
+          ]
+        ],
+        "boxes": [
+          [
+            15,
+            [
+              -8,
+              -6,
+              -8,
+              17,
+              12,
+              16
+            ]
+          ]
+        ],
+        "image": -1
+      }
+    ]
+  },
+  "animationData": {
+    "paths": [
+      "Common/CommonEffect/Fire.img"
+    ],
+    "overall": [],
+    "frames": [
+      {
+        "frame": 0,
+        "xy": [
+          -126,
+          -93
+        ],
+        "props": [
+          [
+            7,
+            [
+              0.699999988079071,
+              0.699999988079071
+            ]
+          ],
+          [
+            8,
+            40.0
+          ],
+          [
+            10,
+            1
+          ],
+          [
+            11,
+            2
+          ],
+          [
+            12,
+            230
+          ]
+        ],
+        "boxes": [],
+        "image": 0
+      },
+      {
+        "frame": 1,
+        "xy": [
+          -126,
+          -93
+        ],
+        "props": [
+          [
+            7,
+            [
+              0.699999988079071,
+              0.699999988079071
+            ]
+          ],
+          [
+            8,
+            40.0
+          ],
+          [
+            9,
+            [
+              255,
+              255,
+              255,
+              100
+            ]
+          ],
+          [
+            10,
+            1
+          ],
+          [
+            12,
+            230
+          ]
+        ],
+        "boxes": [],
+        "image": 0
+      },
+      {
+        "frame": 2,
+        "xy": [
+          -126,
+          -93
+        ],
+        "props": [
+          [
+            7,
+            [
+              0.699999988079071,
+              0.699999988079071
+            ]
+          ],
+          [
+            8,
+            40.0
+          ],
+          [
+            9,
+            [
+              255,
+              255,
+              255,
+              100
+            ]
+          ],
+          [
+            10,
+            1
+          ],
+          [
+            12,
+            230
+          ]
+        ],
+        "boxes": [],
+        "image": 0
+      },
+      {
+        "frame": 3,
+        "xy": [
+          -126,
+          -93
+        ],
+        "props": [
+          [
+            7,
+            [
+              0.5,
+              0.5
+            ]
+          ],
+          [
+            8,
+            40.0
+          ],
+          [
+            9,
+            [
+              255,
+              255,
+              255,
+              100
+            ]
+          ],
+          [
+            10,
+            1
+          ],
+          [
+            12,
+            230
+          ]
+        ],
+        "boxes": [],
+        "image": 0
+      },
+      {
+        "frame": 4,
+        "xy": [
+          -126,
+          -93
+        ],
+        "props": [
+          [
+            7,
+            [
+              0.30000001192092896,
+              0.30000001192092896
+            ]
+          ],
+          [
+            8,
+            40.0
+          ],
+          [
+            9,
+            [
+              255,
+              255,
+              255,
+              150
+            ]
+          ],
+          [
+            10,
+            1
+          ],
+          [
+            12,
+            230
+          ]
+        ],
+        "boxes": [],
+        "image": 0
+      },
+      {
+        "frame": 5,
+        "xy": [
+          -126,
+          -93
+        ],
+        "props": [
+          [
+            7,
+            [
+              0.30000001192092896,
+              0.30000001192092896
+            ]
+          ],
+          [
+            8,
+            40.0
+          ],
+          [
+            10,
+            1
+          ],
+          [
+            12,
+            230
+          ]
+        ],
+        "boxes": [],
+        "image": 0
+      },
+      {
+        "frame": 6,
+        "xy": [
+          -126,
+          -93
+        ],
+        "props": [
+          [
+            7,
+            [
+              0.30000001192092896,
+              0.30000001192092896
+            ]
+          ],
+          [
+            8,
+            40.0
+          ],
+          [
+            9,
+            [
+              255,
+              255,
+              255,
+              170
+            ]
+          ],
+          [
+            10,
+            1
+          ],
+          [
+            12,
+            230
+          ]
+        ],
+        "boxes": [],
+        "image": 0
+      },
+      {
+        "frame": 7,
+        "xy": [
+          -126,
+          -93
+        ],
+        "props": [
+          [
+            7,
+            [
+              0.30000001192092896,
+              0.30000001192092896
+            ]
+          ],
+          [
+            8,
+            40.0
+          ],
+          [
+            9,
+            [
+              255,
+              255,
+              255,
+              100
+            ]
+          ],
+          [
+            10,
+            1
+          ],
+          [
+            12,
+            230
+          ]
+        ],
+        "boxes": [],
+        "image": 0
+      },
+      {
+        "frame": 8,
+        "xy": [
+          -126,
+          -93
+        ],
+        "props": [
+          [
+            7,
+            [
+              0.30000001192092896,
+              0.30000001192092896
+            ]
+          ],
+          [
+            8,
+            40.0
+          ],
+          [
+            9,
+            [
+              255,
+              255,
+              255,
+              50
+            ]
+          ],
+          [
+            10,
+            1
+          ],
+          [
+            12,
+            230
+          ]
+        ],
+        "boxes": [],
+        "image": 0
+      }
+    ]
+  },
+  "cell": [
+    128,
+    128
+  ],
+  "anchor": [
+    64,
+    64
+  ],
+  "frames": [
+    {
+      "ordinal": 0,
+      "offset": [
+        112,
+        82
+      ],
+      "aniXY": [
+        -126,
+        -93
+      ],
+      "size": [
+        21,
+        21
+      ],
+      "pasteXY": [
+        50,
+        53
+      ],
+      "sourceRGBAsha256": "da059ebddde8b70af44be887c05665ddb209c6af174038ee156ee193bb1ac490",
+      "cellRGBAsha256": "52870fb681369a9844908c40018e7452d9cfe158c39c390ebd30ea975baa7ae3"
+    },
+    {
+      "ordinal": 1,
+      "offset": [
+        105,
+        72
+      ],
+      "aniXY": [
+        -126,
+        -93
+      ],
+      "size": [
+        39,
+        39
+      ],
+      "pasteXY": [
+        43,
+        43
+      ],
+      "sourceRGBAsha256": "6b14999753224cc9d6b855e0530daa8ee9da97c0be60b5aff51c1d40bb798800",
+      "cellRGBAsha256": "2e62ccc6f7b21ede4fa7c7e1a23a3f3f8483835463cbf4d9cfff39c26138166b"
+    },
+    {
+      "ordinal": 2,
+      "offset": [
+        100,
+        69
+      ],
+      "aniXY": [
+        -126,
+        -93
+      ],
+      "size": [
+        48,
+        48
+      ],
+      "pasteXY": [
+        38,
+        40
+      ],
+      "sourceRGBAsha256": "632dda61d1fa26b88464fa0cb362adb7a15d12c709e052e021a952260407c5b9",
+      "cellRGBAsha256": "431ad1f5c8db998f0f579ff401dc92ae007c72ef1c153fac8d976e81eff9ba12"
+    },
+    {
+      "ordinal": 3,
+      "offset": [
+        98,
+        65
+      ],
+      "aniXY": [
+        -126,
+        -93
+      ],
+      "size": [
+        53,
+        58
+      ],
+      "pasteXY": [
+        36,
+        36
+      ],
+      "sourceRGBAsha256": "7769a3a89636ee9c4945c894ccd41e15b301ab0b60bc23a508871801b459cf54",
+      "cellRGBAsha256": "79ee06f023da6b5dd379aa6b1c9067da4050e7a3062d1025df2d8870e7304883"
+    },
+    {
+      "ordinal": 4,
+      "offset": [
+        94,
+        59
+      ],
+      "aniXY": [
+        -126,
+        -93
+      ],
+      "size": [
+        62,
+        68
+      ],
+      "pasteXY": [
+        32,
+        30
+      ],
+      "sourceRGBAsha256": "8c96ccb82dd9db2e349126ba87cfb7df7c8d7c4e198da19b57b8dfed415515af",
+      "cellRGBAsha256": "cf094e827999e95536c5eb38abad618c0fede3f197d778bccc22d108f95f3489"
+    },
+    {
+      "ordinal": 5,
+      "offset": [
+        88,
+        55
+      ],
+      "aniXY": [
+        -126,
+        -93
+      ],
+      "size": [
+        69,
+        70
+      ],
+      "pasteXY": [
+        26,
+        26
+      ],
+      "sourceRGBAsha256": "cb7ab89324681560e2ce8b3af3a9d4c846c6cbe687fd0ebbcb3350f6b9006736",
+      "cellRGBAsha256": "0b53c356182f4f306c3e595a265536aef29054c83e5ae4ab610872727c5577a6"
+    },
+    {
+      "ordinal": 6,
+      "offset": [
+        88,
+        57
+      ],
+      "aniXY": [
+        -126,
+        -93
+      ],
+      "size": [
+        72,
+        69
+      ],
+      "pasteXY": [
+        26,
+        28
+      ],
+      "sourceRGBAsha256": "fa2a8be33ba4fa1d3cea821a0494d2d123967c5f44ecda840eeb7ced7efa3ef0",
+      "cellRGBAsha256": "39729d2895928a94e1b4a6497613782b891ef5e4f99b515bec24303650e7364c"
+    },
+    {
+      "ordinal": 7,
+      "offset": [
+        86,
+        55
+      ],
+      "aniXY": [
+        -126,
+        -93
+      ],
+      "size": [
+        74,
+        76
+      ],
+      "pasteXY": [
+        24,
+        26
+      ],
+      "sourceRGBAsha256": "6520d3b3c7c8de25a1722ab6c14879c9c308383c40fbfaf0612512e6e33bb920",
+      "cellRGBAsha256": "110cd83e39296e98fa50e297d31294cdcb62005c7a5443653341f0dcd5f65b11"
+    },
+    {
+      "ordinal": 8,
+      "offset": [
+        89,
+        58
+      ],
+      "aniXY": [
+        -126,
+        -93
+      ],
+      "size": [
+        68,
+        71
+      ],
+      "pasteXY": [
+        27,
+        29
+      ],
+      "sourceRGBAsha256": "d68abb06e71cb118a926d179bdcb2b2913650a636c0c5c75eb4bdcecbb426990",
+      "cellRGBAsha256": "b2caa2df1273b8acb501b5dedb0d5daa19a1ba05e6b84485794c9fd1a0b41ba6"
+    }
+  ],
+  "pack": "/mnt/c/dnf/地下城与勇士/ImagePacks2/sprite_common_commoneffect.NPK",
+  "entry": "sprite/common/commoneffect/fire.img",
+  "imgSHA256": "9b5e3ee9d44e334d85a704599c244556872276d708836b207cffd910c3404a59",
+  "atlasRGBAsha256": "e20796f6c033e7d9dc6fe535aebc0c538d2744540a274af98d627e412d6a7e9d",
+  "limits": [
+    "FireMissile primary ANI has no bitmap; FireMissileParticle1 is a named candidate, not an explicit child reference.",
+    "Native source pixels and offset+ANI positions preserved without transforms or colour key.",
+    "Runtime candidate50Hz/lifetime350ms is supported by a limited orange-profile comparison, not proven engine scheduling.",
+    "Runtime presentation angle180deg follows one visible-template calibration; raw ANI40.0 and PTL axes remain uninterpreted.",
+    "Light particles, other variants, blend/interpolation/inheritance, landing and detached trails remain open."
+  ]
+}

@@ -4599,7 +4599,7 @@
       idle: [0, 0], attack: [0, 4], down: [5, 9], rise: [10, 10],
       walk: [11, 16], walkFps: 10, attackMilliseconds: [80, 80, 80, 80, 200]
     },
-    nativeIceGoblin: {
+    nativeThrowGoblin: {
       idle: [0, 0], attack: [0, 4], down: [5, 9], rise: [10, 10],
       walk: [11, 16], walkFps: 10, attackMilliseconds: [80, 80, 80, 80, 200], releaseFrame: 2
     },
@@ -4671,9 +4671,9 @@
       lugaruBoss: "lugaru",
       // seagab/hillgab explicitly link the 0..4 attack and11..16 walk runs.
       // Champion overlay does not replace the red goblin's body animation.
-      goblinBlue: "nativeIceGoblin",
-      goblinRed: "nativeGoblin",
-      cursedRed: "nativeGoblin"
+      goblinBlue: "nativeThrowGoblin",
+      goblinRed: "nativeThrowGoblin",
+      cursedRed: "nativeThrowGoblin"
     }
   };
 
@@ -5170,6 +5170,35 @@
   }
 
   function drawProjectile(ctx, state, shot, sprites) {
+    if (shot.nativeObject === 30047) {
+      var fire = sprites && sprites.goblinFire;
+      if (!fire || !fire.width) return;
+      var fireAge = Math.max(0, shot.maxLife - shot.life);
+      var fireScale = (Core.VIEW.width / 640) / Core.CAMERA.zoom * 0.699999988079071;
+      // Candidate PTL50Hz/350ms (audit159 profile comparison): reconstruct static emissions from the ballistic
+      // path. This main trail is partial: other variants/lights, native ANI40.0,
+      // blending, random area and detached children are not engine-calibrated.
+      for (var emission = Math.max(0, Math.ceil((fireAge - 0.35 + 0.0000001) / 0.02));
+           emission <= Math.floor((fireAge + 0.0000001) / 0.02); emission++) {
+        var particleAge = Math.max(0, fireAge - emission * 0.02);
+        if (particleAge >= 0.35) continue;
+        var fireFrame = particleAge < 0.23 ? 0 : 1;
+        var fireX = shot.x - shot.vx * particleAge;
+        var fireY = feetY(shot) - shot.vy * particleAge + (shot.gravity || 0) * particleAge * particleAge / 2;
+        ctx.save();
+        ctx.translate(fireX, fireY);
+        ctx.scale(shot.vx < 0 ? -1 : 1, 1);
+        // Audit159 template match at61.2s: PIL180deg, factor.7. This is a
+        // visible presentation calibration, not a decoded ANI rotation formula.
+        ctx.rotate(-Math.PI);
+        ctx.globalAlpha = fireFrame === 0 ? 1 : 100 / 255;
+        ctx.imageSmoothingEnabled = true;
+        ctx.drawImage(fire, fireFrame * 128, 0, 128, 128,
+          -64 * fireScale, -64 * fireScale, 128 * fireScale, 128 * fireScale);
+        ctx.restore();
+      }
+      return;
+    }
     if (shot.nativeObject === 30057) {
       var ice = sprites && sprites.goblinIce;
       if (!ice || !ice.width) return;

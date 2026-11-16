@@ -1,0 +1,552 @@
+{
+  "commit": "6304433604443251e7c895cc11386aa8e7f78444",
+  "workflow": "https://github.com/yanfeng98/nano-dnf/actions/runs/43823161329",
+  "jobs": [
+    {
+      "id": 133150684495,
+      "run_id": 43823161329,
+      "workflow_name": "Deploy playable build to GitHub Pages",
+      "head_branch": "main",
+      "run_url": "https://api.github.com/repos/yanfeng98/nano-dnf/actions/runs/43823161329",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOUaq1_s8AAAAfAGY1Tw",
+      "head_sha": "6304433604443251e7c895cc11386aa8e7f78444",
+      "url": "https://api.github.com/repos/yanfeng98/nano-dnf/actions/jobs/133150684495",
+      "html_url": "https://github.com/yanfeng98/nano-dnf/actions/runs/43823161329/job/133150684495",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-16T07:20:37Z",
+      "started_at": "2026-11-16T07:20:39Z",
+      "completed_at": "2026-11-16T07:21:50Z",
+      "name": "Test and stage the playable build",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-16T07:20:40Z",
+          "completed_at": "2026-11-16T07:20:41Z"
+        },
+        {
+          "name": "Check out the repository",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-16T07:20:41Z",
+          "completed_at": "2026-11-16T07:21:05Z"
+        },
+        {
+          "name": "Set up Node.js",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-16T07:21:05Z",
+          "completed_at": "2026-11-16T07:21:05Z"
+        },
+        {
+          "name": "Run regression tests",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-11-16T07:21:05Z",
+          "completed_at": "2026-11-16T07:21:46Z"
+        },
+        {
+          "name": "Stage the static site",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-11-16T07:21:46Z",
+          "completed_at": "2026-11-16T07:21:46Z"
+        },
+        {
+          "name": "Verify every referenced asset was staged",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-11-16T07:21:46Z",
+          "completed_at": "2026-11-16T07:21:46Z"
+        },
+        {
+          "name": "Configure GitHub Pages",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-11-16T07:21:46Z",
+          "completed_at": "2026-11-16T07:21:46Z"
+        },
+        {
+          "name": "Upload the staged site",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8,
+          "started_at": "2026-11-16T07:21:46Z",
+          "completed_at": "2026-11-16T07:21:48Z"
+        },
+        {
+          "name": "Post Set up Node.js",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 15,
+          "started_at": "2026-11-16T07:21:48Z",
+          "completed_at": "2026-11-16T07:21:49Z"
+        },
+        {
+          "name": "Post Check out the repository",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 16,
+          "started_at": "2026-11-16T07:21:49Z",
+          "completed_at": "2026-11-16T07:21:49Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 17,
+          "started_at": "2026-11-16T07:21:49Z",
+          "completed_at": "2026-11-16T07:21:49Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/yanfeng98/nano-dnf/check-runs/133150684495",
+      "labels": [
+        "ubuntu-latest"
+      ],
+      "runner_id": 1000021182,
+      "runner_name": "GitHub Actions 1000021182",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 133151174206,
+      "run_id": 43823161329,
+      "workflow_name": "Deploy playable build to GitHub Pages",
+      "head_branch": "main",
+      "run_url": "https://api.github.com/repos/yanfeng98/nano-dnf/actions/runs/43823161329",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOUaq1_s8AAAAfAG2uPg",
+      "head_sha": "6304433604443251e7c895cc11386aa8e7f78444",
+      "url": "https://api.github.com/repos/yanfeng98/nano-dnf/actions/jobs/133151174206",
+      "html_url": "https://github.com/yanfeng98/nano-dnf/actions/runs/43823161329/job/133151174206",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-16T07:21:51Z",
+      "started_at": "2026-11-16T07:21:55Z",
+      "completed_at": "2026-11-16T07:22:09Z",
+      "name": "Deploy to GitHub Pages",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-16T07:21:55Z",
+          "completed_at": "2026-11-16T07:21:57Z"
+        },
+        {
+          "name": "Deploy the artifact",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-16T07:21:57Z",
+          "completed_at": "2026-11-16T07:22:07Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-16T07:22:07Z",
+          "completed_at": "2026-11-16T07:22:08Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/yanfeng98/nano-dnf/check-runs/133151174206",
+      "labels": [
+        "ubuntu-latest"
+      ],
+      "runner_id": 1000021183,
+      "runner_name": "GitHub Actions 1000021183",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 133151291492,
+      "run_id": 43823161329,
+      "workflow_name": "Deploy playable build to GitHub Pages",
+      "head_branch": "main",
+      "run_url": "https://api.github.com/repos/yanfeng98/nano-dnf/actions/runs/43823161329",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOUaq1_s8AAAAfAG94ZA",
+      "head_sha": "6304433604443251e7c895cc11386aa8e7f78444",
+      "url": "https://api.github.com/repos/yanfeng98/nano-dnf/actions/jobs/133151291492",
+      "html_url": "https://github.com/yanfeng98/nano-dnf/actions/runs/43823161329/job/133151291492",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-16T07:22:09Z",
+      "started_at": "2026-11-16T07:22:11Z",
+      "completed_at": "2026-11-16T07:23:00Z",
+      "name": "Verify the deployed build",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-11-16T07:22:12Z",
+          "completed_at": "2026-11-16T07:22:13Z"
+        },
+        {
+          "name": "Check out the repository",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-11-16T07:22:13Z",
+          "completed_at": "2026-11-16T07:22:38Z"
+        },
+        {
+          "name": "Set up Node.js",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-11-16T07:22:38Z",
+          "completed_at": "2026-11-16T07:22:38Z"
+        },
+        {
+          "name": "Install the smoke-test browser",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-11-16T07:22:38Z",
+          "completed_at": "2026-11-16T07:22:40Z"
+        },
+        {
+          "name": "Smoke-test the live build",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-11-16T07:22:40Z",
+          "completed_at": "2026-11-16T07:22:57Z"
+        },
+        {
+          "name": "Post Set up Node.js",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-11-16T07:22:57Z",
+          "completed_at": "2026-11-16T07:22:57Z"
+        },
+        {
+          "name": "Post Check out the repository",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10,
+          "started_at": "2026-11-16T07:22:57Z",
+          "completed_at": "2026-11-16T07:22:57Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11,
+          "started_at": "2026-11-16T07:22:57Z",
+          "completed_at": "2026-11-16T07:22:57Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/yanfeng98/nano-dnf/check-runs/133151291492",
+      "labels": [
+        "ubuntu-latest"
+      ],
+      "runner_id": 1000021184,
+      "runner_name": "GitHub Actions 1000021184",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    }
+  ],
+  "independentLive": {
+    "command": "npm run test:live",
+    "exitCode": 0,
+    "log": "\n> nano-dnf@0.1.0 test:live\n> node tests/deploy/live-smoke.mjs\n\nlive smoke against https://luyf-lemon-love.space/nano-dnf/ (deploy lag budget 300s)\n{\n  \"url\": \"https://luyf-lemon-love.space/nano-dnf/\",\n  \"referencedAssets\": [\n    \"assets/favicon.png\",\n    \"src/core.js\",\n    \"src/loadout.js\",\n    \"src/music.js\",\n    \"src/hints.js\",\n    \"src/records.js\",\n    \"src/progress.js\",\n    \"src/summary.js\",\n    \"src/reward.js\",\n    \"src/attract.js\",\n    \"src/render.js\",\n    \"src/main.js\",\n    \"assets/slayer-reference.png\",\n    \"assets/skills.png\",\n    \"assets/skills-disabled.png\",\n    \"assets/skill-ranks.png\",\n    \"assets/effects.png\",\n    \"assets/normal-wave.png\",\n    \"assets/normal-wave-body.png\",\n    \"assets/rift.png\",\n    \"assets/region.png\",\n    \"assets/monsters.png\",\n    \"assets/thrower-reference.png\",\n    \"assets/goblin-reference.png\",\n    \"assets/caster-reference.png\",\n    \"assets/goblin-stone.png\",\n    \"assets/goblin-ice.png\",\n    \"assets/forest.png\",\n    \"assets/native-flora.png\",\n    \"assets/native-pathgate.png\",\n    \"assets/native-pathgate-east.png\",\n    \"assets/native-pathgate-east-normal.png\",\n    \"assets/forest-deep.png\",\n    \"assets/deep-boss-closeback.png\",\n    \"assets/deep-entry-closeback.png\",\n    \"assets/deep-room42-closeback.png\",\n    \"assets/deep-room43-closeback.png\",\n    \"assets/deep-room33-closeback.png\",\n    \"assets/deep-room23-closeback.png\",\n    \"assets/deep-room13-closeback.png\",\n    \"assets/deep-room14-closeback.png\",\n    \"assets/deep-room24-closeback.png\",\n    \"assets/deep-room24-foreground.png\",\n    \"assets/weather.png\",\n    \"assets/bossdeath.png\",\n    \"assets/ui.png\",\n    \"assets/hud.png\",\n    \"assets/town.png\",\n    \"assets/npc.png\",\n    \"assets/gui.png\",\n    \"assets/tree-reference.png\",\n    \"assets/tree-fruit-reference.png\",\n    \"assets/goblin-bunker.png\",\n    \"assets/pillar-pale.png\",\n    \"assets/gate-block.png\",\n    \"assets/minimap.png\",\n    \"assets/results-reference.png\",\n    \"assets/experience-digits.png\",\n    \"assets/awakening.png\",\n    \"assets/portraits-reference.png\"\n  ],\n  \"idle\": {\n    \"seed\": 20260915,\n    \"hp\": 264,\n    \"maxHp\": 264,\n    \"damageTaken\": 0,\n    \"time\": 0,\n    \"defeat\": false,\n    \"room\": \"林间空地\"\n  },\n  \"problems\": []\n}\nlive smoke OK: the deployed build matches the checkout and boots cleanly\n"
+  },
+  "independentIce": {
+    "command": "ICE_URL=https://luyf-lemon-love.space/nano-dnf/ ICE_OUT=/tmp/nano158-ice-online node tests/browser/goblin-ice.mjs",
+    "exitCode": 0,
+    "result": {
+      "url": "https://luyf-lemon-love.space/nano-dnf/",
+      "emissions": [
+        {
+          "count": 1,
+          "nativeObject": 30057,
+          "maxLife": 1.5,
+          "facing": -1,
+          "kind": "shoot",
+          "hitDone": true,
+          "sourceX": -19.999999999999964,
+          "sourceHeight": 59.99999999999997
+        },
+        {
+          "count": 1,
+          "nativeObject": 30057,
+          "maxLife": 1.5,
+          "facing": 1,
+          "kind": "shoot",
+          "hitDone": true,
+          "sourceX": 19.999999999999964,
+          "sourceHeight": 59.99999999999997
+        }
+      ],
+      "samples": [
+        {
+          "facing": -1,
+          "frame": 0,
+          "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-ice.png",
+          "source": [
+            0,
+            0,
+            64,
+            64
+          ],
+          "screenWidth": 71.99999740888488,
+          "x": 637.6170258210004,
+          "y": 362.50000697047653
+        },
+        {
+          "facing": -1,
+          "frame": 1,
+          "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-ice.png",
+          "source": [
+            64,
+            0,
+            64,
+            64
+          ],
+          "screenWidth": 71.99999740888488,
+          "x": 637.6170258210004,
+          "y": 362.50000697047653
+        },
+        {
+          "facing": -1,
+          "frame": 2,
+          "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-ice.png",
+          "source": [
+            128,
+            0,
+            64,
+            64
+          ],
+          "screenWidth": 71.99999740888488,
+          "x": 637.6170258210004,
+          "y": 362.50000697047653
+        },
+        {
+          "facing": -1,
+          "frame": 3,
+          "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-ice.png",
+          "source": [
+            192,
+            0,
+            64,
+            64
+          ],
+          "screenWidth": 71.99999740888488,
+          "x": 637.6170258210004,
+          "y": 362.50000697047653
+        },
+        {
+          "facing": -1,
+          "frame": 4,
+          "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-ice.png",
+          "source": [
+            256,
+            0,
+            64,
+            64
+          ],
+          "screenWidth": 71.99999740888488,
+          "x": 637.6170258210004,
+          "y": 362.50000697047653
+        },
+        {
+          "facing": -1,
+          "frame": 5,
+          "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-ice.png",
+          "source": [
+            320,
+            0,
+            64,
+            64
+          ],
+          "screenWidth": 71.99999740888488,
+          "x": 637.6170258210004,
+          "y": 362.50000697047653
+        },
+        {
+          "facing": -1,
+          "frame": 6,
+          "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-ice.png",
+          "source": [
+            384,
+            0,
+            64,
+            64
+          ],
+          "screenWidth": 71.99999740888488,
+          "x": 637.6170258210004,
+          "y": 362.50000697047653
+        },
+        {
+          "facing": -1,
+          "frame": 7,
+          "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-ice.png",
+          "source": [
+            448,
+            0,
+            64,
+            64
+          ],
+          "screenWidth": 71.99999740888488,
+          "x": 637.6170258210004,
+          "y": 362.50000697047653
+        },
+        {
+          "facing": 1,
+          "frame": 0,
+          "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-ice.png",
+          "source": [
+            0,
+            0,
+            64,
+            64
+          ],
+          "screenWidth": 71.99999740888488,
+          "x": 322.3829559880687,
+          "y": 362.50000697047653
+        },
+        {
+          "facing": 1,
+          "frame": 1,
+          "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-ice.png",
+          "source": [
+            64,
+            0,
+            64,
+            64
+          ],
+          "screenWidth": 71.99999740888488,
+          "x": 322.3829559880687,
+          "y": 362.50000697047653
+        },
+        {
+          "facing": 1,
+          "frame": 2,
+          "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-ice.png",
+          "source": [
+            128,
+            0,
+            64,
+            64
+          ],
+          "screenWidth": 71.99999740888488,
+          "x": 322.3829559880687,
+          "y": 362.50000697047653
+        },
+        {
+          "facing": 1,
+          "frame": 3,
+          "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-ice.png",
+          "source": [
+            192,
+            0,
+            64,
+            64
+          ],
+          "screenWidth": 71.99999740888488,
+          "x": 322.3829559880687,
+          "y": 362.50000697047653
+        },
+        {
+          "facing": 1,
+          "frame": 4,
+          "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-ice.png",
+          "source": [
+            256,
+            0,
+            64,
+            64
+          ],
+          "screenWidth": 71.99999740888488,
+          "x": 322.3829559880687,
+          "y": 362.50000697047653
+        },
+        {
+          "facing": 1,
+          "frame": 5,
+          "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-ice.png",
+          "source": [
+            320,
+            0,
+            64,
+            64
+          ],
+          "screenWidth": 71.99999740888488,
+          "x": 322.3829559880687,
+          "y": 362.50000697047653
+        },
+        {
+          "facing": 1,
+          "frame": 6,
+          "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-ice.png",
+          "source": [
+            384,
+            0,
+            64,
+            64
+          ],
+          "screenWidth": 71.99999740888488,
+          "x": 322.3829559880687,
+          "y": 362.50000697047653
+        },
+        {
+          "facing": 1,
+          "frame": 7,
+          "src": "https://luyf-lemon-love.space/nano-dnf/assets/goblin-ice.png",
+          "source": [
+            448,
+            0,
+            64,
+            64
+          ],
+          "screenWidth": 71.99999740888488,
+          "x": 322.3829559880687,
+          "y": 362.50000697047653
+        }
+      ],
+      "flights": [
+        {
+          "facing": -1,
+          "screenSpeed": 225.00000000000142,
+          "frames": 91,
+          "remaining": 0
+        },
+        {
+          "facing": 1,
+          "screenSpeed": 225.00000000000142,
+          "frames": 91,
+          "remaining": 0
+        }
+      ],
+      "errors": [],
+      "limits": [
+        "Primary object identity, native frames, offset, declared X speed/lifetime and pause checked.",
+        "Z-sine, particle children, IceMissile2 semantics, collision/piercing and video timing remain open.",
+        "Current ranged spacing and cooldown are provisional."
+      ]
+    }
+  },
+  "unitTests": 495,
+  "browserGroups": 58,
+  "allTestedInputsStillMatch": true,
+  "original40DirtyArtifactsStillMatch": true,
+  "ownerPlayAcceptance": "pending",
+  "verifiedAt": "2026-11-16T07:26:40.192732+00:00"
+}

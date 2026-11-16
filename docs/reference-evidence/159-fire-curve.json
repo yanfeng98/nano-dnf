@@ -1,0 +1,251 @@
+{
+  "video": "00001-幽暗密林.mp4",
+  "samples": [
+    {
+      "time": 61.199999999999996,
+      "frame": "149-v1-61.2-second-room.png",
+      "sha256": "90d9e755ee8ba8fd9fe73cd3f74238c68418c797ddf059536e5e5cff5abeeae2",
+      "frontX": 149,
+      "frontY": 313.5,
+      "pillarShift": [
+        19,
+        0
+      ],
+      "pillarNCC": 0.9950304627418518,
+      "correctedX": 130,
+      "correctedY": 313.5
+    },
+    {
+      "time": 61.233333333333334,
+      "frame": "149-v1-61.2333-second-room.png",
+      "sha256": "1059b57e0b7221457d9132b6cef6e38ae9faef240bc1749ea70c796f41054b68",
+      "frontX": 155,
+      "frontY": 314.0,
+      "pillarShift": [
+        19,
+        0
+      ],
+      "pillarNCC": 0.9959487318992615,
+      "correctedX": 136,
+      "correctedY": 314.0
+    },
+    {
+      "time": 61.266666666666666,
+      "frame": "149-v1-61.2667-second-room.png",
+      "sha256": "e746f80565e2d6fc50772b401473d289571a347dad0b95d3208e4b9fd01a32c6",
+      "frontX": 175,
+      "frontY": 311.5,
+      "pillarShift": [
+        19,
+        0
+      ],
+      "pillarNCC": 0.9959436058998108,
+      "correctedX": 156,
+      "correctedY": 311.5
+    },
+    {
+      "time": 61.3,
+      "frame": "149-v1-61.3-second-room.png",
+      "sha256": "5ee0eb45faaea527b3a6d6966a50539b2109470ec9d62f9c2fdcdbf32c522b4a",
+      "frontX": 181,
+      "frontY": 311.5,
+      "pillarShift": [
+        19,
+        0
+      ],
+      "pillarNCC": 0.9959423542022705,
+      "correctedX": 162,
+      "correctedY": 311.5
+    },
+    {
+      "time": 61.33333333333333,
+      "frame": "149-v1-61.3333-second-room.png",
+      "sha256": "646e16cd970dd3f483c5e13187e831174021d3d783cb85fd27b0ac51de1934d6",
+      "frontX": 187,
+      "frontY": 314.0,
+      "pillarShift": [
+        19,
+        0
+      ],
+      "pillarNCC": 0.9953175783157349,
+      "correctedX": 168,
+      "correctedY": 314.0
+    },
+    {
+      "time": 61.36666666666667,
+      "frame": "149-v1-61.3667-second-room.png",
+      "sha256": "ddba43c915049a5a60c44dd4320140f49779c1d4d9b332472ad5224c2ac5b57d",
+      "frontX": 207,
+      "frontY": 315.0,
+      "pillarShift": [
+        19,
+        0
+      ],
+      "pillarNCC": 0.9883263111114502,
+      "correctedX": 188,
+      "correctedY": 315.0
+    },
+    {
+      "time": 61.4,
+      "frame": "149-v1-61.4-second-room.png",
+      "sha256": "d9d120d1656788fd612f1d1216f0bb4954b1e89eaf7fa195b75c4066e70bea14",
+      "frontX": 217,
+      "frontY": 316.0,
+      "pillarShift": [
+        19,
+        0
+      ],
+      "pillarNCC": 0.9930967688560486,
+      "correctedX": 198,
+      "correctedY": 316.0
+    },
+    {
+      "time": 61.43333333333333,
+      "frame": "149-v1-61.4333-second-room.png",
+      "sha256": "4295fd93db12e8e824302bcb572e7cc984a2ac4d51bca8452636a03b90941e0e",
+      "frontX": 215,
+      "frontY": 316.0,
+      "pillarShift": [
+        19,
+        0
+      ],
+      "pillarNCC": 0.9954140186309814,
+      "correctedX": 196,
+      "correctedY": 316.0
+    },
+    {
+      "time": 61.46666666666667,
+      "frame": "149-v1-61.4667-second-room.png",
+      "sha256": "30d906698c63d103a7bdda88d975fcb4e83ea1769984c1246f0d19ce619df1b7",
+      "frontX": 243,
+      "frontY": 317.0,
+      "pillarShift": [
+        19,
+        0
+      ],
+      "pillarNCC": 0.9953661561012268,
+      "correctedX": 224,
+      "correctedY": 317.0
+    },
+    {
+      "time": 61.5,
+      "frame": "149-v1-61.5-second-room.png",
+      "sha256": "ae1ade8cda1996472c33bd560b497af81e76ddf6a0f692fe3adaa080f68a77f9",
+      "frontX": 251,
+      "frontY": 320.0,
+      "pillarShift": [
+        19,
+        0
+      ],
+      "pillarNCC": 0.9953511953353882,
+      "correctedX": 232,
+      "correctedY": 320.0
+    }
+  ],
+  "pillarFrame": "149-v1-60.7-second-room.png",
+  "pillarFrameSHA256": "062f6c948148bae56a58756ce8b94e122c0ad5b164fcf620ab7d97d3e48e3ebf",
+  "pillarTemplateXYWH": [
+    408,
+    345,
+    26,
+    76
+  ],
+  "pillarSearchXYWH": [
+    360,
+    310,
+    150,
+    160
+  ],
+  "colourROI": [
+    100,
+    295,
+    170,
+    35
+  ],
+  "mask": "R>120,G>70,G<R*.91,G>B*1.6,B<110; right edge, medianY of last4columns",
+  "fitInDisplacement": [
+    0.000958388310642036,
+    -0.03598073313381325,
+    313.2813148004409
+  ],
+  "maxResidualPixels": 1.6113209702563154,
+  "nativeCandidate": {
+    "xSpeed": 300,
+    "gravity": 200,
+    "projection": 1.125,
+    "screenSpeed": 337.5,
+    "screenAcceleration": 225
+  },
+  "models": [
+    {
+      "screenAcceleration": 0,
+      "curvature": 0.0,
+      "fittedLinear": [
+        0.061233029570392186,
+        311.8495815510508
+      ],
+      "residualPixels": [
+        1.6504184489492104,
+        1.7830202715268797,
+        -1.941640319881003,
+        -2.3090384973033338,
+        -0.1764366747256645,
+        -0.40109726613354724,
+        -0.013427561837431767,
+        0.10903849730334514,
+        -0.6054863306676452,
+        1.9046494327691903
+      ],
+      "maxResidualPixels": 2.3090384973033338
+    },
+    {
+      "screenAcceleration": 225,
+      "curvature": 0.0009876543209876543,
+      "fittedLinear": [
+        -0.03894932003480803,
+        313.32503520022425
+      ],
+      "residualPixels": [
+        0.17496479977575063,
+        0.8731051644290346,
+        -1.4800072003068863,
+        -1.5900149838017228,
+        0.7288661215922616,
+        0.6115562259921603,
+        0.7566049818957481,
+        0.9433976998508911,
+        -1.3907126971992056,
+        0.3722398877706041
+      ],
+      "maxResidualPixels": 1.5900149838017228
+    },
+    {
+      "screenAcceleration": 300,
+      "curvature": 0.0013168724279835392,
+      "fittedLinear": [
+        -0.07234343656987348,
+        313.8168530832817
+      ],
+      "residualPixels": [
+        -0.31685308328172823,
+        0.569800128730094,
+        -1.3261294937818775,
+        -1.3503404793009395,
+        1.0306337203652447,
+        0.9491073900343281,
+        1.0132824964737779,
+        1.2215174340336148,
+        -1.6524548193761461,
+        -0.13856329389540178
+      ],
+      "maxResidualPixels": 1.6524548193761461
+    }
+  ],
+  "limits": [
+    "Visible colour front is not the physical missile center or hitbox.",
+    "Fits allow free origin and slope; launch angle and exact birth are not independently established.",
+    "Constant gravity200 with the existing projection is compatible, not a unique formula proof.",
+    "Displacement fits avoid the source recording's repeated/catch-up frames.",
+    "Particle scheduling, ANI transforms, light children and blending remain separate work."
+  ]
+}

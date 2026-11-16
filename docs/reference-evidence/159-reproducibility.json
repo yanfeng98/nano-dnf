@@ -1,0 +1,34 @@
+{
+  "checks": [
+    {
+      "file": "assets/goblin-fire.png",
+      "sha256": "cf56a1611d9aa088768a87a12c23f6d12fddc698b3b3635afe3fd85f9786661f",
+      "repeatByteIdentical": true
+    },
+    {
+      "file": "assets/goblin-fire.json",
+      "sha256": "b24cc059df8dd5a07ca03bdd668cb30131682e7191a4cefccd4d674df4baec13",
+      "repeatByteIdentical": true
+    },
+    {
+      "file": "docs/reference-evidence/159-fire-curve.json",
+      "sha256": "59fbc91468b019d1356c38582c8f3cdd7bc02c77d764e8e1c14d629057cee9db",
+      "repeatByteIdentical": true
+    },
+    {
+      "file": "docs/reference-evidence/159-fire-curve-crops.png",
+      "sha256": "0f576b4eed7cac72e22016443e1d609aea1e5f1a3a793c00a8fa83d0654253e4",
+      "repeatByteIdentical": true
+    },
+    {
+      "file": "docs/reference-evidence/159-fire-frequency.json",
+      "sha256": "14abc819aff77f1202b4b78eac1e52e21d133d000193e0ed530c0b46b079a163",
+      "repeatByteIdentical": true
+    },
+    {
+      "file": "docs/reference-evidence/159-fire-candidate.json",
+      "sha256": "1300fd25e8840e835135c04a5ad08d627fd27b8535f973b4a27291749a678a1d",
+      "repeatByteIdentical": true
+    }
+  ]
+}

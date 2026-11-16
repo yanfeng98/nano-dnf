@@ -1,0 +1,103 @@
+{
+  "models": [
+    {
+      "t": 61.4,
+      "blend": "normal",
+      "alphaInterpolated": false,
+      "phase": 0,
+      "offset": [
+        4,
+        -1
+      ],
+      "mse": 4541.288841298251
+    },
+    {
+      "t": 61.4,
+      "blend": "normal",
+      "alphaInterpolated": true,
+      "phase": 0,
+      "offset": [
+        4,
+        -1
+      ],
+      "mse": 4539.492972417638
+    },
+    {
+      "t": 61.4,
+      "blend": "additive",
+      "alphaInterpolated": false,
+      "phase": 0,
+      "offset": [
+        -4,
+        -2
+      ],
+      "mse": 5714.862312204006
+    },
+    {
+      "t": 61.4,
+      "blend": "additive",
+      "alphaInterpolated": true,
+      "phase": 0.01,
+      "offset": [
+        -2,
+        -1
+      ],
+      "mse": 5432.236056684366
+    },
+    {
+      "t": 61.5,
+      "blend": "normal",
+      "alphaInterpolated": false,
+      "phase": 0.005,
+      "offset": [
+        -2,
+        -1
+      ],
+      "mse": 3855.165844676643
+    },
+    {
+      "t": 61.5,
+      "blend": "normal",
+      "alphaInterpolated": true,
+      "phase": 0.005,
+      "offset": [
+        -2,
+        -1
+      ],
+      "mse": 3960.676011623411
+    },
+    {
+      "t": 61.5,
+      "blend": "additive",
+      "alphaInterpolated": false,
+      "phase": 0.01,
+      "offset": [
+        -2,
+        -1
+      ],
+      "mse": 5644.14570245678
+    },
+    {
+      "t": 61.5,
+      "blend": "additive",
+      "alphaInterpolated": true,
+      "phase": 0.01,
+      "offset": [
+        -2,
+        -1
+      ],
+      "mse": 5299.7368929914965
+    }
+  ],
+  "sourceFrameSHA256": {
+    "149-v1-60.7-second-room.png": "062f6c948148bae56a58756ce8b94e122c0ad5b164fcf620ab7d97d3e48e3ebf",
+    "149-v1-61.9-second-room.png": "6fe534abcc22fd849cf4d0d923aef891c77486e69160a829d549759200f0c75f",
+    "149-v1-61.4-second-room.png": "d9d120d1656788fd612f1d1216f0bb4954b1e89eaf7fa195b75c4066e70bea14",
+    "149-v1-61.5-second-room.png": "ae1ade8cda1996472c33bd560b497af81e76ddf6a0f692fe3adaa080f68a77f9"
+  },
+  "limits": [
+    "Background61.9s aligned by pillar; foreground actors and compression may differ.",
+    "Limited simplified main-particle model; ignores lights/random area; not a native blend/interpolation proof.",
+    "Forest parallax may differ from pillar alignment; all residuals remain large, so this is not a definitive choice."
+  ]
+}

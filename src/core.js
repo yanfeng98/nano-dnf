@@ -1769,6 +1769,16 @@
       height: nativeGroundX(60), horizontal: true };
   }
 
+  function goblinFireProjectile() {
+    // Audit159: X300 projects to337.5px/s; gravity200 projects to225px/s².
+    // The measured y(x) curvature supports this gravity interpretation.
+    // Upward10deg is the PTL-angle interpretation, not a unique video launch fit.
+    var speed = nativeGroundX(300);
+    return { nativeObject: 30047, speed: speed, radius: 9, life: 3,
+      maxDistance: speed * 3, originX: nativeGroundX(20), height: nativeGroundX(60),
+      horizontal: true, initialVy: -speed * Math.tan(10 * Math.PI / 180), gravity: nativeGroundX(200) };
+  }
+
   var ENEMY_TYPES = {
     grunt: {
       /* 录像里出现最多的那一只：`人型 Lv4 哥布林`。 */
@@ -1789,7 +1799,7 @@
       knockbackX: 150
     },
     /*
-     * **换色的哥布林：同一套十七帧动作、同一个兵种，只是换了一张皮。**
+     * **青/赤哥布林共用帧布局，但其MOB声明为远程，并非近战兵种换色。**
      *
      * 这一个是业主连说两次「怪物少」之后补上的。量出来的答案不是"数量不够"
      * （录像同屏 2–4 只，本作正房 3 只，对得上），而是**三只长得一模一样** ——
@@ -1829,18 +1839,21 @@
       label: "赤哥布林",
       race: "人型",
       level: 4,
-      behavior: "melee",
+      behavior: "ranged",
       maxHp: 32,
       xp: 10,
       width: 33,
       height: 53,
       speed: 62,
       damage: 6,
-      attackRange: 14,
+      // Existing ranged spacing/attack cadence remain provisional.
+      attackRange: 178,
+      keepRange: 118,
       attackWindup: 0.28,
       attackDuration: 0.5,
       attackCooldown: 1.05,
-      knockbackX: 150
+      knockbackX: 150,
+      projectile: goblinFireProjectile()
     },
     /*
      * 胆小哥布林: the same melee rank and file, but it breaks sooner and comes
@@ -1880,7 +1893,7 @@
       label: "诅咒之赤哥布林",
       race: "人型",
       level: 4,
-      behavior: "melee",
+      behavior: "ranged",
       champion: "dark",
       maxHp: 40,
       xp: 14,
@@ -1888,11 +1901,14 @@
       height: 53,
       speed: 62,
       damage: 7,
-      attackRange: 14,
+      // Existing ranged spacing/attack cadence remain provisional.
+      attackRange: 178,
+      keepRange: 118,
       attackWindup: 0.28,
       attackDuration: 0.48,
       attackCooldown: 1.1,
-      knockbackX: 130
+      knockbackX: 130,
+      projectile: goblinFireProjectile()
     },
     burningThrower: {
       /* 录像那块条上念到过的名字；行为就是投掷哥布林那一套，加一圈火光。 */
@@ -7807,7 +7823,8 @@
        */
       z: enemy.z || 0,
       vx: (spec.horizontal ? enemy.facing : dx / length) * spec.speed,
-      vy: spec.horizontal ? 0 : (dy / length) * spec.speed,
+      vy: spec.initialVy !== undefined ? spec.initialVy : (spec.horizontal ? 0 : (dy / length) * spec.speed),
+      gravity: spec.gravity || 0,
       radius: spec.radius,
       damage: enemy.damage,
       life: spec.life,
@@ -7826,7 +7843,10 @@
     state.projectiles.forEach(function (shot) {
       shot.life -= dt;
       var stepX = shot.vx * dt;
-      var stepY = shot.vy * dt;
+      var gravity = shot.gravity || 0;
+      // Exact constant-acceleration integration is independent of frame partition.
+      var stepY = shot.vy * dt + gravity * dt * dt / 2;
+      shot.vy += gravity * dt;
       shot.x += stepX;
       shot.y += stepY;
       shot.traveled += Math.sqrt(stepX * stepX + stepY * stepY);

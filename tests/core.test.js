@@ -11276,7 +11276,7 @@ for(const [type,row] of [['coward',1],['goblinBlue',6],['goblinRed',7],['cursedR
   assert.deepEqual(source.motions.walk.frames,[11,12,13,14,15,16]);
   state.enemies=[enemy];enemy.attackDuration=.52;
   // Pose-only fixture uses native160ms release; real Core timing is checked separately.
-  if(type==='goblinBlue')enemy.attackWindup=.16;
+  if(type!=='coward')enemy.attackWindup=.16;
   function frame(){
    const calls=[];Render.render(recordingContext(calls),state,{sprites:{monsters:sheet}});
    const draw=calls.find(c=>c[0]==='drawImage'&&c[1]===sheet&&c[4]===360&&c[5]===420);
@@ -12184,7 +12184,8 @@ test("monster routing and collision share the native pillar footprint", () => {
   const p=s.props.find(p=>p.nativePillar?.x===506);s.props=[p];
   const x=506*1.125/Core.CAMERA.zoom;
   s.player.x=x+direction*110;s.player.z=p.sortZ;
-  const enemy=Core.createEnemy(s,"goblinRed",x-direction*110,p.sortZ,6);s.enemies=[enemy];
+  const enemy=Core.createEnemy(s,"grunt",x-direction*110,p.sortZ,6);s.enemies=[enemy];
+  assert.equal(enemy.behavior,"melee","routing fixture needs a pursuing actor; ranged actors can hold their firing distance");
   for(let frame=0;frame<600;frame++){
     Core.step(s,{});
     const forbidden=Core.propObstacle(p,enemy);
@@ -12664,4 +12665,57 @@ test('ice atlas preserves all eight native frame pixels without clipping',()=>{
   assert.equal(crypto.createHash('sha256').update(pixels).digest('hex'),f.cellRGBAsha256);
   assert.deepEqual(f.pasteXY,f.offset.map((v,i)=>32+v+f.aniXY[i]));
  }
+});
+
+
+for(const type of ['goblinRed','cursedRed'])test(`${type}: AI emits fire with gravity and native release pose`,()=>{
+ const s=lastRoomState(34),e=Core.createEnemy(s,type,500),body={width:13320,height:4620};
+ s.intro=null;s.transition=s.hitStop=0;s.props=[];s.enemies=[e];s.projectiles=[];
+ s.room.pendingWave=[];s.room.pendingWaves=[];s.player.x=e.x+150;s.player.invuln=Infinity;e.z=s.player.z;e.attackCooldown=0;
+ for(let i=0;i<60&&!s.projectiles.length;i++)Core.step(s,{});
+ assert.equal(s.projectiles.length,1,'actual AI selects a fire attack');const q=s.projectiles[0];
+ assert.equal(q.nativeObject,30047);assert.equal(q.maxLife,3);assert.ok(Math.abs(q.vx*Core.CAMERA.zoom-337.5)<1e-9);
+ assert.ok(Math.abs(q.gravity*Core.CAMERA.zoom-225)<1e-9);
+ const calls=[];Render.render(recordingContext(calls),s,{sprites:{monsters:body}});
+ const draw=calls.find(c=>c[0]==='drawImage'&&c[1]===body);assert.ok(draw);assert.equal(draw[2]/360,2);
+});
+
+test('fire motion preserves the measured curvature under different update partitions and target jumps',()=>{
+ const states=[];
+ for(const jump of [0,100])for(const dt of [1/60,.05]){
+  const s=lastRoomState(34),e=Core.createEnemy(s,'goblinRed',500);e.facing=1;
+  s.player.x=10000;s.player.y=Core.ARENA.groundY-jump;const q=Core.spawnProjectile(s,e);assert.ok(q);
+  const origin={x:q.x,y:q.y,vy:q.vy};for(let i=0;i<Math.round(.3/dt);i++)Core.updateProjectiles(s,dt);
+  assert.ok(Math.abs((q.y-origin.y)-origin.vy*.3-q.gravity*.3*.3/2)<1e-9);
+  states.push([q.x,q.y,q.vy]);
+ }
+ for(const values of states)values.forEach((value,i)=>assert.ok(Math.abs(value-states[0][i])<1e-9));
+});
+
+
+test('fire trajectory curvature is compatible with ten measured video fronts',()=>{
+ const proof=require('../docs/reference-evidence/159-fire-curve.json');
+ const s=lastRoomState(34),e=Core.createEnemy(s,'goblinRed',500),q=Core.spawnProjectile(s,e);assert.ok(q);
+ const a=q.gravity/(2*q.vx*q.vx*Core.CAMERA.zoom);
+ const xs=proof.samples.map(p=>p.correctedX-proof.samples[0].correctedX),ys=proof.samples.map(p=>p.correctedY);
+ const zs=ys.map((y,i)=>y-a*xs[i]*xs[i]),mx=xs.reduce((a,b)=>a+b)/xs.length,mz=zs.reduce((a,b)=>a+b)/zs.length;
+ const b=xs.reduce((sum,x,i)=>sum+(x-mx)*(zs[i]-mz),0)/xs.reduce((sum,x)=>sum+(x-mx)**2,0),c=mz-b*mx;
+ for(let i=0;i<xs.length;i++)assert.ok(Math.abs(ys[i]-(a*xs[i]*xs[i]+b*xs[i]+c))<2,'source front residual within assumed2px');
+});
+
+test('fire atlas preserves native cells and the visible trail uses original bitmaps',()=>{
+ const proof=require('../assets/goblin-fire.json'),crypto=require('node:crypto');
+ const atlas=decodeRgbaPng(path.join(__dirname,'../assets/goblin-fire.png'));
+ assert.deepEqual([atlas.width,atlas.height],[1152,128]);assert.equal(proof.objectId,30047);
+ assert.deepEqual(proof.primaryAnimationData.paths,[],'native primary object is invisible; art is a particle candidate');
+ for(const f of proof.frames){const pixels=Buffer.alloc(128*128*4);
+  for(let y=0;y<128;y++)atlas.pixels.copy(pixels,y*128*4,(y*1152+f.ordinal*128)*4,(y*1152+(f.ordinal+1)*128)*4);
+  assert.equal(crypto.createHash('sha256').update(pixels).digest('hex'),f.cellRGBAsha256);
+  assert.deepEqual(f.pasteXY,f.offset.map((v,i)=>64+v+f.aniXY[i]));
+ }
+ const s=lastRoomState(34),e=Core.createEnemy(s,'goblinRed',500),sheet={width:1152,height:128};
+ e.facing=1;s.player.x=10000;const q=Core.spawnProjectile(s,e);for(let i=0;i<18;i++)Core.updateProjectiles(s,Core.DT);
+ const calls=[];Render.render(recordingContext(calls),s,{sprites:{goblinFire:sheet}});
+ const draws=calls.filter(c=>c[0]==='drawImage'&&c[1]===sheet);
+ assert.deepEqual(draws.map(c=>c.slice(2,6)),[...Array(4).fill(1),...Array(12).fill(0)].map(i=>[i*128,0,128,128]));
 });
