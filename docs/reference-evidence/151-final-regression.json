@@ -1,0 +1,33 @@
+{
+  "pid": 241277,
+  "started": 1794789541.9457629,
+  "finished": 1794790030.7305276,
+  "unitExitCode": 0,
+  "browserExitCode": 0,
+  "inputs": {
+    "src/core.js": "4366e69e875b62e3c4138fae39ab081a2f688c3dd8fb0e0bbaa661d206ebc538",
+    "src/render.js": "eb3f0f0b6b1afa99fdf63a37e2da766be70cf892b79b4819f7eb687ca9109fce",
+    "src/main.js": "4bb0066760c37e103e0d36fd227531045f931e82ab06f621576b536843e86b26",
+    "package.json": "288415afb79d13f3d576408a78fad8cc3da47f54be1f911497f91ad8d83bc499",
+    "tests/browser/keyboard-policy.cjs": "ff172471c06816cb872711207475e65c94acd8bd87718442ea39c4b241f1117f",
+    "tests/browser/playability.mjs": "a2c6e2118faaf72e8ae9a215b9bab7b096b012b745087d4d143051d567394641",
+    "tests/browser-keyboard-policy.test.js": "531db0bff42af8da1468a2173b01f8adc9197903e66e381144bd179022d6ec5c",
+    "tests/browser-pass-selection.test.js": "cf51b52bea8ffce421dde5b10dc51cc61b5c0429f1c8491c4f543d8377fa345f",
+    "tests/browser/starting-profile.mjs": "1224629f8890c852d6f008c604705344058f9d3aeaddd57de3d736f4ad7511b0",
+    "tests/recording-entry.test.js": "5804da4f614b8dc3292607e0bd50b3c320a4f8f63225d1aaef973e44ad682611",
+    "tests/core.test.js": "a17df1a4060c7fc41013cce8a259b34294b0e7e74b671e349f5a546ea086ac38",
+    "tests/browser/room42-roster.mjs": "746843e247d689ab4743b86b84afabeeb4459d96e18dbfc708db892254c4bd1f",
+    "tests/browser/recorded-roster.mjs": "579ec7c1df09695f22be7a0d9baa2ca5ddfdf781b456b15451c957fbe3babce0",
+    "tests/browser/room43-roster.mjs": "07c083417a3f4eec1944ba82bb26ba1ea0b1a7a1313a8fce0d4269646539bbd0",
+    "tests/browser/room33-roster.mjs": "a619616571a5fd2cb119722718d2b6e369772d8124bc90615658fb1e8da95aee",
+    "tests/browser/room23-roster.mjs": "a22ad86672a7ef0bfe93f6ccf3217e37f0484a42d914e75cb7634b4c641d8106",
+    "tests/browser/room13-roster.mjs": "60b5123734d5346b41383e1fe5cc41df357e1ef240cc530b2664f7e7292bc24c",
+    "tests/browser/room24-roster.mjs": "9175b624daf3e694e8bff3e0c4485517655d6b4d87a1a9a4cf6f663297e3381f",
+    "scripts/capture-reference-rooms.mjs": "01cd6097ee49eb999a0763aecccd6108037ee24f5f9cff795ebf7e8f50ffaf2a",
+    "tests/browser/lord-roster.mjs": "3aa50397eab59d5059818e46244e147febe4b4cbb14e5031e709e8fa90dbb84a",
+    "tests/browser/ordinary-second-roster.mjs": "c7a80bfdab9f9ceb4900a24016b725e8aff2c6b74e2fba579ea33d46965e0807",
+    "scripts/align-reference-log-ledger.py": "5dbfdb3db5fcd9ca901de63b84f2623086956aff7c278710c23bd694e49b6ef6",
+    "scripts/inspect-reference-v1-second-room.py": "210ec029524ddd59eca77078f94950f73457123a8d979b06fc624b3ceb9fc128"
+  },
+  "inputsUnchanged": true
+}

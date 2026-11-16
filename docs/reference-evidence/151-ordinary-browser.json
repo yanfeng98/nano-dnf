@@ -1,0 +1,72 @@
+{
+  "url": "http://127.0.0.1:34891/?seed=1",
+  "stage": "mirkwood",
+  "initialCount": 8,
+  "initialPending": 0,
+  "deaths": [
+    {
+      "type": "caster",
+      "level": 4,
+      "configuredXP": 40,
+      "paidXP": 40,
+      "dead": true
+    },
+    {
+      "type": "grunt",
+      "level": 4,
+      "configuredXP": 40,
+      "paidXP": 40,
+      "dead": true
+    },
+    {
+      "type": "grunt",
+      "level": 4,
+      "configuredXP": 40,
+      "paidXP": 40,
+      "dead": true
+    },
+    {
+      "type": "goblinRed",
+      "level": 4,
+      "configuredXP": 40,
+      "paidXP": 40,
+      "dead": true
+    },
+    {
+      "type": "grunt",
+      "level": 4,
+      "configuredXP": 40,
+      "paidXP": 40,
+      "dead": true
+    },
+    {
+      "type": "grunt",
+      "level": 4,
+      "configuredXP": 40,
+      "paidXP": 40,
+      "dead": true
+    },
+    {
+      "type": "grunt",
+      "level": 4,
+      "configuredXP": 40,
+      "paidXP": 40,
+      "dead": true
+    },
+    {
+      "type": "goblinBlue",
+      "level": 4,
+      "configuredXP": 40,
+      "paidXP": 40,
+      "dead": true
+    }
+  ],
+  "totalPaidXP": 320,
+  "cleared": true,
+  "victory": false,
+  "pending": 0,
+  "errors": [],
+  "limits": [
+    "Eight exit-bounded credited deaths restored; existing positions, activation timing, AI and progression are not validated by this probe."
+  ]
+}

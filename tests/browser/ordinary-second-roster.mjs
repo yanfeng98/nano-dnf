@@ -6,7 +6,7 @@ import http from 'node:http';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../..');
-const out=process.env.ROSTER_OUT || '/tmp/nano149-ordinary-second-roster';
+const out=process.env.ROSTER_OUT || '/tmp/nano151-ordinary-second-roster';
 fs.mkdirSync(out,{recursive:true});
 const server=http.createServer((request,response)=>{
  const pathname=new URL(request.url,'http://localhost').pathname;
@@ -50,16 +50,16 @@ try {
  });
  fs.writeFileSync(path.join(out,'probe.json'),JSON.stringify(result,null,2)+'\n');
  assert.equal(result.stage,'mirkwood');assert.ok(result.cleared);
- assert.equal(result.initialCount,6);assert.equal(result.initialPending,0);
+ assert.equal(result.initialCount,8);assert.equal(result.initialPending,0);
  assert.equal(result.pending,0);
- assert.equal(result.deaths.length,6);
- assert.equal(result.totalPaidXP,240);
+ assert.equal(result.deaths.length,8);
+ assert.equal(result.totalPaidXP,320);
  const counts={};for(const d of result.deaths)counts[d.type]=(counts[d.type]||0)+1;
- assert.deepEqual(counts,{caster:1,grunt:4,goblinRed:1});
+ assert.deepEqual(counts,{caster:1,grunt:5,goblinRed:1,goblinBlue:1});
  for(const d of result.deaths){assert.ok(d.dead);assert.equal(d.level,4);assert.equal(d.configuredXP,40);assert.equal(d.paidXP,40);}
- for(const t of ['caster','grunt','goblinRed'])assert.ok(result.deaths.some(d=>d.type===t));
+ for(const t of ['caster','grunt','goblinRed','goblinBlue'])assert.ok(result.deaths.some(d=>d.type===t));
  assert.deepEqual(errors,[]);
- result.errors=errors;result.limits=['Six credited deaths restored; existing positions, activation timing, AI and progression are not validated by this probe.'];
+ result.errors=errors;result.limits=['Eight exit-bounded credited deaths restored; existing positions, activation timing, AI and progression are not validated by this probe.'];
  fs.writeFileSync(path.join(out,'result.json'),JSON.stringify(result,null,2)+'\n');
  await page.screenshot({path:path.join(out,'clear.png')});
  console.log(JSON.stringify(result));

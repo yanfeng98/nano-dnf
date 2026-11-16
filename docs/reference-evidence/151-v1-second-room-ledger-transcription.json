@@ -1,0 +1,184 @@
+{
+  "video": "00001-\u5e7d\u6697\u5bc6\u6797.mp4",
+  "method": "Manual eight-row transcription, with source frames. Upgrade jump retains the unique SP/40/40/SP/40 block, even though no individual SP token is unique.",
+  "snapshots": [
+    {
+      "time": 76,
+      "frame": "134-v1-76-second-room.png",
+      "sha256": "6e389de500ef0fe61f52bcb5b04351cd3a87471a28bf8f837144226e4ce5d328",
+      "lines": [
+        "xp:40",
+        "sp:1",
+        "xp:80",
+        "coin:49",
+        "sp:1",
+        "xp:40",
+        "item:hardener",
+        "item:coal"
+      ]
+    },
+    {
+      "time": 82.5,
+      "frame": "134-v1-82.5-second-room.png",
+      "sha256": "01d0bf332f91bdf26b118c59313640d1afc2d038f20ff29c215d3332f08150d5",
+      "lines": [
+        "xp:80",
+        "coin:49",
+        "sp:1",
+        "xp:40",
+        "item:hardener",
+        "item:coal",
+        "sp:1",
+        "xp:40"
+      ]
+    },
+    {
+      "time": 83.5,
+      "frame": "134-v1-83.5-second-room.png",
+      "sha256": "f84d7d0c459c528f9479784f089f06e3b503de4962e0226a79f5362907c7e4a1",
+      "lines": [
+        "xp:40",
+        "item:hardener",
+        "item:coal",
+        "sp:1",
+        "xp:40",
+        "xp:40",
+        "sp:1",
+        "xp:40"
+      ]
+    },
+    {
+      "time": 96.5,
+      "frame": "134-v1-96.5-second-room.png",
+      "sha256": "9707964d90c352824a10d0057123dfc42292f7951b1a7dca720353fb5f3f068b",
+      "lines": [
+        "xp:40",
+        "item:hardener",
+        "item:coal",
+        "sp:1",
+        "xp:40",
+        "xp:40",
+        "sp:1",
+        "xp:40"
+      ]
+    },
+    {
+      "time": 96.86666666666667,
+      "frame": "149-v1-96.8667-second-room.png",
+      "sha256": "0452104ac746cb05a87b84155cd43ab9dc0d7082b113f5af81e0831d7439cf89",
+      "lines": [
+        "sp:1",
+        "xp:40",
+        "xp:40",
+        "sp:1",
+        "xp:40",
+        "message:level4",
+        "xp:40",
+        "xp:40"
+      ]
+    },
+    {
+      "time": 100,
+      "frame": "149-v1-100-second-room.png",
+      "sha256": "034bf3d335f5420fb4529cb70e8ae6ec9f4e104f579eb28cd50cce00382134ca",
+      "lines": [
+        "xp:40",
+        "sp:1",
+        "xp:40",
+        "message:level4",
+        "xp:40",
+        "xp:40",
+        "sp:1",
+        "xp:40"
+      ]
+    },
+    {
+      "time": 113,
+      "frame": "149-v1-113-second-room.png",
+      "sha256": "0c68ed51da6f427e6ab277a9a9e7c94862658856c56d1b7d802119d0256b87bf",
+      "lines": [
+        "sp:1",
+        "xp:40",
+        "message:level4",
+        "xp:40",
+        "xp:40",
+        "sp:1",
+        "xp:40",
+        "xp:40"
+      ]
+    },
+    {
+      "time": 114.5,
+      "frame": "149-v1-114.5-second-room.png",
+      "sha256": "7e37ca380940b9cadbf1801d03feaf94f975e29f280fda34b2c3703a8769577f",
+      "lines": [
+        "xp:40",
+        "message:level4",
+        "xp:40",
+        "xp:40",
+        "sp:1",
+        "xp:40",
+        "xp:40",
+        "xp:40"
+      ]
+    },
+    {
+      "time": 121,
+      "frame": "149-v1-121-second-room.png",
+      "sha256": "25fd81591f30bf3767b191596165993d086f0921b962f6e436ae7ab21890fa1e",
+      "lines": [
+        "xp:40",
+        "message:level4",
+        "xp:40",
+        "xp:40",
+        "sp:1",
+        "xp:40",
+        "xp:40",
+        "xp:40"
+      ]
+    },
+    {
+      "time": 122,
+      "frame": "149-v1-122-second-room.png",
+      "sha256": "bc50bd81c0ac58bd79d117648b9557e237ef530bcf76ce7b672cb8af9474a174",
+      "lines": [
+        "xp:40",
+        "message:level4",
+        "xp:40",
+        "xp:40",
+        "sp:1",
+        "xp:40",
+        "xp:40",
+        "xp:40"
+      ]
+    }
+  ],
+  "crossChecks": [
+    "112s target captionLv4 blue goblin in the same cell.",
+    "110\u2013113s club/brown-pants green goblin overlaps blue goblin at east gate.",
+    "Native ordinary Event/Goblin vs thrower body0+equipment composite distinguishes the late green actor.",
+    "115s open gate and122s player-marker shift independently bound the room."
+  ],
+  "limits": [
+    "A unique compound retained context is required; repeated XP lines alone do not anchor a scroll.",
+    "No physical coordinates, HP, AI, reward formula or progression threshold is inferred."
+  ],
+  "roomBoundary": {
+    "cell": [
+      2,
+      0
+    ],
+    "lastCreditAt": 114.5,
+    "clearGateVisibleAt": 115,
+    "nextCell": [
+      1,
+      0
+    ],
+    "nextCellVisibleAt": 122,
+    "playerMarkerX": {
+      "121": 669.5,
+      "122": 649.25
+    }
+  },
+  "correction": "149 six-death total stopped at100s, before the room was cleared. Two more40 credits at113/114.5 precede the actual cell transition; full room has8 deaths/320XP."
+}

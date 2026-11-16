@@ -2541,10 +2541,11 @@
           ]
         },
         {
-          // V1 recorded second cell(2,0), before82.5s first death:
-          // four ordinary goblins, one thrower and one red goblin, allLv4.
-          // Six40 credits finish at100s. Existing slot positions remain
-          // provisional; do not infer native map identity or activation rules.
+          // V1 second cell(2,0),76s entry through122s next-cell transition:
+          // five ordinary goblins, one thrower, one red and one blue, allLv4.
+          // Eight40 credits finish at114.5s; stopping at100s missed two actors.
+          // Existing slots stay provisional. Added X values are native e203
+          // candidates; createEnemy still clamps to the uncalibrated room width.
           name: "雾林岔口",
           kind: "corr",
           enemies: [
@@ -2553,9 +2554,11 @@
             { type: "grunt", x: 700, level: 4, xp: 40 },
             { type: "goblinRed", x: 759, level: 4, xp: 40 },
             { type: "grunt", x: 70, level: 4, xp: 40 },
-            { type: "grunt", x: 900, level: 4, xp: 40 }
+            { type: "grunt", x: 900, level: 4, xp: 40 },
+            { type: "grunt", x: nativeGroundX(1140), level: 4, xp: 40 },
+            { type: "goblinBlue", x: nativeGroundX(1532), level: 4, xp: 40 }
           ],
-          cap: 6,
+          cap: 8,
           props: [
             { piece: "trunkMossy", x: 260, depth: 1 },
             { piece: "pillar", x: 470, depth: 0.66 },
@@ -3459,7 +3462,7 @@
     boss: [0, 2],
     entryRoom: 0,
     bossRoom: 5,
-    // V1 76–100s second cell: fixed credited roster, independent of seed.
+    // V1 second cell, bounded by the122s transition: fixed roster independent of seed.
     pins: { "2,0": 9 },
     northX: { "1,1": 0.492, "1,2": 0.469, "2,1": 0.673, "3,1": 0.5 },
     links: [

@@ -1,0 +1,120 @@
+[
+  {
+    "kind": "grunt",
+    "box": [
+      242,
+      188,
+      289,
+      264
+    ],
+    "layers": [
+      {
+        "layer": 0,
+        "ani": "monster/goblin/animation_goblin2/stay.ani",
+        "image": "Monster/Goblin/Event/Goblin.img",
+        "frame": 0,
+        "offset": [
+          77,
+          84
+        ],
+        "xy": [
+          -91,
+          -152
+        ],
+        "pack": "/mnt/c/dnf/\u5730\u4e0b\u57ce\u4e0e\u52c7\u58eb/ImagePacks2/sprite_monster_goblin_event.NPK",
+        "entry": "sprite/monster/goblin/event/goblin.img"
+      }
+    ]
+  },
+  {
+    "kind": "caster",
+    "box": [
+      232,
+      184,
+      288,
+      264
+    ],
+    "layers": [
+      {
+        "layer": -50,
+        "ani": "equipment/monster/goblin/acc2animation/stay_200.ani",
+        "image": "Monster/Goblin/equipment/acc2.img",
+        "frame": 0,
+        "offset": [
+          67,
+          80
+        ],
+        "xy": [
+          -91,
+          -152
+        ],
+        "pack": "/mnt/c/dnf/\u5730\u4e0b\u57ce\u4e0e\u52c7\u58eb/ImagePacks2/sprite_monster_goblin_equipment.NPK",
+        "entry": "sprite/monster/goblin/equipment/acc2.img"
+      },
+      {
+        "layer": 0,
+        "ani": "monster/goblin/animation_thrower/stay.ani",
+        "image": "monster/goblin/body0.img",
+        "frame": 0,
+        "offset": [
+          77,
+          84
+        ],
+        "xy": [
+          -91,
+          -152
+        ],
+        "pack": "/mnt/c/dnf/\u5730\u4e0b\u57ce\u4e0e\u52c7\u58eb/ImagePacks2/sprite_monster_goblin.NPK",
+        "entry": "sprite/monster/goblin/body0.img"
+      },
+      {
+        "layer": 100,
+        "ani": "equipment/monster/goblin/tcc2animation/stay__100.ani",
+        "image": "Monster/Goblin/equipment/tcc2.img",
+        "frame": 0,
+        "offset": [
+          90,
+          105
+        ],
+        "xy": [
+          -91,
+          -152
+        ],
+        "pack": "/mnt/c/dnf/\u5730\u4e0b\u57ce\u4e0e\u52c7\u58eb/ImagePacks2/sprite_monster_goblin_equipment.NPK",
+        "entry": "sprite/monster/goblin/equipment/tcc2.img"
+      },
+      {
+        "layer": 100,
+        "ani": "equipment/monster/goblin/gcc1animation/stay_100.ani",
+        "image": "Monster/Goblin/Equipment/gcc1.img",
+        "frame": 0,
+        "offset": [
+          85,
+          119
+        ],
+        "xy": [
+          -91,
+          -152
+        ],
+        "pack": "/mnt/c/dnf/\u5730\u4e0b\u57ce\u4e0e\u52c7\u58eb/ImagePacks2/sprite_monster_goblin_equipment.NPK",
+        "entry": "sprite/monster/goblin/equipment/gcc1.img"
+      },
+      {
+        "layer": 300,
+        "ani": "equipment/monster/goblin/hcc3animation/stay_300.ani",
+        "image": "Monster/Goblin/Equipment/hcc3.img",
+        "frame": 0,
+        "offset": [
+          100,
+          80
+        ],
+        "xy": [
+          -91,
+          -152
+        ],
+        "pack": "/mnt/c/dnf/\u5730\u4e0b\u57ce\u4e0e\u52c7\u58eb/ImagePacks2/sprite_monster_goblin_equipment.NPK",
+        "entry": "sprite/monster/goblin/equipment/hcc3.img"
+      }
+    ]
+  }
+]
