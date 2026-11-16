@@ -11299,6 +11299,54 @@ test('coward blue and red rows retain the native client frame pixels',()=>{
  }
 });
 
+for(const type of ['caster','burningThrower']){
+ test(`${type}: native equipment composite follows walk and throw poses`,()=>{
+  const state=lastRoomState(34),enemy=Core.createEnemy(state,type,600);
+  const old={width:13320,height:4620},body={width:6480,height:420};state.enemies=[enemy];
+  enemy.attackDuration=.8;enemy.attackWindup=.5;
+  function frame(){
+   const calls=[];Render.render(recordingContext(calls),state,{sprites:{monsters:old,casterReference:body}});
+   const draw=calls.find(c=>c[0]==='drawImage'&&c[1]===body);
+   assert.ok(draw,`${type} draws the green body with native basket/clothes`);
+   assert.ok(Math.abs(draw[8]/360-enemy.height/80)<1e-9,'scale uses measured composite height');
+   return draw[2]/360;
+  }
+  for(const [elapsed,expected] of [[0,7],[.26,8],[.499,8],[.501,9],[.58,10],[.7,11]]){
+   enemy.attackTimer=.8-elapsed;assert.equal(frame(),expected,`${type} throw at ${elapsed}s`);
+  }
+  enemy.attackTimer=0;enemy.vx=10;
+  for(const [time,expected] of [[0,1],[.1,2],[.5,6],[.6,1]]){state.time=time;assert.equal(frame(),expected);}
+  enemy.vx=0;assert.equal(frame(),0);enemy.knockdown=.5;assert.equal(frame(),16);
+ });
+}
+
+test('native caster cells preserve component offsets, declared layers and extracted pixels',()=>{
+ const proof=require('../assets/caster-reference.json'),crypto=require('node:crypto');
+ const atlas=decodeRgbaPng(path.join(__dirname,'../assets/caster-reference.png'));
+ assert.deepEqual([atlas.width,atlas.height],[6480,420]);assert.deepEqual(proof.anchor,[180,260]);
+ assert.equal(proof.standHeight,80);assert.equal(proof.throwFrameField,2);
+ assert.deepEqual(proof.frames[0].layers.map(l=>l.layer),[-50,0,100,100,300]);
+ assert.deepEqual(proof.frames[7].layers.map(l=>l.layer),[-50,0,100,100,300,400]);
+ for(const f of proof.frames){
+  for(const l of f.layers)assert.deepEqual(l.pasteXY,l.offset.map((x,i)=>x+l.aniXY[i]+proof.sharedTranslation[i]));
+  const pixels=Buffer.alloc(360*420*4);
+  for(let y=0;y<420;y++)atlas.pixels.copy(pixels,y*360*4,(y*atlas.width+f.cell*360)*4,(y*atlas.width+(f.cell+1)*360)*4);
+  assert.equal(crypto.createHash('sha256').update(pixels).digest('hex'),f.rgbaSHA256,`${f.pose}/${f.ordinal} composite pixels`);
+ }
+});
+
+test('caster displays the declared native throw frame when Core emits the real stone',()=>{
+ const state=lastRoomState(34),enemy=Core.createEnemy(state,'caster',600),body={width:6480,height:420};
+ state.intro=null;state.transition=state.hitStop=0;state.enemies=[enemy];state.projectiles=[];
+ state.player.x=300;state.player.invuln=Infinity;enemy.z=state.player.z;
+ enemy.attackKind='shoot';enemy.attackTimer=enemy.attackDuration=.8;enemy.attackWindup=.5;enemy.attackHitDone=false;
+ for(let i=0;i<40&&!state.projectiles.length;i++)Core.step(state,{});
+ assert.equal(state.projectiles.length,1,'uses the real Core projectile emission path');
+ assert.ok(enemy.attackHitDone);const calls=[];Render.render(recordingContext(calls),state,{sprites:{casterReference:body}});
+ const draw=calls.find(c=>c[0]==='drawImage'&&c[1]===body);assert.ok(draw);
+ assert.equal(draw[2]/360,9,'cell9 is attack ordinal2 from the native throw-frame field');
+});
+
 test('observed target widths distinguish stage, monster and level',()=>{
  const atlas={width:3200,height:58};
  const cases=[['mirkwood','grunt',4,181],['mirkwood','goblinBlue',4,144],['mirkwood','goblinRed',4,144],

@@ -1,0 +1,2660 @@
+{
+  "mob": "monster/goblin/goblinthrower.mob",
+  "mobSHA256": "12167f8807586926eedd002473d62c0e096e66bd0b67c07738cfb877fa969e2c",
+  "sheet": [
+    6480,
+    420
+  ],
+  "cell": [
+    360,
+    420
+  ],
+  "anchor": [
+    180.0,
+    260
+  ],
+  "nativeGround": [
+    9.0,
+    8
+  ],
+  "sharedTranslation": [
+    171,
+    252
+  ],
+  "standHeight": 80,
+  "throwFrameField": 2,
+  "equipment": [
+    "equipment/monster/goblin/tcc2.equ",
+    "equipment/monster/goblin/acc2.equ",
+    "equipment/monster/goblin/hcc3.equ",
+    "equipment/monster/goblin/gcc1.equ"
+  ],
+  "motions": {
+    "idle": {
+      "range": [
+        0,
+        0
+      ],
+      "milliseconds": [
+        80
+      ],
+      "bodyFrames": [
+        0
+      ]
+    },
+    "walk": {
+      "range": [
+        1,
+        6
+      ],
+      "milliseconds": [
+        100,
+        100,
+        100,
+        100,
+        100,
+        100
+      ],
+      "bodyFrames": [
+        11,
+        12,
+        13,
+        14,
+        15,
+        16
+      ]
+    },
+    "attack": {
+      "range": [
+        7,
+        11
+      ],
+      "milliseconds": [
+        80,
+        80,
+        80,
+        80,
+        200
+      ],
+      "bodyFrames": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ]
+    },
+    "down": {
+      "range": [
+        12,
+        16
+      ],
+      "milliseconds": [
+        80,
+        80,
+        10000,
+        10000,
+        500
+      ],
+      "bodyFrames": [
+        5,
+        6,
+        7,
+        8,
+        9
+      ]
+    },
+    "rise": {
+      "range": [
+        17,
+        17
+      ],
+      "milliseconds": [
+        150
+      ],
+      "bodyFrames": [
+        10
+      ]
+    }
+  },
+  "frames": [
+    {
+      "cell": 0,
+      "pose": "idle",
+      "ordinal": 0,
+      "bbox": [
+        147,
+        180,
+        203,
+        260
+      ],
+      "layers": [
+        {
+          "layer": -50,
+          "owner": "equipment/monster/goblin/acc2.equ",
+          "ani": "equipment/monster/goblin/acc2animation/stay_200.ani",
+          "aniSHA256": "ce8a6671fbdc0d5f5fef64552d60ede3a4ea471bd493f1d384659ac23777c240",
+          "image": "monster/goblin/equipment/acc2.img",
+          "frame": 0,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "fd34753dfb4133fdb86068af832f10135eb8691b1a92f256b5b6189e368e21d5",
+          "rawRGBAsha256": "0fe8305eb733f88a5ff2e92600e58f5a3498dc92ccd7ac31729f3ec3c24e7d0f",
+          "keyedRGBAsha256": "0fe8305eb733f88a5ff2e92600e58f5a3498dc92ccd7ac31729f3ec3c24e7d0f",
+          "offset": [
+            67,
+            80
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            147,
+            180
+          ]
+        },
+        {
+          "layer": 0,
+          "owner": "monster/goblin/goblinthrower.mob",
+          "ani": "monster/goblin/animation_thrower/stay.ani",
+          "aniSHA256": "d99348de752da670261b66a765b7e0bb507a3463c31bc934c78aea94733e9680",
+          "image": "monster/goblin/body0.img",
+          "frame": 0,
+          "pack": "sprite_monster_goblin.NPK",
+          "imgSHA256": "294c70b816ccdb49e0bd2fa6a323c218887ca3a50927bd2f4b6dd082cbe6d10d",
+          "rawRGBAsha256": "534c67465bb9fa9d5079e73cc1eee79fe48fe385790e70f1f77da73b0a9a2c90",
+          "keyedRGBAsha256": "135c63b5cf7901e24e22f462c0b6b87d7ba04748597b45a285e86b131e31cedb",
+          "offset": [
+            77,
+            84
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            157,
+            184
+          ]
+        },
+        {
+          "layer": 100,
+          "owner": "equipment/monster/goblin/tcc2.equ",
+          "ani": "equipment/monster/goblin/tcc2animation/stay__100.ani",
+          "aniSHA256": "e806716f5540d56c5784eff9909e950502678afdf4ee768fd36a5d08c04f9998",
+          "image": "monster/goblin/equipment/tcc2.img",
+          "frame": 0,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "9a254bdf3cfd782e62efed5e10cdf14cbf1bf1c4a6055a5440ee40e599754045",
+          "rawRGBAsha256": "e1130d21bae22eb4dc66ee7fca06fdefa75bb9aa6e87e2e715726fa415f65072",
+          "keyedRGBAsha256": "e1130d21bae22eb4dc66ee7fca06fdefa75bb9aa6e87e2e715726fa415f65072",
+          "offset": [
+            90,
+            105
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            170,
+            205
+          ]
+        },
+        {
+          "layer": 100,
+          "owner": "equipment/monster/goblin/gcc1.equ",
+          "ani": "equipment/monster/goblin/gcc1animation/stay_100.ani",
+          "aniSHA256": "70be037538f9fee00d73153b9f28a0e8661b35b22ed5c60f5a74dc372495dfae",
+          "image": "monster/goblin/equipment/gcc1.img",
+          "frame": 0,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "ca37c1bbd401f29958d1806f460caff7d67ea3e5294f64017373a66eb0ce35e2",
+          "rawRGBAsha256": "1d8ea74cdc6509692a12dfe95385cc7bad70b763c62807bd930cb0ada11619fd",
+          "keyedRGBAsha256": "1d8ea74cdc6509692a12dfe95385cc7bad70b763c62807bd930cb0ada11619fd",
+          "offset": [
+            85,
+            119
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            165,
+            219
+          ]
+        },
+        {
+          "layer": 300,
+          "owner": "equipment/monster/goblin/hcc3.equ",
+          "ani": "equipment/monster/goblin/hcc3animation/stay_300.ani",
+          "aniSHA256": "7fb565c493a60c566b43c7ac0680b1390163cdf2e52fbd8a3023ec94cf4fb2b3",
+          "image": "monster/goblin/equipment/hcc3.img",
+          "frame": 0,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "edf9197b572ee7ad8be43fdcb1080d29f46c1ca0f11453df874fbf873a9b9350",
+          "rawRGBAsha256": "66ff44d3f261cb18d4ace38a18b4a471a6c5c4e1a78c37d239e6438b05ea24d7",
+          "keyedRGBAsha256": "66ff44d3f261cb18d4ace38a18b4a471a6c5c4e1a78c37d239e6438b05ea24d7",
+          "offset": [
+            100,
+            80
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            180,
+            180
+          ]
+        }
+      ],
+      "rgbaSHA256": "3585b67bfe7a49d59c346fc8ab5238953c3e5a7dc334eb5973bfb0a4eb72d339"
+    },
+    {
+      "cell": 1,
+      "pose": "walk",
+      "ordinal": 0,
+      "bbox": [
+        143,
+        179,
+        199,
+        256
+      ],
+      "layers": [
+        {
+          "layer": -50,
+          "owner": "equipment/monster/goblin/acc2.equ",
+          "ani": "equipment/monster/goblin/acc2animation/move_200.ani",
+          "aniSHA256": "a7d9c0abcd5d7ee3d2b66ca94fe243883f6c1f861c839e631de701759d3cbde8",
+          "image": "monster/goblin/equipment/acc2.img",
+          "frame": 11,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "fd34753dfb4133fdb86068af832f10135eb8691b1a92f256b5b6189e368e21d5",
+          "rawRGBAsha256": "0fe8305eb733f88a5ff2e92600e58f5a3498dc92ccd7ac31729f3ec3c24e7d0f",
+          "keyedRGBAsha256": "0fe8305eb733f88a5ff2e92600e58f5a3498dc92ccd7ac31729f3ec3c24e7d0f",
+          "offset": [
+            63,
+            79
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            143,
+            179
+          ]
+        },
+        {
+          "layer": 0,
+          "owner": "monster/goblin/goblinthrower.mob",
+          "ani": "monster/goblin/animation_thrower/move.ani",
+          "aniSHA256": "91a7ae5e90b5b1bb453d8b263ce2c6bd1731eb7cae4272aa16364b72a87b90f0",
+          "image": "monster/goblin/body0.img",
+          "frame": 11,
+          "pack": "sprite_monster_goblin.NPK",
+          "imgSHA256": "294c70b816ccdb49e0bd2fa6a323c218887ca3a50927bd2f4b6dd082cbe6d10d",
+          "rawRGBAsha256": "1a0f7f855c9d2800a1576a32e6cbf6bac6c51553bcb78d34fd96a7a282a34920",
+          "keyedRGBAsha256": "95dd952499b3c7fc79ea2fbbf83801f9aa23e94ef1f51c55f249dee5aac1a41a",
+          "offset": [
+            76,
+            84
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            156,
+            184
+          ]
+        },
+        {
+          "layer": 100,
+          "owner": "equipment/monster/goblin/tcc2.equ",
+          "ani": "equipment/monster/goblin/tcc2animation/move__100.ani",
+          "aniSHA256": "e7a13353a26541429fef9d2098f6444c7ab3aa8f8f5c1d8cb2a93f23a7eefeab",
+          "image": "monster/goblin/equipment/tcc2.img",
+          "frame": 11,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "9a254bdf3cfd782e62efed5e10cdf14cbf1bf1c4a6055a5440ee40e599754045",
+          "rawRGBAsha256": "8616904800b1539610e33137e58bdd4ea5afd4d37b8472956321bdc87394c085",
+          "keyedRGBAsha256": "8616904800b1539610e33137e58bdd4ea5afd4d37b8472956321bdc87394c085",
+          "offset": [
+            85,
+            104
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            165,
+            204
+          ]
+        },
+        {
+          "layer": 100,
+          "owner": "equipment/monster/goblin/gcc1.equ",
+          "ani": "equipment/monster/goblin/gcc1animation/move_100.ani",
+          "aniSHA256": "c35e7f01bd7d6da4e58cbd2dbdde3777db216bb904a335a9e296b9cbebf09efb",
+          "image": "monster/goblin/equipment/gcc1.img",
+          "frame": 11,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "ca37c1bbd401f29958d1806f460caff7d67ea3e5294f64017373a66eb0ce35e2",
+          "rawRGBAsha256": "ca3be2bdbcbf3dd1f578ca78a122a8b66565a896e45bc46829f15b61734bcd95",
+          "keyedRGBAsha256": "ca3be2bdbcbf3dd1f578ca78a122a8b66565a896e45bc46829f15b61734bcd95",
+          "offset": [
+            82,
+            118
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            162,
+            218
+          ]
+        },
+        {
+          "layer": 300,
+          "owner": "equipment/monster/goblin/hcc3.equ",
+          "ani": "equipment/monster/goblin/hcc3animation/move_300.ani",
+          "aniSHA256": "494c9346bd6a803dd2203497d623b64759cd5f7859c2340fb040b0fcf9677833",
+          "image": "monster/goblin/equipment/hcc3.img",
+          "frame": 11,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "edf9197b572ee7ad8be43fdcb1080d29f46c1ca0f11453df874fbf873a9b9350",
+          "rawRGBAsha256": "c0d3a515627b83be65bdf4bfd90f621aeb5000c24236e1491fb73a2ca251ef17",
+          "keyedRGBAsha256": "c0d3a515627b83be65bdf4bfd90f621aeb5000c24236e1491fb73a2ca251ef17",
+          "offset": [
+            96,
+            79
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            176,
+            179
+          ]
+        }
+      ],
+      "rgbaSHA256": "3d176b7c9b4f95cffae21b9d8b5b542f9d29e092449aec70dba7b311e33cd359"
+    },
+    {
+      "cell": 2,
+      "pose": "walk",
+      "ordinal": 1,
+      "bbox": [
+        144,
+        180,
+        199,
+        256
+      ],
+      "layers": [
+        {
+          "layer": -50,
+          "owner": "equipment/monster/goblin/acc2.equ",
+          "ani": "equipment/monster/goblin/acc2animation/move_200.ani",
+          "aniSHA256": "a7d9c0abcd5d7ee3d2b66ca94fe243883f6c1f861c839e631de701759d3cbde8",
+          "image": "monster/goblin/equipment/acc2.img",
+          "frame": 12,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "fd34753dfb4133fdb86068af832f10135eb8691b1a92f256b5b6189e368e21d5",
+          "rawRGBAsha256": "0fe8305eb733f88a5ff2e92600e58f5a3498dc92ccd7ac31729f3ec3c24e7d0f",
+          "keyedRGBAsha256": "0fe8305eb733f88a5ff2e92600e58f5a3498dc92ccd7ac31729f3ec3c24e7d0f",
+          "offset": [
+            64,
+            80
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            144,
+            180
+          ]
+        },
+        {
+          "layer": 0,
+          "owner": "monster/goblin/goblinthrower.mob",
+          "ani": "monster/goblin/animation_thrower/move.ani",
+          "aniSHA256": "91a7ae5e90b5b1bb453d8b263ce2c6bd1731eb7cae4272aa16364b72a87b90f0",
+          "image": "monster/goblin/body0.img",
+          "frame": 12,
+          "pack": "sprite_monster_goblin.NPK",
+          "imgSHA256": "294c70b816ccdb49e0bd2fa6a323c218887ca3a50927bd2f4b6dd082cbe6d10d",
+          "rawRGBAsha256": "bada1e7b175f077d6082a726e74e6c1bd10e7bc96b783e5b0407b4602f5b68df",
+          "keyedRGBAsha256": "4c3d9210e3e8d7c6684aa726559e8eb52d4ba987696cff3980430fac36fe7a88",
+          "offset": [
+            73,
+            84
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            153,
+            184
+          ]
+        },
+        {
+          "layer": 100,
+          "owner": "equipment/monster/goblin/tcc2.equ",
+          "ani": "equipment/monster/goblin/tcc2animation/move__100.ani",
+          "aniSHA256": "e7a13353a26541429fef9d2098f6444c7ab3aa8f8f5c1d8cb2a93f23a7eefeab",
+          "image": "monster/goblin/equipment/tcc2.img",
+          "frame": 12,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "9a254bdf3cfd782e62efed5e10cdf14cbf1bf1c4a6055a5440ee40e599754045",
+          "rawRGBAsha256": "9f9aa5a913b5581029eb3dc1d9cdbe4eca73b2d0fb03d35acffc142374d2e339",
+          "keyedRGBAsha256": "9f9aa5a913b5581029eb3dc1d9cdbe4eca73b2d0fb03d35acffc142374d2e339",
+          "offset": [
+            84,
+            104
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            164,
+            204
+          ]
+        },
+        {
+          "layer": 100,
+          "owner": "equipment/monster/goblin/gcc1.equ",
+          "ani": "equipment/monster/goblin/gcc1animation/move_100.ani",
+          "aniSHA256": "c35e7f01bd7d6da4e58cbd2dbdde3777db216bb904a335a9e296b9cbebf09efb",
+          "image": "monster/goblin/equipment/gcc1.img",
+          "frame": 12,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "ca37c1bbd401f29958d1806f460caff7d67ea3e5294f64017373a66eb0ce35e2",
+          "rawRGBAsha256": "7df48f6d035e58f04fed33881fad808aed7de6b00d38b46159e22e3e1b6478a4",
+          "keyedRGBAsha256": "7df48f6d035e58f04fed33881fad808aed7de6b00d38b46159e22e3e1b6478a4",
+          "offset": [
+            78,
+            118
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            158,
+            218
+          ]
+        },
+        {
+          "layer": 300,
+          "owner": "equipment/monster/goblin/hcc3.equ",
+          "ani": "equipment/monster/goblin/hcc3animation/move_300.ani",
+          "aniSHA256": "494c9346bd6a803dd2203497d623b64759cd5f7859c2340fb040b0fcf9677833",
+          "image": "monster/goblin/equipment/hcc3.img",
+          "frame": 12,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "edf9197b572ee7ad8be43fdcb1080d29f46c1ca0f11453df874fbf873a9b9350",
+          "rawRGBAsha256": "c0d3a515627b83be65bdf4bfd90f621aeb5000c24236e1491fb73a2ca251ef17",
+          "keyedRGBAsha256": "c0d3a515627b83be65bdf4bfd90f621aeb5000c24236e1491fb73a2ca251ef17",
+          "offset": [
+            96,
+            80
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            176,
+            180
+          ]
+        }
+      ],
+      "rgbaSHA256": "556f7352056f926a3ab45af42fb6677c20296d4c926ed0e8f518bf6074e97390"
+    },
+    {
+      "cell": 3,
+      "pose": "walk",
+      "ordinal": 2,
+      "bbox": [
+        143,
+        181,
+        200,
+        256
+      ],
+      "layers": [
+        {
+          "layer": -50,
+          "owner": "equipment/monster/goblin/acc2.equ",
+          "ani": "equipment/monster/goblin/acc2animation/move_200.ani",
+          "aniSHA256": "a7d9c0abcd5d7ee3d2b66ca94fe243883f6c1f861c839e631de701759d3cbde8",
+          "image": "monster/goblin/equipment/acc2.img",
+          "frame": 13,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "fd34753dfb4133fdb86068af832f10135eb8691b1a92f256b5b6189e368e21d5",
+          "rawRGBAsha256": "0fe8305eb733f88a5ff2e92600e58f5a3498dc92ccd7ac31729f3ec3c24e7d0f",
+          "keyedRGBAsha256": "0fe8305eb733f88a5ff2e92600e58f5a3498dc92ccd7ac31729f3ec3c24e7d0f",
+          "offset": [
+            63,
+            81
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            143,
+            181
+          ]
+        },
+        {
+          "layer": 0,
+          "owner": "monster/goblin/goblinthrower.mob",
+          "ani": "monster/goblin/animation_thrower/move.ani",
+          "aniSHA256": "91a7ae5e90b5b1bb453d8b263ce2c6bd1731eb7cae4272aa16364b72a87b90f0",
+          "image": "monster/goblin/body0.img",
+          "frame": 13,
+          "pack": "sprite_monster_goblin.NPK",
+          "imgSHA256": "294c70b816ccdb49e0bd2fa6a323c218887ca3a50927bd2f4b6dd082cbe6d10d",
+          "rawRGBAsha256": "e3cba52ff65bbf7ca16f84971fff3f60ae14516b89396ff615502ac74cc4be85",
+          "keyedRGBAsha256": "967870fc0220865e0650f697903146a2625b2913d21a10a62a49749842838f41",
+          "offset": [
+            69,
+            88
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            149,
+            188
+          ]
+        },
+        {
+          "layer": 100,
+          "owner": "equipment/monster/goblin/tcc2.equ",
+          "ani": "equipment/monster/goblin/tcc2animation/move__100.ani",
+          "aniSHA256": "e7a13353a26541429fef9d2098f6444c7ab3aa8f8f5c1d8cb2a93f23a7eefeab",
+          "image": "monster/goblin/equipment/tcc2.img",
+          "frame": 13,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "9a254bdf3cfd782e62efed5e10cdf14cbf1bf1c4a6055a5440ee40e599754045",
+          "rawRGBAsha256": "599c6c4a81e38d4aa856b837df3949dc3a394ed249ebc1f3fbbda487a197223d",
+          "keyedRGBAsha256": "599c6c4a81e38d4aa856b837df3949dc3a394ed249ebc1f3fbbda487a197223d",
+          "offset": [
+            84,
+            105
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            164,
+            205
+          ]
+        },
+        {
+          "layer": 100,
+          "owner": "equipment/monster/goblin/gcc1.equ",
+          "ani": "equipment/monster/goblin/gcc1animation/move_100.ani",
+          "aniSHA256": "c35e7f01bd7d6da4e58cbd2dbdde3777db216bb904a335a9e296b9cbebf09efb",
+          "image": "monster/goblin/equipment/gcc1.img",
+          "frame": 13,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "ca37c1bbd401f29958d1806f460caff7d67ea3e5294f64017373a66eb0ce35e2",
+          "rawRGBAsha256": "83c755a52c680dea2077d10714afeeb78e40f1f565d5590ae13c92bc53fd9d14",
+          "keyedRGBAsha256": "83c755a52c680dea2077d10714afeeb78e40f1f565d5590ae13c92bc53fd9d14",
+          "offset": [
+            75,
+            118
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            155,
+            218
+          ]
+        },
+        {
+          "layer": 300,
+          "owner": "equipment/monster/goblin/hcc3.equ",
+          "ani": "equipment/monster/goblin/hcc3animation/move_300.ani",
+          "aniSHA256": "494c9346bd6a803dd2203497d623b64759cd5f7859c2340fb040b0fcf9677833",
+          "image": "monster/goblin/equipment/hcc3.img",
+          "frame": 13,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "edf9197b572ee7ad8be43fdcb1080d29f46c1ca0f11453df874fbf873a9b9350",
+          "rawRGBAsha256": "c0d3a515627b83be65bdf4bfd90f621aeb5000c24236e1491fb73a2ca251ef17",
+          "keyedRGBAsha256": "c0d3a515627b83be65bdf4bfd90f621aeb5000c24236e1491fb73a2ca251ef17",
+          "offset": [
+            96,
+            81
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            176,
+            181
+          ]
+        }
+      ],
+      "rgbaSHA256": "8a54bb7b9bf6d26ebc20076ed678087561bd42d301f72982ec834cb60a174cfd"
+    },
+    {
+      "cell": 4,
+      "pose": "walk",
+      "ordinal": 3,
+      "bbox": [
+        143,
+        180,
+        198,
+        257
+      ],
+      "layers": [
+        {
+          "layer": -50,
+          "owner": "equipment/monster/goblin/acc2.equ",
+          "ani": "equipment/monster/goblin/acc2animation/move_200.ani",
+          "aniSHA256": "a7d9c0abcd5d7ee3d2b66ca94fe243883f6c1f861c839e631de701759d3cbde8",
+          "image": "monster/goblin/equipment/acc2.img",
+          "frame": 14,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "fd34753dfb4133fdb86068af832f10135eb8691b1a92f256b5b6189e368e21d5",
+          "rawRGBAsha256": "0fe8305eb733f88a5ff2e92600e58f5a3498dc92ccd7ac31729f3ec3c24e7d0f",
+          "keyedRGBAsha256": "0fe8305eb733f88a5ff2e92600e58f5a3498dc92ccd7ac31729f3ec3c24e7d0f",
+          "offset": [
+            63,
+            80
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            143,
+            180
+          ]
+        },
+        {
+          "layer": 0,
+          "owner": "monster/goblin/goblinthrower.mob",
+          "ani": "monster/goblin/animation_thrower/move.ani",
+          "aniSHA256": "91a7ae5e90b5b1bb453d8b263ce2c6bd1731eb7cae4272aa16364b72a87b90f0",
+          "image": "monster/goblin/body0.img",
+          "frame": 14,
+          "pack": "sprite_monster_goblin.NPK",
+          "imgSHA256": "294c70b816ccdb49e0bd2fa6a323c218887ca3a50927bd2f4b6dd082cbe6d10d",
+          "rawRGBAsha256": "47fa4afada984d58d671cc913af12a8ae34251d6b52db1bd0614f9f2b790fe1b",
+          "keyedRGBAsha256": "e18a9c1e72ed0aaff2fae8a42416036f5560f04cd80c64a03c409e7ef779ad32",
+          "offset": [
+            73,
+            85
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            153,
+            185
+          ]
+        },
+        {
+          "layer": 100,
+          "owner": "equipment/monster/goblin/tcc2.equ",
+          "ani": "equipment/monster/goblin/tcc2animation/move__100.ani",
+          "aniSHA256": "e7a13353a26541429fef9d2098f6444c7ab3aa8f8f5c1d8cb2a93f23a7eefeab",
+          "image": "monster/goblin/equipment/tcc2.img",
+          "frame": 14,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "9a254bdf3cfd782e62efed5e10cdf14cbf1bf1c4a6055a5440ee40e599754045",
+          "rawRGBAsha256": "28f219d793d7deb2251c18a76889b86140268c9f125066594d9db6125eb7b177",
+          "keyedRGBAsha256": "28f219d793d7deb2251c18a76889b86140268c9f125066594d9db6125eb7b177",
+          "offset": [
+            83,
+            105
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            163,
+            205
+          ]
+        },
+        {
+          "layer": 100,
+          "owner": "equipment/monster/goblin/gcc1.equ",
+          "ani": "equipment/monster/goblin/gcc1animation/move_100.ani",
+          "aniSHA256": "c35e7f01bd7d6da4e58cbd2dbdde3777db216bb904a335a9e296b9cbebf09efb",
+          "image": "monster/goblin/equipment/gcc1.img",
+          "frame": 14,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "ca37c1bbd401f29958d1806f460caff7d67ea3e5294f64017373a66eb0ce35e2",
+          "rawRGBAsha256": "159d2e1e5f9991d0456193fa1bdea9f4228a3ea835f00bd5ab9bd05de6e4af1a",
+          "keyedRGBAsha256": "159d2e1e5f9991d0456193fa1bdea9f4228a3ea835f00bd5ab9bd05de6e4af1a",
+          "offset": [
+            82,
+            119
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            162,
+            219
+          ]
+        },
+        {
+          "layer": 300,
+          "owner": "equipment/monster/goblin/hcc3.equ",
+          "ani": "equipment/monster/goblin/hcc3animation/move_300.ani",
+          "aniSHA256": "494c9346bd6a803dd2203497d623b64759cd5f7859c2340fb040b0fcf9677833",
+          "image": "monster/goblin/equipment/hcc3.img",
+          "frame": 14,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "edf9197b572ee7ad8be43fdcb1080d29f46c1ca0f11453df874fbf873a9b9350",
+          "rawRGBAsha256": "c0d3a515627b83be65bdf4bfd90f621aeb5000c24236e1491fb73a2ca251ef17",
+          "keyedRGBAsha256": "c0d3a515627b83be65bdf4bfd90f621aeb5000c24236e1491fb73a2ca251ef17",
+          "offset": [
+            95,
+            80
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            175,
+            180
+          ]
+        }
+      ],
+      "rgbaSHA256": "676218c25c145fa6f1322149b35d328dd549308717cc143ed8108e48955b48cf"
+    },
+    {
+      "cell": 5,
+      "pose": "walk",
+      "ordinal": 4,
+      "bbox": [
+        144,
+        178,
+        206,
+        256
+      ],
+      "layers": [
+        {
+          "layer": -50,
+          "owner": "equipment/monster/goblin/acc2.equ",
+          "ani": "equipment/monster/goblin/acc2animation/move_200.ani",
+          "aniSHA256": "a7d9c0abcd5d7ee3d2b66ca94fe243883f6c1f861c839e631de701759d3cbde8",
+          "image": "monster/goblin/equipment/acc2.img",
+          "frame": 15,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "fd34753dfb4133fdb86068af832f10135eb8691b1a92f256b5b6189e368e21d5",
+          "rawRGBAsha256": "0fe8305eb733f88a5ff2e92600e58f5a3498dc92ccd7ac31729f3ec3c24e7d0f",
+          "keyedRGBAsha256": "0fe8305eb733f88a5ff2e92600e58f5a3498dc92ccd7ac31729f3ec3c24e7d0f",
+          "offset": [
+            64,
+            78
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            144,
+            178
+          ]
+        },
+        {
+          "layer": 0,
+          "owner": "monster/goblin/goblinthrower.mob",
+          "ani": "monster/goblin/animation_thrower/move.ani",
+          "aniSHA256": "91a7ae5e90b5b1bb453d8b263ce2c6bd1731eb7cae4272aa16364b72a87b90f0",
+          "image": "monster/goblin/body0.img",
+          "frame": 15,
+          "pack": "sprite_monster_goblin.NPK",
+          "imgSHA256": "294c70b816ccdb49e0bd2fa6a323c218887ca3a50927bd2f4b6dd082cbe6d10d",
+          "rawRGBAsha256": "d89a93d340cdd5318fa502753b184ab8528c7d1544a90a33d048cd17b9a87a82",
+          "keyedRGBAsha256": "ad9d0d6a31aa5053a59b1bdd5c3a998df2aaff98d20902c85e49dba1b318ce35",
+          "offset": [
+            74,
+            83
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            154,
+            183
+          ]
+        },
+        {
+          "layer": 100,
+          "owner": "equipment/monster/goblin/tcc2.equ",
+          "ani": "equipment/monster/goblin/tcc2animation/move__100.ani",
+          "aniSHA256": "e7a13353a26541429fef9d2098f6444c7ab3aa8f8f5c1d8cb2a93f23a7eefeab",
+          "image": "monster/goblin/equipment/tcc2.img",
+          "frame": 15,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "9a254bdf3cfd782e62efed5e10cdf14cbf1bf1c4a6055a5440ee40e599754045",
+          "rawRGBAsha256": "ac37d7d46d8a136554ce8a3a198d28f1c5c180d54abea20b023aeef203c318b3",
+          "keyedRGBAsha256": "ac37d7d46d8a136554ce8a3a198d28f1c5c180d54abea20b023aeef203c318b3",
+          "offset": [
+            87,
+            104
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            167,
+            204
+          ]
+        },
+        {
+          "layer": 100,
+          "owner": "equipment/monster/goblin/gcc1.equ",
+          "ani": "equipment/monster/goblin/gcc1animation/move_100.ani",
+          "aniSHA256": "c35e7f01bd7d6da4e58cbd2dbdde3777db216bb904a335a9e296b9cbebf09efb",
+          "image": "monster/goblin/equipment/gcc1.img",
+          "frame": 15,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "ca37c1bbd401f29958d1806f460caff7d67ea3e5294f64017373a66eb0ce35e2",
+          "rawRGBAsha256": "31165914ff97f724fa746ae40c365e47d34397ec4fa53f3688b1f2981cedaee6",
+          "keyedRGBAsha256": "31165914ff97f724fa746ae40c365e47d34397ec4fa53f3688b1f2981cedaee6",
+          "offset": [
+            74,
+            117
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            154,
+            217
+          ]
+        },
+        {
+          "layer": 300,
+          "owner": "equipment/monster/goblin/hcc3.equ",
+          "ani": "equipment/monster/goblin/hcc3animation/move_300.ani",
+          "aniSHA256": "494c9346bd6a803dd2203497d623b64759cd5f7859c2340fb040b0fcf9677833",
+          "image": "monster/goblin/equipment/hcc3.img",
+          "frame": 15,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "edf9197b572ee7ad8be43fdcb1080d29f46c1ca0f11453df874fbf873a9b9350",
+          "rawRGBAsha256": "c0d3a515627b83be65bdf4bfd90f621aeb5000c24236e1491fb73a2ca251ef17",
+          "keyedRGBAsha256": "c0d3a515627b83be65bdf4bfd90f621aeb5000c24236e1491fb73a2ca251ef17",
+          "offset": [
+            96,
+            79
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            176,
+            179
+          ]
+        }
+      ],
+      "rgbaSHA256": "2e4a061c6ab2d381c373fef802ab95abfdbf51d4ccd994d1d955b0088d6816f7"
+    },
+    {
+      "cell": 6,
+      "pose": "walk",
+      "ordinal": 5,
+      "bbox": [
+        144,
+        180,
+        207,
+        256
+      ],
+      "layers": [
+        {
+          "layer": -50,
+          "owner": "equipment/monster/goblin/acc2.equ",
+          "ani": "equipment/monster/goblin/acc2animation/move_200.ani",
+          "aniSHA256": "a7d9c0abcd5d7ee3d2b66ca94fe243883f6c1f861c839e631de701759d3cbde8",
+          "image": "monster/goblin/equipment/acc2.img",
+          "frame": 16,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "fd34753dfb4133fdb86068af832f10135eb8691b1a92f256b5b6189e368e21d5",
+          "rawRGBAsha256": "0fe8305eb733f88a5ff2e92600e58f5a3498dc92ccd7ac31729f3ec3c24e7d0f",
+          "keyedRGBAsha256": "0fe8305eb733f88a5ff2e92600e58f5a3498dc92ccd7ac31729f3ec3c24e7d0f",
+          "offset": [
+            64,
+            80
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            144,
+            180
+          ]
+        },
+        {
+          "layer": 0,
+          "owner": "monster/goblin/goblinthrower.mob",
+          "ani": "monster/goblin/animation_thrower/move.ani",
+          "aniSHA256": "91a7ae5e90b5b1bb453d8b263ce2c6bd1731eb7cae4272aa16364b72a87b90f0",
+          "image": "monster/goblin/body0.img",
+          "frame": 16,
+          "pack": "sprite_monster_goblin.NPK",
+          "imgSHA256": "294c70b816ccdb49e0bd2fa6a323c218887ca3a50927bd2f4b6dd082cbe6d10d",
+          "rawRGBAsha256": "45345d71b637f4137c0f27346d43e235c4f5bf3a9f9c6d6050e6a4bd27fdaf6d",
+          "keyedRGBAsha256": "63ff4b5edede8374b821ec8408091d2acb758a875ef41a3258313675807295e0",
+          "offset": [
+            66,
+            87
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            146,
+            187
+          ]
+        },
+        {
+          "layer": 100,
+          "owner": "equipment/monster/goblin/tcc2.equ",
+          "ani": "equipment/monster/goblin/tcc2animation/move__100.ani",
+          "aniSHA256": "e7a13353a26541429fef9d2098f6444c7ab3aa8f8f5c1d8cb2a93f23a7eefeab",
+          "image": "monster/goblin/equipment/tcc2.img",
+          "frame": 16,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "9a254bdf3cfd782e62efed5e10cdf14cbf1bf1c4a6055a5440ee40e599754045",
+          "rawRGBAsha256": "386fa5291323e012f1c582778df326e1456126b40bb91513150223a852a7fe3c",
+          "keyedRGBAsha256": "386fa5291323e012f1c582778df326e1456126b40bb91513150223a852a7fe3c",
+          "offset": [
+            87,
+            105
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            167,
+            205
+          ]
+        },
+        {
+          "layer": 100,
+          "owner": "equipment/monster/goblin/gcc1.equ",
+          "ani": "equipment/monster/goblin/gcc1animation/move_100.ani",
+          "aniSHA256": "c35e7f01bd7d6da4e58cbd2dbdde3777db216bb904a335a9e296b9cbebf09efb",
+          "image": "monster/goblin/equipment/gcc1.img",
+          "frame": 16,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "ca37c1bbd401f29958d1806f460caff7d67ea3e5294f64017373a66eb0ce35e2",
+          "rawRGBAsha256": "368a24f88b4228c7a23dde945f5fd638aeaa120064a8c7730bcb6d750f997950",
+          "keyedRGBAsha256": "368a24f88b4228c7a23dde945f5fd638aeaa120064a8c7730bcb6d750f997950",
+          "offset": [
+            86,
+            120
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            166,
+            220
+          ]
+        },
+        {
+          "layer": 300,
+          "owner": "equipment/monster/goblin/hcc3.equ",
+          "ani": "equipment/monster/goblin/hcc3animation/move_300.ani",
+          "aniSHA256": "494c9346bd6a803dd2203497d623b64759cd5f7859c2340fb040b0fcf9677833",
+          "image": "monster/goblin/equipment/hcc3.img",
+          "frame": 16,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "edf9197b572ee7ad8be43fdcb1080d29f46c1ca0f11453df874fbf873a9b9350",
+          "rawRGBAsha256": "c0d3a515627b83be65bdf4bfd90f621aeb5000c24236e1491fb73a2ca251ef17",
+          "keyedRGBAsha256": "c0d3a515627b83be65bdf4bfd90f621aeb5000c24236e1491fb73a2ca251ef17",
+          "offset": [
+            96,
+            80
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            176,
+            180
+          ]
+        }
+      ],
+      "rgbaSHA256": "148aa7f1a5a8f75e45ea774cfffbbae94847840e0de2a9ca50f9c49ff9f1d741"
+    },
+    {
+      "cell": 7,
+      "pose": "attack",
+      "ordinal": 0,
+      "bbox": [
+        147,
+        180,
+        203,
+        260
+      ],
+      "layers": [
+        {
+          "layer": -50,
+          "owner": "equipment/monster/goblin/acc2.equ",
+          "ani": "equipment/monster/goblin/acc2animation/throw_200.ani",
+          "aniSHA256": "864d9b41684cb90a78999acfa431058d7832b09c27e387eab5b25442f54e6021",
+          "image": "monster/goblin/equipment/acc2.img",
+          "frame": 0,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "fd34753dfb4133fdb86068af832f10135eb8691b1a92f256b5b6189e368e21d5",
+          "rawRGBAsha256": "0fe8305eb733f88a5ff2e92600e58f5a3498dc92ccd7ac31729f3ec3c24e7d0f",
+          "keyedRGBAsha256": "0fe8305eb733f88a5ff2e92600e58f5a3498dc92ccd7ac31729f3ec3c24e7d0f",
+          "offset": [
+            67,
+            80
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            147,
+            180
+          ]
+        },
+        {
+          "layer": 0,
+          "owner": "monster/goblin/goblinthrower.mob",
+          "ani": "monster/goblin/animation_thrower/throw.ani",
+          "aniSHA256": "15a65bbd80143b07ac7208778b971c87742d8d7e47be5a00d3e0bb447af428fa",
+          "image": "monster/goblin/body0.img",
+          "frame": 0,
+          "pack": "sprite_monster_goblin.NPK",
+          "imgSHA256": "294c70b816ccdb49e0bd2fa6a323c218887ca3a50927bd2f4b6dd082cbe6d10d",
+          "rawRGBAsha256": "534c67465bb9fa9d5079e73cc1eee79fe48fe385790e70f1f77da73b0a9a2c90",
+          "keyedRGBAsha256": "135c63b5cf7901e24e22f462c0b6b87d7ba04748597b45a285e86b131e31cedb",
+          "offset": [
+            77,
+            84
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            157,
+            184
+          ]
+        },
+        {
+          "layer": 100,
+          "owner": "equipment/monster/goblin/tcc2.equ",
+          "ani": "equipment/monster/goblin/tcc2animation/throw__100.ani",
+          "aniSHA256": "a4deedc41bc5509d6eb0d378703804d11c7b01197ca40c5e0f543b18f64a71a9",
+          "image": "monster/goblin/equipment/tcc2.img",
+          "frame": 0,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "9a254bdf3cfd782e62efed5e10cdf14cbf1bf1c4a6055a5440ee40e599754045",
+          "rawRGBAsha256": "e1130d21bae22eb4dc66ee7fca06fdefa75bb9aa6e87e2e715726fa415f65072",
+          "keyedRGBAsha256": "e1130d21bae22eb4dc66ee7fca06fdefa75bb9aa6e87e2e715726fa415f65072",
+          "offset": [
+            90,
+            105
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            170,
+            205
+          ]
+        },
+        {
+          "layer": 100,
+          "owner": "equipment/monster/goblin/gcc1.equ",
+          "ani": "equipment/monster/goblin/gcc1animation/attack1_100.ani",
+          "aniSHA256": "dae62dfab5c09ca8f7bfeb25a7869b94cf29e7c8bb5b7a9e21a4fcb75ec4cd97",
+          "image": "monster/goblin/equipment/gcc1.img",
+          "frame": 0,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "ca37c1bbd401f29958d1806f460caff7d67ea3e5294f64017373a66eb0ce35e2",
+          "rawRGBAsha256": "1d8ea74cdc6509692a12dfe95385cc7bad70b763c62807bd930cb0ada11619fd",
+          "keyedRGBAsha256": "1d8ea74cdc6509692a12dfe95385cc7bad70b763c62807bd930cb0ada11619fd",
+          "offset": [
+            85,
+            119
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            165,
+            219
+          ]
+        },
+        {
+          "layer": 300,
+          "owner": "equipment/monster/goblin/hcc3.equ",
+          "ani": "equipment/monster/goblin/hcc3animation/throw_300.ani",
+          "aniSHA256": "876163540d6119ecf915ab937056447cf3dab3ff33810447eeb5ed339514eb2a",
+          "image": "monster/goblin/equipment/hcc3.img",
+          "frame": 0,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "edf9197b572ee7ad8be43fdcb1080d29f46c1ca0f11453df874fbf873a9b9350",
+          "rawRGBAsha256": "66ff44d3f261cb18d4ace38a18b4a471a6c5c4e1a78c37d239e6438b05ea24d7",
+          "keyedRGBAsha256": "66ff44d3f261cb18d4ace38a18b4a471a6c5c4e1a78c37d239e6438b05ea24d7",
+          "offset": [
+            100,
+            80
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            180,
+            180
+          ]
+        },
+        {
+          "layer": 400,
+          "owner": "equipment/monster/goblin/tcc2.equ",
+          "ani": "equipment/monster/goblin/tcc2animation/throw_400.ani",
+          "aniSHA256": "a4deedc41bc5509d6eb0d378703804d11c7b01197ca40c5e0f543b18f64a71a9",
+          "image": "monster/goblin/equipment/tcc2.img",
+          "frame": 0,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "9a254bdf3cfd782e62efed5e10cdf14cbf1bf1c4a6055a5440ee40e599754045",
+          "rawRGBAsha256": "e1130d21bae22eb4dc66ee7fca06fdefa75bb9aa6e87e2e715726fa415f65072",
+          "keyedRGBAsha256": "e1130d21bae22eb4dc66ee7fca06fdefa75bb9aa6e87e2e715726fa415f65072",
+          "offset": [
+            90,
+            105
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            170,
+            205
+          ]
+        }
+      ],
+      "rgbaSHA256": "3585b67bfe7a49d59c346fc8ab5238953c3e5a7dc334eb5973bfb0a4eb72d339"
+    },
+    {
+      "cell": 8,
+      "pose": "attack",
+      "ordinal": 1,
+      "bbox": [
+        150,
+        180,
+        210,
+        260
+      ],
+      "layers": [
+        {
+          "layer": -50,
+          "owner": "equipment/monster/goblin/acc2.equ",
+          "ani": "equipment/monster/goblin/acc2animation/throw_200.ani",
+          "aniSHA256": "864d9b41684cb90a78999acfa431058d7832b09c27e387eab5b25442f54e6021",
+          "image": "monster/goblin/equipment/acc2.img",
+          "frame": 1,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "fd34753dfb4133fdb86068af832f10135eb8691b1a92f256b5b6189e368e21d5",
+          "rawRGBAsha256": "0fe8305eb733f88a5ff2e92600e58f5a3498dc92ccd7ac31729f3ec3c24e7d0f",
+          "keyedRGBAsha256": "0fe8305eb733f88a5ff2e92600e58f5a3498dc92ccd7ac31729f3ec3c24e7d0f",
+          "offset": [
+            70,
+            80
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            150,
+            180
+          ]
+        },
+        {
+          "layer": 0,
+          "owner": "monster/goblin/goblinthrower.mob",
+          "ani": "monster/goblin/animation_thrower/throw.ani",
+          "aniSHA256": "15a65bbd80143b07ac7208778b971c87742d8d7e47be5a00d3e0bb447af428fa",
+          "image": "monster/goblin/body0.img",
+          "frame": 1,
+          "pack": "sprite_monster_goblin.NPK",
+          "imgSHA256": "294c70b816ccdb49e0bd2fa6a323c218887ca3a50927bd2f4b6dd082cbe6d10d",
+          "rawRGBAsha256": "d2854c0fd6434b0a01e187f164e14ca94f2cfa6e1fe46de32b09721c6cc19bc7",
+          "keyedRGBAsha256": "dcd9612f858bc95d237883bba311e046a2f7e8483a958a9bbbf990a2ae6e55d4",
+          "offset": [
+            70,
+            84
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            150,
+            184
+          ]
+        },
+        {
+          "layer": 100,
+          "owner": "equipment/monster/goblin/tcc2.equ",
+          "ani": "equipment/monster/goblin/tcc2animation/throw__100.ani",
+          "aniSHA256": "a4deedc41bc5509d6eb0d378703804d11c7b01197ca40c5e0f543b18f64a71a9",
+          "image": "monster/goblin/equipment/tcc2.img",
+          "frame": 1,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "9a254bdf3cfd782e62efed5e10cdf14cbf1bf1c4a6055a5440ee40e599754045",
+          "rawRGBAsha256": "d880c93d6e59b3111e7a6f4d583ace878a3914a3e6d213d760d54ebcc4424689",
+          "keyedRGBAsha256": "d880c93d6e59b3111e7a6f4d583ace878a3914a3e6d213d760d54ebcc4424689",
+          "offset": [
+            87,
+            104
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            167,
+            204
+          ]
+        },
+        {
+          "layer": 100,
+          "owner": "equipment/monster/goblin/gcc1.equ",
+          "ani": "equipment/monster/goblin/gcc1animation/attack1_100.ani",
+          "aniSHA256": "dae62dfab5c09ca8f7bfeb25a7869b94cf29e7c8bb5b7a9e21a4fcb75ec4cd97",
+          "image": "monster/goblin/equipment/gcc1.img",
+          "frame": 1,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "ca37c1bbd401f29958d1806f460caff7d67ea3e5294f64017373a66eb0ce35e2",
+          "rawRGBAsha256": "53f16104e7a8f5a43bb17301b77eaa82bea7778d6529810094e37570756c67a2",
+          "keyedRGBAsha256": "53f16104e7a8f5a43bb17301b77eaa82bea7778d6529810094e37570756c67a2",
+          "offset": [
+            84,
+            117
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            164,
+            217
+          ]
+        },
+        {
+          "layer": 300,
+          "owner": "equipment/monster/goblin/hcc3.equ",
+          "ani": "equipment/monster/goblin/hcc3animation/throw_300.ani",
+          "aniSHA256": "876163540d6119ecf915ab937056447cf3dab3ff33810447eeb5ed339514eb2a",
+          "image": "monster/goblin/equipment/hcc3.img",
+          "frame": 1,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "edf9197b572ee7ad8be43fdcb1080d29f46c1ca0f11453df874fbf873a9b9350",
+          "rawRGBAsha256": "912c98b77b29d1c661b0eb7c8e6d14662eb6ac04c4e680909a0eeeb63f2b5f04",
+          "keyedRGBAsha256": "912c98b77b29d1c661b0eb7c8e6d14662eb6ac04c4e680909a0eeeb63f2b5f04",
+          "offset": [
+            98,
+            80
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            178,
+            180
+          ]
+        },
+        {
+          "layer": 400,
+          "owner": "equipment/monster/goblin/tcc2.equ",
+          "ani": "equipment/monster/goblin/tcc2animation/throw_400.ani",
+          "aniSHA256": "a4deedc41bc5509d6eb0d378703804d11c7b01197ca40c5e0f543b18f64a71a9",
+          "image": "monster/goblin/equipment/tcc2.img",
+          "frame": 1,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "9a254bdf3cfd782e62efed5e10cdf14cbf1bf1c4a6055a5440ee40e599754045",
+          "rawRGBAsha256": "d880c93d6e59b3111e7a6f4d583ace878a3914a3e6d213d760d54ebcc4424689",
+          "keyedRGBAsha256": "d880c93d6e59b3111e7a6f4d583ace878a3914a3e6d213d760d54ebcc4424689",
+          "offset": [
+            87,
+            104
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            167,
+            204
+          ]
+        }
+      ],
+      "rgbaSHA256": "3f669a8cf2d7595b46c93d364907049f977e5cae1817671959a669170ce19eaf"
+    },
+    {
+      "cell": 9,
+      "pose": "attack",
+      "ordinal": 2,
+      "bbox": [
+        145,
+        170,
+        200,
+        259
+      ],
+      "layers": [
+        {
+          "layer": -50,
+          "owner": "equipment/monster/goblin/acc2.equ",
+          "ani": "equipment/monster/goblin/acc2animation/throw_200.ani",
+          "aniSHA256": "864d9b41684cb90a78999acfa431058d7832b09c27e387eab5b25442f54e6021",
+          "image": "monster/goblin/equipment/acc2.img",
+          "frame": 2,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "fd34753dfb4133fdb86068af832f10135eb8691b1a92f256b5b6189e368e21d5",
+          "rawRGBAsha256": "00bc9ac0854a0cf2a96aadc77cbc605eafa58b0ce39c2e16051e9752dacf8db6",
+          "keyedRGBAsha256": "00bc9ac0854a0cf2a96aadc77cbc605eafa58b0ce39c2e16051e9752dacf8db6",
+          "offset": [
+            71,
+            77
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            151,
+            177
+          ]
+        },
+        {
+          "layer": 0,
+          "owner": "monster/goblin/goblinthrower.mob",
+          "ani": "monster/goblin/animation_thrower/throw.ani",
+          "aniSHA256": "15a65bbd80143b07ac7208778b971c87742d8d7e47be5a00d3e0bb447af428fa",
+          "image": "monster/goblin/body0.img",
+          "frame": 2,
+          "pack": "sprite_monster_goblin.NPK",
+          "imgSHA256": "294c70b816ccdb49e0bd2fa6a323c218887ca3a50927bd2f4b6dd082cbe6d10d",
+          "rawRGBAsha256": "94e6bc2ac968acadf93e90a4edfd13312003e1f024c099a9a078ca7680dab24a",
+          "keyedRGBAsha256": "7e5ca7bf84e7f34c4fa7d27cb7cc844e4441c09420b5c79f748f46ba2e15ad8c",
+          "offset": [
+            65,
+            70
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            145,
+            170
+          ]
+        },
+        {
+          "layer": 100,
+          "owner": "equipment/monster/goblin/tcc2.equ",
+          "ani": "equipment/monster/goblin/tcc2animation/throw__100.ani",
+          "aniSHA256": "a4deedc41bc5509d6eb0d378703804d11c7b01197ca40c5e0f543b18f64a71a9",
+          "image": "monster/goblin/equipment/tcc2.img",
+          "frame": 2,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "9a254bdf3cfd782e62efed5e10cdf14cbf1bf1c4a6055a5440ee40e599754045",
+          "rawRGBAsha256": "c6bf9286978af688de31fd1f5a7eda3df448cddd8785a4688df425e0e48e04bf",
+          "keyedRGBAsha256": "c6bf9286978af688de31fd1f5a7eda3df448cddd8785a4688df425e0e48e04bf",
+          "offset": [
+            85,
+            101
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            165,
+            201
+          ]
+        },
+        {
+          "layer": 100,
+          "owner": "equipment/monster/goblin/gcc1.equ",
+          "ani": "equipment/monster/goblin/gcc1animation/attack1_100.ani",
+          "aniSHA256": "dae62dfab5c09ca8f7bfeb25a7869b94cf29e7c8bb5b7a9e21a4fcb75ec4cd97",
+          "image": "monster/goblin/equipment/gcc1.img",
+          "frame": 2,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "ca37c1bbd401f29958d1806f460caff7d67ea3e5294f64017373a66eb0ce35e2",
+          "rawRGBAsha256": "4f6048a7c2448d7d220e5bba986984428cfb8f1561351d62816edb2dd0d2fd09",
+          "keyedRGBAsha256": "4f6048a7c2448d7d220e5bba986984428cfb8f1561351d62816edb2dd0d2fd09",
+          "offset": [
+            82,
+            117
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            162,
+            217
+          ]
+        },
+        {
+          "layer": 300,
+          "owner": "equipment/monster/goblin/hcc3.equ",
+          "ani": "equipment/monster/goblin/hcc3animation/throw_300.ani",
+          "aniSHA256": "876163540d6119ecf915ab937056447cf3dab3ff33810447eeb5ed339514eb2a",
+          "image": "monster/goblin/equipment/hcc3.img",
+          "frame": 2,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "edf9197b572ee7ad8be43fdcb1080d29f46c1ca0f11453df874fbf873a9b9350",
+          "rawRGBAsha256": "912c98b77b29d1c661b0eb7c8e6d14662eb6ac04c4e680909a0eeeb63f2b5f04",
+          "keyedRGBAsha256": "912c98b77b29d1c661b0eb7c8e6d14662eb6ac04c4e680909a0eeeb63f2b5f04",
+          "offset": [
+            92,
+            75
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            172,
+            175
+          ]
+        },
+        {
+          "layer": 400,
+          "owner": "equipment/monster/goblin/tcc2.equ",
+          "ani": "equipment/monster/goblin/tcc2animation/throw_400.ani",
+          "aniSHA256": "a4deedc41bc5509d6eb0d378703804d11c7b01197ca40c5e0f543b18f64a71a9",
+          "image": "monster/goblin/equipment/tcc2.img",
+          "frame": 2,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "9a254bdf3cfd782e62efed5e10cdf14cbf1bf1c4a6055a5440ee40e599754045",
+          "rawRGBAsha256": "c6bf9286978af688de31fd1f5a7eda3df448cddd8785a4688df425e0e48e04bf",
+          "keyedRGBAsha256": "c6bf9286978af688de31fd1f5a7eda3df448cddd8785a4688df425e0e48e04bf",
+          "offset": [
+            85,
+            101
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            165,
+            201
+          ]
+        }
+      ],
+      "rgbaSHA256": "d64d47a8cb6fe3a3ec2ab5e21e3e657aced1e865f6c76c3edf50688a83980cd4"
+    },
+    {
+      "cell": 10,
+      "pose": "attack",
+      "ordinal": 3,
+      "bbox": [
+        149,
+        183,
+        212,
+        260
+      ],
+      "layers": [
+        {
+          "layer": -50,
+          "owner": "equipment/monster/goblin/acc2.equ",
+          "ani": "equipment/monster/goblin/acc2animation/throw_200.ani",
+          "aniSHA256": "864d9b41684cb90a78999acfa431058d7832b09c27e387eab5b25442f54e6021",
+          "image": "monster/goblin/equipment/acc2.img",
+          "frame": 3,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "fd34753dfb4133fdb86068af832f10135eb8691b1a92f256b5b6189e368e21d5",
+          "rawRGBAsha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+          "keyedRGBAsha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+          "offset": [
+            200,
+            0
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            280,
+            100
+          ]
+        },
+        {
+          "layer": 0,
+          "owner": "monster/goblin/goblinthrower.mob",
+          "ani": "monster/goblin/animation_thrower/throw.ani",
+          "aniSHA256": "15a65bbd80143b07ac7208778b971c87742d8d7e47be5a00d3e0bb447af428fa",
+          "image": "monster/goblin/body0.img",
+          "frame": 3,
+          "pack": "sprite_monster_goblin.NPK",
+          "imgSHA256": "294c70b816ccdb49e0bd2fa6a323c218887ca3a50927bd2f4b6dd082cbe6d10d",
+          "rawRGBAsha256": "579ca67bb790983cf8279cfc7b4b76f0634cc5ad988d5f19feae0409096d4a89",
+          "keyedRGBAsha256": "9ecb041f40396a95b0707e254930c2abf4d8b1f5c6d391926ddbb8019b55993a",
+          "offset": [
+            71,
+            88
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            151,
+            188
+          ]
+        },
+        {
+          "layer": 100,
+          "owner": "equipment/monster/goblin/tcc2.equ",
+          "ani": "equipment/monster/goblin/tcc2animation/throw__100.ani",
+          "aniSHA256": "a4deedc41bc5509d6eb0d378703804d11c7b01197ca40c5e0f543b18f64a71a9",
+          "image": "monster/goblin/equipment/tcc2.img",
+          "frame": 3,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "9a254bdf3cfd782e62efed5e10cdf14cbf1bf1c4a6055a5440ee40e599754045",
+          "rawRGBAsha256": "5096dd3b6bfbc510b67638f10f2e0df6cd0bebbea7f3a1843686da3ea15f8888",
+          "keyedRGBAsha256": "5096dd3b6bfbc510b67638f10f2e0df6cd0bebbea7f3a1843686da3ea15f8888",
+          "offset": [
+            87,
+            111
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            167,
+            211
+          ]
+        },
+        {
+          "layer": 100,
+          "owner": "equipment/monster/goblin/gcc1.equ",
+          "ani": "equipment/monster/goblin/gcc1animation/attack1_100.ani",
+          "aniSHA256": "dae62dfab5c09ca8f7bfeb25a7869b94cf29e7c8bb5b7a9e21a4fcb75ec4cd97",
+          "image": "monster/goblin/equipment/gcc1.img",
+          "frame": 3,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "ca37c1bbd401f29958d1806f460caff7d67ea3e5294f64017373a66eb0ce35e2",
+          "rawRGBAsha256": "b2e11bf543641e0fc9b424ea15eefea5dfee70d2b6e0930286821e6b12398113",
+          "keyedRGBAsha256": "b2e11bf543641e0fc9b424ea15eefea5dfee70d2b6e0930286821e6b12398113",
+          "offset": [
+            78,
+            117
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            158,
+            217
+          ]
+        },
+        {
+          "layer": 300,
+          "owner": "equipment/monster/goblin/hcc3.equ",
+          "ani": "equipment/monster/goblin/hcc3animation/throw_300.ani",
+          "aniSHA256": "876163540d6119ecf915ab937056447cf3dab3ff33810447eeb5ed339514eb2a",
+          "image": "monster/goblin/equipment/hcc3.img",
+          "frame": 3,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "edf9197b572ee7ad8be43fdcb1080d29f46c1ca0f11453df874fbf873a9b9350",
+          "rawRGBAsha256": "1584ad1e7a707806ff639c13b7dc5f93855be30d54ea5692476919cd05c9b1b7",
+          "keyedRGBAsha256": "1584ad1e7a707806ff639c13b7dc5f93855be30d54ea5692476919cd05c9b1b7",
+          "offset": [
+            69,
+            83
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            149,
+            183
+          ]
+        },
+        {
+          "layer": 400,
+          "owner": "equipment/monster/goblin/tcc2.equ",
+          "ani": "equipment/monster/goblin/tcc2animation/throw_400.ani",
+          "aniSHA256": "a4deedc41bc5509d6eb0d378703804d11c7b01197ca40c5e0f543b18f64a71a9",
+          "image": "monster/goblin/equipment/tcc2.img",
+          "frame": 3,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "9a254bdf3cfd782e62efed5e10cdf14cbf1bf1c4a6055a5440ee40e599754045",
+          "rawRGBAsha256": "5096dd3b6bfbc510b67638f10f2e0df6cd0bebbea7f3a1843686da3ea15f8888",
+          "keyedRGBAsha256": "5096dd3b6bfbc510b67638f10f2e0df6cd0bebbea7f3a1843686da3ea15f8888",
+          "offset": [
+            87,
+            111
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            167,
+            211
+          ]
+        }
+      ],
+      "rgbaSHA256": "3cdca2028cd6a583c554786474b00ecf13a149c131f675e20a5233c455283efc"
+    },
+    {
+      "cell": 11,
+      "pose": "attack",
+      "ordinal": 4,
+      "bbox": [
+        149,
+        184,
+        208,
+        260
+      ],
+      "layers": [
+        {
+          "layer": -50,
+          "owner": "equipment/monster/goblin/acc2.equ",
+          "ani": "equipment/monster/goblin/acc2animation/throw_200.ani",
+          "aniSHA256": "864d9b41684cb90a78999acfa431058d7832b09c27e387eab5b25442f54e6021",
+          "image": "monster/goblin/equipment/acc2.img",
+          "frame": 4,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "fd34753dfb4133fdb86068af832f10135eb8691b1a92f256b5b6189e368e21d5",
+          "rawRGBAsha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+          "keyedRGBAsha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+          "offset": [
+            200,
+            0
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            280,
+            100
+          ]
+        },
+        {
+          "layer": 0,
+          "owner": "monster/goblin/goblinthrower.mob",
+          "ani": "monster/goblin/animation_thrower/throw.ani",
+          "aniSHA256": "15a65bbd80143b07ac7208778b971c87742d8d7e47be5a00d3e0bb447af428fa",
+          "image": "monster/goblin/body0.img",
+          "frame": 4,
+          "pack": "sprite_monster_goblin.NPK",
+          "imgSHA256": "294c70b816ccdb49e0bd2fa6a323c218887ca3a50927bd2f4b6dd082cbe6d10d",
+          "rawRGBAsha256": "8a84514a0bf94ff6ac20596ecdbe0aa4e63f15dc49389424c8b24cc70bf9f5e9",
+          "keyedRGBAsha256": "bca7d994e59c46e126fbd801ff0a4d79063d3591b55250b0bc29d76c07fc9e06",
+          "offset": [
+            74,
+            89
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            154,
+            189
+          ]
+        },
+        {
+          "layer": 100,
+          "owner": "equipment/monster/goblin/tcc2.equ",
+          "ani": "equipment/monster/goblin/tcc2animation/throw__100.ani",
+          "aniSHA256": "a4deedc41bc5509d6eb0d378703804d11c7b01197ca40c5e0f543b18f64a71a9",
+          "image": "monster/goblin/equipment/tcc2.img",
+          "frame": 4,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "9a254bdf3cfd782e62efed5e10cdf14cbf1bf1c4a6055a5440ee40e599754045",
+          "rawRGBAsha256": "5096dd3b6bfbc510b67638f10f2e0df6cd0bebbea7f3a1843686da3ea15f8888",
+          "keyedRGBAsha256": "5096dd3b6bfbc510b67638f10f2e0df6cd0bebbea7f3a1843686da3ea15f8888",
+          "offset": [
+            87,
+            111
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            167,
+            211
+          ]
+        },
+        {
+          "layer": 100,
+          "owner": "equipment/monster/goblin/gcc1.equ",
+          "ani": "equipment/monster/goblin/gcc1animation/attack1_100.ani",
+          "aniSHA256": "dae62dfab5c09ca8f7bfeb25a7869b94cf29e7c8bb5b7a9e21a4fcb75ec4cd97",
+          "image": "monster/goblin/equipment/gcc1.img",
+          "frame": 4,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "ca37c1bbd401f29958d1806f460caff7d67ea3e5294f64017373a66eb0ce35e2",
+          "rawRGBAsha256": "e1d78f029d03c7c4a1ece6320f44d477c519f55517bfd86e94a21a060c17a3ff",
+          "keyedRGBAsha256": "e1d78f029d03c7c4a1ece6320f44d477c519f55517bfd86e94a21a060c17a3ff",
+          "offset": [
+            81,
+            118
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            161,
+            218
+          ]
+        },
+        {
+          "layer": 300,
+          "owner": "equipment/monster/goblin/hcc3.equ",
+          "ani": "equipment/monster/goblin/hcc3animation/throw_300.ani",
+          "aniSHA256": "876163540d6119ecf915ab937056447cf3dab3ff33810447eeb5ed339514eb2a",
+          "image": "monster/goblin/equipment/hcc3.img",
+          "frame": 4,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "edf9197b572ee7ad8be43fdcb1080d29f46c1ca0f11453df874fbf873a9b9350",
+          "rawRGBAsha256": "4586bbe73678a98a68989a9804b2f386f55a2196b0bead46911efa85199d7b9f",
+          "keyedRGBAsha256": "4586bbe73678a98a68989a9804b2f386f55a2196b0bead46911efa85199d7b9f",
+          "offset": [
+            69,
+            84
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            149,
+            184
+          ]
+        },
+        {
+          "layer": 400,
+          "owner": "equipment/monster/goblin/tcc2.equ",
+          "ani": "equipment/monster/goblin/tcc2animation/throw_400.ani",
+          "aniSHA256": "a4deedc41bc5509d6eb0d378703804d11c7b01197ca40c5e0f543b18f64a71a9",
+          "image": "monster/goblin/equipment/tcc2.img",
+          "frame": 4,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "9a254bdf3cfd782e62efed5e10cdf14cbf1bf1c4a6055a5440ee40e599754045",
+          "rawRGBAsha256": "5096dd3b6bfbc510b67638f10f2e0df6cd0bebbea7f3a1843686da3ea15f8888",
+          "keyedRGBAsha256": "5096dd3b6bfbc510b67638f10f2e0df6cd0bebbea7f3a1843686da3ea15f8888",
+          "offset": [
+            87,
+            111
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            167,
+            211
+          ]
+        }
+      ],
+      "rgbaSHA256": "777fbb2a3eceb54521be2af884b15fe5332633bf00909b31234cc9eb460446f4"
+    },
+    {
+      "cell": 12,
+      "pose": "down",
+      "ordinal": 0,
+      "bbox": [
+        146,
+        180,
+        205,
+        256
+      ],
+      "layers": [
+        {
+          "layer": -50,
+          "owner": "equipment/monster/goblin/acc2.equ",
+          "ani": "equipment/monster/goblin/acc2animation/down_200.ani",
+          "aniSHA256": "be74cf4e02f637e2d352a6416bc511195e9c18611a9379b3f4463d0971d8fb34",
+          "image": "monster/goblin/equipment/acc2.img",
+          "frame": 5,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "fd34753dfb4133fdb86068af832f10135eb8691b1a92f256b5b6189e368e21d5",
+          "rawRGBAsha256": "4e4918579ce44b20cd31ea70a8b980a037001d9683171a182e565c747b6c6262",
+          "keyedRGBAsha256": "4e4918579ce44b20cd31ea70a8b980a037001d9683171a182e565c747b6c6262",
+          "offset": [
+            66,
+            80
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            146,
+            180
+          ]
+        },
+        {
+          "layer": 0,
+          "owner": "monster/goblin/goblinthrower.mob",
+          "ani": "monster/goblin/animation_thrower/down.ani",
+          "aniSHA256": "b8e35650b488dba3f33239bcbf63d2d469695407148695f8a76202ba72378341",
+          "image": "monster/goblin/body0.img",
+          "frame": 5,
+          "pack": "sprite_monster_goblin.NPK",
+          "imgSHA256": "294c70b816ccdb49e0bd2fa6a323c218887ca3a50927bd2f4b6dd082cbe6d10d",
+          "rawRGBAsha256": "17d9eb59b1551e48ca04df13b5c5df0ffcbb19c2227309e47e4487661f9a3150",
+          "keyedRGBAsha256": "f58446b2203d28443fa70ce06a7abc072703eba918b7933af67086b7ad61e6c1",
+          "offset": [
+            72,
+            89
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            152,
+            189
+          ]
+        },
+        {
+          "layer": 100,
+          "owner": "equipment/monster/goblin/tcc2.equ",
+          "ani": "equipment/monster/goblin/tcc2animation/down__100.ani",
+          "aniSHA256": "40f2b78ee0d13bed68a662a017509b58235e3fbe446657b576c6aace28827dea",
+          "image": "monster/goblin/equipment/tcc2.img",
+          "frame": 5,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "9a254bdf3cfd782e62efed5e10cdf14cbf1bf1c4a6055a5440ee40e599754045",
+          "rawRGBAsha256": "2cd0fea4ae301917e471a463918cd25ec93f18f1cd41c2a99dc3ef441edb25b1",
+          "keyedRGBAsha256": "2cd0fea4ae301917e471a463918cd25ec93f18f1cd41c2a99dc3ef441edb25b1",
+          "offset": [
+            81,
+            106
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            161,
+            206
+          ]
+        },
+        {
+          "layer": 100,
+          "owner": "equipment/monster/goblin/gcc1.equ",
+          "ani": "equipment/monster/goblin/gcc1animation/down_100.ani",
+          "aniSHA256": "8a7e1bc5bfc023e195a4e5ca96ce2c9b6a7a4f9c24742361416c4c488d2a908f",
+          "image": "monster/goblin/equipment/gcc1.img",
+          "frame": 5,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "ca37c1bbd401f29958d1806f460caff7d67ea3e5294f64017373a66eb0ce35e2",
+          "rawRGBAsha256": "c83cd6995fef673bf6f44328084e03bf22b50d5a987580276149b297404ec88f",
+          "keyedRGBAsha256": "c83cd6995fef673bf6f44328084e03bf22b50d5a987580276149b297404ec88f",
+          "offset": [
+            81,
+            119
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            161,
+            219
+          ]
+        },
+        {
+          "layer": 300,
+          "owner": "equipment/monster/goblin/hcc3.equ",
+          "ani": "equipment/monster/goblin/hcc3animation/down_300.ani",
+          "aniSHA256": "7c68976a03a686cc851fbbf203fea8ade849cf86c845a6b8fa89704c9608857c",
+          "image": "monster/goblin/equipment/hcc3.img",
+          "frame": 5,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "edf9197b572ee7ad8be43fdcb1080d29f46c1ca0f11453df874fbf873a9b9350",
+          "rawRGBAsha256": "98e5e7b04e5b51de77e5c19c8e5ea12e7c78076f2a514bc82f3a3a41d238819d",
+          "keyedRGBAsha256": "98e5e7b04e5b51de77e5c19c8e5ea12e7c78076f2a514bc82f3a3a41d238819d",
+          "offset": [
+            93,
+            83
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            173,
+            183
+          ]
+        }
+      ],
+      "rgbaSHA256": "a61187c5c1f05d69ea193dd36474eff2beee22ff5425d6622bb071939976ff2c"
+    },
+    {
+      "cell": 13,
+      "pose": "down",
+      "ordinal": 1,
+      "bbox": [
+        127,
+        179,
+        188,
+        256
+      ],
+      "layers": [
+        {
+          "layer": -50,
+          "owner": "equipment/monster/goblin/acc2.equ",
+          "ani": "equipment/monster/goblin/acc2animation/down_200.ani",
+          "aniSHA256": "be74cf4e02f637e2d352a6416bc511195e9c18611a9379b3f4463d0971d8fb34",
+          "image": "monster/goblin/equipment/acc2.img",
+          "frame": 6,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "fd34753dfb4133fdb86068af832f10135eb8691b1a92f256b5b6189e368e21d5",
+          "rawRGBAsha256": "017ef57f4b499f4a7fd27d68e70acd64fb905bfa4ecffd1cc8e6e57e2d503ed3",
+          "keyedRGBAsha256": "017ef57f4b499f4a7fd27d68e70acd64fb905bfa4ecffd1cc8e6e57e2d503ed3",
+          "offset": [
+            47,
+            79
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            127,
+            179
+          ]
+        },
+        {
+          "layer": 0,
+          "owner": "monster/goblin/goblinthrower.mob",
+          "ani": "monster/goblin/animation_thrower/down.ani",
+          "aniSHA256": "b8e35650b488dba3f33239bcbf63d2d469695407148695f8a76202ba72378341",
+          "image": "monster/goblin/body0.img",
+          "frame": 6,
+          "pack": "sprite_monster_goblin.NPK",
+          "imgSHA256": "294c70b816ccdb49e0bd2fa6a323c218887ca3a50927bd2f4b6dd082cbe6d10d",
+          "rawRGBAsha256": "bc43c8ca0662d057588b75e959b4a6f833c66f5cd0ecef7670cf77db0b4fce1c",
+          "keyedRGBAsha256": "9cc571b01457060638e3cf349c6859b90f7bc26a02d54a1d14908015b70fb2ff",
+          "offset": [
+            55,
+            84
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            135,
+            184
+          ]
+        },
+        {
+          "layer": 100,
+          "owner": "equipment/monster/goblin/tcc2.equ",
+          "ani": "equipment/monster/goblin/tcc2animation/down__100.ani",
+          "aniSHA256": "40f2b78ee0d13bed68a662a017509b58235e3fbe446657b576c6aace28827dea",
+          "image": "monster/goblin/equipment/tcc2.img",
+          "frame": 6,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "9a254bdf3cfd782e62efed5e10cdf14cbf1bf1c4a6055a5440ee40e599754045",
+          "rawRGBAsha256": "0ba387878f780796947e1ced6931cf7bfef1f947ad2f7b789038b8fd12701c58",
+          "keyedRGBAsha256": "0ba387878f780796947e1ced6931cf7bfef1f947ad2f7b789038b8fd12701c58",
+          "offset": [
+            65,
+            101
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            145,
+            201
+          ]
+        },
+        {
+          "layer": 100,
+          "owner": "equipment/monster/goblin/gcc1.equ",
+          "ani": "equipment/monster/goblin/gcc1animation/down_100.ani",
+          "aniSHA256": "8a7e1bc5bfc023e195a4e5ca96ce2c9b6a7a4f9c24742361416c4c488d2a908f",
+          "image": "monster/goblin/equipment/gcc1.img",
+          "frame": 6,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "ca37c1bbd401f29958d1806f460caff7d67ea3e5294f64017373a66eb0ce35e2",
+          "rawRGBAsha256": "2cefb91f91cc6c72d6f21511905a7880a7245d3750c3eb6e61edad41983d6f1f",
+          "keyedRGBAsha256": "2cefb91f91cc6c72d6f21511905a7880a7245d3750c3eb6e61edad41983d6f1f",
+          "offset": [
+            64,
+            116
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            144,
+            216
+          ]
+        },
+        {
+          "layer": 300,
+          "owner": "equipment/monster/goblin/hcc3.equ",
+          "ani": "equipment/monster/goblin/hcc3animation/down_300.ani",
+          "aniSHA256": "7c68976a03a686cc851fbbf203fea8ade849cf86c845a6b8fa89704c9608857c",
+          "image": "monster/goblin/equipment/hcc3.img",
+          "frame": 6,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "edf9197b572ee7ad8be43fdcb1080d29f46c1ca0f11453df874fbf873a9b9350",
+          "rawRGBAsha256": "8e1a97a468a11bcebc5b752948d4c8788ba1a7c53e6b63b5d51c78942ebb06e2",
+          "keyedRGBAsha256": "8e1a97a468a11bcebc5b752948d4c8788ba1a7c53e6b63b5d51c78942ebb06e2",
+          "offset": [
+            64,
+            83
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            144,
+            183
+          ]
+        }
+      ],
+      "rgbaSHA256": "b7e47faec9c9540ec30817e1b58eb94083b332c25e76a3b7b998f0007ae9e164"
+    },
+    {
+      "cell": 14,
+      "pose": "down",
+      "ordinal": 2,
+      "bbox": [
+        117,
+        208,
+        196,
+        261
+      ],
+      "layers": [
+        {
+          "layer": -50,
+          "owner": "equipment/monster/goblin/acc2.equ",
+          "ani": "equipment/monster/goblin/acc2animation/down_200.ani",
+          "aniSHA256": "be74cf4e02f637e2d352a6416bc511195e9c18611a9379b3f4463d0971d8fb34",
+          "image": "monster/goblin/equipment/acc2.img",
+          "frame": 7,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "fd34753dfb4133fdb86068af832f10135eb8691b1a92f256b5b6189e368e21d5",
+          "rawRGBAsha256": "bbfe16bb7d042959b734f3b14b6bf720d932224a70ad3e3f59d748f38f50894d",
+          "keyedRGBAsha256": "bbfe16bb7d042959b734f3b14b6bf720d932224a70ad3e3f59d748f38f50894d",
+          "offset": [
+            37,
+            126
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            117,
+            226
+          ]
+        },
+        {
+          "layer": 0,
+          "owner": "monster/goblin/goblinthrower.mob",
+          "ani": "monster/goblin/animation_thrower/down.ani",
+          "aniSHA256": "b8e35650b488dba3f33239bcbf63d2d469695407148695f8a76202ba72378341",
+          "image": "monster/goblin/body0.img",
+          "frame": 7,
+          "pack": "sprite_monster_goblin.NPK",
+          "imgSHA256": "294c70b816ccdb49e0bd2fa6a323c218887ca3a50927bd2f4b6dd082cbe6d10d",
+          "rawRGBAsha256": "4ced76654297979159e0cc35a7d95bbbb6ac0c800f3b3de02a6dd7d00ff733ec",
+          "keyedRGBAsha256": "f1b73982b71323e166169d69ec4c9df6d276dcf3907753c24990c4226b02d0c8",
+          "offset": [
+            49,
+            108
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            129,
+            208
+          ]
+        },
+        {
+          "layer": 100,
+          "owner": "equipment/monster/goblin/tcc2.equ",
+          "ani": "equipment/monster/goblin/tcc2animation/down__100.ani",
+          "aniSHA256": "40f2b78ee0d13bed68a662a017509b58235e3fbe446657b576c6aace28827dea",
+          "image": "monster/goblin/equipment/tcc2.img",
+          "frame": 7,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "9a254bdf3cfd782e62efed5e10cdf14cbf1bf1c4a6055a5440ee40e599754045",
+          "rawRGBAsha256": "ab7bce323e141a56ab51e42271e1d0b1063885f585e6ba31de6b0dc98f2b147d",
+          "keyedRGBAsha256": "ab7bce323e141a56ab51e42271e1d0b1063885f585e6ba31de6b0dc98f2b147d",
+          "offset": [
+            67,
+            130
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            147,
+            230
+          ]
+        },
+        {
+          "layer": 100,
+          "owner": "equipment/monster/goblin/gcc1.equ",
+          "ani": "equipment/monster/goblin/gcc1animation/down_100.ani",
+          "aniSHA256": "8a7e1bc5bfc023e195a4e5ca96ce2c9b6a7a4f9c24742361416c4c488d2a908f",
+          "image": "monster/goblin/equipment/gcc1.img",
+          "frame": 7,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "ca37c1bbd401f29958d1806f460caff7d67ea3e5294f64017373a66eb0ce35e2",
+          "rawRGBAsha256": "bc173d4c973d2941f8af8033a18c44004098109011117a36f93f4afe330fa2df",
+          "keyedRGBAsha256": "bc173d4c973d2941f8af8033a18c44004098109011117a36f93f4afe330fa2df",
+          "offset": [
+            79,
+            124
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            159,
+            224
+          ]
+        },
+        {
+          "layer": 300,
+          "owner": "equipment/monster/goblin/hcc3.equ",
+          "ani": "equipment/monster/goblin/hcc3animation/down_300.ani",
+          "aniSHA256": "7c68976a03a686cc851fbbf203fea8ade849cf86c845a6b8fa89704c9608857c",
+          "image": "monster/goblin/equipment/hcc3.img",
+          "frame": 7,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "edf9197b572ee7ad8be43fdcb1080d29f46c1ca0f11453df874fbf873a9b9350",
+          "rawRGBAsha256": "9274bbeb1410faf476a1f4c347b300526eb051390db5377f3b7a11484a160f67",
+          "keyedRGBAsha256": "9274bbeb1410faf476a1f4c347b300526eb051390db5377f3b7a11484a160f67",
+          "offset": [
+            44,
+            117
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            124,
+            217
+          ]
+        }
+      ],
+      "rgbaSHA256": "a833febe23ef2f857a43bbea889a7eecd61b215d6a6b90c1b5b62703f09c6e9f"
+    },
+    {
+      "cell": 15,
+      "pose": "down",
+      "ordinal": 3,
+      "bbox": [
+        105,
+        213,
+        199,
+        266
+      ],
+      "layers": [
+        {
+          "layer": -50,
+          "owner": "equipment/monster/goblin/acc2.equ",
+          "ani": "equipment/monster/goblin/acc2animation/down_200.ani",
+          "aniSHA256": "be74cf4e02f637e2d352a6416bc511195e9c18611a9379b3f4463d0971d8fb34",
+          "image": "monster/goblin/equipment/acc2.img",
+          "frame": 8,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "fd34753dfb4133fdb86068af832f10135eb8691b1a92f256b5b6189e368e21d5",
+          "rawRGBAsha256": "dee779dc3a1404fca9b4e20e8f53332847810ee4193af4dcbefdbaa687e012db",
+          "keyedRGBAsha256": "dee779dc3a1404fca9b4e20e8f53332847810ee4193af4dcbefdbaa687e012db",
+          "offset": [
+            25,
+            133
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            105,
+            233
+          ]
+        },
+        {
+          "layer": 0,
+          "owner": "monster/goblin/goblinthrower.mob",
+          "ani": "monster/goblin/animation_thrower/down.ani",
+          "aniSHA256": "b8e35650b488dba3f33239bcbf63d2d469695407148695f8a76202ba72378341",
+          "image": "monster/goblin/body0.img",
+          "frame": 8,
+          "pack": "sprite_monster_goblin.NPK",
+          "imgSHA256": "294c70b816ccdb49e0bd2fa6a323c218887ca3a50927bd2f4b6dd082cbe6d10d",
+          "rawRGBAsha256": "d0aaef3ec2f8a2920d64e120371206fb74bbf72058054de6fcfe2bfd719c24a0",
+          "keyedRGBAsha256": "70596d622d7bc777b51fe6655c0fdf0d71c2bddb205acebc9f038bf8a2defb7f",
+          "offset": [
+            47,
+            113
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            127,
+            213
+          ]
+        },
+        {
+          "layer": 100,
+          "owner": "equipment/monster/goblin/tcc2.equ",
+          "ani": "equipment/monster/goblin/tcc2animation/down__100.ani",
+          "aniSHA256": "40f2b78ee0d13bed68a662a017509b58235e3fbe446657b576c6aace28827dea",
+          "image": "monster/goblin/equipment/tcc2.img",
+          "frame": 8,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "9a254bdf3cfd782e62efed5e10cdf14cbf1bf1c4a6055a5440ee40e599754045",
+          "rawRGBAsha256": "2ec252b92d937ef50dd5e287a62c5c4bc198efada40caf2b1170c9dd437a67f4",
+          "keyedRGBAsha256": "2ec252b92d937ef50dd5e287a62c5c4bc198efada40caf2b1170c9dd437a67f4",
+          "offset": [
+            64,
+            140
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            144,
+            240
+          ]
+        },
+        {
+          "layer": 100,
+          "owner": "equipment/monster/goblin/gcc1.equ",
+          "ani": "equipment/monster/goblin/gcc1animation/down_100.ani",
+          "aniSHA256": "8a7e1bc5bfc023e195a4e5ca96ce2c9b6a7a4f9c24742361416c4c488d2a908f",
+          "image": "monster/goblin/equipment/gcc1.img",
+          "frame": 8,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "ca37c1bbd401f29958d1806f460caff7d67ea3e5294f64017373a66eb0ce35e2",
+          "rawRGBAsha256": "1b408941b13af5c427bf45644b00176c75ff865772251de07c99f278ad7a1b46",
+          "keyedRGBAsha256": "1b408941b13af5c427bf45644b00176c75ff865772251de07c99f278ad7a1b46",
+          "offset": [
+            79,
+            128
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            159,
+            228
+          ]
+        },
+        {
+          "layer": 300,
+          "owner": "equipment/monster/goblin/hcc3.equ",
+          "ani": "equipment/monster/goblin/hcc3animation/down_300.ani",
+          "aniSHA256": "7c68976a03a686cc851fbbf203fea8ade849cf86c845a6b8fa89704c9608857c",
+          "image": "monster/goblin/equipment/hcc3.img",
+          "frame": 8,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "edf9197b572ee7ad8be43fdcb1080d29f46c1ca0f11453df874fbf873a9b9350",
+          "rawRGBAsha256": "07d7e5188c24bd2ae92200dd6458b52e42ca2506874164aef96360fba6110518",
+          "keyedRGBAsha256": "07d7e5188c24bd2ae92200dd6458b52e42ca2506874164aef96360fba6110518",
+          "offset": [
+            47,
+            128
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            127,
+            228
+          ]
+        }
+      ],
+      "rgbaSHA256": "6fba9952face20b0fae2a15c60df2ac2c7d93fd7a74dda10deda6741a1aa2301"
+    },
+    {
+      "cell": 16,
+      "pose": "down",
+      "ordinal": 4,
+      "bbox": [
+        102,
+        230,
+        208,
+        267
+      ],
+      "layers": [
+        {
+          "layer": -50,
+          "owner": "equipment/monster/goblin/acc2.equ",
+          "ani": "equipment/monster/goblin/acc2animation/down_200.ani",
+          "aniSHA256": "be74cf4e02f637e2d352a6416bc511195e9c18611a9379b3f4463d0971d8fb34",
+          "image": "monster/goblin/equipment/acc2.img",
+          "frame": 9,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "fd34753dfb4133fdb86068af832f10135eb8691b1a92f256b5b6189e368e21d5",
+          "rawRGBAsha256": "e607de62b8edcd179627110afe8e43b665ce64138025f76b3f30333bc5fb4628",
+          "keyedRGBAsha256": "e607de62b8edcd179627110afe8e43b665ce64138025f76b3f30333bc5fb4628",
+          "offset": [
+            22,
+            132
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            102,
+            232
+          ]
+        },
+        {
+          "layer": 0,
+          "owner": "monster/goblin/goblinthrower.mob",
+          "ani": "monster/goblin/animation_thrower/down.ani",
+          "aniSHA256": "b8e35650b488dba3f33239bcbf63d2d469695407148695f8a76202ba72378341",
+          "image": "monster/goblin/body0.img",
+          "frame": 9,
+          "pack": "sprite_monster_goblin.NPK",
+          "imgSHA256": "294c70b816ccdb49e0bd2fa6a323c218887ca3a50927bd2f4b6dd082cbe6d10d",
+          "rawRGBAsha256": "20c041eb083128ebcd9108b735abe747ca697f536a549b8baef961dc1c9dd782",
+          "keyedRGBAsha256": "448a345c2b065efe983aca7fbfe1416a80b328ef1a8f3490d97a25ae035c7f62",
+          "offset": [
+            35,
+            130
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            115,
+            230
+          ]
+        },
+        {
+          "layer": 100,
+          "owner": "equipment/monster/goblin/tcc2.equ",
+          "ani": "equipment/monster/goblin/tcc2animation/down__100.ani",
+          "aniSHA256": "40f2b78ee0d13bed68a662a017509b58235e3fbe446657b576c6aace28827dea",
+          "image": "monster/goblin/equipment/tcc2.img",
+          "frame": 9,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "9a254bdf3cfd782e62efed5e10cdf14cbf1bf1c4a6055a5440ee40e599754045",
+          "rawRGBAsha256": "22a1e9118eb47f0d7a9975554be08a6c5483dbff707511387569938e4afe132c",
+          "keyedRGBAsha256": "22a1e9118eb47f0d7a9975554be08a6c5483dbff707511387569938e4afe132c",
+          "offset": [
+            61,
+            139
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            141,
+            239
+          ]
+        },
+        {
+          "layer": 100,
+          "owner": "equipment/monster/goblin/gcc1.equ",
+          "ani": "equipment/monster/goblin/gcc1animation/down_100.ani",
+          "aniSHA256": "8a7e1bc5bfc023e195a4e5ca96ce2c9b6a7a4f9c24742361416c4c488d2a908f",
+          "image": "monster/goblin/equipment/gcc1.img",
+          "frame": 9,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "ca37c1bbd401f29958d1806f460caff7d67ea3e5294f64017373a66eb0ce35e2",
+          "rawRGBAsha256": "08411d912e92a011f3f41dfc70e4c7682a6f8d16f6e4d9d6e004b3e121da1ab9",
+          "keyedRGBAsha256": "08411d912e92a011f3f41dfc70e4c7682a6f8d16f6e4d9d6e004b3e121da1ab9",
+          "offset": [
+            79,
+            139
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            159,
+            239
+          ]
+        },
+        {
+          "layer": 300,
+          "owner": "equipment/monster/goblin/hcc3.equ",
+          "ani": "equipment/monster/goblin/hcc3animation/down_300.ani",
+          "aniSHA256": "7c68976a03a686cc851fbbf203fea8ade849cf86c845a6b8fa89704c9608857c",
+          "image": "monster/goblin/equipment/hcc3.img",
+          "frame": 9,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "edf9197b572ee7ad8be43fdcb1080d29f46c1ca0f11453df874fbf873a9b9350",
+          "rawRGBAsha256": "05c1d02dea29327e9ba47aadb16701764b6a4632f696ac382e98ca92558e89ea",
+          "keyedRGBAsha256": "05c1d02dea29327e9ba47aadb16701764b6a4632f696ac382e98ca92558e89ea",
+          "offset": [
+            41,
+            147
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            121,
+            247
+          ]
+        }
+      ],
+      "rgbaSHA256": "ee7c38d9728f6f31b825d1c648ab065b2429a1de3d086e6ad0b84265babafe5e"
+    },
+    {
+      "cell": 17,
+      "pose": "rise",
+      "ordinal": 0,
+      "bbox": [
+        142,
+        190,
+        201,
+        254
+      ],
+      "layers": [
+        {
+          "layer": -50,
+          "owner": "equipment/monster/goblin/acc2.equ",
+          "ani": "equipment/monster/goblin/acc2animation/sit_200.ani",
+          "aniSHA256": "67222db107b68c129cf836baf010eb8df6ae7772463a61efb1318020f10a8e59",
+          "image": "monster/goblin/equipment/acc2.img",
+          "frame": 10,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "fd34753dfb4133fdb86068af832f10135eb8691b1a92f256b5b6189e368e21d5",
+          "rawRGBAsha256": "0fe8305eb733f88a5ff2e92600e58f5a3498dc92ccd7ac31729f3ec3c24e7d0f",
+          "keyedRGBAsha256": "0fe8305eb733f88a5ff2e92600e58f5a3498dc92ccd7ac31729f3ec3c24e7d0f",
+          "offset": [
+            62,
+            90
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            142,
+            190
+          ]
+        },
+        {
+          "layer": 0,
+          "owner": "monster/goblin/goblinthrower.mob",
+          "ani": "monster/goblin/animation_thrower/sit.ani",
+          "aniSHA256": "8ffee76cfc09c4730581853ca488a7a24f41655dbbcd22ac6609b5e69c244a21",
+          "image": "monster/goblin/body0.img",
+          "frame": 10,
+          "pack": "sprite_monster_goblin.NPK",
+          "imgSHA256": "294c70b816ccdb49e0bd2fa6a323c218887ca3a50927bd2f4b6dd082cbe6d10d",
+          "rawRGBAsha256": "ad6dc56e07f50eff5b9915bd5d9eb2fd1b8a20019647ed4a7c216d88562cdfe6",
+          "keyedRGBAsha256": "f67e69aa86fba6e35f3ca932ba306ab318f92399ad6fb0f2fbc68b764c864744",
+          "offset": [
+            71,
+            97
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            151,
+            197
+          ]
+        },
+        {
+          "layer": 100,
+          "owner": "equipment/monster/goblin/tcc2.equ",
+          "ani": "equipment/monster/goblin/tcc2animation/sit__100.ani",
+          "aniSHA256": "0dff362b5dccbf854617ba71474cb32a7c87f74dd22d5d87aeb5900ab5c6890b",
+          "image": "monster/goblin/equipment/tcc2.img",
+          "frame": 10,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "9a254bdf3cfd782e62efed5e10cdf14cbf1bf1c4a6055a5440ee40e599754045",
+          "rawRGBAsha256": "f7a0fa58d90d9d075d7c3a0a81dbbbb38ee7b4bdbb287cc2a9649b62ca618c2f",
+          "keyedRGBAsha256": "f7a0fa58d90d9d075d7c3a0a81dbbbb38ee7b4bdbb287cc2a9649b62ca618c2f",
+          "offset": [
+            80,
+            114
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            160,
+            214
+          ]
+        },
+        {
+          "layer": 100,
+          "owner": "equipment/monster/goblin/gcc1.equ",
+          "ani": "equipment/monster/goblin/gcc1animation/sit_100.ani",
+          "aniSHA256": "15f78fe12be3eba23ea63ca9164114b55e53e2eb207dfe8612754180384ce850",
+          "image": "monster/goblin/equipment/gcc1.img",
+          "frame": 10,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "ca37c1bbd401f29958d1806f460caff7d67ea3e5294f64017373a66eb0ce35e2",
+          "rawRGBAsha256": "5548546f5111e7cbe7b3e95bc3a56d019cdef449a83391f4afaf860a1ee37bc7",
+          "keyedRGBAsha256": "5548546f5111e7cbe7b3e95bc3a56d019cdef449a83391f4afaf860a1ee37bc7",
+          "offset": [
+            78,
+            126
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            158,
+            226
+          ]
+        },
+        {
+          "layer": 300,
+          "owner": "equipment/monster/goblin/hcc3.equ",
+          "ani": "equipment/monster/goblin/hcc3animation/sit_300.ani",
+          "aniSHA256": "f4a7aaf69012268ce11443544c45195f394235f0d5b49467b3bfafac917f833b",
+          "image": "monster/goblin/equipment/hcc3.img",
+          "frame": 10,
+          "pack": "sprite_monster_goblin_equipment.NPK",
+          "imgSHA256": "edf9197b572ee7ad8be43fdcb1080d29f46c1ca0f11453df874fbf873a9b9350",
+          "rawRGBAsha256": "c0d3a515627b83be65bdf4bfd90f621aeb5000c24236e1491fb73a2ca251ef17",
+          "keyedRGBAsha256": "c0d3a515627b83be65bdf4bfd90f621aeb5000c24236e1491fb73a2ca251ef17",
+          "offset": [
+            94,
+            90
+          ],
+          "aniXY": [
+            -91,
+            -152
+          ],
+          "pasteXY": [
+            174,
+            190
+          ]
+        }
+      ],
+      "rgbaSHA256": "880ec024dfa34248d4059ea41b99619e43c2170a1568a38cabc54c07c363eeef"
+    }
+  ],
+  "transparency": "Existing monster importer black key, RGB all below26.",
+  "limits": [
+    "All declared EQU layer blocks are composited in ascending layer order; ties retain equipment order.",
+    "Native throw-frame field2 is source data, not a video absolute-timing measurement.",
+    "Attack duration, AI, world size and champion aura are not calibrated by this import."
+  ]
+}

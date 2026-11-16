@@ -1,0 +1,90 @@
+✖ caster: native equipment composite follows walk and throw poses (14.046544ms)
+✖ burningThrower: native equipment composite follows walk and throw poses (2.765417ms)
+✖ native caster cells preserve component offsets, declared layers and extracted pixels (0.294688ms)
+✖ caster displays the declared native throw frame when Core emits the real stone (9.611795ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 0
+ℹ fail 4
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 99.938244
+
+✖ failing tests:
+
+test at tests/core.test.js:11303:2
+✖ caster: native equipment composite follows walk and throw poses (14.046544ms)
+  AssertionError [ERR_ASSERTION]: caster draws the green body with native basket/clothes
+      at frame (/home/luyanfeng/luyanfeng/nano-dnf/tests/core.test.js:11310:11)
+      at TestContext.<anonymous> (/home/luyanfeng/luyanfeng/nano-dnf/tests/core.test.js:11315:46)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/core.test.js:11303:2
+✖ burningThrower: native equipment composite follows walk and throw poses (2.765417ms)
+  AssertionError [ERR_ASSERTION]: burningThrower draws the green body with native basket/clothes
+      at frame (/home/luyanfeng/luyanfeng/nano-dnf/tests/core.test.js:11310:11)
+      at TestContext.<anonymous> (/home/luyanfeng/luyanfeng/nano-dnf/tests/core.test.js:11315:46)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/core.test.js:11323:1
+✖ native caster cells preserve component offsets, declared layers and extracted pixels (0.294688ms)
+  Error: Cannot find module '../assets/caster-reference.json'
+  Require stack:
+  - /home/luyanfeng/luyanfeng/nano-dnf/tests/core.test.js
+      at Module._resolveFilename (node:internal/modules/cjs/loader:1564:15)
+      at wrapResolveFilename (node:internal/modules/cjs/loader:1118:27)
+      at defaultResolveImplForCJSLoading (node:internal/modules/cjs/loader:1142:10)
+      at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1169:12)
+      at Module._load (node:internal/modules/cjs/loader:1341:5)
+      at wrapModuleLoad (node:internal/modules/cjs/loader:261:19)
+      at Module.require (node:internal/modules/cjs/loader:1674:12)
+      at require (node:internal/modules/helpers:157:16)
+      at TestContext.<anonymous> (/home/luyanfeng/luyanfeng/nano-dnf/tests/core.test.js:11324:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14) {
+    code: 'MODULE_NOT_FOUND',
+    requireStack: [ '/home/luyanfeng/luyanfeng/nano-dnf/tests/core.test.js' ]
+  }
+
+test at tests/core.test.js:11338:1
+✖ caster displays the declared native throw frame when Core emits the real stone (9.611795ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(draw)
+  
+      at TestContext.<anonymous> (/home/luyanfeng/luyanfeng/nano-dnf/tests/core.test.js:11346:67)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

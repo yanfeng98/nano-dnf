@@ -1,0 +1,12 @@
+✔ caster: native equipment composite follows walk and throw poses (17.756713ms)
+✔ burningThrower: native equipment composite follows walk and throw poses (4.553149ms)
+✔ native caster cells preserve component offsets, declared layers and extracted pixels (99.68368ms)
+✔ caster displays the declared native throw frame when Core emits the real stone (6.019349ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 201.444683

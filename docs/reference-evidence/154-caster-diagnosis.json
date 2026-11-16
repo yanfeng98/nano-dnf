@@ -1,0 +1,59 @@
+{
+  "before": {
+    "exitCode": 1,
+    "log": "154-caster-before-unit.txt",
+    "failures": [
+      "caster/burningThrower did not draw native composite",
+      "missing native composite proof",
+      "real projectile emission did not draw native composite"
+    ]
+  },
+  "after": {
+    "targetedUnitTests": 4,
+    "exitCode": 0,
+    "log": "154-caster-after-unit.txt",
+    "browser": "154-caster-browser.json",
+    "poses": 18,
+    "realCoreEmissions": 2
+  },
+  "reference": {
+    "video": "00001-幽暗密林.mp4",
+    "frames": [
+      {
+        "time": 78,
+        "file": "154-v1-78-caster.png",
+        "sha256": "5c1f835a816ae6e21150ab48f8a884591ce33d5a17a54862693e2f27e5718cdb"
+      },
+      {
+        "time": 80,
+        "file": "154-v1-80-caster.png",
+        "sha256": "cc4a7c070d7c75a5c79acacaae4b2d8f357e13c846cfb8e089460f75f0821342"
+      }
+    ],
+    "observations": [
+      "78s standing basket-carrying green goblin; selected target caption is red goblin, not this actor.",
+      "80s caption readsLv4 throwing goblin and basket/green actor is down at left."
+    ],
+    "source": "assets/caster-reference.json"
+  },
+  "reimport": "PNG and JSON byte-identical on a second local-client extraction",
+  "hypotheses": [
+    {
+      "cause": "wrong body (rtrow blue armor) used for caster",
+      "status": "confirmed by native MOB/ANI and video basket actor"
+    },
+    {
+      "cause": "equipment layers omitted",
+      "status": "confirmed by four native EQU declarations"
+    },
+    {
+      "cause": "only scale was wrong",
+      "status": "rejected as full explanation; body and equipment identity differ"
+    }
+  ],
+  "limits": [
+    "Body-frame index alone does not identify pose composite; attack adds layer400.",
+    "Native throw-frame field2 is mapped to current Core emission; video absolute attack duration/AI are not established.",
+    "Physical size, projectile origin/flight, champion aura and whole-play acceptance remain open."
+  ]
+}

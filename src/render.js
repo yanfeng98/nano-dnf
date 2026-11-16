@@ -4533,18 +4533,18 @@
       cursedRed: 7, burningThrower: 2
     },
     frames: {
-      grunt: 17, coward: 17, caster: 17, brute: 32, elite: 17, boss: 32,
+      grunt: 17, coward: 17, caster: 18, brute: 32, elite: 17, boss: 32,
       goblinBlue: 17, goblinRed: 17,
       cat: 37, throwerElite: 17, lugaruBoss: 37,
       deepElite: 17,
-      cursedRed: 17, burningThrower: 17
+      cursedRed: 17, burningThrower: 18
     },
     /*
      * How tall each monster's art is on frame 0, in the sheet's own pixels.
      * Measured off the sheet (the alpha box of frame 0), not picked.
      */
     stand: {
-      grunt: 76, coward: 76, caster: 78, brute: 164, elite: 86, boss: 164,
+      grunt: 76, coward: 76, caster: 80, brute: 164, elite: 86, boss: 164,
       /* 换色那两具是同一套画布，烘的时候量出来的和 `grunt` 一模一样。 */
       goblinBlue: 76, goblinRed: 76,
       /*
@@ -4553,7 +4553,7 @@
        */
       cat: 74, throwerElite: 76, lugaruBoss: 74,
       deepElite: 75,
-      cursedRed: 76, burningThrower: 78
+      cursedRed: 76, burningThrower: 80
     },
     /*
      * **头像那一块**，相对于它自己那一格的左上角。
@@ -4577,11 +4577,11 @@
      * the art's size, and `ENEMY_TYPES` is where both are decided.
      */
     /*
-     * Legacy placeholder for caster/whiteboss bodies awaiting their own source
+     * Legacy placeholder for the whiteboss body awaiting its own source
      * review. The old claim that1..6/12..16 was a verified common goblin run
      * was incorrect: ordinary/coward/blue/red native ANI links prove otherwise.
-     * Those bodies now use nativeGoblin below. Caster equipment/art and the
-     * legacy whiteboss identity are separate open issues; this is not evidence
+     * Those bodies now use nativeGoblin below. The legacy whiteboss identity
+     * remains a separate open issue; this is not evidence
      * for their native poses.
      */
     goblin: {
@@ -4598,6 +4598,14 @@
     nativeGoblin: {
       idle: [0, 0], attack: [0, 4], down: [5, 9], rise: [10, 10],
       walk: [11, 16], walkFps: 10, attackMilliseconds: [80, 80, 80, 80, 200]
+    },
+    // goblinthrower MOB -> body0 plus four EQU records. Separate pose cells
+    // preserve the extra attack layer400; source body frames are not cell IDs.
+    // Align declared throw ordinal2 with the existing Core emission event.
+    // Absolute duration/AI still require recording calibration.
+    nativeCaster: {
+      idle: [0, 0], walk: [1, 6], attack: [7, 11], down: [12, 16], rise: [17, 17],
+      walkFps: 10, attackMilliseconds: [80, 80, 80, 80, 200], releaseFrame: 2
     },
     /*
      * 牛头巨兽, read off the same recording by overlaying each candidate frame's
@@ -4648,7 +4656,8 @@
     poses: {
       grunt: "nativeGoblin",
       coward: "nativeGoblin",
-      caster: "goblin",
+      caster: "nativeCaster",
+      burningThrower: "nativeCaster",
       elite: "goblin",
       brute: "tau",
       boss: "tau",
@@ -4763,6 +4772,14 @@
         var holds = table.attackMilliseconds;
         var total = holds.reduce(function (sum, hold) { return sum + hold; }, 0);
         var elapsedMs = Math.max(0, progress) * total;
+        if (table.releaseFrame !== undefined) {
+          var releaseMs = holds.slice(0, table.releaseFrame).reduce(function (sum, hold) { return sum + hold; }, 0);
+          var duration = enemy.attackDuration || 1;
+          var windup = Math.max(0, Math.min(duration, enemy.attackWindup || 0));
+          var elapsedAttack = Math.max(0, duration - enemy.attackTimer);
+          elapsedMs = elapsedAttack < windup ? releaseMs * elapsedAttack / windup :
+            releaseMs + (total - releaseMs) * Math.min(1, (elapsedAttack - windup) / Math.max(0.000001, duration - windup));
+        }
         for (var i = 0; i < holds.length - 1; i++) {
           if (elapsedMs < holds[i]) return first + i;
           elapsedMs -= holds[i];
@@ -4827,6 +4844,9 @@
     }
     if (enemy.type === "grunt") {
       sheet=sprites && sprites.goblinReference;row=0;
+    }
+    if (enemy.type === "caster" || enemy.type === "burningThrower") {
+      sheet=sprites && sprites.casterReference;row=0;
     }
     if (!sheet || !sheet.width || row === undefined) return false;
     var table = MONSTER[MONSTER.poses[enemy.type]];
@@ -7086,8 +7106,9 @@
   /** 把一张怪的脸画进头像框：取它站姿那一帧的**头部**那一段。 */
   function drawMonsterFace(ctx, sprites, type, box) {
     var sheet = sprites && (type === "throwerElite" ? sprites.throwerReference :
-      type === "grunt" ? sprites.goblinReference : sprites.monsters);
-    var row = type === "throwerElite" || type === "grunt" ? 0 : MONSTER.rows[type];
+      type === "grunt" ? sprites.goblinReference :
+      type === "caster" || type === "burningThrower" ? sprites.casterReference : sprites.monsters);
+    var row = type === "throwerElite" || type === "grunt" || type === "caster" || type === "burningThrower" ? 0 : MONSTER.rows[type];
     if (!sheet || !sheet.width || row === undefined) return false;
     var face = MONSTER.face && MONSTER.face[type];
     if (face) {

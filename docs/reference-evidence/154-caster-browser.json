@@ -1,0 +1,359 @@
+{
+  "url": "http://127.0.0.1:38639/?seed=1",
+  "poses": [
+    {
+      "type": "caster",
+      "name": "idle",
+      "src": "http://127.0.0.1:38639/assets/caster-reference.png",
+      "source": [
+        0,
+        0,
+        360,
+        420
+      ],
+      "inkBounds": [
+        565.7443594600409,
+        343.2440507411957,
+        626.4735239412039,
+        430
+      ]
+    },
+    {
+      "type": "caster",
+      "name": "walk-first",
+      "src": "http://127.0.0.1:38639/assets/caster-reference.png",
+      "source": [
+        360,
+        0,
+        360,
+        420
+      ],
+      "inkBounds": [
+        539.7274910784108,
+        342.1596013754606,
+        600.4566555595738,
+        425.6622025370598
+      ]
+    },
+    {
+      "type": "caster",
+      "name": "walk-last",
+      "src": "http://127.0.0.1:38639/assets/caster-reference.png",
+      "source": [
+        2160,
+        0,
+        360,
+        420
+      ],
+      "inkBounds": [
+        545.7036119483746,
+        343.2440507411957,
+        614.023921989683,
+        425.6622025370598
+      ]
+    },
+    {
+      "type": "caster",
+      "name": "attack-start",
+      "src": "http://127.0.0.1:38639/assets/caster-reference.png",
+      "source": [
+        2520,
+        0,
+        360,
+        420
+      ],
+      "inkBounds": [
+        554.8071523137696,
+        343.2440507411957,
+        615.5363167949326,
+        430
+      ]
+    },
+    {
+      "type": "caster",
+      "name": "attack-windup",
+      "src": "http://127.0.0.1:38639/assets/caster-reference.png",
+      "source": [
+        2880,
+        0,
+        360,
+        420
+      ],
+      "inkBounds": [
+        534.1892320439729,
+        343.2440507411957,
+        599.2561939880761,
+        430
+      ]
+    },
+    {
+      "type": "caster",
+      "name": "throw-release",
+      "src": "http://127.0.0.1:38639/assets/caster-reference.png",
+      "source": [
+        3240,
+        0,
+        360,
+        420
+      ],
+      "inkBounds": [
+        570.165724221406,
+        332.39955708384514,
+        629.810439336834,
+        428.91555063426495
+      ]
+    },
+    {
+      "type": "caster",
+      "name": "follow-through",
+      "src": "http://127.0.0.1:38639/assets/caster-reference.png",
+      "source": [
+        3600,
+        0,
+        360,
+        420
+      ],
+      "inkBounds": [
+        533.3220769092804,
+        346.49739883840084,
+        601.6423869505888,
+        430
+      ]
+    },
+    {
+      "type": "caster",
+      "name": "attack-recovery",
+      "src": "http://127.0.0.1:38639/assets/caster-reference.png",
+      "source": [
+        3960,
+        0,
+        360,
+        420
+      ],
+      "inkBounds": [
+        539.1402093728902,
+        347.5818482041359,
+        603.1227219512584,
+        430
+      ]
+    },
+    {
+      "type": "caster",
+      "name": "down",
+      "src": "http://127.0.0.1:38639/assets/caster-reference.png",
+      "source": [
+        5760,
+        0,
+        360,
+        420
+      ],
+      "inkBounds": [
+        523.6883463221966,
+        397.4665190279484,
+        638.6399790901123,
+        437.5911455601454
+      ]
+    },
+    {
+      "type": "burningThrower",
+      "name": "idle",
+      "src": "http://127.0.0.1:38639/assets/caster-reference.png",
+      "source": [
+        0,
+        0,
+        360,
+        420
+      ],
+      "inkBounds": [
+        540.806356454159,
+        343.2440507411957,
+        601.535520935322,
+        430
+      ]
+    },
+    {
+      "type": "burningThrower",
+      "name": "walk-first",
+      "src": "http://127.0.0.1:38639/assets/caster-reference.png",
+      "source": [
+        360,
+        0,
+        360,
+        420
+      ],
+      "inkBounds": [
+        538.2444603584372,
+        342.1596013754606,
+        598.9736248396002,
+        425.6622025370598
+      ]
+    },
+    {
+      "type": "burningThrower",
+      "name": "walk-last",
+      "src": "http://127.0.0.1:38639/assets/caster-reference.png",
+      "source": [
+        2160,
+        0,
+        360,
+        420
+      ],
+      "inkBounds": [
+        525.4600115590802,
+        343.2440507411957,
+        593.7803216003886,
+        425.6622025370598
+      ]
+    },
+    {
+      "type": "burningThrower",
+      "name": "attack-start",
+      "src": "http://127.0.0.1:38639/assets/caster-reference.png",
+      "source": [
+        2520,
+        0,
+        360,
+        420
+      ],
+      "inkBounds": [
+        544.5781491389425,
+        343.2440507411957,
+        605.3073136201056,
+        430
+      ]
+    },
+    {
+      "type": "burningThrower",
+      "name": "attack-windup",
+      "src": "http://127.0.0.1:38639/assets/caster-reference.png",
+      "source": [
+        2880,
+        0,
+        360,
+        420
+      ],
+      "inkBounds": [
+        518.3587167067526,
+        343.2440507411957,
+        583.4256786508558,
+        430
+      ]
+    },
+    {
+      "type": "burningThrower",
+      "name": "throw-release",
+      "src": "http://127.0.0.1:38639/assets/caster-reference.png",
+      "source": [
+        3240,
+        0,
+        360,
+        420
+      ],
+      "inkBounds": [
+        543.6566945154118,
+        332.39955708384514,
+        603.3014096308398,
+        428.91555063426495
+      ]
+    },
+    {
+      "type": "burningThrower",
+      "name": "follow-through",
+      "src": "http://127.0.0.1:38639/assets/caster-reference.png",
+      "source": [
+        3600,
+        0,
+        360,
+        420
+      ],
+      "inkBounds": [
+        547.0948919363218,
+        346.49739883840084,
+        615.4152019776302,
+        430
+      ]
+    },
+    {
+      "type": "burningThrower",
+      "name": "attack-recovery",
+      "src": "http://127.0.0.1:38639/assets/caster-reference.png",
+      "source": [
+        3960,
+        0,
+        360,
+        420
+      ],
+      "inkBounds": [
+        530.1776166168202,
+        347.5818482041359,
+        594.1601291951883,
+        430
+      ]
+    },
+    {
+      "type": "burningThrower",
+      "name": "down",
+      "src": "http://127.0.0.1:38639/assets/caster-reference.png",
+      "source": [
+        5760,
+        0,
+        360,
+        420
+      ],
+      "inkBounds": [
+        525.9823071742358,
+        397.4665190279484,
+        640.9339399421515,
+        437.5911455601454
+      ]
+    }
+  ],
+  "emissions": [
+    {
+      "type": "caster",
+      "projectiles": 1,
+      "hitDone": true,
+      "elapsed": 0.5166666666666675,
+      "draw": {
+        "src": "http://127.0.0.1:38639/assets/caster-reference.png",
+        "source": [
+          3240,
+          0,
+          360,
+          420
+        ],
+        "inkBounds": [
+          582.1148851392718,
+          332.39955708384514,
+          641.7596002546998,
+          428.91555063426495
+        ]
+      }
+    },
+    {
+      "type": "burningThrower",
+      "projectiles": 1,
+      "hitDone": true,
+      "elapsed": 0.5166666666666675,
+      "draw": {
+        "src": "http://127.0.0.1:38639/assets/caster-reference.png",
+        "source": [
+          3240,
+          0,
+          360,
+          420
+        ],
+        "inkBounds": [
+          599.1036932960196,
+          332.39955708384514,
+          658.7484084114476,
+          428.91555063426495
+        ]
+      }
+    }
+  ],
+  "errors": [],
+  "limits": [
+    "Loaded composite/frame identities and Core emission alignment are checked; video absolute timing, AI, world scale and champion aura remain open."
+  ]
+}
