@@ -1,0 +1,48 @@
+✖ ordinary goblins draw the native club body and keep attack frames separate from down poses (14.943082ms)
+✖ club goblin atlas preserves the extracted native cells and frame links (0.269103ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 0
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 84.869524
+
+✖ failing tests:
+
+test at tests/core.test.js:11233:1
+✖ ordinary goblins draw the native club body and keep attack frames separate from down poses (14.943082ms)
+  AssertionError [ERR_ASSERTION]: ordinary goblin uses the club/brown-pants body linked by goblin.mob
+      at frame (/home/luyanfeng/luyanfeng/nano-dnf/tests/core.test.js:11240:10)
+      at TestContext.<anonymous> (/home/luyanfeng/luyanfeng/nano-dnf/tests/core.test.js:11245:46)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/core.test.js:11252:1
+✖ club goblin atlas preserves the extracted native cells and frame links (0.269103ms)
+  Error: Cannot find module '../assets/goblin-reference.json'
+  Require stack:
+  - /home/luyanfeng/luyanfeng/nano-dnf/tests/core.test.js
+      at Module._resolveFilename (node:internal/modules/cjs/loader:1564:15)
+      at wrapResolveFilename (node:internal/modules/cjs/loader:1118:27)
+      at defaultResolveImplForCJSLoading (node:internal/modules/cjs/loader:1142:10)
+      at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1169:12)
+      at Module._load (node:internal/modules/cjs/loader:1341:5)
+      at wrapModuleLoad (node:internal/modules/cjs/loader:261:19)
+      at Module.require (node:internal/modules/cjs/loader:1674:12)
+      at require (node:internal/modules/helpers:157:16)
+      at TestContext.<anonymous> (/home/luyanfeng/luyanfeng/nano-dnf/tests/core.test.js:11253:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14) {
+    code: 'MODULE_NOT_FOUND',
+    requireStack: [ '/home/luyanfeng/luyanfeng/nano-dnf/tests/core.test.js' ]
+  }

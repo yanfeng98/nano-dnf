@@ -1,0 +1,111 @@
+{
+  "id": 43782565863,
+  "head_sha": "7b32204ecf73bc3996d4319e6c5afc882cef6933",
+  "status": "completed",
+  "conclusion": "success",
+  "html_url": "https://github.com/yanfeng98/nano-dnf/actions/runs/43782565863",
+  "updated_at": "2026-11-16T00:50:40Z",
+  "localRegression": "151-final-regression.json",
+  "onlineVerification": "completed",
+  "jobs": [
+    {
+      "id": 133022849142,
+      "name": "Test and stage the playable build",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/yanfeng98/nano-dnf/actions/runs/43782565863/job/133022849142"
+    },
+    {
+      "id": 133023140626,
+      "name": "Deploy to GitHub Pages",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/yanfeng98/nano-dnf/actions/runs/43782565863/job/133023140626"
+    },
+    {
+      "id": 133023215406,
+      "name": "Verify the deployed build",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/yanfeng98/nano-dnf/actions/runs/43782565863/job/133023215406"
+    }
+  ],
+  "independentLiveSmoke": {
+    "exitCode": 0,
+    "log": "/tmp/nano151-live.log",
+    "result": "published bytes match checkout; boots cleanly"
+  },
+  "onlineOrdinarySecondRoom": {
+    "url": "https://luyf-lemon-love.space/nano-dnf/?seed=1",
+    "stage": "mirkwood",
+    "initialCount": 8,
+    "initialPending": 0,
+    "deaths": [
+      {
+        "type": "caster",
+        "level": 4,
+        "configuredXP": 40,
+        "paidXP": 40,
+        "dead": true
+      },
+      {
+        "type": "grunt",
+        "level": 4,
+        "configuredXP": 40,
+        "paidXP": 40,
+        "dead": true
+      },
+      {
+        "type": "grunt",
+        "level": 4,
+        "configuredXP": 40,
+        "paidXP": 40,
+        "dead": true
+      },
+      {
+        "type": "goblinRed",
+        "level": 4,
+        "configuredXP": 40,
+        "paidXP": 40,
+        "dead": true
+      },
+      {
+        "type": "grunt",
+        "level": 4,
+        "configuredXP": 40,
+        "paidXP": 40,
+        "dead": true
+      },
+      {
+        "type": "grunt",
+        "level": 4,
+        "configuredXP": 40,
+        "paidXP": 40,
+        "dead": true
+      },
+      {
+        "type": "grunt",
+        "level": 4,
+        "configuredXP": 40,
+        "paidXP": 40,
+        "dead": true
+      },
+      {
+        "type": "goblinBlue",
+        "level": 4,
+        "configuredXP": 40,
+        "paidXP": 40,
+        "dead": true
+      }
+    ],
+    "totalPaidXP": 320,
+    "cleared": true,
+    "victory": false,
+    "pending": 0,
+    "errors": [],
+    "limits": [
+      "Eight exit-bounded credited deaths restored; existing positions, activation timing, AI and progression are not validated by this probe."
+    ]
+  },
+  "probeSha256": "f3e38d54a2093468680a6f84d27349cb7c3631e89bf297e5ff482574cf0a07c5"
+}

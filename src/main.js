@@ -34,7 +34,7 @@
   var sprites = {
     slayer: null, skills: null, effects: null, normalWave: null, normalWaveBody: null,
     rift: null, awakening: null, region: null,
-    monsters: null, throwerReference: null, nativeFlora: null, forest: null, minimap: null, ui: null, results: null,
+    monsters: null, throwerReference: null, goblinReference: null, nativeFlora: null, forest: null, minimap: null, ui: null, results: null,
     /* Native client UI faces and target frames; see reference batches 31–34. */
     portraits: null, experienceDigits: null
   };
@@ -72,6 +72,7 @@
      */
     ["monsters", "./assets/monsters.png"],
     ["throwerReference", "./assets/thrower-reference.png"],
+    ["goblinReference", "./assets/goblin-reference.png"],
     /*
      * 幽暗密林's room art: the client's forest set 02 - far and mid layers, the
      * grass ground strips and the props a room scatters - each cropped to its

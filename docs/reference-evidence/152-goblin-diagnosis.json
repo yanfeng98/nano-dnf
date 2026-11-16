@@ -1,0 +1,33 @@
+{
+  "before": {
+    "command": "node --test --test-name-pattern='ordinary goblins draw|club goblin atlas' tests/core.test.js",
+    "exitCode": 1,
+    "failures": [
+      "runtime did not draw the native club body",
+      "native club atlas missing"
+    ],
+    "log": "152-goblin-before-unit.txt"
+  },
+  "after": {
+    "sameCommandExitCode": 0,
+    "browser": "152-goblin-browser.json",
+    "log": "152-goblin-after-unit.txt"
+  },
+  "reference": {
+    "video": "00001-幽暗密林.mp4",
+    "times": [
+      110,
+      111,
+      112,
+      112.5,
+      113
+    ],
+    "framePanel": "151-v1-late-actors.png",
+    "source": "assets/goblin-reference.json",
+    "nativeLink": "goblin.mob -> Animation_Goblin2 -> Event/Goblin.img"
+  },
+  "limits": [
+    "Native source pixels and frame identities are restored; absolute timing/AI, physical size and whole-play acceptance remain open.",
+    "The first browser fixture drew offscreen; camera and in-playfield ink-bound assertions were added before the final successful probe."
+  ]
+}

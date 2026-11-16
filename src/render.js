@@ -4594,6 +4594,14 @@
       rise: [10, 11],
       walk: [12, 16]
     },
+    // goblin.mob -> Animation_Goblin2 -> Event/Goblin.img (club/brown pants).
+    // ANI attack:0..4 at80/80/80/80/200ms; walk:11..16 at100ms.
+    // Preserve those relative attack holds within the existing combat duration;
+    // absolute attack/AI timing remains uncalibrated against the recording.
+    clubGoblin: {
+      idle: [0, 0], attack: [0, 4], down: [5, 9], rise: [10, 10],
+      walk: [11, 16], walkFps: 10, attackMilliseconds: [80, 80, 80, 80, 200]
+    },
     /*
      * 牛头巨兽, read off the same recording by overlaying each candidate frame's
      * silhouette back onto the video and keeping only the fits - the boss fight
@@ -4641,7 +4649,7 @@
       walk: [20, 28]
     },
     poses: {
-      grunt: "goblin",
+      grunt: "clubGoblin",
       coward: "goblin",
       caster: "goblin",
       elite: "goblin",
@@ -4755,6 +4763,16 @@
     }
     if (pose === "attack" || pose === "sweep") {
       var progress = 1 - Math.max(0, enemy.attackTimer / (enemy.attackDuration || 1));
+      if (pose === "attack" && table.attackMilliseconds) {
+        var holds = table.attackMilliseconds;
+        var total = holds.reduce(function (sum, hold) { return sum + hold; }, 0);
+        var elapsedMs = Math.max(0, progress) * total;
+        for (var i = 0; i < holds.length - 1; i++) {
+          if (elapsedMs < holds[i]) return first + i;
+          elapsedMs -= holds[i];
+        }
+        return range[1];
+      }
       return first + Math.min(span, Math.floor(progress * (span + 1)));
     }
     if (pose === "down") return range[1];
@@ -4810,6 +4828,9 @@
     var row = MONSTER.rows[enemy.type];
     if (enemy.type === "throwerElite") {
       sheet=sprites && sprites.throwerReference;row=0;
+    }
+    if (enemy.type === "grunt") {
+      sheet=sprites && sprites.goblinReference;row=0;
     }
     if (!sheet || !sheet.width || row === undefined) return false;
     var table = MONSTER[MONSTER.poses[enemy.type]];
@@ -7068,8 +7089,9 @@
 
   /** 把一张怪的脸画进头像框：取它站姿那一帧的**头部**那一段。 */
   function drawMonsterFace(ctx, sprites, type, box) {
-    var sheet = sprites && (type === "throwerElite" ? sprites.throwerReference : sprites.monsters);
-    var row = type === "throwerElite" ? 0 : MONSTER.rows[type];
+    var sheet = sprites && (type === "throwerElite" ? sprites.throwerReference :
+      type === "grunt" ? sprites.goblinReference : sprites.monsters);
+    var row = type === "throwerElite" || type === "grunt" ? 0 : MONSTER.rows[type];
     if (!sheet || !sheet.width || row === undefined) return false;
     var face = MONSTER.face && MONSTER.face[type];
     if (face) {

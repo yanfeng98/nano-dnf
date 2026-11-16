@@ -1,0 +1,516 @@
+{
+  "mob": "monster/goblin/goblin.mob",
+  "pack": "/mnt/c/dnf/地下城与勇士/ImagePacks2/sprite_monster_goblin_event.NPK",
+  "entry": "sprite/monster/goblin/event/goblin.img",
+  "imgSHA256": "287a78514a5913e3f3c630cad9d6d94fef9167ccce56e8cccb6f2fe2a83a60a9",
+  "sheet": [
+    6120,
+    420
+  ],
+  "cell": [
+    360,
+    420
+  ],
+  "anchor": [
+    180,
+    260
+  ],
+  "nativeGround": [
+    100.5,
+    160
+  ],
+  "standHeight": 76,
+  "transparency": "existing monster importer: RGB components all below26 keyed transparent",
+  "motions": {
+    "idle": {
+      "path": "monster/goblin/animation_goblin2/stay.ani",
+      "sha256": "f1cdc68a8db5ffe8ea6232a475f0ff86188d396e0330747b53fda0aa7e8e7799",
+      "frames": [
+        0
+      ],
+      "milliseconds": [
+        80
+      ]
+    },
+    "walk": {
+      "path": "monster/goblin/animation_goblin2/move.ani",
+      "sha256": "e80a86e00a539d5b47a0a2b5a2827702e77b6a91d8afbb28fa851dd58dad8b43",
+      "frames": [
+        11,
+        12,
+        13,
+        14,
+        15,
+        16
+      ],
+      "milliseconds": [
+        100,
+        100,
+        100,
+        100,
+        100,
+        100
+      ]
+    },
+    "attack": {
+      "path": "monster/goblin/animation_goblin2/attack1.ani",
+      "sha256": "e28692da2f719e369693f12118ae45410a768e5a5ea4490c728b63db47a84461",
+      "frames": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "milliseconds": [
+        80,
+        80,
+        80,
+        80,
+        200
+      ]
+    },
+    "down": {
+      "path": "monster/goblin/animation_goblin2/down.ani",
+      "sha256": "8330d68bd07449545eb4e54810896b52830cbfb787e9c979de828e883066dbb8",
+      "frames": [
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "milliseconds": [
+        80,
+        80,
+        10000,
+        10000,
+        500
+      ]
+    },
+    "rise": {
+      "path": "monster/goblin/animation_goblin2/sit.ani",
+      "sha256": "15b04302be946e9a3822350a6a519e154671f47e16dc6310c41d2ee432cf4034",
+      "frames": [
+        10
+      ],
+      "milliseconds": [
+        150
+      ]
+    }
+  },
+  "frames": [
+    {
+      "frame": 0,
+      "nativeXY": [
+        77,
+        84
+      ],
+      "sourceSize": [
+        47,
+        76
+      ],
+      "rawRGBAsha256": "4de6ae138ab5dae23bcae4a56afd4adb3cac981f614fbfb9b794bbb97a30b220",
+      "keyedRGBAsha256": "9d3f4689efb98183244c2285ba3b8643e7ecdbc167f1f7eb998e46b5a0d56f84",
+      "pasteXY": [
+        156,
+        184
+      ],
+      "bbox": [
+        156,
+        184,
+        203,
+        260
+      ],
+      "cellRGBAsha256": "db71a1fe3fcc5edd3194dc8340eac996ef72aa8e43096b42945c54393d0d7bb1"
+    },
+    {
+      "frame": 1,
+      "nativeXY": [
+        70,
+        82
+      ],
+      "sourceSize": [
+        60,
+        78
+      ],
+      "rawRGBAsha256": "4da05c62a15e30109960265f44533a6d4f1a782f077823ec267e6d7d7b6d717d",
+      "keyedRGBAsha256": "e21ddf3a3b4a882146ef0b4d0df847547837bdd54b33ba6c7c4f9dd18dbe196c",
+      "pasteXY": [
+        150,
+        182
+      ],
+      "bbox": [
+        150,
+        182,
+        210,
+        260
+      ],
+      "cellRGBAsha256": "c8910574efbc2be58ebee1ad285905397f0b3d3d7e9af2a0c0995cbe50c6f6cc"
+    },
+    {
+      "frame": 2,
+      "nativeXY": [
+        50,
+        46
+      ],
+      "sourceSize": [
+        70,
+        113
+      ],
+      "rawRGBAsha256": "ae0f58b9856714ec2d052c3becc85c79ca759f31ebd01eee8207595b84b71da0",
+      "keyedRGBAsha256": "f89d9d128773ae21b56e78ce427098f36f31bc0747dae7659bc537a554643462",
+      "pasteXY": [
+        130,
+        146
+      ],
+      "bbox": [
+        130,
+        146,
+        200,
+        259
+      ],
+      "cellRGBAsha256": "e15034bbea64f89cd92ba76ae232abaeac883eae3be6c1296a899f7a209138fb"
+    },
+    {
+      "frame": 3,
+      "nativeXY": [
+        71,
+        88
+      ],
+      "sourceSize": [
+        100,
+        72
+      ],
+      "rawRGBAsha256": "f27036fc78160b89e6b2ff553e98ad24f93d4b82c45f4e1b7636b36ddd6a6fab",
+      "keyedRGBAsha256": "09189be9530c3a97fa9b0806adaa5deff9af5daa387299afafd9aaed9ec22ab5",
+      "pasteXY": [
+        150,
+        188
+      ],
+      "bbox": [
+        150,
+        188,
+        250,
+        260
+      ],
+      "cellRGBAsha256": "41cf7dc8c3721be833d58d5d16820c401fea9a3855f2dc8846e7fb214e57fb63"
+    },
+    {
+      "frame": 4,
+      "nativeXY": [
+        74,
+        89
+      ],
+      "sourceSize": [
+        65,
+        71
+      ],
+      "rawRGBAsha256": "6b0b16980242cbed99a56e0008563fc5b4a1ca81022d3dd02e2836f02bffb5de",
+      "keyedRGBAsha256": "70e2ea489e3e5204c84c3b24ecd10d04572304359fc5ca24fd3eded5fea4e94b",
+      "pasteXY": [
+        154,
+        189
+      ],
+      "bbox": [
+        154,
+        189,
+        219,
+        260
+      ],
+      "cellRGBAsha256": "f00bbd2e4d290a312844b13eee74560abc3f619773dbd5ee48382616380344ce"
+    },
+    {
+      "frame": 5,
+      "nativeXY": [
+        72,
+        89
+      ],
+      "sourceSize": [
+        53,
+        67
+      ],
+      "rawRGBAsha256": "393b7351af26618c34b170b447fdba831c411306369edab0d4eb0a2cea97f541",
+      "keyedRGBAsha256": "80e2cac140716d206ef02e0ca3dd10250702cbf896678ea8ef65db19d8e25a25",
+      "pasteXY": [
+        152,
+        189
+      ],
+      "bbox": [
+        152,
+        189,
+        205,
+        256
+      ],
+      "cellRGBAsha256": "c12a5f45bafcd0f57026b425e5573ec61b0950383c64655a9fdea27bfcb176c8"
+    },
+    {
+      "frame": 6,
+      "nativeXY": [
+        53,
+        84
+      ],
+      "sourceSize": [
+        55,
+        72
+      ],
+      "rawRGBAsha256": "da7a5555c4f145795a7147660f74f0338dbd32cc695b8bfc09329f6f245b3ecc",
+      "keyedRGBAsha256": "9967302cc2f28e5ddcd88b4784f814ce7193455b346108ef490ba21f59b9c5f2",
+      "pasteXY": [
+        132,
+        184
+      ],
+      "bbox": [
+        132,
+        184,
+        187,
+        256
+      ],
+      "cellRGBAsha256": "560b63c8612addc66cf813729c151aa4831c6277cc89875a6272aa8c1f100ee3"
+    },
+    {
+      "frame": 7,
+      "nativeXY": [
+        49,
+        108
+      ],
+      "sourceSize": [
+        67,
+        53
+      ],
+      "rawRGBAsha256": "269012c203b3ca6ecbc8a6a52c0245311d8de79e8d01d7f98b8086fba9c73e7c",
+      "keyedRGBAsha256": "d9af6cabfca08c669aa59492228a512aac3e48a90b8960e62fb285458bc269a7",
+      "pasteXY": [
+        128,
+        208
+      ],
+      "bbox": [
+        128,
+        208,
+        195,
+        261
+      ],
+      "cellRGBAsha256": "aa32eae11c6a9130394b4ac71082f50174ce98fac1a4bcbfa7a96c9bd9822a9d"
+    },
+    {
+      "frame": 8,
+      "nativeXY": [
+        47,
+        113
+      ],
+      "sourceSize": [
+        72,
+        55
+      ],
+      "rawRGBAsha256": "90db8f5e20351787da0fc8fed811fbfce02097cdd74b63ebc70c7b2d276d1668",
+      "keyedRGBAsha256": "8ed4a04d1a5d53f46e29f236ade787a8094e5523311fea2f00f62932261c267f",
+      "pasteXY": [
+        126,
+        213
+      ],
+      "bbox": [
+        126,
+        213,
+        198,
+        268
+      ],
+      "cellRGBAsha256": "a258ee59beaf8c6159ced0fd0dc9adf0ce17f133e76322805d924019ef9395ad"
+    },
+    {
+      "frame": 9,
+      "nativeXY": [
+        35,
+        130
+      ],
+      "sourceSize": [
+        93,
+        37
+      ],
+      "rawRGBAsha256": "38daaa3ef8d874f714c1256690d0d0a124e4e15d89da1f0a3b0f45ec34313d7a",
+      "keyedRGBAsha256": "04c41927d1499434bbe8d52312f21d25eabd81a7ab95285c340db2e1b63ba1af",
+      "pasteXY": [
+        114,
+        230
+      ],
+      "bbox": [
+        114,
+        230,
+        207,
+        267
+      ],
+      "cellRGBAsha256": "583f18a579d0341daa2ca996d54ea61faabaf70d1ee7f9c2d875fb7d9c8a87e8"
+    },
+    {
+      "frame": 10,
+      "nativeXY": [
+        70,
+        97
+      ],
+      "sourceSize": [
+        51,
+        57
+      ],
+      "rawRGBAsha256": "6a75869ba0e88bbe3a12e6f4bf1026068ec99ceb766e64e0fe61f58ba847a77a",
+      "keyedRGBAsha256": "4fe978f994e67478c8bfdb62d37bf8569ee48dee0f2ed6a320d931a1f6fd01c2",
+      "pasteXY": [
+        150,
+        197
+      ],
+      "bbox": [
+        150,
+        197,
+        201,
+        254
+      ],
+      "cellRGBAsha256": "f61d038898da6cb19fcb7aa2fe87d65d28c7acc819c61de889c75cdd63982719"
+    },
+    {
+      "frame": 11,
+      "nativeXY": [
+        73,
+        84
+      ],
+      "sourceSize": [
+        46,
+        72
+      ],
+      "rawRGBAsha256": "a39e5ae6b3d9ace998bfb37187b1984d1f3c8f7e711c124f5079971522698a3f",
+      "keyedRGBAsha256": "80af2a3f3aad8065f6a6f39cc8d3c29d759e858aab2bb1043bac490e69042def",
+      "pasteXY": [
+        152,
+        184
+      ],
+      "bbox": [
+        152,
+        184,
+        198,
+        256
+      ],
+      "cellRGBAsha256": "199edc1f6d758b9e11f0c06f7a58b1a655722ddfa8d60d7747f666fc12b58d0d"
+    },
+    {
+      "frame": 12,
+      "nativeXY": [
+        70,
+        84
+      ],
+      "sourceSize": [
+        49,
+        72
+      ],
+      "rawRGBAsha256": "b1d67a5f07eaa47dfc321b22bc83ed42e59e35fc14226b71589f6186bd7cd52c",
+      "keyedRGBAsha256": "0eaf2d62b35cda93cc8f435f25932f5693b19103eedcc3290aa60e8fb90b1b2c",
+      "pasteXY": [
+        150,
+        184
+      ],
+      "bbox": [
+        150,
+        184,
+        199,
+        256
+      ],
+      "cellRGBAsha256": "aa53d4ea0d344568cd6c36081cd27ce4a53fb4de16979d432c666d913522a074"
+    },
+    {
+      "frame": 13,
+      "nativeXY": [
+        66,
+        88
+      ],
+      "sourceSize": [
+        54,
+        68
+      ],
+      "rawRGBAsha256": "786f28f05ad1ff25de5bc66481c80eb29dda8b1d8dec9ee30f8d3cd171fddc48",
+      "keyedRGBAsha256": "eae85ef03ff1d9b8cddbe67eb70e2674ae79360edbfff29f11f9288b2205e91e",
+      "pasteXY": [
+        146,
+        188
+      ],
+      "bbox": [
+        146,
+        188,
+        200,
+        256
+      ],
+      "cellRGBAsha256": "fb717f5dccbb73555753a7003d39982d1eafd7cb48d6eb91ae5284ea4d4139f7"
+    },
+    {
+      "frame": 14,
+      "nativeXY": [
+        70,
+        85
+      ],
+      "sourceSize": [
+        48,
+        72
+      ],
+      "rawRGBAsha256": "797a1350246d5cf54b005c1cc3ddf7d9aefb508ea80191bea6659ea8974f9e44",
+      "keyedRGBAsha256": "c88e88ba9b92c5fbd7ffe7bb07364985dc1ded05f22055e12554697789f4cc2a",
+      "pasteXY": [
+        150,
+        185
+      ],
+      "bbox": [
+        150,
+        185,
+        198,
+        257
+      ],
+      "cellRGBAsha256": "8dce361f32b98db657dbdc5173d98a580ddd54e860485aeb945ffab61e11eecc"
+    },
+    {
+      "frame": 15,
+      "nativeXY": [
+        74,
+        83
+      ],
+      "sourceSize": [
+        52,
+        73
+      ],
+      "rawRGBAsha256": "06f6440ec2ae59366f3cd0e9c6197ed01ec96909de0191d8cf8497d24b5e1244",
+      "keyedRGBAsha256": "910b59c7dc49e8dd0169f1a4e29c053830219f54b902b7f9a0679f9cc3733823",
+      "pasteXY": [
+        154,
+        183
+      ],
+      "bbox": [
+        154,
+        183,
+        206,
+        256
+      ],
+      "cellRGBAsha256": "1d9efd8fc9bd13465397e16e09bc598c1d47c74de819beca9a3d5b0070c96983"
+    },
+    {
+      "frame": 16,
+      "nativeXY": [
+        66,
+        87
+      ],
+      "sourceSize": [
+        61,
+        69
+      ],
+      "rawRGBAsha256": "689e48fa7fc08cdcc843ac65c80efd06d789d51fcebb1fea16f15e6fd3a3c0c1",
+      "keyedRGBAsha256": "7bb1a5e6de90b3b0d2c1b60cecf6d03466ba4eaadb011234ed7588823599c433",
+      "pasteXY": [
+        146,
+        187
+      ],
+      "bbox": [
+        146,
+        187,
+        207,
+        256
+      ],
+      "cellRGBAsha256": "8c58dfda0b45ae109df80076e5867000c266918bb3aacc051aa78dc77ea15e0c"
+    }
+  ],
+  "limits": [
+    "Foot is normalized using the existing standing-frame convention.",
+    "Native frame identities do not establish video attack timing, AI or scale."
+  ]
+}

@@ -1,0 +1,10 @@
+✔ ordinary goblins draw the native club body and keep attack frames separate from down poses (16.384775ms)
+✔ club goblin atlas preserves the extracted native cells and frame links (92.07208ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 183.35095
