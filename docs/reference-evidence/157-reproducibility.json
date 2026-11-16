@@ -1,0 +1,31 @@
+{
+  "artifacts": [
+    {
+      "artifact": "nano157-native-missiles.json",
+      "sha256": "d30ed072d963f57bb866ae623d3ac62803a0502989e89bfe82010f0b8f1e9d28",
+      "repeatByteIdentical": true
+    },
+    {
+      "artifact": "nano157-native-missiles-raw.png",
+      "sha256": "fce8cc0f3f3427ea3ec2e258f6f00f9924edd65c3f4aaffe7c71cde86d1e2c26",
+      "repeatByteIdentical": true
+    },
+    {
+      "artifact": "nano157-native-missiles-contact.png",
+      "sha256": "efd1f46237d53679bfc645e41fcc2c1902dbee4461097cc968dc36ca9d762ddc",
+      "repeatByteIdentical": true
+    },
+    {
+      "artifact": "nano157-fire-measurement.json",
+      "sha256": "c0f5be715a7ff31f8e28e49082579901f3be08253da4b6a48722a039b9e97ecf",
+      "repeatByteIdentical": true
+    },
+    {
+      "artifact": "nano157-fire-measurement-crops.png",
+      "sha256": "511a12d0bb4fd60139668a0262f9b6a10ff0208f955ebe6e59441fd050fc71a4",
+      "repeatByteIdentical": true
+    }
+  ],
+  "runtimeChanged": false,
+  "scope": "Native resource extraction and one video shot measurement only; not a gameplay fix or acceptance."
+}

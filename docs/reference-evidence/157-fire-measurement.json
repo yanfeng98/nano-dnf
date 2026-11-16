@@ -1,0 +1,423 @@
+{
+  "video": "00001-幽暗密林.mp4",
+  "samples": [
+    {
+      "t": 61.2,
+      "frame": "149-v1-61.2-second-room.png",
+      "frameSHA256": "90d9e755ee8ba8fd9fe73cd3f74238c68418c797ddf059536e5e5cff5abeeae2",
+      "pillarNCC": 0.9950304627418518,
+      "pillarShift": [
+        19,
+        0
+      ],
+      "frontX": 149,
+      "frontMedianY": 313.5,
+      "correctedFrontX": 130,
+      "correctedFrontY": 313.5
+    },
+    {
+      "t": 61.3,
+      "frame": "149-v1-61.3-second-room.png",
+      "frameSHA256": "5ee0eb45faaea527b3a6d6966a50539b2109470ec9d62f9c2fdcdbf32c522b4a",
+      "pillarNCC": 0.9959423542022705,
+      "pillarShift": [
+        19,
+        0
+      ],
+      "frontX": 181,
+      "frontMedianY": 311.5,
+      "correctedFrontX": 162,
+      "correctedFrontY": 311.5
+    },
+    {
+      "t": 61.4,
+      "frame": "149-v1-61.4-second-room.png",
+      "frameSHA256": "d9d120d1656788fd612f1d1216f0bb4954b1e89eaf7fa195b75c4066e70bea14",
+      "pillarNCC": 0.9930967688560486,
+      "pillarShift": [
+        19,
+        0
+      ],
+      "frontX": 217,
+      "frontMedianY": 316.0,
+      "correctedFrontX": 198,
+      "correctedFrontY": 316.0
+    },
+    {
+      "t": 61.5,
+      "frame": "149-v1-61.5-second-room.png",
+      "frameSHA256": "ae1ade8cda1996472c33bd560b497af81e76ddf6a0f692fe3adaa080f68a77f9",
+      "pillarNCC": 0.9953511953353882,
+      "pillarShift": [
+        19,
+        0
+      ],
+      "frontX": 251,
+      "frontMedianY": 320.0,
+      "correctedFrontX": 232,
+      "correctedFrontY": 320.0
+    }
+  ],
+  "roiXYWH": [
+    100,
+    295,
+    170,
+    35
+  ],
+  "primaryMask": "R>120, G>70, G<R*.91, G>B*1.6, B<110 (decoded RGB)",
+  "pillarTemplateXYWH": [
+    408,
+    345,
+    26,
+    76
+  ],
+  "pillarSearchXYWH": [
+    360,
+    310,
+    150,
+    160
+  ],
+  "fitScreenPixelsPerSecond": 342.0000000000023,
+  "maxResidualPixels": 1.399999999998954,
+  "perPointAssumedErrorPixels": 2,
+  "speedConstraintInterval": [
+    329.99999999999534,
+    353.33333333333667
+  ],
+  "nativeDeclaredXSpeed": 300,
+  "existingNativeProjection": 1.125,
+  "nativeProjectedSpeed": 337.5,
+  "thresholdSensitivityTrials": [
+    {
+      "rMin": 100,
+      "gMin": 60,
+      "gToBRatio": 1.4,
+      "correctedFrontX": [
+        132,
+        162,
+        198,
+        232
+      ],
+      "fitScreenPixelsPerSecond": 336.00000000000244
+    },
+    {
+      "rMin": 100,
+      "gMin": 60,
+      "gToBRatio": 1.6,
+      "correctedFrontX": [
+        132,
+        162,
+        198,
+        232
+      ],
+      "fitScreenPixelsPerSecond": 336.00000000000244
+    },
+    {
+      "rMin": 100,
+      "gMin": 60,
+      "gToBRatio": 1.8,
+      "correctedFrontX": [
+        132,
+        162,
+        196,
+        232
+      ],
+      "fitScreenPixelsPerSecond": 334.0000000000024
+    },
+    {
+      "rMin": 100,
+      "gMin": 70,
+      "gToBRatio": 1.4,
+      "correctedFrontX": [
+        132,
+        162,
+        198,
+        232
+      ],
+      "fitScreenPixelsPerSecond": 336.00000000000244
+    },
+    {
+      "rMin": 100,
+      "gMin": 70,
+      "gToBRatio": 1.6,
+      "correctedFrontX": [
+        132,
+        162,
+        198,
+        232
+      ],
+      "fitScreenPixelsPerSecond": 336.00000000000244
+    },
+    {
+      "rMin": 100,
+      "gMin": 70,
+      "gToBRatio": 1.8,
+      "correctedFrontX": [
+        132,
+        162,
+        196,
+        232
+      ],
+      "fitScreenPixelsPerSecond": 334.0000000000024
+    },
+    {
+      "rMin": 100,
+      "gMin": 80,
+      "gToBRatio": 1.4,
+      "correctedFrontX": [
+        132,
+        162,
+        198,
+        232
+      ],
+      "fitScreenPixelsPerSecond": 336.00000000000244
+    },
+    {
+      "rMin": 100,
+      "gMin": 80,
+      "gToBRatio": 1.6,
+      "correctedFrontX": [
+        132,
+        162,
+        198,
+        232
+      ],
+      "fitScreenPixelsPerSecond": 336.00000000000244
+    },
+    {
+      "rMin": 100,
+      "gMin": 80,
+      "gToBRatio": 1.8,
+      "correctedFrontX": [
+        132,
+        162,
+        196,
+        232
+      ],
+      "fitScreenPixelsPerSecond": 334.0000000000024
+    },
+    {
+      "rMin": 120,
+      "gMin": 60,
+      "gToBRatio": 1.4,
+      "correctedFrontX": [
+        131,
+        162,
+        198,
+        232
+      ],
+      "fitScreenPixelsPerSecond": 339.0000000000024
+    },
+    {
+      "rMin": 120,
+      "gMin": 60,
+      "gToBRatio": 1.6,
+      "correctedFrontX": [
+        130,
+        162,
+        198,
+        232
+      ],
+      "fitScreenPixelsPerSecond": 342.0000000000023
+    },
+    {
+      "rMin": 120,
+      "gMin": 60,
+      "gToBRatio": 1.8,
+      "correctedFrontX": [
+        130,
+        162,
+        196,
+        232
+      ],
+      "fitScreenPixelsPerSecond": 340.0000000000023
+    },
+    {
+      "rMin": 120,
+      "gMin": 70,
+      "gToBRatio": 1.4,
+      "correctedFrontX": [
+        131,
+        162,
+        198,
+        232
+      ],
+      "fitScreenPixelsPerSecond": 339.0000000000024
+    },
+    {
+      "rMin": 120,
+      "gMin": 70,
+      "gToBRatio": 1.6,
+      "correctedFrontX": [
+        130,
+        162,
+        198,
+        232
+      ],
+      "fitScreenPixelsPerSecond": 342.0000000000023
+    },
+    {
+      "rMin": 120,
+      "gMin": 70,
+      "gToBRatio": 1.8,
+      "correctedFrontX": [
+        130,
+        162,
+        196,
+        232
+      ],
+      "fitScreenPixelsPerSecond": 340.0000000000023
+    },
+    {
+      "rMin": 120,
+      "gMin": 80,
+      "gToBRatio": 1.4,
+      "correctedFrontX": [
+        131,
+        162,
+        198,
+        232
+      ],
+      "fitScreenPixelsPerSecond": 339.0000000000024
+    },
+    {
+      "rMin": 120,
+      "gMin": 80,
+      "gToBRatio": 1.6,
+      "correctedFrontX": [
+        130,
+        162,
+        198,
+        232
+      ],
+      "fitScreenPixelsPerSecond": 342.0000000000023
+    },
+    {
+      "rMin": 120,
+      "gMin": 80,
+      "gToBRatio": 1.8,
+      "correctedFrontX": [
+        130,
+        162,
+        196,
+        232
+      ],
+      "fitScreenPixelsPerSecond": 340.0000000000023
+    },
+    {
+      "rMin": 140,
+      "gMin": 60,
+      "gToBRatio": 1.4,
+      "correctedFrontX": [
+        131,
+        162,
+        198,
+        232
+      ],
+      "fitScreenPixelsPerSecond": 339.0000000000024
+    },
+    {
+      "rMin": 140,
+      "gMin": 60,
+      "gToBRatio": 1.6,
+      "correctedFrontX": [
+        130,
+        162,
+        196,
+        232
+      ],
+      "fitScreenPixelsPerSecond": 340.0000000000023
+    },
+    {
+      "rMin": 140,
+      "gMin": 60,
+      "gToBRatio": 1.8,
+      "correctedFrontX": [
+        130,
+        162,
+        196,
+        232
+      ],
+      "fitScreenPixelsPerSecond": 340.0000000000023
+    },
+    {
+      "rMin": 140,
+      "gMin": 70,
+      "gToBRatio": 1.4,
+      "correctedFrontX": [
+        131,
+        162,
+        198,
+        232
+      ],
+      "fitScreenPixelsPerSecond": 339.0000000000024
+    },
+    {
+      "rMin": 140,
+      "gMin": 70,
+      "gToBRatio": 1.6,
+      "correctedFrontX": [
+        130,
+        162,
+        196,
+        232
+      ],
+      "fitScreenPixelsPerSecond": 340.0000000000023
+    },
+    {
+      "rMin": 140,
+      "gMin": 70,
+      "gToBRatio": 1.8,
+      "correctedFrontX": [
+        130,
+        162,
+        196,
+        232
+      ],
+      "fitScreenPixelsPerSecond": 340.0000000000023
+    },
+    {
+      "rMin": 140,
+      "gMin": 80,
+      "gToBRatio": 1.4,
+      "correctedFrontX": [
+        131,
+        162,
+        198,
+        232
+      ],
+      "fitScreenPixelsPerSecond": 339.0000000000024
+    },
+    {
+      "rMin": 140,
+      "gMin": 80,
+      "gToBRatio": 1.6,
+      "correctedFrontX": [
+        130,
+        162,
+        196,
+        232
+      ],
+      "fitScreenPixelsPerSecond": 340.0000000000023
+    },
+    {
+      "rMin": 140,
+      "gMin": 80,
+      "gToBRatio": 1.8,
+      "correctedFrontX": [
+        130,
+        162,
+        196,
+        232
+      ],
+      "fitScreenPixelsPerSecond": 340.0000000000023
+    }
+  ],
+  "limits": [
+    "Manually isolated orange trail is spatially distinct from the lower stone.",
+    "Colour front is not the physical missile origin, hitbox or sprite-template identity.",
+    "Four three-frame groups constrain horizontal speed only; no launch/lifetime/gravity formula inferred.",
+    "The +/-2px bound is an explicit assumption, not a statistical confidence interval.",
+    "No ANI particle transforms, emission cadence or blend equation are proved."
+  ]
+}

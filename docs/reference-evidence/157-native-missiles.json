@@ -1,0 +1,6038 @@
+{
+  "archive": "/mnt/c/dnf/地下城与勇士/Script_70.pvf",
+  "actors": {
+    "goblinRed": {
+      "mob": "monster/goblin/hillgab.mob",
+      "objectId": 30047,
+      "object": "passiveobject/monster/goblin/hillgabsizzle.obj"
+    },
+    "goblinBlue": {
+      "mob": "monster/goblin/seagab.mob",
+      "objectId": 30057,
+      "object": "passiveobject/monster/goblin/seagabicicle.obj"
+    }
+  },
+  "files": {
+    "monster/goblin/hillgab.mob": {
+      "sha256": "9261d4016da52ff014a1cfff015a57f9d813c65872a72dd7b2988f689c5876b9",
+      "tokens": [
+        [
+          5,
+          "[width]"
+        ],
+        [
+          2,
+          40
+        ],
+        [
+          2,
+          10
+        ],
+        [
+          5,
+          "[common champion elemental property]"
+        ],
+        [
+          7,
+          "[fire element]"
+        ],
+        [
+          5,
+          "[/common champion elemental property]"
+        ],
+        [
+          5,
+          "[ability category]"
+        ],
+        [
+          7,
+          "[HP MAX]"
+        ],
+        [
+          7,
+          "*"
+        ],
+        [
+          2,
+          70
+        ],
+        [
+          7,
+          "[EQUIPMENT_PHYSICAL_ATTACK]"
+        ],
+        [
+          7,
+          "*"
+        ],
+        [
+          2,
+          70
+        ],
+        [
+          7,
+          "[EQUIPMENT_PHYSICAL_DEFENSE]"
+        ],
+        [
+          7,
+          "*"
+        ],
+        [
+          2,
+          70
+        ],
+        [
+          7,
+          "[EQUIPMENT_MAGICAL_ATTACK]"
+        ],
+        [
+          7,
+          "*"
+        ],
+        [
+          2,
+          70
+        ],
+        [
+          7,
+          "[EQUIPMENT_MAGICAL_DEFENSE]"
+        ],
+        [
+          7,
+          "*"
+        ],
+        [
+          2,
+          100
+        ],
+        [
+          5,
+          "[/ability category]"
+        ],
+        [
+          5,
+          "[category]"
+        ],
+        [
+          7,
+          "[human]"
+        ],
+        [
+          7,
+          "[goblin]"
+        ],
+        [
+          7,
+          "[range combat]"
+        ],
+        [
+          7,
+          "[close-passive]"
+        ],
+        [
+          5,
+          "[/category]"
+        ],
+        [
+          5,
+          "[level]"
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          2,
+          9
+        ],
+        [
+          5,
+          "[fire resistance]"
+        ],
+        [
+          2,
+          30
+        ],
+        [
+          2,
+          30
+        ],
+        [
+          5,
+          "[water resistance]"
+        ],
+        [
+          2,
+          4294967266
+        ],
+        [
+          2,
+          4294967266
+        ],
+        [
+          5,
+          "[move speed]"
+        ],
+        [
+          2,
+          400
+        ],
+        [
+          2,
+          400
+        ],
+        [
+          5,
+          "[attack speed]"
+        ],
+        [
+          2,
+          300
+        ],
+        [
+          2,
+          300
+        ],
+        [
+          5,
+          "[cast speed]"
+        ],
+        [
+          2,
+          600
+        ],
+        [
+          2,
+          600
+        ],
+        [
+          5,
+          "[hit recovery]"
+        ],
+        [
+          2,
+          600
+        ],
+        [
+          2,
+          600
+        ],
+        [
+          5,
+          "[weight]"
+        ],
+        [
+          2,
+          45000
+        ],
+        [
+          2,
+          45000
+        ],
+        [
+          5,
+          "[sight]"
+        ],
+        [
+          2,
+          300
+        ],
+        [
+          5,
+          "[targeting nearest]"
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          5,
+          "[warlike]"
+        ],
+        [
+          2,
+          30
+        ],
+        [
+          5,
+          "[attack delay]"
+        ],
+        [
+          2,
+          3000
+        ],
+        [
+          5,
+          "[stuckbonus on damage]"
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          5,
+          "[item]"
+        ],
+        [
+          2,
+          1062
+        ],
+        [
+          2,
+          50
+        ],
+        [
+          2,
+          1065
+        ],
+        [
+          2,
+          100
+        ],
+        [
+          2,
+          1047
+        ],
+        [
+          2,
+          200
+        ],
+        [
+          5,
+          "[/item]"
+        ],
+        [
+          5,
+          "[common champion drop item]"
+        ],
+        [
+          5,
+          "[/common champion drop item]"
+        ],
+        [
+          5,
+          "[attack kind]"
+        ],
+        [
+          4,
+          20.0
+        ],
+        [
+          4,
+          5.0
+        ],
+        [
+          4,
+          1.0
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          2,
+          300
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          15
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          15
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          5,
+          "[/attack kind]"
+        ],
+        [
+          5,
+          "[die effect]"
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          8
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          5,
+          "[face image]"
+        ],
+        [
+          7,
+          "Monster/MonsterFace.img"
+        ],
+        [
+          2,
+          9
+        ],
+        [
+          5,
+          "[waiting motion]"
+        ],
+        [
+          7,
+          "Animation_MountainGoblin/Stay.ani"
+        ],
+        [
+          5,
+          "[move motion]"
+        ],
+        [
+          7,
+          "Animation_MountainGoblin/Move.ani"
+        ],
+        [
+          5,
+          "[sit motion]"
+        ],
+        [
+          7,
+          "Animation_MountainGoblin/Sit.ani"
+        ],
+        [
+          5,
+          "[damage motion 1]"
+        ],
+        [
+          7,
+          "Animation_MountainGoblin/Damage1.ani"
+        ],
+        [
+          5,
+          "[damage motion 2]"
+        ],
+        [
+          7,
+          "Animation_MountainGoblin/Damage2.ani"
+        ],
+        [
+          5,
+          "[down motion]"
+        ],
+        [
+          7,
+          "Animation_MountainGoblin/Down.ani"
+        ],
+        [
+          5,
+          "[overturn motion]"
+        ],
+        [
+          7,
+          "Animation_MountainGoblin/Overturn.ani"
+        ],
+        [
+          5,
+          "[attack motion]"
+        ],
+        [
+          7,
+          "Animation_MountainGoblin/Throw.ani"
+        ],
+        [
+          5,
+          "[/attack motion]"
+        ],
+        [
+          5,
+          "[attack info]"
+        ],
+        [
+          7,
+          ""
+        ],
+        [
+          5,
+          "[/attack info]"
+        ],
+        [
+          5,
+          "[int data]"
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          2,
+          6
+        ],
+        [
+          5,
+          "[/int data]"
+        ],
+        [
+          5,
+          "[name]"
+        ],
+        [
+          7,
+          "赤哥布林"
+        ],
+        [
+          5,
+          "[speech on situation]"
+        ],
+        [
+          7,
+          "[on revenge]"
+        ],
+        [
+          7,
+          "有人砸場子啦！！"
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          7,
+          "[on revenge]"
+        ],
+        [
+          7,
+          "兄弟們抄家伙啊！"
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          7,
+          "[on etc]"
+        ],
+        [
+          7,
+          "哼！ 好哥布林不吃眼前虧！"
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          7,
+          "[on etc]"
+        ],
+        [
+          7,
+          "只剩我了? 撤！"
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          5,
+          "[/speech on situation]"
+        ],
+        [
+          5,
+          "[throw attack]"
+        ],
+        [
+          7,
+          "[attack index]"
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          7,
+          "[passive object number]"
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          7,
+          "[passive object filename]"
+        ],
+        [
+          7,
+          "PassiveObject/Common/Particle/FireMissileGeroCenter.ptl"
+        ],
+        [
+          7,
+          "[object type]"
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          7,
+          "[passive object index]"
+        ],
+        [
+          2,
+          30047
+        ],
+        [
+          7,
+          "[power]"
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          7,
+          "[throw frame]"
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          7,
+          "[passive object start x cood]"
+        ],
+        [
+          2,
+          20
+        ],
+        [
+          7,
+          "[passive object start y cood]"
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          7,
+          "[passive object start z cood]"
+        ],
+        [
+          2,
+          60
+        ],
+        [
+          7,
+          "[attack number]"
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          7,
+          "[throw sound]"
+        ],
+        [
+          7,
+          ""
+        ],
+        [
+          5,
+          "[/throw attack]"
+        ],
+        [
+          5,
+          "[equipment]"
+        ],
+        [
+          2,
+          5
+        ],
+        [
+          7,
+          "Monster/Goblin/acc4-2.equ"
+        ],
+        [
+          7,
+          "Monster/Goblin/Hcc2-2.equ"
+        ],
+        [
+          7,
+          "Monster/Goblin/gcc1-3.equ"
+        ],
+        [
+          7,
+          "Monster/Goblin/tcc1-2.equ"
+        ],
+        [
+          7,
+          "Monster/Goblin/bcc1-2.equ"
+        ],
+        [
+          5,
+          "[/equipment]"
+        ]
+      ]
+    },
+    "passiveobject/monster/goblin/hillgabsizzle.obj": {
+      "sha256": "1b1ead7bab7e5ea4ec59f91acb1a2916fd2d7d4f3c51d0645ef0059e63dc9c42",
+      "tokens": [
+        [
+          5,
+          "[width]"
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          5,
+          "[floating height]"
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          5,
+          "[layer]"
+        ],
+        [
+          7,
+          "[normal]"
+        ],
+        [
+          5,
+          "[pass type]"
+        ],
+        [
+          7,
+          "[pass all]"
+        ],
+        [
+          5,
+          "[basic motion]"
+        ],
+        [
+          7,
+          "../../Common/Animation/FireMissile.ani"
+        ],
+        [
+          5,
+          "[attack info]"
+        ],
+        [
+          7,
+          "AttackInfo/HillGabSizzle.atk"
+        ],
+        [
+          5,
+          "[int data]"
+        ],
+        [
+          2,
+          40
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          5,
+          "[/int data]"
+        ],
+        [
+          5,
+          "[name]"
+        ],
+        [
+          9,
+          9
+        ],
+        [
+          10,
+          "name_6095"
+        ]
+      ]
+    },
+    "monster/goblin/seagab.mob": {
+      "sha256": "2ce9497a049b11f83555d76e646df411c12cc84a64b04a194309e9750a72d1d5",
+      "tokens": [
+        [
+          5,
+          "[width]"
+        ],
+        [
+          2,
+          40
+        ],
+        [
+          2,
+          10
+        ],
+        [
+          5,
+          "[common champion elemental property]"
+        ],
+        [
+          7,
+          "[water element]"
+        ],
+        [
+          5,
+          "[/common champion elemental property]"
+        ],
+        [
+          5,
+          "[ability category]"
+        ],
+        [
+          7,
+          "[HP MAX]"
+        ],
+        [
+          7,
+          "*"
+        ],
+        [
+          2,
+          70
+        ],
+        [
+          7,
+          "[EQUIPMENT_PHYSICAL_ATTACK]"
+        ],
+        [
+          7,
+          "*"
+        ],
+        [
+          2,
+          70
+        ],
+        [
+          7,
+          "[EQUIPMENT_PHYSICAL_DEFENSE]"
+        ],
+        [
+          7,
+          "*"
+        ],
+        [
+          2,
+          70
+        ],
+        [
+          7,
+          "[EQUIPMENT_MAGICAL_ATTACK]"
+        ],
+        [
+          7,
+          "*"
+        ],
+        [
+          2,
+          80
+        ],
+        [
+          7,
+          "[EQUIPMENT_MAGICAL_DEFENSE]"
+        ],
+        [
+          7,
+          "*"
+        ],
+        [
+          2,
+          100
+        ],
+        [
+          5,
+          "[/ability category]"
+        ],
+        [
+          5,
+          "[category]"
+        ],
+        [
+          7,
+          "[human]"
+        ],
+        [
+          7,
+          "[goblin]"
+        ],
+        [
+          7,
+          "[range combat]"
+        ],
+        [
+          7,
+          "[close-passive]"
+        ],
+        [
+          5,
+          "[/category]"
+        ],
+        [
+          5,
+          "[level]"
+        ],
+        [
+          2,
+          10
+        ],
+        [
+          2,
+          15
+        ],
+        [
+          5,
+          "[fire resistance]"
+        ],
+        [
+          2,
+          4294967266
+        ],
+        [
+          2,
+          4294967266
+        ],
+        [
+          5,
+          "[water resistance]"
+        ],
+        [
+          2,
+          30
+        ],
+        [
+          2,
+          30
+        ],
+        [
+          5,
+          "[move speed]"
+        ],
+        [
+          2,
+          400
+        ],
+        [
+          2,
+          400
+        ],
+        [
+          5,
+          "[attack speed]"
+        ],
+        [
+          2,
+          300
+        ],
+        [
+          2,
+          300
+        ],
+        [
+          5,
+          "[cast speed]"
+        ],
+        [
+          2,
+          730
+        ],
+        [
+          2,
+          820
+        ],
+        [
+          5,
+          "[hit recovery]"
+        ],
+        [
+          2,
+          600
+        ],
+        [
+          2,
+          600
+        ],
+        [
+          5,
+          "[weight]"
+        ],
+        [
+          2,
+          45000
+        ],
+        [
+          2,
+          45000
+        ],
+        [
+          5,
+          "[sight]"
+        ],
+        [
+          2,
+          300
+        ],
+        [
+          5,
+          "[targeting nearest]"
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          5,
+          "[warlike]"
+        ],
+        [
+          2,
+          30
+        ],
+        [
+          5,
+          "[attack delay]"
+        ],
+        [
+          2,
+          3000
+        ],
+        [
+          5,
+          "[stuckbonus on damage]"
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          5,
+          "[item]"
+        ],
+        [
+          2,
+          1062
+        ],
+        [
+          2,
+          50
+        ],
+        [
+          2,
+          1065
+        ],
+        [
+          2,
+          100
+        ],
+        [
+          2,
+          1047
+        ],
+        [
+          2,
+          200
+        ],
+        [
+          5,
+          "[/item]"
+        ],
+        [
+          5,
+          "[common champion drop item]"
+        ],
+        [
+          5,
+          "[/common champion drop item]"
+        ],
+        [
+          5,
+          "[attack kind]"
+        ],
+        [
+          4,
+          10.0
+        ],
+        [
+          4,
+          5.0
+        ],
+        [
+          4,
+          1.0
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          2,
+          300
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          15
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          15
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          5,
+          "[/attack kind]"
+        ],
+        [
+          5,
+          "[die effect]"
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          5,
+          "[face image]"
+        ],
+        [
+          7,
+          "Monster/MonsterFace.img"
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          5,
+          "[waiting motion]"
+        ],
+        [
+          7,
+          "Animation_IslandGoblin/Stay.ani"
+        ],
+        [
+          5,
+          "[move motion]"
+        ],
+        [
+          7,
+          "Animation_IslandGoblin/Move.ani"
+        ],
+        [
+          5,
+          "[sit motion]"
+        ],
+        [
+          7,
+          "Animation_IslandGoblin/Sit.ani"
+        ],
+        [
+          5,
+          "[damage motion 1]"
+        ],
+        [
+          7,
+          "Animation_IslandGoblin/Damage1.ani"
+        ],
+        [
+          5,
+          "[damage motion 2]"
+        ],
+        [
+          7,
+          "Animation_IslandGoblin/Damage2.ani"
+        ],
+        [
+          5,
+          "[down motion]"
+        ],
+        [
+          7,
+          "Animation_IslandGoblin/Down.ani"
+        ],
+        [
+          5,
+          "[overturn motion]"
+        ],
+        [
+          7,
+          "Animation_IslandGoblin/Overturn.ani"
+        ],
+        [
+          5,
+          "[attack motion]"
+        ],
+        [
+          7,
+          "Animation_IslandGoblin/Throw.ani"
+        ],
+        [
+          5,
+          "[/attack motion]"
+        ],
+        [
+          5,
+          "[attack info]"
+        ],
+        [
+          7,
+          ""
+        ],
+        [
+          5,
+          "[/attack info]"
+        ],
+        [
+          5,
+          "[int data]"
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          2,
+          6
+        ],
+        [
+          5,
+          "[/int data]"
+        ],
+        [
+          5,
+          "[name]"
+        ],
+        [
+          7,
+          "青哥布林"
+        ],
+        [
+          5,
+          "[speech on situation]"
+        ],
+        [
+          7,
+          "[on revenge]"
+        ],
+        [
+          7,
+          "有人砸場子啦！！"
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          7,
+          "[on revenge]"
+        ],
+        [
+          7,
+          "兄弟們抄家伙啊！"
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          7,
+          "[on etc]"
+        ],
+        [
+          7,
+          "哼！ 好哥布林不吃眼前虧！"
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          7,
+          "[on etc]"
+        ],
+        [
+          7,
+          "只剩我了? 撤！"
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          5,
+          "[/speech on situation]"
+        ],
+        [
+          5,
+          "[throw attack]"
+        ],
+        [
+          7,
+          "[attack index]"
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          7,
+          "[passive object number]"
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          7,
+          "[passive object filename]"
+        ],
+        [
+          7,
+          "PassiveObject/Common/Particle/IceMissile.ptl"
+        ],
+        [
+          7,
+          "[object type]"
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          7,
+          "[passive object index]"
+        ],
+        [
+          2,
+          30057
+        ],
+        [
+          7,
+          "[power]"
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          7,
+          "[throw frame]"
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          7,
+          "[passive object start x cood]"
+        ],
+        [
+          2,
+          20
+        ],
+        [
+          7,
+          "[passive object start y cood]"
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          7,
+          "[passive object start z cood]"
+        ],
+        [
+          2,
+          60
+        ],
+        [
+          7,
+          "[attack number]"
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          7,
+          "[throw sound]"
+        ],
+        [
+          7,
+          ""
+        ],
+        [
+          5,
+          "[/throw attack]"
+        ],
+        [
+          5,
+          "[equipment]"
+        ],
+        [
+          2,
+          5
+        ],
+        [
+          7,
+          "Monster/Goblin/acc4.equ"
+        ],
+        [
+          7,
+          "Monster/Goblin/Hcc2.equ"
+        ],
+        [
+          7,
+          "Monster/Goblin/gcc1-3.equ"
+        ],
+        [
+          7,
+          "Monster/Goblin/tcc1-2.equ"
+        ],
+        [
+          7,
+          "Monster/Goblin/bcc1-2.equ"
+        ],
+        [
+          5,
+          "[/equipment]"
+        ]
+      ]
+    },
+    "passiveobject/monster/goblin/seagabicicle.obj": {
+      "sha256": "96f661d10016b8bd6ce99b0d1203527e5d8df8cb30c5c6bb03c22924009a42df",
+      "tokens": [
+        [
+          5,
+          "[width]"
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          5,
+          "[floating height]"
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          5,
+          "[layer]"
+        ],
+        [
+          7,
+          "[normal]"
+        ],
+        [
+          5,
+          "[pass type]"
+        ],
+        [
+          7,
+          "[pass all]"
+        ],
+        [
+          5,
+          "[piercing power]"
+        ],
+        [
+          2,
+          50
+        ],
+        [
+          5,
+          "[basic motion]"
+        ],
+        [
+          7,
+          "../../Common/Animation/IceMissile1.ani"
+        ],
+        [
+          5,
+          "[etc motion]"
+        ],
+        [
+          7,
+          "../../Common/Animation/IceMissile2.ani"
+        ],
+        [
+          5,
+          "[/etc motion]"
+        ],
+        [
+          5,
+          "[attack info]"
+        ],
+        [
+          7,
+          "AttackInfo/SeaGabIcicle.atk"
+        ],
+        [
+          5,
+          "[int data]"
+        ],
+        [
+          2,
+          40
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          5,
+          "[/int data]"
+        ],
+        [
+          5,
+          "[name]"
+        ],
+        [
+          9,
+          9
+        ],
+        [
+          10,
+          "name_6135"
+        ]
+      ]
+    },
+    "passiveobject/common/particle/firemissileparticle.ptl": {
+      "sha256": "9a8e652a0ba313a585d705c33133a74f2a21e0365837dc1d320c184e1e2e1ce5",
+      "tokens": [
+        [
+          5,
+          "[rotation angle]"
+        ],
+        [
+          2,
+          4294967116
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          4294967278
+        ],
+        [
+          5,
+          "[life time]"
+        ],
+        [
+          2,
+          350
+        ],
+        [
+          5,
+          "[creation frequency]"
+        ],
+        [
+          2,
+          50
+        ],
+        [
+          5,
+          "[create area size]"
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          5,
+          "[rotation angle range type]"
+        ],
+        [
+          7,
+          "[rectangle]"
+        ],
+        [
+          5,
+          "[rotation angle variable]"
+        ],
+        [
+          2,
+          8
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          5,
+          "[random range]"
+        ],
+        [
+          2,
+          69
+        ],
+        [
+          5,
+          "[create pos correct]"
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          5,
+          "[object type]"
+        ],
+        [
+          7,
+          "[animation]"
+        ],
+        [
+          5,
+          "[object]"
+        ],
+        [
+          7,
+          "../Animation/FireMissileParticle1.ani"
+        ],
+        [
+          2,
+          4294967295
+        ],
+        [
+          7,
+          "../Animation/FireMissileParticle2.ani"
+        ],
+        [
+          2,
+          4294967295
+        ],
+        [
+          7,
+          "../Animation/FireMissileParticle3.ani"
+        ],
+        [
+          2,
+          4294967295
+        ],
+        [
+          5,
+          "[/object]"
+        ],
+        [
+          5,
+          "[display effect rate]"
+        ],
+        [
+          2,
+          50
+        ],
+        [
+          2,
+          75
+        ],
+        [
+          2,
+          100
+        ]
+      ]
+    },
+    "passiveobject/common/particle/firemissileparticlelight.ptl": {
+      "sha256": "8480966440fa60bdea33a17ddb6283d817f3a033852c2e9cb5b3f2bb11c801b2",
+      "tokens": [
+        [
+          5,
+          "[y axis]"
+        ],
+        [
+          5,
+          "[move type]"
+        ],
+        [
+          7,
+          "[cos]"
+        ],
+        [
+          5,
+          "[move variable 1]"
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          2,
+          10
+        ],
+        [
+          5,
+          "[move variable 2]"
+        ],
+        [
+          2,
+          200
+        ],
+        [
+          2,
+          900
+        ],
+        [
+          5,
+          "[z axis]"
+        ],
+        [
+          5,
+          "[move type]"
+        ],
+        [
+          7,
+          "[cos]"
+        ],
+        [
+          5,
+          "[move variable 1]"
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          2,
+          20
+        ],
+        [
+          5,
+          "[move variable 2]"
+        ],
+        [
+          2,
+          200
+        ],
+        [
+          2,
+          900
+        ],
+        [
+          5,
+          "[changing term]"
+        ],
+        [
+          2,
+          1000
+        ],
+        [
+          5,
+          "[changing type]"
+        ],
+        [
+          7,
+          "[keep last value]"
+        ],
+        [
+          5,
+          "[rotation angle]"
+        ],
+        [
+          2,
+          4294967116
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          4294967278
+        ],
+        [
+          5,
+          "[life time]"
+        ],
+        [
+          2,
+          500
+        ],
+        [
+          5,
+          "[creation frequency]"
+        ],
+        [
+          2,
+          20
+        ],
+        [
+          5,
+          "[create area size]"
+        ],
+        [
+          2,
+          5
+        ],
+        [
+          2,
+          5
+        ],
+        [
+          2,
+          5
+        ],
+        [
+          5,
+          "[rotation angle range type]"
+        ],
+        [
+          7,
+          "[rectangle]"
+        ],
+        [
+          5,
+          "[random range]"
+        ],
+        [
+          2,
+          70
+        ],
+        [
+          5,
+          "[create pos correct]"
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          5,
+          "[object type]"
+        ],
+        [
+          7,
+          "[animation]"
+        ],
+        [
+          5,
+          "[object]"
+        ],
+        [
+          7,
+          "../Animation/FireMissileParticleLight1.ani"
+        ],
+        [
+          2,
+          4294967295
+        ],
+        [
+          7,
+          "../Animation/FireMissileParticleLight2.ani"
+        ],
+        [
+          2,
+          4294967295
+        ],
+        [
+          5,
+          "[/object]"
+        ],
+        [
+          5,
+          "[display effect rate]"
+        ],
+        [
+          2,
+          50
+        ],
+        [
+          2,
+          75
+        ],
+        [
+          2,
+          100
+        ]
+      ]
+    },
+    "passiveobject/common/particle/icemissileparticletail.ptl": {
+      "sha256": "7a6be86752e4ce233ddf4bfb55a2b41b90eef55349a5ce8e9bae22e9d1f0ff44",
+      "tokens": [
+        [
+          5,
+          "[x axis]"
+        ],
+        [
+          5,
+          "[move type]"
+        ],
+        [
+          7,
+          "[straight line]"
+        ],
+        [
+          5,
+          "[move variable 1]"
+        ],
+        [
+          2,
+          220
+        ],
+        [
+          2,
+          220
+        ],
+        [
+          5,
+          "[changing term]"
+        ],
+        [
+          2,
+          1000
+        ],
+        [
+          5,
+          "[life time]"
+        ],
+        [
+          2,
+          500
+        ],
+        [
+          5,
+          "[creation frequency]"
+        ],
+        [
+          4,
+          12.0
+        ],
+        [
+          5,
+          "[create area size]"
+        ],
+        [
+          2,
+          5
+        ],
+        [
+          2,
+          5
+        ],
+        [
+          2,
+          5
+        ],
+        [
+          5,
+          "[rotation angle range type]"
+        ],
+        [
+          7,
+          "[rectangle]"
+        ],
+        [
+          5,
+          "[random range]"
+        ],
+        [
+          2,
+          30
+        ],
+        [
+          5,
+          "[create pos correct]"
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          5,
+          "[object type]"
+        ],
+        [
+          7,
+          "[animation]"
+        ],
+        [
+          5,
+          "[object]"
+        ],
+        [
+          7,
+          "../Animation/IceMissileParticleTail1.ani"
+        ],
+        [
+          2,
+          4294967295
+        ],
+        [
+          7,
+          "../Animation/IceMissileParticleTail2.ani"
+        ],
+        [
+          2,
+          4294967295
+        ],
+        [
+          5,
+          "[/object]"
+        ],
+        [
+          5,
+          "[display effect rate]"
+        ],
+        [
+          2,
+          50
+        ],
+        [
+          2,
+          75
+        ],
+        [
+          2,
+          100
+        ]
+      ]
+    },
+    "passiveobject/common/particle/icemissileparticlelight.ptl": {
+      "sha256": "919469c0593d483bc05e68a2684aa789785f7084cc0246fc09f1245e4344c627",
+      "tokens": [
+        [
+          5,
+          "[x axis]"
+        ],
+        [
+          5,
+          "[move type]"
+        ],
+        [
+          7,
+          "[straight line]"
+        ],
+        [
+          5,
+          "[move variable 1]"
+        ],
+        [
+          2,
+          100
+        ],
+        [
+          2,
+          200
+        ],
+        [
+          5,
+          "[changing term]"
+        ],
+        [
+          2,
+          1000
+        ],
+        [
+          5,
+          "[changing type]"
+        ],
+        [
+          7,
+          "[keep changing]"
+        ],
+        [
+          5,
+          "[gravity]"
+        ],
+        [
+          2,
+          30
+        ],
+        [
+          5,
+          "[life time]"
+        ],
+        [
+          2,
+          700
+        ],
+        [
+          5,
+          "[creation frequency]"
+        ],
+        [
+          4,
+          40.0
+        ],
+        [
+          5,
+          "[create area size]"
+        ],
+        [
+          2,
+          5
+        ],
+        [
+          2,
+          5
+        ],
+        [
+          2,
+          5
+        ],
+        [
+          5,
+          "[rotation angle range type]"
+        ],
+        [
+          7,
+          "[rectangle]"
+        ],
+        [
+          5,
+          "[rotation angle variable]"
+        ],
+        [
+          2,
+          20
+        ],
+        [
+          2,
+          20
+        ],
+        [
+          5,
+          "[random range]"
+        ],
+        [
+          2,
+          60
+        ],
+        [
+          5,
+          "[create pos correct]"
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          5,
+          "[object type]"
+        ],
+        [
+          7,
+          "[animation]"
+        ],
+        [
+          5,
+          "[object]"
+        ],
+        [
+          7,
+          "../Animation/IceMissileParticleLight1.ani"
+        ],
+        [
+          2,
+          4294967295
+        ],
+        [
+          7,
+          "../Animation/IceMissileParticleLight2.ani"
+        ],
+        [
+          2,
+          4294967295
+        ],
+        [
+          7,
+          "../Animation/IceMissileParticleLight3.ani"
+        ],
+        [
+          2,
+          4294967295
+        ],
+        [
+          5,
+          "[/object]"
+        ],
+        [
+          5,
+          "[display effect rate]"
+        ],
+        [
+          2,
+          50
+        ],
+        [
+          2,
+          75
+        ],
+        [
+          2,
+          100
+        ]
+      ]
+    },
+    "passiveobject/common/particle/firemissilegerocenter.ptl": {
+      "sha256": "49bde623f26c36dbd55af79276aa2851b3fcb3a8bbed6112ce67cf9a29ace009",
+      "tokens": [
+        [
+          5,
+          "[x axis]"
+        ],
+        [
+          5,
+          "[move type]"
+        ],
+        [
+          7,
+          "[straight line]"
+        ],
+        [
+          5,
+          "[move variable 1]"
+        ],
+        [
+          2,
+          300
+        ],
+        [
+          2,
+          300
+        ],
+        [
+          5,
+          "[gravity]"
+        ],
+        [
+          2,
+          200
+        ],
+        [
+          5,
+          "[rotation angle]"
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          10
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          5,
+          "[life time]"
+        ],
+        [
+          2,
+          3000
+        ],
+        [
+          5,
+          "[landing type]"
+        ],
+        [
+          7,
+          "[stop]"
+        ]
+      ]
+    },
+    "passiveobject/common/animation/firemissile.ani": {
+      "sha256": "0a1b9f3fde087517abd50f3a3cd9254bba676c97d417314c5421f4540e6e5b14",
+      "animation": {
+        "paths": [],
+        "overall": [
+          [
+            1,
+            0
+          ]
+        ],
+        "frames": [
+          {
+            "frame": null,
+            "xy": [
+              0,
+              0
+            ],
+            "props": [
+              [
+                12,
+                1000
+              ]
+            ],
+            "boxes": [
+              [
+                15,
+                [
+                  -8,
+                  -6,
+                  -8,
+                  17,
+                  12,
+                  16
+                ]
+              ]
+            ],
+            "image": -1
+          }
+        ]
+      }
+    },
+    "passiveobject/monster/goblin/attackinfo/hillgabsizzle.atk": {
+      "sha256": "d678d1c42adf77b075561266182ed98322214d5f52d834951b5b1385958b4d35",
+      "tokens": [
+        [
+          5,
+          "[attack type]"
+        ],
+        [
+          5,
+          "[magic]"
+        ],
+        [
+          5,
+          "[weapon damage apply]"
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          5,
+          "[attack enemy]"
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          5,
+          "[elemental property]"
+        ],
+        [
+          5,
+          "[fire element]"
+        ],
+        [
+          5,
+          "[damage reaction]"
+        ],
+        [
+          5,
+          "[damage]"
+        ],
+        [
+          5,
+          "[push aside]"
+        ],
+        [
+          2,
+          50
+        ],
+        [
+          5,
+          "[lift up]"
+        ],
+        [
+          2,
+          10
+        ],
+        [
+          5,
+          "[hit wav]"
+        ],
+        [
+          7,
+          "SIZZLE_HIT"
+        ],
+        [
+          5,
+          "[attack direction]"
+        ],
+        [
+          5,
+          "[hit horizon]"
+        ],
+        [
+          5,
+          "[hit info]"
+        ],
+        [
+          5,
+          "[blow]"
+        ],
+        [
+          5,
+          "[no blood]"
+        ],
+        [
+          2,
+          50
+        ],
+        [
+          4,
+          1.0
+        ]
+      ]
+    },
+    "passiveobject/common/particle/icemissile.ptl": {
+      "sha256": "990e803217f093b0d8187d41aaf96e4354491f70723b61e472a8bb977c225e13",
+      "tokens": [
+        [
+          5,
+          "[x axis]"
+        ],
+        [
+          5,
+          "[move type]"
+        ],
+        [
+          7,
+          "[straight line]"
+        ],
+        [
+          5,
+          "[move variable 1]"
+        ],
+        [
+          2,
+          200
+        ],
+        [
+          2,
+          200
+        ],
+        [
+          5,
+          "[z axis]"
+        ],
+        [
+          5,
+          "[move type]"
+        ],
+        [
+          7,
+          "[sin]"
+        ],
+        [
+          5,
+          "[move variable 1]"
+        ],
+        [
+          2,
+          5
+        ],
+        [
+          2,
+          5
+        ],
+        [
+          5,
+          "[move variable 2]"
+        ],
+        [
+          2,
+          1600
+        ],
+        [
+          2,
+          1600
+        ],
+        [
+          5,
+          "[changing term]"
+        ],
+        [
+          2,
+          1000
+        ],
+        [
+          5,
+          "[changing type]"
+        ],
+        [
+          7,
+          "[ping pong]"
+        ],
+        [
+          5,
+          "[life time]"
+        ],
+        [
+          2,
+          1500
+        ]
+      ]
+    },
+    "passiveobject/common/animation/icemissile1.ani": {
+      "sha256": "4bf41a68af7f78abd691f8e01a290a4d9ec65888affdc9b044680b0c586f0540",
+      "animation": {
+        "paths": [
+          "Common/CommonEffect/IceMissile1.img"
+        ],
+        "overall": [
+          [
+            0,
+            1
+          ]
+        ],
+        "frames": [
+          {
+            "frame": 0,
+            "xy": [
+              -203,
+              -145
+            ],
+            "props": [
+              [
+                12,
+                50
+              ]
+            ],
+            "boxes": [
+              [
+                15,
+                [
+                  -22,
+                  -8,
+                  -10,
+                  49,
+                  16,
+                  20
+                ]
+              ]
+            ],
+            "image": 0,
+            "bitmapEvidence": {
+              "entry": "sprite/common/commoneffect/icemissile1.img",
+              "imgSHA256": "41b41e474f01993d3507820bd82f442c3aa02b8f067afcf4241a8e45bdf98c6e",
+              "size": [
+                49,
+                25
+              ],
+              "offset": [
+                181,
+                133
+              ],
+              "rgbaSHA256": "072f03528d42553d0ee8fea674ee866dcce0093a5df948e51ca9257aef59674e",
+              "tile": 0
+            }
+          },
+          {
+            "frame": 1,
+            "xy": [
+              -203,
+              -145
+            ],
+            "props": [
+              [
+                12,
+                50
+              ]
+            ],
+            "boxes": [
+              [
+                15,
+                [
+                  -22,
+                  -8,
+                  -10,
+                  49,
+                  16,
+                  20
+                ]
+              ]
+            ],
+            "image": 0,
+            "bitmapEvidence": {
+              "entry": "sprite/common/commoneffect/icemissile1.img",
+              "imgSHA256": "41b41e474f01993d3507820bd82f442c3aa02b8f067afcf4241a8e45bdf98c6e",
+              "size": [
+                49,
+                24
+              ],
+              "offset": [
+                181,
+                134
+              ],
+              "rgbaSHA256": "ebcd7be6fe6e6caf9d2c023bfb55ca5839014bad4399e84a7c1073f54c108f48",
+              "tile": 1
+            }
+          },
+          {
+            "frame": 2,
+            "xy": [
+              -203,
+              -145
+            ],
+            "props": [
+              [
+                12,
+                50
+              ]
+            ],
+            "boxes": [
+              [
+                15,
+                [
+                  -22,
+                  -8,
+                  -10,
+                  49,
+                  16,
+                  20
+                ]
+              ]
+            ],
+            "image": 0,
+            "bitmapEvidence": {
+              "entry": "sprite/common/commoneffect/icemissile1.img",
+              "imgSHA256": "41b41e474f01993d3507820bd82f442c3aa02b8f067afcf4241a8e45bdf98c6e",
+              "size": [
+                48,
+                24
+              ],
+              "offset": [
+                181,
+                133
+              ],
+              "rgbaSHA256": "3940454277783604a5637dd604ed5e061e035696f635449c2673cf078832d66b",
+              "tile": 2
+            }
+          },
+          {
+            "frame": 3,
+            "xy": [
+              -203,
+              -145
+            ],
+            "props": [
+              [
+                12,
+                50
+              ]
+            ],
+            "boxes": [
+              [
+                15,
+                [
+                  -22,
+                  -8,
+                  -10,
+                  49,
+                  16,
+                  20
+                ]
+              ]
+            ],
+            "image": 0,
+            "bitmapEvidence": {
+              "entry": "sprite/common/commoneffect/icemissile1.img",
+              "imgSHA256": "41b41e474f01993d3507820bd82f442c3aa02b8f067afcf4241a8e45bdf98c6e",
+              "size": [
+                48,
+                25
+              ],
+              "offset": [
+                181,
+                132
+              ],
+              "rgbaSHA256": "56ac1ba14eaf847e181712fa94205bb837560bd032eb15ec6486880c3ae9fc33",
+              "tile": 3
+            }
+          },
+          {
+            "frame": 4,
+            "xy": [
+              -203,
+              -145
+            ],
+            "props": [
+              [
+                12,
+                50
+              ]
+            ],
+            "boxes": [
+              [
+                15,
+                [
+                  -22,
+                  -8,
+                  -10,
+                  49,
+                  16,
+                  20
+                ]
+              ]
+            ],
+            "image": 0,
+            "bitmapEvidence": {
+              "entry": "sprite/common/commoneffect/icemissile1.img",
+              "imgSHA256": "41b41e474f01993d3507820bd82f442c3aa02b8f067afcf4241a8e45bdf98c6e",
+              "size": [
+                49,
+                26
+              ],
+              "offset": [
+                181,
+                133
+              ],
+              "rgbaSHA256": "89e47997791bbecfcad55d3387c8727e96115d5ea76f9da34fd03aa7d854d363",
+              "tile": 4
+            }
+          },
+          {
+            "frame": 5,
+            "xy": [
+              -203,
+              -145
+            ],
+            "props": [
+              [
+                12,
+                50
+              ]
+            ],
+            "boxes": [
+              [
+                15,
+                [
+                  -22,
+                  -8,
+                  -10,
+                  49,
+                  16,
+                  20
+                ]
+              ]
+            ],
+            "image": 0,
+            "bitmapEvidence": {
+              "entry": "sprite/common/commoneffect/icemissile1.img",
+              "imgSHA256": "41b41e474f01993d3507820bd82f442c3aa02b8f067afcf4241a8e45bdf98c6e",
+              "size": [
+                49,
+                24
+              ],
+              "offset": [
+                181,
+                134
+              ],
+              "rgbaSHA256": "8c5b74674eb6bc6040722754e257be157806bd85a722f5f69e83b57a288b8229",
+              "tile": 5
+            }
+          },
+          {
+            "frame": 6,
+            "xy": [
+              -203,
+              -145
+            ],
+            "props": [
+              [
+                12,
+                50
+              ]
+            ],
+            "boxes": [
+              [
+                15,
+                [
+                  -22,
+                  -8,
+                  -10,
+                  49,
+                  16,
+                  20
+                ]
+              ]
+            ],
+            "image": 0,
+            "bitmapEvidence": {
+              "entry": "sprite/common/commoneffect/icemissile1.img",
+              "imgSHA256": "41b41e474f01993d3507820bd82f442c3aa02b8f067afcf4241a8e45bdf98c6e",
+              "size": [
+                48,
+                24
+              ],
+              "offset": [
+                181,
+                134
+              ],
+              "rgbaSHA256": "25dca9372fef6d4ccd3f71db8d66c7d8276444bfd75eec7dc2ace551a4bde2ca",
+              "tile": 6
+            }
+          },
+          {
+            "frame": 7,
+            "xy": [
+              -203,
+              -145
+            ],
+            "props": [
+              [
+                12,
+                50
+              ]
+            ],
+            "boxes": [
+              [
+                15,
+                [
+                  -22,
+                  -8,
+                  -10,
+                  49,
+                  16,
+                  20
+                ]
+              ]
+            ],
+            "image": 0,
+            "bitmapEvidence": {
+              "entry": "sprite/common/commoneffect/icemissile1.img",
+              "imgSHA256": "41b41e474f01993d3507820bd82f442c3aa02b8f067afcf4241a8e45bdf98c6e",
+              "size": [
+                49,
+                26
+              ],
+              "offset": [
+                181,
+                133
+              ],
+              "rgbaSHA256": "6c5a6c916c3f268feafd114e0803dacbe5d43a6b29b7935e0b6c614a2403ff32",
+              "tile": 7
+            }
+          }
+        ]
+      }
+    },
+    "passiveobject/common/animation/icemissile2.ani": {
+      "sha256": "cb1581e0f41c7308b325ba49c3e87060a1949b7528960251a16b98bf8acb6c8e",
+      "animation": {
+        "paths": [
+          "Common/CommonEffect/IceMissile2.img"
+        ],
+        "overall": [
+          [
+            0,
+            1
+          ],
+          [
+            1,
+            0
+          ]
+        ],
+        "frames": [
+          {
+            "frame": 0,
+            "xy": [
+              -128,
+              -45
+            ],
+            "props": [
+              [
+                9,
+                [
+                  255,
+                  255,
+                  255,
+                  70
+                ]
+              ],
+              [
+                11,
+                2
+              ],
+              [
+                12,
+                90
+              ]
+            ],
+            "boxes": [],
+            "image": 0,
+            "bitmapEvidence": {
+              "entry": "sprite/common/commoneffect/icemissile2.img",
+              "imgSHA256": "59e21e6d2cb5dea4051fb1d19d34d6894e0d81edab7619325704f6ac306fe78c",
+              "size": [
+                97,
+                54
+              ],
+              "offset": [
+                44,
+                18
+              ],
+              "rgbaSHA256": "f02dffb746f3cdff8f2664eabb287587729c25295e8b970686febebe08162145",
+              "tile": 8
+            }
+          },
+          {
+            "frame": 1,
+            "xy": [
+              -128,
+              -45
+            ],
+            "props": [
+              [
+                9,
+                [
+                  255,
+                  255,
+                  255,
+                  70
+                ]
+              ],
+              [
+                11,
+                2
+              ],
+              [
+                12,
+                90
+              ]
+            ],
+            "boxes": [],
+            "image": 0,
+            "bitmapEvidence": {
+              "entry": "sprite/common/commoneffect/icemissile2.img",
+              "imgSHA256": "59e21e6d2cb5dea4051fb1d19d34d6894e0d81edab7619325704f6ac306fe78c",
+              "size": [
+                97,
+                52
+              ],
+              "offset": [
+                44,
+                20
+              ],
+              "rgbaSHA256": "6add5c92875aee736866565dfff690aec0c9b4a061f0dd932e2e1e7153277bd9",
+              "tile": 9
+            }
+          },
+          {
+            "frame": 2,
+            "xy": [
+              -128,
+              -45
+            ],
+            "props": [
+              [
+                9,
+                [
+                  255,
+                  255,
+                  255,
+                  70
+                ]
+              ],
+              [
+                11,
+                2
+              ],
+              [
+                12,
+                90
+              ]
+            ],
+            "boxes": [],
+            "image": 0,
+            "bitmapEvidence": {
+              "entry": "sprite/common/commoneffect/icemissile2.img",
+              "imgSHA256": "59e21e6d2cb5dea4051fb1d19d34d6894e0d81edab7619325704f6ac306fe78c",
+              "size": [
+                97,
+                49
+              ],
+              "offset": [
+                44,
+                22
+              ],
+              "rgbaSHA256": "5d516806872f62b6ef4da9ddc89394bafafdf34671be6ca7f43c8c341c6875a9",
+              "tile": 10
+            }
+          },
+          {
+            "frame": 3,
+            "xy": [
+              -128,
+              -45
+            ],
+            "props": [
+              [
+                9,
+                [
+                  255,
+                  255,
+                  255,
+                  70
+                ]
+              ],
+              [
+                11,
+                2
+              ],
+              [
+                12,
+                90
+              ]
+            ],
+            "boxes": [],
+            "image": 0,
+            "bitmapEvidence": {
+              "entry": "sprite/common/commoneffect/icemissile2.img",
+              "imgSHA256": "59e21e6d2cb5dea4051fb1d19d34d6894e0d81edab7619325704f6ac306fe78c",
+              "size": [
+                97,
+                51
+              ],
+              "offset": [
+                44,
+                21
+              ],
+              "rgbaSHA256": "63d6d1f0c624927b073bf838b7ba2b2529be3552ab4edffeeb9e4304c675cfba",
+              "tile": 11
+            }
+          },
+          {
+            "frame": 4,
+            "xy": [
+              -128,
+              -45
+            ],
+            "props": [
+              [
+                9,
+                [
+                  255,
+                  255,
+                  255,
+                  70
+                ]
+              ],
+              [
+                11,
+                2
+              ],
+              [
+                12,
+                90
+              ]
+            ],
+            "boxes": [],
+            "image": 0,
+            "bitmapEvidence": {
+              "entry": "sprite/common/commoneffect/icemissile2.img",
+              "imgSHA256": "59e21e6d2cb5dea4051fb1d19d34d6894e0d81edab7619325704f6ac306fe78c",
+              "size": [
+                97,
+                49
+              ],
+              "offset": [
+                44,
+                21
+              ],
+              "rgbaSHA256": "811fef7a72ed30296e6f42195275461ab49d278eb56e77b2f293ef2738019177",
+              "tile": 12
+            }
+          },
+          {
+            "frame": 5,
+            "xy": [
+              -128,
+              -45
+            ],
+            "props": [
+              [
+                9,
+                [
+                  255,
+                  255,
+                  255,
+                  70
+                ]
+              ],
+              [
+                11,
+                2
+              ],
+              [
+                12,
+                90
+              ]
+            ],
+            "boxes": [],
+            "image": 0,
+            "bitmapEvidence": {
+              "entry": "sprite/common/commoneffect/icemissile2.img",
+              "imgSHA256": "59e21e6d2cb5dea4051fb1d19d34d6894e0d81edab7619325704f6ac306fe78c",
+              "size": [
+                95,
+                46
+              ],
+              "offset": [
+                46,
+                23
+              ],
+              "rgbaSHA256": "3277eaedbca6402b071b7d6ad9982706906ceebc2b901c86e2df1997a3732540",
+              "tile": 13
+            }
+          },
+          {
+            "frame": 6,
+            "xy": [
+              -128,
+              -45
+            ],
+            "props": [
+              [
+                9,
+                [
+                  255,
+                  255,
+                  255,
+                  70
+                ]
+              ],
+              [
+                11,
+                2
+              ],
+              [
+                12,
+                90
+              ]
+            ],
+            "boxes": [],
+            "image": 0,
+            "bitmapEvidence": {
+              "entry": "sprite/common/commoneffect/icemissile2.img",
+              "imgSHA256": "59e21e6d2cb5dea4051fb1d19d34d6894e0d81edab7619325704f6ac306fe78c",
+              "size": [
+                91,
+                53
+              ],
+              "offset": [
+                50,
+                19
+              ],
+              "rgbaSHA256": "b6a15b8647b7e21580822b02eba4cdbbc1792c014408e51aac474438abe1c0fa",
+              "tile": 14
+            }
+          },
+          {
+            "frame": 7,
+            "xy": [
+              -128,
+              -45
+            ],
+            "props": [
+              [
+                9,
+                [
+                  255,
+                  255,
+                  255,
+                  70
+                ]
+              ],
+              [
+                11,
+                2
+              ],
+              [
+                12,
+                90
+              ]
+            ],
+            "boxes": [],
+            "image": 0,
+            "bitmapEvidence": {
+              "entry": "sprite/common/commoneffect/icemissile2.img",
+              "imgSHA256": "59e21e6d2cb5dea4051fb1d19d34d6894e0d81edab7619325704f6ac306fe78c",
+              "size": [
+                97,
+                53
+              ],
+              "offset": [
+                44,
+                18
+              ],
+              "rgbaSHA256": "53cb71a992fb2ee53258c47501843e8fda635fe55119b1d984bda4a1bb95ffdb",
+              "tile": 15
+            }
+          },
+          {
+            "frame": 8,
+            "xy": [
+              -128,
+              -45
+            ],
+            "props": [
+              [
+                9,
+                [
+                  255,
+                  255,
+                  255,
+                  70
+                ]
+              ],
+              [
+                11,
+                2
+              ],
+              [
+                12,
+                90
+              ]
+            ],
+            "boxes": [],
+            "image": 0,
+            "bitmapEvidence": {
+              "entry": "sprite/common/commoneffect/icemissile2.img",
+              "imgSHA256": "59e21e6d2cb5dea4051fb1d19d34d6894e0d81edab7619325704f6ac306fe78c",
+              "size": [
+                97,
+                49
+              ],
+              "offset": [
+                44,
+                20
+              ],
+              "rgbaSHA256": "c036ad4111589d737f7281b4fc03b5de59d7e8542e69fb4b7d9a3821242b14d3",
+              "tile": 16
+            }
+          },
+          {
+            "frame": 9,
+            "xy": [
+              -128,
+              -45
+            ],
+            "props": [
+              [
+                9,
+                [
+                  255,
+                  255,
+                  255,
+                  70
+                ]
+              ],
+              [
+                11,
+                2
+              ],
+              [
+                12,
+                90
+              ]
+            ],
+            "boxes": [],
+            "image": 0,
+            "bitmapEvidence": {
+              "entry": "sprite/common/commoneffect/icemissile2.img",
+              "imgSHA256": "59e21e6d2cb5dea4051fb1d19d34d6894e0d81edab7619325704f6ac306fe78c",
+              "size": [
+                96,
+                48
+              ],
+              "offset": [
+                45,
+                22
+              ],
+              "rgbaSHA256": "36348e6697f64235e014bdb0ec4929f598811d5bcea3eefffbcc7949d3978b07",
+              "tile": 17
+            }
+          },
+          {
+            "frame": 10,
+            "xy": [
+              -128,
+              -45
+            ],
+            "props": [
+              [
+                9,
+                [
+                  255,
+                  255,
+                  255,
+                  70
+                ]
+              ],
+              [
+                11,
+                2
+              ],
+              [
+                12,
+                90
+              ]
+            ],
+            "boxes": [],
+            "image": 0,
+            "bitmapEvidence": {
+              "entry": "sprite/common/commoneffect/icemissile2.img",
+              "imgSHA256": "59e21e6d2cb5dea4051fb1d19d34d6894e0d81edab7619325704f6ac306fe78c",
+              "size": [
+                96,
+                53
+              ],
+              "offset": [
+                45,
+                19
+              ],
+              "rgbaSHA256": "23596a94bff7ead92fe2002804eb2c965e6e0efd3357946b639ed4753b5fc14e",
+              "tile": 18
+            }
+          },
+          {
+            "frame": 11,
+            "xy": [
+              -128,
+              -45
+            ],
+            "props": [
+              [
+                9,
+                [
+                  255,
+                  255,
+                  255,
+                  70
+                ]
+              ],
+              [
+                11,
+                2
+              ],
+              [
+                12,
+                90
+              ]
+            ],
+            "boxes": [],
+            "image": 0,
+            "bitmapEvidence": {
+              "entry": "sprite/common/commoneffect/icemissile2.img",
+              "imgSHA256": "59e21e6d2cb5dea4051fb1d19d34d6894e0d81edab7619325704f6ac306fe78c",
+              "size": [
+                96,
+                53
+              ],
+              "offset": [
+                45,
+                19
+              ],
+              "rgbaSHA256": "b5c230f2daad357526e127351147f0cac6079920bf604bc59a9280b4d9c375c0",
+              "tile": 19
+            }
+          },
+          {
+            "frame": 12,
+            "xy": [
+              -128,
+              -45
+            ],
+            "props": [
+              [
+                9,
+                [
+                  255,
+                  255,
+                  255,
+                  70
+                ]
+              ],
+              [
+                11,
+                2
+              ],
+              [
+                12,
+                90
+              ]
+            ],
+            "boxes": [],
+            "image": 0,
+            "bitmapEvidence": {
+              "entry": "sprite/common/commoneffect/icemissile2.img",
+              "imgSHA256": "59e21e6d2cb5dea4051fb1d19d34d6894e0d81edab7619325704f6ac306fe78c",
+              "size": [
+                95,
+                53
+              ],
+              "offset": [
+                46,
+                19
+              ],
+              "rgbaSHA256": "b9289a995b9a3fd2a3ea7c1b7adeeda62a9012ffa52861cb955fd86ebac1d060",
+              "tile": 20
+            }
+          },
+          {
+            "frame": 13,
+            "xy": [
+              -128,
+              -45
+            ],
+            "props": [
+              [
+                9,
+                [
+                  255,
+                  255,
+                  255,
+                  70
+                ]
+              ],
+              [
+                11,
+                2
+              ],
+              [
+                12,
+                90
+              ]
+            ],
+            "boxes": [],
+            "image": 0,
+            "bitmapEvidence": {
+              "entry": "sprite/common/commoneffect/icemissile2.img",
+              "imgSHA256": "59e21e6d2cb5dea4051fb1d19d34d6894e0d81edab7619325704f6ac306fe78c",
+              "size": [
+                96,
+                50
+              ],
+              "offset": [
+                45,
+                20
+              ],
+              "rgbaSHA256": "0e3f63464246a1c8aee4a105d291ac5604b42148f096fe78b6ec91944a36eb18",
+              "tile": 21
+            }
+          },
+          {
+            "frame": 14,
+            "xy": [
+              -128,
+              -45
+            ],
+            "props": [
+              [
+                9,
+                [
+                  255,
+                  255,
+                  255,
+                  70
+                ]
+              ],
+              [
+                11,
+                2
+              ],
+              [
+                12,
+                90
+              ]
+            ],
+            "boxes": [],
+            "image": 0,
+            "bitmapEvidence": {
+              "entry": "sprite/common/commoneffect/icemissile2.img",
+              "imgSHA256": "59e21e6d2cb5dea4051fb1d19d34d6894e0d81edab7619325704f6ac306fe78c",
+              "size": [
+                96,
+                49
+              ],
+              "offset": [
+                45,
+                19
+              ],
+              "rgbaSHA256": "d201eadaeacfe8301f56558d99a0f438d05ef39246c5cd8c45779024ac10d319",
+              "tile": 22
+            }
+          }
+        ]
+      }
+    },
+    "passiveobject/monster/goblin/attackinfo/seagabicicle.atk": {
+      "sha256": "ca212d3ebd94fa3411ea3c1692f2acf03550d5f41fa410db983b5d09a9c2369e",
+      "tokens": [
+        [
+          5,
+          "[attack type]"
+        ],
+        [
+          5,
+          "[magic]"
+        ],
+        [
+          5,
+          "[weapon damage apply]"
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          5,
+          "[attack enemy]"
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          5,
+          "[elemental property]"
+        ],
+        [
+          5,
+          "[water element]"
+        ],
+        [
+          5,
+          "[damage reaction]"
+        ],
+        [
+          5,
+          "[damage]"
+        ],
+        [
+          5,
+          "[push aside]"
+        ],
+        [
+          2,
+          50
+        ],
+        [
+          5,
+          "[lift up]"
+        ],
+        [
+          2,
+          10
+        ],
+        [
+          5,
+          "[hit wav]"
+        ],
+        [
+          7,
+          "ICICLE_HIT"
+        ],
+        [
+          5,
+          "[attack direction]"
+        ],
+        [
+          5,
+          "[hit horizon]"
+        ],
+        [
+          5,
+          "[hit info]"
+        ],
+        [
+          5,
+          "[blow]"
+        ],
+        [
+          5,
+          "[no blood]"
+        ],
+        [
+          2,
+          50
+        ],
+        [
+          4,
+          1.0
+        ]
+      ]
+    },
+    "passiveobject/common/animation/firemissileparticle1.ani": {
+      "sha256": "4e2922a7af2c8603c2f53358c3e092a2362c5421b58ee9eeaa5058f4dbb1254b",
+      "animation": {
+        "paths": [
+          "Common/CommonEffect/Fire.img"
+        ],
+        "overall": [],
+        "frames": [
+          {
+            "frame": 0,
+            "xy": [
+              -126,
+              -93
+            ],
+            "props": [
+              [
+                7,
+                [
+                  0.699999988079071,
+                  0.699999988079071
+                ]
+              ],
+              [
+                8,
+                40.0
+              ],
+              [
+                10,
+                1
+              ],
+              [
+                11,
+                2
+              ],
+              [
+                12,
+                230
+              ]
+            ],
+            "boxes": [],
+            "image": 0,
+            "bitmapEvidence": {
+              "entry": "sprite/common/commoneffect/fire.img",
+              "imgSHA256": "9b5e3ee9d44e334d85a704599c244556872276d708836b207cffd910c3404a59",
+              "size": [
+                21,
+                21
+              ],
+              "offset": [
+                112,
+                82
+              ],
+              "rgbaSHA256": "da059ebddde8b70af44be887c05665ddb209c6af174038ee156ee193bb1ac490",
+              "tile": 23
+            }
+          },
+          {
+            "frame": 1,
+            "xy": [
+              -126,
+              -93
+            ],
+            "props": [
+              [
+                7,
+                [
+                  0.699999988079071,
+                  0.699999988079071
+                ]
+              ],
+              [
+                8,
+                40.0
+              ],
+              [
+                9,
+                [
+                  255,
+                  255,
+                  255,
+                  100
+                ]
+              ],
+              [
+                10,
+                1
+              ],
+              [
+                12,
+                230
+              ]
+            ],
+            "boxes": [],
+            "image": 0,
+            "bitmapEvidence": {
+              "entry": "sprite/common/commoneffect/fire.img",
+              "imgSHA256": "9b5e3ee9d44e334d85a704599c244556872276d708836b207cffd910c3404a59",
+              "size": [
+                39,
+                39
+              ],
+              "offset": [
+                105,
+                72
+              ],
+              "rgbaSHA256": "6b14999753224cc9d6b855e0530daa8ee9da97c0be60b5aff51c1d40bb798800",
+              "tile": 24
+            }
+          },
+          {
+            "frame": 2,
+            "xy": [
+              -126,
+              -93
+            ],
+            "props": [
+              [
+                7,
+                [
+                  0.699999988079071,
+                  0.699999988079071
+                ]
+              ],
+              [
+                8,
+                40.0
+              ],
+              [
+                9,
+                [
+                  255,
+                  255,
+                  255,
+                  100
+                ]
+              ],
+              [
+                10,
+                1
+              ],
+              [
+                12,
+                230
+              ]
+            ],
+            "boxes": [],
+            "image": 0,
+            "bitmapEvidence": {
+              "entry": "sprite/common/commoneffect/fire.img",
+              "imgSHA256": "9b5e3ee9d44e334d85a704599c244556872276d708836b207cffd910c3404a59",
+              "size": [
+                48,
+                48
+              ],
+              "offset": [
+                100,
+                69
+              ],
+              "rgbaSHA256": "632dda61d1fa26b88464fa0cb362adb7a15d12c709e052e021a952260407c5b9",
+              "tile": 25
+            }
+          },
+          {
+            "frame": 3,
+            "xy": [
+              -126,
+              -93
+            ],
+            "props": [
+              [
+                7,
+                [
+                  0.5,
+                  0.5
+                ]
+              ],
+              [
+                8,
+                40.0
+              ],
+              [
+                9,
+                [
+                  255,
+                  255,
+                  255,
+                  100
+                ]
+              ],
+              [
+                10,
+                1
+              ],
+              [
+                12,
+                230
+              ]
+            ],
+            "boxes": [],
+            "image": 0,
+            "bitmapEvidence": {
+              "entry": "sprite/common/commoneffect/fire.img",
+              "imgSHA256": "9b5e3ee9d44e334d85a704599c244556872276d708836b207cffd910c3404a59",
+              "size": [
+                53,
+                58
+              ],
+              "offset": [
+                98,
+                65
+              ],
+              "rgbaSHA256": "7769a3a89636ee9c4945c894ccd41e15b301ab0b60bc23a508871801b459cf54",
+              "tile": 26
+            }
+          },
+          {
+            "frame": 4,
+            "xy": [
+              -126,
+              -93
+            ],
+            "props": [
+              [
+                7,
+                [
+                  0.30000001192092896,
+                  0.30000001192092896
+                ]
+              ],
+              [
+                8,
+                40.0
+              ],
+              [
+                9,
+                [
+                  255,
+                  255,
+                  255,
+                  150
+                ]
+              ],
+              [
+                10,
+                1
+              ],
+              [
+                12,
+                230
+              ]
+            ],
+            "boxes": [],
+            "image": 0,
+            "bitmapEvidence": {
+              "entry": "sprite/common/commoneffect/fire.img",
+              "imgSHA256": "9b5e3ee9d44e334d85a704599c244556872276d708836b207cffd910c3404a59",
+              "size": [
+                62,
+                68
+              ],
+              "offset": [
+                94,
+                59
+              ],
+              "rgbaSHA256": "8c96ccb82dd9db2e349126ba87cfb7df7c8d7c4e198da19b57b8dfed415515af",
+              "tile": 27
+            }
+          },
+          {
+            "frame": 5,
+            "xy": [
+              -126,
+              -93
+            ],
+            "props": [
+              [
+                7,
+                [
+                  0.30000001192092896,
+                  0.30000001192092896
+                ]
+              ],
+              [
+                8,
+                40.0
+              ],
+              [
+                10,
+                1
+              ],
+              [
+                12,
+                230
+              ]
+            ],
+            "boxes": [],
+            "image": 0,
+            "bitmapEvidence": {
+              "entry": "sprite/common/commoneffect/fire.img",
+              "imgSHA256": "9b5e3ee9d44e334d85a704599c244556872276d708836b207cffd910c3404a59",
+              "size": [
+                69,
+                70
+              ],
+              "offset": [
+                88,
+                55
+              ],
+              "rgbaSHA256": "cb7ab89324681560e2ce8b3af3a9d4c846c6cbe687fd0ebbcb3350f6b9006736",
+              "tile": 28
+            }
+          },
+          {
+            "frame": 6,
+            "xy": [
+              -126,
+              -93
+            ],
+            "props": [
+              [
+                7,
+                [
+                  0.30000001192092896,
+                  0.30000001192092896
+                ]
+              ],
+              [
+                8,
+                40.0
+              ],
+              [
+                9,
+                [
+                  255,
+                  255,
+                  255,
+                  170
+                ]
+              ],
+              [
+                10,
+                1
+              ],
+              [
+                12,
+                230
+              ]
+            ],
+            "boxes": [],
+            "image": 0,
+            "bitmapEvidence": {
+              "entry": "sprite/common/commoneffect/fire.img",
+              "imgSHA256": "9b5e3ee9d44e334d85a704599c244556872276d708836b207cffd910c3404a59",
+              "size": [
+                72,
+                69
+              ],
+              "offset": [
+                88,
+                57
+              ],
+              "rgbaSHA256": "fa2a8be33ba4fa1d3cea821a0494d2d123967c5f44ecda840eeb7ced7efa3ef0",
+              "tile": 29
+            }
+          },
+          {
+            "frame": 7,
+            "xy": [
+              -126,
+              -93
+            ],
+            "props": [
+              [
+                7,
+                [
+                  0.30000001192092896,
+                  0.30000001192092896
+                ]
+              ],
+              [
+                8,
+                40.0
+              ],
+              [
+                9,
+                [
+                  255,
+                  255,
+                  255,
+                  100
+                ]
+              ],
+              [
+                10,
+                1
+              ],
+              [
+                12,
+                230
+              ]
+            ],
+            "boxes": [],
+            "image": 0,
+            "bitmapEvidence": {
+              "entry": "sprite/common/commoneffect/fire.img",
+              "imgSHA256": "9b5e3ee9d44e334d85a704599c244556872276d708836b207cffd910c3404a59",
+              "size": [
+                74,
+                76
+              ],
+              "offset": [
+                86,
+                55
+              ],
+              "rgbaSHA256": "6520d3b3c7c8de25a1722ab6c14879c9c308383c40fbfaf0612512e6e33bb920",
+              "tile": 30
+            }
+          },
+          {
+            "frame": 8,
+            "xy": [
+              -126,
+              -93
+            ],
+            "props": [
+              [
+                7,
+                [
+                  0.30000001192092896,
+                  0.30000001192092896
+                ]
+              ],
+              [
+                8,
+                40.0
+              ],
+              [
+                9,
+                [
+                  255,
+                  255,
+                  255,
+                  50
+                ]
+              ],
+              [
+                10,
+                1
+              ],
+              [
+                12,
+                230
+              ]
+            ],
+            "boxes": [],
+            "image": 0,
+            "bitmapEvidence": {
+              "entry": "sprite/common/commoneffect/fire.img",
+              "imgSHA256": "9b5e3ee9d44e334d85a704599c244556872276d708836b207cffd910c3404a59",
+              "size": [
+                68,
+                71
+              ],
+              "offset": [
+                89,
+                58
+              ],
+              "rgbaSHA256": "d68abb06e71cb118a926d179bdcb2b2913650a636c0c5c75eb4bdcecbb426990",
+              "tile": 31
+            }
+          }
+        ]
+      }
+    },
+    "passiveobject/common/animation/firemissileparticle2.ani": {
+      "sha256": "6f55353df3150777600cee52b6308658376aa63d74eac3a720feeb057a4ba0ab",
+      "animation": {
+        "paths": [
+          "Common/CommonEffect/Fire.img"
+        ],
+        "overall": [],
+        "frames": [
+          {
+            "frame": 0,
+            "xy": [
+              -126,
+              -93
+            ],
+            "props": [
+              [
+                7,
+                [
+                  0.699999988079071,
+                  0.699999988079071
+                ]
+              ],
+              [
+                8,
+                40.0
+              ],
+              [
+                10,
+                1
+              ],
+              [
+                11,
+                2
+              ],
+              [
+                12,
+                230
+              ]
+            ],
+            "boxes": [],
+            "image": 0,
+            "bitmapEvidence": {
+              "entry": "sprite/common/commoneffect/fire.img",
+              "imgSHA256": "9b5e3ee9d44e334d85a704599c244556872276d708836b207cffd910c3404a59",
+              "size": [
+                21,
+                21
+              ],
+              "offset": [
+                112,
+                82
+              ],
+              "rgbaSHA256": "da059ebddde8b70af44be887c05665ddb209c6af174038ee156ee193bb1ac490",
+              "tile": 32
+            }
+          },
+          {
+            "frame": 1,
+            "xy": [
+              -126,
+              -93
+            ],
+            "props": [
+              [
+                7,
+                [
+                  0.699999988079071,
+                  0.699999988079071
+                ]
+              ],
+              [
+                8,
+                40.0
+              ],
+              [
+                9,
+                [
+                  255,
+                  255,
+                  255,
+                  100
+                ]
+              ],
+              [
+                10,
+                1
+              ],
+              [
+                11,
+                2
+              ],
+              [
+                12,
+                230
+              ]
+            ],
+            "boxes": [],
+            "image": 0,
+            "bitmapEvidence": {
+              "entry": "sprite/common/commoneffect/fire.img",
+              "imgSHA256": "9b5e3ee9d44e334d85a704599c244556872276d708836b207cffd910c3404a59",
+              "size": [
+                39,
+                39
+              ],
+              "offset": [
+                105,
+                72
+              ],
+              "rgbaSHA256": "6b14999753224cc9d6b855e0530daa8ee9da97c0be60b5aff51c1d40bb798800",
+              "tile": 33
+            }
+          },
+          {
+            "frame": 2,
+            "xy": [
+              -126,
+              -93
+            ],
+            "props": [
+              [
+                7,
+                [
+                  0.5,
+                  0.5
+                ]
+              ],
+              [
+                8,
+                40.0
+              ],
+              [
+                9,
+                [
+                  255,
+                  255,
+                  255,
+                  100
+                ]
+              ],
+              [
+                10,
+                1
+              ],
+              [
+                11,
+                2
+              ],
+              [
+                12,
+                230
+              ]
+            ],
+            "boxes": [],
+            "image": 0,
+            "bitmapEvidence": {
+              "entry": "sprite/common/commoneffect/fire.img",
+              "imgSHA256": "9b5e3ee9d44e334d85a704599c244556872276d708836b207cffd910c3404a59",
+              "size": [
+                48,
+                48
+              ],
+              "offset": [
+                100,
+                69
+              ],
+              "rgbaSHA256": "632dda61d1fa26b88464fa0cb362adb7a15d12c709e052e021a952260407c5b9",
+              "tile": 34
+            }
+          },
+          {
+            "frame": 3,
+            "xy": [
+              -126,
+              -93
+            ],
+            "props": [
+              [
+                7,
+                [
+                  0.5,
+                  0.5
+                ]
+              ],
+              [
+                8,
+                40.0
+              ],
+              [
+                9,
+                [
+                  255,
+                  255,
+                  255,
+                  100
+                ]
+              ],
+              [
+                10,
+                1
+              ],
+              [
+                11,
+                2
+              ],
+              [
+                12,
+                230
+              ]
+            ],
+            "boxes": [],
+            "image": 0,
+            "bitmapEvidence": {
+              "entry": "sprite/common/commoneffect/fire.img",
+              "imgSHA256": "9b5e3ee9d44e334d85a704599c244556872276d708836b207cffd910c3404a59",
+              "size": [
+                53,
+                58
+              ],
+              "offset": [
+                98,
+                65
+              ],
+              "rgbaSHA256": "7769a3a89636ee9c4945c894ccd41e15b301ab0b60bc23a508871801b459cf54",
+              "tile": 35
+            }
+          },
+          {
+            "frame": 4,
+            "xy": [
+              -126,
+              -93
+            ],
+            "props": [
+              [
+                7,
+                [
+                  0.30000001192092896,
+                  0.30000001192092896
+                ]
+              ],
+              [
+                8,
+                40.0
+              ],
+              [
+                9,
+                [
+                  255,
+                  255,
+                  255,
+                  150
+                ]
+              ],
+              [
+                10,
+                1
+              ],
+              [
+                11,
+                2
+              ],
+              [
+                12,
+                230
+              ]
+            ],
+            "boxes": [],
+            "image": 0,
+            "bitmapEvidence": {
+              "entry": "sprite/common/commoneffect/fire.img",
+              "imgSHA256": "9b5e3ee9d44e334d85a704599c244556872276d708836b207cffd910c3404a59",
+              "size": [
+                62,
+                68
+              ],
+              "offset": [
+                94,
+                59
+              ],
+              "rgbaSHA256": "8c96ccb82dd9db2e349126ba87cfb7df7c8d7c4e198da19b57b8dfed415515af",
+              "tile": 36
+            }
+          },
+          {
+            "frame": 5,
+            "xy": [
+              -126,
+              -93
+            ],
+            "props": [
+              [
+                7,
+                [
+                  0.30000001192092896,
+                  0.30000001192092896
+                ]
+              ],
+              [
+                8,
+                40.0
+              ],
+              [
+                10,
+                1
+              ],
+              [
+                11,
+                2
+              ],
+              [
+                12,
+                230
+              ]
+            ],
+            "boxes": [],
+            "image": 0,
+            "bitmapEvidence": {
+              "entry": "sprite/common/commoneffect/fire.img",
+              "imgSHA256": "9b5e3ee9d44e334d85a704599c244556872276d708836b207cffd910c3404a59",
+              "size": [
+                69,
+                70
+              ],
+              "offset": [
+                88,
+                55
+              ],
+              "rgbaSHA256": "cb7ab89324681560e2ce8b3af3a9d4c846c6cbe687fd0ebbcb3350f6b9006736",
+              "tile": 37
+            }
+          },
+          {
+            "frame": 6,
+            "xy": [
+              -126,
+              -93
+            ],
+            "props": [
+              [
+                7,
+                [
+                  0.30000001192092896,
+                  0.30000001192092896
+                ]
+              ],
+              [
+                8,
+                40.0
+              ],
+              [
+                9,
+                [
+                  255,
+                  255,
+                  255,
+                  170
+                ]
+              ],
+              [
+                10,
+                1
+              ],
+              [
+                11,
+                2
+              ],
+              [
+                12,
+                230
+              ]
+            ],
+            "boxes": [],
+            "image": 0,
+            "bitmapEvidence": {
+              "entry": "sprite/common/commoneffect/fire.img",
+              "imgSHA256": "9b5e3ee9d44e334d85a704599c244556872276d708836b207cffd910c3404a59",
+              "size": [
+                72,
+                69
+              ],
+              "offset": [
+                88,
+                57
+              ],
+              "rgbaSHA256": "fa2a8be33ba4fa1d3cea821a0494d2d123967c5f44ecda840eeb7ced7efa3ef0",
+              "tile": 38
+            }
+          },
+          {
+            "frame": 7,
+            "xy": [
+              -126,
+              -93
+            ],
+            "props": [
+              [
+                7,
+                [
+                  0.30000001192092896,
+                  0.30000001192092896
+                ]
+              ],
+              [
+                8,
+                40.0
+              ],
+              [
+                9,
+                [
+                  255,
+                  255,
+                  255,
+                  100
+                ]
+              ],
+              [
+                10,
+                1
+              ],
+              [
+                11,
+                2
+              ],
+              [
+                12,
+                230
+              ]
+            ],
+            "boxes": [],
+            "image": 0,
+            "bitmapEvidence": {
+              "entry": "sprite/common/commoneffect/fire.img",
+              "imgSHA256": "9b5e3ee9d44e334d85a704599c244556872276d708836b207cffd910c3404a59",
+              "size": [
+                74,
+                76
+              ],
+              "offset": [
+                86,
+                55
+              ],
+              "rgbaSHA256": "6520d3b3c7c8de25a1722ab6c14879c9c308383c40fbfaf0612512e6e33bb920",
+              "tile": 39
+            }
+          },
+          {
+            "frame": 8,
+            "xy": [
+              -126,
+              -93
+            ],
+            "props": [
+              [
+                7,
+                [
+                  0.30000001192092896,
+                  0.30000001192092896
+                ]
+              ],
+              [
+                8,
+                40.0
+              ],
+              [
+                9,
+                [
+                  255,
+                  255,
+                  255,
+                  50
+                ]
+              ],
+              [
+                10,
+                1
+              ],
+              [
+                11,
+                2
+              ],
+              [
+                12,
+                230
+              ]
+            ],
+            "boxes": [],
+            "image": 0,
+            "bitmapEvidence": {
+              "entry": "sprite/common/commoneffect/fire.img",
+              "imgSHA256": "9b5e3ee9d44e334d85a704599c244556872276d708836b207cffd910c3404a59",
+              "size": [
+                68,
+                71
+              ],
+              "offset": [
+                89,
+                58
+              ],
+              "rgbaSHA256": "d68abb06e71cb118a926d179bdcb2b2913650a636c0c5c75eb4bdcecbb426990",
+              "tile": 40
+            }
+          }
+        ]
+      }
+    },
+    "passiveobject/common/animation/firemissileparticle3.ani": {
+      "sha256": "6a203179bb0c2c130fbc53bd7b3df518009a128aa4578fd8d19962ea92feb8b8",
+      "animation": {
+        "paths": [
+          "Common/CommonEffect/Fire.img"
+        ],
+        "overall": [],
+        "frames": [
+          {
+            "frame": 0,
+            "xy": [
+              -126,
+              -93
+            ],
+            "props": [
+              [
+                7,
+                [
+                  0.699999988079071,
+                  0.699999988079071
+                ]
+              ],
+              [
+                8,
+                40.0
+              ],
+              [
+                10,
+                1
+              ],
+              [
+                11,
+                2
+              ],
+              [
+                12,
+                230
+              ]
+            ],
+            "boxes": [],
+            "image": 0,
+            "bitmapEvidence": {
+              "entry": "sprite/common/commoneffect/fire.img",
+              "imgSHA256": "9b5e3ee9d44e334d85a704599c244556872276d708836b207cffd910c3404a59",
+              "size": [
+                21,
+                21
+              ],
+              "offset": [
+                112,
+                82
+              ],
+              "rgbaSHA256": "da059ebddde8b70af44be887c05665ddb209c6af174038ee156ee193bb1ac490",
+              "tile": 41
+            }
+          },
+          {
+            "frame": 1,
+            "xy": [
+              -126,
+              -93
+            ],
+            "props": [
+              [
+                7,
+                [
+                  0.699999988079071,
+                  0.699999988079071
+                ]
+              ],
+              [
+                8,
+                40.0
+              ],
+              [
+                9,
+                [
+                  255,
+                  255,
+                  255,
+                  100
+                ]
+              ],
+              [
+                10,
+                1
+              ],
+              [
+                11,
+                2
+              ],
+              [
+                12,
+                230
+              ]
+            ],
+            "boxes": [],
+            "image": 0,
+            "bitmapEvidence": {
+              "entry": "sprite/common/commoneffect/fire.img",
+              "imgSHA256": "9b5e3ee9d44e334d85a704599c244556872276d708836b207cffd910c3404a59",
+              "size": [
+                39,
+                39
+              ],
+              "offset": [
+                105,
+                72
+              ],
+              "rgbaSHA256": "6b14999753224cc9d6b855e0530daa8ee9da97c0be60b5aff51c1d40bb798800",
+              "tile": 42
+            }
+          },
+          {
+            "frame": 2,
+            "xy": [
+              -126,
+              -93
+            ],
+            "props": [
+              [
+                7,
+                [
+                  0.5,
+                  0.5
+                ]
+              ],
+              [
+                8,
+                40.0
+              ],
+              [
+                9,
+                [
+                  255,
+                  255,
+                  255,
+                  0
+                ]
+              ],
+              [
+                10,
+                1
+              ],
+              [
+                11,
+                2
+              ],
+              [
+                12,
+                230
+              ]
+            ],
+            "boxes": [],
+            "image": 0,
+            "bitmapEvidence": {
+              "entry": "sprite/common/commoneffect/fire.img",
+              "imgSHA256": "9b5e3ee9d44e334d85a704599c244556872276d708836b207cffd910c3404a59",
+              "size": [
+                48,
+                48
+              ],
+              "offset": [
+                100,
+                69
+              ],
+              "rgbaSHA256": "632dda61d1fa26b88464fa0cb362adb7a15d12c709e052e021a952260407c5b9",
+              "tile": 43
+            }
+          },
+          {
+            "frame": 3,
+            "xy": [
+              -126,
+              -93
+            ],
+            "props": [
+              [
+                7,
+                [
+                  0.5,
+                  0.5
+                ]
+              ],
+              [
+                8,
+                40.0
+              ],
+              [
+                9,
+                [
+                  255,
+                  255,
+                  255,
+                  0
+                ]
+              ],
+              [
+                10,
+                1
+              ],
+              [
+                11,
+                2
+              ],
+              [
+                12,
+                230
+              ]
+            ],
+            "boxes": [],
+            "image": 0,
+            "bitmapEvidence": {
+              "entry": "sprite/common/commoneffect/fire.img",
+              "imgSHA256": "9b5e3ee9d44e334d85a704599c244556872276d708836b207cffd910c3404a59",
+              "size": [
+                53,
+                58
+              ],
+              "offset": [
+                98,
+                65
+              ],
+              "rgbaSHA256": "7769a3a89636ee9c4945c894ccd41e15b301ab0b60bc23a508871801b459cf54",
+              "tile": 44
+            }
+          },
+          {
+            "frame": 4,
+            "xy": [
+              -126,
+              -93
+            ],
+            "props": [
+              [
+                7,
+                [
+                  0.30000001192092896,
+                  0.30000001192092896
+                ]
+              ],
+              [
+                8,
+                40.0
+              ],
+              [
+                9,
+                [
+                  255,
+                  255,
+                  255,
+                  0
+                ]
+              ],
+              [
+                10,
+                1
+              ],
+              [
+                11,
+                2
+              ],
+              [
+                12,
+                230
+              ]
+            ],
+            "boxes": [],
+            "image": 0,
+            "bitmapEvidence": {
+              "entry": "sprite/common/commoneffect/fire.img",
+              "imgSHA256": "9b5e3ee9d44e334d85a704599c244556872276d708836b207cffd910c3404a59",
+              "size": [
+                62,
+                68
+              ],
+              "offset": [
+                94,
+                59
+              ],
+              "rgbaSHA256": "8c96ccb82dd9db2e349126ba87cfb7df7c8d7c4e198da19b57b8dfed415515af",
+              "tile": 45
+            }
+          },
+          {
+            "frame": 5,
+            "xy": [
+              -126,
+              -93
+            ],
+            "props": [
+              [
+                7,
+                [
+                  0.30000001192092896,
+                  0.30000001192092896
+                ]
+              ],
+              [
+                8,
+                40.0
+              ],
+              [
+                9,
+                [
+                  255,
+                  255,
+                  255,
+                  0
+                ]
+              ],
+              [
+                10,
+                1
+              ],
+              [
+                11,
+                2
+              ],
+              [
+                12,
+                230
+              ]
+            ],
+            "boxes": [],
+            "image": 0,
+            "bitmapEvidence": {
+              "entry": "sprite/common/commoneffect/fire.img",
+              "imgSHA256": "9b5e3ee9d44e334d85a704599c244556872276d708836b207cffd910c3404a59",
+              "size": [
+                69,
+                70
+              ],
+              "offset": [
+                88,
+                55
+              ],
+              "rgbaSHA256": "cb7ab89324681560e2ce8b3af3a9d4c846c6cbe687fd0ebbcb3350f6b9006736",
+              "tile": 46
+            }
+          },
+          {
+            "frame": 6,
+            "xy": [
+              -126,
+              -93
+            ],
+            "props": [
+              [
+                7,
+                [
+                  0.30000001192092896,
+                  0.30000001192092896
+                ]
+              ],
+              [
+                8,
+                40.0
+              ],
+              [
+                9,
+                [
+                  255,
+                  255,
+                  255,
+                  0
+                ]
+              ],
+              [
+                10,
+                1
+              ],
+              [
+                11,
+                2
+              ],
+              [
+                12,
+                230
+              ]
+            ],
+            "boxes": [],
+            "image": 0,
+            "bitmapEvidence": {
+              "entry": "sprite/common/commoneffect/fire.img",
+              "imgSHA256": "9b5e3ee9d44e334d85a704599c244556872276d708836b207cffd910c3404a59",
+              "size": [
+                72,
+                69
+              ],
+              "offset": [
+                88,
+                57
+              ],
+              "rgbaSHA256": "fa2a8be33ba4fa1d3cea821a0494d2d123967c5f44ecda840eeb7ced7efa3ef0",
+              "tile": 47
+            }
+          },
+          {
+            "frame": 7,
+            "xy": [
+              -126,
+              -93
+            ],
+            "props": [
+              [
+                7,
+                [
+                  0.30000001192092896,
+                  0.30000001192092896
+                ]
+              ],
+              [
+                8,
+                40.0
+              ],
+              [
+                9,
+                [
+                  255,
+                  255,
+                  255,
+                  0
+                ]
+              ],
+              [
+                10,
+                1
+              ],
+              [
+                11,
+                2
+              ],
+              [
+                12,
+                230
+              ]
+            ],
+            "boxes": [],
+            "image": 0,
+            "bitmapEvidence": {
+              "entry": "sprite/common/commoneffect/fire.img",
+              "imgSHA256": "9b5e3ee9d44e334d85a704599c244556872276d708836b207cffd910c3404a59",
+              "size": [
+                74,
+                76
+              ],
+              "offset": [
+                86,
+                55
+              ],
+              "rgbaSHA256": "6520d3b3c7c8de25a1722ab6c14879c9c308383c40fbfaf0612512e6e33bb920",
+              "tile": 48
+            }
+          },
+          {
+            "frame": 8,
+            "xy": [
+              -126,
+              -93
+            ],
+            "props": [
+              [
+                7,
+                [
+                  0.30000001192092896,
+                  0.30000001192092896
+                ]
+              ],
+              [
+                8,
+                40.0
+              ],
+              [
+                9,
+                [
+                  255,
+                  255,
+                  255,
+                  0
+                ]
+              ],
+              [
+                10,
+                1
+              ],
+              [
+                11,
+                2
+              ],
+              [
+                12,
+                230
+              ]
+            ],
+            "boxes": [],
+            "image": 0,
+            "bitmapEvidence": {
+              "entry": "sprite/common/commoneffect/fire.img",
+              "imgSHA256": "9b5e3ee9d44e334d85a704599c244556872276d708836b207cffd910c3404a59",
+              "size": [
+                68,
+                71
+              ],
+              "offset": [
+                89,
+                58
+              ],
+              "rgbaSHA256": "d68abb06e71cb118a926d179bdcb2b2913650a636c0c5c75eb4bdcecbb426990",
+              "tile": 49
+            }
+          }
+        ]
+      }
+    },
+    "passiveobject/common/animation/firemissileparticlelight1.ani": {
+      "sha256": "0293e265730c06072b051d0c5d2ce3d3c6e878d99a05da81ecac48d9f55dd18a",
+      "animation": {
+        "paths": [
+          "Common/CommonEffect/FireLight.img"
+        ],
+        "overall": [],
+        "frames": [
+          {
+            "frame": 0,
+            "xy": [
+              -3,
+              -7
+            ],
+            "props": [
+              [
+                7,
+                [
+                  0.20000000298023224,
+                  0.20000000298023224
+                ]
+              ],
+              [
+                11,
+                2
+              ],
+              [
+                12,
+                20
+              ]
+            ],
+            "boxes": [],
+            "image": 0,
+            "bitmapEvidence": {
+              "entry": "sprite/common/commoneffect/firelight.img",
+              "imgSHA256": "6ff93e4dcbbbbf544c4d45b2c973ac878fdb85773375876ecf5370cb845041b5",
+              "size": [
+                14,
+                15
+              ],
+              "offset": [
+                0,
+                0
+              ],
+              "rgbaSHA256": "4308017ab778d4f7f565d7849e23bee566ae934c499438204062555d174b6b96",
+              "tile": 50
+            }
+          }
+        ]
+      }
+    },
+    "passiveobject/common/animation/firemissileparticlelight2.ani": {
+      "sha256": "0674e164abfc3410c1248563d0e2b0c79bfb758deb63dd389337f833aaedf374",
+      "animation": {
+        "paths": [
+          "Common/CommonEffect/FireLight.img"
+        ],
+        "overall": [],
+        "frames": [
+          {
+            "frame": 1,
+            "xy": [
+              -2,
+              -7
+            ],
+            "props": [
+              [
+                7,
+                [
+                  0.5,
+                  0.5
+                ]
+              ],
+              [
+                12,
+                20
+              ]
+            ],
+            "boxes": [],
+            "image": 0,
+            "bitmapEvidence": {
+              "entry": "sprite/common/commoneffect/firelight.img",
+              "imgSHA256": "6ff93e4dcbbbbf544c4d45b2c973ac878fdb85773375876ecf5370cb845041b5",
+              "size": [
+                11,
+                11
+              ],
+              "offset": [
+                0,
+                0
+              ],
+              "rgbaSHA256": "fc1d5880ada7495fe34b553de7bd25bd78bbbf8fb1c356fabf9e2b20d4530ee8",
+              "tile": 51
+            }
+          }
+        ]
+      }
+    },
+    "passiveobject/common/animation/icemissileparticletail1.ani": {
+      "sha256": "cbcb9a93855f604855d04e72c5e5cdb065ff11e10c20488e18ab92765c507ab2",
+      "animation": {
+        "paths": [
+          "Common/CommonEffect/Water.img"
+        ],
+        "overall": [],
+        "frames": [
+          {
+            "frame": 0,
+            "xy": [
+              -4,
+              -7
+            ],
+            "props": [
+              [
+                9,
+                [
+                  255,
+                  255,
+                  255,
+                  70
+                ]
+              ],
+              [
+                11,
+                2
+              ],
+              [
+                12,
+                20
+              ]
+            ],
+            "boxes": [],
+            "image": 0,
+            "bitmapEvidence": {
+              "entry": "sprite/common/commoneffect/water.img",
+              "imgSHA256": "2c923bc593750ae7ed3732fcb5946c7da807d079a1558d9738010238bd29db97",
+              "size": [
+                17,
+                12
+              ],
+              "offset": [
+                2,
+                2
+              ],
+              "rgbaSHA256": "a717e9f523efe0e21df110dd79c594d77c8702566469bb12cd3b7c76ac89866e",
+              "tile": 52
+            }
+          }
+        ]
+      }
+    },
+    "passiveobject/common/animation/icemissileparticletail2.ani": {
+      "sha256": "54e3ecd7bd4d70979112ebf41e88938a8bceaffcd07ea16c334e1b9d9acf826c",
+      "animation": {
+        "paths": [
+          "Common/CommonEffect/Water.img"
+        ],
+        "overall": [
+          [
+            1,
+            0
+          ]
+        ],
+        "frames": [
+          {
+            "frame": 1,
+            "xy": [
+              -4,
+              -7
+            ],
+            "props": [
+              [
+                9,
+                [
+                  255,
+                  255,
+                  255,
+                  100
+                ]
+              ],
+              [
+                11,
+                2
+              ],
+              [
+                12,
+                20
+              ]
+            ],
+            "boxes": [],
+            "image": 0,
+            "bitmapEvidence": {
+              "entry": "sprite/common/commoneffect/water.img",
+              "imgSHA256": "2c923bc593750ae7ed3732fcb5946c7da807d079a1558d9738010238bd29db97",
+              "size": [
+                15,
+                12
+              ],
+              "offset": [
+                3,
+                2
+              ],
+              "rgbaSHA256": "b4d93a202baae390d17fa0f7613fd1efc0d9135d39d340264d9bbf47d41d7890",
+              "tile": 53
+            }
+          }
+        ]
+      }
+    },
+    "passiveobject/common/animation/icemissileparticlelight1.ani": {
+      "sha256": "897d8b280af2f0510762f79b504e736e7e3b6ea74998f78cdae60bb7abf8ff49",
+      "animation": {
+        "paths": [
+          "Common/CommonEffect/Water.img"
+        ],
+        "overall": [
+          [
+            1,
+            0
+          ]
+        ],
+        "frames": [
+          {
+            "frame": 2,
+            "xy": [
+              -2,
+              -4
+            ],
+            "props": [
+              [
+                9,
+                [
+                  255,
+                  255,
+                  255,
+                  100
+                ]
+              ],
+              [
+                11,
+                2
+              ],
+              [
+                12,
+                20
+              ]
+            ],
+            "boxes": [],
+            "image": 0,
+            "bitmapEvidence": {
+              "entry": "sprite/common/commoneffect/water.img",
+              "imgSHA256": "2c923bc593750ae7ed3732fcb5946c7da807d079a1558d9738010238bd29db97",
+              "size": [
+                3,
+                3
+              ],
+              "offset": [
+                1,
+                1
+              ],
+              "rgbaSHA256": "d198176597887db139b67befd70629b6fc4947b3aae25578d61a1f8f9d523803",
+              "tile": 54
+            }
+          }
+        ]
+      }
+    },
+    "passiveobject/common/animation/icemissileparticlelight2.ani": {
+      "sha256": "b76494045ed2cb288a55604a74ee2c36faf45797591e57a52d421ffef8eed68b",
+      "animation": {
+        "paths": [
+          "Common/CommonEffect/Water.img"
+        ],
+        "overall": [
+          [
+            1,
+            0
+          ]
+        ],
+        "frames": [
+          {
+            "frame": 3,
+            "xy": [
+              -3,
+              -5
+            ],
+            "props": [
+              [
+                11,
+                2
+              ],
+              [
+                12,
+                20
+              ]
+            ],
+            "boxes": [],
+            "image": 0,
+            "bitmapEvidence": {
+              "entry": "sprite/common/commoneffect/water.img",
+              "imgSHA256": "2c923bc593750ae7ed3732fcb5946c7da807d079a1558d9738010238bd29db97",
+              "size": [
+                3,
+                3
+              ],
+              "offset": [
+                1,
+                1
+              ],
+              "rgbaSHA256": "852241faa6b2ca00bfd1e4e5c16f3efc2090e1e44f5eb8383a28b8b915a0afe1",
+              "tile": 55
+            }
+          }
+        ]
+      }
+    },
+    "passiveobject/common/animation/icemissileparticlelight3.ani": {
+      "sha256": "f2859861354a15c36a7040d08a3ef55d9ff9dd41c6c41e57e51dd3ab33b3f578",
+      "animation": {
+        "paths": [
+          "Common/CommonEffect/Water.img"
+        ],
+        "overall": [
+          [
+            1,
+            0
+          ]
+        ],
+        "frames": [
+          {
+            "frame": 4,
+            "xy": [
+              -3,
+              -5
+            ],
+            "props": [
+              [
+                11,
+                2
+              ],
+              [
+                12,
+                20
+              ]
+            ],
+            "boxes": [],
+            "image": 0,
+            "bitmapEvidence": {
+              "entry": "sprite/common/commoneffect/water.img",
+              "imgSHA256": "2c923bc593750ae7ed3732fcb5946c7da807d079a1558d9738010238bd29db97",
+              "size": [
+                3,
+                3
+              ],
+              "offset": [
+                1,
+                1
+              ],
+              "rgbaSHA256": "99cc245c36a24ff0d744f0f73b7526b3b0d1f60b23c0bb578a697e969d81d246",
+              "tile": 56
+            }
+          }
+        ]
+      }
+    }
+  },
+  "explicitReferences": [
+    {
+      "source": "monster/goblin/hillgab.mob",
+      "tokenIndex": 143,
+      "literal": "PassiveObject/Common/Particle/FireMissileGeroCenter.ptl",
+      "target": "passiveobject/common/particle/firemissilegerocenter.ptl"
+    },
+    {
+      "source": "passiveobject/monster/goblin/hillgabsizzle.obj",
+      "tokenIndex": 10,
+      "literal": "../../Common/Animation/FireMissile.ani",
+      "target": "passiveobject/common/animation/firemissile.ani"
+    },
+    {
+      "source": "passiveobject/monster/goblin/hillgabsizzle.obj",
+      "tokenIndex": 12,
+      "literal": "AttackInfo/HillGabSizzle.atk",
+      "target": "passiveobject/monster/goblin/attackinfo/hillgabsizzle.atk"
+    },
+    {
+      "source": "monster/goblin/seagab.mob",
+      "tokenIndex": 143,
+      "literal": "PassiveObject/Common/Particle/IceMissile.ptl",
+      "target": "passiveobject/common/particle/icemissile.ptl"
+    },
+    {
+      "source": "passiveobject/monster/goblin/seagabicicle.obj",
+      "tokenIndex": 12,
+      "literal": "../../Common/Animation/IceMissile1.ani",
+      "target": "passiveobject/common/animation/icemissile1.ani"
+    },
+    {
+      "source": "passiveobject/monster/goblin/seagabicicle.obj",
+      "tokenIndex": 14,
+      "literal": "../../Common/Animation/IceMissile2.ani",
+      "target": "passiveobject/common/animation/icemissile2.ani"
+    },
+    {
+      "source": "passiveobject/monster/goblin/seagabicicle.obj",
+      "tokenIndex": 17,
+      "literal": "AttackInfo/SeaGabIcicle.atk",
+      "target": "passiveobject/monster/goblin/attackinfo/seagabicicle.atk"
+    },
+    {
+      "source": "passiveobject/common/particle/firemissileparticle.ptl",
+      "tokenIndex": 24,
+      "literal": "../Animation/FireMissileParticle1.ani",
+      "target": "passiveobject/common/animation/firemissileparticle1.ani"
+    },
+    {
+      "source": "passiveobject/common/particle/firemissileparticle.ptl",
+      "tokenIndex": 26,
+      "literal": "../Animation/FireMissileParticle2.ani",
+      "target": "passiveobject/common/animation/firemissileparticle2.ani"
+    },
+    {
+      "source": "passiveobject/common/particle/firemissileparticle.ptl",
+      "tokenIndex": 28,
+      "literal": "../Animation/FireMissileParticle3.ani",
+      "target": "passiveobject/common/animation/firemissileparticle3.ani"
+    },
+    {
+      "source": "passiveobject/common/particle/firemissileparticlelight.ptl",
+      "tokenIndex": 43,
+      "literal": "../Animation/FireMissileParticleLight1.ani",
+      "target": "passiveobject/common/animation/firemissileparticlelight1.ani"
+    },
+    {
+      "source": "passiveobject/common/particle/firemissileparticlelight.ptl",
+      "tokenIndex": 45,
+      "literal": "../Animation/FireMissileParticleLight2.ani",
+      "target": "passiveobject/common/animation/firemissileparticlelight2.ani"
+    },
+    {
+      "source": "passiveobject/common/particle/icemissileparticletail.ptl",
+      "tokenIndex": 25,
+      "literal": "../Animation/IceMissileParticleTail1.ani",
+      "target": "passiveobject/common/animation/icemissileparticletail1.ani"
+    },
+    {
+      "source": "passiveobject/common/particle/icemissileparticletail.ptl",
+      "tokenIndex": 27,
+      "literal": "../Animation/IceMissileParticleTail2.ani",
+      "target": "passiveobject/common/animation/icemissileparticletail2.ani"
+    },
+    {
+      "source": "passiveobject/common/particle/icemissileparticlelight.ptl",
+      "tokenIndex": 32,
+      "literal": "../Animation/IceMissileParticleLight1.ani",
+      "target": "passiveobject/common/animation/icemissileparticlelight1.ani"
+    },
+    {
+      "source": "passiveobject/common/particle/icemissileparticlelight.ptl",
+      "tokenIndex": 34,
+      "literal": "../Animation/IceMissileParticleLight2.ani",
+      "target": "passiveobject/common/animation/icemissileparticlelight2.ani"
+    },
+    {
+      "source": "passiveobject/common/particle/icemissileparticlelight.ptl",
+      "tokenIndex": 36,
+      "literal": "../Animation/IceMissileParticleLight3.ani",
+      "target": "passiveobject/common/animation/icemissileparticlelight3.ani"
+    }
+  ],
+  "candidateSeeds": [
+    "passiveobject/common/particle/firemissileparticle.ptl",
+    "passiveobject/common/particle/firemissileparticlelight.ptl",
+    "passiveobject/common/particle/icemissileparticletail.ptl",
+    "passiveobject/common/particle/icemissileparticlelight.ptl"
+  ],
+  "objectListSHA256": "577920b96fe16cbbe8c12adf71584c011862b8e2e7efbc40877c02f7e83297b3",
+  "tiles": [
+    {
+      "tile": 0,
+      "pasteXY": [
+        55,
+        10
+      ]
+    },
+    {
+      "tile": 1,
+      "pasteXY": [
+        215,
+        10
+      ]
+    },
+    {
+      "tile": 2,
+      "pasteXY": [
+        376,
+        10
+      ]
+    },
+    {
+      "tile": 3,
+      "pasteXY": [
+        536,
+        10
+      ]
+    },
+    {
+      "tile": 4,
+      "pasteXY": [
+        695,
+        10
+      ]
+    },
+    {
+      "tile": 5,
+      "pasteXY": [
+        855,
+        10
+      ]
+    },
+    {
+      "tile": 6,
+      "pasteXY": [
+        1016,
+        10
+      ]
+    },
+    {
+      "tile": 7,
+      "pasteXY": [
+        1175,
+        10
+      ]
+    },
+    {
+      "tile": 8,
+      "pasteXY": [
+        31,
+        154
+      ]
+    },
+    {
+      "tile": 9,
+      "pasteXY": [
+        191,
+        154
+      ]
+    },
+    {
+      "tile": 10,
+      "pasteXY": [
+        351,
+        154
+      ]
+    },
+    {
+      "tile": 11,
+      "pasteXY": [
+        511,
+        154
+      ]
+    },
+    {
+      "tile": 12,
+      "pasteXY": [
+        671,
+        154
+      ]
+    },
+    {
+      "tile": 13,
+      "pasteXY": [
+        832,
+        154
+      ]
+    },
+    {
+      "tile": 14,
+      "pasteXY": [
+        994,
+        154
+      ]
+    },
+    {
+      "tile": 15,
+      "pasteXY": [
+        1151,
+        154
+      ]
+    },
+    {
+      "tile": 16,
+      "pasteXY": [
+        31,
+        298
+      ]
+    },
+    {
+      "tile": 17,
+      "pasteXY": [
+        192,
+        298
+      ]
+    },
+    {
+      "tile": 18,
+      "pasteXY": [
+        352,
+        298
+      ]
+    },
+    {
+      "tile": 19,
+      "pasteXY": [
+        512,
+        298
+      ]
+    },
+    {
+      "tile": 20,
+      "pasteXY": [
+        672,
+        298
+      ]
+    },
+    {
+      "tile": 21,
+      "pasteXY": [
+        832,
+        298
+      ]
+    },
+    {
+      "tile": 22,
+      "pasteXY": [
+        992,
+        298
+      ]
+    },
+    {
+      "tile": 23,
+      "pasteXY": [
+        1189,
+        298
+      ]
+    },
+    {
+      "tile": 24,
+      "pasteXY": [
+        60,
+        442
+      ]
+    },
+    {
+      "tile": 25,
+      "pasteXY": [
+        216,
+        442
+      ]
+    },
+    {
+      "tile": 26,
+      "pasteXY": [
+        373,
+        442
+      ]
+    },
+    {
+      "tile": 27,
+      "pasteXY": [
+        529,
+        442
+      ]
+    },
+    {
+      "tile": 28,
+      "pasteXY": [
+        685,
+        442
+      ]
+    },
+    {
+      "tile": 29,
+      "pasteXY": [
+        844,
+        442
+      ]
+    },
+    {
+      "tile": 30,
+      "pasteXY": [
+        1003,
+        442
+      ]
+    },
+    {
+      "tile": 31,
+      "pasteXY": [
+        1166,
+        442
+      ]
+    },
+    {
+      "tile": 32,
+      "pasteXY": [
+        69,
+        586
+      ]
+    },
+    {
+      "tile": 33,
+      "pasteXY": [
+        220,
+        586
+      ]
+    },
+    {
+      "tile": 34,
+      "pasteXY": [
+        376,
+        586
+      ]
+    },
+    {
+      "tile": 35,
+      "pasteXY": [
+        533,
+        586
+      ]
+    },
+    {
+      "tile": 36,
+      "pasteXY": [
+        689,
+        586
+      ]
+    },
+    {
+      "tile": 37,
+      "pasteXY": [
+        845,
+        586
+      ]
+    },
+    {
+      "tile": 38,
+      "pasteXY": [
+        1004,
+        586
+      ]
+    },
+    {
+      "tile": 39,
+      "pasteXY": [
+        1163,
+        586
+      ]
+    },
+    {
+      "tile": 40,
+      "pasteXY": [
+        46,
+        730
+      ]
+    },
+    {
+      "tile": 41,
+      "pasteXY": [
+        229,
+        730
+      ]
+    },
+    {
+      "tile": 42,
+      "pasteXY": [
+        380,
+        730
+      ]
+    },
+    {
+      "tile": 43,
+      "pasteXY": [
+        536,
+        730
+      ]
+    },
+    {
+      "tile": 44,
+      "pasteXY": [
+        693,
+        730
+      ]
+    },
+    {
+      "tile": 45,
+      "pasteXY": [
+        849,
+        730
+      ]
+    },
+    {
+      "tile": 46,
+      "pasteXY": [
+        1005,
+        730
+      ]
+    },
+    {
+      "tile": 47,
+      "pasteXY": [
+        1164,
+        730
+      ]
+    },
+    {
+      "tile": 48,
+      "pasteXY": [
+        43,
+        874
+      ]
+    },
+    {
+      "tile": 49,
+      "pasteXY": [
+        206,
+        874
+      ]
+    },
+    {
+      "tile": 50,
+      "pasteXY": [
+        393,
+        874
+      ]
+    },
+    {
+      "tile": 51,
+      "pasteXY": [
+        554,
+        874
+      ]
+    },
+    {
+      "tile": 52,
+      "pasteXY": [
+        711,
+        874
+      ]
+    },
+    {
+      "tile": 53,
+      "pasteXY": [
+        872,
+        874
+      ]
+    },
+    {
+      "tile": 54,
+      "pasteXY": [
+        1038,
+        874
+      ]
+    },
+    {
+      "tile": 55,
+      "pasteXY": [
+        1198,
+        874
+      ]
+    },
+    {
+      "tile": 56,
+      "pasteXY": [
+        78,
+        1018
+      ]
+    }
+  ],
+  "pack": "/mnt/c/dnf/地下城与勇士/ImagePacks2/sprite_common_commoneffect.NPK",
+  "bitmapInstances": 57,
+  "rawAtlasRGBAsha256": "807fdd1e864551b67de40dea0ea2bf75f257bf0b6e274c1deb0cbcdfcebb6cb1",
+  "limits": [
+    "Contact layout applies no native ANI transforms or timing.",
+    "Original RGBA preserved; no colour key, recolouring or generated imagery.",
+    "Candidate seeds are not proved children of the primary missile objects.",
+    "Token values are raw reader output, including unsigned storage of signed values.",
+    "Engine scheduling, axes, blend and inheritance require separate evidence."
+  ]
+}
