@@ -12,6 +12,8 @@ SOURCES = [
     ('ImagePacks2', 'sprite_interface2_hud.NPK', ['hpmp_vessel', 'hud02', 'menu_icon'], 'new'),
     ('ImagePacks2', 'sprite_interface2_hud(ex).NPK', ['hud', 'menu_icon'], 'ex'),
     ('ImagePacks2_70', 'sprite_interface.NPK', ['mainhud'], 'legacy'),
+    ('ImagePacks2_70', 'sprite_interface2_hud.NPK', ['hud', 'hud_bar_ani', 'menu_icon', 'level02'], 'legacy-hud'),
+    ('ImagePacks2_70', 'sprite_interface2_hud(简体补丁).NPK', ['hud', 'hud_cn', 'hud_bar_ani', 'menu_icon', 'level02', 'level03'], 'legacy-hud-cn'),
 ]
 LAYER_SOURCES = []
 for folder, tag in [('ImagePacks2', 'new'), ('ImagePacks2_70', 'legacy')]:
@@ -29,7 +31,7 @@ LAYER_SOURCES.extend([
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--client', type=Path, default=Path('/mnt/c/dnf/地下城与勇士'))
 parser.add_argument('--out', type=Path, default=Path('/tmp/nano-hud-candidates'))
-parser.add_argument('--extended', action='store_true', help='inspect navigation/information layers instead of the initial six families')
+parser.add_argument('--extended', action='store_true', help='inspect navigation/information layers instead of the HUD candidate families')
 args = parser.parse_args()
 args.out.mkdir(parents=True, exist_ok=True)
 manifest = []

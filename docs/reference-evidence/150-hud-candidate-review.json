@@ -1,0 +1,65 @@
+{
+  "candidateFramesExported": 1277,
+  "addedSources": [
+    "ImagePacks2_70/sprite_interface2_hud.NPK",
+    "ImagePacks2_70/sprite_interface2_hud(简体补丁).NPK"
+  ],
+  "nativeFrame0Reviews": [
+    {
+      "pack": "sprite_interface2_hud.NPK",
+      "entry": "sprite/interface2/hud/hud.img",
+      "frame": 0,
+      "size": [
+        800,
+        91
+      ],
+      "ink": [
+        0,
+        0,
+        800,
+        91
+      ],
+      "file": "legacy-hud0.png",
+      "pngSha256": "bf7c641b889a4531e045be7e7a6d4fbfeefaf3be45512597c41aa5f19f4ef24a"
+    },
+    {
+      "pack": "sprite_interface2_hud(简体补丁).NPK",
+      "entry": "sprite/interface2/hud/hud.img",
+      "frame": 0,
+      "size": [
+        800,
+        91
+      ],
+      "ink": [
+        0,
+        0,
+        800,
+        91
+      ],
+      "file": "legacy-cn-hud0.png",
+      "pngSha256": "7884a928185a8bd3d6788f0dec13dad1bcce4546421ab5498d1600b9e4e5b646"
+    },
+    {
+      "pack": "sprite_interface.NPK",
+      "entry": "sprite/interface/mainhud.img",
+      "frame": 0,
+      "size": [
+        640,
+        88
+      ],
+      "ink": [
+        0,
+        0,
+        640,
+        88
+      ],
+      "file": "legacy-mainhud0.png",
+      "pngSha256": "9b62886e5503be1d9cddf94588b765149e030a9779c91e954d957ad7da41779c"
+    }
+  ],
+  "conclusion": "Reviewed frame0 bars retain round sockets; they do not match the recorded vertical vessels/central disk arrangement. No runtime art or geometry change.",
+  "limits": [
+    "The1277-frame export is candidate coverage, not1277 verified matches or an exhaustive client-wide absence proof.",
+    "Pixel matching and layer composition remain required before adopting any candidate."
+  ]
+}

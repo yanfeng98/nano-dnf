@@ -1,0 +1,38 @@
+{
+  "source": "/mnt/c/dnf/\u5730\u4e0b\u57ce\u4e0e\u52c7\u58eb/Fonts/Gasinamu.ttf",
+  "sourceSha256": "75a428a924ee8c1f469b136138b5004ace21e1f5243119ec2ae26cd34f158c4d",
+  "legacyCmap": {
+    "platformID": 3,
+    "encodingID": 5,
+    "entries": 3668
+  },
+  "addedUnicodeASCIIEntries": 95,
+  "glyphMap": {
+    "L": "glyph00045",
+    "v": "glyph00087",
+    ".": "glyph00015",
+    "0": "glyph00017",
+    "1": "glyph00018",
+    "2": "glyph00019",
+    "3": "glyph00020",
+    "4": "glyph00021",
+    "5": "glyph00022",
+    "6": "glyph00023",
+    "7": "glyph00024",
+    "8": "glyph00025",
+    "9": "glyph00026"
+  },
+  "output": "gasinamu-ascii.ttf",
+  "outputSha256": "9c9eb664e98539f7e389ec8e2047fb955e02fa664ea5f83a32c04cabb3585165",
+  "unchangedTableHashes": {
+    "glyf": "23d7a0ed38d659891279ff613056cff8efff3c95f20ba154e110f12f2722b880",
+    "hmtx": "05d9a7036418be8979a568b87aca386e2c77128b4528b593bb67c302f2478fe1"
+  },
+  "verifiedUnchanged": true,
+  "limits": [
+    "Unicode cmap exposes existing ASCII glyph IDs; no new glyphs are drawn.",
+    "Container headers/checksums may be normalized when saving; glyf/hmtx bytes are verified unchanged.",
+    "This does not prove the exact recorded font or Windows rasterization pipeline.",
+    "No runtime asset, experience threshold, progress width or renderer is changed."
+  ]
+}

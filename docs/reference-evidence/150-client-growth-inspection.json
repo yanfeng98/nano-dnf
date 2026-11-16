@@ -1,0 +1,38 @@
+{
+  "namedTableSearch": [
+    {
+      "file": "Script_70.pvf",
+      "paths": [
+        "character/exptable.tbl",
+        "creature/exptable.tbl"
+      ]
+    },
+    {
+      "file": "Script.pvf",
+      "paths": [
+        "character/exptable.tbl",
+        "creature/exptable.tbl"
+      ]
+    }
+  ],
+  "characterTablePrefix": [
+    1000,
+    2653,
+    5543,
+    10575,
+    18509,
+    30205,
+    46627,
+    68840
+  ],
+  "tablePrefixTokenType": 2,
+  "numericConfigObservation": {
+    "roleLevelCap": 90
+  },
+  "limits": [
+    "Name search identifies character/exptable.tbl and creature/exptable.tbl; this is not a client-wide content absence proof.",
+    "Pet experience table is not adopted for character progression.",
+    "Character metadata query did not expose a readable progression override; executable static-string inspection did not recover a rule.",
+    "No runtime threshold, initial balance or formula is changed."
+  ]
+}
