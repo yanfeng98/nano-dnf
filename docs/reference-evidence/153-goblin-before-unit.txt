@@ -1,0 +1,96 @@
+✖ coward: native attack excludes damage poses and walking includes frame11 (18.306569ms)
+✖ goblinBlue: native attack excludes damage poses and walking includes frame11 (2.802628ms)
+✖ goblinRed: native attack excludes damage poses and walking includes frame11 (1.808492ms)
+✖ cursedRed: native attack excludes damage poses and walking includes frame11 (2.346457ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 0
+ℹ fail 4
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 96.193027
+
+✖ failing tests:
+
+test at tests/core.test.js:11268:2
+✖ coward: native attack excludes damage poses and walking includes frame11 (18.306569ms)
+  AssertionError [ERR_ASSERTION]: coward attack at 0
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (/home/luyanfeng/luyanfeng/nano-dnf/tests/core.test.js:11282:41)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/core.test.js:11268:2
+✖ goblinBlue: native attack excludes damage poses and walking includes frame11 (2.802628ms)
+  AssertionError [ERR_ASSERTION]: goblinBlue attack at 0
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (/home/luyanfeng/luyanfeng/nano-dnf/tests/core.test.js:11282:41)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/core.test.js:11268:2
+✖ goblinRed: native attack excludes damage poses and walking includes frame11 (1.808492ms)
+  AssertionError [ERR_ASSERTION]: goblinRed attack at 0
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (/home/luyanfeng/luyanfeng/nano-dnf/tests/core.test.js:11282:41)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/core.test.js:11268:2
+✖ cursedRed: native attack excludes damage poses and walking includes frame11 (2.346457ms)
+  AssertionError [ERR_ASSERTION]: cursedRed attack at 0.081
+  
+  0 !== 1
+  
+      at TestContext.<anonymous> (/home/luyanfeng/luyanfeng/nano-dnf/tests/core.test.js:11282:41)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

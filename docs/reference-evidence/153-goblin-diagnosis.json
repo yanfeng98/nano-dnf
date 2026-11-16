@@ -1,0 +1,30 @@
+{
+  "before": {
+    "exitCode": 1,
+    "failedTypes": [
+      "coward",
+      "goblinBlue",
+      "goblinRed",
+      "cursedRed"
+    ],
+    "log": "153-goblin-before-unit.txt",
+    "symptoms": [
+      "wrong attack first frame1 instead of0",
+      "cursedRed stays on idle0 instead of advancing"
+    ]
+  },
+  "after": {
+    "targetedTests": 5,
+    "exitCode": 0,
+    "log": "153-goblin-after-unit.txt",
+    "browser": "153-goblin-browser.json",
+    "visiblePoses": 28
+  },
+  "source": "153-goblin-motion-source.json",
+  "sourceVerification": "three existing atlas rows,51 cells, byte-identical to keyed/ground-normalized local native frames",
+  "limits": [
+    "Absolute animation/combat timing and AI remain uncalibrated.",
+    "Caster/burningThrower equipment and legacy whiteboss are not covered.",
+    "Champion appearance/size is not accepted by these frame checks."
+  ]
+}

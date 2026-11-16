@@ -11264,6 +11264,41 @@ test('club goblin atlas preserves the extracted native cells and frame links',()
  }
 });
 
+for(const [type,row] of [['coward',1],['goblinBlue',6],['goblinRed',7],['cursedRed',7]]){
+ test(`${type}: native attack excludes damage poses and walking includes frame11`,()=>{
+  const state=lastRoomState(34),enemy=Core.createEnemy(state,type,600),sheet={width:13320,height:4620};
+  const proof=require('../docs/reference-evidence/153-goblin-motion-source.json');
+  const source=proof.types[type==='cursedRed'?'goblinRed':type];
+  assert.deepEqual(source.motions.attack.frames,[0,1,2,3,4]);
+  assert.deepEqual(source.motions.walk.frames,[11,12,13,14,15,16]);
+  state.enemies=[enemy];enemy.attackDuration=.52;
+  function frame(){
+   const calls=[];Render.render(recordingContext(calls),state,{sprites:{monsters:sheet}});
+   const draw=calls.find(c=>c[0]==='drawImage'&&c[1]===sheet&&c[4]===360&&c[5]===420);
+   assert.ok(draw,`${type} draws its body`);assert.equal(draw[3],row*420,`${type} retains its own atlas row`);
+   return draw[2]/360;
+  }
+  for(const [elapsed,expected] of [[0,0],[.081,1],[.161,2],[.241,3],[.321,4],[.51,4]]){
+   enemy.attackTimer=.52-elapsed;assert.equal(frame(),expected,`${type} attack at ${elapsed}`);
+  }
+  enemy.attackTimer=0;enemy.vx=10;
+  for(const [time,expected] of [[0,11],[.1,12],[.5,16],[.6,11]]){state.time=time;assert.equal(frame(),expected);}
+  enemy.vx=0;enemy.knockdown=.5;assert.equal(frame(),9);
+ });
+}
+
+test('coward blue and red rows retain the native client frame pixels',()=>{
+ const proof=require('../docs/reference-evidence/153-goblin-motion-source.json');
+ const atlas=decodeRgbaPng(path.join(__dirname,'../assets/monsters.png')),crypto=require('node:crypto');
+ for(const [type,row] of Object.entries(proof.existingAtlasCells)){
+  for(const [frame,hash] of row.frameRGBAsha256.entries()){
+   const pixels=Buffer.alloc(360*420*4);
+   for(let y=0;y<420;y++)atlas.pixels.copy(pixels,y*360*4,((row.row*420+y)*atlas.width+frame*360)*4,((row.row*420+y)*atlas.width+(frame+1)*360)*4);
+   assert.equal(crypto.createHash('sha256').update(pixels).digest('hex'),hash,`${type}/${frame} native cell`);
+  }
+ }
+});
+
 test('observed target widths distinguish stage, monster and level',()=>{
  const atlas={width:3200,height:58};
  const cases=[['mirkwood','grunt',4,181],['mirkwood','goblinBlue',4,144],['mirkwood','goblinRed',4,144],

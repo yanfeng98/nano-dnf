@@ -1,0 +1,13 @@
+✔ coward: native attack excludes damage poses and walking includes frame11 (17.573034ms)
+✔ goblinBlue: native attack excludes damage poses and walking includes frame11 (4.663154ms)
+✔ goblinRed: native attack excludes damage poses and walking includes frame11 (4.171876ms)
+✔ cursedRed: native attack excludes damage poses and walking includes frame11 (3.102798ms)
+✔ coward blue and red rows retain the native client frame pixels (1513.606368ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1632.314893

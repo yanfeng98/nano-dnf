@@ -4577,15 +4577,12 @@
      * the art's size, and `ENEMY_TYPES` is where both are decided.
      */
     /*
-     * The ten goblin bodies are **one set of seventeen poses**, and that was
-     * measured rather than assumed - their silhouettes match frame for frame at
-     * IoU 0.74-0.94 - so `grunt`, `coward`, `caster` and `elite` all read this
-     * one table, and only the beast (32 frames) will need its own.
-     *
-     * Read off the recording at 63.0-94.6s: a goblin stands on f0, swings
-     * f1-f6, is on its back f7-f9, gets up f10-f11, walks f12-f16.
-     * **There is no hurt pose among the seventeen** - a hit is the white flash
-     * and nothing else, which is also how the client reads.
+     * Legacy placeholder for caster/whiteboss bodies awaiting their own source
+     * review. The old claim that1..6/12..16 was a verified common goblin run
+     * was incorrect: ordinary/coward/blue/red native ANI links prove otherwise.
+     * Those bodies now use nativeGoblin below. Caster equipment/art and the
+     * legacy whiteboss identity are separate open issues; this is not evidence
+     * for their native poses.
      */
     goblin: {
       idle: [0, 0],
@@ -4594,11 +4591,11 @@
       rise: [10, 11],
       walk: [12, 16]
     },
-    // goblin.mob -> Animation_Goblin2 -> Event/Goblin.img (club/brown pants).
-    // ANI attack:0..4 at80/80/80/80/200ms; walk:11..16 at100ms.
+    // Independently checked goblin/cowardgoblin/seagab/hillgab MOB -> ANI links.
+    // Their native attacks:0..4 at80/80/80/80/200ms; walk:11..16 at100ms.
     // Preserve those relative attack holds within the existing combat duration;
     // absolute attack/AI timing remains uncalibrated against the recording.
-    clubGoblin: {
+    nativeGoblin: {
       idle: [0, 0], attack: [0, 4], down: [5, 9], rise: [10, 10],
       walk: [11, 16], walkFps: 10, attackMilliseconds: [80, 80, 80, 80, 200]
     },
@@ -4649,8 +4646,8 @@
       walk: [20, 28]
     },
     poses: {
-      grunt: "clubGoblin",
-      coward: "goblin",
+      grunt: "nativeGoblin",
+      coward: "nativeGoblin",
       caster: "goblin",
       elite: "goblin",
       brute: "tau",
@@ -4659,12 +4656,11 @@
       throwerElite: "captain",
       deepElite: "captain",
       lugaruBoss: "lugaru",
-      /*
-       * 换色的那两具走的是**同一套十七帧动作**（客户端那一族本来就是同一画布换色，
-       * 量过：轮廓逐帧 IoU 0.74–0.94），所以它们读同一个姿势表。
-       */
-      goblinBlue: "goblin",
-      goblinRed: "goblin"
+      // seagab/hillgab explicitly link the 0..4 attack and11..16 walk runs.
+      // Champion overlay does not replace the red goblin's body animation.
+      goblinBlue: "nativeGoblin",
+      goblinRed: "nativeGoblin",
+      cursedRed: "nativeGoblin"
     }
   };
 

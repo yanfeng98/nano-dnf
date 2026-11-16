@@ -1,0 +1,485 @@
+{
+  "url": "http://127.0.0.1:46291/?seed=1",
+  "poses": [
+    {
+      "type": "coward",
+      "name": "idle",
+      "src": "http://127.0.0.1:46291/assets/monsters.png",
+      "source": [
+        0,
+        420,
+        360,
+        420
+      ],
+      "inkBounds": [
+        565.3863355067599,
+        346.398812532425,
+        617.0870698617076,
+        430.00000000000006
+      ]
+    },
+    {
+      "type": "coward",
+      "name": "walk-first",
+      "src": "http://127.0.0.1:46291/assets/monsters.png",
+      "source": [
+        3960,
+        420,
+        360,
+        420
+      ],
+      "inkBounds": [
+        540.5317477850564,
+        346.398812532425,
+        591.1324665154308,
+        425.59993750170656
+      ]
+    },
+    {
+      "type": "coward",
+      "name": "walk-last",
+      "src": "http://127.0.0.1:46291/assets/monsters.png",
+      "source": [
+        5760,
+        420,
+        360,
+        420
+      ],
+      "inkBounds": [
+        545.2833229597404,
+        349.69885940614506,
+        612.3842760587152,
+        425.59993750170656
+      ]
+    },
+    {
+      "type": "coward",
+      "name": "attack-start",
+      "src": "http://127.0.0.1:46291/assets/monsters.png",
+      "source": [
+        0,
+        420,
+        360,
+        420
+      ],
+      "inkBounds": [
+        554.4491283604887,
+        346.398812532425,
+        606.1498627154364,
+        430.00000000000006
+      ]
+    },
+    {
+      "type": "coward",
+      "name": "attack-contact",
+      "src": "http://127.0.0.1:46291/assets/monsters.png",
+      "source": [
+        1080,
+        420,
+        360,
+        420
+      ],
+      "inkBounds": [
+        489.7216192958896,
+        350.79887503071836,
+        599.7231817532252,
+        430.00000000000006
+      ]
+    },
+    {
+      "type": "coward",
+      "name": "attack-recovery",
+      "src": "http://127.0.0.1:46291/assets/monsters.png",
+      "source": [
+        1440,
+        420,
+        360,
+        420
+      ],
+      "inkBounds": [
+        548.9541021777462,
+        351.8988906552917,
+        620.4551177750143,
+        430.00000000000006
+      ]
+    },
+    {
+      "type": "coward",
+      "name": "down",
+      "src": "http://127.0.0.1:46291/assets/monsters.png",
+      "source": [
+        3240,
+        420,
+        360,
+        420
+      ],
+      "inkBounds": [
+        538.3240347493215,
+        396.99953126279934,
+        640.6254878346436,
+        437.7001093720135
+      ]
+    },
+    {
+      "type": "goblinBlue",
+      "name": "idle",
+      "src": "http://127.0.0.1:46291/assets/monsters.png",
+      "source": [
+        0,
+        2520,
+        360,
+        420
+      ],
+      "inkBounds": [
+        544.2044322482845,
+        346.398812532425,
+        594.805150978659,
+        430.00000000000006
+      ]
+    },
+    {
+      "type": "goblinBlue",
+      "name": "walk-first",
+      "src": "http://127.0.0.1:46291/assets/monsters.png",
+      "source": [
+        3960,
+        2520,
+        360,
+        420
+      ],
+      "inkBounds": [
+        533.1526316958843,
+        346.398812532425,
+        580.4533035525386,
+        425.59993750170656
+      ]
+    },
+    {
+      "type": "goblinBlue",
+      "name": "walk-last",
+      "src": "http://127.0.0.1:46291/assets/monsters.png",
+      "source": [
+        5760,
+        2520,
+        360,
+        420
+      ],
+      "inkBounds": [
+        536.0482700025846,
+        349.69885940614506,
+        603.1492231015593,
+        425.59993750170656
+      ]
+    },
+    {
+      "type": "goblinBlue",
+      "name": "attack-start",
+      "src": "http://127.0.0.1:46291/assets/monsters.png",
+      "source": [
+        0,
+        2520,
+        360,
+        420
+      ],
+      "inkBounds": [
+        533.548638942216,
+        346.398812532425,
+        584.1493576725904,
+        430.00000000000006
+      ]
+    },
+    {
+      "type": "goblinBlue",
+      "name": "attack-contact",
+      "src": "http://127.0.0.1:46291/assets/monsters.png",
+      "source": [
+        1080,
+        2520,
+        360,
+        420
+      ],
+      "inkBounds": [
+        519.5396444475792,
+        350.79887503071836,
+        586.640597546554,
+        430.00000000000006
+      ]
+    },
+    {
+      "type": "goblinBlue",
+      "name": "attack-recovery",
+      "src": "http://127.0.0.1:46291/assets/monsters.png",
+      "source": [
+        1440,
+        2520,
+        360,
+        420
+      ],
+      "inkBounds": [
+        538.7200470627948,
+        351.8988906552917,
+        598.120890789756,
+        430.00000000000006
+      ]
+    },
+    {
+      "type": "goblinBlue",
+      "name": "down",
+      "src": "http://127.0.0.1:46291/assets/monsters.png",
+      "source": [
+        3240,
+        2520,
+        360,
+        420
+      ],
+      "inkBounds": [
+        520.0917601907503,
+        396.99953126279934,
+        622.3932132760724,
+        437.7001093720135
+      ]
+    },
+    {
+      "type": "goblinRed",
+      "name": "idle",
+      "src": "http://127.0.0.1:46291/assets/monsters.png",
+      "source": [
+        0,
+        2940,
+        360,
+        420
+      ],
+      "inkBounds": [
+        540.0453224649257,
+        346.398812532425,
+        590.6460411953001,
+        430.00000000000006
+      ]
+    },
+    {
+      "type": "goblinRed",
+      "name": "walk-first",
+      "src": "http://127.0.0.1:46291/assets/monsters.png",
+      "source": [
+        3960,
+        2940,
+        360,
+        420
+      ],
+      "inkBounds": [
+        560.8969747729498,
+        346.398812532425,
+        608.197646629604,
+        425.59993750170656
+      ]
+    },
+    {
+      "type": "goblinRed",
+      "name": "walk-last",
+      "src": "http://127.0.0.1:46291/assets/monsters.png",
+      "source": [
+        5760,
+        2940,
+        360,
+        420
+      ],
+      "inkBounds": [
+        530.841776993921,
+        349.69885940614506,
+        597.9427300928958,
+        425.59993750170656
+      ]
+    },
+    {
+      "type": "goblinRed",
+      "name": "attack-start",
+      "src": "http://127.0.0.1:46291/assets/monsters.png",
+      "source": [
+        0,
+        2940,
+        360,
+        420
+      ],
+      "inkBounds": [
+        531.0465300496301,
+        346.398812532425,
+        581.6472487800045,
+        430.00000000000006
+      ]
+    },
+    {
+      "type": "goblinRed",
+      "name": "attack-contact",
+      "src": "http://127.0.0.1:46291/assets/monsters.png",
+      "source": [
+        1080,
+        2940,
+        360,
+        420
+      ],
+      "inkBounds": [
+        514.6033972991446,
+        350.79887503071836,
+        581.7043503981193,
+        430.00000000000006
+      ]
+    },
+    {
+      "type": "goblinRed",
+      "name": "attack-recovery",
+      "src": "http://127.0.0.1:46291/assets/monsters.png",
+      "source": [
+        1440,
+        2940,
+        360,
+        420
+      ],
+      "inkBounds": [
+        535.9922679541859,
+        351.8988906552917,
+        595.393111681147,
+        430.00000000000006
+      ]
+    },
+    {
+      "type": "goblinRed",
+      "name": "down",
+      "src": "http://127.0.0.1:46291/assets/monsters.png",
+      "source": [
+        3240,
+        2940,
+        360,
+        420
+      ],
+      "inkBounds": [
+        543.1914751826633,
+        396.99953126279934,
+        645.4929282679855,
+        437.7001093720135
+      ]
+    },
+    {
+      "type": "cursedRed",
+      "name": "idle",
+      "src": "http://127.0.0.1:46291/assets/monsters.png",
+      "source": [
+        0,
+        2940,
+        360,
+        420
+      ],
+      "inkBounds": [
+        557.8915619117336,
+        346.398812532425,
+        608.492280642108,
+        430.00000000000006
+      ]
+    },
+    {
+      "type": "cursedRed",
+      "name": "walk-first",
+      "src": "http://127.0.0.1:46291/assets/monsters.png",
+      "source": [
+        3960,
+        2940,
+        360,
+        420
+      ],
+      "inkBounds": [
+        540.0398094149205,
+        346.398812532425,
+        587.3404812715747,
+        425.59993750170656
+      ]
+    },
+    {
+      "type": "cursedRed",
+      "name": "walk-last",
+      "src": "http://127.0.0.1:46291/assets/monsters.png",
+      "source": [
+        5760,
+        2940,
+        360,
+        420
+      ],
+      "inkBounds": [
+        527.2911295677573,
+        349.69885940614506,
+        594.392082666732,
+        425.59993750170656
+      ]
+    },
+    {
+      "type": "cursedRed",
+      "name": "attack-start",
+      "src": "http://127.0.0.1:46291/assets/monsters.png",
+      "source": [
+        0,
+        2940,
+        360,
+        420
+      ],
+      "inkBounds": [
+        551.6837054573127,
+        346.398812532425,
+        602.2844241876871,
+        430.00000000000006
+      ]
+    },
+    {
+      "type": "cursedRed",
+      "name": "attack-contact",
+      "src": "http://127.0.0.1:46291/assets/monsters.png",
+      "source": [
+        1080,
+        2940,
+        360,
+        420
+      ],
+      "inkBounds": [
+        536.8348018480921,
+        350.79887503071836,
+        603.9357549470668,
+        430.00000000000006
+      ]
+    },
+    {
+      "type": "cursedRed",
+      "name": "attack-recovery",
+      "src": "http://127.0.0.1:46291/assets/monsters.png",
+      "source": [
+        1440,
+        2940,
+        360,
+        420
+      ],
+      "inkBounds": [
+        550.6141382863069,
+        351.8988906552917,
+        610.0149820132681,
+        430.00000000000006
+      ]
+    },
+    {
+      "type": "cursedRed",
+      "name": "down",
+      "src": "http://127.0.0.1:46291/assets/monsters.png",
+      "source": [
+        3240,
+        2940,
+        360,
+        420
+      ],
+      "inkBounds": [
+        525.6321372903557,
+        396.99953126279934,
+        627.9335903756778,
+        437.7001093720135
+      ]
+    }
+  ],
+  "errors": [],
+  "limits": [
+    "Isolated poses prove loaded atlas rows/native frame identities; absolute timing, AI and whole-play acceptance remain open."
+  ]
+}

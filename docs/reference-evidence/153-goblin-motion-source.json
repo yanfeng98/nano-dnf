@@ -1,0 +1,500 @@
+{
+  "archive": "/mnt/c/dnf/地下城与勇士/Script_70.pvf",
+  "types": {
+    "grunt": {
+      "mob": "monster/goblin/goblin.mob",
+      "mobSHA256": "ef155eb3f89319fca7dfc75b0e1fa4d98bdb6c723d6d286057d7a1775f3f9854",
+      "motions": {
+        "idle": {
+          "ani": "monster/goblin/animation_goblin2/stay.ani",
+          "sha256": "f1cdc68a8db5ffe8ea6232a475f0ff86188d396e0330747b53fda0aa7e8e7799",
+          "paths": [
+            "Monster/Goblin/Event/Goblin.img"
+          ],
+          "frames": [
+            0
+          ],
+          "milliseconds": [
+            80
+          ]
+        },
+        "walk": {
+          "ani": "monster/goblin/animation_goblin2/move.ani",
+          "sha256": "e80a86e00a539d5b47a0a2b5a2827702e77b6a91d8afbb28fa851dd58dad8b43",
+          "paths": [
+            "Monster/Goblin/Event/Goblin.img"
+          ],
+          "frames": [
+            11,
+            12,
+            13,
+            14,
+            15,
+            16
+          ],
+          "milliseconds": [
+            100,
+            100,
+            100,
+            100,
+            100,
+            100
+          ]
+        },
+        "attack": {
+          "ani": "monster/goblin/animation_goblin2/attack1.ani",
+          "sha256": "e28692da2f719e369693f12118ae45410a768e5a5ea4490c728b63db47a84461",
+          "paths": [
+            "Monster/Goblin/Event/Goblin.img"
+          ],
+          "frames": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ],
+          "milliseconds": [
+            80,
+            80,
+            80,
+            80,
+            200
+          ]
+        },
+        "down": {
+          "ani": "monster/goblin/animation_goblin2/down.ani",
+          "sha256": "8330d68bd07449545eb4e54810896b52830cbfb787e9c979de828e883066dbb8",
+          "paths": [
+            "Monster/Goblin/Event/Goblin.img"
+          ],
+          "frames": [
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "milliseconds": [
+            80,
+            80,
+            10000,
+            10000,
+            500
+          ]
+        },
+        "sit": {
+          "ani": "monster/goblin/animation_goblin2/sit.ani",
+          "sha256": "15b04302be946e9a3822350a6a519e154671f47e16dc6310c41d2ee432cf4034",
+          "paths": [
+            "Monster/Goblin/Event/Goblin.img"
+          ],
+          "frames": [
+            10
+          ],
+          "milliseconds": [
+            150
+          ]
+        }
+      }
+    },
+    "coward": {
+      "mob": "monster/goblin/cowardgoblin.mob",
+      "mobSHA256": "4786b6d6ea6f51d32eba07bca21bf7769980878486426b11446c19a6536ee17f",
+      "motions": {
+        "idle": {
+          "ani": "monster/goblin/animation_cowardgoblin2/stay.ani",
+          "sha256": "0a70e3441d79413c289e728556e96b08141542dc6ee78fc156decae6fb7089a5",
+          "paths": [
+            "Monster/Goblin/Event/CowardGoblin.img"
+          ],
+          "frames": [
+            0
+          ],
+          "milliseconds": [
+            80
+          ]
+        },
+        "walk": {
+          "ani": "monster/goblin/animation_cowardgoblin2/move.ani",
+          "sha256": "844da383ab5d3af03362bfbf0bddb76ceeb8bbaeca30df62eeec8f2be5c3bc99",
+          "paths": [
+            "Monster/Goblin/Event/CowardGoblin.img"
+          ],
+          "frames": [
+            11,
+            12,
+            13,
+            14,
+            15,
+            16
+          ],
+          "milliseconds": [
+            100,
+            100,
+            100,
+            100,
+            100,
+            100
+          ]
+        },
+        "attack": {
+          "ani": "monster/goblin/animation_cowardgoblin2/attack1.ani",
+          "sha256": "0c9e18bdce678ef85ede0857234fafb239028448b6fac12f6b1b7c021ccb0544",
+          "paths": [
+            "Monster/Goblin/Event/CowardGoblin.img"
+          ],
+          "frames": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ],
+          "milliseconds": [
+            80,
+            80,
+            80,
+            80,
+            200
+          ]
+        },
+        "down": {
+          "ani": "monster/goblin/animation_cowardgoblin2/down.ani",
+          "sha256": "b1ac08329a09af643353dafcac1a5346cbac5094118be0f7bc16d717436fe002",
+          "paths": [
+            "Monster/Goblin/Event/CowardGoblin.img"
+          ],
+          "frames": [
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "milliseconds": [
+            80,
+            80,
+            10000,
+            10000,
+            500
+          ]
+        },
+        "sit": {
+          "ani": "monster/goblin/animation_cowardgoblin2/sit.ani",
+          "sha256": "446299a7b46e1d3d2a5eae2e3605234e03362c1225134a3e23c82e20808a7565",
+          "paths": [
+            "Monster/Goblin/Event/CowardGoblin.img"
+          ],
+          "frames": [
+            10
+          ],
+          "milliseconds": [
+            150
+          ]
+        }
+      }
+    },
+    "goblinBlue": {
+      "mob": "monster/goblin/seagab.mob",
+      "mobSHA256": "2ce9497a049b11f83555d76e646df411c12cc84a64b04a194309e9750a72d1d5",
+      "motions": {
+        "idle": {
+          "ani": "monster/goblin/animation_islandgoblin/stay.ani",
+          "sha256": "5b80ee1655942e8c6257e81d13905133e0402504b72e8d6cef5b16051c18e466",
+          "paths": [
+            "monster/goblin/body7.img"
+          ],
+          "frames": [
+            0
+          ],
+          "milliseconds": [
+            80
+          ]
+        },
+        "walk": {
+          "ani": "monster/goblin/animation_islandgoblin/move.ani",
+          "sha256": "a56b40de305eb4851cc20a10cc7b53b4db1ca41e0759a26f250ce4f8202c12d9",
+          "paths": [
+            "monster/goblin/body7.img"
+          ],
+          "frames": [
+            11,
+            12,
+            13,
+            14,
+            15,
+            16
+          ],
+          "milliseconds": [
+            100,
+            100,
+            100,
+            100,
+            100,
+            100
+          ]
+        },
+        "attack": {
+          "ani": "monster/goblin/animation_islandgoblin/throw.ani",
+          "sha256": "bdf0b15d066e39a46a9b429beb01069e1c3aa59745c602eac400eb5d94e66084",
+          "paths": [
+            "monster/goblin/body7.img"
+          ],
+          "frames": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ],
+          "milliseconds": [
+            80,
+            80,
+            80,
+            80,
+            200
+          ]
+        },
+        "down": {
+          "ani": "monster/goblin/animation_islandgoblin/down.ani",
+          "sha256": "4f749291ea8f660bf2aea4fa1797b07df8cf0f2b63afb94427ee863bbbb0b613",
+          "paths": [
+            "monster/goblin/body7.img"
+          ],
+          "frames": [
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "milliseconds": [
+            80,
+            80,
+            10000,
+            10000,
+            500
+          ]
+        },
+        "sit": {
+          "ani": "monster/goblin/animation_islandgoblin/sit.ani",
+          "sha256": "19c5620e5c360084829c70f6b1668fc6b5ef986d8659d5d1ca7133dcab55d2b1",
+          "paths": [
+            "monster/goblin/body7.img"
+          ],
+          "frames": [
+            10
+          ],
+          "milliseconds": [
+            150
+          ]
+        }
+      }
+    },
+    "goblinRed": {
+      "mob": "monster/goblin/hillgab.mob",
+      "mobSHA256": "9261d4016da52ff014a1cfff015a57f9d813c65872a72dd7b2988f689c5876b9",
+      "motions": {
+        "idle": {
+          "ani": "monster/goblin/animation_mountaingoblin/stay.ani",
+          "sha256": "33bd4220cf654ee67dbe2ded6bfda79281298e7797599f2569819667c3b74e82",
+          "paths": [
+            "monster/goblin/body8.img"
+          ],
+          "frames": [
+            0
+          ],
+          "milliseconds": [
+            80
+          ]
+        },
+        "walk": {
+          "ani": "monster/goblin/animation_mountaingoblin/move.ani",
+          "sha256": "ca6cf736d94767f7597f89c13b0b6574385c440ffebde18b880ee8dd395dfe54",
+          "paths": [
+            "monster/goblin/body8.img"
+          ],
+          "frames": [
+            11,
+            12,
+            13,
+            14,
+            15,
+            16
+          ],
+          "milliseconds": [
+            100,
+            100,
+            100,
+            100,
+            100,
+            100
+          ]
+        },
+        "attack": {
+          "ani": "monster/goblin/animation_mountaingoblin/throw.ani",
+          "sha256": "d998899897ef9fe72af848d99de56cbf93f9ea37e472c76403b473c3e310fc7f",
+          "paths": [
+            "monster/goblin/body8.img"
+          ],
+          "frames": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ],
+          "milliseconds": [
+            80,
+            80,
+            80,
+            80,
+            200
+          ]
+        },
+        "down": {
+          "ani": "monster/goblin/animation_mountaingoblin/down.ani",
+          "sha256": "f20faa40630a9ca1968070411bf092071cedbc97c94f657ec0d1176dfe49e799",
+          "paths": [
+            "monster/goblin/body8.img"
+          ],
+          "frames": [
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "milliseconds": [
+            80,
+            80,
+            10000,
+            10000,
+            500
+          ]
+        },
+        "sit": {
+          "ani": "monster/goblin/animation_mountaingoblin/sit.ani",
+          "sha256": "692f8dc68f564f1b86ba5b35c7d3dff7f9dd32e9c5506dcdacd0509197e26011",
+          "paths": [
+            "monster/goblin/body8.img"
+          ],
+          "frames": [
+            10
+          ],
+          "milliseconds": [
+            150
+          ]
+        }
+      }
+    }
+  },
+  "existingAtlasCells": {
+    "coward": {
+      "row": 1,
+      "pack": "sprite_monster_goblin_event.NPK",
+      "entry": "goblin/event/cowardgoblin.img",
+      "cell": [
+        360,
+        420
+      ],
+      "anchor": [
+        180,
+        260
+      ],
+      "frameRGBAsha256": [
+        "c69ad381577c8129615015693322bbb42ff6825e3a0cff155115e71713a16c2f",
+        "cf5ccf16e11b4178f60cd994cc7adaf37f0e7c2639f8927fc9f38ba3b3308467",
+        "7c409eee4ce7e564d4201ff767b1fc2fb202b9a8a29a9c5297f01cd571e0e66c",
+        "d10532231f932cc4984e579f68876d7c2c1bdcfa0f13f1ad040e1ad8acba3ff2",
+        "7655e93f90e7600f4e0a2a0c45d182cc33c1badb5625534bbafefb398e629e25",
+        "b4a9b8c8281551c75df55330a82d513ce415bf4bf147cfcbaf2fa1df80be8b89",
+        "6006b0db0adaa3c4ed2fb32fe57ca1e98211cb2e2ee249e9f150d7c08481a4a3",
+        "ade04c513987e52f774db09d471b5ec3a4a59237da2bbb05f0089235104662a8",
+        "23556a4a91789169c368fbc27418017d966e5c260c11562cfdc2f8e2559814ae",
+        "08c6e3e03c6410cbe3e550c0724f495165c9cb95f71484949450e331af39939c",
+        "5a290b5c9a231dfed29cfe59096ee472eaf611e7aeac68898ec8ebf16e8f8e97",
+        "26b19740e4c600eb2515002e9914bf6cfe4c2e7746df24cd41c222e2888eb3fa",
+        "be8ab6b4b6d56d484d402c0d683ee413c316487c6ef2281ff05e9a223fa66ef2",
+        "be1a329a2ea75aa3ec1262cff4f4e539b459a8bf75ae88905c848b67c6af0711",
+        "d4d08c08d01622ec66018eb73fe7cfd1e7c8b6cdb61ebb9b286d531002263970",
+        "4aaf4bac4518a13e58bdc4a3b1bf04da37e94c18c06661687f52cb0db7d6a6cf",
+        "cd62041ea703d7ddb5daf9b7c701d4a4cd31a9694422c8995a4a6be6e81f9db9"
+      ]
+    },
+    "goblinBlue": {
+      "row": 6,
+      "pack": "sprite_monster_goblin.NPK",
+      "entry": "goblin/body7.img",
+      "cell": [
+        360,
+        420
+      ],
+      "anchor": [
+        180,
+        260
+      ],
+      "frameRGBAsha256": [
+        "dc90dcb16ec427f37f1ffac63b59112a7fdd947085af3c74b20babedcc9de403",
+        "d16f874c6e330939cd578adb5c94c0e40dd67cc0dcbcb875b9989eba745c0993",
+        "5839e527073e7c4c546285836129e3c66b4fab3344f28d0b37daf16165d39908",
+        "5336c716b382cc4ce124b3a270bfbf217b338661fb7adc7d20ffb2f06babbe25",
+        "fc4e939896a4a0a05e1bf45cce5e68288b0ed129f795160dac2e848acbc80741",
+        "16ac146e26b4c9dba0039a60617e677eff431cf0fee416e339413f4611390820",
+        "933f2e74bf958677a01fbfb2ab50b0c1b556b6218d0fe4567bf6feac99aa4e41",
+        "188242bb85b43bfe7b3614c58406e18272b466845a232e02d45114174b010ded",
+        "f8c50d2458ea7def842bc3a0ffe1fed190a80465e447054f52d6d62645f77d47",
+        "236aabb0e97a292a1451c93b547fc5583495b11aa0d06a34b94c6fc4bdb5bd54",
+        "72ed280a832152453399863184fd680b30e6172be428b90d27237b1c883a0530",
+        "0f6e49cc47a129361ca291b71c64cd5f1070950133d29f7d20d3b720c3849ae1",
+        "08424c4d24590905855a35377df6399c195877f089b1bb6073352ec047326b71",
+        "10de93a7abd8ae2014c95564f19270055b41decbe9779e40b59d1f662ebb0f71",
+        "deb993085e7ef90309646e66d13ec97e25927bc003964224c83848f97588d79d",
+        "3a25246244cc6d778f6f93f2b0f6634e8feac50a645c35057d578057df5a2dd1",
+        "c365f8c925a87d5e150b4421efa88a533ac353cd6e8fdb4232ab0eb3b91bd2e4"
+      ]
+    },
+    "goblinRed": {
+      "row": 7,
+      "pack": "sprite_monster_goblin.NPK",
+      "entry": "goblin/body8.img",
+      "cell": [
+        360,
+        420
+      ],
+      "anchor": [
+        180,
+        260
+      ],
+      "frameRGBAsha256": [
+        "aa507eb141c47696dbc3c2e782a2d2091f174ed9acce232c3c71cc034d9391a2",
+        "b7e729434d8a35b537d0e337f39db5909dbe0bd1ba4c75688cb63156190e1bff",
+        "8333a96bd2b5e2a02fd9221c76931fc554ffd7dc0c146300a995a8105d64a3a7",
+        "8f2d5d46dfe4605d02c7067e7d875e02b898cb20ab80e31ba9e618d899268c22",
+        "92dd6bd602ae71b135c862f981db4843389ceb2bece3f64cfe17e4d827ca2a7c",
+        "f633b54f2151f0d4bea0d06db2f9b44e5f14ce632d34915f7ca520dfe76c8884",
+        "bf561a23f0e1292ff06ae4db5acba3697a30b7ae8d0bb87ab7262752e0f37c94",
+        "a589fb2c9f1ee60af9bca517e5f78444f4c8aeeb6a778efe382179cf3b9cbc5f",
+        "10a15beeab2e13d58b9df372e4b0ea7e33a8d3604a2c1a025ea0697400316422",
+        "231849db50f1c38d4deed3110089d999cc04d838b9a82269209b416846eed396",
+        "c2e98f87a1fecd8c107c04eae6b072ecf6fce37fbb1e228ef09060fbf6e38cb7",
+        "69e4d30465da2a1b779f6b4e670c6fb5f8bc87debc271e8fd5adf11c6e0f0709",
+        "5b66f9937b5a922730300b9729cfee62f207e9ca2beed39325cc6ef17c57a41a",
+        "e465762982b8a942c309a6b0a7f1c307eb322a9bcb6eaccc455d0f91e9dc0d34",
+        "1990d81da345321edfe83e14bff9b7095a8ce6abb1b3d4a4633661797d6ce552",
+        "4e2d1d1118787abfb20c7023d0d36e1a6bd915e5a696a21e7c6a329f8ccec449",
+        "45a4602454235951769b7319f86aba79849a40e4eacb5d64fead56af8eda8594"
+      ]
+    }
+  },
+  "championAlias": {
+    "cursedRed": "goblinRed"
+  },
+  "aliasBasis": "Existing Core champion/body definition and ADR0046; not a new MOB identity claim.",
+  "limits": [
+    "Native durations do not establish video/server animation speed.",
+    "Attack hit timing, HP and AI are outside this frame-identity inspection.",
+    "Caster equipment, burningThrower and legacy whiteboss are not covered."
+  ]
+}
