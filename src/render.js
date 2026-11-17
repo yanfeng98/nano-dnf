@@ -5214,13 +5214,12 @@
       ctx.restore();
       return;
     }
-    if (shot.nativeObject === 30001) {
-      var stone = sprites && sprites.goblinStone;
-      if (!stone || !stone.width) return;
-      // Object30001 -> ThrowStone.ani: native frame0,(-8,-8),150ms,
-      // terminal angle6.28. Use projectile lifetime, so pause freezes its phase.
-      // Bitmap projection follows the existing native world plane; visible size
-      // and spin phase still need an independent recording match.
+    if (shot.nativeObject === 30001 || shot.nativeObject === 30021) {
+      var missileImg = sprites && (shot.nativeObject === 30001 ? sprites.goblinStone : sprites.goblinBomb);
+      if (!missileImg || !missileImg.width) return;
+      // Object 30001 -> ThrowStone.ani & 30021 -> FlyBomb.ani: both use native
+      // frame 0, (-8, -8), 150ms period, terminal angle 6.28. Use projectile
+      // lifetime so pause freezes phase.
       var scale = (Core.VIEW.width / 640) / Core.CAMERA.zoom;
       var age = Math.max(0, shot.maxLife - shot.life);
       ctx.save();
@@ -5229,7 +5228,7 @@
       // orientation is Canvas-negative, not the old raw-angle assumption.
       ctx.rotate(-((age / 0.15) % 1) * 6.28000020980835);
       ctx.imageSmoothingEnabled = true;
-      ctx.drawImage(stone, 0, 0, 32, 32, -16 * scale, -16 * scale, 32 * scale, 32 * scale);
+      ctx.drawImage(missileImg, 0, 0, 32, 32, -16 * scale, -16 * scale, 32 * scale, 32 * scale);
       ctx.restore();
       return;
     }

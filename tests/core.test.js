@@ -11412,13 +11412,25 @@ for(const type of ['caster','burningThrower']){
  });
 }
 
-test('the unverified captain int-data object is not silently mapped to a caster stone',()=>{
+test('thrower captain emits its client-declared FlyBomb 30021 rather than a caster stone',()=>{
  const state=lastRoomState(34),enemy=Core.createEnemy(state,'throwerElite',600);
  state.intro=null;state.transition=state.hitStop=0;state.enemies=[enemy];state.projectiles=[];
  state.player.x=300;state.player.invuln=Infinity;enemy.z=state.player.z;
  enemy.attackKind='shoot';enemy.attackTimer=enemy.attackDuration=.85;enemy.attackWindup=.55;enemy.attackHitDone=false;
  for(let i=0;i<45&&!state.projectiles.length;i++)Core.step(state,{});
- assert.equal(state.projectiles.length,1);assert.notEqual(state.projectiles[0].nativeObject,30001);
+ assert.equal(state.projectiles.length,1);
+ const shot=state.projectiles[0];
+ assert.notEqual(shot.nativeObject,30001);
+ assert.equal(shot.nativeObject,30021);
+ const proof=require('../assets/goblin-bomb.json'),crypto=require('node:crypto');
+ const atlas=decodeRgbaPng(path.join(__dirname,'../assets/goblin-bomb.png'));
+ assert.deepEqual([atlas.width,atlas.height],[32,32]);
+ assert.equal(proof.objectId,30021);
+ assert.equal(crypto.createHash('sha256').update(atlas.pixels).digest('hex'),proof.cellRGBAsha256);
+ const calls=[],sheet={width:32,height:32,src:'goblin-bomb.png'};
+ Render.render(recordingContext(calls),state,{sprites:{goblinBomb:sheet}});
+ const draw=calls.find(c=>c[0]==='drawImage'&&c[1]===sheet);
+ assert.ok(draw);assert.deepEqual(draw.slice(2,6),[0,0,32,32]);
 });
 
 test('observed target widths distinguish stage, monster and level',()=>{

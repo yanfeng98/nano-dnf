@@ -1,0 +1,233 @@
+{
+  "objectId": 30021,
+  "mob": "monster/goblin/goblinthrowertaskmaster.mob",
+  "mobSHA256": "a234743572cc79f55bb50ceb922ae51214e775f1cef635fdf05a998c0bbc2f40",
+  "object": "passiveobject/monster/goblin/gobflybomb.obj",
+  "objectSHA256": "fea5f33d23380ee562e6e6f0c7e54ab19a8810b97db51d774c0adfedfa1dbc0b",
+  "objectTokens": [
+    [
+      5,
+      "[width]"
+    ],
+    [
+      2,
+      1
+    ],
+    [
+      2,
+      1
+    ],
+    [
+      5,
+      "[floating height]"
+    ],
+    [
+      2,
+      1
+    ],
+    [
+      5,
+      "[layer]"
+    ],
+    [
+      7,
+      "[normal]"
+    ],
+    [
+      5,
+      "[pass type]"
+    ],
+    [
+      7,
+      "[pass all]"
+    ],
+    [
+      5,
+      "[piercing power]"
+    ],
+    [
+      2,
+      4294967196
+    ],
+    [
+      5,
+      "[basic motion]"
+    ],
+    [
+      7,
+      "Animation/FlyBomb.ani"
+    ],
+    [
+      5,
+      "[destroy particle]"
+    ],
+    [
+      7,
+      "Particle/FlyBombPiece.ptl"
+    ],
+    [
+      5,
+      "[attack info]"
+    ],
+    [
+      7,
+      "AttackInfo/FlyBomb.atk"
+    ],
+    [
+      5,
+      "[int data]"
+    ],
+    [
+      2,
+      30022
+    ],
+    [
+      2,
+      0
+    ],
+    [
+      5,
+      "[/int data]"
+    ],
+    [
+      5,
+      "[name]"
+    ],
+    [
+      9,
+      9
+    ],
+    [
+      10,
+      "name_6080"
+    ]
+  ],
+  "animation": "passiveobject/monster/goblin/animation/flybomb.ani",
+  "aniSHA256": "69f0ed6f2dcd507d1bccc521e38805a9c1b81eafd6972dbc7b732a152f70e674",
+  "animationData": {
+    "paths": [
+      "Item/ThrowItem/FlyBomb.img"
+    ],
+    "overall": [
+      [
+        0,
+        1
+      ]
+    ],
+    "frames": [
+      {
+        "frame": 0,
+        "xy": [
+          -8,
+          -8
+        ],
+        "props": [
+          [
+            10,
+            1
+          ],
+          [
+            12,
+            150
+          ]
+        ],
+        "boxes": [
+          [
+            15,
+            [
+              -9,
+              -7,
+              -9,
+              18,
+              14,
+              18
+            ]
+          ],
+          [
+            14,
+            [
+              -4,
+              -7,
+              -14,
+              18,
+              14,
+              18
+            ]
+          ]
+        ],
+        "image": 0
+      },
+      {
+        "frame": 0,
+        "xy": [
+          -8,
+          -8
+        ],
+        "props": [
+          [
+            8,
+            6.28000020980835
+          ]
+        ],
+        "boxes": [
+          [
+            15,
+            [
+              -9,
+              -7,
+              -9,
+              18,
+              14,
+              18
+            ]
+          ],
+          [
+            14,
+            [
+              -4,
+              -7,
+              -14,
+              18,
+              14,
+              18
+            ]
+          ]
+        ],
+        "image": 0
+      }
+    ]
+  },
+  "periodMilliseconds": 150,
+  "endAngleRadians": 6.28000020980835,
+  "pack": "/mnt/c/dnf/地下城与勇士/ImagePacks2/sprite_item_throwitem.NPK",
+  "entry": "sprite/item/throwitem/flybomb.img",
+  "imgSHA256": "41b87a1d60c2a8c5515675dd52b52f1427513c85e03e9e4763c977036a87c1f4",
+  "sourceSize": [
+    17,
+    17
+  ],
+  "sourceOffset": [
+    0,
+    0
+  ],
+  "sourceRGBAsha256": "c6cc06b1fdb6691951a5f925b90bc63b55106e955a040aff5595a4bf626265d3",
+  "cell": [
+    32,
+    32
+  ],
+  "anchor": [
+    16,
+    16
+  ],
+  "pasteXY": [
+    8,
+    8
+  ],
+  "cellRGBAsha256": "6f9546d1e15e6766e4bb1cd3561704024e56dd661d0ba5b0a63220fcc21c1e51",
+  "transparency": "Original native RGBA preserved; no colour key or recolouring.",
+  "limits": [
+    "150ms/angle endpoint are native data from FlyBomb.ani.",
+    "Recording 30fps scans of V2 rooms 14/42/43 did not isolate a clear in-flight FlyBomb match.",
+    "Trajectory, sub-explosion (30022), damage and absolute flight timing remain open."
+  ]
+}

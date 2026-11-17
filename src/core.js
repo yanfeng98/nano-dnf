@@ -2192,6 +2192,8 @@
       attackCooldown: 2.3,
       knockbackX: 150,
       projectile: {
+        // GoblinThrowerTaskmaster.mob explicitly declares [int data] 30021 -> GobFlyBomb.obj.
+        nativeObject: 30021,
         speed: 230,
         radius: 10,
         life: 1.5,
