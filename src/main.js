@@ -34,7 +34,7 @@
   var sprites = {
     slayer: null, skills: null, effects: null, normalWave: null, normalWaveBody: null,
     rift: null, awakening: null, region: null,
-    monsters: null, throwerReference: null, goblinReference: null, casterReference: null, goblinStone: null, goblinBomb: null, goblinIce: null, goblinFire: null, nativeFlora: null, forest: null, minimap: null, ui: null, results: null,
+    monsters: null, throwerReference: null, goblinReference: null, casterReference: null, goblinStone: null, goblinBomb: null, goblinIce: null, goblinFire: null, nativeFlora: null, forest: null, pillarDebris: null, minimap: null, ui: null, results: null,
     /* Native client UI faces and target frames; see reference batches 31–34. */
     portraits: null, experienceDigits: null
   };
@@ -131,6 +131,7 @@
     ["goblinBunker", "./assets/goblin-bunker.png"],
     /* 深处那批偏白的高石柱（`assets/import_dnf_pillar.py`）。 */
     ["pillarPale", "./assets/pillar-pale.png"],
+    ["pillarDebris", "./assets/pillar-debris.png"],
     /* 深处的石块城门 + 铁栅（`assets/import_dnf_gate.py`）。 */
     ["gateBlock", "./assets/gate-block.png"],
     /*

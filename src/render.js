@@ -7083,6 +7083,18 @@
       ctx.arc(effect.x, ey, effect.radius, -0.95, 0.95);
       ctx.stroke();
       ctx.restore();
+    } else if (effect.kind === "pillar_debris") {
+      var debrisSheet = sprites && sprites.pillarDebris;
+      if (!debrisSheet || !debrisSheet.width) return;
+      var debrisScale = (Core.VIEW.width / 640) / Core.CAMERA.zoom;
+      var debrisAge = Math.max(0, (effect.maxLife || 0.5) - effect.life);
+      var debrisAngle = (effect.angle0 || 0) + (effect.spinDir || 1) * ((debrisAge / 2.0) % 1) * 6.248279094696045;
+      ctx.save();
+      ctx.translate(effect.x, ey);
+      ctx.rotate(debrisAngle);
+      ctx.imageSmoothingEnabled = true;
+      ctx.drawImage(debrisSheet, (effect.variant % 4) * 48, 0, 48, 48, -24 * debrisScale, -24 * debrisScale, 48 * debrisScale, 48 * debrisScale);
+      ctx.restore();
     } else if (effect.kind === "deathburst") {
       drawDeathBurst(ctx, state, sprites, effect, alpha);
     } else if (effect.kind === "bossrays") {

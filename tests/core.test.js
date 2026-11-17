@@ -12731,3 +12731,24 @@ test('fire atlas preserves native cells and the visible trail uses original bitm
  const draws=calls.filter(c=>c[0]==='drawImage'&&c[1]===sheet);
  assert.deepEqual(draws.map(c=>c.slice(2,6)),[...Array(4).fill(1),...Array(12).fill(0)].map(i=>[i*128,0,128,128]));
 });
+
+test('native pillar debris atlas matches client proof and emits 8 vanishing fragments on hit',()=>{
+ const proof=require('../assets/pillar-debris.json'),crypto=require('node:crypto');
+ const atlas=decodeRgbaPng(path.join(__dirname,'../assets/pillar-debris.png'));
+ assert.deepEqual([atlas.width,atlas.height],[192,48]);
+ assert.equal(crypto.createHash('sha256').update(atlas.pixels).digest('hex'),proof.atlasRGBAsha256);
+ const s=Core.createState({seed:20260915,stage:'mirkwooddeep'});
+ s.intro=null;s.transition=0;Core.enterCell(s,'E');
+ const pillar=s.props.find(p=>p.nativePillar);assert.ok(pillar);
+ const anchor=Core.propObstacle(pillar);
+ s.enemies=[];s.effects=[];s.player.x=anchor.x-20;s.player.z=anchor.z;s.player.facing=1;
+ for(let i=0;i<20&&!s.effects.some(e=>e.kind==='pillar_debris');i++)Core.step(s,{attack:i===0});
+ const debris=s.effects.filter(e=>e.kind==='pillar_debris');
+ assert.equal(debris.length,8);
+ const sheet={width:192,height:48};
+ const calls=[];Render.render(recordingContext(calls),s,{sprites:{pillarDebris:sheet}});
+ const draws=calls.filter(c=>c[0]==='drawImage'&&c[1]===sheet);
+ assert.equal(draws.length,8);
+ for(let i=0;i<35;i++)Core.step(s,{});
+ assert.equal(s.effects.filter(e=>e.kind==='pillar_debris').length,0,'debris vanishes within 0.5s or on landing');
+});

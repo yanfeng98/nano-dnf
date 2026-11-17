@@ -8785,6 +8785,28 @@
     native.damagedAt = state.time;
     prop.piece = "pillarDamagedDecor";
     pushSound(state, "stonePillarBreak", { x: anchor.x, z: groundZ });
+    // Emit 8 native stone debris fragments per stonepillardamage.ptl
+    // (count 8, life 500ms, gravity 1200, vx ~200, upward ~70, area 50x30x10).
+    // Use local index-based spread so hitting a pillar never perturbs state.rngState.
+    for (var d = 0; d < 8; d++) {
+      var u = ((d * 37 + Math.round(anchor.x)) % 17) / 16 - 0.5;
+      var v = ((d * 53 + Math.round(groundZ)) % 13) / 12 - 0.5;
+      var w = ((d * 29) % 11) / 10;
+      state.effects.push({
+        kind: "pillar_debris",
+        x: anchor.x + u * 50 * scale,
+        y: ARENA.groundY - 45 * scale + v * 30 * scale,
+        z: groundZ + (u * 10 * scale) / DEPTH.scale,
+        vx: (d % 2 === 0 ? 1 : -1) * (90 + w * 110) * scale,
+        vy: -(70 + w * 140) * scale,
+        gravity: 1200 * scale,
+        life: 0.5,
+        maxLife: 0.5,
+        variant: d % 4,
+        spinDir: d % 2 === 0 ? 1 : -1,
+        angle0: (d / 8) * Math.PI * 2
+      });
+    }
   }
 
   /**
@@ -9063,9 +9085,16 @@
     state.effects = state.effects
       .map(function (effect) {
         effect.life -= dt;
+        if (effect.kind === "pillar_debris") {
+          var g = effect.gravity || 0;
+          effect.x += effect.vx * dt;
+          effect.y += effect.vy * dt + 0.5 * g * dt * dt;
+          effect.vy += g * dt;
+        }
         return effect;
       })
       .filter(function (effect) {
+        if (effect.kind === "pillar_debris" && effect.y >= ARENA.groundY) return false;
         return effect.life > 0;
       });
     /*
