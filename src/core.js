@@ -1776,7 +1776,8 @@
     var speed = nativeGroundX(300);
     return { nativeObject: 30047, speed: speed, radius: 9, life: 3,
       maxDistance: speed * 3, originX: nativeGroundX(20), height: nativeGroundX(60),
-      horizontal: true, initialVy: -speed * Math.tan(10 * Math.PI / 180), gravity: nativeGroundX(200) };
+      horizontal: true, initialVy: -speed * Math.tan(10 * Math.PI / 180), gravity: nativeGroundX(200),
+      landingStop: true };
   }
 
   var ENEMY_TYPES = {
@@ -7827,6 +7828,7 @@
       vx: (spec.horizontal ? enemy.facing : dx / length) * spec.speed,
       vy: spec.initialVy !== undefined ? spec.initialVy : (spec.horizontal ? 0 : (dy / length) * spec.speed),
       gravity: spec.gravity || 0,
+      landingStop: !!spec.landingStop,
       radius: spec.radius,
       damage: enemy.damage,
       life: spec.life,
@@ -7844,6 +7846,11 @@
 
     state.projectiles.forEach(function (shot) {
       shot.life -= dt;
+      if (shot.stopped) {
+        shot.stopLife -= dt;
+        if (shot.stopLife > 0) remaining.push(shot);
+        return;
+      }
       var stepX = shot.vx * dt;
       var gravity = shot.gravity || 0;
       // Exact constant-acceleration integration is independent of frame partition.
@@ -7852,6 +7859,21 @@
       shot.x += stepX;
       shot.y += stepY;
       shot.traveled += Math.sqrt(stepX * stepX + stepY * stepY);
+
+      if (shot.y >= ARENA.groundY && shot.landingStop) {
+        shot.y = ARENA.groundY;
+        shot.stoppedAt = shot.maxLife - shot.life;
+        shot.stopVx = shot.vx;
+        shot.stopVy = shot.vy;
+        shot.stopGravity = gravity;
+        shot.vx = 0;
+        shot.vy = 0;
+        shot.gravity = 0;
+        shot.stopped = true;
+        shot.stopLife = Math.min(shot.life, 0.35);
+        if (shot.stopLife > 0) remaining.push(shot);
+        return;
+      }
 
       var spent =
         shot.life <= 0 ||

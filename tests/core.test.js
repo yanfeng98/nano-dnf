@@ -12752,3 +12752,16 @@ test('native pillar debris atlas matches client proof and emits 8 vanishing frag
  for(let i=0;i<35;i++)Core.step(s,{});
  assert.equal(s.effects.filter(e=>e.kind==='pillar_debris').length,0,'debris vanishes within 0.5s or on landing');
 });
+
+test('fire projectile stops on ground and lets existing trail fade out over 0.35s',()=>{
+ const s=lastRoomState(34),e=Core.createEnemy(s,'goblinRed',500),sheet={width:1152,height:128};
+ e.facing=1;s.player.x=10000;const q=Core.spawnProjectile(s,e);assert.ok(q);
+ q.y=Core.ARENA.groundY-1;q.vy=100;q.life=q.maxLife-0.5;
+ Core.updateProjectiles(s,Core.DT);
+ assert.equal(s.projectiles.length,1);
+ assert.equal(q.stopped,true);assert.equal(q.y,Core.ARENA.groundY);assert.equal(q.vx,0);
+ const calls=[];Render.render(recordingContext(calls),s,{sprites:{goblinFire:sheet}});
+ assert.ok(calls.filter(c=>c[0]==='drawImage'&&c[1]===sheet).length>0,'trail remains visible right after stop');
+ for(let i=0;i<25;i++)Core.updateProjectiles(s,Core.DT);
+ assert.equal(s.projectiles.length,0,'stopped trail expires after 0.35s');
+});

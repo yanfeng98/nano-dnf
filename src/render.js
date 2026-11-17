@@ -5175,19 +5175,25 @@
       if (!fire || !fire.width) return;
       var fireAge = Math.max(0, shot.maxLife - shot.life);
       var fireScale = (Core.VIEW.width / 640) / Core.CAMERA.zoom * 0.699999988079071;
+      var emitEnd = shot.stopped ? shot.stoppedAt : fireAge;
+      var refVx = shot.stopped ? (shot.stopVx || 0) : shot.vx;
+      var refVy = shot.stopped ? (shot.stopVy || 0) : shot.vy;
+      var refG = shot.stopped ? (shot.stopGravity || 0) : (shot.gravity || 0);
+      var fireFacing = refVx < 0 ? -1 : 1;
       // Candidate PTL50Hz/350ms (audit159 profile comparison): reconstruct static emissions from the ballistic
-      // path. This main trail is partial: other variants/lights, native ANI40.0,
-      // blending, random area and detached children are not engine-calibrated.
+      // path. When stopped on ground ([landing type] [stop]), halt new emissions and let existing trail particles fade.
       for (var emission = Math.max(0, Math.ceil((fireAge - 0.35 + 0.0000001) / 0.02));
-           emission <= Math.floor((fireAge + 0.0000001) / 0.02); emission++) {
-        var particleAge = Math.max(0, fireAge - emission * 0.02);
+           emission <= Math.floor((emitEnd + 0.0000001) / 0.02); emission++) {
+        var birthAge = emission * 0.02;
+        var particleAge = Math.max(0, fireAge - birthAge);
         if (particleAge >= 0.35) continue;
         var fireFrame = particleAge < 0.23 ? 0 : 1;
-        var fireX = shot.x - shot.vx * particleAge;
-        var fireY = feetY(shot) - shot.vy * particleAge + (shot.gravity || 0) * particleAge * particleAge / 2;
+        var dtFromRef = emitEnd - birthAge;
+        var fireX = shot.x - refVx * dtFromRef;
+        var fireY = feetY(shot) - refVy * dtFromRef + refG * dtFromRef * dtFromRef / 2;
         ctx.save();
         ctx.translate(fireX, fireY);
-        ctx.scale(shot.vx < 0 ? -1 : 1, 1);
+        ctx.scale(fireFacing, 1);
         // Audit159 template match at61.2s: PIL180deg, factor.7. This is a
         // visible presentation calibration, not a decoded ANI rotation formula.
         ctx.rotate(-Math.PI);
