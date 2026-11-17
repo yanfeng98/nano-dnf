@@ -12765,3 +12765,13 @@ test('fire projectile stops on ground and lets existing trail fade out over 0.35
  for(let i=0;i<25;i++)Core.updateProjectiles(s,Core.DT);
  assert.equal(s.projectiles.length,0,'stopped trail expires after 0.35s');
 });
+
+test('native UI level_up and gate_open sound cues are exported in sfx manifest',()=>{
+ const manifest=require('../assets/sfx/manifest.json');
+ assert.deepEqual(manifest.map.level_up,['levup.ogg']);
+ assert.deepEqual(manifest.map.gate_open,['ev_gate.ogg']);
+ for(const file of ['levup.ogg','ev_gate.ogg']){
+  const full=path.join(__dirname,'../assets/sfx',file);
+  assert.ok(fs.existsSync(full)&&fs.statSync(full).size>0,file);
+ }
+});

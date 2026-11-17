@@ -10,6 +10,7 @@
     "bloodgaru_dmg_01.ogg",
     "bloodgaru_dmg_02.ogg",
     "bloodgaru_slayer.ogg",
+    "ev_gate.ogg",
     "gbn_comm.ogg",
     "gbn_die_01.ogg",
     "gbn_die_02.ogg",
@@ -29,6 +30,7 @@
     "gbn_thw.ogg",
     "grass_pass.ogg",
     "grasshash.ogg",
+    "levup.ogg",
     "sm_ancient.ogg",
     "sm_atk_01.ogg",
     "sm_atk_02.ogg",
@@ -141,6 +143,12 @@
     ],
     "stone_pillar_break": [
       "tstone_break.ogg"
+    ],
+    "level_up": [
+      "levup.ogg"
+    ],
+    "gate_open": [
+      "ev_gate.ogg"
     ],
     "goblin_attack": [
       "gbn_comm.ogg",

@@ -764,6 +764,7 @@
     };
     source.start();
     sfx.played += 1;
+    return true;
   }
 
   /** 语音压音乐：约 −4 dB，300ms 后自己回来；连续语音就重新计时。 */
@@ -970,6 +971,7 @@
       tone(520, 0.14, "triangle", 0.18, 0, 260);
     },
     levelup: function () {
+      if (playSfx("level_up", { gain: 0.5 })) return;
       [523, 659, 784].forEach(function (freq, index) {
         tone(freq, 0.18, "triangle", 0.2, index * 0.09);
       });
@@ -980,6 +982,7 @@
       });
     },
     gate: function () {
+      if (playSfx("gate_open", { gain: 0.45 })) return;
       tone(880, 0.2, "sine", 0.16, 0);
       tone(1174, 0.24, "sine", 0.14, 0.1);
     },
