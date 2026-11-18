@@ -389,7 +389,7 @@ async function runPass(browser, baseUrl, options) {
     bossShot: false,
     inert: true
   };
-  for (let step = 0; step < 140; step += 1) {
+  for (let step = 0; step < 160; step += 1) {
     const shot = await page.evaluate(() => window.nanoDnf.fastForwardAttract(0.5));
     if (!shot) {
       attractArc.missing = true;

@@ -4576,22 +4576,7 @@
      * reaches measured past the body (`bodyGap` in src/core.js) the box can be
      * the art's size, and `ENEMY_TYPES` is where both are decided.
      */
-    /*
-     * Legacy placeholder for the whiteboss body awaiting its own source
-     * review. The old claim that1..6/12..16 was a verified common goblin run
-     * was incorrect: ordinary/coward/blue/red native ANI links prove otherwise.
-     * Those bodies now use nativeGoblin below. The legacy whiteboss identity
-     * remains a separate open issue; this is not evidence
-     * for their native poses.
-     */
-    goblin: {
-      idle: [0, 0],
-      attack: [1, 6],
-      down: [7, 9],
-      rise: [10, 11],
-      walk: [12, 16]
-    },
-    // Independently checked goblin/cowardgoblin/seagab/hillgab MOB -> ANI links.
+    // Independently checked goblin/cowardgoblin/seagab/hillgab/whiteboss (Kinol) MOB -> ANI links.
     // Their native attacks:0..4 at80/80/80/80/200ms; walk:11..16 at100ms.
     // Preserve those relative attack holds within the existing combat duration;
     // absolute attack/AI timing remains uncalibrated against the recording.
@@ -4662,7 +4647,7 @@
       coward: "nativeGoblin",
       caster: "nativeCaster",
       burningThrower: "nativeCaster",
-      elite: "goblin",
+      elite: "nativeGoblin",
       brute: "tau",
       boss: "tau",
       cat: "lugaru",

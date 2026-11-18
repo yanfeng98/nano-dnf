@@ -45,7 +45,7 @@ try{
   };
  });
  const poses=[];
- for(const [type,row] of [['coward',1],['goblinBlue',6],['goblinRed',7],['cursedRed',7]]){
+ for(const [type,row] of [['coward',1],['elite',4],['goblinBlue',6],['goblinRed',7],['cursedRed',7]]){
   for(const [name,time,elapsed,expected] of [['idle',0,null,0],['walk-first',0,null,11],['walk-last',.5,null,16],['attack-start',0,0,0],['attack-contact',0,.241,3],['attack-recovery',0,.4,4],['down',0,null,9]]){
    await page.evaluate(({type,name,time,elapsed})=>{
     const C=window.DNFCore,s=window.nanoDnf.getState(),e=C.createEnemy(s,type,500+200/C.CAMERA.zoom);s.enemies=[e];
