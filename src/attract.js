@@ -33,7 +33,7 @@
    * the same script now has 2–3 more monsters per room, and 45s restarted it
    * just before the clear.
    */
-  var MAX_SECONDS = 75;
+  var MAX_SECONDS = 105;
   /* A finished run holds its last frame for a beat, so the end reads on screen. */
   var HOLD_SECONDS = 2.5;
 
@@ -82,7 +82,7 @@
     var best = null;
     var bestDistance = Infinity;
     livingEnemies(state).forEach(function (enemy) {
-      var distance = Math.abs(enemy.x - state.player.x);
+      var distance = Math.abs(enemy.x - state.player.x) + Math.abs((enemy.z || 0) - (state.player.z || 0));
       if (distance < bestDistance) {
         best = enemy;
         bestDistance = distance;
@@ -106,6 +106,15 @@
    */
   function walk(state, input, targetX, targetZ) {
     var move = Core.routeStep(state, targetX, targetZ);
+    if (move[0] === 0 && move[1] === 0) {
+      var offsets = [
+        [56, 0], [-56, 0], [0, -48], [0, 48]
+      ];
+      for (var i = 0; i < offsets.length; i += 1) {
+        move = Core.routeStep(state, targetX + offsets[i][0], targetZ + offsets[i][1]);
+        if (move[0] !== 0 || move[1] !== 0) break;
+      }
+    }
     if (move[0] > 0) input.right = true;
     else if (move[0] < 0) input.left = true;
     if (move[1] > 0) input.up = true;

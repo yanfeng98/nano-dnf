@@ -2527,16 +2527,20 @@
          * 种子洗牌（`dungeonFor`），所以名字不能写死到格子上去。
          */
         {
+          // V1 third cell (1,0), 122s-145.5s: strictly 7 forty-XP kills (280 XP).
+          // Observed types: 1 goblinRed, 1 goblinBlue, 1 caster, 1 coward, 3 grunt (all Lv4).
           name: "藤蔓窄道",
           kind: "corr",
           enemies: [
-            { type: "coward", x: 420 },
-            { type: "coward", x: 479 },
-            { type: "coward", x: 700 },
-            { type: "coward", x: 759 },
-            { type: "coward", x: 70, wave: 2 },
-            { type: "coward", x: 900, wave: 2 }
+            { type: "goblinRed", x: 340, depth: 0.42, level: 4, xp: 40 },
+            { type: "caster", x: 440, depth: 0.34, level: 4, xp: 40 },
+            { type: "goblinBlue", x: 540, depth: 0.56, level: 4, xp: 40 },
+            { type: "coward", x: 640, depth: 0.48, level: 4, xp: 40 },
+            { type: "grunt", x: 720, depth: 0.36, level: 4, xp: 40 },
+            { type: "grunt", x: 790, depth: 0.52, level: 4, xp: 40 },
+            { type: "grunt", x: 860, depth: 0.44, level: 4, xp: 40 }
           ],
+          cap: 7,
           props: [
             { piece: "trunkBent", x: 150, depth: 1 },
             { piece: "bush", x: 400, depth: 0.62 },
@@ -2544,16 +2548,18 @@
           ]
         },
         {
+          // V1 fourth cell (1,1), 148s-166.5s: strictly 5 forty-XP kills (200 XP).
+          // Observed types: 1 goblinBlue, 1 caster, 3 grunt (all Lv4).
           name: "倒木小径",
           kind: "corr",
           enemies: [
-            { type: "grunt", x: 420, depth: 0.2 },
-            { type: "coward", x: 479 },
-            { type: "coward", x: 700 },
-            { type: "goblinBlue", x: 759 },
-            { type: "coward", x: 70, wave: 2 },
-            { type: "grunt", x: 900, wave: 2 }
+            { type: "goblinBlue", x: 360, depth: 0.46, level: 4, xp: 40 },
+            { type: "grunt", x: 520, depth: 0.32, level: 4, xp: 40 },
+            { type: "grunt", x: 660, depth: 0.54, level: 4, xp: 40 },
+            { type: "caster", x: 780, depth: 0.38, level: 4, xp: 40 },
+            { type: "grunt", x: 860, depth: 0.48, level: 4, xp: 40 }
           ],
+          cap: 5,
           props: [
             { piece: "trunkTall", x: 250, depth: 1 },
             { piece: "stump", x: 470, depth: 0.7 },
@@ -2623,16 +2629,24 @@
           ]
         },
         {
+          // V1 fifth cell (1,2), 171.5s-223.5s: strictly 10 forty-XP kills + 1 eighty-XP kill (480 XP).
+          // Observed types: 6 grunt, 2 goblinRed, 1 goblinBlue, 1 caster, 1 burningThrower (all Lv4).
           name: "苔石夹道",
           kind: "corr",
           enemies: [
-            { type: "grunt", x: 420, depth: 0.26 },
-            { type: "caster", x: 479 },
-            { type: "grunt", x: 700 },
-            { type: "burningThrower", x: 759 },
-            { type: "grunt", x: 70, wave: 2 },
-            { type: "burningThrower", x: 900, wave: 2 }
+            { type: "grunt", x: 280, depth: 0.34, level: 4, xp: 40 },
+            { type: "goblinRed", x: 380, depth: 0.56, level: 4, xp: 40 },
+            { type: "grunt", x: 460, depth: 0.42, level: 4, xp: 40 },
+            { type: "caster", x: 540, depth: 0.28, level: 4, xp: 40 },
+            { type: "grunt", x: 600, depth: 0.58, level: 4, xp: 40 },
+            { type: "grunt", x: 680, depth: 0.36, level: 4, xp: 40 },
+            { type: "goblinRed", x: 740, depth: 0.48, level: 4, xp: 40 },
+            { type: "goblinBlue", x: 800, depth: 0.32, level: 4, xp: 40 },
+            { type: "grunt", x: 840, depth: 0.54, level: 4, xp: 40 },
+            { type: "grunt", x: 880, depth: 0.40, level: 4, xp: 40 },
+            { type: "burningThrower", x: 920, depth: 0.46, level: 4, xp: 80 }
           ],
+          cap: 11,
           props: [
             { piece: "wallStone", x: 240, depth: 0.78 },
             { piece: "rockFlat", x: 500, depth: 0.52 },
@@ -3501,8 +3515,8 @@
     boss: [0, 2],
     entryRoom: 0,
     bossRoom: 5,
-    // V1 second cell, bounded by the122s transition: fixed roster independent of seed.
-    pins: { "2,0": 9 },
+    // V1 route cells (2,0), (1,0), (1,1), (1,2): fixed rosters & XP independent of seed.
+    pins: { "2,0": 9, "1,0": 6, "1,1": 7, "1,2": 11 },
     northX: { "1,1": 0.492, "1,2": 0.469, "2,1": 0.673, "3,1": 0.5 },
     links: [
       [[0, 0], [1, 0]],

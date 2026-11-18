@@ -85,7 +85,7 @@ test("the demo carries the run into the boss rage and past it", () => {
     const session = demo(seed);
     let phase2At = null;
     let clearAt = null;
-    for (let frame = 0; frame < Math.round(90 / Core.DT); frame += 1) {
+    for (let frame = 0; frame < Math.round(105 / Core.DT); frame += 1) {
       Attract.step(session, Core.DT);
       const shot = Attract.snapshot(session);
       if (phase2At === null && shot.phase2Runs >= 1) phase2At = shot.seconds;
