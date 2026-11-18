@@ -21,7 +21,8 @@
 | 赤、诅咒赤哥布林 | 已由近战改为远程，实际AI发射30047，使用客户端火焰主尾迹与常重力弹道，已补齐 `firemissilegerocenter.ptl` 落地 `stop` 与 0.35s 尾迹淡出；光粒子、随机区域与完整混合/插值仍待核。 |
 | 原生石柱碎石 | 已接入 `stonepillardamage.ptl` 8 枚碎石粒子（`StonePillarParticle1..4.ani`、`life 500ms`、`gravity 1200`、落地消失）；旋转支点与碎石伤害数字仍待核。 |
 | 升级与开门音效 | 已将 `LEVEL_UP` (`levup.ogg`) 与 `ELVEN_GATE` (`ev_gate.ogg`) 接入原生音频清单（71/71），替换原 WebAudio 合成音；其余逐事件音效仍待核。 |
-| 本地回归 | 504项单测、60组浏览器串行检查全部退出0。 |
+| 普通关领主房 | 已按 V1 236–332s 2fps 日志与目标条校正为 8 只 Lv4 哥布林（4 grunt + 2 caster + 2 goblinBlue，各 40 经验）+ Lv7 牛头巨兽（280 经验），共 9 只 / 600 经验；精确站位/激活仍待核。 |
+| 本地回归 | 505项单测、60组浏览器串行检查全部退出0。 |
 | 发布与线上核验 | `fc13690`（Run `44101644444`）、`f469de6`（Run `44111318520`）、`eedf6d6`（Run `44117972521`）均已部署成功并通过 `npm run test:live` 及对应线上探针。 |
 
 线上：[主入口](https://luyf-lemon-love.space/nano-dnf/) / [备用Pages](https://yanfeng98.github.io/nano-dnf/)。方向键移动，X普攻，C跳跃，A/S/D/F/G/H技能。普通关入口房有诅咒赤，第二格有赤、青；拉开距离可观察投射物。

@@ -2486,14 +2486,20 @@
            * 这是 Boss 房（`MIRKWOOD_DUNGEON.bossRoom`）：地图上 (0,2) 那格的东出口
            * 通回 (1,2)，两条路都要穿过它，所以这一格是地牢的尽头。
            */
+          // V1 236-332s (2fps log & target bars): 8 Lv4 goblins at 40 XP
+          // (grunt, caster, goblinBlue; no goblinRed) + Lv7 boss at 280 XP = 600 XP.
           name: "牛头巨兽的林地",
           kind: "room",
           enemies: [
-            { type: "grunt", x: 420 },
-            { type: "grunt", x: 479 },
+            { type: "grunt", x: 420, depth: 0.25, level: 4, xp: 40 },
+            { type: "grunt", x: 479, depth: 0.55, level: 4, xp: 40 },
+            { type: "caster", x: 646, depth: 0.35, level: 4, xp: 40 },
+            { type: "goblinBlue", x: 397, depth: 0.22, level: 4, xp: 40 },
             { type: "boss", x: 800 },
-            { type: "grunt", x: 620, wave: 2 },
-            { type: "goblinRed", x: 900, wave: 2 }
+            { type: "grunt", x: 784, depth: 0.65, level: 4, xp: 40 },
+            { type: "grunt", x: 799, depth: 0.3, level: 4, xp: 40 },
+            { type: "caster", x: 622, depth: 0.62, level: 4, xp: 40 },
+            { type: "goblinBlue", x: 325, depth: 0.58, level: 4, xp: 40 }
           ],
           props: [
             { piece: "trunkTall", x: 210, depth: 1 },

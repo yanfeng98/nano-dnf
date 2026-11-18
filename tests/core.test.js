@@ -3076,17 +3076,19 @@ test("a timing-aware policy can clear the whole stage without losing health", ()
      * 领主房只数领主：它一倒下就通关，剩下的小怪会从场上拿掉、不用杀
      * （业主 2026-10-18）。其余走过的格子仍然要清光。
      */
+    let bossGoblins = 0;
     const routed = [...visited].reduce((total, cell) => {
       const roomIndex = state.dungeon.cells[cell].room;
       if (roomIndex === undefined) return total;
       const enemies = state.stage.rooms[roomIndex].enemies;
       if (cell === state.dungeon.boss) {
+        bossGoblins += enemies.filter((enemy) => enemy.type !== "boss").length;
         return total + enemies.filter((enemy) => enemy.type === "boss").length;
       }
       return total + enemies.length;
     }, 0);
-    assert.equal(state.stats.kills, routed,
-      `seed ${state.seed}: ${visited.size} cells walked, ${routed} bodies in them`);
+    assert.ok(state.stats.kills >= routed && state.stats.kills <= routed + bossGoblins,
+      `seed ${state.seed}: ${visited.size} cells walked, kills=${state.stats.kills} expected ${routed}..${routed + bossGoblins}`);
     /*
      * 「without losing health」, with the bar where the run's shape moved it.
      *
@@ -12794,4 +12796,18 @@ test('FlyBomb 30021 impact spawns client 30022 FlyBombFlash effect',()=>{
  const calls=[],sheet={width:103,height:103};
  Render.render(recordingContext(calls),s,{sprites:{goblinBombFlash:sheet}});
  assert.ok(calls.some(c=>c[0]==='drawImage'&&c[1]===sheet));
+});
+
+test('mirkwood boss room matches V1 236-332s 9-enemy 600 XP roster',()=>{
+ const s=Core.createState({seed:20260915,stage:'mirkwood'});
+ s.intro=null;s.transition=0;s.player.xpToNext=100000;s.player.invuln=Infinity;
+ Core.goToCell(s,s.dungeon.boss);
+ assert.equal(s.enemies.length,9);
+ const counts={};
+ for(const e of s.enemies)counts[e.type]=(counts[e.type]||0)+1;
+ assert.deepEqual(counts,{grunt:4,caster:2,goblinBlue:2,boss:1});
+ const xpBefore=s.player.xp;
+ for(const e of s.enemies)Core.damageEnemy(s,e,9999,1,false);
+ for(let i=0;i<60;i++)Core.step(s,{});
+ assert.equal(s.player.xp-xpBefore,600);
 });
