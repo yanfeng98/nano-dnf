@@ -9086,6 +9086,9 @@
     combatTechnique: [7561,0,31,18],
     combatHits: [7592,0,42,18],
     combatRating: [7634,0,28,18],
+    xpPanel: [7662,0,252,199],
+    xpSlotGlow: [7914,0,116,16],
+    xpBar: [8030,0,247,29],
     numberFonts: {
       total: [[6679,0,32,29],[6711,0,22,29],[6733,0,34,29],[6767,0,33,29],[6800,0,34,29],
         [6834,0,36,29],[6870,0,33,29],[6903,0,36,29],[6939,0,33,29],[6972,0,33,29]],
@@ -9908,6 +9911,49 @@
       ctx.textAlign = "left";ctx.font = "bold 20px 'PingFang SC', sans-serif";
       ctx.fillStyle = "#fff";ctx.strokeStyle = "#0b101b";ctx.lineWidth = 3;
       ctx.strokeText("评分",left+266,394);ctx.fillText("评分",left+266,394);
+      ctx.restore();
+    }
+    if (sheet && t >= 4.2) {
+      var xpPanel = RESULT_ART.xpPanel, xpGlow = RESULT_ART.xpSlotGlow, xpBar = RESULT_ART.xpBar;
+      var deep = state && state.stage && state.stage.id === "mirkwooddeep";
+      var clearXp = deep ? 4680 : 1760;
+      ctx.save();
+      ctx.globalAlpha *= beatAlpha(t, 4.2);
+      ctx.drawImage(sheet, xpPanel[0], xpPanel[1], xpPanel[2], xpPanel[3],
+        left + 325, 282, xpPanel[2] * 1.125, xpPanel[3] * 1.125);
+      var xpItems = [
+        ["评分", 0, 0], ["组队", 1, 0],
+        ["师父", 0, 1], ["装扮", 1, 1],
+        ["宠物", 0, 2], ["活动", 1, 2],
+        ["黑钻", 0, 3], ["对应频道", 1, 3]
+      ];
+      ctx.textAlign = "center";
+      ctx.font = "bold 12px 'PingFang SC', 'Segoe UI', sans-serif";
+      ctx.strokeStyle = "#0b101b";
+      ctx.lineWidth = 2.5;
+      xpItems.forEach(function (item) {
+        var gx = left + 335 + item[1] * 135;
+        var gy = 321 + item[2] * 38;
+        ctx.save();
+        ctx.globalCompositeOperation = "lighter";
+        ctx.drawImage(sheet, xpGlow[0], xpGlow[1], xpGlow[2], xpGlow[3],
+          gx, gy, xpGlow[2] * 1.125, xpGlow[3] * 1.125);
+        ctx.restore();
+        ctx.fillStyle = "#eef1f5";
+        ctx.strokeText(item[0], gx + 65, gy + 13);
+        ctx.fillText(item[0], gx + 65, gy + 13);
+      });
+      ctx.drawImage(sheet, xpBar[0], xpBar[1], xpBar[2], xpBar[3],
+        left + 329, 472, xpBar[2] * 1.125, xpBar[3] * 1.125);
+      ctx.textAlign = "left";
+      ctx.font = "bold 14px 'PingFang SC', 'Segoe UI', sans-serif";
+      ctx.fillStyle = "#f0d79a";
+      ctx.strokeText("经验值", left + 356, 493);
+      ctx.fillText("经验值", left + 356, 493);
+      if (!drawStatsNumber(ctx, sheet, String(clearXp), "total", left + 505, 473, true)) {
+        ctx.fillStyle = "#fff";
+        ctx.fillText(String(clearXp), left + 470, 495);
+      }
       ctx.restore();
     }
     ctx.restore();

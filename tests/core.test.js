@@ -10995,7 +10995,9 @@ test("the actual result atlas preserves the client's circle, chest and countdown
     "../docs/reference-evidence/40-number-native-proof.json"), "utf8"));
   const combatLabelEvidence = JSON.parse(fs.readFileSync(path.join(__dirname,
     "../docs/reference-evidence/41-combat-label-native-proof.json"), "utf8"));
-  for (const frame of evidence.native_frames.concat(cardEvidence.native_frames, continueEvidence.native_frames, prizeEvidence.native_frames, chestEvidence.native_frames, statsEvidence.native_frames, numberEvidence.native_frames, combatLabelEvidence.native_frames)) {
+  const xpPanelEvidence = JSON.parse(fs.readFileSync(path.join(__dirname,
+    "../docs/reference-evidence/46-xp-panel-native-proof.json"), "utf8"));
+  for (const frame of evidence.native_frames.concat(cardEvidence.native_frames, continueEvidence.native_frames, prizeEvidence.native_frames, chestEvidence.native_frames, statsEvidence.native_frames, numberEvidence.native_frames, combatLabelEvidence.native_frames, xpPanelEvidence.native_frames)) {
     const numberMatch = /^(total|gold|red|percent)Digit(\d)$/.exec(frame.name);
     const rect = frame.name.startsWith("digit")
       ? Render.RESULT_ART.digits[Number(frame.name.slice(5))].slice(0, 4)

@@ -1,0 +1,58 @@
+{
+  "native_frames": [
+    {
+      "name": "xpPanel",
+      "rect": [
+        7662,
+        0,
+        252,
+        199
+      ],
+      "folder": "ImagePacks2",
+      "pack": "sprite_interface_newresult.NPK",
+      "entry": "sprite/interface/newresult/result.img",
+      "frame": 178,
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "71e0369d398e195aa4b37497e29a334ae0ddac9382157f6d5b95c756863a1ba9"
+    },
+    {
+      "name": "xpSlotGlow",
+      "rect": [
+        7914,
+        0,
+        116,
+        16
+      ],
+      "folder": "ImagePacks2",
+      "pack": "sprite_interface_newresult.NPK",
+      "entry": "sprite/interface/newresult/result.img",
+      "frame": 179,
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "4c0e55219cf2dcffd5f7ac8b2f62d8ffbc6614c4f323972a587abd8eda7f24f5"
+    },
+    {
+      "name": "xpBar",
+      "rect": [
+        8030,
+        0,
+        247,
+        29
+      ],
+      "folder": "ImagePacks2",
+      "pack": "sprite_interface_newresult.NPK",
+      "entry": "sprite/interface/newresult/result.img",
+      "frame": 180,
+      "offset": [
+        0,
+        0
+      ],
+      "rgba_sha256": "475d6b8dc4f6bf75bb8b6b22b05fbf2ecf292dc262f42c232e7e31a00ee59f09"
+    }
+  ]
+}

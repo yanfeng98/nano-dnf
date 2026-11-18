@@ -57,6 +57,9 @@ SOURCES = [
 ] + [
     (name, 'sprite_interface_newresult.NPK', 'sprite/interface/newresult/result2_mainhud.img', index)
     for name, index in [('combatOperation',11),('combatTechnique',10),('combatHits',12),('combatRating',14)]
+] + [
+    (name, 'sprite_interface_newresult.NPK', 'sprite/interface/newresult/result.img', index)
+    for name, index in [('xpPanel', 178), ('xpSlotGlow', 179), ('xpBar', 180)]
 ]
 
 def frames(client):
