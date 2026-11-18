@@ -34,6 +34,7 @@ SWORDMAN = "sounds_char_swordman.npk"
 MON_ACT1 = "sounds_mon_act1.npk"
 AMB = "sounds_amb.npk"
 AMB_EFFECT = "sounds_effect_amb.npk"
+EFFECT_SFX = "sounds_effect.npk"
 UI_SFX = "sounds_ui.npk"
 
 # logical key -> [(pack, entry), ...]
@@ -85,9 +86,16 @@ SOUNDS = {
 
     # actionstonepillar.obj -> TRAP_STONE_BREAK -> audio.xml; native file, no synthesis.
     "stone_pillar_break": [(AMB_EFFECT, "sounds/effect/amb/tstone_break.ogg")],
-    # LEVEL_UP & ELVEN_GATE -> audio.xml native UI/gate cues.
+    # LEVEL_UP & ELVEN_GATE & COIN_PICK -> audio.xml native UI/gate/pickup cues.
     "level_up": [(UI_SFX, "sounds/ui/levup.ogg")],
     "gate_open": [(AMB_EFFECT, "sounds/effect/amb/ev_gate.ogg")],
+    "coin_pickup": [
+        (EFFECT_SFX, "sounds/effect/coin_pick_01.ogg"),
+        (EFFECT_SFX, "sounds/effect/coin_pick_02.ogg"),
+        (EFFECT_SFX, "sounds/effect/coin_pick_03.ogg"),
+        (EFFECT_SFX, "sounds/effect/coin_pick_04.ogg"),
+        (EFFECT_SFX, "sounds/effect/coin_pick_05.ogg"),
+    ],
 
     # ---- goblin family ---------------------------------------------------
     "goblin_attack": [

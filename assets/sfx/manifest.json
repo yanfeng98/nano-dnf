@@ -10,6 +10,11 @@
     "bloodgaru_dmg_01.ogg",
     "bloodgaru_dmg_02.ogg",
     "bloodgaru_slayer.ogg",
+    "coin_pick_01.ogg",
+    "coin_pick_02.ogg",
+    "coin_pick_03.ogg",
+    "coin_pick_04.ogg",
+    "coin_pick_05.ogg",
     "ev_gate.ogg",
     "gbn_comm.ogg",
     "gbn_die_01.ogg",
@@ -149,6 +154,13 @@
     ],
     "gate_open": [
       "ev_gate.ogg"
+    ],
+    "coin_pickup": [
+      "coin_pick_01.ogg",
+      "coin_pick_02.ogg",
+      "coin_pick_03.ogg",
+      "coin_pick_04.ogg",
+      "coin_pick_05.ogg"
     ],
     "goblin_attack": [
       "gbn_comm.ogg",

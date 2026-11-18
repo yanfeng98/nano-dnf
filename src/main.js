@@ -829,6 +829,8 @@
     } else if (event.kind === "stonePillarBreak") {
       // Native actionstonepillar.obj cue; use the existing SFX mix and pan.
       playSfx("stone_pillar_break", { pan: pan });
+    } else if (event.kind === "coinPickup") {
+      playSfx("coin_pickup", { gain: 0.35, pan: pan });
     } else if (event.kind === "playerHurt") {
       if (!sfxReady("playerHurt", undefined, 0.18)) return;
       playSfx("player_hurt", { gain: 0.44, pan: pan });

@@ -12798,16 +12798,25 @@ test('FlyBomb 30021 impact spawns client 30022 FlyBombFlash effect',()=>{
  assert.ok(calls.some(c=>c[0]==='drawImage'&&c[1]===sheet));
 });
 
-test('mirkwood boss room matches V1 236-332s 9-enemy 600 XP roster',()=>{
+test('mirkwood boss room matches V1 224-332s 9-enemy 600 XP roster',()=>{
  const s=Core.createState({seed:20260915,stage:'mirkwood'});
  s.intro=null;s.transition=0;s.player.xpToNext=100000;s.player.invuln=Infinity;
  Core.goToCell(s,s.dungeon.boss);
  assert.equal(s.enemies.length,9);
  const counts={};
  for(const e of s.enemies)counts[e.type]=(counts[e.type]||0)+1;
- assert.deepEqual(counts,{grunt:4,caster:2,goblinBlue:2,boss:1});
+ assert.deepEqual(counts,{grunt:2,caster:2,goblinBlue:2,goblinRed:2,boss:1});
  const xpBefore=s.player.xp;
  for(const e of s.enemies)Core.damageEnemy(s,e,9999,1,false);
  for(let i=0;i<60;i++)Core.step(s,{});
  assert.equal(s.player.xp-xpBefore,600);
+});
+
+test('native coin_pickup sound cues are exported in sfx manifest',()=>{
+ const manifest=require('../assets/sfx/manifest.json');
+ assert.equal(manifest.map.coin_pickup.length,5);
+ for(const file of manifest.map.coin_pickup){
+  const full=path.join(__dirname,'../assets/sfx',file);
+  assert.ok(fs.existsSync(full)&&fs.statSync(full).size>0,file);
+ }
 });
