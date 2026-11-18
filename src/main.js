@@ -951,26 +951,36 @@
     });
   }
 
+  function hasNativeSfx() {
+    return Object.keys(sfx.buffers).length > 0;
+  }
+
   var SOUNDS = {
     swing: function () {
+      if (hasNativeSfx()) return;
       noise(0.07, 0.12, 0, 1800);
     },
     hit: function () {
+      if (hasNativeSfx()) return;
       tone(320, 0.07, "square", 0.18, 0, 220);
       noise(0.05, 0.1, 0, 2400);
     },
     heavy: function () {
+      if (hasNativeSfx()) return;
       tone(150, 0.18, "sawtooth", 0.22, 0, 80);
       noise(0.14, 0.16, 0, 700);
     },
     skill: function () {
+      if (hasNativeSfx()) return;
       tone(260, 0.22, "triangle", 0.2, 0, 560);
       noise(0.16, 0.12, 0, 900);
     },
     hurt: function () {
+      if (hasNativeSfx()) return;
       tone(140, 0.24, "square", 0.24, 0, 70);
     },
     kill: function () {
+      if (hasNativeSfx()) return;
       tone(520, 0.14, "triangle", 0.18, 0, 260);
     },
     levelup: function () {
