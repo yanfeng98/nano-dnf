@@ -7089,6 +7089,21 @@
       ctx.arc(effect.x, ey, effect.radius, -0.95, 0.95);
       ctx.stroke();
       ctx.restore();
+    } else if (effect.kind === "bomb_flash") {
+      var flashSheet = sprites && sprites.goblinBombFlash;
+      if (!flashSheet || !flashSheet.width) return;
+      var flashScale = (Core.VIEW.width / 640) / Core.CAMERA.zoom;
+      var flashAge = Math.max(0, (effect.maxLife || 0.2) - effect.life);
+      var t = Math.min(1, flashAge / 0.1);
+      var rate = 0.5 + 1.5 * t;
+      var flashAlpha = Math.max(0, 1 - flashAge / (effect.maxLife || 0.2));
+      ctx.save();
+      ctx.translate(effect.x, ey);
+      ctx.globalCompositeOperation = "lighter";
+      ctx.globalAlpha *= flashAlpha;
+      ctx.imageSmoothingEnabled = true;
+      ctx.drawImage(flashSheet, 0, 0, 103, 103, -50 * rate * flashScale, -50 * rate * flashScale, 103 * rate * flashScale, 103 * rate * flashScale);
+      ctx.restore();
     } else if (effect.kind === "pillar_debris") {
       var debrisSheet = sprites && sprites.pillarDebris;
       if (!debrisSheet || !debrisSheet.width) return;

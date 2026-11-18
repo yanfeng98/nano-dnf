@@ -1,5 +1,6 @@
 {
   "objectId": 30021,
+  "subObjectId": 30022,
   "mob": "monster/goblin/goblinthrowertaskmaster.mob",
   "mobSHA256": "a234743572cc79f55bb50ceb922ae51214e775f1cef635fdf05a998c0bbc2f40",
   "object": "passiveobject/monster/goblin/gobflybomb.obj",
@@ -102,6 +103,90 @@
       "name_6080"
     ]
   ],
+  "subObject": "passiveobject/monster/goblin/gobflybombsub.obj",
+  "subObjectSHA256": "52bb00c9ccca44d3d4574e79b7a93718feb329797244d8b3fc93826d99c78fe9",
+  "subObjectTokens": [
+    [
+      5,
+      "[floating height]"
+    ],
+    [
+      2,
+      1
+    ],
+    [
+      5,
+      "[layer]"
+    ],
+    [
+      7,
+      "[normal]"
+    ],
+    [
+      5,
+      "[pass type]"
+    ],
+    [
+      7,
+      "[pass all]"
+    ],
+    [
+      5,
+      "[piercing power]"
+    ],
+    [
+      2,
+      1000
+    ],
+    [
+      5,
+      "[basic motion]"
+    ],
+    [
+      7,
+      "Animation/FlyBombSub.ani"
+    ],
+    [
+      5,
+      "[etc motion]"
+    ],
+    [
+      7,
+      "../../Common/Animation/EarthQuake.ani"
+    ],
+    [
+      7,
+      "../../Common/Animation/EarthQuakeRing.ani"
+    ],
+    [
+      7,
+      "Animation/FlyBombFlash.ani"
+    ],
+    [
+      5,
+      "[/etc motion]"
+    ],
+    [
+      5,
+      "[attack info]"
+    ],
+    [
+      7,
+      "AttackInfo/FlyBombSub.atk"
+    ],
+    [
+      5,
+      "[name]"
+    ],
+    [
+      9,
+      9
+    ],
+    [
+      10,
+      "name_6030"
+    ]
+  ],
   "animation": "passiveobject/monster/goblin/animation/flybomb.ani",
   "aniSHA256": "69f0ed6f2dcd507d1bccc521e38805a9c1b81eafd6972dbc7b732a152f70e674",
   "animationData": {
@@ -197,6 +282,90 @@
       }
     ]
   },
+  "flashAnimation": "passiveobject/monster/goblin/animation/flybombflash.ani",
+  "flashAniSHA256": "9ef66c5d7edafd1006665ff3e32c36e1064a3d2700b6ba637cf085bde709d507",
+  "flashAnimationData": {
+    "paths": [
+      "Monster/Common/MonsterDieFlash.img"
+    ],
+    "overall": [
+      [
+        1,
+        0
+      ]
+    ],
+    "frames": [
+      {
+        "frame": 0,
+        "xy": [
+          -50,
+          -50
+        ],
+        "props": [
+          [
+            7,
+            [
+              0.5,
+              0.5
+            ]
+          ],
+          [
+            10,
+            1
+          ],
+          [
+            11,
+            2
+          ],
+          [
+            12,
+            100
+          ]
+        ],
+        "boxes": [],
+        "image": 0
+      },
+      {
+        "frame": 0,
+        "xy": [
+          -50,
+          -50
+        ],
+        "props": [
+          [
+            7,
+            [
+              2.0,
+              2.0
+            ]
+          ],
+          [
+            9,
+            [
+              255,
+              255,
+              255,
+              0
+            ]
+          ],
+          [
+            10,
+            1
+          ],
+          [
+            11,
+            2
+          ],
+          [
+            12,
+            100
+          ]
+        ],
+        "boxes": [],
+        "image": 0
+      }
+    ]
+  },
   "periodMilliseconds": 150,
   "endAngleRadians": 6.28000020980835,
   "pack": "/mnt/c/dnf/地下城与勇士/ImagePacks2/sprite_item_throwitem.NPK",
@@ -224,6 +393,13 @@
     8
   ],
   "cellRGBAsha256": "6f9546d1e15e6766e4bb1cd3561704024e56dd661d0ba5b0a63220fcc21c1e51",
+  "flashEntry": "sprite/monster/common/monsterdieflash.img",
+  "flashImgSHA256": "7e51ea43b6efbae10f907fa9916b460e4ee0240ef60a5d10f7d9e16a7ffccafe",
+  "flashSize": [
+    103,
+    103
+  ],
+  "flashRGBAsha256": "5861b651d05411de35a406287ac4ba22a4e1f623a7261283af6ad1291a313339",
   "transparency": "Original native RGBA preserved; no colour key or recolouring.",
   "limits": [
     "150ms/angle endpoint are native data from FlyBomb.ani.",

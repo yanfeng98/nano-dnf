@@ -7881,7 +7881,19 @@
         shot.x <= roomLeft(state) ||
         shot.x >= roomRight(state) ||
         shot.y >= ARENA.groundY;
-      if (spent) return;
+      if (spent) {
+        if (shot.nativeObject === 30021) {
+          state.effects.push({
+            kind: "bomb_flash",
+            x: shot.x,
+            y: Math.min(shot.y, ARENA.groundY),
+            z: shot.z || 0,
+            life: 0.2,
+            maxLife: 0.2
+          });
+        }
+        return;
+      }
 
       var nearPlayer =
         Math.abs(shot.x - player.x) <= player.width / 2 + shot.radius &&
@@ -7895,6 +7907,16 @@
         Math.abs((shot.z || 0) - (player.z || 0)) <= player.width / 2 + shot.radius;
       if (!player.dead && nearPlayer) {
         damagePlayer(state, shot.damage, shot.x);
+        if (shot.nativeObject === 30021) {
+          state.effects.push({
+            kind: "bomb_flash",
+            x: shot.x,
+            y: shot.y,
+            z: shot.z || 0,
+            life: 0.2,
+            maxLife: 0.2
+          });
+        }
         return;
       }
       remaining.push(shot);

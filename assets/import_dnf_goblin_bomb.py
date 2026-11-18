@@ -44,16 +44,32 @@ def main():
         assert first["frame"] == last["frame"] == 0
         duration = next(v for k, v in first["props"] if k == 12)
         angle = next(v for k, v in last["props"] if k == 8)
+
+        sub_id = next(obj_tokens[i + 1][1] for i, t in enumerate(obj_tokens) if t[1] == "[int data]")
+        assert sub_id == 30022
+        sub_obj = "passiveobject/" + next(entries[i + 1][1].lower() for i, t in enumerate(entries) if t[1] == sub_id)
+        sub_tokens = archive.tokens(sub_obj)
+        flash_ani_path = "passiveobject/monster/goblin/animation/flybombflash.ani"
+        flash_raw = archive.read(flash_ani_path)
+        flash_ani = parse_animation(flash_raw, True)
+
         report = {
             "objectId": object_id,
+            "subObjectId": sub_id,
             "mob": mob,
             "mobSHA256": hashlib.sha256(archive.read(mob)).hexdigest(),
             "object": obj,
             "objectSHA256": hashlib.sha256(archive.read(obj)).hexdigest(),
             "objectTokens": obj_tokens,
+            "subObject": sub_obj,
+            "subObjectSHA256": hashlib.sha256(archive.read(sub_obj)).hexdigest(),
+            "subObjectTokens": sub_tokens,
             "animation": ani_path,
             "aniSHA256": hashlib.sha256(raw).hexdigest(),
             "animationData": ani,
+            "flashAnimation": flash_ani_path,
+            "flashAniSHA256": hashlib.sha256(flash_raw).hexdigest(),
+            "flashAnimationData": flash_ani,
             "periodMilliseconds": duration,
             "endAngleRadians": angle,
         }
@@ -72,6 +88,19 @@ def main():
     assert picture.size == (17, 17) and paste == [8, 8]
     args.out.parent.mkdir(parents=True, exist_ok=True)
     cell.save(args.out)
+
+    flash_first = flash_ani["frames"][0]
+    flash_entry = "sprite/" + flash_ani["paths"][flash_first["image"]].lower()
+    flash_pack = args.client / "ImagePacks2/sprite_monster_common.NPK"
+    with flash_pack.open("rb") as handle:
+        flash_item = next(item for item in NPK.open(handle).files if item.name.lower() == flash_entry)
+        flash_data = flash_item.data
+    flash_img = IMGFactory.open(io.BytesIO(flash_data))
+    flash_frame = flash_img.images[flash_first["frame"]]
+    flash_pic = flash_img.build(flash_frame).convert("RGBA")
+    flash_out = args.out.with_name("goblin-bomb-flash.png")
+    flash_pic.save(flash_out)
+
     report.update(
         pack=str(pack),
         entry=entry,
@@ -83,6 +112,10 @@ def main():
         anchor=[16, 16],
         pasteXY=paste,
         cellRGBAsha256=hashlib.sha256(cell.tobytes()).hexdigest(),
+        flashEntry=flash_entry,
+        flashImgSHA256=hashlib.sha256(flash_data).hexdigest(),
+        flashSize=list(flash_pic.size),
+        flashRGBAsha256=hashlib.sha256(flash_pic.tobytes()).hexdigest(),
         transparency="Original native RGBA preserved; no colour key or recolouring.",
         limits=[
             "150ms/angle endpoint are native data from FlyBomb.ani.",

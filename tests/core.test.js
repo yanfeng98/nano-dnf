@@ -12775,3 +12775,23 @@ test('native UI level_up and gate_open sound cues are exported in sfx manifest',
   assert.ok(fs.existsSync(full)&&fs.statSync(full).size>0,file);
  }
 });
+
+test('FlyBomb 30021 impact spawns client 30022 FlyBombFlash effect',()=>{
+ const proof=require('../assets/goblin-bomb.json'),crypto=require('node:crypto');
+ const flashPng=decodeRgbaPng(path.join(__dirname,'../assets/goblin-bomb-flash.png'));
+ assert.deepEqual([flashPng.width,flashPng.height],[103,103]);
+ assert.equal(proof.subObjectId,30022);
+ assert.equal(crypto.createHash('sha256').update(flashPng.pixels).digest('hex'),proof.flashRGBAsha256);
+ const s=lastRoomState(34),e=Core.createEnemy(s,'throwerElite',600);
+ s.intro=null;s.transition=s.hitStop=0;s.enemies=[e];s.projectiles=[];s.effects=[];
+ s.player.x=590;s.player.z=e.z;s.player.invuln=Infinity;
+ const q=Core.spawnProjectile(s,e);assert.ok(q);assert.equal(q.nativeObject,30021);
+ q.x=s.player.x;q.y=s.player.y-s.player.height/2;
+ Core.updateProjectiles(s,Core.DT);
+ assert.equal(s.projectiles.length,0);
+ const flash=s.effects.find(fx=>fx.kind==='bomb_flash');
+ assert.ok(flash,'30022 bomb_flash spawned on impact');
+ const calls=[],sheet={width:103,height:103};
+ Render.render(recordingContext(calls),s,{sprites:{goblinBombFlash:sheet}});
+ assert.ok(calls.some(c=>c[0]==='drawImage'&&c[1]===sheet));
+});
