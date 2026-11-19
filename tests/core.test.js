@@ -2882,6 +2882,7 @@ function kitingBot(state) {
   }
 
   const inbound = state.projectiles.find((shot) => {
+    if (shot.hitPlayer || shot.stopped) return false;
     const closing = shot.vx > 0 ? shot.x <= player.x : shot.x >= player.x;
     return closing && Math.abs(shot.x - player.x) < 200;
   });
@@ -3012,7 +3013,7 @@ test("a timing-aware policy can clear the whole stage without losing health", ()
      */
     const damageByRoom = [];
     const visited = new Set();
-    const botLast = { x: NaN, z: NaN };
+    const botLast = { x: NaN, z: NaN, kills: 0, cell: -1, stale: 0 };
     let botStuck = 0;
     let last = -1;
     for (let frame = 0; frame < 60 * 240 && !state.victory && !state.defeat; frame += 1) {
@@ -3036,7 +3037,11 @@ test("a timing-aware policy can clear the whole stage without losing health", ()
          */
         const moved = Math.abs(state.player.x - botLast.x) +
           Math.abs(state.player.z - botLast.z);
-        botStuck = moved < 8 ? botStuck + 1 : 0;
+        const progressed = state.stats.kills !== botLast.kills || state.cell !== botLast.cell;
+        botLast.stale = progressed ? 0 : botLast.stale + 1;
+        botLast.kills = state.stats.kills;
+        botLast.cell = state.cell;
+        botStuck = (moved < 8 || botLast.stale >= 12) ? botStuck + 1 : 0;
         botLast.x = state.player.x;
         botLast.z = state.player.z;
       }
@@ -3058,11 +3063,21 @@ test("a timing-aware policy can clear the whole stage without losing health", ()
               if (route[0] !== 0 || route[1] !== 0) break;
             }
           }
-          walking.jump = false;
-          walking.up = route[1] > 0;
-          walking.down = route[1] < 0;
-          walking.right = route[0] > 0;
-          walking.left = route[0] < 0;
+          if (route[0] !== 0 || route[1] !== 0) {
+            walking.jump = false;
+            walking.up = route[1] > 0;
+            walking.down = route[1] < 0;
+            walking.right = route[0] > 0;
+            walking.left = route[0] < 0;
+          } else {
+            walking.jump = false;
+            walking.left = (botStuck % 2) === 0;
+            walking.right = (botStuck % 2) === 1;
+            walking.down = true;
+          }
+          if (state.enemies.some((e) => !e.dead && Math.abs(e.x - state.player.x) < 70 && Math.abs((e.z || 0) - (state.player.z || 0)) < 45)) {
+            walking.attack = true;
+          }
         }
       }
       Core.step(state, walking);
@@ -12879,4 +12894,37 @@ test('native projectile and dungeon clear/reward SFX cues are exported and queue
   Core.updateProjectiles(s,Core.DT);
   assert.ok(s.sounds.some(ev=>ev.kind==='projectileHit'&&ev.nativeObject===objId),`${type} hit sound`);
  }
+});
+
+
+test('ice missile 30057 follows icemissile.ptl Z-sine oscillation and seagabicicle.obj piercing power 50',()=>{
+ const s=Core.createState({seed:1,stage:'mirkwood'});
+ s.intro=null;s.transition=0;
+ const e=Core.createEnemy(s,'goblinBlue',600);
+ s.enemies=[e];s.projectiles=[];
+ s.player.x=450;s.player.z=e.z;s.player.invuln=0;
+ const q=Core.spawnProjectile(s,e);
+ assert.ok(q&&q.nativeObject===30057);
+ assert.equal(q.piercing,50);
+ assert.ok(q.zSineAmp>0&&q.zSineRadPerSec>0);
+ let minOsc=0,maxOsc=0;
+ for(let i=0;i<30;i++){
+  Core.updateProjectiles(s,Core.DT);
+  minOsc=Math.min(minOsc,q.oscY);maxOsc=Math.max(maxOsc,q.oscY);
+ }
+ assert.ok(maxOsc>0&&minOsc<0,'oscY oscillates both positive and negative');
+ assert.ok(Math.abs(maxOsc)<=q.zSineAmp+1e-9&&Math.abs(minOsc)<=q.zSineAmp+1e-9);
+ // Piercing hit: damages player once, decrements piercing, projectile survives.
+ q.x=s.player.x;q.y=s.player.y-s.player.height/2;q.oscY=0;
+ const hpBefore=s.player.hp;
+ Core.updateProjectiles(s,Core.DT);
+ assert.ok(s.player.hp<hpBefore,'piercing ice missile deals damage');
+ assert.equal(s.projectiles.length,1,'piercing ice missile survives player impact');
+ assert.equal(q.piercing,49);
+ assert.equal(q.hitPlayer,true);
+ s.player.invuln=0;
+ const hpAfterFirst=s.player.hp;
+ q.x=s.player.x;q.y=s.player.y-s.player.height/2;q.oscY=0;
+ Core.updateProjectiles(s,Core.DT);
+ assert.equal(s.player.hp,hpAfterFirst,'does not double-hit the same player');
 });

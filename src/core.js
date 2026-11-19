@@ -1829,12 +1829,12 @@
       attackDuration: 0.5,
       attackCooldown: 1.05,
       knockbackX: 150,
-      // Explicit native X200, origin(20,0,60), life1500ms. Restore primary
-      // ice flight first. The PTL's Z-sine and child emitters remain uncalibrated;
-      // do not invent a sine formula, freeze status or piercing count.
+      // Explicit native X200, origin(20,0,60), life1500ms, Z-sine amp5/1600deg/s
+      // (icemissile.ptl), and piercing power 50 (seagabicicle.obj).
       projectile: { nativeObject: 30057, speed: nativeGroundX(200), radius: 9,
         life: 1.5, maxDistance: nativeGroundX(300),
-        originX: nativeGroundX(20), height: nativeGroundX(60), horizontal: true }
+        originX: nativeGroundX(20), height: nativeGroundX(60), horizontal: true,
+        zSineAmp: nativeGroundX(5), zSineRadPerSec: (1600 * Math.PI) / 180, piercing: 50 }
     },
     goblinRed: {
       label: "赤哥布林",
@@ -7850,6 +7850,11 @@
       vy: spec.initialVy !== undefined ? spec.initialVy : (spec.horizontal ? 0 : (dy / length) * spec.speed),
       gravity: spec.gravity || 0,
       landingStop: !!spec.landingStop,
+      zSineAmp: spec.zSineAmp || 0,
+      zSineRadPerSec: spec.zSineRadPerSec || 0,
+      oscY: 0,
+      piercing: spec.piercing || 0,
+      hitPlayer: false,
       radius: spec.radius,
       damage: enemy.damage,
       life: spec.life,
@@ -7884,6 +7889,10 @@
       shot.vy += gravity * dt;
       shot.x += stepX;
       shot.y += stepY;
+      if (shot.zSineAmp > 0) {
+        var age = Math.max(0, shot.maxLife - shot.life);
+        shot.oscY = -Math.sin(age * shot.zSineRadPerSec) * shot.zSineAmp;
+      }
       shot.traveled += Math.sqrt(stepX * stepX + stepY * stepY);
 
       if (shot.y >= ARENA.groundY && shot.landingStop) {
@@ -7921,9 +7930,10 @@
         return;
       }
 
+      var hitY = shot.y + (shot.oscY || 0);
       var nearPlayer =
         Math.abs(shot.x - player.x) <= player.width / 2 + shot.radius &&
-        Math.abs(shot.y - (player.y - player.height / 2)) <= player.height / 2 + shot.radius &&
+        Math.abs(hitY - (player.y - player.height / 2)) <= player.height / 2 + shot.radius &&
         /*
          * A shot keeps the depth it was fired from (see spawnProjectile) and
          * travels no closer to the camera, so depth is one more way to not be
@@ -7931,24 +7941,29 @@
          * body's width is as good a reading of its footprint on the floor as any.
          */
         Math.abs((shot.z || 0) - (player.z || 0)) <= player.width / 2 + shot.radius;
-      if (!player.dead && nearPlayer) {
+      if (!player.dead && nearPlayer && !shot.hitPlayer) {
         damagePlayer(state, shot.damage, shot.x);
         pushSound(state, "projectileHit", {
           nativeObject: shot.nativeObject,
           x: shot.x,
           z: shot.z || 0
         });
-        if (shot.nativeObject === 30021) {
-          state.effects.push({
-            kind: "bomb_flash",
-            x: shot.x,
-            y: shot.y,
-            z: shot.z || 0,
-            life: 0.2,
-            maxLife: 0.2
-          });
+        if (shot.piercing > 0) {
+          shot.hitPlayer = true;
+          shot.piercing -= 1;
+        } else {
+          if (shot.nativeObject === 30021) {
+            state.effects.push({
+              kind: "bomb_flash",
+              x: shot.x,
+              y: hitY,
+              z: shot.z || 0,
+              life: 0.2,
+              maxLife: 0.2
+            });
+          }
+          return;
         }
-        return;
       }
       remaining.push(shot);
     });

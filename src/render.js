@@ -5197,7 +5197,7 @@
       var iceAge = Math.max(0, shot.maxLife - shot.life);
       var iceFrame = Math.floor((iceAge + 0.0000001) / 0.05) % 8;
       ctx.save();
-      ctx.translate(shot.x, feetY(shot));
+      ctx.translate(shot.x, feetY(shot) + (shot.oscY || 0));
       ctx.scale(shot.vx < 0 ? -1 : 1, 1);
       ctx.imageSmoothingEnabled = true;
       ctx.drawImage(ice, iceFrame * 64, 0, 64, 64,
