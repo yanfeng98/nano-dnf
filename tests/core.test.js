@@ -12854,3 +12854,29 @@ test('mirkwood mid-route cells (1,0), (1,1), (1,2) stay pinned across seeds with
   }
  }
 });
+
+
+test('native projectile and dungeon clear/reward SFX cues are exported and queued',()=>{
+ const manifest=require('../assets/sfx/manifest.json');
+ const keys=['throw_stone','icicle_fire','icicle_hit','sizzle_fire','sizzle_hit','dungeon_clear','reward_open'];
+ for(const key of keys){
+  assert.ok(Array.isArray(manifest.map[key])&&manifest.map[key].length>=1,key);
+  for(const file of manifest.map[key]){
+   const full=path.join(__dirname,'../assets/sfx',file);
+   assert.ok(fs.existsSync(full)&&fs.statSync(full).size>0,file);
+  }
+ }
+ const s=Core.createState({seed:1,stage:'mirkwood'});
+ s.intro=null;s.transition=0;s.sounds=[];
+ for(const [type,objId] of [['caster',30001],['goblinBlue',30057],['goblinRed',30047]]){
+  const e=Core.createEnemy(s,type,500);
+  s.enemies=[e];s.projectiles=[];s.sounds=[];
+  s.player.x=420;s.player.z=e.z;s.player.invuln=Infinity;
+  const q=Core.spawnProjectile(s,e);
+  assert.ok(q&&q.nativeObject===objId);
+  assert.ok(s.sounds.some(ev=>ev.kind==='projectileSpawn'&&ev.nativeObject===objId),`${type} spawn sound`);
+  s.sounds=[];q.x=s.player.x;q.y=s.player.y-s.player.height/2;
+  Core.updateProjectiles(s,Core.DT);
+  assert.ok(s.sounds.some(ev=>ev.kind==='projectileHit'&&ev.nativeObject===objId),`${type} hit sound`);
+ }
+});

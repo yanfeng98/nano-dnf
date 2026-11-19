@@ -35,6 +35,7 @@ MON_ACT1 = "sounds_mon_act1.npk"
 AMB = "sounds_amb.npk"
 AMB_EFFECT = "sounds_effect_amb.npk"
 EFFECT_SFX = "sounds_effect.npk"
+MAGIC_EFFECT = "sounds_effect_magic.npk"
 UI_SFX = "sounds_ui.npk"
 
 # logical key -> [(pack, entry), ...]
@@ -96,6 +97,14 @@ SOUNDS = {
         (EFFECT_SFX, "sounds/effect/coin_pick_04.ogg"),
         (EFFECT_SFX, "sounds/effect/coin_pick_05.ogg"),
     ],
+    # THROW_STONE (goblinthrower.mob), ICICLE/SIZZLE (30057/30047), RESULT_RANK1/REWARD_OPEN1 -> audio.xml.
+    "throw_stone": [(EFFECT_SFX, "sounds/effect/throw_stone.ogg")],
+    "icicle_fire": [(MAGIC_EFFECT, "sounds/effect/magic/icicle_fire.ogg")],
+    "icicle_hit": [(MAGIC_EFFECT, "sounds/effect/magic/icicle_hit.ogg")],
+    "sizzle_fire": [(MAGIC_EFFECT, "sounds/effect/magic/sizzle_fire.ogg")],
+    "sizzle_hit": [(MAGIC_EFFECT, "sounds/effect/magic/sizzle_hit.ogg")],
+    "dungeon_clear": [(UI_SFX, "sounds/ui/result_r1.ogg")],
+    "reward_open": [(UI_SFX, "sounds/ui/reward_open1.ogg")],
 
     # ---- goblin family ---------------------------------------------------
     "goblin_attack": [

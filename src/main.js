@@ -831,6 +831,22 @@
       playSfx("stone_pillar_break", { pan: pan });
     } else if (event.kind === "coinPickup") {
       playSfx("coin_pickup", { gain: 0.35, pan: pan });
+    } else if (event.kind === "projectileSpawn") {
+      var spawnKey = event.nativeObject === 30001
+        ? "throw_stone"
+        : event.nativeObject === 30057
+          ? "icicle_fire"
+          : event.nativeObject === 30047
+            ? "sizzle_fire"
+            : null;
+      if (spawnKey) playSfx(spawnKey, { gain: 0.34, pan: pan });
+    } else if (event.kind === "projectileHit") {
+      var hitKey = event.nativeObject === 30057
+        ? "icicle_hit"
+        : event.nativeObject === 30047
+          ? "sizzle_hit"
+          : null;
+      if (hitKey) playSfx(hitKey, { gain: 0.38, pan: pan });
     } else if (event.kind === "playerHurt") {
       if (!sfxReady("playerHurt", undefined, 0.18)) return;
       playSfx("player_hurt", { gain: 0.44, pan: pan });
@@ -990,6 +1006,7 @@
       });
     },
     clear: function () {
+      if (playSfx("dungeon_clear", { gain: 0.5 })) return;
       [523, 659, 784, 1046].forEach(function (freq, index) {
         tone(freq, 0.26, "triangle", 0.22, index * 0.14);
       });
@@ -1186,6 +1203,7 @@
     if (!Progress || !progress || !reward || !Progress.ITEMS[reward.itemId]) return;
     var prize = Reward.takePrize(reward);
     if (!prize) return;
+    playSfx("reward_open", { gain: 0.45 });
     Progress.addItem(progress, prize.itemId, 1);
     Progress.addGold(progress, prize.gold);
     saveProfile();

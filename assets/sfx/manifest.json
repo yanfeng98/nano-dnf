@@ -35,7 +35,13 @@
     "gbn_thw.ogg",
     "grass_pass.ogg",
     "grasshash.ogg",
+    "icicle_fire.ogg",
+    "icicle_hit.ogg",
     "levup.ogg",
+    "result_r1.ogg",
+    "reward_open1.ogg",
+    "sizzle_fire.ogg",
+    "sizzle_hit.ogg",
     "sm_ancient.ogg",
     "sm_atk_01.ogg",
     "sm_atk_02.ogg",
@@ -76,6 +82,7 @@
     "tau_roar.ogg",
     "tau_rush.ogg",
     "tau_talk_01.ogg",
+    "throw_stone.ogg",
     "tstone_break.ogg"
   ],
   "map": {
@@ -161,6 +168,27 @@
       "coin_pick_03.ogg",
       "coin_pick_04.ogg",
       "coin_pick_05.ogg"
+    ],
+    "throw_stone": [
+      "throw_stone.ogg"
+    ],
+    "icicle_fire": [
+      "icicle_fire.ogg"
+    ],
+    "icicle_hit": [
+      "icicle_hit.ogg"
+    ],
+    "sizzle_fire": [
+      "sizzle_fire.ogg"
+    ],
+    "sizzle_hit": [
+      "sizzle_hit.ogg"
+    ],
+    "dungeon_clear": [
+      "result_r1.ogg"
+    ],
+    "reward_open": [
+      "reward_open1.ogg"
     ],
     "goblin_attack": [
       "gbn_comm.ogg",

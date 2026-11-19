@@ -7858,6 +7858,11 @@
       maxDistance: spec.maxDistance
     };
     state.projectiles.push(shot);
+    pushSound(state, "projectileSpawn", {
+      nativeObject: shot.nativeObject,
+      x: originX,
+      z: shot.z
+    });
     return shot;
   }
 
@@ -7928,6 +7933,11 @@
         Math.abs((shot.z || 0) - (player.z || 0)) <= player.width / 2 + shot.radius;
       if (!player.dead && nearPlayer) {
         damagePlayer(state, shot.damage, shot.x);
+        pushSound(state, "projectileHit", {
+          nativeObject: shot.nativeObject,
+          x: shot.x,
+          z: shot.z || 0
+        });
         if (shot.nativeObject === 30021) {
           state.effects.push({
             kind: "bomb_flash",
