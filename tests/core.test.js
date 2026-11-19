@@ -12928,3 +12928,26 @@ test('ice missile 30057 follows icemissile.ptl Z-sine oscillation and seagabicic
  Core.updateProjectiles(s,Core.DT);
  assert.equal(s.player.hp,hpAfterFirst,'does not double-hit the same player');
 });
+
+
+test('results stats XP breakdown counts up rating and channel bonuses to observed totals (2376 / 6318)',()=>{
+ const sheet={width:8277,height:420};
+ for(const [stage,base,rating,channel] of [['mirkwood',1760,528,88],['mirkwooddeep',4680,1404,234]]){
+  const state=Core.createState({seed:1,stage});
+  state.victory=true;state.finishedAt=0;state.intro=null;state.transition=0;
+  const earlyCalls=[],lateCalls=[];
+  Render.render(recordingContext(earlyCalls),state,{
+   sprites:{results:sheet},
+   reward:{phase:'stats',stage,t:4.5,elapsed:4.5}
+  });
+  Render.render(recordingContext(lateCalls),state,{
+   sprites:{results:sheet},
+   reward:{phase:'stats',stage,t:7.2,elapsed:7.2}
+  });
+  const earlyTexts=earlyCalls.filter(c=>c[0]==='fillText').map(c=>c[1]);
+  const lateTexts=lateCalls.filter(c=>c[0]==='fillText').map(c=>c[1]);
+  assert.ok(!earlyTexts.includes('+'+rating),`${stage} rating bonus hidden before t=5.0`);
+  assert.ok(lateTexts.includes('+'+rating),`${stage} rating bonus shown at t=7.2`);
+  assert.ok(lateTexts.includes('+'+channel),`${stage} channel bonus shown at t=7.2`);
+ }
+});
