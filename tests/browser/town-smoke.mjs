@@ -8,10 +8,11 @@ import { checkTownRoots, checkTownDepthSpeed, checkTownCamera, checkTownDiagonal
 import http from "node:http";
 import fs from "node:fs";
 import path from "node:path";
+import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
-const ARTIFACTS = path.join(ROOT, "tests", "browser", "artifacts");
+let artifactDir;
 const MIME = {
   ".html": "text/html; charset=utf-8",
   ".js": "text/javascript; charset=utf-8",
@@ -69,8 +70,9 @@ async function main() {
       .forEach((id) => {
         if (!town.npcs.includes(id)) fail(`town is missing ${id}`);
       });
-    fs.mkdirSync(ARTIFACTS, { recursive: true });
-    await page.screenshot({ path: path.join(ARTIFACTS, "town.png") });
+    artifactDir = fs.mkdtempSync(path.join(tmpdir(), "nano-dnf-town-smoke-"));
+    console.log("Browser screenshots:", artifactDir);
+    await page.screenshot({ path: path.join(artifactDir, "town.png") });
 
     await checkTownRoots(page,
       JSON.parse(fs.readFileSync(path.join(ROOT, "docs/reference-evidence/19-town-walk-measurement.json"), "utf8")),
@@ -193,7 +195,7 @@ async function main() {
       const box = await page.locator("canvas").boundingBox();
       await page.mouse.click(box.x + x * box.width / 960, box.y + y * box.height / 540);
     };
-    await page.screenshot({ path: path.join(ARTIFACTS, "town-shop.png") });
+    await page.screenshot({ path: path.join(artifactDir, "town-shop.png") });
     await clickCanvas(449, 408); // Buy selected HP potion.
     let bought = await page.evaluate(() => window.nanoDnf.getProgressState());
     if (bought.gold !== 60 || bought.items.hpPotion !== 1) fail("the visible buy button did not buy HP");

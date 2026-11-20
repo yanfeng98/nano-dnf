@@ -16,6 +16,7 @@ import decide from "./keyboard-policy.cjs";
 import http from "node:http";
 import fs from "node:fs";
 import path from "node:path";
+import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
 /*
  * 页内那份 `Core` 也能在 Node 里 import：bot 跑在 **Node 这一侧**（它拿到的是
@@ -28,7 +29,7 @@ const nodeRequire = createRequire(import.meta.url);
 const Core = nodeRequire("../../src/core.js");
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
-const ARTIFACTS = path.join(ROOT, "tests", "browser", "artifacts");
+let artifactDir;
 const MIME = {
   ".html": "text/html; charset=utf-8",
   ".js": "application/javascript; charset=utf-8",
@@ -295,9 +296,9 @@ async function runPass(browser, baseUrl, options) {
   const visited = new Set();
   let loadout = constants.equipped.slice();
   if (options.mode === "touch") {
-    await page.screenshot({ path: path.join(ARTIFACTS, "playability-touch-start.png") });
+    await page.screenshot({ path: path.join(artifactDir, "playability-touch-start.png") });
   } else {
-    await page.screenshot({ path: path.join(ARTIFACTS, "playability-title.png") });
+    await page.screenshot({ path: path.join(artifactDir, "playability-title.png") });
   }
 
   /*
@@ -375,7 +376,7 @@ async function runPass(browser, baseUrl, options) {
     if (attractDemo.roomsReached >= 2) break;
     await page.waitForTimeout(250);
   }
-  await page.screenshot({ path: path.join(ARTIFACTS, "attract-play.png") });
+  await page.screenshot({ path: path.join(artifactDir, "attract-play.png") });
   /*
    * The demo's whole arc has to be reachable, not just the opening room: drive
    * the same session forward in small steps until the boss rages and the run is
@@ -401,7 +402,7 @@ async function runPass(browser, baseUrl, options) {
     if (shot.clears >= 1) attractArc.cleared = true;
     if (shot.bossPhase >= 2 && !attractArc.bossShot) {
       attractArc.bossShot = true;
-      await page.screenshot({ path: path.join(ARTIFACTS, "attract-boss-rage.png") });
+      await page.screenshot({ path: path.join(artifactDir, "attract-boss-rage.png") });
     }
     if (JSON.stringify(await realSnapshot()) !== JSON.stringify(inertBefore)) {
       attractArc.inert = false;
@@ -669,7 +670,7 @@ async function runPass(browser, baseUrl, options) {
   let overrideFrames = 0;
   while (!state.victory && !state.defeat) {
     if ((Date.now() - started) / 1000 > MAX_SECONDS) {
-      await page.screenshot({ path: path.join(ARTIFACTS, `playability-timeout-${options.mode}.png`) });
+      await page.screenshot({ path: path.join(artifactDir, `playability-timeout-${options.mode}.png`) });
       const stuck = await page.evaluate(() => ({
         regionOpen: window.nanoDnf.getProgress().regionOpen,
         paused: window.nanoDnf.isPaused(),
@@ -778,7 +779,7 @@ async function runPass(browser, baseUrl, options) {
       }
     }
     if (!midShot && state.stats.rooms >= 1) {
-      await page.screenshot({ path: path.join(ARTIFACTS, `playability-${options.mode}-fight.png`) });
+      await page.screenshot({ path: path.join(artifactDir, `playability-${options.mode}-fight.png`) });
       midShot = true;
       /* With no record banked yet, the pace line has to say exactly that. */
       paceEarly = await page.evaluate(() => window.nanoDnf.getPace());
@@ -822,7 +823,7 @@ async function runPass(browser, baseUrl, options) {
           }
         };
       });
-      await page.screenshot({ path: path.join(ARTIFACTS, `pause-readout-${options.mode}.png`) });
+      await page.screenshot({ path: path.join(artifactDir, `pause-readout-${options.mode}.png`) });
       await togglePause();
       await waitWatching(140);
       pauseReadout.resumed = !(await page.evaluate(() => window.nanoDnf.isPaused()));
@@ -939,7 +940,7 @@ async function runPass(browser, baseUrl, options) {
         };
       });
       await page.waitForTimeout(60);
-      await page.screenshot({ path: path.join(ARTIFACTS, "rage-stance.png") });
+      await page.screenshot({ path: path.join(artifactDir, "rage-stance.png") });
       /*
        * Take the stance down. **The second cast has to actually land**, and a
        * skill pressed while the Slayer is rooted - mid-swing, mid-recovery - is
@@ -1132,7 +1133,7 @@ async function runPass(browser, baseUrl, options) {
         };
       });
       await page.waitForTimeout(60);
-      await page.screenshot({ path: path.join(ARTIFACTS, "smash-air.png") });
+      await page.screenshot({ path: path.join(artifactDir, "smash-air.png") });
       await page.evaluate((before) => {
         const player = window.nanoDnf.getState().player;
         player.onGround = before.onGround;
@@ -1240,7 +1241,7 @@ async function runPass(browser, baseUrl, options) {
     };
   });
   await page.screenshot({
-    path: path.join(ARTIFACTS, `victory-summary-${options.mode}.png`)
+    path: path.join(artifactDir, `victory-summary-${options.mode}.png`)
   });
 
   /*
@@ -1263,7 +1264,7 @@ async function runPass(browser, baseUrl, options) {
     }, null, { timeout: 15000 });
     rewardCards = await page.evaluate(() => window.nanoDnf.getReward());
     await page.screenshot({
-      path: path.join(ARTIFACTS, `reward-cards-${options.mode}.png`)
+      path: path.join(artifactDir, `reward-cards-${options.mode}.png`)
     });
     await page.waitForFunction(() => {
       const state = window.nanoDnf.getReward();
@@ -1278,7 +1279,7 @@ async function runPass(browser, baseUrl, options) {
       };
     });
     await page.screenshot({
-      path: path.join(ARTIFACTS, `reward-reveal-${options.mode}.png`)
+      path: path.join(artifactDir, `reward-reveal-${options.mode}.png`)
     });
   } else {
     const lost = await page.evaluate(() => {
@@ -1407,7 +1408,7 @@ async function runPass(browser, baseUrl, options) {
     };
   }, defeatDeath.deathTime);
   await page.screenshot({
-    path: path.join(ARTIFACTS, `defeat-summary-${options.mode}.png`)
+    path: path.join(artifactDir, `defeat-summary-${options.mode}.png`)
   });
 
   /* The soundtrack must be running by now, and must react to mute. */
@@ -1451,12 +1452,12 @@ async function runPass(browser, baseUrl, options) {
     /* Arrange the bar with the keyboard toggle plus a real pointer drag. */
     await page.keyboard.press("KeyB");
     const arranging = await page.evaluate(() => window.nanoDnf.isArranging());
-    await page.screenshot({ path: path.join(ARTIFACTS, "loadout-panel.png") });
+    await page.screenshot({ path: path.join(artifactDir, "loadout-panel.png") });
     const dragged = await dragSkillToSlot(page, "bloodSnatch", 0);
     /* And the slot it landed in can be emptied again by dragging it out. */
     const cleared = await dragSlotOut(page, 0);
     await page.keyboard.press("KeyB");
-    await page.screenshot({ path: path.join(ARTIFACTS, "loadout-applied.png") });
+    await page.screenshot({ path: path.join(artifactDir, "loadout-applied.png") });
     const restored = await page.evaluate(() => window.nanoDnf.resetLoadout());
     loadoutChecks = {
       arranging,
@@ -1489,11 +1490,11 @@ async function runPass(browser, baseUrl, options) {
           Number.isFinite(body.x) && Number.isFinite(body.y));
       });
       if (!finitePose) throw new Error(`skill preview ${skillId} produced non-finite coordinates`);
-      await page.screenshot({ path: path.join(ARTIFACTS, `skill-${skillId}.png`) });
+      await page.screenshot({ path: path.join(artifactDir, `skill-${skillId}.png`) });
     }
   }
   await page.screenshot({
-    path: path.join(ARTIFACTS, `playability-${options.mode}-clear.png`)
+    path: path.join(artifactDir, `playability-${options.mode}-clear.png`)
   });
 
   /*
@@ -1517,7 +1518,7 @@ async function runPass(browser, baseUrl, options) {
 
     await jumpToRoom("十夫长的营寨");
     await page.waitForTimeout(90);
-    await page.screenshot({ path: path.join(ARTIFACTS, "room-mix.png") });
+    await page.screenshot({ path: path.join(artifactDir, "room-mix.png") });
 
     await jumpToRoom("牛头巨兽的林地");
     await page.evaluate(() => {
@@ -1529,7 +1530,7 @@ async function runPass(browser, baseUrl, options) {
       state.player.x = boss.x - 165;
     });
     await page.waitForTimeout(90);
-    await page.screenshot({ path: path.join(ARTIFACTS, "boss-phase2.png") });
+    await page.screenshot({ path: path.join(artifactDir, "boss-phase2.png") });
 
     /* Freeze the elite mid-spin so the whirl and its swept lane read on screen. */
     await jumpToRoom("十夫长的营寨");
@@ -1546,7 +1547,7 @@ async function runPass(browser, baseUrl, options) {
       state.player.x = elite.x - 150;
     });
     await page.waitForTimeout(90);
-    await page.screenshot({ path: path.join(ARTIFACTS, "elite-spin.png") });
+    await page.screenshot({ path: path.join(artifactDir, "elite-spin.png") });
 
     /* Freeze a coaching line: hints are transient, so ask for one on purpose. */
     await page.evaluate(() => {
@@ -1557,7 +1558,7 @@ async function runPass(browser, baseUrl, options) {
       window.nanoDnf.previewHint("door");
     });
     await page.waitForTimeout(90);
-    await page.screenshot({ path: path.join(ARTIFACTS, "hint-preview.png") });
+    await page.screenshot({ path: path.join(artifactDir, "hint-preview.png") });
 
     /*
      * 地图窗口：清过的房间每一扇门都亮着（`docs/adr/0030`），把这一格的怪清掉拍一张，
@@ -1572,7 +1573,7 @@ async function runPass(browser, baseUrl, options) {
       state.effects = state.effects.filter((effect) => effect.kind !== "banner");
     });
     await page.waitForTimeout(90);
-    await page.screenshot({ path: path.join(ARTIFACTS, "door-open.png") });
+    await page.screenshot({ path: path.join(artifactDir, "door-open.png") });
 
     /* Back to the title after a clear: the seed now carries a record. */
     await page.evaluate(() => {
@@ -1582,7 +1583,7 @@ async function runPass(browser, baseUrl, options) {
     });
     await page.keyboard.press("F1");
     await page.waitForTimeout(90);
-    await page.screenshot({ path: path.join(ARTIFACTS, "title-record.png") });
+    await page.screenshot({ path: path.join(artifactDir, "title-record.png") });
     await page.keyboard.press("F1");
   }
   await context.close();
@@ -2212,7 +2213,8 @@ async function main() {
   // The dependency-free npm test gate exercises invalid CLI arguments too.
   // Only a valid browser run needs Playwright installed.
   const { chromium } = await import("playwright");
-  fs.mkdirSync(ARTIFACTS, { recursive: true });
+  artifactDir = fs.mkdtempSync(path.join(tmpdir(), "nano-dnf-playability-"));
+  console.log("Browser screenshots:", artifactDir);
   const { server, port } = await startServer();
   const baseUrl = `http://127.0.0.1:${port}/index.html`;
   const passes = [];

@@ -14,10 +14,11 @@ import { chromium } from "playwright";
 import http from "node:http";
 import fs from "node:fs";
 import path from "node:path";
+import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
-const ARTIFACTS = path.join(ROOT, "tests", "browser", "artifacts");
+let artifactDir;
 const MIME = {
   ".html": "text/html; charset=utf-8",
   ".js": "application/javascript; charset=utf-8",
@@ -153,8 +154,9 @@ async function main() {
     if (JSON.stringify(entry.route) !== JSON.stringify(wantedRoute)) {
       fail(`pinned route is ${JSON.stringify(entry.route)}`);
     }
-    fs.mkdirSync(ARTIFACTS, { recursive: true });
-    await page.screenshot({ path: path.join(ARTIFACTS, "deep-entry.png") });
+    artifactDir = fs.mkdtempSync(path.join(tmpdir(), "nano-dnf-deep-smoke-"));
+    console.log("Browser screenshots:", artifactDir);
+    await page.screenshot({ path: path.join(artifactDir, "deep-entry.png") });
 
     /*
      * 清掉入口这一间（不只是“看见”它）：第一波 + 第二波都走 `damageEnemy` 的正规
@@ -180,7 +182,7 @@ async function main() {
       fail(`the entry room did not clear: ${JSON.stringify(cleared)}`);
     }
     await page.waitForTimeout(250);
-    await page.screenshot({ path: path.join(ARTIFACTS, "deep-entry-cleared.png") });
+    await page.screenshot({ path: path.join(artifactDir, "deep-entry-cleared.png") });
 
     // Use keyboard movement through the cleared door, then back through the
     // still-uncleared room's entry. Clear status is never assigned by the test.
@@ -194,7 +196,7 @@ async function main() {
     });
     const keys = { N: "ArrowUp", S: "ArrowDown", E: "ArrowRight", W: "ArrowLeft" };
     await page.waitForTimeout(500);
-    await page.screenshot({ path: path.join(ARTIFACTS, "map-door-open.png") });
+    await page.screenshot({ path: path.join(artifactDir, "map-door-open.png") });
     await page.keyboard.down(keys[travel.dir]);
     await page.waitForFunction(from => window.nanoDnf.getState().cell !== from, travel.from);
     await page.keyboard.up(keys[travel.dir]);
@@ -236,7 +238,7 @@ async function main() {
     if (boss.width !== 1437.8) fail(`boss room width is ${boss.width}, not 1437.8`);
     if (boss.band !== 375) fail(`boss band is ${boss.band}, not 375`);
     await page.waitForTimeout(1200);
-    await page.screenshot({ path: path.join(ARTIFACTS, "deep-boss.png") });
+    await page.screenshot({ path: path.join(artifactDir, "deep-boss.png") });
 
     /* 打它一下，让当前目标条切到 Boss —— 猫脸头像走的是 `drawMonsterFace`。 */
     await page.evaluate(() => {
@@ -246,7 +248,7 @@ async function main() {
       Core.damageEnemy(state, cat, 1, 0, state.player.x);
     });
     await page.waitForTimeout(350);
-    await page.screenshot({ path: path.join(ARTIFACTS, "deep-boss-target.png") });
+    await page.screenshot({ path: path.join(artifactDir, "deep-boss-target.png") });
 
     const phase = await page.evaluate(() => {
       const Core = window.DNFCore;
@@ -287,7 +289,7 @@ async function main() {
       };
     });
     if (!end.victory) fail("the cat king died but the run did not reach victory");
-    await page.screenshot({ path: path.join(ARTIFACTS, "deep-clear.png") });
+    await page.screenshot({ path: path.join(artifactDir, "deep-clear.png") });
 
     /* F4 回城镇（`docs/adr/0065`）：任务/背包保留，副本进度清空。 */
     await page.keyboard.press("F4");
