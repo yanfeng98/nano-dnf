@@ -56,6 +56,26 @@ async function main() {
   page.on("requestfailed", (request) => diagnostics.failedRequests.push(`${request.url()} (${request.failure()?.errorText})`));
 
   try {
+    const storageBlockedPage = await browser.newPage();
+    try {
+      await storageBlockedPage.addInitScript(() => {
+        Object.defineProperty(window, "localStorage", {
+          get() {
+            throw new DOMException("Storage is blocked", "SecurityError");
+          }
+        });
+      });
+      await storageBlockedPage.goto(`http://127.0.0.1:${port}/index.html?seed=1`);
+      const freshProfile = await storageBlockedPage.evaluate(() => {
+        const game = window.nanoDnf;
+        if (!game || !game.getProgressState()) return null;
+        return game.resetProgress();
+      });
+      if (!freshProfile) fail("the game did not initialise a profile with storage blocked");
+    } finally {
+      await storageBlockedPage.close();
+    }
+
     await page.goto(`http://127.0.0.1:${port}/index.html?seed=1`);
     await page.waitForFunction(() => window.nanoDnf && window.nanoDnf.getAssetState().ready,
                               null, { timeout: 30000 });

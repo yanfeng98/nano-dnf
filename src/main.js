@@ -274,10 +274,16 @@
   }
 
   /* 跨局进度（`docs/adr/0065`）：和 records 分两本账。 */
-  var progress = Progress ? Progress.load(window.localStorage) : null;
+  var profileStorage = null;
+  try {
+    profileStorage = window.localStorage;
+  } catch (error) {
+    /* Some browser policies block access to the storage object itself. */
+  }
+  var progress = Progress ? Progress.load(profileStorage) : null;
   var progressStats = { cats: 0, breaks: 0, eliteKills: 0, victory: false };
   function saveProfile() {
-    if (Progress && progress) Progress.save(progress, window.localStorage);
+    if (Progress && progress) Progress.save(progress, profileStorage);
   }
 
   /*
@@ -1896,7 +1902,7 @@
       town.panelMessage = "再按一次 R 确认重置（通关记录保留）";
       return;
     }
-    progress = Progress.reset(progress, window.localStorage);
+    progress = Progress.reset(progress, profileStorage);
     progressStats = { cats: 0, breaks: 0, eliteKills: 0, victory: false };
     town.resetArmed = false;
     town.panelMessage = "进度已重置；通关记录保留";
@@ -2399,7 +2405,7 @@
     },
     resetProgress: function () {
       if (!Progress) return null;
-      progress = Progress.reset(progress, window.localStorage);
+      progress = Progress.reset(progress, profileStorage);
       progressStats = { cats: 0, breaks: 0, eliteKills: 0, victory: false };
       return JSON.parse(JSON.stringify(progress));
     },
