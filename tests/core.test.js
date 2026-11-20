@@ -8365,6 +8365,25 @@ test("an already cleared boss room cannot turn into a defeat during the victory 
   assert.equal(state.player.hp, 1, "post-clear play also keeps the confirmed result");
 });
 
+test("killing the lord before a same-step projectile impact preserves the clear", () => {
+  const state = Core.createState({ seed: 1, stage: "mirkwood" });
+  Core.goToCell(state, state.dungeon.boss);
+  const boss = state.enemies.find(enemy => enemy.type === "boss");
+  const player = state.player;
+  boss.evasion = 0;
+  Core.damageEnemy(state, boss, boss.hp + 1, 0, player.x);
+  player.hp = 1;
+  player.invuln = 0;
+  const shooter = Core.createEnemy(state, "caster", player.x + 100, player.z);
+  const shot = Core.spawnProjectile(state, shooter);
+  shot.x = player.x;
+  shot.y = player.y - player.height / 2;
+  Core.step(state, {});
+  assert.ok(state.sounds.some(sound => sound.kind === "projectileHit"));
+  assert.equal(state.defeat, false);
+  assert.ok(state.victoryDelay > 0);
+});
+
 test("the elite mini-boss telegraphs a spin that sweeps a wide lane", () => {
   const state = lastRoomState();
   const elite = Core.createEnemy(state, "elite", state.player.x + SPIN_FROM);

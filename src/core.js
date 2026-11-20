@@ -6821,8 +6821,13 @@
   }
 
   function runCleared(state) {
-    // A confirmed clear takes effect before its result screen is shown.
-    return state.victory || typeof state.victoryDelay === "number";
+    if (state.victory || typeof state.victoryDelay === "number") return true;
+    // Player attacks can kill the lord before the same step updates incoming
+    // projectiles. Room resolution schedules the victory animation later.
+    return !state.defeat && state.dungeon && state.cell === state.dungeon.boss &&
+      state.enemies.some(function (enemy) {
+        return enemy.dead && isBossEnemy(enemy);
+      });
   }
 
   function damagePlayer(state, amount, sourceX) {
