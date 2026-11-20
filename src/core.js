@@ -7083,6 +7083,7 @@
     /* The buff's cast icon is its own short clock, not the buff's own. */
     player.buffIconTimer = Math.max(0, (player.buffIconTimer || 0) - dt);
     updateStanceDrain(state, player, dt);
+    if (player.dead) return;
     if (player.comboTimer === 0) player.comboIndex = 0;
     player.mp = Math.min(player.maxMp, player.mp + player.mpRegen * dt);
 
@@ -9254,7 +9255,7 @@
     updateTarget(state, dt);
     updateBreakables(state);
     updatePickups(state, dt);
-    if (!state.postClear) resolveRoom(state, input);
+    if (!state.postClear && !state.defeat) resolveRoom(state, input);
     /*
      * Last, and on purpose: the camera reads where everyone ended up this frame,
      * not where they were when it started - and `resolveRoom` may already have

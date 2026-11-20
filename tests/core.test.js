@@ -982,6 +982,31 @@ test("player death flips the run into defeat", () => {
   assert.equal(state.defeat, true);
 });
 
+test("lethal stance drain in a doorway keeps the defeat in that room", () => {
+  const state = Core.createState({ seed: 1, stage: "mirkwood" });
+  state.intro = null;
+  state.transition = 0;
+  const cell = Core.currentCell(state);
+  cell.cleared = state.room.cleared = true;
+  const dir = ["E", "W", "N", "S"].find(direction => Core.exitMode(state, direction) === "open");
+  const floor = Core.doorFloor(state, cell, dir);
+  const player = state.player;
+  player.x = dir === "E" ? Core.roomRight(state) - player.width / 2 :
+    dir === "W" ? Core.roomLeft(state) + player.width / 2 : Core.doorX(state, cell, dir);
+  player.z = dir === "N" ? floor.z[1] : dir === "S" ? floor.z[0] : (floor.z[0] + floor.z[1]) / 2;
+  state.props = [];
+  state.enemies = [];
+  assert.equal(Core.doorAt(state), dir);
+  player.hp = 1;
+  player.buffs.bloodRage = Infinity;
+  player.stanceDrainTimer = Core.DT;
+  const before = state.cell;
+  Core.step(state, { attack: true });
+  assert.equal(state.defeat, true);
+  assert.equal(state.cell, before, "a dead character cannot cross the doorway");
+  assert.equal(state.stats.swings, 0, "the same step cannot start a new attack after death");
+});
+
 test("血气之刃 spends MP, hits inside reach, then stays on cooldown", () => {
   const state = lastRoomState();
   const near = Core.createEnemy(state, "grunt", state.player.x + 70);
