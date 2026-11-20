@@ -69,6 +69,18 @@ export async function checkPostClear(page, out) {
   assert.equal(firstPrize.reward.claimed,true);
   assert.equal(firstPrize.profile.gold,beforePrize.gold+3526);
   assert.equal(firstPrize.profile.items.ancientStaff,(beforePrize.items.ancientStaff||0)+1);
+  const gear = ['rustyBlade', 'clothArmor', 'copperRing'];
+  const batchTime = await page.evaluate(() => {
+    const state = window.nanoDnf.getState();
+    state.stats.killsByType.deepElite = (state.stats.killsByType.deepElite || 0) + 9;
+    return state.time;
+  });
+  await page.waitForFunction(time => window.nanoDnf.getState().time > time + 0.1, batchTime);
+  const batchItems = await page.evaluate(() => window.nanoDnf.getProgressState().items);
+  for (const id of gear) {
+    assert.equal(batchItems[id], (firstPrize.profile.items[id] || 0) + 1,
+      `nine same-step elite deaths award ${id} exactly once`);
+  }
   const x=await page.evaluate(()=>window.nanoDnf.getState().player.x);
   await page.keyboard.down('ArrowRight');
   await page.waitForFunction(x=>window.nanoDnf.getState().player.x>x+10,x);
@@ -136,6 +148,9 @@ export async function checkPostClear(page, out) {
   assert.equal(restored.profile.gold,persisted.profile.gold,'clear, card and post-clear gold survive reload');
   assert.equal(restored.profile.items.ancientStaff,persisted.profile.items.ancientStaff);
   assert.equal(restored.profile.items.kunicTotem,persisted.profile.items.kunicTotem);
+  for (const id of gear) {
+    assert.equal(restored.profile.items[id], batchItems[id], 'elite drops survive reload without replaying');
+  }
   assert.deepEqual(restored.profile.cleared,persisted.profile.cleared,'profile clear history survives reload');
   assert.deepEqual(restored.stages.cleared,persisted.stages.cleared,'stage unlock history has its own surviving store');
   assert.deepEqual(restored.stages.open,persisted.stages.open,'the next stage remains open after reload');

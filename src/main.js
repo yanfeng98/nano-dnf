@@ -1135,12 +1135,14 @@
     /* 精英/Boss 低概率掉装备（`docs/adr/0065`）：本片只是入包，数值为 0。 */
     var eliteKills = ((state.stats.killsByType || {}).deepElite || 0) +
       ((state.stats.killsByType || {}).lugaruBoss || 0);
-    if (eliteKills > progressStats.eliteKills) {
-      progressStats.eliteKills = eliteKills;
-      var roll = (state.seed + eliteKills * 37) % 3;
-      if (roll === 0) {
+    // A single attack can kill several elites before this sync runs.
+    while (progressStats.eliteKills < eliteKills) {
+      progressStats.eliteKills += 1;
+      var roll = state.seed + progressStats.eliteKills * 37;
+      if (roll % 3 === 0) {
         var gear = ["rustyBlade", "clothArmor", "copperRing"];
-        Progress.addItem(progress, gear[(state.seed + eliteKills) % gear.length], 1);
+        // The remainder determines whether gear drops. The quotient selects it.
+        Progress.addItem(progress, gear[(roll / 3) % gear.length], 1);
         changed = true;
       }
     }
