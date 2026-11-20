@@ -92,6 +92,28 @@ test('death XP attaches to the player above the visual body', () => {
   }
 });
 
+test('same-step kills show their combined XP while recording each credit', () => {
+  const state = Core.createState({ stage: 'mirkwood', referenceProfile: true });
+  const player = state.player;
+  const oldLevel = player.level;
+  player.xp = player.xpToNext - 1;
+  const enemies = [
+    Core.createEnemy(state, 'grunt', player.x + 200, player.z, 4, 40),
+    Core.createEnemy(state, 'caster', player.x + 300, player.z, 4, 50)
+  ];
+  state.enemies = enemies;
+  for (const enemy of enemies) {
+    Core.damageEnemy(state, enemy, enemy.hp + 1, 0, player.x);
+  }
+  assert.equal(player.level, oldLevel + 1);
+  assert.equal(player.xp, 89);
+  const floats = state.effects.filter(effect => effect.kind === 'pickupText');
+  assert.deepEqual(floats.map(effect => effect.text), ['90 Exp']);
+  for (const amount of [40, 50]) {
+    assert.ok(state.log.some(line => line.text === `获得${amount}点经验值`));
+  }
+});
+
 test('death XP float expires after the observed 24 unpaused 30fps frames', () => {
   const state = Core.createState({ stage: 'mirkwood', referenceProfile: true });
   state.transition = 0;

@@ -6119,9 +6119,20 @@
     if (!(enemy.xp > 0) || state.player.dead) return;
     grantXp(state, enemy.xp);
     pushLog(state, "获得" + enemy.xp + "点经验值", "gold");
+    // Same-step captions share an anchor and would draw over each other.
+    var caption = state.effects.find(function (effect) {
+      return effect.kind === "pickupText" && effect.awardedAt === state.time;
+    });
+    if (caption) {
+      caption.amount += enemy.xp;
+      caption.text = caption.amount + " Exp";
+      return;
+    }
     state.effects.push({
       kind: "pickupText",
       text: enemy.xp + " Exp",
+      amount: enemy.xp,
+      awardedAt: state.time,
       anchor: "player",
       x: state.player.x,
       // Initial fallback position; the live caption follows its owner's body.
