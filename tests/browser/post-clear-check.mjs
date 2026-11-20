@@ -6,15 +6,24 @@ import path from 'node:path';
 export async function checkPostClear(page, out) {
   await page.keyboard.press('Enter');
   await page.waitForFunction(() => window.nanoDnf.getTown().open);
+  for (const x of [900, 1150]) {
+    await page.evaluate(x => window.nanoDnf.setTownPosition(x, 50), x);
+    await page.keyboard.press('Space');
+    await page.keyboard.press('Escape');
+  }
   await page.evaluate(() => window.nanoDnf.leaveTown());
   await page.keyboard.press('Enter');
   await page.waitForFunction(() => !window.nanoDnf.getProgress().regionOpen);
-  async function finish(pauseAtFade=false, manual=false) {
-    await page.evaluate(({pauseAtFade,manual}) => {
+  async function finish(pauseAtFade=false, manual=false, questActions=null) {
+    await page.evaluate(({pauseAtFade,manual,questActions}) => {
       const C=window.DNFCore, api=window.nanoDnf, s=api.getState();
       s.intro=null;s.transition=0;s.enemies=[];s.props=[];
       s.room.pendingWave=[];s.room.pendingWaves=[];s.room.cleared=true;
       C.currentCell(s).cleared=true;s.victory=true;
+      if (questActions) {
+        s.stats.killsByType.cat = questActions.cats;
+        s.stats.barrels = questActions.breaks;
+      }
       if(pauseAtFade){
         const boss=C.createEnemy(s,'boss',600);boss.dead=true;boss.hp=0;
         s.target={enemy:boss,dying:0,share:0,ghost:{from:.2,to:0,t:0}};
@@ -33,7 +42,7 @@ export async function checkPostClear(page, out) {
         }
         R.step=original;return original(reward,30);
       };
-    },{pauseAtFade,manual});
+    },{pauseAtFade,manual,questActions});
     if (manual) {
       await page.waitForFunction(()=>window.nanoDnf.getReward()?.phase==='cards'&&window.nanoDnf.getReward().faceUp);
       return;
@@ -64,9 +73,11 @@ export async function checkPostClear(page, out) {
     await page.mouse.click(box.x+point.x*box.width/960,box.y+point.y*box.height/540);
   }
   const beforePrize=await page.evaluate(()=>window.nanoDnf.getProgressState());
-  await finish(true);
+  await finish(true, false, { cats: 4, breaks: 3 });
   const firstPrize=await page.evaluate(()=>({profile:window.nanoDnf.getProgressState(),reward:window.nanoDnf.getReward()}));
   assert.equal(firstPrize.reward.claimed,true);
+  assert.equal(firstPrize.profile.quests.cats.progress, 4);
+  assert.equal(firstPrize.profile.quests.breakables.progress, 3);
   assert.equal(firstPrize.profile.gold,beforePrize.gold+3526);
   assert.equal(firstPrize.profile.items.ancientStaff,(beforePrize.items.ancientStaff||0)+1);
   await page.keyboard.press('KeyB');
@@ -150,7 +161,7 @@ export async function checkPostClear(page, out) {
   assert.equal(await page.evaluate(()=>window.nanoDnf.getReward()),null,'retry creates a fresh reward flow');
   assert.equal(await page.evaluate(()=>window.nanoDnf.getState().postClear),false);
   const beforeManual=await page.evaluate(()=>window.nanoDnf.getProgressState());
-  await finish(false,true);
+  await finish(false, true, { cats: 6, breaks: 2 });
   await page.keyboard.press('KeyP');
   const pausedReward = await page.evaluate(() => window.nanoDnf.getReward());
   await page.keyboard.press('Digit1');
@@ -171,6 +182,8 @@ export async function checkPostClear(page, out) {
   await page.waitForFunction(()=>window.nanoDnf.getTown().open);
   await page.keyboard.up('KeyX');
   const manualPrize=await page.evaluate(()=>window.nanoDnf.getProgressState());
+  assert.deepEqual(manualPrize.quests.cats, { state: 'active', progress: 10, done: true });
+  assert.deepEqual(manualPrize.quests.breakables, { state: 'active', progress: 5, done: true });
   assert.equal(manualPrize.gold,beforeManual.gold+3526,'manual selection banks before immediate return to town');
   assert.equal(manualPrize.items.ancientStaff,(beforeManual.items.ancientStaff||0)+1);
   await page.evaluate(()=>window.nanoDnf.leaveTown());
@@ -213,6 +226,7 @@ export async function checkPostClear(page, out) {
     assert.equal(restored.profile.items[id], batchItems[id], 'elite drops survive reload without replaying');
   }
   assert.deepEqual(restored.profile.cleared,persisted.profile.cleared,'profile clear history survives reload');
+  assert.deepEqual(restored.profile.quests, manualPrize.quests, 'quest totals survive reload and later runs');
   assert.deepEqual(restored.stages.cleared,persisted.stages.cleared,'stage unlock history has its own surviving store');
   assert.deepEqual(restored.stages.open,persisted.stages.open,'the next stage remains open after reload');
   fs.writeFileSync(path.join(out,'prize-payment-measurement.json'),JSON.stringify({

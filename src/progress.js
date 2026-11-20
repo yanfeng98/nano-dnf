@@ -236,7 +236,7 @@
       var def = QUESTS[id];
       var quest = profile.quests[id];
       if (!quest || quest.state !== "active" || def.kind !== "kill" || def.target !== target) return;
-      quest.progress = Math.max(quest.progress, Math.min(def.goal, count || 0));
+      quest.progress = Math.min(def.goal, quest.progress + Math.max(0, count || 0));
       quest.done = quest.progress >= def.goal;
     });
   }
@@ -246,7 +246,7 @@
       var def = QUESTS[id];
       var quest = profile.quests[id];
       if (!quest || quest.state !== "active" || def.kind !== "break") return;
-      quest.progress = Math.max(quest.progress, Math.min(def.goal, count || 0));
+      quest.progress = Math.min(def.goal, quest.progress + Math.max(0, count || 0));
       quest.done = quest.progress >= def.goal;
     });
   }

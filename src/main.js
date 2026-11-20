@@ -1115,20 +1115,20 @@
 
   /**
    * 任务计数（`docs/adr/0065`）：击杀猫妖、打碎桶/箱、通关。
-   * 统计是**本局累计**，任务进度取两者的较大值；只在真的变了时写一次存储。
+   * 副本统计从每局零开始，任务进度跨局保存，只入账自上次同步以来的增量。
    */
   function syncProgress() {
     if (!Progress || !progress) return;
     var changed = false;
     var cats = (state.stats.killsByType && state.stats.killsByType.cat) || 0;
     if (cats > progressStats.cats) {
-      Progress.noteKill(progress, "cat", cats);
+      Progress.noteKill(progress, "cat", cats - progressStats.cats);
       progressStats.cats = cats;
       changed = true;
     }
     var breaks = state.stats.barrels || 0;
     if (breaks > progressStats.breaks) {
-      Progress.noteBreak(progress, breaks);
+      Progress.noteBreak(progress, breaks - progressStats.breaks);
       progressStats.breaks = breaks;
       changed = true;
     }
