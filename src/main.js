@@ -1217,8 +1217,13 @@
     saveProfile();
   }
 
+  function canAdvanceReward() {
+    return state.victory && reward && !paused && !showHelp && !townOpen &&
+      !regionOpen && !progressPanel;
+  }
+
   function chooseReward(index) {
-    if (!reward || !Reward || !Reward.pick(reward, index)) return false;
+    if (!canAdvanceReward() || !Reward.pick(reward, index)) return false;
     // Bank in the same input event, before F3/F4 can discard the presentation.
     syncRewardPrize();
     return true;
@@ -2190,7 +2195,7 @@
      * **通关后的翻牌**按真实时间走（`docs/adr/0055`）：战绩页约 10 秒 → 宝箱 →
      * 四张牌 + 3→2→1 → 领奖。暂停/回地区地图时停住。
      */
-    if (state.victory && reward && !paused && !regionOpen) {
+    if (canAdvanceReward()) {
       Reward.step(reward, delta);
       syncRewardPrize();
       if (reward.phase === "done") Core.resumeAfterClear(state);

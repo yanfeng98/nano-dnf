@@ -129,6 +129,20 @@ export async function checkPostClear(page, out) {
   assert.equal(await page.evaluate(()=>window.nanoDnf.getState().postClear),false);
   const beforeManual=await page.evaluate(()=>window.nanoDnf.getProgressState());
   await finish(false,true);
+  await page.keyboard.press('KeyP');
+  const pausedReward = await page.evaluate(() => window.nanoDnf.getReward());
+  await page.keyboard.press('Digit1');
+  const card = await page.evaluate(() => {
+    const ui = window.DNFRender.REWARD_UI;
+    return { x: ui.cardX + ui.cardW / 2, y: ui.cardY + ui.cardH / 2 };
+  });
+  const rewardCanvas = await page.locator('#stage').boundingBox();
+  await page.mouse.click(rewardCanvas.x + card.x * rewardCanvas.width / 960,
+    rewardCanvas.y + card.y * rewardCanvas.height / 540);
+  assert.deepEqual(await page.evaluate(() => window.nanoDnf.getReward()), pausedReward,
+    'neither a key nor a click may claim a card during pause');
+  assert.equal(await page.evaluate(() => window.nanoDnf.getProgressState().gold), beforeManual.gold);
+  await page.keyboard.press('KeyP');
   await page.keyboard.press('Digit3');
   await page.keyboard.down('KeyX');
   await page.keyboard.press('F4');
