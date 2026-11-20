@@ -116,8 +116,10 @@ export async function checkPostClear(page, out) {
   const beforeManual=await page.evaluate(()=>window.nanoDnf.getProgressState());
   await finish(false,true);
   await page.keyboard.press('Digit3');
+  await page.keyboard.down('KeyX');
   await page.keyboard.press('F4');
   await page.waitForFunction(()=>window.nanoDnf.getTown().open);
+  await page.keyboard.up('KeyX');
   const manualPrize=await page.evaluate(()=>window.nanoDnf.getProgressState());
   assert.equal(manualPrize.gold,beforeManual.gold+3526,'manual selection banks before immediate return to town');
   assert.equal(manualPrize.items.ancientStaff,(beforeManual.items.ancientStaff||0)+1);
@@ -125,6 +127,15 @@ export async function checkPostClear(page, out) {
   await page.keyboard.press('ArrowRight');await page.keyboard.press('Enter');
   await page.waitForFunction(()=>!window.nanoDnf.getProgress().regionOpen);
   assert.equal(await page.evaluate(()=>window.nanoDnf.getStage()),'mirkwooddeep');
+  const entryTime = await page.evaluate(() => {
+    const state = window.nanoDnf.getState();
+    state.intro = null;
+    state.transition = 0;
+    return state.time;
+  });
+  await page.waitForFunction(time => window.nanoDnf.getState().time > time + 0.2, entryTime);
+  assert.equal(await page.evaluate(() => window.nanoDnf.getState().stats.swings), 0,
+    'a combat key released in town must not attack in the next run');
   const beforeDeep=await page.evaluate(()=>window.nanoDnf.getProgressState());
   await finish();
   const deepPrize=await page.evaluate(()=>window.nanoDnf.getProgressState());

@@ -1653,17 +1653,20 @@
     event.preventDefault();
   });
 
-  window.addEventListener("blur", function () {
+  function clearCombatInput() {
     Object.keys(held).forEach(function (key) {
       held[key] = false;
     });
-    Object.keys(pressed).forEach(function (key) {
-      pressed[key] = false;
-    });
+    consumePressed();
+  }
+
+  window.addEventListener("blur", function () {
+    clearCombatInput();
     town.left = town.right = town.up = town.down = false;
   });
 
   function restart() {
+    clearCombatInput();
     if (!loadoutCustomized) loadout = Loadout.create(Core.SKILL_ORDER, currentStage);
     state = Core.createState({ seed: currentSeed, stage: currentStage, referenceProfile: true });
     paused = false;
@@ -1974,6 +1977,7 @@
   }
 
   function openTown() {
+    clearCombatInput();
     townOpen = true;
     showHelp = false;
     leaveTitle();
