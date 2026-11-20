@@ -8342,6 +8342,29 @@ test("killing the lord clears the run without killing the other monsters", () =>
   assert.equal(state.victory, true);
 });
 
+test("an already cleared boss room cannot turn into a defeat during the victory animation", () => {
+  const state = Core.createState({ seed: 1, stage: "mirkwood" });
+  Core.goToCell(state, state.dungeon.boss);
+  const boss = state.enemies.find(enemy => enemy.type === "boss");
+  boss.evasion = 0;
+  Core.damageEnemy(state, boss, boss.hp + 1, 0, boss.x);
+  Core.step(state, {});
+  assert.ok(state.victoryDelay > 0);
+  state.player.hp = 1;
+  state.player.invuln = 0;
+  assert.equal(Core.damagePlayer(state, 30, state.player.x + 10), 0);
+  state.player.buffs.bloodRage = Infinity;
+  state.player.stanceDrainTimer = Core.DT;
+  Core.runFrames(state, Math.ceil(state.victoryDelay / Core.DT) + 1, {});
+  assert.equal(state.victory, true);
+  assert.equal(state.defeat, false);
+  assert.equal(state.player.hp, 1);
+  assert.equal(Core.resumeAfterClear(state), true);
+  state.player.stanceDrainTimer = Core.DT;
+  Core.step(state, {});
+  assert.equal(state.player.hp, 1, "post-clear play also keeps the confirmed result");
+});
+
 test("the elite mini-boss telegraphs a spin that sweeps a wide lane", () => {
   const state = lastRoomState();
   const elite = Core.createEnemy(state, "elite", state.player.x + SPIN_FROM);

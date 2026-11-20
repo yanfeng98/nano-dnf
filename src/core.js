@@ -6771,7 +6771,7 @@
    * of the stance and not a fee, so there is no 1 HP floor (docs/adr/0017).
    */
   function spendPlayerHp(state, player, amount) {
-    if (player.dead) return 0;
+    if (player.dead || runCleared(state)) return 0;
     var spent = Math.max(0, amount);
     player.hp -= spent;
     if (player.hp <= 0) {
@@ -6820,9 +6820,14 @@
     }
   }
 
+  function runCleared(state) {
+    // A confirmed clear takes effect before its result screen is shown.
+    return state.victory || typeof state.victoryDelay === "number";
+  }
+
   function damagePlayer(state, amount, sourceX) {
     var player = state.player;
-    if (player.dead || player.invuln > 0) return 0;
+    if (player.dead || player.invuln > 0 || runCleared(state)) return 0;
     var applied = Math.max(0, Math.round(amount));
     player.hp -= applied;
     pushSound(state, "playerHurt", { x: player.x, z: player.z });
