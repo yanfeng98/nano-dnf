@@ -86,6 +86,20 @@ export async function checkPostClear(page, out) {
   await page.waitForFunction(x=>window.nanoDnf.getState().player.x>x+10,x);
   await page.keyboard.up('ArrowRight');
   const swings=await page.evaluate(()=>window.nanoDnf.getState().stats.swings);
+  await page.keyboard.press('KeyP');
+  await page.keyboard.press('KeyX');
+  const slot = await page.evaluate(() => window.DNFRender.skillBarButtons()[0]);
+  const canvas = await page.locator('#stage').boundingBox();
+  await page.mouse.click(canvas.x + (slot.x + slot.w / 2) * canvas.width / 960,
+    canvas.y + (slot.y + slot.h / 2) * canvas.height / 540);
+  await page.keyboard.press('KeyP');
+  const resumeTime = await page.evaluate(() => window.nanoDnf.getState().time);
+  await page.waitForFunction(time => window.nanoDnf.getState().time > time + 0.2, resumeTime);
+  assert.equal(await page.evaluate(() => window.nanoDnf.getState().stats.swings), swings,
+    'an attack tapped entirely during pause must not replay on resume');
+  assert.ok(await page.evaluate(() =>
+    Object.values(window.nanoDnf.getState().player.skillCooldowns).every(remaining => remaining <= 0)),
+    'a skill clicked during pause must not replay on resume');
   await page.keyboard.press('KeyX');
   await page.waitForFunction(n=>window.nanoDnf.getState().stats.swings>n,swings);
   const gold=await page.evaluate(()=>window.nanoDnf.getProgressState().gold);

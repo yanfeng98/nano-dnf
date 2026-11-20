@@ -1439,7 +1439,7 @@
         }
         return;
       }
-      if (bar.kind === "slot" && loadout[bar.index]) {
+      if (!paused && !progressPanel && bar.kind === "slot" && loadout[bar.index]) {
         pressed["slot" + bar.index] = true;
       }
       return;
@@ -1543,6 +1543,7 @@
     }
     if (event.code === "KeyP") {
       paused = !paused;
+      if (paused) consumePressed();
       event.preventDefault();
       return;
     }
@@ -1628,6 +1629,10 @@
     if (showHelp) {
       /* 标题 → 城镇；城镇的城门再开地区地图（`docs/adr/0065`）。 */
       openTown();
+      event.preventDefault();
+      return;
+    }
+    if (paused && KEY_MAP[event.code]) {
       event.preventDefault();
       return;
     }
