@@ -1912,7 +1912,7 @@
     if (!Progress || !progress) return;
     var id = Object.keys(progress.items).find(function (key) {
       var item = Progress.ITEMS[key];
-      return item && Progress.canEquip(progress, key, { job: "swordman", level: state.player.level });
+      return item && item.category === "equipment" && progress.items[key] > 0;
     });
     if (!id) {
       town.panelMessage = "没有可分解的装备";

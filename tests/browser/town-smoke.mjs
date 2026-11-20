@@ -202,7 +202,9 @@ async function main() {
 
     /* Exercise actual money/item mutations through keyboard AND visible buttons. */
     await page.evaluate(() => {
-      const profile = window.DNFProgress.normalize({ gold: 90, items: { material: 2 } });
+      const profile = window.DNFProgress.normalize({
+        gold: 90, items: { material: 2, ancientStaff: 1 }
+      });
       window.DNFProgress.save(profile, localStorage);
     });
     await page.reload();
@@ -237,6 +239,15 @@ async function main() {
     }
     await clickCanvas(493, 408);
     if ((await page.evaluate(() => window.nanoDnf.getTown())).panel) fail("the visible close button did not close");
+
+    await page.evaluate(() => window.nanoDnf.setTownPosition(2000, 50));
+    await page.keyboard.press("Space");
+    await page.keyboard.press("Digit1");
+    const salvaged = await page.evaluate(() => window.nanoDnf.getProgressState());
+    if (salvaged.items.ancientStaff || salvaged.items.material !== 3 || salvaged.gold !== 852) {
+      fail("the blacksmith did not salvage the other class's weapon into materials and gold");
+    }
+    await page.keyboard.press("Escape");
 
     await checkInventoryPersistence(page);
 
