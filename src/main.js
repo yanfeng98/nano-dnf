@@ -1489,6 +1489,10 @@
     if (event.preventDefault) event.preventDefault();
   }
 
+  function cancelLoadoutDrag(event) {
+    if (drag && drag.pointerId === event.pointerId) drag = null;
+  }
+
   window.addEventListener("keydown", function (event) {
     if (event.repeat) {
       if (KEY_MAP[event.code]) event.preventDefault();
@@ -1657,8 +1661,8 @@
   canvas.addEventListener("pointerdown", pointerDown);
   canvas.addEventListener("pointermove", pointerMove);
   canvas.addEventListener("pointerup", pointerUp);
-  canvas.addEventListener("pointercancel", pointerUp);
-  canvas.addEventListener("pointerleave", pointerUp);
+  canvas.addEventListener("pointercancel", cancelLoadoutDrag);
+  canvas.addEventListener("pointerleave", cancelLoadoutDrag);
   canvas.addEventListener("contextmenu", function (event) {
     event.preventDefault();
   });

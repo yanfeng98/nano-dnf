@@ -69,6 +69,28 @@ export async function checkPostClear(page, out) {
   assert.equal(firstPrize.reward.claimed,true);
   assert.equal(firstPrize.profile.gold,beforePrize.gold+3526);
   assert.equal(firstPrize.profile.items.ancientStaff,(beforePrize.items.ancientStaff||0)+1);
+  await page.keyboard.press('KeyB');
+  const cancelledDrag = await page.evaluate(() => {
+    const canvas = document.getElementById('stage');
+    const rect = canvas.getBoundingClientRect();
+    const before = window.nanoDnf.getLoadout();
+    const stored = () => localStorage.getItem('nano-dnf-loadout');
+    const savedBefore = stored();
+    const slot = window.DNFRender.skillBarButtons().find(box => before[box.index]);
+    const event = (type, x, y) => canvas.dispatchEvent(new PointerEvent(type, {
+      pointerId: 11, pointerType: 'touch', isPrimary: true, bubbles: true, cancelable: true,
+      clientX: rect.left + x * rect.width / canvas.width,
+      clientY: rect.top + y * rect.height / canvas.height
+    }));
+    for (const type of ['pointercancel', 'pointerleave']) {
+      event('pointerdown', slot.x + slot.w / 2, slot.y + slot.h / 2);
+      event(type, 10, 10);
+    }
+    return { before, after: window.nanoDnf.getLoadout(), savedBefore, savedAfter: stored() };
+  });
+  assert.deepEqual(cancelledDrag.after, cancelledDrag.before, 'cancelling a drag preserves the skill bar');
+  assert.equal(cancelledDrag.savedAfter, cancelledDrag.savedBefore, 'cancelling a drag does not save a change');
+  await page.keyboard.press('KeyB');
   const gear = ['rustyBlade', 'clothArmor', 'copperRing'];
   const batchTime = await page.evaluate(() => {
     const state = window.nanoDnf.getState();
