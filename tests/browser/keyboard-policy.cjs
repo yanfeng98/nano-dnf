@@ -160,6 +160,25 @@ function decide(state, constants) {
    * cannot reach it is not a reason to stop backing off.
    */
   const rowGap = (target.z || 0) - (player.z || 0);
+  const approachRow = (closeX) => {
+    const fromZ = player.z || 0;
+    const toZ = target.z || 0;
+    const blocked = (state.props || []).some(prop => {
+      const box = Core.propObstacle(prop, player);
+      return box && Math.abs(player.x - box.x) < box.width / 2 + 6 &&
+        Math.min(fromZ, toZ) < box.z + box.depth / 2 &&
+        Math.max(fromZ, toZ) > box.z - box.depth / 2;
+    });
+    if (blocked) {
+      const [dx, dz] = Core.routeStep(state, target.x, toZ);
+      if (dx) want.add(dx > 0 ? "right" : "left");
+      if (dz) want.add(dz > 0 ? "up" : "down");
+      if (want.size) return want;
+    }
+    want.add(rowGap > 0 ? "up" : "down");
+    if (closeX) want.add(delta > 0 ? "right" : "left");
+    return want;
+  };
   /*
    * **Boss 只剩最后 12% 时贴脸换血。** 实测在领主 8/120 血时按"先退"走，
    * 下一记近战就把他从 11 打到 0；人都到这儿了，最后一刀值得吃。只在它已经
@@ -213,9 +232,7 @@ function decide(state, constants) {
     }
   }
   if (!threatened && Math.abs(rowGap) > constants.meleeReach) {
-    want.add(rowGap > 0 ? "up" : "down");
-    if (gap > CLOSING_GAP) want.add(delta > 0 ? "right" : "left");
-    return want;
+    return approachRow(gap > CLOSING_GAP);
   }
   /*
    * **够不到的那一排，先走排再打。** 被胆小哥布林追着打时 `threatened` 为真，
@@ -229,8 +246,7 @@ function decide(state, constants) {
     target.attackKind !== "charge" &&
     Math.abs(rowGap) > constants.meleeReach
   ) {
-    want.add(rowGap > 0 ? "up" : "down");
-    return want;
+    return approachRow(false);
   }
 
   /*

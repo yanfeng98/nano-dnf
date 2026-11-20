@@ -63,3 +63,27 @@ test('keyboard policy can still leave a cleared room along the real route', () =
   for (const action of decide(state, constants())) input[action] = true;
   assert.ok(input.right || input.left || input.up || input.down);
 });
+
+test('keyboard policy detours when a pillar blocks the depth approach', () => {
+  const state = Core.createState({ stage: 'mirkwood', seed: 20260915 });
+  Core.goToCell(state, 1);
+  const pillar = state.props.find(prop => prop.piece === 'pillar');
+  const box = Core.propObstacle(pillar, state.player);
+  state.props = [pillar];
+  state.intro = null;
+  state.transition = 0;
+  state.player.x = box.x - 17;
+  state.player.z = box.z - box.depth / 2;
+  const enemy = Core.createEnemy(state, 'goblinBlue', state.player.x - 40, box.z + 55);
+  enemy.speed = 0;
+  enemy.attackCooldown = Infinity;
+  state.enemies = [enemy];
+  state.projectiles = [];
+  const policy = constants();
+  for (let frame = 0; frame < 180 && Math.abs(enemy.z - state.player.z) > policy.meleeReach; frame++) {
+    const input = Object.fromEntries([...decide(state, policy)].map(action => [action, true]));
+    Core.step(state, input);
+  }
+  assert.ok(Math.abs(enemy.z - state.player.z) <= policy.meleeReach,
+    'the bot reaches attack depth by walking around the pillar');
+});
