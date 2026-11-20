@@ -8259,9 +8259,10 @@
     var xpX = 254;
     var xpW = 160;
     var xpY = 485;
+    var atCap = player && player.level >= Core.PROGRESSION.maxLevel;
     var xp = Math.max(0, (player && player.xp) || 0);
     var next = Math.max(1, (player && player.xpToNext) || 1);
-    var fillW = xpW * clamp01(xp / next);
+    var fillW = atCap ? xpW : xpW * clamp01(xp / next);
     ctx.save();
     ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
     ctx.fillRect(xpX, xpY, xpW, 8);
@@ -8277,6 +8278,12 @@
     ctx.font = "700 11px 'Segoe UI', system-ui, sans-serif";
     ctx.textAlign = "left";
     ctx.fillText("Lv." + ((player && player.level) || 1), 200, 493);
+    if (atCap) {
+      ctx.textAlign = "center";
+      ctx.font = "700 8px 'Segoe UI', system-ui, sans-serif";
+      ctx.fillStyle = "#102214";
+      ctx.fillText("MAX", xpX + xpW / 2, xpY + 7);
+    }
     ctx.restore();
   }
 

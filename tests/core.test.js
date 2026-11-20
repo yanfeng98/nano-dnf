@@ -8683,6 +8683,20 @@ test("the town HUD shows the level card the dungeon already has", () => {
   assert.ok(bar, "the XP bar is part of the card");
 });
 
+test("the level card shows a full bar immediately at the level cap", () => {
+  const state = Core.createState({ seed: 1, stage: "mirkwood" });
+  while (state.player.level < Core.PROGRESSION.maxLevel) {
+    Core.grantXp(state, state.player.xpToNext);
+  }
+  assert.equal(state.player.xp, 0, "the last level was reached without excess XP");
+  const calls = [];
+  Render.render(recordingContext(calls), state, { sprites: {} });
+  assert.ok(calls.some(call => call[0] === "fillText" && call[1] === "MAX"));
+  assert.equal(calls.filter(call => call[0] === "fillRect" &&
+    call[1] === 254 && call[2] === 485 && call[3] === 160 && call[4] === 8).length, 2,
+  "both the track and its green fill span the full width");
+});
+
 test("the clear screen retains the recorded bottom HUD behind results", () => {
   /* V1 355..356 / V2 407.5..408.5 show the bottom HUD throughout the fade.
    * This supersedes the 2026-10-28 custom-table overlap workaround. */
