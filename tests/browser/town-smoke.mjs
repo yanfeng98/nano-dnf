@@ -240,6 +240,11 @@ async function main() {
     await clickCanvas(493, 408);
     if ((await page.evaluate(() => window.nanoDnf.getTown())).panel) fail("the visible close button did not close");
 
+    await page.keyboard.press("Digit1");
+    await page.keyboard.press("Digit2");
+    const townBag = await page.evaluate(() => window.nanoDnf.getProgressState().items);
+    if (townBag.hpPotion !== 1 || townBag.mpPotion !== 2) fail("town input consumed a potion");
+
     await page.evaluate(() => window.nanoDnf.setTownPosition(2000, 50));
     await page.keyboard.press("Space");
     await page.keyboard.press("Digit1");

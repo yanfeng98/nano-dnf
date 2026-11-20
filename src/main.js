@@ -1526,8 +1526,8 @@
       return;
     }
     /* 1 / 2 = HP / MP 药；翻牌那一屏的 1–4 仍归选牌。 */
-    if (!showHelp && !regionOpen && !(townOpen && town.panel) &&
-        !(state.victory && reward && reward.phase === "cards") &&
+    if (!showHelp && !regionOpen && !townOpen && !paused &&
+        !state.defeat && (!state.victory || state.postClear) &&
         /^Digit[1-2]$/.test(event.code)) {
       usePotion(event.code === "Digit1" ? "hpPotion" : "mpPotion");
       event.preventDefault();
@@ -1782,14 +1782,17 @@
 
   function usePotion(id) {
     if (!Progress || !progress) return false;
+    var player = state.player;
+    var item = Progress.ITEMS[id];
+    if (!item || !((item.hp && player.hp < player.maxHp) ||
+                   (item.mp && player.mp < player.maxMp))) return false;
     var effect = Progress.useItem(progress, id);
     if (!effect) return false;
-    var player = state.player;
     if (effect.hp) player.hp = Math.min(player.maxHp, player.hp + effect.hp);
     if (effect.mp) player.mp = Math.min(player.maxMp, player.mp + effect.mp);
     saveProfile();
     if (state.log) {
-      state.log.push({ text: "使用" + Progress.ITEMS[id].name, tone: "white" });
+      state.log.push({ text: "使用" + item.name, tone: "white" });
       if (state.log.length > 8) state.log.shift();
     }
     return true;
