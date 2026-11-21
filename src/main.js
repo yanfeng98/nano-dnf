@@ -1821,7 +1821,8 @@
     if (!Progress || !progress) return false;
     var id = Object.keys(progress.items).find(function (key) {
       var item = Progress.ITEMS[key];
-      return item && Progress.canEquip(progress, key, { job: "swordman", level: state.player.level });
+      return item && progress.equipment[item.slot] !== key &&
+        Progress.canEquip(progress, key, { job: "swordman", level: state.player.level });
     });
     if (!id) return false;
     var ok = Progress.equip(progress, id, { job: "swordman", level: state.player.level });

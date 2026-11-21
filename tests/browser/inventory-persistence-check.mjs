@@ -8,7 +8,7 @@ export async function checkInventoryPersistence(page) {
   fs.mkdirSync(out,{recursive:true});
   await page.evaluate(()=>{
     const P=window.DNFProgress, profile=P.defaults();
-    P.addItem(profile,'starterBlade',1);P.equip(profile,'starterBlade');
+    P.addItem(profile,'starterBlade',2);P.equip(profile,'starterBlade');
     P.addItem(profile,'rustyBlade',2);P.addItem(profile,'clothArmor',1);P.addItem(profile,'copperRing',1);
     P.save(profile,window.localStorage);
   });
@@ -31,13 +31,15 @@ export async function checkInventoryPersistence(page) {
   assert.equal(before.items.clothArmor,1,'page reload retains bag armor');
   assert.equal(before.items.copperRing,1,'page reload retains bag rings');
   assert.equal(before.equipment.weapon,'starterBlade');
+  assert.equal(before.items.starterBlade,1,'the bag also holds a copy of the equipped weapon');
   await page.keyboard.press('KeyI');await page.keyboard.press('KeyE');
-  await page.waitForFunction(()=>window.nanoDnf.getProgressState().equipment.weapon==='rustyBlade');
+  assert.equal(await page.evaluate(()=>window.nanoDnf.getProgressState().equipment.weapon),
+    'rustyBlade','the equip shortcut skips the duplicate of the equipped weapon');
   await reloadTown();
   const after=await page.evaluate(()=>window.nanoDnf.getProgressState());
   assert.equal(after.equipment.weapon,'rustyBlade');
   assert.equal(after.items.rustyBlade,1);
-  assert.equal(after.items.starterBlade,1,'the replaced weapon survives the second page reload');
+  assert.equal(after.items.starterBlade,2,'the replaced weapon joins its duplicate and survives reload');
   await page.evaluate(()=>{
     const original=CanvasRenderingContext2D.prototype.fillText;
     window.inventoryTexts=[];
@@ -46,10 +48,10 @@ export async function checkInventoryPersistence(page) {
     };
   });
   await page.keyboard.press('KeyI');
-  await page.waitForFunction(()=>window.inventoryTexts.some(text=>text==='生锈的铁剑 × 1')&&
+  await page.waitForFunction(()=>window.inventoryTexts.some(text=>text==='生锈的铁剑 × 2')&&
     window.inventoryTexts.some(text=>text==='锈蚀短剑 × 1'));
   await page.locator('#stage').screenshot({path:path.join(out,'inventory-after-reload.png')});
   fs.writeFileSync(path.join(out,'measurement.json'),JSON.stringify({before,after,displayedNames:[
-    '生锈的铁剑 × 1','锈蚀短剑 × 1']},null,2)+'\n');
+    '生锈的铁剑 × 2','锈蚀短剑 × 1']},null,2)+'\n');
   console.log('inventory persistence OK: reload → I/E equip → reload → old and remaining weapons displayed');
 }
