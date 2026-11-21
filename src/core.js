@@ -2553,8 +2553,10 @@
             { type: "grunt", x: 660, depth: 0.54, level: 4, xp: 40 },
             { type: "caster", x: 780, depth: 0.38, level: 4, xp: 40 },
             { type: "grunt", x: 860, depth: 0.48, level: 4, xp: 40 },
-            { type: "grunt", x: 120, depth: 0.40, level: 4, xp: 40 },
-            { type: "goblinRed", x: 210, depth: 0.48, level: 4, xp: 40 }
+            // The stationary pair at 170.8s is around world x=140 and x=182.
+            // The grunt stands about 46 projected pixels behind the red goblin.
+            { type: "grunt", x: 140, depth: 0.56, level: 4, xp: 40 },
+            { type: "goblinRed", x: 182, depth: 0.31, level: 4, xp: 40 }
           ],
           cap: 7,
           props: [
