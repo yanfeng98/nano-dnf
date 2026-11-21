@@ -6844,8 +6844,9 @@
       player.stanceDrainTimer = 0;
       return;
     }
+    if (runCleared(state)) return;
     player.stanceDrainTimer -= dt;
-    if (player.stanceDrainTimer <= 0) {
+    while (player.stanceDrainTimer <= 1e-9 && !player.dead) {
       /*
        * `+= interval` lines the next tick up rather than resetting to it, and
        * the interval has to be *stored* to do that - the bleed learned this one

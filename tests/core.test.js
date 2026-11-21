@@ -1116,6 +1116,24 @@ test("player death flips the run into defeat", () => {
   assert.equal(state.defeat, true);
 });
 
+test("stance drain collects all due charges and stops after a lethal one", () => {
+  const { interval, hpRatio } = Core.SKILLS.frenzy.buff.drain;
+  for (const lethal of [false, true]) {
+    const state = lastRoomState();
+    const player = state.player;
+    const charge = player.maxHp * hpRatio;
+    player.hp = lethal ? charge * 1.5 : charge * 10;
+    const before = player.hp;
+    player.buffs.bloodRage = Infinity;
+    player.stanceDrainTimer = interval;
+    Core.step(state, {}, interval * 3.5);
+    assert.ok(Math.abs(player.hp - (lethal ? 0 : before - 3 * charge)) < 1e-9);
+    assert.equal(state.defeat, lethal);
+    assert.equal(state.sounds.filter(sound => sound.kind === "playerDie").length, lethal ? 1 : 0);
+    if (!lethal) assert.equal(player.stanceDrainTimer, interval / 2);
+  }
+});
+
 test("lethal stance drain in a doorway keeps the defeat in that room", () => {
   const state = Core.createState({ seed: 1, stage: "mirkwood" });
   state.intro = null;
