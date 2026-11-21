@@ -87,3 +87,21 @@ test('keyboard policy detours when a pillar blocks the depth approach', () => {
   assert.ok(Math.abs(enemy.z - state.player.z) <= policy.meleeReach,
     'the bot reaches attack depth by walking around the pillar');
 });
+
+test('keyboard policy backs out of the pillar gap and exits a cleared room', () => {
+  const state = Core.createState({ stage: 'mirkwood', seed: 20260915 });
+  Core.goToCell(state, 1);
+  state.intro = null;
+  state.transition = 0;
+  state.enemies = [];
+  state.room.cleared = Core.currentCell(state).cleared = true;
+  state.player.x = 318;
+  state.player.z = 267;
+  const next = Core.doorNeighbour(state.dungeon, Core.currentCell(state), 'S');
+  const policy = constants();
+  for (let frame = 0; frame < 240 && state.cell === 1; frame++) {
+    const input = Object.fromEntries([...decide(state, policy)].map(action => [action, true]));
+    Core.step(state, input);
+  }
+  assert.equal(state.cell, next);
+});

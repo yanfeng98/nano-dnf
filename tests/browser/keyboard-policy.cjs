@@ -69,7 +69,7 @@ function decide(state, constants) {
     /*
      * 清完房就走出门。门口按地图上那一格的方向开（`docs/adr/0030`），所以"一路往右"
      * 不再能出门：先算一条到 Boss 房的路（副本图有岔路），再朝下一步的方向走 ——
-     * 上门/下门要先横向对上门的 x。
+     * 上门/下门用房间寻路绕开挡住纵深路线的布景。
      */
     const dir = routeStep();
     if (!dir) {
@@ -83,8 +83,14 @@ function decide(state, constants) {
     } else {
       const cell = Core.currentCell(state);
       const doorX = Core.doorX(state, cell, dir);
-      if (Math.abs(doorX - player.x) > 20) want.add(doorX > player.x ? "right" : "left");
-      want.add(dir === "N" ? "up" : "down");
+      const doorZ = dir === "N" ? Core.bandDepth(state.band) : 0;
+      const [dx, dz] = Core.routeStep(state, doorX, doorZ);
+      if (dx) want.add(dx > 0 ? "right" : "left");
+      if (dz) want.add(dz > 0 ? "up" : "down");
+      // Collision can leave the player between blocked grid cells. Back out
+      // until there is a path instead of pushing farther into the gap.
+      if (!want.size) want.add(dir === "N" ? "down" : "up");
+      return want;
     }
     detour(want, dir === "W" ? -player.width : player.width,
             dir === "N" || dir === "S");
