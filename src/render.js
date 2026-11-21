@@ -3262,10 +3262,6 @@
   }
 
   function drawGate(ctx, state, sprites, onlyDir) {
-    if (!sprites || !sprites.forest) {
-      drawFallbackGate(ctx, state);
-      return;
-    }
     (onlyDir ? [onlyDir] : Core.MINIMAP_DIRS).forEach(function (dir) {
       var spot = gateSpot(state, dir);
       if (!spot) return;
@@ -3283,6 +3279,10 @@
        */
       if (state.stage && state.stage.id === "mirkwooddeep" &&
           !open && dir !== "N" && dir !== "S") {
+        return;
+      }
+      if (!sprites || !sprites.forest) {
+        drawFallbackGate(ctx, state, spot, open);
         return;
       }
       var mirror = dir === "W";
@@ -3717,11 +3717,10 @@
     ctx.restore();
   }
 
-  /** 森林那张表还没落地的头几帧：还是那座手画的石门，只在右边。 */
-  function drawFallbackGate(ctx, state) {
-    var open = state.room && state.room.cleared;
+  /** Draw a gate at its usual location if the forest sheet is unavailable. */
+  function drawFallbackGate(ctx, state, spot, open) {
     ctx.save();
-    ctx.translate(Core.ROOM.rightWall + 6, ARENA.groundY - 60);
+    ctx.translate(spot.x, spot.bottom - 60);
     ctx.fillStyle = "#0d1220";
     ctx.beginPath();
     ctx.moveTo(-26, 60);
@@ -10283,22 +10282,18 @@
     });
     // Gates share the standing-object queue. Use the visible art foot, not
     // the travel trigger: room 43's arch is beyond the walkable back edge.
-    if (!sprites || !sprites.forest) {
-      drawFallbackGate(ctx, state);
-    } else {
-      Core.MINIMAP_DIRS.forEach(function (dir) {
-        var spot = gateSpot(state, dir);
-        if (!spot) return;
-        var native = state.room.nativePathGates && state.room.nativePathGates[dir];
-        if (native && native.layer === "[bottom]") {
-          drawGate(ctx, state, sprites, dir);
-          return;
-        }
-        add((ARENA.groundY - spot.bottom) / DEPTH.scale, function () {
-          drawGate(ctx, state, sprites, dir);
-        });
+    Core.MINIMAP_DIRS.forEach(function (dir) {
+      var spot = gateSpot(state, dir);
+      if (!spot) return;
+      var native = state.room.nativePathGates && state.room.nativePathGates[dir];
+      if (native && native.layer === "[bottom]") {
+        drawGate(ctx, state, sprites, dir);
+        return;
+      }
+      add((ARENA.groundY - spot.bottom) / DEPTH.scale, function () {
+        drawGate(ctx, state, sprites, dir);
       });
-    }
+    });
     (state.props || []).forEach(function (prop) {
       if (prop.nativeDecoration && prop.nativeDecoration.layer === "[bottom]") return;
       if (SCENE.decals.indexOf(prop.piece) !== -1) return;

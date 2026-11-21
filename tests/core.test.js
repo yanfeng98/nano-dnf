@@ -933,6 +933,21 @@ test("a logically open door has no blocking panel even while the player is far a
   }
 });
 
+test("fallback gates follow the exits and width of the current room", () => {
+  const state = Core.createState({ seed: 1, stage: "mirkwooddeep" });
+  Core.goToCell(state, 5);
+  const cell = Core.currentCell(state);
+  state.room.cleared = cell.cleared = true;
+  assert.equal(Core.exitMode(state, "N"), "open");
+  assert.equal(Core.exitMode(state, "E"), "open");
+
+  const calls = renderCalls(state, { sprites: {} });
+  const anchors = calls.filter(call => call[0] === "translate").map(call => call.slice(1));
+  assert.ok(anchors.some(([x, y]) => x === Core.roomWidth(state) - 34 && y === Core.ARENA.groundY + 4 - 60));
+  assert.ok(anchors.some(([x, y]) =>
+    x === Core.doorX(state, cell, "N") && y === Core.gateArtRect(state, cell, "N").bottom - 60));
+});
+
 test("the open entry door lets him retreat before clearing the new room", () => {
   for (const stage of ["mirkwood", "mirkwooddeep"]) {
     const state = Core.createState({ seed: 1, stage });
