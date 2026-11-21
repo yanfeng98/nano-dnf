@@ -8808,7 +8808,7 @@
       var p = state.player;
       var edge = dir === "N" ? bandDepth(state.band) - p.z :
         dir === "S" ? p.z : dir === "E" ? roomRight(state) - p.x : p.x - roomLeft(state);
-      var margin = dir === "E" || dir === "W" ? p.width / 2 : 0;
+      var margin = dir === "E" || dir === "W" ? walkFootprint(p).width / 2 : 0;
       if (edge > margin + 8) return;
     }
     if (dir) enterCell(state, dir);

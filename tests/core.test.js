@@ -852,6 +852,12 @@ test("the open entry door lets him retreat before clearing the new room", () => 
     const inward = { N: "down", S: "up", E: "left", W: "right" }[back];
     Core.step(state, { [outward]: true, [inward]: true });
     assert.equal(state.cell, uncleared, "opposing directions cancel at the entry door");
+    if (back === "E" || back === "W") {
+      const edge = state.player.walkWidth / 2 + 9;
+      state.player.x = back === "E" ? Core.roomRight(state) - edge : Core.roomLeft(state) + edge;
+      Core.step(state, { [outward]: true }, 0.001);
+      assert.equal(state.cell, uncleared, "the walking footprint is still outside the side exit margin");
+    }
     for (let frame = 0; frame < 30 && state.cell === uncleared; frame++) {
       Core.step(state, { [outward]: true });
     }
