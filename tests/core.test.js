@@ -9120,10 +9120,14 @@ test("inventory distinguishes empty stacks from usable potion counts", () => {
 
 test("the level card shows a full bar immediately at the level cap", () => {
   const state = Core.createState({ seed: 1, stage: "mirkwood" });
-  while (state.player.level < Core.PROGRESSION.maxLevel) {
+  while (state.player.level < Core.PROGRESSION.maxLevel - 1) {
     Core.grantXp(state, state.player.xpToNext);
   }
-  assert.equal(state.player.xp, 0, "the last level was reached without excess XP");
+  assert.equal(Core.grantXp(state, state.player.xpToNext + 19), 1);
+  assert.equal(state.player.level, Core.PROGRESSION.maxLevel);
+  assert.equal(state.player.xp, 0, "experience beyond the last level has no balance");
+  assert.equal(Core.grantXp(state, 40), 0);
+  assert.equal(state.player.xp, 0, "experience cannot build up after reaching the cap");
   const calls = [];
   Render.render(recordingContext(calls), state, { sprites: {} });
   assert.ok(calls.some(call => call[0] === "fillText" && call[1] === "MAX"));
