@@ -6206,6 +6206,7 @@
       levels += 1;
     }
     if (levels > 0) {
+      state.xpGaugeFlashUntil = state.time + 7 / 6;
       pushLog(state, "[" + (player.name || "鬼剑士") + "]已达到Lv" + player.level, "gold");
     }
     return levels;

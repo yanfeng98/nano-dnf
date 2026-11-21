@@ -11100,6 +11100,24 @@ test("the recorded XP track uses its full width and real progress in town and du
 });
 
 
+test("a live level-up briefly fills the dungeon XP gauge before showing the balance", () => {
+  const state = Core.createState({ seed: 1 });
+  const hud = {};
+  const fillWidth = () => {
+    const calls = [];
+    Render.render(recordingContext(calls), state, { sprites: { hud } });
+    return calls.find(c => c[0] === "drawImage" && c[1] === hud &&
+      c[4] === 200 && c[5] === 3 && c[6] === 254 && c[7] === 485)?.[8];
+  };
+  assert.equal(Core.grantXp(state, state.player.xpToNext + 12), 1);
+  assert.equal(state.player.xp, 12);
+  assert.equal(fillWidth(), 160);
+  state.time += 1;
+  assert.equal(fillWidth(), 160);
+  state.time += 0.2;
+  assert.equal(fillWidth(), 160 * (12 / state.player.xpToNext));
+});
+
 test("skill icons and empty sockets follow the measured 31px icons and 35px pitch", () => {
   const state = Core.createState({ seed: 1 }), calls = [], hud = {}, skills = { width: 384, height: 32 };
   Render.render(recordingContext(calls), state, { sprites: { hud, skills },

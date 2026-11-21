@@ -8226,7 +8226,7 @@
     drawTargetPanel(ctx, state, sprites);
     drawRatingPanel(ctx, state, sprites);
     /* 等级卡：录像里 “Lv.6” 与绿经验条都在底条左侧，不是屏幕底下一条细线。 */
-    drawLevelCard(ctx, player, sprites);
+    drawLevelCard(ctx, player, sprites, (state.xpGaugeFlashUntil || 0) - state.time);
     if (player.comboTimer > 0 && player.comboIndex > 0) {
       ctx.save();
       ctx.textAlign = "right";
@@ -8255,7 +8255,7 @@
    * 不是屏幕底下一条细线。副本与城镇共用同一张卡 —— 城镇以前漏了它，
    * 底条左边空一块（2026-10-28 复核）。
    */
-  function drawLevelCard(ctx, player, sprites) {
+  function drawLevelCard(ctx, player, sprites, flashRemaining) {
     // V2 76.25s: the *whole* track is x134..294 at y485..493.
     // The old 65px width covered only part of the visible track.
     var xpX = 254;
@@ -8264,13 +8264,19 @@
     var atCap = player && player.level >= Core.PROGRESSION.maxLevel;
     var xp = Math.max(0, (player && player.xp) || 0);
     var next = Math.max(1, (player && player.xpToNext) || 1);
-    var fillW = atCap ? xpW : xpW * clamp01(xp / next);
+    var flashing = !atCap && flashRemaining > 0;
+    var fillW = atCap || flashing ? xpW : xpW * clamp01(xp / next);
     ctx.save();
     ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
     ctx.fillRect(xpX, xpY, xpW, 8);
     if (fillW > 0 && !drawHudFrame(ctx, sprites, HUD_UI.xpFill, xpX, xpY, fillW, 8)) {
       ctx.fillStyle = "#7ed26a";
       ctx.fillRect(xpX, xpY, fillW, 8);
+    }
+    if (flashing) {
+      var opacity = 0.14 + 0.10 * Math.cos(flashRemaining * Math.PI * 8);
+      ctx.fillStyle = "rgba(255, 255, 255, " + opacity + ")";
+      ctx.fillRect(xpX, xpY, xpW, 8);
     }
     // The matching old HUD skin is still missing; this frame remains pending.
     ctx.strokeStyle = "rgba(226, 191, 114, 0.55)";
