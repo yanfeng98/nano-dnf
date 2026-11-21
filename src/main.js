@@ -1335,7 +1335,7 @@
   function setKey(code, isDown, event) {
     var action = KEY_MAP[code];
     if (!action) return false;
-    if (isDown && !held[action] && ONE_SHOT_ACTIONS[action]) {
+    if (isDown && !held[action]) {
       pressed[action] = true;
     }
     if (action === "jump") {

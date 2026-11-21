@@ -751,6 +751,22 @@ async function runPass(browser, baseUrl, options) {
     }
     if (depthProbe.returned !== null) steppedIn = Math.max(steppedIn, state.player.z || 0);
 
+    // The keyboard pass clears each encounter it starts. The retreat path is
+    // exercised separately in deep-smoke; don't walk back during a detour.
+    if (!state.room.cleared && state.entryDoor) {
+      const dir = state.entryDoor;
+      const margin = 24;
+      if (dir === "E" && player.x >= Core.roomRight(state) - Core.DOOR.side - margin) want.delete("right");
+      if (dir === "W" && player.x <= Core.roomLeft(state) + Core.DOOR.side + margin) want.delete("left");
+      if (dir === "N" || dir === "S") {
+        const doorX = Core.doorX(state, Core.currentCell(state), dir);
+        if (Math.abs(player.x - doorX) <= Core.DOOR.span + margin) {
+          if (dir === "N" && player.z >= Core.bandDepth(state.band) - Core.DOOR.depth - margin) want.delete("up");
+          if (dir === "S" && player.z <= Core.DOOR.depth + margin) want.delete("down");
+        }
+      }
+    }
+
     const changes = [];
     for (const action of [...held]) {
       if (!want.has(action)) {

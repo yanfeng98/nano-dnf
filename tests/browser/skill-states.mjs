@@ -117,6 +117,22 @@ try {
   fs.writeFileSync(`${out}/ghost-slash.png`, Buffer.from(url.split(',')[1], 'base64'));
   fs.writeFileSync(`${out}/ghost-slash.json`, JSON.stringify(ghost, null, 2));
   console.log('default A ghost slash OK', { ...ghost, draws: ghost.draws.length });
+  await page.keyboard.press('p');
+  await page.waitForFunction(() => !window.nanoDnf.getState().player.skillId);
+  for (const code of ['KeyS', 'KeyZ']) {
+    const time = await page.evaluate(code => {
+      const state = window.nanoDnf.getState();
+      state.player.skillCooldowns.upSlash = 0;
+      // Both edges arrive before the next simulation step.
+      window.dispatchEvent(new KeyboardEvent('keydown', { code }));
+      window.dispatchEvent(new KeyboardEvent('keyup', { code }));
+      return state.time;
+    }, code);
+    await page.waitForFunction(time => window.nanoDnf.getState().time > time + 0.1, time);
+    assert.ok(await page.evaluate(() => window.nanoDnf.getState().player.skillCooldowns.upSlash > 0),
+      `${code} keeps a tap shorter than one simulation step`);
+    await page.waitForFunction(() => !window.nanoDnf.getState().player.skillId);
+  }
 } finally {
   await browser?.close();
   await new Promise(resolve => server.close(resolve));
