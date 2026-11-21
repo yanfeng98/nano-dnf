@@ -13061,6 +13061,7 @@ test('results stats XP breakdown counts up rating and channel bonuses to observe
  for(const [stage,base,rating,channel] of [['mirkwood',1760,528,88],['mirkwooddeep',4680,1404,234]]){
   const state=Core.createState({seed:1,stage});
   state.victory=true;state.finishedAt=0;state.intro=null;state.transition=0;
+  state.stats.killXp=90;
   const earlyCalls=[],lateCalls=[];
   Render.render(recordingContext(earlyCalls),state,{
    sprites:{results:sheet},
@@ -13075,5 +13076,7 @@ test('results stats XP breakdown counts up rating and channel bonuses to observe
   assert.ok(!earlyTexts.includes('+'+rating),`${stage} rating bonus hidden before t=5.0`);
   assert.ok(lateTexts.includes('+'+rating),`${stage} rating bonus shown at t=7.2`);
   assert.ok(lateTexts.includes('+'+channel),`${stage} channel bonus shown at t=7.2`);
+  assert.ok(lateTexts.includes('参考经验'), `${stage} labels the observed sample`);
+  assert.ok(lateTexts.includes('击杀经验 90'), `${stage} shows XP earned in this run`);
  }
 });

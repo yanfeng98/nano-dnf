@@ -9971,8 +9971,13 @@
       ctx.textAlign = "left";
       ctx.font = "bold 14px 'PingFang SC', 'Segoe UI', sans-serif";
       ctx.fillStyle = "#f0d79a";
-      ctx.strokeText("经验值", left + 356, 493);
-      ctx.fillText("经验值", left + 356, 493);
+      if (Number.isFinite(state.stats.killXp)) {
+        var earnedLabel = "击杀经验 " + state.stats.killXp;
+        ctx.strokeText(earnedLabel, left + 356, 466);
+        ctx.fillText(earnedLabel, left + 356, 466);
+      }
+      ctx.strokeText("参考经验", left + 356, 493);
+      ctx.fillText("参考经验", left + 356, 493);
       if (!drawStatsNumber(ctx, sheet, String(shownXp), "total", left + 505, 473, true)) {
         ctx.fillStyle = "#fff";
         ctx.fillText(String(shownXp), left + 470, 495);
