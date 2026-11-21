@@ -8721,6 +8721,21 @@ test("the title screen shows the seed record and a clear shows the result", () =
   );
 });
 
+test("the help overlay lists the configured skill slots and permanent shortcuts", () => {
+  const calls = [];
+  Render.render(recordingContext(calls), Core.createState({ seed: 7 }), {
+    showHelp: true,
+    loadout: ["bloodSword", null, "ghostSlash", "crossSlash", "upSlash", null]
+  });
+  const texts = calls.filter(call => call[0] === "fillText").map(call => call[1]);
+  assert.ok(texts.includes("A / S / D"));
+  assert.ok(texts.includes("血气之刃 / 空槽 / 鬼斩"));
+  assert.ok(texts.includes("F / G / H"));
+  assert.ok(texts.includes("十字斩 / 上挑 / 空槽"));
+  assert.ok(texts.includes("Z / V"));
+  assert.ok(texts.includes("按 F1 或 Esc 返回"));
+});
+
 test("HUD liquid fits its socket and the old round sockets are not also drawn", () => {
   const hud = {};
   const calls = [];
@@ -9015,7 +9030,7 @@ test("the room banner moves clear of the boss bar and the help quotes the real m
   Render.render(recordingContext(calls), help, { showHelp: true });
   const texts = calls.filter((call) => call[0] === "fillText").map((call) => String(call[1]));
   assert.ok(
-    texts.some((text) => text.includes("牛头巨兽")),
+    texts.some((text) => text.includes("击败关卡领主即可通关")),
     `the help overlay must say what ends a run: ${texts.join(" / ")}`
   );
 

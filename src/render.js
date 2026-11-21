@@ -9552,15 +9552,21 @@
       ctx.font = "600 20px 'PingFang SC', 'Segoe UI', sans-serif";
       ctx.fillText("鬼剑士 · 地下城试炼", 344, 196);
 
+      var activeLoadout = meta.loadout || Loadout.create(Core.SKILL_ORDER, state.stage && state.stage.id);
+      var slotNames = Loadout.SLOT_KEYS.map(function (_, index) {
+        var skill = Core.SKILLS[activeLoadout[index]];
+        return skill ? skill.name : "空槽";
+      });
       var rows = [
         ["← → ↑ ↓", "移动（↑ ↓ 走进 / 走出屏幕）"],
         ["C / Space", "跳跃"],
-        ["X", "普攻（连按 X 打完四段连击）"],
-        ["Z / A", "上挑（挑飞，DNF 默认 Z）"],
-        ["S", "崩山击（冲击波）"],
-        ["D", "十字斩"],
-        ["F", "血气之刃"],
-        ["P / F3 / F1", "暂停 / 重开 / 帮助"]
+        ["X", "普攻（连续按键接续连击）"],
+        [Loadout.SLOT_KEYS.slice(0, 3).join(" / "), slotNames.slice(0, 3).join(" / ")],
+        [Loadout.SLOT_KEYS.slice(3).join(" / "), slotNames.slice(3).join(" / ")],
+        [Loadout.SKILL_SHORTCUTS.upSlash + " / " + Loadout.SKILL_SHORTCUTS.hellbenter,
+          "上挑（空中为银光落刃） / 魔狱血刹"],
+        ["B", "配置技能（拖动图标换槽）"],
+        ["P / F3", "暂停 / 重开"]
       ];
       ctx.font = "600 15px 'PingFang SC', 'Segoe UI', sans-serif";
       rows.forEach(function (row, index) {
@@ -9573,7 +9579,7 @@
 
       ctx.fillStyle = PALETTE.textDim;
       ctx.font = "600 14px 'PingFang SC', 'Segoe UI', sans-serif";
-      ctx.fillText("清空房间后门口亮起来，从那儿走去下一间；打掉牛头巨兽通关", 344, 462);
+      ctx.fillText("清空房间后沿地图出口前进，击败关卡领主即可通关。", 344, 462);
       ctx.fillStyle = "#ffd66b";
       ctx.font = "700 16px 'PingFang SC', 'Segoe UI', sans-serif";
       ctx.fillText(meta.titlePending ? "按任意键开始" : "按 F1 或 Esc 返回", 344, 496);
