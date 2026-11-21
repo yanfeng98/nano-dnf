@@ -5010,6 +5010,7 @@
         stats: {
           hits: 0,
           kills: 0,
+          killXp: 0,
           /* `docs/adr/0065`：任务要按种类数击杀（猫妖 10 只），所以单独记一份。 */
           killsByType: {},
           damageDealt: 0,
@@ -6119,6 +6120,7 @@
   function awardEnemyExperience(state, enemy) {
     if (!(enemy.xp > 0) || state.player.dead) return;
     grantXp(state, enemy.xp);
+    state.stats.killXp += enemy.xp;
     pushLog(state, "获得" + enemy.xp + "点经验值", "gold");
     // Same-step captions share an anchor and would draw over each other.
     var caption = state.effects.find(function (effect) {

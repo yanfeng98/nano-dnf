@@ -1206,6 +1206,7 @@
       seconds: state.time,
       level: state.player.level,
       kills: state.stats.kills,
+      killXp: state.stats.killXp,
       damageTaken: state.stats.damageTaken,
       /* 走过几间房 —— 副本图里没有"第几间"，只有他走了多少格（docs/adr/0030）。 */
       room: state.stats.rooms,
@@ -1246,6 +1247,7 @@
       seconds: state.time,
       level: state.player.level,
       kills: state.stats.kills,
+      killXp: state.stats.killXp,
       damageTaken: state.stats.damageTaken,
       room: state.stats.rooms,
       rooms: state.dungeon ? state.dungeon.cells.length : 0
@@ -1256,6 +1258,7 @@
           seconds: run.seconds,
           level: run.level,
           kills: run.kills,
+          killXp: run.killXp,
           damageTaken: run.damageTaken,
           room: run.room,
           rooms: run.rooms

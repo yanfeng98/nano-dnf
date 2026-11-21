@@ -120,6 +120,7 @@ test("the live variant reads the run that is still going", () => {
   assert.equal(value("time"), Summary.formatSeconds(state.time));
   assert.equal(value("level"), "Lv " + state.player.level);
   assert.equal(value("kills"), String(state.stats.kills));
+  assert.equal(value("killXp"), String(state.stats.killXp));
   assert.equal(value("damage"), String(state.stats.damageTaken));
   assert.equal(
     value("reached"),

@@ -107,6 +107,7 @@ test('same-step kills show their combined XP while recording each credit', () =>
   }
   assert.equal(player.level, oldLevel + 1);
   assert.equal(player.xp, 89);
+  assert.equal(state.stats.killXp, 90, 'the run keeps total kill XP separately from the level remainder');
   const floats = state.effects.filter(effect => effect.kind === 'pickupText');
   assert.deepEqual(floats.map(effect => effect.text), ['90 Exp']);
   for (const amount of [40, 50]) {

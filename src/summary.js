@@ -116,6 +116,7 @@
       seconds: state.time,
       level: player.level,
       kills: stats.kills,
+      killXp: stats.killXp,
       damageTaken: stats.damageTaken,
       room: stats.rooms,
       rooms: state.dungeon ? state.dungeon.cells.length : 0
@@ -151,6 +152,9 @@
         label: "到达",
         value: "走过 " + walked + " 间 / 图上 " + rooms + " 格"
       });
+    }
+    if (Number.isFinite(run.killXp) && run.killXp >= 0) {
+      rows.push({ id: "killXp", label: "击杀经验", value: String(whole(run.killXp, 0)) });
     }
     return { rows: rows };
   }
