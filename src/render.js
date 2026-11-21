@@ -9468,8 +9468,13 @@
           t: state.finishedAt === null ? 6 : Math.min(9, state.time - state.finishedAt),
           elapsed: state.finishedAt === null ? 6 : state.time - state.finishedAt
         };
-        drawResultBackdrop(ctx, sprites, statsReward.elapsed);
-        drawRecordedStats(ctx, state, statsReward, sprites);
+        // The payout is visible in the room before results cover it.
+        var entryAlpha = clamp01(((statsReward.t || 0) - 0.1) / 0.2);
+        if (entryAlpha > 0) {
+          ctx.globalAlpha *= entryAlpha;
+          drawResultBackdrop(ctx, sprites, statsReward.elapsed);
+          drawRecordedStats(ctx, state, statsReward, sprites);
+        }
         ctx.restore();
         return;
       }
@@ -9843,7 +9848,7 @@
     var sheet = sprites && sprites.results, panel = RESULT_ART.statsPanel;
     var left = Core.VIEW.left;
     ctx.save();
-    ctx.globalAlpha *= clamp01(t / 0.3) * clamp01((10 - t) / 0.7);
+    ctx.globalAlpha *= clamp01((10 - t) / 0.7);
     if (sheet) {
       // Keep native corners/background; exclude the embedded Korean labels
       // and old narrow Total box before assembling the observed wider box.

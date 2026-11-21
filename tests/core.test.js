@@ -9136,6 +9136,29 @@ test("the level card shows a full bar immediately at the level cap", () => {
   "both the track and its green fill span the full width");
 });
 
+test("the clear experience caption is visible before the result backdrop fades in", () => {
+  const state = Core.createState({ stage: "mirkwood", referenceProfile: true });
+  state.victoryDelay = Core.DT;
+  state.transition = 0;
+  state.intro = null;
+  Core.step(state, {});
+  const results = {};
+  const renderAt = t => {
+    const calls = [];
+    Render.render(recordingContext(calls), state, {
+      sprites: { results },
+      reward: { phase: "stats", t, elapsed: t }
+    });
+    return calls;
+  };
+  const early = renderAt(0.05);
+  assert.ok(early.some(call => call[0] === "fillText" && call[1] === "2376 Exp"));
+  const drawsMagic = calls => calls.some(call => call[0] === "drawImage" &&
+    call[1] === results && call[8] === 472.5 && call[9] === 472.5);
+  assert.equal(drawsMagic(early), false);
+  assert.equal(drawsMagic(renderAt(0.3)), true);
+});
+
 test("the clear screen retains the recorded bottom HUD behind results", () => {
   /* V1 355..356 / V2 407.5..408.5 show the bottom HUD throughout the fade.
    * This supersedes the 2026-10-28 custom-table overlap workaround. */
