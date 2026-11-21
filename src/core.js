@@ -7917,7 +7917,12 @@
       }
       shot.traveled += Math.sqrt(stepX * stepX + stepY * stepY);
 
-      if (shot.y >= ARENA.groundY && shot.landingStop) {
+      var spent =
+        shot.life <= 0 ||
+        shot.traveled >= shot.maxDistance ||
+        shot.x <= roomLeft(state) ||
+        shot.x >= roomRight(state);
+      if (!spent && shot.y >= ARENA.groundY && shot.landingStop) {
         shot.y = ARENA.groundY;
         shot.stoppedAt = shot.maxLife - shot.life;
         shot.stopVx = shot.vx;
@@ -7932,13 +7937,7 @@
         return;
       }
 
-      var spent =
-        shot.life <= 0 ||
-        shot.traveled >= shot.maxDistance ||
-        shot.x <= roomLeft(state) ||
-        shot.x >= roomRight(state) ||
-        shot.y >= ARENA.groundY;
-      if (spent) {
+      if (spent || shot.y >= ARENA.groundY) {
         if (shot.nativeObject === 30021) {
           state.effects.push({
             kind: "bomb_flash",

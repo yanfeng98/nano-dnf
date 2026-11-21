@@ -12978,6 +12978,18 @@ test('native projectile and dungeon clear/reward SFX cues are exported and queue
 });
 
 
+test("a fire projectile cannot leave its landing trail outside the room", () => {
+  const state = Core.createState({ seed: 1, stage: "mirkwood" });
+  const enemy = Core.createEnemy(state, "goblinRed", 500);
+  const shot = Core.spawnProjectile(state, enemy);
+  shot.x = Core.roomRight(state) - 1;
+  shot.y = Core.ARENA.groundY - 1;
+  shot.vx = 120;
+  shot.vy = 120;
+  Core.updateProjectiles(state, Core.DT);
+  assert.equal(state.projectiles.length, 0);
+});
+
 test('ice missile 30057 follows icemissile.ptl Z-sine oscillation and seagabicicle.obj piercing power 50',()=>{
  const s=Core.createState({seed:1,stage:'mirkwood'});
  s.intro=null;s.transition=0;
