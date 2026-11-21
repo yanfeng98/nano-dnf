@@ -26,9 +26,10 @@
   var DEFAULT_STAGE = "mirkwood";
 
   function normalizeSeed(seed) {
+    if (typeof seed !== "number" &&
+        (typeof seed !== "string" || !/^\d{1,10}$/.test(seed))) return null;
     var value = Number(seed);
-    if (!isFinite(value)) return null;
-    return Math.floor(value) >>> 0;
+    return Number.isInteger(value) && value >= 0 && value <= 0xffffffff ? value : null;
   }
 
   /** A stage id is a lowercase slug, the same shape `Core.STAGES` uses. */
@@ -51,6 +52,7 @@
       var bare = normalizeSeed(parts[0]);
       return bare === null ? null : { stage: DEFAULT_STAGE, seed: bare };
     }
+    if (parts.length !== 2) return null;
     var stage = normalizeStage(parts[0]);
     var seed = normalizeSeed(parts[1]);
     if (stage === null || seed === null) return null;

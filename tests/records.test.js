@@ -95,6 +95,15 @@ test("records are per stage, so one stage's time is not another's", () => {
   assert.equal(Records.keyFor(STAGE, "junk"), null, "and a run without one has no key");
 });
 
+test("invalid record seeds do not become valid seed keys", () => {
+  for (const bad of [null, "", " ", true, -1, 1.5, 4294967296, "1e2"]) {
+    assert.equal(Records.keyFor(STAGE, bad), null);
+  }
+  assert.equal(Records.parseKey(STAGE + ":0:extra"), null);
+  assert.equal(Records.keyFor(STAGE, 0), STAGE + ":0");
+  assert.deepEqual(Records.parseKey("4294967295"), { stage: Records.DEFAULT_STAGE, seed: 4294967295 });
+});
+
 test("a run without a seed or a time is ignored instead of counted", () => {
   const store = Records.emptyStore();
 
