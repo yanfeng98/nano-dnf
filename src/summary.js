@@ -41,8 +41,10 @@
    * and replace the seed in place rather than dropping the reader's context.
    */
   function seedUrl(href, seed, stage) {
+    if ((typeof seed !== "number" && typeof seed !== "string") ||
+        (typeof seed === "string" && !/^\d{1,10}$/.test(seed))) return null;
     var seedValue = Number(seed);
-    if (!isFinite(seedValue) || seedValue <= 0 || Math.floor(seedValue) !== seedValue) return null;
+    if (!Number.isInteger(seedValue) || seedValue < 0 || seedValue > 0xffffffff) return null;
     var text = String(href === undefined || href === null ? "" : href);
     if (!text) return null;
 

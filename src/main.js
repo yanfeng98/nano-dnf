@@ -335,8 +335,10 @@
 
   /* `?seed=123` pins a run; otherwise the shipped seed is the default. */
   function seedFromUrl() {
-    var match = /[?&]seed=(\d{1,10})/.exec(location.search);
-    return match ? Number(match[1]) >>> 0 : null;
+    var raw = new URLSearchParams(location.search).get("seed");
+    if (!raw || !/^\d{1,10}$/.test(raw)) return null;
+    var seed = Number(raw);
+    return seed <= 0xffffffff ? seed : null;
   }
 
   function rollSeed() {

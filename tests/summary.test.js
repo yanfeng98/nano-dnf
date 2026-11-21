@@ -91,9 +91,11 @@ test("the share link reopens one exact seed", () => {
   );
   assert.equal(Summary.seedUrl("https://x.dev/p/#top", 9), "https://x.dev/p/?seed=9#top");
   assert.equal(Summary.seedUrl("index.html", 9), "index.html?seed=9");
+  assert.equal(Summary.seedUrl("index.html", 0), "index.html?seed=0");
+  assert.equal(Summary.seedUrl("index.html", 4294967295), "index.html?seed=4294967295");
 
   /* A seed that cannot be trusted never becomes a link. */
-  [0, -1, 1.5, NaN, "abc", undefined, null].forEach((bad) => {
+  [-1, 1.5, NaN, "abc", "42junk", "", 4294967296, undefined, null].forEach((bad) => {
     assert.equal(Summary.seedUrl("https://x.dev/", bad), null, `${bad} should not build a link`);
   });
   assert.equal(Summary.seedUrl("", 5), null);
