@@ -2582,10 +2582,11 @@
           // V1 second cell(2,0),76s entry through122s next-cell transition:
           // five ordinary goblins, one thrower, one red and one blue, allLv4.
           // Eight40 credits finish at114.5s; stopping at100s missed two actors.
-          // Existing slots stay provisional. Added X values are native e203
-          // candidates; createEnemy still clamps to the uncalibrated room width.
+          // Existing slots stay provisional. Added X values are native e203 candidates.
           name: "雾林岔口",
           kind: "corr",
+          // V1 camera travels at least 1295.96 px in a 720 px viewport.
+          width: 1278.1,
           enemies: [
             { type: "caster", x: 420, depth: 0.38, level: 4, xp: 40 },
             { type: "grunt", x: 479, level: 4, xp: 40 },

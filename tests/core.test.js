@@ -933,6 +933,22 @@ test("a logically open door has no blocking panel even while the player is far a
   }
 });
 
+test("the ordinary second room allows the recorded horizontal camera travel", () => {
+  const state = Core.createState({ seed: 1, stage: "mirkwood" });
+  const cell = state.dungeon.cells.findIndex(({ col, row }) => col === 2 && row === 0);
+  Core.goToCell(state, cell);
+  state.enemies = [];
+  state.props = [];
+  state.room.cleared = Core.currentCell(state).cleared = true;
+  Core.currentCell(state).exits = 0;
+
+  Core.runFrames(state, 900, { left: true });
+  const leftCamera = state.camera.x;
+  Core.runFrames(state, 900, { right: true });
+  const travel = (state.camera.x - leftCamera) * Core.CAMERA.zoom;
+  assert.ok(Math.abs(travel - 1296) < 1, `observed 1296 screen px, game traveled ${travel}`);
+});
+
 test("a depth doorway starts with the same camera regardless of the previous room", () => {
   const cameras = [0, 1000].map(previousX => {
     const state = Core.createState({ seed: 1, stage: "mirkwooddeep" });
@@ -3085,9 +3101,8 @@ function botGoal(state) {
     return { x: near.x, z: near.z || 0 };
   }
   const cell = Core.currentCell(state);
-  const dirs = "NESW".split("").filter((d) => Core.exitMode(state, d) === "open");
-  const dir = dirs[0];
-  if (!dir) return null;
+  const [dir] = routeToBoss(state);
+  if (!dir || Core.exitMode(state, dir) !== "open") return null;
   if (dir === "E") return { x: Core.roomRight(state) - 30, z: state.player.z || 0 };
   if (dir === "W") return { x: Core.roomLeft(state) + 30, z: state.player.z || 0 };
   return { x: Core.doorX(state, cell, dir), z: dir === "N" ? Core.bandDepth(state.band) - 10 : 10 };
@@ -3389,7 +3404,14 @@ test("a timing-aware policy can clear the whole stage without losing health", ()
     assert.ok(state.stats.damageTaken <= state.player.maxHp * 0.8,
       `seed ${state.seed}: damageTaken=${state.stats.damageTaken} of ${state.player.maxHp} ` +
         `by room [${damageByRoom.join(", ")}] (${state.stage.rooms.map((r) => r.name).join(" / ")})`);
-    assert.ok(state.time < 120, `clear took ${state.time}s`);
+    // The wider second room can add a trip out to enemies and back to the exit.
+    const extraTravel = [...visited].reduce((distance, cell) => {
+      const roomIndex = state.dungeon.cells[cell].room;
+      const room = state.stage.rooms[roomIndex];
+      return distance + Math.max(0, (room?.width || Core.ROOM.width) - Core.ROOM.width);
+    }, 0);
+    const timeLimit = 120 + 2 * extraTravel / Core.PHYSICS.moveSpeed;
+    assert.ok(state.time < timeLimit, `clear took ${state.time}s, limit ${timeLimit}s`);
   });
 });
 
