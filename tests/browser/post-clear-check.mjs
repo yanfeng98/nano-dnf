@@ -14,12 +14,13 @@ export async function checkPostClear(page, out) {
   await page.evaluate(() => window.nanoDnf.leaveTown());
   await page.keyboard.press('Enter');
   await page.waitForFunction(() => !window.nanoDnf.getProgress().regionOpen);
-  async function finish(pauseAtFade=false, manual=false, questActions=null) {
-    await page.evaluate(({pauseAtFade,manual,questActions}) => {
+  async function finish(pauseAtFade=false, manual=false, questActions=null, seconds=null) {
+    await page.evaluate(({pauseAtFade,manual,questActions,seconds}) => {
       const C=window.DNFCore, api=window.nanoDnf, s=api.getState();
       s.intro=null;s.transition=0;s.enemies=[];s.props=[];
       s.room.pendingWave=[];s.room.pendingWaves=[];s.room.cleared=true;
       C.currentCell(s).cleared=true;s.victory=true;
+      if (seconds !== null) s.time = seconds;
       if (questActions) {
         s.stats.killsByType.cat = questActions.cats;
         s.stats.barrels = questActions.breaks;
@@ -42,7 +43,7 @@ export async function checkPostClear(page, out) {
         }
         R.step=original;return original(reward,30);
       };
-    },{pauseAtFade,manual,questActions});
+    },{pauseAtFade,manual,questActions,seconds});
     if (manual) {
       await page.waitForFunction(()=>window.nanoDnf.getReward()?.phase==='cards'&&window.nanoDnf.getReward().faceUp);
       return;
@@ -73,7 +74,7 @@ export async function checkPostClear(page, out) {
     await page.mouse.click(box.x+point.x*box.width/960,box.y+point.y*box.height/540);
   }
   const beforePrize=await page.evaluate(()=>window.nanoDnf.getProgressState());
-  await finish(true, false, { cats: 4, breaks: 3 });
+  await finish(true, false, { cats: 4, breaks: 3 }, 30);
   const firstPrize=await page.evaluate(()=>({profile:window.nanoDnf.getProgressState(),reward:window.nanoDnf.getReward()}));
   assert.equal(firstPrize.reward.claimed,true);
   assert.equal(firstPrize.profile.quests.cats.progress, 4);
@@ -168,7 +169,13 @@ export async function checkPostClear(page, out) {
   assert.equal(await page.evaluate(()=>window.nanoDnf.getReward()),null,'retry creates a fresh reward flow');
   assert.equal(await page.evaluate(()=>window.nanoDnf.getState().postClear),false);
   const beforeManual=await page.evaluate(()=>window.nanoDnf.getProgressState());
-  await finish(false, true, { cats: 6, breaks: 2 });
+  await finish(false, true, { cats: 6, breaks: 2 }, 45);
+  const retrySummary = await page.evaluate(() => window.nanoDnf.getRunSummary());
+  assert.equal(retrySummary.improved, false);
+  assert.equal(retrySummary.lastRun.entry.clears, 2);
+  assert.match(retrySummary.recordText, /0:30\.0/);
+  assert.equal(retrySummary.rows.find(row => row.id === 'time').value, '0:45.0');
+  assert.match(retrySummary.resultText, /^本次 0:45\.0 · Lv /);
   await page.keyboard.press('KeyP');
   const pausedReward = await page.evaluate(() => window.nanoDnf.getReward());
   await page.keyboard.press('Digit1');

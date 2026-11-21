@@ -1176,9 +1176,9 @@
     runBanked = true;
     var outcome = Records.record(records, {
       stage: currentStage,
-      seed: currentSeed,
-      seconds: state.time,
-      level: state.player.level,
+      seed: finishedRun.seed,
+      seconds: finishedRun.seconds,
+      level: finishedRun.level,
       updatedAt: Date.now()
     });
     records = outcome.store;
@@ -1305,9 +1305,9 @@
       resultText:
         lastRun && lastRun.entry
           ? (lastRun.improved ? "新纪录！ " : "本次 ") +
-            Records.formatSeconds(lastRun.entry.seconds) +
+            Records.formatSeconds(run.seconds) +
             " · Lv " +
-            lastRun.entry.level
+            run.level
           : null
     };
   }
