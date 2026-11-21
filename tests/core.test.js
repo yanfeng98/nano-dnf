@@ -516,6 +516,25 @@ test("an attack pressed during hit stop is remembered", () => {
   assert.equal(state.stats.swings, 1, "the first unfrozen step swings");
 });
 
+test("attacks buffered during a hit wait for the player's hitstun to end", () => {
+  for (const [input, skillId] of [[{ attack: true }, null], [{ skills: { upSlash: true } }, "upSlash"]]) {
+    const state = lastRoomState();
+    state.enemies = [];
+    const player = state.player;
+    assert.ok(Core.damagePlayer(state, 10, player.x + 10) > 0);
+    state.hitStop = Core.DT;
+    Core.step(state, input);
+    while (state.hitStop > 0 || player.hurtTimer > 0) {
+      Core.step(state, {});
+      assert.equal(player.attackTimer, 0);
+      assert.equal(player.skillId, null);
+    }
+    Core.step(state, {});
+    assert.equal(player.skillId, skillId);
+    assert.equal(player.attackTimer > 0, !skillId);
+  }
+});
+
 test("a jump pressed during hit stop is remembered", () => {
   const state = lastRoomState();
   state.enemies = [];

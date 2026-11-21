@@ -6965,7 +6965,8 @@
     if (player.jumpBuffer > 0) player.jumpBuffer = Math.max(0, player.jumpBuffer - dt);
 
     var direction = (input.right ? 1 : 0) - (input.left ? 1 : 0);
-    var rooted = player.attackTimer > 0 || player.skillTimer > 0 || player.hurtTimer > 0;
+    var wasHurt = player.hurtTimer > 0;
+    var rooted = player.attackTimer > 0 || player.skillTimer > 0 || wasHurt;
     var dashing =
       player.skillTimer > 0 && SKILLS[player.skillId] && SKILLS[player.skillId].dash > 0;
     /*
@@ -7137,6 +7138,8 @@
         player.skillCooldowns[skillId] - dt * cooldownScale
       );
     });
+    // This step still belonged to hitstun even if its timer just reached zero.
+    if (wasHurt) return false;
 
     /* DNF combo flow: normal attacks can be cancelled into a skill during recovery. */
     var attackRecovering =
