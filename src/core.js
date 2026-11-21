@@ -7947,6 +7947,32 @@
     return enter <= Math.min(1, exitX, exitY) ? enter : null;
   }
 
+  function projectileTravel(vx, vy, gravity, time) {
+    if (!gravity) return Math.hypot(vx, vy) * time;
+    var speedX = Math.abs(vx);
+    // Integrate speed over the vertical velocity change. This also counts
+    // the upward and downward portions of a step that spans the apex.
+    function speedIntegral(vertical) {
+      if (speedX === 0) return vertical * Math.abs(vertical) / 2;
+      return (vertical * Math.hypot(speedX, vertical) +
+        speedX * speedX * Math.asinh(vertical / speedX)) / 2;
+    }
+    return (speedIntegral(vy + gravity * time) - speedIntegral(vy)) / gravity;
+  }
+
+  function projectileRangeFraction(vx, vy, gravity, dt, range, distance) {
+    if (range <= 0 || distance <= 0) return 0;
+    if (!gravity) return range / distance;
+    var low = 0;
+    var high = 1;
+    for (var i = 0; i < 32; i += 1) {
+      var middle = (low + high) / 2;
+      if (projectileTravel(vx, vy, gravity, dt * middle) < range) low = middle;
+      else high = middle;
+    }
+    return high;
+  }
+
   function updateProjectiles(state, dt) {
     var player = state.player;
     var remaining = [];
@@ -7972,7 +7998,8 @@
         var age = Math.max(0, shot.maxLife - shot.life);
         shot.oscY = -Math.sin(age * shot.zSineRadPerSec) * shot.zSineAmp;
       }
-      var distance = Math.sqrt(stepX * stepX + stepY * stepY);
+      var distance = projectileTravel(shot.vx, fromVy, gravity, dt);
+      var rangeLeft = shot.maxDistance - shot.traveled;
       shot.traveled += distance;
       var leftWall = roomLeft(state), rightWall = roomRight(state);
 
@@ -7985,7 +8012,7 @@
       var flightEnd = Infinity;
       if (shot.life <= 0) flightEnd = Math.min(flightEnd, 1 + shot.life / dt);
       if (shot.traveled >= shot.maxDistance) {
-        var rangeEnd = distance > 0 ? 1 + (shot.maxDistance - shot.traveled) / distance : 0;
+        var rangeEnd = projectileRangeFraction(shot.vx, fromVy, gravity, dt, rangeLeft, distance);
         flightEnd = Math.min(flightEnd, rangeEnd);
       }
       if (stepX < 0 && shot.x <= leftWall) flightEnd = Math.min(flightEnd, (leftWall - fromX) / stepX);

@@ -13266,6 +13266,19 @@ test("a thrown bomb flashes where its flight ends within the step", () => {
   }
 });
 
+test("a ballistic projectile spends range on both sides of its apex", () => {
+  for (const steps of [[1], [0.25, 0.25, 0.25, 0.25]]) {
+    const state = Core.createState({ seed: 1, stage: "mirkwood" });
+    const shot = Core.spawnProjectile(state, Core.createEnemy(state, "goblinRed", 300, 100));
+    Object.assign(shot, {
+      x: 300, y: Core.ARENA.groundY - 50, z: 100,
+      vx: 0, vy: -100, gravity: 200, maxDistance: 40
+    });
+    for (const dt of steps) Core.updateProjectiles(state, dt);
+    assert.equal(state.projectiles.length, 0);
+  }
+});
+
 test('ice missile 30057 follows icemissile.ptl Z-sine oscillation and seagabicicle.obj piercing power 50',()=>{
  const s=Core.createState({seed:1,stage:'mirkwood'});
  s.intro=null;s.transition=0;
