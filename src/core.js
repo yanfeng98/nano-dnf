@@ -7959,10 +7959,11 @@
         return;
       }
       var fromX = shot.x, fromY = shot.y + (shot.oscY || 0);
+      var fromVy = shot.vy;
       var stepX = shot.vx * dt;
       var gravity = shot.gravity || 0;
       // Exact constant-acceleration integration is independent of frame partition.
-      var stepY = shot.vy * dt + gravity * dt * dt / 2;
+      var stepY = fromVy * dt + gravity * dt * dt / 2;
       shot.vy += gravity * dt;
       shot.x += stepX;
       shot.y += stepY;
@@ -8027,16 +8028,27 @@
         }
       }
       if (!spent && shot.y >= ARENA.groundY && shot.landingStop) {
+        var fall = ARENA.groundY - (shot.y - stepY);
+        var landingTime = 0;
+        if (fall > 0) {
+          var landingVy = Math.sqrt(fromVy * fromVy + 2 * gravity * fall);
+          landingTime = fromVy < 0
+            ? (landingVy - fromVy) / gravity
+            : 2 * fall / (landingVy + fromVy);
+        }
+        landingTime = clamp(landingTime, 0, dt);
+        var sinceLanding = dt - landingTime;
+        shot.x = fromX + shot.vx * landingTime;
         shot.y = ARENA.groundY;
-        shot.stoppedAt = shot.maxLife - shot.life;
+        shot.stoppedAt = shot.maxLife - shot.life - sinceLanding;
         shot.stopVx = shot.vx;
-        shot.stopVy = shot.vy;
+        shot.stopVy = fromVy + gravity * landingTime;
         shot.stopGravity = gravity;
         shot.vx = 0;
         shot.vy = 0;
         shot.gravity = 0;
         shot.stopped = true;
-        shot.stopLife = Math.min(shot.life, 0.35);
+        shot.stopLife = Math.min(shot.life, 0.35 - sinceLanding);
         if (shot.stopLife > 0) remaining.push(shot);
         return;
       }

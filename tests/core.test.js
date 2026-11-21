@@ -13207,6 +13207,23 @@ test("a fire projectile cannot leave its landing trail outside the room", () => 
   assert.equal(state.projectiles.length, 0);
 });
 
+test("the fire trail lands and fades at the same time across step sizes", () => {
+  for (const steps of [[0.3], [0.25, 0.05], [0.1, 0.1, 0.1]]) {
+    const state = Core.createState({ seed: 1, stage: "mirkwood" });
+    const shot = Core.spawnProjectile(state, Core.createEnemy(state, "goblinRed", 300, 100));
+    Object.assign(shot, {
+      x: 300, y: Core.ARENA.groundY - 4, z: 100,
+      vx: 100, vy: 0, gravity: 200
+    });
+    for (const dt of steps) Core.updateProjectiles(state, dt);
+    assert.equal(shot.stopped, true);
+    assert.ok(Math.abs(shot.x - 320) < 1e-9);
+    assert.ok(Math.abs(shot.stopVy - 40) < 1e-9);
+    assert.ok(Math.abs(shot.stoppedAt - 0.2) < 1e-9);
+    assert.ok(Math.abs(shot.stopLife - 0.25) < 1e-9);
+  }
+});
+
 test("a thrown bomb flashes where its flight ends within the step", () => {
   for (const end of ["wall", "range", "lifetime", "ground"]) {
     const distance = 20;
