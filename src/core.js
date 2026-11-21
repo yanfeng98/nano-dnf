@@ -6936,6 +6936,7 @@
     if (!armored) {
       player.skillId = null;
       player.skillTimer = 0;
+      state.skillBuffer = null;
       player.comboTimer = 0;
     }
     if (player.hp <= 0) {

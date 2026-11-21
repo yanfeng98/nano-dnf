@@ -535,6 +535,19 @@ test("attacks buffered during a hit wait for the player's hitstun to end", () =>
   }
 });
 
+test("an interrupting hit cancels a skill queued before the hit", () => {
+  const state = lastRoomState();
+  state.hitStop = Core.DT;
+  Core.step(state, { skills: { upSlash: true } });
+  assert.equal(state.skillBuffer.id, "upSlash");
+
+  assert.ok(Core.damagePlayer(state, 10, state.player.x + 10) > 0);
+  assert.equal(state.skillBuffer, null);
+  Core.runFrames(state, Math.ceil(Core.PLAYER.hurtStun / Core.DT) + 2, {});
+  assert.equal(state.player.skillId, null);
+  assert.equal(state.player.skillCooldowns.upSlash, 0);
+});
+
 test("a jump pressed during hit stop is remembered", () => {
   const state = lastRoomState();
   state.enemies = [];
