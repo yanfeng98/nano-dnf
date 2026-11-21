@@ -7935,13 +7935,61 @@
         var age = Math.max(0, shot.maxLife - shot.life);
         shot.oscY = -Math.sin(age * shot.zSineRadPerSec) * shot.zSineAmp;
       }
-      shot.traveled += Math.sqrt(stepX * stepX + stepY * stepY);
+      var distance = Math.sqrt(stepX * stepX + stepY * stepY);
+      shot.traveled += distance;
+      var leftWall = roomLeft(state), rightWall = roomRight(state);
 
       var spent =
         shot.life <= 0 ||
         shot.traveled >= shot.maxDistance ||
-        shot.x <= roomLeft(state) ||
-        shot.x >= roomRight(state);
+        shot.x <= leftWall ||
+        shot.x >= rightWall;
+      // Limit contact to the part of this step in which the shot still flies.
+      var flightEnd = Infinity;
+      if (shot.life <= 0) flightEnd = Math.min(flightEnd, 1 + shot.life / dt);
+      if (distance > 0 && shot.traveled >= shot.maxDistance) {
+        flightEnd = Math.min(flightEnd, 1 + (shot.maxDistance - shot.traveled) / distance);
+      }
+      if (stepX < 0 && shot.x <= leftWall) flightEnd = Math.min(flightEnd, (leftWall - fromX) / stepX);
+      if (stepX > 0 && shot.x >= rightWall) flightEnd = Math.min(flightEnd, (rightWall - fromX) / stepX);
+      if (stepY > 0 && shot.y >= ARENA.groundY) {
+        flightEnd = Math.min(flightEnd, 1 + (ARENA.groundY - shot.y) / stepY);
+      }
+      if (fromX <= leftWall || fromX >= rightWall || shot.y - stepY >= ARENA.groundY) flightEnd = 0;
+
+      var hitY = shot.y + (shot.oscY || 0);
+      // The shot keeps its firing depth. Test the segment only in that lane.
+      var sameDepth =
+        Math.abs((shot.z || 0) - (player.z || 0)) <= player.width / 2 + shot.radius;
+      var contact = !player.dead && !shot.hitPlayer && sameDepth
+        ? projectileContact(player, shot.radius, fromX, fromY, shot.x, hitY)
+        : null;
+      if (contact !== null && contact < flightEnd) {
+        var impactX = fromX + stepX * contact;
+        var impactY = fromY + (hitY - fromY) * contact;
+        damagePlayer(state, shot.damage, impactX);
+        pushSound(state, "projectileHit", {
+          nativeObject: shot.nativeObject,
+          x: impactX,
+          z: shot.z || 0
+        });
+        if (shot.piercing > 0) {
+          shot.hitPlayer = true;
+          shot.piercing -= 1;
+        } else {
+          if (shot.nativeObject === 30021) {
+            state.effects.push({
+              kind: "bomb_flash",
+              x: impactX,
+              y: impactY,
+              z: shot.z || 0,
+              life: 0.2,
+              maxLife: 0.2
+            });
+          }
+          return;
+        }
+      }
       if (!spent && shot.y >= ARENA.groundY && shot.landingStop) {
         shot.y = ARENA.groundY;
         shot.stoppedAt = shot.maxLife - shot.life;
@@ -7971,39 +8019,6 @@
         return;
       }
 
-      var hitY = shot.y + (shot.oscY || 0);
-      // The shot keeps its firing depth. Test the segment only in that lane.
-      var sameDepth =
-        Math.abs((shot.z || 0) - (player.z || 0)) <= player.width / 2 + shot.radius;
-      var contact = !player.dead && !shot.hitPlayer && sameDepth
-        ? projectileContact(player, shot.radius, fromX, fromY, shot.x, hitY)
-        : null;
-      if (contact !== null) {
-        var impactX = fromX + stepX * contact;
-        var impactY = fromY + (hitY - fromY) * contact;
-        damagePlayer(state, shot.damage, impactX);
-        pushSound(state, "projectileHit", {
-          nativeObject: shot.nativeObject,
-          x: impactX,
-          z: shot.z || 0
-        });
-        if (shot.piercing > 0) {
-          shot.hitPlayer = true;
-          shot.piercing -= 1;
-        } else {
-          if (shot.nativeObject === 30021) {
-            state.effects.push({
-              kind: "bomb_flash",
-              x: impactX,
-              y: impactY,
-              z: shot.z || 0,
-              life: 0.2,
-              maxLife: 0.2
-            });
-          }
-          return;
-        }
-      }
       remaining.push(shot);
     });
 

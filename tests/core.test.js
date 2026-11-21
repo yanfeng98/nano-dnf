@@ -13029,6 +13029,25 @@ test("a projectile crossing the player between samples lands a hit", () => {
   }
 });
 
+test("a projectile can hit before expiry within its last step", () => {
+  for (const [life, hits] of [[0.1, true], [0.02, false]]) {
+    const state = Core.createState({ seed: 1, stage: "mirkwood" });
+    const player = state.player;
+    player.x = 500;
+    const shot = Core.spawnProjectile(state, Core.createEnemy(state, "caster", 300));
+    shot.x = 440;
+    shot.z = player.z;
+    shot.y = player.y - player.height / 2;
+    shot.vx = 600;
+    shot.vy = 0;
+    shot.life = life;
+    const hpBefore = player.hp;
+    Core.updateProjectiles(state, 0.2);
+    assert.equal(player.hp < hpBefore, hits);
+    assert.equal(state.projectiles.length, 0);
+  }
+});
+
 test("a fire projectile cannot leave its landing trail outside the room", () => {
   const state = Core.createState({ seed: 1, stage: "mirkwood" });
   const enemy = Core.createEnemy(state, "goblinRed", 500);
