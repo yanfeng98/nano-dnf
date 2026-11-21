@@ -2051,7 +2051,7 @@ test("the band's two edges stop him", () => {
   assert.equal(state.player.z, 0, "and against the front edge, which is the ground line");
 });
 
-test("crossing the whole floor takes about a third of crossing the window sideways", () => {
+test("crossing the whole floor follows the projected running speed", () => {
   /*
    * Measured on the shared floor: this number is the default band's speed, and
    * the seed's own opening room can bring a wider one of its own (胆小鬼的窝
@@ -2068,21 +2068,10 @@ test("crossing the whole floor takes about a third of crossing the window sidewa
     frames += 1;
   }
 
-  /*
-   * The feel the depth speed was chosen for: he crosses the band in about the
-   * time it takes to cross **a third of the window sideways**. It is a screen
-   * speed, so what is pinned here is the **ratio** and not a number of seconds -
-   * the band, the window and his walk have all moved under it once already
-   * (`docs/adr/0039` scaled every walk onto the recording's pace, `0040` cut the
-   * window to 4:3). A ratio keeps saying what the number is *for*.
-   */
-  const seconds = frames * Core.DT;
-  const screen = Core.windowWidth() / Core.PHYSICS.moveSpeed;
-  const share = seconds / screen;
-  assert.ok(
-    share > 0.32 && share < 0.38,
-    `他穿过地面带用了横穿窗口的 ${share.toFixed(3)}（${seconds.toFixed(3)}s 对 ${screen.toFixed(3)}s）`
-  );
+  const projectedSpeed = Core.PHYSICS.moveSpeed * Core.PHYSICS.depthSpeedRatio;
+  const expectedFrames = Math.ceil(band * Core.DEPTH.scale / (projectedSpeed * Core.DT));
+  assert.equal(state.player.z, band);
+  assert.equal(frames, expectedFrames);
 });
 
 test("walking in depth never turns him around", () => {
@@ -2143,6 +2132,20 @@ test("a cast pins the facing it was started with, and a swing does not", () => {
     -1,
     "a normal swing still lets him turn - it is a short chain, not a commitment"
   );
+});
+
+test("dungeon running projects depth movement at two fifths of horizontal movement", () => {
+  for (const stage of ["mirkwood", "mirkwooddeep"]) {
+    const state = Core.createState({ seed: Core.DEFAULT_SEED, stage });
+    state.enemies = [];
+    state.props = [];
+    const { x, z } = state.player;
+    Core.runFrames(state, 15, { right: true, up: true });
+    const horizontal = state.player.x - x;
+    const depth = (state.player.z - z) * Core.DEPTH.scale;
+    assert.ok(horizontal > 0);
+    assert.ok(Math.abs(depth / horizontal - 0.4) < 0.001, `${stage}: got ${depth / horizontal}`);
+  }
 });
 
 test("a swing roots him in depth the way it roots him sideways", () => {

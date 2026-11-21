@@ -147,14 +147,11 @@
     jumpVelocity: -760,
     maxFallSpeed: 1400,
     /*
-     * How fast walking into the screen looks, as a fraction of how fast walking
-     * across it does. Tuned here rather than on the floor because it is the
-     * screen the player is reading: the depth axis is foreshortened by
-     * DEPTH.scale, so a floor speed equal to moveSpeed would crawl up the screen
-     * at 58px/s. Three quarters gives 198px/s, which crosses the whole band in
-     * about six tenths of a second.
+     * Screen-space ratio for the player's ground movement. The two dungeon
+     * recordings give about 0.40 after removing camera translation.
      */
-    depthSpeedRatio: 0.75
+    depthSpeedRatio: 0.40,
+    enemyDepthSpeedRatio: 0.75
   };
 
   /*
@@ -182,19 +179,15 @@
   }
 
   /**
-   * How fast something that walks the floor at `floorSpeed` covers depth, in `z`
-   * units per second. The ratio is a screen speed, so the foreshortening has to
-   * be divided out again to get back to the floor - and that is the only place
-   * either side's depth pace is decided, so the Slayer's and the monsters' look
-   * like the same kind of walking.
+   * Convert the enemy's screen-space depth pace to floor units per second.
    */
-  function depthSpeedFor(floorSpeed) {
-    return (floorSpeed * PHYSICS.depthSpeedRatio) / DEPTH.scale;
+  function enemyDepthSpeed(floorSpeed) {
+    return (floorSpeed * PHYSICS.enemyDepthSpeedRatio) / DEPTH.scale;
   }
 
   /** How fast the Slayer walks into the screen. */
   function depthSpeed() {
-    return depthSpeedFor(PHYSICS.moveSpeed);
+    return (PHYSICS.moveSpeed * PHYSICS.depthSpeedRatio) / DEPTH.scale;
   }
 
   /*
@@ -8227,10 +8220,10 @@
     var route = routeStep(state, player.x, player.z || 0, enemy.x, enemy.z || 0, { body: enemy });
     enemy.vx = route[0] * speed;
     /*
-     * 路网给的是**世界**方向；深度那一轴要换成屏幕速度那一把尺子（`depthSpeedFor`），
+     * 路网给的是**世界**方向；深度那一轴要换成屏幕速度那一把尺子（`enemyDepthSpeed`），
      * 和他走位是同一把 —— 不然绕出来那一步会比它自己的横走快三倍。
      */
-    if (route[1]) enemy.vz = route[1] * depthSpeedFor(speed);
+    if (route[1]) enemy.vz = route[1] * enemyDepthSpeed(speed);
   }
 
   function beginEnemyAttack(state, enemy, kind, windup, duration) {
@@ -8335,7 +8328,7 @@
     var rowGap = (player.z || 0) - (enemy.z || 0);
     var rowReach = DEPTH_REACH.melee * SLAYER_HEIGHT;
     enemy.vz =
-      Math.abs(rowGap) <= rowReach ? 0 : (rowGap > 0 ? 1 : -1) * depthSpeedFor(enemy.speed);
+      Math.abs(rowGap) <= rowReach ? 0 : (rowGap > 0 ? 1 : -1) * enemyDepthSpeed(enemy.speed);
 
     if (enemy.behavior === "ranged") {
       /*
