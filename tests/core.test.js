@@ -13029,6 +13029,27 @@ test("a projectile crossing the player between samples lands a hit", () => {
   }
 });
 
+test("a player shot sweeps targets only as far as it can reach before expiry", () => {
+  for (const [facing, life, hits] of [[1, 0.5, true], [-1, 0.5, true], [1, 0.02, false]]) {
+    const state = Core.createState({ seed: 1, stage: "mirkwood" });
+    state.intro = null;
+    state.transition = 0;
+    state.props = [];
+    const enemy = Core.createEnemy(state, "grunt", 500, state.player.z);
+    enemy.evasion = 0;
+    state.enemies = [enemy];
+    state.shots = [{
+      skillId: "crossSlash", hitIndex: 2, damage: 8, facing,
+      x: enemy.x - facing * 60, vx: facing * 600, z: enemy.z, y: enemy.y,
+      reach: 10, height: 40, heightPad: 0, depthReach: 1,
+      struck: [], struckProps: [], life, maxLife: life
+    }];
+    const hpBefore = enemy.hp;
+    Core.step(state, {}, 0.2);
+    assert.equal(enemy.hp < hpBefore, hits);
+  }
+});
+
 test("a projectile can hit before expiry within its last step", () => {
   for (const [life, hits] of [[0.1, true], [0.02, false]]) {
     const state = Core.createState({ seed: 1, stage: "mirkwood" });

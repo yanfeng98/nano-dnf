@@ -6008,9 +6008,11 @@
   function updateShots(state, dt) {
     if (!state.shots || !state.shots.length) return;
     state.shots.forEach(function (shot) {
+      if (shot.life <= 0) return;
+      var fromX = shot.x;
+      shot.x += shot.vx * Math.min(dt, shot.life);
       shot.life -= dt;
-      shot.x += shot.vx * dt;
-      var box = shotBox(shot);
+      var box = shotBox(shot, fromX);
       swingProps(state, box, shot.depthReach, shot, shot.struckProps);
       state.enemies.forEach(function (enemy) {
         if (enemy.dead || shot.struck.indexOf(enemy.id) !== -1) return;
@@ -6025,12 +6027,12 @@
     });
   }
 
-  /** The qi's own box: centred on it, not stretching back to his hands. */
-  function shotBox(shot) {
+  /** The space swept by the qi's own box during this step. */
+  function shotBox(shot, fromX) {
     var half = shot.reach / 2;
     return {
-      left: shot.x - half,
-      right: shot.x + half,
+      left: Math.min(fromX, shot.x) - half,
+      right: Math.max(fromX, shot.x) + half,
       bottom: shot.y + shot.heightPad,
       top: shot.y - shot.height - shot.heightPad
     };
