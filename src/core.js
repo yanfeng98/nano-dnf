@@ -7931,7 +7931,22 @@
     return shot;
   }
 
-  function projectileContact(player, radius, x0, y0, x1, y1, curve) {
+  function projectileHeightContact(heightAt, start, end, top, bottom) {
+    var startY = heightAt(start);
+    if (startY >= top && startY <= bottom) return start;
+    var enterFromTop = startY < top;
+    var edge = enterFromTop ? top : bottom;
+    var endY = heightAt(end);
+    if (enterFromTop ? endY < edge : endY > edge) return null;
+    for (var index = 0; index < 32; index += 1) {
+      var middle = (start + end) / 2;
+      if (enterFromTop ? heightAt(middle) < edge : heightAt(middle) > edge) start = middle;
+      else end = middle;
+    }
+    return end;
+  }
+
+  function projectileContact(player, radius, x0, y0, x1, y1, curve, oscillation) {
     var left = player.x - player.width / 2 - radius;
     var right = player.x + player.width / 2 + radius;
     var top = player.y - player.height - radius;
@@ -7941,28 +7956,30 @@
     var enterX = Math.max(0, !dx ? 0 : ((dx > 0 ? left : right) - x0) / dx);
     var exitX = Math.min(1, !dx ? 1 : ((dx > 0 ? right : left) - x0) / dx);
     if (enterX > exitX) return null;
+    if (oscillation) {
+      var phase = oscillation.phase;
+      var span = oscillation.span;
+      var sineHeight = function (t) {
+        return oscillation.baseY - Math.sin(phase + span * t) * oscillation.amplitude;
+      };
+      var start = enterX;
+      // Between successive extrema the height moves in one direction.
+      var index = Math.floor((phase + span * start - Math.PI / 2) / Math.PI) + 1;
+      for (; ; index += 1) {
+        var end = Math.min(exitX, (Math.PI / 2 + index * Math.PI - phase) / span);
+        var sineContact = projectileHeightContact(sineHeight, start, end, top, bottom);
+        if (sineContact !== null || end === exitX) return sineContact;
+        start = end;
+      }
+    }
     if (curve) {
       function heightAt(t) {
         return y0 + (dy - curve) * t + curve * t * t;
       }
-      function firstContact(start, end) {
-        var startY = heightAt(start);
-        if (startY >= top && startY <= bottom) return start;
-        var enterFromTop = startY < top;
-        var edge = enterFromTop ? top : bottom;
-        var endY = heightAt(end);
-        if (enterFromTop ? endY < edge : endY > edge) return null;
-        for (var index = 0; index < 32; index += 1) {
-          var middle = (start + end) / 2;
-          if (enterFromTop ? heightAt(middle) < edge : heightAt(middle) > edge) start = middle;
-          else end = middle;
-        }
-        return end;
-      }
       // Split the horizontal overlap at the apex so each search is monotone.
       var apex = clamp((curve - dy) / (2 * curve), enterX, exitX);
-      var contact = firstContact(enterX, apex);
-      return contact === null ? firstContact(apex, exitX) : contact;
+      var contact = projectileHeightContact(heightAt, enterX, apex, top, bottom);
+      return contact === null ? projectileHeightContact(heightAt, apex, exitX, top, bottom) : contact;
     }
     if (!dy && (y0 < top || y0 > bottom)) return null;
     var enterY = !dy ? 0 : ((dy > 0 ? top : bottom) - y0) / dy;
@@ -8019,9 +8036,18 @@
       shot.vy += gravity * dt;
       shot.x += stepX;
       shot.y += stepY;
+      var oscillation = null;
       if (shot.zSineAmp > 0) {
         var age = Math.max(0, shot.maxLife - shot.life);
         shot.oscY = -Math.sin(age * shot.zSineRadPerSec) * shot.zSineAmp;
+        if (!stepY && !curve && shot.zSineRadPerSec > 0) {
+          oscillation = {
+            baseY: fromBaseY,
+            phase: Math.max(0, age - dt) * shot.zSineRadPerSec,
+            span: dt * shot.zSineRadPerSec,
+            amplitude: shot.zSineAmp
+          };
+        }
       }
       var distance = projectileTravel(shot.vx, fromVy, gravity, dt);
       var rangeLeft = shot.maxDistance - shot.traveled;
@@ -8062,7 +8088,7 @@
       var sameDepth =
         Math.abs((shot.z || 0) - (player.z || 0)) <= player.width / 2 + shot.radius;
       var contact = !player.dead && !shot.hitPlayer && sameDepth
-        ? projectileContact(player, shot.radius, fromX, fromY, shot.x, hitY, curve)
+        ? projectileContact(player, shot.radius, fromX, fromY, shot.x, hitY, curve, oscillation)
         : null;
       if (contact !== null && contact < flightEnd) {
         var impactX = fromX + stepX * contact;

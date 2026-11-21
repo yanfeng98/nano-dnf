@@ -13297,6 +13297,23 @@ test("a ballistic projectile hits an airborne player between two lower samples",
   }
 });
 
+test("an ice projectile can hit between matching phases of its oscillation", () => {
+  for (const count of [1, 8]) {
+    const state = Core.createState({ seed: 1, stage: "mirkwood" });
+    const player = state.player;
+    player.x = 300;
+    player.y = Core.ARENA.groundY - 40;
+    const shot = Core.spawnProjectile(state, Core.createEnemy(state, "goblinBlue", 300, player.z));
+    const period = 2 * Math.PI / shot.zSineRadPerSec;
+    shot.x = player.x - shot.vx * period / 2;
+    shot.y = player.y + shot.radius + shot.zSineAmp / 2;
+    const hpBefore = player.hp;
+    for (let step = 0; step < count; step += 1) Core.updateProjectiles(state, period / count);
+    assert.equal(player.hp, hpBefore - shot.damage);
+    assert.equal(shot.hitPlayer, true);
+  }
+});
+
 test('ice missile 30057 follows icemissile.ptl Z-sine oscillation and seagabicicle.obj piercing power 50',()=>{
  const s=Core.createState({seed:1,stage:'mirkwood'});
  s.intro=null;s.transition=0;
