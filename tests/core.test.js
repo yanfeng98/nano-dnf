@@ -320,6 +320,22 @@ test("player runs right and is clamped by the arena wall", () => {
   assert.equal(state.player.facing, 1);
 });
 
+test("holding a direction against a room boundary does not keep playing footsteps", () => {
+  for (const direction of ["left", "right", "up", "down"]) {
+    const state = lastRoomState();
+    state.props = [];
+    const player = state.player;
+    if (direction === "left") player.x = Core.roomLeft(state) + player.walkWidth / 2;
+    if (direction === "right") player.x = Core.roomRight(state) - player.walkWidth / 2;
+    if (direction === "up") player.z = Core.bandDepth(state.band);
+    if (direction === "down") player.z = 0;
+    Core.step(state, { [direction]: true });
+    assert.equal(player.vx, 0, direction);
+    assert.equal(player.vz, 0, direction);
+    assert.ok(!state.sounds.some(event => event.kind === "playerStep"), direction);
+  }
+});
+
 test("eruption fields keep every scheduled beat when a step crosses their damage window", () => {
   for (const steps of [[5.7], [1.6, 1.2, 2.9], Array(342).fill(Core.DT)]) {
     const state = lastRoomState();

@@ -7102,7 +7102,14 @@
      * where the camera is and the back edge is the wall behind the room, so both
      * are hard limits: he is held against them rather than slid along them.
      */
-    player.z = clamp(player.z, 0, bandDepth(state.band));
+    var walkDepth = bandDepth(state.band);
+    player.z = clamp(player.z, 0, walkDepth);
+    if (!rooted && player.onGround) {
+      if ((player.x === walkLeft && player.vx < 0) ||
+          (player.x === walkRight && player.vx > 0)) player.vx = 0;
+      if ((player.z === 0 && player.vz < 0) ||
+          (player.z === walkDepth && player.vz > 0)) player.vz = 0;
+    }
     /*
      * 实心布景按行走占地推人；行走尺寸独立于战斗受击宽度。
      */
