@@ -7896,6 +7896,22 @@
     return shot;
   }
 
+  function projectileContact(player, radius, x0, y0, x1, y1) {
+    var left = player.x - player.width / 2 - radius;
+    var right = player.x + player.width / 2 + radius;
+    var top = player.y - player.height - radius;
+    var bottom = player.y + radius;
+    var dx = x1 - x0, dy = y1 - y0;
+    if ((!dx && (x0 < left || x0 > right)) ||
+        (!dy && (y0 < top || y0 > bottom))) return null;
+    var enterX = !dx ? 0 : ((dx > 0 ? left : right) - x0) / dx;
+    var exitX = !dx ? 1 : ((dx > 0 ? right : left) - x0) / dx;
+    var enterY = !dy ? 0 : ((dy > 0 ? top : bottom) - y0) / dy;
+    var exitY = !dy ? 1 : ((dy > 0 ? bottom : top) - y0) / dy;
+    var enter = Math.max(0, enterX, enterY);
+    return enter <= Math.min(1, exitX, exitY) ? enter : null;
+  }
+
   function updateProjectiles(state, dt) {
     var player = state.player;
     var remaining = [];
@@ -7907,6 +7923,7 @@
         if (shot.stopLife > 0) remaining.push(shot);
         return;
       }
+      var fromX = shot.x, fromY = shot.y + (shot.oscY || 0);
       var stepX = shot.vx * dt;
       var gravity = shot.gravity || 0;
       // Exact constant-acceleration integration is independent of frame partition.
@@ -7955,21 +7972,19 @@
       }
 
       var hitY = shot.y + (shot.oscY || 0);
-      var nearPlayer =
-        Math.abs(shot.x - player.x) <= player.width / 2 + shot.radius &&
-        Math.abs(hitY - (player.y - player.height / 2)) <= player.height / 2 + shot.radius &&
-        /*
-         * A shot keeps the depth it was fired from (see spawnProjectile) and
-         * travels no closer to the camera, so depth is one more way to not be
-         * standing where it is going: the same slack the x test uses, because a
-         * body's width is as good a reading of its footprint on the floor as any.
-         */
+      // The shot keeps its firing depth. Test the segment only in that lane.
+      var sameDepth =
         Math.abs((shot.z || 0) - (player.z || 0)) <= player.width / 2 + shot.radius;
-      if (!player.dead && nearPlayer && !shot.hitPlayer) {
-        damagePlayer(state, shot.damage, shot.x);
+      var contact = !player.dead && !shot.hitPlayer && sameDepth
+        ? projectileContact(player, shot.radius, fromX, fromY, shot.x, hitY)
+        : null;
+      if (contact !== null) {
+        var impactX = fromX + stepX * contact;
+        var impactY = fromY + (hitY - fromY) * contact;
+        damagePlayer(state, shot.damage, impactX);
         pushSound(state, "projectileHit", {
           nativeObject: shot.nativeObject,
-          x: shot.x,
+          x: impactX,
           z: shot.z || 0
         });
         if (shot.piercing > 0) {
@@ -7979,8 +7994,8 @@
           if (shot.nativeObject === 30021) {
             state.effects.push({
               kind: "bomb_flash",
-              x: shot.x,
-              y: hitY,
+              x: impactX,
+              y: impactY,
               z: shot.z || 0,
               life: 0.2,
               maxLife: 0.2

@@ -13011,6 +13011,24 @@ test('native projectile and dungeon clear/reward SFX cues are exported and queue
 });
 
 
+test("a projectile crossing the player between samples lands a hit", () => {
+  for (const [depthOffset, heightOffset, hits] of [[0, 0, true], [100, 0, false], [0, -100, false]]) {
+    const state = Core.createState({ seed: 1, stage: "mirkwood" });
+    const player = state.player;
+    player.x = 500;
+    const shot = Core.spawnProjectile(state, Core.createEnemy(state, "caster", 300));
+    shot.x = 440;
+    shot.z = player.z + depthOffset;
+    shot.y = player.y - player.height / 2 + heightOffset;
+    shot.vx = 600;
+    shot.vy = 0;
+    const hpBefore = player.hp;
+    Core.updateProjectiles(state, 0.2);
+    assert.equal(player.hp < hpBefore, hits);
+    assert.equal(state.projectiles.length, hits ? 0 : 1);
+  }
+});
+
 test("a fire projectile cannot leave its landing trail outside the room", () => {
   const state = Core.createState({ seed: 1, stage: "mirkwood" });
   const enemy = Core.createEnemy(state, "goblinRed", 500);
