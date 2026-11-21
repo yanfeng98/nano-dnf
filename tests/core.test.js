@@ -13279,6 +13279,24 @@ test("a ballistic projectile spends range on both sides of its apex", () => {
   }
 });
 
+test("a ballistic projectile hits an airborne player between two lower samples", () => {
+  for (const steps of [[1], [0.25, 0.25, 0.25, 0.25]]) {
+    const state = Core.createState({ seed: 1, stage: "mirkwood" });
+    const player = state.player;
+    player.x = 300;
+    player.y = Core.ARENA.groundY - 100;
+    const shot = Core.spawnProjectile(state, Core.createEnemy(state, "goblinRed", 300, player.z));
+    Object.assign(shot, {
+      x: player.x, y: Core.ARENA.groundY - 50, z: player.z,
+      vx: 0, vy: -300, gravity: 600, maxDistance: 1000
+    });
+    const hpBefore = player.hp;
+    for (const dt of steps) Core.updateProjectiles(state, dt);
+    assert.equal(player.hp, hpBefore - shot.damage);
+    assert.equal(state.projectiles.length, 0);
+  }
+});
+
 test('ice missile 30057 follows icemissile.ptl Z-sine oscillation and seagabicicle.obj piercing power 50',()=>{
  const s=Core.createState({seed:1,stage:'mirkwood'});
  s.intro=null;s.transition=0;
