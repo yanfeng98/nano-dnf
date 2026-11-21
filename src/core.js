@@ -7800,7 +7800,7 @@
     var box = attackBox(player, skill.reach, skill.heightPad);
     var step = channel.pull * dt;
     state.enemies.slice().forEach(function (enemy) {
-      if (enemy.dead) return;
+      if (enemy.dead || enemy.superArmor) return;
       if (!inReachOf(enemy.z, player.z, skill.depthReach)) return;
       if (!boxesOverlap(box, bodyBox(enemy))) return;
       var gap = player.x - enemy.x;

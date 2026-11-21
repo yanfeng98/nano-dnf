@@ -6374,6 +6374,26 @@ test("the stance paints him red, carries a second blade and draws nothing else",
   );
 });
 
+test("the vortex damages an armored target without pulling it out of its wind-up", () => {
+  const state = lastRoomState();
+  const player = state.player;
+  const enemy = Core.createEnemy(state, "brute", player.x + 100, player.z);
+  enemy.x = player.x + 100;
+  enemy.evasion = 0;
+  enemy.hp = enemy.maxHp = 500;
+  enemy.superArmor = true;
+  enemy.attackTimer = 10;
+  state.enemies = [enemy];
+  state.props = [];
+  const origin = enemy.x;
+  const hold = { skills: { bloodyRave: true } };
+  const frames = Math.ceil((Core.SKILLS.bloodyRave.channel.entrance + 0.4) / Core.DT);
+  Core.runFrames(state, frames, hold);
+  assert.ok(enemy.hp < enemy.maxHp);
+  assert.equal(enemy.x, origin);
+  assert.ok(enemy.attackTimer > 0);
+});
+
 test("嗜魂封魔斩 is a channel: the key being down is its length", () => {
   /*
    * The move is the game's only cast whose length is the player's (docs/adr/0023).
