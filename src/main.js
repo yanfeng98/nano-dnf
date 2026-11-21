@@ -2333,16 +2333,6 @@
 
   window.requestAnimationFrame(frame);
 
-  /* Keep the static page hint honest when the dungeon gains or loses rooms. */
-  (function describeDungeon() {
-    var hint = document.getElementById("dungeon-hint");
-    if (!hint) return;
-    hint.textContent =
-      "每一格的门口按地图上那一格的方向开：左右走墙边的门，上边走房间深处那扇，下边朝你面前走。" +
-      "清空房间后门口会亮。走到领主那一格把它打掉就通关。" +
-      "键盘操作：方向键走，X 普攻，C 跳，A/S/D/F/G/H 技能，B 配置技能，I/L/K 背包/任务/装备。";
-  })();
-
   window.nanoDnf = {
     getState: function () {
       return state;
