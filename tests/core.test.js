@@ -1503,6 +1503,26 @@ test("出血 belongs to 血之狂暴 and to nothing else", () => {
   assert.equal(enemy.bleed, null, "bleed expires");
 });
 
+test("bleed pays every due tick through expiry and none afterward", () => {
+  for (const duration of [2.5, 3]) {
+    for (const steps of [[4], [0.75, 0.75, 0.75, 1.75]]) {
+      const state = lastRoomState();
+      const enemy = Core.createEnemy(state, "brute", state.player.x + 100);
+      enemy.evasion = 0;
+      enemy.hp = enemy.maxHp = 500;
+      enemy.speed = 0;
+      state.enemies = [enemy];
+      Core.damageEnemy(state, enemy, 1, 0, state.player.x, {
+        bleed: { damage: 4, duration, interval: 1 }
+      });
+      const hpAfterHit = enemy.hp;
+      for (const dt of steps) Core.step(state, {}, dt);
+      assert.equal(enemy.hp, hpAfterHit - 4 * Math.floor(duration));
+      assert.equal(enemy.bleed, null);
+    }
+  }
+});
+
 test("十字斩 carries him through the cross and puts him back where he pressed it", () => {
   const state = lastRoomState();
   state.enemies = [];

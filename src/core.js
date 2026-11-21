@@ -6342,7 +6342,7 @@
    * (docs/adr/0017).
    */
   function startBleed(enemy, spec) {
-    if (!spec) return;
+    if (!spec || !(spec.interval > 0) || !(spec.duration > 0)) return;
     enemy.bleed = {
       damage: spec.damage,
       remaining: spec.duration,
@@ -8644,15 +8644,17 @@
         enemy.attackTimer = 0;
       }
       if (enemy.bleed) {
-        enemy.bleed.remaining -= dt;
-        enemy.bleed.timer -= dt;
-        if (enemy.bleed.timer <= 0) {
-          enemy.bleed.timer += enemy.bleed.interval;
+        var bleed = enemy.bleed;
+        var activeTime = Math.min(dt, bleed.remaining);
+        bleed.remaining -= activeTime;
+        bleed.timer -= activeTime;
+        while (bleed.timer <= 1e-9) {
+          bleed.timer += bleed.interval;
           /* The bleed is the wound's own damage, so it draws no blood orbs. */
-          damageEnemy(state, enemy, enemy.bleed.damage, 0, enemy.x, { noBloodOrbs: true });
+          damageEnemy(state, enemy, bleed.damage, 0, enemy.x, { noBloodOrbs: true });
           if (enemy.dead) return;
         }
-        if (enemy.bleed.remaining <= 0) enemy.bleed = null;
+        if (bleed.remaining <= 1e-9) enemy.bleed = null;
       }
 
       /*
