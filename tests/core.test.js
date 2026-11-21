@@ -9754,6 +9754,11 @@ test("霸体挑不起来，而且落一句 无法浮空", () => {
   assert.equal(enemy.knockdown, 0, "普通击倒也受霸体保护");
   assert.equal(enemy.onGround, true);
   assert.equal(enemy.attackTimer, 0.4);
+  const beforeStun = enemy.hp;
+  Core.damageEnemy(state, enemy, 1, 0, enemy.x - 40, { stun: 0.3 });
+  assert.equal(enemy.hp, beforeStun - 1);
+  assert.equal(enemy.stun, 0, "普通眩晕也受霸体保护");
+  assert.equal(enemy.attackTimer, 0.4);
   const word = state.effects.find((effect) => effect.kind === "hitWord");
   assert.ok(word, "挑不起来就得说 `无法浮空`");
   assert.equal(word.text, "无法浮空");
@@ -9764,8 +9769,11 @@ test("霸体挑不起来，而且落一句 无法浮空", () => {
 
   /* 破霸体的招式不受这条约束（嗜魂之手那两处就是这么用的）。 */
   enemy.superArmor = true;
-  Core.damageEnemy(state, enemy, 1, 0, enemy.x - 40, { launch: -430, ignoreSuperArmor: true });
+  Core.damageEnemy(state, enemy, 1, 0, enemy.x - 40, {
+    launch: -430, stun: 0.3, ignoreSuperArmor: true
+  });
   assert.ok(enemy.vy < 0, "ignoreSuperArmor 的招式照挑不误");
+  assert.equal(enemy.stun, 0.3);
 });
 
 test("当前目标跟着他打的那只怪走，倒下之后红叉闪完才散", () => {

@@ -6592,7 +6592,7 @@
       enemy.onGround = false;
       enemy.attackTimer = 0;
     }
-    if (opts.stun) {
+    if (opts.stun && !armored) {
       enemy.stun = Math.max(enemy.stun, opts.stun);
       enemy.attackTimer = 0;
     }
