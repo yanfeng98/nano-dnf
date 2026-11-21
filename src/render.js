@@ -9940,9 +9940,10 @@
       var xpPanel = RESULT_ART.xpPanel, xpGlow = RESULT_ART.xpSlotGlow, xpBar = RESULT_ART.xpBar;
       var deep = state && state.stage && state.stage.id === "mirkwooddeep";
       // Observed S-rank breakdown from 40-xp-observed-amounts.json (base + 30% rating + 5% channel).
-      var baseXp = deep ? 4680 : 1760;
-      var ratingBonus = deep ? 1404 : 528;
-      var channelBonus = deep ? 234 : 88;
+      var credited = state.clearExperience;
+      var baseXp = credited ? credited.base : deep ? 4680 : 1760;
+      var ratingBonus = credited ? credited.rating : deep ? 1404 : 528;
+      var channelBonus = credited ? credited.channel : deep ? 234 : 88;
       var ratingP = clamp01((t - 5.0) / 0.8);
       var channelP = clamp01((t - 5.8) / 0.8);
       var shownXp = Math.round(baseXp + ratingBonus * ratingP + channelBonus * channelP);
@@ -9991,8 +9992,9 @@
         ctx.strokeText(earnedLabel, left + 356, 466);
         ctx.fillText(earnedLabel, left + 356, 466);
       }
-      ctx.strokeText("参考经验", left + 356, 493);
-      ctx.fillText("参考经验", left + 356, 493);
+      var xpLabel = credited ? "通关经验" : "参考经验";
+      ctx.strokeText(xpLabel, left + 356, 493);
+      ctx.fillText(xpLabel, left + 356, 493);
       if (!drawStatsNumber(ctx, sheet, String(shownXp), "total", left + 505, 473, true)) {
         ctx.fillStyle = "#fff";
         ctx.fillText(String(shownXp), left + 470, 495);

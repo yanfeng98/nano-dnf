@@ -11178,19 +11178,42 @@ test("the compact bar switches to grey during cooldown and restores colour witho
 
 
 test("recording profiles initialise real level-dependent state without startup level-up events", () => {
-  for (const [stage, level] of [["mirkwood", 3], ["mirkwooddeep", 6]]) {
+  for (const [stage, level, xp, threshold] of [["mirkwood", 3, 1776, 2098], ["mirkwooddeep", 6, 1103, 7726]]) {
     const profile = Core.createState({ stage, referenceProfile: true });
     const grown = Core.createState({ stage });
     while (grown.player.level < level) Core.grantXp(grown, grown.player.xpToNext);
-    for (const key of ["level", "xpToNext", "attackBonus", "maxHp", "maxMp"])
+    for (const key of ["level", "attackBonus", "maxHp", "maxMp"])
       assert.equal(profile.player[key], grown.player[key], key);
     assert.equal(profile.player.name, "阿努纳奇");
     assert.equal(profile.player.hp, profile.player.maxHp);
     assert.equal(profile.player.mp, profile.player.maxMp);
-    assert.equal(profile.player.xp, 0);
+    assert.equal(profile.player.xp, xp);
+    assert.equal(profile.player.xpToNext, threshold);
+    assert.equal(profile.xpGaugeFlashUntil, undefined);
     assert.ok(!profile.effects.some(e => e.kind === "banner" && /LEVEL UP/.test(e.text || "")));
   }
   assert.equal(Core.createState().player.level, 1, "level-one simulation fixtures remain explicit model defaults");
+});
+
+test("reference progression applies the clear credit once before results", () => {
+  for (const [stage, credits, before, after, remaining] of [
+    ["mirkwood", [320, 80, 1680], 4, 5, 667],
+    ["mirkwooddeep", [4880], 6, 7, 4575]
+  ]) {
+    const state = Core.createState({ stage, referenceProfile: true });
+    Core.grantXp(state, credits[0]);
+    assert.equal(state.player.level, stage === "mirkwood" ? 3 : 6);
+    for (const xp of credits.slice(1)) Core.grantXp(state, xp);
+    assert.equal(state.player.level, before);
+    state.victoryDelay = Core.DT;
+    Core.step(state, {});
+    assert.ok(state.victory);
+    assert.equal(state.player.level, after);
+    assert.equal(state.player.xp, remaining);
+    assert.equal(state.stats.killXp, 0, "clear credit has separate accounting");
+    Core.runFrames(state, 120, {});
+    assert.equal(state.player.xp, remaining);
+  }
 });
 
 

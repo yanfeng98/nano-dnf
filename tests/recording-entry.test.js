@@ -11,6 +11,7 @@ test('deep room14 includes the five recorded green goblins and both captain pair
     const cell = state.dungeon.cells.findIndex(spot => spot.col === 3 && spot.row === 0);
     Core.goToCell(state, cell);
     state.player.xpToNext = 100000;
+    const xpBefore = state.player.xp;
     state.player.invuln = Infinity;
     state.transition = 0;
     assert.equal(state.enemies.length, 9, 'map402 and the nine visible death credits');
@@ -28,7 +29,7 @@ test('deep room14 includes the five recorded green goblins and both captain pair
       }
     }
     assert.equal(state.stats.kills, 9);
-    assert.equal(state.player.xp, 440, 'five40 and four60 recorded credits');
+    assert.equal(state.player.xp - xpBefore, 440, 'five40 and four60 recorded credits');
     Core.runFrames(state, 3, {});
     assert.ok(state.room.cleared);
   }
@@ -41,6 +42,7 @@ test('deep room23 restores three red, three blue and five cats with eleven60 cre
     Core.goToCell(state, state.dungeon.cells.findIndex(spot => spot.col === 2 && spot.row === 1));
     state.transition = 0;
     state.player.xpToNext = 100000;
+    const xpBefore = state.player.xp;
     state.player.invuln = Infinity;
     const seen = new Map();
     for (let frame = 0; frame < 1200 && !state.room.cleared; frame++) {
@@ -59,7 +61,7 @@ test('deep room23 restores three red, three blue and five cats with eleven60 cre
       'goblinBlue:6:60', 'goblinBlue:6:60', 'goblinBlue:6:60',
       'cat:6:60', 'cat:6:60', 'cat:6:60', 'cat:6:60', 'cat:6:60'
     ].sort());
-    assert.equal(state.player.xp, 660);
+    assert.equal(state.player.xp - xpBefore, 660);
     assert.ok(state.room.cleared);
   }
 });
@@ -71,6 +73,7 @@ test('deep room13 restores nine recorded actors and nine60 credits', () => {
     Core.goToCell(state, state.dungeon.cells.findIndex(spot => spot.col === 2 && spot.row === 0));
     state.transition = 0;
     state.player.xpToNext = 100000;
+    const xpBefore = state.player.xp;
     state.player.invuln = Infinity;
     const seen = new Map();
     for (let frame = 0; frame < 1200 && !state.room.cleared; frame++) {
@@ -88,7 +91,7 @@ test('deep room13 restores nine recorded actors and nine60 credits', () => {
       'goblinRed:6:60', 'goblinRed:6:60', 'goblinBlue:6:60', 'goblinBlue:6:60',
       'cat:6:60', 'cat:6:60', 'deepElite:6:60', 'deepElite:6:60', 'throwerElite:6:60'
     ].sort());
-    assert.equal(state.player.xp, 540);
+    assert.equal(state.player.xp - xpBefore, 540);
     assert.ok(state.room.cleared);
   }
 });
@@ -100,6 +103,7 @@ test('deep room24 restores ten recorded actors and ten60 credits', () => {
     Core.goToCell(state, state.dungeon.cells.findIndex(spot => spot.col === 3 && spot.row === 1));
     state.transition = 0;
     state.player.xpToNext = 100000;
+    const xpBefore = state.player.xp;
     state.player.invuln = Infinity;
     const seen = new Map();
     for (let frame = 0; frame < 1200 && !state.room.cleared; frame++) {
@@ -118,7 +122,7 @@ test('deep room24 restores ten recorded actors and ten60 credits', () => {
       'goblinBlue:6:60', 'goblinBlue:6:60', 'goblinBlue:6:60',
       'goblinBlue:6:60', 'deepElite:6:60', 'deepElite:6:60', 'throwerElite:6:60'
     ].sort());
-    assert.equal(state.player.xp, 600);
+    assert.equal(state.player.xp - xpBefore, 600);
     assert.ok(state.room.cleared);
   }
 });
@@ -130,6 +134,7 @@ test('deep room33 restores both captain kinds and all eight recorded60 credits',
     Core.goToCell(state, state.dungeon.cells.findIndex(spot => spot.col === 2 && spot.row === 2));
     state.transition = 0;
     state.player.xpToNext = 100000;
+    const xpBefore = state.player.xp;
     state.player.invuln = Infinity;
     const seen = new Map();
     for (let frame = 0; frame < 1200 && !state.room.cleared; frame++) {
@@ -148,7 +153,7 @@ test('deep room33 restores both captain kinds and all eight recorded60 credits',
       'goblinBlue:6:60', 'goblinBlue:6:60', 'goblinBlue:6:60',
       'deepElite:6:60', 'throwerElite:6:60'
     ].sort());
-    assert.equal(state.player.xp, 480);
+    assert.equal(state.player.xp - xpBefore, 480);
     assert.ok(state.room.cleared);
   }
 });
@@ -160,6 +165,7 @@ test('deep room43 restores both captain kinds and all eight recorded60 credits',
     Core.goToCell(state, state.dungeon.cells.findIndex(spot => spot.col === 2 && spot.row === 3));
     state.transition = 0;
     state.player.xpToNext = 100000;
+    const xpBefore = state.player.xp;
     state.player.invuln = Infinity;
     const seen = new Map();
     for (let frame = 0; frame < 1200 && !state.room.cleared; frame++) {
@@ -177,7 +183,7 @@ test('deep room43 restores both captain kinds and all eight recorded60 credits',
       'goblinRed:6:60', 'goblinRed:6:60', 'goblinBlue:6:60', 'goblinBlue:6:60',
       'deepElite:6:60', 'deepElite:6:60', 'deepElite:6:60', 'throwerElite:6:60'
     ].sort());
-    assert.equal(state.player.xp, 480);
+    assert.equal(state.player.xp - xpBefore, 480);
     assert.ok(state.room.cleared);
   }
 });
@@ -188,6 +194,7 @@ test('deep room42 matches eight recorded deaths, including the Lv7 cat', () => {
     const state = Core.createState({stage: 'mirkwooddeep', seed, referenceProfile: true});
     Core.goToCell(state, state.dungeon.cells.findIndex(spot => spot.col === 1 && spot.row === 3));
     state.player.xpToNext = 100000;
+    const xpBefore = state.player.xp;
     state.player.invuln = Infinity;
     state.transition = 0;
     const seen = new Map();
@@ -208,7 +215,7 @@ test('deep room42 matches eight recorded deaths, including the Lv7 cat', () => {
       'throwerElite:6:60', 'throwerElite:6:60', 'throwerElite:6:60',
       'cat:6:60', 'cat:6:60', 'cat:7:70'
     ].sort());
-    assert.equal(state.player.xp, 490, 'seven60 credits and the Lv7 cat70');
+    assert.equal(state.player.xp - xpBefore, 490, 'seven60 credits and the Lv7 cat70');
     assert.ok(state.room.cleared);
   }
 });
@@ -218,6 +225,7 @@ test('deep entry preserves recorded Lv5 red / Lv6 blue goblin credits across spa
   for (const seed of [1, 2, 7, 123]) {
     const state = Core.createState({stage: 'mirkwooddeep', seed, referenceProfile: true});
     state.player.xpToNext = 100000;
+    const xpBefore = state.player.xp;
     state.player.invuln = Infinity;
     state.transition = 0;
     const observed = new Map();
@@ -240,7 +248,7 @@ test('deep entry preserves recorded Lv5 red / Lv6 blue goblin credits across spa
     assert.equal([...observed.values()].filter(type => type === 'goblinRed').length, 4);
     assert.equal([...observed.values()].filter(type => type === 'goblinBlue').length, 3);
     assert.equal(state.stats.kills, 7);
-    assert.equal(state.player.xp, 380, 'four50 and three60 credits in the entry logs');
+    assert.equal(state.player.xp - xpBefore, 380, 'four50 and three60 credits in the entry logs');
   }
 });
 
@@ -248,6 +256,7 @@ test('ordinary entry deaths pay the four recorded credits, independently of loot
   for (const seed of [1, 2, 7, 123]) {
     const state = Core.createState({ stage: 'mirkwood', seed, referenceProfile: true });
     state.player.xpToNext = 100000; // Amounts only; the progression table remains unknown.
+    const xpBefore = state.player.xp;
     const expected = { grunt: 40, caster: 40, coward: 40, cursedRed: 80 };
     for (const enemy of state.enemies) {
       assert.equal(enemy.xp, expected[enemy.type], `${enemy.type}: V1 entry death log`);
@@ -257,7 +266,7 @@ test('ordinary entry deaths pay the four recorded credits, independently of loot
       assert.ok(enemy.dead);
     }
     assert.equal(state.stats.kills, 4);
-    assert.equal(state.player.xp, 200, 'two 40s, champion 80, then final 40');
+    assert.equal(state.player.xp - xpBefore, 200, 'two 40s, champion 80, then final 40');
     assert.equal(state.stats.loot, 0);
     assert.equal(state.pickups.length, 4);
     assert.equal(state.log.filter(line => line.text === '获得40点经验值').length, 3);
@@ -344,6 +353,7 @@ test('deep lord room ordinary deaths pay the observed level-specific credits', (
     assert.equal(state.room.pendingWaves.length, 0);
     state.player.invuln = Infinity;
     state.player.xpToNext = 100000;
+    const xpBefore = state.player.xp;
     const observed = new Set();
     const observedTypes = new Set();
     const typeCounts = {};
@@ -367,9 +377,9 @@ test('deep lord room ordinary deaths pay the observed level-specific credits', (
     }
     assert.deepEqual(typeCounts, {deepElite:2, throwerElite:1, cat:4, lugaruBoss:1});
     assert.equal(observed.size, 8, 'four60, three70 and one360 death credits');
-    assert.equal(state.player.xp, 810);
+    assert.equal(state.player.xp - xpBefore, 810);
     assert.ok(state.room.cleared);
-    assert.equal(state.player.xp, expectedXP);
+    assert.equal(state.player.xp - xpBefore, expectedXP);
     assert.deepEqual([...observedTypes].sort(), ['cat', 'deepElite', 'lugaruBoss', 'throwerElite']);
   }
 });

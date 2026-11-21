@@ -1630,6 +1630,17 @@
     healOnLevelUp: 12,
     maxLevel: 12
   };
+  // Local fits to the stable XP endpoints, using the 164px gauge assumption.
+  var REFERENCE_EXPERIENCE = {
+    mirkwood: {
+      level: 3, xp: 1776, thresholds: { 3: 2098, 4: 3467, 5: 5469 },
+      clear: { base: 1760, rating: 528, channel: 88 }
+    },
+    mirkwooddeep: {
+      level: 6, xp: 1103, thresholds: { 6: 7726, 7: 10568 },
+      clear: { base: 4680, rating: 1404, channel: 234 }
+    }
+  };
 
   /*
    * 血之狂暴 pulls blood out of whatever the Slayer hits: a landed hit has a
@@ -5075,11 +5086,14 @@
       }
       state.player = createPlayer(options.startX || 110);
       // Opt-in recording starts; the pure level-one fixture remains available.
-      var initialLevel = { mirkwood: 3, mirkwooddeep: 6 }[state.stage.id];
-      if (options.referenceProfile && initialLevel) {
+      var profile = options.referenceProfile && REFERENCE_EXPERIENCE[state.stage.id];
+      if (profile) {
+        state.experienceProfile = profile;
         state.player.name = "阿努纳奇";
         state.player.skillRanks = { upSlash: 1 };
-        while (state.player.level < initialLevel) advancePlayerLevel(state.player);
+        while (state.player.level < profile.level) advancePlayerLevel(state.player);
+        state.player.xp = profile.xp;
+        state.player.xpToNext = profile.thresholds[profile.level];
         state.player.hp = state.player.maxHp;
         state.player.mp = state.player.maxMp;
       }
@@ -6156,22 +6170,26 @@
   // phase and XP amounts remain unverified; use the existing single death event.
   function awardEnemyExperience(state, enemy) {
     if (!(enemy.xp > 0) || state.player.dead) return;
-    grantXp(state, enemy.xp);
     state.stats.killXp += enemy.xp;
-    pushLog(state, "获得" + enemy.xp + "点经验值", "gold");
+    creditExperience(state, enemy.xp);
+  }
+
+  function creditExperience(state, amount) {
+    grantXp(state, amount);
+    pushLog(state, "获得" + amount + "点经验值", "gold");
     // Same-step captions share an anchor and would draw over each other.
     var caption = state.effects.find(function (effect) {
       return effect.kind === "pickupText" && effect.awardedAt === state.time;
     });
     if (caption) {
-      caption.amount += enemy.xp;
+      caption.amount += amount;
       caption.text = caption.amount + " Exp";
       return;
     }
     state.effects.push({
       kind: "pickupText",
-      text: enemy.xp + " Exp",
-      amount: enemy.xp,
+      text: amount + " Exp",
+      amount: amount,
       awardedAt: state.time,
       anchor: "player",
       x: state.player.x,
@@ -6180,6 +6198,13 @@
       life: EXPERIENCE_FLOAT.duration,
       maxLife: EXPERIENCE_FLOAT.duration
     });
+  }
+
+  function awardClearExperience(state) {
+    if (!state.experienceProfile || state.clearExperience || state.player.dead) return;
+    var clear = state.experienceProfile.clear;
+    state.clearExperience = { base: clear.base, rating: clear.rating, channel: clear.channel };
+    creditExperience(state, clear.base + clear.rating + clear.channel);
   }
 
   /** 石碑只掉金币：不写物品行、不给经验。 */
@@ -6204,7 +6229,7 @@
       player.level < PROGRESSION.maxLevel
     ) {
       player.xp -= player.xpToNext;
-      advancePlayerLevel(player);
+      advancePlayerLevel(player, state.experienceProfile);
       player.hp = Math.min(player.maxHp, player.hp + PROGRESSION.healOnLevelUp);
       player.mp = Math.min(player.maxMp, player.mp + PROGRESSION.maxMpPerLevel);
       levels += 1;
@@ -6217,9 +6242,10 @@
     return levels;
   }
 
-  function advancePlayerLevel(player) {
+  function advancePlayerLevel(player, profile) {
     player.level += 1;
-    player.xpToNext = Math.round(player.xpToNext * PROGRESSION.growth);
+    player.xpToNext = (profile && profile.thresholds[player.level]) ||
+      Math.round(player.xpToNext * PROGRESSION.growth);
     player.maxHp += PROGRESSION.maxHpPerLevel;
     player.maxMp += PROGRESSION.maxMpPerLevel;
     player.attackBonus += PROGRESSION.attackPerLevel;
@@ -9412,6 +9438,7 @@
       if (state.victoryDelay <= 0) {
         state.victoryDelay = null;
         state.victory = true;
+        awardClearExperience(state);
         // Enemy simulation ends here, including when post-clear play resumes.
         state.projectiles = [];
       }
