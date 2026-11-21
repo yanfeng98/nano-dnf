@@ -79,6 +79,11 @@
     return entry;
   }
 
+  function improvesRecord(seconds, level, previous) {
+    return !previous || seconds < previous.seconds ||
+      (seconds === previous.seconds && level > previous.level);
+  }
+
   function deserialize(text) {
     var parsed = null;
     if (typeof text === "string" && text) {
@@ -100,7 +105,18 @@
       var spot = parseKey(key);
       var entry = normalizeEntry(seeds[key]);
       if (!spot || !entry) return;
-      store.seeds[spot.stage + ":" + spot.seed] = entry;
+      var canonical = keyFor(spot.stage, spot.seed);
+      var previous = store.seeds[canonical];
+      if (!previous) {
+        store.seeds[canonical] = entry;
+        return;
+      }
+      var winner = improvesRecord(entry.seconds, entry.level, previous) ? entry : previous;
+      // Both entries may count some of the same clears.
+      winner.clears = Math.max(previous.clears, entry.clears);
+      var updatedAt = Math.max(previous.updatedAt || 0, entry.updatedAt || 0);
+      if (updatedAt > 0) winner.updatedAt = updatedAt;
+      store.seeds[canonical] = winner;
     });
     return store;
   }
@@ -198,8 +214,7 @@
     });
 
     var previous = seeds[key] || null;
-    var improved =
-      !previous || seconds < previous.seconds || (seconds === previous.seconds && level > previous.level);
+    var improved = improvesRecord(seconds, level, previous);
     var clears = (previous ? previous.clears : 0) + 1;
     var entry = {
       seconds: improved ? seconds : previous.seconds,

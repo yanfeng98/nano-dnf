@@ -185,6 +185,23 @@ test("a key written before stages existed is read as the first stage's", () => {
   );
 });
 
+test("overlapping legacy and stage keys retain the fastest result and known clear count", () => {
+  const legacy = { seconds: 42, level: 4, clears: 2, updatedAt: 1000 };
+  const current = { seconds: 50, level: 6, clears: 5, updatedAt: 2000 };
+  const store = Records.deserialize(JSON.stringify({
+    schemaVersion: Records.SCHEMA_VERSION,
+    runs: 5,
+    seeds: { "7": legacy, [STAGE + ":7"]: current }
+  }));
+
+  assert.equal(store.runs, 5);
+  assert.deepEqual(Object.keys(store.seeds), [STAGE + ":7"]);
+  assert.deepEqual(Records.best(store, STAGE, 7), {
+    seconds: 42, level: 4, clears: 5, updatedAt: 2000
+  });
+  assert.deepEqual(Records.deserialize(Records.serialize(store)), store);
+});
+
 test("the seed history is capped so storage cannot grow without bound", () => {
   let store = Records.emptyStore();
   for (let index = 0; index < Records.MAX_SEEDS + 5; index += 1) {
