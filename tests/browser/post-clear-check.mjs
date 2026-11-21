@@ -190,6 +190,19 @@ export async function checkPostClear(page, out) {
   await page.keyboard.press('ArrowRight');await page.keyboard.press('Enter');
   await page.waitForFunction(()=>!window.nanoDnf.getProgress().regionOpen);
   assert.equal(await page.evaluate(()=>window.nanoDnf.getStage()),'mirkwooddeep');
+  const deepLink = await page.evaluate(() => window.nanoDnf.getShareLink());
+  assert.equal(new URL(deepLink).searchParams.get('stage'), 'mirkwooddeep');
+  const reopened = await page.context().browser().newPage({
+    storageState: await page.context().storageState()
+  });
+  try {
+    await reopened.goto(deepLink);
+    await reopened.waitForFunction(() => window.nanoDnf?.getAssetState().ready);
+    assert.equal(await reopened.evaluate(() => window.nanoDnf.getStage()), 'mirkwooddeep',
+      'a shared run reopens the unlocked stage');
+  } finally {
+    await reopened.close();
+  }
   const entryTime = await page.evaluate(() => {
     const state = window.nanoDnf.getState();
     state.intro = null;

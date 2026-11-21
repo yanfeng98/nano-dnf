@@ -40,7 +40,7 @@
    * without a DOM: keep whatever else the URL carries (the touch switch, a hash)
    * and replace the seed in place rather than dropping the reader's context.
    */
-  function seedUrl(href, seed) {
+  function seedUrl(href, seed, stage) {
     var seedValue = Number(seed);
     if (!isFinite(seedValue) || seedValue <= 0 || Math.floor(seedValue) !== seedValue) return null;
     var text = String(href === undefined || href === null ? "" : href);
@@ -62,9 +62,11 @@
     var kept = query
       .split("&")
       .filter(function (pair) {
-        return pair && pair.split("=")[0] !== "seed";
+        var key = pair.split("=")[0];
+        return pair && key !== "seed" && (stage === undefined || key !== "stage");
       });
     kept.push("seed=" + whatInteger(seedValue));
+    if (stage) kept.push("stage=" + encodeURIComponent(stage));
     return text + "?" + kept.join("&") + hash;
   }
 

@@ -99,6 +99,13 @@ test("the share link reopens one exact seed", () => {
   assert.equal(Summary.seedUrl("", 5), null);
 });
 
+test("a share link replaces the stage together with the seed", () => {
+  assert.equal(
+    Summary.seedUrl("https://x.dev/p/?seed=5&stage=old&touch=1#top", 9, "mirkwooddeep"),
+    "https://x.dev/p/?touch=1&seed=9&stage=mirkwooddeep#top"
+  );
+});
+
 test("the live variant reads the run that is still going", () => {
   const state = Core.createState({ seed: 4242 });
   Core.runFrames(state, 300, { right: true, attack: true });

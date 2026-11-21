@@ -345,8 +345,12 @@
 
   var pinnedSeed = seedFromUrl();
   var currentSeed = pinnedSeed === null ? Core.DEFAULT_SEED : pinnedSeed;
+  var sharedStage = new URLSearchParams(location.search).get("stage");
+  if (Core.REGION.stages.indexOf(sharedStage) < 0 || !Core.STAGES[sharedStage].rooms.length) {
+    sharedStage = null;
+  }
   /* Which stage the next run fights; the region map is what changes it. */
-  var currentStage = Core.REGION.stages[0];
+  var currentStage = stageIsOpen(sharedStage) ? sharedStage : Core.REGION.stages[0];
   var lastRun = null;
   /* The numbers of the run that just ended, frozen at the clear. */
   var finishedRun = null;
@@ -1706,7 +1710,7 @@
   /* The link that reopens this exact run. */
   function shareLink() {
     if (!Summary || typeof Summary.seedUrl !== "function") return null;
-    return Summary.seedUrl(window.location ? window.location.href : "", currentSeed);
+    return Summary.seedUrl(window.location ? window.location.href : "", currentSeed, currentStage);
   }
 
   function copyShareLink() {
@@ -2049,7 +2053,8 @@
 
   function openRegion() {
     regionOpen = true;
-    regionSelection = Math.max(0, regionStageIds().indexOf(currentStage));
+    regionSelection = Math.max(0, regionStageIds().indexOf(sharedStage || currentStage));
+    sharedStage = null;
     showHelp = false;
     leaveTitle();
     /* Behind the map the run is rebuilt for whichever stage is selected, so the
