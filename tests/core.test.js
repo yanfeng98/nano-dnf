@@ -340,6 +340,31 @@ test("cross-slash advance stays inside either side wall", () => {
   }
 });
 
+test("cross-slash advance stops at a solid prop in the same lane", () => {
+  for (const depth of [120, 0]) {
+    const state = lastRoomState();
+    const rock = { piece: "rockFlat", x: 300, z: 120, scale: [0.5, 0.5], solid: true };
+    state.props = [rock];
+    const player = state.player;
+    const obstacle = Core.propObstacle(rock, player);
+    const edge = obstacle.x - obstacle.width / 2;
+    const origin = edge - 5;
+    player.x = origin;
+    player.z = depth;
+    player.facing = 1;
+    Core.step(state, { skills: { crossSlash: true } });
+    assert.equal(player.skillId, "crossSlash");
+    let furthest = player.x;
+    while (player.skillId) {
+      Core.step(state, {});
+      furthest = Math.max(furthest, player.x);
+    }
+    if (depth === rock.z) assert.equal(furthest, edge);
+    else assert.ok(furthest > edge);
+    assert.equal(player.x, origin);
+  }
+});
+
 test("player stays grounded when idle", () => {
   const state = lastRoomState();
 

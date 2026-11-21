@@ -7448,13 +7448,12 @@
        * spot; 十字斩 is the one that walks him forward and back (see its own
        * `advance`/`advanceAt`/`advanceBack` and `docs/adr/0012`), and the step is
        * driven off the cast's clock rather than off `vx` - the rooted damping
-       * would smear a 0.06s step into a long slide, and walls and bodies would
-       * chop it up on the way. So his x is *stated* for each frame of the move,
-       * from the spot he pressed the key on.
+       * would smear a 0.06s step into a long slide. The cast origin supplies
+       * each frame's desired position, which is limited by solid scenery.
        */
       if (active.advance) {
         var advanceX = player.castOriginX + player.facing * advanceAhead(active, skillElapsed);
-        player.x = clamp(advanceX, walkLeft, walkRight);
+        player.x = stopAtHorizontalProp(state, player, clamp(advanceX, walkLeft, walkRight));
       }
 
       /*
@@ -9001,6 +9000,20 @@
       if (!prop.broken) return;
       if (state.time - prop.brokenAt >= BREAK_ANIM) prop.gone = true;
     });
+  }
+
+  function stopAtHorizontalProp(state, body, x) {
+    var fromX = body.x;
+    if (x === fromX) return x;
+    var rightward = x > fromX;
+    (state.props || []).forEach(function (prop) {
+      var box = propObstacle(prop, body);
+      if (!box || Math.abs(body.z - box.z) >= box.depth / 2) return;
+      var edge = box.x + (rightward ? -box.width / 2 : box.width / 2);
+      if (rightward && fromX <= edge && x > edge) x = edge;
+      if (!rightward && fromX >= edge && x < edge) x = edge;
+    });
+    return x;
   }
 
   /**
