@@ -102,6 +102,21 @@ export async function checkPostClear(page, out) {
   });
   assert.deepEqual(cancelledDrag.after, cancelledDrag.before, 'cancelling a drag preserves the skill bar');
   assert.equal(cancelledDrag.savedAfter, cancelledDrag.savedBefore, 'cancelling a drag does not save a change');
+  const loadoutBeforeInventory = await page.evaluate(() => window.nanoDnf.getLoadout());
+  await page.keyboard.press('KeyI');
+  const hiddenSlot = await page.evaluate(() => {
+    const loadout = window.nanoDnf.getLoadout();
+    return window.DNFRender.skillBarButtons().find(box => loadout[box.index]);
+  });
+  const inventoryCanvas = await page.locator('#stage').boundingBox();
+  await page.mouse.move(inventoryCanvas.x + (hiddenSlot.x + hiddenSlot.w / 2) * inventoryCanvas.width / 960,
+    inventoryCanvas.y + (hiddenSlot.y + hiddenSlot.h / 2) * inventoryCanvas.height / 540);
+  await page.mouse.down();
+  await page.mouse.move(inventoryCanvas.x + 10, inventoryCanvas.y + 10);
+  await page.mouse.up();
+  await page.keyboard.press('Escape');
+  assert.deepEqual(await page.evaluate(() => window.nanoDnf.getLoadout()), loadoutBeforeInventory,
+    'dragging with the inventory open does not change the underlying skill bar');
   await page.keyboard.press('KeyB');
   const gear = ['rustyBlade', 'clothArmor', 'copperRing'];
   const batchTime = await page.evaluate(() => {

@@ -1377,7 +1377,7 @@
   }
 
   function pointerDown(event) {
-    if (!assets.ready) {
+    if (!assets.ready || progressPanel) {
       event.preventDefault();
       return;
     }
@@ -1545,6 +1545,7 @@
     }
     if (!showHelp && !regionOpen && (!state.victory || state.postClear) && !state.defeat &&
         (event.code === "KeyI" || event.code === "KeyL" || event.code === "KeyK")) {
+      drag = null;
       /* 三页盖住城镇的 NPC 窗，别让对白/商店从底下露出来。 */
       if (townOpen) {
         town.dialogue = null;
