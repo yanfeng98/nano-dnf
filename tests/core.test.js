@@ -8302,6 +8302,25 @@ test("a light hit interrupts a ranged enemy's unarmored wind-up", () => {
   assert.equal(state.projectiles.length, 0);
 });
 
+test("killing an armored boss during its wind-up removes its attack warning", () => {
+  const state = lastRoomState();
+  const player = state.player;
+  const boss = Core.createEnemy(state, "boss", player.x + 90, player.z);
+  boss.evasion = 0;
+  boss.attackRange = NEVER_REACHES;
+  state.enemies = [boss];
+  for (let frame = 0; frame < 120 && !boss.superArmor; frame += 1) Core.step(state, {});
+  assert.ok(boss.superArmor);
+  const warning = state.effects.find(effect => effect.kind === "telegraph" && effect.enemyId === boss.id);
+  assert.ok(warning);
+
+  Core.damageEnemy(state, boss, boss.hp + 1, 0, player.x);
+  assert.ok(boss.dead);
+  assert.equal(boss.attackTimer, 0);
+  assert.equal(boss.superArmor, false);
+  assert.ok(!state.effects.includes(warning));
+});
+
 test("super armour never sticks when a wind-up is interrupted", () => {
   const state = lastRoomState();
   /* Mid band for the lunge, which is a gap - see the lunge test below. */

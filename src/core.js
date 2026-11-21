@@ -6549,6 +6549,7 @@
       spawnBloodStrand(state, enemy);
     }
 
+    var wasAttacking = enemy.attackTimer > 0;
     /* Super armour keeps bosses swinging through light hits, DNF style. */
     if (enemy.superArmor && !opts.ignoreSuperArmor) {
       enemy.vx *= 0.6;
@@ -6557,12 +6558,7 @@
         ? opts.knockbackDirection : (enemy.x >= sourceX ? 1 : -1);
       enemy.vx = direction * knockbackX;
       enemy.hurtTimer = 0.18;
-      if (enemy.attackTimer > 0) {
-        enemy.attackTimer = 0;
-        state.effects = state.effects.filter(function (effect) {
-          return effect.kind !== "telegraph" || effect.enemyId !== enemy.id;
-        });
-      }
+      enemy.attackTimer = 0;
     }
 
     if (opts.launch) {
@@ -6606,6 +6602,14 @@
       enemy.stun = 0;
       enemy.attackTimer = 0;
       enemy.superArmor = false;
+    }
+
+    if (wasAttacking && (enemy.attackTimer <= 0 || enemy.hp <= 0)) {
+      enemy.attackTimer = 0;
+      enemy.superArmor = false;
+      state.effects = state.effects.filter(function (effect) {
+        return effect.kind !== "telegraph" || effect.enemyId !== enemy.id;
+      });
     }
 
     if (enemy.hp <= 0) {
