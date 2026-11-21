@@ -9748,6 +9748,12 @@ test("霸体挑不起来，而且落一句 无法浮空", () => {
   assert.equal(enemy.vy, 0, "霸体挑不起来");
   assert.equal(enemy.onGround, true, "霸体还站在地上");
   assert.equal(enemy.attackTimer, 0.4, "霸体的出招不能被打断");
+  const beforeKnockdown = enemy.hp;
+  Core.damageEnemy(state, enemy, 1, 0, enemy.x - 40, { knockdown: 0.8 });
+  assert.equal(enemy.hp, beforeKnockdown - 1);
+  assert.equal(enemy.knockdown, 0, "普通击倒也受霸体保护");
+  assert.equal(enemy.onGround, true);
+  assert.equal(enemy.attackTimer, 0.4);
   const word = state.effects.find((effect) => effect.kind === "hitWord");
   assert.ok(word, "挑不起来就得说 `无法浮空`");
   assert.equal(word.text, "无法浮空");

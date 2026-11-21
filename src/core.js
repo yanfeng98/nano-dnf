@@ -6550,8 +6550,9 @@
     }
 
     var wasAttacking = enemy.attackTimer > 0;
+    var armored = enemy.superArmor && !opts.ignoreSuperArmor;
     /* Super armour keeps bosses swinging through light hits, DNF style. */
-    if (enemy.superArmor && !opts.ignoreSuperArmor) {
+    if (armored) {
       enemy.vx *= 0.6;
     } else {
       var direction = opts.knockbackDirection === 1 || opts.knockbackDirection === -1
@@ -6572,7 +6573,7 @@
        * 录像里那句话是冲着"这么打没用"说的，所以它得**真的**没用。
        * 带 `ignoreSuperArmor` 的技能（嗜魂之手那两处）不受这条约束：它们本来就是破霸体的。
        */
-      if (enemy.superArmor && !opts.ignoreSuperArmor) {
+      if (armored) {
         pushHitWordEffect(state, enemy, HIT_WORD.text);
       } else {
         enemy.vy = opts.launch;
@@ -6585,7 +6586,7 @@
       enemy.vy = Math.min(enemy.vy, -150);
     }
 
-    if (opts.knockdown) {
+    if (opts.knockdown && !armored) {
       enemy.knockdown = Math.max(enemy.knockdown, opts.knockdown);
       enemy.vy = Math.min(enemy.vy, -170);
       enemy.onGround = false;
@@ -7376,7 +7377,7 @@
                * **第三下有自己的收尾**（`docs/adr/0061`）：前两下只推开，第三下把人
                * 打倒。霸体不吃击倒 —— 和 `launch` 同一条（`docs/adr/0018`）。
                */
-              knockdown: stage === 2 && !enemy.superArmor ? 0.6 : 0,
+              knockdown: stage === 2 ? 0.6 : 0,
               hitStop: HIT_STOP.stage[stage]
             });
             if (!enemy.dead && wasAirborne) {
