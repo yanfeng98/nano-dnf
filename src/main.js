@@ -221,6 +221,7 @@
   };
 
   var held = { left: false, right: false, up: false, down: false, jump: false, attack: false };
+  var heldJumpKeys = new Set();
   var pressed = { jump: false, attack: false };
   Loadout.SLOT_KEYS.forEach(function (key, index) {
     var action = "slot" + index;
@@ -1327,7 +1328,13 @@
     if (isDown && !held[action] && ONE_SHOT_ACTIONS[action]) {
       pressed[action] = true;
     }
-    held[action] = isDown;
+    if (action === "jump") {
+      if (isDown) heldJumpKeys.add(code);
+      else heldJumpKeys.delete(code);
+      held.jump = heldJumpKeys.size > 0;
+    } else {
+      held[action] = isDown;
+    }
     if (isDown) {
       ensureAudio();
       startMusic();
@@ -1659,9 +1666,7 @@
       townKeyUp(event);
       return;
     }
-    if (setKey(event.code, false, event) && event.code === "Space") {
-      pressed.jump = false;
-    }
+    setKey(event.code, false, event);
   });
 
   canvas.addEventListener("pointerdown", pointerDown);
@@ -1674,6 +1679,7 @@
   });
 
   function clearCombatInput() {
+    heldJumpKeys.clear();
     Object.keys(held).forEach(function (key) {
       held[key] = false;
     });
