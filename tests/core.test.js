@@ -320,6 +320,26 @@ test("player runs right and is clamped by the arena wall", () => {
   assert.equal(state.player.facing, 1);
 });
 
+test("cross-slash advance stays inside either side wall", () => {
+  for (const facing of [-1, 1]) {
+    const state = lastRoomState();
+    state.props = [];
+    const player = state.player;
+    const min = Core.roomLeft(state) + player.walkWidth / 2;
+    const max = Core.roomRight(state) - player.walkWidth / 2;
+    const origin = facing === 1 ? max - 2 : min + 2;
+    player.facing = facing;
+    player.x = origin;
+    Core.step(state, { skills: { crossSlash: true } });
+    assert.equal(player.skillId, "crossSlash");
+    while (player.skillId) {
+      Core.step(state, {});
+      assert.ok(player.x >= min && player.x <= max);
+    }
+    assert.equal(player.x, origin);
+  }
+});
+
 test("player stays grounded when idle", () => {
   const state = lastRoomState();
 

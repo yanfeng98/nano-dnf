@@ -7079,11 +7079,10 @@
       if (landedDive) player.vx = 0;
       if (!wasOnGround) pushSound(state, "playerLand", { x: player.x, z: player.z });
     }
-    player.x = clamp(
-      player.x,
-      roomLeft(state) + walkFootprint(player).width / 2,
-      roomRight(state) - walkFootprint(player).width / 2
-    );
+    var halfWalkWidth = walkFootprint(player).width / 2;
+    var walkLeft = roomLeft(state) + halfWalkWidth;
+    var walkRight = roomRight(state) - halfWalkWidth;
+    player.x = clamp(player.x, walkLeft, walkRight);
     /*
      * And the band's two edges stop him the way the walls do. The front edge is
      * where the camera is and the back edge is the wall behind the room, so both
@@ -7454,7 +7453,8 @@
        * from the spot he pressed the key on.
        */
       if (active.advance) {
-        player.x = player.castOriginX + player.facing * advanceAhead(active, skillElapsed);
+        var advanceX = player.castOriginX + player.facing * advanceAhead(active, skillElapsed);
+        player.x = clamp(advanceX, walkLeft, walkRight);
       }
 
       /*
