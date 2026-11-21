@@ -6732,7 +6732,7 @@
        * birth: how far the sword behind it had been forged. 满档的火山比断剑砸出来
        * 的猛 - the same dial the sword's size reads (docs/adr/0025).
        */
-      tickAt: field.tick ? field.tick.interval : 0,
+      tickAt: field.tick ? span * (field.tick.from || 0) + field.tick.interval : 0,
       ticks: 0,
       tier: caster.hellbenterTier || 1
     };
@@ -6748,20 +6748,14 @@
    * comes up, and the thing that hits you is the floor, not him. Only fields
    * whose move declares `field.tick` damage anything; 大蹦's rift is art.
    */
-  function updateFieldTicks(state, dt) {
-    state.fields.forEach(function (field) {
+  function updateFieldTicks(state, fields) {
+    fields.forEach(function (field) {
       var spec = SKILLS[field.skillId];
       var tick = spec && spec.field && spec.field.tick;
       if (!tick || field.clock < 0) return;
-      /* The eruption's own window, as fractions of the field's timeline. */
-      var at = field.span > 0 ? field.clock / field.span : 1;
-      if (at < (tick.from || 0) || at > (tick.until === undefined ? 1 : tick.until)) return;
-      field.tickAt -= dt;
-      if (field.tickAt > 0) return;
-      field.tickAt += tick.interval;
-      field.ticks += 1;
+      var end = Math.min(field.life, field.span * (tick.until === undefined ? 1 : tick.until));
+      var through = Math.min(end, field.clock);
       var radius = tick.radius * SLAYER_HEIGHT;
-      var last = at >= (tick.until === undefined ? 1 : tick.until) - tick.interval / Math.max(0.0001, field.span);
       /*
        * 满档最猛: the sword's own tier scales every beat, so the same volcano is
        * worth half as much when he slams the 断剑 he never fed.
@@ -6769,18 +6763,26 @@
       var forged = (Math.max(1, Math.min(HELLBENTER.tiers, field.tier)) - 1) /
         Math.max(1, HELLBENTER.tiers - 1);
       var scale = 0.45 + 0.55 * forged;
-      state.enemies.slice().forEach(function (enemy) {
-        if (enemy.dead) return;
-        var dx = enemy.x - field.x;
-        var dz = (enemy.z || 0) - (field.z || 0);
-        if (dx * dx > radius * radius) return;
-        if (Math.abs(dz) > tick.depth * SLAYER_HEIGHT) return;
-        var amount = Math.round((tick.damage + (state.player.level - 1) * tick.growth) * scale);
-        damageEnemy(state, enemy, amount, 0, field.x, {
-          noBloodOrbs: true,
-          stun: tick.stun,
-          knockdown: last && tick.knockdownLast ? 1.1 : 0
-        });
+      while (field.tickAt <= through + 1e-9) {
+        field.tickAt += tick.interval;
+        field.ticks += 1;
+        applyFieldTick(state, field, tick, radius, scale, field.tickAt > end + 1e-9);
+      }
+    });
+  }
+
+  function applyFieldTick(state, field, tick, radius, scale, last) {
+    state.enemies.slice().forEach(function (enemy) {
+      if (enemy.dead) return;
+      var dx = enemy.x - field.x;
+      var dz = (enemy.z || 0) - (field.z || 0);
+      if (dx * dx > radius * radius) return;
+      if (Math.abs(dz) > tick.depth * SLAYER_HEIGHT) return;
+      var amount = Math.round((tick.damage + (state.player.level - 1) * tick.growth) * scale);
+      damageEnemy(state, enemy, amount, 0, field.x, {
+        noBloodOrbs: true,
+        stun: tick.stun,
+        knockdown: last && tick.knockdownLast ? 1.1 : 0
       });
     });
   }
@@ -9397,7 +9399,8 @@
      * (see spawnField): it keeps its frames - and its place - while he recovers,
      * is interrupted or walks away.
      */
-    state.fields = state.fields
+    var fields = state.fields;
+    state.fields = fields
       .map(function (field) {
         field.clock += dt;
         return field;
@@ -9421,10 +9424,10 @@
     var couldSteer = updatePlayer(state, input, dt);
     /*
      * The ground he opened hits on its own clock, right after his own move has
-     * run: 火山's beats belong to the spot, and a beat that landed while he was
-     * recovering, interrupted or already in the next room still lands here.
+     * run. The previous list includes fields that expired during this step,
+     * so they still deliver any beats due before expiry.
      */
-    updateFieldTicks(state, dt);
+    updateFieldTicks(state, fields);
     /*
      * What he threw, after what he did and before what the room does. A qi born
      * on this frame is already in the air on it, which is what the art does too:

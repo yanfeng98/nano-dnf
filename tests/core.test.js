@@ -320,6 +320,17 @@ test("player runs right and is clamped by the arena wall", () => {
   assert.equal(state.player.facing, 1);
 });
 
+test("eruption fields keep every scheduled beat when a step crosses their damage window", () => {
+  for (const steps of [[5.7], [1.6, 1.2, 2.9], Array(342).fill(Core.DT)]) {
+    const state = lastRoomState();
+    const field = Core.spawnField(state, "hellbenterSlam", 1, state.player);
+    assert.ok(field);
+    for (const dt of steps) Core.step(state, {}, dt);
+    assert.equal(field.ticks, 18);
+    assert.equal(state.fields.length, 0);
+  }
+});
+
 test("cross-slash advance stays inside either side wall", () => {
   for (const facing of [-1, 1]) {
     const state = lastRoomState();
