@@ -8800,8 +8800,10 @@
     // Retreat requires walking out: spawning near the entry or being knocked
     // into it during combat must not bounce the player into the previous room.
     if (dir && !state.room.cleared && !(input &&
-        ((dir === "N" && input.up) || (dir === "S" && input.down) ||
-         (dir === "E" && input.right) || (dir === "W" && input.left)))) return;
+        ((dir === "N" && input.up && !input.down) ||
+         (dir === "S" && input.down && !input.up) ||
+         (dir === "E" && input.right && !input.left) ||
+         (dir === "W" && input.left && !input.right)))) return;
     if (dir && !state.room.cleared) {
       var p = state.player;
       var edge = dir === "N" ? bandDepth(state.band) - p.z :

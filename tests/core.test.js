@@ -849,6 +849,9 @@ test("the open entry door lets him retreat before clearing the new room", () => 
     Core.step(state, {});
     assert.equal(state.cell, uncleared, "standing near the entry must not cause an automatic retreat");
     const outward = { N: "up", S: "down", E: "right", W: "left" }[back];
+    const inward = { N: "down", S: "up", E: "left", W: "right" }[back];
+    Core.step(state, { [outward]: true, [inward]: true });
+    assert.equal(state.cell, uncleared, "opposing directions cancel at the entry door");
     for (let frame = 0; frame < 30 && state.cell === uncleared; frame++) {
       Core.step(state, { [outward]: true });
     }
