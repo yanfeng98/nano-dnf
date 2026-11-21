@@ -8375,6 +8375,12 @@ test("killing the lord clears the run without killing the other monsters", () =>
   const boss = state.enemies.find((enemy) => enemy.type === "boss");
   assert.ok(boss, "the lord is in the room");
   assert.ok(state.enemies.length > 1, "and he is not alone");
+  state.room.waveTriggered = true;
+  state.room.waveCap = state.enemies.length + 1;
+  const reinforcement = { type: "grunt", x: boss.x, z: boss.z };
+  state.room.pendingWave = [reinforcement];
+  state.room.pendingWaves = [[reinforcement]];
+  const waveSpawned = state.room.waveSpawned || 0;
   boss.evasion = 0;
   boss.hp = 1;
   Core.damageEnemy(state, boss, 99999, 0, boss.x);
@@ -8383,6 +8389,9 @@ test("killing the lord clears the run without killing the other monsters", () =>
   assert.equal(state.room.cleared, true);
   assert.equal(state.victory, false, "the death effect still has to play");
   assert.ok(state.victoryDelay > 0, "the death effect is on its clock");
+  assert.equal(state.room.waveSpawned || 0, waveSpawned);
+  assert.deepEqual(state.room.pendingWave, []);
+  assert.deepEqual(state.room.pendingWaves, []);
   assert.ok(
     state.enemies.every((enemy) => enemy.type === "boss"),
     "the other monsters are taken off the field"

@@ -8688,7 +8688,7 @@
 
   function updateWaves(state) {
     var room = state.room;
-    if (!room || room.cleared) return;
+    if (!room || room.cleared || state.defeat || runCleared(state)) return;
     var alive = 0;
     state.enemies.forEach(function (enemy) {
       if (!enemy.dead) alive += 1;
@@ -8764,6 +8764,7 @@
         if (state.victoryDelay === null || state.victoryDelay === undefined) {
           /* 领主一倒，第二波也不算数了：参考里这一间直接进结束特效。 */
           state.room.pendingWave = [];
+          state.room.pendingWaves = [];
           state.enemies = boss
             ? state.enemies.filter(function (enemy) { return enemy === boss; })
             : [];
