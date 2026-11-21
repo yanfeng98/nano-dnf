@@ -68,6 +68,17 @@ try {
         `${mode} at ${share * 100}%: expected ${160 * share}px, saw ${bounds.width}px`);
     }
   }
+  await page.evaluate(() => {
+    const state = window.nanoDnf.getState();
+    const Core = window.DNFCore;
+    while (state.player.level < Core.PROGRESSION.maxLevel) {
+      Core.grantXp(state, state.player.xpToNext);
+    }
+  });
+  await page.waitForTimeout(100);
+  const cap = await page.evaluate(() => window.DNFCore.PROGRESSION.maxLevel);
+  assert.ok((await page.locator('#status').textContent()).includes(`lv ${cap} (MAX)`),
+    'the text status agrees with the level card at the cap');
   assert.deepEqual(errors, []);
   fs.writeFileSync(`${out}/measurement.json`, JSON.stringify(measurements, null, 2));
   console.log('XP card browser OK', JSON.stringify(measurements));

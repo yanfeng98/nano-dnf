@@ -2303,22 +2303,24 @@
 
     var status = document.getElementById("status");
     if (status) {
+      var player = state.player;
+      var experience = player.level >= Core.PROGRESSION.maxLevel
+        ? "MAX"
+        : Math.round(player.xp) + "/" + player.xpToNext + " xp";
       status.textContent =
         "room " +
         state.stats.rooms +
         "/" +
         (state.dungeon ? state.dungeon.cells.length : 0) +
         " | hp " +
-        Math.round(state.player.hp) +
+        Math.round(player.hp) +
         " | mp " +
-        Math.round(state.player.mp) +
+        Math.round(player.mp) +
         " | lv " +
-        state.player.level +
+        player.level +
         " (" +
-        Math.round(state.player.xp) +
-        "/" +
-        state.player.xpToNext +
-        " xp)" +
+        experience +
+        ")" +
         " | kills " +
         state.stats.kills +
         (audio.muted ? " | muted" : "") +
