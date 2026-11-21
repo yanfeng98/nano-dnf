@@ -6394,6 +6394,31 @@ test("the vortex damages an armored target without pulling it out of its wind-up
   assert.ok(enemy.attackTimer > 0);
 });
 
+test("the vortex stops an enemy at a solid prop without moving it into another lane", () => {
+  const state = lastRoomState();
+  const player = state.player;
+  const rock = { piece: "rockFlat", x: 300, z: 120, scale: [0.5, 0.5], solid: true };
+  const enemy = Core.createEnemy(state, "brute", 360, 120);
+  const obstacle = Core.propObstacle(rock, enemy);
+  const edge = obstacle.x + obstacle.width / 2;
+  enemy.x = edge + 0.5;
+  enemy.z = obstacle.z + obstacle.depth / 2 - 0.5;
+  enemy.speed = enemy.evasion = 0;
+  enemy.hp = enemy.maxHp = 500;
+  enemy.attackCooldown = 10;
+  player.x = 220;
+  player.z = enemy.z;
+  player.facing = 1;
+  state.props = [rock];
+  state.enemies = [enemy];
+  const depth = enemy.z;
+  const hold = { skills: { bloodyRave: true } };
+  Core.runFrames(state, Math.ceil((Core.SKILLS.bloodyRave.channel.entrance + 0.4) / Core.DT), hold);
+  assert.ok(enemy.hp < enemy.maxHp);
+  assert.equal(enemy.x, edge);
+  assert.equal(enemy.z, depth);
+});
+
 test("嗜魂封魔斩 is a channel: the key being down is its length", () => {
   /*
    * The move is the game's only cast whose length is the player's (docs/adr/0023).

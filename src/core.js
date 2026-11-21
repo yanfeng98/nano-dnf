@@ -7806,7 +7806,8 @@
       var gap = player.x - enemy.x;
       var distance = Math.abs(gap) - channel.stopAt;
       if (distance <= 0) return;
-      enemy.x += (gap < 0 ? -1 : 1) * Math.min(distance, step);
+      var pulledX = enemy.x + (gap < 0 ? -1 : 1) * Math.min(distance, step);
+      enemy.x = stopAtHorizontalProp(state, enemy, pulledX);
       enemy.vx = 0;
     });
   }
