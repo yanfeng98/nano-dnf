@@ -6872,7 +6872,7 @@
     return true;
   }
 
-  function drawEffect(ctx, state, effect, bannerOrdinal, sprites) {
+  function drawEffect(ctx, state, effect, ordinal, sprites) {
     var alpha = clamp01(effect.life / effect.maxLife);
     /*
      * An effect's own depth, for the kinds that live on the floor. The banner
@@ -6957,7 +6957,8 @@
       var owner = effect.anchor === "player" && state.player;
       var floatX = owner ? owner.x : effect.x;
       var floatY = owner
-        ? feetY(owner) - SPRITE.bodyHeight - Core.EXPERIENCE_FLOAT.headGap
+        ? feetY(owner) - SPRITE.bodyHeight - Core.EXPERIENCE_FLOAT.headGap -
+          ordinal * (18 * VIEW.width / 640 / Core.CAMERA.zoom)
         : ey;
       ctx.save();
       ctx.globalAlpha = 1;
@@ -6990,7 +6991,7 @@
         return !enemy.dead && enemy.behavior === "boss";
       });
       /* Simultaneous banners stack instead of overprinting each other. */
-      var bannerY = (bossOnScreen ? 230 : 104) + (bannerOrdinal || 0) * 34;
+      var bannerY = (bossOnScreen ? 230 : 104) + ordinal * 34;
       ctx.save();
       /*
        * **它是屏幕上的字，不是房间里的东西。**
@@ -10672,16 +10673,24 @@
      */
     drawWorld(ctx, state, sprites);
     var bannerOrdinal = 0;
+    var experienceCount = state.effects.filter(function (effect) {
+      return effect.kind === "pickupText" && effect.anchor === "player" && effect.life > 0;
+    }).length;
     var hideTelegraph = !!(state.stage && state.stage.id === "mirkwooddeep");
     state.effects.forEach(function (effect) {
       if (effect.kind === "banner" && overlayOpen) return;
       /* 录像里没有 AIM/扑击/横扫的预警圈；深处的预警只留在核心，不画。 */
       if (hideTelegraph && effect.kind === "telegraph") return;
+      var ordinal = 0;
+      if (effect.kind === "banner") ordinal = bannerOrdinal++;
+      if (effect.kind === "pickupText" && effect.anchor === "player" && effect.life > 0) {
+        ordinal = --experienceCount;
+      }
       drawEffect(
         ctx,
         state,
         effect,
-        effect.kind === "banner" ? bannerOrdinal++ : 0,
+        ordinal,
         sprites
       );
     });

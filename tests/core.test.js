@@ -7960,6 +7960,26 @@ test("the renderer draws one hotbar row and keeps every skill in the panel", () 
   assert.equal(tileDraws(), Core.SKILL_ORDER.length, "every skill tile is drawn");
 });
 
+test("experience captions from successive steps remain readable after reaching the same height", () => {
+  const state = Core.createState({ seed: 1, stage: "mirkwood" });
+  const captions = [40, 50].map((amount, index) => ({
+    kind: "pickupText", anchor: "player", text: amount + " Exp",
+    maxLife: 0.8, life: 0.2 + index * 0.1
+  }));
+  const calls = [];
+  state.effects = [captions[1]];
+  Render.render(recordingContext(calls), state, { sprites: {} });
+  const solo = calls.find(call => call[0] === "fillText" && call[1] === "50 Exp");
+  calls.length = 0;
+  state.effects = captions;
+  Render.render(recordingContext(calls), state, { sprites: {} });
+  const older = calls.find(call => call[0] === "fillText" && call[1] === "40 Exp");
+  const newer = calls.find(call => call[0] === "fillText" && call[1] === "50 Exp");
+  assert.equal(newer[3], solo[3], "the newest caption keeps its usual trajectory");
+  const glyphHeight = 16 * Core.VIEW.width / 640 / Core.CAMERA.zoom;
+  assert.ok(newer[3] - older[3] >= glyphHeight, "the captions need separate baselines");
+});
+
 /** A canvas context double that records every draw call it receives. */
 function recordingContext(calls) {
   return new Proxy(
