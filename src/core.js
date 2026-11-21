@@ -6557,6 +6557,12 @@
         ? opts.knockbackDirection : (enemy.x >= sourceX ? 1 : -1);
       enemy.vx = direction * knockbackX;
       enemy.hurtTimer = 0.18;
+      if (enemy.attackTimer > 0) {
+        enemy.attackTimer = 0;
+        state.effects = state.effects.filter(function (effect) {
+          return effect.kind !== "telegraph" || effect.enemyId !== enemy.id;
+        });
+      }
     }
 
     if (opts.launch) {
@@ -7866,6 +7872,7 @@
   function pushTelegraph(state, enemy, label, radius, life, dir) {
     state.effects.push({
       kind: "telegraph",
+      enemyId: enemy.id,
       text: label,
       x: enemy.x,
       y: ARENA.groundY,

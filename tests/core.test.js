@@ -8279,6 +8279,29 @@ test("only the enraged boss lunges, and the lunge carries super armour", () => {
   assert.equal(calm.telegraphed, false, "phase one must not telegraph a lunge");
 });
 
+test("a light hit interrupts a ranged enemy's unarmored wind-up", () => {
+  const state = lastRoomState();
+  const player = state.player;
+  const enemy = Core.createEnemy(state, "caster", player.x + 170, player.z);
+  enemy.x = player.x + 170;
+  enemy.speed = 0;
+  enemy.evasion = 0;
+  state.enemies = [enemy];
+  state.props = [];
+  for (let frame = 0; frame < 60 && !enemy.attackTimer; frame += 1) Core.step(state, {});
+  assert.equal(enemy.attackKind, "shoot");
+  assert.ok(enemy.attackTimer > 0);
+  assert.equal(enemy.superArmor, false);
+  assert.ok(state.effects.some(effect => effect.kind === "telegraph" && effect.text === "AIM"));
+
+  Core.damageEnemy(state, enemy, 1, 0, player.x);
+  assert.equal(enemy.attackTimer, 0);
+  assert.ok(!state.effects.some(effect => effect.kind === "telegraph" && effect.text === "AIM"));
+  enemy.attackCooldown = 1;
+  Core.runFrames(state, 30, {});
+  assert.equal(state.projectiles.length, 0);
+});
+
 test("super armour never sticks when a wind-up is interrupted", () => {
   const state = lastRoomState();
   /* Mid band for the lunge, which is a gap - see the lunge test below. */
