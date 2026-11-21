@@ -933,6 +933,18 @@ test("a logically open door has no blocking panel even while the player is far a
   }
 });
 
+test("a depth doorway starts with the same camera regardless of the previous room", () => {
+  const cameras = [0, 1000].map(previousX => {
+    const state = Core.createState({ seed: 1, stage: "mirkwooddeep" });
+    Core.goToCell(state, 5);
+    state.camera.x = previousX;
+    Core.enterCell(state, "N");
+    assert.equal(state.entryDoor, "S");
+    return { x: state.camera.x, playerX: state.player.x };
+  });
+  assert.deepEqual(cameras[0], cameras[1]);
+});
+
 test("fallback gates follow the exits and width of the current room", () => {
   const state = Core.createState({ seed: 1, stage: "mirkwooddeep" });
   Core.goToCell(state, 5);

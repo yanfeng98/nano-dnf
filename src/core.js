@@ -5767,6 +5767,10 @@
     state.player.vz = 0;
     state.player.onGround = true;
     if (entryDoor) settleDoorLanding(state, cell, entryDoor);
+    // A doorway on the depth axis starts a new camera view at the landing.
+    if (entryDoor === "N" || entryDoor === "S") {
+      state.camera.x = state.player.x - windowWidth() / 2;
+    }
     /*
      * 人一落地就把镜头摆好 —— 从东门进来镜头就贴在右墙上，从西门进来贴在左墙上，
      * 和录像里一样（他进门那一下镜头是**顶在边上**的，然后才跟着他往另一边滚）。
