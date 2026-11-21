@@ -8831,6 +8831,19 @@ test("the town HUD shows the level card the dungeon already has", () => {
   assert.ok(bar, "the XP bar is part of the card");
 });
 
+test("inventory distinguishes empty stacks from usable potion counts", () => {
+  const state = Core.createState({ seed: 1, stage: "mirkwood" });
+  const progress = require("../src/progress.js").defaults();
+  const texts = () => renderCalls(state, { progressPanel: "inventory", progress })
+    .filter(call => call[0] === "fillText").map(call => call[1]);
+  assert.ok(texts().includes("背包是空的。"));
+  progress.items.mpPotion = 2;
+  const stocked = texts();
+  assert.ok(stocked.some(text => text.endsWith(" × 2")));
+  assert.ok(stocked.includes("副本中按 2 使用"));
+  assert.ok(!stocked.some(text => text.endsWith(" × 0")));
+});
+
 test("the level card shows a full bar immediately at the level cap", () => {
   const state = Core.createState({ seed: 1, stage: "mirkwood" });
   while (state.player.level < Core.PROGRESSION.maxLevel) {

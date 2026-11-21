@@ -7721,13 +7721,14 @@
     }
 
     var lineY = y + 60;
-    var defs = (typeof window !== "undefined" && window.DNFProgress)
-      ? window.DNFProgress : null;
+    var defs = Progress;
 
     if (panelName === "inventory") {
       ctx.font = HUD_FONT(11);
       ctx.fillStyle = "#e8ecef";
-      var ids = Object.keys(progress.items || {});
+      var ids = Object.keys(progress.items || {}).filter(function (id) {
+        return progress.items[id] > 0;
+      });
       if (!ids.length) ctx.fillText("背包是空的。", x + 18, lineY);
       ids.forEach(function (id) {
         var item = defs && defs.ITEMS[id];
@@ -7736,7 +7737,8 @@
         ctx.fillText((item ? item.name : id) + " × " + count, x + 18, lineY);
         ctx.fillStyle = "rgba(190, 205, 220, 0.7)";
         ctx.fillText(item && item.category === "consumable"
-          ? "1 / 2 使用" : (item && item.jobs ? item.note : ({equipment:"装备",material:"材料",quest:"任务物品"}[item && item.category] || "")), x + 170, lineY);
+          ? "副本中按 " + (id === "hpPotion" ? "1" : "2") + " 使用"
+          : (item && item.jobs ? item.note : ({equipment:"装备",material:"材料",quest:"任务物品"}[item && item.category] || "")), x + 170, lineY);
         lineY += 22;
       });
       ctx.fillStyle = "rgba(190, 205, 220, 0.8)";
