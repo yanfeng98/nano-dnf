@@ -9438,7 +9438,6 @@
       if (state.victoryDelay <= 0) {
         state.victoryDelay = null;
         state.victory = true;
-        awardClearExperience(state);
         // Enemy simulation ends here, including when post-clear play resumes.
         state.projectiles = [];
       }
@@ -9446,6 +9445,8 @@
     if (state.finishedAt === null && (state.victory || state.defeat)) {
       state.finishedAt = state.time;
       state.resultRating = Object.freeze(ratingOf(state));
+      // The reward can raise the player's level after combat has been scored.
+      if (state.victory && !state.defeat) awardClearExperience(state);
     }
     state.effects = state.effects
       .map(function (effect) {

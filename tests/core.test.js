@@ -11195,6 +11195,17 @@ test("recording profiles initialise real level-dependent state without startup l
   assert.equal(Core.createState().player.level, 1, "level-one simulation fixtures remain explicit model defaults");
 });
 
+test("clear experience cannot change the grade earned in combat", () => {
+  const state = Core.createState({ stage: "mirkwood", referenceProfile: true });
+  Core.grantXp(state, 2080);
+  state.stats.hitsTaken = 8;
+  const combatRating = Core.ratingOf(state);
+  state.victoryDelay = Core.DT;
+  Core.step(state, {});
+  assert.equal(state.player.level, 5);
+  assert.deepEqual(Core.ratingOf(state), combatRating);
+});
+
 test("reference progression applies the clear credit once before results", () => {
   for (const [stage, credits, before, after, remaining] of [
     ["mirkwood", [320, 80, 1680], 4, 5, 667],
