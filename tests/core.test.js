@@ -13207,6 +13207,29 @@ test("a fire projectile cannot leave its landing trail outside the room", () => 
   assert.equal(state.projectiles.length, 0);
 });
 
+test("a thrown bomb flashes where its flight ends within the step", () => {
+  for (const end of ["wall", "range", "lifetime", "ground"]) {
+    const distance = 20;
+    const state = Core.createState({ seed: 1, stage: "mirkwooddeep" });
+    state.player.z = 0;
+    const shot = Core.spawnProjectile(state, Core.createEnemy(state, "throwerElite", 360, 100));
+    const ground = Core.ARENA.groundY;
+    const startX = end === "wall" ? Core.roomRight(state) - distance : 300;
+    Object.assign(shot, {
+      x: startX, y: ground - 20, z: 100, vx: 100,
+      vy: end === "ground" ? 100 : 0,
+      life: end === "lifetime" ? 0.2 : 1,
+      maxDistance: end === "range" ? distance : 1000
+    });
+    Core.updateProjectiles(state, 0.5);
+    assert.equal(state.projectiles.length, 0, end);
+    const flash = state.effects.find(effect => effect.kind === "bomb_flash");
+    assert.ok(flash, end);
+    assert.ok(Math.abs(flash.x - (startX + distance)) < 1e-9, end);
+    assert.equal(flash.y, end === "ground" ? ground : ground - 20, end);
+  }
+});
+
 test('ice missile 30057 follows icemissile.ptl Z-sine oscillation and seagabicicle.obj piercing power 50',()=>{
  const s=Core.createState({seed:1,stage:'mirkwood'});
  s.intro=null;s.transition=0;

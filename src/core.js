@@ -8043,10 +8043,11 @@
 
       if (spent || shot.y >= ARENA.groundY) {
         if (shot.nativeObject === 30021) {
+          var end = clamp(flightEnd, 0, 1);
           state.effects.push({
             kind: "bomb_flash",
-            x: shot.x,
-            y: Math.min(shot.y, ARENA.groundY),
+            x: clamp(fromX + stepX * end, leftWall, rightWall),
+            y: Math.min(shot.y - stepY * (1 - end), ARENA.groundY),
             z: shot.z || 0,
             life: 0.2,
             maxLife: 0.2
