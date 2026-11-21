@@ -870,6 +870,26 @@ test("the open entry door lets him retreat before clearing the new room", () => 
   }
 });
 
+test("entering a room places the player outside solid scenery before the first movement step", () => {
+  for (const seed of [0, 1]) {
+    const state = Core.createState({ seed, stage: "mirkwooddeep" });
+    Core.goToCell(state, 5);
+    Core.enterCell(state, "N");
+    assert.equal(state.cell, 1);
+    assert.equal(state.entryDoor, "S");
+    assert.equal(Core.doorAt(state), null);
+    const { x, z } = state.player;
+    for (const prop of state.props) {
+      const obstacle = Core.propObstacle(prop, state.player);
+      if (!obstacle) continue;
+      assert.ok(Math.abs(x - obstacle.x) >= obstacle.width / 2 ||
+        Math.abs(z - obstacle.z) >= obstacle.depth / 2, `seed ${seed}: ${prop.piece}`);
+    }
+    Core.step(state, {});
+    assert.deepEqual([state.player.x, state.player.z], [x, z]);
+  }
+});
+
 test("queued later waves prevent clearing even across an empty batch", () => {
   const state = Core.createState({ seed: 1 });
   state.enemies = [];

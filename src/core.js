@@ -5766,6 +5766,7 @@
     state.player.vy = 0;
     state.player.vz = 0;
     state.player.onGround = true;
+    if (entryDoor) settleDoorLanding(state, cell, entryDoor);
     /*
      * 人一落地就把镜头摆好 —— 从东门进来镜头就贴在右墙上，从西门进来贴在左墙上，
      * 和录像里一样（他进门那一下镜头是**顶在边上**的，然后才跟着他往另一边滚）。
@@ -5807,6 +5808,37 @@
      */
     state.effects = [];
     return state.room;
+  }
+
+  function settleDoorLanding(state, cell, dir) {
+    var player = state.player;
+    if (!propBlocksAt(state, player.x, player.z, player)) return;
+    var floor = doorFloor(state, cell, dir);
+    var half = walkFootprint(player).width / 2;
+    var left = Math.max(floor.x[0], roomLeft(state) + half);
+    var right = Math.min(floor.x[1], roomRight(state) - half);
+    var near = Math.max(0, floor.z[0]);
+    var far = Math.min(bandDepth(state.band), floor.z[1]);
+    // Keep the landing inside the doorway's approach, beyond its trigger.
+    if (dir === "W") left = Math.max(left, roomLeft(state) + DOOR.side + 1);
+    if (dir === "E") right = Math.min(right, roomRight(state) - DOOR.side - 1);
+    if (dir === "S") near = Math.max(near, DOOR.depth + 1);
+    if (dir === "N") far = Math.min(far, bandDepth(state.band) - DOOR.depth - 1);
+    var best = null;
+    for (var x = left; x <= right; x += 4) {
+      for (var z = near; z <= far; z += 4) {
+        var distance = (x - player.x) ** 2 + (z - player.z) ** 2;
+        if ((!best || distance < best.distance) && !propBlocksAt(state, x, z, player)) {
+          best = { x: x, z: z, distance: distance };
+        }
+      }
+    }
+    if (best) {
+      player.x = best.x;
+      player.z = best.z;
+    } else {
+      blockProps(state, player);
+    }
   }
 
   /*
