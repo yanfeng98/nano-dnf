@@ -945,6 +945,28 @@ test("a depth doorway starts with the same camera regardless of the previous roo
   assert.deepEqual(cameras[0], cameras[1]);
 });
 
+test("overlapping enemies separate fully when a wall or prop blocks one of them", () => {
+  for (const useRock of [false, true]) {
+    const state = lastRoomState();
+    const rock = { piece: "rockFlat", x: 300, z: 80, scale: [0.5, 0.5], solid: true };
+    state.props = useRock ? [rock] : [];
+    const first = Core.createEnemy(state, "grunt", 300, 80);
+    const second = Core.createEnemy(state, "grunt", 300, 80);
+    const obstacle = Core.propObstacle(rock, first);
+    const edge = useRock ? obstacle.x + obstacle.width / 2 : Core.roomLeft(state) + first.width / 2;
+    state.enemies = [first, second];
+    for (const enemy of state.enemies) {
+      enemy.x = edge;
+      enemy.z = 80;
+      enemy.speed = 0;
+      enemy.attackCooldown = 10;
+    }
+    Core.step(state, {});
+    assert.equal(first.x, edge);
+    assert.equal(second.x - first.x, (first.width + second.width) / 2);
+  }
+});
+
 test("fallback gates follow the exits and width of the current room", () => {
   const state = Core.createState({ seed: 1, stage: "mirkwooddeep" });
   Core.goToCell(state, 5);

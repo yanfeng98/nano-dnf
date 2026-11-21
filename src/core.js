@@ -8777,6 +8777,8 @@
   }
 
   function separateEnemies(state, enemies) {
+    var wallLeft = roomLeft(state);
+    var wallRight = roomRight(state);
     for (var i = 0; i < enemies.length; i++) {
       for (var j = i + 1; j < enemies.length; j++) {
         var a = enemies[i];
@@ -8793,13 +8795,20 @@
          */
         if (Math.abs((a.z || 0) - (b.z || 0)) >= minGap) continue;
         var push = (minGap - gap) / 2;
-        if (a.x <= b.x) {
-          a.x = clamp(a.x - push, roomLeft(state) + a.width / 2, roomRight(state) - a.width / 2);
-          b.x = clamp(b.x + push, roomLeft(state) + b.width / 2, roomRight(state) - b.width / 2);
-        } else {
-          a.x = clamp(a.x + push, roomLeft(state) + a.width / 2, roomRight(state) - a.width / 2);
-          b.x = clamp(b.x - push, roomLeft(state) + b.width / 2, roomRight(state) - b.width / 2);
+        var left = a.x <= b.x ? a : b;
+        var right = left === a ? b : a;
+        var minX = wallLeft + left.width / 2;
+        var maxX = wallRight - right.width / 2;
+        var leftX = stopAtHorizontalProp(state, left, Math.max(minX, left.x - push));
+        var rightX = stopAtHorizontalProp(state, right, Math.min(maxX, right.x + push));
+        // Give blocked movement to the other body when there is room.
+        if (leftX > left.x - push) {
+          rightX = stopAtHorizontalProp(state, right, Math.min(maxX, leftX + minGap));
+        } else if (rightX < right.x + push) {
+          leftX = stopAtHorizontalProp(state, left, Math.max(minX, rightX - minGap));
         }
+        left.x = leftX;
+        right.x = rightX;
       }
     }
   }
