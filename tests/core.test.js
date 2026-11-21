@@ -852,6 +852,10 @@ test("the open entry door lets him retreat before clearing the new room", () => 
     const inward = { N: "down", S: "up", E: "left", W: "right" }[back];
     Core.step(state, { [outward]: true, [inward]: true });
     assert.equal(state.cell, uncleared, "opposing directions cancel at the entry door");
+    state.player.hurtTimer = Core.DT;
+    Core.step(state, { [outward]: true });
+    assert.equal(state.player.hurtTimer, 0);
+    assert.equal(state.cell, uncleared, "holding outward does not retreat on the last hitstun frame");
     if (back === "E" || back === "W") {
       const edge = state.player.walkWidth / 2 + 9;
       state.player.x = back === "E" ? Core.roomRight(state) - edge : Core.roomLeft(state) + edge;

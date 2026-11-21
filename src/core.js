@@ -7699,6 +7699,7 @@
         player.skillId = null;
       }
     }
+    return !rooted;
   }
 
   /**
@@ -8721,7 +8722,7 @@
     }
   }
 
-  function resolveRoom(state, input) {
+  function resolveRoom(state, input, couldSteer) {
     var alive = state.enemies.filter(function (enemy) {
       return !enemy.dead;
     });
@@ -8799,7 +8800,7 @@
     var dir = doorAt(state);
     // Retreat requires walking out: spawning near the entry or being knocked
     // into it during combat must not bounce the player into the previous room.
-    if (dir && !state.room.cleared && !(input &&
+    if (dir && !state.room.cleared && !(couldSteer &&
         ((dir === "N" && input.up && !input.down) ||
          (dir === "S" && input.down && !input.up) ||
          (dir === "E" && input.right && !input.left) ||
@@ -9275,7 +9276,7 @@
       return state;
     }
 
-    updatePlayer(state, input, dt);
+    var couldSteer = updatePlayer(state, input, dt);
     /*
      * The ground he opened hits on its own clock, right after his own move has
      * run: 火山's beats belong to the spot, and a beat that landed while he was
@@ -9295,7 +9296,7 @@
     updateTarget(state, dt);
     updateBreakables(state);
     updatePickups(state, dt);
-    if (!state.postClear && !state.defeat) resolveRoom(state, input);
+    if (!state.postClear && !state.defeat) resolveRoom(state, input, couldSteer);
     /*
      * Last, and on purpose: the camera reads where everyone ended up this frame,
      * not where they were when it started - and `resolveRoom` may already have
