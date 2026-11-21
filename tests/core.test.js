@@ -13369,8 +13369,8 @@ test('mirkwood mid-route cells (1,0), (1,1), (1,2) stay pinned across seeds with
  for(const seed of [20260915,42,7]){
   const expected=[
    {col:1,row:0,count:7,xp:280,types:{goblinRed:1,caster:1,goblinBlue:1,coward:1,grunt:3}},
-   {col:1,row:1,count:5,xp:200,types:{goblinBlue:1,grunt:3,caster:1}},
-   {col:1,row:2,count:11,xp:480,types:{grunt:6,goblinRed:2,caster:1,goblinBlue:1,burningThrower:1}}
+   {col:1,row:1,count:7,xp:280,types:{goblinBlue:1,grunt:4,caster:1,goblinRed:1}},
+   {col:1,row:2,count:9,xp:400,types:{grunt:5,goblinRed:1,caster:1,goblinBlue:1,burningThrower:1}}
   ];
   for(const spec of expected){
    const s=Core.createState({seed,stage:'mirkwood'});

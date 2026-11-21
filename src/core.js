@@ -2543,8 +2543,8 @@
           ]
         },
         {
-          // V1 fourth cell (1,1), 148s-166.5s: strictly 5 forty-XP kills (200 XP).
-          // Observed types: 1 goblinBlue, 1 caster, 3 grunt (all Lv4).
+          // V1 fourth cell (1,1), 148s-183.5s: seven 40-XP kills (280 XP).
+          // The late grunt and red goblin die before the minimap moves to the fifth cell.
           name: "倒木小径",
           kind: "corr",
           enemies: [
@@ -2552,9 +2552,11 @@
             { type: "grunt", x: 520, depth: 0.32, level: 4, xp: 40 },
             { type: "grunt", x: 660, depth: 0.54, level: 4, xp: 40 },
             { type: "caster", x: 780, depth: 0.38, level: 4, xp: 40 },
-            { type: "grunt", x: 860, depth: 0.48, level: 4, xp: 40 }
+            { type: "grunt", x: 860, depth: 0.48, level: 4, xp: 40 },
+            { type: "grunt", x: 120, depth: 0.40, level: 4, xp: 40 },
+            { type: "goblinRed", x: 210, depth: 0.48, level: 4, xp: 40 }
           ],
-          cap: 5,
+          cap: 7,
           props: [
             { piece: "trunkTall", x: 250, depth: 1 },
             { piece: "stump", x: 470, depth: 0.7 },
@@ -2625,15 +2627,13 @@
           ]
         },
         {
-          // V1 fifth cell (1,2), 171.5s-223.5s: strictly 10 forty-XP kills + 1 eighty-XP kill (480 XP).
-          // Observed types: 6 grunt, 2 goblinRed, 1 goblinBlue, 1 caster, 1 burningThrower (all Lv4).
+          // V1 fifth cell (1,2), 184s-223.5s: eight 40-XP kills and one 80-XP kill (400 XP).
           name: "苔石夹道",
           kind: "corr",
           // V1 camera travels at least 1044.12 px in a 720 px viewport.
           width: 1118.4,
           enemies: [
             { type: "grunt", x: 280, depth: 0.34, level: 4, xp: 40 },
-            { type: "goblinRed", x: 380, depth: 0.56, level: 4, xp: 40 },
             { type: "grunt", x: 460, depth: 0.42, level: 4, xp: 40 },
             { type: "caster", x: 540, depth: 0.28, level: 4, xp: 40 },
             { type: "grunt", x: 600, depth: 0.58, level: 4, xp: 40 },
@@ -2641,10 +2641,9 @@
             { type: "goblinRed", x: 740, depth: 0.48, level: 4, xp: 40 },
             { type: "goblinBlue", x: 800, depth: 0.32, level: 4, xp: 40 },
             { type: "grunt", x: 840, depth: 0.54, level: 4, xp: 40 },
-            { type: "grunt", x: 880, depth: 0.40, level: 4, xp: 40 },
             { type: "burningThrower", x: 920, depth: 0.46, level: 4, xp: 80 }
           ],
-          cap: 11,
+          cap: 9,
           props: [
             { piece: "wallStone", x: 240, depth: 0.78 },
             { piece: "rockFlat", x: 500, depth: 0.52 },
