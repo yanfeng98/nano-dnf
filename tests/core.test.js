@@ -13202,9 +13202,28 @@ test("a fire projectile cannot leave its landing trail outside the room", () => 
   shot.x = Core.roomRight(state) - 1;
   shot.y = Core.ARENA.groundY - 1;
   shot.vx = 120;
-  shot.vy = 120;
+  shot.vy = 80;
   Core.updateProjectiles(state, Core.DT);
   assert.equal(state.projectiles.length, 0);
+});
+
+test("the fire trail remains when landing precedes the wall or range limit", () => {
+  for (const terminal of ["wall", "range"]) {
+    for (const steps of [[0.3], [0.15, 0.15]]) {
+      const state = Core.createState({ seed: 1, stage: "mirkwood" });
+      const shot = Core.spawnProjectile(state, Core.createEnemy(state, "goblinRed", 300, 100));
+      const x = terminal === "wall" ? Core.roomRight(state) - 20 : 300;
+      Object.assign(shot, {
+        x, y: Core.ARENA.groundY - 10, z: 100, vx: 100, vy: 100, gravity: 0,
+        maxDistance: terminal === "range" ? Math.hypot(20, 20) : 1000
+      });
+      for (const dt of steps) Core.updateProjectiles(state, dt);
+      assert.deepEqual(state.projectiles, [shot], terminal);
+      assert.equal(shot.stopped, true, terminal);
+      assert.ok(Math.abs(shot.x - (x + 10)) < 1e-9, terminal);
+      assert.ok(Math.abs(shot.stopLife - 0.15) < 1e-9, terminal);
+    }
+  }
 });
 
 test("the fire trail lands and fades at the same time across step sizes", () => {

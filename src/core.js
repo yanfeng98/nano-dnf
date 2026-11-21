@@ -7958,7 +7958,8 @@
         if (shot.stopLife > 0) remaining.push(shot);
         return;
       }
-      var fromX = shot.x, fromY = shot.y + (shot.oscY || 0);
+      var fromX = shot.x, fromBaseY = shot.y;
+      var fromY = fromBaseY + (shot.oscY || 0);
       var fromVy = shot.vy;
       var stepX = shot.vx * dt;
       var gravity = shot.gravity || 0;
@@ -7989,10 +7990,20 @@
       }
       if (stepX < 0 && shot.x <= leftWall) flightEnd = Math.min(flightEnd, (leftWall - fromX) / stepX);
       if (stepX > 0 && shot.x >= rightWall) flightEnd = Math.min(flightEnd, (rightWall - fromX) / stepX);
-      if (stepY > 0 && shot.y >= ARENA.groundY) {
-        flightEnd = Math.min(flightEnd, 1 + (ARENA.groundY - shot.y) / stepY);
+      if (fromX <= leftWall || fromX >= rightWall) flightEnd = 0;
+      var landingTime = Infinity;
+      var fall = ARENA.groundY - fromBaseY;
+      if (fall <= 0) {
+        landingTime = 0;
+      } else if (shot.y >= ARENA.groundY) {
+        var landingVy = Math.sqrt(fromVy * fromVy + 2 * gravity * fall);
+        landingTime = fromVy < 0
+          ? (landingVy - fromVy) / gravity
+          : 2 * fall / (landingVy + fromVy);
+        landingTime = clamp(landingTime, 0, dt);
       }
-      if (fromX <= leftWall || fromX >= rightWall || shot.y - stepY >= ARENA.groundY) flightEnd = 0;
+      var landsFirst = landingTime / dt < flightEnd;
+      flightEnd = Math.min(flightEnd, landingTime / dt);
 
       var hitY = shot.y + (shot.oscY || 0);
       // The shot keeps its firing depth. Test the segment only in that lane.
@@ -8027,16 +8038,7 @@
           return;
         }
       }
-      if (!spent && shot.y >= ARENA.groundY && shot.landingStop) {
-        var fall = ARENA.groundY - (shot.y - stepY);
-        var landingTime = 0;
-        if (fall > 0) {
-          var landingVy = Math.sqrt(fromVy * fromVy + 2 * gravity * fall);
-          landingTime = fromVy < 0
-            ? (landingVy - fromVy) / gravity
-            : 2 * fall / (landingVy + fromVy);
-        }
-        landingTime = clamp(landingTime, 0, dt);
+      if (landsFirst && shot.landingStop) {
         var sinceLanding = dt - landingTime;
         shot.x = fromX + shot.vx * landingTime;
         shot.y = ARENA.groundY;
@@ -8059,7 +8061,7 @@
           state.effects.push({
             kind: "bomb_flash",
             x: clamp(fromX + stepX * end, leftWall, rightWall),
-            y: Math.min(shot.y - stepY * (1 - end), ARENA.groundY),
+            y: Math.min(fromBaseY + fromVy * dt * end + gravity * (dt * end) ** 2 / 2, ARENA.groundY),
             z: shot.z || 0,
             life: 0.2,
             maxLife: 0.2
