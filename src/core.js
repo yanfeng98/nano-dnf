@@ -9223,6 +9223,8 @@
       if (state.victoryDelay <= 0) {
         state.victoryDelay = null;
         state.victory = true;
+        // Enemy simulation ends here, including when post-clear play resumes.
+        state.projectiles = [];
       }
     }
     if (state.finishedAt === null && (state.victory || state.defeat)) {

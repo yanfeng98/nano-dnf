@@ -11145,6 +11145,21 @@ test("the actual result atlas preserves the client's circle, chest and countdown
   }
 });
 
+test("victory removes enemy projectiles before the cleared room resumes", () => {
+  const state = Core.createState({ seed: 27 });
+  state.intro = null;
+  state.victoryDelay = Core.DT;
+  Core.spawnProjectile(state, Core.createEnemy(state, "caster", 500));
+  assert.equal(state.projectiles.length, 1);
+
+  Core.step(state, {});
+  assert.equal(state.victory, true);
+  assert.equal(state.projectiles.length, 0);
+  assert.equal(Core.resumeAfterClear(state), true);
+  Core.step(state, {});
+  assert.equal(state.projectiles.length, 0);
+});
+
 test("post-clear play resumes movement and attacks without reopening rooms or changing the result", () => {
   const state = Core.createState({ seed: 27 });
   state.enemies = [];
