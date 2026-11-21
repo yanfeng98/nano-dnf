@@ -7947,8 +7947,9 @@
       // Limit contact to the part of this step in which the shot still flies.
       var flightEnd = Infinity;
       if (shot.life <= 0) flightEnd = Math.min(flightEnd, 1 + shot.life / dt);
-      if (distance > 0 && shot.traveled >= shot.maxDistance) {
-        flightEnd = Math.min(flightEnd, 1 + (shot.maxDistance - shot.traveled) / distance);
+      if (shot.traveled >= shot.maxDistance) {
+        var rangeEnd = distance > 0 ? 1 + (shot.maxDistance - shot.traveled) / distance : 0;
+        flightEnd = Math.min(flightEnd, rangeEnd);
       }
       if (stepX < 0 && shot.x <= leftWall) flightEnd = Math.min(flightEnd, (leftWall - fromX) / stepX);
       if (stepX > 0 && shot.x >= rightWall) flightEnd = Math.min(flightEnd, (rightWall - fromX) / stepX);

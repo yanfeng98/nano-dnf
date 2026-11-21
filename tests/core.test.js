@@ -13048,6 +13048,38 @@ test("a projectile can hit before expiry within its last step", () => {
   }
 });
 
+test("a spent stationary projectile cannot hit an overlapping player", () => {
+  const state = Core.createState({ seed: 1, stage: "mirkwood" });
+  const player = state.player;
+  const shot = Core.spawnProjectile(state, Core.createEnemy(state, "caster", 300));
+  shot.x = player.x;
+  shot.z = player.z;
+  shot.y = player.y - player.height / 2;
+  shot.vx = shot.vy = 0;
+  shot.traveled = shot.maxDistance;
+  const hpBefore = player.hp;
+  Core.updateProjectiles(state, Core.DT);
+  assert.equal(player.hp, hpBefore);
+  assert.equal(state.projectiles.length, 0);
+});
+
+test("a shot can hit a player inside the wall before leaving the room", () => {
+  const state = Core.createState({ seed: 1, stage: "mirkwood" });
+  const player = state.player;
+  const wall = Core.roomRight(state);
+  player.x = wall - player.width / 2;
+  const shot = Core.spawnProjectile(state, Core.createEnemy(state, "caster", 300));
+  shot.x = wall - 50;
+  shot.z = player.z;
+  shot.y = player.y - player.height / 2;
+  shot.vx = 600;
+  shot.vy = 0;
+  const hpBefore = player.hp;
+  Core.updateProjectiles(state, 0.2);
+  assert.ok(player.hp < hpBefore);
+  assert.equal(state.projectiles.length, 0);
+});
+
 test("a fire projectile cannot leave its landing trail outside the room", () => {
   const state = Core.createState({ seed: 1, stage: "mirkwood" });
   const enemy = Core.createEnemy(state, "goblinRed", 500);
