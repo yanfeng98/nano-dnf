@@ -1690,6 +1690,7 @@
   });
 
   function clearCombatInput() {
+    drag = null;
     heldJumpKeys.clear();
     Object.keys(held).forEach(function (key) {
       held[key] = false;
@@ -2071,6 +2072,7 @@
   }
 
   function openRegion() {
+    clearCombatInput();
     regionOpen = true;
     regionSelection = Math.max(0, regionStageIds().indexOf(sharedStage || currentStage));
     sharedStage = null;

@@ -97,7 +97,11 @@ export async function checkPostClear(page, out) {
     for (const type of ['pointercancel', 'pointerleave']) {
       event('pointerdown', slot.x + slot.w / 2, slot.y + slot.h / 2);
       event(type, 10, 10);
+      event('pointerup', 10, 10);
     }
+    event('pointerdown', slot.x + slot.w / 2, slot.y + slot.h / 2);
+    window.dispatchEvent(new Event('blur'));
+    event('pointerup', 10, 10);
     return { before, after: window.nanoDnf.getLoadout(), savedBefore, savedAfter: stored() };
   });
   assert.deepEqual(cancelledDrag.after, cancelledDrag.before, 'cancelling a drag preserves the skill bar');
