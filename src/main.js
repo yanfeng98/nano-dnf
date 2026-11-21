@@ -1237,6 +1237,13 @@
     return true;
   }
 
+  function pauseRows() {
+    if (!Summary) return [];
+    return finishedRun
+      ? Summary.describe(finishedRun).rows
+      : Summary.liveRun(state, currentSeed).rows;
+  }
+
   /* What the title and victory screens need, without leaking storage details. */
   function runSummary() {
     var record = Records.best(records, currentStage, currentSeed);
@@ -2291,8 +2298,7 @@
           }
         : null
     };
-    /* A paused run reports itself from the live state, never from a finished one. */
-    if (meta.paused && Summary) meta.liveRows = Summary.liveRun(state, currentSeed).rows;
+    if (meta.paused) meta.liveRows = pauseRows();
     Render.render(ctx, titleUp ? attract.state : state, meta);
 
     var status = document.getElementById("status");
@@ -2515,10 +2521,8 @@
     /* The link that reopens this exact run, and the page's copy control. */
     getShareLink: shareLink,
     copyShareLink: copyShareLink,
-    /* The pause overlay's live readout, and whether the run is paused right now. */
-    getLiveRows: function () {
-      return Summary ? Summary.liveRun(state, currentSeed).rows : [];
-    },
+    /* The pause overlay reports the run's final numbers once it has ended. */
+    getLiveRows: pauseRows,
     getPace: function () {
       return runSummary().pace;
     },

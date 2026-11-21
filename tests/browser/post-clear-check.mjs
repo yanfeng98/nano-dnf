@@ -109,6 +109,13 @@ export async function checkPostClear(page, out) {
     return state.time;
   });
   await page.waitForFunction(time => window.nanoDnf.getState().time > time + 0.1, batchTime);
+  await page.keyboard.press('KeyP');
+  const pauseRows = await page.evaluate(() => ({
+    actual: window.nanoDnf.getLiveRows(),
+    finished: window.nanoDnf.getRunSummary().rows
+  }));
+  assert.deepEqual(pauseRows.actual, pauseRows.finished, 'pausing after clear shows the frozen run');
+  await page.keyboard.press('KeyP');
   const batchItems = await page.evaluate(() => window.nanoDnf.getProgressState().items);
   for (const id of gear) {
     assert.equal(batchItems[id], (firstPrize.profile.items[id] || 0) + 1,
