@@ -9446,7 +9446,7 @@
       if (!(meta && meta.progressPanel)) drawContinue(ctx, sprites, meta && meta.continueHover);
       return;
     }
-    if (state.defeat || (state.victory && !state.postClear)) {
+    if ((state.defeat || (state.victory && !state.postClear)) && !(meta && meta.showHelp)) {
       /*
        * 通关后的第二页：战绩走完（`Reward` 的 `stats` 拍）就换成 `奖励` 页，
        * 翻牌与开奖都在那一页（`docs/adr/0055`）。失败页不变。
@@ -9508,7 +9508,7 @@
       ctx.restore();
       return;
     }
-    if (meta && meta.paused) {
+    if (meta && meta.paused && !meta.showHelp) {
       ctx.save();
       ctx.fillStyle = "rgba(6, 8, 16, 0.6)";
       ctx.fillRect(0, 0, ARENA.width, ARENA.height);
@@ -9576,7 +9576,7 @@
       ctx.fillText("清空房间后门口亮起来，从那儿走去下一间；打掉牛头巨兽通关", 344, 462);
       ctx.fillStyle = "#ffd66b";
       ctx.font = "700 16px 'PingFang SC', 'Segoe UI', sans-serif";
-      ctx.fillText("按任意键开始", 344, 496);
+      ctx.fillText(meta.titlePending ? "按任意键开始" : "按 F1 或 Esc 返回", 344, 496);
 
       /* The replay hook: which seed this run uses and how the best one went. */
       if (meta && meta.run) {
@@ -9591,7 +9591,9 @@
           ctx.fillText(meta.run.overallText, ARENA.width - 60, 186);
         }
         ctx.fillStyle = PALETTE.text;
-        ctx.fillText("按 N 换一个种子", ARENA.width - 60, meta.run.overallText ? 212 : 186);
+        if (meta.titlePending) {
+          ctx.fillText("按 N 换一个种子", ARENA.width - 60, meta.run.overallText ? 212 : 186);
+        }
       }
       ctx.restore();
     }

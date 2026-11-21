@@ -8691,6 +8691,7 @@ test("the title screen shows the seed record and a clear shows the result", () =
   const titleCalls = [];
   Render.render(recordingContext(titleCalls), Core.createState({ seed: 7 }), {
     showHelp: true,
+    titlePending: true,
     run: run
   });
   const titleTexts = textsFrom(titleCalls);

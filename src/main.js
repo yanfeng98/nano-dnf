@@ -375,7 +375,7 @@
    * waiting behind the overlay is never touched by the fight playing in front
    * of it.
    */
-  var attractActive = !!Attract;
+  var titlePending = true;
   var attract = Attract ? Attract.create({ seed: currentSeed }) : null;
   var attractAccumulator = 0;
 
@@ -1385,7 +1385,7 @@
     ensureAudio();
     startMusic();
     if (showHelp) {
-      openTown();
+      if (titlePending) openTown();
       event.preventDefault();
       return;
     }
@@ -1523,6 +1523,11 @@
     }
     /* 加载屏上不接受任何游戏输入 —— 包括"按任意键开始"。 */
     if (!assets.ready) return;
+    if (showHelp && !titlePending && event.code !== "KeyM") {
+      if (event.code === "F1" || event.code === "Escape") showHelp = false;
+      event.preventDefault();
+      return;
+    }
     /*
      * **第一次手势就把开始画面那首放起来。** 浏览器只允许在用户手势之后出声，
      * 而标题页现在也有一首自己的曲子（`Music.TRACKS.title`）—— 以前要等到
@@ -1634,6 +1639,7 @@
     }
     if (event.code === "F1") {
       showHelp = !showHelp;
+      clearCombatInput();
       if (!showHelp) leaveTitle();
       event.preventDefault();
       return;
@@ -1711,7 +1717,7 @@
     accumulator = 0;
     attractAccumulator = 0;
     /* The demo previews the seed the player is about to get. */
-    if (attractActive && Attract) attract = Attract.create({ seed: currentSeed });
+    if (titlePending && Attract) attract = Attract.create({ seed: currentSeed });
     lastRun = null;
     finishedRun = null;
     reward = null;
@@ -1754,7 +1760,7 @@
    * dismissal keeps F1 mid-run showing the frozen real run instead of a replay.
    */
   function leaveTitle() {
-    attractActive = false;
+    titlePending = false;
   }
 
   /* ---------------------------------------------------------- region map */
@@ -2080,7 +2086,7 @@
     leaveTitle();
     /* Behind the map the run is rebuilt for whichever stage is selected, so the
        attract demo and the first frame of the run are never stale. */
-    if (attractActive && Attract) attract = Attract.create({ seed: currentSeed });
+    if (titlePending && Attract) attract = Attract.create({ seed: currentSeed });
   }
 
   /**
@@ -2235,7 +2241,7 @@
      * The demo runs on the same fixed step as the game, but against its own
      * state and with no input, sound or record side effects.
      */
-    var titleUp = attractActive && showHelp && !!attract;
+    var titleUp = titlePending && showHelp && !!attract;
     if (titleUp) {
       attractAccumulator += delta;
       var demoGuard = 0;
@@ -2252,6 +2258,7 @@
       progressPanel: progressPanel,
       progress: progress,
       showHelp: showHelp,
+      titlePending: titlePending,
       attract: titleUp,
       sprites: sprites,
       loadout: loadout,
@@ -2508,8 +2515,8 @@
     /* The self-playing title demo, and whether it still owns the screen. */
     getAttract: function () {
       return {
-        active: attractActive && showHelp && !!attract,
-        retired: !attractActive,
+        active: titlePending && showHelp && !!attract,
+        retired: !titlePending,
         demo: Attract && attract ? Attract.snapshot(attract) : null
       };
     },

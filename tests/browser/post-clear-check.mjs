@@ -14,6 +14,17 @@ export async function checkPostClear(page, out) {
   await page.evaluate(() => window.nanoDnf.leaveTown());
   await page.keyboard.press('Enter');
   await page.waitForFunction(() => !window.nanoDnf.getProgress().regionOpen);
+  await page.keyboard.press('F1');
+  const helpTime = await page.evaluate(() => window.nanoDnf.getState().time);
+  await page.keyboard.press('ArrowRight');
+  await page.locator('#stage').click({ position: { x: 20, y: 20 } });
+  const whileHelp = await page.evaluate(() => ({
+    townOpen: window.nanoDnf.getTown().open,
+    time: window.nanoDnf.getState().time
+  }));
+  assert.deepEqual(whileHelp, { townOpen: false, time: helpTime },
+    'gameplay keys and clicks leave the current dungeon paused behind help');
+  await page.keyboard.press('Escape');
   async function finish(pauseAtFade=false, manual=false, questActions=null, seconds=null) {
     await page.evaluate(({pauseAtFade,manual,questActions,seconds}) => {
       const C=window.DNFCore, api=window.nanoDnf, s=api.getState();
