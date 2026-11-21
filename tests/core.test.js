@@ -933,20 +933,23 @@ test("a logically open door has no blocking panel even while the player is far a
   }
 });
 
-test("the ordinary second room allows the recorded horizontal camera travel", () => {
-  const state = Core.createState({ seed: 1, stage: "mirkwood" });
-  const cell = state.dungeon.cells.findIndex(({ col, row }) => col === 2 && row === 0);
-  Core.goToCell(state, cell);
-  state.enemies = [];
-  state.props = [];
-  state.room.cleared = Core.currentCell(state).cleared = true;
-  Core.currentCell(state).exits = 0;
+test("measured ordinary rooms allow the recorded horizontal camera travel", () => {
+  for (const [column, rowIndex, observed] of [[2, 0, 1296], [1, 0, 928], [1, 2, 1044]]) {
+    const state = Core.createState({ seed: 1, stage: "mirkwood" });
+    const cell = state.dungeon.cells.findIndex(({ col, row }) => col === column && row === rowIndex);
+    Core.goToCell(state, cell);
+    state.enemies = [];
+    state.props = [];
+    state.room.cleared = Core.currentCell(state).cleared = true;
+    Core.currentCell(state).exits = 0;
 
-  Core.runFrames(state, 900, { left: true });
-  const leftCamera = state.camera.x;
-  Core.runFrames(state, 900, { right: true });
-  const travel = (state.camera.x - leftCamera) * Core.CAMERA.zoom;
-  assert.ok(Math.abs(travel - 1296) < 1, `observed 1296 screen px, game traveled ${travel}`);
+    Core.runFrames(state, 900, { left: true });
+    const leftCamera = state.camera.x;
+    Core.runFrames(state, 900, { right: true });
+    const travel = (state.camera.x - leftCamera) * Core.CAMERA.zoom;
+    assert.ok(Math.abs(travel - observed) < 1,
+      `${state.room.name}: observed ${observed} screen px, game traveled ${travel}`);
+  }
 });
 
 test("a depth doorway starts with the same camera regardless of the previous room", () => {

@@ -2524,6 +2524,8 @@
           // Observed types: 1 goblinRed, 1 goblinBlue, 1 caster, 1 coward, 3 grunt (all Lv4).
           name: "藤蔓窄道",
           kind: "corr",
+          // V1 camera travels at least 927.56 px in a 720 px viewport.
+          width: 1044.5,
           enemies: [
             { type: "goblinRed", x: 340, depth: 0.42, level: 4, xp: 40 },
             { type: "caster", x: 440, depth: 0.34, level: 4, xp: 40 },
@@ -2627,6 +2629,8 @@
           // Observed types: 6 grunt, 2 goblinRed, 1 goblinBlue, 1 caster, 1 burningThrower (all Lv4).
           name: "苔石夹道",
           kind: "corr",
+          // V1 camera travels at least 1044.12 px in a 720 px viewport.
+          width: 1118.4,
           enemies: [
             { type: "grunt", x: 280, depth: 0.34, level: 4, xp: 40 },
             { type: "goblinRed", x: 380, depth: 0.56, level: 4, xp: 40 },
