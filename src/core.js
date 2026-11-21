@@ -5779,12 +5779,13 @@
     state.player.skillHitsDone = 0;
     state.player.comboTimer = 0;
     /*
-     * **进门不带上一间房按下的那一下。** 普攻/技能有 0.5 秒输入缓冲，进门时
+     * **进门不带上一间房按下的那一下。** 普攻、跳跃和技能可以缓冲，进门时
      * 那一下如果还没兑现，会在新房里自己挥出来 —— 站在出生点上把旁边的箱子/
      * 石碑打碎（2026-10-25 冒烟里撞到的就是这个）。
      */
     state.player.attackBuffer = 0;
-    state.player.skillBuffer = 0;
+    state.player.jumpBuffer = 0;
+    state.skillBuffer = null;
     /*
      * **What is deliberately not cleared**: `player.buffs` and, riding with it,
      * `player.hellbenterTier` - 魔狱血刹's whole shape is that the sword outlives

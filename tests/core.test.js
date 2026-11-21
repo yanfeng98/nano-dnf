@@ -798,6 +798,19 @@ test("a cleared room opens its doors and lets him walk out", () => {
   assert.ok(state.transition > 0, "a room change fades in over BLACK (docs/adr/0030)");
 });
 
+test("a room change discards buffered attacks, jumps and skills", () => {
+  const state = Core.createState({ seed: Core.DEFAULT_SEED });
+  state.room.cleared = Core.currentCell(state).cleared = true;
+  state.player.attackBuffer = state.player.jumpBuffer = 0.1;
+  state.skillBuffer = { id: "upSlash", ttl: 0.1 };
+  const cell = state.cell;
+  Core.enterCell(state, "N");
+  assert.notEqual(state.cell, cell);
+  assert.equal(state.skillBuffer, null);
+  assert.equal(state.player.attackBuffer, 0);
+  assert.equal(state.player.jumpBuffer, 0);
+});
+
 test("a logically open door has no blocking panel even while the player is far away", () => {
   for (const stage of ["mirkwood", "mirkwooddeep"]) {
     const state = Core.createState({ seed: 1, stage });
