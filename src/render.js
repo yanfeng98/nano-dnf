@@ -6868,7 +6868,13 @@
     ctx.restore();
   }
 
-  function drawExperienceText(ctx, sheet, text, x, baseline) {
+  function experienceAnchorX(state, x, width) {
+    var edge = cameraX(state);
+    var margin = width / 2 + 5 / Core.CAMERA.zoom;
+    return Math.max(edge + margin, Math.min(x, edge + Core.windowWidth() - margin));
+  }
+
+  function drawExperienceText(ctx, state, sheet, text, x, baseline) {
     var match = /^(\+?\d+) Exp$/.exec(text);
     if (!sheet || !match) return false;
     // Original expup.img glyphs in sixteen-pixel cells. The Chinese suffix
@@ -6882,7 +6888,8 @@
     ctx.textAlign = "left";
     var numberWidth = slots.reduce(function (sum, slot) { return sum + advances[slot]; }, 0) * scale;
     var gap = scale;
-    var left = x - (numberWidth + gap + ctx.measureText("Exp").width) / 2;
+    var width = numberWidth + gap + ctx.measureText("Exp").width;
+    var left = experienceAnchorX(state, x, width) - width / 2;
     slots.forEach(function (slot) {
       ctx.drawImage(sheet, slot * 16, 0, 16, 16,
         left, baseline - 16 * scale, 16 * scale, 16 * scale);
@@ -6896,7 +6903,7 @@
     return true;
   }
 
-  function drawEffect(ctx, state, effect, ordinal, sprites) {
+  function drawEffect(ctx, state, effect, ordinal, sprites, experienceCount) {
     var alpha = clamp01(effect.life / effect.maxLife);
     /*
      * An effect's own depth, for the kinds that live on the floor. The banner
@@ -6980,24 +6987,29 @@
       // caption displacement establish the owner anchor independently of pan.
       var owner = effect.anchor === "player" && state.player;
       var floatX = owner ? owner.x : effect.x;
-      var floatY = owner
-        ? feetY(owner) - SPRITE.bodyHeight - Core.EXPERIENCE_FLOAT.headGap -
-          ordinal * (18 * VIEW.width / 640 / Core.CAMERA.zoom)
-        : ey;
+      var floatY = ey - climb;
+      if (owner) {
+        var spacing = 18 * VIEW.width / 640 / Core.CAMERA.zoom;
+        var topBaseline = ARENA.groundY + (22 - ARENA.groundY) / Core.CAMERA.zoom;
+        var anchor = feetY(owner) - SPRITE.bodyHeight - Core.EXPERIENCE_FLOAT.headGap;
+        floatY = Math.max(anchor - ordinal * spacing - climb,
+          topBaseline + (experienceCount - ordinal - 1) * spacing);
+      }
       ctx.save();
       ctx.globalAlpha = 1;
-      if (drawExperienceText(ctx, sprites && sprites.experienceDigits,
-        effect.text, floatX, floatY - climb)) {
+      if (drawExperienceText(ctx, state, sprites && sprites.experienceDigits,
+        effect.text, floatX, floatY)) {
         ctx.restore();
         return;
       }
       ctx.font = "700 11px 'Segoe UI', system-ui, sans-serif";
       ctx.textAlign = "center";
+      floatX = experienceAnchorX(state, floatX, ctx.measureText(effect.text).width || 0);
       ctx.lineWidth = 2.6;
       ctx.strokeStyle = "rgba(10, 18, 8, 0.9)";
-      ctx.strokeText(effect.text, floatX, floatY - climb);
+      ctx.strokeText(effect.text, floatX, floatY);
       ctx.fillStyle = "#69c62e";
-      ctx.fillText(effect.text, floatX, floatY - climb);
+      ctx.fillText(effect.text, floatX, floatY);
       ctx.restore();
     } else if (effect.kind === "bloodStrand") {
       drawBloodStrand(ctx, state, effect, sprites);
@@ -10723,6 +10735,7 @@
     var experienceCount = state.effects.filter(function (effect) {
       return effect.kind === "pickupText" && effect.anchor === "player" && effect.life > 0;
     }).length;
+    var remainingExperience = experienceCount;
     var hideTelegraph = !!(state.stage && state.stage.id === "mirkwooddeep");
     state.effects.forEach(function (effect) {
       if (effect.kind === "banner" && overlayOpen) return;
@@ -10731,14 +10744,15 @@
       var ordinal = 0;
       if (effect.kind === "banner") ordinal = bannerOrdinal++;
       if (effect.kind === "pickupText" && effect.anchor === "player" && effect.life > 0) {
-        ordinal = --experienceCount;
+        ordinal = --remainingExperience;
       }
       drawEffect(
         ctx,
         state,
         effect,
         ordinal,
-        sprites
+        sprites,
+        experienceCount
       );
     });
     // The authored close layer covers world bodies/effects; HUD stays above it.

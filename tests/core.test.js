@@ -8270,6 +8270,34 @@ test("the renderer draws one hotbar row and keeps every skill in the panel", () 
   assert.equal(tileDraws(), Core.SKILL_ORDER.length, "every skill tile is drawn");
 });
 
+test("clear experience captions stay within the viewport at both room edges", () => {
+  const state = Core.createState({ seed: 1 });
+  state.camera.x = 60;
+  const digits = {};
+  const textWidth = 40;
+  state.effects = [{ kind: "pickupText", anchor: "player", text: "6318 Exp", maxLife: 0.8, life: 0.8 }];
+  const min = state.camera.x;
+  const max = min + Core.windowWidth();
+  for (const playerX of [min + 10, max - 10]) {
+    state.player.x = playerX;
+    for (const sprites of [{ experienceDigits: digits }, {}]) {
+      const calls = [];
+      const ctx = recordingContext(calls);
+      ctx.measureText = () => ({ width: textWidth });
+      Render.render(ctx, state, { sprites });
+      const extent = sprites.experienceDigits
+        ? calls.filter(call => call[0] === "drawImage" && call[1] === digits)
+          .map(call => [call[6], call[6] + call[8]])
+          .concat(calls.filter(call => call[0] === "fillText" && call[1] === "Exp")
+            .map(call => [call[2], call[2] + textWidth]))
+        : calls.filter(call => call[0] === "fillText" && call[1] === "6318 Exp")
+          .map(call => [call[2] - textWidth / 2, call[2] + textWidth / 2]);
+      assert.equal(extent.length, sprites.experienceDigits ? 5 : 1);
+      assert.ok(extent.every(([left, right]) => left > min && right < max));
+    }
+  }
+});
+
 test("experience captions from successive steps remain readable after reaching the same height", () => {
   const state = Core.createState({ seed: 1, stage: "mirkwood" });
   const captions = [40, 50].map((amount, index) => ({
@@ -8288,6 +8316,22 @@ test("experience captions from successive steps remain readable after reaching t
   assert.equal(newer[3], solo[3], "the newest caption keeps its usual trajectory");
   const glyphHeight = 16 * Core.VIEW.width / 640 / Core.CAMERA.zoom;
   assert.ok(newer[3] - older[3] >= glyphHeight, "the captions need separate baselines");
+});
+
+test("stacked experience captions remain visible at the back edge", () => {
+  const state = Core.createState({ seed: 1 });
+  state.player.z = Core.bandDepth(state.band);
+  state.effects = [40, 50, 60].map(amount => ({
+    kind: "pickupText", anchor: "player", text: amount + " Exp", maxLife: 0.8, life: 0.2
+  }));
+  const calls = [];
+  Render.render(recordingContext(calls), state, {});
+  const baselines = calls.filter(call => call[0] === "fillText" && /^(40|50|60) Exp$/.test(call[1]))
+    .map(call => Core.ARENA.groundY + (call[3] - Core.ARENA.groundY) * Core.CAMERA.zoom);
+  assert.equal(baselines.length, 3);
+  assert.ok(baselines[0] >= 18, "the highest caption must clear the top edge");
+  assert.ok(baselines[1] - baselines[0] >= 18);
+  assert.ok(baselines[2] - baselines[1] >= 18);
 });
 
 /** A canvas context double that records every draw call it receives. */
