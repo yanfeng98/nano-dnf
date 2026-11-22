@@ -4703,6 +4703,7 @@
         // A measured room credit overrides the still uncalibrated type default.
         xp: xp === undefined ? spec.xp : xp,
         behavior: spec.behavior || "melee",
+        deathStyle: spec.deathStyle,
         barColor: spec.barColor || null,
         /* 冠军怪那一圈光环（`champdark` / `champfire`）；普通怪是 null。 */
         champion: spec.champion || null,
@@ -8397,10 +8398,11 @@
       return;
     }
     /*
-     * 深处领主在后场压阵（录像 321–380s）：第一批小怪还在时它不冲上来，
-     * 等第二批触发（`waveTriggered`）才开始选招。
+     * Reserve the deep lord for the next wave only when the room has one.
+     * Rooms that field their whole roster at entry can engage immediately.
      */
-    if (enemy.deathStyle === "burst" && state.room && !state.room.waveTriggered) {
+    if (enemy.type === "lugaruBoss" && state.room && !state.room.waveTriggered &&
+        state.room.pendingWave && state.room.pendingWave.length > 0) {
       enemy.vx = 0;
       enemy.vz = 0;
       return;

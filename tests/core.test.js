@@ -828,6 +828,31 @@ test("a dead monster lies down, turns into its own white silhouette, then bursts
   assert.equal(state.victory, true, "Boss 房打掉就通关");
 });
 
+test("the deep lord engages without a pending wave and uses its own clear effect", () => {
+  const state = Core.createState({ stage: "mirkwooddeep", seed: 1 });
+  Core.goToCell(state, state.dungeon.boss);
+  Object.assign(state, { intro: null, transition: 0, props: [] });
+  const boss = state.enemies.find(Core.isBossEnemy);
+  state.enemies = [boss];
+  Object.assign(state.player, { x: boss.x - 50, z: boss.z });
+  boss.attackCooldown = 0;
+
+  assert.equal(state.room.pendingWave.length, 0);
+  Core.step(state, {});
+  assert.ok(boss.attackTimer > 0, "the lord can attack before any wave trigger");
+
+  Core.damageEnemy(state, boss, boss.hp, 0, state.player.x);
+  assert.ok(state.effects.some(effect => effect.kind === "bossburst"));
+  assert.ok(!state.effects.some(effect => effect.kind === "bossrays"));
+  Core.step(state, {});
+  assert.equal(state.victoryDelay, 1.2);
+  Core.runFrames(state, 20, {});
+  assert.ok(!state.enemies.includes(boss));
+  assert.equal(state.victory, false);
+  Core.runFrames(state, Core.FPS, {});
+  assert.equal(state.victory, true);
+});
+
 test("每只怪死都走同一条线：躺 → 白色剪影 → 自己颜色的碎块", () => {
   const state = Core.createState({ seed: Core.DEFAULT_SEED });
   Core.goToCell(state, 0);
