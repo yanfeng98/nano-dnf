@@ -11282,6 +11282,22 @@ test("recording profiles initialise real level-dependent state without startup l
   assert.equal(Core.createState().player.level, 1, "level-one simulation fixtures remain explicit model defaults");
 });
 
+test("harmless damage cannot count as the fifth hit or suppress a real hit", () => {
+  const state = Core.createState({ stage: "mirkwood", referenceProfile: true });
+  const hp = state.player.hp;
+  state.stats.hitsTaken = 4;
+  for (const amount of [0, 0.4, -1, NaN, Infinity]) {
+    assert.equal(Core.damagePlayer(state, amount, state.player.x), 0);
+    assert.equal(state.player.hp, hp);
+    assert.equal(state.stats.hitsTaken, 4);
+    assert.equal(state.player.invuln, 0);
+  }
+  assert.equal(Core.ratingOf(state).grade, "SS");
+  assert.equal(Core.damagePlayer(state, 1, state.player.x), 1);
+  assert.equal(state.stats.hitsTaken, 5);
+  assert.equal(Core.ratingOf(state).grade, "S");
+});
+
 test("reference combat ratings keep SS through four hits and S through the observed clear range", () => {
   for (const [stage, clearHits, time] of [["mirkwood", 15, 275.5], ["mirkwooddeep", 23, 376.2]]) {
     const state = Core.createState({ stage, referenceProfile: true });

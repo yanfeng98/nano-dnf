@@ -6922,7 +6922,8 @@
   function damagePlayer(state, amount, sourceX) {
     var player = state.player;
     if (player.dead || player.invuln > 0 || runCleared(state)) return 0;
-    var applied = Math.max(0, Math.round(amount));
+    var applied = Math.round(amount);
+    if (!(applied > 0) || !Number.isFinite(applied)) return 0;
     player.hp -= applied;
     pushSound(state, "playerHurt", { x: player.x, z: player.z });
     state.stats.damageTaken += applied;
