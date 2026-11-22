@@ -8116,6 +8116,26 @@
         life: 0.2,
         maxLife: 0.2
       });
+      // FlyBombPiece.ptl: 20 shrapnel pieces, life 150ms, speed 700 native px/s,
+      // 360-degree circle spread across FlyBombPiece1..4 (m0001.img f0..3).
+      var pieceSpeed = nativeGroundX(700);
+      for (var p = 0; p < 20; p++) {
+        var theta = (p / 20) * Math.PI * 2;
+        var u = ((p * 37 + Math.round(x)) % 17) / 16 - 0.5;
+        var v = ((p * 53 + Math.round(shot.z || 0)) % 13) / 12 - 0.5;
+        state.effects.push({
+          kind: "bomb_piece",
+          x: x + u * nativeGroundX(8),
+          y: y + v * nativeGroundX(8),
+          z: (shot.z || 0) + (u * nativeGroundX(16)) / DEPTH.scale,
+          vx: Math.cos(theta) * pieceSpeed,
+          vy: Math.sin(theta) * pieceSpeed,
+          angle: theta,
+          life: 0.15,
+          maxLife: 0.15,
+          variant: p % 4
+        });
+      }
       return;
     }
     if (shot.nativeObject === 30001) {
@@ -9556,7 +9576,10 @@
     state.effects = state.effects
       .map(function (effect) {
         effect.life -= dt;
-        if (effect.kind === "pillar_debris" || effect.kind === "stone_debris") {
+        if (effect.kind === "bomb_piece") {
+          effect.x += effect.vx * dt;
+          effect.y += effect.vy * dt;
+        } else if (effect.kind === "pillar_debris" || effect.kind === "stone_debris") {
           var g = effect.gravity || 0;
           if (effect.kind === "stone_debris" && effect.y >= ARENA.groundY) {
             effect.y = ARENA.groundY;

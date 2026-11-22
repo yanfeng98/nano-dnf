@@ -101,6 +101,19 @@ def main():
     flash_out = args.out.with_name("goblin-bomb-flash.png")
     flash_pic.save(flash_out)
 
+    pieces_entry = "sprite/monster/common/m0001.img"
+    with flash_pack.open("rb") as handle:
+        pieces_item = next(item for item in NPK.open(handle).files if item.name.lower() == pieces_entry)
+        pieces_data = pieces_item.data
+    pieces_img = IMGFactory.open(io.BytesIO(pieces_data))
+    pieces_strip = Image.new("RGBA", (160, 40))
+    for frame_idx in range(4):
+        fr = pieces_img.images[frame_idx]
+        pic = pieces_img.build(fr).convert("RGBA")
+        pieces_strip.alpha_composite(pic, (frame_idx * 40 + (40 - pic.width) // 2, (40 - pic.height) // 2))
+    pieces_out = args.out.with_name("goblin-bomb-pieces.png")
+    pieces_strip.save(pieces_out)
+
     report.update(
         pack=str(pack),
         entry=entry,

@@ -14194,3 +14194,20 @@ test('30001 and 30021 native hit/explosion SFX are in manifest and bomb expiry e
  assert.equal(state.projectiles.length,0);
  assert.ok(state.sounds.some(s=>s.kind==='bombExplosion'),'bomb expiry emits bombExplosion sound');
 });
+
+test('30021 bomb destruction emits FlyBombPiece shrapnel that scatters and renders',()=>{
+ const state=lastRoomState(34),enemy=Core.createEnemy(state,'throwerElite',500);
+ state.intro=null;state.transition=state.hitStop=0;state.enemies=[enemy];state.projectiles=[];state.effects=[];
+ enemy.facing=1;state.player.x=10000;
+ Core.spawnProjectile(state,enemy);
+ for(let i=0;i<120&&state.projectiles.length;i++)Core.step(state,{});
+ assert.equal(state.projectiles.length,0);
+ const pieces=state.effects.filter(e=>e.kind==='bomb_piece');
+ assert.equal(pieces.length,20,'emits 20 FlyBombPiece particles');
+ const sheet={width:160,height:40};
+ const calls=[];Render.render(recordingContext(calls),state,{sprites:{goblinBombPieces:sheet}});
+ assert.equal(calls.filter(c=>c[0]==='drawImage'&&c[1]===sheet).length,20);
+ const x0=pieces[0].x;
+ Core.step(state,{});
+ assert.notEqual(pieces[0].x,x0,'shrapnel moves along its circle trajectory');
+});

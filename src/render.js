@@ -7127,6 +7127,18 @@
       ctx.imageSmoothingEnabled = true;
       ctx.drawImage(flashSheet, 0, 0, 103, 103, -50 * rate * flashScale, -50 * rate * flashScale, 103 * rate * flashScale, 103 * rate * flashScale);
       ctx.restore();
+    } else if (effect.kind === "bomb_piece") {
+      var bombPieces = sprites && sprites.goblinBombPieces;
+      if (!bombPieces || !bombPieces.width) return;
+      var pieceScale = (Core.VIEW.width / 640) / Core.CAMERA.zoom;
+      ctx.save();
+      ctx.globalAlpha *= alpha;
+      ctx.translate(effect.x, ey);
+      ctx.rotate(effect.angle || 0);
+      ctx.imageSmoothingEnabled = true;
+      ctx.drawImage(bombPieces, (effect.variant % 4) * 40, 0, 40, 40,
+        -20 * pieceScale, -20 * pieceScale, 40 * pieceScale, 40 * pieceScale);
+      ctx.restore();
     } else if (effect.kind === "stone_debris") {
       var stoneDebris = sprites && sprites.goblinStoneDebris;
       if (!stoneDebris || !stoneDebris.width) return;
