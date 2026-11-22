@@ -8424,9 +8424,9 @@
      * the same way a wind-up damps its vx: committed is committed.
      */
     var rowGap = (player.z || 0) - (enemy.z || 0);
-    var rowReach = DEPTH_REACH.melee * SLAYER_HEIGHT;
+    var sameRow = inReachOf(player.z, enemy.z);
     enemy.vz =
-      Math.abs(rowGap) <= rowReach ? 0 : (rowGap > 0 ? 1 : -1) * enemyDepthSpeed(enemy.speed);
+      sameRow ? 0 : (rowGap > 0 ? 1 : -1) * enemyDepthSpeed(enemy.speed);
 
     if (enemy.behavior === "ranged") {
       /*
@@ -8457,7 +8457,7 @@
         walkTowards(state, enemy, player, enemy.speed);
       } else {
         enemy.vx = 0;
-        if (enemy.attackCooldown <= 0) {
+        if (sameRow && enemy.attackCooldown <= 0) {
           beginEnemyAttack(state, enemy, "charge", enemy.baseAttackWindup, enemy.baseAttackDuration);
           enemy.chargeDir = enemy.facing;
           pushTelegraph(state, enemy, "CHARGE", enemy.attackRange, enemy.attackWindup, enemy.facing);
@@ -8552,6 +8552,7 @@
     var lunge = (enemy.phase >= 2 && enemy.phase2 && enemy.phase2.lunge) || enemy.lunge;
     if (
       lunge &&
+      sameRow &&
       enemy.attackCooldown <= 0 &&
       enemy.lungeCooldown <= 0 &&
       gap >= lunge.minGap &&

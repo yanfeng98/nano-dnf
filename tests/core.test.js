@@ -2911,6 +2911,23 @@ test("enemy projectiles expire after their fixed travel budget", () => {
   assert.equal(state.stats.damageTaken, 0);
 });
 
+test("a charger closes the depth gap before starting a dash", () => {
+  const state = Core.createState({ stage: "mirkwood", seed: 1 });
+  Object.assign(state, { intro: null, transition: 0, props: [] });
+  const enemy = Core.createEnemy(state, "charger", 400, 70);
+  state.enemies = [enemy];
+  Object.assign(state.player, { x: enemy.x + 55, z: 150 });
+  enemy.attackCooldown = 0;
+
+  Core.step(state, {});
+  assert.equal(enemy.attackTimer, 0);
+  assert.ok(enemy.z > 70);
+  Core.runFrames(state, 30, {});
+  assert.ok(Core.inReachOf(state.player.z, enemy.z));
+  assert.equal(enemy.attackKind, "charge");
+  assert.ok(enemy.attackTimer > 0);
+});
+
 test("chargers telegraph, dash at charge speed, then recover", () => {
   const state = lastRoomState();
   const charger = Core.createEnemy(state, "charger", state.player.x + 120);
