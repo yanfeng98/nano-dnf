@@ -8736,8 +8736,9 @@
   function updateEnemies(state, dt, previousPlayerPosition) {
     var player = state.player;
     var existingProjectiles = state.projectiles.length;
+    var cleared = runCleared(state);
     state.enemies.forEach(function (enemy) {
-      if (enemy.dead) return;
+      if (cleared || enemy.dead) return;
 
       enemy.hurtTimer = Math.max(0, enemy.hurtTimer - dt);
       enemy.attackCooldown = Math.max(0, enemy.attackCooldown - dt);
@@ -8772,7 +8773,10 @@
           bleed.timer += bleed.interval;
           /* The bleed is the wound's own damage, so it draws no blood orbs. */
           damageEnemy(state, enemy, bleed.damage, 0, enemy.x, { noBloodOrbs: true });
-          if (enemy.dead) return;
+          if (enemy.dead) {
+            if (isBossEnemy(enemy)) cleared = runCleared(state);
+            return;
+          }
         }
         if (bleed.remaining <= 1e-9) enemy.bleed = null;
       }

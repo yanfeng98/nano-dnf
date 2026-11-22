@@ -8912,6 +8912,28 @@ test("clearing the lord room removes attack warnings from the surviving monsters
   assert.ok(state.effects.some(effect => effect.kind === "bossrays"));
 });
 
+test("a surviving caster cannot release a new shot after the lord falls", () => {
+  const state = Core.createState({ stage: "mirkwood", seed: 1 });
+  Core.goToCell(state, state.dungeon.boss);
+  Object.assign(state, { intro: null, transition: 0, props: [] });
+  const boss = state.enemies.find(Core.isBossEnemy);
+  const caster = state.enemies.find(enemy => enemy.type === "caster");
+  state.enemies = [boss, caster];
+  Object.assign(caster, {
+    attackKind: "shoot",
+    attackTimer: caster.attackDuration - caster.attackWindup - 0.01,
+  });
+  boss.evasion = 0;
+
+  Core.damageEnemy(state, boss, boss.hp + 1, 0, state.player.x);
+  Core.step(state, {});
+
+  assert.ok(state.victoryDelay > 0);
+  assert.equal(caster.attackHitDone, false);
+  assert.equal(state.projectiles.length, 0);
+  assert.ok(!state.sounds.some(sound => sound.kind === "projectileSpawn"));
+});
+
 test("killing the lord before a same-step projectile impact preserves the clear", () => {
   const state = Core.createState({ seed: 1, stage: "mirkwood" });
   Core.goToCell(state, state.dungeon.boss);
