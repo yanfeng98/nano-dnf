@@ -1026,7 +1026,7 @@ test("fallback gates follow the exits and width of the current room", () => {
     x === Core.doorX(state, cell, "N") && y === Core.gateArtRect(state, cell, "N").bottom - 60));
 });
 
-test("the open entry door lets him retreat before clearing the new room", () => {
+test("the entry door stays locked until the new room is cleared", () => {
   for (const stage of ["mirkwood", "mirkwooddeep"]) {
     const state = Core.createState({ seed: 1, stage });
     clearRoom(state);
@@ -1038,32 +1038,24 @@ test("the open entry door lets him retreat before clearing the new room", () => 
     assert.ok(state.enemies.some((e) => !e.dead));
     state.player.invuln = 60;
     const back = state.entryDoor;
-    assert.equal(Core.exitMode(state, back), "open");
+    assert.equal(Core.exitMode(state, back), "locked", "entry door is locked while enemies remain");
+    const outward = { N: "up", S: "down", E: "right", W: "left" }[back];
     state.player.x = back === "E" ? Core.roomRight(state) - 5 :
       back === "W" ? Core.roomLeft(state) + 5 : Core.doorX(state, Core.currentCell(state), back);
     state.player.z = back === "N" ? Core.bandDepth(state.band) - 5 :
       back === "S" ? 5 : state.player.z;
-    Core.step(state, {});
-    assert.equal(state.cell, uncleared, "standing near the entry must not cause an automatic retreat");
-    const outward = { N: "up", S: "down", E: "right", W: "left" }[back];
-    const inward = { N: "down", S: "up", E: "left", W: "right" }[back];
-    Core.step(state, { [outward]: true, [inward]: true });
-    assert.equal(state.cell, uncleared, "opposing directions cancel at the entry door");
-    state.player.hurtTimer = Core.DT;
-    Core.step(state, { [outward]: true });
-    assert.equal(state.player.hurtTimer, 0);
-    assert.equal(state.cell, uncleared, "holding outward does not retreat on the last hitstun frame");
-    if (back === "E" || back === "W") {
-      const edge = state.player.walkWidth / 2 + 9;
-      state.player.x = back === "E" ? Core.roomRight(state) - edge : Core.roomLeft(state) + edge;
-      Core.step(state, { [outward]: true }, 0.001);
-      assert.equal(state.cell, uncleared, "the walking footprint is still outside the side exit margin");
-    }
-    for (let frame = 0; frame < 30 && state.cell === uncleared; frame++) {
+    for (let frame = 0; frame < 30; frame++) {
       Core.step(state, { [outward]: true });
     }
+    assert.equal(state.cell, uncleared, "walking into the entry door cannot return before clearing");
+    assert.equal(state.dungeon.cells[uncleared].cleared, false);
+    state.player.x = (Core.roomLeft(state) + Core.roomRight(state)) / 2;
+    state.player.z = Core.bandDepth(state.band) / 2;
+    clearRoom(state);
+    assert.equal(state.cell, uncleared, "clearing from inside the room keeps the player in the room");
+    assert.equal(Core.exitMode(state, back), "open", "entry door opens once the room is cleared");
+    assert.ok(walkToDoor(state, back) >= 0, "cleared room allows returning to the previous room");
     assert.equal(state.cell, previous);
-    assert.equal(state.dungeon.cells[uncleared].cleared, false, "retreat does not count as clearing");
   }
 });
 
@@ -8801,7 +8793,7 @@ test("the dungeon is one connected map, and every cell can be walked to", () => 
   }
 });
 
-test("a door is locked until the room is cleared, and the way back is always open", () => {
+test("all doors including the entry door stay locked until the room is cleared", () => {
   const state = dungeonState(Core.DEFAULT_SEED);
   const entry = state.dungeon.cells[state.dungeon.entry];
   assert.equal(exitsOf(entry), "N", "the entry cell opens north only");
@@ -8814,14 +8806,16 @@ test("a door is locked until the room is cleared, and the way back is always ope
   Core.step(state, {});
   assert.equal(Core.exitMode(state, "N"), "open", "clearing the room opens its doors");
 
-  /* 进来那扇门永远开着 —— 这是"能回头"的全部内容。 */
   const other = dungeonState(Core.DEFAULT_SEED);
   const door = Core.doorNeighbour(other.dungeon, other.dungeon.cells[other.cell], "N");
   Core.goToCell(other, door);
   assert.equal(exitsOf(other.dungeon.cells[door]), "ESW", "the cell north of the entry");
   other.entryDoor = "S";
-  assert.equal(Core.exitMode(other, "S"), "open", "the way he came in stays open");
-  assert.equal(Core.exitMode(other, "W"), "locked", "and the rest do not, until it is cleared");
+  assert.equal(Core.exitMode(other, "S"), "locked", "the way he came in stays locked until cleared");
+  assert.equal(Core.exitMode(other, "W"), "locked", "and the rest do too, until it is cleared");
+  killAll(other);
+  Core.step(other, {});
+  assert.equal(Core.exitMode(other, "S"), "open", "clearing the room opens the entry door too");
 });
 
 /**
@@ -13351,7 +13345,7 @@ test("room24 west gate retains its native leaf on an uncleared entry", () => {
   const atlas={width:503,height:240},forest={width:1280,height:2000},slayer={width:13312,height:1936};
   const paint=()=>{const calls=[];Render.render(recordingContext(calls),s,{sprites:{nativePathGate:atlas,forest,slayer}});return calls;};
   s.entryDoor="W";
-  assert.equal(Core.exitMode(s,"W"),"open","visual restoration does not invent an entry blocking rule");
+  assert.equal(Core.exitMode(s,"W"),"locked","uncleared room keeps the entry door locked");
   for(const [z,frameBeforeBody] of [[gate.z-10,true],[gate.z+10,false]]) {
     s.player.z=z;
     const calls=paint(),frame=calls.findIndex(c=>c[0]==="drawImage"&&c[1]===atlas&&c[2]===233),body=calls.findIndex(c=>c[0]==="drawImage"&&c[1]===slayer);

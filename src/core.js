@@ -3820,14 +3820,14 @@
 
     /**
      * 这一格的一扇门现在是什么状态：`"none"` 没有这扇门，`"locked"` 锁着，
-     * `"open"` 能走。**清过房就都开；没清，只有他进来的那扇能走回去** ——
-     * 这是 DNF 的规矩，也是"清房"这件事的意义。
+     * `"open"` 能走。**当前房间清完怪之前，所有门（包括进来的门）都锁着，
+     * 消灭当前房间全部怪物后才打开。**
      */
     function exitMode(state, dir) {
       var cell = currentCell(state);
       var step = MINIMAP_STEPS[dir];
       if (!cell || !step || !(cell.exits & step.bit)) return "none";
-      if (cell.cleared || dir === state.entryDoor) return "open";
+      if (cell.cleared) return "open";
       return "locked";
     }
 
