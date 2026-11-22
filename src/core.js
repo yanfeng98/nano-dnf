@@ -7001,7 +7001,7 @@
     return applied;
   }
 
-  function updatePlayer(state, input, dt) {
+  function updatePlayer(state, input, dt, previousPosition) {
     var player = state.player;
     if (player.dead) return;
     var wasOnGround = player.onGround;
@@ -7769,6 +7769,8 @@
          */
         if (active.advance && player.castOriginX !== undefined) {
           player.x = player.castOriginX;
+          // The reset is instantaneous, so it does not sweep a hitbox across the room.
+          previousPosition.x = player.x;
         }
         /*
          * The cast is over but the ground is not: whatever it opened goes on
@@ -8011,12 +8013,14 @@
     return end;
   }
 
-  function projectileContact(player, shot, x0, y0, x1, y1, curve, oscillation, previousDepth) {
+  function projectileContact(player, shot, x0, y0, x1, y1, curve, oscillation, previousPosition) {
     var radius = shot.radius;
     var left = player.x - player.width / 2 - radius;
     var right = player.x + player.width / 2 + radius;
     var top = player.y - player.height - radius;
     var bottom = player.y + radius;
+    // Express the starting shot position relative to the moving hitbox.
+    if (previousPosition) x0 += player.x - previousPosition.x;
     var dx = x1 - x0, dy = y1 - y0;
     if (!dx && (x0 < left || x0 > right)) return null;
     var enterX = Math.max(0, !dx ? 0 : ((dx > 0 ? left : right) - x0) / dx);
@@ -8026,7 +8030,7 @@
     var shotDepth = shot.z || 0;
     var reach = player.width / 2 + radius;
     var toDepth = (player.z || 0) - shotDepth;
-    var fromDepth = previousDepth === undefined ? toDepth : previousDepth - shotDepth;
+    var fromDepth = previousPosition ? previousPosition.z - shotDepth : toDepth;
     var dz = toDepth - fromDepth;
     if (dz) {
       enterX = Math.max(enterX, ((dz > 0 ? -reach : reach) - fromDepth) / dz);
@@ -8093,7 +8097,7 @@
     return high;
   }
 
-  function updateProjectiles(state, dt, previousDepth, existingCount) {
+  function updateProjectiles(state, dt, previousPosition, existingCount) {
     var player = state.player;
     var remaining = [];
     var impacts = [];
@@ -8165,9 +8169,9 @@
 
       var hitY = shot.y + (shot.oscY || 0);
       // Shots just spawned by enemy actions start after the player moves.
-      var startDepth = index < existingCount ? previousDepth : undefined;
+      var startPosition = index < existingCount ? previousPosition : undefined;
       var contact = !player.dead && !shot.hitPlayer
-        ? projectileContact(player, shot, fromX, fromY, shot.x, hitY, curve, oscillation, startDepth)
+        ? projectileContact(player, shot, fromX, fromY, shot.x, hitY, curve, oscillation, startPosition)
         : null;
       if (contact !== null && contact < flightEnd) {
         impacts.push({
@@ -8710,7 +8714,7 @@
     if (enemy.attackTimer === 0) enemy.superArmor = false;
   }
 
-  function updateEnemies(state, dt, previousPlayerDepth) {
+  function updateEnemies(state, dt, previousPlayerPosition) {
     var player = state.player;
     var existingProjectiles = state.projectiles.length;
     state.enemies.forEach(function (enemy) {
@@ -8844,7 +8848,7 @@
       }
     });
 
-    updateProjectiles(state, dt, previousPlayerDepth, existingProjectiles);
+    updateProjectiles(state, dt, previousPlayerPosition, existingProjectiles);
     separateEnemies(state, state.enemies);
   }
 
@@ -9531,8 +9535,8 @@
       return state;
     }
 
-    var previousPlayerDepth = state.player.z || 0;
-    var couldSteer = updatePlayer(state, input, dt);
+    var previousPlayerPosition = { x: state.player.x, z: state.player.z || 0 };
+    var couldSteer = updatePlayer(state, input, dt, previousPlayerPosition);
     /*
      * The ground he opened hits on its own clock, right after his own move has
      * run. The previous list includes fields that expired during this step,
@@ -9546,7 +9550,7 @@
      */
     updateShots(state, dt);
     if (!state.postClear) {
-      updateEnemies(state, dt, previousPlayerDepth);
+      updateEnemies(state, dt, previousPlayerPosition);
       updateWaves(state);
     }
     updateTarget(state, dt);

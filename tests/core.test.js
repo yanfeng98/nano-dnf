@@ -13630,6 +13630,31 @@ test("a walking player is hit only while within the projectile lane", () => {
   }
 });
 
+test("horizontal movement and projectile expiry share a contact timeline", () => {
+  for (const [direction, offset, speed, life, hits] of [
+    ["right", 0.5, -300, 1, 1],
+    ["left", -1.5, 300, 0.002, 0],
+    ["left", -1.5, 300, 1, 1],
+  ]) {
+    const state = Core.createState({ seed: 1, stage: "mirkwood" });
+    Object.assign(state, { intro: null, transition: 0, enemies: [], props: [] });
+    const player = state.player;
+    player.x = 500;
+    const shot = Core.spawnProjectile(state, Core.createEnemy(state, "caster", 300));
+    Object.assign(shot, {
+      x: player.x - player.width / 2 - shot.radius + offset,
+      y: player.y - player.height / 2,
+      z: player.z,
+      vx: speed,
+      vy: 0,
+      life,
+    });
+
+    Core.step(state, { [direction]: true });
+    assert.equal(state.stats.hitsTaken, hits, `${direction}, lifetime ${life}`);
+  }
+});
+
 test("the earliest projectile contact determines damage regardless of step partition", () => {
   for (const steps of [[0.1], [0.04, 0.06]]) {
     const state = Core.createState({ seed: 1, stage: "mirkwood" });
