@@ -11282,6 +11282,17 @@ test("recording profiles initialise real level-dependent state without startup l
   assert.equal(Core.createState().player.level, 1, "level-one simulation fixtures remain explicit model defaults");
 });
 
+test("reference combat ratings keep SS through four hits and S through the observed clear range", () => {
+  for (const [stage, clearHits, time] of [["mirkwood", 15, 275.5], ["mirkwooddeep", 23, 376.2]]) {
+    const state = Core.createState({ stage, referenceProfile: true });
+    for (const [hits, expected] of [[0, "SS"], [4, "SS"], [5, "S"], [clearHits, "S"]]) {
+      state.stats.hitsTaken = hits;
+      state.time = time;
+      assert.equal(Core.ratingOf(state).grade, expected, `${stage}: ${hits} hits`);
+    }
+  }
+});
+
 test("clear experience cannot change the grade earned in combat", () => {
   const state = Core.createState({ stage: "mirkwood", referenceProfile: true });
   Core.grantXp(state, 2080);

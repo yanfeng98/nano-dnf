@@ -7,7 +7,7 @@ import http from 'node:http';
 import {fileURLToPath} from 'node:url';
 const room=process.env.CAPTURE_ROOM || '42';
 const profiles={
- '24-closeback':{cameraTolerance:1,evidence:'54-room24',col:3,row:1,out:'/tmp/nano-room66/render',times:[277,281,293,307],actorScreenX:80,entryDoor:'W',exit:'E',next:'暗咒猫妖的林地',
+ '24-closeback':{cameraTolerance:1,evidence:'54-room24',col:3,row:1,out:'/tmp/nano-room66/render',times:[277,281,293,307],actorScreenX:80,entryDoor:'W',exit:'E',next:'暗咒猫妖的林地',hitsByTime:{293:15},
   scope:'native room 24 closeback at four measured cameras; other scenery and physical props remain open',
   cases:[
    ['entry-tree',277,'room24Closeback',(340+.01)/1.125,178/1.125,60/1.125,40/1.125,340,180,60,40,40,1500,.97,null,null,true],
@@ -337,7 +337,7 @@ try{
   }
   const camera=time===26.5?0:cameras.find(c=>c.t===time).camera_px;
   const fade=room==='25-closeback'&&time===312?JSON.parse(fs.readFileSync(path.join(root,'docs/reference-evidence/85-room25-entry-fade.json'),'utf8')).blackOpacity:0;
-  const record=await page.evaluate(({camera,time,col,row,entryDoor,actorScreenX,fade,pillarDamageObservations})=>{
+  const record=await page.evaluate(({camera,time,col,row,entryDoor,actorScreenX,fade,pillarDamageObservations,hitsTaken})=>{
    const C=window.DNFCore,s=window.nanoDnf.getState();
    C.goToCell(s,s.dungeon.cells.findIndex(c=>c.col===col&&c.row===row));
    const pillarActions=[];
@@ -361,10 +361,12 @@ try{
    s.player.x=(camera+(actorScreenX??(col===0?80:time<=28?240:200)))/C.CAMERA.zoom;s.player.z=40;
    s.player.hurtTimer=0;s.player.invuln=0;s.player.buffs={};
    s.camera.x=camera/C.CAMERA.zoom;s.time=pillarDamageObservations.length?Math.max(10,s.time):10;
+   // Match the recorded HUD where its grade sits beside the floor sample.
+   if(hitsTaken!==undefined)s.stats.hitsTaken=hitsTaken;
    window.nanoDnf.setMapMode('radar');
    return {time,room:s.room.name,width:s.room.width,cameraPx:camera,pillarActions,
     props:s.props.map(p=>({piece:p.piece,x:p.x,z:p.z,broken:p.broken,gone:!!p.gone,screenX:p.x*C.CAMERA.zoom-camera,bottom:430-C.depthLift(p.z)*C.CAMERA.zoom}))};
-  },{camera,time,col:profile.col,row:profile.row??3,entryDoor:profile.entryDoor,actorScreenX:profile.actorScreenX,fade,pillarDamageObservations});
+  },{camera,time,col:profile.col,row:profile.row??3,entryDoor:profile.entryDoor,actorScreenX:profile.actorScreenX,fade,pillarDamageObservations,hitsTaken:profile.hitsByTime?.[time]});
   await page.waitForTimeout(100);
   const url=await page.locator('#stage').evaluate(c=>c.toDataURL('image/png'));
   images[time]=url;

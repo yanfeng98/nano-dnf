@@ -1632,7 +1632,7 @@
     levelUpFlashDuration: 7 / 6
   };
   // Local fits to the stable XP endpoints, using the 164px gauge assumption.
-  var REFERENCE_EXPERIENCE = {
+  var REFERENCE_PROFILES = {
     mirkwood: {
       level: 3, xp: 1776, thresholds: { 3: 2098, 4: 3467, 5: 5469 },
       clear: { base: 1760, rating: 528, channel: 88 }
@@ -4841,7 +4841,8 @@
       levelBonus: 2,
       levelBonusCap: 10,
       comboBaseline: 6,
-      bands: [["S", 90], ["A", 75], ["B", 60], ["C", 0]]
+      bands: [["S", 90], ["A", 75], ["B", 60], ["C", 0]],
+      referenceBands: [["SS", 96], ["S", 77], ["A", 75], ["B", 60], ["C", 0]]
     };
 
     /*
@@ -4924,9 +4925,9 @@
         : 0;
       var hits = stats.hitsTaken || 0;
       var over = Math.max(0, (state.time - RATING.parSeconds) / RATING.parSeconds) * RATING.timeCost;
-      // Grade thresholds still use the old, explicitly unverified model.
-      // Keep that uncertainty separate from the observed result arithmetic.
-      var gradeScore = 100
+      // Both recordings change from SS to S on the fifth hit. S is still
+      // visible at 23 hits. Lower reference grades retain the model cutoffs.
+      var gradeScore = state.referenceProfile ? 100 - hits : 100
         - Math.min(RATING.hitCostCap, hits * RATING.hitCost)
         - over
         + Math.min(RATING.levelBonusCap, Math.max(0, (player.level || 1) - 1) * RATING.levelBonus);
@@ -4936,8 +4937,9 @@
       var maxScore = 2 * RATING.componentMax;
       var score = Math.max(0, Math.min(maxScore, operationPoints + techniquePoints - hits));
       var grade = "C";
-      for (var i = 0; i < RATING.bands.length; i += 1) {
-        if (gradeScore >= RATING.bands[i][1]) { grade = RATING.bands[i][0]; break; }
+      var bands = state.referenceProfile ? RATING.referenceBands : RATING.bands;
+      for (var i = 0; i < bands.length; i += 1) {
+        if (gradeScore >= bands[i][1]) { grade = bands[i][0]; break; }
       }
       return { operation: operation, technique: technique, operationPoints: operationPoints,
         techniquePoints: techniquePoints, maxScore: maxScore, hits: hits, score: score, grade: grade };
@@ -5087,9 +5089,9 @@
       }
       state.player = createPlayer(options.startX || 110);
       // Opt-in recording starts; the pure level-one fixture remains available.
-      var profile = options.referenceProfile && REFERENCE_EXPERIENCE[state.stage.id];
+      var profile = options.referenceProfile && REFERENCE_PROFILES[state.stage.id];
       if (profile) {
-        state.experienceProfile = profile;
+        state.referenceProfile = profile;
         state.player.name = "阿努纳奇";
         state.player.skillRanks = { upSlash: 1 };
         while (state.player.level < profile.level) advancePlayerLevel(state.player);
@@ -6202,8 +6204,8 @@
   }
 
   function awardClearExperience(state) {
-    if (!state.experienceProfile || state.clearExperience || state.player.dead) return;
-    var clear = state.experienceProfile.clear;
+    if (!state.referenceProfile || state.clearExperience || state.player.dead) return;
+    var clear = state.referenceProfile.clear;
     state.clearExperience = { base: clear.base, rating: clear.rating, channel: clear.channel };
     creditExperience(state, clear.base + clear.rating + clear.channel);
   }
@@ -6230,7 +6232,7 @@
       player.level < PROGRESSION.maxLevel
     ) {
       player.xp -= player.xpToNext;
-      advancePlayerLevel(player, state.experienceProfile);
+      advancePlayerLevel(player, state.referenceProfile);
       player.hp = Math.min(player.maxHp, player.hp + PROGRESSION.healOnLevelUp);
       player.mp = Math.min(player.maxMp, player.mp + PROGRESSION.maxMpPerLevel);
       levels += 1;
