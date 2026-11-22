@@ -105,3 +105,27 @@ test('keyboard policy backs out of the pillar gap and exits a cleared room', () 
   }
   assert.equal(state.cell, next);
 });
+
+test('the keyboard bot dodges only live inbound projectiles in its lane', () => {
+  const state = Core.createState({ seed: 1 });
+  Object.assign(state.player, { x: 400, z: 100, facing: 1 });
+  const target = state.enemies[0];
+  Object.assign(target, { x: 430, z: 100 });
+  state.enemies = [target];
+  const policy = constants();
+  const shot = { x: 350, z: state.player.z, vx: 300, radius: 9 };
+
+  state.projectiles = [shot];
+  assert.deepEqual(decide(state, policy), new Set(['jump']));
+
+  for (const [label, fields] of [
+    ['stopped shot', { stopped: true }],
+    ['spent piercing shot', { hitPlayer: true }],
+    ['shot in another lane', { z: shot.z + state.player.width / 2 + shot.radius + 1 }],
+  ]) {
+    state.projectiles = [{ ...shot, ...fields }];
+    const actions = decide(state, policy);
+    assert.ok(actions.has('attack'), label);
+    assert.ok(!actions.has('jump'), label);
+  }
+});

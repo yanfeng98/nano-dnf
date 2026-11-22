@@ -97,9 +97,13 @@ function decide(state, constants) {
     return want;
   }
 
-  const inbound = (state.projectiles || []).find((shot) => {
+  const inbound = (state.projectiles || []).some((shot) => {
+    // Match the collision lane and ignore shots retained for their visuals.
+    if (shot.stopped || shot.hitPlayer) return false;
+    const sameDepth = Math.abs((shot.z || 0) - (player.z || 0)) <=
+      player.width / 2 + shot.radius;
     const closing = shot.vx > 0 ? shot.x <= player.x : shot.x >= player.x;
-    return closing && Math.abs(shot.x - player.x) < 200;
+    return sameDepth && closing && Math.abs(shot.x - player.x) < 200;
   });
   if (inbound && player.onGround) {
     want.add("jump");
