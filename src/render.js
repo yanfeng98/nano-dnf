@@ -7127,6 +7127,16 @@
       ctx.imageSmoothingEnabled = true;
       ctx.drawImage(flashSheet, 0, 0, 103, 103, -50 * rate * flashScale, -50 * rate * flashScale, 103 * rate * flashScale, 103 * rate * flashScale);
       ctx.restore();
+    } else if (effect.kind === "stone_debris") {
+      var stoneDebris = sprites && sprites.goblinStoneDebris;
+      if (!stoneDebris || !stoneDebris.width) return;
+      var stoneScale = (Core.VIEW.width / 640) / Core.CAMERA.zoom;
+      ctx.save();
+      ctx.globalAlpha *= alpha;
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(stoneDebris, (effect.variant % 2) * 16, 0, 16, 16,
+        effect.x - 8 * stoneScale, ey - 8 * stoneScale, 16 * stoneScale, 16 * stoneScale);
+      ctx.restore();
     } else if (effect.kind === "pillar_debris") {
       var debrisSheet = sprites && sprites.pillarDebris;
       if (!debrisSheet || !debrisSheet.width) return;

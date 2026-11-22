@@ -27,6 +27,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--client", type=Path, default=Path("/mnt/c/dnf/地下城与勇士"))
     parser.add_argument("--out", type=Path, default=ROOT / "assets/goblin-stone.png")
+    parser.add_argument("--debris-out", type=Path, default=ROOT / "assets/goblin-stone-debris.png")
     args = parser.parse_args()
     mob = "monster/goblin/goblinthrower.mob"
     with PvfArchive(args.client / "Script_70.pvf") as archive:
@@ -81,8 +82,25 @@ def main():
                           "Trajectory, impact/explosion, damage and absolute flight timing remain separate open work.",
                           "The throwing captain is not assigned this stone object."])
     args.out.with_suffix(".json").write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n")
-    print(json.dumps({"out": str(args.out), "object": object_id, "sourceSize": list(picture.size),
-                      "period": duration, "angle": angle}))
+
+    destroy_ptl = "passiveobject/monster/goblin/particle/throwstonedestroy.ptl"
+    with PvfArchive(args.client / "Script_70.pvf") as archive:
+        destroy_tokens = archive.tokens(destroy_ptl)
+    destroy_entry = "sprite/monster/goblin/passiveobject/throwstonedestroy.img"
+    with pack.open("rb") as handle:
+        destroy_item = next(f for f in NPK.open(handle).files if f.name.lower() == destroy_entry)
+        destroy_data = destroy_item.data
+    destroy_img = IMGFactory.open(io.BytesIO(destroy_data))
+    debris_strip = Image.new("RGBA", (32, 16))
+    for frame_idx in range(2):
+        fr = destroy_img.images[frame_idx]
+        pic = destroy_img.build(fr).convert("RGBA")
+        debris_strip.alpha_composite(pic, (frame_idx * 16 + (16 - pic.width) // 2, (16 - pic.height) // 2))
+    args.debris_out.parent.mkdir(parents=True, exist_ok=True)
+    debris_strip.save(args.debris_out)
+
+    print(json.dumps({"out": str(args.out), "debrisOut": str(args.debris_out), "object": object_id,
+                      "sourceSize": list(picture.size), "period": duration, "angle": angle}))
 
 
 if __name__ == "__main__":

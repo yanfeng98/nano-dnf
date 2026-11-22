@@ -12816,6 +12816,26 @@ for (const sample of [
   });
 }
 
+test('30001 stone destruction emits ThrowStoneDestroy debris that stops on ground and renders',()=>{
+ const state=lastRoomState(34),enemy=Core.createEnemy(state,'caster',500);
+ state.intro=null;state.transition=state.hitStop=0;state.enemies=[enemy];state.projectiles=[];state.effects=[];
+ enemy.facing=1;state.player.x=10000;
+ Core.spawnProjectile(state,enemy);
+ assert.equal(state.projectiles.length,1);
+ for(let i=0;i<90&&state.projectiles.length;i++)Core.step(state,{});
+ assert.equal(state.projectiles.length,0);
+ const debris=state.effects.filter(e=>e.kind==='stone_debris');
+ assert.equal(debris.length,10,'emits 10 ThrowStoneDestroy particles');
+ const sheet={width:32,height:16};
+ const calls=[];Render.render(recordingContext(calls),state,{sprites:{goblinStoneDebris:sheet}});
+ const draws=calls.filter(c=>c[0]==='drawImage'&&c[1]===sheet);
+ assert.equal(draws.length,10);
+ for(let i=0;i<40;i++)Core.step(state,{});
+ const settled=state.effects.filter(e=>e.kind==='stone_debris');
+ assert.ok(settled.length>0&&settled.every(e=>e.y===Core.ARENA.groundY&&e.vx===0&&e.vy===0),
+  'landing type [stop] halts fragments at ground level until their 1s fade ends');
+});
+
 
 for (const layout of [
   { room: "42", col: 1, row: 3, tiles: [672, 448, 0, 0, 0, 0, 0, 0] },

@@ -8103,6 +8103,42 @@
     return high;
   }
 
+  function emitProjectileDestroyEffect(state, shot, x, y) {
+    if (shot.nativeObject === 30021) {
+      state.effects.push({
+        kind: "bomb_flash",
+        x: x,
+        y: y,
+        z: shot.z || 0,
+        life: 0.2,
+        maxLife: 0.2
+      });
+      return;
+    }
+    if (shot.nativeObject === 30001) {
+      // ThrowStoneDestroy.ptl: 10 stone fragments, life 1000ms, gravity 1000,
+      // landing type [stop], 10x10x10 spawn box, initial speed ~100 native px/s.
+      for (var d = 0; d < 10; d++) {
+        var u = ((d * 37 + Math.round(x)) % 17) / 16 - 0.5;
+        var v = ((d * 53 + Math.round(shot.z || 0)) % 13) / 12 - 0.5;
+        var w = ((d * 29) % 11) / 10;
+        var dir = d % 2 === 0 ? 1 : -1;
+        state.effects.push({
+          kind: "stone_debris",
+          x: x + u * nativeGroundX(10),
+          y: Math.min(ARENA.groundY, y + v * nativeGroundX(10)),
+          z: (shot.z || 0) + (u * nativeGroundX(10)) / DEPTH.scale,
+          vx: dir * nativeGroundX(40 + w * 60),
+          vy: -nativeGroundX(60 + w * 80),
+          gravity: nativeGroundX(1000),
+          life: 1.0,
+          maxLife: 1.0,
+          variant: d % 2
+        });
+      }
+    }
+  }
+
   function updateProjectiles(state, dt, previousPosition, existingCount) {
     var player = state.player;
     var remaining = [];
@@ -8210,17 +8246,13 @@
         }
 
         if (spent || shot.y >= ARENA.groundY) {
-          if (shot.nativeObject === 30021) {
-            var end = clamp(flightEnd, 0, 1);
-            state.effects.push({
-              kind: "bomb_flash",
-              x: clamp(fromX + stepX * end, leftWall, rightWall),
-              y: Math.min(fromBaseY + fromVy * dt * end + gravity * (dt * end) ** 2 / 2, ARENA.groundY),
-              z: shot.z || 0,
-              life: 0.2,
-              maxLife: 0.2
-            });
-          }
+          var end = clamp(flightEnd, 0, 1);
+          emitProjectileDestroyEffect(
+            state,
+            shot,
+            clamp(fromX + stepX * end, leftWall, rightWall),
+            Math.min(fromBaseY + fromVy * dt * end + gravity * (dt * end) ** 2 / 2, ARENA.groundY)
+          );
           return;
         }
 
@@ -8250,16 +8282,7 @@
         impact.finishFlight();
         return;
       }
-      if (shot.nativeObject === 30021) {
-        state.effects.push({
-          kind: "bomb_flash",
-          x: impactX,
-          y: impactY,
-          z: shot.z || 0,
-          life: 0.2,
-          maxLife: 0.2
-        });
-      }
+      emitProjectileDestroyEffect(state, shot, impactX, impactY);
     });
 
     state.projectiles = remaining.filter(Boolean);
@@ -9530,11 +9553,22 @@
     state.effects = state.effects
       .map(function (effect) {
         effect.life -= dt;
-        if (effect.kind === "pillar_debris") {
+        if (effect.kind === "pillar_debris" || effect.kind === "stone_debris") {
           var g = effect.gravity || 0;
-          effect.x += effect.vx * dt;
-          effect.y += effect.vy * dt + 0.5 * g * dt * dt;
-          effect.vy += g * dt;
+          if (effect.kind === "stone_debris" && effect.y >= ARENA.groundY) {
+            effect.y = ARENA.groundY;
+            effect.vx = 0;
+            effect.vy = 0;
+          } else {
+            effect.x += effect.vx * dt;
+            effect.y += effect.vy * dt + 0.5 * g * dt * dt;
+            effect.vy += g * dt;
+            if (effect.kind === "stone_debris" && effect.y >= ARENA.groundY) {
+              effect.y = ARENA.groundY;
+              effect.vx = 0;
+              effect.vy = 0;
+            }
+          }
         }
         return effect;
       })

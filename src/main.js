@@ -34,7 +34,7 @@
   var sprites = {
     slayer: null, skills: null, effects: null, normalWave: null, normalWaveBody: null,
     rift: null, awakening: null, region: null,
-    monsters: null, throwerReference: null, goblinReference: null, casterReference: null, goblinStone: null, goblinBomb: null, goblinBombFlash: null, goblinIce: null, goblinFire: null, nativeFlora: null, forest: null, pillarDebris: null, minimap: null, ui: null, results: null,
+    monsters: null, throwerReference: null, goblinReference: null, casterReference: null, goblinStone: null, goblinStoneDebris: null, goblinBomb: null, goblinBombFlash: null, goblinIce: null, goblinFire: null, nativeFlora: null, forest: null, pillarDebris: null, minimap: null, ui: null, results: null,
     /* Native client UI faces and target frames; see reference batches 31–34. */
     portraits: null, experienceDigits: null
   };
@@ -75,6 +75,7 @@
     ["goblinReference", "./assets/goblin-reference.png"],
     ["casterReference", "./assets/caster-reference.png"],
     ["goblinStone", "./assets/goblin-stone.png"],
+    ["goblinStoneDebris", "./assets/goblin-stone-debris.png"],
     ["goblinBomb", "./assets/goblin-bomb.png"],
     ["goblinBombFlash", "./assets/goblin-bomb-flash.png"],
     ["goblinIce", "./assets/goblin-ice.png"],
