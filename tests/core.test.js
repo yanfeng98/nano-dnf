@@ -6285,6 +6285,32 @@ test("暴走 moves him faster and hits harder while it is up", () => {
   );
 });
 
+test("blood orb feedback shows the HP actually restored", () => {
+  for (const missing of [10, 2, 0]) {
+    const state = Core.createState({ seed: 1 });
+    Object.assign(state, { intro: null, transition: 0, props: [] });
+    const player = state.player;
+    const target = Core.createEnemy(state, "brute", player.x + 300);
+    Object.assign(target, { hp: 1000, speed: 0, evasion: 0 });
+    state.enemies = [target];
+    player.buffs.bloodRage = Infinity;
+    player.stanceDrainTimer = 999;
+    for (let hit = 0; hit < 100 && !state.pickups.length; hit++) {
+      Core.damageEnemy(state, target, 1, 0, player.x);
+    }
+    assert.equal(state.pickups[0].kind, "blood_orb");
+    player.hp = player.maxHp - missing;
+
+    Core.runFrames(state, Math.ceil(Core.BLOOD_ORB.flightSeconds * Core.FPS) + 2, {});
+    const restored = Math.min(missing, Core.BLOOD_ORB.heal);
+    assert.equal(player.hp, player.maxHp - missing + restored);
+    assert.deepEqual(state.effects.filter(effect => effect.kind === "heal").map(effect => effect.text),
+      restored > 0 ? ["+" + restored + " HP"] : []);
+    assert.ok(state.effects.some(effect => effect.kind === "bloodFlash"));
+    assert.equal(state.effects.some(effect => effect.kind === "bloodHeal"), restored > 0);
+  }
+});
+
 test("血之狂暴 draws blood orbs out of what it hits and they fly back as healing", () => {
   const state = lastRoomState();
   const target = Core.createEnemy(state, "brute", state.player.x + 160);
@@ -7896,6 +7922,25 @@ test("the three new DNF skills land their hits and statuses", () => {
     behind.dead || behind.y < Core.ARENA.groundY || behind.vy < 0,
     "怒气爆发 lifts the target off the ground"
   );
+});
+
+test("grasp head heals only on a landed hit and labels the capped amount", () => {
+  for (const evasion of [0, 1]) {
+    const state = Core.createState({ seed: 1 });
+    Object.assign(state, { intro: null, transition: 0, props: [] });
+    const player = state.player;
+    const enemy = Core.createEnemy(state, "brute", player.x + 40);
+    Object.assign(enemy, { x: player.x + 40, speed: 0, attackCooldown: 100, hp: 600, maxHp: 600, evasion });
+    state.enemies = [enemy];
+    player.hp = player.maxHp - 2;
+
+    Core.step(state, { skills: { graspHead: true } });
+    Core.runFrames(state, 55, {});
+    assert.equal(enemy.hp < 600, evasion === 0);
+    assert.equal(player.hp, player.maxHp - (evasion ? 2 : 0));
+    assert.deepEqual(state.effects.filter(effect => effect.kind === "heal").map(effect => effect.text),
+      evasion ? [] : ["+2 HP"]);
+  }
 });
 
 test("抓头 grabs a target, holds it, slams it down and drains HP", () => {

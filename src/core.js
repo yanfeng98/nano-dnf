@@ -7895,20 +7895,9 @@
     /* 技能命中停一下（`docs/adr/0061` 追记）：表在 `SKILL_HIT_STOP`。 */
     options.hitStop = skillHitStop(skill, hitIndex);
     if (source) options.knockbackDirection = source.facing;
-    damageEnemy(state, enemy, damage, skill.knockbackX, source ? source.x : state.player.x, options);
-    if (skill.drain && damage > 0) {
-      var healed = Math.round(damage * skill.drain);
-      state.player.hp = Math.min(state.player.maxHp, state.player.hp + healed);
-      if (healed > 0) {
-        state.effects.push({
-          kind: "heal",
-          text: "+" + healed + " HP",
-          x: state.player.x,
-          y: state.player.y - state.player.height - 10,
-          life: 0.8,
-          maxLife: 0.8
-        });
-      }
+    var applied = damageEnemy(state, enemy, damage, skill.knockbackX, source ? source.x : state.player.x, options);
+    if (skill.drain && applied > 0) {
+      healPlayer(state, Math.round(damage * skill.drain));
     }
     if (!enemy.dead && wasAirborne) {
       state.stats.airHits += 1;
@@ -9299,6 +9288,25 @@
     });
   }
 
+  function healPlayer(state, amount) {
+    var player = state.player;
+    var healed = Math.min(player.maxHp - player.hp, amount);
+    if (!(healed > 0)) return 0;
+    player.hp += healed;
+    var displayed = Math.round(healed);
+    if (displayed > 0) {
+      state.effects.push({
+        kind: "heal",
+        text: "+" + displayed + " HP",
+        x: player.x,
+        y: player.y - player.height - 10,
+        life: 0.8,
+        maxLife: 0.8
+      });
+    }
+    return healed;
+  }
+
   function updatePickups(state, dt) {
     var player = state.player;
     var remaining = [];
@@ -9356,16 +9364,7 @@
         if (drop.trail.length > BLOOD_ORB.trailSteps) drop.trail.pop();
       }
       if (!player.dead && drop.progress >= 1) {
-        var healed = Math.min(player.maxHp - player.hp, drop.value);
-        player.hp += healed;
-        state.effects.push({
-          kind: "heal",
-          text: "+" + Math.round(drop.value) + " HP",
-          x: player.x,
-          y: player.y - player.height - 10,
-          life: 0.8,
-          maxLife: 0.8
-        });
+        var healed = healPlayer(state, drop.value);
         /*
          * And what it looks like when the blood lands, which is **two beats**
          * (docs/adr/0020): a flashbulb on his chest - a white core with pale
@@ -9383,13 +9382,15 @@
           life: 0.26,
           maxLife: 0.26
         });
-        state.effects.push({
-          kind: "bloodHeal",
-          x: player.x,
-          y: player.y - player.height * CHEST_OF_HEIGHT,
-          life: 0.42,
-          maxLife: 0.42
-        });
+        if (healed > 0) {
+          state.effects.push({
+            kind: "bloodHeal",
+            x: player.x,
+            y: player.y - player.height * CHEST_OF_HEIGHT,
+            life: 0.42,
+            maxLife: 0.42
+          });
+        }
         return;
       }
       remaining.push(drop);
