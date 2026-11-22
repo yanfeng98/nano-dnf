@@ -129,3 +129,35 @@ test('the keyboard bot dodges only live inbound projectiles in its lane', () => 
     assert.ok(!actions.has('jump'), label);
   }
 });
+
+test('keyboard policy dodges an imminent boss slam while targeting a nearby grunt', () => {
+  const state = Core.createState({ stage: 'mirkwood', seed: 20260915 });
+  state.intro = null;
+  state.transition = 0;
+  state.props = [];
+  Object.assign(state.player, { x: 400, z: 100, facing: 1 });
+
+  const boss = Core.createEnemy(state, 'boss', 500, 100);
+  Object.assign(boss, {
+    attackKind: 'slam',
+    attackWindup: boss.slam.windup,
+    attackDuration: boss.slam.windup + boss.slam.recovery,
+    attackTimer: boss.slam.recovery + 0.19,
+    superArmor: true,
+  });
+  const grunt = Core.createEnemy(state, 'grunt', 435, 100);
+  grunt.attackCooldown = 10;
+  grunt.speed = 0;
+  state.enemies = [grunt, boss];
+
+  const policy = { ...constants(), equipped: [] };
+  boss.z = state.player.z + boss.slam.radius;
+  assert.ok(decide(state, policy).has('attack'), 'keep attacking outside the slam disc');
+  boss.z = state.player.z;
+
+  const hp = state.player.hp;
+  const input = Object.fromEntries([...decide(state, policy)].map(action => [action, true]));
+  for (let frame = 0; frame < 17; frame++) Core.step(state, input);
+  assert.ok(boss.attackHitDone, 'the slam resolved');
+  assert.equal(state.player.hp, hp);
+});

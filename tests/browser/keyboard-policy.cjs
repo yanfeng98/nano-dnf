@@ -132,6 +132,19 @@ function decide(state, constants) {
   const pool = chaffIsClose ? [nearestChaff] : bossAlive ? [bossAlive] : alive;
   pool.sort((a, b) => Math.abs(a.x - player.x) - Math.abs(b.x - player.x));
   const target = pool[0];
+  // The boss can hit the player without being the current attack target.
+  if (bossAlive && target !== bossAlive && bossAlive.attackKind === "slam" &&
+      bossAlive.slam && bossAlive.attackTimer > 0 && !bossAlive.attackHitDone &&
+      player.onGround) {
+    const elapsed = bossAlive.attackDuration - bossAlive.attackTimer;
+    const dx = bossAlive.x - player.x;
+    const dz = (bossAlive.z || 0) - (player.z || 0);
+    if (elapsed >= bossAlive.attackWindup - 0.25 &&
+        Math.hypot(dx, dz) <= bossAlive.slam.radius) {
+      want.add("jump");
+      return want;
+    }
+  }
   const delta = target.x - player.x;
   const distance = Math.abs(delta);
   /*
