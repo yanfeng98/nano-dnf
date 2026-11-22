@@ -8250,12 +8250,12 @@
 
         if (spent || shot.y >= ARENA.groundY) {
           var end = clamp(flightEnd, 0, 1);
-          emitProjectileDestroyEffect(
-            state,
-            shot,
-            clamp(fromX + stepX * end, leftWall, rightWall),
-            Math.min(fromBaseY + fromVy * dt * end + gravity * (dt * end) ** 2 / 2, ARENA.groundY)
-          );
+          var endX = clamp(fromX + stepX * end, leftWall, rightWall);
+          var endY = Math.min(fromBaseY + fromVy * dt * end + gravity * (dt * end) ** 2 / 2, ARENA.groundY);
+          emitProjectileDestroyEffect(state, shot, endX, endY);
+          if (shot.nativeObject === 30021) {
+            pushSound(state, "bombExplosion", { x: endX, z: shot.z || 0 });
+          }
           return;
         }
 

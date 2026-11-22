@@ -97,8 +97,11 @@ SOUNDS = {
         (EFFECT_SFX, "sounds/effect/coin_pick_04.ogg"),
         (EFFECT_SFX, "sounds/effect/coin_pick_05.ogg"),
     ],
-    # THROW_STONE (goblinthrower.mob), ICICLE/SIZZLE (30057/30047), RESULT_RANK1/REWARD_OPEN1 -> audio.xml.
+    # THROW_STONE / STAFF_HIT (30001), THROW_BOMB / BOMB_EXPLOSION (30021), ICICLE/SIZZLE (30057/30047), RESULT_RANK1/REWARD_OPEN1 -> audio.xml.
     "throw_stone": [(EFFECT_SFX, "sounds/effect/throw_stone.ogg")],
+    "stone_hit": [(EFFECT_SFX, "sounds/effect/staff_hit.ogg")],
+    "throw_bomb": [(EFFECT_SFX, "sounds/effect/throw_bomb.ogg")],
+    "bomb_explosion": [(EFFECT_SFX, "sounds/effect/bomb_ex.ogg")],
     "icicle_fire": [(MAGIC_EFFECT, "sounds/effect/magic/icicle_fire.ogg")],
     "icicle_hit": [(MAGIC_EFFECT, "sounds/effect/magic/icicle_hit.ogg")],
     "sizzle_fire": [(MAGIC_EFFECT, "sounds/effect/magic/sizzle_fire.ogg")],

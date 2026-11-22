@@ -10,6 +10,7 @@
     "bloodgaru_dmg_01.ogg",
     "bloodgaru_dmg_02.ogg",
     "bloodgaru_slayer.ogg",
+    "bomb_ex.ogg",
     "coin_pick_01.ogg",
     "coin_pick_02.ogg",
     "coin_pick_03.ogg",
@@ -71,6 +72,7 @@
     "sm_triple3.ogg",
     "sm_upslash.ogg",
     "sm_wave.ogg",
+    "staff_hit.ogg",
     "tau_axeswing.ogg",
     "tau_breath.ogg",
     "tau_comm.ogg",
@@ -82,6 +84,7 @@
     "tau_roar.ogg",
     "tau_rush.ogg",
     "tau_talk_01.ogg",
+    "throw_bomb.ogg",
     "throw_stone.ogg",
     "tstone_break.ogg"
   ],
@@ -171,6 +174,15 @@
     ],
     "throw_stone": [
       "throw_stone.ogg"
+    ],
+    "stone_hit": [
+      "staff_hit.ogg"
+    ],
+    "throw_bomb": [
+      "throw_bomb.ogg"
+    ],
+    "bomb_explosion": [
+      "bomb_ex.ogg"
     ],
     "icicle_fire": [
       "icicle_fire.ogg"

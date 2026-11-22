@@ -848,19 +848,27 @@
     } else if (event.kind === "projectileSpawn") {
       var spawnKey = event.nativeObject === 30001
         ? "throw_stone"
-        : event.nativeObject === 30057
-          ? "icicle_fire"
-          : event.nativeObject === 30047
-            ? "sizzle_fire"
-            : null;
+        : event.nativeObject === 30021
+          ? "throw_bomb"
+          : event.nativeObject === 30057
+            ? "icicle_fire"
+            : event.nativeObject === 30047
+              ? "sizzle_fire"
+              : null;
       if (spawnKey) playSfx(spawnKey, { gain: 0.34, pan: pan });
     } else if (event.kind === "projectileHit") {
-      var hitKey = event.nativeObject === 30057
-        ? "icicle_hit"
-        : event.nativeObject === 30047
-          ? "sizzle_hit"
-          : null;
+      var hitKey = event.nativeObject === 30001
+        ? "stone_hit"
+        : event.nativeObject === 30021
+          ? "bomb_explosion"
+          : event.nativeObject === 30057
+            ? "icicle_hit"
+            : event.nativeObject === 30047
+              ? "sizzle_hit"
+              : null;
       if (hitKey) playSfx(hitKey, { gain: 0.38, pan: pan });
+    } else if (event.kind === "bombExplosion") {
+      playSfx("bomb_explosion", { gain: 0.38, pan: pan });
     } else if (event.kind === "playerHurt") {
       if (!sfxReady("playerHurt", undefined, 0.18)) return;
       playSfx("player_hurt", { gain: 0.44, pan: pan });

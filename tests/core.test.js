@@ -14177,3 +14177,20 @@ test('ranged goblins use their PVF-declared [attack delay] cooldowns',()=>{
   assert.equal(Core.ENEMY_TYPES[type].attackCooldown,expected,`${type} attackCooldown matches PVF`);
  }
 });
+
+test('30001 and 30021 native hit/explosion SFX are in manifest and bomb expiry emits bombExplosion',()=>{
+ const manifest=require('../assets/sfx/manifest.json');
+ for(const key of ['stone_hit','throw_bomb','bomb_explosion']){
+  assert.ok(Array.isArray(manifest.map[key])&&manifest.map[key].length>0,`${key} in sfx manifest`);
+  for(const file of manifest.map[key]){
+   assert.ok(fs.existsSync(path.join(__dirname,'../assets/sfx',file)),`${file} exists on disk`);
+  }
+ }
+ const state=lastRoomState(34),enemy=Core.createEnemy(state,'throwerElite',500);
+ state.intro=null;state.transition=state.hitStop=0;state.enemies=[enemy];state.projectiles=[];state.sounds=[];
+ enemy.facing=1;state.player.x=10000;
+ Core.spawnProjectile(state,enemy);
+ for(let i=0;i<120&&state.projectiles.length;i++)Core.step(state,{});
+ assert.equal(state.projectiles.length,0);
+ assert.ok(state.sounds.some(s=>s.kind==='bombExplosion'),'bomb expiry emits bombExplosion sound');
+});
