@@ -184,3 +184,58 @@ test('keyboard policy dodges a finishing boss slam before turning to attack', ()
   assert.equal(state.player.hp, 12);
   assert.ok(!state.defeat);
 });
+
+test('keyboard policy retreats around the boss room stump during a melee windup', () => {
+  const state = Core.createState({ stage: 'mirkwood', seed: 20260915, referenceProfile: true });
+  Core.goToCell(state, state.dungeon.boss);
+  Object.assign(state, { intro: null, transition: 0 });
+  const player = state.player;
+  const stump = state.props.find(prop => prop.piece === 'stump' &&
+    Core.propObstacle(prop, player)?.x === 396);
+  const box = Core.propObstacle(stump, player);
+  assert.ok(box);
+  state.props = [stump];
+  const startingX = box.x - box.width / 2;
+  Object.assign(player, { x: startingX, z: 244, hp: 15, facing: 1 });
+
+  const boss = state.enemies.find(Core.isBossEnemy);
+  state.enemies = [boss];
+  Object.assign(boss, { x: 236, z: 244, attackKind: 'melee', attackTimer: boss.attackDuration });
+  const policy = { ...constants(), equipped: [] };
+  for (let sample = 0; sample < 6; sample++) {
+    const actions = decide(state, policy);
+    const input = Object.fromEntries([...actions].map(action => [action, true]));
+    for (let frame = 0; frame < 3; frame++) Core.step(state, input);
+  }
+  assert.ok(player.x > startingX + 2, 'retreat clears the stump');
+  assert.equal(player.hp, 15);
+});
+
+test('keyboard policy leaves time to jump when a wall blocks retreat from a slam', () => {
+  const state = Core.createState({ stage: 'mirkwood', seed: 20260915, referenceProfile: true });
+  Core.goToCell(state, state.dungeon.boss);
+  Object.assign(state, { intro: null, transition: 0, props: [] });
+  Object.assign(state.player, { x: 52, z: 281, facing: 1, hp: 11 });
+  const boss = state.enemies.find(Core.isBossEnemy);
+  state.enemies = [boss];
+  Object.assign(boss, {
+    x: 204,
+    z: 281,
+    hp: 29,
+    attackKind: 'slam',
+    attackWindup: boss.slam.windup,
+    attackDuration: boss.slam.windup + boss.slam.recovery,
+    attackTimer: boss.slam.recovery + 0.33,
+    superArmor: true,
+  });
+
+  const policy = { ...constants(), equipped: [] };
+  // A delayed sample can hold X long enough to start a second swing.
+  for (const frames of [16, 6]) {
+    const actions = decide(state, policy);
+    const input = Object.fromEntries([...actions].map(action => [action, true]));
+    for (let frame = 0; frame < frames; frame++) Core.step(state, input);
+  }
+  assert.ok(boss.attackHitDone, 'the slam resolved');
+  assert.equal(state.player.hp, 11);
+});

@@ -64,6 +64,11 @@ function decide(state, constants) {
       return;
     }
   };
+  const walkHorizontally = (direction) => {
+    want.add(direction);
+    detour(want, direction === "right" ? player.width : -player.width, false);
+    return want;
+  };
 
   if (alive.length === 0) {
     /*
@@ -289,8 +294,7 @@ function decide(state, constants) {
       if (passed || atFarWall) {
         constants.bossCross = false;
       } else {
-        want.add(dir > 0 ? "right" : "left");
-        return want;
+        return walkHorizontally(dir > 0 ? "right" : "left");
       }
     }
     if (gap < 40) {
@@ -301,15 +305,12 @@ function decide(state, constants) {
       if (cornered) {
         constants.bossCross = true;
         constants.bossCrossDir = delta > 0 ? 1 : -1;
-        want.add(constants.bossCrossDir > 0 ? "right" : "left");
-      } else {
-        want.add(away);
+        return walkHorizontally(constants.bossCrossDir > 0 ? "right" : "left");
       }
-      return want;
+      return walkHorizontally(away);
     }
     if (gap > 60) {
-      want.add(delta > 0 ? "right" : "left");
-      return want;
+      return walkHorizontally(delta > 0 ? "right" : "left");
     }
   }
 
@@ -347,7 +348,7 @@ function decide(state, constants) {
         if (player.onGround && elapsed >= target.spinDash.windup - 0.25) {
           want.add("jump");
         } else {
-          want.add(closing);
+          return walkHorizontally(closing);
         }
       }
       return want;
@@ -362,7 +363,7 @@ function decide(state, constants) {
      */
     const allChaff = alive.every((enemy) => enemy.maxHp <= 70);
     if (!allChaff && gap < threatRange + 45 && !cornered) {
-      want.add(away);
+      return walkHorizontally(away);
     } else if (allChaff && gap <= CLOSING_GAP + 12) {
       /*
        * 只剩杂兵、而且已经在能够到的那一档：**还手**。站着等它的下一刀只会
@@ -376,6 +377,9 @@ function decide(state, constants) {
       if (!facingTarget) want.add(delta >= 0 ? "right" : "left");
       else want.add("attack");
     } else if (cornered) {
+      // Stay free to jump when the wall prevents retreat from a pending slam.
+      if (target.attackKind === "slam" && target.slam && !target.attackHitDone &&
+          Math.hypot(delta, rowGap) <= target.slam.radius) return want;
       /* Cornered in DNF means launch: 上挑 cancels the wind-up and buys space. */
       const upSlash = constants.skills.upSlash;
       const facingTarget = delta >= 0 ? player.facing >= 0 : player.facing < 0;
@@ -399,10 +403,7 @@ function decide(state, constants) {
    */
   const closingGap = target.type === "boss" ? 50 : CLOSING_GAP;
   if (gap > closingGap) {
-    const direction = delta > 0 ? "right" : "left";
-    want.add(direction);
-    detour(want, direction === "right" ? player.width : -player.width, false);
-    return want;
+    return walkHorizontally(delta > 0 ? "right" : "left");
   }
 
   /* Attacks only reach where the Slayer looks, so turn around first. */
