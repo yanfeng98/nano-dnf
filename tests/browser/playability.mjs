@@ -113,6 +113,23 @@ async function readState(page) {
   return page.evaluate(() => JSON.parse(JSON.stringify(window.nanoDnf.getState())));
 }
 
+async function readCombatSample(page) {
+  return page.evaluate(() => ({
+    state: JSON.parse(JSON.stringify(window.nanoDnf.getState())),
+    hintId: window.nanoDnf.getHintState().active?.id ?? null
+  }));
+}
+
+function writeCombatTrace(samples) {
+  for (const sample of samples) {
+    console.error(
+      `${sample.t}s cell=${sample.cell} hp=${sample.hp} px=${sample.px} z=${sample.z} ` +
+      `ground=${sample.onGround} want=${sample.want} next=${sample.nextT}s ` +
+      `hp=${sample.nextHp} | ${sample.enemies.join(" ; ")}`
+    );
+  }
+}
+
 /** Drag a skill tile from the arrange panel onto a hotbar slot. */
 async function dragSkillToSlot(page, skillId, slotIndex) {
   return page.evaluate(
@@ -683,11 +700,7 @@ async function runPass(browser, baseUrl, options) {
       console.error(`--- ${options.mode} pass timed out; live page: ${JSON.stringify(stuck)} ---`);
       console.error(`--- page errors: ${JSON.stringify(diagnostics.pageErrors)} ---`);
       console.error(`--- ${options.mode} pass timed out; last samples ---`);
-      trace.slice(-24).forEach((sample) => {
-        console.error(
-          `${sample.t}s room=${sample.room} hp=${sample.hp} px=${sample.px} want=${sample.want} | ${sample.enemies.join(" ; ")}`
-        );
-      });
+      writeCombatTrace(trace.slice(-24));
       throw new Error(`${options.mode} pass did not finish within ${MAX_SECONDS}s`);
     }
     const want = decide(state, constants);
@@ -1168,12 +1181,13 @@ async function runPass(browser, baseUrl, options) {
 
     }
     await page.waitForTimeout(options.mode === "touch" ? 16 : 20);
-    state = await readState(page);
+    const decisionState = state;
+    const sample = await readCombatSample(page);
+    state = sample.state;
     sampleWorld(state);
-    const hintNow = await page.evaluate(() => window.nanoDnf.getHintState().active);
-    if (hintNow && hintNow.id) {
-      hints.seen.add(hintNow.id);
-      hints.lastId = hintNow.id;
+    if (sample.hintId) {
+      hints.seen.add(sample.hintId);
+      hints.lastId = sample.hintId;
     } else if (hints.lastId) {
       hints.cleared += 1;
       hints.lastId = null;
@@ -1191,12 +1205,16 @@ async function runPass(browser, baseUrl, options) {
       previousDamage = state.stats.damageTaken;
     }
     trace.push({
-      t: Number(state.time.toFixed(2)),
-      cell: state.cell,
-      hp: Math.round(state.player.hp),
-      px: Math.round(state.player.x),
+      t: Number(decisionState.time.toFixed(2)),
+      cell: decisionState.cell,
+      hp: Math.round(player.hp),
+      px: Math.round(player.x),
+      z: Math.round(player.z),
+      onGround: player.onGround,
       want: [...want].join("+"),
-      enemies: state.enemies.map(
+      nextT: Number(state.time.toFixed(2)),
+      nextHp: Math.round(state.player.hp),
+      enemies: decisionState.enemies.map(
         (enemy) =>
           `${enemy.type}@${Math.round(enemy.x)} hp${enemy.hp} ${
             enemy.onGround ? "ground" : "air"
@@ -2335,11 +2353,7 @@ async function main() {
     const failed = passes.find((pass) => problemsFor(pass).length);
     if (failed) {
       console.error(`--- ${failed.mode} pass trace (last ${Math.min(30, failed.trace.length)} samples) ---`);
-      failed.trace.slice(-30).forEach((sample) => {
-        console.error(
-          `${sample.t}s room=${sample.room} hp=${sample.hp} px=${sample.px} want=${sample.want} | ${sample.enemies.join(" ; ")}`
-        );
-      });
+      writeCombatTrace(failed.trace.slice(-30));
     }
     console.error(`browser playability FAILED: ${problems.join("; ")}`);
     process.exit(1);
