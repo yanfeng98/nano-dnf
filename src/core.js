@@ -8011,7 +8011,8 @@
     return end;
   }
 
-  function projectileContact(player, radius, x0, y0, x1, y1, curve, oscillation) {
+  function projectileContact(player, shot, x0, y0, x1, y1, curve, oscillation, previousDepth) {
+    var radius = shot.radius;
     var left = player.x - player.width / 2 - radius;
     var right = player.x + player.width / 2 + radius;
     var top = player.y - player.height - radius;
@@ -8020,6 +8021,19 @@
     if (!dx && (x0 < left || x0 > right)) return null;
     var enterX = Math.max(0, !dx ? 0 : ((dx > 0 ? left : right) - x0) / dx);
     var exitX = Math.min(1, !dx ? 1 : ((dx > 0 ? right : left) - x0) / dx);
+    // The shot stays in its firing lane, but the player can cross its edge
+    // before or after the shot reaches the player's horizontal hitbox.
+    var shotDepth = shot.z || 0;
+    var reach = player.width / 2 + radius;
+    var toDepth = (player.z || 0) - shotDepth;
+    var fromDepth = previousDepth === undefined ? toDepth : previousDepth - shotDepth;
+    var dz = toDepth - fromDepth;
+    if (dz) {
+      enterX = Math.max(enterX, ((dz > 0 ? -reach : reach) - fromDepth) / dz);
+      exitX = Math.min(exitX, ((dz > 0 ? reach : -reach) - fromDepth) / dz);
+    } else if (Math.abs(toDepth) > reach) {
+      return null;
+    }
     if (enterX > exitX) return null;
     if (oscillation) {
       var phase = oscillation.phase;
@@ -8079,7 +8093,7 @@
     return high;
   }
 
-  function updateProjectiles(state, dt) {
+  function updateProjectiles(state, dt, previousDepth, existingCount) {
     var player = state.player;
     var remaining = [];
     var impacts = [];
@@ -8150,11 +8164,10 @@
       flightEnd = Math.min(flightEnd, landingTime / dt);
 
       var hitY = shot.y + (shot.oscY || 0);
-      // The shot keeps its firing depth. Test the segment only in that lane.
-      var sameDepth =
-        Math.abs((shot.z || 0) - (player.z || 0)) <= player.width / 2 + shot.radius;
-      var contact = !player.dead && !shot.hitPlayer && sameDepth
-        ? projectileContact(player, shot.radius, fromX, fromY, shot.x, hitY, curve, oscillation)
+      // Shots just spawned by enemy actions start after the player moves.
+      var startDepth = index < existingCount ? previousDepth : undefined;
+      var contact = !player.dead && !shot.hitPlayer
+        ? projectileContact(player, shot, fromX, fromY, shot.x, hitY, curve, oscillation, startDepth)
         : null;
       if (contact !== null && contact < flightEnd) {
         impacts.push({
@@ -8697,8 +8710,9 @@
     if (enemy.attackTimer === 0) enemy.superArmor = false;
   }
 
-  function updateEnemies(state, dt) {
+  function updateEnemies(state, dt, previousPlayerDepth) {
     var player = state.player;
+    var existingProjectiles = state.projectiles.length;
     state.enemies.forEach(function (enemy) {
       if (enemy.dead) return;
 
@@ -8830,7 +8844,7 @@
       }
     });
 
-    updateProjectiles(state, dt);
+    updateProjectiles(state, dt, previousPlayerDepth, existingProjectiles);
     separateEnemies(state, state.enemies);
   }
 
@@ -9517,6 +9531,7 @@
       return state;
     }
 
+    var previousPlayerDepth = state.player.z || 0;
     var couldSteer = updatePlayer(state, input, dt);
     /*
      * The ground he opened hits on its own clock, right after his own move has
@@ -9531,7 +9546,7 @@
      */
     updateShots(state, dt);
     if (!state.postClear) {
-      updateEnemies(state, dt);
+      updateEnemies(state, dt, previousPlayerDepth);
       updateWaves(state);
     }
     updateTarget(state, dt);

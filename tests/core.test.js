@@ -13605,6 +13605,31 @@ test("a projectile crossing the player between samples lands a hit", () => {
   }
 });
 
+test("a walking player is hit only while within the projectile lane", () => {
+  for (const [distanceBeforeContact, hits] of [[1, 1], [4, 0]]) {
+    const state = Core.createState({ seed: 1, stage: "mirkwood" });
+    state.intro = null;
+    state.transition = 0;
+    state.enemies = [];
+    state.props = [];
+    const player = state.player;
+    Object.assign(player, { x: 500, z: 100 });
+    const shot = Core.spawnProjectile(state, Core.createEnemy(state, "caster", 300));
+    const reach = player.width / 2 + shot.radius;
+    Object.assign(shot, {
+      x: player.x - reach - distanceBeforeContact,
+      y: player.y - player.height / 2,
+      z: player.z - reach + 0.8,
+      vx: 300,
+      vy: 0,
+    });
+
+    Core.step(state, { up: true });
+    assert.ok(player.z - shot.z > reach, "player left the lane within this step");
+    assert.equal(state.stats.hitsTaken, hits);
+  }
+});
+
 test("the earliest projectile contact determines damage regardless of step partition", () => {
   for (const steps of [[0.1], [0.04, 0.06]]) {
     const state = Core.createState({ seed: 1, stage: "mirkwood" });
