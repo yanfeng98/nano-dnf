@@ -14211,3 +14211,17 @@ test('30021 bomb destruction emits FlyBombPiece shrapnel that scatters and rende
  Core.step(state,{});
  assert.notEqual(pieces[0].x,x0,'shrapnel moves along its circle trajectory');
 });
+
+test('30057 ice missile renders native IceMissile2 aura with 90ms cycle and additive alpha',()=>{
+ const state=lastRoomState(34),enemy=Core.createEnemy(state,'goblinBlue',500);
+ state.intro=null;state.transition=state.hitStop=0;state.enemies=[enemy];state.projectiles=[];
+ enemy.facing=1;state.player.x=650;enemy.z=state.player.z;
+ const shot=Core.spawnProjectile(state,enemy);
+ shot.life=shot.maxLife-0.18;
+ const ice={width:512,height:64},aura={width:2880,height:64};
+ const calls=[];Render.render(recordingContext(calls),state,{sprites:{goblinIce:ice,goblinIceAura:aura}});
+ const auraDraw=calls.find(c=>c[0]==='drawImage'&&c[1]===aura);
+ assert.ok(auraDraw,'draws IceMissile2 aura');
+ assert.equal(auraDraw[2]/192,2,'t=0.18s selects 90ms frame 2');
+ assert.ok(calls.some(c=>c[0]==='drawImage'&&c[1]===ice),'draws primary IceMissile1');
+});

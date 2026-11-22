@@ -34,7 +34,7 @@
   var sprites = {
     slayer: null, skills: null, effects: null, normalWave: null, normalWaveBody: null,
     rift: null, awakening: null, region: null,
-    monsters: null, throwerReference: null, goblinReference: null, casterReference: null, goblinStone: null, goblinStoneDebris: null, goblinBomb: null, goblinBombFlash: null, goblinBombPieces: null, goblinIce: null, goblinFire: null, nativeFlora: null, forest: null, pillarDebris: null, minimap: null, ui: null, results: null,
+    monsters: null, throwerReference: null, goblinReference: null, casterReference: null, goblinStone: null, goblinStoneDebris: null, goblinBomb: null, goblinBombFlash: null, goblinBombPieces: null, goblinIce: null, goblinIceAura: null, goblinFire: null, nativeFlora: null, forest: null, pillarDebris: null, minimap: null, ui: null, results: null,
     /* Native client UI faces and target frames; see reference batches 31–34. */
     portraits: null, experienceDigits: null
   };
@@ -80,6 +80,7 @@
     ["goblinBombFlash", "./assets/goblin-bomb-flash.png"],
     ["goblinBombPieces", "./assets/goblin-bomb-pieces.png"],
     ["goblinIce", "./assets/goblin-ice.png"],
+    ["goblinIceAura", "./assets/goblin-ice-aura.png"],
     ["goblinFire", "./assets/goblin-fire.png"],
     /*
      * 幽暗密林's room art: the client's forest set 02 - far and mid layers, the

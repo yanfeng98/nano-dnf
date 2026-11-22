@@ -42,6 +42,8 @@ def main():
         assert next(obj_tokens[i + 1][1].lower() for i, t in enumerate(obj_tokens)
                     if t[1] == "[basic motion]") == "../../common/animation/icemissile1.ani"
         ani = parse_animation(archive.read(ani_path), True)
+        aura_ani_path = "passiveobject/common/animation/icemissile2.ani"
+        aura_ani = parse_animation(archive.read(aura_ani_path), True)
         proof = {"objectId": 30057, "mob": mob, "object": obj, "animation": ani_path,
                  "particle": ptl, "sourceSHA256": {p: sha(archive.read(p)) for p in [mob, obj, ani_path, ptl]},
                  "mobTokens": mob_tokens, "objectTokens": obj_tokens, "particleTokens": archive.tokens(ptl),
@@ -74,7 +76,23 @@ def main():
     args.out.parent.mkdir(parents=True, exist_ok=True)
     atlas.save(args.out)
     args.out.with_suffix(".json").write_text(json.dumps(proof, ensure_ascii=False, indent=2) + "\n")
-    print(json.dumps({"out": str(args.out), "frames": 8, "object": 30057}))
+
+    aura_entry = "sprite/common/commoneffect/icemissile2.img"
+    with pack.open("rb") as handle:
+        aura_data = next(item.data for item in NPK.open(handle).files if item.name.lower() == aura_entry)
+    aura_img = IMGFactory.open(io.BytesIO(aura_data))
+    aura_atlas = Image.new("RGBA", (15 * 192, 64))
+    for ordinal, frame in enumerate(aura_ani["frames"]):
+        native = aura_img.images[frame["frame"]]
+        picture = aura_img.build(native).convert("RGBA")
+        offset = offset_of(native)
+        paste = (96 + offset[0] + frame["xy"][0], 32 + offset[1] + frame["xy"][1])
+        cell = Image.new("RGBA", (192, 64))
+        cell.alpha_composite(picture, paste)
+        aura_atlas.alpha_composite(cell, (ordinal * 192, 0))
+    aura_atlas.save(args.out.with_name("goblin-ice-aura.png"))
+
+    print(json.dumps({"out": str(args.out), "frames": 8, "auraFrames": 15, "object": 30057}))
 
 
 if __name__ == "__main__":

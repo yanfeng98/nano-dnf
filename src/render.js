@@ -5220,10 +5220,20 @@
       var iceScale = (Core.VIEW.width / 640) / Core.CAMERA.zoom;
       var iceAge = Math.max(0, shot.maxLife - shot.life);
       var iceFrame = Math.floor((iceAge + 0.0000001) / 0.05) % 8;
+      var iceAura = sprites && sprites.goblinIceAura;
       ctx.save();
       ctx.translate(shot.x, feetY(shot) + (shot.oscY || 0));
       ctx.scale(shot.vx < 0 ? -1 : 1, 1);
       ctx.imageSmoothingEnabled = true;
+      if (iceAura && iceAura.width) {
+        var iceAuraFrame = Math.floor((iceAge + 0.0000001) / 0.09) % 15;
+        ctx.save();
+        ctx.globalCompositeOperation = "lighter";
+        ctx.globalAlpha *= 70 / 255;
+        ctx.drawImage(iceAura, iceAuraFrame * 192, 0, 192, 64,
+          -96 * iceScale, -32 * iceScale, 192 * iceScale, 64 * iceScale);
+        ctx.restore();
+      }
       ctx.drawImage(ice, iceFrame * 64, 0, 64, 64,
         -32 * iceScale, -32 * iceScale, 64 * iceScale, 64 * iceScale);
       ctx.restore();
