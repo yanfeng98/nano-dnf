@@ -161,3 +161,26 @@ test('keyboard policy dodges an imminent boss slam while targeting a nearby grun
   assert.ok(boss.attackHitDone, 'the slam resolved');
   assert.equal(state.player.hp, hp);
 });
+
+test('keyboard policy dodges a finishing boss slam before turning to attack', () => {
+  const state = Core.createState({ stage: 'mirkwood', seed: 20260915 });
+  Object.assign(state, { intro: null, transition: 0, props: [] });
+  Object.assign(state.player, { x: 370, z: 100, facing: 1, hp: 12 });
+  const boss = Core.createEnemy(state, 'boss', 249, 100);
+  Object.assign(boss, {
+    hp: 4,
+    attackKind: 'slam',
+    attackWindup: boss.slam.windup,
+    attackDuration: boss.slam.windup + boss.slam.recovery,
+    attackTimer: boss.slam.recovery + 0.19,
+    superArmor: true,
+  });
+  state.enemies = [boss];
+
+  const policy = { ...constants(), equipped: [] };
+  const input = Object.fromEntries([...decide(state, policy)].map(action => [action, true]));
+  for (let frame = 0; frame < 17; frame++) Core.step(state, input);
+  assert.ok(boss.attackHitDone, 'the slam resolved');
+  assert.equal(state.player.hp, 12);
+  assert.ok(!state.defeat);
+});

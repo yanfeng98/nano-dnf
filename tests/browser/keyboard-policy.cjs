@@ -229,18 +229,16 @@ function decide(state, constants) {
     });
     const invuln = finishers.find((skillId) => constants.skills[skillId].invuln);
     /*
-     * 收尾技也只打到面朝那一边；先转身，不然最后 6 血会站着对空气读条。
-     */
-    const facingTarget = delta >= 0 ? player.facing >= 0 : player.facing < 0;
-    if (!facingTarget) {
-      want.add(delta >= 0 ? "right" : "left");
-      return want;
-    }
-    /*
      * **普通近战也换**：他的 0.22 秒一刀比领主的起手快，最后几点血值得抢；
      * 只有冲锋/重踏/旋风这种"站着读条会被撞死"的招才先让给闪避分支。
      */
     if (!threatened || invuln || target.attackKind === "melee") {
+      // Turn only after choosing to attack, so a lethal wind-up can take priority.
+      const facingTarget = delta >= 0 ? player.facing >= 0 : player.facing < 0;
+      if (!facingTarget) {
+        want.add(delta >= 0 ? "right" : "left");
+        return want;
+      }
       if (invuln) want.add(invuln);
       else if (finishers.length > 0) {
         want.add(
