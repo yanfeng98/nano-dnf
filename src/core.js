@@ -6259,19 +6259,21 @@
   function spawnBloodOrb(state, enemy) {
     var x = enemy.x;
     var y = enemy.y - enemy.height * 0.55;
+    var z = enemy.z || 0;
     var orb = {
       kind: "blood_orb",
       x: x,
       y: y,
-      z: enemy.z || 0,
+      z: z,
       radius: BLOOD_ORB.radius,
       value: BLOOD_ORB.heal,
       life: BLOOD_ORB.lifetimeSeconds,
       /* Where it was drawn, and how far along the pull it is (see BLOOD_ORB). */
       fromX: x,
       fromY: y,
+      fromZ: z,
       progress: 0,
-      trail: [{ x: x, y: y }]
+      trail: [{ x: x, y: y, z: z }]
     };
     state.pickups.push(orb);
     state.stats.bloodOrbs += 1;
@@ -9300,6 +9302,7 @@
         text: "+" + displayed + " HP",
         x: player.x,
         y: player.y - player.height - 10,
+        z: player.z || 0,
         life: 0.8,
         maxLife: 0.8
       });
@@ -9350,6 +9353,8 @@
       var targetY = player.y - player.height * CHEST_OF_HEIGHT;
       drop.x = drop.fromX + (player.x - drop.fromX) * eased;
       drop.y = drop.fromY + (targetY - drop.fromY) * eased;
+      if (drop.fromZ === undefined) drop.fromZ = drop.z || 0;
+      drop.z = drop.fromZ + ((player.z || 0) - drop.fromZ) * eased;
       /*
        * The tail is the ball's own path, sampled every `trailStep` radii
        * rather than every frame: the renderer draws the entries behind the
@@ -9357,10 +9362,10 @@
        * however fast this particular crossing is (docs/adr/0020).
        */
       var backX = drop.x - drop.trail[0].x;
-      var backY = drop.y - drop.trail[0].y;
+      var backY = drop.y - drop.trail[0].y - depthLift(drop.z - (drop.trail[0].z || 0));
       var spacing = drop.radius * BLOOD_ORB.trailStep;
       if (backX * backX + backY * backY >= spacing * spacing) {
-        drop.trail.unshift({ x: drop.x, y: drop.y });
+        drop.trail.unshift({ x: drop.x, y: drop.y, z: drop.z });
         if (drop.trail.length > BLOOD_ORB.trailSteps) drop.trail.pop();
       }
       if (!player.dead && drop.progress >= 1) {
@@ -9379,6 +9384,7 @@
           kind: "bloodFlash",
           x: player.x,
           y: player.y - player.height * CHEST_OF_HEIGHT,
+          z: player.z || 0,
           life: 0.26,
           maxLife: 0.26
         });
@@ -9387,6 +9393,7 @@
             kind: "bloodHeal",
             x: player.x,
             y: player.y - player.height * CHEST_OF_HEIGHT,
+            z: player.z || 0,
             life: 0.42,
             maxLife: 0.42
           });

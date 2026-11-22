@@ -6300,13 +6300,28 @@ test("blood orb feedback shows the HP actually restored", () => {
     }
     assert.equal(state.pickups[0].kind, "blood_orb");
     player.hp = player.maxHp - missing;
+    player.z = 180;
+    const orb = state.pickups[0];
+    Core.runFrames(state, 15, {});
+    assert.ok(Math.abs(orb.z - 180 * orb.progress ** 2) < 1e-9);
+    const sample = orb.trail[1];
+    assert.ok(sample && sample.z < orb.z);
+    const flight = [];
+    Render.render(recordingContext(flight), state, {});
+    assert.ok(flight.some(call => call[0] === "arc" && call[1] === sample.x &&
+      call[2] === sample.y - Core.depthLift(sample.z)));
 
-    Core.runFrames(state, Math.ceil(Core.BLOOD_ORB.flightSeconds * Core.FPS) + 2, {});
+    Core.runFrames(state, Math.ceil(Core.BLOOD_ORB.flightSeconds * Core.FPS) - 13, {});
     const restored = Math.min(missing, Core.BLOOD_ORB.heal);
     assert.equal(player.hp, player.maxHp - missing + restored);
     assert.deepEqual(state.effects.filter(effect => effect.kind === "heal").map(effect => effect.text),
       restored > 0 ? ["+" + restored + " HP"] : []);
-    assert.ok(state.effects.some(effect => effect.kind === "bloodFlash"));
+    const flash = state.effects.find(effect => effect.kind === "bloodFlash");
+    assert.equal(flash.z, player.z);
+    const arrival = [];
+    Render.render(recordingContext(arrival), state, {});
+    assert.ok(arrival.some(call => call[0] === "arc" && call[1] === flash.x &&
+      call[2] === flash.y - Core.depthLift(player.z) && call[3] === 13));
     assert.equal(state.effects.some(effect => effect.kind === "bloodHeal"), restored > 0);
   }
 });

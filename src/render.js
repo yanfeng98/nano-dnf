@@ -6600,7 +6600,6 @@
 
   function drawBloodOrb(ctx, state, drop, sprites) {
     var pulse = 0.94 + 0.06 * Math.sin(state.time * 14 + drop.x * 0.05);
-    var lift = feetY(drop) - drop.y;
     var size = (2 * drop.radius * pulse) / ORB_INK_OF_CELL;
     var image = sprites && sprites.effects && sprites.effects.width ? sprites.effects : null;
     var col = Math.floor(state.time * 14 + drop.x * 0.05) % EFFECT.orbFrames;
@@ -6633,7 +6632,7 @@
     ctx.globalAlpha = drop.life < 0.25 ? Math.max(0.2, drop.life / 0.25) : 1;
     /* Furthest back first, so the newest copy of the ball is the one on top. */
     for (var back = trail.length - 1; back >= 1; back -= 1) {
-      ballAt(trail[back].x, trail[back].y + lift, 0.5 * (1 - back / (trail.length + 1)), col);
+      ballAt(trail[back].x, feetY(trail[back]), 0.5 * (1 - back / (trail.length + 1)), col);
     }
     ctx.globalAlpha = drop.life < 0.25 ? Math.max(0.2, drop.life / 0.25) : 1;
     /*
@@ -6682,6 +6681,7 @@
    * over the next 0.2s. Without this half the orb simply vanished at his chest.
    */
   function drawBloodHeal(ctx, effect, state) {
+    var y = feetY(effect);
     var age = 1 - effect.life / effect.maxLife;
     ctx.save();
     /*
@@ -6695,7 +6695,7 @@
       var radius = SPRITE.bodyHeight * 0.38;
       var sphere = radius * (0.62 + 0.38 * Math.min(1, opened / 0.35));
       ctx.globalAlpha = Math.min(1, (1 - opened) * 2.6);
-      var skin = ctx.createRadialGradient(effect.x, effect.y, 1, effect.x, effect.y, sphere);
+      var skin = ctx.createRadialGradient(effect.x, y, 1, effect.x, y, sphere);
       skin.addColorStop(0, "rgba(236, 255, 238, 0.34)");
       skin.addColorStop(0.6, "rgba(150, 240, 180, 0.44)");
       /* The glassy edge: the reference's sphere reads by its rim, not its fill. */
@@ -6704,7 +6704,7 @@
       skin.addColorStop(1, "rgba(120, 240, 170, 0)");
       ctx.fillStyle = skin;
       ctx.beginPath();
-      ctx.arc(effect.x, effect.y, sphere, 0, Math.PI * 2);
+      ctx.arc(effect.x, y, sphere, 0, Math.PI * 2);
       ctx.fill();
     }
     /* The motes it breaks into, each on its own slow drift upward. */
@@ -6714,7 +6714,7 @@
       var angle = -Math.PI / 2 + (mote - 1) * 0.75;
       var travel = SPRITE.bodyHeight * 0.5 * own;
       var mx = effect.x + Math.cos(angle) * travel * 0.7 + (mote - 1) * 11;
-      var my = effect.y + Math.sin(angle) * travel;
+      var my = y + Math.sin(angle) * travel;
       var moteRadius = SPRITE.bodyHeight * 0.1 * (0.7 + 0.3 * Math.sin(state.time * 9 + mote));
       ctx.globalAlpha = Math.min(1, (1 - own) * 2.4);
       var glow = ctx.createRadialGradient(mx, my, 1, mx, my, moteRadius * 2.2);
@@ -6735,6 +6735,7 @@
    * and fading inside a tenth of a second (#846-849, docs/adr/0020).
    */
   function drawBloodFlash(ctx, effect) {
+    var y = feetY(effect);
     var age = 1 - effect.life / effect.maxLife;
     var alpha = Math.min(1, effect.life / effect.maxLife) * (1 - age * 0.45);
     /*
@@ -6751,17 +6752,17 @@
     for (var spoke = 0; spoke < 14; spoke += 1) {
       var angle = (spoke / 14) * Math.PI * 2 + 0.35;
       ctx.beginPath();
-      ctx.moveTo(effect.x + Math.cos(angle) * (reach * 0.35), effect.y + Math.sin(angle) * (reach * 0.35));
-      ctx.lineTo(effect.x + Math.cos(angle) * reach, effect.y + Math.sin(angle) * reach);
+      ctx.moveTo(effect.x + Math.cos(angle) * (reach * 0.35), y + Math.sin(angle) * (reach * 0.35));
+      ctx.lineTo(effect.x + Math.cos(angle) * reach, y + Math.sin(angle) * reach);
       ctx.stroke();
     }
-    var core = ctx.createRadialGradient(effect.x, effect.y, 1, effect.x, effect.y, 13);
+    var core = ctx.createRadialGradient(effect.x, y, 1, effect.x, y, 13);
     core.addColorStop(0, "rgba(255, 255, 255, 0.95)");
     core.addColorStop(0.55, "rgba(226, 255, 255, 0.5)");
     core.addColorStop(1, "rgba(180, 235, 255, 0)");
     ctx.fillStyle = core;
     ctx.beginPath();
-    ctx.arc(effect.x, effect.y, 13, 0, Math.PI * 2);
+    ctx.arc(effect.x, y, 13, 0, Math.PI * 2);
     ctx.fill();
     ctx.restore();
   }
