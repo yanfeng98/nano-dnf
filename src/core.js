@@ -8021,6 +8021,8 @@
     var bottom = player.y + radius;
     // Express the starting shot position relative to the moving hitbox.
     if (previousPosition) x0 += player.x - previousPosition.x;
+    var heightOffset = previousPosition ? player.y - previousPosition.y : 0;
+    y0 += heightOffset;
     var dx = x1 - x0, dy = y1 - y0;
     if (!dx && (x0 < left || x0 > right)) return null;
     var enterX = Math.max(0, !dx ? 0 : ((dx > 0 ? left : right) - x0) / dx);
@@ -8043,15 +8045,27 @@
       var phase = oscillation.phase;
       var span = oscillation.span;
       var sineHeight = function (t) {
-        return oscillation.baseY - Math.sin(phase + span * t) * oscillation.amplitude;
+        return oscillation.baseY - Math.sin(phase + span * t) * oscillation.amplitude +
+          heightOffset * (1 - t);
       };
+      var slopeRatio = -heightOffset / (oscillation.amplitude * span);
+      if (Math.abs(slopeRatio) >= 1) {
+        return projectileHeightContact(sineHeight, enterX, exitX, top, bottom);
+      }
+      // Relative height is a sine plus a linear term. Its turning points
+      // occur at the two phases where the shot's slope matches the player's.
+      var turn = Math.acos(slopeRatio);
+      var cycle = 2 * Math.PI;
+      var entryPhase = phase + span * enterX;
+      var firstTurn = turn + cycle * (Math.floor((entryPhase - turn) / cycle) + 1);
+      var secondTurn = -turn + cycle * (Math.floor((entryPhase + turn) / cycle) + 1);
       var start = enterX;
-      // Between successive extrema the height moves in one direction.
-      var index = Math.floor((phase + span * start - Math.PI / 2) / Math.PI) + 1;
-      for (; ; index += 1) {
-        var end = Math.min(exitX, (Math.PI / 2 + index * Math.PI - phase) / span);
+      for (;;) {
+        var end = clamp((Math.min(firstTurn, secondTurn) - phase) / span, start, exitX);
         var sineContact = projectileHeightContact(sineHeight, start, end, top, bottom);
         if (sineContact !== null || end === exitX) return sineContact;
+        if (firstTurn < secondTurn) firstTurn += cycle;
+        else secondTurn += cycle;
         start = end;
       }
     }
@@ -9535,7 +9549,7 @@
       return state;
     }
 
-    var previousPlayerPosition = { x: state.player.x, z: state.player.z || 0 };
+    var previousPlayerPosition = { x: state.player.x, y: state.player.y, z: state.player.z || 0 };
     var couldSteer = updatePlayer(state, input, dt, previousPlayerPosition);
     /*
      * The ground he opened hits on its own clock, right after his own move has

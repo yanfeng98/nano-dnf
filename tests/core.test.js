@@ -13655,6 +13655,27 @@ test("horizontal movement and projectile expiry share a contact timeline", () =>
   }
 });
 
+test("a jump dodges a projectile only after clearing its height", () => {
+  for (const [distanceBeforeContact, hits] of [[1, 1], [4.8, 0]]) {
+    const state = Core.createState({ seed: 1, stage: "mirkwood" });
+    Object.assign(state, { intro: null, transition: 0, enemies: [], props: [] });
+    const player = state.player;
+    player.x = 500;
+    const shot = Core.spawnProjectile(state, Core.createEnemy(state, "caster", 300));
+    Object.assign(shot, {
+      x: player.x - player.width / 2 - shot.radius - distanceBeforeContact,
+      y: player.y - 1,
+      z: player.z,
+      vx: 300,
+      vy: 0,
+    });
+
+    Core.step(state, { jump: true });
+    assert.ok(player.y + shot.radius < shot.y, "player cleared the shot by the end of the step");
+    assert.equal(state.stats.hitsTaken, hits);
+  }
+});
+
 test("the earliest projectile contact determines damage regardless of step partition", () => {
   for (const steps of [[0.1], [0.04, 0.06]]) {
     const state = Core.createState({ seed: 1, stage: "mirkwood" });
