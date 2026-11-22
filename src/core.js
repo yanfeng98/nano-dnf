@@ -1827,12 +1827,12 @@
       height: 53,
       speed: 62,
       damage: 6,
-      // Existing ranged AI spacing is provisional; not a native AI calibration.
+      // seagab.mob declares [attack delay] 3000 (3.0s).
       attackRange: 178,
       keepRange: 118,
       attackWindup: 0.28,
       attackDuration: 0.5,
-      attackCooldown: 1.05,
+      attackCooldown: 3.0,
       knockbackX: 150,
       // Explicit native X200, origin(20,0,60), life1500ms, Z-sine amp5/1600deg/s
       // (icemissile.ptl), and piercing power 50 (seagabicicle.obj).
@@ -1852,12 +1852,12 @@
       height: 53,
       speed: 62,
       damage: 6,
-      // Existing ranged spacing/attack cadence remain provisional.
+      // hillgab.mob declares [attack delay] 3000 (3.0s).
       attackRange: 178,
       keepRange: 118,
       attackWindup: 0.28,
       attackDuration: 0.5,
-      attackCooldown: 1.05,
+      attackCooldown: 3.0,
       knockbackX: 150,
       projectile: goblinFireProjectile()
     },
@@ -1907,12 +1907,12 @@
       height: 53,
       speed: 62,
       damage: 7,
-      // Existing ranged spacing/attack cadence remain provisional.
+      // hillgab.mob declares [attack delay] 3000 (3.0s).
       attackRange: 178,
       keepRange: 118,
       attackWindup: 0.28,
       attackDuration: 0.48,
-      attackCooldown: 1.1,
+      attackCooldown: 3.0,
       knockbackX: 130,
       projectile: goblinFireProjectile()
     },
@@ -1933,7 +1933,8 @@
       keepRange: 118,
       attackWindup: 0.5,
       attackDuration: 0.8,
-      attackCooldown: 1.9,
+      // goblinthrower.mob declares [attack delay] 3000 (3.0s).
+      attackCooldown: 3.0,
       knockbackX: 130,
       projectile: goblinStoneProjectile()
     },
@@ -1976,7 +1977,8 @@
       keepRange: 118,
       attackWindup: 0.5,
       attackDuration: 0.8,
-      attackCooldown: 1.9,
+      // goblinthrower.mob declares [attack delay] 3000 (3.0s).
+      attackCooldown: 3.0,
       knockbackX: 130,
       projectile: goblinStoneProjectile()
     },
@@ -2195,7 +2197,8 @@
       keepRange: 135,
       attackWindup: 0.55,
       attackDuration: 0.85,
-      attackCooldown: 2.3,
+      // goblinthrowertaskmaster.mob declares [attack delay] 4000 (4.0s).
+      attackCooldown: 4.0,
       knockbackX: 150,
       projectile: {
         // GoblinThrowerTaskmaster.mob explicitly declares [int data] 30021 -> GobFlyBomb.obj.

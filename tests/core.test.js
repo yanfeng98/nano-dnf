@@ -3867,6 +3867,7 @@ test("血之狂暴's chain still comes round: its window scales with its slower 
   /* And the window a press opens is longer than the slowest press it must catch. */
   state.player.attackTimer = 0;
   state.player.attackCooldown = 0;
+  state.player.hurtTimer = 0;
   Core.step(state, { attack: true });
   const cycle = state.player.attackCycle;
   assert.ok(
@@ -14165,5 +14166,14 @@ test('results stats XP breakdown counts up rating and channel bonuses to observe
   assert.ok(lateTexts.includes('+'+channel),`${stage} channel bonus shown at t=7.2`);
   assert.ok(lateTexts.includes('参考经验'), `${stage} labels the observed sample`);
   assert.ok(lateTexts.includes('击杀经验 90'), `${stage} shows XP earned in this run`);
+ }
+});
+
+test('ranged goblins use their PVF-declared [attack delay] cooldowns',()=>{
+ for(const [type,expected] of [
+  ['goblinBlue',3.0],['goblinRed',3.0],['cursedRed',3.0],
+  ['caster',3.0],['burningThrower',3.0],['throwerElite',4.0]
+ ]){
+  assert.equal(Core.ENEMY_TYPES[type].attackCooldown,expected,`${type} attackCooldown matches PVF`);
  }
 });
