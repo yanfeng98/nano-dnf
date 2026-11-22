@@ -13605,6 +13605,26 @@ test("a projectile crossing the player between samples lands a hit", () => {
   }
 });
 
+test("the earliest projectile contact determines damage regardless of step partition", () => {
+  for (const steps of [[0.1], [0.04, 0.06]]) {
+    const state = Core.createState({ seed: 1, stage: "mirkwood" });
+    const player = state.player;
+    player.x = 500;
+    const caster = Core.createEnemy(state, "caster", 300);
+    const y = player.y - player.height / 2;
+    // The older shot arrives later, but both can reach the player in one step.
+    Object.assign(Core.spawnProjectile(state, caster),
+      { x: 430, y, z: player.z, vx: 600, vy: 0, damage: 11 });
+    Object.assign(Core.spawnProjectile(state, caster),
+      { x: 460, y, z: player.z, vx: 600, vy: 0, damage: 5 });
+
+    for (const dt of steps) Core.updateProjectiles(state, dt);
+    assert.equal(state.stats.hitsTaken, 1);
+    assert.equal(state.stats.damageTaken, 5);
+    assert.equal(state.projectiles.length, 0);
+  }
+});
+
 test("a player shot sweeps targets only as far as it can reach before expiry", () => {
   for (const [facing, life, hits] of [[1, 0.5, true], [-1, 0.5, true], [1, 0.02, false]]) {
     const state = Core.createState({ seed: 1, stage: "mirkwood" });

@@ -8082,12 +8082,13 @@
   function updateProjectiles(state, dt) {
     var player = state.player;
     var remaining = [];
+    var impacts = [];
 
-    state.projectiles.forEach(function (shot) {
+    state.projectiles.forEach(function (shot, index) {
       shot.life -= dt;
       if (shot.stopped) {
         shot.stopLife -= dt;
-        if (shot.stopLife > 0) remaining.push(shot);
+        if (shot.stopLife > 0) remaining[index] = shot;
         return;
       }
       var fromX = shot.x, fromBaseY = shot.y;
@@ -8156,23 +8157,42 @@
         ? projectileContact(player, shot.radius, fromX, fromY, shot.x, hitY, curve, oscillation)
         : null;
       if (contact !== null && contact < flightEnd) {
-        var impactX = fromX + stepX * contact;
-        var impactY = fromY + (hitY - fromY - curve) * contact + curve * contact * contact;
-        damagePlayer(state, shot.damage, impactX);
-        pushSound(state, "projectileHit", {
-          nativeObject: shot.nativeObject,
-          x: impactX,
-          z: shot.z || 0
+        impacts.push({
+          time: contact,
+          shot: shot,
+          x: fromX + stepX * contact,
+          y: fromY + (hitY - fromY - curve) * contact + curve * contact * contact,
+          finishFlight: finishFlight
         });
-        if (shot.piercing > 0) {
-          shot.hitPlayer = true;
-          shot.piercing -= 1;
-        } else {
+      } else {
+        finishFlight();
+      }
+
+      function finishFlight() {
+        if (landsFirst && shot.landingStop) {
+          var sinceLanding = dt - landingTime;
+          shot.x = fromX + shot.vx * landingTime;
+          shot.y = ARENA.groundY;
+          shot.stoppedAt = shot.maxLife - shot.life - sinceLanding;
+          shot.stopVx = shot.vx;
+          shot.stopVy = fromVy + gravity * landingTime;
+          shot.stopGravity = gravity;
+          shot.vx = 0;
+          shot.vy = 0;
+          shot.gravity = 0;
+          shot.stopped = true;
+          shot.stopLife = Math.min(shot.life, 0.35 - sinceLanding);
+          if (shot.stopLife > 0) remaining[index] = shot;
+          return;
+        }
+
+        if (spent || shot.y >= ARENA.groundY) {
           if (shot.nativeObject === 30021) {
+            var end = clamp(flightEnd, 0, 1);
             state.effects.push({
               kind: "bomb_flash",
-              x: impactX,
-              y: impactY,
+              x: clamp(fromX + stepX * end, leftWall, rightWall),
+              y: Math.min(fromBaseY + fromVy * dt * end + gravity * (dt * end) ** 2 / 2, ARENA.groundY),
               z: shot.z || 0,
               life: 0.2,
               maxLife: 0.2
@@ -8180,43 +8200,46 @@
           }
           return;
         }
-      }
-      if (landsFirst && shot.landingStop) {
-        var sinceLanding = dt - landingTime;
-        shot.x = fromX + shot.vx * landingTime;
-        shot.y = ARENA.groundY;
-        shot.stoppedAt = shot.maxLife - shot.life - sinceLanding;
-        shot.stopVx = shot.vx;
-        shot.stopVy = fromVy + gravity * landingTime;
-        shot.stopGravity = gravity;
-        shot.vx = 0;
-        shot.vy = 0;
-        shot.gravity = 0;
-        shot.stopped = true;
-        shot.stopLife = Math.min(shot.life, 0.35 - sinceLanding);
-        if (shot.stopLife > 0) remaining.push(shot);
-        return;
-      }
 
-      if (spent || shot.y >= ARENA.groundY) {
-        if (shot.nativeObject === 30021) {
-          var end = clamp(flightEnd, 0, 1);
-          state.effects.push({
-            kind: "bomb_flash",
-            x: clamp(fromX + stepX * end, leftWall, rightWall),
-            y: Math.min(fromBaseY + fromVy * dt * end + gravity * (dt * end) ** 2 / 2, ARENA.groundY),
-            z: shot.z || 0,
-            life: 0.2,
-            maxLife: 0.2
-          });
-        }
-        return;
+        remaining[index] = shot;
       }
-
-      remaining.push(shot);
     });
 
-    state.projectiles = remaining;
+    // The earliest hit starts invulnerability, regardless of spawn order.
+    impacts.sort(function (a, b) { return a.time - b.time; });
+    impacts.forEach(function (impact) {
+      var shot = impact.shot;
+      if (player.dead) {
+        impact.finishFlight();
+        return;
+      }
+      var impactX = impact.x;
+      var impactY = impact.y;
+      damagePlayer(state, shot.damage, impactX);
+      pushSound(state, "projectileHit", {
+        nativeObject: shot.nativeObject,
+        x: impactX,
+        z: shot.z || 0
+      });
+      if (shot.piercing > 0) {
+        shot.hitPlayer = true;
+        shot.piercing -= 1;
+        impact.finishFlight();
+        return;
+      }
+      if (shot.nativeObject === 30021) {
+        state.effects.push({
+          kind: "bomb_flash",
+          x: impactX,
+          y: impactY,
+          z: shot.z || 0,
+          life: 0.2,
+          maxLife: 0.2
+        });
+      }
+    });
+
+    state.projectiles = remaining.filter(Boolean);
   }
 
   /**
