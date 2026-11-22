@@ -2474,13 +2474,6 @@ test("a monster walks onto the row the Slayer has stepped to", () => {
   assert.equal(grunt.z, 0, "it starts level with him");
 
   state.player.z = 300;
-  /*
-   * Three seconds, because arriving is the thing being tested and it takes about
-   * 1.7 of them: a walk (about 1s of cooldown), a whiffed swing (0.5s, and a
-   * monster cannot choose actions mid-swing), then the walk again. The old form
-   * asked for half the gap inside one second, which only held because every
-   * walk was 1.5x faster before `docs/adr/0039`.
-   */
   Core.runFrames(state, 180, {});
 
   const row = Core.DEPTH_REACH.melee * Core.SLAYER_HEIGHT;
@@ -2489,6 +2482,25 @@ test("a monster walks onto the row the Slayer has stepped to", () => {
     gap <= row + 1,
     `it should end up on his row (within ${row.toFixed(1)} z), left ${gap}`
   );
+});
+
+test("base melee attacks start only after the monster reaches the player's row", () => {
+  for (const type of ["grunt", "elite"]) {
+    const state = Core.createState({ stage: "mirkwood", seed: 1 });
+    Object.assign(state, { intro: null, transition: 0, props: [] });
+    const enemy = Core.createEnemy(state, type, 400, 70);
+    state.enemies = [enemy];
+    Object.assign(state.player, { x: enemy.x + 40, z: 150 });
+    Object.assign(enemy, { attackCooldown: 0, spinCooldown: 10 });
+
+    Core.step(state, {});
+    assert.equal(enemy.attackTimer, 0, type);
+    assert.ok(enemy.z > 70, type);
+    Core.runFrames(state, 20, {});
+    assert.ok(Core.inReachOf(state.player.z, enemy.z), type);
+    assert.equal(enemy.attackKind, "melee", type);
+    assert.ok(enemy.attackTimer > 0, type);
+  }
 });
 
 test("stepping aside during a wind-up still dodges the blow", () => {
@@ -10398,8 +10410,7 @@ test("挥空的怪也要吃冷却，不然它会一直挥空、再也走不过�
   const state = sealedRoomState(Core.DEFAULT_SEED, plainRoomIndex());
   const grunt = Core.createEnemy(state, "grunt", state.player.x + 40);
   state.enemies = [grunt];
-  /* 把他挪到怪够不着的那一档深度：x 上贴身，深度上够不着 —— 那个怪必打空。 */
-  state.player.z = 300;
+  state.player.z = grunt.z;
 
   let swung = false;
   for (let i = 0; i < 240 && !swung; i += 1) {
@@ -10408,7 +10419,11 @@ test("挥空的怪也要吃冷却，不然它会一直挥空、再也走不过�
   }
   assert.ok(swung, "怪应该会出手，但是 240 帧里一次都没挥");
 
+  // Leave the row after the enemy has committed to the swing.
+  state.player.z = 300;
+  const hitsBefore = state.stats.hitsTaken;
   while (grunt.attackTimer > 0) Core.step(state, {});
+  assert.equal(state.stats.hitsTaken, hitsBefore);
   const row = Core.DEPTH_REACH.melee * Core.SLAYER_HEIGHT;
   assert.ok(
     Math.abs(state.player.z - grunt.z) > row,

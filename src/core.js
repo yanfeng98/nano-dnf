@@ -8492,7 +8492,7 @@
         walkTowards(state, enemy, player, enemy.speed);
       } else {
         enemy.vx = 0;
-        if (enemy.attackCooldown <= 0) {
+        if (sameRow && enemy.attackCooldown <= 0) {
           beginEnemyAttack(state, enemy, "melee", enemy.baseAttackWindup, enemy.baseAttackDuration);
         }
       }
@@ -8574,7 +8574,7 @@
       walkTowards(state, enemy, player, enemy.speed);
     } else {
       enemy.vx = 0;
-      if (enemy.attackCooldown <= 0) {
+      if (sameRow && enemy.attackCooldown <= 0) {
         beginEnemyAttack(state, enemy, "melee", enemy.baseAttackWindup, enemy.baseAttackDuration);
       }
     }
