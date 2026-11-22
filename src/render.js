@@ -4104,6 +4104,30 @@
     ctx.restore();
   }
 
+  function drawLevelUpLight(ctx, state) {
+    var remaining = state.xpGaugeFlashUntil - state.time;
+    if (!(remaining > 0)) return;
+    var player = state.player;
+    var progress = clamp01(1 - remaining / Core.PROGRESSION.levelUpFlashDuration);
+    var ground = floorY(player.z);
+    var radius = player.width * (0.6 + progress * 0.8);
+    var opacity = 1 - progress;
+    ctx.save();
+    ctx.strokeStyle = "rgba(255, 203, 105, " + opacity * 0.8 + ")";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.ellipse(player.x, ground, radius, radius * 0.18, 0, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.fillStyle = "rgba(255, 230, 165, " + opacity * 0.85 + ")";
+    for (var i = 0; i < 6; i++) {
+      var angle = i * Math.PI / 3 + progress * Math.PI / 2;
+      var x = player.x + Math.cos(angle) * radius;
+      var y = ground + Math.sin(angle) * radius * 0.18 - progress * (44 + (i % 3) * 22);
+      ctx.fillRect(x - 1, y - 2, 2, 4);
+    }
+    ctx.restore();
+  }
+
   function drawPlayer(ctx, state, sprites) {
     var player = state.player;
     /*
@@ -4126,6 +4150,7 @@
     ctx.restore();
     // Light sits above the ground shadow and below the player's boots.
     drawFootMark(ctx, state, sprites);
+    drawLevelUpLight(ctx, state);
 
     /*
      * The red sheet, for the stance and for **one move of its own**: 魔狱血刹's

@@ -1628,7 +1628,8 @@
     maxMpPerLevel: 5,
     attackPerLevel: 2,
     healOnLevelUp: 12,
-    maxLevel: 12
+    maxLevel: 12,
+    levelUpFlashDuration: 7 / 6
   };
   // Local fits to the stable XP endpoints, using the 164px gauge assumption.
   var REFERENCE_EXPERIENCE = {
@@ -6236,7 +6237,7 @@
     }
     if (levels > 0) {
       if (player.level >= PROGRESSION.maxLevel) player.xp = 0;
-      state.xpGaugeFlashUntil = state.time + 7 / 6;
+      state.xpGaugeFlashUntil = state.time + PROGRESSION.levelUpFlashDuration;
       pushLog(state, "[" + (player.name || "鬼剑士") + "]已达到Lv" + player.level, "gold");
     }
     return levels;

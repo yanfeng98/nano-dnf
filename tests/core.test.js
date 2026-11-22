@@ -11146,6 +11146,25 @@ test("a live level-up briefly fills the dungeon XP gauge before showing the bala
   assert.equal(fillWidth(), 164 * (12 / state.player.xpToNext));
 });
 
+test("the level-up light follows the player and expires on the simulation clock", () => {
+  const state = Core.createState({ referenceProfile: true });
+  const sparks = () => {
+    const calls = [];
+    Render.render(recordingContext(calls), state, {});
+    return calls.filter(c => c[0] === "fillRect" && c[3] === 2 && c[4] === 4);
+  };
+  assert.equal(sparks().length, 0);
+  Core.grantXp(state, state.player.xpToNext);
+  const first = sparks();
+  assert.equal(first.length, 6);
+  state.player.x += 40;
+  const moved = sparks();
+  assert.equal(moved.length, first.length);
+  assert.ok(moved.every((call, i) => Math.abs(call[1] - first[i][1] - 40) < 1e-9));
+  state.time += Core.PROGRESSION.levelUpFlashDuration + Core.DT;
+  assert.equal(sparks().length, 0);
+});
+
 test("skill icons and empty sockets follow the measured 31px icons and 35px pitch", () => {
   const state = Core.createState({ seed: 1 }), calls = [], hud = {}, skills = { width: 384, height: 32 };
   Render.render(recordingContext(calls), state, { sprites: { hud, skills },
