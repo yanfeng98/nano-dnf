@@ -808,6 +808,16 @@ async function runPass(browser, baseUrl, options) {
       }
     }
     if (!midShot && state.stats.rooms >= 1) {
+      // The scripted checks own the controls until the combat loop resumes.
+      if (options.mode === "touch") {
+        await touchActions(page, [...held].map((action) => ({
+          action: touchTarget(action),
+          down: false
+        })));
+      } else {
+        for (const action of held) await page.keyboard.up(keyOf(action));
+      }
+      held.clear();
       await page.screenshot({ path: path.join(artifactDir, `playability-${options.mode}-fight.png`) });
       midShot = true;
       /* With no record banked yet, the pace line has to say exactly that. */
