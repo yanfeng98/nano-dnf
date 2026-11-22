@@ -8890,6 +8890,28 @@ test("an already cleared boss room cannot turn into a defeat during the victory 
   assert.equal(state.player.hp, 1, "post-clear play also keeps the confirmed result");
 });
 
+test("clearing the lord room removes attack warnings from the surviving monsters", () => {
+  const state = Core.createState({ stage: "mirkwood", seed: 1 });
+  Core.goToCell(state, state.dungeon.boss);
+  Object.assign(state, { intro: null, transition: 0, props: [] });
+  const boss = state.enemies.find(Core.isBossEnemy);
+  const caster = state.enemies.find(enemy => enemy.type === "caster");
+  state.enemies = [boss, caster];
+  Object.assign(state.player, { x: 460, z: 100 });
+  Object.assign(caster, { x: 300, z: 100, attackCooldown: 0 });
+  Object.assign(boss, { evasion: 0, attackCooldown: 10 });
+
+  Core.step(state, {});
+  assert.ok(state.effects.some(effect => effect.kind === "telegraph" && effect.enemyId === caster.id));
+  Core.damageEnemy(state, boss, boss.hp + 1, 0, state.player.x);
+  Core.step(state, {});
+
+  assert.ok(state.victoryDelay > 0);
+  assert.ok(!state.enemies.includes(caster));
+  assert.ok(!state.effects.some(effect => effect.kind === "telegraph"));
+  assert.ok(state.effects.some(effect => effect.kind === "bossrays"));
+});
+
 test("killing the lord before a same-step projectile impact preserves the clear", () => {
   const state = Core.createState({ seed: 1, stage: "mirkwood" });
   Core.goToCell(state, state.dungeon.boss);

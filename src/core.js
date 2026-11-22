@@ -9030,6 +9030,9 @@
           state.enemies = boss
             ? state.enemies.filter(function (enemy) { return enemy === boss; })
             : [];
+          state.effects = state.effects.filter(function (effect) {
+            return effect.kind !== "telegraph";
+          });
           /*
            * 白剪影（0.9s）→ 蓝白魂球（0.3s）→ 大血块落地并留在场上（3s），
            * 参考里死亡到过关画面约 **4.3 秒**。
