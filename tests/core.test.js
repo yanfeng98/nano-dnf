@@ -9101,7 +9101,8 @@ test("the town HUD shows the level card the dungeon already has", () => {
   });
   const texts = calls.filter((call) => call[0] === "fillText").map((call) => String(call[1]));
   assert.ok(texts.includes("Lv.7"), `the town bar must carry the level card: ${texts.join(" / ")}`);
-  const bar = calls.find((call) => call[0] === "fillRect" && call[3] === 160 && call[4] === 8);
+  const bar = calls.find((call) => call[0] === "fillRect" && call[1] === 252 &&
+    call[2] === 485 && call[3] === 164 && call[4] === 8);
   assert.ok(bar, "the XP bar is part of the card");
 });
 
@@ -9132,7 +9133,7 @@ test("the level card shows a full bar immediately at the level cap", () => {
   Render.render(recordingContext(calls), state, { sprites: {} });
   assert.ok(calls.some(call => call[0] === "fillText" && call[1] === "MAX"));
   assert.equal(calls.filter(call => call[0] === "fillRect" &&
-    call[1] === 254 && call[2] === 485 && call[3] === 160 && call[4] === 8).length, 2,
+    call[1] === 252 && call[2] === 485 && call[3] === 164 && call[4] === 8).length, 2,
   "both the track and its green fill span the full width");
 });
 
@@ -11106,7 +11107,7 @@ test("the task tracker returns to the recorded strip immediately above the six s
 
 test("the recorded XP track uses its full width and real progress in town and dungeon", () => {
   const hud = {};
-  for (const [xp, width] of [[0, 0], [50, 80], [100, 160], [-10, 0], [120, 160]]) {
+  for (const [xp, width] of [[0, 0], [50, 82], [100, 164], [-10, 0], [120, 164]]) {
     const state = Core.createState({ seed: 1 });
     state.player.xp = xp; state.player.xpToNext = 100;
     for (const mode of ["dungeon", "town"]) {
@@ -11115,12 +11116,12 @@ test("the recorded XP track uses its full width and real progress in town and du
       else Render.drawTown(ctx, { town: { x: 250, z: 50, cameraX: 0, time: 0, npcs: [] },
         sprites: { hud }, player: state.player });
       const fills = calls.filter(c => c[0] === "drawImage" && c[1] === hud &&
-        c[4] === 200 && c[5] === 3 && c[6] === 254 && c[7] === 485);
+        c[4] === 200 && c[5] === 3 && c[6] === 252 && c[7] === 485);
       if (!width) assert.equal(fills.length, 0, `${mode}: empty or negative XP has no green fill`);
       else {
         assert.equal(fills.length, 1);
-        assert.deepEqual(fills[0].slice(6), [254, 485, width, 8],
-          `${mode}: V2 full track x134..294, y485..493 inside the 720px view`);
+        assert.deepEqual(fills[0].slice(6), [252, 485, width, 8],
+          `${mode}: calibrated track x132..296, y485..493 inside the 720px view`);
       }
     }
   }
@@ -11134,15 +11135,15 @@ test("a live level-up briefly fills the dungeon XP gauge before showing the bala
     const calls = [];
     Render.render(recordingContext(calls), state, { sprites: { hud } });
     return calls.find(c => c[0] === "drawImage" && c[1] === hud &&
-      c[4] === 200 && c[5] === 3 && c[6] === 254 && c[7] === 485)?.[8];
+      c[4] === 200 && c[5] === 3 && c[6] === 252 && c[7] === 485)?.[8];
   };
   assert.equal(Core.grantXp(state, state.player.xpToNext + 12), 1);
   assert.equal(state.player.xp, 12);
-  assert.equal(fillWidth(), 160);
+  assert.equal(fillWidth(), 164);
   state.time += 1;
-  assert.equal(fillWidth(), 160);
+  assert.equal(fillWidth(), 164);
   state.time += 0.2;
-  assert.equal(fillWidth(), 160 * (12 / state.player.xpToNext));
+  assert.equal(fillWidth(), 164 * (12 / state.player.xpToNext));
 });
 
 test("skill icons and empty sockets follow the measured 31px icons and 35px pitch", () => {

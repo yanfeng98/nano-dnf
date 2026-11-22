@@ -8256,10 +8256,9 @@
    * 底条左边空一块（2026-10-28 复核）。
    */
   function drawLevelCard(ctx, player, sprites, flashRemaining) {
-    // V2 76.25s: the *whole* track is x134..294 at y485..493.
-    // The old 65px width covered only part of the visible track.
-    var xpX = 254;
-    var xpW = 160;
+    // Use the same visible origin and width as the XP profile fit.
+    var xpX = VIEW.left + 132;
+    var xpW = 164;
     var xpY = 485;
     var atCap = player && player.level >= Core.PROGRESSION.maxLevel;
     var xp = Math.max(0, (player && player.xp) || 0);

@@ -50,10 +50,11 @@ try {
       }, share);
       await page.waitForTimeout(100);
       const bounds = await page.locator('#stage').evaluate(canvas => {
-        const { data } = canvas.getContext('2d').getImageData(254, 485, 160, 8);
-        let left = 160, right = -1;
-        for (let y = 0; y < 8; y++) for (let x = 0; x < 160; x++) {
-          const i = (y * 160 + x) * 4;
+        const width = 164;
+        const { data } = canvas.getContext('2d').getImageData(252, 485, width, 8);
+        let left = width, right = -1;
+        for (let y = 0; y < 8; y++) for (let x = 0; x < width; x++) {
+          const i = (y * width + x) * 4;
           const [r, g, b] = data.slice(i, i + 3);
           if (g > 180 && g > r * 1.1 && g > b * 1.5) {
             left = Math.min(left, x); right = Math.max(right, x);
@@ -64,8 +65,8 @@ try {
       const url = await page.locator('#stage').evaluate(c => c.toDataURL('image/png'));
       fs.writeFileSync(`${out}/${mode}-${share * 100}.png`, Buffer.from(url.split(',')[1], 'base64'));
       measurements.push({ mode, share, ...bounds });
-      assert.ok(Math.abs(bounds.width - 160 * share) <= 2,
-        `${mode} at ${share * 100}%: expected ${160 * share}px, saw ${bounds.width}px`);
+      assert.ok(Math.abs(bounds.width - 164 * share) <= 2,
+        `${mode} at ${share * 100}%: expected ${164 * share}px, saw ${bounds.width}px`);
     }
   }
   await page.evaluate(() => {
