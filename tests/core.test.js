@@ -2963,6 +2963,27 @@ test("chargers telegraph, dash at charge speed, then recover", () => {
   assert.equal(state.stats.damageTaken, Core.ENEMY_TYPES.charger.damage);
 });
 
+test("slam and spin windups respect their own depth coverage", () => {
+  for (const [type, attack] of [["boss", "slam"], ["elite", "spin"]]) {
+    const state = Core.createState({ stage: "mirkwood", seed: 1 });
+    Object.assign(state, { intro: null, transition: 0, props: [] });
+    const enemy = Core.createEnemy(state, type, 400, 20);
+    state.enemies = [enemy];
+    Object.assign(state.player, { x: enemy.x + 80, z: 270 });
+    Object.assign(enemy, { attackCooldown: 0, slamCooldown: 0, spinCooldown: 0 });
+
+    Core.step(state, {});
+    assert.equal(enemy.attackTimer, 0, attack);
+    assert.ok(enemy.z > 20, attack);
+
+    // Both moves reach deeper than a basic swing.
+    state.player.z = enemy.z + 80;
+    Core.step(state, {});
+    assert.equal(enemy.attackKind, attack);
+    assert.ok(enemy.attackTimer > 0, attack);
+  }
+});
+
 test("the boss slam hits a grounded player and misses a jumping one", () => {
   const grounded = lastRoomState();
   const groundedBoss = Core.createEnemy(grounded, "boss", grounded.player.x + 90);

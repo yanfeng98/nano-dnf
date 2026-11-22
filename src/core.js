@@ -8473,7 +8473,8 @@
         enemy.spinCooldown <= 0 &&
         enemy.attackCooldown <= 0 &&
         /* Commits when the Slayer is close: the sweep punishes a hug, not a retreat. */
-        gap <= spinDash.commit
+        gap <= spinDash.commit &&
+        inReachOf(player.z, enemy.z, DEPTH_REACH.spin)
       ) {
         enemy.vx = 0;
         enemy.spinDir = enemy.facing;
@@ -8500,7 +8501,8 @@
     }
 
     var slam = enemy.slam;
-    if (slam && enemy.slamCooldown <= 0 && enemy.attackCooldown <= 0 && gap <= slam.commit) {
+    if (slam && enemy.slamCooldown <= 0 && enemy.attackCooldown <= 0 &&
+        gap <= slam.commit && floorDistance(player, enemy) <= slam.radius) {
       enemy.vx = 0;
       beginEnemyAttack(state, enemy, "slam", slam.windup, slam.windup + slam.recovery);
       pushTelegraph(state, enemy, "SLAM", slam.radius, slam.windup, 0);
