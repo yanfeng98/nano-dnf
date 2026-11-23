@@ -77,6 +77,44 @@ pub fn draw_backdrop(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
                 x += sw as f32;
             }
         }
+        if deep {
+            let cb_key = state.dungeon.as_ref().and_then(|d| {
+                if state.cell == d.entry {
+                    Some("deepEntryCloseback")
+                } else if state.cell == d.boss {
+                    Some("deepBossCloseback")
+                } else {
+                    d.cells
+                        .get(state.cell)
+                        .and_then(|cell| match (cell.col + 1, cell.row + 1) {
+                            (1, 3) => Some("deepRoom13Closeback"),
+                            (1, 4) => Some("deepRoom14Closeback"),
+                            (2, 3) => Some("deepRoom23Closeback"),
+                            (2, 4) => Some("deepRoom24Closeback"),
+                            (3, 3) => Some("deepRoom33Closeback"),
+                            (4, 2) => Some("deepRoom42Closeback"),
+                            (4, 3) => Some("deepRoom43Closeback"),
+                            _ => None,
+                        })
+                }
+            });
+            if let Some(cb) = cb_key.and_then(|k| sprites.get(k)) {
+                c.draw_image(
+                    cb,
+                    0,
+                    0,
+                    cb.width(),
+                    cb.height(),
+                    0.0,
+                    0.0,
+                    rw,
+                    back_y,
+                    false,
+                    1.0,
+                    0.0,
+                );
+            }
+        }
         if let Some([sx, sy, sw, sh]) = rect_at(&["SCENE", "pieces", "tile0"]) {
             let mut x = 0.0f32;
             let ground_h = (ARENA_HEIGHT as f32 - back_y).max(sh as f32);
@@ -682,7 +720,25 @@ pub fn draw_world(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
                     floor_y(drop.z)
                 };
                 if drop.kind == "blood_orb" {
-                    c.fill_ellipse(dx, dy, 8.0, 8.0, Rgba::new(225, 42, 54, 230));
+                    if let Some(eff) = sprites.get("effects") {
+                        let frame = ((state.time / 0.1) as u32) % 6;
+                        c.draw_image(
+                            eff,
+                            frame * 128,
+                            14 * 128,
+                            128,
+                            128,
+                            dx - 24.0,
+                            dy - 24.0,
+                            48.0,
+                            48.0,
+                            false,
+                            1.0,
+                            0.0,
+                        );
+                    } else {
+                        c.fill_ellipse(dx, dy, 8.0, 8.0, Rgba::new(225, 42, 54, 230));
+                    }
                 } else {
                     let col = if drop.tone == "cyan" {
                         Rgba::new(88, 224, 245, 255)
@@ -813,7 +869,30 @@ pub fn draw_world(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
                 let sh = &state.shots[item.idx];
                 let sx = sh.x as f32;
                 let sy = (sh.y - depth_lift(sh.z) - 24.0) as f32;
-                c.fill_ellipse(sx, sy, 28.0, 18.0, Rgba::new(225, 58, 72, 200));
+                let age = (sh.max_life - sh.life).max(0.0);
+                if sh.skill_id == "normalWave" {
+                    if let Some(eff) = sprites.get("effects") {
+                        let frame = (((age / 0.06667) as u32).min(4)) % 5;
+                        c.draw_image(
+                            eff,
+                            frame * 128,
+                            31 * 128,
+                            128,
+                            128,
+                            sx - 72.0,
+                            sy - 72.0,
+                            144.0,
+                            144.0,
+                            sh.facing < 0,
+                            0.92,
+                            0.0,
+                        );
+                    } else {
+                        c.fill_ellipse(sx, sy, 28.0, 18.0, Rgba::new(225, 58, 72, 200));
+                    }
+                } else {
+                    c.fill_ellipse(sx, sy, 28.0, 18.0, Rgba::new(225, 58, 72, 200));
+                }
             }
             6 => draw_player(c, state, sprites),
             _ => {}

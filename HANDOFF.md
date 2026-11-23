@@ -12,6 +12,8 @@
 > - 已接入更多原生贴图与音效（`render-rs`、`app/audio.rs`）：
 >   - 技能栏冷却/缺蓝状态改用 `skillsDisabled` 原生灰化图标；
 >   - 敌方投射物（`30001` 石块、`30021` 炸弹、`30057` 冰弹、`30047` 火弹）已接入 `goblinStone` / `goblinBomb` / `goblinIce` / `goblinFire` 原生精灵帧与旋转/朝向绘制，替换原先的纯色圆球占位；
+>   - 血球（`blood_orb`）与地裂波动剑（`normalWave`）飞行物已接入 `effects.png` 原生序列帧（`orbRow=14` / `shotRows.normalWave=31`）；
+>   - 幽暗密林深处（`mirkwooddeep`）入口、领主房及 13/14/23/24/33/42/43 房间已接入对应 `deep*Closeback` 原生近景层；
 >   - Windows 原生音频已补齐全部核心事件的 `.ogg` 映射：`projectileSpawn`/`projectileHit`（石块/炸弹/冰弹/火弹）、`enemyAttack`（哥布林旋风/牛头斧劈冲撞砸地）、`tau`/`cat` 受击与死亡音、`playerLand`/`playerStep` 脚步音以及 `bloodSword`/`ghostSlash`/`frenzy`/`berserk`/`hellbenter` 技能音效。
 > - **仍待处理的外部阻塞项**：整体录像对照还原（第 1–7 项视觉/AI/数值考据）及 Windows 真机实玩验收需要结合实机画面与业主试玩反馈推进。
 
