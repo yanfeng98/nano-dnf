@@ -20,7 +20,8 @@
 >   - 幽暗密林深处（`mirkwooddeep`）入口、领主房及 13/14/23/24/33/42/43 房间已接入对应 `deep*Closeback` 原生近景层与 24 房前景遮挡层（`deepRoom24Foreground`）；
 >   - 房间传送门已接入 `nativePathGate` / `nativePathGateEast` / `nativePathGateEastNormal` 与锁定栅栏 `gateBlock` 原生贴图；
 >   - 技能斩击已补齐 `crossSlash`、`rageBurst`、`bloodSnatch`、`graspHead`、`bloodEvil`、`mountainRift`、`berserk` 的 `effects.png` 序列帧；
->   - 城镇地图（艾尔文防线）已按 `2520` 宽横版卷轴场景重做：`town.png` 分层拼接（远景/0.35 视差中景/石板路面/左旗帜/东侧发光传送门/前景栏杆）、`npc.png` 8 名动态 NPC（守卫/赛丽亚/敏泰/GSD/卡妮娜/布兰妮/辛达/守卫队长）、`walk` 步行动画、`cameraHalfWindow=56` 跟随镜头与靠近 NPC/城门交互；
+>   - 城镇地图（艾尔文防线）已按 `2520` 宽横版卷轴场景重做：`town.png` 分层拼接（远景/0.35 视差中景/石板路面/左旗帜/东侧发光传送门/前景栏杆）、`npc.png` 8 名动态 NPC（守卫/赛丽亚/敏泰/GSD/卡妮娜/布兰妮/辛达/守卫队长）、`walk` 步行动画与 `bodyRoots` 根骨对齐、`cameraHalfWindow=56` 跟随镜头与靠近 NPC/城门交互；
+>   - 底部 HUD 栏与红/蓝球（地牢与城镇共用）已接入 `hud.png` 原生底条、左右球槽、`orbRed`/`orbBlue` 液位裁剪、`xpFill` 经验条与 `slotFrame` 技能框；
 >   - Windows 原生音频已补齐全部核心事件的 `.ogg` 映射：`projectileSpawn`/`projectileHit`（石块/炸弹/冰弹/火弹）、`enemyAttack`（哥布林旋风/牛头斧劈冲撞砸地）、`tau`/`cat` 受击与死亡音、`playerLand`/`playerStep` 脚步音以及 `bloodSword`/`ghostSlash`/`frenzy`/`berserk`/`hellbenter` 技能音效。
 > - **仍待处理的外部阻塞项**：整体录像对照还原（第 1–7 项视觉/AI/数值考据）及 Windows 真机实玩验收需要结合实机画面与业主试玩反馈推进。
 

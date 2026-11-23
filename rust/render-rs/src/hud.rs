@@ -104,90 +104,163 @@ pub fn draw_hud_video(
     let right = (VIEW_LEFT + VIEW_WIDTH) as f32;
     let bottom = ARENA_HEIGHT as f32;
 
-    // Bottom HUD bar
-    c.fill_rect(
-        left,
-        bottom - 76.0,
-        VIEW_WIDTH as f32,
-        76.0,
-        Rgba::new(10, 12, 18, 225),
-    );
-    c.draw_line(
-        left,
-        bottom - 76.0,
-        right,
-        bottom - 76.0,
-        Rgba::new(165, 134, 72, 200),
-        1.5,
-    );
-
-    // HP & MP orbs
     let hp_ratio = (state.player.hp / state.player.max_hp).clamp(0.0, 1.0) as f32;
     let mp_ratio = (state.player.mp / state.player.max_mp).clamp(0.0, 1.0) as f32;
-    draw_orb(
-        c,
-        left + 44.0,
-        bottom - 38.0,
-        28.0,
-        hp_ratio,
-        Rgba::new(210, 38, 46, 255),
-        "HP",
-    );
-    draw_orb(
-        c,
-        right - 44.0,
-        bottom - 38.0,
-        28.0,
-        mp_ratio,
-        Rgba::new(42, 116, 225, 255),
-        "MP",
-    );
-
-    // Level & XP bar
-    c.fill_text(
-        &format!("Lv.{}", state.player.level),
-        left + 86.0,
-        bottom - 52.0,
-        14.0,
-        Rgba::new(240, 210, 130, 255),
-        TextAlign::Left,
-        None,
-    );
     let xp_ratio = if state.player.xp_to_next > 0 {
         (state.player.xp as f32 / state.player.xp_to_next as f32).clamp(0.0, 1.0)
     } else {
         1.0
     };
-    c.fill_rect(
-        left + 86.0,
-        bottom - 16.0,
-        VIEW_WIDTH as f32 - 172.0,
-        6.0,
-        Rgba::new(24, 28, 36, 255),
-    );
-    c.fill_rect(
-        left + 86.0,
-        bottom - 16.0,
-        (VIEW_WIDTH as f32 - 172.0) * xp_ratio,
-        6.0,
-        Rgba::new(125, 225, 110, 255),
-    );
 
-    // Skill hotbar (6 slots: A S D F G H + V)
-    let start_x = left + 150.0;
-    let slot_y = bottom - 64.0;
-    for (idx, key_label) in SLOT_KEYS.iter().enumerate() {
-        let sx = start_x + idx as f32 * 44.0;
-        c.fill_round_rect(sx, slot_y, 38.0, 38.0, 4.0, Rgba::new(22, 26, 36, 240));
-        c.stroke_round_rect(
-            sx,
-            slot_y,
-            38.0,
-            38.0,
-            4.0,
-            Rgba::new(150, 128, 82, 210),
-            1.0,
+    // Bottom HUD bar & HP/MP orbs (use native hud.png when loaded, else procedural fallback)
+    if let Some(hud_sheet) = sprites.get("hud") {
+        c.draw_image(
+            hud_sheet, 84, 0, 632, 91, 174.0, 456.0, 612.0, 84.0, false, 1.0, 0.0,
         );
+        c.draw_image(
+            hud_sheet, 200, 146, 108, 176, 120.0, 452.0, 54.0, 88.0, false, 1.0, 0.0,
+        );
+        c.draw_image(
+            hud_sheet, 308, 146, 108, 176, 786.0, 452.0, 54.0, 88.0, false, 1.0, 0.0,
+        );
+        if hp_ratio > 0.0 {
+            let crop_h = ((144.0 * hp_ratio).round() as u32).clamp(1, 144);
+            let src_y = 144 - crop_h;
+            let dst_h = 72.0 * (crop_h as f32 / 144.0);
+            let dst_y = 460.0 + (72.0 - dst_h);
+            c.draw_image(
+                hud_sheet, 800, src_y, 76, crop_h, 128.0, dst_y, 38.0, dst_h, false, 1.0, 0.0,
+            );
+        }
+        if mp_ratio > 0.0 {
+            let crop_h = ((144.0 * mp_ratio).round() as u32).clamp(1, 144);
+            let src_y = 144 - crop_h;
+            let dst_h = 72.0 * (crop_h as f32 / 144.0);
+            let dst_y = 460.0 + (72.0 - dst_h);
+            c.draw_image(
+                hud_sheet, 876, src_y, 76, crop_h, 794.0, dst_y, 38.0, dst_h, false, 1.0, 0.0,
+            );
+        }
+        if xp_ratio > 0.0 {
+            c.draw_image(
+                hud_sheet,
+                0,
+                146,
+                200,
+                3,
+                187.0,
+                485.0,
+                160.0 * xp_ratio,
+                6.0,
+                false,
+                1.0,
+                0.0,
+            );
+        }
+        c.fill_text(
+            &format!("Lv.{}", state.player.level),
+            190.0,
+            479.0,
+            12.0,
+            Rgba::new(240, 210, 130, 255),
+            TextAlign::Left,
+            Some(Rgba::new(0, 0, 0, 220)),
+        );
+    } else {
+        c.fill_rect(
+            left,
+            bottom - 76.0,
+            VIEW_WIDTH as f32,
+            76.0,
+            Rgba::new(10, 12, 18, 225),
+        );
+        c.draw_line(
+            left,
+            bottom - 76.0,
+            right,
+            bottom - 76.0,
+            Rgba::new(165, 134, 72, 200),
+            1.5,
+        );
+        draw_orb(
+            c,
+            left + 44.0,
+            bottom - 38.0,
+            28.0,
+            hp_ratio,
+            Rgba::new(210, 38, 46, 255),
+            "HP",
+        );
+        draw_orb(
+            c,
+            right - 44.0,
+            bottom - 38.0,
+            28.0,
+            mp_ratio,
+            Rgba::new(42, 116, 225, 255),
+            "MP",
+        );
+        c.fill_text(
+            &format!("Lv.{}", state.player.level),
+            left + 86.0,
+            bottom - 52.0,
+            14.0,
+            Rgba::new(240, 210, 130, 255),
+            TextAlign::Left,
+            None,
+        );
+        c.fill_rect(
+            left + 86.0,
+            bottom - 16.0,
+            VIEW_WIDTH as f32 - 172.0,
+            6.0,
+            Rgba::new(24, 28, 36, 255),
+        );
+        c.fill_rect(
+            left + 86.0,
+            bottom - 16.0,
+            (VIEW_WIDTH as f32 - 172.0) * xp_ratio,
+            6.0,
+            Rgba::new(125, 225, 110, 255),
+        );
+    }
+
+    // Skill hotbar (6 slots: A S D F G H)
+    let start_x = if sprites.get("hud").is_some() {
+        536.0
+    } else {
+        left + 150.0
+    };
+    let slot_y = bottom - 44.0;
+    for (idx, key_label) in SLOT_KEYS.iter().enumerate() {
+        let sx = start_x + idx as f32 * 40.0;
+        if let Some(hud_sheet) = sprites.get("hud") {
+            c.draw_image(
+                hud_sheet,
+                952,
+                0,
+                40,
+                39,
+                sx - 1.0,
+                slot_y - 1.0,
+                38.0,
+                38.0,
+                false,
+                1.0,
+                0.0,
+            );
+        } else {
+            c.fill_round_rect(sx, slot_y, 38.0, 38.0, 4.0, Rgba::new(22, 26, 36, 240));
+            c.stroke_round_rect(
+                sx,
+                slot_y,
+                38.0,
+                38.0,
+                4.0,
+                Rgba::new(150, 128, 82, 210),
+                1.0,
+            );
+        }
         if let Some(Some(skill_id)) = meta.loadout.get(idx) {
             let cd = state
                 .player
