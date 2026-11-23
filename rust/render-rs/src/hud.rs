@@ -663,6 +663,81 @@ pub fn draw_hud_video(
         }
     }
 
+    // Off-screen living enemy indicators (so ranged/fleeing enemies off-camera are easy to locate)
+    if !meta.title && !state.victory && !state.defeat {
+        let cam_l = state.camera_x;
+        let cam_r = state.camera_x + window_width();
+        let mut left_off = 0u32;
+        let mut right_off = 0u32;
+        for e in &state.enemies {
+            if e.dead || e.gone {
+                continue;
+            }
+            if e.x < cam_l - 8.0 {
+                left_off += 1;
+            } else if e.x > cam_r + 8.0 {
+                right_off += 1;
+            }
+        }
+        let pulse = (0.65 + 0.35 * (state.time * 6.0).sin()) as f32;
+        if left_off > 0 {
+            c.fill_round_rect(
+                left + 8.0,
+                240.0,
+                56.0,
+                24.0,
+                5.0,
+                Rgba::new(16, 10, 14, 200),
+            );
+            c.stroke_round_rect(
+                left + 8.0,
+                240.0,
+                56.0,
+                24.0,
+                5.0,
+                Rgba::new(245, 96, 86, 255).with_alpha(pulse),
+                1.5,
+            );
+            c.fill_text(
+                &format!("◀ 怪×{left_off}"),
+                left + 36.0,
+                256.0,
+                11.0,
+                Rgba::new(255, 195, 165, 255).with_alpha(pulse),
+                TextAlign::Center,
+                Some(Rgba::new(0, 0, 0, 220)),
+            );
+        }
+        if right_off > 0 {
+            c.fill_round_rect(
+                right - 64.0,
+                240.0,
+                56.0,
+                24.0,
+                5.0,
+                Rgba::new(16, 10, 14, 200),
+            );
+            c.stroke_round_rect(
+                right - 64.0,
+                240.0,
+                56.0,
+                24.0,
+                5.0,
+                Rgba::new(245, 96, 86, 255).with_alpha(pulse),
+                1.5,
+            );
+            c.fill_text(
+                &format!("怪×{right_off} ▶"),
+                right - 36.0,
+                256.0,
+                11.0,
+                Rgba::new(255, 195, 165, 255).with_alpha(pulse),
+                TextAlign::Center,
+                Some(Rgba::new(0, 0, 0, 220)),
+            );
+        }
+    }
+
     // Log lines (bottom-left above HUD, hidden behind full-screen title)
     if !meta.title {
         for (i, entry) in state.log.iter().enumerate() {

@@ -820,7 +820,7 @@ fn choose_enemy_action(state: &mut State, enemy_idx: usize) {
         if gap < keep {
             state.enemies[enemy_idx].vx = -f64::from(facing) * spd;
         } else if gap > ar {
-            state.enemies[enemy_idx].vx = f64::from(facing) * spd;
+            walk_towards(state, enemy_idx, spd);
         } else {
             state.enemies[enemy_idx].vx = 0.0;
             if state.enemies[enemy_idx].attack_cooldown <= 0.0 {
