@@ -386,6 +386,73 @@ impl<'a> Canvas<'a> {
         alpha: f32,
         angle_rad: f32,
     ) {
+        self.draw_image_blend(
+            sheet,
+            sx,
+            sy,
+            sw,
+            sh,
+            dx,
+            dy,
+            dw,
+            dh,
+            flip_x,
+            alpha,
+            angle_rad,
+            tiny_skia::BlendMode::SourceOver,
+        );
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    pub fn draw_image_additive(
+        &mut self,
+        sheet: &Pixmap,
+        sx: u32,
+        sy: u32,
+        sw: u32,
+        sh: u32,
+        dx: f32,
+        dy: f32,
+        dw: f32,
+        dh: f32,
+        flip_x: bool,
+        alpha: f32,
+        angle_rad: f32,
+    ) {
+        self.draw_image_blend(
+            sheet,
+            sx,
+            sy,
+            sw,
+            sh,
+            dx,
+            dy,
+            dw,
+            dh,
+            flip_x,
+            alpha,
+            angle_rad,
+            tiny_skia::BlendMode::Plus,
+        );
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    fn draw_image_blend(
+        &mut self,
+        sheet: &Pixmap,
+        sx: u32,
+        sy: u32,
+        sw: u32,
+        sh: u32,
+        dx: f32,
+        dy: f32,
+        dw: f32,
+        dh: f32,
+        flip_x: bool,
+        alpha: f32,
+        angle_rad: f32,
+        blend_mode: tiny_skia::BlendMode,
+    ) {
         if sw == 0 || sh == 0 || dw <= 0.0 || dh <= 0.0 || alpha <= 0.0 {
             return;
         }
@@ -415,7 +482,7 @@ impl<'a> Canvas<'a> {
         }
         let paint = PixmapPaint {
             opacity: alpha.clamp(0.0, 1.0),
-            blend_mode: tiny_skia::BlendMode::SourceOver,
+            blend_mode,
             quality: tiny_skia::FilterQuality::Nearest,
         };
         self.pixmap

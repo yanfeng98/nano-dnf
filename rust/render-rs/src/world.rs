@@ -638,15 +638,110 @@ pub fn draw_player(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
     if p.dead {
         return;
     }
-    if p.invuln > 0.0 && p.solid_invuln <= 0.0 && ((state.time * 24.0) as i32) % 2 == 0 {
-        return;
-    }
     let px = p.x as f32;
     let py = feet_y_player(p);
     let ground_y = floor_y(p.z);
 
     // Shadow
-    c.fill_ellipse(px, ground_y, 20.0, 6.0, Rgba::new(0, 0, 0, 110));
+    c.fill_ellipse(
+        px,
+        ground_y + 3.0,
+        (p.width * 0.75) as f32,
+        6.0,
+        Rgba::new(0, 0, 0, 86),
+    );
+
+    // Foot mark (glowing green ring under boots)
+    if let Some(ui) = sprites.get("ui") {
+        let fw = 130.0 / (265.0 / 84.0);
+        let fh = 43.0 / (265.0 / 84.0);
+        for _ in 0..4 {
+            c.draw_image_additive(
+                ui,
+                1175,
+                2901,
+                81,
+                28,
+                px - fw * 0.5,
+                ground_y - fh * 0.25,
+                fw,
+                fh,
+                false,
+                0.85,
+                0.0,
+            );
+        }
+    }
+
+    // Level-up golden light ring & particles
+    let lvl_rem = state.xp_gauge_flash_until - state.time;
+    if lvl_rem > 0.0 {
+        let progress = (1.0 - lvl_rem / PROG_LEVEL_UP_FLASH_DURATION).clamp(0.0, 1.0) as f32;
+        let radius = p.width as f32 * (0.6 + progress * 0.8);
+        let opacity = 1.0 - progress;
+        c.stroke_ellipse(
+            px,
+            ground_y,
+            radius,
+            radius * 0.18,
+            Rgba::new(255, 203, 105, 255).with_alpha(opacity * 0.8),
+            2.0,
+        );
+        for i in 0..6 {
+            let angle =
+                i as f32 * std::f32::consts::FRAC_PI_3 + progress * std::f32::consts::FRAC_PI_2;
+            let sx = px + angle.cos() * radius;
+            let sy =
+                ground_y + angle.sin() * radius * 0.18 - progress * (44.0 + (i % 3) as f32 * 22.0);
+            c.fill_rect(
+                sx - 1.0,
+                sy - 2.0,
+                2.0,
+                4.0,
+                Rgba::new(255, 230, 165, 255).with_alpha(opacity * 0.85),
+            );
+        }
+    }
+
+    // Blood sword on back when hellbenter is active (not during hellbenterSlam)
+    if p.skill_id.as_deref() != Some("hellbenterSlam")
+        && p.buffs.get("hellbenter").copied().unwrap_or(0.0) > 0.0
+    {
+        if let Some(eff) = sprites.get("effects") {
+            let tier = p.hellbenter_tier.clamp(1, 8);
+            let sword_row = core_rs::TABLES.skill_order.len() as u32 + 10;
+            let col = (tier - 1).min((eff.width() / 128).saturating_sub(1));
+            let size = 112.0f32;
+            let back_x = px - p.facing as f32 * 8.0;
+            let centre_y = py - 1.325 * 84.0 + (0.5 - 0.18) * size;
+            c.draw_image(
+                eff,
+                col * 128,
+                sword_row * 128,
+                128,
+                128,
+                back_x - size * 0.5,
+                centre_y - size * 0.5,
+                size,
+                size,
+                p.facing < 0,
+                0.95,
+                0.0,
+            );
+        } else {
+            let tier = p.hellbenter_tier.max(1) as f32;
+            let len = 36.0 + tier * 5.0;
+            let back_x = px - p.facing as f32 * 10.0;
+            c.draw_line(
+                back_x,
+                py - 28.0,
+                back_x - p.facing as f32 * 12.0,
+                py - 28.0 - len,
+                Rgba::new(210, 28, 42, 230),
+                4.0 + tier * 0.5,
+            );
+        }
+    }
 
     let raging = p.buffs.get("bloodRage").copied().unwrap_or(0.0) > 0.0
         || p.skill_id.as_deref() == Some("hellbenterSlam");
@@ -676,9 +771,65 @@ pub fn draw_player(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
             px - anchor_x
         };
         let draw_y = py - anchor_y;
+
+        // Mountain Breaker apex yellow flare behind him
+        if p.skill_timer > 0.0 && p.skill_id.as_deref() == Some("mountainBreaker") {
+            let dur = core_rs::TABLES
+                .skills
+                .get("mountainBreaker")
+                .map(|s| s.duration.max(0.001))
+                .unwrap_or(1.3);
+            let prog = 1.0 - p.skill_timer / dur;
+            if (0.325..=0.35).contains(&prog) {
+                let scale = 1.45f32;
+                let fw = dw * scale;
+                let fh = dh * scale;
+                let fx = if flip {
+                    px - (fw - anchor_x * scale)
+                } else {
+                    px - anchor_x * scale
+                };
+                let fy = py - anchor_y * scale;
+                let flare_sy = (8 * cell_h).min(sh.height().saturating_sub(cell_h));
+                c.draw_image_additive(
+                    sh, sx, flare_sy, cell_w, cell_h, fx, fy, fw, fh, flip, 0.9, 0.0,
+                );
+            }
+        }
+
         c.draw_image(
             sh, sx, sy, cell_w, cell_h, draw_x, draw_y, dw, dh, flip, 1.0, 0.0,
         );
+
+        // BloodRage front cream crescent arc over the swing
+        if p.on_ground
+            && p.skill_timer <= 0.0
+            && p.attack_timer > 0.0
+            && p.buffs.get("bloodRage").copied().unwrap_or(0.0) > 0.0
+        {
+            let arc_prog = if p.attack_duration > 0.0 {
+                (1.0 - p.attack_timer / p.attack_duration).clamp(0.0, 0.999)
+            } else {
+                0.0
+            };
+            let arc_col = ((arc_prog * 22.0) as u32).min(21);
+            let arc_sx = arc_col * cell_w;
+            let arc_sy = (10 * cell_h).min(sh.height().saturating_sub(cell_h));
+            c.draw_image_additive(
+                sh,
+                arc_sx,
+                arc_sy,
+                cell_w,
+                cell_h,
+                draw_x + p.facing as f32 * 7.0,
+                draw_y + 5.0,
+                dw,
+                dh,
+                flip,
+                0.9,
+                0.0,
+            );
+        }
     } else {
         c.fill_round_rect(
             px - 15.0,
@@ -690,32 +841,17 @@ pub fn draw_player(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
         );
     }
 
-    // Blood sword on back when hellbenter is active
-    if p.buffs.get("hellbenter").copied().unwrap_or(0.0) > 0.0 {
-        let tier = p.hellbenter_tier.max(1) as f32;
-        let len = 36.0 + tier * 5.0;
-        let back_x = px - p.facing as f32 * 10.0;
-        c.draw_line(
-            back_x,
-            py - 28.0,
-            back_x - p.facing as f32 * 12.0,
-            py - 28.0 - len,
-            Rgba::new(210, 28, 42, 230),
-            4.0 + tier * 0.5,
-        );
-    }
-
-    if let Some(ref name) = p.name {
-        c.fill_text(
-            name,
-            px,
-            py - 72.0,
-            11.0,
-            Rgba::new(240, 245, 255, 240),
-            TextAlign::Center,
-            Some(Rgba::new(0, 0, 0, 220)),
-        );
-    }
+    let pname = p.name.as_deref().unwrap_or("鬼剑士");
+    let label = format!("Lv.{} {}", p.level, pname);
+    c.fill_text(
+        &label,
+        px,
+        py - 92.0,
+        10.5,
+        Rgba::new(230, 238, 248, 245),
+        TextAlign::Center,
+        Some(Rgba::new(24, 4, 32, 235)),
+    );
 }
 
 struct SkillBeat {
@@ -1062,6 +1198,35 @@ fn player_sprite_frame(state: &State, p: &Player) -> (u32, u32) {
     (0, col)
 }
 
+fn enemy_frame(state: &State, enemy: &Enemy) -> u32 {
+    let (idle, walk, attack, sweep, down) = match enemy.kind.as_str() {
+        "caster" | "burningThrower" => ([0u32, 0], [1, 6], [7, 11], [7, 11], [12, 16]),
+        "brute" | "boss" => ([0, 1], [20, 27], [2, 6], [2, 6], [9, 12]),
+        "cat" | "lugaruBoss" => ([0, 0], [20, 28], [1, 4], [8, 11], [16, 19]),
+        _ => ([0, 0], [11, 16], [0, 4], [0, 4], [5, 9]),
+    };
+    if enemy.dead || enemy.knockdown > 0.0 {
+        return down[1];
+    }
+    if enemy.attack_timer > 0.0 {
+        let range = if enemy.attack_kind == "sweep" {
+            sweep
+        } else {
+            attack
+        };
+        let dur = enemy.attack_duration.max(0.001);
+        let prog = (1.0 - enemy.attack_timer / dur).clamp(0.0, 0.999);
+        let span = range[1] - range[0];
+        return range[0] + ((prog * (span + 1) as f64) as u32).min(span);
+    }
+    if enemy.vx.abs() > 1.0 || enemy.vz.abs() > 1.0 {
+        let span = walk[1] - walk[0] + 1;
+        return walk[0] + ((state.time * 10.0) as u32) % span;
+    }
+    let span = idle[1] - idle[0] + 1;
+    idle[0] + ((state.time * 3.2) as u32) % span
+}
+
 pub fn draw_enemy(c: &mut Canvas<'_>, state: &State, enemy: &Enemy, sprites: &SpriteStore) {
     let ex = enemy.x as f32;
     let ey = feet_y_enemy(enemy);
@@ -1069,13 +1234,15 @@ pub fn draw_enemy(c: &mut Canvas<'_>, state: &State, enemy: &Enemy, sprites: &Sp
     let w = enemy.width as f32;
     let h = enemy.height as f32;
 
-    c.fill_ellipse(
-        ex,
-        ground_y,
-        (w * 0.55).max(14.0),
-        5.0,
-        Rgba::new(0, 0, 0, 100),
-    );
+    if enemy.behavior != "boss" {
+        c.fill_ellipse(
+            ex,
+            ground_y,
+            (w * 0.55).max(14.0),
+            5.0,
+            Rgba::new(0, 0, 0, 100),
+        );
+    }
 
     if let Some(ref champ) = enemy.champion {
         let aura_col = if champ == "champfire" {
@@ -1119,13 +1286,7 @@ pub fn draw_enemy(c: &mut Canvas<'_>, state: &State, enemy: &Enemy, sprites: &Sp
         let anchor_x = 180.0f32;
         let anchor_y = 260.0f32;
         let max_col = (sh.width() / cell_w).saturating_sub(1);
-        let col = if enemy.attack_timer > 0.0 {
-            (1 + (((state.time * 10.0) as u32) % 4)).min(max_col)
-        } else if enemy.vx.abs() > 2.0 {
-            (11 + (((state.time * 10.0) as u32) % 6)).min(max_col)
-        } else {
-            0
-        };
+        let col = enemy_frame(state, enemy).min(max_col);
         let sx = col * cell_w;
         let sy = (row * cell_h).min(sh.height().saturating_sub(cell_h));
         let scale = h / stand_h;
@@ -2004,6 +2165,64 @@ pub fn draw_effect(c: &mut Canvas<'_>, state: &State, effect: &Effect, sprites: 
                         );
                     }
                 }
+            }
+        }
+        "bossrays" => {
+            let h = if effect.height > 0.0 {
+                effect.height as f32
+            } else {
+                168.0
+            };
+            let ox = (if effect.source_x != 0.0 {
+                effect.source_x
+            } else {
+                effect.x
+            }) as f32;
+            let sz = if effect.source_z != 0.0 {
+                effect.source_z
+            } else {
+                effect.z
+            };
+            let oy = floor_y(sz) - (SLAYER_HEIGHT as f32) * 0.55;
+            let angles = [
+                -2.65f32, -2.25, -1.85, -1.45, -1.05, 1.05, 1.45, 1.85, 2.25, 2.65,
+            ];
+            for (idx, base_a) in angles.iter().enumerate() {
+                let angle = base_a + (scatter_hash(effect.seed, idx) as f32 - 0.5) * 0.24;
+                let length = h * (2.4 + scatter_hash(effect.seed, idx + 40) as f32 * 1.9);
+                let dx = angle.cos();
+                let dy = angle.sin();
+                c.draw_line(
+                    ox + dx * length * 0.04,
+                    oy + dy * length * 0.04,
+                    ox + dx * length,
+                    oy + dy * length,
+                    Rgba::new(255, 70, 90, 255).with_alpha(0.40 * alpha),
+                    (h * 0.04).max(1.5),
+                );
+            }
+        }
+        "bossbeam" => {
+            let rw = room_width(state) as f32;
+            let h = if effect.height > 0.0 {
+                effect.height as f32
+            } else {
+                28.0
+            };
+            let base_y = floor_y(effect.z) - h * 0.55;
+            let count = 5usize;
+            for i in 0..count {
+                let offset = (i as f32 - (count as f32 - 1.0) * 0.5) * 11.0;
+                let y = base_y + offset;
+                let lean = if i % 2 == 0 { 10.0 } else { -10.0 };
+                c.draw_line(
+                    0.0,
+                    y,
+                    rw,
+                    y + lean,
+                    Rgba::new(255, 140, 185, 255).with_alpha(0.75 * alpha),
+                    3.0,
+                );
             }
         }
         _ => {}

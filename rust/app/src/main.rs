@@ -124,6 +124,7 @@ struct AppState {
     cmd_upslash_timer: f64,
     last_tick: Instant,
     accumulator: f64,
+    cursor_pos: (f32, f32),
 }
 
 impl AppState {
@@ -180,6 +181,90 @@ impl AppState {
             cmd_upslash_timer: 0.0,
             last_tick: Instant::now(),
             accumulator: 0.0,
+            cursor_pos: (0.0, 0.0),
+        }
+    }
+
+    fn map_window_to_arena(&self, wx: f64, wy: f64) -> Option<(f32, f32)> {
+        let win = self.window.as_ref()?;
+        let size = win.inner_size();
+        let (win_w, win_h) = (size.width.max(1) as f64, size.height.max(1) as f64);
+        let scale = (win_w / ARENA_WIDTH).min(win_h / ARENA_HEIGHT);
+        let dst_w = ARENA_WIDTH * scale;
+        let dst_h = ARENA_HEIGHT * scale;
+        let off_x = (win_w - dst_w) * 0.5;
+        let off_y = (win_h - dst_h) * 0.5;
+        let ax = ((wx - off_x) / scale) as f32;
+        let ay = ((wy - off_y) / scale) as f32;
+        if (0.0..=ARENA_WIDTH as f32).contains(&ax) && (0.0..=ARENA_HEIGHT as f32).contains(&ay) {
+            Some((ax, ay))
+        } else {
+            None
+        }
+    }
+
+    fn handle_click(&mut self, ax: f32, ay: f32) {
+        match self.mode {
+            ScreenMode::Title => {
+                self.mode = ScreenMode::Region;
+            }
+            ScreenMode::Region => {
+                let stages = ["mirkwood", "mirkwooddeep"];
+                let bw = 168.0f32;
+                let bh = 73.0f32;
+                let gap_x = 14.0f32;
+                let row_w = 2.0 * bw + gap_x;
+                let row_x = (ARENA_WIDTH as f32 - row_w) * 0.5;
+                let by = 150.0f32;
+                for (i, id) in stages.iter().enumerate() {
+                    let bx = row_x + i as f32 * (bw + gap_x);
+                    if ax >= bx && ax <= bx + bw && ay >= by && ay <= by + bh {
+                        self.region_selected = (*id).to_string();
+                        self.restart_run(id, DEFAULT_SEED);
+                        return;
+                    }
+                }
+            }
+            ScreenMode::Playing => {
+                if self.state.victory && !self.state.post_clear {
+                    if let Some(ref mut rw) = self.reward {
+                        let snap = reward_rs::snapshot(rw);
+                        if snap.phase == reward_rs::RewardPhase::Cards {
+                            let card_w = 172.125f32;
+                            let card_h = 109.125f32;
+                            let card_gap = 7.125f32;
+                            let card_y = 188.0f32;
+                            let start_x = 129.0f32;
+                            for i in 0..4usize {
+                                let bx = start_x + i as f32 * (card_w + card_gap);
+                                if ax >= bx
+                                    && ax <= bx + card_w
+                                    && ay >= card_y
+                                    && ay <= card_y + card_h
+                                {
+                                    pick_reward(rw, i);
+                                    return;
+                                }
+                            }
+                        }
+                    }
+                } else if self.state.post_clear {
+                    let mx = (VIEW_LEFT + VIEW_WIDTH) as f32 - 250.0;
+                    let my = 120.0f32;
+                    if ax >= mx && ax <= mx + 230.0 {
+                        if ay >= my + 42.0 && ay <= my + 68.0 {
+                            let st = self.state.stage_id.clone();
+                            let seed = self.state.seed;
+                            self.restart_run(&st, seed);
+                        } else if ay >= my + 68.0 && ay <= my + 94.0 {
+                            self.mode = ScreenMode::Region;
+                        } else if ay >= my + 94.0 && ay <= my + 124.0 {
+                            self.mode = ScreenMode::Town;
+                        }
+                    }
+                }
+            }
+            ScreenMode::Town => {}
         }
     }
 
@@ -848,6 +933,19 @@ impl ApplicationHandler for AppState {
                     &self.loadout,
                 );
                 event_loop.exit();
+            }
+            WindowEvent::CursorMoved { position, .. } => {
+                if let Some((ax, ay)) = self.map_window_to_arena(position.x, position.y) {
+                    self.cursor_pos = (ax, ay);
+                }
+            }
+            WindowEvent::MouseInput {
+                state: ElementState::Pressed,
+                button: winit::event::MouseButton::Left,
+                ..
+            } => {
+                let (ax, ay) = self.cursor_pos;
+                self.handle_click(ax, ay);
             }
             WindowEvent::KeyboardInput {
                 event:

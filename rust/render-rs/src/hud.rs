@@ -384,91 +384,283 @@ pub fn draw_hud_video(
         }
     }
 
-    // Current target panel (top-left)
+    // Current target panel (top-left, `portraits-reference.png` native frames + Boss multi-layer HP)
     if let Some(ref target) = state.target {
-        let tx = left + 14.0;
-        let ty = 14.0;
-        let bw = if target.enemy.behavior == "boss" {
-            260.0
-        } else {
-            180.0
-        };
-        let has_portrait = sprites.get("portraits").is_some();
-        let text_x = if has_portrait { tx + 40.0 } else { tx + 8.0 };
-        c.fill_round_rect(tx, ty, bw + 60.0, 38.0, 4.0, Rgba::new(12, 16, 24, 215));
+        let enemy = &target.enemy;
+        let is_boss = enemy.behavior == "boss";
+        let is_champ = !is_boss && enemy.champion.is_some();
+        let x = VIEW_LEFT as f32 + 6.0;
+        let y = 45.5f32;
+        let s = 1.125f32;
         if let Some(psheet) = sprites.get("portraits") {
-            let pkey = if target.enemy.kind == "deepBoss" {
+            let pkey = if enemy.kind == "deepBoss" || enemy.kind == "lugaruBoss" {
                 "lugaruBoss"
-            } else if target.enemy.behavior == "boss" {
+            } else if is_boss {
                 "boss"
+            } else if enemy.kind == "cursedRed" {
+                "goblinRed"
+            } else if enemy.kind == "burningThrower" {
+                "caster"
             } else {
-                target.enemy.kind.as_str()
+                enemy.kind.as_str()
             };
-            if let Some([sx, sy, sw, sh]) =
-                rect_at(&["PORTRAITS", pkey]).or_else(|| rect_at(&["PORTRAITS", "grunt"]))
-            {
-                c.draw_image(
-                    psheet,
-                    sx,
-                    sy,
-                    sw,
-                    sh,
-                    tx + 6.0,
-                    ty + 6.0,
-                    26.0,
-                    26.0,
-                    false,
-                    1.0,
-                    0.0,
-                );
-            }
-            if let Some([fx, fy, fw, fh]) = rect_at(&["PORTRAITS", "frame"]) {
-                c.draw_image(
-                    psheet,
-                    fx,
-                    fy,
-                    fw,
-                    fh,
-                    tx + 4.0,
-                    ty + 4.0,
-                    30.0,
-                    30.0,
-                    false,
-                    1.0,
-                    0.0,
-                );
-            }
-        }
-        c.fill_text(
-            &format!(
-                "{} Lv.{} {}",
-                target.enemy.race, target.enemy.level, target.enemy.label
-            ),
-            text_x,
-            ty + 15.0,
-            12.0,
-            Rgba::new(240, 225, 185, 255),
-            TextAlign::Left,
-            None,
-        );
-        c.fill_rect(
-            text_x,
-            ty + 22.0,
-            bw + 12.0,
-            8.0,
-            Rgba::new(28, 22, 26, 255),
-        );
-        c.fill_rect(
-            text_x,
-            ty + 22.0,
-            (bw + 12.0) * target.share as f32,
-            8.0,
-            if target.enemy.behavior == "boss" {
-                Rgba::new(205, 42, 118, 255)
+            let face_rect =
+                rect_at(&["PORTRAITS", pkey]).or_else(|| rect_at(&["PORTRAITS", "grunt"]));
+            let frame_rect = if is_boss {
+                [2353u32, 0, 630, 36]
+            } else if is_champ {
+                [1721, 0, 628, 36]
             } else {
-                Rgba::new(220, 56, 52, 255)
-            },
-        );
+                [495, 0, 626, 32]
+            };
+            let cap_rect = if is_boss {
+                [2983u32, 0, 4, 36]
+            } else if is_champ {
+                [2349, 0, 4, 19]
+            } else {
+                [1718, 0, 3, 17]
+            };
+            let (fx, fy) = if is_boss {
+                (5.0f32, 3.0f32)
+            } else if is_champ {
+                (4.0, 4.0)
+            } else {
+                (2.0, 2.0)
+            };
+            let fill_x = if is_boss {
+                x + 38.25
+            } else {
+                x + if is_champ { 34.0 } else { 29.0 } * s
+            };
+            let fill_y = if is_boss {
+                y + 3.375
+            } else {
+                y + if is_champ { 19.0 } else { 17.0 } * s
+            };
+            let fill_w = if is_boss { 534.0f32 } else { 181.0f32 };
+            let fill_h = if is_boss { 29.25f32 } else { 9.0 * s };
+            let end_x = fill_x + fill_w;
+
+            c.save();
+            c.set_clip_rect(x, y, end_x - x, frame_rect[3] as f32 * s);
+            c.draw_image(
+                psheet,
+                frame_rect[0],
+                frame_rect[1],
+                frame_rect[2],
+                frame_rect[3],
+                x,
+                y,
+                frame_rect[2] as f32 * s,
+                frame_rect[3] as f32 * s,
+                false,
+                1.0,
+                0.0,
+            );
+            c.restore();
+
+            let cap_y = y + if is_boss {
+                0.0
+            } else if is_champ {
+                16.0
+            } else {
+                15.0
+            } * s;
+            c.draw_image(
+                psheet,
+                cap_rect[0],
+                cap_rect[1],
+                cap_rect[2],
+                cap_rect[3],
+                end_x,
+                cap_y,
+                cap_rect[2] as f32 * s,
+                cap_rect[3] as f32 * s,
+                false,
+                1.0,
+                0.0,
+            );
+
+            if let Some([fsx, fsy, fsw, fsh]) = face_rect {
+                c.draw_image(
+                    psheet,
+                    fsx,
+                    fsy,
+                    fsw,
+                    fsh,
+                    x + fx * s,
+                    y + fy * s,
+                    24.0 * s,
+                    24.0 * s,
+                    false,
+                    1.0,
+                    0.0,
+                );
+            }
+
+            if !enemy.dead {
+                let raw_share = if enemy.max_hp > 0.0 {
+                    (enemy.hp / enemy.max_hp).clamp(0.0, 1.0) as f32
+                } else {
+                    0.0
+                };
+                if is_boss {
+                    let layers = 2.0f32;
+                    let amount = raw_share * layers;
+                    let idx = (amount.ceil() as i32 - 1).max(0);
+                    let share = (amount - idx as f32).clamp(0.0, 1.0);
+                    let tile_w = 42.75f32;
+                    if idx >= 1 {
+                        c.save();
+                        c.set_clip_rect(fill_x, fill_y, fill_w, fill_h);
+                        let mut tx = fill_x;
+                        while tx < end_x {
+                            c.draw_image(
+                                psheet, 2987, 0, 38, 26, tx, fill_y, tile_w, fill_h, false, 1.0,
+                                0.0,
+                            );
+                            tx += tile_w;
+                        }
+                        c.restore();
+                    }
+                    let top_rect = if idx >= 1 {
+                        [3025u32, 0, 38, 26]
+                    } else {
+                        [2987u32, 0, 38, 26]
+                    };
+                    if share > 0.0 {
+                        c.save();
+                        c.set_clip_rect(fill_x, fill_y, fill_w * share, fill_h);
+                        let mut tx = fill_x;
+                        while tx < end_x {
+                            c.draw_image(
+                                psheet,
+                                top_rect[0],
+                                top_rect[1],
+                                top_rect[2],
+                                top_rect[3],
+                                tx,
+                                fill_y,
+                                tile_w,
+                                fill_h,
+                                false,
+                                1.0,
+                                0.0,
+                            );
+                            tx += tile_w;
+                        }
+                        c.restore();
+                    }
+                } else if raw_share > 0.0 {
+                    c.save();
+                    c.set_clip_rect(fill_x, fill_y, fill_w * raw_share, fill_h);
+                    c.draw_image(
+                        psheet, 1121, 0, 597, 9, fill_x, fill_y, fill_w, fill_h, false, 1.0, 0.0,
+                    );
+                    c.restore();
+                }
+            }
+
+            if let Some(ref g) = target.ghost {
+                let mut from = g.from as f32;
+                let mut to = g.to as f32;
+                if is_boss {
+                    let raw_share = if enemy.max_hp > 0.0 {
+                        (enemy.hp / enemy.max_hp).clamp(0.0, 1.0) as f32
+                    } else {
+                        0.0
+                    };
+                    let idx = ((raw_share * 2.0).ceil() as i32 - 1).max(0) as f32;
+                    from = from * 2.0 - idx;
+                    to = to * 2.0 - idx;
+                }
+                let from = from.clamp(0.0, 1.0);
+                let to = to.clamp(0.0, 1.0);
+                let gw = ((from - to) * fill_w).max(0.0);
+                let ga = (1.0 - (g.t / TARGET_GHOST_FADE) as f32).clamp(0.0, 1.0) * 0.95;
+                if gw > 0.0 && ga > 0.01 {
+                    c.fill_rect(
+                        fill_x + fill_w * to,
+                        fill_y,
+                        gw,
+                        fill_h,
+                        Rgba::new(248, 236, 229, 255).with_alpha(ga),
+                    );
+                }
+            }
+
+            if enemy.dead {
+                let cross_x = if is_boss { x + 5.0 } else { x + 1.5 };
+                let cross_y = if is_boss { y + 3.0 } else { y + 1.0 };
+                c.draw_image(
+                    psheet, 471, 0, 24, 24, cross_x, cross_y, 28.0, 28.0, false, 1.0, 0.0,
+                );
+            }
+
+            let tag_x = if is_boss {
+                x + 44.0
+            } else {
+                x + if is_champ { 36.0 } else { 32.0 } * s
+            };
+            let tag_y = if is_boss { fill_y + 7.0 } else { y };
+            let tag_w = 34.0f32;
+            let tag_h = 14.0f32;
+            c.fill_rect(tag_x, tag_y, tag_w, tag_h, Rgba::new(0, 0, 0, 255));
+            c.stroke_rect(
+                tag_x,
+                tag_y,
+                tag_w,
+                tag_h,
+                Rgba::new(216, 130, 70, 255),
+                1.5,
+            );
+            c.fill_text(
+                &enemy.race,
+                tag_x + tag_w * 0.5,
+                tag_y + 10.5,
+                10.5,
+                Rgba::new(243, 141, 76, 255),
+                TextAlign::Center,
+                None,
+            );
+            c.fill_text(
+                &format!("Lv{} {}", enemy.level, enemy.label),
+                tag_x + tag_w + 5.0,
+                tag_y + 11.0,
+                11.5,
+                Rgba::new(228, 237, 247, 255),
+                TextAlign::Left,
+                Some(Rgba::new(0, 0, 0, 230)),
+            );
+        } else {
+            let tx = left + 14.0;
+            let ty = 14.0;
+            let bw = if is_boss { 260.0 } else { 180.0 };
+            c.fill_round_rect(tx, ty, bw + 60.0, 38.0, 4.0, Rgba::new(12, 16, 24, 215));
+            c.fill_text(
+                &format!("{} Lv.{} {}", enemy.race, enemy.level, enemy.label),
+                tx + 8.0,
+                ty + 15.0,
+                12.0,
+                Rgba::new(240, 225, 185, 255),
+                TextAlign::Left,
+                None,
+            );
+            c.fill_rect(
+                tx + 8.0,
+                ty + 22.0,
+                bw + 12.0,
+                8.0,
+                Rgba::new(28, 22, 26, 255),
+            );
+            c.fill_rect(
+                tx + 8.0,
+                ty + 22.0,
+                (bw + 12.0) * target.share as f32,
+                8.0,
+                Rgba::new(220, 56, 52, 255),
+            );
+        }
     }
 
     // Log lines (bottom-left above HUD, hidden behind full-screen title)
@@ -1156,71 +1348,241 @@ pub fn draw_overlay(
     }
 
     if state.victory && !state.post_clear {
+        c.save();
+        c.set_clip_rect(
+            VIEW_LEFT as f32,
+            0.0,
+            VIEW_WIDTH as f32,
+            ARENA_HEIGHT as f32,
+        );
+        c.fill_rect(
+            VIEW_LEFT as f32,
+            0.0,
+            VIEW_WIDTH as f32,
+            ARENA_HEIGHT as f32,
+            Rgba::new(4, 9, 22, 168),
+        );
+        if let Some(ui) = sprites.get("ui") {
+            c.draw_image_additive(
+                ui,
+                592,
+                3480,
+                800,
+                600,
+                VIEW_LEFT as f32,
+                0.0,
+                VIEW_WIDTH as f32,
+                ARENA_HEIGHT as f32,
+                false,
+                0.85,
+                0.0,
+            );
+        }
         if let Some(rw) = meta.reward {
             let snap = reward_snapshot(rw);
+            if let Some(res_sheet) = sprites.get("results") {
+                c.draw_image_additive(
+                    res_sheet,
+                    0,
+                    0,
+                    420,
+                    420,
+                    cx - 210.0,
+                    cy - 210.0,
+                    420.0,
+                    420.0,
+                    false,
+                    0.55,
+                    -(state.time * 2.0 * std::f64::consts::PI / 180.0) as f32,
+                );
+            }
             if snap.phase != RewardPhase::Done {
-                if let Some(res_sheet) = sprites.get("results") {
-                    c.draw_image(
-                        res_sheet,
-                        0,
-                        0,
-                        420,
-                        420,
-                        cx - 210.0,
-                        cy - 210.0,
-                        420.0,
-                        420.0,
-                        false,
-                        0.32,
-                        (state.time * 0.35) as f32,
-                    );
-                }
-                c.fill_round_rect(
-                    cx - 240.0,
-                    cy - 160.0,
-                    480.0,
-                    300.0,
-                    10.0,
-                    Rgba::new(10, 14, 24, 225),
-                );
-                c.stroke_round_rect(
-                    cx - 240.0,
-                    cy - 160.0,
-                    480.0,
-                    300.0,
-                    10.0,
-                    Rgba::new(220, 186, 108, 220),
-                    1.5,
-                );
+                let left = VIEW_LEFT as f32;
                 match snap.phase {
                     RewardPhase::Stats => {
+                        if let Some(res_sheet) = sprites.get("results") {
+                            c.draw_image(
+                                res_sheet,
+                                4346,
+                                0,
+                                455,
+                                190,
+                                left + 104.0,
+                                68.0,
+                                511.875,
+                                213.75,
+                                false,
+                                1.0,
+                                0.0,
+                            );
+                        } else {
+                            c.fill_round_rect(
+                                left + 104.0,
+                                68.0,
+                                512.0,
+                                214.0,
+                                8.0,
+                                Rgba::new(10, 14, 24, 225),
+                            );
+                        }
                         c.fill_text(
-                            "地下城通关！",
-                            cx,
-                            cy - 115.0,
-                            22.0,
-                            Rgba::new(245, 210, 120, 255),
+                            "战绩",
+                            left + 340.0,
+                            53.0,
+                            23.0,
+                            Rgba::new(240, 215, 154, 255),
                             TextAlign::Center,
-                            None,
+                            Some(Rgba::new(11, 16, 27, 235)),
                         );
+                        for (lbl, ly) in [
+                            ("总分", 120.0f32),
+                            ("操作", 173.0),
+                            ("技巧", 211.0),
+                            ("被击数", 250.0),
+                        ] {
+                            c.fill_text(
+                                lbl,
+                                left + 205.0,
+                                ly,
+                                16.0,
+                                Rgba::new(238, 241, 245, 255),
+                                TextAlign::Right,
+                                None,
+                            );
+                        }
                         let rating = core_rs::combat::rating_of(state);
                         c.fill_text(
-                            &format!(
-                                "评级 {} ({}分) · 用时 {}",
-                                rating.grade,
-                                rating.score,
-                                format_seconds(state.time)
-                            ),
-                            cx,
-                            cy - 65.0,
-                            16.0,
-                            Rgba::new(235, 242, 252, 255),
-                            TextAlign::Center,
+                            &format!("{}/{}", rating.score, rating.max_score),
+                            left + 330.0,
+                            123.0,
+                            26.0,
+                            Rgba::new(255, 232, 140, 255),
+                            TextAlign::Left,
+                            Some(Rgba::new(0, 0, 0, 220)),
+                        );
+                        for (val, pts, py) in [
+                            (rating.operation, rating.operation_points, 154.0f32),
+                            (rating.technique, rating.technique_points, 192.0),
+                        ] {
+                            c.fill_text(
+                                &pts.to_string(),
+                                left + 328.0,
+                                py + 17.0,
+                                17.0,
+                                Rgba::new(243, 215, 85, 255),
+                                TextAlign::Left,
+                                None,
+                            );
+                            if let Some(res_sheet) = sprites.get("results") {
+                                c.draw_image(
+                                    res_sheet,
+                                    6456,
+                                    0,
+                                    163,
+                                    22,
+                                    left + 405.0,
+                                    py,
+                                    183.375,
+                                    24.75,
+                                    false,
+                                    1.0,
+                                    0.0,
+                                );
+                                let share = (val as f32 / 100.0).clamp(0.0, 1.0);
+                                if share > 0.0 {
+                                    c.draw_image(
+                                        res_sheet,
+                                        6297,
+                                        0,
+                                        (159.0 * share).round().max(1.0) as u32,
+                                        18,
+                                        left + 407.25,
+                                        py + 2.25,
+                                        178.875 * share,
+                                        20.25,
+                                        false,
+                                        1.0,
+                                        0.0,
+                                    );
+                                }
+                            }
+                            c.fill_text(
+                                &format!("{val}%"),
+                                left + 493.0,
+                                py + 18.0,
+                                14.0,
+                                Rgba::new(255, 255, 255, 255),
+                                TextAlign::Center,
+                                Some(Rgba::new(16, 16, 16, 235)),
+                            );
+                        }
+                        c.fill_text(
+                            &format!("-{}", rating.hits),
+                            left + 328.0,
+                            250.0,
+                            17.0,
+                            Rgba::new(255, 24, 16, 255),
+                            TextAlign::Left,
                             None,
                         );
+                        if let Some(res_sheet) = sprites.get("results") {
+                            let grade_idx = match rating.grade.as_str() {
+                                "SSS" => 0,
+                                "SS" => 1,
+                                "S" => 2,
+                                "A" => 3,
+                                "B" => 4,
+                                "C" => 5,
+                                "D" => 6,
+                                "E" => 7,
+                                _ => 8,
+                            };
+                            c.draw_image(
+                                res_sheet,
+                                4801,
+                                0,
+                                227,
+                                227,
+                                left + 388.0,
+                                292.0,
+                                150.0,
+                                150.0,
+                                false,
+                                0.9,
+                                0.0,
+                            );
+                            c.draw_image(
+                                res_sheet,
+                                5028 + grade_idx * 141,
+                                0,
+                                141,
+                                142,
+                                left + 412.0,
+                                316.0,
+                                102.0,
+                                102.0,
+                                false,
+                                1.0,
+                                0.0,
+                            );
+                        }
                     }
                     RewardPhase::Chest => {
                         if let Some(res_sheet) = sprites.get("results") {
+                            c.draw_image_additive(
+                                res_sheet,
+                                4163,
+                                0,
+                                183,
+                                164,
+                                cx - 91.5,
+                                cy - 96.0,
+                                183.0,
+                                164.0,
+                                false,
+                                0.85,
+                                0.0,
+                            );
                             c.draw_image(
                                 res_sheet,
                                 420,
@@ -1243,52 +1605,75 @@ pub fn draw_overlay(
                             18.0,
                             Rgba::new(245, 210, 120, 255),
                             TextAlign::Center,
-                            None,
+                            Some(Rgba::new(0, 0, 0, 220)),
                         );
                     }
                     RewardPhase::Cards | RewardPhase::Reveal | RewardPhase::Fade => {
                         c.fill_text(
-                            "请选择奖励卡牌 (按 1-4)",
+                            "请选择奖励卡牌 (按 1-4 或鼠标点击)",
                             cx,
-                            cy - 115.0,
+                            164.0,
                             18.0,
                             Rgba::new(245, 210, 120, 255),
                             TextAlign::Center,
-                            None,
+                            Some(Rgba::new(0, 0, 0, 220)),
                         );
+                        let card_w = 172.125f32;
+                        let card_h = 109.125f32;
+                        let card_gap = 7.125f32;
+                        let card_y = 188.0f32;
+                        let start_x = 129.0f32;
                         for i in 0..4usize {
-                            let cw = 96.0f32;
-                            let ch = 64.0f32;
-                            let card_x = cx - 204.0 + i as f32 * 104.0;
-                            let card_y = cy - 44.0;
+                            let base_x = start_x + i as f32 * (card_w + card_gap);
+                            let card_x = cx - card_w * 0.5
+                                + (base_x - cx + card_w * 0.5) * snap.spread as f32;
                             let picked = snap.picked == Some(i);
                             if let Some(res_sheet) = sprites.get("results") {
                                 c.draw_image(
-                                    res_sheet, 2921, 0, 153, 97, card_x, card_y, cw, ch, false,
-                                    1.0, 0.0,
+                                    res_sheet, 882, 0, 153, 97, card_x, card_y, card_w, card_h,
+                                    false, 1.0, 0.0,
                                 );
-                                if !snap.face_up {
-                                    c.draw_image(
+                                if snap.blue > 0.01 {
+                                    c.draw_image_additive(
                                         res_sheet,
-                                        3074,
+                                        1035,
                                         0,
-                                        141,
-                                        61,
-                                        card_x + 4.0,
-                                        card_y + 12.0,
-                                        cw - 8.0,
-                                        ch - 24.0,
+                                        162,
+                                        107,
+                                        card_x - 3.375,
+                                        card_y - 3.375,
+                                        182.25,
+                                        120.375,
                                         false,
-                                        0.92,
+                                        (snap.blue * 0.88) as f32,
                                         0.0,
                                     );
                                 }
-                                if picked {
+                                if picked && snap.face_up {
+                                    let icon_x = if snap.item.contains("法杖") {
+                                        3215u32
+                                    } else {
+                                        3243u32
+                                    };
+                                    c.draw_image(
+                                        res_sheet,
+                                        icon_x,
+                                        0,
+                                        28,
+                                        28,
+                                        card_x + card_w * 0.5 - 15.75,
+                                        card_y + 18.0,
+                                        31.5,
+                                        31.5,
+                                        false,
+                                        1.0,
+                                        0.0,
+                                    );
                                     c.stroke_round_rect(
                                         card_x - 2.0,
                                         card_y - 2.0,
-                                        cw + 4.0,
-                                        ch + 4.0,
+                                        card_w + 4.0,
+                                        card_h + 4.0,
                                         4.0,
                                         Rgba::new(255, 220, 110, 255),
                                         2.5,
@@ -1298,8 +1683,8 @@ pub fn draw_overlay(
                                 c.fill_round_rect(
                                     card_x,
                                     card_y,
-                                    cw,
-                                    ch,
+                                    card_w,
+                                    card_h,
                                     6.0,
                                     if picked {
                                         Rgba::new(82, 68, 32, 245)
@@ -1310,52 +1695,153 @@ pub fn draw_overlay(
                                 c.stroke_round_rect(
                                     card_x,
                                     card_y,
-                                    cw,
-                                    ch,
+                                    card_w,
+                                    card_h,
                                     6.0,
-                                    if snap.face_up {
-                                        Rgba::new(240, 202, 108, 255)
-                                    } else {
-                                        Rgba::new(86, 165, 215, 220)
-                                    },
+                                    Rgba::new(240, 202, 108, 255),
                                     2.0,
                                 );
                             }
                             c.fill_text(
                                 &(i + 1).to_string(),
-                                card_x + cw * 0.5,
-                                card_y + ch * 0.6,
-                                18.0,
+                                card_x + 14.0,
+                                card_y + 22.0,
+                                15.0,
                                 Rgba::new(255, 240, 195, 255),
                                 TextAlign::Center,
                                 Some(Rgba::new(0, 0, 0, 220)),
                             );
                         }
+                        if snap.flash > 0.01 {
+                            if let Some(res_sheet) = sprites.get("results") {
+                                c.draw_image_additive(
+                                    res_sheet,
+                                    1197,
+                                    0,
+                                    402,
+                                    402,
+                                    359.2,
+                                    71.8,
+                                    321.6,
+                                    321.6,
+                                    false,
+                                    snap.flash as f32,
+                                    0.0,
+                                );
+                            }
+                        }
                         if snap.picked.is_some() {
+                            if let Some(res_sheet) = sprites.get("results") {
+                                c.draw_image(
+                                    res_sheet,
+                                    3271,
+                                    0,
+                                    732,
+                                    110,
+                                    VIEW_LEFT as f32,
+                                    320.0,
+                                    VIEW_WIDTH as f32,
+                                    80.0,
+                                    false,
+                                    0.92,
+                                    0.0,
+                                );
+                            }
                             c.fill_text(
                                 &format!("获得 {} + {} 金币", snap.item, snap.gold),
                                 cx,
-                                cy + 95.0,
-                                15.0,
+                                364.0,
+                                16.0,
                                 Rgba::new(115, 245, 165, 255),
                                 TextAlign::Center,
-                                None,
+                                Some(Rgba::new(0, 0, 0, 230)),
                             );
                         }
                     }
                     RewardPhase::Done => {}
                 }
-            } else {
-                c.fill_text(
-                    "通关完成！按 F3 再来一局 · F4 回城",
-                    cx,
-                    cy,
-                    18.0,
-                    Rgba::new(245, 210, 120, 255),
-                    TextAlign::Center,
-                    Some(Rgba::new(0, 0, 0, 220)),
-                );
             }
+        }
+        c.restore();
+        return;
+    }
+
+    if state.post_clear {
+        if let Some(res_sheet) = sprites.get("results") {
+            let mx = (VIEW_LEFT + VIEW_WIDTH) as f32 - 250.0;
+            let my = 120.0f32;
+            c.draw_image(
+                res_sheet, 1599, 0, 270, 160, mx, my, 230.0, 136.0, false, 0.96, 0.0,
+            );
+            c.draw_image(
+                res_sheet,
+                2677,
+                0,
+                66,
+                19,
+                mx + 26.0,
+                my + 48.0,
+                66.0,
+                19.0,
+                false,
+                1.0,
+                0.0,
+            );
+            c.draw_image(
+                res_sheet,
+                2743,
+                0,
+                112,
+                19,
+                mx + 26.0,
+                my + 74.0,
+                112.0,
+                19.0,
+                false,
+                1.0,
+                0.0,
+            );
+            c.draw_image(
+                res_sheet,
+                2855,
+                0,
+                66,
+                19,
+                mx + 26.0,
+                my + 100.0,
+                66.0,
+                19.0,
+                false,
+                1.0,
+                0.0,
+            );
+            c.fill_text(
+                "F3",
+                mx + 195.0,
+                my + 62.0,
+                11.0,
+                Rgba::new(240, 210, 130, 240),
+                TextAlign::Right,
+                None,
+            );
+            c.fill_text(
+                "Esc",
+                mx + 195.0,
+                my + 88.0,
+                11.0,
+                Rgba::new(240, 210, 130, 240),
+                TextAlign::Right,
+                None,
+            );
+            c.fill_text(
+                "F4",
+                mx + 195.0,
+                my + 114.0,
+                11.0,
+                Rgba::new(240, 210, 130, 240),
+                TextAlign::Right,
+                None,
+            );
         }
     }
 
