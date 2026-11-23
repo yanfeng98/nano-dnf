@@ -17,7 +17,8 @@ use music_rs::track_for;
 use progress_rs::{note_break, note_clear, note_kill, ProgressProfile};
 use records_rs::{record as record_run, RecordStore, RunInput};
 use render_rs::{
-    draw_town, render, Canvas, GlyphCache, ProgressPanelKind, RenderMeta, SpriteStore,
+    draw_town_view, render, Canvas, GlyphCache, ProgressPanelKind, RenderMeta, SpriteStore,
+    TownView,
 };
 use reward_rs::{
     create as create_reward, pick as pick_reward, step as step_reward, take_prize, RewardState,
@@ -105,6 +106,10 @@ struct AppState {
     town_x: f64,
     town_z: f64,
     town_facing: i32,
+    town_camera_x: f64,
+    town_time: f64,
+    town_walk: f64,
+    town_moving: bool,
     held_keys: HashSet<KeyCode>,
     seen_hints: HashSet<String>,
     active_hint: Option<(String, f64)>,
@@ -152,9 +157,13 @@ impl AppState {
             loadout_slot: 0,
             progress_panel: ProgressPanelKind::None,
             region_selected: DEFAULT_STAGE.to_string(),
-            town_x: 360.0,
-            town_z: 80.0,
+            town_x: 200.0,
+            town_z: 20.0,
             town_facing: 1,
+            town_camera_x: 0.0,
+            town_time: 0.0,
+            town_walk: 0.0,
+            town_moving: false,
             held_keys: HashSet::new(),
             seen_hints: HashSet::new(),
             active_hint: None,
@@ -404,6 +413,12 @@ impl AppState {
             }
             ScreenMode::Town => {
                 self.audio.sync_track(track_for(None, None, None, true));
+                self.town_time += dt;
+                if self.loadout_open || self.progress_panel != ProgressPanelKind::None {
+                    self.town_moving = false;
+                    self.town_walk = 0.0;
+                    return;
+                }
                 let dx = i32::from(self.held_keys.contains(&KeyCode::ArrowRight))
                     - i32::from(self.held_keys.contains(&KeyCode::ArrowLeft));
                 let dz = i32::from(self.held_keys.contains(&KeyCode::ArrowUp))
@@ -411,10 +426,22 @@ impl AppState {
                 if dx != 0 {
                     self.town_facing = dx;
                 }
-                self.town_x =
-                    (self.town_x + f64::from(dx) * 140.0 * dt).clamp(40.0, VIEW_WIDTH - 40.0);
-                self.town_z = (self.town_z + f64::from(dz) * 220.0 * dt)
-                    .clamp(0.0, band_depth(BAND_DEFAULT_BACK_Y));
+                self.town_moving = dx != 0 || dz != 0;
+                if self.town_moving {
+                    self.town_walk += dt;
+                } else {
+                    self.town_walk = 0.0;
+                }
+                self.town_x = (self.town_x + f64::from(dx) * 220.0 * dt).clamp(80.0, 2440.0);
+                self.town_z = (self.town_z + f64::from(dz) * 220.0 * 0.5 * dt).clamp(0.0, 100.0);
+                let half_win = 56.0;
+                let center = self.town_camera_x + VIEW_WIDTH * 0.5;
+                if self.town_x < center - half_win {
+                    self.town_camera_x = self.town_x + half_win - VIEW_WIDTH * 0.5;
+                } else if self.town_x > center + half_win {
+                    self.town_camera_x = self.town_x - half_win - VIEW_WIDTH * 0.5;
+                }
+                self.town_camera_x = self.town_camera_x.clamp(0.0, 2520.0 - VIEW_WIDTH);
             }
             ScreenMode::Playing => {
                 let boss_cell = self.state.dungeon.as_ref().map(|d| d.boss);
@@ -503,11 +530,20 @@ impl AppState {
         {
             let mut canvas = Canvas::new(&mut self.pixmap, &mut self.fonts);
             if self.mode == ScreenMode::Town {
-                draw_town(
+                let pname = self.state.player.name.as_deref().unwrap_or("鬼剑士");
+                draw_town_view(
                     &mut canvas,
-                    self.town_x,
-                    self.town_z,
-                    self.town_facing,
+                    &TownView {
+                        player_x: self.town_x,
+                        player_z: self.town_z,
+                        facing: self.town_facing,
+                        camera_x: self.town_camera_x,
+                        time: self.town_time,
+                        moving: self.town_moving,
+                        walk: self.town_walk,
+                        player_level: self.state.player.level.max(1),
+                        player_name: pname,
+                    },
                     &self.sprites,
                 );
                 if self.progress_panel != ProgressPanelKind::None {
@@ -628,7 +664,24 @@ impl AppState {
             ScreenMode::Town => match code {
                 KeyCode::Enter | KeyCode::Space => {
                     if !self.loadout_open && self.progress_panel == ProgressPanelKind::None {
-                        self.mode = ScreenMode::Region;
+                        if (self.town_x - 2420.0).abs() < 75.0 {
+                            self.mode = ScreenMode::Region;
+                        } else if (self.town_z - 50.0).abs() < 45.0 {
+                            if (self.town_x - 650.0).abs() < 65.0
+                                || (self.town_x - 900.0).abs() < 65.0
+                                || (self.town_x - 1150.0).abs() < 65.0
+                            {
+                                self.progress_panel = ProgressPanelKind::Quest;
+                            } else if (self.town_x - 1400.0).abs() < 65.0 {
+                                self.progress_panel = ProgressPanelKind::Shop;
+                            } else if (self.town_x - 2000.0).abs() < 65.0 {
+                                self.progress_panel = ProgressPanelKind::Bag;
+                            } else {
+                                self.mode = ScreenMode::Region;
+                            }
+                        } else {
+                            self.mode = ScreenMode::Region;
+                        }
                     }
                 }
                 KeyCode::KeyI => self.toggle_progress_panel(ProgressPanelKind::Bag),

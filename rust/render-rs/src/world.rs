@@ -1185,6 +1185,18 @@ pub fn draw_effect(c: &mut Canvas<'_>, state: &State, effect: &Effect) {
     }
 }
 
+pub struct TownView<'a> {
+    pub player_x: f64,
+    pub player_z: f64,
+    pub facing: i32,
+    pub camera_x: f64,
+    pub time: f64,
+    pub moving: bool,
+    pub walk: f64,
+    pub player_level: u32,
+    pub player_name: &'a str,
+}
+
 pub fn draw_town(
     c: &mut Canvas<'_>,
     player_x: f64,
@@ -1192,63 +1204,432 @@ pub fn draw_town(
     facing: i32,
     sprites: &SpriteStore,
 ) {
-    c.clear(Rgba::new(10, 14, 24, 255));
+    let view = TownView {
+        player_x,
+        player_z,
+        facing,
+        camera_x: (player_x - VIEW_WIDTH * 0.5).clamp(0.0, 2520.0 - VIEW_WIDTH),
+        time: 0.0,
+        moving: false,
+        walk: 0.0,
+        player_level: 1,
+        player_name: "鬼剑士",
+    };
+    draw_town_view(c, &view, sprites);
+}
+
+pub fn draw_town_view(c: &mut Canvas<'_>, view: &TownView<'_>, sprites: &SpriteStore) {
+    const ART_SCALE: f32 = 1.125;
+    const MID_Y: f32 = 85.0;
+    const ROAD_Y: f32 = 233.0;
+    const FRONT_Y: f32 = 430.0;
+    const GROUND_Y: f32 = 425.0;
+    const GATE_X: f32 = 2420.0;
+    const PLAYER_SCALE: f32 = 1.577_381;
+
+    c.clear(Rgba::new(5, 7, 12, 255));
+    c.save();
+    c.set_clip_rect(
+        VIEW_LEFT as f32,
+        0.0,
+        VIEW_WIDTH as f32,
+        ARENA_HEIGHT as f32,
+    );
+    c.translate(VIEW_LEFT as f32, 0.0);
+
+    let cam = view.camera_x as f32;
+    let vw = VIEW_WIDTH as f32;
+
     if let Some(sh) = sprites.get("town") {
+        // Far sky/mountains
+        let far_h = 242.0 * ART_SCALE;
+        c.draw_image(sh, 0, 0, 640, 242, 0.0, 0.0, vw, far_h, false, 1.0, 0.0);
+
+        // Midground buildings (0.35 parallax)
+        let mid_w = 895.0 * ART_SCALE;
+        let mid_h = 258.0 * ART_SCALE;
+        let mid_top = MID_Y;
+        let mut mx = -(cam * 0.35).rem_euclid(mid_w);
+        while mx < vw {
+            c.draw_image(
+                sh, 640, 0, 895, 258, mx, mid_top, mid_w, mid_h, false, 1.0, 0.0,
+            );
+            mx += mid_w;
+        }
+
+        // Cobblestone road tiles
+        let road_w = 224.0 * ART_SCALE;
+        let road_h = 306.0 * ART_SCALE;
+        let road_top = ROAD_Y;
+        let mut tx = -cam.rem_euclid(road_w);
+        while tx < vw {
+            c.draw_image(
+                sh, 0, 258, 224, 306, tx, road_top, road_w, road_h, false, 1.0, 0.0,
+            );
+            tx += road_w;
+        }
+
+        // Left town banner
+        let bw = 164.0 * ART_SCALE;
+        let bh = 281.0 * ART_SCALE;
         c.draw_image(
             sh,
-            0,
-            0,
-            sh.width(),
-            sh.height(),
-            VIEW_LEFT as f32,
-            0.0,
-            VIEW_WIDTH as f32,
-            ARENA_HEIGHT as f32,
+            448,
+            258,
+            164,
+            281,
+            -50.0 - cam,
+            313.0 - bh,
+            bw,
+            bh,
             false,
             1.0,
             0.0,
         );
-    }
-    let px = (VIEW_LEFT + player_x) as f32;
-    let py = floor_y(player_z);
-    c.fill_ellipse(px, py, 18.0, 5.0, Rgba::new(0, 0, 0, 110));
-    if let Some(sh) = sprites.get("slayer") {
-        let cell_w = 208u32;
-        let cell_h = 176u32;
-        let anchor_x = 88.0f32;
-        let anchor_y = 156.0f32;
-        let flip = facing < 0;
-        let draw_x = if flip {
-            px - (cell_w as f32 - anchor_x)
-        } else {
-            px - anchor_x
-        };
+
+        // Elvenguard east dungeon gate + animated door & light
+        let gx = GATE_X - cam - 85.0;
+        let gw = 170.0 * ART_SCALE;
+        let gh = 121.0 * ART_SCALE;
         c.draw_image(
             sh,
-            0,
-            0,
-            cell_w,
-            cell_h,
-            draw_x,
-            py - anchor_y,
-            cell_w as f32,
-            cell_h as f32,
-            flip,
+            612,
+            258,
+            170,
+            121,
+            gx,
+            GROUND_Y - 20.0 - gh,
+            gw,
+            gh,
+            false,
             1.0,
             0.0,
         );
-    } else {
-        c.fill_round_rect(
-            px - 14.0,
-            py - 60.0,
-            28.0,
-            60.0,
-            5.0,
-            Rgba::new(220, 72, 68, 255),
+        const GATE_DOOR: [[u32; 4]; 10] = [
+            [782, 258, 183, 77],
+            [965, 258, 183, 77],
+            [1148, 258, 183, 77],
+            [1331, 258, 183, 77],
+            [0, 564, 183, 77],
+            [183, 564, 183, 77],
+            [366, 564, 183, 77],
+            [549, 564, 183, 77],
+            [732, 564, 183, 77],
+            [915, 564, 183, 77],
+        ];
+        const GATE_LIGHT: [[u32; 4]; 10] = [
+            [1098, 564, 298, 121],
+            [0, 685, 298, 121],
+            [298, 685, 298, 121],
+            [596, 685, 298, 121],
+            [894, 685, 298, 121],
+            [1192, 685, 298, 121],
+            [0, 806, 298, 121],
+            [298, 806, 298, 121],
+            [596, 806, 298, 121],
+            [894, 806, 298, 121],
+        ];
+        let gframe = ((view.time * 10.0) as usize) % 10;
+        let [dx, dy, dw, dh] = GATE_DOOR[gframe];
+        c.draw_image(
+            sh,
+            dx,
+            dy,
+            dw,
+            dh,
+            gx - 34.0,
+            GROUND_Y - 88.0,
+            183.0,
+            77.0,
+            false,
+            1.0,
+            0.0,
+        );
+        let [lx, ly, lw, lh] = GATE_LIGHT[gframe];
+        c.draw_image(
+            sh,
+            lx,
+            ly,
+            lw,
+            lh,
+            gx - 70.0,
+            GROUND_Y - 90.0,
+            298.0,
+            121.0,
+            false,
+            0.85,
+            0.0,
         );
     }
+
+    // Actors: 8 NPCs + Player, sorted far (large z) to near (small z)
+    struct TownNpcDef {
+        id: &'static str,
+        x: f32,
+        z: f32,
+        label: &'static str,
+        frames: &'static [[u32; 4]],
+    }
+    const GUARD_FRAMES: [[u32; 4]; 6] = [
+        [860, 319, 73, 191],
+        [933, 319, 73, 191],
+        [1006, 319, 73, 191],
+        [1079, 319, 73, 191],
+        [1152, 319, 73, 191],
+        [1225, 319, 73, 191],
+    ];
+    const SERIA_FRAMES: [[u32; 4]; 6] = [
+        [0, 0, 62, 143],
+        [62, 0, 62, 143],
+        [124, 0, 62, 143],
+        [186, 0, 62, 143],
+        [248, 0, 62, 143],
+        [310, 0, 62, 143],
+    ];
+    const MINET_FRAMES: [[u32; 4]; 6] = [
+        [372, 0, 49, 133],
+        [421, 0, 49, 133],
+        [470, 0, 49, 133],
+        [519, 0, 49, 133],
+        [568, 0, 49, 133],
+        [617, 0, 49, 133],
+    ];
+    const GSD_FRAMES: [[u32; 4]; 4] = [
+        [960, 0, 75, 96],
+        [1035, 0, 75, 96],
+        [1110, 0, 75, 96],
+        [1185, 0, 75, 96],
+    ];
+    const KANNA_FRAMES: [[u32; 4]; 8] = [
+        [1260, 0, 39, 106],
+        [1299, 0, 39, 106],
+        [1338, 0, 39, 106],
+        [1377, 0, 39, 106],
+        [1416, 0, 39, 106],
+        [1455, 0, 39, 106],
+        [1494, 0, 39, 106],
+        [1533, 0, 39, 106],
+    ];
+    const BROWNIE_FRAMES: [[u32; 4]; 6] = [
+        [0, 143, 103, 79],
+        [103, 143, 103, 79],
+        [206, 143, 103, 79],
+        [309, 143, 103, 79],
+        [412, 143, 103, 79],
+        [515, 143, 103, 79],
+    ];
+    const SINDA_FRAMES: [[u32; 4]; 6] = [
+        [1133, 222, 86, 97],
+        [1219, 222, 86, 97],
+        [1305, 222, 86, 97],
+        [1391, 222, 86, 97],
+        [1477, 222, 86, 97],
+        [0, 319, 86, 97],
+    ];
+    const CAPTAIN_FRAMES: [[u32; 4]; 6] = [
+        [730, 510, 75, 171],
+        [805, 510, 75, 171],
+        [880, 510, 75, 171],
+        [955, 510, 75, 171],
+        [1030, 510, 75, 171],
+        [1105, 510, 75, 171],
+    ];
+    const NPCS: [TownNpcDef; 8] = [
+        TownNpcDef {
+            id: "guard",
+            x: 360.0,
+            z: 50.0,
+            label: "守卫",
+            frames: &GUARD_FRAMES,
+        },
+        TownNpcDef {
+            id: "seria",
+            x: 650.0,
+            z: 50.0,
+            label: "赛丽亚",
+            frames: &SERIA_FRAMES,
+        },
+        TownNpcDef {
+            id: "minet",
+            x: 900.0,
+            z: 50.0,
+            label: "敏泰",
+            frames: &MINET_FRAMES,
+        },
+        TownNpcDef {
+            id: "gsd",
+            x: 1150.0,
+            z: 50.0,
+            label: "GSD",
+            frames: &GSD_FRAMES,
+        },
+        TownNpcDef {
+            id: "kanna",
+            x: 1400.0,
+            z: 50.0,
+            label: "卡妮娜",
+            frames: &KANNA_FRAMES,
+        },
+        TownNpcDef {
+            id: "brownie",
+            x: 1700.0,
+            z: 50.0,
+            label: "布兰妮",
+            frames: &BROWNIE_FRAMES,
+        },
+        TownNpcDef {
+            id: "sinda",
+            x: 2000.0,
+            z: 50.0,
+            label: "辛达",
+            frames: &SINDA_FRAMES,
+        },
+        TownNpcDef {
+            id: "guardCaptain",
+            x: 2250.0,
+            z: 50.0,
+            label: "守卫队长",
+            frames: &CAPTAIN_FRAMES,
+        },
+    ];
+
+    let mut order: Vec<(f32, Option<usize>)> = NPCS
+        .iter()
+        .enumerate()
+        .map(|(i, n)| (n.z, Some(i)))
+        .collect();
+    order.push((view.player_z as f32, None));
+    order.sort_by(|a, b| b.0.total_cmp(&a.0));
+
+    let npc_sheet = sprites.get("npc");
+    let mut near_hint: Option<String> = None;
+    for (_, npc_idx_opt) in order {
+        if let Some(ni) = npc_idx_opt {
+            let npc = &NPCS[ni];
+            let sx = npc.x - cam;
+            let bottom = GROUND_Y - npc.z;
+            if (npc.x - view.player_x as f32).abs() < 65.0
+                && (npc.z - view.player_z as f32).abs() < 45.0
+            {
+                let action = match npc.id {
+                    "seria" | "minet" | "gsd" => "查看任务",
+                    "kanna" => "打开商店",
+                    "sinda" => "打开背包/分解",
+                    _ => "进入副本",
+                };
+                near_hint = Some(format!("按 [Space/Enter] 与 {} {action}", npc.label));
+            }
+            if sx < -120.0 || sx > vw + 120.0 {
+                continue;
+            }
+            c.fill_ellipse(sx, bottom, 18.0, 5.0, Rgba::new(0, 0, 0, 105));
+            if let Some(nsh) = npc_sheet {
+                let fidx = ((view.time * 6.0) as usize) % npc.frames.len();
+                let [fx, fy, fw, fh] = npc.frames[fidx];
+                let dw = fw as f32 * 0.9;
+                let dh = fh as f32 * 0.9;
+                c.draw_image(
+                    nsh,
+                    fx,
+                    fy,
+                    fw,
+                    fh,
+                    sx - dw * 0.5,
+                    bottom - dh,
+                    dw,
+                    dh,
+                    false,
+                    1.0,
+                    0.0,
+                );
+                c.fill_text(
+                    npc.label,
+                    sx,
+                    bottom - dh - 8.0,
+                    11.0,
+                    Rgba::new(240, 230, 207, 255),
+                    TextAlign::Center,
+                    Some(Rgba::new(8, 10, 16, 230)),
+                );
+            }
+        } else {
+            let px = view.player_x as f32 - cam;
+            let py = GROUND_Y - view.player_z as f32;
+            c.fill_ellipse(px, py, 20.0, 5.5, Rgba::new(0, 0, 0, 115));
+            if let Some(sh) = sprites.get("slayer") {
+                let cell_w = 208u32;
+                let cell_h = 176u32;
+                let anchor_x = 88.0f32;
+                let anchor_y = 156.0f32;
+                let row = if view.moving && view.walk > 0.0 { 1 } else { 0 };
+                let col = if view.moving && view.walk > 0.0 {
+                    ((view.walk * 10.0) as u32) % 8
+                } else {
+                    0
+                };
+                let flip = view.facing < 0;
+                let draw_x = if flip {
+                    px - (cell_w as f32 - anchor_x) * PLAYER_SCALE
+                } else {
+                    px - anchor_x * PLAYER_SCALE
+                };
+                c.draw_image(
+                    sh,
+                    col * cell_w,
+                    row * cell_h,
+                    cell_w,
+                    cell_h,
+                    draw_x,
+                    py - anchor_y * PLAYER_SCALE,
+                    cell_w as f32 * PLAYER_SCALE,
+                    cell_h as f32 * PLAYER_SCALE,
+                    flip,
+                    1.0,
+                    0.0,
+                );
+            } else {
+                c.fill_round_rect(
+                    px - 14.0,
+                    py - 60.0,
+                    28.0,
+                    60.0,
+                    5.0,
+                    Rgba::new(220, 72, 68, 255),
+                );
+            }
+            c.fill_text(
+                &format!("Lv.{} {}", view.player_level, view.player_name),
+                px,
+                py - 142.0,
+                11.0,
+                Rgba::new(242, 231, 206, 255),
+                TextAlign::Center,
+                Some(Rgba::new(24, 24, 24, 230)),
+            );
+        }
+    }
+
+    if (view.player_x as f32 - GATE_X).abs() < 75.0 {
+        near_hint = Some("按 [Space/Enter] 进入格兰之森副本选择".to_string());
+    }
+
+    // Foreground railing
+    if let Some(sh) = sprites.get("town") {
+        let road_w = 224.0 * ART_SCALE;
+        let rail_h = 81.0 * ART_SCALE;
+        let mut fx = -cam.rem_euclid(road_w);
+        while fx < vw {
+            c.draw_image(
+                sh, 224, 258, 224, 81, fx, FRONT_Y, road_w, rail_h, false, 1.0, 0.0,
+            );
+            fx += road_w;
+        }
+    }
+
+    c.restore();
+
     c.fill_text(
-        "艾尔文防线 · [←→↑↓] 移动 · [Enter] 进图 · [I] 背包 · [K] 装备 · [L] 任务 · [U] 商店 · [B] 技能",
+        "艾尔文防线 · [←→↑↓] 移动 · [Enter] 交互/进图 · [I] 背包 · [K] 装备 · [L] 任务 · [U] 商店 · [B] 技能",
         (ARENA_WIDTH * 0.5) as f32,
         28.0,
         12.0,
@@ -1256,4 +1637,15 @@ pub fn draw_town(
         TextAlign::Center,
         Some(Rgba::new(0, 0, 0, 220)),
     );
+    if let Some(hint) = near_hint {
+        c.fill_text(
+            &hint,
+            (ARENA_WIDTH * 0.5) as f32,
+            ARENA_HEIGHT as f32 - 22.0,
+            13.0,
+            Rgba::new(255, 228, 140, 255),
+            TextAlign::Center,
+            Some(Rgba::new(0, 0, 0, 230)),
+        );
+    }
 }

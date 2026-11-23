@@ -9,6 +9,7 @@ pub mod world;
 pub use canvas::{Canvas, GlyphCache, Rgba, TextAlign};
 pub use hud::{draw_loadout_panel, draw_progress_panel, ProgressPanelKind, RenderMeta};
 pub use sprites::SpriteStore;
+pub use world::TownView;
 
 use core_rs::constants::*;
 use core_rs::types::State;
@@ -102,6 +103,10 @@ pub fn draw_town(
     sprites: &SpriteStore,
 ) {
     world::draw_town(c, player_x, player_z, facing, sprites);
+}
+
+pub fn draw_town_view(c: &mut Canvas<'_>, view: &TownView<'_>, sprites: &SpriteStore) {
+    world::draw_town_view(c, view, sprites);
 }
 
 #[cfg(test)]
