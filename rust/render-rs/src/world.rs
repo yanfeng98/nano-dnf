@@ -727,13 +727,87 @@ pub fn draw_world(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
                 let pr = &state.projectiles[item.idx];
                 let px = pr.x as f32;
                 let py = (pr.y + pr.osc_y - depth_lift(pr.z)) as f32;
-                let r = pr.radius as f32;
-                let col = match pr.native_object {
-                    Some(30021) => Rgba::new(245, 130, 42, 255),
-                    Some(30047) => Rgba::new(255, 92, 36, 255),
-                    _ => Rgba::new(195, 205, 220, 255),
+                let age = (pr.max_life - pr.life).max(0.0);
+                let rot = -((age / 0.15) as f32) * std::f32::consts::TAU;
+                let flip = pr.vx < 0.0;
+                let drawn = match pr.native_object {
+                    Some(30001) => sprites.get("goblinStone").map(|sh| {
+                        c.draw_image(
+                            sh,
+                            0,
+                            0,
+                            32,
+                            32,
+                            px - 16.0,
+                            py - 16.0,
+                            32.0,
+                            32.0,
+                            false,
+                            1.0,
+                            rot,
+                        );
+                    }),
+                    Some(30021) => sprites.get("goblinBomb").map(|sh| {
+                        c.draw_image(
+                            sh,
+                            0,
+                            0,
+                            32,
+                            32,
+                            px - 16.0,
+                            py - 16.0,
+                            32.0,
+                            32.0,
+                            false,
+                            1.0,
+                            rot,
+                        );
+                    }),
+                    Some(30057) => sprites.get("goblinIce").map(|sh| {
+                        let frame = ((age / 0.05) as u32) % 8;
+                        c.draw_image(
+                            sh,
+                            frame * 64,
+                            0,
+                            64,
+                            64,
+                            px - 32.0,
+                            py - 32.0,
+                            64.0,
+                            64.0,
+                            flip,
+                            1.0,
+                            0.0,
+                        );
+                    }),
+                    Some(30047) => sprites.get("goblinFire").map(|sh| {
+                        let frame = ((age / 0.05) as u32) % 9;
+                        c.draw_image(
+                            sh,
+                            frame * 128,
+                            0,
+                            128,
+                            128,
+                            px - 44.0,
+                            py - 44.0,
+                            88.0,
+                            88.0,
+                            flip,
+                            1.0,
+                            0.0,
+                        );
+                    }),
+                    _ => None,
                 };
-                c.fill_ellipse(px, py, r, r, col);
+                if drawn.is_none() {
+                    let r = pr.radius as f32;
+                    let col = match pr.native_object {
+                        Some(30021) => Rgba::new(245, 130, 42, 255),
+                        Some(30047) => Rgba::new(255, 92, 36, 255),
+                        _ => Rgba::new(195, 205, 220, 255),
+                    };
+                    c.fill_ellipse(px, py, r, r, col);
+                }
             }
             5 => {
                 let sh = &state.shots[item.idx];

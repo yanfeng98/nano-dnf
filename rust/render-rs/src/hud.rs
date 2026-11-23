@@ -188,12 +188,31 @@ pub fn draw_hud_video(
             1.0,
         );
         if let Some(Some(skill_id)) = meta.loadout.get(idx) {
+            let cd = state
+                .player
+                .skill_cooldowns
+                .get(skill_id)
+                .copied()
+                .unwrap_or(0.0);
+            let mp_cost = core_rs::TABLES
+                .skills
+                .get(skill_id)
+                .map(|sk| sk.mp)
+                .unwrap_or(0.0);
+            let disabled = cd > 0.0 || state.player.mp < mp_cost;
             if let Some(s_idx) = core_rs::TABLES
                 .skill_order
                 .iter()
                 .position(|id| id == skill_id)
             {
-                if let Some(sheet) = sprites.get("skills") {
+                let sheet_opt = if disabled {
+                    sprites
+                        .get("skillsDisabled")
+                        .or_else(|| sprites.get("skills"))
+                } else {
+                    sprites.get("skills")
+                };
+                if let Some(sheet) = sheet_opt {
                     let iw = 32u32;
                     let ih = 32u32;
                     c.draw_image(
@@ -212,12 +231,6 @@ pub fn draw_hud_video(
                     );
                 }
             }
-            let cd = state
-                .player
-                .skill_cooldowns
-                .get(skill_id)
-                .copied()
-                .unwrap_or(0.0);
             if cd > 0.0 {
                 c.fill_rect(sx + 2.0, slot_y + 2.0, 34.0, 34.0, Rgba::new(0, 0, 0, 165));
                 c.fill_text(
