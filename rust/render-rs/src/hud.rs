@@ -329,6 +329,48 @@ pub fn draw_hud_video(
         );
     }
 
+    // Awakening cut-in illustration (魔狱血刹)
+    if let Some(sk_id) = state.player.skill_id.as_deref() {
+        if matches!(sk_id, "hellbenter" | "hellbenterSlam") && state.player.skill_timer > 0.0 {
+            if let Some(aw) = sprites.get("awakening") {
+                let dur = core_rs::TABLES
+                    .skills
+                    .get(sk_id)
+                    .map(|s| s.duration.max(0.2))
+                    .unwrap_or(1.0);
+                let elapsed = (dur - state.player.skill_timer).max(0.0);
+                let alpha = if elapsed < 0.12 {
+                    (elapsed / 0.12) as f32
+                } else if elapsed > 0.88 {
+                    (1.0 - (elapsed - 0.88) / 0.12).clamp(0.0, 1.0) as f32
+                } else {
+                    1.0
+                };
+                if alpha > 0.01 {
+                    let dw = aw.width() as f32 * 0.5;
+                    let dh = aw.height() as f32 * 0.5;
+                    let slide = (elapsed / 0.12).min(1.0) as f32;
+                    let dx = (VIEW_LEFT + VIEW_WIDTH) as f32 - dw * slide;
+                    let dy = 500.0 - dh;
+                    c.draw_image(
+                        aw,
+                        0,
+                        0,
+                        aw.width(),
+                        aw.height(),
+                        dx,
+                        dy,
+                        dw,
+                        dh,
+                        false,
+                        alpha * 0.92,
+                        0.0,
+                    );
+                }
+            }
+        }
+    }
+
     // Current target panel (top-left)
     if let Some(ref target) = state.target {
         let tx = left + 14.0;
@@ -820,6 +862,22 @@ pub fn draw_overlay(
         if let Some(rw) = meta.reward {
             let snap = reward_snapshot(rw);
             if snap.phase != RewardPhase::Done {
+                if let Some(res_sheet) = sprites.get("results") {
+                    c.draw_image(
+                        res_sheet,
+                        0,
+                        0,
+                        420,
+                        420,
+                        cx - 210.0,
+                        cy - 210.0,
+                        420.0,
+                        420.0,
+                        false,
+                        0.32,
+                        (state.time * 0.35) as f32,
+                    );
+                }
                 c.fill_round_rect(
                     cx - 240.0,
                     cy - 160.0,
@@ -865,11 +923,27 @@ pub fn draw_overlay(
                         );
                     }
                     RewardPhase::Chest => {
+                        if let Some(res_sheet) = sprites.get("results") {
+                            c.draw_image(
+                                res_sheet,
+                                420,
+                                0,
+                                160,
+                                142,
+                                cx - 80.0,
+                                cy - 86.0,
+                                160.0,
+                                142.0,
+                                false,
+                                1.0,
+                                0.0,
+                            );
+                        }
                         c.fill_text(
                             "奖励宝箱开启中...",
                             cx,
-                            cy,
-                            20.0,
+                            cy + 84.0,
+                            18.0,
                             Rgba::new(245, 210, 120, 255),
                             TextAlign::Center,
                             None,

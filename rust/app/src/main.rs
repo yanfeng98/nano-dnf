@@ -116,6 +116,7 @@ struct AppState {
     recorded_finish: bool,
     last_kills_by_type: HashMap<String, u32>,
     last_barrels: u32,
+    cmd_upslash_timer: f64,
     last_tick: Instant,
     accumulator: f64,
 }
@@ -170,6 +171,7 @@ impl AppState {
             recorded_finish: false,
             last_kills_by_type: HashMap::new(),
             last_barrels: 0,
+            cmd_upslash_timer: 0.0,
             last_tick: Instant::now(),
             accumulator: 0.0,
         }
@@ -393,8 +395,11 @@ impl AppState {
                 }
             }
         }
-        if self.held_keys.contains(&KeyCode::KeyZ) {
+        if self.held_keys.contains(&KeyCode::KeyZ) || self.cmd_upslash_timer > 0.0 {
             inp.set_skill("upSlash", true);
+            if self.cmd_upslash_timer > 0.0 {
+                inp.attack = false;
+            }
         }
         if self.held_keys.contains(&KeyCode::KeyV) {
             inp.set_skill("hellbenter", true);
@@ -452,6 +457,7 @@ impl AppState {
                     false,
                 ));
                 if !self.paused && !self.show_help && !self.loadout_open {
+                    self.cmd_upslash_timer = (self.cmd_upslash_timer - dt).max(0.0);
                     let inp = self.current_input();
                     step_core(&mut self.state, &inp, Some(dt));
                     let sounds = drain_sounds(&mut self.state);
@@ -731,6 +737,14 @@ impl AppState {
                 _ => {}
             },
             ScreenMode::Playing => match code {
+                KeyCode::KeyX
+                    if !self.paused
+                        && !self.show_help
+                        && !self.loadout_open
+                        && self.held_keys.contains(&KeyCode::ArrowUp) =>
+                {
+                    self.cmd_upslash_timer = 0.08;
+                }
                 KeyCode::KeyP => self.paused = !self.paused,
                 KeyCode::F1 => self.show_help = !self.show_help,
                 KeyCode::Escape => {
