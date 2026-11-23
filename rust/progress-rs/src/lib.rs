@@ -461,6 +461,17 @@ pub fn equip(profile: &mut ProgressProfile, id: &str, job: &str, level: u32) -> 
     true
 }
 
+pub fn unequip(profile: &mut ProgressProfile, slot: &str) -> bool {
+    let Some(entry) = profile.equipment.get_mut(slot) else {
+        return false;
+    };
+    let Some(old_id) = entry.take() else {
+        return false;
+    };
+    add_item(profile, &old_id, 1);
+    true
+}
+
 pub fn salvage(profile: &mut ProgressProfile, id: &str) -> Option<SalvageResult> {
     let spec = item_spec(id)?;
     if spec.category != ItemCategory::Equipment {
@@ -575,6 +586,9 @@ mod tests {
         );
         assert!(equip(&mut p, "rustyBlade", "swordman", 1));
         assert_eq!(p.items.get("starterBlade").copied(), Some(1));
+        assert!(unequip(&mut p, "weapon"));
+        assert_eq!(p.equipment.get("weapon").and_then(|v| v.as_deref()), None);
+        assert_eq!(p.items.get("rustyBlade").copied(), Some(1));
     }
 
     #[test]

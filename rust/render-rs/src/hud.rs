@@ -930,7 +930,7 @@ pub fn draw_progress_panel(
             row += 1;
         }
         c.fill_text(
-            "按 1-9 使用药水或穿戴装备 · Esc 关闭",
+            "按 1-9 使用/穿戴 · Backspace 分解首件装备 · Esc 关闭",
             cx,
             cy + 125.0,
             11.0,
@@ -944,16 +944,30 @@ pub fn draw_progress_panel(
                 .as_deref()
                 .and_then(|id| ITEMS.iter().find(|it| it.id == id).map(|it| it.name))
                 .unwrap_or("空");
+            let prefix = if row < 9 {
+                format!("[{}] ", row + 1)
+            } else {
+                "    ".to_string()
+            };
             c.fill_text(
-                &format!("{slot}: {item_name}"),
+                &format!("{prefix}{slot}: {item_name}"),
                 cx - 180.0,
-                cy - 80.0 + row as f32 * 22.0,
+                cy - 84.0 + row as f32 * 20.0,
                 12.0,
                 Rgba::new(230, 238, 250, 240),
                 TextAlign::Left,
                 None,
             );
         }
+        c.fill_text(
+            "按 1-9 卸下对应装备 · Esc 关闭",
+            cx,
+            cy + 125.0,
+            11.0,
+            Rgba::new(175, 190, 215, 220),
+            TextAlign::Center,
+            None,
+        );
     } else if panel == ProgressPanelKind::Quest {
         for (i, q) in QUESTS.iter().enumerate() {
             let qp = progress.quests.get(q.id);

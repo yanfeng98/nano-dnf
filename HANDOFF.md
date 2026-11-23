@@ -4,7 +4,8 @@
 >
 > **当前最新进展**：
 > - 已补全城镇与地牢内的全部桌面面板交互：
->   - 背包（`I`）`1-9` 使用药水恢复 HP/MP 或穿戴装备；
+>   - 背包（`I`）`1-9` 使用药水恢复 HP/MP 或穿戴装备，`Backspace` 分解背包首件装备为材料与金币；
+>   - 装备（`K`）`1-9` 卸下对应槽位装备回背包；
 >   - 任务（`L`）`1-3` 接取与交付任务，击杀任务已按 `state.stats.kills_by_type` 精确统计怪物种类（不再把哥布林计入猫妖击杀）；
 >   - 城镇商店（`U`）`1-8` 消耗金币购买药水与装备；
 >   - 技能快捷栏配置（`B`）`1-6` 选槽并用 `←`/`→` 切换技能，自动写入 `nano-dnf-save.json` 并在重开地牢时保留；
@@ -15,6 +16,7 @@
 >   - 血球（`blood_orb`）与地裂波动剑（`normalWave`）飞行物已接入 `effects.png` 原生序列帧（`orbRow=14` / `shotRows.normalWave=31`）；
 >   - 鬼斩、上挑、崩山击、嗜魂封魔斩、血气之刃与血之狂暴双刀普攻已接入 `effects.png` 原生挥砍序列帧；
 >   - 左上角目标信息栏已接入 `portraits-reference.png` 对应怪物/领主头像与边框；
+>   - 普通哥布林（`grunt`）、普通/燃烧投掷哥布林（`caster` / `burningThrower`）与投掷十夫长（`throwerElite`）已优先接入 `goblinReference` / `casterReference` / `throwerReference` 原生独立图集；
 >   - 幽暗密林深处（`mirkwooddeep`）入口、领主房及 13/14/23/24/33/42/43 房间已接入对应 `deep*Closeback` 原生近景层；
 >   - Windows 原生音频已补齐全部核心事件的 `.ogg` 映射：`projectileSpawn`/`projectileHit`（石块/炸弹/冰弹/火弹）、`enemyAttack`（哥布林旋风/牛头斧劈冲撞砸地）、`tau`/`cat` 受击与死亡音、`playerLand`/`playerStep` 脚步音以及 `bloodSword`/`ghostSlash`/`frenzy`/`berserk`/`hellbenter` 技能音效。
 > - **仍待处理的外部阻塞项**：整体录像对照还原（第 1–7 项视觉/AI/数值考据）及 Windows 真机实玩验收需要结合实机画面与业主试玩反馈推进。

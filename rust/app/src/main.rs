@@ -223,6 +223,32 @@ impl AppState {
         );
     }
 
+    fn salvage_first_equipment(&mut self) {
+        if self.progress_panel != ProgressPanelKind::Bag {
+            return;
+        }
+        let target_id = self
+            .progress
+            .items
+            .iter()
+            .find(|(id, &cnt)| {
+                cnt > 0
+                    && progress_rs::item_spec(id)
+                        .is_some_and(|sp| sp.category == progress_rs::ItemCategory::Equipment)
+            })
+            .map(|(id, _)| id.clone());
+        if let Some(id) = target_id {
+            if progress_rs::salvage(&mut self.progress, &id).is_some() {
+                save::save_all(
+                    &self.asset_root,
+                    &self.records,
+                    &self.progress,
+                    &self.loadout,
+                );
+            }
+        }
+    }
+
     fn handle_digit(&mut self, idx: usize) {
         if self.mode == ScreenMode::Playing {
             if let Some(ref mut rw) = self.reward {
@@ -288,6 +314,19 @@ impl AppState {
                 let changed = progress_rs::accept(&mut self.progress, q.id)
                     || progress_rs::turn_in(&mut self.progress, q.id).is_some();
                 if changed {
+                    save::save_all(
+                        &self.asset_root,
+                        &self.records,
+                        &self.progress,
+                        &self.loadout,
+                    );
+                }
+            }
+            ProgressPanelKind::Equip => {
+                let Some(slot) = progress_rs::EQUIP_SLOTS.get(slot_idx) else {
+                    return;
+                };
+                if progress_rs::unequip(&mut self.progress, slot) {
                     save::save_all(
                         &self.asset_root,
                         &self.records,
@@ -597,6 +636,7 @@ impl AppState {
                 KeyCode::KeyL => self.toggle_progress_panel(ProgressPanelKind::Quest),
                 KeyCode::KeyU => self.toggle_progress_panel(ProgressPanelKind::Shop),
                 KeyCode::KeyB => self.toggle_loadout_panel(),
+                KeyCode::Backspace => self.salvage_first_equipment(),
                 KeyCode::ArrowLeft if self.loadout_open => self.cycle_loadout_skill(-1),
                 KeyCode::ArrowRight if self.loadout_open => self.cycle_loadout_skill(1),
                 KeyCode::Digit1 => self.handle_digit(0),
@@ -655,6 +695,7 @@ impl AppState {
                 KeyCode::KeyK => self.toggle_progress_panel(ProgressPanelKind::Equip),
                 KeyCode::KeyL => self.toggle_progress_panel(ProgressPanelKind::Quest),
                 KeyCode::KeyB => self.toggle_loadout_panel(),
+                KeyCode::Backspace => self.salvage_first_equipment(),
                 KeyCode::ArrowLeft if self.loadout_open => self.cycle_loadout_skill(-1),
                 KeyCode::ArrowRight if self.loadout_open => self.cycle_loadout_skill(1),
                 KeyCode::Enter if self.state.victory && !self.state.post_clear => {

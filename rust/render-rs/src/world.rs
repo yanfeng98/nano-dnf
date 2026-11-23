@@ -559,29 +559,43 @@ pub fn draw_enemy(c: &mut Canvas<'_>, state: &State, enemy: &Enemy, sprites: &Sp
         return;
     }
 
-    let drawn = if let Some(sh) = sprites.get("monsters") {
-        let (row, stand_h) = match enemy.kind.as_str() {
-            "grunt" => (0, 76.0f32),
-            "coward" => (1, 76.0),
-            "caster" | "burningThrower" => (2, 80.0),
-            "brute" => (3, 164.0),
-            "elite" => (4, 86.0),
-            "boss" => (5, 164.0),
-            "goblinBlue" => (6, 76.0),
-            "goblinRed" | "cursedRed" => (7, 76.0),
-            "cat" => (8, 74.0),
-            "deepElite" => (9, 75.0),
-            "lugaruBoss" => (10, 74.0),
-            _ => (0, 76.0),
-        };
+    let custom_sheet = match enemy.kind.as_str() {
+        "grunt" => sprites.get("goblinReference").map(|sh| (sh, 0u32, 76.0f32)),
+        "caster" | "burningThrower" => sprites.get("casterReference").map(|sh| (sh, 0u32, 80.0f32)),
+        "throwerElite" => sprites
+            .get("throwerReference")
+            .map(|sh| (sh, 0u32, 86.0f32)),
+        _ => None,
+    };
+    let sheet_and_row = custom_sheet.or_else(|| {
+        sprites.get("monsters").map(|sh| {
+            let (row, stand_h) = match enemy.kind.as_str() {
+                "grunt" => (0, 76.0f32),
+                "coward" => (1, 76.0),
+                "caster" | "burningThrower" => (2, 80.0),
+                "brute" => (3, 164.0),
+                "elite" | "throwerElite" => (4, 86.0),
+                "boss" => (5, 164.0),
+                "goblinBlue" => (6, 76.0),
+                "goblinRed" | "cursedRed" => (7, 76.0),
+                "cat" => (8, 74.0),
+                "deepElite" => (9, 75.0),
+                "lugaruBoss" => (10, 74.0),
+                _ => (0, 76.0),
+            };
+            (sh, row, stand_h)
+        })
+    });
+    let drawn = if let Some((sh, row, stand_h)) = sheet_and_row {
         let cell_w = 360u32;
         let cell_h = 420u32;
         let anchor_x = 180.0f32;
         let anchor_y = 260.0f32;
+        let max_col = (sh.width() / cell_w).saturating_sub(1);
         let col = if enemy.attack_timer > 0.0 {
-            1 + (((state.time * 10.0) as u32) % 4)
+            (1 + (((state.time * 10.0) as u32) % 4)).min(max_col)
         } else if enemy.vx.abs() > 2.0 {
-            11 + (((state.time * 10.0) as u32) % 6)
+            (11 + (((state.time * 10.0) as u32) % 6)).min(max_col)
         } else {
             0
         };
