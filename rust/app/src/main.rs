@@ -669,6 +669,18 @@ impl AppState {
             self.audio.toggle_mute();
             return;
         }
+        if code == KeyCode::F2 {
+            let on = self.audio.toggle_music();
+            self.active_hint = Some((
+                if on {
+                    "背景音乐: 开 (F2 切换)".to_string()
+                } else {
+                    "背景音乐: 关 (F2 切换)".to_string()
+                },
+                2.0,
+            ));
+            return;
+        }
 
         match self.mode {
             ScreenMode::Title => {

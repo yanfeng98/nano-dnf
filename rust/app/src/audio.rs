@@ -17,6 +17,7 @@ mod win_audio {
         music_sink: Option<Sink>,
         current_track: Option<TrackId>,
         muted: bool,
+        music_enabled: bool,
         asset_root: PathBuf,
         sfx_cache: HashMap<String, Arc<[u8]>>,
     }
@@ -33,16 +34,35 @@ mod win_audio {
                 music_sink: None,
                 current_track: None,
                 muted: false,
+                music_enabled: true,
                 asset_root: asset_root.to_path_buf(),
                 sfx_cache: HashMap::new(),
             }
         }
 
+        fn music_volume(&self) -> f32 {
+            if self.muted || !self.music_enabled {
+                0.0
+            } else {
+                0.35
+            }
+        }
+
         pub fn toggle_mute(&mut self) {
             self.muted = !self.muted;
+            let vol = self.music_volume();
             if let Some(ref sink) = self.music_sink {
-                sink.set_volume(if self.muted { 0.0 } else { 0.35 });
+                sink.set_volume(vol);
             }
+        }
+
+        pub fn toggle_music(&mut self) -> bool {
+            self.music_enabled = !self.music_enabled;
+            let vol = self.music_volume();
+            if let Some(ref sink) = self.music_sink {
+                sink.set_volume(vol);
+            }
+            self.music_enabled
         }
 
         pub fn sync_track(&mut self, track: TrackId) {
@@ -61,7 +81,7 @@ mod win_audio {
             if let Ok(bytes) = fs::read(&path) {
                 if let Ok(decoder) = Decoder::new(Cursor::new(bytes)) {
                     if let Ok(sink) = Sink::try_new(handle) {
-                        sink.set_volume(if self.muted { 0.0 } else { 0.35 });
+                        sink.set_volume(self.music_volume());
                         sink.append(decoder.repeat_infinite());
                         self.music_sink = Some(sink);
                     }
@@ -203,14 +223,23 @@ mod win_audio {
     use music_rs::TrackId;
     use std::path::Path;
 
-    pub struct AudioEngine;
+    pub struct AudioEngine {
+        music_enabled: bool,
+    }
 
     impl AudioEngine {
         pub fn new(_asset_root: &Path) -> Self {
-            Self
+            Self {
+                music_enabled: true,
+            }
         }
 
         pub fn toggle_mute(&mut self) {}
+
+        pub fn toggle_music(&mut self) -> bool {
+            self.music_enabled = !self.music_enabled;
+            self.music_enabled
+        }
 
         pub fn sync_track(&mut self, _track: TrackId) {}
 

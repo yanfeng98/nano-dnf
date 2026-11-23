@@ -1056,7 +1056,7 @@ pub fn draw_overlay(
             "C / Space : 跳跃 (空中 Z 银光落刃)",
             "X : 三段普攻",
             "A S D F G H : 技能栏 · Z : 上挑 · V : 觉醒(魔狱血刹)",
-            "P : 暂停 · N : 换种子 · F3 : 重开 · F4 : 回城 · M : 静音",
+            "P : 暂停 · N : 换种子 · F2 : 音乐开关 · F3 : 重开 · F4 : 回城 · M : 静音",
             "按 F1 或 Esc 关闭",
         ];
         for (i, line) in lines.iter().enumerate() {

@@ -600,7 +600,8 @@ pub fn draw_player(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
     // Shadow
     c.fill_ellipse(px, ground_y, 20.0, 6.0, Rgba::new(0, 0, 0, 110));
 
-    let raging = p.buffs.get("bloodRage").copied().unwrap_or(0.0) > 0.0;
+    let raging = p.buffs.get("bloodRage").copied().unwrap_or(0.0) > 0.0
+        || p.skill_id.as_deref() == Some("hellbenterSlam");
     let sheet = if raging {
         sprites
             .raging_slayer
@@ -669,13 +670,323 @@ pub fn draw_player(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
     }
 }
 
+struct SkillBeat {
+    frames: u32,
+    from: f64,
+    until: f64,
+    blood: bool,
+}
+
+fn eval_skill_beats(prog: f64, default_row: u32, first: u32, beats: &[SkillBeat]) -> (u32, u32) {
+    let mut consumed = 0u32;
+    for b in beats {
+        let span = (b.until - b.from).max(0.0001);
+        let local = ((prog - b.from) / span).clamp(0.0, 1.0);
+        let step = consumed + ((local * b.frames as f64) as u32).min(b.frames.saturating_sub(1));
+        consumed += b.frames;
+        if prog <= b.until {
+            let row = if b.blood { 7 } else { default_row };
+            return (row, first + step);
+        }
+    }
+    let last_blood = beats.last().is_some_and(|b| b.blood);
+    let total: u32 = beats.iter().map(|b| b.frames).sum();
+    (
+        if last_blood { 7 } else { default_row },
+        first + total.saturating_sub(1),
+    )
+}
+
 fn player_sprite_frame(state: &State, p: &Player) -> (u32, u32) {
+    if p.dead {
+        return (4, 1);
+    }
     if p.hurt_timer > 0.0 {
         return (4, 0);
     }
     if p.skill_timer > 0.0 {
-        let tick = ((state.time * 16.0) as u32) % 6;
-        return (3, tick);
+        let sk_id = p.skill_id.as_deref().unwrap_or("");
+        let dur = core_rs::TABLES
+            .skills
+            .get(sk_id)
+            .map(|s| s.duration.max(0.001))
+            .unwrap_or(0.5);
+        let prog = (1.0 - p.skill_timer / dur).clamp(0.0, 1.0);
+        return match sk_id {
+            "upSlash" => (3, 6 + ((prog * 9.0) as u32).min(8)),
+            "ghostSlash" => (13, ((prog * 18.0) as u32).min(17)),
+            "normalWave" => (14, ((prog * 9.0) as u32).min(8)),
+            "mountainBreaker" => eval_skill_beats(
+                prog,
+                5,
+                0,
+                &[
+                    SkillBeat {
+                        frames: 3,
+                        from: 0.0,
+                        until: 0.29,
+                        blood: false,
+                    },
+                    SkillBeat {
+                        frames: 2,
+                        from: 0.29,
+                        until: 0.35,
+                        blood: false,
+                    },
+                    SkillBeat {
+                        frames: 2,
+                        from: 0.35,
+                        until: 0.51,
+                        blood: false,
+                    },
+                    SkillBeat {
+                        frames: 2,
+                        from: 0.51,
+                        until: 0.78,
+                        blood: false,
+                    },
+                    SkillBeat {
+                        frames: 2,
+                        from: 0.78,
+                        until: 0.89,
+                        blood: false,
+                    },
+                    SkillBeat {
+                        frames: 1,
+                        from: 0.89,
+                        until: 1.0,
+                        blood: false,
+                    },
+                ],
+            ),
+            "rageBurst" => eval_skill_beats(
+                prog,
+                5,
+                12,
+                &[
+                    SkillBeat {
+                        frames: 1,
+                        from: 0.0,
+                        until: 0.04,
+                        blood: false,
+                    },
+                    SkillBeat {
+                        frames: 3,
+                        from: 0.04,
+                        until: 0.5,
+                        blood: false,
+                    },
+                    SkillBeat {
+                        frames: 4,
+                        from: 0.5,
+                        until: 0.7,
+                        blood: false,
+                    },
+                    SkillBeat {
+                        frames: 2,
+                        from: 0.7,
+                        until: 1.0,
+                        blood: false,
+                    },
+                ],
+            ),
+            "crossSlash" => eval_skill_beats(
+                prog,
+                5,
+                22,
+                &[
+                    SkillBeat {
+                        frames: 14,
+                        from: 0.0,
+                        until: 0.647,
+                        blood: false,
+                    },
+                    SkillBeat {
+                        frames: 6,
+                        from: 0.647,
+                        until: 1.0,
+                        blood: false,
+                    },
+                ],
+            ),
+            "frenzy" => eval_skill_beats(
+                prog,
+                5,
+                42,
+                &[
+                    SkillBeat {
+                        frames: 6,
+                        from: 0.0,
+                        until: 0.52,
+                        blood: false,
+                    },
+                    SkillBeat {
+                        frames: 8,
+                        from: 0.52,
+                        until: 0.85,
+                        blood: false,
+                    },
+                    SkillBeat {
+                        frames: 3,
+                        from: 0.85,
+                        until: 1.0,
+                        blood: false,
+                    },
+                ],
+            ),
+            "mountainRift" => eval_skill_beats(
+                prog,
+                6,
+                0,
+                &[
+                    SkillBeat {
+                        frames: 2,
+                        from: 0.0,
+                        until: 0.135,
+                        blood: false,
+                    },
+                    SkillBeat {
+                        frames: 2,
+                        from: 0.135,
+                        until: 0.285,
+                        blood: true,
+                    },
+                    SkillBeat {
+                        frames: 2,
+                        from: 0.285,
+                        until: 0.6,
+                        blood: true,
+                    },
+                    SkillBeat {
+                        frames: 1,
+                        from: 0.6,
+                        until: 1.0,
+                        blood: false,
+                    },
+                ],
+            ),
+            "graspHead" => eval_skill_beats(
+                prog,
+                6,
+                21,
+                &[
+                    SkillBeat {
+                        frames: 4,
+                        from: 0.0,
+                        until: 0.0968,
+                        blood: false,
+                    },
+                    SkillBeat {
+                        frames: 3,
+                        from: 0.0968,
+                        until: 0.1935,
+                        blood: false,
+                    },
+                    SkillBeat {
+                        frames: 8,
+                        from: 0.1935,
+                        until: 0.6774,
+                        blood: false,
+                    },
+                    SkillBeat {
+                        frames: 2,
+                        from: 0.6774,
+                        until: 1.0,
+                        blood: false,
+                    },
+                ],
+            ),
+            "berserk" => eval_skill_beats(
+                prog,
+                6,
+                38,
+                &[
+                    SkillBeat {
+                        frames: 4,
+                        from: 0.0,
+                        until: 0.35,
+                        blood: false,
+                    },
+                    SkillBeat {
+                        frames: 6,
+                        from: 0.35,
+                        until: 1.0,
+                        blood: false,
+                    },
+                ],
+            ),
+            "bloodyRave" => eval_skill_beats(
+                prog,
+                6,
+                48,
+                &[
+                    SkillBeat {
+                        frames: 3,
+                        from: 0.0,
+                        until: 0.056,
+                        blood: false,
+                    },
+                    SkillBeat {
+                        frames: 2,
+                        from: 0.056,
+                        until: 0.182,
+                        blood: false,
+                    },
+                    SkillBeat {
+                        frames: 3,
+                        from: 0.182,
+                        until: 0.839,
+                        blood: false,
+                    },
+                    SkillBeat {
+                        frames: 5,
+                        from: 0.839,
+                        until: 1.0,
+                        blood: false,
+                    },
+                ],
+            ),
+            "hellbenter" => eval_skill_beats(
+                prog,
+                11,
+                0,
+                &[SkillBeat {
+                    frames: 15,
+                    from: 0.0,
+                    until: 0.5,
+                    blood: false,
+                }],
+            ),
+            "hellbenterSlam" => eval_skill_beats(
+                prog,
+                11,
+                15,
+                &[
+                    SkillBeat {
+                        frames: 2,
+                        from: 0.0,
+                        until: 0.22 / 5.4,
+                        blood: false,
+                    },
+                    SkillBeat {
+                        frames: 12,
+                        from: 0.22 / 5.4,
+                        until: 0.6 / 5.4,
+                        blood: false,
+                    },
+                ],
+            ),
+            _ => (3, ((prog * 6.0) as u32).min(5)),
+        };
+    }
+    if !p.on_ground && p.attack_timer > 0.0 {
+        let elapsed = p.attack_duration - p.attack_timer;
+        let prog = if p.attack_duration > 0.0 {
+            (elapsed / p.attack_duration).clamp(0.0, 0.99)
+        } else {
+            0.0
+        };
+        return (2, 23 + ((prog * 4.0) as u32).min(3));
     }
     if p.attack_timer > 0.0 {
         let elapsed = p.attack_duration - p.attack_timer;
@@ -693,7 +1004,7 @@ fn player_sprite_frame(state: &State, p: &Player) -> (u32, u32) {
         return (2, col);
     }
     if !p.on_ground {
-        return (4, 2);
+        return (4, if p.vy < 0.0 { 2 } else { 3 });
     }
     if p.vx.abs() > 5.0 || p.vz.abs() > 5.0 {
         let col = ((state.time * 15.0) as u32) % 8;
@@ -725,18 +1036,6 @@ pub fn draw_enemy(c: &mut Canvas<'_>, state: &State, enemy: &Enemy, sprites: &Sp
             Rgba::new(150, 70, 220, 120)
         };
         c.stroke_ellipse(ex, ground_y, (w * 0.7).max(20.0), 8.0, aura_col, 2.0);
-    }
-
-    if enemy.silhouette {
-        c.fill_round_rect(
-            ex - w * 0.5,
-            ey - h,
-            w,
-            h,
-            6.0,
-            Rgba::new(245, 250, 255, 230),
-        );
-        return;
     }
 
     let custom_sheet = match enemy.kind.as_str() {
@@ -791,20 +1090,26 @@ pub fn draw_enemy(c: &mut Canvas<'_>, state: &State, enemy: &Enemy, sprites: &Sp
             ex - anchor_x * scale
         };
         let draw_y = ey - anchor_y * scale;
-        c.draw_image(
-            sh,
-            sx,
-            sy,
-            cell_w,
-            cell_h,
-            draw_x,
-            draw_y,
-            dw,
-            dh,
-            flip,
-            if enemy.dead { 0.45 } else { 1.0 },
-            0.0,
-        );
+        if enemy.silhouette {
+            c.draw_image_white_silhouette(
+                sh, sx, sy, cell_w, cell_h, draw_x, draw_y, dw, dh, flip, 1.0,
+            );
+        } else {
+            c.draw_image(
+                sh,
+                sx,
+                sy,
+                cell_w,
+                cell_h,
+                draw_x,
+                draw_y,
+                dw,
+                dh,
+                flip,
+                if enemy.dead { 0.45 } else { 1.0 },
+                0.0,
+            );
+        }
         true
     } else {
         false
@@ -976,23 +1281,32 @@ pub fn draw_world(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
                 let fx = f.x as f32;
                 let fy = floor_y(f.z);
                 if let Some(rift) = sprites.get("rift") {
-                    let row = if f.skill_id == "hellbenterSlam" { 2 } else { 0 };
+                    let size = 501.0f32;
+                    let dy = fy - size * 0.25;
                     let max_col = (rift.width() / 384).saturating_sub(1);
-                    let col = ((prog.clamp(0.0, 0.999) * (max_col + 1) as f64) as u32).min(max_col);
-                    c.draw_image(
-                        rift,
-                        col * 384,
-                        row * 384,
-                        384,
-                        384,
-                        fx - 120.0,
-                        fy - 144.0,
-                        240.0,
-                        240.0,
-                        false,
-                        fade as f32,
-                        0.0,
-                    );
+                    let col = ((prog.clamp(0.0, 0.999) * 45.0) as u32).min(max_col);
+                    let flip = f.facing < 0;
+                    let rows: &[u32] = if f.skill_id == "hellbenterSlam" {
+                        &[2]
+                    } else {
+                        &[0, 1]
+                    };
+                    for &row in rows {
+                        c.draw_image(
+                            rift,
+                            col * 384,
+                            row * 384,
+                            384,
+                            384,
+                            fx - size * 0.5,
+                            dy - size * 0.5,
+                            size,
+                            size,
+                            flip,
+                            fade as f32,
+                            0.0,
+                        );
+                    }
                 } else {
                     c.fill_ellipse(
                         fx,
@@ -1099,52 +1413,51 @@ pub fn draw_world(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
             }
             5 => {
                 let sh = &state.shots[item.idx];
+                if sh.skill_id != "normalWave" {
+                    continue;
+                }
                 let sx = sh.x as f32;
-                let sy = (sh.y - depth_lift(sh.z) - 24.0) as f32;
+                let sy = (sh.y - depth_lift(sh.z)) as f32;
                 let age = (sh.max_life - sh.life).max(0.0);
-                let drawn = if let Some(eff) = sprites.get("effects") {
-                    if sh.skill_id == "normalWave" {
-                        let frame = (((age / 0.06667) as u32).min(4)) % 5;
-                        c.draw_image(
-                            eff,
-                            frame * 128,
-                            31 * 128,
-                            128,
-                            128,
-                            sx - 72.0,
-                            sy - 72.0,
-                            144.0,
-                            144.0,
-                            sh.facing < 0,
-                            0.92,
-                            0.0,
-                        );
-                        true
-                    } else if sh.skill_id == "crossSlash" {
-                        let frame = ((age / 0.05) as u32) % 6;
-                        c.draw_image(
-                            eff,
-                            frame * 128,
-                            4 * 128,
-                            128,
-                            128,
-                            sx - 64.0,
-                            sy - 64.0,
-                            128.0,
-                            128.0,
-                            sh.facing < 0,
-                            0.92,
-                            0.0,
-                        );
-                        true
-                    } else {
-                        false
-                    }
+                let frame = (((age / 0.06667) as u32).min(4)) % 5;
+                let size = 217.6f32;
+                let drawn = if let Some(nw) = sprites.get("normalWave") {
+                    c.draw_image(
+                        nw,
+                        frame * 320,
+                        0,
+                        320,
+                        320,
+                        sx - size * 0.5,
+                        sy - size * 0.5,
+                        size,
+                        size,
+                        sh.facing < 0,
+                        0.92,
+                        0.0,
+                    );
+                    true
+                } else if let Some(eff) = sprites.get("effects") {
+                    c.draw_image(
+                        eff,
+                        frame * 128,
+                        31 * 128,
+                        128,
+                        128,
+                        sx - size * 0.5,
+                        sy - size * 0.5,
+                        size,
+                        size,
+                        sh.facing < 0,
+                        0.92,
+                        0.0,
+                    );
+                    true
                 } else {
                     false
                 };
                 if !drawn {
-                    c.fill_ellipse(sx, sy, 28.0, 18.0, Rgba::new(225, 58, 72, 200));
+                    c.fill_ellipse(sx, sy - 24.0, 28.0, 18.0, Rgba::new(225, 58, 72, 200));
                 }
             }
             6 => draw_player(c, state, sprites),

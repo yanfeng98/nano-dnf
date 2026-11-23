@@ -423,6 +423,60 @@ impl<'a> Canvas<'a> {
     }
 
     #[allow(clippy::too_many_arguments)]
+    pub fn draw_image_white_silhouette(
+        &mut self,
+        sheet: &Pixmap,
+        sx: u32,
+        sy: u32,
+        sw: u32,
+        sh: u32,
+        dx: f32,
+        dy: f32,
+        dw: f32,
+        dh: f32,
+        flip_x: bool,
+        alpha: f32,
+    ) {
+        if sw == 0 || sh == 0 || dw <= 0.0 || dh <= 0.0 || alpha <= 0.0 {
+            return;
+        }
+        let Some(sub_rect) = tiny_skia::IntRect::from_xywh(sx as i32, sy as i32, sw, sh) else {
+            return;
+        };
+        let Some(mut sub) = sheet.clone_rect(sub_rect) else {
+            return;
+        };
+        for px in sub.data_mut().chunks_exact_mut(4) {
+            if px[3] > 32 {
+                px[0] = 255;
+                px[1] = 255;
+                px[2] = 255;
+                px[3] = 255;
+            } else {
+                px[0] = 0;
+                px[1] = 0;
+                px[2] = 0;
+                px[3] = 0;
+            }
+        }
+        let scale_x = dw / sw as f32;
+        let scale_y = dh / sh as f32;
+        let mut t = self.transform.pre_translate(dx, dy);
+        if flip_x {
+            t = t.pre_translate(dw, 0.0).pre_scale(-scale_x, scale_y);
+        } else {
+            t = t.pre_scale(scale_x, scale_y);
+        }
+        let paint = PixmapPaint {
+            opacity: alpha.clamp(0.0, 1.0),
+            blend_mode: tiny_skia::BlendMode::SourceOver,
+            quality: tiny_skia::FilterQuality::Nearest,
+        };
+        self.pixmap
+            .draw_pixmap(0, 0, sub.as_ref(), &paint, t, self.clip.as_ref());
+    }
+
+    #[allow(clippy::too_many_arguments)]
     pub fn fill_text(
         &mut self,
         text: &str,
