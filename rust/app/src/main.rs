@@ -532,6 +532,12 @@ impl AppState {
                                 &self.loadout,
                             );
                         }
+                        if reward_rs::snapshot(rw).phase == reward_rs::RewardPhase::Done
+                            && self.state.victory
+                            && !self.state.post_clear
+                        {
+                            core_rs::resume_after_clear(&mut self.state);
+                        }
                     }
                 }
             }
@@ -804,7 +810,7 @@ impl AppState {
                 KeyCode::Backspace => self.salvage_first_equipment(),
                 KeyCode::ArrowLeft if self.loadout_open => self.cycle_loadout_skill(-1),
                 KeyCode::ArrowRight if self.loadout_open => self.cycle_loadout_skill(1),
-                KeyCode::Enter if self.state.victory && !self.state.post_clear => {
+                KeyCode::Enter | KeyCode::Space if self.state.victory && !self.state.post_clear => {
                     core_rs::resume_after_clear(&mut self.state);
                 }
                 _ => {}

@@ -488,7 +488,8 @@ fn draw_prop(c: &mut Canvas<'_>, state: &State, prop: &Prop, sprites: &SpriteSto
     let deep = state.stage_id == "mirkwooddeep";
     let sheet_key = if deep { "forestDeep" } else { "forest" };
 
-    if prop.piece == "pillarPale"
+    if prop.piece == "pillar"
+        || prop.piece == "pillarPale"
         || prop.piece == "pillarDecor"
         || prop.piece == "pillarDamagedDecor"
     {
@@ -550,11 +551,58 @@ fn draw_prop(c: &mut Canvas<'_>, state: &State, prop: &Prop, sprites: &SpriteSto
             let sc = prop.scale.unwrap_or_else(|| prop_scale(&prop.piece));
             let w = sw as f32 * sc[0] as f32;
             let h = sh_h as f32 * sc[1] as f32;
-            let alpha = if prop.broken {
-                (1.0 - (state.time - prop.broken_at) / BREAK_ANIM).clamp(0.0, 1.0) as f32
-            } else {
-                1.0
-            };
+            if prop.broken {
+                let age = (state.time - prop.broken_at).max(0.0);
+                if age >= BREAK_ANIM {
+                    return;
+                }
+                let alpha = (1.0 - age / BREAK_ANIM).clamp(0.0, 1.0) as f32;
+                let left = x - w * 0.5;
+                let top = y - h;
+                if prop.piece == "barrel" {
+                    const BARREL_BREAK: [(&str, f32, f32); 12] = [
+                        ("barrel1", 19.0, 28.0),
+                        ("barrel2", 11.0, 32.0),
+                        ("barrel3", 17.0, 34.0),
+                        ("barrel4", 15.0, 32.0),
+                        ("barrel5", 23.0, 26.0),
+                        ("barrel6", 16.0, 27.0),
+                        ("barrel7", 12.0, 31.0),
+                        ("barrel8", 19.0, 34.0),
+                        ("barrel9", 8.0, 28.0),
+                        ("barrel10", 9.0, 28.0),
+                        ("barrel11", 17.0, 28.0),
+                        ("barrel12", 10.0, 31.0),
+                    ];
+                    let shown = ((age / BREAK_ANIM) * BARREL_BREAK.len() as f64) as usize;
+                    for (idx, (chip, cx_off, cy_off)) in BARREL_BREAK.iter().enumerate() {
+                        if idx > shown {
+                            break;
+                        }
+                        if let Some([csx, csy, csw, csh]) = rect_at(&["SCENE", "pieces", chip]) {
+                            let cw = csw as f32 * sc[0] as f32;
+                            let ch = csh as f32 * sc[1] as f32;
+                            c.draw_image(
+                                sh,
+                                csx,
+                                csy,
+                                csw,
+                                csh,
+                                left + cx_off * sc[0] as f32,
+                                top + cy_off * sc[1] as f32,
+                                cw,
+                                ch,
+                                false,
+                                alpha,
+                                0.0,
+                            );
+                        }
+                    }
+                    return;
+                }
+                c.draw_image(sh, sx, sy, sw, sh_h, left, top, w, h, false, alpha, 0.0);
+                return;
+            }
             c.draw_image(
                 sh,
                 sx,
@@ -566,7 +614,7 @@ fn draw_prop(c: &mut Canvas<'_>, state: &State, prop: &Prop, sprites: &SpriteSto
                 w,
                 h,
                 false,
-                alpha,
+                1.0,
                 0.0,
             );
             return;
@@ -1257,22 +1305,36 @@ pub fn draw_world(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
                         c.fill_ellipse(dx, dy, 8.0, 8.0, Rgba::new(225, 42, 54, 230));
                     }
                 } else {
-                    let col = if drop.tone == "cyan" {
-                        Rgba::new(88, 224, 245, 255)
-                    } else if drop.tone == "gold" {
-                        Rgba::new(242, 198, 72, 255)
+                    let on_row =
+                        (state.player.z - drop.z).abs() <= DEPTH_REACH_MELEE * SLAYER_HEIGHT;
+                    let ready = !state.player.dead
+                        && on_row
+                        && (state.player.x - drop.x).abs() <= LOOT_REACH + state.player.width * 0.5;
+                    let edge_col = if ready {
+                        Rgba::new(198, 240, 74, 245)
                     } else {
-                        Rgba::new(235, 240, 248, 255)
+                        Rgba::new(226, 232, 238, 235)
                     };
+                    let pw = (drop.name.chars().count() as f32 * 9.5 + 14.0).max(40.0);
+                    let ph = 17.0f32;
                     c.fill_round_rect(
-                        dx - 28.0,
-                        dy - 16.0,
-                        56.0,
-                        14.0,
+                        dx - pw * 0.5,
+                        dy - ph,
+                        pw,
+                        ph,
                         3.0,
-                        Rgba::new(14, 18, 28, 210),
+                        Rgba::new(10, 14, 20, 184),
                     );
-                    c.fill_text(&drop.name, dx, dy - 5.0, 10.0, col, TextAlign::Center, None);
+                    c.stroke_round_rect(dx - pw * 0.5, dy - ph, pw, ph, 3.0, edge_col, 1.5);
+                    c.fill_text(
+                        &drop.name,
+                        dx,
+                        dy - 4.5,
+                        9.5,
+                        Rgba::new(126, 210, 216, 255),
+                        TextAlign::Center,
+                        None,
+                    );
                 }
             }
             3 => {
@@ -1532,45 +1594,31 @@ pub fn draw_world(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
                     .map(|i| i as u32),
                 sprites.get("effects"),
             ) {
-                let (frames, dx, dy, size) = match sk_id {
-                    "upSlash" => (9u32, 34.0f32, -56.0f32, 156.0f32),
-                    "mountainBreaker" => (6, 70.0, -66.0, 264.0),
-                    "crossSlash" => (34, 75.0, -24.0, 405.0),
-                    "bloodSword" => (27, 30.0, -32.0, 182.0),
-                    "frenzy" => (13, 28.0, -62.0, 130.0),
-                    "bloodyRave" => (24, 0.0, -180.0, 720.0),
-                    "rageBurst" => (36, 0.0, -79.0, 317.0),
-                    "bloodSnatch" => (19, 56.0, -46.0, 190.0),
-                    "graspHead" => (31, 0.0, -82.67, 330.67),
-                    "bloodEvil" => (15, 44.0, -30.0, 178.0),
-                    "berserk" => (13, 0.0, -62.0, 130.0),
-                    "ghostSlash" => (6, 31.28, -46.24, 144.16),
-                    _ => (6, 32.0, -40.0, 128.0),
+                let (from, to, frames, dx, dy, size) = match sk_id {
+                    "upSlash" => (0.0f64, 1.0f64, 9u32, 34.0f32, -56.0f32, 156.0f32),
+                    "mountainBreaker" => (0.38, 0.95, 6, 70.0, -66.0, 264.0),
+                    "crossSlash" => (0.0, 1.0, 34, 75.0, -24.0, 405.0),
+                    "bloodSword" => (0.0, 1.0, 27, 30.0, -32.0, 182.0),
+                    "frenzy" => (0.07, 0.45, 13, 28.0, -62.0, 130.0),
+                    "bloodyRave" => (0.0, 1.0, 24, 0.0, -180.0, 720.0),
+                    "rageBurst" => (0.0, 0.99, 36, 0.0, -79.0, 317.0),
+                    "bloodSnatch" => (0.0, 1.0, 19, 56.0, -46.0, 190.0),
+                    "graspHead" => (0.0, 1.0, 31, 0.0, -82.67, 330.67),
+                    "bloodEvil" => (0.0, 1.0, 15, 44.0, -30.0, 178.0),
+                    "berserk" => (0.0, 1.0, 13, 0.0, -62.0, 130.0),
+                    "ghostSlash" => (0.15 / 0.95, 0.45 / 0.95, 6, 31.28, -46.24, 144.16),
+                    _ => (0.0, 1.0, 6, 32.0, -40.0, 128.0),
                 };
-                let max_col = (eff.width() / 128).saturating_sub(1);
-                let frame = ((prog * frames as f64) as u32).min(max_col);
-                let px = state.player.x as f32 + facing_f * dx;
-                let py = feet + dy;
-                c.draw_image(
-                    eff,
-                    frame * 128,
-                    row * 128,
-                    128,
-                    128,
-                    px - size * 0.5,
-                    py - size * 0.5,
-                    size,
-                    size,
-                    flip,
-                    0.92,
-                    0.0,
-                );
-                if sk_id == "ghostSlash" {
-                    let front_row = core_rs::TABLES.skill_order.len() as u32 + 16;
+                if prog >= from && prog <= to {
+                    let local_p = ((prog - from) / (to - from).max(0.0001)).clamp(0.0, 0.999);
+                    let max_col = (eff.width() / 128).saturating_sub(1);
+                    let frame = ((local_p * frames as f64) as u32).min(max_col);
+                    let px = state.player.x as f32 + facing_f * dx;
+                    let py = feet + dy;
                     c.draw_image(
                         eff,
                         frame * 128,
-                        front_row * 128,
+                        row * 128,
                         128,
                         128,
                         px - size * 0.5,
@@ -1581,6 +1629,23 @@ pub fn draw_world(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
                         0.92,
                         0.0,
                     );
+                    if sk_id == "ghostSlash" {
+                        let front_row = core_rs::TABLES.skill_order.len() as u32 + 16;
+                        c.draw_image(
+                            eff,
+                            frame * 128,
+                            front_row * 128,
+                            128,
+                            128,
+                            px - size * 0.5,
+                            py - size * 0.5,
+                            size,
+                            size,
+                            flip,
+                            0.92,
+                            0.0,
+                        );
+                    }
                 }
             }
         }
@@ -1837,6 +1902,107 @@ pub fn draw_effect(c: &mut Canvas<'_>, state: &State, effect: &Effect, sprites: 
                         alpha,
                         0.0,
                     );
+                }
+            }
+        }
+        "deathburst" => {
+            let t = (effect.max_life - effect.life).max(0.0);
+            let is_boss = effect.enemy_type == "boss" || effect.enemy_type == "deepBoss";
+            let count = if is_boss { 12usize } else { 8usize };
+            let gravity = if is_boss { 520.0 } else { 640.0 };
+            let sheet_key = if state.stage_id == "mirkwooddeep" {
+                "forestDeep"
+            } else {
+                "forest"
+            };
+            let chunk_prefix = match effect.enemy_type.as_str() {
+                "boss" | "deepBoss" => "boss",
+                "brute" => "brute",
+                "caster" | "burningThrower" => "caster",
+                "coward" => "coward",
+                "throwerElite" | "deepElite" => "elite",
+                _ => "grunt",
+            };
+            let body = effect.height * 0.45;
+            let base_y = floor_y(effect.z);
+            let boss_frames: [[u32; 4]; 5] = [
+                [0, 0, 29, 29],
+                [30, 0, 11, 12],
+                [42, 0, 16, 15],
+                [59, 0, 22, 21],
+                [82, 0, 6, 7],
+            ];
+            for idx in 0..count {
+                let angle = scatter_hash(effect.seed, idx * 6) * std::f64::consts::TAU;
+                let speed = if is_boss {
+                    80.0 + scatter_hash(effect.seed, idx * 6 + 1) * 140.0
+                } else {
+                    110.0 + scatter_hash(effect.seed, idx * 6 + 1) * 150.0
+                };
+                let vx = angle.cos() * speed;
+                let vy = if is_boss {
+                    45.0 + scatter_hash(effect.seed, idx * 6 + 4) * 130.0
+                } else {
+                    angle.sin() * speed * 0.55 + 70.0
+                };
+                let spin = (scatter_hash(effect.seed, idx * 6 + 3) - 0.5) * 11.0;
+                let mut x0 = effect.x;
+                let mut h0 = body;
+                if is_boss {
+                    x0 += (scatter_hash(effect.seed, idx * 6 + 5) - 0.5) * effect.height * 0.8;
+                    h0 = (body
+                        + (scatter_hash(effect.seed, idx * 6 + 7) - 0.5) * effect.height * 0.5)
+                        .max(0.0);
+                }
+                let mut travel = t;
+                if is_boss {
+                    let land = (vy + (vy * vy + 2.0 * gravity * h0).sqrt()) / gravity;
+                    if travel > land {
+                        travel = land;
+                    }
+                }
+                let px = (x0 + vx * travel) as f32;
+                let h = (h0 + vy * travel - 0.5 * gravity * travel * travel).max(0.0);
+                let py = base_y - h as f32;
+                let rot = (spin * travel) as f32;
+                if is_boss {
+                    if let Some(bd) = sprites.get("bossdeath") {
+                        let [sx, sy, sw, sh] = boss_frames[idx % boss_frames.len()];
+                        if sx + sw <= bd.width() && sy + sh <= bd.height() {
+                            c.draw_image(
+                                bd,
+                                sx,
+                                sy,
+                                sw,
+                                sh,
+                                px - sw as f32 * 0.5,
+                                py - sh as f32 * 0.5,
+                                sw as f32,
+                                sh as f32,
+                                false,
+                                alpha,
+                                rot,
+                            );
+                        }
+                    }
+                } else if let Some(sh) = sprites.get(sheet_key) {
+                    let piece = format!("chunk_{}{}", chunk_prefix, idx % 3);
+                    if let Some([sx, sy, sw, sh_h]) = rect_at(&["SCENE", "pieces", &piece]) {
+                        c.draw_image(
+                            sh,
+                            sx,
+                            sy,
+                            sw,
+                            sh_h,
+                            px - sw as f32 * 0.4,
+                            py - sh_h as f32 * 0.4,
+                            sw as f32 * 0.8,
+                            sh_h as f32 * 0.8,
+                            false,
+                            alpha,
+                            rot,
+                        );
+                    }
                 }
             }
         }
