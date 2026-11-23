@@ -371,22 +371,16 @@ pub fn draw_gates(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
             continue;
         }
 
-        let (spot_x, spot_bottom, floor_glow) = match dir {
-            "E" => (
-                room_width(state) as f32 - 34.0,
-                ARENA_GROUND_Y as f32 + 4.0,
-                false,
-            ),
-            "W" => (34.0, ARENA_GROUND_Y as f32 + 4.0, false),
+        let (spot_x, spot_bottom) = match dir {
+            "E" => (room_width(state) as f32 - 34.0, ARENA_GROUND_Y as f32 + 4.0),
+            "W" => (34.0, ARENA_GROUND_Y as f32 + 4.0),
             "S" => (
                 core_rs::door_x(state, cell, "S") as f32,
                 GATE_DOWN_BOTTOM as f32,
-                true,
             ),
             _ => (
                 core_rs::door_x(state, cell, "N") as f32,
                 core_rs::dungeon::gate_art_rect(state, cell, "N").bottom as f32,
-                false,
             ),
         };
 
@@ -403,23 +397,6 @@ pub fn draw_gates(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
                 let gw = sw as f32 * sc[0] as f32;
                 let gh = sh_h as f32 * sc[1] as f32;
                 let mirror = dir == "W";
-                if open {
-                    let glow_y = if floor_glow {
-                        ARENA_GROUND_Y as f32 - 6.0
-                    } else {
-                        spot_bottom - gh * 0.5
-                    };
-                    let rx = (gh * 0.4).max(46.0);
-                    let ry = if floor_glow { 16.0 } else { rx * 0.7 };
-                    c.fill_ellipse(spot_x, glow_y, rx, ry, Rgba::new(255, 226, 168, 42));
-                    c.fill_ellipse(
-                        spot_x,
-                        glow_y,
-                        rx * 0.6,
-                        ry * 0.6,
-                        Rgba::new(255, 226, 168, 48),
-                    );
-                }
                 let gate_alpha = if !open && !(deep && (dir == "N" || dir == "S")) {
                     0.72
                 } else {
