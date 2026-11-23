@@ -523,6 +523,8 @@ pub struct NativePathGate {
     pub x: f64,
     pub z: f64,
     pub anchor: [f64; 2],
+    #[serde(default)]
+    pub sprite: Option<String>,
     pub parts: NativeGateParts,
 }
 

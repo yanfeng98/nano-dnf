@@ -256,14 +256,64 @@ pub fn draw_rain(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore, overl
     c.restore();
 }
 
+fn draw_native_gate_part(
+    c: &mut Canvas<'_>,
+    sh: &tiny_skia::Pixmap,
+    gx: f64,
+    gz: f64,
+    rect: [f64; 4],
+    offset: [f64; 2],
+    alpha: f32,
+) {
+    let scale = NATIVE_SCALE as f32;
+    let dx = gx as f32 + offset[0] as f32 * scale;
+    let dy = floor_y(gz) + offset[1] as f32 * scale;
+    let dw = rect[2] as f32 * scale;
+    let dh = rect[3] as f32 * scale;
+    c.draw_image(
+        sh,
+        rect[0] as u32,
+        rect[1] as u32,
+        rect[2] as u32,
+        rect[3] as u32,
+        dx,
+        dy,
+        dw,
+        dh,
+        false,
+        alpha,
+        0.0,
+    );
+}
+
+fn parse_gate_part(v: &serde_json::Value) -> Option<([f64; 4], [f64; 2])> {
+    let r = v.get("rect")?.as_array()?;
+    let o = v.get("offset")?.as_array()?;
+    if r.len() < 4 || o.len() < 2 {
+        return None;
+    }
+    Some((
+        [
+            r[0].as_f64()?,
+            r[1].as_f64()?,
+            r[2].as_f64()?,
+            r[3].as_f64()?,
+        ],
+        [o[0].as_f64()?, o[1].as_f64()?],
+    ))
+}
+
 pub fn draw_gates(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
     let Some(cell) = current_cell(state) else {
         return;
     };
-    let depth = band_depth(state.band_back_y);
     let deep = state.stage_id == "mirkwooddeep";
     let sheet_key = if deep { "forestDeep" } else { "forest" };
     let sheet = sprites.get(sheet_key);
+    let room_spec = core_rs::TABLES
+        .stages
+        .get(&state.stage_id)
+        .and_then(|s| s.rooms.get(cell.room));
 
     for dir in MINIMAP_DIRS {
         let mode = exit_mode(state, dir);
@@ -271,89 +321,151 @@ pub fn draw_gates(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
             continue;
         }
         let open = mode == ExitMode::Open;
-        let (gx, gy, gw, gh) = match dir {
-            "N" => {
-                let x = core_rs::door_x(state, cell, "N") as f32;
-                let y = floor_y(depth);
-                (x - 42.0, y - 92.0, 84.0, 92.0)
+
+        if let Some(native) = room_spec
+            .and_then(|rs| rs.native_path_gates.as_ref())
+            .and_then(|m| m.get(dir))
+        {
+            let sprite_key = native.sprite.as_deref().unwrap_or("nativePathGate");
+            if let Some(sh) = sprites.get(sprite_key) {
+                if let Some(v) = native.parts.extra.get("under") {
+                    if let Some((r, o)) = parse_gate_part(v) {
+                        draw_native_gate_part(c, sh, native.x, native.z, r, o, 1.0);
+                    }
+                }
+                draw_native_gate_part(
+                    c,
+                    sh,
+                    native.x,
+                    native.z,
+                    native.parts.frame.rect,
+                    native.parts.frame.offset,
+                    1.0,
+                );
+                if !cell.cleared {
+                    if let Some(v) = native.parts.extra.get("door") {
+                        if let Some((r, o)) = parse_gate_part(v) {
+                            draw_native_gate_part(c, sh, native.x, native.z, r, o, 1.0);
+                        }
+                    }
+                }
+                if open && cell.cleared {
+                    if let Some(v) = native.parts.extra.get("light") {
+                        if let Some((r, o)) = parse_gate_part(v) {
+                            let pulse =
+                                (0.62 + 0.2 * (0.5 + 0.5 * (state.time * 3.2).sin())) as f32;
+                            draw_native_gate_part(c, sh, native.x, native.z, r, o, pulse);
+                        }
+                    }
+                }
+                if let Some(v) = native.parts.extra.get("over") {
+                    if let Some((r, o)) = parse_gate_part(v) {
+                        draw_native_gate_part(c, sh, native.x, native.z, r, o, 1.0);
+                    }
+                }
+                continue;
             }
-            "S" => {
-                let x = core_rs::door_x(state, cell, "S") as f32;
-                let y = floor_y(0.0) + 12.0;
-                (x - 42.0, y - 34.0, 84.0, 34.0)
-            }
+        }
+
+        if deep && !open && dir != "N" && dir != "S" {
+            continue;
+        }
+
+        let (spot_x, spot_bottom, floor_glow) = match dir {
             "E" => (
-                room_width(state) as f32 - 58.0,
-                floor_y(depth * 0.5) - 90.0,
-                56.0,
-                108.0,
+                room_width(state) as f32 - 34.0,
+                ARENA_GROUND_Y as f32 + 4.0,
+                false,
             ),
-            _ => (2.0, floor_y(depth * 0.5) - 90.0, 56.0, 108.0),
+            "W" => (34.0, ARENA_GROUND_Y as f32 + 4.0, false),
+            "S" => (
+                core_rs::door_x(state, cell, "S") as f32,
+                GATE_DOWN_BOTTOM as f32,
+                true,
+            ),
+            _ => (
+                core_rs::door_x(state, cell, "N") as f32,
+                core_rs::dungeon::gate_art_rect(state, cell, "N").bottom as f32,
+                false,
+            ),
         };
 
-        let native_gate = match dir {
-            "N" | "S" => sprites.get("nativePathGate"),
-            "E" | "W" => {
-                if deep {
-                    sprites
-                        .get("nativePathGateEast")
-                        .or_else(|| sprites.get("nativePathGateEastNormal"))
-                } else {
-                    sprites
-                        .get("nativePathGateEastNormal")
-                        .or_else(|| sprites.get("nativePathGateEast"))
-                }
-            }
-            _ => None,
+        let (piece, door_piece) = match dir {
+            "N" => ("gateUp", "doorUp"),
+            "S" => ("gateDown", "doorDown"),
+            _ if deep => ("gateBlock", "doorBlock"),
+            _ => ("gate", "door"),
         };
-        if let Some(sh) = native_gate {
-            c.draw_image(
-                sh,
-                0,
-                0,
-                sh.width(),
-                sh.height(),
-                gx,
-                gy,
-                gw,
-                gh,
-                dir == "W",
-                if open { 1.0 } else { 0.85 },
-                0.0,
-            );
-            if !open {
-                if let Some(blk) = sprites.get("gateBlock") {
-                    c.draw_image(
-                        blk,
-                        0,
-                        0,
-                        blk.width(),
-                        blk.height(),
-                        gx,
-                        gy + gh * 0.25,
-                        gw,
-                        gh * 0.55,
-                        false,
-                        0.9,
-                        0.0,
+
+        if let Some(sh) = sheet {
+            if let Some([sx, sy, sw, sh_h]) = rect_at(&["SCENE", "pieces", piece]) {
+                let sc = prop_scale(piece);
+                let gw = sw as f32 * sc[0] as f32;
+                let gh = sh_h as f32 * sc[1] as f32;
+                let mirror = dir == "W";
+                if open {
+                    let glow_y = if floor_glow {
+                        ARENA_GROUND_Y as f32 - 6.0
+                    } else {
+                        spot_bottom - gh * 0.5
+                    };
+                    let rx = (gh * 0.4).max(46.0);
+                    let ry = if floor_glow { 16.0 } else { rx * 0.7 };
+                    c.fill_ellipse(spot_x, glow_y, rx, ry, Rgba::new(255, 226, 168, 42));
+                    c.fill_ellipse(
+                        spot_x,
+                        glow_y,
+                        rx * 0.6,
+                        ry * 0.6,
+                        Rgba::new(255, 226, 168, 48),
                     );
                 }
-            }
-        } else if let Some(sh) = sheet {
-            let key = if dir == "N" {
-                "gateUp"
-            } else if dir == "S" {
-                "gateDown"
-            } else {
-                "gate"
-            };
-            if let Some([sx, sy, sw, sh_h]) = rect_at(&["SCENE", "pieces", key]) {
-                c.draw_image(sh, sx, sy, sw, sh_h, gx, gy, gw, gh, dir == "W", 1.0, 0.0);
+                let gate_alpha = if !open && !(deep && (dir == "N" || dir == "S")) {
+                    0.72
+                } else {
+                    1.0
+                };
+                c.draw_image(
+                    sh,
+                    sx,
+                    sy,
+                    sw,
+                    sh_h,
+                    spot_x - gw * 0.5,
+                    spot_bottom - gh,
+                    gw,
+                    gh,
+                    mirror,
+                    gate_alpha,
+                    0.0,
+                );
+                if !open {
+                    if let Some([dsx, dsy, dsw, dsh]) = rect_at(&["SCENE", "pieces", door_piece]) {
+                        let dw = dsw as f32 * sc[0] as f32;
+                        let dh = dsh as f32 * sc[1] as f32;
+                        c.draw_image(
+                            sh,
+                            dsx,
+                            dsy,
+                            dsw,
+                            dsh,
+                            spot_x - dw * 0.5,
+                            spot_bottom - dh,
+                            dw,
+                            dh,
+                            mirror,
+                            0.85,
+                            0.0,
+                        );
+                    }
+                }
             }
         } else {
+            let gw = 52.0f32;
+            let gh = 82.0f32;
             c.fill_round_rect(
-                gx,
-                gy,
+                spot_x - gw * 0.5,
+                spot_bottom - gh,
                 gw,
                 gh,
                 8.0,
@@ -362,17 +474,6 @@ pub fn draw_gates(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
                 } else {
                     Rgba::new(42, 34, 48, 220)
                 },
-            );
-        }
-
-        if open {
-            let pulse = (0.35 + 0.25 * (state.time * 5.0).sin()) as f32;
-            c.fill_ellipse(
-                gx + gw * 0.5,
-                gy + gh * 0.6,
-                gw * 0.36,
-                gh * 0.26,
-                Rgba::new(110, 235, 255, 255).with_alpha(pulse),
             );
         }
     }
@@ -1054,50 +1155,121 @@ pub fn draw_world(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
     // Active skill / rage slash visual
     let flip = state.player.facing < 0;
     if state.player.skill_timer > 0.0 {
-        let px = state.player.x as f32 + state.player.facing as f32 * 44.0;
-        let py = feet_y_player(&state.player) - 32.0;
-        let skill_spec = match state.player.skill_id.as_deref() {
-            Some("ghostSlash") => Some((1u32, 6u32)),
-            Some("upSlash") => Some((2, 9)),
-            Some("mountainBreaker") => Some((3, 6)),
-            Some("crossSlash") => Some((4, 34)),
-            Some("rageBurst") => Some((8, 36)),
-            Some("bloodSnatch") => Some((9, 19)),
-            Some("graspHead") => Some((10, 31)),
-            Some("bloodEvil") => Some((11, 15)),
-            Some("mountainRift") => Some((12, 45)),
-            Some("berserk") => Some((13, 13)),
-            Some("bloodyRave") => Some((20, 12)),
-            Some("bloodSword") => Some((22, 8)),
-            _ => None,
-        };
-        if let (Some((row, frames)), Some(eff)) = (skill_spec, sprites.get("effects")) {
-            let dur = state
-                .player
-                .skill_id
-                .as_deref()
-                .and_then(|id| core_rs::TABLES.skills.get(id))
+        if let Some(sk_id) = state.player.skill_id.as_deref() {
+            let dur = core_rs::TABLES
+                .skills
+                .get(sk_id)
                 .map(|sk| sk.duration.max(0.1))
                 .unwrap_or(0.5);
             let prog = (1.0 - (state.player.skill_timer / dur)).clamp(0.0, 0.999);
-            let max_col = (eff.width() / 128).saturating_sub(1);
-            let frame = ((prog * frames as f64) as u32).min(max_col);
-            c.draw_image(
-                eff,
-                frame * 128,
-                row * 128,
-                128,
-                128,
-                px - 64.0,
-                py - 64.0,
-                128.0,
-                128.0,
-                flip,
-                0.9,
-                0.0,
-            );
-        } else {
-            c.fill_ellipse(px, py, 36.0, 24.0, Rgba::new(235, 68, 76, 110));
+            let feet = feet_y_player(&state.player);
+            let facing_f = state.player.facing as f32;
+
+            if sk_id == "mountainRift" {
+                if let Some(rift) = sprites.get("rift") {
+                    let max_col = (rift.width() / 384).saturating_sub(1);
+                    let frame = ((prog * 45.0) as u32).min(max_col);
+                    let size = 501.0f32;
+                    let px = state.player.x as f32;
+                    let py = floor_y(state.player.z) - 125.0;
+                    for row in [0u32, 1u32] {
+                        c.draw_image(
+                            rift,
+                            frame * 384,
+                            row * 384,
+                            384,
+                            384,
+                            px - size * 0.5,
+                            py - size * 0.5,
+                            size,
+                            size,
+                            flip,
+                            0.95,
+                            0.0,
+                        );
+                    }
+                }
+            } else if sk_id == "normalWave" {
+                if let Some(nw) = sprites.get("normalWave") {
+                    let max_col = (nw.width() / 320).saturating_sub(1);
+                    let frame = ((prog * 5.0) as u32).min(max_col);
+                    let size = 217.6f32;
+                    let px = state.player.x as f32 + facing_f * 21.76;
+                    let py = feet - 21.76;
+                    c.draw_image(
+                        nw,
+                        frame * 320,
+                        0,
+                        320,
+                        320,
+                        px - size * 0.5,
+                        py - size * 0.5,
+                        size,
+                        size,
+                        flip,
+                        0.95,
+                        0.0,
+                    );
+                }
+            } else if let (Some(row), Some(eff)) = (
+                core_rs::TABLES
+                    .skill_order
+                    .iter()
+                    .position(|id| id == sk_id)
+                    .map(|i| i as u32),
+                sprites.get("effects"),
+            ) {
+                let (frames, dx, dy, size) = match sk_id {
+                    "upSlash" => (9u32, 34.0f32, -56.0f32, 156.0f32),
+                    "mountainBreaker" => (6, 70.0, -66.0, 264.0),
+                    "crossSlash" => (34, 75.0, -24.0, 405.0),
+                    "bloodSword" => (27, 30.0, -32.0, 182.0),
+                    "frenzy" => (13, 28.0, -62.0, 130.0),
+                    "bloodyRave" => (24, 0.0, -180.0, 720.0),
+                    "rageBurst" => (36, 0.0, -79.0, 317.0),
+                    "bloodSnatch" => (19, 56.0, -46.0, 190.0),
+                    "graspHead" => (31, 0.0, -82.67, 330.67),
+                    "bloodEvil" => (15, 44.0, -30.0, 178.0),
+                    "berserk" => (13, 0.0, -62.0, 130.0),
+                    "ghostSlash" => (6, 31.28, -46.24, 144.16),
+                    _ => (6, 32.0, -40.0, 128.0),
+                };
+                let max_col = (eff.width() / 128).saturating_sub(1);
+                let frame = ((prog * frames as f64) as u32).min(max_col);
+                let px = state.player.x as f32 + facing_f * dx;
+                let py = feet + dy;
+                c.draw_image(
+                    eff,
+                    frame * 128,
+                    row * 128,
+                    128,
+                    128,
+                    px - size * 0.5,
+                    py - size * 0.5,
+                    size,
+                    size,
+                    flip,
+                    0.92,
+                    0.0,
+                );
+                if sk_id == "ghostSlash" {
+                    let front_row = core_rs::TABLES.skill_order.len() as u32 + 16;
+                    c.draw_image(
+                        eff,
+                        frame * 128,
+                        front_row * 128,
+                        128,
+                        128,
+                        px - size * 0.5,
+                        py - size * 0.5,
+                        size,
+                        size,
+                        flip,
+                        0.92,
+                        0.0,
+                    );
+                }
+            }
         }
     } else if state.player.attack_timer > 0.0 {
         let px = state.player.x as f32 + state.player.facing as f32 * 38.0;
