@@ -1192,6 +1192,70 @@ pub fn draw_effect(c: &mut Canvas<'_>, state: &State, effect: &Effect, sprites: 
                 Some(Rgba::new(0, 0, 0, 220).with_alpha(alpha)),
             );
         }
+        "xp" => {
+            let x = state.player.x as f32;
+            let y = feet_y_player(&state.player) - 98.0 - (1.0 - alpha) * 20.0;
+            if let Some(dsh) = sprites.get("experienceDigits") {
+                let digits = effect.amount.to_string();
+                let gw = 12.0f32;
+                let gh = 14.0f32;
+                let total_w = (digits.len() + 1) as f32 * gw;
+                let mut cur_x = x - total_w * 0.5;
+                c.draw_image(
+                    dsh,
+                    10 * 16,
+                    0,
+                    16,
+                    16,
+                    cur_x,
+                    y - gh,
+                    gw,
+                    gh,
+                    false,
+                    alpha,
+                    0.0,
+                );
+                cur_x += gw;
+                for ch in digits.chars() {
+                    if let Some(d) = ch.to_digit(10) {
+                        c.draw_image(
+                            dsh,
+                            d * 16,
+                            0,
+                            16,
+                            16,
+                            cur_x,
+                            y - gh,
+                            gw,
+                            gh,
+                            false,
+                            alpha,
+                            0.0,
+                        );
+                        cur_x += gw;
+                    }
+                }
+                c.fill_text(
+                    "Exp",
+                    cur_x + 2.0,
+                    y - 2.0,
+                    11.0,
+                    Rgba::new(150, 245, 165, 255).with_alpha(alpha),
+                    TextAlign::Left,
+                    Some(Rgba::new(0, 0, 0, 220).with_alpha(alpha)),
+                );
+            } else {
+                c.fill_text(
+                    &effect.text,
+                    x,
+                    y,
+                    13.0,
+                    Rgba::new(150, 245, 165, 255).with_alpha(alpha),
+                    TextAlign::Center,
+                    Some(Rgba::new(0, 0, 0, 220).with_alpha(alpha)),
+                );
+            }
+        }
         "shockwave" if effect.arc => {
             let r = (effect.radius as f32) * (0.6 + 0.4 * (1.0 - alpha));
             let col = if effect.gold {

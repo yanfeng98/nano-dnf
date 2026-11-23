@@ -516,17 +516,135 @@ fn draw_orb(c: &mut Canvas<'_>, cx: f32, cy: f32, r: f32, ratio: f32, col: Rgba,
     );
 }
 
-pub fn draw_minimap(c: &mut Canvas<'_>, state: &State) {
+pub fn draw_minimap(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
     let Some(ref dun) = state.dungeon else {
         return;
     };
-    let tile = 16.0;
+    let tile = 18.0;
     let mw = dun.cols as f32 * tile + 12.0;
     let mh = dun.rows as f32 * tile + 12.0;
     let mx = (VIEW_LEFT + VIEW_WIDTH) as f32 - mw - 12.0;
     let my = 12.0;
-    c.fill_round_rect(mx, my, mw, mh, 5.0, Rgba::new(10, 14, 22, 200));
-    c.stroke_round_rect(mx, my, mw, mh, 5.0, Rgba::new(165, 134, 72, 180), 1.0);
+    let mm_sheet = sprites.get("minimap");
+    if let Some(sh) = mm_sheet {
+        // 9-slice minimap frame from minimap.png
+        c.draw_image(sh, 190, 18, 5, 5, mx, my, 5.0, 5.0, false, 1.0, 0.0);
+        c.draw_image(
+            sh,
+            199,
+            18,
+            18,
+            5,
+            mx + 5.0,
+            my,
+            mw - 9.0,
+            5.0,
+            false,
+            1.0,
+            0.0,
+        );
+        c.draw_image(
+            sh,
+            221,
+            18,
+            4,
+            5,
+            mx + mw - 4.0,
+            my,
+            4.0,
+            5.0,
+            false,
+            1.0,
+            0.0,
+        );
+        c.draw_image(
+            sh,
+            229,
+            18,
+            5,
+            18,
+            mx,
+            my + 5.0,
+            5.0,
+            mh - 9.0,
+            false,
+            1.0,
+            0.0,
+        );
+        c.draw_image(
+            sh,
+            238,
+            18,
+            18,
+            18,
+            mx + 5.0,
+            my + 5.0,
+            mw - 9.0,
+            mh - 9.0,
+            false,
+            0.88,
+            0.0,
+        );
+        c.draw_image(
+            sh,
+            260,
+            18,
+            4,
+            18,
+            mx + mw - 4.0,
+            my + 5.0,
+            4.0,
+            mh - 9.0,
+            false,
+            1.0,
+            0.0,
+        );
+        c.draw_image(
+            sh,
+            268,
+            18,
+            5,
+            4,
+            mx,
+            my + mh - 4.0,
+            5.0,
+            4.0,
+            false,
+            1.0,
+            0.0,
+        );
+        c.draw_image(
+            sh,
+            277,
+            18,
+            18,
+            4,
+            mx + 5.0,
+            my + mh - 4.0,
+            mw - 9.0,
+            4.0,
+            false,
+            1.0,
+            0.0,
+        );
+        c.draw_image(
+            sh,
+            299,
+            18,
+            4,
+            4,
+            mx + mw - 4.0,
+            my + mh - 4.0,
+            4.0,
+            4.0,
+            false,
+            1.0,
+            0.0,
+        );
+    } else {
+        c.fill_round_rect(mx, my, mw, mh, 5.0, Rgba::new(10, 14, 22, 200));
+        c.stroke_round_rect(mx, my, mw, mh, 5.0, Rgba::new(165, 134, 72, 180), 1.0);
+    }
 
     for (idx, cell) in dun.cells.iter().enumerate() {
         let cx = mx + 6.0 + cell.col as f32 * tile;
@@ -577,7 +695,43 @@ pub fn draw_minimap(c: &mut Canvas<'_>, state: &State) {
                 Rgba::new(180, 180, 200, 180),
             );
         }
-        if idx == dun.boss {
+        if let Some(sh) = mm_sheet {
+            if !cell.seen && idx != dun.boss {
+                c.draw_image(sh, 22, 18, 18, 18, cx, cy, tile, tile, false, 0.9, 0.0);
+            }
+            if idx == dun.boss {
+                c.draw_image(
+                    sh,
+                    44,
+                    18,
+                    16,
+                    14,
+                    cx + 1.0,
+                    cy + 2.0,
+                    16.0,
+                    14.0,
+                    false,
+                    1.0,
+                    0.0,
+                );
+            }
+            if idx == state.cell {
+                c.draw_image(
+                    sh,
+                    64,
+                    18,
+                    14,
+                    19,
+                    cx + 2.0,
+                    cy - 2.0,
+                    14.0,
+                    19.0,
+                    false,
+                    1.0,
+                    0.0,
+                );
+            }
+        } else if idx == dun.boss {
             c.fill_ellipse(
                 cx + tile * 0.5,
                 cy + tile * 0.5,

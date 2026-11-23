@@ -73,7 +73,7 @@ pub fn render(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore, meta: &R
     if !hud_hidden {
         hud::draw_hud_video(c, state, sprites, meta);
         if !overlay_open && !state.post_clear {
-            hud::draw_minimap(c, state);
+            hud::draw_minimap(c, state, sprites);
         }
     }
 
