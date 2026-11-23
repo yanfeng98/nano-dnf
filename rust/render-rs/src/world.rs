@@ -413,6 +413,37 @@ fn draw_prop(c: &mut Canvas<'_>, state: &State, prop: &Prop, sprites: &SpriteSto
         }
     }
 
+    let dedicated = match prop.piece.as_str() {
+        "treeReference" => sprites
+            .get("treeReference")
+            .map(|sh| (sh, 0u32, 0u32, 153u32, 203u32)),
+        "treeBossFruit" => sprites
+            .get("treeFruitReference")
+            .map(|sh| (sh, 0, 0, 153, 203)),
+        "goblinBunker" => sprites.get("goblinBunker").map(|sh| (sh, 0, 0, 142, 138)),
+        _ => None,
+    };
+    if let Some((sh, sx, sy, sw, sh_h)) = dedicated {
+        let sc = prop.scale.unwrap_or_else(|| prop_scale(&prop.piece));
+        let w = sw as f32 * sc[0] as f32;
+        let h = sh_h as f32 * sc[1] as f32;
+        c.draw_image(
+            sh,
+            sx,
+            sy,
+            sw,
+            sh_h,
+            x - w * 0.5,
+            y - h,
+            w,
+            h,
+            false,
+            1.0,
+            0.0,
+        );
+        return;
+    }
+
     if let Some(sh) = sprites.get(sheet_key) {
         if let Some([sx, sy, sw, sh_h]) = rect_at(&["SCENE", "pieces", &prop.piece]) {
             let sc = prop.scale.unwrap_or_else(|| prop_scale(&prop.piece));

@@ -26,6 +26,7 @@
 >   - 觉醒（魔狱血刹）已接入 `awakening.png` 切入立绘，通关结算、宝箱与 4 选 1 翻牌卡片已接入 `results-reference.png` 原图；
 >   - 十字斩剑气飞行物（`crossSlash`）已接入 `effects.png` 第 4 行原生序列帧；
 >   - 崩山裂地斩与魔狱血刹·落地面裂盘已接入 `rift.png`（`384×384`）原生序列帧，Boss 击破爆发叠加 `bossdeath.png` 字图；
+>   - 补齐 `render-rs/src/tables.json` 中缺失的 `SCENE.pieces` 全部 60+ 场景道具切片（树干、灌木、木桶、宝箱、墓碑、岩石等）及 `treeReference` / `treeFruitReference` / `goblinBunker` 专属图集绘制；
 >   - 地牢战斗新增 `↑ + X` 搓招上挑（`upSlash`）指令支持；
 >   - Windows 原生音频已补齐全部核心事件的 `.ogg` 映射：`projectileSpawn`/`projectileHit`（石块/炸弹/冰弹/火弹）、`enemyAttack`（哥布林旋风/牛头斧劈冲撞砸地）、`tau`/`cat` 受击与死亡音、`playerLand`/`playerStep` 脚步音以及 `bloodSword`/`ghostSlash`/`frenzy`/`berserk`/`hellbenter` 技能音效。
 > - **仍待处理的外部阻塞项**：整体录像对照还原（第 1–7 项视觉/AI/数值考据）及 Windows 真机实玩验收需要结合实机画面与业主试玩反馈推进。
