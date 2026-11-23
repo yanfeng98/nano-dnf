@@ -23,7 +23,7 @@ use reward_rs::{
     create as create_reward, pick as pick_reward, step as step_reward, take_prize, RewardState,
 };
 use softbuffer::{Context, Surface};
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 use std::num::NonZeroU32;
 use std::path::{Path, PathBuf};
 use std::rc::Rc;
@@ -98,6 +98,8 @@ struct AppState {
     reward: Option<RewardState>,
     paused: bool,
     show_help: bool,
+    loadout_open: bool,
+    loadout_slot: usize,
     progress_panel: ProgressPanelKind,
     region_selected: String,
     town_x: f64,
@@ -107,7 +109,7 @@ struct AppState {
     seen_hints: HashSet<String>,
     active_hint: Option<(String, f64)>,
     recorded_finish: bool,
-    last_kills: u32,
+    last_kills_by_type: HashMap<String, u32>,
     last_barrels: u32,
     last_tick: Instant,
     accumulator: f64,
@@ -146,6 +148,8 @@ impl AppState {
             reward: None,
             paused: false,
             show_help: false,
+            loadout_open: false,
+            loadout_slot: 0,
             progress_panel: ProgressPanelKind::None,
             region_selected: DEFAULT_STAGE.to_string(),
             town_x: 360.0,
@@ -155,7 +159,7 @@ impl AppState {
             seen_hints: HashSet::new(),
             active_hint: None,
             recorded_finish: false,
-            last_kills: 0,
+            last_kills_by_type: HashMap::new(),
             last_barrels: 0,
             last_tick: Instant::now(),
             accumulator: 0.0,
@@ -171,13 +175,70 @@ impl AppState {
         self.reward = None;
         self.paused = false;
         self.show_help = false;
+        self.loadout_open = false;
         self.progress_panel = ProgressPanelKind::None;
         self.seen_hints.clear();
         self.active_hint = None;
         self.recorded_finish = false;
-        self.last_kills = 0;
+        self.last_kills_by_type.clear();
         self.last_barrels = 0;
         self.mode = ScreenMode::Playing;
+    }
+
+    fn toggle_progress_panel(&mut self, kind: ProgressPanelKind) {
+        self.loadout_open = false;
+        self.progress_panel = if self.progress_panel == kind {
+            ProgressPanelKind::None
+        } else {
+            kind
+        };
+    }
+
+    fn toggle_loadout_panel(&mut self) {
+        self.progress_panel = ProgressPanelKind::None;
+        self.loadout_open = !self.loadout_open;
+    }
+
+    fn cycle_loadout_skill(&mut self, delta: isize) {
+        let order = &TABLES.skill_order;
+        if order.is_empty() {
+            return;
+        }
+        let cur = self
+            .loadout
+            .get(self.loadout_slot)
+            .and_then(|s| s.as_deref());
+        let cur_idx = cur
+            .and_then(|id| order.iter().position(|s| s == id))
+            .unwrap_or(0) as isize;
+        let len = order.len() as isize;
+        let next_idx = (cur_idx + delta).rem_euclid(len) as usize;
+        let next_id = order[next_idx].as_str();
+        self.loadout = loadout_rs::assign(&self.loadout, self.loadout_slot, Some(next_id));
+        save::save_all(
+            &self.asset_root,
+            &self.records,
+            &self.progress,
+            &self.loadout,
+        );
+    }
+
+    fn handle_digit(&mut self, idx: usize) {
+        if self.mode == ScreenMode::Playing {
+            if let Some(ref mut rw) = self.reward {
+                if idx < 4 {
+                    pick_reward(rw, idx);
+                }
+                return;
+            }
+        }
+        if self.loadout_open {
+            if idx < 6 {
+                self.loadout_slot = idx;
+            }
+            return;
+        }
+        self.interact_panel_slot(idx);
     }
 
     fn interact_panel_slot(&mut self, slot_idx: usize) {
@@ -227,6 +288,25 @@ impl AppState {
                 let changed = progress_rs::accept(&mut self.progress, q.id)
                     || progress_rs::turn_in(&mut self.progress, q.id).is_some();
                 if changed {
+                    save::save_all(
+                        &self.asset_root,
+                        &self.records,
+                        &self.progress,
+                        &self.loadout,
+                    );
+                }
+            }
+            ProgressPanelKind::Shop => {
+                let Some(it) = progress_rs::ITEMS
+                    .iter()
+                    .filter(|it| it.category != progress_rs::ItemCategory::Material)
+                    .nth(slot_idx)
+                else {
+                    return;
+                };
+                if self.progress.gold >= it.price {
+                    progress_rs::add_gold(&mut self.progress, -i64::from(it.price));
+                    progress_rs::add_item(&mut self.progress, it.id, 1);
                     save::save_all(
                         &self.asset_root,
                         &self.records,
@@ -305,16 +385,19 @@ impl AppState {
                     Some(&self.state.stage_id),
                     false,
                 ));
-                if !self.paused && !self.show_help {
+                if !self.paused && !self.show_help && !self.loadout_open {
                     let inp = self.current_input();
                     step_core(&mut self.state, &inp, Some(dt));
                     let sounds = drain_sounds(&mut self.state);
                     self.audio.play_events(&sounds);
 
-                    if self.state.stats.kills > self.last_kills {
-                        let dk = self.state.stats.kills - self.last_kills;
-                        self.last_kills = self.state.stats.kills;
-                        note_kill(&mut self.progress, "cat", dk);
+                    for (kind, &total) in &self.state.stats.kills_by_type {
+                        let prev = self.last_kills_by_type.get(kind).copied().unwrap_or(0);
+                        if total > prev {
+                            let dk = total - prev;
+                            self.last_kills_by_type.insert(kind.clone(), total);
+                            note_kill(&mut self.progress, kind, dk);
+                        }
                     }
                     if self.state.stats.barrels > self.last_barrels {
                         let db = self.state.stats.barrels - self.last_barrels;
@@ -395,6 +478,9 @@ impl AppState {
                         &self.progress,
                     );
                 }
+                if self.loadout_open {
+                    render_rs::draw_loadout_panel(&mut canvas, &self.loadout, self.loadout_slot);
+                }
             } else {
                 let active_state = if self.mode == ScreenMode::Title {
                     &self.attract.state
@@ -408,7 +494,7 @@ impl AppState {
                     paused: self.paused,
                     show_help: self.show_help,
                     loadout: &self.loadout,
-                    loadout_open: false,
+                    loadout_open: self.loadout_open,
                     progress_panel: self.progress_panel,
                     progress: &self.progress,
                     records: &self.records,
@@ -420,6 +506,9 @@ impl AppState {
                     stage_id: &active_state.stage_id,
                 };
                 render(&mut canvas, active_state, &self.sprites, &meta);
+                if self.loadout_open {
+                    render_rs::draw_loadout_panel(&mut canvas, &self.loadout, self.loadout_slot);
+                }
             }
         }
 
@@ -499,40 +588,30 @@ impl AppState {
             },
             ScreenMode::Town => match code {
                 KeyCode::Enter | KeyCode::Space => {
-                    self.mode = ScreenMode::Region;
+                    if !self.loadout_open && self.progress_panel == ProgressPanelKind::None {
+                        self.mode = ScreenMode::Region;
+                    }
                 }
-                KeyCode::KeyI => {
-                    self.progress_panel = if self.progress_panel == ProgressPanelKind::Bag {
-                        ProgressPanelKind::None
-                    } else {
-                        ProgressPanelKind::Bag
-                    };
-                }
-                KeyCode::KeyK => {
-                    self.progress_panel = if self.progress_panel == ProgressPanelKind::Equip {
-                        ProgressPanelKind::None
-                    } else {
-                        ProgressPanelKind::Equip
-                    };
-                }
-                KeyCode::KeyL => {
-                    self.progress_panel = if self.progress_panel == ProgressPanelKind::Quest {
-                        ProgressPanelKind::None
-                    } else {
-                        ProgressPanelKind::Quest
-                    };
-                }
-                KeyCode::Digit1 => self.interact_panel_slot(0),
-                KeyCode::Digit2 => self.interact_panel_slot(1),
-                KeyCode::Digit3 => self.interact_panel_slot(2),
-                KeyCode::Digit4 => self.interact_panel_slot(3),
-                KeyCode::Digit5 => self.interact_panel_slot(4),
-                KeyCode::Digit6 => self.interact_panel_slot(5),
-                KeyCode::Digit7 => self.interact_panel_slot(6),
-                KeyCode::Digit8 => self.interact_panel_slot(7),
-                KeyCode::Digit9 => self.interact_panel_slot(8),
+                KeyCode::KeyI => self.toggle_progress_panel(ProgressPanelKind::Bag),
+                KeyCode::KeyK => self.toggle_progress_panel(ProgressPanelKind::Equip),
+                KeyCode::KeyL => self.toggle_progress_panel(ProgressPanelKind::Quest),
+                KeyCode::KeyU => self.toggle_progress_panel(ProgressPanelKind::Shop),
+                KeyCode::KeyB => self.toggle_loadout_panel(),
+                KeyCode::ArrowLeft if self.loadout_open => self.cycle_loadout_skill(-1),
+                KeyCode::ArrowRight if self.loadout_open => self.cycle_loadout_skill(1),
+                KeyCode::Digit1 => self.handle_digit(0),
+                KeyCode::Digit2 => self.handle_digit(1),
+                KeyCode::Digit3 => self.handle_digit(2),
+                KeyCode::Digit4 => self.handle_digit(3),
+                KeyCode::Digit5 => self.handle_digit(4),
+                KeyCode::Digit6 => self.handle_digit(5),
+                KeyCode::Digit7 => self.handle_digit(6),
+                KeyCode::Digit8 => self.handle_digit(7),
+                KeyCode::Digit9 => self.handle_digit(8),
                 KeyCode::Escape => {
-                    if self.progress_panel != ProgressPanelKind::None {
+                    if self.loadout_open {
+                        self.loadout_open = false;
+                    } else if self.progress_panel != ProgressPanelKind::None {
                         self.progress_panel = ProgressPanelKind::None;
                     } else {
                         self.mode = ScreenMode::Region;
@@ -545,6 +624,7 @@ impl AppState {
                 KeyCode::F1 => self.show_help = !self.show_help,
                 KeyCode::Escape => {
                     self.show_help = false;
+                    self.loadout_open = false;
                     self.progress_panel = ProgressPanelKind::None;
                 }
                 KeyCode::F3 => {
@@ -553,6 +633,8 @@ impl AppState {
                     self.restart_run(&st, seed);
                 }
                 KeyCode::F4 => {
+                    self.loadout_open = false;
+                    self.progress_panel = ProgressPanelKind::None;
                     self.mode = ScreenMode::Town;
                 }
                 KeyCode::KeyN => {
@@ -560,64 +642,23 @@ impl AppState {
                     let next_seed = self.state.seed.wrapping_add(1);
                     self.restart_run(&st, next_seed);
                 }
-                KeyCode::Digit1 => {
-                    if let Some(ref mut rw) = self.reward {
-                        pick_reward(rw, 0);
-                    } else {
-                        self.interact_panel_slot(0);
-                    }
-                }
-                KeyCode::Digit2 => {
-                    if let Some(ref mut rw) = self.reward {
-                        pick_reward(rw, 1);
-                    } else {
-                        self.interact_panel_slot(1);
-                    }
-                }
-                KeyCode::Digit3 => {
-                    if let Some(ref mut rw) = self.reward {
-                        pick_reward(rw, 2);
-                    } else {
-                        self.interact_panel_slot(2);
-                    }
-                }
-                KeyCode::Digit4 => {
-                    if let Some(ref mut rw) = self.reward {
-                        pick_reward(rw, 3);
-                    } else {
-                        self.interact_panel_slot(3);
-                    }
-                }
-                KeyCode::Digit5 => self.interact_panel_slot(4),
-                KeyCode::Digit6 => self.interact_panel_slot(5),
-                KeyCode::Digit7 => self.interact_panel_slot(6),
-                KeyCode::Digit8 => self.interact_panel_slot(7),
-                KeyCode::Digit9 => self.interact_panel_slot(8),
-                KeyCode::KeyI => {
-                    self.progress_panel = if self.progress_panel == ProgressPanelKind::Bag {
-                        ProgressPanelKind::None
-                    } else {
-                        ProgressPanelKind::Bag
-                    };
-                }
-                KeyCode::Enter => {
-                    if self.state.victory && !self.state.post_clear {
-                        core_rs::resume_after_clear(&mut self.state);
-                    }
-                }
-                KeyCode::KeyK => {
-                    self.progress_panel = if self.progress_panel == ProgressPanelKind::Equip {
-                        ProgressPanelKind::None
-                    } else {
-                        ProgressPanelKind::Equip
-                    };
-                }
-                KeyCode::KeyL => {
-                    self.progress_panel = if self.progress_panel == ProgressPanelKind::Quest {
-                        ProgressPanelKind::None
-                    } else {
-                        ProgressPanelKind::Quest
-                    };
+                KeyCode::Digit1 => self.handle_digit(0),
+                KeyCode::Digit2 => self.handle_digit(1),
+                KeyCode::Digit3 => self.handle_digit(2),
+                KeyCode::Digit4 => self.handle_digit(3),
+                KeyCode::Digit5 => self.handle_digit(4),
+                KeyCode::Digit6 => self.handle_digit(5),
+                KeyCode::Digit7 => self.handle_digit(6),
+                KeyCode::Digit8 => self.handle_digit(7),
+                KeyCode::Digit9 => self.handle_digit(8),
+                KeyCode::KeyI => self.toggle_progress_panel(ProgressPanelKind::Bag),
+                KeyCode::KeyK => self.toggle_progress_panel(ProgressPanelKind::Equip),
+                KeyCode::KeyL => self.toggle_progress_panel(ProgressPanelKind::Quest),
+                KeyCode::KeyB => self.toggle_loadout_panel(),
+                KeyCode::ArrowLeft if self.loadout_open => self.cycle_loadout_skill(-1),
+                KeyCode::ArrowRight if self.loadout_open => self.cycle_loadout_skill(1),
+                KeyCode::Enter if self.state.victory && !self.state.post_clear => {
+                    core_rs::resume_after_clear(&mut self.state);
                 }
                 _ => {}
             },

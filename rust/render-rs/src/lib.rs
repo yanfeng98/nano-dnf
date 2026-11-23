@@ -7,7 +7,7 @@ pub mod tables;
 pub mod world;
 
 pub use canvas::{Canvas, GlyphCache, Rgba, TextAlign};
-pub use hud::{draw_progress_panel, ProgressPanelKind, RenderMeta};
+pub use hud::{draw_loadout_panel, draw_progress_panel, ProgressPanelKind, RenderMeta};
 pub use sprites::SpriteStore;
 
 use core_rs::constants::*;

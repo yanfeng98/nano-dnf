@@ -3,14 +3,19 @@
 > **架构状态（2026-11-23）**：项目已由原浏览器 JS 版本完整迁移至 `rust/` 工作区（Windows 便携版 `nano-dnf.exe`），原 `src/*.js`、`index.html`、`package.json` 与 `tests/` 已在验证通过后移除。
 >
 > **当前最新进展**：
-> - 已补全城镇与地牢内的背包/装备/任务键盘交互（背包 `1-9` 使用药水恢复 HP/MP 或穿戴装备，任务面板 `1-3` 接取与交付任务，`Esc` 优先关闭当前面板，重开地牢保留已读档的技能配置 `loadout`）。
-> - 整体录像对照与 Windows 真机实玩验收仍未完成；原 JS 版遗留的画面/数值/AI 还原差异同步存在于 `rust/core-rs` 与 `rust/render-rs` 中，见下方未结项清单。
+> - 已补全城镇与地牢内的全部桌面面板交互：
+>   - 背包（`I`）`1-9` 使用药水恢复 HP/MP 或穿戴装备；
+>   - 任务（`L`）`1-3` 接取与交付任务，击杀任务已按 `state.stats.kills_by_type` 精确统计怪物种类（不再把哥布林计入猫妖击杀）；
+>   - 城镇商店（`U`）`1-8` 消耗金币购买药水与装备；
+>   - 技能快捷栏配置（`B`）`1-6` 选槽并用 `←`/`→` 切换技能，自动写入 `nano-dnf-save.json` 并在重开地牢时保留；
+>   - `Esc` 优先关闭当前打开的面板/配置。
+> - **仍待处理的外部阻塞项**：整体录像对照还原（第 1–7 项视觉/AI/数值考据）及 Windows 真机实玩验收需要结合实机画面与业主试玩反馈推进。
 
 ## Rust 验证与构建入口
 
 - 格式、静态检查与全量测试：`cd rust && cargo fmt --check && cargo clippy --workspace --all-targets -- -D warnings && cargo test --workspace`
 - Windows 交叉编译：`cd rust && cargo zigbuild --release --target x86_64-pc-windows-gnu -p nano-dnf`
-- 跨平台说明：`rust/app/src/audio.rs` 仅在 `target_os = "windows"` 启用 `rodio` 原生音频，Linux 本地调试为静音空实现；`rust/app` 中 `loadout_open` 快捷栏配置 UI 与 `Shop` 商店交互入口暂未开放。
+- 跨平台说明：`rust/app/src/audio.rs` 仅在 `target_os = "windows"` 启用 `rodio` 原生音频，Linux 本地调试为静音空实现。
 
 ---
 

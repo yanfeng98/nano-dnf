@@ -925,5 +925,101 @@ pub fn draw_progress_panel(
             TextAlign::Center,
             None,
         );
+    } else if panel == ProgressPanelKind::Shop {
+        for (row, it) in ITEMS
+            .iter()
+            .filter(|it| it.category != progress_rs::ItemCategory::Material)
+            .enumerate()
+        {
+            let idx = row + 1;
+            c.fill_text(
+                &format!("[{idx}] {}  ({}G)", it.name, it.price),
+                cx - 180.0,
+                cy - 80.0 + row as f32 * 24.0,
+                12.0,
+                Rgba::new(230, 238, 250, 240),
+                TextAlign::Left,
+                None,
+            );
+        }
+        c.fill_text(
+            "按 1-8 购买 · Esc 关闭",
+            cx,
+            cy + 125.0,
+            11.0,
+            Rgba::new(175, 190, 215, 220),
+            TextAlign::Center,
+            None,
+        );
     }
+}
+
+pub fn draw_loadout_panel(c: &mut Canvas<'_>, loadout: &[Option<String>], selected_slot: usize) {
+    let cx = ARENA_WIDTH as f32 * 0.5;
+    let cy = ARENA_HEIGHT as f32 * 0.5;
+    c.fill_round_rect(
+        cx - 220.0,
+        cy - 150.0,
+        440.0,
+        300.0,
+        8.0,
+        Rgba::new(12, 16, 26, 240),
+    );
+    c.stroke_round_rect(
+        cx - 220.0,
+        cy - 150.0,
+        440.0,
+        300.0,
+        8.0,
+        Rgba::new(210, 176, 100, 220),
+        1.5,
+    );
+    c.fill_text(
+        "技能快捷栏配置",
+        cx,
+        cy - 118.0,
+        16.0,
+        Rgba::new(245, 210, 120, 255),
+        TextAlign::Center,
+        None,
+    );
+    let keys = ["A", "S", "D", "F", "G", "H"];
+    for (i, key_label) in keys.iter().enumerate() {
+        let skill_name = loadout
+            .get(i)
+            .and_then(|s| s.as_deref())
+            .and_then(|id| {
+                core_rs::TABLES
+                    .skills
+                    .get(id)
+                    .map(|sk| sk.name.as_str())
+                    .or(Some(id))
+            })
+            .unwrap_or("空");
+        let is_sel = i == selected_slot;
+        let marker = if is_sel { ">" } else { " " };
+        let color = if is_sel {
+            Rgba::new(255, 224, 130, 255)
+        } else {
+            Rgba::new(230, 238, 250, 240)
+        };
+        c.fill_text(
+            &format!("{marker} [{}] {key_label} 键: {skill_name}", i + 1),
+            cx - 170.0,
+            cy - 76.0 + i as f32 * 30.0,
+            13.0,
+            color,
+            TextAlign::Left,
+            None,
+        );
+    }
+    c.fill_text(
+        "1-6 选槽 · ←/→ 切换技能 · B / Esc 关闭",
+        cx,
+        cy + 125.0,
+        11.0,
+        Rgba::new(175, 190, 215, 220),
+        TextAlign::Center,
+        None,
+    );
 }
