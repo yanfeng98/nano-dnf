@@ -39,6 +39,7 @@ pub fn render(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore, meta: &R
     world::draw_gates(c, state, sprites);
     world::draw_rain_splashes(c, state, sprites);
     world::draw_world(c, state, sprites);
+    world::draw_foreground(c, state, sprites);
     for effect in &state.effects {
         if effect.kind == "banner" && overlay_open {
             continue;

@@ -17,7 +17,9 @@
 >   - 鬼斩、上挑、崩山击、嗜魂封魔斩、血气之刃与血之狂暴双刀普攻已接入 `effects.png` 原生挥砍序列帧；
 >   - 左上角目标信息栏已接入 `portraits-reference.png` 对应怪物/领主头像与边框；
 >   - 普通哥布林（`grunt`）、普通/燃烧投掷哥布林（`caster` / `burningThrower`）与投掷十夫长（`throwerElite`）已优先接入 `goblinReference` / `casterReference` / `throwerReference` 原生独立图集；
->   - 幽暗密林深处（`mirkwooddeep`）入口、领主房及 13/14/23/24/33/42/43 房间已接入对应 `deep*Closeback` 原生近景层；
+>   - 幽暗密林深处（`mirkwooddeep`）入口、领主房及 13/14/23/24/33/42/43 房间已接入对应 `deep*Closeback` 原生近景层与 24 房前景遮挡层（`deepRoom24Foreground`）；
+>   - 房间传送门已接入 `nativePathGate` / `nativePathGateEast` / `nativePathGateEastNormal` 与锁定栅栏 `gateBlock` 原生贴图；
+>   - 技能斩击已补齐 `crossSlash`、`rageBurst`、`bloodSnatch`、`graspHead`、`bloodEvil`、`mountainRift`、`berserk` 的 `effects.png` 序列帧；
 >   - Windows 原生音频已补齐全部核心事件的 `.ogg` 映射：`projectileSpawn`/`projectileHit`（石块/炸弹/冰弹/火弹）、`enemyAttack`（哥布林旋风/牛头斧劈冲撞砸地）、`tau`/`cat` 受击与死亡音、`playerLand`/`playerStep` 脚步音以及 `bloodSword`/`ghostSlash`/`frenzy`/`berserk`/`hellbenter` 技能音效。
 > - **仍待处理的外部阻塞项**：整体录像对照还原（第 1–7 项视觉/AI/数值考据）及 Windows 真机实玩验收需要结合实机画面与业主试玩反馈推进。
 

@@ -291,7 +291,55 @@ pub fn draw_gates(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
             _ => (2.0, floor_y(depth * 0.5) - 90.0, 56.0, 108.0),
         };
 
-        if let Some(sh) = sheet {
+        let native_gate = match dir {
+            "N" | "S" => sprites.get("nativePathGate"),
+            "E" | "W" => {
+                if deep {
+                    sprites
+                        .get("nativePathGateEast")
+                        .or_else(|| sprites.get("nativePathGateEastNormal"))
+                } else {
+                    sprites
+                        .get("nativePathGateEastNormal")
+                        .or_else(|| sprites.get("nativePathGateEast"))
+                }
+            }
+            _ => None,
+        };
+        if let Some(sh) = native_gate {
+            c.draw_image(
+                sh,
+                0,
+                0,
+                sh.width(),
+                sh.height(),
+                gx,
+                gy,
+                gw,
+                gh,
+                dir == "W",
+                if open { 1.0 } else { 0.85 },
+                0.0,
+            );
+            if !open {
+                if let Some(blk) = sprites.get("gateBlock") {
+                    c.draw_image(
+                        blk,
+                        0,
+                        0,
+                        blk.width(),
+                        blk.height(),
+                        gx,
+                        gy + gh * 0.25,
+                        gw,
+                        gh * 0.55,
+                        false,
+                        0.9,
+                        0.0,
+                    );
+                }
+            }
+        } else if let Some(sh) = sheet {
             let key = if dir == "N" {
                 "gateUp"
             } else if dir == "S" {
@@ -922,6 +970,13 @@ pub fn draw_world(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
             Some("ghostSlash") => Some((1u32, 6u32)),
             Some("upSlash") => Some((2, 9)),
             Some("mountainBreaker") => Some((3, 6)),
+            Some("crossSlash") => Some((4, 34)),
+            Some("rageBurst") => Some((8, 36)),
+            Some("bloodSnatch") => Some((9, 19)),
+            Some("graspHead") => Some((10, 31)),
+            Some("bloodEvil") => Some((11, 15)),
+            Some("mountainRift") => Some((12, 45)),
+            Some("berserk") => Some((13, 13)),
             Some("bloodyRave") => Some((20, 12)),
             Some("bloodSword") => Some((22, 8)),
             _ => None,
@@ -935,7 +990,8 @@ pub fn draw_world(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
                 .map(|sk| sk.duration.max(0.1))
                 .unwrap_or(0.5);
             let prog = (1.0 - (state.player.skill_timer / dur)).clamp(0.0, 0.999);
-            let frame = (prog * frames as f64) as u32;
+            let max_col = (eff.width() / 128).saturating_sub(1);
+            let frame = ((prog * frames as f64) as u32).min(max_col);
             c.draw_image(
                 eff,
                 frame * 128,
@@ -980,6 +1036,35 @@ pub fn draw_world(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
             }
         } else {
             c.fill_ellipse(px, py, 26.0, 18.0, Rgba::new(235, 242, 255, 110));
+        }
+    }
+}
+
+pub fn draw_foreground(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
+    if state.stage_id != "mirkwooddeep" {
+        return;
+    }
+    let Some(cell) = current_cell(state) else {
+        return;
+    };
+    if (cell.col + 1, cell.row + 1) == (2, 4) {
+        if let Some(fg) = sprites.get("deepRoom24Foreground") {
+            let rw = room_width(state) as f32;
+            let fh = fg.height() as f32;
+            c.draw_image(
+                fg,
+                0,
+                0,
+                fg.width(),
+                fg.height(),
+                0.0,
+                ARENA_HEIGHT as f32 - fh,
+                rw,
+                fh,
+                false,
+                1.0,
+                0.0,
+            );
         }
     }
 }
