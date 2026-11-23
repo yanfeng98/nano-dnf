@@ -74,35 +74,98 @@ mod win_audio {
                 return;
             }
             for ev in events {
-                let file = match ev.kind.as_str() {
-                    "playerJump" => Some("assets/sfx/sm_jump.ogg"),
-                    "playerAttack" => match ev.stage.unwrap_or(0) {
-                        0 => Some("assets/sfx/sm_triple1.ogg"),
-                        1 => Some("assets/sfx/sm_triple2.ogg"),
-                        _ => Some("assets/sfx/sm_triple3.ogg"),
-                    },
-                    "playerSkill" => match ev.skill_id.as_deref() {
-                        Some("upSlash") => Some("assets/sfx/sm_upslash.ogg"),
-                        Some("normalWave") => Some("assets/sfx/sm_wave.ogg"),
-                        Some("crossSlash") => Some("assets/sfx/sm_gorecross.ogg"),
-                        Some("mountainBreaker") => Some("assets/sfx/sm_boongsan.ogg"),
-                        Some("bloodyRave") => Some("assets/sfx/sm_blood_rave_atk.ogg"),
-                        Some("rageBurst") => Some("assets/sfx/sm_bloodboom_01.ogg"),
-                        Some("mountainRift") => Some("assets/sfx/sm_outrage_break_01.ogg"),
-                        _ => Some("assets/sfx/sm_atk_01.ogg"),
-                    },
-                    "playerHurt" => Some("assets/sfx/sm_dmg_01.ogg"),
-                    "playerDie" => Some("assets/sfx/sm_die.ogg"),
-                    "enemyHurt" => Some("assets/sfx/gbn_dmg_01.ogg"),
-                    "enemyDie" => Some("assets/sfx/gbn_die_01.ogg"),
-                    "bossRoar" => Some("assets/sfx/tau_roar.ogg"),
-                    "coinPickup" => Some("assets/sfx/coin_pick_01.ogg"),
-                    "bombExplosion" => Some("assets/sfx/bomb_ex.ogg"),
-                    "stonePillarBreak" => Some("assets/sfx/tstone_break.ogg"),
-                    _ => None,
+                let is_tau = matches!(ev.enemy_type.as_deref(), Some("boss" | "tau" | "deepBoss"));
+                let (file, vol) = match ev.kind.as_str() {
+                    "playerJump" => (Some("assets/sfx/sm_jump.ogg"), 0.45),
+                    "playerLand" | "playerStep" => (Some("assets/sfx/grass_pass.ogg"), 0.18),
+                    "playerAttack" => (
+                        match ev.stage.unwrap_or(0) {
+                            0 => Some("assets/sfx/sm_triple1.ogg"),
+                            1 => Some("assets/sfx/sm_triple2.ogg"),
+                            _ => Some("assets/sfx/sm_triple3.ogg"),
+                        },
+                        0.45,
+                    ),
+                    "playerSkill" => (
+                        match ev.skill_id.as_deref() {
+                            Some("upSlash") => Some("assets/sfx/sm_upslash.ogg"),
+                            Some("normalWave") => Some("assets/sfx/sm_wave.ogg"),
+                            Some("crossSlash") => Some("assets/sfx/sm_gorecross.ogg"),
+                            Some("mountainBreaker") => Some("assets/sfx/sm_boongsan.ogg"),
+                            Some("bloodyRave") => Some("assets/sfx/sm_blood_rave_atk.ogg"),
+                            Some("rageBurst") => Some("assets/sfx/sm_bloodboom_01.ogg"),
+                            Some("mountainRift") => Some("assets/sfx/sm_outrage_break_01.ogg"),
+                            Some("bloodSword") => Some("assets/sfx/sm_blood.ogg"),
+                            Some("ghostSlash") => Some("assets/sfx/sm_bghost.ogg"),
+                            Some("frenzy") => Some("assets/sfx/sm_flense.ogg"),
+                            Some("berserk") => Some("assets/sfx/sm_ancient.ogg"),
+                            Some("hellbenter" | "hellbenterSlam") => {
+                                Some("assets/sfx/sm_bloodriven_01.ogg")
+                            }
+                            _ => Some("assets/sfx/sm_atk_01.ogg"),
+                        },
+                        0.45,
+                    ),
+                    "playerHurt" => (Some("assets/sfx/sm_dmg_01.ogg"), 0.45),
+                    "playerDie" => (Some("assets/sfx/sm_die.ogg"), 0.5),
+                    "enemyHurt" => (
+                        if is_tau {
+                            Some("assets/sfx/tau_dmg_01.ogg")
+                        } else if ev.enemy_type.as_deref() == Some("cat") {
+                            Some("assets/sfx/bloodgaru_dmg_01.ogg")
+                        } else {
+                            Some("assets/sfx/gbn_dmg_01.ogg")
+                        },
+                        0.42,
+                    ),
+                    "enemyDie" => (
+                        if is_tau {
+                            Some("assets/sfx/tau_die.ogg")
+                        } else {
+                            Some("assets/sfx/gbn_die_01.ogg")
+                        },
+                        0.45,
+                    ),
+                    "enemyAttack" => (
+                        if is_tau {
+                            match ev.attack_kind.as_deref() {
+                                Some("lunge" | "charge") => Some("assets/sfx/tau_rush.ogg"),
+                                Some("slam") => Some("assets/sfx/tau_crash.ogg"),
+                                _ => Some("assets/sfx/tau_axeswing.ogg"),
+                            }
+                        } else if matches!(ev.attack_kind.as_deref(), Some("spin" | "spinDash")) {
+                            Some("assets/sfx/gbn_spinatk.ogg")
+                        } else {
+                            Some("assets/sfx/gbn_comm.ogg")
+                        },
+                        0.38,
+                    ),
+                    "projectileSpawn" => (
+                        match ev.native_object {
+                            Some(30001) => Some("assets/sfx/throw_stone.ogg"),
+                            Some(30021) => Some("assets/sfx/throw_bomb.ogg"),
+                            Some(30057) => Some("assets/sfx/icicle_fire.ogg"),
+                            Some(30047) => Some("assets/sfx/sizzle_fire.ogg"),
+                            _ => Some("assets/sfx/gbn_thw.ogg"),
+                        },
+                        0.4,
+                    ),
+                    "projectileHit" => (
+                        match ev.native_object {
+                            Some(30057) => Some("assets/sfx/icicle_hit.ogg"),
+                            Some(30047) => Some("assets/sfx/sizzle_hit.ogg"),
+                            _ => None,
+                        },
+                        0.4,
+                    ),
+                    "bossRoar" => (Some("assets/sfx/tau_roar.ogg"), 0.5),
+                    "coinPickup" => (Some("assets/sfx/coin_pick_01.ogg"), 0.45),
+                    "bombExplosion" => (Some("assets/sfx/bomb_ex.ogg"), 0.5),
+                    "stonePillarBreak" => (Some("assets/sfx/tstone_break.ogg"), 0.48),
+                    _ => (None, 0.45),
                 };
                 if let Some(rel) = file {
-                    self.play_sfx(rel, 0.45);
+                    self.play_sfx(rel, vol);
                 }
             }
         }

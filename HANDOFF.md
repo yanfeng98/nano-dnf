@@ -9,9 +9,10 @@
 >   - 城镇商店（`U`）`1-8` 消耗金币购买药水与装备；
 >   - 技能快捷栏配置（`B`）`1-6` 选槽并用 `←`/`→` 切换技能，自动写入 `nano-dnf-save.json` 并在重开地牢时保留；
 >   - `Esc` 优先关闭当前打开的面板/配置。
-> - 已接入更多原生贴图绘制（`render-rs`）：
+> - 已接入更多原生贴图与音效（`render-rs`、`app/audio.rs`）：
 >   - 技能栏冷却/缺蓝状态改用 `skillsDisabled` 原生灰化图标；
->   - 敌方投射物（`30001` 石块、`30021` 炸弹、`30057` 冰弹、`30047` 火弹）已接入 `goblinStone` / `goblinBomb` / `goblinIce` / `goblinFire` 原生精灵帧与旋转/朝向绘制，替换原先的纯色圆球占位。
+>   - 敌方投射物（`30001` 石块、`30021` 炸弹、`30057` 冰弹、`30047` 火弹）已接入 `goblinStone` / `goblinBomb` / `goblinIce` / `goblinFire` 原生精灵帧与旋转/朝向绘制，替换原先的纯色圆球占位；
+>   - Windows 原生音频已补齐全部核心事件的 `.ogg` 映射：`projectileSpawn`/`projectileHit`（石块/炸弹/冰弹/火弹）、`enemyAttack`（哥布林旋风/牛头斧劈冲撞砸地）、`tau`/`cat` 受击与死亡音、`playerLand`/`playerStep` 脚步音以及 `bloodSword`/`ghostSlash`/`frenzy`/`berserk`/`hellbenter` 技能音效。
 > - **仍待处理的外部阻塞项**：整体录像对照还原（第 1–7 项视觉/AI/数值考据）及 Windows 真机实玩验收需要结合实机画面与业主试玩反馈推进。
 
 ## Rust 验证与构建入口

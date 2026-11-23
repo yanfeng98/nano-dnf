@@ -1011,10 +1011,10 @@ pub fn draw_town(
         );
     }
     c.fill_text(
-        "艾尔文防线 · [←→↑↓] 移动 · [Space/Enter] 进图 / 对话 · [I] 背包 · [L] 任务 · [Esc] 返回",
+        "艾尔文防线 · [←→↑↓] 移动 · [Enter] 进图 · [I] 背包 · [K] 装备 · [L] 任务 · [U] 商店 · [B] 技能",
         (ARENA_WIDTH * 0.5) as f32,
         28.0,
-        13.0,
+        12.0,
         Rgba::new(235, 220, 175, 240),
         TextAlign::Center,
         Some(Rgba::new(0, 0, 0, 220)),
