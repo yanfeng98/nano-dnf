@@ -65,23 +65,26 @@ fn find_asset_root() -> PathBuf {
     cwd
 }
 
-fn load_font_bytes(root: &Path) -> Option<Vec<u8>> {
+fn load_font_blobs(root: &Path) -> Vec<Vec<u8>> {
     let candidates = [
         root.join("assets/font.ttf"),
         PathBuf::from("C:\\Windows\\Fonts\\msyh.ttc"),
         PathBuf::from("C:\\Windows\\Fonts\\simhei.ttf"),
         PathBuf::from("C:\\Windows\\Fonts\\simsun.ttc"),
+        PathBuf::from("C:\\Windows\\Fonts\\segoeui.ttf"),
+        PathBuf::from("C:\\Windows\\Fonts\\arial.ttf"),
+        PathBuf::from("C:\\Windows\\Fonts\\tahoma.ttf"),
         PathBuf::from("/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc"),
         PathBuf::from("/usr/share/fonts/opentype/noto/NotoSansCJK-Medium.ttc"),
         PathBuf::from("/usr/share/fonts/truetype/droid/DroidSansFallbackFull.ttf"),
         PathBuf::from("/usr/share/fonts/truetype/arphic/uming.ttc"),
+        PathBuf::from("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"),
+        PathBuf::from("/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf"),
     ];
-    for p in candidates {
-        if let Ok(bytes) = std::fs::read(&p) {
-            return Some(bytes);
-        }
-    }
-    None
+    candidates
+        .into_iter()
+        .filter_map(|p| std::fs::read(&p).ok())
+        .collect()
 }
 
 struct AppState {
@@ -126,8 +129,9 @@ struct AppState {
 impl AppState {
     fn new() -> Self {
         let asset_root = find_asset_root();
-        let font_bytes = load_font_bytes(&asset_root);
-        let fonts = GlyphCache::new(font_bytes.as_deref());
+        let font_blobs = load_font_blobs(&asset_root);
+        let blob_refs: Vec<&[u8]> = font_blobs.iter().map(Vec::as_slice).collect();
+        let fonts = GlyphCache::from_font_blobs(&blob_refs);
         let sprites = SpriteStore::load_from_root(&asset_root);
         let audio = AudioEngine::new(&asset_root);
         let valid_skills: Vec<&str> = TABLES.skill_order.iter().map(String::as_str).collect();

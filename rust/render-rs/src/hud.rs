@@ -238,36 +238,31 @@ pub fn draw_hud_video(
     }
 
     // Skill hotbar (6 slots: A S D F G H)
-    let start_x = if sprites.get("hud").is_some() {
-        536.0
+    let has_hud = sprites.get("hud").is_some();
+    let start_x = if has_hud {
+        VIEW_LEFT as f32 + 427.0
     } else {
         left + 150.0
     };
-    let slot_y = bottom - 44.0;
+    let slot_y = if has_hud { 500.0 } else { bottom - 44.0 };
+    let slot_pitch = if has_hud { 35.0 } else { 40.0 };
+    let slot_w = if has_hud { 35.0 } else { 38.0 };
+    let slot_h = if has_hud { 36.0 } else { 38.0 };
+    let icon_size = if has_hud { 31.0 } else { 32.0 };
+    let icon_off = if has_hud { 2.0 } else { 3.0 };
     for (idx, key_label) in SLOT_KEYS.iter().enumerate() {
-        let sx = start_x + idx as f32 * 40.0;
+        let sx = start_x + idx as f32 * slot_pitch;
         if let Some(hud_sheet) = sprites.get("hud") {
             c.draw_image(
-                hud_sheet,
-                952,
-                0,
-                40,
-                39,
-                sx - 1.0,
-                slot_y - 1.0,
-                38.0,
-                38.0,
-                false,
-                1.0,
-                0.0,
+                hud_sheet, 952, 0, 40, 39, sx, slot_y, slot_w, slot_h, false, 1.0, 0.0,
             );
         } else {
-            c.fill_round_rect(sx, slot_y, 38.0, 38.0, 4.0, Rgba::new(22, 26, 36, 240));
+            c.fill_round_rect(sx, slot_y, slot_w, slot_h, 4.0, Rgba::new(22, 26, 36, 240));
             c.stroke_round_rect(
                 sx,
                 slot_y,
-                38.0,
-                38.0,
+                slot_w,
+                slot_h,
                 4.0,
                 Rgba::new(150, 128, 82, 210),
                 1.0,
@@ -307,10 +302,10 @@ pub fn draw_hud_video(
                         0,
                         iw,
                         ih,
-                        sx + 3.0,
-                        slot_y + 3.0,
-                        32.0,
-                        32.0,
+                        sx + icon_off,
+                        slot_y + icon_off,
+                        icon_size,
+                        icon_size,
                         false,
                         1.0,
                         0.0,
@@ -318,12 +313,18 @@ pub fn draw_hud_video(
                 }
             }
             if cd > 0.0 {
-                c.fill_rect(sx + 2.0, slot_y + 2.0, 34.0, 34.0, Rgba::new(0, 0, 0, 165));
+                c.fill_rect(
+                    sx + icon_off,
+                    slot_y + icon_off,
+                    icon_size,
+                    icon_size,
+                    Rgba::new(0, 0, 0, 165),
+                );
                 c.fill_text(
                     &format!("{cd:.1}"),
-                    sx + 19.0,
-                    slot_y + 24.0,
-                    12.0,
+                    sx + slot_w * 0.5,
+                    slot_y + slot_h * 0.65,
+                    11.0,
                     Rgba::new(255, 225, 130, 255),
                     TextAlign::Center,
                     None,
@@ -332,9 +333,9 @@ pub fn draw_hud_video(
         }
         c.fill_text(
             key_label,
-            sx + 5.0,
-            slot_y + 12.0,
-            10.0,
+            sx + 4.0,
+            slot_y + 11.0,
+            9.0,
             Rgba::new(230, 215, 170, 230),
             TextAlign::Left,
             Some(Rgba::new(0, 0, 0, 220)),
@@ -470,22 +471,24 @@ pub fn draw_hud_video(
         );
     }
 
-    // Log lines (bottom-left above HUD)
-    for (i, entry) in state.log.iter().enumerate() {
-        let col = match entry.tone.as_str() {
-            "gold" => Rgba::new(245, 205, 85, 240),
-            "cyan" => Rgba::new(92, 224, 245, 240),
-            _ => Rgba::new(232, 238, 248, 230),
-        };
-        c.fill_text(
-            &entry.text,
-            left + 12.0,
-            bottom - 92.0 - (state.log.len() - 1 - i) as f32 * 16.0,
-            11.0,
-            col,
-            TextAlign::Left,
-            Some(Rgba::new(0, 0, 0, 220)),
-        );
+    // Log lines (bottom-left above HUD, hidden behind full-screen title)
+    if !meta.title {
+        for (i, entry) in state.log.iter().enumerate() {
+            let col = match entry.tone.as_str() {
+                "gold" => Rgba::new(245, 205, 85, 240),
+                "cyan" => Rgba::new(92, 224, 245, 240),
+                _ => Rgba::new(232, 238, 248, 230),
+            };
+            c.fill_text(
+                &entry.text,
+                left + 12.0,
+                bottom - 92.0 - (state.log.len() - 1 - i) as f32 * 16.0,
+                11.0,
+                col,
+                TextAlign::Left,
+                Some(Rgba::new(0, 0, 0, 220)),
+            );
+        }
     }
 
     // Hint bar
@@ -661,71 +664,45 @@ pub fn draw_minimap(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
     for (idx, cell) in dun.cells.iter().enumerate() {
         let cx = mx + 6.0 + cell.col as f32 * tile;
         let cy = my + 6.0 + cell.row as f32 * tile;
-        let fill = if idx == state.cell {
-            Rgba::new(86, 178, 245, 245)
-        } else if cell.cleared {
-            Rgba::new(62, 128, 86, 220)
-        } else if cell.seen {
-            Rgba::new(72, 82, 104, 220)
-        } else {
-            Rgba::new(26, 30, 42, 200)
-        };
-        c.fill_rect(cx + 2.0, cy + 2.0, tile - 4.0, tile - 4.0, fill);
-        if (cell.exits & MINIMAP_DIR_E) != 0 {
-            c.fill_rect(
-                cx + tile - 2.0,
-                cy + tile * 0.4,
-                4.0,
-                3.0,
-                Rgba::new(180, 180, 200, 180),
-            );
-        }
-        if (cell.exits & MINIMAP_DIR_W) != 0 {
-            c.fill_rect(
-                cx - 2.0,
-                cy + tile * 0.4,
-                4.0,
-                3.0,
-                Rgba::new(180, 180, 200, 180),
-            );
-        }
-        if (cell.exits & MINIMAP_DIR_N) != 0 {
-            c.fill_rect(
-                cx + tile * 0.4,
-                cy - 2.0,
-                3.0,
-                4.0,
-                Rgba::new(180, 180, 200, 180),
-            );
-        }
-        if (cell.exits & MINIMAP_DIR_S) != 0 {
-            c.fill_rect(
-                cx + tile * 0.4,
-                cy + tile - 2.0,
-                3.0,
-                4.0,
-                Rgba::new(180, 180, 200, 180),
-            );
-        }
         if let Some(sh) = mm_sheet {
-            if !cell.seen && idx != dun.boss {
-                c.draw_image(sh, 22, 18, 18, 18, cx, cy, tile, tile, false, 0.9, 0.0);
-            }
-            if idx == dun.boss {
+            if cell.seen {
+                let tile_col = match cell.exits {
+                    1 => 13,  // room:N
+                    2 => 14,  // room:E
+                    3 => 2,   // corr:NE
+                    4 => 15,  // room:S
+                    5 => 4,   // corr:NS
+                    6 => 16,  // room:ES
+                    7 => 6,   // corr:NES
+                    8 => 17,  // room:W
+                    9 => 18,  // room:NW
+                    10 => 8,  // corr:EW
+                    11 => 9,  // corr:NEW
+                    12 => 10, // corr:SW
+                    13 => 11, // corr:NSW
+                    14 => 19, // room:ESW
+                    15 => 20, // room:NESW
+                    _ => 0,
+                };
                 c.draw_image(
                     sh,
-                    44,
+                    tile_col * 18,
+                    0,
                     18,
-                    16,
-                    14,
-                    cx + 1.0,
-                    cy + 2.0,
-                    16.0,
-                    14.0,
+                    18,
+                    cx,
+                    cy,
+                    tile,
+                    tile,
                     false,
                     1.0,
                     0.0,
                 );
+            } else {
+                c.fill_rect(cx, cy, tile, tile, Rgba::new(14, 18, 26, 230));
+                if idx != dun.boss {
+                    c.draw_image(sh, 22, 18, 18, 18, cx, cy, tile, tile, false, 0.9, 0.0);
+                }
             }
             if idx == state.cell {
                 c.draw_image(
@@ -743,14 +720,78 @@ pub fn draw_minimap(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
                     0.0,
                 );
             }
-        } else if idx == dun.boss {
-            c.fill_ellipse(
-                cx + tile * 0.5,
-                cy + tile * 0.5,
-                3.5,
-                3.5,
-                Rgba::new(235, 64, 64, 255),
-            );
+            if idx == dun.boss {
+                c.draw_image(
+                    sh,
+                    44,
+                    18,
+                    16,
+                    14,
+                    cx + 1.0,
+                    cy + 2.0,
+                    16.0,
+                    14.0,
+                    false,
+                    1.0,
+                    0.0,
+                );
+            }
+        } else {
+            let fill = if idx == state.cell {
+                Rgba::new(86, 178, 245, 245)
+            } else if cell.cleared {
+                Rgba::new(62, 128, 86, 220)
+            } else if cell.seen {
+                Rgba::new(72, 82, 104, 220)
+            } else {
+                Rgba::new(26, 30, 42, 200)
+            };
+            c.fill_rect(cx + 2.0, cy + 2.0, tile - 4.0, tile - 4.0, fill);
+            if (cell.exits & MINIMAP_DIR_E) != 0 {
+                c.fill_rect(
+                    cx + tile - 2.0,
+                    cy + tile * 0.4,
+                    4.0,
+                    3.0,
+                    Rgba::new(180, 180, 200, 180),
+                );
+            }
+            if (cell.exits & MINIMAP_DIR_W) != 0 {
+                c.fill_rect(
+                    cx - 2.0,
+                    cy + tile * 0.4,
+                    4.0,
+                    3.0,
+                    Rgba::new(180, 180, 200, 180),
+                );
+            }
+            if (cell.exits & MINIMAP_DIR_N) != 0 {
+                c.fill_rect(
+                    cx + tile * 0.4,
+                    cy - 2.0,
+                    3.0,
+                    4.0,
+                    Rgba::new(180, 180, 200, 180),
+                );
+            }
+            if (cell.exits & MINIMAP_DIR_S) != 0 {
+                c.fill_rect(
+                    cx + tile * 0.4,
+                    cy + tile - 2.0,
+                    3.0,
+                    4.0,
+                    Rgba::new(180, 180, 200, 180),
+                );
+            }
+            if idx == dun.boss {
+                c.fill_ellipse(
+                    cx + tile * 0.5,
+                    cy + tile * 0.5,
+                    3.5,
+                    3.5,
+                    Rgba::new(235, 64, 64, 255),
+                );
+            }
         }
     }
 }
@@ -854,28 +895,114 @@ pub fn draw_overlay(
 
     if meta.title {
         c.fill_rect(
-            VIEW_LEFT as f32,
             0.0,
-            VIEW_WIDTH as f32,
+            0.0,
+            ARENA_WIDTH as f32,
             ARENA_HEIGHT as f32,
-            Rgba::new(6, 10, 18, 130),
+            Rgba::new(5, 7, 14, 220),
         );
+        if let Some(sh) = sprites.get("slayer") {
+            let scale = 2.4f32;
+            let dw = 208.0 * scale;
+            let dh = 176.0 * scale;
+            c.draw_image(sh, 0, 0, 208, 176, -30.0, 96.0, dw, dh, false, 0.95, 0.0);
+        }
+        let tx = 344.0f32;
         c.fill_text(
-            "NANO DNF",
-            cx,
-            180.0,
-            48.0,
-            Rgba::new(240, 204, 120, 255),
-            TextAlign::Center,
+            "NANO",
+            tx,
+            108.0,
+            50.0,
+            Rgba::new(255, 240, 185, 255),
+            TextAlign::Left,
             Some(Rgba::new(0, 0, 0, 220)),
         );
         c.fill_text(
-            "鬼剑士 · 格兰之森试炼 (Rust 原生版)",
-            cx,
-            214.0,
+            "DNF",
+            tx,
+            160.0,
+            50.0,
+            Rgba::new(217, 167, 67, 255),
+            TextAlign::Left,
+            Some(Rgba::new(0, 0, 0, 220)),
+        );
+        c.fill_text(
+            "鬼剑士 · 地下城试炼",
+            tx,
+            196.0,
+            20.0,
+            Rgba::new(235, 240, 250, 255),
+            TextAlign::Left,
+            None,
+        );
+        let slot_names: Vec<&str> = (0..6)
+            .map(|i| {
+                meta.loadout
+                    .get(i)
+                    .and_then(|s| s.as_deref())
+                    .and_then(|id| core_rs::TABLES.skills.get(id))
+                    .map(|sk| sk.name.as_str())
+                    .unwrap_or("空槽")
+            })
+            .collect();
+        let row_3 = format!("{} / {} / {}", slot_names[0], slot_names[1], slot_names[2]);
+        let row_4 = format!("{} / {} / {}", slot_names[3], slot_names[4], slot_names[5]);
+        let rows = [
+            ("← → ↑ ↓", "移动（↑ ↓ 走进 / 走出屏幕）"),
+            ("C / Space", "跳跃"),
+            ("X", "普攻（连续按键接续连击）"),
+            ("A / S / D", row_3.as_str()),
+            ("F / G / H", row_4.as_str()),
+            ("Z / V", "上挑（空中为银光落刃） / 魔狱血刹"),
+            ("B", "配置技能"),
+            ("P / F3", "暂停 / 重开"),
+        ];
+        for (i, (k, desc)) in rows.iter().enumerate() {
+            let y = 236.0 + i as f32 * 26.0;
+            c.fill_text(
+                k,
+                tx,
+                y,
+                14.0,
+                Rgba::new(240, 206, 122, 255),
+                TextAlign::Left,
+                None,
+            );
+            c.fill_text(
+                desc,
+                508.0,
+                y,
+                14.0,
+                Rgba::new(230, 236, 246, 245),
+                TextAlign::Left,
+                None,
+            );
+        }
+        c.fill_text(
+            "清空房间后沿地图出口前进，击败关卡领主即可通关。",
+            tx,
+            462.0,
+            14.0,
+            Rgba::new(175, 188, 210, 225),
+            TextAlign::Left,
+            None,
+        );
+        c.fill_text(
+            "按任意键开始",
+            tx,
+            496.0,
             16.0,
-            Rgba::new(230, 238, 250, 240),
-            TextAlign::Center,
+            Rgba::new(255, 214, 107, 255),
+            TextAlign::Left,
+            None,
+        );
+        c.fill_text(
+            &format!("种子 #{}", meta.seed),
+            ARENA_WIDTH as f32 - 60.0,
+            132.0,
+            17.0,
+            Rgba::new(240, 206, 122, 255),
+            TextAlign::Right,
             None,
         );
         if let Some(best) = records_rs::best_overall(meta.records, Some(meta.stage_id)) {
@@ -885,21 +1012,21 @@ pub fn draw_overlay(
                     format_seconds(best.seconds),
                     best.level
                 ),
-                cx,
-                252.0,
+                ARENA_WIDTH as f32 - 60.0,
+                160.0,
                 14.0,
-                Rgba::new(135, 228, 175, 255),
-                TextAlign::Center,
+                Rgba::new(165, 180, 205, 230),
+                TextAlign::Right,
                 None,
             );
         }
         c.fill_text(
-            "按任意键开始游戏",
-            cx,
-            340.0,
-            18.0,
-            Rgba::new(255, 232, 160, 255),
-            TextAlign::Center,
+            "按 N 换一个种子",
+            ARENA_WIDTH as f32 - 60.0,
+            188.0,
+            14.0,
+            Rgba::new(220, 230, 245, 230),
+            TextAlign::Right,
             None,
         );
         return;

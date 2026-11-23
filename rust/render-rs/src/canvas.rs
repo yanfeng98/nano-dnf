@@ -49,38 +49,62 @@ impl Rgba {
 }
 
 pub struct GlyphCache {
-    font: Option<Font>,
+    fonts: Vec<Font>,
     glyphs: HashMap<(char, u16), (Metrics, Vec<u8>)>,
 }
 
 impl GlyphCache {
     pub fn new(font_bytes: Option<&[u8]>) -> Self {
-        let font = font_bytes
-            .and_then(|bytes| Font::from_bytes(bytes, fontdue::FontSettings::default()).ok());
+        match font_bytes {
+            Some(bytes) => Self::from_font_blobs(&[bytes]),
+            None => Self::from_font_blobs(&[]),
+        }
+    }
+
+    pub fn from_font_blobs(blobs: &[&[u8]]) -> Self {
+        let fonts = blobs
+            .iter()
+            .filter_map(|bytes| Font::from_bytes(*bytes, fontdue::FontSettings::default()).ok())
+            .collect();
         Self {
-            font,
+            fonts,
             glyphs: HashMap::new(),
         }
     }
 
+    fn font_for(&self, ch: char) -> Option<&Font> {
+        self.fonts
+            .iter()
+            .find(|f| f.lookup_glyph_index(ch) != 0)
+            .or_else(|| self.fonts.first())
+    }
+
     pub fn rasterize(&mut self, ch: char, px_tenths: u16) -> Option<&(Metrics, Vec<u8>)> {
-        let font = self.font.as_ref()?;
+        if self.fonts.is_empty() {
+            return None;
+        }
         let key = (ch, px_tenths);
-        let entry = self.glyphs.entry(key).or_insert_with(|| {
+        if !self.glyphs.contains_key(&key) {
+            let font = self.font_for(ch)?;
             let size = f32::from(px_tenths) / 10.0;
-            font.rasterize(ch, size)
-        });
-        Some(entry)
+            let raster = font.rasterize(ch, size);
+            self.glyphs.insert(key, raster);
+        }
+        self.glyphs.get(&key)
     }
 
     pub fn measure_text(&mut self, text: &str, size: f32) -> f32 {
-        let Some(ref font) = self.font else {
+        if self.fonts.is_empty() {
             return text.chars().count() as f32 * size * 0.6;
-        };
+        }
         let mut width = 0.0f32;
         for ch in text.chars() {
-            let metrics = font.metrics(ch, size);
-            width += metrics.advance_width;
+            if let Some(font) = self.font_for(ch) {
+                let metrics = font.metrics(ch, size);
+                width += metrics.advance_width;
+            } else {
+                width += size * 0.6;
+            }
         }
         width
     }

@@ -739,7 +739,25 @@ pub fn draw_enemy(c: &mut Canvas<'_>, state: &State, enemy: &Enemy, sprites: &Sp
     }
 }
 
+const DECAL_PIECES: [&str; 9] = [
+    "grassFlower",
+    "sprout",
+    "flower",
+    "bush",
+    "grassPatch",
+    "leaves",
+    "leavesBroad",
+    "leavesDense",
+    "pebble",
+];
+
 pub fn draw_world(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
+    for p in &state.props {
+        if !p.gone && DECAL_PIECES.contains(&p.piece.as_str()) {
+            draw_prop(c, state, p, sprites);
+        }
+    }
+
     struct WorldItem {
         z: f64,
         kind: u8,
@@ -747,7 +765,7 @@ pub fn draw_world(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
     }
     let mut items = Vec::new();
     for (idx, p) in state.props.iter().enumerate() {
-        if !p.gone {
+        if !p.gone && !DECAL_PIECES.contains(&p.piece.as_str()) {
             items.push(WorldItem {
                 z: p.sort_z.unwrap_or(p.z),
                 kind: 0,
@@ -798,7 +816,7 @@ pub fn draw_world(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
         idx: 0,
     });
 
-    items.sort_by(|a, b| b.z.total_cmp(&a.z));
+    items.sort_by(|a, b| b.z.total_cmp(&a.z).then_with(|| a.kind.cmp(&b.kind)));
 
     for item in items {
         match item.kind {
@@ -1106,8 +1124,6 @@ pub fn draw_world(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
             } else {
                 c.fill_ellipse(px, py, 28.0, 18.0, Rgba::new(235, 68, 76, 110));
             }
-        } else {
-            c.fill_ellipse(px, py, 26.0, 18.0, Rgba::new(235, 242, 255, 110));
         }
     }
 }
