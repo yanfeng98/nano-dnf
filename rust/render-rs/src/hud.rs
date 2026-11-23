@@ -960,41 +960,78 @@ pub fn draw_overlay(
                             None,
                         );
                         for i in 0..4usize {
-                            let card_x = cx - 180.0 + i as f32 * 96.0;
+                            let cw = 96.0f32;
+                            let ch = 64.0f32;
+                            let card_x = cx - 204.0 + i as f32 * 104.0;
+                            let card_y = cy - 44.0;
                             let picked = snap.picked == Some(i);
-                            c.fill_round_rect(
-                                card_x,
-                                cy - 60.0,
-                                76.0,
-                                110.0,
-                                6.0,
+                            if let Some(res_sheet) = sprites.get("results") {
+                                c.draw_image(
+                                    res_sheet, 2921, 0, 153, 97, card_x, card_y, cw, ch, false,
+                                    1.0, 0.0,
+                                );
+                                if !snap.face_up {
+                                    c.draw_image(
+                                        res_sheet,
+                                        3074,
+                                        0,
+                                        141,
+                                        61,
+                                        card_x + 4.0,
+                                        card_y + 12.0,
+                                        cw - 8.0,
+                                        ch - 24.0,
+                                        false,
+                                        0.92,
+                                        0.0,
+                                    );
+                                }
                                 if picked {
-                                    Rgba::new(82, 68, 32, 245)
-                                } else {
-                                    Rgba::new(26, 36, 56, 240)
-                                },
-                            );
-                            c.stroke_round_rect(
-                                card_x,
-                                cy - 60.0,
-                                76.0,
-                                110.0,
-                                6.0,
-                                if snap.face_up {
-                                    Rgba::new(240, 202, 108, 255)
-                                } else {
-                                    Rgba::new(86, 165, 215, 220)
-                                },
-                                2.0,
-                            );
+                                    c.stroke_round_rect(
+                                        card_x - 2.0,
+                                        card_y - 2.0,
+                                        cw + 4.0,
+                                        ch + 4.0,
+                                        4.0,
+                                        Rgba::new(255, 220, 110, 255),
+                                        2.5,
+                                    );
+                                }
+                            } else {
+                                c.fill_round_rect(
+                                    card_x,
+                                    card_y,
+                                    cw,
+                                    ch,
+                                    6.0,
+                                    if picked {
+                                        Rgba::new(82, 68, 32, 245)
+                                    } else {
+                                        Rgba::new(26, 36, 56, 240)
+                                    },
+                                );
+                                c.stroke_round_rect(
+                                    card_x,
+                                    card_y,
+                                    cw,
+                                    ch,
+                                    6.0,
+                                    if snap.face_up {
+                                        Rgba::new(240, 202, 108, 255)
+                                    } else {
+                                        Rgba::new(86, 165, 215, 220)
+                                    },
+                                    2.0,
+                                );
+                            }
                             c.fill_text(
                                 &(i + 1).to_string(),
-                                card_x + 38.0,
-                                cy,
-                                20.0,
-                                Rgba::new(240, 245, 255, 255),
+                                card_x + cw * 0.5,
+                                card_y + ch * 0.6,
+                                18.0,
+                                Rgba::new(255, 240, 195, 255),
                                 TextAlign::Center,
-                                None,
+                                Some(Rgba::new(0, 0, 0, 220)),
                             );
                         }
                         if snap.picked.is_some() {

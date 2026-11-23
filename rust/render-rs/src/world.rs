@@ -932,8 +932,8 @@ pub fn draw_world(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
                 let sx = sh.x as f32;
                 let sy = (sh.y - depth_lift(sh.z) - 24.0) as f32;
                 let age = (sh.max_life - sh.life).max(0.0);
-                if sh.skill_id == "normalWave" {
-                    if let Some(eff) = sprites.get("effects") {
+                let drawn = if let Some(eff) = sprites.get("effects") {
+                    if sh.skill_id == "normalWave" {
                         let frame = (((age / 0.06667) as u32).min(4)) % 5;
                         c.draw_image(
                             eff,
@@ -949,10 +949,31 @@ pub fn draw_world(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
                             0.92,
                             0.0,
                         );
+                        true
+                    } else if sh.skill_id == "crossSlash" {
+                        let frame = ((age / 0.05) as u32) % 6;
+                        c.draw_image(
+                            eff,
+                            frame * 128,
+                            4 * 128,
+                            128,
+                            128,
+                            sx - 64.0,
+                            sy - 64.0,
+                            128.0,
+                            128.0,
+                            sh.facing < 0,
+                            0.92,
+                            0.0,
+                        );
+                        true
                     } else {
-                        c.fill_ellipse(sx, sy, 28.0, 18.0, Rgba::new(225, 58, 72, 200));
+                        false
                     }
                 } else {
+                    false
+                };
+                if !drawn {
                     c.fill_ellipse(sx, sy, 28.0, 18.0, Rgba::new(225, 58, 72, 200));
                 }
             }
