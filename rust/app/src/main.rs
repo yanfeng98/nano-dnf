@@ -71,6 +71,8 @@ fn load_font_bytes(root: &Path) -> Option<Vec<u8>> {
         PathBuf::from("C:\\Windows\\Fonts\\msyh.ttc"),
         PathBuf::from("C:\\Windows\\Fonts\\simhei.ttf"),
         PathBuf::from("C:\\Windows\\Fonts\\simsun.ttc"),
+        PathBuf::from("/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc"),
+        PathBuf::from("/usr/share/fonts/opentype/noto/NotoSansCJK-Medium.ttc"),
         PathBuf::from("/usr/share/fonts/truetype/droid/DroidSansFallbackFull.ttf"),
         PathBuf::from("/usr/share/fonts/truetype/arphic/uming.ttc"),
     ];
@@ -669,7 +671,10 @@ impl AppState {
                 self.mode = ScreenMode::Region;
             }
             ScreenMode::Region => match code {
-                KeyCode::ArrowUp | KeyCode::ArrowDown => {
+                KeyCode::ArrowUp
+                | KeyCode::ArrowDown
+                | KeyCode::ArrowLeft
+                | KeyCode::ArrowRight => {
                     self.region_selected = if self.region_selected == "mirkwood" {
                         "mirkwooddeep".to_string()
                     } else {

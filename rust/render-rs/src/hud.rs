@@ -141,6 +141,10 @@ pub fn draw_hud_video(
                 hud_sheet, 876, src_y, 76, crop_h, 794.0, dst_y, 38.0, dst_h, false, 1.0, 0.0,
             );
         }
+        let xp_x = VIEW_LEFT as f32 + 132.0;
+        let xp_w = 164.0f32;
+        let xp_y = 485.0f32;
+        c.fill_rect(xp_x, xp_y, xp_w, 8.0, Rgba::new(0, 0, 0, 204));
         if xp_ratio > 0.0 {
             c.draw_image(
                 hud_sheet,
@@ -148,21 +152,29 @@ pub fn draw_hud_video(
                 146,
                 200,
                 3,
-                187.0,
-                485.0,
-                160.0 * xp_ratio,
-                6.0,
+                xp_x,
+                xp_y,
+                xp_w * xp_ratio,
+                8.0,
                 false,
                 1.0,
                 0.0,
             );
         }
+        c.stroke_rect(
+            xp_x - 1.5,
+            xp_y - 1.5,
+            xp_w + 3.0,
+            11.0,
+            Rgba::new(226, 191, 114, 140),
+            1.0,
+        );
         c.fill_text(
             &format!("Lv.{}", state.player.level),
-            190.0,
-            479.0,
-            12.0,
-            Rgba::new(240, 210, 130, 255),
+            200.0,
+            493.0,
+            11.0,
+            Rgba::new(232, 236, 239, 255),
             TextAlign::Left,
             Some(Rgba::new(0, 0, 0, 220)),
         );
@@ -773,16 +785,20 @@ pub fn draw_overlay(
             ("mirkwood", "幽暗密林", 0u32),
             ("mirkwooddeep", "幽暗密林深处", 2u32),
         ];
+        let bw = 168.0f32;
+        let bh = 73.0f32;
+        let gap_x = 14.0f32;
+        let row_w = stages.len() as f32 * bw + (stages.len().saturating_sub(1) as f32) * gap_x;
+        let row_x = (ARENA_WIDTH as f32 - row_w) * 0.5;
+        let by = 150.0f32;
         for (i, (id, label, slot)) in stages.iter().enumerate() {
-            let bw = 210.0f32;
-            let bh = 73.0f32;
-            let bx = cx - bw * 0.5;
-            let by = 128.0 + i as f32 * 96.0;
+            let bx = row_x + i as f32 * (bw + gap_x);
+            let card_cx = bx + bw * 0.5;
             let sel = meta.region_selected == *id;
             if let Some(rsh) = sprites.get("region") {
-                let sx = (slot % 4) * 210;
-                let sy = (slot / 4) * 73;
-                c.draw_image(rsh, sx, sy, 210, 73, bx, by, bw, bh, false, 1.0, 0.0);
+                let sx = (slot % 5) * 168;
+                let sy = (slot / 5) * 73;
+                c.draw_image(rsh, sx, sy, 168, 73, bx, by, bw, bh, false, 1.0, 0.0);
             } else {
                 c.fill_round_rect(
                     bx,
@@ -812,8 +828,8 @@ pub fn draw_overlay(
             );
             c.fill_text(
                 label,
-                cx,
-                by + bh + 16.0,
+                card_cx,
+                by + bh + 18.0,
                 14.0,
                 if sel {
                     Rgba::new(255, 226, 140, 255)
@@ -825,9 +841,9 @@ pub fn draw_overlay(
             );
         }
         c.fill_text(
-            "↑↓ 切换 · Enter/Space 进入 · Esc 回城",
+            "←→ 切换 · Enter/Space 进入 · Esc 回城",
             cx,
-            360.0,
+            300.0,
             13.0,
             Rgba::new(190, 205, 225, 220),
             TextAlign::Center,

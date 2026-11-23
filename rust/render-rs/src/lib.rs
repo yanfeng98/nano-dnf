@@ -33,7 +33,9 @@ pub fn render(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore, meta: &R
     );
     c.save();
     c.translate(VIEW_LEFT as f32, 0.0);
+    c.translate(0.0, ARENA_GROUND_Y as f32);
     c.scale(CAMERA_ZOOM as f32, CAMERA_ZOOM as f32);
+    c.translate(0.0, -(ARENA_GROUND_Y as f32));
     c.translate(-(state.camera_x as f32), -(state.camera_y as f32));
 
     world::draw_backdrop(c, state, sprites);
