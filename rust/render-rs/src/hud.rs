@@ -547,7 +547,12 @@ pub fn draw_minimap(c: &mut Canvas<'_>, state: &State) {
     }
 }
 
-pub fn draw_overlay(c: &mut Canvas<'_>, state: &State, meta: &RenderMeta<'_>) {
+pub fn draw_overlay(
+    c: &mut Canvas<'_>,
+    state: &State,
+    sprites: &SpriteStore,
+    meta: &RenderMeta<'_>,
+) {
     let cx = (VIEW_LEFT + VIEW_WIDTH * 0.5) as f32;
     let cy = (ARENA_HEIGHT * 0.5) as f32;
 
@@ -568,44 +573,59 @@ pub fn draw_overlay(c: &mut Canvas<'_>, state: &State, meta: &RenderMeta<'_>) {
             TextAlign::Center,
             None,
         );
-        let stages = [("mirkwood", "幽暗密林"), ("mirkwooddeep", "幽暗密林深处")];
-        for (i, (id, label)) in stages.iter().enumerate() {
-            let bx = cx - 150.0;
-            let by = 140.0 + i as f32 * 86.0;
+        let stages = [
+            ("mirkwood", "幽暗密林", 0u32),
+            ("mirkwooddeep", "幽暗密林深处", 2u32),
+        ];
+        for (i, (id, label, slot)) in stages.iter().enumerate() {
+            let bw = 210.0f32;
+            let bh = 73.0f32;
+            let bx = cx - bw * 0.5;
+            let by = 128.0 + i as f32 * 96.0;
             let sel = meta.region_selected == *id;
-            c.fill_round_rect(
-                bx,
-                by,
-                300.0,
-                64.0,
-                8.0,
-                if sel {
-                    Rgba::new(42, 62, 92, 240)
-                } else {
-                    Rgba::new(22, 28, 42, 220)
-                },
-            );
+            if let Some(rsh) = sprites.get("region") {
+                let sx = (slot % 4) * 210;
+                let sy = (slot / 4) * 73;
+                c.draw_image(rsh, sx, sy, 210, 73, bx, by, bw, bh, false, 1.0, 0.0);
+            } else {
+                c.fill_round_rect(
+                    bx,
+                    by,
+                    bw,
+                    bh,
+                    8.0,
+                    if sel {
+                        Rgba::new(42, 62, 92, 240)
+                    } else {
+                        Rgba::new(22, 28, 42, 220)
+                    },
+                );
+            }
             c.stroke_round_rect(
                 bx,
                 by,
-                300.0,
-                64.0,
-                8.0,
+                bw,
+                bh,
+                6.0,
                 if sel {
-                    Rgba::new(235, 195, 105, 255)
+                    Rgba::new(245, 210, 110, 255)
                 } else {
                     Rgba::new(90, 105, 130, 180)
                 },
-                2.0,
+                if sel { 2.5 } else { 1.5 },
             );
             c.fill_text(
                 label,
                 cx,
-                by + 38.0,
-                18.0,
-                Rgba::new(240, 245, 255, 255),
+                by + bh + 16.0,
+                14.0,
+                if sel {
+                    Rgba::new(255, 226, 140, 255)
+                } else {
+                    Rgba::new(210, 220, 235, 220)
+                },
                 TextAlign::Center,
-                None,
+                Some(Rgba::new(0, 0, 0, 220)),
             );
         }
         c.fill_text(

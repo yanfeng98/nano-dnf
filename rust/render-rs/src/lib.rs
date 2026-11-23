@@ -77,7 +77,7 @@ pub fn render(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore, meta: &R
         }
     }
 
-    hud::draw_overlay(c, state, meta);
+    hud::draw_overlay(c, state, sprites, meta);
 
     if (!overlay_open || meta.attract) && state.transition > 0.0 {
         let alpha = (state.transition / TRANSITION_DUR).clamp(0.0, 1.0) as f32;
