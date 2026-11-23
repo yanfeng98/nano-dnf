@@ -822,24 +822,44 @@ pub fn draw_world(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
             }
             3 => {
                 let f = &state.fields[item.idx];
-                let (_, fade) = core_rs::combat::field_progress(f);
+                let (prog, fade) = core_rs::combat::field_progress(f);
                 let fx = f.x as f32;
                 let fy = floor_y(f.z);
-                c.fill_ellipse(
-                    fx,
-                    fy,
-                    86.0,
-                    22.0,
-                    Rgba::new(230, 58, 36, 255).with_alpha(0.45 * fade as f32),
-                );
-                c.stroke_ellipse(
-                    fx,
-                    fy,
-                    86.0,
-                    22.0,
-                    Rgba::new(255, 175, 70, 255).with_alpha(0.75 * fade as f32),
-                    2.0,
-                );
+                if let Some(rift) = sprites.get("rift") {
+                    let row = if f.skill_id == "hellbenterSlam" { 2 } else { 0 };
+                    let max_col = (rift.width() / 384).saturating_sub(1);
+                    let col = ((prog.clamp(0.0, 0.999) * (max_col + 1) as f64) as u32).min(max_col);
+                    c.draw_image(
+                        rift,
+                        col * 384,
+                        row * 384,
+                        384,
+                        384,
+                        fx - 120.0,
+                        fy - 144.0,
+                        240.0,
+                        240.0,
+                        false,
+                        fade as f32,
+                        0.0,
+                    );
+                } else {
+                    c.fill_ellipse(
+                        fx,
+                        fy,
+                        86.0,
+                        22.0,
+                        Rgba::new(230, 58, 36, 255).with_alpha(0.45 * fade as f32),
+                    );
+                    c.stroke_ellipse(
+                        fx,
+                        fy,
+                        86.0,
+                        22.0,
+                        Rgba::new(255, 175, 70, 255).with_alpha(0.75 * fade as f32),
+                        2.0,
+                    );
+                }
             }
             4 => {
                 let pr = &state.projectiles[item.idx];
@@ -1090,7 +1110,7 @@ pub fn draw_foreground(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore)
     }
 }
 
-pub fn draw_effect(c: &mut Canvas<'_>, state: &State, effect: &Effect) {
+pub fn draw_effect(c: &mut Canvas<'_>, state: &State, effect: &Effect, sprites: &SpriteStore) {
     let alpha = if effect.max_life > 0.0 {
         (effect.life / effect.max_life).clamp(0.0, 1.0) as f32
     } else {
@@ -1194,13 +1214,35 @@ pub fn draw_effect(c: &mut Canvas<'_>, state: &State, effect: &Effect) {
             );
         }
         "bomb_flash" | "bossburst" => {
+            let ex = effect.x as f32;
+            let ey = (effect.y - depth_lift(effect.z)) as f32;
             c.fill_ellipse(
-                effect.x as f32,
-                (effect.y - depth_lift(effect.z)) as f32,
+                ex,
+                ey,
                 38.0 * (1.2 - alpha * 0.5),
                 28.0 * (1.2 - alpha * 0.5),
                 Rgba::new(255, 220, 140, 255).with_alpha(alpha),
             );
+            if effect.kind == "bossburst" {
+                if let Some(bd) = sprites.get("bossdeath") {
+                    let bw = bd.width() as f32;
+                    let bh = bd.height() as f32;
+                    c.draw_image(
+                        bd,
+                        0,
+                        0,
+                        bd.width(),
+                        bd.height(),
+                        ex - bw * 0.5,
+                        ey - 44.0,
+                        bw,
+                        bh,
+                        false,
+                        alpha,
+                        0.0,
+                    );
+                }
+            }
         }
         _ => {}
     }

@@ -48,7 +48,7 @@ pub fn render(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore, meta: &R
         if state.stage_id == "mirkwooddeep" && effect.kind == "telegraph" {
             continue;
         }
-        world::draw_effect(c, state, effect);
+        world::draw_effect(c, state, effect, sprites);
     }
     c.restore();
 
