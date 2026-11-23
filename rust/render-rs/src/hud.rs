@@ -2,6 +2,7 @@
 
 use crate::canvas::{Canvas, Rgba, TextAlign};
 use crate::sprites::SpriteStore;
+use crate::tables::rect_at;
 use core_rs::constants::*;
 use core_rs::dungeon::MINIMAP_DIR_E;
 use core_rs::dungeon::MINIMAP_DIR_N;
@@ -264,13 +265,58 @@ pub fn draw_hud_video(
         } else {
             180.0
         };
-        c.fill_round_rect(tx, ty, bw + 44.0, 38.0, 4.0, Rgba::new(12, 16, 24, 215));
+        let has_portrait = sprites.get("portraits").is_some();
+        let text_x = if has_portrait { tx + 40.0 } else { tx + 8.0 };
+        c.fill_round_rect(tx, ty, bw + 60.0, 38.0, 4.0, Rgba::new(12, 16, 24, 215));
+        if let Some(psheet) = sprites.get("portraits") {
+            let pkey = if target.enemy.kind == "deepBoss" {
+                "lugaruBoss"
+            } else if target.enemy.behavior == "boss" {
+                "boss"
+            } else {
+                target.enemy.kind.as_str()
+            };
+            if let Some([sx, sy, sw, sh]) =
+                rect_at(&["PORTRAITS", pkey]).or_else(|| rect_at(&["PORTRAITS", "grunt"]))
+            {
+                c.draw_image(
+                    psheet,
+                    sx,
+                    sy,
+                    sw,
+                    sh,
+                    tx + 6.0,
+                    ty + 6.0,
+                    26.0,
+                    26.0,
+                    false,
+                    1.0,
+                    0.0,
+                );
+            }
+            if let Some([fx, fy, fw, fh]) = rect_at(&["PORTRAITS", "frame"]) {
+                c.draw_image(
+                    psheet,
+                    fx,
+                    fy,
+                    fw,
+                    fh,
+                    tx + 4.0,
+                    ty + 4.0,
+                    30.0,
+                    30.0,
+                    false,
+                    1.0,
+                    0.0,
+                );
+            }
+        }
         c.fill_text(
             &format!(
                 "{} Lv.{} {}",
                 target.enemy.race, target.enemy.level, target.enemy.label
             ),
-            tx + 8.0,
+            text_x,
             ty + 15.0,
             12.0,
             Rgba::new(240, 225, 185, 255),
@@ -278,16 +324,16 @@ pub fn draw_hud_video(
             None,
         );
         c.fill_rect(
-            tx + 8.0,
+            text_x,
             ty + 22.0,
-            bw + 28.0,
+            bw + 12.0,
             8.0,
             Rgba::new(28, 22, 26, 255),
         );
         c.fill_rect(
-            tx + 8.0,
+            text_x,
             ty + 22.0,
-            (bw + 28.0) * target.share as f32,
+            (bw + 12.0) * target.share as f32,
             8.0,
             if target.enemy.behavior == "boss" {
                 Rgba::new(205, 42, 118, 255)

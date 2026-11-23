@@ -899,15 +899,74 @@ pub fn draw_world(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
         }
     }
 
-    // Active skill slash arc visual
+    // Active skill / rage slash visual
+    let flip = state.player.facing < 0;
     if state.player.skill_timer > 0.0 {
         let px = state.player.x as f32 + state.player.facing as f32 * 44.0;
         let py = feet_y_player(&state.player) - 32.0;
-        c.fill_ellipse(px, py, 36.0, 24.0, Rgba::new(235, 68, 76, 110));
+        let skill_spec = match state.player.skill_id.as_deref() {
+            Some("ghostSlash") => Some((1u32, 6u32)),
+            Some("upSlash") => Some((2, 9)),
+            Some("mountainBreaker") => Some((3, 6)),
+            Some("bloodyRave") => Some((20, 12)),
+            Some("bloodSword") => Some((22, 8)),
+            _ => None,
+        };
+        if let (Some((row, frames)), Some(eff)) = (skill_spec, sprites.get("effects")) {
+            let dur = state
+                .player
+                .skill_id
+                .as_deref()
+                .and_then(|id| core_rs::TABLES.skills.get(id))
+                .map(|sk| sk.duration.max(0.1))
+                .unwrap_or(0.5);
+            let prog = (1.0 - (state.player.skill_timer / dur)).clamp(0.0, 0.999);
+            let frame = (prog * frames as f64) as u32;
+            c.draw_image(
+                eff,
+                frame * 128,
+                row * 128,
+                128,
+                128,
+                px - 64.0,
+                py - 64.0,
+                128.0,
+                128.0,
+                flip,
+                0.9,
+                0.0,
+            );
+        } else {
+            c.fill_ellipse(px, py, 36.0, 24.0, Rgba::new(235, 68, 76, 110));
+        }
     } else if state.player.attack_timer > 0.0 {
         let px = state.player.x as f32 + state.player.facing as f32 * 38.0;
         let py = feet_y_player(&state.player) - 32.0;
-        c.fill_ellipse(px, py, 26.0, 18.0, Rgba::new(235, 242, 255, 110));
+        if state.player.buffs.contains_key("bloodRage") {
+            if let Some(eff) = sprites.get("effects") {
+                let dur = state.player.attack_duration.max(0.1);
+                let prog = (1.0 - (state.player.attack_timer / dur)).clamp(0.0, 0.999);
+                let frame = (prog * 8.0) as u32;
+                c.draw_image(
+                    eff,
+                    frame * 128,
+                    16 * 128,
+                    128,
+                    128,
+                    px - 64.0,
+                    py - 64.0,
+                    128.0,
+                    128.0,
+                    flip,
+                    0.9,
+                    0.0,
+                );
+            } else {
+                c.fill_ellipse(px, py, 28.0, 18.0, Rgba::new(235, 68, 76, 110));
+            }
+        } else {
+            c.fill_ellipse(px, py, 26.0, 18.0, Rgba::new(235, 242, 255, 110));
+        }
     }
 }
 
