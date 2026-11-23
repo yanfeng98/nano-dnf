@@ -48,3 +48,9 @@ __pycache__/
 
 # The asset tools' Python venv (pillow / numpy / scipy / pydnfex)
 .venv/
+
+# Rust build artifacts, Windows distribution bundles, local saves, and pnpm lockfile
+rust/target/
+dist/
+nano-dnf-save.json
+pnpm-lock.yaml

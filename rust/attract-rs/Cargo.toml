@@ -1,0 +1,8 @@
+[package]
+name = "attract-rs"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+core-rs = { path = "../core-rs" }

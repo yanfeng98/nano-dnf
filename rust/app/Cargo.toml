@@ -1,0 +1,29 @@
+[package]
+name = "nano-dnf"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "nano-dnf"
+path = "src/main.rs"
+
+[dependencies]
+core-rs = { path = "../core-rs" }
+attract-rs = { path = "../attract-rs" }
+hints-rs = { path = "../hints-rs" }
+loadout-rs = { path = "../loadout-rs" }
+music-rs = { path = "../music-rs" }
+progress-rs = { path = "../progress-rs" }
+records-rs = { path = "../records-rs" }
+reward-rs = { path = "../reward-rs" }
+summary-rs = { path = "../summary-rs" }
+render-rs = { path = "../render-rs" }
+winit = "0.30"
+softbuffer = "0.4"
+tiny-skia = "0.11"
+serde = { workspace = true }
+serde_json = { workspace = true }
+
+[target.'cfg(target_os = "windows")'.dependencies]
+rodio = { version = "0.20", default-features = false, features = ["vorbis"] }

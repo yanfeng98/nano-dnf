@@ -1,0 +1,625 @@
+//! Native desktop entry point for nano-dnf (`src/main.js`).
+#![cfg_attr(
+    all(target_os = "windows", not(debug_assertions)),
+    windows_subsystem = "windows"
+)]
+
+mod audio;
+mod save;
+
+use attract_rs::{create as create_attract, step_session as step_attract, AttractSession};
+use audio::AudioEngine;
+use core_rs::constants::*;
+use core_rs::types::{CreateStateOptions, Input, State};
+use core_rs::{create_state, drain_sounds, step as step_core, TABLES};
+use loadout_rs::Loadout;
+use music_rs::track_for;
+use progress_rs::{note_break, note_clear, note_kill, ProgressProfile};
+use records_rs::{record as record_run, RecordStore, RunInput};
+use render_rs::{
+    draw_town, render, Canvas, GlyphCache, ProgressPanelKind, RenderMeta, SpriteStore,
+};
+use reward_rs::{
+    create as create_reward, pick as pick_reward, step as step_reward, take_prize, RewardState,
+};
+use softbuffer::{Context, Surface};
+use std::collections::HashSet;
+use std::num::NonZeroU32;
+use std::path::{Path, PathBuf};
+use std::rc::Rc;
+use std::time::{Duration, Instant};
+use tiny_skia::Pixmap;
+use winit::application::ApplicationHandler;
+use winit::dpi::LogicalSize;
+use winit::event::{ElementState, KeyEvent, WindowEvent};
+use winit::event_loop::{ActiveEventLoop, ControlFlow, EventLoop};
+use winit::keyboard::{KeyCode, PhysicalKey};
+use winit::window::{Window, WindowId};
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum ScreenMode {
+    Title,
+    Region,
+    Town,
+    Playing,
+}
+
+fn find_asset_root() -> PathBuf {
+    if let Ok(exe) = std::env::current_exe() {
+        if let Some(dir) = exe.parent() {
+            if dir.join("assets").is_dir() {
+                return dir.to_path_buf();
+            }
+        }
+    }
+    let cwd = std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
+    if cwd.join("assets").is_dir() {
+        return cwd;
+    }
+    if let Some(parent) = cwd.parent() {
+        if parent.join("assets").is_dir() {
+            return parent.to_path_buf();
+        }
+    }
+    cwd
+}
+
+fn load_font_bytes(root: &Path) -> Option<Vec<u8>> {
+    let candidates = [
+        root.join("assets/font.ttf"),
+        PathBuf::from("C:\\Windows\\Fonts\\msyh.ttc"),
+        PathBuf::from("C:\\Windows\\Fonts\\simhei.ttf"),
+        PathBuf::from("C:\\Windows\\Fonts\\simsun.ttc"),
+        PathBuf::from("/usr/share/fonts/truetype/droid/DroidSansFallbackFull.ttf"),
+        PathBuf::from("/usr/share/fonts/truetype/arphic/uming.ttc"),
+    ];
+    for p in candidates {
+        if let Ok(bytes) = std::fs::read(&p) {
+            return Some(bytes);
+        }
+    }
+    None
+}
+
+struct AppState {
+    window: Option<Rc<Window>>,
+    surface: Option<Surface<Rc<Window>, Rc<Window>>>,
+    pixmap: Pixmap,
+    fonts: GlyphCache,
+    sprites: SpriteStore,
+    audio: AudioEngine,
+    asset_root: PathBuf,
+    mode: ScreenMode,
+    state: State,
+    attract: AttractSession,
+    records: RecordStore,
+    progress: ProgressProfile,
+    loadout: Loadout,
+    reward: Option<RewardState>,
+    paused: bool,
+    show_help: bool,
+    progress_panel: ProgressPanelKind,
+    region_selected: String,
+    town_x: f64,
+    town_z: f64,
+    town_facing: i32,
+    held_keys: HashSet<KeyCode>,
+    seen_hints: HashSet<String>,
+    active_hint: Option<(String, f64)>,
+    recorded_finish: bool,
+    last_kills: u32,
+    last_barrels: u32,
+    last_tick: Instant,
+    accumulator: f64,
+}
+
+impl AppState {
+    fn new() -> Self {
+        let asset_root = find_asset_root();
+        let font_bytes = load_font_bytes(&asset_root);
+        let fonts = GlyphCache::new(font_bytes.as_deref());
+        let sprites = SpriteStore::load_from_root(&asset_root);
+        let audio = AudioEngine::new(&asset_root);
+        let valid_skills: Vec<&str> = TABLES.skill_order.iter().map(String::as_str).collect();
+        let (records, progress, loadout) =
+            save::load_all(&asset_root, &valid_skills, DEFAULT_STAGE);
+        let state = create_state(&CreateStateOptions::default());
+        let attract = create_attract(Some(DEFAULT_SEED));
+        // INFALLIBLE: ARENA_WIDTH=960, ARENA_HEIGHT=540
+        let pixmap = Pixmap::new(ARENA_WIDTH as u32, ARENA_HEIGHT as u32)
+            .expect("INFALLIBLE: valid 960x540 pixmap");
+
+        Self {
+            window: None,
+            surface: None,
+            pixmap,
+            fonts,
+            sprites,
+            audio,
+            asset_root,
+            mode: ScreenMode::Title,
+            state,
+            attract,
+            records,
+            progress,
+            loadout,
+            reward: None,
+            paused: false,
+            show_help: false,
+            progress_panel: ProgressPanelKind::None,
+            region_selected: DEFAULT_STAGE.to_string(),
+            town_x: 360.0,
+            town_z: 80.0,
+            town_facing: 1,
+            held_keys: HashSet::new(),
+            seen_hints: HashSet::new(),
+            active_hint: None,
+            recorded_finish: false,
+            last_kills: 0,
+            last_barrels: 0,
+            last_tick: Instant::now(),
+            accumulator: 0.0,
+        }
+    }
+
+    fn restart_run(&mut self, stage_id: &str, seed: u32) {
+        self.state = create_state(&CreateStateOptions {
+            seed: Some(seed),
+            stage: Some(stage_id),
+            ..Default::default()
+        });
+        let valid_skills: Vec<&str> = TABLES.skill_order.iter().map(String::as_str).collect();
+        self.loadout = loadout_rs::create(&valid_skills, Some(stage_id));
+        self.reward = None;
+        self.paused = false;
+        self.show_help = false;
+        self.progress_panel = ProgressPanelKind::None;
+        self.seen_hints.clear();
+        self.active_hint = None;
+        self.recorded_finish = false;
+        self.last_kills = 0;
+        self.last_barrels = 0;
+        self.mode = ScreenMode::Playing;
+    }
+
+    fn current_input(&self) -> Input {
+        let mut inp = Input {
+            left: self.held_keys.contains(&KeyCode::ArrowLeft),
+            right: self.held_keys.contains(&KeyCode::ArrowRight),
+            up: self.held_keys.contains(&KeyCode::ArrowUp),
+            down: self.held_keys.contains(&KeyCode::ArrowDown),
+            jump: self.held_keys.contains(&KeyCode::KeyC)
+                || self.held_keys.contains(&KeyCode::Space),
+            attack: self.held_keys.contains(&KeyCode::KeyX),
+            skills: [false; 16],
+        };
+        let slot_codes = [
+            KeyCode::KeyA,
+            KeyCode::KeyS,
+            KeyCode::KeyD,
+            KeyCode::KeyF,
+            KeyCode::KeyG,
+            KeyCode::KeyH,
+        ];
+        for (i, code) in slot_codes.iter().enumerate() {
+            if self.held_keys.contains(code) {
+                if let Some(Some(sid)) = self.loadout.get(i) {
+                    inp.set_skill(sid, true);
+                }
+            }
+        }
+        if self.held_keys.contains(&KeyCode::KeyZ) {
+            inp.set_skill("upSlash", true);
+        }
+        if self.held_keys.contains(&KeyCode::KeyV) {
+            inp.set_skill("hellbenter", true);
+        }
+        inp
+    }
+
+    fn tick(&mut self, dt: f64) {
+        match self.mode {
+            ScreenMode::Title => {
+                step_attract(&mut self.attract, Some(dt));
+                self.audio.sync_track(track_for(None, None, None, true));
+            }
+            ScreenMode::Region => {
+                self.audio.sync_track(track_for(None, None, None, true));
+            }
+            ScreenMode::Town => {
+                self.audio.sync_track(track_for(None, None, None, true));
+                let dx = i32::from(self.held_keys.contains(&KeyCode::ArrowRight))
+                    - i32::from(self.held_keys.contains(&KeyCode::ArrowLeft));
+                let dz = i32::from(self.held_keys.contains(&KeyCode::ArrowUp))
+                    - i32::from(self.held_keys.contains(&KeyCode::ArrowDown));
+                if dx != 0 {
+                    self.town_facing = dx;
+                }
+                self.town_x =
+                    (self.town_x + f64::from(dx) * 140.0 * dt).clamp(40.0, VIEW_WIDTH - 40.0);
+                self.town_z = (self.town_z + f64::from(dz) * 220.0 * dt)
+                    .clamp(0.0, band_depth(BAND_DEFAULT_BACK_Y));
+            }
+            ScreenMode::Playing => {
+                let boss_cell = self.state.dungeon.as_ref().map(|d| d.boss);
+                self.audio.sync_track(track_for(
+                    Some(self.state.cell),
+                    boss_cell,
+                    Some(&self.state.stage_id),
+                    false,
+                ));
+                if !self.paused && !self.show_help {
+                    let inp = self.current_input();
+                    step_core(&mut self.state, &inp, Some(dt));
+                    let sounds = drain_sounds(&mut self.state);
+                    self.audio.play_events(&sounds);
+
+                    if self.state.stats.kills > self.last_kills {
+                        let dk = self.state.stats.kills - self.last_kills;
+                        self.last_kills = self.state.stats.kills;
+                        note_kill(&mut self.progress, "cat", dk);
+                    }
+                    if self.state.stats.barrels > self.last_barrels {
+                        let db = self.state.stats.barrels - self.last_barrels;
+                        self.last_barrels = self.state.stats.barrels;
+                        note_break(&mut self.progress, db);
+                    }
+
+                    if let Some((_, ref mut ttl)) = self.active_hint {
+                        *ttl -= dt;
+                        if *ttl <= 0.0 {
+                            self.active_hint = None;
+                        }
+                    }
+                    if self.active_hint.is_none() {
+                        if let Some(sel) = hints_rs::select(&self.state, &self.seen_hints) {
+                            self.seen_hints.insert(sel.id.to_string());
+                            self.active_hint = Some((sel.text.to_string(), sel.life));
+                        }
+                    }
+
+                    if self.state.victory && !self.recorded_finish {
+                        self.recorded_finish = true;
+                        let res = record_run(
+                            &self.records,
+                            &RunInput {
+                                stage: Some(&self.state.stage_id),
+                                seed: Some(self.state.seed),
+                                seconds: self.state.time,
+                                level: self.state.player.level,
+                                updated_at: None,
+                            },
+                        );
+                        self.records = res.store;
+                        note_clear(&mut self.progress, &self.state.stage_id);
+                        self.reward =
+                            create_reward(Some(self.state.seed), Some(&self.state.stage_id));
+                        save::save_all(
+                            &self.asset_root,
+                            &self.records,
+                            &self.progress,
+                            &self.loadout,
+                        );
+                    }
+
+                    if let Some(ref mut rw) = self.reward {
+                        step_reward(rw, dt);
+                        if let Some(prize) = take_prize(rw) {
+                            progress_rs::add_item(&mut self.progress, &prize.item_id, 1);
+                            progress_rs::add_gold(&mut self.progress, i64::from(prize.gold));
+                            save::save_all(
+                                &self.asset_root,
+                                &self.records,
+                                &self.progress,
+                                &self.loadout,
+                            );
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    fn draw_and_present(&mut self) {
+        {
+            let mut canvas = Canvas::new(&mut self.pixmap, &mut self.fonts);
+            if self.mode == ScreenMode::Town {
+                draw_town(
+                    &mut canvas,
+                    self.town_x,
+                    self.town_z,
+                    self.town_facing,
+                    &self.sprites,
+                );
+                if self.progress_panel != ProgressPanelKind::None {
+                    render_rs::draw_progress_panel(
+                        &mut canvas,
+                        self.progress_panel,
+                        &self.progress,
+                    );
+                }
+            } else {
+                let active_state = if self.mode == ScreenMode::Title {
+                    &self.attract.state
+                } else {
+                    &self.state
+                };
+                let hint_ref = self.active_hint.as_ref().map(|(s, _)| s.as_str());
+                let meta = RenderMeta {
+                    title: self.mode == ScreenMode::Title,
+                    attract: self.mode == ScreenMode::Title,
+                    paused: self.paused,
+                    show_help: self.show_help,
+                    loadout: &self.loadout,
+                    loadout_open: false,
+                    progress_panel: self.progress_panel,
+                    progress: &self.progress,
+                    records: &self.records,
+                    reward: self.reward.as_ref(),
+                    region_open: self.mode == ScreenMode::Region,
+                    region_selected: &self.region_selected,
+                    hint: hint_ref,
+                    seed: active_state.seed,
+                    stage_id: &active_state.stage_id,
+                };
+                render(&mut canvas, active_state, &self.sprites, &meta);
+            }
+        }
+
+        let Some(ref mut surface) = self.surface else {
+            return;
+        };
+        let Some(ref window) = self.window else {
+            return;
+        };
+        let size = window.inner_size();
+        let (win_w, win_h) = (size.width.max(1), size.height.max(1));
+        if let (Some(nz_w), Some(nz_h)) = (NonZeroU32::new(win_w), NonZeroU32::new(win_h)) {
+            let _ = surface.resize(nz_w, nz_h);
+        }
+        let Ok(mut buffer) = surface.buffer_mut() else {
+            return;
+        };
+        let src = self.pixmap.data();
+        let sw = self.pixmap.width() as usize;
+        let sh = self.pixmap.height() as usize;
+        // Preserve 16:9 aspect ratio with black letterbox/pillarbox
+        let scale = (win_w as f64 / sw as f64).min(win_h as f64 / sh as f64);
+        let dst_w = ((sw as f64 * scale).round() as usize).clamp(1, win_w as usize);
+        let dst_h = ((sh as f64 * scale).round() as usize).clamp(1, win_h as usize);
+        let off_x = (win_w as usize - dst_w) / 2;
+        let off_y = (win_h as usize - dst_h) / 2;
+        buffer.fill(0);
+        for dy in 0..dst_h {
+            let sy = (dy * sh) / dst_h;
+            let row_off = (off_y + dy) * win_w as usize + off_x;
+            let src_row = sy * sw;
+            for dx in 0..dst_w {
+                let sx = (dx * sw) / dst_w;
+                let p = (src_row + sx) * 4;
+                let r = u32::from(src[p]);
+                let g = u32::from(src[p + 1]);
+                let b = u32::from(src[p + 2]);
+                buffer[row_off + dx] = (r << 16) | (g << 8) | b;
+            }
+        }
+        let _ = buffer.present();
+    }
+
+    fn handle_key(&mut self, code: KeyCode, pressed: bool) {
+        if pressed {
+            self.held_keys.insert(code);
+        } else {
+            self.held_keys.remove(&code);
+            return;
+        }
+
+        if code == KeyCode::KeyM {
+            self.audio.toggle_mute();
+            return;
+        }
+
+        match self.mode {
+            ScreenMode::Title => {
+                self.mode = ScreenMode::Region;
+            }
+            ScreenMode::Region => match code {
+                KeyCode::ArrowUp | KeyCode::ArrowDown => {
+                    self.region_selected = if self.region_selected == "mirkwood" {
+                        "mirkwooddeep".to_string()
+                    } else {
+                        "mirkwood".to_string()
+                    };
+                }
+                KeyCode::Enter | KeyCode::Space => {
+                    let st = self.region_selected.clone();
+                    self.restart_run(&st, DEFAULT_SEED);
+                }
+                KeyCode::Escape => {
+                    self.mode = ScreenMode::Town;
+                }
+                _ => {}
+            },
+            ScreenMode::Town => match code {
+                KeyCode::Enter | KeyCode::Space => {
+                    self.mode = ScreenMode::Region;
+                }
+                KeyCode::KeyI => {
+                    self.progress_panel = if self.progress_panel == ProgressPanelKind::Bag {
+                        ProgressPanelKind::None
+                    } else {
+                        ProgressPanelKind::Bag
+                    };
+                }
+                KeyCode::KeyK => {
+                    self.progress_panel = if self.progress_panel == ProgressPanelKind::Equip {
+                        ProgressPanelKind::None
+                    } else {
+                        ProgressPanelKind::Equip
+                    };
+                }
+                KeyCode::KeyL => {
+                    self.progress_panel = if self.progress_panel == ProgressPanelKind::Quest {
+                        ProgressPanelKind::None
+                    } else {
+                        ProgressPanelKind::Quest
+                    };
+                }
+                KeyCode::Escape => {
+                    self.progress_panel = ProgressPanelKind::None;
+                    self.mode = ScreenMode::Region;
+                }
+                _ => {}
+            },
+            ScreenMode::Playing => match code {
+                KeyCode::KeyP => self.paused = !self.paused,
+                KeyCode::F1 => self.show_help = !self.show_help,
+                KeyCode::Escape => {
+                    self.show_help = false;
+                    self.progress_panel = ProgressPanelKind::None;
+                }
+                KeyCode::F3 => {
+                    let st = self.state.stage_id.clone();
+                    let seed = self.state.seed;
+                    self.restart_run(&st, seed);
+                }
+                KeyCode::F4 => {
+                    self.mode = ScreenMode::Town;
+                }
+                KeyCode::KeyN => {
+                    let st = self.state.stage_id.clone();
+                    let next_seed = self.state.seed.wrapping_add(1);
+                    self.restart_run(&st, next_seed);
+                }
+                KeyCode::Digit1 => {
+                    if let Some(ref mut rw) = self.reward {
+                        pick_reward(rw, 0);
+                    }
+                }
+                KeyCode::Digit2 => {
+                    if let Some(ref mut rw) = self.reward {
+                        pick_reward(rw, 1);
+                    }
+                }
+                KeyCode::Digit3 => {
+                    if let Some(ref mut rw) = self.reward {
+                        pick_reward(rw, 2);
+                    }
+                }
+                KeyCode::Digit4 => {
+                    if let Some(ref mut rw) = self.reward {
+                        pick_reward(rw, 3);
+                    }
+                }
+                KeyCode::KeyI => {
+                    self.progress_panel = if self.progress_panel == ProgressPanelKind::Bag {
+                        ProgressPanelKind::None
+                    } else {
+                        ProgressPanelKind::Bag
+                    };
+                }
+                KeyCode::Enter => {
+                    if self.state.victory && !self.state.post_clear {
+                        core_rs::resume_after_clear(&mut self.state);
+                    }
+                }
+                KeyCode::KeyK => {
+                    self.progress_panel = if self.progress_panel == ProgressPanelKind::Equip {
+                        ProgressPanelKind::None
+                    } else {
+                        ProgressPanelKind::Equip
+                    };
+                }
+                KeyCode::KeyL => {
+                    self.progress_panel = if self.progress_panel == ProgressPanelKind::Quest {
+                        ProgressPanelKind::None
+                    } else {
+                        ProgressPanelKind::Quest
+                    };
+                }
+                _ => {}
+            },
+        }
+    }
+}
+
+impl ApplicationHandler for AppState {
+    fn resumed(&mut self, event_loop: &ActiveEventLoop) {
+        if self.window.is_some() {
+            return;
+        }
+        let attrs = Window::default_attributes()
+            .with_title("nano-dnf · 鬼剑士的地下城 (Rust)")
+            .with_inner_size(LogicalSize::new(ARENA_WIDTH, ARENA_HEIGHT));
+        if let Ok(win) = event_loop.create_window(attrs) {
+            let win_rc = Rc::new(win);
+            if let Ok(ctx) = Context::new(win_rc.clone()) {
+                if let Ok(surf) = Surface::new(&ctx, win_rc.clone()) {
+                    self.surface = Some(surf);
+                }
+            }
+            self.window = Some(win_rc);
+        }
+    }
+
+    fn window_event(&mut self, event_loop: &ActiveEventLoop, _id: WindowId, event: WindowEvent) {
+        match event {
+            WindowEvent::CloseRequested => {
+                save::save_all(
+                    &self.asset_root,
+                    &self.records,
+                    &self.progress,
+                    &self.loadout,
+                );
+                event_loop.exit();
+            }
+            WindowEvent::KeyboardInput {
+                event:
+                    KeyEvent {
+                        physical_key: PhysicalKey::Code(code),
+                        state,
+                        ..
+                    },
+                ..
+            } => {
+                self.handle_key(code, state == ElementState::Pressed);
+            }
+            WindowEvent::RedrawRequested => {
+                let now = Instant::now();
+                let elapsed = (now - self.last_tick).as_secs_f64().min(0.1);
+                self.last_tick = now;
+                self.accumulator += elapsed;
+                while self.accumulator >= DT {
+                    self.tick(DT);
+                    self.accumulator -= DT;
+                }
+                self.draw_and_present();
+                if let Some(ref win) = self.window {
+                    win.request_redraw();
+                }
+            }
+            _ => {}
+        }
+    }
+
+    fn about_to_wait(&mut self, event_loop: &ActiveEventLoop) {
+        event_loop.set_control_flow(ControlFlow::WaitUntil(
+            Instant::now() + Duration::from_micros(16_667),
+        ));
+        if let Some(ref win) = self.window {
+            win.request_redraw();
+        }
+    }
+}
+
+fn main() {
+    let event_loop = match EventLoop::new() {
+        Ok(el) => el,
+        Err(err) => {
+            eprintln!("Failed to initialize event loop: {err}");
+            return;
+        }
+    };
+    let mut app = AppState::new();
+    let _ = event_loop.run_app(&mut app);
+}

@@ -1,0 +1,10 @@
+[package]
+name = "reward-rs"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+core-rs = { path = "../core-rs" }
+progress-rs = { path = "../progress-rs" }
+serde = { workspace = true }

@@ -1,0 +1,19 @@
+[package]
+name = "render-rs"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+core-rs = { path = "../core-rs" }
+loadout-rs = { path = "../loadout-rs" }
+progress-rs = { path = "../progress-rs" }
+records-rs = { path = "../records-rs" }
+reward-rs = { path = "../reward-rs" }
+summary-rs = { path = "../summary-rs" }
+tiny-skia = "0.11"
+image = { version = "0.25", default-features = false, features = ["png"] }
+fontdue = "0.9"
+serde = { workspace = true }
+serde_json = { workspace = true }
+indexmap = { workspace = true }
