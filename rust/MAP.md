@@ -20,7 +20,7 @@ See [DECISIONS.md](DECISIONS.md) for ADRs and [GLOSSARY.md](GLOSSARY.md) for nam
 | 2 | `render` | `src/render.js` (10904 lines) | `rust/render-rs` | done | Software 2D pixel renderer (`tiny-skia` + `fontdue`, 960x540), clippy+tests pass |
 | 3 | `app` | `src/main.js` (2585 lines) | `rust/app` | done | Native Windows/Linux desktop shell (`winit` + `softbuffer` + `rodio`), `nano-dnf.exe` built |
 
-## Out of Scope (Kept as Reference/Tooling)
-- `scripts/` (asset importers & Playwright frame-capture scripts)
-- `docs/reference-evidence/`
-- `tests/` (kept as JS oracle; core assertions mirrored in Rust `cargo test`)
+## Out of Scope / Post-Migration Cleanup
+- `scripts/` (asset importers & reference extraction tools, kept for asset maintenance)
+- `docs/` (historical design notes, ADRs, and video audit evidence)
+- Legacy `src/*.js`, `index.html`, `package.json`, and `tests/` were removed after all 21 Rust workspace tests and the 1800-frame attract oracle passed.
