@@ -546,6 +546,24 @@ impl AppState {
                     },
                     &self.sprites,
                 );
+                let town_meta = RenderMeta {
+                    title: false,
+                    attract: false,
+                    paused: false,
+                    show_help: false,
+                    loadout: &self.loadout,
+                    loadout_open: self.loadout_open,
+                    progress_panel: self.progress_panel,
+                    progress: &self.progress,
+                    records: &self.records,
+                    reward: None,
+                    region_open: false,
+                    region_selected: &self.region_selected,
+                    hint: None,
+                    seed: self.state.seed,
+                    stage_id: &self.state.stage_id,
+                };
+                render_rs::hud::draw_hud_video(&mut canvas, &self.state, &self.sprites, &town_meta);
                 if self.progress_panel != ProgressPanelKind::None {
                     render_rs::draw_progress_panel(
                         &mut canvas,

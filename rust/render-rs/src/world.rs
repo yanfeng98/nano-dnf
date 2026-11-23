@@ -1557,21 +1557,43 @@ pub fn draw_town_view(c: &mut Canvas<'_>, view: &TownView<'_>, sprites: &SpriteS
             let py = GROUND_Y - view.player_z as f32;
             c.fill_ellipse(px, py, 20.0, 5.5, Rgba::new(0, 0, 0, 115));
             if let Some(sh) = sprites.get("slayer") {
+                const IDLE_ROOTS: [[f32; 2]; 4] =
+                    [[8.48, -5.16], [9.16, -5.16], [9.16, -5.16], [9.16, -5.16]];
+                const WALK_ROOTS: [[f32; 2]; 8] = [
+                    [-7.92, -5.52],
+                    [-4.56, -5.84],
+                    [2.12, -5.84],
+                    [-10.56, -5.52],
+                    [-6.92, -5.52],
+                    [-2.96, -5.84],
+                    [5.36, -5.84],
+                    [9.04, -5.52],
+                ];
                 let cell_w = 208u32;
                 let cell_h = 176u32;
                 let anchor_x = 88.0f32;
                 let anchor_y = 156.0f32;
-                let row = if view.moving && view.walk > 0.0 { 1 } else { 0 };
-                let col = if view.moving && view.walk > 0.0 {
+                let walking = view.moving && view.walk > 0.0;
+                let row = if walking { 1 } else { 0 };
+                let col = if walking {
                     ((view.walk * 10.0) as u32) % 8
                 } else {
                     0
                 };
-                let flip = view.facing < 0;
-                let draw_x = if flip {
-                    px - (cell_w as f32 - anchor_x) * PLAYER_SCALE
+                let root = if walking {
+                    WALK_ROOTS[col as usize]
                 } else {
-                    px - anchor_x * PLAYER_SCALE
+                    IDLE_ROOTS[col as usize]
+                };
+                let flip = view.facing < 0;
+                let root_x = if flip { root[0] } else { -root[0] } * PLAYER_SCALE;
+                let root_y = -root[1] * PLAYER_SCALE;
+                let adj_px = px + root_x;
+                let adj_py = py + root_y;
+                let draw_x = if flip {
+                    adj_px - (cell_w as f32 - anchor_x) * PLAYER_SCALE
+                } else {
+                    adj_px - anchor_x * PLAYER_SCALE
                 };
                 c.draw_image(
                     sh,
@@ -1580,7 +1602,7 @@ pub fn draw_town_view(c: &mut Canvas<'_>, view: &TownView<'_>, sprites: &SpriteS
                     cell_w,
                     cell_h,
                     draw_x,
-                    py - anchor_y * PLAYER_SCALE,
+                    adj_py - anchor_y * PLAYER_SCALE,
                     cell_w as f32 * PLAYER_SCALE,
                     cell_h as f32 * PLAYER_SCALE,
                     flip,
@@ -1641,7 +1663,7 @@ pub fn draw_town_view(c: &mut Canvas<'_>, view: &TownView<'_>, sprites: &SpriteS
         c.fill_text(
             &hint,
             (ARENA_WIDTH * 0.5) as f32,
-            ARENA_HEIGHT as f32 - 22.0,
+            ARENA_HEIGHT as f32 - 92.0,
             13.0,
             Rgba::new(255, 228, 140, 255),
             TextAlign::Center,
