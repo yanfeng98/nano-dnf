@@ -168,8 +168,6 @@ impl AppState {
             stage: Some(stage_id),
             ..Default::default()
         });
-        let valid_skills: Vec<&str> = TABLES.skill_order.iter().map(String::as_str).collect();
-        self.loadout = loadout_rs::create(&valid_skills, Some(stage_id));
         self.reward = None;
         self.paused = false;
         self.show_help = false;
@@ -180,6 +178,65 @@ impl AppState {
         self.last_kills = 0;
         self.last_barrels = 0;
         self.mode = ScreenMode::Playing;
+    }
+
+    fn interact_panel_slot(&mut self, slot_idx: usize) {
+        match self.progress_panel {
+            ProgressPanelKind::Bag => {
+                let item_id = self
+                    .progress
+                    .items
+                    .iter()
+                    .filter(|(_, &cnt)| cnt > 0)
+                    .nth(slot_idx)
+                    .map(|(id, _)| id.clone());
+                let Some(id) = item_id else {
+                    return;
+                };
+                if let Some(eff) = progress_rs::use_item(&mut self.progress, &id) {
+                    if self.mode == ScreenMode::Playing && !self.state.defeat {
+                        self.state.player.hp = (self.state.player.hp + f64::from(eff.hp))
+                            .min(self.state.player.max_hp);
+                        self.state.player.mp = (self.state.player.mp + f64::from(eff.mp))
+                            .min(self.state.player.max_mp);
+                    }
+                    save::save_all(
+                        &self.asset_root,
+                        &self.records,
+                        &self.progress,
+                        &self.loadout,
+                    );
+                } else if progress_rs::equip(
+                    &mut self.progress,
+                    &id,
+                    "berserker",
+                    self.state.player.level.max(1),
+                ) {
+                    save::save_all(
+                        &self.asset_root,
+                        &self.records,
+                        &self.progress,
+                        &self.loadout,
+                    );
+                }
+            }
+            ProgressPanelKind::Quest => {
+                let Some(q) = progress_rs::QUESTS.get(slot_idx) else {
+                    return;
+                };
+                let changed = progress_rs::accept(&mut self.progress, q.id)
+                    || progress_rs::turn_in(&mut self.progress, q.id).is_some();
+                if changed {
+                    save::save_all(
+                        &self.asset_root,
+                        &self.records,
+                        &self.progress,
+                        &self.loadout,
+                    );
+                }
+            }
+            _ => {}
+        }
     }
 
     fn current_input(&self) -> Input {
@@ -465,9 +522,21 @@ impl AppState {
                         ProgressPanelKind::Quest
                     };
                 }
+                KeyCode::Digit1 => self.interact_panel_slot(0),
+                KeyCode::Digit2 => self.interact_panel_slot(1),
+                KeyCode::Digit3 => self.interact_panel_slot(2),
+                KeyCode::Digit4 => self.interact_panel_slot(3),
+                KeyCode::Digit5 => self.interact_panel_slot(4),
+                KeyCode::Digit6 => self.interact_panel_slot(5),
+                KeyCode::Digit7 => self.interact_panel_slot(6),
+                KeyCode::Digit8 => self.interact_panel_slot(7),
+                KeyCode::Digit9 => self.interact_panel_slot(8),
                 KeyCode::Escape => {
-                    self.progress_panel = ProgressPanelKind::None;
-                    self.mode = ScreenMode::Region;
+                    if self.progress_panel != ProgressPanelKind::None {
+                        self.progress_panel = ProgressPanelKind::None;
+                    } else {
+                        self.mode = ScreenMode::Region;
+                    }
                 }
                 _ => {}
             },
@@ -494,23 +563,36 @@ impl AppState {
                 KeyCode::Digit1 => {
                     if let Some(ref mut rw) = self.reward {
                         pick_reward(rw, 0);
+                    } else {
+                        self.interact_panel_slot(0);
                     }
                 }
                 KeyCode::Digit2 => {
                     if let Some(ref mut rw) = self.reward {
                         pick_reward(rw, 1);
+                    } else {
+                        self.interact_panel_slot(1);
                     }
                 }
                 KeyCode::Digit3 => {
                     if let Some(ref mut rw) = self.reward {
                         pick_reward(rw, 2);
+                    } else {
+                        self.interact_panel_slot(2);
                     }
                 }
                 KeyCode::Digit4 => {
                     if let Some(ref mut rw) = self.reward {
                         pick_reward(rw, 3);
+                    } else {
+                        self.interact_panel_slot(3);
                     }
                 }
+                KeyCode::Digit5 => self.interact_panel_slot(4),
+                KeyCode::Digit6 => self.interact_panel_slot(5),
+                KeyCode::Digit7 => self.interact_panel_slot(6),
+                KeyCode::Digit8 => self.interact_panel_slot(7),
+                KeyCode::Digit9 => self.interact_panel_slot(8),
                 KeyCode::KeyI => {
                     self.progress_panel = if self.progress_panel == ProgressPanelKind::Bag {
                         ProgressPanelKind::None

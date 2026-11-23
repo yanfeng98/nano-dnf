@@ -858,8 +858,9 @@ pub fn draw_progress_panel(
                 .find(|it| it.id == id)
                 .map(|it| it.name)
                 .unwrap_or(id);
+            let idx = row + 1;
             c.fill_text(
-                &format!("{name} x{cnt}"),
+                &format!("[{idx}] {name} x{cnt}"),
                 cx - 180.0,
                 cy - 80.0 + row as f32 * 24.0,
                 13.0,
@@ -869,6 +870,15 @@ pub fn draw_progress_panel(
             );
             row += 1;
         }
+        c.fill_text(
+            "按 1-9 使用药水或穿戴装备 · Esc 关闭",
+            cx,
+            cy + 125.0,
+            11.0,
+            Rgba::new(175, 190, 215, 220),
+            TextAlign::Center,
+            None,
+        );
     } else if panel == ProgressPanelKind::Equip {
         for (row, (slot, item_opt)) in progress.equipment.iter().enumerate() {
             let item_name = item_opt
@@ -889,15 +899,31 @@ pub fn draw_progress_panel(
         for (i, q) in QUESTS.iter().enumerate() {
             let qp = progress.quests.get(q.id);
             let prog = qp.map(|p| p.progress).unwrap_or(0);
+            let tag = match qp.map(|p| (&p.state, p.done)) {
+                Some((progress_rs::QuestState::TurnedIn, _)) => "[已完成]",
+                Some((progress_rs::QuestState::Active, true)) => "[可交付]",
+                Some((progress_rs::QuestState::Active, false)) => "[进行中]",
+                _ => "[可接]",
+            };
+            let idx = i + 1;
             c.fill_text(
-                &format!("{} ({prog}/{})", q.title, q.goal),
-                cx - 180.0,
-                cy - 80.0 + i as f32 * 28.0,
-                13.0,
+                &format!("[{idx}] {tag} {} ({prog}/{})", q.title, q.goal),
+                cx - 190.0,
+                cy - 80.0 + i as f32 * 30.0,
+                12.0,
                 Rgba::new(230, 238, 250, 240),
                 TextAlign::Left,
                 None,
             );
         }
+        c.fill_text(
+            "按 1-3 接取或交付任务 · Esc 关闭",
+            cx,
+            cy + 125.0,
+            11.0,
+            Rgba::new(175, 190, 215, 220),
+            TextAlign::Center,
+            None,
+        );
     }
 }
