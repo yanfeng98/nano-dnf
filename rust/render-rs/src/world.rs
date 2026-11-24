@@ -503,15 +503,32 @@ fn draw_prop(c: &mut Canvas<'_>, state: &State, prop: &Prop, sprites: &SpriteSto
     {
         if let Some(sh) = sprites.get("pillarPale") {
             let sc = prop.scale.unwrap_or_else(|| prop_scale(&prop.piece));
-            let w = sh.width() as f32 * sc[0] as f32;
-            let h = sh.height() as f32 * sc[1] as f32;
+            let damaged = prop.piece == "pillarDamagedDecor";
+            let (sx, sy, sw, sh_h) = if damaged {
+                (
+                    44u32,
+                    0u32,
+                    44u32.min(sh.width().saturating_sub(44)),
+                    111u32.min(sh.height()),
+                )
+            } else {
+                (0u32, 0u32, 44u32.min(sh.width()), 133u32.min(sh.height()))
+            };
+            let w = sw as f32 * sc[0] as f32;
+            let h = sh_h as f32 * sc[1] as f32;
+            let shake_x = if prop.hit_t > 0.0 {
+                let amp = (prop.hit_t / 0.22).clamp(0.0, 1.0) as f32 * 3.5;
+                ((prop.hit_t * 95.0).sin() as f32) * amp
+            } else {
+                0.0
+            };
             c.draw_image(
                 sh,
-                0,
-                0,
-                sh.width(),
-                sh.height(),
-                x - w * 0.5,
+                sx,
+                sy,
+                sw,
+                sh_h,
+                x + shake_x - w * 0.5,
                 y - h,
                 w,
                 h,

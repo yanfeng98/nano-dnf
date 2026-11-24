@@ -869,12 +869,14 @@ fn choose_enemy_action(state: &mut State, enemy_idx: usize) {
     if !state.enemies[enemy_idx].activated {
         let e = &state.enemies[enemy_idx];
         let damaged = e.hurt_timer > 0.0 || e.hp < e.max_hp;
-        let sight_eff = if is_boss_enemy(e) {
-            e.sight_range.max(360.0)
-        } else {
-            e.sight_range
-        };
-        if damaged || (e.activation_delay <= 0.0 && delta.abs() <= sight_eff) {
+        let sight_eff = e.sight_range.max(480.0);
+        let room_elapsed = state
+            .room
+            .as_ref()
+            .map(|r| state.time - r.entered_at)
+            .unwrap_or(0.0);
+        let room_fallback = room_elapsed >= 1.5;
+        if damaged || (e.activation_delay <= 0.0 && (delta.abs() <= sight_eff || room_fallback)) {
             state.enemies[enemy_idx].activated = true;
         } else {
             state.enemies[enemy_idx].vx = 0.0;
