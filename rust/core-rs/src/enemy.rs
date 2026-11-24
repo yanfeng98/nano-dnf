@@ -797,21 +797,47 @@ fn walk_towards(state: &mut State, enemy_idx: usize, speed: f64) {
         return;
     }
     let route = route_step(state, px, pz, Some(ex), Some(ez), Some((ew, ew)), false);
-    if state.reference_profile.is_some() && route == [0, 0] {
-        // Blocked by a solid prop (e.g. rockFlat, trunkTall, stump) with no grid route:
-        // apply a deterministic Z-detour toward the nearer open band edge so the enemy
-        // cannot stall indefinitely behind an obstacle.
-        let max_d = band_depth(state.band_back_y);
-        let detour_dir = if ez <= ROUTE_GRID_STEP {
-            1.0
-        } else if ez >= max_d - ROUTE_GRID_STEP || ez <= max_d * 0.5 {
-            -1.0
-        } else {
-            1.0
-        };
-        state.enemies[enemy_idx].vx = 0.0;
-        state.enemies[enemy_idx].vz = detour_dir * enemy_depth_speed(speed);
-        return;
+    if state.reference_profile.is_some() {
+        let next_rx = ex + f64::from(route[0]) * speed * DT * 4.0;
+        let route_hits_prop = route == [0, 0]
+            || (route[1] == 0
+                && route[0] != 0
+                && prop_blocks_at(state, next_rx, ez, Some((ew, ew)), 2.0));
+        if route_hits_prop {
+            // Coarse grid route stalled or collided with exact prop_obstacle hitbox:
+            // steer cleanly around the blocking prop's nearest open Z edge.
+            let max_d = band_depth(state.band_back_y);
+            let blocking_z = state
+                .props
+                .iter()
+                .filter_map(|prop| prop_obstacle(prop, Some((ew, ew))))
+                .find(|b| {
+                    let half_w = b.width / 2.0 + ROUTE_GRID_STEP / 2.0;
+                    let half_d = b.depth / 2.0 + ROUTE_GRID_STEP / 2.0;
+                    (ez - b.z).abs() < half_d
+                        && ex.max(px) > b.x - half_w
+                        && ex.min(px) < b.x + half_w
+                })
+                .map(|b| b.z);
+            let detour_dir = if ez <= ROUTE_GRID_STEP * 0.75 {
+                1.0
+            } else if ez >= max_d - ROUTE_GRID_STEP * 0.75 {
+                -1.0
+            } else if let Some(bz) = blocking_z {
+                if ez >= bz {
+                    1.0
+                } else {
+                    -1.0
+                }
+            } else if ez <= max_d * 0.5 {
+                -1.0
+            } else {
+                1.0
+            };
+            state.enemies[enemy_idx].vx = f64::from(ef) * speed * 0.25;
+            state.enemies[enemy_idx].vz = detour_dir * enemy_depth_speed(speed);
+            return;
+        }
     }
     state.enemies[enemy_idx].vx = f64::from(route[0]) * speed;
     if route[1] != 0 {

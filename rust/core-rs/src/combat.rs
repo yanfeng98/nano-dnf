@@ -836,13 +836,18 @@ pub fn damage_enemy(
             let contact_x = ex - f64::from(hit_dir) * (ew * 0.24);
             let contact_y = ey - eh * 0.56;
             let flash_scale = if is_critical { 1.18 } else { 0.94 };
+            let slash_variant = if is_critical {
+                0
+            } else {
+                10 + state.player.combo_index.min(2)
+            };
             push_hit_flash_effect(
                 state,
                 contact_x,
                 contact_y,
                 ez,
                 hit_dir,
-                0,
+                slash_variant,
                 flash_scale,
                 is_critical,
             );

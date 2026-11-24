@@ -909,58 +909,8 @@ pub fn draw_player(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
             );
         }
 
-        // Authentic 60/70 Swordman basic 3-hit combo white-gold slash streak (00001 @ 2:44)
-        if p.on_ground && p.skill_timer <= 0.0 && p.attack_timer > 0.0 && !raging {
-            if let Some(slash_sh) = sprites.get("basicSlash") {
-                let prog = if p.attack_duration > 0.0 {
-                    (1.0 - p.attack_timer / p.attack_duration).clamp(0.0, 0.999)
-                } else {
-                    0.0
-                };
-                if (0.24..=0.84).contains(&prog) {
-                    const SLASH_W: u32 = 320;
-                    const SLASH_H: u32 = 184;
-                    let local = ((prog - 0.24) / 0.60).clamp(0.0, 0.999);
-                    let col: u32 = if local < 0.45 {
-                        0
-                    } else if local < 0.72 {
-                        1
-                    } else {
-                        2
-                    };
-                    let row = (p.combo_index.min(2)) as u32;
-                    let slash_alpha = if local > 0.80 {
-                        ((1.0 - local) / 0.20).clamp(0.0, 1.0) as f32
-                    } else {
-                        1.0
-                    };
-                    let scale = if row == 1 { 0.62f32 } else { 0.54f32 };
-                    let sw = SLASH_W as f32 * scale;
-                    let sh_h = SLASH_H as f32 * scale;
-                    let cx = px + p.facing as f32 * 34.0;
-                    let cy = py
-                        - match row {
-                            0 => 42.0,
-                            1 => 44.0,
-                            _ => 50.0,
-                        };
-                    c.draw_image(
-                        slash_sh,
-                        col * SLASH_W,
-                        row * SLASH_H,
-                        SLASH_W,
-                        SLASH_H,
-                        cx - sw * 0.5,
-                        cy - sh_h * 0.5,
-                        sw,
-                        sh_h,
-                        flip,
-                        slash_alpha,
-                        0.0,
-                    );
-                }
-            }
-        }
+        // Note: basic attack slash streaks (`slashlarge1/2/3.img`) are hit effects
+        // rendered only via `"hitFlash"` when an attack actually connects with a target.
     } else {
         c.fill_round_rect(
             px - 15.0,
@@ -2451,14 +2401,19 @@ pub fn draw_effect(c: &mut Canvas<'_>, state: &State, effect: &Effect, sprites: 
                 if let Some(slash_sh) = sprites.get("basicSlash") {
                     const SLASH_W: u32 = 320;
                     const SLASH_H: u32 = 184;
-                    // Compact directional horizontal white-gold slash spark (replaces bloated round knocklarge burst)
-                    let base_scale = (effect.radius.max(0.5) as f32) * (0.34 + age * 0.06);
+                    let row = if effect.variant >= 10 {
+                        ((effect.variant - 10) as u32).min(2)
+                    } else {
+                        1
+                    };
+                    // Authentic 60/70 Swordman hit-only white-gold slash streak (00001 @ 2:44)
+                    let base_scale = (effect.radius.max(0.5) as f32) * (0.48 + age * 0.08);
                     let dw = SLASH_W as f32 * base_scale;
                     let dh = SLASH_H as f32 * base_scale;
                     c.draw_image(
                         slash_sh,
                         col * SLASH_W,
-                        SLASH_H, // Row 1: slashlarge2.img (razor-sharp horizontal white-gold lens -> cyan -> orange)
+                        row * SLASH_H,
                         SLASH_W,
                         SLASH_H,
                         ex - dw * 0.5,

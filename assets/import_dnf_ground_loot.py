@@ -40,20 +40,20 @@ OUT = ROOT / "assets" / "ground-loot.png"
 CELL = 48
 GROUND_Y = 44
 
-PICKS: list[tuple[str, str, int]] = [
-    ("goldPile", "sprite/item/fieldimage.img", 27),
-    ("hpPotion", "sprite/item/field_consumption.img", 13),
-    ("mpPotion", "sprite/item/field_consumption.img", 14),
-    ("materialPouch", "sprite/item/fieldimage.img", 25),
-    ("fateCoin", "sprite/item/fieldimage.img", 26),
-    ("rareCrystal", "sprite/item/fieldimage.img", 24),
-    ("weapon", "sprite/item/fieldimage.img", 11),
-    ("equipment", "sprite/item/fieldimage.img", 0),
-    ("herbLeaf", "sprite/item/fieldimage.img", 29),
-    ("berryFruit", "sprite/item/field_material.img", 9),
-    ("breadFood", "sprite/item/field_material.img", 3),
-    ("stoneOre", "sprite/item/field_material.img", 46),
-    ("leatherFur", "sprite/item/field_material.img", 0),
+PICKS: list[tuple[str, str, str, int]] = [
+    ("goldPile", "sprite_item.NPK", "sprite/item/fieldimage.img", 27),
+    ("hpPotion", "sprite_item.NPK", "sprite/item/field_consumption.img", 13),
+    ("mpPotion", "sprite_item.NPK", "sprite/item/field_consumption.img", 14),
+    ("materialPouch", "sprite_item.NPK", "sprite/item/fieldimage.img", 25),
+    ("fateCoin", "sprite_item_stackable.NPK", "sprite/item/stackable/consumption.img", 0),
+    ("rareCrystal", "sprite_item.NPK", "sprite/item/fieldimage.img", 24),
+    ("weapon", "sprite_item.NPK", "sprite/item/fieldimage.img", 11),
+    ("equipment", "sprite_item.NPK", "sprite/item/fieldimage.img", 0),
+    ("herbLeaf", "sprite_item.NPK", "sprite/item/fieldimage.img", 29),
+    ("berryFruit", "sprite_item.NPK", "sprite/item/field_material.img", 9),
+    ("breadFood", "sprite_item.NPK", "sprite/item/field_material.img", 3),
+    ("stoneOre", "sprite_item.NPK", "sprite/item/field_material.img", 46),
+    ("leatherFur", "sprite_item.NPK", "sprite/item/field_material.img", 0),
 ]
 
 
@@ -88,29 +88,52 @@ def main() -> None:
     parser.add_argument("--client", type=pathlib.Path, default=DEFAULT_CLIENT)
     args = parser.parse_args()
 
-    npk_path = resolve_npk(args.client, "sprite_item.NPK")
-    imgs: dict[str, object] = {}
-    needed = {img_name for _, img_name, _ in PICKS}
-    with open(npk_path, "rb") as handle:
-        npk = NPK.open(handle)
-        for item in npk.files:
-            norm = item.name.replace("\\", "/")
-            if norm in needed:
-                imgs[norm] = IMGFactory.open(io.BytesIO(item.data))
+    imgs: dict[tuple[str, str], object] = {}
+    needed_by_npk: dict[str, set[str]] = {}
+    for _label, npk_name, img_name, _frame_idx in PICKS:
+        needed_by_npk.setdefault(npk_name, set()).add(img_name)
 
-    missing = needed - set(imgs.keys())
-    if missing:
-        raise SystemExit(f"Missing entries in {npk_path}: {sorted(missing)}")
+    for npk_name, needed in needed_by_npk.items():
+        npk_path = resolve_npk(args.client, npk_name)
+        with open(npk_path, "rb") as handle:
+            npk = NPK.open(handle)
+            for item in npk.files:
+                norm = item.name.replace("\\", "/")
+                if norm in needed:
+                    imgs[(npk_name, norm)] = IMGFactory.open(io.BytesIO(item.data))
+        missing = [n for n in needed if (npk_name, n) not in imgs]
+        if missing:
+            raise SystemExit(f"Missing entries in {npk_path}: {sorted(missing)}")
 
     sheet = Image.new("RGBA", (CELL * len(PICKS), CELL), (0, 0, 0, 0))
-    for idx, (_label, img_name, frame_idx) in enumerate(PICKS):
-        target = imgs[img_name]
+    for idx, (label, npk_name, img_name, frame_idx) in enumerate(PICKS):
+        target = imgs[(npk_name, img_name)]
         raw = target.build(target.images[frame_idx]).convert("RGBA")
+        if label == "fateCoin":
+            # Key out the black inventory-slot backdrop around the half-gold/half-silver coin
+            px = raw.load()
+            w, h = raw.size
+            visited = set()
+            stack = [(0, 0), (w - 1, 0), (0, h - 1), (w - 1, h - 1)]
+            while stack:
+                x, y = stack.pop()
+                if (x, y) in visited or not (0 <= x < w and 0 <= y < h):
+                    continue
+                visited.add((x, y))
+                r, g, b, a = px[x, y]
+                if a == 0 or (r < 28 and g < 28 and b < 28):
+                    px[x, y] = (0, 0, 0, 0)
+                    for nx, ny in ((x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)):
+                        if (nx, ny) not in visited:
+                            stack.append((nx, ny))
+            bb = raw.getbbox()
+            if bb:
+                raw = raw.crop(bb).resize((22, 16), Image.Resampling.NEAREST)
         cell_img = fit_to_cell(raw, CELL, GROUND_Y)
         sheet.alpha_composite(cell_img, (idx * CELL, 0))
 
     sheet.save(OUT)
-    print(f"Wrote {OUT} ({sheet.width}x{sheet.height}) from {npk_path}")
+    print(f"Wrote {OUT} ({sheet.width}x{sheet.height})")
 
 
 if __name__ == "__main__":
