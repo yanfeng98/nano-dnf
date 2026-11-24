@@ -4,6 +4,7 @@ pub mod canvas;
 pub mod combat_info;
 pub mod hud;
 pub mod hud_classic;
+pub mod region_select;
 pub mod results;
 pub mod sprites;
 pub mod tables;
@@ -16,6 +17,7 @@ pub use hud::{
     MapRect, PanelAction, ProgressPanelKind, RenderMeta,
 };
 pub use hud_classic::hit_test_consumable_slot;
+pub use region_select::{draw_region_select, hit_test_region_select, RegionSelectAction};
 pub use results::{hit_test_continue, hit_test_reward_card, ContinueAction};
 pub use sprites::SpriteStore;
 pub use world::{
