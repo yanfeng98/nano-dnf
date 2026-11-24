@@ -7,11 +7,10 @@
 - `rust/MAP.md` / `rust/DECISIONS.md` —— **Rust 工作区模块映射与架构决策**。
 - `docs/adr/` —— **历史决定，以及它推翻过什么**。动到一个已经定过的决定时在这里留档，不要只在 commit 里交代。
 
-## 客户端（美术资源的唯一出处）
+## 客户端（美术资源的优先出处）
 
-**业主机器上装着客户端：`C:\dnf\地下城与勇士`**（WSL 里就是 `/mnt/c/dnf/地下城与勇士`）。
-**要美术素材就去这里找，不要去别处截、不要自己画。** 2026-10-06 业主的原话：
-「以后在这个客户端找资源」。
+**业主机器上装着客户端：`C:\dnf\地下城与勇士`**（WSL 里就是 `/mnt/c/dnf/地下城与勇士`，同时含 `ImagePacks2_70` / `ImagePacks2`、`SoundPacks_70` / `SoundPacks`、`Script_70.pvf` / `Script.pvf`、`Fonts`、`Music`）。
+**优先穷举本地客户端原件；若本地客户端确实无对应 60/70 版原件，允许从参考录像精抠或按像素 1:1 高精重建/生成（见 `docs/adr/0074-1to1-dnf-fidelity-and-asset-fallback.md`）。**
 
 - **这台云开发机上客户端实际在 `/home/luyanfeng/dnf-client/地下城与勇士`**；
   `/mnt/c/...` 在这台机器上不存在。`import_dnf_*.py` 的 `DEFAULT_CLIENT` 目前仍指向

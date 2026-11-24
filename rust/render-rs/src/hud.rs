@@ -144,21 +144,27 @@ pub fn draw_hud_video(
         let xp_x = VIEW_LEFT as f32 + 132.0;
         let xp_w = 164.0f32;
         let xp_y = 485.0f32;
+        let flash_rem = state.xp_gauge_flash_until - state.time;
+        let flashing = state.player.level < PROG_MAX_LEVEL && flash_rem > 0.0;
+        let fill_w = if state.player.level >= PROG_MAX_LEVEL || flashing {
+            xp_w
+        } else {
+            xp_w * xp_ratio
+        };
         c.fill_rect(xp_x, xp_y, xp_w, 8.0, Rgba::new(0, 0, 0, 204));
-        if xp_ratio > 0.0 {
+        if fill_w > 0.0 {
             c.draw_image(
-                hud_sheet,
-                0,
-                146,
-                200,
-                3,
+                hud_sheet, 0, 146, 200, 3, xp_x, xp_y, fill_w, 8.0, false, 1.0, 0.0,
+            );
+        }
+        if flashing {
+            let pulse_a = (0.14 + 0.10 * (flash_rem * std::f64::consts::PI * 8.0).cos()) as f32;
+            c.fill_rect(
                 xp_x,
                 xp_y,
-                xp_w * xp_ratio,
+                xp_w,
                 8.0,
-                false,
-                1.0,
-                0.0,
+                Rgba::new(255, 255, 255, 255).with_alpha(pulse_a),
             );
         }
         c.stroke_rect(
@@ -663,81 +669,6 @@ pub fn draw_hud_video(
         }
     }
 
-    // Off-screen living enemy indicators (so ranged/fleeing enemies off-camera are easy to locate)
-    if !meta.title && !state.victory && !state.defeat {
-        let cam_l = state.camera_x;
-        let cam_r = state.camera_x + window_width();
-        let mut left_off = 0u32;
-        let mut right_off = 0u32;
-        for e in &state.enemies {
-            if e.dead || e.gone {
-                continue;
-            }
-            if e.x < cam_l - 8.0 {
-                left_off += 1;
-            } else if e.x > cam_r + 8.0 {
-                right_off += 1;
-            }
-        }
-        let pulse = (0.65 + 0.35 * (state.time * 6.0).sin()) as f32;
-        if left_off > 0 {
-            c.fill_round_rect(
-                left + 8.0,
-                240.0,
-                56.0,
-                24.0,
-                5.0,
-                Rgba::new(16, 10, 14, 200),
-            );
-            c.stroke_round_rect(
-                left + 8.0,
-                240.0,
-                56.0,
-                24.0,
-                5.0,
-                Rgba::new(245, 96, 86, 255).with_alpha(pulse),
-                1.5,
-            );
-            c.fill_text(
-                &format!("◀ 怪×{left_off}"),
-                left + 36.0,
-                256.0,
-                11.0,
-                Rgba::new(255, 195, 165, 255).with_alpha(pulse),
-                TextAlign::Center,
-                Some(Rgba::new(0, 0, 0, 220)),
-            );
-        }
-        if right_off > 0 {
-            c.fill_round_rect(
-                right - 64.0,
-                240.0,
-                56.0,
-                24.0,
-                5.0,
-                Rgba::new(16, 10, 14, 200),
-            );
-            c.stroke_round_rect(
-                right - 64.0,
-                240.0,
-                56.0,
-                24.0,
-                5.0,
-                Rgba::new(245, 96, 86, 255).with_alpha(pulse),
-                1.5,
-            );
-            c.fill_text(
-                &format!("怪×{right_off} ▶"),
-                right - 36.0,
-                256.0,
-                11.0,
-                Rgba::new(255, 195, 165, 255).with_alpha(pulse),
-                TextAlign::Center,
-                Some(Rgba::new(0, 0, 0, 220)),
-            );
-        }
-    }
-
     // Log lines (bottom-left above HUD, hidden behind full-screen title)
     if !meta.title {
         for (i, entry) in state.log.iter().enumerate() {
@@ -932,45 +863,39 @@ pub fn draw_minimap(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
         let cx = mx + 6.0 + cell.col as f32 * tile;
         let cy = my + 6.0 + cell.row as f32 * tile;
         if let Some(sh) = mm_sheet {
-            if cell.seen {
-                let tile_col = match cell.exits {
-                    1 => 13,  // room:N
-                    2 => 14,  // room:E
-                    3 => 2,   // corr:NE
-                    4 => 15,  // room:S
-                    5 => 4,   // corr:NS
-                    6 => 16,  // room:ES
-                    7 => 6,   // corr:NES
-                    8 => 17,  // room:W
-                    9 => 18,  // room:NW
-                    10 => 8,  // corr:EW
-                    11 => 9,  // corr:NEW
-                    12 => 10, // corr:SW
-                    13 => 11, // corr:NSW
-                    14 => 19, // room:ESW
-                    15 => 20, // room:NESW
-                    _ => 0,
-                };
-                c.draw_image(
-                    sh,
-                    tile_col * 18,
-                    0,
-                    18,
-                    18,
-                    cx,
-                    cy,
-                    tile,
-                    tile,
-                    false,
-                    1.0,
-                    0.0,
-                );
-            } else {
-                c.fill_rect(cx, cy, tile, tile, Rgba::new(14, 18, 26, 230));
-                if idx != dun.boss {
-                    c.draw_image(sh, 22, 18, 18, 18, cx, cy, tile, tile, false, 0.9, 0.0);
-                }
-            }
+            // ADR 0068: full dungeon layout visible without fog-of-war or '?' masks.
+            let tile_col = match cell.exits {
+                1 => 13,  // room:N
+                2 => 14,  // room:E
+                3 => 2,   // corr:NE
+                4 => 15,  // room:S
+                5 => 4,   // corr:NS
+                6 => 16,  // room:ES
+                7 => 6,   // corr:NES
+                8 => 17,  // room:W
+                9 => 18,  // room:NW
+                10 => 8,  // corr:EW
+                11 => 9,  // corr:NEW
+                12 => 10, // corr:SW
+                13 => 11, // corr:NSW
+                14 => 19, // room:ESW
+                15 => 20, // room:NESW
+                _ => 0,
+            };
+            c.draw_image(
+                sh,
+                tile_col * 18,
+                0,
+                18,
+                18,
+                cx,
+                cy,
+                tile,
+                tile,
+                false,
+                1.0,
+                0.0,
+            );
             if idx == state.cell {
                 c.draw_image(
                     sh,

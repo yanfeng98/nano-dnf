@@ -227,29 +227,36 @@ pub fn draw_rain(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore, overl
     c.save();
     c.set_clip_rect(left, 0.0, width as f32, height as f32);
     let layers: [(usize, f64, f64, f64, f32); 2] = [
-        (36, 0.55, 420.0, -75.0, 0.16),
-        (28, 0.85, 580.0, -105.0, 0.28),
+        (55, 0.95, 430.0, -76.0, 0.16),
+        (40, 1.65, 760.0, -134.0, 0.25),
     ];
+    let rain_rects: [(u32, u32, u32, u32); 2] = [(0, 0, 5, 43), (6, 0, 5, 22)];
     for (li, (count, scale_base, speed, wind, alpha)) in layers.into_iter().enumerate() {
         for i in 0..count {
             let h1 = scatter_hash(seed.wrapping_add(li as u32 * 997), i * 11 + 1);
             let h2 = scatter_hash(seed.wrapping_add(li as u32 * 997), i * 11 + 2);
             let h3 = scatter_hash(seed.wrapping_add(li as u32 * 997), i * 11 + 3);
             let sc = (scale_base * (0.8 + h3 * 0.45)) as f32;
-            let _w = 4.0 * sc;
-            let h = 28.0 * sc;
+            let (rx, ry, rw, rh) = rain_rects[(i + li) % rain_rects.len()];
+            let w = rw as f32 * sc;
+            let h = rh as f32 * sc;
             let span = height + f64::from(h);
             let drift = h1 * width + state.time * wind;
             let x = left + drift.rem_euclid(width) as f32;
             let y = ((state.time * speed + h2 * span) % span) as f32 - h;
-            let _ = sheet;
-            c.draw_line(
-                x,
+            c.draw_image(
+                sheet,
+                rx,
+                ry,
+                rw,
+                rh,
+                x - w * 0.5,
                 y,
-                x - 3.0 * sc,
-                y + h,
-                Rgba::new(205, 224, 245, 255).with_alpha(alpha),
-                1.0,
+                w,
+                h,
+                false,
+                alpha,
+                0.18,
             );
         }
     }
@@ -342,10 +349,18 @@ pub fn draw_gates(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
                     native.parts.frame.offset,
                     1.0,
                 );
-                if !cell.cleared {
+                let opened_at = state.room.as_ref().and_then(|r| r.native_gate_opened_at);
+                let leaf_alpha = if !cell.cleared {
+                    1.0f32
+                } else if let Some(t0) = opened_at {
+                    (1.0 - (state.time - t0) / 0.5).clamp(0.0, 1.0) as f32
+                } else {
+                    0.0
+                };
+                if leaf_alpha > 0.0 {
                     if let Some(v) = native.parts.extra.get("door") {
                         if let Some((r, o)) = parse_gate_part(v) {
-                            draw_native_gate_part(c, sh, native.x, native.z, r, o, 1.0);
+                            draw_native_gate_part(c, sh, native.x, native.z, r, o, leaf_alpha);
                         }
                     }
                 }
@@ -354,7 +369,23 @@ pub fn draw_gates(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
                         if let Some((r, o)) = parse_gate_part(v) {
                             let pulse =
                                 (0.62 + 0.2 * (0.5 + 0.5 * (state.time * 3.2).sin())) as f32;
-                            draw_native_gate_part(c, sh, native.x, native.z, r, o, pulse);
+                            let scale = NATIVE_SCALE as f32;
+                            let dx = native.x as f32 + o[0] as f32 * scale;
+                            let dy = floor_y(native.z) + o[1] as f32 * scale;
+                            c.draw_image_additive(
+                                sh,
+                                r[0] as u32,
+                                r[1] as u32,
+                                r[2] as u32,
+                                r[3] as u32,
+                                dx,
+                                dy,
+                                r[2] as f32 * scale,
+                                r[3] as f32 * scale,
+                                false,
+                                pulse,
+                                0.0,
+                            );
                         }
                     }
                 }
@@ -1423,21 +1454,66 @@ pub fn draw_world(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
                     floor_y(drop.z)
                 };
                 if drop.kind == "blood_orb" {
+                    let pulse = (0.94 + 0.06 * (state.time * 14.0 + drop.x * 0.05).sin()) as f32;
+                    let size = (2.0 * drop.radius as f32 * pulse) / 0.595;
+                    let life_alpha = if drop.life < 0.25 {
+                        (drop.life / 0.25).max(0.2) as f32
+                    } else {
+                        1.0
+                    };
+                    let frame = ((state.time * 14.0 + drop.x * 0.05) as u32) % 6;
                     if let Some(eff) = sprites.get("effects") {
-                        let frame = ((state.time / 0.1) as u32) % 6;
+                        for back in (1..drop.trail.len()).rev() {
+                            let pt = drop.trail[back];
+                            let tx = pt[0] as f32;
+                            let ty = (pt[1] - depth_lift(pt[2])) as f32;
+                            let ta = life_alpha
+                                * 0.5
+                                * (1.0 - back as f32 / (drop.trail.len() as f32 + 1.0));
+                            c.draw_image(
+                                eff,
+                                frame * 128,
+                                14 * 128,
+                                128,
+                                128,
+                                tx - size * 0.5,
+                                ty - size * 0.5,
+                                size,
+                                size,
+                                false,
+                                ta,
+                                0.0,
+                            );
+                        }
+                        let halo = drop.radius as f32 * 1.25 * pulse;
+                        c.fill_ellipse(
+                            dx,
+                            dy,
+                            halo,
+                            halo,
+                            Rgba::new(225, 42, 66, 110).with_alpha(life_alpha),
+                        );
                         c.draw_image(
                             eff,
                             frame * 128,
                             14 * 128,
                             128,
                             128,
-                            dx - 24.0,
-                            dy - 24.0,
-                            48.0,
-                            48.0,
+                            dx - size * 0.5,
+                            dy - size * 0.5,
+                            size,
+                            size,
                             false,
-                            1.0,
+                            life_alpha,
                             0.0,
+                        );
+                        let hot = drop.radius as f32 * 0.42 * pulse;
+                        c.fill_ellipse(
+                            dx,
+                            dy,
+                            hot,
+                            hot,
+                            Rgba::new(255, 255, 255, 210).with_alpha(life_alpha),
                         );
                     } else {
                         c.fill_ellipse(dx, dy, 8.0, 8.0, Rgba::new(225, 42, 54, 230));
@@ -1566,38 +1642,86 @@ pub fn draw_world(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
                         );
                     }),
                     Some(30057) => sprites.get("goblinIce").map(|sh| {
-                        let frame = ((age / 0.05) as u32) % 8;
+                        let ice_scale = NATIVE_SCALE as f32;
+                        let frame = (((age + 1e-7) / 0.05) as u32) % 8;
+                        if let Some(aura) = sprites.get("goblinIceAura") {
+                            let aura_frame = (((age + 1e-7) / 0.09) as u32) % 15;
+                            let aw = 192.0 * ice_scale;
+                            let ah = 64.0 * ice_scale;
+                            c.draw_image_additive(
+                                aura,
+                                aura_frame * 192,
+                                0,
+                                192,
+                                64,
+                                px - aw * 0.5,
+                                py - ah * 0.5,
+                                aw,
+                                ah,
+                                flip,
+                                70.0 / 255.0,
+                                0.0,
+                            );
+                        }
+                        let iw = 64.0 * ice_scale;
+                        let ih = 64.0 * ice_scale;
                         c.draw_image(
                             sh,
                             frame * 64,
                             0,
                             64,
                             64,
-                            px - 32.0,
-                            py - 32.0,
-                            64.0,
-                            64.0,
+                            px - iw * 0.5,
+                            py - ih * 0.5,
+                            iw,
+                            ih,
                             flip,
                             1.0,
                             0.0,
                         );
                     }),
                     Some(30047) => sprites.get("goblinFire").map(|sh| {
-                        let frame = ((age / 0.05) as u32) % 9;
-                        c.draw_image(
-                            sh,
-                            frame * 128,
-                            0,
-                            128,
-                            128,
-                            px - 44.0,
-                            py - 44.0,
-                            88.0,
-                            88.0,
-                            flip,
-                            1.0,
-                            0.0,
-                        );
+                        let fire_scale = NATIVE_SCALE as f32 * 0.7;
+                        let emit_end = if pr.stopped { pr.stopped_at } else { age };
+                        let ref_vx = if pr.stopped { pr.stop_vx } else { pr.vx };
+                        let ref_vy = if pr.stopped { pr.stop_vy } else { pr.vy };
+                        let ref_g = if pr.stopped {
+                            pr.stop_gravity
+                        } else {
+                            pr.gravity
+                        };
+                        let fire_flip = ref_vx < 0.0;
+                        let start_em = (((age - 0.35 + 1e-7) / 0.02).ceil().max(0.0)) as i32;
+                        let end_em = ((emit_end + 1e-7) / 0.02).floor() as i32;
+                        let base_y = pr.y - depth_lift(pr.z);
+                        let sz = 128.0 * fire_scale;
+                        for em in start_em..=end_em {
+                            let birth_age = f64::from(em) * 0.02;
+                            let particle_age = (age - birth_age).max(0.0);
+                            if particle_age >= 0.35 {
+                                continue;
+                            }
+                            let fire_frame: u32 = if particle_age < 0.23 { 0 } else { 1 };
+                            let dt_ref = emit_end - birth_age;
+                            let fx = (pr.x - ref_vx * dt_ref) as f32;
+                            let fy =
+                                (base_y - ref_vy * dt_ref + ref_g * dt_ref * dt_ref * 0.5) as f32;
+                            let alpha = if fire_frame == 0 { 1.0 } else { 100.0 / 255.0 };
+                            c.draw_image(
+                                sh,
+                                fire_frame * 128,
+                                0,
+                                128,
+                                128,
+                                fx - sz * 0.5,
+                                fy - sz * 0.5,
+                                sz,
+                                sz,
+                                fire_flip,
+                                alpha,
+                                -std::f32::consts::PI,
+                            );
+                        }
                     }),
                     _ => None,
                 };
@@ -1613,51 +1737,73 @@ pub fn draw_world(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
             }
             5 => {
                 let sh = &state.shots[item.idx];
-                if sh.skill_id != "normalWave" {
-                    continue;
-                }
                 let sx = sh.x as f32;
                 let sy = (sh.y - depth_lift(sh.z)) as f32;
                 let age = (sh.max_life - sh.life).max(0.0);
-                let frame = (((age / 0.06667) as u32).min(4)) % 5;
-                let size = 217.6f32;
-                let drawn = if let Some(nw) = sprites.get("normalWave") {
-                    c.draw_image(
-                        nw,
-                        frame * 320,
-                        0,
-                        320,
-                        320,
-                        sx - size * 0.5,
-                        sy - size * 0.5,
-                        size,
-                        size,
-                        sh.facing < 0,
-                        0.92,
-                        0.0,
-                    );
-                    true
-                } else if let Some(eff) = sprites.get("effects") {
-                    c.draw_image(
-                        eff,
-                        frame * 128,
-                        31 * 128,
-                        128,
-                        128,
-                        sx - size * 0.5,
-                        sy - size * 0.5,
-                        size,
-                        size,
-                        sh.facing < 0,
-                        0.92,
-                        0.0,
-                    );
-                    true
+                if sh.skill_id == "normalWave" {
+                    let frame = (((age + 1e-7) / (1.0 / 15.0)) as u32).min(4);
+                    let size = 217.6f32;
+                    let drawn = if let Some(nw) = sprites.get("normalWave") {
+                        c.draw_image_additive(
+                            nw,
+                            frame * 320,
+                            320,
+                            320,
+                            320,
+                            sx - size * 0.5,
+                            sy - size * 0.5,
+                            size,
+                            size,
+                            sh.facing < 0,
+                            0.95,
+                            0.0,
+                        );
+                        true
+                    } else if let Some(eff) = sprites.get("effects") {
+                        c.draw_image_additive(
+                            eff,
+                            frame * 128,
+                            31 * 128,
+                            128,
+                            128,
+                            sx - size * 0.5,
+                            sy - size * 0.5,
+                            size,
+                            size,
+                            sh.facing < 0,
+                            0.92,
+                            0.0,
+                        );
+                        true
+                    } else {
+                        false
+                    };
+                    if !drawn {
+                        c.fill_ellipse(sx, sy - 24.0, 28.0, 18.0, Rgba::new(225, 58, 72, 200));
+                    }
+                } else if sh.skill_id == "crossSlash" {
+                    let frame = ((age / 0.05) as u32) % 6;
+                    let size = 148.0f32;
+                    if let Some(eff) = sprites.get("effects") {
+                        c.draw_image_additive(
+                            eff,
+                            frame * 128,
+                            4 * 128,
+                            128,
+                            128,
+                            sx - size * 0.5,
+                            sy - size * 0.5 - 32.0,
+                            size,
+                            size,
+                            sh.facing < 0,
+                            0.95,
+                            0.0,
+                        );
+                    } else {
+                        c.fill_ellipse(sx, sy - 32.0, 32.0, 20.0, Rgba::new(235, 54, 68, 220));
+                    }
                 } else {
-                    false
-                };
-                if !drawn {
-                    c.fill_ellipse(sx, sy - 24.0, 28.0, 18.0, Rgba::new(225, 58, 72, 200));
+                    c.fill_ellipse(sx, sy - 24.0, 22.0, 14.0, Rgba::new(225, 92, 92, 200));
                 }
             }
             6 => draw_player(c, state, sprites),
@@ -1883,67 +2029,75 @@ pub fn draw_effect(c: &mut Canvas<'_>, state: &State, effect: &Effect, sprites: 
                 Some(Rgba::new(0, 0, 0, 220).with_alpha(alpha)),
             );
         }
-        "pickupText" => {
-            let x = state.player.x as f32;
-            let y = feet_y_player(&state.player) - 82.0 - (1.0 - alpha) * 22.0;
-            c.fill_text(
-                &effect.text,
-                x,
-                y,
-                14.0,
-                Rgba::new(150, 245, 165, 255).with_alpha(alpha),
-                TextAlign::Center,
-                Some(Rgba::new(0, 0, 0, 220).with_alpha(alpha)),
-            );
-        }
-        "xp" => {
-            let x = state.player.x as f32;
-            let y = feet_y_player(&state.player) - 98.0 - (1.0 - alpha) * 20.0;
-            if let Some(dsh) = sprites.get("experienceDigits") {
-                let digits = effect.amount.to_string();
-                let gw = 12.0f32;
-                let gh = 14.0f32;
-                let total_w = (digits.len() + 1) as f32 * gw;
-                let mut cur_x = x - total_w * 0.5;
-                c.draw_image(
-                    dsh,
-                    10 * 16,
-                    0,
-                    16,
-                    16,
-                    cur_x,
-                    y - gh,
-                    gw,
-                    gh,
-                    false,
-                    alpha,
-                    0.0,
-                );
-                cur_x += gw;
-                for ch in digits.chars() {
-                    if let Some(d) = ch.to_digit(10) {
-                        c.draw_image(
-                            dsh,
-                            d * 16,
-                            0,
-                            16,
-                            16,
-                            cur_x,
-                            y - gh,
-                            gw,
-                            gh,
-                            false,
-                            alpha,
-                            0.0,
-                        );
-                        cur_x += gw;
-                    }
+        "pickupText" | "xp" => {
+            let x = if effect.anchor == "player" {
+                state.player.x as f32
+            } else {
+                effect.x as f32
+            };
+            let base_y = if effect.anchor == "player" {
+                feet_y_player(&state.player) - 96.0
+            } else {
+                (effect.y - depth_lift(effect.z)) as f32
+            };
+            let y = base_y - (1.0 - alpha) * 20.0;
+            let xp_digits: Option<String> = if effect.kind == "xp" && effect.amount > 0 {
+                Some(format!("+{}", effect.amount))
+            } else if let Some(prefix) = effect.text.strip_suffix(" Exp") {
+                if !prefix.is_empty() && prefix.chars().all(|ch| ch.is_ascii_digit() || ch == '+') {
+                    Some(prefix.to_string())
+                } else {
+                    None
+                }
+            } else {
+                None
+            };
+            if let (Some(dsh), Some(num_str)) = (sprites.get("experienceDigits"), xp_digits) {
+                const ADVANCES: [f32; 11] = [
+                    12.0, 7.0, 11.0, 11.0, 11.0, 10.0, 11.0, 11.0, 11.0, 11.0, 10.0,
+                ];
+                let scale = NATIVE_SCALE as f32;
+                let slots: Vec<usize> = num_str
+                    .chars()
+                    .filter_map(|ch| {
+                        if ch == '+' {
+                            Some(10)
+                        } else {
+                            ch.to_digit(10).map(|d| d as usize)
+                        }
+                    })
+                    .collect();
+                let num_w: f32 = slots.iter().map(|&s| ADVANCES[s]).sum::<f32>() * scale;
+                let gap = scale;
+                let exp_w = 18.0 * scale;
+                let total_w = num_w + gap + exp_w;
+                let edge = camera_x(state);
+                let margin = total_w * 0.5 + 5.0 / CAMERA_ZOOM as f32;
+                let cx = x.clamp(edge + margin, edge + window_width() as f32 - margin);
+                let mut cur_x = cx - total_w * 0.5;
+                let cell_sz = 16.0 * scale;
+                for &slot in &slots {
+                    c.draw_image(
+                        dsh,
+                        (slot as u32) * 16,
+                        0,
+                        16,
+                        16,
+                        cur_x,
+                        y - cell_sz,
+                        cell_sz,
+                        cell_sz,
+                        false,
+                        alpha,
+                        0.0,
+                    );
+                    cur_x += ADVANCES[slot] * scale;
                 }
                 c.fill_text(
                     "Exp",
-                    cur_x + 2.0,
+                    cur_x + gap,
                     y - 2.0,
-                    11.0,
+                    10.0,
                     Rgba::new(150, 245, 165, 255).with_alpha(alpha),
                     TextAlign::Left,
                     Some(Rgba::new(0, 0, 0, 220).with_alpha(alpha)),
@@ -1960,21 +2114,283 @@ pub fn draw_effect(c: &mut Canvas<'_>, state: &State, effect: &Effect, sprites: 
                 );
             }
         }
-        "shockwave" if effect.arc => {
-            let r = (effect.radius as f32) * (0.6 + 0.4 * (1.0 - alpha));
+        "shockwave" => {
+            let r = (effect.radius as f32) * (1.15 - alpha * 0.35);
             let col = if effect.gold {
-                Rgba::new(245, 205, 88, 255)
+                Rgba::new(255, 209, 102, 255)
+            } else if effect.arc {
+                Rgba::new(255, 176, 102, 255)
             } else {
                 Rgba::new(235, 92, 68, 255)
+            };
+            let stroke_w = if effect.gold {
+                6.0
+            } else if effect.arc {
+                4.0
+            } else {
+                2.5
             };
             c.stroke_ellipse(
                 effect.x as f32,
                 floor_y(effect.z),
                 r,
                 r * DEPTH_SCALE as f32,
-                col.with_alpha(alpha),
-                3.0,
+                col.with_alpha(alpha * 0.85),
+                stroke_w,
             );
+        }
+        "rageGather" => {
+            let elapsed = (effect.max_life - effect.life).max(0.0);
+            if elapsed >= effect.delay && !state.player.dead {
+                let span = (effect.max_life - effect.delay).max(1e-4);
+                let t = ((elapsed - effect.delay) / span).clamp(0.0, 1.0) as f32;
+                let shrink = if t < 0.6 { 1.0 } else { 1.0 - (t - 0.6) / 0.4 };
+                if shrink > 0.0 {
+                    let sh = state.player.height as f32 * 1.3;
+                    let px = state.player.x as f32;
+                    let py = feet_y_player(&state.player) - sh;
+                    if let Some(eff) = sprites.get("effects") {
+                        let col = ((t * 4.0) as u32).min(3);
+                        let sz = 46.0 * shrink;
+                        let gx = px + state.player.facing as f32 * sh * 0.4;
+                        c.draw_image(
+                            eff,
+                            col * 128,
+                            24 * 128,
+                            128,
+                            128,
+                            gx - sz * 0.5,
+                            py - sz * 0.5,
+                            sz,
+                            sz,
+                            state.player.facing < 0,
+                            shrink,
+                            0.0,
+                        );
+                    }
+                    let star_t = t / 0.45;
+                    if star_t <= 1.0 {
+                        let star_a = 0.95
+                            * if star_t < 0.35 {
+                                1.0
+                            } else {
+                                1.0 - (star_t - 0.35) / 0.65
+                            };
+                        let half = sh * 0.27;
+                        for i in 0..12 {
+                            let ang = (i as f32 / 12.0) * std::f32::consts::TAU
+                                + std::f32::consts::FRAC_PI_6 * 0.5;
+                            let reach = half * if i % 3 == 0 { 1.15 } else { 0.72 };
+                            c.draw_line(
+                                px + ang.cos() * half * 0.25,
+                                py + ang.sin() * half * 0.25,
+                                px + ang.cos() * reach,
+                                py + ang.sin() * reach,
+                                Rgba::new(120, 196, 236, 230).with_alpha(star_a),
+                                (sh * 0.022).max(1.0),
+                            );
+                        }
+                        c.fill_ellipse(
+                            px,
+                            py,
+                            half * 0.85,
+                            half * 0.22,
+                            Rgba::new(255, 255, 255, 240).with_alpha(star_a),
+                        );
+                        c.fill_ellipse(
+                            px,
+                            py,
+                            half * 0.2,
+                            half * 0.72,
+                            Rgba::new(255, 255, 255, 240).with_alpha(star_a),
+                        );
+                    }
+                }
+            }
+        }
+        "ghost" => {
+            let ex = effect.x as f32;
+            let ey = (effect.y - depth_lift(effect.z)) as f32;
+            let r = effect.radius.max(18.0) as f32;
+            c.stroke_ellipse(
+                ex,
+                ey,
+                r,
+                r * 0.65,
+                Rgba::new(148, 92, 235, 255).with_alpha(alpha * 0.75),
+                6.0,
+            );
+        }
+        "bloodStrand" => {
+            if let Some(eff) = sprites.get("effects") {
+                let progress = (1.0 - alpha).clamp(0.0, 1.0);
+                let to_x = state.player.x as f32 - state.player.facing as f32 * 4.0;
+                let to_y = feet_y_player(&state.player) - state.player.height as f32 * 0.62;
+                let sx = effect.x as f32;
+                let sy = (effect.y - depth_lift(effect.z)) as f32;
+                let hx = sx + (to_x - sx) * progress;
+                let hy = sy + (to_y - sy) * progress;
+                let dx = hx - sx;
+                let dy = hy - sy;
+                let len = dx.hypot(dy);
+                if len >= 1.0 {
+                    let col = ((progress * 4.0) as u32).min(3);
+                    let sz = (len / (112.0 / 128.0)) * 1.08;
+                    let ang = dy.atan2(dx) + std::f32::consts::FRAC_PI_2;
+                    c.draw_image(
+                        eff,
+                        col * 128,
+                        15 * 128,
+                        128,
+                        128,
+                        hx - sz * 0.5,
+                        hy - sz * 0.5,
+                        sz,
+                        sz,
+                        false,
+                        1.0 - progress * 0.35,
+                        ang,
+                    );
+                }
+            }
+        }
+        "bloodFlash" => {
+            let ex = effect.x as f32;
+            let ey = (effect.y - depth_lift(effect.z)) as f32;
+            let age = 1.0 - alpha;
+            let fa = alpha * (1.0 - age * 0.45);
+            let reach = 12.0 + age * 36.0;
+            for spoke in 0..14 {
+                let ang = (spoke as f32 / 14.0) * std::f32::consts::TAU + 0.35;
+                c.draw_line(
+                    ex + ang.cos() * reach * 0.35,
+                    ey + ang.sin() * reach * 0.35,
+                    ex + ang.cos() * reach,
+                    ey + ang.sin() * reach,
+                    Rgba::new(222, 252, 255, 160).with_alpha(fa),
+                    2.0,
+                );
+            }
+            c.fill_ellipse(
+                ex,
+                ey,
+                13.0,
+                13.0,
+                Rgba::new(255, 255, 255, 235).with_alpha(fa),
+            );
+        }
+        "bloodHeal" => {
+            let ex = effect.x as f32;
+            let ey = (effect.y - depth_lift(effect.z)) as f32;
+            let age = 1.0 - alpha;
+            let opened = (age - 0.25) / 0.75;
+            if opened > 0.0 {
+                let radius = 34.0f32;
+                let sphere = radius * (0.62 + 0.38 * (opened / 0.35).min(1.0));
+                let sa = ((1.0 - opened) * 2.6).clamp(0.0, 1.0);
+                c.fill_ellipse(
+                    ex,
+                    ey,
+                    sphere,
+                    sphere,
+                    Rgba::new(150, 240, 180, 105).with_alpha(sa),
+                );
+                c.stroke_ellipse(
+                    ex,
+                    ey,
+                    sphere,
+                    sphere,
+                    Rgba::new(214, 255, 224, 175).with_alpha(sa),
+                    2.0,
+                );
+            }
+            for mote in 0..3i32 {
+                let own = ((age - 0.55) / 0.45).clamp(0.0, 1.0);
+                if own <= 0.0 {
+                    continue;
+                }
+                let ang = -std::f32::consts::FRAC_PI_2 + (mote - 1) as f32 * 0.75;
+                let travel = 42.0 * own;
+                let mx = ex + ang.cos() * travel * 0.7 + (mote - 1) as f32 * 11.0;
+                let my = ey + ang.sin() * travel;
+                c.fill_ellipse(
+                    mx,
+                    my,
+                    4.5,
+                    4.5,
+                    Rgba::new(205, 255, 218, 200).with_alpha(1.0 - own),
+                );
+            }
+        }
+        "bomb_piece" => {
+            if let Some(sh) = sprites.get("goblinBombPieces") {
+                let sc = NATIVE_SCALE as f32;
+                let sz = 40.0 * sc;
+                let ex = effect.x as f32;
+                let ey = (effect.y - depth_lift(effect.z)) as f32;
+                c.draw_image(
+                    sh,
+                    ((effect.variant % 4) as u32) * 40,
+                    0,
+                    40,
+                    40,
+                    ex - sz * 0.5,
+                    ey - sz * 0.5,
+                    sz,
+                    sz,
+                    false,
+                    alpha,
+                    effect.angle as f32,
+                );
+            }
+        }
+        "stone_debris" => {
+            if let Some(sh) = sprites.get("goblinStoneDebris") {
+                let sc = NATIVE_SCALE as f32;
+                let sz = 16.0 * sc;
+                let ex = effect.x as f32;
+                let ey = (effect.y - depth_lift(effect.z)) as f32;
+                c.draw_image(
+                    sh,
+                    ((effect.variant % 2) as u32) * 16,
+                    0,
+                    16,
+                    16,
+                    ex - sz * 0.5,
+                    ey - sz * 0.5,
+                    sz,
+                    sz,
+                    false,
+                    alpha,
+                    0.0,
+                );
+            }
+        }
+        "pillar_debris" => {
+            if let Some(sh) = sprites.get("pillarDebris") {
+                let sc = NATIVE_SCALE as f32;
+                let sz = 48.0 * sc;
+                let ex = effect.x as f32;
+                let ey = (effect.y - depth_lift(effect.z)) as f32;
+                let age = (effect.max_life - effect.life).max(0.0);
+                let ang = (effect.angle0
+                    + f64::from(effect.spin_dir) * ((age / 2.0) % 1.0) * 6.248_279_094_696_045)
+                    as f32;
+                c.draw_image(
+                    sh,
+                    ((effect.variant % 4) as u32) * 48,
+                    0,
+                    48,
+                    48,
+                    ex - sz * 0.5,
+                    ey - sz * 0.5,
+                    sz,
+                    sz,
+                    false,
+                    1.0,
+                    ang,
+                );
+            }
         }
         "telegraph" => {
             let r = effect.radius.max(24.0) as f32;
@@ -2012,7 +2428,46 @@ pub fn draw_effect(c: &mut Canvas<'_>, state: &State, effect: &Effect, sprites: 
                 Some(Rgba::new(0, 0, 0, 220).with_alpha(alpha)),
             );
         }
-        "bomb_flash" | "bossburst" => {
+        "bomb_flash" => {
+            let ex = effect.x as f32;
+            let ey = (effect.y - depth_lift(effect.z)) as f32;
+            if let Some(sh) = sprites.get("goblinBombFlash") {
+                let sc = NATIVE_SCALE as f32;
+                let max_l = if effect.max_life > 0.0 {
+                    effect.max_life
+                } else {
+                    0.2
+                };
+                let age = (max_l - effect.life).max(0.0);
+                let t = (age / 0.1).min(1.0) as f32;
+                let rate = 0.5 + 1.5 * t;
+                let fa = (1.0 - age / max_l).max(0.0) as f32;
+                let sz = 103.0 * rate * sc;
+                c.draw_image_additive(
+                    sh,
+                    0,
+                    0,
+                    103,
+                    103,
+                    ex - 50.0 * rate * sc,
+                    ey - 50.0 * rate * sc,
+                    sz,
+                    sz,
+                    false,
+                    fa,
+                    0.0,
+                );
+            } else {
+                c.fill_ellipse(
+                    ex,
+                    ey,
+                    38.0 * (1.2 - alpha * 0.5),
+                    28.0 * (1.2 - alpha * 0.5),
+                    Rgba::new(255, 220, 140, 255).with_alpha(alpha),
+                );
+            }
+        }
+        "bossburst" => {
             let ex = effect.x as f32;
             let ey = (effect.y - depth_lift(effect.z)) as f32;
             c.fill_ellipse(
@@ -2022,25 +2477,23 @@ pub fn draw_effect(c: &mut Canvas<'_>, state: &State, effect: &Effect, sprites: 
                 28.0 * (1.2 - alpha * 0.5),
                 Rgba::new(255, 220, 140, 255).with_alpha(alpha),
             );
-            if effect.kind == "bossburst" {
-                if let Some(bd) = sprites.get("bossdeath") {
-                    let bw = bd.width() as f32;
-                    let bh = bd.height() as f32;
-                    c.draw_image(
-                        bd,
-                        0,
-                        0,
-                        bd.width(),
-                        bd.height(),
-                        ex - bw * 0.5,
-                        ey - 44.0,
-                        bw,
-                        bh,
-                        false,
-                        alpha,
-                        0.0,
-                    );
-                }
+            if let Some(bd) = sprites.get("bossdeath") {
+                let bw = bd.width() as f32;
+                let bh = bd.height() as f32;
+                c.draw_image(
+                    bd,
+                    0,
+                    0,
+                    bd.width(),
+                    bd.height(),
+                    ex - bw * 0.5,
+                    ey - 44.0,
+                    bw,
+                    bh,
+                    false,
+                    alpha,
+                    0.0,
+                );
             }
         }
         "deathburst" => {

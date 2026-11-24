@@ -141,6 +141,8 @@ mod win_audio {
                     "enemyDie" => (
                         if is_tau {
                             Some("assets/sfx/tau_die.ogg")
+                        } else if matches!(ev.enemy_type.as_deref(), Some("cat" | "lugaruBoss")) {
+                            Some("assets/sfx/bloodgaru_slayer.ogg")
                         } else {
                             Some("assets/sfx/gbn_die_01.ogg")
                         },
@@ -179,9 +181,23 @@ mod win_audio {
                         0.4,
                     ),
                     "bossRoar" => (Some("assets/sfx/tau_roar.ogg"), 0.5),
-                    "coinPickup" => (Some("assets/sfx/coin_pick_01.ogg"), 0.45),
+                    "coinPickup" => {
+                        let idx = ((ev.t * 100.0) as usize) % 5;
+                        let files = [
+                            "assets/sfx/coin_pick_01.ogg",
+                            "assets/sfx/coin_pick_02.ogg",
+                            "assets/sfx/coin_pick_03.ogg",
+                            "assets/sfx/coin_pick_04.ogg",
+                            "assets/sfx/coin_pick_05.ogg",
+                        ];
+                        (Some(files[idx]), 0.45)
+                    }
                     "bombExplosion" => (Some("assets/sfx/bomb_ex.ogg"), 0.5),
                     "stonePillarBreak" => (Some("assets/sfx/tstone_break.ogg"), 0.48),
+                    "levelUp" => (Some("assets/sfx/levup.ogg"), 0.52),
+                    "gateOpen" => (Some("assets/sfx/ev_gate.ogg"), 0.48),
+                    "resultRank" => (Some("assets/sfx/result_r1.ogg"), 0.5),
+                    "rewardOpen" => (Some("assets/sfx/reward_open1.ogg"), 0.5),
                     _ => (None, 0.45),
                 };
                 if let Some(rel) = file {

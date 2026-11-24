@@ -272,6 +272,7 @@ impl AppState {
         self.state = create_state(&CreateStateOptions {
             seed: Some(seed),
             stage: Some(stage_id),
+            reference_profile: true,
             ..Default::default()
         });
         self.reward = None;
