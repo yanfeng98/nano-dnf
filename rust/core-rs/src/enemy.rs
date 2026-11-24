@@ -41,6 +41,18 @@ pub fn create_enemy(
     state.next_enemy_id += 1;
     let left = room_left(state) + spec.width;
     let right = room_right(state) - spec.width;
+    let use_ref = state.reference_profile.is_some();
+    let pvf_mon = crate::pvf_truth::monster_truth(kind);
+    let sight_range = pvf_mon
+        .map(|m| m.sight_world())
+        .unwrap_or_else(|| native_ground_x(300.0));
+    let attack_cooldown_max = if use_ref && spec.behavior != "boss" {
+        pvf_mon
+            .map(|m| m.attack_delay_secs())
+            .unwrap_or(spec.attack_cooldown)
+    } else {
+        spec.attack_cooldown
+    };
 
     Enemy {
         id,
@@ -74,10 +86,10 @@ pub fn create_enemy(
         attack_duration: spec.attack_duration,
         base_attack_windup: spec.attack_windup,
         base_attack_duration: spec.attack_duration,
-        attack_cooldown_max: spec.attack_cooldown,
+        attack_cooldown_max,
         base_speed: spec.speed,
         base_damage: spec.damage,
-        base_attack_cooldown_max: spec.attack_cooldown,
+        base_attack_cooldown_max: attack_cooldown_max,
         attack_cooldown: 0.5,
         step_timer: f64::from(state.next_enemy_id % 5) * 0.07,
         attack_timer: 0.0,
@@ -121,6 +133,9 @@ pub fn create_enemy(
         dying: 0.0,
         silhouette: false,
         gone: false,
+        sight_range,
+        activated: !use_ref,
+        activation_delay: 0.0,
     }
 }
 
@@ -508,6 +523,16 @@ pub fn update_projectiles(
             emit_projectile_destroy_effect(state, &shot, end_x, end_y);
             if shot.native_object == Some(30021) {
                 crate::push_sound(state, "bombExplosion", end_x, shot.z);
+                if !shot.hit_player && !state.player.dead {
+                    let blast_radius = native_ground_x(72.0);
+                    let on_ground = state.player.y >= ARENA_GROUND_Y - 36.0;
+                    if on_ground
+                        && in_reach_of(state.player.z, shot.z, DEPTH_REACH_SPIN)
+                        && (state.player.x - end_x).abs() <= blast_radius + state.player.width / 2.0
+                    {
+                        damage_player(state, shot.damage, end_x);
+                    }
+                }
             }
             return;
         }
@@ -795,6 +820,23 @@ fn choose_enemy_action(state: &mut State, enemy_idx: usize) {
         state.enemies[enemy_idx].vx = 0.0;
         state.enemies[enemy_idx].vz = 0.0;
         return;
+    }
+
+    if !state.enemies[enemy_idx].activated {
+        let e = &state.enemies[enemy_idx];
+        let damaged = e.hurt_timer > 0.0 || e.hp < e.max_hp;
+        let sight_eff = if is_boss_enemy(e) {
+            e.sight_range.max(360.0)
+        } else {
+            e.sight_range
+        };
+        if damaged || (e.activation_delay <= 0.0 && delta.abs() <= sight_eff) {
+            state.enemies[enemy_idx].activated = true;
+        } else {
+            state.enemies[enemy_idx].vx = 0.0;
+            state.enemies[enemy_idx].vz = 0.0;
+            return;
+        }
     }
 
     let row_gap = state.player.z - state.enemies[enemy_idx].z;
@@ -1175,6 +1217,8 @@ pub fn update_enemies(state: &mut State, dt: f64, previous_player_position: Opti
             continue;
         }
         state.enemies[e_idx].hurt_timer = (state.enemies[e_idx].hurt_timer - dt).max(0.0);
+        state.enemies[e_idx].activation_delay =
+            (state.enemies[e_idx].activation_delay - dt).max(0.0);
         state.enemies[e_idx].attack_cooldown = (state.enemies[e_idx].attack_cooldown - dt).max(0.0);
         if state.enemies[e_idx].slam.is_some() {
             state.enemies[e_idx].slam_cooldown = (state.enemies[e_idx].slam_cooldown - dt).max(0.0);

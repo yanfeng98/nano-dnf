@@ -235,7 +235,8 @@ pub fn loot_for(seed: u32, enemy_id: u32) -> (&'static str, &'static str, u32) {
 }
 
 pub fn drop_loot(state: &mut State, enemy: &Enemy) {
-    let (name, tone, gold) = loot_for(state.seed, enemy.id);
+    let (name, tone, gold) = crate::pvf_truth::pvf_loot_for(state.seed, enemy.id, &enemy.kind)
+        .unwrap_or_else(|| loot_for(state.seed, enemy.id));
     state.pickups.push(Pickup {
         kind: "loot".to_string(),
         name: name.to_string(),
