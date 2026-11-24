@@ -208,6 +208,9 @@ pub struct Enemy {
     pub dying: f64,
     pub silhouette: bool,
     pub gone: bool,
+    pub sight_range: f64,
+    pub activated: bool,
+    pub activation_delay: f64,
 }
 
 #[derive(Debug, Clone)]
@@ -275,6 +278,7 @@ pub struct RoomWaveItem {
     pub z: f64,
     pub level: Option<u32>,
     pub xp: Option<u32>,
+    pub activation_delay: Option<f64>,
 }
 
 #[derive(Debug, Clone)]

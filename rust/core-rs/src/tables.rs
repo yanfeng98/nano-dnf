@@ -471,6 +471,8 @@ pub struct RoomEnemyEntry {
     pub level: Option<u32>,
     #[serde(default)]
     pub xp: Option<u32>,
+    #[serde(default)]
+    pub activation_delay: Option<f64>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
