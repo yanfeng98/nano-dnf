@@ -1358,7 +1358,14 @@ fn draw_champion_aura(
 }
 
 pub fn draw_enemy(c: &mut Canvas<'_>, state: &State, enemy: &Enemy, sprites: &SpriteStore) {
-    let ex = enemy.x as f32;
+    let jitter_x = if !enemy.dead && (enemy.hit_flash_timer > 0.0 || enemy.hurt_timer > 0.04) {
+        let active_t = enemy.hit_flash_timer.max(enemy.hurt_timer * 0.65);
+        let amp = (active_t / 0.12).clamp(0.0, 1.0) as f32 * 2.6;
+        amp * ((state.time * 95.0 + f64::from(enemy.id) * 1.7).sin() as f32)
+    } else {
+        0.0
+    };
+    let ex = enemy.x as f32 + jitter_x;
     let ey = feet_y_enemy(enemy);
     let ground_y = floor_y(enemy.z);
     let w = enemy.width as f32;
@@ -1458,6 +1465,22 @@ pub fn draw_enemy(c: &mut Canvas<'_>, state: &State, enemy: &Enemy, sprites: &Sp
                 if enemy.dead { 0.45 } else { 1.0 },
                 0.0,
             );
+            if !enemy.dead && enemy.hit_flash_timer > 0.0 {
+                let flash_alpha = ((enemy.hit_flash_timer / 0.12).clamp(0.0, 1.0) as f32) * 0.65;
+                c.draw_image_white_silhouette(
+                    sh,
+                    sx,
+                    sy,
+                    cell_w,
+                    cell_h,
+                    draw_x,
+                    draw_y,
+                    dw,
+                    dh,
+                    flip,
+                    flash_alpha,
+                );
+            }
         }
         true
     } else {
@@ -1483,6 +1506,17 @@ pub fn draw_enemy(c: &mut Canvas<'_>, state: &State, enemy: &Enemy, sprites: &Sp
             );
         }
         c.fill_round_rect(ex - w * 0.5, ey - h, w, h, 5.0, body_col);
+        if !enemy.dead && enemy.hit_flash_timer > 0.0 {
+            let flash_alpha = ((enemy.hit_flash_timer / 0.12).clamp(0.0, 1.0) as f32) * 0.65;
+            c.fill_round_rect(
+                ex - w * 0.5,
+                ey - h,
+                w,
+                h,
+                5.0,
+                Rgba::new(255, 255, 255, 255).with_alpha(flash_alpha),
+            );
+        }
     }
 
     draw_champion_aura(c, state, enemy, sprites, false);
@@ -2188,21 +2222,161 @@ pub fn draw_effect(c: &mut Canvas<'_>, state: &State, effect: &Effect, sprites: 
     match effect.kind.as_str() {
         "damage" => {
             let x = effect.x as f32;
-            let y = (effect.y - depth_lift(effect.z)) as f32 - (1.0 - alpha) * 18.0;
-            let col = if effect.miss {
-                Rgba::new(190, 205, 225, 255).with_alpha(alpha)
+            let age = (1.0 - alpha).clamp(0.0, 1.0);
+            let y = (effect.y - depth_lift(effect.z)) as f32 - age * 20.0;
+            let draw_alpha = if alpha < 0.30 {
+                (alpha / 0.30).clamp(0.0, 1.0)
             } else {
-                Rgba::new(255, 214, 72, 255).with_alpha(alpha)
+                1.0
             };
-            c.fill_text(
-                &effect.text,
-                x,
-                y,
-                16.0,
-                col,
-                TextAlign::Center,
-                Some(Rgba::new(0, 0, 0, 220).with_alpha(alpha)),
-            );
+            if effect.miss {
+                c.fill_text(
+                    &effect.text,
+                    x,
+                    y,
+                    14.0,
+                    Rgba::new(205, 222, 240, 255).with_alpha(draw_alpha),
+                    TextAlign::Center,
+                    Some(Rgba::new(10, 14, 22, 235).with_alpha(draw_alpha)),
+                );
+            } else if let Some(dsh) = sprites.get("damageDigits") {
+                const CELL_W: u32 = 24;
+                const CELL_H: u32 = 22;
+                const DIGIT_ADV: [f32; 10] =
+                    [17.0, 11.0, 17.0, 17.0, 17.0, 17.0, 17.0, 17.0, 17.0, 17.0];
+                let digits: Vec<usize> = effect
+                    .text
+                    .chars()
+                    .filter_map(|ch| ch.to_digit(10).map(|d| d as usize))
+                    .collect();
+                if !digits.is_empty() {
+                    let row: u32 = if effect.player_hit {
+                        2
+                    } else if effect.critical {
+                        1
+                    } else {
+                        0
+                    };
+                    let pop = if age < 0.14 {
+                        1.28 - (age / 0.14) * 0.28
+                    } else {
+                        1.0
+                    };
+                    let base_scale = if effect.critical { 0.96 } else { 0.72 };
+                    let scale = base_scale * pop;
+                    let total_w: f32 = digits.iter().map(|&d| DIGIT_ADV[d] * scale).sum();
+                    let dw = CELL_W as f32 * scale;
+                    let dh = CELL_H as f32 * scale;
+                    let mut cur_x = x - total_w * 0.5;
+                    for &d in &digits {
+                        let adv = DIGIT_ADV[d] * scale;
+                        let glyph_x = cur_x + (adv - dw) * 0.5;
+                        c.draw_image(
+                            dsh,
+                            (d as u32) * CELL_W,
+                            row * CELL_H,
+                            CELL_W,
+                            CELL_H,
+                            glyph_x,
+                            y - dh,
+                            dw,
+                            dh,
+                            false,
+                            draw_alpha,
+                            0.0,
+                        );
+                        cur_x += adv;
+                    }
+                }
+            } else {
+                let col = if effect.player_hit {
+                    Rgba::new(235, 52, 52, 255).with_alpha(draw_alpha)
+                } else if effect.critical {
+                    Rgba::new(255, 138, 32, 255).with_alpha(draw_alpha)
+                } else {
+                    Rgba::new(255, 224, 72, 255).with_alpha(draw_alpha)
+                };
+                let size = if effect.critical { 21.0 } else { 16.0 };
+                c.fill_text(
+                    &effect.text,
+                    x,
+                    y,
+                    size,
+                    col,
+                    TextAlign::Center,
+                    Some(Rgba::new(0, 0, 0, 230).with_alpha(draw_alpha)),
+                );
+            }
+        }
+        "hitFlash" => {
+            let ex = effect.x as f32;
+            let ey = (effect.y - depth_lift(effect.z)) as f32;
+            let age = (1.0 - alpha).clamp(0.0, 1.0);
+            let draw_alpha = if age > 0.72 {
+                ((1.0 - age) / 0.28).clamp(0.0, 1.0)
+            } else {
+                1.0
+            };
+            let flip = effect.dir < 0;
+            if let Some(ish) = sprites.get("impactFlash") {
+                const CELL_W: u32 = 144;
+                const CELL_H: u32 = 128;
+                let col: u32 = if age < 0.48 {
+                    0
+                } else if age < 0.76 {
+                    1
+                } else {
+                    2
+                };
+                let row = (effect.variant.min(2)) as u32;
+                let base_scale = (effect.radius.max(0.5) as f32) * (0.74 + age * 0.16);
+                let dw = CELL_W as f32 * base_scale;
+                let dh = CELL_H as f32 * base_scale;
+                c.draw_image(
+                    ish,
+                    col * CELL_W,
+                    row * CELL_H,
+                    CELL_W,
+                    CELL_H,
+                    ex - dw * 0.5,
+                    ey - dh * 0.5,
+                    dw,
+                    dh,
+                    flip,
+                    draw_alpha,
+                    0.0,
+                );
+                if effect.gold && age < 0.65 {
+                    let slash_col: u32 = if age < 0.30 { 0 } else { 1 };
+                    let slash_scale = base_scale * 0.92;
+                    let sdw = CELL_W as f32 * slash_scale;
+                    let sdh = CELL_H as f32 * slash_scale;
+                    c.draw_image(
+                        ish,
+                        slash_col * CELL_W,
+                        2 * CELL_H,
+                        CELL_W,
+                        CELL_H,
+                        ex - sdw * 0.5,
+                        ey - sdh * 0.5,
+                        sdw,
+                        sdh,
+                        flip,
+                        draw_alpha * 0.9,
+                        0.0,
+                    );
+                }
+            } else {
+                // Procedural fallback starburst if sheet is unavailable
+                let reach = (effect.radius.max(0.5) as f32) * (36.0 + age * 14.0);
+                c.fill_ellipse(
+                    ex,
+                    ey,
+                    reach * 0.55,
+                    reach * 0.55,
+                    Rgba::new(255, 252, 224, 240).with_alpha(draw_alpha),
+                );
+            }
         }
         "hitWord" => {
             let x = effect.x as f32;

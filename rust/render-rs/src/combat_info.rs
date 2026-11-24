@@ -1016,7 +1016,7 @@ mod tests {
             hint: None,
             seed: state.seed,
             stage_id: &state.stage_id,
-            map_mode: crate::MapMode::default(),
+            map_mode: crate::MapMode::Radar,
         };
         let mut pixmap = Pixmap::new(RENDER_WIDTH, RENDER_HEIGHT).expect("pixmap");
         {
