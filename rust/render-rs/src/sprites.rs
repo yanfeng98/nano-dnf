@@ -72,7 +72,7 @@ pub const UI_ASSET_ENTRIES: [(&str, &str); 13] = [
     ("gateBlock", "assets/gate-block.png"),
 ];
 
-pub const EXTRA_ASSET_ENTRIES: [(&str, &str); 7] = [
+pub const EXTRA_ASSET_ENTRIES: [(&str, &str); 9] = [
     ("minimap", "assets/minimap.png"),
     ("results", "assets/results-reference.png"),
     ("experienceDigits", "assets/experience-digits.png"),
@@ -80,6 +80,8 @@ pub const EXTRA_ASSET_ENTRIES: [(&str, &str); 7] = [
     ("portraits", "assets/portraits-reference.png"),
     ("impactFlash", "assets/impact-flash.png"),
     ("damageDigits", "assets/damage-digits.png"),
+    ("groundLoot", "assets/ground-loot.png"),
+    ("monsterGibs", "assets/monster-gibs.png"),
 ];
 
 impl SpriteStore {

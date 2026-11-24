@@ -597,11 +597,94 @@ pub fn draw_rating_panel(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStor
     }
 }
 
-/// Ground loot nameplate + subtle item marker on the ground band (V2 60s/260s).
-pub fn draw_loot_plate(c: &mut Canvas<'_>, state: &State, drop: &Pickup, dx: f32, dy: f32) {
-    // Subtle ground item visual sitting right on the ground band beneath the nameplate
+/// Select the cell index in `assets/ground-loot.png` (8 x 48x48 cells) for a ground pickup.
+///
+/// Layout:
+/// - 0: gold coin pile
+/// - 1: red HP potion vial
+/// - 2: blue MP potion vial
+/// - 3: material pouch
+/// - 4: fate / resurrect gold coin
+/// - 5: rare crystal / gem pile
+/// - 6: weapon (katana)
+/// - 7: armor / equipment
+pub fn ground_loot_cell(drop: &Pickup) -> u32 {
     if drop.kind == "gold" {
-        c.fill_ellipse(dx, dy - 1.5, 6.5, 3.0, Rgba::new(0, 0, 0, 120));
+        return 0;
+    }
+    let name = drop.name.as_str();
+    if name.contains("MP") || name.contains("魔力") || name.contains("魔法") {
+        2
+    } else if name.contains("HP") || name.contains("生命") || name.contains("药剂") {
+        1
+    } else if name.contains("硬币") || name.contains("复活币") {
+        4
+    } else if name.contains("太刀")
+        || name.contains("剑")
+        || name.contains("法杖")
+        || name.contains("图腾")
+        || name.contains("斧")
+        || name.contains("枪")
+        || name.contains("棒")
+    {
+        6
+    } else if name.contains("护")
+        || name.contains("甲")
+        || name.contains("靴")
+        || name.contains("腰带")
+        || name.contains("戒指")
+        || name.contains("项链")
+        || name.contains("手镯")
+        || name.contains("衣")
+        || name.contains("裤")
+    {
+        7
+    } else if drop.tone == "purple"
+        || name.contains("晶")
+        || name.contains("宝石")
+        || name.contains("魔石")
+    {
+        5
+    } else {
+        3
+    }
+}
+
+/// Ground loot nameplate + authentic DNF field-drop sprite on the ground band (V2 60s/260s).
+pub fn draw_loot_plate(
+    c: &mut Canvas<'_>,
+    state: &State,
+    sprites: &SpriteStore,
+    drop: &Pickup,
+    dx: f32,
+    dy: f32,
+) {
+    // Subtle ground contact shadow beneath the dropped item
+    c.fill_ellipse(dx, dy - 1.0, 10.5, 3.8, Rgba::new(0, 0, 0, 118));
+
+    let mut plate_lift = 16.0f32;
+    if let Some(sheet) = sprites.get("groundLoot") {
+        const CELL: u32 = 48;
+        let max_col = (sheet.width() / CELL).saturating_sub(1);
+        let col = ground_loot_cell(drop).min(max_col);
+        let draw_sz = 34.0f32;
+        // Ground anchor inside each 48x48 cell is at y=44 -> align bottom flush with `dy + 2`
+        c.draw_image(
+            sheet,
+            col * CELL,
+            0,
+            CELL,
+            CELL,
+            dx - draw_sz * 0.5,
+            dy - draw_sz + 3.0,
+            draw_sz,
+            draw_sz,
+            false,
+            1.0,
+            0.0,
+        );
+        plate_lift = 19.0;
+    } else if drop.kind == "gold" {
         c.fill_ellipse(dx - 2.0, dy - 3.0, 3.6, 2.2, Rgba::new(235, 188, 52, 255));
         c.fill_ellipse(dx + 2.2, dy - 2.5, 3.4, 2.0, Rgba::new(252, 224, 96, 255));
         c.stroke_ellipse(
@@ -613,7 +696,6 @@ pub fn draw_loot_plate(c: &mut Canvas<'_>, state: &State, drop: &Pickup, dx: f32
             0.9,
         );
     } else {
-        c.fill_ellipse(dx, dy - 1.5, 7.0, 3.2, Rgba::new(0, 0, 0, 125));
         let item_col = match drop.tone.as_str() {
             "cyan" => Rgba::new(110, 214, 232, 245),
             "purple" => Rgba::new(196, 126, 248, 245),
@@ -638,7 +720,7 @@ pub fn draw_loot_plate(c: &mut Canvas<'_>, state: &State, drop: &Pickup, dx: f32
     let pw = (text_w + 14.0).max(32.0);
     let ph = 16.5f32;
     let plate_x = dx - pw * 0.5;
-    let plate_y = dy - 10.0 - ph;
+    let plate_y = dy - plate_lift - ph;
 
     c.fill_round_rect(plate_x, plate_y, pw, ph, 3.0, Rgba::new(10, 14, 20, 200));
     let edge_col = if ready {
@@ -887,15 +969,50 @@ mod tests {
         assert_eq!(loot_plate_label(&gold_drop), "65G");
         assert_eq!(loot_plate_label(&item_drop), "生锈的铁片");
 
+        let sprites = SpriteStore::load_from_root(Path::new("../.."));
+        assert!(
+            sprites.get("groundLoot").is_some(),
+            "SpriteStore must load assets/ground-loot.png"
+        );
+        assert_eq!(ground_loot_cell(&gold_drop), 0);
+        assert_eq!(ground_loot_cell(&item_drop), 3);
+
+        let mut potion_drop = item_drop.clone();
+        potion_drop.name = "诺顿的新手HP药剂".to_string();
+        assert_eq!(ground_loot_cell(&potion_drop), 1);
+
+        let mut mp_drop = item_drop.clone();
+        mp_drop.name = "诺顿的新手MP药剂".to_string();
+        assert_eq!(ground_loot_cell(&mp_drop), 2);
+
+        let mut coin_drop = item_drop.clone();
+        coin_drop.name = "命运硬币".to_string();
+        assert_eq!(ground_loot_cell(&coin_drop), 4);
+
+        let mut weapon_drop = item_drop.clone();
+        weapon_drop.name = "古老的太刀".to_string();
+        assert_eq!(ground_loot_cell(&weapon_drop), 6);
+
         let mut fonts = test_fonts();
         let mut pixmap = Pixmap::new(RENDER_WIDTH, RENDER_HEIGHT).expect("pixmap");
         pixmap.fill(tiny_skia::Color::BLACK);
         {
             let mut c = Canvas::new(&mut pixmap, &mut fonts);
-            draw_loot_plate(&mut c, &state, &gold_drop, 320.0, 400.0);
-            draw_loot_plate(&mut c, &state, &item_drop, 420.0, 400.0);
+            draw_loot_plate(&mut c, &state, &sprites, &gold_drop, 320.0, 400.0);
+            draw_loot_plate(&mut c, &state, &sprites, &item_drop, 420.0, 400.0);
         }
-        assert!(count_non_black_pixels(&pixmap, 180, 380, 420, 460) > 150);
+        // Verify both nameplates and authentic ground loot sprites rendered non-black pixels
+        assert!(count_non_black_pixels(&pixmap, 180, 370, 460, 460) > 250);
+        // Verify gold pile sprite itself has golden pixels on the ground band beneath the nameplate
+        let gold_pixels = pixmap
+            .data()
+            .chunks_exact(4)
+            .filter(|px| px[0] >= 200 && px[1] >= 150 && px[2] <= 80)
+            .count();
+        assert!(
+            gold_pixels >= 40,
+            "expected authentic gold pile sprite pixels, got {gold_pixels}"
+        );
 
         state.log.clear();
         collect_loot(&mut state, &item_drop);

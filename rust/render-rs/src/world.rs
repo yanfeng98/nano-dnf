@@ -31,6 +31,53 @@ pub fn scatter_hash(seed: u32, index: usize) -> f64 {
     f64::from(x) / 4_294_967_296.0
 }
 
+/// Map monster species id to its distinct row in `assets/monster-gibs.png` (8 rows x 4 chunks).
+///
+/// - row 0: green goblin (`grunt`, `coward`, default)
+/// - row 1: crimson-red goblin (`goblinRed`, `cursedRed`)
+/// - row 2: blue frost goblin (`goblinBlue`)
+/// - row 3: charcoal elite goblin (`elite`, `throwerElite`, `deepElite`)
+/// - row 4: pale caster goblin (`caster`, `burningThrower`)
+/// - row 5: orange cat / lugaru (`cat`)
+/// - row 6: dark-violet cursed lugaru boss (`lugaruBoss`, `deepBoss`)
+/// - row 7: ochre-brown brute / tau (`brute`, `boss`)
+pub fn monster_gib_row(enemy_type: &str) -> u32 {
+    match enemy_type {
+        "goblinRed" | "cursedRed" => 1,
+        "goblinBlue" => 2,
+        "elite" | "throwerElite" | "deepElite" => 3,
+        "caster" | "burningThrower" => 4,
+        "cat" => 5,
+        "lugaruBoss" | "deepBoss" => 6,
+        "brute" | "boss" => 7,
+        _ => 0,
+    }
+}
+
+/// Compute `(dx, height, rot_time)` for a death gib with initial parabolic flight,
+/// one brief damped ground bounce, and final settled rest on the grass (no infinite sliding).
+pub fn gib_bounce_state(t: f64, h0: f64, vx: f64, vy: f64, gravity: f64) -> (f64, f64, f64) {
+    let g = gravity.max(1.0);
+    let h0 = h0.max(0.0);
+    let t = t.max(0.0);
+    let v_imp = (vy * vy + 2.0 * g * h0).sqrt();
+    let t_land = (vy + v_imp) / g;
+    if t <= t_land {
+        let h = (h0 + vy * t - 0.5 * g * t * t).max(0.0);
+        return (vx * t, h, t);
+    }
+    let vy1 = v_imp * 0.28;
+    let vx1 = vx * 0.32;
+    let t_b1 = 2.0 * vy1 / g;
+    let t_after = t - t_land;
+    if t_after < t_b1 {
+        let h = (vy1 * t_after - 0.5 * g * t_after * t_after).max(0.0);
+        (vx * t_land + vx1 * t_after, h, t_land + t_after * 0.35)
+    } else {
+        (vx * t_land + vx1 * t_b1, 0.0, t_land + t_b1 * 0.35)
+    }
+}
+
 pub fn draw_backdrop(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
     let deep = state.stage_id == "mirkwooddeep";
     let sheet_key = if deep { "forestDeep" } else { "forest" };
@@ -843,18 +890,21 @@ pub fn draw_player(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
             let arc_col = ((arc_prog * 22.0) as u32).min(21);
             let arc_sx = arc_col * cell_w;
             let arc_sy = (10 * cell_h).min(sh.height().saturating_sub(cell_h));
+            let arc_scale = 0.84f32;
+            let arc_w = dw * arc_scale;
+            let arc_h = dh * arc_scale;
             c.draw_image_additive(
                 sh,
                 arc_sx,
                 arc_sy,
                 cell_w,
                 cell_h,
-                draw_x + p.facing as f32 * 7.0,
-                draw_y + 5.0,
-                dw,
-                dh,
+                draw_x + (dw - arc_w) * 0.5 + p.facing as f32 * 5.0,
+                draw_y + (dh - arc_h) * 0.5 + 4.0,
+                arc_w,
+                arc_h,
                 flip,
-                0.9,
+                0.82,
                 0.0,
             );
         }
@@ -1732,7 +1782,7 @@ pub fn draw_world(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
                         c.fill_ellipse(dx, dy, 8.0, 8.0, Rgba::new(225, 42, 54, 230));
                     }
                 } else {
-                    crate::combat_info::draw_loot_plate(c, state, drop, dx, dy);
+                    crate::combat_info::draw_loot_plate(c, state, sprites, drop, dx, dy);
                 }
             }
             3 => {
@@ -2173,29 +2223,30 @@ pub fn draw_world(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
             }
         }
     } else if state.player.attack_timer > 0.0 {
-        let px = state.player.x as f32 + state.player.facing as f32 * 38.0;
+        let px = state.player.x as f32 + state.player.facing as f32 * 34.0;
         let py = feet_y_player(&state.player) - 32.0;
         if state.player.buffs.contains_key("bloodRage") {
             if let Some(eff) = sprites.get("effects") {
                 let dur = state.player.attack_duration.max(0.1);
                 let prog = (1.0 - (state.player.attack_timer / dur)).clamp(0.0, 0.999);
                 let frame = (prog * 8.0) as u32;
+                let slash_sz = 92.0f32;
                 c.draw_image(
                     eff,
                     frame * 128,
                     16 * 128,
                     128,
                     128,
-                    px - 64.0,
-                    py - 64.0,
-                    128.0,
-                    128.0,
+                    px - slash_sz * 0.5,
+                    py - slash_sz * 0.5,
+                    slash_sz,
+                    slash_sz,
                     flip,
-                    0.9,
+                    0.78,
                     0.0,
                 );
             } else {
-                c.fill_ellipse(px, py, 28.0, 18.0, Rgba::new(235, 68, 76, 110));
+                c.fill_ellipse(px, py, 24.0, 15.0, Rgba::new(235, 68, 76, 100));
             }
         }
     }
@@ -2346,7 +2397,8 @@ pub fn draw_effect(c: &mut Canvas<'_>, state: &State, effect: &Effect, sprites: 
                     2
                 };
                 let row = (effect.variant.min(2)) as u32;
-                let base_scale = (effect.radius.max(0.5) as f32) * (0.74 + age * 0.16);
+                // Compact DNF 60/70 starburst scale (~46-56 world units normal, ~58-71 crit, V1 290s)
+                let base_scale = (effect.radius.max(0.5) as f32) * (0.34 + age * 0.075);
                 let dw = CELL_W as f32 * base_scale;
                 let dh = CELL_H as f32 * base_scale;
                 c.draw_image(
@@ -2363,29 +2415,9 @@ pub fn draw_effect(c: &mut Canvas<'_>, state: &State, effect: &Effect, sprites: 
                     draw_alpha,
                     0.0,
                 );
-                if effect.gold && age < 0.65 {
-                    let slash_col: u32 = if age < 0.30 { 0 } else { 1 };
-                    let slash_scale = base_scale * 0.92;
-                    let sdw = CELL_W as f32 * slash_scale;
-                    let sdh = CELL_H as f32 * slash_scale;
-                    c.draw_image(
-                        ish,
-                        slash_col * CELL_W,
-                        2 * CELL_H,
-                        CELL_W,
-                        CELL_H,
-                        ex - sdw * 0.5,
-                        ey - sdh * 0.5,
-                        sdw,
-                        sdh,
-                        flip,
-                        draw_alpha * 0.9,
-                        0.0,
-                    );
-                }
             } else {
                 // Procedural fallback starburst if sheet is unavailable
-                let reach = (effect.radius.max(0.5) as f32) * (36.0 + age * 14.0);
+                let reach = (effect.radius.max(0.5) as f32) * (18.0 + age * 6.0);
                 c.fill_ellipse(
                     ex,
                     ey,
@@ -2877,20 +2909,23 @@ pub fn draw_effect(c: &mut Canvas<'_>, state: &State, effect: &Effect, sprites: 
         }
         "deathburst" => {
             let t = (effect.max_life - effect.life).max(0.0);
-            let is_boss = effect.enemy_type == "boss" || effect.enemy_type == "deepBoss";
-            let count = if is_boss { 12usize } else { 8usize };
-            let gravity = if is_boss { 520.0 } else { 640.0 };
+            let is_tau_boss = effect.enemy_type == "boss";
+            let is_boss =
+                is_tau_boss || effect.enemy_type == "deepBoss" || effect.enemy_type == "lugaruBoss";
+            let count = if is_boss { 12usize } else { 9usize };
+            let gravity = if is_boss { 560.0 } else { 680.0 };
+            let gib_row = monster_gib_row(&effect.enemy_type);
             let sheet_key = if state.stage_id == "mirkwooddeep" {
                 "forestDeep"
             } else {
                 "forest"
             };
             let chunk_prefix = match effect.enemy_type.as_str() {
-                "boss" | "deepBoss" => "boss",
+                "boss" | "deepBoss" | "lugaruBoss" => "boss",
                 "brute" => "brute",
                 "caster" | "burningThrower" => "caster",
                 "coward" => "coward",
-                "throwerElite" | "deepElite" => "elite",
+                "elite" | "throwerElite" | "deepElite" => "elite",
                 _ => "grunt",
             };
             let body = effect.height * 0.45;
@@ -2902,40 +2937,73 @@ pub fn draw_effect(c: &mut Canvas<'_>, state: &State, effect: &Effect, sprites: 
                 [59, 0, 22, 21],
                 [82, 0, 6, 7],
             ];
+
+            // Compact dark-red blood splatter droplets that land and settle quickly on the grass
+            let blood_count = if is_boss { 7usize } else { 5usize };
+            for b_idx in 0..blood_count {
+                let b_angle = scatter_hash(effect.seed ^ 0x51a7, b_idx * 5) * std::f64::consts::TAU;
+                let b_speed = 55.0 + scatter_hash(effect.seed ^ 0x51a7, b_idx * 5 + 1) * 95.0;
+                let b_vx = b_angle.cos() * b_speed;
+                let b_vy = 55.0 + scatter_hash(effect.seed ^ 0x51a7, b_idx * 5 + 2) * 85.0;
+                let (b_dx, b_h, _) = gib_bounce_state(t, body * 0.8, b_vx, b_vy, 820.0);
+                let bx = (effect.x + b_dx) as f32;
+                let by = base_y - b_h as f32;
+                let rx = 2.0 + scatter_hash(effect.seed ^ 0x51a7, b_idx * 5 + 3) as f32 * 2.2;
+                let ry = if b_h <= 0.5 { rx * 0.55 } else { rx * 0.85 };
+                c.fill_ellipse(
+                    bx,
+                    by,
+                    rx,
+                    ry,
+                    Rgba::new(138, 18, 22, 215).with_alpha(alpha),
+                );
+                c.fill_ellipse(
+                    bx - 0.5,
+                    by - 0.4,
+                    rx * 0.45,
+                    ry * 0.45,
+                    Rgba::new(196, 36, 38, 190).with_alpha(alpha),
+                );
+            }
+
             for idx in 0..count {
                 let angle = scatter_hash(effect.seed, idx * 6) * std::f64::consts::TAU;
                 let speed = if is_boss {
-                    80.0 + scatter_hash(effect.seed, idx * 6 + 1) * 140.0
+                    75.0 + scatter_hash(effect.seed, idx * 6 + 1) * 130.0
                 } else {
-                    110.0 + scatter_hash(effect.seed, idx * 6 + 1) * 150.0
+                    80.0 + scatter_hash(effect.seed, idx * 6 + 1) * 115.0
                 };
                 let vx = angle.cos() * speed;
                 let vy = if is_boss {
-                    45.0 + scatter_hash(effect.seed, idx * 6 + 4) * 130.0
+                    55.0 + scatter_hash(effect.seed, idx * 6 + 4) * 125.0
                 } else {
-                    angle.sin() * speed * 0.55 + 70.0
+                    75.0 + scatter_hash(effect.seed, idx * 6 + 4) * 105.0
                 };
-                let spin = (scatter_hash(effect.seed, idx * 6 + 3) - 0.5) * 11.0;
+                let spin = (scatter_hash(effect.seed, idx * 6 + 3) - 0.5) * 10.0;
                 let mut x0 = effect.x;
                 let mut h0 = body;
                 if is_boss {
-                    x0 += (scatter_hash(effect.seed, idx * 6 + 5) - 0.5) * effect.height * 0.8;
+                    x0 += (scatter_hash(effect.seed, idx * 6 + 5) - 0.5) * effect.height * 0.7;
                     h0 = (body
-                        + (scatter_hash(effect.seed, idx * 6 + 7) - 0.5) * effect.height * 0.5)
+                        + (scatter_hash(effect.seed, idx * 6 + 7) - 0.5) * effect.height * 0.45)
                         .max(0.0);
                 }
-                let mut travel = t;
-                if is_boss {
-                    let land = (vy + (vy * vy + 2.0 * gravity * h0).sqrt()) / gravity;
-                    if travel > land {
-                        travel = land;
-                    }
-                }
-                let px = (x0 + vx * travel) as f32;
-                let h = (h0 + vy * travel - 0.5 * gravity * travel * travel).max(0.0);
+                let (dx, h, rot_t) = gib_bounce_state(t, h0, vx, vy, gravity);
+                let px = (x0 + dx) as f32;
                 let py = base_y - h as f32;
-                let rot = (spin * travel) as f32;
-                if is_boss {
+                let rot = (spin * rot_t) as f32;
+
+                // Subtle ground shadow directly beneath each chunk
+                let shadow_scale = (1.0 - (h as f32 / 90.0)).clamp(0.45, 1.0);
+                c.fill_ellipse(
+                    px,
+                    base_y + 1.0,
+                    6.5 * shadow_scale,
+                    2.4 * shadow_scale,
+                    Rgba::new(0, 0, 0, 95).with_alpha(alpha),
+                );
+
+                if is_tau_boss {
                     if let Some(bd) = sprites.get("bossdeath") {
                         let [sx, sy, sw, sh] = boss_frames[idx % boss_frames.len()];
                         if sx + sw <= bd.width() && sy + sh <= bd.height() {
@@ -2955,6 +3023,32 @@ pub fn draw_effect(c: &mut Canvas<'_>, state: &State, effect: &Effect, sprites: 
                             );
                         }
                     }
+                } else if let Some(gibs) = sprites.get("monsterGibs") {
+                    const GIB_CELL: u32 = 36;
+                    let max_row = (gibs.height() / GIB_CELL).saturating_sub(1);
+                    let row = gib_row.min(max_row);
+                    let col = (idx % 4) as u32;
+                    let size_jitter = 0.62 + scatter_hash(effect.seed, idx * 6 + 2) as f32 * 0.24;
+                    let draw_sz = GIB_CELL as f32
+                        * if is_boss {
+                            size_jitter * 1.25
+                        } else {
+                            size_jitter
+                        };
+                    c.draw_image(
+                        gibs,
+                        col * GIB_CELL,
+                        row * GIB_CELL,
+                        GIB_CELL,
+                        GIB_CELL,
+                        px - draw_sz * 0.5,
+                        py - draw_sz * 0.5,
+                        draw_sz,
+                        draw_sz,
+                        false,
+                        alpha,
+                        rot,
+                    );
                 } else if let Some(sh) = sprites.get(sheet_key) {
                     let piece = format!("chunk_{}{}", chunk_prefix, idx % 3);
                     if let Some([sx, sy, sw, sh_h]) = rect_at(&["SCENE", "pieces", &piece]) {
