@@ -9,8 +9,10 @@ Per ADR 0074, this matches the protagonist in both reference videos
 (00001-幽暗密林.mp4 and 00002-幽暗密林深处.mp4):
   - Clean un-subclassed Male Slayer body (sm_body0000.img, no face mask,
     no Berserker red-eye/blood overlays)
-  - Upward ivory-white spiky hair without headband (sm_hair12500a.img,
-    warm-ivory toned)
+  - Classic DNF Slayer upward-and-back spiky ivory-white hair without blue
+    headband (sm_hair0000a.img with headband & buckle seamlessly recolored to
+    warm ivory-white hair roots, matching the pre-2012 60/70 Slayer silhouette
+    in both reference videos)
   - Sleeveless cream-white open vest with slate-teal trim and no blue
     shoulder spikes (sm_coat0000a.img with protruding spikes masked against
     the body silhouette and blue trim shifted to slate-teal)
@@ -52,7 +54,7 @@ def reference_packs() -> dict[str, tuple[str, str]]:
     return {
         "hair": (
             "sprite_character_swordman_equipment_avatar_hair.NPK",
-            f"{avatar}/hair/sm_hair12500a.img",
+            f"{avatar}/hair/sm_hair0000a.img",
         ),
         "weapon_b": (
             "sprite_character_swordman_equipment_weapon_sswd.NPK",
@@ -66,21 +68,31 @@ def reference_packs() -> dict[str, tuple[str, str]]:
 
 
 def recolor_hair_ivory_white(im: Image.Image | None) -> Image.Image | None:
-    """Shift sm_hair12500a cool silver-white -> bright ivory-white matching videos."""
+    """Recolor classic sm_hair0000a (stripping blue headband into warm ivory hair roots)."""
     if body.is_stub(im):
         return im
     arr = np.asarray(im, dtype=np.float32).copy()
     mask = arr[..., 3] > 0
     r, g, b = arr[..., 0], arr[..., 1], arr[..., 2]
     lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255.0
-    l2 = np.clip(lum ** 0.85, 0.0, 1.0)
-    nr = np.clip(l2 * 255.0 + 4.0, 0, 255)
-    ng = np.clip(l2 * 250.0, 0, 255)
-    nb = np.clip(l2 * 234.0, 0, 255)
-    dark = lum < 0.28
-    nr = np.where(dark, lum * 255.0 * 1.15, nr)
-    ng = np.where(dark, lum * 255.0 * 1.02, ng)
-    nb = np.where(dark, lum * 255.0 * 0.85, nb)
+
+    # Classic pre-2012 Slayer in the reference videos has the exact sm_hair0000a
+    # spiky silhouette without the 2012 revamp's blue headband & amber knot.
+    # Lift headband/buckle and dark-blue band seam into matching ivory hair roots.
+    is_blue_band = mask & ((b - r) > 14)
+    is_amber_knot = mask & ((r - b) > 35) & (r > 110) & (g < 170)
+    is_band_seam = mask & ((b - r) > 8) & (lum < 0.35)
+    is_band = is_blue_band | is_amber_knot | is_band_seam
+    lum2 = np.where(is_band, np.clip(lum * 1.45 + 0.22, 0.34, 0.90), lum)
+
+    l2 = np.clip(lum2 ** 0.80, 0.0, 1.0)
+    nr = np.clip(l2 * 255.0 + 6.0, 0, 255)
+    ng = np.clip(l2 * 249.0 + 2.0, 0, 255)
+    nb = np.clip(l2 * 230.0, 0, 255)
+    dark = lum2 < 0.28
+    nr = np.where(dark, lum2 * 255.0 * 1.18, nr)
+    ng = np.where(dark, lum2 * 255.0 * 1.04, ng)
+    nb = np.where(dark, lum2 * 255.0 * 0.84, nb)
     arr[..., 0] = np.where(mask, np.clip(nr, 0, 255), r)
     arr[..., 1] = np.where(mask, np.clip(ng, 0, 255), g)
     arr[..., 2] = np.where(mask, np.clip(nb, 0, 255), b)

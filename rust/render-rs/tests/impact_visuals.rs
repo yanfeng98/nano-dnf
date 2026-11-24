@@ -93,6 +93,100 @@ fn test_impact_flash_renders_bright_yellow_white_starburst_pixels() {
         bright_added >= 120,
         "impact starburst flash must add bright white-yellow pixels, got only {bright_added}"
     );
+    assert!(
+        bright_added <= 2200,
+        "toned-down hitFlash should stay compact (~45-56 world units), got {bright_added} bright pixels"
+    );
+}
+
+#[test]
+fn test_per_species_monster_gibs_render_distinct_colors_and_settle_on_ground() {
+    let sprites = SpriteStore::load_from_root(Path::new("../.."));
+    assert!(
+        sprites.get("monsterGibs").is_some(),
+        "SpriteStore must load assets/monster-gibs.png"
+    );
+    assert_eq!(render_rs::world::monster_gib_row("grunt"), 0);
+    assert_eq!(render_rs::world::monster_gib_row("goblinRed"), 1);
+    assert_eq!(render_rs::world::monster_gib_row("cursedRed"), 1);
+    assert_eq!(render_rs::world::monster_gib_row("goblinBlue"), 2);
+    assert_eq!(render_rs::world::monster_gib_row("throwerElite"), 3);
+    assert_eq!(render_rs::world::monster_gib_row("burningThrower"), 4);
+    assert_eq!(render_rs::world::monster_gib_row("cat"), 5);
+    assert_eq!(render_rs::world::monster_gib_row("lugaruBoss"), 6);
+    assert_eq!(render_rs::world::monster_gib_row("deepBoss"), 6);
+    assert_eq!(render_rs::world::monster_gib_row("boss"), 7);
+
+    // Bounce + settle physics must clamp horizontal travel after landing & 1st bounce
+    let (dx_settled_1, h_settled_1, _) =
+        render_rs::world::gib_bounce_state(1.5, 35.0, 120.0, 90.0, 680.0);
+    let (dx_settled_2, h_settled_2, _) =
+        render_rs::world::gib_bounce_state(3.0, 35.0, 120.0, 90.0, 680.0);
+    assert_eq!(h_settled_1, 0.0);
+    assert_eq!(h_settled_2, 0.0);
+    assert!(
+        (dx_settled_1 - dx_settled_2).abs() < 1e-6,
+        "gib must rest on the grass without sliding forever ({dx_settled_1} vs {dx_settled_2})"
+    );
+
+    let mut base_state = create_state(&CreateStateOptions {
+        seed: Some(1),
+        stage: Some("mirkwood"),
+        reference_profile: true,
+        ..Default::default()
+    });
+    base_state.transition = 0.0;
+    base_state.intro_t = None;
+    base_state.effects.clear();
+    let base_pix = render_to_pixmap(&base_state, &sprites);
+
+    let render_gibs = |species: &str| {
+        let mut s = base_state.clone();
+        let mut eff = Effect::new("deathburst", 0.55);
+        eff.life = 0.35; // 0.20s elapsed, mid-scatter
+        eff.x = s.player.x + 80.0;
+        eff.z = s.player.z;
+        eff.seed = 42;
+        eff.enemy_type = species.to_string();
+        eff.height = 76.0;
+        s.effects.push(eff);
+        render_to_pixmap(&s, &sprites)
+    };
+
+    let red_pix = render_gibs("goblinRed");
+    let blue_pix = render_gibs("goblinBlue");
+
+    let count_channel_dominant = |p: &Pixmap, red_dom: bool| {
+        base_pix
+            .data()
+            .chunks_exact(4)
+            .zip(p.data().chunks_exact(4))
+            .filter(|(a, b)| {
+                let changed = a[0].abs_diff(b[0]) > 25
+                    || a[1].abs_diff(b[1]) > 25
+                    || a[2].abs_diff(b[2]) > 25;
+                if !changed {
+                    return false;
+                }
+                if red_dom {
+                    b[0] > 150 && b[0] > b[2].saturating_add(60)
+                } else {
+                    b[2] > 140 && b[2] > b[0].saturating_add(40)
+                }
+            })
+            .count()
+    };
+
+    let red_gib_px = count_channel_dominant(&red_pix, true);
+    let blue_gib_px = count_channel_dominant(&blue_pix, false);
+    assert!(
+        red_gib_px >= 60,
+        "goblinRed deathburst must render distinct crimson gibs, got {red_gib_px}"
+    );
+    assert!(
+        blue_gib_px >= 60,
+        "goblinBlue deathburst must render distinct blue gibs, got {blue_gib_px}"
+    );
 }
 
 #[test]
