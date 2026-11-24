@@ -771,7 +771,7 @@ impl<'a> Canvas<'a> {
     ) {
         let pw = self.pixmap.width() as i32;
         let ph = self.pixmap.height() as i32;
-        let clip_bounds = self.clip_rect_opt;
+        let clip_shape = self.clip_shape;
         let mut pen_x = start_x;
         let mut draw_ops: Vec<(i32, i32, usize, usize, Vec<u8>)> = Vec::new();
         for ch in text.chars() {
@@ -794,7 +794,7 @@ impl<'a> Canvas<'a> {
                 if py < 0 || py >= ph {
                     continue;
                 }
-                if let Some(cr) = clip_bounds {
+                if let Some(ClipShape::Rect(cr)) = clip_shape {
                     if (py as f32) < cr.top() || (py as f32) >= cr.bottom() {
                         continue;
                     }
@@ -820,10 +820,20 @@ impl<'a> Canvas<'a> {
                     if px < 0 || px >= pw {
                         continue;
                     }
-                    if let Some(cr) = clip_bounds {
-                        if (px as f32) < cr.left() || (px as f32) >= cr.right() {
-                            continue;
+                    match clip_shape {
+                        Some(ClipShape::Rect(cr)) => {
+                            if (px as f32) < cr.left() || (px as f32) >= cr.right() {
+                                continue;
+                            }
                         }
+                        Some(ClipShape::Circle { cx, cy, rx, ry }) => {
+                            let dx = (px as f32 - cx) / rx;
+                            let dy = (py as f32 - cy) / ry;
+                            if dx * dx + dy * dy > 1.0 {
+                                continue;
+                            }
+                        }
+                        None => {}
                     }
                     let cov = bitmap[row * gw + col];
                     if cov == 0 {

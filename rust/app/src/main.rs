@@ -419,12 +419,7 @@ impl AppState {
                         self.loadout_slot,
                         Some(skill_id.as_str()),
                     );
-                    save::save_all(
-                        &self.asset_root,
-                        &self.records,
-                        &self.progress,
-                        &self.loadout,
-                    );
+                    self.persist_save();
                 }
             }
             PanelAction::CycleLoadoutSkill(delta) => self.cycle_loadout_skill(delta),

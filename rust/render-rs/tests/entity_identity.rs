@@ -4,7 +4,7 @@ use core_rs::enemy::create_enemy;
 use core_rs::types::CreateStateOptions;
 use render_rs::world::{champion_affix, draw_enemy, draw_player, floor_y, player_overhead_label};
 use render_rs::{Canvas, GlyphCache, Rgba, SpriteStore, RENDER_HEIGHT, RENDER_WIDTH};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use tiny_skia::Pixmap;
 
 fn repo_root() -> PathBuf {
@@ -16,7 +16,7 @@ fn repo_root() -> PathBuf {
         .to_path_buf()
 }
 
-fn load_test_fonts(root: &PathBuf) -> GlyphCache {
+fn load_test_fonts(root: &Path) -> GlyphCache {
     let candidates = [
         root.join("assets/font.ttf"),
         PathBuf::from("/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc"),
