@@ -333,6 +333,13 @@ pub fn breakable_spec(piece: &str) -> Option<PropBox> {
     }
 }
 
+pub fn is_pillar_piece(piece: &str) -> bool {
+    matches!(
+        piece,
+        "pillar" | "pillarPale" | "pillarDecor" | "pillarDamagedDecor"
+    )
+}
+
 fn solid_base_spec(piece: &str) -> Option<(f64, f64, [f64; 2])> {
     match piece {
         "trunkTall" => Some((146.0, 4.0, [203.0, 422.0])),
@@ -344,6 +351,8 @@ fn solid_base_spec(piece: &str) -> Option<(f64, f64, [f64; 2])> {
         "stump" => Some((74.0, -4.0, [105.0, 199.0])),
         "pillar" => Some((43.0, 0.0, [44.0, 133.0])),
         "pillarPale" => Some((43.0, 0.0, [44.0, 133.0])),
+        "pillarDecor" => Some((43.0, 0.0, [44.0, 133.0])),
+        "pillarDamagedDecor" => Some((43.0, 0.0, [44.0, 111.0])),
         "wallStone" => Some((163.0, -1.0, [167.0, 125.0])),
         "rockFlat" => Some((92.0, -20.0, [141.0, 89.0])),
         "rockSmall" => Some((42.0, 0.0, [42.0, 44.0])),
@@ -717,7 +726,8 @@ fn make_scattered_prop(piece: &str, x: f64, z: f64, solid: bool, hp: i32) -> Pro
         sort_z: None,
         solid,
         scattered: true,
-        hp,
+        hp: if is_pillar_piece(piece) { 4 } else { hp },
+        hit_t: 0.0,
         broken: false,
         broken_at: -1.0,
         gone: false,
@@ -1391,6 +1401,11 @@ pub fn begin_room(state: &mut State, entry_door: Option<&str>) {
                 depth: 28.0,
             });
             let solid = boxed.is_some() || native_pillar.is_some();
+            let hp = if is_pillar_piece(&entry.piece) || native_pillar.is_some() {
+                4
+            } else {
+                boxed.map(|b| b.hp).unwrap_or(0)
+            };
             Prop {
                 piece: entry.piece.clone(),
                 x,
@@ -1399,7 +1414,8 @@ pub fn begin_room(state: &mut State, entry_door: Option<&str>) {
                 sort_z: entry.sort_z,
                 solid,
                 scattered: false,
-                hp: boxed.map(|b| b.hp).unwrap_or(0),
+                hp,
+                hit_t: 0.0,
                 broken: false,
                 broken_at: -1.0,
                 gone: false,

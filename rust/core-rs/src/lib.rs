@@ -564,7 +564,7 @@ pub fn step(state: &mut State, input: &Input, dt_override: Option<f64>) {
         update_waves(state);
     }
     update_target(state, dt);
-    update_breakables(state);
+    update_breakables(state, dt);
     update_pickups(state, dt);
     if !state.post_clear && !state.defeat {
         resolve_room(state, &input, could_steer);

@@ -1,7 +1,9 @@
 //! Combat boxes, damage, XP, blood orbs, fields, shots, pickups, deaths, and props (`src/core.js`).
 
 use crate::constants::*;
-use crate::dungeon::{breakable_spec, prop_box, prop_obstacle, room_left, room_right};
+use crate::dungeon::{
+    breakable_spec, is_pillar_piece, prop_box, prop_obstacle, room_left, room_right,
+};
 use crate::player::{apply_skill_hit, buff_by_id, buff_sum};
 use crate::tables::*;
 use crate::types::*;
@@ -383,6 +385,47 @@ pub fn drop_breakable_loot(state: &mut State, prop: &Prop) {
             progress: 0.0,
             trail: Vec::new(),
         });
+    } else if is_pillar_piece(&prop.piece) || prop.native_pillar.is_some() {
+        let drop_z = prop.z.clamp(0.0, max_z);
+        if let Some((name, tone)) = pvf_breakable_drop.filter(|_| (h & 1) == 0) {
+            state.pickups.push(Pickup {
+                kind: "loot".to_string(),
+                name: name.to_string(),
+                tone: tone.to_string(),
+                gold: 15 + ((h >> 12) % 26),
+                exp: 0,
+                x: prop.x,
+                y: ARENA_GROUND_Y,
+                z: drop_z,
+                radius: 0.0,
+                value: 0.0,
+                life: LOOT_LIFE,
+                from_x: 0.0,
+                from_y: 0.0,
+                from_z: 0.0,
+                progress: 0.0,
+                trail: Vec::new(),
+            });
+        } else {
+            state.pickups.push(Pickup {
+                kind: "gold".to_string(),
+                name: "金币".to_string(),
+                tone: "gold".to_string(),
+                gold: 15 + ((h >> 12) % 26),
+                exp: 0,
+                x: prop.x,
+                y: ARENA_GROUND_Y,
+                z: drop_z,
+                radius: 0.0,
+                value: 0.0,
+                life: LOOT_LIFE,
+                from_x: 0.0,
+                from_y: 0.0,
+                from_z: 0.0,
+                progress: 0.0,
+                trail: Vec::new(),
+            });
+        }
     }
 }
 
@@ -1320,7 +1363,26 @@ pub fn resurrect_player(state: &mut State) -> bool {
     true
 }
 
-fn hit_native_pillar(
+fn emit_pillar_debris(state: &mut State, anchor_x: f64, anchor_z: f64, count: usize) {
+    for d in 0..count {
+        let u = ((d as isize * 37 + anchor_x.round() as isize).rem_euclid(17)) as f64 / 16.0 - 0.5;
+        let v = ((d as isize * 53 + anchor_z.round() as isize).rem_euclid(13)) as f64 / 12.0 - 0.5;
+        let w = ((d * 29) % 11) as f64 / 10.0;
+        let mut eff = Effect::new("pillar_debris", 0.5);
+        eff.x = anchor_x + u * 50.0 * NATIVE_SCALE;
+        eff.y = ARENA_GROUND_Y - 45.0 * NATIVE_SCALE + v * 30.0 * NATIVE_SCALE;
+        eff.z = anchor_z + (u * 10.0 * NATIVE_SCALE) / DEPTH_SCALE;
+        eff.vx = (if d.is_multiple_of(2) { 1.0 } else { -1.0 }) * (90.0 + w * 110.0) * NATIVE_SCALE;
+        eff.vy = -(70.0 + w * 140.0) * NATIVE_SCALE;
+        eff.gravity = 1200.0 * NATIVE_SCALE;
+        eff.variant = d % 4;
+        eff.spin_dir = if d.is_multiple_of(2) { 1 } else { -1 };
+        eff.angle0 = (d as f64 / count.max(1) as f64) * std::f64::consts::PI * 2.0;
+        state.effects.push(eff);
+    }
+}
+
+fn hit_pillar(
     state: &mut State,
     p_idx: usize,
     boxed: Rect,
@@ -1328,12 +1390,7 @@ fn hit_native_pillar(
     source_z: f64,
     struck_props: Option<&mut Vec<usize>>,
 ) {
-    let damaged_at = state.props[p_idx]
-        .native_pillar
-        .as_ref()
-        .map(|np| np.damaged_at)
-        .unwrap_or(0.0);
-    if damaged_at >= 0.0 {
+    if state.props[p_idx].broken || state.props[p_idx].gone {
         return;
     }
     if let Some(ref sp) = struck_props {
@@ -1341,48 +1398,73 @@ fn hit_native_pillar(
             return;
         }
     }
-    let Some(anchor) = prop_obstacle(&state.props[p_idx], None) else {
-        return;
+    let (anchor_x, anchor_z, target) = if state.props[p_idx].native_pillar.is_some() {
+        let Some(anchor) = prop_obstacle(&state.props[p_idx], None) else {
+            return;
+        };
+        let near_z = anchor.z - 12.0 * NATIVE_SCALE / DEPTH_SCALE;
+        let far_z = anchor.z + 14.0 * NATIVE_SCALE / DEPTH_SCALE;
+        let depth_reach = reach.unwrap_or(DEPTH_REACH_MELEE) * SLAYER_HEIGHT;
+        if source_z < near_z - depth_reach || source_z > far_z + depth_reach {
+            return;
+        }
+        let target = Rect {
+            left: anchor.x - 20.0 * NATIVE_SCALE,
+            right: anchor.x + 22.0 * NATIVE_SCALE,
+            top: ARENA_GROUND_Y - 116.0 * NATIVE_SCALE,
+            bottom: ARENA_GROUND_Y + 4.0 * NATIVE_SCALE,
+        };
+        (anchor.x, anchor.z, target)
+    } else {
+        let Some(b) = prop_box(&state.props[p_idx].piece, state.props[p_idx].scale) else {
+            return;
+        };
+        let anchor_x = state.props[p_idx].x + b.dx;
+        let anchor_z = state.props[p_idx].z;
+        let depth_reach = reach.unwrap_or(DEPTH_REACH_BREAKABLE) * SLAYER_HEIGHT;
+        if (anchor_z - source_z).abs() > depth_reach + b.depth / 2.0 {
+            return;
+        }
+        let bh = b.ink.map(|i| i[1]).unwrap_or(95.0);
+        let target = Rect {
+            left: anchor_x - b.width / 2.0,
+            right: anchor_x + b.width / 2.0,
+            top: ARENA_GROUND_Y - bh,
+            bottom: ARENA_GROUND_Y,
+        };
+        (anchor_x, anchor_z, target)
     };
-    let near_z = anchor.z - 12.0 * NATIVE_SCALE / DEPTH_SCALE;
-    let far_z = anchor.z + 14.0 * NATIVE_SCALE / DEPTH_SCALE;
-    let depth_reach = reach.unwrap_or(DEPTH_REACH_MELEE) * SLAYER_HEIGHT;
-    if source_z < near_z - depth_reach || source_z > far_z + depth_reach {
-        return;
-    }
-    let target = Rect {
-        left: anchor.x - 20.0 * NATIVE_SCALE,
-        right: anchor.x + 22.0 * NATIVE_SCALE,
-        top: ARENA_GROUND_Y - 116.0 * NATIVE_SCALE,
-        bottom: ARENA_GROUND_Y + 4.0 * NATIVE_SCALE,
-    };
+
     if !boxes_overlap(boxed, target) {
         return;
     }
     if let Some(sp) = struck_props {
         sp.push(p_idx);
     }
-    if let Some(ref mut np) = state.props[p_idx].native_pillar {
-        np.damaged_at = state.time;
-    }
-    state.props[p_idx].piece = "pillarDamagedDecor".to_string();
-    crate::push_sound(state, "stonePillarBreak", anchor.x, anchor.z);
 
-    for d in 0..8usize {
-        let u = ((d as isize * 37 + anchor.x.round() as isize).rem_euclid(17)) as f64 / 16.0 - 0.5;
-        let v = ((d as isize * 53 + anchor.z.round() as isize).rem_euclid(13)) as f64 / 12.0 - 0.5;
-        let w = ((d * 29) % 11) as f64 / 10.0;
-        let mut eff = Effect::new("pillar_debris", 0.5);
-        eff.x = anchor.x + u * 50.0 * NATIVE_SCALE;
-        eff.y = ARENA_GROUND_Y - 45.0 * NATIVE_SCALE + v * 30.0 * NATIVE_SCALE;
-        eff.z = anchor.z + (u * 10.0 * NATIVE_SCALE) / DEPTH_SCALE;
-        eff.vx = (if d.is_multiple_of(2) { 1.0 } else { -1.0 }) * (90.0 + w * 110.0) * NATIVE_SCALE;
-        eff.vy = -(70.0 + w * 140.0) * NATIVE_SCALE;
-        eff.gravity = 1200.0 * NATIVE_SCALE;
-        eff.variant = d % 4;
-        eff.spin_dir = if d.is_multiple_of(2) { 1 } else { -1 };
-        eff.angle0 = (d as f64 / 8.0) * std::f64::consts::PI * 2.0;
-        state.effects.push(eff);
+    state.props[p_idx].hp -= 1;
+    state.props[p_idx].hit_t = 0.22;
+    crate::push_sound(state, "stonePillarBreak", anchor_x, anchor_z);
+
+    if state.props[p_idx].hp <= 0 {
+        emit_pillar_debris(state, anchor_x, anchor_z, 12);
+        state.props[p_idx].broken = true;
+        state.props[p_idx].broken_at = state.time;
+        state.props[p_idx].gone = true;
+        state.props[p_idx].solid = false;
+        state.stats.barrels += 1;
+        let prop_snap = state.props[p_idx].clone();
+        drop_breakable_loot(state, &prop_snap);
+    } else {
+        emit_pillar_debris(state, anchor_x, anchor_z, 6);
+        if state.props[p_idx].hp <= 2 {
+            if let Some(ref mut np) = state.props[p_idx].native_pillar {
+                if np.damaged_at < 0.0 {
+                    np.damaged_at = state.time;
+                }
+            }
+            state.props[p_idx].piece = "pillarDamagedDecor".to_string();
+        }
     }
 }
 
@@ -1396,8 +1478,12 @@ pub fn swing_props(
     let source_z = source.map(|(_, z)| z).unwrap_or(state.player.z);
     let len = state.props.len();
     for p_idx in 0..len {
-        if state.props[p_idx].native_pillar.is_some() {
-            hit_native_pillar(
+        if state.props[p_idx].gone || state.props[p_idx].broken {
+            continue;
+        }
+        if is_pillar_piece(&state.props[p_idx].piece) || state.props[p_idx].native_pillar.is_some()
+        {
+            hit_pillar(
                 state,
                 p_idx,
                 boxed,
@@ -1407,7 +1493,7 @@ pub fn swing_props(
             );
             continue;
         }
-        if !state.props[p_idx].solid || state.props[p_idx].broken {
+        if !state.props[p_idx].solid {
             continue;
         }
         if let Some(ref sp) = struck_props {
@@ -1563,8 +1649,11 @@ pub fn update_deaths(state: &mut State, dt: f64) {
     }
 }
 
-pub fn update_breakables(state: &mut State) {
+pub fn update_breakables(state: &mut State, dt: f64) {
     for prop in &mut state.props {
+        if prop.hit_t > 0.0 {
+            prop.hit_t = (prop.hit_t - dt).max(0.0);
+        }
         if prop.broken && state.time - prop.broken_at >= BREAK_ANIM {
             prop.gone = true;
         }
