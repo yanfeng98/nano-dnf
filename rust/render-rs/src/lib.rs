@@ -1,6 +1,7 @@
 //! 2D software renderer (`src/render.js`).
 
 pub mod canvas;
+pub mod combat_info;
 pub mod hud;
 pub mod sprites;
 pub mod tables;
