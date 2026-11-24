@@ -1,5 +1,6 @@
 //! 2D software canvas wrapper over `tiny_skia` and `fontdue` with glyph caching.
 
+use core_rs::constants::{VIEW_HEIGHT, VIEW_LEFT, VIEW_WIDTH};
 use fontdue::{Font, Metrics};
 use std::collections::HashMap;
 use tiny_skia::{
@@ -121,11 +122,18 @@ pub struct Canvas<'a> {
 
 impl<'a> Canvas<'a> {
     pub fn new(pixmap: &'a mut Pixmap, fonts: &'a mut GlyphCache) -> Self {
+        let transform = if pixmap.width() * 3 == pixmap.height() * 4 {
+            let sx = pixmap.width() as f32 / VIEW_WIDTH as f32;
+            let sy = pixmap.height() as f32 / VIEW_HEIGHT as f32;
+            Transform::from_scale(sx, sy).pre_translate(-(VIEW_LEFT as f32), 0.0)
+        } else {
+            Transform::identity()
+        };
         Self {
             pixmap,
             fonts,
             clip: None,
-            transform: Transform::identity(),
+            transform,
             stack: Vec::new(),
             clip_rect_opt: None,
         }
