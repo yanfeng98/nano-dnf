@@ -659,7 +659,7 @@ pub fn draw_player(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
         Rgba::new(0, 0, 0, 86),
     );
 
-    // Foot mark (glowing green ring under boots)
+    // Foot mark (bright neon-green oval ring on ground, always visible in all live states)
     if let Some(ui) = sprites.get("ui") {
         let fw = 130.0 / (265.0 / 84.0);
         let fh = 43.0 / (265.0 / 84.0);
@@ -671,7 +671,7 @@ pub fn draw_player(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
                 81,
                 28,
                 px - fw * 0.5,
-                ground_y - fh * 0.25,
+                ground_y - fh * 0.35,
                 fw,
                 fh,
                 false,
@@ -679,6 +679,9 @@ pub fn draw_player(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
                 0.0,
             );
         }
+    } else {
+        c.fill_ellipse(px, ground_y, 20.0, 6.5, Rgba::new(140, 245, 50, 85));
+        c.stroke_ellipse(px, ground_y, 20.0, 6.5, Rgba::new(198, 249, 68, 240), 2.2);
     }
 
     // Level-up golden light ring & particles
@@ -849,17 +852,26 @@ pub fn draw_player(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
         );
     }
 
-    let pname = p.name.as_deref().unwrap_or("鬼剑士");
-    let label = format!("Lv.{} {}", p.level, pname);
+    let label = player_overhead_label(p);
     c.fill_text(
         &label,
         px,
         py - 92.0,
         10.5,
-        Rgba::new(230, 238, 248, 245),
+        Rgba::new(240, 244, 252, 255),
         TextAlign::Center,
-        Some(Rgba::new(24, 4, 32, 235)),
+        Some(Rgba::new(16, 12, 24, 240)),
     );
+}
+
+pub fn player_overhead_label(p: &Player) -> String {
+    let pname = p
+        .name
+        .as_deref()
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+        .unwrap_or("阿努纳奇");
+    format!("Lv.{} {}", p.level, pname)
 }
 
 struct SkillBeat {
@@ -1235,14 +1247,125 @@ fn enemy_frame(state: &State, enemy: &Enemy) -> u32 {
     idle[0] + ((state.time * 3.2) as u32) % span
 }
 
+pub fn champion_affix(enemy: &Enemy) -> Option<&'static str> {
+    let champ = enemy.champion.as_deref()?;
+    if champ == "fire" || champ == "champfire" {
+        Some("火焰爆炸")
+    } else {
+        Some("无法浮空")
+    }
+}
+
+fn draw_champion_aura(
+    c: &mut Canvas<'_>,
+    state: &State,
+    enemy: &Enemy,
+    sprites: &SpriteStore,
+    back: bool,
+) {
+    if enemy.dead {
+        return;
+    }
+    let Some(ref champ) = enemy.champion else {
+        return;
+    };
+    let is_fire = champ == "fire" || champ == "champfire";
+    let ui_key = match (is_fire, back) {
+        (true, true) => "champfireback",
+        (true, false) => "champfire",
+        (false, true) => "champdarkback",
+        (false, false) => "champdark",
+    };
+    let ex = enemy.x as f32;
+    let ey = feet_y_enemy(enemy);
+    let ground_y = floor_y(enemy.z);
+    let frames = RENDER_TABLES
+        .get("UI")
+        .and_then(|u| u.get(ui_key))
+        .and_then(|v| v.get("frames"))
+        .and_then(|f| f.as_array());
+
+    if let (Some(ui), Some(frames)) = (sprites.get("ui"), frames) {
+        if !frames.is_empty() {
+            const UI_SCALE: f32 = (1.6 * 84.0) / 265.0;
+            const AURA_FPS: f64 = 12.0;
+            let idx = ((state.time.max(0.0) * AURA_FPS) as usize) % frames.len();
+            if let Some(arr) = frames[idx].as_array() {
+                if arr.len() >= 4 {
+                    let fx = arr[0].as_u64().unwrap_or(0) as u32;
+                    let fy = arr[1].as_u64().unwrap_or(0) as u32;
+                    let fw = arr[2].as_u64().unwrap_or(0) as u32;
+                    let fh = arr[3].as_u64().unwrap_or(0) as u32;
+                    let dw = fw as f32 * UI_SCALE * CAMERA_ZOOM as f32;
+                    let dh = fh as f32 * UI_SCALE * CAMERA_ZOOM as f32;
+                    if back {
+                        c.draw_image(
+                            ui,
+                            fx,
+                            fy,
+                            fw,
+                            fh,
+                            ex - dw * 0.5,
+                            ey - dh * 0.82,
+                            dw,
+                            dh,
+                            false,
+                            0.85,
+                            0.0,
+                        );
+                    } else {
+                        c.draw_image_additive(
+                            ui,
+                            fx,
+                            fy,
+                            fw,
+                            fh,
+                            ex - dw * 0.5,
+                            ey - dh * 0.82,
+                            dw,
+                            dh,
+                            false,
+                            0.85,
+                            0.0,
+                        );
+                    }
+                    return;
+                }
+            }
+        }
+    }
+
+    // Animated procedural flame fallback when ui.png is unavailable
+    let phase = (state.time * 8.0) as f32;
+    let pulse = 0.85 + 0.15 * phase.sin();
+    let (outer, inner) = if is_fire {
+        (Rgba::new(255, 108, 32, 130), Rgba::new(255, 210, 90, 150))
+    } else {
+        (Rgba::new(178, 56, 238, 135), Rgba::new(236, 140, 255, 160))
+    };
+    let rx = (enemy.width as f32 * 0.95).max(26.0) * pulse;
+    if back {
+        c.fill_ellipse(ex, ground_y - 2.0, rx, 10.0 * pulse, outer);
+        for i in 0..5 {
+            let a = phase + i as f32 * 1.25;
+            let fx = ex + (a * 0.7).sin() * (rx * 0.55);
+            let fh = 16.0 + (a * 1.3).cos().abs() * 14.0;
+            c.fill_ellipse(fx, ground_y - fh * 0.5, 8.0, fh * 0.55, outer);
+        }
+    } else {
+        c.fill_ellipse(ex, ground_y, rx * 0.65, 6.5 * pulse, inner);
+    }
+}
+
 pub fn draw_enemy(c: &mut Canvas<'_>, state: &State, enemy: &Enemy, sprites: &SpriteStore) {
     let ex = enemy.x as f32;
     let ey = feet_y_enemy(enemy);
     let ground_y = floor_y(enemy.z);
     let w = enemy.width as f32;
     let h = enemy.height as f32;
+    let is_boss = enemy.behavior == "boss";
 
-    if enemy.behavior != "boss" {
+    if !is_boss {
         c.fill_ellipse(
             ex,
             ground_y,
@@ -1252,14 +1375,7 @@ pub fn draw_enemy(c: &mut Canvas<'_>, state: &State, enemy: &Enemy, sprites: &Sp
         );
     }
 
-    if let Some(ref champ) = enemy.champion {
-        let aura_col = if champ == "champfire" {
-            Rgba::new(255, 110, 40, 120)
-        } else {
-            Rgba::new(150, 70, 220, 120)
-        };
-        c.stroke_ellipse(ex, ground_y, (w * 0.7).max(20.0), 8.0, aura_col, 2.0);
-    }
+    draw_champion_aura(c, state, enemy, sprites, true);
 
     let custom_sheet = match enemy.kind.as_str() {
         "grunt" => sprites.get("goblinReference").map(|sh| (sh, 0u32, 76.0f32)),
@@ -1312,6 +1428,22 @@ pub fn draw_enemy(c: &mut Canvas<'_>, state: &State, enemy: &Enemy, sprites: &Sp
                 sh, sx, sy, cell_w, cell_h, draw_x, draw_y, dw, dh, flip, 1.0,
             );
         } else {
+            if is_boss && !enemy.dead {
+                c.draw_image_outline(
+                    sh,
+                    sx,
+                    sy,
+                    cell_w,
+                    cell_h,
+                    draw_x,
+                    draw_y,
+                    dw,
+                    dh,
+                    flip,
+                    Rgba::new(156, 14, 28, 245),
+                    1.6,
+                );
+            }
             c.draw_image(
                 sh,
                 sx,
@@ -1339,26 +1471,56 @@ pub fn draw_enemy(c: &mut Canvas<'_>, state: &State, enemy: &Enemy, sprites: &Sp
             "boss" | "lugaruBoss" => Rgba::new(146, 54, 46, 255),
             _ => Rgba::new(82, 164, 88, 255),
         };
+        if is_boss && !enemy.dead {
+            c.stroke_round_rect(
+                ex - w * 0.5 - 1.5,
+                ey - h - 1.5,
+                w + 3.0,
+                h + 3.0,
+                6.0,
+                Rgba::new(156, 14, 28, 245),
+                2.5,
+            );
+        }
         c.fill_round_rect(ex - w * 0.5, ey - h, w, h, 5.0, body_col);
     }
 
-    if !enemy.dead && enemy.hp < enemy.max_hp && enemy.behavior != "boss" {
-        let bw = w.max(32.0);
-        let ratio = (enemy.hp / enemy.max_hp).clamp(0.0, 1.0) as f32;
-        c.fill_rect(
-            ex - bw * 0.5,
-            ey - h - 10.0,
-            bw,
-            4.0,
-            Rgba::new(20, 20, 26, 210),
-        );
-        c.fill_rect(
-            ex - bw * 0.5,
-            ey - h - 10.0,
-            bw * ratio,
-            4.0,
-            Rgba::new(220, 56, 56, 255),
-        );
+    draw_champion_aura(c, state, enemy, sprites, false);
+
+    if !enemy.dead {
+        if is_boss {
+            let title_y = ey - h.max(54.0) - 8.0;
+            c.fill_text(
+                &enemy.label,
+                ex,
+                title_y,
+                10.5,
+                Rgba::new(221, 4, 195, 255),
+                TextAlign::Center,
+                Some(Rgba::new(24, 4, 32, 235)),
+            );
+        } else if let Some(affix) = champion_affix(enemy) {
+            let name_y = ey - h - 10.0;
+            let affix_y = name_y - 12.0;
+            c.fill_text(
+                affix,
+                ex,
+                affix_y,
+                10.0,
+                Rgba::new(242, 246, 255, 255),
+                TextAlign::Center,
+                Some(Rgba::new(16, 10, 24, 235)),
+            );
+            c.fill_text(
+                &enemy.label,
+                ex,
+                name_y,
+                10.0,
+                Rgba::new(169, 117, 229, 255),
+                TextAlign::Center,
+                Some(Rgba::new(24, 4, 32, 235)),
+            );
+        }
     }
 }
 
@@ -2687,7 +2849,7 @@ pub fn draw_town(
         moving: false,
         walk: 0.0,
         player_level: 1,
-        player_name: "鬼剑士",
+        player_name: "阿努纳奇",
     };
     draw_town_view(c, &view, sprites);
 }
