@@ -826,6 +826,7 @@ pub fn update_player(
                             eff.radius =
                                 (wave.reach + extra_wave * 80.0) * 0.8 * wave.visual.unwrap_or(1.0);
                             state.effects.push(eff);
+                            crate::trigger_screen_shake(state, 8.0, 0.26);
                         }
                     }
 

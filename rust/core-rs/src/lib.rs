@@ -316,6 +316,9 @@ pub fn create_state(options: &CreateStateOptions<'_>) -> State {
         band_visual_back_y: None,
         camera_x: 0.0,
         camera_y: 0.0,
+        shake_amp: 0.0,
+        shake_timer: 0.0,
+        shake_duration: 0.0,
         target: None,
         player,
         enemies: Vec::new(),
@@ -352,6 +355,37 @@ pub fn create_state(options: &CreateStateOptions<'_>) -> State {
     begin_room(&mut state, None);
     state.transition = TRANSITION_DUR;
     state
+}
+
+/// Trigger a purely visual camera screen-shake impulse without modifying
+/// logical world coordinates (`camera_x`/`camera_y`) or gameplay RNG.
+/// Stronger impulses override weaker ones; weaker impulses never downgrade an
+/// active stronger shake.
+pub fn trigger_screen_shake(state: &mut State, amplitude: f64, duration: f64) {
+    if amplitude <= 0.0 || duration <= 0.0 {
+        return;
+    }
+    let current = if state.shake_timer > 0.0 && state.shake_duration > 0.0 {
+        state.shake_amp * (state.shake_timer / state.shake_duration).clamp(0.0, 1.0)
+    } else {
+        0.0
+    };
+    if amplitude >= current {
+        state.shake_amp = amplitude;
+        state.shake_timer = duration;
+        state.shake_duration = duration;
+    }
+}
+
+fn decay_screen_shake(state: &mut State, dt: f64) {
+    if state.shake_timer > 0.0 {
+        state.shake_timer = (state.shake_timer - dt).max(0.0);
+        if state.shake_timer <= 1e-6 {
+            state.shake_timer = 0.0;
+            state.shake_amp = 0.0;
+            state.shake_duration = 0.0;
+        }
+    }
 }
 
 pub fn begin_intro(state: &mut State) {
@@ -422,6 +456,7 @@ pub fn step(state: &mut State, input: &Input, dt_override: Option<f64>) {
             }
         }
         state.time += dt;
+        decay_screen_shake(state, dt);
         state.hit_stop -= dt;
         if state.hit_stop < 1e-6 {
             state.hit_stop = 0.0;
@@ -442,6 +477,7 @@ pub fn step(state: &mut State, input: &Input, dt_override: Option<f64>) {
     }
 
     state.time += dt;
+    decay_screen_shake(state, dt);
     if state.title_t > 0.0 {
         state.title_t = (state.title_t - dt).max(0.0);
     }

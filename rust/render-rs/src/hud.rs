@@ -1424,217 +1424,13 @@ pub fn draw_overlay(
             VIEW_WIDTH as f32,
             ARENA_HEIGHT as f32,
         );
-        c.fill_rect(
-            VIEW_LEFT as f32,
-            0.0,
-            VIEW_WIDTH as f32,
-            ARENA_HEIGHT as f32,
-            Rgba::new(4, 9, 22, 168),
-        );
-        if let Some(ui) = sprites.get("ui") {
-            c.draw_image_additive(
-                ui,
-                592,
-                3480,
-                800,
-                600,
-                VIEW_LEFT as f32,
-                0.0,
-                VIEW_WIDTH as f32,
-                ARENA_HEIGHT as f32,
-                false,
-                0.85,
-                0.0,
-            );
-        }
         if let Some(rw) = meta.reward {
             let snap = reward_snapshot(rw);
-            if let Some(res_sheet) = sprites.get("results") {
-                c.draw_image_additive(
-                    res_sheet,
-                    0,
-                    0,
-                    420,
-                    420,
-                    cx - 210.0,
-                    cy - 210.0,
-                    420.0,
-                    420.0,
-                    false,
-                    0.55,
-                    -(state.time * 2.0 * std::f64::consts::PI / 180.0) as f32,
-                );
-            }
             if snap.phase != RewardPhase::Done {
-                let left = VIEW_LEFT as f32;
+                crate::results::draw_result_backdrop(c, sprites, snap.elapsed);
                 match snap.phase {
                     RewardPhase::Stats => {
-                        if let Some(res_sheet) = sprites.get("results") {
-                            c.draw_image(
-                                res_sheet,
-                                4346,
-                                0,
-                                455,
-                                190,
-                                left + 104.0,
-                                68.0,
-                                511.875,
-                                213.75,
-                                false,
-                                1.0,
-                                0.0,
-                            );
-                        } else {
-                            c.fill_round_rect(
-                                left + 104.0,
-                                68.0,
-                                512.0,
-                                214.0,
-                                8.0,
-                                Rgba::new(10, 14, 24, 225),
-                            );
-                        }
-                        c.fill_text(
-                            "战绩",
-                            left + 340.0,
-                            53.0,
-                            23.0,
-                            Rgba::new(240, 215, 154, 255),
-                            TextAlign::Center,
-                            Some(Rgba::new(11, 16, 27, 235)),
-                        );
-                        for (lbl, ly) in [
-                            ("总分", 120.0f32),
-                            ("操作", 173.0),
-                            ("技巧", 211.0),
-                            ("被击数", 250.0),
-                        ] {
-                            c.fill_text(
-                                lbl,
-                                left + 205.0,
-                                ly,
-                                16.0,
-                                Rgba::new(238, 241, 245, 255),
-                                TextAlign::Right,
-                                None,
-                            );
-                        }
-                        let rating = core_rs::combat::rating_of(state);
-                        c.fill_text(
-                            &format!("{}/{}", rating.score, rating.max_score),
-                            left + 330.0,
-                            123.0,
-                            26.0,
-                            Rgba::new(255, 232, 140, 255),
-                            TextAlign::Left,
-                            Some(Rgba::new(0, 0, 0, 220)),
-                        );
-                        for (val, pts, py) in [
-                            (rating.operation, rating.operation_points, 154.0f32),
-                            (rating.technique, rating.technique_points, 192.0),
-                        ] {
-                            c.fill_text(
-                                &pts.to_string(),
-                                left + 328.0,
-                                py + 17.0,
-                                17.0,
-                                Rgba::new(243, 215, 85, 255),
-                                TextAlign::Left,
-                                None,
-                            );
-                            if let Some(res_sheet) = sprites.get("results") {
-                                c.draw_image(
-                                    res_sheet,
-                                    6456,
-                                    0,
-                                    163,
-                                    22,
-                                    left + 405.0,
-                                    py,
-                                    183.375,
-                                    24.75,
-                                    false,
-                                    1.0,
-                                    0.0,
-                                );
-                                let share = (val as f32 / 100.0).clamp(0.0, 1.0);
-                                if share > 0.0 {
-                                    c.draw_image(
-                                        res_sheet,
-                                        6297,
-                                        0,
-                                        (159.0 * share).round().max(1.0) as u32,
-                                        18,
-                                        left + 407.25,
-                                        py + 2.25,
-                                        178.875 * share,
-                                        20.25,
-                                        false,
-                                        1.0,
-                                        0.0,
-                                    );
-                                }
-                            }
-                            c.fill_text(
-                                &format!("{val}%"),
-                                left + 493.0,
-                                py + 18.0,
-                                14.0,
-                                Rgba::new(255, 255, 255, 255),
-                                TextAlign::Center,
-                                Some(Rgba::new(16, 16, 16, 235)),
-                            );
-                        }
-                        c.fill_text(
-                            &format!("-{}", rating.hits),
-                            left + 328.0,
-                            250.0,
-                            17.0,
-                            Rgba::new(255, 24, 16, 255),
-                            TextAlign::Left,
-                            None,
-                        );
-                        if let Some(res_sheet) = sprites.get("results") {
-                            let grade_idx = match rating.grade.as_str() {
-                                "SSS" => 0,
-                                "SS" => 1,
-                                "S" => 2,
-                                "A" => 3,
-                                "B" => 4,
-                                "C" => 5,
-                                "D" => 6,
-                                "E" => 7,
-                                _ => 8,
-                            };
-                            c.draw_image(
-                                res_sheet,
-                                4801,
-                                0,
-                                227,
-                                227,
-                                left + 388.0,
-                                292.0,
-                                150.0,
-                                150.0,
-                                false,
-                                0.9,
-                                0.0,
-                            );
-                            c.draw_image(
-                                res_sheet,
-                                5028 + grade_idx * 141,
-                                0,
-                                141,
-                                142,
-                                left + 412.0,
-                                316.0,
-                                102.0,
-                                102.0,
-                                false,
-                                1.0,
-                                0.0,
-                            );
-                        }
+                        crate::results::draw_recorded_stats(c, state, sprites, snap.t, true);
                     }
                     RewardPhase::Chest => {
                         if let Some(res_sheet) = sprites.get("results") {
@@ -1830,6 +1626,13 @@ pub fn draw_overlay(
                     RewardPhase::Done => {}
                 }
             }
+        } else {
+            let elapsed = state
+                .finished_at
+                .map(|at| (state.time - at).max(0.0))
+                .unwrap_or(9.0);
+            crate::results::draw_result_backdrop(c, sprites, elapsed);
+            crate::results::draw_recorded_stats(c, state, sprites, elapsed, false);
         }
         c.restore();
         return;
