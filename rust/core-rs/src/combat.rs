@@ -372,6 +372,7 @@ pub fn grant_xp(state: &mut State, amount: u32) -> u32 {
         let name = state.player.name.as_deref().unwrap_or("鬼剑士");
         let msg = format!("[{name}]已达到Lv{}", state.player.level);
         crate::push_log(state, &msg, "gold");
+        crate::push_sound(state, "levelUp", state.player.x, state.player.z);
     }
     levels
 }

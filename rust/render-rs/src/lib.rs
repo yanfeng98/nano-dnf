@@ -7,7 +7,10 @@ pub mod tables;
 pub mod world;
 
 pub use canvas::{Canvas, GlyphCache, Rgba, TextAlign};
-pub use hud::{draw_loadout_panel, draw_progress_panel, ProgressPanelKind, RenderMeta};
+pub use hud::{
+    draw_loadout_panel, draw_progress_panel, hit_test_loadout_panel, hit_test_progress_panel,
+    PanelAction, ProgressPanelKind, RenderMeta,
+};
 pub use sprites::SpriteStore;
 pub use world::TownView;
 
@@ -233,6 +236,142 @@ mod tests {
         assert!(
             has_world_pixels_at_x(RENDER_WIDTH - 3),
             "right edge (x=797) must render world pixels, not a black pillarbox bar"
+        );
+    }
+
+    #[test]
+    fn test_native_gui_panels_render_and_hit_test() {
+        let mut fonts = GlyphCache::new(None);
+        let root = if Path::new("assets/gui.png").exists() {
+            Path::new(".")
+        } else if Path::new("../assets/gui.png").exists() {
+            Path::new("..")
+        } else {
+            Path::new("../..")
+        };
+        let sprites = SpriteStore::load_from_root(root);
+        assert!(sprites.get("gui").is_some(), "assets/gui.png must load");
+
+        let mut progress = progress_rs::defaults();
+        progress_rs::add_gold(&mut progress, 500);
+        progress_rs::add_item(&mut progress, "hpPotion", 3);
+        progress_rs::add_item(&mut progress, "starterBlade", 1);
+        progress_rs::equip(&mut progress, "starterBlade", "berserker", 3);
+
+        let loadout: Vec<Option<String>> = core_rs::TABLES
+            .skill_order
+            .iter()
+            .take(6)
+            .cloned()
+            .map(Some)
+            .collect();
+
+        // Render every panel kind onto a clean pixmap and verify native gui.png pixels are drawn
+        for kind in [
+            ProgressPanelKind::Bag,
+            ProgressPanelKind::Equip,
+            ProgressPanelKind::Quest,
+            ProgressPanelKind::Shop,
+        ] {
+            let mut pixmap = Pixmap::new(RENDER_WIDTH, RENDER_HEIGHT).expect("pixmap");
+            let mut canvas = Canvas::new(&mut pixmap, &mut fonts);
+            draw_progress_panel(&mut canvas, &sprites, kind, &progress, Some((480.0, 270.0)));
+            let non_zero = pixmap
+                .data()
+                .chunks_exact(4)
+                .filter(|px| px[3] > 0 && (px[0] > 0 || px[1] > 0 || px[2] > 0))
+                .count();
+            assert!(
+                non_zero > 20_000,
+                "panel {kind:?} should render full native gui.png frame, got {non_zero} pixels"
+            );
+        }
+
+        // Loadout panel
+        let mut pixmap = Pixmap::new(RENDER_WIDTH, RENDER_HEIGHT).expect("pixmap");
+        let mut canvas = Canvas::new(&mut pixmap, &mut fonts);
+        draw_loadout_panel(&mut canvas, &sprites, &loadout, 1, Some((480.0, 270.0)));
+        let non_zero = pixmap
+            .data()
+            .chunks_exact(4)
+            .filter(|px| px[3] > 0 && (px[0] > 0 || px[1] > 0 || px[2] > 0))
+            .count();
+        assert!(
+            non_zero > 20_000,
+            "loadout panel should render native gui.png frame"
+        );
+
+        // Hit-testing Shop: origin (334, 80), 7x6 grid at (334+27, 80+134) = (361, 214)
+        assert_eq!(
+            hit_test_progress_panel(ProgressPanelKind::Shop, &progress, 370.0, 224.0),
+            Some(PanelAction::InteractSlot(0))
+        );
+        assert_eq!(
+            hit_test_progress_panel(ProgressPanelKind::Shop, &progress, 370.0 + 32.0, 224.0),
+            Some(PanelAction::InteractSlot(1))
+        );
+        assert_eq!(
+            hit_test_progress_panel(
+                ProgressPanelKind::Shop,
+                &progress,
+                334.0 + 150.0,
+                80.0 + 340.0
+            ),
+            Some(PanelAction::Close)
+        );
+
+        // Hit-testing Bag: origin (334, 65), 8x4 grid at (334+19, 65+176) = (353, 241)
+        assert_eq!(
+            hit_test_progress_panel(ProgressPanelKind::Bag, &progress, 362.0, 250.0),
+            Some(PanelAction::InteractSlot(0))
+        );
+        assert_eq!(
+            hit_test_progress_panel(
+                ProgressPanelKind::Bag,
+                &progress,
+                334.0 + 160.0,
+                65.0 + 354.0
+            ),
+            Some(PanelAction::SalvageFirst)
+        );
+        assert_eq!(
+            hit_test_progress_panel(
+                ProgressPanelKind::Bag,
+                &progress,
+                334.0 + 230.0,
+                65.0 + 354.0
+            ),
+            Some(PanelAction::Close)
+        );
+
+        // Hit-testing Equip: weapon slot at (334+210, 65+78) = (544, 143)
+        assert_eq!(
+            hit_test_progress_panel(ProgressPanelKind::Equip, &progress, 558.0, 157.0),
+            Some(PanelAction::InteractSlot(0))
+        );
+
+        // Hit-testing Quest: row 0 at (334+22, 80+32) = (356, 112)
+        assert_eq!(
+            hit_test_progress_panel(ProgressPanelKind::Quest, &progress, 400.0, 124.0),
+            Some(PanelAction::InteractSlot(0))
+        );
+
+        // Hit-testing Loadout: slot 2 at (334+32+2*38, 80+34) = (442, 114), skill 0 at (361, 214)
+        assert_eq!(
+            hit_test_loadout_panel(455.0, 128.0),
+            Some(PanelAction::SelectLoadoutSlot(2))
+        );
+        assert_eq!(
+            hit_test_loadout_panel(370.0, 224.0),
+            Some(PanelAction::AssignLoadoutSkill(0))
+        );
+        assert_eq!(
+            hit_test_loadout_panel(334.0 + 40.0, 80.0 + 84.0),
+            Some(PanelAction::CycleLoadoutSkill(-1))
+        );
+        assert_eq!(
+            hit_test_loadout_panel(334.0 + 240.0, 80.0 + 84.0),
+            Some(PanelAction::CycleLoadoutSkill(1))
         );
     }
 }
