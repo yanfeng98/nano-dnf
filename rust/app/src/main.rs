@@ -17,9 +17,9 @@ use music_rs::track_for;
 use progress_rs::{note_break, note_clear, note_kill, ProgressProfile};
 use records_rs::{record as record_run, RecordStore, RunInput};
 use render_rs::{
-    draw_town_view, hit_test_loadout_panel, hit_test_progress_panel, render, Canvas, GlyphCache,
-    PanelAction, ProgressPanelKind, RenderMeta, SpriteStore, TownView, DEFAULT_WINDOW_HEIGHT,
-    DEFAULT_WINDOW_WIDTH, RENDER_HEIGHT, RENDER_WIDTH, VIEW_TO_RENDER_SCALE,
+    draw_town_view, hit_test_loadout_panel, hit_test_minimap, hit_test_progress_panel, render,
+    Canvas, GlyphCache, MapMode, PanelAction, ProgressPanelKind, RenderMeta, SpriteStore, TownView,
+    DEFAULT_WINDOW_HEIGHT, DEFAULT_WINDOW_WIDTH, RENDER_HEIGHT, RENDER_WIDTH, VIEW_TO_RENDER_SCALE,
 };
 use reward_rs::{
     create as create_reward, pick as pick_reward, step as step_reward, take_prize, RewardState,
@@ -151,12 +151,14 @@ struct AppState {
     records: RecordStore,
     progress: ProgressProfile,
     loadout: Loadout,
+    player_name: String,
     reward: Option<RewardState>,
     paused: bool,
     show_help: bool,
     loadout_open: bool,
     loadout_slot: usize,
     progress_panel: ProgressPanelKind,
+    map_mode: MapMode,
     region_selected: String,
     town_x: f64,
     town_z: f64,
@@ -188,9 +190,10 @@ impl AppState {
         let sprites = SpriteStore::load_from_root(&asset_root);
         let audio = AudioEngine::new(&asset_root);
         let valid_skills: Vec<&str> = TABLES.skill_order.iter().map(String::as_str).collect();
-        let (records, progress, loadout) =
+        let (records, progress, loadout, player_name) =
             save::load_all(&asset_root, &valid_skills, DEFAULT_STAGE);
-        let state = create_state(&CreateStateOptions::default());
+        let mut state = create_state(&CreateStateOptions::default());
+        state.player.name = Some(player_name.clone());
         let attract = create_attract(Some(DEFAULT_SEED));
         // INFALLIBLE: RENDER_WIDTH=800, RENDER_HEIGHT=600
         let pixmap =
@@ -210,12 +213,14 @@ impl AppState {
             records,
             progress,
             loadout,
+            player_name,
             reward: None,
             paused: false,
             show_help: false,
             loadout_open: false,
             loadout_slot: 0,
             progress_panel: ProgressPanelKind::None,
+            map_mode: MapMode::Radar,
             region_selected: DEFAULT_STAGE.to_string(),
             town_x: 200.0,
             town_z: 20.0,
@@ -334,10 +339,26 @@ impl AppState {
                             self.mode = ScreenMode::Town;
                         }
                     }
+                } else if !self.paused && !self.show_help && !self.state.defeat {
+                    if let Some(ref dun) = self.state.dungeon {
+                        if hit_test_minimap(ax, ay, self.map_mode, dun.cols, dun.rows) {
+                            self.map_mode = self.map_mode.toggle();
+                        }
+                    }
                 }
             }
             ScreenMode::Town => {}
         }
+    }
+
+    fn persist_save(&self) {
+        save::save_all(
+            &self.asset_root,
+            &self.records,
+            &self.progress,
+            &self.loadout,
+            &self.player_name,
+        );
     }
 
     fn restart_run(&mut self, stage_id: &str, seed: u32) {
@@ -347,11 +368,13 @@ impl AppState {
             reference_profile: true,
             ..Default::default()
         });
+        self.state.player.name = Some(self.player_name.clone());
         self.reward = None;
         self.paused = false;
         self.show_help = false;
         self.loadout_open = false;
         self.progress_panel = ProgressPanelKind::None;
+        self.map_mode = MapMode::Radar;
         self.seen_hints.clear();
         self.active_hint = None;
         self.recorded_finish = false;
@@ -396,12 +419,7 @@ impl AppState {
                         self.loadout_slot,
                         Some(skill_id.as_str()),
                     );
-                    save::save_all(
-                        &self.asset_root,
-                        &self.records,
-                        &self.progress,
-                        &self.loadout,
-                    );
+                    self.persist_save();
                 }
             }
             PanelAction::CycleLoadoutSkill(delta) => self.cycle_loadout_skill(delta),
@@ -424,12 +442,7 @@ impl AppState {
         let next_idx = (cur_idx + delta).rem_euclid(len) as usize;
         let next_id = order[next_idx].as_str();
         self.loadout = loadout_rs::assign(&self.loadout, self.loadout_slot, Some(next_id));
-        save::save_all(
-            &self.asset_root,
-            &self.records,
-            &self.progress,
-            &self.loadout,
-        );
+        self.persist_save();
     }
 
     fn salvage_first_equipment(&mut self) {
@@ -448,12 +461,7 @@ impl AppState {
             .map(|(id, _)| id.clone());
         if let Some(id) = target_id {
             if progress_rs::salvage(&mut self.progress, &id).is_some() {
-                save::save_all(
-                    &self.asset_root,
-                    &self.records,
-                    &self.progress,
-                    &self.loadout,
-                );
+                self.persist_save();
             }
         }
     }
@@ -496,24 +504,14 @@ impl AppState {
                         self.state.player.mp = (self.state.player.mp + f64::from(eff.mp))
                             .min(self.state.player.max_mp);
                     }
-                    save::save_all(
-                        &self.asset_root,
-                        &self.records,
-                        &self.progress,
-                        &self.loadout,
-                    );
+                    self.persist_save();
                 } else if progress_rs::equip(
                     &mut self.progress,
                     &id,
                     "berserker",
                     self.state.player.level.max(1),
                 ) {
-                    save::save_all(
-                        &self.asset_root,
-                        &self.records,
-                        &self.progress,
-                        &self.loadout,
-                    );
+                    self.persist_save();
                 }
             }
             ProgressPanelKind::Quest => {
@@ -523,12 +521,7 @@ impl AppState {
                 let changed = progress_rs::accept(&mut self.progress, q.id)
                     || progress_rs::turn_in(&mut self.progress, q.id).is_some();
                 if changed {
-                    save::save_all(
-                        &self.asset_root,
-                        &self.records,
-                        &self.progress,
-                        &self.loadout,
-                    );
+                    self.persist_save();
                 }
             }
             ProgressPanelKind::Equip => {
@@ -536,12 +529,7 @@ impl AppState {
                     return;
                 };
                 if progress_rs::unequip(&mut self.progress, slot) {
-                    save::save_all(
-                        &self.asset_root,
-                        &self.records,
-                        &self.progress,
-                        &self.loadout,
-                    );
+                    self.persist_save();
                 }
             }
             ProgressPanelKind::Shop => {
@@ -555,12 +543,7 @@ impl AppState {
                 if self.progress.gold >= it.price {
                     progress_rs::add_gold(&mut self.progress, -i64::from(it.price));
                     progress_rs::add_item(&mut self.progress, it.id, 1);
-                    save::save_all(
-                        &self.asset_root,
-                        &self.records,
-                        &self.progress,
-                        &self.loadout,
-                    );
+                    self.persist_save();
                 }
             }
             _ => {}
@@ -714,12 +697,7 @@ impl AppState {
                         note_clear(&mut self.progress, &self.state.stage_id);
                         self.reward =
                             create_reward(Some(self.state.seed), Some(&self.state.stage_id));
-                        save::save_all(
-                            &self.asset_root,
-                            &self.records,
-                            &self.progress,
-                            &self.loadout,
-                        );
+                        self.persist_save();
                     }
 
                     if let Some(ref mut rw) = self.reward {
@@ -744,6 +722,7 @@ impl AppState {
                                 &self.records,
                                 &self.progress,
                                 &self.loadout,
+                                &self.player_name,
                             );
                         }
                         if reward_rs::snapshot(rw).phase == reward_rs::RewardPhase::Done
@@ -763,7 +742,12 @@ impl AppState {
         {
             let mut canvas = Canvas::new(&mut self.pixmap, &mut self.fonts);
             if self.mode == ScreenMode::Town {
-                let pname = self.state.player.name.as_deref().unwrap_or("鬼剑士");
+                let pname = self
+                    .state
+                    .player
+                    .name
+                    .as_deref()
+                    .unwrap_or(&self.player_name);
                 draw_town_view(
                     &mut canvas,
                     &TownView {
@@ -795,6 +779,7 @@ impl AppState {
                     hint: None,
                     seed: self.state.seed,
                     stage_id: &self.state.stage_id,
+                    map_mode: self.map_mode,
                 };
                 render_rs::hud::draw_hud_video(&mut canvas, &self.state, &self.sprites, &town_meta);
                 if self.progress_panel != ProgressPanelKind::None {
@@ -838,6 +823,7 @@ impl AppState {
                     hint: hint_ref,
                     seed: active_state.seed,
                     stage_id: &active_state.stage_id,
+                    map_mode: self.map_mode,
                 };
                 render(&mut canvas, active_state, &self.sprites, &meta);
                 if self.progress_panel != ProgressPanelKind::None {
@@ -1012,6 +998,15 @@ impl AppState {
                 {
                     self.cmd_upslash_timer = 0.08;
                 }
+                KeyCode::Tab
+                    if !self.paused
+                        && !self.show_help
+                        && !self.state.victory
+                        && !self.state.defeat
+                        && !self.state.post_clear =>
+                {
+                    self.map_mode = self.map_mode.toggle();
+                }
                 KeyCode::KeyP => self.paused = !self.paused,
                 KeyCode::F1 => self.show_help = !self.show_help,
                 KeyCode::Escape => {
@@ -1084,12 +1079,7 @@ impl ApplicationHandler for AppState {
     fn window_event(&mut self, event_loop: &ActiveEventLoop, _id: WindowId, event: WindowEvent) {
         match event {
             WindowEvent::CloseRequested => {
-                save::save_all(
-                    &self.asset_root,
-                    &self.records,
-                    &self.progress,
-                    &self.loadout,
-                );
+                self.persist_save();
                 event_loop.exit();
             }
             WindowEvent::Focused(false) => {

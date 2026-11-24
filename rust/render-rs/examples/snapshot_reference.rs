@@ -1,7 +1,7 @@
 use core_rs::types::CreateStateOptions;
 use core_rs::{create_state, step};
 use render_rs::{
-    draw_town, render, Canvas, GlyphCache, ProgressPanelKind, RenderMeta, SpriteStore,
+    draw_town, render, Canvas, GlyphCache, MapMode, ProgressPanelKind, RenderMeta, SpriteStore,
     RENDER_HEIGHT, RENDER_WIDTH,
 };
 use std::path::{Path, PathBuf};
@@ -80,6 +80,7 @@ fn main() {
             hint: None,
             seed: state.seed,
             stage_id: &state.stage_id,
+            map_mode: MapMode::Radar,
         };
         let mut pixmap = Pixmap::new(RENDER_WIDTH, RENDER_HEIGHT).unwrap();
         let mut canvas = Canvas::new(&mut pixmap, &mut fonts);
@@ -124,6 +125,7 @@ fn main() {
             hint: None,
             seed: state.seed,
             stage_id: &state.stage_id,
+            map_mode: MapMode::Window,
         };
         let mut pixmap = Pixmap::new(RENDER_WIDTH, RENDER_HEIGHT).unwrap();
         let mut canvas = Canvas::new(&mut pixmap, &mut fonts);
@@ -160,6 +162,7 @@ fn main() {
             hint: None,
             seed: state.seed,
             stage_id: &state.stage_id,
+            map_mode: MapMode::Radar,
         };
         let mut pixmap = Pixmap::new(RENDER_WIDTH, RENDER_HEIGHT).unwrap();
         let mut canvas = Canvas::new(&mut pixmap, &mut fonts);
@@ -195,6 +198,7 @@ fn main() {
             hint: None,
             seed: state.seed,
             stage_id: &state.stage_id,
+            map_mode: MapMode::Window,
         };
         let mut pixmap = Pixmap::new(RENDER_WIDTH, RENDER_HEIGHT).unwrap();
         let mut canvas = Canvas::new(&mut pixmap, &mut fonts);

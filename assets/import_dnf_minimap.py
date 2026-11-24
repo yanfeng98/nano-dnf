@@ -269,6 +269,8 @@ def main() -> None:
         specials.append(("radarDigit" + str(digit), cut(atlas, x, 154, width, 13)))
     # First native magnifier; the second outlined variant differs (audit111).
     specials.append(("radarButton", cut(atlas, 268, 245, 24, 24)))
+    # Top-right dungeon stage title banner with right-edge golden scroll filigree.
+    specials.append(("radarBanner", cut(atlas, 459, 7, 202, 23)))
 
     gap = 4
     tiles_w = TILE * len(order)
