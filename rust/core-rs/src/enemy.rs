@@ -797,6 +797,22 @@ fn walk_towards(state: &mut State, enemy_idx: usize, speed: f64) {
         return;
     }
     let route = route_step(state, px, pz, Some(ex), Some(ez), Some((ew, ew)), false);
+    if state.reference_profile.is_some() && route == [0, 0] {
+        // Blocked by a solid prop (e.g. rockFlat, trunkTall, stump) with no grid route:
+        // apply a deterministic Z-detour toward the nearer open band edge so the enemy
+        // cannot stall indefinitely behind an obstacle.
+        let max_d = band_depth(state.band_back_y);
+        let detour_dir = if ez <= ROUTE_GRID_STEP {
+            1.0
+        } else if ez >= max_d - ROUTE_GRID_STEP || ez <= max_d * 0.5 {
+            -1.0
+        } else {
+            1.0
+        };
+        state.enemies[enemy_idx].vx = 0.0;
+        state.enemies[enemy_idx].vz = detour_dir * enemy_depth_speed(speed);
+        return;
+    }
     state.enemies[enemy_idx].vx = f64::from(route[0]) * speed;
     if route[1] != 0 {
         state.enemies[enemy_idx].vz = f64::from(route[1]) * enemy_depth_speed(speed);
@@ -905,8 +921,28 @@ fn choose_enemy_action(state: &mut State, enemy_idx: usize) {
         let kr = state.enemies[enemy_idx].keep_range;
         let keep = if kr > 0.0 { kr } else { ar * 0.6 };
         let facing = state.enemies[enemy_idx].facing;
-        if gap < keep {
-            state.enemies[enemy_idx].vx = -f64::from(facing) * spd;
+        let use_ref = state.reference_profile.is_some();
+        let cam_l = state.camera_x + 18.0;
+        let cam_r = state.camera_x + window_width() - 18.0;
+        let ex = state.enemies[enemy_idx].x;
+        let off_screen = use_ref && (ex < cam_l || ex > cam_r);
+        if off_screen {
+            walk_towards(state, enemy_idx, spd);
+        } else if gap < keep {
+            let next_back_x = ex - f64::from(facing) * spd * DT;
+            let can_backpedal = !use_ref || (next_back_x >= cam_l && next_back_x <= cam_r);
+            if can_backpedal {
+                state.enemies[enemy_idx].vx = -f64::from(facing) * spd;
+            } else {
+                state.enemies[enemy_idx].vx = 0.0;
+                if state.enemies[enemy_idx].attack_cooldown <= 0.0 {
+                    let wu = state.enemies[enemy_idx].base_attack_windup;
+                    let dur = state.enemies[enemy_idx].base_attack_duration;
+                    begin_enemy_attack(state, enemy_idx, "shoot", wu, dur);
+                    let e_snap = state.enemies[enemy_idx].clone();
+                    push_telegraph(state, &e_snap, "AIM", ar * 0.25, wu, facing);
+                }
+            }
         } else if gap > ar {
             walk_towards(state, enemy_idx, spd);
         } else {
@@ -1259,7 +1295,15 @@ pub fn update_enemies(state: &mut State, dt: f64, previous_player_position: Opti
     let mut cleared = run_cleared(state);
     let count = state.enemies.len();
     for e_idx in 0..count {
-        if cleared || state.enemies[e_idx].dead {
+        if cleared {
+            continue;
+        }
+        if !state.enemies[e_idx].dead
+            && (state.enemies[e_idx].hp <= 0.0 || state.enemies[e_idx].gone)
+        {
+            state.enemies[e_idx].dead = true;
+        }
+        if state.enemies[e_idx].dead {
             continue;
         }
         state.enemies[e_idx].hurt_timer = (state.enemies[e_idx].hurt_timer - dt).max(0.0);
@@ -1381,6 +1425,12 @@ pub fn update_enemies(state: &mut State, dt: f64, previous_player_position: Opti
                 e.y = ARENA_GROUND_Y;
                 e.vy = 0.0;
                 e.on_ground = true;
+            }
+            if !e.x.is_finite() {
+                e.x = (lw + rw) * 0.5;
+            }
+            if !e.z.is_finite() {
+                e.z = max_d * 0.5;
             }
             e.x = e.x.clamp(lw + e.width / 2.0, rw - e.width / 2.0);
             e.z = e.z.clamp(0.0, max_d);
@@ -1585,8 +1635,15 @@ pub fn update_waves(state: &mut State) {
 }
 
 pub fn resolve_room(state: &mut State, input: &Input, could_steer: bool) {
+    for e in &mut state.enemies {
+        if !e.dead && (e.hp <= 0.0 || e.gone) {
+            e.dead = true;
+        }
+    }
     let alive_count = state.enemies.iter().filter(|e| !e.dead).count();
-    state.enemies.retain(|e| !e.dead || e.dying > 0.0);
+    state
+        .enemies
+        .retain(|e| !e.dead || (!e.gone && e.dying > 0.0));
 
     let boss_cell = state.dungeon.as_ref().is_some_and(|d| state.cell == d.boss);
     let boss_idx = if boss_cell {

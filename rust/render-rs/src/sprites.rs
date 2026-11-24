@@ -250,10 +250,11 @@ mod tests {
             );
         }
 
-        // Verify reference appearance (white spiky hair, cream vest, grey pants, no legacy royal-blue coat/pants).
+        // Verify reference appearance (60/70 long spiky ivory-white hair, cream vest, grey pants, no legacy royal-blue coat/pants).
         for &(row, col, label) in &[(0, 0, "idle"), (1, 0, "run"), (12, 0, "town_walk")] {
             let mut royal_blue = 0usize;
             let mut bright_hair = 0usize;
+            let mut crown_above_80 = 0usize;
             let mut min_y = 176u32;
             for (_dx, dy, px) in cell_pixels(slayer, row, col, 208, 176) {
                 let a = px[3];
@@ -261,6 +262,9 @@ mod tests {
                     continue;
                 }
                 min_y = min_y.min(dy);
+                if dy < 80 {
+                    crown_above_80 += 1;
+                }
                 // Unpremultiply for color checks
                 let r = (u16::from(px[0]) * 255 / u16::from(a)).min(255) as u8;
                 let g = (u16::from(px[1]) * 255 / u16::from(a)).min(255) as u8;
@@ -282,8 +286,12 @@ mod tests {
             );
             if matches!(label, "idle" | "town_walk") {
                 assert!(
-                    min_y >= 73,
-                    "{label} hair silhouette extends too high (min_y={min_y}, expected >= 73 for classic spiky hair without rooster-comb crest)"
+                    (72..=74).contains(&min_y),
+                    "{label} hair silhouette height out of 60/70 classic spiky range (min_y={min_y}, expected 72..=74)"
+                );
+                assert!(
+                    crown_above_80 >= 55,
+                    "{label} hair crown too flat/short (crown_above_80={crown_above_80}, expected >= 55 for 60/70 long spiky hair)"
                 );
             }
         }
