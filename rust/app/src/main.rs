@@ -17,9 +17,9 @@ use music_rs::track_for;
 use progress_rs::{note_break, note_clear, note_kill, ProgressProfile};
 use records_rs::{record as record_run, RecordStore, RunInput};
 use render_rs::{
-    draw_town_view, render, Canvas, GlyphCache, ProgressPanelKind, RenderMeta, SpriteStore,
-    TownView, DEFAULT_WINDOW_HEIGHT, DEFAULT_WINDOW_WIDTH, RENDER_HEIGHT, RENDER_WIDTH,
-    VIEW_TO_RENDER_SCALE,
+    draw_town_view, hit_test_loadout_panel, hit_test_progress_panel, render, Canvas, GlyphCache,
+    PanelAction, ProgressPanelKind, RenderMeta, SpriteStore, TownView, DEFAULT_WINDOW_HEIGHT,
+    DEFAULT_WINDOW_WIDTH, RENDER_HEIGHT, RENDER_WIDTH, VIEW_TO_RENDER_SCALE,
 };
 use reward_rs::{
     create as create_reward, pick as pick_reward, step as step_reward, take_prize, RewardState,
@@ -171,6 +171,8 @@ struct AppState {
     recorded_finish: bool,
     last_kills_by_type: HashMap<String, u32>,
     last_barrels: u32,
+    last_gold: u32,
+    last_loot: u32,
     cmd_upslash_timer: f64,
     last_tick: Instant,
     accumulator: f64,
@@ -228,6 +230,8 @@ impl AppState {
             recorded_finish: false,
             last_kills_by_type: HashMap::new(),
             last_barrels: 0,
+            last_gold: 0,
+            last_loot: 0,
             cmd_upslash_timer: 0.0,
             last_tick: Instant::now(),
             accumulator: 0.0,
@@ -258,6 +262,20 @@ impl AppState {
 
     fn handle_click(&mut self, rx: f32, ry: f32) {
         let (ax, ay) = render_to_view_coords(rx, ry);
+        if self.loadout_open {
+            if let Some(action) = hit_test_loadout_panel(ax, ay) {
+                self.apply_panel_action(action);
+            }
+            return;
+        }
+        if self.progress_panel != ProgressPanelKind::None {
+            if let Some(action) =
+                hit_test_progress_panel(self.progress_panel, &self.progress, ax, ay)
+            {
+                self.apply_panel_action(action);
+            }
+            return;
+        }
         match self.mode {
             ScreenMode::Title => {
                 self.mode = ScreenMode::Region;
@@ -339,6 +357,8 @@ impl AppState {
         self.recorded_finish = false;
         self.last_kills_by_type.clear();
         self.last_barrels = 0;
+        self.last_gold = 0;
+        self.last_loot = 0;
         self.mode = ScreenMode::Playing;
     }
 
@@ -354,6 +374,38 @@ impl AppState {
     fn toggle_loadout_panel(&mut self) {
         self.progress_panel = ProgressPanelKind::None;
         self.loadout_open = !self.loadout_open;
+    }
+
+    fn apply_panel_action(&mut self, action: PanelAction) {
+        match action {
+            PanelAction::Close => {
+                self.loadout_open = false;
+                self.progress_panel = ProgressPanelKind::None;
+            }
+            PanelAction::InteractSlot(idx) => self.interact_panel_slot(idx),
+            PanelAction::SalvageFirst => self.salvage_first_equipment(),
+            PanelAction::SelectLoadoutSlot(slot) => {
+                if slot < 6 {
+                    self.loadout_slot = slot;
+                }
+            }
+            PanelAction::AssignLoadoutSkill(skill_idx) => {
+                if let Some(skill_id) = TABLES.skill_order.get(skill_idx) {
+                    self.loadout = loadout_rs::assign(
+                        &self.loadout,
+                        self.loadout_slot,
+                        Some(skill_id.as_str()),
+                    );
+                    save::save_all(
+                        &self.asset_root,
+                        &self.records,
+                        &self.progress,
+                        &self.loadout,
+                    );
+                }
+            }
+            PanelAction::CycleLoadoutSkill(delta) => self.cycle_loadout_skill(delta),
+        }
     }
 
     fn cycle_loadout_skill(&mut self, delta: isize) {
@@ -554,6 +606,10 @@ impl AppState {
     }
 
     fn tick(&mut self, dt: f64) {
+        self.audio.sync_ambient(audio::ambient_for_scene(
+            self.mode == ScreenMode::Playing,
+            &self.state.stage_id,
+        ));
         match self.mode {
             ScreenMode::Title => {
                 step_attract(&mut self.attract, Some(dt));
@@ -622,6 +678,12 @@ impl AppState {
                         self.last_barrels = self.state.stats.barrels;
                         note_break(&mut self.progress, db);
                     }
+                    sync_collected_loot(
+                        &mut self.progress,
+                        &mut self.last_gold,
+                        &mut self.last_loot,
+                        &self.state,
+                    );
 
                     if let Some((_, ref mut ttl)) = self.active_hint {
                         *ttl -= dt;
@@ -663,6 +725,18 @@ impl AppState {
                     if let Some(ref mut rw) = self.reward {
                         step_reward(rw, dt);
                         if let Some(prize) = take_prize(rw) {
+                            self.audio.play_events(&[core_rs::types::SoundEvent {
+                                kind: "rewardOpen".to_string(),
+                                x: self.state.player.x,
+                                z: self.state.player.z,
+                                t: self.state.time,
+                                enemy_type: None,
+                                attack_kind: None,
+                                skill_id: None,
+                                stage: None,
+                                native_object: None,
+                                enemy_id: None,
+                            }]);
                             progress_rs::add_item(&mut self.progress, &prize.item_id, 1);
                             progress_rs::add_gold(&mut self.progress, i64::from(prize.gold));
                             save::save_all(
@@ -685,6 +759,7 @@ impl AppState {
     }
 
     fn draw_and_present(&mut self) {
+        let hover_view = Some(render_to_view_coords(self.cursor_pos.0, self.cursor_pos.1));
         {
             let mut canvas = Canvas::new(&mut self.pixmap, &mut self.fonts);
             if self.mode == ScreenMode::Town {
@@ -711,7 +786,7 @@ impl AppState {
                     show_help: false,
                     loadout: &self.loadout,
                     loadout_open: self.loadout_open,
-                    progress_panel: self.progress_panel,
+                    progress_panel: ProgressPanelKind::None,
                     progress: &self.progress,
                     records: &self.records,
                     reward: None,
@@ -725,12 +800,20 @@ impl AppState {
                 if self.progress_panel != ProgressPanelKind::None {
                     render_rs::draw_progress_panel(
                         &mut canvas,
+                        &self.sprites,
                         self.progress_panel,
                         &self.progress,
+                        hover_view,
                     );
                 }
                 if self.loadout_open {
-                    render_rs::draw_loadout_panel(&mut canvas, &self.loadout, self.loadout_slot);
+                    render_rs::draw_loadout_panel(
+                        &mut canvas,
+                        &self.sprites,
+                        &self.loadout,
+                        self.loadout_slot,
+                        hover_view,
+                    );
                 }
             } else {
                 let active_state = if self.mode == ScreenMode::Title {
@@ -746,7 +829,7 @@ impl AppState {
                     show_help: self.show_help,
                     loadout: &self.loadout,
                     loadout_open: self.loadout_open,
-                    progress_panel: self.progress_panel,
+                    progress_panel: ProgressPanelKind::None,
                     progress: &self.progress,
                     records: &self.records,
                     reward: self.reward.as_ref(),
@@ -757,8 +840,23 @@ impl AppState {
                     stage_id: &active_state.stage_id,
                 };
                 render(&mut canvas, active_state, &self.sprites, &meta);
+                if self.progress_panel != ProgressPanelKind::None {
+                    render_rs::draw_progress_panel(
+                        &mut canvas,
+                        &self.sprites,
+                        self.progress_panel,
+                        &self.progress,
+                        hover_view,
+                    );
+                }
                 if self.loadout_open {
-                    render_rs::draw_loadout_panel(&mut canvas, &self.loadout, self.loadout_slot);
+                    render_rs::draw_loadout_panel(
+                        &mut canvas,
+                        &self.sprites,
+                        &self.loadout,
+                        self.loadout_slot,
+                        hover_view,
+                    );
                 }
             }
         }
@@ -1049,6 +1147,48 @@ impl ApplicationHandler for AppState {
     }
 }
 
+fn loot_item_id_for_log_line(text: &str) -> Option<&'static str> {
+    let rest = text.strip_prefix("获得[")?;
+    let name = rest.split(']').next()?;
+    let id = match name {
+        "诺顿的新手HP药剂" | "HP 药水" => "hpPotion",
+        "MP 药水" | "冰冻水" => "mpPotion",
+        "古老的法杖" => "ancientStaff",
+        "粗布上衣" => "clothArmor",
+        "锈蚀短剑" => "rustyBlade",
+        "生锈的铁剑" => "starterBlade",
+        _ => "material",
+    };
+    Some(id)
+}
+
+fn sync_collected_loot(
+    progress: &mut ProgressProfile,
+    last_gold: &mut u32,
+    last_loot: &mut u32,
+    state: &State,
+) {
+    if state.stats.gold > *last_gold {
+        let dg = state.stats.gold - *last_gold;
+        *last_gold = state.stats.gold;
+        progress_rs::add_gold(progress, i64::from(dg));
+    }
+    if state.stats.loot > *last_loot {
+        let dl = (state.stats.loot - *last_loot) as usize;
+        *last_loot = state.stats.loot;
+        let item_ids: Vec<&'static str> = state
+            .log
+            .iter()
+            .rev()
+            .filter_map(|entry| loot_item_id_for_log_line(&entry.text))
+            .take(dl)
+            .collect();
+        for item_id in item_ids {
+            progress_rs::add_item(progress, item_id, 1);
+        }
+    }
+}
+
 fn main() {
     let event_loop = match EventLoop::new() {
         Ok(el) => el,
@@ -1117,5 +1257,70 @@ mod tests {
         held.clear();
         held.insert(KeyCode::AltRight);
         assert!(is_fullscreen_toggle(KeyCode::Enter, &held));
+    }
+
+    #[test]
+    fn test_sync_collected_loot_updates_gold_and_bag() {
+        let mut progress = progress_rs::defaults();
+        let initial_gold = progress.gold;
+        let initial_mat = progress.items.get("material").copied().unwrap_or(0);
+        let initial_hp = progress.items.get("hpPotion").copied().unwrap_or(0);
+
+        let mut state = create_state(&CreateStateOptions::default());
+        let drop1 = core_rs::types::Pickup {
+            kind: "loot".to_string(),
+            name: "生锈的铁片".to_string(),
+            tone: "white".to_string(),
+            gold: 44,
+            exp: 0,
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+            radius: 0.0,
+            value: 0.0,
+            life: 10.0,
+            from_x: 0.0,
+            from_y: 0.0,
+            from_z: 0.0,
+            progress: 0.0,
+            trail: Vec::new(),
+        };
+        let drop2 = core_rs::types::Pickup {
+            kind: "loot".to_string(),
+            name: "诺顿的新手HP药剂".to_string(),
+            tone: "cyan".to_string(),
+            gold: 65,
+            exp: 0,
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+            radius: 0.0,
+            value: 0.0,
+            life: 10.0,
+            from_x: 0.0,
+            from_y: 0.0,
+            from_z: 0.0,
+            progress: 0.0,
+            trail: Vec::new(),
+        };
+        core_rs::combat::collect_loot(&mut state, &drop1);
+        core_rs::combat::collect_loot(&mut state, &drop2);
+
+        let mut last_gold = 0;
+        let mut last_loot = 0;
+        sync_collected_loot(&mut progress, &mut last_gold, &mut last_loot, &state);
+
+        assert_eq!(progress.gold, initial_gold + 109);
+        assert_eq!(
+            progress.items.get("material").copied().unwrap_or(0),
+            initial_mat + 1
+        );
+        assert_eq!(
+            progress.items.get("hpPotion").copied().unwrap_or(0),
+            initial_hp + 1
+        );
+        // Second call with no new pickups is a no-op
+        sync_collected_loot(&mut progress, &mut last_gold, &mut last_loot, &state);
+        assert_eq!(progress.gold, initial_gold + 109);
     }
 }

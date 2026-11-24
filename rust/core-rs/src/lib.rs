@@ -5,6 +5,7 @@ pub mod constants;
 pub mod dungeon;
 pub mod enemy;
 pub mod player;
+pub mod pvf_truth;
 pub mod tables;
 pub mod types;
 
@@ -456,6 +457,7 @@ pub fn step(state: &mut State, input: &Input, dt_override: Option<f64>) {
         state.result_rating = Some(rating_of(state));
         if state.victory && !state.defeat {
             award_clear_experience(state);
+            push_sound(state, "resultRank", state.player.x, state.player.z);
         }
     }
 
@@ -639,5 +641,61 @@ mod tests {
             Some(1)
         );
         assert_eq!(standard.player.skill_ranks.get("upSlash").copied(), Some(1));
+    }
+
+    #[test]
+    fn test_sound_events_level_up() {
+        let mut s = create_state(&CreateStateOptions::default());
+        let _ = drain_sounds(&mut s);
+        let needed = s.player.xp_to_next;
+        assert_eq!(combat::grant_xp(&mut s, needed - 1), 0);
+        assert!(drain_sounds(&mut s).iter().all(|e| e.kind != "levelUp"));
+
+        assert_eq!(combat::grant_xp(&mut s, 1), 1);
+        let sounds = drain_sounds(&mut s);
+        assert_eq!(
+            sounds.iter().filter(|e| e.kind == "levelUp").count(),
+            1,
+            "leveling up should emit exactly one levelUp sound"
+        );
+    }
+
+    #[test]
+    fn test_sound_events_gate_open_on_room_clear() {
+        let mut s = create_state(&CreateStateOptions::default());
+        let _ = drain_sounds(&mut s);
+        // Clear all enemies & pending waves in the entry (non-boss) room
+        s.enemies.clear();
+        if let Some(ref mut rm) = s.room {
+            rm.pending_wave.clear();
+            rm.pending_waves.clear();
+        }
+        step(&mut s, &Input::default(), None);
+        let sounds = drain_sounds(&mut s);
+        assert_eq!(
+            sounds.iter().filter(|e| e.kind == "gateOpen").count(),
+            1,
+            "clearing a non-boss room should emit gateOpen once"
+        );
+        // Subsequent ticks should not re-emit gateOpen
+        step(&mut s, &Input::default(), None);
+        assert!(drain_sounds(&mut s).iter().all(|e| e.kind != "gateOpen"));
+    }
+
+    #[test]
+    fn test_sound_events_result_rank_on_victory() {
+        let mut s = create_state(&CreateStateOptions::default());
+        let _ = drain_sounds(&mut s);
+        s.victory_delay = Some(DT * 0.5);
+        step(&mut s, &Input::default(), None);
+        assert!(s.victory);
+        let sounds = drain_sounds(&mut s);
+        assert_eq!(
+            sounds.iter().filter(|e| e.kind == "resultRank").count(),
+            1,
+            "transitioning to victory should emit resultRank once"
+        );
+        step(&mut s, &Input::default(), None);
+        assert!(drain_sounds(&mut s).iter().all(|e| e.kind != "resultRank"));
     }
 }
