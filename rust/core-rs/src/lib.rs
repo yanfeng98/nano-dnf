@@ -233,6 +233,7 @@ pub fn create_player(x: f64) -> Player {
         buff_icon_timer: 0.0,
         buff_icon_id: None,
         skill_cooldowns,
+        consumable_cooldowns: [0.0; 6],
         skill_ranks,
         invuln: 0.0,
         solid_invuln: 0.0,
@@ -733,5 +734,101 @@ mod tests {
         );
         step(&mut s, &Input::default(), None);
         assert!(drain_sounds(&mut s).iter().all(|e| e.kind != "resultRank"));
+    }
+
+    #[test]
+    fn test_consumable_heal_mp_cooldown_gating() {
+        let mut s = create_state(&CreateStateOptions::default());
+        s.player.hp = (s.player.max_hp - 60.0).max(1.0);
+        s.player.mp = (s.player.max_mp - 50.0).max(0.0);
+        let hp_before = s.player.hp;
+        let mp_before = s.player.mp;
+
+        assert!(combat::apply_consumable_effect(
+            &mut s,
+            0,
+            "HP 药水",
+            40.0,
+            0.0
+        ));
+        assert!((s.player.hp - (hp_before + 40.0).min(s.player.max_hp)).abs() < 1e-6);
+        assert!((s.player.consumable_cooldowns[0] - combat::CONSUMABLE_COOLDOWN_SEC).abs() < 1e-6);
+        assert!(s
+            .effects
+            .iter()
+            .any(|e| e.kind == "heal" && e.text.contains("HP")));
+        assert!(s.log.iter().any(|l| l.text.contains("HP 药水")));
+
+        // Cooldown gates immediate reuse on slot 0
+        assert!(!combat::apply_consumable_effect(
+            &mut s,
+            0,
+            "HP 药水",
+            40.0,
+            0.0
+        ));
+
+        // Slot 1 (MP potion) is independent and succeeds immediately
+        assert!(combat::apply_consumable_effect(
+            &mut s,
+            1,
+            "MP 药水",
+            0.0,
+            40.0
+        ));
+        assert!((s.player.mp - (mp_before + 40.0).min(s.player.max_mp)).abs() < 1e-6);
+        assert!(s
+            .effects
+            .iter()
+            .any(|e| e.kind == "heal" && e.text.contains("MP")));
+        assert!(s.log.iter().any(|l| l.text.contains("MP 药水")));
+
+        // Advance simulation past cooldown -> slot 0 becomes ready again
+        run_frames(&mut s, 130, |_, _| Input::default());
+        assert_eq!(s.player.consumable_cooldowns[0], 0.0);
+        assert!(combat::apply_consumable_effect(
+            &mut s,
+            0,
+            "HP 药水",
+            40.0,
+            0.0
+        ));
+    }
+
+    #[test]
+    fn test_resurrect_player_revives_in_place_with_invuln() {
+        let mut s = create_state(&CreateStateOptions::default());
+        assert!(!combat::resurrect_player(&mut s));
+
+        let px = s.player.x;
+        let pz = s.player.z;
+        s.player.mp = 5.0;
+        let max_hp = s.player.max_hp;
+        combat::spend_player_hp(&mut s, max_hp + 50.0);
+        step(&mut s, &Input::default(), None);
+        assert!(s.defeat);
+        assert!(s.player.dead);
+        assert!(!combat::apply_consumable_effect(
+            &mut s,
+            0,
+            "HP 药水",
+            40.0,
+            0.0
+        ));
+
+        assert!(combat::resurrect_player(&mut s));
+        assert!(!s.defeat);
+        assert!(!s.player.dead);
+        assert!(s.finished_at.is_none());
+        assert!((s.player.hp - s.player.max_hp).abs() < 1e-6);
+        assert!((s.player.mp - s.player.max_mp).abs() < 1e-6);
+        assert!(s.player.invuln >= combat::RESURRECT_INVULN_SEC - 1e-6);
+        assert!((s.player.x - px).abs() < 1e-6);
+        assert!((s.player.z - pz).abs() < 1e-6);
+        assert!(s.log.iter().any(|l| l.text.contains("复活币")));
+        assert!(s
+            .effects
+            .iter()
+            .any(|e| e.kind == "heal" && e.text.contains("复活")));
     }
 }

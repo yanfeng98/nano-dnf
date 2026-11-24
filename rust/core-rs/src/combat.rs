@@ -1151,6 +1151,9 @@ pub fn damage_player(state: &mut State, amount: f64, source_x: f64) -> u32 {
     applied
 }
 
+pub const CONSUMABLE_COOLDOWN_SEC: f64 = 2.0;
+pub const RESURRECT_INVULN_SEC: f64 = 2.0;
+
 pub fn heal_player(state: &mut State, amount: f64) -> f64 {
     let healed = (state.player.max_hp - state.player.hp).min(amount);
     if healed <= 0.0 {
@@ -1167,6 +1170,111 @@ pub fn heal_player(state: &mut State, amount: f64) -> f64 {
         state.effects.push(eff);
     }
     healed
+}
+
+pub fn restore_player_mp(state: &mut State, amount: f64) -> f64 {
+    let restored = (state.player.max_mp - state.player.mp).min(amount);
+    if restored <= 0.0 {
+        return 0.0;
+    }
+    state.player.mp += restored;
+    let displayed = (restored + 0.5).floor() as i64;
+    if displayed > 0 {
+        let mut eff = Effect::new("heal", 0.8);
+        eff.text = format!("+{displayed} MP");
+        eff.x = state.player.x;
+        eff.y = state.player.y - state.player.height - 22.0;
+        eff.z = state.player.z;
+        state.effects.push(eff);
+    }
+    restored
+}
+
+/// Apply a consumable potion from quickbar slot `0..6` during active combat.
+/// Returns `true` when applied (setting the slot's cooldown, spawning float text & log).
+pub fn apply_consumable_effect(
+    state: &mut State,
+    slot_idx: usize,
+    item_name: &str,
+    hp: f64,
+    mp: f64,
+) -> bool {
+    if slot_idx >= 6 || state.defeat || state.player.dead {
+        return false;
+    }
+    if state.player.consumable_cooldowns[slot_idx] > 0.0 {
+        return false;
+    }
+    if hp <= 0.0 && mp <= 0.0 {
+        return false;
+    }
+    let healed = if hp > 0.0 {
+        heal_player(state, hp)
+    } else {
+        0.0
+    };
+    let restored = if mp > 0.0 {
+        restore_player_mp(state, mp)
+    } else {
+        0.0
+    };
+    state.player.consumable_cooldowns[slot_idx] = CONSUMABLE_COOLDOWN_SEC;
+    let log_msg = match (hp > 0.0, mp > 0.0) {
+        (true, true) => format!(
+            "使用[{}] 恢复 {} HP / {} MP",
+            item_name,
+            (healed + 0.5).floor() as i64,
+            (restored + 0.5).floor() as i64
+        ),
+        (true, false) => format!(
+            "使用[{}] 恢复 {} HP",
+            item_name,
+            (healed + 0.5).floor() as i64
+        ),
+        (false, true) => format!(
+            "使用[{}] 恢复 {} MP",
+            item_name,
+            (restored + 0.5).floor() as i64
+        ),
+        (false, false) => format!("使用[{item_name}]"),
+    };
+    crate::push_log(state, &log_msg, "cyan");
+    true
+}
+
+/// Revive a defeated player in-place with full HP/MP and brief invulnerability.
+pub fn resurrect_player(state: &mut State) -> bool {
+    if !state.defeat && !state.player.dead {
+        return false;
+    }
+    state.defeat = false;
+    state.finished_at = None;
+    state.player.dead = false;
+    state.player.hp = state.player.max_hp;
+    state.player.mp = state.player.max_mp;
+    state.player.invuln = state.player.invuln.max(RESURRECT_INVULN_SEC);
+    state.player.hurt_timer = 0.0;
+    state.player.vx = 0.0;
+    state.player.vy = 0.0;
+    state.player.vz = 0.0;
+    state.player.y = 0.0;
+    state.player.on_ground = true;
+    state.player.attack_timer = 0.0;
+    state.player.attack_buffer = 0.0;
+    state.player.jump_buffer = 0.0;
+    state.player.skill_id = None;
+    state.player.skill_timer = 0.0;
+    state.skill_buffer = None;
+
+    let mut eff = Effect::new("heal", 1.1);
+    eff.text = "复活币复活!".to_string();
+    eff.x = state.player.x;
+    eff.y = state.player.y - state.player.height - 14.0;
+    eff.z = state.player.z;
+    state.effects.push(eff);
+    crate::push_log(state, "使用[复活币] 原地满血复活!", "gold");
+    crate::push_sound(state, "levelUp", state.player.x, state.player.z);
+    true
 }
 
 fn hit_native_pillar(

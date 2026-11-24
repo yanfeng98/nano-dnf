@@ -377,6 +377,9 @@ pub fn update_player(
     for cd in state.player.skill_cooldowns.values_mut() {
         *cd = (*cd - dt * cooldown_scale).max(0.0);
     }
+    for cd in &mut state.player.consumable_cooldowns {
+        *cd = (*cd - dt).max(0.0);
+    }
     if was_hurt {
         return false;
     }

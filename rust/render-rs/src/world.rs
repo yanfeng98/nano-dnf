@@ -3021,6 +3021,256 @@ pub fn draw_effect(c: &mut Canvas<'_>, state: &State, effect: &Effect, sprites: 
     }
 }
 
+/// Total horizontal width of Elvenguard town in logical units.
+pub const TOWN_WIDTH: f64 = 2520.0;
+pub const TOWN_MIN_X: f64 = 80.0;
+pub const TOWN_MAX_X: f64 = 2440.0;
+pub const TOWN_MIN_Z: f64 = 0.0;
+pub const TOWN_MAX_Z: f64 = 100.0;
+pub const TOWN_GATE_X: f64 = 2420.0;
+/// Town walking speed in logical px/s (measured from `00002` @ 1.5..2.2s).
+pub const TOWN_WALK_SPEED: f64 = 220.0;
+/// Depth movement speed ratio relative to horizontal walk speed (ADR / town review: 0.56).
+pub const TOWN_DEPTH_SPEED_RATIO: f64 = 0.56;
+/// Horizontal camera deadzone half-width around viewport center.
+pub const TOWN_CAMERA_HALF_WINDOW: f64 = 56.0;
+/// Exponential camera easing rate (1/s): `camera_x += (target - camera_x) * (1 - (-k * dt).exp())`.
+pub const TOWN_CAMERA_EASE_K: f64 = 8.5;
+/// Dedicated town walk animation row in `slayer-reference.png` (client frames 180–187, 8 frames).
+pub const TOWN_WALK_ROW: u32 = 12;
+
+/// Pure simulation state for player movement & camera easing in Elvenguard town.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct TownMotion {
+    pub x: f64,
+    pub z: f64,
+    pub facing: i32,
+    pub camera_x: f64,
+    pub walk: f64,
+    pub moving: bool,
+}
+
+impl Default for TownMotion {
+    fn default() -> Self {
+        Self {
+            x: 180.0,
+            z: 22.0,
+            facing: 1,
+            camera_x: 0.0,
+            walk: 0.0,
+            moving: false,
+        }
+    }
+}
+
+/// Step Elvenguard town movement and camera follow by `dt` seconds.
+///
+/// - Depth speed uses `TOWN_DEPTH_SPEED_RATIO` (`0.56`).
+/// - Diagonal movement (`dx != 0 && dz != 0`) is normalized by `1 / sqrt(2)`.
+/// - Camera follows the player deadzone with smooth exponential easing.
+pub fn step_town_motion(m: &mut TownMotion, dx: i32, dz: i32, dt: f64) {
+    let dx = dx.clamp(-1, 1);
+    let dz = dz.clamp(-1, 1);
+    let dt = dt.max(0.0);
+
+    if dx != 0 {
+        m.facing = dx;
+    }
+    m.moving = dx != 0 || dz != 0;
+    if m.moving {
+        m.walk += dt;
+    } else {
+        m.walk = 0.0;
+    }
+
+    let mut vx = f64::from(dx);
+    let mut vz = f64::from(dz);
+    if dx != 0 && dz != 0 {
+        vx *= std::f64::consts::FRAC_1_SQRT_2;
+        vz *= std::f64::consts::FRAC_1_SQRT_2;
+    }
+
+    m.x = (m.x + vx * TOWN_WALK_SPEED * dt).clamp(TOWN_MIN_X, TOWN_MAX_X);
+    m.z = (m.z + vz * TOWN_WALK_SPEED * TOWN_DEPTH_SPEED_RATIO * dt).clamp(TOWN_MIN_Z, TOWN_MAX_Z);
+
+    let max_cam = (TOWN_WIDTH - VIEW_WIDTH).max(0.0);
+    let center = m.camera_x + VIEW_WIDTH * 0.5;
+    let mut target = m.camera_x;
+    if m.x < center - TOWN_CAMERA_HALF_WINDOW {
+        target = m.x + TOWN_CAMERA_HALF_WINDOW - VIEW_WIDTH * 0.5;
+    } else if m.x > center + TOWN_CAMERA_HALF_WINDOW {
+        target = m.x - TOWN_CAMERA_HALF_WINDOW - VIEW_WIDTH * 0.5;
+    }
+    target = target.clamp(0.0, max_cam);
+    let alpha = 1.0 - (-TOWN_CAMERA_EASE_K * dt).exp();
+    m.camera_x = (m.camera_x + (target - m.camera_x) * alpha).clamp(0.0, max_cam);
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum TownNpcAction {
+    Quest,
+    Shop,
+    Bag,
+    Region,
+}
+
+struct TownNpcDef {
+    id: &'static str,
+    x: f32,
+    z: f32,
+    label: &'static str,
+    frames: &'static [[u32; 4]],
+}
+
+const GUARD_FRAMES: [[u32; 4]; 6] = [
+    [860, 319, 73, 191],
+    [933, 319, 73, 191],
+    [1006, 319, 73, 191],
+    [1079, 319, 73, 191],
+    [1152, 319, 73, 191],
+    [1225, 319, 73, 191],
+];
+const SERIA_FRAMES: [[u32; 4]; 6] = [
+    [0, 0, 62, 143],
+    [62, 0, 62, 143],
+    [124, 0, 62, 143],
+    [186, 0, 62, 143],
+    [248, 0, 62, 143],
+    [310, 0, 62, 143],
+];
+const MINET_FRAMES: [[u32; 4]; 6] = [
+    [372, 0, 49, 133],
+    [421, 0, 49, 133],
+    [470, 0, 49, 133],
+    [519, 0, 49, 133],
+    [568, 0, 49, 133],
+    [617, 0, 49, 133],
+];
+const GSD_FRAMES: [[u32; 4]; 4] = [
+    [960, 0, 75, 96],
+    [1035, 0, 75, 96],
+    [1110, 0, 75, 96],
+    [1185, 0, 75, 96],
+];
+const KANNA_FRAMES: [[u32; 4]; 8] = [
+    [1260, 0, 39, 106],
+    [1299, 0, 39, 106],
+    [1338, 0, 39, 106],
+    [1377, 0, 39, 106],
+    [1416, 0, 39, 106],
+    [1455, 0, 39, 106],
+    [1494, 0, 39, 106],
+    [1533, 0, 39, 106],
+];
+const BROWNIE_FRAMES: [[u32; 4]; 6] = [
+    [0, 143, 103, 79],
+    [103, 143, 103, 79],
+    [206, 143, 103, 79],
+    [309, 143, 103, 79],
+    [412, 143, 103, 79],
+    [515, 143, 103, 79],
+];
+const SINDA_FRAMES: [[u32; 4]; 6] = [
+    [1133, 222, 86, 97],
+    [1219, 222, 86, 97],
+    [1305, 222, 86, 97],
+    [1391, 222, 86, 97],
+    [1477, 222, 86, 97],
+    [0, 319, 86, 97],
+];
+const CAPTAIN_FRAMES: [[u32; 4]; 6] = [
+    [730, 510, 75, 171],
+    [805, 510, 75, 171],
+    [880, 510, 75, 171],
+    [955, 510, 75, 171],
+    [1030, 510, 75, 171],
+    [1105, 510, 75, 171],
+];
+
+// NPCs aligned along the rear balustrade (z = 82) leaving the spawn plaza & main road clear.
+const TOWN_NPCS: [TownNpcDef; 8] = [
+    TownNpcDef {
+        id: "guard",
+        x: 440.0,
+        z: 82.0,
+        label: "守卫",
+        frames: &GUARD_FRAMES,
+    },
+    TownNpcDef {
+        id: "seria",
+        x: 680.0,
+        z: 82.0,
+        label: "赛丽亚",
+        frames: &SERIA_FRAMES,
+    },
+    TownNpcDef {
+        id: "minet",
+        x: 920.0,
+        z: 82.0,
+        label: "敏泰",
+        frames: &MINET_FRAMES,
+    },
+    TownNpcDef {
+        id: "gsd",
+        x: 1160.0,
+        z: 82.0,
+        label: "GSD",
+        frames: &GSD_FRAMES,
+    },
+    TownNpcDef {
+        id: "kanna",
+        x: 1420.0,
+        z: 82.0,
+        label: "卡妮娜",
+        frames: &KANNA_FRAMES,
+    },
+    TownNpcDef {
+        id: "brownie",
+        x: 1700.0,
+        z: 82.0,
+        label: "布兰妮",
+        frames: &BROWNIE_FRAMES,
+    },
+    TownNpcDef {
+        id: "sinda",
+        x: 1980.0,
+        z: 82.0,
+        label: "辛达",
+        frames: &SINDA_FRAMES,
+    },
+    TownNpcDef {
+        id: "guardCaptain",
+        x: 2240.0,
+        z: 82.0,
+        label: "守卫队长",
+        frames: &CAPTAIN_FRAMES,
+    },
+];
+
+/// Resolve which town interaction occurs when the player presses Enter/Space at `(player_x, player_z)`.
+pub fn town_interact_action(player_x: f64, player_z: f64) -> TownNpcAction {
+    if (player_x - TOWN_GATE_X).abs() < 75.0 {
+        return TownNpcAction::Region;
+    }
+    let mut best: Option<(f64, &TownNpcDef)> = None;
+    for npc in &TOWN_NPCS {
+        let dx = (f64::from(npc.x) - player_x).abs();
+        let dz = (f64::from(npc.z) - player_z).abs();
+        if dx < 65.0 && dz < 45.0 {
+            let dist = dx * dx + dz * dz;
+            if best.is_none_or(|(d, _)| dist < d) {
+                best = Some((dist, npc));
+            }
+        }
+    }
+    match best.map(|(_, n)| n.id) {
+        Some("seria" | "minet" | "gsd") => TownNpcAction::Quest,
+        Some("kanna") => TownNpcAction::Shop,
+        Some("sinda") => TownNpcAction::Bag,
+        _ => TownNpcAction::Region,
+    }
+}
+
 pub struct TownView<'a> {
     pub player_x: f64,
     pub player_z: f64,
@@ -3044,7 +3294,7 @@ pub fn draw_town(
         player_x,
         player_z,
         facing,
-        camera_x: (player_x - VIEW_WIDTH * 0.5).clamp(0.0, 2520.0 - VIEW_WIDTH),
+        camera_x: (player_x - VIEW_WIDTH * 0.5).clamp(0.0, TOWN_WIDTH - VIEW_WIDTH),
         time: 0.0,
         moving: false,
         walk: 0.0,
@@ -3060,7 +3310,7 @@ pub fn draw_town_view(c: &mut Canvas<'_>, view: &TownView<'_>, sprites: &SpriteS
     const ROAD_Y: f32 = 233.0;
     const FRONT_Y: f32 = 430.0;
     const GROUND_Y: f32 = 425.0;
-    const GATE_X: f32 = 2420.0;
+    const GATE_X: f32 = TOWN_GATE_X as f32;
     const PLAYER_SCALE: f32 = 1.577_381;
 
     c.clear(Rgba::new(5, 7, 12, 255));
@@ -3077,9 +3327,14 @@ pub fn draw_town_view(c: &mut Canvas<'_>, view: &TownView<'_>, sprites: &SpriteS
     let vw = VIEW_WIDTH as f32;
 
     if let Some(sh) = sprites.get("town") {
-        // Far sky/mountains
+        // Far sky, pixel-art clouds & mountains (`hmfar01`, 0.08 subtle parallax)
+        let far_w = 640.0 * ART_SCALE;
         let far_h = 242.0 * ART_SCALE;
-        c.draw_image(sh, 0, 0, 640, 242, 0.0, 0.0, vw, far_h, false, 1.0, 0.0);
+        let mut fx = -(cam * 0.08).rem_euclid(far_w);
+        while fx < vw {
+            c.draw_image(sh, 0, 0, 640, 242, fx, 0.0, far_w, far_h, false, 1.0, 0.0);
+            fx += far_w;
+        }
 
         // Midground buildings (0.35 parallax)
         let mid_w = 895.0 * ART_SCALE;
@@ -3199,137 +3454,7 @@ pub fn draw_town_view(c: &mut Canvas<'_>, view: &TownView<'_>, sprites: &SpriteS
     }
 
     // Actors: 8 NPCs + Player, sorted far (large z) to near (small z)
-    struct TownNpcDef {
-        id: &'static str,
-        x: f32,
-        z: f32,
-        label: &'static str,
-        frames: &'static [[u32; 4]],
-    }
-    const GUARD_FRAMES: [[u32; 4]; 6] = [
-        [860, 319, 73, 191],
-        [933, 319, 73, 191],
-        [1006, 319, 73, 191],
-        [1079, 319, 73, 191],
-        [1152, 319, 73, 191],
-        [1225, 319, 73, 191],
-    ];
-    const SERIA_FRAMES: [[u32; 4]; 6] = [
-        [0, 0, 62, 143],
-        [62, 0, 62, 143],
-        [124, 0, 62, 143],
-        [186, 0, 62, 143],
-        [248, 0, 62, 143],
-        [310, 0, 62, 143],
-    ];
-    const MINET_FRAMES: [[u32; 4]; 6] = [
-        [372, 0, 49, 133],
-        [421, 0, 49, 133],
-        [470, 0, 49, 133],
-        [519, 0, 49, 133],
-        [568, 0, 49, 133],
-        [617, 0, 49, 133],
-    ];
-    const GSD_FRAMES: [[u32; 4]; 4] = [
-        [960, 0, 75, 96],
-        [1035, 0, 75, 96],
-        [1110, 0, 75, 96],
-        [1185, 0, 75, 96],
-    ];
-    const KANNA_FRAMES: [[u32; 4]; 8] = [
-        [1260, 0, 39, 106],
-        [1299, 0, 39, 106],
-        [1338, 0, 39, 106],
-        [1377, 0, 39, 106],
-        [1416, 0, 39, 106],
-        [1455, 0, 39, 106],
-        [1494, 0, 39, 106],
-        [1533, 0, 39, 106],
-    ];
-    const BROWNIE_FRAMES: [[u32; 4]; 6] = [
-        [0, 143, 103, 79],
-        [103, 143, 103, 79],
-        [206, 143, 103, 79],
-        [309, 143, 103, 79],
-        [412, 143, 103, 79],
-        [515, 143, 103, 79],
-    ];
-    const SINDA_FRAMES: [[u32; 4]; 6] = [
-        [1133, 222, 86, 97],
-        [1219, 222, 86, 97],
-        [1305, 222, 86, 97],
-        [1391, 222, 86, 97],
-        [1477, 222, 86, 97],
-        [0, 319, 86, 97],
-    ];
-    const CAPTAIN_FRAMES: [[u32; 4]; 6] = [
-        [730, 510, 75, 171],
-        [805, 510, 75, 171],
-        [880, 510, 75, 171],
-        [955, 510, 75, 171],
-        [1030, 510, 75, 171],
-        [1105, 510, 75, 171],
-    ];
-    const NPCS: [TownNpcDef; 8] = [
-        TownNpcDef {
-            id: "guard",
-            x: 360.0,
-            z: 50.0,
-            label: "守卫",
-            frames: &GUARD_FRAMES,
-        },
-        TownNpcDef {
-            id: "seria",
-            x: 650.0,
-            z: 50.0,
-            label: "赛丽亚",
-            frames: &SERIA_FRAMES,
-        },
-        TownNpcDef {
-            id: "minet",
-            x: 900.0,
-            z: 50.0,
-            label: "敏泰",
-            frames: &MINET_FRAMES,
-        },
-        TownNpcDef {
-            id: "gsd",
-            x: 1150.0,
-            z: 50.0,
-            label: "GSD",
-            frames: &GSD_FRAMES,
-        },
-        TownNpcDef {
-            id: "kanna",
-            x: 1400.0,
-            z: 50.0,
-            label: "卡妮娜",
-            frames: &KANNA_FRAMES,
-        },
-        TownNpcDef {
-            id: "brownie",
-            x: 1700.0,
-            z: 50.0,
-            label: "布兰妮",
-            frames: &BROWNIE_FRAMES,
-        },
-        TownNpcDef {
-            id: "sinda",
-            x: 2000.0,
-            z: 50.0,
-            label: "辛达",
-            frames: &SINDA_FRAMES,
-        },
-        TownNpcDef {
-            id: "guardCaptain",
-            x: 2250.0,
-            z: 50.0,
-            label: "守卫队长",
-            frames: &CAPTAIN_FRAMES,
-        },
-    ];
-
-    let mut order: Vec<(f32, Option<usize>)> = NPCS
+    let mut order: Vec<(f32, Option<usize>)> = TOWN_NPCS
         .iter()
         .enumerate()
         .map(|(i, n)| (n.z, Some(i)))
@@ -3341,7 +3466,7 @@ pub fn draw_town_view(c: &mut Canvas<'_>, view: &TownView<'_>, sprites: &SpriteS
     let mut near_hint: Option<String> = None;
     for (_, npc_idx_opt) in order {
         if let Some(ni) = npc_idx_opt {
-            let npc = &NPCS[ni];
+            let npc = &TOWN_NPCS[ni];
             let sx = npc.x - cam;
             let bottom = GROUND_Y - npc.z;
             if (npc.x - view.player_x as f32).abs() < 65.0
@@ -3391,7 +3516,32 @@ pub fn draw_town_view(c: &mut Canvas<'_>, view: &TownView<'_>, sprites: &SpriteS
         } else {
             let px = view.player_x as f32 - cam;
             let py = GROUND_Y - view.player_z as f32;
-            c.fill_ellipse(px, py, 20.0, 5.5, Rgba::new(0, 0, 0, 115));
+            c.fill_ellipse(px, py + 1.0, 22.0, 6.0, Rgba::new(0, 0, 0, 96));
+
+            // Bright neon-green oval foot ring under player boots (matches 00002 @ 2s / 415s)
+            c.fill_ellipse(px, py, 33.0, 10.5, Rgba::new(165, 255, 110, 92));
+            c.stroke_ellipse(px, py, 32.0, 10.0, Rgba::new(145, 255, 95, 215), 2.0);
+            if let Some(ui) = sprites.get("ui") {
+                let fw = 64.0;
+                let fh = 22.0;
+                for _ in 0..2 {
+                    c.draw_image_additive(
+                        ui,
+                        1175,
+                        2901,
+                        81,
+                        28,
+                        px - fw * 0.5,
+                        py - fh * 0.48,
+                        fw,
+                        fh,
+                        false,
+                        0.75,
+                        0.0,
+                    );
+                }
+            }
+
             if let Some(sh) = sprites.get("slayer") {
                 const IDLE_ROOTS: [[f32; 2]; 4] =
                     [[8.48, -5.16], [9.16, -5.16], [9.16, -5.16], [9.16, -5.16]];
@@ -3410,11 +3560,11 @@ pub fn draw_town_view(c: &mut Canvas<'_>, view: &TownView<'_>, sprites: &SpriteS
                 let anchor_x = 88.0f32;
                 let anchor_y = 156.0f32;
                 let walking = view.moving && view.walk > 0.0;
-                let row = if walking { 1 } else { 0 };
+                let row = if walking { TOWN_WALK_ROW } else { 0 };
                 let col = if walking {
                     ((view.walk * 10.0) as u32) % 8
                 } else {
-                    0
+                    ((view.time * 4.0) as u32) % 4
                 };
                 let root = if walking {
                     WALK_ROOTS[col as usize]
@@ -3459,10 +3609,10 @@ pub fn draw_town_view(c: &mut Canvas<'_>, view: &TownView<'_>, sprites: &SpriteS
                 &format!("Lv.{} {}", view.player_level, view.player_name),
                 px,
                 py - 142.0,
-                11.0,
-                Rgba::new(242, 231, 206, 255),
+                11.5,
+                Rgba::new(252, 250, 244, 255),
                 TextAlign::Center,
-                Some(Rgba::new(24, 24, 24, 230)),
+                Some(Rgba::new(10, 12, 18, 245)),
             );
         }
     }
@@ -3486,24 +3636,202 @@ pub fn draw_town_view(c: &mut Canvas<'_>, view: &TownView<'_>, sprites: &SpriteS
 
     c.restore();
 
-    c.fill_text(
-        "艾尔文防线 · [←→↑↓] 移动 · [Enter] 交互/进图 · [I] 背包 · [K] 装备 · [L] 任务 · [U] 商店 · [B] 技能",
-        (ARENA_WIDTH * 0.5) as f32,
-        28.0,
-        12.0,
-        Rgba::new(235, 220, 175, 240),
-        TextAlign::Center,
-        Some(Rgba::new(0, 0, 0, 220)),
-    );
     if let Some(hint) = near_hint {
         c.fill_text(
             &hint,
             (ARENA_WIDTH * 0.5) as f32,
-            ARENA_HEIGHT as f32 - 92.0,
-            13.0,
+            crate::hud_classic::native_y(crate::hud_classic::HUD_TOP_Y) - 14.0,
+            12.0,
             Rgba::new(255, 228, 140, 255),
             TextAlign::Center,
             Some(Rgba::new(0, 0, 0, 230)),
+        );
+    }
+}
+
+/// Draw the town HUD overlay:
+/// 1. Classic 60/70 shared bottom HUD (`hud_classic::draw_bottom_hud`)
+/// 2. Top-right channel banner (`ch14格兰之森`)
+/// 3. Right-side lightweight town menu icons (`决斗场 / 推荐好友 / 队伍信息 / 社区`)
+pub fn draw_town_hud(
+    c: &mut Canvas<'_>,
+    state: &State,
+    sprites: &SpriteStore,
+    meta: &crate::hud::RenderMeta<'_>,
+) {
+    crate::hud_classic::draw_bottom_hud(c, state, sprites, meta);
+    draw_town_top_right_ui(c);
+}
+
+fn draw_town_top_right_ui(c: &mut Canvas<'_>) {
+    use crate::hud_classic::{native_size, native_x, native_y};
+
+    // 1. Top-right channel banner (`ch14格兰之森 E`) — matches 00002 @ 2s / 415s
+    let bx = native_x(564.0);
+    let by = native_y(0.0);
+    let bw = native_size(236.0);
+    let bh = native_size(24.0);
+    // Tapered translucent navy-charcoal fade on the left edge
+    c.fill_rect(bx, by, native_size(34.0), bh, Rgba::new(14, 18, 30, 120));
+    c.fill_rect(
+        bx + native_size(34.0),
+        by,
+        bw - native_size(34.0),
+        bh,
+        Rgba::new(14, 18, 30, 205),
+    );
+    // Warm bronze-gold bottom underline
+    c.fill_rect(
+        bx + native_size(12.0),
+        by + bh - native_size(1.5),
+        bw - native_size(12.0),
+        native_size(1.5),
+        Rgba::new(186, 152, 92, 220),
+    );
+    c.fill_text(
+        "ch14格兰之森",
+        native_x(764.0),
+        native_y(17.0),
+        native_size(13.0),
+        Rgba::new(244, 226, 174, 255),
+        TextAlign::Right,
+        Some(Rgba::new(8, 10, 16, 240)),
+    );
+    // Small gold channel-grade badge `E` at far right
+    c.fill_text(
+        "E",
+        native_x(782.0),
+        native_y(17.0),
+        native_size(12.5),
+        Rgba::new(255, 214, 122, 255),
+        TextAlign::Center,
+        Some(Rgba::new(12, 10, 6, 245)),
+    );
+
+    // 2. Right-side vertical lightweight menu entries (`决斗场 / 推荐好友 / 队伍信息 / 社区`)
+    const MENU_ITEMS: [(&str, [u8; 3], [u8; 3]); 4] = [
+        ("决斗场", [198, 72, 60], [242, 232, 210]),
+        ("推荐好友", [54, 166, 84], [210, 250, 198]),
+        ("队伍信息", [58, 138, 216], [198, 232, 255]),
+        ("社区", [186, 56, 72], [250, 214, 128]),
+    ];
+    for (idx, &(label, badge_rgb, accent_rgb)) in MENU_ITEMS.iter().enumerate() {
+        let row_ny = 34.0 + idx as f32 * 33.0;
+        let icon_cx = native_x(708.0);
+        let icon_cy = native_y(row_ny + 13.0);
+        let r = native_size(11.5);
+
+        // Dark rim + colored medallion badge
+        c.fill_ellipse(
+            icon_cx,
+            icon_cy,
+            r + native_size(1.5),
+            r + native_size(1.5),
+            Rgba::new(18, 20, 28, 225),
+        );
+        c.fill_ellipse(
+            icon_cx,
+            icon_cy,
+            r,
+            r,
+            Rgba::new(badge_rgb[0], badge_rgb[1], badge_rgb[2], 235),
+        );
+        c.stroke_ellipse(
+            icon_cx,
+            icon_cy,
+            r,
+            r,
+            Rgba::new(225, 196, 132, 230),
+            native_size(1.2),
+        );
+
+        // Simple recognizable inner emblem per entry
+        let ac = Rgba::new(accent_rgb[0], accent_rgb[1], accent_rgb[2], 245);
+        match idx {
+            0 => {
+                // Crossed swords
+                c.draw_line(
+                    icon_cx - native_size(5.5),
+                    icon_cy - native_size(5.5),
+                    icon_cx + native_size(5.5),
+                    icon_cy + native_size(5.5),
+                    ac,
+                    native_size(2.0),
+                );
+                c.draw_line(
+                    icon_cx + native_size(5.5),
+                    icon_cy - native_size(5.5),
+                    icon_cx - native_size(5.5),
+                    icon_cy + native_size(5.5),
+                    ac,
+                    native_size(2.0),
+                );
+            }
+            1 => {
+                // Shield / friend emblem
+                c.fill_round_rect(
+                    icon_cx - native_size(4.5),
+                    icon_cy - native_size(5.0),
+                    native_size(9.0),
+                    native_size(9.5),
+                    native_size(2.5),
+                    ac,
+                );
+            }
+            2 => {
+                // Two party silhouettes
+                c.fill_ellipse(
+                    icon_cx - native_size(3.2),
+                    icon_cy - native_size(2.5),
+                    native_size(2.6),
+                    native_size(2.6),
+                    ac,
+                );
+                c.fill_ellipse(
+                    icon_cx + native_size(3.2),
+                    icon_cy - native_size(2.0),
+                    native_size(2.3),
+                    native_size(2.3),
+                    ac,
+                );
+                c.fill_round_rect(
+                    icon_cx - native_size(6.2),
+                    icon_cy + native_size(1.0),
+                    native_size(12.4),
+                    native_size(4.8),
+                    native_size(2.0),
+                    ac,
+                );
+            }
+            _ => {
+                // Community crest
+                c.fill_round_rect(
+                    icon_cx - native_size(5.0),
+                    icon_cy - native_size(3.5),
+                    native_size(10.0),
+                    native_size(7.5),
+                    native_size(1.5),
+                    ac,
+                );
+                c.fill_rect(
+                    icon_cx - native_size(2.0),
+                    icon_cy - native_size(6.0),
+                    native_size(4.0),
+                    native_size(3.0),
+                    ac,
+                );
+            }
+        }
+
+        // Crisp outlined label to the right of the icon
+        c.fill_text(
+            label,
+            native_x(726.0),
+            native_y(row_ny + 18.0),
+            native_size(13.0),
+            Rgba::new(255, 248, 224, 255),
+            TextAlign::Left,
+            Some(Rgba::new(0, 0, 0, 255)),
         );
     }
 }
