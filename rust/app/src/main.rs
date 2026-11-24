@@ -17,11 +17,11 @@ use music_rs::track_for;
 use progress_rs::{note_break, note_clear, note_kill, ProgressProfile};
 use records_rs::{record as record_run, RecordStore, RunInput};
 use render_rs::{
-    draw_town_hud, draw_town_view, hit_test_consumable_slot, hit_test_loadout_panel,
-    hit_test_minimap, hit_test_progress_panel, render, step_town_motion, town_interact_action,
-    Canvas, GlyphCache, MapMode, PanelAction, ProgressPanelKind, RenderMeta, SpriteStore,
-    TownMotion, TownNpcAction, TownView, DEFAULT_WINDOW_HEIGHT, DEFAULT_WINDOW_WIDTH,
-    RENDER_HEIGHT, RENDER_WIDTH, VIEW_TO_RENDER_SCALE,
+    draw_town_hud, draw_town_view, hit_test_consumable_slot, hit_test_continue,
+    hit_test_loadout_panel, hit_test_minimap, hit_test_progress_panel, hit_test_reward_card,
+    render, step_town_motion, town_interact_action, Canvas, ContinueAction, GlyphCache, MapMode,
+    PanelAction, ProgressPanelKind, RenderMeta, SpriteStore, TownMotion, TownNpcAction, TownView,
+    DEFAULT_WINDOW_HEIGHT, DEFAULT_WINDOW_WIDTH, RENDER_HEIGHT, RENDER_WIDTH, VIEW_TO_RENDER_SCALE,
 };
 use reward_rs::{
     create as create_reward, pick as pick_reward, step as step_reward, take_prize, RewardState,
@@ -306,39 +306,27 @@ impl AppState {
             }
             ScreenMode::Playing => {
                 if self.state.victory && !self.state.post_clear {
-                    if let Some(ref mut rw) = self.reward {
-                        let snap = reward_rs::snapshot(rw);
-                        if snap.phase == reward_rs::RewardPhase::Cards {
-                            let card_w = 172.125f32;
-                            let card_h = 109.125f32;
-                            let card_gap = 7.125f32;
-                            let card_y = 188.0f32;
-                            let start_x = 129.0f32;
-                            for i in 0..4usize {
-                                let bx = start_x + i as f32 * (card_w + card_gap);
-                                if ax >= bx
-                                    && ax <= bx + card_w
-                                    && ay >= card_y
-                                    && ay <= card_y + card_h
-                                {
-                                    pick_reward(rw, i);
-                                    return;
-                                }
+                    if let Some(card_idx) = hit_test_reward_card(ax, ay) {
+                        if let Some(ref mut rw) = self.reward {
+                            if pick_reward(rw, card_idx) {
+                                self.claim_reward_prize();
                             }
                         }
                     }
                 } else if self.state.post_clear {
-                    let mx = (VIEW_LEFT + VIEW_WIDTH) as f32 - 250.0;
-                    let my = 120.0f32;
-                    if ax >= mx && ax <= mx + 230.0 {
-                        if ay >= my + 42.0 && ay <= my + 68.0 {
-                            let st = self.state.stage_id.clone();
-                            let seed = self.state.seed;
-                            self.restart_run(&st, seed);
-                        } else if ay >= my + 68.0 && ay <= my + 94.0 {
-                            self.mode = ScreenMode::Region;
-                        } else if ay >= my + 94.0 && ay <= my + 124.0 {
-                            self.mode = ScreenMode::Town;
+                    if let Some(action) = hit_test_continue(ax, ay) {
+                        match action {
+                            ContinueAction::Retry => {
+                                let st = self.state.stage_id.clone();
+                                let seed = self.state.seed;
+                                self.restart_run(&st, seed);
+                            }
+                            ContinueAction::SelectStage => {
+                                self.mode = ScreenMode::Region;
+                            }
+                            ContinueAction::ReturnTown => {
+                                self.mode = ScreenMode::Town;
+                            }
                         }
                     }
                 } else if !self.paused && !self.show_help {
@@ -476,11 +464,32 @@ impl AppState {
         }
     }
 
+    fn claim_reward_prize(&mut self) {
+        let prize = self.reward.as_mut().and_then(take_prize);
+        if let Some(prize) = prize {
+            self.audio.play_events(&[core_rs::types::SoundEvent {
+                kind: "rewardOpen".to_string(),
+                x: self.state.player.x,
+                z: self.state.player.z,
+                t: self.state.time,
+                enemy_type: None,
+                attack_kind: None,
+                skill_id: None,
+                stage: None,
+                native_object: None,
+                enemy_id: None,
+            }]);
+            progress_rs::add_item(&mut self.progress, &prize.item_id, 1);
+            progress_rs::add_gold(&mut self.progress, i64::from(prize.gold));
+            self.persist_save();
+        }
+    }
+
     fn handle_digit(&mut self, idx: usize) {
-        if self.mode == ScreenMode::Playing {
+        if self.mode == ScreenMode::Playing && self.state.victory && !self.state.post_clear {
             if let Some(ref mut rw) = self.reward {
-                if idx < 4 {
-                    pick_reward(rw, idx);
+                if idx < 4 && pick_reward(rw, idx) {
+                    self.claim_reward_prize();
                 }
                 return;
             }
@@ -719,35 +728,14 @@ impl AppState {
 
                     if let Some(ref mut rw) = self.reward {
                         step_reward(rw, dt);
-                        if let Some(prize) = take_prize(rw) {
-                            self.audio.play_events(&[core_rs::types::SoundEvent {
-                                kind: "rewardOpen".to_string(),
-                                x: self.state.player.x,
-                                z: self.state.player.z,
-                                t: self.state.time,
-                                enemy_type: None,
-                                attack_kind: None,
-                                skill_id: None,
-                                stage: None,
-                                native_object: None,
-                                enemy_id: None,
-                            }]);
-                            progress_rs::add_item(&mut self.progress, &prize.item_id, 1);
-                            progress_rs::add_gold(&mut self.progress, i64::from(prize.gold));
-                            save::save_all(
-                                &self.asset_root,
-                                &self.records,
-                                &self.progress,
-                                &self.loadout,
-                                &self.player_name,
-                            );
-                        }
-                        if reward_rs::snapshot(rw).phase == reward_rs::RewardPhase::Done
-                            && self.state.victory
-                            && !self.state.post_clear
-                        {
-                            core_rs::resume_after_clear(&mut self.state);
-                        }
+                    }
+                    self.claim_reward_prize();
+                    if self.reward.as_ref().is_some_and(|rw| {
+                        reward_rs::snapshot(rw).phase == reward_rs::RewardPhase::Done
+                    }) && self.state.victory
+                        && !self.state.post_clear
+                    {
+                        core_rs::resume_after_clear(&mut self.state);
                     }
                 }
             }
@@ -797,6 +785,8 @@ impl AppState {
                     seed: self.state.seed,
                     stage_id: &self.state.stage_id,
                     map_mode: self.map_mode,
+                    continue_hover: None,
+                    reward_card_hover: None,
                 };
                 draw_town_hud(&mut canvas, &self.state, &self.sprites, &town_meta);
                 if self.progress_panel != ProgressPanelKind::None {
@@ -824,6 +814,20 @@ impl AppState {
                     &self.state
                 };
                 let hint_ref = self.active_hint.as_ref().map(|(s, _)| s.as_str());
+                let continue_hover = if active_state.post_clear
+                    && !self.paused
+                    && !self.show_help
+                    && self.progress_panel == ProgressPanelKind::None
+                {
+                    hover_view.and_then(|(ax, ay)| hit_test_continue(ax, ay))
+                } else {
+                    None
+                };
+                let reward_card_hover = if active_state.victory && !active_state.post_clear {
+                    hover_view.and_then(|(ax, ay)| hit_test_reward_card(ax, ay))
+                } else {
+                    None
+                };
                 let meta = RenderMeta {
                     title: self.mode == ScreenMode::Title,
                     attract: self.mode == ScreenMode::Title,
@@ -841,6 +845,8 @@ impl AppState {
                     seed: active_state.seed,
                     stage_id: &active_state.stage_id,
                     map_mode: self.map_mode,
+                    continue_hover,
+                    reward_card_hover,
                 };
                 render(&mut canvas, active_state, &self.sprites, &meta);
                 if self.progress_panel != ProgressPanelKind::None {

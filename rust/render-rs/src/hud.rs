@@ -1,6 +1,7 @@
 //! HUD, minimap, skill bar, loadout/progress panels, and overlays (`src/render.js`).
 
 use crate::canvas::{Canvas, Rgba, TextAlign};
+use crate::results::ContinueAction;
 use crate::sprites::SpriteStore;
 use crate::tables::rect_at;
 use core_rs::constants::*;
@@ -76,6 +77,8 @@ pub struct RenderMeta<'a> {
     pub seed: u32,
     pub stage_id: &'a str,
     pub map_mode: MapMode,
+    pub continue_hover: Option<ContinueAction>,
+    pub reward_card_hover: Option<usize>,
 }
 
 pub fn render_loading(c: &mut Canvas<'_>, loaded: usize, total: usize) {
@@ -1417,304 +1420,50 @@ pub fn draw_overlay(
     }
 
     if state.victory && !state.post_clear {
-        c.save();
-        c.set_clip_rect(
-            VIEW_LEFT as f32,
-            0.0,
-            VIEW_WIDTH as f32,
-            ARENA_HEIGHT as f32,
-        );
         if let Some(rw) = meta.reward {
             let snap = reward_snapshot(rw);
-            if snap.phase != RewardPhase::Done {
-                crate::results::draw_result_backdrop(c, sprites, snap.elapsed);
-                match snap.phase {
-                    RewardPhase::Stats => {
-                        crate::results::draw_recorded_stats(c, state, sprites, snap.t, true);
-                    }
-                    RewardPhase::Chest => {
-                        if let Some(res_sheet) = sprites.get("results") {
-                            c.draw_image_additive(
-                                res_sheet,
-                                4163,
-                                0,
-                                183,
-                                164,
-                                cx - 91.5,
-                                cy - 96.0,
-                                183.0,
-                                164.0,
-                                false,
-                                0.85,
-                                0.0,
-                            );
-                            c.draw_image(
-                                res_sheet,
-                                420,
-                                0,
-                                160,
-                                142,
-                                cx - 80.0,
-                                cy - 86.0,
-                                160.0,
-                                142.0,
-                                false,
-                                1.0,
-                                0.0,
-                            );
-                        }
-                        c.fill_text(
-                            "奖励宝箱开启中...",
-                            cx,
-                            cy + 84.0,
-                            18.0,
-                            Rgba::new(245, 210, 120, 255),
-                            TextAlign::Center,
-                            Some(Rgba::new(0, 0, 0, 220)),
-                        );
-                    }
-                    RewardPhase::Cards | RewardPhase::Reveal | RewardPhase::Fade => {
-                        c.fill_text(
-                            "请选择奖励卡牌 (按 1-4 或鼠标点击)",
-                            cx,
-                            164.0,
-                            18.0,
-                            Rgba::new(245, 210, 120, 255),
-                            TextAlign::Center,
-                            Some(Rgba::new(0, 0, 0, 220)),
-                        );
-                        let card_w = 172.125f32;
-                        let card_h = 109.125f32;
-                        let card_gap = 7.125f32;
-                        let card_y = 188.0f32;
-                        let start_x = 129.0f32;
-                        for i in 0..4usize {
-                            let base_x = start_x + i as f32 * (card_w + card_gap);
-                            let card_x = cx - card_w * 0.5
-                                + (base_x - cx + card_w * 0.5) * snap.spread as f32;
-                            let picked = snap.picked == Some(i);
-                            if let Some(res_sheet) = sprites.get("results") {
-                                c.draw_image(
-                                    res_sheet, 882, 0, 153, 97, card_x, card_y, card_w, card_h,
-                                    false, 1.0, 0.0,
-                                );
-                                if snap.blue > 0.01 {
-                                    c.draw_image_additive(
-                                        res_sheet,
-                                        1035,
-                                        0,
-                                        162,
-                                        107,
-                                        card_x - 3.375,
-                                        card_y - 3.375,
-                                        182.25,
-                                        120.375,
-                                        false,
-                                        (snap.blue * 0.88) as f32,
-                                        0.0,
-                                    );
-                                }
-                                if picked && snap.face_up {
-                                    let icon_x = if snap.item.contains("法杖") {
-                                        3215u32
-                                    } else {
-                                        3243u32
-                                    };
-                                    c.draw_image(
-                                        res_sheet,
-                                        icon_x,
-                                        0,
-                                        28,
-                                        28,
-                                        card_x + card_w * 0.5 - 15.75,
-                                        card_y + 18.0,
-                                        31.5,
-                                        31.5,
-                                        false,
-                                        1.0,
-                                        0.0,
-                                    );
-                                    c.stroke_round_rect(
-                                        card_x - 2.0,
-                                        card_y - 2.0,
-                                        card_w + 4.0,
-                                        card_h + 4.0,
-                                        4.0,
-                                        Rgba::new(255, 220, 110, 255),
-                                        2.5,
-                                    );
-                                }
-                            } else {
-                                c.fill_round_rect(
-                                    card_x,
-                                    card_y,
-                                    card_w,
-                                    card_h,
-                                    6.0,
-                                    if picked {
-                                        Rgba::new(82, 68, 32, 245)
-                                    } else {
-                                        Rgba::new(26, 36, 56, 240)
-                                    },
-                                );
-                                c.stroke_round_rect(
-                                    card_x,
-                                    card_y,
-                                    card_w,
-                                    card_h,
-                                    6.0,
-                                    Rgba::new(240, 202, 108, 255),
-                                    2.0,
-                                );
-                            }
-                            c.fill_text(
-                                &(i + 1).to_string(),
-                                card_x + 14.0,
-                                card_y + 22.0,
-                                15.0,
-                                Rgba::new(255, 240, 195, 255),
-                                TextAlign::Center,
-                                Some(Rgba::new(0, 0, 0, 220)),
-                            );
-                        }
-                        if snap.flash > 0.01 {
-                            if let Some(res_sheet) = sprites.get("results") {
-                                c.draw_image_additive(
-                                    res_sheet,
-                                    1197,
-                                    0,
-                                    402,
-                                    402,
-                                    359.2,
-                                    71.8,
-                                    321.6,
-                                    321.6,
-                                    false,
-                                    snap.flash as f32,
-                                    0.0,
-                                );
-                            }
-                        }
-                        if snap.picked.is_some() {
-                            if let Some(res_sheet) = sprites.get("results") {
-                                c.draw_image(
-                                    res_sheet,
-                                    3271,
-                                    0,
-                                    732,
-                                    110,
-                                    VIEW_LEFT as f32,
-                                    320.0,
-                                    VIEW_WIDTH as f32,
-                                    80.0,
-                                    false,
-                                    0.92,
-                                    0.0,
-                                );
-                            }
-                            c.fill_text(
-                                &format!("获得 {} + {} 金币", snap.item, snap.gold),
-                                cx,
-                                364.0,
-                                16.0,
-                                Rgba::new(115, 245, 165, 255),
-                                TextAlign::Center,
-                                Some(Rgba::new(0, 0, 0, 230)),
-                            );
-                        }
-                    }
-                    RewardPhase::Done => {}
+            match snap.phase {
+                RewardPhase::Stats => {
+                    c.save();
+                    c.set_clip_rect(
+                        VIEW_LEFT as f32,
+                        0.0,
+                        VIEW_WIDTH as f32,
+                        ARENA_HEIGHT as f32,
+                    );
+                    crate::results::draw_result_backdrop(c, sprites, snap.elapsed);
+                    crate::results::draw_recorded_stats(c, state, sprites, snap.t, true);
+                    c.restore();
                 }
+                RewardPhase::Chest
+                | RewardPhase::Cards
+                | RewardPhase::Reveal
+                | RewardPhase::Fade => {
+                    crate::results::draw_reward_page(c, state, rw, sprites, meta.reward_card_hover);
+                }
+                RewardPhase::Done => {}
             }
         } else {
+            c.save();
+            c.set_clip_rect(
+                VIEW_LEFT as f32,
+                0.0,
+                VIEW_WIDTH as f32,
+                ARENA_HEIGHT as f32,
+            );
             let elapsed = state
                 .finished_at
                 .map(|at| (state.time - at).max(0.0))
                 .unwrap_or(9.0);
             crate::results::draw_result_backdrop(c, sprites, elapsed);
             crate::results::draw_recorded_stats(c, state, sprites, elapsed, false);
+            c.restore();
         }
-        c.restore();
         return;
     }
 
-    if state.post_clear {
-        if let Some(res_sheet) = sprites.get("results") {
-            let mx = (VIEW_LEFT + VIEW_WIDTH) as f32 - 250.0;
-            let my = 120.0f32;
-            c.draw_image(
-                res_sheet, 1599, 0, 270, 160, mx, my, 230.0, 136.0, false, 0.96, 0.0,
-            );
-            c.draw_image(
-                res_sheet,
-                2677,
-                0,
-                66,
-                19,
-                mx + 26.0,
-                my + 48.0,
-                66.0,
-                19.0,
-                false,
-                1.0,
-                0.0,
-            );
-            c.draw_image(
-                res_sheet,
-                2743,
-                0,
-                112,
-                19,
-                mx + 26.0,
-                my + 74.0,
-                112.0,
-                19.0,
-                false,
-                1.0,
-                0.0,
-            );
-            c.draw_image(
-                res_sheet,
-                2855,
-                0,
-                66,
-                19,
-                mx + 26.0,
-                my + 100.0,
-                66.0,
-                19.0,
-                false,
-                1.0,
-                0.0,
-            );
-            c.fill_text(
-                "F3",
-                mx + 195.0,
-                my + 62.0,
-                11.0,
-                Rgba::new(240, 210, 130, 240),
-                TextAlign::Right,
-                None,
-            );
-            c.fill_text(
-                "Esc",
-                mx + 195.0,
-                my + 88.0,
-                11.0,
-                Rgba::new(240, 210, 130, 240),
-                TextAlign::Right,
-                None,
-            );
-            c.fill_text(
-                "F4",
-                mx + 195.0,
-                my + 114.0,
-                11.0,
-                Rgba::new(240, 210, 130, 240),
-                TextAlign::Right,
-                None,
-            );
-        }
+    if state.post_clear && meta.progress_panel == ProgressPanelKind::None {
+        crate::results::draw_continue(c, sprites, meta.continue_hover);
     }
 
     if meta.progress_panel != ProgressPanelKind::None {

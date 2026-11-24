@@ -16,6 +16,7 @@ pub use hud::{
     MapRect, PanelAction, ProgressPanelKind, RenderMeta,
 };
 pub use hud_classic::hit_test_consumable_slot;
+pub use results::{hit_test_continue, hit_test_reward_card, ContinueAction};
 pub use sprites::SpriteStore;
 pub use world::{
     draw_town_hud, step_town_motion, town_interact_action, TownMotion, TownNpcAction, TownView,
@@ -187,6 +188,8 @@ mod tests {
             seed: state.seed,
             stage_id: &state.stage_id,
             map_mode: MapMode::default(),
+            continue_hover: None,
+            reward_card_hover: None,
         };
         let mut canvas = Canvas::new(&mut pixmap, &mut fonts);
         render(&mut canvas, &state, &sprites, &meta);
@@ -246,6 +249,8 @@ mod tests {
             seed: state.seed,
             stage_id: &state.stage_id,
             map_mode: MapMode::default(),
+            continue_hover: None,
+            reward_card_hover: None,
         };
         let mut canvas = Canvas::new(&mut pixmap, &mut fonts);
         render(&mut canvas, &state, &sprites, &meta);
@@ -295,6 +300,8 @@ mod tests {
             seed: state.seed,
             stage_id: &state.stage_id,
             map_mode: MapMode::Radar,
+            continue_hover: None,
+            reward_card_hover: None,
         };
         let mut canvas = Canvas::new(&mut pixmap, fonts);
         render(&mut canvas, state, sprites, &meta);
@@ -553,6 +560,8 @@ mod tests {
                 seed: state.seed,
                 stage_id: &state.stage_id,
                 map_mode: mode,
+                continue_hover: None,
+                reward_card_hover: None,
             };
             let mut pixmap = Pixmap::new(RENDER_WIDTH, RENDER_HEIGHT).expect("pixmap");
             let mut canvas = Canvas::new(&mut pixmap, fonts);
@@ -784,6 +793,8 @@ mod tests {
             seed: state.seed,
             stage_id: &state.stage_id,
             map_mode: MapMode::Radar,
+            continue_hover: None,
+            reward_card_hover: None,
         };
 
         let mut pix_ready = Pixmap::new(RENDER_WIDTH, RENDER_HEIGHT).expect("800x600");
@@ -872,6 +883,8 @@ mod tests {
                 seed: state.seed,
                 stage_id: &state.stage_id,
                 map_mode: MapMode::Radar,
+                continue_hover: None,
+                reward_card_hover: None,
             };
             render(&mut c, &state, &sprites, &meta);
         }
@@ -896,6 +909,8 @@ mod tests {
                 seed: state.seed,
                 stage_id: &state.stage_id,
                 map_mode: MapMode::Radar,
+                continue_hover: None,
+                reward_card_hover: None,
             };
             render(&mut c, &state, &sprites, &meta);
         }

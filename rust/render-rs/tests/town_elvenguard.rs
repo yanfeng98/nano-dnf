@@ -145,6 +145,8 @@ fn town_renders_800x600_with_classic_hud_and_foot_ring_without_panic() {
         seed: state.seed,
         stage_id: &state.stage_id,
         map_mode: MapMode::Radar,
+        continue_hover: None,
+        reward_card_hover: None,
     };
 
     for &(moving, walk, facing) in &[(false, 0.0, 1), (true, 0.35, 1), (true, 0.72, -1)] {
