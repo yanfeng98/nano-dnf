@@ -171,6 +171,8 @@ struct AppState {
     recorded_finish: bool,
     last_kills_by_type: HashMap<String, u32>,
     last_barrels: u32,
+    last_gold: u32,
+    last_loot: u32,
     cmd_upslash_timer: f64,
     last_tick: Instant,
     accumulator: f64,
@@ -228,6 +230,8 @@ impl AppState {
             recorded_finish: false,
             last_kills_by_type: HashMap::new(),
             last_barrels: 0,
+            last_gold: 0,
+            last_loot: 0,
             cmd_upslash_timer: 0.0,
             last_tick: Instant::now(),
             accumulator: 0.0,
@@ -339,6 +343,8 @@ impl AppState {
         self.recorded_finish = false;
         self.last_kills_by_type.clear();
         self.last_barrels = 0;
+        self.last_gold = 0;
+        self.last_loot = 0;
         self.mode = ScreenMode::Playing;
     }
 
@@ -622,6 +628,12 @@ impl AppState {
                         self.last_barrels = self.state.stats.barrels;
                         note_break(&mut self.progress, db);
                     }
+                    sync_collected_loot(
+                        &mut self.progress,
+                        &mut self.last_gold,
+                        &mut self.last_loot,
+                        &self.state,
+                    );
 
                     if let Some((_, ref mut ttl)) = self.active_hint {
                         *ttl -= dt;
@@ -1049,6 +1061,48 @@ impl ApplicationHandler for AppState {
     }
 }
 
+fn loot_item_id_for_log_line(text: &str) -> Option<&'static str> {
+    let rest = text.strip_prefix("获得[")?;
+    let name = rest.split(']').next()?;
+    let id = match name {
+        "诺顿的新手HP药剂" | "HP 药水" => "hpPotion",
+        "MP 药水" | "冰冻水" => "mpPotion",
+        "古老的法杖" => "ancientStaff",
+        "粗布上衣" => "clothArmor",
+        "锈蚀短剑" => "rustyBlade",
+        "生锈的铁剑" => "starterBlade",
+        _ => "material",
+    };
+    Some(id)
+}
+
+fn sync_collected_loot(
+    progress: &mut ProgressProfile,
+    last_gold: &mut u32,
+    last_loot: &mut u32,
+    state: &State,
+) {
+    if state.stats.gold > *last_gold {
+        let dg = state.stats.gold - *last_gold;
+        *last_gold = state.stats.gold;
+        progress_rs::add_gold(progress, i64::from(dg));
+    }
+    if state.stats.loot > *last_loot {
+        let dl = (state.stats.loot - *last_loot) as usize;
+        *last_loot = state.stats.loot;
+        let item_ids: Vec<&'static str> = state
+            .log
+            .iter()
+            .rev()
+            .filter_map(|entry| loot_item_id_for_log_line(&entry.text))
+            .take(dl)
+            .collect();
+        for item_id in item_ids {
+            progress_rs::add_item(progress, item_id, 1);
+        }
+    }
+}
+
 fn main() {
     let event_loop = match EventLoop::new() {
         Ok(el) => el,
@@ -1117,5 +1171,70 @@ mod tests {
         held.clear();
         held.insert(KeyCode::AltRight);
         assert!(is_fullscreen_toggle(KeyCode::Enter, &held));
+    }
+
+    #[test]
+    fn test_sync_collected_loot_updates_gold_and_bag() {
+        let mut progress = progress_rs::defaults();
+        let initial_gold = progress.gold;
+        let initial_mat = progress.items.get("material").copied().unwrap_or(0);
+        let initial_hp = progress.items.get("hpPotion").copied().unwrap_or(0);
+
+        let mut state = create_state(&CreateStateOptions::default());
+        let drop1 = core_rs::types::Pickup {
+            kind: "loot".to_string(),
+            name: "生锈的铁片".to_string(),
+            tone: "white".to_string(),
+            gold: 44,
+            exp: 0,
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+            radius: 0.0,
+            value: 0.0,
+            life: 10.0,
+            from_x: 0.0,
+            from_y: 0.0,
+            from_z: 0.0,
+            progress: 0.0,
+            trail: Vec::new(),
+        };
+        let drop2 = core_rs::types::Pickup {
+            kind: "loot".to_string(),
+            name: "诺顿的新手HP药剂".to_string(),
+            tone: "cyan".to_string(),
+            gold: 65,
+            exp: 0,
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+            radius: 0.0,
+            value: 0.0,
+            life: 10.0,
+            from_x: 0.0,
+            from_y: 0.0,
+            from_z: 0.0,
+            progress: 0.0,
+            trail: Vec::new(),
+        };
+        core_rs::combat::collect_loot(&mut state, &drop1);
+        core_rs::combat::collect_loot(&mut state, &drop2);
+
+        let mut last_gold = 0;
+        let mut last_loot = 0;
+        sync_collected_loot(&mut progress, &mut last_gold, &mut last_loot, &state);
+
+        assert_eq!(progress.gold, initial_gold + 109);
+        assert_eq!(
+            progress.items.get("material").copied().unwrap_or(0),
+            initial_mat + 1
+        );
+        assert_eq!(
+            progress.items.get("hpPotion").copied().unwrap_or(0),
+            initial_hp + 1
+        );
+        // Second call with no new pickups is a no-op
+        sync_collected_loot(&mut progress, &mut last_gold, &mut last_loot, &state);
+        assert_eq!(progress.gold, initial_gold + 109);
     }
 }

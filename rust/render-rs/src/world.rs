@@ -1519,36 +1519,7 @@ pub fn draw_world(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
                         c.fill_ellipse(dx, dy, 8.0, 8.0, Rgba::new(225, 42, 54, 230));
                     }
                 } else {
-                    let on_row =
-                        (state.player.z - drop.z).abs() <= DEPTH_REACH_MELEE * SLAYER_HEIGHT;
-                    let ready = !state.player.dead
-                        && on_row
-                        && (state.player.x - drop.x).abs() <= LOOT_REACH + state.player.width * 0.5;
-                    let edge_col = if ready {
-                        Rgba::new(198, 240, 74, 245)
-                    } else {
-                        Rgba::new(226, 232, 238, 235)
-                    };
-                    let pw = (drop.name.chars().count() as f32 * 9.5 + 14.0).max(40.0);
-                    let ph = 17.0f32;
-                    c.fill_round_rect(
-                        dx - pw * 0.5,
-                        dy - ph,
-                        pw,
-                        ph,
-                        3.0,
-                        Rgba::new(10, 14, 20, 184),
-                    );
-                    c.stroke_round_rect(dx - pw * 0.5, dy - ph, pw, ph, 3.0, edge_col, 1.5);
-                    c.fill_text(
-                        &drop.name,
-                        dx,
-                        dy - 4.5,
-                        9.5,
-                        Rgba::new(126, 210, 216, 255),
-                        TextAlign::Center,
-                        None,
-                    );
+                    crate::combat_info::draw_loot_plate(c, state, drop, dx, dy);
                 }
             }
             3 => {
