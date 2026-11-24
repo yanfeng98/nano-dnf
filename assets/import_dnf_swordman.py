@@ -493,30 +493,31 @@ def composed_frame(layer_frames, overlay_frames, index: int) -> tuple[Image.Imag
             body_part = (image, x, y)
         parts.append((image, x, y))
     # head anchor for the overlays: the hair sprite of this frame
-    hair_frames = dict(layer_frames)["hair"]
-    hair = hair_frames[index % len(hair_frames)]
-    if is_stub(hair[0]):
-        face_frames = dict(layer_frames)["face"]
-        hair = face_frames[index % len(face_frames)]
-    for frames, ref, max_w, max_h in overlay_frames:
-        image, x, y = frames[index % len(frames)]
-        if is_stub(image) or image.width > max_w or image.height > max_h:
-            image = None
-            for step in range(1, 9):
-                for j in (index + step, index - step):
-                    candidate = frames[j % len(frames)]
-                    if not is_stub(candidate[0]) and candidate[0].width <= max_w and candidate[0].height <= max_h:
-                        image, x, y = candidate
+    if overlay_frames:
+        hair_frames = dict(layer_frames)["hair"]
+        hair = hair_frames[index % len(hair_frames)]
+        if is_stub(hair[0]) and "face" in dict(layer_frames):
+            face_frames = dict(layer_frames)["face"]
+            hair = face_frames[index % len(face_frames)]
+        for frames, ref, max_w, max_h in overlay_frames:
+            image, x, y = frames[index % len(frames)]
+            if is_stub(image) or image.width > max_w or image.height > max_h:
+                image = None
+                for step in range(1, 9):
+                    for j in (index + step, index - step):
+                        candidate = frames[j % len(frames)]
+                        if not is_stub(candidate[0]) and candidate[0].width <= max_w and candidate[0].height <= max_h:
+                            image, x, y = candidate
+                            break
+                    if image is not None:
                         break
-                if image is not None:
-                    break
-        if image is None:
-            continue
-        ref_image, ref_x, ref_y = frames[ref % len(frames)]
-        if is_stub(ref_image):
-            continue
-        ref_hair = hair_frames[ref % len(hair_frames)]
-        parts.append((image, hair[1] + (ref_x - ref_hair[1]), hair[2] + (ref_y - ref_hair[2])))
+            if image is None:
+                continue
+            ref_image, ref_x, ref_y = frames[ref % len(frames)]
+            if is_stub(ref_image):
+                continue
+            ref_hair = hair_frames[ref % len(hair_frames)]
+            parts.append((image, hair[1] + (ref_x - ref_hair[1]), hair[2] + (ref_y - ref_hair[2])))
     if not parts:
         raise SystemExit(f"frame {index} is empty")
     x0 = min(x for _, x, _ in parts)

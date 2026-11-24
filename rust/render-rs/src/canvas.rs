@@ -585,6 +585,149 @@ impl<'a> Canvas<'a> {
         self.blit_text_run(text, start_x, baseline_y, px_tenths, color);
     }
 
+    /// Bold italic metallic silver-white text with dark outline (DNF live rating panel grade & fallback).
+    pub fn fill_text_metallic_italic(
+        &mut self,
+        text: &str,
+        x: f32,
+        y: f32,
+        size: f32,
+        align: TextAlign,
+        alpha: f32,
+    ) {
+        if text.is_empty() || alpha <= 0.01 {
+            return;
+        }
+        let eff_size = (size * self.transform.sy).max(6.0);
+        let total_w = self.fonts.measure_text(text, eff_size) + 2.0;
+        let mut pt = tiny_skia::Point::from_xy(x, y);
+        self.transform.map_point(&mut pt);
+        let start_x = match align {
+            TextAlign::Left => pt.x,
+            TextAlign::Center => pt.x - total_w * 0.5,
+            TextAlign::Right => pt.x - total_w,
+        };
+        let baseline_y = pt.y;
+        let px_tenths = (eff_size * 10.0).round().clamp(60.0, 2000.0) as u16;
+        let outline = Rgba::new(8, 10, 16, 235).with_alpha(alpha);
+        for [ox, oy] in [
+            [-1.5, -1.0],
+            [0.0, -1.5],
+            [1.5, -1.0],
+            [-1.5, 0.0],
+            [2.0, 0.0],
+            [-1.5, 1.0],
+            [0.0, 1.5],
+            [1.5, 1.0],
+        ] {
+            self.blit_text_run_slanted(
+                text,
+                start_x + ox,
+                baseline_y + oy,
+                px_tenths,
+                None,
+                outline,
+            );
+        }
+        // Faux-bold + metallic vertical gradient (bright silver-white top -> cool steel bottom)
+        let top_col = Rgba::new(246, 248, 252, 255).with_alpha(alpha);
+        let bot_col = Rgba::new(176, 182, 190, 255).with_alpha(alpha);
+        self.blit_text_run_slanted(
+            text,
+            start_x + 0.8,
+            baseline_y,
+            px_tenths,
+            Some(bot_col),
+            top_col,
+        );
+        self.blit_text_run_slanted(text, start_x, baseline_y, px_tenths, Some(bot_col), top_col);
+    }
+
+    fn blit_text_run_slanted(
+        &mut self,
+        text: &str,
+        start_x: f32,
+        baseline_y: f32,
+        px_tenths: u16,
+        bottom_color: Option<Rgba>,
+        top_color: Rgba,
+    ) {
+        let pw = self.pixmap.width() as i32;
+        let ph = self.pixmap.height() as i32;
+        let clip_bounds = self.clip_rect_opt;
+        let mut pen_x = start_x;
+        let mut draw_ops: Vec<(i32, i32, usize, usize, Vec<u8>)> = Vec::new();
+        for ch in text.chars() {
+            if let Some((metrics, bitmap)) = self.fonts.rasterize(ch, px_tenths) {
+                let gx = (pen_x + metrics.xmin as f32).round() as i32;
+                let gy = (baseline_y - metrics.ymin as f32 - metrics.height as f32).round() as i32;
+                if metrics.width > 0 && metrics.height > 0 {
+                    draw_ops.push((gx, gy, metrics.width, metrics.height, bitmap.clone()));
+                }
+                pen_x += metrics.advance_width + 0.6;
+            } else {
+                pen_x += f32::from(px_tenths) / 10.0 * 0.5;
+            }
+        }
+        let data = self.pixmap.data_mut();
+        for (gx, gy, gw, gh, bitmap) in draw_ops {
+            let denom = (gh.saturating_sub(1)).max(1) as f32;
+            for row in 0..gh {
+                let py = gy + row as i32;
+                if py < 0 || py >= ph {
+                    continue;
+                }
+                if let Some(cr) = clip_bounds {
+                    if (py as f32) < cr.top() || (py as f32) >= cr.bottom() {
+                        continue;
+                    }
+                }
+                let t = row as f32 / denom;
+                let col_rgba = match bottom_color {
+                    Some(bc) => Rgba::new(
+                        (f32::from(top_color.r) * (1.0 - t) + f32::from(bc.r) * t) as u8,
+                        (f32::from(top_color.g) * (1.0 - t) + f32::from(bc.g) * t) as u8,
+                        (f32::from(top_color.b) * (1.0 - t) + f32::from(bc.b) * t) as u8,
+                        (f32::from(top_color.a) * (1.0 - t) + f32::from(bc.a) * t) as u8,
+                    ),
+                    None => top_color,
+                };
+                let sr = f32::from(col_rgba.r);
+                let sg = f32::from(col_rgba.g);
+                let sb = f32::from(col_rgba.b);
+                let sa = f32::from(col_rgba.a) / 255.0;
+                let shear =
+                    ((gh.saturating_sub(1).saturating_sub(row)) as f32 * 0.24).round() as i32;
+                for col in 0..gw {
+                    let px = gx + col as i32 + shear;
+                    if px < 0 || px >= pw {
+                        continue;
+                    }
+                    if let Some(cr) = clip_bounds {
+                        if (px as f32) < cr.left() || (px as f32) >= cr.right() {
+                            continue;
+                        }
+                    }
+                    let cov = bitmap[row * gw + col];
+                    if cov == 0 {
+                        continue;
+                    }
+                    let alpha = (f32::from(cov) / 255.0) * sa;
+                    let inv = 1.0 - alpha;
+                    let idx = ((py * pw + px) * 4) as usize;
+                    let dr = f32::from(data[idx]);
+                    let dg = f32::from(data[idx + 1]);
+                    let db = f32::from(data[idx + 2]);
+                    let da = f32::from(data[idx + 3]);
+                    data[idx] = (sr * alpha + dr * inv).min(255.0) as u8;
+                    data[idx + 1] = (sg * alpha + dg * inv).min(255.0) as u8;
+                    data[idx + 2] = (sb * alpha + db * inv).min(255.0) as u8;
+                    data[idx + 3] = (255.0 * alpha + da * inv).min(255.0) as u8;
+                }
+            }
+        }
+    }
+
     fn blit_text_run(
         &mut self,
         text: &str,

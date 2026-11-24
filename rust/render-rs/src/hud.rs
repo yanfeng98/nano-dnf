@@ -23,6 +23,16 @@ pub enum ProgressPanelKind {
     Shop,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum PanelAction {
+    Close,
+    InteractSlot(usize),
+    SalvageFirst,
+    SelectLoadoutSlot(usize),
+    AssignLoadoutSkill(usize),
+    CycleLoadoutSkill(isize),
+}
+
 pub struct RenderMeta<'a> {
     pub title: bool,
     pub attract: bool,
@@ -390,303 +400,17 @@ pub fn draw_hud_video(
         }
     }
 
-    // Current target panel (top-left, `portraits-reference.png` native frames + Boss multi-layer HP)
-    if let Some(ref target) = state.target {
-        let enemy = &target.enemy;
-        let is_boss = enemy.behavior == "boss";
-        let is_champ = !is_boss && enemy.champion.is_some();
-        let x = VIEW_LEFT as f32 + 6.0;
-        let y = 45.5f32;
-        let s = 1.125f32;
-        if let Some(psheet) = sprites.get("portraits") {
-            let pkey = if enemy.kind == "deepBoss" || enemy.kind == "lugaruBoss" {
-                "lugaruBoss"
-            } else if is_boss {
-                "boss"
-            } else if enemy.kind == "cursedRed" {
-                "goblinRed"
-            } else if enemy.kind == "burningThrower" {
-                "caster"
-            } else {
-                enemy.kind.as_str()
-            };
-            let face_rect =
-                rect_at(&["PORTRAITS", pkey]).or_else(|| rect_at(&["PORTRAITS", "grunt"]));
-            let frame_rect = if is_boss {
-                [2353u32, 0, 630, 36]
-            } else if is_champ {
-                [1721, 0, 628, 36]
-            } else {
-                [495, 0, 626, 32]
-            };
-            let cap_rect = if is_boss {
-                [2983u32, 0, 4, 36]
-            } else if is_champ {
-                [2349, 0, 4, 19]
-            } else {
-                [1718, 0, 3, 17]
-            };
-            let (fx, fy) = if is_boss {
-                (5.0f32, 3.0f32)
-            } else if is_champ {
-                (4.0, 4.0)
-            } else {
-                (2.0, 2.0)
-            };
-            let fill_x = if is_boss {
-                x + 38.25
-            } else {
-                x + if is_champ { 34.0 } else { 29.0 } * s
-            };
-            let fill_y = if is_boss {
-                y + 3.375
-            } else {
-                y + if is_champ { 19.0 } else { 17.0 } * s
-            };
-            let fill_w = if is_boss { 534.0f32 } else { 181.0f32 };
-            let fill_h = if is_boss { 29.25f32 } else { 9.0 * s };
-            let end_x = fill_x + fill_w;
+    // Current target panel (top-left: avatar, race badge, Lv+name, full-width multi-layer boss HP)
+    crate::combat_info::draw_target_panel(c, state, sprites);
 
-            c.save();
-            c.set_clip_rect(x, y, end_x - x, frame_rect[3] as f32 * s);
-            c.draw_image(
-                psheet,
-                frame_rect[0],
-                frame_rect[1],
-                frame_rect[2],
-                frame_rect[3],
-                x,
-                y,
-                frame_rect[2] as f32 * s,
-                frame_rect[3] as f32 * s,
-                false,
-                1.0,
-                0.0,
-            );
-            c.restore();
-
-            let cap_y = y + if is_boss {
-                0.0
-            } else if is_champ {
-                16.0
-            } else {
-                15.0
-            } * s;
-            c.draw_image(
-                psheet,
-                cap_rect[0],
-                cap_rect[1],
-                cap_rect[2],
-                cap_rect[3],
-                end_x,
-                cap_y,
-                cap_rect[2] as f32 * s,
-                cap_rect[3] as f32 * s,
-                false,
-                1.0,
-                0.0,
-            );
-
-            if let Some([fsx, fsy, fsw, fsh]) = face_rect {
-                c.draw_image(
-                    psheet,
-                    fsx,
-                    fsy,
-                    fsw,
-                    fsh,
-                    x + fx * s,
-                    y + fy * s,
-                    24.0 * s,
-                    24.0 * s,
-                    false,
-                    1.0,
-                    0.0,
-                );
-            }
-
-            if !enemy.dead {
-                let raw_share = if enemy.max_hp > 0.0 {
-                    (enemy.hp / enemy.max_hp).clamp(0.0, 1.0) as f32
-                } else {
-                    0.0
-                };
-                if is_boss {
-                    let layers = 2.0f32;
-                    let amount = raw_share * layers;
-                    let idx = (amount.ceil() as i32 - 1).max(0);
-                    let share = (amount - idx as f32).clamp(0.0, 1.0);
-                    let tile_w = 42.75f32;
-                    if idx >= 1 {
-                        c.save();
-                        c.set_clip_rect(fill_x, fill_y, fill_w, fill_h);
-                        let mut tx = fill_x;
-                        while tx < end_x {
-                            c.draw_image(
-                                psheet, 2987, 0, 38, 26, tx, fill_y, tile_w, fill_h, false, 1.0,
-                                0.0,
-                            );
-                            tx += tile_w;
-                        }
-                        c.restore();
-                    }
-                    let top_rect = if idx >= 1 {
-                        [3025u32, 0, 38, 26]
-                    } else {
-                        [2987u32, 0, 38, 26]
-                    };
-                    if share > 0.0 {
-                        c.save();
-                        c.set_clip_rect(fill_x, fill_y, fill_w * share, fill_h);
-                        let mut tx = fill_x;
-                        while tx < end_x {
-                            c.draw_image(
-                                psheet,
-                                top_rect[0],
-                                top_rect[1],
-                                top_rect[2],
-                                top_rect[3],
-                                tx,
-                                fill_y,
-                                tile_w,
-                                fill_h,
-                                false,
-                                1.0,
-                                0.0,
-                            );
-                            tx += tile_w;
-                        }
-                        c.restore();
-                    }
-                } else if raw_share > 0.0 {
-                    c.save();
-                    c.set_clip_rect(fill_x, fill_y, fill_w * raw_share, fill_h);
-                    c.draw_image(
-                        psheet, 1121, 0, 597, 9, fill_x, fill_y, fill_w, fill_h, false, 1.0, 0.0,
-                    );
-                    c.restore();
-                }
-            }
-
-            if let Some(ref g) = target.ghost {
-                let mut from = g.from as f32;
-                let mut to = g.to as f32;
-                if is_boss {
-                    let raw_share = if enemy.max_hp > 0.0 {
-                        (enemy.hp / enemy.max_hp).clamp(0.0, 1.0) as f32
-                    } else {
-                        0.0
-                    };
-                    let idx = ((raw_share * 2.0).ceil() as i32 - 1).max(0) as f32;
-                    from = from * 2.0 - idx;
-                    to = to * 2.0 - idx;
-                }
-                let from = from.clamp(0.0, 1.0);
-                let to = to.clamp(0.0, 1.0);
-                let gw = ((from - to) * fill_w).max(0.0);
-                let ga = (1.0 - (g.t / TARGET_GHOST_FADE) as f32).clamp(0.0, 1.0) * 0.95;
-                if gw > 0.0 && ga > 0.01 {
-                    c.fill_rect(
-                        fill_x + fill_w * to,
-                        fill_y,
-                        gw,
-                        fill_h,
-                        Rgba::new(248, 236, 229, 255).with_alpha(ga),
-                    );
-                }
-            }
-
-            if enemy.dead {
-                let cross_x = if is_boss { x + 5.0 } else { x + 1.5 };
-                let cross_y = if is_boss { y + 3.0 } else { y + 1.0 };
-                c.draw_image(
-                    psheet, 471, 0, 24, 24, cross_x, cross_y, 28.0, 28.0, false, 1.0, 0.0,
-                );
-            }
-
-            let tag_x = if is_boss {
-                x + 44.0
-            } else {
-                x + if is_champ { 36.0 } else { 32.0 } * s
-            };
-            let tag_y = if is_boss { fill_y + 7.0 } else { y };
-            let tag_w = 34.0f32;
-            let tag_h = 14.0f32;
-            c.fill_rect(tag_x, tag_y, tag_w, tag_h, Rgba::new(0, 0, 0, 255));
-            c.stroke_rect(
-                tag_x,
-                tag_y,
-                tag_w,
-                tag_h,
-                Rgba::new(216, 130, 70, 255),
-                1.5,
-            );
-            c.fill_text(
-                &enemy.race,
-                tag_x + tag_w * 0.5,
-                tag_y + 10.5,
-                10.5,
-                Rgba::new(243, 141, 76, 255),
-                TextAlign::Center,
-                None,
-            );
-            c.fill_text(
-                &format!("Lv{} {}", enemy.level, enemy.label),
-                tag_x + tag_w + 5.0,
-                tag_y + 11.0,
-                11.5,
-                Rgba::new(228, 237, 247, 255),
-                TextAlign::Left,
-                Some(Rgba::new(0, 0, 0, 230)),
-            );
-        } else {
-            let tx = left + 14.0;
-            let ty = 14.0;
-            let bw = if is_boss { 260.0 } else { 180.0 };
-            c.fill_round_rect(tx, ty, bw + 60.0, 38.0, 4.0, Rgba::new(12, 16, 24, 215));
-            c.fill_text(
-                &format!("{} Lv.{} {}", enemy.race, enemy.level, enemy.label),
-                tx + 8.0,
-                ty + 15.0,
-                12.0,
-                Rgba::new(240, 225, 185, 255),
-                TextAlign::Left,
-                None,
-            );
-            c.fill_rect(
-                tx + 8.0,
-                ty + 22.0,
-                bw + 12.0,
-                8.0,
-                Rgba::new(28, 22, 26, 255),
-            );
-            c.fill_rect(
-                tx + 8.0,
-                ty + 22.0,
-                (bw + 12.0) * target.share as f32,
-                8.0,
-                Rgba::new(220, 56, 52, 255),
-            );
-        }
+    // Combat loot log (top-left directly underneath target bar, hidden behind full-screen title)
+    if !meta.title {
+        crate::combat_info::draw_combat_log(c, state);
     }
 
-    // Log lines (bottom-left above HUD, hidden behind full-screen title)
-    if !meta.title {
-        for (i, entry) in state.log.iter().enumerate() {
-            let col = match entry.tone.as_str() {
-                "gold" => Rgba::new(245, 205, 85, 240),
-                "cyan" => Rgba::new(92, 224, 245, 240),
-                _ => Rgba::new(232, 238, 248, 230),
-            };
-            c.fill_text(
-                &entry.text,
-                left + 12.0,
-                bottom - 92.0 - (state.log.len() - 1 - i) as f32 * 16.0,
-                11.0,
-                col,
-                TextAlign::Left,
-                Some(Rgba::new(0, 0, 0, 220)),
-            );
-        }
+    // Persistent live combat rating panel (right side above bottom HUD; frozen on clear)
+    if !meta.title && (!state.victory || state.post_clear) {
+        crate::combat_info::draw_rating_panel(c, state, sprites);
     }
 
     // Hint bar
@@ -1860,240 +1584,871 @@ pub fn draw_overlay(
     }
 
     if meta.progress_panel != ProgressPanelKind::None {
-        draw_progress_panel(c, meta.progress_panel, meta.progress);
+        draw_progress_panel(c, sprites, meta.progress_panel, meta.progress, None);
     }
+}
+
+// Native `assets/gui.png` atlas coordinates (generated by `assets/import_dnf_gui.py --table`)
+const GUI_SHOP_RECT: [u32; 4] = [0, 0, 291, 380];
+const GUI_QUEST_RECT: [u32; 4] = [291, 0, 291, 380];
+const GUI_INVENTORY_RECT: [u32; 4] = [582, 0, 291, 410];
+const GUI_GOLD_RECT: [u32; 4] = [618, 410, 17, 21];
+const GUI_ICON_POTION0: [u32; 4] = [952, 410, 28, 28];
+const GUI_ICON_POTION1: [u32; 4] = [980, 410, 28, 28];
+const GUI_ICON_POTION2: [u32; 4] = [1008, 410, 28, 28];
+const GUI_ICON_POTION3: [u32; 4] = [1036, 410, 28, 28];
+const GUI_ICON_MAT0: [u32; 4] = [1064, 410, 28, 28];
+const GUI_ICON_WEAPON0: [u32; 4] = [1120, 410, 28, 28];
+
+const GUI_WIN_W: f32 = 291.0;
+const GUI_SHOP_H: f32 = 380.0;
+const GUI_INV_H: f32 = 410.0;
+
+// Native 7x6 grid inside `stackableshopwindow.img` (`shop` & `loadout`)
+const SHOP_GRID_X: f32 = 27.0;
+const SHOP_GRID_Y: f32 = 134.0;
+const SHOP_GRID_COLS: usize = 7;
+const SHOP_GRID_ROWS: usize = 6;
+const GRID_PITCH: f32 = 32.0;
+const GRID_CELL_W: f32 = 28.0;
+const GRID_CELL_H: f32 = 30.0;
+
+// Native 8x4 grid inside `iteminventorywindow.img` (`bag` & `equip`)
+const INV_GRID_X: f32 = 19.0;
+const INV_GRID_Y: f32 = 176.0;
+const INV_GRID_COLS: usize = 8;
+const INV_GRID_ROWS: usize = 4;
+
+// Native 10 equipment slot positions inside `iteminventorywindow.img` matching `progress_rs::EQUIP_SLOTS`
+// Order: weapon, top, bottom, shoulder, belt, shoes, necklace, bracelet, ring, support
+const EQUIP_SLOT_RECTS: [(f32, f32, &str); 10] = [
+    (210.0, 78.0, "武器"),
+    (49.0, 46.0, "上衣"),
+    (81.0, 46.0, "下装"),
+    (17.0, 46.0, "护肩"),
+    (49.0, 78.0, "腰带"),
+    (17.0, 78.0, "鞋"),
+    (210.0, 46.0, "项链"),
+    (178.0, 46.0, "手镯"),
+    (242.0, 46.0, "戒指"),
+    (242.0, 78.0, "辅助"),
+];
+const EQUIP_SLOT_SIZE: f32 = 30.0;
+
+fn panel_origin(w: f32, h: f32) -> (f32, f32) {
+    (
+        ((ARENA_WIDTH as f32 - w) * 0.5).floor(),
+        ((ARENA_HEIGHT as f32 - h) * 0.5).floor(),
+    )
+}
+
+fn point_in_rect(px: f32, py: f32, x: f32, y: f32, w: f32, h: f32) -> bool {
+    px >= x && px <= x + w && py >= y && py <= y + h
+}
+
+fn shop_items() -> Vec<&'static progress_rs::ItemSpec> {
+    ITEMS
+        .iter()
+        .filter(|it| it.category != progress_rs::ItemCategory::Material)
+        .collect()
+}
+
+fn bag_entries(progress: &ProgressProfile) -> Vec<(&str, u32)> {
+    progress
+        .items
+        .iter()
+        .filter(|(_, &cnt)| cnt > 0)
+        .map(|(id, &cnt)| (id.as_str(), cnt))
+        .collect()
+}
+
+fn draw_gui_button(c: &mut Canvas<'_>, x: f32, y: f32, w: f32, h: f32, label: &str, hovered: bool) {
+    let bg = if hovered {
+        Rgba::new(72, 60, 38, 245)
+    } else {
+        Rgba::new(34, 30, 24, 240)
+    };
+    let border = if hovered {
+        Rgba::new(245, 210, 120, 255)
+    } else {
+        Rgba::new(160, 134, 82, 230)
+    };
+    c.fill_round_rect(x, y, w, h, 3.0, bg);
+    c.stroke_round_rect(x, y, w, h, 3.0, border, 1.2);
+    c.fill_text(
+        label,
+        x + w * 0.5,
+        y + h * 0.68,
+        11.0,
+        Rgba::new(245, 224, 168, 255),
+        TextAlign::Center,
+        None,
+    );
+}
+
+fn draw_item_icon(
+    c: &mut Canvas<'_>,
+    sprites: &SpriteStore,
+    item_id: &str,
+    dx: f32,
+    dy: f32,
+    size: f32,
+) {
+    if item_id == "ancientStaff" || item_id == "kunicTotem" {
+        let key = if item_id == "ancientStaff" {
+            "staffIcon"
+        } else {
+            "totemIcon"
+        };
+        if let (Some(sheet), Some(r)) = (sprites.get("results"), rect_at(&["RESULT_ART", key])) {
+            c.draw_image(
+                sheet, r[0], r[1], r[2], r[3], dx, dy, size, size, false, 1.0, 0.0,
+            );
+            return;
+        }
+    }
+    let rect = match item_id {
+        "hpPotion" => GUI_ICON_POTION0,
+        "mpPotion" => GUI_ICON_POTION1,
+        "material" => GUI_ICON_MAT0,
+        "clothArmor" => GUI_ICON_POTION2,
+        "copperRing" => GUI_ICON_POTION3,
+        _ => GUI_ICON_WEAPON0,
+    };
+    if let Some(gui) = sprites.get("gui") {
+        c.draw_image(
+            gui, rect[0], rect[1], rect[2], rect[3], dx, dy, size, size, false, 1.0, 0.0,
+        );
+    } else {
+        c.fill_rect(dx, dy, size, size, Rgba::new(180, 145, 80, 220));
+    }
+}
+
+fn draw_gui_window(c: &mut Canvas<'_>, sprites: &SpriteStore, rect: [u32; 4], ox: f32, oy: f32) {
+    let w = rect[2] as f32;
+    let h = rect[3] as f32;
+    if let Some(gui) = sprites.get("gui") {
+        c.draw_image(
+            gui, rect[0], rect[1], rect[2], rect[3], ox, oy, w, h, false, 1.0, 0.0,
+        );
+    } else {
+        c.fill_round_rect(ox, oy, w, h, 6.0, Rgba::new(18, 22, 32, 240));
+        c.stroke_round_rect(ox, oy, w, h, 6.0, Rgba::new(210, 176, 100, 220), 1.5);
+    }
+}
+
+pub fn hit_test_progress_panel(
+    panel: ProgressPanelKind,
+    progress: &ProgressProfile,
+    ax: f32,
+    ay: f32,
+) -> Option<PanelAction> {
+    match panel {
+        ProgressPanelKind::None => None,
+        ProgressPanelKind::Bag => {
+            let (ox, oy) = panel_origin(GUI_WIN_W, GUI_INV_H);
+            if point_in_rect(ax, ay, ox + 210.0, oy + 344.0, 56.0, 22.0) {
+                return Some(PanelAction::Close);
+            }
+            if point_in_rect(ax, ay, ox + 146.0, oy + 344.0, 56.0, 22.0) {
+                return Some(PanelAction::SalvageFirst);
+            }
+            let entries = bag_entries(progress);
+            for idx in 0..entries.len().min(INV_GRID_COLS * INV_GRID_ROWS) {
+                let col = idx % INV_GRID_COLS;
+                let row = idx / INV_GRID_COLS;
+                let gx = ox + INV_GRID_X + col as f32 * GRID_PITCH;
+                let gy = oy + INV_GRID_Y + row as f32 * GRID_PITCH;
+                if point_in_rect(ax, ay, gx, gy, GRID_CELL_W, GRID_CELL_H) {
+                    return Some(PanelAction::InteractSlot(idx));
+                }
+            }
+            None
+        }
+        ProgressPanelKind::Equip => {
+            let (ox, oy) = panel_origin(GUI_WIN_W, GUI_INV_H);
+            if point_in_rect(ax, ay, ox + 210.0, oy + 344.0, 56.0, 22.0) {
+                return Some(PanelAction::Close);
+            }
+            for (idx, &(sx, sy, _)) in EQUIP_SLOT_RECTS.iter().enumerate() {
+                if point_in_rect(ax, ay, ox + sx, oy + sy, EQUIP_SLOT_SIZE, EQUIP_SLOT_SIZE) {
+                    return Some(PanelAction::InteractSlot(idx));
+                }
+            }
+            None
+        }
+        ProgressPanelKind::Quest => {
+            let (ox, oy) = panel_origin(GUI_WIN_W, GUI_SHOP_H);
+            if point_in_rect(ax, ay, ox + 210.0, oy + 342.0, 56.0, 22.0) {
+                return Some(PanelAction::Close);
+            }
+            for i in 0..QUESTS.len() {
+                let rx = ox + 22.0;
+                let ry = oy + 32.0 + i as f32 * 38.0;
+                if point_in_rect(ax, ay, rx, ry, 228.0, 34.0) {
+                    return Some(PanelAction::InteractSlot(i));
+                }
+            }
+            None
+        }
+        ProgressPanelKind::Shop => {
+            let (ox, oy) = panel_origin(GUI_WIN_W, GUI_SHOP_H);
+            if point_in_rect(ax, ay, ox + 138.0, oy + 331.0, 46.0, 22.0) {
+                return Some(PanelAction::Close);
+            }
+            let items = shop_items();
+            for idx in 0..items.len().min(SHOP_GRID_COLS * SHOP_GRID_ROWS) {
+                let col = idx % SHOP_GRID_COLS;
+                let row = idx / SHOP_GRID_COLS;
+                let gx = ox + SHOP_GRID_X + col as f32 * GRID_PITCH;
+                let gy = oy + SHOP_GRID_Y + row as f32 * GRID_PITCH;
+                if point_in_rect(ax, ay, gx, gy, GRID_CELL_W, GRID_CELL_H) {
+                    return Some(PanelAction::InteractSlot(idx));
+                }
+            }
+            None
+        }
+    }
+}
+
+pub fn hit_test_loadout_panel(ax: f32, ay: f32) -> Option<PanelAction> {
+    let (ox, oy) = panel_origin(GUI_WIN_W, GUI_SHOP_H);
+    if point_in_rect(ax, ay, ox + 138.0, oy + 331.0, 46.0, 22.0) {
+        return Some(PanelAction::Close);
+    }
+    if point_in_rect(ax, ay, ox + 32.0, oy + 76.0, 24.0, 20.0) {
+        return Some(PanelAction::CycleLoadoutSkill(-1));
+    }
+    if point_in_rect(ax, ay, ox + 230.0, oy + 76.0, 24.0, 20.0) {
+        return Some(PanelAction::CycleLoadoutSkill(1));
+    }
+    for i in 0..6usize {
+        let sx = ox + 32.0 + i as f32 * 38.0;
+        let sy = oy + 34.0;
+        if point_in_rect(ax, ay, sx, sy, 32.0, 32.0) {
+            return Some(PanelAction::SelectLoadoutSlot(i));
+        }
+    }
+    let skill_count = core_rs::TABLES
+        .skill_order
+        .len()
+        .min(SHOP_GRID_COLS * SHOP_GRID_ROWS);
+    for idx in 0..skill_count {
+        let col = idx % SHOP_GRID_COLS;
+        let row = idx / SHOP_GRID_COLS;
+        let gx = ox + SHOP_GRID_X + col as f32 * GRID_PITCH;
+        let gy = oy + SHOP_GRID_Y + row as f32 * GRID_PITCH;
+        if point_in_rect(ax, ay, gx, gy, GRID_CELL_W, GRID_CELL_H) {
+            return Some(PanelAction::AssignLoadoutSkill(idx));
+        }
+    }
+    None
 }
 
 pub fn draw_progress_panel(
     c: &mut Canvas<'_>,
+    sprites: &SpriteStore,
     panel: ProgressPanelKind,
     progress: &ProgressProfile,
+    hover_pos: Option<(f32, f32)>,
 ) {
     if panel == ProgressPanelKind::None {
         return;
     }
-    let cx = ARENA_WIDTH as f32 * 0.5;
-    let cy = ARENA_HEIGHT as f32 * 0.5;
-    c.fill_round_rect(
-        cx - 220.0,
-        cy - 150.0,
-        440.0,
-        300.0,
-        8.0,
-        Rgba::new(12, 16, 26, 240),
-    );
-    c.stroke_round_rect(
-        cx - 220.0,
-        cy - 150.0,
-        440.0,
-        300.0,
-        8.0,
-        Rgba::new(210, 176, 100, 220),
-        1.5,
-    );
-    let title_str = match panel {
-        ProgressPanelKind::Bag => format!("背包 · 金币 {}", progress.gold),
-        ProgressPanelKind::Quest => "任务列表".to_string(),
-        ProgressPanelKind::Equip => "当前装备".to_string(),
-        ProgressPanelKind::Shop => format!("商店 · 金币 {}", progress.gold),
-        ProgressPanelKind::None => String::new(),
+    let is_hovered = |x: f32, y: f32, w: f32, h: f32| -> bool {
+        hover_pos.is_some_and(|(hx, hy)| point_in_rect(hx, hy, x, y, w, h))
     };
-    c.fill_text(
-        &title_str,
-        cx,
-        cy - 118.0,
-        16.0,
-        Rgba::new(245, 210, 120, 255),
-        TextAlign::Center,
-        None,
-    );
-    if panel == ProgressPanelKind::Bag {
-        let mut row = 0;
-        for (id, &cnt) in &progress.items {
-            if cnt == 0 {
-                continue;
-            }
-            let name = ITEMS
-                .iter()
-                .find(|it| it.id == id)
-                .map(|it| it.name)
-                .unwrap_or(id);
-            let idx = row + 1;
-            c.fill_text(
-                &format!("[{idx}] {name} x{cnt}"),
-                cx - 180.0,
-                cy - 80.0 + row as f32 * 24.0,
-                13.0,
-                Rgba::new(230, 238, 250, 240),
-                TextAlign::Left,
-                None,
-            );
-            row += 1;
-        }
-        c.fill_text(
-            "按 1-9 使用/穿戴 · Backspace 分解首件装备 · Esc 关闭",
-            cx,
-            cy + 125.0,
-            11.0,
-            Rgba::new(175, 190, 215, 220),
-            TextAlign::Center,
-            None,
-        );
-    } else if panel == ProgressPanelKind::Equip {
-        for (row, (slot, item_opt)) in progress.equipment.iter().enumerate() {
-            let item_name = item_opt
-                .as_deref()
-                .and_then(|id| ITEMS.iter().find(|it| it.id == id).map(|it| it.name))
-                .unwrap_or("空");
-            let prefix = if row < 9 {
-                format!("[{}] ", row + 1)
+
+    match panel {
+        ProgressPanelKind::Bag | ProgressPanelKind::Equip => {
+            let (ox, oy) = panel_origin(GUI_WIN_W, GUI_INV_H);
+            draw_gui_window(c, sprites, GUI_INVENTORY_RECT, ox, oy);
+            // Header tab title overlay
+            c.fill_rect(ox + 150.0, oy + 4.0, 96.0, 18.0, Rgba::new(28, 25, 19, 235));
+            let title = if panel == ProgressPanelKind::Bag {
+                "物品栏 (I)"
             } else {
-                "    ".to_string()
+                "装备栏 (K)"
             };
             c.fill_text(
-                &format!("{prefix}{slot}: {item_name}"),
-                cx - 180.0,
-                cy - 84.0 + row as f32 * 20.0,
-                12.0,
-                Rgba::new(230, 238, 250, 240),
-                TextAlign::Left,
+                title,
+                ox + 198.0,
+                oy + 17.0,
+                11.0,
+                Rgba::new(245, 218, 140, 255),
+                TextAlign::Center,
                 None,
             );
-        }
-        c.fill_text(
-            "按 1-9 卸下对应装备 · Esc 关闭",
-            cx,
-            cy + 125.0,
-            11.0,
-            Rgba::new(175, 190, 215, 220),
-            TextAlign::Center,
-            None,
-        );
-    } else if panel == ProgressPanelKind::Quest {
-        for (i, q) in QUESTS.iter().enumerate() {
-            let qp = progress.quests.get(q.id);
-            let prog = qp.map(|p| p.progress).unwrap_or(0);
-            let tag = match qp.map(|p| (&p.state, p.done)) {
-                Some((progress_rs::QuestState::TurnedIn, _)) => "[已完成]",
-                Some((progress_rs::QuestState::Active, true)) => "[可交付]",
-                Some((progress_rs::QuestState::Active, false)) => "[进行中]",
-                _ => "[可接]",
-            };
-            let idx = i + 1;
+
+            // Top 10 native equipment slots
+            let mut hovered_info: Option<String> = None;
+            for (idx, &(sx, sy, label)) in EQUIP_SLOT_RECTS.iter().enumerate() {
+                let x = ox + sx;
+                let y = oy + sy;
+                let slot_key = progress_rs::EQUIP_SLOTS[idx];
+                let item_id = progress.equipment.get(slot_key).and_then(|v| v.as_deref());
+                let hov = is_hovered(x, y, EQUIP_SLOT_SIZE, EQUIP_SLOT_SIZE);
+                if let Some(id) = item_id {
+                    draw_item_icon(c, sprites, id, x + 1.0, y + 1.0, 28.0);
+                }
+                if panel == ProgressPanelKind::Equip && idx < 9 {
+                    c.fill_text(
+                        &format!("{}", idx + 1),
+                        x + 3.0,
+                        y + 10.0,
+                        9.0,
+                        Rgba::new(255, 224, 130, 230),
+                        TextAlign::Left,
+                        None,
+                    );
+                }
+                if hov {
+                    c.stroke_rect(
+                        x,
+                        y,
+                        EQUIP_SLOT_SIZE,
+                        EQUIP_SLOT_SIZE,
+                        Rgba::new(255, 226, 130, 255),
+                        1.5,
+                    );
+                    let iname = item_id
+                        .and_then(|id| ITEMS.iter().find(|it| it.id == id).map(|it| it.name))
+                        .unwrap_or("空");
+                    hovered_info = Some(format!("{label}: {iname}"));
+                }
+            }
+
+            // Middle 8x4 inventory grid
+            let entries = bag_entries(progress);
+            for (idx, &(id, cnt)) in entries
+                .iter()
+                .take(INV_GRID_COLS * INV_GRID_ROWS)
+                .enumerate()
+            {
+                let col = idx % INV_GRID_COLS;
+                let row = idx / INV_GRID_COLS;
+                let gx = ox + INV_GRID_X + col as f32 * GRID_PITCH;
+                let gy = oy + INV_GRID_Y + row as f32 * GRID_PITCH;
+                draw_item_icon(c, sprites, id, gx, gy + 1.0, 28.0);
+                if cnt > 1 {
+                    c.fill_text(
+                        &format!("{cnt}"),
+                        gx + 26.0,
+                        gy + 27.0,
+                        10.0,
+                        Rgba::new(255, 245, 200, 255),
+                        TextAlign::Right,
+                        None,
+                    );
+                }
+                if panel == ProgressPanelKind::Bag && idx < 9 {
+                    c.fill_text(
+                        &format!("{}", idx + 1),
+                        gx + 2.0,
+                        gy + 10.0,
+                        9.0,
+                        Rgba::new(255, 224, 130, 220),
+                        TextAlign::Left,
+                        None,
+                    );
+                }
+                if is_hovered(gx, gy, GRID_CELL_W, GRID_CELL_H) {
+                    c.stroke_rect(
+                        gx,
+                        gy,
+                        GRID_CELL_W,
+                        GRID_CELL_H,
+                        Rgba::new(255, 226, 130, 255),
+                        1.5,
+                    );
+                    if let Some(spec) = progress_rs::item_spec(id) {
+                        hovered_info = Some(format!("{} x{cnt} · {}", spec.name, spec.note));
+                    }
+                }
+            }
+
+            // Status / tooltip bar above the grid
+            let status_text = hovered_info.unwrap_or_else(|| {
+                if panel == ProgressPanelKind::Bag {
+                    "点击或按 1-9 使用/穿戴 · Backspace 分解".to_string()
+                } else {
+                    "点击上方装备格或按 1-9 卸下装备".to_string()
+                }
+            });
             c.fill_text(
-                &format!("[{idx}] {tag} {} ({prog}/{})", q.title, q.goal),
-                cx - 190.0,
-                cy - 80.0 + i as f32 * 30.0,
-                12.0,
-                Rgba::new(230, 238, 250, 240),
-                TextAlign::Left,
+                &status_text,
+                ox + 145.0,
+                oy + 166.0,
+                10.0,
+                Rgba::new(235, 224, 190, 245),
+                TextAlign::Center,
                 None,
             );
-        }
-        c.fill_text(
-            "按 1-3 接取或交付任务 · Esc 关闭",
-            cx,
-            cy + 125.0,
-            11.0,
-            Rgba::new(175, 190, 215, 220),
-            TextAlign::Center,
-            None,
-        );
-    } else if panel == ProgressPanelKind::Shop {
-        for (row, it) in ITEMS
-            .iter()
-            .filter(|it| it.category != progress_rs::ItemCategory::Material)
-            .enumerate()
-        {
-            let idx = row + 1;
+
+            // Gold value in native bottom gold box
             c.fill_text(
-                &format!("[{idx}] {}  ({}G)", it.name, it.price),
-                cx - 180.0,
-                cy - 80.0 + row as f32 * 24.0,
-                12.0,
-                Rgba::new(230, 238, 250, 240),
+                &format!("{}", progress.gold),
+                ox + 44.0,
+                oy + 324.0,
+                11.0,
+                Rgba::new(255, 220, 110, 255),
                 TextAlign::Left,
                 None,
             );
+
+            // Action buttons
+            if panel == ProgressPanelKind::Bag {
+                draw_gui_button(
+                    c,
+                    ox + 146.0,
+                    oy + 344.0,
+                    56.0,
+                    22.0,
+                    "分解",
+                    is_hovered(ox + 146.0, oy + 344.0, 56.0, 22.0),
+                );
+            }
+            draw_gui_button(
+                c,
+                ox + 210.0,
+                oy + 344.0,
+                56.0,
+                22.0,
+                "关闭",
+                is_hovered(ox + 210.0, oy + 344.0, 56.0, 22.0),
+            );
         }
-        c.fill_text(
-            "按 1-8 购买 · Esc 关闭",
-            cx,
-            cy + 125.0,
-            11.0,
-            Rgba::new(175, 190, 215, 220),
-            TextAlign::Center,
-            None,
-        );
+        ProgressPanelKind::Quest => {
+            let (ox, oy) = panel_origin(GUI_WIN_W, GUI_SHOP_H);
+            draw_gui_window(c, sprites, GUI_QUEST_RECT, ox, oy);
+            c.fill_text(
+                "任务日志 (L)",
+                ox + 145.0,
+                oy + 20.0,
+                11.0,
+                Rgba::new(245, 218, 140, 255),
+                TextAlign::Center,
+                None,
+            );
+
+            let mut detail_idx = 0usize;
+            for (i, q) in QUESTS.iter().enumerate() {
+                let rx = ox + 22.0;
+                let ry = oy + 32.0 + i as f32 * 38.0;
+                let hov = is_hovered(rx, ry, 228.0, 34.0);
+                if hov {
+                    detail_idx = i;
+                }
+                let qp = progress.quests.get(q.id);
+                let prog = qp.map(|p| p.progress).unwrap_or(0);
+                let (tag, tag_col) = match qp.map(|p| (&p.state, p.done)) {
+                    Some((progress_rs::QuestState::TurnedIn, _)) => {
+                        ("[已完成]", Rgba::new(150, 160, 175, 220))
+                    }
+                    Some((progress_rs::QuestState::Active, true)) => {
+                        ("[可交付]", Rgba::new(115, 235, 130, 255))
+                    }
+                    Some((progress_rs::QuestState::Active, false)) => {
+                        ("[进行中]", Rgba::new(125, 200, 255, 255))
+                    }
+                    _ => ("[可接]", Rgba::new(255, 215, 110, 255)),
+                };
+                if hov {
+                    c.fill_rect(rx, ry, 228.0, 34.0, Rgba::new(72, 62, 40, 160));
+                    c.stroke_rect(rx, ry, 228.0, 34.0, Rgba::new(245, 210, 120, 230), 1.0);
+                }
+                c.fill_text(
+                    &format!("[{}] {tag}", i + 1),
+                    rx + 6.0,
+                    ry + 14.0,
+                    10.5,
+                    tag_col,
+                    TextAlign::Left,
+                    None,
+                );
+                c.fill_text(
+                    q.title,
+                    rx + 74.0,
+                    ry + 14.0,
+                    10.5,
+                    Rgba::new(238, 242, 250, 245),
+                    TextAlign::Left,
+                    None,
+                );
+                c.fill_text(
+                    &format!("进度: {prog}/{}  (点击或按 {} 交互)", q.goal, i + 1),
+                    rx + 6.0,
+                    ry + 28.0,
+                    9.5,
+                    Rgba::new(185, 195, 210, 225),
+                    TextAlign::Left,
+                    None,
+                );
+            }
+
+            // Bottom detail / reward area
+            if let Some(q) = QUESTS.get(detail_idx) {
+                c.fill_text(
+                    &format!("任务奖励 · {}", q.title),
+                    ox + 26.0,
+                    oy + 242.0,
+                    11.0,
+                    Rgba::new(245, 216, 130, 255),
+                    TextAlign::Left,
+                    None,
+                );
+                if let Some(gui) = sprites.get("gui") {
+                    c.draw_image(
+                        gui,
+                        GUI_GOLD_RECT[0],
+                        GUI_GOLD_RECT[1],
+                        GUI_GOLD_RECT[2],
+                        GUI_GOLD_RECT[3],
+                        ox + 28.0,
+                        oy + 256.0,
+                        17.0,
+                        21.0,
+                        false,
+                        1.0,
+                        0.0,
+                    );
+                }
+                c.fill_text(
+                    &format!("{} 金币", q.reward.gold),
+                    ox + 50.0,
+                    oy + 271.0,
+                    11.0,
+                    Rgba::new(255, 220, 110, 255),
+                    TextAlign::Left,
+                    None,
+                );
+                if let Some(item_id) = q.reward.item {
+                    draw_item_icon(c, sprites, item_id, ox + 132.0, oy + 252.0, 28.0);
+                    let iname = progress_rs::item_spec(item_id)
+                        .map(|s| s.name)
+                        .unwrap_or(item_id);
+                    c.fill_text(
+                        iname,
+                        ox + 166.0,
+                        oy + 271.0,
+                        11.0,
+                        Rgba::new(235, 240, 250, 245),
+                        TextAlign::Left,
+                        None,
+                    );
+                }
+            }
+
+            draw_gui_button(
+                c,
+                ox + 210.0,
+                oy + 342.0,
+                56.0,
+                22.0,
+                "关闭",
+                is_hovered(ox + 210.0, oy + 342.0, 56.0, 22.0),
+            );
+        }
+        ProgressPanelKind::Shop => {
+            let (ox, oy) = panel_origin(GUI_WIN_W, GUI_SHOP_H);
+            draw_gui_window(c, sprites, GUI_SHOP_RECT, ox, oy);
+            // Fill transparent portrait cutout with dark backing
+            c.fill_rect(ox + 28.0, oy + 25.0, 72.0, 77.0, Rgba::new(16, 18, 24, 245));
+
+            let items = shop_items();
+            let mut preview_idx = 0usize;
+            for (idx, it) in items
+                .iter()
+                .take(SHOP_GRID_COLS * SHOP_GRID_ROWS)
+                .enumerate()
+            {
+                let col = idx % SHOP_GRID_COLS;
+                let row = idx / SHOP_GRID_COLS;
+                let gx = ox + SHOP_GRID_X + col as f32 * GRID_PITCH;
+                let gy = oy + SHOP_GRID_Y + row as f32 * GRID_PITCH;
+                draw_item_icon(c, sprites, it.id, gx, gy + 1.0, 28.0);
+                if idx < 9 {
+                    c.fill_text(
+                        &format!("{}", idx + 1),
+                        gx + 2.0,
+                        gy + 10.0,
+                        9.0,
+                        Rgba::new(255, 224, 130, 230),
+                        TextAlign::Left,
+                        None,
+                    );
+                }
+                if is_hovered(gx, gy, GRID_CELL_W, GRID_CELL_H) {
+                    preview_idx = idx;
+                    c.stroke_rect(
+                        gx,
+                        gy,
+                        GRID_CELL_W,
+                        GRID_CELL_H,
+                        Rgba::new(255, 226, 130, 255),
+                        1.5,
+                    );
+                }
+            }
+
+            // Top preview box (selected/hovered item + player gold)
+            if let Some(it) = items.get(preview_idx) {
+                draw_item_icon(c, sprites, it.id, ox + 46.0, oy + 44.0, 36.0);
+                c.fill_text(
+                    it.name,
+                    ox + 108.0,
+                    oy + 44.0,
+                    12.0,
+                    Rgba::new(255, 226, 130, 255),
+                    TextAlign::Left,
+                    None,
+                );
+                c.fill_text(
+                    &format!("价格: {}G  (金币: {}G)", it.price, progress.gold),
+                    ox + 108.0,
+                    oy + 62.0,
+                    10.0,
+                    Rgba::new(240, 210, 120, 240),
+                    TextAlign::Left,
+                    None,
+                );
+                c.fill_text(
+                    it.note,
+                    ox + 108.0,
+                    oy + 78.0,
+                    9.5,
+                    Rgba::new(205, 215, 230, 235),
+                    TextAlign::Left,
+                    None,
+                );
+                c.fill_text(
+                    "点击图标或按 1-8 购买",
+                    ox + 108.0,
+                    oy + 94.0,
+                    9.5,
+                    Rgba::new(150, 220, 165, 230),
+                    TextAlign::Left,
+                    None,
+                );
+            }
+
+            // Bottom native cutout buttons
+            draw_gui_button(c, ox + 94.0, oy + 331.0, 42.0, 22.0, "商店", false);
+            draw_gui_button(
+                c,
+                ox + 138.0,
+                oy + 331.0,
+                46.0,
+                22.0,
+                "关闭",
+                is_hovered(ox + 138.0, oy + 331.0, 46.0, 22.0),
+            );
+        }
+        ProgressPanelKind::None => {}
     }
 }
 
-pub fn draw_loadout_panel(c: &mut Canvas<'_>, loadout: &[Option<String>], selected_slot: usize) {
-    let cx = ARENA_WIDTH as f32 * 0.5;
-    let cy = ARENA_HEIGHT as f32 * 0.5;
-    c.fill_round_rect(
-        cx - 220.0,
-        cy - 150.0,
-        440.0,
-        300.0,
-        8.0,
-        Rgba::new(12, 16, 26, 240),
+pub fn draw_loadout_panel(
+    c: &mut Canvas<'_>,
+    sprites: &SpriteStore,
+    loadout: &[Option<String>],
+    selected_slot: usize,
+    hover_pos: Option<(f32, f32)>,
+) {
+    let (ox, oy) = panel_origin(GUI_WIN_W, GUI_SHOP_H);
+    draw_gui_window(c, sprites, GUI_SHOP_RECT, ox, oy);
+    // Dark backing across top box so quickbar slots are crisp
+    c.fill_rect(
+        ox + 26.0,
+        oy + 23.0,
+        228.0,
+        81.0,
+        Rgba::new(16, 19, 28, 245),
     );
-    c.stroke_round_rect(
-        cx - 220.0,
-        cy - 150.0,
-        440.0,
-        300.0,
-        8.0,
-        Rgba::new(210, 176, 100, 220),
-        1.5,
-    );
+
+    let is_hovered = |x: f32, y: f32, w: f32, h: f32| -> bool {
+        hover_pos.is_some_and(|(hx, hy)| point_in_rect(hx, hy, x, y, w, h))
+    };
+
     c.fill_text(
-        "技能快捷栏配置",
-        cx,
-        cy - 118.0,
-        16.0,
-        Rgba::new(245, 210, 120, 255),
+        "技能快捷栏配置 (B)",
+        ox + 145.0,
+        oy + 19.0,
+        11.0,
+        Rgba::new(245, 218, 140, 255),
         TextAlign::Center,
         None,
     );
+
     let keys = ["A", "S", "D", "F", "G", "H"];
     for (i, key_label) in keys.iter().enumerate() {
-        let skill_name = loadout
-            .get(i)
-            .and_then(|s| s.as_deref())
-            .and_then(|id| {
-                core_rs::TABLES
-                    .skills
-                    .get(id)
-                    .map(|sk| sk.name.as_str())
-                    .or(Some(id))
-            })
-            .unwrap_or("空");
+        let sx = ox + 32.0 + i as f32 * 38.0;
+        let sy = oy + 34.0;
         let is_sel = i == selected_slot;
-        let marker = if is_sel { ">" } else { " " };
-        let color = if is_sel {
-            Rgba::new(255, 224, 130, 255)
+        let hov = is_hovered(sx, sy, 32.0, 32.0);
+        c.fill_rect(sx, sy, 32.0, 32.0, Rgba::new(22, 26, 36, 240));
+        if let Some(skill_id) = loadout.get(i).and_then(|s| s.as_deref()) {
+            if let Some(s_idx) = core_rs::TABLES
+                .skill_order
+                .iter()
+                .position(|id| id == skill_id)
+            {
+                if let Some(sheet) = sprites.get("skills") {
+                    c.draw_image(
+                        sheet,
+                        (s_idx as u32) * 32,
+                        0,
+                        32,
+                        32,
+                        sx + 2.0,
+                        sy + 2.0,
+                        28.0,
+                        28.0,
+                        false,
+                        1.0,
+                        0.0,
+                    );
+                }
+            }
+        }
+        let border = if is_sel {
+            Rgba::new(255, 224, 110, 255)
+        } else if hov {
+            Rgba::new(210, 190, 130, 235)
         } else {
-            Rgba::new(230, 238, 250, 240)
+            Rgba::new(110, 96, 70, 200)
         };
+        c.stroke_rect(sx, sy, 32.0, 32.0, border, if is_sel { 2.0 } else { 1.0 });
         c.fill_text(
-            &format!("{marker} [{}] {key_label} 键: {skill_name}", i + 1),
-            cx - 170.0,
-            cy - 76.0 + i as f32 * 30.0,
-            13.0,
-            color,
+            key_label,
+            sx + 3.0,
+            sy + 11.0,
+            9.5,
+            Rgba::new(255, 235, 160, 255),
             TextAlign::Left,
             None,
         );
     }
+
+    // Cycle buttons + selected slot skill label
+    draw_gui_button(
+        c,
+        ox + 32.0,
+        oy + 76.0,
+        24.0,
+        20.0,
+        "<",
+        is_hovered(ox + 32.0, oy + 76.0, 24.0, 20.0),
+    );
+    draw_gui_button(
+        c,
+        ox + 230.0,
+        oy + 76.0,
+        24.0,
+        20.0,
+        ">",
+        is_hovered(ox + 230.0, oy + 76.0, 24.0, 20.0),
+    );
+    let sel_key = keys.get(selected_slot).copied().unwrap_or("A");
+    let sel_skill_id = loadout.get(selected_slot).and_then(|s| s.as_deref());
+    let sel_name = sel_skill_id
+        .and_then(|id| {
+            core_rs::TABLES
+                .skills
+                .get(id)
+                .map(|sk| sk.name.as_str())
+                .or(Some(id))
+        })
+        .unwrap_or("空");
     c.fill_text(
-        "1-6 选槽 · ←/→ 切换技能 · B / Esc 关闭",
-        cx,
-        cy + 125.0,
+        &format!("[{sel_key}] {sel_name}"),
+        ox + 143.0,
+        oy + 90.0,
         11.0,
-        Rgba::new(175, 190, 215, 220),
+        Rgba::new(255, 230, 145, 255),
         TextAlign::Center,
         None,
+    );
+
+    // 7x6 skill library grid using native `skills.png` icons
+    let mut hovered_skill: Option<&str> = None;
+    for (idx, skill_id) in core_rs::TABLES
+        .skill_order
+        .iter()
+        .take(SHOP_GRID_COLS * SHOP_GRID_ROWS)
+        .enumerate()
+    {
+        let col = idx % SHOP_GRID_COLS;
+        let row = idx / SHOP_GRID_COLS;
+        let gx = ox + SHOP_GRID_X + col as f32 * GRID_PITCH;
+        let gy = oy + SHOP_GRID_Y + row as f32 * GRID_PITCH;
+        if let Some(sheet) = sprites.get("skills") {
+            c.draw_image(
+                sheet,
+                (idx as u32) * 32,
+                0,
+                32,
+                32,
+                gx,
+                gy + 1.0,
+                28.0,
+                28.0,
+                false,
+                1.0,
+                0.0,
+            );
+        }
+        let is_assigned = sel_skill_id == Some(skill_id.as_str());
+        let hov = is_hovered(gx, gy, GRID_CELL_W, GRID_CELL_H);
+        if is_assigned {
+            c.stroke_rect(
+                gx,
+                gy,
+                GRID_CELL_W,
+                GRID_CELL_H,
+                Rgba::new(255, 215, 90, 255),
+                1.8,
+            );
+        } else if hov {
+            c.stroke_rect(
+                gx,
+                gy,
+                GRID_CELL_W,
+                GRID_CELL_H,
+                Rgba::new(235, 240, 255, 235),
+                1.4,
+            );
+        }
+        if hov {
+            hovered_skill = core_rs::TABLES
+                .skills
+                .get(skill_id)
+                .map(|sk| sk.name.as_str())
+                .or(Some(skill_id.as_str()));
+        }
+    }
+
+    let hint = hovered_skill.map_or_else(
+        || "点击槽位/技能图标配置 · 1-6 / ←→ / Esc".to_string(),
+        |name| format!("点击装备技能: {name}"),
+    );
+    c.fill_text(
+        &hint,
+        ox + 145.0,
+        oy + 324.0,
+        9.5,
+        Rgba::new(220, 228, 240, 235),
+        TextAlign::Center,
+        None,
+    );
+
+    draw_gui_button(
+        c,
+        ox + 138.0,
+        oy + 331.0,
+        46.0,
+        22.0,
+        "关闭",
+        is_hovered(ox + 138.0, oy + 331.0, 46.0, 22.0),
     );
 }
