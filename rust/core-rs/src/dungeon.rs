@@ -1256,6 +1256,7 @@ pub fn begin_room(state: &mut State, entry_door: Option<&str>) {
             z,
             level: entry.level,
             xp: entry.xp,
+            activation_delay: entry.activation_delay,
         };
         let wave = entry.wave.unwrap_or(1);
         if wave <= 1 {
@@ -1304,9 +1305,18 @@ pub fn begin_room(state: &mut State, entry_door: Option<&str>) {
     state.enemies = if cleared {
         Vec::new()
     } else {
+        let use_ref = state.reference_profile.is_some();
         first_wave
             .iter()
-            .map(|e| create_enemy(state, &e.kind, e.x, e.z, e.level, e.xp))
+            .map(|e| {
+                let mut enemy = create_enemy(state, &e.kind, e.x, e.z, e.level, e.xp);
+                if use_ref {
+                    if let Some(delay) = e.activation_delay {
+                        enemy.activation_delay = delay;
+                    }
+                }
+                enemy
+            })
             .collect()
     };
 
