@@ -1,7 +1,7 @@
 use core_rs::types::{CreateStateOptions, Effect};
 use core_rs::{create_state, trigger_screen_shake};
 use render_rs::{
-    render, Canvas, GlyphCache, ProgressPanelKind, RenderMeta, SpriteStore, RENDER_HEIGHT,
+    render, Canvas, GlyphCache, MapMode, ProgressPanelKind, RenderMeta, SpriteStore, RENDER_HEIGHT,
     RENDER_WIDTH,
 };
 use std::path::Path;
@@ -29,6 +29,7 @@ fn make_meta<'a>(
         hint: None,
         seed: state.seed,
         stage_id: &state.stage_id,
+        map_mode: MapMode::default(),
     }
 }
 
