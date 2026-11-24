@@ -11,6 +11,17 @@ pub const EQUIP_SLOTS: [&str; 10] = [
     "support",
 ];
 
+/// Fixed binding of the bottom-left 6 consumable quickbar slots (`1`–`6`).
+/// Slot 1 = HP potion, Slot 2 = MP potion, Slot 6 = Resurrect Coin (`复活币`).
+pub const CONSUMABLE_QUICKBAR_SLOTS: [Option<&str>; 6] = [
+    Some("hpPotion"),
+    Some("mpPotion"),
+    None,
+    None,
+    None,
+    Some("resurrectCoin"),
+];
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ItemCategory {
     Consumable,
@@ -33,7 +44,7 @@ pub struct ItemSpec {
     pub note: &'static str,
 }
 
-pub const ITEMS: [ItemSpec; 9] = [
+pub const ITEMS: [ItemSpec; 10] = [
     ItemSpec {
         id: "hpPotion",
         name: "HP 药水",
@@ -59,6 +70,19 @@ pub const ITEMS: [ItemSpec; 9] = [
         jobs: &[],
         icon: None,
         note: "回复 40 点法力",
+    },
+    ItemSpec {
+        id: "resurrectCoin",
+        name: "复活币",
+        category: ItemCategory::Consumable,
+        price: 500,
+        hp: 0,
+        mp: 0,
+        slot: None,
+        min_level: None,
+        jobs: &[],
+        icon: None,
+        note: "倒地时消耗 1 枚在原地满血复活",
     },
     ItemSpec {
         id: "material",
@@ -267,8 +291,9 @@ pub fn quest_spec(id: &str) -> Option<&'static QuestSpec> {
 
 pub fn defaults() -> ProgressProfile {
     let mut items = IndexMap::new();
-    items.insert("hpPotion".to_string(), 0);
-    items.insert("mpPotion".to_string(), 0);
+    items.insert("hpPotion".to_string(), 5);
+    items.insert("mpPotion".to_string(), 5);
+    items.insert("resurrectCoin".to_string(), 3);
     items.insert("material".to_string(), 0);
 
     let mut equipment = IndexMap::new();
@@ -396,6 +421,14 @@ pub fn add_item(profile: &mut ProgressProfile, id: &str, count: u32) -> bool {
         .items
         .insert(id.to_string(), current.saturating_add(amount));
     true
+}
+
+pub fn consumable_count(profile: &ProgressProfile, id: &str) -> u32 {
+    profile.items.get(id).copied().unwrap_or(0)
+}
+
+pub fn consume_resurrect_coin(profile: &mut ProgressProfile) -> bool {
+    use_item(profile, "resurrectCoin").is_some()
 }
 
 pub fn use_item(profile: &mut ProgressProfile, id: &str) -> Option<UseItemEffect> {
@@ -594,11 +627,47 @@ mod tests {
     #[test]
     fn test_quest_lifecycle() {
         let mut p = defaults();
+        let before_hp = consumable_count(&p, "hpPotion");
         assert!(accept(&mut p, "cats"));
         note_kill(&mut p, "cat", 10);
         let reward = turn_in(&mut p, "cats");
         assert_eq!(reward.map(|r| r.gold), Some(200));
         assert_eq!(p.gold, 200);
-        assert_eq!(p.items.get("hpPotion").copied(), Some(1));
+        assert_eq!(consumable_count(&p, "hpPotion"), before_hp + 1);
+    }
+
+    #[test]
+    fn test_starter_consumables_quickbar_and_resurrect_coin() {
+        let mut p = defaults();
+        assert_eq!(CONSUMABLE_QUICKBAR_SLOTS[0], Some("hpPotion"));
+        assert_eq!(CONSUMABLE_QUICKBAR_SLOTS[1], Some("mpPotion"));
+        assert_eq!(CONSUMABLE_QUICKBAR_SLOTS[5], Some("resurrectCoin"));
+
+        assert_eq!(consumable_count(&p, "hpPotion"), 5);
+        assert_eq!(consumable_count(&p, "mpPotion"), 5);
+        assert_eq!(consumable_count(&p, "resurrectCoin"), 3);
+
+        let eff = use_item(&mut p, "hpPotion").expect("use hpPotion");
+        assert_eq!(eff, UseItemEffect { hp: 40, mp: 0 });
+        assert_eq!(consumable_count(&p, "hpPotion"), 4);
+
+        assert!(consume_resurrect_coin(&mut p));
+        assert_eq!(consumable_count(&p, "resurrectCoin"), 2);
+        assert!(consume_resurrect_coin(&mut p));
+        assert!(consume_resurrect_coin(&mut p));
+        assert_eq!(consumable_count(&p, "resurrectCoin"), 0);
+        assert!(!consume_resurrect_coin(&mut p));
+
+        // Explicit 0 in saved JSON stays 0; missing key inherits starter 3
+        let zero_json = serde_json::json!({ "items": { "resurrectCoin": 0 } });
+        assert_eq!(
+            consumable_count(&normalize(Some(&zero_json)), "resurrectCoin"),
+            0
+        );
+        let legacy_json = serde_json::json!({ "items": { "hpPotion": 2 } });
+        assert_eq!(
+            consumable_count(&normalize(Some(&legacy_json)), "resurrectCoin"),
+            3
+        );
     }
 }

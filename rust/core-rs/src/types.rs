@@ -110,6 +110,7 @@ pub struct Player {
     pub buff_icon_timer: f64,
     pub buff_icon_id: Option<String>,
     pub skill_cooldowns: IndexMap<String, f64>,
+    pub consumable_cooldowns: [f64; 6],
     pub skill_ranks: IndexMap<String, u32>,
     pub invuln: f64,
     pub solid_invuln: f64,

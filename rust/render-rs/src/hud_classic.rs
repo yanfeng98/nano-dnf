@@ -241,10 +241,126 @@ pub fn draw_classic_bottom_hud(
         Some(Rgba::new(0, 12, 26, 220)),
     );
 
-    // 6. Skill quickbar (6 slots: A S D F G H) with greyed cooldown/OOM & Lv.X rank badges
+    // 6. Consumable quickbar (6 slots: 1..6) with live stack counts & radial cooldown sweep
+    draw_consumable_quickbar(c, state, sprites, meta);
+
+    // 7. Skill quickbar (6 slots: A S D F G H) with greyed cooldown/OOM & Lv.X rank badges
     draw_skill_quickbar(c, state, sprites, meta);
 
     true
+}
+
+/// Hit-test a logical 720x540 view coordinate `(ax, ay)` against the 6 consumable slots (`0..6`).
+pub fn hit_test_consumable_slot(ax: f32, ay: f32) -> Option<usize> {
+    for (idx, slot) in CONSUMABLE_SLOT_RECTS.iter().enumerate() {
+        let sx = native_x(slot[0]);
+        let sy = native_y(slot[1]);
+        let sw = native_size(slot[2]);
+        let sh = native_size(slot[3]);
+        if ax >= sx && ax <= sx + sw && ay >= sy && ay <= sy + sh {
+            return Some(idx);
+        }
+    }
+    None
+}
+
+fn consumable_icon_index(item_id: &str) -> Option<u32> {
+    match item_id {
+        "hpPotion" => Some(0),
+        "mpPotion" => Some(1),
+        "resurrectCoin" => Some(2),
+        _ => None,
+    }
+}
+
+fn draw_consumable_quickbar(
+    c: &mut Canvas<'_>,
+    state: &State,
+    sprites: &SpriteStore,
+    meta: &RenderMeta<'_>,
+) {
+    for (idx, slot) in CONSUMABLE_SLOT_RECTS.iter().enumerate() {
+        let Some(item_id) = progress_rs::CONSUMABLE_QUICKBAR_SLOTS[idx] else {
+            continue;
+        };
+        let count = progress_rs::consumable_count(meta.progress, item_id);
+        let cd = state
+            .player
+            .consumable_cooldowns
+            .get(idx)
+            .copied()
+            .unwrap_or(0.0);
+        let alpha = if count == 0 { 0.35 } else { 1.0 };
+
+        let sx = native_x(slot[0] + 1.0);
+        let sy = native_y(slot[1] + 1.0);
+        let sw = native_size(slot[2] - 2.0);
+        let sh = native_size(slot[3] - 2.0);
+
+        if let (Some(sheet), Some(icon_idx)) =
+            (sprites.get("consumables"), consumable_icon_index(item_id))
+        {
+            c.draw_image(
+                sheet,
+                icon_idx * 28,
+                0,
+                28,
+                28,
+                sx,
+                sy,
+                sw,
+                sh,
+                false,
+                alpha,
+                0.0,
+            );
+        } else {
+            let fallback = match item_id {
+                "hpPotion" => Rgba::new(210, 48, 52, 235),
+                "mpPotion" => Rgba::new(46, 120, 235, 235),
+                "resurrectCoin" => Rgba::new(236, 192, 62, 235),
+                _ => Rgba::new(150, 150, 160, 220),
+            };
+            c.fill_rect(sx, sy, sw, sh, fallback.with_alpha(alpha));
+        }
+
+        if cd > 0.0 {
+            let ratio = (cd / core_rs::combat::CONSUMABLE_COOLDOWN_SEC).clamp(0.0, 1.0) as f32;
+            c.fill_radial_pie(
+                native_x(slot[0]),
+                native_y(slot[1]),
+                native_size(slot[2]),
+                native_size(slot[3]),
+                ratio,
+                Rgba::new(0, 0, 0, 170),
+            );
+            c.fill_text(
+                &format!("{cd:.1}"),
+                native_x(slot[0] + slot[2] * 0.5),
+                native_y(slot[1] + slot[3] * 0.68),
+                native_size(11.0),
+                Rgba::new(255, 228, 132, 255),
+                TextAlign::Center,
+                Some(Rgba::new(0, 0, 0, 235)),
+            );
+        }
+
+        // Stack count badge in top-right corner (matches classic 60/70 HUD layout)
+        let badge_color = if count > 0 {
+            Rgba::new(255, 255, 255, 255)
+        } else {
+            Rgba::new(165, 165, 175, 190)
+        };
+        c.fill_text(
+            &count.to_string(),
+            native_x(slot[0] + slot[2] - 2.0),
+            native_y(slot[1] + 11.5),
+            native_size(11.5),
+            badge_color,
+            TextAlign::Right,
+            Some(Rgba::new(0, 0, 0, 245)),
+        );
+    }
 }
 
 fn draw_vertical_capsule(

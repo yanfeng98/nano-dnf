@@ -17,11 +17,11 @@ use music_rs::track_for;
 use progress_rs::{note_break, note_clear, note_kill, ProgressProfile};
 use records_rs::{record as record_run, RecordStore, RunInput};
 use render_rs::{
-    draw_town_hud, draw_town_view, hit_test_loadout_panel, hit_test_minimap,
-    hit_test_progress_panel, render, step_town_motion, town_interact_action, Canvas, GlyphCache,
-    MapMode, PanelAction, ProgressPanelKind, RenderMeta, SpriteStore, TownMotion, TownNpcAction,
-    TownView, DEFAULT_WINDOW_HEIGHT, DEFAULT_WINDOW_WIDTH, RENDER_HEIGHT, RENDER_WIDTH,
-    VIEW_TO_RENDER_SCALE,
+    draw_town_hud, draw_town_view, hit_test_consumable_slot, hit_test_loadout_panel,
+    hit_test_minimap, hit_test_progress_panel, render, step_town_motion, town_interact_action,
+    Canvas, GlyphCache, MapMode, PanelAction, ProgressPanelKind, RenderMeta, SpriteStore,
+    TownMotion, TownNpcAction, TownView, DEFAULT_WINDOW_HEIGHT, DEFAULT_WINDOW_WIDTH,
+    RENDER_HEIGHT, RENDER_WIDTH, VIEW_TO_RENDER_SCALE,
 };
 use reward_rs::{
     create as create_reward, pick as pick_reward, step as step_reward, take_prize, RewardState,
@@ -341,10 +341,18 @@ impl AppState {
                             self.mode = ScreenMode::Town;
                         }
                     }
-                } else if !self.paused && !self.show_help && !self.state.defeat {
-                    if let Some(ref dun) = self.state.dungeon {
-                        if hit_test_minimap(ax, ay, self.map_mode, dun.cols, dun.rows) {
-                            self.map_mode = self.map_mode.toggle();
+                } else if !self.paused && !self.show_help {
+                    if let Some(slot_idx) = hit_test_consumable_slot(ax, ay) {
+                        if try_use_consumable_slot(&mut self.state, &mut self.progress, slot_idx) {
+                            self.persist_save();
+                        }
+                        return;
+                    }
+                    if !self.state.defeat {
+                        if let Some(ref dun) = self.state.dungeon {
+                            if hit_test_minimap(ax, ay, self.map_mode, dun.cols, dun.rows) {
+                                self.map_mode = self.map_mode.toggle();
+                            }
                         }
                     }
                 }
@@ -480,6 +488,17 @@ impl AppState {
         if self.loadout_open {
             if idx < 6 {
                 self.loadout_slot = idx;
+            }
+            return;
+        }
+        if self.mode == ScreenMode::Playing
+            && self.progress_panel == ProgressPanelKind::None
+            && !self.paused
+            && !self.show_help
+            && idx < 6
+        {
+            if try_use_consumable_slot(&mut self.state, &mut self.progress, idx) {
+                self.persist_save();
             }
             return;
         }
@@ -984,6 +1003,17 @@ impl AppState {
                 _ => {}
             },
             ScreenMode::Playing => match code {
+                KeyCode::KeyX | KeyCode::Space | KeyCode::Digit6
+                    if self.state.defeat
+                        && !self.paused
+                        && !self.show_help
+                        && !self.loadout_open
+                        && self.progress_panel == ProgressPanelKind::None =>
+                {
+                    if try_resurrect_on_defeat(&mut self.state, &mut self.progress) {
+                        self.persist_save();
+                    }
+                }
                 KeyCode::KeyX
                     if !self.paused
                         && !self.show_help
@@ -1129,6 +1159,56 @@ impl ApplicationHandler for AppState {
             win.request_redraw();
         }
     }
+}
+
+fn try_resurrect_on_defeat(state: &mut State, progress: &mut ProgressProfile) -> bool {
+    if !state.defeat && !state.player.dead {
+        return false;
+    }
+    if progress_rs::consumable_count(progress, "resurrectCoin") == 0 {
+        return false;
+    }
+    if core_rs::combat::resurrect_player(state) {
+        progress_rs::consume_resurrect_coin(progress);
+        return true;
+    }
+    false
+}
+
+fn try_use_consumable_slot(
+    state: &mut State,
+    progress: &mut ProgressProfile,
+    slot_idx: usize,
+) -> bool {
+    let Some(&Some(item_id)) = progress_rs::CONSUMABLE_QUICKBAR_SLOTS.get(slot_idx) else {
+        return false;
+    };
+    if item_id == "resurrectCoin" {
+        return try_resurrect_on_defeat(state, progress);
+    }
+    if state.defeat || state.player.dead {
+        return false;
+    }
+    if state.player.consumable_cooldowns[slot_idx] > 0.0 {
+        return false;
+    }
+    if progress_rs::consumable_count(progress, item_id) == 0 {
+        return false;
+    }
+    let Some(spec) = progress_rs::item_spec(item_id) else {
+        return false;
+    };
+    if core_rs::combat::apply_consumable_effect(
+        state,
+        slot_idx,
+        spec.name,
+        f64::from(spec.hp),
+        f64::from(spec.mp),
+    ) {
+        progress_rs::use_item(progress, item_id);
+        return true;
+    }
+    false
 }
 
 fn loot_item_id_for_log_line(text: &str) -> Option<&'static str> {
@@ -1306,5 +1386,68 @@ mod tests {
         // Second call with no new pickups is a no-op
         sync_collected_loot(&mut progress, &mut last_gold, &mut last_loot, &state);
         assert_eq!(progress.gold, initial_gold + 109);
+    }
+
+    #[test]
+    fn test_consumable_quickbar_usage_stack_decrement_and_cooldown() {
+        let mut progress = progress_rs::defaults();
+        let mut state = create_state(&CreateStateOptions::default());
+        state.player.hp = (state.player.max_hp - 60.0).max(1.0);
+        state.player.mp = (state.player.max_mp - 50.0).max(0.0);
+        let hp0 = state.player.hp;
+        let mp0 = state.player.mp;
+
+        // Slot 0 = HP potion
+        assert!(try_use_consumable_slot(&mut state, &mut progress, 0));
+        assert_eq!(progress_rs::consumable_count(&progress, "hpPotion"), 4);
+        assert!((state.player.hp - (hp0 + 40.0).min(state.player.max_hp)).abs() < 1e-6);
+
+        // Cooldown gates immediate reuse without consuming stack
+        assert!(!try_use_consumable_slot(&mut state, &mut progress, 0));
+        assert_eq!(progress_rs::consumable_count(&progress, "hpPotion"), 4);
+
+        // Slot 1 = MP potion
+        assert!(try_use_consumable_slot(&mut state, &mut progress, 1));
+        assert_eq!(progress_rs::consumable_count(&progress, "mpPotion"), 4);
+        assert!((state.player.mp - (mp0 + 40.0).min(state.player.max_mp)).abs() < 1e-6);
+
+        // Unbound slot 2 is a no-op
+        assert!(!try_use_consumable_slot(&mut state, &mut progress, 2));
+
+        // Depleted stack refuses use
+        progress.items.insert("hpPotion".to_string(), 0);
+        state.player.consumable_cooldowns[0] = 0.0;
+        assert!(!try_use_consumable_slot(&mut state, &mut progress, 0));
+    }
+
+    #[test]
+    fn test_resurrect_coin_revives_defeated_player_and_stops_at_zero() {
+        let mut progress = progress_rs::defaults();
+        let mut state = create_state(&CreateStateOptions::default());
+        assert_eq!(progress_rs::consumable_count(&progress, "resurrectCoin"), 3);
+
+        // Cannot resurrect while alive
+        assert!(!try_resurrect_on_defeat(&mut state, &mut progress));
+        assert!(!try_use_consumable_slot(&mut state, &mut progress, 5));
+        assert_eq!(progress_rs::consumable_count(&progress, "resurrectCoin"), 3);
+
+        // Defeat player -> slot 5 (digit 6) consumes 1 coin and revives in-place
+        let max_hp = state.player.max_hp;
+        core_rs::combat::spend_player_hp(&mut state, max_hp + 10.0);
+        assert!(state.defeat);
+        assert!(try_use_consumable_slot(&mut state, &mut progress, 5));
+        assert!(!state.defeat);
+        assert!(!state.player.dead);
+        assert!((state.player.hp - state.player.max_hp).abs() < 1e-6);
+        assert!((state.player.mp - state.player.max_mp).abs() < 1e-6);
+        assert!(state.player.invuln > 0.0);
+        assert_eq!(progress_rs::consumable_count(&progress, "resurrectCoin"), 2);
+
+        // Deplete coins to 0 -> defeat stays active
+        progress.items.insert("resurrectCoin".to_string(), 0);
+        core_rs::combat::spend_player_hp(&mut state, max_hp + 10.0);
+        assert!(state.defeat);
+        assert!(!try_resurrect_on_defeat(&mut state, &mut progress));
+        assert!(state.defeat);
     }
 }

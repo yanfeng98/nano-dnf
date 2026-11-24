@@ -1314,32 +1314,105 @@ pub fn draw_overlay(
     }
 
     if state.defeat {
-        c.fill_round_rect(
-            cx - 190.0,
-            cy - 110.0,
-            380.0,
-            220.0,
-            10.0,
-            Rgba::new(18, 10, 14, 235),
-        );
-        c.fill_text(
-            "挑战失败",
-            cx,
-            cy - 50.0,
-            28.0,
-            Rgba::new(245, 88, 88, 255),
-            TextAlign::Center,
-            None,
-        );
-        c.fill_text(
-            "F3 重新挑战 · F4 返回城镇",
-            cx,
-            cy + 30.0,
-            15.0,
-            Rgba::new(235, 220, 220, 240),
-            TextAlign::Center,
-            None,
-        );
+        let coins = progress_rs::consumable_count(meta.progress, "resurrectCoin");
+        if coins > 0 {
+            c.fill_round_rect(
+                cx - 210.0,
+                cy - 122.0,
+                420.0,
+                224.0,
+                10.0,
+                Rgba::new(12, 14, 24, 238),
+            );
+            c.stroke_round_rect(
+                cx - 210.0,
+                cy - 122.0,
+                420.0,
+                224.0,
+                10.0,
+                Rgba::new(228, 190, 96, 230),
+                2.0,
+            );
+            c.fill_text(
+                "角色已倒地",
+                cx,
+                cy - 78.0,
+                26.0,
+                Rgba::new(255, 110, 102, 255),
+                TextAlign::Center,
+                Some(Rgba::new(0, 0, 0, 230)),
+            );
+            if let Some(sheet) = sprites.get("consumables") {
+                c.draw_image(
+                    sheet,
+                    56,
+                    0,
+                    28,
+                    28,
+                    cx - 20.0,
+                    cy - 54.0,
+                    40.0,
+                    40.0,
+                    false,
+                    1.0,
+                    0.0,
+                );
+            }
+            c.fill_text(
+                "使用复活币复活 [X / Space / 6]",
+                cx,
+                cy + 14.0,
+                17.0,
+                Rgba::new(255, 224, 120, 255),
+                TextAlign::Center,
+                Some(Rgba::new(0, 0, 0, 230)),
+            );
+            c.fill_text(
+                &format!("剩余复活币: {coins} 枚"),
+                cx,
+                cy + 44.0,
+                14.0,
+                Rgba::new(186, 230, 255, 245),
+                TextAlign::Center,
+                Some(Rgba::new(0, 0, 0, 220)),
+            );
+            c.fill_text(
+                "F3 重新挑战 · F4 返回城镇",
+                cx,
+                cy + 78.0,
+                13.0,
+                Rgba::new(205, 200, 210, 215),
+                TextAlign::Center,
+                None,
+            );
+        } else {
+            c.fill_round_rect(
+                cx - 190.0,
+                cy - 110.0,
+                380.0,
+                220.0,
+                10.0,
+                Rgba::new(18, 10, 14, 235),
+            );
+            c.fill_text(
+                "挑战失败",
+                cx,
+                cy - 50.0,
+                28.0,
+                Rgba::new(245, 88, 88, 255),
+                TextAlign::Center,
+                None,
+            );
+            c.fill_text(
+                "F3 重新挑战 · F4 返回城镇",
+                cx,
+                cy + 30.0,
+                15.0,
+                Rgba::new(235, 220, 220, 240),
+                TextAlign::Center,
+                None,
+            );
+        }
         return;
     }
 
@@ -1764,6 +1837,31 @@ fn draw_item_icon(
         if let (Some(sheet), Some(r)) = (sprites.get("results"), rect_at(&["RESULT_ART", key])) {
             c.draw_image(
                 sheet, r[0], r[1], r[2], r[3], dx, dy, size, size, false, 1.0, 0.0,
+            );
+            return;
+        }
+    }
+    if let Some(sheet) = sprites.get("consumables") {
+        let cell_idx = match item_id {
+            "hpPotion" => Some(0u32),
+            "mpPotion" => Some(1u32),
+            "resurrectCoin" => Some(2u32),
+            _ => None,
+        };
+        if let Some(idx) = cell_idx {
+            c.draw_image(
+                sheet,
+                idx * 28,
+                0,
+                28,
+                28,
+                dx,
+                dy,
+                size,
+                size,
+                false,
+                1.0,
+                0.0,
             );
             return;
         }
