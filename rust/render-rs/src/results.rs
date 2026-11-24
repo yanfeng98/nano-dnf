@@ -1108,6 +1108,7 @@ mod tests {
                 hint: None,
                 seed: state.seed,
                 stage_id: &state.stage_id,
+                map_mode: crate::MapMode::Radar,
             };
             let mut pm = Pixmap::new(RENDER_WIDTH, RENDER_HEIGHT).expect("pixmap");
             let mut c = Canvas::new(&mut pm, &mut fonts);
