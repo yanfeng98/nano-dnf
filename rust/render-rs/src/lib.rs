@@ -15,7 +15,11 @@ pub use hud::{
     MapRect, PanelAction, ProgressPanelKind, RenderMeta,
 };
 pub use sprites::SpriteStore;
-pub use world::TownView;
+pub use world::{
+    draw_town_hud, step_town_motion, town_interact_action, TownMotion, TownNpcAction, TownView,
+    TOWN_CAMERA_EASE_K, TOWN_CAMERA_HALF_WINDOW, TOWN_DEPTH_SPEED_RATIO, TOWN_GATE_X, TOWN_MAX_X,
+    TOWN_MAX_Z, TOWN_MIN_X, TOWN_MIN_Z, TOWN_WALK_ROW, TOWN_WALK_SPEED, TOWN_WIDTH,
+};
 
 use core_rs::constants::*;
 use core_rs::types::State;

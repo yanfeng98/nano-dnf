@@ -1,8 +1,8 @@
 use core_rs::types::CreateStateOptions;
 use core_rs::{create_state, step};
 use render_rs::{
-    draw_town, render, Canvas, GlyphCache, MapMode, ProgressPanelKind, RenderMeta, SpriteStore,
-    RENDER_HEIGHT, RENDER_WIDTH,
+    render, Canvas, GlyphCache, MapMode, ProgressPanelKind, RenderMeta, SpriteStore, RENDER_HEIGHT,
+    RENDER_WIDTH,
 };
 use std::path::{Path, PathBuf};
 use tiny_skia::Pixmap;
@@ -206,11 +206,51 @@ fn main() {
         save_pixmap(&pixmap, &out_dir.join("v1_results.png"));
     }
 
-    // 5. Town Elvenguard (matches 00002-幽暗密林深处.mp4 @ 415s)
+    // 5. Town Elvenguard (matches 00002-幽暗密林深处.mp4 @ 2s / 415s)
     {
+        let mut state = create_state(&CreateStateOptions {
+            seed: Some(1),
+            stage: Some("mirkwooddeep"),
+            reference_profile: true,
+            ..Default::default()
+        });
+        state.player.level = 6;
+        let meta = RenderMeta {
+            title: false,
+            attract: false,
+            paused: false,
+            show_help: false,
+            loadout: &loadout,
+            loadout_open: false,
+            progress_panel: ProgressPanelKind::None,
+            progress: &progress,
+            records: &records,
+            reward: None,
+            region_open: false,
+            region_selected: "mirkwooddeep",
+            hint: None,
+            seed: state.seed,
+            stage_id: &state.stage_id,
+            map_mode: MapMode::Radar,
+        };
         let mut pixmap = Pixmap::new(RENDER_WIDTH, RENDER_HEIGHT).unwrap();
         let mut canvas = Canvas::new(&mut pixmap, &mut fonts);
-        draw_town(&mut canvas, 1180.0, 48.0, 1, &sprites);
+        render_rs::draw_town_view(
+            &mut canvas,
+            &render_rs::TownView {
+                player_x: 180.0,
+                player_z: 22.0,
+                facing: 1,
+                camera_x: 0.0,
+                time: 0.0,
+                moving: false,
+                walk: 0.0,
+                player_level: state.player.level,
+                player_name: state.player.name.as_deref().unwrap_or("阿努纳奇"),
+            },
+            &sprites,
+        );
+        render_rs::draw_town_hud(&mut canvas, &state, &sprites, &meta);
         save_pixmap(&pixmap, &out_dir.join("town.png"));
     }
 
