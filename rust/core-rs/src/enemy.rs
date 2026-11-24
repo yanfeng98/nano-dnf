@@ -129,6 +129,7 @@ pub fn create_enemy(
         super_armor: false,
         knockback_x: spec.knockback_x,
         hurt_timer: 0.0,
+        hit_flash_timer: 0.0,
         dead: false,
         dying: 0.0,
         silhouette: false,
@@ -158,6 +159,7 @@ fn push_shockwave(state: &mut State, enemy: &Enemy) {
     eff.z = enemy.z;
     eff.radius = enemy.slam.as_ref().map(|s| s.radius).unwrap_or(0.0);
     state.effects.push(eff);
+    crate::trigger_screen_shake(state, 8.5, 0.28);
 }
 
 pub fn spawn_projectile(state: &mut State, enemy_idx: usize) {
@@ -418,6 +420,7 @@ fn emit_projectile_destroy_effect(state: &mut State, shot: &Projectile, x: f64, 
         flash.y = y;
         flash.z = shot.z;
         state.effects.push(flash);
+        crate::trigger_screen_shake(state, 5.5, 0.20);
         let piece_speed = native_ground_x(700.0);
         for p in 0..20usize {
             let theta = (p as f64 / 20.0) * std::f64::consts::PI * 2.0;
@@ -1217,6 +1220,7 @@ pub fn update_enemies(state: &mut State, dt: f64, previous_player_position: Opti
             continue;
         }
         state.enemies[e_idx].hurt_timer = (state.enemies[e_idx].hurt_timer - dt).max(0.0);
+        state.enemies[e_idx].hit_flash_timer = (state.enemies[e_idx].hit_flash_timer - dt).max(0.0);
         state.enemies[e_idx].activation_delay =
             (state.enemies[e_idx].activation_delay - dt).max(0.0);
         state.enemies[e_idx].attack_cooldown = (state.enemies[e_idx].attack_cooldown - dt).max(0.0);

@@ -31,6 +31,19 @@ pub const DEFAULT_WINDOW_HEIGHT: u32 = 900;
 /// Uniform scale factor mapping the 720x540 logical 4:3 world/UI window to 800x600 native pixels.
 pub const VIEW_TO_RENDER_SCALE: f32 = (RENDER_WIDTH as f32) / (VIEW_WIDTH as f32);
 
+/// Compute the purely visual camera screen-shake pixel offset from `state`.
+/// Never mutates `state.camera_x` or `state.camera_y`.
+pub fn screen_shake_offset(state: &State) -> (f32, f32) {
+    if state.shake_timer <= 0.0 || state.shake_duration <= 0.0 || state.shake_amp <= 0.0 {
+        return (0.0, 0.0);
+    }
+    let t = (state.shake_timer / state.shake_duration).clamp(0.0, 1.0);
+    let mag = state.shake_amp * t * t;
+    let sx = mag * (state.time * 58.0 + 0.7).sin();
+    let sy = mag * 0.65 * (state.time * 79.0 + 1.3).cos();
+    (sx as f32, sy as f32)
+}
+
 pub fn render(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore, meta: &RenderMeta<'_>) {
     let overlay_open = meta.title
         || meta.paused
@@ -53,7 +66,11 @@ pub fn render(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore, meta: &R
     c.translate(0.0, ARENA_GROUND_Y as f32);
     c.scale(CAMERA_ZOOM as f32, CAMERA_ZOOM as f32);
     c.translate(0.0, -(ARENA_GROUND_Y as f32));
-    c.translate(-(state.camera_x as f32), -(state.camera_y as f32));
+    let (shake_x, shake_y) = screen_shake_offset(state);
+    c.translate(
+        -(state.camera_x as f32) + shake_x,
+        -(state.camera_y as f32) + shake_y,
+    );
 
     world::draw_backdrop(c, state, sprites);
     world::draw_gates(c, state, sprites);
