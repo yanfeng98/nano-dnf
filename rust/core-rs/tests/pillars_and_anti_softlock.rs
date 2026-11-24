@@ -1,7 +1,8 @@
-use core_rs::combat::swing_props;
-use core_rs::dungeon::{begin_room, prop_obstacle};
+use core_rs::combat::{damage_enemy, swing_props, DamageEnemyOptions};
+use core_rs::constants::{band_depth, window_width};
+use core_rs::dungeon::{begin_room, exit_mode, prop_obstacle, room_width, ExitMode};
 use core_rs::types::{CreateStateOptions, Input, Rect};
-use core_rs::{create_state, run_frames, ARENA_GROUND_Y};
+use core_rs::{create_state, run_frames, step, ARENA_GROUND_Y};
 
 #[test]
 fn test_stone_pillars_damage_to_cracked_then_shatter_and_drop_loot() {
@@ -237,6 +238,97 @@ fn test_mirkwood_room4_far_right_enemies_activate_and_prevent_softlock() {
             e.x < x0 - 1.0,
             "activated far-right enemy {} (kind={}) should walk left toward player (was x={}, now x={})",
             idx, e.kind, x0, e.x
+        );
+    }
+}
+
+#[test]
+fn test_mirkwood_cell_1_1_ranged_and_blocked_enemies_enter_viewport_and_clear_opens_gates() {
+    // Mirkwood cell (1,1) is index 5 (pinned to room 7: 倒木小径, width=960,
+    // rockFlat at x=620, caster at x=780, grunt at x=860, goblinRed at x=182, goblinBlue at x=360).
+    let mut state = create_state(&CreateStateOptions {
+        seed: Some(20260915),
+        stage: Some("mirkwood"),
+        cell: Some(5),
+        reference_profile: true,
+        ..Default::default()
+    });
+    state.entry_door = Some("N".to_string());
+    begin_room(&mut state, Some("N"));
+
+    // Position player at the North gate (x = 472) and center camera on the player.
+    let north_gate_x = 472.0;
+    let north_gate_z = band_depth(state.band_back_y);
+    state.player.x = north_gate_x;
+    state.player.z = north_gate_z;
+    state.camera_x = (north_gate_x - window_width() / 2.0)
+        .clamp(0.0, (room_width(&state) - window_width()).max(0.0));
+
+    // Verify existing exits start locked while enemies are alive.
+    let active_dirs: Vec<&str> = ["N", "S", "W", "E"]
+        .into_iter()
+        .filter(|&d| exit_mode(&state, d) != ExitMode::None)
+        .collect();
+    assert!(
+        active_dirs.contains(&"N"),
+        "cell (1,1) must have a North gate"
+    );
+    for &dir in &active_dirs {
+        assert_eq!(
+            exit_mode(&state, dir),
+            ExitMode::Locked,
+            "gate {} must start locked before room is cleared",
+            dir
+        );
+    }
+
+    // Step 8 seconds (480 frames), keeping the player alive and anchored at the North gate (x = 472).
+    for _ in 0..480 {
+        state.player.x = north_gate_x;
+        state.player.z = north_gate_z;
+        state.player.vx = 0.0;
+        state.player.vz = 0.0;
+        state.player.hp = state.player.max_hp;
+        state.player.invuln = 1.0;
+        step(&mut state, &Input::default(), None);
+    }
+
+    let cam_l = state.camera_x + 18.0;
+    let cam_r = state.camera_x + window_width() - 18.0;
+
+    let living: Vec<_> = state.enemies.iter().filter(|e| !e.dead).collect();
+    assert!(
+        !living.is_empty(),
+        "enemies should still be alive before we kill them"
+    );
+    for e in &living {
+        assert!(
+            e.x >= cam_l && e.x <= cam_r,
+            "living enemy id={} kind={} (behavior={}) stayed outside visible viewport [{:.1}, {:.1}] at x={:.1}, z={:.1}",
+            e.id, e.kind, e.behavior, cam_l, cam_r, e.x, e.z
+        );
+    }
+
+    // Kill all living enemies and step one frame to resolve the room.
+    for idx in 0..state.enemies.len() {
+        if !state.enemies[idx].dead {
+            let hp = state.enemies[idx].hp + 9999.0;
+            let ex = state.enemies[idx].x;
+            damage_enemy(&mut state, idx, hp, 0.0, ex, &DamageEnemyOptions::default());
+        }
+    }
+    step(&mut state, &Input::default(), None);
+
+    assert!(
+        state.room.as_ref().is_some_and(|r| r.cleared),
+        "room must be cleared once all enemies are killed"
+    );
+    for &dir in &active_dirs {
+        assert_eq!(
+            exit_mode(&state, dir),
+            ExitMode::Open,
+            "gate {} must open immediately after all enemies are killed",
+            dir
         );
     }
 }

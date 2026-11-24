@@ -4,16 +4,22 @@
 Sources (preferring `ImagePacks2_70`, falling back to `ImagePacks2`):
   - `sprite_item.NPK :: sprite/item/fieldimage.img`
   - `sprite_item.NPK :: sprite/item/field_consumption.img`
+  - `sprite_item.NPK :: sprite/item/field_material.img`
 
-Output: `384x48` RGBA sprite sheet (8 x 48x48 cells, bottom-centered on y = 44):
-  - cell 0 (`x =   0`): gold coin pile (`fieldimage.img` frame 27)
-  - cell 1 (`x =  48`): red HP potion vial (`field_consumption.img` frame 13)
-  - cell 2 (`x =  96`): blue MP potion vial (`field_consumption.img` frame 14)
-  - cell 3 (`x = 144`): material pouch (`fieldimage.img` frame 25)
-  - cell 4 (`x = 192`): fate / resurrect gold coin (`fieldimage.img` frame 26)
-  - cell 5 (`x = 240`): rare crystal / gem pile (`fieldimage.img` frame 24)
-  - cell 6 (`x = 288`): weapon / katana (`fieldimage.img` frame 11)
-  - cell 7 (`x = 336`): armor / equipment (`fieldimage.img` frame 0)
+Output: `624x48` RGBA sprite sheet (13 x 48x48 cells, bottom-centered on y = 44):
+  - cell  0 (`x =   0`): gold coin pile (`fieldimage.img` frame 27)
+  - cell  1 (`x =  48`): red HP potion vial (`field_consumption.img` frame 13)
+  - cell  2 (`x =  96`): blue MP potion vial (`field_consumption.img` frame 14)
+  - cell  3 (`x = 144`): material pouch (`fieldimage.img` frame 25)
+  - cell  4 (`x = 192`): fate / resurrect gold coin (`fieldimage.img` frame 26)
+  - cell  5 (`x = 240`): rare crystal / gem pile (`fieldimage.img` frame 24)
+  - cell  6 (`x = 288`): weapon / katana (`fieldimage.img` frame 11)
+  - cell  7 (`x = 336`): armor / equipment (`fieldimage.img` frame 0)
+  - cell  8 (`x = 384`): green herb / leaf / flower (`fieldimage.img` frame 29)
+  - cell  9 (`x = 432`): berry / fruit (`field_material.img` frame 9)
+  - cell 10 (`x = 480`): bread / food (`field_material.img` frame 3)
+  - cell 11 (`x = 528`): stone / iron / ore (`field_material.img` frame 46)
+  - cell 12 (`x = 576`): fur / cloth / leather (`field_material.img` frame 0)
 """
 
 from __future__ import annotations
@@ -43,6 +49,11 @@ PICKS: list[tuple[str, str, int]] = [
     ("rareCrystal", "sprite/item/fieldimage.img", 24),
     ("weapon", "sprite/item/fieldimage.img", 11),
     ("equipment", "sprite/item/fieldimage.img", 0),
+    ("herbLeaf", "sprite/item/fieldimage.img", 29),
+    ("berryFruit", "sprite/item/field_material.img", 9),
+    ("breadFood", "sprite/item/field_material.img", 3),
+    ("stoneOre", "sprite/item/field_material.img", 46),
+    ("leatherFur", "sprite/item/field_material.img", 0),
 ]
 
 
