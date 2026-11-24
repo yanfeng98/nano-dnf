@@ -248,15 +248,18 @@ fn main() {
         render_rs::draw_town_view(
             &mut canvas,
             &render_rs::TownView {
-                player_x: 180.0,
-                player_z: 22.0,
+                zone: render_rs::TownZone::WestSquare,
+                player_x: 490.0,
+                player_z: 46.0,
                 facing: 1,
-                camera_x: 0.0,
+                camera_x: 130.0,
                 time: 0.0,
                 moving: false,
                 walk: 0.0,
                 player_level: state.player.level,
                 player_name: state.player.name.as_deref().unwrap_or("阿努纳奇"),
+                zone_fade_alpha: 0.0,
+                title_alpha: 1.0,
             },
             &sprites,
         );

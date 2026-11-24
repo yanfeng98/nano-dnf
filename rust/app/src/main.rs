@@ -21,8 +21,8 @@ use render_rs::{
     hit_test_loadout_panel, hit_test_minimap, hit_test_progress_panel, hit_test_region_select,
     hit_test_reward_card, render, step_town_motion, town_interact_action, Canvas, ContinueAction,
     GlyphCache, MapMode, PanelAction, ProgressPanelKind, RegionSelectAction, RenderMeta,
-    SpriteStore, TownMotion, TownNpcAction, TownView, DEFAULT_WINDOW_HEIGHT, DEFAULT_WINDOW_WIDTH,
-    RENDER_HEIGHT, RENDER_WIDTH, VIEW_TO_RENDER_SCALE,
+    SpriteStore, TownMotion, TownNpcAction, TownStepEvent, TownView, DEFAULT_WINDOW_HEIGHT,
+    DEFAULT_WINDOW_WIDTH, RENDER_HEIGHT, RENDER_WIDTH, VIEW_TO_RENDER_SCALE,
 };
 use reward_rs::{
     create as create_reward, pick as pick_reward, step as step_reward, take_prize, RewardState,
@@ -226,14 +226,7 @@ impl AppState {
             map_mode: MapMode::Radar,
             region_selected: DEFAULT_STAGE.to_string(),
             region_abyss: false,
-            town: TownMotion {
-                x: 200.0,
-                z: 20.0,
-                facing: 1,
-                camera_x: 0.0,
-                walk: 0.0,
-                moving: false,
-            },
+            town: TownMotion::enter_west_square(),
             town_time: 0.0,
             held_keys: HashSet::new(),
             seen_hints: HashSet::new(),
@@ -335,6 +328,7 @@ impl AppState {
                                 self.mode = ScreenMode::Region;
                             }
                             ContinueAction::ReturnTown => {
+                                self.town = TownMotion::return_from_dungeon();
                                 self.mode = ScreenMode::Town;
                             }
                         }
@@ -660,7 +654,9 @@ impl AppState {
                     - i32::from(self.held_keys.contains(&KeyCode::ArrowLeft));
                 let dz = i32::from(self.held_keys.contains(&KeyCode::ArrowUp))
                     - i32::from(self.held_keys.contains(&KeyCode::ArrowDown));
-                step_town_motion(&mut self.town, dx, dz, dt);
+                if step_town_motion(&mut self.town, dx, dz, dt) == TownStepEvent::OpenRegion {
+                    self.mode = ScreenMode::Region;
+                }
             }
             ScreenMode::Playing => {
                 let boss_cell = self.state.dungeon.as_ref().map(|d| d.boss);
@@ -765,6 +761,7 @@ impl AppState {
                 draw_town_view(
                     &mut canvas,
                     &TownView {
+                        zone: self.town.zone,
                         player_x: self.town.x,
                         player_z: self.town.z,
                         facing: self.town.facing,
@@ -774,6 +771,8 @@ impl AppState {
                         walk: self.town.walk,
                         player_level: self.state.player.level.max(1),
                         player_name: pname,
+                        zone_fade_alpha: self.town.zone_fade_alpha(),
+                        title_alpha: self.town.title_alpha(),
                     },
                     &self.sprites,
                 );
@@ -1007,9 +1006,12 @@ impl AppState {
             ScreenMode::Town => match code {
                 KeyCode::Enter | KeyCode::Space => {
                     if !self.loadout_open && self.progress_panel == ProgressPanelKind::None {
-                        match town_interact_action(self.town.x, self.town.z) {
+                        match town_interact_action(self.town.zone, self.town.x, self.town.z) {
                             TownNpcAction::Quest => {
                                 self.progress_panel = ProgressPanelKind::Quest;
+                            }
+                            TownNpcAction::Loadout => {
+                                self.loadout_open = true;
                             }
                             TownNpcAction::Shop => {
                                 self.progress_panel = ProgressPanelKind::Shop;
@@ -1095,6 +1097,7 @@ impl AppState {
                 KeyCode::F4 => {
                     self.loadout_open = false;
                     self.progress_panel = ProgressPanelKind::None;
+                    self.town = TownMotion::return_from_dungeon();
                     self.mode = ScreenMode::Town;
                 }
                 KeyCode::KeyN => {
