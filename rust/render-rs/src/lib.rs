@@ -14,6 +14,7 @@ pub use hud::{
     hit_test_progress_panel, minimap_window_box, radar_button_box, radar_disc_bounds, MapMode,
     MapRect, PanelAction, ProgressPanelKind, RenderMeta,
 };
+pub use hud_classic::hit_test_consumable_slot;
 pub use sprites::SpriteStore;
 pub use world::TownView;
 
@@ -88,7 +89,9 @@ pub fn render(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore, meta: &R
     );
     c.restore();
 
-    let hud_hidden = state.defeat || meta.region_open;
+    let hud_hidden = (state.defeat
+        && progress_rs::consumable_count(meta.progress, "resurrectCoin") == 0)
+        || meta.region_open;
     if !hud_hidden {
         hud::draw_hud_video(c, state, sprites, meta);
         if !overlay_open && !state.post_clear {
@@ -718,6 +721,167 @@ mod tests {
         assert_eq!(
             hit_test_loadout_panel(334.0 + 240.0, 80.0 + 84.0),
             Some(PanelAction::CycleLoadoutSkill(1))
+        );
+    }
+
+    #[test]
+    fn test_consumable_quickbar_icons_radial_cooldown_and_hit_test() {
+        let root = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("..")
+            .join("..");
+        let sprites = SpriteStore::load_from_root(&root);
+        assert!(
+            sprites.get("consumables").is_some(),
+            "assets/consumables.png should be loaded"
+        );
+        let mut fonts = GlyphCache::new(None);
+        let records = records_rs::empty_store();
+        let progress = progress_rs::defaults();
+        let loadout = vec![Some("ghostSlash".to_string()); 6];
+        let mut state = create_state(&CreateStateOptions {
+            stage: Some("mirkwood"),
+            reference_profile: true,
+            ..Default::default()
+        });
+        state.transition = 0.0;
+
+        let meta = RenderMeta {
+            title: false,
+            attract: false,
+            paused: false,
+            show_help: false,
+            loadout: &loadout,
+            loadout_open: false,
+            progress_panel: ProgressPanelKind::None,
+            progress: &progress,
+            records: &records,
+            reward: None,
+            region_open: false,
+            region_selected: "mirkwood",
+            hint: None,
+            seed: state.seed,
+            stage_id: &state.stage_id,
+            map_mode: MapMode::Radar,
+        };
+
+        let mut pix_ready = Pixmap::new(RENDER_WIDTH, RENDER_HEIGHT).expect("800x600");
+        {
+            let mut c = Canvas::new(&mut pix_ready, &mut fonts);
+            render(&mut c, &state, &sprites, &meta);
+        }
+
+        // Slot 0 (HP potion) cooling down at 50% must visually darken the slot via radial sweep
+        state.player.consumable_cooldowns[0] = core_rs::combat::CONSUMABLE_COOLDOWN_SEC * 0.5;
+        let mut pix_cd = Pixmap::new(RENDER_WIDTH, RENDER_HEIGHT).expect("800x600");
+        {
+            let mut c = Canvas::new(&mut pix_cd, &mut fonts);
+            render(&mut c, &state, &sprites, &meta);
+        }
+
+        let slot0 = hud_classic::CONSUMABLE_SLOT_RECTS[0];
+        let mut ready_luma = 0u64;
+        let mut cd_luma = 0u64;
+        for py in (slot0[1] as u32)..((slot0[1] + slot0[3]) as u32) {
+            for px in (slot0[0] as u32)..((slot0[0] + slot0[2]) as u32) {
+                let idx = ((py * RENDER_WIDTH + px) * 4) as usize;
+                ready_luma += u64::from(pix_ready.data()[idx])
+                    + u64::from(pix_ready.data()[idx + 1])
+                    + u64::from(pix_ready.data()[idx + 2]);
+                cd_luma += u64::from(pix_cd.data()[idx])
+                    + u64::from(pix_cd.data()[idx + 1])
+                    + u64::from(pix_cd.data()[idx + 2]);
+            }
+        }
+        assert!(
+            cd_luma < ready_luma,
+            "radial cooldown sweep should darken slot 0 (ready={ready_luma}, cd={cd_luma})"
+        );
+
+        // Hit-testing consumable slots 0..6
+        for (idx, rect) in hud_classic::CONSUMABLE_SLOT_RECTS.iter().enumerate() {
+            let cx = hud_classic::native_x(rect[0] + rect[2] * 0.5);
+            let cy = hud_classic::native_y(rect[1] + rect[3] * 0.5);
+            assert_eq!(hit_test_consumable_slot(cx, cy), Some(idx));
+        }
+        assert_eq!(hit_test_consumable_slot(200.0, 200.0), None);
+    }
+
+    #[test]
+    fn test_defeat_resurrect_prompt_differs_from_zero_coin_defeat() {
+        let root = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("..")
+            .join("..");
+        let sprites = SpriteStore::load_from_root(&root);
+        let mut fonts = GlyphCache::new(None);
+        let records = records_rs::empty_store();
+        let loadout = vec![Some("ghostSlash".to_string()); 6];
+        let mut state = create_state(&CreateStateOptions {
+            stage: Some("mirkwood"),
+            reference_profile: true,
+            ..Default::default()
+        });
+        state.transition = 0.0;
+        state.defeat = true;
+        state.player.dead = true;
+        state.player.hp = 0.0;
+
+        let with_coins = progress_rs::defaults();
+        assert!(progress_rs::consumable_count(&with_coins, "resurrectCoin") > 0);
+        let mut without_coins = progress_rs::defaults();
+        without_coins.items.insert("resurrectCoin".to_string(), 0);
+
+        let mut pix_coins = Pixmap::new(RENDER_WIDTH, RENDER_HEIGHT).expect("800x600");
+        {
+            let mut c = Canvas::new(&mut pix_coins, &mut fonts);
+            let meta = RenderMeta {
+                title: false,
+                attract: false,
+                paused: false,
+                show_help: false,
+                loadout: &loadout,
+                loadout_open: false,
+                progress_panel: ProgressPanelKind::None,
+                progress: &with_coins,
+                records: &records,
+                reward: None,
+                region_open: false,
+                region_selected: "mirkwood",
+                hint: None,
+                seed: state.seed,
+                stage_id: &state.stage_id,
+                map_mode: MapMode::Radar,
+            };
+            render(&mut c, &state, &sprites, &meta);
+        }
+
+        let mut pix_zero = Pixmap::new(RENDER_WIDTH, RENDER_HEIGHT).expect("800x600");
+        {
+            let mut c = Canvas::new(&mut pix_zero, &mut fonts);
+            let meta = RenderMeta {
+                title: false,
+                attract: false,
+                paused: false,
+                show_help: false,
+                loadout: &loadout,
+                loadout_open: false,
+                progress_panel: ProgressPanelKind::None,
+                progress: &without_coins,
+                records: &records,
+                reward: None,
+                region_open: false,
+                region_selected: "mirkwood",
+                hint: None,
+                seed: state.seed,
+                stage_id: &state.stage_id,
+                map_mode: MapMode::Radar,
+            };
+            render(&mut c, &state, &sprites, &meta);
+        }
+
+        assert_ne!(
+            pix_coins.data(),
+            pix_zero.data(),
+            "defeat with resurrect coins should render a distinct resurrect prompt vs 0-coin defeat"
         );
     }
 }

@@ -56,10 +56,11 @@ pub const ASSET_ENTRIES: [(&str, &str); 39] = [
     ("bossdeath", "assets/bossdeath.png"),
 ];
 
-pub const UI_ASSET_ENTRIES: [(&str, &str); 12] = [
+pub const UI_ASSET_ENTRIES: [(&str, &str); 13] = [
     ("ui", "assets/ui.png"),
     ("hud", "assets/hud.png"),
     ("hudClassic", "assets/hud-classic.png"),
+    ("consumables", "assets/consumables.png"),
     ("town", "assets/town.png"),
     ("npc", "assets/npc.png"),
     ("gui", "assets/gui.png"),

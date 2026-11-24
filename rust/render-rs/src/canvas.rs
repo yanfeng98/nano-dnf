@@ -252,6 +252,49 @@ impl<'a> Canvas<'a> {
             .fill_rect(rect, &paint, self.transform, self.clip.as_ref());
     }
 
+    /// Fill a clockwise radial/pie cooldown sweep clipped to `(x, y, w, h)`.
+    /// `ratio` in `(0.0, 1.0]` is the remaining cooldown fraction starting from 12 o'clock.
+    pub fn fill_radial_pie(&mut self, x: f32, y: f32, w: f32, h: f32, ratio: f32, color: Rgba) {
+        let ratio = ratio.clamp(0.0, 1.0);
+        if w <= 0.0 || h <= 0.0 || color.a == 0 || ratio <= 0.001 {
+            return;
+        }
+        if ratio >= 0.999 {
+            self.fill_rect(x, y, w, h, color);
+            return;
+        }
+        let cx = x + w * 0.5;
+        let cy = y + h * 0.5;
+        let radius = (w * w + h * h).sqrt();
+        let start = -std::f32::consts::FRAC_PI_2;
+        let sweep = std::f32::consts::TAU * ratio;
+        let steps = ((ratio * 24.0).ceil() as usize).clamp(4, 24);
+
+        let mut pb = PathBuilder::new();
+        pb.move_to(cx, cy);
+        for i in 0..=steps {
+            let angle = start + sweep * (i as f32 / steps as f32);
+            pb.line_to(cx + angle.cos() * radius, cy + angle.sin() * radius);
+        }
+        pb.close();
+
+        if let Some(path) = pb.finish() {
+            self.save();
+            self.set_clip_rect(x, y, w, h);
+            let mut paint = Paint::default();
+            paint.set_color(color.to_skia());
+            paint.anti_alias = true;
+            self.pixmap.fill_path(
+                &path,
+                &paint,
+                FillRule::Winding,
+                self.transform,
+                self.clip.as_ref(),
+            );
+            self.restore();
+        }
+    }
+
     pub fn stroke_rect(&mut self, x: f32, y: f32, w: f32, h: f32, color: Rgba, width: f32) {
         if w <= 0.0 || h <= 0.0 || color.a == 0 {
             return;
