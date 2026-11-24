@@ -4,6 +4,7 @@
 Status: accepted (2026-11-23)
 Context: The original app is an HTML5 Canvas 2D + WebAudio browser game (`index.html` + `src/*.js`, served statically by `scripts/serve.mjs` in dev). Running in a browser Canvas 2D context causes frame drops/stuttering ("很卡"), and the user wants to play directly on Windows without needing a browser or local server.
 Decision: Port the entire game (`src/*.js`) to a standalone native Rust desktop application (`rust/app`, binary `nano-dnf.exe`) targeting `x86_64-pc-windows-gnu` (and `x86_64-unknown-linux-gnu` for local verification). Use native windowing + hardware-accelerated/fast 2D pixel rendering + native audio (`rodio`), keeping a 960x540 logical resolution scaled cleanly to the window at a locked 60 FPS fixed-step loop.
+Amendment (2026-11-24, see `docs/adr/0074-1to1-dnf-fidelity-and-asset-fallback.md`): Internal rendering baseline upgraded from letterboxed `960x540` to native 4:3 `800x600` (default window `1200x900` at 1.5x, with aspect-preserving resize and `Alt+Enter` fullscreen).
 Consequences: Eliminates browser Canvas 2D and JS GC pauses. `scripts/` (asset importers, Playwright capture tools) and `docs/reference-evidence/` remain in JS/Python as reference and test tooling, not ported into the game binary.
 
 ## ADR-002: Scope of Port (All 11 `src/*.js` Game Modules)
@@ -23,6 +24,7 @@ Decision:
 1. All pure-logic crates must match the original JS 100% on recorded `rust-anything` cases (`diff` N/N) and pass `rust-anything gate` (fmt, clippy `-D warnings`, cargo test, no unguarded `unwrap`/`panic!`).
 2. `core` and all logic crates must also pass Rust unit tests covering the 587 JS test assertions (fixed-step determinism, seeded dungeon layouts, combat/hitstop/skills, XP, rewards, records, progress).
 3. `render` and `main` must preserve the exact 960x540 world/HUD coordinates, sprite sheet cropping/anchors, palette, keyboard bindings, and audio playback, with float tolerance `1e-6` where math/rendering differs.
+Amendment (2026-11-24, see `docs/adr/0074-1to1-dnf-fidelity-and-asset-fallback.md`): `reference_profile: false` preserves 100% deterministic JS-oracle equivalence (`oracle_1800`), while default gameplay (`reference_profile: true`) upgrades rendering to native 4:3 `800x600` and enables `Script_70.pvf` runtime truth tables plus live consumable quickbar (`1-6`) and resurrect-coin upgrades.
 Consequences: Zero gameplay drift between JS and Rust.
 
 ## ADR-004: Portable Save Data & Runtime Assets

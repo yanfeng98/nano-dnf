@@ -301,12 +301,34 @@ pub fn drop_breakable_loot(state: &mut State, prop: &Prop) {
         (prop.x * 7.0).round() as u32 + (prop.z * 131.0).round() as u32,
     );
     let max_z = band_depth(state.band_back_y);
+    let pvf_breakable_drop = if state.reference_profile.is_some() {
+        crate::pvf_truth::stage_truth(&state.stage_id).and_then(|st| {
+            if st.breakable_drops.is_empty() {
+                return None;
+            }
+            let total_w: u32 = st.breakable_drops.iter().map(|d| d.weight.max(1)).sum();
+            let mut roll = (h >> 4) % total_w.max(1);
+            let mut chosen = &st.breakable_drops[0];
+            for entry in &st.breakable_drops {
+                let w = entry.weight.max(1);
+                if roll < w {
+                    chosen = entry;
+                    break;
+                }
+                roll -= w;
+            }
+            Some((chosen.name.as_str(), chosen.tone.as_str()))
+        })
+    } else {
+        None
+    };
     if prop.piece == "chest" {
-        let name = LOOT_CYAN[((h >> 4) as usize) % LOOT_CYAN.len()];
+        let (name, tone) = pvf_breakable_drop
+            .unwrap_or_else(|| (LOOT_CYAN[((h >> 4) as usize) % LOOT_CYAN.len()], "cyan"));
         state.pickups.push(Pickup {
             kind: "loot".to_string(),
             name: name.to_string(),
-            tone: "cyan".to_string(),
+            tone: tone.to_string(),
             gold: 60 + ((h >> 12) % 61),
             exp: 0,
             x: prop.x,
@@ -321,6 +343,27 @@ pub fn drop_breakable_loot(state: &mut State, prop: &Prop) {
             progress: 0.0,
             trail: Vec::new(),
         });
+    } else if prop.piece == "barrel" {
+        if let Some((name, tone)) = pvf_breakable_drop.filter(|_| (h & 3) == 0) {
+            state.pickups.push(Pickup {
+                kind: "loot".to_string(),
+                name: name.to_string(),
+                tone: tone.to_string(),
+                gold: 18 + ((h >> 12) % 25),
+                exp: 0,
+                x: prop.x,
+                y: ARENA_GROUND_Y,
+                z: prop.z.min(max_z),
+                radius: 0.0,
+                value: 0.0,
+                life: LOOT_LIFE,
+                from_x: 0.0,
+                from_y: 0.0,
+                from_z: 0.0,
+                progress: 0.0,
+                trail: Vec::new(),
+            });
+        }
     } else if prop.piece == "tomb" {
         state.pickups.push(Pickup {
             kind: "gold".to_string(),

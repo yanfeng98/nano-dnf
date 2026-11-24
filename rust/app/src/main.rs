@@ -162,13 +162,8 @@ struct AppState {
     progress_panel: ProgressPanelKind,
     map_mode: MapMode,
     region_selected: String,
-    town_x: f64,
-    town_z: f64,
-    town_facing: i32,
-    town_camera_x: f64,
+    town: TownMotion,
     town_time: f64,
-    town_walk: f64,
-    town_moving: bool,
     held_keys: HashSet<KeyCode>,
     seen_hints: HashSet<String>,
     active_hint: Option<(String, f64)>,
@@ -194,7 +189,11 @@ impl AppState {
         let valid_skills: Vec<&str> = TABLES.skill_order.iter().map(String::as_str).collect();
         let (records, progress, loadout, player_name) =
             save::load_all(&asset_root, &valid_skills, DEFAULT_STAGE);
-        let mut state = create_state(&CreateStateOptions::default());
+        let mut state = create_state(&CreateStateOptions {
+            stage: Some(DEFAULT_STAGE),
+            reference_profile: true,
+            ..Default::default()
+        });
         state.player.name = Some(player_name.clone());
         let attract = create_attract(Some(DEFAULT_SEED));
         // INFALLIBLE: RENDER_WIDTH=800, RENDER_HEIGHT=600
@@ -224,13 +223,15 @@ impl AppState {
             progress_panel: ProgressPanelKind::None,
             map_mode: MapMode::Radar,
             region_selected: DEFAULT_STAGE.to_string(),
-            town_x: 200.0,
-            town_z: 20.0,
-            town_facing: 1,
-            town_camera_x: 0.0,
+            town: TownMotion {
+                x: 200.0,
+                z: 20.0,
+                facing: 1,
+                camera_x: 0.0,
+                walk: 0.0,
+                moving: false,
+            },
             town_time: 0.0,
-            town_walk: 0.0,
-            town_moving: false,
             held_keys: HashSet::new(),
             seen_hints: HashSet::new(),
             active_hint: None,
@@ -464,21 +465,25 @@ impl AppState {
         }
     }
 
+    fn play_reward_open_sfx(&mut self) {
+        self.audio.play_events(&[core_rs::types::SoundEvent {
+            kind: "rewardOpen".to_string(),
+            x: self.state.player.x,
+            z: self.state.player.z,
+            t: self.state.time,
+            enemy_type: None,
+            attack_kind: None,
+            skill_id: None,
+            stage: None,
+            native_object: None,
+            enemy_id: None,
+        }]);
+    }
+
     fn claim_reward_prize(&mut self) {
         let prize = self.reward.as_mut().and_then(take_prize);
         if let Some(prize) = prize {
-            self.audio.play_events(&[core_rs::types::SoundEvent {
-                kind: "rewardOpen".to_string(),
-                x: self.state.player.x,
-                z: self.state.player.z,
-                t: self.state.time,
-                enemy_type: None,
-                attack_kind: None,
-                skill_id: None,
-                stage: None,
-                native_object: None,
-                enemy_id: None,
-            }]);
+            self.play_reward_open_sfx();
             progress_rs::add_item(&mut self.progress, &prize.item_id, 1);
             progress_rs::add_gold(&mut self.progress, i64::from(prize.gold));
             self.persist_save();
@@ -527,6 +532,9 @@ impl AppState {
                 let Some(id) = item_id else {
                     return;
                 };
+                if id == "resurrectCoin" {
+                    return;
+                }
                 if let Some(eff) = progress_rs::use_item(&mut self.progress, &id) {
                     if self.mode == ScreenMode::Playing && !self.state.defeat {
                         self.state.player.hp = (self.state.player.hp + f64::from(eff.hp))
@@ -635,29 +643,15 @@ impl AppState {
                 self.audio.sync_track(track_for(None, None, None, true));
                 self.town_time += dt;
                 if self.loadout_open || self.progress_panel != ProgressPanelKind::None {
-                    self.town_moving = false;
-                    self.town_walk = 0.0;
+                    self.town.moving = false;
+                    self.town.walk = 0.0;
                     return;
                 }
                 let dx = i32::from(self.held_keys.contains(&KeyCode::ArrowRight))
                     - i32::from(self.held_keys.contains(&KeyCode::ArrowLeft));
                 let dz = i32::from(self.held_keys.contains(&KeyCode::ArrowUp))
                     - i32::from(self.held_keys.contains(&KeyCode::ArrowDown));
-                let mut motion = TownMotion {
-                    x: self.town_x,
-                    z: self.town_z,
-                    facing: self.town_facing,
-                    camera_x: self.town_camera_x,
-                    walk: self.town_walk,
-                    moving: self.town_moving,
-                };
-                step_town_motion(&mut motion, dx, dz, dt);
-                self.town_x = motion.x;
-                self.town_z = motion.z;
-                self.town_facing = motion.facing;
-                self.town_camera_x = motion.camera_x;
-                self.town_walk = motion.walk;
-                self.town_moving = motion.moving;
+                step_town_motion(&mut self.town, dx, dz, dt);
             }
             ScreenMode::Playing => {
                 let boss_cell = self.state.dungeon.as_ref().map(|d| d.boss);
@@ -726,8 +720,14 @@ impl AppState {
                         self.persist_save();
                     }
 
+                    let mut chest_opened = false;
                     if let Some(ref mut rw) = self.reward {
+                        let prev_phase = rw.phase;
                         step_reward(rw, dt);
+                        chest_opened = should_play_chest_open_sfx(prev_phase, rw.phase);
+                    }
+                    if chest_opened {
+                        self.play_reward_open_sfx();
                     }
                     self.claim_reward_prize();
                     if self.reward.as_ref().is_some_and(|rw| {
@@ -756,13 +756,13 @@ impl AppState {
                 draw_town_view(
                     &mut canvas,
                     &TownView {
-                        player_x: self.town_x,
-                        player_z: self.town_z,
-                        facing: self.town_facing,
-                        camera_x: self.town_camera_x,
+                        player_x: self.town.x,
+                        player_z: self.town.z,
+                        facing: self.town.facing,
+                        camera_x: self.town.camera_x,
                         time: self.town_time,
-                        moving: self.town_moving,
-                        walk: self.town_walk,
+                        moving: self.town.moving,
+                        walk: self.town.walk,
                         player_level: self.state.player.level.max(1),
                         player_name: pname,
                     },
@@ -964,7 +964,7 @@ impl AppState {
             ScreenMode::Town => match code {
                 KeyCode::Enter | KeyCode::Space => {
                     if !self.loadout_open && self.progress_panel == ProgressPanelKind::None {
-                        match town_interact_action(self.town_x, self.town_z) {
+                        match town_interact_action(self.town.x, self.town.z) {
                             TownNpcAction::Quest => {
                                 self.progress_panel = ProgressPanelKind::Quest;
                             }
@@ -1217,16 +1217,25 @@ fn try_use_consumable_slot(
     false
 }
 
+fn should_play_chest_open_sfx(prev: reward_rs::RewardPhase, next: reward_rs::RewardPhase) -> bool {
+    prev == reward_rs::RewardPhase::Chest && next == reward_rs::RewardPhase::Cards
+}
+
 fn loot_item_id_for_log_line(text: &str) -> Option<&'static str> {
     let rest = text.strip_prefix("获得[")?;
     let name = rest.split(']').next()?;
     let id = match name {
-        "诺顿的新手HP药剂" | "HP 药水" => "hpPotion",
-        "MP 药水" | "冰冻水" => "mpPotion",
+        "诺顿的新手HP药剂" | "HP 药水" | "野生草莓" | "越桔" | "烤硬的黑面包" => {
+            "hpPotion"
+        }
+        "MP 药水" | "冰冻水" | "魔力之花" => "mpPotion",
+        "复活币" | "命运硬币" => "resurrectCoin",
         "古老的法杖" => "ancientStaff",
+        "古老的库尼族图腾" => "kunicTotem",
         "粗布上衣" => "clothArmor",
         "锈蚀短剑" => "rustyBlade",
         "生锈的铁剑" => "starterBlade",
+        "铜戒指" => "copperRing",
         _ => "material",
     };
     Some(id)
@@ -1336,7 +1345,11 @@ mod tests {
         let initial_mat = progress.items.get("material").copied().unwrap_or(0);
         let initial_hp = progress.items.get("hpPotion").copied().unwrap_or(0);
 
-        let mut state = create_state(&CreateStateOptions::default());
+        let mut state = create_state(&CreateStateOptions {
+            stage: Some(DEFAULT_STAGE),
+            reference_profile: true,
+            ..Default::default()
+        });
         let drop1 = core_rs::types::Pickup {
             kind: "loot".to_string(),
             name: "生锈的铁片".to_string(),
@@ -1397,7 +1410,11 @@ mod tests {
     #[test]
     fn test_consumable_quickbar_usage_stack_decrement_and_cooldown() {
         let mut progress = progress_rs::defaults();
-        let mut state = create_state(&CreateStateOptions::default());
+        let mut state = create_state(&CreateStateOptions {
+            stage: Some(DEFAULT_STAGE),
+            reference_profile: true,
+            ..Default::default()
+        });
         state.player.hp = (state.player.max_hp - 60.0).max(1.0);
         state.player.mp = (state.player.max_mp - 50.0).max(0.0);
         let hp0 = state.player.hp;
@@ -1429,7 +1446,11 @@ mod tests {
     #[test]
     fn test_resurrect_coin_revives_defeated_player_and_stops_at_zero() {
         let mut progress = progress_rs::defaults();
-        let mut state = create_state(&CreateStateOptions::default());
+        let mut state = create_state(&CreateStateOptions {
+            stage: Some(DEFAULT_STAGE),
+            reference_profile: true,
+            ..Default::default()
+        });
         assert_eq!(progress_rs::consumable_count(&progress, "resurrectCoin"), 3);
 
         // Cannot resurrect while alive
@@ -1455,5 +1476,64 @@ mod tests {
         assert!(state.defeat);
         assert!(!try_resurrect_on_defeat(&mut state, &mut progress));
         assert!(state.defeat);
+    }
+
+    #[test]
+    fn test_pvf_drop_log_lines_map_to_expected_bag_items() {
+        assert_eq!(
+            loot_item_id_for_log_line("获得[野生草莓]"),
+            Some("hpPotion")
+        );
+        assert_eq!(loot_item_id_for_log_line("获得[越桔]"), Some("hpPotion"));
+        assert_eq!(
+            loot_item_id_for_log_line("获得[烤硬的黑面包]"),
+            Some("hpPotion")
+        );
+        assert_eq!(
+            loot_item_id_for_log_line("获得[魔力之花]"),
+            Some("mpPotion")
+        );
+        assert_eq!(
+            loot_item_id_for_log_line("获得[命运硬币]"),
+            Some("resurrectCoin")
+        );
+        assert_eq!(
+            loot_item_id_for_log_line("获得[古老的库尼族图腾]"),
+            Some("kunicTotem")
+        );
+        assert_eq!(
+            loot_item_id_for_log_line("获得[铜戒指]"),
+            Some("copperRing")
+        );
+        assert_eq!(
+            loot_item_id_for_log_line("获得[苎麻花叶]"),
+            Some("material")
+        );
+        assert_eq!(
+            loot_item_id_for_log_line("获得[投掷石块]"),
+            Some("material")
+        );
+        assert_eq!(loot_item_id_for_log_line("获得 35 金币"), None);
+    }
+
+    #[test]
+    fn test_chest_open_sfx_fires_only_on_chest_to_cards_transition() {
+        use reward_rs::RewardPhase;
+        assert!(should_play_chest_open_sfx(
+            RewardPhase::Chest,
+            RewardPhase::Cards
+        ));
+        assert!(!should_play_chest_open_sfx(
+            RewardPhase::Stats,
+            RewardPhase::Chest
+        ));
+        assert!(!should_play_chest_open_sfx(
+            RewardPhase::Cards,
+            RewardPhase::Cards
+        ));
+        assert!(!should_play_chest_open_sfx(
+            RewardPhase::Cards,
+            RewardPhase::Reveal
+        ));
     }
 }

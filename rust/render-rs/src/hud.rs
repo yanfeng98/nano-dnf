@@ -1431,7 +1431,7 @@ pub fn draw_overlay(
                         VIEW_WIDTH as f32,
                         ARENA_HEIGHT as f32,
                     );
-                    crate::results::draw_result_backdrop(c, sprites, snap.elapsed);
+                    crate::results::draw_result_backdrop(c, sprites, snap.elapsed.max(snap.t));
                     crate::results::draw_recorded_stats(c, state, sprites, snap.t, true);
                     c.restore();
                 }

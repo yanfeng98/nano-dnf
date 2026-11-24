@@ -187,7 +187,7 @@ fn main() {
         state.transition = 0.0;
         state.victory = true;
         let mut reward = reward_rs::create(Some(1), Some("mirkwood")).expect("reward");
-        reward.t = 2.0;
+        reward_rs::step(&mut reward, 2.0);
         let meta = RenderMeta {
             title: false,
             attract: false,

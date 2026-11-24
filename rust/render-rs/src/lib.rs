@@ -921,4 +921,188 @@ mod tests {
             "defeat with resurrect coins should render a distinct resurrect prompt vs 0-coin defeat"
         );
     }
+
+    #[test]
+    fn test_results_stats_phase_renders_dark_dimmer_and_blue_magic_circle() {
+        let root = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../..");
+        let sprites = SpriteStore::load_from_root(&root);
+        let mut fonts = GlyphCache::new(None);
+        let records = records_rs::empty_store();
+        let progress = progress_rs::defaults();
+        let loadout = vec![Some("upSlash".to_string()); 6];
+
+        let mut live_state = create_state(&CreateStateOptions {
+            seed: Some(1),
+            stage: Some("mirkwood"),
+            reference_profile: true,
+            ..Default::default()
+        });
+        live_state.transition = 0.0;
+        live_state.intro_t = None;
+
+        let mut pix_live = Pixmap::new(RENDER_WIDTH, RENDER_HEIGHT).expect("800x600");
+        {
+            let mut c = Canvas::new(&mut pix_live, &mut fonts);
+            let meta = RenderMeta {
+                title: false,
+                attract: false,
+                paused: false,
+                show_help: false,
+                loadout: &loadout,
+                loadout_open: false,
+                progress_panel: ProgressPanelKind::None,
+                progress: &progress,
+                records: &records,
+                reward: None,
+                region_open: false,
+                region_selected: "mirkwood",
+                hint: None,
+                seed: live_state.seed,
+                stage_id: &live_state.stage_id,
+                map_mode: MapMode::Window,
+                continue_hover: None,
+                reward_card_hover: None,
+            };
+            render(&mut c, &live_state, &sprites, &meta);
+        }
+
+        let mut victory_state = live_state.clone();
+        victory_state.victory = true;
+        // Even if reward.t is set directly without stepping elapsed, Stats backdrop must still render.
+        let mut reward = reward_rs::create(Some(1), Some("mirkwood")).expect("reward");
+        reward.t = 2.0;
+
+        let mut pix_res = Pixmap::new(RENDER_WIDTH, RENDER_HEIGHT).expect("800x600");
+        {
+            let mut c = Canvas::new(&mut pix_res, &mut fonts);
+            let meta = RenderMeta {
+                title: false,
+                attract: false,
+                paused: false,
+                show_help: false,
+                loadout: &loadout,
+                loadout_open: false,
+                progress_panel: ProgressPanelKind::None,
+                progress: &progress,
+                records: &records,
+                reward: Some(&reward),
+                region_open: false,
+                region_selected: "mirkwood",
+                hint: None,
+                seed: victory_state.seed,
+                stage_id: &victory_state.stage_id,
+                map_mode: MapMode::Window,
+                continue_hover: None,
+                reward_card_hover: None,
+            };
+            render(&mut c, &victory_state, &sprites, &meta);
+        }
+
+        // Outer corner outside the stats panel and blue glow (x=4..36, y=380..460) should be visibly darkened.
+        let avg_rg = |pix: &Pixmap| -> f64 {
+            let mut sum = 0u64;
+            let mut n = 0u64;
+            let d = pix.data();
+            for y in 380..460 {
+                for x in 4..36 {
+                    let i = ((y * RENDER_WIDTH + x) * 4) as usize;
+                    sum += u64::from(d[i]) + u64::from(d[i + 1]);
+                    n += 2;
+                }
+            }
+            sum as f64 / n as f64
+        };
+        let live_luma = avg_rg(&pix_live);
+        let res_luma = avg_rg(&pix_res);
+        assert!(
+            res_luma < live_luma * 0.65,
+            "expected results dark dimmer to darken background: live={live_luma:.1}, res={res_luma:.1}"
+        );
+
+        // Blue additive magic circle ring below the stats panel (x=250..550, y=320..480)
+        // must produce clearly blue-dominant pixels (b > r + 25).
+        let d = pix_res.data();
+        let mut blue_ring_pixels = 0usize;
+        for y in 320..480 {
+            for x in 250..550 {
+                let i = ((y * RENDER_WIDTH + x) * 4) as usize;
+                let (r, b) = (d[i], d[i + 2]);
+                if b > r.saturating_add(25) && b > 80 {
+                    blue_ring_pixels += 1;
+                }
+            }
+        }
+        assert!(
+            blue_ring_pixels > 800,
+            "expected prominent blue magic circle pixels, got {blue_ring_pixels}"
+        );
+    }
+
+    #[test]
+    fn test_classic_hud_renders_active_player_buff_icon() {
+        let root = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../..");
+        let sprites = SpriteStore::load_from_root(&root);
+        let mut fonts = GlyphCache::new(None);
+        let records = records_rs::empty_store();
+        let progress = progress_rs::defaults();
+        let loadout = vec![Some("upSlash".to_string()); 6];
+
+        let mut base_state = create_state(&CreateStateOptions {
+            seed: Some(1),
+            stage: Some("mirkwood"),
+            reference_profile: true,
+            ..Default::default()
+        });
+        base_state.transition = 0.0;
+        base_state.intro_t = None;
+
+        let mut buffed_state = base_state.clone();
+        buffed_state.player.buff_icon_id = Some("frenzy".to_string());
+        buffed_state.player.buff_icon_timer = 12.0;
+
+        let render_buf = |st: &core_rs::types::State, fonts: &mut GlyphCache| -> Pixmap {
+            let mut pix = Pixmap::new(RENDER_WIDTH, RENDER_HEIGHT).expect("800x600");
+            let mut c = Canvas::new(&mut pix, fonts);
+            let meta = RenderMeta {
+                title: false,
+                attract: false,
+                paused: false,
+                show_help: false,
+                loadout: &loadout,
+                loadout_open: false,
+                progress_panel: ProgressPanelKind::None,
+                progress: &progress,
+                records: &records,
+                reward: None,
+                region_open: false,
+                region_selected: "mirkwood",
+                hint: None,
+                seed: st.seed,
+                stage_id: &st.stage_id,
+                map_mode: MapMode::Radar,
+                continue_hover: None,
+                reward_card_hover: None,
+            };
+            render(&mut c, st, &sprites, &meta);
+            pix
+        };
+
+        let pix_base = render_buf(&base_state, &mut fonts);
+        let pix_buff = render_buf(&buffed_state, &mut fonts);
+
+        // Compare right-side buff slot region (x=558..590, y=531..552).
+        let mut diff_pixels = 0usize;
+        for y in 531..552 {
+            for x in 558..590 {
+                let i = ((y * RENDER_WIDTH + x) * 4) as usize;
+                if pix_base.data()[i..i + 3] != pix_buff.data()[i..i + 3] {
+                    diff_pixels += 1;
+                }
+            }
+        }
+        assert!(
+            diff_pixels > 80,
+            "expected active buff icon to render in right-side buff slot, got {diff_pixels} changed pixels"
+        );
+    }
 }
