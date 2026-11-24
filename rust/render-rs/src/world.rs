@@ -1644,6 +1644,30 @@ pub fn draw_world(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
                     Some(30057) => sprites.get("goblinIce").map(|sh| {
                         let ice_scale = NATIVE_SCALE as f32;
                         let frame = (((age + 1e-7) / 0.05) as u32) % 8;
+                        // Trailing icy mist/sparkle decay particles along the Z-sine path.
+                        for step in 1..=4i32 {
+                            let trail_dt = f64::from(step) * 0.045;
+                            if age < trail_dt {
+                                continue;
+                            }
+                            let t_age = age - trail_dt;
+                            let tx = (pr.x - pr.vx * trail_dt) as f32;
+                            let t_osc = if pr.z_sine_amp > 0.0 {
+                                -(t_age * pr.z_sine_rad_per_sec).sin() * pr.z_sine_amp
+                            } else {
+                                0.0
+                            };
+                            let ty = (pr.y + t_osc - depth_lift(pr.z)) as f32;
+                            let fade = (1.0 - (trail_dt / 0.22) as f32).clamp(0.0, 1.0);
+                            let r = (5.5 - f32::from(step as u8) * 0.8) * ice_scale;
+                            c.fill_ellipse(
+                                tx,
+                                ty,
+                                r,
+                                r * 0.75,
+                                Rgba::new(170, 232, 255, (fade * 140.0) as u8),
+                            );
+                        }
                         if let Some(aura) = sprites.get("goblinIceAura") {
                             let aura_frame = (((age + 1e-7) / 0.09) as u32) % 15;
                             let aw = 192.0 * ice_scale;
@@ -1659,7 +1683,7 @@ pub fn draw_world(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
                                 aw,
                                 ah,
                                 flip,
-                                70.0 / 255.0,
+                                85.0 / 255.0,
                                 0.0,
                             );
                         }
@@ -1701,26 +1725,57 @@ pub fn draw_world(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
                             if particle_age >= 0.35 {
                                 continue;
                             }
+                            let life_frac = (particle_age / 0.35) as f32;
                             let fire_frame: u32 = if particle_age < 0.23 { 0 } else { 1 };
                             let dt_ref = emit_end - birth_age;
-                            let fx = (pr.x - ref_vx * dt_ref) as f32;
-                            let fy =
-                                (base_y - ref_vy * dt_ref + ref_g * dt_ref * dt_ref * 0.5) as f32;
-                            let alpha = if fire_frame == 0 { 1.0 } else { 100.0 / 255.0 };
+                            let jx = ((((em * 37 + pr.id as i32 * 13).rem_euclid(9)) - 4) as f32)
+                                * 0.65
+                                * fire_scale;
+                            let jy = ((((em * 53 + pr.id as i32 * 7).rem_euclid(9)) - 4) as f32)
+                                * 0.65
+                                * fire_scale;
+                            let fx = (pr.x - ref_vx * dt_ref) as f32 + jx;
+                            let fy = (base_y - ref_vy * dt_ref + ref_g * dt_ref * dt_ref * 0.5)
+                                as f32
+                                + jy;
+                            let decay = (1.0 - life_frac).powf(1.25);
+                            let alpha = if fire_frame == 0 {
+                                (0.45 + 0.55 * decay).clamp(0.0, 1.0)
+                            } else {
+                                (decay * 0.55).clamp(0.0, 1.0)
+                            };
+                            let p_sz = sz * (0.88 + 0.18 * (1.0 - life_frac));
                             c.draw_image(
                                 sh,
                                 fire_frame * 128,
                                 0,
                                 128,
                                 128,
-                                fx - sz * 0.5,
-                                fy - sz * 0.5,
-                                sz,
-                                sz,
+                                fx - p_sz * 0.5,
+                                fy - p_sz * 0.5,
+                                p_sz,
+                                p_sz,
                                 fire_flip,
                                 alpha,
                                 -std::f32::consts::PI,
                             );
+                            if particle_age < 0.08 {
+                                let glow_a = (1.0 - (particle_age / 0.08) as f32) * 0.42;
+                                c.draw_image_additive(
+                                    sh,
+                                    0,
+                                    0,
+                                    128,
+                                    128,
+                                    fx - p_sz * 0.45,
+                                    fy - p_sz * 0.45,
+                                    p_sz * 0.9,
+                                    p_sz * 0.9,
+                                    fire_flip,
+                                    glow_a,
+                                    -std::f32::consts::PI,
+                                );
+                            }
                         }
                     }),
                     _ => None,

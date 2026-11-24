@@ -5,6 +5,7 @@ pub mod constants;
 pub mod dungeon;
 pub mod enemy;
 pub mod player;
+pub mod pvf_truth;
 pub mod tables;
 pub mod types;
 
