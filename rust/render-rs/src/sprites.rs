@@ -225,11 +225,13 @@ mod tests {
         for &(row, col, label) in &[(0, 0, "idle"), (1, 0, "run"), (12, 0, "town_walk")] {
             let mut royal_blue = 0usize;
             let mut bright_hair = 0usize;
+            let mut min_y = 176u32;
             for (_dx, dy, px) in cell_pixels(slayer, row, col, 208, 176) {
                 let a = px[3];
                 if a < 128 {
                     continue;
                 }
+                min_y = min_y.min(dy);
                 // Unpremultiply for color checks
                 let r = (u16::from(px[0]) * 255 / u16::from(a)).min(255) as u8;
                 let g = (u16::from(px[1]) * 255 / u16::from(a)).min(255) as u8;
@@ -249,6 +251,12 @@ mod tests {
                 bright_hair >= 15,
                 "{label} missing bright ivory/white hair pixels (got {bright_hair})"
             );
+            if matches!(label, "idle" | "town_walk") {
+                assert!(
+                    min_y >= 73,
+                    "{label} hair silhouette extends too high (min_y={min_y}, expected >= 73 for classic spiky hair without rooster-comb crest)"
+                );
+            }
         }
 
         // Verify raging_slayer preserves exact dimensions and alpha mask with red tint.
