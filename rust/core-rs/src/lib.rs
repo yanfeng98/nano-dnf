@@ -177,8 +177,10 @@ pub fn drain_sounds(state: &mut State) -> Vec<SoundEvent> {
 
 pub fn create_player(x: f64) -> Player {
     let mut skill_cooldowns = indexmap::IndexMap::new();
+    let mut skill_ranks = indexmap::IndexMap::new();
     for id in &TABLES.castable_skills {
         skill_cooldowns.insert(id.clone(), 0.0);
+        skill_ranks.insert(id.clone(), 1);
     }
     Player {
         x,
@@ -231,6 +233,7 @@ pub fn create_player(x: f64) -> Player {
         buff_icon_timer: 0.0,
         buff_icon_id: None,
         skill_cooldowns,
+        skill_ranks,
         invuln: 0.0,
         solid_invuln: 0.0,
         hurt_timer: 0.0,
@@ -267,6 +270,19 @@ pub fn create_state(options: &CreateStateOptions<'_>) -> State {
             _ => None,
         } {
             player.name = Some("阿努纳奇".to_string());
+            player.skill_ranks.clear();
+            match stage_id.as_str() {
+                "mirkwood" => {
+                    player.skill_ranks.insert("ghostSlash".to_string(), 2);
+                    player.skill_ranks.insert("upSlash".to_string(), 1);
+                }
+                "mirkwooddeep" => {
+                    player.skill_ranks.insert("ghostSlash".to_string(), 3);
+                    player.skill_ranks.insert("upSlash".to_string(), 1);
+                    player.skill_ranks.insert("normalWave".to_string(), 1);
+                }
+                _ => {}
+            }
             while player.level < lvl {
                 advance_player_level(&mut player, &stage_id, false);
             }
@@ -598,6 +614,33 @@ mod tests {
         assert_eq!(dun.cols, 5);
         assert_eq!(dun.rows, 4);
         assert_eq!(dun.cells.len(), 18);
+    }
+
+    #[test]
+    fn test_reference_profile_skill_ranks() {
+        let mirk = create_state(&CreateStateOptions {
+            stage: Some("mirkwood"),
+            reference_profile: true,
+            ..Default::default()
+        });
+        assert_eq!(mirk.player.skill_ranks.get("ghostSlash").copied(), Some(2));
+        assert_eq!(mirk.player.skill_ranks.get("upSlash").copied(), Some(1));
+
+        let deep = create_state(&CreateStateOptions {
+            stage: Some("mirkwooddeep"),
+            reference_profile: true,
+            ..Default::default()
+        });
+        assert_eq!(deep.player.skill_ranks.get("ghostSlash").copied(), Some(3));
+        assert_eq!(deep.player.skill_ranks.get("upSlash").copied(), Some(1));
+        assert_eq!(deep.player.skill_ranks.get("normalWave").copied(), Some(1));
+
+        let standard = create_state(&CreateStateOptions::default());
+        assert_eq!(
+            standard.player.skill_ranks.get("ghostSlash").copied(),
+            Some(1)
+        );
+        assert_eq!(standard.player.skill_ranks.get("upSlash").copied(), Some(1));
     }
 
     #[test]
