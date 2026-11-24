@@ -98,10 +98,48 @@ pub fn push_hit_word_effect(state: &mut State, enemy: &Enemy, text: &str) {
 }
 
 pub fn push_damage_effect(state: &mut State, x: f64, y: f64, amount: i64) {
-    let mut eff = Effect::new("damage", 0.6);
+    push_styled_damage_effect(state, x, y, 0.0, amount, false, false);
+}
+
+pub fn push_styled_damage_effect(
+    state: &mut State,
+    x: f64,
+    y: f64,
+    z: f64,
+    amount: i64,
+    critical: bool,
+    player_hit: bool,
+) {
+    let life = if critical { 0.72 } else { 0.6 };
+    let mut eff = Effect::new("damage", life);
     eff.text = amount.to_string();
     eff.x = x;
     eff.y = y;
+    eff.z = z;
+    eff.critical = critical;
+    eff.player_hit = player_hit;
+    state.effects.push(eff);
+}
+
+#[allow(clippy::too_many_arguments)]
+pub fn push_hit_flash_effect(
+    state: &mut State,
+    x: f64,
+    y: f64,
+    z: f64,
+    dir: i32,
+    variant: usize,
+    scale: f64,
+    gold: bool,
+) {
+    let mut eff = Effect::new("hitFlash", 0.15);
+    eff.x = x;
+    eff.y = y;
+    eff.z = z;
+    eff.dir = dir;
+    eff.variant = variant;
+    eff.radius = scale;
+    eff.gold = gold;
     state.effects.push(eff);
 }
 
@@ -513,6 +551,7 @@ pub fn enter_phase2(state: &mut State, enemy_idx: usize) -> bool {
     let eid = e.id;
     let ekind = e.kind.clone();
     state.effects.push(shock);
+    crate::trigger_screen_shake(state, 7.5, 0.24);
 
     let stage_banner = TABLES
         .stages
@@ -689,8 +728,47 @@ pub fn damage_enemy(
 
     let ex = state.enemies[enemy_idx].x;
     let ey = state.enemies[enemy_idx].y;
+    let ez = state.enemies[enemy_idx].z;
+    let ew = state.enemies[enemy_idx].width;
     let eh = state.enemies[enemy_idx].height;
-    push_damage_effect(state, ex, ey - eh - 6.0, i64::from(applied));
+    let is_critical =
+        slayer_swing && (applied >= 50 || opts.hit_stop >= 0.08 || opts.knockdown > 0.0);
+    push_styled_damage_effect(
+        state,
+        ex,
+        ey - eh - 6.0,
+        ez,
+        i64::from(applied),
+        is_critical,
+        false,
+    );
+
+    if applied > 0 {
+        state.enemies[enemy_idx].hit_flash_timer = 0.12;
+        if slayer_swing {
+            let hit_dir = if ex >= source_x { 1 } else { -1 };
+            let contact_x = ex - f64::from(hit_dir) * (ew * 0.24);
+            let contact_y = ey - eh * 0.56;
+            let flash_scale = if is_critical { 1.18 } else { 0.94 };
+            push_hit_flash_effect(
+                state,
+                contact_x,
+                contact_y,
+                ez,
+                hit_dir,
+                0,
+                flash_scale,
+                is_critical,
+            );
+            if is_critical || opts.hit_stop >= 0.08 {
+                crate::trigger_screen_shake(state, 4.5, 0.16);
+            } else if opts.hit_stop >= HIT_STOP_STAGE[2] {
+                crate::trigger_screen_shake(state, 2.5, 0.10);
+            } else if opts.hit_stop > 0.0 {
+                crate::trigger_screen_shake(state, 1.3, 0.07);
+            }
+        }
+    }
 
     if applied > 0
         && slayer_swing
@@ -1006,12 +1084,22 @@ pub fn damage_player(state: &mut State, amount: f64, source_x: f64) -> u32 {
     if applied > state.stats.max_hit_taken {
         state.stats.max_hit_taken = applied;
     }
-    push_damage_effect(
+    let px = state.player.x;
+    let py = state.player.y;
+    let pz = state.player.z;
+    let ph = state.player.height;
+    push_styled_damage_effect(
         state,
-        state.player.x,
-        state.player.y - state.player.height - 6.0,
+        px,
+        py - ph - 6.0,
+        pz,
         i64::from(applied),
+        false,
+        true,
     );
+    let hit_dir = if px >= source_x { 1 } else { -1 };
+    push_hit_flash_effect(state, px, py - ph * 0.55, pz, hit_dir, 1, 0.72, false);
+    crate::trigger_screen_shake(state, 3.5, 0.14);
     state.player.invuln = PLAYER_INVULN_AFTER_HIT;
 
     let armored = state
