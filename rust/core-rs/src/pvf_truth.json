@@ -1,0 +1,1067 @@
+{
+  "sourceArchive": "Script_70.pvf",
+  "monsters": {
+    "grunt": {
+      "source": "monster/goblin/goblin.mob",
+      "sight": 300,
+      "warlike": 60,
+      "attackDelayMs": 1500,
+      "moveSpeed": [
+        300,
+        300
+      ],
+      "width": [
+        40,
+        10
+      ],
+      "levelRange": [
+        1,
+        6
+      ],
+      "categories": [
+        "human",
+        "goblin",
+        "melee combat",
+        "close-passive"
+      ],
+      "abilityMultipliers": {
+        "HP MAX": 70,
+        "EQUIPMENT_PHYSICAL_ATTACK": 90,
+        "EQUIPMENT_PHYSICAL_DEFENSE": 90,
+        "EQUIPMENT_MAGICAL_ATTACK": 90,
+        "EQUIPMENT_MAGICAL_DEFENSE": 90
+      },
+      "throwAttack": null,
+      "drops": [
+        {
+          "itemId": 1000,
+          "name": "野生草莓",
+          "tone": "white",
+          "weight": 50
+        },
+        {
+          "itemId": 1047,
+          "name": "命运硬币",
+          "tone": "cyan",
+          "weight": 200
+        },
+        {
+          "itemId": 1004,
+          "name": "苎麻花叶",
+          "tone": "white",
+          "weight": 100
+        }
+      ]
+    },
+    "coward": {
+      "source": "monster/goblin/cowardgoblin.mob",
+      "sight": 250,
+      "warlike": 40,
+      "attackDelayMs": 2000,
+      "moveSpeed": [
+        600,
+        600
+      ],
+      "width": [
+        40,
+        10
+      ],
+      "levelRange": [
+        1,
+        99
+      ],
+      "categories": [
+        "human",
+        "melee combat",
+        "close-passive"
+      ],
+      "abilityMultipliers": {
+        "HP MAX": 80,
+        "EQUIPMENT_PHYSICAL_ATTACK": 80,
+        "EQUIPMENT_PHYSICAL_DEFENSE": 80,
+        "EQUIPMENT_MAGICAL_ATTACK": 80,
+        "EQUIPMENT_MAGICAL_DEFENSE": 80
+      },
+      "throwAttack": null,
+      "drops": [
+        {
+          "itemId": 1062,
+          "name": "越桔",
+          "tone": "white",
+          "weight": 50
+        },
+        {
+          "itemId": 1065,
+          "name": "魔力之花",
+          "tone": "cyan",
+          "weight": 100
+        },
+        {
+          "itemId": 1047,
+          "name": "命运硬币",
+          "tone": "cyan",
+          "weight": 200
+        }
+      ]
+    },
+    "caster": {
+      "source": "monster/goblin/goblinthrower.mob",
+      "sight": 300,
+      "warlike": 30,
+      "attackDelayMs": 3000,
+      "moveSpeed": [
+        350,
+        350
+      ],
+      "width": [
+        40,
+        10
+      ],
+      "levelRange": [
+        2,
+        6
+      ],
+      "categories": [
+        "human",
+        "goblin",
+        "range combat",
+        "close-passive"
+      ],
+      "abilityMultipliers": {
+        "HP MAX": 65,
+        "EQUIPMENT_PHYSICAL_ATTACK": 75,
+        "EQUIPMENT_PHYSICAL_DEFENSE": 80,
+        "EQUIPMENT_MAGICAL_ATTACK": 80,
+        "EQUIPMENT_MAGICAL_DEFENSE": 80
+      },
+      "throwAttack": {
+        "passiveObject": 30001,
+        "ptl": "Particle/ThrowStone.ptl",
+        "throwFrame": 2,
+        "startOffset": [
+          20,
+          0,
+          60
+        ],
+        "sound": "THROW_STONE"
+      },
+      "drops": [
+        {
+          "itemId": 6003,
+          "name": "投掷石块",
+          "tone": "white",
+          "weight": 300
+        },
+        {
+          "itemId": 1000,
+          "name": "野生草莓",
+          "tone": "white",
+          "weight": 50
+        },
+        {
+          "itemId": 1047,
+          "name": "命运硬币",
+          "tone": "cyan",
+          "weight": 200
+        },
+        {
+          "itemId": 1004,
+          "name": "苎麻花叶",
+          "tone": "white",
+          "weight": 100
+        }
+      ]
+    },
+    "burningThrower": {
+      "source": "monster/goblin/goblinthrower.mob",
+      "sight": 300,
+      "warlike": 30,
+      "attackDelayMs": 3000,
+      "moveSpeed": [
+        350,
+        350
+      ],
+      "width": [
+        40,
+        10
+      ],
+      "levelRange": [
+        2,
+        6
+      ],
+      "categories": [
+        "human",
+        "goblin",
+        "range combat",
+        "close-passive"
+      ],
+      "abilityMultipliers": {
+        "HP MAX": 65,
+        "EQUIPMENT_PHYSICAL_ATTACK": 75,
+        "EQUIPMENT_PHYSICAL_DEFENSE": 80,
+        "EQUIPMENT_MAGICAL_ATTACK": 80,
+        "EQUIPMENT_MAGICAL_DEFENSE": 80
+      },
+      "throwAttack": {
+        "passiveObject": 30001,
+        "ptl": "Particle/ThrowStone.ptl",
+        "throwFrame": 2,
+        "startOffset": [
+          20,
+          0,
+          60
+        ],
+        "sound": "THROW_STONE"
+      },
+      "drops": [
+        {
+          "itemId": 6003,
+          "name": "投掷石块",
+          "tone": "white",
+          "weight": 300
+        },
+        {
+          "itemId": 1000,
+          "name": "野生草莓",
+          "tone": "white",
+          "weight": 50
+        },
+        {
+          "itemId": 1047,
+          "name": "命运硬币",
+          "tone": "cyan",
+          "weight": 200
+        },
+        {
+          "itemId": 1004,
+          "name": "苎麻花叶",
+          "tone": "white",
+          "weight": 100
+        }
+      ]
+    },
+    "goblinRed": {
+      "source": "monster/goblin/hillgab.mob",
+      "sight": 300,
+      "warlike": 30,
+      "attackDelayMs": 3000,
+      "moveSpeed": [
+        400,
+        400
+      ],
+      "width": [
+        40,
+        10
+      ],
+      "levelRange": [
+        3,
+        9
+      ],
+      "categories": [
+        "human",
+        "goblin",
+        "range combat",
+        "close-passive"
+      ],
+      "abilityMultipliers": {
+        "HP MAX": 70,
+        "EQUIPMENT_PHYSICAL_ATTACK": 70,
+        "EQUIPMENT_PHYSICAL_DEFENSE": 70,
+        "EQUIPMENT_MAGICAL_ATTACK": 70,
+        "EQUIPMENT_MAGICAL_DEFENSE": 100
+      },
+      "throwAttack": {
+        "passiveObject": 30047,
+        "ptl": "PassiveObject/Common/Particle/FireMissileGeroCenter.ptl",
+        "throwFrame": 2,
+        "startOffset": [
+          20,
+          0,
+          60
+        ],
+        "sound": ""
+      },
+      "drops": [
+        {
+          "itemId": 1062,
+          "name": "越桔",
+          "tone": "white",
+          "weight": 50
+        },
+        {
+          "itemId": 1065,
+          "name": "魔力之花",
+          "tone": "cyan",
+          "weight": 100
+        },
+        {
+          "itemId": 1047,
+          "name": "命运硬币",
+          "tone": "cyan",
+          "weight": 200
+        }
+      ]
+    },
+    "cursedRed": {
+      "source": "monster/goblin/flaghillgab.mob",
+      "sight": 350,
+      "warlike": 30,
+      "attackDelayMs": 3000,
+      "moveSpeed": [
+        400,
+        400
+      ],
+      "width": [
+        40,
+        10
+      ],
+      "levelRange": [
+        8,
+        16
+      ],
+      "categories": [
+        "human",
+        "goblin",
+        "range combat",
+        "close-carefully"
+      ],
+      "abilityMultipliers": {
+        "HP MAX": 70,
+        "EQUIPMENT_PHYSICAL_ATTACK": 80,
+        "EQUIPMENT_PHYSICAL_DEFENSE": 80,
+        "EQUIPMENT_MAGICAL_ATTACK": 100,
+        "EQUIPMENT_MAGICAL_DEFENSE": 110
+      },
+      "throwAttack": null,
+      "drops": [
+        {
+          "itemId": 1062,
+          "name": "越桔",
+          "tone": "white",
+          "weight": 50
+        },
+        {
+          "itemId": 1065,
+          "name": "魔力之花",
+          "tone": "cyan",
+          "weight": 100
+        },
+        {
+          "itemId": 1047,
+          "name": "命运硬币",
+          "tone": "cyan",
+          "weight": 200
+        }
+      ]
+    },
+    "goblinBlue": {
+      "source": "monster/goblin/seagab.mob",
+      "sight": 300,
+      "warlike": 30,
+      "attackDelayMs": 3000,
+      "moveSpeed": [
+        400,
+        400
+      ],
+      "width": [
+        40,
+        10
+      ],
+      "levelRange": [
+        10,
+        15
+      ],
+      "categories": [
+        "human",
+        "goblin",
+        "range combat",
+        "close-passive"
+      ],
+      "abilityMultipliers": {
+        "HP MAX": 70,
+        "EQUIPMENT_PHYSICAL_ATTACK": 70,
+        "EQUIPMENT_PHYSICAL_DEFENSE": 70,
+        "EQUIPMENT_MAGICAL_ATTACK": 80,
+        "EQUIPMENT_MAGICAL_DEFENSE": 100
+      },
+      "throwAttack": {
+        "passiveObject": 30057,
+        "ptl": "PassiveObject/Common/Particle/IceMissile.ptl",
+        "throwFrame": 2,
+        "startOffset": [
+          20,
+          0,
+          60
+        ],
+        "sound": ""
+      },
+      "drops": [
+        {
+          "itemId": 1062,
+          "name": "越桔",
+          "tone": "white",
+          "weight": 50
+        },
+        {
+          "itemId": 1065,
+          "name": "魔力之花",
+          "tone": "cyan",
+          "weight": 100
+        },
+        {
+          "itemId": 1047,
+          "name": "命运硬币",
+          "tone": "cyan",
+          "weight": 200
+        }
+      ]
+    },
+    "elite": {
+      "source": "monster/goblin/goblintaskmaster.mob",
+      "sight": 350,
+      "warlike": 90,
+      "attackDelayMs": 1500,
+      "moveSpeed": [
+        500,
+        500
+      ],
+      "width": [
+        40,
+        10
+      ],
+      "levelRange": [
+        7,
+        12
+      ],
+      "categories": [
+        "human",
+        "goblin",
+        "melee combat",
+        "close-carefully"
+      ],
+      "abilityMultipliers": {
+        "HP MAX": 70,
+        "EQUIPMENT_PHYSICAL_ATTACK": 100,
+        "EQUIPMENT_PHYSICAL_DEFENSE": 100,
+        "EQUIPMENT_MAGICAL_ATTACK": 100,
+        "EQUIPMENT_MAGICAL_DEFENSE": 100
+      },
+      "throwAttack": null,
+      "drops": [
+        {
+          "itemId": 1062,
+          "name": "越桔",
+          "tone": "white",
+          "weight": 50
+        },
+        {
+          "itemId": 1065,
+          "name": "魔力之花",
+          "tone": "cyan",
+          "weight": 100
+        },
+        {
+          "itemId": 1047,
+          "name": "命运硬币",
+          "tone": "cyan",
+          "weight": 200
+        }
+      ]
+    },
+    "deepElite": {
+      "source": "monster/goblin/goblintaskmaster.mob",
+      "sight": 350,
+      "warlike": 90,
+      "attackDelayMs": 1500,
+      "moveSpeed": [
+        500,
+        500
+      ],
+      "width": [
+        40,
+        10
+      ],
+      "levelRange": [
+        7,
+        12
+      ],
+      "categories": [
+        "human",
+        "goblin",
+        "melee combat",
+        "close-carefully"
+      ],
+      "abilityMultipliers": {
+        "HP MAX": 70,
+        "EQUIPMENT_PHYSICAL_ATTACK": 100,
+        "EQUIPMENT_PHYSICAL_DEFENSE": 100,
+        "EQUIPMENT_MAGICAL_ATTACK": 100,
+        "EQUIPMENT_MAGICAL_DEFENSE": 100
+      },
+      "throwAttack": null,
+      "drops": [
+        {
+          "itemId": 1062,
+          "name": "越桔",
+          "tone": "white",
+          "weight": 50
+        },
+        {
+          "itemId": 1065,
+          "name": "魔力之花",
+          "tone": "cyan",
+          "weight": 100
+        },
+        {
+          "itemId": 1047,
+          "name": "命运硬币",
+          "tone": "cyan",
+          "weight": 200
+        }
+      ]
+    },
+    "throwerElite": {
+      "source": "monster/goblin/goblinthrowertaskmaster.mob",
+      "sight": 350,
+      "warlike": 30,
+      "attackDelayMs": 4000,
+      "moveSpeed": [
+        400,
+        400
+      ],
+      "width": [
+        40,
+        10
+      ],
+      "levelRange": [
+        5,
+        10
+      ],
+      "categories": [
+        "human",
+        "goblin",
+        "range combat",
+        "close-carefully"
+      ],
+      "abilityMultipliers": {
+        "HP MAX": 75,
+        "EQUIPMENT_PHYSICAL_ATTACK": 75,
+        "EQUIPMENT_PHYSICAL_DEFENSE": 80,
+        "EQUIPMENT_MAGICAL_ATTACK": 80,
+        "EQUIPMENT_MAGICAL_DEFENSE": 80
+      },
+      "throwAttack": {
+        "passiveObject": 30021,
+        "ptl": "monster/goblin/particle/aimingbomb.ptl",
+        "throwFrame": 2,
+        "startOffset": [
+          20,
+          0,
+          60
+        ],
+        "sound": "THROW_STONE"
+      },
+      "drops": [
+        {
+          "itemId": 6003,
+          "name": "投掷石块",
+          "tone": "white",
+          "weight": 100
+        },
+        {
+          "itemId": 1062,
+          "name": "越桔",
+          "tone": "white",
+          "weight": 50
+        },
+        {
+          "itemId": 1065,
+          "name": "魔力之花",
+          "tone": "cyan",
+          "weight": 100
+        },
+        {
+          "itemId": 1047,
+          "name": "命运硬币",
+          "tone": "cyan",
+          "weight": 200
+        }
+      ]
+    },
+    "brute": {
+      "source": "monster/tau/tauarmy.mob",
+      "sight": 300,
+      "warlike": 100,
+      "attackDelayMs": 2000,
+      "moveSpeed": [
+        400,
+        400
+      ],
+      "width": [
+        60,
+        20
+      ],
+      "levelRange": [
+        4,
+        9
+      ],
+      "categories": [
+        "beast",
+        "tau",
+        "melee combat"
+      ],
+      "abilityMultipliers": {
+        "HP MAX": 130,
+        "EQUIPMENT_PHYSICAL_ATTACK": 100,
+        "EQUIPMENT_PHYSICAL_DEFENSE": 80,
+        "EQUIPMENT_MAGICAL_ATTACK": 70,
+        "EQUIPMENT_MAGICAL_DEFENSE": 70
+      },
+      "throwAttack": null,
+      "drops": [
+        {
+          "itemId": 1062,
+          "name": "越桔",
+          "tone": "white",
+          "weight": 50
+        },
+        {
+          "itemId": 1065,
+          "name": "魔力之花",
+          "tone": "cyan",
+          "weight": 100
+        },
+        {
+          "itemId": 1047,
+          "name": "命运硬币",
+          "tone": "cyan",
+          "weight": 200
+        }
+      ]
+    },
+    "boss": {
+      "source": "monster/tau/taubeast.mob",
+      "sight": 500,
+      "warlike": 80,
+      "attackDelayMs": 2000,
+      "moveSpeed": [
+        600,
+        600
+      ],
+      "width": [
+        60,
+        20
+      ],
+      "levelRange": [
+        4,
+        20
+      ],
+      "categories": [
+        "beast",
+        "tau",
+        "melee combat",
+        "close-tough"
+      ],
+      "abilityMultipliers": {
+        "HP MAX": 175,
+        "EQUIPMENT_PHYSICAL_ATTACK": 100,
+        "EQUIPMENT_PHYSICAL_DEFENSE": 100,
+        "EQUIPMENT_MAGICAL_ATTACK": 80,
+        "EQUIPMENT_MAGICAL_DEFENSE": 80
+      },
+      "throwAttack": null,
+      "drops": [
+        {
+          "itemId": 1062,
+          "name": "越桔",
+          "tone": "white",
+          "weight": 50
+        },
+        {
+          "itemId": 1065,
+          "name": "魔力之花",
+          "tone": "cyan",
+          "weight": 100
+        },
+        {
+          "itemId": 1047,
+          "name": "命运硬币",
+          "tone": "cyan",
+          "weight": 200
+        }
+      ]
+    },
+    "cat": {
+      "source": "monster/lugaru/lugaru.mob",
+      "sight": 300,
+      "warlike": 60,
+      "attackDelayMs": 2000,
+      "moveSpeed": [
+        600,
+        600
+      ],
+      "width": [
+        40,
+        10
+      ],
+      "levelRange": [
+        9,
+        14
+      ],
+      "categories": [
+        "beast",
+        "lugaru",
+        "melee combat",
+        "close-carefully"
+      ],
+      "abilityMultipliers": {
+        "HP MAX": 85,
+        "EQUIPMENT_PHYSICAL_ATTACK": 80,
+        "EQUIPMENT_PHYSICAL_DEFENSE": 80,
+        "EQUIPMENT_MAGICAL_ATTACK": 80,
+        "EQUIPMENT_MAGICAL_DEFENSE": 80
+      },
+      "throwAttack": null,
+      "drops": [
+        {
+          "itemId": 1062,
+          "name": "越桔",
+          "tone": "white",
+          "weight": 50
+        },
+        {
+          "itemId": 1065,
+          "name": "魔力之花",
+          "tone": "cyan",
+          "weight": 100
+        },
+        {
+          "itemId": 1047,
+          "name": "命运硬币",
+          "tone": "cyan",
+          "weight": 200
+        }
+      ]
+    },
+    "lugaruBoss": {
+      "source": "monster/lugaru/kurogaru.mob",
+      "sight": 300,
+      "warlike": 70,
+      "attackDelayMs": 2000,
+      "moveSpeed": [
+        600,
+        600
+      ],
+      "width": [
+        40,
+        10
+      ],
+      "levelRange": [
+        8,
+        19
+      ],
+      "categories": [
+        "beast",
+        "lugaru",
+        "melee combat",
+        "close-carefully"
+      ],
+      "abilityMultipliers": {
+        "HP MAX": 85,
+        "EQUIPMENT_PHYSICAL_ATTACK": 100,
+        "EQUIPMENT_PHYSICAL_DEFENSE": 100,
+        "EQUIPMENT_MAGICAL_ATTACK": 90,
+        "EQUIPMENT_MAGICAL_DEFENSE": 90
+      },
+      "throwAttack": null,
+      "drops": [
+        {
+          "itemId": 1001,
+          "name": "烤硬的黑面包",
+          "tone": "white",
+          "weight": 50
+        },
+        {
+          "itemId": 1047,
+          "name": "命运硬币",
+          "tone": "cyan",
+          "weight": 200
+        },
+        {
+          "itemId": 1065,
+          "name": "魔力之花",
+          "tone": "cyan",
+          "weight": 100
+        }
+      ]
+    }
+  },
+  "projectiles": {
+    "30001": {
+      "id": 30001,
+      "label": "投掷石块",
+      "objSource": "passiveobject/monster/goblin/throwstone.obj",
+      "ptlSource": "monster/goblin/particle/throwstone.ptl",
+      "destroyPtlSource": "passiveobject/monster/goblin/particle/throwstonedestroy.ptl",
+      "atkSource": "passiveobject/monster/goblin/attackinfo/throwstone.atk",
+      "speedX": 250,
+      "speedZ": 0,
+      "gravity": 0,
+      "angleDeg": 0,
+      "lifeMs": 1200,
+      "landingType": "vanish",
+      "piercingPower": 0,
+      "zSineAmp": 0,
+      "zSineDegPerSec": 0,
+      "destroyParticleCount": 10,
+      "spawnSubObject": null,
+      "damageBonus": 0,
+      "damageReaction": "damage",
+      "hitWav": "STAFF_HIT"
+    },
+    "30021": {
+      "id": 30021,
+      "label": "投掷十夫长炸弹",
+      "objSource": "passiveobject/monster/goblin/gobflybomb.obj",
+      "ptlSource": "monster/goblin/particle/aimingbomb.ptl",
+      "destroyPtlSource": "passiveobject/monster/goblin/particle/flybombpiece.ptl",
+      "atkSource": "passiveobject/monster/goblin/attackinfo/flybomb.atk",
+      "speedX": 300,
+      "speedZ": 200,
+      "gravity": 600,
+      "angleDeg": 0,
+      "lifeMs": 10000,
+      "landingType": "stop",
+      "piercingPower": 0,
+      "zSineAmp": 0,
+      "zSineDegPerSec": 0,
+      "destroyParticleCount": 20,
+      "spawnSubObject": 30022,
+      "damageBonus": 0,
+      "damageReaction": "none",
+      "hitWav": ""
+    },
+    "30022": {
+      "id": 30022,
+      "label": "炸弹爆破子对象",
+      "objSource": "passiveobject/monster/goblin/gobflybombsub.obj",
+      "ptlSource": null,
+      "destroyPtlSource": null,
+      "atkSource": "passiveobject/monster/goblin/attackinfo/flybombsub.atk",
+      "speedX": 0,
+      "speedZ": 0,
+      "gravity": 0,
+      "angleDeg": 0,
+      "lifeMs": 0,
+      "landingType": "vanish",
+      "piercingPower": 1000,
+      "zSineAmp": 0,
+      "zSineDegPerSec": 0,
+      "destroyParticleCount": 0,
+      "spawnSubObject": null,
+      "damageBonus": 30,
+      "damageReaction": "down",
+      "hitWav": "R_BOMB_HITT"
+    },
+    "30047": {
+      "id": 30047,
+      "label": "赤哥布林火弹",
+      "objSource": "passiveobject/monster/goblin/hillgabsizzle.obj",
+      "ptlSource": "passiveobject/common/particle/firemissilegerocenter.ptl",
+      "destroyPtlSource": null,
+      "atkSource": "passiveobject/monster/goblin/attackinfo/hillgabsizzle.atk",
+      "speedX": 300,
+      "speedZ": 0,
+      "gravity": 200,
+      "angleDeg": 10,
+      "lifeMs": 3000,
+      "landingType": "stop",
+      "piercingPower": 0,
+      "zSineAmp": 0,
+      "zSineDegPerSec": 0,
+      "destroyParticleCount": 0,
+      "spawnSubObject": null,
+      "damageBonus": 0,
+      "damageReaction": "damage",
+      "hitWav": "SIZZLE_HIT"
+    },
+    "30057": {
+      "id": 30057,
+      "label": "青哥布林冰弹",
+      "objSource": "passiveobject/monster/goblin/seagabicicle.obj",
+      "ptlSource": "passiveobject/common/particle/icemissile.ptl",
+      "destroyPtlSource": null,
+      "atkSource": "passiveobject/monster/goblin/attackinfo/seagabicicle.atk",
+      "speedX": 200,
+      "speedZ": 0,
+      "gravity": 0,
+      "angleDeg": 0,
+      "lifeMs": 1500,
+      "landingType": "vanish",
+      "piercingPower": 50,
+      "zSineAmp": 5,
+      "zSineDegPerSec": 1600,
+      "destroyParticleCount": 0,
+      "spawnSubObject": null,
+      "damageBonus": 0,
+      "damageReaction": "damage",
+      "hitWav": "ICICLE_HIT"
+    }
+  },
+  "stages": {
+    "mirkwood": {
+      "source": "dungeon/act1/mirkwood.dgn",
+      "basisLevel": 4,
+      "minLevel": 2,
+      "expScale": 1.0,
+      "championCounts": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "breakableDrops": [
+        {
+          "itemId": 1000,
+          "name": "野生草莓",
+          "tone": "white",
+          "weight": 833
+        },
+        {
+          "itemId": 1004,
+          "name": "苎麻花叶",
+          "tone": "white",
+          "weight": 833
+        }
+      ],
+      "branchRooms": [
+        {
+          "mapSource": "map/mirkwood/202.map",
+          "roster": {
+            "grunt": 6
+          }
+        },
+        {
+          "mapSource": "map/mirkwood/203.map",
+          "roster": {
+            "grunt": 4,
+            "caster": 2,
+            "goblinBlue": 1
+          }
+        },
+        {
+          "mapSource": "map/mirkwood/207.map",
+          "roster": {
+            "caster": 1,
+            "grunt": 2,
+            "goblinBlue": 1,
+            "goblinRed": 1
+          }
+        },
+        {
+          "mapSource": "map/mirkwood/208.map",
+          "roster": {
+            "goblinBlue": 2,
+            "grunt": 4
+          }
+        },
+        {
+          "mapSource": "map/mirkwood/213.map",
+          "roster": {
+            "caster": 3,
+            "grunt": 2,
+            "goblinRed": 1
+          }
+        },
+        {
+          "mapSource": "map/mirkwood/218.map",
+          "roster": {
+            "caster": 2,
+            "grunt": 2,
+            "goblinBlue": 1,
+            "brute": 2,
+            "elite": 1,
+            "goblinRed": 1
+          }
+        }
+      ]
+    },
+    "mirkwooddeep": {
+      "source": "dungeon/act1/mirkwooddeep.dgn",
+      "basisLevel": 6,
+      "minLevel": 3,
+      "expScale": 1.4,
+      "championCounts": [
+        2,
+        4,
+        6,
+        8,
+        10
+      ],
+      "breakableDrops": [
+        {
+          "itemId": 1000,
+          "name": "野生草莓",
+          "tone": "white",
+          "weight": 3000
+        },
+        {
+          "itemId": 1004,
+          "name": "苎麻花叶",
+          "tone": "white",
+          "weight": 1500
+        }
+      ],
+      "branchRooms": [
+        {
+          "mapSource": "map/mirkwooddeep/402.map",
+          "roster": {
+            "throwerElite": 2,
+            "grunt": 5,
+            "elite": 2
+          }
+        },
+        {
+          "mapSource": "map/mirkwooddeep/406.map",
+          "roster": {
+            "goblinRed": 3,
+            "elite": 1,
+            "throwerElite": 2,
+            "caster": 3
+          }
+        },
+        {
+          "mapSource": "map/mirkwooddeep/408.map",
+          "roster": {
+            "goblinBlue": 2,
+            "goblinRed": 3,
+            "coward": 1
+          }
+        },
+        {
+          "mapSource": "map/mirkwooddeep/413.map",
+          "roster": {
+            "cat": 3,
+            "caster": 5,
+            "elite": 2
+          }
+        },
+        {
+          "mapSource": "map/mirkwooddeep/419.map",
+          "roster": {
+            "goblinRed": 4,
+            "goblinBlue": 3,
+            "coward": 1
+          }
+        },
+        {
+          "mapSource": "map/mirkwooddeep/425.map",
+          "roster": {
+            "cat": 6
+          }
+        }
+      ]
+    }
+  }
+}
