@@ -1570,6 +1570,9 @@ pub fn resolve_room(state: &mut State, input: &Input, could_steer: bool) {
             c.cleared = true;
         }
         state.stats.rooms += 1;
+        if !boss_cell {
+            crate::push_sound(state, "gateOpen", state.player.x, state.player.z);
+        }
         if boss_cell && state.victory_delay.is_none() {
             if let Some(ref mut rm) = state.room {
                 rm.pending_wave.clear();

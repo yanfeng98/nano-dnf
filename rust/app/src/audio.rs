@@ -1,7 +1,39 @@
-//! Native BGM and SFX playback via `rodio` on Windows (`src/music.js` + `src/main.js`).
+//! Native BGM, ambient loop, and SFX playback via `rodio` on Windows (`src/music.js` + `src/main.js`).
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum AmbientMode {
+    None,
+    Forest,
+    ForestRain,
+}
+
+/// Choose ambient audio loops for the active scene (ADR 0063: mirkwood has rain, mirkwooddeep does not).
+pub fn ambient_for_scene(in_dungeon: bool, stage_id: &str) -> AmbientMode {
+    if !in_dungeon {
+        AmbientMode::None
+    } else if stage_id == "mirkwood" {
+        AmbientMode::ForestRain
+    } else {
+        AmbientMode::Forest
+    }
+}
+
+/// Compute `(forest_volume, rain_volume)` respecting mute and music toggles.
+#[cfg(any(target_os = "windows", test))]
+pub fn ambient_volumes_for(mode: AmbientMode, muted: bool, music_enabled: bool) -> (f32, f32) {
+    if muted || !music_enabled {
+        return (0.0, 0.0);
+    }
+    match mode {
+        AmbientMode::None => (0.0, 0.0),
+        AmbientMode::Forest => (0.22, 0.0),
+        AmbientMode::ForestRain => (0.22, 0.20),
+    }
+}
 
 #[cfg(target_os = "windows")]
 mod win_audio {
+    use super::{ambient_volumes_for, AmbientMode};
     use core_rs::types::SoundEvent;
     use music_rs::{track_info, TrackId};
     use rodio::{Decoder, OutputStream, OutputStreamHandle, Sink, Source};
@@ -15,7 +47,10 @@ mod win_audio {
         _stream: Option<OutputStream>,
         handle: Option<OutputStreamHandle>,
         music_sink: Option<Sink>,
+        forest_sink: Option<Sink>,
+        rain_sink: Option<Sink>,
         current_track: Option<TrackId>,
+        current_ambient: AmbientMode,
         muted: bool,
         music_enabled: bool,
         asset_root: PathBuf,
@@ -32,7 +67,10 @@ mod win_audio {
                 _stream: stream,
                 handle,
                 music_sink: None,
+                forest_sink: None,
+                rain_sink: None,
                 current_track: None,
+                current_ambient: AmbientMode::None,
                 muted: false,
                 music_enabled: true,
                 asset_root: asset_root.to_path_buf(),
@@ -48,21 +86,83 @@ mod win_audio {
             }
         }
 
-        pub fn toggle_mute(&mut self) {
-            self.muted = !self.muted;
+        fn refresh_volumes(&self) {
             let vol = self.music_volume();
             if let Some(ref sink) = self.music_sink {
                 sink.set_volume(vol);
             }
+            let (forest_vol, rain_vol) =
+                ambient_volumes_for(self.current_ambient, self.muted, self.music_enabled);
+            if let Some(ref sink) = self.forest_sink {
+                sink.set_volume(forest_vol);
+            }
+            if let Some(ref sink) = self.rain_sink {
+                sink.set_volume(rain_vol);
+            }
+        }
+
+        pub fn toggle_mute(&mut self) {
+            self.muted = !self.muted;
+            self.refresh_volumes();
         }
 
         pub fn toggle_music(&mut self) -> bool {
             self.music_enabled = !self.music_enabled;
-            let vol = self.music_volume();
-            if let Some(ref sink) = self.music_sink {
-                sink.set_volume(vol);
-            }
+            self.refresh_volumes();
             self.music_enabled
+        }
+
+        #[cfg(test)]
+        pub fn current_ambient(&self) -> AmbientMode {
+            self.current_ambient
+        }
+
+        #[cfg(test)]
+        pub fn effective_ambient_volumes(&self) -> (f32, f32) {
+            ambient_volumes_for(self.current_ambient, self.muted, self.music_enabled)
+        }
+
+        fn spawn_loop_sink(&self, rel: &str, volume: f32) -> Option<Sink> {
+            let handle = self.handle.as_ref()?;
+            let path = self.asset_root.join(rel);
+            let bytes = fs::read(&path).ok()?;
+            let decoder = Decoder::new(Cursor::new(bytes)).ok()?;
+            let sink = Sink::try_new(handle).ok()?;
+            sink.set_volume(volume);
+            sink.append(decoder.repeat_infinite());
+            Some(sink)
+        }
+
+        pub fn sync_ambient(&mut self, mode: AmbientMode) {
+            if self.current_ambient == mode {
+                return;
+            }
+            self.current_ambient = mode;
+            let (forest_vol, rain_vol) =
+                ambient_volumes_for(self.current_ambient, self.muted, self.music_enabled);
+
+            let want_forest = matches!(mode, AmbientMode::Forest | AmbientMode::ForestRain);
+            let want_rain = matches!(mode, AmbientMode::ForestRain);
+
+            if !want_forest {
+                if let Some(old) = self.forest_sink.take() {
+                    old.stop();
+                }
+            } else if self.forest_sink.is_none() {
+                self.forest_sink = self.spawn_loop_sink("assets/sfx/amb_forest_01.ogg", forest_vol);
+            } else if let Some(ref sink) = self.forest_sink {
+                sink.set_volume(forest_vol);
+            }
+
+            if !want_rain {
+                if let Some(old) = self.rain_sink.take() {
+                    old.stop();
+                }
+            } else if self.rain_sink.is_none() {
+                self.rain_sink = self.spawn_loop_sink("assets/sfx/amb_rain_01.ogg", rain_vol);
+            } else if let Some(ref sink) = self.rain_sink {
+                sink.set_volume(rain_vol);
+            }
         }
 
         pub fn sync_track(&mut self, track: TrackId) {
@@ -235,26 +335,49 @@ mod win_audio {
 
 #[cfg(not(target_os = "windows"))]
 mod win_audio {
+    #[cfg(test)]
+    use super::ambient_volumes_for;
+    use super::AmbientMode;
     use core_rs::types::SoundEvent;
     use music_rs::TrackId;
     use std::path::Path;
 
     pub struct AudioEngine {
+        muted: bool,
         music_enabled: bool,
+        current_ambient: AmbientMode,
     }
 
     impl AudioEngine {
         pub fn new(_asset_root: &Path) -> Self {
             Self {
+                muted: false,
                 music_enabled: true,
+                current_ambient: AmbientMode::None,
             }
         }
 
-        pub fn toggle_mute(&mut self) {}
+        pub fn toggle_mute(&mut self) {
+            self.muted = !self.muted;
+        }
 
         pub fn toggle_music(&mut self) -> bool {
             self.music_enabled = !self.music_enabled;
             self.music_enabled
+        }
+
+        #[cfg(test)]
+        pub fn current_ambient(&self) -> AmbientMode {
+            self.current_ambient
+        }
+
+        #[cfg(test)]
+        pub fn effective_ambient_volumes(&self) -> (f32, f32) {
+            ambient_volumes_for(self.current_ambient, self.muted, self.music_enabled)
+        }
+
+        pub fn sync_ambient(&mut self, mode: AmbientMode) {
+            self.current_ambient = mode;
         }
 
         pub fn sync_track(&mut self, _track: TrackId) {}
@@ -264,3 +387,39 @@ mod win_audio {
 }
 
 pub use win_audio::AudioEngine;
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::path::Path;
+
+    #[test]
+    fn test_ambient_for_scene_matches_adr_0063() {
+        assert_eq!(ambient_for_scene(false, "mirkwood"), AmbientMode::None);
+        assert_eq!(ambient_for_scene(true, "mirkwood"), AmbientMode::ForestRain);
+        assert_eq!(ambient_for_scene(true, "mirkwooddeep"), AmbientMode::Forest);
+    }
+
+    #[test]
+    fn test_ambient_respects_mute_and_music_toggles() {
+        let mut eng = AudioEngine::new(Path::new("."));
+        eng.sync_ambient(AmbientMode::ForestRain);
+        assert_eq!(eng.current_ambient(), AmbientMode::ForestRain);
+        let (f, r) = eng.effective_ambient_volumes();
+        assert!(f > 0.0 && r > 0.0);
+
+        eng.toggle_mute();
+        assert_eq!(eng.effective_ambient_volumes(), (0.0, 0.0));
+        eng.toggle_mute();
+        assert_eq!(eng.effective_ambient_volumes(), (f, r));
+
+        assert!(!eng.toggle_music());
+        assert_eq!(eng.effective_ambient_volumes(), (0.0, 0.0));
+        assert!(eng.toggle_music());
+        assert_eq!(eng.effective_ambient_volumes(), (f, r));
+
+        eng.sync_ambient(AmbientMode::Forest);
+        let (f2, r2) = eng.effective_ambient_volumes();
+        assert!(f2 > 0.0 && r2 == 0.0);
+    }
+}
