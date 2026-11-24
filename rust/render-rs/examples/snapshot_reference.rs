@@ -81,6 +81,8 @@ fn main() {
             seed: state.seed,
             stage_id: &state.stage_id,
             map_mode: MapMode::Radar,
+            continue_hover: None,
+            reward_card_hover: None,
         };
         let mut pixmap = Pixmap::new(RENDER_WIDTH, RENDER_HEIGHT).unwrap();
         let mut canvas = Canvas::new(&mut pixmap, &mut fonts);
@@ -126,6 +128,8 @@ fn main() {
             seed: state.seed,
             stage_id: &state.stage_id,
             map_mode: MapMode::Window,
+            continue_hover: None,
+            reward_card_hover: None,
         };
         let mut pixmap = Pixmap::new(RENDER_WIDTH, RENDER_HEIGHT).unwrap();
         let mut canvas = Canvas::new(&mut pixmap, &mut fonts);
@@ -163,6 +167,8 @@ fn main() {
             seed: state.seed,
             stage_id: &state.stage_id,
             map_mode: MapMode::Radar,
+            continue_hover: None,
+            reward_card_hover: None,
         };
         let mut pixmap = Pixmap::new(RENDER_WIDTH, RENDER_HEIGHT).unwrap();
         let mut canvas = Canvas::new(&mut pixmap, &mut fonts);
@@ -199,6 +205,8 @@ fn main() {
             seed: state.seed,
             stage_id: &state.stage_id,
             map_mode: MapMode::Window,
+            continue_hover: None,
+            reward_card_hover: None,
         };
         let mut pixmap = Pixmap::new(RENDER_WIDTH, RENDER_HEIGHT).unwrap();
         let mut canvas = Canvas::new(&mut pixmap, &mut fonts);

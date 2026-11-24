@@ -11,8 +11,11 @@
 use crate::canvas::{Canvas, Rgba, TextAlign};
 use crate::sprites::SpriteStore;
 use core_rs::combat::rating_of;
-use core_rs::constants::{ARENA_HEIGHT, VIEW_LEFT, VIEW_WIDTH};
+use core_rs::constants::{ARENA_HEIGHT, ARENA_WIDTH, VIEW_LEFT, VIEW_WIDTH};
 use core_rs::types::State;
+use reward_rs::{
+    chest_duration, snapshot as reward_snapshot, RewardPhase, RewardSnapshot, RewardState,
+};
 use tiny_skia::Pixmap;
 
 /// Pause after boss defeat before the dark overlay and magic circle begin fading in (seconds).
@@ -24,6 +27,24 @@ const UI_SCALE: f32 = 1.125;
 
 // Native `results-reference.png` (8277×420) frame rectangles `[sx, sy, sw, sh]`.
 const ART_MAGIC_CIRCLE: [u32; 4] = [0, 0, 420, 420];
+const ART_CHEST: [u32; 4] = [420, 0, 160, 142];
+const ART_CHEST_OUTLINE: [u32; 4] = [4003, 0, 160, 142];
+const ART_CHEST_GLOW: [u32; 4] = [4163, 0, 183, 164];
+const ART_CARD_GOLD: [u32; 4] = [882, 0, 153, 97];
+const ART_CARD_GLOW: [u32; 4] = [1035, 0, 162, 107];
+const ART_CARD_BURST: [u32; 4] = [1197, 0, 402, 402];
+const ART_PRIZE_FRAME: [u32; 4] = [2921, 0, 153, 97];
+const ART_PRIZE_PICTURE: [u32; 4] = [3074, 0, 141, 61];
+const ART_STAFF_ICON: [u32; 4] = [3215, 0, 28, 28];
+const ART_TOTEM_ICON: [u32; 4] = [3243, 0, 28, 28];
+const ART_PRIZE_BAND: [u32; 4] = [3271, 0, 732, 110];
+const ART_CONTINUE_HEADER: [u32; 4] = [1599, 0, 270, 54];
+const ART_CONTINUE_BODY: [u32; 4] = [1869, 0, 270, 30];
+const ART_CONTINUE_FOOTER: [u32; 4] = [2139, 0, 268, 16];
+const ART_CONTINUE_HOVER: [u32; 4] = [2407, 0, 270, 88];
+const ART_CONTINUE_RETRY: [u32; 4] = [2677, 0, 66, 19];
+const ART_CONTINUE_SELECT: [u32; 4] = [2743, 0, 112, 19];
+const ART_CONTINUE_TOWN: [u32; 4] = [2855, 0, 66, 19];
 const ART_STATS_PANEL: [u32; 4] = [4346, 0, 455, 190];
 const ART_RANK_CIRCLE: [u32; 4] = [4801, 0, 227, 227];
 const ART_RANK_BASE_X: u32 = 5028;
@@ -37,6 +58,52 @@ const ART_STATS_MINUS: [u32; 4] = [6666, 0, 13, 9];
 const ART_XP_PANEL: [u32; 4] = [7662, 0, 252, 199];
 const ART_XP_SLOT_GLOW: [u32; 4] = [7914, 0, 116, 16];
 const ART_XP_BAR: [u32; 4] = [8030, 0, 247, 29];
+
+// Golden reward countdown digits (modern reward_ver2.img f62..71, indexed 0..9).
+const ART_COUNTDOWN_DIGITS: [[u32; 4]; 10] = [
+    [580, 0, 36, 37],
+    [616, 0, 13, 38],
+    [629, 0, 32, 39],
+    [661, 0, 28, 47],
+    [689, 0, 39, 41],
+    [728, 0, 29, 47],
+    [757, 0, 30, 48],
+    [787, 0, 34, 50],
+    [821, 0, 29, 39],
+    [850, 0, 32, 48],
+];
+
+// `assets/ui.png` reward magic list panel (`reward_ver2.img f35`).
+const UI_REWARD_MAGIC_PANEL: [u32; 4] = [1020, 4080, 527, 270];
+
+// `assets/portraits-reference.png` rects.
+const PORTRAIT_PLAYER: [u32; 4] = [0, 0, 24, 26];
+const PORTRAIT_BOSS: [u32; 4] = [24, 0, 24, 24];
+const PORTRAIT_LUGARU_BOSS: [u32; 4] = [48, 0, 24, 24];
+const PORTRAIT_NAME_PLATE: [u32; 4] = [108, 0, 147, 58];
+const PORTRAIT_CASTER: [u32; 4] = [303, 0, 24, 24];
+const PORTRAIT_GOBLIN_RED: [u32; 4] = [399, 0, 24, 24];
+
+/// Reward 4-card row geometry in logical `720×540` view coordinates (`VIEW_LEFT = 120`).
+pub const REWARD_CARD_START_X: f32 = 129.0;
+pub const REWARD_CARD_W: f32 = 172.125;
+pub const REWARD_CARD_H: f32 = 109.125;
+pub const REWARD_CARD_GAP: f32 = 7.125;
+pub const REWARD_CARD_Y: f32 = 188.0;
+pub const REWARD_HINT_Y: f32 = 354.0;
+
+/// Recorded top-right `Continue?` menu anchor (flush with right edge of `800×600` view, `y = 0`).
+pub const CONTINUE_X: f32 = 536.25;
+pub const CONTINUE_Y: f32 = 0.0;
+const CONTINUE_ROWS: [f32; 3] = [54.0, 85.0, 116.0];
+const CONTINUE_ROW_H: f32 = 30.0;
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ContinueAction {
+    Retry,
+    SelectStage,
+    ReturnTown,
+}
 
 const DIGITS_TOTAL: [[u32; 4]; 10] = [
     [6679, 0, 32, 29],
@@ -824,6 +891,597 @@ fn draw_stats_number(
     true
 }
 
+/// Returns the 4 reward card rectangles `(x, y, w, h)` in logical `720×540` coordinates
+/// for the given spread progress `0.0..=1.0`.
+pub fn reward_card_boxes(spread: f32) -> [(f32, f32, f32, f32); 4] {
+    let center = (VIEW_LEFT + VIEW_WIDTH * 0.5) as f32;
+    let s = spread.clamp(0.0, 1.0);
+    std::array::from_fn(|i| {
+        let base_x = REWARD_CARD_START_X + i as f32 * (REWARD_CARD_W + REWARD_CARD_GAP);
+        let x = center - REWARD_CARD_W * 0.5 + (base_x - center + REWARD_CARD_W * 0.5) * s;
+        (x, REWARD_CARD_Y, REWARD_CARD_W, REWARD_CARD_H)
+    })
+}
+
+/// Hit-tests the 4 fully spread reward cards in logical `720×540` view coordinates.
+pub fn hit_test_reward_card(ax: f32, ay: f32) -> Option<usize> {
+    for (i, (x, y, w, h)) in reward_card_boxes(1.0).into_iter().enumerate() {
+        if ax >= x && ax < x + w && ay >= y && ay < y + h {
+            return Some(i);
+        }
+    }
+    None
+}
+
+/// Hit-tests the top-right `Continue?` menu rows in logical `720×540` view coordinates.
+pub fn hit_test_continue(ax: f32, ay: f32) -> Option<ContinueAction> {
+    if !(CONTINUE_X..CONTINUE_X + 270.0 * UI_SCALE).contains(&ax) {
+        return None;
+    }
+    const ACTIONS: [ContinueAction; 3] = [
+        ContinueAction::Retry,
+        ContinueAction::SelectStage,
+        ContinueAction::ReturnTown,
+    ];
+    for (i, &row_y) in CONTINUE_ROWS.iter().enumerate() {
+        let top = CONTINUE_Y + row_y * UI_SCALE;
+        let bot = CONTINUE_Y + (row_y + CONTINUE_ROW_H) * UI_SCALE;
+        if ay >= top && ay < bot {
+            return Some(ACTIONS[i]);
+        }
+    }
+    None
+}
+
+/// Draws the post-clear top-right `Continue?` menu with optional additive hover highlight.
+pub fn draw_continue(c: &mut Canvas<'_>, sprites: &SpriteStore, hover: Option<ContinueAction>) {
+    let Some(sheet) = sprites.get("results") else {
+        return;
+    };
+    let draw_part = |c: &mut Canvas<'_>, rect: [u32; 4], x: f32, y: f32, additive: bool| {
+        let dx = CONTINUE_X + x * UI_SCALE;
+        let dy = CONTINUE_Y + y * UI_SCALE;
+        let dw = rect[2] as f32 * UI_SCALE;
+        let dh = rect[3] as f32 * UI_SCALE;
+        if additive {
+            c.draw_image_additive(
+                sheet, rect[0], rect[1], rect[2], rect[3], dx, dy, dw, dh, false, 1.0, 0.0,
+            );
+        } else {
+            c.draw_image(
+                sheet, rect[0], rect[1], rect[2], rect[3], dx, dy, dw, dh, false, 1.0, 0.0,
+            );
+        }
+    };
+
+    // Original English `Continue?` header (cropped at h=54 to exclude Korean labels)
+    draw_part(c, ART_CONTINUE_HEADER, 0.0, 0.0, false);
+    for i in 0..3usize {
+        draw_part(c, ART_CONTINUE_BODY, 0.0, 54.0 + 30.0 * i as f32, false);
+    }
+    draw_part(c, ART_CONTINUE_FOOTER, 1.0, 144.0, false);
+
+    if let Some(action) = hover {
+        let idx = match action {
+            ContinueAction::Retry => 0,
+            ContinueAction::SelectStage => 1,
+            ContinueAction::ReturnTown => 2,
+        };
+        draw_part(c, ART_CONTINUE_HOVER, 0.0, CONTINUE_ROWS[idx] - 29.0, true);
+    }
+
+    draw_part(c, ART_CONTINUE_RETRY, 92.0, CONTINUE_ROWS[0] + 2.0, false);
+    draw_part(c, ART_CONTINUE_SELECT, 69.0, CONTINUE_ROWS[1] + 2.0, false);
+    draw_part(c, ART_CONTINUE_TOWN, 92.0, CONTINUE_ROWS[2] + 2.0, false);
+}
+
+/// Draws the post-stats reward page (`Chest`, `Cards`, `Reveal`, `Fade`).
+/// During `RewardPhase::Fade`, composites the full page offscreen and blends by `snap.opacity`
+/// so overlapping dimmer/circle/card layers fade uniformly without double-blend artifacts.
+pub fn draw_reward_page(
+    c: &mut Canvas<'_>,
+    state: &State,
+    rw: &RewardState,
+    sprites: &SpriteStore,
+    card_hover: Option<usize>,
+) {
+    let snap = reward_snapshot(rw);
+    if snap.phase == RewardPhase::Done || snap.opacity <= 0.001 {
+        return;
+    }
+    if snap.phase == RewardPhase::Fade && snap.opacity < 0.999 {
+        let mut offscreen = c.pixmap.clone();
+        {
+            let mut off_canvas = Canvas::new(&mut offscreen, c.fonts);
+            draw_reward_page_content(&mut off_canvas, state, rw, &snap, sprites, card_hover);
+        }
+        let op = snap.opacity.clamp(0.0, 1.0) as f32;
+        let inv = 1.0 - op;
+        for (dst, src) in c.pixmap.data_mut().iter_mut().zip(offscreen.data().iter()) {
+            *dst = (f32::from(*dst) * inv + f32::from(*src) * op + 0.5).clamp(0.0, 255.0) as u8;
+        }
+        return;
+    }
+    draw_reward_page_content(c, state, rw, &snap, sprites, card_hover);
+}
+
+fn draw_reward_band(c: &mut Canvas<'_>, sprites: &SpriteStore, alpha: f32) {
+    if alpha <= 0.001 {
+        return;
+    }
+    if let Some(res_sheet) = sprites.get("results") {
+        // Native black gradient f34 spanning the 640px client window; 1.125x wings are clipped.
+        c.draw_image(
+            res_sheet,
+            ART_PRIZE_BAND[0],
+            ART_PRIZE_BAND[1],
+            ART_PRIZE_BAND[2],
+            ART_PRIZE_BAND[3],
+            68.25,
+            180.0,
+            823.5,
+            123.75,
+            false,
+            alpha,
+            0.0,
+        );
+    }
+}
+
+fn draw_reward_list(
+    c: &mut Canvas<'_>,
+    rw: &RewardState,
+    snap: &RewardSnapshot,
+    sprites: &SpriteStore,
+) {
+    // V1 343.3s / V2 397.3s normalized 720x540: native 24px * 1.125 = 27px faces at
+    // (118, 150), (118, 200), (118, 235) relative to VIEW_LEFT.
+    let deep = rw.stage == "mirkwooddeep";
+    let t = snap.t;
+    let end = chest_duration(&rw.stage);
+    let rows: &[([u32; 4], &str, f32, Option<f64>)] = if deep {
+        &[(PORTRAIT_LUGARU_BOSS, "领主- 暗咒猫妖", 150.0, None)]
+    } else {
+        &[
+            (PORTRAIT_BOSS, "领主- 牛头巨兽", 150.0, None),
+            (
+                PORTRAIT_GOBLIN_RED,
+                "燃烧之赤哥布林",
+                200.0,
+                Some(19.0 / 30.0),
+            ),
+            (
+                PORTRAIT_CASTER,
+                "燃烧之投掷哥布林",
+                235.0,
+                Some(43.0 / 30.0),
+            ),
+        ]
+    };
+    let portraits = sprites.get("portraits");
+    for (index, &(face, label, base_y, fly_at)) in rows.iter().enumerate() {
+        let flying = fly_at.map_or(0.0, |at| clamp01((t - at) / 0.3));
+        let alpha = clamp01(t / 0.3) * (1.0 - flying) * clamp01((end - t) / 0.5);
+        if alpha <= 0.001 {
+            continue;
+        }
+        let x = VIEW_LEFT as f32 + 118.0 + flying * 75.0;
+        let mut y = base_y;
+        // Third row rises into the vacated second row over ~0.5s.
+        if index == 2 {
+            y -= 35.0 * clamp01((t - 19.0 / 30.0) / 0.5);
+        }
+        if let Some(sheet) = portraits {
+            c.draw_image(
+                sheet, face[0], face[1], face[2], face[3], x, y, 27.0, 27.0, false, alpha, 0.0,
+            );
+        }
+        c.fill_text(
+            label,
+            x + 32.0,
+            y + 18.0,
+            11.25,
+            Rgba::new(230, 231, 237, 255).with_alpha(alpha),
+            TextAlign::Left,
+            Some(Rgba::new(16, 23, 41, 235).with_alpha(alpha)),
+        );
+    }
+}
+
+fn draw_reward_cards(
+    c: &mut Canvas<'_>,
+    sprites: &SpriteStore,
+    snap: &RewardSnapshot,
+    card_hover: Option<usize>,
+) {
+    let Some(res_sheet) = sprites.get("results") else {
+        return;
+    };
+    let boxes = reward_card_boxes(snap.spread as f32);
+    // First-card highlight rule: when face-up and awaiting selection, highlight the hovered card
+    // or card 0 by default (matching V2 402.4s golden highlight on the auto-pick default card).
+    let highlight_idx = if snap.face_up && snap.prompt_visible {
+        Some(card_hover.unwrap_or(0))
+    } else {
+        None
+    };
+
+    for (i, (x, y, w, h)) in boxes.into_iter().enumerate() {
+        c.draw_image(
+            res_sheet,
+            ART_CARD_GOLD[0],
+            ART_CARD_GOLD[1],
+            ART_CARD_GOLD[2],
+            ART_CARD_GOLD[3],
+            x,
+            y,
+            w,
+            h,
+            false,
+            1.0,
+            0.0,
+        );
+        if highlight_idx == Some(i) {
+            c.draw_image_additive(
+                res_sheet,
+                ART_CARD_GOLD[0],
+                ART_CARD_GOLD[1],
+                ART_CARD_GOLD[2],
+                ART_CARD_GOLD[3],
+                x,
+                y,
+                w,
+                h,
+                false,
+                0.45,
+                0.0,
+            );
+        }
+    }
+
+    if snap.blue > 0.001 {
+        let glow_alpha = (snap.blue * 0.88) as f32;
+        for (x, y, _, _) in boxes {
+            c.draw_image_additive(
+                res_sheet,
+                ART_CARD_GLOW[0],
+                ART_CARD_GLOW[1],
+                ART_CARD_GLOW[2],
+                ART_CARD_GLOW[3],
+                x - 3.375,
+                y - 3.375,
+                182.25,
+                120.375,
+                false,
+                glow_alpha,
+                0.0,
+            );
+        }
+    }
+
+    if snap.flash > 0.001 {
+        c.draw_image_additive(
+            res_sheet,
+            ART_CARD_BURST[0],
+            ART_CARD_BURST[1],
+            ART_CARD_BURST[2],
+            ART_CARD_BURST[3],
+            359.2,
+            71.8,
+            321.6,
+            321.6,
+            false,
+            snap.flash as f32,
+            0.0,
+        );
+    }
+}
+
+fn draw_reward_page_content(
+    c: &mut Canvas<'_>,
+    state: &State,
+    rw: &RewardState,
+    snap: &RewardSnapshot,
+    sprites: &SpriteStore,
+    card_hover: Option<usize>,
+) {
+    c.save();
+    c.set_clip_rect(
+        VIEW_LEFT as f32,
+        0.0,
+        VIEW_WIDTH as f32,
+        ARENA_HEIGHT as f32,
+    );
+    draw_result_backdrop(c, sprites, snap.elapsed);
+
+    // Chest list background panel only appears during Chest phase.
+    if snap.phase == RewardPhase::Chest {
+        if let Some(ui) = sprites.get("ui") {
+            c.draw_image(
+                ui,
+                UI_REWARD_MAGIC_PANEL[0],
+                UI_REWARD_MAGIC_PANEL[1],
+                UI_REWARD_MAGIC_PANEL[2],
+                UI_REWARD_MAGIC_PANEL[3],
+                VIEW_LEFT as f32 + 104.0,
+                134.0,
+                512.0,
+                212.0,
+                false,
+                1.0,
+                0.0,
+            );
+        }
+        draw_reward_list(c, rw, snap, sprites);
+    }
+
+    // Golden "奖励" header
+    let cx = (ARENA_WIDTH * 0.5) as f32;
+    c.fill_text(
+        "奖励",
+        cx,
+        118.0,
+        32.0,
+        Rgba::new(240, 215, 154, 255),
+        TextAlign::Center,
+        Some(Rgba::new(6, 10, 24, 230)),
+    );
+
+    if snap.phase == RewardPhase::Chest {
+        if let Some(res_sheet) = sprites.get("results") {
+            let chest_end = chest_duration(&rw.stage);
+            let light_age = (snap.t - (chest_end - 1.6)).max(0.0);
+            let chest_alpha = 1.0 - clamp01(light_age);
+            if chest_alpha > 0.001 {
+                c.draw_image(
+                    res_sheet,
+                    ART_CHEST[0],
+                    ART_CHEST[1],
+                    ART_CHEST[2],
+                    ART_CHEST[3],
+                    473.0,
+                    154.0,
+                    180.0,
+                    159.75,
+                    false,
+                    chest_alpha,
+                    0.0,
+                );
+            }
+            if light_age > 0.0 {
+                let cyan = clamp01((light_age - 0.3) / 0.9);
+                if cyan > 0.001 {
+                    c.draw_image_additive(
+                        res_sheet,
+                        ART_CHEST_GLOW[0],
+                        ART_CHEST_GLOW[1],
+                        ART_CHEST_GLOW[2],
+                        ART_CHEST_GLOW[3],
+                        458.5,
+                        139.625,
+                        205.875,
+                        184.5,
+                        false,
+                        cyan,
+                        0.0,
+                    );
+                    c.draw_image_additive(
+                        res_sheet,
+                        ART_CHEST_OUTLINE[0],
+                        ART_CHEST_OUTLINE[1],
+                        ART_CHEST_OUTLINE[2],
+                        ART_CHEST_OUTLINE[3],
+                        472.0,
+                        152.0,
+                        180.0,
+                        159.75,
+                        false,
+                        cyan,
+                        0.0,
+                    );
+                }
+                let light_scale = 0.8 * clamp01(light_age);
+                let flash_alpha = clamp01(light_age / 0.2);
+                if light_scale > 0.001 && flash_alpha > 0.001 {
+                    c.draw_image_additive(
+                        res_sheet,
+                        ART_CARD_BURST[0],
+                        ART_CARD_BURST[1],
+                        ART_CARD_BURST[2],
+                        ART_CARD_BURST[3],
+                        532.0 - 216.0 * light_scale,
+                        227.0 - 194.0 * light_scale,
+                        402.0 * light_scale,
+                        402.0 * light_scale,
+                        false,
+                        flash_alpha,
+                        0.0,
+                    );
+                }
+            }
+        }
+    }
+
+    if matches!(snap.phase, RewardPhase::Reveal | RewardPhase::Fade) {
+        draw_reward_band(c, sprites, 1.0);
+    }
+
+    if snap.phase == RewardPhase::Cards {
+        let band_alpha = (((snap.spread as f32) - (1.0 / 3.0)) * 1.5).clamp(0.0, 1.0);
+        draw_reward_band(c, sprites, band_alpha);
+        draw_reward_cards(c, sprites, snap, card_hover);
+
+        if snap.prompt_visible {
+            c.fill_text(
+                "请选择奖励卡牌",
+                cx,
+                REWARD_HINT_Y,
+                26.0,
+                Rgba::new(240, 215, 154, 255),
+                TextAlign::Center,
+                Some(Rgba::new(6, 10, 24, 230)),
+            );
+            if snap.countdown_visible {
+                let digit_pos = match snap.countdown {
+                    1 => Some((1usize, 350.0f32, 418.5f32)),
+                    2 => Some((2usize, 330.0f32, 416.25f32)),
+                    3 => Some((3usize, 334.125f32, 415.125f32)),
+                    _ => None,
+                };
+                if let (Some(res_sheet), Some((d_idx, px, py))) =
+                    (sprites.get("results"), digit_pos)
+                {
+                    let d = ART_COUNTDOWN_DIGITS[d_idx];
+                    c.draw_image(
+                        res_sheet,
+                        d[0],
+                        d[1],
+                        d[2],
+                        d[3],
+                        VIEW_LEFT as f32 + px,
+                        py,
+                        d[2] as f32 * UI_SCALE,
+                        d[3] as f32 * UI_SCALE,
+                        false,
+                        1.0,
+                        0.0,
+                    );
+                }
+            }
+        }
+    }
+
+    if matches!(snap.phase, RewardPhase::Reveal | RewardPhase::Fade) {
+        let prize_shift = snap.picked.unwrap_or(0) as f32 * (REWARD_CARD_W + REWARD_CARD_GAP);
+        let plate_x = 126.0 + prize_shift;
+        let plate_y = 124.0f32;
+        let plate_w = 165.375f32;
+        let plate_h = 65.25f32;
+        if let Some(portraits) = sprites.get("portraits") {
+            c.draw_image(
+                portraits,
+                PORTRAIT_NAME_PLATE[0],
+                PORTRAIT_NAME_PLATE[1],
+                PORTRAIT_NAME_PLATE[2],
+                PORTRAIT_NAME_PLATE[3],
+                plate_x,
+                plate_y,
+                plate_w,
+                plate_h,
+                false,
+                1.0,
+                0.0,
+            );
+            c.save();
+            c.set_clip_rect(plate_x + 8.0, plate_y + 8.0, 27.0, 27.0);
+            c.draw_image(
+                portraits,
+                PORTRAIT_PLAYER[0],
+                PORTRAIT_PLAYER[1],
+                PORTRAIT_PLAYER[2],
+                PORTRAIT_PLAYER[3],
+                plate_x + 3.0,
+                plate_y + 10.0,
+                27.0,
+                29.25,
+                false,
+                1.0,
+                0.0,
+            );
+            c.restore();
+        }
+        let player_name = state
+            .player
+            .name
+            .as_deref()
+            .filter(|s| !s.is_empty())
+            .unwrap_or("鬼剑士");
+        c.fill_text(
+            player_name,
+            plate_x + plate_w * 0.52,
+            plate_y + 29.0,
+            15.0,
+            Rgba::new(255, 255, 255, 255),
+            TextAlign::Center,
+            Some(Rgba::new(32, 18, 6, 235)),
+        );
+
+        let card_x = 128.25 + prize_shift;
+        let card_y = REWARD_CARD_Y;
+        if let Some(res_sheet) = sprites.get("results") {
+            c.draw_image(
+                res_sheet,
+                ART_PRIZE_FRAME[0],
+                ART_PRIZE_FRAME[1],
+                ART_PRIZE_FRAME[2],
+                ART_PRIZE_FRAME[3],
+                card_x,
+                card_y,
+                REWARD_CARD_W,
+                REWARD_CARD_H,
+                false,
+                1.0,
+                0.0,
+            );
+            c.draw_image(
+                res_sheet,
+                ART_PRIZE_PICTURE[0],
+                ART_PRIZE_PICTURE[1],
+                ART_PRIZE_PICTURE[2],
+                ART_PRIZE_PICTURE[3],
+                card_x + 6.75,
+                card_y + 6.75,
+                158.625,
+                68.625,
+                false,
+                1.0,
+                0.0,
+            );
+            let icon = if rw.item_id == "kunicTotem" || snap.item.contains("图腾") {
+                ART_TOTEM_ICON
+            } else {
+                ART_STAFF_ICON
+            };
+            c.draw_image(
+                res_sheet,
+                icon[0],
+                icon[1],
+                icon[2],
+                icon[3],
+                194.25 + prize_shift,
+                204.875,
+                31.5,
+                31.5,
+                false,
+                1.0,
+                0.0,
+            );
+        }
+        let text_outline = Some(Rgba::new(7, 18, 28, 255));
+        let text_color = Rgba::new(241, 245, 248, 255);
+        c.fill_text(
+            &snap.item,
+            card_x + 86.0625,
+            255.0,
+            14.0,
+            text_color,
+            TextAlign::Center,
+            text_outline,
+        );
+        c.fill_text(
+            &format!("+{}金币", snap.gold),
+            card_x + 86.0625,
+            281.0,
+            14.0,
+            text_color,
+            TextAlign::Center,
+            text_outline,
+        );
+    }
+
+    c.restore();
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -1109,6 +1767,8 @@ mod tests {
                 seed: state.seed,
                 stage_id: &state.stage_id,
                 map_mode: crate::MapMode::Radar,
+                continue_hover: None,
+                reward_card_hover: None,
             };
             let mut pm = Pixmap::new(RENDER_WIDTH, RENDER_HEIGHT).expect("pixmap");
             let mut c = Canvas::new(&mut pm, &mut fonts);
@@ -1123,6 +1783,425 @@ mod tests {
                     .chunks_exact(4)
                     .any(|px| px[0] > 0 || px[1] > 0 || px[2] > 0),
                 "results frame at t={ts}s must render non-empty pixels"
+            );
+        }
+    }
+
+    fn region_luma_sum(pm: &Pixmap, x0: u32, y0: u32, x1: u32, y1: u32) -> u64 {
+        let w = pm.width();
+        let data = pm.data();
+        let mut sum = 0u64;
+        for y in y0.min(pm.height())..y1.min(pm.height()) {
+            for x in x0.min(w)..x1.min(w) {
+                let idx = ((y * w + x) * 4) as usize;
+                sum += u64::from(data[idx]) + u64::from(data[idx + 1]) + u64::from(data[idx + 2]);
+            }
+        }
+        sum
+    }
+
+    fn view_to_native_x(vx: f32) -> u32 {
+        (((vx - VIEW_LEFT as f32) * (RENDER_WIDTH as f32 / VIEW_WIDTH as f32)).round())
+            .clamp(0.0, (RENDER_WIDTH - 1) as f32) as u32
+    }
+
+    fn view_to_native_y(vy: f32) -> u32 {
+        ((vy * (RENDER_HEIGHT as f32 / ARENA_HEIGHT as f32)).round())
+            .clamp(0.0, (RENDER_HEIGHT - 1) as f32) as u32
+    }
+
+    #[test]
+    fn test_chest_phase_list_wireframe_and_keyhole_burst() {
+        let sprites = SpriteStore::load_from_root(&repo_root());
+        let mut fonts = GlyphCache::new(None);
+        let state = make_victory_state("mirkwood");
+
+        // Early chest phase (t = 0.5s): 3 monster portraits visible on left + red chest on right.
+        let mut rw_early = reward_rs::create(Some(1), Some("mirkwood")).expect("reward");
+        rw_early.phase = RewardPhase::Chest;
+        rw_early.t = 0.5;
+        rw_early.elapsed = 10.5;
+
+        let mut pm_early = Pixmap::new(RENDER_WIDTH, RENDER_HEIGHT).expect("pixmap");
+        {
+            let mut c = Canvas::new(&mut pm_early, &mut fonts);
+            c.clear(Rgba::new(0, 0, 0, 255));
+            draw_reward_page(&mut c, &state, &rw_early, &sprites, None);
+        }
+
+        // Check red chest pixels on right (logical x=480..640, y=165..300)
+        let mut red_chest_px = 0usize;
+        for y in view_to_native_y(165.0)..view_to_native_y(300.0) {
+            for x in view_to_native_x(480.0)..view_to_native_x(640.0) {
+                let idx = ((y * RENDER_WIDTH + x) * 4) as usize;
+                let px = &pm_early.data()[idx..idx + 4];
+                if px[0] > 120
+                    && px[0] > px[1].saturating_add(40)
+                    && px[0] > px[2].saturating_add(40)
+                {
+                    red_chest_px += 1;
+                }
+            }
+        }
+        assert!(
+            red_chest_px > 1000,
+            "early chest phase must draw red chest on right, got {red_chest_px} red px"
+        );
+
+        // Late chest phase (0.4s before end): cyan wireframe + bright white-cyan keyhole burst at (532, 227).
+        let mut rw_late = rw_early.clone();
+        rw_late.t = chest_duration("mirkwood") - 0.4;
+        rw_late.elapsed = 10.0 + rw_late.t;
+        let mut pm_late = Pixmap::new(RENDER_WIDTH, RENDER_HEIGHT).expect("pixmap");
+        {
+            let mut c = Canvas::new(&mut pm_late, &mut fonts);
+            c.clear(Rgba::new(0, 0, 0, 255));
+            draw_reward_page(&mut c, &state, &rw_late, &sprites, None);
+        }
+
+        let mut bright_burst_px = 0usize;
+        for y in view_to_native_y(190.0)..view_to_native_y(265.0) {
+            for x in view_to_native_x(495.0)..view_to_native_x(570.0) {
+                let idx = ((y * RENDER_WIDTH + x) * 4) as usize;
+                let px = &pm_late.data()[idx..idx + 4];
+                if px[1] > 180 && px[2] > 210 {
+                    bright_burst_px += 1;
+                }
+            }
+        }
+        assert!(
+            bright_burst_px > 500,
+            "late chest phase must render cyan wireframe & keyhole burst flash, got {bright_burst_px} bright px"
+        );
+
+        // Compare row 2 portrait region (logical x=238..265, y=200..227): mirkwood has goblinRed, mirkwooddeep does not.
+        let deep_state = make_victory_state("mirkwooddeep");
+        let mut rw_deep = reward_rs::create(Some(1), Some("mirkwooddeep")).expect("reward");
+        rw_deep.phase = RewardPhase::Chest;
+        rw_deep.t = 0.5;
+        rw_deep.elapsed = 10.5;
+        let mut pm_deep = Pixmap::new(RENDER_WIDTH, RENDER_HEIGHT).expect("pixmap");
+        {
+            let mut c = Canvas::new(&mut pm_deep, &mut fonts);
+            c.clear(Rgba::new(0, 0, 0, 255));
+            draw_reward_page(&mut c, &deep_state, &rw_deep, &sprites, None);
+        }
+        let mut row2_diff = 0usize;
+        for y in view_to_native_y(200.0)..view_to_native_y(227.0) {
+            for x in view_to_native_x(238.0)..view_to_native_x(265.0) {
+                let idx = ((y * RENDER_WIDTH + x) * 4) as usize;
+                if pm_early.data()[idx..idx + 3] != pm_deep.data()[idx..idx + 3] {
+                    row2_diff += 1;
+                }
+            }
+        }
+        assert!(
+            row2_diff > 200,
+            "mirkwood chest list row 2 portrait must differ from 1-row mirkwooddeep list (diff={row2_diff})"
+        );
+    }
+
+    #[test]
+    fn test_cards_phase_countdown_first_card_highlight_and_selection() {
+        // Hit-testing all 4 card columns + outside bounds
+        let boxes = reward_card_boxes(1.0);
+        for (i, (x, y, w, h)) in boxes.into_iter().enumerate() {
+            assert_eq!(hit_test_reward_card(x + w * 0.5, y + h * 0.5), Some(i));
+        }
+        assert_eq!(hit_test_reward_card(50.0, 220.0), None);
+        assert_eq!(hit_test_reward_card(200.0, 100.0), None);
+
+        let sprites = SpriteStore::load_from_root(&repo_root());
+        let mut fonts = GlyphCache::new(None);
+        let state = make_victory_state("mirkwood");
+
+        let mut rw = reward_rs::create(Some(1), Some("mirkwood")).expect("reward");
+        rw.phase = RewardPhase::Cards;
+        rw.t = 2.6; // face_up = true, prompt_visible = true, countdown = 3
+        rw.elapsed = 16.4;
+        rw.face_up = true;
+        rw.countdown = 3;
+
+        // Default highlight (card_hover = None): card 0 is highlighted (brighter than card 1).
+        let mut pm_default = Pixmap::new(RENDER_WIDTH, RENDER_HEIGHT).expect("pixmap");
+        {
+            let mut c = Canvas::new(&mut pm_default, &mut fonts);
+            c.clear(Rgba::new(0, 0, 0, 255));
+            draw_reward_page(&mut c, &state, &rw, &sprites, None);
+        }
+        let card_luma = |pm: &Pixmap, idx: usize| -> u64 {
+            let (x, y, w, h) = boxes[idx];
+            region_luma_sum(
+                pm,
+                view_to_native_x(x + 10.0),
+                view_to_native_y(y + 10.0),
+                view_to_native_x(x + w - 10.0),
+                view_to_native_y(y + h - 10.0),
+            )
+        };
+        assert!(
+            card_luma(&pm_default, 0) > card_luma(&pm_default, 1) + 50_000,
+            "first-card highlight rule: card 0 must be brighter than card 1 by default"
+        );
+
+        // Hovering card 2 shifts highlight to card 2.
+        let mut pm_hover2 = Pixmap::new(RENDER_WIDTH, RENDER_HEIGHT).expect("pixmap");
+        {
+            let mut c = Canvas::new(&mut pm_hover2, &mut fonts);
+            c.clear(Rgba::new(0, 0, 0, 255));
+            draw_reward_page(&mut c, &state, &rw, &sprites, Some(2));
+        }
+        assert!(
+            card_luma(&pm_hover2, 2) > card_luma(&pm_hover2, 0) + 50_000,
+            "hovering card 2 must shift golden highlight from card 0 to card 2"
+        );
+
+        // Countdown digit 3 renders golden pixels at bottom-center (logical x=450..495, y=415..470)
+        let mut gold_digit_px = 0usize;
+        for y in view_to_native_y(415.0)..view_to_native_y(470.0) {
+            for x in view_to_native_x(450.0)..view_to_native_x(495.0) {
+                let idx = ((y * RENDER_WIDTH + x) * 4) as usize;
+                let px = &pm_default.data()[idx..idx + 4];
+                if px[0] > 180 && px[1] > 130 && px[0] > px[2].saturating_add(40) {
+                    gold_digit_px += 1;
+                }
+            }
+        }
+        assert!(
+            gold_digit_px > 120,
+            "golden countdown digit '3' must render below cards, got {gold_digit_px} gold px"
+        );
+
+        // Reveal phase with manual selection of card 2 places prize card in column 2, not column 0.
+        assert!(reward_rs::pick(&mut rw, 2));
+        let mut pm_reveal = Pixmap::new(RENDER_WIDTH, RENDER_HEIGHT).expect("pixmap");
+        {
+            let mut c = Canvas::new(&mut pm_reveal, &mut fonts);
+            c.clear(Rgba::new(0, 0, 0, 255));
+            draw_reward_page(&mut c, &state, &rw, &sprites, None);
+        }
+        assert!(
+            card_luma(&pm_reveal, 2) > card_luma(&pm_reveal, 0) + 50_000,
+            "selecting card 2 must render prize frame in column 2"
+        );
+    }
+
+    #[test]
+    fn test_fade_phase_honors_opacity_smoothly() {
+        let sprites = SpriteStore::load_from_root(&repo_root());
+        let mut fonts = GlyphCache::new(None);
+        let state = make_victory_state("mirkwood");
+        let bg = Rgba::new(40, 90, 60, 255);
+
+        let make_fade = |t: f64| -> RewardState {
+            let mut rw = reward_rs::create(Some(1), Some("mirkwood")).expect("reward");
+            rw.phase = RewardPhase::Fade;
+            rw.picked = Some(0);
+            rw.face_up = true;
+            rw.t = t;
+            rw.elapsed = 20.4;
+            rw
+        };
+
+        let mut pm_bg = Pixmap::new(RENDER_WIDTH, RENDER_HEIGHT).expect("pixmap");
+        {
+            let mut c = Canvas::new(&mut pm_bg, &mut fonts);
+            c.clear(bg);
+        }
+        let mut pm_full = pm_bg.clone();
+        {
+            let mut c = Canvas::new(&mut pm_full, &mut fonts);
+            draw_reward_page(&mut c, &state, &make_fade(0.0), &sprites, None);
+        }
+        let mut pm_half = pm_bg.clone();
+        {
+            let mut c = Canvas::new(&mut pm_half, &mut fonts);
+            draw_reward_page(&mut c, &state, &make_fade(0.4), &sprites, None);
+        }
+        let mut pm_end = pm_bg.clone();
+        {
+            let mut c = Canvas::new(&mut pm_end, &mut fonts);
+            draw_reward_page(&mut c, &state, &make_fade(0.8), &sprites, None);
+        }
+
+        // At opacity 0.0 (t = 0.8s), background must be completely untouched.
+        assert_eq!(
+            pm_end.data(),
+            pm_bg.data(),
+            "Fade phase at opacity=0.0 must leave underlying scene untouched"
+        );
+
+        // At opacity 0.5 (t = 0.4s), every pixel must match exact 50/50 linear blend of bg and full page.
+        let mut total_err = 0.0f64;
+        let mut samples = 0usize;
+        for ((bg_px, full_px), half_px) in pm_bg
+            .data()
+            .chunks_exact(4)
+            .zip(pm_full.data().chunks_exact(4))
+            .zip(pm_half.data().chunks_exact(4))
+        {
+            for ch in 0..3 {
+                let expected = 0.5 * f64::from(bg_px[ch]) + 0.5 * f64::from(full_px[ch]);
+                total_err += (f64::from(half_px[ch]) - expected).abs();
+                samples += 1;
+            }
+        }
+        let mean_err = total_err / samples as f64;
+        assert!(
+            mean_err < 1.0,
+            "Fade at 50% opacity must linearly blend full page over scene (mean RGB err={mean_err:.3})"
+        );
+    }
+
+    #[test]
+    fn test_continue_menu_top_right_position_hit_test_and_hover() {
+        // Hit-testing exact top-right rows (x in 536.25..840.0, y in 60.75..94.5 / 95.625..129.375 / 130.5..164.25)
+        assert_eq!(hit_test_continue(650.0, 75.0), Some(ContinueAction::Retry));
+        assert_eq!(
+            hit_test_continue(650.0, 110.0),
+            Some(ContinueAction::SelectStage)
+        );
+        assert_eq!(
+            hit_test_continue(650.0, 145.0),
+            Some(ContinueAction::ReturnTown)
+        );
+        // Header area above rows and coordinates outside menu miss
+        assert_eq!(hit_test_continue(650.0, 30.0), None);
+        assert_eq!(hit_test_continue(500.0, 75.0), None);
+        assert_eq!(hit_test_continue(650.0, 200.0), None);
+
+        let sprites = SpriteStore::load_from_root(&repo_root());
+        let mut fonts = GlyphCache::new(None);
+        let mut pm_idle = Pixmap::new(RENDER_WIDTH, RENDER_HEIGHT).expect("pixmap");
+        let mut pm_hover = Pixmap::new(RENDER_WIDTH, RENDER_HEIGHT).expect("pixmap");
+        {
+            let mut c = Canvas::new(&mut pm_idle, &mut fonts);
+            c.clear(Rgba::new(10, 14, 22, 255));
+            draw_continue(&mut c, &sprites, None);
+        }
+        {
+            let mut c = Canvas::new(&mut pm_hover, &mut fonts);
+            c.clear(Rgba::new(10, 14, 22, 255));
+            draw_continue(&mut c, &sprites, Some(ContinueAction::SelectStage));
+        }
+
+        // Top-right header pixels must appear near top edge y=0..60 (NOT offset down at y=120!)
+        let header_luma = region_luma_sum(
+            &pm_idle,
+            view_to_native_x(CONTINUE_X + 20.0),
+            view_to_native_y(5.0),
+            view_to_native_x(CONTINUE_X + 260.0),
+            view_to_native_y(55.0),
+        );
+        assert!(
+            header_luma > 300_000,
+            "Continue? header must render at top-right y=0..60, got luma={header_luma}"
+        );
+
+        // Hovering SelectStage (row 1: y=95..130) must brighten that row additively
+        let idle_row1 = region_luma_sum(
+            &pm_idle,
+            view_to_native_x(CONTINUE_X + 10.0),
+            view_to_native_y(95.0),
+            view_to_native_x(CONTINUE_X + 290.0),
+            view_to_native_y(130.0),
+        );
+        let hover_row1 = region_luma_sum(
+            &pm_hover,
+            view_to_native_x(CONTINUE_X + 10.0),
+            view_to_native_y(95.0),
+            view_to_native_x(CONTINUE_X + 290.0),
+            view_to_native_y(130.0),
+        );
+        assert!(
+            hover_row1 > idle_row1 + 200_000,
+            "hovering Continue row must brighten it additively (idle={idle_row1}, hover={hover_row1})"
+        );
+
+        // Optional visual dump for side-by-side verification against reference video frames
+        if let Ok(dir) = std::env::var("DUMP_TICKET11_DIR") {
+            let _ = std::fs::create_dir_all(&dir);
+            let font_blobs: Vec<Vec<u8>> = [
+                "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+                "/usr/share/fonts/truetype/droid/DroidSansFallbackFull.ttf",
+            ]
+            .into_iter()
+            .filter_map(|p| std::fs::read(p).ok())
+            .collect();
+            let blob_refs: Vec<&[u8]> = font_blobs.iter().map(Vec::as_slice).collect();
+            let mut dump_fonts = GlyphCache::from_font_blobs(&blob_refs);
+            let mut state = make_victory_state("mirkwood");
+            state.player.name = Some("阿努纳奇".to_string());
+            let progress = progress_rs::defaults();
+            let records = records_rs::empty_store();
+            let loadout = vec![Some("ghostSlash".to_string()), Some("upSlash".to_string())];
+
+            let mut dump_frame = |name: &str,
+                                  st: &State,
+                                  rw: Option<&RewardState>,
+                                  cont_hover: Option<ContinueAction>,
+                                  card_hover: Option<usize>| {
+                let meta = RenderMeta {
+                    title: false,
+                    attract: false,
+                    paused: false,
+                    show_help: false,
+                    loadout: &loadout,
+                    loadout_open: false,
+                    progress_panel: ProgressPanelKind::None,
+                    progress: &progress,
+                    records: &records,
+                    reward: rw,
+                    region_open: false,
+                    region_selected: "mirkwood",
+                    hint: None,
+                    seed: st.seed,
+                    stage_id: &st.stage_id,
+                    map_mode: crate::MapMode::Window,
+                    continue_hover: cont_hover,
+                    reward_card_hover: card_hover,
+                };
+                let mut pm = Pixmap::new(RENDER_WIDTH, RENDER_HEIGHT).expect("pixmap");
+                let mut c = Canvas::new(&mut pm, &mut dump_fonts);
+                render(&mut c, st, &sprites, &meta);
+                let _ = pm.save_png(format!("{dir}/{name}.png"));
+            };
+
+            let mut rw = reward_rs::create(Some(1), Some("mirkwood")).expect("reward");
+            rw.phase = RewardPhase::Chest;
+            rw.t = 0.5;
+            rw.elapsed = 10.5;
+            dump_frame("01_chest_early", &state, Some(&rw), None, None);
+
+            rw.t = chest_duration("mirkwood") - 0.4;
+            rw.elapsed = 10.0 + rw.t;
+            dump_frame("02_chest_burst", &state, Some(&rw), None, None);
+
+            rw.phase = RewardPhase::Cards;
+            rw.t = 2.6;
+            rw.elapsed = 16.4;
+            rw.face_up = true;
+            rw.countdown = 3;
+            dump_frame("03_cards_countdown3", &state, Some(&rw), None, None);
+
+            let _ = reward_rs::pick(&mut rw, 0);
+            rw.t = 1.0;
+            rw.elapsed = 18.0;
+            dump_frame("04_reveal_prize", &state, Some(&rw), None, None);
+
+            rw.phase = RewardPhase::Fade;
+            rw.t = 0.4;
+            rw.elapsed = 20.4;
+            dump_frame("05_fade_half", &state, Some(&rw), None, None);
+
+            let mut post = state.clone();
+            post.post_clear = true;
+            dump_frame(
+                "06_continue_hover",
+                &post,
+                None,
+                Some(ContinueAction::SelectStage),
+                None,
             );
         }
     }

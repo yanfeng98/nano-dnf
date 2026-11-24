@@ -30,6 +30,8 @@ fn make_meta<'a>(
         seed: state.seed,
         stage_id: &state.stage_id,
         map_mode: MapMode::default(),
+        continue_hover: None,
+        reward_card_hover: None,
     }
 }
 

@@ -15,6 +15,7 @@ pub use hud::{
     hit_test_progress_panel, minimap_window_box, radar_button_box, radar_disc_bounds, MapMode,
     MapRect, PanelAction, ProgressPanelKind, RenderMeta,
 };
+pub use results::{hit_test_continue, hit_test_reward_card, ContinueAction};
 pub use sprites::SpriteStore;
 pub use world::TownView;
 
@@ -180,6 +181,8 @@ mod tests {
             seed: state.seed,
             stage_id: &state.stage_id,
             map_mode: MapMode::default(),
+            continue_hover: None,
+            reward_card_hover: None,
         };
         let mut canvas = Canvas::new(&mut pixmap, &mut fonts);
         render(&mut canvas, &state, &sprites, &meta);
@@ -239,6 +242,8 @@ mod tests {
             seed: state.seed,
             stage_id: &state.stage_id,
             map_mode: MapMode::default(),
+            continue_hover: None,
+            reward_card_hover: None,
         };
         let mut canvas = Canvas::new(&mut pixmap, &mut fonts);
         render(&mut canvas, &state, &sprites, &meta);
@@ -288,6 +293,8 @@ mod tests {
             seed: state.seed,
             stage_id: &state.stage_id,
             map_mode: MapMode::Radar,
+            continue_hover: None,
+            reward_card_hover: None,
         };
         let mut canvas = Canvas::new(&mut pixmap, fonts);
         render(&mut canvas, state, sprites, &meta);
@@ -546,6 +553,8 @@ mod tests {
                 seed: state.seed,
                 stage_id: &state.stage_id,
                 map_mode: mode,
+                continue_hover: None,
+                reward_card_hover: None,
             };
             let mut pixmap = Pixmap::new(RENDER_WIDTH, RENDER_HEIGHT).expect("pixmap");
             let mut canvas = Canvas::new(&mut pixmap, fonts);
