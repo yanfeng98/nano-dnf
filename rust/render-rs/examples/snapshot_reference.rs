@@ -1,8 +1,8 @@
-use core_rs::constants::*;
 use core_rs::types::CreateStateOptions;
 use core_rs::{create_state, step};
 use render_rs::{
     draw_town, render, Canvas, GlyphCache, ProgressPanelKind, RenderMeta, SpriteStore,
+    RENDER_HEIGHT, RENDER_WIDTH,
 };
 use std::path::{Path, PathBuf};
 use tiny_skia::Pixmap;
@@ -81,7 +81,7 @@ fn main() {
             seed: state.seed,
             stage_id: &state.stage_id,
         };
-        let mut pixmap = Pixmap::new(ARENA_WIDTH as u32, ARENA_HEIGHT as u32).unwrap();
+        let mut pixmap = Pixmap::new(RENDER_WIDTH, RENDER_HEIGHT).unwrap();
         let mut canvas = Canvas::new(&mut pixmap, &mut fonts);
         render(&mut canvas, &state, &sprites, &meta);
         save_pixmap(&pixmap, &out_dir.join("v1_entry.png"));
@@ -125,7 +125,7 @@ fn main() {
             seed: state.seed,
             stage_id: &state.stage_id,
         };
-        let mut pixmap = Pixmap::new(ARENA_WIDTH as u32, ARENA_HEIGHT as u32).unwrap();
+        let mut pixmap = Pixmap::new(RENDER_WIDTH, RENDER_HEIGHT).unwrap();
         let mut canvas = Canvas::new(&mut pixmap, &mut fonts);
         render(&mut canvas, &state, &sprites, &meta);
         save_pixmap(&pixmap, &out_dir.join("v1_boss.png"));
@@ -161,7 +161,7 @@ fn main() {
             seed: state.seed,
             stage_id: &state.stage_id,
         };
-        let mut pixmap = Pixmap::new(ARENA_WIDTH as u32, ARENA_HEIGHT as u32).unwrap();
+        let mut pixmap = Pixmap::new(RENDER_WIDTH, RENDER_HEIGHT).unwrap();
         let mut canvas = Canvas::new(&mut pixmap, &mut fonts);
         render(&mut canvas, &state, &sprites, &meta);
         save_pixmap(&pixmap, &out_dir.join("v2_entry.png"));
@@ -196,7 +196,7 @@ fn main() {
             seed: state.seed,
             stage_id: &state.stage_id,
         };
-        let mut pixmap = Pixmap::new(ARENA_WIDTH as u32, ARENA_HEIGHT as u32).unwrap();
+        let mut pixmap = Pixmap::new(RENDER_WIDTH, RENDER_HEIGHT).unwrap();
         let mut canvas = Canvas::new(&mut pixmap, &mut fonts);
         render(&mut canvas, &state, &sprites, &meta);
         save_pixmap(&pixmap, &out_dir.join("v1_results.png"));
@@ -204,7 +204,7 @@ fn main() {
 
     // 5. Town Elvenguard (matches 00002-幽暗密林深处.mp4 @ 415s)
     {
-        let mut pixmap = Pixmap::new(ARENA_WIDTH as u32, ARENA_HEIGHT as u32).unwrap();
+        let mut pixmap = Pixmap::new(RENDER_WIDTH, RENDER_HEIGHT).unwrap();
         let mut canvas = Canvas::new(&mut pixmap, &mut fonts);
         draw_town(&mut canvas, 1180.0, 48.0, 1, &sprites);
         save_pixmap(&pixmap, &out_dir.join("town.png"));

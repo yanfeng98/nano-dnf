@@ -1097,9 +1097,22 @@ pub fn draw_overlay(
             let scale = 2.4f32;
             let dw = 208.0 * scale;
             let dh = 176.0 * scale;
-            c.draw_image(sh, 0, 0, 208, 176, -30.0, 96.0, dw, dh, false, 0.95, 0.0);
+            c.draw_image(
+                sh,
+                0,
+                0,
+                208,
+                176,
+                VIEW_LEFT as f32 - 80.0,
+                96.0,
+                dw,
+                dh,
+                false,
+                0.95,
+                0.0,
+            );
         }
-        let tx = 344.0f32;
+        let tx = VIEW_LEFT as f32 + 210.0;
         c.fill_text(
             "NANO",
             tx,
@@ -1188,9 +1201,10 @@ pub fn draw_overlay(
             TextAlign::Left,
             None,
         );
+        let right_margin = (VIEW_LEFT + VIEW_WIDTH) as f32 - 24.0;
         c.fill_text(
             &format!("种子 #{}", meta.seed),
-            ARENA_WIDTH as f32 - 60.0,
+            right_margin,
             132.0,
             17.0,
             Rgba::new(240, 206, 122, 255),
@@ -1204,7 +1218,7 @@ pub fn draw_overlay(
                     format_seconds(best.seconds),
                     best.level
                 ),
-                ARENA_WIDTH as f32 - 60.0,
+                right_margin,
                 160.0,
                 14.0,
                 Rgba::new(165, 180, 205, 230),
@@ -1214,7 +1228,7 @@ pub fn draw_overlay(
         }
         c.fill_text(
             "按 N 换一个种子",
-            ARENA_WIDTH as f32 - 60.0,
+            right_margin,
             188.0,
             14.0,
             Rgba::new(220, 230, 245, 230),

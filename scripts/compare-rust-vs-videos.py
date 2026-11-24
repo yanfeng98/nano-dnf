@@ -34,24 +34,24 @@ def main():
         ref_jpg = out_dir / f"{name}_ref.png"
         rust_png = out_dir / f"{name}.png"
         pair_png = out_dir / f"{name}_pair.png"
-        # Crop centered 4:3 (1440x1080) from 1920x1080 video and scale to 720x540
+        # Crop centered 4:3 (1440x1080) from 1920x1080 video and scale to native 800x600
         subprocess.run(
             [
                 "ffmpeg", "-y", "-ss", ts, "-i", str(vid),
                 "-frames:v", "1",
-                "-vf", "crop=1440:1080:240:0,scale=720:540",
+                "-vf", "crop=1440:1080:240:0,scale=800:600",
                 str(ref_jpg),
             ],
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
             check=True,
         )
-        # Crop centered 4:3 (720x540) from 960x540 Rust frame (or scale directly if already 4:3)
+        # Stitch native 800x600 video frame (left) and 800x600 Rust render (right) -> 1600x600 pair
         subprocess.run(
             [
                 "ffmpeg", "-y", "-i", str(ref_jpg), "-i", str(rust_png),
                 "-filter_complex",
-                "[1:v]crop=720:540:120:0[r];[0:v][r]hstack=inputs=2[out]",
+                "[0:v][1:v]hstack=inputs=2[out]",
                 "-map", "[out]", str(pair_png),
             ],
             stdout=subprocess.DEVNULL,
@@ -64,7 +64,7 @@ def main():
     inputs = []
     for p in rows:
         inputs += ["-i", str(p)]
-    fc = "".join(f"[{i}:v]" for i in range(len(rows))) + f"vstack=inputs={len(rows)},scale=1200:-1[out]"
+    fc = "".join(f"[{i}:v]" for i in range(len(rows))) + f"vstack=inputs={len(rows)},scale=1600:-1[out]"
     subprocess.run(
         ["ffmpeg", "-y"] + inputs + ["-filter_complex", fc, "-map", "[out]", "-q:v", "3", str(sheet)],
         stdout=subprocess.DEVNULL,
