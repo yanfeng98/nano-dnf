@@ -597,6 +597,78 @@ impl<'a> Canvas<'a> {
     }
 
     #[allow(clippy::too_many_arguments)]
+    pub fn draw_image_outline(
+        &mut self,
+        sheet: &Pixmap,
+        sx: u32,
+        sy: u32,
+        sw: u32,
+        sh: u32,
+        dx: f32,
+        dy: f32,
+        dw: f32,
+        dh: f32,
+        flip_x: bool,
+        color: Rgba,
+        thickness: f32,
+    ) {
+        if sw == 0 || sh == 0 || dw <= 0.0 || dh <= 0.0 || color.a == 0 || thickness <= 0.0 {
+            return;
+        }
+        let Some(sub_rect) = tiny_skia::IntRect::from_xywh(sx as i32, sy as i32, sw, sh) else {
+            return;
+        };
+        let Some(mut sub) = sheet.clone_rect(sub_rect) else {
+            return;
+        };
+        let a = u16::from(color.a);
+        let pr = ((u16::from(color.r) * a + 127) / 255) as u8;
+        let pg = ((u16::from(color.g) * a + 127) / 255) as u8;
+        let pb = ((u16::from(color.b) * a + 127) / 255) as u8;
+        for px in sub.data_mut().chunks_exact_mut(4) {
+            if px[3] > 32 {
+                px[0] = pr;
+                px[1] = pg;
+                px[2] = pb;
+                px[3] = color.a;
+            } else {
+                px[0] = 0;
+                px[1] = 0;
+                px[2] = 0;
+                px[3] = 0;
+            }
+        }
+        let scale_x = dw / sw as f32;
+        let scale_y = dh / sh as f32;
+        let diag = thickness * std::f32::consts::FRAC_1_SQRT_2;
+        let offsets = [
+            (-thickness, 0.0),
+            (thickness, 0.0),
+            (0.0, -thickness),
+            (0.0, thickness),
+            (-diag, -diag),
+            (diag, -diag),
+            (-diag, diag),
+            (diag, diag),
+        ];
+        let paint = PixmapPaint {
+            opacity: 1.0,
+            blend_mode: tiny_skia::BlendMode::SourceOver,
+            quality: tiny_skia::FilterQuality::Nearest,
+        };
+        for (ox, oy) in offsets {
+            let mut t = self.transform.pre_translate(dx + ox, dy + oy);
+            if flip_x {
+                t = t.pre_translate(dw, 0.0).pre_scale(-scale_x, scale_y);
+            } else {
+                t = t.pre_scale(scale_x, scale_y);
+            }
+            self.pixmap
+                .draw_pixmap(0, 0, sub.as_ref(), &paint, t, self.clip.as_ref());
+        }
+    }
+
+    #[allow(clippy::too_many_arguments)]
     pub fn fill_text(
         &mut self,
         text: &str,
