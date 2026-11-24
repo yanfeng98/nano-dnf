@@ -23,6 +23,33 @@ pub enum ProgressPanelKind {
     Shop,
 }
 
+/// Top-right dungeon map window presentation mode (ADR 0068 / ADR 0074).
+/// Dungeons start in circular `Radar` mode and toggle to fog-free square `Window` mode via Tab or click.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum MapMode {
+    #[default]
+    Radar,
+    Window,
+}
+
+impl MapMode {
+    pub fn toggle(self) -> Self {
+        match self {
+            Self::Radar => Self::Window,
+            Self::Window => Self::Radar,
+        }
+    }
+}
+
+/// Logical 720x540 HUD rectangle for map window layout & hit-testing.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct MapRect {
+    pub x: f32,
+    pub y: f32,
+    pub w: f32,
+    pub h: f32,
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum PanelAction {
     Close,
@@ -49,6 +76,7 @@ pub struct RenderMeta<'a> {
     pub hint: Option<&'a str>,
     pub seed: u32,
     pub stage_id: &'a str,
+    pub map_mode: MapMode,
 }
 
 pub fn render_loading(c: &mut Canvas<'_>, loaded: usize, total: usize) {
@@ -453,263 +481,755 @@ fn draw_orb(c: &mut Canvas<'_>, cx: f32, cy: f32, r: f32, ratio: f32, col: Rgba,
     );
 }
 
-pub fn draw_minimap(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
-    let Some(ref dun) = state.dungeon else {
-        return;
-    };
-    let tile = 18.0;
-    let mw = dun.cols as f32 * tile + 12.0;
-    let mh = dun.rows as f32 * tile + 12.0;
-    let mx = (VIEW_LEFT + VIEW_WIDTH) as f32 - mw - 12.0;
-    let my = 12.0;
-    let mm_sheet = sprites.get("minimap");
-    if let Some(sh) = mm_sheet {
-        // 9-slice minimap frame from minimap.png
-        c.draw_image(sh, 190, 18, 5, 5, mx, my, 5.0, 5.0, false, 1.0, 0.0);
-        c.draw_image(
-            sh,
-            199,
-            18,
-            18,
-            5,
-            mx + 5.0,
-            my,
-            mw - 9.0,
-            5.0,
-            false,
-            1.0,
-            0.0,
-        );
-        c.draw_image(
-            sh,
-            221,
-            18,
-            4,
-            5,
-            mx + mw - 4.0,
-            my,
-            4.0,
-            5.0,
-            false,
-            1.0,
-            0.0,
-        );
-        c.draw_image(
-            sh,
-            229,
-            18,
-            5,
-            18,
-            mx,
-            my + 5.0,
-            5.0,
-            mh - 9.0,
-            false,
-            1.0,
-            0.0,
-        );
-        c.draw_image(
-            sh,
-            238,
-            18,
-            18,
-            18,
-            mx + 5.0,
-            my + 5.0,
-            mw - 9.0,
-            mh - 9.0,
-            false,
-            0.88,
-            0.0,
-        );
-        c.draw_image(
-            sh,
-            260,
-            18,
-            4,
-            18,
-            mx + mw - 4.0,
-            my + 5.0,
-            4.0,
-            mh - 9.0,
-            false,
-            1.0,
-            0.0,
-        );
-        c.draw_image(
-            sh,
-            268,
-            18,
-            5,
-            4,
-            mx,
-            my + mh - 4.0,
-            5.0,
-            4.0,
-            false,
-            1.0,
-            0.0,
-        );
-        c.draw_image(
-            sh,
-            277,
-            18,
-            18,
-            4,
-            mx + 5.0,
-            my + mh - 4.0,
-            mw - 9.0,
-            4.0,
-            false,
-            1.0,
-            0.0,
-        );
-        c.draw_image(
-            sh,
-            299,
-            18,
-            4,
-            4,
-            mx + mw - 4.0,
-            my + mh - 4.0,
-            4.0,
-            4.0,
-            false,
-            1.0,
-            0.0,
-        );
+// --- Top-right dual-mode map window (circular radar + fog-free square map) ---
+// Measurements from reference recordings V1 (00001-幽暗密林.mp4) and V2 (00002-幽暗密林深处.mp4),
+// matching audits 107/108/110/111 and ADR 0068 / ADR 0074.
+const MINIMAP_TILE: f32 = 18.0;
+const MINIMAP_SCALE: f32 = 1.125;
+const MINIMAP_TITLE_H: f32 = 18.0;
+const MINIMAP_MARGIN_RIGHT: f32 = 15.0;
+const MINIMAP_WINDOW_TOP: f32 = 28.5;
+const RADAR_RING_W: f32 = 104.0;
+const RADAR_RING_H: f32 = 104.0;
+const RADAR_MARGIN_RIGHT: f32 = 9.0;
+const RADAR_TOP: f32 = 23.5;
+const RADAR_CIRCLE_CX: f32 = 54.5;
+const RADAR_CIRCLE_CY: f32 = 49.5;
+const RADAR_CONTENT_OX: f32 = 62.0;
+const RADAR_CONTENT_OY: f32 = 57.5;
+const RADAR_RADIUS: f32 = 45.0;
+const RADAR_MARKER_PIVOT_X: f32 = 6.0;
+const RADAR_MARKER_PIVOT_Y: f32 = 10.0;
+
+// Piece rects in `assets/minimap.png`: (sx, sy, sw, sh).
+const PIECE_BLANK: (u32, u32, u32, u32) = (0, 18, 18, 18);
+const PIECE_BOSS: (u32, u32, u32, u32) = (44, 18, 16, 14);
+const PIECE_MARKER: (u32, u32, u32, u32) = (64, 18, 14, 19);
+const PIECE_RING: (u32, u32, u32, u32) = (82, 18, 104, 104);
+const PIECE_TL: (u32, u32, u32, u32) = (190, 18, 5, 5);
+const PIECE_TOP: (u32, u32, u32, u32) = (199, 18, 18, 5);
+const PIECE_TR: (u32, u32, u32, u32) = (221, 18, 4, 5);
+const PIECE_LEFT: (u32, u32, u32, u32) = (229, 18, 5, 18);
+const PIECE_CENTRE: (u32, u32, u32, u32) = (238, 18, 18, 18);
+const PIECE_RIGHT: (u32, u32, u32, u32) = (260, 18, 4, 18);
+const PIECE_BL: (u32, u32, u32, u32) = (268, 18, 5, 4);
+const PIECE_BOTTOM: (u32, u32, u32, u32) = (277, 18, 18, 4);
+const PIECE_BR: (u32, u32, u32, u32) = (299, 18, 4, 4);
+const PIECE_RADAR_BG: (u32, u32, u32, u32) = (307, 18, 74, 74);
+const PIECE_RADAR_COUNTER: (u32, u32, u32, u32) = (385, 18, 54, 23);
+const PIECE_RADAR_BUTTON: (u32, u32, u32, u32) = (589, 18, 24, 24);
+const PIECE_RADAR_BANNER: (u32, u32, u32, u32) = (617, 18, 202, 23);
+const PIECE_RADAR_DIGITS: [(u32, u32, u32, u32); 10] = [
+    (443, 18, 11, 13),
+    (458, 18, 7, 13),
+    (469, 18, 11, 13),
+    (484, 18, 11, 13),
+    (499, 18, 11, 13),
+    (514, 18, 11, 13),
+    (529, 18, 11, 13),
+    (544, 18, 11, 13),
+    (559, 18, 11, 13),
+    (574, 18, 11, 13),
+];
+
+#[derive(Debug, Clone, Copy)]
+struct RadarGeometry {
+    x: f32,
+    y: f32,
+    w: f32,
+    h: f32,
+    centre_x: f32,
+    centre_y: f32,
+    content_x: f32,
+    content_y: f32,
+    radius: f32,
+}
+
+fn hud_right() -> f32 {
+    (VIEW_LEFT + VIEW_WIDTH) as f32
+}
+
+fn radar_geometry() -> RadarGeometry {
+    let w = RADAR_RING_W * MINIMAP_SCALE;
+    let h = RADAR_RING_H * MINIMAP_SCALE;
+    let x = hud_right() - RADAR_MARGIN_RIGHT - w;
+    let y = RADAR_TOP;
+    RadarGeometry {
+        x,
+        y,
+        w,
+        h,
+        centre_x: x + RADAR_CIRCLE_CX * MINIMAP_SCALE,
+        centre_y: y + RADAR_CIRCLE_CY * MINIMAP_SCALE,
+        content_x: x + RADAR_CONTENT_OX,
+        content_y: y + RADAR_CONTENT_OY,
+        radius: RADAR_RADIUS * MINIMAP_SCALE,
+    }
+}
+
+/// Fixed bounding box of the clickable radar magnifying glass toggle button in logical 720x540 HUD coords.
+pub fn radar_button_box() -> MapRect {
+    MapRect {
+        x: hud_right() - 39.5,
+        y: 25.75,
+        w: PIECE_RADAR_BUTTON.2 as f32 * MINIMAP_SCALE,
+        h: PIECE_RADAR_BUTTON.3 as f32 * MINIMAP_SCALE,
+    }
+}
+
+/// Center `(cx, cy)` and `radius` of the circular radar disc in logical 720x540 HUD coords.
+pub fn radar_disc_bounds() -> (f32, f32, f32) {
+    let g = radar_geometry();
+    (g.centre_x, g.centre_y, g.radius)
+}
+
+/// Outer bounding box of the square dungeon map window for a `cols x rows` dungeon in logical 720x540 HUD coords.
+pub fn minimap_window_box(cols: usize, rows: usize) -> MapRect {
+    let c = cols.max(1) as f32;
+    let r = rows.max(1) as f32;
+    let w = (c * MINIMAP_TILE + PIECE_LEFT.2 as f32 + PIECE_RIGHT.2 as f32) * MINIMAP_SCALE;
+    let h = (r * MINIMAP_TILE + MINIMAP_TITLE_H + PIECE_TOP.3 as f32 + PIECE_BOTTOM.3 as f32)
+        * MINIMAP_SCALE;
+    MapRect {
+        x: hud_right() - w - MINIMAP_MARGIN_RIGHT,
+        y: MINIMAP_WINDOW_TOP,
+        w,
+        h,
+    }
+}
+
+/// Returns `true` if a mouse click at logical 720x540 view coordinates `(x, y)` hits the map toggle control.
+pub fn hit_test_minimap(x: f32, y: f32, mode: MapMode, cols: usize, rows: usize) -> bool {
+    match mode {
+        MapMode::Radar => {
+            let btn = radar_button_box();
+            let bx = x - (btn.x + btn.w * 0.5);
+            let by = y - (btn.y + btn.h * 0.5);
+            let btn_r = btn.w * 0.5;
+            if bx * bx + by * by <= btn_r * btn_r {
+                return true;
+            }
+            let (cx, cy, radius) = radar_disc_bounds();
+            let dx = x - cx;
+            let dy = y - cy;
+            dx * dx + dy * dy <= (radius + 3.0) * (radius + 3.0)
+        }
+        MapMode::Window => {
+            let b = minimap_window_box(cols, rows);
+            if x < b.x || x > b.x + b.w || y < b.y || y > b.y + b.h {
+                return false;
+            }
+            // Top-right ⊘ close/minimize button in the square map title bar.
+            x >= b.x + b.w - 21.0 && y <= b.y + 18.0
+        }
+    }
+}
+
+fn minimap_tile_col(kind: &str, exits: u8) -> Option<u32> {
+    if kind == "corr" {
+        match exits {
+            1 => Some(0),   // corr:N
+            2 => Some(1),   // corr:E
+            3 => Some(2),   // corr:NE
+            4 => Some(3),   // corr:S
+            5 => Some(4),   // corr:NS
+            6 => Some(5),   // corr:ES
+            7 => Some(6),   // corr:NES
+            9 => Some(7),   // corr:NW
+            10 => Some(8),  // corr:EW
+            11 => Some(9),  // corr:NEW
+            12 => Some(10), // corr:SW
+            13 => Some(11), // corr:NSW
+            14 => Some(12), // corr:ESW
+            15 => Some(20), // corr:NESW shares room:NESW cross
+            8 => Some(17),  // fallback room:W
+            _ => None,
+        }
     } else {
-        c.fill_round_rect(mx, my, mw, mh, 5.0, Rgba::new(10, 14, 22, 200));
-        c.stroke_round_rect(mx, my, mw, mh, 5.0, Rgba::new(165, 134, 72, 180), 1.0);
+        match exits {
+            1 => Some(13),  // room:N
+            2 => Some(14),  // room:E
+            3 => Some(2),   // fallback corr:NE
+            4 => Some(15),  // room:S
+            5 => Some(4),   // fallback corr:NS
+            6 => Some(16),  // room:ES
+            7 => Some(6),   // fallback corr:NES
+            8 => Some(17),  // room:W
+            9 => Some(18),  // room:NW
+            10 => Some(8),  // fallback corr:EW
+            11 => Some(9),  // fallback corr:NEW
+            12 => Some(10), // fallback corr:SW
+            13 => Some(11), // fallback corr:NSW
+            14 => Some(19), // room:ESW
+            15 => Some(20), // room:NESW
+            _ => None,
+        }
+    }
+}
+
+fn draw_piece(
+    c: &mut Canvas<'_>,
+    sh: &tiny_skia::Pixmap,
+    piece: (u32, u32, u32, u32),
+    dx: f32,
+    dy: f32,
+    dw: f32,
+    dh: f32,
+) {
+    c.draw_image(
+        sh, piece.0, piece.1, piece.2, piece.3, dx, dy, dw, dh, false, 1.0, 0.0,
+    );
+}
+
+fn draw_stage_title_banner(
+    c: &mut Canvas<'_>,
+    state: &State,
+    mm_sheet: Option<&tiny_skia::Pixmap>,
+) {
+    let right = hud_right();
+    let bw = PIECE_RADAR_BANNER.2 as f32 * MINIMAP_SCALE;
+    let bh = PIECE_RADAR_BANNER.3 as f32 * MINIMAP_SCALE;
+    let bx = right - bw;
+    let by = 0.0;
+    if let Some(sh) = mm_sheet {
+        if sh.width() >= PIECE_RADAR_BANNER.0 + PIECE_RADAR_BANNER.2 {
+            draw_piece(c, sh, PIECE_RADAR_BANNER, bx, by, bw, bh);
+        } else {
+            c.fill_rect(bx, by, bw, bh, Rgba::new(28, 12, 26, 205));
+            c.draw_line(
+                bx,
+                bh - 1.5,
+                right,
+                bh - 1.5,
+                Rgba::new(240, 206, 140, 220),
+                1.2,
+            );
+        }
+    } else {
+        c.fill_rect(bx, by, bw, bh, Rgba::new(28, 12, 26, 205));
+        c.draw_line(
+            bx,
+            bh - 1.5,
+            right,
+            bh - 1.5,
+            Rgba::new(240, 206, 140, 220),
+            1.2,
+        );
     }
 
-    for (idx, cell) in dun.cells.iter().enumerate() {
-        let cx = mx + 6.0 + cell.col as f32 * tile;
-        let cy = my + 6.0 + cell.row as f32 * tile;
-        if let Some(sh) = mm_sheet {
-            // ADR 0068: full dungeon layout visible without fog-of-war or '?' masks.
-            let tile_col = match cell.exits {
-                1 => 13,  // room:N
-                2 => 14,  // room:E
-                3 => 2,   // corr:NE
-                4 => 15,  // room:S
-                5 => 4,   // corr:NS
-                6 => 16,  // room:ES
-                7 => 6,   // corr:NES
-                8 => 17,  // room:W
-                9 => 18,  // room:NW
-                10 => 8,  // corr:EW
-                11 => 9,  // corr:NEW
-                12 => 10, // corr:SW
-                13 => 11, // corr:NSW
-                14 => 19, // room:ESW
-                15 => 20, // room:NESW
-                _ => 0,
-            };
-            c.draw_image(
+    let stage_name = core_rs::TABLES
+        .stages
+        .get(&state.stage_id)
+        .map(|s| s.name.as_str())
+        .unwrap_or(&state.stage_id);
+    // Centered above the radar/map window, clear of the right-edge scroll filigree.
+    let text_x = right - 80.0;
+    let text_y = 17.0;
+    c.fill_text(
+        stage_name,
+        text_x,
+        text_y,
+        13.5,
+        Rgba::new(248, 236, 208, 255),
+        TextAlign::Center,
+        Some(Rgba::new(12, 6, 10, 220)),
+    );
+}
+
+fn draw_radar_header(c: &mut Canvas<'_>, state: &State, mm_sheet: Option<&tiny_skia::Pixmap>) {
+    let right = hud_right();
+    let btn = radar_button_box();
+    let kills = state.stats.kills;
+    let text = kills.to_string();
+
+    if let Some(sh) = mm_sheet {
+        // Red pouch counter backing (audit 110)
+        draw_piece(
+            c,
+            sh,
+            PIECE_RADAR_COUNTER,
+            right - 128.25,
+            27.0,
+            PIECE_RADAR_COUNTER.2 as f32 * MINIMAP_SCALE,
+            PIECE_RADAR_COUNTER.3 as f32 * MINIMAP_SCALE,
+        );
+        // Native orange digits, right-aligned inside the counter pouch
+        let mut total_w = 0.0f32;
+        for b in text.bytes() {
+            let d = (b - b'0') as usize;
+            total_w += PIECE_RADAR_DIGITS[d].2 as f32;
+        }
+        total_w += text.len().saturating_sub(1) as f32;
+        let mut dx = right - 74.375 - total_w * MINIMAP_SCALE;
+        for b in text.bytes() {
+            let d = (b - b'0') as usize;
+            let piece = PIECE_RADAR_DIGITS[d];
+            draw_piece(
+                c,
                 sh,
-                tile_col * 18,
-                0,
-                18,
-                18,
-                cx,
-                cy,
-                tile,
-                tile,
-                false,
-                1.0,
-                0.0,
+                piece,
+                dx,
+                32.5,
+                piece.2 as f32 * MINIMAP_SCALE,
+                piece.3 as f32 * MINIMAP_SCALE,
             );
-            if idx == state.cell {
-                c.draw_image(
+            dx += (piece.2 as f32 + 1.0) * MINIMAP_SCALE;
+        }
+        // Native clickable magnifying glass button (audit 111)
+        draw_piece(c, sh, PIECE_RADAR_BUTTON, btn.x, btn.y, btn.w, btn.h);
+    } else {
+        c.fill_round_rect(
+            right - 128.25,
+            27.0,
+            60.0,
+            24.0,
+            10.0,
+            Rgba::new(20, 18, 16, 220),
+        );
+        c.fill_text(
+            &format!("× {text}"),
+            right - 98.0,
+            43.0,
+            12.0,
+            Rgba::new(255, 168, 56, 255),
+            TextAlign::Center,
+            Some(Rgba::new(0, 0, 0, 220)),
+        );
+        c.fill_ellipse(
+            btn.x + btn.w * 0.5,
+            btn.y + btn.h * 0.5,
+            btn.w * 0.45,
+            btn.h * 0.45,
+            Rgba::new(110, 168, 240, 230),
+        );
+    }
+}
+
+fn draw_minimap_grid_and_tiles(
+    c: &mut Canvas<'_>,
+    dun: &Dungeon,
+    mm_sheet: Option<&tiny_skia::Pixmap>,
+    origin_x: f32,
+    origin_y: f32,
+    scale: f32,
+) {
+    let cell_pitch = MINIMAP_TILE * scale;
+    // Grid base: blank tile for valid cells, pure black for missing holes (e.g. Mirkwood Deep (0,1)/(4,2))
+    for row in 0..dun.rows {
+        for col in 0..dun.cols {
+            let gx = origin_x + col as f32 * cell_pitch;
+            let gy = origin_y + row as f32 * cell_pitch;
+            let has_cell = dun
+                .cells
+                .iter()
+                .any(|cell| cell.col == col && cell.row == row);
+            if !has_cell {
+                c.fill_rect(gx, gy, cell_pitch, cell_pitch, Rgba::new(0, 0, 0, 255));
+            } else if let Some(sh) = mm_sheet {
+                draw_piece(
+                    c,
                     sh,
-                    64,
-                    18,
-                    14,
-                    19,
-                    cx + 2.0,
-                    cy - 2.0,
-                    14.0,
-                    19.0,
-                    false,
-                    1.0,
-                    0.0,
+                    PIECE_BLANK,
+                    gx.round(),
+                    gy.round(),
+                    cell_pitch.round(),
+                    cell_pitch.round(),
                 );
+            } else {
+                c.fill_rect(gx, gy, cell_pitch, cell_pitch, Rgba::new(32, 68, 14, 230));
             }
-            if idx == dun.boss {
+        }
+    }
+
+    // ADR 0068: full dungeon layout visible without fog-of-war or '?' masks.
+    for cell in &dun.cells {
+        let cx = origin_x + cell.col as f32 * cell_pitch;
+        let cy = origin_y + cell.row as f32 * cell_pitch;
+        if let Some(sh) = mm_sheet {
+            if let Some(col_idx) = minimap_tile_col(&cell.kind, cell.exits) {
                 c.draw_image(
                     sh,
-                    44,
+                    col_idx * 18,
+                    0,
                     18,
-                    16,
-                    14,
-                    cx + 1.0,
-                    cy + 2.0,
-                    16.0,
-                    14.0,
+                    18,
+                    cx.round(),
+                    cy.round(),
+                    cell_pitch,
+                    cell_pitch,
                     false,
                     1.0,
                     0.0,
                 );
             }
         } else {
-            let fill = if idx == state.cell {
-                Rgba::new(86, 178, 245, 245)
-            } else if cell.cleared {
-                Rgba::new(62, 128, 86, 220)
-            } else if cell.seen {
-                Rgba::new(72, 82, 104, 220)
-            } else {
-                Rgba::new(26, 30, 42, 200)
-            };
-            c.fill_rect(cx + 2.0, cy + 2.0, tile - 4.0, tile - 4.0, fill);
+            c.fill_rect(
+                cx + 2.0,
+                cy + 2.0,
+                cell_pitch - 4.0,
+                cell_pitch - 4.0,
+                Rgba::new(112, 116, 47, 230),
+            );
             if (cell.exits & MINIMAP_DIR_E) != 0 {
                 c.fill_rect(
-                    cx + tile - 2.0,
-                    cy + tile * 0.4,
+                    cx + cell_pitch - 2.0,
+                    cy + cell_pitch * 0.4,
                     4.0,
                     3.0,
-                    Rgba::new(180, 180, 200, 180),
+                    Rgba::new(180, 180, 120, 220),
                 );
             }
             if (cell.exits & MINIMAP_DIR_W) != 0 {
                 c.fill_rect(
                     cx - 2.0,
-                    cy + tile * 0.4,
+                    cy + cell_pitch * 0.4,
                     4.0,
                     3.0,
-                    Rgba::new(180, 180, 200, 180),
+                    Rgba::new(180, 180, 120, 220),
                 );
             }
             if (cell.exits & MINIMAP_DIR_N) != 0 {
                 c.fill_rect(
-                    cx + tile * 0.4,
+                    cx + cell_pitch * 0.4,
                     cy - 2.0,
                     3.0,
                     4.0,
-                    Rgba::new(180, 180, 200, 180),
+                    Rgba::new(180, 180, 120, 220),
                 );
             }
             if (cell.exits & MINIMAP_DIR_S) != 0 {
                 c.fill_rect(
-                    cx + tile * 0.4,
-                    cy + tile - 2.0,
+                    cx + cell_pitch * 0.4,
+                    cy + cell_pitch - 2.0,
                     3.0,
                     4.0,
-                    Rgba::new(180, 180, 200, 180),
-                );
-            }
-            if idx == dun.boss {
-                c.fill_ellipse(
-                    cx + tile * 0.5,
-                    cy + tile * 0.5,
-                    3.5,
-                    3.5,
-                    Rgba::new(235, 64, 64, 255),
+                    Rgba::new(180, 180, 120, 220),
                 );
             }
         }
     }
+}
+
+fn draw_map_player_marker(
+    c: &mut Canvas<'_>,
+    mm_sheet: Option<&tiny_skia::Pixmap>,
+    cell_x: f32,
+    cell_y: f32,
+    cell_size: f32,
+) {
+    let scale = cell_size / MINIMAP_TILE;
+    let w = PIECE_MARKER.2 as f32 * scale;
+    let h = PIECE_MARKER.3 as f32 * scale;
+    let dx = cell_x + (cell_size - w) * 0.5;
+    let dy = cell_y + (cell_size - h) * 0.5;
+    if let Some(sh) = mm_sheet {
+        draw_piece(
+            c,
+            sh,
+            PIECE_MARKER,
+            dx.round(),
+            dy.round(),
+            w.round(),
+            h.round(),
+        );
+    } else {
+        c.fill_rect(
+            cell_x + cell_size * 0.35,
+            cell_y + cell_size * 0.15,
+            cell_size * 0.3,
+            cell_size * 0.7,
+            Rgba::new(25, 194, 255, 255),
+        );
+    }
+}
+
+fn draw_map_boss_marker(
+    c: &mut Canvas<'_>,
+    mm_sheet: Option<&tiny_skia::Pixmap>,
+    cell_x: f32,
+    cell_y: f32,
+    cell_size: f32,
+) {
+    let scale = cell_size / MINIMAP_TILE;
+    let w = PIECE_BOSS.2 as f32 * scale;
+    let h = PIECE_BOSS.3 as f32 * scale;
+    let dx = cell_x + (cell_size - w) * 0.5;
+    let dy = cell_y + (cell_size - h) * 0.5;
+    if let Some(sh) = mm_sheet {
+        draw_piece(
+            c,
+            sh,
+            PIECE_BOSS,
+            dx.round(),
+            dy.round(),
+            w.round(),
+            h.round(),
+        );
+    } else {
+        c.fill_ellipse(
+            cell_x + cell_size * 0.5,
+            cell_y + cell_size * 0.5,
+            cell_size * 0.35,
+            cell_size * 0.3,
+            Rgba::new(233, 74, 0, 255),
+        );
+    }
+}
+
+fn draw_minimap_window_frame(c: &mut Canvas<'_>, mm_sheet: Option<&tiny_skia::Pixmap>, b: MapRect) {
+    // Solid brown base (#62543c) under the 50%-black 9-slice centre -> warm (57,48,39) title strip.
+    c.fill_rect(b.x, b.y, b.w, b.h, Rgba::new(98, 84, 60, 255));
+    if let Some(sh) = mm_sheet {
+        let l = PIECE_LEFT.2 as f32 * MINIMAP_SCALE;
+        let r = PIECE_RIGHT.2 as f32 * MINIMAP_SCALE;
+        let t = PIECE_TOP.3 as f32 * MINIMAP_SCALE;
+        let bot = PIECE_BOTTOM.3 as f32 * MINIMAP_SCALE;
+        let inner_w = (b.w - l - r).max(0.0);
+        let inner_h = (b.h - t - bot).max(0.0);
+        draw_piece(
+            c,
+            sh,
+            PIECE_TL,
+            b.x.round(),
+            b.y.round(),
+            l.round(),
+            t.round(),
+        );
+        draw_piece(
+            c,
+            sh,
+            PIECE_TR,
+            (b.x + b.w - r).round(),
+            b.y.round(),
+            r.round(),
+            t.round(),
+        );
+        draw_piece(
+            c,
+            sh,
+            PIECE_BL,
+            b.x.round(),
+            (b.y + b.h - bot).round(),
+            l.round(),
+            bot.round(),
+        );
+        draw_piece(
+            c,
+            sh,
+            PIECE_BR,
+            (b.x + b.w - r).round(),
+            (b.y + b.h - bot).round(),
+            r.round(),
+            bot.round(),
+        );
+        draw_piece(
+            c,
+            sh,
+            PIECE_TOP,
+            (b.x + l).round(),
+            b.y.round(),
+            inner_w.round(),
+            t.round(),
+        );
+        draw_piece(
+            c,
+            sh,
+            PIECE_BOTTOM,
+            (b.x + l).round(),
+            (b.y + b.h - bot).round(),
+            inner_w.round(),
+            bot.round(),
+        );
+        draw_piece(
+            c,
+            sh,
+            PIECE_LEFT,
+            b.x.round(),
+            (b.y + t).round(),
+            l.round(),
+            inner_h.round(),
+        );
+        draw_piece(
+            c,
+            sh,
+            PIECE_RIGHT,
+            (b.x + b.w - r).round(),
+            (b.y + t).round(),
+            r.round(),
+            inner_h.round(),
+        );
+        draw_piece(
+            c,
+            sh,
+            PIECE_CENTRE,
+            (b.x + l).round(),
+            (b.y + t).round(),
+            inner_w.round(),
+            inner_h.round(),
+        );
+    } else {
+        c.stroke_rect(b.x, b.y, b.w, b.h, Rgba::new(165, 134, 72, 220), 1.5);
+    }
+}
+
+fn draw_window_close_button(c: &mut Canvas<'_>, b: MapRect) {
+    let x = b.x + b.w - 19.0;
+    let y = b.y + 4.5;
+    c.fill_round_rect(x, y, 15.0, 12.0, 2.5, Rgba::new(196, 186, 166, 220));
+    c.stroke_round_rect(x, y, 15.0, 12.0, 2.5, Rgba::new(60, 52, 42, 230), 1.0);
+    // ⊘ slash circle glyph
+    let cx = x + 7.5;
+    let cy = y + 6.0;
+    c.stroke_ellipse(cx, cy, 3.6, 3.6, Rgba::new(60, 52, 42, 235), 1.3);
+    c.draw_line(
+        cx - 2.5,
+        cy - 2.5,
+        cx + 2.5,
+        cy + 2.5,
+        Rgba::new(60, 52, 42, 235),
+        1.3,
+    );
+}
+
+pub fn draw_minimap(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore, map_mode: MapMode) {
+    let Some(ref dun) = state.dungeon else {
+        return;
+    };
+    let mm_sheet = sprites.get("minimap");
+    let here = dun.cells.get(state.cell).or_else(|| dun.cells.first());
+    let boss = dun.cells.get(dun.boss);
+    let radar = radar_geometry();
+
+    // Top-right dungeon stage title banner (visible in both radar and square map modes).
+    draw_stage_title_banner(c, state, mm_sheet);
+
+    if map_mode == MapMode::Radar {
+        let cell_pitch = MINIMAP_TILE * MINIMAP_SCALE;
+        c.save();
+        c.set_clip_circle(radar.centre_x, radar.centre_y, radar.radius);
+        // Native radial brown backdrop inside the radar disc (audit 107).
+        if let Some(sh) = mm_sheet {
+            draw_piece(
+                c,
+                sh,
+                PIECE_RADAR_BG,
+                radar.x + 16.0,
+                radar.y + 12.0,
+                92.0,
+                92.0,
+            );
+        } else {
+            c.fill_ellipse(
+                radar.centre_x,
+                radar.centre_y,
+                radar.radius,
+                radar.radius,
+                Rgba::new(42, 34, 24, 240),
+            );
+        }
+
+        if let Some(here_cell) = here {
+            let origin_x = radar.content_x - (here_cell.col as f32 + 0.5) * cell_pitch;
+            let origin_y = radar.content_y - (here_cell.row as f32 + 0.5) * cell_pitch;
+            draw_minimap_grid_and_tiles(c, dun, mm_sheet, origin_x, origin_y, MINIMAP_SCALE);
+
+            // Player blue pillar drawn before boss icon so boss red bull-head sits on top in boss room.
+            if let Some(sh) = mm_sheet {
+                draw_piece(
+                    c,
+                    sh,
+                    PIECE_MARKER,
+                    radar.content_x - RADAR_MARKER_PIVOT_X * MINIMAP_SCALE,
+                    radar.content_y - RADAR_MARKER_PIVOT_Y * MINIMAP_SCALE,
+                    (PIECE_MARKER.2 as f32 * MINIMAP_SCALE).round(),
+                    (PIECE_MARKER.3 as f32 * MINIMAP_SCALE).round(),
+                );
+            } else {
+                draw_map_player_marker(
+                    c,
+                    None,
+                    origin_x + here_cell.col as f32 * cell_pitch,
+                    origin_y + here_cell.row as f32 * cell_pitch,
+                    cell_pitch,
+                );
+            }
+
+            if let Some(boss_cell) = boss {
+                draw_map_boss_marker(
+                    c,
+                    mm_sheet,
+                    origin_x + boss_cell.col as f32 * cell_pitch,
+                    origin_y + boss_cell.row as f32 * cell_pitch,
+                    cell_pitch,
+                );
+            }
+        }
+        c.restore();
+
+        // Ornate gold/brass compass bezel overlaid around the clipped disc.
+        if let Some(sh) = mm_sheet {
+            draw_piece(c, sh, PIECE_RING, radar.x, radar.y, radar.w, radar.h);
+        } else {
+            c.stroke_ellipse(
+                radar.centre_x,
+                radar.centre_y,
+                radar.radius,
+                radar.radius,
+                Rgba::new(205, 185, 130, 240),
+                4.0,
+            );
+        }
+        draw_radar_header(c, state, mm_sheet);
+        return;
+    }
+
+    // Fog-free square map mode: retain native radar rim + header peeking behind the window panel.
+    if let Some(sh) = mm_sheet {
+        draw_piece(c, sh, PIECE_RING, radar.x, radar.y, radar.w, radar.h);
+    }
+    draw_radar_header(c, state, mm_sheet);
+
+    let b = minimap_window_box(dun.cols, dun.rows);
+    draw_minimap_window_frame(c, mm_sheet, b);
+
+    // Title bar: "地图"
+    c.fill_text(
+        "地图",
+        b.x + b.w * 0.5 + 3.0,
+        b.y + 15.5,
+        12.0,
+        Rgba::new(255, 248, 226, 245),
+        TextAlign::Center,
+        Some(Rgba::new(20, 16, 12, 200)),
+    );
+
+    let grid_left = b.x + PIECE_LEFT.2 as f32 * MINIMAP_SCALE;
+    let grid_top = b.y + (MINIMAP_TITLE_H + PIECE_TOP.3 as f32) * MINIMAP_SCALE;
+    let cell_pitch = MINIMAP_TILE * MINIMAP_SCALE;
+
+    draw_minimap_grid_and_tiles(c, dun, mm_sheet, grid_left, grid_top, MINIMAP_SCALE);
+
+    // Blue player pillar first, red bull-head boss icon second (boss covers player in boss room).
+    if let Some(here_cell) = here {
+        draw_map_player_marker(
+            c,
+            mm_sheet,
+            grid_left + here_cell.col as f32 * cell_pitch,
+            grid_top + here_cell.row as f32 * cell_pitch,
+            cell_pitch,
+        );
+    }
+    if let Some(boss_cell) = boss {
+        draw_map_boss_marker(
+            c,
+            mm_sheet,
+            grid_left + boss_cell.col as f32 * cell_pitch,
+            grid_top + boss_cell.row as f32 * cell_pitch,
+            cell_pitch,
+        );
+    }
+
+    draw_window_close_button(c, b);
 }
 
 pub fn draw_overlay(
