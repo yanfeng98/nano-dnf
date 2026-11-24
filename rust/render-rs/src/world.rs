@@ -908,6 +908,59 @@ pub fn draw_player(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
                 0.0,
             );
         }
+
+        // Authentic 60/70 Swordman basic 3-hit combo white-gold slash streak (00001 @ 2:44)
+        if p.on_ground && p.skill_timer <= 0.0 && p.attack_timer > 0.0 && !raging {
+            if let Some(slash_sh) = sprites.get("basicSlash") {
+                let prog = if p.attack_duration > 0.0 {
+                    (1.0 - p.attack_timer / p.attack_duration).clamp(0.0, 0.999)
+                } else {
+                    0.0
+                };
+                if (0.24..=0.84).contains(&prog) {
+                    const SLASH_W: u32 = 320;
+                    const SLASH_H: u32 = 184;
+                    let local = ((prog - 0.24) / 0.60).clamp(0.0, 0.999);
+                    let col: u32 = if local < 0.45 {
+                        0
+                    } else if local < 0.72 {
+                        1
+                    } else {
+                        2
+                    };
+                    let row = (p.combo_index.min(2)) as u32;
+                    let slash_alpha = if local > 0.80 {
+                        ((1.0 - local) / 0.20).clamp(0.0, 1.0) as f32
+                    } else {
+                        1.0
+                    };
+                    let scale = if row == 1 { 0.62f32 } else { 0.54f32 };
+                    let sw = SLASH_W as f32 * scale;
+                    let sh_h = SLASH_H as f32 * scale;
+                    let cx = px + p.facing as f32 * 34.0;
+                    let cy = py
+                        - match row {
+                            0 => 42.0,
+                            1 => 44.0,
+                            _ => 50.0,
+                        };
+                    c.draw_image(
+                        slash_sh,
+                        col * SLASH_W,
+                        row * SLASH_H,
+                        SLASH_W,
+                        SLASH_H,
+                        cx - sw * 0.5,
+                        cy - sh_h * 0.5,
+                        sw,
+                        sh_h,
+                        flip,
+                        slash_alpha,
+                        0.0,
+                    );
+                }
+            }
+        }
     } else {
         c.fill_round_rect(
             px - 15.0,
@@ -2386,18 +2439,68 @@ pub fn draw_effect(c: &mut Canvas<'_>, state: &State, effect: &Effect, sprites: 
                 1.0
             };
             let flip = effect.dir < 0;
-            if let Some(ish) = sprites.get("impactFlash") {
+            let col: u32 = if age < 0.48 {
+                0
+            } else if age < 0.76 {
+                1
+            } else {
+                2
+            };
+            let is_normal_slash_hit = !effect.gold && !effect.player_hit && effect.variant != 1;
+            if is_normal_slash_hit {
+                if let Some(slash_sh) = sprites.get("basicSlash") {
+                    const SLASH_W: u32 = 320;
+                    const SLASH_H: u32 = 184;
+                    // Compact directional horizontal white-gold slash spark (replaces bloated round knocklarge burst)
+                    let base_scale = (effect.radius.max(0.5) as f32) * (0.34 + age * 0.06);
+                    let dw = SLASH_W as f32 * base_scale;
+                    let dh = SLASH_H as f32 * base_scale;
+                    c.draw_image(
+                        slash_sh,
+                        col * SLASH_W,
+                        SLASH_H, // Row 1: slashlarge2.img (razor-sharp horizontal white-gold lens -> cyan -> orange)
+                        SLASH_W,
+                        SLASH_H,
+                        ex - dw * 0.5,
+                        ey - dh * 0.5,
+                        dw,
+                        dh,
+                        flip,
+                        draw_alpha,
+                        0.0,
+                    );
+                } else if let Some(ish) = sprites.get("impactFlash") {
+                    const CELL_W: u32 = 144;
+                    const CELL_H: u32 = 128;
+                    let base_scale = (effect.radius.max(0.5) as f32) * (0.38 + age * 0.07);
+                    let dw = CELL_W as f32 * base_scale;
+                    let dh = CELL_H as f32 * base_scale;
+                    c.draw_image(
+                        ish,
+                        col * CELL_W,
+                        2 * CELL_H,
+                        CELL_W,
+                        CELL_H,
+                        ex - dw * 0.5,
+                        ey - dh * 0.5,
+                        dw,
+                        dh,
+                        flip,
+                        draw_alpha,
+                        0.0,
+                    );
+                }
+            } else if let Some(ish) = sprites.get("impactFlash") {
                 const CELL_W: u32 = 144;
                 const CELL_H: u32 = 128;
-                let col: u32 = if age < 0.48 {
+                // Keep compact starburst for heavy skills / critical hits / boss impacts (row 0) and player hurt (row 1)
+                let row: u32 = if effect.gold {
                     0
-                } else if age < 0.76 {
+                } else if effect.player_hit || effect.variant == 1 {
                     1
                 } else {
-                    2
+                    (effect.variant.min(2)) as u32
                 };
-                let row = (effect.variant.min(2)) as u32;
-                // Compact DNF 60/70 starburst scale (~46-56 world units normal, ~58-71 crit, V1 290s)
                 let base_scale = (effect.radius.max(0.5) as f32) * (0.34 + age * 0.075);
                 let dw = CELL_W as f32 * base_scale;
                 let dh = CELL_H as f32 * base_scale;

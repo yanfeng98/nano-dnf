@@ -74,13 +74,14 @@ pub const UI_ASSET_ENTRIES: [(&str, &str); 14] = [
     ("worldmapArad", "assets/worldmap-arad.png"),
 ];
 
-pub const EXTRA_ASSET_ENTRIES: [(&str, &str); 9] = [
+pub const EXTRA_ASSET_ENTRIES: [(&str, &str); 10] = [
     ("minimap", "assets/minimap.png"),
     ("results", "assets/results-reference.png"),
     ("experienceDigits", "assets/experience-digits.png"),
     ("awakening", "assets/awakening.png"),
     ("portraits", "assets/portraits-reference.png"),
     ("impactFlash", "assets/impact-flash.png"),
+    ("basicSlash", "assets/basic-slash.png"),
     ("damageDigits", "assets/damage-digits.png"),
     ("groundLoot", "assets/ground-loot.png"),
     ("monsterGibs", "assets/monster-gibs.png"),
