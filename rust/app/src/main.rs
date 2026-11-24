@@ -343,12 +343,7 @@ impl AppState {
                 } else if !self.paused && !self.show_help {
                     if let Some(slot_idx) = hit_test_consumable_slot(ax, ay) {
                         if try_use_consumable_slot(&mut self.state, &mut self.progress, slot_idx) {
-                            save::save_all(
-                                &self.asset_root,
-                                &self.records,
-                                &self.progress,
-                                &self.loadout,
-                            );
+                            self.persist_save();
                         }
                         return;
                     }
@@ -502,12 +497,7 @@ impl AppState {
             && idx < 6
         {
             if try_use_consumable_slot(&mut self.state, &mut self.progress, idx) {
-                save::save_all(
-                    &self.asset_root,
-                    &self.records,
-                    &self.progress,
-                    &self.loadout,
-                );
+                self.persist_save();
             }
             return;
         }
@@ -1028,12 +1018,7 @@ impl AppState {
                         && self.progress_panel == ProgressPanelKind::None =>
                 {
                     if try_resurrect_on_defeat(&mut self.state, &mut self.progress) {
-                        save::save_all(
-                            &self.asset_root,
-                            &self.records,
-                            &self.progress,
-                            &self.loadout,
-                        );
+                        self.persist_save();
                     }
                 }
                 KeyCode::KeyX
