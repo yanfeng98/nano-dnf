@@ -597,23 +597,34 @@ pub fn draw_rating_panel(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStor
     }
 }
 
-/// Select the cell index in `assets/ground-loot.png` (8 x 48x48 cells) for a ground pickup.
+/// Select the cell index in `assets/ground-loot.png` (13 x 48x48 cells) for a ground pickup.
 ///
 /// Layout:
-/// - 0: gold coin pile
-/// - 1: red HP potion vial
-/// - 2: blue MP potion vial
-/// - 3: material pouch
-/// - 4: fate / resurrect gold coin
-/// - 5: rare crystal / gem pile
-/// - 6: weapon (katana)
-/// - 7: armor / equipment
+/// -  0: gold coin pile
+/// -  1: red HP potion vial
+/// -  2: blue MP potion vial
+/// -  3: material pouch
+/// -  4: fate / resurrect gold coin
+/// -  5: rare crystal / gem pile
+/// -  6: weapon (katana)
+/// -  7: armor / equipment
+/// -  8: green herb / leaf / flower (`苎麻花叶`, `魔力之花`, `花`/`叶`/`草`)
+/// -  9: berry / fruit (`野生草莓`, `越桔`, `草莓`/`果`)
+/// - 10: bread / food (`烤硬的黑面包`, `面包`)
+/// - 11: stone / iron / ore (`投掷石块`, `生锈的铁片`, `煤尘`, `石`/`铁`/`矿`/`尘`)
+/// - 12: fur / cloth / leather (`哥布林毛皮`, `破旧布片`, `毛皮`/`布`/`皮`)
 pub fn ground_loot_cell(drop: &Pickup) -> u32 {
     if drop.kind == "gold" {
         return 0;
     }
     let name = drop.name.as_str();
-    if name.contains("MP") || name.contains("魔力") || name.contains("魔法") {
+    if name.contains("草莓") || name.contains("越桔") || name.contains("果") {
+        9
+    } else if name.contains("花") || name.contains("叶") || name.contains("草") {
+        8
+    } else if name.contains("面包") {
+        10
+    } else if name.contains("MP") || name.contains("魔力") || name.contains("魔法") {
         2
     } else if name.contains("HP") || name.contains("生命") || name.contains("药剂") {
         1
@@ -645,6 +656,14 @@ pub fn ground_loot_cell(drop: &Pickup) -> u32 {
         || name.contains("魔石")
     {
         5
+    } else if name.contains("石")
+        || name.contains("铁")
+        || name.contains("矿")
+        || name.contains("尘")
+    {
+        11
+    } else if name.contains("毛皮") || name.contains("布") || name.contains("皮") {
+        12
     } else {
         3
     }
@@ -970,12 +989,20 @@ mod tests {
         assert_eq!(loot_plate_label(&item_drop), "生锈的铁片");
 
         let sprites = SpriteStore::load_from_root(Path::new("../.."));
+        let sheet = sprites
+            .get("groundLoot")
+            .expect("SpriteStore must load assets/ground-loot.png");
         assert!(
-            sprites.get("groundLoot").is_some(),
-            "SpriteStore must load assets/ground-loot.png"
+            sheet.width() >= 13 * 48,
+            "expanded ground-loot.png must contain at least 13 cells (624px), got {}",
+            sheet.width()
         );
         assert_eq!(ground_loot_cell(&gold_drop), 0);
-        assert_eq!(ground_loot_cell(&item_drop), 3);
+        assert_eq!(ground_loot_cell(&item_drop), 11);
+
+        let mut pouch_drop = item_drop.clone();
+        pouch_drop.name = "最下级硬化剂".to_string();
+        assert_eq!(ground_loot_cell(&pouch_drop), 3);
 
         let mut potion_drop = item_drop.clone();
         potion_drop.name = "诺顿的新手HP药剂".to_string();
@@ -1027,6 +1054,89 @@ mod tests {
             .log
             .iter()
             .any(|l| l.text == "获得65金币" && l.tone == "gold"));
+    }
+
+    #[test]
+    fn test_ground_loot_cells_for_herbs_food_ore_and_leather() {
+        let make_pickup = |kind: &str, name: &str, tone: &str, gold: u32| Pickup {
+            kind: kind.to_string(),
+            name: name.to_string(),
+            tone: tone.to_string(),
+            gold,
+            exp: 0,
+            x: 320.0,
+            y: ARENA_GROUND_Y,
+            z: 60.0,
+            radius: 0.0,
+            value: 0.0,
+            life: LOOT_LIFE,
+            from_x: 0.0,
+            from_y: 0.0,
+            from_z: 0.0,
+            progress: 0.0,
+            trail: Vec::new(),
+        };
+
+        // Gold ("65G")
+        let gold = make_pickup("gold", "金币", "gold", 65);
+        assert_eq!(loot_plate_label(&gold), "65G");
+        assert_eq!(ground_loot_cell(&gold), 0);
+
+        // Herbs / leaves / flowers must NOT fall back to material pouch (3) or MP potion (2)
+        let ramie = make_pickup("loot", "苎麻花叶", "white", 0);
+        let magic_flower = make_pickup("loot", "魔力之花", "cyan", 0);
+        let wild_grass = make_pickup("loot", "药草", "white", 0);
+        assert_eq!(ground_loot_cell(&ramie), 8);
+        assert_eq!(ground_loot_cell(&magic_flower), 8);
+        assert_eq!(ground_loot_cell(&wild_grass), 8);
+        assert_ne!(ground_loot_cell(&ramie), 3);
+
+        // Berries / fruit (must NOT collide with "草" -> herb)
+        let strawberry = make_pickup("loot", "野生草莓", "white", 0);
+        let blueberry = make_pickup("loot", "越桔", "white", 0);
+        assert_eq!(ground_loot_cell(&strawberry), 9);
+        assert_eq!(ground_loot_cell(&blueberry), 9);
+
+        // Bread / food
+        let bread = make_pickup("loot", "烤硬的黑面包", "white", 0);
+        assert_eq!(ground_loot_cell(&bread), 10);
+
+        // Stone / iron / ore / coal
+        let stone = make_pickup("loot", "投掷石块", "white", 0);
+        let rusted_iron = make_pickup("loot", "生锈的铁片", "cyan", 0);
+        let coal_dust = make_pickup("loot", "煤尘", "white", 0);
+        assert_eq!(ground_loot_cell(&stone), 11);
+        assert_eq!(ground_loot_cell(&rusted_iron), 11);
+        assert_eq!(ground_loot_cell(&coal_dust), 11);
+
+        // Fur / cloth / leather
+        let fur = make_pickup("loot", "哥布林毛皮", "white", 0);
+        let cloth = make_pickup("loot", "破旧布片", "white", 0);
+        assert_eq!(ground_loot_cell(&fur), 12);
+        assert_eq!(ground_loot_cell(&cloth), 12);
+
+        // Fate coin remains cell 4
+        let fate_coin = make_pickup("loot", "命运硬币", "cyan", 0);
+        assert_eq!(ground_loot_cell(&fate_coin), 4);
+
+        // Verify all key categories resolve to distinct cell indices
+        let distinct_cells = [
+            ground_loot_cell(&gold),
+            ground_loot_cell(&fate_coin),
+            ground_loot_cell(&ramie),
+            ground_loot_cell(&strawberry),
+            ground_loot_cell(&bread),
+            ground_loot_cell(&stone),
+            ground_loot_cell(&fur),
+        ];
+        for i in 0..distinct_cells.len() {
+            for j in (i + 1)..distinct_cells.len() {
+                assert_ne!(
+                    distinct_cells[i], distinct_cells[j],
+                    "expected distinct ground loot cells at indices {i} and {j}"
+                );
+            }
+        }
     }
 
     #[test]
