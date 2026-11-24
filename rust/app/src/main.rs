@@ -18,7 +18,8 @@ use progress_rs::{note_break, note_clear, note_kill, ProgressProfile};
 use records_rs::{record as record_run, RecordStore, RunInput};
 use render_rs::{
     draw_town_view, render, Canvas, GlyphCache, ProgressPanelKind, RenderMeta, SpriteStore,
-    TownView,
+    TownView, DEFAULT_WINDOW_HEIGHT, DEFAULT_WINDOW_WIDTH, RENDER_HEIGHT, RENDER_WIDTH,
+    VIEW_TO_RENDER_SCALE,
 };
 use reward_rs::{
     create as create_reward, pick as pick_reward, step as step_reward, take_prize, RewardState,
@@ -35,7 +36,56 @@ use winit::dpi::LogicalSize;
 use winit::event::{ElementState, KeyEvent, WindowEvent};
 use winit::event_loop::{ActiveEventLoop, ControlFlow, EventLoop};
 use winit::keyboard::{KeyCode, PhysicalKey};
-use winit::window::{Window, WindowId};
+use winit::window::{Fullscreen, Window, WindowId};
+
+fn compute_present_rect(
+    win_w: usize,
+    win_h: usize,
+    src_w: usize,
+    src_h: usize,
+) -> (usize, usize, usize, usize) {
+    let win_w = win_w.max(1);
+    let win_h = win_h.max(1);
+    let src_w = src_w.max(1);
+    let src_h = src_h.max(1);
+    let scale = (win_w as f64 / src_w as f64).min(win_h as f64 / src_h as f64);
+    let dst_w = ((src_w as f64 * scale).round() as usize).clamp(1, win_w);
+    let dst_h = ((src_h as f64 * scale).round() as usize).clamp(1, win_h);
+    let off_x = (win_w - dst_w) / 2;
+    let off_y = (win_h - dst_h) / 2;
+    (off_x, off_y, dst_w, dst_h)
+}
+
+fn map_window_to_render(win_w: f64, win_h: f64, wx: f64, wy: f64) -> Option<(f32, f32)> {
+    let win_w = win_w.max(1.0);
+    let win_h = win_h.max(1.0);
+    let rw = f64::from(RENDER_WIDTH);
+    let rh = f64::from(RENDER_HEIGHT);
+    let scale = (win_w / rw).min(win_h / rh);
+    let dst_w = rw * scale;
+    let dst_h = rh * scale;
+    let off_x = (win_w - dst_w) * 0.5;
+    let off_y = (win_h - dst_h) * 0.5;
+    let rx = ((wx - off_x) / scale) as f32;
+    let ry = ((wy - off_y) / scale) as f32;
+    if (0.0..=RENDER_WIDTH as f32).contains(&rx) && (0.0..=RENDER_HEIGHT as f32).contains(&ry) {
+        Some((rx, ry))
+    } else {
+        None
+    }
+}
+
+fn render_to_view_coords(rx: f32, ry: f32) -> (f32, f32) {
+    (
+        VIEW_LEFT as f32 + rx / VIEW_TO_RENDER_SCALE,
+        ry / VIEW_TO_RENDER_SCALE,
+    )
+}
+
+fn is_fullscreen_toggle(code: KeyCode, held_keys: &HashSet<KeyCode>) -> bool {
+    matches!(code, KeyCode::Enter | KeyCode::NumpadEnter)
+        && (held_keys.contains(&KeyCode::AltLeft) || held_keys.contains(&KeyCode::AltRight))
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum ScreenMode {
@@ -140,9 +190,9 @@ impl AppState {
             save::load_all(&asset_root, &valid_skills, DEFAULT_STAGE);
         let state = create_state(&CreateStateOptions::default());
         let attract = create_attract(Some(DEFAULT_SEED));
-        // INFALLIBLE: ARENA_WIDTH=960, ARENA_HEIGHT=540
-        let pixmap = Pixmap::new(ARENA_WIDTH as u32, ARENA_HEIGHT as u32)
-            .expect("INFALLIBLE: valid 960x540 pixmap");
+        // INFALLIBLE: RENDER_WIDTH=800, RENDER_HEIGHT=600
+        let pixmap =
+            Pixmap::new(RENDER_WIDTH, RENDER_HEIGHT).expect("INFALLIBLE: valid 800x600 pixmap");
 
         Self {
             window: None,
@@ -185,25 +235,29 @@ impl AppState {
         }
     }
 
-    fn map_window_to_arena(&self, wx: f64, wy: f64) -> Option<(f32, f32)> {
+    fn map_window_cursor(&self, wx: f64, wy: f64) -> Option<(f32, f32)> {
         let win = self.window.as_ref()?;
         let size = win.inner_size();
-        let (win_w, win_h) = (size.width.max(1) as f64, size.height.max(1) as f64);
-        let scale = (win_w / ARENA_WIDTH).min(win_h / ARENA_HEIGHT);
-        let dst_w = ARENA_WIDTH * scale;
-        let dst_h = ARENA_HEIGHT * scale;
-        let off_x = (win_w - dst_w) * 0.5;
-        let off_y = (win_h - dst_h) * 0.5;
-        let ax = ((wx - off_x) / scale) as f32;
-        let ay = ((wy - off_y) / scale) as f32;
-        if (0.0..=ARENA_WIDTH as f32).contains(&ax) && (0.0..=ARENA_HEIGHT as f32).contains(&ay) {
-            Some((ax, ay))
-        } else {
-            None
+        map_window_to_render(
+            f64::from(size.width.max(1)),
+            f64::from(size.height.max(1)),
+            wx,
+            wy,
+        )
+    }
+
+    fn toggle_fullscreen(&self) {
+        if let Some(ref win) = self.window {
+            if win.fullscreen().is_some() {
+                win.set_fullscreen(None);
+            } else {
+                win.set_fullscreen(Some(Fullscreen::Borderless(None)));
+            }
         }
     }
 
-    fn handle_click(&mut self, ax: f32, ay: f32) {
+    fn handle_click(&mut self, rx: f32, ry: f32) {
+        let (ax, ay) = render_to_view_coords(rx, ry);
         match self.mode {
             ScreenMode::Title => {
                 self.mode = ScreenMode::Region;
@@ -726,12 +780,9 @@ impl AppState {
         let src = self.pixmap.data();
         let sw = self.pixmap.width() as usize;
         let sh = self.pixmap.height() as usize;
-        // Preserve 16:9 aspect ratio with black letterbox/pillarbox
-        let scale = (win_w as f64 / sw as f64).min(win_h as f64 / sh as f64);
-        let dst_w = ((sw as f64 * scale).round() as usize).clamp(1, win_w as usize);
-        let dst_h = ((sh as f64 * scale).round() as usize).clamp(1, win_h as usize);
-        let off_x = (win_w as usize - dst_w) / 2;
-        let off_y = (win_h as usize - dst_h) / 2;
+        // Preserve 4:3 aspect ratio with crisp nearest-neighbor scaling and black letterbox/pillarbox
+        let (off_x, off_y, dst_w, dst_h) =
+            compute_present_rect(win_w as usize, win_h as usize, sw, sh);
         buffer.fill(0);
         for dy in 0..dst_h {
             let sy = (dy * sh) / dst_h;
@@ -754,6 +805,11 @@ impl AppState {
             self.held_keys.insert(code);
         } else {
             self.held_keys.remove(&code);
+            return;
+        }
+
+        if is_fullscreen_toggle(code, &self.held_keys) {
+            self.toggle_fullscreen();
             return;
         }
 
@@ -912,7 +968,10 @@ impl ApplicationHandler for AppState {
         }
         let attrs = Window::default_attributes()
             .with_title("nano-dnf · 鬼剑士的地下城 (Rust)")
-            .with_inner_size(LogicalSize::new(ARENA_WIDTH, ARENA_HEIGHT));
+            .with_inner_size(LogicalSize::new(
+                f64::from(DEFAULT_WINDOW_WIDTH),
+                f64::from(DEFAULT_WINDOW_HEIGHT),
+            ));
         if let Ok(win) = event_loop.create_window(attrs) {
             let win_rc = Rc::new(win);
             if let Ok(ctx) = Context::new(win_rc.clone()) {
@@ -935,9 +994,12 @@ impl ApplicationHandler for AppState {
                 );
                 event_loop.exit();
             }
+            WindowEvent::Focused(false) => {
+                self.held_keys.clear();
+            }
             WindowEvent::CursorMoved { position, .. } => {
-                if let Some((ax, ay)) = self.map_window_to_arena(position.x, position.y) {
-                    self.cursor_pos = (ax, ay);
+                if let Some((rx, ry)) = self.map_window_cursor(position.x, position.y) {
+                    self.cursor_pos = (rx, ry);
                 }
             }
             WindowEvent::MouseInput {
@@ -997,4 +1059,63 @@ fn main() {
     };
     let mut app = AppState::new();
     let _ = event_loop.run_app(&mut app);
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_present_rect_preserves_4_3_aspect_ratio() {
+        // Default 1200x900 window fills edge-to-edge at 1.5x
+        assert_eq!(
+            compute_present_rect(1200, 900, RENDER_WIDTH as usize, RENDER_HEIGHT as usize),
+            (0, 0, 1200, 900)
+        );
+        // 1920x1080 widescreen fullscreen pillarboxes to centered 1440x1080
+        assert_eq!(
+            compute_present_rect(1920, 1080, RENDER_WIDTH as usize, RENDER_HEIGHT as usize),
+            (240, 0, 1440, 1080)
+        );
+        // 800x1000 tall window letterboxes to centered 800x600
+        assert_eq!(
+            compute_present_rect(800, 1000, RENDER_WIDTH as usize, RENDER_HEIGHT as usize),
+            (0, 200, 800, 600)
+        );
+    }
+
+    #[test]
+    fn test_mouse_mapping_to_800x600_and_view_coords() {
+        // Default 1200x900 window: center (600, 450) -> (400, 300) in 800x600 -> (480, 270) in view
+        let (rx, ry) = map_window_to_render(1200.0, 900.0, 600.0, 450.0).expect("inside");
+        assert!((rx - 400.0).abs() < 1e-3);
+        assert!((ry - 300.0).abs() < 1e-3);
+        let (lx, ly) = render_to_view_coords(rx, ry);
+        assert!((lx - 480.0).abs() < 1e-3);
+        assert!((ly - 270.0).abs() < 1e-3);
+
+        // 1920x1080 widescreen: pillarbox click returns None; content top-left (240, 0) -> (0, 0)
+        assert!(map_window_to_render(1920.0, 1080.0, 100.0, 540.0).is_none());
+        let (rx0, ry0) = map_window_to_render(1920.0, 1080.0, 240.0, 0.0).expect("top-left");
+        assert!(rx0.abs() < 1e-3);
+        assert!(ry0.abs() < 1e-3);
+        let (lx0, ly0) = render_to_view_coords(rx0, ry0);
+        assert!((lx0 - VIEW_LEFT as f32).abs() < 1e-3);
+        assert!(ly0.abs() < 1e-3);
+    }
+
+    #[test]
+    fn test_alt_enter_fullscreen_toggle_detection() {
+        let mut held = HashSet::new();
+        assert!(!is_fullscreen_toggle(KeyCode::Enter, &held));
+
+        held.insert(KeyCode::AltLeft);
+        assert!(is_fullscreen_toggle(KeyCode::Enter, &held));
+        assert!(is_fullscreen_toggle(KeyCode::NumpadEnter, &held));
+        assert!(!is_fullscreen_toggle(KeyCode::Space, &held));
+
+        held.clear();
+        held.insert(KeyCode::AltRight);
+        assert!(is_fullscreen_toggle(KeyCode::Enter, &held));
+    }
 }
