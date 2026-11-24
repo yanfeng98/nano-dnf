@@ -4,6 +4,7 @@ pub mod canvas;
 pub mod combat_info;
 pub mod hud;
 pub mod hud_classic;
+pub mod results;
 pub mod sprites;
 pub mod tables;
 pub mod world;
