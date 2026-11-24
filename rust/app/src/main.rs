@@ -17,9 +17,9 @@ use music_rs::track_for;
 use progress_rs::{note_break, note_clear, note_kill, ProgressProfile};
 use records_rs::{record as record_run, RecordStore, RunInput};
 use render_rs::{
-    draw_town_view, render, Canvas, GlyphCache, ProgressPanelKind, RenderMeta, SpriteStore,
-    TownView, DEFAULT_WINDOW_HEIGHT, DEFAULT_WINDOW_WIDTH, RENDER_HEIGHT, RENDER_WIDTH,
-    VIEW_TO_RENDER_SCALE,
+    draw_town_view, hit_test_minimap, render, Canvas, GlyphCache, MapMode, ProgressPanelKind,
+    RenderMeta, SpriteStore, TownView, DEFAULT_WINDOW_HEIGHT, DEFAULT_WINDOW_WIDTH, RENDER_HEIGHT,
+    RENDER_WIDTH, VIEW_TO_RENDER_SCALE,
 };
 use reward_rs::{
     create as create_reward, pick as pick_reward, step as step_reward, take_prize, RewardState,
@@ -157,6 +157,7 @@ struct AppState {
     loadout_open: bool,
     loadout_slot: usize,
     progress_panel: ProgressPanelKind,
+    map_mode: MapMode,
     region_selected: String,
     town_x: f64,
     town_z: f64,
@@ -214,6 +215,7 @@ impl AppState {
             loadout_open: false,
             loadout_slot: 0,
             progress_panel: ProgressPanelKind::None,
+            map_mode: MapMode::Radar,
             region_selected: DEFAULT_STAGE.to_string(),
             town_x: 200.0,
             town_z: 20.0,
@@ -316,6 +318,12 @@ impl AppState {
                             self.mode = ScreenMode::Town;
                         }
                     }
+                } else if !self.paused && !self.show_help && !self.state.defeat {
+                    if let Some(ref dun) = self.state.dungeon {
+                        if hit_test_minimap(ax, ay, self.map_mode, dun.cols, dun.rows) {
+                            self.map_mode = self.map_mode.toggle();
+                        }
+                    }
                 }
             }
             ScreenMode::Town => {}
@@ -334,6 +342,7 @@ impl AppState {
         self.show_help = false;
         self.loadout_open = false;
         self.progress_panel = ProgressPanelKind::None;
+        self.map_mode = MapMode::Radar;
         self.seen_hints.clear();
         self.active_hint = None;
         self.recorded_finish = false;
@@ -720,6 +729,7 @@ impl AppState {
                     hint: None,
                     seed: self.state.seed,
                     stage_id: &self.state.stage_id,
+                    map_mode: self.map_mode,
                 };
                 render_rs::hud::draw_hud_video(&mut canvas, &self.state, &self.sprites, &town_meta);
                 if self.progress_panel != ProgressPanelKind::None {
@@ -755,6 +765,7 @@ impl AppState {
                     hint: hint_ref,
                     seed: active_state.seed,
                     stage_id: &active_state.stage_id,
+                    map_mode: self.map_mode,
                 };
                 render(&mut canvas, active_state, &self.sprites, &meta);
                 if self.loadout_open {
@@ -913,6 +924,15 @@ impl AppState {
                         && self.held_keys.contains(&KeyCode::ArrowUp) =>
                 {
                     self.cmd_upslash_timer = 0.08;
+                }
+                KeyCode::Tab
+                    if !self.paused
+                        && !self.show_help
+                        && !self.state.victory
+                        && !self.state.defeat
+                        && !self.state.post_clear =>
+                {
+                    self.map_mode = self.map_mode.toggle();
                 }
                 KeyCode::KeyP => self.paused = !self.paused,
                 KeyCode::F1 => self.show_help = !self.show_help,

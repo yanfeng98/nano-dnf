@@ -7,7 +7,10 @@ pub mod tables;
 pub mod world;
 
 pub use canvas::{Canvas, GlyphCache, Rgba, TextAlign};
-pub use hud::{draw_loadout_panel, draw_progress_panel, ProgressPanelKind, RenderMeta};
+pub use hud::{
+    draw_loadout_panel, draw_progress_panel, hit_test_minimap, minimap_window_box,
+    radar_button_box, radar_disc_bounds, MapMode, MapRect, ProgressPanelKind, RenderMeta,
+};
 pub use sprites::SpriteStore;
 pub use world::TownView;
 
@@ -86,7 +89,7 @@ pub fn render(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore, meta: &R
     if !hud_hidden {
         hud::draw_hud_video(c, state, sprites, meta);
         if !overlay_open && !state.post_clear {
-            hud::draw_minimap(c, state, sprites);
+            hud::draw_minimap(c, state, sprites, meta.map_mode);
         }
     }
 
@@ -155,6 +158,7 @@ mod tests {
             hint: None,
             seed: state.seed,
             stage_id: &state.stage_id,
+            map_mode: MapMode::default(),
         };
         let mut canvas = Canvas::new(&mut pixmap, &mut fonts);
         render(&mut canvas, &state, &sprites, &meta);
@@ -213,6 +217,7 @@ mod tests {
             hint: None,
             seed: state.seed,
             stage_id: &state.stage_id,
+            map_mode: MapMode::default(),
         };
         let mut canvas = Canvas::new(&mut pixmap, &mut fonts);
         render(&mut canvas, &state, &sprites, &meta);
@@ -233,6 +238,178 @@ mod tests {
         assert!(
             has_world_pixels_at_x(RENDER_WIDTH - 3),
             "right edge (x=797) must render world pixels, not a black pillarbox bar"
+        );
+    }
+
+    #[test]
+    fn test_map_mode_default_is_radar_and_toggles() {
+        assert_eq!(MapMode::default(), MapMode::Radar);
+        assert_eq!(MapMode::Radar.toggle(), MapMode::Window);
+        assert_eq!(MapMode::Window.toggle(), MapMode::Radar);
+    }
+
+    #[test]
+    fn test_hit_test_minimap_radar_and_window() {
+        // Radar mode: clicking magnifying glass button center toggles to window
+        let btn = radar_button_box();
+        let bx = btn.x + btn.w * 0.5;
+        let by = btn.y + btn.h * 0.5;
+        assert!(hit_test_minimap(bx, by, MapMode::Radar, 4, 3));
+
+        // Radar mode: clicking radar disc center toggles to window
+        let (cx, cy, r) = radar_disc_bounds();
+        assert!(hit_test_minimap(cx, cy, MapMode::Radar, 4, 3));
+
+        // Radar mode: clicking far outside radar misses
+        assert!(!hit_test_minimap(cx - r - 60.0, cy, MapMode::Radar, 4, 3));
+        assert!(!hit_test_minimap(200.0, 300.0, MapMode::Radar, 4, 3));
+
+        // Window mode (4x3 Mirkwood and 5x4 Mirkwood Deep): top-right ⊘ button hits
+        for &(cols, rows) in &[(4usize, 3usize), (5, 4)] {
+            let b = minimap_window_box(cols, rows);
+            assert!(hit_test_minimap(
+                b.x + b.w - 10.0,
+                b.y + 8.0,
+                MapMode::Window,
+                cols,
+                rows
+            ));
+            // Window body (below title bar) does not trigger close button
+            assert!(!hit_test_minimap(
+                b.x + b.w * 0.5,
+                b.y + b.h * 0.6,
+                MapMode::Window,
+                cols,
+                rows
+            ));
+            // Outside window misses
+            assert!(!hit_test_minimap(
+                b.x - 10.0,
+                b.y + 8.0,
+                MapMode::Window,
+                cols,
+                rows
+            ));
+        }
+    }
+
+    #[test]
+    fn test_canvas_circle_clip_masks_outside_and_restores() {
+        let mut pixmap = Pixmap::new(100, 100).expect("pixmap");
+        let mut fonts = GlyphCache::new(None);
+        let mut canvas = Canvas::new(&mut pixmap, &mut fonts);
+        canvas.clear(Rgba::new(0, 0, 0, 255));
+        canvas.save();
+        canvas.set_clip_circle(50.0, 50.0, 20.0);
+        canvas.fill_rect(0.0, 0.0, 100.0, 100.0, Rgba::new(255, 0, 0, 255));
+        canvas.restore();
+        // Pixel at center (50, 50) must be red; corner (5, 5) must stay black
+        let center_idx = (50 * 100 + 50) * 4;
+        let corner_idx = (5 * 100 + 5) * 4;
+        assert_eq!(canvas.pixmap.data()[center_idx], 255);
+        assert_eq!(canvas.pixmap.data()[corner_idx], 0);
+        // After restore, drawing at (5, 5) succeeds
+        canvas.fill_rect(0.0, 0.0, 10.0, 10.0, Rgba::new(0, 255, 0, 255));
+        assert_eq!(canvas.pixmap.data()[corner_idx + 1], 255);
+    }
+
+    #[test]
+    fn test_dual_mode_minimap_renders_distinct_radar_and_square_views() {
+        let sprites = SpriteStore::load_from_root(Path::new(".."));
+        let mut fonts = GlyphCache::new(None);
+        let progress = progress_rs::defaults();
+        let records = records_rs::empty_store();
+        let loadout = vec![Some("upSlash".to_string()); 6];
+
+        let probe = create_state(&CreateStateOptions {
+            seed: Some(1),
+            stage: Some("mirkwood"),
+            reference_profile: true,
+            ..Default::default()
+        });
+        let boss_cell = probe.dungeon.as_ref().map(|d| d.boss);
+        let mut state = create_state(&CreateStateOptions {
+            seed: Some(1),
+            stage: Some("mirkwood"),
+            cell: boss_cell,
+            reference_profile: true,
+            ..Default::default()
+        });
+        state.transition = 0.0;
+        state.intro_t = None;
+
+        let render_mode = |mode: MapMode, fonts: &mut GlyphCache| -> Pixmap {
+            let meta = RenderMeta {
+                title: false,
+                attract: false,
+                paused: false,
+                show_help: false,
+                loadout: &loadout,
+                loadout_open: false,
+                progress_panel: ProgressPanelKind::None,
+                progress: &progress,
+                records: &records,
+                reward: None,
+                region_open: false,
+                region_selected: "mirkwood",
+                hint: None,
+                seed: state.seed,
+                stage_id: &state.stage_id,
+                map_mode: mode,
+            };
+            let mut pixmap = Pixmap::new(RENDER_WIDTH, RENDER_HEIGHT).expect("pixmap");
+            let mut canvas = Canvas::new(&mut pixmap, fonts);
+            render(&mut canvas, &state, &sprites, &meta);
+            pixmap
+        };
+
+        let radar_px = render_mode(MapMode::Radar, &mut fonts);
+        let window_px = render_mode(MapMode::Window, &mut fonts);
+
+        // Top-right map quadrant must differ significantly between radar and square map modes
+        let mut diff_pixels = 0usize;
+        for y in 25..180u32 {
+            for x in 600..795u32 {
+                let idx = ((y * RENDER_WIDTH + x) * 4) as usize;
+                if radar_px.data()[idx..idx + 3] != window_px.data()[idx..idx + 3] {
+                    diff_pixels += 1;
+                }
+            }
+        }
+        assert!(
+            diff_pixels > 500,
+            "expected radar and square map modes to differ visually, got {diff_pixels} diff pixels"
+        );
+
+        // In boss room under square map mode, boss red bull-head is drawn on top of player blue pillar
+        let dun = state.dungeon.as_ref().expect("dungeon");
+        let boss = &dun.cells[dun.boss];
+        let b = minimap_window_box(dun.cols, dun.rows);
+        let grid_left = b.x + 5.0 * 1.125;
+        let grid_top = b.y + (18.0 + 5.0) * 1.125;
+        let pitch = 18.0 * 1.125;
+        let boss_cx = ((grid_left + (boss.col as f32 + 0.5) * pitch - VIEW_LEFT as f32)
+            * VIEW_TO_RENDER_SCALE) as u32;
+        let boss_cy = ((grid_top + (boss.row as f32 + 0.5) * pitch) * VIEW_TO_RENDER_SCALE) as u32;
+        let mut has_boss_red = false;
+        for dy in -5i32..=5 {
+            for dx in -5i32..=5 {
+                let px = (boss_cx as i32 + dx).clamp(0, RENDER_WIDTH as i32 - 1) as u32;
+                let py = (boss_cy as i32 + dy).clamp(0, RENDER_HEIGHT as i32 - 1) as u32;
+                let idx = ((py * RENDER_WIDTH + px) * 4) as usize;
+                let (r, g, bl) = (
+                    window_px.data()[idx],
+                    window_px.data()[idx + 1],
+                    window_px.data()[idx + 2],
+                );
+                if r > 180 && g < 110 && bl < 60 {
+                    has_boss_red = true;
+                }
+            }
+        }
+        assert!(
+            has_boss_red,
+            "expected boss red bull-head pixels on top of player marker in boss room"
         );
     }
 }
