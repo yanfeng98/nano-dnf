@@ -7,6 +7,7 @@ use tiny_skia::Pixmap;
 pub struct SpriteStore {
     pub sheets: HashMap<String, Pixmap>,
     pub raging_slayer: Option<Pixmap>,
+    pub region_locked: Option<Pixmap>,
     pub loaded: usize,
     pub total: usize,
 }
@@ -56,7 +57,7 @@ pub const ASSET_ENTRIES: [(&str, &str); 39] = [
     ("bossdeath", "assets/bossdeath.png"),
 ];
 
-pub const UI_ASSET_ENTRIES: [(&str, &str); 13] = [
+pub const UI_ASSET_ENTRIES: [(&str, &str); 14] = [
     ("ui", "assets/ui.png"),
     ("hud", "assets/hud.png"),
     ("hudClassic", "assets/hud-classic.png"),
@@ -70,6 +71,7 @@ pub const UI_ASSET_ENTRIES: [(&str, &str); 13] = [
     ("pillarPale", "assets/pillar-pale.png"),
     ("pillarDebris", "assets/pillar-debris.png"),
     ("gateBlock", "assets/gate-block.png"),
+    ("worldmapArad", "assets/worldmap-arad.png"),
 ];
 
 pub const EXTRA_ASSET_ENTRIES: [(&str, &str); 9] = [
@@ -119,9 +121,11 @@ impl SpriteStore {
         }
 
         let raging_slayer = sheets.get("slayer").and_then(make_raging_sheet);
+        let region_locked = sheets.get("region").and_then(make_greyscale_sheet);
         Self {
             sheets,
             raging_slayer,
+            region_locked,
             loaded,
             total,
         }
@@ -130,6 +134,28 @@ impl SpriteStore {
     pub fn get(&self, key: &str) -> Option<&Pixmap> {
         self.sheets.get(key)
     }
+}
+
+fn make_greyscale_sheet(src: &Pixmap) -> Option<Pixmap> {
+    let mut out = Pixmap::new(src.width(), src.height())?;
+    for (s, d) in src
+        .data()
+        .chunks_exact(4)
+        .zip(out.data_mut().chunks_exact_mut(4))
+    {
+        let a = s[3];
+        if a == 0 {
+            continue;
+        }
+        // Warm desaturated stone-grey for locked dungeon preview cards
+        let lum = (u16::from(s[0]) * 77 + u16::from(s[1]) * 150 + u16::from(s[2]) * 29) >> 8;
+        let v = ((lum * 78) / 100).min(u16::from(a));
+        d[0] = ((v * 104) / 100).min(u16::from(a)) as u8;
+        d[1] = v as u8;
+        d[2] = ((v * 92) / 100) as u8;
+        d[3] = a;
+    }
+    Some(out)
 }
 
 fn make_raging_sheet(src: &Pixmap) -> Option<Pixmap> {

@@ -466,6 +466,30 @@ impl<'a> Canvas<'a> {
         }
     }
 
+    pub fn fill_polygon(&mut self, pts: &[(f32, f32)], color: Rgba) {
+        if color.a == 0 || pts.len() < 3 {
+            return;
+        }
+        let mut pb = PathBuilder::new();
+        pb.move_to(pts[0].0, pts[0].1);
+        for &(x, y) in &pts[1..] {
+            pb.line_to(x, y);
+        }
+        pb.close();
+        if let Some(path) = pb.finish() {
+            let mut paint = Paint::default();
+            paint.set_color(color.to_skia());
+            paint.anti_alias = true;
+            self.pixmap.fill_path(
+                &path,
+                &paint,
+                FillRule::Winding,
+                self.transform,
+                self.clip.as_ref(),
+            );
+        }
+    }
+
     #[allow(clippy::too_many_arguments)]
     pub fn draw_image(
         &mut self,

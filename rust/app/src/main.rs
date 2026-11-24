@@ -17,11 +17,12 @@ use music_rs::track_for;
 use progress_rs::{note_break, note_clear, note_kill, ProgressProfile};
 use records_rs::{record as record_run, RecordStore, RunInput};
 use render_rs::{
-    draw_town_hud, draw_town_view, hit_test_consumable_slot, hit_test_continue,
-    hit_test_loadout_panel, hit_test_minimap, hit_test_progress_panel, hit_test_reward_card,
-    render, step_town_motion, town_interact_action, Canvas, ContinueAction, GlyphCache, MapMode,
-    PanelAction, ProgressPanelKind, RenderMeta, SpriteStore, TownMotion, TownNpcAction, TownView,
-    DEFAULT_WINDOW_HEIGHT, DEFAULT_WINDOW_WIDTH, RENDER_HEIGHT, RENDER_WIDTH, VIEW_TO_RENDER_SCALE,
+    draw_region_select, draw_town_hud, draw_town_view, hit_test_consumable_slot, hit_test_continue,
+    hit_test_loadout_panel, hit_test_minimap, hit_test_progress_panel, hit_test_region_select,
+    hit_test_reward_card, render, step_town_motion, town_interact_action, Canvas, ContinueAction,
+    GlyphCache, MapMode, PanelAction, ProgressPanelKind, RegionSelectAction, RenderMeta,
+    SpriteStore, TownMotion, TownNpcAction, TownView, DEFAULT_WINDOW_HEIGHT, DEFAULT_WINDOW_WIDTH,
+    RENDER_HEIGHT, RENDER_WIDTH, VIEW_TO_RENDER_SCALE,
 };
 use reward_rs::{
     create as create_reward, pick as pick_reward, step as step_reward, take_prize, RewardState,
@@ -162,6 +163,7 @@ struct AppState {
     progress_panel: ProgressPanelKind,
     map_mode: MapMode,
     region_selected: String,
+    region_abyss: bool,
     town: TownMotion,
     town_time: f64,
     held_keys: HashSet<KeyCode>,
@@ -223,6 +225,7 @@ impl AppState {
             progress_panel: ProgressPanelKind::None,
             map_mode: MapMode::Radar,
             region_selected: DEFAULT_STAGE.to_string(),
+            region_abyss: false,
             town: TownMotion {
                 x: 200.0,
                 z: 20.0,
@@ -289,19 +292,25 @@ impl AppState {
                 self.mode = ScreenMode::Region;
             }
             ScreenMode::Region => {
-                let stages = ["mirkwood", "mirkwooddeep"];
-                let bw = 168.0f32;
-                let bh = 73.0f32;
-                let gap_x = 14.0f32;
-                let row_w = 2.0 * bw + gap_x;
-                let row_x = (ARENA_WIDTH as f32 - row_w) * 0.5;
-                let by = 150.0f32;
-                for (i, id) in stages.iter().enumerate() {
-                    let bx = row_x + i as f32 * (bw + gap_x);
-                    if ax >= bx && ax <= bx + bw && ay >= by && ay <= by + bh {
-                        self.region_selected = (*id).to_string();
-                        self.restart_run(id, DEFAULT_SEED);
-                        return;
+                if let Some(action) = hit_test_region_select(&self.region_selected, ax, ay) {
+                    match action {
+                        RegionSelectAction::SelectStage(id) => {
+                            if self.region_selected == id {
+                                self.restart_run(id, DEFAULT_SEED);
+                            } else {
+                                self.region_selected = id.to_string();
+                            }
+                        }
+                        RegionSelectAction::EnterDungeon => {
+                            let st = self.region_selected.clone();
+                            self.restart_run(&st, DEFAULT_SEED);
+                        }
+                        RegionSelectAction::ReturnTown => {
+                            self.mode = ScreenMode::Town;
+                        }
+                        RegionSelectAction::ToggleAbyss => {
+                            self.region_abyss = !self.region_abyss;
+                        }
                     }
                 }
             }
@@ -789,6 +798,40 @@ impl AppState {
                     reward_card_hover: None,
                 };
                 draw_town_hud(&mut canvas, &self.state, &self.sprites, &town_meta);
+                if self.progress_panel != ProgressPanelKind::None {
+                    render_rs::draw_progress_panel(
+                        &mut canvas,
+                        &self.sprites,
+                        self.progress_panel,
+                        &self.progress,
+                        hover_view,
+                    );
+                }
+                if self.loadout_open {
+                    render_rs::draw_loadout_panel(
+                        &mut canvas,
+                        &self.sprites,
+                        &self.loadout,
+                        self.loadout_slot,
+                        hover_view,
+                    );
+                }
+            } else if self.mode == ScreenMode::Region {
+                let region_hover = if self.progress_panel == ProgressPanelKind::None
+                    && !self.loadout_open
+                {
+                    hover_view
+                        .and_then(|(ax, ay)| hit_test_region_select(&self.region_selected, ax, ay))
+                } else {
+                    None
+                };
+                draw_region_select(
+                    &mut canvas,
+                    &self.sprites,
+                    &self.region_selected,
+                    region_hover,
+                    self.region_abyss,
+                );
                 if self.progress_panel != ProgressPanelKind::None {
                     render_rs::draw_progress_panel(
                         &mut canvas,
