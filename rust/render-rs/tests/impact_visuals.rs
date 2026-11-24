@@ -342,3 +342,192 @@ fn test_screen_shake_offsets_rendered_world_pixels_without_changing_camera() {
         "active screen shake must shift the rendered world viewport pixels, got {shifted}"
     );
 }
+
+#[test]
+fn test_basic_attack_renders_white_gold_slash_streak_and_flips_with_facing() {
+    let sprites = SpriteStore::load_from_root(Path::new("../.."));
+    let slash_sheet = sprites
+        .get("basicSlash")
+        .expect("SpriteStore must load assets/basic-slash.png as \"basicSlash\"");
+    assert_eq!((slash_sheet.width(), slash_sheet.height()), (960, 552));
+
+    let mut no_slash_sprites = SpriteStore::load_from_root(Path::new("../.."));
+    no_slash_sprites.sheets.remove("basicSlash");
+
+    let mut base_state = create_state(&CreateStateOptions {
+        seed: Some(1),
+        stage: Some("mirkwood"),
+        reference_profile: true,
+        ..Default::default()
+    });
+    base_state.transition = 0.0;
+    base_state.intro_t = None;
+    base_state.effects.clear();
+    base_state.enemies.clear();
+    base_state.player.x = 360.0;
+    base_state.player.facing = 1;
+    base_state.player.on_ground = true;
+    base_state.player.skill_timer = 0.0;
+    base_state.player.attack_timer = 0.0;
+
+    // Helper: bounding box and centroid of pixels drawn exclusively by "basicSlash"
+    let slash_bbox = |a: &Pixmap, b: &Pixmap| -> (usize, u32, u32, u32, u32, f64) {
+        let mut count = 0usize;
+        let mut min_x = u32::MAX;
+        let mut max_x = 0u32;
+        let mut min_y = u32::MAX;
+        let mut max_y = 0u32;
+        let mut sum_x = 0.0f64;
+        let ad = a.data();
+        let bd = b.data();
+        for y in 0..RENDER_HEIGHT {
+            for x in 0..RENDER_WIDTH {
+                let i = ((y * RENDER_WIDTH + x) * 4) as usize;
+                let (ar, ag, ab) = (ad[i], ad[i + 1], ad[i + 2]);
+                let (br, bg, bb) = (bd[i], bd[i + 1], bd[i + 2]);
+                let is_bright_gold = br >= 230
+                    && bg >= 170
+                    && (br > ar.saturating_add(40) || bg > ag.saturating_add(40))
+                    && (u16::from(br) + u16::from(bg) + u16::from(bb))
+                        > (u16::from(ar) + u16::from(ag) + u16::from(ab) + 100);
+                if is_bright_gold {
+                    count += 1;
+                    min_x = min_x.min(x);
+                    max_x = max_x.max(x);
+                    min_y = min_y.min(y);
+                    max_y = max_y.max(y);
+                    sum_x += f64::from(x);
+                }
+            }
+        }
+        let cx = if count > 0 { sum_x / count as f64 } else { 0.0 };
+        (count, min_x, max_x, min_y, max_y, cx)
+    };
+
+    for combo in 0..3usize {
+        let mut atk = base_state.clone();
+        atk.player.combo_index = combo;
+        atk.player.attack_duration = 0.22;
+        atk.player.attack_timer = 0.22 * (1.0 - 0.38); // prog = 0.38 (peak lens frame)
+        let without_pix = render_to_pixmap(&atk, &no_slash_sprites);
+        let with_pix = render_to_pixmap(&atk, &sprites);
+        let (count, min_x, max_x, min_y, max_y, _cx) = slash_bbox(&without_pix, &with_pix);
+        assert!(
+            count >= 220,
+            "basic attack combo {combo} must render bright white-gold slash streak, got {count} px"
+        );
+        if combo == 1 {
+            let bw = max_x.saturating_sub(min_x) + 1;
+            let bh = max_y.saturating_sub(min_y) + 1;
+            assert!(
+                bw >= 130 && bw > bh * 4,
+                "combo 1 horizontal slash streak must be wide and razor-sharp (got {bw}x{bh})"
+            );
+        }
+    }
+
+    // Verify facing flip shifts the horizontal slash streak to the opposite side of the player
+    let mut right_atk = base_state.clone();
+    right_atk.player.facing = 1;
+    right_atk.player.combo_index = 1;
+    right_atk.player.attack_duration = 0.22;
+    right_atk.player.attack_timer = 0.22 * (1.0 - 0.38);
+    let right_without = render_to_pixmap(&right_atk, &no_slash_sprites);
+    let right_with = render_to_pixmap(&right_atk, &sprites);
+    let (_, _, _, _, _, right_cx) = slash_bbox(&right_without, &right_with);
+
+    let mut left_atk = base_state.clone();
+    left_atk.player.facing = -1;
+    left_atk.player.combo_index = 1;
+    left_atk.player.attack_duration = 0.22;
+    left_atk.player.attack_timer = 0.22 * (1.0 - 0.38);
+    let left_without = render_to_pixmap(&left_atk, &no_slash_sprites);
+    let left_with = render_to_pixmap(&left_atk, &sprites);
+    let (left_count, _, _, _, _, left_cx) = slash_bbox(&left_without, &left_with);
+    assert!(
+        left_count >= 220,
+        "left-facing basic attack must render slash streak, got {left_count} px"
+    );
+    assert!(
+        right_cx > left_cx + 30.0,
+        "facing +1 slash centroid ({right_cx:.1}) must lie well right of facing -1 ({left_cx:.1})"
+    );
+
+    // Verify bloodRage suppresses the normal basicSlash so it does not double-draw over bloodRage arc
+    let mut rage_atk = right_atk.clone();
+    rage_atk.player.buffs.insert("bloodRage".to_string(), 10.0);
+    let rage_without = render_to_pixmap(&rage_atk, &no_slash_sprites);
+    let rage_with = render_to_pixmap(&rage_atk, &sprites);
+    let (rage_diff, _, _, _, _, _) = slash_bbox(&rage_without, &rage_with);
+    assert_eq!(
+        rage_diff, 0,
+        "bloodRage basic attack must not render normal basicSlash over its crimson arc"
+    );
+}
+
+#[test]
+fn test_normal_hit_flash_is_compact_directional_slash_while_crit_is_starburst() {
+    let sprites = SpriteStore::load_from_root(Path::new("../.."));
+    let mut base_state = create_state(&CreateStateOptions {
+        seed: Some(1),
+        stage: Some("mirkwood"),
+        reference_profile: true,
+        ..Default::default()
+    });
+    base_state.transition = 0.0;
+    base_state.intro_t = None;
+    base_state.effects.clear();
+    let base_pix = render_to_pixmap(&base_state, &sprites);
+
+    let measure_flash = |gold: bool| -> (usize, u32, u32) {
+        let mut s = base_state.clone();
+        let mut eff = Effect::new("hitFlash", 0.15);
+        eff.x = s.player.x + 60.0;
+        eff.y = s.player.y - 50.0;
+        eff.z = s.player.z;
+        eff.dir = 1;
+        eff.variant = 0;
+        eff.radius = 1.0;
+        eff.gold = gold;
+        s.effects.push(eff);
+        let pix = render_to_pixmap(&s, &sprites);
+        let mut count = 0usize;
+        let mut min_x = u32::MAX;
+        let mut max_x = 0u32;
+        let mut min_y = u32::MAX;
+        let mut max_y = 0u32;
+        let ad = base_pix.data();
+        let bd = pix.data();
+        for y in 0..RENDER_HEIGHT {
+            for x in 0..RENDER_WIDTH {
+                let i = ((y * RENDER_WIDTH + x) * 4) as usize;
+                if bd[i] >= 240 && bd[i + 1] >= 200 && bd[i] > ad[i].saturating_add(40) {
+                    count += 1;
+                    min_x = min_x.min(x);
+                    max_x = max_x.max(x);
+                    min_y = min_y.min(y);
+                    max_y = max_y.max(y);
+                }
+            }
+        }
+        let bw = if count > 0 { max_x - min_x + 1 } else { 0 };
+        let bh = if count > 0 { max_y - min_y + 1 } else { 0 };
+        (count, bw, bh)
+    };
+
+    let (norm_px, norm_w, norm_h) = measure_flash(false);
+    assert!(
+        (120..=1800).contains(&norm_px),
+        "normal hitFlash should be compact, got {norm_px} bright px"
+    );
+    assert!(
+        norm_w > norm_h * 2,
+        "normal hitFlash must be a directional horizontal slash spark, not a round blob (got {norm_w}x{norm_h})"
+    );
+
+    let (crit_px, crit_w, crit_h) = measure_flash(true);
+    assert!(
+        crit_px >= 250 && crit_h >= 24 && crit_w >= 24,
+        "critical/heavy hitFlash (gold=true) must retain compact starburst (got {crit_px} px, {crit_w}x{crit_h})"
+    );
+}
