@@ -312,6 +312,7 @@ mod tests {
             solid: true,
             scattered: false,
             hp: 1,
+            hit_t: 0.0,
             broken: true,
             broken_at: 0.0,
             gone: false,

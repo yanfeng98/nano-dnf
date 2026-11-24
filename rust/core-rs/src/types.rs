@@ -242,6 +242,7 @@ pub struct Prop {
     pub solid: bool,
     pub scattered: bool,
     pub hp: i32,
+    pub hit_t: f64,
     pub broken: bool,
     pub broken_at: f64,
     pub gone: bool,
