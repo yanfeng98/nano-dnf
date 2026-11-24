@@ -428,10 +428,18 @@ pub fn consumable_count(profile: &ProgressProfile, id: &str) -> u32 {
 }
 
 pub fn consume_resurrect_coin(profile: &mut ProgressProfile) -> bool {
-    use_item(profile, "resurrectCoin").is_some()
+    let count = profile.items.get("resurrectCoin").copied().unwrap_or(0);
+    if count == 0 {
+        return false;
+    }
+    profile.items.insert("resurrectCoin".to_string(), count - 1);
+    true
 }
 
 pub fn use_item(profile: &mut ProgressProfile, id: &str) -> Option<UseItemEffect> {
+    if id == "resurrectCoin" {
+        return None;
+    }
     let spec = item_spec(id)?;
     if spec.category != ItemCategory::Consumable {
         return None;
@@ -669,5 +677,19 @@ mod tests {
             consumable_count(&normalize(Some(&legacy_json)), "resurrectCoin"),
             3
         );
+    }
+
+    #[test]
+    fn test_use_item_rejects_resurrect_coin_and_preserves_stack() {
+        let mut p = defaults();
+        assert_eq!(consumable_count(&p, "resurrectCoin"), 3);
+        assert_eq!(use_item(&mut p, "resurrectCoin"), None);
+        assert_eq!(
+            consumable_count(&p, "resurrectCoin"),
+            3,
+            "use_item must not consume resurrectCoin; only consume_resurrect_coin on defeat may"
+        );
+        assert!(consume_resurrect_coin(&mut p));
+        assert_eq!(consumable_count(&p, "resurrectCoin"), 2);
     }
 }

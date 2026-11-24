@@ -167,6 +167,41 @@ pub fn spawn_projectile(state: &mut State, enemy_idx: usize) {
     let Some(ref spec) = e.projectile else {
         return;
     };
+    let nat = spec.native_object;
+    let pvf_proj = if state.reference_profile.is_some() {
+        nat.and_then(crate::pvf_truth::projectile_truth)
+    } else {
+        None
+    };
+    let proj_speed = pvf_proj
+        .filter(|t| t.speed_x > 0)
+        .map(|t| crate::constants::native_ground_x(f64::from(t.speed_x)))
+        .unwrap_or(spec.speed);
+    let proj_gravity = pvf_proj
+        .filter(|t| t.gravity > 0)
+        .map(|t| crate::constants::native_ground_x(f64::from(t.gravity)))
+        .unwrap_or(spec.gravity);
+    let proj_piercing = if pvf_proj.is_some_and(|t| t.piercing_power > 0) {
+        spec.piercing.max(1)
+    } else {
+        spec.piercing
+    };
+    let proj_z_sine_amp = if spec.z_sine_amp == 0.0 {
+        pvf_proj
+            .filter(|t| t.z_sine_amp > 0)
+            .map(|t| crate::constants::native_ground_x(f64::from(t.z_sine_amp)))
+            .unwrap_or(0.0)
+    } else {
+        spec.z_sine_amp
+    };
+    let proj_z_sine_rad = if spec.z_sine_rad_per_sec == 0.0 {
+        pvf_proj
+            .filter(|t| t.z_sine_deg_per_sec > 0)
+            .map(|t| f64::from(t.z_sine_deg_per_sec).to_radians())
+            .unwrap_or(0.0)
+    } else {
+        spec.z_sine_rad_per_sec
+    };
     let origin_x = e.x + f64::from(e.facing) * spec.origin_x.unwrap_or(e.width / 2.0 + 2.0);
     let origin_y = e.y - spec.height;
     let dx = state.player.x - origin_x;
@@ -177,18 +212,24 @@ pub fn spawn_projectile(state: &mut State, enemy_idx: usize) {
         f64::from(e.facing)
     } else {
         dx / length
-    } * spec.speed;
-    let vy = spec.initial_vy.unwrap_or_else(|| {
-        if spec.horizontal {
-            0.0
-        } else {
-            (dy / length) * spec.speed
-        }
-    });
+    } * proj_speed;
+    let vy = spec
+        .initial_vy
+        .or_else(|| {
+            pvf_proj
+                .filter(|t| t.speed_z > 0)
+                .map(|t| -crate::constants::native_ground_x(f64::from(t.speed_z)))
+        })
+        .unwrap_or_else(|| {
+            if spec.horizontal {
+                0.0
+            } else {
+                (dy / length) * proj_speed
+            }
+        });
     let id = state.next_projectile_id;
     state.next_projectile_id += 1;
     let z = e.z;
-    let nat = spec.native_object;
     state.projectiles.push(Projectile {
         id,
         native_object: nat,
@@ -197,12 +238,12 @@ pub fn spawn_projectile(state: &mut State, enemy_idx: usize) {
         z,
         vx,
         vy,
-        gravity: spec.gravity,
+        gravity: proj_gravity,
         landing_stop: spec.landing_stop,
-        z_sine_amp: spec.z_sine_amp,
-        z_sine_rad_per_sec: spec.z_sine_rad_per_sec,
+        z_sine_amp: proj_z_sine_amp,
+        z_sine_rad_per_sec: proj_z_sine_rad,
         osc_y: 0.0,
-        piercing: spec.piercing,
+        piercing: proj_piercing,
         hit_player: false,
         radius: spec.radius,
         damage: e.damage,

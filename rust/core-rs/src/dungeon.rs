@@ -1248,23 +1248,78 @@ pub fn begin_room(state: &mut State, entry_door: Option<&str>) {
     let depth = band_depth(band_back_y);
     let mut first_wave = Vec::new();
     let mut later_waves: IndexMap<u32, Vec<RoomWaveItem>> = IndexMap::new();
-    for entry in &spec.enemies {
-        let z = entry.depth.unwrap_or(0.0) * depth;
-        let item = RoomWaveItem {
-            kind: entry.kind.clone(),
-            x: entry.x,
-            z,
-            level: entry.level,
-            xp: entry.xp,
-            activation_delay: entry.activation_delay,
-        };
-        let wave = entry.wave.unwrap_or(1);
-        if wave <= 1 {
-            first_wave.push(item);
-        } else {
-            later_waves.entry(wave).or_default().push(item);
+    let is_recorded_main_room = stage.dungeon.as_ref().is_some_and(|dun| {
+        cell.room == dun.entry_room
+            || cell.room == dun.boss_room
+            || dun.pins.values().any(|&pinned| pinned == cell.room)
+    });
+    let pvf_branch = if state.reference_profile.is_some() && !is_recorded_main_room {
+        crate::pvf_truth::stage_truth(&state.stage_id).and_then(|st| {
+            if st.branch_rooms.is_empty() {
+                None
+            } else {
+                st.branch_rooms.get(cell.room % st.branch_rooms.len())
+            }
+        })
+    } else {
+        None
+    };
+    if let Some(branch) = pvf_branch {
+        let total_roster: usize = branch.roster.values().map(|&n| n as usize).sum();
+        let mut idx = 0usize;
+        for (kind, &count) in &branch.roster {
+            for _ in 0..count {
+                let (x, z, level, xp, activation_delay) = if let Some(slot) = spec.enemies.get(idx)
+                {
+                    (
+                        slot.x,
+                        slot.depth.unwrap_or(0.5) * depth,
+                        slot.level,
+                        slot.xp,
+                        slot.activation_delay,
+                    )
+                } else {
+                    let frac = if total_roster <= 1 {
+                        0.5
+                    } else {
+                        idx as f64 / (total_roster - 1) as f64
+                    };
+                    let x =
+                        ROOM_LEFT_WALL + 160.0 + frac * (width - ROOM_LEFT_WALL - 300.0).max(80.0);
+                    let z = (0.28 + ((idx % 3) as f64) * 0.22) * depth;
+                    (x, z, None, None, None)
+                };
+                first_wave.push(RoomWaveItem {
+                    kind: kind.clone(),
+                    x,
+                    z,
+                    level,
+                    xp,
+                    activation_delay,
+                });
+                idx += 1;
+            }
+        }
+    } else {
+        for entry in &spec.enemies {
+            let z = entry.depth.unwrap_or(0.0) * depth;
+            let item = RoomWaveItem {
+                kind: entry.kind.clone(),
+                x: entry.x,
+                z,
+                level: entry.level,
+                xp: entry.xp,
+                activation_delay: entry.activation_delay,
+            };
+            let wave = entry.wave.unwrap_or(1);
+            if wave <= 1 {
+                first_wave.push(item);
+            } else {
+                later_waves.entry(wave).or_default().push(item);
+            }
         }
     }
+    let total_enemies = first_wave.len() + later_waves.values().map(Vec::len).sum::<usize>();
     let mut wave_numbers: Vec<u32> = later_waves.keys().copied().collect();
     wave_numbers.sort_unstable();
 
@@ -1283,7 +1338,7 @@ pub fn begin_room(state: &mut State, entry_door: Option<&str>) {
 
     state.room = Some(RoomState {
         name: spec.name.clone(),
-        total: spec.enemies.len(),
+        total: total_enemies,
         cleared,
         native_gate_opened_at: None,
         cell: state.cell,

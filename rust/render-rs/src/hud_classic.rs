@@ -51,6 +51,13 @@ pub const SKILL_SLOT_RECTS: [[f32; 4]; 6] = [
     [669.0, 557.0, 36.0, 34.0],
 ];
 
+/// Native 800x600 `[x, y, w, h]` of the 3 right-side active buff slots above the skill quickbar.
+pub const BUFF_SLOT_RECTS: [[f32; 4]; 3] = [
+    [565.0, 533.0, 18.0, 18.0],
+    [614.0, 533.0, 18.0, 18.0],
+    [663.0, 533.0, 18.0, 18.0],
+];
+
 // Sprite sheet source rects inside `assets/hud-classic.png` (800x200)
 const SRC_BASE: [u32; 4] = [0, 0, 800, 100];
 const SRC_HP_LIQUID: [u32; 4] = [0, 100, 48, 83];
@@ -246,6 +253,9 @@ pub fn draw_classic_bottom_hud(
 
     // 7. Skill quickbar (6 slots: A S D F G H) with greyed cooldown/OOM & Lv.X rank badges
     draw_skill_quickbar(c, state, sprites, meta);
+
+    // 8. Right-side active buff bar (player.buff_icon_id / buff_icon_timer & active player.buffs)
+    draw_active_buff_bar(c, state, sprites);
 
     true
 }
@@ -476,6 +486,89 @@ fn draw_skill_quickbar(
                 slot[0] + slot[2] - 1.0,
                 slot[1] + 2.0,
                 disabled,
+            );
+        }
+    }
+}
+
+fn draw_active_buff_bar(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
+    let mut active_icons: Vec<(String, f64)> = Vec::new();
+    if state.player.buff_icon_timer > 0.0 {
+        if let Some(ref skill_id) = state.player.buff_icon_id {
+            active_icons.push((skill_id.clone(), state.player.buff_icon_timer));
+        }
+    }
+    for (buff_id, &rem) in &state.player.buffs {
+        if rem <= 0.0 {
+            continue;
+        }
+        let skill_id = core_rs::TABLES
+            .skills
+            .iter()
+            .find(|(_, spec)| spec.buff.as_ref().is_some_and(|b| b.id == *buff_id))
+            .map(|(id, _)| id.clone())
+            .unwrap_or_else(|| buff_id.clone());
+        if !active_icons.iter().any(|(id, _)| *id == skill_id) {
+            active_icons.push((skill_id, rem));
+        }
+    }
+
+    for (slot_idx, (skill_id, rem)) in active_icons
+        .into_iter()
+        .take(BUFF_SLOT_RECTS.len())
+        .enumerate()
+    {
+        let Some(s_idx) = core_rs::TABLES
+            .skill_order
+            .iter()
+            .position(|id| id == &skill_id)
+        else {
+            continue;
+        };
+        let blinking_dim = rem.is_finite() && rem < 3.0 && ((state.time * 6.0) as i32) % 2 == 1;
+        let sheet_opt = if blinking_dim {
+            sprites
+                .get("skillsDisabled")
+                .or_else(|| sprites.get("skills"))
+        } else {
+            sprites
+                .get("skills")
+                .or_else(|| sprites.get("skillsDisabled"))
+        };
+        let Some(sheet) = sheet_opt else {
+            continue;
+        };
+        let slot = BUFF_SLOT_RECTS[slot_idx];
+        c.fill_rect(
+            native_x(slot[0] - 1.0),
+            native_y(slot[1] - 1.0),
+            native_size(slot[2] + 2.0),
+            native_size(slot[3] + 2.0),
+            Rgba::new(14, 18, 28, 220),
+        );
+        c.draw_image(
+            sheet,
+            (s_idx as u32) * 32,
+            0,
+            32,
+            32,
+            native_x(slot[0]),
+            native_y(slot[1]),
+            native_size(slot[2]),
+            native_size(slot[3]),
+            false,
+            1.0,
+            0.0,
+        );
+        if rem.is_finite() && rem < 99.0 {
+            c.fill_text(
+                &format!("{}", rem.ceil() as u32),
+                native_x(slot[0] + slot[2] + 2.0),
+                native_y(slot[1] + slot[3] - 3.0),
+                native_size(9.0),
+                Rgba::new(255, 240, 175, 255),
+                TextAlign::Left,
+                Some(Rgba::new(0, 0, 0, 235)),
             );
         }
     }

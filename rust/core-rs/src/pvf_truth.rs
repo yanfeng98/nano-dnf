@@ -222,4 +222,111 @@ mod tests {
         }
         assert!(boss_items.contains("烤硬的黑面包"));
     }
+
+    #[test]
+    fn test_runtime_pvf_truth_wiring_projectiles_branch_rooms_and_breakables() {
+        use crate::types::CreateStateOptions;
+
+        // 1. Projectile truth: 30021 (goblinRed / bomb) & 30057 (goblinBlue / icicle) under reference_profile
+        let mut state = crate::create_state(&CreateStateOptions {
+            seed: Some(1),
+            stage: Some("mirkwood"),
+            reference_profile: true,
+            ..Default::default()
+        });
+        let blue = crate::enemy::create_enemy(&mut state, "goblinBlue", 420.0, 20.0, None, None);
+        let red = crate::enemy::create_enemy(&mut state, "goblinRed", 440.0, 20.0, None, None);
+        state.enemies = vec![blue, red];
+        state.projectiles.clear();
+        crate::enemy::spawn_projectile(&mut state, 0);
+        crate::enemy::spawn_projectile(&mut state, 1);
+        assert_eq!(state.projectiles.len(), 2);
+
+        let ice = &state.projectiles[0];
+        let ice_truth = projectile_truth(30057).expect("30057 truth");
+        assert_eq!(ice.native_object, Some(30057));
+        assert!(
+            ice.piercing >= 1,
+            "30057 icicle must inherit piercing from PVF truth (piercing_power={})",
+            ice_truth.piercing_power
+        );
+
+        let bomb = &state.projectiles[1];
+        let bomb_nat = bomb.native_object.expect("goblinRed native_object");
+        let bomb_truth = projectile_truth(bomb_nat).expect("goblinRed projectile truth");
+        let expected_g = crate::constants::native_ground_x(f64::from(bomb_truth.gravity));
+        assert!(
+            (bomb.gravity - expected_g).abs() < 1e-4,
+            "projectile {bomb_nat} gravity should match PVF truth: got {}, expected {expected_g}",
+            bomb.gravity
+        );
+
+        // 2. Unpinned off-path branch room roster from stage_truth("mirkwood").branch_rooms
+        let mw_truth = stage_truth("mirkwood").expect("mirkwood truth");
+        let mw_stage = crate::TABLES
+            .stages
+            .get("mirkwood")
+            .expect("mirkwood stage");
+        let mw_dun = mw_stage.dungeon.as_ref().expect("mirkwood dungeon");
+        let mut tested_branch = false;
+        if let Some(ref mut d) = state.dungeon {
+            if let Some(branch_cell_idx) = d.cells.iter().position(|c| {
+                c.room != mw_dun.entry_room
+                    && c.room != mw_dun.boss_room
+                    && !mw_dun.pins.values().any(|&p| p == c.room)
+            }) {
+                let branch_room = d.cells[branch_cell_idx].room;
+                let expected_branch =
+                    &mw_truth.branch_rooms[branch_room % mw_truth.branch_rooms.len()];
+                let expected_count: usize =
+                    expected_branch.roster.values().map(|&n| n as usize).sum();
+                d.cells[branch_cell_idx].cleared = false;
+                state.cell = branch_cell_idx;
+                crate::dungeon::begin_room(&mut state, None);
+                assert_eq!(
+                    state.enemies.len(),
+                    expected_count,
+                    "unpinned branch room {branch_room} should spawn PVF branch_rooms roster count"
+                );
+                tested_branch = true;
+            }
+        }
+        assert!(
+            tested_branch,
+            "expected at least one unpinned branch room in mirkwood"
+        );
+
+        // 3. Breakable drop lookup from stage_truth("mirkwood").breakable_drops
+        let valid_names: std::collections::HashSet<&str> = mw_truth
+            .breakable_drops
+            .iter()
+            .map(|d| d.name.as_str())
+            .collect();
+        state.pickups.clear();
+        let chest_prop = crate::types::Prop {
+            piece: "chest".to_string(),
+            x: 320.0,
+            z: 20.0,
+            scale: None,
+            sort_z: None,
+            solid: true,
+            scattered: false,
+            hp: 1,
+            broken: true,
+            broken_at: 0.0,
+            gone: false,
+            native_pillar: None,
+            native_footprint: None,
+            native_decoration: None,
+            native_animation_started_at: -1.0,
+        };
+        crate::combat::drop_breakable_loot(&mut state, &chest_prop);
+        assert_eq!(state.pickups.len(), 1);
+        assert!(
+            valid_names.contains(state.pickups[0].name.as_str()),
+            "chest drop {:?} should come from PVF stage breakable_drops {:?}",
+            state.pickups[0].name,
+            valid_names
+        );
+    }
 }
