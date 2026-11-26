@@ -57,13 +57,14 @@ pub const ASSET_ENTRIES: [(&str, &str); 39] = [
     ("bossdeath", "assets/bossdeath.png"),
 ];
 
-pub const UI_ASSET_ENTRIES: [(&str, &str); 15] = [
+pub const UI_ASSET_ENTRIES: [(&str, &str); 16] = [
     ("ui", "assets/ui.png"),
     ("hud", "assets/hud.png"),
     ("hudClassic", "assets/hud-classic.png"),
     ("consumables", "assets/consumables.png"),
     ("town", "assets/town.png"),
     ("hendonmyre", "assets/hendonmyre.png"),
+    ("seriaroom", "assets/seriaroom.png"),
     ("npc", "assets/npc.png"),
     ("gui", "assets/gui.png"),
     ("treeReference", "assets/tree-reference.png"),
@@ -75,7 +76,7 @@ pub const UI_ASSET_ENTRIES: [(&str, &str); 15] = [
     ("worldmapArad", "assets/worldmap-arad.png"),
 ];
 
-pub const EXTRA_ASSET_ENTRIES: [(&str, &str); 10] = [
+pub const EXTRA_ASSET_ENTRIES: [(&str, &str); 11] = [
     ("minimap", "assets/minimap.png"),
     ("results", "assets/results-reference.png"),
     ("experienceDigits", "assets/experience-digits.png"),
@@ -86,6 +87,7 @@ pub const EXTRA_ASSET_ENTRIES: [(&str, &str); 10] = [
     ("damageDigits", "assets/damage-digits.png"),
     ("groundLoot", "assets/ground-loot.png"),
     ("monsterGibs", "assets/monster-gibs.png"),
+    ("statusVfx", "assets/status-vfx.png"),
 ];
 
 impl SpriteStore {

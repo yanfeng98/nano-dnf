@@ -50,6 +50,7 @@ mod win_audio {
         forest_sink: Option<Sink>,
         rain_sink: Option<Sink>,
         current_track: Option<TrackId>,
+        current_bgm_file: Option<String>,
         current_ambient: AmbientMode,
         muted: bool,
         music_enabled: bool,
@@ -70,6 +71,7 @@ mod win_audio {
                 forest_sink: None,
                 rain_sink: None,
                 current_track: None,
+                current_bgm_file: None,
                 current_ambient: AmbientMode::None,
                 muted: false,
                 music_enabled: true,
@@ -166,10 +168,11 @@ mod win_audio {
         }
 
         pub fn sync_track(&mut self, track: TrackId) {
-            if self.current_track == Some(track) {
+            if self.current_track == Some(track) && self.current_bgm_file.is_none() {
                 return;
             }
             self.current_track = Some(track);
+            self.current_bgm_file = None;
             let Some(ref handle) = self.handle else {
                 return;
             };
@@ -185,6 +188,32 @@ mod win_audio {
                         sink.append(decoder.repeat_infinite());
                         self.music_sink = Some(sink);
                     }
+                }
+            }
+        }
+
+        pub fn sync_bgm_file(&mut self, rel: &str) {
+            if self.current_bgm_file.as_deref() == Some(rel) {
+                return;
+            }
+            let path = self.asset_root.join(rel);
+            let Ok(bytes) = fs::read(&path) else {
+                self.sync_track(music_rs::track_for(None, None, None, true));
+                return;
+            };
+            self.current_bgm_file = Some(rel.to_string());
+            self.current_track = None;
+            let Some(ref handle) = self.handle else {
+                return;
+            };
+            if let Some(old) = self.music_sink.take() {
+                old.stop();
+            }
+            if let Ok(decoder) = Decoder::new(Cursor::new(bytes)) {
+                if let Ok(sink) = Sink::try_new(handle) {
+                    sink.set_volume(self.music_volume());
+                    sink.append(decoder.repeat_infinite());
+                    self.music_sink = Some(sink);
                 }
             }
         }
@@ -381,6 +410,8 @@ mod win_audio {
         }
 
         pub fn sync_track(&mut self, _track: TrackId) {}
+
+        pub fn sync_bgm_file(&mut self, _rel: &str) {}
 
         pub fn play_events(&mut self, _events: &[SoundEvent]) {}
     }

@@ -27,7 +27,7 @@ fn test_stone_pillars_damage_to_cracked_then_shatter_and_drop_loot() {
         .position(|p| p.piece == "pillarPale")
         .expect("room 2 (苔石庭院) must contain pillarPale props");
 
-    assert_eq!(state.props[p_idx].hp, 4, "pillar should start with hp=4");
+    assert_eq!(state.props[p_idx].hp, 2, "pillar should start with hp=2");
     assert!(state.props[p_idx].solid, "intact pillar should be solid");
     assert!(
         prop_obstacle(&state.props[p_idx], None).is_some(),
@@ -43,13 +43,21 @@ fn test_stone_pillars_damage_to_cracked_then_shatter_and_drop_loot() {
         bottom: ARENA_GROUND_Y + 10.0,
     };
 
-    // Hit 1: hp 4 -> 3, shakes, plays sound, emits debris, stays intact
+    // Hit 1: hp 2 -> 1, shakes, plays sound, emits debris, transitions to cracked half-pillar
     state.sounds.clear();
     state.effects.clear();
     swing_props(&mut state, swing_box, None, Some((px, pz)), None);
-    assert_eq!(state.props[p_idx].hp, 3);
+    assert_eq!(state.props[p_idx].hp, 1);
     assert!(state.props[p_idx].hit_t > 0.0, "hit 1 should trigger shake");
-    assert_ne!(state.props[p_idx].piece, "pillarDamagedDecor");
+    assert_eq!(
+        state.props[p_idx].piece, "pillarDamagedDecor",
+        "at hp <= 1 pillar must transition to pillarDamagedDecor"
+    );
+    assert!(state.props[p_idx].solid, "cracked pillar is still solid");
+    assert!(
+        prop_obstacle(&state.props[p_idx], None).is_some(),
+        "cracked pillar must retain walk obstacle"
+    );
     assert!(
         state.sounds.iter().any(|s| s.kind == "stonePillarBreak"),
         "hit 1 should play stonePillarBreak sound"
@@ -59,28 +67,7 @@ fn test_stone_pillars_damage_to_cracked_then_shatter_and_drop_loot() {
         "hit 1 should emit pillar_debris particles"
     );
 
-    // Hit 2: hp 3 -> 2, transitions to cracked half-pillar ("pillarDamagedDecor"), still solid
-    state.sounds.clear();
-    state.effects.clear();
-    swing_props(&mut state, swing_box, None, Some((px, pz)), None);
-    assert_eq!(state.props[p_idx].hp, 2);
-    assert_eq!(
-        state.props[p_idx].piece, "pillarDamagedDecor",
-        "at hp <= 2 pillar must transition to pillarDamagedDecor"
-    );
-    assert!(state.props[p_idx].solid, "cracked pillar is still solid");
-    assert!(
-        prop_obstacle(&state.props[p_idx], None).is_some(),
-        "cracked pillar must retain walk obstacle"
-    );
-
-    // Hit 3: hp 2 -> 1, still cracked
-    swing_props(&mut state, swing_box, None, Some((px, pz)), None);
-    assert_eq!(state.props[p_idx].hp, 1);
-    assert!(!state.props[p_idx].broken);
-    assert!(!state.props[p_idx].gone);
-
-    // Hit 4: hp 1 -> 0, shatters completely, clears solid/obstacle, drops loot
+    // Hit 2: hp 1 -> 0, shatters completely, clears solid/obstacle, drops loot
     let pickups_before = state.pickups.len();
     state.sounds.clear();
     state.effects.clear();
@@ -134,7 +121,7 @@ fn test_mirkwood_pillar_and_native_pillar_both_breakable_with_hit_t_decay() {
         .iter()
         .position(|p| p.piece == "pillar")
         .expect("mirkwood room 2 (兽栏) must contain pillar props");
-    assert_eq!(mw.props[idx].hp, 4);
+    assert_eq!(mw.props[idx].hp, 2);
     let px = mw.props[idx].x;
     let pz = mw.props[idx].z;
     let swing = Rect {
@@ -144,16 +131,14 @@ fn test_mirkwood_pillar_and_native_pillar_both_breakable_with_hit_t_decay() {
         bottom: ARENA_GROUND_Y + 10.0,
     };
     swing_props(&mut mw, swing, None, Some((px, pz)), None);
-    assert_eq!(mw.props[idx].hp, 3);
+    assert_eq!(mw.props[idx].hp, 1);
     assert!(mw.props[idx].hit_t > 0.0);
     // Run 20 frames (~0.33s) and verify hit_t decays back to 0.0
     run_frames(&mut mw, 20, |_, _| Input::default());
     assert_eq!(mw.props[idx].hit_t, 0.0, "hit_t should decay to 0.0");
 
-    // 3 more hits shatter it completely
-    for _ in 0..3 {
-        swing_props(&mut mw, swing, None, Some((px, pz)), None);
-    }
+    // 1 more hit shatters it completely
+    swing_props(&mut mw, swing, None, Some((px, pz)), None);
     assert!(mw.props[idx].broken && mw.props[idx].gone && !mw.props[idx].solid);
 
     // 2) mirkwooddeep room 8 (猫妖岔路) has native_pillar props
@@ -173,7 +158,7 @@ fn test_mirkwood_pillar_and_native_pillar_both_breakable_with_hit_t_decay() {
         .iter()
         .position(|p| p.native_pillar.is_some())
         .expect("mirkwooddeep room 8 must contain native_pillar props");
-    assert_eq!(deep.props[n_idx].hp, 4);
+    assert_eq!(deep.props[n_idx].hp, 2);
     let obs = prop_obstacle(&deep.props[n_idx], None).expect("native_pillar has obstacle");
     let n_swing = Rect {
         left: obs.x - 50.0,
@@ -181,15 +166,11 @@ fn test_mirkwood_pillar_and_native_pillar_both_breakable_with_hit_t_decay() {
         top: ARENA_GROUND_Y - 120.0,
         bottom: ARENA_GROUND_Y + 10.0,
     };
-    for _ in 0..2 {
-        swing_props(&mut deep, n_swing, None, Some((obs.x, obs.z)), None);
-    }
-    assert_eq!(deep.props[n_idx].hp, 2);
+    swing_props(&mut deep, n_swing, None, Some((obs.x, obs.z)), None);
+    assert_eq!(deep.props[n_idx].hp, 1);
     assert_eq!(deep.props[n_idx].piece, "pillarDamagedDecor");
     assert!(deep.props[n_idx].solid);
-    for _ in 0..2 {
-        swing_props(&mut deep, n_swing, None, Some((obs.x, obs.z)), None);
-    }
+    swing_props(&mut deep, n_swing, None, Some((obs.x, obs.z)), None);
     assert!(deep.props[n_idx].broken && deep.props[n_idx].gone && !deep.props[n_idx].solid);
     assert!(prop_obstacle(&deep.props[n_idx], None).is_none());
 }

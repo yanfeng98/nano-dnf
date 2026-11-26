@@ -320,6 +320,9 @@ mod tests {
             native_footprint: None,
             native_decoration: None,
             native_animation_started_at: -1.0,
+            spawn_timer: 0.0,
+            spawned_count: 0,
+            drops_left: 0,
         };
         crate::combat::drop_breakable_loot(&mut state, &chest_prop);
         assert_eq!(state.pickups.len(), 1);

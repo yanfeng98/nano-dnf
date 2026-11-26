@@ -248,11 +248,11 @@ fn main() {
         render_rs::draw_town_view(
             &mut canvas,
             &render_rs::TownView {
-                zone: render_rs::TownZone::WestSquare,
-                player_x: 490.0,
+                zone: render_rs::TownZone::Alley,
+                player_x: 432.0,
                 player_z: 46.0,
                 facing: 1,
-                camera_x: 130.0,
+                camera_x: 110.0,
                 time: 0.0,
                 moving: false,
                 walk: 0.0,

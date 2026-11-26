@@ -445,10 +445,6 @@ pub fn draw_gates(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
             }
         }
 
-        if deep && !open && dir != "N" && dir != "S" {
-            continue;
-        }
-
         let (spot_x, spot_bottom) = match dir {
             "E" => (room_width(state) as f32 - 34.0, ARENA_GROUND_Y as f32 + 4.0),
             "W" => (34.0, ARENA_GROUND_Y as f32 + 4.0),
@@ -465,7 +461,6 @@ pub fn draw_gates(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
         let (piece, door_piece) = match dir {
             "N" => ("gateUp", "doorUp"),
             "S" => ("gateDown", "doorDown"),
-            _ if deep => ("gateBlock", "doorBlock"),
             _ => ("gate", "door"),
         };
 
@@ -475,11 +470,7 @@ pub fn draw_gates(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
                 let gw = sw as f32 * sc[0] as f32;
                 let gh = sh_h as f32 * sc[1] as f32;
                 let mirror = dir == "W";
-                let gate_alpha = if !open && !(deep && (dir == "N" || dir == "S")) {
-                    0.72
-                } else {
-                    1.0
-                };
+                let gate_alpha = 1.0;
                 c.draw_image(
                     sh,
                     sx,
@@ -601,18 +592,33 @@ fn draw_prop(c: &mut Canvas<'_>, state: &State, prop: &Prop, sprites: &SpriteSto
         let sc = prop.scale.unwrap_or_else(|| prop_scale(&prop.piece));
         let w = sw as f32 * sc[0] as f32;
         let h = sh_h as f32 * sc[1] as f32;
+        let alpha = if prop.broken {
+            let age = (state.time - prop.broken_at).max(0.0);
+            if age >= BREAK_ANIM {
+                return;
+            }
+            (1.0 - age / BREAK_ANIM).clamp(0.0, 1.0) as f32
+        } else {
+            1.0
+        };
+        let shake_x = if prop.hit_t > 0.0 {
+            let amp = (prop.hit_t / 0.22).clamp(0.0, 1.0) as f32 * 4.0;
+            ((prop.hit_t * 95.0).sin() as f32) * amp
+        } else {
+            0.0
+        };
         c.draw_image(
             sh,
             sx,
             sy,
             sw,
             sh_h,
-            x - w * 0.5,
+            x + shake_x - w * 0.5,
             y - h,
             w,
             h,
             false,
-            1.0,
+            alpha,
             0.0,
         );
         return;
@@ -675,13 +681,19 @@ fn draw_prop(c: &mut Canvas<'_>, state: &State, prop: &Prop, sprites: &SpriteSto
                 c.draw_image(sh, sx, sy, sw, sh_h, left, top, w, h, false, alpha, 0.0);
                 return;
             }
+            let shake_x = if prop.hit_t > 0.0 {
+                let amp = (prop.hit_t / 0.22).clamp(0.0, 1.0) as f32 * 3.5;
+                ((prop.hit_t * 95.0).sin() as f32) * amp
+            } else {
+                0.0
+            };
             c.draw_image(
                 sh,
                 sx,
                 sy,
                 sw,
                 sh_h,
-                x - w * 0.5,
+                x + shake_x - w * 0.5,
                 y - h,
                 w,
                 h,
@@ -932,6 +944,46 @@ pub fn draw_player(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
         TextAlign::Center,
         Some(Rgba::new(16, 12, 24, 240)),
     );
+
+    if p.freeze_timer > 0.0 {
+        if let Some(sv) = sprites.get("statusVfx") {
+            // Authentic DNF `freeze.img` ice crystal wrapping the player
+            let fw = 165.0 * 0.52;
+            let fh = 195.0 * 0.56;
+            c.draw_image(
+                sv,
+                165,
+                0,
+                165,
+                195,
+                px - fw * 0.5,
+                py - fh + 6.0,
+                fw,
+                fh,
+                false,
+                0.86,
+                0.0,
+            );
+        } else {
+            c.fill_round_rect(
+                px - 28.0,
+                py - 90.0,
+                56.0,
+                94.0,
+                8.0,
+                Rgba::new(118, 210, 255, 118),
+            );
+        }
+        c.fill_text(
+            "冰冻",
+            px,
+            py - 112.0,
+            12.0,
+            Rgba::new(165, 234, 255, 255),
+            TextAlign::Center,
+            Some(Rgba::new(12, 28, 56, 240)),
+        );
+    }
 }
 
 pub fn player_overhead_label(p: &Player) -> String {
@@ -2255,33 +2307,8 @@ pub fn draw_world(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
     }
 }
 
-pub fn draw_foreground(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
-    if state.stage_id != "mirkwooddeep" {
-        return;
-    }
-    let Some(cell) = current_cell(state) else {
-        return;
-    };
-    if (cell.col + 1, cell.row + 1) == (2, 4) {
-        if let Some(fg) = sprites.get("deepRoom24Foreground") {
-            let rw = room_width(state) as f32;
-            let fh = fg.height() as f32;
-            c.draw_image(
-                fg,
-                0,
-                0,
-                fg.width(),
-                fg.height(),
-                0.0,
-                ARENA_HEIGHT as f32 - fh,
-                rw,
-                fh,
-                false,
-                1.0,
-                0.0,
-            );
-        }
-    }
+pub fn draw_foreground(_c: &mut Canvas<'_>, _state: &State, _sprites: &SpriteStore) {
+    // Removed giant blocking `deepRoom24Foreground` tree wall: reference V2 @ 35s has clear combat visibility.
 }
 
 pub fn draw_effect(c: &mut Canvas<'_>, state: &State, effect: &Effect, sprites: &SpriteStore) {
@@ -2838,13 +2865,20 @@ pub fn draw_effect(c: &mut Canvas<'_>, state: &State, effect: &Effect, sprites: 
         "pillar_debris" => {
             if let Some(sh) = sprites.get("pillarDebris") {
                 let sc = NATIVE_SCALE as f32;
-                let sz = 48.0 * sc;
+                let sz = 26.0 * sc;
                 let ex = effect.x as f32;
                 let ey = (effect.y - depth_lift(effect.z)) as f32;
                 let age = (effect.max_life - effect.life).max(0.0);
                 let ang = (effect.angle0
-                    + f64::from(effect.spin_dir) * ((age / 2.0) % 1.0) * 6.248_279_094_696_045)
+                    + f64::from(effect.spin_dir) * ((age / 1.4) % 1.0) * 6.248_279_094_696_045)
                     as f32;
+                c.fill_ellipse(
+                    ex,
+                    ey + 4.0,
+                    sz * 0.42,
+                    sz * 0.28,
+                    Rgba::new(186, 182, 168, (90.0 * alpha) as u8),
+                );
                 c.draw_image(
                     sh,
                     ((effect.variant % 4) as u32) * 48,
@@ -2856,10 +2890,21 @@ pub fn draw_effect(c: &mut Canvas<'_>, state: &State, effect: &Effect, sprites: 
                     sz,
                     sz,
                     false,
-                    1.0,
+                    alpha,
                     ang,
                 );
             }
+        }
+        "leaf_debris" => {
+            let ex = effect.x as f32;
+            let ey = (effect.y - depth_lift(effect.z)) as f32;
+            let col = match effect.variant % 4 {
+                0 => Rgba::new(78, 178, 62, (235.0 * alpha) as u8),
+                1 => Rgba::new(112, 208, 78, (230.0 * alpha) as u8),
+                2 => Rgba::new(56, 146, 52, (225.0 * alpha) as u8),
+                _ => Rgba::new(236, 128, 168, (230.0 * alpha) as u8),
+            };
+            c.fill_ellipse(ex, ey, 5.5, 2.8, col);
         }
         "telegraph" => {
             let r = effect.radius.max(24.0) as f32;
@@ -2937,30 +2982,122 @@ pub fn draw_effect(c: &mut Canvas<'_>, state: &State, effect: &Effect, sprites: 
             }
         }
         "bossburst" => {
+            // 1:1 DNF Lugaru Boss death VFX (matching reference screenshot):
+            // 1) Glowing blue-white ground ring under boss
+            // 2) Bright white-red diagonal light beams shooting across the screen
+            // 3) Client `shootingstarglow.img` + `darkfireexp.img` purple-white core burst
+            const BURST_FRAMES: [[u32; 4]; 7] = [
+                [881, 0, 32, 29],
+                [913, 0, 32, 33],
+                [945, 0, 35, 40],
+                [980, 0, 44, 72],
+                [0, 212, 46, 66],
+                [46, 212, 48, 44],
+                [94, 212, 25, 23],
+            ];
+            const GLOW_FRAMES: [[u32; 4]; 3] =
+                [[119, 212, 104, 93], [223, 212, 98, 93], [321, 212, 97, 90]];
             let ex = effect.x as f32;
-            let ey = (effect.y - depth_lift(effect.z)) as f32;
+            let foot_y = (effect.y - depth_lift(effect.z)) as f32;
+            let ey = foot_y - 36.0;
+            let p = (1.0 - alpha).clamp(0.0, 0.999);
+
+            // 1. Glowing blue-white ground ring under boss feet
+            let ring_r = 44.0 + p * 34.0;
             c.fill_ellipse(
                 ex,
-                ey,
-                38.0 * (1.2 - alpha * 0.5),
-                28.0 * (1.2 - alpha * 0.5),
-                Rgba::new(255, 220, 140, 255).with_alpha(alpha),
+                foot_y - 4.0,
+                ring_r,
+                ring_r * 0.42,
+                Rgba::new(72, 148, 255, (145.0 * alpha) as u8),
             );
-            if let Some(bd) = sprites.get("bossdeath") {
-                let bw = bd.width() as f32;
-                let bh = bd.height() as f32;
-                c.draw_image(
-                    bd,
-                    0,
-                    0,
-                    bd.width(),
-                    bd.height(),
-                    ex - bw * 0.5,
-                    ey - 44.0,
-                    bw,
-                    bh,
+            c.stroke_ellipse(
+                ex,
+                foot_y - 4.0,
+                ring_r * 0.92,
+                ring_r * 0.38,
+                Rgba::new(220, 245, 255, (235.0 * alpha) as u8),
+                3.5,
+            );
+
+            // 2. Diagonal white-red light beams shooting out across the screen
+            let beam_angles: [f32; 7] = [-2.55, -2.05, -1.78, -0.45, 0.35, 2.48, 3.02];
+            for (i, &ang) in beam_angles.iter().enumerate() {
+                let speed = 320.0 + (i % 3) as f32 * 95.0;
+                let dist = 30.0 + p * speed;
+                let len = 140.0 + (i % 2) as f32 * 70.0;
+                let x0 = ex + ang.cos() * dist;
+                let y0 = ey + ang.sin() * dist;
+                let x1 = x0 + ang.cos() * len;
+                let y1 = y0 + ang.sin() * len;
+                c.draw_line(
+                    x0,
+                    y0,
+                    x1,
+                    y1,
+                    Rgba::new(255, 78, 56, (195.0 * alpha) as u8),
+                    8.0,
+                );
+                c.draw_line(
+                    x0,
+                    y0,
+                    x1,
+                    y1,
+                    Rgba::new(255, 248, 244, (245.0 * alpha) as u8),
+                    3.2,
+                );
+            }
+
+            // 3. Client `shootingstarglow.img` + `darkfireexp.img` core flash
+            if let Some(sv) = sprites.get("statusVfx") {
+                let g_idx = ((p * 9.0) as usize) % GLOW_FRAMES.len();
+                let [gx, gy, gw, gh] = GLOW_FRAMES[g_idx];
+                let gsc = 1.45 + p * 0.5;
+                c.draw_image_additive(
+                    sv,
+                    gx,
+                    gy,
+                    gw,
+                    gh,
+                    ex - gw as f32 * gsc * 0.5,
+                    ey - gh as f32 * gsc * 0.5,
+                    gw as f32 * gsc,
+                    gh as f32 * gsc,
                     false,
                     alpha,
+                    0.0,
+                );
+                let idx = ((p * BURST_FRAMES.len() as f32) as usize).min(BURST_FRAMES.len() - 1);
+                let [sx, sy, sw, sh] = BURST_FRAMES[idx];
+                let sc = 2.6f32;
+                let dw = sw as f32 * sc;
+                let dh = sh as f32 * sc;
+                c.draw_image(
+                    sv,
+                    sx,
+                    sy,
+                    sw,
+                    sh,
+                    ex - dw * 0.5,
+                    ey - dh * 0.5,
+                    dw,
+                    dh,
+                    false,
+                    (alpha * 1.15).min(1.0),
+                    0.0,
+                );
+                c.draw_image_additive(
+                    sv,
+                    sx,
+                    sy,
+                    sw,
+                    sh,
+                    ex - dw * 0.5,
+                    ey - dh * 0.5,
+                    dw,
+                    dh,
+                    false,
+                    alpha * 0.9,
                     0.0,
                 );
             }
@@ -3190,17 +3327,22 @@ pub fn draw_effect(c: &mut Canvas<'_>, state: &State, effect: &Effect, sprites: 
     }
 }
 
-/// Horizontal width of Hendon Myre Zone 0 (`赫顿玛尔广场`) in logical units.
-pub const WEST_SQUARE_WIDTH: f64 = 2400.0;
-/// Horizontal width of Hendon Myre Zone 1 (`赫顿玛尔东门`) in logical units.
-pub const EAST_GATE_WIDTH: f64 = 2520.0;
-/// Total horizontal width of Hendon Myre East Gate (legacy alias).
-pub const TOWN_WIDTH: f64 = EAST_GATE_WIDTH;
+/// Horizontal width of Seria's Room (`赛丽亚的房间`, single-screen interior matching V1 @ 6s).
+pub const SERIA_ROOM_WIDTH: f64 = VIEW_WIDTH;
+/// Horizontal width of Hendon Myre Alley (`赫顿玛尔小巷`, north zone matching V1 @ 12s–45s).
+pub const ALLEY_WIDTH: f64 = 1620.0;
+/// Horizontal width of Hendon Myre Plaza (`赫顿玛尔市区`, south red-brick plaza matching V1 @ 13s–47s & V3).
+pub const PLAZA_WIDTH: f64 = 1872.0;
+/// Horizontal width of Gran Floris West Bridge (`格兰之森西桥`, white stone bridge matching V1 @ 49s–51s).
+pub const WEST_BRIDGE_WIDTH: f64 = 1260.0;
+/// Total horizontal width of Hendon Myre Plaza (legacy alias).
+pub const TOWN_WIDTH: f64 = PLAZA_WIDTH;
 pub const TOWN_MIN_X: f64 = 80.0;
-pub const TOWN_MAX_X: f64 = 2440.0;
+pub const TOWN_MAX_X: f64 = PLAZA_WIDTH - 80.0;
 pub const TOWN_MIN_Z: f64 = 0.0;
 pub const TOWN_MAX_Z: f64 = 100.0;
-pub const TOWN_GATE_X: f64 = 2420.0;
+/// West end of the white stone bridge in `WestBridge` leading directly into Gran Floris Region Select.
+pub const TOWN_GATE_X: f64 = 95.0;
 /// Town walking speed in logical px/s (measured from `00002` @ 1.5..2.2s).
 pub const TOWN_WALK_SPEED: f64 = 220.0;
 /// Depth movement speed ratio relative to horizontal walk speed (ADR / town review: 0.56).
@@ -3213,33 +3355,68 @@ pub const TOWN_CAMERA_EASE_K: f64 = 8.5;
 pub const TOWN_WALK_ROW: u32 = 12;
 /// Duration of the smooth black fade when switching between Hendon Myre zones (seconds).
 pub const TOWN_ZONE_FADE_DUR: f64 = 0.35;
-/// Duration of the fading `赫顿玛尔 / HendonMyre` entry title on first town entry (seconds).
+/// Duration of the fading `赫顿玛尔 / HendonMyre` entry title when exiting Seria's Room (seconds).
 pub const TOWN_TITLE_DUR: f64 = 3.5;
 
-/// The two connected zones of Hendon Myre (`赫顿玛尔`, matching Video 1 @ 12s–54s & Video 2 @ 415s).
+/// Walkable doorway centers (in logical x) for vertical (North/South) zone transitions.
+const SERIA_DOOR_X: f64 = 360.0;
+const ALLEY_SERIA_ARCH_X: f64 = 672.0;
+const ALLEY_SOUTH_ARCH_X: f64 = 432.0;
+const PLAZA_NORTH_ARCH_X: f64 = 508.0;
+
+/// The four connected zones of Hendon Myre (`赛丽亚的房间` ↔ `赫顿玛尔小巷` ↔ `赫顿玛尔市区` ↔ `格兰之森西桥`).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum TownZone {
-    /// Zone 0 — `赫顿玛尔广场` (terracotta diamond plaza, white arches, trees, statues, G.S.D, shops).
-    WestSquare,
-    /// Zone 1 — `赫顿玛尔东门` (east ornate archway, red crossed-sword banner, signpost, white stone bridge).
-    EastGate,
+    /// `赛丽亚的房间` (spawn interior: Seria, golden storage chest, mailbox, south purple carpet exit).
+    SeriaRoom,
+    /// `赫顿玛尔小巷` (north street: 4-plaque signpost, Oran, tree, knight-statue archway to Seria's Room, Sinda, G.S.D, south archway).
+    Alley,
+    /// `赫顿玛尔市区` (south red-brick plaza: west diagonal curb, red banner, Fire Pot, north colorful archway, 5-plaque signpost, Kanna, Feng Zhen).
+    Plaza,
+    /// `格兰之森西桥` (white stone bridge with red banner: east end returns to Plaza, west end enters Gran Floris Region Select).
+    WestBridge,
 }
 
 impl TownZone {
     pub fn width(self) -> f64 {
         match self {
-            Self::WestSquare => WEST_SQUARE_WIDTH,
-            Self::EastGate => EAST_GATE_WIDTH,
+            Self::SeriaRoom => SERIA_ROOM_WIDTH,
+            Self::Alley => ALLEY_WIDTH,
+            Self::Plaza => PLAZA_WIDTH,
+            Self::WestBridge => WEST_BRIDGE_WIDTH,
         }
     }
 
     pub fn min_x(self) -> f64 {
-        TOWN_MIN_X
+        match self {
+            Self::SeriaRoom => 90.0,
+            Self::Alley | Self::Plaza | Self::WestBridge => TOWN_MIN_X,
+        }
     }
 
     pub fn max_x(self) -> f64 {
-        self.width() - 80.0
+        match self {
+            Self::SeriaRoom => SERIA_ROOM_WIDTH - 90.0,
+            Self::Alley | Self::Plaza | Self::WestBridge => self.width() - 80.0,
+        }
     }
+
+    pub fn max_z(self) -> f64 {
+        match self {
+            Self::SeriaRoom => 112.0,
+            Self::Alley | Self::Plaza | Self::WestBridge => TOWN_MAX_Z,
+        }
+    }
+}
+
+/// Destination spawn specification for a smooth black-fade zone transition.
+#[derive(Debug, Clone, Copy, PartialEq)]
+struct PendingTownSpawn {
+    zone: TownZone,
+    x: f64,
+    z: f64,
+    facing: i32,
+    show_title: bool,
 }
 
 /// High-level transition event returned by [`step_town_motion`].
@@ -3261,49 +3438,65 @@ pub struct TownMotion {
     pub walk: f64,
     pub moving: bool,
     pub zone_fade_timer: f64,
-    pub pending_zone: Option<TownZone>,
+    pending_spawn: Option<PendingTownSpawn>,
     pub title_timer: f64,
 }
 
 impl Default for TownMotion {
     fn default() -> Self {
-        Self::enter_west_square()
+        Self::enter_seria_room()
     }
 }
 
 impl TownMotion {
-    /// First town entry: spawns in Zone 0 (`赫顿玛尔广场`) with the fading `赫顿玛尔 / HendonMyre` title.
-    pub fn enter_west_square() -> Self {
-        let x = 490.0;
-        let camera_x = (x - VIEW_WIDTH * 0.5).clamp(0.0, WEST_SQUARE_WIDTH - VIEW_WIDTH);
+    /// First town entry: spawns inside `赛丽亚的房间` on the purple carpet facing Seria (matching V1 @ 6s).
+    pub fn enter_seria_room() -> Self {
         Self {
-            zone: TownZone::WestSquare,
-            x,
-            z: 46.0,
+            zone: TownZone::SeriaRoom,
+            x: SERIA_DOOR_X,
+            z: 36.0,
             facing: 1,
-            camera_x,
+            camera_x: 0.0,
             walk: 0.0,
             moving: false,
             zone_fade_timer: 0.0,
-            pending_zone: None,
-            title_timer: TOWN_TITLE_DUR,
+            pending_spawn: None,
+            title_timer: 0.0,
         }
     }
 
-    /// Returning from a dungeon (`返回城镇` / Continue): spawns in Zone 1 (`赫顿玛尔东门` 白石桥).
-    pub fn return_from_dungeon() -> Self {
-        let x = 1620.0;
-        let camera_x = (x - VIEW_WIDTH * 0.5).clamp(1260.0, EAST_GATE_WIDTH - VIEW_WIDTH);
+    /// Direct spawn into `赫顿玛尔小巷` in front of Seria's Inn archway with the fading `赫顿玛尔 / HendonMyre` title.
+    pub fn enter_alley() -> Self {
+        let x = ALLEY_SERIA_ARCH_X;
+        let camera_x = (x - VIEW_WIDTH * 0.5).clamp(0.0, ALLEY_WIDTH - VIEW_WIDTH);
         Self {
-            zone: TownZone::EastGate,
+            zone: TownZone::Alley,
             x,
-            z: 26.0,
+            z: 66.0,
             facing: -1,
             camera_x,
             walk: 0.0,
             moving: false,
             zone_fade_timer: 0.0,
-            pending_zone: None,
+            pending_spawn: None,
+            title_timer: TOWN_TITLE_DUR,
+        }
+    }
+
+    /// Returning from a dungeon (`返回城镇` / Continue): spawns on `格兰之森西桥` facing right.
+    pub fn return_from_dungeon() -> Self {
+        let x = 320.0;
+        let camera_x = (x - VIEW_WIDTH * 0.5).clamp(0.0, WEST_BRIDGE_WIDTH - VIEW_WIDTH);
+        Self {
+            zone: TownZone::WestBridge,
+            x,
+            z: 30.0,
+            facing: 1,
+            camera_x,
+            walk: 0.0,
+            moving: false,
+            zone_fade_timer: 0.0,
+            pending_spawn: None,
             title_timer: 0.0,
         }
     }
@@ -3342,13 +3535,24 @@ impl TownMotion {
     }
 }
 
-/// Step Hendon Myre town movement, zone fade transitions, and camera follow by `dt` seconds.
+fn queue_zone_switch(m: &mut TownMotion, dest: PendingTownSpawn) {
+    m.zone_fade_timer = TOWN_ZONE_FADE_DUR;
+    m.pending_spawn = Some(dest);
+    m.moving = false;
+    m.walk = 0.0;
+}
+
+/// Step Hendon Myre town movement, walkable doorway fades, and camera follow by `dt` seconds.
 ///
 /// - Depth speed uses `TOWN_DEPTH_SPEED_RATIO` (`0.56`).
 /// - Diagonal movement (`dx != 0 && dz != 0`) is normalized by `1 / sqrt(2)`.
 /// - Camera follows the player deadzone with smooth exponential easing.
-/// - Walking to the east edge of `WestSquare` or west edge of `EastGate` triggers a `0.35s` black fade.
-/// - Walking to the far-east edge of `EastGate` returns [`TownStepEvent::OpenRegion`].
+/// - Authentic 1:1 walkable transitions:
+///   - `SeriaRoom` bottom carpet (`dz < 0`) → `Alley` knight-statue archway
+///   - `Alley` knight-statue archway (`dz > 0`) → `SeriaRoom`
+///   - `Alley` bottom archway (`dz < 0`) → `Plaza` colorful archway (next to Fire Pot)
+///   - `Plaza` colorful archway (`dz > 0`) → `Alley` bottom archway
+///   - `Plaza` far-west end of white stone bridge (`dx < 0`) → [`TownStepEvent::OpenRegion`]
 pub fn step_town_motion(m: &mut TownMotion, dx: i32, dz: i32, dt: f64) -> TownStepEvent {
     let dx = dx.clamp(-1, 1);
     let dz = dz.clamp(-1, 1);
@@ -3363,21 +3567,17 @@ pub fn step_town_motion(m: &mut TownMotion, dx: i32, dz: i32, dt: f64) -> TownSt
         m.walk = 0.0;
         m.zone_fade_timer = (m.zone_fade_timer - dt).max(0.0);
         if m.zone_fade_timer <= TOWN_ZONE_FADE_DUR * 0.5 {
-            if let Some(next_zone) = m.pending_zone.take() {
-                m.zone = next_zone;
-                match next_zone {
-                    TownZone::EastGate => {
-                        m.x = 160.0;
-                        m.facing = 1;
-                        m.camera_x = 0.0;
-                    }
-                    TownZone::WestSquare => {
-                        m.x = WEST_SQUARE_WIDTH - 160.0;
-                        m.facing = -1;
-                        m.camera_x = (WEST_SQUARE_WIDTH - VIEW_WIDTH).max(0.0);
-                    }
+            if let Some(dest) = m.pending_spawn.take() {
+                m.zone = dest.zone;
+                m.x = dest.x;
+                m.z = dest.z;
+                m.facing = dest.facing;
+                let max_cam = (dest.zone.width() - VIEW_WIDTH).max(0.0);
+                m.camera_x = (dest.x - VIEW_WIDTH * 0.5).clamp(0.0, max_cam);
+                if dest.show_title {
+                    m.title_timer = TOWN_TITLE_DUR;
                 }
-                return TownStepEvent::ZoneSwitched(next_zone);
+                return TownStepEvent::ZoneSwitched(dest.zone);
             }
         }
         return TownStepEvent::None;
@@ -3402,10 +3602,11 @@ pub fn step_town_motion(m: &mut TownMotion, dx: i32, dz: i32, dt: f64) -> TownSt
 
     let min_x = m.zone.min_x();
     let max_x = m.zone.max_x();
+    let max_z = m.zone.max_z();
     let zone_w = m.zone.width();
 
     m.x = (m.x + vx * TOWN_WALK_SPEED * dt).clamp(min_x, max_x);
-    m.z = (m.z + vz * TOWN_WALK_SPEED * TOWN_DEPTH_SPEED_RATIO * dt).clamp(TOWN_MIN_Z, TOWN_MAX_Z);
+    m.z = (m.z + vz * TOWN_WALK_SPEED * TOWN_DEPTH_SPEED_RATIO * dt).clamp(TOWN_MIN_Z, max_z);
 
     let max_cam = (zone_w - VIEW_WIDTH).max(0.0);
     let center = m.camera_x + VIEW_WIDTH * 0.5;
@@ -3419,24 +3620,86 @@ pub fn step_town_motion(m: &mut TownMotion, dx: i32, dz: i32, dt: f64) -> TownSt
     let alpha = 1.0 - (-TOWN_CAMERA_EASE_K * dt).exp();
     m.camera_x = (m.camera_x + (target - m.camera_x) * alpha).clamp(0.0, max_cam);
 
-    // Zone edge transitions
+    // Authentic walkable doorway & west-bridge transitions
     match m.zone {
-        TownZone::WestSquare => {
-            if dx > 0 && m.x >= max_x - 10.0 {
-                m.zone_fade_timer = TOWN_ZONE_FADE_DUR;
-                m.pending_zone = Some(TownZone::EastGate);
-                m.moving = false;
-                m.walk = 0.0;
+        TownZone::SeriaRoom => {
+            if dz < 0 && m.z <= 4.0 && (m.x - SERIA_DOOR_X).abs() <= 105.0 {
+                queue_zone_switch(
+                    m,
+                    PendingTownSpawn {
+                        zone: TownZone::Alley,
+                        x: ALLEY_SERIA_ARCH_X,
+                        z: 66.0,
+                        facing: -1,
+                        show_title: true,
+                    },
+                );
             }
         }
-        TownZone::EastGate => {
-            if dx < 0 && m.x <= min_x + 10.0 {
-                m.zone_fade_timer = TOWN_ZONE_FADE_DUR;
-                m.pending_zone = Some(TownZone::WestSquare);
-                m.moving = false;
-                m.walk = 0.0;
-            } else if dx > 0 && m.x >= max_x - 10.0 {
-                m.x = max_x - 42.0;
+        TownZone::Alley => {
+            if dz > 0 && m.z >= max_z - 6.0 && (m.x - ALLEY_SERIA_ARCH_X).abs() <= 72.0 {
+                queue_zone_switch(
+                    m,
+                    PendingTownSpawn {
+                        zone: TownZone::SeriaRoom,
+                        x: SERIA_DOOR_X,
+                        z: 24.0,
+                        facing: 1,
+                        show_title: false,
+                    },
+                );
+            } else if dz < 0 && m.z <= 4.0 && (m.x - ALLEY_SOUTH_ARCH_X).abs() <= 84.0 {
+                queue_zone_switch(
+                    m,
+                    PendingTownSpawn {
+                        zone: TownZone::Plaza,
+                        x: PLAZA_NORTH_ARCH_X,
+                        z: 74.0,
+                        facing: -1,
+                        show_title: false,
+                    },
+                );
+            }
+        }
+        TownZone::Plaza => {
+            if dz > 0 && m.z >= max_z - 6.0 && (m.x - PLAZA_NORTH_ARCH_X).abs() <= 78.0 {
+                queue_zone_switch(
+                    m,
+                    PendingTownSpawn {
+                        zone: TownZone::Alley,
+                        x: ALLEY_SOUTH_ARCH_X,
+                        z: 24.0,
+                        facing: 1,
+                        show_title: false,
+                    },
+                );
+            } else if dx < 0 && m.x <= min_x + 10.0 {
+                queue_zone_switch(
+                    m,
+                    PendingTownSpawn {
+                        zone: TownZone::WestBridge,
+                        x: WEST_BRIDGE_WIDTH - 140.0,
+                        z: m.z.clamp(20.0, 75.0),
+                        facing: -1,
+                        show_title: false,
+                    },
+                );
+            }
+        }
+        TownZone::WestBridge => {
+            if dx > 0 && m.x >= max_x - 10.0 {
+                queue_zone_switch(
+                    m,
+                    PendingTownSpawn {
+                        zone: TownZone::Plaza,
+                        x: 150.0,
+                        z: m.z.clamp(20.0, 75.0),
+                        facing: 1,
+                        show_title: false,
+                    },
+                );
+            } else if dx < 0 && m.x <= min_x + 10.0 {
+                m.x = min_x + 42.0;
                 m.moving = false;
                 m.walk = 0.0;
                 return TownStepEvent::OpenRegion;
@@ -3456,39 +3719,23 @@ pub enum TownNpcAction {
     Region,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum NpcAtlas {
+    Npc,
+    SeriaRoom,
+}
+
 struct TownNpcDef {
     id: &'static str,
     x: f32,
     z: f32,
     label: &'static str,
+    atlas: NpcAtlas,
     frames: &'static [[u32; 4]],
-    overhead_gold_icon: bool,
+    scale: f32,
+    overhead_paw_icon: bool,
 }
 
-const GUARD_FRAMES: [[u32; 4]; 6] = [
-    [860, 319, 73, 191],
-    [933, 319, 73, 191],
-    [1006, 319, 73, 191],
-    [1079, 319, 73, 191],
-    [1152, 319, 73, 191],
-    [1225, 319, 73, 191],
-];
-const SERIA_FRAMES: [[u32; 4]; 6] = [
-    [0, 0, 62, 143],
-    [62, 0, 62, 143],
-    [124, 0, 62, 143],
-    [186, 0, 62, 143],
-    [248, 0, 62, 143],
-    [310, 0, 62, 143],
-];
-const MINET_FRAMES: [[u32; 4]; 6] = [
-    [372, 0, 49, 133],
-    [421, 0, 49, 133],
-    [470, 0, 49, 133],
-    [519, 0, 49, 133],
-    [568, 0, 49, 133],
-    [617, 0, 49, 133],
-];
 const GSD_FRAMES: [[u32; 4]; 4] = [
     [960, 0, 75, 96],
     [1035, 0, 75, 96],
@@ -3505,14 +3752,6 @@ const KANNA_FRAMES: [[u32; 4]; 8] = [
     [1494, 0, 39, 106],
     [1533, 0, 39, 106],
 ];
-const BROWNIE_FRAMES: [[u32; 4]; 6] = [
-    [0, 143, 103, 79],
-    [103, 143, 103, 79],
-    [206, 143, 103, 79],
-    [309, 143, 103, 79],
-    [412, 143, 103, 79],
-    [515, 143, 103, 79],
-];
 const SINDA_FRAMES: [[u32; 4]; 6] = [
     [1133, 222, 86, 97],
     [1219, 222, 86, 97],
@@ -3521,104 +3760,155 @@ const SINDA_FRAMES: [[u32; 4]; 6] = [
     [1477, 222, 86, 97],
     [0, 319, 86, 97],
 ];
-const CAPTAIN_FRAMES: [[u32; 4]; 6] = [
-    [730, 510, 75, 171],
-    [805, 510, 75, 171],
-    [880, 510, 75, 171],
-    [955, 510, 75, 171],
-    [1030, 510, 75, 171],
-    [1105, 510, 75, 171],
-];
 
-// Zone 0 (赫顿玛尔广场) NPCs placed naturally with non-overlapping interaction zones.
-const WEST_SQUARE_NPCS: [TownNpcDef; 6] = [
+// Authentic sprites in `assets/seriaroom.png` (baked by `assets/import_dnf_seriaroom.py`)
+const SR_GATEBACK: [u32; 4] = [0, 0, 954, 560];
+const SR_STORAGE: [u32; 4] = [0, 560, 92, 67];
+const SR_POSTBOX: [u32; 4] = [92, 560, 94, 83];
+const SR_GATEPILLAR: [u32; 4] = [186, 560, 239, 101];
+const FIREPOT_FRAMES: [[u32; 4]; 4] = [
+    [425, 560, 41, 122],
+    [466, 560, 41, 122],
+    [507, 560, 41, 122],
+    [548, 560, 41, 122],
+];
+const ORAN_FRAMES: [[u32; 4]; 6] = [
+    [589, 560, 40, 91],
+    [629, 560, 40, 91],
+    [669, 560, 40, 91],
+    [709, 560, 40, 91],
+    [749, 560, 40, 91],
+    [789, 560, 40, 91],
+];
+const FENGZHEN_FRAMES: [[u32; 4]; 4] = [
+    [829, 560, 62, 129],
+    [891, 560, 67, 129],
+    [958, 560, 65, 129],
+    [0, 689, 65, 129],
+];
+const SERIA_REAL_FRAMES: [[u32; 4]; 6] = [
+    [65, 689, 56, 111],
+    [121, 689, 56, 110],
+    [177, 689, 55, 109],
+    [232, 689, 55, 108],
+    [287, 689, 55, 109],
+    [342, 689, 56, 110],
+];
+const STORAGE_FRAMES: [[u32; 4]; 1] = [SR_STORAGE];
+
+// Seria's Room (`赛丽亚的房间`, matches V1 @ 6s)
+const SERIA_ROOM_NPCS: [TownNpcDef; 2] = [
+    TownNpcDef {
+        id: "storage",
+        x: 185.0,
+        z: 92.0,
+        label: "闪耀的黄金金库",
+        atlas: NpcAtlas::SeriaRoom,
+        frames: &STORAGE_FRAMES,
+        scale: 1.0,
+        overhead_paw_icon: false,
+    },
     TownNpcDef {
         id: "seria",
-        x: 175.0,
-        z: 70.0,
+        x: 360.0,
+        z: 102.0,
         label: "赛丽亚",
-        frames: &SERIA_FRAMES,
-        overhead_gold_icon: false,
+        atlas: NpcAtlas::SeriaRoom,
+        frames: &SERIA_REAL_FRAMES,
+        scale: 1.08,
+        overhead_paw_icon: false,
     },
+];
+
+// Hendon Myre Alley (`赫顿玛尔小巷`, north zone matching V1 @ 12s–45s):
+// Left-to-right: 4-plaque signpost -> Oran (paw icon) -> tall tree -> knight-statue archway -> Sinda -> G.S.D
+const ALLEY_NPCS: [TownNpcDef; 3] = [
     TownNpcDef {
-        id: "gsd",
-        x: 515.0,
+        id: "oran",
+        x: 365.0,
         z: 74.0,
-        label: "G.S.D",
-        frames: &GSD_FRAMES,
-        overhead_gold_icon: true,
-    },
-    TownNpcDef {
-        id: "minet",
-        x: 1020.0,
-        z: 72.0,
-        label: "敏泰",
-        frames: &MINET_FRAMES,
-        overhead_gold_icon: false,
-    },
-    TownNpcDef {
-        id: "kanna",
-        x: 1410.0,
-        z: 72.0,
-        label: "卡妮娜",
-        frames: &KANNA_FRAMES,
-        overhead_gold_icon: false,
+        label: "奥兰",
+        atlas: NpcAtlas::SeriaRoom,
+        frames: &ORAN_FRAMES,
+        scale: 1.05,
+        overhead_paw_icon: true,
     },
     TownNpcDef {
         id: "sinda",
-        x: 1840.0,
-        z: 72.0,
+        x: 1075.0,
+        z: 74.0,
         label: "辛达",
+        atlas: NpcAtlas::Npc,
         frames: &SINDA_FRAMES,
-        overhead_gold_icon: false,
+        scale: 0.98,
+        overhead_paw_icon: false,
     },
     TownNpcDef {
-        id: "guard",
-        x: 2150.0,
-        z: 72.0,
-        label: "守卫",
-        frames: &GUARD_FRAMES,
-        overhead_gold_icon: false,
+        id: "gsd",
+        x: 1385.0,
+        z: 74.0,
+        label: "G.S.D",
+        atlas: NpcAtlas::Npc,
+        frames: &GSD_FRAMES,
+        scale: 1.02,
+        overhead_paw_icon: false,
     },
 ];
 
-// Zone 1 (赫顿玛尔东门) NPCs placed near the east archway & bridge entrance.
-const EAST_GATE_NPCS: [TownNpcDef; 2] = [
+// Hendon Myre Plaza (`赫顿玛尔市区`, south red-brick plaza matching V1 @ 13s–47s & V3 @ 2m50s–3m40s):
+// West diagonal curb -> banner -> Fire Pot -> colorful north archway -> 5-plaque signpost -> blue window house -> Kanna -> Feng Zhen
+const PLAZA_NPCS: [TownNpcDef; 3] = [
     TownNpcDef {
-        id: "guardCaptain",
-        x: 470.0,
+        id: "firepot",
+        x: 344.0,
         z: 74.0,
-        label: "风振",
-        frames: &CAPTAIN_FRAMES,
-        overhead_gold_icon: false,
+        label: "火罐",
+        atlas: NpcAtlas::SeriaRoom,
+        frames: &FIREPOT_FRAMES,
+        scale: 1.05,
+        overhead_paw_icon: false,
     },
     TownNpcDef {
-        id: "brownie",
-        x: 865.0,
-        z: 72.0,
-        label: "布兰妮",
-        frames: &BROWNIE_FRAMES,
-        overhead_gold_icon: false,
+        id: "kanna",
+        x: 1227.0,
+        z: 74.0,
+        label: "卡妮娜",
+        atlas: NpcAtlas::Npc,
+        frames: &KANNA_FRAMES,
+        scale: 0.98,
+        overhead_paw_icon: false,
+    },
+    TownNpcDef {
+        id: "fengzhen",
+        x: 1627.0,
+        z: 74.0,
+        label: "风振",
+        atlas: NpcAtlas::SeriaRoom,
+        frames: &FENGZHEN_FRAMES,
+        scale: 1.02,
+        overhead_paw_icon: false,
     },
 ];
 
 fn npcs_for_zone(zone: TownZone) -> &'static [TownNpcDef] {
     match zone {
-        TownZone::WestSquare => &WEST_SQUARE_NPCS,
-        TownZone::EastGate => &EAST_GATE_NPCS,
+        TownZone::SeriaRoom => &SERIA_ROOM_NPCS,
+        TownZone::Alley => &ALLEY_NPCS,
+        TownZone::Plaza => &PLAZA_NPCS,
+        TownZone::WestBridge => &[],
     }
 }
 
 /// Resolve which town interaction occurs when the player presses Enter/Space at `(zone, player_x, player_z)`.
 pub fn town_interact_action(zone: TownZone, player_x: f64, player_z: f64) -> TownNpcAction {
-    if zone == TownZone::EastGate && (player_x - TOWN_GATE_X).abs() < 110.0 {
+    if zone == TownZone::WestBridge && (player_x - TOWN_GATE_X).abs() < 110.0 {
         return TownNpcAction::Region;
     }
     let mut best: Option<(f64, &TownNpcDef)> = None;
     for npc in npcs_for_zone(zone) {
         let dx = (f64::from(npc.x) - player_x).abs();
         let dz = (f64::from(npc.z) - player_z).abs();
-        if dx < 68.0 && dz < 48.0 {
+        if dx < 72.0 && dz < 52.0 {
             let dist = dx * dx + dz * dz;
             if best.is_none_or(|(d, _)| dist < d) {
                 best = Some((dist, npc));
@@ -3627,9 +3917,9 @@ pub fn town_interact_action(zone: TownZone, player_x: f64, player_z: f64) -> Tow
     }
     match best.map(|(_, n)| n.id) {
         Some("gsd") => TownNpcAction::Loadout,
-        Some("seria" | "minet" | "guard" | "guardCaptain") => TownNpcAction::Quest,
+        Some("seria" | "oran" | "firepot" | "fengzhen") => TownNpcAction::Quest,
         Some("kanna") => TownNpcAction::Shop,
-        Some("sinda" | "brownie") => TownNpcAction::Bag,
+        Some("sinda" | "storage") => TownNpcAction::Bag,
         _ => TownNpcAction::Region,
     }
 }
@@ -3657,11 +3947,11 @@ pub fn draw_town(
     sprites: &SpriteStore,
 ) {
     let view = TownView {
-        zone: TownZone::WestSquare,
+        zone: TownZone::Alley,
         player_x,
         player_z,
         facing,
-        camera_x: (player_x - VIEW_WIDTH * 0.5).clamp(0.0, WEST_SQUARE_WIDTH - VIEW_WIDTH),
+        camera_x: (player_x - VIEW_WIDTH * 0.5).clamp(0.0, ALLEY_WIDTH - VIEW_WIDTH),
         time: 0.0,
         moving: false,
         walk: 0.0,
@@ -3678,18 +3968,16 @@ const HM_FAR: [u32; 4] = [0, 0, 640, 242];
 const HM_MID: [u32; 4] = [640, 0, 895, 258];
 const HM_WALL: [u32; 4] = [1535, 0, 224, 134];
 const HM_TILE: [u32; 4] = [1759, 0, 224, 138];
+const HM_TILEEX: [u32; 4] = [0, 258, 224, 120];
 const HM_SKYBRIDGE: [u32; 4] = [224, 258, 224, 306];
 const HM_SKYWALL: [u32; 4] = [448, 258, 224, 81];
 const HM_BRTILE01: [u32; 4] = [672, 258, 224, 274];
-const HM_BRTILE03: [u32; 4] = [1120, 258, 224, 120];
 const HM_STATUE_ARCH: [u32; 4] = [1568, 258, 257, 285];
 const HM_EAST_ARCH: [u32; 4] = [0, 564, 224, 245];
 const HM_PORTAL_ARCH: [u32; 4] = [224, 564, 137, 139];
 const HM_ARCH_RUNES: [u32; 4] = [361, 564, 97, 43];
 const HM_BANNER: [u32; 4] = [458, 564, 164, 281];
 const HM_TREE_TALL: [u32; 4] = [622, 564, 132, 286];
-const HM_TREE_MED: [u32; 4] = [754, 564, 112, 219];
-const HM_TREE_WIDE: [u32; 4] = [866, 564, 159, 366];
 const HM_KANNA_HOUSE: [u32; 4] = [1025, 564, 470, 372];
 const HM_SINDA_HOUSE: [u32; 4] = [1495, 564, 435, 367];
 const HM_ALBERT_HOUSE: [u32; 4] = [0, 936, 401, 275];
@@ -3722,10 +4010,10 @@ fn draw_hm_piece(
     );
 }
 
-fn draw_gsd_overhead_icon(c: &mut Canvas<'_>, cx: f32, cy: f32, time: f64) {
+fn draw_oran_paw_icon(c: &mut Canvas<'_>, cx: f32, cy: f32, time: f64) {
     let bob = (time * 3.2).sin() as f32 * 3.0;
     let y = cy + bob;
-    // Authentic golden fist/skill quest crest matching V1 @ 12s & 18s
+    // Authentic golden pet-shop paw icon above Oran (matches V1 @ 12s & 18s)
     c.fill_ellipse(cx, y, 13.0, 12.0, Rgba::new(255, 196, 48, 82));
     c.fill_ellipse(cx, y + 2.0, 9.5, 7.5, Rgba::new(242, 144, 24, 245));
     c.fill_ellipse(cx, y + 1.0, 7.2, 5.5, Rgba::new(255, 214, 72, 255));
@@ -3800,15 +4088,13 @@ pub fn draw_town_view(c: &mut Canvas<'_>, view: &TownView<'_>, sprites: &SpriteS
     const ART_SCALE: f32 = 1.125;
     const MID_Y: f32 = 76.0;
     const WALL_Y: f32 = 216.0;
-    const TILE_Y: f32 = 330.0;
-    const ROAD_Y: f32 = 233.0;
+    const TILE_Y: f32 = WALL_Y + 134.0 * ART_SCALE; // 366.75: exact pixel match with HM_BRTILE01 sidewalk seam
     const FRONT_Y: f32 = 430.0;
     const GROUND_Y: f32 = 425.0;
-    const GATE_X: f32 = TOWN_GATE_X as f32;
+    const SERIA_GROUND_Y: f32 = 442.0;
     const PLAYER_SCALE: f32 = 1.577_381;
     const TILE_W: f32 = 224.0 * ART_SCALE; // 252.0 logical px
-    const BRIDGE_START_X: f32 = 1260.0;
-    const TRANSITION_X: f32 = 1008.0;
+    const PLAZA_BRICK_START_X: f32 = TILE_W; // 252.0: HM_BRTILE01 covers 0..252, HM_WALL+HM_TILEEX cover 252..PLAZA_WIDTH
 
     c.clear(Rgba::new(5, 7, 12, 255));
     c.save();
@@ -3823,141 +4109,181 @@ pub fn draw_town_view(c: &mut Canvas<'_>, view: &TownView<'_>, sprites: &SpriteS
     let cam = view.camera_x as f32;
     let vw = VIEW_WIDTH as f32;
     let rune_pulse = 0.65 + 0.35 * (view.time * 3.0).sin() as f32;
+    let ground_y = if view.zone == TownZone::SeriaRoom {
+        SERIA_GROUND_Y
+    } else {
+        GROUND_Y
+    };
 
-    if let Some(hm) = sprites.get("hendonmyre") {
-        // 1. Shared Hendon Myre far sky & mountains (`hmfar01`, 0.08 parallax)
-        let far_w = HM_FAR[2] as f32 * ART_SCALE;
-        let mut fx = -(cam * 0.08).rem_euclid(far_w);
-        while fx < vw {
-            draw_hm_piece(c, hm, HM_FAR, fx, 0.0, ART_SCALE, 1.0);
-            fx += far_w;
-        }
-
-        // 2. Shared Hendon Myre midground white domed cityscape (`hmmid01`, 0.35 parallax)
-        let mid_w = HM_MID[2] as f32 * ART_SCALE;
-        let mut mx = -(cam * 0.35).rem_euclid(mid_w);
-        while mx < vw {
-            draw_hm_piece(c, hm, HM_MID, mx, MID_Y, ART_SCALE, 1.0);
-            mx += mid_w;
-        }
-
-        match view.zone {
-            TownZone::WestSquare => {
-                // Rear tan plaster wall + white sidewalk curb across the 2400px square
-                let mut wx = -cam.rem_euclid(TILE_W);
-                while wx < vw {
-                    draw_hm_piece(c, hm, HM_WALL, wx, WALL_Y, ART_SCALE, 1.0);
-                    wx += TILE_W;
-                }
-                // Warm terracotta diamond-patterned brick plaza tiles
-                let mut tx = -cam.rem_euclid(TILE_W);
-                while tx < vw {
-                    draw_hm_piece(c, hm, HM_TILE, tx, TILE_Y, ART_SCALE, 1.0);
-                    tx += TILE_W;
-                }
-
-                // Authentic Hendon Myre plaza buildings, arches, trees, statues & West signpost
-                // Far-west Albert house behind Seria
-                draw_hm_piece(c, hm, HM_ALBERT_HOUSE, -90.0 - cam, 92.0, 0.92, 1.0);
-                // Left archway peeking on the left edge of V1 @ 12s
-                draw_hm_piece(c, hm, HM_EAST_ARCH, -20.0 - cam, 88.0, ART_SCALE, 1.0);
-                // West Square directional signpost (`后街 / 斯顿雪域 / 赛丽亚旅馆 / 赫顿玛尔市区`)
-                draw_hm_piece(c, hm, HM_SIGN_WEST, 232.0 - cam, 152.0, ART_SCALE, 1.0);
-                // Lush green deciduous tree behind G.S.D (matching V1 @ 12s & 18s)
-                draw_hm_piece(c, hm, HM_TREE_TALL, 468.0 - cam, 24.0, ART_SCALE, 1.0);
-                // Grand white archway flanked by two knight statues (matching V1 @ 12s & 18s)
-                draw_hm_piece(c, hm, HM_STATUE_ARCH, 588.0 - cam, 46.0, ART_SCALE, 1.0);
-
-                // Mid/East plaza shops & foliage along the 2400px avenue
-                draw_hm_piece(c, hm, HM_TREE_MED, 965.0 - cam, 110.0, ART_SCALE, 1.0);
-                draw_hm_piece(c, hm, HM_KANNA_HOUSE, 1185.0 - cam, 12.0, 0.92, 1.0);
-                draw_hm_piece(c, hm, HM_SINDA_HOUSE, 1650.0 - cam, 18.0, 0.92, 1.0);
-                draw_hm_piece(c, hm, HM_TREE_WIDE, 2060.0 - cam, -12.0, 1.0, 1.0);
-
-                // Subtle east zone transition signpost hint near far-east edge
-                let exit_x = (WEST_SQUARE_WIDTH as f32) - 96.0 - cam;
-                if exit_x > -80.0 && exit_x < vw + 80.0 {
-                    c.fill_text(
-                        "赫顿玛尔东门 →",
-                        exit_x,
-                        316.0,
-                        12.0,
-                        Rgba::new(255, 232, 146, 235),
-                        TextAlign::Center,
-                        Some(Rgba::new(10, 12, 18, 235)),
-                    );
-                }
-            }
-            TownZone::EastGate => {
-                // West half (`x = 0..1008`, matches V1 @ 46s): terracotta plaza + rear wall
-                for i in 0..4 {
-                    let wx = (i as f32) * TILE_W - cam;
-                    if wx + TILE_W >= 0.0 && wx <= vw {
-                        draw_hm_piece(c, hm, HM_WALL, wx, WALL_Y, ART_SCALE, 1.0);
-                        draw_hm_piece(c, hm, HM_TILE, wx, TILE_Y, ART_SCALE, 1.0);
-                    }
-                }
-
-                // Transition strip (`x = 1008..1260`): terracotta diagonally meeting white bridge
-                let trx = TRANSITION_X - cam;
-                if trx + TILE_W >= 0.0 && trx <= vw {
-                    draw_hm_piece(c, hm, HM_BRTILE01, trx, WALL_Y, ART_SCALE, 1.0);
-                    draw_hm_piece(c, hm, HM_BRTILE03, trx, 360.0, ART_SCALE, 1.0);
-                }
-
-                // East half (`x = 1260..2520`, matches V1 @ 50s & V2 @ 415s): white stone bridge
-                let mut bx = BRIDGE_START_X;
-                while bx < EAST_GATE_WIDTH as f32 {
-                    let sx = bx - cam;
-                    if sx + TILE_W >= 0.0 && sx <= vw {
-                        draw_hm_piece(c, hm, HM_SKYBRIDGE, sx, ROAD_Y, ART_SCALE, 1.0);
-                    }
-                    bx += TILE_W;
-                }
-
-                // West East-Gate landmarks (matches V1 @ 46s at cam ≈ 180)
-                // White house with blue-lattice window on the right of signpost
-                draw_hm_piece(c, hm, HM_BLUE_WINDOW_HOUSE, 750.0 - cam, 92.0, 1.08, 1.0);
-                // Tall white stone pillar statue + red crossed-sword banner on the left
-                draw_hm_piece(c, hm, HM_BANNER, 212.0 - cam, 52.0, ART_SCALE, 1.0);
-                // Colorful ornate stone archway (`hendonpath[1]`) + glowing blue runes
-                draw_hm_piece(c, hm, HM_EAST_ARCH, 412.0 - cam, 88.0, ART_SCALE, 1.0);
+    match view.zone {
+        TownZone::SeriaRoom => {
+            if let Some(sr) = sprites.get("seriaroom") {
+                // Authentic `gateback.img` centered to fill the 720x460 4:3 interior (matches V1 @ 6s)
+                let bg_scale = 468.0 / SR_GATEBACK[3] as f32;
+                let bg_w = SR_GATEBACK[2] as f32 * bg_scale;
+                let bg_x = (vw - bg_w) * 0.5;
+                c.draw_image(
+                    sr,
+                    SR_GATEBACK[0],
+                    SR_GATEBACK[1],
+                    SR_GATEBACK[2],
+                    SR_GATEBACK[3],
+                    bg_x,
+                    0.0,
+                    bg_w,
+                    468.0,
+                    false,
+                    1.0,
+                    0.0,
+                );
+                // Right-side mailbox (`postbox.img`, matches V1 @ 6s)
+                let mbx = 575.0f32;
+                let mby = SERIA_GROUND_Y - 82.0;
                 draw_hm_piece(
                     c,
-                    hm,
-                    HM_ARCH_RUNES,
-                    470.0 - cam,
-                    108.0,
-                    ART_SCALE,
-                    rune_pulse,
+                    sr,
+                    SR_POSTBOX,
+                    mbx - SR_POSTBOX[2] as f32 * 0.5,
+                    mby - SR_POSTBOX[3] as f32,
+                    1.0,
+                    1.0,
                 );
-                // East Gate 5-plaque Chinese wooden signpost
-                draw_hm_piece(c, hm, HM_SIGN_EAST, 616.0 - cam, 118.0, ART_SCALE, 1.0);
+                c.fill_text(
+                    "邮件箱",
+                    mbx,
+                    mby - SR_POSTBOX[3] as f32 - 8.0,
+                    11.0,
+                    Rgba::new(240, 230, 207, 255),
+                    TextAlign::Center,
+                    Some(Rgba::new(8, 10, 16, 230)),
+                );
+            } else {
+                c.fill_rect(0.0, 0.0, vw, 468.0, Rgba::new(52, 42, 88, 255));
+            }
+        }
+        TownZone::Alley | TownZone::Plaza | TownZone::WestBridge => {
+            if let Some(hm) = sprites.get("hendonmyre") {
+                // 1. Shared Hendon Myre far sky & mountains (`hmfar01`, 0.08 parallax)
+                let far_w = HM_FAR[2] as f32 * ART_SCALE;
+                let mut fx = -(cam * 0.08).rem_euclid(far_w);
+                while fx < vw {
+                    draw_hm_piece(c, hm, HM_FAR, fx, 0.0, ART_SCALE, 1.0);
+                    fx += far_w;
+                }
 
-                // Bridge entrance stone pillar + red crossed-sword banner (matches V1 @ 50s left edge!)
-                draw_hm_piece(c, hm, HM_BANNER, 1260.0 - cam, 24.0, ART_SCALE, 1.0);
+                // 2. Shared Hendon Myre midground white domed cityscape (`hmmid01`, 0.35 parallax)
+                let mid_w = HM_MID[2] as f32 * ART_SCALE;
+                let mut mx = -(cam * 0.35).rem_euclid(mid_w);
+                while mx < vw {
+                    draw_hm_piece(c, hm, HM_MID, mx, MID_Y, ART_SCALE, 1.0);
+                    mx += mid_w;
+                }
 
-                // Far-east Gran Floris dungeon portal indicator
-                if let Some(town_sh) = sprites.get("town") {
-                    let gx = GATE_X - cam - 85.0;
-                    if gx > -240.0 && gx < vw + 120.0 {
-                        let gw = 170.0 * ART_SCALE;
-                        let gh = 121.0 * ART_SCALE;
-                        c.draw_image(
-                            town_sh,
-                            612,
-                            258,
-                            170,
-                            121,
-                            gx,
-                            GROUND_Y - 20.0 - gh,
-                            gw,
-                            gh,
-                            false,
-                            1.0,
-                            0.0,
-                        );
+                match view.zone {
+                    TownZone::Alley => {
+                        // Rear tan plaster wall + terracotta diamond plaza across the 1620px alley
+                        let mut wx = -cam.rem_euclid(TILE_W);
+                        while wx < vw {
+                            draw_hm_piece(c, hm, HM_WALL, wx, WALL_Y, ART_SCALE, 1.0);
+                            wx += TILE_W;
+                        }
+                        let mut tx = -cam.rem_euclid(TILE_W);
+                        while tx < vw {
+                            draw_hm_piece(c, hm, HM_TILE, tx, TILE_Y, ART_SCALE, 1.0);
+                            tx += TILE_W;
+                        }
+
+                        // Authentic 1:1 Alley landmarks left-to-right (matches V1 @ 12s, 18s, 20s, 22s)
+                        // Left archway (`▲ 后街`)
+                        draw_hm_piece(c, hm, HM_EAST_ARCH, -20.0 - cam, 88.0, ART_SCALE, 1.0);
+                        // 4-plaque Alley directional signpost (`后街 / 斯顿雪域 / 赛丽亚旅馆 / 赫顿玛尔市区`)
+                        draw_hm_piece(c, hm, HM_SIGN_WEST, 188.0 - cam, 152.0, ART_SCALE, 1.0);
+                        // Tall lush green tree right of Oran
+                        draw_hm_piece(c, hm, HM_TREE_TALL, 408.0 - cam, 24.0, ART_SCALE, 1.0);
+                        // Grand white archway flanked by two knight statues (walkable UP -> Seria's Room)
+                        draw_hm_piece(c, hm, HM_STATUE_ARCH, 528.0 - cam, 46.0, ART_SCALE, 1.0);
+                        // Sinda's blacksmith shop with furnace & green/yellow striped awning (matches V1 @ 22s)
+                        draw_hm_piece(c, hm, HM_SINDA_HOUSE, 855.0 - cam, 8.0, 0.96, 1.0);
+                        // Eastern stone wall/building behind G.S.D
+                        draw_hm_piece(c, hm, HM_BLUE_WINDOW_HOUSE, 1325.0 - cam, 92.0, 1.08, 1.0);
                     }
+                    TownZone::Plaza => {
+                        // West edge (`x = 0..252`, matches V1 @ 16s & 47s bottom-left!):
+                        // Authentic `HM_BRTILE01` diagonal white stone curb leading into WestBridge via black-fade.
+                        let trx = -cam;
+                        if trx + TILE_W >= 0.0 && trx <= vw {
+                            draw_hm_piece(c, hm, HM_BRTILE01, trx, WALL_Y, ART_SCALE, 1.0);
+                        }
+
+                        // Pure red-brick plaza (`x = 252..PLAZA_WIDTH`, matches V1 @ 16s/47s & V3 @ 2m50s–3m40s)
+                        // Align diamond brick pattern (`HM_TILEEX`) right at the `y = 118` sidewalk curb of `HM_BRTILE01`.
+                        // For the lower extension row, skip the top 22px curb strip of `HM_TILEEX` so no duplicate curb appears mid-road.
+                        let brick_top_y = WALL_Y + 118.0 * ART_SCALE;
+                        let brick_h = HM_TILEEX[3] as f32 * ART_SCALE;
+                        let brick_body = [
+                            HM_TILEEX[0],
+                            HM_TILEEX[1] + 22,
+                            HM_TILEEX[2],
+                            HM_TILEEX[3] - 22,
+                        ];
+                        let mut px = PLAZA_BRICK_START_X;
+                        while px < PLAZA_WIDTH as f32 {
+                            let sx = px - cam;
+                            if sx + TILE_W >= 0.0 && sx <= vw {
+                                draw_hm_piece(c, hm, HM_WALL, sx, WALL_Y, ART_SCALE, 1.0);
+                                draw_hm_piece(c, hm, HM_TILEEX, sx, brick_top_y, ART_SCALE, 1.0);
+                                draw_hm_piece(
+                                    c,
+                                    hm,
+                                    brick_body,
+                                    sx,
+                                    brick_top_y + brick_h - 1.0,
+                                    ART_SCALE,
+                                    1.0,
+                                );
+                            }
+                            px += TILE_W;
+                        }
+
+                        // Center Plaza landmarks (matches V1 @ 16s & 47s)
+                        // Tall white stone pillar statue + red crossed-sword banner on the left of Fire Pot
+                        draw_hm_piece(c, hm, HM_BANNER, 137.0 - cam, 52.0, ART_SCALE, 1.0);
+                        // Colorful ornate stone archway (`hendonpath[1]`, walkable UP -> Alley) + glowing blue runes
+                        draw_hm_piece(c, hm, HM_EAST_ARCH, 382.0 - cam, 88.0, ART_SCALE, 1.0);
+                        draw_hm_piece(
+                            c,
+                            hm,
+                            HM_ARCH_RUNES,
+                            440.0 - cam,
+                            108.0,
+                            ART_SCALE,
+                            rune_pulse,
+                        );
+                        // 5-plaque Chinese wooden signpost (`◀格兰之森 / ▲赫顿玛尔小巷 / ▲赛丽亚旅馆 / 西海岸▶ / ▼赫顿玛尔市政厅`)
+                        draw_hm_piece(c, hm, HM_SIGN_EAST, 587.0 - cam, 118.0, ART_SCALE, 1.0);
+                        // White house with blue-lattice window on the right of signpost
+                        draw_hm_piece(c, hm, HM_BLUE_WINDOW_HOUSE, 737.0 - cam, 92.0, 1.08, 1.0);
+
+                        // East Plaza extension (matches V3 @ 2m50s–3m40s: Kanna's shop & Feng Zhen's dojo)
+                        draw_hm_piece(c, hm, HM_KANNA_HOUSE, 1032.0 - cam, 12.0, 0.94, 1.0);
+                        draw_hm_piece(c, hm, HM_ALBERT_HOUSE, 1467.0 - cam, 88.0, 0.96, 1.0);
+                    }
+                    TownZone::WestBridge => {
+                        // Dedicated white stone bridge zone (`格兰之森西桥`, matches V1 @ 49s–51s):
+                        // Seamless `HM_SKYBRIDGE` tiling across the entire bridge with zero cross-tile seams.
+                        let bridge_y = WALL_Y + 60.0 * ART_SCALE;
+                        let mut bx = 0.0f32;
+                        while bx < WEST_BRIDGE_WIDTH as f32 {
+                            let sx = bx - cam;
+                            if sx + TILE_W >= 0.0 && sx <= vw {
+                                draw_hm_piece(c, hm, HM_SKYBRIDGE, sx, bridge_y, ART_SCALE, 1.0);
+                            }
+                            bx += TILE_W;
+                        }
+                        // Bridge entrance pillar + red crossed-sword banner on the west side (matches V1 @ 49s)
+                        draw_hm_piece(c, hm, HM_BANNER, 120.0 - cam, 24.0, ART_SCALE, 1.0);
+                    }
+                    TownZone::SeriaRoom => unreachable!(),
                 }
             }
         }
@@ -3974,21 +4300,23 @@ pub fn draw_town_view(c: &mut Canvas<'_>, view: &TownView<'_>, sprites: &SpriteS
     order.sort_by(|a, b| b.0.total_cmp(&a.0));
 
     let npc_sheet = sprites.get("npc");
+    let seria_sheet = sprites.get("seriaroom");
     let mut near_hint: Option<String> = None;
     for (_, npc_idx_opt) in order {
         if let Some(ni) = npc_idx_opt {
             let npc = &zone_npcs[ni];
             let sx = npc.x - cam;
-            let bottom = GROUND_Y - npc.z;
-            if (npc.x - view.player_x as f32).abs() < 68.0
-                && (npc.z - view.player_z as f32).abs() < 48.0
+            let bottom = ground_y - npc.z;
+            if (npc.x - view.player_x as f32).abs() < 72.0
+                && (npc.z - view.player_z as f32).abs() < 52.0
             {
                 let action = match npc.id {
                     "gsd" => "配置技能",
-                    "seria" | "minet" | "guard" | "guardCaptain" => "查看任务",
+                    "seria" | "oran" | "firepot" | "fengzhen" => "查看任务",
                     "kanna" => "打开商店",
-                    "sinda" | "brownie" => "打开背包/分解",
-                    _ => "进入副本",
+                    "sinda" => "打开背包/分解",
+                    "storage" => "打开仓库/背包",
+                    _ => "交互",
                 };
                 near_hint = Some(format!("按 [Space/Enter] 与 {} {action}", npc.label));
             }
@@ -3996,11 +4324,15 @@ pub fn draw_town_view(c: &mut Canvas<'_>, view: &TownView<'_>, sprites: &SpriteS
                 continue;
             }
             c.fill_ellipse(sx, bottom, 18.0, 5.0, Rgba::new(0, 0, 0, 105));
-            if let Some(nsh) = npc_sheet {
+            let sheet_opt = match npc.atlas {
+                NpcAtlas::Npc => npc_sheet,
+                NpcAtlas::SeriaRoom => seria_sheet,
+            };
+            if let Some(nsh) = sheet_opt {
                 let fidx = ((view.time * 6.0) as usize) % npc.frames.len();
                 let [fx, fy, fw, fh] = npc.frames[fidx];
-                let dw = fw as f32 * 0.95;
-                let dh = fh as f32 * 0.95;
+                let dw = fw as f32 * npc.scale;
+                let dh = fh as f32 * npc.scale;
                 c.draw_image(
                     nsh,
                     fx,
@@ -4024,13 +4356,13 @@ pub fn draw_town_view(c: &mut Canvas<'_>, view: &TownView<'_>, sprites: &SpriteS
                     TextAlign::Center,
                     Some(Rgba::new(8, 10, 16, 230)),
                 );
-                if npc.overhead_gold_icon {
-                    draw_gsd_overhead_icon(c, sx, bottom - dh - 32.0, view.time);
+                if npc.overhead_paw_icon {
+                    draw_oran_paw_icon(c, sx, bottom - dh - 32.0, view.time);
                 }
             }
         } else {
             let px = view.player_x as f32 - cam;
-            let py = GROUND_Y - view.player_z as f32;
+            let py = ground_y - view.player_z as f32;
             c.fill_ellipse(px, py + 1.0, 22.0, 6.0, Rgba::new(0, 0, 0, 96));
 
             // Bright neon-green oval foot ring under player boots (matches 00002 @ 2s / 415s)
@@ -4132,16 +4464,64 @@ pub fn draw_town_view(c: &mut Canvas<'_>, view: &TownView<'_>, sprites: &SpriteS
         }
     }
 
-    if view.zone == TownZone::EastGate && (view.player_x as f32 - GATE_X).abs() < 110.0 {
-        near_hint = Some("向右前行或按 [Space/Enter] 进入格兰之森副本选择".to_string());
+    // Contextual doorway / exit hints
+    if near_hint.is_none() {
+        match view.zone {
+            TownZone::SeriaRoom
+                if view.player_z <= 28.0 && (view.player_x - SERIA_DOOR_X).abs() <= 105.0 =>
+            {
+                near_hint = Some("向下走出房间 → 前往赫顿玛尔小巷".to_string());
+            }
+            TownZone::Alley
+                if view.player_z >= 72.0 && (view.player_x - ALLEY_SERIA_ARCH_X).abs() <= 72.0 =>
+            {
+                near_hint = Some("向上步入拱门 → 进入赛丽亚的房间".to_string());
+            }
+            TownZone::Alley
+                if view.player_z <= 26.0 && (view.player_x - ALLEY_SOUTH_ARCH_X).abs() <= 84.0 =>
+            {
+                near_hint = Some("向下步入拱门 → 前往赫顿玛尔市区".to_string());
+            }
+            TownZone::Plaza
+                if view.player_z >= 72.0 && (view.player_x - PLAZA_NORTH_ARCH_X).abs() <= 78.0 =>
+            {
+                near_hint = Some("向上步入拱门 → 返回赫顿玛尔小巷".to_string());
+            }
+            TownZone::Plaza if view.player_x <= TOWN_MIN_X + 60.0 => {
+                near_hint = Some("向左前行 → 前往格兰之森西桥".to_string());
+            }
+            TownZone::WestBridge if view.player_x >= WEST_BRIDGE_WIDTH - 140.0 => {
+                near_hint = Some("向右前行 → 返回赫顿玛尔市区".to_string());
+            }
+            TownZone::WestBridge if (view.player_x - TOWN_GATE_X).abs() < 120.0 => {
+                near_hint = Some("向左前行或按 [Space/Enter] 进入格兰之森副本选择".to_string());
+            }
+            _ => {}
+        }
     }
 
     // Foreground architectural layer
-    if let Some(hm) = sprites.get("hendonmyre") {
-        match view.zone {
-            TownZone::WestSquare => {
-                // Bottom-center ornate foreground portal archway (`赛丽亚旅馆`, matches V1 @ 12s & 18s)
-                let pax = 425.0 - cam;
+    match view.zone {
+        TownZone::SeriaRoom => {
+            if let Some(sr) = sprites.get("seriaroom") {
+                // Two pink lollipop pillars flanking the purple carpet exit (matches V1 @ 6s)
+                draw_hm_piece(
+                    c,
+                    sr,
+                    SR_GATEPILLAR,
+                    SERIA_DOOR_X as f32 - SR_GATEPILLAR[2] as f32 * 0.5,
+                    372.0,
+                    1.0,
+                    1.0,
+                );
+            }
+        }
+        TownZone::Alley => {
+            if let Some(hm) = sprites.get("hendonmyre") {
+                // Bottom-center ornate foreground portal archway (`▼ 赫顿玛尔市区`, matches V1 @ 12s & 18s)
+                let pax = (ALLEY_SOUTH_ARCH_X as f32)
+                    - (HM_PORTAL_ARCH[2] as f32 * ART_SCALE * 0.5)
+                    - cam;
                 if pax > -180.0 && pax < vw + 180.0 {
                     draw_hm_piece(c, hm, HM_PORTAL_ARCH, pax, 408.0, ART_SCALE, 1.0);
                     draw_hm_piece(
@@ -4155,10 +4535,13 @@ pub fn draw_town_view(c: &mut Canvas<'_>, view: &TownView<'_>, sprites: &SpriteS
                     );
                 }
             }
-            TownZone::EastGate => {
-                // Foreground white stone balustrade along the East white stone bridge (matches V1 @ 50s & V2 @ 415s)
-                let mut rx = BRIDGE_START_X;
-                while rx < EAST_GATE_WIDTH as f32 {
+        }
+        TownZone::Plaza => {}
+        TownZone::WestBridge => {
+            if let Some(hm) = sprites.get("hendonmyre") {
+                // Foreground white stone balustrade spanning the entire WestBridge seamlessly
+                let mut rx = 0.0f32;
+                while rx < WEST_BRIDGE_WIDTH as f32 {
                     let sx = rx - cam;
                     if sx + TILE_W >= 0.0 && sx <= vw {
                         draw_hm_piece(c, hm, HM_SKYWALL, sx, FRONT_Y, ART_SCALE, 1.0);
@@ -4188,7 +4571,7 @@ pub fn draw_town_view(c: &mut Canvas<'_>, view: &TownView<'_>, sprites: &SpriteS
         );
     }
 
-    // Smooth black fade overlay during WestSquare <-> EastGate zone switch
+    // Smooth black fade overlay during zone switches
     if view.zone_fade_alpha > 0.01 {
         c.fill_rect(
             0.0,

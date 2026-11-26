@@ -966,8 +966,9 @@ pub fn damage_enemy(
             death_lie(&e_snap) + smoke_life(&e_snap)
         };
         if burst_death {
-            let mut eff = Effect::new("bossburst", 0.45);
+            let mut eff = Effect::new("bossburst", 1.35);
             eff.x = e_snap.x;
+            eff.y = ARENA_GROUND_Y;
             eff.z = e_snap.z;
             eff.height = e_snap.height;
             eff.seed = e_snap.id;
@@ -1407,27 +1408,35 @@ fn hit_pillar(
         let Some(anchor) = prop_obstacle(&state.props[p_idx], None) else {
             return;
         };
-        let near_z = anchor.z - 12.0 * NATIVE_SCALE / DEPTH_SCALE;
-        let far_z = anchor.z + 14.0 * NATIVE_SCALE / DEPTH_SCALE;
-        let depth_reach = reach.unwrap_or(DEPTH_REACH_MELEE) * SLAYER_HEIGHT;
-        if source_z < near_z - depth_reach || source_z > far_z + depth_reach {
+        let max_z = band_depth(state.band_back_y);
+        let eff_z = anchor.z.clamp(0.0, max_z);
+        let pad_near = 12.0 * NATIVE_SCALE / DEPTH_SCALE;
+        let pad_far = 14.0 * NATIVE_SCALE / DEPTH_SCALE;
+        let depth_reach = reach.unwrap_or(DEPTH_REACH_MELEE) * SLAYER_HEIGHT + 28.0;
+        let in_raw = source_z >= anchor.z - pad_near - depth_reach
+            && source_z <= anchor.z + pad_far + depth_reach;
+        let in_clamped =
+            source_z >= eff_z - pad_near - depth_reach && source_z <= eff_z + pad_far + depth_reach;
+        if !in_raw && !in_clamped {
             return;
         }
         let target = Rect {
-            left: anchor.x - 20.0 * NATIVE_SCALE,
-            right: anchor.x + 22.0 * NATIVE_SCALE,
+            left: anchor.x - 24.0 * NATIVE_SCALE,
+            right: anchor.x + 26.0 * NATIVE_SCALE,
             top: ARENA_GROUND_Y - 116.0 * NATIVE_SCALE,
             bottom: ARENA_GROUND_Y + 4.0 * NATIVE_SCALE,
         };
-        (anchor.x, anchor.z, target)
+        (anchor.x, eff_z, target)
     } else {
         let Some(b) = prop_box(&state.props[p_idx].piece, state.props[p_idx].scale) else {
             return;
         };
         let anchor_x = state.props[p_idx].x + b.dx;
         let anchor_z = state.props[p_idx].z;
-        let depth_reach = reach.unwrap_or(DEPTH_REACH_BREAKABLE) * SLAYER_HEIGHT;
-        if (anchor_z - source_z).abs() > depth_reach + b.depth / 2.0 {
+        let max_z = band_depth(state.band_back_y);
+        let effective_z = anchor_z.clamp(0.0, max_z);
+        let depth_reach = reach.unwrap_or(DEPTH_REACH_BREAKABLE) * SLAYER_HEIGHT + 28.0;
+        if (effective_z - source_z).abs() > depth_reach + b.depth / 2.0 {
             return;
         }
         let bh = b.ink.map(|i| i[1]).unwrap_or(95.0);
@@ -1452,7 +1461,7 @@ fn hit_pillar(
     crate::push_sound(state, "stonePillarBreak", anchor_x, anchor_z);
 
     if state.props[p_idx].hp <= 0 {
-        emit_pillar_debris(state, anchor_x, anchor_z, 12);
+        emit_pillar_debris(state, anchor_x, anchor_z, 8);
         state.props[p_idx].broken = true;
         state.props[p_idx].broken_at = state.time;
         state.props[p_idx].gone = true;
@@ -1461,8 +1470,8 @@ fn hit_pillar(
         let prop_snap = state.props[p_idx].clone();
         drop_breakable_loot(state, &prop_snap);
     } else {
-        emit_pillar_debris(state, anchor_x, anchor_z, 6);
-        if state.props[p_idx].hp <= 2 {
+        emit_pillar_debris(state, anchor_x, anchor_z, 4);
+        if state.props[p_idx].hp <= 1 {
             if let Some(ref mut np) = state.props[p_idx].native_pillar {
                 if np.damaged_at < 0.0 {
                     np.damaged_at = state.time;
@@ -1471,6 +1480,93 @@ fn hit_pillar(
             state.props[p_idx].piece = "pillarDamagedDecor".to_string();
         }
     }
+}
+
+pub fn try_freeze_player(state: &mut State) {
+    if state.player.dead || state.player.freeze_timer > 0.0 {
+        return;
+    }
+    if crate::next_random(state) < 0.25 {
+        state.player.freeze_timer = 1.5;
+        state.player.attack_timer = 0.0;
+        state.player.skill_timer = 0.0;
+        state.player.skill_id = None;
+        state.player.vx = 0.0;
+        state.player.vz = 0.0;
+        crate::push_log(state, "角色进入[冰冻]状态！连按按键可提前破冰", "gold");
+    }
+}
+
+pub fn update_bunkers(state: &mut State, dt: f64) {
+    let room_cleared = state.room.as_ref().is_some_and(|r| r.cleared);
+    if room_cleared || state.defeat || state.victory {
+        return;
+    }
+    let alive_enemies = state.enemies.iter().filter(|e| !e.dead).count();
+    let mut spawns: Vec<(f64, f64)> = Vec::new();
+    for prop in &mut state.props {
+        if prop.piece != "goblinBunker" || prop.broken || prop.gone {
+            continue;
+        }
+        if prop.spawned_count >= 3 {
+            continue;
+        }
+        prop.spawn_timer -= dt;
+        if prop.spawn_timer <= 0.0 && alive_enemies + spawns.len() < 12 {
+            prop.spawn_timer = 5.0;
+            prop.spawned_count += 1;
+            prop.hit_t = 0.22;
+            spawns.push((prop.x, prop.z));
+        }
+    }
+    for (bx, bz) in spawns {
+        let kind = if crate::next_random(state) < 0.5 {
+            "goblinRed"
+        } else {
+            "grunt"
+        };
+        let mut enemy = crate::enemy::create_enemy(
+            state,
+            kind,
+            bx,
+            bz.clamp(0.0, band_depth(state.band_back_y)),
+            None,
+            None,
+        );
+        enemy.level = if state.stage_id == "mirkwooddeep" {
+            6
+        } else {
+            3
+        };
+        state.enemies.push(enemy);
+    }
+}
+
+fn is_interactive_tree(piece: &str) -> bool {
+    matches!(
+        piece,
+        "treeBossFruit" | "treeReference" | "treeLeafy" | "trunkTall" | "trunkBent" | "trunkMossy"
+    )
+}
+
+fn emit_leaf_debris(state: &mut State, x: f64, z: f64, count: usize) {
+    for d in 0..count {
+        let mut eff = Effect::new("leaf_debris", 0.55);
+        eff.x = x + ((d as f64) - (count as f64) * 0.5) * 8.0;
+        eff.y = ARENA_GROUND_Y - 24.0 - (d % 3) as f64 * 12.0;
+        eff.z = z;
+        eff.vx = ((d as f64) - (count as f64) * 0.5) * 38.0;
+        eff.vy = -75.0 - (d % 3) as f64 * 25.0;
+        eff.gravity = 240.0;
+        eff.variant = d % 4;
+        eff.spin_dir = if d % 2 == 0 { 1 } else { -1 };
+        eff.angle0 = (d as f64 / count.max(1) as f64) * std::f64::consts::PI * 2.0;
+        state.effects.push(eff);
+    }
+}
+
+fn is_interactive_grass(piece: &str) -> bool {
+    matches!(piece, "grass" | "grassPatch" | "grassFlower" | "bush")
 }
 
 pub fn swing_props(
@@ -1498,6 +1594,66 @@ pub fn swing_props(
             );
             continue;
         }
+        if is_interactive_tree(&state.props[p_idx].piece)
+            || is_interactive_grass(&state.props[p_idx].piece)
+        {
+            if let Some(ref sp) = struck_props {
+                if sp.contains(&p_idx) {
+                    continue;
+                }
+            }
+            let max_z = band_depth(state.band_back_y);
+            let effective_z = state.props[p_idx].z.clamp(0.0, max_z);
+            let depth_reach = reach.unwrap_or(DEPTH_REACH_BREAKABLE) * SLAYER_HEIGHT + 24.0;
+            if (effective_z - source_z).abs() > depth_reach + 24.0 {
+                continue;
+            }
+            let px = state.props[p_idx].x;
+            let hit_rect = Rect {
+                left: px - 42.0,
+                right: px + 42.0,
+                bottom: ARENA_GROUND_Y,
+                top: ARENA_GROUND_Y - 120.0,
+            };
+            if !boxes_overlap(boxed, hit_rect) {
+                continue;
+            }
+            if let Some(ref mut sp) = struck_props {
+                sp.push(p_idx);
+            }
+            state.props[p_idx].hit_t = 0.22;
+            let is_tree = is_interactive_tree(&state.props[p_idx].piece);
+            emit_leaf_debris(state, px, effective_z, if is_tree { 6 } else { 4 });
+            if is_tree && state.props[p_idx].drops_left > 0 {
+                state.props[p_idx].drops_left -= 1;
+                let prop_snap = state.props[p_idx].clone();
+                let drop_name = if (state.props[p_idx].drops_left & 1) == 0 {
+                    "野生草莓"
+                } else {
+                    "越桔"
+                };
+                let drop_x = prop_snap.x + (crate::next_random(state) - 0.5) * 36.0;
+                state.pickups.push(Pickup {
+                    kind: "loot".to_string(),
+                    name: drop_name.to_string(),
+                    tone: "white".to_string(),
+                    gold: 25,
+                    exp: 0,
+                    x: drop_x,
+                    y: ARENA_GROUND_Y,
+                    z: effective_z,
+                    radius: 0.0,
+                    value: 0.0,
+                    life: LOOT_LIFE,
+                    from_x: 0.0,
+                    from_y: 0.0,
+                    from_z: 0.0,
+                    progress: 0.0,
+                    trail: Vec::new(),
+                });
+            }
+            continue;
+        }
         if !state.props[p_idx].solid {
             continue;
         }
@@ -1512,8 +1668,10 @@ pub fn swing_props(
         let Some(b) = prop_box(&state.props[p_idx].piece, state.props[p_idx].scale) else {
             continue;
         };
+        let max_z = band_depth(state.band_back_y);
+        let effective_z = state.props[p_idx].z.clamp(0.0, max_z);
         let depth_reach = reach.unwrap_or(DEPTH_REACH_BREAKABLE) * SLAYER_HEIGHT;
-        if (state.props[p_idx].z - source_z).abs() > depth_reach + b.depth / 2.0 {
+        if (effective_z - source_z).abs() > depth_reach + b.depth / 2.0 {
             continue;
         }
         let centre = state.props[p_idx].x + b.dx;
@@ -1535,8 +1693,17 @@ pub fn swing_props(
             sp.push(p_idx);
         }
         state.props[p_idx].hp -= 1;
+        state.props[p_idx].hit_t = 0.22;
         if state.props[p_idx].hp > 0 {
+            if state.props[p_idx].piece == "goblinBunker" {
+                emit_pillar_debris(state, centre, state.props[p_idx].z, 6);
+                crate::push_sound(state, "stonePillarBreak", centre, state.props[p_idx].z);
+            }
             continue;
+        }
+        if state.props[p_idx].piece == "goblinBunker" {
+            emit_pillar_debris(state, centre, state.props[p_idx].z, 12);
+            crate::push_sound(state, "stonePillarBreak", centre, state.props[p_idx].z);
         }
         state.props[p_idx].broken = true;
         state.props[p_idx].broken_at = state.time;

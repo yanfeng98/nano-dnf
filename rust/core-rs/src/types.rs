@@ -115,6 +115,7 @@ pub struct Player {
     pub invuln: f64,
     pub solid_invuln: f64,
     pub hurt_timer: f64,
+    pub freeze_timer: f64,
     pub dead: bool,
     pub name: Option<String>,
 }
@@ -250,6 +251,9 @@ pub struct Prop {
     pub native_footprint: Option<NativeFootprint>,
     pub native_decoration: Option<NativeDecorationSpec>,
     pub native_animation_started_at: f64,
+    pub spawn_timer: f64,
+    pub spawned_count: u32,
+    pub drops_left: u32,
 }
 
 #[derive(Debug, Clone)]

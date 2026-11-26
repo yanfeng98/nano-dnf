@@ -737,7 +737,10 @@ pub fn update_projectiles(
             );
             continue;
         }
-        damage_player(state, imp.shot.damage, imp.x);
+        let dealt = damage_player(state, imp.shot.damage, imp.x);
+        if dealt > 0 && imp.shot.native_object == Some(30057) {
+            crate::combat::try_freeze_player(state);
+        }
         crate::push_projectile_sound(
             state,
             "projectileHit",
@@ -1304,8 +1307,11 @@ fn advance_enemy_attack(state: &mut State, enemy_idx: usize, dt: f64) {
             if in_reach_of(state.player.z, e.z, DEPTH_REACH_MELEE)
                 && body_gap(e.x, e.width, state.player.x, state.player.width) <= e.attack_range
             {
-                let (dmg, ex) = (e.damage, e.x);
-                damage_player(state, dmg, ex);
+                let (dmg, ex, is_frost) = (e.damage, e.x, e.kind == "goblinBlue");
+                let dealt = damage_player(state, dmg, ex);
+                if dealt > 0 && is_frost {
+                    crate::combat::try_freeze_player(state);
+                }
             }
             state.enemies[enemy_idx].attack_cooldown = state.enemies[enemy_idx].attack_cooldown_max;
         }
@@ -1684,8 +1690,16 @@ pub fn resolve_room(state: &mut State, input: &Input, could_steer: bool) {
         .map(|rm| rm.pending_wave.len() + rm.pending_waves.iter().map(Vec::len).sum::<usize>())
         .unwrap_or(0);
 
+    let alive_bunkers = state
+        .props
+        .iter()
+        .filter(|p| p.piece == "goblinBunker" && !p.broken && !p.gone)
+        .count();
     let already_cleared = state.room.as_ref().is_some_and(|r| r.cleared);
-    if ((alive_count == 0 && pending == 0) || boss_down) && !already_cleared && !state.defeat {
+    if ((alive_count == 0 && pending == 0 && alive_bunkers == 0) || boss_down)
+        && !already_cleared
+        && !state.defeat
+    {
         let cell_room_idx = current_cell(state).map(|c| c.room);
         let has_native_gates = cell_room_idx
             .and_then(|ridx| TABLES.stages.get(&state.stage_id)?.rooms.get(ridx))
@@ -1711,7 +1725,7 @@ pub fn resolve_room(state: &mut State, input: &Input, could_steer: bool) {
             if let Some(b_idx) = boss_idx {
                 let boss = state.enemies[b_idx].clone();
                 state.victory_delay = Some(if boss.death_style.as_deref() == Some("burst") {
-                    1.2
+                    1.45
                 } else {
                     death_lie(&boss) + smoke_life(&boss) + DEATH_BOSS_CHUNKS + 0.35
                 });

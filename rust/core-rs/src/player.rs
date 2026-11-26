@@ -236,9 +236,18 @@ pub fn update_player(
         state.player.jump_buffer = (state.player.jump_buffer - dt).max(0.0);
     }
 
+    if state.player.freeze_timer > 0.0 {
+        let mash =
+            input.left || input.right || input.up || input.down || input.attack || input.jump;
+        let decay = if mash { dt * 2.5 } else { dt };
+        state.player.freeze_timer = (state.player.freeze_timer - decay).max(0.0);
+    }
+
     let direction = i32::from(input.right) - i32::from(input.left);
     let was_hurt = state.player.hurt_timer > 0.0;
-    let rooted = state.player.attack_timer > 0.0 || state.player.skill_timer > 0.0 || was_hurt;
+    let was_frozen = state.player.freeze_timer > 0.0;
+    let rooted =
+        state.player.attack_timer > 0.0 || state.player.skill_timer > 0.0 || was_hurt || was_frozen;
     let active_spec = state
         .player
         .skill_id
@@ -252,7 +261,7 @@ pub fn update_player(
         && active_spec.is_some_and(|s| s.dive > 0.0)
         && !state.player.on_ground;
 
-    if direction != 0 && state.player.skill_timer <= 0.0 {
+    if direction != 0 && state.player.skill_timer <= 0.0 && !was_frozen {
         state.player.facing = direction;
     }
 
@@ -722,6 +731,7 @@ pub fn update_player(
                         let pz = state.player.z;
                         let px = state.player.x;
                         let depth_reach = active.depth_reach.unwrap_or(DEPTH_REACH_MELEE);
+                        swing_props(state, skill_box, Some(depth_reach), Some((px, pz)), None);
                         let e_len = state.enemies.len();
                         for e_idx in 0..e_len {
                             if state.enemies[e_idx].dead {

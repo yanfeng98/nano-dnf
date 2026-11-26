@@ -4,9 +4,8 @@ use core_rs::types::CreateStateOptions;
 use render_rs::{
     draw_town_hud, draw_town_view, step_town_motion, town_interact_action, Canvas, GlyphCache,
     MapMode, ProgressPanelKind, RenderMeta, SpriteStore, TownMotion, TownNpcAction, TownStepEvent,
-    TownView, TownZone, EAST_GATE_WIDTH, RENDER_HEIGHT, RENDER_WIDTH, TOWN_CAMERA_EASE_K,
-    TOWN_CAMERA_HALF_WINDOW, TOWN_DEPTH_SPEED_RATIO, TOWN_WALK_ROW, TOWN_WALK_SPEED,
-    TOWN_ZONE_FADE_DUR, WEST_SQUARE_WIDTH,
+    TownView, TownZone, RENDER_HEIGHT, RENDER_WIDTH, TOWN_CAMERA_EASE_K, TOWN_CAMERA_HALF_WINDOW,
+    TOWN_DEPTH_SPEED_RATIO, TOWN_WALK_ROW, TOWN_WALK_SPEED, TOWN_ZONE_FADE_DUR, WEST_BRIDGE_WIDTH,
 };
 use std::path::Path;
 use tiny_skia::Pixmap;
@@ -14,15 +13,11 @@ use tiny_skia::Pixmap;
 #[test]
 fn town_movement_depth_speed_ratio_is_0_56() {
     assert!((TOWN_DEPTH_SPEED_RATIO - 0.56).abs() < 1e-9);
-    let mut m = TownMotion {
-        x: 200.0,
-        z: 20.0,
-        facing: 1,
-        camera_x: 0.0,
-        walk: 0.0,
-        moving: false,
-        ..TownMotion::default()
-    };
+    let mut m = TownMotion::enter_alley();
+    m.x = 200.0;
+    m.z = 20.0;
+    m.facing = 1;
+    m.camera_x = 0.0;
     let dt = 0.5;
     let ev = step_town_motion(&mut m, 0, 1, dt);
     assert_eq!(ev, TownStepEvent::None);
@@ -42,15 +37,11 @@ fn town_movement_depth_speed_ratio_is_0_56() {
 
 #[test]
 fn town_movement_diagonal_is_normalized() {
-    let mut m = TownMotion {
-        x: 300.0,
-        z: 20.0,
-        facing: 1,
-        camera_x: 0.0,
-        walk: 0.0,
-        moving: false,
-        ..TownMotion::default()
-    };
+    let mut m = TownMotion::enter_alley();
+    m.x = 300.0;
+    m.z = 20.0;
+    m.facing = 1;
+    m.camera_x = 0.0;
     let dt = 0.25;
     step_town_motion(&mut m, 1, 1, dt);
     let inv_sqrt2 = std::f64::consts::FRAC_1_SQRT_2;
@@ -71,19 +62,14 @@ fn town_movement_diagonal_is_normalized() {
 
 #[test]
 fn town_camera_uses_exponential_easing() {
-    let mut m = TownMotion {
-        zone: TownZone::EastGate,
-        x: 800.0,
-        z: 30.0,
-        facing: 1,
-        camera_x: 0.0,
-        walk: 0.0,
-        moving: false,
-        ..TownMotion::default()
-    };
+    let mut m = TownMotion::return_from_dungeon();
+    m.x = 800.0;
+    m.z = 30.0;
+    m.facing = 1;
+    m.camera_x = 0.0;
     let dt = 1.0 / 60.0;
-    let target =
-        (m.x - TOWN_CAMERA_HALF_WINDOW - VIEW_WIDTH * 0.5).clamp(0.0, EAST_GATE_WIDTH - VIEW_WIDTH);
+    let target = (m.x - TOWN_CAMERA_HALF_WINDOW - VIEW_WIDTH * 0.5)
+        .clamp(0.0, WEST_BRIDGE_WIDTH - VIEW_WIDTH);
     step_town_motion(&mut m, 0, 0, dt);
     let expected_first = target * (1.0 - (-TOWN_CAMERA_EASE_K * dt).exp());
     assert!(
@@ -98,7 +84,6 @@ fn town_camera_uses_exponential_easing() {
         m.camera_x
     );
 
-    // After 2 seconds of stepping at 60Hz, camera converges near target
     for _ in 0..120 {
         step_town_motion(&mut m, 0, 0, dt);
     }
@@ -115,112 +100,212 @@ fn town_walk_uses_dedicated_row_12() {
 }
 
 #[test]
-fn hendonmyre_entry_and_dungeon_return_spawns_land_in_expected_zones() {
-    let entry = TownMotion::enter_west_square();
-    assert_eq!(entry.zone, TownZone::WestSquare);
-    assert!(
-        entry.title_timer > 0.0,
-        "first town entry should trigger fading 赫顿玛尔 title"
-    );
+fn hendonmyre_entry_starts_in_seria_room_and_dungeon_return_lands_on_west_bridge() {
+    let entry = TownMotion::enter_seria_room();
+    assert_eq!(entry.zone, TownZone::SeriaRoom);
+    assert_eq!(TownMotion::default().zone, TownZone::SeriaRoom);
 
     let ret = TownMotion::return_from_dungeon();
-    assert_eq!(ret.zone, TownZone::EastGate);
+    assert_eq!(ret.zone, TownZone::WestBridge);
     assert!(
-        ret.x >= 1260.0,
-        "dungeon return should spawn on EastGate white stone bridge (x >= 1260), got {}",
+        ret.x < WEST_BRIDGE_WIDTH * 0.5,
+        "dungeon return should spawn on WestBridge near west end, got {}",
         ret.x
     );
+    assert_eq!(ret.facing, 1, "returning from Gran Floris faces east (+1)");
     assert_eq!(ret.title_timer, 0.0);
 }
 
 #[test]
-fn hendonmyre_zone_transitions_fade_smoothly_in_both_directions_and_open_region() {
+fn hendonmyre_three_zone_doorways_and_west_bridge_exit_work_end_to_end() {
     assert!((TOWN_ZONE_FADE_DUR - 0.35).abs() < 1e-6);
 
-    // 1. Walk east to far edge of WestSquare -> fade -> EastGate left side
-    let mut m = TownMotion::enter_west_square();
-    m.x = WEST_SQUARE_WIDTH - 90.0;
-    m.camera_x = WEST_SQUARE_WIDTH - VIEW_WIDTH;
-
+    // 1. Walk SOUTH out of Seria's Room bottom purple carpet -> fade -> Alley knight-statue archway
+    let mut m = TownMotion::enter_seria_room();
+    m.z = 2.0;
     let mut saw_fade = false;
-    let mut switched_to_east = false;
-    for _ in 0..60 {
-        let ev = step_town_motion(&mut m, 1, 0, 1.0 / 60.0);
+    let mut entered_alley = false;
+    for _ in 0..45 {
+        let ev = step_town_motion(&mut m, 0, -1, 1.0 / 60.0);
         if m.zone_fade_alpha() > 0.1 {
             saw_fade = true;
         }
-        if ev == TownStepEvent::ZoneSwitched(TownZone::EastGate) {
-            switched_to_east = true;
+        if ev == TownStepEvent::ZoneSwitched(TownZone::Alley) {
+            entered_alley = true;
         }
     }
-    assert!(saw_fade, "zone switch must display smooth black fade");
+    assert!(saw_fade, "exiting SeriaRoom must display smooth black fade");
     assert!(
-        switched_to_east,
-        "walking to far-east of WestSquare must transition to EastGate"
+        entered_alley,
+        "walking south out of SeriaRoom must enter Alley"
     );
-    assert_eq!(m.zone, TownZone::EastGate);
+    assert_eq!(m.zone, TownZone::Alley);
     assert!(
-        m.x < 420.0,
-        "entering EastGate from west should spawn on left side, got x={}",
-        m.x
+        m.title_timer > 0.0,
+        "exiting SeriaRoom into Alley must trigger 赫顿玛尔 / HendonMyre entry title"
     );
 
-    // Finish any remaining fade
+    // Finish fade
     for _ in 0..30 {
         step_town_motion(&mut m, 0, 0, 1.0 / 60.0);
     }
-    assert_eq!(m.zone_fade_alpha(), 0.0);
 
-    // 2. Walk west to far-west edge of EastGate -> fade -> WestSquare right side
-    m.x = 95.0;
-    m.camera_x = 0.0;
-    let mut switched_to_west = false;
-    for _ in 0..60 {
-        let ev = step_town_motion(&mut m, -1, 0, 1.0 / 60.0);
-        if ev == TownStepEvent::ZoneSwitched(TownZone::WestSquare) {
-            switched_to_west = true;
+    // 2. Walk NORTH back into knight-statue archway -> fade -> Seria's Room
+    m.x = 672.0;
+    m.z = 96.0;
+    let mut reentered_seria = false;
+    for _ in 0..45 {
+        if step_town_motion(&mut m, 0, 1, 1.0 / 60.0)
+            == TownStepEvent::ZoneSwitched(TownZone::SeriaRoom)
+        {
+            reentered_seria = true;
         }
     }
     assert!(
-        switched_to_west,
-        "walking to far-west of EastGate must transition back to WestSquare"
+        reentered_seria,
+        "walking north into Alley knight-statue archway must re-enter SeriaRoom"
     );
-    assert_eq!(m.zone, TownZone::WestSquare);
-    assert!(
-        m.x > WEST_SQUARE_WIDTH - 420.0,
-        "returning to WestSquare from east should spawn on right side, got x={}",
-        m.x
-    );
+    assert_eq!(m.zone, TownZone::SeriaRoom);
 
-    // 3. Walk east to far-east edge of EastGate -> opens Gran Floris Region Select
-    let mut m_east = TownMotion::return_from_dungeon();
-    m_east.x = EAST_GATE_WIDTH - 95.0;
+    // 3. Walk SOUTH through Alley bottom archway -> fade -> Plaza colorful archway (next to Fire Pot)
+    let mut m_alley = TownMotion::enter_alley();
+    m_alley.x = 432.0;
+    m_alley.z = 2.0;
+    let mut entered_plaza = false;
+    for _ in 0..45 {
+        if step_town_motion(&mut m_alley, 0, -1, 1.0 / 60.0)
+            == TownStepEvent::ZoneSwitched(TownZone::Plaza)
+        {
+            entered_plaza = true;
+        }
+    }
+    assert!(
+        entered_plaza,
+        "walking south through Alley bottom archway must enter Plaza"
+    );
+    assert_eq!(m_alley.zone, TownZone::Plaza);
+    for _ in 0..30 {
+        step_town_motion(&mut m_alley, 0, 0, 1.0 / 60.0);
+    }
+
+    // 4. Walk NORTH through Plaza colorful archway -> fade -> back to Alley bottom archway
+    m_alley.x = 508.0;
+    m_alley.z = 96.0;
+    let mut back_to_alley = false;
+    for _ in 0..45 {
+        if step_town_motion(&mut m_alley, 0, 1, 1.0 / 60.0)
+            == TownStepEvent::ZoneSwitched(TownZone::Alley)
+        {
+            back_to_alley = true;
+        }
+    }
+    assert!(
+        back_to_alley,
+        "walking north through Plaza colorful archway must return to Alley"
+    );
+    assert_eq!(m_alley.zone, TownZone::Alley);
+
+    // 5. Walk WEST off Plaza west edge -> fade -> WestBridge, then EAST back -> Plaza
+    let mut m_bridge = TownMotion::enter_alley();
+    m_bridge.zone = TownZone::Plaza;
+    m_bridge.x = 92.0;
+    m_bridge.z = 36.0;
+    let mut entered_bridge = false;
+    for _ in 0..45 {
+        if step_town_motion(&mut m_bridge, -1, 0, 1.0 / 60.0)
+            == TownStepEvent::ZoneSwitched(TownZone::WestBridge)
+        {
+            entered_bridge = true;
+        }
+    }
+    assert!(
+        entered_bridge,
+        "walking west off Plaza west edge must black-fade into WestBridge"
+    );
+    assert_eq!(m_bridge.zone, TownZone::WestBridge);
+    for _ in 0..30 {
+        step_town_motion(&mut m_bridge, 0, 0, 1.0 / 60.0);
+    }
+    m_bridge.x = WEST_BRIDGE_WIDTH - 92.0;
+    let mut back_to_plaza = false;
+    for _ in 0..45 {
+        if step_town_motion(&mut m_bridge, 1, 0, 1.0 / 60.0)
+            == TownStepEvent::ZoneSwitched(TownZone::Plaza)
+        {
+            back_to_plaza = true;
+        }
+    }
+    assert!(
+        back_to_plaza,
+        "walking east off WestBridge must black-fade back into Plaza"
+    );
+    assert_eq!(m_bridge.zone, TownZone::Plaza);
+
+    // 6. Walk WEST to far-west end of WestBridge -> opens Gran Floris Region Select
+    let mut m_west = TownMotion::return_from_dungeon();
+    m_west.x = 92.0;
     let mut opened_region = false;
     for _ in 0..40 {
-        if step_town_motion(&mut m_east, 1, 0, 1.0 / 60.0) == TownStepEvent::OpenRegion {
+        if step_town_motion(&mut m_west, -1, 0, 1.0 / 60.0) == TownStepEvent::OpenRegion {
             opened_region = true;
             break;
         }
     }
     assert!(
         opened_region,
-        "walking to far-east edge of EastGate must trigger OpenRegion"
+        "walking west off WestBridge must trigger OpenRegion"
     );
 
-    // 4. Verify G.S.D opens skill loadout in WestSquare
+    // 7. Verify authentic NPC interaction mappings across all 4 zones
     assert_eq!(
-        town_interact_action(TownZone::WestSquare, 515.0, 74.0),
+        town_interact_action(TownZone::SeriaRoom, 360.0, 102.0),
+        TownNpcAction::Quest
+    );
+    assert_eq!(
+        town_interact_action(TownZone::SeriaRoom, 185.0, 92.0),
+        TownNpcAction::Bag
+    );
+    assert_eq!(
+        town_interact_action(TownZone::Alley, 365.0, 74.0),
+        TownNpcAction::Quest
+    );
+    assert_eq!(
+        town_interact_action(TownZone::Alley, 1075.0, 74.0),
+        TownNpcAction::Bag
+    );
+    assert_eq!(
+        town_interact_action(TownZone::Alley, 1385.0, 74.0),
         TownNpcAction::Loadout
+    );
+    assert_eq!(
+        town_interact_action(TownZone::Plaza, 344.0, 74.0),
+        TownNpcAction::Quest
+    );
+    assert_eq!(
+        town_interact_action(TownZone::Plaza, 1227.0, 74.0),
+        TownNpcAction::Shop
+    );
+    assert_eq!(
+        town_interact_action(TownZone::Plaza, 1627.0, 74.0),
+        TownNpcAction::Quest
+    );
+    assert_eq!(
+        town_interact_action(TownZone::WestBridge, 100.0, 30.0),
+        TownNpcAction::Region
     );
 }
 
 #[test]
-fn town_renders_800x600_both_zones_with_classic_hud_and_foot_ring() {
+fn town_renders_800x600_all_three_zones_with_classic_hud_and_foot_ring() {
     let repo_root = Path::new(env!("CARGO_MANIFEST_DIR")).join("..").join("..");
     let sprites = SpriteStore::load_from_root(&repo_root);
     assert!(
         sprites.get("hendonmyre").is_some(),
         "hendonmyre.png atlas must be registered and loaded"
+    );
+    assert!(
+        sprites.get("seriaroom").is_some(),
+        "seriaroom.png atlas must be registered and loaded"
     );
     let mut fonts = GlyphCache::new(None);
     let progress = progress_rs::defaults();
@@ -261,18 +346,10 @@ fn town_renders_800x600_both_zones_with_classic_hud_and_foot_ring() {
     };
 
     let cases = [
-        (TownZone::WestSquare, 490.0, 46.0, 130.0, false, 0.0, 1, 1.0),
-        (TownZone::EastGate, 480.0, 22.0, 180.0, true, 0.35, 1, 0.0),
-        (
-            TownZone::EastGate,
-            1460.0,
-            26.0,
-            1220.0,
-            true,
-            0.72,
-            -1,
-            0.0,
-        ),
+        (TownZone::SeriaRoom, 360.0, 36.0, 0.0, false, 0.0, 1, 0.0),
+        (TownZone::Alley, 432.0, 46.0, 110.0, false, 0.0, 1, 1.0),
+        (TownZone::Plaza, 312.0, 32.0, 122.0, true, 0.35, -1, 0.0),
+        (TownZone::WestBridge, 390.0, 26.0, 90.0, true, 0.72, -1, 0.0),
     ];
 
     for (zone, px, pz, cam_x, moving, walk, facing, title_alpha) in cases {
@@ -323,8 +400,13 @@ fn town_renders_800x600_both_zones_with_classic_hud_and_foot_ring() {
         );
 
         // Verify bright neon-green foot ring under player boots
+        let ground_y = if zone == TownZone::SeriaRoom {
+            442.0
+        } else {
+            425.0
+        };
         let foot_nx = ((px - cam_x) * (800.0 / 720.0)).round() as u32;
-        let foot_ny = ((425.0 - pz) * (600.0 / 540.0)).round() as u32;
+        let foot_ny = ((ground_y - pz) * (600.0 / 540.0)).round() as u32;
         let mut bright_green_count = 0usize;
         for y in foot_ny.saturating_sub(14)..=(foot_ny + 14).min(599) {
             for x in foot_nx.saturating_sub(36)..=(foot_nx + 36).min(799) {

@@ -226,7 +226,7 @@ impl AppState {
             map_mode: MapMode::Radar,
             region_selected: DEFAULT_STAGE.to_string(),
             region_abyss: false,
-            town: TownMotion::enter_west_square(),
+            town: TownMotion::enter_seria_room(),
             town_time: 0.0,
             held_keys: HashSet::new(),
             seen_hints: HashSet::new(),
@@ -282,7 +282,8 @@ impl AppState {
         }
         match self.mode {
             ScreenMode::Title => {
-                self.mode = ScreenMode::Region;
+                self.town = TownMotion::enter_seria_room();
+                self.mode = ScreenMode::Town;
             }
             ScreenMode::Region => {
                 if let Some(action) = hit_test_region_select(&self.region_selected, ax, ay) {
@@ -643,7 +644,13 @@ impl AppState {
                 self.audio.sync_track(track_for(None, None, None, true));
             }
             ScreenMode::Town => {
-                self.audio.sync_track(track_for(None, None, None, true));
+                let bgm = match self.town.zone {
+                    render_rs::TownZone::SeriaRoom => "assets/music/gate_new.ogg",
+                    render_rs::TownZone::Alley
+                    | render_rs::TownZone::Plaza
+                    | render_rs::TownZone::WestBridge => "assets/music/hendonmyre_new.ogg",
+                };
+                self.audio.sync_bgm_file(bgm);
                 self.town_time += dt;
                 if self.loadout_open || self.progress_panel != ProgressPanelKind::None {
                     self.town.moving = false;
@@ -981,7 +988,8 @@ impl AppState {
 
         match self.mode {
             ScreenMode::Title => {
-                self.mode = ScreenMode::Region;
+                self.town = TownMotion::enter_seria_room();
+                self.mode = ScreenMode::Town;
             }
             ScreenMode::Region => match code {
                 KeyCode::ArrowUp

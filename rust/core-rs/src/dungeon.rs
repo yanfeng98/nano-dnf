@@ -329,6 +329,15 @@ pub fn breakable_spec(piece: &str) -> Option<PropBox> {
             ink: Some([135.0, 108.0]),
             box_scale: None,
         }),
+        "goblinBunker" => Some(PropBox {
+            width: 112.0,
+            depth: 42.0,
+            height: 110.0,
+            hp: 3,
+            dx: 0.0,
+            ink: Some([142.0, 138.0]),
+            box_scale: None,
+        }),
         _ => None,
     }
 }
@@ -479,12 +488,12 @@ pub fn prop_obstacle(prop: &Prop, body_footprint: Option<(f64, f64)>) -> Option<
     if !prop.solid || prop.broken || prop.gone {
         return None;
     }
-    let mut obs = if let Some(ref np) = prop.native_pillar {
+    let mut obs = if prop.native_pillar.is_some() {
         ObstacleBox {
-            x: (np.x - np.origin_x) * NATIVE_SCALE,
-            z: native_ground_z(np.y),
-            width: 58.0 * NATIVE_SCALE,
-            depth: 20.0 * NATIVE_SCALE / DEPTH_SCALE,
+            x: prop.x,
+            z: prop.z,
+            width: 36.0 * NATIVE_SCALE,
+            depth: 16.0 * NATIVE_SCALE / DEPTH_SCALE,
         }
     } else if let Some(ref nf) = prop.native_footprint {
         ObstacleBox {
@@ -717,6 +726,13 @@ fn overlaps_solid(list: &[Prop], x: f64, z: f64, boxed: &PropBox) -> bool {
     false
 }
 
+fn is_tree_piece(piece: &str) -> bool {
+    matches!(
+        piece,
+        "treeBossFruit" | "treeReference" | "treeLeafy" | "trunkTall" | "trunkBent" | "trunkMossy"
+    )
+}
+
 fn make_scattered_prop(piece: &str, x: f64, z: f64, solid: bool, hp: i32) -> Prop {
     Prop {
         piece: piece.to_string(),
@@ -726,7 +742,7 @@ fn make_scattered_prop(piece: &str, x: f64, z: f64, solid: bool, hp: i32) -> Pro
         sort_z: None,
         solid,
         scattered: true,
-        hp: if is_pillar_piece(piece) { 4 } else { hp },
+        hp: if is_pillar_piece(piece) { 2 } else { hp },
         hit_t: 0.0,
         broken: false,
         broken_at: -1.0,
@@ -735,6 +751,9 @@ fn make_scattered_prop(piece: &str, x: f64, z: f64, solid: bool, hp: i32) -> Pro
         native_footprint: None,
         native_decoration: None,
         native_animation_started_at: 0.0,
+        spawn_timer: if piece == "goblinBunker" { 2.0 } else { 0.0 },
+        spawned_count: 0,
+        drops_left: if is_tree_piece(piece) { 2 } else { 0 },
     }
 }
 
@@ -1402,7 +1421,7 @@ pub fn begin_room(state: &mut State, entry_door: Option<&str>) {
             });
             let solid = boxed.is_some() || native_pillar.is_some();
             let hp = if is_pillar_piece(&entry.piece) || native_pillar.is_some() {
-                4
+                2
             } else {
                 boxed.map(|b| b.hp).unwrap_or(0)
             };
@@ -1427,6 +1446,13 @@ pub fn begin_room(state: &mut State, entry_door: Option<&str>) {
                 } else {
                     0.0
                 },
+                spawn_timer: if entry.piece == "goblinBunker" {
+                    2.0
+                } else {
+                    0.0
+                },
+                spawned_count: 0,
+                drops_left: if is_tree_piece(&entry.piece) { 2 } else { 0 },
             }
         };
 
@@ -1434,7 +1460,15 @@ pub fn begin_room(state: &mut State, entry_door: Option<&str>) {
             for entry in &spec.props {
                 let share = entry.depth.unwrap_or(0.0);
                 let boxed = prop_box(&entry.piece, entry.scale);
-                built.push(make_prop(entry, entry.x, share * depth, boxed));
+                let z = if breakable_spec(&entry.piece).is_some()
+                    || is_pillar_piece(&entry.piece)
+                    || entry.native_pillar.is_some()
+                {
+                    (share * depth).clamp(8.0, (depth - 8.0).max(8.0))
+                } else {
+                    share * depth
+                };
+                built.push(make_prop(entry, entry.x, z, boxed));
             }
         } else {
             struct Displaced<'a> {
@@ -1618,6 +1652,10 @@ pub fn begin_room(state: &mut State, entry_door: Option<&str>) {
 }
 
 pub fn enter_cell(state: &mut State, dir: &str) {
+    let prev_props = state.props.clone();
+    if let Some(c) = current_cell_mut(state) {
+        c.props = Some(prev_props);
+    }
     let Some(cell) = current_cell(state) else {
         return;
     };

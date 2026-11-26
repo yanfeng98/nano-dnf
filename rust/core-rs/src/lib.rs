@@ -238,6 +238,7 @@ pub fn create_player(x: f64) -> Player {
         invuln: 0.0,
         solid_invuln: 0.0,
         hurt_timer: 0.0,
+        freeze_timer: 0.0,
         dead: false,
         name: None,
     }
@@ -562,6 +563,7 @@ pub fn step(state: &mut State, input: &Input, dt_override: Option<f64>) {
     if !state.post_clear {
         update_enemies(state, dt, Some(prev_pos));
         update_waves(state);
+        combat::update_bunkers(state, dt);
     }
     update_target(state, dt);
     update_breakables(state, dt);

@@ -22,10 +22,10 @@ pub use results::{hit_test_continue, hit_test_reward_card, ContinueAction};
 pub use sprites::SpriteStore;
 pub use world::{
     draw_town_hud, step_town_motion, town_interact_action, TownMotion, TownNpcAction,
-    TownStepEvent, TownView, TownZone, EAST_GATE_WIDTH, TOWN_CAMERA_EASE_K,
-    TOWN_CAMERA_HALF_WINDOW, TOWN_DEPTH_SPEED_RATIO, TOWN_GATE_X, TOWN_MAX_X, TOWN_MAX_Z,
-    TOWN_MIN_X, TOWN_MIN_Z, TOWN_TITLE_DUR, TOWN_WALK_ROW, TOWN_WALK_SPEED, TOWN_WIDTH,
-    TOWN_ZONE_FADE_DUR, WEST_SQUARE_WIDTH,
+    TownStepEvent, TownView, TownZone, ALLEY_WIDTH, PLAZA_WIDTH, SERIA_ROOM_WIDTH,
+    TOWN_CAMERA_EASE_K, TOWN_CAMERA_HALF_WINDOW, TOWN_DEPTH_SPEED_RATIO, TOWN_GATE_X, TOWN_MAX_X,
+    TOWN_MAX_Z, TOWN_MIN_X, TOWN_MIN_Z, TOWN_TITLE_DUR, TOWN_WALK_ROW, TOWN_WALK_SPEED, TOWN_WIDTH,
+    TOWN_ZONE_FADE_DUR, WEST_BRIDGE_WIDTH,
 };
 
 use core_rs::constants::*;
