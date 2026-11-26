@@ -7,11 +7,12 @@
 - `rust/MAP.md` / `rust/DECISIONS.md` —— **Rust 工作区模块映射与架构决策**。
 - `docs/adr/` —— **历史决定，以及它推翻过什么**。动到一个已经定过的决定时在这里留档，不要只在 commit 里交代。
 
-## 客户端（美术资源的唯一出处）
+## 客户端（`.NPK` 原件强制优先）
 
-**业主机器上装着客户端：`C:\dnf\地下城与勇士`**（WSL 里就是 `/mnt/c/dnf/地下城与勇士`）。
-**要美术素材就去这里找，不要去别处截、不要自己画。** 2026-10-06 业主的原话：
-「以后在这个客户端找资源」。
+**业主机器上装着客户端：`C:\dnf\地下城与勇士`**（WSL 里就是 `/mnt/c/dnf/地下城与勇士`，含 `ImagePacks2_70` / `ImagePacks2`、`SoundPacks_70` / `SoundPacks`、`Script_70.pvf` / `Script.pvf`、`Fonts`、`Music`）。
+
+- **有客户端 `.NPK` / `.ogg` 原件一律用原件**：凡涉及角色、NPC、地图布景、UI、状态/受击/死亡/技能特效或 BGM/音效，动手前先穷举本地客户端的 `.NPK` 与 `Music/`、`SoundPacks*`；只要客户端存在原件，必须直接提取烘焙使用，以真实原件取代手绘几何图形或合成占位音频。
+- **仅在穷举确认客户端确无对应 60/70 原件时**，才允许按 `docs/adr/0074-1to1-dnf-fidelity-and-asset-fallback.md` 从参考录像精抠或 1:1 高精重建。
 
 - **这台云开发机上客户端实际在 `/home/luyanfeng/dnf-client/地下城与勇士`**；
   `/mnt/c/...` 在这台机器上不存在。`import_dnf_*.py` 的 `DEFAULT_CLIENT` 目前仍指向

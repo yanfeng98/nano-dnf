@@ -17,8 +17,12 @@ use music_rs::track_for;
 use progress_rs::{note_break, note_clear, note_kill, ProgressProfile};
 use records_rs::{record as record_run, RecordStore, RunInput};
 use render_rs::{
-    draw_town_view, render, Canvas, GlyphCache, ProgressPanelKind, RenderMeta, SpriteStore,
-    TownView,
+    draw_region_select, draw_town_hud, draw_town_view, hit_test_consumable_slot, hit_test_continue,
+    hit_test_loadout_panel, hit_test_minimap, hit_test_progress_panel, hit_test_region_select,
+    hit_test_reward_card, render, step_town_motion, town_interact_action, Canvas, ContinueAction,
+    GlyphCache, MapMode, PanelAction, ProgressPanelKind, RegionSelectAction, RenderMeta,
+    SpriteStore, TownMotion, TownNpcAction, TownStepEvent, TownView, DEFAULT_WINDOW_HEIGHT,
+    DEFAULT_WINDOW_WIDTH, RENDER_HEIGHT, RENDER_WIDTH, VIEW_TO_RENDER_SCALE,
 };
 use reward_rs::{
     create as create_reward, pick as pick_reward, step as step_reward, take_prize, RewardState,
@@ -35,7 +39,56 @@ use winit::dpi::LogicalSize;
 use winit::event::{ElementState, KeyEvent, WindowEvent};
 use winit::event_loop::{ActiveEventLoop, ControlFlow, EventLoop};
 use winit::keyboard::{KeyCode, PhysicalKey};
-use winit::window::{Window, WindowId};
+use winit::window::{Fullscreen, Window, WindowId};
+
+fn compute_present_rect(
+    win_w: usize,
+    win_h: usize,
+    src_w: usize,
+    src_h: usize,
+) -> (usize, usize, usize, usize) {
+    let win_w = win_w.max(1);
+    let win_h = win_h.max(1);
+    let src_w = src_w.max(1);
+    let src_h = src_h.max(1);
+    let scale = (win_w as f64 / src_w as f64).min(win_h as f64 / src_h as f64);
+    let dst_w = ((src_w as f64 * scale).round() as usize).clamp(1, win_w);
+    let dst_h = ((src_h as f64 * scale).round() as usize).clamp(1, win_h);
+    let off_x = (win_w - dst_w) / 2;
+    let off_y = (win_h - dst_h) / 2;
+    (off_x, off_y, dst_w, dst_h)
+}
+
+fn map_window_to_render(win_w: f64, win_h: f64, wx: f64, wy: f64) -> Option<(f32, f32)> {
+    let win_w = win_w.max(1.0);
+    let win_h = win_h.max(1.0);
+    let rw = f64::from(RENDER_WIDTH);
+    let rh = f64::from(RENDER_HEIGHT);
+    let scale = (win_w / rw).min(win_h / rh);
+    let dst_w = rw * scale;
+    let dst_h = rh * scale;
+    let off_x = (win_w - dst_w) * 0.5;
+    let off_y = (win_h - dst_h) * 0.5;
+    let rx = ((wx - off_x) / scale) as f32;
+    let ry = ((wy - off_y) / scale) as f32;
+    if (0.0..=RENDER_WIDTH as f32).contains(&rx) && (0.0..=RENDER_HEIGHT as f32).contains(&ry) {
+        Some((rx, ry))
+    } else {
+        None
+    }
+}
+
+fn render_to_view_coords(rx: f32, ry: f32) -> (f32, f32) {
+    (
+        VIEW_LEFT as f32 + rx / VIEW_TO_RENDER_SCALE,
+        ry / VIEW_TO_RENDER_SCALE,
+    )
+}
+
+fn is_fullscreen_toggle(code: KeyCode, held_keys: &HashSet<KeyCode>) -> bool {
+    matches!(code, KeyCode::Enter | KeyCode::NumpadEnter)
+        && (held_keys.contains(&KeyCode::AltLeft) || held_keys.contains(&KeyCode::AltRight))
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum ScreenMode {
@@ -101,26 +154,26 @@ struct AppState {
     records: RecordStore,
     progress: ProgressProfile,
     loadout: Loadout,
+    player_name: String,
     reward: Option<RewardState>,
     paused: bool,
     show_help: bool,
     loadout_open: bool,
     loadout_slot: usize,
     progress_panel: ProgressPanelKind,
+    map_mode: MapMode,
     region_selected: String,
-    town_x: f64,
-    town_z: f64,
-    town_facing: i32,
-    town_camera_x: f64,
+    region_abyss: bool,
+    town: TownMotion,
     town_time: f64,
-    town_walk: f64,
-    town_moving: bool,
     held_keys: HashSet<KeyCode>,
     seen_hints: HashSet<String>,
     active_hint: Option<(String, f64)>,
     recorded_finish: bool,
     last_kills_by_type: HashMap<String, u32>,
     last_barrels: u32,
+    last_gold: u32,
+    last_loot: u32,
     cmd_upslash_timer: f64,
     last_tick: Instant,
     accumulator: f64,
@@ -136,13 +189,18 @@ impl AppState {
         let sprites = SpriteStore::load_from_root(&asset_root);
         let audio = AudioEngine::new(&asset_root);
         let valid_skills: Vec<&str> = TABLES.skill_order.iter().map(String::as_str).collect();
-        let (records, progress, loadout) =
+        let (records, progress, loadout, player_name) =
             save::load_all(&asset_root, &valid_skills, DEFAULT_STAGE);
-        let state = create_state(&CreateStateOptions::default());
+        let mut state = create_state(&CreateStateOptions {
+            stage: Some(DEFAULT_STAGE),
+            reference_profile: true,
+            ..Default::default()
+        });
+        state.player.name = Some(player_name.clone());
         let attract = create_attract(Some(DEFAULT_SEED));
-        // INFALLIBLE: ARENA_WIDTH=960, ARENA_HEIGHT=540
-        let pixmap = Pixmap::new(ARENA_WIDTH as u32, ARENA_HEIGHT as u32)
-            .expect("INFALLIBLE: valid 960x540 pixmap");
+        // INFALLIBLE: RENDER_WIDTH=800, RENDER_HEIGHT=600
+        let pixmap =
+            Pixmap::new(RENDER_WIDTH, RENDER_HEIGHT).expect("INFALLIBLE: valid 800x600 pixmap");
 
         Self {
             window: None,
@@ -158,26 +216,26 @@ impl AppState {
             records,
             progress,
             loadout,
+            player_name,
             reward: None,
             paused: false,
             show_help: false,
             loadout_open: false,
             loadout_slot: 0,
             progress_panel: ProgressPanelKind::None,
+            map_mode: MapMode::Radar,
             region_selected: DEFAULT_STAGE.to_string(),
-            town_x: 200.0,
-            town_z: 20.0,
-            town_facing: 1,
-            town_camera_x: 0.0,
+            region_abyss: false,
+            town: TownMotion::enter_seria_room(),
             town_time: 0.0,
-            town_walk: 0.0,
-            town_moving: false,
             held_keys: HashSet::new(),
             seen_hints: HashSet::new(),
             active_hint: None,
             recorded_finish: false,
             last_kills_by_type: HashMap::new(),
             last_barrels: 0,
+            last_gold: 0,
+            last_loot: 0,
             cmd_upslash_timer: 0.0,
             last_tick: Instant::now(),
             accumulator: 0.0,
@@ -185,81 +243,109 @@ impl AppState {
         }
     }
 
-    fn map_window_to_arena(&self, wx: f64, wy: f64) -> Option<(f32, f32)> {
+    fn map_window_cursor(&self, wx: f64, wy: f64) -> Option<(f32, f32)> {
         let win = self.window.as_ref()?;
         let size = win.inner_size();
-        let (win_w, win_h) = (size.width.max(1) as f64, size.height.max(1) as f64);
-        let scale = (win_w / ARENA_WIDTH).min(win_h / ARENA_HEIGHT);
-        let dst_w = ARENA_WIDTH * scale;
-        let dst_h = ARENA_HEIGHT * scale;
-        let off_x = (win_w - dst_w) * 0.5;
-        let off_y = (win_h - dst_h) * 0.5;
-        let ax = ((wx - off_x) / scale) as f32;
-        let ay = ((wy - off_y) / scale) as f32;
-        if (0.0..=ARENA_WIDTH as f32).contains(&ax) && (0.0..=ARENA_HEIGHT as f32).contains(&ay) {
-            Some((ax, ay))
-        } else {
-            None
+        map_window_to_render(
+            f64::from(size.width.max(1)),
+            f64::from(size.height.max(1)),
+            wx,
+            wy,
+        )
+    }
+
+    fn toggle_fullscreen(&self) {
+        if let Some(ref win) = self.window {
+            if win.fullscreen().is_some() {
+                win.set_fullscreen(None);
+            } else {
+                win.set_fullscreen(Some(Fullscreen::Borderless(None)));
+            }
         }
     }
 
-    fn handle_click(&mut self, ax: f32, ay: f32) {
+    fn handle_click(&mut self, rx: f32, ry: f32) {
+        let (ax, ay) = render_to_view_coords(rx, ry);
+        if self.loadout_open {
+            if let Some(action) = hit_test_loadout_panel(ax, ay) {
+                self.apply_panel_action(action);
+            }
+            return;
+        }
+        if self.progress_panel != ProgressPanelKind::None {
+            if let Some(action) =
+                hit_test_progress_panel(self.progress_panel, &self.progress, ax, ay)
+            {
+                self.apply_panel_action(action);
+            }
+            return;
+        }
         match self.mode {
             ScreenMode::Title => {
-                self.mode = ScreenMode::Region;
+                self.town = TownMotion::enter_seria_room();
+                self.mode = ScreenMode::Town;
             }
             ScreenMode::Region => {
-                let stages = ["mirkwood", "mirkwooddeep"];
-                let bw = 168.0f32;
-                let bh = 73.0f32;
-                let gap_x = 14.0f32;
-                let row_w = 2.0 * bw + gap_x;
-                let row_x = (ARENA_WIDTH as f32 - row_w) * 0.5;
-                let by = 150.0f32;
-                for (i, id) in stages.iter().enumerate() {
-                    let bx = row_x + i as f32 * (bw + gap_x);
-                    if ax >= bx && ax <= bx + bw && ay >= by && ay <= by + bh {
-                        self.region_selected = (*id).to_string();
-                        self.restart_run(id, DEFAULT_SEED);
-                        return;
+                if let Some(action) = hit_test_region_select(&self.region_selected, ax, ay) {
+                    match action {
+                        RegionSelectAction::SelectStage(id) => {
+                            if self.region_selected == id {
+                                self.restart_run(id, DEFAULT_SEED);
+                            } else {
+                                self.region_selected = id.to_string();
+                            }
+                        }
+                        RegionSelectAction::EnterDungeon => {
+                            let st = self.region_selected.clone();
+                            self.restart_run(&st, DEFAULT_SEED);
+                        }
+                        RegionSelectAction::ReturnTown => {
+                            self.mode = ScreenMode::Town;
+                        }
+                        RegionSelectAction::ToggleAbyss => {
+                            self.region_abyss = !self.region_abyss;
+                        }
                     }
                 }
             }
             ScreenMode::Playing => {
                 if self.state.victory && !self.state.post_clear {
-                    if let Some(ref mut rw) = self.reward {
-                        let snap = reward_rs::snapshot(rw);
-                        if snap.phase == reward_rs::RewardPhase::Cards {
-                            let card_w = 172.125f32;
-                            let card_h = 109.125f32;
-                            let card_gap = 7.125f32;
-                            let card_y = 188.0f32;
-                            let start_x = 129.0f32;
-                            for i in 0..4usize {
-                                let bx = start_x + i as f32 * (card_w + card_gap);
-                                if ax >= bx
-                                    && ax <= bx + card_w
-                                    && ay >= card_y
-                                    && ay <= card_y + card_h
-                                {
-                                    pick_reward(rw, i);
-                                    return;
-                                }
+                    if let Some(card_idx) = hit_test_reward_card(ax, ay) {
+                        if let Some(ref mut rw) = self.reward {
+                            if pick_reward(rw, card_idx) {
+                                self.claim_reward_prize();
                             }
                         }
                     }
                 } else if self.state.post_clear {
-                    let mx = (VIEW_LEFT + VIEW_WIDTH) as f32 - 250.0;
-                    let my = 120.0f32;
-                    if ax >= mx && ax <= mx + 230.0 {
-                        if ay >= my + 42.0 && ay <= my + 68.0 {
-                            let st = self.state.stage_id.clone();
-                            let seed = self.state.seed;
-                            self.restart_run(&st, seed);
-                        } else if ay >= my + 68.0 && ay <= my + 94.0 {
-                            self.mode = ScreenMode::Region;
-                        } else if ay >= my + 94.0 && ay <= my + 124.0 {
-                            self.mode = ScreenMode::Town;
+                    if let Some(action) = hit_test_continue(ax, ay) {
+                        match action {
+                            ContinueAction::Retry => {
+                                let st = self.state.stage_id.clone();
+                                let seed = self.state.seed;
+                                self.restart_run(&st, seed);
+                            }
+                            ContinueAction::SelectStage => {
+                                self.mode = ScreenMode::Region;
+                            }
+                            ContinueAction::ReturnTown => {
+                                self.town = TownMotion::return_from_dungeon();
+                                self.mode = ScreenMode::Town;
+                            }
+                        }
+                    }
+                } else if !self.paused && !self.show_help {
+                    if let Some(slot_idx) = hit_test_consumable_slot(ax, ay) {
+                        if try_use_consumable_slot(&mut self.state, &mut self.progress, slot_idx) {
+                            self.persist_save();
+                        }
+                        return;
+                    }
+                    if !self.state.defeat {
+                        if let Some(ref dun) = self.state.dungeon {
+                            if hit_test_minimap(ax, ay, self.map_mode, dun.cols, dun.rows) {
+                                self.map_mode = self.map_mode.toggle();
+                            }
                         }
                     }
                 }
@@ -268,22 +354,37 @@ impl AppState {
         }
     }
 
+    fn persist_save(&self) {
+        save::save_all(
+            &self.asset_root,
+            &self.records,
+            &self.progress,
+            &self.loadout,
+            &self.player_name,
+        );
+    }
+
     fn restart_run(&mut self, stage_id: &str, seed: u32) {
         self.state = create_state(&CreateStateOptions {
             seed: Some(seed),
             stage: Some(stage_id),
+            reference_profile: true,
             ..Default::default()
         });
+        self.state.player.name = Some(self.player_name.clone());
         self.reward = None;
         self.paused = false;
         self.show_help = false;
         self.loadout_open = false;
         self.progress_panel = ProgressPanelKind::None;
+        self.map_mode = MapMode::Radar;
         self.seen_hints.clear();
         self.active_hint = None;
         self.recorded_finish = false;
         self.last_kills_by_type.clear();
         self.last_barrels = 0;
+        self.last_gold = 0;
+        self.last_loot = 0;
         self.mode = ScreenMode::Playing;
     }
 
@@ -299,6 +400,33 @@ impl AppState {
     fn toggle_loadout_panel(&mut self) {
         self.progress_panel = ProgressPanelKind::None;
         self.loadout_open = !self.loadout_open;
+    }
+
+    fn apply_panel_action(&mut self, action: PanelAction) {
+        match action {
+            PanelAction::Close => {
+                self.loadout_open = false;
+                self.progress_panel = ProgressPanelKind::None;
+            }
+            PanelAction::InteractSlot(idx) => self.interact_panel_slot(idx),
+            PanelAction::SalvageFirst => self.salvage_first_equipment(),
+            PanelAction::SelectLoadoutSlot(slot) => {
+                if slot < 6 {
+                    self.loadout_slot = slot;
+                }
+            }
+            PanelAction::AssignLoadoutSkill(skill_idx) => {
+                if let Some(skill_id) = TABLES.skill_order.get(skill_idx) {
+                    self.loadout = loadout_rs::assign(
+                        &self.loadout,
+                        self.loadout_slot,
+                        Some(skill_id.as_str()),
+                    );
+                    self.persist_save();
+                }
+            }
+            PanelAction::CycleLoadoutSkill(delta) => self.cycle_loadout_skill(delta),
+        }
     }
 
     fn cycle_loadout_skill(&mut self, delta: isize) {
@@ -317,12 +445,7 @@ impl AppState {
         let next_idx = (cur_idx + delta).rem_euclid(len) as usize;
         let next_id = order[next_idx].as_str();
         self.loadout = loadout_rs::assign(&self.loadout, self.loadout_slot, Some(next_id));
-        save::save_all(
-            &self.asset_root,
-            &self.records,
-            &self.progress,
-            &self.loadout,
-        );
+        self.persist_save();
     }
 
     fn salvage_first_equipment(&mut self) {
@@ -341,21 +464,41 @@ impl AppState {
             .map(|(id, _)| id.clone());
         if let Some(id) = target_id {
             if progress_rs::salvage(&mut self.progress, &id).is_some() {
-                save::save_all(
-                    &self.asset_root,
-                    &self.records,
-                    &self.progress,
-                    &self.loadout,
-                );
+                self.persist_save();
             }
         }
     }
 
+    fn play_reward_open_sfx(&mut self) {
+        self.audio.play_events(&[core_rs::types::SoundEvent {
+            kind: "rewardOpen".to_string(),
+            x: self.state.player.x,
+            z: self.state.player.z,
+            t: self.state.time,
+            enemy_type: None,
+            attack_kind: None,
+            skill_id: None,
+            stage: None,
+            native_object: None,
+            enemy_id: None,
+        }]);
+    }
+
+    fn claim_reward_prize(&mut self) {
+        let prize = self.reward.as_mut().and_then(take_prize);
+        if let Some(prize) = prize {
+            self.play_reward_open_sfx();
+            progress_rs::add_item(&mut self.progress, &prize.item_id, 1);
+            progress_rs::add_gold(&mut self.progress, i64::from(prize.gold));
+            self.persist_save();
+        }
+    }
+
     fn handle_digit(&mut self, idx: usize) {
-        if self.mode == ScreenMode::Playing {
+        if self.mode == ScreenMode::Playing && self.state.victory && !self.state.post_clear {
             if let Some(ref mut rw) = self.reward {
-                if idx < 4 {
-                    pick_reward(rw, idx);
+                if idx < 4 && pick_reward(rw, idx) {
+                    self.claim_reward_prize();
                 }
                 return;
             }
@@ -363,6 +506,17 @@ impl AppState {
         if self.loadout_open {
             if idx < 6 {
                 self.loadout_slot = idx;
+            }
+            return;
+        }
+        if self.mode == ScreenMode::Playing
+            && self.progress_panel == ProgressPanelKind::None
+            && !self.paused
+            && !self.show_help
+            && idx < 6
+        {
+            if try_use_consumable_slot(&mut self.state, &mut self.progress, idx) {
+                self.persist_save();
             }
             return;
         }
@@ -382,6 +536,9 @@ impl AppState {
                 let Some(id) = item_id else {
                     return;
                 };
+                if id == "resurrectCoin" {
+                    return;
+                }
                 if let Some(eff) = progress_rs::use_item(&mut self.progress, &id) {
                     if self.mode == ScreenMode::Playing && !self.state.defeat {
                         self.state.player.hp = (self.state.player.hp + f64::from(eff.hp))
@@ -389,24 +546,14 @@ impl AppState {
                         self.state.player.mp = (self.state.player.mp + f64::from(eff.mp))
                             .min(self.state.player.max_mp);
                     }
-                    save::save_all(
-                        &self.asset_root,
-                        &self.records,
-                        &self.progress,
-                        &self.loadout,
-                    );
+                    self.persist_save();
                 } else if progress_rs::equip(
                     &mut self.progress,
                     &id,
                     "berserker",
                     self.state.player.level.max(1),
                 ) {
-                    save::save_all(
-                        &self.asset_root,
-                        &self.records,
-                        &self.progress,
-                        &self.loadout,
-                    );
+                    self.persist_save();
                 }
             }
             ProgressPanelKind::Quest => {
@@ -416,12 +563,7 @@ impl AppState {
                 let changed = progress_rs::accept(&mut self.progress, q.id)
                     || progress_rs::turn_in(&mut self.progress, q.id).is_some();
                 if changed {
-                    save::save_all(
-                        &self.asset_root,
-                        &self.records,
-                        &self.progress,
-                        &self.loadout,
-                    );
+                    self.persist_save();
                 }
             }
             ProgressPanelKind::Equip => {
@@ -429,12 +571,7 @@ impl AppState {
                     return;
                 };
                 if progress_rs::unequip(&mut self.progress, slot) {
-                    save::save_all(
-                        &self.asset_root,
-                        &self.records,
-                        &self.progress,
-                        &self.loadout,
-                    );
+                    self.persist_save();
                 }
             }
             ProgressPanelKind::Shop => {
@@ -448,12 +585,7 @@ impl AppState {
                 if self.progress.gold >= it.price {
                     progress_rs::add_gold(&mut self.progress, -i64::from(it.price));
                     progress_rs::add_item(&mut self.progress, it.id, 1);
-                    save::save_all(
-                        &self.asset_root,
-                        &self.records,
-                        &self.progress,
-                        &self.loadout,
-                    );
+                    self.persist_save();
                 }
             }
             _ => {}
@@ -499,6 +631,10 @@ impl AppState {
     }
 
     fn tick(&mut self, dt: f64) {
+        self.audio.sync_ambient(audio::ambient_for_scene(
+            self.mode == ScreenMode::Playing,
+            &self.state.stage_id,
+        ));
         match self.mode {
             ScreenMode::Title => {
                 step_attract(&mut self.attract, Some(dt));
@@ -508,36 +644,26 @@ impl AppState {
                 self.audio.sync_track(track_for(None, None, None, true));
             }
             ScreenMode::Town => {
-                self.audio.sync_track(track_for(None, None, None, true));
+                let bgm = match self.town.zone {
+                    render_rs::TownZone::SeriaRoom => "assets/music/gate_new.ogg",
+                    render_rs::TownZone::Alley
+                    | render_rs::TownZone::Plaza
+                    | render_rs::TownZone::WestBridge => "assets/music/hendonmyre_new.ogg",
+                };
+                self.audio.sync_bgm_file(bgm);
                 self.town_time += dt;
                 if self.loadout_open || self.progress_panel != ProgressPanelKind::None {
-                    self.town_moving = false;
-                    self.town_walk = 0.0;
+                    self.town.moving = false;
+                    self.town.walk = 0.0;
                     return;
                 }
                 let dx = i32::from(self.held_keys.contains(&KeyCode::ArrowRight))
                     - i32::from(self.held_keys.contains(&KeyCode::ArrowLeft));
                 let dz = i32::from(self.held_keys.contains(&KeyCode::ArrowUp))
                     - i32::from(self.held_keys.contains(&KeyCode::ArrowDown));
-                if dx != 0 {
-                    self.town_facing = dx;
+                if step_town_motion(&mut self.town, dx, dz, dt) == TownStepEvent::OpenRegion {
+                    self.mode = ScreenMode::Region;
                 }
-                self.town_moving = dx != 0 || dz != 0;
-                if self.town_moving {
-                    self.town_walk += dt;
-                } else {
-                    self.town_walk = 0.0;
-                }
-                self.town_x = (self.town_x + f64::from(dx) * 220.0 * dt).clamp(80.0, 2440.0);
-                self.town_z = (self.town_z + f64::from(dz) * 220.0 * 0.5 * dt).clamp(0.0, 100.0);
-                let half_win = 56.0;
-                let center = self.town_camera_x + VIEW_WIDTH * 0.5;
-                if self.town_x < center - half_win {
-                    self.town_camera_x = self.town_x + half_win - VIEW_WIDTH * 0.5;
-                } else if self.town_x > center + half_win {
-                    self.town_camera_x = self.town_x - half_win - VIEW_WIDTH * 0.5;
-                }
-                self.town_camera_x = self.town_camera_x.clamp(0.0, 2520.0 - VIEW_WIDTH);
             }
             ScreenMode::Playing => {
                 let boss_cell = self.state.dungeon.as_ref().map(|d| d.boss);
@@ -567,6 +693,12 @@ impl AppState {
                         self.last_barrels = self.state.stats.barrels;
                         note_break(&mut self.progress, db);
                     }
+                    sync_collected_loot(
+                        &mut self.progress,
+                        &mut self.last_gold,
+                        &mut self.last_loot,
+                        &self.state,
+                    );
 
                     if let Some((_, ref mut ttl)) = self.active_hint {
                         *ttl -= dt;
@@ -597,32 +729,25 @@ impl AppState {
                         note_clear(&mut self.progress, &self.state.stage_id);
                         self.reward =
                             create_reward(Some(self.state.seed), Some(&self.state.stage_id));
-                        save::save_all(
-                            &self.asset_root,
-                            &self.records,
-                            &self.progress,
-                            &self.loadout,
-                        );
+                        self.persist_save();
                     }
 
+                    let mut chest_opened = false;
                     if let Some(ref mut rw) = self.reward {
+                        let prev_phase = rw.phase;
                         step_reward(rw, dt);
-                        if let Some(prize) = take_prize(rw) {
-                            progress_rs::add_item(&mut self.progress, &prize.item_id, 1);
-                            progress_rs::add_gold(&mut self.progress, i64::from(prize.gold));
-                            save::save_all(
-                                &self.asset_root,
-                                &self.records,
-                                &self.progress,
-                                &self.loadout,
-                            );
-                        }
-                        if reward_rs::snapshot(rw).phase == reward_rs::RewardPhase::Done
-                            && self.state.victory
-                            && !self.state.post_clear
-                        {
-                            core_rs::resume_after_clear(&mut self.state);
-                        }
+                        chest_opened = should_play_chest_open_sfx(prev_phase, rw.phase);
+                    }
+                    if chest_opened {
+                        self.play_reward_open_sfx();
+                    }
+                    self.claim_reward_prize();
+                    if self.reward.as_ref().is_some_and(|rw| {
+                        reward_rs::snapshot(rw).phase == reward_rs::RewardPhase::Done
+                    }) && self.state.victory
+                        && !self.state.post_clear
+                    {
+                        core_rs::resume_after_clear(&mut self.state);
                     }
                 }
             }
@@ -630,22 +755,31 @@ impl AppState {
     }
 
     fn draw_and_present(&mut self) {
+        let hover_view = Some(render_to_view_coords(self.cursor_pos.0, self.cursor_pos.1));
         {
             let mut canvas = Canvas::new(&mut self.pixmap, &mut self.fonts);
             if self.mode == ScreenMode::Town {
-                let pname = self.state.player.name.as_deref().unwrap_or("鬼剑士");
+                let pname = self
+                    .state
+                    .player
+                    .name
+                    .as_deref()
+                    .unwrap_or(&self.player_name);
                 draw_town_view(
                     &mut canvas,
                     &TownView {
-                        player_x: self.town_x,
-                        player_z: self.town_z,
-                        facing: self.town_facing,
-                        camera_x: self.town_camera_x,
+                        zone: self.town.zone,
+                        player_x: self.town.x,
+                        player_z: self.town.z,
+                        facing: self.town.facing,
+                        camera_x: self.town.camera_x,
                         time: self.town_time,
-                        moving: self.town_moving,
-                        walk: self.town_walk,
+                        moving: self.town.moving,
+                        walk: self.town.walk,
                         player_level: self.state.player.level.max(1),
                         player_name: pname,
+                        zone_fade_alpha: self.town.zone_fade_alpha(),
+                        title_alpha: self.town.title_alpha(),
                     },
                     &self.sprites,
                 );
@@ -656,7 +790,7 @@ impl AppState {
                     show_help: false,
                     loadout: &self.loadout,
                     loadout_open: self.loadout_open,
-                    progress_panel: self.progress_panel,
+                    progress_panel: ProgressPanelKind::None,
                     progress: &self.progress,
                     records: &self.records,
                     reward: None,
@@ -665,17 +799,62 @@ impl AppState {
                     hint: None,
                     seed: self.state.seed,
                     stage_id: &self.state.stage_id,
+                    map_mode: self.map_mode,
+                    continue_hover: None,
+                    reward_card_hover: None,
                 };
-                render_rs::hud::draw_hud_video(&mut canvas, &self.state, &self.sprites, &town_meta);
+                draw_town_hud(&mut canvas, &self.state, &self.sprites, &town_meta);
                 if self.progress_panel != ProgressPanelKind::None {
                     render_rs::draw_progress_panel(
                         &mut canvas,
+                        &self.sprites,
                         self.progress_panel,
                         &self.progress,
+                        hover_view,
                     );
                 }
                 if self.loadout_open {
-                    render_rs::draw_loadout_panel(&mut canvas, &self.loadout, self.loadout_slot);
+                    render_rs::draw_loadout_panel(
+                        &mut canvas,
+                        &self.sprites,
+                        &self.loadout,
+                        self.loadout_slot,
+                        hover_view,
+                    );
+                }
+            } else if self.mode == ScreenMode::Region {
+                let region_hover = if self.progress_panel == ProgressPanelKind::None
+                    && !self.loadout_open
+                {
+                    hover_view
+                        .and_then(|(ax, ay)| hit_test_region_select(&self.region_selected, ax, ay))
+                } else {
+                    None
+                };
+                draw_region_select(
+                    &mut canvas,
+                    &self.sprites,
+                    &self.region_selected,
+                    region_hover,
+                    self.region_abyss,
+                );
+                if self.progress_panel != ProgressPanelKind::None {
+                    render_rs::draw_progress_panel(
+                        &mut canvas,
+                        &self.sprites,
+                        self.progress_panel,
+                        &self.progress,
+                        hover_view,
+                    );
+                }
+                if self.loadout_open {
+                    render_rs::draw_loadout_panel(
+                        &mut canvas,
+                        &self.sprites,
+                        &self.loadout,
+                        self.loadout_slot,
+                        hover_view,
+                    );
                 }
             } else {
                 let active_state = if self.mode == ScreenMode::Title {
@@ -684,6 +863,20 @@ impl AppState {
                     &self.state
                 };
                 let hint_ref = self.active_hint.as_ref().map(|(s, _)| s.as_str());
+                let continue_hover = if active_state.post_clear
+                    && !self.paused
+                    && !self.show_help
+                    && self.progress_panel == ProgressPanelKind::None
+                {
+                    hover_view.and_then(|(ax, ay)| hit_test_continue(ax, ay))
+                } else {
+                    None
+                };
+                let reward_card_hover = if active_state.victory && !active_state.post_clear {
+                    hover_view.and_then(|(ax, ay)| hit_test_reward_card(ax, ay))
+                } else {
+                    None
+                };
                 let meta = RenderMeta {
                     title: self.mode == ScreenMode::Title,
                     attract: self.mode == ScreenMode::Title,
@@ -691,7 +884,7 @@ impl AppState {
                     show_help: self.show_help,
                     loadout: &self.loadout,
                     loadout_open: self.loadout_open,
-                    progress_panel: self.progress_panel,
+                    progress_panel: ProgressPanelKind::None,
                     progress: &self.progress,
                     records: &self.records,
                     reward: self.reward.as_ref(),
@@ -700,10 +893,28 @@ impl AppState {
                     hint: hint_ref,
                     seed: active_state.seed,
                     stage_id: &active_state.stage_id,
+                    map_mode: self.map_mode,
+                    continue_hover,
+                    reward_card_hover,
                 };
                 render(&mut canvas, active_state, &self.sprites, &meta);
+                if self.progress_panel != ProgressPanelKind::None {
+                    render_rs::draw_progress_panel(
+                        &mut canvas,
+                        &self.sprites,
+                        self.progress_panel,
+                        &self.progress,
+                        hover_view,
+                    );
+                }
                 if self.loadout_open {
-                    render_rs::draw_loadout_panel(&mut canvas, &self.loadout, self.loadout_slot);
+                    render_rs::draw_loadout_panel(
+                        &mut canvas,
+                        &self.sprites,
+                        &self.loadout,
+                        self.loadout_slot,
+                        hover_view,
+                    );
                 }
             }
         }
@@ -725,12 +936,9 @@ impl AppState {
         let src = self.pixmap.data();
         let sw = self.pixmap.width() as usize;
         let sh = self.pixmap.height() as usize;
-        // Preserve 16:9 aspect ratio with black letterbox/pillarbox
-        let scale = (win_w as f64 / sw as f64).min(win_h as f64 / sh as f64);
-        let dst_w = ((sw as f64 * scale).round() as usize).clamp(1, win_w as usize);
-        let dst_h = ((sh as f64 * scale).round() as usize).clamp(1, win_h as usize);
-        let off_x = (win_w as usize - dst_w) / 2;
-        let off_y = (win_h as usize - dst_h) / 2;
+        // Preserve 4:3 aspect ratio with crisp nearest-neighbor scaling and black letterbox/pillarbox
+        let (off_x, off_y, dst_w, dst_h) =
+            compute_present_rect(win_w as usize, win_h as usize, sw, sh);
         buffer.fill(0);
         for dy in 0..dst_h {
             let sy = (dy * sh) / dst_h;
@@ -756,6 +964,11 @@ impl AppState {
             return;
         }
 
+        if is_fullscreen_toggle(code, &self.held_keys) {
+            self.toggle_fullscreen();
+            return;
+        }
+
         if code == KeyCode::KeyM {
             self.audio.toggle_mute();
             return;
@@ -775,7 +988,8 @@ impl AppState {
 
         match self.mode {
             ScreenMode::Title => {
-                self.mode = ScreenMode::Region;
+                self.town = TownMotion::enter_seria_room();
+                self.mode = ScreenMode::Town;
             }
             ScreenMode::Region => match code {
                 KeyCode::ArrowUp
@@ -800,23 +1014,22 @@ impl AppState {
             ScreenMode::Town => match code {
                 KeyCode::Enter | KeyCode::Space => {
                     if !self.loadout_open && self.progress_panel == ProgressPanelKind::None {
-                        if (self.town_x - 2420.0).abs() < 75.0 {
-                            self.mode = ScreenMode::Region;
-                        } else if (self.town_z - 50.0).abs() < 45.0 {
-                            if (self.town_x - 650.0).abs() < 65.0
-                                || (self.town_x - 900.0).abs() < 65.0
-                                || (self.town_x - 1150.0).abs() < 65.0
-                            {
+                        match town_interact_action(self.town.zone, self.town.x, self.town.z) {
+                            TownNpcAction::Quest => {
                                 self.progress_panel = ProgressPanelKind::Quest;
-                            } else if (self.town_x - 1400.0).abs() < 65.0 {
+                            }
+                            TownNpcAction::Loadout => {
+                                self.loadout_open = true;
+                            }
+                            TownNpcAction::Shop => {
                                 self.progress_panel = ProgressPanelKind::Shop;
-                            } else if (self.town_x - 2000.0).abs() < 65.0 {
+                            }
+                            TownNpcAction::Bag => {
                                 self.progress_panel = ProgressPanelKind::Bag;
-                            } else {
+                            }
+                            TownNpcAction::Region => {
                                 self.mode = ScreenMode::Region;
                             }
-                        } else {
-                            self.mode = ScreenMode::Region;
                         }
                     }
                 }
@@ -849,6 +1062,17 @@ impl AppState {
                 _ => {}
             },
             ScreenMode::Playing => match code {
+                KeyCode::KeyX | KeyCode::Space | KeyCode::Digit6
+                    if self.state.defeat
+                        && !self.paused
+                        && !self.show_help
+                        && !self.loadout_open
+                        && self.progress_panel == ProgressPanelKind::None =>
+                {
+                    if try_resurrect_on_defeat(&mut self.state, &mut self.progress) {
+                        self.persist_save();
+                    }
+                }
                 KeyCode::KeyX
                     if !self.paused
                         && !self.show_help
@@ -856,6 +1080,15 @@ impl AppState {
                         && self.held_keys.contains(&KeyCode::ArrowUp) =>
                 {
                     self.cmd_upslash_timer = 0.08;
+                }
+                KeyCode::Tab
+                    if !self.paused
+                        && !self.show_help
+                        && !self.state.victory
+                        && !self.state.defeat
+                        && !self.state.post_clear =>
+                {
+                    self.map_mode = self.map_mode.toggle();
                 }
                 KeyCode::KeyP => self.paused = !self.paused,
                 KeyCode::F1 => self.show_help = !self.show_help,
@@ -872,6 +1105,7 @@ impl AppState {
                 KeyCode::F4 => {
                     self.loadout_open = false;
                     self.progress_panel = ProgressPanelKind::None;
+                    self.town = TownMotion::return_from_dungeon();
                     self.mode = ScreenMode::Town;
                 }
                 KeyCode::KeyN => {
@@ -911,7 +1145,10 @@ impl ApplicationHandler for AppState {
         }
         let attrs = Window::default_attributes()
             .with_title("nano-dnf · 鬼剑士的地下城 (Rust)")
-            .with_inner_size(LogicalSize::new(ARENA_WIDTH, ARENA_HEIGHT));
+            .with_inner_size(LogicalSize::new(
+                f64::from(DEFAULT_WINDOW_WIDTH),
+                f64::from(DEFAULT_WINDOW_HEIGHT),
+            ));
         if let Ok(win) = event_loop.create_window(attrs) {
             let win_rc = Rc::new(win);
             if let Ok(ctx) = Context::new(win_rc.clone()) {
@@ -926,17 +1163,15 @@ impl ApplicationHandler for AppState {
     fn window_event(&mut self, event_loop: &ActiveEventLoop, _id: WindowId, event: WindowEvent) {
         match event {
             WindowEvent::CloseRequested => {
-                save::save_all(
-                    &self.asset_root,
-                    &self.records,
-                    &self.progress,
-                    &self.loadout,
-                );
+                self.persist_save();
                 event_loop.exit();
             }
+            WindowEvent::Focused(false) => {
+                self.held_keys.clear();
+            }
             WindowEvent::CursorMoved { position, .. } => {
-                if let Some((ax, ay)) = self.map_window_to_arena(position.x, position.y) {
-                    self.cursor_pos = (ax, ay);
+                if let Some((rx, ry)) = self.map_window_cursor(position.x, position.y) {
+                    self.cursor_pos = (rx, ry);
                 }
             }
             WindowEvent::MouseInput {
@@ -986,6 +1221,107 @@ impl ApplicationHandler for AppState {
     }
 }
 
+fn try_resurrect_on_defeat(state: &mut State, progress: &mut ProgressProfile) -> bool {
+    if !state.defeat && !state.player.dead {
+        return false;
+    }
+    if progress_rs::consumable_count(progress, "resurrectCoin") == 0 {
+        return false;
+    }
+    if core_rs::combat::resurrect_player(state) {
+        progress_rs::consume_resurrect_coin(progress);
+        return true;
+    }
+    false
+}
+
+fn try_use_consumable_slot(
+    state: &mut State,
+    progress: &mut ProgressProfile,
+    slot_idx: usize,
+) -> bool {
+    let Some(&Some(item_id)) = progress_rs::CONSUMABLE_QUICKBAR_SLOTS.get(slot_idx) else {
+        return false;
+    };
+    if item_id == "resurrectCoin" {
+        return try_resurrect_on_defeat(state, progress);
+    }
+    if state.defeat || state.player.dead {
+        return false;
+    }
+    if state.player.consumable_cooldowns[slot_idx] > 0.0 {
+        return false;
+    }
+    if progress_rs::consumable_count(progress, item_id) == 0 {
+        return false;
+    }
+    let Some(spec) = progress_rs::item_spec(item_id) else {
+        return false;
+    };
+    if core_rs::combat::apply_consumable_effect(
+        state,
+        slot_idx,
+        spec.name,
+        f64::from(spec.hp),
+        f64::from(spec.mp),
+    ) {
+        progress_rs::use_item(progress, item_id);
+        return true;
+    }
+    false
+}
+
+fn should_play_chest_open_sfx(prev: reward_rs::RewardPhase, next: reward_rs::RewardPhase) -> bool {
+    prev == reward_rs::RewardPhase::Chest && next == reward_rs::RewardPhase::Cards
+}
+
+fn loot_item_id_for_log_line(text: &str) -> Option<&'static str> {
+    let rest = text.strip_prefix("获得[")?;
+    let name = rest.split(']').next()?;
+    let id = match name {
+        "诺顿的新手HP药剂" | "HP 药水" | "野生草莓" | "越桔" | "烤硬的黑面包" => {
+            "hpPotion"
+        }
+        "MP 药水" | "冰冻水" | "魔力之花" => "mpPotion",
+        "复活币" | "命运硬币" => "resurrectCoin",
+        "古老的法杖" => "ancientStaff",
+        "古老的库尼族图腾" => "kunicTotem",
+        "粗布上衣" => "clothArmor",
+        "锈蚀短剑" => "rustyBlade",
+        "生锈的铁剑" => "starterBlade",
+        "铜戒指" => "copperRing",
+        _ => "material",
+    };
+    Some(id)
+}
+
+fn sync_collected_loot(
+    progress: &mut ProgressProfile,
+    last_gold: &mut u32,
+    last_loot: &mut u32,
+    state: &State,
+) {
+    if state.stats.gold > *last_gold {
+        let dg = state.stats.gold - *last_gold;
+        *last_gold = state.stats.gold;
+        progress_rs::add_gold(progress, i64::from(dg));
+    }
+    if state.stats.loot > *last_loot {
+        let dl = (state.stats.loot - *last_loot) as usize;
+        *last_loot = state.stats.loot;
+        let item_ids: Vec<&'static str> = state
+            .log
+            .iter()
+            .rev()
+            .filter_map(|entry| loot_item_id_for_log_line(&entry.text))
+            .take(dl)
+            .collect();
+        for item_id in item_ids {
+            progress_rs::add_item(progress, item_id, 1);
+        }
+    }
+}
+
 fn main() {
     let event_loop = match EventLoop::new() {
         Ok(el) => el,
@@ -996,4 +1332,262 @@ fn main() {
     };
     let mut app = AppState::new();
     let _ = event_loop.run_app(&mut app);
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_present_rect_preserves_4_3_aspect_ratio() {
+        // Default 1200x900 window fills edge-to-edge at 1.5x
+        assert_eq!(
+            compute_present_rect(1200, 900, RENDER_WIDTH as usize, RENDER_HEIGHT as usize),
+            (0, 0, 1200, 900)
+        );
+        // 1920x1080 widescreen fullscreen pillarboxes to centered 1440x1080
+        assert_eq!(
+            compute_present_rect(1920, 1080, RENDER_WIDTH as usize, RENDER_HEIGHT as usize),
+            (240, 0, 1440, 1080)
+        );
+        // 800x1000 tall window letterboxes to centered 800x600
+        assert_eq!(
+            compute_present_rect(800, 1000, RENDER_WIDTH as usize, RENDER_HEIGHT as usize),
+            (0, 200, 800, 600)
+        );
+    }
+
+    #[test]
+    fn test_mouse_mapping_to_800x600_and_view_coords() {
+        // Default 1200x900 window: center (600, 450) -> (400, 300) in 800x600 -> (480, 270) in view
+        let (rx, ry) = map_window_to_render(1200.0, 900.0, 600.0, 450.0).expect("inside");
+        assert!((rx - 400.0).abs() < 1e-3);
+        assert!((ry - 300.0).abs() < 1e-3);
+        let (lx, ly) = render_to_view_coords(rx, ry);
+        assert!((lx - 480.0).abs() < 1e-3);
+        assert!((ly - 270.0).abs() < 1e-3);
+
+        // 1920x1080 widescreen: pillarbox click returns None; content top-left (240, 0) -> (0, 0)
+        assert!(map_window_to_render(1920.0, 1080.0, 100.0, 540.0).is_none());
+        let (rx0, ry0) = map_window_to_render(1920.0, 1080.0, 240.0, 0.0).expect("top-left");
+        assert!(rx0.abs() < 1e-3);
+        assert!(ry0.abs() < 1e-3);
+        let (lx0, ly0) = render_to_view_coords(rx0, ry0);
+        assert!((lx0 - VIEW_LEFT as f32).abs() < 1e-3);
+        assert!(ly0.abs() < 1e-3);
+    }
+
+    #[test]
+    fn test_alt_enter_fullscreen_toggle_detection() {
+        let mut held = HashSet::new();
+        assert!(!is_fullscreen_toggle(KeyCode::Enter, &held));
+
+        held.insert(KeyCode::AltLeft);
+        assert!(is_fullscreen_toggle(KeyCode::Enter, &held));
+        assert!(is_fullscreen_toggle(KeyCode::NumpadEnter, &held));
+        assert!(!is_fullscreen_toggle(KeyCode::Space, &held));
+
+        held.clear();
+        held.insert(KeyCode::AltRight);
+        assert!(is_fullscreen_toggle(KeyCode::Enter, &held));
+    }
+
+    #[test]
+    fn test_sync_collected_loot_updates_gold_and_bag() {
+        let mut progress = progress_rs::defaults();
+        let initial_gold = progress.gold;
+        let initial_mat = progress.items.get("material").copied().unwrap_or(0);
+        let initial_hp = progress.items.get("hpPotion").copied().unwrap_or(0);
+
+        let mut state = create_state(&CreateStateOptions {
+            stage: Some(DEFAULT_STAGE),
+            reference_profile: true,
+            ..Default::default()
+        });
+        let drop1 = core_rs::types::Pickup {
+            kind: "loot".to_string(),
+            name: "生锈的铁片".to_string(),
+            tone: "white".to_string(),
+            gold: 44,
+            exp: 0,
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+            radius: 0.0,
+            value: 0.0,
+            life: 10.0,
+            from_x: 0.0,
+            from_y: 0.0,
+            from_z: 0.0,
+            progress: 0.0,
+            trail: Vec::new(),
+        };
+        let drop2 = core_rs::types::Pickup {
+            kind: "loot".to_string(),
+            name: "诺顿的新手HP药剂".to_string(),
+            tone: "cyan".to_string(),
+            gold: 65,
+            exp: 0,
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+            radius: 0.0,
+            value: 0.0,
+            life: 10.0,
+            from_x: 0.0,
+            from_y: 0.0,
+            from_z: 0.0,
+            progress: 0.0,
+            trail: Vec::new(),
+        };
+        core_rs::combat::collect_loot(&mut state, &drop1);
+        core_rs::combat::collect_loot(&mut state, &drop2);
+
+        let mut last_gold = 0;
+        let mut last_loot = 0;
+        sync_collected_loot(&mut progress, &mut last_gold, &mut last_loot, &state);
+
+        assert_eq!(progress.gold, initial_gold + 109);
+        assert_eq!(
+            progress.items.get("material").copied().unwrap_or(0),
+            initial_mat + 1
+        );
+        assert_eq!(
+            progress.items.get("hpPotion").copied().unwrap_or(0),
+            initial_hp + 1
+        );
+        // Second call with no new pickups is a no-op
+        sync_collected_loot(&mut progress, &mut last_gold, &mut last_loot, &state);
+        assert_eq!(progress.gold, initial_gold + 109);
+    }
+
+    #[test]
+    fn test_consumable_quickbar_usage_stack_decrement_and_cooldown() {
+        let mut progress = progress_rs::defaults();
+        let mut state = create_state(&CreateStateOptions {
+            stage: Some(DEFAULT_STAGE),
+            reference_profile: true,
+            ..Default::default()
+        });
+        state.player.hp = (state.player.max_hp - 60.0).max(1.0);
+        state.player.mp = (state.player.max_mp - 50.0).max(0.0);
+        let hp0 = state.player.hp;
+        let mp0 = state.player.mp;
+
+        // Slot 0 = HP potion
+        assert!(try_use_consumable_slot(&mut state, &mut progress, 0));
+        assert_eq!(progress_rs::consumable_count(&progress, "hpPotion"), 4);
+        assert!((state.player.hp - (hp0 + 40.0).min(state.player.max_hp)).abs() < 1e-6);
+
+        // Cooldown gates immediate reuse without consuming stack
+        assert!(!try_use_consumable_slot(&mut state, &mut progress, 0));
+        assert_eq!(progress_rs::consumable_count(&progress, "hpPotion"), 4);
+
+        // Slot 1 = MP potion
+        assert!(try_use_consumable_slot(&mut state, &mut progress, 1));
+        assert_eq!(progress_rs::consumable_count(&progress, "mpPotion"), 4);
+        assert!((state.player.mp - (mp0 + 40.0).min(state.player.max_mp)).abs() < 1e-6);
+
+        // Unbound slot 2 is a no-op
+        assert!(!try_use_consumable_slot(&mut state, &mut progress, 2));
+
+        // Depleted stack refuses use
+        progress.items.insert("hpPotion".to_string(), 0);
+        state.player.consumable_cooldowns[0] = 0.0;
+        assert!(!try_use_consumable_slot(&mut state, &mut progress, 0));
+    }
+
+    #[test]
+    fn test_resurrect_coin_revives_defeated_player_and_stops_at_zero() {
+        let mut progress = progress_rs::defaults();
+        let mut state = create_state(&CreateStateOptions {
+            stage: Some(DEFAULT_STAGE),
+            reference_profile: true,
+            ..Default::default()
+        });
+        assert_eq!(progress_rs::consumable_count(&progress, "resurrectCoin"), 3);
+
+        // Cannot resurrect while alive
+        assert!(!try_resurrect_on_defeat(&mut state, &mut progress));
+        assert!(!try_use_consumable_slot(&mut state, &mut progress, 5));
+        assert_eq!(progress_rs::consumable_count(&progress, "resurrectCoin"), 3);
+
+        // Defeat player -> slot 5 (digit 6) consumes 1 coin and revives in-place
+        let max_hp = state.player.max_hp;
+        core_rs::combat::spend_player_hp(&mut state, max_hp + 10.0);
+        assert!(state.defeat);
+        assert!(try_use_consumable_slot(&mut state, &mut progress, 5));
+        assert!(!state.defeat);
+        assert!(!state.player.dead);
+        assert!((state.player.hp - state.player.max_hp).abs() < 1e-6);
+        assert!((state.player.mp - state.player.max_mp).abs() < 1e-6);
+        assert!(state.player.invuln > 0.0);
+        assert_eq!(progress_rs::consumable_count(&progress, "resurrectCoin"), 2);
+
+        // Deplete coins to 0 -> defeat stays active
+        progress.items.insert("resurrectCoin".to_string(), 0);
+        core_rs::combat::spend_player_hp(&mut state, max_hp + 10.0);
+        assert!(state.defeat);
+        assert!(!try_resurrect_on_defeat(&mut state, &mut progress));
+        assert!(state.defeat);
+    }
+
+    #[test]
+    fn test_pvf_drop_log_lines_map_to_expected_bag_items() {
+        assert_eq!(
+            loot_item_id_for_log_line("获得[野生草莓]"),
+            Some("hpPotion")
+        );
+        assert_eq!(loot_item_id_for_log_line("获得[越桔]"), Some("hpPotion"));
+        assert_eq!(
+            loot_item_id_for_log_line("获得[烤硬的黑面包]"),
+            Some("hpPotion")
+        );
+        assert_eq!(
+            loot_item_id_for_log_line("获得[魔力之花]"),
+            Some("mpPotion")
+        );
+        assert_eq!(
+            loot_item_id_for_log_line("获得[命运硬币]"),
+            Some("resurrectCoin")
+        );
+        assert_eq!(
+            loot_item_id_for_log_line("获得[古老的库尼族图腾]"),
+            Some("kunicTotem")
+        );
+        assert_eq!(
+            loot_item_id_for_log_line("获得[铜戒指]"),
+            Some("copperRing")
+        );
+        assert_eq!(
+            loot_item_id_for_log_line("获得[苎麻花叶]"),
+            Some("material")
+        );
+        assert_eq!(
+            loot_item_id_for_log_line("获得[投掷石块]"),
+            Some("material")
+        );
+        assert_eq!(loot_item_id_for_log_line("获得 35 金币"), None);
+    }
+
+    #[test]
+    fn test_chest_open_sfx_fires_only_on_chest_to_cards_transition() {
+        use reward_rs::RewardPhase;
+        assert!(should_play_chest_open_sfx(
+            RewardPhase::Chest,
+            RewardPhase::Cards
+        ));
+        assert!(!should_play_chest_open_sfx(
+            RewardPhase::Stats,
+            RewardPhase::Chest
+        ));
+        assert!(!should_play_chest_open_sfx(
+            RewardPhase::Cards,
+            RewardPhase::Cards
+        ));
+        assert!(!should_play_chest_open_sfx(
+            RewardPhase::Cards,
+            RewardPhase::Reveal
+        ));
+    }
 }

@@ -5,6 +5,7 @@ pub mod constants;
 pub mod dungeon;
 pub mod enemy;
 pub mod player;
+pub mod pvf_truth;
 pub mod tables;
 pub mod types;
 
@@ -176,8 +177,10 @@ pub fn drain_sounds(state: &mut State) -> Vec<SoundEvent> {
 
 pub fn create_player(x: f64) -> Player {
     let mut skill_cooldowns = indexmap::IndexMap::new();
+    let mut skill_ranks = indexmap::IndexMap::new();
     for id in &TABLES.castable_skills {
         skill_cooldowns.insert(id.clone(), 0.0);
+        skill_ranks.insert(id.clone(), 1);
     }
     Player {
         x,
@@ -230,9 +233,12 @@ pub fn create_player(x: f64) -> Player {
         buff_icon_timer: 0.0,
         buff_icon_id: None,
         skill_cooldowns,
+        consumable_cooldowns: [0.0; 6],
+        skill_ranks,
         invuln: 0.0,
         solid_invuln: 0.0,
         hurt_timer: 0.0,
+        freeze_timer: 0.0,
         dead: false,
         name: None,
     }
@@ -266,6 +272,19 @@ pub fn create_state(options: &CreateStateOptions<'_>) -> State {
             _ => None,
         } {
             player.name = Some("阿努纳奇".to_string());
+            player.skill_ranks.clear();
+            match stage_id.as_str() {
+                "mirkwood" => {
+                    player.skill_ranks.insert("ghostSlash".to_string(), 2);
+                    player.skill_ranks.insert("upSlash".to_string(), 1);
+                }
+                "mirkwooddeep" => {
+                    player.skill_ranks.insert("ghostSlash".to_string(), 3);
+                    player.skill_ranks.insert("upSlash".to_string(), 1);
+                    player.skill_ranks.insert("normalWave".to_string(), 1);
+                }
+                _ => {}
+            }
             while player.level < lvl {
                 advance_player_level(&mut player, &stage_id, false);
             }
@@ -298,6 +317,9 @@ pub fn create_state(options: &CreateStateOptions<'_>) -> State {
         band_visual_back_y: None,
         camera_x: 0.0,
         camera_y: 0.0,
+        shake_amp: 0.0,
+        shake_timer: 0.0,
+        shake_duration: 0.0,
         target: None,
         player,
         enemies: Vec::new(),
@@ -334,6 +356,37 @@ pub fn create_state(options: &CreateStateOptions<'_>) -> State {
     begin_room(&mut state, None);
     state.transition = TRANSITION_DUR;
     state
+}
+
+/// Trigger a purely visual camera screen-shake impulse without modifying
+/// logical world coordinates (`camera_x`/`camera_y`) or gameplay RNG.
+/// Stronger impulses override weaker ones; weaker impulses never downgrade an
+/// active stronger shake.
+pub fn trigger_screen_shake(state: &mut State, amplitude: f64, duration: f64) {
+    if amplitude <= 0.0 || duration <= 0.0 {
+        return;
+    }
+    let current = if state.shake_timer > 0.0 && state.shake_duration > 0.0 {
+        state.shake_amp * (state.shake_timer / state.shake_duration).clamp(0.0, 1.0)
+    } else {
+        0.0
+    };
+    if amplitude >= current {
+        state.shake_amp = amplitude;
+        state.shake_timer = duration;
+        state.shake_duration = duration;
+    }
+}
+
+fn decay_screen_shake(state: &mut State, dt: f64) {
+    if state.shake_timer > 0.0 {
+        state.shake_timer = (state.shake_timer - dt).max(0.0);
+        if state.shake_timer <= 1e-6 {
+            state.shake_timer = 0.0;
+            state.shake_amp = 0.0;
+            state.shake_duration = 0.0;
+        }
+    }
 }
 
 pub fn begin_intro(state: &mut State) {
@@ -404,6 +457,7 @@ pub fn step(state: &mut State, input: &Input, dt_override: Option<f64>) {
             }
         }
         state.time += dt;
+        decay_screen_shake(state, dt);
         state.hit_stop -= dt;
         if state.hit_stop < 1e-6 {
             state.hit_stop = 0.0;
@@ -424,6 +478,7 @@ pub fn step(state: &mut State, input: &Input, dt_override: Option<f64>) {
     }
 
     state.time += dt;
+    decay_screen_shake(state, dt);
     if state.title_t > 0.0 {
         state.title_t = (state.title_t - dt).max(0.0);
     }
@@ -440,6 +495,7 @@ pub fn step(state: &mut State, input: &Input, dt_override: Option<f64>) {
         state.result_rating = Some(rating_of(state));
         if state.victory && !state.defeat {
             award_clear_experience(state);
+            push_sound(state, "resultRank", state.player.x, state.player.z);
         }
     }
 
@@ -507,9 +563,10 @@ pub fn step(state: &mut State, input: &Input, dt_override: Option<f64>) {
     if !state.post_clear {
         update_enemies(state, dt, Some(prev_pos));
         update_waves(state);
+        combat::update_bunkers(state, dt);
     }
     update_target(state, dt);
-    update_breakables(state);
+    update_breakables(state, dt);
     update_pickups(state, dt);
     if !state.post_clear && !state.defeat {
         resolve_room(state, &input, could_steer);
@@ -596,5 +653,184 @@ mod tests {
         assert_eq!(dun.cols, 5);
         assert_eq!(dun.rows, 4);
         assert_eq!(dun.cells.len(), 18);
+    }
+
+    #[test]
+    fn test_reference_profile_skill_ranks() {
+        let mirk = create_state(&CreateStateOptions {
+            stage: Some("mirkwood"),
+            reference_profile: true,
+            ..Default::default()
+        });
+        assert_eq!(mirk.player.skill_ranks.get("ghostSlash").copied(), Some(2));
+        assert_eq!(mirk.player.skill_ranks.get("upSlash").copied(), Some(1));
+
+        let deep = create_state(&CreateStateOptions {
+            stage: Some("mirkwooddeep"),
+            reference_profile: true,
+            ..Default::default()
+        });
+        assert_eq!(deep.player.skill_ranks.get("ghostSlash").copied(), Some(3));
+        assert_eq!(deep.player.skill_ranks.get("upSlash").copied(), Some(1));
+        assert_eq!(deep.player.skill_ranks.get("normalWave").copied(), Some(1));
+
+        let standard = create_state(&CreateStateOptions::default());
+        assert_eq!(
+            standard.player.skill_ranks.get("ghostSlash").copied(),
+            Some(1)
+        );
+        assert_eq!(standard.player.skill_ranks.get("upSlash").copied(), Some(1));
+    }
+
+    #[test]
+    fn test_sound_events_level_up() {
+        let mut s = create_state(&CreateStateOptions::default());
+        let _ = drain_sounds(&mut s);
+        let needed = s.player.xp_to_next;
+        assert_eq!(combat::grant_xp(&mut s, needed - 1), 0);
+        assert!(drain_sounds(&mut s).iter().all(|e| e.kind != "levelUp"));
+
+        assert_eq!(combat::grant_xp(&mut s, 1), 1);
+        let sounds = drain_sounds(&mut s);
+        assert_eq!(
+            sounds.iter().filter(|e| e.kind == "levelUp").count(),
+            1,
+            "leveling up should emit exactly one levelUp sound"
+        );
+    }
+
+    #[test]
+    fn test_sound_events_gate_open_on_room_clear() {
+        let mut s = create_state(&CreateStateOptions::default());
+        let _ = drain_sounds(&mut s);
+        // Clear all enemies & pending waves in the entry (non-boss) room
+        s.enemies.clear();
+        if let Some(ref mut rm) = s.room {
+            rm.pending_wave.clear();
+            rm.pending_waves.clear();
+        }
+        step(&mut s, &Input::default(), None);
+        let sounds = drain_sounds(&mut s);
+        assert_eq!(
+            sounds.iter().filter(|e| e.kind == "gateOpen").count(),
+            1,
+            "clearing a non-boss room should emit gateOpen once"
+        );
+        // Subsequent ticks should not re-emit gateOpen
+        step(&mut s, &Input::default(), None);
+        assert!(drain_sounds(&mut s).iter().all(|e| e.kind != "gateOpen"));
+    }
+
+    #[test]
+    fn test_sound_events_result_rank_on_victory() {
+        let mut s = create_state(&CreateStateOptions::default());
+        let _ = drain_sounds(&mut s);
+        s.victory_delay = Some(DT * 0.5);
+        step(&mut s, &Input::default(), None);
+        assert!(s.victory);
+        let sounds = drain_sounds(&mut s);
+        assert_eq!(
+            sounds.iter().filter(|e| e.kind == "resultRank").count(),
+            1,
+            "transitioning to victory should emit resultRank once"
+        );
+        step(&mut s, &Input::default(), None);
+        assert!(drain_sounds(&mut s).iter().all(|e| e.kind != "resultRank"));
+    }
+
+    #[test]
+    fn test_consumable_heal_mp_cooldown_gating() {
+        let mut s = create_state(&CreateStateOptions::default());
+        s.player.hp = (s.player.max_hp - 60.0).max(1.0);
+        s.player.mp = (s.player.max_mp - 50.0).max(0.0);
+        let hp_before = s.player.hp;
+        let mp_before = s.player.mp;
+
+        assert!(combat::apply_consumable_effect(
+            &mut s,
+            0,
+            "HP 药水",
+            40.0,
+            0.0
+        ));
+        assert!((s.player.hp - (hp_before + 40.0).min(s.player.max_hp)).abs() < 1e-6);
+        assert!((s.player.consumable_cooldowns[0] - combat::CONSUMABLE_COOLDOWN_SEC).abs() < 1e-6);
+        assert!(s
+            .effects
+            .iter()
+            .any(|e| e.kind == "heal" && e.text.contains("HP")));
+        assert!(s.log.iter().any(|l| l.text.contains("HP 药水")));
+
+        // Cooldown gates immediate reuse on slot 0
+        assert!(!combat::apply_consumable_effect(
+            &mut s,
+            0,
+            "HP 药水",
+            40.0,
+            0.0
+        ));
+
+        // Slot 1 (MP potion) is independent and succeeds immediately
+        assert!(combat::apply_consumable_effect(
+            &mut s,
+            1,
+            "MP 药水",
+            0.0,
+            40.0
+        ));
+        assert!((s.player.mp - (mp_before + 40.0).min(s.player.max_mp)).abs() < 1e-6);
+        assert!(s
+            .effects
+            .iter()
+            .any(|e| e.kind == "heal" && e.text.contains("MP")));
+        assert!(s.log.iter().any(|l| l.text.contains("MP 药水")));
+
+        // Advance simulation past cooldown -> slot 0 becomes ready again
+        run_frames(&mut s, 130, |_, _| Input::default());
+        assert_eq!(s.player.consumable_cooldowns[0], 0.0);
+        assert!(combat::apply_consumable_effect(
+            &mut s,
+            0,
+            "HP 药水",
+            40.0,
+            0.0
+        ));
+    }
+
+    #[test]
+    fn test_resurrect_player_revives_in_place_with_invuln() {
+        let mut s = create_state(&CreateStateOptions::default());
+        assert!(!combat::resurrect_player(&mut s));
+
+        let px = s.player.x;
+        let pz = s.player.z;
+        s.player.mp = 5.0;
+        let max_hp = s.player.max_hp;
+        combat::spend_player_hp(&mut s, max_hp + 50.0);
+        step(&mut s, &Input::default(), None);
+        assert!(s.defeat);
+        assert!(s.player.dead);
+        assert!(!combat::apply_consumable_effect(
+            &mut s,
+            0,
+            "HP 药水",
+            40.0,
+            0.0
+        ));
+
+        assert!(combat::resurrect_player(&mut s));
+        assert!(!s.defeat);
+        assert!(!s.player.dead);
+        assert!(s.finished_at.is_none());
+        assert!((s.player.hp - s.player.max_hp).abs() < 1e-6);
+        assert!((s.player.mp - s.player.max_mp).abs() < 1e-6);
+        assert!(s.player.invuln >= combat::RESURRECT_INVULN_SEC - 1e-6);
+        assert!((s.player.x - px).abs() < 1e-6);
+        assert!((s.player.z - pz).abs() < 1e-6);
+        assert!(s.log.iter().any(|l| l.text.contains("复活币")));
+        assert!(s
+            .effects
+            .iter()
+            .any(|e| e.kind == "heal" && e.text.contains("复活")));
     }
 }

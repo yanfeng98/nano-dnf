@@ -7,6 +7,7 @@ use tiny_skia::Pixmap;
 pub struct SpriteStore {
     pub sheets: HashMap<String, Pixmap>,
     pub raging_slayer: Option<Pixmap>,
+    pub region_locked: Option<Pixmap>,
     pub loaded: usize,
     pub total: usize,
 }
@@ -56,10 +57,14 @@ pub const ASSET_ENTRIES: [(&str, &str); 39] = [
     ("bossdeath", "assets/bossdeath.png"),
 ];
 
-pub const UI_ASSET_ENTRIES: [(&str, &str); 11] = [
+pub const UI_ASSET_ENTRIES: [(&str, &str); 16] = [
     ("ui", "assets/ui.png"),
     ("hud", "assets/hud.png"),
+    ("hudClassic", "assets/hud-classic.png"),
+    ("consumables", "assets/consumables.png"),
     ("town", "assets/town.png"),
+    ("hendonmyre", "assets/hendonmyre.png"),
+    ("seriaroom", "assets/seriaroom.png"),
     ("npc", "assets/npc.png"),
     ("gui", "assets/gui.png"),
     ("treeReference", "assets/tree-reference.png"),
@@ -68,14 +73,21 @@ pub const UI_ASSET_ENTRIES: [(&str, &str); 11] = [
     ("pillarPale", "assets/pillar-pale.png"),
     ("pillarDebris", "assets/pillar-debris.png"),
     ("gateBlock", "assets/gate-block.png"),
+    ("worldmapArad", "assets/worldmap-arad.png"),
 ];
 
-pub const EXTRA_ASSET_ENTRIES: [(&str, &str); 5] = [
+pub const EXTRA_ASSET_ENTRIES: [(&str, &str); 11] = [
     ("minimap", "assets/minimap.png"),
     ("results", "assets/results-reference.png"),
     ("experienceDigits", "assets/experience-digits.png"),
     ("awakening", "assets/awakening.png"),
     ("portraits", "assets/portraits-reference.png"),
+    ("impactFlash", "assets/impact-flash.png"),
+    ("basicSlash", "assets/basic-slash.png"),
+    ("damageDigits", "assets/damage-digits.png"),
+    ("groundLoot", "assets/ground-loot.png"),
+    ("monsterGibs", "assets/monster-gibs.png"),
+    ("statusVfx", "assets/status-vfx.png"),
 ];
 
 impl SpriteStore {
@@ -113,9 +125,11 @@ impl SpriteStore {
         }
 
         let raging_slayer = sheets.get("slayer").and_then(make_raging_sheet);
+        let region_locked = sheets.get("region").and_then(make_greyscale_sheet);
         Self {
             sheets,
             raging_slayer,
+            region_locked,
             loaded,
             total,
         }
@@ -124,6 +138,28 @@ impl SpriteStore {
     pub fn get(&self, key: &str) -> Option<&Pixmap> {
         self.sheets.get(key)
     }
+}
+
+fn make_greyscale_sheet(src: &Pixmap) -> Option<Pixmap> {
+    let mut out = Pixmap::new(src.width(), src.height())?;
+    for (s, d) in src
+        .data()
+        .chunks_exact(4)
+        .zip(out.data_mut().chunks_exact_mut(4))
+    {
+        let a = s[3];
+        if a == 0 {
+            continue;
+        }
+        // Warm desaturated stone-grey for locked dungeon preview cards
+        let lum = (u16::from(s[0]) * 77 + u16::from(s[1]) * 150 + u16::from(s[2]) * 29) >> 8;
+        let v = ((lum * 78) / 100).min(u16::from(a));
+        d[0] = ((v * 104) / 100).min(u16::from(a)) as u8;
+        d[1] = v as u8;
+        d[2] = ((v * 92) / 100) as u8;
+        d[3] = a;
+    }
+    Some(out)
 }
 
 fn make_raging_sheet(src: &Pixmap) -> Option<Pixmap> {
@@ -147,4 +183,156 @@ fn make_raging_sheet(src: &Pixmap) -> Option<Pixmap> {
         d[3] = a;
     }
     Some(out)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::path::PathBuf;
+
+    fn repo_root() -> PathBuf {
+        PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("..")
+            .join("..")
+    }
+
+    fn cell_pixels(
+        sheet: &Pixmap,
+        row: u32,
+        col: u32,
+        cell_w: u32,
+        cell_h: u32,
+    ) -> impl Iterator<Item = (u32, u32, &[u8])> {
+        let w = sheet.width();
+        let data = sheet.data();
+        let x0 = col * cell_w;
+        let y0 = row * cell_h;
+        (0..cell_h).flat_map(move |dy| {
+            (0..cell_w).map(move |dx| {
+                let idx = (((y0 + dy) * w + (x0 + dx)) * 4) as usize;
+                (dx, dy, &data[idx..idx + 4])
+            })
+        })
+    }
+
+    #[test]
+    fn reference_slayer_sheet_geometry_appearance_and_raging_variant() {
+        let store = SpriteStore::load_from_root(&repo_root());
+        let slayer = store.get("slayer").expect("slayer-reference.png loaded");
+        assert_eq!((slayer.width(), slayer.height()), (13312, 2640));
+
+        // Verify key combat + town animation rows are non-empty.
+        let required_cells: &[(u32, u32, &str)] = &[
+            (0, 0, "idle"),
+            (0, 3, "idle_end"),
+            (1, 0, "run"),
+            (1, 7, "run_end"),
+            (2, 0, "attack"),
+            (2, 3, "attack_slash"),
+            (3, 0, "skill"),
+            (4, 0, "extras_hit"),
+            (4, 2, "extras_knockdown"),
+            (5, 0, "clips"),
+            (6, 0, "clips2"),
+            (7, 2, "bloodblade"),
+            (8, 0, "flare"),
+            (9, 0, "rage"),
+            (11, 0, "awaken"),
+            (12, 0, "town_walk"),
+            (12, 7, "town_walk_end"),
+            (13, 0, "ghostSlash"),
+            (14, 0, "normalWave"),
+        ];
+        for &(row, col, label) in required_cells {
+            let opaque = cell_pixels(slayer, row, col, 208, 176)
+                .filter(|(_, _, px)| px[3] > 24)
+                .count();
+            assert!(
+                opaque > 150,
+                "expected non-empty slayer cell for {label} ({row},{col}), got {opaque} opaque px"
+            );
+        }
+
+        // Verify reference appearance (60/70 long spiky ivory-white hair, cream vest, grey pants, no legacy royal-blue coat/pants).
+        for &(row, col, label) in &[(0, 0, "idle"), (1, 0, "run"), (12, 0, "town_walk")] {
+            let mut royal_blue = 0usize;
+            let mut bright_hair = 0usize;
+            let mut crown_above_80 = 0usize;
+            let mut min_y = 176u32;
+            for (_dx, dy, px) in cell_pixels(slayer, row, col, 208, 176) {
+                let a = px[3];
+                if a < 128 {
+                    continue;
+                }
+                min_y = min_y.min(dy);
+                if dy < 80 {
+                    crown_above_80 += 1;
+                }
+                // Unpremultiply for color checks
+                let r = (u16::from(px[0]) * 255 / u16::from(a)).min(255) as u8;
+                let g = (u16::from(px[1]) * 255 / u16::from(a)).min(255) as u8;
+                let b = (u16::from(px[2]) * 255 / u16::from(a)).min(255) as u8;
+                if b > 120 && b > r.saturating_add(40) && b > g.saturating_add(20) {
+                    royal_blue += 1;
+                }
+                if (55..95).contains(&dy) && r >= 200 && g >= 195 && b >= 175 {
+                    bright_hair += 1;
+                }
+            }
+            assert!(
+                royal_blue <= 5,
+                "{label} still has {royal_blue} legacy royal-blue avatar pixels"
+            );
+            assert!(
+                bright_hair >= 15,
+                "{label} missing bright ivory/white hair pixels (got {bright_hair})"
+            );
+            if matches!(label, "idle" | "town_walk") {
+                assert!(
+                    (72..=74).contains(&min_y),
+                    "{label} hair silhouette height out of 60/70 classic spiky range (min_y={min_y}, expected 72..=74)"
+                );
+                assert!(
+                    crown_above_80 >= 55,
+                    "{label} hair crown too flat/short (crown_above_80={crown_above_80}, expected >= 55 for 60/70 long spiky hair)"
+                );
+            }
+        }
+
+        // Verify raging_slayer preserves exact dimensions and alpha mask with red tint.
+        let raging = store
+            .raging_slayer
+            .as_ref()
+            .expect("raging_slayer derived sheet");
+        assert_eq!((raging.width(), raging.height()), (13312, 2640));
+        for &(row, col) in &[(0, 0), (1, 0), (12, 0)] {
+            let mut sum_r = 0u64;
+            let mut sum_g = 0u64;
+            let mut sum_b = 0u64;
+            for ((_, _, s), (_, _, d)) in
+                cell_pixels(slayer, row, col, 208, 176).zip(cell_pixels(raging, row, col, 208, 176))
+            {
+                assert_eq!(s[3], d[3], "raging_slayer alpha mismatch");
+                if d[3] > 64 {
+                    sum_r += u64::from(d[0]);
+                    sum_g += u64::from(d[1]);
+                    sum_b += u64::from(d[2]);
+                }
+            }
+            assert!(
+                sum_r > sum_g * 2 && sum_r > sum_b * 2,
+                "raging_slayer cell ({row},{col}) not strongly red-tinted: R={sum_r} G={sum_g} B={sum_b}"
+            );
+        }
+
+        // Verify native normalWaveBody also matches reference appearance.
+        let wave_body = store
+            .get("normalWaveBody")
+            .expect("normal-wave-body.png loaded");
+        assert_eq!((wave_body.width(), wave_body.height()), (9 * 384, 320));
+        let wave_opaque = cell_pixels(wave_body, 0, 0, 384, 320)
+            .filter(|(_, _, px)| px[3] > 24)
+            .count();
+        assert!(wave_opaque > 500, "normalWaveBody frame 0 empty");
+    }
 }

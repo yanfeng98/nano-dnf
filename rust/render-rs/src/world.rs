@@ -31,6 +31,53 @@ pub fn scatter_hash(seed: u32, index: usize) -> f64 {
     f64::from(x) / 4_294_967_296.0
 }
 
+/// Map monster species id to its distinct row in `assets/monster-gibs.png` (8 rows x 4 chunks).
+///
+/// - row 0: green goblin (`grunt`, `coward`, default)
+/// - row 1: crimson-red goblin (`goblinRed`, `cursedRed`)
+/// - row 2: blue frost goblin (`goblinBlue`)
+/// - row 3: charcoal elite goblin (`elite`, `throwerElite`, `deepElite`)
+/// - row 4: pale caster goblin (`caster`, `burningThrower`)
+/// - row 5: orange cat / lugaru (`cat`)
+/// - row 6: dark-violet cursed lugaru boss (`lugaruBoss`, `deepBoss`)
+/// - row 7: ochre-brown brute / tau (`brute`, `boss`)
+pub fn monster_gib_row(enemy_type: &str) -> u32 {
+    match enemy_type {
+        "goblinRed" | "cursedRed" => 1,
+        "goblinBlue" => 2,
+        "elite" | "throwerElite" | "deepElite" => 3,
+        "caster" | "burningThrower" => 4,
+        "cat" => 5,
+        "lugaruBoss" | "deepBoss" => 6,
+        "brute" | "boss" => 7,
+        _ => 0,
+    }
+}
+
+/// Compute `(dx, height, rot_time)` for a death gib with initial parabolic flight,
+/// one brief damped ground bounce, and final settled rest on the grass (no infinite sliding).
+pub fn gib_bounce_state(t: f64, h0: f64, vx: f64, vy: f64, gravity: f64) -> (f64, f64, f64) {
+    let g = gravity.max(1.0);
+    let h0 = h0.max(0.0);
+    let t = t.max(0.0);
+    let v_imp = (vy * vy + 2.0 * g * h0).sqrt();
+    let t_land = (vy + v_imp) / g;
+    if t <= t_land {
+        let h = (h0 + vy * t - 0.5 * g * t * t).max(0.0);
+        return (vx * t, h, t);
+    }
+    let vy1 = v_imp * 0.28;
+    let vx1 = vx * 0.32;
+    let t_b1 = 2.0 * vy1 / g;
+    let t_after = t - t_land;
+    if t_after < t_b1 {
+        let h = (vy1 * t_after - 0.5 * g * t_after * t_after).max(0.0);
+        (vx * t_land + vx1 * t_after, h, t_land + t_after * 0.35)
+    } else {
+        (vx * t_land + vx1 * t_b1, 0.0, t_land + t_b1 * 0.35)
+    }
+}
+
 pub fn draw_backdrop(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
     let deep = state.stage_id == "mirkwooddeep";
     let sheet_key = if deep { "forestDeep" } else { "forest" };
@@ -227,29 +274,36 @@ pub fn draw_rain(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore, overl
     c.save();
     c.set_clip_rect(left, 0.0, width as f32, height as f32);
     let layers: [(usize, f64, f64, f64, f32); 2] = [
-        (36, 0.55, 420.0, -75.0, 0.16),
-        (28, 0.85, 580.0, -105.0, 0.28),
+        (55, 0.95, 430.0, -76.0, 0.16),
+        (40, 1.65, 760.0, -134.0, 0.25),
     ];
+    let rain_rects: [(u32, u32, u32, u32); 2] = [(0, 0, 5, 43), (6, 0, 5, 22)];
     for (li, (count, scale_base, speed, wind, alpha)) in layers.into_iter().enumerate() {
         for i in 0..count {
             let h1 = scatter_hash(seed.wrapping_add(li as u32 * 997), i * 11 + 1);
             let h2 = scatter_hash(seed.wrapping_add(li as u32 * 997), i * 11 + 2);
             let h3 = scatter_hash(seed.wrapping_add(li as u32 * 997), i * 11 + 3);
             let sc = (scale_base * (0.8 + h3 * 0.45)) as f32;
-            let _w = 4.0 * sc;
-            let h = 28.0 * sc;
+            let (rx, ry, rw, rh) = rain_rects[(i + li) % rain_rects.len()];
+            let w = rw as f32 * sc;
+            let h = rh as f32 * sc;
             let span = height + f64::from(h);
             let drift = h1 * width + state.time * wind;
             let x = left + drift.rem_euclid(width) as f32;
             let y = ((state.time * speed + h2 * span) % span) as f32 - h;
-            let _ = sheet;
-            c.draw_line(
-                x,
+            c.draw_image(
+                sheet,
+                rx,
+                ry,
+                rw,
+                rh,
+                x - w * 0.5,
                 y,
-                x - 3.0 * sc,
-                y + h,
-                Rgba::new(205, 224, 245, 255).with_alpha(alpha),
-                1.0,
+                w,
+                h,
+                false,
+                alpha,
+                0.18,
             );
         }
     }
@@ -342,10 +396,18 @@ pub fn draw_gates(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
                     native.parts.frame.offset,
                     1.0,
                 );
-                if !cell.cleared {
+                let opened_at = state.room.as_ref().and_then(|r| r.native_gate_opened_at);
+                let leaf_alpha = if !cell.cleared {
+                    1.0f32
+                } else if let Some(t0) = opened_at {
+                    (1.0 - (state.time - t0) / 0.5).clamp(0.0, 1.0) as f32
+                } else {
+                    0.0
+                };
+                if leaf_alpha > 0.0 {
                     if let Some(v) = native.parts.extra.get("door") {
                         if let Some((r, o)) = parse_gate_part(v) {
-                            draw_native_gate_part(c, sh, native.x, native.z, r, o, 1.0);
+                            draw_native_gate_part(c, sh, native.x, native.z, r, o, leaf_alpha);
                         }
                     }
                 }
@@ -354,7 +416,23 @@ pub fn draw_gates(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
                         if let Some((r, o)) = parse_gate_part(v) {
                             let pulse =
                                 (0.62 + 0.2 * (0.5 + 0.5 * (state.time * 3.2).sin())) as f32;
-                            draw_native_gate_part(c, sh, native.x, native.z, r, o, pulse);
+                            let scale = NATIVE_SCALE as f32;
+                            let dx = native.x as f32 + o[0] as f32 * scale;
+                            let dy = floor_y(native.z) + o[1] as f32 * scale;
+                            c.draw_image_additive(
+                                sh,
+                                r[0] as u32,
+                                r[1] as u32,
+                                r[2] as u32,
+                                r[3] as u32,
+                                dx,
+                                dy,
+                                r[2] as f32 * scale,
+                                r[3] as f32 * scale,
+                                false,
+                                pulse,
+                                0.0,
+                            );
                         }
                     }
                 }
@@ -365,10 +443,6 @@ pub fn draw_gates(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
                 }
                 continue;
             }
-        }
-
-        if deep && !open && dir != "N" && dir != "S" {
-            continue;
         }
 
         let (spot_x, spot_bottom) = match dir {
@@ -387,7 +461,6 @@ pub fn draw_gates(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
         let (piece, door_piece) = match dir {
             "N" => ("gateUp", "doorUp"),
             "S" => ("gateDown", "doorDown"),
-            _ if deep => ("gateBlock", "doorBlock"),
             _ => ("gate", "door"),
         };
 
@@ -397,11 +470,7 @@ pub fn draw_gates(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
                 let gw = sw as f32 * sc[0] as f32;
                 let gh = sh_h as f32 * sc[1] as f32;
                 let mirror = dir == "W";
-                let gate_alpha = if !open && !(deep && (dir == "N" || dir == "S")) {
-                    0.72
-                } else {
-                    1.0
-                };
+                let gate_alpha = 1.0;
                 c.draw_image(
                     sh,
                     sx,
@@ -472,15 +541,32 @@ fn draw_prop(c: &mut Canvas<'_>, state: &State, prop: &Prop, sprites: &SpriteSto
     {
         if let Some(sh) = sprites.get("pillarPale") {
             let sc = prop.scale.unwrap_or_else(|| prop_scale(&prop.piece));
-            let w = sh.width() as f32 * sc[0] as f32;
-            let h = sh.height() as f32 * sc[1] as f32;
+            let damaged = prop.piece == "pillarDamagedDecor";
+            let (sx, sy, sw, sh_h) = if damaged {
+                (
+                    44u32,
+                    0u32,
+                    44u32.min(sh.width().saturating_sub(44)),
+                    111u32.min(sh.height()),
+                )
+            } else {
+                (0u32, 0u32, 44u32.min(sh.width()), 133u32.min(sh.height()))
+            };
+            let w = sw as f32 * sc[0] as f32;
+            let h = sh_h as f32 * sc[1] as f32;
+            let shake_x = if prop.hit_t > 0.0 {
+                let amp = (prop.hit_t / 0.22).clamp(0.0, 1.0) as f32 * 3.5;
+                ((prop.hit_t * 95.0).sin() as f32) * amp
+            } else {
+                0.0
+            };
             c.draw_image(
                 sh,
-                0,
-                0,
-                sh.width(),
-                sh.height(),
-                x - w * 0.5,
+                sx,
+                sy,
+                sw,
+                sh_h,
+                x + shake_x - w * 0.5,
                 y - h,
                 w,
                 h,
@@ -506,18 +592,33 @@ fn draw_prop(c: &mut Canvas<'_>, state: &State, prop: &Prop, sprites: &SpriteSto
         let sc = prop.scale.unwrap_or_else(|| prop_scale(&prop.piece));
         let w = sw as f32 * sc[0] as f32;
         let h = sh_h as f32 * sc[1] as f32;
+        let alpha = if prop.broken {
+            let age = (state.time - prop.broken_at).max(0.0);
+            if age >= BREAK_ANIM {
+                return;
+            }
+            (1.0 - age / BREAK_ANIM).clamp(0.0, 1.0) as f32
+        } else {
+            1.0
+        };
+        let shake_x = if prop.hit_t > 0.0 {
+            let amp = (prop.hit_t / 0.22).clamp(0.0, 1.0) as f32 * 4.0;
+            ((prop.hit_t * 95.0).sin() as f32) * amp
+        } else {
+            0.0
+        };
         c.draw_image(
             sh,
             sx,
             sy,
             sw,
             sh_h,
-            x - w * 0.5,
+            x + shake_x - w * 0.5,
             y - h,
             w,
             h,
             false,
-            1.0,
+            alpha,
             0.0,
         );
         return;
@@ -580,13 +681,19 @@ fn draw_prop(c: &mut Canvas<'_>, state: &State, prop: &Prop, sprites: &SpriteSto
                 c.draw_image(sh, sx, sy, sw, sh_h, left, top, w, h, false, alpha, 0.0);
                 return;
             }
+            let shake_x = if prop.hit_t > 0.0 {
+                let amp = (prop.hit_t / 0.22).clamp(0.0, 1.0) as f32 * 3.5;
+                ((prop.hit_t * 95.0).sin() as f32) * amp
+            } else {
+                0.0
+            };
             c.draw_image(
                 sh,
                 sx,
                 sy,
                 sw,
                 sh_h,
-                x - w * 0.5,
+                x + shake_x - w * 0.5,
                 y - h,
                 w,
                 h,
@@ -628,7 +735,7 @@ pub fn draw_player(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
         Rgba::new(0, 0, 0, 86),
     );
 
-    // Foot mark (glowing green ring under boots)
+    // Foot mark (bright neon-green oval ring on ground, always visible in all live states)
     if let Some(ui) = sprites.get("ui") {
         let fw = 130.0 / (265.0 / 84.0);
         let fh = 43.0 / (265.0 / 84.0);
@@ -640,7 +747,7 @@ pub fn draw_player(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
                 81,
                 28,
                 px - fw * 0.5,
-                ground_y - fh * 0.25,
+                ground_y - fh * 0.35,
                 fw,
                 fh,
                 false,
@@ -648,6 +755,9 @@ pub fn draw_player(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
                 0.0,
             );
         }
+    } else {
+        c.fill_ellipse(px, ground_y, 20.0, 6.5, Rgba::new(140, 245, 50, 85));
+        c.stroke_ellipse(px, ground_y, 20.0, 6.5, Rgba::new(198, 249, 68, 240), 2.2);
     }
 
     // Level-up golden light ring & particles
@@ -792,21 +902,27 @@ pub fn draw_player(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
             let arc_col = ((arc_prog * 22.0) as u32).min(21);
             let arc_sx = arc_col * cell_w;
             let arc_sy = (10 * cell_h).min(sh.height().saturating_sub(cell_h));
+            let arc_scale = 0.84f32;
+            let arc_w = dw * arc_scale;
+            let arc_h = dh * arc_scale;
             c.draw_image_additive(
                 sh,
                 arc_sx,
                 arc_sy,
                 cell_w,
                 cell_h,
-                draw_x + p.facing as f32 * 7.0,
-                draw_y + 5.0,
-                dw,
-                dh,
+                draw_x + (dw - arc_w) * 0.5 + p.facing as f32 * 5.0,
+                draw_y + (dh - arc_h) * 0.5 + 4.0,
+                arc_w,
+                arc_h,
                 flip,
-                0.9,
+                0.82,
                 0.0,
             );
         }
+
+        // Note: basic attack slash streaks (`slashlarge1/2/3.img`) are hit effects
+        // rendered only via `"hitFlash"` when an attack actually connects with a target.
     } else {
         c.fill_round_rect(
             px - 15.0,
@@ -818,17 +934,66 @@ pub fn draw_player(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
         );
     }
 
-    let pname = p.name.as_deref().unwrap_or("鬼剑士");
-    let label = format!("Lv.{} {}", p.level, pname);
+    let label = player_overhead_label(p);
     c.fill_text(
         &label,
         px,
         py - 92.0,
         10.5,
-        Rgba::new(230, 238, 248, 245),
+        Rgba::new(240, 244, 252, 255),
         TextAlign::Center,
-        Some(Rgba::new(24, 4, 32, 235)),
+        Some(Rgba::new(16, 12, 24, 240)),
     );
+
+    if p.freeze_timer > 0.0 {
+        if let Some(sv) = sprites.get("statusVfx") {
+            // Authentic DNF `freeze.img` ice crystal wrapping the player
+            let fw = 165.0 * 0.52;
+            let fh = 195.0 * 0.56;
+            c.draw_image(
+                sv,
+                165,
+                0,
+                165,
+                195,
+                px - fw * 0.5,
+                py - fh + 6.0,
+                fw,
+                fh,
+                false,
+                0.86,
+                0.0,
+            );
+        } else {
+            c.fill_round_rect(
+                px - 28.0,
+                py - 90.0,
+                56.0,
+                94.0,
+                8.0,
+                Rgba::new(118, 210, 255, 118),
+            );
+        }
+        c.fill_text(
+            "冰冻",
+            px,
+            py - 112.0,
+            12.0,
+            Rgba::new(165, 234, 255, 255),
+            TextAlign::Center,
+            Some(Rgba::new(12, 28, 56, 240)),
+        );
+    }
+}
+
+pub fn player_overhead_label(p: &Player) -> String {
+    let pname = p
+        .name
+        .as_deref()
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+        .unwrap_or("阿努纳奇");
+    format!("Lv.{} {}", p.level, pname)
 }
 
 struct SkillBeat {
@@ -1204,14 +1369,132 @@ fn enemy_frame(state: &State, enemy: &Enemy) -> u32 {
     idle[0] + ((state.time * 3.2) as u32) % span
 }
 
-pub fn draw_enemy(c: &mut Canvas<'_>, state: &State, enemy: &Enemy, sprites: &SpriteStore) {
+pub fn champion_affix(enemy: &Enemy) -> Option<&'static str> {
+    let champ = enemy.champion.as_deref()?;
+    if champ == "fire" || champ == "champfire" {
+        Some("火焰爆炸")
+    } else {
+        Some("无法浮空")
+    }
+}
+
+fn draw_champion_aura(
+    c: &mut Canvas<'_>,
+    state: &State,
+    enemy: &Enemy,
+    sprites: &SpriteStore,
+    back: bool,
+) {
+    if enemy.dead {
+        return;
+    }
+    let Some(ref champ) = enemy.champion else {
+        return;
+    };
+    let is_fire = champ == "fire" || champ == "champfire";
+    let ui_key = match (is_fire, back) {
+        (true, true) => "champfireback",
+        (true, false) => "champfire",
+        (false, true) => "champdarkback",
+        (false, false) => "champdark",
+    };
     let ex = enemy.x as f32;
+    let ey = feet_y_enemy(enemy);
+    let ground_y = floor_y(enemy.z);
+    let frames = RENDER_TABLES
+        .get("UI")
+        .and_then(|u| u.get(ui_key))
+        .and_then(|v| v.get("frames"))
+        .and_then(|f| f.as_array());
+
+    if let (Some(ui), Some(frames)) = (sprites.get("ui"), frames) {
+        if !frames.is_empty() {
+            const UI_SCALE: f32 = (1.6 * 84.0) / 265.0;
+            const AURA_FPS: f64 = 12.0;
+            let idx = ((state.time.max(0.0) * AURA_FPS) as usize) % frames.len();
+            if let Some(arr) = frames[idx].as_array() {
+                if arr.len() >= 4 {
+                    let fx = arr[0].as_u64().unwrap_or(0) as u32;
+                    let fy = arr[1].as_u64().unwrap_or(0) as u32;
+                    let fw = arr[2].as_u64().unwrap_or(0) as u32;
+                    let fh = arr[3].as_u64().unwrap_or(0) as u32;
+                    let dw = fw as f32 * UI_SCALE * CAMERA_ZOOM as f32;
+                    let dh = fh as f32 * UI_SCALE * CAMERA_ZOOM as f32;
+                    if back {
+                        c.draw_image(
+                            ui,
+                            fx,
+                            fy,
+                            fw,
+                            fh,
+                            ex - dw * 0.5,
+                            ey - dh * 0.82,
+                            dw,
+                            dh,
+                            false,
+                            0.85,
+                            0.0,
+                        );
+                    } else {
+                        c.draw_image_additive(
+                            ui,
+                            fx,
+                            fy,
+                            fw,
+                            fh,
+                            ex - dw * 0.5,
+                            ey - dh * 0.82,
+                            dw,
+                            dh,
+                            false,
+                            0.85,
+                            0.0,
+                        );
+                    }
+                    return;
+                }
+            }
+        }
+    }
+
+    // Animated procedural flame fallback when ui.png is unavailable
+    let phase = (state.time * 8.0) as f32;
+    let pulse = 0.85 + 0.15 * phase.sin();
+    let (outer, inner) = if is_fire {
+        (Rgba::new(255, 108, 32, 130), Rgba::new(255, 210, 90, 150))
+    } else {
+        (Rgba::new(178, 56, 238, 135), Rgba::new(236, 140, 255, 160))
+    };
+    let rx = (enemy.width as f32 * 0.95).max(26.0) * pulse;
+    if back {
+        c.fill_ellipse(ex, ground_y - 2.0, rx, 10.0 * pulse, outer);
+        for i in 0..5 {
+            let a = phase + i as f32 * 1.25;
+            let fx = ex + (a * 0.7).sin() * (rx * 0.55);
+            let fh = 16.0 + (a * 1.3).cos().abs() * 14.0;
+            c.fill_ellipse(fx, ground_y - fh * 0.5, 8.0, fh * 0.55, outer);
+        }
+    } else {
+        c.fill_ellipse(ex, ground_y, rx * 0.65, 6.5 * pulse, inner);
+    }
+}
+
+pub fn draw_enemy(c: &mut Canvas<'_>, state: &State, enemy: &Enemy, sprites: &SpriteStore) {
+    let jitter_x = if !enemy.dead && (enemy.hit_flash_timer > 0.0 || enemy.hurt_timer > 0.04) {
+        let active_t = enemy.hit_flash_timer.max(enemy.hurt_timer * 0.65);
+        let amp = (active_t / 0.12).clamp(0.0, 1.0) as f32 * 2.6;
+        amp * ((state.time * 95.0 + f64::from(enemy.id) * 1.7).sin() as f32)
+    } else {
+        0.0
+    };
+    let ex = enemy.x as f32 + jitter_x;
     let ey = feet_y_enemy(enemy);
     let ground_y = floor_y(enemy.z);
     let w = enemy.width as f32;
     let h = enemy.height as f32;
+    let is_boss = enemy.behavior == "boss";
 
-    if enemy.behavior != "boss" {
+    if !is_boss {
         c.fill_ellipse(
             ex,
             ground_y,
@@ -1221,14 +1504,7 @@ pub fn draw_enemy(c: &mut Canvas<'_>, state: &State, enemy: &Enemy, sprites: &Sp
         );
     }
 
-    if let Some(ref champ) = enemy.champion {
-        let aura_col = if champ == "champfire" {
-            Rgba::new(255, 110, 40, 120)
-        } else {
-            Rgba::new(150, 70, 220, 120)
-        };
-        c.stroke_ellipse(ex, ground_y, (w * 0.7).max(20.0), 8.0, aura_col, 2.0);
-    }
+    draw_champion_aura(c, state, enemy, sprites, true);
 
     let custom_sheet = match enemy.kind.as_str() {
         "grunt" => sprites.get("goblinReference").map(|sh| (sh, 0u32, 76.0f32)),
@@ -1281,6 +1557,22 @@ pub fn draw_enemy(c: &mut Canvas<'_>, state: &State, enemy: &Enemy, sprites: &Sp
                 sh, sx, sy, cell_w, cell_h, draw_x, draw_y, dw, dh, flip, 1.0,
             );
         } else {
+            if is_boss && !enemy.dead {
+                c.draw_image_outline(
+                    sh,
+                    sx,
+                    sy,
+                    cell_w,
+                    cell_h,
+                    draw_x,
+                    draw_y,
+                    dw,
+                    dh,
+                    flip,
+                    Rgba::new(156, 14, 28, 245),
+                    1.6,
+                );
+            }
             c.draw_image(
                 sh,
                 sx,
@@ -1295,6 +1587,22 @@ pub fn draw_enemy(c: &mut Canvas<'_>, state: &State, enemy: &Enemy, sprites: &Sp
                 if enemy.dead { 0.45 } else { 1.0 },
                 0.0,
             );
+            if !enemy.dead && enemy.hit_flash_timer > 0.0 {
+                let flash_alpha = ((enemy.hit_flash_timer / 0.12).clamp(0.0, 1.0) as f32) * 0.65;
+                c.draw_image_white_silhouette(
+                    sh,
+                    sx,
+                    sy,
+                    cell_w,
+                    cell_h,
+                    draw_x,
+                    draw_y,
+                    dw,
+                    dh,
+                    flip,
+                    flash_alpha,
+                );
+            }
         }
         true
     } else {
@@ -1308,26 +1616,67 @@ pub fn draw_enemy(c: &mut Canvas<'_>, state: &State, enemy: &Enemy, sprites: &Sp
             "boss" | "lugaruBoss" => Rgba::new(146, 54, 46, 255),
             _ => Rgba::new(82, 164, 88, 255),
         };
+        if is_boss && !enemy.dead {
+            c.stroke_round_rect(
+                ex - w * 0.5 - 1.5,
+                ey - h - 1.5,
+                w + 3.0,
+                h + 3.0,
+                6.0,
+                Rgba::new(156, 14, 28, 245),
+                2.5,
+            );
+        }
         c.fill_round_rect(ex - w * 0.5, ey - h, w, h, 5.0, body_col);
+        if !enemy.dead && enemy.hit_flash_timer > 0.0 {
+            let flash_alpha = ((enemy.hit_flash_timer / 0.12).clamp(0.0, 1.0) as f32) * 0.65;
+            c.fill_round_rect(
+                ex - w * 0.5,
+                ey - h,
+                w,
+                h,
+                5.0,
+                Rgba::new(255, 255, 255, 255).with_alpha(flash_alpha),
+            );
+        }
     }
 
-    if !enemy.dead && enemy.hp < enemy.max_hp && enemy.behavior != "boss" {
-        let bw = w.max(32.0);
-        let ratio = (enemy.hp / enemy.max_hp).clamp(0.0, 1.0) as f32;
-        c.fill_rect(
-            ex - bw * 0.5,
-            ey - h - 10.0,
-            bw,
-            4.0,
-            Rgba::new(20, 20, 26, 210),
-        );
-        c.fill_rect(
-            ex - bw * 0.5,
-            ey - h - 10.0,
-            bw * ratio,
-            4.0,
-            Rgba::new(220, 56, 56, 255),
-        );
+    draw_champion_aura(c, state, enemy, sprites, false);
+
+    if !enemy.dead {
+        if is_boss {
+            let title_y = ey - h.max(54.0) - 8.0;
+            c.fill_text(
+                &enemy.label,
+                ex,
+                title_y,
+                10.5,
+                Rgba::new(221, 4, 195, 255),
+                TextAlign::Center,
+                Some(Rgba::new(24, 4, 32, 235)),
+            );
+        } else if let Some(affix) = champion_affix(enemy) {
+            let name_y = ey - h - 10.0;
+            let affix_y = name_y - 12.0;
+            c.fill_text(
+                affix,
+                ex,
+                affix_y,
+                10.0,
+                Rgba::new(242, 246, 255, 255),
+                TextAlign::Center,
+                Some(Rgba::new(16, 10, 24, 235)),
+            );
+            c.fill_text(
+                &enemy.label,
+                ex,
+                name_y,
+                10.0,
+                Rgba::new(169, 117, 229, 255),
+                TextAlign::Center,
+                Some(Rgba::new(24, 4, 32, 235)),
+            );
+        }
     }
 }
 
@@ -1423,56 +1772,72 @@ pub fn draw_world(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
                     floor_y(drop.z)
                 };
                 if drop.kind == "blood_orb" {
+                    let pulse = (0.94 + 0.06 * (state.time * 14.0 + drop.x * 0.05).sin()) as f32;
+                    let size = (2.0 * drop.radius as f32 * pulse) / 0.595;
+                    let life_alpha = if drop.life < 0.25 {
+                        (drop.life / 0.25).max(0.2) as f32
+                    } else {
+                        1.0
+                    };
+                    let frame = ((state.time * 14.0 + drop.x * 0.05) as u32) % 6;
                     if let Some(eff) = sprites.get("effects") {
-                        let frame = ((state.time / 0.1) as u32) % 6;
+                        for back in (1..drop.trail.len()).rev() {
+                            let pt = drop.trail[back];
+                            let tx = pt[0] as f32;
+                            let ty = (pt[1] - depth_lift(pt[2])) as f32;
+                            let ta = life_alpha
+                                * 0.5
+                                * (1.0 - back as f32 / (drop.trail.len() as f32 + 1.0));
+                            c.draw_image(
+                                eff,
+                                frame * 128,
+                                14 * 128,
+                                128,
+                                128,
+                                tx - size * 0.5,
+                                ty - size * 0.5,
+                                size,
+                                size,
+                                false,
+                                ta,
+                                0.0,
+                            );
+                        }
+                        let halo = drop.radius as f32 * 1.25 * pulse;
+                        c.fill_ellipse(
+                            dx,
+                            dy,
+                            halo,
+                            halo,
+                            Rgba::new(225, 42, 66, 110).with_alpha(life_alpha),
+                        );
                         c.draw_image(
                             eff,
                             frame * 128,
                             14 * 128,
                             128,
                             128,
-                            dx - 24.0,
-                            dy - 24.0,
-                            48.0,
-                            48.0,
+                            dx - size * 0.5,
+                            dy - size * 0.5,
+                            size,
+                            size,
                             false,
-                            1.0,
+                            life_alpha,
                             0.0,
+                        );
+                        let hot = drop.radius as f32 * 0.42 * pulse;
+                        c.fill_ellipse(
+                            dx,
+                            dy,
+                            hot,
+                            hot,
+                            Rgba::new(255, 255, 255, 210).with_alpha(life_alpha),
                         );
                     } else {
                         c.fill_ellipse(dx, dy, 8.0, 8.0, Rgba::new(225, 42, 54, 230));
                     }
                 } else {
-                    let on_row =
-                        (state.player.z - drop.z).abs() <= DEPTH_REACH_MELEE * SLAYER_HEIGHT;
-                    let ready = !state.player.dead
-                        && on_row
-                        && (state.player.x - drop.x).abs() <= LOOT_REACH + state.player.width * 0.5;
-                    let edge_col = if ready {
-                        Rgba::new(198, 240, 74, 245)
-                    } else {
-                        Rgba::new(226, 232, 238, 235)
-                    };
-                    let pw = (drop.name.chars().count() as f32 * 9.5 + 14.0).max(40.0);
-                    let ph = 17.0f32;
-                    c.fill_round_rect(
-                        dx - pw * 0.5,
-                        dy - ph,
-                        pw,
-                        ph,
-                        3.0,
-                        Rgba::new(10, 14, 20, 184),
-                    );
-                    c.stroke_round_rect(dx - pw * 0.5, dy - ph, pw, ph, 3.0, edge_col, 1.5);
-                    c.fill_text(
-                        &drop.name,
-                        dx,
-                        dy - 4.5,
-                        9.5,
-                        Rgba::new(126, 210, 216, 255),
-                        TextAlign::Center,
-                        None,
-                    );
+                    crate::combat_info::draw_loot_plate(c, state, sprites, drop, dx, dy);
                 }
             }
             3 => {
@@ -1566,38 +1931,141 @@ pub fn draw_world(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
                         );
                     }),
                     Some(30057) => sprites.get("goblinIce").map(|sh| {
-                        let frame = ((age / 0.05) as u32) % 8;
+                        let ice_scale = NATIVE_SCALE as f32;
+                        let frame = (((age + 1e-7) / 0.05) as u32) % 8;
+                        // Trailing icy mist/sparkle decay particles along the Z-sine path.
+                        for step in 1..=4i32 {
+                            let trail_dt = f64::from(step) * 0.045;
+                            if age < trail_dt {
+                                continue;
+                            }
+                            let t_age = age - trail_dt;
+                            let tx = (pr.x - pr.vx * trail_dt) as f32;
+                            let t_osc = if pr.z_sine_amp > 0.0 {
+                                -(t_age * pr.z_sine_rad_per_sec).sin() * pr.z_sine_amp
+                            } else {
+                                0.0
+                            };
+                            let ty = (pr.y + t_osc - depth_lift(pr.z)) as f32;
+                            let fade = (1.0 - (trail_dt / 0.22) as f32).clamp(0.0, 1.0);
+                            let r = (5.5 - f32::from(step as u8) * 0.8) * ice_scale;
+                            c.fill_ellipse(
+                                tx,
+                                ty,
+                                r,
+                                r * 0.75,
+                                Rgba::new(170, 232, 255, (fade * 140.0) as u8),
+                            );
+                        }
+                        if let Some(aura) = sprites.get("goblinIceAura") {
+                            let aura_frame = (((age + 1e-7) / 0.09) as u32) % 15;
+                            let aw = 192.0 * ice_scale;
+                            let ah = 64.0 * ice_scale;
+                            c.draw_image_additive(
+                                aura,
+                                aura_frame * 192,
+                                0,
+                                192,
+                                64,
+                                px - aw * 0.5,
+                                py - ah * 0.5,
+                                aw,
+                                ah,
+                                flip,
+                                85.0 / 255.0,
+                                0.0,
+                            );
+                        }
+                        let iw = 64.0 * ice_scale;
+                        let ih = 64.0 * ice_scale;
                         c.draw_image(
                             sh,
                             frame * 64,
                             0,
                             64,
                             64,
-                            px - 32.0,
-                            py - 32.0,
-                            64.0,
-                            64.0,
+                            px - iw * 0.5,
+                            py - ih * 0.5,
+                            iw,
+                            ih,
                             flip,
                             1.0,
                             0.0,
                         );
                     }),
                     Some(30047) => sprites.get("goblinFire").map(|sh| {
-                        let frame = ((age / 0.05) as u32) % 9;
-                        c.draw_image(
-                            sh,
-                            frame * 128,
-                            0,
-                            128,
-                            128,
-                            px - 44.0,
-                            py - 44.0,
-                            88.0,
-                            88.0,
-                            flip,
-                            1.0,
-                            0.0,
-                        );
+                        let fire_scale = NATIVE_SCALE as f32 * 0.7;
+                        let emit_end = if pr.stopped { pr.stopped_at } else { age };
+                        let ref_vx = if pr.stopped { pr.stop_vx } else { pr.vx };
+                        let ref_vy = if pr.stopped { pr.stop_vy } else { pr.vy };
+                        let ref_g = if pr.stopped {
+                            pr.stop_gravity
+                        } else {
+                            pr.gravity
+                        };
+                        let fire_flip = ref_vx < 0.0;
+                        let start_em = (((age - 0.35 + 1e-7) / 0.02).ceil().max(0.0)) as i32;
+                        let end_em = ((emit_end + 1e-7) / 0.02).floor() as i32;
+                        let base_y = pr.y - depth_lift(pr.z);
+                        let sz = 128.0 * fire_scale;
+                        for em in start_em..=end_em {
+                            let birth_age = f64::from(em) * 0.02;
+                            let particle_age = (age - birth_age).max(0.0);
+                            if particle_age >= 0.35 {
+                                continue;
+                            }
+                            let life_frac = (particle_age / 0.35) as f32;
+                            let fire_frame: u32 = if particle_age < 0.23 { 0 } else { 1 };
+                            let dt_ref = emit_end - birth_age;
+                            let jx = ((((em * 37 + pr.id as i32 * 13).rem_euclid(9)) - 4) as f32)
+                                * 0.65
+                                * fire_scale;
+                            let jy = ((((em * 53 + pr.id as i32 * 7).rem_euclid(9)) - 4) as f32)
+                                * 0.65
+                                * fire_scale;
+                            let fx = (pr.x - ref_vx * dt_ref) as f32 + jx;
+                            let fy = (base_y - ref_vy * dt_ref + ref_g * dt_ref * dt_ref * 0.5)
+                                as f32
+                                + jy;
+                            let decay = (1.0 - life_frac).powf(1.25);
+                            let alpha = if fire_frame == 0 {
+                                (0.45 + 0.55 * decay).clamp(0.0, 1.0)
+                            } else {
+                                (decay * 0.55).clamp(0.0, 1.0)
+                            };
+                            let p_sz = sz * (0.88 + 0.18 * (1.0 - life_frac));
+                            c.draw_image(
+                                sh,
+                                fire_frame * 128,
+                                0,
+                                128,
+                                128,
+                                fx - p_sz * 0.5,
+                                fy - p_sz * 0.5,
+                                p_sz,
+                                p_sz,
+                                fire_flip,
+                                alpha,
+                                -std::f32::consts::PI,
+                            );
+                            if particle_age < 0.08 {
+                                let glow_a = (1.0 - (particle_age / 0.08) as f32) * 0.42;
+                                c.draw_image_additive(
+                                    sh,
+                                    0,
+                                    0,
+                                    128,
+                                    128,
+                                    fx - p_sz * 0.45,
+                                    fy - p_sz * 0.45,
+                                    p_sz * 0.9,
+                                    p_sz * 0.9,
+                                    fire_flip,
+                                    glow_a,
+                                    -std::f32::consts::PI,
+                                );
+                            }
+                        }
                     }),
                     _ => None,
                 };
@@ -1613,51 +2081,73 @@ pub fn draw_world(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
             }
             5 => {
                 let sh = &state.shots[item.idx];
-                if sh.skill_id != "normalWave" {
-                    continue;
-                }
                 let sx = sh.x as f32;
                 let sy = (sh.y - depth_lift(sh.z)) as f32;
                 let age = (sh.max_life - sh.life).max(0.0);
-                let frame = (((age / 0.06667) as u32).min(4)) % 5;
-                let size = 217.6f32;
-                let drawn = if let Some(nw) = sprites.get("normalWave") {
-                    c.draw_image(
-                        nw,
-                        frame * 320,
-                        0,
-                        320,
-                        320,
-                        sx - size * 0.5,
-                        sy - size * 0.5,
-                        size,
-                        size,
-                        sh.facing < 0,
-                        0.92,
-                        0.0,
-                    );
-                    true
-                } else if let Some(eff) = sprites.get("effects") {
-                    c.draw_image(
-                        eff,
-                        frame * 128,
-                        31 * 128,
-                        128,
-                        128,
-                        sx - size * 0.5,
-                        sy - size * 0.5,
-                        size,
-                        size,
-                        sh.facing < 0,
-                        0.92,
-                        0.0,
-                    );
-                    true
+                if sh.skill_id == "normalWave" {
+                    let frame = (((age + 1e-7) / (1.0 / 15.0)) as u32).min(4);
+                    let size = 217.6f32;
+                    let drawn = if let Some(nw) = sprites.get("normalWave") {
+                        c.draw_image_additive(
+                            nw,
+                            frame * 320,
+                            320,
+                            320,
+                            320,
+                            sx - size * 0.5,
+                            sy - size * 0.5,
+                            size,
+                            size,
+                            sh.facing < 0,
+                            0.95,
+                            0.0,
+                        );
+                        true
+                    } else if let Some(eff) = sprites.get("effects") {
+                        c.draw_image_additive(
+                            eff,
+                            frame * 128,
+                            31 * 128,
+                            128,
+                            128,
+                            sx - size * 0.5,
+                            sy - size * 0.5,
+                            size,
+                            size,
+                            sh.facing < 0,
+                            0.92,
+                            0.0,
+                        );
+                        true
+                    } else {
+                        false
+                    };
+                    if !drawn {
+                        c.fill_ellipse(sx, sy - 24.0, 28.0, 18.0, Rgba::new(225, 58, 72, 200));
+                    }
+                } else if sh.skill_id == "crossSlash" {
+                    let frame = ((age / 0.05) as u32) % 6;
+                    let size = 148.0f32;
+                    if let Some(eff) = sprites.get("effects") {
+                        c.draw_image_additive(
+                            eff,
+                            frame * 128,
+                            4 * 128,
+                            128,
+                            128,
+                            sx - size * 0.5,
+                            sy - size * 0.5 - 32.0,
+                            size,
+                            size,
+                            sh.facing < 0,
+                            0.95,
+                            0.0,
+                        );
+                    } else {
+                        c.fill_ellipse(sx, sy - 32.0, 32.0, 20.0, Rgba::new(235, 54, 68, 220));
+                    }
                 } else {
-                    false
-                };
-                if !drawn {
-                    c.fill_ellipse(sx, sy - 24.0, 28.0, 18.0, Rgba::new(225, 58, 72, 200));
+                    c.fill_ellipse(sx, sy - 24.0, 22.0, 14.0, Rgba::new(225, 92, 92, 200));
                 }
             }
             6 => draw_player(c, state, sprites),
@@ -1788,61 +2278,37 @@ pub fn draw_world(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
             }
         }
     } else if state.player.attack_timer > 0.0 {
-        let px = state.player.x as f32 + state.player.facing as f32 * 38.0;
+        let px = state.player.x as f32 + state.player.facing as f32 * 34.0;
         let py = feet_y_player(&state.player) - 32.0;
         if state.player.buffs.contains_key("bloodRage") {
             if let Some(eff) = sprites.get("effects") {
                 let dur = state.player.attack_duration.max(0.1);
                 let prog = (1.0 - (state.player.attack_timer / dur)).clamp(0.0, 0.999);
                 let frame = (prog * 8.0) as u32;
+                let slash_sz = 92.0f32;
                 c.draw_image(
                     eff,
                     frame * 128,
                     16 * 128,
                     128,
                     128,
-                    px - 64.0,
-                    py - 64.0,
-                    128.0,
-                    128.0,
+                    px - slash_sz * 0.5,
+                    py - slash_sz * 0.5,
+                    slash_sz,
+                    slash_sz,
                     flip,
-                    0.9,
+                    0.78,
                     0.0,
                 );
             } else {
-                c.fill_ellipse(px, py, 28.0, 18.0, Rgba::new(235, 68, 76, 110));
+                c.fill_ellipse(px, py, 24.0, 15.0, Rgba::new(235, 68, 76, 100));
             }
         }
     }
 }
 
-pub fn draw_foreground(c: &mut Canvas<'_>, state: &State, sprites: &SpriteStore) {
-    if state.stage_id != "mirkwooddeep" {
-        return;
-    }
-    let Some(cell) = current_cell(state) else {
-        return;
-    };
-    if (cell.col + 1, cell.row + 1) == (2, 4) {
-        if let Some(fg) = sprites.get("deepRoom24Foreground") {
-            let rw = room_width(state) as f32;
-            let fh = fg.height() as f32;
-            c.draw_image(
-                fg,
-                0,
-                0,
-                fg.width(),
-                fg.height(),
-                0.0,
-                ARENA_HEIGHT as f32 - fh,
-                rw,
-                fh,
-                false,
-                1.0,
-                0.0,
-            );
-        }
-    }
+pub fn draw_foreground(_c: &mut Canvas<'_>, _state: &State, _sprites: &SpriteStore) {
+    // Removed giant blocking `deepRoom24Foreground` tree wall: reference V2 @ 35s has clear combat visibility.
 }
 
 pub fn draw_effect(c: &mut Canvas<'_>, state: &State, effect: &Effect, sprites: &SpriteStore) {
@@ -1854,21 +2320,197 @@ pub fn draw_effect(c: &mut Canvas<'_>, state: &State, effect: &Effect, sprites: 
     match effect.kind.as_str() {
         "damage" => {
             let x = effect.x as f32;
-            let y = (effect.y - depth_lift(effect.z)) as f32 - (1.0 - alpha) * 18.0;
-            let col = if effect.miss {
-                Rgba::new(190, 205, 225, 255).with_alpha(alpha)
+            let age = (1.0 - alpha).clamp(0.0, 1.0);
+            let y = (effect.y - depth_lift(effect.z)) as f32 - age * 20.0;
+            let draw_alpha = if alpha < 0.30 {
+                (alpha / 0.30).clamp(0.0, 1.0)
             } else {
-                Rgba::new(255, 214, 72, 255).with_alpha(alpha)
+                1.0
             };
-            c.fill_text(
-                &effect.text,
-                x,
-                y,
-                16.0,
-                col,
-                TextAlign::Center,
-                Some(Rgba::new(0, 0, 0, 220).with_alpha(alpha)),
-            );
+            if effect.miss {
+                c.fill_text(
+                    &effect.text,
+                    x,
+                    y,
+                    14.0,
+                    Rgba::new(205, 222, 240, 255).with_alpha(draw_alpha),
+                    TextAlign::Center,
+                    Some(Rgba::new(10, 14, 22, 235).with_alpha(draw_alpha)),
+                );
+            } else if let Some(dsh) = sprites.get("damageDigits") {
+                const CELL_W: u32 = 24;
+                const CELL_H: u32 = 22;
+                const DIGIT_ADV: [f32; 10] =
+                    [17.0, 11.0, 17.0, 17.0, 17.0, 17.0, 17.0, 17.0, 17.0, 17.0];
+                let digits: Vec<usize> = effect
+                    .text
+                    .chars()
+                    .filter_map(|ch| ch.to_digit(10).map(|d| d as usize))
+                    .collect();
+                if !digits.is_empty() {
+                    let row: u32 = if effect.player_hit {
+                        2
+                    } else if effect.critical {
+                        1
+                    } else {
+                        0
+                    };
+                    let pop = if age < 0.14 {
+                        1.28 - (age / 0.14) * 0.28
+                    } else {
+                        1.0
+                    };
+                    let base_scale = if effect.critical { 0.96 } else { 0.72 };
+                    let scale = base_scale * pop;
+                    let total_w: f32 = digits.iter().map(|&d| DIGIT_ADV[d] * scale).sum();
+                    let dw = CELL_W as f32 * scale;
+                    let dh = CELL_H as f32 * scale;
+                    let mut cur_x = x - total_w * 0.5;
+                    for &d in &digits {
+                        let adv = DIGIT_ADV[d] * scale;
+                        let glyph_x = cur_x + (adv - dw) * 0.5;
+                        c.draw_image(
+                            dsh,
+                            (d as u32) * CELL_W,
+                            row * CELL_H,
+                            CELL_W,
+                            CELL_H,
+                            glyph_x,
+                            y - dh,
+                            dw,
+                            dh,
+                            false,
+                            draw_alpha,
+                            0.0,
+                        );
+                        cur_x += adv;
+                    }
+                }
+            } else {
+                let col = if effect.player_hit {
+                    Rgba::new(235, 52, 52, 255).with_alpha(draw_alpha)
+                } else if effect.critical {
+                    Rgba::new(255, 138, 32, 255).with_alpha(draw_alpha)
+                } else {
+                    Rgba::new(255, 224, 72, 255).with_alpha(draw_alpha)
+                };
+                let size = if effect.critical { 21.0 } else { 16.0 };
+                c.fill_text(
+                    &effect.text,
+                    x,
+                    y,
+                    size,
+                    col,
+                    TextAlign::Center,
+                    Some(Rgba::new(0, 0, 0, 230).with_alpha(draw_alpha)),
+                );
+            }
+        }
+        "hitFlash" => {
+            let ex = effect.x as f32;
+            let ey = (effect.y - depth_lift(effect.z)) as f32;
+            let age = (1.0 - alpha).clamp(0.0, 1.0);
+            let draw_alpha = if age > 0.72 {
+                ((1.0 - age) / 0.28).clamp(0.0, 1.0)
+            } else {
+                1.0
+            };
+            let flip = effect.dir < 0;
+            let col: u32 = if age < 0.48 {
+                0
+            } else if age < 0.76 {
+                1
+            } else {
+                2
+            };
+            let is_normal_slash_hit = !effect.gold && !effect.player_hit && effect.variant != 1;
+            if is_normal_slash_hit {
+                if let Some(slash_sh) = sprites.get("basicSlash") {
+                    const SLASH_W: u32 = 320;
+                    const SLASH_H: u32 = 184;
+                    let row = if effect.variant >= 10 {
+                        ((effect.variant - 10) as u32).min(2)
+                    } else {
+                        1
+                    };
+                    // Authentic 60/70 Swordman hit-only white-gold slash streak (00001 @ 2:44)
+                    let base_scale = (effect.radius.max(0.5) as f32) * (0.48 + age * 0.08);
+                    let dw = SLASH_W as f32 * base_scale;
+                    let dh = SLASH_H as f32 * base_scale;
+                    c.draw_image(
+                        slash_sh,
+                        col * SLASH_W,
+                        row * SLASH_H,
+                        SLASH_W,
+                        SLASH_H,
+                        ex - dw * 0.5,
+                        ey - dh * 0.5,
+                        dw,
+                        dh,
+                        flip,
+                        draw_alpha,
+                        0.0,
+                    );
+                } else if let Some(ish) = sprites.get("impactFlash") {
+                    const CELL_W: u32 = 144;
+                    const CELL_H: u32 = 128;
+                    let base_scale = (effect.radius.max(0.5) as f32) * (0.38 + age * 0.07);
+                    let dw = CELL_W as f32 * base_scale;
+                    let dh = CELL_H as f32 * base_scale;
+                    c.draw_image(
+                        ish,
+                        col * CELL_W,
+                        2 * CELL_H,
+                        CELL_W,
+                        CELL_H,
+                        ex - dw * 0.5,
+                        ey - dh * 0.5,
+                        dw,
+                        dh,
+                        flip,
+                        draw_alpha,
+                        0.0,
+                    );
+                }
+            } else if let Some(ish) = sprites.get("impactFlash") {
+                const CELL_W: u32 = 144;
+                const CELL_H: u32 = 128;
+                // Keep compact starburst for heavy skills / critical hits / boss impacts (row 0) and player hurt (row 1)
+                let row: u32 = if effect.gold {
+                    0
+                } else if effect.player_hit || effect.variant == 1 {
+                    1
+                } else {
+                    (effect.variant.min(2)) as u32
+                };
+                let base_scale = (effect.radius.max(0.5) as f32) * (0.34 + age * 0.075);
+                let dw = CELL_W as f32 * base_scale;
+                let dh = CELL_H as f32 * base_scale;
+                c.draw_image(
+                    ish,
+                    col * CELL_W,
+                    row * CELL_H,
+                    CELL_W,
+                    CELL_H,
+                    ex - dw * 0.5,
+                    ey - dh * 0.5,
+                    dw,
+                    dh,
+                    flip,
+                    draw_alpha,
+                    0.0,
+                );
+            } else {
+                // Procedural fallback starburst if sheet is unavailable
+                let reach = (effect.radius.max(0.5) as f32) * (18.0 + age * 6.0);
+                c.fill_ellipse(
+                    ex,
+                    ey,
+                    reach * 0.55,
+                    reach * 0.55,
+                    Rgba::new(255, 252, 224, 240).with_alpha(draw_alpha),
+                );
+            }
         }
         "hitWord" => {
             let x = effect.x as f32;
@@ -1883,67 +2525,75 @@ pub fn draw_effect(c: &mut Canvas<'_>, state: &State, effect: &Effect, sprites: 
                 Some(Rgba::new(0, 0, 0, 220).with_alpha(alpha)),
             );
         }
-        "pickupText" => {
-            let x = state.player.x as f32;
-            let y = feet_y_player(&state.player) - 82.0 - (1.0 - alpha) * 22.0;
-            c.fill_text(
-                &effect.text,
-                x,
-                y,
-                14.0,
-                Rgba::new(150, 245, 165, 255).with_alpha(alpha),
-                TextAlign::Center,
-                Some(Rgba::new(0, 0, 0, 220).with_alpha(alpha)),
-            );
-        }
-        "xp" => {
-            let x = state.player.x as f32;
-            let y = feet_y_player(&state.player) - 98.0 - (1.0 - alpha) * 20.0;
-            if let Some(dsh) = sprites.get("experienceDigits") {
-                let digits = effect.amount.to_string();
-                let gw = 12.0f32;
-                let gh = 14.0f32;
-                let total_w = (digits.len() + 1) as f32 * gw;
-                let mut cur_x = x - total_w * 0.5;
-                c.draw_image(
-                    dsh,
-                    10 * 16,
-                    0,
-                    16,
-                    16,
-                    cur_x,
-                    y - gh,
-                    gw,
-                    gh,
-                    false,
-                    alpha,
-                    0.0,
-                );
-                cur_x += gw;
-                for ch in digits.chars() {
-                    if let Some(d) = ch.to_digit(10) {
-                        c.draw_image(
-                            dsh,
-                            d * 16,
-                            0,
-                            16,
-                            16,
-                            cur_x,
-                            y - gh,
-                            gw,
-                            gh,
-                            false,
-                            alpha,
-                            0.0,
-                        );
-                        cur_x += gw;
-                    }
+        "pickupText" | "xp" => {
+            let x = if effect.anchor == "player" {
+                state.player.x as f32
+            } else {
+                effect.x as f32
+            };
+            let base_y = if effect.anchor == "player" {
+                feet_y_player(&state.player) - 96.0
+            } else {
+                (effect.y - depth_lift(effect.z)) as f32
+            };
+            let y = base_y - (1.0 - alpha) * 20.0;
+            let xp_digits: Option<String> = if effect.kind == "xp" && effect.amount > 0 {
+                Some(format!("+{}", effect.amount))
+            } else if let Some(prefix) = effect.text.strip_suffix(" Exp") {
+                if !prefix.is_empty() && prefix.chars().all(|ch| ch.is_ascii_digit() || ch == '+') {
+                    Some(prefix.to_string())
+                } else {
+                    None
+                }
+            } else {
+                None
+            };
+            if let (Some(dsh), Some(num_str)) = (sprites.get("experienceDigits"), xp_digits) {
+                const ADVANCES: [f32; 11] = [
+                    12.0, 7.0, 11.0, 11.0, 11.0, 10.0, 11.0, 11.0, 11.0, 11.0, 10.0,
+                ];
+                let scale = NATIVE_SCALE as f32;
+                let slots: Vec<usize> = num_str
+                    .chars()
+                    .filter_map(|ch| {
+                        if ch == '+' {
+                            Some(10)
+                        } else {
+                            ch.to_digit(10).map(|d| d as usize)
+                        }
+                    })
+                    .collect();
+                let num_w: f32 = slots.iter().map(|&s| ADVANCES[s]).sum::<f32>() * scale;
+                let gap = scale;
+                let exp_w = 18.0 * scale;
+                let total_w = num_w + gap + exp_w;
+                let edge = camera_x(state);
+                let margin = total_w * 0.5 + 5.0 / CAMERA_ZOOM as f32;
+                let cx = x.clamp(edge + margin, edge + window_width() as f32 - margin);
+                let mut cur_x = cx - total_w * 0.5;
+                let cell_sz = 16.0 * scale;
+                for &slot in &slots {
+                    c.draw_image(
+                        dsh,
+                        (slot as u32) * 16,
+                        0,
+                        16,
+                        16,
+                        cur_x,
+                        y - cell_sz,
+                        cell_sz,
+                        cell_sz,
+                        false,
+                        alpha,
+                        0.0,
+                    );
+                    cur_x += ADVANCES[slot] * scale;
                 }
                 c.fill_text(
                     "Exp",
-                    cur_x + 2.0,
+                    cur_x + gap,
                     y - 2.0,
-                    11.0,
+                    10.0,
                     Rgba::new(150, 245, 165, 255).with_alpha(alpha),
                     TextAlign::Left,
                     Some(Rgba::new(0, 0, 0, 220).with_alpha(alpha)),
@@ -1960,21 +2610,301 @@ pub fn draw_effect(c: &mut Canvas<'_>, state: &State, effect: &Effect, sprites: 
                 );
             }
         }
-        "shockwave" if effect.arc => {
-            let r = (effect.radius as f32) * (0.6 + 0.4 * (1.0 - alpha));
+        "shockwave" => {
+            let r = (effect.radius as f32) * (1.15 - alpha * 0.35);
             let col = if effect.gold {
-                Rgba::new(245, 205, 88, 255)
+                Rgba::new(255, 209, 102, 255)
+            } else if effect.arc {
+                Rgba::new(255, 176, 102, 255)
             } else {
                 Rgba::new(235, 92, 68, 255)
+            };
+            let stroke_w = if effect.gold {
+                6.0
+            } else if effect.arc {
+                4.0
+            } else {
+                2.5
             };
             c.stroke_ellipse(
                 effect.x as f32,
                 floor_y(effect.z),
                 r,
                 r * DEPTH_SCALE as f32,
-                col.with_alpha(alpha),
-                3.0,
+                col.with_alpha(alpha * 0.85),
+                stroke_w,
             );
+        }
+        "rageGather" => {
+            let elapsed = (effect.max_life - effect.life).max(0.0);
+            if elapsed >= effect.delay && !state.player.dead {
+                let span = (effect.max_life - effect.delay).max(1e-4);
+                let t = ((elapsed - effect.delay) / span).clamp(0.0, 1.0) as f32;
+                let shrink = if t < 0.6 { 1.0 } else { 1.0 - (t - 0.6) / 0.4 };
+                if shrink > 0.0 {
+                    let sh = state.player.height as f32 * 1.3;
+                    let px = state.player.x as f32;
+                    let py = feet_y_player(&state.player) - sh;
+                    if let Some(eff) = sprites.get("effects") {
+                        let col = ((t * 4.0) as u32).min(3);
+                        let sz = 46.0 * shrink;
+                        let gx = px + state.player.facing as f32 * sh * 0.4;
+                        c.draw_image(
+                            eff,
+                            col * 128,
+                            24 * 128,
+                            128,
+                            128,
+                            gx - sz * 0.5,
+                            py - sz * 0.5,
+                            sz,
+                            sz,
+                            state.player.facing < 0,
+                            shrink,
+                            0.0,
+                        );
+                    }
+                    let star_t = t / 0.45;
+                    if star_t <= 1.0 {
+                        let star_a = 0.95
+                            * if star_t < 0.35 {
+                                1.0
+                            } else {
+                                1.0 - (star_t - 0.35) / 0.65
+                            };
+                        let half = sh * 0.27;
+                        for i in 0..12 {
+                            let ang = (i as f32 / 12.0) * std::f32::consts::TAU
+                                + std::f32::consts::FRAC_PI_6 * 0.5;
+                            let reach = half * if i % 3 == 0 { 1.15 } else { 0.72 };
+                            c.draw_line(
+                                px + ang.cos() * half * 0.25,
+                                py + ang.sin() * half * 0.25,
+                                px + ang.cos() * reach,
+                                py + ang.sin() * reach,
+                                Rgba::new(120, 196, 236, 230).with_alpha(star_a),
+                                (sh * 0.022).max(1.0),
+                            );
+                        }
+                        c.fill_ellipse(
+                            px,
+                            py,
+                            half * 0.85,
+                            half * 0.22,
+                            Rgba::new(255, 255, 255, 240).with_alpha(star_a),
+                        );
+                        c.fill_ellipse(
+                            px,
+                            py,
+                            half * 0.2,
+                            half * 0.72,
+                            Rgba::new(255, 255, 255, 240).with_alpha(star_a),
+                        );
+                    }
+                }
+            }
+        }
+        "ghost" => {
+            let ex = effect.x as f32;
+            let ey = (effect.y - depth_lift(effect.z)) as f32;
+            let r = effect.radius.max(18.0) as f32;
+            c.stroke_ellipse(
+                ex,
+                ey,
+                r,
+                r * 0.65,
+                Rgba::new(148, 92, 235, 255).with_alpha(alpha * 0.75),
+                6.0,
+            );
+        }
+        "bloodStrand" => {
+            if let Some(eff) = sprites.get("effects") {
+                let progress = (1.0 - alpha).clamp(0.0, 1.0);
+                let to_x = state.player.x as f32 - state.player.facing as f32 * 4.0;
+                let to_y = feet_y_player(&state.player) - state.player.height as f32 * 0.62;
+                let sx = effect.x as f32;
+                let sy = (effect.y - depth_lift(effect.z)) as f32;
+                let hx = sx + (to_x - sx) * progress;
+                let hy = sy + (to_y - sy) * progress;
+                let dx = hx - sx;
+                let dy = hy - sy;
+                let len = dx.hypot(dy);
+                if len >= 1.0 {
+                    let col = ((progress * 4.0) as u32).min(3);
+                    let sz = (len / (112.0 / 128.0)) * 1.08;
+                    let ang = dy.atan2(dx) + std::f32::consts::FRAC_PI_2;
+                    c.draw_image(
+                        eff,
+                        col * 128,
+                        15 * 128,
+                        128,
+                        128,
+                        hx - sz * 0.5,
+                        hy - sz * 0.5,
+                        sz,
+                        sz,
+                        false,
+                        1.0 - progress * 0.35,
+                        ang,
+                    );
+                }
+            }
+        }
+        "bloodFlash" => {
+            let ex = effect.x as f32;
+            let ey = (effect.y - depth_lift(effect.z)) as f32;
+            let age = 1.0 - alpha;
+            let fa = alpha * (1.0 - age * 0.45);
+            let reach = 12.0 + age * 36.0;
+            for spoke in 0..14 {
+                let ang = (spoke as f32 / 14.0) * std::f32::consts::TAU + 0.35;
+                c.draw_line(
+                    ex + ang.cos() * reach * 0.35,
+                    ey + ang.sin() * reach * 0.35,
+                    ex + ang.cos() * reach,
+                    ey + ang.sin() * reach,
+                    Rgba::new(222, 252, 255, 160).with_alpha(fa),
+                    2.0,
+                );
+            }
+            c.fill_ellipse(
+                ex,
+                ey,
+                13.0,
+                13.0,
+                Rgba::new(255, 255, 255, 235).with_alpha(fa),
+            );
+        }
+        "bloodHeal" => {
+            let ex = effect.x as f32;
+            let ey = (effect.y - depth_lift(effect.z)) as f32;
+            let age = 1.0 - alpha;
+            let opened = (age - 0.25) / 0.75;
+            if opened > 0.0 {
+                let radius = 34.0f32;
+                let sphere = radius * (0.62 + 0.38 * (opened / 0.35).min(1.0));
+                let sa = ((1.0 - opened) * 2.6).clamp(0.0, 1.0);
+                c.fill_ellipse(
+                    ex,
+                    ey,
+                    sphere,
+                    sphere,
+                    Rgba::new(150, 240, 180, 105).with_alpha(sa),
+                );
+                c.stroke_ellipse(
+                    ex,
+                    ey,
+                    sphere,
+                    sphere,
+                    Rgba::new(214, 255, 224, 175).with_alpha(sa),
+                    2.0,
+                );
+            }
+            for mote in 0..3i32 {
+                let own = ((age - 0.55) / 0.45).clamp(0.0, 1.0);
+                if own <= 0.0 {
+                    continue;
+                }
+                let ang = -std::f32::consts::FRAC_PI_2 + (mote - 1) as f32 * 0.75;
+                let travel = 42.0 * own;
+                let mx = ex + ang.cos() * travel * 0.7 + (mote - 1) as f32 * 11.0;
+                let my = ey + ang.sin() * travel;
+                c.fill_ellipse(
+                    mx,
+                    my,
+                    4.5,
+                    4.5,
+                    Rgba::new(205, 255, 218, 200).with_alpha(1.0 - own),
+                );
+            }
+        }
+        "bomb_piece" => {
+            if let Some(sh) = sprites.get("goblinBombPieces") {
+                let sc = NATIVE_SCALE as f32;
+                let sz = 40.0 * sc;
+                let ex = effect.x as f32;
+                let ey = (effect.y - depth_lift(effect.z)) as f32;
+                c.draw_image(
+                    sh,
+                    ((effect.variant % 4) as u32) * 40,
+                    0,
+                    40,
+                    40,
+                    ex - sz * 0.5,
+                    ey - sz * 0.5,
+                    sz,
+                    sz,
+                    false,
+                    alpha,
+                    effect.angle as f32,
+                );
+            }
+        }
+        "stone_debris" => {
+            if let Some(sh) = sprites.get("goblinStoneDebris") {
+                let sc = NATIVE_SCALE as f32;
+                let sz = 16.0 * sc;
+                let ex = effect.x as f32;
+                let ey = (effect.y - depth_lift(effect.z)) as f32;
+                c.draw_image(
+                    sh,
+                    ((effect.variant % 2) as u32) * 16,
+                    0,
+                    16,
+                    16,
+                    ex - sz * 0.5,
+                    ey - sz * 0.5,
+                    sz,
+                    sz,
+                    false,
+                    alpha,
+                    0.0,
+                );
+            }
+        }
+        "pillar_debris" => {
+            if let Some(sh) = sprites.get("pillarDebris") {
+                let sc = NATIVE_SCALE as f32;
+                let sz = 26.0 * sc;
+                let ex = effect.x as f32;
+                let ey = (effect.y - depth_lift(effect.z)) as f32;
+                let age = (effect.max_life - effect.life).max(0.0);
+                let ang = (effect.angle0
+                    + f64::from(effect.spin_dir) * ((age / 1.4) % 1.0) * 6.248_279_094_696_045)
+                    as f32;
+                c.fill_ellipse(
+                    ex,
+                    ey + 4.0,
+                    sz * 0.42,
+                    sz * 0.28,
+                    Rgba::new(186, 182, 168, (90.0 * alpha) as u8),
+                );
+                c.draw_image(
+                    sh,
+                    ((effect.variant % 4) as u32) * 48,
+                    0,
+                    48,
+                    48,
+                    ex - sz * 0.5,
+                    ey - sz * 0.5,
+                    sz,
+                    sz,
+                    false,
+                    alpha,
+                    ang,
+                );
+            }
+        }
+        "leaf_debris" => {
+            let ex = effect.x as f32;
+            let ey = (effect.y - depth_lift(effect.z)) as f32;
+            let col = match effect.variant % 4 {
+                0 => Rgba::new(78, 178, 62, (235.0 * alpha) as u8),
+                1 => Rgba::new(112, 208, 78, (230.0 * alpha) as u8),
+                2 => Rgba::new(56, 146, 52, (225.0 * alpha) as u8),
+                _ => Rgba::new(236, 128, 168, (230.0 * alpha) as u8),
+            };
+            c.fill_ellipse(ex, ey, 5.5, 2.8, col);
         }
         "telegraph" => {
             let r = effect.radius.max(24.0) as f32;
@@ -2012,53 +2942,185 @@ pub fn draw_effect(c: &mut Canvas<'_>, state: &State, effect: &Effect, sprites: 
                 Some(Rgba::new(0, 0, 0, 220).with_alpha(alpha)),
             );
         }
-        "bomb_flash" | "bossburst" => {
+        "bomb_flash" => {
             let ex = effect.x as f32;
             let ey = (effect.y - depth_lift(effect.z)) as f32;
+            if let Some(sh) = sprites.get("goblinBombFlash") {
+                let sc = NATIVE_SCALE as f32;
+                let max_l = if effect.max_life > 0.0 {
+                    effect.max_life
+                } else {
+                    0.2
+                };
+                let age = (max_l - effect.life).max(0.0);
+                let t = (age / 0.1).min(1.0) as f32;
+                let rate = 0.5 + 1.5 * t;
+                let fa = (1.0 - age / max_l).max(0.0) as f32;
+                let sz = 103.0 * rate * sc;
+                c.draw_image_additive(
+                    sh,
+                    0,
+                    0,
+                    103,
+                    103,
+                    ex - 50.0 * rate * sc,
+                    ey - 50.0 * rate * sc,
+                    sz,
+                    sz,
+                    false,
+                    fa,
+                    0.0,
+                );
+            } else {
+                c.fill_ellipse(
+                    ex,
+                    ey,
+                    38.0 * (1.2 - alpha * 0.5),
+                    28.0 * (1.2 - alpha * 0.5),
+                    Rgba::new(255, 220, 140, 255).with_alpha(alpha),
+                );
+            }
+        }
+        "bossburst" => {
+            // 1:1 DNF Lugaru Boss death VFX (matching reference screenshot):
+            // 1) Glowing blue-white ground ring under boss
+            // 2) Bright white-red diagonal light beams shooting across the screen
+            // 3) Client `shootingstarglow.img` + `darkfireexp.img` purple-white core burst
+            const BURST_FRAMES: [[u32; 4]; 7] = [
+                [881, 0, 32, 29],
+                [913, 0, 32, 33],
+                [945, 0, 35, 40],
+                [980, 0, 44, 72],
+                [0, 212, 46, 66],
+                [46, 212, 48, 44],
+                [94, 212, 25, 23],
+            ];
+            const GLOW_FRAMES: [[u32; 4]; 3] =
+                [[119, 212, 104, 93], [223, 212, 98, 93], [321, 212, 97, 90]];
+            let ex = effect.x as f32;
+            let foot_y = (effect.y - depth_lift(effect.z)) as f32;
+            let ey = foot_y - 36.0;
+            let p = (1.0 - alpha).clamp(0.0, 0.999);
+
+            // 1. Glowing blue-white ground ring under boss feet
+            let ring_r = 44.0 + p * 34.0;
             c.fill_ellipse(
                 ex,
-                ey,
-                38.0 * (1.2 - alpha * 0.5),
-                28.0 * (1.2 - alpha * 0.5),
-                Rgba::new(255, 220, 140, 255).with_alpha(alpha),
+                foot_y - 4.0,
+                ring_r,
+                ring_r * 0.42,
+                Rgba::new(72, 148, 255, (145.0 * alpha) as u8),
             );
-            if effect.kind == "bossburst" {
-                if let Some(bd) = sprites.get("bossdeath") {
-                    let bw = bd.width() as f32;
-                    let bh = bd.height() as f32;
-                    c.draw_image(
-                        bd,
-                        0,
-                        0,
-                        bd.width(),
-                        bd.height(),
-                        ex - bw * 0.5,
-                        ey - 44.0,
-                        bw,
-                        bh,
-                        false,
-                        alpha,
-                        0.0,
-                    );
-                }
+            c.stroke_ellipse(
+                ex,
+                foot_y - 4.0,
+                ring_r * 0.92,
+                ring_r * 0.38,
+                Rgba::new(220, 245, 255, (235.0 * alpha) as u8),
+                3.5,
+            );
+
+            // 2. Diagonal white-red light beams shooting out across the screen
+            let beam_angles: [f32; 7] = [-2.55, -2.05, -1.78, -0.45, 0.35, 2.48, 3.02];
+            for (i, &ang) in beam_angles.iter().enumerate() {
+                let speed = 320.0 + (i % 3) as f32 * 95.0;
+                let dist = 30.0 + p * speed;
+                let len = 140.0 + (i % 2) as f32 * 70.0;
+                let x0 = ex + ang.cos() * dist;
+                let y0 = ey + ang.sin() * dist;
+                let x1 = x0 + ang.cos() * len;
+                let y1 = y0 + ang.sin() * len;
+                c.draw_line(
+                    x0,
+                    y0,
+                    x1,
+                    y1,
+                    Rgba::new(255, 78, 56, (195.0 * alpha) as u8),
+                    8.0,
+                );
+                c.draw_line(
+                    x0,
+                    y0,
+                    x1,
+                    y1,
+                    Rgba::new(255, 248, 244, (245.0 * alpha) as u8),
+                    3.2,
+                );
+            }
+
+            // 3. Client `shootingstarglow.img` + `darkfireexp.img` core flash
+            if let Some(sv) = sprites.get("statusVfx") {
+                let g_idx = ((p * 9.0) as usize) % GLOW_FRAMES.len();
+                let [gx, gy, gw, gh] = GLOW_FRAMES[g_idx];
+                let gsc = 1.45 + p * 0.5;
+                c.draw_image_additive(
+                    sv,
+                    gx,
+                    gy,
+                    gw,
+                    gh,
+                    ex - gw as f32 * gsc * 0.5,
+                    ey - gh as f32 * gsc * 0.5,
+                    gw as f32 * gsc,
+                    gh as f32 * gsc,
+                    false,
+                    alpha,
+                    0.0,
+                );
+                let idx = ((p * BURST_FRAMES.len() as f32) as usize).min(BURST_FRAMES.len() - 1);
+                let [sx, sy, sw, sh] = BURST_FRAMES[idx];
+                let sc = 2.6f32;
+                let dw = sw as f32 * sc;
+                let dh = sh as f32 * sc;
+                c.draw_image(
+                    sv,
+                    sx,
+                    sy,
+                    sw,
+                    sh,
+                    ex - dw * 0.5,
+                    ey - dh * 0.5,
+                    dw,
+                    dh,
+                    false,
+                    (alpha * 1.15).min(1.0),
+                    0.0,
+                );
+                c.draw_image_additive(
+                    sv,
+                    sx,
+                    sy,
+                    sw,
+                    sh,
+                    ex - dw * 0.5,
+                    ey - dh * 0.5,
+                    dw,
+                    dh,
+                    false,
+                    alpha * 0.9,
+                    0.0,
+                );
             }
         }
         "deathburst" => {
             let t = (effect.max_life - effect.life).max(0.0);
-            let is_boss = effect.enemy_type == "boss" || effect.enemy_type == "deepBoss";
-            let count = if is_boss { 12usize } else { 8usize };
-            let gravity = if is_boss { 520.0 } else { 640.0 };
+            let is_tau_boss = effect.enemy_type == "boss";
+            let is_boss =
+                is_tau_boss || effect.enemy_type == "deepBoss" || effect.enemy_type == "lugaruBoss";
+            let count = if is_boss { 12usize } else { 9usize };
+            let gravity = if is_boss { 560.0 } else { 680.0 };
+            let gib_row = monster_gib_row(&effect.enemy_type);
             let sheet_key = if state.stage_id == "mirkwooddeep" {
                 "forestDeep"
             } else {
                 "forest"
             };
             let chunk_prefix = match effect.enemy_type.as_str() {
-                "boss" | "deepBoss" => "boss",
+                "boss" | "deepBoss" | "lugaruBoss" => "boss",
                 "brute" => "brute",
                 "caster" | "burningThrower" => "caster",
                 "coward" => "coward",
-                "throwerElite" | "deepElite" => "elite",
+                "elite" | "throwerElite" | "deepElite" => "elite",
                 _ => "grunt",
             };
             let body = effect.height * 0.45;
@@ -2070,40 +3132,73 @@ pub fn draw_effect(c: &mut Canvas<'_>, state: &State, effect: &Effect, sprites: 
                 [59, 0, 22, 21],
                 [82, 0, 6, 7],
             ];
+
+            // Compact dark-red blood splatter droplets that land and settle quickly on the grass
+            let blood_count = if is_boss { 7usize } else { 5usize };
+            for b_idx in 0..blood_count {
+                let b_angle = scatter_hash(effect.seed ^ 0x51a7, b_idx * 5) * std::f64::consts::TAU;
+                let b_speed = 55.0 + scatter_hash(effect.seed ^ 0x51a7, b_idx * 5 + 1) * 95.0;
+                let b_vx = b_angle.cos() * b_speed;
+                let b_vy = 55.0 + scatter_hash(effect.seed ^ 0x51a7, b_idx * 5 + 2) * 85.0;
+                let (b_dx, b_h, _) = gib_bounce_state(t, body * 0.8, b_vx, b_vy, 820.0);
+                let bx = (effect.x + b_dx) as f32;
+                let by = base_y - b_h as f32;
+                let rx = 2.0 + scatter_hash(effect.seed ^ 0x51a7, b_idx * 5 + 3) as f32 * 2.2;
+                let ry = if b_h <= 0.5 { rx * 0.55 } else { rx * 0.85 };
+                c.fill_ellipse(
+                    bx,
+                    by,
+                    rx,
+                    ry,
+                    Rgba::new(138, 18, 22, 215).with_alpha(alpha),
+                );
+                c.fill_ellipse(
+                    bx - 0.5,
+                    by - 0.4,
+                    rx * 0.45,
+                    ry * 0.45,
+                    Rgba::new(196, 36, 38, 190).with_alpha(alpha),
+                );
+            }
+
             for idx in 0..count {
                 let angle = scatter_hash(effect.seed, idx * 6) * std::f64::consts::TAU;
                 let speed = if is_boss {
-                    80.0 + scatter_hash(effect.seed, idx * 6 + 1) * 140.0
+                    75.0 + scatter_hash(effect.seed, idx * 6 + 1) * 130.0
                 } else {
-                    110.0 + scatter_hash(effect.seed, idx * 6 + 1) * 150.0
+                    80.0 + scatter_hash(effect.seed, idx * 6 + 1) * 115.0
                 };
                 let vx = angle.cos() * speed;
                 let vy = if is_boss {
-                    45.0 + scatter_hash(effect.seed, idx * 6 + 4) * 130.0
+                    55.0 + scatter_hash(effect.seed, idx * 6 + 4) * 125.0
                 } else {
-                    angle.sin() * speed * 0.55 + 70.0
+                    75.0 + scatter_hash(effect.seed, idx * 6 + 4) * 105.0
                 };
-                let spin = (scatter_hash(effect.seed, idx * 6 + 3) - 0.5) * 11.0;
+                let spin = (scatter_hash(effect.seed, idx * 6 + 3) - 0.5) * 10.0;
                 let mut x0 = effect.x;
                 let mut h0 = body;
                 if is_boss {
-                    x0 += (scatter_hash(effect.seed, idx * 6 + 5) - 0.5) * effect.height * 0.8;
+                    x0 += (scatter_hash(effect.seed, idx * 6 + 5) - 0.5) * effect.height * 0.7;
                     h0 = (body
-                        + (scatter_hash(effect.seed, idx * 6 + 7) - 0.5) * effect.height * 0.5)
+                        + (scatter_hash(effect.seed, idx * 6 + 7) - 0.5) * effect.height * 0.45)
                         .max(0.0);
                 }
-                let mut travel = t;
-                if is_boss {
-                    let land = (vy + (vy * vy + 2.0 * gravity * h0).sqrt()) / gravity;
-                    if travel > land {
-                        travel = land;
-                    }
-                }
-                let px = (x0 + vx * travel) as f32;
-                let h = (h0 + vy * travel - 0.5 * gravity * travel * travel).max(0.0);
+                let (dx, h, rot_t) = gib_bounce_state(t, h0, vx, vy, gravity);
+                let px = (x0 + dx) as f32;
                 let py = base_y - h as f32;
-                let rot = (spin * travel) as f32;
-                if is_boss {
+                let rot = (spin * rot_t) as f32;
+
+                // Subtle ground shadow directly beneath each chunk
+                let shadow_scale = (1.0 - (h as f32 / 90.0)).clamp(0.45, 1.0);
+                c.fill_ellipse(
+                    px,
+                    base_y + 1.0,
+                    6.5 * shadow_scale,
+                    2.4 * shadow_scale,
+                    Rgba::new(0, 0, 0, 95).with_alpha(alpha),
+                );
+
+                if is_tau_boss {
                     if let Some(bd) = sprites.get("bossdeath") {
                         let [sx, sy, sw, sh] = boss_frames[idx % boss_frames.len()];
                         if sx + sw <= bd.width() && sy + sh <= bd.height() {
@@ -2123,6 +3218,32 @@ pub fn draw_effect(c: &mut Canvas<'_>, state: &State, effect: &Effect, sprites: 
                             );
                         }
                     }
+                } else if let Some(gibs) = sprites.get("monsterGibs") {
+                    const GIB_CELL: u32 = 36;
+                    let max_row = (gibs.height() / GIB_CELL).saturating_sub(1);
+                    let row = gib_row.min(max_row);
+                    let col = (idx % 4) as u32;
+                    let size_jitter = 0.62 + scatter_hash(effect.seed, idx * 6 + 2) as f32 * 0.24;
+                    let draw_sz = GIB_CELL as f32
+                        * if is_boss {
+                            size_jitter * 1.25
+                        } else {
+                            size_jitter
+                        };
+                    c.draw_image(
+                        gibs,
+                        col * GIB_CELL,
+                        row * GIB_CELL,
+                        GIB_CELL,
+                        GIB_CELL,
+                        px - draw_sz * 0.5,
+                        py - draw_sz * 0.5,
+                        draw_sz,
+                        draw_sz,
+                        false,
+                        alpha,
+                        rot,
+                    );
                 } else if let Some(sh) = sprites.get(sheet_key) {
                     let piece = format!("chunk_{}{}", chunk_prefix, idx % 3);
                     if let Some([sx, sy, sw, sh_h]) = rect_at(&["SCENE", "pieces", &piece]) {
@@ -2206,7 +3327,605 @@ pub fn draw_effect(c: &mut Canvas<'_>, state: &State, effect: &Effect, sprites: 
     }
 }
 
+/// Horizontal width of Seria's Room (`赛丽亚的房间`, single-screen interior matching V1 @ 6s).
+pub const SERIA_ROOM_WIDTH: f64 = VIEW_WIDTH;
+/// Horizontal width of Hendon Myre Alley (`赫顿玛尔小巷`, north zone matching V1 @ 12s–45s).
+pub const ALLEY_WIDTH: f64 = 1620.0;
+/// Horizontal width of Hendon Myre Plaza (`赫顿玛尔市区`, south red-brick plaza matching V1 @ 13s–47s & V3).
+pub const PLAZA_WIDTH: f64 = 1872.0;
+/// Horizontal width of Gran Floris West Bridge (`格兰之森西桥`, white stone bridge matching V1 @ 49s–51s).
+pub const WEST_BRIDGE_WIDTH: f64 = 1260.0;
+/// Total horizontal width of Hendon Myre Plaza (legacy alias).
+pub const TOWN_WIDTH: f64 = PLAZA_WIDTH;
+pub const TOWN_MIN_X: f64 = 80.0;
+pub const TOWN_MAX_X: f64 = PLAZA_WIDTH - 80.0;
+pub const TOWN_MIN_Z: f64 = 0.0;
+pub const TOWN_MAX_Z: f64 = 100.0;
+/// West end of the white stone bridge in `WestBridge` leading directly into Gran Floris Region Select.
+pub const TOWN_GATE_X: f64 = 95.0;
+/// Town walking speed in logical px/s (measured from `00002` @ 1.5..2.2s).
+pub const TOWN_WALK_SPEED: f64 = 220.0;
+/// Depth movement speed ratio relative to horizontal walk speed (ADR / town review: 0.56).
+pub const TOWN_DEPTH_SPEED_RATIO: f64 = 0.56;
+/// Horizontal camera deadzone half-width around viewport center.
+pub const TOWN_CAMERA_HALF_WINDOW: f64 = 56.0;
+/// Exponential camera easing rate (1/s): `camera_x += (target - camera_x) * (1 - (-k * dt).exp())`.
+pub const TOWN_CAMERA_EASE_K: f64 = 8.5;
+/// Dedicated town walk animation row in `slayer-reference.png` (client frames 180–187, 8 frames).
+pub const TOWN_WALK_ROW: u32 = 12;
+/// Duration of the smooth black fade when switching between Hendon Myre zones (seconds).
+pub const TOWN_ZONE_FADE_DUR: f64 = 0.35;
+/// Duration of the fading `赫顿玛尔 / HendonMyre` entry title when exiting Seria's Room (seconds).
+pub const TOWN_TITLE_DUR: f64 = 3.5;
+
+/// Walkable doorway centers (in logical x) for vertical (North/South) zone transitions.
+const SERIA_DOOR_X: f64 = 360.0;
+const ALLEY_SERIA_ARCH_X: f64 = 672.0;
+const ALLEY_SOUTH_ARCH_X: f64 = 432.0;
+const PLAZA_NORTH_ARCH_X: f64 = 508.0;
+
+/// The four connected zones of Hendon Myre (`赛丽亚的房间` ↔ `赫顿玛尔小巷` ↔ `赫顿玛尔市区` ↔ `格兰之森西桥`).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum TownZone {
+    /// `赛丽亚的房间` (spawn interior: Seria, golden storage chest, mailbox, south purple carpet exit).
+    SeriaRoom,
+    /// `赫顿玛尔小巷` (north street: 4-plaque signpost, Oran, tree, knight-statue archway to Seria's Room, Sinda, G.S.D, south archway).
+    Alley,
+    /// `赫顿玛尔市区` (south red-brick plaza: west diagonal curb, red banner, Fire Pot, north colorful archway, 5-plaque signpost, Kanna, Feng Zhen).
+    Plaza,
+    /// `格兰之森西桥` (white stone bridge with red banner: east end returns to Plaza, west end enters Gran Floris Region Select).
+    WestBridge,
+}
+
+impl TownZone {
+    pub fn width(self) -> f64 {
+        match self {
+            Self::SeriaRoom => SERIA_ROOM_WIDTH,
+            Self::Alley => ALLEY_WIDTH,
+            Self::Plaza => PLAZA_WIDTH,
+            Self::WestBridge => WEST_BRIDGE_WIDTH,
+        }
+    }
+
+    pub fn min_x(self) -> f64 {
+        match self {
+            Self::SeriaRoom => 90.0,
+            Self::Alley | Self::Plaza | Self::WestBridge => TOWN_MIN_X,
+        }
+    }
+
+    pub fn max_x(self) -> f64 {
+        match self {
+            Self::SeriaRoom => SERIA_ROOM_WIDTH - 90.0,
+            Self::Alley | Self::Plaza | Self::WestBridge => self.width() - 80.0,
+        }
+    }
+
+    pub fn max_z(self) -> f64 {
+        match self {
+            Self::SeriaRoom => 112.0,
+            Self::Alley | Self::Plaza | Self::WestBridge => TOWN_MAX_Z,
+        }
+    }
+}
+
+/// Destination spawn specification for a smooth black-fade zone transition.
+#[derive(Debug, Clone, Copy, PartialEq)]
+struct PendingTownSpawn {
+    zone: TownZone,
+    x: f64,
+    z: f64,
+    facing: i32,
+    show_title: bool,
+}
+
+/// High-level transition event returned by [`step_town_motion`].
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum TownStepEvent {
+    None,
+    ZoneSwitched(TownZone),
+    OpenRegion,
+}
+
+/// Pure simulation state for player movement, zone fades & camera easing in Hendon Myre.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct TownMotion {
+    pub zone: TownZone,
+    pub x: f64,
+    pub z: f64,
+    pub facing: i32,
+    pub camera_x: f64,
+    pub walk: f64,
+    pub moving: bool,
+    pub zone_fade_timer: f64,
+    pending_spawn: Option<PendingTownSpawn>,
+    pub title_timer: f64,
+}
+
+impl Default for TownMotion {
+    fn default() -> Self {
+        Self::enter_seria_room()
+    }
+}
+
+impl TownMotion {
+    /// First town entry: spawns inside `赛丽亚的房间` on the purple carpet facing Seria (matching V1 @ 6s).
+    pub fn enter_seria_room() -> Self {
+        Self {
+            zone: TownZone::SeriaRoom,
+            x: SERIA_DOOR_X,
+            z: 36.0,
+            facing: 1,
+            camera_x: 0.0,
+            walk: 0.0,
+            moving: false,
+            zone_fade_timer: 0.0,
+            pending_spawn: None,
+            title_timer: 0.0,
+        }
+    }
+
+    /// Direct spawn into `赫顿玛尔小巷` in front of Seria's Inn archway with the fading `赫顿玛尔 / HendonMyre` title.
+    pub fn enter_alley() -> Self {
+        let x = ALLEY_SERIA_ARCH_X;
+        let camera_x = (x - VIEW_WIDTH * 0.5).clamp(0.0, ALLEY_WIDTH - VIEW_WIDTH);
+        Self {
+            zone: TownZone::Alley,
+            x,
+            z: 66.0,
+            facing: -1,
+            camera_x,
+            walk: 0.0,
+            moving: false,
+            zone_fade_timer: 0.0,
+            pending_spawn: None,
+            title_timer: TOWN_TITLE_DUR,
+        }
+    }
+
+    /// Returning from a dungeon (`返回城镇` / Continue): spawns on `格兰之森西桥` facing right.
+    pub fn return_from_dungeon() -> Self {
+        let x = 320.0;
+        let camera_x = (x - VIEW_WIDTH * 0.5).clamp(0.0, WEST_BRIDGE_WIDTH - VIEW_WIDTH);
+        Self {
+            zone: TownZone::WestBridge,
+            x,
+            z: 30.0,
+            facing: 1,
+            camera_x,
+            walk: 0.0,
+            moving: false,
+            zone_fade_timer: 0.0,
+            pending_spawn: None,
+            title_timer: 0.0,
+        }
+    }
+
+    /// Opacity (`0.0..=1.0`) of the smooth black zone-switch fade overlay.
+    pub fn zone_fade_alpha(&self) -> f32 {
+        if self.zone_fade_timer <= 0.0 || TOWN_ZONE_FADE_DUR <= 0.0 {
+            return 0.0;
+        }
+        let half = TOWN_ZONE_FADE_DUR * 0.5;
+        let elapsed = (TOWN_ZONE_FADE_DUR - self.zone_fade_timer).clamp(0.0, TOWN_ZONE_FADE_DUR);
+        let a = if elapsed <= half {
+            elapsed / half
+        } else {
+            (TOWN_ZONE_FADE_DUR - elapsed) / half
+        };
+        a.clamp(0.0, 1.0) as f32
+    }
+
+    /// Opacity (`0.0..=1.0`) of the fading `赫顿玛尔 / HendonMyre` entry title.
+    pub fn title_alpha(&self) -> f32 {
+        if self.title_timer <= 0.0 || TOWN_TITLE_DUR <= 0.0 {
+            return 0.0;
+        }
+        let elapsed = (TOWN_TITLE_DUR - self.title_timer).clamp(0.0, TOWN_TITLE_DUR);
+        let fade_in = 0.35;
+        let fade_out = 0.85;
+        let a = if elapsed < fade_in {
+            elapsed / fade_in
+        } else if self.title_timer < fade_out {
+            self.title_timer / fade_out
+        } else {
+            1.0
+        };
+        a.clamp(0.0, 1.0) as f32
+    }
+}
+
+fn queue_zone_switch(m: &mut TownMotion, dest: PendingTownSpawn) {
+    m.zone_fade_timer = TOWN_ZONE_FADE_DUR;
+    m.pending_spawn = Some(dest);
+    m.moving = false;
+    m.walk = 0.0;
+}
+
+/// Step Hendon Myre town movement, walkable doorway fades, and camera follow by `dt` seconds.
+///
+/// - Depth speed uses `TOWN_DEPTH_SPEED_RATIO` (`0.56`).
+/// - Diagonal movement (`dx != 0 && dz != 0`) is normalized by `1 / sqrt(2)`.
+/// - Camera follows the player deadzone with smooth exponential easing.
+/// - Authentic 1:1 walkable transitions:
+///   - `SeriaRoom` bottom carpet (`dz < 0`) → `Alley` knight-statue archway
+///   - `Alley` knight-statue archway (`dz > 0`) → `SeriaRoom`
+///   - `Alley` bottom archway (`dz < 0`) → `Plaza` colorful archway (next to Fire Pot)
+///   - `Plaza` colorful archway (`dz > 0`) → `Alley` bottom archway
+///   - `Plaza` far-west end of white stone bridge (`dx < 0`) → [`TownStepEvent::OpenRegion`]
+pub fn step_town_motion(m: &mut TownMotion, dx: i32, dz: i32, dt: f64) -> TownStepEvent {
+    let dx = dx.clamp(-1, 1);
+    let dz = dz.clamp(-1, 1);
+    let dt = dt.max(0.0);
+
+    if m.title_timer > 0.0 {
+        m.title_timer = (m.title_timer - dt).max(0.0);
+    }
+
+    if m.zone_fade_timer > 0.0 {
+        m.moving = false;
+        m.walk = 0.0;
+        m.zone_fade_timer = (m.zone_fade_timer - dt).max(0.0);
+        if m.zone_fade_timer <= TOWN_ZONE_FADE_DUR * 0.5 {
+            if let Some(dest) = m.pending_spawn.take() {
+                m.zone = dest.zone;
+                m.x = dest.x;
+                m.z = dest.z;
+                m.facing = dest.facing;
+                let max_cam = (dest.zone.width() - VIEW_WIDTH).max(0.0);
+                m.camera_x = (dest.x - VIEW_WIDTH * 0.5).clamp(0.0, max_cam);
+                if dest.show_title {
+                    m.title_timer = TOWN_TITLE_DUR;
+                }
+                return TownStepEvent::ZoneSwitched(dest.zone);
+            }
+        }
+        return TownStepEvent::None;
+    }
+
+    if dx != 0 {
+        m.facing = dx;
+    }
+    m.moving = dx != 0 || dz != 0;
+    if m.moving {
+        m.walk += dt;
+    } else {
+        m.walk = 0.0;
+    }
+
+    let mut vx = f64::from(dx);
+    let mut vz = f64::from(dz);
+    if dx != 0 && dz != 0 {
+        vx *= std::f64::consts::FRAC_1_SQRT_2;
+        vz *= std::f64::consts::FRAC_1_SQRT_2;
+    }
+
+    let min_x = m.zone.min_x();
+    let max_x = m.zone.max_x();
+    let max_z = m.zone.max_z();
+    let zone_w = m.zone.width();
+
+    m.x = (m.x + vx * TOWN_WALK_SPEED * dt).clamp(min_x, max_x);
+    m.z = (m.z + vz * TOWN_WALK_SPEED * TOWN_DEPTH_SPEED_RATIO * dt).clamp(TOWN_MIN_Z, max_z);
+
+    let max_cam = (zone_w - VIEW_WIDTH).max(0.0);
+    let center = m.camera_x + VIEW_WIDTH * 0.5;
+    let mut target = m.camera_x;
+    if m.x < center - TOWN_CAMERA_HALF_WINDOW {
+        target = m.x + TOWN_CAMERA_HALF_WINDOW - VIEW_WIDTH * 0.5;
+    } else if m.x > center + TOWN_CAMERA_HALF_WINDOW {
+        target = m.x - TOWN_CAMERA_HALF_WINDOW - VIEW_WIDTH * 0.5;
+    }
+    target = target.clamp(0.0, max_cam);
+    let alpha = 1.0 - (-TOWN_CAMERA_EASE_K * dt).exp();
+    m.camera_x = (m.camera_x + (target - m.camera_x) * alpha).clamp(0.0, max_cam);
+
+    // Authentic walkable doorway & west-bridge transitions
+    match m.zone {
+        TownZone::SeriaRoom => {
+            if dz < 0 && m.z <= 4.0 && (m.x - SERIA_DOOR_X).abs() <= 105.0 {
+                queue_zone_switch(
+                    m,
+                    PendingTownSpawn {
+                        zone: TownZone::Alley,
+                        x: ALLEY_SERIA_ARCH_X,
+                        z: 66.0,
+                        facing: -1,
+                        show_title: true,
+                    },
+                );
+            }
+        }
+        TownZone::Alley => {
+            if dz > 0 && m.z >= max_z - 6.0 && (m.x - ALLEY_SERIA_ARCH_X).abs() <= 72.0 {
+                queue_zone_switch(
+                    m,
+                    PendingTownSpawn {
+                        zone: TownZone::SeriaRoom,
+                        x: SERIA_DOOR_X,
+                        z: 24.0,
+                        facing: 1,
+                        show_title: false,
+                    },
+                );
+            } else if dz < 0 && m.z <= 4.0 && (m.x - ALLEY_SOUTH_ARCH_X).abs() <= 84.0 {
+                queue_zone_switch(
+                    m,
+                    PendingTownSpawn {
+                        zone: TownZone::Plaza,
+                        x: PLAZA_NORTH_ARCH_X,
+                        z: 74.0,
+                        facing: -1,
+                        show_title: false,
+                    },
+                );
+            }
+        }
+        TownZone::Plaza => {
+            if dz > 0 && m.z >= max_z - 6.0 && (m.x - PLAZA_NORTH_ARCH_X).abs() <= 78.0 {
+                queue_zone_switch(
+                    m,
+                    PendingTownSpawn {
+                        zone: TownZone::Alley,
+                        x: ALLEY_SOUTH_ARCH_X,
+                        z: 24.0,
+                        facing: 1,
+                        show_title: false,
+                    },
+                );
+            } else if dx < 0 && m.x <= min_x + 10.0 {
+                queue_zone_switch(
+                    m,
+                    PendingTownSpawn {
+                        zone: TownZone::WestBridge,
+                        x: WEST_BRIDGE_WIDTH - 140.0,
+                        z: m.z.clamp(20.0, 75.0),
+                        facing: -1,
+                        show_title: false,
+                    },
+                );
+            }
+        }
+        TownZone::WestBridge => {
+            if dx > 0 && m.x >= max_x - 10.0 {
+                queue_zone_switch(
+                    m,
+                    PendingTownSpawn {
+                        zone: TownZone::Plaza,
+                        x: 150.0,
+                        z: m.z.clamp(20.0, 75.0),
+                        facing: 1,
+                        show_title: false,
+                    },
+                );
+            } else if dx < 0 && m.x <= min_x + 10.0 {
+                m.x = min_x + 42.0;
+                m.moving = false;
+                m.walk = 0.0;
+                return TownStepEvent::OpenRegion;
+            }
+        }
+    }
+
+    TownStepEvent::None
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum TownNpcAction {
+    Quest,
+    Loadout,
+    Shop,
+    Bag,
+    Region,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum NpcAtlas {
+    Npc,
+    SeriaRoom,
+}
+
+struct TownNpcDef {
+    id: &'static str,
+    x: f32,
+    z: f32,
+    label: &'static str,
+    atlas: NpcAtlas,
+    frames: &'static [[u32; 4]],
+    scale: f32,
+    overhead_paw_icon: bool,
+}
+
+const GSD_FRAMES: [[u32; 4]; 4] = [
+    [960, 0, 75, 96],
+    [1035, 0, 75, 96],
+    [1110, 0, 75, 96],
+    [1185, 0, 75, 96],
+];
+const KANNA_FRAMES: [[u32; 4]; 8] = [
+    [1260, 0, 39, 106],
+    [1299, 0, 39, 106],
+    [1338, 0, 39, 106],
+    [1377, 0, 39, 106],
+    [1416, 0, 39, 106],
+    [1455, 0, 39, 106],
+    [1494, 0, 39, 106],
+    [1533, 0, 39, 106],
+];
+const SINDA_FRAMES: [[u32; 4]; 6] = [
+    [1133, 222, 86, 97],
+    [1219, 222, 86, 97],
+    [1305, 222, 86, 97],
+    [1391, 222, 86, 97],
+    [1477, 222, 86, 97],
+    [0, 319, 86, 97],
+];
+
+// Authentic sprites in `assets/seriaroom.png` (baked by `assets/import_dnf_seriaroom.py`)
+const SR_GATEBACK: [u32; 4] = [0, 0, 954, 560];
+const SR_STORAGE: [u32; 4] = [0, 560, 92, 67];
+const SR_POSTBOX: [u32; 4] = [92, 560, 94, 83];
+const SR_GATEPILLAR: [u32; 4] = [186, 560, 239, 101];
+const FIREPOT_FRAMES: [[u32; 4]; 4] = [
+    [425, 560, 41, 122],
+    [466, 560, 41, 122],
+    [507, 560, 41, 122],
+    [548, 560, 41, 122],
+];
+const ORAN_FRAMES: [[u32; 4]; 6] = [
+    [589, 560, 40, 91],
+    [629, 560, 40, 91],
+    [669, 560, 40, 91],
+    [709, 560, 40, 91],
+    [749, 560, 40, 91],
+    [789, 560, 40, 91],
+];
+const FENGZHEN_FRAMES: [[u32; 4]; 4] = [
+    [829, 560, 62, 129],
+    [891, 560, 67, 129],
+    [958, 560, 65, 129],
+    [0, 689, 65, 129],
+];
+const SERIA_REAL_FRAMES: [[u32; 4]; 6] = [
+    [65, 689, 56, 111],
+    [121, 689, 56, 110],
+    [177, 689, 55, 109],
+    [232, 689, 55, 108],
+    [287, 689, 55, 109],
+    [342, 689, 56, 110],
+];
+const STORAGE_FRAMES: [[u32; 4]; 1] = [SR_STORAGE];
+
+// Seria's Room (`赛丽亚的房间`, matches V1 @ 6s)
+const SERIA_ROOM_NPCS: [TownNpcDef; 2] = [
+    TownNpcDef {
+        id: "storage",
+        x: 185.0,
+        z: 92.0,
+        label: "闪耀的黄金金库",
+        atlas: NpcAtlas::SeriaRoom,
+        frames: &STORAGE_FRAMES,
+        scale: 1.0,
+        overhead_paw_icon: false,
+    },
+    TownNpcDef {
+        id: "seria",
+        x: 360.0,
+        z: 102.0,
+        label: "赛丽亚",
+        atlas: NpcAtlas::SeriaRoom,
+        frames: &SERIA_REAL_FRAMES,
+        scale: 1.08,
+        overhead_paw_icon: false,
+    },
+];
+
+// Hendon Myre Alley (`赫顿玛尔小巷`, north zone matching V1 @ 12s–45s):
+// Left-to-right: 4-plaque signpost -> Oran (paw icon) -> tall tree -> knight-statue archway -> Sinda -> G.S.D
+const ALLEY_NPCS: [TownNpcDef; 3] = [
+    TownNpcDef {
+        id: "oran",
+        x: 365.0,
+        z: 74.0,
+        label: "奥兰",
+        atlas: NpcAtlas::SeriaRoom,
+        frames: &ORAN_FRAMES,
+        scale: 1.05,
+        overhead_paw_icon: true,
+    },
+    TownNpcDef {
+        id: "sinda",
+        x: 1075.0,
+        z: 74.0,
+        label: "辛达",
+        atlas: NpcAtlas::Npc,
+        frames: &SINDA_FRAMES,
+        scale: 0.98,
+        overhead_paw_icon: false,
+    },
+    TownNpcDef {
+        id: "gsd",
+        x: 1385.0,
+        z: 74.0,
+        label: "G.S.D",
+        atlas: NpcAtlas::Npc,
+        frames: &GSD_FRAMES,
+        scale: 1.02,
+        overhead_paw_icon: false,
+    },
+];
+
+// Hendon Myre Plaza (`赫顿玛尔市区`, south red-brick plaza matching V1 @ 13s–47s & V3 @ 2m50s–3m40s):
+// West diagonal curb -> banner -> Fire Pot -> colorful north archway -> 5-plaque signpost -> blue window house -> Kanna -> Feng Zhen
+const PLAZA_NPCS: [TownNpcDef; 3] = [
+    TownNpcDef {
+        id: "firepot",
+        x: 344.0,
+        z: 74.0,
+        label: "火罐",
+        atlas: NpcAtlas::SeriaRoom,
+        frames: &FIREPOT_FRAMES,
+        scale: 1.05,
+        overhead_paw_icon: false,
+    },
+    TownNpcDef {
+        id: "kanna",
+        x: 1227.0,
+        z: 74.0,
+        label: "卡妮娜",
+        atlas: NpcAtlas::Npc,
+        frames: &KANNA_FRAMES,
+        scale: 0.98,
+        overhead_paw_icon: false,
+    },
+    TownNpcDef {
+        id: "fengzhen",
+        x: 1627.0,
+        z: 74.0,
+        label: "风振",
+        atlas: NpcAtlas::SeriaRoom,
+        frames: &FENGZHEN_FRAMES,
+        scale: 1.02,
+        overhead_paw_icon: false,
+    },
+];
+
+fn npcs_for_zone(zone: TownZone) -> &'static [TownNpcDef] {
+    match zone {
+        TownZone::SeriaRoom => &SERIA_ROOM_NPCS,
+        TownZone::Alley => &ALLEY_NPCS,
+        TownZone::Plaza => &PLAZA_NPCS,
+        TownZone::WestBridge => &[],
+    }
+}
+
+/// Resolve which town interaction occurs when the player presses Enter/Space at `(zone, player_x, player_z)`.
+pub fn town_interact_action(zone: TownZone, player_x: f64, player_z: f64) -> TownNpcAction {
+    if zone == TownZone::WestBridge && (player_x - TOWN_GATE_X).abs() < 110.0 {
+        return TownNpcAction::Region;
+    }
+    let mut best: Option<(f64, &TownNpcDef)> = None;
+    for npc in npcs_for_zone(zone) {
+        let dx = (f64::from(npc.x) - player_x).abs();
+        let dz = (f64::from(npc.z) - player_z).abs();
+        if dx < 72.0 && dz < 52.0 {
+            let dist = dx * dx + dz * dz;
+            if best.is_none_or(|(d, _)| dist < d) {
+                best = Some((dist, npc));
+            }
+        }
+    }
+    match best.map(|(_, n)| n.id) {
+        Some("gsd") => TownNpcAction::Loadout,
+        Some("seria" | "oran" | "firepot" | "fengzhen") => TownNpcAction::Quest,
+        Some("kanna") => TownNpcAction::Shop,
+        Some("sinda" | "storage") => TownNpcAction::Bag,
+        _ => TownNpcAction::Region,
+    }
+}
+
 pub struct TownView<'a> {
+    pub zone: TownZone,
     pub player_x: f64,
     pub player_z: f64,
     pub facing: i32,
@@ -2216,6 +3935,8 @@ pub struct TownView<'a> {
     pub walk: f64,
     pub player_level: u32,
     pub player_name: &'a str,
+    pub zone_fade_alpha: f32,
+    pub title_alpha: f32,
 }
 
 pub fn draw_town(
@@ -2226,27 +3947,154 @@ pub fn draw_town(
     sprites: &SpriteStore,
 ) {
     let view = TownView {
+        zone: TownZone::Alley,
         player_x,
         player_z,
         facing,
-        camera_x: (player_x - VIEW_WIDTH * 0.5).clamp(0.0, 2520.0 - VIEW_WIDTH),
+        camera_x: (player_x - VIEW_WIDTH * 0.5).clamp(0.0, ALLEY_WIDTH - VIEW_WIDTH),
         time: 0.0,
         moving: false,
         walk: 0.0,
-        player_level: 1,
-        player_name: "鬼剑士",
+        player_level: 3,
+        player_name: "阿努纳奇",
+        zone_fade_alpha: 0.0,
+        title_alpha: 0.0,
     };
     draw_town_view(c, &view, sprites);
 }
 
+// Rects in `assets/hendonmyre.png` (generated by `assets/import_dnf_hendonmyre.py`).
+const HM_FAR: [u32; 4] = [0, 0, 640, 242];
+const HM_MID: [u32; 4] = [640, 0, 895, 258];
+const HM_WALL: [u32; 4] = [1535, 0, 224, 134];
+const HM_TILE: [u32; 4] = [1759, 0, 224, 138];
+const HM_TILEEX: [u32; 4] = [0, 258, 224, 120];
+const HM_SKYBRIDGE: [u32; 4] = [224, 258, 224, 306];
+const HM_SKYWALL: [u32; 4] = [448, 258, 224, 81];
+const HM_BRTILE01: [u32; 4] = [672, 258, 224, 274];
+const HM_STATUE_ARCH: [u32; 4] = [1568, 258, 257, 285];
+const HM_EAST_ARCH: [u32; 4] = [0, 564, 224, 245];
+const HM_PORTAL_ARCH: [u32; 4] = [224, 564, 137, 139];
+const HM_ARCH_RUNES: [u32; 4] = [361, 564, 97, 43];
+const HM_BANNER: [u32; 4] = [458, 564, 164, 281];
+const HM_TREE_TALL: [u32; 4] = [622, 564, 132, 286];
+const HM_KANNA_HOUSE: [u32; 4] = [1025, 564, 470, 372];
+const HM_SINDA_HOUSE: [u32; 4] = [1495, 564, 435, 367];
+const HM_ALBERT_HOUSE: [u32; 4] = [0, 936, 401, 275];
+const HM_BLUE_WINDOW_HOUSE: [u32; 4] = [401, 936, 295, 237];
+const HM_SIGN_WEST: [u32; 4] = [1152, 936, 141, 179];
+const HM_SIGN_EAST: [u32; 4] = [1293, 936, 141, 233];
+
+fn draw_hm_piece(
+    c: &mut Canvas<'_>,
+    sh: &tiny_skia::Pixmap,
+    rect: [u32; 4],
+    dx: f32,
+    dy: f32,
+    scale: f32,
+    alpha: f32,
+) {
+    c.draw_image(
+        sh,
+        rect[0],
+        rect[1],
+        rect[2],
+        rect[3],
+        dx,
+        dy,
+        rect[2] as f32 * scale,
+        rect[3] as f32 * scale,
+        false,
+        alpha,
+        0.0,
+    );
+}
+
+fn draw_oran_paw_icon(c: &mut Canvas<'_>, cx: f32, cy: f32, time: f64) {
+    let bob = (time * 3.2).sin() as f32 * 3.0;
+    let y = cy + bob;
+    // Authentic golden pet-shop paw icon above Oran (matches V1 @ 12s & 18s)
+    c.fill_ellipse(cx, y, 13.0, 12.0, Rgba::new(255, 196, 48, 82));
+    c.fill_ellipse(cx, y + 2.0, 9.5, 7.5, Rgba::new(242, 144, 24, 245));
+    c.fill_ellipse(cx, y + 1.0, 7.2, 5.5, Rgba::new(255, 214, 72, 255));
+    for &(ox, oy) in &[(-6.0, -5.0), (-2.0, -7.5), (2.5, -7.5), (6.5, -4.5)] {
+        c.fill_ellipse(cx + ox, y + oy, 2.4, 3.6, Rgba::new(255, 198, 52, 250));
+        c.stroke_ellipse(cx + ox, y + oy, 2.4, 3.6, Rgba::new(124, 58, 8, 220), 1.0);
+    }
+    c.stroke_ellipse(cx, y + 2.0, 9.5, 7.5, Rgba::new(128, 56, 10, 235), 1.3);
+}
+
+fn draw_hendonmyre_entry_title(c: &mut Canvas<'_>, alpha: f32) {
+    let a = alpha.clamp(0.0, 1.0);
+    if a <= 0.01 {
+        return;
+    }
+    let cx = (ARENA_WIDTH * 0.5) as f32;
+    let title_y = 296.0f32;
+    let main_col = Rgba::new(252, 250, 242, (255.0 * a) as u8);
+    let outline_col = Rgba::new(10, 8, 8, (250.0 * a) as u8);
+    let sub_col = Rgba::new(242, 240, 232, (250.0 * a) as u8);
+
+    // Dark horizontal divider bar under `赫顿玛尔` matching V1 @ 12s
+    let bar_w = 248.0f32;
+    c.fill_rect(
+        cx - bar_w * 0.5,
+        title_y + 7.0,
+        bar_w,
+        3.0,
+        Rgba::new(14, 12, 10, (235.0 * a) as u8),
+    );
+    c.fill_rect(
+        cx - bar_w * 0.4,
+        title_y + 8.0,
+        bar_w * 0.8,
+        1.0,
+        Rgba::new(218, 202, 168, (215.0 * a) as u8),
+    );
+
+    // Double-pass outline for crisp 60/70 DNF title legibility over bright tiles
+    for &(ox, oy) in &[(-1.2, 0.0), (1.2, 0.0), (0.0, -1.2), (0.0, 1.2)] {
+        c.fill_text(
+            "赫顿玛尔",
+            cx + ox,
+            title_y + oy,
+            34.0,
+            outline_col,
+            TextAlign::Center,
+            None,
+        );
+    }
+    c.fill_text(
+        "赫顿玛尔",
+        cx,
+        title_y,
+        34.0,
+        main_col,
+        TextAlign::Center,
+        Some(outline_col),
+    );
+    c.fill_text(
+        "HendonMyre",
+        cx + 38.0,
+        title_y + 25.0,
+        14.0,
+        sub_col,
+        TextAlign::Center,
+        Some(outline_col),
+    );
+}
+
 pub fn draw_town_view(c: &mut Canvas<'_>, view: &TownView<'_>, sprites: &SpriteStore) {
     const ART_SCALE: f32 = 1.125;
-    const MID_Y: f32 = 85.0;
-    const ROAD_Y: f32 = 233.0;
+    const MID_Y: f32 = 76.0;
+    const WALL_Y: f32 = 216.0;
+    const TILE_Y: f32 = WALL_Y + 134.0 * ART_SCALE; // 366.75: exact pixel match with HM_BRTILE01 sidewalk seam
     const FRONT_Y: f32 = 430.0;
     const GROUND_Y: f32 = 425.0;
-    const GATE_X: f32 = 2420.0;
+    const SERIA_GROUND_Y: f32 = 442.0;
     const PLAYER_SCALE: f32 = 1.577_381;
+    const TILE_W: f32 = 224.0 * ART_SCALE; // 252.0 logical px
+    const PLAZA_BRICK_START_X: f32 = TILE_W; // 252.0: HM_BRTILE01 covers 0..252, HM_WALL+HM_TILEEX cover 252..PLAZA_WIDTH
 
     c.clear(Rgba::new(5, 7, 12, 255));
     c.save();
@@ -2260,261 +4108,190 @@ pub fn draw_town_view(c: &mut Canvas<'_>, view: &TownView<'_>, sprites: &SpriteS
 
     let cam = view.camera_x as f32;
     let vw = VIEW_WIDTH as f32;
+    let rune_pulse = 0.65 + 0.35 * (view.time * 3.0).sin() as f32;
+    let ground_y = if view.zone == TownZone::SeriaRoom {
+        SERIA_GROUND_Y
+    } else {
+        GROUND_Y
+    };
 
-    if let Some(sh) = sprites.get("town") {
-        // Far sky/mountains
-        let far_h = 242.0 * ART_SCALE;
-        c.draw_image(sh, 0, 0, 640, 242, 0.0, 0.0, vw, far_h, false, 1.0, 0.0);
-
-        // Midground buildings (0.35 parallax)
-        let mid_w = 895.0 * ART_SCALE;
-        let mid_h = 258.0 * ART_SCALE;
-        let mid_top = MID_Y;
-        let mut mx = -(cam * 0.35).rem_euclid(mid_w);
-        while mx < vw {
-            c.draw_image(
-                sh, 640, 0, 895, 258, mx, mid_top, mid_w, mid_h, false, 1.0, 0.0,
-            );
-            mx += mid_w;
+    match view.zone {
+        TownZone::SeriaRoom => {
+            if let Some(sr) = sprites.get("seriaroom") {
+                // Authentic `gateback.img` centered to fill the 720x460 4:3 interior (matches V1 @ 6s)
+                let bg_scale = 468.0 / SR_GATEBACK[3] as f32;
+                let bg_w = SR_GATEBACK[2] as f32 * bg_scale;
+                let bg_x = (vw - bg_w) * 0.5;
+                c.draw_image(
+                    sr,
+                    SR_GATEBACK[0],
+                    SR_GATEBACK[1],
+                    SR_GATEBACK[2],
+                    SR_GATEBACK[3],
+                    bg_x,
+                    0.0,
+                    bg_w,
+                    468.0,
+                    false,
+                    1.0,
+                    0.0,
+                );
+                // Right-side mailbox (`postbox.img`, matches V1 @ 6s)
+                let mbx = 575.0f32;
+                let mby = SERIA_GROUND_Y - 82.0;
+                draw_hm_piece(
+                    c,
+                    sr,
+                    SR_POSTBOX,
+                    mbx - SR_POSTBOX[2] as f32 * 0.5,
+                    mby - SR_POSTBOX[3] as f32,
+                    1.0,
+                    1.0,
+                );
+                c.fill_text(
+                    "邮件箱",
+                    mbx,
+                    mby - SR_POSTBOX[3] as f32 - 8.0,
+                    11.0,
+                    Rgba::new(240, 230, 207, 255),
+                    TextAlign::Center,
+                    Some(Rgba::new(8, 10, 16, 230)),
+                );
+            } else {
+                c.fill_rect(0.0, 0.0, vw, 468.0, Rgba::new(52, 42, 88, 255));
+            }
         }
+        TownZone::Alley | TownZone::Plaza | TownZone::WestBridge => {
+            if let Some(hm) = sprites.get("hendonmyre") {
+                // 1. Shared Hendon Myre far sky & mountains (`hmfar01`, 0.08 parallax)
+                let far_w = HM_FAR[2] as f32 * ART_SCALE;
+                let mut fx = -(cam * 0.08).rem_euclid(far_w);
+                while fx < vw {
+                    draw_hm_piece(c, hm, HM_FAR, fx, 0.0, ART_SCALE, 1.0);
+                    fx += far_w;
+                }
 
-        // Cobblestone road tiles
-        let road_w = 224.0 * ART_SCALE;
-        let road_h = 306.0 * ART_SCALE;
-        let road_top = ROAD_Y;
-        let mut tx = -cam.rem_euclid(road_w);
-        while tx < vw {
-            c.draw_image(
-                sh, 0, 258, 224, 306, tx, road_top, road_w, road_h, false, 1.0, 0.0,
-            );
-            tx += road_w;
+                // 2. Shared Hendon Myre midground white domed cityscape (`hmmid01`, 0.35 parallax)
+                let mid_w = HM_MID[2] as f32 * ART_SCALE;
+                let mut mx = -(cam * 0.35).rem_euclid(mid_w);
+                while mx < vw {
+                    draw_hm_piece(c, hm, HM_MID, mx, MID_Y, ART_SCALE, 1.0);
+                    mx += mid_w;
+                }
+
+                match view.zone {
+                    TownZone::Alley => {
+                        // Rear tan plaster wall + terracotta diamond plaza across the 1620px alley
+                        let mut wx = -cam.rem_euclid(TILE_W);
+                        while wx < vw {
+                            draw_hm_piece(c, hm, HM_WALL, wx, WALL_Y, ART_SCALE, 1.0);
+                            wx += TILE_W;
+                        }
+                        let mut tx = -cam.rem_euclid(TILE_W);
+                        while tx < vw {
+                            draw_hm_piece(c, hm, HM_TILE, tx, TILE_Y, ART_SCALE, 1.0);
+                            tx += TILE_W;
+                        }
+
+                        // Authentic 1:1 Alley landmarks left-to-right (matches V1 @ 12s, 18s, 20s, 22s)
+                        // Left archway (`▲ 后街`)
+                        draw_hm_piece(c, hm, HM_EAST_ARCH, -20.0 - cam, 88.0, ART_SCALE, 1.0);
+                        // 4-plaque Alley directional signpost (`后街 / 斯顿雪域 / 赛丽亚旅馆 / 赫顿玛尔市区`)
+                        draw_hm_piece(c, hm, HM_SIGN_WEST, 188.0 - cam, 152.0, ART_SCALE, 1.0);
+                        // Tall lush green tree right of Oran
+                        draw_hm_piece(c, hm, HM_TREE_TALL, 408.0 - cam, 24.0, ART_SCALE, 1.0);
+                        // Grand white archway flanked by two knight statues (walkable UP -> Seria's Room)
+                        draw_hm_piece(c, hm, HM_STATUE_ARCH, 528.0 - cam, 46.0, ART_SCALE, 1.0);
+                        // Sinda's blacksmith shop with furnace & green/yellow striped awning (matches V1 @ 22s)
+                        draw_hm_piece(c, hm, HM_SINDA_HOUSE, 855.0 - cam, 8.0, 0.96, 1.0);
+                        // Eastern stone wall/building behind G.S.D
+                        draw_hm_piece(c, hm, HM_BLUE_WINDOW_HOUSE, 1325.0 - cam, 92.0, 1.08, 1.0);
+                    }
+                    TownZone::Plaza => {
+                        // West edge (`x = 0..252`, matches V1 @ 16s & 47s bottom-left!):
+                        // Authentic `HM_BRTILE01` diagonal white stone curb leading into WestBridge via black-fade.
+                        let trx = -cam;
+                        if trx + TILE_W >= 0.0 && trx <= vw {
+                            draw_hm_piece(c, hm, HM_BRTILE01, trx, WALL_Y, ART_SCALE, 1.0);
+                        }
+
+                        // Pure red-brick plaza (`x = 252..PLAZA_WIDTH`, matches V1 @ 16s/47s & V3 @ 2m50s–3m40s)
+                        // Align diamond brick pattern (`HM_TILEEX`) right at the `y = 118` sidewalk curb of `HM_BRTILE01`.
+                        // For the lower extension row, skip the top 22px curb strip of `HM_TILEEX` so no duplicate curb appears mid-road.
+                        let brick_top_y = WALL_Y + 118.0 * ART_SCALE;
+                        let brick_h = HM_TILEEX[3] as f32 * ART_SCALE;
+                        let brick_body = [
+                            HM_TILEEX[0],
+                            HM_TILEEX[1] + 22,
+                            HM_TILEEX[2],
+                            HM_TILEEX[3] - 22,
+                        ];
+                        let mut px = PLAZA_BRICK_START_X;
+                        while px < PLAZA_WIDTH as f32 {
+                            let sx = px - cam;
+                            if sx + TILE_W >= 0.0 && sx <= vw {
+                                draw_hm_piece(c, hm, HM_WALL, sx, WALL_Y, ART_SCALE, 1.0);
+                                draw_hm_piece(c, hm, HM_TILEEX, sx, brick_top_y, ART_SCALE, 1.0);
+                                draw_hm_piece(
+                                    c,
+                                    hm,
+                                    brick_body,
+                                    sx,
+                                    brick_top_y + brick_h - 1.0,
+                                    ART_SCALE,
+                                    1.0,
+                                );
+                            }
+                            px += TILE_W;
+                        }
+
+                        // Center Plaza landmarks (matches V1 @ 16s & 47s)
+                        // Tall white stone pillar statue + red crossed-sword banner on the left of Fire Pot
+                        draw_hm_piece(c, hm, HM_BANNER, 137.0 - cam, 52.0, ART_SCALE, 1.0);
+                        // Colorful ornate stone archway (`hendonpath[1]`, walkable UP -> Alley) + glowing blue runes
+                        draw_hm_piece(c, hm, HM_EAST_ARCH, 382.0 - cam, 88.0, ART_SCALE, 1.0);
+                        draw_hm_piece(
+                            c,
+                            hm,
+                            HM_ARCH_RUNES,
+                            440.0 - cam,
+                            108.0,
+                            ART_SCALE,
+                            rune_pulse,
+                        );
+                        // 5-plaque Chinese wooden signpost (`◀格兰之森 / ▲赫顿玛尔小巷 / ▲赛丽亚旅馆 / 西海岸▶ / ▼赫顿玛尔市政厅`)
+                        draw_hm_piece(c, hm, HM_SIGN_EAST, 587.0 - cam, 118.0, ART_SCALE, 1.0);
+                        // White house with blue-lattice window on the right of signpost
+                        draw_hm_piece(c, hm, HM_BLUE_WINDOW_HOUSE, 737.0 - cam, 92.0, 1.08, 1.0);
+
+                        // East Plaza extension (matches V3 @ 2m50s–3m40s: Kanna's shop & Feng Zhen's dojo)
+                        draw_hm_piece(c, hm, HM_KANNA_HOUSE, 1032.0 - cam, 12.0, 0.94, 1.0);
+                        draw_hm_piece(c, hm, HM_ALBERT_HOUSE, 1467.0 - cam, 88.0, 0.96, 1.0);
+                    }
+                    TownZone::WestBridge => {
+                        // Dedicated white stone bridge zone (`格兰之森西桥`, matches V1 @ 49s–51s):
+                        // Seamless `HM_SKYBRIDGE` tiling across the entire bridge with zero cross-tile seams.
+                        let bridge_y = WALL_Y + 60.0 * ART_SCALE;
+                        let mut bx = 0.0f32;
+                        while bx < WEST_BRIDGE_WIDTH as f32 {
+                            let sx = bx - cam;
+                            if sx + TILE_W >= 0.0 && sx <= vw {
+                                draw_hm_piece(c, hm, HM_SKYBRIDGE, sx, bridge_y, ART_SCALE, 1.0);
+                            }
+                            bx += TILE_W;
+                        }
+                        // Bridge entrance pillar + red crossed-sword banner on the west side (matches V1 @ 49s)
+                        draw_hm_piece(c, hm, HM_BANNER, 120.0 - cam, 24.0, ART_SCALE, 1.0);
+                    }
+                    TownZone::SeriaRoom => unreachable!(),
+                }
+            }
         }
-
-        // Left town banner
-        let bw = 164.0 * ART_SCALE;
-        let bh = 281.0 * ART_SCALE;
-        c.draw_image(
-            sh,
-            448,
-            258,
-            164,
-            281,
-            -50.0 - cam,
-            313.0 - bh,
-            bw,
-            bh,
-            false,
-            1.0,
-            0.0,
-        );
-
-        // Elvenguard east dungeon gate + animated door & light
-        let gx = GATE_X - cam - 85.0;
-        let gw = 170.0 * ART_SCALE;
-        let gh = 121.0 * ART_SCALE;
-        c.draw_image(
-            sh,
-            612,
-            258,
-            170,
-            121,
-            gx,
-            GROUND_Y - 20.0 - gh,
-            gw,
-            gh,
-            false,
-            1.0,
-            0.0,
-        );
-        const GATE_DOOR: [[u32; 4]; 10] = [
-            [782, 258, 183, 77],
-            [965, 258, 183, 77],
-            [1148, 258, 183, 77],
-            [1331, 258, 183, 77],
-            [0, 564, 183, 77],
-            [183, 564, 183, 77],
-            [366, 564, 183, 77],
-            [549, 564, 183, 77],
-            [732, 564, 183, 77],
-            [915, 564, 183, 77],
-        ];
-        const GATE_LIGHT: [[u32; 4]; 10] = [
-            [1098, 564, 298, 121],
-            [0, 685, 298, 121],
-            [298, 685, 298, 121],
-            [596, 685, 298, 121],
-            [894, 685, 298, 121],
-            [1192, 685, 298, 121],
-            [0, 806, 298, 121],
-            [298, 806, 298, 121],
-            [596, 806, 298, 121],
-            [894, 806, 298, 121],
-        ];
-        let gframe = ((view.time * 10.0) as usize) % 10;
-        let [dx, dy, dw, dh] = GATE_DOOR[gframe];
-        c.draw_image(
-            sh,
-            dx,
-            dy,
-            dw,
-            dh,
-            gx - 34.0,
-            GROUND_Y - 88.0,
-            183.0,
-            77.0,
-            false,
-            1.0,
-            0.0,
-        );
-        let [lx, ly, lw, lh] = GATE_LIGHT[gframe];
-        c.draw_image(
-            sh,
-            lx,
-            ly,
-            lw,
-            lh,
-            gx - 70.0,
-            GROUND_Y - 90.0,
-            298.0,
-            121.0,
-            false,
-            0.85,
-            0.0,
-        );
     }
 
-    // Actors: 8 NPCs + Player, sorted far (large z) to near (small z)
-    struct TownNpcDef {
-        id: &'static str,
-        x: f32,
-        z: f32,
-        label: &'static str,
-        frames: &'static [[u32; 4]],
-    }
-    const GUARD_FRAMES: [[u32; 4]; 6] = [
-        [860, 319, 73, 191],
-        [933, 319, 73, 191],
-        [1006, 319, 73, 191],
-        [1079, 319, 73, 191],
-        [1152, 319, 73, 191],
-        [1225, 319, 73, 191],
-    ];
-    const SERIA_FRAMES: [[u32; 4]; 6] = [
-        [0, 0, 62, 143],
-        [62, 0, 62, 143],
-        [124, 0, 62, 143],
-        [186, 0, 62, 143],
-        [248, 0, 62, 143],
-        [310, 0, 62, 143],
-    ];
-    const MINET_FRAMES: [[u32; 4]; 6] = [
-        [372, 0, 49, 133],
-        [421, 0, 49, 133],
-        [470, 0, 49, 133],
-        [519, 0, 49, 133],
-        [568, 0, 49, 133],
-        [617, 0, 49, 133],
-    ];
-    const GSD_FRAMES: [[u32; 4]; 4] = [
-        [960, 0, 75, 96],
-        [1035, 0, 75, 96],
-        [1110, 0, 75, 96],
-        [1185, 0, 75, 96],
-    ];
-    const KANNA_FRAMES: [[u32; 4]; 8] = [
-        [1260, 0, 39, 106],
-        [1299, 0, 39, 106],
-        [1338, 0, 39, 106],
-        [1377, 0, 39, 106],
-        [1416, 0, 39, 106],
-        [1455, 0, 39, 106],
-        [1494, 0, 39, 106],
-        [1533, 0, 39, 106],
-    ];
-    const BROWNIE_FRAMES: [[u32; 4]; 6] = [
-        [0, 143, 103, 79],
-        [103, 143, 103, 79],
-        [206, 143, 103, 79],
-        [309, 143, 103, 79],
-        [412, 143, 103, 79],
-        [515, 143, 103, 79],
-    ];
-    const SINDA_FRAMES: [[u32; 4]; 6] = [
-        [1133, 222, 86, 97],
-        [1219, 222, 86, 97],
-        [1305, 222, 86, 97],
-        [1391, 222, 86, 97],
-        [1477, 222, 86, 97],
-        [0, 319, 86, 97],
-    ];
-    const CAPTAIN_FRAMES: [[u32; 4]; 6] = [
-        [730, 510, 75, 171],
-        [805, 510, 75, 171],
-        [880, 510, 75, 171],
-        [955, 510, 75, 171],
-        [1030, 510, 75, 171],
-        [1105, 510, 75, 171],
-    ];
-    const NPCS: [TownNpcDef; 8] = [
-        TownNpcDef {
-            id: "guard",
-            x: 360.0,
-            z: 50.0,
-            label: "守卫",
-            frames: &GUARD_FRAMES,
-        },
-        TownNpcDef {
-            id: "seria",
-            x: 650.0,
-            z: 50.0,
-            label: "赛丽亚",
-            frames: &SERIA_FRAMES,
-        },
-        TownNpcDef {
-            id: "minet",
-            x: 900.0,
-            z: 50.0,
-            label: "敏泰",
-            frames: &MINET_FRAMES,
-        },
-        TownNpcDef {
-            id: "gsd",
-            x: 1150.0,
-            z: 50.0,
-            label: "GSD",
-            frames: &GSD_FRAMES,
-        },
-        TownNpcDef {
-            id: "kanna",
-            x: 1400.0,
-            z: 50.0,
-            label: "卡妮娜",
-            frames: &KANNA_FRAMES,
-        },
-        TownNpcDef {
-            id: "brownie",
-            x: 1700.0,
-            z: 50.0,
-            label: "布兰妮",
-            frames: &BROWNIE_FRAMES,
-        },
-        TownNpcDef {
-            id: "sinda",
-            x: 2000.0,
-            z: 50.0,
-            label: "辛达",
-            frames: &SINDA_FRAMES,
-        },
-        TownNpcDef {
-            id: "guardCaptain",
-            x: 2250.0,
-            z: 50.0,
-            label: "守卫队长",
-            frames: &CAPTAIN_FRAMES,
-        },
-    ];
-
-    let mut order: Vec<(f32, Option<usize>)> = NPCS
+    // Actors: Zone NPCs + Player, sorted far (large z) to near (small z)
+    let zone_npcs = npcs_for_zone(view.zone);
+    let mut order: Vec<(f32, Option<usize>)> = zone_npcs
         .iter()
         .enumerate()
         .map(|(i, n)| (n.z, Some(i)))
@@ -2523,20 +4300,23 @@ pub fn draw_town_view(c: &mut Canvas<'_>, view: &TownView<'_>, sprites: &SpriteS
     order.sort_by(|a, b| b.0.total_cmp(&a.0));
 
     let npc_sheet = sprites.get("npc");
+    let seria_sheet = sprites.get("seriaroom");
     let mut near_hint: Option<String> = None;
     for (_, npc_idx_opt) in order {
         if let Some(ni) = npc_idx_opt {
-            let npc = &NPCS[ni];
+            let npc = &zone_npcs[ni];
             let sx = npc.x - cam;
-            let bottom = GROUND_Y - npc.z;
-            if (npc.x - view.player_x as f32).abs() < 65.0
-                && (npc.z - view.player_z as f32).abs() < 45.0
+            let bottom = ground_y - npc.z;
+            if (npc.x - view.player_x as f32).abs() < 72.0
+                && (npc.z - view.player_z as f32).abs() < 52.0
             {
                 let action = match npc.id {
-                    "seria" | "minet" | "gsd" => "查看任务",
+                    "gsd" => "配置技能",
+                    "seria" | "oran" | "firepot" | "fengzhen" => "查看任务",
                     "kanna" => "打开商店",
                     "sinda" => "打开背包/分解",
-                    _ => "进入副本",
+                    "storage" => "打开仓库/背包",
+                    _ => "交互",
                 };
                 near_hint = Some(format!("按 [Space/Enter] 与 {} {action}", npc.label));
             }
@@ -2544,11 +4324,15 @@ pub fn draw_town_view(c: &mut Canvas<'_>, view: &TownView<'_>, sprites: &SpriteS
                 continue;
             }
             c.fill_ellipse(sx, bottom, 18.0, 5.0, Rgba::new(0, 0, 0, 105));
-            if let Some(nsh) = npc_sheet {
+            let sheet_opt = match npc.atlas {
+                NpcAtlas::Npc => npc_sheet,
+                NpcAtlas::SeriaRoom => seria_sheet,
+            };
+            if let Some(nsh) = sheet_opt {
                 let fidx = ((view.time * 6.0) as usize) % npc.frames.len();
                 let [fx, fy, fw, fh] = npc.frames[fidx];
-                let dw = fw as f32 * 0.9;
-                let dh = fh as f32 * 0.9;
+                let dw = fw as f32 * npc.scale;
+                let dh = fh as f32 * npc.scale;
                 c.draw_image(
                     nsh,
                     fx,
@@ -2572,11 +4356,39 @@ pub fn draw_town_view(c: &mut Canvas<'_>, view: &TownView<'_>, sprites: &SpriteS
                     TextAlign::Center,
                     Some(Rgba::new(8, 10, 16, 230)),
                 );
+                if npc.overhead_paw_icon {
+                    draw_oran_paw_icon(c, sx, bottom - dh - 32.0, view.time);
+                }
             }
         } else {
             let px = view.player_x as f32 - cam;
-            let py = GROUND_Y - view.player_z as f32;
-            c.fill_ellipse(px, py, 20.0, 5.5, Rgba::new(0, 0, 0, 115));
+            let py = ground_y - view.player_z as f32;
+            c.fill_ellipse(px, py + 1.0, 22.0, 6.0, Rgba::new(0, 0, 0, 96));
+
+            // Bright neon-green oval foot ring under player boots (matches 00002 @ 2s / 415s)
+            c.fill_ellipse(px, py, 33.0, 10.5, Rgba::new(165, 255, 110, 92));
+            c.stroke_ellipse(px, py, 32.0, 10.0, Rgba::new(145, 255, 95, 215), 2.0);
+            if let Some(ui) = sprites.get("ui") {
+                let fw = 64.0;
+                let fh = 22.0;
+                for _ in 0..2 {
+                    c.draw_image_additive(
+                        ui,
+                        1175,
+                        2901,
+                        81,
+                        28,
+                        px - fw * 0.5,
+                        py - fh * 0.48,
+                        fw,
+                        fh,
+                        false,
+                        0.75,
+                        0.0,
+                    );
+                }
+            }
+
             if let Some(sh) = sprites.get("slayer") {
                 const IDLE_ROOTS: [[f32; 2]; 4] =
                     [[8.48, -5.16], [9.16, -5.16], [9.16, -5.16], [9.16, -5.16]];
@@ -2595,11 +4407,11 @@ pub fn draw_town_view(c: &mut Canvas<'_>, view: &TownView<'_>, sprites: &SpriteS
                 let anchor_x = 88.0f32;
                 let anchor_y = 156.0f32;
                 let walking = view.moving && view.walk > 0.0;
-                let row = if walking { 1 } else { 0 };
+                let row = if walking { TOWN_WALK_ROW } else { 0 };
                 let col = if walking {
                     ((view.walk * 10.0) as u32) % 8
                 } else {
-                    0
+                    ((view.time * 4.0) as u32) % 4
                 };
                 let root = if walking {
                     WALK_ROOTS[col as usize]
@@ -2644,51 +4456,321 @@ pub fn draw_town_view(c: &mut Canvas<'_>, view: &TownView<'_>, sprites: &SpriteS
                 &format!("Lv.{} {}", view.player_level, view.player_name),
                 px,
                 py - 142.0,
-                11.0,
-                Rgba::new(242, 231, 206, 255),
+                11.5,
+                Rgba::new(252, 250, 244, 255),
                 TextAlign::Center,
-                Some(Rgba::new(24, 24, 24, 230)),
+                Some(Rgba::new(10, 12, 18, 245)),
             );
         }
     }
 
-    if (view.player_x as f32 - GATE_X).abs() < 75.0 {
-        near_hint = Some("按 [Space/Enter] 进入格兰之森副本选择".to_string());
+    // Contextual doorway / exit hints
+    if near_hint.is_none() {
+        match view.zone {
+            TownZone::SeriaRoom
+                if view.player_z <= 28.0 && (view.player_x - SERIA_DOOR_X).abs() <= 105.0 =>
+            {
+                near_hint = Some("向下走出房间 → 前往赫顿玛尔小巷".to_string());
+            }
+            TownZone::Alley
+                if view.player_z >= 72.0 && (view.player_x - ALLEY_SERIA_ARCH_X).abs() <= 72.0 =>
+            {
+                near_hint = Some("向上步入拱门 → 进入赛丽亚的房间".to_string());
+            }
+            TownZone::Alley
+                if view.player_z <= 26.0 && (view.player_x - ALLEY_SOUTH_ARCH_X).abs() <= 84.0 =>
+            {
+                near_hint = Some("向下步入拱门 → 前往赫顿玛尔市区".to_string());
+            }
+            TownZone::Plaza
+                if view.player_z >= 72.0 && (view.player_x - PLAZA_NORTH_ARCH_X).abs() <= 78.0 =>
+            {
+                near_hint = Some("向上步入拱门 → 返回赫顿玛尔小巷".to_string());
+            }
+            TownZone::Plaza if view.player_x <= TOWN_MIN_X + 60.0 => {
+                near_hint = Some("向左前行 → 前往格兰之森西桥".to_string());
+            }
+            TownZone::WestBridge if view.player_x >= WEST_BRIDGE_WIDTH - 140.0 => {
+                near_hint = Some("向右前行 → 返回赫顿玛尔市区".to_string());
+            }
+            TownZone::WestBridge if (view.player_x - TOWN_GATE_X).abs() < 120.0 => {
+                near_hint = Some("向左前行或按 [Space/Enter] 进入格兰之森副本选择".to_string());
+            }
+            _ => {}
+        }
     }
 
-    // Foreground railing
-    if let Some(sh) = sprites.get("town") {
-        let road_w = 224.0 * ART_SCALE;
-        let rail_h = 81.0 * ART_SCALE;
-        let mut fx = -cam.rem_euclid(road_w);
-        while fx < vw {
-            c.draw_image(
-                sh, 224, 258, 224, 81, fx, FRONT_Y, road_w, rail_h, false, 1.0, 0.0,
-            );
-            fx += road_w;
+    // Foreground architectural layer
+    match view.zone {
+        TownZone::SeriaRoom => {
+            if let Some(sr) = sprites.get("seriaroom") {
+                // Two pink lollipop pillars flanking the purple carpet exit (matches V1 @ 6s)
+                draw_hm_piece(
+                    c,
+                    sr,
+                    SR_GATEPILLAR,
+                    SERIA_DOOR_X as f32 - SR_GATEPILLAR[2] as f32 * 0.5,
+                    372.0,
+                    1.0,
+                    1.0,
+                );
+            }
+        }
+        TownZone::Alley => {
+            if let Some(hm) = sprites.get("hendonmyre") {
+                // Bottom-center ornate foreground portal archway (`▼ 赫顿玛尔市区`, matches V1 @ 12s & 18s)
+                let pax = (ALLEY_SOUTH_ARCH_X as f32)
+                    - (HM_PORTAL_ARCH[2] as f32 * ART_SCALE * 0.5)
+                    - cam;
+                if pax > -180.0 && pax < vw + 180.0 {
+                    draw_hm_piece(c, hm, HM_PORTAL_ARCH, pax, 408.0, ART_SCALE, 1.0);
+                    draw_hm_piece(
+                        c,
+                        hm,
+                        HM_ARCH_RUNES,
+                        pax + 22.0,
+                        422.0,
+                        ART_SCALE,
+                        rune_pulse,
+                    );
+                }
+            }
+        }
+        TownZone::Plaza => {}
+        TownZone::WestBridge => {
+            if let Some(hm) = sprites.get("hendonmyre") {
+                // Foreground white stone balustrade spanning the entire WestBridge seamlessly
+                let mut rx = 0.0f32;
+                while rx < WEST_BRIDGE_WIDTH as f32 {
+                    let sx = rx - cam;
+                    if sx + TILE_W >= 0.0 && sx <= vw {
+                        draw_hm_piece(c, hm, HM_SKYWALL, sx, FRONT_Y, ART_SCALE, 1.0);
+                    }
+                    rx += TILE_W;
+                }
+            }
         }
     }
 
     c.restore();
 
-    c.fill_text(
-        "艾尔文防线 · [←→↑↓] 移动 · [Enter] 交互/进图 · [I] 背包 · [K] 装备 · [L] 任务 · [U] 商店 · [B] 技能",
-        (ARENA_WIDTH * 0.5) as f32,
-        28.0,
-        12.0,
-        Rgba::new(235, 220, 175, 240),
-        TextAlign::Center,
-        Some(Rgba::new(0, 0, 0, 220)),
-    );
+    // Fading `赫顿玛尔 / HendonMyre` entry title (matches V1 @ 12s)
+    if view.title_alpha > 0.01 {
+        draw_hendonmyre_entry_title(c, view.title_alpha);
+    }
+
     if let Some(hint) = near_hint {
         c.fill_text(
             &hint,
             (ARENA_WIDTH * 0.5) as f32,
-            ARENA_HEIGHT as f32 - 92.0,
-            13.0,
+            crate::hud_classic::native_y(crate::hud_classic::HUD_TOP_Y) - 14.0,
+            12.0,
             Rgba::new(255, 228, 140, 255),
             TextAlign::Center,
             Some(Rgba::new(0, 0, 0, 230)),
+        );
+    }
+
+    // Smooth black fade overlay during zone switches
+    if view.zone_fade_alpha > 0.01 {
+        c.fill_rect(
+            0.0,
+            0.0,
+            ARENA_WIDTH as f32,
+            ARENA_HEIGHT as f32,
+            Rgba::new(
+                0,
+                0,
+                0,
+                (255.0 * view.zone_fade_alpha.clamp(0.0, 1.0)) as u8,
+            ),
+        );
+    }
+}
+
+/// Draw the town HUD overlay:
+/// 1. Classic 60/70 shared bottom HUD (`hud_classic::draw_bottom_hud`)
+/// 2. Top-right channel banner (`ch14格兰之森`)
+/// 3. Right-side lightweight town menu icons (`决斗场 / 推荐好友 / 队伍信息 / 社区`)
+pub fn draw_town_hud(
+    c: &mut Canvas<'_>,
+    state: &State,
+    sprites: &SpriteStore,
+    meta: &crate::hud::RenderMeta<'_>,
+) {
+    crate::hud_classic::draw_bottom_hud(c, state, sprites, meta);
+    draw_town_top_right_ui(c);
+}
+
+fn draw_town_top_right_ui(c: &mut Canvas<'_>) {
+    use crate::hud_classic::{native_size, native_x, native_y};
+
+    // 1. Top-right channel banner (`ch14格兰之森 E`) — matches 00002 @ 2s / 415s
+    let bx = native_x(564.0);
+    let by = native_y(0.0);
+    let bw = native_size(236.0);
+    let bh = native_size(24.0);
+    // Tapered translucent navy-charcoal fade on the left edge
+    c.fill_rect(bx, by, native_size(34.0), bh, Rgba::new(14, 18, 30, 120));
+    c.fill_rect(
+        bx + native_size(34.0),
+        by,
+        bw - native_size(34.0),
+        bh,
+        Rgba::new(14, 18, 30, 205),
+    );
+    // Warm bronze-gold bottom underline
+    c.fill_rect(
+        bx + native_size(12.0),
+        by + bh - native_size(1.5),
+        bw - native_size(12.0),
+        native_size(1.5),
+        Rgba::new(186, 152, 92, 220),
+    );
+    c.fill_text(
+        "ch14格兰之森",
+        native_x(764.0),
+        native_y(17.0),
+        native_size(13.0),
+        Rgba::new(244, 226, 174, 255),
+        TextAlign::Right,
+        Some(Rgba::new(8, 10, 16, 240)),
+    );
+    // Small gold channel-grade badge `E` at far right
+    c.fill_text(
+        "E",
+        native_x(782.0),
+        native_y(17.0),
+        native_size(12.5),
+        Rgba::new(255, 214, 122, 255),
+        TextAlign::Center,
+        Some(Rgba::new(12, 10, 6, 245)),
+    );
+
+    // 2. Right-side vertical lightweight menu entries (`决斗场 / 推荐好友 / 队伍信息 / 社区`)
+    const MENU_ITEMS: [(&str, [u8; 3], [u8; 3]); 4] = [
+        ("决斗场", [198, 72, 60], [242, 232, 210]),
+        ("推荐好友", [54, 166, 84], [210, 250, 198]),
+        ("队伍信息", [58, 138, 216], [198, 232, 255]),
+        ("社区", [186, 56, 72], [250, 214, 128]),
+    ];
+    for (idx, &(label, badge_rgb, accent_rgb)) in MENU_ITEMS.iter().enumerate() {
+        let row_ny = 34.0 + idx as f32 * 33.0;
+        let icon_cx = native_x(708.0);
+        let icon_cy = native_y(row_ny + 13.0);
+        let r = native_size(11.5);
+
+        // Dark rim + colored medallion badge
+        c.fill_ellipse(
+            icon_cx,
+            icon_cy,
+            r + native_size(1.5),
+            r + native_size(1.5),
+            Rgba::new(18, 20, 28, 225),
+        );
+        c.fill_ellipse(
+            icon_cx,
+            icon_cy,
+            r,
+            r,
+            Rgba::new(badge_rgb[0], badge_rgb[1], badge_rgb[2], 235),
+        );
+        c.stroke_ellipse(
+            icon_cx,
+            icon_cy,
+            r,
+            r,
+            Rgba::new(225, 196, 132, 230),
+            native_size(1.2),
+        );
+
+        // Simple recognizable inner emblem per entry
+        let ac = Rgba::new(accent_rgb[0], accent_rgb[1], accent_rgb[2], 245);
+        match idx {
+            0 => {
+                // Crossed swords
+                c.draw_line(
+                    icon_cx - native_size(5.5),
+                    icon_cy - native_size(5.5),
+                    icon_cx + native_size(5.5),
+                    icon_cy + native_size(5.5),
+                    ac,
+                    native_size(2.0),
+                );
+                c.draw_line(
+                    icon_cx + native_size(5.5),
+                    icon_cy - native_size(5.5),
+                    icon_cx - native_size(5.5),
+                    icon_cy + native_size(5.5),
+                    ac,
+                    native_size(2.0),
+                );
+            }
+            1 => {
+                // Shield / friend emblem
+                c.fill_round_rect(
+                    icon_cx - native_size(4.5),
+                    icon_cy - native_size(5.0),
+                    native_size(9.0),
+                    native_size(9.5),
+                    native_size(2.5),
+                    ac,
+                );
+            }
+            2 => {
+                // Two party silhouettes
+                c.fill_ellipse(
+                    icon_cx - native_size(3.2),
+                    icon_cy - native_size(2.5),
+                    native_size(2.6),
+                    native_size(2.6),
+                    ac,
+                );
+                c.fill_ellipse(
+                    icon_cx + native_size(3.2),
+                    icon_cy - native_size(2.0),
+                    native_size(2.3),
+                    native_size(2.3),
+                    ac,
+                );
+                c.fill_round_rect(
+                    icon_cx - native_size(6.2),
+                    icon_cy + native_size(1.0),
+                    native_size(12.4),
+                    native_size(4.8),
+                    native_size(2.0),
+                    ac,
+                );
+            }
+            _ => {
+                // Community crest
+                c.fill_round_rect(
+                    icon_cx - native_size(5.0),
+                    icon_cy - native_size(3.5),
+                    native_size(10.0),
+                    native_size(7.5),
+                    native_size(1.5),
+                    ac,
+                );
+                c.fill_rect(
+                    icon_cx - native_size(2.0),
+                    icon_cy - native_size(6.0),
+                    native_size(4.0),
+                    native_size(3.0),
+                    ac,
+                );
+            }
+        }
+
+        // Crisp outlined label to the right of the icon
+        c.fill_text(
+            label,
+            native_x(726.0),
+            native_y(row_ny + 18.0),
+            native_size(13.0),
+            Rgba::new(255, 248, 224, 255),
+            TextAlign::Left,
+            Some(Rgba::new(0, 0, 0, 255)),
         );
     }
 }

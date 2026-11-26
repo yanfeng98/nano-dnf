@@ -41,6 +41,18 @@ pub fn create_enemy(
     state.next_enemy_id += 1;
     let left = room_left(state) + spec.width;
     let right = room_right(state) - spec.width;
+    let use_ref = state.reference_profile.is_some();
+    let pvf_mon = crate::pvf_truth::monster_truth(kind);
+    let sight_range = pvf_mon
+        .map(|m| m.sight_world())
+        .unwrap_or_else(|| native_ground_x(300.0));
+    let attack_cooldown_max = if use_ref && spec.behavior != "boss" {
+        pvf_mon
+            .map(|m| m.attack_delay_secs())
+            .unwrap_or(spec.attack_cooldown)
+    } else {
+        spec.attack_cooldown
+    };
 
     Enemy {
         id,
@@ -74,10 +86,10 @@ pub fn create_enemy(
         attack_duration: spec.attack_duration,
         base_attack_windup: spec.attack_windup,
         base_attack_duration: spec.attack_duration,
-        attack_cooldown_max: spec.attack_cooldown,
+        attack_cooldown_max,
         base_speed: spec.speed,
         base_damage: spec.damage,
-        base_attack_cooldown_max: spec.attack_cooldown,
+        base_attack_cooldown_max: attack_cooldown_max,
         attack_cooldown: 0.5,
         step_timer: f64::from(state.next_enemy_id % 5) * 0.07,
         attack_timer: 0.0,
@@ -117,10 +129,14 @@ pub fn create_enemy(
         super_armor: false,
         knockback_x: spec.knockback_x,
         hurt_timer: 0.0,
+        hit_flash_timer: 0.0,
         dead: false,
         dying: 0.0,
         silhouette: false,
         gone: false,
+        sight_range,
+        activated: !use_ref,
+        activation_delay: 0.0,
     }
 }
 
@@ -143,12 +159,48 @@ fn push_shockwave(state: &mut State, enemy: &Enemy) {
     eff.z = enemy.z;
     eff.radius = enemy.slam.as_ref().map(|s| s.radius).unwrap_or(0.0);
     state.effects.push(eff);
+    crate::trigger_screen_shake(state, 8.5, 0.28);
 }
 
 pub fn spawn_projectile(state: &mut State, enemy_idx: usize) {
     let e = &state.enemies[enemy_idx];
     let Some(ref spec) = e.projectile else {
         return;
+    };
+    let nat = spec.native_object;
+    let pvf_proj = if state.reference_profile.is_some() {
+        nat.and_then(crate::pvf_truth::projectile_truth)
+    } else {
+        None
+    };
+    let proj_speed = pvf_proj
+        .filter(|t| t.speed_x > 0)
+        .map(|t| crate::constants::native_ground_x(f64::from(t.speed_x)))
+        .unwrap_or(spec.speed);
+    let proj_gravity = pvf_proj
+        .filter(|t| t.gravity > 0)
+        .map(|t| crate::constants::native_ground_x(f64::from(t.gravity)))
+        .unwrap_or(spec.gravity);
+    let proj_piercing = if pvf_proj.is_some_and(|t| t.piercing_power > 0) {
+        spec.piercing.max(1)
+    } else {
+        spec.piercing
+    };
+    let proj_z_sine_amp = if spec.z_sine_amp == 0.0 {
+        pvf_proj
+            .filter(|t| t.z_sine_amp > 0)
+            .map(|t| crate::constants::native_ground_x(f64::from(t.z_sine_amp)))
+            .unwrap_or(0.0)
+    } else {
+        spec.z_sine_amp
+    };
+    let proj_z_sine_rad = if spec.z_sine_rad_per_sec == 0.0 {
+        pvf_proj
+            .filter(|t| t.z_sine_deg_per_sec > 0)
+            .map(|t| f64::from(t.z_sine_deg_per_sec).to_radians())
+            .unwrap_or(0.0)
+    } else {
+        spec.z_sine_rad_per_sec
     };
     let origin_x = e.x + f64::from(e.facing) * spec.origin_x.unwrap_or(e.width / 2.0 + 2.0);
     let origin_y = e.y - spec.height;
@@ -160,18 +212,24 @@ pub fn spawn_projectile(state: &mut State, enemy_idx: usize) {
         f64::from(e.facing)
     } else {
         dx / length
-    } * spec.speed;
-    let vy = spec.initial_vy.unwrap_or_else(|| {
-        if spec.horizontal {
-            0.0
-        } else {
-            (dy / length) * spec.speed
-        }
-    });
+    } * proj_speed;
+    let vy = spec
+        .initial_vy
+        .or_else(|| {
+            pvf_proj
+                .filter(|t| t.speed_z > 0)
+                .map(|t| -crate::constants::native_ground_x(f64::from(t.speed_z)))
+        })
+        .unwrap_or_else(|| {
+            if spec.horizontal {
+                0.0
+            } else {
+                (dy / length) * proj_speed
+            }
+        });
     let id = state.next_projectile_id;
     state.next_projectile_id += 1;
     let z = e.z;
-    let nat = spec.native_object;
     state.projectiles.push(Projectile {
         id,
         native_object: nat,
@@ -180,12 +238,12 @@ pub fn spawn_projectile(state: &mut State, enemy_idx: usize) {
         z,
         vx,
         vy,
-        gravity: spec.gravity,
+        gravity: proj_gravity,
         landing_stop: spec.landing_stop,
-        z_sine_amp: spec.z_sine_amp,
-        z_sine_rad_per_sec: spec.z_sine_rad_per_sec,
+        z_sine_amp: proj_z_sine_amp,
+        z_sine_rad_per_sec: proj_z_sine_rad,
         osc_y: 0.0,
-        piercing: spec.piercing,
+        piercing: proj_piercing,
         hit_player: false,
         radius: spec.radius,
         damage: e.damage,
@@ -403,6 +461,7 @@ fn emit_projectile_destroy_effect(state: &mut State, shot: &Projectile, x: f64, 
         flash.y = y;
         flash.z = shot.z;
         state.effects.push(flash);
+        crate::trigger_screen_shake(state, 5.5, 0.20);
         let piece_speed = native_ground_x(700.0);
         for p in 0..20usize {
             let theta = (p as f64 / 20.0) * std::f64::consts::PI * 2.0;
@@ -508,6 +567,16 @@ pub fn update_projectiles(
             emit_projectile_destroy_effect(state, &shot, end_x, end_y);
             if shot.native_object == Some(30021) {
                 crate::push_sound(state, "bombExplosion", end_x, shot.z);
+                if !shot.hit_player && !state.player.dead {
+                    let blast_radius = native_ground_x(72.0);
+                    let on_ground = state.player.y >= ARENA_GROUND_Y - 36.0;
+                    if on_ground
+                        && in_reach_of(state.player.z, shot.z, DEPTH_REACH_SPIN)
+                        && (state.player.x - end_x).abs() <= blast_radius + state.player.width / 2.0
+                    {
+                        damage_player(state, shot.damage, end_x);
+                    }
+                }
             }
             return;
         }
@@ -668,7 +737,10 @@ pub fn update_projectiles(
             );
             continue;
         }
-        damage_player(state, imp.shot.damage, imp.x);
+        let dealt = damage_player(state, imp.shot.damage, imp.x);
+        if dealt > 0 && imp.shot.native_object == Some(30057) {
+            crate::combat::try_freeze_player(state);
+        }
         crate::push_projectile_sound(
             state,
             "projectileHit",
@@ -728,6 +800,48 @@ fn walk_towards(state: &mut State, enemy_idx: usize, speed: f64) {
         return;
     }
     let route = route_step(state, px, pz, Some(ex), Some(ez), Some((ew, ew)), false);
+    if state.reference_profile.is_some() {
+        let next_rx = ex + f64::from(route[0]) * speed * DT * 4.0;
+        let route_hits_prop = route == [0, 0]
+            || (route[1] == 0
+                && route[0] != 0
+                && prop_blocks_at(state, next_rx, ez, Some((ew, ew)), 2.0));
+        if route_hits_prop {
+            // Coarse grid route stalled or collided with exact prop_obstacle hitbox:
+            // steer cleanly around the blocking prop's nearest open Z edge.
+            let max_d = band_depth(state.band_back_y);
+            let blocking_z = state
+                .props
+                .iter()
+                .filter_map(|prop| prop_obstacle(prop, Some((ew, ew))))
+                .find(|b| {
+                    let half_w = b.width / 2.0 + ROUTE_GRID_STEP / 2.0;
+                    let half_d = b.depth / 2.0 + ROUTE_GRID_STEP / 2.0;
+                    (ez - b.z).abs() < half_d
+                        && ex.max(px) > b.x - half_w
+                        && ex.min(px) < b.x + half_w
+                })
+                .map(|b| b.z);
+            let detour_dir = if ez <= ROUTE_GRID_STEP * 0.75 {
+                1.0
+            } else if ez >= max_d - ROUTE_GRID_STEP * 0.75 {
+                -1.0
+            } else if let Some(bz) = blocking_z {
+                if ez >= bz {
+                    1.0
+                } else {
+                    -1.0
+                }
+            } else if ez <= max_d * 0.5 {
+                -1.0
+            } else {
+                1.0
+            };
+            state.enemies[enemy_idx].vx = f64::from(ef) * speed * 0.25;
+            state.enemies[enemy_idx].vz = detour_dir * enemy_depth_speed(speed);
+            return;
+        }
+    }
     state.enemies[enemy_idx].vx = f64::from(route[0]) * speed;
     if route[1] != 0 {
         state.enemies[enemy_idx].vz = f64::from(route[1]) * enemy_depth_speed(speed);
@@ -797,6 +911,25 @@ fn choose_enemy_action(state: &mut State, enemy_idx: usize) {
         return;
     }
 
+    if !state.enemies[enemy_idx].activated {
+        let e = &state.enemies[enemy_idx];
+        let damaged = e.hurt_timer > 0.0 || e.hp < e.max_hp;
+        let sight_eff = e.sight_range.max(480.0);
+        let room_elapsed = state
+            .room
+            .as_ref()
+            .map(|r| state.time - r.entered_at)
+            .unwrap_or(0.0);
+        let room_fallback = room_elapsed >= 1.5;
+        if damaged || (e.activation_delay <= 0.0 && (delta.abs() <= sight_eff || room_fallback)) {
+            state.enemies[enemy_idx].activated = true;
+        } else {
+            state.enemies[enemy_idx].vx = 0.0;
+            state.enemies[enemy_idx].vz = 0.0;
+            return;
+        }
+    }
+
     let row_gap = state.player.z - state.enemies[enemy_idx].z;
     let same_row = in_reach_of(
         state.player.z,
@@ -817,8 +950,28 @@ fn choose_enemy_action(state: &mut State, enemy_idx: usize) {
         let kr = state.enemies[enemy_idx].keep_range;
         let keep = if kr > 0.0 { kr } else { ar * 0.6 };
         let facing = state.enemies[enemy_idx].facing;
-        if gap < keep {
-            state.enemies[enemy_idx].vx = -f64::from(facing) * spd;
+        let use_ref = state.reference_profile.is_some();
+        let cam_l = state.camera_x + 18.0;
+        let cam_r = state.camera_x + window_width() - 18.0;
+        let ex = state.enemies[enemy_idx].x;
+        let off_screen = use_ref && (ex < cam_l || ex > cam_r);
+        if off_screen {
+            walk_towards(state, enemy_idx, spd);
+        } else if gap < keep {
+            let next_back_x = ex - f64::from(facing) * spd * DT;
+            let can_backpedal = !use_ref || (next_back_x >= cam_l && next_back_x <= cam_r);
+            if can_backpedal {
+                state.enemies[enemy_idx].vx = -f64::from(facing) * spd;
+            } else {
+                state.enemies[enemy_idx].vx = 0.0;
+                if state.enemies[enemy_idx].attack_cooldown <= 0.0 {
+                    let wu = state.enemies[enemy_idx].base_attack_windup;
+                    let dur = state.enemies[enemy_idx].base_attack_duration;
+                    begin_enemy_attack(state, enemy_idx, "shoot", wu, dur);
+                    let e_snap = state.enemies[enemy_idx].clone();
+                    push_telegraph(state, &e_snap, "AIM", ar * 0.25, wu, facing);
+                }
+            }
         } else if gap > ar {
             walk_towards(state, enemy_idx, spd);
         } else {
@@ -1154,8 +1307,11 @@ fn advance_enemy_attack(state: &mut State, enemy_idx: usize, dt: f64) {
             if in_reach_of(state.player.z, e.z, DEPTH_REACH_MELEE)
                 && body_gap(e.x, e.width, state.player.x, state.player.width) <= e.attack_range
             {
-                let (dmg, ex) = (e.damage, e.x);
-                damage_player(state, dmg, ex);
+                let (dmg, ex, is_frost) = (e.damage, e.x, e.kind == "goblinBlue");
+                let dealt = damage_player(state, dmg, ex);
+                if dealt > 0 && is_frost {
+                    crate::combat::try_freeze_player(state);
+                }
             }
             state.enemies[enemy_idx].attack_cooldown = state.enemies[enemy_idx].attack_cooldown_max;
         }
@@ -1171,10 +1327,21 @@ pub fn update_enemies(state: &mut State, dt: f64, previous_player_position: Opti
     let mut cleared = run_cleared(state);
     let count = state.enemies.len();
     for e_idx in 0..count {
-        if cleared || state.enemies[e_idx].dead {
+        if cleared {
+            continue;
+        }
+        if !state.enemies[e_idx].dead
+            && (state.enemies[e_idx].hp <= 0.0 || state.enemies[e_idx].gone)
+        {
+            state.enemies[e_idx].dead = true;
+        }
+        if state.enemies[e_idx].dead {
             continue;
         }
         state.enemies[e_idx].hurt_timer = (state.enemies[e_idx].hurt_timer - dt).max(0.0);
+        state.enemies[e_idx].hit_flash_timer = (state.enemies[e_idx].hit_flash_timer - dt).max(0.0);
+        state.enemies[e_idx].activation_delay =
+            (state.enemies[e_idx].activation_delay - dt).max(0.0);
         state.enemies[e_idx].attack_cooldown = (state.enemies[e_idx].attack_cooldown - dt).max(0.0);
         if state.enemies[e_idx].slam.is_some() {
             state.enemies[e_idx].slam_cooldown = (state.enemies[e_idx].slam_cooldown - dt).max(0.0);
@@ -1290,6 +1457,12 @@ pub fn update_enemies(state: &mut State, dt: f64, previous_player_position: Opti
                 e.y = ARENA_GROUND_Y;
                 e.vy = 0.0;
                 e.on_ground = true;
+            }
+            if !e.x.is_finite() {
+                e.x = (lw + rw) * 0.5;
+            }
+            if !e.z.is_finite() {
+                e.z = max_d * 0.5;
             }
             e.x = e.x.clamp(lw + e.width / 2.0, rw - e.width / 2.0);
             e.z = e.z.clamp(0.0, max_d);
@@ -1494,8 +1667,15 @@ pub fn update_waves(state: &mut State) {
 }
 
 pub fn resolve_room(state: &mut State, input: &Input, could_steer: bool) {
+    for e in &mut state.enemies {
+        if !e.dead && (e.hp <= 0.0 || e.gone) {
+            e.dead = true;
+        }
+    }
     let alive_count = state.enemies.iter().filter(|e| !e.dead).count();
-    state.enemies.retain(|e| !e.dead || e.dying > 0.0);
+    state
+        .enemies
+        .retain(|e| !e.dead || (!e.gone && e.dying > 0.0));
 
     let boss_cell = state.dungeon.as_ref().is_some_and(|d| state.cell == d.boss);
     let boss_idx = if boss_cell {
@@ -1510,8 +1690,16 @@ pub fn resolve_room(state: &mut State, input: &Input, could_steer: bool) {
         .map(|rm| rm.pending_wave.len() + rm.pending_waves.iter().map(Vec::len).sum::<usize>())
         .unwrap_or(0);
 
+    let alive_bunkers = state
+        .props
+        .iter()
+        .filter(|p| p.piece == "goblinBunker" && !p.broken && !p.gone)
+        .count();
     let already_cleared = state.room.as_ref().is_some_and(|r| r.cleared);
-    if ((alive_count == 0 && pending == 0) || boss_down) && !already_cleared && !state.defeat {
+    if ((alive_count == 0 && pending == 0 && alive_bunkers == 0) || boss_down)
+        && !already_cleared
+        && !state.defeat
+    {
         let cell_room_idx = current_cell(state).map(|c| c.room);
         let has_native_gates = cell_room_idx
             .and_then(|ridx| TABLES.stages.get(&state.stage_id)?.rooms.get(ridx))
@@ -1526,6 +1714,9 @@ pub fn resolve_room(state: &mut State, input: &Input, could_steer: bool) {
             c.cleared = true;
         }
         state.stats.rooms += 1;
+        if !boss_cell {
+            crate::push_sound(state, "gateOpen", state.player.x, state.player.z);
+        }
         if boss_cell && state.victory_delay.is_none() {
             if let Some(ref mut rm) = state.room {
                 rm.pending_wave.clear();
@@ -1534,7 +1725,7 @@ pub fn resolve_room(state: &mut State, input: &Input, could_steer: bool) {
             if let Some(b_idx) = boss_idx {
                 let boss = state.enemies[b_idx].clone();
                 state.victory_delay = Some(if boss.death_style.as_deref() == Some("burst") {
-                    1.2
+                    1.45
                 } else {
                     death_lie(&boss) + smoke_life(&boss) + DEATH_BOSS_CHUNKS + 0.35
                 });

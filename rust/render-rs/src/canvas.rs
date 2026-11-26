@@ -1,5 +1,6 @@
 //! 2D software canvas wrapper over `tiny_skia` and `fontdue` with glyph caching.
 
+use core_rs::constants::{VIEW_HEIGHT, VIEW_LEFT, VIEW_WIDTH};
 use fontdue::{Font, Metrics};
 use std::collections::HashMap;
 use tiny_skia::{
@@ -110,35 +111,48 @@ impl GlyphCache {
     }
 }
 
+#[derive(Debug, Clone, Copy)]
+enum ClipShape {
+    Rect(Rect),
+    Circle { cx: f32, cy: f32, rx: f32, ry: f32 },
+}
+
 pub struct Canvas<'a> {
     pub pixmap: &'a mut Pixmap,
     pub fonts: &'a mut GlyphCache,
     clip: Option<Mask>,
     transform: Transform,
-    stack: Vec<(Transform, Option<Rect>)>,
-    clip_rect_opt: Option<Rect>,
+    stack: Vec<(Transform, Option<ClipShape>)>,
+    clip_shape: Option<ClipShape>,
 }
 
 impl<'a> Canvas<'a> {
     pub fn new(pixmap: &'a mut Pixmap, fonts: &'a mut GlyphCache) -> Self {
+        let transform = if pixmap.width() * 3 == pixmap.height() * 4 {
+            let sx = pixmap.width() as f32 / VIEW_WIDTH as f32;
+            let sy = pixmap.height() as f32 / VIEW_HEIGHT as f32;
+            Transform::from_scale(sx, sy).pre_translate(-(VIEW_LEFT as f32), 0.0)
+        } else {
+            Transform::identity()
+        };
         Self {
             pixmap,
             fonts,
             clip: None,
-            transform: Transform::identity(),
+            transform,
             stack: Vec::new(),
-            clip_rect_opt: None,
+            clip_shape: None,
         }
     }
 
     pub fn save(&mut self) {
-        self.stack.push((self.transform, self.clip_rect_opt));
+        self.stack.push((self.transform, self.clip_shape));
     }
 
     pub fn restore(&mut self) {
-        if let Some((t, cr)) = self.stack.pop() {
+        if let Some((t, cs)) = self.stack.pop() {
             self.transform = t;
-            self.set_clip_rect_opt(cr);
+            self.set_clip_shape(cs);
         }
     }
 
@@ -151,8 +165,29 @@ impl<'a> Canvas<'a> {
     }
 
     pub fn set_clip_rect(&mut self, x: f32, y: f32, w: f32, h: f32) {
-        let mapped = self.map_rect(x, y, w, h);
-        self.set_clip_rect_opt(mapped);
+        let mapped = self.map_rect(x, y, w, h).map(ClipShape::Rect);
+        self.set_clip_shape(mapped);
+    }
+
+    pub fn set_clip_circle(&mut self, cx: f32, cy: f32, radius: f32) {
+        if radius <= 0.0 {
+            self.set_clip_shape(None);
+            return;
+        }
+        let mut pts = [
+            tiny_skia::Point::from_xy(cx, cy),
+            tiny_skia::Point::from_xy(cx + radius, cy),
+            tiny_skia::Point::from_xy(cx, cy + radius),
+        ];
+        self.transform.map_points(&mut pts);
+        let rx = (pts[1].x - pts[0].x).hypot(pts[1].y - pts[0].y);
+        let ry = (pts[2].x - pts[0].x).hypot(pts[2].y - pts[0].y);
+        self.set_clip_shape(Some(ClipShape::Circle {
+            cx: pts[0].x,
+            cy: pts[0].y,
+            rx: rx.max(0.01),
+            ry: ry.max(0.01),
+        }));
     }
 
     fn map_rect(&self, x: f32, y: f32, w: f32, h: f32) -> Option<Rect> {
@@ -168,14 +203,32 @@ impl<'a> Canvas<'a> {
         Rect::from_xywh(x0, y0, rw.max(0.01), rh.max(0.01))
     }
 
-    fn set_clip_rect_opt(&mut self, rect_opt: Option<Rect>) {
-        self.clip_rect_opt = rect_opt;
-        if let Some(r) = rect_opt {
+    fn set_clip_shape(&mut self, shape: Option<ClipShape>) {
+        self.clip_shape = shape;
+        if let Some(s) = shape {
             if let Some(mut mask) = Mask::new(self.pixmap.width(), self.pixmap.height()) {
-                let path = PathBuilder::from_rect(r);
-                mask.fill_path(&path, FillRule::Winding, false, Transform::identity());
-                self.clip = Some(mask);
-                return;
+                match s {
+                    ClipShape::Rect(r) => {
+                        let path = PathBuilder::from_rect(r);
+                        mask.fill_path(&path, FillRule::Winding, false, Transform::identity());
+                        self.clip = Some(mask);
+                        return;
+                    }
+                    ClipShape::Circle { cx, cy, rx, ry } => {
+                        if let Some(rect) = Rect::from_xywh(cx - rx, cy - ry, rx * 2.0, ry * 2.0) {
+                            if let Some(path) = PathBuilder::from_oval(rect) {
+                                mask.fill_path(
+                                    &path,
+                                    FillRule::Winding,
+                                    true,
+                                    Transform::identity(),
+                                );
+                                self.clip = Some(mask);
+                                return;
+                            }
+                        }
+                    }
+                }
             }
         }
         self.clip = None;
@@ -197,6 +250,49 @@ impl<'a> Canvas<'a> {
         paint.anti_alias = false;
         self.pixmap
             .fill_rect(rect, &paint, self.transform, self.clip.as_ref());
+    }
+
+    /// Fill a clockwise radial/pie cooldown sweep clipped to `(x, y, w, h)`.
+    /// `ratio` in `(0.0, 1.0]` is the remaining cooldown fraction starting from 12 o'clock.
+    pub fn fill_radial_pie(&mut self, x: f32, y: f32, w: f32, h: f32, ratio: f32, color: Rgba) {
+        let ratio = ratio.clamp(0.0, 1.0);
+        if w <= 0.0 || h <= 0.0 || color.a == 0 || ratio <= 0.001 {
+            return;
+        }
+        if ratio >= 0.999 {
+            self.fill_rect(x, y, w, h, color);
+            return;
+        }
+        let cx = x + w * 0.5;
+        let cy = y + h * 0.5;
+        let radius = (w * w + h * h).sqrt();
+        let start = -std::f32::consts::FRAC_PI_2;
+        let sweep = std::f32::consts::TAU * ratio;
+        let steps = ((ratio * 24.0).ceil() as usize).clamp(4, 24);
+
+        let mut pb = PathBuilder::new();
+        pb.move_to(cx, cy);
+        for i in 0..=steps {
+            let angle = start + sweep * (i as f32 / steps as f32);
+            pb.line_to(cx + angle.cos() * radius, cy + angle.sin() * radius);
+        }
+        pb.close();
+
+        if let Some(path) = pb.finish() {
+            self.save();
+            self.set_clip_rect(x, y, w, h);
+            let mut paint = Paint::default();
+            paint.set_color(color.to_skia());
+            paint.anti_alias = true;
+            self.pixmap.fill_path(
+                &path,
+                &paint,
+                FillRule::Winding,
+                self.transform,
+                self.clip.as_ref(),
+            );
+            self.restore();
+        }
     }
 
     pub fn stroke_rect(&mut self, x: f32, y: f32, w: f32, h: f32, color: Rgba, width: f32) {
@@ -367,6 +463,30 @@ impl<'a> Canvas<'a> {
             };
             self.pixmap
                 .stroke_path(&path, &paint, &stroke, self.transform, self.clip.as_ref());
+        }
+    }
+
+    pub fn fill_polygon(&mut self, pts: &[(f32, f32)], color: Rgba) {
+        if color.a == 0 || pts.len() < 3 {
+            return;
+        }
+        let mut pb = PathBuilder::new();
+        pb.move_to(pts[0].0, pts[0].1);
+        for &(x, y) in &pts[1..] {
+            pb.line_to(x, y);
+        }
+        pb.close();
+        if let Some(path) = pb.finish() {
+            let mut paint = Paint::default();
+            paint.set_color(color.to_skia());
+            paint.anti_alias = true;
+            self.pixmap.fill_path(
+                &path,
+                &paint,
+                FillRule::Winding,
+                self.transform,
+                self.clip.as_ref(),
+            );
         }
     }
 
@@ -544,6 +664,78 @@ impl<'a> Canvas<'a> {
     }
 
     #[allow(clippy::too_many_arguments)]
+    pub fn draw_image_outline(
+        &mut self,
+        sheet: &Pixmap,
+        sx: u32,
+        sy: u32,
+        sw: u32,
+        sh: u32,
+        dx: f32,
+        dy: f32,
+        dw: f32,
+        dh: f32,
+        flip_x: bool,
+        color: Rgba,
+        thickness: f32,
+    ) {
+        if sw == 0 || sh == 0 || dw <= 0.0 || dh <= 0.0 || color.a == 0 || thickness <= 0.0 {
+            return;
+        }
+        let Some(sub_rect) = tiny_skia::IntRect::from_xywh(sx as i32, sy as i32, sw, sh) else {
+            return;
+        };
+        let Some(mut sub) = sheet.clone_rect(sub_rect) else {
+            return;
+        };
+        let a = u16::from(color.a);
+        let pr = ((u16::from(color.r) * a + 127) / 255) as u8;
+        let pg = ((u16::from(color.g) * a + 127) / 255) as u8;
+        let pb = ((u16::from(color.b) * a + 127) / 255) as u8;
+        for px in sub.data_mut().chunks_exact_mut(4) {
+            if px[3] > 32 {
+                px[0] = pr;
+                px[1] = pg;
+                px[2] = pb;
+                px[3] = color.a;
+            } else {
+                px[0] = 0;
+                px[1] = 0;
+                px[2] = 0;
+                px[3] = 0;
+            }
+        }
+        let scale_x = dw / sw as f32;
+        let scale_y = dh / sh as f32;
+        let diag = thickness * std::f32::consts::FRAC_1_SQRT_2;
+        let offsets = [
+            (-thickness, 0.0),
+            (thickness, 0.0),
+            (0.0, -thickness),
+            (0.0, thickness),
+            (-diag, -diag),
+            (diag, -diag),
+            (-diag, diag),
+            (diag, diag),
+        ];
+        let paint = PixmapPaint {
+            opacity: 1.0,
+            blend_mode: tiny_skia::BlendMode::SourceOver,
+            quality: tiny_skia::FilterQuality::Nearest,
+        };
+        for (ox, oy) in offsets {
+            let mut t = self.transform.pre_translate(dx + ox, dy + oy);
+            if flip_x {
+                t = t.pre_translate(dw, 0.0).pre_scale(-scale_x, scale_y);
+            } else {
+                t = t.pre_scale(scale_x, scale_y);
+            }
+            self.pixmap
+                .draw_pixmap(0, 0, sub.as_ref(), &paint, t, self.clip.as_ref());
+        }
+    }
+
+    #[allow(clippy::too_many_arguments)]
     pub fn fill_text(
         &mut self,
         text: &str,
@@ -577,6 +769,159 @@ impl<'a> Canvas<'a> {
         self.blit_text_run(text, start_x, baseline_y, px_tenths, color);
     }
 
+    /// Bold italic metallic silver-white text with dark outline (DNF live rating panel grade & fallback).
+    pub fn fill_text_metallic_italic(
+        &mut self,
+        text: &str,
+        x: f32,
+        y: f32,
+        size: f32,
+        align: TextAlign,
+        alpha: f32,
+    ) {
+        if text.is_empty() || alpha <= 0.01 {
+            return;
+        }
+        let eff_size = (size * self.transform.sy).max(6.0);
+        let total_w = self.fonts.measure_text(text, eff_size) + 2.0;
+        let mut pt = tiny_skia::Point::from_xy(x, y);
+        self.transform.map_point(&mut pt);
+        let start_x = match align {
+            TextAlign::Left => pt.x,
+            TextAlign::Center => pt.x - total_w * 0.5,
+            TextAlign::Right => pt.x - total_w,
+        };
+        let baseline_y = pt.y;
+        let px_tenths = (eff_size * 10.0).round().clamp(60.0, 2000.0) as u16;
+        let outline = Rgba::new(8, 10, 16, 235).with_alpha(alpha);
+        for [ox, oy] in [
+            [-1.5, -1.0],
+            [0.0, -1.5],
+            [1.5, -1.0],
+            [-1.5, 0.0],
+            [2.0, 0.0],
+            [-1.5, 1.0],
+            [0.0, 1.5],
+            [1.5, 1.0],
+        ] {
+            self.blit_text_run_slanted(
+                text,
+                start_x + ox,
+                baseline_y + oy,
+                px_tenths,
+                None,
+                outline,
+            );
+        }
+        // Faux-bold + metallic vertical gradient (bright silver-white top -> cool steel bottom)
+        let top_col = Rgba::new(246, 248, 252, 255).with_alpha(alpha);
+        let bot_col = Rgba::new(176, 182, 190, 255).with_alpha(alpha);
+        self.blit_text_run_slanted(
+            text,
+            start_x + 0.8,
+            baseline_y,
+            px_tenths,
+            Some(bot_col),
+            top_col,
+        );
+        self.blit_text_run_slanted(text, start_x, baseline_y, px_tenths, Some(bot_col), top_col);
+    }
+
+    fn blit_text_run_slanted(
+        &mut self,
+        text: &str,
+        start_x: f32,
+        baseline_y: f32,
+        px_tenths: u16,
+        bottom_color: Option<Rgba>,
+        top_color: Rgba,
+    ) {
+        let pw = self.pixmap.width() as i32;
+        let ph = self.pixmap.height() as i32;
+        let clip_shape = self.clip_shape;
+        let mut pen_x = start_x;
+        let mut draw_ops: Vec<(i32, i32, usize, usize, Vec<u8>)> = Vec::new();
+        for ch in text.chars() {
+            if let Some((metrics, bitmap)) = self.fonts.rasterize(ch, px_tenths) {
+                let gx = (pen_x + metrics.xmin as f32).round() as i32;
+                let gy = (baseline_y - metrics.ymin as f32 - metrics.height as f32).round() as i32;
+                if metrics.width > 0 && metrics.height > 0 {
+                    draw_ops.push((gx, gy, metrics.width, metrics.height, bitmap.clone()));
+                }
+                pen_x += metrics.advance_width + 0.6;
+            } else {
+                pen_x += f32::from(px_tenths) / 10.0 * 0.5;
+            }
+        }
+        let data = self.pixmap.data_mut();
+        for (gx, gy, gw, gh, bitmap) in draw_ops {
+            let denom = (gh.saturating_sub(1)).max(1) as f32;
+            for row in 0..gh {
+                let py = gy + row as i32;
+                if py < 0 || py >= ph {
+                    continue;
+                }
+                if let Some(ClipShape::Rect(cr)) = clip_shape {
+                    if (py as f32) < cr.top() || (py as f32) >= cr.bottom() {
+                        continue;
+                    }
+                }
+                let t = row as f32 / denom;
+                let col_rgba = match bottom_color {
+                    Some(bc) => Rgba::new(
+                        (f32::from(top_color.r) * (1.0 - t) + f32::from(bc.r) * t) as u8,
+                        (f32::from(top_color.g) * (1.0 - t) + f32::from(bc.g) * t) as u8,
+                        (f32::from(top_color.b) * (1.0 - t) + f32::from(bc.b) * t) as u8,
+                        (f32::from(top_color.a) * (1.0 - t) + f32::from(bc.a) * t) as u8,
+                    ),
+                    None => top_color,
+                };
+                let sr = f32::from(col_rgba.r);
+                let sg = f32::from(col_rgba.g);
+                let sb = f32::from(col_rgba.b);
+                let sa = f32::from(col_rgba.a) / 255.0;
+                let shear =
+                    ((gh.saturating_sub(1).saturating_sub(row)) as f32 * 0.24).round() as i32;
+                for col in 0..gw {
+                    let px = gx + col as i32 + shear;
+                    if px < 0 || px >= pw {
+                        continue;
+                    }
+                    match clip_shape {
+                        Some(ClipShape::Rect(cr)) => {
+                            if (px as f32) < cr.left() || (px as f32) >= cr.right() {
+                                continue;
+                            }
+                        }
+                        Some(ClipShape::Circle { cx, cy, rx, ry }) => {
+                            let dx = (px as f32 - cx) / rx;
+                            let dy = (py as f32 - cy) / ry;
+                            if dx * dx + dy * dy > 1.0 {
+                                continue;
+                            }
+                        }
+                        None => {}
+                    }
+                    let cov = bitmap[row * gw + col];
+                    if cov == 0 {
+                        continue;
+                    }
+                    let alpha = (f32::from(cov) / 255.0) * sa;
+                    let inv = 1.0 - alpha;
+                    let idx = ((py * pw + px) * 4) as usize;
+                    let dr = f32::from(data[idx]);
+                    let dg = f32::from(data[idx + 1]);
+                    let db = f32::from(data[idx + 2]);
+                    let da = f32::from(data[idx + 3]);
+                    data[idx] = (sr * alpha + dr * inv).min(255.0) as u8;
+                    data[idx + 1] = (sg * alpha + dg * inv).min(255.0) as u8;
+                    data[idx + 2] = (sb * alpha + db * inv).min(255.0) as u8;
+                    data[idx + 3] = (255.0 * alpha + da * inv).min(255.0) as u8;
+                }
+            }
+        }
+    }
+
     fn blit_text_run(
         &mut self,
         text: &str,
@@ -587,7 +932,7 @@ impl<'a> Canvas<'a> {
     ) {
         let pw = self.pixmap.width() as i32;
         let ph = self.pixmap.height() as i32;
-        let clip_bounds = self.clip_rect_opt;
+        let clip_shape = self.clip_shape;
         let mut pen_x = start_x;
         let mut draw_ops: Vec<(i32, i32, usize, usize, Vec<u8>)> = Vec::new();
         for ch in text.chars() {
@@ -614,7 +959,7 @@ impl<'a> Canvas<'a> {
                 if py < 0 || py >= ph {
                     continue;
                 }
-                if let Some(cr) = clip_bounds {
+                if let Some(ClipShape::Rect(cr)) = clip_shape {
                     if (py as f32) < cr.top() || (py as f32) >= cr.bottom() {
                         continue;
                     }
@@ -624,10 +969,20 @@ impl<'a> Canvas<'a> {
                     if px < 0 || px >= pw {
                         continue;
                     }
-                    if let Some(cr) = clip_bounds {
-                        if (px as f32) < cr.left() || (px as f32) >= cr.right() {
-                            continue;
+                    match clip_shape {
+                        Some(ClipShape::Rect(cr)) => {
+                            if (px as f32) < cr.left() || (px as f32) >= cr.right() {
+                                continue;
+                            }
                         }
+                        Some(ClipShape::Circle { cx, cy, rx, ry }) => {
+                            let dx = (px as f32 - cx) / rx;
+                            let dy = (py as f32 - cy) / ry;
+                            if dx * dx + dy * dy > 1.0 {
+                                continue;
+                            }
+                        }
+                        None => {}
                     }
                     let cov = bitmap[row * gw + col];
                     if cov == 0 {

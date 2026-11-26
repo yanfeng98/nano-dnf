@@ -329,8 +329,24 @@ pub fn breakable_spec(piece: &str) -> Option<PropBox> {
             ink: Some([135.0, 108.0]),
             box_scale: None,
         }),
+        "goblinBunker" => Some(PropBox {
+            width: 112.0,
+            depth: 42.0,
+            height: 110.0,
+            hp: 3,
+            dx: 0.0,
+            ink: Some([142.0, 138.0]),
+            box_scale: None,
+        }),
         _ => None,
     }
+}
+
+pub fn is_pillar_piece(piece: &str) -> bool {
+    matches!(
+        piece,
+        "pillar" | "pillarPale" | "pillarDecor" | "pillarDamagedDecor"
+    )
 }
 
 fn solid_base_spec(piece: &str) -> Option<(f64, f64, [f64; 2])> {
@@ -344,6 +360,8 @@ fn solid_base_spec(piece: &str) -> Option<(f64, f64, [f64; 2])> {
         "stump" => Some((74.0, -4.0, [105.0, 199.0])),
         "pillar" => Some((43.0, 0.0, [44.0, 133.0])),
         "pillarPale" => Some((43.0, 0.0, [44.0, 133.0])),
+        "pillarDecor" => Some((43.0, 0.0, [44.0, 133.0])),
+        "pillarDamagedDecor" => Some((43.0, 0.0, [44.0, 111.0])),
         "wallStone" => Some((163.0, -1.0, [167.0, 125.0])),
         "rockFlat" => Some((92.0, -20.0, [141.0, 89.0])),
         "rockSmall" => Some((42.0, 0.0, [42.0, 44.0])),
@@ -470,12 +488,12 @@ pub fn prop_obstacle(prop: &Prop, body_footprint: Option<(f64, f64)>) -> Option<
     if !prop.solid || prop.broken || prop.gone {
         return None;
     }
-    let mut obs = if let Some(ref np) = prop.native_pillar {
+    let mut obs = if prop.native_pillar.is_some() {
         ObstacleBox {
-            x: (np.x - np.origin_x) * NATIVE_SCALE,
-            z: native_ground_z(np.y),
-            width: 58.0 * NATIVE_SCALE,
-            depth: 20.0 * NATIVE_SCALE / DEPTH_SCALE,
+            x: prop.x,
+            z: prop.z,
+            width: 36.0 * NATIVE_SCALE,
+            depth: 16.0 * NATIVE_SCALE / DEPTH_SCALE,
         }
     } else if let Some(ref nf) = prop.native_footprint {
         ObstacleBox {
@@ -708,6 +726,13 @@ fn overlaps_solid(list: &[Prop], x: f64, z: f64, boxed: &PropBox) -> bool {
     false
 }
 
+fn is_tree_piece(piece: &str) -> bool {
+    matches!(
+        piece,
+        "treeBossFruit" | "treeReference" | "treeLeafy" | "trunkTall" | "trunkBent" | "trunkMossy"
+    )
+}
+
 fn make_scattered_prop(piece: &str, x: f64, z: f64, solid: bool, hp: i32) -> Prop {
     Prop {
         piece: piece.to_string(),
@@ -717,7 +742,8 @@ fn make_scattered_prop(piece: &str, x: f64, z: f64, solid: bool, hp: i32) -> Pro
         sort_z: None,
         solid,
         scattered: true,
-        hp,
+        hp: if is_pillar_piece(piece) { 2 } else { hp },
+        hit_t: 0.0,
         broken: false,
         broken_at: -1.0,
         gone: false,
@@ -725,6 +751,9 @@ fn make_scattered_prop(piece: &str, x: f64, z: f64, solid: bool, hp: i32) -> Pro
         native_footprint: None,
         native_decoration: None,
         native_animation_started_at: 0.0,
+        spawn_timer: if piece == "goblinBunker" { 2.0 } else { 0.0 },
+        spawned_count: 0,
+        drops_left: if is_tree_piece(piece) { 2 } else { 0 },
     }
 }
 
@@ -1248,22 +1277,78 @@ pub fn begin_room(state: &mut State, entry_door: Option<&str>) {
     let depth = band_depth(band_back_y);
     let mut first_wave = Vec::new();
     let mut later_waves: IndexMap<u32, Vec<RoomWaveItem>> = IndexMap::new();
-    for entry in &spec.enemies {
-        let z = entry.depth.unwrap_or(0.0) * depth;
-        let item = RoomWaveItem {
-            kind: entry.kind.clone(),
-            x: entry.x,
-            z,
-            level: entry.level,
-            xp: entry.xp,
-        };
-        let wave = entry.wave.unwrap_or(1);
-        if wave <= 1 {
-            first_wave.push(item);
-        } else {
-            later_waves.entry(wave).or_default().push(item);
+    let is_recorded_main_room = stage.dungeon.as_ref().is_some_and(|dun| {
+        cell.room == dun.entry_room
+            || cell.room == dun.boss_room
+            || dun.pins.values().any(|&pinned| pinned == cell.room)
+    });
+    let pvf_branch = if state.reference_profile.is_some() && !is_recorded_main_room {
+        crate::pvf_truth::stage_truth(&state.stage_id).and_then(|st| {
+            if st.branch_rooms.is_empty() {
+                None
+            } else {
+                st.branch_rooms.get(cell.room % st.branch_rooms.len())
+            }
+        })
+    } else {
+        None
+    };
+    if let Some(branch) = pvf_branch {
+        let total_roster: usize = branch.roster.values().map(|&n| n as usize).sum();
+        let mut idx = 0usize;
+        for (kind, &count) in &branch.roster {
+            for _ in 0..count {
+                let (x, z, level, xp, activation_delay) = if let Some(slot) = spec.enemies.get(idx)
+                {
+                    (
+                        slot.x,
+                        slot.depth.unwrap_or(0.5) * depth,
+                        slot.level,
+                        slot.xp,
+                        slot.activation_delay,
+                    )
+                } else {
+                    let frac = if total_roster <= 1 {
+                        0.5
+                    } else {
+                        idx as f64 / (total_roster - 1) as f64
+                    };
+                    let x =
+                        ROOM_LEFT_WALL + 160.0 + frac * (width - ROOM_LEFT_WALL - 300.0).max(80.0);
+                    let z = (0.28 + ((idx % 3) as f64) * 0.22) * depth;
+                    (x, z, None, None, None)
+                };
+                first_wave.push(RoomWaveItem {
+                    kind: kind.clone(),
+                    x,
+                    z,
+                    level,
+                    xp,
+                    activation_delay,
+                });
+                idx += 1;
+            }
+        }
+    } else {
+        for entry in &spec.enemies {
+            let z = entry.depth.unwrap_or(0.0) * depth;
+            let item = RoomWaveItem {
+                kind: entry.kind.clone(),
+                x: entry.x,
+                z,
+                level: entry.level,
+                xp: entry.xp,
+                activation_delay: entry.activation_delay,
+            };
+            let wave = entry.wave.unwrap_or(1);
+            if wave <= 1 {
+                first_wave.push(item);
+            } else {
+                later_waves.entry(wave).or_default().push(item);
+            }
         }
     }
+    let total_enemies = first_wave.len() + later_waves.values().map(Vec::len).sum::<usize>();
     let mut wave_numbers: Vec<u32> = later_waves.keys().copied().collect();
     wave_numbers.sort_unstable();
 
@@ -1282,7 +1367,7 @@ pub fn begin_room(state: &mut State, entry_door: Option<&str>) {
 
     state.room = Some(RoomState {
         name: spec.name.clone(),
-        total: spec.enemies.len(),
+        total: total_enemies,
         cleared,
         native_gate_opened_at: None,
         cell: state.cell,
@@ -1304,9 +1389,18 @@ pub fn begin_room(state: &mut State, entry_door: Option<&str>) {
     state.enemies = if cleared {
         Vec::new()
     } else {
+        let use_ref = state.reference_profile.is_some();
         first_wave
             .iter()
-            .map(|e| create_enemy(state, &e.kind, e.x, e.z, e.level, e.xp))
+            .map(|e| {
+                let mut enemy = create_enemy(state, &e.kind, e.x, e.z, e.level, e.xp);
+                if use_ref {
+                    if let Some(delay) = e.activation_delay {
+                        enemy.activation_delay = delay;
+                    }
+                }
+                enemy
+            })
             .collect()
     };
 
@@ -1326,6 +1420,11 @@ pub fn begin_room(state: &mut State, entry_door: Option<&str>) {
                 depth: 28.0,
             });
             let solid = boxed.is_some() || native_pillar.is_some();
+            let hp = if is_pillar_piece(&entry.piece) || native_pillar.is_some() {
+                2
+            } else {
+                boxed.map(|b| b.hp).unwrap_or(0)
+            };
             Prop {
                 piece: entry.piece.clone(),
                 x,
@@ -1334,7 +1433,8 @@ pub fn begin_room(state: &mut State, entry_door: Option<&str>) {
                 sort_z: entry.sort_z,
                 solid,
                 scattered: false,
-                hp: boxed.map(|b| b.hp).unwrap_or(0),
+                hp,
+                hit_t: 0.0,
                 broken: false,
                 broken_at: -1.0,
                 gone: false,
@@ -1346,6 +1446,13 @@ pub fn begin_room(state: &mut State, entry_door: Option<&str>) {
                 } else {
                     0.0
                 },
+                spawn_timer: if entry.piece == "goblinBunker" {
+                    2.0
+                } else {
+                    0.0
+                },
+                spawned_count: 0,
+                drops_left: if is_tree_piece(&entry.piece) { 2 } else { 0 },
             }
         };
 
@@ -1353,7 +1460,15 @@ pub fn begin_room(state: &mut State, entry_door: Option<&str>) {
             for entry in &spec.props {
                 let share = entry.depth.unwrap_or(0.0);
                 let boxed = prop_box(&entry.piece, entry.scale);
-                built.push(make_prop(entry, entry.x, share * depth, boxed));
+                let z = if breakable_spec(&entry.piece).is_some()
+                    || is_pillar_piece(&entry.piece)
+                    || entry.native_pillar.is_some()
+                {
+                    (share * depth).clamp(8.0, (depth - 8.0).max(8.0))
+                } else {
+                    share * depth
+                };
+                built.push(make_prop(entry, entry.x, z, boxed));
             }
         } else {
             struct Displaced<'a> {
@@ -1537,6 +1652,10 @@ pub fn begin_room(state: &mut State, entry_door: Option<&str>) {
 }
 
 pub fn enter_cell(state: &mut State, dir: &str) {
+    let prev_props = state.props.clone();
+    if let Some(c) = current_cell_mut(state) {
+        c.props = Some(prev_props);
+    }
     let Some(cell) = current_cell(state) else {
         return;
     };

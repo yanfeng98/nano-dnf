@@ -110,9 +110,12 @@ pub struct Player {
     pub buff_icon_timer: f64,
     pub buff_icon_id: Option<String>,
     pub skill_cooldowns: IndexMap<String, f64>,
+    pub consumable_cooldowns: [f64; 6],
+    pub skill_ranks: IndexMap<String, u32>,
     pub invuln: f64,
     pub solid_invuln: f64,
     pub hurt_timer: f64,
+    pub freeze_timer: f64,
     pub dead: bool,
     pub name: Option<String>,
 }
@@ -204,10 +207,14 @@ pub struct Enemy {
     pub super_armor: bool,
     pub knockback_x: f64,
     pub hurt_timer: f64,
+    pub hit_flash_timer: f64,
     pub dead: bool,
     pub dying: f64,
     pub silhouette: bool,
     pub gone: bool,
+    pub sight_range: f64,
+    pub activated: bool,
+    pub activation_delay: f64,
 }
 
 #[derive(Debug, Clone)]
@@ -236,6 +243,7 @@ pub struct Prop {
     pub solid: bool,
     pub scattered: bool,
     pub hp: i32,
+    pub hit_t: f64,
     pub broken: bool,
     pub broken_at: f64,
     pub gone: bool,
@@ -243,6 +251,9 @@ pub struct Prop {
     pub native_footprint: Option<NativeFootprint>,
     pub native_decoration: Option<NativeDecorationSpec>,
     pub native_animation_started_at: f64,
+    pub spawn_timer: f64,
+    pub spawned_count: u32,
+    pub drops_left: u32,
 }
 
 #[derive(Debug, Clone)]
@@ -275,6 +286,7 @@ pub struct RoomWaveItem {
     pub z: f64,
     pub level: Option<u32>,
     pub xp: Option<u32>,
+    pub activation_delay: Option<f64>,
 }
 
 #[derive(Debug, Clone)]
@@ -389,6 +401,8 @@ pub struct Effect {
     pub kind: String,
     pub text: String,
     pub miss: bool,
+    pub critical: bool,
+    pub player_hit: bool,
     pub x: f64,
     pub y: f64,
     pub z: f64,
@@ -423,6 +437,8 @@ impl Effect {
             kind: kind.to_string(),
             text: String::new(),
             miss: false,
+            critical: false,
+            player_hit: false,
             x: 0.0,
             y: 0.0,
             z: 0.0,
@@ -561,6 +577,9 @@ pub struct State {
     pub band_visual_back_y: Option<f64>,
     pub camera_x: f64,
     pub camera_y: f64,
+    pub shake_amp: f64,
+    pub shake_timer: f64,
+    pub shake_duration: f64,
     pub target: Option<TargetState>,
     pub player: Player,
     pub enemies: Vec<Enemy>,
