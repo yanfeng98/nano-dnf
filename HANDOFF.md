@@ -1,41 +1,33 @@
 # 开发交接（Rust 桌面版）
 
-> **架构状态（2026-11-23）**：项目已由原浏览器 JS 版本完整迁移至 `rust/` 工作区（Windows 便携版 `nano-dnf.exe`），原 `src/*.js`、`index.html`、`package.json` 与 `tests/` 已在验证通过后移除。
+> **最新基点（2026-11-26，tag `v0.0.5` / `main` `139dcd0`）**：项目已完整运行于纯 Rust 11-crate 桌面端工作区（Windows 便携版 `nano-dnf.exe`，原生 `800×600` 4:3 内部渲染、`1200×900` 1.5× 默认窗口、`Alt+Enter` 全屏）。
 >
-> **当前最新进展**：
-> - 已补全城镇与地牢内的全部桌面面板交互：
->   - 背包（`I`）`1-9` 使用药水恢复 HP/MP 或穿戴装备，`Backspace` 分解背包首件装备为材料与金币；
->   - 装备（`K`）`1-9` 卸下对应槽位装备回背包；
->   - 任务（`L`）`1-3` 接取与交付任务，击杀任务已按 `state.stats.kills_by_type` 精确统计怪物种类（不再把哥布林计入猫妖击杀）；
->   - 城镇商店（`U`）`1-8` 消耗金币购买药水与装备；
->   - 技能快捷栏配置（`B`）`1-6` 选槽并用 `←`/`→` 切换技能，自动写入 `nano-dnf-save.json` 并在重开地牢时保留；
->   - `Esc` 优先关闭当前打开的面板/配置。
-> - 已接入更多原生贴图与音效（`render-rs`、`app/audio.rs`）：
->   - 技能栏冷却/缺蓝状态改用 `skillsDisabled` 原生灰化图标；
->   - 敌方投射物（`30001` 石块、`30021` 炸弹、`30057` 冰弹、`30047` 火弹）已接入 `goblinStone` / `goblinBomb` / `goblinIce` / `goblinFire` 原生精灵帧与旋转/朝向绘制，替换原先的纯色圆球占位；
->   - 血球（`blood_orb`）与地裂波动剑（`normalWave`）飞行物已接入 `effects.png` 原生序列帧（`orbRow=14` / `shotRows.normalWave=31`）；
->   - 鬼斩、上挑、崩山击、嗜魂封魔斩、血气之刃与血之狂暴双刀普攻已接入 `effects.png` 原生挥砍序列帧；
->   - 左上角目标信息栏已接入 `portraits-reference.png` 对应怪物/领主头像与边框；
->   - 普通哥布林（`grunt`）、普通/燃烧投掷哥布林（`caster` / `burningThrower`）与投掷十夫长（`throwerElite`）已优先接入 `goblinReference` / `casterReference` / `throwerReference` 原生独立图集；
->   - 幽暗密林深处（`mirkwooddeep`）入口、领主房及 13/14/23/24/33/42/43 房间已接入对应 `deep*Closeback` 原生近景层与 24 房前景遮挡层（`deepRoom24Foreground`）；
->   - 房间传送门已接入 `nativePathGate` / `nativePathGateEast` / `nativePathGateEastNormal` 与锁定栅栏 `gateBlock` 原生贴图；
->   - 技能斩击已补齐 `crossSlash`、`rageBurst`、`bloodSnatch`、`graspHead`、`bloodEvil`、`mountainRift`、`berserk` 的 `effects.png` 序列帧；
->   - 城镇地图（艾尔文防线）已按 `2520` 宽横版卷轴场景重做：`town.png` 分层拼接（远景/0.35 视差中景/石板路面/左旗帜/东侧发光传送门/前景栏杆）、`npc.png` 8 名动态 NPC（守卫/赛丽亚/敏泰/GSD/卡妮娜/布兰妮/辛达/守卫队长）、`walk` 步行动画与 `bodyRoots` 根骨对齐、`cameraHalfWindow=56` 跟随镜头与靠近 NPC/城门交互；
->   - 底部 HUD 栏与红/蓝球（地牢与城镇共用）已接入 `hud.png` 原生底条、左右球槽、`orbRed`/`orbBlue` 液位裁剪、`xpFill` 经验条与 `slotFrame` 技能框；
->   - 区域选择界面已接入 `region.png` 原生关卡卡片贴图；
->   - 觉醒（魔狱血刹）已接入 `awakening.png` 切入立绘，通关结算、宝箱与 4 选 1 翻牌卡片已接入 `results-reference.png` 原图；
->   - 十字斩剑气飞行物（`crossSlash`）已接入 `effects.png` 第 4 行原生序列帧；
->   - 崩山裂地斩与魔狱血刹·落地面裂盘已接入 `rift.png`（`384×384`）原生序列帧，Boss 击破爆发叠加 `bossdeath.png` 字图；
->   - 补齐 `render-rs/src/tables.json` 中缺失的 `SCENE.pieces` 全部 60+ 场景道具切片（树干、灌木、木桶、宝箱、墓碑、岩石等）及 `treeReference` / `treeFruitReference` / `goblinBunker` 专属图集绘制；
->   - 小地图已接入 `minimap.png` 九宫格边框、问号格、领主图标与角色定位针，击杀经验浮字已接入 `experience-digits.png` 原生绿色数字；
->   - 地牢战斗新增 `↑ + X` 搓招上挑（`upSlash`）指令支持；
->   - Windows 原生音频已补齐全部核心事件的 `.ogg` 映射：`projectileSpawn`/`projectileHit`（石块/炸弹/冰弹/火弹）、`enemyAttack`（哥布林旋风/牛头斧劈冲撞砸地）、`tau`/`cat` 受击与死亡音、`playerLand`/`playerStep` 脚步音以及 `bloodSword`/`ghostSlash`/`frenzy`/`berserk`/`hellbenter` 技能音效。
-> - **仍待处理的外部阻塞项**：整体录像对照还原（第 1–7 项视觉/AI/数值考据）及 Windows 真机实玩验收需要结合实机画面与业主试玩反馈推进。
+> **本轮已完成的核心里程碑（自 `v0.0.4` → `v0.0.5`）**：
+> - **城镇与开场流程（1:1 赫顿玛尔四区主城）**：
+>   - 标题界面点击/按键开始游戏直接进入 `ScreenMode::Town` 并出生在**赛丽亚的房间**（原件 `assets/seriaroom.png`：`gateback`、黄金金库、邮箱、赛丽亚、门柱）；
+>   - 重建完整四段真实分区黑屏切换：**赛丽亚的房间** ↔ **赫顿玛尔小巷**（4 牌路牌、奥兰与爪印、双骑士石像拱门、辛达、G.S.D）↔ **赫顿玛尔市区**（纯红砖广场、西端斜向白石沿 `HM_BRTILE01`、红双剑石柱旗、火罐、彩色北拱门、5 牌路牌、蓝窗石屋、卡妮娜、风振）↔ **格兰之森西桥**（纯白栏杆石桥 `HM_SKYBRIDGE` + `HM_SKYWALL` + 红双剑旗，西端直通格兰之森选关）；
+>   - 城镇 BGM 接入客户端原件 `assets/music/gate_new.ogg`（赛丽亚房间）与 `assets/music/hendonmyre_new.ogg`（赫顿玛尔室外三区）。
+> - **地牢、场景交互与客户端原件 VFX**：
+>   - 确立 [AGENTS.md](AGENTS.md) / [CLAUDE.md](CLAUDE.md)「`.NPK` 客户端原件强制优先」硬规则；
+>   - 全部石柱（含 `native_pillar`）支持两击破碎并掉落，哥布林营地（`goblinBunker`）可破坏且定时刷怪，树木与花草可交互砍伐；房间破坏状态在切换房间后持久保留；
+>   - 青哥布林冰弹新增 25% 冰冻状态，接入原件 `assets/status-vfx.png`（`freeze.img` 冰晶）；领主死亡爆发光效修复落点并接入原件 `darkfireexp.img` / `shootingstarglow.img`；
+>   - 幽暗密林深处（`mirkwooddeep`）修复左右侧门渲染、移除遮挡前景、地面带纵深扩至 `backY=330`、领主猫妖体型对齐 `96×74`；修复普攻仅命中出斩击光效、分物种死亡碎块与远程/被挡怪防卡房。
+> - **HUD、结算、PVF 真值与自动发布**：
+>   - 完整实现经典 60/70 底部 HUD（竖直红蓝胶囊、技能等级徽章、1–6 消耗品快捷栏与复活币）、双模式小地图（雷达/无雾方格）、目标种族/左上战斗日志/右侧评分/地面掉落名牌、羊皮纸阿拉德选关地图、通关旋转魔法阵与 4 卡翻牌结算、原生 `gui.png` 鼠标面板交互，以及 `Script_70.pvf` 怪物 AI / 投射物 / 支路房 / 掉落表驱动；
+>   - 新增 [.github/workflows/release.yml](.github/workflows/release.yml)：每次推送 `v*` 标签自动在 `windows-latest` 构建 `nano-dnf.exe`、打包 `nano-dnf-windows-x86_64-<tag>.zip` 并发布 GitHub Release（本地便携压缩包亦已生成于 `dist/nano-dnf-windows-x86_64-v0.0.5.zip`）。
+> - **当前验证状态**：
+>   - `cargo fmt --check` 与 `cargo clippy --workspace --all-targets -- -D warnings` 零警告通过；
+>   - `cargo test --workspace -- --test-threads=2` **113/113 全绿**（容器内并行跑全量 `render-rs` 单测易触发多份 `SpriteStore` 峰值内存 OOM，建议使用 `--test-threads=2`）；
+>   - `cargo zigbuild --release --target x86_64-pc-windows-gnu -p nano-dnf` 交叉编译通过。
+> - **仍待推进事项**：
+>   - 业主在 Windows 便携版上完成 `v0.0.5` 全流程实玩验收（重点确认开场赛丽亚房间流转与赫顿玛尔市区 ↔ 格兰之森西桥切换）；
+>   - 城镇 NPC 对话演出、更多副本章节（洛兰、烈焰格拉卡等）及剩余细微 PVF PTL 粒子混合变体按录像逐帧补齐。
 
-## Rust 验证与构建入口
+## Rust 验证、构建与发布入口
 
-- 格式、静态检查与全量测试：`cd rust && cargo fmt --check && cargo clippy --workspace --all-targets -- -D warnings && cargo test --workspace`
+- 格式、静态检查与全量测试：`cd rust && cargo fmt --check && cargo clippy --workspace --all-targets -- -D warnings && cargo test --workspace -- --test-threads=2`
 - Windows 交叉编译：`cd rust && cargo zigbuild --release --target x86_64-pc-windows-gnu -p nano-dnf`
+- 发版流程：按 [CLAUDE.md](CLAUDE.md) 七段模板打 annotated tag（`git tag -a v0.0.x`）并 `git push origin v0.0.x`，由 [.github/workflows/release.yml](.github/workflows/release.yml) 自动构建并发布 Windows 便携版压缩包至 GitHub Releases。
 - 跨平台说明：`rust/app/src/audio.rs` 仅在 `target_os = "windows"` 启用 `rodio` 原生音频，Linux 本地调试为静音空实现。
 
 ---
