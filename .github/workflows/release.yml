@@ -1,0 +1,68 @@
+name: Release Windows Portable
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release-windows:
+    name: Build & Publish Windows Portable Zip
+    runs-on: windows-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: "1.96.0"
+
+      - name: Build Windows release binary
+        working-directory: rust
+        run: cargo build --release -p nano-dnf
+
+      - name: Package portable zip and extract tag notes
+        shell: pwsh
+        run: |
+          $tag = $env:GITHUB_REF_NAME
+          $stage = "release-stage/nano-dnf-windows"
+          New-Item -ItemType Directory -Force -Path "$stage/assets" | Out-Null
+
+          Copy-Item "rust/target/release/nano-dnf.exe" "$stage/nano-dnf.exe"
+          Copy-Item "README.md" "$stage/README.md"
+
+          # Copy runtime assets (sprites, sfx, music) excluding Python importer scripts
+          Get-ChildItem -Path "assets" -File -Filter "*.png" | Copy-Item -Destination "$stage/assets/"
+          if (Test-Path "assets/sfx") {
+            Copy-Item -Recurse -Force "assets/sfx" "$stage/assets/sfx"
+          }
+          if (Test-Path "assets/music") {
+            Copy-Item -Recurse -Force "assets/music" "$stage/assets/music"
+          }
+
+          $zipName = "nano-dnf-windows-x86_64-$tag.zip"
+          Compress-Archive -Path "$stage/*" -DestinationPath $zipName -Force
+
+          # Extract annotated tag message as GitHub Release body
+          $notes = git tag -l --format="%(contents)" $tag
+          if ([string]::IsNullOrWhiteSpace($notes)) {
+            $notes = "Release $tag"
+          }
+          [System.IO.File]::WriteAllText("release-notes.md", $notes, [System.Text.UTF8Encoding]::new($false))
+
+          "ZIP_NAME=$zipName" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: ${{ github.ref_name }}
+          body_path: release-notes.md
+          files: ${{ env.ZIP_NAME }}
+          make_latest: true
